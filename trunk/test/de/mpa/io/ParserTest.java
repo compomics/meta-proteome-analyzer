@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+package de.mpa.io;
 
 import junit.framework.TestCase;
 
