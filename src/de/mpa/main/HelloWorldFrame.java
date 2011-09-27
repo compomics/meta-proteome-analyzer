@@ -9,7 +9,6 @@ public class HelloWorldFrame {
 		JFrame frame = new JFrame();
 		frame.setVisible(true);
 		
-		System.out.println("noch was!");
-		System.out.println("Hello World!");
+		System.out.println("Hello World!");		
 	}
 }
