@@ -12,10 +12,10 @@ import de.mpa.io.MascotGenericFile;
 public class PlotPanel extends JPanel {
 	
 	private MascotGenericFile Spectrum;
+	private int padX = 5, padY = 5;		// NOTE: add get()/set()
 	
 	public void setSpectrum(MascotGenericFile spec) {
 		this.Spectrum = spec;
-//		Spectrum.
 	}
 	
 	public MascotGenericFile getSpectrum() {
@@ -27,9 +27,10 @@ public class PlotPanel extends JPanel {
 	{
 //		Graphics2D g2 = (Graphics2D) g;
 		super.paintComponent( g );
+
 		g.setColor(new Color(255,255,255));
-//		System.out.println(g.toString());
-		g.fillRect(10, 10, 300, 200);
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		
 		if (this.Spectrum != null) {
 			// grab peaks and draw stuff
 			HashMap<Double, Double> peaks = this.Spectrum.getPeaks();
@@ -39,8 +40,10 @@ public class PlotPanel extends JPanel {
 			double maxY = this.Spectrum.getHighestIntensity();
 			g.setColor(new Color(0,0,0));
 			for (Double mz : sortedPeaks) {
-				g.drawLine((int)((mz-minX)/(maxX-minX)*290+15), 205,
-						   (int)((mz-minX)/(maxX-minX)*290+15), (int)(205-peaks.get(mz)/maxY*190));
+				g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+							    (getHeight()-padY),
+						   (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+						   (int)(getHeight()-padY-peaks.get(mz)/maxY*(getHeight()-2*padY)));
 			}
 		}
 	}
