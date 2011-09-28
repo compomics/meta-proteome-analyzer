@@ -18,9 +18,9 @@ public class ParserTest extends TestCase{
 		ArrayList<ArrayList<String>> fileNames = new ArrayList<ArrayList<String>>();
 		ArrayList<String> folderNames = new ArrayList<String>();
 		String[] files = new String[] {
-//				"ESI;Bande1,Spot1",
+				"ESI;Bande1,Spot1",
 //				"MALDI;1A1,1A2,1A3,1A4,1B1,1B2",
-				"QSTAR;Test"
+//				"QSTAR;Test"
 		};
 		
 		for (String str : files) {
