@@ -18,9 +18,9 @@ public class ParserTest extends TestCase{
 		ArrayList<ArrayList<String>> fileNames = new ArrayList<ArrayList<String>>();
 		ArrayList<String> folderNames = new ArrayList<String>();
 		String[] files = new String[] {
-				"ESI;Bande1,Spot1",
+//				"ESI;Bande1,Spot1",
 //				"MALDI;1A1,1A2,1A3,1A4,1B1,1B2",
-//				"QSTAR;Test"
+				"QSTAR;Test"
 		};
 		
 		for (String str : files) {
@@ -52,18 +52,24 @@ public class ParserTest extends TestCase{
 	        	
 	        	for (MascotGenericFile file : spectrumFiles) {
 					System.out.println("Filename: " + file.getFilename());
-					HashMap<Double, Double> peaks = file.getPeaks();
 					System.out.println("   m/z of Precursor: " + file.getPrecursorMZ());
 					System.out.println("Charge of Precursor: " + file.getCharge() + "+");
+//					HashMap<Double, Double> peaks = file.getPeaks();
+//					TreeSet<Double> treeset = new TreeSet<Double>(peaks.keySet());
+					ArrayList<Peak> peaks = file.getPeakList();
 					int i = 1;
-					TreeSet<Double> treeset = new TreeSet<Double>(peaks.keySet());
-					for (Double mz : treeset) {
+//					for (Double mz : treeset) {
+//						if (i%15 == 1) System.out.println("#\t   m/z\t\t   I");
+//						System.out.println(i + "\t" + mz.toString() + "\t" + peaks.get(mz).toString());
+//						i++;
+//					}
+					for (Peak peak : peaks) {
 						if (i%15 == 1) System.out.println("#\t   m/z\t\t   I");
-						System.out.println(i + "\t" + mz.toString() + "\t" + peaks.get(mz).toString());
+						System.out.println(i + "\t" + peak.mz + "\t" + peak.intensity);
 						i++;
 					}
-//					System.out.println("Highest intensity: " + file.getHighestIntensity());
-//					System.out.println("Total intensity: " + file.getTotalIntensity());
+					System.out.println("Highest intensity: " + file.getHighestIntensity());
+					System.out.println("  Total intensity: " + file.getTotalIntensity());
 				}
 	        	
 	        } catch (Exception e) {
