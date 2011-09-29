@@ -1,5 +1,6 @@
 package de.mpa.io;
 
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,13 +14,15 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-
 
 /**
  * This class maps a Mascot Generic File to memory. It allows for search and retrieval as well as comparing
@@ -48,7 +51,36 @@ public class MascotGenericFile{
      * This HashMap holds all the peaks in the spectrum file.
      */
     protected HashMap iPeaks = new HashMap();
+    
+    
+    
+    private ArrayList<Peak> lPeaks = new ArrayList<Peak>();
+    
+    public ArrayList<Peak> getPeakList() {
+    	return this.lPeaks;
+    }
 
+    public ArrayList<Peak> getHighestPeaks(int k) {
+    	ArrayList<Peak>	peaks = new ArrayList<Peak>(lPeaks);
+    	
+    	Collections.sort(peaks, new Comparator<Peak>() { 
+            public int compare(Peak o1, Peak o2) {
+                Peak p1 = (Peak) o1;
+                Peak p2 = (Peak) o2;
+               return Double.compare(p1.getIntensity(),p2.getIntensity());
+            }
+		});
+    	
+    	peaks.subList(0, peaks.size()-k).clear();
+
+    	ArrayList<Peak>	res = new ArrayList<Peak>(lPeaks);
+    	res.retainAll(peaks);
+    	
+    	return res;
+    }
+    
+    
+    
     /**
      * This variable holds the precursor M/Z
      */
@@ -483,6 +515,9 @@ public class MascotGenericFile{
                         Double mass = new Double(temp);
                         temp = st.nextToken().trim();
                         Double intensity = new Double(temp);
+                        
+                        this.lPeaks.add(new Peak(mass, intensity));
+                        
                         this.iPeaks.put(mass, intensity);
                         if (st.hasMoreTokens()) {
                             int charge = this.extractCharge(st.nextToken());

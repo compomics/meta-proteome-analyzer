@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import javax.swing.JPanel;
 
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.Peak;
 
 public class MultiPlotPanel extends JPanel {
 
@@ -68,11 +69,18 @@ public class MultiPlotPanel extends JPanel {
 		double minX = Double.MAX_VALUE, maxX = 0, maxY = 0;
 		if (this.spectra != null) {
 			for (MascotGenericFile spectrum : this.spectra) {
-				HashMap<Double, Double> peaks = spectrum.getPeaks();
-				TreeSet<Double> sortedPeaks = new TreeSet<Double>(peaks.keySet());
+//				if (spectrum != null) {
+//					HashMap<Double, Double> peaks = spectrum.getPeaks();
+//					TreeSet<Double> sortedPeaks = new TreeSet<Double>(peaks.keySet());
+//					minX = Math.min(minX, sortedPeaks.first());
+//					maxX = Math.max(maxX, sortedPeaks.last());
+//					maxY = Math.max(maxY, spectrum.getHighestIntensity());
+//				}
 				if (spectrum != null) {
-					minX = Math.min(minX, sortedPeaks.first());
-					maxX = Math.max(maxX, sortedPeaks.last());
+					ArrayList<Peak> peaks = spectrum.getPeakList();
+					
+					minX = Math.min(minX, peaks.get(0).getMz());
+					maxX = Math.max(maxX, peaks.get(peaks.size()-1).getMz());
 					maxY = Math.max(maxY, spectrum.getHighestIntensity());
 				}
 			}
@@ -82,17 +90,26 @@ public class MultiPlotPanel extends JPanel {
 		if (this.spectra != null) {
 			int i = 0;
 			for (MascotGenericFile spectrum : this.spectra) {
-				HashMap<Double, Double> peaks = spectrum.getPeaks();
-				TreeSet<Double> sortedPeaks = new TreeSet<Double>(peaks.keySet());
+//				if ((spectrum != null) && (lineColors.get(i) != null)) {
+//					HashMap<Double, Double> peaks = spectrum.getPeaks();
+//					TreeSet<Double> sortedPeaks = new TreeSet<Double>(peaks.keySet());
+//					// grab peaks and draw stuff
+//					g.setColor(lineColors.get(i));
+//					for (Double mz : sortedPeaks) {
+//						g.drawLine((int)((mz-minX)/(maxX-minX)*(this.getWidth()-2*padX)+padX),
+//									    (this.getHeight()-padY),
+//								   (int)((mz-minX)/(maxX-minX)*(this.getWidth()-2*padX)+padX),
+//								   (int)(this.getHeight()-padY-peaks.get(mz)/maxY*(this.getHeight()-2*padY)));
+//					}
+//				}
 				if ((spectrum != null) && (lineColors.get(i) != null)) {
-					// grab peaks and draw stuff
+					ArrayList<Peak> peaks = spectrum.getPeakList();
 					g.setColor(lineColors.get(i));
-//					lineColors.get(i).
-					for (Double mz : sortedPeaks) {
-						g.drawLine((int)((mz-minX)/(maxX-minX)*(this.getWidth()-2*padX)+padX),
-									    (this.getHeight()-padY),
-								   (int)((mz-minX)/(maxX-minX)*(this.getWidth()-2*padX)+padX),
-								   (int)(this.getHeight()-padY-peaks.get(mz)/maxY*(this.getHeight()-2*padY)));
+					for (Peak peak : peaks) {
+						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+									     (getHeight()-padY),
+								   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+								   (int)(getHeight()-padY-peak.getIntensity()/maxY*(getHeight()-2*padY)));
 					}
 				}
 				i++;

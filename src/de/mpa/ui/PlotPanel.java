@@ -2,12 +2,14 @@ package de.mpa.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.Peak;
 
 public class PlotPanel extends JPanel {
 	
@@ -63,17 +65,26 @@ public class PlotPanel extends JPanel {
 		
 		if (this.spectrum != null) {
 			// grab peaks and draw stuff
-			HashMap<Double, Double> peaks = this.spectrum.getPeaks();
-			TreeSet<Double> sortedPeaks = new TreeSet<Double>(peaks.keySet());
-			double minX = sortedPeaks.first();
-			double maxX = sortedPeaks.last();
+//			HashMap<Double, Double> peaks = this.spectrum.getPeaks();
+//			TreeSet<Double> sortedPeaks = new TreeSet<Double>(peaks.keySet());
+//			double minX = sortedPeaks.first();
+//			double maxX = sortedPeaks.last();
+			ArrayList<Peak> peaks = this.spectrum.getPeakList();
+			double minX = peaks.get(0).getMz();
+			double maxX = peaks.get(peaks.size()-1).getMz();
 			double maxY = this.spectrum.getHighestIntensity();
 			g.setColor(lineColor);
-			for (Double mz : sortedPeaks) {
-				g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//			for (Double mz : sortedPeaks) {
+//				g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//							    (getHeight()-padY),
+//						   (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//						   (int)(getHeight()-padY-peaks.get(mz)/maxY*(getHeight()-2*padY)));
+//			}
+			for (Peak peak : peaks) {
+				g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 							    (getHeight()-padY),
-						   (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-						   (int)(getHeight()-padY-peaks.get(mz)/maxY*(getHeight()-2*padY)));
+						   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+						   (int)(getHeight()-padY-peak.getIntensity()/maxY*(getHeight()-2*padY)));
 			}
 		}
 	}
