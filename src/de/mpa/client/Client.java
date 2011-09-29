@@ -1,13 +1,16 @@
 package de.mpa.client;
 
-import de.mpa.interfaces.Connectable;
-
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import de.mpa.interfaces.Connectable;
 
 /**
  * This class represents the client implementation.
@@ -36,6 +39,7 @@ public class Client implements Connectable {
 	 * @param name
 	 */
 	private Client() {
+		
 	}
 	
 	/**
@@ -80,12 +84,40 @@ public class Client implements Connectable {
 		return name;
 	}
 	
-	public void listen() throws IOException, ClassNotFoundException{			
-		String inputLine;
+	/**
+	 * Start permanent listening.
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 */
+	public String receiveMsg() throws IOException, ClassNotFoundException {
+		String inputLine = null;
 		while(true){
-			if ((inputLine = in.readLine()) != null) {   
-				System.out.println("Client Received: " + inputLine);
-			}			
+			if ((inputLine = in.readLine()) != null) {
+				System.out.println("Client received: " + inputLine);
+			}
+			return inputLine;
+		}
+	}
+	
+	/**
+	 * Send multiple files to the server.
+	 * @param files
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 */
+	public void sendFiles(File[] files) throws FileNotFoundException, IOException {
+		
+		// Number of files to send.
+		int nFiles = files.length;
+
+		// Get the output stream.
+		OutputStream os = server.getOutputStream();
+		ByteStream.toStream(os, nFiles);
+		
+		// Iterate the files.
+		for (int i = 0; i < nFiles; i++) {
+			ByteStream.toStream(os, files[i].getName());
+			ByteStream.toStream(os, files[i]);
 		}
 	}
 	
@@ -95,23 +127,19 @@ public class Client implements Connectable {
 	 */
 	public void sendMessage(String msg) {
 		out.println(msg);
-		System.out.println("client>" + msg);
 	}
 
 	public static void main(String[] args) {		
 		try {
 			Client client = Client.getInstance();
-			client.connect("localhost", 8080);
-			client.listen();
+			client.connect("localhost", 8080);			
 			client.sendMessage("Testing2...");
 			client.disconnect();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		} 
 	}
 	
 }
