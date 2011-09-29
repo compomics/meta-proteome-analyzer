@@ -9,13 +9,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -26,6 +26,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
@@ -69,6 +70,7 @@ public class ClientFrame extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu menu1;
 	private JMenuItem exitItem;
+	private JButton receiveBtn;
 	
 	
 	/**
@@ -110,7 +112,10 @@ public class ClientFrame extends JFrame {
 		this.pack();
 		
 		// Center in the screen
-		ScreenConfig.centerInScreen(this);		
+		ScreenConfig.centerInScreen(this);
+		
+		
+		
 		this.setVisible(true);
 				
 	}
@@ -175,12 +180,14 @@ public class ClientFrame extends JFrame {
 	    topPnl.add(portTtf, cc.xy(4,3));
 	    
 	    connectBtn = new JButton("Connect");
-	    connectBtn.addActionListener(new ActionListener() {
-			
+	    connectBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					client.connect(hostTtf.getText(), Integer.valueOf(portTtf.getText()));
+					final ReceiveWorker recWorker = new ReceiveWorker();
+					recWorker.execute();
+					
 					JOptionPane.showMessageDialog(frame, "Connection to server@" + hostTtf.getText() + ":" + portTtf.getText() + " established.");
 				} catch (NumberFormatException e1) {
 					e1.printStackTrace();
@@ -190,12 +197,26 @@ public class ClientFrame extends JFrame {
 				} catch (IOException e3) {
 					JOptionPane.showMessageDialog(frame, e3.getMessage());
 					e3.printStackTrace();
-				}
-				
-				
+				} 
 			}
 		});
-	    topPnl.add(connectBtn, cc.xy(6,3));
+	    
+	    receiveBtn = new JButton("Receive");
+	    receiveBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					System.out.println("Received@Server: " + client.receiveMsg());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+	    
+	    topPnl.add(receiveBtn, cc.xy(6,3));
+	    topPnl.add(connectBtn, cc.xy(6,1));
 	}
 		
 	/**
@@ -263,7 +284,15 @@ public class ClientFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO: 				
+				File [] fileArray = new File[files.size()];
+				files.toArray(fileArray);
+				try {
+					client.sendFiles(fileArray);
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 	    
@@ -282,6 +311,19 @@ public class ClientFrame extends JFrame {
 		
 		bottomPnl.setMinimumSize(new Dimension(800, 200));
 		bottomPnl.setPreferredSize(new Dimension(800, 200));
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private class ReceiveWorker extends SwingWorker {
+		
+		protected Object doInBackground() throws Exception {
+			try {
+				client.receiveMsg();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return 0;
+		}
 	}
 	
 	/**
