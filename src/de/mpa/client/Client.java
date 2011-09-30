@@ -89,13 +89,12 @@ public class Client implements Connectable {
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	public String receiveMsg() throws IOException, ClassNotFoundException {
+	public void receiveMsg() throws IOException, ClassNotFoundException {
 		String inputLine = null;
 		while(true){
 			if ((inputLine = in.readLine()) != null) {
 				System.out.println("Client received: " + inputLine);
-			}
-			return inputLine;
+			}			
 		}
 	}
 	
