@@ -5,9 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.Peak;
@@ -17,13 +21,16 @@ import de.mpa.ui.PlotPanel;
 
 public class HelloWorldFrame {
 	
-	static void addComponent( Container cont,
+	private static int k = 5;
+	
+	private static void addComponent( Container cont,
 							  GridBagLayout gbl,
 							  Component c,
 							  int x, int y,
 							  int width, int height,
 							  double weightx, double weighty,
 							  int fill, Insets insets) {
+		
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = x;			gbc.gridy = y;
 		gbc.gridwidth = width;	gbc.gridheight = height;
@@ -32,6 +39,42 @@ public class HelloWorldFrame {
 		gbc.insets = insets;
 		gbl.setConstraints( c, gbc );
 		cont.add( c );
+	}
+	
+	private static void updateScore(int k, PlotPanel pPlotA, PlotPanel pPlotB, MultiPlotPanel mPlot, JLabel lScore) {
+		
+		ArrayList<MascotGenericFile> spectra = new ArrayList<MascotGenericFile>();
+		if (pPlotA.getSpectrum() != null) {
+			spectra.add(pPlotA.getSpectrum());
+		}
+		if (pPlotB.getSpectrum() != null) {
+			spectra.add(pPlotB.getSpectrum());
+		}
+		mPlot.setSpectra(spectra);
+		mPlot.repaint();
+		
+		// time to settle the score!
+		if (spectra.size() == 2) {
+//			int k = (int)(pPlotA.getSpectrum().getPrecursorMZ()/50.0);
+			if (pPlotA.getSpectrum().getPeakList().size() < k) {
+				k = pPlotA.getSpectrum().getPeakList().size();
+			}
+			if (pPlotB.getSpectrum().getPeakList().size() < k) {
+				k = pPlotB.getSpectrum().getPeakList().size();
+			}
+
+			ArrayList<Peak> highestPeaksA = spectra.get(0).getHighestPeaks(k);
+			ArrayList<Peak> highestPeaksB = spectra.get(1).getHighestPeaks(k);
+			
+			double deltaMz = 0.5;
+			NormalizedDotProduct method = new NormalizedDotProduct(deltaMz);
+			method.compare(highestPeaksA, highestPeaksB);
+								
+			DecimalFormat df = new DecimalFormat("0.00");
+			df.setGroupingUsed(false);
+			lScore.setText(df.format(method.getSimilarity()*100) + "%");
+		}
+		
 	}
 
 	public static void main(String[] args) {
@@ -81,7 +124,19 @@ public class HelloWorldFrame {
 			colors.add(new Color(255,0,0,128));		// translucent red
 			mPlot.setLineColors(colors);
 			
-		final JLabel lScore = new JLabel("Hello World!");
+		final JComboBox<String> cBoxK = new JComboBox<String>(new String[] {
+				"custom",
+				"pMZ/50",
+				"all"
+		});
+		final JLabel     lK0 = new JLabel("k = ", SwingConstants.LEFT);
+		final JSpinner spinK = new JSpinner( new SpinnerNumberModel(k, 1, 10, 1));
+			
+		final JLabel    lS0 = new JLabel("s =", SwingConstants.LEFT);
+			lS0.setVerticalAlignment(SwingConstants.TOP);
+//		    lS0.setBorder(BorderFactory.createLineBorder(Color.black));
+		final JLabel lScore = new JLabel("Hello World!", SwingConstants.RIGHT);
+		 	lScore.setVerticalAlignment(SwingConstants.TOP);
 		
 		// here be gui listeners
 	    ActionListener alBrow = new ActionListener() {
@@ -113,46 +168,13 @@ public class HelloWorldFrame {
 						pPlotB.setSpectrum(spectrumFilesB.get(index));
 						pPlotB.repaint();
 					}
+				}				
+				updateScore(k, pPlotA, pPlotB, mPlot, lScore);
+				try {
+				((SpinnerNumberModel)spinK.getModel()).setMaximum(Math.min(pPlotA.getSpectrum().getPeakList().size(), pPlotB.getSpectrum().getPeakList().size()));
+				} catch (Exception e1) {
+					
 				}
-				ArrayList<MascotGenericFile> spectra = new ArrayList<MascotGenericFile>();
-				if (pPlotA.getSpectrum() != null) {
-					spectra.add(pPlotA.getSpectrum());
-				}
-				if (pPlotB.getSpectrum() != null) {
-					spectra.add(pPlotB.getSpectrum());
-				}
-				mPlot.setSpectra(spectra);
-				mPlot.repaint();
-				
-				// time to settle the score!
-				int k = 3;
-				ArrayList<Peak> highestPeaksA = spectra.get(0).getHighestPeaks(k);
-				ArrayList<Peak> highestPeaksB = spectra.get(0).getHighestPeaks(k);
-				
-				double deltaMz = 0.5;
-				ArrayList<Double> M = new ArrayList<Double>();
-				ArrayList<Double> sA = new ArrayList<Double>();
-				ArrayList<Double> sB = new ArrayList<Double>();
-				
-				if ((highestPeaksA != null) && (highestPeaksB != null)) {
-					for (Peak peakA : highestPeaksA) {
-						double m = peakA.getMz();
-						sA.add(peakA.getMz());
-						for (Peak peakB : highestPeaksB) {
-							if (Math.abs(peakB.getMz()-peakA.getMz()) < deltaMz) {
-								m = Math.min(peakA.getMz(), peakB.getMz()) + 
-									Math.abs(peakB.getMz()-peakA.getMz()) / 2.0;
-								sB.add(peakB.getMz());
-								highestPeaksB.remove(peakB);	// dang!!
-							} else {
-								sB.add(0.0);
-							}
-						}
-						M.add(m);
-						System.out.println(highestPeaksB);
-					}
-				}
-				
 			}
 		};
 		cBoxA.addActionListener(alCBox);
@@ -200,22 +222,65 @@ public class HelloWorldFrame {
 	    bLoadB.addActionListener(alLoad);
 	    tFileB.addActionListener(alLoad);
 	    
+	    ActionListener alCBoxK = new ActionListener() {
+			@Override public void actionPerformed( ActionEvent e ) {
+				int index = ((JComboBox<String>)e.getSource()).getSelectedIndex();				
+				switch (index) {
+				case 1:
+					if (pPlotA.getSpectrum() != null) {
+						k = (int)Math.round(pPlotA.getSpectrum().getPrecursorMZ()/50.0);
+						spinK.setValue(k);
+					} else {
+						cBoxK.setSelectedIndex(0);
+					}
+					break;
+				case 2:
+					k = Integer.parseInt(((SpinnerNumberModel)spinK.getModel()).getMaximum().toString());
+					spinK.setValue(k);
+					break;
+				default:
+					break;
+				}
+				updateScore(k, pPlotA, pPlotB, mPlot, lScore);
+			}
+		};
+		cBoxK.addActionListener(alCBoxK);
+	    
+	    ChangeListener clSpinK = new ChangeListener() {
+			@Override public void stateChanged(ChangeEvent e) {
+				int val = (Integer) spinK.getValue();
+				SpinnerNumberModel snm = (SpinnerNumberModel) spinK.getModel();
+				if (snm.getMaximum().compareTo(val) == 0) {
+					cBoxK.setSelectedIndex(2);
+				} else {
+					cBoxK.setSelectedIndex(0);
+				}
+				k = val;
+				updateScore(val, pPlotA, pPlotB, mPlot, lScore);
+			}
+		};
+		spinK.addChangeListener(clSpinK);
+	    
 	    // add stuff to frame and fire her up!
 		addComponent( c, gbl, bLoadA,  0,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,5,5,5));
 		addComponent( c, gbl, tFileA, -1,  0, 1, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(5,0,5,5));
-		addComponent( c, gbl, bBrowA, -1,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
-		addComponent( c, gbl, pPlotA,  0, -1, 3, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,5,5,5));
-		addComponent( c, gbl,  cBoxA,  0, -1, 3, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,5,5,5));
+		addComponent( c, gbl, bBrowA, -1,  0, 2, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
+		addComponent( c, gbl, pPlotA,  0, -1, 4, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,5,5,5));
+		addComponent( c, gbl,  cBoxA,  0, -1, 4, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,5,5,5));
 
-		addComponent( c, gbl, bLoadB,  4,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
+		addComponent( c, gbl, bLoadB,  5,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
 		addComponent( c, gbl, tFileB, -1,  0, 1, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(5,0,5,5));
-		addComponent( c, gbl, bBrowB, -1,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
-		addComponent( c, gbl, pPlotB,  4, -1, 3, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,0,5,5));
-		addComponent( c, gbl,  cBoxB,  4, -1, 3, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,0,5,5));
+		addComponent( c, gbl, bBrowB, -1,  0, 2, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
+		addComponent( c, gbl, pPlotB,  5, -1, 4, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,0,5,5));
+		addComponent( c, gbl,  cBoxB,  5, -1, 4, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,0,5,5));
 		
-		addComponent( c, gbl,  mPlot,  0, -1, 3, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,5,5,5));
-		
-		addComponent( c, gbl, lScore, -1,  5, 3, 3,  0 ,  0 , GridBagConstraints.NONE,		 new Insets(0,0,0,0));
+		addComponent( c, gbl,  mPlot,  0, -1, 2, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,5,5,5));
+
+		addComponent( c, gbl,  cBoxK,  2,  5, 2, 1,  0 ,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,0,5,5));
+		addComponent( c, gbl,    lK0,  2,  6, 1, 1,  0 ,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,0,5,0));
+		addComponent( c, gbl,  spinK,  3,  6, 1, 1,  0 ,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,0,5,5));
+		addComponent( c, gbl,    lS0,  2,  7, 1, 1,  0 ,  0 , GridBagConstraints.BOTH, 		 new Insets(0,0,5,0));
+		addComponent( c, gbl, lScore,  3,  7, 1, 1,  0 ,  0 , GridBagConstraints.BOTH,		 new Insets(0,0,5,5));
 
 		frame.pack();
 		frame.setVisible(true);
