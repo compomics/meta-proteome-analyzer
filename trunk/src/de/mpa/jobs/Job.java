@@ -2,19 +2,19 @@ package de.mpa.jobs;
 
 
 /**
- * Common task interface used to run the various processes. 
+ * Common job interface used to run the various processes. 
  * @author Thilo Muth
  *
  */
 public interface Job extends Runnable {
 	/**
-	 * Return a description for the task.
+	 * Return a description for the job.
 	 * @return description
 	 */
 	public String getDescription();
 	
 	/**
-	 * Returns an error for the task. 
+	 * Returns an error for the job. 
 	 * @return error
 	 */
 	public String getError();
@@ -26,7 +26,7 @@ public interface Job extends Runnable {
 	public JobStatus getStatus();
 	
 	/**
-	 * After finishing the task, an array of created objects is returned. 
+	 * After finishing the job, an array of created objects is returned. 
 	 * This is used for the batch processing... 
 	 * @return
 	 */
