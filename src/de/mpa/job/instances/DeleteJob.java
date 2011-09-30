@@ -1,4 +1,6 @@
-package de.mpa.job;
+package de.mpa.job.instances;
+
+import de.mpa.job.Job;
 
 public class DeleteJob extends Job {	
 	
