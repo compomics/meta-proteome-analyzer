@@ -75,7 +75,7 @@ public class Server implements Runnable {
 	public void receiveMsg() throws IOException, ClassNotFoundException{			
 			String inputLine;
 			if ((inputLine = input.readLine()) != null) {   
-				System.out.println("Received: " + inputLine);
+				LOG.info("Received: " + inputLine);
 			}			
 	}	
 	

@@ -70,7 +70,6 @@ public class ClientFrame extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu menu1;
 	private JMenuItem exitItem;
-	private JButton receiveBtn;
 	
 	
 	/**
@@ -200,22 +199,7 @@ public class ClientFrame extends JFrame {
 				} 
 			}
 		});
-	    
-	    receiveBtn = new JButton("Receive");
-	    receiveBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					System.out.println("Received@Server: " + client.receiveMsg());
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-	    
-	    topPnl.add(receiveBtn, cc.xy(6,3));
+	  
 	    topPnl.add(connectBtn, cc.xy(6,1));
 	}
 		
@@ -242,6 +226,7 @@ public class ClientFrame extends JFrame {
 	    JButton addBtn = new JButton("Add...");
 	    
 	    final JButton sendBtn = new JButton("Send");
+	    sendBtn.setEnabled(false);
 	    
 	    addBtn.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
@@ -288,6 +273,9 @@ public class ClientFrame extends JFrame {
 				files.toArray(fileArray);
 				try {
 					client.sendFiles(fileArray);
+					files.clear();
+					filesTtf.setText(files.size() + " file(s) selected");
+	                sendBtn.setEnabled(false);	                    
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (IOException e1) {
