@@ -14,6 +14,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.ByteStream;
+import de.mpa.job.instances.DeleteJob;
 
 /**
  * This class represents the server class.
@@ -101,11 +102,14 @@ public class Server implements Runnable {
 				ByteStream.toFile(in, file);
 				LOG.info("Received file: " + filename);
 				sendMessage("File ist da: " + filename);
+				
+				// Delete the file
+				new DeleteJob(filename);
 			}
 		} catch (java.lang.Exception ex) {
 			ex.printStackTrace(System.out);
 		}
-	}
+	}	
 	
 	public static void main(String[] args) {
 		try {
