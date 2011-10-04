@@ -29,6 +29,7 @@ public class DeleteJob extends Job {
 		procCommands.trimToSize();		
 		procBuilder = new ProcessBuilder(procCommands);
 		setDescription("DELETE JOB --- " + procCommands);
+		log.info(getDescription());		
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
 	}

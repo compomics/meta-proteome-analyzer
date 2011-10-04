@@ -1,12 +1,11 @@
 package de.mpa.client;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
-
-import de.mpa.client.Server;
-import de.mpa.client.ServerImplService;
 
 public class Client {
 
@@ -25,13 +24,7 @@ public class Client {
 	 * @param name
 	 */
 	private Client() {
-		service = new ServerImplService();
-		server = service.getServerImplPort();
-		
-		// enable MTOM in client
-		BindingProvider bp = (BindingProvider) server;
-		SOAPBinding binding = (SOAPBinding) bp.getBinding();
-		binding.setMTOMEnabled(true);
+
 	}
 
 	/**
@@ -47,6 +40,19 @@ public class Client {
 	}
 	
 	/**
+	 * Connects the client to the web service.
+	 */
+	public void connect(){
+		service = new ServerImplService();
+		server = service.getServerImplPort();
+		
+		// enable MTOM in client
+		BindingProvider bp = (BindingProvider) server;
+		SOAPBinding binding = (SOAPBinding) bp.getBinding();
+		binding.setMTOMEnabled(true);
+	}
+	
+	/**
 	 * Send the message. 
 	 * @param msg
 	 */
@@ -55,23 +61,32 @@ public class Client {
 	}
 	
 	/**
-	 * 
+	 * Send multiple files to the server.
+	 * @param files
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 */
+	public void sendFiles(File[] files) throws FileNotFoundException, IOException {
+		
+		// Number of files to send.
+		int nFiles = files.length;
+		
+		for (int i = 0; i < nFiles; i++){
+			server.uploadFile(files[i].getAbsolutePath());
+		}
+	}
+	
+	public void process(String filename){
+		server.process(filename);
+	}
+	
+	/**
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String[] args) throws Exception {
-		
-		/************ test upload ****************/
-		File file = new File("c:\\metaproteomics\\output\\1A1.mgf.out");
-
-		Client client = Client.getInstance();
-		
-		client.sendMessage("SEND MESSAGE!");
-		
-		//System.out.println(server.uploadFile(file.getAbsolutePath()));
-
-		// String status = server.
-		// System.out.println("imageServer.uploadImage() : " + status);
-
+	public static void main(String[] args) {
+		// Get instance of the client.
+		Client client = Client.getInstance();		
+		client.sendMessage("SEND MESSAGE!");	
 	}
 }

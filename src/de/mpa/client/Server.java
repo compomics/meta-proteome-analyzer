@@ -64,4 +64,13 @@ public interface Server {
         @WebParam(name = "arg0", partName = "arg0")
         String arg0);
 
+    /**
+     * 
+     * @param arg0
+     */
+    @WebMethod
+    public void process(
+        @WebParam(name = "arg0", partName = "arg0")
+        String arg0);
+
 }

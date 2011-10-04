@@ -12,12 +12,22 @@ import javax.jws.WebService;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.MTOM;
 
+import org.apache.log4j.Logger;
+
+import de.mpa.job.JobManager;
+import de.mpa.job.instances.DeleteJob;
+import de.mpa.job.instances.PepnovoJob;
+
 
 //Service Implementation Bean
 @MTOM
 @WebService(endpointInterface = "de.mpa.webservice.Server")
 public class ServerImpl implements Server {
 	
+	/**
+     * Init the job logger.
+     */
+    protected static Logger log = Logger.getLogger(ServerImpl.class);
 
 	@Override
 	public void receiveMessage(String msg) {
@@ -36,15 +46,29 @@ public class ServerImpl implements Server {
 		File file = new File("c:\\metaproteomics\\" + filename);		
 		return file; 
 	}
- 
+	
+	/**
+	 * Process a derived file.
+	 * @param filename
+	 * @throws Exception
+	 */
+	public void process(String filename) {	
+		File file = new File("c:\\metaproteomics\\" + filename);
+		JobManager jobManager = new JobManager();	
+		jobManager.addJob(new PepnovoJob(file, 0.5));
+		jobManager.addJob(new DeleteJob(file.getAbsolutePath()));		
+		jobManager.execute();
+	}
+	
 	@Override
 	public String uploadFile(File file) {
  
 		if(file != null){		
 			File newFile = new File("c:\\metaproteomics\\" + file.getName());
 			copyfile(file, newFile);
+			log.info("Upload Successful: " + newFile.getAbsolutePath());
 			return newFile.getAbsolutePath();
-			//return "Upload Successful: " + storedFile.getAbsolutePath();
+			
 		} 
 		throw new WebServiceException("Upload Failed!"); 
 	}
