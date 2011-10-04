@@ -14,7 +14,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.ByteStream;
+import de.mpa.job.JobManager;
 import de.mpa.job.instances.DeleteJob;
+import de.mpa.job.instances.PepnovoJob;
 
 /**
  * This class represents the server class.
@@ -103,14 +105,40 @@ public class Server implements Runnable {
 				LOG.info("Received file: " + filename);
 				sendMessage("File ist da: " + filename);
 				
-				// Delete the file
-				new DeleteJob(filename);
+				// Processes the file
+				process(filename);
 			}
 		} catch (java.lang.Exception ex) {
-			ex.printStackTrace(System.out);
+			LOG.error(System.out + " --- " + ex.getMessage());
 		}
 	}	
 	
+	/**
+	 * Process a derived file.
+	 * @param filename
+	 * @throws Exception
+	 */
+	private void process(String filename) throws Exception{		
+		JobManager jobManager = new JobManager();	
+		jobManager.addJob(new PepnovoJob(filename, 0.5));
+		jobManager.addJob(new DeleteJob(filename));		
+		jobManager.execute();
+	}
+	
+	
+	/**
+	 * Runs the thread.
+	 */
+	public void run() {
+			//receiveMsg();
+			receiveFiles();
+		
+	}
+	
+	/**
+	 * Main entry point for the server application.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try {
 			server = new ServerSocket(port);
@@ -123,13 +151,6 @@ public class Server implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-	}
-
-	@Override
-	public void run() {
-			//receiveMsg();
-			receiveFiles();
-		
 	}
 
 }
