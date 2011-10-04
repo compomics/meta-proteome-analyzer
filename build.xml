@@ -1,0 +1,13 @@
+<project default="wsimport">
+
+  <target name="wsimport">
+    	
+    <exec executable="C:/Program Files/java/jdk1.6.0_26/bin/wsimport">
+    		
+      <arg line="-keep -s ./src -p de.mpa.client -XadditionalHeaders -d ./bin http://localhost:8080/WS/Server?wsdl"/>
+    		
+    </exec>
+    	
+  </target>
+
+</project>
