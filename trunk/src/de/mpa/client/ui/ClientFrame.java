@@ -11,7 +11,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +37,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.ui.MgfFilter;
 import de.mpa.utils.ExtensionFileFilter;
+import de.mpa.webservice.WSPublisher;
 
 public class ClientFrame extends JFrame {
 	
@@ -66,10 +66,11 @@ public class ClientFrame extends JFrame {
 
 	private JTextField portTtf;
 
-	private JButton connectBtn;
+	private JButton startBtn;
 	private JMenuBar menuBar;
 	private JMenu menu1;
 	private JMenuItem exitItem;
+	private JButton processBtn;
 	
 	
 	/**
@@ -178,29 +179,18 @@ public class ClientFrame extends JFrame {
 	    topPnl.add(portLbl, cc.xy(2,3));
 	    topPnl.add(portTtf, cc.xy(4,3));
 	    
-	    connectBtn = new JButton("Connect");
-	    connectBtn.addActionListener(new ActionListener() {			
+	    startBtn = new JButton("Start Server");
+	    startBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					client.connect(hostTtf.getText(), Integer.valueOf(portTtf.getText()));
-					final ReceiveWorker recWorker = new ReceiveWorker();
-					recWorker.execute();
+					WSPublisher.start(hostTtf.getText(), portTtf.getText());					
+					JOptionPane.showMessageDialog(frame, "Web Service @" + hostTtf.getText() + ":" + portTtf.getText() + " established.");
 					
-					JOptionPane.showMessageDialog(frame, "Connection to server@" + hostTtf.getText() + ":" + portTtf.getText() + " established.");
-				} catch (NumberFormatException e1) {
-					e1.printStackTrace();
-				} catch (UnknownHostException e2) {
-					JOptionPane.showMessageDialog(frame, e2.getMessage());
-					e2.printStackTrace();
-				} catch (IOException e3) {
-					JOptionPane.showMessageDialog(frame, e3.getMessage());
-					e3.printStackTrace();
-				} 
+					client.connect();
 			}
 		});
 	  
-	    topPnl.add(connectBtn, cc.xy(6,1));
+	    topPnl.add(startBtn, cc.xy(6,1));
 	}
 		
 	/**
@@ -209,7 +199,7 @@ public class ClientFrame extends JFrame {
 	private void constuctMainPanel(){
 		mainPnl = new JPanel();
 		mainPnl.setBorder(new TitledBorder("Input Spectra"));
-		mainPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
+		mainPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p", "p, 5dlu, p"));
 		
 		String pathName = "test/de/mpa/resources/";
 		JLabel fileLbl = new JLabel("Spectrum Files (MGF):");
@@ -273,7 +263,7 @@ public class ClientFrame extends JFrame {
 				files.toArray(fileArray);
 				try {
 					client.sendFiles(fileArray);
-					files.clear();
+					//files.clear();
 					filesTtf.setText(files.size() + " file(s) selected");
 	                sendBtn.setEnabled(false);	                    
 				} catch (FileNotFoundException e1) {
@@ -284,10 +274,23 @@ public class ClientFrame extends JFrame {
 			}
 		});
 	    
+	    // Input 
 	    mainPnl.add(fileLbl, cc.xy(2,1));
 	    mainPnl.add(filesTtf, cc.xy(4,1));
 	    mainPnl.add(addBtn, cc.xy(6,1));
 	    mainPnl.add(sendBtn, cc.xy(8,1));
+	    
+	    processBtn = new JButton("Process");
+	    processBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ProcessWorker worker = new ProcessWorker();
+				worker.execute();
+			}
+		});
+	    
+	    mainPnl.add(processBtn, cc.xy(8,3));
 	}
 	
 	/**
@@ -302,11 +305,13 @@ public class ClientFrame extends JFrame {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private class ReceiveWorker extends SwingWorker {
-		
+	private class ProcessWorker extends SwingWorker {		
 		protected Object doInBackground() throws Exception {
 			try {
-				client.receiveMsg();
+				for (File file : files) {
+						client.process(file.getName());
+				}
+				files.clear();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

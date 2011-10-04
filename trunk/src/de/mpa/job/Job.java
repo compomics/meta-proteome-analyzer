@@ -73,6 +73,7 @@ public abstract class Job implements Executable{
 			} else {
 				temp += " ";
 			}
+			System.out.print(temp);
 		}
 		scan.close();
 

@@ -3,7 +3,6 @@ package de.mpa.server;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -13,7 +12,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import de.mpa.client.ByteStream;
 import de.mpa.job.JobManager;
 import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.PepnovoJob;
@@ -91,36 +89,13 @@ public class Server implements Runnable {
 	}
 	
 	/**
-	 * Receive the files at the server side.
-	 */
-	public void receiveFiles() {
-		try {
-			InputStream in = clientSocket.getInputStream();
-			int nFiles = ByteStream.toInt(in);
-
-			for (int i = 0; i < nFiles; i++) {
-				String filename = ByteStream.toString(in);
-				File file = new File(filename);
-				ByteStream.toFile(in, file);
-				LOG.info("Received file: " + filename);
-				sendMessage("File ist da: " + filename);
-				
-				// Processes the file
-				process(filename);
-			}
-		} catch (java.lang.Exception ex) {
-			LOG.error(System.out + " --- " + ex.getMessage());
-		}
-	}	
-	
-	/**
 	 * Process a derived file.
 	 * @param filename
 	 * @throws Exception
 	 */
 	private void process(String filename) throws Exception{		
 		JobManager jobManager = new JobManager();	
-		jobManager.addJob(new PepnovoJob(filename, 0.5));
+		jobManager.addJob(new PepnovoJob(new File(filename), 0.5));
 		jobManager.addJob(new DeleteJob(filename));		
 		jobManager.execute();
 	}
@@ -130,8 +105,6 @@ public class Server implements Runnable {
 	 * Runs the thread.
 	 */
 	public void run() {
-			//receiveMsg();
-			receiveFiles();
 		
 	}
 	

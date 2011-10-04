@@ -2,9 +2,8 @@ package de.mpa.job;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 
 /**
@@ -14,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class JobManager {
 	
-	private Logger log = Logger.getLogger(this.getClass().getName());
+	private Logger log = Logger.getLogger(JobManager.class);
 	
 	private List<Job> jobQueue;
 	
@@ -38,11 +37,14 @@ public class JobManager {
 	/**
 	 * Executes the jobs from the queue.
 	 */
-	public void execute() throws Exception{
-		for(Job job : jobQueue){
-			log.info("Executing job: " + job.getDescription());
-			job.execute();			
+	public void execute(){
+		for(Job job : jobQueue){			
+			job.execute();
+			if (job.getStatus() == JobStatus.ERROR){
+				log.error(job.getError());
+			}			
 		}
+		
 	}
 	
 	/**
