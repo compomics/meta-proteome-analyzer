@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -51,11 +52,11 @@ public class HelloWorldFrame {
 			spectra.add(pPlotB.getSpectrum());
 		}
 		mPlot.setSpectra(spectra);
+		mPlot.setK(k);
 		mPlot.repaint();
 		
 		// time to settle the score!
 		if (spectra.size() == 2) {
-//			int k = (int)(pPlotA.getSpectrum().getPrecursorMZ()/50.0);
 			if (pPlotA.getSpectrum().getPeakList().size() < k) {
 				k = pPlotA.getSpectrum().getPeakList().size();
 			}
@@ -78,6 +79,11 @@ public class HelloWorldFrame {
 	}
 
 	public static void main(String[] args) {
+		
+		try {
+			UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+		}
+		catch( Exception e ) { e.printStackTrace(); }
 		
 		String pathName = "test/de/mpa/resources/";
 		
@@ -104,6 +110,7 @@ public class HelloWorldFrame {
 
 		final PlotPanel  pPlotA = new PlotPanel();
 			pPlotA.setPreferredSize(new Dimension(300, 200));
+			pPlotA.setBorder(tFileA.getBorder());
 		
 		final JComboBox<String> cBoxA = new JComboBox<String>();
 
@@ -114,16 +121,19 @@ public class HelloWorldFrame {
 		
 		final PlotPanel  pPlotB = new PlotPanel();
 			pPlotB.setPreferredSize(new Dimension(300, 200));
+			pPlotB.setBorder(tFileB.getBorder());
 		
 		final JComboBox<String> cBoxB = new JComboBox<String>();
 		
 		final MultiPlotPanel mPlot = new MultiPlotPanel();
 			mPlot.setPreferredSize(new Dimension(300, 200));
+			mPlot.setBorder(tFileA.getBorder());
 			ArrayList<Color> colors = new ArrayList<Color>();
-			colors.add(new Color(0,0,255,128));		// translucent blue
-			colors.add(new Color(255,0,0,128));		// translucent red
+			colors.add(Color.BLUE);
+			colors.add(Color.RED);
 			mPlot.setLineColors(colors);
-			
+			mPlot.setK(k);
+
 		final JComboBox<String> cBoxK = new JComboBox<String>(new String[] {
 				"custom",
 				"pMZ/50",
@@ -158,6 +168,20 @@ public class HelloWorldFrame {
 			@Override public void actionPerformed( ActionEvent e ) {
 				JComboBox<String> selectedChoice = (JComboBox<String>) e.getSource();
 				int index = selectedChoice.getSelectedIndex();
+				
+				int maxK = Integer.MAX_VALUE;
+				if (pPlotA.getSpectrum() != null) {
+					maxK = Math.min(maxK, spectrumFilesA.get(index).getPeakList().size());
+				}
+				if (pPlotB.getSpectrum() != null) {
+					maxK = Math.min(maxK, spectrumFilesB.get(index).getPeakList().size());
+				}
+				if ((k > maxK)|| (cBoxK.getSelectedIndex() == 2)) {
+					k = maxK;
+					spinK.setValue(k);
+				}
+				((SpinnerNumberModel)spinK.getModel()).setMaximum(maxK);
+				
 				if (selectedChoice == cBoxA) {
 					if ((index != -1) && (spectrumFilesA != null)) {
 						pPlotA.setSpectrum(spectrumFilesA.get(index));
@@ -168,13 +192,9 @@ public class HelloWorldFrame {
 						pPlotB.setSpectrum(spectrumFilesB.get(index));
 						pPlotB.repaint();
 					}
-				}				
-				updateScore(k, pPlotA, pPlotB, mPlot, lScore);
-				try {
-				((SpinnerNumberModel)spinK.getModel()).setMaximum(Math.min(pPlotA.getSpectrum().getPeakList().size(), pPlotB.getSpectrum().getPeakList().size()));
-				} catch (Exception e1) {
-					
 				}
+				
+				updateScore(k, pPlotA, pPlotB, mPlot, lScore);
 			}
 		};
 		cBoxA.addActionListener(alCBox);

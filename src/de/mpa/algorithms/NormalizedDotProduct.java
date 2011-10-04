@@ -8,11 +8,13 @@ import de.mpa.io.Peak;
 
 public class NormalizedDotProduct implements SpectrumComparator {
 	
-	private double deltaMz;
-	private double similarity; 
+	// threshold below which multiple masses are consolidated into one 
+	private double threshMz;
 	
-	public NormalizedDotProduct(double deltaMz) {
-		this.deltaMz = deltaMz;
+	private double similarity = 0.0; 
+	
+	public NormalizedDotProduct(double threshMz) {
+		this.threshMz = threshMz;
 	}
 
 	@Override
@@ -21,19 +23,22 @@ public class NormalizedDotProduct implements SpectrumComparator {
 		ArrayList<Double> sB = new ArrayList<Double>();
 		
 		if ((highA != null) && (highB != null)) {
+			// build intensity vectors
 			for (Peak peakA : highA) {
 				sA.add(peakA.getIntensity());
 				
+				// compare each peak mass of spectrum A to all masses of spectrum B
+				// and remove duplicates from the latter
 				for (Iterator<Peak> it = highB.iterator(); it.hasNext();) {
 				    Peak peakB = it.next();
-					if (Math.abs(peakB.getMz()-peakA.getMz()) < this.deltaMz) {
+					if (Math.abs(peakB.getMz()-peakA.getMz()) < this.threshMz) {
 						sB.add(peakB.getIntensity());
 						it.remove();
 						break;
 					}
 				}
-				if (sB.size() < sA.size()) {
-					sB.add(0.0);	
+				if (sB.size() < sA.size()) {	// in case no duplicates were found,
+					sB.add(0.0);				// add zeros instead
 				}
 			}
 			for (Peak peakB : highB) {
@@ -41,6 +46,7 @@ public class NormalizedDotProduct implements SpectrumComparator {
 				sB.add(peakB.getIntensity());
 			}
 			
+			// compute normalized dot product
 			double numer = 0.0, denom1 = 0.0, denom2 = 0.0;
 			for (int i = 0; i < sA.size(); i++) {
 				numer  += sA.get(i) * sB.get(i);
@@ -57,12 +63,12 @@ public class NormalizedDotProduct implements SpectrumComparator {
 		return similarity;
 	}
 
-	public double getDeltaMz() {
-		return deltaMz;
+	public double getThreshMz() {
+		return threshMz;
 	}
 
-	public void setDeltaMz(double deltaMz) {
-		this.deltaMz = deltaMz;
+	public void setThreshMz(double threshMz) {
+		this.threshMz = threshMz;
 	}
 
 }
