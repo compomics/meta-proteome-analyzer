@@ -102,7 +102,8 @@ public class ClientFrame extends JFrame {
 		
 		// Get the client instance
         client = Client.getInstance();
-        
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
                 System.exit(0);
@@ -326,7 +327,7 @@ public class ClientFrame extends JFrame {
 	 */
 	public static void main(String[] args) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
-
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
