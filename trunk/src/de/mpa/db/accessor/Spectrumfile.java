@@ -5,16 +5,17 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Thilo Muth
- * Date: 07.09.2010
- * Time: 10:40:34
- * To change this template use File | Settings | File Templates.
+ * 
+ * @author Thilo Muth
  */
 public class Spectrumfile extends SpectrumfileTableAccessor {
 
@@ -33,6 +34,40 @@ public class Spectrumfile extends SpectrumfileTableAccessor {
     public Spectrumfile(HashMap aParams) {
         super(aParams);
 
+    }
+    
+    /**
+     * This constructor reads the spectrum file from a resultset. The ResultSet should be positioned such that a single
+     * row can be read directly (i.e., without calling the 'next()' method on the ResultSet).
+     *
+     * @param aRS ResultSet to read the data from.
+     * @throws java.sql.SQLException when reading the ResultSet failed.
+     */
+    public Spectrumfile(ResultSet aRS) throws SQLException {
+        super(aRS);
+    }
+    
+    /**
+     * This method returns the actual Spectrum_file instance for this Spectrum.
+     *
+     * @param spectrumID The spectrumid of the requested spectrum
+     * @param conn Connection to read the spectrum File from.
+     * @return Spectrumfile with the actual Spectrum.
+     */
+    public static Spectrumfile findFromID(long spectrumID, Connection conn) throws SQLException {
+    	Spectrumfile temp = null;
+        PreparedStatement ps = conn.prepareStatement(Spectrumfile.getBasicSelect() + " where l_spectrumid=?");
+        ps.setLong(1, spectrumID);
+        ResultSet rs = ps.executeQuery();
+        int lCounter = 0;
+        while (rs.next()) {
+            temp = new Spectrumfile(rs);
+            lCounter++;
+        }
+        rs.close();
+        ps.close();
+  
+        return temp;
     }
     
     /**

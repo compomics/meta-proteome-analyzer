@@ -71,7 +71,7 @@ public class Client {
 		// Number of files to send.
 		int nFiles = files.length;
 		
-		for (int i = 0; i < nFiles; i++){
+		for (int i = 0; i < nFiles; i++){			
 			server.uploadFile(files[i].getAbsolutePath());
 		}
 	}
@@ -87,6 +87,7 @@ public class Client {
 	public static void main(String[] args) {
 		// Get instance of the client.
 		Client client = Client.getInstance();		
-		client.sendMessage("SEND MESSAGE!");	
+		client.connect();
+		client.sendMessage("SEND MESSAGE!");
 	}
 }

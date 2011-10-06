@@ -11,18 +11,41 @@ import de.mpa.db.storager.PepnovoStorager;
 import de.mpa.db.storager.ProjectStorager;
 import de.mpa.db.storager.SpectrumStorager;
 
+/**
+ * This class serves for handling and managing the database.
+ * 
+ * @author Thilo Muth
+ *
+ */
 public class DBManager {
 	
+	// Database connection
     private Connection conn;
+    
+    // Separate spectrum storage thread
 	private Thread spectraThread;
+	
+	// Thread pool handler
 	private ExecutorService executor;
     
+	/**
+	 * Constructor for the database manager.
+	 * @throws SQLException
+	 */
     public DBManager() throws SQLException {
 		init();
 	}
-	private void init() throws SQLException{
+    
+    /**
+     * Initialize the database manager.
+     * @throws SQLException
+     */
+	private void init() throws SQLException{		
+		// The database configuration.
 		DBConfiguration dbconfig = new DBConfiguration("metaproteomics");
 		conn = dbconfig.getConnection();
+		
+		// Set auto commit == FALSE --> Manual commit & rollback.
 		conn.setAutoCommit(false);
 		
 		// Start the cached thread pool.
@@ -38,6 +61,7 @@ public class DBManager {
 		// Check for duplicate file in the DB!
 		Spectrum.checkDuplicateFile(mgfFile.getName(), conn);
 		
+		// The Project storager is initialized here.
 		ProjectStorager projectStorager = new ProjectStorager(conn, title, taxon, fragmentTol, precursorTol, precursorUnit);
 		Thread thread = new Thread(projectStorager);
 		thread.start();
@@ -46,6 +70,8 @@ public class DBManager {
 		} catch (InterruptedException e) {			
 			e.printStackTrace();
 		}
+		
+		// Returns the project id.
 		long projectid = projectStorager.getProjectid();		
 		
 		// Store the spectra		
@@ -74,5 +100,13 @@ public class DBManager {
 			e.printStackTrace();
 		}
 		executor.execute(new PepnovoStorager(conn, new File(pepnovoFilename)));
+	}
+	
+	/**
+	 * Returns the connection.
+	 * @return
+	 */
+	public Connection getConnection() {
+		return conn;
 	}
 }
