@@ -14,5 +14,12 @@ Add your content here.  Format your content with:
 
 = weitere Anmerkungen und Diskussionen =
 
+= Stand des Projektes
+|| Problem || *Person* || *Fortschritt* ||
+|| To do Liste Robert|| Robert || 0% ||
+|| To do Liste Thilo|| Thilo || 0% ||
+|| To do Liste Alex|| Robert || 0% ||
+
+
 = Ende =
 back to [Meilensteine]
