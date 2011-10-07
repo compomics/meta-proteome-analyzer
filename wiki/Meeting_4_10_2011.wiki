@@ -11,7 +11,7 @@ Haben diskutiert, ob ein Vorfiltern der Spektren sinnvoll ist, Kriterien wären:
   * Signal/Noise-Ratio
   * Verteilungsfunktion o.ä.
 
-== Robert sucht dazu das PepNovo_Paper raus, dort wird ein        Pre-Filtering  gemacht==
+== Robert sucht dazu das PepNovoPaper raus, dort wird ein        Pre-Filtering  gemacht==
 
 
 == Scoring (alle)==
@@ -23,7 +23,7 @@ Haben diskutiert, ob ein Vorfiltern der Spektren sinnvoll ist, Kriterien wären:
 # Thilo kontaktiert die IT (Gerrit/Matthias) zum Aufsetzen eines solchen Rechners.
 
 == Anzeige des Spektrumvergleichs/der Spectral Library (Alex)==
-# Es soll am Ende für den Benutzer 3 Anzeigen geben:
+ # Es soll am Ende für den Benutzer 3 Anzeigen geben:
 a) Experimentelle Spektren:
   * ein Plot mit m/z, Intensität, Zoom-Funktion, Peak-Annotation
   * eine Tabelle mit allen geladenen Spektren: Filename, Spectrumname, Precursor m/z, Charge, TIC, Maximum Intensity usw.
