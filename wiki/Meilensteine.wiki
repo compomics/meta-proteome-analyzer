@@ -3,8 +3,8 @@
 
 = Introduction =
 *
-# Meilenstein: Ähnlichkeitssuche
-# Meilenstein: Spektrendatenbank
+# 1.Meilenstein: Ähnlichkeitssuche
+# 2.Meilenstein: Spektrendatenbank
 *
 
 = Details =
