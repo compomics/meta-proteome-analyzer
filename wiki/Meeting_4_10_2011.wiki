@@ -20,7 +20,7 @@ Haben diskutiert, ob ein Vorfiltern der Spektren sinnvoll ist, Kriterien wären:
 
 == Auswerterechner/SQL-Server (Thilo)==
  # Die Algorithmen zur Auswertung laufen teilweise nur unter Linux,  deshalb wäre dafür ein Rechner mit diesem OS sinnvoll. Auch wäre ein SQL-Server unter Linux stabiler. Auswertung und DB wären auf einem Server.
-# Thilo kontaktiert die IT (Gerrit/Matthias) zum Aufsetzen eines solchen Rechners.
+ # Thilo kontaktiert die IT (Gerrit/Matthias) zum Aufsetzen eines solchen Rechners.
 
 == Anzeige des Spektrumvergleichs/der Spectral Library (Alex)==
  # Es soll am Ende für den Benutzer 3 Anzeigen geben:
