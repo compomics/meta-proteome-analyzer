@@ -19,7 +19,7 @@ Add your content here.  Format your content with:
 || To do Liste Robert|| Robert || 0% ||
 || To do Liste Thilo|| Thilo || 0% ||
 || To do Liste Alex|| Robert || 0% ||
-|| [#Introduction]|| Robert || 0% ||
+|| [# Introduction]|| Robert || 0% ||
 
 = Ende =
 back to [Meilensteine]
