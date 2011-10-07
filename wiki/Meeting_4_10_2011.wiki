@@ -33,3 +33,7 @@ b) Vorhandene „Library“ Spektren:
 c) Matching Spektren:
   * Die beiden Spektren mit den gematchten Peaks entweder vertikal gespiegelt übereinander oder gut visualisiert in einem Plot
   * Liste von Matches: Ähnlichkeit, Score (?), Peakanzahl, massdelta, Peptide
+
+= Ende =
+
+[Meilenstein]
