@@ -4,9 +4,9 @@
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
 || Spektren besorgen ||11.10.2011  || [Aehnlichkeitssuche]  || || || 
-|| ||  ||  || || || ||
-|| ||  ||  || || || ||
-|| ||  ||  || || || ||
+|| ||  ||  || || || 
+|| ||  ||  || || || 
+|| ||  ||  || || || 
 
 
 
