@@ -1,0 +1,15 @@
+#summary Beschreibung Meilenstein Spektrendatenbank
+
+
+= Introduction =
+
+Thilo und Robert definieren was alles für diesen Meilenstein gemacht werden muss
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Unterproblem 1
+  * Unterproblem 2
+
+= weitere Anmerkungen und Diskussionen
