@@ -3,11 +3,10 @@
 
 = Introduction =
 
-  * A list
-  * Of bulleted items
-    # 1.Meilenstein: Ähnlichkeitssuche
-    # 2.Meilenstein: Spektrendatenbank
-  * And back to the main bulleted list
+
+    # Meilenstein: Ähnlichkeitssuche
+    # Meilenstein: Spektrendatenbank
+
 
 
 
