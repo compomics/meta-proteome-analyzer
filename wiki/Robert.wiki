@@ -2,8 +2,8 @@
 
 = To do Liste =
 
-|| Aufgabe ||Link || Deadline||Meilenstein || Fortschritt || Kommentar || 
-|| Spektren besorgen ||[Meeting_4_10_2011#Daten] ||11.10.2011  ||  || || || 
+|| Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
+|| Spektren besorgen ||11.10.2011  || [Aehnlichkeitssuche]  || || || 
 || ||  ||  || || || ||
 || ||  ||  || || || ||
 || ||  ||  || || || ||
