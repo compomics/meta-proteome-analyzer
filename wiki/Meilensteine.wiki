@@ -1,7 +1,6 @@
 #summary Übersicht über die Meilensteine
 #labels Phase-Design
 
-#sidebar TableOfContents
 
 
 = Introduction =
@@ -11,9 +10,17 @@
 
 
   
-= Details =
+= Meilensteine =
 
-Add your content here.  Format your content with:
   # Meilenstein: [Aehnlichkeitssuche]
   # Meilenstein: [Spektrendatenbank]
   # Meilenstein: ....
+
+= Meetings =
+  
+  # [1.Meeting 4.10.2012]
+
+= To do Listen
+  # [Thilo]
+  # [Robert]
+  # [Alex]
