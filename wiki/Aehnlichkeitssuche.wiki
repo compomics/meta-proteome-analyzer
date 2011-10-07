@@ -1,6 +1,7 @@
 #summary Milestone 1: Ähnlichkeitssuche
+#labels Phase-Design
 
-= Introduction =
+= Die Idee =
 
 Die Ähnlichkeitssuche soll dazu dienen, Spektren miteinander zu vergleichen. Interessant ist die Suche in Bezug auf Clustering und für den Vergleich der experimentellen Spektren und der annotierten Spektrendatenbank (Spectral Library).
 
@@ -9,8 +10,6 @@ Die Ähnlichkeitssuche soll dazu dienen, Spektren miteinander zu vergleichen. In
 Bei der Ähnlichkeitssuche soll es zwei Ausgaben geben
   * Normalisiertes Kreuz-Produkt: Ähnlichkeitswert
   * Score
-
-= weitere Anmerkungen und Diskussionen =
 
 = Ende =
 back to [Meilensteine]
