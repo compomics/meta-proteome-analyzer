@@ -7,7 +7,7 @@ Die Ähnlichkeitssuche soll dazu dienen, Spektren miteinander zu vergleichen. In
 
 = Details =
 
-Bei der Ähnlichkeitssuche soll es zwei Ausgaben geben
+Bei der Ähnlichkeitssuche soll es zwei Ausgaben geben:
   * Normalisiertes Kreuz-Produkt: Ähnlichkeitswert
   * Score
 
