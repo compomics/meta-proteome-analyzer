@@ -1,16 +1,16 @@
-#summary One-sentence summary of this page.
+#summary Milestone 1: Ähnlichkeitssuche
 
 = Introduction =
 
 
-Thilo und Robert definieren was alles für diesen Meilenstein gemacht werden muss
+Thilo und Robert definieren was alles für diesen Meilenstein gemacht werden muss,
 
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Unterproblem 1
-  * Unterproblem 2
+Bei der Ähnlichkeitssuche soll es zwei Ausgaben geben
+  * Normalisiertes Kreuz-Produkt: Ähnlichkeitswert
+  * Score
 
 = weitere Anmerkungen und Diskussionen =
 
