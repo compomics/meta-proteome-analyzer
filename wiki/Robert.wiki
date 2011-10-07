@@ -3,7 +3,7 @@
 = To do Liste =
 
 || Aufgabe ||Link || Deadline||Meilenstein || Fortschritt || Kommentar || 
-|| Spektren besorgen ||[Meeting_4_10_2011#Daten (Robert)] ||11.10.2011  ||  || || || 
+|| Spektren besorgen ||[Meeting_4_10_2011#Daten] ||11.10.2011  ||  || || || 
 || ||  ||  || || || ||
 || ||  ||  || || || ||
 || ||  ||  || || || ||
