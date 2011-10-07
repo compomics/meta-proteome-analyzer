@@ -4,10 +4,10 @@
 = Übersicht Meilensteine=
 
 
- 1.  Meilenstein: Ähnlichkeitssuche
- 2. Meilenstein: Spektrendatenbank
- 3. Meilenstein: Projektdesign
- 4. Meilenstein: Proteinidentifikation
+ #1.  Meilenstein: Ähnlichkeitssuche
+ #2. Meilenstein: Spektrendatenbank
+ #3. Meilenstein: Projektdesign
+ #4. Meilenstein: Proteinidentifikation
 
 
 = Details =
