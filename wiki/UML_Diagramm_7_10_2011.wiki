@@ -1,3 +1,3 @@
-#summary One-sentence summary of this page.
+#summary UML Diagramm für die Basiskomponenten (Client, Server, Datenbank)
 
 [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/model/Proteomics-Workflow.pdf]
