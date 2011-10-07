@@ -8,7 +8,7 @@ Add your content \n fgh
 = Details =
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
-|| ||  ||  || || ||
+|| ||  ||  || || style="background-color:#fedbca" |||
 || ||  ||  || || ||
 || ||  ||  || || ||
 || ||  ||  || || ||
