@@ -2,23 +2,13 @@
 #labels Phase-Design
 
 = Introduction =
-Das folge
-# 1.Meilenstein: Ähnlichkeitssuche
-# 2.Meilenstein: Spektrendatenbank
-*
-The following is:
+
   * A list
   * Of bulleted items
     # 1.Meilenstein: Ähnlichkeitssuche
     # 2.Meilenstein: Spektrendatenbank
   * And back to the main bulleted list
 
- * This is also a list
- * With a single leading space
- * Notice that it is rendered
-  # At the same levels
-  # As the above lists.
- * Despite the different indentation levels.
 
 
 = Details =
