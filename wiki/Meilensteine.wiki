@@ -11,6 +11,6 @@
 = Details =
 
 Add your content here.  Format your content with:
- # Meilenstein: [Ähnlichkeitssuche]
+  # Meilenstein: [Aehnlichkeitssuche]
   # Meilenstein: [Spektrendatenbank]
   # Meilenstein: ....
