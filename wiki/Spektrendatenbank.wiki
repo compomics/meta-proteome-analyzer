@@ -12,4 +12,4 @@ Add your content here.  Format your content with:
   * Unterproblem 1
   * Unterproblem 2
 
-= weitere Anmerkungen und Diskussionen
+= weitere Anmerkungen und Diskussionen =
