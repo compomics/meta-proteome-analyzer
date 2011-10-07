@@ -2,7 +2,7 @@
 
 = MetaProteomicsAnalyzer Wochentreffen: Protokoll vom 04.10.11=
 
-== Daten (Robert) ==
+== Daten ==
 Ein paar mehr Spektren werden gebraucht (auch mit schlechter            Qualität). zum Testen des Ähnlichkeitsalgorithmus und eventuellem Vorfiltern der MGFs: Robert
 
 == Filtern der MGFs nach Qualität (alle) ==
