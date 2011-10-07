@@ -1,14 +1,9 @@
-#summary One-sentence summary of this page.
+#summary Thilos To do Liste
 
-= =
-
-Add your content \n fgh
-<span style="color:#006400"> Text </span>
- background colour: #f1f5fc
-= Details =
+= To do Liste =
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
-|| ||  ||  || ||'oddTableRow': 'beige-background' |||
+|| ||  ||  || || || 
 || ||  ||  || || ||
 || ||  ||  || || ||
 || ||  ||  || || ||
