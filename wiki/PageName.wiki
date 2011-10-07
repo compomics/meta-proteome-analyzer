@@ -3,7 +3,7 @@
 
 = Übersicht Meilensteine=
 
- # WikiSyntax 1. Meilenstein: Ähnlichkeitssuche
+ # Wiki1. Meilenstein: Ähnlichkeitssuche
  # WikiSyntax 2. Meilenstein: Spektrendatenbank
  # WikiSyntax 3. Meilenstein: Projektdesign
  # WikiSyntax 4. Meilenstein: Proteinidentifikation
