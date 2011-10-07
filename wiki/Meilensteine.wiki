@@ -1,9 +1,11 @@
 #summary Übersicht über die Meilensteine
+#labels Phase-Design
 
 = Introduction =
-
-#Meilenstein: Ähnlichkeitssuche
-#Meilenstein: Spektrendatenbank
+*
+# Meilenstein: Ähnlichkeitssuche
+# Meilenstein: Spektrendatenbank
+*
 
 = Details =
 
