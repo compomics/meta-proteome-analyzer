@@ -18,7 +18,7 @@
 
 = Meetings =
   
-  # [Meeting_4.10.2012]
+  # [Meeting_4_10_2011]
 
 = To do Listen
   # [Thilo]
