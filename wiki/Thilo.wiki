@@ -4,7 +4,7 @@
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
 ||Auswerterechner/SQL-Server (Thilo) ||  ||  || || || 
-|| ||  ||  || || || 
+||UML Diagramm ||  ||  || || || 
 || ||  ||  || || || 
 
 
