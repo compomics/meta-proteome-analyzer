@@ -3,18 +3,14 @@
 
 = Introduction =
 
-
-  # Meilenstein: Ähnlichkeitssuche
-  # Meilenstein: Spektrendatenbank
-  # Meilenstein: ....
+Übersicht über die zubearbeiteten Meilensteine
+  
 
 
-  # Test WikiSyntax{Bla}
-
+  
 = Details =
 
 Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * [Aehnlichkeitssuche]
-  * Aehnlichkeitssuche
+ # Meilenstein: [Ähnlichkeitssuche]
+  # Meilenstein: [Spektrendatenbank]
+  # Meilenstein: ....
