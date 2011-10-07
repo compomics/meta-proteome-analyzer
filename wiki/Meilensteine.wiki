@@ -1,6 +1,9 @@
 #summary Übersicht über die Meilensteine
 #labels Phase-Design
 
+#sidebar TableOfContents
+
+
 = Introduction =
 
 Übersicht über die zubearbeiteten Meilensteine
