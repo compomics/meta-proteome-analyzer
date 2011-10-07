@@ -3,10 +3,10 @@
 = To do Liste =
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
+||Auswerterechner/SQL-Server (Thilo) ||  ||  || || || 
 || ||  ||  || || || 
-|| ||  ||  || || ||
-|| ||  ||  || || ||
-|| ||  ||  || || ||
+|| ||  ||  || || || 
+
 
 
 
