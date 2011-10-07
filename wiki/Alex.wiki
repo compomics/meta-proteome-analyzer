@@ -4,7 +4,7 @@
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
 ||Anzeige des Spektrumvergleichs/der Spectral Library (Alex) ||  ||  || || || 
-|| ||  ||  || || || 
+||Einpflegen Literatur ||  ||  || || || 
 || ||  ||  || || || 
 
 
