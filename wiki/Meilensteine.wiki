@@ -9,8 +9,8 @@ Das folge
 The following is:
   * A list
   * Of bulleted items
-    # This is a numbered sublist
-    # Which is done by indenting further
+    # 1.Meilenstein: Ähnlichkeitssuche
+    # 2.Meilenstein: Spektrendatenbank
   * And back to the main bulleted list
 
  * This is also a list
