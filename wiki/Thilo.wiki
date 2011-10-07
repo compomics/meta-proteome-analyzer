@@ -4,7 +4,7 @@
 
 Add your content \n fgh
 
-
+background colour: #f1f5fc
 = Details =
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
