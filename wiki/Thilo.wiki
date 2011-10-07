@@ -3,8 +3,8 @@
 = To do Liste =
 
 || Aufgabe || Deadline||Meilenstein || Fortschritt || Kommentar || 
-||Auswerterechner/SQL-Server (Thilo) ||  ||  || || || 
-||UML Diagramm ||  ||  || || || 
+||Auswerterechner/SQL-Server (Thilo) || 14.10.11  ||  || || || 
+||UML Diagramm || 11.10.11  ||  || || || 
 || ||  ||  || || || 
 
 
