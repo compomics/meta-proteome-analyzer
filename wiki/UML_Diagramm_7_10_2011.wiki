@@ -1,3 +1,3 @@
 #summary One-sentence summary of this page.
 
-[http://code.google.com/p/meta-proteome-analyzer/source/browse/trunk/docu/model/Proteomics-Workflow.pdf]
+[http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/model/Proteomics-Workflow.pdf]
