@@ -3,14 +3,16 @@
 
 = Übersicht Meilensteine=
 
- I. Meilenstein Ähnlichkeitssuche
 
-
+ 1.  Meilenstein: Ähnlichkeitssuche
+ 2. Meilenstein: Spektrendatenbank
+ 3. Meilenstein: Projektdesign
+ 4. Meilenstein: Proteinidentifikation
 
 
 = Details =
 
-Add your content here.  Format your content with:
+*hier kommt dann die Beschreibung dazu*:
   * Text in *bold* or _italic_
   * Headings, paragraphs, and lists
   * Automatic links to other wiki pages
