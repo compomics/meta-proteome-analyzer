@@ -9,7 +9,7 @@
   
 = Konzepte =
 
- #[Konzept Aehnlichkeitssuche]
+ # [Konzept Aehnlichkeitssuche]
 
   
 = Meilensteine =
