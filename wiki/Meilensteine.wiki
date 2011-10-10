@@ -7,7 +7,9 @@
 
 Übersicht über die zubearbeiteten Meilensteine
   
+= Konzepte =
 
+ #[Konzept Aehnlichkeitssuche]
 
   
 = Meilensteine =
@@ -23,6 +25,8 @@
 = Models =
   
   # [UML_Diagramm_7_10_2011]
+
+
 
 = To do Listen =
   # [Thilo]
