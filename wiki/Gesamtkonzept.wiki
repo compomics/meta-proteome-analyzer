@@ -3,16 +3,16 @@
 = Introduction =
 
 
- * [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/KonzeptBioinfo1_0.pptx]
+ * [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept_Bioinfo_1_0.pptx]
 
-* [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept Bioinfo 1.1.pptx]
+ * [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept_Bioinfo_1_0.pptx]
 
-* [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept Bioinfo 1.2.pptx]
+ * [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept_Bioinfo_1_0.pptx]
 
-* [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept Bioinfo 2.0.pptx]
+ * [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept_Bioinfo_1_0.pptx]
 
-* [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept Bioinfo 2.1.pptx]
-* 
+ * [http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/Konzept_Bioinfo_1_0.pptx]
+ * 
 = Ende =
 
 [Meilensteine]
