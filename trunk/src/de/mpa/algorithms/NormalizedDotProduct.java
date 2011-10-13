@@ -26,6 +26,7 @@ public class NormalizedDotProduct implements SpectrumComparator {
 			// build intensity vectors
 			for (Peak peakA : highA) {
 				sA.add(peakA.getIntensity());
+//				sA.add(Math.sqrt(peakA.getIntensity()));	// sqrt-transform to condition Poisson-distributed data
 				
 				// compare each peak mass of spectrum A to all masses of spectrum B
 				// and remove duplicates from the latter
@@ -33,6 +34,7 @@ public class NormalizedDotProduct implements SpectrumComparator {
 				    Peak peakB = it.next();
 					if (Math.abs(peakB.getMz()-peakA.getMz()) < this.threshMz) {
 						sB.add(peakB.getIntensity());
+//						sB.add(Math.sqrt(peakB.getIntensity()));
 						it.remove();
 						break;
 					}
@@ -44,6 +46,7 @@ public class NormalizedDotProduct implements SpectrumComparator {
 			for (Peak peakB : highB) {
 				sA.add(0.0);
 				sB.add(peakB.getIntensity());
+//				sB.add(Math.sqrt(peakB.getIntensity()));
 			}
 			
 			// compute normalized dot product

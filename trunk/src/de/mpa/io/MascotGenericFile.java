@@ -24,13 +24,15 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
+import com.compomics.util.interfaces.SpectrumFile;
+
 /**
  * This class maps a Mascot Generic File to memory. It allows for search and retrieval as well as comparing
  * functionality.
  *
  * @author Thilo Muth
  */
-public class MascotGenericFile{
+public class MascotGenericFile implements SpectrumFile{
 
     /**
      * This variable holds the filename for the spectrum file.
@@ -695,6 +697,17 @@ public class MascotGenericFile{
     public void setPrecursorMZ(double aPrecursorMz) {
         this.iPrecursorMz = aPrecursorMz;
     }
+
+    
+    // inherited from SpectrumFile
+	@Override
+	public void setFilename(String aFilename) {
+		this.iFilename = aFilename;
+	}
+	@Override
+	public void setPeaks(HashMap aPeaks) {
+		this.iPeaks = aPeaks;
+	}
 
 }
 
