@@ -1,6 +1,7 @@
 package de.mpa.client.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -15,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -31,13 +33,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.BusinessBlackSteelSkin;
@@ -65,12 +73,11 @@ public class ClientFrame extends JFrame {
 	
 	private Client client;
 		
-	private JPanel topPnl;
+	private JPanel srvPnl;
 
-	private JPanel specPnl;
-//	private JPanel mainPnl;
+	private JPanel filePnl;
 	
-	private JPanel bottomPnl;
+	private JPanel logPnl;
 
 	private CellConstraints cc;
 
@@ -83,12 +90,16 @@ public class ClientFrame extends JFrame {
 	private JTextField portTtf;
 
 	private JButton startBtn;
+	private JLabel filesLbl;
+    private JButton sendBtn;
 	private JMenuBar menuBar;
 	private JMenu menu1;
 	private JMenuItem exitItem;
 	private JButton processBtn;
 	
 	private ArrayList<MascotGenericFile> spectrumFiles = new ArrayList<MascotGenericFile>();
+	
+	private boolean connectedToServer = false;
 	
 	
 	/**
@@ -113,9 +124,9 @@ public class ClientFrame extends JFrame {
 		cp.add(menuBar, BorderLayout.NORTH);
 
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
-		tabPane.addTab("Input Spectra", specPnl);
-		tabPane.addTab("Server Configuration", topPnl);
-		tabPane.addTab("Logging", bottomPnl);
+		tabPane.addTab("Input Spectra", filePnl);
+		tabPane.addTab("Server Configuration", srvPnl);
+		tabPane.addTab("Logging", logPnl);
 		
 		cp.add(tabPane);
 		
@@ -156,13 +167,13 @@ public class ClientFrame extends JFrame {
 		constructMenu();
 		
 		// Top panel
-		constructTopPanel();
+		constructServerPanel();
 		
 		// Main panel
-		constuctMainPanel();
+		constuctFilePanel();
 		
 		// Bottom panel		
-		constructBottomPanel();
+		constructLogPanel();
 	}
 
 	/**
@@ -184,54 +195,19 @@ public class ClientFrame extends JFrame {
 		menu1.add(exitItem);
 		menuBar.add(menu1);
 	}
-
-	/**
-	 * Construct the top panel.
-	 */
-	private void constructTopPanel(){
-		topPnl = new JPanel();
-		topPnl.setBorder(new TitledBorder("Server Configuration"));
-		topPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "p, 3dlu, p, 5dlu"));
-		
-		final JLabel hostLbl = new JLabel("Hostname:"); 
-		hostTtf = new JTextField(8);
-		hostTtf.setText(HOST);
-		
-		final JLabel portLbl = new JLabel("Port:");
-		portTtf = new JTextField(8);
-		portTtf.setText(Integer.toString(PORT));
-		
-	    topPnl.add(hostLbl, cc.xy(2,1));
-	    topPnl.add(hostTtf, cc.xy(4,1));
-	    topPnl.add(portLbl, cc.xy(2,3));
-	    topPnl.add(portTtf, cc.xy(4,3));
-	    
-	    startBtn = new JButton("Start Server");
-	    startBtn.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-					WSPublisher.start(hostTtf.getText(), portTtf.getText());					
-					JOptionPane.showMessageDialog(frame, "Web Service @" + hostTtf.getText() + ":" + portTtf.getText() + " established.");
-					
-					client.connect();
-			}
-		});
-	  
-	    topPnl.add(startBtn, cc.xy(6,1));
-	}
 		
 	/**
-	 * Construct the main panel.
+	 * Construct the file selection panel.
 	 */
-	private void constuctMainPanel(){
+	private void constuctFilePanel(){
 		
-		specPnl = new JPanel();
-		specPnl.setLayout(new FormLayout("5dlu, p, 5dlu",		// col
+		filePnl = new JPanel();
+		filePnl.setLayout(new FormLayout("5dlu, p, 5dlu",		// col
 										 "5dlu, p, 5dlu, p"));	// row
 		
-		JPanel mainPnl = new JPanel();
-		mainPnl.setBorder(new TitledBorder("File selection"));
-		mainPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu",
+		JPanel selPnl = new JPanel();
+		selPnl.setBorder(new TitledBorder("File selection"));
+		selPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu",
 										 "p, 5dlu, b:p, 5dlu"));
 		
 		String pathName = "test/de/mpa/resources/";
@@ -248,23 +224,20 @@ public class ClientFrame extends JFrame {
 	    
 	    JButton addBtn = new JButton("Add...");
 	    
-	    final JButton sendBtn = new JButton("Send");
-	    sendBtn.setEnabled(false);
-	    
 	    final JButton clrBtn = new JButton("Clear");
-	    sendBtn.setEnabled(false);
+	    clrBtn.setEnabled(false);
 		
 	    // Table of loaded spectrum files
-	    final DefaultTableModel tblMdl = new FileTableModel();
-	    tblMdl.setColumnIdentifiers(new String[] {"Filename", ""});
-
-//	    for (int i = 1; i <= 100; i++) {
-//			tblMdl.addRow(new Object[] {"test" + Integer.toString(i) + ".mgf",
-//										(Math.random() > 0.5)});
-//		}
-
-	    final JTable fileTbl = new JTable(tblMdl);
+	    final JTable fileTbl = new JTable();
 	    fileTbl.setShowVerticalLines(false);
+	    fileTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		PlotPanel2 plotPnl = new PlotPanel2(null);
+		
+	    final DefaultTableModel tblMdl = new FileTableModel(fileTbl,plotPnl);
+	    tblMdl.setColumnIdentifiers(new String[] {"Filename", ""});
+	    
+	    fileTbl.setModel(tblMdl);
 
 	    TableColumn tCol = fileTbl.getColumnModel().getColumn(1);
 	    tCol.setMaxWidth(fileTbl.getRowHeight()+4);
@@ -277,14 +250,17 @@ public class ClientFrame extends JFrame {
 				for(int x = 0, y = fileTbl.getRowCount(); x < y; x++) {
 					fileTbl.setValueAt(new Boolean(checked),x,1);
 				}
+				
+				int numSelFiles = (checked) ? fileTbl.getRowCount() : 0;
+				filesLbl.setText(numSelFiles + " of " + fileTbl.getRowCount() + " file(s) selected.");
 			}
-		}	    
+		}
 	    tCol.setHeaderRenderer(new CheckBoxHeader(new CheckBoxHeaderItemListener()));
 	    
 	    JScrollPane fileScPn = new JScrollPane(fileTbl);
 	    fileScPn.setPreferredSize(new Dimension(fileScPn.getPreferredSize().width, 200));
 	    
-	    mainPnl.add(fileScPn, cc.xyw(2,3,5));
+	    selPnl.add(fileScPn, cc.xyw(2,3,5));
 	    
 	    // Button action listeners
 		addBtn.addActionListener(new ActionListener() {
@@ -327,7 +303,7 @@ public class ClientFrame extends JFrame {
 					    if (!newSpectrumFiles.isEmpty()) {
 				    		spectrumFiles.addAll(newSpectrumFiles);
 				    		for (MascotGenericFile spectrum : newSpectrumFiles) {
-								tblMdl.addRow(new Object[] {spectrum.getFilename(), true});
+								tblMdl.addRow(new Object[] {spectrum, true});
 							}
 					    }
 					}
@@ -335,15 +311,211 @@ public class ClientFrame extends JFrame {
                     filesTtf.setText(files.size() + " file(s) selected");
                     
                     if(files.size() > 0) {
-                    	sendBtn.setEnabled(true);
+                    	if (connectedToServer) {
+                        	sendBtn.setEnabled(true);
+                    	}
                     	clrBtn.setEnabled(true);
                     }
                 }
             }
 	    } );
+		
+		clrBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fileTbl.clearSelection();
+				for (int row = 0; row < tblMdl.getRowCount(); ) {
+					tblMdl.removeRow(tblMdl.getRowCount()-1);
+				}
+				files.clear();
+				filesTtf.setText(files.size() + " file(s) selected");
+				clrBtn.setEnabled(false);
+			}
+		});
 	    
+	    // Input 
+	    selPnl.add(fileLbl, cc.xy(2,1));
+	    selPnl.add(filesTtf, cc.xy(4,1));
+	    selPnl.add(addBtn, cc.xy(6,1));
+	    selPnl.add(clrBtn, cc.xy(8,1));
+	    
+//	    processBtn = new JButton("Process");
+//	    processBtn.addActionListener(new ActionListener() {
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				ProcessWorker worker = new ProcessWorker();
+//				worker.execute();
+//			}
+//		});
+//	    
+//	    mainPnl.add(processBtn, cc.xy(8,3));
+	    
+	    filePnl.add(selPnl, cc.xy(2,2));
+	    
+	    JPanel detPnl = new JPanel();
+		detPnl.setBorder(new TitledBorder("File Details"));
+		detPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
+									   "p:g, 5dlu"));
+		
+		plotPnl.setPreferredSize(new Dimension(300, 200));
+		detPnl.add(plotPnl, cc.xy(2,1));
+	    
+//	    SelectionListener listener = new SelectionListener(fileTbl, plotPnl);
+//	    fileTbl.getSelectionModel().addListSelectionListener(listener);
+		
+	    filePnl.add(detPnl, cc.xy(2,4));
+	}	
+		
+	/** 
+	 * Extended default table model, includes proper CheckBoxes.
+	 */
+	private class FileTableModel extends DefaultTableModel
+								 implements ListSelectionListener,
+								 			TableModelListener {
+		
+		private JTable table;
+		private PlotPanel2 panel;
+		
+		public FileTableModel(JTable table, PlotPanel2 panel) {
+			this.table = table;
+			this.panel = panel;
+			table.getModel().addTableModelListener(this);
+			table.getSelectionModel().addListSelectionListener(this);
+		}
+		
+		public Class getColumnClass(int c) {
+			return getValueAt(0, c).getClass();				
+	    }
+		public Object getValueAt(int row, int col) {
+			Object val = ((Vector)getDataVector().elementAt(row)).elementAt(col);
+			if (col == 0) {
+				val = ((MascotGenericFile)val).getFilename();
+			}
+			return val;
+		}
+		public MascotGenericFile getMgfAt(int row, int col) {
+			Vector dataVec = (Vector)getDataVector();
+			if (!dataVec.isEmpty() && (dataVec.size() >= row)) {
+				Vector colVec = (Vector)dataVec.elementAt(row);
+				if (!colVec.isEmpty() && (dataVec.size() >= col)) {
+					return (MascotGenericFile)colVec.elementAt(col);
+				}
+			}
+			return null;
+		}
+		public boolean isCellEditable(int row, int col) {
+	        if (col < 1) {
+	            return false;
+	        } else {
+	            return true;
+	        }
+	    }
+		
+		public void valueChanged(ListSelectionEvent e) {
+            // If cell selection is enabled, both row and column change events are fired
+        	if (e.getSource() == table.getSelectionModel() &&
+        			table.getRowSelectionAllowed()) {
+        		// Column selection changed
+        		int row = table.getSelectedRow();
+        		if (row >= 0) {
+            		FileTableModel tblMdl = (FileTableModel)table.getModel();
+            		MascotGenericFile mgf = (MascotGenericFile)(tblMdl.getMgfAt(row,0));
+            		panel.setSpectrumFile(mgf,Color.RED);
+            		panel.repaint();        			
+        		} else {
+            		panel.clearSpectrumFile();
+            		panel.repaint();
+        		}
+        	}
+
+            if (e.getValueIsAdjusting()) {
+                // The mouse button has not yet been released
+            }
+        }
+		public void tableChanged(TableModelEvent e) {
+			System.out.println("hurp");					// TODO: make stuff work, duh
+	        int row = e.getFirstRow();
+	        int column = e.getColumn();
+	        TableModel model = (TableModel)e.getSource();
+	        String columnName = model.getColumnName(column);
+	        Object data = model.getValueAt(row, column);
+
+	        // Do something with the data...
+	        int numSelFiles = 0;
+	        for (int i = 0; i < model.getRowCount(); i++) {
+				if ((Boolean)model.getValueAt(i,1)) {
+					numSelFiles += 1;
+				}
+			}
+			filesLbl.setText(numSelFiles + " of " + model.getRowCount() + " file(s) selected.");
+	    }
+
+
+	}
+	
+//	/**
+//	 * Selection listener for File Table
+//	 * @author http://www.exampledepot.com/egs/javax.swing.table/SelEvent.html
+//	 */
+//	public class SelectionListener implements ListSelectionListener {
+//        JTable table;
+//        PlotPanel2 panel;
+//
+//        // It is necessary to keep the table since it is not possible
+//        // to determine the table from the event's source
+//        SelectionListener(JTable table, PlotPanel2 panel) {
+//            this.table = table;
+//            this.panel = panel;
+//        }
+//        
+//    }
+
+	/**
+	 * Construct the server configuration panel.
+	 */
+	private void constructServerPanel() {
+		
+		srvPnl = new JPanel();
+		srvPnl.setLayout(new FormLayout("5dlu, p, 5dlu",		// col
+		 								"5dlu, p, 5dlu"));		// row
+		
+		JPanel setPnl = new JPanel();
+		setPnl.setBorder(new TitledBorder("Server Configuration"));
+		setPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu",
+										"p, 3dlu, p, 3dlu, p, 5dlu"));
+		
+		final JLabel hostLbl = new JLabel("Hostname:"); 
+		hostTtf = new JTextField(8);
+		hostTtf.setText(HOST);
+		
+		final JLabel portLbl = new JLabel("Port:");
+		portTtf = new JTextField(8);
+		portTtf.setText(Integer.toString(PORT));
+		
+	    setPnl.add(hostLbl, cc.xy(2,1));
+	    setPnl.add(hostTtf, cc.xy(4,1));
+	    setPnl.add(portLbl, cc.xy(2,3));
+	    setPnl.add(portTtf, cc.xy(4,3));
+	    
+	    startBtn = new JButton("Connect to server");	    
+	    startBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+					WSPublisher.start(hostTtf.getText(), portTtf.getText());					
+					JOptionPane.showMessageDialog(frame, "Web Service @" + hostTtf.getText() + ":" + portTtf.getText() + " established.");
+					
+					client.connect();
+					connectedToServer = true;
+					if (spectrumFiles.size() > 0) {
+						sendBtn.setEnabled(true);
+					}
+			}
+		});
+
+	    sendBtn = new JButton("Send files");
+	    sendBtn.setEnabled(false);
 	    sendBtn.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				File [] fileArray = new File[files.size()];
@@ -360,59 +532,26 @@ public class ClientFrame extends JFrame {
 				}
 			}
 		});
+
+	    setPnl.add(startBtn, cc.xyw(6,3,3));
+	    setPnl.add(sendBtn, cc.xy(8,5));
 	    
-	    // Input 
-	    mainPnl.add(fileLbl, cc.xy(2,1));
-	    mainPnl.add(filesTtf, cc.xy(4,1));
-	    mainPnl.add(addBtn, cc.xy(6,1));
-	    mainPnl.add(sendBtn, cc.xy(8,3));
-	    mainPnl.add(clrBtn, cc.xy(8,1));
+	    filesLbl = new JLabel("0 of 0 file(s) selected");
+	    setPnl.add(filesLbl, cc.xyw(2,5,5,"r,c"));
 	    
-//	    processBtn = new JButton("Process");
-//	    processBtn.addActionListener(new ActionListener() {
-//			
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				ProcessWorker worker = new ProcessWorker();
-//				worker.execute();
-//			}
-//		});
-//	    
-//	    mainPnl.add(processBtn, cc.xy(8,3));
-	    
-	    specPnl.add(mainPnl, cc.xy(2,2));
-	    
-	    JPanel yaPnl = new JPanel();
-		yaPnl.setBorder(new TitledBorder("Yet Another Panel"));
-		yaPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-									   "p:g, 5dlu"));
-		
-		PlotPanel2 plotPnl = new PlotPanel2(null);
-		plotPnl.setPreferredSize(new Dimension(300, 200));
-		yaPnl.add(plotPnl, cc.xy(2,1));
-		
-	    specPnl.add(yaPnl, cc.xy(2,4));
-	}
-	
-		
-	/** 
-	 * Extended default table model, includes proper CheckBoxes.
-	 */
-	private class FileTableModel extends DefaultTableModel {
-		public Class getColumnClass(int c) {
-	        return getValueAt(0, c).getClass();
-	    }
+	    srvPnl.add(setPnl, cc.xy(2,2));
 	}
 	
 	/**
-	 * Construct the bottom panel.
+	 * Construct the logging panel.
 	 */	
-	private void constructBottomPanel(){
-		bottomPnl = new LogPanel();		
-		bottomPnl.setBorder(BorderFactory.createTitledBorder("Logging"));		
+	private void constructLogPanel(){
+				
+		logPnl = new LogPanel();		
+		logPnl.setBorder(BorderFactory.createTitledBorder("Logging"));		
 		
-		bottomPnl.setMinimumSize(new Dimension(800, 200));
-		bottomPnl.setPreferredSize(new Dimension(800, 200));
+		logPnl.setMinimumSize(new Dimension(800, 200));
+		logPnl.setPreferredSize(new Dimension(800, 200));
 	}
 	
 	@SuppressWarnings("rawtypes")
