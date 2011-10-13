@@ -1,24 +1,40 @@
 package de.mpa.main;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import com.compomics.util.interfaces.SpectrumFile;
+
 import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.Peak;
 import de.mpa.ui.MgfFilter;
 import de.mpa.ui.MultiPlotPanel;
-import de.mpa.ui.PlotPanel;
+import de.mpa.ui.PlotPanel2;
 
 public class HelloWorldFrame {
 	
@@ -42,26 +58,37 @@ public class HelloWorldFrame {
 		cont.add( c );
 	}
 	
-	private static void updateScore(int k, PlotPanel pPlotA, PlotPanel pPlotB, MultiPlotPanel mPlot, JLabel lScore) {
+	private static void updateScore(int k, PlotPanel2 pPlotA, PlotPanel2 pPlotB, MultiPlotPanel mPlot, JLabel lScore) {
+		
+//		ArrayList<MascotGenericFile> spectra = new ArrayList<MascotGenericFile>();
+//		if (pPlotA.getSpectrum() != null) {
+//			spectra.add(pPlotA.getSpectrum());
+//		}
+//		if (pPlotB.getSpectrum() != null) {
+//			spectra.add(pPlotB.getSpectrum());
+//		}
+		
 		
 		ArrayList<MascotGenericFile> spectra = new ArrayList<MascotGenericFile>();
-		if (pPlotA.getSpectrum() != null) {
-			spectra.add(pPlotA.getSpectrum());
+		
+		MascotGenericFile specA = (MascotGenericFile) pPlotA.getSpectrumFile();
+		if (specA != null) {
+			spectra.add(specA);
 		}
-		if (pPlotB.getSpectrum() != null) {
-			spectra.add(pPlotB.getSpectrum());
+		MascotGenericFile specB = (MascotGenericFile) pPlotB.getSpectrumFile();
+		if (specB != null) {
+			spectra.add(specB);
 		}
 		mPlot.setSpectra(spectra);
 		mPlot.setK(k);
 		mPlot.repaint();
 		
-		// time to settle the score!
 		if (spectra.size() == 2) {
-			if (pPlotA.getSpectrum().getPeakList().size() < k) {
-				k = pPlotA.getSpectrum().getPeakList().size();
+			if (specA.getPeakList().size() < k) {
+				k = specA.getPeakList().size();
 			}
-			if (pPlotB.getSpectrum().getPeakList().size() < k) {
-				k = pPlotB.getSpectrum().getPeakList().size();
+			if (specB.getPeakList().size() < k) {
+				k = specB.getPeakList().size();
 			}
 
 			ArrayList<Peak> highestPeaksA = spectra.get(0).getHighestPeaks(k);
@@ -70,6 +97,9 @@ public class HelloWorldFrame {
 			double deltaMz = 0.5;
 			NormalizedDotProduct method = new NormalizedDotProduct(deltaMz);
 			method.compare(highestPeaksA, highestPeaksB);
+//			int numBins = 1000;
+//			CrossCorrelation method = new CrossCorrelation(numBins);
+//			method.compare(spectra.get(0).getPeakList(), spectra.get(1).getPeakList());
 								
 			DecimalFormat df = new DecimalFormat("0.00");
 			df.setGroupingUsed(false);
@@ -100,31 +130,34 @@ public class HelloWorldFrame {
 	    GridBagLayout gbl = new GridBagLayout();
 	    	c.setLayout( gbl );
 	    
+	    // file chooser for .mgf files
 	    final JFileChooser fc = new JFileChooser(pathName);
 	    	fc.setFileFilter(new MgfFilter());
 	    	fc.setAcceptAllFileFilterUsed(false);
 	    
+	    // buttons and textfield for file browsing and loading
 	    final JButton 	 bLoadA = new JButton("Load");
 	    final JTextField tFileA = new JTextField();
 	    final JButton    bBrowA = new JButton("Browse...");
 
-		final PlotPanel  pPlotA = new PlotPanel();
+	    // left-hand side plot panel
+	    final PlotPanel2 pPlotA = new PlotPanel2(null);
 			pPlotA.setPreferredSize(new Dimension(300, 200));
-			pPlotA.setBorder(tFileA.getBorder());
 		
-		final JComboBox<String> cBoxA = new JComboBox<String>();
+		// combo box to select from list of loaded spectra
+		final JComboBox  cBoxA = new JComboBox();
 
-	    
+	    // same as above, for right-hand side
 	    final JButton    bLoadB = new JButton("Load");
 	    final JTextField tFileB = new JTextField();
 	    final JButton    bBrowB = new JButton("Browse...");
 		
-		final PlotPanel  pPlotB = new PlotPanel();
+		final PlotPanel2 pPlotB = new PlotPanel2(null);
 			pPlotB.setPreferredSize(new Dimension(300, 200));
-			pPlotB.setBorder(tFileB.getBorder());
 		
-		final JComboBox<String> cBoxB = new JComboBox<String>();
+		final JComboBox cBoxB = new JComboBox();
 		
+		// plot panel to incorporate multiple graphs, highlighting picked peaks
 		final MultiPlotPanel mPlot = new MultiPlotPanel();
 			mPlot.setPreferredSize(new Dimension(300, 200));
 			mPlot.setBorder(tFileA.getBorder());
@@ -134,21 +167,23 @@ public class HelloWorldFrame {
 			mPlot.setLineColors(colors);
 			mPlot.setK(k);
 
-		final JComboBox<String> cBoxK = new JComboBox<String>(new String[] {
+		// combo box to select pre-set methods for picking parameter k
+		final JComboBox cBoxK = new JComboBox(new String[] {
 				"custom",
 				"pMZ/50",
 				"all"
 		});
 		final JLabel     lK0 = new JLabel("k = ", SwingConstants.LEFT);
+		// spinner to edit parameter k by hand
 		final JSpinner spinK = new JSpinner( new SpinnerNumberModel(k, 1, 10, 1));
-			
+
+		// labels for score display
 		final JLabel    lS0 = new JLabel("s =", SwingConstants.LEFT);
 			lS0.setVerticalAlignment(SwingConstants.TOP);
-//		    lS0.setBorder(BorderFactory.createLineBorder(Color.black));
 		final JLabel lScore = new JLabel("Hello World!", SwingConstants.RIGHT);
 		 	lScore.setVerticalAlignment(SwingConstants.TOP);
 		
-		// here be gui listeners
+		// gui listeners for various elements
 	    ActionListener alBrow = new ActionListener() {
 	    	@Override public void actionPerformed( ActionEvent e ) {
 	    		int res = fc.showOpenDialog((Component) e.getSource());
@@ -166,44 +201,52 @@ public class HelloWorldFrame {
 			
 		ActionListener alCBox = new ActionListener() {
 			@Override public void actionPerformed( ActionEvent e ) {
-				JComboBox<String> selectedChoice = (JComboBox<String>) e.getSource();
+				JComboBox selectedChoice = (JComboBox) e.getSource();
 				int index = selectedChoice.getSelectedIndex();
 				
-				int maxK = Integer.MAX_VALUE;
-				if (pPlotA.getSpectrum() != null) {
+				// determine maximum number of peaks to pick for vectorization
+				int maxK = Integer.MAX_VALUE;				
+				
+				if (spectrumFilesA.size() > 0) {
 					maxK = Math.min(maxK, spectrumFilesA.get(index).getPeakList().size());
 				}
-				if (pPlotB.getSpectrum() != null) {
+				if (spectrumFilesB.size() > 0) {
 					maxK = Math.min(maxK, spectrumFilesB.get(index).getPeakList().size());
 				}
 				if ((k > maxK)|| (cBoxK.getSelectedIndex() == 2)) {
 					k = maxK;
 					spinK.setValue(k);
 				}
+				// update spinner maximum
 				((SpinnerNumberModel)spinK.getModel()).setMaximum(maxK);
 				
+				
+				// determine which combo box triggered the event and update plots
 				if (selectedChoice == cBoxA) {
 					if ((index != -1) && (spectrumFilesA != null)) {
-						pPlotA.setSpectrum(spectrumFilesA.get(index));
+//						pPlotA.setSpectrum(spectrumFilesA.get(index));
+						pPlotA.setSpectrumFile(spectrumFilesA.get(index),Color.BLUE);
 						pPlotA.repaint();
 					}
 				} else {
 					if ((index != -1) && (spectrumFilesB != null)) {
-						pPlotB.setSpectrum(spectrumFilesB.get(index));
+//						pPlotB.setSpectrum(spectrumFilesB.get(index));
+						pPlotB.setSpectrumFile(spectrumFilesB.get(index),Color.RED);
 						pPlotB.repaint();
 					}
 				}
 				
+				// try recalculating similarity score
 				updateScore(k, pPlotA, pPlotB, mPlot, lScore);
 			}
 		};
 		cBoxA.addActionListener(alCBox);
 		cBoxB.addActionListener(alCBox);
-	    
+
 	    ActionListener alLoad = new ActionListener() {
 	    	@Override public void actionPerformed( ActionEvent e ) {
 	    		File file = new File("");
-				JComboBox<String> cBox = new JComboBox<String>();
+				JComboBox cBox = new JComboBox();
 				ArrayList<MascotGenericFile> spectrumFiles = new ArrayList<MascotGenericFile>();
 		    	if ((e.getSource() == bLoadA) ||
 		    		(e.getSource() == tFileA)) {
@@ -244,11 +287,12 @@ public class HelloWorldFrame {
 	    
 	    ActionListener alCBoxK = new ActionListener() {
 			@Override public void actionPerformed( ActionEvent e ) {
-				int index = ((JComboBox<String>)e.getSource()).getSelectedIndex();				
+				int index = ((JComboBox)e.getSource()).getSelectedIndex();
+				SpectrumFile specA = pPlotA.getSpectrumFile();
 				switch (index) {
 				case 1:
-					if (pPlotA.getSpectrum() != null) {
-						k = (int)Math.round(pPlotA.getSpectrum().getPrecursorMZ()/50.0);
+					if (specA != null) {
+						k = (int)Math.round(specA.getPrecursorMZ()/50.0);
 						spinK.setValue(k);
 					} else {
 						cBoxK.setSelectedIndex(0);
@@ -284,13 +328,13 @@ public class HelloWorldFrame {
 	    // add stuff to frame and fire her up!
 		addComponent( c, gbl, bLoadA,  0,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,5,5,5));
 		addComponent( c, gbl, tFileA, -1,  0, 1, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(5,0,5,5));
-		addComponent( c, gbl, bBrowA, -1,  0, 2, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
+		addComponent( c, gbl, bBrowA, -1,  0, 2, 1,  0 ,  0 , GridBagConstraints.HORIZONTAL, new Insets(5,0,5,5));
 		addComponent( c, gbl, pPlotA,  0, -1, 4, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,5,5,5));
 		addComponent( c, gbl,  cBoxA,  0, -1, 4, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,5,5,5));
 
 		addComponent( c, gbl, bLoadB,  5,  0, 1, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
 		addComponent( c, gbl, tFileB, -1,  0, 1, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(5,0,5,5));
-		addComponent( c, gbl, bBrowB, -1,  0, 2, 1,  0 ,  0 , GridBagConstraints.NONE, 		 new Insets(5,0,5,5));
+		addComponent( c, gbl, bBrowB, -1,  0, 2, 1,  0 ,  0 , GridBagConstraints.HORIZONTAL, new Insets(5,0,5,5));
 		addComponent( c, gbl, pPlotB,  5, -1, 4, 3, 1.0, 1.0, GridBagConstraints.BOTH, 		 new Insets(0,0,5,5));
 		addComponent( c, gbl,  cBoxB,  5, -1, 4, 1, 1.0,  0 , GridBagConstraints.HORIZONTAL, new Insets(0,0,5,5));
 		
