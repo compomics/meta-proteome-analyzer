@@ -29,22 +29,52 @@ import java.util.Vector;
  
 public class XML_Parser_forMSMSresults {
 
-	// basteln von Array in dem ich meine Variablen speichern kann
 	
-	
-
-
-	
-		
-	
-	
-	// Hauptfunnktion in der ich arbeite
+			
+	// Hauptfunktion in der ich arbeite
 	public static void main(String[] args)throws IOException {
 	System.out.println("Yuhu ich fange an!!!");
 
-	//TabelleXML File1 =new TabelleXML();
-	//File1.setNameXML("klaus");
 	
+	// basteln von Array in dem ich meine Variablen speichern kann
+	ArrayList<PeptideHits> Peptide = new ArrayList<PeptideHits>();
+	
+	PeptideHits Peptide1 = new PeptideHits();
+	Peptide1.setPeptidname("Peptide1");
+	Peptide1.setSequence("nvjusj");
+	Peptide.add(Peptide1);
+	
+	PeptideHits Peptide2 = new PeptideHits();
+	Peptide2.setPeptidname("Peptide2");
+	Peptide2.setSequence("BHUG");
+	Peptide.add(Peptide2);
+
+	
+	ProteinHits ProteinListe = new ProteinHits();
+	ProteinListe.setProtein_accession("gi|007");
+	ProteinListe.setProtein_description("RobertsHaarKeratin");
+	ProteinListe.setProtein_Score(100);
+	ProteinListe.setPeptide(Peptide);
+	
+	
+	
+	TabelleXML SuchergebnisXML = new TabelleXML();
+	SuchergebnisXML.setNameXML("Roberts PRoteine");
+	
+	System.out.println(ProteinListe);
+	System.out.println(Peptide1.getSequence());
+	System.out.println();
+	
+	TabelleXML Versuch1 =new TabelleXML();
+	Versuch1.setNameXML("klaus");
+	System.out.println(Versuch1.getNameXML());
+	//Versuch1.setHits(hits)
+	
+	//ArrayList<hits> Protein1 =new 
+	
+	//ProteinHits VersuchProteine =new ProteinHits();
+	//Versuch1.VersuchProteine.set
+	//Versuch1.set
 	//ArrayList<ProteinHits> gdrkeg = File1.setHits(gdrkeg);
 
 	//Name des XML Files
@@ -70,7 +100,7 @@ public class XML_Parser_forMSMSresults {
 			 {//System.out.println(zeile); 
 			 XMLText.append(zeile + "\n");}
 			// Ausgabe des Ergebnisses
-			System.out.println(XMLText);
+			//System.out.println(XMLText);
 			
 			// schlieﬂen der einlese Funktion
 		br.close();	
