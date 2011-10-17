@@ -36,7 +36,7 @@ public class SpectrumFeatures {
 	private int numSignPeaks;
 	
 	// Total intensity of the significant peaks
-	private int totalSignPeaksInt;
+	private double totalSignPeaksInt;
 	
 	// The intensity of the y1-ion peak --> lysine /argine for tryptic peptides
 	private double y1PeakInt;
