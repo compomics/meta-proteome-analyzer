@@ -65,7 +65,7 @@ import de.mpa.webservice.WSPublisher;
 public class ClientFrame extends JFrame {
 	
 	private final static int PORT = 8080;
-	private final static String HOST = "metaprot";
+	private final static String HOST = "0.0.0.0";
 	
 	private final static String PATH = "test/de/mpa/resources/";
 	
