@@ -63,6 +63,7 @@ public interface Server {
 
     /**
      * 
+     * @param arg1
      * @param arg0
      * @return
      *     returns java.lang.String
@@ -71,6 +72,8 @@ public interface Server {
     @WebResult(partName = "return")
     public String uploadFile(
         @WebParam(name = "arg0", partName = "arg0")
-        String arg0);
+        String arg0,
+        @WebParam(name = "arg1", partName = "arg1")
+        byte[] arg1);
 
 }

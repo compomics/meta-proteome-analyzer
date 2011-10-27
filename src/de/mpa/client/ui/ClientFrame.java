@@ -522,6 +522,7 @@ public class ClientFrame extends JFrame {
 				files.toArray(fileArray);
 				try {
 					client.sendFiles(fileArray);
+					client.sendMessage("Test the west!");
 					//files.clear();
 					filesTtf.setText(files.size() + " file(s) selected");
 	                sendBtn.setEnabled(false);	                    

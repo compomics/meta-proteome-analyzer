@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 
+import javax.activation.DataHandler;
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.MTOM;
 
@@ -23,9 +25,8 @@ import de.mpa.job.instances.PepnovoJob;
 //Service Implementation Bean
 @MTOM
 @WebService(endpointInterface = "de.mpa.webservice.Server")
-public class ServerImpl implements Server {
+public class ServerImpl implements Server {	
 	
-	private final static String DATA_FOLDER = "/scratch/metaprot/data/transfer/";
 	
 	/**
      * Init the job logger.
@@ -34,19 +35,19 @@ public class ServerImpl implements Server {
 
 	@Override
 	public void receiveMessage(String msg) {
-		System.out.println("Received message: " + msg);
+		log.info("Received message: " + msg);
 		
 	}
 	
 	@Override
 	public String sendMessage(String msg) {
-		System.out.println(msg);
+		log.info(msg);
 		return "Hello, sending the message: " + msg;
 	}
 
 	@Override
 	public File downloadFile(String filename) { 
-		File file = new File(DATA_FOLDER + filename);		
+		File file = new File(filename);		
 		return file; 
 	}
 	
@@ -56,7 +57,7 @@ public class ServerImpl implements Server {
 	 * @throws Exception
 	 */
 	public void process(String filename) {	
-		File file = new File(DATA_FOLDER + filename);
+		File file = new File(filename);
 		DBManager dbManager = null;
 		
 		// Upload the spectra to the file server
@@ -89,15 +90,23 @@ public class ServerImpl implements Server {
 		jobManager.execute();
 	}
 	
-	@Override
-	public String uploadFile(File file) {
+	@Override		
+	public String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data) {
  
-		if(file != null){		
-			File newFile = new File(DATA_FOLDER + file.getName());
-			copyfile(file, newFile);
-			log.info("Upload Successful: " + newFile.getAbsolutePath());
-			return newFile.getAbsolutePath();
-			
+		if(data != null){	
+		    InputStream io;
+			try {
+				io = data.getInputStream();
+				byte b[] = new byte[io.available()];  
+			    io.read(b);  
+				FileOutputStream fos = new FileOutputStream(filename);    
+				fos.write(b);     
+				//File newFile = new File("/scratch/metaprot/data/transfer/" + file.getName());
+				log.info("Upload Successful: " + filename);
+				return filename;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}      
 		} 
 		throw new WebServiceException("Upload Failed!"); 
 	}
