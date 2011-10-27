@@ -10,6 +10,12 @@ public class WSPublisher {
 	}
 	
 	public static void main(String[] args) {
-		Endpoint.publish("http://localhost:8080/WS/Server",new ServerImpl());
+		try {
+			Endpoint.publish("http://0.0.0.0:8080/WS/Server",new ServerImpl());
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		
 	}
 }
