@@ -25,6 +25,8 @@ import de.mpa.job.instances.PepnovoJob;
 @WebService(endpointInterface = "de.mpa.webservice.Server")
 public class ServerImpl implements Server {
 	
+	private final static String DATA_FOLDER = "/scratch/metaprot/data/transfer/";
+	
 	/**
      * Init the job logger.
      */
@@ -44,7 +46,7 @@ public class ServerImpl implements Server {
 
 	@Override
 	public File downloadFile(String filename) { 
-		File file = new File("c:\\metaproteomics\\" + filename);		
+		File file = new File(DATA_FOLDER + filename);		
 		return file; 
 	}
 	
@@ -54,7 +56,7 @@ public class ServerImpl implements Server {
 	 * @throws Exception
 	 */
 	public void process(String filename) {	
-		File file = new File("c:\\metaproteomics\\" + filename);
+		File file = new File(DATA_FOLDER + filename);
 		DBManager dbManager = null;
 		
 		// Upload the spectra to the file server
@@ -91,7 +93,7 @@ public class ServerImpl implements Server {
 	public String uploadFile(File file) {
  
 		if(file != null){		
-			File newFile = new File("c:\\metaproteomics\\" + file.getName());
+			File newFile = new File(DATA_FOLDER + file.getName());
 			copyfile(file, newFile);
 			log.info("Upload Successful: " + newFile.getAbsolutePath());
 			return newFile.getAbsolutePath();
