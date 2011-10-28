@@ -142,12 +142,3 @@ public class MascotXMLParser {
 		return nValue.getNodeValue();
 	}
 }
-
-	/**
-//	 * @param args
-//	 */
-//	public static void main(String[] args) {
-//		MascotXMLParser parser = new MascotXMLParser();
-//		MascotRecord record = parser.parse(new File("C:\\Documents and Settings\\heyer\\workspace\\RobbiesXMLParser\\Spot24.xml"));
-//	}
-//}
