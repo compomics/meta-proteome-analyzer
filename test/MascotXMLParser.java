@@ -1,4 +1,4 @@
-package de.mpa.parser.mascot.xml;
+
 /* Name:				RobbiesDomParser
  * letzte Änderung:		25.10.2011
  * Author:				Robbie
@@ -142,12 +142,3 @@ public class MascotXMLParser {
 		return nValue.getNodeValue();
 	}
 }
-
-	/**
-//	 * @param args
-//	 */
-//	public static void main(String[] args) {
-//		MascotXMLParser parser = new MascotXMLParser();
-//		MascotRecord record = parser.parse(new File("C:\\Documents and Settings\\heyer\\workspace\\RobbiesXMLParser\\Spot24.xml"));
-//	}
-//}
