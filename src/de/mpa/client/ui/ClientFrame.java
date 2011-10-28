@@ -68,6 +68,8 @@ public class ClientFrame extends JFrame {
 	private Client client;
 		
 	private JPanel srvPnl;
+	
+	private JPanel msmsPnl;
 
 	private JPanel filePnl;
 	
@@ -94,6 +96,7 @@ public class ClientFrame extends JFrame {
 	private ArrayList<MascotGenericFile> spectrumFiles = new ArrayList<MascotGenericFile>();
 	
 	private boolean connectedToServer = false;
+	private JButton procBtn;
 	
 	
 	/**
@@ -120,6 +123,7 @@ public class ClientFrame extends JFrame {
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
 		tabPane.addTab("Input Spectra", filePnl);
 		tabPane.addTab("Server Configuration", srvPnl);
+		tabPane.addTab("MS/MS Identification", msmsPnl);
 		tabPane.addTab("Logging", logPnl);
 		
 		cp.add(tabPane);
@@ -162,6 +166,9 @@ public class ClientFrame extends JFrame {
 		
 		// Top panel
 		constructServerPanel();
+		
+		// Process Panel
+		constructProcessPanel();
 		
 		// Main panel
 		constuctFilePanel();
@@ -545,6 +552,27 @@ public class ClientFrame extends JFrame {
 	    setPnl.add(filesLbl, cc.xyw(2,5,5,"r,c"));
 	    
 	    srvPnl.add(setPnl, cc.xy(2,2));
+	}
+	
+	/**
+	 * Construct the processing panel.
+	 */
+	private void constructProcessPanel() {
+		
+		msmsPnl = new JPanel();
+		msmsPnl.setLayout(new FormLayout("5dlu, p, 5dlu",		// col
+		 								"5dlu, p, 5dlu"));		// row
+	    
+	    procBtn = new JButton("Process");	    
+	    procBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+					ProcessWorker worker = new ProcessWorker();
+					worker.execute();
+			}
+		});
+	    
+	    msmsPnl.add(procBtn, cc.xy(2,2));
 	}
 	
 	/**

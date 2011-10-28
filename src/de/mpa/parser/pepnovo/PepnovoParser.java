@@ -8,12 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
+
 /**
  * This com.compomics.proteocloud.parser reads the file contents of an output file of the PepNovo algorithm.
  * @author Thilo Muth
  *
  */
 public class PepnovoParser {
+	
+	private Logger log = Logger.getLogger(getClass());
 	
 	/**
 	 * Default contructor for the PepNovoParser.
@@ -29,6 +33,7 @@ public class PepnovoParser {
 	 * @return pepNovoFile PepNovoFile object
 	 */
 	public PepnovoFile read(String file) {
+		
 		PepnovoFile pepNovoFile = new PepnovoFile(file);		
 		BufferedReader reader = null;
 		PepnovoEntry entry = null;		
@@ -37,13 +42,12 @@ public class PepnovoParser {
 		List<Prediction> predictionList = null;
 		int specNumber = 1;
 		try {
-			reader = new BufferedReader(new FileReader(file));			
-
+			reader = new BufferedReader(new FileReader(file));
 			String nextLine;
-
+			
 			// Iterate over all the lines of the file.
 			while ((nextLine = reader.readLine()) != null) {
-
+				
 				// Sequence Coordinates section
 				if (nextLine.startsWith(">>")) {
 					String[] temp = nextLine.split("\\s+");
@@ -72,25 +76,25 @@ public class PepnovoParser {
 					
 					specNumber++;
 				} else if (!nextLine.startsWith("#") && flag) {
-										
-					StringTokenizer tokenizer = new StringTokenizer(nextLine);
-					List<String> tokenList = new ArrayList<String>();
-					Prediction prediction = new Prediction();
 					
-					// Iterate over all the tokens
-					while (tokenizer.hasMoreTokens()) {
-						tokenList.add(tokenizer.nextToken());
-					}
-					if (tokenList.size() > 0){
-						prediction.setIndex(Integer.valueOf(tokenList.get(0)));
-						prediction.setRankScore(Double.valueOf(tokenList.get(1)));
-						prediction.setPepNovoScore(Double.valueOf(tokenList.get(2)));
-						prediction.setnTermGap(Double.valueOf(tokenList.get(3)));
-						prediction.setcTermGap(Double.valueOf(tokenList.get(4)));
-						prediction.setPrecursorMh(Double.valueOf(tokenList.get(5)));
-						prediction.setCharge(Integer.valueOf(tokenList.get(6)));
-						if (tokenList.size() > 7) {
-							prediction.setSequence(tokenList.get(7).trim());							
+					String[] tokens = nextLine.split("\\s+");
+					
+					Prediction prediction = new Prediction();
+					log.info("next line: " + nextLine);
+					
+					if (tokens.length > 5 && !nextLine.equals("")){
+						log.info("index: " + prediction.getIndex());
+						log.info("rankscore " + tokens[1]);						
+						log.info("token: " + tokens[2]);										
+						prediction.setIndex(Integer.valueOf(tokens[0]));
+						prediction.setRankScore(Double.valueOf(tokens[1]));
+						prediction.setPepNovoScore(Double.valueOf(tokens[2]));
+						prediction.setnTermGap(Double.valueOf(tokens[3]));
+						prediction.setcTermGap(Double.valueOf(tokens[4]));
+						prediction.setPrecursorMh(Double.valueOf(tokens[5]));
+						prediction.setCharge(Integer.valueOf(tokens[6]));
+						if (tokens.length > 7) {
+							prediction.setSequence(tokens[7].trim());							
 						}
 						predictionList.add(prediction);
 					}

@@ -15,8 +15,8 @@ public class DBConfiguration {
 	private static String JDBCDRIVER = "com.mysql.jdbc.Driver";
     private static String URL_1 = "jdbc:mysql://localhost";
     private static String URL_2 = ":3306/";
-    private static String USER = "";
-    private static String PASS = "";
+    private static String USER = "metaprot";
+    private static String PASS = "test";
     private String dbName;
     /**
      * Constructor of the DatabaseStarter.

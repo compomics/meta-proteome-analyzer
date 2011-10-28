@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.mpa.db.accessor.Pepnovo;
 import de.mpa.db.accessor.Pepnovofile;
 import de.mpa.db.accessor.PepnovohitTableAccessor;
@@ -37,6 +39,8 @@ public class PepnovoStorager extends BasicStorager {
      * The Connection instance.
      */
     private Connection conn;
+    
+    private Logger log = Logger.getLogger(getClass());
     
     /**
      * Constructor with spectrumid as parameter.
@@ -89,7 +93,8 @@ public class PepnovoStorager extends BasicStorager {
         
         // Get all the entries
         List<PepnovoEntry> entryList = pepnovofile.getEntryList();       
-        for (PepnovoEntry entry : entryList) {            
+        for (PepnovoEntry entry : entryList) {
+        	
             List<Prediction> predList = entry.getPredictionList();
             // Get the spectrum id for the given spectrumName for the PepnovoFile     
             long spectrumid = Spectrum.getSpectrumIdFromSpectrumName(entry.getSpectrumName(), false);

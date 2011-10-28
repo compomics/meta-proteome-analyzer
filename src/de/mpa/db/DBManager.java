@@ -42,7 +42,7 @@ public class DBManager {
      */
 	private void init() throws SQLException{		
 		// The database configuration.
-		DBConfiguration dbconfig = new DBConfiguration("metaproteomics");
+		DBConfiguration dbconfig = new DBConfiguration("metaprot");
 		conn = dbconfig.getConnection();
 		
 		// Set auto commit == FALSE --> Manual commit & rollback.
@@ -59,7 +59,7 @@ public class DBManager {
 	 */
 	public SpectrumStorager storeSpectra(File mgfFile, String title, String taxon, double fragmentTol, double precursorTol, String precursorUnit) throws IOException, SQLException {
 		// Check for duplicate file in the DB!
-		Spectrum.checkDuplicateFile(mgfFile.getName(), conn);
+		//TODO: Spectrum.checkDuplicateFile(mgfFile.getName(), conn);
 		
 		// The Project storager is initialized here.
 		ProjectStorager projectStorager = new ProjectStorager(conn, title, taxon, fragmentTol, precursorTol, precursorUnit);
