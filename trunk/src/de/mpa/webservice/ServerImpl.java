@@ -57,7 +57,7 @@ public class ServerImpl implements Server {
 	 * @throws Exception
 	 */
 	public void process(String filename) {	
-		File file = new File(filename);
+		File file = new File("/scratch/metaprot/data/transfer/" + filename);
 		DBManager dbManager = null;
 		
 		// Upload the spectra to the file server
@@ -98,12 +98,14 @@ public class ServerImpl implements Server {
 			try {
 				io = data.getInputStream();
 				byte b[] = new byte[io.available()];  
-			    io.read(b);  
-				FileOutputStream fos = new FileOutputStream(filename);    
+			    io.read(b);
+			    File file = new File("/scratch/metaprot/data/transfer/" + filename);
+			    
+				FileOutputStream fos = new FileOutputStream(file);    
 				fos.write(b);     
-				//File newFile = new File("/scratch/metaprot/data/transfer/" + file.getName());
-				log.info("Upload Successful: " + filename);
-				return filename;
+				
+				log.info("Upload Successful: " + file.getName());
+				return file.getAbsolutePath();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}      

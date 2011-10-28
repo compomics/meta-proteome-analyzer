@@ -8,11 +8,11 @@ import java.util.Scanner;
 
 import de.mpa.job.Job;
 
-public class PepnovoJob extends Job {
+public class PepnovoJob extends Job {	
 	
-	private final static String DATASET_PATH_WIN = "C:/workspace/MetaProteomeAnalyzer/";
-	private final static String OUTPUT_PATH_WIN = "C:/metaproteomics/output/";
-	private final static String PEPNOVO_PATH_WIN = "C:/metaproteomics/pepnovo/";
+	private final static String OUTPUT_PATH = "/scratch/metaprot/data/output/pepnovo/";
+	private final static String PEPNOVO_PATH = "/scratch/metaprot/software/pepnovo/";
+	private final static String PEPNOVO_EXE = "PepNovo_bin";
 	
 	// Model to choose
 	private final static String MODEL = "CID_IT_TRYP";
@@ -36,7 +36,7 @@ public class PepnovoJob extends Job {
 	public PepnovoJob(File mgfFile, double fragmentTol) {
 		this.mgfFile = mgfFile;
 		this.fragmentTol = fragmentTol;
-		this.pepnovoFile = new File(PEPNOVO_PATH_WIN);		
+		this.pepnovoFile = new File(PEPNOVO_PATH);		
 		initJob();
 		execute();
 	}
@@ -46,7 +46,7 @@ public class PepnovoJob extends Job {
 	 */
 	private void initJob() {
 		// full path to executable
-		procCommands.add(pepnovoFile.getAbsolutePath() + "/" + "PepNovo.exe");
+		procCommands.add(pepnovoFile.getAbsolutePath() + "/" + PEPNOVO_EXE);
 		procCommands.trimToSize();
 		
 		// Link to the MGF file
@@ -70,7 +70,7 @@ public class PepnovoJob extends Job {
 		procCommands.add(SOLUTION_NUMBER);
 		
 		// Add output path
-		outputFile = new File(OUTPUT_PATH_WIN + mgfFile.getName() + ".out");
+		outputFile = new File(OUTPUT_PATH + mgfFile.getName() + ".out");
 		procCommands.trimToSize();
 
 		log.info("====== PEPNOVO JOB started ======");
