@@ -19,7 +19,7 @@ public class CheckBoxHeader extends JCheckBox
 	public CheckBoxHeader(ItemListener itemListener) {
 		this.setHorizontalAlignment(LEFT);
 		rendererComponent.addItemListener(itemListener);
-//		setBorderPainted(true);
+		setBorderPainted(true);
 	}
 	
 	@Override

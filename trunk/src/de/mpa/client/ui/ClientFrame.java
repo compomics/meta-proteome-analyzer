@@ -41,16 +41,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-import org.pushingpixels.substance.api.skin.BusinessBlackSteelSkin;
-
-import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -240,7 +234,8 @@ public class ClientFrame extends JFrame {
 	    fileTbl.setModel(tblMdl);
 
 	    TableColumn tCol = fileTbl.getColumnModel().getColumn(1);
-	    tCol.setMaxWidth(fileTbl.getRowHeight()+4);
+//	    tCol.setMinWidth(fileTbl.getRowHeight());
+	    tCol.setMaxWidth((int)(fileTbl.getRowHeight()*1.5));
 	    
 	    class CheckBoxHeaderItemListener implements ItemListener {
 			public void itemStateChanged(ItemEvent e) {
@@ -360,9 +355,6 @@ public class ClientFrame extends JFrame {
 		
 		plotPnl.setPreferredSize(new Dimension(300, 200));
 		detPnl.add(plotPnl, cc.xy(2,1));
-	    
-//	    SelectionListener listener = new SelectionListener(fileTbl, plotPnl);
-//	    fileTbl.getSelectionModel().addListSelectionListener(listener);
 		
 	    filePnl.add(detPnl, cc.xy(2,4));
 	}	
@@ -372,7 +364,7 @@ public class ClientFrame extends JFrame {
 	 */
 	private class FileTableModel extends DefaultTableModel
 								 implements ListSelectionListener,
-								 			TableModelListener {
+						 					TableModelListener {
 		
 		private JTable table;
 		private PlotPanel2 panel;
@@ -380,7 +372,7 @@ public class ClientFrame extends JFrame {
 		public FileTableModel(JTable table, PlotPanel2 panel) {
 			this.table = table;
 			this.panel = panel;
-			table.getModel().addTableModelListener(this);
+			this.addTableModelListener(this);
 			table.getSelectionModel().addListSelectionListener(this);
 		}
 		
@@ -404,6 +396,15 @@ public class ClientFrame extends JFrame {
 			}
 			return null;
 		}
+		public void setValueAt(Object newVal, int row, int column) {
+			Vector rowVector = (Vector)dataVector.elementAt(row);
+			Object oldVal = rowVector.elementAt(column);
+			// check whether new value actually differs from old one
+			if (!oldVal.equals(newVal)) {
+				rowVector.setElementAt(newVal, column);
+				fireTableCellUpdated(row, column);
+			}
+	    }
 		public boolean isCellEditable(int row, int col) {
 	        if (col < 1) {
 	            return false;
@@ -434,21 +435,24 @@ public class ClientFrame extends JFrame {
             }
         }
 		public void tableChanged(TableModelEvent e) {
-			System.out.println("hurp");					// TODO: make stuff work, duh
-	        int row = e.getFirstRow();
-	        int column = e.getColumn();
 	        TableModel model = (TableModel)e.getSource();
-	        String columnName = model.getColumnName(column);
-	        Object data = model.getValueAt(row, column);
 
-	        // Do something with the data...
-	        int numSelFiles = 0;
-	        for (int i = 0; i < model.getRowCount(); i++) {
-				if ((Boolean)model.getValueAt(i,1)) {
+	        int row = e.getFirstRow();
+
+	        // fail-safe against empty table
+	        if (row >= 0) {
+	        	// parse label string
+	        	String text = filesLbl.getText();
+		        int numSelFiles = Integer.parseInt(text.substring(0, text.indexOf(" ")));
+		        // change number of selected files depending on cell content
+		        if ((Boolean)model.getValueAt(row,1)) {
 					numSelFiles += 1;
+				} else {
+					numSelFiles -= 1;
 				}
-			}
-			filesLbl.setText(numSelFiles + " of " + model.getRowCount() + " file(s) selected.");
+		        // apply label string with updated value
+				filesLbl.setText(numSelFiles + " of " + model.getRowCount() + " file(s) selected.");
+	        }
 	    }
 
 
