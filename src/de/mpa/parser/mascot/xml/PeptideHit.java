@@ -9,8 +9,29 @@ package de.mpa.parser.mascot.xml;
 public class PeptideHit {
 
 	// Deklarieren der Variablen
+	private String name ="";
 	private String description ="";
 	private String sequence = "";
+	private String proteinAccession = "";
+	
+	
+	public PeptideHit(String proteinAccession) {
+		this.proteinAccession = proteinAccession;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	public String getProteinAccession() {
+		return proteinAccession;
+	}
+	
+	public void setProteinAccession(String proteinAccession) {
+		this.proteinAccession = proteinAccession;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	private double mz= 0;
 	private int charge = 0;
 	

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import de.mpa.db.MapContainer;
@@ -79,9 +80,7 @@ public class SpectrumStorager extends BasicStorager {
      */
     public void store() throws IOException, SQLException {
         // Get all the spectra from the MGF-Reader
-        Vector spectra = mascotGenericFileReader.getSpectrumFiles();
-        int counter = 1;
-        counter++;
+        List<MascotGenericFile> spectra = mascotGenericFileReader.getSpectrumFiles();
         
         // Init the hashmap for non-DB caching
         filename2IdMap = new HashMap<String, Long>();
@@ -89,7 +88,7 @@ public class SpectrumStorager extends BasicStorager {
         
         // Iterate over all the spectra.        
         for (int i = 0; i < spectra.size(); i++) {
-            MascotGenericFile mgf = (MascotGenericFile) spectra.elementAt(i);
+            MascotGenericFile mgf = spectra.get(i);
             /* Spectrum section */
             HashMap<Object, Object> data = new HashMap<Object, Object>(10);
             // The project id.

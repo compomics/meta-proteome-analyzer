@@ -13,9 +13,9 @@ public class DBConfiguration {
 
     private Connection connection;
 	private static String JDBCDRIVER = "com.mysql.jdbc.Driver";
-    private static String URL_1 = "jdbc:mysql://localhost";
+    private static String URL_1 = "jdbc:mysql://metaprot";
     private static String URL_2 = ":3306/";
-    private static String USER = "metaprot";
+    private static String USER = "metaroot";
     private static String PASS = "test";
     private String dbName;
     /**
@@ -38,8 +38,7 @@ public class DBConfiguration {
 
 			// Do the connection to the DB
 
-			connection = DriverManager.getConnection(URL_1 + URL_2 + dbName,
-					USER, PASS);
+			connection = DriverManager.getConnection(URL_1 + URL_2 + dbName, USER, PASS);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException ex) {
