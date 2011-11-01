@@ -1,3 +1,4 @@
+package de.mpa.parser.mascot.xml;
 
 /* Name:				RobbiesTestMain
  * letzte Änderung:		27.10.2011
