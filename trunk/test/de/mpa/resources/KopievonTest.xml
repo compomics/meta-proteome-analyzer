@@ -1,0 +1,3560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mascot_search_results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.matrixscience.com/xmlns/schema/mascot_search_results_2" xsi:schemaLocation="http://www.matrixscience.com/xmlns/schema/mascot_search_results_2 http://pc516/mascot/xmlns/schema/mascot_search_results_2/mascot_search_results_2.xsd"  majorVersion="2" minorVersion="0">
+<header>
+<COM>20091214-AH-Biogas (NCBInr all entries) (SPOT-019)</COM>
+<Date>2009-12-24T18:45:24Z</Date>
+<USERNAME>rapp</USERNAME>
+<USEREMAIL/>
+<URI>http://pc516/mascot/cgi/master_results.pl?file=../data/20091224/F004620.dat</URI>
+<FILENAME>\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff</FILENAME>
+<FORMAT>Mascot generic</FORMAT>
+<SEARCH>MIS</SEARCH>
+<MascotVer>2.2.1</MascotVer>
+<DB>NCBInr</DB>
+<FastaVer>NCBInr_20091106.fasta</FastaVer>
+<NumSeqs>9993394</NumSeqs>
+<NumResidues>3409286210</NumResidues>
+<NumSeqsAfterTax>9993394</NumSeqsAfterTax>
+<NumQueries>237</NumQueries>
+</header>
+<variable_mods>
+<modification identifier="1">
+<name>Carbamidomethyl (C)</name>
+<delta>57.021469</delta>
+<neutral_loss identifier="1">0</neutral_loss>
+</modification>
+<modification identifier="2">
+<name>Oxidation (M)</name>
+<delta>15.994919</delta>
+<neutral_loss identifier="1">63.998285</neutral_loss>
+<neutral_loss identifier="2">0</neutral_loss>
+</modification>
+<modification identifier="3">
+<name>Propionamide (C)</name>
+<delta>71.037109</delta>
+<neutral_loss identifier="1">0</neutral_loss>
+</modification>
+</variable_mods>
+<search_parameters>
+<TAXONOMY>All entries</TAXONOMY>
+<CLE>Trypsin/P</CLE>
+<PFA>1</PFA>
+<MODS/>
+<ICAT>0</ICAT>
+<IT_MODS>Carbamidomethyl (C),Oxidation (M),Propionamide (C)</IT_MODS>
+<TOL>0.1</TOL>
+<TOLU>Da</TOLU>
+<ITOL>0.07</ITOL>
+<ITOLU>Da</ITOLU>
+<MASS>Monoisotopic</MASS>
+<INSTRUMENT>ESI-QUAD-TOF</INSTRUMENT>
+</search_parameters>
+<format_parameters>
+<sigthreshold>0.05</sigthreshold>
+<REPORT>0</REPORT>
+<mudpit>0</mudpit>
+<ignoreionsscorebelow>0</ignoreionsscorebelow>
+<show_same_sets>1</show_same_sets>
+<showsubsets>0</showsubsets>
+<show_unassigned>0</show_unassigned>
+<requireboldred>1</requireboldred>
+</format_parameters>
+<hits>
+<hit number="1">
+<protein accession="gi|28317">
+<prot_desc>unnamed protein product [Homo sapiens]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>59492</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="1">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="1">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="1">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="1">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="1">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="1">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="1">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="1">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="1">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|21961605">
+<prot_desc>Keratin 10 [Homo sapiens]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>58792</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109115260">
+<prot_desc>PREDICTED: similar to keratin 10 isoform 2 [Macaca mulatta]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>62063</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109115262">
+<prot_desc>PREDICTED: similar to keratin 10 isoform 3 [Macaca mulatta]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>57547</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109115264">
+<prot_desc>PREDICTED: similar to keratin 10 isoform 1 [Macaca mulatta]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>56705</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|114667509">
+<prot_desc>PREDICTED: similar to keratin 10 isoform 1 [Pan troglodytes]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>62761</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|114667511">
+<prot_desc>PREDICTED: similar to keratin 10 isoform 3 [Pan troglodytes]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>58244</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|114667513">
+<prot_desc>PREDICTED: similar to keratin 10 isoform 2 [Pan troglodytes]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>56692</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|119581085">
+<prot_desc>keratin 10 (epidermolytic hyperkeratosis; keratosis palmaris et plantaris), isoform CRA_b [Homo sapiens]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>63308</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|195972866">
+<prot_desc>keratin 10 [Homo sapiens]</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>58766</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|251757513">
+<prot_desc>RecName: Full=Keratin, type I cytoskeletal 10; AltName: Full=Cytokeratin-10; Short=CK-10; AltName: Full=Keratin-10; Short=K10</prot_desc>
+<prot_score>413</prot_score>
+<prot_mass>58818</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|114667507">
+<prot_desc>PREDICTED: keratin 25D isoform 4 [Pan troglodytes]</prot_desc>
+<prot_score>411</prot_score>
+<prot_mass>100282</prot_mass>
+<prot_matches>9</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="116" rank="1" isbold="0">
+<pep_exp_mz>516.3060</pep_exp_mz>
+<pep_exp_mr>1030.5973</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1030.5910</pep_calc_mr>
+<pep_delta>0.0063</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.55</pep_score>
+<pep_expect>1.5</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VLDELTLTK</pep_seq>
+<pep_res_after>A</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>141: Sum of 3 scans in range 2763 (rt=17.4895, p=0, c=690, e=2) to 2770 (rt=17.6128, p=0, c=692, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="161" rank="1" isbold="0">
+<pep_exp_mz>583.3051</pep_exp_mz>
+<pep_exp_mr>1164.5956</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1164.5775</pep_calc_mr>
+<pep_delta>0.0182</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>47.9</pep_score>
+<pep_expect>0.32</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LENEIQTYR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>71: Sum of 3 scans in range 2538 (rt=13.5156, p=0, c=634, e=1) to 2547 (rt=13.6745, p=0, c=636, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="177" rank="1" isbold="0">
+<pep_exp_mz>601.3188</pep_exp_mz>
+<pep_exp_mr>1200.6230</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1200.6098</pep_calc_mr>
+<pep_delta>0.0131</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.76</pep_score>
+<pep_expect>1.7</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QSVEADINGLR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>114: Sum of 2 scans in range 2694 (rt=16.2721, p=0, c=673, e=1) to 2699 (rt=16.3604, p=0, c=674, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="191" rank="1" isbold="0">
+<pep_exp_mz>631.8085</pep_exp_mz>
+<pep_exp_mr>1261.6024</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1261.5899</pep_calc_mr>
+<pep_delta>0.0125</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>56.5</pep_score>
+<pep_expect>0.041</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLLEGEGSSGGGGR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>52: Sum of 2 scans in range 2479 (rt=12.4747, p=0, c=619, e=2) to 2483 (rt=12.5453, p=0, c=620, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="220" rank="2" isbold="0">
+<pep_exp_mz>683.3300</pep_exp_mz>
+<pep_exp_mr>1364.6454</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1364.6320</pep_calc_mr>
+<pep_delta>0.0134</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>65.58</pep_score>
+<pep_expect>0.0046</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SQYEQLAEQNR</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>58: Sum of 2 scans in range 2495 (rt=12.7569, p=0, c=623, e=2) to 2498 (rt=12.8098, p=0, c=624, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="222" rank="1" isbold="0">
+<pep_exp_mz>691.3376</pep_exp_mz>
+<pep_exp_mr>1380.6606</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1380.6408</pep_calc_mr>
+<pep_delta>0.0197</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.07</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>ALEESNYELEGK</pep_seq>
+<pep_res_after>I</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>84: Sum of 2 scans in range 2592 (rt=14.47, p=0, c=647, e=3) to 2595 (rt=14.523, p=0, c=648, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="223" rank="1" isbold="0">
+<pep_exp_mz>695.8510</pep_exp_mz>
+<pep_exp_mr>1389.6875</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1389.6736</pep_calc_mr>
+<pep_delta>0.0140</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>43.27</pep_score>
+<pep_expect>0.87</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>QSLEASLAETEGR</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>120: Sum of 2 scans in range 2712 (rt=16.59, p=0, c=677, e=3) to 2715 (rt=16.6428, p=0, c=678, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+<hit number="2">
+<protein accession="gi|7331218">
+<prot_desc>keratin 1 [Homo sapiens]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>65978</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="1">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="1">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="1">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="1">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="1">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="1">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="1">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|11935049">
+<prot_desc>keratin 1 [Homo sapiens]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>66027</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109096823">
+<prot_desc>PREDICTED: similar to keratin 1 isoform 7 [Macaca mulatta]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>65170</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109096825">
+<prot_desc>PREDICTED: similar to keratin 1 isoform 5 [Macaca mulatta]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>64332</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109096827">
+<prot_desc>PREDICTED: similar to keratin 1 isoform 3 [Macaca mulatta]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>62980</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109096829">
+<prot_desc>PREDICTED: similar to keratin 1 isoform 4 [Macaca mulatta]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>61838</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109096833">
+<prot_desc>PREDICTED: similar to keratin 1 isoform 2 [Macaca mulatta]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>61566</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|109096835">
+<prot_desc>PREDICTED: similar to keratin 1 isoform 1 [Macaca mulatta]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>58846</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|119395750">
+<prot_desc>keratin 1 [Homo sapiens]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>65999</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|160961491">
+<prot_desc>keratin 1 [Pan troglodytes]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>65450</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|189054178">
+<prot_desc>unnamed protein product [Homo sapiens]</prot_desc>
+<prot_score>370</prot_score>
+<prot_mass>65980</prot_mass>
+<prot_matches>7</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="148" rank="1" isbold="0">
+<pep_exp_mz>563.2839</pep_exp_mz>
+<pep_exp_mr>1124.5532</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1124.5349</pep_calc_mr>
+<pep_delta>0.0183</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.94</pep_score>
+<pep_expect>0.0023</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AEAESLYQSK</pep_seq>
+<pep_res_after>Y</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>40: Sum of 3 scans in range 2440 (rt=11.7876, p=0, c=609, e=3) to 2446 (rt=11.893, p=0, c=611, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="167" rank="1" isbold="0">
+<pep_exp_mz>590.3127</pep_exp_mz>
+<pep_exp_mr>1178.6108</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1178.5931</pep_calc_mr>
+<pep_delta>0.0177</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>67.81</pep_score>
+<pep_expect>0.0032</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>YEELQITAGR</pep_seq>
+<pep_res_after>H</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>104: Sum of 2 scans in range 2658 (rt=15.6362, p=0, c=664, e=1) to 2663 (rt=15.7247, p=0, c=665, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="193" rank="1" isbold="0">
+<pep_exp_mz>633.3236</pep_exp_mz>
+<pep_exp_mr>1264.6326</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1264.6299</pep_calc_mr>
+<pep_delta>0.0027</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.77</pep_score>
+<pep_expect>2.1</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TNAENEFVTIK</pep_seq>
+<pep_res_after>K</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>110: Sum of 4 scans in range 2683 (rt=16.0781, p=0, c=670, e=2) to 2691 (rt=16.2192, p=0, c=672, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="219" rank="1" isbold="0">
+<pep_exp_mz>679.3594</pep_exp_mz>
+<pep_exp_mr>1356.7042</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1356.6885</pep_calc_mr>
+<pep_delta>0.0157</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>68.31</pep_score>
+<pep_expect>0.0026</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LNDLEDALQQAK</pep_seq>
+<pep_res_after>E</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>163: Sum of 2 scans in range 2818 (rt=18.4591, p=0, c=704, e=1) to 2822 (rt=18.5296, p=0, c=705, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+<hit number="3">
+<protein accession="gi|114667176">
+<prot_desc>PREDICTED: similar to Keratin, type I cytoskeletal 14 (Cytokeratin-14) (CK-14) (Keratin-14) (K14) [Pan troglodytes]</prot_desc>
+<prot_score>202</prot_score>
+<prot_mass>107386</prot_mass>
+<prot_matches>4</prot_matches>
+<peptide query="13" rank="6" isbold="0">
+<pep_exp_mz>404.2114</pep_exp_mz>
+<pep_exp_mr>806.4082</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>806.3923</pep_calc_mr>
+<pep_delta>0.0160</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>42.64</pep_score>
+<pep_expect>1.3</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>LAADDFR</pep_seq>
+<pep_res_after>T</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>72: Sum of 3 scans in range 2542 (rt=13.5862, p=0, c=635, e=1) to 2550 (rt=13.7274, p=0, c=637, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="134" rank="7" isbold="0">
+<pep_exp_mz>545.7764</pep_exp_mz>
+<pep_exp_mr>1089.5382</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1089.5237</pep_calc_mr>
+<pep_delta>0.0145</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>37.11</pep_score>
+<pep_expect>4.2</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VTMQNLNDR</pep_seq>
+<pep_res_after>L</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>50: Sum of 2 scans in range 2474 (rt=12.3865, p=0, c=618, e=1) to 2480 (rt=12.4925, p=0, c=619, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="158" rank="1" isbold="1">
+<pep_exp_mz>579.3101</pep_exp_mz>
+<pep_exp_mr>1156.6055</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1156.5836</pep_calc_mr>
+<pep_delta>0.0219</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>60.96</pep_score>
+<pep_expect>0.015</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>QGVDADINGLR</pep_seq>
+<pep_res_after>Q</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>99: Sum of 2 scans in range 2644 (rt=15.3891, p=0, c=660, e=3) to 2652 (rt=15.5305, p=0, c=662, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="186" rank="1" isbold="1">
+<pep_exp_mz>616.8085</pep_exp_mz>
+<pep_exp_mr>1231.6025</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1231.5906</pep_calc_mr>
+<pep_delta>0.0119</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>61.69</pep_score>
+<pep_expect>0.013</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SGGGGGGGLGSGGSIR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>24: Sum of 3 scans in range 2375 (rt=10.9099, p=0, c=593, e=2) to 2383 (rt=11.0152, p=0, c=595, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+<hit number="4">
+<protein accession="gi|146741296">
+<prot_desc>keratin 1 [Sus scrofa]</prot_desc>
+<prot_score>162</prot_score>
+<prot_mass>65160</prot_mass>
+<prot_matches>4</prot_matches>
+<peptide query="46" rank="1" isbold="0">
+<pep_exp_mz>437.7639</pep_exp_mz>
+<pep_exp_mr>873.5133</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>873.4920</pep_calc_mr>
+<pep_delta>0.0213</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.6</pep_score>
+<pep_expect>2</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>SLVNLGGSK</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>80: Sum of 2 scans in range 2583 (rt=14.3107, p=0, c=645, e=2) to 2586 (rt=14.3637, p=0, c=646, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="117" rank="1" isbold="0">
+<pep_exp_mz>517.2718</pep_exp_mz>
+<pep_exp_mr>1032.5290</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1032.5087</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>66.52</pep_score>
+<pep_expect>0.0049</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>TLLEGEESR</pep_seq>
+<pep_res_after>M</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>55: Sum of 3 scans in range 2487 (rt=12.6158, p=0, c=621, e=2) to 2494 (rt=12.7392, p=0, c=623, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="142" rank="1" isbold="1">
+<pep_exp_mz>554.2835</pep_exp_mz>
+<pep_exp_mr>1106.5524</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1106.5356</pep_calc_mr>
+<pep_delta>0.0168</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>35.94</pep_score>
+<pep_expect>5.1</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>AQYEEIAQR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>45: Sum of 2 scans in range 2459 (rt=12.1221, p=0, c=614, e=2) to 2464 (rt=12.2103, p=0, c=615, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="230" rank="1" isbold="0">
+<pep_exp_mz>738.4034</pep_exp_mz>
+<pep_exp_mr>1474.7922</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1474.7780</pep_calc_mr>
+<pep_delta>0.0142</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>18.63</pep_score>
+<pep_expect>2.2e+002</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>FLEQQNQVLQTK</pep_seq>
+<pep_res_after>W</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>101: Sum of 2 scans in range 2648 (rt=15.4598, p=0, c=661, e=3) to 2651 (rt=15.5127, p=0, c=662, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+<hit number="5">
+<protein accession="gi|3318722">
+<prot_desc>Chain E, Leech-Derived Tryptase InhibitorTRYPSIN COMPLEX</prot_desc>
+<prot_score>145</prot_score>
+<prot_mass>23457</prot_mass>
+<prot_matches>3</prot_matches>
+<peptide query="32" rank="1" isbold="1">
+<pep_exp_mz>421.7616</pep_exp_mz>
+<pep_exp_mr>841.5087</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>841.5022</pep_calc_mr>
+<pep_delta>0.0066</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>39.73</pep_score>
+<pep_expect>1.6</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>VATVSLPR</pep_seq>
+<pep_res_after>S</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>76: Sum of 8 scans in range 2559 (rt=13.8864, p=0, c=639, e=2) to 2584 (rt=14.3284, p=0, c=645, e=3) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="121" rank="1" isbold="1">
+<pep_exp_mz>523.2963</pep_exp_mz>
+<pep_exp_mr>1044.5781</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1044.5564</pep_calc_mr>
+<pep_delta>0.0217</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>77.73</pep_score>
+<pep_expect>0.00034</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LSSPATLNSR</pep_seq>
+<pep_res_after>V</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>44: Sum of 4 scans in range 2458 (rt=12.1044, p=0, c=614, e=1) to 2475 (rt=12.4042, p=0, c=618, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="122" rank="1" isbold="1">
+<pep_exp_mz>523.7858</pep_exp_mz>
+<pep_exp_mr>1045.5571</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1045.5404</pep_calc_mr>
+<pep_delta>0.0168</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>27.2</pep_score>
+<pep_expect>42</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>LSSPATLDSR</pep_seq>
+<pep_res_after>V</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>56: Sum of 3 scans in range 2491 (rt=12.6864, p=0, c=622, e=2) to 2499 (rt=12.8275, p=0, c=624, e=2) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+<hit number="6">
+<protein accession="gi|11514434">
+<prot_desc>Chain B, Methyl-Coenzyme M Reductase From Methanosarcina Barkeri</prot_desc>
+<prot_score>74</prot_score>
+<prot_mass>45261</prot_mass>
+<prot_matches>2</prot_matches>
+<peptide query="174" rank="2" isbold="1">
+<pep_exp_mz>598.7781</pep_exp_mz>
+<pep_exp_mr>1195.5417</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1195.5179</pep_calc_mr>
+<pep_delta>0.0238</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>25.03</pep_score>
+<pep_expect>50</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>ETGLPGCDYGK</pep_seq>
+<pep_res_after>V</pep_res_after>
+<pep_var_mod>Carbamidomethyl (C)</pep_var_mod>
+<pep_var_mod_pos>0.00000010000.0</pep_var_mod_pos>
+<pep_scan_title>65: Sum of 3 scans in range 2522 (rt=13.2333, p=0, c=630, e=1) to 2530 (rt=13.3744, p=0, c=632, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="176" rank="1" isbold="1">
+<pep_exp_mz>599.7749</pep_exp_mz>
+<pep_exp_mr>1197.5352</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1197.5150</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>49.13</pep_score>
+<pep_expect>0.16</pep_expect>
+<pep_res_before>-</pep_res_before>
+<pep_seq>SDTVDIYDDR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>86: Sum of 3 scans in range 2603 (rt=14.6646, p=0, c=650, e=2) to 2610 (rt=14.7883, p=0, c=652, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|20093334">
+<prot_desc>methyl coenzyme M reductase, subunit beta [Methanosarcina acetivorans C2A]</prot_desc>
+<prot_score>74</prot_score>
+<prot_mass>45108</prot_mass>
+<prot_matches>2</prot_matches>
+<peptide query="174" rank="2" isbold="0">
+<pep_exp_mz>598.7781</pep_exp_mz>
+<pep_exp_mr>1195.5417</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1195.5179</pep_calc_mr>
+<pep_delta>0.0238</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>25.03</pep_score>
+<pep_expect>50</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>ETGLPGCDYGK</pep_seq>
+<pep_res_after>V</pep_res_after>
+<pep_var_mod>Carbamidomethyl (C)</pep_var_mod>
+<pep_var_mod_pos>0.00000010000.0</pep_var_mod_pos>
+<pep_scan_title>65: Sum of 3 scans in range 2522 (rt=13.2333, p=0, c=630, e=1) to 2530 (rt=13.3744, p=0, c=632, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="176" rank="1" isbold="0">
+<pep_exp_mz>599.7749</pep_exp_mz>
+<pep_exp_mr>1197.5352</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1197.5150</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>49.13</pep_score>
+<pep_expect>0.16</pep_expect>
+<pep_res_before>M</pep_res_before>
+<pep_seq>SDTVDIYDDR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>86: Sum of 3 scans in range 2603 (rt=14.6646, p=0, c=650, e=2) to 2610 (rt=14.7883, p=0, c=652, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|21227346">
+<prot_desc>methyl-coenzyme M reductase, beta subunit [Methanosarcina mazei Go1]</prot_desc>
+<prot_score>74</prot_score>
+<prot_mass>45430</prot_mass>
+<prot_matches>2</prot_matches>
+<peptide query="174" rank="2" isbold="0">
+<pep_exp_mz>598.7781</pep_exp_mz>
+<pep_exp_mr>1195.5417</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1195.5179</pep_calc_mr>
+<pep_delta>0.0238</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>25.03</pep_score>
+<pep_expect>50</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>ETGLPGCDYGK</pep_seq>
+<pep_res_after>V</pep_res_after>
+<pep_var_mod>Carbamidomethyl (C)</pep_var_mod>
+<pep_var_mod_pos>0.00000010000.0</pep_var_mod_pos>
+<pep_scan_title>65: Sum of 3 scans in range 2522 (rt=13.2333, p=0, c=630, e=1) to 2530 (rt=13.3744, p=0, c=632, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="176" rank="1" isbold="0">
+<pep_exp_mz>599.7749</pep_exp_mz>
+<pep_exp_mr>1197.5352</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1197.5150</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>49.13</pep_score>
+<pep_expect>0.16</pep_expect>
+<pep_res_before>M</pep_res_before>
+<pep_seq>SDTVDIYDDR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>86: Sum of 3 scans in range 2603 (rt=14.6646, p=0, c=650, e=2) to 2610 (rt=14.7883, p=0, c=652, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+<protein accession="gi|73668436">
+<prot_desc>methyl-coenzyme M reductase, beta subunit [Methanosarcina barkeri str. Fusaro]</prot_desc>
+<prot_score>74</prot_score>
+<prot_mass>45392</prot_mass>
+<prot_matches>2</prot_matches>
+<peptide query="174" rank="2" isbold="0">
+<pep_exp_mz>598.7781</pep_exp_mz>
+<pep_exp_mr>1195.5417</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1195.5179</pep_calc_mr>
+<pep_delta>0.0238</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>25.03</pep_score>
+<pep_expect>50</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>ETGLPGCDYGK</pep_seq>
+<pep_res_after>V</pep_res_after>
+<pep_var_mod>Carbamidomethyl (C)</pep_var_mod>
+<pep_var_mod_pos>0.00000010000.0</pep_var_mod_pos>
+<pep_scan_title>65: Sum of 3 scans in range 2522 (rt=13.2333, p=0, c=630, e=1) to 2530 (rt=13.3744, p=0, c=632, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="176" rank="1" isbold="0">
+<pep_exp_mz>599.7749</pep_exp_mz>
+<pep_exp_mr>1197.5352</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1197.5150</pep_calc_mr>
+<pep_delta>0.0203</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>49.13</pep_score>
+<pep_expect>0.16</pep_expect>
+<pep_res_before>M</pep_res_before>
+<pep_seq>SDTVDIYDDR</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>86: Sum of 3 scans in range 2603 (rt=14.6646, p=0, c=650, e=2) to 2610 (rt=14.7883, p=0, c=652, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+<hit number="7">
+<protein accession="gi|160901518">
+<prot_desc>extracellular solute-binding protein [Petrotoga mobilis SJ95]</prot_desc>
+<prot_score>66</prot_score>
+<prot_mass>45929</prot_mass>
+<prot_matches>2</prot_matches>
+<peptide query="20" rank="1" isbold="1">
+<pep_exp_mz>413.7801</pep_exp_mz>
+<pep_exp_mr>825.5456</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>825.5324</pep_calc_mr>
+<pep_delta>0.0132</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>40.03</pep_score>
+<pep_expect>0.65</pep_expect>
+<pep_res_before>K</pep_res_before>
+<pep_seq>VGITVLPK</pep_seq>
+<pep_res_after>G</pep_res_after>
+<pep_var_mod/>
+<pep_var_mod_pos/>
+<pep_scan_title>108: Sum of 3 scans in range 2678 (rt=15.9897, p=0, c=669, e=1) to 2686 (rt=16.1309, p=0, c=671, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+<peptide query="203" rank="4" isbold="1">
+<pep_exp_mz>651.2963</pep_exp_mz>
+<pep_exp_mr>1300.5781</pep_exp_mr>
+<pep_exp_z>2</pep_exp_z>
+<pep_calc_mr>1300.5605</pep_calc_mr>
+<pep_delta>0.0176</pep_delta>
+<pep_miss>0</pep_miss>
+<pep_score>26.35</pep_score>
+<pep_expect>28</pep_expect>
+<pep_res_before>R</pep_res_before>
+<pep_seq>GVTTYMEEEAR</pep_seq>
+<pep_res_after>R</pep_res_after>
+<pep_var_mod>Oxidation (M)</pep_var_mod>
+<pep_var_mod_pos>0.00000200000.0</pep_var_mod_pos>
+<pep_scan_title>30: Sum of 2 scans in range 2419 (rt=11.4179, p=0, c=604, e=2) to 2422 (rt=11.4705, p=0, c=605, e=1) [\\smbhome\rapp\qstar\20091214-AH-Biogas\Data\2D-GELI-Ruebe-019.wiff]</pep_scan_title>
+</peptide>
+</protein>
+</hit>
+</hits>
+</mascot_search_results>

@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -16,7 +18,7 @@ public class MascotGenericFileReader {
     /**
      * This Vector will hold all the spectrum files in the mergefile.
      */
-    protected Vector spectrumFiles = null;
+    protected List<MascotGenericFile> spectrumFiles = null;
 
     /**
      * The filename for this mergefile.
@@ -38,7 +40,7 @@ public class MascotGenericFileReader {
      *
      * @return Vector  with the currently held SpectrumFiles.
      */
-    public Vector getSpectrumFiles() {
+    public List<MascotGenericFile> getSpectrumFiles() {
         return this.spectrumFiles;
     }
 
@@ -68,7 +70,7 @@ public class MascotGenericFileReader {
      * @throws java.io.IOException when the loading operation failed.
      */
     public void load(File file) throws IOException {
-        spectrumFiles = new Vector(300, 10);
+        spectrumFiles = new ArrayList<MascotGenericFile>();
         if (!file.exists()) {
             throw new IOException("Mergefile '" + file.getCanonicalPath() + "' could not be found!");
         } else {

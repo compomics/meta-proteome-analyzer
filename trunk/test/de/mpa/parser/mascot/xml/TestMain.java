@@ -9,16 +9,17 @@ package de.mpa.parser.mascot.xml;
 
 
 import java.io.File;
-public class TestMain {
+
+import junit.framework.TestCase;
+public class TestMain extends TestCase {
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		String fil = "C:\\Documents and Settings\\heyer\\workspace\\MetaProteomeAnalyzer\\test\\de\\mpa\\resources\\ESI\\xml\\Spot24.xml";
-		MascotXMLParser parser = new MascotXMLParser();
-		MascotRecord record = parser.parse(new File(fil));
+	public void testParse() {
+		String file = "C:\\Documents and Settings\\heyer\\workspace\\MetaProteomeAnalyzer\\test\\de\\mpa\\resources\\ESI\\xml\\Spot24.xml";
+		MascotXMLParser parser = new MascotXMLParser(new File(file));
+		System.out.println(parser.parse().getXmlFilename());
 		
 	}
 

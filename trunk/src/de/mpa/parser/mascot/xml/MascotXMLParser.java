@@ -22,22 +22,30 @@ import org.w3c.dom.NodeList;
  *
  */
 public class MascotXMLParser {
+	
+	private File xmlFile;
+	
+	
+	public MascotXMLParser(File xmlFile) {
+		this.xmlFile = xmlFile;
+	}
+
 	/**
 	 * Parses the mascot XML file.
 	 * @param mascotXML
 	 * @return
 	 */
-	public MascotRecord parse(File mascotXML){
+	public MascotRecord parse(){
 		// Klasse in der alles gespeichert wird
 		MascotRecord mascotRecord = new MascotRecord();
 		try {
 			// Teil der Dokument einliest					
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(mascotXML);
+			Document doc = dBuilder.parse(xmlFile);
 			doc.getDocumentElement().normalize();					
 			//Name XML	
-			mascotRecord.setXmlFilename(mascotXML.getName());					
+			mascotRecord.setXmlFilename(xmlFile.getName());					
 			//  Header begins here
 			NodeList nHeaderList = doc.getElementsByTagName("header");		
 			for (int temp = 0; temp < nHeaderList.getLength(); temp++) {
@@ -86,13 +94,18 @@ public class MascotXMLParser {
 					List<PeptideHit> peptideHits = new ArrayList<PeptideHit>();	
 					NodeList peptideList = hitElement.getElementsByTagName("peptide");
 					for (int j = 0; j < peptideList.getLength(); j++) {
-						PeptideHit peptideHit = new PeptideHit();
+						PeptideHit peptideHit = new PeptideHit(proteinHit.getAccession());
 						// durchgehen aller Peptide in PeptideNodeList
 						Node peptideNode = peptideList.item(j);		
 						peptideHit.setDescription(peptideNode.getAttributes().item(0) +" "+ peptideNode.getAttributes().item(1)+" "+ peptideNode.getAttributes().item(2));
 						Element peptideElement = (Element) peptideNode;
 						// Rest abfragen
 						if (peptideNode.getNodeType() == Node.ELEMENT_NODE) {					
+							
+							//Peptide Titel
+							peptideHit.setName(getTagValue("pep_scan_title", peptideElement));
+							
+							
 							//Peptide_seq
 							peptideHit.setSequence(getTagValue("pep_seq", peptideElement));
 							// Peptide_ MZ
@@ -113,7 +126,8 @@ public class MascotXMLParser {
 							}
 						}
 						//Hinzufügen des peptideHit zur Liste der peptideHis
-						peptideHits.add(peptideHit);		
+						peptideHits.add(peptideHit);	
+						mascotRecord.addEntry(peptideHit.getName(), peptideHit);
 					}
 					//Hinzufügen der Liste peptideHits zu proteinHit
 					proteinHit.setPeptideHits(peptideHits);		
