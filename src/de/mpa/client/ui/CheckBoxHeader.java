@@ -2,7 +2,11 @@ package de.mpa.client.ui;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.*;
+
+import de.mpa.algorithms.graph.Edge;
 
 import java.awt.event.*;
 
@@ -19,6 +23,8 @@ public class CheckBoxHeader extends JCheckBox
 	public CheckBoxHeader(ItemListener itemListener) {
 		this.setHorizontalAlignment(LEFT);
 		rendererComponent.addItemListener(itemListener);
+		Border headerBorder = UIManager.getBorder("TableHeader.cellBorder");
+		this.setBorder(headerBorder);
 		setBorderPainted(true);
 	}
 	
@@ -41,7 +47,7 @@ public class CheckBoxHeader extends JCheckBox
 		}
 		setColumn(column);
 //		rendererComponent.setText("Check All");
-		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+//		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		return rendererComponent;
 	}
 

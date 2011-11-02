@@ -91,7 +91,7 @@ public class ClientFrame extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu menu1;
 	private JMenuItem exitItem;
-	private JButton processBtn;
+//	private JButton processBtn;
 	
 	private ArrayList<MascotGenericFile> spectrumFiles = new ArrayList<MascotGenericFile>();
 	
@@ -258,6 +258,20 @@ public class ClientFrame extends JFrame {
 			}
 		}
 	    tCol.setHeaderRenderer(new CheckBoxHeader(new CheckBoxHeaderItemListener()));
+	    
+//	    CheckBoxHeader derp = (CheckBoxHeader) tCol.getHeaderRenderer();
+//	    
+//	    JButton blah = new JButton("blah");
+//	    System.out.println(blah.getBorder());
+//	    
+//	    derp.setBorder(new LineBorder(Color.RED));
+//	    
+//	    derp.setBorder(blah.getBorder());
+//	    
+//	    JCheckBox jchckbx = new JCheckBox();
+//	    jchckbx.setBorder(new LineBorder(Color.RED));
+//	    selPnl.add
+	    
 	    
 	    JScrollPane fileScPn = new JScrollPane(fileTbl);
 	    fileScPn.setPreferredSize(new Dimension(fileScPn.getPreferredSize().width, 200));
@@ -620,6 +634,7 @@ public class ClientFrame extends JFrame {
 //					SubstanceLookAndFeel.setSkin(new BusinessBlackSteelSkin());
 //				}
 //				catch (Exception e) { e.printStackTrace(); }
+				
 				new ClientFrame();
 			}
 		});
