@@ -4,27 +4,54 @@ import java.util.List;
 import java.util.Map;
 
 /* Name:				RobbiesDomParser
- * letzte Änderung:		25.10.2011
+ * Last changed:		02.11.2011
  * Author:				Robbie
- * Beschreibung:		Objekt in dem InhaltXML reingeschrieben wird
+ * Description:			object representing Mascot xml file
  */
 
 public class MascotRecord {
-	// Deklaration der Variablen
-
-	private String xmlFilename="";
-	private String uri ="";
-	private String mascotFilename= "";
-	private List<Proteinhit> proteinHits;
-	//Definieren der Hashmap
 	
+	// class variables
+	private String xmlFilename = "";
+	private String uri = "";
+	private String mascotFilename = "";
+	private List<Proteinhit> proteinHits;
 	private Map<String,PeptideHit> pepMap = new HashMap<String, PeptideHit>();
 	
+	private int numQueries = 0;
+
+	// class methods
 	public void addEntry(String key,PeptideHit value){
 		pepMap.put(key, value);			
-	}	
-	
-	//Deklaration der Setter und Getter	
+	}
+
+	public String getXmlFilename() {
+		return xmlFilename;
+	}
+	public void setXmlFilename(String xmlFilename) {
+		this.xmlFilename = xmlFilename;
+	}
+
+	public String getURI() {
+		return uri;
+	}
+	public void setURI(String uri) {
+		this.uri = uri;
+	}
+
+	public String getMascotFilename() {
+		return mascotFilename;
+	}
+	public void setMascotFilename(String mascotFilename) {
+		this.mascotFilename = mascotFilename;
+	}
+
+	public List<Proteinhit> getProteinHits() {
+		return proteinHits;
+	}
+	public void setProteinHits(List<Proteinhit> proteinHits) {
+		this.proteinHits = proteinHits;
+	}
 	
 	public Map<String, PeptideHit> getPepMap() {
 		return pepMap;
@@ -32,29 +59,11 @@ public class MascotRecord {
 	public void setPepMap(Map<String, PeptideHit> pepMap) {
 		this.pepMap = pepMap;
 	}
-	public List<Proteinhit> getProteinHits() {
-		return proteinHits;
-	}
-	public String getXmlFilename() {
-		return xmlFilename;
-	}
-	public void setXmlFilename(String xmlFilename) {
-		this.xmlFilename = xmlFilename;
-	}
-	public String getUri() {
-		return uri;
-	}
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-	public String getMascotFilename() {
-		return mascotFilename;
-	}
-	public void setMascotFilename(String mascotFilename) {
-		this.mascotFilename = mascotFilename;
-	}
-	public void setProteinHits(List<Proteinhit> proteinHits) {
 
-		this.proteinHits = proteinHits;
+	public int getNumQueries() {
+		return numQueries;
+	}
+	public void setNumQueries(int numQueries) {
+		this.numQueries = numQueries;
 	}
 }

@@ -1,10 +1,16 @@
 package de.mpa.db.mysqlclient;
 
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,8 +23,12 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.mpa.db.DBConfiguration;
@@ -27,12 +37,19 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.parser.mascot.xml.MascotRecord;
 import de.mpa.parser.mascot.xml.MascotXMLParser;
 import de.mpa.parser.mascot.xml.PeptideHit;
 
 public class SpecLibFrame extends JFrame {
 
 	private SpecLibFrame frame;
+	private File[] mgfFiles;
+	private File[] xmlFiles;
+	private JButton uplBtn;
+	private JProgressBar uplPrg;
+	
+	private ParseTask task;
 
 	public SpecLibFrame() {
 		initComponents();
@@ -45,143 +62,258 @@ public class SpecLibFrame extends JFrame {
 	public static void main(String[] args) {
 		new SpecLibFrame();
 	}
-	// Methode die Frame aufbaut
+	
+	// method to build frame
 	private void initComponents() {
-		// read mgf
-		JLabel captionMgfLlb = new JLabel("Mgf filename");
-		final JTextField nameMGFTxt = new JTextField("");
-		nameMGFTxt.setPreferredSize(new Dimension(250,25));
-		JButton mgfReadBtn	= new JButton("Add Mgf");
+		
 		frame = this;
-		mgfReadBtn.addActionListener(new ActionListener() {
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		// components for mgf panel
+		JLabel mgfLbl = new JLabel("MGF files");
+		
+		final JTextField mgfTtf = new JTextField();
+		mgfTtf.setPreferredSize(new Dimension(250,mgfTtf.getHeight()));
+		
+		JButton mgfBtn = new JButton("Browse...");
+		mgfBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser("test/de/mpa/resources");
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("mgf files", "mgf");
+//				JFileChooser chooser = new JFileChooser("test/de/mpa/resources");
+				JFileChooser chooser = new JFileChooser("/data/bpt/bptprot/MetaproteomeAnalyser/Daten fuer Metaproteomce analyser/Qstar");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Mascot Generic Format (*.mgf)", "mgf");
 				chooser.setFileFilter(filter);
+				chooser.setMultiSelectionEnabled(true);
 				int returnVal = chooser.showOpenDialog(frame);
 				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					nameMGFTxt.setText(chooser.getSelectedFile().getAbsolutePath());			       		
+					mgfFiles = chooser.getSelectedFiles();
+					String str = "";
+					for (File file : mgfFiles) {
+						str += file.getName() + " ";
+					}
+					mgfTtf.setText(str);
+//				} else {
+//					mgfFiles = null;
+//					mgfTtf.setText("");
 				}
 			}
 		});
-		// read xml
-		JLabel captionXmlLlb = new JLabel("Xml filename");
-		final JTextField nameXmlTxt = new JTextField("");
-		JButton xmlReadBtn	= new JButton("Add Xml");
-		xmlReadBtn.addActionListener(new ActionListener() {
+		
+		// components for xml panel
+		JLabel xmlLbl = new JLabel("XML files");
+		
+		final JTextField xmlTtf = new JTextField();
+		
+		JButton xmlBtn = new JButton("Browse...");
+		xmlBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser("test/de/mpa/resources");
+//				JFileChooser chooser = new JFileChooser("test/de/mpa/resources");
+				JFileChooser chooser = new JFileChooser("/data/bpt/bptprot/MetaproteomeAnalyser/Daten fuer Metaproteomce analyser/Qstar");
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("xml files", "xml");
 				chooser.setFileFilter(filter);
+				chooser.setMultiSelectionEnabled(true);
 				int returnVal = chooser.showOpenDialog(frame);
 				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					nameXmlTxt.setText(chooser.getSelectedFile().getAbsolutePath());			       		
+					xmlFiles = chooser.getSelectedFiles();
+					String str = "";
+					for (File file : xmlFiles) {
+						str += file.getName() + " ";
+					}
+					xmlTtf.setText(str);	       		
+//				} else {
+//					xmlFiles = null;
+//					xmlTtf.setText("");
 				}
 			}
 		});
 
-		// Zusammenbau Panels
-		Container contentPane = this.getContentPane();// Boxlayout needs extra container to add frame
+		Container contentPane = this.getContentPane();	// BoxLayout requires this
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-		JPanel mgfRowPnl = new JPanel();
-		JPanel xmlRowPnl = new JPanel();
-
-		mgfRowPnl.setLayout(new BoxLayout(mgfRowPnl, BoxLayout.X_AXIS));
-		xmlRowPnl.setLayout(new BoxLayout(xmlRowPnl, BoxLayout.X_AXIS));
-
-		mgfRowPnl.add(captionMgfLlb);
-		mgfRowPnl.add(nameMGFTxt);
-		mgfRowPnl.add(mgfReadBtn);
-		xmlRowPnl.add(captionXmlLlb);
-		xmlRowPnl.add(nameXmlTxt);
-		xmlRowPnl.add(xmlReadBtn);
-
-
-		// Upload frame
-		JPanel uploadPnl = new JPanel();
-		uploadPnl.setLayout(new BoxLayout(uploadPnl, BoxLayout.X_AXIS));
-		JButton uploadBtn = new JButton("upload");
-		uploadBtn.addActionListener(new ActionListener() {
+		
+		// components for upload panel
+		JLabel idLbl = new JLabel("ProjectID");
+		
+		final JSpinner idSpn = new JSpinner();
+		idSpn.setValue(1);
+		
+		uplBtn = new JButton("Upload");
+		uplBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				parseStuff(nameMGFTxt.getText(), nameXmlTxt.getText());
+				if ((mgfFiles != null) && (xmlFiles != null) && (mgfFiles.length == xmlFiles.length)) {
+					if ((Integer)idSpn.getValue() > 0) {
+						
+//						parseStuff();
+						
+						uplBtn.setEnabled(false);
+				        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+						task = new ParseTask();
+				        task.addPropertyChangeListener(new PropertyChangeListener() {
+				        	@Override
+							public void propertyChange(PropertyChangeEvent evt) {
+				        		if ("progress" == evt.getPropertyName()) {
+				        			int progress = (Integer) evt.getNewValue();
+				        			uplPrg.setValue(progress);
+				        		} 
+
+				        	}
+				        });
+				        task.execute();
+
+					} else {
+						JOptionPane.showMessageDialog(frame, "ProjectID needs to be larger than 0.", "Error", JOptionPane.ERROR_MESSAGE);
+					}					
+				} else {
+					JOptionPane.showMessageDialog(frame, "An equal number of mgf and xml files must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
-		uploadPnl.add(uploadBtn);
-		contentPane.add(mgfRowPnl);
-		contentPane.add(xmlRowPnl);
-		contentPane.add(uploadPnl);
+		
+		uplPrg = new JProgressBar(0,100);
+		uplPrg.setStringPainted(true);
+				
+		// construct panels
+		JPanel mgfPnl = new JPanel();
+		mgfPnl.setLayout(new BoxLayout(mgfPnl, BoxLayout.X_AXIS));
+		mgfPnl.add(mgfLbl);
+		mgfPnl.add(mgfTtf);
+		mgfPnl.add(mgfBtn);
+		
+		JPanel xmlPnl = new JPanel();
+		xmlPnl.setLayout(new BoxLayout(xmlPnl, BoxLayout.X_AXIS));
+		xmlPnl.add(xmlLbl);
+		xmlPnl.add(xmlTtf);
+		xmlPnl.add(xmlBtn);
+		
+		JPanel uplPnl = new JPanel();
+		uplPnl.setLayout(new BoxLayout(uplPnl, BoxLayout.X_AXIS));
+		uplPnl.add(idLbl);
+		uplPnl.add(idSpn);
+		uplPnl.add(uplBtn);
+		uplPnl.add(uplPrg);	
+		
+		// insert panels into content pane
+		contentPane.add(mgfPnl);
+		contentPane.add(xmlPnl);
+		contentPane.add(uplPnl);
+		
 		this.setContentPane(contentPane);
 		this.pack();	
 	}
+	
+	class ParseTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+        @Override
+        public Void doInBackground() {
+        	
+        	int progress = 0;
+        	// inefficiently determine maximum progress value
+        	int max = getNumSpectra();
+        	
+        	
+            //Initialize progress property.
+            setProgress(0);
+        	
+        	try {
+    			// connect to server
+    			DBConfiguration dbconfig = new DBConfiguration("metaprot");
+    			Connection conn = dbconfig.getConnection();
 
-	protected void parseStuff(String nameMgf, String nameXml) {
-		// Mgf Parsing
-		try {
-			MascotGenericFileReader readerMgf = new MascotGenericFileReader(new File(nameMgf));
-			List<MascotGenericFile> mgfFiles = readerMgf.getSpectrumFiles();
-			MascotXMLParser readerXml = new MascotXMLParser(new File(nameXml));
-			Map<String,PeptideHit> pepMap = readerXml.parse().getPepMap();
-			pepMap.size();
+    			// attention: the order in which files were selected does matter!
+    			for (int i = 0; i < mgfFiles.length; i++) {
+    				// parse mgf
+    				MascotGenericFileReader reader = new MascotGenericFileReader(mgfFiles[i]);
+    				List<MascotGenericFile> mgfList = reader.getSpectrumFiles();
 
-			DBConfiguration dbconfig = new DBConfiguration("metaprot");
-			Connection conn = dbconfig.getConnection();
+    				// parse xml
+    				// use non-verbose parser mode
+    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i], MascotXMLParser.SUPPRESS_WARNINGS);
+    				Map<String,PeptideHit> pepMap = readerXML.parse().getPepMap();
 
-			// Iterate all spectra.
-			for (MascotGenericFile mgf : mgfFiles) {
-				HashMap<Object, Object> data = new HashMap<Object, Object>(10);
+    				// Iterate over all spectra.
+    				for (MascotGenericFile mgf : mgfList) {
+    					HashMap<Object, Object> data = new HashMap<Object, Object>(10);
 
-				data.put(Spectrum.L_PROJECTID, Long.valueOf(1));
-				data.put(Spectrum.FILENAME, mgf.getFilename());
-				data.put(Spectrum.SPECTRUMNAME, mgf.getTitle());
-				data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
-				data.put(Spectrum.CHARGE, mgf.getCharge());
-				data.put(Spectrum.TOTALINTENSITY, mgf.getTotalIntensity());
-				data.put(Spectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
+    					data.put(Spectrum.L_PROJECTID, Long.valueOf(1));
+    					data.put(Spectrum.FILENAME, mgf.getFilename());
+    					data.put(Spectrum.SPECTRUMNAME, mgf.getTitle());
+    					data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
+    					data.put(Spectrum.CHARGE, mgf.getCharge());
+    					data.put(Spectrum.TOTALINTENSITY, mgf.getTotalIntensity());
+    					data.put(Spectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
 
-			     // Create the database object.
-	            Spectrum spectrum = new Spectrum(data);
-	            spectrum.persist(conn);
-	            
-	            // Get the spectrumid from the generated keys.
-				Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
-				
-	            // Create the spectrumFile instance.
-	            Spectrumfile spectrumFile = new Spectrumfile();
-	            spectrumFile.setL_spectrumid(spectrumid);
+    					// Create the database object.
+    					Spectrum spectrum = new Spectrum(data);
+    					spectrum.persist(conn);
 
-	            // Set the filecontent
-	            // Read the contents for the file into a byte[].
-	            byte[] fileContents = mgf.toString().getBytes();
-	            // Set the byte[].
-	            spectrumFile.setUnzippedFile(fileContents);
-	            // Create the database object.
-	            spectrumFile.persist(conn);
-	            
-				// Peptideinfo if found
-				if (pepMap.containsKey(mgf.getTitle())) {
+    					// Get the spectrumid from the generated keys.
+    					Long spectrumID = (Long) spectrum.getGeneratedKeys()[0];
 
-					PeptideHit pepHit = pepMap.get(mgf.getTitle());
-					HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
+    					// Create the spectrumFile instance.
+    					Spectrumfile spectrumFile = new Spectrumfile();
+    					spectrumFile.setL_spectrumid(spectrumID);
 
-					dataSpecLib.put(Speclibentry.L_SPECTRUMID, spectrumid);
-					dataSpecLib.put(Speclibentry.PRECURSOR_MZ, pepHit.getMz());
-					dataSpecLib.put(Speclibentry.SEQUENCE, pepHit.getSequence());
-					dataSpecLib.put(Speclibentry.ANNOTATION, pepHit.getProteinAccession());
-					
-					Speclibentry libEntry = new Speclibentry(dataSpecLib);
-					libEntry.persist(conn);
-				}
+    					// Set the file contents
+    					// Read the contents for the file into a byte[].
+    					byte[] fileContents = mgf.toString().getBytes();
+    					// Set the byte[].
+    					spectrumFile.setUnzippedFile(fileContents);
+    					// Create the database object.
+    					spectrumFile.persist(conn);
+
+    					// grab peptide annotation if key exists
+    					if (pepMap.containsKey(mgf.getTitle())) {
+
+    						PeptideHit pepHit = pepMap.get(mgf.getTitle());
+    						HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
+
+    						dataSpecLib.put(Speclibentry.L_SPECTRUMID, spectrumID);
+    						dataSpecLib.put(Speclibentry.PRECURSOR_MZ, pepHit.getMz());
+    						dataSpecLib.put(Speclibentry.SEQUENCE, pepHit.getSequence());
+    						dataSpecLib.put(Speclibentry.ANNOTATION, pepHit.getProteinAccession());
+
+    						Speclibentry libEntry = new Speclibentry(dataSpecLib);
+    						libEntry.persist(conn);
+    					}
+                        progress += 1;
+                        setProgress((int)((double)progress/max*100));
+    				}
+    			}
+    			conn.close();
+    			JOptionPane.showMessageDialog(frame, "Upload complete.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+            return null;
+        }
+
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            uplBtn.setEnabled(true);
+            setCursor(null); //turn off the wait cursor
+        }
+    }
+
+	private int getNumSpectra() {
+		int res = 0;
+		for (File mgf : mgfFiles) {
+			try {
+				MascotGenericFileReader reader = new MascotGenericFileReader(mgf);
+				res += reader.getSpectrumFiles().size();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			conn.close();				
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}		
-		
+		}
+		return res;
 	}
 
 }
