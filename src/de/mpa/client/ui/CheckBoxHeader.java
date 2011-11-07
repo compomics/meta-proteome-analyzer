@@ -1,14 +1,17 @@
 package de.mpa.client.ui;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Component;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.JCheckBox;
+import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.*;
-
-import de.mpa.algorithms.graph.Edge;
-
-import java.awt.event.*;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 /**
  * Table header with CheckBox.

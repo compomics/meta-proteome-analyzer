@@ -11,16 +11,24 @@ import de.mpa.io.MascotGenericFile;
  */
 public class LibrarySpectrum {
 	// The MGF spectrum file
-	private MascotGenericFile spectrumFile;
+	protected MascotGenericFile spectrumFile;
 	
 	// The precursor mass 
-	private double precursorMz;
+	protected double precursorMz;
 	
 	// The assigned peptide sequence
-	private String sequence;
+	protected String sequence;
 	
 	// The protein annotation
-	private String annotation;
+	protected String annotation;
+	
+	/**
+	 * Copy constructor.
+	 * @param libSpec
+	 */
+	public LibrarySpectrum(LibrarySpectrum libSpec) {
+		this(libSpec.getSpectrumFile(), libSpec.getPrecursorMz(), libSpec.getSequence(), libSpec.getAnnotation());
+	}
 	
 	/**
 	 * Constructor for a library spectrum instance.
