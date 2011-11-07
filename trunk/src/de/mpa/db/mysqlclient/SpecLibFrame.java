@@ -7,10 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,7 +34,6 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.parser.mascot.xml.MascotRecord;
 import de.mpa.parser.mascot.xml.MascotXMLParser;
 import de.mpa.parser.mascot.xml.PeptideHit;
 
@@ -46,6 +42,7 @@ public class SpecLibFrame extends JFrame {
 	private SpecLibFrame frame;
 	private File[] mgfFiles;
 	private File[] xmlFiles;
+	private JSpinner idSpn; 
 	private JButton uplBtn;
 	private JProgressBar uplPrg;
 	
@@ -134,7 +131,7 @@ public class SpecLibFrame extends JFrame {
 		// components for upload panel
 		JLabel idLbl = new JLabel("ProjectID");
 		
-		final JSpinner idSpn = new JSpinner();
+		idSpn = new JSpinner();
 		idSpn.setValue(1);
 		
 		uplBtn = new JButton("Upload");
@@ -230,15 +227,15 @@ public class SpecLibFrame extends JFrame {
     				List<MascotGenericFile> mgfList = reader.getSpectrumFiles();
 
     				// parse xml
-    				// use non-verbose parser mode
-    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i], MascotXMLParser.SUPPRESS_WARNINGS);
+//    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i], MascotXMLParser.SUPPRESS_WARNINGS);
+    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i]);
     				Map<String,PeptideHit> pepMap = readerXML.parse().getPepMap();
 
     				// Iterate over all spectra.
     				for (MascotGenericFile mgf : mgfList) {
     					HashMap<Object, Object> data = new HashMap<Object, Object>(10);
 
-    					data.put(Spectrum.L_PROJECTID, Long.valueOf(1));
+    					data.put(Spectrum.L_PROJECTID, Long.valueOf((Integer)idSpn.getValue()));
     					data.put(Spectrum.FILENAME, mgf.getFilename());
     					data.put(Spectrum.SPECTRUMNAME, mgf.getTitle());
     					data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
@@ -284,7 +281,6 @@ public class SpecLibFrame extends JFrame {
     				}
     			}
     			conn.close();
-    			JOptionPane.showMessageDialog(frame, "Upload complete.", "Success", JOptionPane.INFORMATION_MESSAGE);
     		} catch (IOException e) {
     			e.printStackTrace();
     		} catch (SQLException e) {
@@ -300,6 +296,7 @@ public class SpecLibFrame extends JFrame {
         public void done() {
             uplBtn.setEnabled(true);
             setCursor(null); //turn off the wait cursor
+			JOptionPane.showMessageDialog(frame, "Upload complete.", "Success", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

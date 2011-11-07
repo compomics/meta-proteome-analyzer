@@ -5,11 +5,24 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
+
+import de.mpa.algorithms.LibrarySpectrum;
+import de.mpa.algorithms.NormalizedDotProduct;
+import de.mpa.algorithms.Pair;
+import de.mpa.algorithms.RankedLibrarySpectrum;
+import de.mpa.db.DBConfiguration;
+import de.mpa.db.extractor.SpectrumExtractor;
+import de.mpa.io.MascotGenericFile;
+import de.mpa.io.MascotGenericFileReader;
 
 public class Client {
 
@@ -116,8 +129,64 @@ public class Client {
 	    return bytes;
 	}
 
-	public void process(String filename){
-		server.process(filename);
+	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file){
+		// init result map
+		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
+		
+		// connect to database
+		DBConfiguration dbconfig = new DBConfiguration("metaprot");
+		Connection conn = dbconfig.getConnection();
+		
+		// parse query file
+		try {
+			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
+			List<MascotGenericFile> mgfFiles = mgfReader.getSpectrumFiles();
+			
+			// store list of results in HashMap
+			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>(mgfFiles.size());
+
+			// iterate over query spectra
+			for (MascotGenericFile mgfQuery : mgfFiles) {
+				double precursorMz = mgfQuery.getPrecursorMZ();
+				double tolMz = 0.1;
+				
+				// grab appropriate library spectra
+				SpectrumExtractor specEx = new SpectrumExtractor(conn);
+				List<LibrarySpectrum> libSpectra = specEx.getLibrarySpectra(precursorMz, tolMz);
+				
+				// store results in list of Pairs
+				ArrayList<RankedLibrarySpectrum> resultList = new ArrayList<RankedLibrarySpectrum>();
+				
+				// extract data from library spectrum objects
+				for (LibrarySpectrum libSpec : libSpectra) {
+					MascotGenericFile mgfLib = libSpec.getSpectrumFile();
+					
+					// dot prod
+					double threshMz = 0.5;
+					int k = 10;
+					k = Math.min(k, mgfQuery.getPeakList().size());
+					k = Math.min(k, mgfLib.getPeakList().size());
+					NormalizedDotProduct method = new NormalizedDotProduct(threshMz);
+					method.compare(mgfQuery.getHighestPeaks(k), mgfLib.getHighestPeaks(k));
+					double score = method.getSimilarity();
+					
+					// score threshold
+					double threshSc = 0.5;
+					if (score >= threshSc) {
+						resultList.add(new RankedLibrarySpectrum(libSpec, score));
+					}
+				}
+				resultMap.put(mgfQuery.getTitle(), resultList);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return resultMap;
+				
+//		server.process(filename);
 	}
 	
 	/**

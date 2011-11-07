@@ -215,6 +215,12 @@ public class MascotGenericFile implements SpectrumFile{
         fos.flush();
         fos.close();
     }
+    
+//    TODO
+//    public ArrayList<File> writeToFiles(int n) {
+//    	return null;
+//    }
+    
 
     /**
      * This methods returns the comments for this MascotGenericFile.
@@ -555,7 +561,7 @@ public class MascotGenericFile implements SpectrumFile{
         bw.write(this.getComments());
         // Next the ion start tag.
         bw.write(IONS_START + "\n");
-        // Now the title, or the filename if the substition flag is 'true'.
+        // Now the title, or the filename if the substitution flag is 'true'.
         if (aSubstituteFilename) {
             // Substituting the title with the filename.
             bw.write(TITLE + "=" + this.getFilename() + "\n");
