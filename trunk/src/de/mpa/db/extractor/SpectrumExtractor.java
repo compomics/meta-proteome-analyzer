@@ -52,6 +52,31 @@ public class SpectrumExtractor {
 	}
 	
 	/**
+	 * Returns the spectra which are taken for the spectral comparison.
+	 * Condition is to be within a certain precursor mass range.
+	 * @param precursorMz The precursor mass
+     * @param tolMz The precursor mass tolerance
+	 * @return
+	 * @throws SQLException 
+	 * @throws IOException 
+	 */
+	// TODO: create class for unannotated spectrum and make LibrarySpectrum a subclass of it
+	public List<LibrarySpectrum> getSpectra(double precursorMz, double tolMz) throws SQLException, IOException{
+		List<LibrarySpectrum> spectra = new ArrayList<LibrarySpectrum>();
+		
+		// Get the spectral library entries with similar precursor mass.
+		List<Spectrum> entries = Spectrum.getEntriesWithinPrecursorRange(precursorMz, tolMz, conn);
+		
+		// Iterate the spectral library entries.
+		for (Spectrum entry : entries) {
+			MascotGenericFile mgf = getUnzippedFile(entry.getSpectrumid());
+			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), "hmm", "mhh"));	// TODO
+		}
+		
+		return spectra;
+	}
+	
+	/**
 	 * Returns the unzipped file from the database.
 	 * @param spectrumID
 	 * @return

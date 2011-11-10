@@ -135,7 +135,7 @@ public class Client {
 		server.process(file.getName(), "uniprot_sprot", 0.3, 0.5);
 	}
 	
-	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file){
+	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet){
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		
@@ -154,11 +154,16 @@ public class Client {
 			// iterate over query spectra
 			for (MascotGenericFile mgfQuery : mgfFiles) {
 				double precursorMz = mgfQuery.getPrecursorMZ();
-				double tolMz = 0.1;
 				
 				// grab appropriate library spectra
 				SpectrumExtractor specEx = new SpectrumExtractor(conn);
-				List<LibrarySpectrum> libSpectra = specEx.getLibrarySpectra(precursorMz, tolMz);
+				List<LibrarySpectrum> libSpectra;
+				if (procSet.getAnnotatedOnly()) {
+					libSpectra = specEx.getLibrarySpectra(precursorMz, procSet.getTolMz());
+				} else {
+					libSpectra = specEx.getSpectra(precursorMz, procSet.getTolMz());
+					// TODO: analyze score distribution of selected spectra, e.g. KopievonTest:76
+				}
 				
 				// store results in list of Pairs
 				ArrayList<RankedLibrarySpectrum> resultList = new ArrayList<RankedLibrarySpectrum>();
@@ -168,22 +173,21 @@ public class Client {
 					MascotGenericFile mgfLib = libSpec.getSpectrumFile();
 					
 					// dot prod
-					double threshMz = 0.5;
-					int k = 10;
+					int k = procSet.getK();
 					k = Math.min(k, mgfQuery.getPeakList().size());
 					k = Math.min(k, mgfLib.getPeakList().size());
-					NormalizedDotProduct method = new NormalizedDotProduct(threshMz);
+					NormalizedDotProduct method = new NormalizedDotProduct(procSet.getThreshMz());
 					method.compare(mgfQuery.getHighestPeaks(k), mgfLib.getHighestPeaks(k));
 					double score = method.getSimilarity();
 					
 					// score threshold
-					double threshSc = 0.5;
-					if (score >= threshSc) {
+					if (score >= procSet.getThreshSc()) {
 						resultList.add(new RankedLibrarySpectrum(libSpec, score));
 					}
 				}
 				resultMap.put(mgfQuery.getTitle(), resultList);
 			}
+			conn.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -202,7 +206,7 @@ public class Client {
 	public static void main(String[] args) {
 		// Get instance of the client.
 		Client client = Client.getInstance();		
-		client.connect();
-		client.sendMessage("SEND MESSAGE!");
+//		client.connect();
+//		client.sendMessage("SEND MESSAGE!");
 	}
 }

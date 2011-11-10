@@ -63,6 +63,7 @@ public class MascotGenericFile implements SpectrumFile{
     }
 
     public ArrayList<Peak> getHighestPeaks(int k) {
+    	
     	ArrayList<Peak>	peaks = new ArrayList<Peak>(lPeaks);
     	
     	Collections.sort(peaks, new Comparator<Peak>() { 
@@ -130,7 +131,7 @@ public class MascotGenericFile implements SpectrumFile{
     private static final String IONS_START = "BEGIN IONS";
 
     /**
-     * This constant defines the ernd tag for the ions.
+     * This constant defines the end tag for the ions.
      */
     private static final String IONS_END = "END IONS";
 
@@ -606,6 +607,7 @@ public class MascotGenericFile implements SpectrumFile{
         }
 
         bw.write(IONS_END);
+        bw.write("\n");
 
         bw.flush();
     }
