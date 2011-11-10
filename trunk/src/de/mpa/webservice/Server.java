@@ -17,7 +17,7 @@ public interface Server {
 	 
 	 @WebMethod String sendMessage(String msg);
 	 
-	 @WebMethod void process(String filename);
+	 @WebMethod void process(String filename, String searchDB, double fragmentIonTol, double precursorTol);
 	 
 	 // Download a file from the server
 	 @WebMethod File downloadFile(String filename);
