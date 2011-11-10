@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
 import de.mpa.job.instances.PepnovoJob;
+import de.mpa.job.instances.XTandemJob;
 
 
 //Service Implementation Bean
@@ -56,37 +57,42 @@ public class ServerImpl implements Server {
 	 * @param filename
 	 * @throws Exception
 	 */
-	public void process(String filename) {	
+	public void process(String filename, String searchDB, double fragmentIonTol, double precursorTol) {	
 		File file = new File("/scratch/metaprot/data/transfer/" + filename);
 		DBManager dbManager = null;
 		
 		// Upload the spectra to the file server
-		try {
-			// 	STORE JOB					
-			dbManager = new DBManager();
-			dbManager.storeSpectra(file, "test", "uniprot", 0.5, 0.5, "Da");
-			
-		} catch (IOException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} catch (SQLException ex) {
-			log.error(ex.getMessage());
-			ex.printStackTrace();
-		}
+//		try {
+//			// 	STORE JOB					
+//			dbManager = new DBManager();
+//			dbManager.storeSpectra(file, "test", "uniprot", 0.5, 0.5, "Da");
+//			
+//		} catch (IOException e) {
+//			log.error(e.getMessage());
+//			e.printStackTrace();
+//		} catch (SQLException ex) {
+//			log.error(ex.getMessage());
+//			ex.printStackTrace();
+//		}
 		
 		final JobManager jobManager = new JobManager();
-		PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
-		jobManager.addJob(pepnovoJob);
+		
+		// X!Tandem job
+		XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragmentIonTol, precursorTol, false, false);
+		jobManager.addJob(xtandemJob);
+		
+		//PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
+		//jobManager.addJob(pepnovoJob);
 		
 		//jobManager.addJob(new DeleteJob(file.getAbsolutePath()));
 		
-		try {
-			dbManager.storePepnovoResults(pepnovoJob.getFilename());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			dbManager.storePepnovoResults(pepnovoJob.getFilename());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
 		jobManager.execute();
 	}
 	

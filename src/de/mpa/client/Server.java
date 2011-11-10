@@ -21,12 +21,21 @@ public interface Server {
 
     /**
      * 
+     * @param arg3
+     * @param arg2
+     * @param arg1
      * @param arg0
      */
     @WebMethod
     public void process(
         @WebParam(name = "arg0", partName = "arg0")
-        String arg0);
+        String arg0,
+        @WebParam(name = "arg1", partName = "arg1")
+        String arg1,
+        @WebParam(name = "arg2", partName = "arg2")
+        double arg2,
+        @WebParam(name = "arg3", partName = "arg3")
+        double arg3);
 
     /**
      * 

@@ -10,14 +10,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
 
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.NormalizedDotProduct;
-import de.mpa.algorithms.Pair;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -128,7 +126,15 @@ public class Client {
 	    is.close();
 	    return bytes;
 	}
-
+	
+	/**
+	 * Runs the database search.
+	 * @param file
+	 */
+	public void runDbSearch(File file){
+		server.process(file.getName(), "uniprot_sprot", 0.3, 0.5);
+	}
+	
 	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file){
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;

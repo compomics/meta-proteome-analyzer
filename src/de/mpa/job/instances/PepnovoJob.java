@@ -16,11 +16,13 @@ public class PepnovoJob extends Job {
 	
 	// Model to choose
 	private final static String MODEL = "CID_IT_TRYP";
+	
 	// Modifications
 	private final static String MODS = "C+57:M+16";
 	private final static String SOLUTION_NUMBER = "10";
 	private File pepnovoFile;
 	private File mgfFile;
+	
     /**
      * The output file if specified.
      */

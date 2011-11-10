@@ -117,6 +117,7 @@ public class ClientFrame extends JFrame {
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 	
 	private Map<String, ArrayList<Integer>> specPosMap = new HashMap<String, ArrayList<Integer>>(1);
+	private JButton runDbSearchBtn;
 	
 	
 	/**
@@ -358,6 +359,8 @@ public class ClientFrame extends JFrame {
                     File[] selFiles = fc.getSelectedFiles();
                     
                     for (File file : selFiles) {
+                    	// Add the files for the db search option
+                    	files.add(file);
                     	ArrayList<Integer> spectrumPositions = new ArrayList<Integer>();
                     	try {
                     		MascotGenericFileReader reader = new MascotGenericFileReader(file, true);
@@ -458,7 +461,7 @@ public class ClientFrame extends JFrame {
 					
 					client.connect();
 					connectedToServer = true;
-					if (spectrumFiles.size() > 0) {
+					if (files.size() > 0) {
 						sendBtn.setEnabled(true);
 					}
 			}
@@ -501,7 +504,7 @@ public class ClientFrame extends JFrame {
 		
 		msmsPnl = new JPanel();
 		msmsPnl.setLayout(new FormLayout("5dlu, p, 5dlu",		// col
-		 								 "5dlu, p, 5dlu"));		// row
+		 								 "5dlu, p, 5dlu, p, 5dlu"));		// row
 		
 		JPanel procPnl = new JPanel();
 		procPnl.setLayout(new FormLayout("5dlu, p, 5dlu",		// col
@@ -528,11 +531,39 @@ public class ClientFrame extends JFrame {
 			}
 		});
 	    
+	    JPanel dbSearchPnl = new JPanel();
+	    dbSearchPnl.setLayout(new FormLayout("10dlu, p, 10dlu",		// col
+		 								 "5dlu, p, 5dlu"));		// row	
+	    dbSearchPnl.setBorder(BorderFactory.createTitledBorder("DB-Search"));	
+	    
+	    runDbSearchBtn = new JButton("Run");	    
+	    runDbSearchBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				runDbSearchBtn.setEnabled(false);
+				RunDbSearchWorker worker = new RunDbSearchWorker();
+				worker.addPropertyChangeListener(new PropertyChangeListener() {
+		        	@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+		        		if ("progress" == evt.getPropertyName()) {
+		        			int progress = (Integer) evt.getNewValue();
+		        			procPrg.setValue(progress);
+		        		} 
+
+		        	}
+		        });
+				worker.execute();
+			}
+		});
+	    
 	    procPrg = new JProgressBar(0, 100);
 	    procPrg.setStringPainted(true);
 	    
 	    procPnl.add(procBtn, cc.xy(2,2));
+	    dbSearchPnl.add(runDbSearchBtn, cc.xy(2,2));
 	    msmsPnl.add(procPnl, cc.xy(2,2));
+	    msmsPnl.add(dbSearchPnl, cc.xy(2,4));
+	    
 	}
 	
 	/**
@@ -878,6 +909,35 @@ public class ClientFrame extends JFrame {
 								tblMdl.addRow(new Object[] {mgf});
 							}
 						}
+						progress++;
+						setProgress((int)(progress/max*100));
+				}
+				System.out.println("done");
+				if (queryTbl.getRowCount() > 0) {
+					queryTbl.setRowSelectionInterval(0, 0);	
+				}
+				files.clear();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return 0;
+		}
+		
+		@Override
+        public void done() {
+            procBtn.setEnabled(true);
+        }
+	}
+	
+	private class RunDbSearchWorker	extends SwingWorker {
+		
+		protected Object doInBackground() throws Exception {
+			double progress = 0;
+			double max = files.size();
+			setProgress(0);
+			try {
+				for (File file : files) {
+						client.runDbSearch(file);
 						progress++;
 						setProgress((int)(progress/max*100));
 				}
