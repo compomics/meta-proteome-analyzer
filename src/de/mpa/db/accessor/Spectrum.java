@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import de.mpa.db.MapContainer;
 
@@ -163,6 +165,30 @@ public class Spectrum extends SpectrumTableAccessor {
             sqe.printStackTrace();
             throw sqe;
         }
+        return temp;
+    }
+    
+    /**
+     * Returns the entries within a specified precursor range.
+     * @param precursorMz
+     * @param tolMz
+     * @param aConn
+     * @return
+     * @throws SQLException
+     */
+    public static List<Spectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
+    	List<Spectrum> temp = new ArrayList<Spectrum>();
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
+        ps.setDouble(1, precursorMz - tolMz);
+        ps.setDouble(2, precursorMz + tolMz);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp.add(new Spectrum(rs));
+        }
+        rs.close();
+        ps.close();
         return temp;
     }
     

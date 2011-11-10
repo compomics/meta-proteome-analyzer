@@ -6,9 +6,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -19,13 +22,14 @@ import javax.swing.table.TableColumnModel;
 public class CheckBoxHeader extends JCheckBox 
 							implements TableCellRenderer, MouseListener {
 
-	private CheckBoxHeader rendererComponent = this;
 	private int column;
 	private boolean mousePressed;
+	
+	private DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
 
 	public CheckBoxHeader(ItemListener itemListener) {
 		this.setHorizontalAlignment(LEFT);
-		rendererComponent.addItemListener(itemListener);
+		this.addItemListener(itemListener);
 		Border headerBorder = UIManager.getBorder("TableHeader.cellBorder");
 		this.setBorder(headerBorder);
 		setBorderPainted(true);
@@ -39,19 +43,19 @@ public class CheckBoxHeader extends JCheckBox
 		if (table != null) {
 			JTableHeader header = table.getTableHeader();
 			if (header != null) {
-		        rendererComponent.setForeground(header.getForeground());
-		        rendererComponent.setBackground(header.getBackground());
-		        rendererComponent.setFont(header.getFont());
+		        this.setForeground(header.getForeground());
+		        this.setBackground(header.getBackground());
+		        this.setFont(header.getFont());
+		        
 				for (MouseListener ml : header.getMouseListeners()) {
 					header.removeMouseListener(ml);
 				}
-				header.addMouseListener(rendererComponent);
+				header.addMouseListener(this);
 			}
 		}
 		setColumn(column);
-//		rendererComponent.setText("Check All");
-//		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-		return rendererComponent;
+		
+		return this;
 	}
 
 	protected void setColumn(int column) {

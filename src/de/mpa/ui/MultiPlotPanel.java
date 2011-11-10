@@ -3,8 +3,6 @@ package de.mpa.ui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
@@ -13,13 +11,22 @@ import de.mpa.io.Peak;
 
 public class MultiPlotPanel extends JPanel {
 
+	// list of spectra, typically contains two elements
 	private ArrayList<MascotGenericFile> spectra;
+	
+	// max amount of highest peaks to highlight 
 	private int k;
 	
+	// flag to determine whether upper and lower part should be normalized separately
+	private boolean doNormalize = false;
+	
+	// padding
 	private int padX = 5, padY = 5;
+	// background color
 	private Color bgColor = Color.WHITE;
+	// list of line colors
 	private ArrayList<Color> lineColors;
-		
+	
 	
 	public ArrayList<MascotGenericFile> getSpectra() {
 		return spectra;
@@ -63,6 +70,33 @@ public class MultiPlotPanel extends JPanel {
 		this.lineColors = lineColors;
 	}
 	
+	public void setFirstSpectrum(MascotGenericFile spec) {
+		if (this.spectra != null) {
+			this.spectra.set(0, spec);
+		} else {
+			this.spectra = new ArrayList<MascotGenericFile>();
+			this.spectra.add(spec);
+		}
+	}
+	
+	public void setSecondSpectrum(MascotGenericFile spec) {
+		if (this.spectra != null) {
+			if (this.spectra.size() >= 2) {
+				this.spectra.set(1, spec);
+			} else {
+				this.spectra.add(spec);
+			}
+		} else {
+			this.spectra = new ArrayList<MascotGenericFile>();
+			this.spectra.add(null);
+			this.spectra.add(spec);
+		}
+	}
+	
+	public void repaint(boolean doNormalize) {
+		this.doNormalize = doNormalize;
+		repaint();
+	}
 
 	@Override
 	protected void paintComponent( Graphics g )
@@ -74,14 +108,21 @@ public class MultiPlotPanel extends JPanel {
 		
 		// determine axis limits
 		double minX = Double.MAX_VALUE, maxX = 0, maxY = 0;
+		int k = this.k;
 		if (this.spectra != null) {
 			for (MascotGenericFile spectrum : this.spectra) {
 				if (spectrum != null) {
 					ArrayList<Peak> peaks = spectrum.getPeakList();
+					// adjust k downwards if needed
+					if (k > 0) {
+						k = Math.min(k, peaks.size());
+					}
 					// assuming masses are ordered; first in list = min, last = max
 					minX = Math.min(minX, peaks.get(0).getMz());
 					maxX = Math.max(maxX, peaks.get(peaks.size()-1).getMz());
-					maxY = Math.max(maxY, spectrum.getHighestIntensity());
+					if (!doNormalize) {
+						maxY = Math.max(maxY, spectrum.getHighestIntensity());
+					}
 				}
 			}
 		}
@@ -91,23 +132,39 @@ public class MultiPlotPanel extends JPanel {
 			int i = 0;
 			for (MascotGenericFile spectrum : this.spectra) {
 				if ((spectrum != null) && (lineColors.get(i) != null)) {
+					if (doNormalize) {
+						maxY = spectrum.getHighestIntensity();
+					}
 					ArrayList<Peak> peaks = spectrum.getPeakList();
-					ArrayList<Peak> hPeak = spectrum.getHighestPeaks(this.k);
+					ArrayList<Peak> hPeak;
+					if (k > 0) {
+						hPeak = spectrum.getHighestPeaks(k);						
+					} else {
+						hPeak = peaks;
+					}
 					for (Peak peak : peaks) {
-						// highlight k highest peaks by brightening all others
+						// skip peak if it's part of the list of highlighted peaks
 						if (hPeak.contains(peak)) {
-							g.setColor(lineColors.get(i));
-						} else {
-							g.setColor(new Color((lineColors.get(i).getRed()  +7*255)/8,
-												 (lineColors.get(i).getGreen()+7*255)/8,
-												 (lineColors.get(i).getBlue() +7*255)/8));
+							continue;
 						}
+						// highlight k highest peaks by brightening all others
+						g.setColor(new Color((lineColors.get(i).getRed()  +7*255)/8,
+								 (lineColors.get(i).getGreen()+7*255)/8,
+								 (lineColors.get(i).getBlue() +7*255)/8));
 						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 									    (getHeight()/2),
 								   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 								   (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
-					}				//					^^^^^^^^^
-				}					// even/odd index => plot on top/bottom half
+					}
+					for (Peak peak : hPeak) {
+						// plot highlighted peaks on top of other peaks
+						g.setColor(lineColors.get(i));
+						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+							    	    (getHeight()/2),
+							       (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+							       (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
+					}
+				}
 				i++;
 			}
 		}
