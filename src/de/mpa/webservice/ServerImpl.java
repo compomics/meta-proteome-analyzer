@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 
 import javax.activation.DataHandler;
 import javax.jws.WebService;
@@ -19,6 +18,10 @@ import org.apache.log4j.Logger;
 
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
+import de.mpa.job.instances.CruxJob;
+import de.mpa.job.instances.DeleteJob;
+import de.mpa.job.instances.InspectJob;
+import de.mpa.job.instances.OmssaJob;
 import de.mpa.job.instances.PepnovoJob;
 import de.mpa.job.instances.XTandemJob;
 
@@ -81,10 +84,23 @@ public class ServerImpl implements Server {
 		XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragmentIonTol, precursorTol, false, false);
 		jobManager.addJob(xtandemJob);
 		
-		//PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
-		//jobManager.addJob(pepnovoJob);
+		// Omssa job
+		OmssaJob omssaJob = new OmssaJob(file, searchDB, fragmentIonTol, precursorTol, false, false);
+		jobManager.addJob(omssaJob);
 		
-		//jobManager.addJob(new DeleteJob(file.getAbsolutePath()));
+		// Crux job
+		CruxJob cruxJob = new CruxJob(file, searchDB);
+		jobManager.addJob(cruxJob);
+		
+		// Inspect job
+		InspectJob inspectJob = new InspectJob(file, searchDB);
+		jobManager.addJob(inspectJob);
+		
+		// Pepnovo job		
+		PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
+		jobManager.addJob(pepnovoJob);
+		
+		jobManager.addJob(new DeleteJob(file.getAbsolutePath()));
 		
 //		try {
 //			dbManager.storePepnovoResults(pepnovoJob.getFilename());
@@ -107,8 +123,13 @@ public class ServerImpl implements Server {
 			    io.read(b);
 			    File file = new File("/scratch/metaprot/data/transfer/" + filename);
 			    
-				FileOutputStream fos = new FileOutputStream(file);    
-				fos.write(b);     
+				FileOutputStream fos = new FileOutputStream(file);
+				
+				fos.write(b);
+				
+				// Close the streams.
+				io.close();
+				fos.close();
 				
 				log.info("Upload Successful: " + file.getName());
 				return file.getAbsolutePath();

@@ -15,11 +15,9 @@ import de.mpa.job.Job;
 public class XTandemJob extends Job {	
 	
 	private final static String INPUT_FILE = "input.xml";
-	private final static String XTANDEM_PATH = "/scratch/metaprot/software/xtandem/bin/";
+
     private final static String PARAMETER_FILE = "parameters.xml";   
-    private final static String TAXONOMY_FILE = "taxonomy.xml";
-    private final static String FASTA_PATH = "/scratch/metaprot/data/fasta/";
-    public final static String OUTPUT_PATH = "/scratch/metaprot/data/output/xtandem/";
+    private final static String TAXONOMY_FILE = "taxonomy.xml";   
     
     private String filename; 
 	private File xTandemFile;
@@ -51,11 +49,11 @@ public class XTandemJob extends Job {
 			this.precursorUnit = "Daltons";
 		}
 		this.decoy = decoy;
-		this.xTandemFile = new File(XTANDEM_PATH);
+		this.xTandemFile = new File(JobConstants.XTANDEM_PATH);
 		if(decoy){
-			this.filename = OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
 		} else {
-			this.filename = OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 		}
 		
 		buildInputFile();
@@ -99,7 +97,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + FASTA_PATH + searchDB + ".fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + JobConstants.FASTA_PATH + searchDB + ".fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -307,7 +305,7 @@ public class XTandemJob extends Job {
 	 */
 	private void initJob(){
 		// full path to executable
-		procCommands.add(xTandemFile.getAbsolutePath() + "/tandem.exe");
+		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + JobConstants.XTANDEM_EXE);
 
 		// Link to the input file
 		procCommands.add(inputFile.getAbsolutePath());
@@ -327,17 +325,17 @@ public class XTandemJob extends Job {
 	 * @return filename
 	 */
 	public String getFilename() {
-		File folder = new File(OUTPUT_PATH);
+		File folder = new File(JobConstants.XTANDEM_OUTPUT_PATH);
 		File[] listOfFiles = folder.listFiles();
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()) {
 				if(decoy){
 					if (listOfFiles[i].getName().startsWith(mgfFile.getName().substring(0, mgfFile.getName().length() - 4)) && listOfFiles[i].getName().contains("decoy") && listOfFiles[i].getName().contains("xml")) {
-						return OUTPUT_PATH + listOfFiles[i].getName();					
+						return JobConstants.XTANDEM_OUTPUT_PATH + listOfFiles[i].getName();					
 					}
 				} else {
 					if (listOfFiles[i].getName().startsWith(mgfFile.getName().substring(0, mgfFile.getName().length() - 4)) && listOfFiles[i].getName().contains("target") && listOfFiles[i].getName().contains("xml")) {
-						return OUTPUT_PATH + listOfFiles[i].getName();					
+						return JobConstants.XTANDEM_OUTPUT_PATH + listOfFiles[i].getName();					
 					}
 				}
 				

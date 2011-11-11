@@ -10,17 +10,24 @@ import de.mpa.job.Job;
 
 public class PepnovoJob extends Job {	
 	
-	private final static String OUTPUT_PATH = "/scratch/metaprot/data/output/pepnovo/";
-	private final static String PEPNOVO_PATH = "/scratch/metaprot/software/pepnovo/";
-	private final static String PEPNOVO_EXE = "PepNovo_bin";
-	
+	// PARAMETERS
 	// Model to choose
 	private final static String MODEL = "CID_IT_TRYP";
 	
 	// Modifications
 	private final static String MODS = "C+57:M+16";
+	
+	// Number of suggested solutions	
 	private final static String SOLUTION_NUMBER = "10";
+	
+	/**
+	 * The pepnovo file.
+	 */
 	private File pepnovoFile;
+	
+	/**
+	 * The MGF file.
+	 */
 	private File mgfFile;
 	
     /**
@@ -38,7 +45,7 @@ public class PepnovoJob extends Job {
 	public PepnovoJob(File mgfFile, double fragmentTol) {
 		this.mgfFile = mgfFile;
 		this.fragmentTol = fragmentTol;
-		this.pepnovoFile = new File(PEPNOVO_PATH);		
+		this.pepnovoFile = new File(JobConstants.PEPNOVO_PATH);		
 		initJob();
 		execute();
 	}
@@ -48,7 +55,7 @@ public class PepnovoJob extends Job {
 	 */
 	private void initJob() {
 		// full path to executable
-		procCommands.add(pepnovoFile.getAbsolutePath() + "/" + PEPNOVO_EXE);
+		procCommands.add(pepnovoFile.getAbsolutePath() + "/" + JobConstants.PEPNOVO_EXE);
 		procCommands.trimToSize();
 		
 		// Link to the MGF file
@@ -72,7 +79,7 @@ public class PepnovoJob extends Job {
 		procCommands.add(SOLUTION_NUMBER);
 		
 		// Add output path
-		outputFile = new File(OUTPUT_PATH + mgfFile.getName() + ".out");
+		outputFile = new File(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName() + ".out");
 		procCommands.trimToSize();
 
 		log.info("====== PEPNOVO JOB started ======");
