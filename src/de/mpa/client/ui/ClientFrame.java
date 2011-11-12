@@ -28,6 +28,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -115,6 +116,7 @@ public class ClientFrame extends JFrame {
 	
 	private JButton procBtn;
 	private JProgressBar procPrg;
+	private JProgressBar searchPrg;
 	
 //	private ArrayList<MascotGenericFile> spectrumFiles = new ArrayList<MascotGenericFile>();
 	
@@ -138,6 +140,24 @@ public class ClientFrame extends JFrame {
 	private JCheckBox annotChk;
 	
 	private JButton runDbSearchBtn;
+	private JPanel specLibPnl;
+	private JSpinner precTolSpn;
+	private JSpinner fragTolSpn;
+	private JSpinner missClvSpn;
+	private JComboBox enzymeCbx;
+	private JCheckBox xTandemCbx;
+	private JButton xTandemSetBtn;
+	private JCheckBox omssaCbx;
+	private JButton omssaSetBtn;
+	private JCheckBox inspectCbx;
+	private JButton inspectSetBtn;
+	private JCheckBox cruxCbx;
+	private JButton cruxSetBtn;
+	private JComboBox searchTypeCbx;
+	private JTextField xtandemStatTtf;
+	private JTextField cruxStatTtf;
+	private JTextField inspectStatTtf;
+	private JTextField omssaStatTtf;
 	
 	
 	/**
@@ -164,7 +184,9 @@ public class ClientFrame extends JFrame {
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
 		tabPane.addTab("Input Spectra", filePnl);
 		tabPane.addTab("Server Configuration", srvPnl);
-		tabPane.addTab("MS/MS Identification", msmsPnl);
+		tabPane.addTab("Spectral Library Search", specLibPnl);
+		tabPane.addTab("MS/MS Database Search", msmsPnl);
+		
 		tabPane.addTab("Results", resPnl);
 		tabPane.addTab("Logging", lggPnl);
 		
@@ -206,8 +228,11 @@ public class ClientFrame extends JFrame {
 		// Server panel
 		constructServerPanel();
 		
-		// Process Panel
-		constructProcessPanel();
+		// Spectral Library Search Panel
+		constructSpecLibSearchPanel();
+		
+		// MS/MS Database Search Panel
+		constructDatabaseSearchPanel();
 		
 		// Results Panel
 		constructResultsPanel();
@@ -528,10 +553,10 @@ public class ClientFrame extends JFrame {
 	/**
 	 * Construct the processing panel.
 	 */
-	private void constructProcessPanel() {
+	private void constructSpecLibSearchPanel() {
 		
-		msmsPnl = new JPanel();
-		msmsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
+		specLibPnl = new JPanel();
+		specLibPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
 		 								 "5dlu, t:p, 5dlu, p, 5dlu"));		// row
 		
 		// process button and progress bar
@@ -558,32 +583,8 @@ public class ClientFrame extends JFrame {
 		        });
 				worker.execute();
 			}
-		});
-	    
-	    JPanel dbSearchPnl = new JPanel();
-	    dbSearchPnl.setLayout(new FormLayout("10dlu, p, 10dlu",		// col
-		 									 "5dlu, p, 5dlu"));		// row	
-	    dbSearchPnl.setBorder(BorderFactory.createTitledBorder("DB-Search"));	
-	    
-	    runDbSearchBtn = new JButton("Run");	    
-	    runDbSearchBtn.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				runDbSearchBtn.setEnabled(false);
-				RunDbSearchWorker worker = new RunDbSearchWorker();
-				worker.addPropertyChangeListener(new PropertyChangeListener() {
-		        	@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-		        		if ("progress" == evt.getPropertyName()) {
-		        			int progress = (Integer) evt.getNewValue();
-		        			procPrg.setValue(progress);
-		        		} 
-
-		        	}
-		        });
-				worker.execute();
-			}
-		});
+		});	    
+	   
 	    
 	    procPrg = new JProgressBar(0, 100);
 	    procPrg.setStringPainted(true);
@@ -650,12 +651,234 @@ public class ClientFrame extends JFrame {
 		paraScPnl.add(thScSpn, cc.xy(4,5));
 		
 	    // add everything to parent panel
-	    dbSearchPnl.add(runDbSearchBtn, cc.xy(2,2));
-	    msmsPnl.add(procPnl, cc.xy(2,2));
-	    msmsPnl.add(paraDbPnl, cc.xy(4,2));
-	    msmsPnl.add(paraScPnl, cc.xy(6,2));
+	    specLibPnl.add(procPnl, cc.xy(2,2));
+	    specLibPnl.add(paraDbPnl, cc.xy(4,2));
+	    specLibPnl.add(paraScPnl, cc.xy(6,2));
+	}
+	
+	/**
+	 * Construct the database search panel.
+	 */
+	private void constructDatabaseSearchPanel() {
+		
+		msmsPnl = new JPanel();
+		msmsPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p", "5dlu, p, 5dlu, p, 5dlu, t:p, 5dlu"));	
+		
+		// Protein Database Panel
+	    final JPanel protDatabasePnl = new JPanel();
+	    protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p, 5dlu", "5dlu, p, 5dlu"));		
+	    protDatabasePnl.setBorder(BorderFactory.createTitledBorder("Protein Database"));	
 	    
-	    msmsPnl.add(dbSearchPnl, cc.xy(2,4));
+	    // Fasta file label
+	    final JLabel fastaFileLbl = new JLabel("Fasta File:");
+	    protDatabasePnl.add(fastaFileLbl, cc.xy(2, 2));
+	    
+	    // Fasta file combobox
+        final JComboBox fastaFileCbx = new JComboBox(Constants.FASTA_DB);
+	    protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
+	    
+		// Parameters Panel
+	    final JPanel paramsPnl = new JPanel();
+	    paramsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 2dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
+	    paramsPnl.setBorder(BorderFactory.createTitledBorder("Parameters"));	
+	    
+	    // Precursor ion tolerance label
+	    final JLabel precTolLbl = new JLabel("Precursor Ion Tolerance:");
+	    paramsPnl.add(precTolLbl, cc.xy(2, 2));
+	    
+	    // Precursor ion tolerance field
+		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
+		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.0"));
+		precTolSpn.setToolTipText("Precursor Ion Tolerance:");	    
+		paramsPnl.add(precTolSpn, cc.xy(4, 2));
+		paramsPnl.add(new JLabel("Da"), cc.xy(6,2));
+		
+	    // Fragment ion tolerance label
+	    final JLabel fragTolLbl = new JLabel("Fragment Ion Tolerance:");
+	    paramsPnl.add(fragTolLbl, cc.xy(2, 4));
+	    
+	    // Fragment ion tolerance field
+		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
+		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.0"));
+		fragTolSpn.setToolTipText("Fragment Ion Tolerance:");	    
+		paramsPnl.add(fragTolSpn, cc.xy(4, 4));
+		paramsPnl.add(new JLabel("Da"), cc.xy(6,4));
+		
+		// Missed cleavages label
+	    final JLabel missClvLbl = new JLabel("Missed Cleavages (max):");
+	    paramsPnl.add(missClvLbl, cc.xy(2, 6));
+	    
+	    // Missed cleavages field
+		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
+		//missClvSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0"));
+		missClvSpn.setToolTipText("Maximum number of missed cleavages:");	    
+		paramsPnl.add(missClvSpn, cc.xy(4, 6));
+		
+		// Enzyme Label
+	    final JLabel enzymeLbl = new JLabel("Enzyme (Protease):");
+	    paramsPnl.add(enzymeLbl, cc.xy(2, 8));
+	    
+	    // Enzyme Combobox
+        enzymeCbx = new JComboBox(Constants.ENZYMES);
+        paramsPnl.add(enzymeCbx, cc.xy(4, 8));
+	    
+        // Search Engine Panel
+	    final JPanel searchEngPnl = new JPanel();
+	    searchEngPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p, 10dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
+	    searchEngPnl.setBorder(BorderFactory.createTitledBorder("Search Engines"));	
+	    
+	    // X!Tandem label
+	    final JLabel xTandemLbl = new JLabel("X!Tandem:");
+	    searchEngPnl.add(xTandemLbl, cc.xy(2, 2));
+	    
+	    // X!Tandem checkbox
+	    xTandemCbx = new JCheckBox();
+	    xTandemCbx.setSelected(true);
+	    searchEngPnl.add(xTandemCbx, cc.xy(4, 2));
+	    // TODO: Add action listener
+	    xTandemSetBtn = new JButton("Advanced Settings");
+	    xTandemSetBtn.setEnabled(false);
+	    searchEngPnl.add(xTandemSetBtn, cc.xy(6, 2));
+	    
+	    // Omssa label
+	    final JLabel omssaLbl = new JLabel("Omssa:");
+	    searchEngPnl.add(omssaLbl, cc.xy(2, 4));
+	    
+	    // Omssa checkbox
+	    omssaCbx = new JCheckBox();
+	    omssaCbx.setSelected(true);
+	    searchEngPnl.add(omssaCbx, cc.xy(4, 4));
+	    // TODO: Add action listener
+	    omssaSetBtn = new JButton("Advanced Settings");
+	    omssaSetBtn.setEnabled(false);
+	    searchEngPnl.add(omssaSetBtn, cc.xy(6, 4));
+	    
+	    // Crux label
+	    final JLabel cruxLbl = new JLabel("Crux:");
+	    searchEngPnl.add(cruxLbl, cc.xy(2, 6));
+	    
+	    // Inspect label
+	    final JLabel inspectLbl = new JLabel("Inspect:");
+	    searchEngPnl.add(inspectLbl, cc.xy(2, 8));
+	    
+	    // Crux checkbox
+	    cruxCbx = new JCheckBox();
+	    cruxCbx.setSelected(true);
+	    searchEngPnl.add(cruxCbx, cc.xy(4, 6));
+	    // TODO: Add action listener
+	    cruxSetBtn = new JButton("Advanced Settings");
+	    cruxSetBtn.setEnabled(false);
+	    searchEngPnl.add(cruxSetBtn, cc.xy(6, 6));
+	    
+	    // Inspect checkbox
+	    inspectCbx = new JCheckBox();
+	    inspectCbx.setSelected(true);
+	    searchEngPnl.add(inspectCbx, cc.xy(4, 8));
+	    // TODO: Add action listener
+	    inspectSetBtn = new JButton("Advanced Settings");
+	    inspectSetBtn.setEnabled(false);
+	    searchEngPnl.add(inspectSetBtn, cc.xy(6, 8));
+	    // Search Start Panel
+	    final JPanel runPnl = new JPanel();
+	    runPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 10dlu, p", "5dlu, p, 5dlu"));		
+	    runPnl.setBorder(BorderFactory.createTitledBorder("Search Start"));
+	    
+	    // Search type label
+	    final JLabel searchTypeLbl = new JLabel("Type:");
+	    runPnl.add(searchTypeLbl, cc.xy(2, 2));
+	    
+	    // Search type combobox
+	    searchTypeCbx = new JComboBox(new String[] {"Target only", "Target-decoy"});
+	    runPnl.add(searchTypeCbx, cc.xy(4, 2));
+	    
+	    // Search Run Button
+	    runDbSearchBtn = new JButton("Run");	    
+	    runDbSearchBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				runDbSearchBtn.setEnabled(false);
+				RunDbSearchWorker worker = new RunDbSearchWorker();
+				worker.addPropertyChangeListener(new PropertyChangeListener() {
+		        	@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+		        		if ("progress" == evt.getPropertyName()) {
+		        			int progress = (Integer) evt.getNewValue();
+		        			procPrg.setValue(progress);
+		        		} 
+
+		        	}
+		        });
+				worker.execute();
+			}
+		});	    
+	    runPnl.add(runDbSearchBtn, cc.xy(6, 2));
+	    
+	    // Status panel
+	    JPanel statusPnl = new JPanel();
+	    statusPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));		
+	    statusPnl.setBorder(BorderFactory.createTitledBorder("Search Status"));
+	    
+	    // Progress Label
+	    final JLabel progressLbl = new JLabel("Progress:");
+	    statusPnl.add(progressLbl, cc.xy(2, 2));
+	    
+	    // Progress bar
+	    searchPrg = new JProgressBar(0, 100);
+	    searchPrg.setStringPainted(true);
+	    searchPrg.setValue(0);
+	    statusPnl.add(searchPrg, cc.xy(4, 2));
+	    
+	    // Status details panel
+	    final JPanel statusDetailsPnl = new JPanel();
+	    statusDetailsPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
+	    statusDetailsPnl.setBorder(BorderFactory.createTitledBorder("Search Details"));	
+	    
+	    // X!Tandem status label
+	    final JLabel xtandemStatLbl = new JLabel("X!Tandem:");
+	    statusDetailsPnl.add(xtandemStatLbl, cc.xy(2, 2));
+	    
+	    // X!Tandem status textfield
+	    xtandemStatTtf = new JTextField(15);
+	    xtandemStatTtf.setEditable(false);
+	    xtandemStatTtf.setEnabled(false);
+	    statusDetailsPnl.add(xtandemStatTtf, cc.xy(4, 2));
+	    
+	    // Omssa status label
+	    final JLabel omssaStatLbl = new JLabel("Omssa:");
+	    statusDetailsPnl.add(omssaStatLbl, cc.xy(2, 4));
+	    
+	    // Omssa status textfield
+	    omssaStatTtf = new JTextField(15);
+	    omssaStatTtf.setEditable(false);
+	    omssaStatTtf.setEnabled(false);
+	    statusDetailsPnl.add(omssaStatTtf, cc.xy(4, 4));
+	    
+	    // Crux status label
+	    final JLabel cruxStatLbl = new JLabel("Crux:");
+	    statusDetailsPnl.add(cruxStatLbl, cc.xy(2, 6));
+	    
+	    // Crux status textfield
+	    cruxStatTtf = new JTextField(15);
+	    cruxStatTtf.setEditable(false);
+	    cruxStatTtf.setEnabled(false);
+	    statusDetailsPnl.add(cruxStatTtf, cc.xy(4, 6));
+	    
+	    // Inspect status label
+	    final JLabel inspectStatLbl = new JLabel("Inspect:");
+	    statusDetailsPnl.add(inspectStatLbl, cc.xy(2, 8));
+	    
+	    // Inspect status textfield
+	    inspectStatTtf = new JTextField(15);
+	    inspectStatTtf.setEditable(false);
+	    inspectStatTtf.setEnabled(false);
+	    statusDetailsPnl.add(inspectStatTtf, cc.xy(4, 8));
+	    
+	    msmsPnl.add(protDatabasePnl, cc.xy(2, 2));	    
+	    msmsPnl.add(statusPnl, cc.xy(4, 2));
+	    msmsPnl.add(paramsPnl, cc.xy(2, 4));
+	    msmsPnl.add(statusDetailsPnl, cc.xy(4, 4));
+	    msmsPnl.add(searchEngPnl, cc.xy(2, 6));
+	    msmsPnl.add(runPnl, cc.xy(4, 6));
 	}
 	
 	/**
