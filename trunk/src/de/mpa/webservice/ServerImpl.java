@@ -16,6 +16,7 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
+import de.mpa.client.DBSearchSettings;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
 import de.mpa.job.instances.CruxJob;
@@ -60,7 +61,7 @@ public class ServerImpl implements Server {
 	 * @param filename
 	 * @throws Exception
 	 */
-	public void process(String filename, String searchDB, double fragmentIonTol, double precursorTol) {	
+	public void process(String filename, DBSearchSettings params) {	
 		File file = new File("/scratch/metaprot/data/transfer/" + filename);
 		DBManager dbManager = null;
 		
@@ -78,30 +79,44 @@ public class ServerImpl implements Server {
 //			ex.printStackTrace();
 //		}
 		
+		// Init the job manager
 		final JobManager jobManager = new JobManager();
 		
+		// Get general parameters 
+		String searchDB = params.getFastaFile();
+		double fragIonTol = params.getFragmentIonTol();
+		double precIonTol = params.getPrecursorIonTol();
+		
 		// X!Tandem job
-		XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragmentIonTol, precursorTol, false, false);
-		jobManager.addJob(xtandemJob);
+		if(params.isXTandem()){
+			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, false);
+			jobManager.addJob(xtandemJob);
+		}
 		
 		// Omssa job
-		OmssaJob omssaJob = new OmssaJob(file, searchDB, fragmentIonTol, precursorTol, false, false);
-		jobManager.addJob(omssaJob);
+		if(params.isOmssa()){
+			OmssaJob omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, false);
+			jobManager.addJob(omssaJob);
+		}
 		
 		// Crux job
-		CruxJob cruxJob = new CruxJob(file, searchDB);
-		jobManager.addJob(cruxJob);
+		if(params.isCrux()){
+			CruxJob cruxJob = new CruxJob(file, searchDB);
+			jobManager.addJob(cruxJob);
+		}
 		
 		// Inspect job
-		InspectJob inspectJob = new InspectJob(file, searchDB);
-		jobManager.addJob(inspectJob);
+		if(params.isInspect()){
+			InspectJob inspectJob = new InspectJob(file, searchDB);
+			jobManager.addJob(inspectJob);
+		}
 		
 		// Pepnovo job		
-		PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
-		jobManager.addJob(pepnovoJob);
-		
-		jobManager.addJob(new DeleteJob(file.getAbsolutePath()));
-		
+//		PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
+//		jobManager.addJob(pepnovoJob);
+//		
+//		jobManager.addJob(new DeleteJob(file.getAbsolutePath()));
+//		
 //		try {
 //			dbManager.storePepnovoResults(pepnovoJob.getFilename());
 //		} catch (IOException e) {
@@ -110,6 +125,7 @@ public class ServerImpl implements Server {
 //			e.printStackTrace();
 //		}
 		jobManager.execute();
+		jobManager.clear();
 	}
 	
 	@Override		
@@ -121,6 +137,7 @@ public class ServerImpl implements Server {
 				io = data.getInputStream();
 				byte b[] = new byte[io.available()];  
 			    io.read(b);
+			    // TODO: Parameterize the path to the data folder!
 			    File file = new File("/scratch/metaprot/data/transfer/" + filename);
 			    
 				FileOutputStream fos = new FileOutputStream(file);
