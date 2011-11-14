@@ -35,6 +35,14 @@ public class JobManager {
 	}
 	
 	/**
+	 * Removes a job from the job queue.
+	 * @param job
+	 */
+	public void deleteJob(Job job){
+		jobQueue.remove(job);
+	}
+	
+	/**
 	 * Executes the jobs from the queue.
 	 */
 	public void execute(){
@@ -42,7 +50,8 @@ public class JobManager {
 			job.execute();
 			if (job.getStatus() == JobStatus.ERROR){
 				log.error(job.getError());
-			}			
+			}		
+			deleteJob(job);
 		}
 		
 	}

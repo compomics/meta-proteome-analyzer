@@ -34,7 +34,7 @@ public class Client {
 	private Server server;
 
 	/**
-	 * The constructor for the client.
+	 * The constructor for the client (private for singleton object).
 	 * 
 	 * @param name
 	 */
@@ -71,8 +71,8 @@ public class Client {
 	 * Send the message. 
 	 * @param msg
 	 */
-	public void sendMessage(String msg){
-		server.sendMessage(msg);
+	public String receiveMessage(String msg){
+		return server.sendMessage(msg);
 	}
 	
 	/**
@@ -81,12 +81,9 @@ public class Client {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public void sendFiles(File[] files) throws FileNotFoundException, IOException {
-		
-		// Number of files to send.
-		int nFiles = files.length;
-		
-		for (int i = 0; i < nFiles; i++){			
+	public void sendFiles(File[] files) throws FileNotFoundException, IOException {		
+		// Send files iteratively
+		for (int i = 0; i < files.length; i++){			
 			server.uploadFile(files[i].getName(), getBytesFromFile(files[i]));
 		}
 	}
@@ -98,12 +95,10 @@ public class Client {
 	    // Get the size of the file
 	    long length = file.length();
 
-	    // You cannot create an array using a long type.
-	    // It needs to be an int type.
-	    // Before converting to an int type, check
-	    // to ensure that file is not larger than Integer.MAX_VALUE.
+	    // Before converting to an int type, check to ensure that file is not larger than Integer.MAX_VALUE.
 	    if (length > Integer.MAX_VALUE) {
 	        // File is too large
+	    	throw new IOException("File size too long: " + length);
 	    }
 
 	    // Create the byte array to hold the data
@@ -119,7 +114,7 @@ public class Client {
 
 	    // Ensure all the bytes have been read in
 	    if (offset < bytes.length) {
-	        throw new IOException("Could not completely read file "+file.getName());
+	        throw new IOException("Could not completely read file " + file.getName());
 	    }
 
 	    // Close the input stream and return bytes
@@ -195,8 +190,6 @@ public class Client {
 		}
 		
 		return resultMap;
-				
-//		server.process(filename);
 	}
 	
 	/**

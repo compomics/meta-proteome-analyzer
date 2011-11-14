@@ -61,11 +61,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.apache.log4j.Logger;
+
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
+import de.mpa.client.DBSearchSettings;
 import de.mpa.client.ProcessSettings;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -80,7 +83,7 @@ public class ClientFrame extends JFrame {
 	
 	private final static int PORT = 8080;
 	private final static String HOST = "0.0.0.0";
-	
+	private Logger log = Logger.getLogger(getClass());
 	private final static String PATH = "test/de/mpa/resources/";
 	
 	private ClientFrame frame;
@@ -432,7 +435,7 @@ public class ClientFrame extends JFrame {
                 	str = str.substring(0, str.indexOf(" "));
                 	numFiles = Integer.parseInt(str) + newRows;
                     filesLbl.setText(numFiles + " of " + fileTblMdl.getRowCount() + " file(s) selected.");
-                    
+                    log.info("Added " + numFiles + " file(s).");
                     if (numFiles > 0) {
                     	if (connectedToServer) {
                     		sendBtn.setEnabled(true);
@@ -529,7 +532,7 @@ public class ClientFrame extends JFrame {
 				files.toArray(fileArray);
 				try {
 					client.sendFiles(fileArray);
-					client.sendMessage("Test the west!");
+					
 					//files.clear();
 					filesTtf.setText(files.size() + " file(s) selected");
 	                sendBtn.setEnabled(false);	                    
@@ -879,6 +882,18 @@ public class ClientFrame extends JFrame {
 	    msmsPnl.add(statusDetailsPnl, cc.xy(4, 4));
 	    msmsPnl.add(searchEngPnl, cc.xy(2, 6));
 	    msmsPnl.add(runPnl, cc.xy(4, 6));
+	}
+	
+	private DBSearchSettings collectDBSearchSettings() {
+		// TODO Auto-generated method stub
+		
+		DBSearchSettings settings = new DBSearchSettings();
+		
+		if(xTandemCbx.isSelected()) settings.setXTandem(true);
+		if(omssaCbx.isSelected()) settings.setOmssa(true);
+		if(cruxCbx.isSelected()) settings.setCrux(true);
+		if(inspectCbx.isSelected()) settings.setInspect(true);
+		return settings;
 	}
 	
 	/**
@@ -1308,8 +1323,10 @@ public class ClientFrame extends JFrame {
 			double progress = 0;
 			double max = files.size();
 			setProgress(0);
+			DBSearchSettings settings = collectDBSearchSettings();
 			try {
 				for (File file : files) {
+						// TODO: run the db search with the settings
 						client.runDbSearch(file);
 						progress++;
 						setProgress((int)(progress/max*100));
@@ -1324,7 +1341,7 @@ public class ClientFrame extends JFrame {
 			}
 			return 0;
 		}
-		
+
 		@Override
         public void done() {
             procBtn.setEnabled(true);
