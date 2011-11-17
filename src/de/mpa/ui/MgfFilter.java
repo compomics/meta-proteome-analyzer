@@ -1,7 +1,8 @@
 package de.mpa.ui;
 
 import java.io.File;
-import javax.swing.filechooser.*;
+
+import javax.swing.filechooser.FileFilter;
 
 public class MgfFilter extends FileFilter {
 

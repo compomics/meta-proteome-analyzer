@@ -1,8 +1,6 @@
 package de.mpa.algorithms;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 
 import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.Peak;
