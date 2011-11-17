@@ -47,13 +47,16 @@ import javax.xml.bind.annotation.XmlType;
     "xTandem"
 })
 public class DbSearchSettings {
-
-    protected boolean crux;
+	
     protected Protease enzyme;
     protected String fastaFile;
     protected double fragmentIonTol;
+    @XmlElement(name = "Crux")
+    protected boolean crux;
+    @XmlElement(name = "Inspect")
     protected boolean inspect;
     protected int numMissedCleavages;
+    @XmlElement(name = "Omssa")
     protected boolean omssa;
     protected double precursorIonTol;
     @XmlElement(name = "XTandem")
