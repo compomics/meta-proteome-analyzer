@@ -68,7 +68,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
-import de.mpa.client.DBSearchSettings;
+import de.mpa.client.DbSearchSettings;
 import de.mpa.client.ProcessSettings;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -161,6 +161,7 @@ public class ClientFrame extends JFrame {
 	private JTextField cruxStatTtf;
 	private JTextField inspectStatTtf;
 	private JTextField omssaStatTtf;
+	private JComboBox fastaFileCbx;
 	
 	
 	/**
@@ -677,7 +678,7 @@ public class ClientFrame extends JFrame {
 	    protDatabasePnl.add(fastaFileLbl, cc.xy(2, 2));
 	    
 	    // Fasta file combobox
-        final JComboBox fastaFileCbx = new JComboBox(Constants.FASTA_DB);
+        fastaFileCbx = new JComboBox(Constants.FASTA_DB);
 	    protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
 	    
 		// Parameters Panel
@@ -884,11 +885,13 @@ public class ClientFrame extends JFrame {
 	    msmsPnl.add(runPnl, cc.xy(4, 6));
 	}
 	
-	private DBSearchSettings collectDBSearchSettings() {
-		// TODO Auto-generated method stub
-		
-		DBSearchSettings settings = new DBSearchSettings();
-		
+	private DbSearchSettings collectDBSearchSettings() {
+		DbSearchSettings settings = new DbSearchSettings();
+		settings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
+		settings.setFragmentIonTol((Double) fragTolSpn.getValue());
+		settings.setPrecursorIonTol((Double) precTolSpn.getValue());
+		settings.setNumMissedCleavages((Integer) missClvSpn.getValue());
+		//TODO: Enzyme: settings.setEnzyme(value)
 		if(xTandemCbx.isSelected()) settings.setXTandem(true);
 		if(omssaCbx.isSelected()) settings.setOmssa(true);
 		if(cruxCbx.isSelected()) settings.setCrux(true);
@@ -1323,11 +1326,12 @@ public class ClientFrame extends JFrame {
 			double progress = 0;
 			double max = files.size();
 			setProgress(0);
-			DBSearchSettings settings = collectDBSearchSettings();
+			DbSearchSettings settings = collectDBSearchSettings();
 			try {
 				for (File file : files) {
 						// TODO: run the db search with the settings
-						client.runDbSearch(file);
+						System.out.println(settings.getFastaFile());
+						client.runDbSearch(file, settings);
 						progress++;
 						setProgress((int)(progress/max*100));
 				}

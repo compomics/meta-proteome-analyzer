@@ -126,8 +126,8 @@ public class Client {
 	 * Runs the database search.
 	 * @param file
 	 */
-	public void runDbSearch(File file){
-		server.process(file.getName(), "uniprot_sprot", 0.3, 0.5);
+	public void runDbSearch(File file, DbSearchSettings settings){
+		server.process(file.getName(), settings);
 	}
 	
 	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet){

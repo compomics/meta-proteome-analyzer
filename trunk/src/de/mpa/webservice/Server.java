@@ -9,7 +9,7 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlMimeType;
 
-import de.mpa.client.DBSearchSettings;
+import de.mpa.client.DbSearchSettings;
 
 @WebService
 @SOAPBinding(style = Style.RPC)
@@ -19,7 +19,7 @@ public interface Server {
 	 
 	 @WebMethod String sendMessage(String msg);
 	 
-	 @WebMethod void process(String filename, DBSearchSettings settings);
+	 @WebMethod void process(String filename, DbSearchSettings settings);
 	 
 	 // Download a file from the server
 	 @WebMethod File downloadFile(String filename);

@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Spectrum;

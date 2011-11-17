@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import de.mpa.db.DBManager;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;

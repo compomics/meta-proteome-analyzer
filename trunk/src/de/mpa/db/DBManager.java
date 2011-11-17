@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import de.mpa.db.accessor.Spectrum;
+
 import de.mpa.db.storager.PepnovoStorager;
 import de.mpa.db.storager.ProjectStorager;
 import de.mpa.db.storager.SpectrumStorager;

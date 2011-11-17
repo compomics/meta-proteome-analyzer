@@ -16,14 +16,12 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.client.DBSearchSettings;
+import de.mpa.client.DbSearchSettings;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
 import de.mpa.job.instances.CruxJob;
-import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.OmssaJob;
-import de.mpa.job.instances.PepnovoJob;
 import de.mpa.job.instances.XTandemJob;
 
 
@@ -61,7 +59,7 @@ public class ServerImpl implements Server {
 	 * @param filename
 	 * @throws Exception
 	 */
-	public void process(String filename, DBSearchSettings params) {	
+	public void process(String filename, DbSearchSettings params) {	
 		File file = new File("/scratch/metaprot/data/transfer/" + filename);
 		DBManager dbManager = null;
 		
