@@ -9,7 +9,6 @@ import java.util.List;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Libspectrum;
-import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -28,9 +27,9 @@ public class SpectrumStorager extends BasicStorager {
     private MascotGenericFileReader mascotGenericFileReader;
     
     /**
-     * Long variable holds the projectid.
+     * Long variable holds the experiment id.
      */
-    private long projectid;
+    private long expId;
     
     /**
      * The file instance.
@@ -53,10 +52,10 @@ public class SpectrumStorager extends BasicStorager {
      *
      * @param instrumentid
      */
-    public SpectrumStorager(Connection conn, File file, long projectid) {
+    public SpectrumStorager(Connection conn, File file, long expId) {
     	this.conn = conn;
     	this.file = file;
-        this.projectid = projectid;
+        this.expId = expId;
     }
 
     /**
@@ -92,7 +91,7 @@ public class SpectrumStorager extends BasicStorager {
             /* Spectrum section */
             HashMap<Object, Object> data = new HashMap<Object, Object>(10);
             // The project id.
-            data.put(Libspectrum.L_PROJECTID, Long.valueOf(projectid));
+            data.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf(expId));
             // The filename.
             String fileName = mgf.getFilename();
             data.put(Libspectrum.FILENAME, fileName);

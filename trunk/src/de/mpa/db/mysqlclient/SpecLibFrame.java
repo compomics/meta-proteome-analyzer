@@ -236,7 +236,7 @@ public class SpecLibFrame extends JFrame {
     				for (MascotGenericFile mgf : mgfList) {
     					HashMap<Object, Object> data = new HashMap<Object, Object>(10);
 
-    					data.put(Libspectrum.L_PROJECTID, Long.valueOf((Integer)idSpn.getValue()));
+    					data.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf((Integer)idSpn.getValue()));
     					data.put(Libspectrum.FILENAME, mgf.getFilename());
     					data.put(Libspectrum.SPECTRUMNAME, mgf.getTitle());
     					data.put(Libspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
