@@ -65,7 +65,21 @@ public class Client {
 		BindingProvider bp = (BindingProvider) server;
 		SOAPBinding binding = (SOAPBinding) bp.getBinding();
 		binding.setMTOMEnabled(true);
+		
+		// Start requesting
+		RequestThread thread = new RequestThread();
+		thread.start();
 	}
+	
+	//TODO: Disconnect method!
+	
+	/**
+	 * Requests the server for response.
+	 */
+	public void request(){
+		receiveMessage("limbo!");
+	}
+	
 	
 	/**
 	 * Send the message. 
@@ -130,6 +144,12 @@ public class Client {
 		server.process(file.getName(), settings);
 	}
 	
+	/**
+	 * Process
+	 * @param file
+	 * @param procSet
+	 * @return
+	 */
 	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet){
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
@@ -188,10 +208,23 @@ public class Client {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 		return resultMap;
 	}
 	
+	class RequestThread extends Thread {		
+		public void run() {
+			while(true){
+				try {
+					Thread.sleep(1000);
+					request();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
+	 
 	/**
 	 * @param args
 	 * @throws Exception
