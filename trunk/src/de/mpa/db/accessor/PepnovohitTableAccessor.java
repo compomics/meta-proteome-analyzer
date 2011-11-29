@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 05/10/2011
- * Time: 10:34:55
+ * Date: 29/11/2011
+ * Time: 14:13:55
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -51,15 +42,15 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
-	 * This variable represents the contents for the 'l_spectrumid' column.
+	 * This variable represents the contents for the 'fk_spectrumid' column.
 	 */
-	protected long iL_spectrumid = Long.MIN_VALUE;
+	protected long iFk_spectrumid = Long.MIN_VALUE;
 
 
 	/**
-	 * This variable represents the contents for the 'l_pepnovoid' column.
+	 * This variable represents the contents for the 'fk_peptideid' column.
 	 */
-	protected long iL_pepnovoid = Long.MIN_VALUE;
+	protected long iFk_peptideid = Long.MIN_VALUE;
 
 
 	/**
@@ -105,25 +96,19 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
-	 * This variable represents the contents for the 'sequence' column.
-	 */
-	protected String iSequence = null;
-
-
-	/**
 	 * This variable represents the key for the 'pepnovohitid' column.
 	 */
 	public static final String PEPNOVOHITID = "PEPNOVOHITID";
 
 	/**
-	 * This variable represents the key for the 'l_spectrumid' column.
+	 * This variable represents the key for the 'fk_spectrumid' column.
 	 */
-	public static final String L_SPECTRUMID = "L_SPECTRUMID";
+	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
 
 	/**
-	 * This variable represents the key for the 'l_pepnovoid' column.
+	 * This variable represents the key for the 'fk_peptideid' column.
 	 */
-	public static final String L_PEPNOVOID = "L_PEPNOVOID";
+	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
 
 	/**
 	 * This variable represents the key for the 'indexid' column.
@@ -160,11 +145,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public static final String CHARGE = "CHARGE";
 
-	/**
-	 * This variable represents the key for the 'sequence' column.
-	 */
-	public static final String SEQUENCE = "SEQUENCE";
-
 
 
 
@@ -184,11 +164,11 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(PEPNOVOHITID)) {
 			this.iPepnovohitid = ((Long)aParams.get(PEPNOVOHITID)).longValue();
 		}
-		if(aParams.containsKey(L_SPECTRUMID)) {
-			this.iL_spectrumid = ((Long)aParams.get(L_SPECTRUMID)).longValue();
+		if(aParams.containsKey(FK_SPECTRUMID)) {
+			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(L_PEPNOVOID)) {
-			this.iL_pepnovoid = ((Long)aParams.get(L_PEPNOVOID)).longValue();
+		if(aParams.containsKey(FK_PEPTIDEID)) {
+			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
 		if(aParams.containsKey(INDEXID)) {
 			this.iIndexid = ((Long)aParams.get(INDEXID)).longValue();
@@ -211,9 +191,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(CHARGE)) {
 			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
 		}
-		if(aParams.containsKey(SEQUENCE)) {
-			this.iSequence = (String)aParams.get(SEQUENCE);
-		}
 		this.iUpdated = true;
 	}
 
@@ -227,8 +204,8 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public PepnovohitTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iPepnovohitid = aResultSet.getLong("pepnovohitid");
-		this.iL_spectrumid = aResultSet.getLong("l_spectrumid");
-		this.iL_pepnovoid = aResultSet.getLong("l_pepnovoid");
+		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
+		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
 		this.iIndexid = aResultSet.getLong("indexid");
 		this.iRankscore = (Number)aResultSet.getObject("rankscore");
 		this.iPnvscore = (Number)aResultSet.getObject("pnvscore");
@@ -236,7 +213,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iC_gap = (Number)aResultSet.getObject("c_gap");
 		this.iPrecursor_mh = (Number)aResultSet.getObject("precursor_mh");
 		this.iCharge = aResultSet.getLong("charge");
-		this.iSequence = (String)aResultSet.getObject("sequence");
 
 		this.iUpdated = true;
 	}
@@ -252,21 +228,21 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
-	 * This method returns the value for the 'L_spectrumid' column
+	 * This method returns the value for the 'Fk_spectrumid' column
 	 * 
-	 * @return	long	with the value for the L_spectrumid column.
+	 * @return	long	with the value for the Fk_spectrumid column.
 	 */
-	public long getL_spectrumid() {
-		return this.iL_spectrumid;
+	public long getFk_spectrumid() {
+		return this.iFk_spectrumid;
 	}
 
 	/**
-	 * This method returns the value for the 'L_pepnovoid' column
+	 * This method returns the value for the 'Fk_peptideid' column
 	 * 
-	 * @return	long	with the value for the L_pepnovoid column.
+	 * @return	long	with the value for the Fk_peptideid column.
 	 */
-	public long getL_pepnovoid() {
-		return this.iL_pepnovoid;
+	public long getFk_peptideid() {
+		return this.iFk_peptideid;
 	}
 
 	/**
@@ -333,15 +309,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
-	 * This method returns the value for the 'Sequence' column
-	 * 
-	 * @return	String	with the value for the Sequence column.
-	 */
-	public String getSequence() {
-		return this.iSequence;
-	}
-
-	/**
 	 * This method sets the value for the 'Pepnovohitid' column
 	 * 
 	 * @param	aPepnovohitid	long with the value for the Pepnovohitid column.
@@ -352,22 +319,22 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
-	 * This method sets the value for the 'L_spectrumid' column
+	 * This method sets the value for the 'Fk_spectrumid' column
 	 * 
-	 * @param	aL_spectrumid	long with the value for the L_spectrumid column.
+	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
 	 */
-	public void setL_spectrumid(long aL_spectrumid) {
-		this.iL_spectrumid = aL_spectrumid;
+	public void setFk_spectrumid(long aFk_spectrumid) {
+		this.iFk_spectrumid = aFk_spectrumid;
 		this.iUpdated = true;
 	}
 
 	/**
-	 * This method sets the value for the 'L_pepnovoid' column
+	 * This method sets the value for the 'Fk_peptideid' column
 	 * 
-	 * @param	aL_pepnovoid	long with the value for the L_pepnovoid column.
+	 * @param	aFk_peptideid	long with the value for the Fk_peptideid column.
 	 */
-	public void setL_pepnovoid(long aL_pepnovoid) {
-		this.iL_pepnovoid = aL_pepnovoid;
+	public void setFk_peptideid(long aFk_peptideid) {
+		this.iFk_peptideid = aFk_peptideid;
 		this.iUpdated = true;
 	}
 
@@ -441,16 +408,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iUpdated = true;
 	}
 
-	/**
-	 * This method sets the value for the 'Sequence' column
-	 * 
-	 * @param	aSequence	String with the value for the Sequence column.
-	 */
-	public void setSequence(String aSequence) {
-		this.iSequence = aSequence;
-		this.iUpdated = true;
-	}
-
 
 
 	/**
@@ -489,8 +446,8 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		while(lRS.next()) {
 			hits++;
 			iPepnovohitid = lRS.getLong("pepnovohitid");
-			iL_spectrumid = lRS.getLong("l_spectrumid");
-			iL_pepnovoid = lRS.getLong("l_pepnovoid");
+			iFk_spectrumid = lRS.getLong("fk_spectrumid");
+			iFk_peptideid = lRS.getLong("fk_peptideid");
 			iIndexid = lRS.getLong("indexid");
 			iRankscore = (Number)lRS.getObject("rankscore");
 			iPnvscore = (Number)lRS.getObject("pnvscore");
@@ -498,7 +455,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 			iC_gap = (Number)lRS.getObject("c_gap");
 			iPrecursor_mh = (Number)lRS.getObject("precursor_mh");
 			iCharge = lRS.getLong("charge");
-			iSequence = (String)lRS.getObject("sequence");
 		}
 		lRS.close();
 		lStat.close();
@@ -548,10 +504,10 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE pepnovohit SET pepnovohitid = ?, l_spectrumid = ?, l_pepnovoid = ?, indexid = ?, rankscore = ?, pnvscore = ?, n_gap = ?, c_gap = ?, precursor_mh = ?, charge = ?, sequence = ? WHERE pepnovohitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE pepnovohit SET pepnovohitid = ?, fk_spectrumid = ?, fk_peptideid = ?, indexid = ?, rankscore = ?, pnvscore = ?, n_gap = ?, c_gap = ?, precursor_mh = ?, charge = ? WHERE pepnovohitid = ?");
 		lStat.setLong(1, iPepnovohitid);
-		lStat.setLong(2, iL_spectrumid);
-		lStat.setLong(3, iL_pepnovoid);
+		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(3, iFk_peptideid);
 		lStat.setLong(4, iIndexid);
 		lStat.setObject(5, iRankscore);
 		lStat.setObject(6, iPnvscore);
@@ -559,8 +515,7 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		lStat.setObject(8, iC_gap);
 		lStat.setObject(9, iPrecursor_mh);
 		lStat.setLong(10, iCharge);
-		lStat.setObject(11, iSequence);
-		lStat.setLong(12, iPepnovohitid);
+		lStat.setLong(11, iPepnovohitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -575,21 +530,21 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pepnovohit (pepnovohitid, l_spectrumid, l_pepnovoid, indexid, rankscore, pnvscore, n_gap, c_gap, precursor_mh, charge, sequence) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pepnovohit (pepnovohitid, fk_spectrumid, fk_peptideid, indexid, rankscore, pnvscore, n_gap, c_gap, precursor_mh, charge) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		if(iPepnovohitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iPepnovohitid);
 		}
-		if(iL_spectrumid == Long.MIN_VALUE) {
+		if(iFk_spectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iL_spectrumid);
+			lStat.setLong(2, iFk_spectrumid);
 		}
-		if(iL_pepnovoid == Long.MIN_VALUE) {
+		if(iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iL_pepnovoid);
+			lStat.setLong(3, iFk_peptideid);
 		}
 		if(iIndexid == Long.MIN_VALUE) {
 			lStat.setNull(4, 4);
@@ -625,11 +580,6 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 			lStat.setNull(10, 4);
 		} else {
 			lStat.setLong(10, iCharge);
-		}
-		if(iSequence == null) {
-			lStat.setNull(11, 12);
-		} else {
-			lStat.setObject(11, iSequence);
 		}
 		int result = lStat.executeUpdate();
 

@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 05/10/2011
- * Time: 13:49:27
+ * Date: 29/11/2011
+ * Time: 14:14:02
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -28,11 +19,11 @@ import com.compomics.util.db.interfaces.Updateable;
  */
 
 /**
- * This class is a generated accessor for the Spectrum table.
+ * This class is a generated accessor for the Searchspectrum table.
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
-public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
+public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
 
 	/**
 	 * This variable tracks changes to the object.
@@ -51,9 +42,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 
 
 	/**
-	 * This variable represents the contents for the 'l_projectid' column.
+	 * This variable represents the contents for the 'fk_experimentid' column.
 	 */
-	protected long iL_projectid = Long.MIN_VALUE;
+	protected long iFk_experimentid = Long.MIN_VALUE;
 
 
 	/**
@@ -110,9 +101,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static final String SPECTRUMID = "SPECTRUMID";
 
 	/**
-	 * This variable represents the key for the 'l_projectid' column.
+	 * This variable represents the key for the 'fk_experimentid' column.
 	 */
-	public static final String L_PROJECTID = "L_PROJECTID";
+	public static final String FK_EXPERIMENTID = "FK_EXPERIMENTID";
 
 	/**
 	 * This variable represents the key for the 'filename' column.
@@ -160,21 +151,21 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * Default constructor.
 	 */
-	public SpectrumTableAccessor() {
+	public SearchspectrumTableAccessor() {
 	}
 
 	/**
-	 * This constructor allows the creation of the 'SpectrumTableAccessor' object based on a set of values in the HashMap.
+	 * This constructor allows the creation of the 'SearchspectrumTableAccessor' object based on a set of values in the HashMap.
 	 *
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public SpectrumTableAccessor(HashMap aParams) {
+	public SearchspectrumTableAccessor(HashMap aParams) {
 		if(aParams.containsKey(SPECTRUMID)) {
 			this.iSpectrumid = ((Long)aParams.get(SPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(L_PROJECTID)) {
-			this.iL_projectid = ((Long)aParams.get(L_PROJECTID)).longValue();
+		if(aParams.containsKey(FK_EXPERIMENTID)) {
+			this.iFk_experimentid = ((Long)aParams.get(FK_EXPERIMENTID)).longValue();
 		}
 		if(aParams.containsKey(FILENAME)) {
 			this.iFilename = (String)aParams.get(FILENAME);
@@ -186,7 +177,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
 		}
 		if(aParams.containsKey(CHARGE)) {
-			this.iCharge = ((Number)aParams.get(CHARGE)).longValue();
+			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
 		}
 		if(aParams.containsKey(TOTALINTENSITY)) {
 			this.iTotalintensity = (Number)aParams.get(TOTALINTENSITY);
@@ -205,15 +196,15 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 
 
 	/**
-	 * This constructor allows the creation of the 'SpectrumTableAccessor' object based on a resultset
-	 * obtained by a 'select * from Spectrum' query.
+	 * This constructor allows the creation of the 'SearchspectrumTableAccessor' object based on a resultset
+	 * obtained by a 'select * from Searchspectrum' query.
 	 *
 	 * @param	aResultSet	ResultSet with the required columns to initialize this object with.
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
-	public SpectrumTableAccessor(ResultSet aResultSet) throws SQLException {
+	public SearchspectrumTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iSpectrumid = aResultSet.getLong("spectrumid");
-		this.iL_projectid = aResultSet.getLong("l_projectid");
+		this.iFk_experimentid = aResultSet.getLong("fk_experimentid");
 		this.iFilename = (String)aResultSet.getObject("filename");
 		this.iSpectrumname = (String)aResultSet.getObject("spectrumname");
 		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
@@ -237,12 +228,12 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	}
 
 	/**
-	 * This method returns the value for the 'L_projectid' column
+	 * This method returns the value for the 'Fk_experimentid' column
 	 * 
-	 * @return	long	with the value for the L_projectid column.
+	 * @return	long	with the value for the Fk_experimentid column.
 	 */
-	public long getL_projectid() {
-		return this.iL_projectid;
+	public long getFk_experimentid() {
+		return this.iFk_experimentid;
 	}
 
 	/**
@@ -328,12 +319,12 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	}
 
 	/**
-	 * This method sets the value for the 'L_projectid' column
+	 * This method sets the value for the 'Fk_experimentid' column
 	 * 
-	 * @param	aL_projectid	long with the value for the L_projectid column.
+	 * @param	aFk_experimentid	long with the value for the Fk_experimentid column.
 	 */
-	public void setL_projectid(long aL_projectid) {
-		this.iL_projectid = aL_projectid;
+	public void setFk_experimentid(long aFk_experimentid) {
+		this.iFk_experimentid = aFk_experimentid;
 		this.iUpdated = true;
 	}
 
@@ -426,7 +417,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int delete(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM spectrum WHERE spectrumid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM searchspectrum WHERE spectrumid = ?");
 		lStat.setLong(1, iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
@@ -448,14 +439,14 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			iSpectrumid = ((Long)aKeys.get(SPECTRUMID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
-		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM spectrum WHERE spectrumid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM searchspectrum WHERE spectrumid = ?");
 		lStat.setLong(1, iSpectrumid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
 			iSpectrumid = lRS.getLong("spectrumid");
-			iL_projectid = lRS.getLong("l_projectid");
+			iFk_experimentid = lRS.getLong("fk_experimentid");
 			iFilename = (String)lRS.getObject("filename");
 			iSpectrumname = (String)lRS.getObject("spectrumname");
 			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
@@ -468,9 +459,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		lRS.close();
 		lStat.close();
 		if(hits>1) {
-			throw new SQLException("More than one hit found for the specified primary keys in the 'spectrum' table! Object is initialized to last row returned.");
+			throw new SQLException("More than one hit found for the specified primary keys in the 'searchspectrum' table! Object is initialized to last row returned.");
 		} else if(hits == 0) {
-			throw new SQLException("No hits found for the specified primary keys in the 'spectrum' table! Object is not initialized correctly!");
+			throw new SQLException("No hits found for the specified primary keys in the 'searchspectrum' table! Object is not initialized correctly!");
 		}
 	}
 	/**
@@ -479,7 +470,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return   String with the basic select statement for this table.
 	 */
 	public static String getBasicSelect(){
-		return "select * from spectrum";
+		return "select * from searchspectrum";
 	}
 
 	/**
@@ -487,14 +478,14 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * table from a persistent store.
 	 *
 	 * @param   aConn Connection to the persitent store.
-	 * @return   ArrayList<SpectrumTableAccessor>   with all entries for this table.
+	 * @return   ArrayList<SearchspectrumTableAccessor>   with all entries for this table.
 	 */
-	public static ArrayList<SpectrumTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
-		ArrayList<SpectrumTableAccessor>  entities = new ArrayList<SpectrumTableAccessor>();
+	public static ArrayList<SearchspectrumTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
+		ArrayList<SearchspectrumTableAccessor>  entities = new ArrayList<SearchspectrumTableAccessor>();
 		Statement stat = aConn.createStatement();
 		ResultSet rs = stat.executeQuery(getBasicSelect());
 		while(rs.next()) {
-			entities.add(new SpectrumTableAccessor(rs));
+			entities.add(new SearchspectrumTableAccessor(rs));
 		}
 		rs.close();
 		stat.close();
@@ -513,9 +504,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrum SET spectrumid = ?, l_projectid = ?, filename = ?, spectrumname = ?, precursor_mz = ?, charge = ?, totalintensity = ?, maximumintensity = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE spectrumid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE searchspectrum SET spectrumid = ?, fk_experimentid = ?, filename = ?, spectrumname = ?, precursor_mz = ?, charge = ?, totalintensity = ?, maximumintensity = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE spectrumid = ?");
 		lStat.setLong(1, iSpectrumid);
-		lStat.setLong(2, iL_projectid);
+		lStat.setLong(2, iFk_experimentid);
 		lStat.setObject(3, iFilename);
 		lStat.setObject(4, iSpectrumname);
 		lStat.setObject(5, iPrecursor_mz);
@@ -538,16 +529,16 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spectrum (spectrumid, l_projectid, filename, spectrumname, precursor_mz, charge, totalintensity, maximumintensity, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO searchspectrum (spectrumid, fk_experimentid, filename, spectrumname, precursor_mz, charge, totalintensity, maximumintensity, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iSpectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iSpectrumid);
 		}
-		if(iL_projectid == Long.MIN_VALUE) {
+		if(iFk_experimentid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iL_projectid);
+			lStat.setLong(2, iFk_experimentid);
 		}
 		if(iFilename == null) {
 			lStat.setNull(3, 12);

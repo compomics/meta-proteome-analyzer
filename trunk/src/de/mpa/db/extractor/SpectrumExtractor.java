@@ -8,7 +8,8 @@ import java.util.List;
 
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.db.accessor.Speclibentry;
-import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 
@@ -44,7 +45,7 @@ public class SpectrumExtractor {
 		
 		// Iterate the spectral library entries.
 		for (Speclibentry entry : entries) {
-			MascotGenericFile mgf = getUnzippedFile(entry.getL_spectrumid());
+			MascotGenericFile mgf = getUnzippedFile(entry.getFk_spectrumid());
 			libSpectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), entry.getSequence(), entry.getAnnotation()));			
 		}
 		
@@ -65,11 +66,11 @@ public class SpectrumExtractor {
 		List<LibrarySpectrum> spectra = new ArrayList<LibrarySpectrum>();
 		
 		// Get the spectral library entries with similar precursor mass.
-		List<Spectrum> entries = Spectrum.getEntriesWithinPrecursorRange(precursorMz, tolMz, conn);
+		List<Libspectrum> entries = Libspectrum.getEntriesWithinPrecursorRange(precursorMz, tolMz, conn);
 		
 		// Iterate the spectral library entries.
-		for (Spectrum entry : entries) {
-			MascotGenericFile mgf = getUnzippedFile(entry.getSpectrumid());
+		for (Libspectrum entry : entries) {
+			MascotGenericFile mgf = getUnzippedFile(entry.getLibspectrumid());
 			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), "hmm", "mhh"));	// TODO
 		}
 		
@@ -86,7 +87,7 @@ public class SpectrumExtractor {
 	private MascotGenericFile getUnzippedFile(long spectrumID) throws SQLException, IOException{		
 		// Get the spectrum + spectrum file.
 		Spectrumfile spectrumFile = Spectrumfile.findFromID(spectrumID, conn);
-		Spectrum spectrum = Spectrum.findFromID(spectrumID, conn);
+		Libspectrum spectrum = Libspectrum.findFromID(spectrumID, conn);
 		
 		// Get the resultant bytes
 		byte[] result = spectrumFile.getUnzippedFile();

@@ -30,7 +30,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Speclibentry;
-import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -235,16 +236,16 @@ public class SpecLibFrame extends JFrame {
     				for (MascotGenericFile mgf : mgfList) {
     					HashMap<Object, Object> data = new HashMap<Object, Object>(10);
 
-    					data.put(Spectrum.L_PROJECTID, Long.valueOf((Integer)idSpn.getValue()));
-    					data.put(Spectrum.FILENAME, mgf.getFilename());
-    					data.put(Spectrum.SPECTRUMNAME, mgf.getTitle());
-    					data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
-    					data.put(Spectrum.CHARGE, mgf.getCharge());
-    					data.put(Spectrum.TOTALINTENSITY, mgf.getTotalIntensity());
-    					data.put(Spectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
+    					data.put(Libspectrum.L_PROJECTID, Long.valueOf((Integer)idSpn.getValue()));
+    					data.put(Libspectrum.FILENAME, mgf.getFilename());
+    					data.put(Libspectrum.SPECTRUMNAME, mgf.getTitle());
+    					data.put(Libspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
+    					data.put(Libspectrum.CHARGE, mgf.getCharge());
+    					data.put(Libspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
+    					data.put(Libspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
 
     					// Create the database object.
-    					Spectrum spectrum = new Spectrum(data);
+    					Libspectrum spectrum = new Libspectrum(data);
     					spectrum.persist(conn);
 
     					// Get the spectrumid from the generated keys.
@@ -252,7 +253,7 @@ public class SpecLibFrame extends JFrame {
 
     					// Create the spectrumFile instance.
     					Spectrumfile spectrumFile = new Spectrumfile();
-    					spectrumFile.setL_spectrumid(spectrumID);
+    					spectrumFile.setFk_libspectrumid(spectrumID);
 
     					// Set the file contents
     					// Read the contents for the file into a byte[].
@@ -268,7 +269,7 @@ public class SpecLibFrame extends JFrame {
     						PeptideHit pepHit = pepMap.get(mgf.getTitle());
     						HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
 
-    						dataSpecLib.put(Speclibentry.L_SPECTRUMID, spectrumID);
+    						dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
     						dataSpecLib.put(Speclibentry.PRECURSOR_MZ, pepHit.getMz());
     						dataSpecLib.put(Speclibentry.SEQUENCE, pepHit.getSequence());
     						dataSpecLib.put(Speclibentry.ANNOTATION, pepHit.getProteinAccession());

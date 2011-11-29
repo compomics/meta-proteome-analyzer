@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import de.mpa.db.accessor.Pepnovo;
 import de.mpa.db.accessor.Pepnovofile;
 import de.mpa.db.accessor.PepnovohitTableAccessor;
-import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.Libspectrum;
 import de.mpa.parser.pepnovo.PepnovoEntry;
 import de.mpa.parser.pepnovo.PepnovoFile;
 import de.mpa.parser.pepnovo.PepnovoParser;
@@ -62,46 +62,16 @@ public class PepnovoStorager extends BasicStorager {
      * Stores the Pepnovo data.
      */
     public void store() throws IOException,SQLException {
-         /* XTandem section */
-        HashMap<Object, Object> data = new HashMap<Object, Object>(3);
-
-        // The filename.
-        data.put(Pepnovo.FILENAME, pepnovofile.getFilename());
-        
-        // Create the database object.
-        Pepnovo pepnovo = new Pepnovo(data);
-        pepnovo.persist(conn);
-
-        /* Pepnovofile section */
-        // Get the spectrumid from the generated keys.
-        Long pepnovoid = (Long) pepnovo.getGeneratedKeys()[0];
-
-        // Create the spectrumFile instance.
-        Pepnovofile pepnovofileDAO = new Pepnovofile();
-        pepnovofileDAO.setL_pepnovoid1(pepnovoid);
-
-        // Set the filecontent
-        // Read the contents for the file into a byte[].
-        byte[] fileContents = pepnovofile.toString().getBytes();
-
-        // Set the byte[].
-        pepnovofileDAO.setUnzippedFile(fileContents);
-
-        // Create the database object.
-        pepnovofileDAO.persist(conn);
-        conn.commit();
-        
         // Get all the entries
         List<PepnovoEntry> entryList = pepnovofile.getEntryList();       
         for (PepnovoEntry entry : entryList) {
         	
             List<Prediction> predList = entry.getPredictionList();
             // Get the spectrum id for the given spectrumName for the PepnovoFile     
-            long spectrumid = Spectrum.getSpectrumIdFromSpectrumName(entry.getSpectrumName(), false);
+            long spectrumid = Libspectrum.getSpectrumIdFromSpectrumName(entry.getSpectrumName(), false);
             for (Prediction hit : predList) {                
                 HashMap<Object, Object> hitdata = new HashMap<Object, Object>(11);
-                hitdata.put(PepnovohitTableAccessor.L_SPECTRUMID, spectrumid);
-                hitdata.put(PepnovohitTableAccessor.L_PEPNOVOID, pepnovoid);
+                hitdata.put(PepnovohitTableAccessor.FK_SPECTRUMID, spectrumid);
                 hitdata.put(PepnovohitTableAccessor.INDEXID, Long.valueOf(hit.getIndex()));
                 hitdata.put(PepnovohitTableAccessor.RANKSCORE, hit.getRankScore());
                 hitdata.put(PepnovohitTableAccessor.PNVSCORE, hit.getPepNovoScore());
@@ -109,7 +79,7 @@ public class PepnovoStorager extends BasicStorager {
                 hitdata.put(PepnovohitTableAccessor.C_GAP, hit.getcTermGap());
                 hitdata.put(PepnovohitTableAccessor.PRECURSOR_MH, hit.getPrecursorMh());
                 hitdata.put(PepnovohitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
-                hitdata.put(PepnovohitTableAccessor.SEQUENCE, hit.getSequence());
+                //hitdata.put(PepnovohitTableAccessor.SEQUENCE, hit.getSequence());
                 // Create the database object.
                 PepnovohitTableAccessor pepnovohit = new PepnovohitTableAccessor(hitdata);
                 pepnovohit.persist(conn);
