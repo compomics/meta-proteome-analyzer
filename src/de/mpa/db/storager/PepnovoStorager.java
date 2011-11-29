@@ -9,10 +9,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.db.accessor.Pepnovo;
-import de.mpa.db.accessor.Pepnovofile;
-import de.mpa.db.accessor.PepnovohitTableAccessor;
 import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.accessor.PepnovohitTableAccessor;
 import de.mpa.parser.pepnovo.PepnovoEntry;
 import de.mpa.parser.pepnovo.PepnovoFile;
 import de.mpa.parser.pepnovo.PepnovoParser;

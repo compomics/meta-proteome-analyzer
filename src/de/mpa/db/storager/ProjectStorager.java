@@ -102,10 +102,6 @@ public class ProjectStorager extends BasicStorager {
             if(project == null){
             	// The taxon id                
                 projectdata.put(Project.TITLE, title);
-                projectdata.put(Project.TAXON, species);
-                projectdata.put(Project.FRAGMENT_TOL, fragmentTol);
-                projectdata.put(Project.PRECURSOR_TOL, precursorTol);
-                projectdata.put(Project.PRECURSOR_UNIT, precursorUnit);
                 // Create the project database object.
                 final Project newProject = new Project(projectdata);
                 newProject.persist(conn);
