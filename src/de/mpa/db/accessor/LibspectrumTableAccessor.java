@@ -2,7 +2,7 @@
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
  * Date: 29/11/2011
- * Time: 14:13:49
+ * Time: 14:37:17
  */
 package de.mpa.db.accessor;
 
