@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 05/10/2011
- * Time: 13:49:31
+ * Date: 29/11/2011
+ * Time: 14:14:03
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -51,9 +42,15 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 
 
 	/**
-	 * This variable represents the contents for the 'l_spectrumid' column.
+	 * This variable represents the contents for the 'fk_spectrumid' column.
 	 */
-	protected long iL_spectrumid = Long.MIN_VALUE;
+	protected long iFk_spectrumid = Long.MIN_VALUE;
+
+
+	/**
+	 * This variable represents the contents for the 'fk_peptideid' column.
+	 */
+	protected long iFk_peptideid = Long.MIN_VALUE;
 
 
 	/**
@@ -92,9 +89,14 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	public static final String SPECLIBID = "SPECLIBID";
 
 	/**
-	 * This variable represents the key for the 'l_spectrumid' column.
+	 * This variable represents the key for the 'fk_spectrumid' column.
 	 */
-	public static final String L_SPECTRUMID = "L_SPECTRUMID";
+	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
+
+	/**
+	 * This variable represents the key for the 'fk_peptideid' column.
+	 */
+	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
 
 	/**
 	 * This variable represents the key for the 'precursor_mz' column.
@@ -140,8 +142,11 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(aParams.containsKey(SPECLIBID)) {
 			this.iSpeclibid = ((Long)aParams.get(SPECLIBID)).longValue();
 		}
-		if(aParams.containsKey(L_SPECTRUMID)) {
-			this.iL_spectrumid = ((Long)aParams.get(L_SPECTRUMID)).longValue();
+		if(aParams.containsKey(FK_SPECTRUMID)) {
+			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
+		}
+		if(aParams.containsKey(FK_PEPTIDEID)) {
+			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
 		if(aParams.containsKey(PRECURSOR_MZ)) {
 			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
@@ -171,7 +176,8 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public SpeclibentryTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iSpeclibid = aResultSet.getLong("speclibid");
-		this.iL_spectrumid = aResultSet.getLong("l_spectrumid");
+		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
+		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
 		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
 		this.iSequence = (String)aResultSet.getObject("sequence");
 		this.iAnnotation = (String)aResultSet.getObject("annotation");
@@ -192,12 +198,21 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	}
 
 	/**
-	 * This method returns the value for the 'L_spectrumid' column
+	 * This method returns the value for the 'Fk_spectrumid' column
 	 * 
-	 * @return	long	with the value for the L_spectrumid column.
+	 * @return	long	with the value for the Fk_spectrumid column.
 	 */
-	public long getL_spectrumid() {
-		return this.iL_spectrumid;
+	public long getFk_spectrumid() {
+		return this.iFk_spectrumid;
+	}
+
+	/**
+	 * This method returns the value for the 'Fk_peptideid' column
+	 * 
+	 * @return	long	with the value for the Fk_peptideid column.
+	 */
+	public long getFk_peptideid() {
+		return this.iFk_peptideid;
 	}
 
 	/**
@@ -256,12 +271,22 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	}
 
 	/**
-	 * This method sets the value for the 'L_spectrumid' column
+	 * This method sets the value for the 'Fk_spectrumid' column
 	 * 
-	 * @param	aL_spectrumid	long with the value for the L_spectrumid column.
+	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
 	 */
-	public void setL_spectrumid(long aL_spectrumid) {
-		this.iL_spectrumid = aL_spectrumid;
+	public void setFk_spectrumid(long aFk_spectrumid) {
+		this.iFk_spectrumid = aFk_spectrumid;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Fk_peptideid' column
+	 * 
+	 * @param	aFk_peptideid	long with the value for the Fk_peptideid column.
+	 */
+	public void setFk_peptideid(long aFk_peptideid) {
+		this.iFk_peptideid = aFk_peptideid;
 		this.iUpdated = true;
 	}
 
@@ -353,7 +378,8 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		while(lRS.next()) {
 			hits++;
 			iSpeclibid = lRS.getLong("speclibid");
-			iL_spectrumid = lRS.getLong("l_spectrumid");
+			iFk_spectrumid = lRS.getLong("fk_spectrumid");
+			iFk_peptideid = lRS.getLong("fk_peptideid");
 			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
 			iSequence = (String)lRS.getObject("sequence");
 			iAnnotation = (String)lRS.getObject("annotation");
@@ -408,14 +434,15 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE speclibentry SET speclibid = ?, l_spectrumid = ?, precursor_mz = ?, sequence = ?, annotation = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE speclibid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE speclibentry SET speclibid = ?, fk_spectrumid = ?, fk_peptideid = ?, precursor_mz = ?, sequence = ?, annotation = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE speclibid = ?");
 		lStat.setLong(1, iSpeclibid);
-		lStat.setLong(2, iL_spectrumid);
-		lStat.setObject(3, iPrecursor_mz);
-		lStat.setObject(4, iSequence);
-		lStat.setObject(5, iAnnotation);
-		lStat.setObject(6, iCreationdate);
-		lStat.setLong(7, iSpeclibid);
+		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(3, iFk_peptideid);
+		lStat.setObject(4, iPrecursor_mz);
+		lStat.setObject(5, iSequence);
+		lStat.setObject(6, iAnnotation);
+		lStat.setObject(7, iCreationdate);
+		lStat.setLong(8, iSpeclibid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -430,31 +457,36 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO speclibentry (speclibid, l_spectrumid, precursor_mz, sequence, annotation, creationdate, modificationdate) values(?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO speclibentry (speclibid, fk_spectrumid, fk_peptideid, precursor_mz, sequence, annotation, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iSpeclibid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iSpeclibid);
 		}
-		if(iL_spectrumid == Long.MIN_VALUE) {
+		if(iFk_spectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iL_spectrumid);
+			lStat.setLong(2, iFk_spectrumid);
+		}
+		if(iFk_peptideid == Long.MIN_VALUE) {
+			lStat.setNull(3, 4);
+		} else {
+			lStat.setLong(3, iFk_peptideid);
 		}
 		if(iPrecursor_mz == null) {
-			lStat.setNull(3, 3);
+			lStat.setNull(4, 3);
 		} else {
-			lStat.setObject(3, iPrecursor_mz);
+			lStat.setObject(4, iPrecursor_mz);
 		}
 		if(iSequence == null) {
-			lStat.setNull(4, 12);
-		} else {
-			lStat.setObject(4, iSequence);
-		}
-		if(iAnnotation == null) {
 			lStat.setNull(5, 12);
 		} else {
-			lStat.setObject(5, iAnnotation);
+			lStat.setObject(5, iSequence);
+		}
+		if(iAnnotation == null) {
+			lStat.setNull(6, 12);
+		} else {
+			lStat.setObject(6, iAnnotation);
 		}
 		int result = lStat.executeUpdate();
 

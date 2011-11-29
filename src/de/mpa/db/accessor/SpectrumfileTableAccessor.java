@@ -1,28 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 05/10/2011
- * Time: 10:34:54
+ * Date: 29/11/2011
+ * Time: 14:13:50
  */
 package de.mpa.db.accessor;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Vector;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -49,9 +36,9 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	protected Object[] iKeys = null;
 
 	/**
-	 * This variable represents the contents for the 'l_spectrumid' column.
+	 * This variable represents the contents for the 'fk_libspectrumid' column.
 	 */
-	protected long iL_spectrumid = Long.MIN_VALUE;
+	protected long iFk_libspectrumid = Long.MIN_VALUE;
 
 
 	/**
@@ -61,9 +48,9 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 
 
 	/**
-	 * This variable represents the key for the 'l_spectrumid' column.
+	 * This variable represents the key for the 'fk_libspectrumid' column.
 	 */
-	public static final String L_SPECTRUMID = "L_SPECTRUMID";
+	public static final String FK_LIBSPECTRUMID = "FK_LIBSPECTRUMID";
 
 	/**
 	 * This variable represents the key for the 'file' column.
@@ -86,8 +73,8 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public SpectrumfileTableAccessor(HashMap aParams) {
-		if(aParams.containsKey(L_SPECTRUMID)) {
-			this.iL_spectrumid = ((Long)aParams.get(L_SPECTRUMID)).longValue();
+		if(aParams.containsKey(FK_LIBSPECTRUMID)) {
+			this.iFk_libspectrumid = ((Long)aParams.get(FK_LIBSPECTRUMID)).longValue();
 		}
 		if(aParams.containsKey(FILE)) {
 			this.iFile = (byte[])aParams.get(FILE);
@@ -104,7 +91,7 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SpectrumfileTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iL_spectrumid = aResultSet.getLong("l_spectrumid");
+		this.iFk_libspectrumid = aResultSet.getLong("fk_libspectrumid");
 		InputStream is1 = aResultSet.getBinaryStream("file");
 		Vector bytes1 = new Vector();
 		int reading = -1;
@@ -127,12 +114,12 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 
 
 	/**
-	 * This method returns the value for the 'L_spectrumid' column
+	 * This method returns the value for the 'Fk_libspectrumid' column
 	 * 
-	 * @return	long	with the value for the L_spectrumid column.
+	 * @return	long	with the value for the Fk_libspectrumid column.
 	 */
-	public long getL_spectrumid() {
-		return this.iL_spectrumid;
+	public long getFk_libspectrumid() {
+		return this.iFk_libspectrumid;
 	}
 
 	/**
@@ -145,12 +132,12 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	}
 
 	/**
-	 * This method sets the value for the 'L_spectrumid' column
+	 * This method sets the value for the 'Fk_libspectrumid' column
 	 * 
-	 * @param	aL_spectrumid	long with the value for the L_spectrumid column.
+	 * @param	aFk_libspectrumid	long with the value for the Fk_libspectrumid column.
 	 */
-	public void setL_spectrumid(long aL_spectrumid) {
-		this.iL_spectrumid = aL_spectrumid;
+	public void setFk_libspectrumid(long aFk_libspectrumid) {
+		this.iFk_libspectrumid = aFk_libspectrumid;
 		this.iUpdated = true;
 	}
 
@@ -173,8 +160,8 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int delete(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM spectrumfile WHERE l_spectrumid = ?");
-		lStat.setLong(1, iL_spectrumid);
+		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM spectrumfile WHERE fk_libspectrumid = ?");
+		lStat.setLong(1, iFk_libspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -189,19 +176,19 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(L_SPECTRUMID)) {
-			throw new IllegalArgumentException("Primary key field 'L_SPECTRUMID' is missing in HashMap!");
+		if(!aKeys.containsKey(FK_LIBSPECTRUMID)) {
+			throw new IllegalArgumentException("Primary key field 'FK_LIBSPECTRUMID' is missing in HashMap!");
 		} else {
-			iL_spectrumid = ((Long)aKeys.get(L_SPECTRUMID)).longValue();
+			iFk_libspectrumid = ((Long)aKeys.get(FK_LIBSPECTRUMID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
-		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM spectrumfile WHERE l_spectrumid = ?");
-		lStat.setLong(1, iL_spectrumid);
+		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM spectrumfile WHERE fk_libspectrumid = ?");
+		lStat.setLong(1, iFk_libspectrumid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iL_spectrumid = lRS.getLong("l_spectrumid");
+			iFk_libspectrumid = lRS.getLong("fk_libspectrumid");
 			InputStream is1 = lRS.getBinaryStream("file");
 			Vector bytes1 = new Vector();
 			int reading = -1;
@@ -267,11 +254,11 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrumfile SET l_spectrumid = ?, file = ? WHERE l_spectrumid = ?");
-		lStat.setLong(1, iL_spectrumid);
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrumfile SET fk_libspectrumid = ?, file = ? WHERE fk_libspectrumid = ?");
+		lStat.setLong(1, iFk_libspectrumid);
 		ByteArrayInputStream bais1 = new ByteArrayInputStream(iFile);
 		lStat.setBinaryStream(2, bais1, iFile.length);
-		lStat.setLong(3, iL_spectrumid);
+		lStat.setLong(3, iFk_libspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -286,11 +273,11 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spectrumfile (l_spectrumid, file) values(?, ?)");
-		if(iL_spectrumid == Long.MIN_VALUE) {
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spectrumfile (fk_libspectrumid, file) values(?, ?)");
+		if(iFk_libspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iL_spectrumid);
+			lStat.setLong(1, iFk_libspectrumid);
 		}
 		if(iFile == null) {
 			lStat.setNull(2, -4);
@@ -317,7 +304,7 @@ public class SpectrumfileTableAccessor implements Deleteable, Retrievable, Updat
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iL_spectrumid = ((Number) iKeys[0]).longValue();
+			iFk_libspectrumid = ((Number) iKeys[0]).longValue();
 		}
 		this.iUpdated = false;
 		return result;

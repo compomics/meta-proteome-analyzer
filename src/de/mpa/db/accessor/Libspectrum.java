@@ -16,14 +16,14 @@ import de.mpa.db.MapContainer;
  * 
  * @author Thilo Muth
  */
-public class Spectrum extends SpectrumTableAccessor {
+public class Libspectrum extends LibspectrumTableAccessor {
 	
 	 
     /**
      * Calls the super class.
      * @param params
      */
-    public Spectrum(HashMap params){
+    public Libspectrum(HashMap params){
         super(params);
     }
     
@@ -34,7 +34,7 @@ public class Spectrum extends SpectrumTableAccessor {
      * @param aRS ResultSet to read the data from.
      * @throws SQLException when reading the ResultSet failed.
      */
-    public Spectrum(ResultSet aRS) throws SQLException {
+    public Libspectrum(ResultSet aRS) throws SQLException {
         super(aRS);
     }
     
@@ -46,14 +46,14 @@ public class Spectrum extends SpectrumTableAccessor {
      * @return Spectrumfile with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Spectrum findFromSpectrumName(String spectrumName, Connection aConn, boolean omssa) throws SQLException {
+    public static Libspectrum findFromSpectrumName(String spectrumName, Connection aConn, boolean omssa) throws SQLException {
     	String formatted = "";
     	if(omssa){
     		formatted = spectrumName.replace("\\\\", "/");
     	} else {
     		formatted = spectrumName.replace('\\', '/');
     	}
-        Spectrum temp = null;
+        Libspectrum temp = null;
         // Only get the last 1500 records
         PreparedStatement ps = aConn.prepareStatement("select * from spectrum where spectrumname = ? order by creationdate LIMIT 1500");
         ps.setString(1, formatted);
@@ -61,7 +61,7 @@ public class Spectrum extends SpectrumTableAccessor {
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Spectrum(rs);
+            temp = new Libspectrum(rs);
         }
         rs.close();
         ps.close();
@@ -94,16 +94,16 @@ public class Spectrum extends SpectrumTableAccessor {
      * @return Spectrumfile with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Spectrum findFromFilename(String filename, Connection aConn) throws SQLException {
+    public static Libspectrum findFromFilename(String filename, Connection aConn) throws SQLException {
     	
-        Spectrum temp = null;
+        Libspectrum temp = null;
         PreparedStatement ps = aConn.prepareStatement("select * from spectrum where filename = ? order by creationdate LIMIT 1500");
         ps.setString(1, filename);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Spectrum(rs);
+            temp = new Libspectrum(rs);
         }
         rs.close();
         ps.close();
@@ -124,13 +124,13 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static void checkDuplicateFile(String filename, Connection aConn) throws SQLException {
     	
-        Spectrum temp = null;
+        Libspectrum temp = null;
         PreparedStatement ps = aConn.prepareStatement("select * from spectrum");        
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Spectrum(rs);
+            temp = new Libspectrum(rs);
             if(temp.getFilename().equals(filename.substring(0, filename.length() - 4) + "_1.mgf")) {
             	throw new SQLException("File '" + filename + "' already exists in the DB!");
             }
@@ -148,15 +148,15 @@ public class Spectrum extends SpectrumTableAccessor {
      * @return Spectrumfile with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Spectrum findFromID(long aSpectrumID, Connection aConn) throws SQLException {
-        Spectrum temp = null;
+    public static Libspectrum findFromID(long aSpectrumID, Connection aConn) throws SQLException {
+        Libspectrum temp = null;
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Spectrum(rs);
+            temp = new Libspectrum(rs);
         }
         rs.close();
         ps.close();
@@ -176,8 +176,8 @@ public class Spectrum extends SpectrumTableAccessor {
      * @return
      * @throws SQLException
      */
-    public static List<Spectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
-    	List<Spectrum> temp = new ArrayList<Spectrum>();
+    public static List<Libspectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
+    	List<Libspectrum> temp = new ArrayList<Libspectrum>();
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
@@ -185,7 +185,7 @@ public class Spectrum extends SpectrumTableAccessor {
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp.add(new Spectrum(rs));
+            temp.add(new Libspectrum(rs));
         }
         rs.close();
         ps.close();
