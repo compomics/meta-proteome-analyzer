@@ -148,7 +148,7 @@ public class Client {
 	 * Process
 	 * @param file
 	 * @param procSet
-	 * @return
+	 * @return resultMap
 	 */
 	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet){
 		// init result map

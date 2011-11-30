@@ -31,7 +31,7 @@ import com.compomics.util.interfaces.SpectrumFile;
  *
  * @author Thilo Muth
  */
-public class MascotGenericFile implements SpectrumFile{
+public class MascotGenericFile implements SpectrumFile {
 
     /**
      * This variable holds the filename for the spectrum file.
@@ -51,8 +51,23 @@ public class MascotGenericFile implements SpectrumFile{
     /**
      * This HashMap holds all the peaks in the spectrum file.
      */
-    protected HashMap iPeaks = new HashMap();
+    protected HashMap<Double,Double> iPeaks = new HashMap<Double,Double>();
+
     
+
+    public double getSNR() {
+    	double mean = this.getTotalIntensity() / lPeaks.size();
+    	double std = 0.0;
+    	for (Peak peak : lPeaks) {
+			std += (peak.getIntensity()-mean)*(peak.getIntensity()-mean);
+		}
+    	std = Math.sqrt(std/lPeaks.size());
+    	if (std > 0) {
+    		return mean/std;
+    	} else {
+    		return mean;
+    	}
+    }
     
     
     private ArrayList<Peak> lPeaks = new ArrayList<Peak>();
@@ -101,7 +116,7 @@ public class MascotGenericFile implements SpectrumFile{
     /**
      * This HashMap will hold the charges for those ions for which a charge is known.
      */
-    private HashMap iCharges = new HashMap();
+    private HashMap<Double, Integer> iCharges = new HashMap<Double,Integer>();
 
     /**
      * This constant defines the key in the spectrum header for the title.
@@ -445,7 +460,7 @@ public class MascotGenericFile implements SpectrumFile{
     private void parseFromString(String aFileContent) {
         try {
             BufferedReader br = new BufferedReader(new StringReader(aFileContent));
-            String line = null;
+            String line = null;            
             // Cycle the file.
             int lineCount = 0;
             boolean inSpectrum = false;
@@ -530,7 +545,7 @@ public class MascotGenericFile implements SpectrumFile{
                         if (st.hasMoreTokens()) {
                             int charge = this.extractCharge(st.nextToken());
                             iCharges.put(mass, new Integer(charge));
-                        }
+                        }                     
                     } else {
                         System.out.println("\n\nUnrecognized line at line number " + lineCount + ": '" + line + "'!\n");
                     }
@@ -580,7 +595,7 @@ public class MascotGenericFile implements SpectrumFile{
         // also write them in this header section.
         if (this.iExtraEmbeddedParameters != null) {
             if (!iExtraEmbeddedParameters.isEmpty()) {
-                Iterator iter = iExtraEmbeddedParameters.keySet().iterator();
+                Iterator<Object> iter = iExtraEmbeddedParameters.keySet().iterator();
                 while (iter.hasNext()) {
                     String aKey = (String) iter.next();
                     String aValue = (String) iExtraEmbeddedParameters.get(aKey);
@@ -591,10 +606,10 @@ public class MascotGenericFile implements SpectrumFile{
         // After the header, it is customary to leave an empty line.
         bw.write("\n");
         // Next up the ions themselves.
-        SortedSet ss = new TreeSet(this.getPeaks().keySet());
-        Iterator it = ss.iterator();
+        SortedSet<Double> ss = new TreeSet<Double>(this.getPeaks().keySet());
+        Iterator<Double> it = ss.iterator();
         while (it.hasNext()) {
-            Double tempKey = (Double) it.next();
+            Double tempKey = it.next();
             BigDecimal lDouble = new BigDecimal(tempKey.doubleValue()).setScale(4, BigDecimal.ROUND_HALF_UP);
             // We need to check whether a charge is known for this peak.
             String charge = "";
@@ -617,10 +632,10 @@ public class MascotGenericFile implements SpectrumFile{
      * @return Intensity total rounded.
      */
     public double getTotalIntensity() {
-        Iterator iter = this.iPeaks.values().iterator();
+        Iterator<Double> iter = this.iPeaks.values().iterator();
         double totalIntensity = 0.0;
         while (iter.hasNext()) {
-            totalIntensity += (Double) iter.next();
+            totalIntensity += iter.next();
         }
         return round(totalIntensity);
     }
@@ -630,10 +645,10 @@ public class MascotGenericFile implements SpectrumFile{
      * @return Highest intensity rounded
      */
     public double getHighestIntensity() {
-        Iterator iter = this.iPeaks.values().iterator();
+        Iterator<Double> iter = this.iPeaks.values().iterator();
         double highestIntensity = -1.0;
         while (iter.hasNext()) {
-            double temp = (Double) iter.next();
+            double temp = iter.next();
             if (temp > highestIntensity) {
                 highestIntensity = temp;
             }
@@ -685,7 +700,7 @@ public class MascotGenericFile implements SpectrumFile{
      *
      * @return HashMap with Doubles as keys (the masses) and Doubles as values (the intensities).
      */
-    public HashMap getPeaks() {
+    public HashMap<Double,Double> getPeaks() {
         return iPeaks;
     }
     

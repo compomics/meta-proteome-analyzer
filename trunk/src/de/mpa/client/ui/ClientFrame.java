@@ -8,8 +8,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -20,13 +20,11 @@ import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -55,8 +53,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -64,13 +60,12 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 
@@ -83,6 +78,7 @@ import de.mpa.client.DbSearchSettings;
 import de.mpa.client.ProcessSettings;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.io.Peak;
 import de.mpa.ui.MgfFilter;
 import de.mpa.ui.MultiPlotPanel;
 import de.mpa.ui.PlotPanel2;
@@ -122,7 +118,17 @@ public class ClientFrame extends JFrame {
 	private JTextField portTtf;
 
 	private JButton startBtn;
-	private JLabel filesLbl;
+	private JLabel filesLbl = new JLabel("0 of 0 spectra selected") {
+		@Override
+		public void repaint() {
+			if (fileTree != null) {
+				this.setText(fileTree.getSelectionModel().getSelectionCount() + " of " +
+							 ((DefaultMutableTreeNode)fileTree.getModel().getRoot()).getLeafCount() +
+							 " spectra selected");
+			}
+			super.repaint();
+		}		
+	};
     private JButton sendBtn;
 	private JMenuBar menuBar;
 	private JMenu menu1;
@@ -140,9 +146,9 @@ public class ClientFrame extends JFrame {
 	private JTable libTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 	
-	private Map<String, ArrayList<Integer>> specPosMap = new HashMap<String, ArrayList<Integer>>(1);
+	private Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 	
-	private JTable fileTbl;
+	private JTable fileDetailsTbl;
 	private MultiPlotPanel mPlot;
 	protected ArrayList<RankedLibrarySpectrum> resultList;
 	private JPanel lggPnl;
@@ -174,14 +180,19 @@ public class ClientFrame extends JFrame {
 	private JTextField omssaStatTtf;
 	private JComboBox fastaFileCbx;
 	
-	private String projectName = "Copy of New_Project(1)";
+	private String projectName = "Placeholder Project";
 	private CheckBoxTreeManager fileTree;
+	
+	// placeholder filter criteria
+	private int minPeaks = 5;
+	private double minTIC = 100.0;
+	private double minSNR = 1.0;
 	
 	
 	/**
 	 * Constructor for the ClientFrame
 	 */
-	public ClientFrame(){
+	public ClientFrame() {
 		
 		// Application title
 		super("Client");
@@ -278,7 +289,9 @@ public class ClientFrame extends JFrame {
 		menu1.add(exitItem);
 		menuBar.add(menu1);
 	}
-		
+
+	private PlotPanel2 filePlotPnl;
+	
 	/**
 	 * Construct the file selection panel.
 	 */
@@ -310,70 +323,49 @@ public class ClientFrame extends JFrame {
 	    final JButton clrBtn = new JButton("Clear all");
 	    clrBtn.setEnabled(false);
 	    
-		final PlotPanel2 plotPnl = new PlotPanel2(null);
-	    
+		filePlotPnl = new PlotPanel2(null);
+		filePlotPnl.setMinimumSize(new Dimension(200, 150));
+		filePlotPnl.clearSpectrumFile();
+//		plotPnl.repaint();
+		
 	    // Tree of loaded spectrum files
 	    final DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(this.projectName);
 	    final DefaultTreeModel treeModel = new DefaultTreeModel(treeRoot);
-	    final JTree tree = new JTree(treeModel) {
-	    	public String convertValueToText(Object value, boolean selected, boolean expanded,
-                    						 boolean leaf, int row, boolean hasFocus) {
-	    		Object obj = ((DefaultMutableTreeNode)value).getUserObject();
-	    		if (obj instanceof File) {
-	    			return ((File)obj).getName();
-	    		} else {
-	    			return value.toString();
-	    		}	    			
-	    	}
-	    };
-	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	    tree.addTreeSelectionListener(new TreeSelectionListener() {
+	    final SpectrumTree tree = new SpectrumTree(treeModel, TreeType.FILE_SELECT);
+		fileTree = new CheckBoxTreeManager(tree);
+		final CheckBoxTreeSelectionModel selectionModel = fileTree.getSelectionModel();
+		
+		tree.addMouseListener(new MouseAdapter() {
+			private int hotspot = new JCheckBox().getPreferredSize().width;
 			
-			@Override
-			public void valueChanged(TreeSelectionEvent e) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+			public void mouseClicked(MouseEvent e) { 
+				TreePath path = tree.getPathForLocation(e.getX(), e.getY()); 
+				if ((path != null) &&											// tree element got hit
+					(e.getX() <= (tree.getPathBounds(path).x + hotspot))) {		// checkbox part got hit
 
-				if (node == null) { return; }	// nothing is selected.
+					boolean selected = selectionModel.isPathSelected(path, true);
 
-				if (node.isLeaf()) {
-					if (node.isRoot()) { return; } // root still has no children, counts as leaf
-					// populate file details table
-					DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
-					File mgfFile = (File)parent.getUserObject();
-					int index = (Integer)node.getUserObject();
-					int pos = specPosMap.get(mgfFile.getAbsolutePath()).get(index-1);
 					try {
-						MascotGenericFileReader reader = new MascotGenericFileReader(mgfFile);
-						MascotGenericFile mgf = reader.loadNthSpectrum(mgfFile, index, pos);
-						fileTbl.setValueAt(mgfFile.getAbsolutePath(), 0, 1);
-						fileTbl.setValueAt(mgf.getTitle(), 1, 1);
-						fileTbl.setValueAt(mgf.getPeakList().size(), 2, 1);
-						fileTbl.setValueAt(mgf.getTotalIntensity(), 3, 1);
-						plotPnl.setSpectrumFile(mgf,Color.RED);
-	            		plotPnl.repaint();
-					} catch (IOException e1) {
-						e1.printStackTrace();
+						if (selected) {
+							selectionModel.removeSelectionPath(path);
+						} else {
+							selectionModel.addSelectionPath(path);
+						}
+					} finally {
+						tree.treeDidChange();
+						filesLbl.repaint();
 					}
-//					System.out.println(parent.getUserObject() + " " + nodeInfo);
-				} else {
-					fileTbl.setValueAt(null, 0, 1);
-					fileTbl.setValueAt(null, 1, 1);
-					fileTbl.setValueAt(null, 2, 1);
-					fileTbl.setValueAt(null, 3, 1);
-        			plotPnl.clearSpectrumFile();
-        			plotPnl.repaint();
-//					System.out.println("illegal selection!");
 				}
-
+				return;
 			}
 		});
-		fileTree = new CheckBoxTreeManager(tree);
+		
 		JScrollPane treePane = new JScrollPane(tree);
 		treePane.setPreferredSize(new Dimension(0, 0));
 		
 		// left part of outer split pane
 		JPanel leftPnl = new JPanel();
-		leftPnl.setLayout(new FormLayout("p:g",			// col
+		leftPnl.setLayout(new FormLayout("p:g",					// col
 										 "p, f:p:g"));	// row
 		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
 		leftDummyTable.getTableHeader().setReorderingAllowed(false);
@@ -382,148 +374,82 @@ public class ClientFrame extends JFrame {
 		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
 
 		leftPnl.add(leftDummyScpn, cc.xy(1,1));
+//		leftPnl.add(new JLabel("Files"), cc.xy(1,1));
 		leftPnl.add(treePane, cc.xy(1,2));
 		
 		// top part of right-hand inner split pane
 		JPanel topRightPnl = new JPanel();
-		topRightPnl.setLayout(new FormLayout("p:g",			// col
+		topRightPnl.setLayout(new FormLayout("p:g",					// col
 											 "p, f:p:g"));	// row
-		JTable rightDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Details"})));
+		final JTable rightDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Details"})));
 		rightDummyTable.getTableHeader().setReorderingAllowed(false);
 		rightDummyTable.getTableHeader().setResizingAllowed(false);
 		JScrollPane rightDummyScpn = new JScrollPane(rightDummyTable);
 		rightDummyScpn.setPreferredSize(rightDummyTable.getTableHeader().getPreferredSize());
+//		JLabel rightLbl = new JLabel("Details");
 		
 		String[] columnNames = {null, null};
 		Object[][] data = {
-			    {"File path",			null},
-			    {"Spectrum title",		null},
-			    {"Number of peaks",		null},
-			    {"Total ion current",	null},
+			    {"File path",				null},
+			    {"Spectrum title",			null},
+			    {"Number of peaks",			null},
+			    {"Total ion current",		null},
+			    {"Signal-to-noise ratio",	null},
 			};
-		fileTbl = new JTable(new DefaultTableModel(data, columnNames) {
+		fileDetailsTbl = new JTable(new DefaultTableModel(data, columnNames) {
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
 		});
-		fileTbl.getTableHeader().setVisible(false);
-		fileTbl.getTableHeader().setPreferredSize(new Dimension(0, 0));
-//		packColumn(detailTbl, 0, 10);
+		fileDetailsTbl.setIntercellSpacing(new Dimension(3, 3));
+		fileDetailsTbl.setAutoscrolls(false);
+		fileDetailsTbl.getTableHeader().setVisible(false);
+		fileDetailsTbl.getTableHeader().setPreferredSize(new Dimension(0, 0));
+		Component comp = fileDetailsTbl.getCellRenderer(4, 0).getTableCellRendererComponent(fileDetailsTbl, fileDetailsTbl.getValueAt(4, 0), false, false, 4, 0);
+		fileDetailsTbl.getColumnModel().getColumn(0).setMaxWidth(comp.getPreferredSize().width+10);
+		fileDetailsTbl.getColumnModel().getColumn(0).setPreferredWidth(comp.getPreferredSize().width+10);
 		
-		JScrollPane detailScpn = new JScrollPane(fileTbl);
+		JScrollPane detailScpn = new JScrollPane(fileDetailsTbl);
 		detailScpn.setPreferredSize(new Dimension(0, 0));
-		detailScpn.setMinimumSize(new Dimension(0, fileTbl.getRowHeight()));
+		detailScpn.setMinimumSize(new Dimension(0, fileDetailsTbl.getRowHeight()));
+		detailScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		detailScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		topRightPnl.add(rightDummyScpn, cc.xy(1,1));
+//		topRightPnl.add(new JLabel("Details"), cc.xy(1,1));
 		topRightPnl.add(detailScpn, cc.xy(1,2));
 		topRightPnl.setMinimumSize(new Dimension(0, rightDummyTable.getTableHeader().getPreferredSize().height + 
-													fileTbl.getRowHeight() + 2));
+													fileDetailsTbl.getRowHeight() + 2));
 		
-		JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topRightPnl, plotPnl);
-		rightSplit.setMinimumSize(new Dimension(100, 0));
+		final JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topRightPnl, filePlotPnl);
+		rightSplit.setMinimumSize(new Dimension(200, 0));
 		rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
-									  fileTbl.getRowCount()*fileTbl.getRowHeight() + 2);
+									  (fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
+		rightSplit.setContinuousLayout(true);
 		BasicSplitPaneDivider rightDivider = ((BasicSplitPaneUI) rightSplit.getUI()).getDivider();
 		if (rightDivider != null) { rightDivider.setBorder(null); }
+		rightDivider.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {	// reset divider location on double-click
+					rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
+									  (fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
+				}
+			}
+		});
 		
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPnl, rightSplit);
 		mainSplit.setDividerLocation(200);
+		mainSplit.setContinuousLayout(true);
 		BasicSplitPaneDivider mainDivider = ((BasicSplitPaneUI) mainSplit.getUI()).getDivider();
 		if (mainDivider != null) { mainDivider.setBorder(null); }
 
-//	    // Table of loaded spectrum files
-//	    fileTbl = new JTable(new FileTableModel(TableType.FILE_SELECT));
-//	    fileTbl.setShowVerticalLines(false);
-//	    fileTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//	    fileTbl.getColumnModel().getColumn(0).setPreferredWidth(1000);
-//	    packColumn(fileTbl, 1, 2);
-//	    
-//		final PlotPanel2 plotPnl = new PlotPanel2(null);
-//		
-//	    final FileTableModel fileTblMdl = (FileTableModel) fileTbl.getModel();
-//	    
-//	    fileTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {			
-//			@Override
-//			public void valueChanged(ListSelectionEvent e) {
-//                // If the mouse button has been released
-//	            if (!e.getValueIsAdjusting()) {
-//		            // If cell selection is enabled, both row and column change events are fired
-//		        	if (e.getSource() == fileTbl.getSelectionModel() &&
-//		        			fileTbl.getRowSelectionAllowed()) {
-//		        		// Column selection changed
-//		        		int row = fileTbl.getSelectedRow();
-//		        		if (row >= 0) {
-//		            		MascotGenericFile mgf = (MascotGenericFile)(fileTblMdl.getMgfAt(row));
-//		            		plotPnl.setSpectrumFile(mgf,Color.RED);
-//		            		plotPnl.repaint();        			
-//		        		} else {
-//		        			plotPnl.clearSpectrumFile();
-//		        			plotPnl.repaint();
-//		        		}
-//		        	}
-//	            }
-//	        }
-//		});
-//	    
-//	    fileTblMdl.addTableModelListener(new TableModelListener() {			
-//			@Override
-//			public void tableChanged(TableModelEvent e) {
-//		        TableModel tblMdl = (TableModel)e.getSource();
-//
-//		        int row = e.getFirstRow();
-//		        if (e.getType() == TableModelEvent.UPDATE) {
-//			        // fail-safe against empty table
-//			        if (row >= 0) {
-//			        	// parse label string
-//			        	String text = filesLbl.getText();
-//				        int numSelFiles = Integer.parseInt(text.substring(0, text.indexOf(" ")));
-//				        // change number of selected files depending on cell content
-//				        if ((Boolean)tblMdl.getValueAt(row,2)) {
-//							numSelFiles += 1;
-//						} else {
-//							numSelFiles -= 1;
-//						}
-//				        // apply label string with updated value
-//						filesLbl.setText(numSelFiles + " of " + tblMdl.getRowCount() + " file(s) selected.");
-//			        }
-//		        }
-//		    }
-//		});
-//	    
-//	    TableColumn tCol = fileTbl.getColumnModel().getColumn(2);
-////	    tCol.setMinWidth(fileTbl.getRowHeight());
-//	    tCol.setMaxWidth((int)(fileTbl.getRowHeight()*1.7));
-//	    
-//	    class CheckBoxHeaderItemListener implements ItemListener {
-//			public void itemStateChanged(ItemEvent e) {
-//				Object source = e.getSource();
-//				if (source instanceof AbstractButton == false) return;
-//				boolean checked = (e.getStateChange() == ItemEvent.SELECTED);
-//				for(int x = 0, y = fileTbl.getRowCount(); x < y; x++) {
-//					fileTbl.setValueAt(new Boolean(checked),x,2);
-//				}
-//				
-//				int numSelFiles = (checked) ? fileTbl.getRowCount() : 0;
-//				filesLbl.setText(numSelFiles + " of " + fileTbl.getRowCount() + " file(s) selected.");
-//			}
-//		}
-//	    tCol.setHeaderRenderer(new CheckBoxHeader(new CheckBoxHeaderItemListener()));
-//	    
-//	    JScrollPane fileScPn = new JScrollPane(fileTbl);
-//	    fileScPn.setPreferredSize(new Dimension(fileScPn.getPreferredSize().width, 200));
-//	    
-//	    selPnl.add(fileScPn, cc.xyw(2,3,7));
-	    
 	    // Button action listeners
 		addBtn.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
                 // First check whether a file has already been selected.
                 // If so, start from that file's parent.
 				File startLocation = new File(PATH);
-//				if (fileTbl.getRowCount() > 0) {
-//					File temp = new File((String)fileTblMdl.getTrueValueAt(0,0));
-//					startLocation = temp.getParentFile();
-//				}
 				if (treeRoot.getChildCount() > 0) {
 					DefaultMutableTreeNode node = (DefaultMutableTreeNode)treeRoot.getChildAt(0);
 					File temp = (File)node.getUserObject();
@@ -536,30 +462,47 @@ public class ClientFrame extends JFrame {
                 int result = fc.showOpenDialog(ClientFrame.this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File[] selFiles = fc.getSelectedFiles();
-                    int newRows = 0;
+                    int newLeaves = 0;
                     
                     for (File file : selFiles) {
-                    	// Add the files for the db search option
+                    	// Add the files for the DB search option
                     	files.add(file);
-                    	ArrayList<Integer> spectrumPositions = new ArrayList<Integer>();
+                    	ArrayList<Long> spectrumPositions = new ArrayList<Long>();
                     	try {
-                    		MascotGenericFileReader reader = new MascotGenericFileReader(file, true);
+                    		MascotGenericFileReader reader = new MascotGenericFileReader(file);
+                    		ArrayList<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
                     		spectrumPositions.addAll(reader.getSpectrumPositions());
+                        	specPosMap.put(file.getAbsolutePath(), spectrumPositions);
+                    		
+                    		DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file);
+                    		
+                        	// append new file node to root
+                        	treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
+                        	selectionModel.removeSelectionPath(new TreePath(fileNode.getPath()));
+                        	int index = 1;
+                        	ArrayList<TreePath> toBeAdded = new ArrayList<TreePath>();
+                    		
+                        	for (MascotGenericFile mgf : mgfList) {
+                        		// append new spectrum node to file node
+                        		DefaultMutableTreeNode spectrumNode = new DefaultMutableTreeNode(index);
+                        		treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
+                        		
+                        		// examine spectrum regarding filter criteria
+                        		int numPeaks = mgf.getPeakList().size();
+        						double TIC = mgf.getTotalIntensity();
+        						double SNR = 1.0/mgf.getSNR();
+                        		TreePath treePath = new TreePath(spectrumNode.getPath());
+                        		if ((numPeaks > minPeaks) && (TIC > minTIC) && (SNR > minSNR)) {
+                        			toBeAdded.add(treePath);
+                        		}
+    							newLeaves++;
+    							index++;
+    						}
+                        	selectionModel.addSelectionPaths((TreePath[]) toBeAdded.toArray(new TreePath[0]));
                     	} catch (Exception x) {
                     		x.printStackTrace();
                     	}
-                		DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file);
-                    	for (int i = 1; i <= spectrumPositions.size(); i++) {
-//							fileTblMdl.addRow(new Object[] {file.getAbsolutePath(), i, true});
-                    		DefaultMutableTreeNode spectrumNode = new DefaultMutableTreeNode(i);
-                    		fileNode.add(spectrumNode);
-							newRows++;
-						}
-                    	// append new node to root
-                    	treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
-                    	specPosMap.put(file.getAbsolutePath(), spectrumPositions);
 					}
-//                	packColumn(fileTbl, 1, 2);
                     tree.expandRow(0);
                 	
                 	procPrg.setValue(0);
@@ -572,11 +515,8 @@ public class ClientFrame extends JFrame {
                 	
                     filesTtf.setText(numFiles + " file(s) selected");
                     
-                	str = filesLbl.getText();
-                	str = str.substring(0, str.indexOf(" "));
-                	numFiles = Integer.parseInt(str) + newRows;
-//                    filesLbl.setText(numFiles + " of " + fileTblMdl.getRowCount() + " file(s) selected.");
-                    log.info("Added " + numFiles + " file(s).");
+                    filesLbl.repaint();
+                    log.info("Added " + newLeaves + " file(s).");
                     if (numFiles > 0) {
                     	if (connectedToServer) {
                     		sendBtn.setEnabled(true);
@@ -590,18 +530,16 @@ public class ClientFrame extends JFrame {
 		clrBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				treeRoot.removeAllChildren();
-				treeModel.reload();
-//				fileTbl.clearSelection();
-//				for (int row = 0; row < fileTblMdl.getRowCount(); ) {
-//					fileTblMdl.removeRow(fileTblMdl.getRowCount()-1);
-//				}
-////				files.clear();
+				files.clear();
 				specPosMap.clear();
 				filesTtf.setText("0 file(s) selected");
-				filesLbl.setText("0 of 0 file(s) selected");
+				filesLbl.setText("0 of 0 spectra selected");
 				procPrg.setValue(0);
 				clrBtn.setEnabled(false);
+				treeRoot.removeAllChildren();
+				treeModel.reload();
+				selectionModel.clearSelection();
+				selectionModel.addSelectionPath(new TreePath(treeRoot));
 			}
 		});
 	    
@@ -614,16 +552,6 @@ public class ClientFrame extends JFrame {
 	    selPnl.add(mainSplit, cc.xyw(2,3,7));
 	    
 	    filePnl.add(selPnl, cc.xy(2,2));
-	    
-//	    JPanel detPnl = new JPanel();
-//		detPnl.setBorder(new TitledBorder("File Details"));
-//		detPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-//									   "f:p:g, 5dlu"));
-//		
-//		plotPnl.setPreferredSize(new Dimension(300, 200));
-//		detPnl.add(plotPnl, cc.xy(2,1));
-//		
-//	    filePnl.add(detPnl, cc.xy(2,4));
 	}
 
 	/**
@@ -692,12 +620,12 @@ public class ClientFrame extends JFrame {
 	    setPnl.add(startBtn, cc.xyw(6,3,3));
 	    setPnl.add(sendBtn, cc.xy(8,5));
 	    
-	    filesLbl = new JLabel("0 of 0 file(s) selected");
+//	    filesLbl = new JLabel("0 of 0 file(s) selected");
 	    setPnl.add(filesLbl, cc.xyw(2,5,5,"r,c"));
 	    
 	    srvPnl.add(setPnl, cc.xy(2,2));
 	}
-	
+
 	/**
 	 * Construct the processing panel.
 	 */
@@ -705,7 +633,7 @@ public class ClientFrame extends JFrame {
 		
 		specLibPnl = new JPanel();
 		specLibPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
-		 								 "5dlu, t:p, 5dlu, p, 5dlu"));		// row
+		 								 	"5dlu, t:p, 5dlu, p, 5dlu"));		// row
 		
 		// process button and progress bar
 		JPanel procPnl = new JPanel();
@@ -756,7 +684,7 @@ public class ClientFrame extends JFrame {
 	    
 		tolMzSpn = new JSpinner(new SpinnerNumberModel(5.0, 0.0, null, 0.1));
 		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn.getPreferredSize().width*1.75),
-													 tolMzSpn.getPreferredSize().height));
+													   tolMzSpn.getPreferredSize().height));
 		tolMzSpn.setEditor(new JSpinner.NumberEditor(tolMzSpn, "0.00"));
 		tolMzSpn.setToolTipText("Precursor mass tolerance");
 		
@@ -818,11 +746,11 @@ public class ClientFrame extends JFrame {
 	    protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p, 5dlu", "5dlu, p, 5dlu"));		
 	    protDatabasePnl.setBorder(BorderFactory.createTitledBorder("Protein Database"));	
 	    
-	    // FASTA file label
+	    // FASTA file Label
 	    final JLabel fastaFileLbl = new JLabel("FASTA File:");
 	    protDatabasePnl.add(fastaFileLbl, cc.xy(2, 2));
 	    
-	    // Fasta file combobox
+	    // FASTA file ComboBox
         fastaFileCbx = new JComboBox(Constants.FASTA_DB);
 	    protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
 	    
@@ -831,33 +759,33 @@ public class ClientFrame extends JFrame {
 	    paramsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 2dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
 	    paramsPnl.setBorder(BorderFactory.createTitledBorder("Parameters"));	
 	    
-	    // Precursor ion tolerance label
+	    // Precursor ion tolerance Label
 	    final JLabel precTolLbl = new JLabel("Precursor Ion Tolerance:");
 	    paramsPnl.add(precTolLbl, cc.xy(2, 2));
 	    
-	    // Precursor ion tolerance field
+	    // Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.0"));
 		precTolSpn.setToolTipText("Precursor Ion Tolerance:");	    
 		paramsPnl.add(precTolSpn, cc.xy(4, 2));
 		paramsPnl.add(new JLabel("Da"), cc.xy(6,2));
 		
-	    // Fragment ion tolerance label
+	    // Fragment ion tolerance Label
 	    final JLabel fragTolLbl = new JLabel("Fragment Ion Tolerance:");
 	    paramsPnl.add(fragTolLbl, cc.xy(2, 4));
 	    
-	    // Fragment ion tolerance field
+	    // Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
 		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.0"));
 		fragTolSpn.setToolTipText("Fragment Ion Tolerance:");	    
 		paramsPnl.add(fragTolSpn, cc.xy(4, 4));
 		paramsPnl.add(new JLabel("Da"), cc.xy(6,4));
 		
-		// Missed cleavages label
+		// Missed cleavages Label
 	    final JLabel missClvLbl = new JLabel("Missed Cleavages (max):");
 	    paramsPnl.add(missClvLbl, cc.xy(2, 6));
 	    
-	    // Missed cleavages field
+	    // Missed cleavages Spinner
 		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
 		//missClvSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0"));
 		missClvSpn.setToolTipText("Maximum number of missed cleavages:");	    
@@ -867,7 +795,7 @@ public class ClientFrame extends JFrame {
 	    final JLabel enzymeLbl = new JLabel("Enzyme (Protease):");
 	    paramsPnl.add(enzymeLbl, cc.xy(2, 8));
 	    
-	    // Enzyme Combobox
+	    // Enzyme ComboBox
         enzymeCbx = new JComboBox(Constants.ENZYMES);
         paramsPnl.add(enzymeCbx, cc.xy(4, 8));
 	    
@@ -876,11 +804,11 @@ public class ClientFrame extends JFrame {
 	    searchEngPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p, 10dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
 	    searchEngPnl.setBorder(BorderFactory.createTitledBorder("Search Engines"));	
 	    
-	    // X!Tandem label
+	    // X!Tandem Label
 	    final JLabel xTandemLbl = new JLabel("X!Tandem:");
 	    searchEngPnl.add(xTandemLbl, cc.xy(2, 2));
 	    
-	    // X!Tandem checkbox
+	    // X!Tandem CheckBox
 	    xTandemCbx = new JCheckBox();
 	    xTandemCbx.setSelected(true);
 	    searchEngPnl.add(xTandemCbx, cc.xy(4, 2));
@@ -889,11 +817,11 @@ public class ClientFrame extends JFrame {
 	    xTandemSetBtn.setEnabled(false);
 	    searchEngPnl.add(xTandemSetBtn, cc.xy(6, 2));
 	    
-	    // OMSSA label
+	    // OMSSA Label
 	    final JLabel omssaLbl = new JLabel("OMSSA:");
 	    searchEngPnl.add(omssaLbl, cc.xy(2, 4));
 	    
-	    // OMSSA checkbox
+	    // OMSSA CheckBox
 	    omssaCbx = new JCheckBox();
 	    omssaCbx.setSelected(true);
 	    searchEngPnl.add(omssaCbx, cc.xy(4, 4));
@@ -902,15 +830,15 @@ public class ClientFrame extends JFrame {
 	    omssaSetBtn.setEnabled(false);
 	    searchEngPnl.add(omssaSetBtn, cc.xy(6, 4));
 	    
-	    // Crux label
+	    // Crux Label
 	    final JLabel cruxLbl = new JLabel("Crux:");
 	    searchEngPnl.add(cruxLbl, cc.xy(2, 6));
 	    
-	    // InsPecT label
+	    // InsPecT Label
 	    final JLabel inspectLbl = new JLabel("InsPecT:");
 	    searchEngPnl.add(inspectLbl, cc.xy(2, 8));
 	    
-	    // Crux checkbox
+	    // Crux CheckBox
 	    cruxCbx = new JCheckBox();
 	    cruxCbx.setSelected(true);
 	    searchEngPnl.add(cruxCbx, cc.xy(4, 6));
@@ -919,7 +847,7 @@ public class ClientFrame extends JFrame {
 	    cruxSetBtn.setEnabled(false);
 	    searchEngPnl.add(cruxSetBtn, cc.xy(6, 6));
 	    
-	    // InsPecT checkbox
+	    // InsPecT CheckBox
 	    inspectCbx = new JCheckBox();
 	    inspectCbx.setSelected(true);
 	    searchEngPnl.add(inspectCbx, cc.xy(4, 8));
@@ -932,11 +860,11 @@ public class ClientFrame extends JFrame {
 	    runPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 10dlu, p", "5dlu, p, 5dlu"));		
 	    runPnl.setBorder(BorderFactory.createTitledBorder("Search Start"));
 	    
-	    // Search type label
+	    // Search type Label
 	    final JLabel searchTypeLbl = new JLabel("Type:");
 	    runPnl.add(searchTypeLbl, cc.xy(2, 2));
 	    
-	    // Search type combobox
+	    // Search type ComboBox
 	    searchTypeCbx = new JComboBox(new String[] {"Target only", "Target-decoy"});
 	    runPnl.add(searchTypeCbx, cc.xy(4, 2));
 	    
@@ -962,7 +890,7 @@ public class ClientFrame extends JFrame {
 		});	    
 	    runPnl.add(runDbSearchBtn, cc.xy(6, 2));
 	    
-	    // Status panel
+	    // Status Panel
 	    JPanel statusPnl = new JPanel();
 	    statusPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
 	    								   "5dlu, p, 5dlu"));		
@@ -978,46 +906,46 @@ public class ClientFrame extends JFrame {
 	    searchPrg.setValue(0);
 	    statusPnl.add(searchPrg, cc.xy(4, 2));
 	    
-	    // Status details panel
+	    // Status details Panel
 	    final JPanel statusDetailsPnl = new JPanel();
 	    statusDetailsPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
 	    statusDetailsPnl.setBorder(BorderFactory.createTitledBorder("Search Details"));	
 	    
-	    // X!Tandem status label
+	    // X!Tandem status Label
 	    final JLabel xtandemStatLbl = new JLabel("X!Tandem:");
 	    statusDetailsPnl.add(xtandemStatLbl, cc.xy(2, 2));
 	    
-	    // X!Tandem status textfield
+	    // X!Tandem status TextField
 	    xtandemStatTtf = new JTextField(15);
 	    xtandemStatTtf.setEditable(false);
 	    xtandemStatTtf.setEnabled(false);
 	    statusDetailsPnl.add(xtandemStatTtf, cc.xy(4, 2));
 	    
-	    // OMSSA status label
+	    // OMSSA status Label
 	    final JLabel omssaStatLbl = new JLabel("OMSSA:");
 	    statusDetailsPnl.add(omssaStatLbl, cc.xy(2, 4));
 	    
-	    // OMSSA status textfield
+	    // OMSSA status TextField
 	    omssaStatTtf = new JTextField(15);
 	    omssaStatTtf.setEditable(false);
 	    omssaStatTtf.setEnabled(false);
 	    statusDetailsPnl.add(omssaStatTtf, cc.xy(4, 4));
 	    
-	    // Crux status label
+	    // Crux status Label
 	    final JLabel cruxStatLbl = new JLabel("Crux:");
 	    statusDetailsPnl.add(cruxStatLbl, cc.xy(2, 6));
 	    
-	    // Crux status textfield
+	    // Crux status TextField
 	    cruxStatTtf = new JTextField(15);
 	    cruxStatTtf.setEditable(false);
 	    cruxStatTtf.setEnabled(false);
 	    statusDetailsPnl.add(cruxStatTtf, cc.xy(4, 6));
 	    
-	    // InsPecT status label
+	    // InsPecT status Label
 	    final JLabel inspectStatLbl = new JLabel("InsPecT:");
 	    statusDetailsPnl.add(inspectStatLbl, cc.xy(2, 8));
 	    
-	    // InsPecT status textfield
+	    // InsPecT status TextField
 	    inspectStatTtf = new JTextField(15);
 	    inspectStatTtf.setEditable(false);
 	    inspectStatTtf.setEnabled(false);
@@ -1044,6 +972,8 @@ public class ClientFrame extends JFrame {
 		if(inspectCbx.isSelected()) settings.setInspect(true);
 		return settings;
 	}
+
+	private SpectrumTree queryTree;
 	
 	/**
 	 * Construct the results panel.
@@ -1055,57 +985,53 @@ public class ClientFrame extends JFrame {
 		 								"5dlu, f:p:g, 5dlu"));	// row
 		
 		JPanel dispPnl = new JPanel();
-		dispPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	// col
+		dispPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
 		 								 "f:p:g, 5dlu"));		// row
 		dispPnl.setBorder(BorderFactory.createTitledBorder("Results"));
 		
-		queryTbl = new JTable(new FileTableModel(TableType.FILE_LIST));
-		queryTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		queryTbl.setShowVerticalLines(false);
-		queryTbl.setAutoCreateRowSorter(true);
-		queryTbl.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-		queryTbl.getColumnModel().getColumn(0).setPreferredWidth(1000);
-	    packColumn(queryTbl, 1, 10);
-	    packColumn(queryTbl, 2, 10);
+//		queryTbl = new JTable(new FileTableModel(TableType.FILE_LIST));
+//		queryTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		queryTbl.setShowVerticalLines(false);
+//		queryTbl.setAutoCreateRowSorter(true);
+//		queryTbl.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+//		queryTbl.getColumnModel().getColumn(0).setPreferredWidth(1000);
+//	    packColumn(queryTbl, 1, 10);
+//	    packColumn(queryTbl, 2, 10);
+//		
+//		JScrollPane queryScpn = new JScrollPane(queryTbl);
+
+		DefaultMutableTreeNode queryRoot = new DefaultMutableTreeNode(((DefaultMutableTreeNode) fileTree.getModel().getRoot()).getUserObject());
+//		queryTree = new JTree(new DefaultTreeModel(queryRoot));
+		queryTree = new SpectrumTree(new DefaultTreeModel(queryRoot), TreeType.RESULT_LIST);
+		queryTree.setRowHeight(new JCheckBox().getPreferredSize().height);
 		
-		JScrollPane queryScpn = new JScrollPane(queryTbl);
+		JScrollPane queryScpn = new JScrollPane(queryTree);
 		queryScpn.setPreferredSize(new Dimension(200, 400));
 		
-		queryTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+		JPanel leftPnl = new JPanel();
+		leftPnl.setLayout(new FormLayout("p:g",					// col
+										 "p, 5dlu, p, f:p:g"));	// row
+		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
+		leftDummyTable.getTableHeader().setReorderingAllowed(false);
+		leftDummyTable.getTableHeader().setResizingAllowed(false);
+		JScrollPane leftDummyScpn = new JScrollPane(leftDummyTable);
+		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
+
+		JLabel leftLbl = new JLabel("Query spectra");
+		leftLbl.setPreferredSize(new Dimension(leftLbl.getPreferredSize().width,
+											   new JButton(" ").getPreferredSize().height));
+		leftPnl.add(leftLbl, cc.xy(1,1));
+		leftPnl.add(leftDummyScpn, cc.xy(1,3));
+		leftPnl.add(queryScpn, cc.xy(1,4));
+				
+		libTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#","Sequence","Accession","Score"}); }
 			
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-	            if (!e.getValueIsAdjusting()) {
-	            	// clear library table
-	            	libTbl.clearSelection();
-	            	DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
-					for (int row = 0; row < libTblMdl.getRowCount(); ) {
-						libTblMdl.removeRow(libTblMdl.getRowCount()-1);
-					}
-					// re-populate library table
-					int row = queryTbl.convertRowIndexToModel(queryTbl.getSelectedRow());
-					FileTableModel queryTblMdl = (FileTableModel) queryTbl.getModel();
-					MascotGenericFile mgf = queryTblMdl.getMgfAt(row);
-					resultList = resultMap.get(mgf.getTitle());
-					if (resultList != null) {
-						for (int index = 0; index < resultList.size(); index++) {
-							libTblMdl.addRow(new Object[] {index+1, resultList.get(index).getSequence(),
-															  		resultList.get(index).getAnnotation(),
-															  		resultList.get(index).getScore()});
-						}
-					}
-				    packColumn(libTbl, 0, 10);
-				    packColumn(libTbl, 3, 10);
-					
-					// plot selected spectrum
-					mPlot.setFirstSpectrum(mgf);
-					mPlot.setSecondSpectrum(null);
-					mPlot.repaint();
-	            }				
-			}
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
 		});
-		
-		libTbl = new JTable(new FileTableModel(TableType.RESULT_LIST));
 		libTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		libTbl.setAutoCreateRowSorter(true);
 		libTbl.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
@@ -1141,15 +1067,14 @@ public class ClientFrame extends JFrame {
 		mPlot.setK(20);
 		
 		libTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
 					if (libTbl.getSelectedRowCount() > 0) {
 						int row = libTbl.convertRowIndexToModel(libTbl.getSelectedRow());
-						FileTableModel libTblMdl = (FileTableModel) libTbl.getModel();
-						MascotGenericFile mgfLib = libTblMdl.getMgfAt(row);
-						mPlot.setSecondSpectrum(mgfLib);
+						DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
+						int index = (Integer) libTblMdl.getValueAt(row, 0);
+						mPlot.setSecondSpectrum(resultList.get(index-1).getSpectrumFile());
 						mPlot.repaint(true);
 					}
 				}
@@ -1157,10 +1082,9 @@ public class ClientFrame extends JFrame {
 		});
 		
 		JButton expBtn = new JButton("export scores");
-		expBtn.setPreferredSize(new Dimension(expBtn.getPreferredSize().width,
-											  new JLabel(" ").getPreferredSize().height));
-		expBtn.addActionListener(new ActionListener() {
-			
+//		expBtn.setPreferredSize(new Dimension(expBtn.getPreferredSize().width,
+//											  new JLabel(" ").getPreferredSize().height));
+		expBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (libTbl.getRowCount() > 0) {
@@ -1190,16 +1114,18 @@ public class ClientFrame extends JFrame {
 		rightPnl.add(libScpn, cc.xyw(1,3,2));	
 		
 		JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, rightPnl, mPlot);
+		rightSplit.setContinuousLayout(true);
 		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) rightSplit.getUI()).getDivider();
 		if (divider != null) { divider.setBorder(null); }
 		
-		JPanel leftPnl = new JPanel();
-		leftPnl.setLayout(new FormLayout("f:p:g",				// col
-		 								  "p, 5dlu, f:p:g"));	// row
-		leftPnl.add(new JLabel("Query spectra"), cc.xy(1,1));
-		leftPnl.add(queryScpn, cc.xy(1,3));	
+//		JPanel leftPnl = new JPanel();
+//		leftPnl.setLayout(new FormLayout("f:p:g",				// col
+//		 								  "p, 5dlu, f:p:g"));	// row
+//		leftPnl.add(new JLabel("Query spectra"), cc.xy(1,1));
+//		leftPnl.add(queryScpn, cc.xy(1,3));	
 		
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPnl, rightSplit);
+		mainSplit.setContinuousLayout(true);
 		divider = ((BasicSplitPaneUI) mainSplit.getUI()).getDivider();
 		if (divider != null) { divider.setBorder(null); }
 		
@@ -1231,129 +1157,154 @@ public class ClientFrame extends JFrame {
 		lggPnl.add(brdPnl, cc.xy(2, 2));
 		
 	}
-
-	private enum TableType { FILE_SELECT, FILE_LIST, RESULT_LIST }
 	
-	/** 
-	 * Extended default table model, includes proper CheckBoxes.
-	 */
-	private class FileTableModel extends DefaultTableModel {
+	
+	private enum TreeType { FILE_SELECT, RESULT_LIST }
+	
+	private class SpectrumTree extends JTree 
+							   implements TreeSelectionListener {
 		
-		private TableType tblType;
+		private TreeType treeType;
+		private File lastSelectedFile;
+		private MascotGenericFileReader reader;
 		
-		public FileTableModel(TableType tblType) {
-			this.tblType = tblType;
-			
-			switch (this.tblType) {
-			case FILE_SELECT:
-				this.setColumnIdentifiers(new Object[] {"Filename","#",""});
-				break;
-			case FILE_LIST:
-				this.setColumnIdentifiers(new Object[] {"Filename","#","hits"});
-				break;
-			case RESULT_LIST:
-				this.setColumnIdentifiers(new Object[] {"#","Sequence","Accession","Score"});
-				break;
-			default:
-				break;
-			}
+		public SpectrumTree(TreeModel treeModel, TreeType treeType) {
+			super(treeModel);
+			this.treeType = treeType;
+			this.addTreeSelectionListener(this);
 		}
 		
-		public Class<? extends Object> getColumnClass(int c) {
-			return getValueAt(0,c).getClass();				
-	    }
+		public String convertValueToText(Object value, boolean selected, boolean expanded,
+				boolean leaf, int row, boolean hasFocus) {
+			Object obj = ((DefaultMutableTreeNode)value).getUserObject();
+			if (obj instanceof File) {
+				return ((File)obj).getName();
+			} else if (leaf && !((DefaultMutableTreeNode)value).isRoot()) {
+				return ("Spectrum " + obj);
+			} else {
+				return value.toString();
+			}	    			
+		}
 		
-		public Object getValueAt(int row, int col) {
-			Vector dataVec = (Vector)getDataVector();
-			Object val = "";
-			if (dataVec.size() > 0) {
-				val = ((Vector)dataVec.elementAt(row)).elementAt(col);
-				switch (tblType) {
-				case FILE_SELECT:
-					if (col == 0) {
-						val = ((String)val).substring(((String)val).lastIndexOf("/")+1);
+		public MascotGenericFile getSpectrumAt(DefaultMutableTreeNode node) throws IOException {
+			if (!node.isRoot() && node.isLeaf()) {
+				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+				File mgfFile = (File) parent.getUserObject();
+				if (!mgfFile.equals(this.lastSelectedFile)) {	// check whether new file has been selected
+					this.lastSelectedFile = mgfFile;			// and open new reader if true
+					if (this.reader != null) {
+						this.reader.close();
 					}
-					break;
-				case FILE_LIST:
-					if (col < 2) {
-						val = fileTbl.getValueAt((Integer)val, col);					
-					}
-					break;
-				case RESULT_LIST:
-					// TODO: handle result list elements
-					break;
-				default:
-					break;
+					this.reader = new MascotGenericFileReader(mgfFile,MascotGenericFileReader.NONE);
 				}
-			}
-			return val;
-		}
-		
-		public Object getTrueValueAt(int row, int col) {
-			return ((Vector)getDataVector().elementAt(row)).elementAt(col);
-		}
-		
-		public MascotGenericFile getMgfAt(int row) {
-			Vector dataVec = (Vector)getDataVector();
-			if (!dataVec.isEmpty() && (dataVec.size() >= row)) {
-				Vector colVec = (Vector)dataVec.elementAt(row);
-				if (!colVec.isEmpty() && (dataVec.size() >= 0)) {
-					int index;
-					switch (this.tblType) {
-					case FILE_SELECT:
-						String fileName = (String)this.getTrueValueAt(row,0);
-						index = (Integer)this.getValueAt(row,1);
-						int pos = specPosMap.get(fileName).get(index-1);
-						MascotGenericFileReader reader = new MascotGenericFileReader();
-						try {
-							return reader.loadNthSpectrum(new File(fileName), index, pos);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					case FILE_LIST:
-						return ((FileTableModel)fileTbl.getModel()).getMgfAt((Integer)this.getTrueValueAt(row,0));
-					case RESULT_LIST:
-						index = (Integer)this.getValueAt(row, 0);
-						return resultList.get(index-1).getSpectrumFile();
-					default:
-						break;
-					}
-				}
+				int index = (Integer) node.getUserObject();
+				long pos = specPosMap.get(mgfFile.getAbsolutePath()).get(index-1);
+				return reader.loadNthSpectrum(index, pos);
 			}
 			return null;
 		}
-		
-		public void setValueAt(Object newVal, int row, int column) {
-			Vector<Object> rowVector = (Vector<Object>)dataVector.elementAt(row);
-			Object oldVal = rowVector.elementAt(column);
-			// check whether new value actually differs from old one
-			if (!oldVal.equals(newVal)) {
-				rowVector.setElementAt(newVal, column);
-				fireTableCellUpdated(row, column);
+
+		@Override
+		public void valueChanged(TreeSelectionEvent tse) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
+			MascotGenericFile mgf = null;
+
+			if (node == null) {
+				return;	// nothing is selected.
+			} else {
+				try {
+					mgf = getSpectrumAt(node);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-	    }
-		
-		public boolean isCellEditable(int row, int col) {
-			switch (tblType) {
+			
+			switch (treeType) {
 			case FILE_SELECT:
-				if (col == 2) {
-		            return true;
-		        }
-			default:
-				return false;
+				refreshFileTable(mgf, node);
+				break;
+			case RESULT_LIST:
+				refreshResultsTable(mgf);
+				break;
 			}
-	    }
-		
+			
+		}
 	}
 	
-	
+	protected void refreshFileTable(MascotGenericFile mgf, DefaultMutableTreeNode selNode) {
+		if (mgf != null) {
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selNode.getParent();
+			File parentFile = (File) parent.getUserObject();
+			fileDetailsTbl.setValueAt(parentFile.getAbsolutePath(), 0, 1);
+			fileDetailsTbl.setValueAt(mgf.getTitle(), 1, 1);
+
+			ArrayList<Peak> peakList = mgf.getPeakList();
+
+			int numPeaks = peakList.size();
+			fileDetailsTbl.setValueAt("<html><font color=#" + ((numPeaks < minPeaks) ? "FF" : "00") +
+					"0000>" + numPeaks + "</font></html>", 2, 1);
+
+			double TIC = mgf.getTotalIntensity();
+			fileDetailsTbl.setValueAt("<html><font color=#" + ((TIC < minTIC) ? "FF" : "00") +
+					"0000>" + TIC + "</font></html>", 3, 1);
+
+			//			double SNR = mgf.getHighestIntensity() / (TIC / numPeaks);
+			double SNR = 1.0/mgf.getSNR();
+			fileDetailsTbl.setValueAt("<html><font color=#" + ((SNR < minSNR) ? "FF" : "00") +
+					"0000>" + SNR + "</font></html>", 4, 1);
+
+			filePlotPnl.setSpectrumFile(mgf,Color.RED);
+			filePlotPnl.repaint();
+			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			packColumn(fileDetailsTbl, 1, 5);
+		} else {
+			fileDetailsTbl.setValueAt(null, 0, 1);
+			fileDetailsTbl.setValueAt(null, 1, 1);
+			fileDetailsTbl.setValueAt(null, 2, 1);
+			fileDetailsTbl.setValueAt(null, 3, 1);
+			fileDetailsTbl.setValueAt(null, 4, 1);
+			filePlotPnl.clearSpectrumFile();
+			filePlotPnl.repaint();
+			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		}
+		packColumn(fileDetailsTbl, 0, 10);
+		
+	}
+
+	protected void refreshResultsTable(MascotGenericFile mgf) {
+		if (mgf != null) {
+			// clear library table
+			libTbl.clearSelection();
+			DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
+			for (int row = 0; row < libTblMdl.getRowCount(); ) {
+				libTblMdl.removeRow(libTblMdl.getRowCount()-1);
+			}
+			// re-populate library table
+			resultList = resultMap.get(mgf.getTitle());
+			if (resultList != null) {
+				for (int index = 0; index < resultList.size(); index++) {
+					libTblMdl.addRow(new Object[] { index+1,
+													resultList.get(index).getSequence(),
+													resultList.get(index).getAnnotation(),
+													resultList.get(index).getScore() } );
+				}
+			}
+			packColumn(libTbl, 0, 10);
+			packColumn(libTbl, 3, 10);
+
+			// plot selected spectrum
+			mPlot.setFirstSpectrum(mgf);
+			mPlot.setSecondSpectrum(null);
+			mPlot.repaint();
+		}
+	}
+		
 	
 	// Sets the preferred width of the visible column specified by vColIndex. The column
 	// will be just wide enough to show the column head and the widest cell in the column.
 	// margin pixels are added to the left and right
 	// (resulting in an additional width of 2*margin pixels).
-	public void packColumn(JTable table, int vColIndex, int margin) {
-//	    TableModel model = table.getModel();
+	protected void packColumn(JTable table, int vColIndex, int margin) {
 	    DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
 	    TableColumn col = colModel.getColumn(vColIndex);
 	    int width = 0;
@@ -1383,38 +1334,60 @@ public class ClientFrame extends JFrame {
 	    col.setPreferredWidth(width);
 	}
 
-	
-	
+
+
 	private class ProcessWorker extends SwingWorker {
 		
 		protected Object doInBackground() throws Exception {
-			int packageSize = (Integer)packSpn.getValue();
-
-			FileTableModel fileTblMdl = (FileTableModel) fileTbl.getModel();
-			FileTableModel queryTblMdl = (FileTableModel) queryTbl.getModel();
-			// clear query table inside results panel
-			queryTbl.clearSelection();
-			for (int row = 0; row < queryTblMdl.getRowCount(); ) {
-				queryTblMdl.removeRow(queryTblMdl.getRowCount()-1);
+			
+			// clone file selection tree, discard unselected branches/leaves
+			CheckBoxTreeSelectionModel selectionModel = fileTree.getSelectionModel();
+			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) fileTree.getModel().getRoot();
+			DefaultTreeModel queryModel = (DefaultTreeModel) queryTree.getModel();
+			DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryModel.getRoot();
+			queryRoot.removeAllChildren();
+			
+			for (int i = 0; i < fileRoot.getChildCount(); i++) {
+				DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) fileRoot.getChildAt(i);
+				TreePath filePath = new TreePath(fileNode.getPath());
+				if ((selectionModel.isPathSelected(filePath)) || 
+					(selectionModel.isPartiallySelected(filePath))) {
+					// create a new node containing only the file tree node's selected sub-nodes
+					DefaultMutableTreeNode fileNodeClone = new DefaultMutableTreeNode(fileNode.getUserObject());
+					queryModel.insertNodeInto(fileNodeClone, queryRoot, queryRoot.getChildCount());
+					for (int j = 0; j < fileNode.getChildCount(); j++) {
+						DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
+						TreePath spectrumPath = new TreePath(spectrumNode.getPath());
+						if (selectionModel.isPathSelected(spectrumPath, true)) {
+							DefaultMutableTreeNode spectrumNodeClone = new DefaultMutableTreeNode(spectrumNode.getUserObject());
+							queryModel.insertNodeInto(spectrumNodeClone, fileNodeClone, fileNodeClone.getChildCount());
+						}
+					}
+				}
 			}
+			queryModel.reload();
 
 			// consolidate selected spectra into files
+			int packageSize = (Integer) packSpn.getValue();
 			FileOutputStream fos = null;
 			
-			files = new ArrayList<File>();
+			ArrayList<File> files = new ArrayList<File>();
 			
 			logPnl.append("Packing files... ");
 			int numSpectra = 0;
-			for (int row = 0; row < fileTbl.getRowCount(); row++) {
-				if ((Boolean)fileTbl.getValueAt(row, 2)) {
-					if ((numSpectra % packageSize) == 0) {
+
+			for (int i = 0; i < queryRoot.getChildCount(); i++) {
+				DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) queryRoot.getChildAt(i);
+				for (int j = 0; j < fileNode.getChildCount(); j++) {
+					DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
+					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
 						if (fos != null) { fos.close(); }
 						File file = new File("batch_" + (numSpectra/packageSize) + ".mgf");
 						files.add(file);
 						fos = new FileOutputStream(file);
 					}
 					numSpectra++;
-					MascotGenericFile mgf = fileTblMdl.getMgfAt(row);
+					MascotGenericFile mgf = queryTree.getSpectrumAt(spectrumNode);
 					mgf.writeToStream(fos);
 					fos.flush();
 				}
@@ -1422,19 +1395,17 @@ public class ClientFrame extends JFrame {
 			fos.close();
 			logPnl.append("done.\n");
 			
-			queryTbl.clearSelection();
-			
 			// process files
 			double progress = 0;
 			double max = files.size();
 			setProgress(0);
-			logPnl.append("Processing files... ");
+			logPnl.append("Processing files...");
 			
-			ProcessSettings procSet = new ProcessSettings((Double)tolMzSpn.getValue(),
-														  (Double)thMzSpn.getValue(),
-														  (Integer)kSpn.getValue(),
-														  (Double)thScSpn.getValue(),
-														  (Boolean)annotChk.isSelected());
+			ProcessSettings procSet = new ProcessSettings((Double) tolMzSpn.getValue(),
+														  (Double) thMzSpn.getValue(),
+														  (Integer) kSpn.getValue(),
+														  (Double) thScSpn.getValue(),
+														  (Boolean) annotChk.isSelected());
 			
 			resultMap = new HashMap<String,ArrayList<RankedLibrarySpectrum>>();
 			for (File file : files) {
@@ -1443,23 +1414,6 @@ public class ClientFrame extends JFrame {
 				setProgress((int)(progress/max*100));
 			}
 			logPnl.append("done.\n");
-//				if (queryTbl.getRowCount() > 0) {
-//					queryTbl.setRowSelectionInterval(0, 0);
-//				}
-			
-			// populate query table inside results panel
-			for (int row = 0; row < fileTbl.getRowCount(); row++) {
-				if ((Boolean)fileTbl.getValueAt(row, 2)) {
-					int numHits = 0;
-					ArrayList<RankedLibrarySpectrum> result = resultMap.get(fileTblMdl.getMgfAt(row).getTitle());
-					if (result != null) {
-						numHits = result.size();
-					}
-					queryTblMdl.addRow(new Object[] {row, row, numHits});
-				}
-			}
-		    packColumn(queryTbl, 1, 6);
-		    packColumn(queryTbl, 2, 6);
 			
 			return 0;
 		}
@@ -1479,7 +1433,7 @@ public class ClientFrame extends JFrame {
 			DbSearchSettings settings = collectDBSearchSettings();
 			try {
 				for (File file : files) {
-						// TODO: run the db search with the settings
+						// TODO: run the DB search with the settings
 						System.out.println(settings.getFastaFile());
 						client.runDbSearch(file, settings);
 						progress++;

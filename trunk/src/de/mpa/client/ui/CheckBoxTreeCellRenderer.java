@@ -10,8 +10,8 @@ import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-public class CheckBoxTreeCellRenderer implements TreeCellRenderer {
-	private JPanel panel = new JPanel();
+public class CheckBoxTreeCellRenderer extends JPanel implements TreeCellRenderer {
+	private JPanel panel = this;
 	private CheckBoxTreeSelectionModel selectionModel;
 	private TreeCellRenderer delegateTCR;
 //	private TristateCheckBox checkBox = new TristateCheckBox("");
