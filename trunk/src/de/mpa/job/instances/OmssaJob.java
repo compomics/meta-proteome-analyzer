@@ -58,7 +58,6 @@ public class OmssaJob extends Job {
 		}
 		this.omssaFile = new File(JobConstants.OMSSA_PATH);
 		initJob();
-		super.execute();
 	}
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
@@ -127,9 +126,8 @@ public class OmssaJob extends Job {
         procCommands.add("-ox");
         procCommands.add(filename);
         procCommands.trimToSize();
-
-        log.info("====== OMSSA JOB started ======");
-		log.info(procCommands);
+        
+        setDescription("OMSSA JOB");
         procBuilder = new ProcessBuilder(procCommands);
         procBuilder.directory(omssaFile);
         

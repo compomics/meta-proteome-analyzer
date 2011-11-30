@@ -81,9 +81,8 @@ public class PepnovoJob extends Job {
 		// Add output path
 		outputFile = new File(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName() + ".out");
 		procCommands.trimToSize();
-
-		log.info("====== PEPNOVO JOB started ======");
-		log.info(procCommands);
+		
+		setDescription("PEPNOVO JOB");
 		procBuilder = new ProcessBuilder(procCommands);
 		
 		procBuilder.directory(pepnovoFile);
