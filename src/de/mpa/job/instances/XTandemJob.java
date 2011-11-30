@@ -15,7 +15,6 @@ import de.mpa.job.Job;
 public class XTandemJob extends Job {	
 	
 	private final static String INPUT_FILE = "input.xml";
-
     private final static String PARAMETER_FILE = "parameters.xml";   
     private final static String TAXONOMY_FILE = "taxonomy.xml";   
     
@@ -60,7 +59,6 @@ public class XTandemJob extends Job {
 		buildParameterFile();
 		buildTaxonomyFile();
 		initJob();
-		super.execute();
 	}
 	
 	
@@ -304,6 +302,8 @@ public class XTandemJob extends Job {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob(){
+		setDescription("X!TANDEM JOB");
+		
 		// full path to executable
 		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + JobConstants.XTANDEM_EXE);
 
@@ -311,8 +311,6 @@ public class XTandemJob extends Job {
 		procCommands.add(inputFile.getAbsolutePath());
 
 		procCommands.trimToSize();
-		log.info("====== X!TANDEM JOB started ======");
-		log.info(procCommands);
 		procBuilder = new ProcessBuilder(procCommands);
 		procBuilder.directory(xTandemFile);
 		

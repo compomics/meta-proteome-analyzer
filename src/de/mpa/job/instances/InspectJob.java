@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import de.mpa.job.Job;
 
@@ -33,7 +32,6 @@ public class InspectJob extends Job {
 	private File inputFile;
 	private File mgfFile;
 	private String searchDB;
-	private String filename;
 
 	/**
 	 * Constructor for the InspectJob.
@@ -46,39 +44,10 @@ public class InspectJob extends Job {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB + ".RS.trie";
 		this.inspectFile = new File(JobConstants.INSPECT_PATH);
-		filename = JobConstants.INSPECT_PVALUED_OUTPUT_PATH + mgfFile.getName() + ".out";
 		buildInputFile();
 		initJob();
-		super.execute();
-		postProcess();
 	}
 
-	
-	/**
-	 * In this step the postprocessing is down. 
-	 * Statistically insignificant results are weeded out by the python script. 
-	 */
-	private void postProcess() {
-		procCommands = new ArrayList<String>();
-		// Link to the output file.
-		//procCommands.add("sudo");
-		procCommands.add("python");
-		procCommands.add(JobConstants.INSPECT_PATH + "PValue.py");
-		procCommands.add("-r");
-		procCommands.add(JobConstants.INSPECT_RAW_OUTPUT_PATH);
-		procCommands.add("-w");
-		procCommands.add(JobConstants.INSPECT_PVALUED_OUTPUT_PATH);
-		procCommands.add("-S");
-		procCommands.add("0.5");
-		procCommands.trimToSize();
-		log.info("\n" + procCommands);
-		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(inspectFile);
-		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
-		super.execute();
-	}
-	
 	/**
 	 * Constructs the input.xml file needed for the Inspect process. 
 	 */
@@ -116,8 +85,7 @@ public class InspectJob extends Job {
 		
 		procCommands.trimToSize();
 
-		log.info("====== INSPECT JOB started ======");
-		log.info(procCommands);
+		setDescription("INSPECT JOB");
 		procBuilder = new ProcessBuilder(procCommands);
 
 		procBuilder.directory(inspectFile);
@@ -125,10 +93,4 @@ public class InspectJob extends Job {
 		procBuilder.redirectErrorStream(true);
 	}
 	
-	/**
-	 * Returns the path to the Inspect PValued output file.
-	 */
-	public String getFilename(){
-		return filename;
-	}
 }

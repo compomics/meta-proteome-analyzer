@@ -1,7 +1,6 @@
 package de.mpa.job.instances;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import de.mpa.io.MS2Formatter;
 import de.mpa.job.Job;
@@ -32,10 +31,7 @@ public class CruxJob extends Job{
 		this.cruxFile = new File(JobConstants.CRUX_PATH);	
 		convertFile();		
 		initJob();
-		//super.execute();		
 		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
-		percolate();
-		new DeleteJob(ms2File);
 	}	
 	
 	/**
@@ -74,46 +70,12 @@ public class CruxJob extends Job{
 		
 		procCommands.trimToSize();
 
-		log.info("\n" + procCommands);
 		procBuilder = new ProcessBuilder(procCommands);
-
+		setDescription("CRUX JOB");
+		
 		procBuilder.directory(cruxFile);
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
-	}
-	
-	/**
-	 * In this step Percolator is used to re-rank the obtained results + assign q-values to them.
-	 */
-	private void percolate() {
-		procCommands = new ArrayList<String>();
-		// Link to the output file.
-		procCommands.add(JobConstants.CRUX_PATH + JobConstants.CRUX_EXE);
-		procCommands.add("percolator");
-		
-		// Database index directory
-		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");		
-		
-		// Link to crux sourcefolder path.		
-		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
-		
-		// Link to outputfolder path.
-		procCommands.add("--output-dir");
-		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
-		
-		// Overwrite existing files (if any searches before)
-		procCommands.add("--overwrite");
-		procCommands.add("T");
-		procCommands.trimToSize();
-		
-		log.info("====== CRUX JOB started ======");
-		log.info(procCommands);
-		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(cruxFile);
-		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
-		super.execute();
-		new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.txt", filename);
 	}
 	
 	/**
