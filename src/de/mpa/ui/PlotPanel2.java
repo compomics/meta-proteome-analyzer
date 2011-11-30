@@ -15,6 +15,7 @@ public class PlotPanel2 extends SpectrumPanel {
 
 	public PlotPanel2(SpectrumFile aSpecFile) {
 		super(aSpecFile);
+		this.showResolution = false;
 	}
 
 	@ Override
@@ -56,23 +57,12 @@ public class PlotPanel2 extends SpectrumPanel {
 
 			while (iter.hasNext()) {
 				Double key = (Double) iter.next();
-				double mass = key.doubleValue();
-				double intensity = ((Double) peaks.get(key)).doubleValue();
-				if (intensity > maxInt) {
-					maxInt = intensity;
-				}
-				//            iXAxisData.get(dataSetCounter)[count] = mass;
-				//            iYAxisData.get(dataSetCounter)[count] = intensity;
-				iXAxisData.get(0)[count] = mass;
-				iYAxisData.get(0)[count] = intensity;
+				iXAxisData.get(0)[count] = key.doubleValue();
+				iYAxisData.get(0)[count] = ((Double) peaks.get(key)).doubleValue();
 				count++;
 			}
 
-			if (iXAxisStartAtZero) {
-				this.rescale(0.0, getMaxXAxisValue());
-			} else {
-				this.rescale(getMinXAxisValue(), getMaxXAxisValue());
-			}
+			this.rescale(0.0, getMaxXAxisValue()*1.05);
 
 			this.iPrecursorMZ = aSpecFile.getPrecursorMZ();
 			int liTemp = aSpecFile.getCharge();
@@ -92,20 +82,31 @@ public class PlotPanel2 extends SpectrumPanel {
 
 		iXAxisData = new ArrayList<double[]>();
 		iYAxisData = new ArrayList<double[]>();
+		
+		iXAxisData.add(new double[] {0.0});
+		iYAxisData.add(new double[] {90.909});
+		
 
 		iDataPointAndLineColor = new ArrayList<Color>();
+		iDataPointAndLineColor.add(Color.BLACK);
 		iAreaUnderCurveColor = new ArrayList<Color>();
+		iAreaUnderCurveColor.add(Color.PINK);
 
-		iFilename = "none";
+		iFilename = "no file selected";
+		
+		this.rescale(0.0, 999.0);
 
-		this.iPrecursorMZ = 0;
+		this.iPrecursorMZ = 0.0;
 		
 		iPrecursorCharge = "?";
-		
+				
 	}
 
 	public SpectrumFile getSpectrumFile() {
 		return iSpecFile;
 	}
+	
+	@Override
+	protected void addListeners() { }
 
 }
