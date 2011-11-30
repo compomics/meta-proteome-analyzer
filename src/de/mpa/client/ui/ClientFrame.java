@@ -79,6 +79,7 @@ import de.mpa.client.ProcessSettings;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.Peak;
+import de.mpa.job.JobStatus;
 import de.mpa.ui.MgfFilter;
 import de.mpa.ui.MultiPlotPanel;
 import de.mpa.ui.PlotPanel2;
@@ -86,6 +87,15 @@ import de.mpa.utils.ExtensionFileFilter;
 import de.mpa.webservice.WSPublisher;
 
 @SuppressWarnings("unchecked")
+/**
+ * <b> ClientFrame </b>
+ * <p>
+ * 	Represents the main graphical user interface for the MetaProteomeAnalyzer-Client.
+ * </p>
+ * 
+ * @author muth Alex Behne, Thilo Muth
+ */
+
 public class ClientFrame extends JFrame {
 	
 	private final static int PORT = 8080;
@@ -223,26 +233,69 @@ public class ClientFrame extends JFrame {
 		
 		// Get the client instance
         client = Client.getInstance();
-//        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//
-//		this.addWindowListener(new WindowAdapter() {
-//			public void windowClosing(WindowEvent e) {
-//                System.exit(0);
-//            }
-//        });
+        
+        // Register the property change listener.
+        client.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			// Update the 
+			public void propertyChange(PropertyChangeEvent evt) {
+				updateSearchEngineUI(evt.getNewValue().toString());
+				
+			}
+		});
+
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setResizable(true);
 		this.pack();
 		
 		// Center in the screen
 		ScreenConfig.centerInScreen(this);
-		
-		
-		
 		this.setVisible(true);
-				
 	}
 	
+	/**
+	 * Update the search engine user interface 
+	 * whenever a new message comes in.
+	 * @param message
+	 */
+	public void updateSearchEngineUI(String message){
+		String finished = JobStatus.FINISHED.toString();
+		String running = JobStatus.RUNNING.toString();
+		if(message.startsWith("X!TANDEM")){
+			xtandemStatTtf.setEnabled(true);
+			if(message.contains(running)){
+				xtandemStatTtf.setText(running);
+			} else if(message.contains(finished)){
+				xtandemStatTtf.setText(finished);
+			}
+			
+		} else if(message.startsWith("OMSSA")){
+			omssaStatTtf.setEnabled(true);
+			if(message.contains(running)){
+				omssaStatTtf.setText(running);
+			} else if(message.contains(finished)){
+				omssaStatTtf.setText(finished);
+			}
+		} else if(message.startsWith("CRUX")){
+			cruxStatTtf.setEnabled(true);
+			if(message.contains(running)){
+				cruxStatTtf.setText(running);
+			} else if(message.contains(finished)){
+				cruxStatTtf.setText(finished);
+			}
+		} else if(message.startsWith("INSPECT")){
+			inspectStatTtf.setEnabled(true);
+			if(message.contains(running)){
+				inspectStatTtf.setText(running);
+			} else if(message.contains(finished)){
+				inspectStatTtf.setText(finished);
+			}
+		}
+	}
+	
+	/**
+	 * Initialize the components.
+	 */
 	private void initComponents(){
 		
 		// Cell constraints
@@ -1336,10 +1389,8 @@ public class ClientFrame extends JFrame {
 
 
 
-	private class ProcessWorker extends SwingWorker {
-		
-		protected Object doInBackground() throws Exception {
-			
+	private class ProcessWorker extends SwingWorker {		
+		protected Object doInBackground() throws Exception {			
 			// clone file selection tree, discard unselected branches/leaves
 			CheckBoxTreeSelectionModel selectionModel = fileTree.getSelectionModel();
 			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) fileTree.getModel().getRoot();
@@ -1434,14 +1485,9 @@ public class ClientFrame extends JFrame {
 			try {
 				for (File file : files) {
 						// TODO: run the DB search with the settings
-						System.out.println(settings.getFastaFile());
 						client.runDbSearch(file, settings);
 						progress++;
 						setProgress((int)(progress/max*100));
-				}
-				System.out.println("done");
-				if (queryTbl.getRowCount() > 0) {
-					queryTbl.setRowSelectionInterval(0, 0);	
 				}
 				files.clear();
 			} catch (Exception e) {

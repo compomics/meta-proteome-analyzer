@@ -28,6 +28,7 @@ public class PostProcessorJob extends Job {
 	 * Statistically insignificant results are weeded out by the python script. 
 	 */
 	private void initJob() {
+		setDescription("POST-PROCESSING JOB");
 		procCommands = new ArrayList<String>();
 		// Link to the output file.
 		//procCommands.add("sudo");

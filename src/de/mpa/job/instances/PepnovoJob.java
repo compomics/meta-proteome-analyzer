@@ -47,7 +47,7 @@ public class PepnovoJob extends Job {
 		this.fragmentTol = fragmentTol;
 		this.pepnovoFile = new File(JobConstants.PEPNOVO_PATH);		
 		initJob();
-		execute();
+		run();
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class PepnovoJob extends Job {
 	/**
 	 * Executes a job.
 	 */
-	public void execute() {
+	public void run() {
 		proc = null;
 		try {
 			proc = procBuilder.start();

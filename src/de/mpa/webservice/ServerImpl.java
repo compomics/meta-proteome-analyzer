@@ -1,12 +1,11 @@
 package de.mpa.webservice;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 import javax.activation.DataHandler;
 import javax.jws.WebService;
@@ -19,9 +18,15 @@ import org.apache.log4j.Logger;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
+import de.mpa.job.instances.ConvertJob;
 import de.mpa.job.instances.CruxJob;
 import de.mpa.job.instances.InspectJob;
+import de.mpa.job.instances.JobConstants;
+import de.mpa.job.instances.MS2FormatJob;
 import de.mpa.job.instances.OmssaJob;
+import de.mpa.job.instances.PercolatorJob;
+import de.mpa.job.instances.PostProcessorJob;
+import de.mpa.job.instances.RenameJob;
 import de.mpa.job.instances.XTandemJob;
 
 
@@ -35,7 +40,13 @@ public class ServerImpl implements Server {
      * Init the job logger.
      */
     protected static Logger log = Logger.getLogger(ServerImpl.class);
+    
+    /**
+     * The message queue.
+     */
+    private Queue<Message> msgQueue = new ArrayDeque<Message>();
 
+    
 	@Override
 	public void receiveMessage(String msg) {
 		log.info("Received message: " + msg);
@@ -43,9 +54,14 @@ public class ServerImpl implements Server {
 	}
 	
 	@Override
-	public String sendMessage(String msg) {
-		log.info(msg);
-		return "Hello, sending the message: " + msg;
+	public String sendMessage() {
+		Message msg = msgQueue.poll();
+		if(msg != null){
+			String composedMessage = msg.getJob().getDescription() + " " + msg.getData();
+			log.info(composedMessage);
+			return composedMessage;
+		}
+		return "";
 	}
 
 	@Override
@@ -78,7 +94,7 @@ public class ServerImpl implements Server {
 //		}
 		
 		// Init the job manager
-		final JobManager jobManager = new JobManager();
+		final JobManager jobManager = new JobManager(msgQueue);
 		
 		// Get general parameters 
 		String searchDB = params.getFastaFile();
@@ -99,14 +115,26 @@ public class ServerImpl implements Server {
 		
 		// Crux job
 		if(params.isCrux()){
+			ConvertJob convertJob = new ConvertJob(file);
+			jobManager.addJob(convertJob);
+			MS2FormatJob ms2FormatJob = new MS2FormatJob(file);
+			jobManager.addJob(ms2FormatJob);
 			CruxJob cruxJob = new CruxJob(file, searchDB);
 			jobManager.addJob(cruxJob);
+			PercolatorJob percolatorJob = new PercolatorJob(file, searchDB);
+			jobManager.addJob(percolatorJob);
+			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
+			RenameJob renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.txt", percolatorfile);
+			jobManager.addJob(renameJob);
 		}
 		
 		// Inspect job
 		if(params.isInspect()){
-			InspectJob inspectJob = new InspectJob(file, searchDB);
-			jobManager.addJob(inspectJob);
+			InspectJob inspectJob = new InspectJob(file, searchDB);			
+			jobManager.addJob(inspectJob);			
+			PostProcessorJob postProcessorJob = new PostProcessorJob(file, searchDB);			
+			jobManager.addJob(postProcessorJob);			
+			
 		}
 		
 		// Pepnovo job		
@@ -122,6 +150,7 @@ public class ServerImpl implements Server {
 //		} catch (SQLException e) {
 //			e.printStackTrace();
 //		}
+		
 		jobManager.execute();
 		jobManager.clear();
 	}
@@ -155,28 +184,28 @@ public class ServerImpl implements Server {
 		throw new WebServiceException("Upload Failed!"); 
 	}
 	
-	/**
-	 * This method copies the file
-	 * @param srFile
-	 * @param dtFile
-	 */
-	private static void copyfile(File f1, File f2) {
-		try {
-			InputStream in = new FileInputStream(f1);
-			OutputStream out = new FileOutputStream(f2);
-
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
-			}
-			in.close();
-			out.close();
-		} catch (FileNotFoundException ex) {
-			System.exit(0);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	/**
+//	 * This method copies the file
+//	 * @param srFile
+//	 * @param dtFile
+//	 */
+//	private static void copyfile(File f1, File f2) {
+//		try {
+//			InputStream in = new FileInputStream(f1);
+//			OutputStream out = new FileOutputStream(f2);
+//
+//			byte[] buf = new byte[1024];
+//			int len;
+//			while ((len = in.read(buf)) > 0) {
+//				out.write(buf, 0, len);
+//			}
+//			in.close();
+//			out.close();
+//		} catch (FileNotFoundException ex) {
+//			System.exit(0);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 }

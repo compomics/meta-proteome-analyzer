@@ -14,6 +14,6 @@
 	<classpathentry kind="lib" path="lib/substance.jar"/>
 	<classpathentry kind="lib" path="lib/trident.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-3.1.12-bin.jar"/>
-	<classpathentry kind="lib" path="lib/utilities-3.0.18.jar"/>
+	<classpathentry kind="lib" path="lib/utilities-3.1.31.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

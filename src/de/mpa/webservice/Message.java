@@ -1,4 +1,4 @@
-package de.mpa.io;
+package de.mpa.webservice;
 
 import java.util.Date;
 

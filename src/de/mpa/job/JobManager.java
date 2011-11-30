@@ -1,9 +1,15 @@
 package de.mpa.job;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Queue;
 
 import org.apache.log4j.Logger;
+
+import de.mpa.job.instances.MS2FormatJob;
+import de.mpa.webservice.Message;
 
 
 /**
@@ -15,15 +21,18 @@ public class JobManager {
 	
 	private Logger log = Logger.getLogger(JobManager.class);
 	
-	private List<Job> jobQueue;
+	private Queue<Job> jobQueue;
 	
 	private List<Object> objects;
+	
+	private Queue<Message> msgQueue;
 	
 	/**
 	 * Constructor for the job manager.
 	 */
-	public JobManager(){
-		jobQueue = new ArrayList<Job>();
+	public JobManager(Queue<Message> msgQueue){
+		this.jobQueue = new ArrayDeque<Job>();
+		this.msgQueue = msgQueue;
 	}
 	
 	/**
@@ -46,12 +55,23 @@ public class JobManager {
 	 * Executes the jobs from the queue.
 	 */
 	public void execute(){
-		for(Job job : jobQueue){			
-			job.execute();
+		// Iterate the job queue
+		for(Job job : jobQueue){		
+			System.out.println(job.getDescription());
+			System.out.println(job.getError());
+			if(job instanceof MS2FormatJob){
+				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
+				ms2formatjob.run();
+			} else {
+				// Set the job status to RUNNING and put the message in the queue
+				msgQueue.add(new Message(job, JobStatus.RUNNING.toString(), new Date()));
+				job.execute();
+			}
 			if (job.getStatus() == JobStatus.ERROR){
 				log.error(job.getError());
 			}		
-			deleteJob(job);
+			// Set the job status to FINISHED and put the message in the queue
+			msgQueue.add(new Message(job, JobStatus.FINISHED.toString(), new Date()));
 		}
 		
 	}
