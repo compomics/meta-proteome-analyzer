@@ -6,8 +6,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.mpa.client.ui.TristateState;
-
 /**
  * This class holds the I/O-read functionality for mascot generic files.
  * @author Thilo Muth

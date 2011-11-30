@@ -17,7 +17,7 @@ public interface Server {
 	
 	 @WebMethod void receiveMessage(String msg);
 	 
-	 @WebMethod String sendMessage(String msg);
+	 @WebMethod String sendMessage();
 	 
 	 @WebMethod void process(String filename, DbSearchSettings settings);
 	 

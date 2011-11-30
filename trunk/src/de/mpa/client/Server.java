@@ -46,15 +46,12 @@ public interface Server {
 
     /**
      * 
-     * @param arg0
      * @return
      *     returns java.lang.String
      */
     @WebMethod
     @WebResult(partName = "return")
-    public String sendMessage(
-        @WebParam(name = "arg0", partName = "arg0")
-        String arg0);
+    public String sendMessage();
 
     /**
      * 

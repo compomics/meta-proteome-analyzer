@@ -1,23 +1,27 @@
-package de.mpa.io;
+package de.mpa.job.instances;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MS2Formatter {
+import de.mpa.job.Job;
+
+public class MS2FormatJob extends Job{
 	
 	private final String ms2file;
 	private final String outputfile;
 	
-	public MS2Formatter(final String ms2file, final String outputfile) {
-		this.ms2file = ms2file;
-		this.outputfile = outputfile;
-		format();
+	public MS2FormatJob(File mgfFile) {
+		this.ms2file = JobConstants.DATASET_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_format.ms2";;
+		this.outputfile = mgfFile.getAbsolutePath().substring(0, mgfFile.getAbsolutePath().indexOf(".mgf")) + ".ms2";;
+		run();
 	}
 	
-	private void format() {
+	public void run() {
+			setDescription("MS2 FORMAT JOB");
 			BufferedReader reader = null;
 			BufferedWriter writer = null;
 			int scan = 1;

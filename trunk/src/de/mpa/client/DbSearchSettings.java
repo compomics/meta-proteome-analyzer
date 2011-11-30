@@ -17,13 +17,13 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="crux" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="Crux" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="enzyme" type="{http://webservice.mpa.de/}protease" minOccurs="0"/>
  *         &lt;element name="fastaFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="fragmentIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
- *         &lt;element name="inspect" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="Inspect" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="numMissedCleavages" type="{http://www.w3.org/2001/XMLSchema}int"/>
- *         &lt;element name="omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="Omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="precursorIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *       &lt;/sequence>
@@ -47,12 +47,12 @@ import javax.xml.bind.annotation.XmlType;
     "xTandem"
 })
 public class DbSearchSettings {
-	
+
+    @XmlElement(name = "Crux")
+    protected boolean crux;
     protected Protease enzyme;
     protected String fastaFile;
     protected double fragmentIonTol;
-    @XmlElement(name = "Crux")
-    protected boolean crux;
     @XmlElement(name = "Inspect")
     protected boolean inspect;
     protected int numMissedCleavages;

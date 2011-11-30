@@ -1,5 +1,8 @@
 package de.mpa.client;
 
+import java.awt.EventQueue;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,6 +16,8 @@ import java.util.List;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
+
+import org.apache.log4j.Logger;
 
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.NormalizedDotProduct;
@@ -29,9 +34,18 @@ public class Client {
 	
 	// Server service
 	private ServerImplService service;
-
+	
+	// Logger
+	private Logger log = Logger.getLogger(getClass());
+	
 	// Server instance
 	private Server server;
+	
+	/**
+     *  Property change support for notifying the gui about new messages.
+     */
+    private PropertyChangeSupport pSupport;
+
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -39,7 +53,7 @@ public class Client {
 	 * @param name
 	 */
 	private Client() {
-
+		pSupport = new PropertyChangeSupport(this);
 	}
 
 	/**
@@ -71,13 +85,19 @@ public class Client {
 		thread.start();
 	}
 	
-	//TODO: Disconnect method!
-	
 	/**
 	 * Requests the server for response.
 	 */
 	public void request(){
-		receiveMessage("limbo!");
+		final String message = receiveMessage();
+		if(message != null && !message.equals("")){
+			log.info(message);
+			EventQueue.invokeLater(new Runnable() {                                                 
+                public void run() {
+                        pSupport.firePropertyChange("New Message", null, message);                                                    
+                }
+        });
+		}
 	}
 	
 	
@@ -85,8 +105,8 @@ public class Client {
 	 * Send the message. 
 	 * @param msg
 	 */
-	public String receiveMessage(String msg){
-		return server.sendMessage(msg);
+	public String receiveMessage(){
+		return server.sendMessage();
 	}
 	
 	/**
@@ -211,6 +231,7 @@ public class Client {
 		return resultMap;
 	}
 	
+	// Thread polling the server each second.
 	class RequestThread extends Thread {		
 		public void run() {
 			while(true){
@@ -220,11 +241,18 @@ public class Client {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				
 			}
 		}
 	}
-	 
+	
+	/**
+     * Adds the property change listener.
+     * @param l
+     */
+    public void addPropertyChangeListener(PropertyChangeListener l ) { 
+    	pSupport.addPropertyChangeListener(l); 
+    } 
+    
 	/**
 	 * @param args
 	 * @throws Exception

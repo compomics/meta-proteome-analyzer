@@ -15,7 +15,6 @@ public class ConvertJob extends Job {
 	private final static String MSCONVERT_PATH = "/scratch/metaprot/software/crux/tide/";
 	private final static String JOB_EXE =  "msconvert";
 
-
 	/** 
 	 * The msConvertFile.
 	 */
@@ -35,13 +34,13 @@ public class ConvertJob extends Job {
 		this.mgfFile = mgfFile;		
 		this.msConvertFile = new File(MSCONVERT_PATH);
 		initJob();
-		super.execute();		
 	}
 	
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob() {
+		setDescription("MS2 CONVERT JOB");
 		// Full path to executable.
 		procCommands.add(msConvertFile.getAbsolutePath() + "/" + JOB_EXE);
 		
@@ -55,19 +54,11 @@ public class ConvertJob extends Job {
 		
 		procCommands.trimToSize();
 		
-		log.info(procCommands);
 		procBuilder = new ProcessBuilder(procCommands);
 
 		procBuilder.directory(msConvertFile);
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
-	}
-
-	/**
-	 * Returns the path to the converted MS2 file.
-	 */
-	public String getMs2Filename(){
-		return mgfFile.getAbsolutePath().substring(0, mgfFile.getAbsolutePath().indexOf(".mgf")) + ".ms2";		
 	}
 }
 
