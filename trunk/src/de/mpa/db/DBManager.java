@@ -7,9 +7,12 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import de.mpa.db.storager.CruxStorager;
+import de.mpa.db.storager.InspectStorager;
+import de.mpa.db.storager.OmssaStorager;
 import de.mpa.db.storager.PepnovoStorager;
-import de.mpa.db.storager.ProjectStorager;
 import de.mpa.db.storager.SpectrumStorager;
+import de.mpa.db.storager.XTandemStorager;
 
 /**
  * This class serves for handling and managing the database.
@@ -42,7 +45,7 @@ public class DBManager {
      */
 	private void init() throws SQLException{		
 		// The database configuration.
-		DBConfiguration dbconfig = new DBConfiguration("metaprot");
+		DBConfiguration dbconfig = new DBConfiguration("metaprot", true);
 		conn = dbconfig.getConnection();
 		
 		// Set auto commit == FALSE --> Manual commit & rollback.
@@ -57,25 +60,26 @@ public class DBManager {
 	 * @throws SQLException 
 	 * @throws IOException 
 	 */
-	public SpectrumStorager storeSpectra(File mgfFile, String title, String taxon, double fragmentTol, double precursorTol, String precursorUnit) throws IOException, SQLException {
+	public SpectrumStorager storeSpectra(File mgfFile) throws IOException, SQLException {
 		// Check for duplicate file in the DB!
 		//TODO: Spectrum.checkDuplicateFile(mgfFile.getName(), conn);
 		
-		// The Project storager is initialized here.
-		ProjectStorager projectStorager = new ProjectStorager(conn, title, taxon, fragmentTol, precursorTol, precursorUnit);
-		Thread thread = new Thread(projectStorager);
-		thread.start();
-		try {
-			thread.join();
-		} catch (InterruptedException e) {			
-			e.printStackTrace();
-		}
+		// TODO: The Project storager is initialized here.
+//		ProjectStorager projectStorager = new ProjectStorager(conn, title);
+//		Thread thread = new Thread(projectStorager);
+//		thread.start();
+//		try {
+//			thread.join();
+//		} catch (InterruptedException e) {			
+//			e.printStackTrace();
+//		}
+//		
+//		// Returns the project id.
+//		long projectid = projectStorager.getProjectid();		
 		
-		// Returns the project id.
-		long projectid = projectStorager.getProjectid();		
-		
-		// Store the spectra		
-		SpectrumStorager specStorager = new SpectrumStorager(conn, mgfFile, projectid);
+		// Store the spectra	
+		// TODO: Remove hard-coded value for experiment id
+		SpectrumStorager specStorager = new SpectrumStorager(conn, mgfFile, 1);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
 		
@@ -85,6 +89,66 @@ public class DBManager {
 			e.printStackTrace();
 		}		
 		return specStorager;
+	}
+	
+	/**
+	 * This methods stores the XTandem results to the DB.
+	 * @param xtandemFilename
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public void storeXTandemResults(String xtandemFilename) throws IOException, SQLException{
+		try {
+			spectraThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		executor.execute(new XTandemStorager(conn, new File(xtandemFilename), null));
+	}
+	
+	/**
+	 * This methods stores the Omssa results to the DB.
+	 * @param omssaFilename
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public void storeOmssaResults(String omssaFilename) throws IOException, SQLException{
+		try {
+			spectraThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		executor.execute(new OmssaStorager(conn, new File(omssaFilename), null));		
+	}
+	
+	/**
+	 * This methods stores the Crux results to the DB.
+	 * @param cruxFilename
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public void storeCruxResults(String cruxFilename) throws IOException, SQLException{
+		try {
+			spectraThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		executor.execute(new CruxStorager(conn, new File(cruxFilename)));		
+	}
+	
+	/**
+	 * This methods stores the Inspect results to the DB.
+	 * @param inspectFilename
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public void storeInspectResults(String inspectFilename) throws IOException, SQLException{
+		try {
+			spectraThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		executor.execute(new InspectStorager(conn, new File(inspectFilename)));
 	}
 	
 	/**

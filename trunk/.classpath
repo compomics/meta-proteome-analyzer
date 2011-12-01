@@ -11,9 +11,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
-	<classpathentry kind="lib" path="lib/substance.jar"/>
-	<classpathentry kind="lib" path="lib/trident.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-3.1.12-bin.jar"/>
 	<classpathentry kind="lib" path="lib/utilities-3.1.31.jar"/>
+	<classpathentry kind="lib" path="lib/omssa-parser-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/xtandem-parser-1.2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

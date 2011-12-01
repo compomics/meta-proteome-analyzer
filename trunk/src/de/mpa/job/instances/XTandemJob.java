@@ -302,7 +302,7 @@ public class XTandemJob extends Job {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob(){
-		setDescription("X!TANDEM JOB");
+		setDescription("X!TANDEM");
 		
 		// full path to executable
 		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + JobConstants.XTANDEM_EXE);

@@ -175,7 +175,7 @@ public class Client {
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		
 		// connect to database
-		DBConfiguration dbconfig = new DBConfiguration("metaprot");
+		DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
 		Connection conn = dbconfig.getConnection();
 		
 		// parse query file

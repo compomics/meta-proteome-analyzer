@@ -9,7 +9,7 @@ import java.util.List;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Libspectrum;
-import de.mpa.db.accessor.Spectrumfile;
+import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 
@@ -91,10 +91,10 @@ public class SpectrumStorager extends BasicStorager {
             /* Spectrum section */
             HashMap<Object, Object> data = new HashMap<Object, Object>(10);
             // The project id.
-            data.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf(expId));
+            data.put(Searchspectrum.FK_EXPERIMENTID, Long.valueOf(expId));
             // The filename.
             String fileName = mgf.getFilename();
-            data.put(Libspectrum.FILENAME, fileName);
+            data.put(Searchspectrum.FILENAME, fileName);
             
             String spectrumName = "";
             
@@ -108,25 +108,23 @@ public class SpectrumStorager extends BasicStorager {
             // Remove trailing whitespace
             spectrumName = spectrumName.replaceAll("\\s+$", "");
 
-            data.put(Libspectrum.SPECTRUMNAME, spectrumName);
+            data.put(Searchspectrum.SPECTRUMNAME, spectrumName);
             
             // The precursor mass.
-            data.put(Libspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
+            data.put(Searchspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
             
             // The charge
-            data.put(Libspectrum.CHARGE, mgf.getCharge());
+            data.put(Searchspectrum.CHARGE, Long.valueOf(mgf.getCharge()));
             
             // The total intensity.
-            data.put(Libspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
+            data.put(Searchspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
             
             // The highest intensity.
-            data.put(Libspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
+            data.put(Searchspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
 
             // Create the database object.
-            Libspectrum spectrum = new Libspectrum(data);
+            Searchspectrum spectrum = new Searchspectrum(data);
             spectrum.persist(conn);
-
-            /* Spectrumfile section */
 
             // Get the spectrumid from the generated keys.
             Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
@@ -138,17 +136,7 @@ public class SpectrumStorager extends BasicStorager {
             //Fill the maps for caching reasons
             filename2IdMap.put(fileName, spectrumid);
             spectrumname2IdMap.put(spectrumName, spectrumid);
-            // Create the spectrumFile instance.
-            Spectrumfile spectrumFile = new Spectrumfile();
-            spectrumFile.setFk_libspectrumid(spectrumid);
-
-            // Set the filecontent
-            // Read the contents for the file into a byte[].
-            byte[] fileContents = mgf.toString().getBytes();
-            // Set the byte[].
-            spectrumFile.setUnzippedFile(fileContents);
-            // Create the database object.
-            spectrumFile.persist(conn);
+            
             conn.commit();
         }
         MapContainer.Filename2IdMap = filename2IdMap;

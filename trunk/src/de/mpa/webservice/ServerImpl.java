@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayDeque;
+import java.util.Map;
 import java.util.Queue;
 
 import javax.activation.DataHandler;
@@ -77,21 +79,6 @@ public class ServerImpl implements Server {
 	 */
 	public void process(String filename, DbSearchSettings params) {	
 		File file = new File("/scratch/metaprot/data/transfer/" + filename);
-		DBManager dbManager = null;
-		
-		// Upload the spectra to the file server
-//		try {
-//			// 	STORE JOB					
-//			dbManager = new DBManager();
-//			dbManager.storeSpectra(file, "test", "uniprot", 0.5, 0.5, "Da");
-//			
-//		} catch (IOException e) {
-//			log.error(e.getMessage());
-//			e.printStackTrace();
-//		} catch (SQLException ex) {
-//			log.error(ex.getMessage());
-//			ex.printStackTrace();
-//		}
 		
 		// Init the job manager
 		final JobManager jobManager = new JobManager(msgQueue);
@@ -134,25 +121,27 @@ public class ServerImpl implements Server {
 			jobManager.addJob(inspectJob);			
 			PostProcessorJob postProcessorJob = new PostProcessorJob(file, searchDB);			
 			jobManager.addJob(postProcessorJob);			
-			
 		}
-		
-		// Pepnovo job		
-//		PepnovoJob pepnovoJob = new PepnovoJob(file, 0.5); 
-//		jobManager.addJob(pepnovoJob);
-//		
-//		jobManager.addJob(new DeleteJob(file.getAbsolutePath()));
-//		
-//		try {
-//			dbManager.storePepnovoResults(pepnovoJob.getFilename());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-		
 		jobManager.execute();
 		jobManager.clear();
+		
+		// Get the filename map.
+		Map<String, String> filenames = jobManager.getFilenames();
+		DBManager dbManager = null;
+		
+		try {
+			// 	DB Manager instance					
+			dbManager = new DBManager();
+			dbManager.storeSpectra(file);
+			if(params.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM"));
+			if(params.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA"));
+			if(params.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
+			if(params.isInspect()) dbManager.storeInspectResults(filenames.get("INSPECT"));
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		} catch (SQLException ex) {
+			log.error(ex.getMessage());
+		}
 	}
 	
 	@Override		

@@ -5,7 +5,6 @@ package de.mpa.client.ui;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
