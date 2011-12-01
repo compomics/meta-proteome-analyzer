@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +30,17 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.accessor.Pep2prot;
+import de.mpa.db.accessor.Peptide;
+import de.mpa.db.accessor.Protein;
 import de.mpa.db.accessor.Speclibentry;
-import de.mpa.db.accessor.Libspectrum;
-import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.parser.mascot.xml.MascotXMLParser;
 import de.mpa.parser.mascot.xml.PeptideHit;
+import de.mpa.parser.mascot.xml.ProteinHit;
 
 public class SpecLibFrame extends JFrame {
 
@@ -130,7 +134,7 @@ public class SpecLibFrame extends JFrame {
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
 		// components for upload panel
-		JLabel idLbl = new JLabel("ProjectID");
+		JLabel idLbl = new JLabel("ExperimentID");
 		
 		idSpn = new JSpinner();
 		idSpn.setValue(1);
@@ -161,7 +165,7 @@ public class SpecLibFrame extends JFrame {
 				        task.execute();
 
 					} else {
-						JOptionPane.showMessageDialog(frame, "ProjectID needs to be larger than 0.", "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame, "ExperimentID needs to be larger than 0.", "Error", JOptionPane.ERROR_MESSAGE);
 					}					
 				} else {
 					JOptionPane.showMessageDialog(frame, "An equal number of mgf and xml files must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -220,6 +224,9 @@ public class SpecLibFrame extends JFrame {
     			// connect to server
     			DBConfiguration dbconfig = new DBConfiguration("metaprot");
     			Connection conn = dbconfig.getConnection();
+    			
+    			// this list will store identified protein hits to avoid redundant searching further down 
+    			ArrayList<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
 
     			// attention: the order in which files were selected does matter!
     			for (int i = 0; i < mgfFiles.length; i++) {
@@ -230,17 +237,17 @@ public class SpecLibFrame extends JFrame {
     				// parse xml
 //    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i], MascotXMLParser.SUPPRESS_WARNINGS);
     				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i]);
-    				Map<String,PeptideHit> pepMap = readerXML.parse().getPepMap();
+    				Map<String, ArrayList<PeptideHit>> pepMap = readerXML.parse().getPepMap();
 
     				// Iterate over all spectra.
     				for (MascotGenericFile mgf : mgfList) {
-    					HashMap<Object, Object> data = new HashMap<Object, Object>(10);
+    					HashMap<Object, Object> data = new HashMap<Object, Object>(11);
 
     					data.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf((Integer)idSpn.getValue()));
     					data.put(Libspectrum.FILENAME, mgf.getFilename());
     					data.put(Libspectrum.SPECTRUMNAME, mgf.getTitle());
     					data.put(Libspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
-    					data.put(Libspectrum.CHARGE, mgf.getCharge());
+    					data.put(Libspectrum.CHARGE, Long.valueOf((Integer) mgf.getCharge()));
     					data.put(Libspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
     					data.put(Libspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
 
@@ -263,16 +270,96 @@ public class SpecLibFrame extends JFrame {
     					// Create the database object.
     					spectrumFile.persist(conn);
 
-    					// grab peptide annotation if key exists
+    					// grab peptide hits if key exists
     					if (pepMap.containsKey(mgf.getTitle())) {
 
-    						PeptideHit pepHit = pepMap.get(mgf.getTitle());
-    						HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
+    						ArrayList<PeptideHit> pepHits = pepMap.get(mgf.getTitle());
+    						for (PeptideHit pepHit : pepHits) {
 
-    						dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
+								Long peptideID;
+    							String sequence = pepHit.getSequence();
+    							if (sequence.isEmpty()) {	// we don't store empty sequences!
+    								continue;
+    							}
+    							
+    							Peptide peptide = Peptide.findFromSequence(sequence, conn);
+    							if (peptide == null) {	// sequence not yet in database
+        							HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
+        							dataPeptide.put(Peptide.SEQUENCE, pepHit.getSequence());
+        							
+        							peptide = new Peptide(dataPeptide);
+        	    					peptide.persist(conn);
 
-    						Speclibentry libEntry = new Speclibentry(dataSpecLib);
-    						libEntry.persist(conn);
+        	    					// Get the peptide id from the generated keys.
+        	    					peptideID = (Long) peptide.getGeneratedKeys()[0];
+    							} else {
+    								peptideID = peptide.getPeptideid();
+    							}
+        						
+        						HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
+
+        						dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
+        						dataSpecLib.put(Speclibentry.FK_PEPTIDEID, peptideID);
+
+        						Speclibentry libEntry = new Speclibentry(dataSpecLib);
+        						libEntry.persist(conn);
+        						
+        						// associate peptides with proteins
+        						ProteinHit proteinHit = pepHit.getParentProteinHit();
+        						
+        						if (proteinHits.contains(proteinHit)) {	// for now skip redundant hits
+        							// TODO: link new peptide to old hit
+        						} else {
+            						ArrayList<String> accessions   = (ArrayList<String>) proteinHit.getAccessions();
+            						ArrayList<String> descriptions = (ArrayList<String>) proteinHit.getDescriptions();
+            						        						
+            						for (int j = 0; j < accessions.size(); j++) {
+            							
+        								Long proteinID;
+    									String accession = accessions.get(j);
+    									String description = descriptions.get(j);
+    									if ((accession == null) && (description == null)) {
+    										continue;	// no use looking for proteins without attributes!
+    									}
+    									
+    	        						Protein protein = Protein.findFromAttributes(accession, description, conn);
+    	        						if (protein == null) {	// protein not yet in database
+    	        							HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(3);
+    	        							dataProtein.put(Protein.ACCESSION, accession);
+    	        							dataProtein.put(Protein.DESCRIPTION, description);
+    	        							
+    	        							protein = new Protein(dataProtein);
+    	        							protein.persist(conn);
+
+    	        	    					// get the protein id from the generated keys.
+    	        	    					proteinID = (Long) protein.getGeneratedKeys()[0];
+    	        	    					
+    	        	    					// since this is a new protein we also create a new pep2prot entry
+    	        	    					// to link it to the peptide (no redundancy check needed)
+    	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
+    	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
+    	        	    					dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
+    	        	    					
+    	        	    					Pep2prot pep2prot = new Pep2prot(dataPep2Prot);
+    	        	    					pep2prot.persist(conn);
+    	    							} else {
+    	    								proteinID = protein.getProteinid();
+    	    								// check whether pep2prot link already exists, otherwise create one
+    	    								Pep2prot pep2prot = Pep2prot.findFromIDs(peptideID, proteinID, conn);
+    	    								if (pep2prot == null) {	// link doesn't exist yet
+        	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
+        	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
+        	        	    					dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
+
+        	        	    					pep2prot = new Pep2prot(dataPep2Prot);
+        	        	    					pep2prot.persist(conn);
+    	    								}
+    	    							}
+    								}
+        							
+            						proteinHits.add(proteinHit);
+        						}
+							}
     					}
                         progress += 1;
                         setProgress((int)((double)progress/max*100));
@@ -302,8 +389,8 @@ public class SpecLibFrame extends JFrame {
 		int res = 0;
 		for (File mgf : mgfFiles) {
 			try {
-				MascotGenericFileReader reader = new MascotGenericFileReader(mgf);
-				res += reader.getSpectrumFiles().size();
+				MascotGenericFileReader reader = new MascotGenericFileReader(mgf, MascotGenericFileReader.SURVEY);
+				res += reader.getSpectrumPositions().size();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

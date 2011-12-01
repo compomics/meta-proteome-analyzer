@@ -7,13 +7,16 @@ package de.mpa.parser.mascot.xml;
 //import******************************************************************************
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 /**
@@ -68,60 +71,121 @@ public class MascotXMLParser {
 				}
 			}
 			// generate list of protein hits		
-			List<Proteinhit> proteinHits = new ArrayList<Proteinhit>();
+			List<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
 			// grab all <hit> nodes
 			NodeList hitList = doc.getElementsByTagName("hit");
 			// iterate over hitList
 			for (int i = 0; i < hitList.getLength(); i++) {
-				Proteinhit proteinHit = new Proteinhit();
+				ProteinHit proteinHit = new ProteinHit();
 				Node hitNode = hitList.item(i);
 				
 				int num = Integer.parseInt(hitNode.getAttributes().item(0).getNodeValue());
-				proteinHit.setNumber(num);
+				proteinHit.setHitNumber(num);
 				
 				// check for element node
 				if (hitNode.getNodeType() == Node.ELEMENT_NODE) {					
-					Element hitElement = (Element) hitNode;				
-					// get protein accession
-					proteinHit.setAccession(hitElement.getElementsByTagName("protein").item(0).getAttributes().item(0).getNodeValue());
-					// get protein description
-					try {
-						proteinHit.setDescription(getTagValue("prot_desc", hitElement));
-					} catch (Exception e) {
-						if (verbose) {
-							System.out.println("WARNING: no prot_desc found at protein hit " + num + 
-									" in file " + xmlFile.getName());
+					Element hitElement = (Element) hitNode;	
+
+					ArrayList<String> accessions = new ArrayList<String>();
+					ArrayList<String> descriptions = new ArrayList<String>();
+					ArrayList<Double> scores = new ArrayList<Double>();
+					ArrayList<Double> masses = new ArrayList<Double>();
+					
+					// gather protein attributes
+					NodeList protList = hitElement.getElementsByTagName("protein");
+					for (int j = 0; j < protList.getLength(); j++) {
+						Node protNode = protList.item(j);
+						Element protElement = (Element) protNode;
+						accessions.add(protNode.getAttributes().item(0).getNodeValue());
+						// get protein accession
+						try {
+							descriptions.add(getTagValue("prot_desc", protElement));
+						} catch (Exception e) {
+							if (verbose) {
+								System.out.println("WARNING: no prot_desc found at hit " + num + 
+										" in protein " + (j+1) + " in file " + xmlFile.getName());
+							}
+							descriptions.add(null);
 						}
-					}					
-					// get protein score
-					try {
-						proteinHit.setScore(Double.parseDouble(getTagValue("prot_score", hitElement)));
-					} 
-					catch (Exception e) {
-						if (verbose) {
-							System.out.println("WARNING: no prot_score found at protein hit " + num + 
-								" in file " + xmlFile.getName());
+						// get protein score
+						try {
+							scores.add(Double.parseDouble(getTagValue("prot_score", protElement)));
+						} catch (Exception e) {
+							if (verbose) {
+								System.out.println("WARNING: no prot_score found at hit " + num + 
+										" in protein " + (j+1) + " in file " + xmlFile.getName());
+							}
+							scores.add(null);
+						}
+						// get protein mass
+						try {
+							masses.add(Double.parseDouble(getTagValue("prot_mass", protElement)));
+						} catch (Exception e) {
+							if (verbose) {
+								System.out.println("WARNING: no prot_mass found at hit " + num + 
+										" in protein " + (j+1) + " in file " + xmlFile.getName());
+							}
+							masses.add(null);
 						}
 					}
-					// get protein mass
-					try {
-						proteinHit.setMass(Double.parseDouble(getTagValue("prot_mass", hitElement)));
-					} 
-					catch (Exception e) {
-						if (verbose) {
-							System.out.println("WARNING: no prot_mass found at protein hit " + num + 
-								" in file " + xmlFile.getName());
-						}
-					}
+					
+					// store protein attributes
+					proteinHit.setAccessions(accessions);
+					proteinHit.setDescriptions(descriptions);
+					proteinHit.setScores(scores);
+					proteinHit.setMasses(masses);
+					
+//					// get protein accession
+//					proteinHit.setAccessions(hitElement.getElementsByTagName("protein").item(0).getAttributes().item(0).getNodeValue());
+//					// get protein description
+//					try {
+//						proteinHit.setDescriptions(getTagValue("prot_desc", hitElement));
+//					} catch (Exception e) {
+//						if (verbose) {
+//							System.out.println("WARNING: no prot_desc found at protein hit " + num + 
+//									" in file " + xmlFile.getName());
+//						}
+//					}					
+//					// get protein score
+//					try {
+//						proteinHit.setScores(Double.parseDouble(getTagValue("prot_score", hitElement)));
+//					} 
+//					catch (Exception e) {
+//						if (verbose) {
+//							System.out.println("WARNING: no prot_score found at protein hit " + num + 
+//								" in file " + xmlFile.getName());
+//						}
+//					}
+//					// get protein mass
+//					try {
+//						proteinHit.setMasses(Double.parseDouble(getTagValue("prot_mass", hitElement)));
+//					} 
+//					catch (Exception e) {
+//						if (verbose) {
+//							System.out.println("WARNING: no prot_mass found at protein hit " + num + 
+//								" in file " + xmlFile.getName());
+//						}
+//					}
 
 					// grab peptide hits
-					List<PeptideHit> peptideHits = new ArrayList<PeptideHit>();	
-					NodeList peptideList = hitElement.getElementsByTagName("peptide");
+					List<PeptideHit> peptideHits = new ArrayList<PeptideHit>();
+					// peptide list is always the same for every protein child node in a hit,
+					// therefore simply grab from first child
+					NodeList peptideList = ((Element) protList.item(0)).getElementsByTagName("peptide");
 					// iterate over peptides in peptideList
 					for (int j = 0; j < peptideList.getLength(); j++) {
-						PeptideHit peptideHit = new PeptideHit(proteinHit.getAccession());
-						Node peptideNode = peptideList.item(j);		
-						peptideHit.setDescription(peptideNode.getAttributes().item(0) +" "+ peptideNode.getAttributes().item(1)+" "+ peptideNode.getAttributes().item(2));
+						PeptideHit peptideHit = new PeptideHit(proteinHit);
+						
+						Node peptideNode = peptideList.item(j);
+						
+						NamedNodeMap pepAttributes = peptideNode.getAttributes();
+						Map<String, String> attributes = new HashMap<String, String>(3);
+						for (int k = 0; k < pepAttributes.getLength(); k++) {
+							Node item = pepAttributes.item(k);
+							attributes.put(item.getNodeName(), item.getNodeValue());
+						}
+						peptideHit.setAttributes(attributes);
+						
 						Element peptideElement = (Element) peptideNode;
 						// query rest
 						if (peptideNode.getNodeType() == Node.ELEMENT_NODE) {					
@@ -167,11 +231,11 @@ public class MascotXMLParser {
 							}
 						}
 						// add peptideHit to list of hits
-						peptideHits.add(peptideHit);	
-						mascotRecord.addEntry(peptideHit.getScanTitle(), peptideHit);
+						peptideHits.add(peptideHit);
+						mascotRecord.addPepMapEntry(peptideHit.getScanTitle(), peptideHit);
 					}
 					// add list of hits to proteinHit
-					proteinHit.setPeptideHits(peptideHits);		
+					proteinHit.setPeptideHits(peptideHits);
 				}
 				proteinHits.add(proteinHit);
 			}

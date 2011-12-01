@@ -170,7 +170,7 @@ public class Client {
 	 * @param procSet
 	 * @return resultMap
 	 */
-	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet){
+	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet) {
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		

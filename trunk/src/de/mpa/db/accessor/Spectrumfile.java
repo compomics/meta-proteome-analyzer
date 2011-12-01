@@ -56,7 +56,7 @@ public class Spectrumfile extends SpectrumfileTableAccessor {
      */
     public static Spectrumfile findFromID(long spectrumID, Connection conn) throws SQLException {
     	Spectrumfile temp = null;
-        PreparedStatement ps = conn.prepareStatement(Spectrumfile.getBasicSelect() + " where l_spectrumid=?");
+        PreparedStatement ps = conn.prepareStatement(Spectrumfile.getBasicSelect() + " where fk_libspectrumid = ?");
         ps.setLong(1, spectrumID);
         ResultSet rs = ps.executeQuery();
         int lCounter = 0;

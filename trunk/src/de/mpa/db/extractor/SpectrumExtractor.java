@@ -70,8 +70,11 @@ public class SpectrumExtractor {
 		
 		// Iterate the spectral library entries.
 		for (Libspectrum entry : entries) {
+			String sequence = null;
+			String annotation = null;
+//			entry.getLibspectrumid()
 			MascotGenericFile mgf = getUnzippedFile(entry.getLibspectrumid());
-			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), "hmm", "mhh"));	// TODO
+			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), sequence, annotation));
 		}
 		
 		return spectra;

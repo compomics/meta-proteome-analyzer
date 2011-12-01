@@ -136,7 +136,6 @@ public class ClientFrame extends JFrame {
 							 ((DefaultMutableTreeNode)fileTree.getModel().getRoot()).getLeafCount() +
 							 " spectra selected");
 			}
-			super.repaint();
 		}		
 	};
     private JButton sendBtn;
@@ -148,11 +147,8 @@ public class ClientFrame extends JFrame {
 	private JProgressBar procPrg;
 	private JProgressBar searchPrg;
 	
-//	private ArrayList<MascotGenericFile> spectrumFiles = new ArrayList<MascotGenericFile>();
-	
 	private boolean connectedToServer = false;
 	
-	private JTable queryTbl;
 	private JTable libTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 	
@@ -1458,7 +1454,7 @@ public class ClientFrame extends JFrame {
 														  (Double) thScSpn.getValue(),
 														  (Boolean) annotChk.isSelected());
 			
-			resultMap = new HashMap<String,ArrayList<RankedLibrarySpectrum>>();
+			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
 			for (File file : files) {
 				resultMap.putAll(client.process(file,procSet));
 				progress++;

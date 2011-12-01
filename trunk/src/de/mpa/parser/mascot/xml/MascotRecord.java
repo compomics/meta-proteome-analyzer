@@ -1,4 +1,6 @@
 package de.mpa.parser.mascot.xml;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,14 +17,24 @@ public class MascotRecord {
 	private String xmlFilename = "";
 	private String uri = "";
 	private String mascotFilename = "";
-	private List<Proteinhit> proteinHits;
-	private Map<String,PeptideHit> pepMap = new HashMap<String, PeptideHit>();
+	private List<ProteinHit> proteinHits;
+	private Map<String, ArrayList<PeptideHit>> pepMap = new HashMap<String, ArrayList<PeptideHit>>();
 	
 	private int numQueries = 0;
 
 	// class methods
-	public void addEntry(String key,PeptideHit value){
-		pepMap.put(key, value);			
+	public void addPepMapEntry(String key, PeptideHit value) {
+		ArrayList<PeptideHit> hitList;
+		if (pepMap.containsKey(key)) {
+			// append new hit to existing ones if key already exists
+			hitList = pepMap.get(key);
+			// remove old map entry, replace with new list
+			pepMap.remove(key);
+		} else {
+			hitList = new ArrayList<PeptideHit>();
+		}
+		hitList.add(value);
+		pepMap.put(key, hitList);
 	}
 
 	public String getXmlFilename() {
@@ -46,17 +58,17 @@ public class MascotRecord {
 		this.mascotFilename = mascotFilename;
 	}
 
-	public List<Proteinhit> getProteinHits() {
+	public List<ProteinHit> getProteinHits() {
 		return proteinHits;
 	}
-	public void setProteinHits(List<Proteinhit> proteinHits) {
+	public void setProteinHits(List<ProteinHit> proteinHits) {
 		this.proteinHits = proteinHits;
 	}
 	
-	public Map<String, PeptideHit> getPepMap() {
+	public Map<String, ArrayList<PeptideHit>> getPepMap() {
 		return pepMap;
 	}
-	public void setPepMap(Map<String, PeptideHit> pepMap) {
+	public void setPepMap(Map<String, ArrayList<PeptideHit>> pepMap) {
 		this.pepMap = pepMap;
 	}
 

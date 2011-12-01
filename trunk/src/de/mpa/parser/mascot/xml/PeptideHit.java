@@ -1,23 +1,20 @@
 package de.mpa.parser.mascot.xml;
-/* Name:				RobbiesDomParser
- * Last changed:		02.11.2011
- * Author:				Robbie
- * Description:			object representing xml peptide hit
- */
+
+import java.util.Map;
 
 public class PeptideHit {
 
 	// class variables
 	private String scanTitle = "";
-	private String description = "";
+	private Map<String, String> attributes;
 	private String sequence = "";
-	private String proteinAccession = "";
+	private ProteinHit parentProteinHit;
 	private double mz = 0.0;
-	private int charge = 0;	
-	
+	private int charge = 0;
+
 	// constructors
-	public PeptideHit(String proteinAccession) {
-		this.proteinAccession = proteinAccession;
+	public PeptideHit(ProteinHit parentProteinHit) {
+		this.setParentProteinHit(parentProteinHit);
 	}
 	
 	// methods
@@ -28,11 +25,11 @@ public class PeptideHit {
 		this.scanTitle = title;
 	}
 	
-	public String getDescription() {
-		return description;
+	public Map<String, String> getAttributes() {
+		return attributes;
 	}
-	public void setDescription(String description) {
-		this.description = description;
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
 	}
 	
 	public String getSequence() {
@@ -42,11 +39,11 @@ public class PeptideHit {
 		this.sequence = sequence;
 	}
 	
-	public String getProteinAccession() {
-		return proteinAccession;
+	public ProteinHit getParentProteinHit() {
+		return parentProteinHit;
 	}	
-	public void setProteinAccession(String proteinAccession) {
-		this.proteinAccession = proteinAccession;
+	public void setParentProteinHit(ProteinHit parentProteinHit) {
+		this.parentProteinHit = parentProteinHit;
 	}
 	
 	public double getMz() {
