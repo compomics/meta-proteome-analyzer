@@ -53,4 +53,32 @@ public class Speclibentry extends SpeclibentryTableAccessor {
         ps.close();
         return temp;
     }
+    
+    /**
+     * This method will find a spectrum file from the current connection, based on the specified spectrumid.
+     *
+     * @param aSpectrumID long with the spectrumid of the spectrum file to find.
+     * @param aConn           Connection to read the spectrum File from.
+     * @return Spectrumfile with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static Speclibentry findFromID(long aSpectrumID, Connection aConn) throws SQLException {
+    	Speclibentry temp = null;
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where libspectrumid = ?");
+        ps.setLong(1, aSpectrumID);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp = new Speclibentry(rs);
+        }
+        rs.close();
+        ps.close();
+        if (counter != 1) {
+            SQLException sqe = new SQLException("Select based on spectrum ID '" + aSpectrumID + "' resulted in " + counter + " results instead of 1!");
+            sqe.printStackTrace();
+            throw sqe;
+        }
+        return temp;
+    }
 }

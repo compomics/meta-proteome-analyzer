@@ -150,7 +150,7 @@ public class Libspectrum extends LibspectrumTableAccessor {
      */
     public static Libspectrum findFromID(long aSpectrumID, Connection aConn) throws SQLException {
         Libspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where spectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where libspectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -178,7 +178,7 @@ public class Libspectrum extends LibspectrumTableAccessor {
      */
     public static List<Libspectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Libspectrum> temp = new ArrayList<Libspectrum>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE precursor_mz >= ? AND precursor_mz <= ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
         ResultSet rs = ps.executeQuery();
