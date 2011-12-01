@@ -58,7 +58,7 @@ public class CruxJob extends Job{
 		procCommands.trimToSize();
 
 		procBuilder = new ProcessBuilder(procCommands);
-		setDescription("CRUX JOB");
+		setDescription("CRUX");
 		
 		procBuilder.directory(cruxFile);
 		// set error out and std out to same stream

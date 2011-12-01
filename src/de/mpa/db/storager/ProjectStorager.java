@@ -41,38 +41,15 @@ public class ProjectStorager extends BasicStorager {
 	 */
 	private long taxonid;
 	
-	/**
-	 * This variable holds the species name aka. the search database (fasta-format).
-	 */
-	private final String species;
-	
-	/**
-	 * This variable holds the fragment ion tolerance aka. the fragment mass error.
-	 */
-	private final double fragmentTol;
-	
-	/**
-	 * This variable holds the precursor ion tolerance aka. the precursor mass error.
-	 */
-	private final double precursorTol;
-	
-	/**
-	 * This variable holds Da or ppm as precursor unit.
-	 */
-	private final String precursorUnit;
 
 	/**
      * Constructor with project title as parameter.
      * @param conn
      * @param projectid
      */
-    public ProjectStorager(final Connection conn, final String title, final String species, final double fragmentTol, final double precursorTol, final String precursorUnit) {
+    public ProjectStorager(final Connection conn, final String title) {
     	this.conn = conn;
         this.title = title;
-        this.species = species;
-        this.fragmentTol = fragmentTol;
-        this.precursorTol = precursorTol;
-        this.precursorUnit = precursorUnit;
     }
 
     /**
@@ -100,7 +77,7 @@ public class ProjectStorager extends BasicStorager {
             final HashMap<Object, Object> projectdata = new HashMap<Object, Object>(8);
             
             if(project == null){
-            	// The taxon id                
+            	// The title              
                 projectdata.put(Project.TITLE, title);
                 // Create the project database object.
                 final Project newProject = new Project(projectdata);

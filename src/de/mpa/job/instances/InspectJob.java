@@ -85,7 +85,7 @@ public class InspectJob extends Job {
 		
 		procCommands.trimToSize();
 
-		setDescription("INSPECT JOB");
+		setDescription("INSPECT");
 		procBuilder = new ProcessBuilder(procCommands);
 
 		procBuilder.directory(inspectFile);

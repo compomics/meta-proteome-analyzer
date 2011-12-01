@@ -23,6 +23,9 @@ public abstract class Job implements Executable{
 	// Default description is an empty string
 	private String description = "";
 	
+	// Filename representing the file.
+	private String filename;
+	
 	/**
 	 * The ProcessBuilder object
 	 */
@@ -134,6 +137,14 @@ public abstract class Job implements Executable{
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	/**
+	 * Returns the filename for an job specific file.
+	 * @return
+	 */
+	public String getFilename(){
+		return filename;
 	}
 }
 

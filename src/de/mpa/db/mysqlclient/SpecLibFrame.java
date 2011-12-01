@@ -222,7 +222,7 @@ public class SpecLibFrame extends JFrame {
         	
         	try {
     			// connect to server
-    			DBConfiguration dbconfig = new DBConfiguration("metaprot");
+    			DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
     			Connection conn = dbconfig.getConnection();
     			
     			// this list will store identified protein hits to avoid redundant searching further down 

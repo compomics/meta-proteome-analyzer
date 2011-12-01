@@ -11,19 +11,22 @@ import java.sql.SQLException;
  */
 public class DBConfiguration {
 
-    private Connection connection;
+    private Connection conn;
 	private static String JDBCDRIVER = "com.mysql.jdbc.Driver";
-    private static String URL_1 = "jdbc:mysql://metaprot";
+    private static String URL_LOCALE = "jdbc:mysql://192.168.30.102";
+    private static String URL_REMOTE = "jdbc:mysql://metaprot";
     private static String URL_2 = ":3306/";
     private static String USER = "metaroot";
     private static String PASS = "test";
     private String dbName;
+	private boolean locale;
     /**
      * Constructor of the DatabaseStarter.
      * @param awsCredentials
      */
-    public DBConfiguration(String dbName){
+    public DBConfiguration(String dbName, boolean locale){
     	this.dbName = dbName;
+    	this.locale = locale;
         initConnection();
     }
     
@@ -37,9 +40,11 @@ public class DBConfiguration {
 			Class.forName(JDBCDRIVER);
 
 			// Do the connection to the DB
-
-			connection = DriverManager.getConnection(URL_1 + URL_2 + dbName, USER, PASS);
+			if(locale) conn = DriverManager.getConnection(URL_LOCALE + URL_2 + dbName, USER, PASS);
+			else conn = DriverManager.getConnection(URL_REMOTE + URL_2 + dbName, USER, PASS);
+			
 		} catch (SQLException e) {
+			System.out.println("SQL state: " + e.getSQLState());
 			e.printStackTrace();
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
@@ -51,6 +56,6 @@ public class DBConfiguration {
      * @return connection Connection instance
      */
     public Connection getConnection() {
-        return connection;
+        return conn;
     }
 }

@@ -1,9 +1,10 @@
 package de.mpa.job;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
@@ -27,12 +28,15 @@ public class JobManager {
 	
 	private Queue<Message> msgQueue;
 	
+	private Map<String, String> filenameMap; 
+	
 	/**
 	 * Constructor for the job manager.
 	 */
 	public JobManager(Queue<Message> msgQueue){
 		this.jobQueue = new ArrayDeque<Job>();
 		this.msgQueue = msgQueue;
+		this.filenameMap = new HashMap<String, String>();
 	}
 	
 	/**
@@ -57,14 +61,13 @@ public class JobManager {
 	public void execute(){
 		// Iterate the job queue
 		for(Job job : jobQueue){		
-			System.out.println(job.getDescription());
-			System.out.println(job.getError());
 			if(job instanceof MS2FormatJob){
 				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
 				ms2formatjob.run();
 			} else {
 				// Set the job status to RUNNING and put the message in the queue
 				msgQueue.add(new Message(job, JobStatus.RUNNING.toString(), new Date()));
+				filenameMap.put(job.getDescription(), job.getFilename());
 				job.execute();
 			}
 			if (job.getStatus() == JobStatus.ERROR){
@@ -73,7 +76,6 @@ public class JobManager {
 			// Set the job status to FINISHED and put the message in the queue
 			msgQueue.add(new Message(job, JobStatus.FINISHED.toString(), new Date()));
 		}
-		
 	}
 	
 	/**
@@ -89,5 +91,13 @@ public class JobManager {
 	 */	
 	public void clear(){		
 		jobQueue.clear();
+	}
+	
+	/**
+	 * Returns the filenames.
+	 * @return filename map The Map<String, String>
+	 */
+	public Map<String, String> getFilenames(){
+		return filenameMap;
 	}
 }

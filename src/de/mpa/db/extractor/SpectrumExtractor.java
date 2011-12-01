@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.mpa.algorithms.LibrarySpectrum;
+import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Speclibentry;
-import de.mpa.db.accessor.Libspectrum;
-import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 

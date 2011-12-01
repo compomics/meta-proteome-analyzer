@@ -6,7 +6,6 @@ import java.awt.Component;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTree;
-import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 

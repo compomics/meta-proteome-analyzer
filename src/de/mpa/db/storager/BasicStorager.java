@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 public abstract class BasicStorager implements Storager {
 	
 	private Connection conn;
-	private Logger log = Logger.getLogger(getClass());
+	protected Logger log = Logger.getLogger(getClass());
 	
 	@Override
 	public void run() {

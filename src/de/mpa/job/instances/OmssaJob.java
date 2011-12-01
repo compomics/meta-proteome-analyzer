@@ -127,7 +127,7 @@ public class OmssaJob extends Job {
         procCommands.add(filename);
         procCommands.trimToSize();
         
-        setDescription("OMSSA JOB");
+        setDescription("OMSSA");
         procBuilder = new ProcessBuilder(procCommands);
         procBuilder.directory(omssaFile);
         
