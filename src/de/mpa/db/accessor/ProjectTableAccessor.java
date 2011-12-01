@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 29/11/2011
- * Time: 14:13:47
+ * Date: 01/12/2011
+ * Time: 14:55:00
  */
 package de.mpa.db.accessor;
 

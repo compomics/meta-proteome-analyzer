@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 29/11/2011
- * Time: 14:14:00
+ * Date: 01/12/2011
+ * Time: 14:55:14
  */
 package de.mpa.db.accessor;
 
@@ -42,9 +42,15 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
-	 * This variable represents the contents for the 'annotation' column.
+	 * This variable represents the contents for the 'accession' column.
 	 */
-	protected String iAnnotation = null;
+	protected String iAccession = null;
+
+
+	/**
+	 * This variable represents the contents for the 'description' column.
+	 */
+	protected String iDescription = null;
 
 
 	/**
@@ -53,9 +59,14 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	public static final String PROTEINID = "PROTEINID";
 
 	/**
-	 * This variable represents the key for the 'annotation' column.
+	 * This variable represents the key for the 'accession' column.
 	 */
-	public static final String ANNOTATION = "ANNOTATION";
+	public static final String ACCESSION = "ACCESSION";
+
+	/**
+	 * This variable represents the key for the 'description' column.
+	 */
+	public static final String DESCRIPTION = "DESCRIPTION";
 
 
 
@@ -76,8 +87,11 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(PROTEINID)) {
 			this.iProteinid = ((Long)aParams.get(PROTEINID)).longValue();
 		}
-		if(aParams.containsKey(ANNOTATION)) {
-			this.iAnnotation = (String)aParams.get(ANNOTATION);
+		if(aParams.containsKey(ACCESSION)) {
+			this.iAccession = (String)aParams.get(ACCESSION);
+		}
+		if(aParams.containsKey(DESCRIPTION)) {
+			this.iDescription = (String)aParams.get(DESCRIPTION);
 		}
 		this.iUpdated = true;
 	}
@@ -92,7 +106,8 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public ProteinTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iProteinid = aResultSet.getLong("proteinid");
-		this.iAnnotation = (String)aResultSet.getObject("annotation");
+		this.iAccession = (String)aResultSet.getObject("accession");
+		this.iDescription = (String)aResultSet.getObject("description");
 
 		this.iUpdated = true;
 	}
@@ -108,12 +123,21 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method returns the value for the 'Annotation' column
+	 * This method returns the value for the 'Accession' column
 	 * 
-	 * @return	String	with the value for the Annotation column.
+	 * @return	String	with the value for the Accession column.
 	 */
-	public String getAnnotation() {
-		return this.iAnnotation;
+	public String getAccession() {
+		return this.iAccession;
+	}
+
+	/**
+	 * This method returns the value for the 'Description' column
+	 * 
+	 * @return	String	with the value for the Description column.
+	 */
+	public String getDescription() {
+		return this.iDescription;
 	}
 
 	/**
@@ -127,12 +151,22 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method sets the value for the 'Annotation' column
+	 * This method sets the value for the 'Accession' column
 	 * 
-	 * @param	aAnnotation	String with the value for the Annotation column.
+	 * @param	aAccession	String with the value for the Accession column.
 	 */
-	public void setAnnotation(String aAnnotation) {
-		this.iAnnotation = aAnnotation;
+	public void setAccession(String aAccession) {
+		this.iAccession = aAccession;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Description' column
+	 * 
+	 * @param	aDescription	String with the value for the Description column.
+	 */
+	public void setDescription(String aDescription) {
+		this.iDescription = aDescription;
 		this.iUpdated = true;
 	}
 
@@ -174,7 +208,8 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		while(lRS.next()) {
 			hits++;
 			iProteinid = lRS.getLong("proteinid");
-			iAnnotation = (String)lRS.getObject("annotation");
+			iAccession = (String)lRS.getObject("accession");
+			iDescription = (String)lRS.getObject("description");
 		}
 		lRS.close();
 		lStat.close();
@@ -224,10 +259,11 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE protein SET proteinid = ?, annotation = ? WHERE proteinid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE protein SET proteinid = ?, accession = ?, description = ? WHERE proteinid = ?");
 		lStat.setLong(1, iProteinid);
-		lStat.setObject(2, iAnnotation);
-		lStat.setLong(3, iProteinid);
+		lStat.setObject(2, iAccession);
+		lStat.setObject(3, iDescription);
+		lStat.setLong(4, iProteinid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -242,16 +278,21 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, annotation) values(?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description) values(?, ?, ?)");
 		if(iProteinid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iProteinid);
 		}
-		if(iAnnotation == null) {
+		if(iAccession == null) {
 			lStat.setNull(2, 12);
 		} else {
-			lStat.setObject(2, iAnnotation);
+			lStat.setObject(2, iAccession);
+		}
+		if(iDescription == null) {
+			lStat.setNull(3, -1);
+		} else {
+			lStat.setObject(3, iDescription);
 		}
 		int result = lStat.executeUpdate();
 

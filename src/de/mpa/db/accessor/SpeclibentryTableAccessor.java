@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 29/11/2011
- * Time: 14:14:03
+ * Date: 01/12/2011
+ * Time: 14:55:17
  */
 package de.mpa.db.accessor;
 
@@ -54,24 +54,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 
 
 	/**
-	 * This variable represents the contents for the 'precursor_mz' column.
-	 */
-	protected Number iPrecursor_mz = null;
-
-
-	/**
-	 * This variable represents the contents for the 'sequence' column.
-	 */
-	protected String iSequence = null;
-
-
-	/**
-	 * This variable represents the contents for the 'annotation' column.
-	 */
-	protected String iAnnotation = null;
-
-
-	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
 	protected java.sql.Timestamp iCreationdate = null;
@@ -97,21 +79,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * This variable represents the key for the 'fk_peptideid' column.
 	 */
 	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
-
-	/**
-	 * This variable represents the key for the 'precursor_mz' column.
-	 */
-	public static final String PRECURSOR_MZ = "PRECURSOR_MZ";
-
-	/**
-	 * This variable represents the key for the 'sequence' column.
-	 */
-	public static final String SEQUENCE = "SEQUENCE";
-
-	/**
-	 * This variable represents the key for the 'annotation' column.
-	 */
-	public static final String ANNOTATION = "ANNOTATION";
 
 	/**
 	 * This variable represents the key for the 'creationdate' column.
@@ -148,15 +115,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(PRECURSOR_MZ)) {
-			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
-		}
-		if(aParams.containsKey(SEQUENCE)) {
-			this.iSequence = (String)aParams.get(SEQUENCE);
-		}
-		if(aParams.containsKey(ANNOTATION)) {
-			this.iAnnotation = (String)aParams.get(ANNOTATION);
-		}
 		if(aParams.containsKey(CREATIONDATE)) {
 			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
 		}
@@ -178,9 +136,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		this.iSpeclibid = aResultSet.getLong("speclibid");
 		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
-		this.iSequence = (String)aResultSet.getObject("sequence");
-		this.iAnnotation = (String)aResultSet.getObject("annotation");
 		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
 		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
@@ -213,33 +168,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public long getFk_peptideid() {
 		return this.iFk_peptideid;
-	}
-
-	/**
-	 * This method returns the value for the 'Precursor_mz' column
-	 * 
-	 * @return	Number	with the value for the Precursor_mz column.
-	 */
-	public Number getPrecursor_mz() {
-		return this.iPrecursor_mz;
-	}
-
-	/**
-	 * This method returns the value for the 'Sequence' column
-	 * 
-	 * @return	String	with the value for the Sequence column.
-	 */
-	public String getSequence() {
-		return this.iSequence;
-	}
-
-	/**
-	 * This method returns the value for the 'Annotation' column
-	 * 
-	 * @return	String	with the value for the Annotation column.
-	 */
-	public String getAnnotation() {
-		return this.iAnnotation;
 	}
 
 	/**
@@ -287,36 +215,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public void setFk_peptideid(long aFk_peptideid) {
 		this.iFk_peptideid = aFk_peptideid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Precursor_mz' column
-	 * 
-	 * @param	aPrecursor_mz	Number with the value for the Precursor_mz column.
-	 */
-	public void setPrecursor_mz(Number aPrecursor_mz) {
-		this.iPrecursor_mz = aPrecursor_mz;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Sequence' column
-	 * 
-	 * @param	aSequence	String with the value for the Sequence column.
-	 */
-	public void setSequence(String aSequence) {
-		this.iSequence = aSequence;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Annotation' column
-	 * 
-	 * @param	aAnnotation	String with the value for the Annotation column.
-	 */
-	public void setAnnotation(String aAnnotation) {
-		this.iAnnotation = aAnnotation;
 		this.iUpdated = true;
 	}
 
@@ -380,9 +278,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 			iSpeclibid = lRS.getLong("speclibid");
 			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
-			iSequence = (String)lRS.getObject("sequence");
-			iAnnotation = (String)lRS.getObject("annotation");
 			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
 			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
@@ -434,15 +329,12 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE speclibentry SET speclibid = ?, fk_spectrumid = ?, fk_peptideid = ?, precursor_mz = ?, sequence = ?, annotation = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE speclibid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE speclibentry SET speclibid = ?, fk_spectrumid = ?, fk_peptideid = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE speclibid = ?");
 		lStat.setLong(1, iSpeclibid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
-		lStat.setObject(4, iPrecursor_mz);
-		lStat.setObject(5, iSequence);
-		lStat.setObject(6, iAnnotation);
-		lStat.setObject(7, iCreationdate);
-		lStat.setLong(8, iSpeclibid);
+		lStat.setObject(4, iCreationdate);
+		lStat.setLong(5, iSpeclibid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -457,7 +349,7 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO speclibentry (speclibid, fk_spectrumid, fk_peptideid, precursor_mz, sequence, annotation, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO speclibentry (speclibid, fk_spectrumid, fk_peptideid, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iSpeclibid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -472,21 +364,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 			lStat.setNull(3, 4);
 		} else {
 			lStat.setLong(3, iFk_peptideid);
-		}
-		if(iPrecursor_mz == null) {
-			lStat.setNull(4, 3);
-		} else {
-			lStat.setObject(4, iPrecursor_mz);
-		}
-		if(iSequence == null) {
-			lStat.setNull(5, 12);
-		} else {
-			lStat.setObject(5, iSequence);
-		}
-		if(iAnnotation == null) {
-			lStat.setNull(6, 12);
-		} else {
-			lStat.setObject(6, iAnnotation);
 		}
 		int result = lStat.executeUpdate();
 
