@@ -270,9 +270,6 @@ public class SpecLibFrame extends JFrame {
     						HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
 
     						dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
-    						dataSpecLib.put(Speclibentry.PRECURSOR_MZ, pepHit.getMz());
-    						dataSpecLib.put(Speclibentry.SEQUENCE, pepHit.getSequence());
-    						dataSpecLib.put(Speclibentry.ANNOTATION, pepHit.getProteinAccession());
 
     						Speclibentry libEntry = new Speclibentry(dataSpecLib);
     						libEntry.persist(conn);
