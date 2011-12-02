@@ -17,10 +17,12 @@ import java.util.StringTokenizer;
 
 import org.xml.sax.SAXException;
 
+import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.proteinms.xtandemparser.xtandem.Peptide;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;
+import de.proteinms.xtandemparser.xtandem.ProteinMap;
 import de.proteinms.xtandemparser.xtandem.Spectrum;
 import de.proteinms.xtandemparser.xtandem.XTandemFile;
 
@@ -98,6 +100,9 @@ public class XTandemStorager extends BasicStorager {
         // Prepare everything for the peptides.
         PeptideMap pepMap = xTandemFile.getPeptideMap();
         
+        // ProteinMap protMap 
+        ProteinMap protMap = xTandemFile.getProteinMap();
+        
         // DomainID as key, xtandemID as value.
         domainMap = new HashMap<String, Long>();
         
@@ -126,12 +131,14 @@ public class XTandemStorager extends BasicStorager {
                       
                       // Spectrum id
                       hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
-                      
+                      // TODO: Check for the peptides
+                      long peptideid = 1;
+          	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideid);
                       // Set the domain id  
                       String domainID = peptide.getDomainID();
                       hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
                       // TODO: protein accession necessary ?
-                      hitdata.put(XtandemhitTableAccessor.PROTEIN, "");
+                      hitdata.put(XtandemhitTableAccessor.PROTEIN, protMap.getProteinWithPeptideID(domainID).getLabel());
                       hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(peptide.getDomainStart()));
                       hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(peptide.getDomainEnd()));
                       hitdata.put(XtandemhitTableAccessor.EVALUE, peptide.getDomainExpect());
@@ -141,12 +148,12 @@ public class XTandemStorager extends BasicStorager {
                       hitdata.put(XtandemhitTableAccessor.PRE, peptide.getUpFlankSequence());
                       hitdata.put(XtandemhitTableAccessor.POST, peptide.getDownFlankSequence());                
                       hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(peptide.getMissedCleavages()));
-                      qvalues = scoreQValueMap.get(peptide.getDomainHyperScore());
+                      //qvalues = scoreQValueMap.get(peptide.getDomainHyperScore());
                 	
                       // Check if q-value is provided.
-                      if(qvalues != null) {
-                          hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
-                      }
+//                      if(qvalues != null) {
+//                          hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
+//                      }
 
                       // Create the database object.
                       XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);                

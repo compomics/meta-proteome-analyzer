@@ -101,13 +101,13 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'start' column.
 	 */
-	protected long iStart = Long.MIN_VALUE;
+	protected String iStart = null;
 
 
 	/**
 	 * This variable represents the contents for the 'end' column.
 	 */
-	protected long iEnd = Long.MIN_VALUE;
+	protected String iEnd = null;;
 
 
 	/**
@@ -231,10 +231,10 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 			this.iTheomass = (Number)aParams.get(THEOMASS);
 		}
 		if(aParams.containsKey(START)) {
-			this.iStart = ((Long)aParams.get(START)).longValue();
+			this.iStart = (String)aParams.get(START);
 		}
 		if(aParams.containsKey(END)) {
-			this.iEnd = ((Long)aParams.get(END)).longValue();
+			this.iEnd = (String)aParams.get(END);
 		}
 		if(aParams.containsKey(PROTEIN)) {
 			this.iProtein = (String)aParams.get(PROTEIN);
@@ -263,8 +263,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		this.iCharge = aResultSet.getLong("charge");
 		this.iMass = (Number)aResultSet.getObject("mass");
 		this.iTheomass = (Number)aResultSet.getObject("theomass");
-		this.iStart = aResultSet.getLong("start");
-		this.iEnd = aResultSet.getLong("end");
+		this.iStart = (String)aResultSet.getObject("start");
+		this.iEnd = (String)aResultSet.getObject("end");
 		this.iProtein = (String)aResultSet.getObject("protein");
 		this.iQvalue = (Number)aResultSet.getObject("qvalue");
 
@@ -358,7 +358,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	long	with the value for the Start column.
 	 */
-	public long getStart() {
+	public String getStart() {
 		return this.iStart;
 	}
 
@@ -367,7 +367,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	long	with the value for the End column.
 	 */
-	public long getEnd() {
+	public String getEnd() {
 		return this.iEnd;
 	}
 
@@ -484,7 +484,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aStart	long with the value for the Start column.
 	 */
-	public void setStart(long aStart) {
+	public void setStart(String aStart) {
 		this.iStart = aStart;
 		this.iUpdated = true;
 	}
@@ -494,7 +494,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aEnd	long with the value for the End column.
 	 */
-	public void setEnd(long aEnd) {
+	public void setEnd(String aEnd) {
 		this.iEnd = aEnd;
 		this.iUpdated = true;
 	}
@@ -565,8 +565,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 			iCharge = lRS.getLong("charge");
 			iMass = (Number)lRS.getObject("mass");
 			iTheomass = (Number)lRS.getObject("theomass");
-			iStart = lRS.getLong("start");
-			iEnd = lRS.getLong("end");
+			iStart = (String)lRS.getObject("start");
+			iEnd = (String)lRS.getObject("end");
 			iProtein = (String)lRS.getObject("protein");
 			iQvalue = (Number)lRS.getObject("qvalue");
 		}
@@ -628,8 +628,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		lStat.setLong(7, iCharge);
 		lStat.setObject(8, iMass);
 		lStat.setObject(9, iTheomass);
-		lStat.setLong(10, iStart);
-		lStat.setLong(11, iEnd);
+		lStat.setObject(10, iStart);
+		lStat.setObject(11, iEnd);
 		lStat.setObject(12, iProtein);
 		lStat.setObject(13, iQvalue);
 		lStat.setLong(14, iOmssahitid);
@@ -693,15 +693,15 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		} else {
 			lStat.setObject(9, iTheomass);
 		}
-		if(iStart == Long.MIN_VALUE) {
+		if(iStart == null) {
 			lStat.setNull(10, 4);
 		} else {
-			lStat.setLong(10, iStart);
+			lStat.setObject(10, iStart);
 		}
-		if(iEnd == Long.MIN_VALUE) {
+		if(iEnd == null) {
 			lStat.setNull(11, 4);
 		} else {
-			lStat.setLong(11, iEnd);
+			lStat.setObject(11, iEnd);
 		}
 		if(iProtein == null) {
 			lStat.setNull(12, 12);

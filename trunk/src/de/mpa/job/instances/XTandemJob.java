@@ -260,7 +260,7 @@ public class XTandemJob extends Job {
                             + "\t\t<note>values = yes|no, set to yes to produce only one copy of each protein sequence in the output xml</note>\n"
                             + "\t<note type=\"input\" label=\"output, results\">all</note>\n"
                             + "\t\t<note>values = all|valid|stochastic</note>\n"
-                            + "\t<note type=\"input\" label=\"output, maximum valid expectation value\">1.0</note>\n"
+                            + "\t<note type=\"input\" label=\"output, maximum valid expectation value\">0.1</note>\n"
                             + "\t\t<note>value is used in the valid|stochastic setting of output, results</note>\n"
                             + "\t<note type=\"input\" label=\"output, histogram column width\">30</note>\n"
                             + "\t\t<note>values any integer greater than 0. Setting this to '1' makes cutting and pasting histograms\n"

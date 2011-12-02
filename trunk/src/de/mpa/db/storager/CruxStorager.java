@@ -82,7 +82,8 @@ public class CruxStorager implements Storager {
                 long spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
                 hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumid);
                 // TODO: Peptide id!
-                hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, 1);
+                long peptideid = 1;
+                hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideid);
                 hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
                 hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));            
                 hitdata.put(CruxhitTableAccessor.PRECURSOR_MZ, hit.getPrecursorMZ());

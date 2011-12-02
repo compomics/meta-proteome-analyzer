@@ -99,7 +99,7 @@ public class OmssaStorager extends BasicStorager {
     	    List<MSHits> hitlist = msHitSet.MSHitSet_hits.MSHits;
     	    int hitnumber = 1;
     	    for (MSHits msHit : hitlist) {
-    	    	HashMap<Object, Object> hitdata = new HashMap<Object, Object>(15);    	    	
+    	    	HashMap<Object, Object> hitdata = new HashMap<Object, Object>(11);    	    	
     	    	
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
     	    	String spectrumName = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();    	    	
@@ -107,29 +107,29 @@ public class OmssaStorager extends BasicStorager {
     	    	
     	    	// Get the MSPepHit (for the accession)
     	    	List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
-                Iterator<MSPepHit> pepHitIterator = pepHits.iterator();
-                
+                Iterator<MSPepHit> pepHitIterator = pepHits.iterator();                
                 MSPepHit pepHit = pepHitIterator.next();               
               
     	    	hitdata.put(OmssahitTableAccessor.FK_SPECTRUMID, spectrumid);
-    	    	// TODO: Check for the 
-    	    	hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, 1);
+    	    	// TODO: Check for the peptides
+    	    	long peptideid = 1;
+    	    	hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideid);
     	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
     	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
     	    	hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
     	    	hitdata.put(OmssahitTableAccessor.CHARGE, Long.valueOf(msHit.MSHits_charge));
-    	    	hitdata.put(OmssahitTableAccessor.MASS, Long.valueOf(msHit.MSHits_mass));
-    	    	hitdata.put(OmssahitTableAccessor.THEOMASS, Long.valueOf(msHit.MSHits_theomass));    	    	
+    	    	hitdata.put(OmssahitTableAccessor.MASS, msHit.MSHits_mass);
+    	    	hitdata.put(OmssahitTableAccessor.THEOMASS, msHit.MSHits_theomass);    	    	
     	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
     	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);    	    	
     	    	// TODO: protein necessary ?
     	    	hitdata.put(OmssahitTableAccessor.PROTEIN, pepHit.MSPepHit_defline);
     	    	
-    	        qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       
-    	        // Check for assigned q-value
-                if(qvalues != null){
-                	hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
-                }
+//    	        qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       
+//    	        // Check for assigned q-value
+//                if(qvalues != null){
+//                	hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
+//                }
                 
     	    	// Create the database object.
     	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
@@ -184,7 +184,7 @@ public class OmssaStorager extends BasicStorager {
 	@Override
 	public void run() {
 		this.load();
-		this.processQValues();
+		//this.processQValues();
 		try {
 			this.store();
 		} catch (IOException e) {
