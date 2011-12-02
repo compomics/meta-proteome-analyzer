@@ -85,7 +85,9 @@ public class InspectStorager extends BasicStorager {
             spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
             
             hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumid);
-            hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, 1);
+            // TODO: peptide id
+            long peptideid = 1;
+            hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideid);
             hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             hitdata.put(InspecthitTableAccessor.ANNOTATION, hit.getAnnotation());
             hitdata.put(InspecthitTableAccessor.PROTEIN, hit.getProtein());
@@ -118,7 +120,6 @@ public class InspectStorager extends BasicStorager {
         }
         conn.commit();
     }
-   
 	
 	@Override
 	public void run() {
