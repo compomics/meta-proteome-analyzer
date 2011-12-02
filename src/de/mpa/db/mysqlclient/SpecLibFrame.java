@@ -225,8 +225,9 @@ public class SpecLibFrame extends JFrame {
     			DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
     			Connection conn = dbconfig.getConnection();
     			
-    			// this list will store identified protein hits to avoid redundant searching further down 
-    			ArrayList<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
+    			// this list will store identified protein hits to avoid redundant sql queries further down 
+//    			ArrayList<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
+    			Map<ProteinHit, ArrayList<Protein>> proteinMap = new HashMap<ProteinHit, ArrayList<Protein>>(10);
 
     			// attention: the order in which files were selected does matter!
     			for (int i = 0; i < mgfFiles.length; i++) {
@@ -296,25 +297,43 @@ public class SpecLibFrame extends JFrame {
     								peptideID = peptide.getPeptideid();
     							}
         						
-        						HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
+    							Speclibentry sle = Speclibentry.findLink(spectrumID, peptideID, conn);
+    							if (sle == null) {	// link doesn't exist yet
+    								HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
 
-        						dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
-        						dataSpecLib.put(Speclibentry.FK_PEPTIDEID, peptideID);
+    								dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
+    								dataSpecLib.put(Speclibentry.FK_PEPTIDEID, peptideID);
 
-        						Speclibentry libEntry = new Speclibentry(dataSpecLib);
-        						libEntry.persist(conn);
+    								Speclibentry libEntry = new Speclibentry(dataSpecLib);
+    								libEntry.persist(conn);
+    							}
         						
         						// associate peptides with proteins
         						ProteinHit proteinHit = pepHit.getParentProteinHit();
         						
-        						if (proteinHits.contains(proteinHit)) {	// for now skip redundant hits
-        							// TODO: link new peptide to old hit
+        						if (proteinMap.containsKey(proteinHit)) {
+        							// link new peptide to old hit
+        							ArrayList<Protein> proteinList = proteinMap.get(proteinHit);
+        							for (Protein protein : proteinList) {
+        								long proteinID = protein.getProteinid();
+	    								// check whether pep2prot link already exists, otherwise create new one
+	    								Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+	    								if (pep2prot == null) {	// link doesn't exist yet
+    	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
+    	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
+    	        	    					dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
+
+    	        	    					pep2prot = new Pep2prot(dataPep2Prot);
+    	        	    					pep2prot.persist(conn);
+	    								}
+									}
         						} else {
+        							// link peptide to new hit
             						ArrayList<String> accessions   = (ArrayList<String>) proteinHit.getAccessions();
             						ArrayList<String> descriptions = (ArrayList<String>) proteinHit.getDescriptions();
-            						        						
+        							ArrayList<Protein> proteinList = new ArrayList<Protein>();
+            						
             						for (int j = 0; j < accessions.size(); j++) {
-            							
         								Long proteinID;
     									String accession = accessions.get(j);
     									String description = descriptions.get(j);
@@ -344,8 +363,8 @@ public class SpecLibFrame extends JFrame {
     	        	    					pep2prot.persist(conn);
     	    							} else {
     	    								proteinID = protein.getProteinid();
-    	    								// check whether pep2prot link already exists, otherwise create one
-    	    								Pep2prot pep2prot = Pep2prot.findFromIDs(peptideID, proteinID, conn);
+    	    								// check whether pep2prot link already exists, otherwise create new one
+    	    								Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
     	    								if (pep2prot == null) {	// link doesn't exist yet
         	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
         	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
@@ -355,9 +374,9 @@ public class SpecLibFrame extends JFrame {
         	        	    					pep2prot.persist(conn);
     	    								}
     	    							}
+    	        						proteinList.add(protein);
     								}
-        							
-            						proteinHits.add(proteinHit);
+        							proteinMap.put(proteinHit, proteinList);
         						}
 							}
     					}

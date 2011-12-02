@@ -1,6 +1,7 @@
 package de.mpa.db.extractor;
 
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.accessor.Peptide;
 import de.mpa.db.accessor.Speclibentry;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
@@ -44,8 +46,15 @@ public class SpectrumExtractor {
 		
 		// Iterate the spectral library entries.
 		for (Speclibentry entry : entries) {
-			MascotGenericFile mgf = getUnzippedFile(entry.getFk_spectrumid());
-			//libSpectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), entry.getSequence(), entry.getAnnotation()));			
+			long spectrumID = entry.getFk_spectrumid();
+			MascotGenericFile mgf = getUnzippedFile(spectrumID);
+			long peptideID = entry.getFk_peptideid();
+			List<Peptide> peptides = Peptide.findFromID(peptideID, conn);	// TODO: grab peptides to get sequences
+//			String sequence = peptide.getSequence();
+			// TODO: get list of proteins from list of peptides and gather annotations
+			String sequence = "NYI";
+			String annotation = "NYI";
+			libSpectra.add(new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), sequence, annotation));			
 		}
 		
 		return libSpectra;
@@ -71,7 +80,6 @@ public class SpectrumExtractor {
 		for (Libspectrum entry : entries) {
 			String sequence = null;
 			String annotation = null;
-//			entry.getLibspectrumid()
 			MascotGenericFile mgf = getUnzippedFile(entry.getLibspectrumid());
 			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), sequence, annotation));
 		}

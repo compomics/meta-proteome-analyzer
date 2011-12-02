@@ -18,6 +18,10 @@ public class PeptideHit {
 	}
 	
 	// methods
+	public String toString() {
+		return sequence;
+	}
+	
 	public String getScanTitle() {
 		return scanTitle;
 	}

@@ -31,7 +31,7 @@ public class Speclibentry extends SpeclibentryTableAccessor {
     }
     
     /**
-     * Returns the entries within a specified precursor range.
+     * Returns linked libspectrum entries within a specified precursor range.
      * @param precursorMz
      * @param tolMz
      * @param aConn
@@ -40,7 +40,12 @@ public class Speclibentry extends SpeclibentryTableAccessor {
      */
     public static List<Speclibentry> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Speclibentry> temp = new ArrayList<Speclibentry>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
+//        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
+        																 " ON speclibentry." + Speclibentry.FK_SPECTRUMID +
+        																 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
+        																 " WHERE " + Libspectrum.PRECURSOR_MZ + " >= ?" +
+        																 " AND "   + Libspectrum.PRECURSOR_MZ + " <= ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
         ResultSet rs = ps.executeQuery();
@@ -55,16 +60,16 @@ public class Speclibentry extends SpeclibentryTableAccessor {
     }
     
     /**
-     * This method will find a spectrum file from the current connection, based on the specified spectrumid.
+     * This method will find a speclibentry entry from the current connection, based on the specified spectrumid.
      *
      * @param aSpectrumID long with the spectrumid of the spectrum file to find.
-     * @param aConn           Connection to read the spectrum File from.
-     * @return Spectrumfile with the data.
+     * @param aConn Connection to read the spectrum File from.
+     * @return Speclibentry with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
     public static Speclibentry findFromID(long aSpectrumID, Connection aConn) throws SQLException {
     	Speclibentry temp = null;
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where libspectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where speclibid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -79,6 +84,34 @@ public class Speclibentry extends SpeclibentryTableAccessor {
             sqe.printStackTrace();
             throw sqe;
         }
+        return temp;
+    }
+
+	/**
+     * This method will find a speclibentry entry from the current connection, based on foreign spectrum- and peptideIDs.
+     *
+     * @param spectrumID long with the spectrum ID of the link to find.
+     * @param peptideID long with the peptide ID of the link to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return Speclibentry with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static Speclibentry findLink(Long spectrumID, Long peptideID, Connection aConn) throws SQLException {
+
+    	Speclibentry temp = null;
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + FK_SPECTRUMID + " = ?" +
+        																   " AND " + FK_PEPTIDEID  + " = ?");
+        ps.setLong(1, spectrumID);
+        ps.setLong(2, peptideID);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp = new Speclibentry(rs);
+        }
+        rs.close();
+        ps.close();
+
         return temp;
     }
 }
