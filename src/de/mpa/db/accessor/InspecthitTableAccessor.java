@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 01/12/2011
- * Time: 14:55:07
+ * Date: 02/12/2011
+ * Time: 15:03:12
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -60,18 +51,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * This variable represents the contents for the 'fk_peptideid' column.
 	 */
 	protected long iFk_peptideid = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'l_spectrumid' column.
-	 */
-	protected long iL_spectrumid = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'l_inspectid' column.
-	 */
-	protected long iL_inspectid = Long.MIN_VALUE;
 
 
 	/**
@@ -216,16 +195,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
 
 	/**
-	 * This variable represents the key for the 'l_spectrumid' column.
-	 */
-	public static final String L_SPECTRUMID = "L_SPECTRUMID";
-
-	/**
-	 * This variable represents the key for the 'l_inspectid' column.
-	 */
-	public static final String L_INSPECTID = "L_INSPECTID";
-
-	/**
 	 * This variable represents the key for the 'scannumber' column.
 	 */
 	public static final String SCANNUMBER = "SCANNUMBER";
@@ -355,12 +324,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(L_SPECTRUMID)) {
-			this.iL_spectrumid = ((Long)aParams.get(L_SPECTRUMID)).longValue();
-		}
-		if(aParams.containsKey(L_INSPECTID)) {
-			this.iL_inspectid = ((Long)aParams.get(L_INSPECTID)).longValue();
-		}
 		if(aParams.containsKey(SCANNUMBER)) {
 			this.iScannumber = ((Long)aParams.get(SCANNUMBER)).longValue();
 		}
@@ -439,8 +402,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iInspecthitid = aResultSet.getLong("inspecthitid");
 		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iL_spectrumid = aResultSet.getLong("l_spectrumid");
-		this.iL_inspectid = aResultSet.getLong("l_inspectid");
 		this.iScannumber = aResultSet.getLong("scannumber");
 		this.iAnnotation = (String)aResultSet.getObject("annotation");
 		this.iProtein = (String)aResultSet.getObject("protein");
@@ -492,24 +453,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public long getFk_peptideid() {
 		return this.iFk_peptideid;
-	}
-
-	/**
-	 * This method returns the value for the 'L_spectrumid' column
-	 * 
-	 * @return	long	with the value for the L_spectrumid column.
-	 */
-	public long getL_spectrumid() {
-		return this.iL_spectrumid;
-	}
-
-	/**
-	 * This method returns the value for the 'L_inspectid' column
-	 * 
-	 * @return	long	with the value for the L_inspectid column.
-	 */
-	public long getL_inspectid() {
-		return this.iL_inspectid;
 	}
 
 	/**
@@ -728,26 +671,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public void setFk_peptideid(long aFk_peptideid) {
 		this.iFk_peptideid = aFk_peptideid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'L_spectrumid' column
-	 * 
-	 * @param	aL_spectrumid	long with the value for the L_spectrumid column.
-	 */
-	public void setL_spectrumid(long aL_spectrumid) {
-		this.iL_spectrumid = aL_spectrumid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'L_inspectid' column
-	 * 
-	 * @param	aL_inspectid	long with the value for the L_inspectid column.
-	 */
-	public void setL_inspectid(long aL_inspectid) {
-		this.iL_inspectid = aL_inspectid;
 		this.iUpdated = true;
 	}
 
@@ -1001,8 +924,6 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 			iInspecthitid = lRS.getLong("inspecthitid");
 			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iL_spectrumid = lRS.getLong("l_spectrumid");
-			iL_inspectid = lRS.getLong("l_inspectid");
 			iScannumber = lRS.getLong("scannumber");
 			iAnnotation = (String)lRS.getObject("annotation");
 			iProtein = (String)lRS.getObject("protein");
@@ -1073,34 +994,32 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE inspecthit SET inspecthitid = ?, fk_spectrumid = ?, fk_peptideid = ?, l_spectrumid = ?, l_inspectid = ?, scannumber = ?, annotation = ?, protein = ?, charge = ?, mq_score = ?, length = ?, total_prm_score = ?, median_prm_score = ?, fraction_y = ?, fraction_b = ?, intensity = ?, ntt = ?, p_value = ?, f_score = ?, deltascore = ?, deltascore_other = ?, recordnumber = ?, dbfilepos = ?, specfilepos = ?, precursor_mz = ?, precursor_mz_error = ? WHERE inspecthitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE inspecthit SET inspecthitid = ?, fk_spectrumid = ?, fk_peptideid = ?, scannumber = ?, annotation = ?, protein = ?, charge = ?, mq_score = ?, length = ?, total_prm_score = ?, median_prm_score = ?, fraction_y = ?, fraction_b = ?, intensity = ?, ntt = ?, p_value = ?, f_score = ?, deltascore = ?, deltascore_other = ?, recordnumber = ?, dbfilepos = ?, specfilepos = ?, precursor_mz = ?, precursor_mz_error = ? WHERE inspecthitid = ?");
 		lStat.setLong(1, iInspecthitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
-		lStat.setLong(4, iL_spectrumid);
-		lStat.setLong(5, iL_inspectid);
-		lStat.setLong(6, iScannumber);
-		lStat.setObject(7, iAnnotation);
-		lStat.setObject(8, iProtein);
-		lStat.setLong(9, iCharge);
-		lStat.setObject(10, iMq_score);
-		lStat.setLong(11, iLength);
-		lStat.setObject(12, iTotal_prm_score);
-		lStat.setObject(13, iMedian_prm_score);
-		lStat.setObject(14, iFraction_y);
-		lStat.setObject(15, iFraction_b);
-		lStat.setObject(16, iIntensity);
-		lStat.setObject(17, iNtt);
-		lStat.setObject(18, iP_value);
-		lStat.setObject(19, iF_score);
-		lStat.setObject(20, iDeltascore);
-		lStat.setObject(21, iDeltascore_other);
-		lStat.setObject(22, iRecordnumber);
-		lStat.setLong(23, iDbfilepos);
-		lStat.setLong(24, iSpecfilepos);
-		lStat.setObject(25, iPrecursor_mz);
-		lStat.setObject(26, iPrecursor_mz_error);
-		lStat.setLong(27, iInspecthitid);
+		lStat.setLong(4, iScannumber);
+		lStat.setObject(5, iAnnotation);
+		lStat.setObject(6, iProtein);
+		lStat.setLong(7, iCharge);
+		lStat.setObject(8, iMq_score);
+		lStat.setLong(9, iLength);
+		lStat.setObject(10, iTotal_prm_score);
+		lStat.setObject(11, iMedian_prm_score);
+		lStat.setObject(12, iFraction_y);
+		lStat.setObject(13, iFraction_b);
+		lStat.setObject(14, iIntensity);
+		lStat.setObject(15, iNtt);
+		lStat.setObject(16, iP_value);
+		lStat.setObject(17, iF_score);
+		lStat.setObject(18, iDeltascore);
+		lStat.setObject(19, iDeltascore_other);
+		lStat.setObject(20, iRecordnumber);
+		lStat.setLong(21, iDbfilepos);
+		lStat.setLong(22, iSpecfilepos);
+		lStat.setObject(23, iPrecursor_mz);
+		lStat.setObject(24, iPrecursor_mz_error);
+		lStat.setLong(25, iInspecthitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -1115,7 +1034,7 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO inspecthit (inspecthitid, fk_spectrumid, fk_peptideid, l_spectrumid, l_inspectid, scannumber, annotation, protein, charge, mq_score, length, total_prm_score, median_prm_score, fraction_y, fraction_b, intensity, ntt, p_value, f_score, deltascore, deltascore_other, recordnumber, dbfilepos, specfilepos, precursor_mz, precursor_mz_error) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO inspecthit (inspecthitid, fk_spectrumid, fk_peptideid, scannumber, annotation, protein, charge, mq_score, length, total_prm_score, median_prm_score, fraction_y, fraction_b, intensity, ntt, p_value, f_score, deltascore, deltascore_other, recordnumber, dbfilepos, specfilepos, precursor_mz, precursor_mz_error) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		if(iInspecthitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -1131,120 +1050,110 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 		} else {
 			lStat.setLong(3, iFk_peptideid);
 		}
-		if(iL_spectrumid == Long.MIN_VALUE) {
+		if(iScannumber == Long.MIN_VALUE) {
 			lStat.setNull(4, 4);
 		} else {
-			lStat.setLong(4, iL_spectrumid);
-		}
-		if(iL_inspectid == Long.MIN_VALUE) {
-			lStat.setNull(5, 4);
-		} else {
-			lStat.setLong(5, iL_inspectid);
-		}
-		if(iScannumber == Long.MIN_VALUE) {
-			lStat.setNull(6, 4);
-		} else {
-			lStat.setLong(6, iScannumber);
+			lStat.setLong(4, iScannumber);
 		}
 		if(iAnnotation == null) {
-			lStat.setNull(7, 12);
+			lStat.setNull(5, 12);
 		} else {
-			lStat.setObject(7, iAnnotation);
+			lStat.setObject(5, iAnnotation);
 		}
 		if(iProtein == null) {
-			lStat.setNull(8, -1);
+			lStat.setNull(6, -1);
 		} else {
-			lStat.setObject(8, iProtein);
+			lStat.setObject(6, iProtein);
 		}
 		if(iCharge == Long.MIN_VALUE) {
-			lStat.setNull(9, 4);
+			lStat.setNull(7, 4);
 		} else {
-			lStat.setLong(9, iCharge);
+			lStat.setLong(7, iCharge);
 		}
 		if(iMq_score == null) {
-			lStat.setNull(10, 3);
+			lStat.setNull(8, 3);
 		} else {
-			lStat.setObject(10, iMq_score);
+			lStat.setObject(8, iMq_score);
 		}
 		if(iLength == Long.MIN_VALUE) {
-			lStat.setNull(11, 4);
+			lStat.setNull(9, 4);
 		} else {
-			lStat.setLong(11, iLength);
+			lStat.setLong(9, iLength);
 		}
 		if(iTotal_prm_score == null) {
-			lStat.setNull(12, 3);
+			lStat.setNull(10, 3);
 		} else {
-			lStat.setObject(12, iTotal_prm_score);
+			lStat.setObject(10, iTotal_prm_score);
 		}
 		if(iMedian_prm_score == null) {
-			lStat.setNull(13, 3);
+			lStat.setNull(11, 3);
 		} else {
-			lStat.setObject(13, iMedian_prm_score);
+			lStat.setObject(11, iMedian_prm_score);
 		}
 		if(iFraction_y == null) {
-			lStat.setNull(14, 3);
+			lStat.setNull(12, 3);
 		} else {
-			lStat.setObject(14, iFraction_y);
+			lStat.setObject(12, iFraction_y);
 		}
 		if(iFraction_b == null) {
-			lStat.setNull(15, 3);
+			lStat.setNull(13, 3);
 		} else {
-			lStat.setObject(15, iFraction_b);
+			lStat.setObject(13, iFraction_b);
 		}
 		if(iIntensity == null) {
-			lStat.setNull(16, 3);
+			lStat.setNull(14, 3);
 		} else {
-			lStat.setObject(16, iIntensity);
+			lStat.setObject(14, iIntensity);
 		}
 		if(iNtt == null) {
-			lStat.setNull(17, 3);
+			lStat.setNull(15, 3);
 		} else {
-			lStat.setObject(17, iNtt);
+			lStat.setObject(15, iNtt);
 		}
 		if(iP_value == null) {
-			lStat.setNull(18, 3);
+			lStat.setNull(16, 3);
 		} else {
-			lStat.setObject(18, iP_value);
+			lStat.setObject(16, iP_value);
 		}
 		if(iF_score == null) {
-			lStat.setNull(19, 3);
+			lStat.setNull(17, 3);
 		} else {
-			lStat.setObject(19, iF_score);
+			lStat.setObject(17, iF_score);
 		}
 		if(iDeltascore == null) {
-			lStat.setNull(20, 3);
+			lStat.setNull(18, 3);
 		} else {
-			lStat.setObject(20, iDeltascore);
+			lStat.setObject(18, iDeltascore);
 		}
 		if(iDeltascore_other == null) {
-			lStat.setNull(21, 3);
+			lStat.setNull(19, 3);
 		} else {
-			lStat.setObject(21, iDeltascore_other);
+			lStat.setObject(19, iDeltascore_other);
 		}
 		if(iRecordnumber == null) {
-			lStat.setNull(22, 3);
+			lStat.setNull(20, 3);
 		} else {
-			lStat.setObject(22, iRecordnumber);
+			lStat.setObject(20, iRecordnumber);
 		}
 		if(iDbfilepos == Long.MIN_VALUE) {
-			lStat.setNull(23, 4);
+			lStat.setNull(21, 4);
 		} else {
-			lStat.setLong(23, iDbfilepos);
+			lStat.setLong(21, iDbfilepos);
 		}
 		if(iSpecfilepos == Long.MIN_VALUE) {
-			lStat.setNull(24, 4);
+			lStat.setNull(22, 4);
 		} else {
-			lStat.setLong(24, iSpecfilepos);
+			lStat.setLong(22, iSpecfilepos);
 		}
 		if(iPrecursor_mz == null) {
-			lStat.setNull(25, 3);
+			lStat.setNull(23, 3);
 		} else {
-			lStat.setObject(25, iPrecursor_mz);
+			lStat.setObject(23, iPrecursor_mz);
 		}
 		if(iPrecursor_mz_error == null) {
-			lStat.setNull(26, 3);
+			lStat.setNull(24, 3);
 		} else {
-			lStat.setObject(26, iPrecursor_mz_error);
+			lStat.setObject(24, iPrecursor_mz_error);
 		}
 		int result = lStat.executeUpdate();
 

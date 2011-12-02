@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 01/12/2011
- * Time: 14:55:08
+ * Date: 02/12/2011
+ * Time: 15:03:13
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -60,18 +51,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This variable represents the contents for the 'fk_peptideid' column.
 	 */
 	protected long iFk_peptideid = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'l_spectrumid' column.
-	 */
-	protected long iL_spectrumid = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'l_cruxid' column.
-	 */
-	protected long iL_cruxid = Long.MIN_VALUE;
 
 
 	/**
@@ -147,12 +126,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
-	 * This variable represents the contents for the 'peptide' column.
-	 */
-	protected String iPeptide = null;
-
-
-	/**
 	 * This variable represents the contents for the 'cleavage_type' column.
 	 */
 	protected String iCleavage_type = null;
@@ -184,16 +157,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This variable represents the key for the 'fk_peptideid' column.
 	 */
 	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
-
-	/**
-	 * This variable represents the key for the 'l_spectrumid' column.
-	 */
-	public static final String L_SPECTRUMID = "L_SPECTRUMID";
-
-	/**
-	 * This variable represents the key for the 'l_cruxid' column.
-	 */
-	public static final String L_CRUXID = "L_CRUXID";
 
 	/**
 	 * This variable represents the key for the 'scannumber' column.
@@ -256,11 +219,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	public static final String MATCHES_SPECTRUM = "MATCHES_SPECTRUM";
 
 	/**
-	 * This variable represents the key for the 'peptide' column.
-	 */
-	public static final String PEPTIDE = "PEPTIDE";
-
-	/**
 	 * This variable represents the key for the 'cleavage_type' column.
 	 */
 	public static final String CLEAVAGE_TYPE = "CLEAVAGE_TYPE";
@@ -300,12 +258,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(L_SPECTRUMID)) {
-			this.iL_spectrumid = ((Long)aParams.get(L_SPECTRUMID)).longValue();
-		}
-		if(aParams.containsKey(L_CRUXID)) {
-			this.iL_cruxid = ((Long)aParams.get(L_CRUXID)).longValue();
-		}
 		if(aParams.containsKey(SCANNUMBER)) {
 			this.iScannumber = ((Long)aParams.get(SCANNUMBER)).longValue();
 		}
@@ -342,9 +294,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(MATCHES_SPECTRUM)) {
 			this.iMatches_spectrum = ((Long)aParams.get(MATCHES_SPECTRUM)).longValue();
 		}
-		if(aParams.containsKey(PEPTIDE)) {
-			this.iPeptide = (String)aParams.get(PEPTIDE);
-		}
 		if(aParams.containsKey(CLEAVAGE_TYPE)) {
 			this.iCleavage_type = (String)aParams.get(CLEAVAGE_TYPE);
 		}
@@ -369,8 +318,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iCruxhitid = aResultSet.getLong("cruxhitid");
 		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iL_spectrumid = aResultSet.getLong("l_spectrumid");
-		this.iL_cruxid = aResultSet.getLong("l_cruxid");
 		this.iScannumber = aResultSet.getLong("scannumber");
 		this.iCharge = aResultSet.getLong("charge");
 		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
@@ -383,7 +330,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iPercolator_rank = aResultSet.getLong("percolator_rank");
 		this.iQvalue = (Number)aResultSet.getObject("qvalue");
 		this.iMatches_spectrum = aResultSet.getLong("matches_spectrum");
-		this.iPeptide = (String)aResultSet.getObject("peptide");
 		this.iCleavage_type = (String)aResultSet.getObject("cleavage_type");
 		this.iProteinid = (String)aResultSet.getObject("proteinid");
 		this.iFlank_aa = (String)aResultSet.getObject("flank_aa");
@@ -417,24 +363,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public long getFk_peptideid() {
 		return this.iFk_peptideid;
-	}
-
-	/**
-	 * This method returns the value for the 'L_spectrumid' column
-	 * 
-	 * @return	long	with the value for the L_spectrumid column.
-	 */
-	public long getL_spectrumid() {
-		return this.iL_spectrumid;
-	}
-
-	/**
-	 * This method returns the value for the 'L_cruxid' column
-	 * 
-	 * @return	long	with the value for the L_cruxid column.
-	 */
-	public long getL_cruxid() {
-		return this.iL_cruxid;
 	}
 
 	/**
@@ -546,15 +474,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method returns the value for the 'Peptide' column
-	 * 
-	 * @return	String	with the value for the Peptide column.
-	 */
-	public String getPeptide() {
-		return this.iPeptide;
-	}
-
-	/**
 	 * This method returns the value for the 'Cleavage_type' column
 	 * 
 	 * @return	String	with the value for the Cleavage_type column.
@@ -608,26 +527,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public void setFk_peptideid(long aFk_peptideid) {
 		this.iFk_peptideid = aFk_peptideid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'L_spectrumid' column
-	 * 
-	 * @param	aL_spectrumid	long with the value for the L_spectrumid column.
-	 */
-	public void setL_spectrumid(long aL_spectrumid) {
-		this.iL_spectrumid = aL_spectrumid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'L_cruxid' column
-	 * 
-	 * @param	aL_cruxid	long with the value for the L_cruxid column.
-	 */
-	public void setL_cruxid(long aL_cruxid) {
-		this.iL_cruxid = aL_cruxid;
 		this.iUpdated = true;
 	}
 
@@ -752,16 +651,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method sets the value for the 'Peptide' column
-	 * 
-	 * @param	aPeptide	String with the value for the Peptide column.
-	 */
-	public void setPeptide(String aPeptide) {
-		this.iPeptide = aPeptide;
-		this.iUpdated = true;
-	}
-
-	/**
 	 * This method sets the value for the 'Cleavage_type' column
 	 * 
 	 * @param	aCleavage_type	String with the value for the Cleavage_type column.
@@ -831,8 +720,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 			iCruxhitid = lRS.getLong("cruxhitid");
 			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iL_spectrumid = lRS.getLong("l_spectrumid");
-			iL_cruxid = lRS.getLong("l_cruxid");
 			iScannumber = lRS.getLong("scannumber");
 			iCharge = lRS.getLong("charge");
 			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
@@ -845,7 +732,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 			iPercolator_rank = lRS.getLong("percolator_rank");
 			iQvalue = (Number)lRS.getObject("qvalue");
 			iMatches_spectrum = lRS.getLong("matches_spectrum");
-			iPeptide = (String)lRS.getObject("peptide");
 			iCleavage_type = (String)lRS.getObject("cleavage_type");
 			iProteinid = (String)lRS.getObject("proteinid");
 			iFlank_aa = (String)lRS.getObject("flank_aa");
@@ -898,29 +784,26 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE cruxhit SET cruxhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, l_spectrumid = ?, l_cruxid = ?, scannumber = ?, charge = ?, precursor_mz = ?, neutral_mass = ?, peptide_mass = ?, delta_cn = ?, xcorr_score = ?, xcorr_rank = ?, percolator_score = ?, percolator_rank = ?, qvalue = ?, matches_spectrum = ?, peptide = ?, cleavage_type = ?, proteinid = ?, flank_aa = ? WHERE cruxhitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE cruxhit SET cruxhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, scannumber = ?, charge = ?, precursor_mz = ?, neutral_mass = ?, peptide_mass = ?, delta_cn = ?, xcorr_score = ?, xcorr_rank = ?, percolator_score = ?, percolator_rank = ?, qvalue = ?, matches_spectrum = ?, cleavage_type = ?, proteinid = ?, flank_aa = ? WHERE cruxhitid = ?");
 		lStat.setLong(1, iCruxhitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
-		lStat.setLong(4, iL_spectrumid);
-		lStat.setLong(5, iL_cruxid);
-		lStat.setLong(6, iScannumber);
-		lStat.setLong(7, iCharge);
-		lStat.setObject(8, iPrecursor_mz);
-		lStat.setObject(9, iNeutral_mass);
-		lStat.setObject(10, iPeptide_mass);
-		lStat.setObject(11, iDelta_cn);
-		lStat.setObject(12, iXcorr_score);
-		lStat.setLong(13, iXcorr_rank);
-		lStat.setObject(14, iPercolator_score);
-		lStat.setLong(15, iPercolator_rank);
-		lStat.setObject(16, iQvalue);
-		lStat.setLong(17, iMatches_spectrum);
-		lStat.setObject(18, iPeptide);
-		lStat.setObject(19, iCleavage_type);
-		lStat.setObject(20, iProteinid);
-		lStat.setObject(21, iFlank_aa);
-		lStat.setLong(22, iCruxhitid);
+		lStat.setLong(4, iScannumber);
+		lStat.setLong(5, iCharge);
+		lStat.setObject(6, iPrecursor_mz);
+		lStat.setObject(7, iNeutral_mass);
+		lStat.setObject(8, iPeptide_mass);
+		lStat.setObject(9, iDelta_cn);
+		lStat.setObject(10, iXcorr_score);
+		lStat.setLong(11, iXcorr_rank);
+		lStat.setObject(12, iPercolator_score);
+		lStat.setLong(13, iPercolator_rank);
+		lStat.setObject(14, iQvalue);
+		lStat.setLong(15, iMatches_spectrum);
+		lStat.setObject(16, iCleavage_type);
+		lStat.setObject(17, iProteinid);
+		lStat.setObject(18, iFlank_aa);
+		lStat.setLong(19, iCruxhitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -935,7 +818,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_spectrumid, fk_peptideid, l_spectrumid, l_cruxid, scannumber, charge, precursor_mz, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, peptide, cleavage_type, proteinid, flank_aa) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_spectrumid, fk_peptideid, scannumber, charge, precursor_mz, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, proteinid, flank_aa) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		if(iCruxhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -951,95 +834,80 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		} else {
 			lStat.setLong(3, iFk_peptideid);
 		}
-		if(iL_spectrumid == Long.MIN_VALUE) {
+		if(iScannumber == Long.MIN_VALUE) {
 			lStat.setNull(4, 4);
 		} else {
-			lStat.setLong(4, iL_spectrumid);
-		}
-		if(iL_cruxid == Long.MIN_VALUE) {
-			lStat.setNull(5, 4);
-		} else {
-			lStat.setLong(5, iL_cruxid);
-		}
-		if(iScannumber == Long.MIN_VALUE) {
-			lStat.setNull(6, 4);
-		} else {
-			lStat.setLong(6, iScannumber);
+			lStat.setLong(4, iScannumber);
 		}
 		if(iCharge == Long.MIN_VALUE) {
-			lStat.setNull(7, 4);
+			lStat.setNull(5, 4);
 		} else {
-			lStat.setLong(7, iCharge);
+			lStat.setLong(5, iCharge);
 		}
 		if(iPrecursor_mz == null) {
-			lStat.setNull(8, 3);
+			lStat.setNull(6, 3);
 		} else {
-			lStat.setObject(8, iPrecursor_mz);
+			lStat.setObject(6, iPrecursor_mz);
 		}
 		if(iNeutral_mass == null) {
-			lStat.setNull(9, 3);
+			lStat.setNull(7, 3);
 		} else {
-			lStat.setObject(9, iNeutral_mass);
+			lStat.setObject(7, iNeutral_mass);
 		}
 		if(iPeptide_mass == null) {
-			lStat.setNull(10, 3);
+			lStat.setNull(8, 3);
 		} else {
-			lStat.setObject(10, iPeptide_mass);
+			lStat.setObject(8, iPeptide_mass);
 		}
 		if(iDelta_cn == null) {
-			lStat.setNull(11, 3);
+			lStat.setNull(9, 3);
 		} else {
-			lStat.setObject(11, iDelta_cn);
+			lStat.setObject(9, iDelta_cn);
 		}
 		if(iXcorr_score == null) {
-			lStat.setNull(12, 3);
+			lStat.setNull(10, 3);
 		} else {
-			lStat.setObject(12, iXcorr_score);
+			lStat.setObject(10, iXcorr_score);
 		}
 		if(iXcorr_rank == Long.MIN_VALUE) {
-			lStat.setNull(13, 4);
+			lStat.setNull(11, 4);
 		} else {
-			lStat.setLong(13, iXcorr_rank);
+			lStat.setLong(11, iXcorr_rank);
 		}
 		if(iPercolator_score == null) {
-			lStat.setNull(14, 3);
+			lStat.setNull(12, 3);
 		} else {
-			lStat.setObject(14, iPercolator_score);
+			lStat.setObject(12, iPercolator_score);
 		}
 		if(iPercolator_rank == Long.MIN_VALUE) {
-			lStat.setNull(15, 4);
+			lStat.setNull(13, 4);
 		} else {
-			lStat.setLong(15, iPercolator_rank);
+			lStat.setLong(13, iPercolator_rank);
 		}
 		if(iQvalue == null) {
-			lStat.setNull(16, 3);
+			lStat.setNull(14, 3);
 		} else {
-			lStat.setObject(16, iQvalue);
+			lStat.setObject(14, iQvalue);
 		}
 		if(iMatches_spectrum == Long.MIN_VALUE) {
-			lStat.setNull(17, 4);
+			lStat.setNull(15, 4);
 		} else {
-			lStat.setLong(17, iMatches_spectrum);
-		}
-		if(iPeptide == null) {
-			lStat.setNull(18, 12);
-		} else {
-			lStat.setObject(18, iPeptide);
+			lStat.setLong(15, iMatches_spectrum);
 		}
 		if(iCleavage_type == null) {
-			lStat.setNull(19, 12);
+			lStat.setNull(16, 12);
 		} else {
-			lStat.setObject(19, iCleavage_type);
+			lStat.setObject(16, iCleavage_type);
 		}
 		if(iProteinid == null) {
-			lStat.setNull(20, -1);
+			lStat.setNull(17, -1);
 		} else {
-			lStat.setObject(20, iProteinid);
+			lStat.setObject(17, iProteinid);
 		}
 		if(iFlank_aa == null) {
-			lStat.setNull(21, 12);
+			lStat.setNull(18, 12);
 		} else {
-			lStat.setObject(21, iFlank_aa);
+			lStat.setObject(18, iFlank_aa);
 		}
 		int result = lStat.executeUpdate();
 
