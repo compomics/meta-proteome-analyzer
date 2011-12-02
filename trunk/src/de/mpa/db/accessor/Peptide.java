@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Peptide extends PeptideTableAccessor {
 	
@@ -31,7 +33,7 @@ public class Peptide extends PeptideTableAccessor {
      * This method will find a peptide entry from the current connection, based on the sequence.
      *
      * @param sequence String with the sequence of the peptide to find.
-     * @param aConn     Connection to read the spectrum File from.
+     * @param aConn Connection to read the spectrum File from.
      * @return Peptide with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
@@ -50,6 +52,23 @@ public class Peptide extends PeptideTableAccessor {
         ps.close();
 
         return temp;
+    }
+    
+    public static List<Peptide> findFromID(long peptideID, Connection aConn) throws SQLException {
+    	
+    	List<Peptide> temp = new ArrayList<Peptide>();
+    	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PEPTIDEID + " = ?");
+        ps.setLong(1, peptideID);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp.add(new Peptide(rs));
+        }
+        rs.close();
+        ps.close();
+
+    	return temp;
     }
 	
 }

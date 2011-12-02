@@ -30,17 +30,19 @@ public class Pep2prot extends Pep2protTableAccessor {
 	/**
      * This method will find a pep2prot entry from the current connection, based on foreign protein- and peptideIDs.
      *
-     * @param sequence String with the sequence of the peptide to find.
+     * @param peptideID long with the peptide ID of the link to find.
+     * @param proteinID long with the protein ID of the link to find.
      * @param aConn     Connection to read the spectrum File from.
-     * @return Peptide with the data.
+     * @return Pep2prot with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Pep2prot findFromIDs(Long peptideID, Long proteinID, Connection aConn) throws SQLException {
+    public static Pep2prot findLink(Long peptideID, Long proteinID, Connection aConn) throws SQLException {
 
     	Pep2prot temp = null;
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE fk_peptideid = ? AND fk_proteinid = ?");
-        ps.setLong(1, proteinID);
-        ps.setLong(2, peptideID);
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + FK_PEPTIDEID  + " = ?" +
+        																   " AND " + FK_PROTEINSID + " = ?");
+        ps.setLong(1, peptideID);
+        ps.setLong(2, proteinID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {

@@ -253,14 +253,14 @@ public class Client {
     	pSupport.addPropertyChangeListener(l); 
     } 
     
-	/**
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String[] args) {
-		// Get instance of the client.
-		Client client = Client.getInstance();		
-//		client.connect();
-//		client.sendMessage("SEND MESSAGE!");
-	}
+//	/**
+//	 * @param args
+//	 * @throws Exception
+//	 */
+//	public static void main(String[] args) {
+//		// Get instance of the client.
+//		Client client = Client.getInstance();
+////		client.connect();
+////		client.sendMessage("SEND MESSAGE!");
+//	}
 }
