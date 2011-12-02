@@ -11,16 +11,17 @@ import de.mpa.job.Job;
 
 public class MS2FormatJob extends Job{
 	
-	private final String ms2file;
-	private final String outputfile;
+	private String ms2file;
+	private String outputfile;
+	private File mgfFile;
 	
 	public MS2FormatJob(File mgfFile) {
-		this.ms2file = JobConstants.DATASET_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_format.ms2";;
-		this.outputfile = mgfFile.getAbsolutePath().substring(0, mgfFile.getAbsolutePath().indexOf(".mgf")) + ".ms2";;
-		run();
+		this.mgfFile = mgfFile;
 	}
 	
 	public void run() {
+			ms2file = JobConstants.DATASET_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + ".ms2";;
+			outputfile = mgfFile.getAbsolutePath().substring(0, mgfFile.getAbsolutePath().indexOf(".mgf")) + "_format.ms2";;
 			setDescription("MS2 FORMAT JOB");
 			BufferedReader reader = null;
 			BufferedWriter writer = null;

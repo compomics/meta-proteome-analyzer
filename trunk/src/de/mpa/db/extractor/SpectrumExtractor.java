@@ -9,7 +9,7 @@ import java.util.List;
 
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.db.accessor.Libspectrum;
-import de.mpa.db.accessor.Peptide;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Speclibentry;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
@@ -49,7 +49,7 @@ public class SpectrumExtractor {
 			long spectrumID = entry.getFk_spectrumid();
 			MascotGenericFile mgf = getUnzippedFile(spectrumID);
 			long peptideID = entry.getFk_peptideid();
-			List<Peptide> peptides = Peptide.findFromID(peptideID, conn);	// TODO: grab peptides to get sequences
+			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);	// TODO: grab peptides to get sequences
 //			String sequence = peptide.getSequence();
 			// TODO: get list of proteins from list of peptides and gather annotations
 			String sequence = "NYI";

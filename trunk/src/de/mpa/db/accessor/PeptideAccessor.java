@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Peptide extends PeptideTableAccessor {
+public class PeptideAccessor extends PeptideTableAccessor {
 	
 	/**
      * Calls the super class.
      * @param aParams
      */
-	public Peptide(HashMap aParams) {
+	public PeptideAccessor(HashMap aParams) {
 		super(aParams);
 	}
 	
@@ -25,7 +25,7 @@ public class Peptide extends PeptideTableAccessor {
 	 * @param	aResultSet	ResultSet with the required columns to initialize this object with.
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
-	public Peptide(ResultSet aResultSet) throws SQLException {
+	public PeptideAccessor(ResultSet aResultSet) throws SQLException {
 		super(aResultSet);
 	}
 
@@ -37,16 +37,16 @@ public class Peptide extends PeptideTableAccessor {
      * @return Peptide with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Peptide findFromSequence(String sequence, Connection aConn) throws SQLException {
+    public static PeptideAccessor findFromSequence(String sequence, Connection aConn) throws SQLException {
 
-        Peptide temp = null;
+        PeptideAccessor temp = null;
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE sequence = ?");
         ps.setString(1, sequence);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Peptide(rs);
+            temp = new PeptideAccessor(rs);
         }
         rs.close();
         ps.close();
@@ -54,16 +54,16 @@ public class Peptide extends PeptideTableAccessor {
         return temp;
     }
     
-    public static List<Peptide> findFromID(long peptideID, Connection aConn) throws SQLException {
+    public static List<PeptideAccessor> findFromID(long peptideID, Connection aConn) throws SQLException {
     	
-    	List<Peptide> temp = new ArrayList<Peptide>();
+    	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
     	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PEPTIDEID + " = ?");
         ps.setLong(1, peptideID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp.add(new Peptide(rs));
+            temp.add(new PeptideAccessor(rs));
         }
         rs.close();
         ps.close();
