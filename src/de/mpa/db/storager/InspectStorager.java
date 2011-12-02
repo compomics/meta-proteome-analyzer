@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.mpa.db.accessor.InspecthitTableAccessor;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.inspect.InspectFile;
 import de.mpa.parser.inspect.InspectHit;
@@ -85,8 +86,20 @@ public class InspectStorager extends BasicStorager {
             spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
             
             hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumid);
-            // TODO: peptide id
-            long peptideid = 1;
+            long peptideid;
+            PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(hit.getAnnotation(), conn);
+            
+            // peptideHit != null
+			if (peptideHit == null) { // sequence not yet in database
+				HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
+				dataPeptide.put(PeptideAccessor.SEQUENCE, hit.getAnnotation());
+				peptideHit = new PeptideAccessor(dataPeptide);
+				peptideHit.persist(conn);					
+				// Get the peptide id from the generated keys.
+				peptideid = (Long) peptideHit.getGeneratedKeys()[0];
+			} else {
+				peptideid = peptideHit.getPeptideid();
+			}
             hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideid);
             hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             hitdata.put(InspecthitTableAccessor.ANNOTATION, hit.getAnnotation());

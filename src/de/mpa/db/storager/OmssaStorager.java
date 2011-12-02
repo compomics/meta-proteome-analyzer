@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import de.mpa.db.accessor.OmssahitTableAccessor;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -111,8 +112,20 @@ public class OmssaStorager extends BasicStorager {
                 MSPepHit pepHit = pepHitIterator.next();               
               
     	    	hitdata.put(OmssahitTableAccessor.FK_SPECTRUMID, spectrumid);
-    	    	// TODO: Check for the peptides
-    	    	long peptideid = 1;
+                long peptideid;
+                PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(msHit.MSHits_pepstring, conn);
+                
+                // peptideHit != null
+                if (peptideHit == null) {	// sequence not yet in database
+						HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
+						dataPeptide.put(PeptideAccessor.SEQUENCE, msHit.MSHits_pepstring);
+						peptideHit = new PeptideAccessor(dataPeptide);
+						peptideHit.persist(conn);
+						// Get the peptide id from the generated keys.
+						peptideid = (Long) peptideHit.getGeneratedKeys()[0];
+					} else {
+						peptideid = peptideHit.getPeptideid();
+					}
     	    	hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideid);
     	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
     	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.mpa.db.accessor.CruxhitTableAccessor;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.crux.CruxFile;
 import de.mpa.parser.crux.CruxHit;
@@ -81,8 +82,20 @@ public class CruxStorager implements Storager {
                 String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
                 long spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
                 hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumid);
-                // TODO: Peptide id!
-                long peptideid = 1;
+                long peptideid;
+                PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(hit.getPeptide(), conn);
+                
+                // peptideHit != null
+				if (peptideHit == null) { // sequence not yet in database
+					HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
+					dataPeptide.put(PeptideAccessor.SEQUENCE, hit.getPeptide());
+					peptideHit = new PeptideAccessor(dataPeptide);
+					peptideHit.persist(conn);					
+					// Get the peptide id from the generated keys.
+					peptideid = (Long) peptideHit.getGeneratedKeys()[0];
+				} else {
+					peptideid = peptideHit.getPeptideid();
+				}
                 hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideid);
                 hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
                 hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));            

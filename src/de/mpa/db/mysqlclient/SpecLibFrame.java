@@ -32,7 +32,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
-import de.mpa.db.accessor.Peptide;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Protein;
 import de.mpa.db.accessor.Speclibentry;
 import de.mpa.db.accessor.Spectrumfile;
@@ -283,12 +283,12 @@ public class SpecLibFrame extends JFrame {
     								continue;
     							}
     							
-    							Peptide peptide = Peptide.findFromSequence(sequence, conn);
+    							PeptideAccessor peptide = PeptideAccessor.findFromSequence(sequence, conn);
     							if (peptide == null) {	// sequence not yet in database
         							HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-        							dataPeptide.put(Peptide.SEQUENCE, pepHit.getSequence());
+        							dataPeptide.put(PeptideAccessor.SEQUENCE, pepHit.getSequence());
         							
-        							peptide = new Peptide(dataPeptide);
+        							peptide = new PeptideAccessor(dataPeptide);
         	    					peptide.persist(conn);
 
         	    					// Get the peptide id from the generated keys.

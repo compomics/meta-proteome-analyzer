@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import org.xml.sax.SAXException;
 
 import de.mpa.db.accessor.OmssahitTableAccessor;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.proteinms.xtandemparser.xtandem.Peptide;
@@ -123,6 +124,7 @@ public class XTandemStorager extends BasicStorager {
             // Iterate over all peptide identifications aka. domains
             for (Peptide peptide : pepList) {
             	String sequence = peptide.getDomainSequence();
+            	
             	if(!peptides.contains(sequence)){
             	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(15);                
                       
@@ -131,8 +133,22 @@ public class XTandemStorager extends BasicStorager {
                       
                       // Spectrum id
                       hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
-                      // TODO: Check for the peptides
-                      long peptideid = 1;
+                      
+                      long peptideid;
+                      PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(sequence, conn);                      
+                      if (peptideHit == null) {	// sequence not yet in database
+							HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
+							dataPeptide.put(PeptideAccessor.SEQUENCE, sequence);
+							
+							peptideHit = new PeptideAccessor(dataPeptide);
+							peptideHit.persist(conn);
+
+	    					// Get the peptide id from the generated keys.
+							peptideid = (Long) peptideHit.getGeneratedKeys()[0];
+						} else {
+							peptideid = peptideHit.getPeptideid();
+						}
+                      
           	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideid);
                       // Set the domain id  
                       String domainID = peptide.getDomainID();

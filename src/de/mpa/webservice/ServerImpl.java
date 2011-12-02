@@ -136,7 +136,7 @@ public class ServerImpl implements Server {
 			if(params.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM"));
 			if(params.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA"));
 			if(params.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-			if(params.isInspect()) dbManager.storeInspectResults(filenames.get("INSPECT"));
+			if(params.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		} catch (SQLException ex) {
