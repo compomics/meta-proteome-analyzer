@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 01/12/2011
- * Time: 14:55:06
+ * Date: 02/12/2011
+ * Time: 15:03:11
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -107,7 +98,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'end' column.
 	 */
-	protected String iEnd = null;;
+	protected String iEnd = null;
 
 
 	/**
@@ -356,7 +347,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method returns the value for the 'Start' column
 	 * 
-	 * @return	long	with the value for the Start column.
+	 * @return	String	with the value for the Start column.
 	 */
 	public String getStart() {
 		return this.iStart;
@@ -365,7 +356,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method returns the value for the 'End' column
 	 * 
-	 * @return	long	with the value for the End column.
+	 * @return	String	with the value for the End column.
 	 */
 	public String getEnd() {
 		return this.iEnd;
@@ -482,7 +473,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method sets the value for the 'Start' column
 	 * 
-	 * @param	aStart	long with the value for the Start column.
+	 * @param	aStart	String with the value for the Start column.
 	 */
 	public void setStart(String aStart) {
 		this.iStart = aStart;
@@ -492,7 +483,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method sets the value for the 'End' column
 	 * 
-	 * @param	aEnd	long with the value for the End column.
+	 * @param	aEnd	String with the value for the End column.
 	 */
 	public void setEnd(String aEnd) {
 		this.iEnd = aEnd;
@@ -694,12 +685,12 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 			lStat.setObject(9, iTheomass);
 		}
 		if(iStart == null) {
-			lStat.setNull(10, 4);
+			lStat.setNull(10, 12);
 		} else {
 			lStat.setObject(10, iStart);
 		}
 		if(iEnd == null) {
-			lStat.setNull(11, 4);
+			lStat.setNull(11, 12);
 		} else {
 			lStat.setObject(11, iEnd);
 		}
