@@ -129,27 +129,13 @@ public class XTandemStorager extends BasicStorager {
             	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(15);                
                       
                       // Get the spectrum id for the given spectrumName for the XTandemFile     
-                      long spectrumid = Searchspectrum.getSpectrumIdFromSpectrumName(spectrumName, false);                
-                      
-                      // Spectrum id
+                      long spectrumid = Searchspectrum.getSpectrumIdFromSpectrumName(spectrumName, false);
                       hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
                       
-                      long peptideid;
-                      PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(sequence, conn);                      
-                      if (peptideHit == null) {	// sequence not yet in database
-							HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-							dataPeptide.put(PeptideAccessor.SEQUENCE, sequence);
-							
-							peptideHit = new PeptideAccessor(dataPeptide);
-							peptideHit.persist(conn);
-
-	    					// Get the peptide id from the generated keys.
-							peptideid = (Long) peptideHit.getGeneratedKeys()[0];
-						} else {
-							peptideid = peptideHit.getPeptideid();
-						}
-                      
+                      // Get the peptide id
+                      long peptideid = PeptideAccessor.findPeptideIdfromSequence(sequence, conn);
           	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideid);
+          	    	  
                       // Set the domain id  
                       String domainID = peptide.getDomainID();
                       hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
