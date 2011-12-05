@@ -79,28 +79,18 @@ public class InspectStorager extends BasicStorager {
         int lastIndex = filename.indexOf(".mgf");
         for (InspectHit hit : hitList) {
             HashMap<Object, Object> hitdata = new HashMap<Object, Object>(24);
-            long spectrumid;
+            
             long scannumber = hit.getScanNumber() + 1;
-         
             String name = filename.substring(firstIndex, lastIndex)+ "_" + scannumber  + ".mgf";
-            spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
             
+            // Get the spectrum id
+            long spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);
             hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumid);
-            long peptideid;
-            PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(hit.getAnnotation(), conn);
             
-            // peptideHit != null
-			if (peptideHit == null) { // sequence not yet in database
-				HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-				dataPeptide.put(PeptideAccessor.SEQUENCE, hit.getAnnotation());
-				peptideHit = new PeptideAccessor(dataPeptide);
-				peptideHit.persist(conn);					
-				// Get the peptide id from the generated keys.
-				peptideid = (Long) peptideHit.getGeneratedKeys()[0];
-			} else {
-				peptideid = peptideHit.getPeptideid();
-			}
+            // Get the peptide id
+            long peptideid = PeptideAccessor.findPeptideIdfromSequence(hit.getAnnotation(), conn);            
             hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideid);
+            
             hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             hitdata.put(InspecthitTableAccessor.ANNOTATION, hit.getAnnotation());
             hitdata.put(InspecthitTableAccessor.PROTEIN, hit.getProtein());

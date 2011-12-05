@@ -115,6 +115,8 @@ public class ClientFrame extends JFrame {
 	
 	private JPanel resPnl;
 	
+	private JPanel res2Pnl;
+	
 	private LogPanel logPnl;
 
 	private CellConstraints cc;
@@ -150,6 +152,7 @@ public class ClientFrame extends JFrame {
 	private boolean connectedToServer = false;
 	
 	private JTable libTbl;
+	private JTable identificationsTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 	
 	private Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
@@ -221,8 +224,10 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Server Configuration", srvPnl);
 		tabPane.addTab("Spectral Library Search", specLibPnl);
 		tabPane.addTab("MS/MS Database Search", msmsPnl);
-		
-		tabPane.addTab("Results", resPnl);
+		// TODO: Insert De-novo panel @Robert Heyer. 
+		tabPane.addTab("De-novo Search", null);
+		tabPane.addTab("Spectral Search Results", resPnl);
+		tabPane.addTab("Database Search Results", res2Pnl);
 		tabPane.addTab("Logging", lggPnl);
 		
 		cp.add(tabPane);
@@ -314,6 +319,9 @@ public class ClientFrame extends JFrame {
 		
 		// Results Panel
 		constructResultsPanel();
+		
+		// MS2 Results Panel
+		constructMS2ResultsPanel();
 		
 		// Logging panel		
 		constructLogPanel();
@@ -1023,6 +1031,15 @@ public class ClientFrame extends JFrame {
 	}
 
 	private SpectrumTree queryTree;
+	private JScrollPane identificationsTblJScrollPane;
+	private JTable xTandemTbl;
+	private JScrollPane xTandemTblJScrollPane;
+	private JTable omssaTbl;
+	private JScrollPane omssaTblJScrollPane;
+	private JTable cruxTbl;
+	private JScrollPane cruxTblJScrollPane;
+	private JTable inspectTbl;
+	private JScrollPane inspectTblJScrollPane;
 	
 	/**
 	 * Construct the results panel.
@@ -1181,6 +1198,110 @@ public class ClientFrame extends JFrame {
 		dispPnl.add(mainSplit, cc.xy(2,1));
 	    
 	    resPnl.add(dispPnl, cc.xy(2,2));
+	}
+	
+	/**
+	 * Construct the results panel.
+	 */
+	private void constructMS2ResultsPanel() {
+		
+		identificationsTblJScrollPane = new JScrollPane();
+		
+		res2Pnl = new JPanel();
+		res2Pnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, p:g, 5dlu, p:g, 5dlu"));
+		
+		final JPanel spectraPnl = new JPanel();
+		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"f:p:g, 5dlu"));
+		spectraPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
+		identificationsTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#", "Spectrumtitle", "M/z", "Charge", "PSM"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+	          
+		identificationsTbl.setOpaque(false);
+		identificationsTblJScrollPane.setViewportView(identificationsTbl);
+		identificationsTblJScrollPane.setPreferredSize(new Dimension(500, 300));
+		spectraPnl.add(identificationsTblJScrollPane, cc.xy(2, 1));
+		
+		// PSMs
+		final JPanel psmPnl = new JPanel();
+		psmPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu",  "5dlu, p, 5dlu, p, 5dlu"));
+		psmPnl.setBorder(BorderFactory.createTitledBorder("Peptide-to-spectrum Matches"));
+		
+		// X!Tandem
+		final JPanel xtandemPnl = new JPanel(new FormLayout("p:g", "p:g"));
+		xtandemPnl.setBorder(BorderFactory.createTitledBorder("X!Tandem"));
+		xTandemTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "E-value", "Hyperscore"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		xTandemTblJScrollPane = new JScrollPane();
+		xTandemTblJScrollPane.setPreferredSize(new Dimension(500, 100));
+		xTandemTblJScrollPane.setViewportView(xTandemTbl);
+		xtandemPnl.add(xTandemTblJScrollPane, cc.xy(1, 1));
+		psmPnl.add(xtandemPnl, cc.xy(2, 2));
+		
+		// Omssa
+		final JPanel omssaPnl = new JPanel(new FormLayout("p:g", "p:g"));
+		omssaPnl.setBorder(BorderFactory.createTitledBorder("Omssa"));
+		omssaTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "E-value", "P-value"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		omssaTblJScrollPane = new JScrollPane();
+		omssaTblJScrollPane.setPreferredSize(new Dimension(500, 100));
+		omssaTblJScrollPane.setViewportView(omssaTbl);
+		omssaPnl.add(omssaTblJScrollPane, cc.xy(1, 1));
+		psmPnl.add(omssaPnl, cc.xy(4, 2));
+		
+		// Crux
+		final JPanel cruxPnl = new JPanel(new FormLayout("p:g", "p:g"));
+		cruxPnl.setBorder(BorderFactory.createTitledBorder("Crux"));
+		cruxTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "XCorr-score", "Q-value"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		cruxTblJScrollPane = new JScrollPane();
+		cruxTblJScrollPane.setPreferredSize(new Dimension(500, 100));
+		cruxTblJScrollPane.setViewportView(cruxTbl);
+		cruxPnl.add(cruxTblJScrollPane, cc.xy(1, 1));
+		psmPnl.add(cruxPnl, cc.xy(2, 4));
+		
+		// Inspect
+		final JPanel inspectPnl = new JPanel(new FormLayout("p:g", "p:g"));
+		inspectPnl.setBorder(BorderFactory.createTitledBorder("Inspect"));
+		inspectTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "F-score", "Deltascore", "P-value"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		inspectTblJScrollPane = new JScrollPane();
+		inspectTblJScrollPane.setPreferredSize(new Dimension(500, 100));
+		inspectTblJScrollPane.setViewportView(inspectTbl);
+		inspectPnl.add(inspectTblJScrollPane, cc.xy(1, 1));
+		psmPnl.add(inspectPnl, cc.xy(4, 4));
+		
+	    res2Pnl.add(spectraPnl, cc.xy(2,2));
+	    res2Pnl.add(psmPnl, cc.xy(2,4));
 	}
 	
 	/**

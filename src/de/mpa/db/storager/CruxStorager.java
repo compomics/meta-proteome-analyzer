@@ -80,23 +80,15 @@ public class CruxStorager implements Storager {
         	if(hit.getxCorrRank() == 1 || hit.getPercolatorRank() == 1){
                 HashMap<Object, Object> hitdata = new HashMap<Object, Object>(18);
                 String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
+                
+                // Get the spectrum id
                 long spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
                 hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumid);
-                long peptideid;
-                PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(hit.getPeptide(), conn);
                 
-                // peptideHit != null
-				if (peptideHit == null) { // sequence not yet in database
-					HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-					dataPeptide.put(PeptideAccessor.SEQUENCE, hit.getPeptide());
-					peptideHit = new PeptideAccessor(dataPeptide);
-					peptideHit.persist(conn);					
-					// Get the peptide id from the generated keys.
-					peptideid = (Long) peptideHit.getGeneratedKeys()[0];
-				} else {
-					peptideid = peptideHit.getPeptideid();
-				}
+                // Get the peptide id
+                long peptideid = PeptideAccessor.findPeptideIdfromSequence(hit.getPeptide(), conn);
                 hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideid);
+                
                 hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
                 hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));            
                 hitdata.put(CruxhitTableAccessor.PRECURSOR_MZ, hit.getPrecursorMZ());

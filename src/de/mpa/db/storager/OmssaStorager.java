@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import de.mpa.db.accessor.CruxhitTableAccessor;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Searchspectrum;
@@ -103,30 +104,18 @@ public class OmssaStorager extends BasicStorager {
     	    	HashMap<Object, Object> hitdata = new HashMap<Object, Object>(11);    	    	
     	    	
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
-    	    	String spectrumName = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();    	    	
+    	    	String spectrumName = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
     	    	long spectrumid = Searchspectrum.getSpectrumIdFromSpectrumName(spectrumName, true);
+    	    	hitdata.put(OmssahitTableAccessor.FK_SPECTRUMID, spectrumid);
     	    	
     	    	// Get the MSPepHit (for the accession)
     	    	List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
                 Iterator<MSPepHit> pepHitIterator = pepHits.iterator();                
                 MSPepHit pepHit = pepHitIterator.next();               
-              
-    	    	hitdata.put(OmssahitTableAccessor.FK_SPECTRUMID, spectrumid);
-                long peptideid;
-                PeptideAccessor peptideHit = PeptideAccessor.findFromSequence(msHit.MSHits_pepstring, conn);
-                
-                // peptideHit != null
-                if (peptideHit == null) {	// sequence not yet in database
-						HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-						dataPeptide.put(PeptideAccessor.SEQUENCE, msHit.MSHits_pepstring);
-						peptideHit = new PeptideAccessor(dataPeptide);
-						peptideHit.persist(conn);
-						// Get the peptide id from the generated keys.
-						peptideid = (Long) peptideHit.getGeneratedKeys()[0];
-					} else {
-						peptideid = peptideHit.getPeptideid();
-					}
-    	    	hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideid);
+    	    	
+    	        // Get the peptide id
+                long peptideid = PeptideAccessor.findPeptideIdfromSequence(msHit.MSHits_pepstring, conn);
+                hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideid);                
     	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
     	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
     	    	hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
