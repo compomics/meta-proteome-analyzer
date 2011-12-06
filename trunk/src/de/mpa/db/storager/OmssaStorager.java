@@ -17,7 +17,9 @@ import java.util.StringTokenizer;
 
 import de.mpa.db.accessor.CruxhitTableAccessor;
 import de.mpa.db.accessor.OmssahitTableAccessor;
+import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.Protein;
 import de.mpa.db.accessor.Searchspectrum;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -114,8 +116,8 @@ public class OmssaStorager extends BasicStorager {
                 MSPepHit pepHit = pepHitIterator.next();               
     	    	
     	        // Get the peptide id
-                long peptideid = PeptideAccessor.findPeptideIdfromSequence(msHit.MSHits_pepstring, conn);
-                hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideid);                
+                long peptideID = PeptideAccessor.findPeptideIdfromSequence(msHit.MSHits_pepstring, conn);
+                hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
     	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
     	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
     	    	hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
@@ -123,8 +125,26 @@ public class OmssaStorager extends BasicStorager {
     	    	hitdata.put(OmssahitTableAccessor.MASS, msHit.MSHits_mass);
     	    	hitdata.put(OmssahitTableAccessor.THEOMASS, msHit.MSHits_theomass);    	    	
     	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
-    	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);    	    	
-    	    	// TODO: protein necessary ?
+    	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
+    	    	
+    	    	Long proteinID;
+                String accession = pepHit.MSPepHit_accession;
+                String description = pepHit.MSPepHit_defline;
+                Protein protein = Protein.findFromAttributes(accession, description, conn);
+                if (protein == null) {	// protein not yet in database
+						// Add new protein to the database
+						protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
+					} else {
+						proteinID = protein.getProteinid();
+						// check whether pep2prot link already exists, otherwise create new one
+						Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+						if (pep2prot == null) {	// link doesn't exist yet
+							// Link peptide to protein.
+							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+						}
+				}
+                
+    	    	// TODO: remove protein from db schema.
     	    	hitdata.put(OmssahitTableAccessor.PROTEIN, pepHit.MSPepHit_defline);
     	    	
 //    	        qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       

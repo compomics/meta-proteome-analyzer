@@ -32,14 +32,14 @@ public class Pep2prot extends Pep2protTableAccessor {
      *
      * @param peptideID long with the peptide ID of the link to find.
      * @param proteinID long with the protein ID of the link to find.
-     * @param aConn     Connection to read the spectrum File from.
+     * @param conn  The database connection.
      * @return Pep2prot with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Pep2prot findLink(Long peptideID, Long proteinID, Connection aConn) throws SQLException {
+    public static Pep2prot findLink(Long peptideID, Long proteinID, Connection conn) throws SQLException {
 
     	Pep2prot temp = null;
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + FK_PEPTIDEID  + " = ?" +
+        PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + FK_PEPTIDEID  + " = ?" +
         																   " AND " + FK_PROTEINSID + " = ?");
         ps.setLong(1, peptideID);
         ps.setLong(2, proteinID);
@@ -53,5 +53,22 @@ public class Pep2prot extends Pep2protTableAccessor {
         ps.close();
 
         return temp;
+    }
+    
+    /**
+     * Links peptide to protein: Creates a new pep2prot entry, based on peptideID and proteinID.
+     * @param peptideID long with the peptide ID of the link to find.
+     * @param proteinID long with the protein ID of the link to find.
+     * @param conn  The database connection.
+     * @return pep2prot The new created Pep2prot entry.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static Pep2prot linkPeptideToProtein(Long peptideID, Long proteinID, Connection conn) throws SQLException{
+    	HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
+		dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
+		dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
+		Pep2prot pep2prot = new Pep2prot(dataPep2Prot);
+		pep2prot.persist(conn);
+		return pep2prot;
     }
 }
