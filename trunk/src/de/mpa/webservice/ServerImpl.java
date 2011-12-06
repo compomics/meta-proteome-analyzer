@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayDeque;
+import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
 
@@ -59,7 +60,13 @@ public class ServerImpl implements Server {
 	public String sendMessage() {
 		Message msg = msgQueue.poll();
 		if(msg != null){
-			String composedMessage = msg.getJob().getDescription() + " " + msg.getData();
+			String composedMessage;
+			if(msg.getJob() != null){
+				composedMessage = msg.getJob().getDescription() + " " + msg.getData();
+			} else {
+				composedMessage = msg.getData();
+			}
+			
 			log.info(composedMessage);
 			return composedMessage;
 		}
@@ -142,6 +149,7 @@ public class ServerImpl implements Server {
 		} catch (SQLException ex) {
 			log.error(ex.getMessage());
 		}
+		msgQueue.add(new Message(null, "DBSEARCH FINISHED", new Date()));
 	}
 	
 	@Override		

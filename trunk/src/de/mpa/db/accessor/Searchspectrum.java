@@ -47,7 +47,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
     	}
         Searchspectrum temp = null;
         // Only get the last 1500 records
-        PreparedStatement ps = aConn.prepareStatement("select * from spectrum where spectrumname = ? order by creationdate LIMIT 1500");
+        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where spectrumname = ? order by creationdate LIMIT 1500");
         ps.setString(1, formatted);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -89,7 +89,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
     public static Searchspectrum findFromFilename(String filename, Connection aConn) throws SQLException {
     	
         Searchspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement("select * from spectrum where filename = ? order by creationdate LIMIT 1500");
+        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where filename = ? order by creationdate LIMIT 1500");
         ps.setString(1, filename);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -117,7 +117,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
     public static void checkDuplicateFile(String filename, Connection aConn) throws SQLException {
     	
         Searchspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement("select * from spectrum");        
+        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum");        
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {

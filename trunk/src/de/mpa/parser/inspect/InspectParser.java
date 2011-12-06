@@ -58,7 +58,6 @@ public class InspectParser {
 						String peptide = tokenList.get(2);
 						String formattedPeptide = peptide.substring(peptide.indexOf('.') + 1, peptide.lastIndexOf('.'));
 						hit.setAnnotation(formattedPeptide);
-						System.out.println(formattedPeptide);
                         hit.setProtein(tokenList.get(3));
                         hit.setCharge(Integer.valueOf(tokenList.get(4)));
                         hit.setMqScore(Double.valueOf(tokenList.get(5)));

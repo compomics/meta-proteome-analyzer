@@ -48,6 +48,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
@@ -72,11 +73,24 @@ import org.apache.log4j.Logger;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.looks.FontSets;
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.LookUtils;
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+import com.jgoodies.looks.plastic.theme.SkyKrupp;
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
+import de.mpa.client.DbSearchResult;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.ProcessSettings;
+import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.XTandemhit;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.Peak;
@@ -197,7 +211,7 @@ public class ClientFrame extends JFrame {
 	private int minPeaks = 5;
 	private double minTIC = 100.0;
 	private double minSNR = 1.0;
-	
+	private DbSearchResult result;
 	
 	/**
 	 * Constructor for the ClientFrame
@@ -292,6 +306,12 @@ public class ClientFrame extends JFrame {
 			} else if(message.contains(finished)){
 				inspectStatTtf.setText(finished);
 			}
+		} else if(message.startsWith("DBSEARCH")){
+			for (File file : files) {
+				result = client.getSearchResult(file);
+				updateResultsTable();
+			}
+			
 		}
 	}
 	
@@ -333,6 +353,8 @@ public class ClientFrame extends JFrame {
 	 */
 	private void constructMenu() {
 		menuBar = new JMenuBar();
+        menuBar.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+	    menuBar.putClientProperty(PlasticLookAndFeel.IS_3D_KEY, Boolean.FALSE);
 		menu1 = new JMenu();
 		exitItem = new JMenuItem();
 		menu1.setText("File");
@@ -1209,7 +1231,7 @@ public class ClientFrame extends JFrame {
 		querySpectraTblJScrollPane = new JScrollPane();
 		
 		res2Pnl = new JPanel();
-		res2Pnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, p:g, 5dlu, p:g, 5dlu"));
+		res2Pnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, p:g, 5dlu, p:g, 5dlu, p"));
 		
 		final JPanel spectraPnl = new JPanel();
 		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"f:p:g, 5dlu"));
@@ -1308,8 +1330,34 @@ public class ClientFrame extends JFrame {
 		inspectPnl.add(inspectTblJScrollPane, cc.xy(1, 1));
 		psmPnl.add(inspectPnl, cc.xy(4, 4));
 		
+		JButton updateBtn = new JButton("Update");
+		updateBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for(File file : files){
+					result = client.getSearchResult(file);
+					updateResultsTable();
+				}
+			}
+		});
 	    res2Pnl.add(spectraPnl, cc.xy(2,2));
 	    res2Pnl.add(psmPnl, cc.xy(2,4));
+	    res2Pnl.add(updateBtn, cc.xy(2,6));
+	}
+	
+	private void updateResultsTable(){
+		List<Searchspectrum> querySpectra = result.getQuerySpectra();
+		if (querySpectra != null) {
+			for (int i = 0; i < querySpectra.size(); i++) {
+				Searchspectrum spectrum = querySpectra.get(i);
+				 ((DefaultTableModel) querySpectraTbl.getModel()).addRow(new Object[]{
+                         i + 1,
+                         spectrum.getSpectrumname(),
+                         spectrum.getPrecursor_mz(),
+                         spectrum.getCharge()});
+			}
+		}
 	}
 	
 	/**
@@ -1326,27 +1374,61 @@ public class ClientFrame extends JFrame {
         // Condition if one row is selected.
         if (row != -1) {
         	
-        	// Remove PSMs from all result tables        	 
-            while (xTandemTbl.getRowCount() > 0) {
-                ((DefaultTableModel) xTandemTbl.getModel()).removeRow(0);
-            }
-            while (omssaTbl.getRowCount() > 0) {
-                ((DefaultTableModel) omssaTbl.getModel()).removeRow(0);
-            }
-            while (cruxTbl.getRowCount() > 0) {
-                ((DefaultTableModel) cruxTbl.getModel()).removeRow(0);
-            }
-            while (inspectTbl.getRowCount() > 0) {
-                ((DefaultTableModel) inspectTbl.getModel()).removeRow(0);
-            }
+        	// Empty tables.
+        	clearResultTables();
             
-            // TODO: Add PSMs to the according tables (if any!)
-            
+        	// Make the variable global
+        	final Map<String, List<XTandemhit>> xTandemResults = result.getxTandemResults();
+        	String spectrumName = querySpectraTbl.getValueAt(row, 1).toString();
+        	if (xTandemResults.containsKey(spectrumName)) {
+        		List<XTandemhit> xTandemList = xTandemResults.get(spectrumName);
+    			for (int i = 0; i < xTandemList.size(); i++) {
+    				XTandemhit hit = xTandemList.get(i);
+    				 ((DefaultTableModel) xTandemTbl.getModel()).addRow(new Object[]{
+                             i + 1,
+                             hit.getSequence(),
+                             "", 
+                             hit.getEvalue(), 
+                             hit.getHyperscore()});
+    			}
+    		}
+        	
+        	final Map<String, List<Omssahit>> ommsaResults = result.getOmssaResults();        	
+        	if (ommsaResults.containsKey(spectrumName)) {
+        		List<Omssahit> omssaList = ommsaResults.get(spectrumName);
+    			for (int i = 0; i < omssaList.size(); i++) {
+    				Omssahit hit = omssaList.get(i);
+    				 ((DefaultTableModel) omssaTbl.getModel()).addRow(new Object[]{
+                             i + 1,
+                             hit.getSequence(),
+                             "", 
+                             hit.getEvalue(), 
+                             hit.getPvalue()});
+    			}
+    		}
         }
-        
         // Set the cursor back into the default status.
         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		
+	}
+	
+	/**
+	 * Clears the result tables.
+	 */
+	private void clearResultTables(){
+		// Remove PSMs from all result tables        	 
+        while (xTandemTbl.getRowCount() > 0) {
+            ((DefaultTableModel) xTandemTbl.getModel()).removeRow(0);
+        }
+        while (omssaTbl.getRowCount() > 0) {
+            ((DefaultTableModel) omssaTbl.getModel()).removeRow(0);
+        }
+        while (cruxTbl.getRowCount() > 0) {
+            ((DefaultTableModel) cruxTbl.getModel()).removeRow(0);
+        }
+        while (inspectTbl.getRowCount() > 0) {
+            ((DefaultTableModel) inspectTbl.getModel()).removeRow(0);
+        }
 	}
 
 	/**
@@ -1637,6 +1719,11 @@ public class ClientFrame extends JFrame {
         }
 	}
 	
+	/**
+	 * RunDBSearchWorker class extending SwingWorker.
+	 * @author Thilo Muth
+	 *
+	 */
 	private class RunDbSearchWorker	extends SwingWorker {
 		
 		protected Object doInBackground() throws Exception {
@@ -1665,25 +1752,40 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
+	 * This method sets the look&feel for the application.
+	 */
+	private static void setLookAndFeel() {
+		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
+		Options.setUseSystemFonts(true);
+		Options.setDefaultIconSize(new Dimension(18, 18));
+
+		String lafName = LookUtils.IS_OS_WINDOWS 
+			? Options.getCrossPlatformLookAndFeelClassName()
+			: UIManager.getSystemLookAndFeelClassName();
+
+		try {
+			UIManager.setLookAndFeel(lafName);
+			com.jgoodies.looks.Options.setPopupDropShadowEnabled(true);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Main method ==> Entry point to the application.
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
+		setLookAndFeel();
 		
-		EventQueue.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
-				try {
-					UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-				}
-				catch (Exception e) { e.printStackTrace(); }
-//				try {
-//					SubstanceLookAndFeel.setSkin(new BusinessBlackSteelSkin());
-//				}
-//				catch (Exception e) { e.printStackTrace(); }
-				
 				new ClientFrame();
+				
 			}
 		});
 	}
