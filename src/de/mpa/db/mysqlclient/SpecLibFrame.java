@@ -319,12 +319,8 @@ public class SpecLibFrame extends JFrame {
 	    								// check whether pep2prot link already exists, otherwise create new one
 	    								Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
 	    								if (pep2prot == null) {	// link doesn't exist yet
-    	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
-    	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
-    	        	    					dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
-
-    	        	    					pep2prot = new Pep2prot(dataPep2Prot);
-    	        	    					pep2prot.persist(conn);
+	    									// Link peptide to protein.
+	    									pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 	    								}
 									}
         						} else {
@@ -343,35 +339,15 @@ public class SpecLibFrame extends JFrame {
     									
     	        						Protein protein = Protein.findFromAttributes(accession, description, conn);
     	        						if (protein == null) {	// protein not yet in database
-    	        							HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(3);
-    	        							dataProtein.put(Protein.ACCESSION, accession);
-    	        							dataProtein.put(Protein.DESCRIPTION, description);
-    	        							
-    	        							protein = new Protein(dataProtein);
-    	        							protein.persist(conn);
-
-    	        	    					// get the protein id from the generated keys.
-    	        	    					proteinID = (Long) protein.getGeneratedKeys()[0];
-    	        	    					
-    	        	    					// since this is a new protein we also create a new pep2prot entry
-    	        	    					// to link it to the peptide (no redundancy check needed)
-    	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
-    	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
-    	        	    					dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
-    	        	    					
-    	        	    					Pep2prot pep2prot = new Pep2prot(dataPep2Prot);
-    	        	    					pep2prot.persist(conn);
+    	        							// Add new protein to the database
+    	        							protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
     	    							} else {
     	    								proteinID = protein.getProteinid();
     	    								// check whether pep2prot link already exists, otherwise create new one
     	    								Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
     	    								if (pep2prot == null) {	// link doesn't exist yet
-        	        	    					HashMap<Object, Object> dataPep2Prot = new HashMap<Object, Object>(3);
-        	        	    					dataPep2Prot.put(Pep2prot.FK_PEPTIDEID, peptideID);
-        	        	    					dataPep2Prot.put(Pep2prot.FK_PROTEINSID, proteinID);
-
-        	        	    					pep2prot = new Pep2prot(dataPep2Prot);
-        	        	    					pep2prot.persist(conn);
+    	    									// Link peptide to protein.
+    	    									pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
     	    								}
     	    							}
     	        						proteinList.add(protein);

@@ -7,8 +7,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
+import com.compomics.util.protein.Header;
+
 import de.mpa.db.accessor.CruxhitTableAccessor;
+import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.Protein;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.crux.CruxFile;
 import de.mpa.parser.crux.CruxHit;
@@ -82,12 +86,12 @@ public class CruxStorager implements Storager {
                 String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
                 
                 // Get the spectrum id
-                long spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);            
-                hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumid);
+                long spectrumID = Searchspectrum.getSpectrumIdFromFileName(name);            
+                hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumID);
                 
                 // Get the peptide id
-                long peptideid = PeptideAccessor.findPeptideIdfromSequence(hit.getPeptide(), conn);
-                hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideid);
+                long peptideID = PeptideAccessor.findPeptideIdfromSequence(hit.getPeptide(), conn);
+                hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideID);
                 
                 hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
                 hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));            
@@ -102,7 +106,28 @@ public class CruxStorager implements Storager {
                 hitdata.put(CruxhitTableAccessor.QVALUE, hit.getqValue());
                 hitdata.put(CruxhitTableAccessor.MATCHES_SPECTRUM, Long.valueOf(hit.getMatchesSpectrum()));                
                 hitdata.put(CruxhitTableAccessor.CLEAVAGE_TYPE, hit.getCleavageType());
-                // TODO: protein id not used anymore
+                
+                Long proteinID;
+            	// parse the header
+                Header header = Header.parseFromFASTA(hit.getProteinid());
+                String accession = header.getAccession();
+                String description = header.getDescription();
+            	
+                Protein protein = Protein.findFromAttributes(accession, description, conn);
+                if (protein == null) {	// protein not yet in database
+    					// Add new protein to the database
+    					protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
+    				} else {
+    					proteinID = protein.getProteinid();
+    					// check whether pep2prot link already exists, otherwise create new one
+    					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+    					if (pep2prot == null) {	// link doesn't exist yet
+    						// Link peptide to protein.
+    						pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+    					}
+    			}
+                
+                // TODO: remove protein id
                 hitdata.put(CruxhitTableAccessor.PROTEINID, hit.getProteinid());
                 hitdata.put(CruxhitTableAccessor.FLANK_AA, hit.getFlankingAA());
 

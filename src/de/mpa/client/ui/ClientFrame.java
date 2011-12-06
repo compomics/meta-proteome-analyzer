@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -152,7 +153,7 @@ public class ClientFrame extends JFrame {
 	private boolean connectedToServer = false;
 	
 	private JTable libTbl;
-	private JTable identificationsTbl;
+	private JTable querySpectraTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 	
 	private Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
@@ -1031,7 +1032,7 @@ public class ClientFrame extends JFrame {
 	}
 
 	private SpectrumTree queryTree;
-	private JScrollPane identificationsTblJScrollPane;
+	private JScrollPane querySpectraTblJScrollPane;
 	private JTable xTandemTbl;
 	private JScrollPane xTandemTblJScrollPane;
 	private JTable omssaTbl;
@@ -1205,7 +1206,7 @@ public class ClientFrame extends JFrame {
 	 */
 	private void constructMS2ResultsPanel() {
 		
-		identificationsTblJScrollPane = new JScrollPane();
+		querySpectraTblJScrollPane = new JScrollPane();
 		
 		res2Pnl = new JPanel();
 		res2Pnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, p:g, 5dlu, p:g, 5dlu"));
@@ -1213,7 +1214,7 @@ public class ClientFrame extends JFrame {
 		final JPanel spectraPnl = new JPanel();
 		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"f:p:g, 5dlu"));
 		spectraPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
-		identificationsTbl = new JTable(new DefaultTableModel() {
+		querySpectraTbl = new JTable(new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {"#", "Spectrumtitle", "M/z", "Charge", "PSM"}); }
 			
@@ -1221,11 +1222,18 @@ public class ClientFrame extends JFrame {
 				return false;
 		    }
 		});
-	          
-		identificationsTbl.setOpaque(false);
-		identificationsTblJScrollPane.setViewportView(identificationsTbl);
-		identificationsTblJScrollPane.setPreferredSize(new Dimension(500, 300));
-		spectraPnl.add(identificationsTblJScrollPane, cc.xy(2, 1));
+		querySpectraTbl.addMouseListener(new java.awt.event.MouseAdapter() {
+
+	            @Override
+	            public void mouseClicked(java.awt.event.MouseEvent evt) {
+	            	querySpectraTableMouseClicked(evt);
+	            }
+	        });
+	     
+		querySpectraTbl.setOpaque(false);
+		querySpectraTblJScrollPane.setViewportView(querySpectraTbl);
+		querySpectraTblJScrollPane.setPreferredSize(new Dimension(500, 300));
+		spectraPnl.add(querySpectraTblJScrollPane, cc.xy(2, 1));
 		
 		// PSMs
 		final JPanel psmPnl = new JPanel();
@@ -1304,6 +1312,43 @@ public class ClientFrame extends JFrame {
 	    res2Pnl.add(psmPnl, cc.xy(2,4));
 	}
 	
+	/**
+     * Update the PSM tables based on the spectrum selected.
+     * 
+     * @param evt
+     */
+	private void querySpectraTableMouseClicked(MouseEvent evt) {
+		 // Set the cursor into the wait status.
+        this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
+        int row = querySpectraTbl.getSelectedRow();
+
+        // Condition if one row is selected.
+        if (row != -1) {
+        	
+        	// Remove PSMs from all result tables        	 
+            while (xTandemTbl.getRowCount() > 0) {
+                ((DefaultTableModel) xTandemTbl.getModel()).removeRow(0);
+            }
+            while (omssaTbl.getRowCount() > 0) {
+                ((DefaultTableModel) omssaTbl.getModel()).removeRow(0);
+            }
+            while (cruxTbl.getRowCount() > 0) {
+                ((DefaultTableModel) cruxTbl.getModel()).removeRow(0);
+            }
+            while (inspectTbl.getRowCount() > 0) {
+                ((DefaultTableModel) inspectTbl.getModel()).removeRow(0);
+            }
+            
+            // TODO: Add PSMs to the according tables (if any!)
+            
+        }
+        
+        // Set the cursor back into the default status.
+        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		
+	}
+
 	/**
 	 * Construct the logging panel.
 	 */	

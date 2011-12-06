@@ -25,7 +25,6 @@ public class Protein extends ProteinTableAccessor {
 	 */
 	public Protein(ResultSet aResultSet) throws SQLException {
 		super(aResultSet);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -62,6 +61,33 @@ public class Protein extends ProteinTableAccessor {
         ps.close();
 
         return temp;
+    }
+    
+	/**
+     * Adds a new protein with a specific peptide id, accession and description to the database..
+     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
+     * @param accession String with the accession of the protein to find.
+     * @param description String with the description of the protein to find.
+     * @param conn The database connection object.
+     * @return protein The newly created Protein object.
+     * @throws SQLException when the persistence did not succeed.
+     */
+    public static Protein addProteinWithPeptideID(Long peptideID, String accession, String description, Connection conn) throws SQLException{
+    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(3);
+		dataProtein.put(Protein.ACCESSION, accession);
+		dataProtein.put(Protein.DESCRIPTION, description);
+		
+		Protein protein = new Protein(dataProtein);
+		protein.persist(conn);
+
+		// get the protein id from the generated keys.
+		Long proteinID = (Long) protein.getGeneratedKeys()[0];
+		
+		// since this is a new protein we also create a new pep2prot entry
+		// to link it to the peptide (no redundancy check needed)
+		Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+		
+		return protein;
     }
 
 }

@@ -7,8 +7,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
+import com.compomics.util.protein.Header;
+
+
 import de.mpa.db.accessor.InspecthitTableAccessor;
+import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.Protein;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.inspect.InspectFile;
 import de.mpa.parser.inspect.InspectHit;
@@ -84,15 +89,37 @@ public class InspectStorager extends BasicStorager {
             String name = filename.substring(firstIndex, lastIndex)+ "_" + scannumber  + ".mgf";
             
             // Get the spectrum id
-            long spectrumid = Searchspectrum.getSpectrumIdFromFileName(name);
-            hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumid);
+            long spectrumID = Searchspectrum.getSpectrumIdFromFileName(name);
+            hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumID);
             
             // Get the peptide id
-            long peptideid = PeptideAccessor.findPeptideIdfromSequence(hit.getAnnotation(), conn);            
-            hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideid);
+            long peptideID = PeptideAccessor.findPeptideIdfromSequence(hit.getAnnotation(), conn);            
+            hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideID);
             
             hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             hitdata.put(InspecthitTableAccessor.ANNOTATION, hit.getAnnotation());
+            
+        	Long proteinID;
+        	// parse the header
+            Header header = Header.parseFromFASTA(hit.getProtein());
+            String accession = header.getAccession();
+            String description = header.getDescription();
+        	
+            Protein protein = Protein.findFromAttributes(accession, description, conn);
+            if (protein == null) {	// protein not yet in database
+					// Add new protein to the database
+					protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
+				} else {
+					proteinID = protein.getProteinid();
+					// check whether pep2prot link already exists, otherwise create new one
+					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+					if (pep2prot == null) {	// link doesn't exist yet
+						// Link peptide to protein.
+						pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+					}
+			}
+            
+            // TODO: Remove protein
             hitdata.put(InspecthitTableAccessor.PROTEIN, hit.getProtein());
             hitdata.put(InspecthitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
             hitdata.put(InspecthitTableAccessor.MQ_SCORE, hit.getMqScore());

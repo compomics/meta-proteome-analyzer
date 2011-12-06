@@ -17,8 +17,11 @@ import java.util.StringTokenizer;
 
 import org.xml.sax.SAXException;
 
-import de.mpa.db.accessor.OmssahitTableAccessor;
+import com.compomics.util.protein.Header;
+
+import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.Protein;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.proteinms.xtandemparser.xtandem.Peptide;
@@ -133,13 +136,34 @@ public class XTandemStorager extends BasicStorager {
                       hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
                       
                       // Get the peptide id
-                      long peptideid = PeptideAccessor.findPeptideIdfromSequence(sequence, conn);
-          	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideid);
+                      long peptideID = PeptideAccessor.findPeptideIdfromSequence(sequence, conn);
+          	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
           	    	  
                       // Set the domain id  
                       String domainID = peptide.getDomainID();
                       hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
-                      // TODO: protein accession necessary ?
+                      
+                      // parse the FASTA header
+                      Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
+                      String accession = header.getAccession();
+                      String description = header.getDescription();
+                      Long proteinID;
+                      
+                      Protein protein = Protein.findFromAttributes(accession, description, conn);
+                      if (protein == null) {	// protein not yet in database
+							// Add new protein to the database
+							protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
+						} else {
+							proteinID = protein.getProteinid();
+							// check whether pep2prot link already exists, otherwise create new one
+							Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+							if (pep2prot == null) {	// link doesn't exist yet
+								// Link peptide to protein.
+								pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+							}
+						}
+                      
+                      // TODO: remove from db schema
                       hitdata.put(XtandemhitTableAccessor.PROTEIN, protMap.getProteinWithPeptideID(domainID).getLabel());
                       hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(peptide.getDomainStart()));
                       hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(peptide.getDomainEnd()));
