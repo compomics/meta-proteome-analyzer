@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import de.mpa.db.accessor.CruxhitTableAccessor;
+import com.compomics.util.protein.Header;
+
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
@@ -128,8 +129,12 @@ public class OmssaStorager extends BasicStorager {
     	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
     	    	
     	    	Long proteinID;
-                String accession = pepHit.MSPepHit_accession;
-                String description = pepHit.MSPepHit_defline;
+    	    	 // Parse the FASTA header
+                Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
+                String accession = header.getAccession();
+                String description = header.getDescription();
+                
+                // The Protein
                 Protein protein = Protein.findFromAttributes(accession, description, conn);
                 if (protein == null) {	// protein not yet in database
 						// Add new protein to the database

@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Omssahit extends OmssahitTableAccessor{
+public class Omssahit extends OmssahitTableAccessor {
+	
+	private String sequence;
 	
     /**
      * Calls the super class.
@@ -27,6 +29,7 @@ public class Omssahit extends OmssahitTableAccessor{
      */
     public Omssahit(ResultSet aRS) throws SQLException {
         super(aRS);
+        this.sequence = (String) aRS.getObject("sequence");
     }
     
 	/**
@@ -39,7 +42,7 @@ public class Omssahit extends OmssahitTableAccessor{
      */
     public static List<Omssahit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Omssahit> temp = new ArrayList<Omssahit>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where l_spectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement("select o.*, p.sequence from omssahit o, peptide p where o.fk_peptideid = p.peptideid and o.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -47,10 +50,17 @@ public class Omssahit extends OmssahitTableAccessor{
             counter++;
             temp.add(new Omssahit(rs));
         }
-        
         rs.close();
         ps.close();
         return temp;
     }
+
+	public String getSequence() {
+		return sequence;
+	}
+
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
+	}
 
 }

@@ -75,6 +75,7 @@ public class JobManager {
 			}		
 			// Set the job status to FINISHED and put the message in the queue
 			msgQueue.add(new Message(job, JobStatus.FINISHED.toString(), new Date()));
+			jobQueue.remove(job);
 		}
 	}
 	

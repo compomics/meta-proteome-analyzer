@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
@@ -23,6 +24,11 @@ import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.Inspecthit;
+import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -41,6 +47,9 @@ public class Client {
 	// Server instance
 	private Server server;
 	
+	// Connection
+	private Connection conn;
+	
 	/**
      *  Property change support for notifying the gui about new messages.
      */
@@ -55,7 +64,8 @@ public class Client {
 	private Client() {
 		pSupport = new PropertyChangeSupport(this);
 	}
-
+	
+	
 	/**
 	 * Returns a client singleton object.
 	 * 
@@ -68,6 +78,19 @@ public class Client {
 		return client;
 	}
 	
+	/**
+	 * Sets the database connection.
+	 * @param conn
+	 */
+	public void initDBConnection() {
+		// connect to database
+		DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
+		// Connection conn
+		if(conn == null){
+			this.conn = dbconfig.getConnection();
+		}
+	}
+
 	/**
 	 * Connects the client to the web service.
 	 */
@@ -164,6 +187,49 @@ public class Client {
 		server.process(file.getName(), settings);
 	}
 	
+	public DbSearchResult getSearchResult(File file){
+		// Init the database connection.
+		initDBConnection();
+		
+		DbSearchResult result = null;
+		
+		MascotGenericFileReader mgfReader;
+		List<MascotGenericFile> mgfFiles = null;
+		try {
+			// Get the query spectra.
+			mgfReader = new MascotGenericFileReader(file);
+			mgfFiles = mgfReader.getSpectrumFiles();
+			
+			// Initialize the result set.
+			result = new DbSearchResult();
+			List<Searchspectrum> querySpectra = new ArrayList<Searchspectrum>();
+			Map<String, List<XTandemhit>> xTandemResults = new HashMap<String, List<XTandemhit>>();
+			Map<String, List<Omssahit>> omssaResults = new HashMap<String, List<Omssahit>>();
+			Map<String, List<Inspecthit>> inspectResults = new HashMap<String, List<Inspecthit>>();
+			Map<String, List<Cruxhit>> cruxResults = new HashMap<String, List<Cruxhit>>();
+			
+			// iterate over query spectra
+			for (MascotGenericFile mgf : mgfFiles) {
+				Searchspectrum spectrum = Searchspectrum.findFromFilename(mgf.getFilename(), conn);
+				querySpectra.add(spectrum);
+				long spectrumID = spectrum.getSpectrumid();
+				String spectrumname = spectrum.getSpectrumname();
+				xTandemResults.put(spectrumname, XTandemhit.getHitsFromSpectrumID(spectrumID, conn));
+				omssaResults.put(spectrumname, Omssahit.getHitsFromSpectrumID(spectrumID, conn));
+			}
+			
+			result.setQuerySpectra(querySpectra);
+			result.setxTandemResults(xTandemResults);
+			result.setOmssaResults(omssaResults);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
 	/**
 	 * Process
 	 * @param file
@@ -174,9 +240,8 @@ public class Client {
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		
-		// connect to database
-		DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
-		Connection conn = dbconfig.getConnection();
+		// Init the database connection.
+		initDBConnection();
 		
 		// parse query file
 		try {

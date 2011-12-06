@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class XTandemhit extends XtandemhitTableAccessor {
+	private String sequence = null;
+	
     /**
      * Calls the super class.
      * @param params
@@ -26,6 +28,7 @@ public class XTandemhit extends XtandemhitTableAccessor {
      */
     public XTandemhit(ResultSet aRS) throws SQLException {
         super(aRS);
+        this.sequence = (String) aRS.getObject("sequence");
     }
     
     /**
@@ -38,7 +41,7 @@ public class XTandemhit extends XtandemhitTableAccessor {
      */
     public static List<XTandemhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<XTandemhit> temp = new ArrayList<XTandemhit>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where l_spectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement("select x.*, p.sequence from xtandemhit x, peptide p where x.fk_peptideid = p.peptideid and x.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -51,33 +54,15 @@ public class XTandemhit extends XtandemhitTableAccessor {
         ps.close();
         return temp;
     }
-    /*public static List<XTandemhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
-    	List<XTandemhit> temp = new ArrayList<XTandemhit>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where l_spectrumid = ?");
-        ps.setLong(1, aSpectrumID);
-        ResultSet rs = ps.executeQuery();
-        int counter = 0;
-        while (rs.next()) {
-            counter++;
-            XTandemhit hit = new XTandemhit(rs);
-            Iterator iter = temp.iterator();
-            if(temp.size() > 0){
-            	while(iter.hasNext()){
-            		XTandemhit tempHit = (XTandemhit) iter.next();
-      
-                		if(!tempHit.getSequence().equals(hit.getSequence())){
-        					temp.add(new XTandemhit(rs));
-        					System.out.println("XTANDEM spectrum-id: " + aSpectrumID + "sequence: " + hit.getSequence());
-        				}
-            	}
-            	
-			} else {
-				temp.add(new XTandemhit(rs));
-				System.out.println("XTANDEM spectrum-id: " + aSpectrumID + "sequence: " + temp.get(0).getSequence());
-			}
-        }
-        rs.close();
-        ps.close();
-        return temp;
-    }*/
+
+	public String getSequence() {
+		return sequence;
+	}
+
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
+	}
+    
+    
+
 }

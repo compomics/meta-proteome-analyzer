@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import com.compomics.util.protein.Header;
 
@@ -109,23 +111,33 @@ public class CruxStorager implements Storager {
                 
                 Long proteinID;
             	// parse the header
-                Header header = Header.parseFromFASTA(hit.getProteinid());
-                String accession = header.getAccession();
-                String description = header.getDescription();
-            	
-                Protein protein = Protein.findFromAttributes(accession, description, conn);
-                if (protein == null) {	// protein not yet in database
-    					// Add new protein to the database
-    					protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
-    				} else {
-    					proteinID = protein.getProteinid();
-    					// check whether pep2prot link already exists, otherwise create new one
-    					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-    					if (pep2prot == null) {	// link doesn't exist yet
-    						// Link peptide to protein.
-    						pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-    					}
-    			}
+                StringTokenizer tokenizer = new StringTokenizer(hit.getProteinid(), ",");
+                while(tokenizer.hasMoreTokens()){
+                	String token = tokenizer.nextToken();
+                	StringTokenizer tokenizer2 = new StringTokenizer(token, "|");
+                	List<String> tokenList = new ArrayList<String>();
+                	// Iterate over all the tokens
+					while (tokenizer2.hasMoreTokens()) {
+						tokenList.add(tokenizer2.nextToken());
+					}
+					
+                    String accession = tokenList.get(1);
+                    
+                    Protein protein = Protein.findFromAttributes(accession, null, conn);
+                    if (protein == null) {	// protein not yet in database
+        					// Add new protein to the database
+        					protein = Protein.addProteinWithPeptideID(peptideID, accession, null, conn);
+        				} else {
+        					proteinID = protein.getProteinid();
+        					// check whether pep2prot link already exists, otherwise create new one
+        					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+        					if (pep2prot == null) {	// link doesn't exist yet
+        						// Link peptide to protein.
+        						pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+        					}
+        			}
+                }
+                
                 
                 // TODO: remove protein id
                 hitdata.put(CruxhitTableAccessor.PROTEINID, hit.getProteinid());
