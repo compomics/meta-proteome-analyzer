@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -27,6 +26,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -73,14 +73,9 @@ import org.apache.log4j.Logger;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.looks.FontSets;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.Options;
-import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.jgoodies.looks.plastic.theme.SkyKrupp;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
@@ -157,9 +152,8 @@ public class ClientFrame extends JFrame {
 	};
     private JButton sendBtn;
 	private JMenuBar menuBar;
-	private JMenu menu1;
+	private JMenu fileMenu;
 	private JMenuItem exitItem;
-	
 	private JButton procBtn;
 	private JProgressBar procPrg;
 	private JProgressBar searchPrg;
@@ -212,6 +206,14 @@ public class ClientFrame extends JFrame {
 	private double minTIC = 100.0;
 	private double minSNR = 1.0;
 	private DbSearchResult result;
+	private JMenuItem newProjectItem;
+	private JMenuItem openProjectItem;
+	private JMenu helpMenu;
+	private JMenuItem helpContentsItem;
+	private JMenuItem aboutItem;
+	private JMenu settingsMenu;
+	private JMenuItem databaseItem;
+	private JMenuItem serverItem;
 	
 	/**
 	 * Constructor for the ClientFrame
@@ -219,11 +221,11 @@ public class ClientFrame extends JFrame {
 	public ClientFrame() {
 		
 		// Application title
-		super("Client");
+		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
 		
 		// Frame size
-		this.setMinimumSize(new Dimension(Constants.CLIENTFRAME_WIDTH, Constants.CLIENTFRAME_HEIGHT));
-		this.setPreferredSize(new Dimension(Constants.CLIENTFRAME_WIDTH, Constants.CLIENTFRAME_HEIGHT));		
+		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
+		this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));		
 		frame = this;
 		
 		// Init components
@@ -239,7 +241,6 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Server Configuration", srvPnl);
 		tabPane.addTab("Spectral Library Search", specLibPnl);
 		tabPane.addTab("MS/MS Database Search", msmsPnl);
-		// TODO: Insert De-novo panel @Robert Heyer. 
 		tabPane.addTab("De-novo Search", null);
 		tabPane.addTab("Spectral Search Results", resPnl);
 		tabPane.addTab("Database Search Results", res2Pnl);
@@ -354,20 +355,111 @@ public class ClientFrame extends JFrame {
 	private void constructMenu() {
 		menuBar = new JMenuBar();
         menuBar.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
-	    menuBar.putClientProperty(PlasticLookAndFeel.IS_3D_KEY, Boolean.FALSE);
-		menu1 = new JMenu();
+	    
+	    // File Menu
+		fileMenu = new JMenu();
+		newProjectItem = new JMenuItem();
+		newProjectItem.setText("New Project");
+		newProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/new_project.gif")));
+		
+		openProjectItem = new JMenuItem();
+		openProjectItem.setText("Open Project");
+		openProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/open_project.gif")));
 		exitItem = new JMenuItem();
-		menu1.setText("File");
-
-		// ---- menuItem7 ----
+		fileMenu.setText("File");
+		
+		// exitItem
 		exitItem.setText("Exit");
+		exitItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/exit.gif")));
 		exitItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
-		menu1.add(exitItem);
-		menuBar.add(menu1);
+		fileMenu.add(newProjectItem);
+		fileMenu.add(openProjectItem);
+		fileMenu.addSeparator();
+		fileMenu.add(exitItem);
+		menuBar.add(fileMenu);
+		
+		// Settings Menu
+		settingsMenu = new JMenu();
+		
+		settingsMenu.setText("Settings");
+		
+		databaseItem = new JMenuItem();
+		// databaseItem
+		databaseItem.setText("Database Connection");
+		
+		databaseItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
+		settingsMenu.add(databaseItem);
+
+		settingsMenu.addSeparator();
+
+		// serverItem
+		serverItem = new JMenuItem();
+		serverItem.setText("Server Configuration");
+		serverItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/server.png")));
+		
+		settingsMenu.add(serverItem);
+		menuBar.add(settingsMenu);
+		
+		// Help Menu
+		helpMenu = new JMenu();		
+		helpMenu.setText("Help");
+		
+		helpContentsItem = new JMenuItem();
+		// helpContentsItem
+		helpContentsItem.setText("Help Contents");
+		
+		helpContentsItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/help.gif")));
+		helpMenu.add(helpContentsItem);
+		helpContentsItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//helpTriggered();
+			}
+		});
+
+		helpMenu.addSeparator();
+
+		// aboutItem
+		aboutItem = new JMenuItem();
+		aboutItem.setText("About");
+		aboutItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/about.gif")));
+		aboutItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				aboutActionPerformed(e);
+			}
+		});
+		helpMenu.add(aboutItem);
+		menuBar.add(helpMenu);
+		
+
+	}
+	
+	 /**
+     * The method that builds the about dialog.
+     */
+	private void aboutActionPerformed(ActionEvent e) {
+	       StringBuffer tMsg = new StringBuffer();
+	        tMsg.append("Product Version: " + Constants.APPTITLE + " " + Constants.VER_NUMBER);
+	        tMsg.append("\n");
+	        tMsg.append("\n");
+	        tMsg.append("This software is developed by Alexander Behne, Robert Heyer and Thilo Muth \nat the Max Planck Institute for Dynamics of Complex \nTechnical Systems in Magdeburg (Germany).");
+	        tMsg.append("\n");
+	        tMsg.append("\n");
+	        tMsg.append("The latest version is available at http://meta-proteome-analyzer.googlecode.com");
+	        tMsg.append("\n");
+	        tMsg.append("\n");
+	        tMsg.append("If any questions arise, contact the corresponding author: ");
+	        tMsg.append("\n");
+	        tMsg.append("muth@mpi-magdeburg.mpg.de");
+	        tMsg.append("\n");
+	        tMsg.append("\n");
+	        tMsg.append("");
+	        tMsg.append("");
+	        JOptionPane.showMessageDialog(this, tMsg,
+	                "About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private PlotPanel2 filePlotPnl;
@@ -1236,14 +1328,13 @@ public class ClientFrame extends JFrame {
 		final JPanel spectraPnl = new JPanel();
 		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"f:p:g, 5dlu"));
 		spectraPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
-		querySpectraTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#", "Spectrumtitle", "M/z", "Charge", "PSM"}); }
-			
-			public boolean isCellEditable(int row, int col) {
-				return false;
-		    }
-		});
+		
+		// Setup the tables
+		setResultsTableProperties();
+		
+		// List with loaded query spectra
+		//querySpectraLst = new JList()
+		
 		querySpectraTbl.addMouseListener(new java.awt.event.MouseAdapter() {
 
 	            @Override
@@ -1265,14 +1356,6 @@ public class ClientFrame extends JFrame {
 		// X!Tandem
 		final JPanel xtandemPnl = new JPanel(new FormLayout("p:g", "p:g"));
 		xtandemPnl.setBorder(BorderFactory.createTitledBorder("X!Tandem"));
-		xTandemTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "E-value", "Hyperscore"}); }
-			
-			public boolean isCellEditable(int row, int col) {
-				return false;
-		    }
-		});
 		xTandemTblJScrollPane = new JScrollPane();
 		xTandemTblJScrollPane.setPreferredSize(new Dimension(500, 100));
 		xTandemTblJScrollPane.setViewportView(xTandemTbl);
@@ -1282,14 +1365,6 @@ public class ClientFrame extends JFrame {
 		// Omssa
 		final JPanel omssaPnl = new JPanel(new FormLayout("p:g", "p:g"));
 		omssaPnl.setBorder(BorderFactory.createTitledBorder("Omssa"));
-		omssaTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "E-value", "P-value"}); }
-			
-			public boolean isCellEditable(int row, int col) {
-				return false;
-		    }
-		});
 		omssaTblJScrollPane = new JScrollPane();
 		omssaTblJScrollPane.setPreferredSize(new Dimension(500, 100));
 		omssaTblJScrollPane.setViewportView(omssaTbl);
@@ -1299,14 +1374,6 @@ public class ClientFrame extends JFrame {
 		// Crux
 		final JPanel cruxPnl = new JPanel(new FormLayout("p:g", "p:g"));
 		cruxPnl.setBorder(BorderFactory.createTitledBorder("Crux"));
-		cruxTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "XCorr-score", "Q-value"}); }
-			
-			public boolean isCellEditable(int row, int col) {
-				return false;
-		    }
-		});
 		cruxTblJScrollPane = new JScrollPane();
 		cruxTblJScrollPane.setPreferredSize(new Dimension(500, 100));
 		cruxTblJScrollPane.setViewportView(cruxTbl);
@@ -1316,14 +1383,6 @@ public class ClientFrame extends JFrame {
 		// Inspect
 		final JPanel inspectPnl = new JPanel(new FormLayout("p:g", "p:g"));
 		inspectPnl.setBorder(BorderFactory.createTitledBorder("Inspect"));
-		inspectTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#", "Peptide", "Accession", "F-score", "Deltascore", "P-value"}); }
-			
-			public boolean isCellEditable(int row, int col) {
-				return false;
-		    }
-		});
 		inspectTblJScrollPane = new JScrollPane();
 		inspectTblJScrollPane.setPreferredSize(new Dimension(500, 100));
 		inspectTblJScrollPane.setViewportView(inspectTbl);
@@ -1344,6 +1403,91 @@ public class ClientFrame extends JFrame {
 	    res2Pnl.add(spectraPnl, cc.xy(2,2));
 	    res2Pnl.add(psmPnl, cc.xy(2,4));
 	    res2Pnl.add(updateBtn, cc.xy(2,6));
+	}
+	
+	private void setResultsTableProperties(){
+		// Query table
+		querySpectraTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {" ", "Title", "m/z", "Charge", "Retention Time", "Identified"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		querySpectraTbl.getColumn(" ").setMinWidth(30);
+		querySpectraTbl.getColumn(" ").setMaxWidth(30);
+		querySpectraTbl.getColumn("m/z").setMinWidth(100);
+		querySpectraTbl.getColumn("m/z").setMaxWidth(100);
+		querySpectraTbl.getColumn("Charge").setMinWidth(100);
+		querySpectraTbl.getColumn("Charge").setMaxWidth(100);
+		querySpectraTbl.getColumn("Retention Time").setMinWidth(100);
+		querySpectraTbl.getColumn("Retention Time").setMaxWidth(100);
+		querySpectraTbl.getColumn("Identified").setMinWidth(80);
+		querySpectraTbl.getColumn("Identified").setMaxWidth(80);
+		xTandemTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "hyperscore"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		
+		xTandemTbl.getColumn(" ").setMinWidth(30);
+		xTandemTbl.getColumn(" ").setMaxWidth(30);
+		xTandemTbl.getColumn("e-value").setMinWidth(90);
+		xTandemTbl.getColumn("e-value").setMaxWidth(90);
+		xTandemTbl.getColumn("hyperscore").setMinWidth(90);
+		xTandemTbl.getColumn("hyperscore").setMaxWidth(90);
+		
+		omssaTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "p-value"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		
+		omssaTbl.getColumn(" ").setMinWidth(30);
+		omssaTbl.getColumn(" ").setMaxWidth(30);
+		omssaTbl.getColumn("e-value").setMinWidth(90);
+		omssaTbl.getColumn("e-value").setMaxWidth(90);
+		omssaTbl.getColumn("p-value").setMinWidth(90);
+		omssaTbl.getColumn("p-value").setMaxWidth(90);
+		
+		cruxTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "xCorr", "q-value"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		
+		cruxTbl.getColumn(" ").setMinWidth(30);
+		cruxTbl.getColumn(" ").setMaxWidth(30);
+		cruxTbl.getColumn("xCorr").setMinWidth(90);
+		cruxTbl.getColumn("xCorr").setMaxWidth(90);
+		cruxTbl.getColumn("q-value").setMinWidth(90);
+		cruxTbl.getColumn("q-value").setMaxWidth(90);
+		
+		inspectTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "f-score", "p-value"}); }
+			
+			public boolean isCellEditable(int row, int col) {
+				return false;
+		    }
+		});
+		
+		inspectTbl.getColumn(" ").setMinWidth(30);
+		inspectTbl.getColumn(" ").setMaxWidth(30);
+		inspectTbl.getColumn("f-score").setMinWidth(90);
+		inspectTbl.getColumn("f-score").setMaxWidth(90);
+		inspectTbl.getColumn("p-value").setMinWidth(90);
+		inspectTbl.getColumn("p-value").setMaxWidth(90);
 	}
 	
 	private void updateResultsTable(){
@@ -1757,15 +1901,15 @@ public class ClientFrame extends JFrame {
 	private static void setLookAndFeel() {
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
 		Options.setUseSystemFonts(true);
-		Options.setDefaultIconSize(new Dimension(18, 18));
-
+		//Options.setDefaultIconSize(new Dimension(18, 18));
+		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
+		Options.setPopupDropShadowEnabled(true);
 		String lafName = LookUtils.IS_OS_WINDOWS 
-			? Options.getCrossPlatformLookAndFeelClassName()
+			? WindowsLookAndFeel.class.getName()
 			: UIManager.getSystemLookAndFeelClassName();
 
 		try {
 			UIManager.setLookAndFeel(lafName);
-			com.jgoodies.looks.Options.setPopupDropShadowEnabled(true);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1778,14 +1922,13 @@ public class ClientFrame extends JFrame {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		JFrame.setDefaultLookAndFeelDecorated(true);
+		// Set the look&feel
 		setLookAndFeel();
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				new ClientFrame();
-				
 			}
 		});
 	}
