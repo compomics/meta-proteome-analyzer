@@ -236,6 +236,7 @@ public class ClientFrame extends JFrame {
 	private JCheckBox dnPepknownChx;
 	private JSpinner dnThresholdSpn;
 	private JButton dnStartBtn;
+	private JTable dnPTMtbl;
 
 	/**
 	 * Constructor for the ClientFrame
@@ -468,13 +469,13 @@ public class ClientFrame extends JFrame {
 		for (int i = 0; i < Constants.PTMs.length; i++) {
 			model.addRow(new Object[] {Constants.PTMs[i], false});
 		}
-		JTable table = new JTable(model);
-		table.getColumnModel().getColumn(1).setMaxWidth(table.getColumnModel().getColumn(1).getMinWidth());
-		JScrollPane dnPTMSpn = new JScrollPane(table);
-		dnPTMSpn.setPreferredSize(new Dimension(0, 0));
-		dnPTMSpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		dnPTMSpn.setToolTipText("Chooce possible PTM's");
-		ptmsPnl.add(dnPTMSpn,cc.xy(2,2));
+		dnPTMtbl = new JTable(model);
+		dnPTMtbl.getColumnModel().getColumn(1).setMaxWidth(dnPTMtbl.getColumnModel().getColumn(1).getMinWidth());
+		JScrollPane dnPTMScp = new JScrollPane(dnPTMtbl);
+		dnPTMScp.setPreferredSize(new Dimension(0, 0));
+		dnPTMScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		dnPTMScp.setToolTipText("Chooce possible PTM's");
+		ptmsPnl.add(dnPTMScp,cc.xy(2,2));
 
 		// Start panel
 		JPanel dnStartPnl= new JPanel();
@@ -508,6 +509,8 @@ public class ClientFrame extends JFrame {
 		denovoPnl.add(parametersPnl,cc.xy(2, 4));
 		denovoPnl.add(ptmsPnl,cc.xywh(4, 4,1,3));
 		denovoPnl.add(dnStartPnl,cc.xy(2,6));
+		
+		System.out.println(dnPTMtbl);
 	}
 
 	private DenovoSearchSettings collectDenovoSettings(){
@@ -519,20 +522,13 @@ public class ClientFrame extends JFrame {
 		settings.setDnPeptideIntThresh((Integer)dnThresholdSpn.getValue() );
 		settings.setDnCountPept((Integer) dnPepCountSpn.getValue());
 		settings.setDnRemoveAllPep((boolean) dnPepknownChx.isSelected());
-		//TODO: PTM tabelle ansprechen
-		//1. prüfen ob Checkbox true
-		// wenn Checkbox true dann PTM merken
-
-		
-		//Proof of function
-		System.out.println(settings.getDnDatabase());
-		System.out.println(settings.getDnCountPept());
-		System.out.println(settings.getDnEnzyme());
-		System.out.println(settings.getDnMS());
-		System.out.println(settings.getDnPeptideIntThresh());
-		System.out.println(settings.getDnFragmentTolerance());
-		System.out.println(settings.isDnRemoveAllPep());
-		//System.out.println(dnPTM.getSelectedValuesList());
+		List<String> ptmList =new ArrayList<String>();
+		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
+			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
+				ptmList.add((String) dnPTMtbl.getValueAt(row, 0));
+			}
+		}
+		settings.setDnPTM(ptmList);
 		return settings;
 	}
 
