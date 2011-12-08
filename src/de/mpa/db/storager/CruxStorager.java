@@ -14,7 +14,7 @@ import com.compomics.util.protein.Header;
 import de.mpa.db.accessor.CruxhitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.Protein;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.crux.CruxFile;
 import de.mpa.parser.crux.CruxHit;
@@ -123,10 +123,10 @@ public class CruxStorager implements Storager {
 					
                     String accession = tokenList.get(1);
                     
-                    Protein protein = Protein.findFromAttributes(accession, null, conn);
+                    ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, null, conn);
                     if (protein == null) {	// protein not yet in database
         					// Add new protein to the database
-        					protein = Protein.addProteinWithPeptideID(peptideID, accession, null, conn);
+        					protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, null, conn);
         				} else {
         					proteinID = protein.getProteinid();
         					// check whether pep2prot link already exists, otherwise create new one

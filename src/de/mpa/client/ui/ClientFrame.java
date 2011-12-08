@@ -35,7 +35,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -49,12 +48,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.Popup;
-import javax.swing.PopupFactory;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -78,7 +73,6 @@ import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 
-import com.compomics.util.db.interfaces.DBElement;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
@@ -86,6 +80,7 @@ import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
+import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchResult;
@@ -105,6 +100,7 @@ import de.mpa.ui.PlotPanel2;
 import de.mpa.utils.ExtensionFileFilter;
 import de.mpa.webservice.WSPublisher;
 
+
 @SuppressWarnings("unchecked")
 /**
  * <b> ClientFrame </b>
@@ -112,7 +108,7 @@ import de.mpa.webservice.WSPublisher;
  * 	Represents the main graphical user interface for the MetaProteomeAnalyzer-Client.
  * </p>
  * 
- * @author muth Alex Behne, Thilo Muth
+ * @author Alex Behne, Thilo Muth
  */
 
 public class ClientFrame extends JFrame {
@@ -221,7 +217,6 @@ public class ClientFrame extends JFrame {
 	private JSpinner dnFragTolSpn;
 	private JComboBox dnFileCbx;
 	private JComboBox dnEnzymesCbx;
-	private JList dnPTM;
 	private JComboBox dnMSCbx;
 	private JMenuItem newProjectItem;
 	private JMenuItem openProjectItem;
@@ -231,7 +226,6 @@ public class ClientFrame extends JFrame {
 	private JMenu settingsMenu;
 	private JMenuItem databaseItem;
 	private JMenuItem serverItem;
-	private Object dnPepAnz;
 	private JSpinner dnPepCountSpn;
 	private JCheckBox dnPepknownChx;
 	private JSpinner dnThresholdSpn;
@@ -366,170 +360,13 @@ public class ClientFrame extends JFrame {
 		constructDenovoPanel();
 
 		// Results Panel
-		constructResultsPanel();
+		constructSpecResultsPanel();
 
 		// MS2 Results Panel
 		constructMS2ResultsPanel();
 
 		// Logging panel		
 		constructLogPanel();
-	}
-
-	private void constructDenovoPanel() {
-		// TODO Auto-generated method stub
-		denovoPnl = new JPanel();
-		denovoPnl.setLayout(new FormLayout("5dlu, p, 5dlu, f:p, 5dlu ",		// col
-				"5dlu, f:p, 5dlu, f:p, 5dlu,f:p, 5dlu"));	// row)
-		//Select Database
-		JPanel prodbPnl =new JPanel();
-		prodbPnl.setLayout(new FormLayout("5dlu, p, 5dlu,f:p:g, 5dlu",//col
-				"5dlu, f:p, 5dlu,"));		//row
-		prodbPnl.setBorder(new TitledBorder("Protein database"));
-		JLabel fastafileLbl =new JLabel("Fasta File");
-		prodbPnl.add(fastafileLbl,cc.xy(2, 2));
-		// FASTA file ComboBox
-		dnFileCbx = new JComboBox<String>(Constants.dnDatabase);
-		dnFileCbx.setToolTipText("Choose against which database you want to search");
-		prodbPnl.add(dnFileCbx,cc.xy(4, 2));
-
-		//Search status
-		JPanel searchstatPnl = new JPanel();
-		searchstatPnl.setLayout(new FormLayout("5dlu, p, 5dlu,f:p, 5dlu",//col
-				"5dlu, f:p, 5dlu,"));//row
-		searchstatPnl.setBorder(new TitledBorder("Search status"));
-		JLabel searchstatLbl= new JLabel("Progress");
-		searchstatPnl.add(searchstatLbl,cc.xy(2, 2));
-
-		// Progress bar
-		denovoPrg = new JProgressBar(0,100);
-		denovoPrg.setStringPainted(true);
-		denovoPrg.setValue(0);
-		searchstatPnl.add(denovoPrg, cc.xy(4, 2));
-
-		//Parameters		
-		JPanel parametersPnl = new JPanel();
-		parametersPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, p, 5dlu",
-				"5dlu, p, 5dlu,p, 5dlu,p, 5dlu,p, 5dlu,p, 5dlu,p, 5dlu"));
-		parametersPnl.setBorder(new TitledBorder("Parameters"));
-		//Enzymes
-		parametersPnl.add(new JLabel("Enzymes (Protease)"),cc.xy(2, 2));
-		dnEnzymesCbx = new JComboBox<String>(Constants.dnEnzymes);
-		dnEnzymesCbx.setToolTipText("Choose the enzyme of the protein digest");
-		//dnEnzymesCbx.setRenderer(new RightAlignListCellRenderer());
-		parametersPnl.add(dnEnzymesCbx,cc.xy(4, 2));
-		//MS
-		parametersPnl.add(new JLabel("Mass spectrometer"),cc.xy(2, 4));
-		dnMSCbx=new JComboBox<String>(Constants.ms);
-		dnMSCbx.setToolTipText("Select your mass spectrometer");
-		//dnMS.setRenderer(new RightAlignListCellRenderer());
-		parametersPnl.add(dnMSCbx,cc.xy(4, 4));
-		//Fragment tolerance
-		parametersPnl.add(new JLabel("Fragment tolerance"), cc.xy(2,6));
-		dnFragTolSpn = new JSpinner(new SpinnerNumberModel(0.3, 0.0, null, 0.05));
-		dnFragTolSpn.setEditor(new JSpinner.NumberEditor(dnFragTolSpn, "0.00"));
-		dnFragTolSpn.setToolTipText("Choose your fragment mass tolerance");
-		parametersPnl.add(dnFragTolSpn,cc.xy(4, 6));
-		parametersPnl.add(new JLabel("Da"),cc.xy(5, 6));
-		// for right text in spinners in windows
-		//	private class RightAlignListCellRenderer extends JLabel implements ListCellRenderer<String> {
-		//		@Override
-		//		public Component getListCellRendererComponent(
-		//				JList<? extends String> list, String value, int index,
-		//				boolean isSelected, boolean cellHasFocus) {
-		//			this.setText(value);
-		//			this.setHorizontalAlignment(JLabel.RIGHT);
-		//			return this;
-		//		}
-		//	}
-		//Threshold peptides
-		parametersPnl.add(new JLabel("Peptide intensity threshold"),cc.xy(2, 8));
-		dnThresholdSpn= new JSpinner(new SpinnerNumberModel(1000,0,null,1));
-		dnThresholdSpn.setToolTipText("Apply peptide threshold");
-		parametersPnl.add(dnThresholdSpn,cc.xy(4, 8));
-		//Maximum number of peptides
-		parametersPnl.add(new JLabel("Number of peptides"),cc.xy(2, 10));
-		dnPepCountSpn= new JSpinner(new SpinnerNumberModel(10,0,null,1));
-		dnPepCountSpn.setToolTipText("Select the maximum number of peaks for de novo sequencing ");
-		parametersPnl.add(dnPepCountSpn,cc.xy(4, 10));
-		dnPepknownChx= new JCheckBox("Remove known peptides");
-		dnPepknownChx.setToolTipText("Remove all identified peptides");
-		parametersPnl.add(dnPepknownChx,cc.xy(4,12));
-
-		// Panel PTMS
-		JPanel ptmsPnl = new JPanel();
-		ptmsPnl.setLayout(new FormLayout("5dlu,f:p:g, 5dlu",//col
-				"5dlu, f:p:g, 5dlu,"));		//row
-		ptmsPnl.setBorder(new TitledBorder("PTMs"));
-		//methode allows checkboxes in Table
-		DefaultTableModel model = new DefaultTableModel(new Object[] {"PTM", ""}, 0) {
-			public Class<?> getColumnClass(int c){
-				return getValueAt(0,c).getClass();
-			}
-		};
-		for (int i = 0; i < Constants.PTMs.length; i++) {
-			model.addRow(new Object[] {Constants.PTMs[i], false});
-		}
-		dnPTMtbl = new JTable(model);
-		dnPTMtbl.getColumnModel().getColumn(1).setMaxWidth(dnPTMtbl.getColumnModel().getColumn(1).getMinWidth());
-		JScrollPane dnPTMScp = new JScrollPane(dnPTMtbl);
-		dnPTMScp.setPreferredSize(new Dimension(0, 0));
-		dnPTMScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		dnPTMScp.setToolTipText("Chooce possible PTM's");
-		ptmsPnl.add(dnPTMScp,cc.xy(2,2));
-
-		// Start panel
-		JPanel dnStartPnl= new JPanel();
-		dnStartPnl.setLayout(new FormLayout("5dlu,f:p:g, 5dlu",//col
-				"5dlu, f:p:g, 5dlu,"));		//row))
-		dnStartPnl.setBorder(new TitledBorder("Start de novo search"));
-		dnStartBtn= new JButton("Start de novo search");
-		dnStartBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				collectDenovoSettings();
-				Image image = null;
-				try {
-					image = ImageIO.read(new File("docu/Nerds.jpg"));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				JLabel label = new JLabel("Das passiert wenn man wahllos Knöpfe drückt!!!", new ImageIcon(image),JLabel.CENTER);
-				label.setVerticalTextPosition(JLabel.BOTTOM);
-				label.setHorizontalTextPosition(JLabel.CENTER);
-				JOptionPane.showMessageDialog(frame, label,"Erwischt!!", JOptionPane.PLAIN_MESSAGE);
-			}
-		});
-		dnStartPnl.add(dnStartBtn,cc.xy(2, 2));
-
-		//add Panels
-		denovoPnl.add(prodbPnl,cc.xy(2, 2));
-		denovoPnl.add(searchstatPnl,cc.xy(4, 2));
-		denovoPnl.add(parametersPnl,cc.xy(2, 4));
-		denovoPnl.add(ptmsPnl,cc.xywh(4, 4,1,3));
-		denovoPnl.add(dnStartPnl,cc.xy(2,6));
-		
-		System.out.println(dnPTMtbl);
-	}
-
-	private DenovoSearchSettings collectDenovoSettings(){
-		DenovoSearchSettings settings = new DenovoSearchSettings();
-		settings.setDnDatabase(dnFileCbx.getSelectedItem().toString());
-		settings.setDnEnzyme(dnEnzymesCbx.getSelectedItem().toString());
-		settings.setDnMS(dnMSCbx.getSelectedItem().toString());
-		settings.setDnFragmentTolerance((Double) dnFragTolSpn.getValue());
-		settings.setDnPeptideIntThresh((Integer)dnThresholdSpn.getValue() );
-		settings.setDnCountPept((Integer) dnPepCountSpn.getValue());
-		settings.setDnRemoveAllPep((boolean) dnPepknownChx.isSelected());
-		List<String> ptmList =new ArrayList<String>();
-		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
-			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
-				ptmList.add((String) dnPTMtbl.getValueAt(row, 0));
-			}
-		}
-		settings.setDnPTM(ptmList);
-		return settings;
 	}
 
 	private void constructMenu() {
@@ -722,6 +559,7 @@ public class ClientFrame extends JFrame {
 		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
 		leftDummyTable.getTableHeader().setReorderingAllowed(false);
 		leftDummyTable.getTableHeader().setResizingAllowed(false);
+		leftDummyTable.getTableHeader().setPreferredSize(new JCheckBox().getPreferredSize());
 		JScrollPane leftDummyScpn = new JScrollPane(leftDummyTable);
 		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
 
@@ -736,6 +574,7 @@ public class ClientFrame extends JFrame {
 		final JTable rightDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Details"})));
 		rightDummyTable.getTableHeader().setReorderingAllowed(false);
 		rightDummyTable.getTableHeader().setResizingAllowed(false);
+		rightDummyTable.getTableHeader().setPreferredSize(new JCheckBox().getPreferredSize());
 		JScrollPane rightDummyScpn = new JScrollPane(rightDummyTable);
 		rightDummyScpn.setPreferredSize(rightDummyTable.getTableHeader().getPreferredSize());
 		//		JLabel rightLbl = new JLabel("Details");
@@ -774,6 +613,7 @@ public class ClientFrame extends JFrame {
 				fileDetailsTbl.getRowHeight() + 2));
 
 		final JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topRightPnl, filePlotPnl);
+		rightSplit.setBorder(null);
 		rightSplit.setMinimumSize(new Dimension(200, 0));
 		rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
 				(fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
@@ -791,6 +631,7 @@ public class ClientFrame extends JFrame {
 		});
 
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPnl, rightSplit);
+		mainSplit.setBorder(null);
 		mainSplit.setDividerLocation(200);
 		mainSplit.setContinuousLayout(true);
 		BasicSplitPaneDivider mainDivider = ((BasicSplitPaneUI) mainSplit.getUI()).getDivider();
@@ -813,6 +654,9 @@ public class ClientFrame extends JFrame {
 				fc.setMultiSelectionEnabled(true);
 				int result = fc.showOpenDialog(ClientFrame.this);
 				if (result == JFileChooser.APPROVE_OPTION) {
+					// appear busy
+					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					
 					File[] selFiles = fc.getSelectedFiles();
 					int newLeaves = 0;
 
@@ -875,6 +719,7 @@ public class ClientFrame extends JFrame {
 						}
 						clrBtn.setEnabled(true);
 					}
+					setCursor(null);
 				}
 			}
 		} );
@@ -997,7 +842,6 @@ public class ClientFrame extends JFrame {
 		procBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				procBtn.setEnabled(false);
 				ProcessWorker worker = new ProcessWorker();
 				worker.addPropertyChangeListener(new PropertyChangeListener() {
 					@Override
@@ -1095,7 +939,7 @@ public class ClientFrame extends JFrame {
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
-		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p, 5dlu", "5dlu, p, 5dlu"));		
+		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p:g, 5dlu", "5dlu, p, 5dlu"));		
 		protDatabasePnl.setBorder(BorderFactory.createTitledBorder("Protein Database"));	
 
 		// FASTA file Label
@@ -1108,40 +952,40 @@ public class ClientFrame extends JFrame {
 
 		// Parameters Panel
 		final JPanel paramsPnl = new JPanel();
-		paramsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 2dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
+		paramsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));		
 		paramsPnl.setBorder(BorderFactory.createTitledBorder("Parameters"));	
 
 		// Precursor ion tolerance Label
 		final JLabel precTolLbl = new JLabel("Precursor Ion Tolerance:");
-		paramsPnl.add(precTolLbl, cc.xy(2, 2));
+		paramsPnl.add(precTolLbl, cc.xyw(2, 2, 3));
 
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.0"));
 		precTolSpn.setToolTipText("Precursor Ion Tolerance:");	    
-		paramsPnl.add(precTolSpn, cc.xy(4, 2));
-		paramsPnl.add(new JLabel("Da"), cc.xy(6,2));
+		paramsPnl.add(precTolSpn, cc.xy(6, 2));
+		paramsPnl.add(new JLabel("Da"), cc.xy(8,2));
 
 		// Fragment ion tolerance Label
 		final JLabel fragTolLbl = new JLabel("Fragment Ion Tolerance:");
-		paramsPnl.add(fragTolLbl, cc.xy(2, 4));
+		paramsPnl.add(fragTolLbl, cc.xyw(2, 4, 3));
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
 		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.0"));
 		fragTolSpn.setToolTipText("Fragment Ion Tolerance:");	    
-		paramsPnl.add(fragTolSpn, cc.xy(4, 4));
-		paramsPnl.add(new JLabel("Da"), cc.xy(6,4));
+		paramsPnl.add(fragTolSpn, cc.xy(6, 4));
+		paramsPnl.add(new JLabel("Da"), cc.xy(8,4));
 
 		// Missed cleavages Label
 		final JLabel missClvLbl = new JLabel("Missed Cleavages (max):");
-		paramsPnl.add(missClvLbl, cc.xy(2, 6));
+		paramsPnl.add(missClvLbl, cc.xyw(2, 6, 3));
 
 		// Missed cleavages Spinner
 		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
 		//missClvSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0"));
 		missClvSpn.setToolTipText("Maximum number of missed cleavages:");	    
-		paramsPnl.add(missClvSpn, cc.xy(4, 6));
+		paramsPnl.add(missClvSpn, cc.xy(6, 6));
 
 		// Enzyme Label
 		final JLabel enzymeLbl = new JLabel("Enzyme (Protease):");
@@ -1149,7 +993,7 @@ public class ClientFrame extends JFrame {
 
 		// Enzyme ComboBox
 		enzymeCbx = new JComboBox(Constants.ENZYMES);
-		paramsPnl.add(enzymeCbx, cc.xy(4, 8));
+		paramsPnl.add(enzymeCbx, cc.xyw(4, 8, 5));
 
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
@@ -1318,10 +1162,150 @@ public class ClientFrame extends JFrame {
 		settings.setPrecursorIonTol((Double) precTolSpn.getValue());
 		settings.setNumMissedCleavages((Integer) missClvSpn.getValue());
 		//TODO: Enzyme: settings.setEnzyme(value)
-		if(xTandemCbx.isSelected()) settings.setXTandem(true);
-		if(omssaCbx.isSelected()) settings.setOmssa(true);
-		if(cruxCbx.isSelected()) settings.setCrux(true);
-		if(inspectCbx.isSelected()) settings.setInspect(true);
+		settings.setXTandem(xTandemCbx.isSelected());
+		settings.setOmssa(omssaCbx.isSelected());
+		settings.setCrux(cruxCbx.isSelected());
+		settings.setInspect(inspectCbx.isSelected());
+		return settings;
+	}
+
+	private void constructDenovoPanel() {
+		denovoPnl = new JPanel();
+		denovoPnl.setLayout(new FormLayout("5dlu, p, 5dlu, f:p, 5dlu",	// col
+										   "5dlu, f:p, 5dlu, p, 5dlu"));	// row
+
+	   // Parameters		
+		JPanel parPnl = new JPanel();
+		parPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",				// col
+										"p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));	// row
+		parPnl.setBorder(new TitledBorder("Parameters"));
+		
+		// Enzymes
+		parPnl.add(new JLabel("Protease"), cc.xy(2, 1));
+		dnEnzymesCbx = new JComboBox(Constants.DN_ENZYMES);
+		dnEnzymesCbx.setToolTipText("Choose the enzyme of the protein digest");
+		//dnEnzymesCbx.setRenderer(new RightAlignListCellRenderer());
+		parPnl.add(dnEnzymesCbx,cc.xyw(4, 1, 5));
+		
+		// MS
+		parPnl.add(new JLabel("Spectrometer"),cc.xy(2, 3));
+		dnMSCbx=new JComboBox(Constants.MASS_SPECTROMETERS);
+		dnMSCbx.setToolTipText("Select your mass spectrometer");
+		//dnMS.setRenderer(new RightAlignListCellRenderer());
+		parPnl.add(dnMSCbx,cc.xyw(4, 3, 5));
+		
+		// Fragment tolerance
+		parPnl.add(new JLabel("Fragment mass tolerance"), cc.xyw(2, 5, 3));
+		dnFragTolSpn = new JSpinner(new SpinnerNumberModel(0.3, 0.0, null, 0.05));
+		dnFragTolSpn.setEditor(new JSpinner.NumberEditor(dnFragTolSpn, "0.00"));
+		dnFragTolSpn.setToolTipText("Choose your fragment mass tolerance");
+		parPnl.add(dnFragTolSpn,cc.xy(6, 5));
+		parPnl.add(new JLabel("Da"),cc.xy(8, 5));
+		
+		// for right aligned text in spinners in windows LAF
+		//	private class RightAlignListCellRenderer extends JLabel implements ListCellRenderer<String> {
+		//		@Override
+		//		public Component getListCellRendererComponent(
+		//				JList<? extends String> list, String value, int index,
+		//				boolean isSelected, boolean cellHasFocus) {
+		//			this.setText(value);
+		//			this.setHorizontalAlignment(JLabel.RIGHT);
+		//			return this;
+		//		}
+		//	}
+		
+		// Threshold peptides
+		parPnl.add(new JLabel("Peptide intensity threshold"),cc.xyw(2, 7, 3));
+		dnThresholdSpn = new JSpinner(new SpinnerNumberModel(1000, 0, null, 1));
+		dnThresholdSpn.setToolTipText("Apply peptide threshold");
+		parPnl.add(dnThresholdSpn,cc.xy(6, 7));
+		
+		// Maximum number of peptides
+		parPnl.add(new JLabel("Number of peptides"),cc.xyw(2, 9, 3));
+		dnPepCountSpn = new JSpinner(new SpinnerNumberModel(10, 0, null, 1));
+		dnPepCountSpn.setToolTipText("Select the maximum number of peaks for de novo sequencing ");
+		parPnl.add(dnPepCountSpn,cc.xy(6, 9));
+		
+		dnPepknownChx = new JCheckBox("Remove known peptides");
+		dnPepknownChx.setToolTipText("Remove all identified peptides");
+//		parPnl.add(dnPepknownChx,cc.xyw(2, 11, 5));
+
+		// Panel PTMs
+		JPanel ptmsPnl = new JPanel();
+		ptmsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	// col
+										 "f:p:g, 5dlu,"));	// row
+		ptmsPnl.setBorder(new TitledBorder("PTMs"));
+		
+		DefaultTableModel model = new DefaultTableModel(new Object[] {"PTM", ""}, 0) {
+			public Class<?> getColumnClass(int c) {	// method allows checkboxes in table
+				return getValueAt(0,c).getClass();
+			}
+		};
+		for (int i = 0; i < Constants.PTMS.length; i++) {
+			model.addRow(new Object[] {Constants.PTMS[i], false});
+		}
+		dnPTMtbl = new JTable(model);
+		dnPTMtbl.getColumnModel().getColumn(1).setMaxWidth(dnPTMtbl.getColumnModel().getColumn(1).getMinWidth());
+		dnPTMtbl.setShowVerticalLines(false);
+		JScrollPane dnPTMscp = new JScrollPane(dnPTMtbl);
+//		dnPTMscp.setPreferredSize(new Dimension(0, 0));
+		dnPTMscp.setPreferredSize(new Dimension(200, 0));
+		dnPTMscp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		dnPTMscp.setToolTipText("Chooce possible PTMs");
+		ptmsPnl.add(dnPTMscp,cc.xy(2,1));
+
+	   // Start panel
+		JPanel statusPnl = new JPanel();
+		statusPnl.setLayout(new FormLayout("5dlu, p, 15dlu, p, 5dlu, p:g, 5dlu",	// col
+										   "p, 5dlu,"));							// row
+		statusPnl.setBorder(new TitledBorder("Search status"));
+		// Start button
+		dnStartBtn = new JButton("Start de novo search");
+		dnStartBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				collectDenovoSettings();
+				Image image = null;
+				try {
+					image = ImageIO.read(new File("docu/Nerds.jpg"));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				JLabel label = new JLabel("Das passiert wenn man wahllos KnÃ¶pfe drÃ¼ckt!!!", new ImageIcon(image),JLabel.CENTER);
+				label.setVerticalTextPosition(JLabel.BOTTOM);
+				label.setHorizontalTextPosition(JLabel.CENTER);
+				JOptionPane.showMessageDialog(frame, label,"Erwischt!!", JOptionPane.PLAIN_MESSAGE);
+			}
+		});
+		statusPnl.add(dnStartBtn,cc.xy(2, 1));
+		// Progress bar
+		statusPnl.add(new JLabel("Progress"),cc.xy(4, 1));
+		denovoPrg = new JProgressBar(0,100);
+		denovoPrg.setStringPainted(true);
+		denovoPrg.setValue(0);
+		statusPnl.add(denovoPrg, cc.xy(6, 1));
+
+		// add panels
+		denovoPnl.add(parPnl, cc.xy(2, 2));
+		denovoPnl.add(ptmsPnl, cc.xy(4, 2));
+		denovoPnl.add(statusPnl, cc.xyw(2, 4, 3));
+	}
+
+	private DenovoSearchSettings collectDenovoSettings(){
+		DenovoSearchSettings settings = new DenovoSearchSettings();
+		settings.setDnEnzyme(dnEnzymesCbx.getSelectedItem().toString());
+		settings.setDnMS(dnMSCbx.getSelectedItem().toString());
+		settings.setDnFragmentTolerance((Double) dnFragTolSpn.getValue());
+		settings.setDnPeptideIntThresh((Integer)dnThresholdSpn.getValue() );
+		settings.setDnCountPept((Integer) dnPepCountSpn.getValue());
+		settings.setDnRemoveAllPep((boolean) dnPepknownChx.isSelected());
+		List<String> ptmList =new ArrayList<String>();
+		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
+			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
+				ptmList.add((String) dnPTMtbl.getValueAt(row, 0));
+			}
+		}
+		settings.setDnPTM(ptmList);
 		return settings;
 	}
 
@@ -1335,11 +1319,12 @@ public class ClientFrame extends JFrame {
 	private JScrollPane cruxTblJScrollPane;
 	private JTable inspectTbl;
 	private JScrollPane inspectTblJScrollPane;
+	private JTable protTbl;
 
 	/**
-	 * Construct the results panel.
+	 * Construct the spectral search results panel.
 	 */
-	private void constructResultsPanel() {
+	private void constructSpecResultsPanel() {
 
 		resPnl = new JPanel();
 		resPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
@@ -1362,16 +1347,16 @@ public class ClientFrame extends JFrame {
 		//		JScrollPane queryScpn = new JScrollPane(queryTbl);
 
 		DefaultMutableTreeNode queryRoot = new DefaultMutableTreeNode(((DefaultMutableTreeNode) fileTree.getModel().getRoot()).getUserObject());
-		//		queryTree = new JTree(new DefaultTreeModel(queryRoot));
 		queryTree = new SpectrumTree(new DefaultTreeModel(queryRoot), TreeType.RESULT_LIST);
 		queryTree.setRowHeight(new JCheckBox().getPreferredSize().height);
 
 		JScrollPane queryScpn = new JScrollPane(queryTree);
 		queryScpn.setPreferredSize(new Dimension(200, 400));
-
+		queryScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		JPanel leftPnl = new JPanel();
 		leftPnl.setLayout(new FormLayout("p:g",					// col
-				"p, 5dlu, p, f:p:g"));	// row
+										 "p, 5dlu, p, f:p:g"));	// row
 		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
 		leftDummyTable.getTableHeader().setReorderingAllowed(false);
 		leftDummyTable.getTableHeader().setResizingAllowed(false);
@@ -1387,21 +1372,19 @@ public class ClientFrame extends JFrame {
 
 		libTbl = new JTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#","Sequence","Accession","Score"}); }
-
+			{ setColumnIdentifiers(new Object[] {"#","Sequence","Score"}); }
 			public boolean isCellEditable(int row, int col) {
 				return false;
+			}
+			public Class<?> getColumnClass(int c) {
+				return getValueAt(0,c).getClass();
 			}
 		});
 		libTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		libTbl.setAutoCreateRowSorter(true);
 		libTbl.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-		packColumn(libTbl,0,10);
-		libTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-		libTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
-		packColumn(libTbl,3,10);
-
-		libTbl.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
+	    
+		libTbl.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
 			private final DecimalFormat formatter = new DecimalFormat( "0.000" );
 
 			public Component getTableCellRendererComponent(
@@ -1415,9 +1398,41 @@ public class ClientFrame extends JFrame {
 
 		});
 
+		libTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					if (libTbl.getSelectedRowCount() > 0) {
+						// grab mgf
+						int row = libTbl.convertRowIndexToModel(libTbl.getSelectedRow());
+						DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
+						int index = (Integer) libTblMdl.getValueAt(row, 0);
+						// plot second spectrum
+						mPlot.setSecondSpectrum(resultList.get(index-1).getSpectrumFile());
+						mPlot.repaint(true);
+						// clear protein annotation table
+						DefaultTableModel dtm = (DefaultTableModel) protTbl.getModel();
+						protTbl.clearSelection();
+						while (protTbl.getRowCount() > 0) {
+							dtm.removeRow(0);
+						}
+						// repopulate protein annotation table
+						List<Protein> annotations = resultList.get(index-1).getAnnotations();
+						int protIndex = 0;
+						for (Protein annotation : annotations) {
+							dtm.addRow(new Object[] {++protIndex, annotation.getAccession(), annotation.getDescription()});
+						}
+						packColumn(protTbl, 0, 10);
+						packColumn(protTbl, 1, 10);
+					}
+				}
+			}
+		});
+
 		JScrollPane libScpn = new JScrollPane(libTbl);
 		libScpn.setPreferredSize(new Dimension(300, 200));
-
+		libScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		mPlot = new MultiPlotPanel();
 		mPlot.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 		mPlot.setPreferredSize(new Dimension(350, 200));
@@ -1427,24 +1442,7 @@ public class ClientFrame extends JFrame {
 		mPlot.setLineColors(colors);
 		mPlot.setK(20);
 
-		libTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
-					if (libTbl.getSelectedRowCount() > 0) {
-						int row = libTbl.convertRowIndexToModel(libTbl.getSelectedRow());
-						DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
-						int index = (Integer) libTblMdl.getValueAt(row, 0);
-						mPlot.setSecondSpectrum(resultList.get(index-1).getSpectrumFile());
-						mPlot.repaint(true);
-					}
-				}
-			}
-		});
-
 		JButton expBtn = new JButton("export scores");
-		//		expBtn.setPreferredSize(new Dimension(expBtn.getPreferredSize().width,
-		//											  new JLabel(" ").getPreferredSize().height));
 		expBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1467,25 +1465,50 @@ public class ClientFrame extends JFrame {
 			}
 		});
 
-		JPanel rightPnl = new JPanel();
-		rightPnl.setLayout(new FormLayout("l:p:g, r:p",			// col
-				"p, 5dlu, f:p:g"));	// row
-		rightPnl.add(new JLabel("Library spectra"), cc.xy(1,1));
-		rightPnl.add(expBtn, cc.xy(2,1));
-		rightPnl.add(libScpn, cc.xyw(1,3,2));	
-
-		JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, rightPnl, mPlot);
-		rightSplit.setContinuousLayout(true);
-		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) rightSplit.getUI()).getDivider();
+		JPanel libPnl = new JPanel();
+		libPnl.setLayout(new FormLayout("l:p:g, r:p",			// col
+										  "p, 5dlu, f:p:g"));	// row
+		libPnl.add(new JLabel("Library spectra"), cc.xy(1,1));
+		libPnl.add(expBtn, cc.xy(2,1));
+		libPnl.add(libScpn, cc.xyw(1,3,2));
+		
+		protTbl = new JTable(new DefaultTableModel() {
+			// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#","Accession","Description"}); }
+			public boolean isCellEditable(int row, int col) {
+				return false;
+			}
+			public Class<?> getColumnClass(int c) {
+				return getValueAt(0,c).getClass();
+			}
+		});
+		JScrollPane protScpn = new JScrollPane(protTbl);
+		protScpn.setPreferredSize(new Dimension(300, 200));
+		protScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		JPanel protPnl = new JPanel();
+		protPnl.setLayout(new FormLayout("p:g",					// col
+		  								 "p, 5dlu, f:p:g"));	// row
+		JLabel topRightLbl = new JLabel("Protein annotations");
+		topRightLbl.setPreferredSize(new Dimension(topRightLbl.getPreferredSize().width,
+				new JButton(" ").getPreferredSize().height));
+		protPnl.add(topRightLbl, cc.xy(1,1));
+		protPnl.add(protScpn, cc.xy(1, 3));
+		
+		JSplitPane topRightSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, libPnl, protPnl);
+		topRightSplit.setBorder(null);
+		topRightSplit.setContinuousLayout(true);
+		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) topRightSplit.getUI()).getDivider();
 		if (divider != null) { divider.setBorder(null); }
 
-		//		JPanel leftPnl = new JPanel();
-		//		leftPnl.setLayout(new FormLayout("f:p:g",				// col
-		//		 								  "p, 5dlu, f:p:g"));	// row
-		//		leftPnl.add(new JLabel("Query spectra"), cc.xy(1,1));
-		//		leftPnl.add(queryScpn, cc.xy(1,3));	
-
+		JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topRightSplit, mPlot);
+		rightSplit.setBorder(null);
+		rightSplit.setContinuousLayout(true);
+		divider = ((BasicSplitPaneUI) rightSplit.getUI()).getDivider();
+		if (divider != null) { divider.setBorder(null); }
+		
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPnl, rightSplit);
+		mainSplit.setBorder(null);
 		mainSplit.setContinuousLayout(true);
 		divider = ((BasicSplitPaneUI) mainSplit.getUI()).getDivider();
 		if (divider != null) { divider.setBorder(null); }
@@ -1496,7 +1519,7 @@ public class ClientFrame extends JFrame {
 	}
 
 	/**
-	 * Construct the results panel.
+	 * Construct the MS2 results panel.
 	 */
 	private void constructMS2ResultsPanel() {
 
@@ -1778,12 +1801,11 @@ public class ClientFrame extends JFrame {
 		lggPnl.add(brdPnl, cc.xy(2, 2));
 
 	}
-
-
+	
 	private enum TreeType { FILE_SELECT, RESULT_LIST }
 
 	private class SpectrumTree extends JTree 
-	implements TreeSelectionListener {
+							   implements TreeSelectionListener {
 
 		private TreeType treeType;
 		private File lastSelectedFile;
@@ -1797,14 +1819,29 @@ public class ClientFrame extends JFrame {
 
 		public String convertValueToText(Object value, boolean selected, boolean expanded,
 				boolean leaf, int row, boolean hasFocus) {
-			Object obj = ((DefaultMutableTreeNode)value).getUserObject();
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+			Object obj = node.getUserObject();
 			if (obj instanceof File) {
 				return ((File)obj).getName();
 			} else if (leaf && !((DefaultMutableTreeNode)value).isRoot()) {
-				return ("Spectrum " + obj);
+				if (treeType == TreeType.RESULT_LIST) {
+					try {
+						int numHits = resultMap.get(getSpectrumAt(node).getTitle()).size();
+						if (numHits == 1) {
+							return ("Spectrum " + obj + "     " + numHits + " hit");
+						} else {
+							return ("Spectrum " + obj + "     " + numHits + " hits");
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					return null;
+				} else {
+					return ("Spectrum " + obj);
+				}
 			} else {
 				return value.toString();
-			}	    			
+			}
 		}
 
 		public MascotGenericFile getSpectrumAt(DefaultMutableTreeNode node) throws IOException {
@@ -1845,7 +1882,7 @@ public class ClientFrame extends JFrame {
 				refreshFileTable(mgf, node);
 				break;
 			case RESULT_LIST:
-				refreshResultsTable(mgf);
+				refreshResultsTables(mgf);
 				break;
 			}
 
@@ -1892,26 +1929,31 @@ public class ClientFrame extends JFrame {
 
 	}
 
-	protected void refreshResultsTable(MascotGenericFile mgf) {
+	protected void refreshResultsTables(MascotGenericFile mgf) {
 		if (mgf != null) {
 			// clear library table
 			libTbl.clearSelection();
 			DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
-			for (int row = 0; row < libTblMdl.getRowCount(); ) {
-				libTblMdl.removeRow(libTblMdl.getRowCount()-1);
+			while (libTblMdl.getRowCount() > 0) {
+				libTblMdl.removeRow(0);
 			}
 			// re-populate library table
 			resultList = resultMap.get(mgf.getTitle());
 			if (resultList != null) {
 				for (int index = 0; index < resultList.size(); index++) {
 					libTblMdl.addRow(new Object[] { index+1,
-							resultList.get(index).getSequence(),
-							resultList.get(index).getAnnotation(),
-							resultList.get(index).getScore() } );
+													resultList.get(index).getSequence(),
+													resultList.get(index).getScore() } );
 				}
 			}
 			packColumn(libTbl, 0, 10);
-			packColumn(libTbl, 3, 10);
+			packColumn(libTbl, 2, 10);
+			// clear protein annotation table
+			DefaultTableModel protTblMdl = (DefaultTableModel) protTbl.getModel();
+			protTbl.clearSelection();
+			while (protTbl.getRowCount() > 0) {
+				protTblMdl.removeRow(0);
+			}
 
 			// plot selected spectrum
 			mPlot.setFirstSpectrum(mgf);
@@ -1957,8 +1999,14 @@ public class ClientFrame extends JFrame {
 
 
 
-	private class ProcessWorker extends SwingWorker {		
-		protected Object doInBackground() throws Exception {			
+	private class ProcessWorker extends SwingWorker {
+		
+		protected Object doInBackground() throws Exception {
+			// appear busy
+			setProgress(0);
+			procBtn.setEnabled(false);
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			
 			// clone file selection tree, discard unselected branches/leaves
 			CheckBoxTreeSelectionModel selectionModel = fileTree.getSelectionModel();
 			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) fileTree.getModel().getRoot();
@@ -2000,7 +2048,13 @@ public class ClientFrame extends JFrame {
 				for (int j = 0; j < fileNode.getChildCount(); j++) {
 					DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
 					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
-						if (fos != null) { fos.close(); }
+						if (fos != null) {
+							try {
+								fos.close();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
 						File file = new File("batch_" + (numSpectra/packageSize) + ".mgf");
 						files.add(file);
 						fos = new FileOutputStream(file);
@@ -2017,7 +2071,6 @@ public class ClientFrame extends JFrame {
 			// process files
 			double progress = 0;
 			double max = files.size();
-			setProgress(0);
 			logPnl.append("Processing files...");
 
 			ProcessSettings procSet = new ProcessSettings((Double) tolMzSpn.getValue(),
@@ -2027,20 +2080,23 @@ public class ClientFrame extends JFrame {
 					(Boolean) annotChk.isSelected());
 
 			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
+			client.initDBConnection();
 			for (File file : files) {
-				resultMap.putAll(client.process(file,procSet));
+				resultMap.putAll(client.process(file, procSet));
 				progress++;
 				setProgress((int)(progress/max*100));
 			}
+			client.clearDBConnection();
 			logPnl.append("done.\n");
 
 			return 0;
 		}
 
 		@Override
-		public void done() {
-			procBtn.setEnabled(true);
-		}
+        public void done() {
+            procBtn.setEnabled(true);
+            setCursor(null); //turn off the wait cursor
+        }
 	}
 
 	/**

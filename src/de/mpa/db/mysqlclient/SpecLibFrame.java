@@ -33,7 +33,7 @@ import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.Protein;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Speclibentry;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
@@ -227,7 +227,7 @@ public class SpecLibFrame extends JFrame {
     			
     			// this list will store identified protein hits to avoid redundant sql queries further down 
 //    			ArrayList<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
-    			Map<ProteinHit, ArrayList<Protein>> proteinMap = new HashMap<ProteinHit, ArrayList<Protein>>(10);
+    			Map<ProteinHit, ArrayList<ProteinAccessor>> proteinMap = new HashMap<ProteinHit, ArrayList<ProteinAccessor>>(10);
 
     			// attention: the order in which files were selected does matter!
     			for (int i = 0; i < mgfFiles.length; i++) {
@@ -313,8 +313,8 @@ public class SpecLibFrame extends JFrame {
         						
         						if (proteinMap.containsKey(proteinHit)) {
         							// link new peptide to old hit
-        							ArrayList<Protein> proteinList = proteinMap.get(proteinHit);
-        							for (Protein protein : proteinList) {
+        							ArrayList<ProteinAccessor> proteinList = proteinMap.get(proteinHit);
+        							for (ProteinAccessor protein : proteinList) {
         								long proteinID = protein.getProteinid();
 	    								// check whether pep2prot link already exists, otherwise create new one
 	    								Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
@@ -327,7 +327,7 @@ public class SpecLibFrame extends JFrame {
         							// link peptide to new hit
             						ArrayList<String> accessions   = (ArrayList<String>) proteinHit.getAccessions();
             						ArrayList<String> descriptions = (ArrayList<String>) proteinHit.getDescriptions();
-        							ArrayList<Protein> proteinList = new ArrayList<Protein>();
+        							ArrayList<ProteinAccessor> proteinList = new ArrayList<ProteinAccessor>();
             						
             						for (int j = 0; j < accessions.size(); j++) {
         								Long proteinID;
@@ -337,10 +337,10 @@ public class SpecLibFrame extends JFrame {
     										continue;	// no use looking for proteins without attributes!
     									}
     									
-    	        						Protein protein = Protein.findFromAttributes(accession, description, conn);
+    	        						ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, description, conn);
     	        						if (protein == null) {	// protein not yet in database
     	        							// Add new protein to the database
-    	        							protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
+    	        							protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
     	    							} else {
     	    								proteinID = protein.getProteinid();
     	    								// check whether pep2prot link already exists, otherwise create new one

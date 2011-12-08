@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Pep2prot extends Pep2protTableAccessor {
 
@@ -28,7 +30,7 @@ public class Pep2prot extends Pep2protTableAccessor {
 	}
 
 	/**
-     * This method will find a pep2prot entry from the current connection, based on foreign protein- and peptideIDs.
+     * This method will find a pep2prot entry from the current connection, based on foreign protein and peptide IDs.
      *
      * @param peptideID long with the peptide ID of the link to find.
      * @param proteinID long with the protein ID of the link to find.
@@ -55,7 +57,7 @@ public class Pep2prot extends Pep2protTableAccessor {
         return temp;
     }
     
-    /**
+     /**
      * Links peptide to protein: Creates a new pep2prot entry, based on peptideID and proteinID.
      * @param peptideID long with the peptide ID of the link to find.
      * @param proteinID long with the protein ID of the link to find.
@@ -70,5 +72,31 @@ public class Pep2prot extends Pep2protTableAccessor {
 		Pep2prot pep2prot = new Pep2prot(dataPep2Prot);
 		pep2prot.persist(conn);
 		return pep2prot;
+    }
+    
+    /**
+     * This method will find a list of protein IDs from the current connection, based on a foreign peptide ID.
+     *
+     * @param peptideID long with the peptide ID of the links to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return List<Long> with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static List<Long> findProteinIDsFromPeptideID(Long peptideID, Connection aConn) throws SQLException {
+    	
+    	List<Long> temp = new ArrayList<Long>();
+        PreparedStatement ps = aConn.prepareStatement("SELECT " + FK_PROTEINSID + " FROM pep2prot" +
+        											  " WHERE " + FK_PEPTIDEID  + " = ?");
+        ps.setLong(1, peptideID);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp.add(rs.getLong(FK_PROTEINSID));
+        }
+        rs.close();
+        ps.close();
+
+        return temp;
     }
 }

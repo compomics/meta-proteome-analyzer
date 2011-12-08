@@ -1,15 +1,17 @@
 package de.mpa.db.extractor;
 
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.mpa.algorithms.LibrarySpectrum;
+import de.mpa.algorithms.Protein;
 import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Speclibentry;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
@@ -48,13 +50,19 @@ public class SpectrumExtractor {
 		for (Speclibentry entry : entries) {
 			long spectrumID = entry.getFk_spectrumid();
 			MascotGenericFile mgf = getUnzippedFile(spectrumID);
+			// get list of proteins from list of peptides and gather annotations
 			long peptideID = entry.getFk_peptideid();
-			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);	// TODO: grab peptides to get sequences
-//			String sequence = peptide.getSequence();
-			// TODO: get list of proteins from list of peptides and gather annotations
-			String sequence = "NYI";
-			String annotation = "NYI";
-			libSpectra.add(new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), sequence, annotation));			
+			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
+			for (PeptideAccessor peptide : peptides) {
+				ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
+				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
+				for (Long proteinID : proteinIDs) {
+					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+//					libSpectra.add(new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence(), protein.getAccession(), protein.getDescription()));
+					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
+				}
+				libSpectra.add(libSpec);
+			}
 		}
 		
 		return libSpectra;
@@ -79,9 +87,10 @@ public class SpectrumExtractor {
 		// Iterate the spectral library entries.
 		for (Libspectrum entry : entries) {
 			String sequence = null;
-			String annotation = null;
+			String accession = null;	// TODO: check whether annotations exist for unannotated spectrum
+			String description = null;
 			MascotGenericFile mgf = getUnzippedFile(entry.getLibspectrumid());
-			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), sequence, annotation));
+			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), sequence, accession, description));
 		}
 		
 		return spectra;

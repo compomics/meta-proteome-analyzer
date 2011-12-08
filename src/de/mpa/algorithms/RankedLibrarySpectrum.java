@@ -6,8 +6,8 @@ public class RankedLibrarySpectrum extends LibrarySpectrum {
 	
 	private double score;
 	
-	public RankedLibrarySpectrum(MascotGenericFile spectrumFile, double precursorMz, String sequence, String annotation, double score) {
-		super(spectrumFile, precursorMz, sequence, annotation);
+	public RankedLibrarySpectrum(MascotGenericFile spectrumFile, double precursorMz, String sequence, String accession, String description, double score) {
+		super(spectrumFile, precursorMz, sequence, description, accession);
 		this.score = score;
 	}	
 
