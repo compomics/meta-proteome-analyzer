@@ -91,6 +91,35 @@ public class ProteinAccessor extends ProteinTableAccessor {
         return temp;
     }
     
+    /**
+     * This method will find a protein entry from the current connection, based on the accession or description.
+     *
+     * @param accession String with the accession of the protein to find.
+     * @param description String with the description of the protein to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return Protein with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static ProteinAccessor findFromAttributes(String accession, Connection aConn) throws SQLException {
+    	
+    	ProteinAccessor temp = null;
+        PreparedStatement ps = null;
+        if (accession != null) {
+            ps = aConn.prepareStatement(getBasicSelect() + " WHERE accession = ?");
+            ps.setString(1, accession);
+        } 
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp = new ProteinAccessor(rs);
+        }
+        rs.close();
+        ps.close();
+        
+        return temp;
+	}
+    
 	/**
      * Adds a new protein with a specific peptide id, accession and description to the database..
      * @param peptideID Long with the peptide id of the peptide belonging to the new protein.

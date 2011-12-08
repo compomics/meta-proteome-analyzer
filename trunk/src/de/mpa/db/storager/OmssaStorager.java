@@ -135,7 +135,7 @@ public class OmssaStorager extends BasicStorager {
                 String description = header.getDescription();
                 
                 // The Protein
-                ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, description, conn);
+                ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
                 if (protein == null) {	// protein not yet in database
 						// Add new protein to the database
 						protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);

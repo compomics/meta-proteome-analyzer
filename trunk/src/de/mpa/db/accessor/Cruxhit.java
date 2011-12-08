@@ -5,19 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class Cruxhit extends CruxhitTableAccessor {
-
-    /**
-     * Calls the super class.
-     * @param params
-     */
-    public Cruxhit(HashMap params){
-        super(params);
-    }
-    
+	
+	private String sequence;
+	private String accession;
+	
     /**
      * This constructor reads the spectrum file from a resultset. The ResultSet should be positioned such that a single
      * row can be read directly (i.e., without calling the 'next()' method on the ResultSet).
@@ -27,6 +21,8 @@ public class Cruxhit extends CruxhitTableAccessor {
      */
     public Cruxhit(ResultSet aRS) throws SQLException {
         super(aRS);
+        this.sequence = (String) aRS.getObject("sequence");
+        this.accession = (String) aRS.getObject("accession");
     }
     
 	/**
@@ -39,17 +35,22 @@ public class Cruxhit extends CruxhitTableAccessor {
      */
     public static List<Cruxhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Cruxhit> temp = new ArrayList<Cruxhit>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where l_spectrumid = ?");
+    	PreparedStatement ps = aConn.prepareStatement("select c.*, p.sequence, pr.accession from cruxhit c, peptide p, protein pr, pep2prot p2p where c.fk_peptideid = p.peptideid and c.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinsid = pr.proteinid and c.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new Cruxhit(rs));
         }
         rs.close();
         ps.close();
         return temp;
     }
+    
+    public String getSequence() {
+		return sequence;
+	}
 
+	public String getAccession() {
+		return accession;
+	}
 }

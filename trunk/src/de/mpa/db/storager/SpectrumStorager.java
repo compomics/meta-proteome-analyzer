@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.mpa.db.MapContainer;
-import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;

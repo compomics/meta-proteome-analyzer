@@ -71,6 +71,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import no.uib.jsparklines.extra.HtmlLinksRenderer;
+
 import org.apache.log4j.Logger;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -78,6 +80,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.Protein;
@@ -87,6 +90,8 @@ import de.mpa.client.DbSearchResult;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.ProcessSettings;
+import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
@@ -719,6 +724,18 @@ public class ClientFrame extends JFrame {
 						}
 						clrBtn.setEnabled(true);
 					}
+					
+					//Get selected index for spectra combobox
+					int comboIndex = spectraCbx.getSelectedIndex();
+					spectraCbx.removeAllItems();
+					
+					for (int i = 0; i < files.size(); i++) {
+						spectraCbx.addItem(files.get(i).getName());
+					}
+					
+					if(comboIndex >= 0)	{
+						spectraCbx.setSelectedIndex(comboIndex);
+					}
 					setCursor(null);
 				}
 			}
@@ -1320,6 +1337,12 @@ public class ClientFrame extends JFrame {
 	private JTable inspectTbl;
 	private JScrollPane inspectTblJScrollPane;
 	private JTable protTbl;
+	private Map<String, List<Omssahit>> ommsaResults;
+	private Map<String, List<XTandemhit>> xTandemResults;
+	private Map<String, List<Cruxhit>> cruxResults;
+	private Map<String, List<Inspecthit>> inspectResults;
+	private Map<String, Integer> voteMap;
+	private JComboBox spectraCbx;
 
 	/**
 	 * Construct the spectral search results panel.
@@ -1526,10 +1549,10 @@ public class ClientFrame extends JFrame {
 		querySpectraTblJScrollPane = new JScrollPane();
 
 		res2Pnl = new JPanel();
-		res2Pnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, p:g, 5dlu, p:g, 5dlu, p"));
+		res2Pnl.setLayout(new FormLayout("5dlu, p, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p"));
 
 		final JPanel spectraPnl = new JPanel();
-		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"f:p:g, 5dlu"));
+		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, p, 5dlu, f:p:g, 5dlu"));
 		spectraPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
 
 		// Setup the tables
@@ -1549,7 +1572,27 @@ public class ClientFrame extends JFrame {
 		querySpectraTbl.setOpaque(false);
 		querySpectraTblJScrollPane.setViewportView(querySpectraTbl);
 		querySpectraTblJScrollPane.setPreferredSize(new Dimension(500, 300));
-		spectraPnl.add(querySpectraTblJScrollPane, cc.xy(2, 1));
+		
+		spectraCbx = new JComboBox();
+		JButton updateBtn = new JButton("Get results");
+		JPanel topPnl = new JPanel(new FormLayout("p:g, 40dlu, p", "p:g"));
+		topPnl.add(spectraCbx, cc.xy(1, 1));
+		topPnl.add(updateBtn, cc.xy(3, 1));
+		updateBtn.setPreferredSize(new Dimension(150, 20));
+		
+		updateBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for(File file : files){
+					result = client.getSearchResult(file);
+					updateResultsTable();
+				}
+			}
+		});
+		
+		spectraPnl.add(topPnl, cc.xy(2, 2));
+		spectraPnl.add(querySpectraTblJScrollPane, cc.xy(2, 4));
 
 		// PSMs
 		final JPanel psmPnl = new JPanel();
@@ -1591,28 +1634,16 @@ public class ClientFrame extends JFrame {
 		inspectTblJScrollPane.setViewportView(inspectTbl);
 		inspectPnl.add(inspectTblJScrollPane, cc.xy(1, 1));
 		psmPnl.add(inspectPnl, cc.xy(4, 4));
-
-		JButton updateBtn = new JButton("Update");
-		updateBtn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				for(File file : files){
-					result = client.getSearchResult(file);
-					updateResultsTable();
-				}
-			}
-		});
 		res2Pnl.add(spectraPnl, cc.xy(2,2));
 		res2Pnl.add(psmPnl, cc.xy(2,4));
-		res2Pnl.add(updateBtn, cc.xy(2,6));
+		
 	}
 
 	private void setResultsTableProperties(){
 		// Query table
 		querySpectraTbl = new JTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Title", "m/z", "Charge", "Retention Time", "Identified"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Title", "m/z", "Charge", "Identified"}); }
 
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -1624,8 +1655,6 @@ public class ClientFrame extends JFrame {
 		querySpectraTbl.getColumn("m/z").setMaxWidth(100);
 		querySpectraTbl.getColumn("Charge").setMinWidth(100);
 		querySpectraTbl.getColumn("Charge").setMaxWidth(100);
-		querySpectraTbl.getColumn("Retention Time").setMinWidth(100);
-		querySpectraTbl.getColumn("Retention Time").setMaxWidth(100);
 		querySpectraTbl.getColumn("Identified").setMinWidth(80);
 		querySpectraTbl.getColumn("Identified").setMaxWidth(80);
 		xTandemTbl = new JTable(new DefaultTableModel() {
@@ -1639,6 +1668,7 @@ public class ClientFrame extends JFrame {
 
 		xTandemTbl.getColumn(" ").setMinWidth(30);
 		xTandemTbl.getColumn(" ").setMaxWidth(30);
+		xTandemTbl.getColumn("Accession").setCellRenderer(new HtmlLinksRenderer(Constants.SELECTED_ROW_HTML_FONT_COLOR, Constants.NOT_SELECTED_ROW_HTML_FONT_COLOR));
 		xTandemTbl.getColumn("e-value").setMinWidth(90);
 		xTandemTbl.getColumn("e-value").setMaxWidth(90);
 		xTandemTbl.getColumn("hyperscore").setMinWidth(90);
@@ -1655,6 +1685,7 @@ public class ClientFrame extends JFrame {
 
 		omssaTbl.getColumn(" ").setMinWidth(30);
 		omssaTbl.getColumn(" ").setMaxWidth(30);
+		omssaTbl.getColumn("Accession").setCellRenderer(new HtmlLinksRenderer(Constants.SELECTED_ROW_HTML_FONT_COLOR, Constants.NOT_SELECTED_ROW_HTML_FONT_COLOR));
 		omssaTbl.getColumn("e-value").setMinWidth(90);
 		omssaTbl.getColumn("e-value").setMaxWidth(90);
 		omssaTbl.getColumn("p-value").setMinWidth(90);
@@ -1691,18 +1722,34 @@ public class ClientFrame extends JFrame {
 		inspectTbl.getColumn("f-score").setMaxWidth(90);
 		inspectTbl.getColumn("p-value").setMinWidth(90);
 		inspectTbl.getColumn("p-value").setMaxWidth(90);
+		
+		// Reordering not allowed
+		querySpectraTbl.getTableHeader().setReorderingAllowed(false);
+		xTandemTbl.getTableHeader().setReorderingAllowed(false);
+		omssaTbl.getTableHeader().setReorderingAllowed(false);
+		cruxTbl.getTableHeader().setReorderingAllowed(false);
+		inspectTbl.getTableHeader().setReorderingAllowed(false);
 	}
 
 	private void updateResultsTable(){
 		List<Searchspectrum> querySpectra = result.getQuerySpectra();
+		xTandemResults = result.getxTandemResults();
+		ommsaResults = result.getOmssaResults();      
+		cruxResults = result.getCruxResults();        	
+		inspectResults = result.getInspectResults();   
+		voteMap = result.getVoteMap();
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
 				Searchspectrum spectrum = querySpectra.get(i);
+				String title = spectrum.getSpectrumname();
+				
+				
 				((DefaultTableModel) querySpectraTbl.getModel()).addRow(new Object[]{
 						i + 1,
-						spectrum.getSpectrumname(),
+						title,
 						spectrum.getPrecursor_mz(),
-						spectrum.getCharge()});
+						spectrum.getCharge(), 
+						voteMap.get(title) + " / 4"});
 			}
 		}
 	}
@@ -1724,8 +1771,6 @@ public class ClientFrame extends JFrame {
 			// Empty tables.
 			clearResultTables();
 
-			// Make the variable global
-			final Map<String, List<XTandemhit>> xTandemResults = result.getxTandemResults();
 			String spectrumName = querySpectraTbl.getValueAt(row, 1).toString();
 			if (xTandemResults.containsKey(spectrumName)) {
 				List<XTandemhit> xTandemList = xTandemResults.get(spectrumName);
@@ -1734,13 +1779,12 @@ public class ClientFrame extends JFrame {
 					((DefaultTableModel) xTandemTbl.getModel()).addRow(new Object[]{
 							i + 1,
 							hit.getSequence(),
-							"", 
+							hit.getAccession(),
 							hit.getEvalue(), 
 							hit.getHyperscore()});
 				}
 			}
-
-			final Map<String, List<Omssahit>> ommsaResults = result.getOmssaResults();        	
+			  	
 			if (ommsaResults.containsKey(spectrumName)) {
 				List<Omssahit> omssaList = ommsaResults.get(spectrumName);
 				for (int i = 0; i < omssaList.size(); i++) {
@@ -1748,9 +1792,36 @@ public class ClientFrame extends JFrame {
 					((DefaultTableModel) omssaTbl.getModel()).addRow(new Object[]{
 							i + 1,
 							hit.getSequence(),
-							"", 
+							hit.getAccession(),
 							hit.getEvalue(), 
 							hit.getPvalue()});
+				}
+			}
+			
+			if (cruxResults.containsKey(spectrumName)) {
+				List<Cruxhit> cruxList = cruxResults.get(spectrumName);
+				for (int i = 0; i < cruxList.size(); i++) {
+					Cruxhit hit = cruxList.get(i);
+					((DefaultTableModel) cruxTbl.getModel()).addRow(new Object[]{
+							i + 1,
+							hit.getSequence(),
+							hit.getAccession(),
+							hit.getXcorr_score(), 
+							hit.getQvalue()});
+				}
+			}
+			
+			     	
+			if (inspectResults.containsKey(spectrumName)) {
+				List<Inspecthit> inspectList = inspectResults.get(spectrumName);
+				for (int i = 0; i < inspectList.size(); i++) {
+					Inspecthit hit = inspectList.get(i);
+					((DefaultTableModel) inspectTbl.getModel()).addRow(new Object[]{
+							i + 1,
+							hit.getSequence(),
+							hit.getAccession(),
+							hit.getF_score(), 
+							hit.getP_value()});
 				}
 			}
 		}
@@ -2142,11 +2213,9 @@ public class ClientFrame extends JFrame {
 		Options.setPopupDropShadowEnabled(true);
 		String lafName = LookUtils.IS_OS_WINDOWS 
 				? WindowsLookAndFeel.class.getName()
-						: UIManager.getSystemLookAndFeelClassName();
-
+						: Plastic3DLookAndFeel.class.getName();
 				try {
 					UIManager.setLookAndFeel(lafName);
-
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

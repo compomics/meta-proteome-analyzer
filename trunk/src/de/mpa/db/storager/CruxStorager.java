@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import com.compomics.util.protein.Header;
-
 import de.mpa.db.accessor.CruxhitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
@@ -123,7 +121,7 @@ public class CruxStorager implements Storager {
 					
                     String accession = tokenList.get(1);
                     
-                    ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, null, conn);
+                    ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
                     if (protein == null) {	// protein not yet in database
         					// Add new protein to the database
         					protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, null, conn);
