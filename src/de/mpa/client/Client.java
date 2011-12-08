@@ -216,22 +216,52 @@ public class Client {
 			List<Searchspectrum> querySpectra = new ArrayList<Searchspectrum>();
 			Map<String, List<XTandemhit>> xTandemResults = new HashMap<String, List<XTandemhit>>();
 			Map<String, List<Omssahit>> omssaResults = new HashMap<String, List<Omssahit>>();
-			Map<String, List<Inspecthit>> inspectResults = new HashMap<String, List<Inspecthit>>();
 			Map<String, List<Cruxhit>> cruxResults = new HashMap<String, List<Cruxhit>>();
+			Map<String, List<Inspecthit>> inspectResults = new HashMap<String, List<Inspecthit>>();
+			Map<String, Integer> voteMap = new HashMap<String, Integer>();
 			
-			// iterate over query spectra
+			// Iterate over query spectra and get the different identification result sets
 			for (MascotGenericFile mgf : mgfFiles) {
 				Searchspectrum spectrum = Searchspectrum.findFromFilename(mgf.getFilename(), conn);
 				querySpectra.add(spectrum);
 				long spectrumID = spectrum.getSpectrumid();
+				
 				String spectrumname = spectrum.getSpectrumname();
-				xTandemResults.put(spectrumname, XTandemhit.getHitsFromSpectrumID(spectrumID, conn));
-				omssaResults.put(spectrumname, Omssahit.getHitsFromSpectrumID(spectrumID, conn));
+				int votes = 0;
+				// X!Tandem
+				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(spectrumID, conn);
+				if(xtandemList.size() > 0) {
+					xTandemResults.put(spectrumname, xtandemList);
+					votes++;
+				}
+				// Omssa
+				List<Omssahit> omssaList = Omssahit.getHitsFromSpectrumID(spectrumID, conn);
+				if(omssaList.size() > 0) {
+					omssaResults.put(spectrumname, omssaList);
+					votes++;
+				}
+				// Crux
+				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(spectrumID, conn);				
+				if(cruxList.size() > 0) {
+					cruxResults.put(spectrumname, cruxList);
+					votes++;
+				}
+				// Inspect
+				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(spectrumID, conn);				
+				if(inspectList.size() > 0) {
+					inspectResults.put(spectrumname, inspectList);
+					votes++;
+				}
+				voteMap.put(spectrumname, votes);
 			}
 			
+			// Set the results.
 			result.setQuerySpectra(querySpectra);
 			result.setxTandemResults(xTandemResults);
 			result.setOmssaResults(omssaResults);
+			result.setCruxResults(cruxResults);
+			result.setInspectResults(inspectResults);
+			result.setVoteMap(voteMap);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

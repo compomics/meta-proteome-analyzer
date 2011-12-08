@@ -33,6 +33,9 @@ public class DbSearchResult {
 	// Inspect results
 	private Map<String, List<Inspecthit>> inspectResults = new HashMap<String, List<Inspecthit>>();
 	
+	// Vote map
+	private Map<String, Integer> voteMap = new HashMap<String, Integer>();
+	
 	public List<Searchspectrum> getQuerySpectra() {
 		return querySpectra;
 	}
@@ -65,5 +68,11 @@ public class DbSearchResult {
 	}
 	public void setInspectResults(Map<String, List<Inspecthit>> inspectResults) {
 		this.inspectResults = inspectResults;
+	}
+	public Map<String, Integer> getVoteMap() {
+		return voteMap;
+	}
+	public void setVoteMap(Map<String, Integer> voteMap) {
+		this.voteMap = voteMap;
 	}
 }
