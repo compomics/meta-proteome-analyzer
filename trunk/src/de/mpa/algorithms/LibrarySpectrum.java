@@ -1,5 +1,8 @@
 package de.mpa.algorithms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.mpa.io.MascotGenericFile;
 
 /**
@@ -7,6 +10,7 @@ import de.mpa.io.MascotGenericFile;
  * Holds the MGF spectrum file, the precursor mass, the peptide sequence and the protein annotation.
  * 
  * @author Thilo Muth
+ * @author Alexander Behne
  *
  */
 public class LibrarySpectrum {
@@ -19,60 +23,95 @@ public class LibrarySpectrum {
 	// The assigned peptide sequence
 	protected String sequence;
 	
-	// The protein annotation
-	protected String annotation;
-	
+	// The protein accession
+	protected List<Protein> annotations;
+
 	/**
 	 * Copy constructor.
 	 * @param libSpec
 	 */
 	public LibrarySpectrum(LibrarySpectrum libSpec) {
-		this(libSpec.getSpectrumFile(), libSpec.getPrecursorMz(), libSpec.getSequence(), libSpec.getAnnotation());
+		this(libSpec.getSpectrumFile(),
+			 libSpec.getPrecursorMz(),
+			 libSpec.getSequence(),
+			 libSpec.getAnnotations());
 	}
 	
+	/**
+	 * Constructor for a library spectrum instance with a single protein annotation.
+	 * @param spectrumFile The MGF spectrum file 
+	 * @param precursorMz The precursor mass
+	 * @param sequence The peptide sequence
+	 * @param accession The protein accession
+	 * @param description The protein description
+	 */
+	public LibrarySpectrum(MascotGenericFile spectrumFile, double precursorMz, String sequence, String accession, String description) {
+		this.spectrumFile = spectrumFile;
+		this.precursorMz = precursorMz;
+		this.sequence = sequence;
+		this.annotations = new ArrayList<Protein>();
+		this.annotations.add(new Protein(accession, description));
+	}
+
 	/**
 	 * Constructor for a library spectrum instance.
 	 * @param spectrumFile The MGF spectrum file 
 	 * @param precursorMz The precursor mass
 	 * @param sequence The peptide sequence
-	 * @param annotation The protein annotation
+	 * @param annotations The list of protein annotations
 	 */
-	public LibrarySpectrum(MascotGenericFile spectrumFile, double precursorMz, String sequence, String annotation) {
+	public LibrarySpectrum(MascotGenericFile spectrumFile, double precursorMz, String sequence, List<Protein> annotations) {
 		this.spectrumFile = spectrumFile;
 		this.precursorMz = precursorMz;
 		this.sequence = sequence;
-		this.annotation = annotation;
+		this.annotations = annotations;
 	}
-	
+
+	/**
+	 * Constructor for a library spectrum instance.
+	 * @param spectrumFile The MGF spectrum file 
+	 * @param precursorMz The precursor mass
+	 * @param sequence The peptide sequence
+	 */
+	public LibrarySpectrum(MascotGenericFile spectrumFile, double precursorMz, String sequence) {
+		this(spectrumFile, precursorMz, sequence, null);
+	}
+
 	/**
 	 * Returns the MGF spectrum file.
-	 * @return
 	 */
 	public MascotGenericFile getSpectrumFile() {
-		return spectrumFile;
+		return this.spectrumFile;
 	}
 	
 	/**
 	 * Returns the precursor mass.
-	 * @return
 	 */
 	public double getPrecursorMz() {
-		return precursorMz;
+		return this.precursorMz;
 	}
 	
 	/**
 	 * Returns the peptide sequence.
-	 * @return
 	 */
 	public String getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 	
 	/**
-	 * Returns the protein annotation.
-	 * @return
+	 * Returns the list of protein annotations.
 	 */
-	public String getAnnotation() {
-		return annotation;
+	public List<Protein> getAnnotations() {
+		return this.annotations;
+	}
+	
+	/**
+	 * Adds a protein annotation to the list of annotations.
+	 */
+	public void addAnnotation(Protein protein) {
+		if (this.annotations == null) {	// no annotations present yet
+			this.annotations = new ArrayList<Protein>();
+		}
+		this.annotations.add(protein);
 	}
 }

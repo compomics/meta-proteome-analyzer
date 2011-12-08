@@ -20,7 +20,7 @@ import com.compomics.util.protein.Header;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.Protein;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -135,10 +135,10 @@ public class OmssaStorager extends BasicStorager {
                 String description = header.getDescription();
                 
                 // The Protein
-                Protein protein = Protein.findFromAttributes(accession, description, conn);
+                ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, description, conn);
                 if (protein == null) {	// protein not yet in database
 						// Add new protein to the database
-						protein = Protein.addProteinWithPeptideID(peptideID, accession, description, conn);
+						protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
 					} else {
 						proteinID = protein.getProteinid();
 						// check whether pep2prot link already exists, otherwise create new one

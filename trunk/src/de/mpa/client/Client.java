@@ -80,21 +80,32 @@ public class Client {
 	
 	/**
 	 * Sets the database connection.
-	 * @param conn
 	 */
 	public void initDBConnection() {
-		// connect to database
-		DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
 		// Connection conn
-		if(conn == null){
+		if (conn == null) {
+			// connect to database
+			DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
 			this.conn = dbconfig.getConnection();
+		}
+	}
+	
+	/**
+	 * Clears the database connection.
+	 */
+	public void clearDBConnection() {
+		try {
+			this.conn.close();
+			this.conn = null;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
 	/**
 	 * Connects the client to the web service.
 	 */
-	public void connect(){
+	public void connect() {
 		service = new ServerImplService();
 		server = service.getServerImplPort();
 		
@@ -240,8 +251,8 @@ public class Client {
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		
-		// Init the database connection.
-		initDBConnection();
+//		// Init the database connection.
+//		initDBConnection();
 		
 		// parse query file
 		try {
@@ -287,7 +298,7 @@ public class Client {
 				}
 				resultMap.put(mgfQuery.getTitle(), resultList);
 			}
-			conn.close();
+//			conn.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
