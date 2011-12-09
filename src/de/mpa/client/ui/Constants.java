@@ -27,5 +27,6 @@ public class Constants {
 	// placeholders for denovoResPnl--> remove later
 	public static final String[] DNRSEQUENCES= {"Spectra 1", "Spectra 2", "Spectra 3"};
 	public static final String[]  DNBLAST_DB = {"Uniprot_sprot","NCBI"};
+	public static final String[] Spectum = {"Spectrum 1" , "Spectrum 2"};
 
 }

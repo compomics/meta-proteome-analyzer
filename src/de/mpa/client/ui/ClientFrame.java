@@ -36,6 +36,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayer;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -503,6 +504,10 @@ public class ClientFrame extends JFrame {
 	private JComboBox dnRBLastCbx;
 	private JProgressBar blastsearchPrg;
 	private JPanel dnRPlotPnl;
+	private JPanel dnTestPnl;
+	private PlotPanel2 dnPlotTest;
+	private JPanel dnResSpectrumPnl;
+	private JFileChooser dnResSpectrumFcr;
 
 	/**
 	 * Construct the file selection panel.
@@ -1345,9 +1350,29 @@ public class ClientFrame extends JFrame {
 	}
 
 	private void constructDenovoResultPanel(){
+				
 		denovoResPnl = new JPanel();
-		denovoResPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p, 5dlu,f:p:g, 5dlu",	// col
-				"5dlu, f:p, 5dlu, f:p, 5dlu"));	// row
+		denovoResPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu,f:p:g, 5dlu",	// col
+				"5dlu, f:p:g,5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));	// row
+		// Choose your spectra
+		dnResSpectrumPnl = new JPanel();
+		dnResSpectrumPnl.setLayout(new FormLayout("5dlu, f:p, 5dlu, f:p:g, 5dlu,f:p:g, 5dlu",	// col
+				"5dlu, f:p:g,5dlu,"));	// row)
+		dnResSpectrumPnl.setBorder(new TitledBorder("Select spectra"));
+		dnResSpectrumPnl.add(new JLabel("Select a Spectra:"),cc.xy(2, 2));
+		//dnResSpectrumFcr= new JFileChooser<String>(Constants.Spectum);
+		
+		
+//		String pathName = "test/de/mpa/resources/";
+//		JLabel fileLbl = new JLabel("Spectrum Files (MGF):");
+//
+//		final JFileChooser fc = new JFileChooser(pathName);
+//		fc.setFileFilter(new MgfFilter());
+//		fc.setAcceptAllFileFilterUsed(false);
+		
+		
+		
+		
 		// De novo results
 		dnRSeqPnl = new JPanel();
 		dnRSeqPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",	// col
@@ -1370,8 +1395,7 @@ public class ClientFrame extends JFrame {
 			dnRseqScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 			dnRseqScp.setToolTipText("Select spectra");
 			dnRSeqPnl.add(dnRseqScp,cc.xy(2, 2));
-
-
+		
 			// Use BLAST
 			dnRBlastPnl = new JPanel();
 			dnRBlastPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",	// col
@@ -1408,30 +1432,25 @@ public class ClientFrame extends JFrame {
 			blastsearchPrg.setValue(0);
 			dnRBlastPnl.add(blastsearchPrg, cc.xy(2, 10));
 
-
 			//See BLAST results
 			dnRBlastRPnl = new JPanel();
 			dnRBlastRPnl.setBorder(new TitledBorder("BLAST results"));
-
-
+		
 			// Spectra Plot
 			dnRPlotPnl = new JPanel();
+			dnRPlotPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",
+											"5dlu, f:p:g, 5dlu"));
+			
 			dnRPlotPnl.setBorder(new TitledBorder("Spectra"));
-
-				dnRPlotPnl2= new PlotPanel2(null);
-				dnRPlotPnl2.setMinimumSize(new Dimension(200,150));
-				dnRPlotPnl2.clearSpectrumFile();
-				dnRPlotPnl.add(dnRPlotPnl2);
-
+			dnRPlotPnl2= new PlotPanel2(null);
+			dnRPlotPnl.add(dnRPlotPnl2,cc.xy(2, 2));
 			
-
-
-			// Add panels
-			denovoResPnl.add(dnRSeqPnl,cc.xy(2, 2));
-			denovoResPnl.add(dnRBlastPnl,cc.xy(4, 2));
-			denovoResPnl.add(dnRBlastRPnl,cc.xy(6, 2));
-			denovoResPnl.add(dnRPlotPnl,cc.xyw(2, 4,5));
-			
+			// Add panelsdenovoResSpectrumPnl
+			denovoResPnl.add(dnResSpectrumPnl,cc.xyw(2, 2,5));
+			denovoResPnl.add(dnRSeqPnl,cc.xy(2, 4));
+			denovoResPnl.add(dnRBlastPnl,cc.xy(4, 4));
+			denovoResPnl.add(dnRBlastRPnl,cc.xy(6, 4));
+			denovoResPnl.add(dnRPlotPnl,cc.xyw(2, 6, 5));
 			}
 
 			private SpectrumTree queryTree;
