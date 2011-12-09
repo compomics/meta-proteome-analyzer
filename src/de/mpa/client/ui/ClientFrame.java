@@ -75,6 +75,7 @@ import javax.swing.tree.TreePath;
 import no.uib.jsparklines.extra.HtmlLinksRenderer;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.lf5.PassingLogRecordFilter;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -490,7 +491,8 @@ public class ClientFrame extends JFrame {
 		JOptionPane.showMessageDialog(this, tMsg,
 				"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
 	}
-
+	
+	private PlotPanel2 dnRPlotPnl2;
 	private PlotPanel2 filePlotPnl;
 	private JPanel dnRSeqPnl;
 	private JPanel dnRBlastPnl;
@@ -499,6 +501,8 @@ public class ClientFrame extends JFrame {
 	private JButton dnRStartBLASTBtn;
 	private JSpinner dnRBLastSpn;
 	private JComboBox dnRBLastCbx;
+	private JProgressBar blastsearchPrg;
+	private JPanel dnRPlotPnl;
 
 	/**
 	 * Construct the file selection panel.
@@ -1302,7 +1306,7 @@ public class ClientFrame extends JFrame {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				JLabel label = new JLabel("Das passiert wenn man wahllos KnÃ¶pfe drÃ¼ckt!!!", new ImageIcon(image),JLabel.CENTER);
+				JLabel label = new JLabel("Das passiert wenn man wahllos Knöpfe drückt!!!", new ImageIcon(image),JLabel.CENTER);
 				label.setVerticalTextPosition(JLabel.BOTTOM);
 				label.setHorizontalTextPosition(JLabel.CENTER);
 				JOptionPane.showMessageDialog(frame, label,"Erwischt!!", JOptionPane.PLAIN_MESSAGE);
@@ -1371,7 +1375,7 @@ public class ClientFrame extends JFrame {
 			// Use BLAST
 			dnRBlastPnl = new JPanel();
 			dnRBlastPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",	// col
-					"5dlu, f:p, 5dlu, f:p, 5dlu,f:p, 5dlu"));	// row)
+					"5dlu, f:p, 5dlu, f:p, 5dlu,f:p, 5dlu,f:p, 5dlu,f:p, 5dlu"));	// row)
 			dnRBlastPnl.setBorder(new TitledBorder("BLAST search"));
 			dnRBlastPnl.add(new JLabel("Database for BLAST search:"),cc.xy(2, 2));
 			dnRBLastCbx = new JComboBox<String>(Constants.DNBLAST_DB);
@@ -1394,8 +1398,15 @@ public class ClientFrame extends JFrame {
 					dnRlabel.setHorizontalTextPosition(JLabel.CENTER);
 					JOptionPane.showMessageDialog(frame, dnRlabel,"Erwischt!!", JOptionPane.PLAIN_MESSAGE);
 				}});
+			
+			// ShowBLASTResults
 			dnRBlastPnl.add(dnRStartBLASTBtn,cc.xy(2, 6));
-
+			// Progress Bar
+			dnRBlastPnl.add(new JLabel("Progress"),cc.xy(2, 8));
+			blastsearchPrg = new JProgressBar(0, 100);
+			blastsearchPrg.setStringPainted(true);
+			blastsearchPrg.setValue(0);
+			dnRBlastPnl.add(blastsearchPrg, cc.xy(2, 10));
 
 
 			//See BLAST results
@@ -1403,13 +1414,24 @@ public class ClientFrame extends JFrame {
 			dnRBlastRPnl.setBorder(new TitledBorder("BLAST results"));
 
 
+			// Spectra Plot
+			dnRPlotPnl = new JPanel();
+			dnRPlotPnl.setBorder(new TitledBorder("Spectra"));
+
+				dnRPlotPnl2= new PlotPanel2(null);
+				dnRPlotPnl2.setMinimumSize(new Dimension(200,150));
+				dnRPlotPnl2.clearSpectrumFile();
+				dnRPlotPnl.add(dnRPlotPnl2);
+
+			
 
 
 			// Add panels
 			denovoResPnl.add(dnRSeqPnl,cc.xy(2, 2));
 			denovoResPnl.add(dnRBlastPnl,cc.xy(4, 2));
 			denovoResPnl.add(dnRBlastRPnl,cc.xy(6, 2));
-
+			denovoResPnl.add(dnRPlotPnl,cc.xyw(2, 4,5));
+			
 			}
 
 			private SpectrumTree queryTree;
