@@ -77,27 +77,20 @@ public class PlotPanel2 extends SpectrumPanel {
 	}
 	
 	public void clearSpectrumFile() {
-		
-		this.iSpecFile = null;
 
+		this.iSpecFile = null;
 		iXAxisData = new ArrayList<double[]>();
 		iYAxisData = new ArrayList<double[]>();
-		
 		iXAxisData.add(new double[] {0.0});
 		iYAxisData.add(new double[] {90.909});
-		
-
 		iDataPointAndLineColor = new ArrayList<Color>();
 		iDataPointAndLineColor.add(Color.BLACK);
 		iAreaUnderCurveColor = new ArrayList<Color>();
 		iAreaUnderCurveColor.add(Color.PINK);
-
 		iFilename = "no file selected";
-		
 		this.rescale(0.0, 999.0);
-
 		this.iPrecursorMZ = 0.0;
-		
+	
 		iPrecursorCharge = "?";
 				
 	}
