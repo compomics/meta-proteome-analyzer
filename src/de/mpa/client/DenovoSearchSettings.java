@@ -1,63 +1,198 @@
+
 package de.mpa.client;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
 
+
+/**
+ * <p>Java class for denovoSearchSettings complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="denovoSearchSettings">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="dnEnzyme" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="dnFragmentTolerance" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/>
+ *         &lt;element name="dnMS" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="dnNumSolutions" type="{http://www.w3.org/2001/XMLSchema}int"/>
+ *         &lt;element name="dnPTMs" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="dnPeptideIntThresh" type="{http://www.w3.org/2001/XMLSchema}int"/>
+ *         &lt;element name="dnRemoveAllPep" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ * 
+ * 
+ */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "denovoSearchSettings", propOrder = {
+    "dnEnzyme",
+    "dnFragmentTolerance",
+    "dnMS",
+    "dnNumSolutions",
+    "dnPTMs",
+    "dnPeptideIntThresh",
+    "dnRemoveAllPep"
+})
 public class DenovoSearchSettings {
 
-	private String dnEnzyme ="";
-	private String dnMS ="";
-	private Double dnFragmentTolerance = 0.0;
-	private int dnPeptideIntThresh =0;
-	private int dnCountPept =0;
-	private boolean dnRemoveAllPep = false;
-	private List<String> dnPTM ;
-	
-	public String getDnEnzyme() {
-		return dnEnzyme;
-	}
-	public void setDnEnzyme(String dnEnzyme) {
-		this.dnEnzyme = dnEnzyme;
-	}
-	
-	public String getDnMS() {
-		return dnMS;
-	}
-	public void setDnMS(String dnMS) {
-		this.dnMS = dnMS;
-	}
-	
-	public Double getDnFragmentTolerance() {
-		return dnFragmentTolerance;
-	}
-	public void setDnFragmentTolerance(Double dnFragmentTolerance) {
-		this.dnFragmentTolerance = dnFragmentTolerance;
-	}
-	
-	public int getDnPeptideIntThresh() {
-		return dnPeptideIntThresh;
-	}
-	public void setDnPeptideIntThresh(int dnPeptideIntThresh) {
-		this.dnPeptideIntThresh = dnPeptideIntThresh;
-	}
-	
-	public int getDnCountPept() {
-		return dnCountPept;
-	}
-	public void setDnCountPept(int dnCountPept) {
-		this.dnCountPept = dnCountPept;
-	}
-	
-	public boolean isDnRemoveAllPep() {
-		return dnRemoveAllPep;
-	}
-	public void setDnRemoveAllPep(boolean dnRemoveAllPep) {
-		this.dnRemoveAllPep = dnRemoveAllPep;
-	}
-	
-	public List<String> getDnPTM() {
-		return dnPTM;
-	}
-	public void setDnPTM(List<String> dnPTM) {
-		this.dnPTM = dnPTM;
-	}
+    protected String dnEnzyme;
+    protected Double dnFragmentTolerance;
+    protected String dnMS;
+    protected int dnNumSolutions;
+    protected String dnPTMs;
+    protected int dnPeptideIntThresh;
+    protected boolean dnRemoveAllPep;
+
+    /**
+     * Gets the value of the dnEnzyme property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getDnEnzyme() {
+        return dnEnzyme;
+    }
+
+    /**
+     * Sets the value of the dnEnzyme property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setDnEnzyme(String value) {
+        this.dnEnzyme = value;
+    }
+
+    /**
+     * Gets the value of the dnFragmentTolerance property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Double }
+     *     
+     */
+    public Double getDnFragmentTolerance() {
+        return dnFragmentTolerance;
+    }
+
+    /**
+     * Sets the value of the dnFragmentTolerance property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Double }
+     *     
+     */
+    public void setDnFragmentTolerance(Double value) {
+        this.dnFragmentTolerance = value;
+    }
+
+    /**
+     * Gets the value of the dnMS property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getDnMS() {
+        return dnMS;
+    }
+
+    /**
+     * Sets the value of the dnMS property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setDnMS(String value) {
+        this.dnMS = value;
+    }
+
+    /**
+     * Gets the value of the dnNumSolutions property.
+     * 
+     */
+    public int getDnNumSolutions() {
+        return dnNumSolutions;
+    }
+
+    /**
+     * Sets the value of the dnNumSolutions property.
+     * 
+     */
+    public void setDnNumSolutions(int value) {
+        this.dnNumSolutions = value;
+    }
+
+    /**
+     * Gets the value of the dnPTMs property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getDnPTMs() {
+        return dnPTMs;
+    }
+
+    /**
+     * Sets the value of the dnPTMs property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setDnPTMs(String value) {
+        this.dnPTMs = value;
+    }
+
+    /**
+     * Gets the value of the dnPeptideIntThresh property.
+     * 
+     */
+    public int getDnPeptideIntThresh() {
+        return dnPeptideIntThresh;
+    }
+
+    /**
+     * Sets the value of the dnPeptideIntThresh property.
+     * 
+     */
+    public void setDnPeptideIntThresh(int value) {
+        this.dnPeptideIntThresh = value;
+    }
+
+    /**
+     * Gets the value of the dnRemoveAllPep property.
+     * 
+     */
+    public boolean isDnRemoveAllPep() {
+        return dnRemoveAllPep;
+    }
+
+    /**
+     * Sets the value of the dnRemoveAllPep property.
+     * 
+     */
+    public void setDnRemoveAllPep(boolean value) {
+        this.dnRemoveAllPep = value;
+    }
+
 }

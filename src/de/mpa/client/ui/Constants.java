@@ -1,6 +1,5 @@
 package de.mpa.client.ui;
 
-import javax.swing.ComboBoxModel;
 
 public class Constants {
 	public static final int MAINFRAME_WIDTH = 1280;
@@ -23,10 +22,8 @@ public class Constants {
 	
 	public final static String SELECTED_ROW_HTML_FONT_COLOR = "#FFFFFF";
 	public final static String NOT_SELECTED_ROW_HTML_FONT_COLOR = "#0101DF";
-	
-	// placeholders for denovoResPnl--> remove later
-	public static final String[] DNRSEQUENCES= {"Spectra 1", "Spectra 2", "Spectra 3"};
+
 	public static final String[]  DNBLAST_DB = {"Uniprot_sprot","NCBI"};
-	public static final String[] Spectum = {"Spectrum 1" , "Spectrum 2"};
+
 
 }

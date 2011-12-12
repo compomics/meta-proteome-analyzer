@@ -17,9 +17,6 @@ public class PepnovoJob extends Job {
 	// Modifications
 	private final static String MODS = "C+57:M+16";
 	
-	// Number of suggested solutions	
-	private final static String SOLUTION_NUMBER = "10";
-	
 	/**
 	 * The pepnovo file.
 	 */
@@ -29,12 +26,21 @@ public class PepnovoJob extends Job {
 	 * The MGF file.
 	 */
 	private File mgfFile;
+    
+    /**
+     * The fragment ion tolerance.
+     */
+	private double fragmentTol;    
+	
+	/**
+	 * Number of suggestions.
+	 */
+	private int numSuggestions;
 	
     /**
      * The output file if specified.
      */
     protected File outputFile;
-	private double fragmentTol;    
     
 	/**
 	 * Constructor for the XTandemJob retrieving the MGF file as the only
@@ -42,9 +48,10 @@ public class PepnovoJob extends Job {
 	 * 
 	 * @param mgfFile
 	 */
-	public PepnovoJob(File mgfFile, double fragmentTol) {
+	public PepnovoJob(File mgfFile, double fragmentTol, int numSuggestions) {
 		this.mgfFile = mgfFile;
 		this.fragmentTol = fragmentTol;
+		this.numSuggestions = numSuggestions;
 		this.pepnovoFile = new File(JobConstants.PEPNOVO_PATH);		
 		initJob();
 		run();
@@ -76,13 +83,17 @@ public class PepnovoJob extends Job {
 		
 		// Add solution number
 		procCommands.add("-num_solutions");
-		procCommands.add(SOLUTION_NUMBER);
+		procCommands.add(String.valueOf(numSuggestions));
+		
+		// Peptide intensity threshold
+		procCommands.add("-num_solutions");
+		procCommands.add(String.valueOf(numSuggestions));
 		
 		// Add output path
 		outputFile = new File(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName() + ".out");
 		procCommands.trimToSize();
 		
-		setDescription("PEPNOVO JOB");
+		setDescription("PEPNOVO");
 		procBuilder = new ProcessBuilder(procCommands);
 		
 		procBuilder.directory(pepnovoFile);

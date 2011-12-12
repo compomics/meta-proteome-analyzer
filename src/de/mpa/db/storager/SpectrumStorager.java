@@ -87,56 +87,69 @@ public class SpectrumStorager extends BasicStorager {
         // Iterate over all the spectra.        
         for (int i = 0; i < spectra.size(); i++) {
             MascotGenericFile mgf = spectra.get(i);
-            /* Spectrum section */
-            HashMap<Object, Object> data = new HashMap<Object, Object>(10);
-            // The project id.
-            data.put(Searchspectrum.FK_EXPERIMENTID, Long.valueOf(expId));
+            
             // The filename.
             String fileName = mgf.getFilename();
-            data.put(Searchspectrum.FILENAME, fileName);
             
-            String spectrumName = "";
+            // Condition: Only add if the spectra are not stored yet!
+            Searchspectrum query = Searchspectrum.findFromFilename(fileName, conn);
+            if(query == null){
+            	
+	            /* Spectrum section */
+	            HashMap<Object, Object> data = new HashMap<Object, Object>(10);
+	            // The project id.
+	            data.put(Searchspectrum.FK_EXPERIMENTID, Long.valueOf(expId));
+	            
+	            data.put(Searchspectrum.FILENAME, fileName);
+	            
+	            String spectrumName = "";
+	            
+	            // Format the spectrumname first.
+	            if(mgf.getTitle() != null){
+	            	spectrumName = mgf.getTitle().replace('\\', '/');
+	            }
+	            
+	            // Remove leading whitespace
+	            spectrumName = spectrumName.replaceAll("^\\s+", "");
+	            // Remove trailing whitespace
+	            spectrumName = spectrumName.replaceAll("\\s+$", "");
             
-            // Format the spectrumname first.
-            if(mgf.getTitle() != null){
-            	spectrumName = mgf.getTitle().replace('\\', '/');
+                data.put(Searchspectrum.SPECTRUMNAME, spectrumName);
+                
+                // The precursor mass.
+                data.put(Searchspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
+                
+                // The charge
+                data.put(Searchspectrum.CHARGE, Long.valueOf(mgf.getCharge()));
+                
+                // The total intensity.
+                data.put(Searchspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
+                
+                // The highest intensity.
+                data.put(Searchspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
+
+                // Create the database object.
+                Searchspectrum spectrum = new Searchspectrum(data);
+                spectrum.persist(conn);
+
+                // Get the spectrumid from the generated keys.
+                Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
+                
+                // Mark the start and end points.
+                if(i == 0) start = spectrumid;
+                if(i == (spectra.size() - 1)) end = spectrumid;
+                
+                //Fill the maps for caching reasons
+                filename2IdMap.put(fileName, spectrumid);
+                spectrumname2IdMap.put(spectrumName, spectrumid);
+                
+                conn.commit();
+            } else {
+                //Fill the maps for caching reasons
+                filename2IdMap.put(query.getFilename(), query.getSpectrumid());
+                spectrumname2IdMap.put(query.getSpectrumname(), query.getSpectrumid());
             }
-            
-            // Remove leading whitespace
-            spectrumName = spectrumName.replaceAll("^\\s+", "");
-            // Remove trailing whitespace
-            spectrumName = spectrumName.replaceAll("\\s+$", "");
-
-            data.put(Searchspectrum.SPECTRUMNAME, spectrumName);
-            
-            // The precursor mass.
-            data.put(Searchspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
-            
-            // The charge
-            data.put(Searchspectrum.CHARGE, Long.valueOf(mgf.getCharge()));
-            
-            // The total intensity.
-            data.put(Searchspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
-            
-            // The highest intensity.
-            data.put(Searchspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
-
-            // Create the database object.
-            Searchspectrum spectrum = new Searchspectrum(data);
-            spectrum.persist(conn);
-
-            // Get the spectrumid from the generated keys.
-            Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
-            
-            // Mark the start and end points.
-            if(i == 0) start = spectrumid;
-            if(i == (spectra.size() - 1)) end = spectrumid;
-            
-            //Fill the maps for caching reasons
-            filename2IdMap.put(fileName, spectrumid);
-            spectrumname2IdMap.put(spectrumName, spectrumid);
-            
-            conn.commit();
+ 
         }
         MapContainer.Filename2IdMap = filename2IdMap;
         MapContainer.Spectrumname2IdMap = spectrumname2IdMap;
