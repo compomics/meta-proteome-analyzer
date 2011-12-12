@@ -1,4 +1,4 @@
-package de.mpa.client;
+package de.mpa.client.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;

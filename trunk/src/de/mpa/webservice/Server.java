@@ -10,6 +10,7 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlMimeType;
 
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.DenovoSearchSettings;
 
 @WebService
 @SOAPBinding(style = Style.RPC)
@@ -19,7 +20,9 @@ public interface Server {
 	 
 	 @WebMethod String sendMessage();
 	 
-	 @WebMethod void process(String filename, DbSearchSettings settings);
+	 @WebMethod void runDbSearch(String filename, DbSearchSettings settings);
+	 
+	 @WebMethod void runDenovoSearch(String filename, DenovoSearchSettings settings);
 	 
 	 // Download a file from the server
 	 @WebMethod File downloadFile(String filename);

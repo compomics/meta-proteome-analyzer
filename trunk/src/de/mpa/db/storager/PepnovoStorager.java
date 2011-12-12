@@ -9,6 +9,7 @@ import java.util.List;
 
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.PepnovohitTableAccessor;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.parser.pepnovo.PepnovoEntry;
 import de.mpa.parser.pepnovo.PepnovoFile;
 import de.mpa.parser.pepnovo.PepnovoParser;
@@ -66,8 +67,11 @@ public class PepnovoStorager extends BasicStorager {
             // Get the spectrum id for the given spectrumName for the PepnovoFile     
             long spectrumid = Libspectrum.getSpectrumIdFromSpectrumName(entry.getSpectrumName(), false);
             for (Prediction hit : predList) {                
-                HashMap<Object, Object> hitdata = new HashMap<Object, Object>(11);
+                HashMap<Object, Object> hitdata = new HashMap<Object, Object>(10);
+                
                 hitdata.put(PepnovohitTableAccessor.FK_SPECTRUMID, spectrumid);
+                long peptideID = PeptideAccessor.findPeptideIdfromSequence(hit.getSequence(), conn);
+                hitdata.put(PepnovohitTableAccessor.FK_PEPTIDEID, peptideID);
                 hitdata.put(PepnovohitTableAccessor.INDEXID, Long.valueOf(hit.getIndex()));
                 hitdata.put(PepnovohitTableAccessor.RANKSCORE, hit.getRankScore());
                 hitdata.put(PepnovohitTableAccessor.PNVSCORE, hit.getPepNovoScore());
@@ -75,7 +79,7 @@ public class PepnovoStorager extends BasicStorager {
                 hitdata.put(PepnovohitTableAccessor.C_GAP, hit.getcTermGap());
                 hitdata.put(PepnovohitTableAccessor.PRECURSOR_MH, hit.getPrecursorMh());
                 hitdata.put(PepnovohitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
-                //TODO: hitdata.put(PepnovohitTableAccessor.SEQUENCE, hit.getSequence());
+                
                 // Create the database object.
                 PepnovohitTableAccessor pepnovohit = new PepnovohitTableAccessor(hitdata);
                 pepnovohit.persist(conn);
@@ -83,5 +87,23 @@ public class PepnovoStorager extends BasicStorager {
             conn.commit();
         }
     }
+    
+    @Override
+	public void run() {
+		this.load();
+		try {
+			this.store();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		log.info("Pepnovo results stored to the DB.");
+	}   
 }
 

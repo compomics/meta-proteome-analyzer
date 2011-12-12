@@ -19,6 +19,7 @@ import javax.xml.ws.soap.MTOM;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.DenovoSearchSettings;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
 import de.mpa.job.instances.ConvertJob;
@@ -27,6 +28,7 @@ import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
 import de.mpa.job.instances.MS2FormatJob;
 import de.mpa.job.instances.OmssaJob;
+import de.mpa.job.instances.PepnovoJob;
 import de.mpa.job.instances.PercolatorJob;
 import de.mpa.job.instances.PostProcessorJob;
 import de.mpa.job.instances.RenameJob;
@@ -84,7 +86,7 @@ public class ServerImpl implements Server {
 	 * @param filename
 	 * @throws Exception
 	 */
-	public void process(String filename, DbSearchSettings params) {	
+	public void runDbSearch(String filename, DbSearchSettings params) {	
 		File file = new File("/scratch/metaprot/data/transfer/" + filename);
 		
 		// Init the job manager
@@ -150,6 +152,41 @@ public class ServerImpl implements Server {
 			log.error(ex.getMessage());
 		}
 		msgQueue.add(new Message(null, "DBSEARCH FINISHED", new Date()));
+	}
+	
+	/**
+	 * Process the derived pepnovo file.
+	 * @param filename
+	 * @throws Exception
+	 */
+	public void runDenovoSearch(String filename, DenovoSearchSettings params) {	
+		// The denovo file
+		File file = new File("/scratch/metaprot/data/transfer/" + filename);
+		
+		// Init the job manager
+		final JobManager jobManager = new JobManager(msgQueue);
+		
+		// Get general parameters
+		PepnovoJob denovoJob = new PepnovoJob(file, params.getDnFragmentTolerance(), params.getDnNumSolutions());
+		jobManager.addJob(denovoJob);
+		jobManager.execute();
+		jobManager.clear();
+		
+		// Get the filename map.
+		Map<String, String> filenames = jobManager.getFilenames();
+		DBManager dbManager = null;
+		
+		try {
+			// 	DB Manager instance					
+			dbManager = new DBManager();
+			dbManager.storeSpectra(file);
+			dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		} catch (SQLException ex) {
+			log.error(ex.getMessage());
+		}
+		msgQueue.add(new Message(null, "DENOVOSEARCH FINISHED", new Date()));
 	}
 	
 	@Override		

@@ -47,7 +47,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
     	}
         Searchspectrum temp = null;
         // Only get the last 1500 records
-        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where spectrumname = ? order by creationdate LIMIT 1500");
+        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where spectrumname = ? order by creationdate");
         ps.setString(1, formatted);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -89,19 +89,14 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
     public static Searchspectrum findFromFilename(String filename, Connection aConn) throws SQLException {
     	
         Searchspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where filename = ? order by creationdate LIMIT 1500");
+        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where filename = ? order by creationdate");
         ps.setString(1, filename);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp = new Searchspectrum(rs);
         }
         rs.close();
         ps.close();
-        if (counter < 1) {
-            throw new SQLException("Select based on filename'" + filename + "' resulted in " + counter + " results!");
-        }
 
         return temp;
     }
@@ -130,8 +125,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
         rs.close();
         ps.close();        
     }
-
-
+    
     /**
      * This method will find a spectrum file from the current connection, based on the specified spectrumid.
      *

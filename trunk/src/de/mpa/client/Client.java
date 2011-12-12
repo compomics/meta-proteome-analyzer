@@ -23,10 +23,13 @@ import org.apache.log4j.Logger;
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.RankedLibrarySpectrum;
+import de.mpa.client.model.DbSearchResult;
+import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -134,7 +137,6 @@ public class Client {
 		}
 	}
 	
-	
 	/**
 	 * Send the message. 
 	 * @param msg
@@ -195,10 +197,73 @@ public class Client {
 	 * @param file
 	 */
 	public void runDbSearch(File file, DbSearchSettings settings){
-		server.process(file.getName(), settings);
+		server.runDbSearch(file.getName(), settings);
 	}
 	
-	public DbSearchResult getSearchResult(File file){
+	/**
+	 * Runs the denovo search.
+	 * @param file
+	 */
+	public void runDenovoSearch(File file, DenovoSearchSettings settings){
+		server.runDenovoSearch(file.getName(), settings);
+	}
+	
+	/**
+	 * Returns the result from the de-novo search.
+	 * @param file The query file.
+	 * @return DenovoSearchResult
+	 */
+	public DenovoSearchResult getDenovoSearchResult(File file){
+		// Initialize the connection.
+		initDBConnection();
+		
+		DenovoSearchResult result = null;
+		
+		MascotGenericFileReader mgfReader;
+		List<MascotGenericFile> mgfFiles = null;
+		try {
+			// Get the query spectra.
+			mgfReader = new MascotGenericFileReader(file);
+			mgfFiles = mgfReader.getSpectrumFiles();
+			
+			// Initialize the result set.
+			result = new DenovoSearchResult();
+			List<Searchspectrum> querySpectra = new ArrayList<Searchspectrum>();
+			Map<String, List<Pepnovohit>> pepnovoResults = new HashMap<String, List<Pepnovohit>>();
+			
+			// Iterate over query spectra and get the different identification result sets
+			for (MascotGenericFile mgf : mgfFiles) {
+				Searchspectrum spectrum = Searchspectrum.findFromFilename(mgf.getFilename(), conn);
+				querySpectra.add(spectrum);
+				long spectrumID = spectrum.getSpectrumid();
+				String spectrumname = spectrum.getSpectrumname();
+				
+				// Pepnovo
+				List<Pepnovohit> pepnovoList = Pepnovohit.getHitsFromSpectrumID(spectrumID, conn);
+				if(pepnovoList.size() > 0) {
+					pepnovoResults.put(spectrumname, pepnovoList);
+				}
+				
+			}
+			
+			// Set the results.
+			result.setQuerySpectra(querySpectra);
+			result.setPepnovoResults(pepnovoResults);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns the result(s) from the database search performed on the server.
+	 * @param file The query file.
+	 * @return DbSearchResult
+	 */
+	public DbSearchResult getDbSearchResult(File file){
 		// Init the database connection.
 		initDBConnection();
 		
@@ -281,9 +346,6 @@ public class Client {
 		// init result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		
-//		// Init the database connection.
-//		initDBConnection();
-		
 		// parse query file
 		try {
 			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
@@ -358,15 +420,4 @@ public class Client {
     public void addPropertyChangeListener(PropertyChangeListener l ) { 
     	pSupport.addPropertyChangeListener(l); 
     } 
-    
-//	/**
-//	 * @param args
-//	 * @throws Exception
-//	 */
-//	public static void main(String[] args) {
-//		// Get instance of the client.
-//		Client client = Client.getInstance();
-////		client.connect();
-////		client.sendMessage("SEND MESSAGE!");
-//	}
 }

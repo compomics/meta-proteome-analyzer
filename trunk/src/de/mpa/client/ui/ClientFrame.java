@@ -7,9 +7,9 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -36,7 +36,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayer;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -76,7 +75,6 @@ import javax.swing.tree.TreePath;
 import no.uib.jsparklines.extra.HtmlLinksRenderer;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.PassingLogRecordFilter;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -89,13 +87,15 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
-import de.mpa.client.DbSearchResult;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.ProcessSettings;
+import de.mpa.client.model.DbSearchResult;
+import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.io.MascotGenericFile;
@@ -179,6 +179,7 @@ public class ClientFrame extends JFrame {
 
 	private JTable libTbl;
 	private JTable querySpectraTbl;
+	private JTable queryDnSpectraTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 
 	private Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
@@ -222,7 +223,8 @@ public class ClientFrame extends JFrame {
 	private int minPeaks = 5;
 	private double minTIC = 100.0;
 	private double minSNR = 1.0;
-	private DbSearchResult result;
+	private DbSearchResult dbSearchResult;
+	private DenovoSearchResult denovoSearchResult;
 	private JProgressBar denovoPrg;
 	private JSpinner dnFragTolSpn;
 	private JComboBox dnFileCbx;
@@ -236,7 +238,7 @@ public class ClientFrame extends JFrame {
 	private JMenu settingsMenu;
 	private JMenuItem databaseItem;
 	private JMenuItem serverItem;
-	private JSpinner dnPepCountSpn;
+	private JSpinner dnNumSolutionsSpn;
 	private JCheckBox dnPepknownChx;
 	private JSpinner dnThresholdSpn;
 	private JButton dnStartBtn;
@@ -337,8 +339,13 @@ public class ClientFrame extends JFrame {
 			}
 		} else if(message.startsWith("DBSEARCH")){
 			for (File file : files) {
-				result = client.getSearchResult(file);
-				updateResultsTable();
+				dbSearchResult = client.getDbSearchResult(file);
+				updateDbResultsTable();
+			}
+		} else if(message.startsWith("DENOVOSEARCH")){
+			for (File file : files) {
+				denovoSearchResult = client.getDenovoSearchResult(file);
+				updateDenovoResultsTable();
 			}
 
 		}
@@ -498,7 +505,6 @@ public class ClientFrame extends JFrame {
 	private JPanel dnRSeqPnl;
 	private JPanel dnRBlastPnl;
 	private JPanel dnRBlastRPnl;
-	private JTable dnRSeqtbl;
 	private JButton dnRStartBLASTBtn;
 	private JSpinner dnRBLastSpn;
 	private JComboBox dnRBLastCbx;
@@ -508,6 +514,8 @@ public class ClientFrame extends JFrame {
 	private PlotPanel2 dnPlotTest;
 	private JPanel dnResSpectrumPnl;
 	private JFileChooser dnResSpectrumFcr;
+	private JComboBox spectra2Cbx;
+	private JScrollPane queryDnSpectraTblJScrollPane;
 
 	/**
 	 * Construct the file selection panel.
@@ -1262,9 +1270,9 @@ public class ClientFrame extends JFrame {
 
 		// Maximum number of peptides
 		parPnl.add(new JLabel("Number of peptides"),cc.xyw(2, 9, 3));
-		dnPepCountSpn = new JSpinner(new SpinnerNumberModel(10, 0, null, 1));
-		dnPepCountSpn.setToolTipText("Select the maximum number of peaks for de novo sequencing ");
-		parPnl.add(dnPepCountSpn,cc.xy(6, 9));
+		dnNumSolutionsSpn = new JSpinner(new SpinnerNumberModel(10, 0, null, 1));
+		dnNumSolutionsSpn.setToolTipText("Select the maximum number of peaks for de novo sequencing ");
+		parPnl.add(dnNumSolutionsSpn,cc.xy(6, 9));
 
 		dnPepknownChx = new JCheckBox("Remove known peptides");
 		dnPepknownChx.setToolTipText("Remove all identified peptides");
@@ -1300,18 +1308,23 @@ public class ClientFrame extends JFrame {
 				"p, 5dlu,"));							// row
 		statusPnl.setBorder(new TitledBorder("Search status"));
 		// Start button
-		dnStartBtn = new JButton("Start de novo search");
+		dnStartBtn = new JButton("Run de-novo search");
 		dnStartBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				collectDenovoSettings();
+				dnStartBtn.setEnabled(false);
+				RunDenovoSearchWorker worker = new RunDenovoSearchWorker();
+				worker.execute();
+				
+				// Easter egg stuff
 				Image image = null;
 				try {
 					image = ImageIO.read(new File("docu/Nerds.jpg"));
+					
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				JLabel label = new JLabel("Das passiert wenn man wahllos Knöpfe drückt!!!", new ImageIcon(image),JLabel.CENTER);
+				JLabel label = new JLabel("Das passiert wenn man wahllos Knoepfe drueckt!!!", new ImageIcon(image),JLabel.CENTER);
 				label.setVerticalTextPosition(JLabel.BOTTOM);
 				label.setHorizontalTextPosition(JLabel.CENTER);
 				JOptionPane.showMessageDialog(frame, label,"Erwischt!!", JOptionPane.PLAIN_MESSAGE);
@@ -1337,60 +1350,87 @@ public class ClientFrame extends JFrame {
 		settings.setDnMS(dnMSCbx.getSelectedItem().toString());
 		settings.setDnFragmentTolerance((Double) dnFragTolSpn.getValue());
 		settings.setDnPeptideIntThresh((Integer)dnThresholdSpn.getValue() );
-		settings.setDnCountPept((Integer) dnPepCountSpn.getValue());
+		settings.setDnNumSolutions((Integer) dnNumSolutionsSpn.getValue());
 		settings.setDnRemoveAllPep((boolean) dnPepknownChx.isSelected());
-		List<String> ptmList =new ArrayList<String>();
+		String mods = "";
 		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
 			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
-				ptmList.add((String) dnPTMtbl.getValueAt(row, 0));
+				mods += (String) dnPTMtbl.getValueAt(row, 0);
 			}
 		}
-		settings.setDnPTM(ptmList);
+		settings.setDnPTMs(mods);
 		return settings;
 	}
 
 	private void constructDenovoResultPanel(){
-				
+		queryDnSpectraTblJScrollPane = new JScrollPane();
+		
 		denovoResPnl = new JPanel();
-		denovoResPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu,f:p:g, 5dlu",	// col
+		denovoResPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu",	// col
 				"5dlu, f:p:g,5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));	// row
 		// Choose your spectra
 		dnResSpectrumPnl = new JPanel();
-		dnResSpectrumPnl.setLayout(new FormLayout("5dlu, f:p, 5dlu, f:p:g, 5dlu,f:p:g, 5dlu",	// col
-				"5dlu, f:p:g,5dlu,"));	// row)
-		dnResSpectrumPnl.setBorder(new TitledBorder("Select spectra"));
-		dnResSpectrumPnl.add(new JLabel("Select a Spectra:"),cc.xy(2, 2));
-		//dnResSpectrumFcr= new JFileChooser<String>(Constants.Spectum);
+		dnResSpectrumPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	// col
+				"5dlu, p, 5dlu, f:p:g, 5dlu,"));	// row)
+		dnResSpectrumPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
+
+		// Setup the tables
+		setupDenovoSearchResultTableProperties();
 		
+		queryDnSpectraTbl.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {
+				queryDnSpectraTableMouseClicked(evt);
+			}
+		});
 		
-//		String pathName = "test/de/mpa/resources/";
-//		JLabel fileLbl = new JLabel("Spectrum Files (MGF):");
-//
-//		final JFileChooser fc = new JFileChooser(pathName);
-//		fc.setFileFilter(new MgfFilter());
-//		fc.setAcceptAllFileFilterUsed(false);
+		queryDnSpectraTbl.addKeyListener(new java.awt.event.KeyAdapter() {
+
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+            	queryDnSpectraTableKeyReleased(evt);
+            }
+        });
+
 		
-		
-		
+		queryDnSpectraTbl.setOpaque(false);
+		queryDnSpectraTblJScrollPane.setViewportView(queryDnSpectraTbl);
+		queryDnSpectraTblJScrollPane.setPreferredSize(new Dimension(500, 300));
+
+		spectra2Cbx = new JComboBox();
+		JButton updateDnBtn = new JButton("Get results");
+		JPanel topPnl = new JPanel(new FormLayout("p:g, 40dlu, p", "p:g"));
+		topPnl.add(spectra2Cbx, cc.xy(1, 1));
+		topPnl.add(updateDnBtn, cc.xy(3, 1));
+		updateDnBtn.setPreferredSize(new Dimension(150, 20));
+
+		updateDnBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for(File file : files){
+					denovoSearchResult = client.getDenovoSearchResult(file);
+					updateDenovoResultsTable();
+				}
+			}
+		});
+
+		dnResSpectrumPnl.add(topPnl, cc.xy(2, 2));
+		dnResSpectrumPnl.add(queryDnSpectraTblJScrollPane, cc.xy(2, 4));
 		
 		// De novo results
 		dnRSeqPnl = new JPanel();
 		dnRSeqPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",	// col
 				"5dlu, f:p, 5dlu"));	// row
-		dnRSeqPnl.setBorder(new TitledBorder("De novo results"));
+		dnRSeqPnl.setBorder(new TitledBorder("PepNovo results"));
 		// model for table with checkboxes
-		DefaultTableModel dnRmodel = new DefaultTableModel(new Object []{"","Spectra"},0){
-			public Class<?> getColumnClass(int c){
-				return getValueAt(0,c).getClass();
-			}};
-			// fill the table with text and checkboxes
-			for (int i = 0; i < Constants.DNRSEQUENCES.length; i++) {
-				dnRmodel.addRow(new Object[]{true,Constants.DNRSEQUENCES[i]});
-			}	
-			dnRSeqtbl= new JTable(dnRmodel);
-			dnRSeqtbl.getColumnModel().getColumn(0).setMaxWidth(dnRSeqtbl.getColumnModel().getColumn(0).getMinWidth());
-			dnRSeqtbl.setShowVerticalLines(false);
-			JScrollPane dnRseqScp= new JScrollPane(dnRSeqtbl);
+//		DefaultTableModel dnRmodel = new DefaultTableModel(new Object []{"","Spectra"},0){
+//			public Class<?> getColumnClass(int c){
+//				return getValueAt(0,c).getClass();
+//			}};
+			
+			
+			JScrollPane dnRseqScp= new JScrollPane(pepnovoTbl);
 			dnRseqScp.setPreferredSize(new Dimension(100,200));
 			dnRseqScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 			dnRseqScp.setToolTipText("Select spectra");
@@ -1402,21 +1442,22 @@ public class ClientFrame extends JFrame {
 					"5dlu, f:p, 5dlu, f:p, 5dlu,f:p, 5dlu,f:p, 5dlu,f:p, 5dlu"));	// row)
 			dnRBlastPnl.setBorder(new TitledBorder("BLAST search"));
 			dnRBlastPnl.add(new JLabel("Database for BLAST search:"),cc.xy(2, 2));
-			dnRBLastCbx = new JComboBox<String>(Constants.DNBLAST_DB);
+			dnRBLastCbx = new JComboBox(Constants.DNBLAST_DB);
 			dnRBLastCbx.setToolTipText("Choose databse for BLAST search");
 			dnRBlastPnl.add(dnRBLastCbx,cc.xy(2, 4));
 			dnRStartBLASTBtn= new JButton("BLAST search");
+			
 			dnRStartBLASTBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
-					JLabel dnRlabel = new JLabel("<html> Ein 22-jähriger Mann lernt in einer " +
-							"Bar eine ältere Frau kennen. Trotz ihrem Alter von 57 Jahren, sind sich die " +
+					JLabel dnRlabel = new JLabel("<html> Ein 22-jaehriger Mann lernt in einer " +
+							"Bar eine aeltere Frau kennen. Trotz ihrem Alter von 57 Jahren, sind sich die " +
 							"beiden sehr sympathisch. Sie unterhalten sich lange, beginnen zu fummeln und zu <br>" +
 							"knutschen.Dann meint sie: Hast du es schon einmal mit Mutter und Tochter zusammen  " +
-							"gemacht? Er antwortet: Nein, aber das wäre sicher ein geiles Erlebnis! Sie sagt: " +
-							"Komm mit mir nach Hause; das wird deine Nacht!Er denkt: So geil, bis morgen früh <br>" +
-							" durchhökern und das mit 2 Frauen - ein Traum. Als sie zu Hause die Türe öffnet " +
+							"gemacht? Er antwortet: Nein, aber das waere sicher ein geiles Erlebnis! Sie sagt: " +
+							"Komm mit mir nach Hause; das wird deine Nacht!Er denkt: So geil, bis morgen frueh <br>" +
+							" durchhoekern und das mit 2 Frauen - ein Traum. Als sie zu Hause die Tuere oeffnet " +
 							"und sie beide in den Flur treten, ruft sie: Mutti, bist du noch wach?!!!!!</html>",JLabel.CENTER);
 					dnRlabel.setVerticalTextPosition(JLabel.BOTTOM);
 					dnRlabel.setHorizontalTextPosition(JLabel.CENTER);
@@ -1437,20 +1478,20 @@ public class ClientFrame extends JFrame {
 			dnRBlastRPnl.setBorder(new TitledBorder("BLAST results"));
 		
 			// Spectra Plot
-			dnRPlotPnl = new JPanel();
-			dnRPlotPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",
-											"5dlu, f:p:g, 5dlu"));
-			
-			dnRPlotPnl.setBorder(new TitledBorder("Spectra"));
-			dnRPlotPnl2= new PlotPanel2(null);
-			dnRPlotPnl.add(dnRPlotPnl2,cc.xy(2, 2));
+//			dnRPlotPnl = new JPanel();
+//			dnRPlotPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",
+//											"5dlu, f:p:g, 5dlu"));
+//			
+//			dnRPlotPnl.setBorder(new TitledBorder("Spectra"));
+//			dnRPlotPnl2= new PlotPanel2(null);
+//			dnRPlotPnl.add(dnRPlotPnl2,cc.xy(2, 2));
 			
 			// Add panelsdenovoResSpectrumPnl
-			denovoResPnl.add(dnResSpectrumPnl,cc.xyw(2, 2,5));
+			denovoResPnl.add(dnResSpectrumPnl,cc.xyw(2, 2,3));
 			denovoResPnl.add(dnRSeqPnl,cc.xy(2, 4));
 			denovoResPnl.add(dnRBlastPnl,cc.xy(4, 4));
-			denovoResPnl.add(dnRBlastRPnl,cc.xy(6, 4));
-			denovoResPnl.add(dnRPlotPnl,cc.xyw(2, 6, 5));
+			//denovoResPnl.add(dnRBlastRPnl,cc.xy(6, 4));
+			//denovoResPnl.add(dnRPlotPnl,cc.xyw(2, 6, 5));
 			}
 
 			private SpectrumTree queryTree;
@@ -1468,8 +1509,10 @@ public class ClientFrame extends JFrame {
 			private Map<String, List<XTandemhit>> xTandemResults;
 			private Map<String, List<Cruxhit>> cruxResults;
 			private Map<String, List<Inspecthit>> inspectResults;
+			private Map<String, List<Pepnovohit>> pepnovoResults;
 			private Map<String, Integer> voteMap;
 			private JComboBox spectraCbx;
+			private JTable pepnovoTbl;
 
 			/**
 			 * Construct the spectral search results panel.
@@ -1683,7 +1726,7 @@ public class ClientFrame extends JFrame {
 				spectraPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
 
 				// Setup the tables
-				setResultsTableProperties();
+				setupDbSearchResultTableProperties();
 
 				// List with loaded query spectra
 				//querySpectraLst = new JList()
@@ -1695,6 +1738,14 @@ public class ClientFrame extends JFrame {
 						querySpectraTableMouseClicked(evt);
 					}
 				});
+				
+				querySpectraTbl.addKeyListener(new java.awt.event.KeyAdapter() {
+
+		            @Override
+		            public void keyReleased(java.awt.event.KeyEvent evt) {
+		            	querySpectraTableKeyReleased(evt);
+		            }
+		        });
 
 				querySpectraTbl.setOpaque(false);
 				querySpectraTblJScrollPane.setViewportView(querySpectraTbl);
@@ -1712,8 +1763,8 @@ public class ClientFrame extends JFrame {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						for(File file : files){
-							result = client.getSearchResult(file);
-							updateResultsTable();
+							dbSearchResult = client.getDbSearchResult(file);
+							updateDbResultsTable();
 						}
 					}
 				});
@@ -1765,8 +1816,48 @@ public class ClientFrame extends JFrame {
 				res2Pnl.add(psmPnl, cc.xy(2,4));
 
 			}
+			
+			private void setupDenovoSearchResultTableProperties(){
+				// Query table
+				queryDnSpectraTbl = new JTable(new DefaultTableModel() {
+					// instance initializer block
+					{ setColumnIdentifiers(new Object[] {" ", "Title", "m/z", "Charge", "Identified"}); }
 
-			private void setResultsTableProperties(){
+					public boolean isCellEditable(int row, int col) {
+						return false;
+					}
+				});
+				queryDnSpectraTbl.getColumn(" ").setMinWidth(30);
+				queryDnSpectraTbl.getColumn(" ").setMaxWidth(30);
+				queryDnSpectraTbl.getColumn("m/z").setMinWidth(100);
+				queryDnSpectraTbl.getColumn("m/z").setMaxWidth(100);
+				queryDnSpectraTbl.getColumn("Charge").setMinWidth(100);
+				queryDnSpectraTbl.getColumn("Charge").setMaxWidth(100);
+				queryDnSpectraTbl.getColumn("Identified").setMinWidth(80);
+				queryDnSpectraTbl.getColumn("Identified").setMaxWidth(80);
+				
+				pepnovoTbl = new JTable(new DefaultTableModel() {
+					// instance initializer block
+					{ setColumnIdentifiers(new Object[] {" ", "Peptide", "N-Gap", "C-Gap", "Score"}); }
+
+					public boolean isCellEditable(int row, int col) {
+						return false;
+					}
+				});
+
+				pepnovoTbl.getColumn(" ").setMinWidth(30);
+				pepnovoTbl.getColumn(" ").setMaxWidth(30);
+				pepnovoTbl.getColumn("N-Gap").setMinWidth(90);
+				pepnovoTbl.getColumn("N-Gap").setMaxWidth(90);
+				pepnovoTbl.getColumn("C-Gap").setMinWidth(90);
+				pepnovoTbl.getColumn("C-Gap").setMaxWidth(90);
+				pepnovoTbl.getColumn("Score").setMinWidth(90);
+				pepnovoTbl.getColumn("Score").setMaxWidth(90);
+				
+			}
+			
+			
+			private void setupDbSearchResultTableProperties(){
 				// Query table
 				querySpectraTbl = new JTable(new DefaultTableModel() {
 					// instance initializer block
@@ -1858,13 +1949,13 @@ public class ClientFrame extends JFrame {
 				inspectTbl.getTableHeader().setReorderingAllowed(false);
 			}
 
-			private void updateResultsTable(){
-				List<Searchspectrum> querySpectra = result.getQuerySpectra();
-				xTandemResults = result.getxTandemResults();
-				ommsaResults = result.getOmssaResults();      
-				cruxResults = result.getCruxResults();        	
-				inspectResults = result.getInspectResults();   
-				voteMap = result.getVoteMap();
+			private void updateDbResultsTable(){
+				List<Searchspectrum> querySpectra = dbSearchResult.getQuerySpectra();
+				xTandemResults = dbSearchResult.getxTandemResults();
+				ommsaResults = dbSearchResult.getOmssaResults();      
+				cruxResults = dbSearchResult.getCruxResults();        	
+				inspectResults = dbSearchResult.getInspectResults();   
+				voteMap = dbSearchResult.getVoteMap();
 				if (querySpectra != null) {
 					for (int i = 0; i < querySpectra.size(); i++) {
 						Searchspectrum spectrum = querySpectra.get(i);
@@ -1877,6 +1968,25 @@ public class ClientFrame extends JFrame {
 								spectrum.getPrecursor_mz(),
 								spectrum.getCharge(), 
 								voteMap.get(title) + " / 4"});
+					}
+				}
+			}
+			
+			private void updateDenovoResultsTable(){
+				List<Searchspectrum> querySpectra = denovoSearchResult.getQuerySpectra();
+				pepnovoResults = denovoSearchResult.getPepnovoResults();
+				if (querySpectra != null) {
+					for (int i = 0; i < querySpectra.size(); i++) {
+						Searchspectrum spectrum = querySpectra.get(i);
+						String title = spectrum.getSpectrumname();
+
+
+						((DefaultTableModel) queryDnSpectraTbl.getModel()).addRow(new Object[]{
+								i + 1,
+								title,
+								spectrum.getPrecursor_mz(),
+								spectrum.getCharge(), 
+								"yes"});
 					}
 				}
 			}
@@ -1896,7 +2006,7 @@ public class ClientFrame extends JFrame {
 				if (row != -1) {
 
 					// Empty tables.
-					clearResultTables();
+					clearDbResultTables();
 
 					String spectrumName = querySpectraTbl.getValueAt(row, 1).toString();
 					if (xTandemResults.containsKey(spectrumName)) {
@@ -1954,13 +2064,48 @@ public class ClientFrame extends JFrame {
 				}
 				// Set the cursor back into the default status.
 				this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+			
+			/**
+			 * Update the PSM tables based on the spectrum selected.
+			 * 
+			 * @param evt
+			 */
+			private void queryDnSpectraTableMouseClicked(MouseEvent evt) {
+				// Set the cursor into the wait status.
+				this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
+				int row = queryDnSpectraTbl.getSelectedRow();
+
+				// Condition if one row is selected.
+				if (row != -1) {
+
+					// Empty tables.
+					clearDenovoResultTables();
+
+					String spectrumName = queryDnSpectraTbl.getValueAt(row, 1).toString();
+					if (pepnovoResults.containsKey(spectrumName)) {
+						List<Pepnovohit> pepnovoList = pepnovoResults.get(spectrumName);
+						for (int i = 0; i < pepnovoList.size(); i++) {
+							Pepnovohit hit = pepnovoList.get(i);
+							((DefaultTableModel) pepnovoTbl.getModel()).addRow(new Object[]{
+									i + 1,
+									hit.getSequence(),
+									hit.getN_gap(),
+									hit.getC_gap(), 
+									hit.getPnvscore()});
+						}
+					}
+				}
+				// Set the cursor back into the default status.
+				this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
 			}
 
 			/**
 			 * Clears the result tables.
 			 */
-			private void clearResultTables(){
+			private void clearDbResultTables(){
 				// Remove PSMs from all result tables        	 
 				while (xTandemTbl.getRowCount() > 0) {
 					((DefaultTableModel) xTandemTbl.getModel()).removeRow(0);
@@ -1975,7 +2120,31 @@ public class ClientFrame extends JFrame {
 					((DefaultTableModel) inspectTbl.getModel()).removeRow(0);
 				}
 			}
-
+			
+			/**
+			 * Clears the result tables.
+			 */
+			private void clearDenovoResultTables(){
+				// Remove PSMs from all result tables        	 
+				while (pepnovoTbl.getRowCount() > 0) {
+					((DefaultTableModel) pepnovoTbl.getModel()).removeRow(0);
+				}
+			}
+			
+			  /**
+		     * @see #querySpectraTableKeyReleased(java.awt.event.MouseEvent)
+		     */
+		    private void querySpectraTableKeyReleased(KeyEvent evt) {
+		    	querySpectraTableMouseClicked(null);
+		    }
+		    
+		    /**
+		     * @see #queryDnSpectraTableKeyReleased(java.awt.event.MouseEvent)
+		     */
+		    private void queryDnSpectraTableKeyReleased(KeyEvent evt) {
+		    	queryDnSpectraTableMouseClicked(null);
+		    }
+		    
 			/**
 			 * Construct the logging panel.
 			 */	
@@ -2311,8 +2480,38 @@ public class ClientFrame extends JFrame {
 					DbSearchSettings settings = collectDBSearchSettings();
 					try {
 						for (File file : files) {
-							// TODO: run the DB search with the settings
 							client.runDbSearch(file, settings);
+							progress++;
+							setProgress((int)(progress/max*100));
+						}
+						files.clear();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					return 0;
+				}
+
+				@Override
+				public void done() {
+					procBtn.setEnabled(true);
+				}
+			}
+			
+			/**
+			 * RunDBSearchWorker class extending SwingWorker.
+			 * @author Thilo Muth
+			 *
+			 */
+			private class RunDenovoSearchWorker	extends SwingWorker {
+
+				protected Object doInBackground() throws Exception {
+					double progress = 0;
+					double max = files.size();
+					setProgress(0);
+					DenovoSearchSettings settings = collectDenovoSettings();
+					try {
+						for (File file : files) {
+							client.runDenovoSearch(file, settings);
 							progress++;
 							setProgress((int)(progress/max*100));
 						}

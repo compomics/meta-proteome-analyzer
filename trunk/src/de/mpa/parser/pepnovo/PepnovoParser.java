@@ -7,16 +7,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 /**
  * This com.compomics.proteocloud.parser reads the file contents of an output file of the PepNovo algorithm.
  * @author Thilo Muth
  *
  */
 public class PepnovoParser {
-	
-	private Logger log = Logger.getLogger(getClass());
 	
 	/**
 	 * Default contructor for the PepNovoParser.
@@ -79,12 +75,8 @@ public class PepnovoParser {
 					String[] tokens = nextLine.split("\\s+");
 					
 					Prediction prediction = new Prediction();
-					log.info("next line: " + nextLine);
 					
 					if (tokens.length > 5 && !nextLine.equals("")){
-						log.info("index: " + prediction.getIndex());
-						log.info("rankscore " + tokens[1]);						
-						log.info("token: " + tokens[2]);										
 						prediction.setIndex(Integer.valueOf(tokens[0]));
 						prediction.setRankScore(Double.valueOf(tokens[1]));
 						prediction.setPepNovoScore(Double.valueOf(tokens[2]));
