@@ -759,13 +759,16 @@ public class ClientFrame extends JFrame {
 					//Get selected index for spectra combobox
 					int comboIndex = spectraCbx.getSelectedIndex();
 					spectraCbx.removeAllItems();
-
+					spectraCbx2.removeAllItems();
+					
 					for (int i = 0; i < files.size(); i++) {
 						spectraCbx.addItem(files.get(i).getName());
+						spectraCbx2.addItem(files.get(i).getName());
 					}
 
 					if(comboIndex >= 0)	{
 						spectraCbx.setSelectedIndex(comboIndex);
+						spectraCbx2.setSelectedIndex(comboIndex);
 					}
 					setCursor(null);
 				}
@@ -1397,10 +1400,10 @@ public class ClientFrame extends JFrame {
 		queryDnSpectraTblJScrollPane.setViewportView(queryDnSpectraTbl);
 		queryDnSpectraTblJScrollPane.setPreferredSize(new Dimension(500, 300));
 
-		spectra2Cbx = new JComboBox();
+		spectraCbx2 = new JComboBox();
 		JButton updateDnBtn = new JButton("Get results");
 		JPanel topPnl = new JPanel(new FormLayout("p:g, 40dlu, p", "p:g"));
-		topPnl.add(spectra2Cbx, cc.xy(1, 1));
+		topPnl.add(spectraCbx2, cc.xy(1, 1));
 		topPnl.add(updateDnBtn, cc.xy(3, 1));
 		updateDnBtn.setPreferredSize(new Dimension(150, 20));
 
@@ -1512,6 +1515,7 @@ public class ClientFrame extends JFrame {
 			private Map<String, List<Pepnovohit>> pepnovoResults;
 			private Map<String, Integer> voteMap;
 			private JComboBox spectraCbx;
+			private JComboBox spectraCbx2;
 			private JTable pepnovoTbl;
 
 			/**
