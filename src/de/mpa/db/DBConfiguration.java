@@ -13,11 +13,11 @@ public class DBConfiguration {
 
     private Connection conn;
 	private static String JDBCDRIVER = "com.mysql.jdbc.Driver";
-    private static String URL_LOCALE = "jdbc:mysql://192.168.30.102";
-    private static String URL_REMOTE = "jdbc:mysql://metaprot";
+    private static String URL_LOCALE = "jdbc:mysql://localhost";
+    private static String URL_REMOTE = "jdbc:mysql://localhost";
     private static String URL_2 = ":3306/";
-    private static String USER = "metaroot";
-    private static String PASS = "test";
+    private static String USER = "";
+    private static String PASS = "";
     private String dbName;
 	private boolean locale;
     /**
