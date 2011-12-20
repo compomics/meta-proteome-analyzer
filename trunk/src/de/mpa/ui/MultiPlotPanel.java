@@ -18,8 +18,8 @@ public class MultiPlotPanel extends JPanel {
 	private int k;
 	
 	// flag to determine whether upper and lower part should be normalized separately
-	private boolean doNormalize = false;
-	
+	private boolean normalizeSeparately = false;
+
 	// padding
 	private int padX = 5, padY = 5;
 	// background color
@@ -40,6 +40,10 @@ public class MultiPlotPanel extends JPanel {
 	}
 	public void setK(int k) {
 		this.k = k;
+	}
+
+	public boolean isNormalizedSeparately() {
+		return normalizeSeparately;
 	}
 
 	public int getPadX() {
@@ -93,8 +97,12 @@ public class MultiPlotPanel extends JPanel {
 		}
 	}
 	
-	public void repaint(boolean doNormalize) {
-		this.doNormalize = doNormalize;
+	/**
+	 * Repaints the plot panel with the option to normalize the upper and lower spectra separately.
+	 * @param normalizeSeparately boolean flag to determine normalization behavior.
+	 */
+	public void repaint(boolean normalizeSeparately) {
+		this.normalizeSeparately = normalizeSeparately;
 		repaint();
 	}
 
@@ -120,7 +128,7 @@ public class MultiPlotPanel extends JPanel {
 					// assuming masses are ordered; first in list = min, last = max
 					minX = Math.min(minX, peaks.get(0).getMz());
 					maxX = Math.max(maxX, peaks.get(peaks.size()-1).getMz());
-					if (!doNormalize) {
+					if (!normalizeSeparately) {
 						maxY = Math.max(maxY, spectrum.getHighestIntensity());
 					}
 				}
@@ -132,7 +140,7 @@ public class MultiPlotPanel extends JPanel {
 			int i = 0;
 			for (MascotGenericFile spectrum : this.spectra) {
 				if ((spectrum != null) && (lineColors.get(i) != null)) {
-					if (doNormalize) {
+					if (normalizeSeparately) {
 						maxY = spectrum.getHighestIntensity();
 					}
 					ArrayList<Peak> peaks = spectrum.getPeakList();

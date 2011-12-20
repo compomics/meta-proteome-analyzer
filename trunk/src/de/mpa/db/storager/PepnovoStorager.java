@@ -70,7 +70,7 @@ public class PepnovoStorager extends BasicStorager {
                 HashMap<Object, Object> hitdata = new HashMap<Object, Object>(10);
                 
                 hitdata.put(PepnovohitTableAccessor.FK_SPECTRUMID, spectrumid);
-                long peptideID = PeptideAccessor.findPeptideIdfromSequence(hit.getSequence(), conn);
+                long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getSequence(), conn);
                 hitdata.put(PepnovohitTableAccessor.FK_PEPTIDEID, peptideID);
                 hitdata.put(PepnovohitTableAccessor.INDEXID, Long.valueOf(hit.getIndex()));
                 hitdata.put(PepnovohitTableAccessor.RANKSCORE, hit.getRankScore());

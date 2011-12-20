@@ -64,7 +64,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
      * @throws SQLException when the retrieval did not succeed.
      */
     
-    public static long findPeptideIdfromSequence(String sequence, Connection aConn) throws SQLException {
+    public static long findPeptideIDfromSequence(String sequence, Connection aConn) throws SQLException {
     	PeptideAccessor peptideHit = findFromSequence(sequence, aConn);
     	long peptideid;
     	
@@ -88,6 +88,53 @@ public class PeptideAccessor extends PeptideTableAccessor {
     	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
     	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PEPTIDEID + " = ?");
         ps.setLong(1, peptideID);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp.add(new PeptideAccessor(rs));
+        }
+        rs.close();
+        ps.close();
+
+    	return temp;
+    }
+    
+    
+    public static List<PeptideAccessor> findFromMultipleIDs(List<Long> peptideIDs, Connection aConn) throws SQLException {
+    	
+    	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
+    	String statement = getBasicSelect() + " WHERE " + PEPTIDEID + " = ?";
+    	for (int i = 1; i < peptideIDs.size(); i++) {
+			statement += "OR " + PEPTIDEID + " = ?";
+		}
+    	PreparedStatement ps = aConn.prepareStatement(statement);
+    	for (int i = 0; i < peptideIDs.size(); i++) {
+            ps.setLong(i+1, peptideIDs.get(i));
+		}
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        while (rs.next()) {
+            counter++;
+            temp.add(new PeptideAccessor(rs));
+        }
+        rs.close();
+        ps.close();
+
+    	return temp;
+    }
+    
+    
+    public static List<PeptideAccessor> findFromSpectrumID(long spectrumID, Connection aConn) throws SQLException {
+    	
+    	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
+    	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+									    			  " INNER JOIN speclibentry" +
+									    			  " ON peptide.peptideid = speclibentry.fk_peptideid" +
+									    			  " INNER JOIN libspectrum" +
+									    			  " ON speclibentry.fk_spectrumid = libspectrum.libspectrumid" +
+									    			  " WHERE libspectrum.libspectrumid = ?");
+        ps.setLong(1, spectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {

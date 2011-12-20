@@ -58,7 +58,6 @@ public class SpectrumExtractor {
 				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
 				for (Long proteinID : proteinIDs) {
 					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-//					libSpectra.add(new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence(), protein.getAccession(), protein.getDescription()));
 					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
 				}
 				libSpectra.add(libSpec);
@@ -86,11 +85,25 @@ public class SpectrumExtractor {
 		
 		// Iterate the spectral library entries.
 		for (Libspectrum entry : entries) {
-			String sequence = null;
-			String accession = null;	// TODO: check whether annotations exist for unannotated spectrum
-			String description = null;
 			MascotGenericFile mgf = getUnzippedFile(entry.getLibspectrumid());
-			spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), sequence, accession, description));
+			// check whether annotations exist
+			long libSpecID = entry.getLibspectrumid();
+			// find peptides first
+			List<PeptideAccessor> peptides = PeptideAccessor.findFromSpectrumID(libSpecID, conn);
+			if (!peptides.isEmpty()) {
+				for (PeptideAccessor peptide : peptides) {
+					// find protein annotations next
+					ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
+					LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
+					for (Long proteinID : proteinIDs) {
+						ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+						libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
+					}
+					spectra.add(libSpec);
+				}
+			} else {
+				spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), null));
+			}
 		}
 		
 		return spectra;
@@ -103,7 +116,7 @@ public class SpectrumExtractor {
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	private MascotGenericFile getUnzippedFile(long spectrumID) throws SQLException, IOException{		
+	public MascotGenericFile getUnzippedFile(long spectrumID) throws SQLException, IOException{		
 		// Get the spectrum + spectrum file.
 		Spectrumfile spectrumFile = Spectrumfile.findFromID(spectrumID, conn);
 		Libspectrum spectrum = Libspectrum.findFromID(spectrumID, conn);
