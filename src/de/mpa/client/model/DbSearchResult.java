@@ -38,7 +38,7 @@ public class DbSearchResult {
 	private Map<String, Integer> voteMap = new HashMap<String, Integer>();
 	
 	// The protein hits.
-	private List<ProteinHit> proteins;
+	private ProteinHitSet proteins;
 	
 	public List<Searchspectrum> getQuerySpectra() {
 		return querySpectra;
@@ -79,18 +79,21 @@ public class DbSearchResult {
 	public void setVoteMap(Map<String, Integer> voteMap) {
 		this.voteMap = voteMap;
 	}
-
 	/**
+	 * Returns the protein hit set.
 	 * @return the proteins
 	 */
-	public List<ProteinHit> getProteins() {
+	public ProteinHitSet getProteins() {
 		return proteins;
 	}
 
 	/**
+	 * Sets the protein hit set.
 	 * @param proteins the proteins to set
 	 */
-	public void setProteins(List<ProteinHit> proteins) {
+	public void setProteins(ProteinHitSet proteins) {
 		this.proteins = proteins;
 	}
+
+
 }

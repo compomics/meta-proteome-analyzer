@@ -1,6 +1,5 @@
 package de.mpa.client.model;
 
-import java.util.List;
 
 public class ProteinHit {
 	
@@ -11,9 +10,12 @@ public class ProteinHit {
 	private double coverage;
 	private int specCount;
 	private double nSAF;
-	private List<PeptideHit> peptideHits;
+	private PeptideHit peptideHit;
 	
-	
+	/**
+	 * Constructor for a simple protein hit with accesion only.
+	 * @param accession
+	 */
 	public ProteinHit(String accession){
 		this.accession = accession;
 	}
@@ -102,17 +104,15 @@ public class ProteinHit {
 		this.nSAF = nSAF;
 	}
 	/**
-	 * @return the peptideHits
+	 * @return the peptideHit
 	 */
-	public List<PeptideHit> getPeptideHits() {
-		return peptideHits;
+	public PeptideHit getPeptideHit() {
+		return peptideHit;
 	}
 	/**
-	 * @param peptideHits the peptideHits to set
+	 * @param peptideHit the peptideHit to set
 	 */
-	public void setPeptideHits(List<PeptideHit> peptideHits) {
-		this.peptideHits = peptideHits;
+	public void setPeptideHit(PeptideHit peptideHit) {
+		this.peptideHit = peptideHit;
 	}
-	
-	
 }
