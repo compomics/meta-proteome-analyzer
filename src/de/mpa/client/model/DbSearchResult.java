@@ -8,6 +8,7 @@ import java.util.Map;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
 
@@ -35,6 +36,9 @@ public class DbSearchResult {
 	
 	// Vote map
 	private Map<String, Integer> voteMap = new HashMap<String, Integer>();
+	
+	// The protein hits.
+	private List<ProteinHit> proteins;
 	
 	public List<Searchspectrum> getQuerySpectra() {
 		return querySpectra;
@@ -74,5 +78,19 @@ public class DbSearchResult {
 	}
 	public void setVoteMap(Map<String, Integer> voteMap) {
 		this.voteMap = voteMap;
+	}
+
+	/**
+	 * @return the proteins
+	 */
+	public List<ProteinHit> getProteins() {
+		return proteins;
+	}
+
+	/**
+	 * @param proteins the proteins to set
+	 */
+	public void setProteins(List<ProteinHit> proteins) {
+		this.proteins = proteins;
 	}
 }

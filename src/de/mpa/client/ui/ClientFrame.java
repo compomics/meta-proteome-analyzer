@@ -92,6 +92,7 @@ import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.ProcessSettings;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
+import de.mpa.client.model.ProteinHit;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
@@ -215,10 +216,8 @@ public class ClientFrame extends JFrame {
 	private JTextField inspectStatTtf;
 	private JTextField omssaStatTtf;
 	private JComboBox fastaFileCbx;
-
 	private String projectName = "Placeholder Project";
 	private CheckBoxTreeManager fileTree;
-
 	// placeholder filter criteria
 	private int minPeaks = 5;
 	private double minTIC = 100.0;
@@ -243,6 +242,30 @@ public class ClientFrame extends JFrame {
 	private JSpinner dnThresholdSpn;
 	private JButton dnStartBtn;
 	private JTable dnPTMtbl;
+	private SpectrumTree queryTree;
+	private JScrollPane querySpectraTblJScrollPane;
+	private JTable xTandemTbl;
+	private JScrollPane xTandemTblJScrollPane;
+	private JTable omssaTbl;
+	private JScrollPane omssaTblJScrollPane;
+	private JTable cruxTbl;
+	private JScrollPane cruxTblJScrollPane;
+	private JTable inspectTbl;
+	private JScrollPane inspectTblJScrollPane;
+	private JTable protTbl;
+	private Map<String, List<Omssahit>> ommsaResults;
+	private Map<String, List<XTandemhit>> xTandemResults;
+	private Map<String, List<Cruxhit>> cruxResults;
+	private Map<String, List<Inspecthit>> inspectResults;
+	private Map<String, List<Pepnovohit>> pepnovoResults;
+	private Map<String, Integer> voteMap;
+	private JComboBox spectraCbx;
+	private JComboBox spectraCbx2;
+	private JTable pepnovoTbl;
+	private JTable proteinResultTbl;
+	private JPanel proteinViewPnl;
+	private JScrollPane proteinTblScp;
+	private JScrollPane peptidesTblScp;
 
 	/**
 	 * Constructor for the ClientFrame
@@ -272,7 +295,10 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("MS/MS Database Search", msmsPnl);
 		tabPane.addTab("De-novo Search", denovoPnl);
 		tabPane.addTab("Spectral Search Results", resPnl);
-		tabPane.addTab("Database Search Results", res2Pnl);
+		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
+		resultsTabPane.addTab("Search View", res2Pnl);
+		resultsTabPane.addTab("Protein View", proteinViewPnl);
+		tabPane.addTab("Database Search Results", resultsTabPane);
 		tabPane.addTab("De novo Results", denovoResPnl);
 		tabPane.addTab("Logging", lggPnl);
 
@@ -347,7 +373,6 @@ public class ClientFrame extends JFrame {
 				denovoSearchResult = client.getDenovoSearchResult(file);
 				updateDenovoResultsTable();
 			}
-
 		}
 	}
 
@@ -382,12 +407,69 @@ public class ClientFrame extends JFrame {
 
 		// MS2 Results Panel
 		constructMS2ResultsPanel();
-
+		
+		// Protein Panel
+		constructProteinPanel();
+		
 		// DeNovoResults
 		constructDenovoResultPanel();
 
 		// Logging panel		
 		constructLogPanel();
+	}
+
+	private void constructProteinPanel() {
+
+		proteinTblScp = new JScrollPane();
+
+		proteinViewPnl = new JPanel();
+		proteinViewPnl.setLayout(new FormLayout("5dlu, p, 5dlu", "5dlu, t:p, 5dlu, t:p, 5dlu"));
+
+		final JPanel proteinPnl = new JPanel();
+		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, f:p:g, 5dlu"));
+		proteinPnl.setBorder(BorderFactory.createTitledBorder("Proteins"));
+
+		// Setup the tables
+		setupProteinResultTableProperties();
+
+		// List with loaded query spectra
+		//querySpectraLst = new JList()
+
+		proteinResultTbl.addMouseListener(new java.awt.event.MouseAdapter() {
+
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {
+				//querySpectraTableMouseClicked(evt);
+			}
+		});
+		
+		proteinResultTbl.addKeyListener(new java.awt.event.KeyAdapter() {
+
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+            	//querySpectraTableKeyReleased(evt);
+            }
+        });
+
+		proteinResultTbl.setOpaque(false);
+		proteinTblScp.setViewportView(proteinResultTbl);
+		proteinTblScp.setPreferredSize(new Dimension(1000, 300));
+
+		proteinPnl.add(proteinTblScp, cc.xy(2, 2));
+
+		// Peptides
+		final JPanel peptidesPnl = new JPanel();
+		peptidesPnl.setLayout(new FormLayout("5dlu, p, 5dlu",  "5dlu, p, 5dlu,"));
+		peptidesPnl.setBorder(BorderFactory.createTitledBorder("Peptides"));
+				
+		peptidesTblScp = new JScrollPane();
+		peptidesTblScp.setPreferredSize(new Dimension(1000, 250));
+		peptidesTblScp.setViewportView(peptideResultTbl);
+		peptidesPnl.add(peptidesTblScp, cc.xy(2, 2));
+
+		proteinViewPnl.add(proteinPnl, cc.xy(2,2));
+		proteinViewPnl.add(peptidesPnl, cc.xy(2,4));
+		
 	}
 
 	private void constructMenu() {
@@ -516,6 +598,8 @@ public class ClientFrame extends JFrame {
 	private JFileChooser dnResSpectrumFcr;
 	private JComboBox spectra2Cbx;
 	private JScrollPane queryDnSpectraTblJScrollPane;
+	private JTable peptideResultTbl;
+	private List<ProteinHit> proteins;
 
 	/**
 	 * Construct the file selection panel.
@@ -1497,27 +1581,6 @@ public class ClientFrame extends JFrame {
 			//denovoResPnl.add(dnRPlotPnl,cc.xyw(2, 6, 5));
 			}
 
-			private SpectrumTree queryTree;
-			private JScrollPane querySpectraTblJScrollPane;
-			private JTable xTandemTbl;
-			private JScrollPane xTandemTblJScrollPane;
-			private JTable omssaTbl;
-			private JScrollPane omssaTblJScrollPane;
-			private JTable cruxTbl;
-			private JScrollPane cruxTblJScrollPane;
-			private JTable inspectTbl;
-			private JScrollPane inspectTblJScrollPane;
-			private JTable protTbl;
-			private Map<String, List<Omssahit>> ommsaResults;
-			private Map<String, List<XTandemhit>> xTandemResults;
-			private Map<String, List<Cruxhit>> cruxResults;
-			private Map<String, List<Inspecthit>> inspectResults;
-			private Map<String, List<Pepnovohit>> pepnovoResults;
-			private Map<String, Integer> voteMap;
-			private JComboBox spectraCbx;
-			private JComboBox spectraCbx2;
-			private JTable pepnovoTbl;
-
 			/**
 			 * Construct the spectral search results panel.
 			 */
@@ -1821,6 +1884,55 @@ public class ClientFrame extends JFrame {
 
 			}
 			
+			private void setupProteinResultTableProperties(){
+				// Query table
+				proteinResultTbl = new JTable(new DefaultTableModel() {
+					// instance initializer block
+					{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "No. Peptides", "Coverage", "Spectral Count", "NSAF"}); }
+
+					public boolean isCellEditable(int row, int col) {
+						return false;
+					}
+				});
+				proteinResultTbl.getColumn(" ").setMinWidth(30);
+				proteinResultTbl.getColumn(" ").setMaxWidth(30);
+				proteinResultTbl.getColumn("Accession").setMinWidth(100);
+				proteinResultTbl.getColumn("Accession").setMaxWidth(100);
+				
+				proteinResultTbl.getColumn("No. Peptides").setMinWidth(90);
+				proteinResultTbl.getColumn("No. Peptides").setMaxWidth(90);
+				proteinResultTbl.getColumn("Coverage").setMinWidth(90);
+				proteinResultTbl.getColumn("Coverage").setMaxWidth(90);
+				proteinResultTbl.getColumn("Spectral Count").setMinWidth(90);
+				proteinResultTbl.getColumn("Spectral Count").setMaxWidth(90);
+				proteinResultTbl.getColumn("NSAF").setMinWidth(90);
+				proteinResultTbl.getColumn("NSAF").setMaxWidth(90);
+				
+				peptideResultTbl = new JTable(new DefaultTableModel() {
+					// instance initializer block
+					{ setColumnIdentifiers(new Object[] {" ", "Sequence", "Modification", "Unique", "PSM Votes", "No. Spectra", "Start", "End"}); }
+
+					public boolean isCellEditable(int row, int col) {
+						return false;
+					}
+				});
+
+				peptideResultTbl.getColumn(" ").setMinWidth(30);
+				peptideResultTbl.getColumn(" ").setMaxWidth(30);			
+				peptideResultTbl.getColumn("Modification").setMinWidth(90);
+				peptideResultTbl.getColumn("Modification").setMaxWidth(90);
+				peptideResultTbl.getColumn("Unique").setMinWidth(90);
+				peptideResultTbl.getColumn("Unique").setMaxWidth(90);
+				peptideResultTbl.getColumn("PSM Votes").setMinWidth(90);
+				peptideResultTbl.getColumn("PSM Votes").setMaxWidth(90);
+				peptideResultTbl.getColumn("No. Spectra").setMinWidth(90);
+				peptideResultTbl.getColumn("No. Spectra").setMaxWidth(90);
+				peptideResultTbl.getColumn("Start").setMinWidth(90);
+				peptideResultTbl.getColumn("Start").setMaxWidth(90);
+				peptideResultTbl.getColumn("End").setMinWidth(90);
+				peptideResultTbl.getColumn("End").setMaxWidth(90);
+			}
+			
 			private void setupDenovoSearchResultTableProperties(){
 				// Query table
 				queryDnSpectraTbl = new JTable(new DefaultTableModel() {
@@ -1857,9 +1969,7 @@ public class ClientFrame extends JFrame {
 				pepnovoTbl.getColumn("C-Gap").setMaxWidth(90);
 				pepnovoTbl.getColumn("Score").setMinWidth(90);
 				pepnovoTbl.getColumn("Score").setMaxWidth(90);
-				
 			}
-			
 			
 			private void setupDbSearchResultTableProperties(){
 				// Query table
@@ -1960,6 +2070,7 @@ public class ClientFrame extends JFrame {
 				cruxResults = dbSearchResult.getCruxResults();        	
 				inspectResults = dbSearchResult.getInspectResults();   
 				voteMap = dbSearchResult.getVoteMap();
+				proteins = dbSearchResult.getProteins();
 				if (querySpectra != null) {
 					for (int i = 0; i < querySpectra.size(); i++) {
 						Searchspectrum spectrum = querySpectra.get(i);
@@ -1972,6 +2083,21 @@ public class ClientFrame extends JFrame {
 								spectrum.getPrecursor_mz(),
 								spectrum.getCharge(), 
 								voteMap.get(title) + " / 4"});
+					}
+				}
+				
+				if (proteins != null) {
+					for (int i = 0; i < proteins.size(); i++) {
+						ProteinHit proteinHit = proteins.get(i);
+
+						((DefaultTableModel) proteinResultTbl.getModel()).addRow(new Object[]{
+								i + 1,
+								proteinHit.getAccession(),
+								proteinHit.getDescription(),
+								"", 
+								"",
+								"", 
+								""});
 					}
 				}
 			}

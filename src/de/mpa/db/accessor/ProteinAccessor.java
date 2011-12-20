@@ -109,9 +109,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
             ps.setString(1, accession);
         } 
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp = new ProteinAccessor(rs);
         }
         rs.close();
