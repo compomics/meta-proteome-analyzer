@@ -26,7 +26,9 @@ import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
+import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.ProteinHitSet;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
@@ -306,7 +308,13 @@ public class Client {
 				if(xtandemList.size() > 0) {
 					xTandemResults.put(spectrumname, xtandemList);
 					for (XTandemhit hit : xtandemList) {
-						proteins.add(new ProteinHit(hit.getAccession()));
+						ProteinHit protHit = new ProteinHit(hit.getAccession());
+						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
+						for (PeptideAccessor peptide : peptides) {
+							PeptideHit pepHit = new PeptideHit(peptide.getSequence(), (int) hit.getStart(), (int) hit.getEnd());
+							protHit.setPeptideHit(pepHit);
+							proteins.add(protHit);
+						}
 					}
 					votes++;
 				}
@@ -315,7 +323,13 @@ public class Client {
 				if(omssaList.size() > 0) {
 					omssaResults.put(spectrumname, omssaList);
 					for (Omssahit hit : omssaList) {
-						proteins.add(new ProteinHit(hit.getAccession()));
+						ProteinHit protHit = new ProteinHit(hit.getAccession());
+						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
+						for (PeptideAccessor peptide : peptides) {
+							PeptideHit pepHit = new PeptideHit(peptide.getSequence());
+							protHit.setPeptideHit(pepHit);
+							proteins.add(protHit);
+						}
 					}
 					votes++;
 				}
@@ -324,7 +338,13 @@ public class Client {
 				if(cruxList.size() > 0) {
 					cruxResults.put(spectrumname, cruxList);
 					for (Cruxhit hit : cruxList) {
-						proteins.add(new ProteinHit(hit.getAccession()));
+						ProteinHit protHit = new ProteinHit(hit.getAccession());
+						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
+						for (PeptideAccessor peptide : peptides) {
+							PeptideHit pepHit = new PeptideHit(peptide.getSequence());
+							protHit.setPeptideHit(pepHit);
+							proteins.add(protHit);
+						}
 					}
 					votes++;
 				}
@@ -333,7 +353,13 @@ public class Client {
 				if(inspectList.size() > 0) {
 					inspectResults.put(spectrumname, inspectList);
 					for (Inspecthit hit : inspectList) {
-						proteins.add(new ProteinHit(hit.getAccession()));
+						ProteinHit protHit = new ProteinHit(hit.getAccession());
+						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
+						for (PeptideAccessor peptide : peptides) {
+							PeptideHit pepHit = new PeptideHit(peptide.getSequence());
+							protHit.setPeptideHit(pepHit);
+							proteins.add(protHit);
+						}
 					}
 					votes++;
 				}
@@ -357,12 +383,18 @@ public class Client {
 		return result;
 	}
 	
-	private List<ProteinHit> getAnnotatedProteins(List<ProteinHit> proteinHits) throws SQLException{
-		List<ProteinHit> proteins = new ArrayList<ProteinHit>();
+	/**
+	 * Get the annotated protein list.
+	 * @param proteinHits
+	 * @return
+	 * @throws SQLException
+	 */
+	private ProteinHitSet getAnnotatedProteins(List<ProteinHit> proteinHits) throws SQLException{
+		ProteinHitSet proteins = new ProteinHitSet();
 		for (ProteinHit proteinHit : proteinHits) {
 			ProteinAccessor protein = ProteinAccessor.findFromAttributes(proteinHit.getAccession(), conn);
 			proteinHit.setDescription(protein.getDescription());
-			proteins.add(proteinHit);
+			proteins.addProtein(proteinHit);
 		}
 		return proteins;
 		

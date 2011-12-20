@@ -23,8 +23,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -95,7 +97,9 @@ import de.mpa.client.FilterSettings;
 import de.mpa.client.ProcessSettings;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
+import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.ProteinHitSet;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
@@ -264,6 +268,7 @@ public class ClientFrame extends JFrame {
 	private Map<String, List<Cruxhit>> cruxResults;
 	private Map<String, List<Inspecthit>> inspectResults;
 	private Map<String, List<Pepnovohit>> pepnovoResults;
+	private Map<String, List<PeptideHit>> peptideHits;
 	private Map<String, Integer> voteMap;
 	private JComboBox spectraCbx;
 	private JComboBox spectraCbx2;
@@ -446,7 +451,7 @@ public class ClientFrame extends JFrame {
 
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt) {
-				//querySpectraTableMouseClicked(evt);
+				queryProteinTableMouseClicked(evt);
 			}
 		});
 		
@@ -454,7 +459,7 @@ public class ClientFrame extends JFrame {
 
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
-            	//querySpectraTableKeyReleased(evt);
+            	queryProteinTableKeyReleased(evt);
             }
         });
 
@@ -599,7 +604,7 @@ public class ClientFrame extends JFrame {
 	private JPanel dnResSpectrumPnl;
 	private JScrollPane queryDnSpectraTblJScrollPane;
 	private JTable peptideResultTbl;
-	private List<ProteinHit> proteins;
+	private ProteinHitSet proteins;
 
 	/**
 	 * Construct the file selection panel.
@@ -2190,11 +2195,12 @@ public class ClientFrame extends JFrame {
 		inspectResults = dbSearchResult.getInspectResults();   
 		voteMap = dbSearchResult.getVoteMap();
 		proteins = dbSearchResult.getProteins();
+		peptideHits = new HashMap<String, List<PeptideHit>>();
+		
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
 				Searchspectrum spectrum = querySpectra.get(i);
 				String title = spectrum.getSpectrumname();
-
 
 				((DefaultTableModel) querySpectraTbl.getModel()).addRow(new Object[]{
 						i + 1,
@@ -2206,17 +2212,24 @@ public class ClientFrame extends JFrame {
 		}
 
 		if (proteins != null) {
-			for (int i = 0; i < proteins.size(); i++) {
-				ProteinHit proteinHit = proteins.get(i);
-
+			Set<String> accessions = proteins.getPeptideHits().keySet();
+			
+			Iterator<String> accIter = accessions.iterator();
+			int i = 0;
+			while(accIter.hasNext()){
+				String accession = accIter.next();	
+				List<PeptideHit> peptides = proteins.getPeptideHits(accession);
+				peptideHits.put(accession, peptides);
+				int nPeptides = peptides.size();
 				((DefaultTableModel) proteinResultTbl.getModel()).addRow(new Object[]{
 						i + 1,
-						proteinHit.getAccession(),
-						proteinHit.getDescription(),
-						"", 
+						accession,
+						proteins.getProteinHit(accession).getDescription(),
+						nPeptides, 
 						"",
 						"", 
 				""});
+			i++;
 			}
 		}
 	}
@@ -2224,18 +2237,24 @@ public class ClientFrame extends JFrame {
 	private void updateDenovoResultsTable(){
 		List<Searchspectrum> querySpectra = denovoSearchResult.getQuerySpectra();
 		pepnovoResults = denovoSearchResult.getPepnovoResults();
+		String identified;
+		
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
 				Searchspectrum spectrum = querySpectra.get(i);
 				String title = spectrum.getSpectrumname();
-
-
+				if(pepnovoResults.containsKey(title)){
+					identified = "yes";
+				} else {
+					identified = "no";
+				}
+				
 				((DefaultTableModel) queryDnSpectraTbl.getModel()).addRow(new Object[]{
 						i + 1,
 						title,
 						spectrum.getPrecursor_mz(),
 						spectrum.getCharge(), 
-						"yes"});
+						identified});
 			}
 		}
 	}
@@ -2348,6 +2367,44 @@ public class ClientFrame extends JFrame {
 		}
 		// Set the cursor back into the default status.
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	/**
+	 * Update the peptides tables based on the protein selected.
+	 * 
+	 * @param evt
+	 */
+	private void queryProteinTableMouseClicked(MouseEvent evt) {
+		// Set the cursor into the wait status.
+		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
+		int row = proteinResultTbl.getSelectedRow();
+
+		// Condition if one row is selected.
+		if (row != -1) {
+
+			// Empty tables.
+			clearPeptideHitsTable();
+
+			String accession = proteinResultTbl.getValueAt(row, 1).toString();
+			if (peptideHits.containsKey(accession)) {
+				List<PeptideHit> peptideList = peptideHits.get(accession);
+				for (int i = 0; i < peptideList.size(); i++) {
+					PeptideHit hit = peptideList.get(i);
+					((DefaultTableModel) peptideResultTbl.getModel()).addRow(new Object[]{
+							i + 1,
+							hit.getSequence(),
+							"",
+							"", 
+							"", 
+							"",
+							hit.getStart(),
+							hit.getEnd()});
+				}
+			}
+		}
+		// Set the cursor back into the default status.
+		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
 	}
 
@@ -2379,6 +2436,16 @@ public class ClientFrame extends JFrame {
 			((DefaultTableModel) pepnovoTbl.getModel()).removeRow(0);
 		}
 	}
+	
+	/**
+	 * Clears the peptide result table.
+	 */
+	private void clearPeptideHitsTable(){
+		// Remove peptides from all result tables        	 
+		while (peptideResultTbl.getRowCount() > 0) {
+			((DefaultTableModel) peptideResultTbl.getModel()).removeRow(0);
+		}
+	}
 
 	/**
 	 * @see #querySpectraTableKeyReleased(java.awt.event.MouseEvent)
@@ -2392,6 +2459,13 @@ public class ClientFrame extends JFrame {
 	 */
 	private void queryDnSpectraTableKeyReleased(KeyEvent evt) {
 		queryDnSpectraTableMouseClicked(null);
+	}
+	
+	/**
+	 * @see #queryDnSpectraTableKeyReleased(java.awt.event.MouseEvent)
+	 */
+	private void queryProteinTableKeyReleased(KeyEvent evt) {
+		queryProteinTableMouseClicked(null);
 	}
 
 	/**
