@@ -25,11 +25,13 @@ import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
+import de.mpa.client.model.ProteinHit;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pepnovohit;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -284,6 +286,7 @@ public class Client {
 			Map<String, List<Cruxhit>> cruxResults = new HashMap<String, List<Cruxhit>>();
 			Map<String, List<Inspecthit>> inspectResults = new HashMap<String, List<Inspecthit>>();
 			Map<String, Integer> voteMap = new HashMap<String, Integer>();
+			List<ProteinHit> proteins = new ArrayList<ProteinHit>();
 			
 			// Iterate over query spectra and get the different identification result sets
 			for (MascotGenericFile mgf : mgfFiles) {
@@ -297,24 +300,36 @@ public class Client {
 				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(spectrumID, conn);
 				if(xtandemList.size() > 0) {
 					xTandemResults.put(spectrumname, xtandemList);
+					for (XTandemhit hit : xtandemList) {
+						proteins.add(new ProteinHit(hit.getAccession()));
+					}
 					votes++;
 				}
 				// Omssa
 				List<Omssahit> omssaList = Omssahit.getHitsFromSpectrumID(spectrumID, conn);
 				if(omssaList.size() > 0) {
 					omssaResults.put(spectrumname, omssaList);
+					for (Omssahit hit : omssaList) {
+						proteins.add(new ProteinHit(hit.getAccession()));
+					}
 					votes++;
 				}
 				// Crux
 				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(spectrumID, conn);				
 				if(cruxList.size() > 0) {
 					cruxResults.put(spectrumname, cruxList);
+					for (Cruxhit hit : cruxList) {
+						proteins.add(new ProteinHit(hit.getAccession()));
+					}
 					votes++;
 				}
 				// Inspect
 				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(spectrumID, conn);				
 				if(inspectList.size() > 0) {
 					inspectResults.put(spectrumname, inspectList);
+					for (Inspecthit hit : inspectList) {
+						proteins.add(new ProteinHit(hit.getAccession()));
+					}
 					votes++;
 				}
 				voteMap.put(spectrumname, votes);
@@ -327,6 +342,7 @@ public class Client {
 			result.setCruxResults(cruxResults);
 			result.setInspectResults(inspectResults);
 			result.setVoteMap(voteMap);
+			result.setProteins(getAnnotatedProteins(proteins));
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -336,6 +352,16 @@ public class Client {
 		return result;
 	}
 	
+	private List<ProteinHit> getAnnotatedProteins(List<ProteinHit> proteinHits) throws SQLException{
+		List<ProteinHit> proteins = new ArrayList<ProteinHit>();
+		for (ProteinHit proteinHit : proteinHits) {
+			ProteinAccessor protein = ProteinAccessor.findFromAttributes(proteinHit.getAccession(), conn);
+			proteinHit.setDescription(protein.getDescription());
+			proteins.add(proteinHit);
+		}
+		return proteins;
+		
+	}
 	/**
 	 * Process
 	 * @param file
