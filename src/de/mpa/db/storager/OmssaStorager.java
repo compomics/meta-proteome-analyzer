@@ -117,7 +117,7 @@ public class OmssaStorager extends BasicStorager {
                 MSPepHit pepHit = pepHitIterator.next();               
     	    	
     	        // Get the peptide id
-                long peptideID = PeptideAccessor.findPeptideIdfromSequence(msHit.MSHits_pepstring, conn);
+                long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
                 hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
     	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
     	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);

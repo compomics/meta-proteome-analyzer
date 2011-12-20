@@ -130,7 +130,6 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
     	for (int i = 0; i < paths.length; i++) {
             TreePath path = paths[i];
             if (path.getPathCount() == 1) {
-            	System.out.println("test");
                 super.removeSelectionPaths(new TreePath[]{path});
             } else {
                 toggleRemoveSelection(path);

@@ -136,7 +136,7 @@ public class XTandemStorager extends BasicStorager {
                       hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
                       
                       // Get the peptide id
-                      long peptideID = PeptideAccessor.findPeptideIdfromSequence(sequence, conn);
+                      long peptideID = PeptideAccessor.findPeptideIDfromSequence(sequence, conn);
           	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
           	    	  
                       // Set the domain id  

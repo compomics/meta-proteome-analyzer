@@ -1,6 +1,8 @@
 package de.mpa.client.ui;
 
 
+import de.mpa.io.MascotGenericFile;
+
 public class Constants {
 	public static final int MAINFRAME_WIDTH = 1280;
 	public static final int MAINFRAME_HEIGHT = 800;
@@ -24,6 +26,10 @@ public class Constants {
 	public final static String NOT_SELECTED_ROW_HTML_FONT_COLOR = "#0101DF";
 
 	public static final String[]  DNBLAST_DB = {"Uniprot_sprot","NCBI"};
-
+	
+	public static final MascotGenericFile EMPTY_MGF = new MascotGenericFile("empty", ("BEGIN IONS\n" +
+																					  "0.0\t999.0\n" +
+																					  "90.909\t0.0\n" +
+																					  "END IONS"));
 
 }

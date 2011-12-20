@@ -55,17 +55,34 @@ public class MascotGenericFile implements SpectrumFile {
 
     
 
-    public double getSNR() {
-    	double mean = this.getTotalIntensity() / lPeaks.size();
-    	double std = 0.0;
+    public double getSNR(double noiseLvl) {
+    	
+//    	double mean = this.getTotalIntensity() / lPeaks.size();
+//    	double std = 0.0;
+//    	for (Peak peak : lPeaks) {
+//			std += (peak.getIntensity()-mean)*(peak.getIntensity()-mean);
+//		}
+//    	std = Math.sqrt(std/lPeaks.size());
+//    	if (std > 0) {
+//    		return mean/std;
+//    	} else {
+//    		return mean;
+//    	}
+    	
+    	double signal = 0.0;
+    	double noise = 0.0;
     	for (Peak peak : lPeaks) {
-			std += (peak.getIntensity()-mean)*(peak.getIntensity()-mean);
+    		double intensity = peak.getIntensity();
+    		if (intensity > noiseLvl) {
+    			signal += intensity;
+    		} else {
+    			noise += intensity;
+    		}
 		}
-    	std = Math.sqrt(std/lPeaks.size());
-    	if (std > 0) {
-    		return mean/std;
+    	if (noise > 0.0) {
+    		return signal/noise;
     	} else {
-    		return mean;
+    		return signal;	// same as total ion current
     	}
     }
     

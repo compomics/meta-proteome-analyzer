@@ -22,7 +22,7 @@ public class LibrarySpectrum {
 	
 	// The assigned peptide sequence
 	protected String sequence;
-	
+
 	// The protein accession
 	protected List<Protein> annotations;
 
@@ -99,10 +99,26 @@ public class LibrarySpectrum {
 	}
 	
 	/**
+	 * Sets the peptide sequence.
+	 * @param sequence String containing the peptide sequence.
+	 */
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
+	}
+	
+	/**
 	 * Returns the list of protein annotations.
 	 */
 	public List<Protein> getAnnotations() {
 		return this.annotations;
+	}
+	
+	/**
+	 * Sets the list of protein annotations.
+	 * @param annotations List of Protein objects
+	 */
+	public void setAnnotations(List<Protein> annotations) {
+		this.annotations = annotations;
 	}
 	
 	/**

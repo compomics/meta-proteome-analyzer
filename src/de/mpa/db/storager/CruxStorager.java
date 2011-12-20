@@ -90,7 +90,7 @@ public class CruxStorager implements Storager {
                 hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumID);
                 
                 // Get the peptide id
-                long peptideID = PeptideAccessor.findPeptideIdfromSequence(hit.getPeptide(), conn);
+                long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getPeptide(), conn);
                 hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideID);
                 
                 hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));

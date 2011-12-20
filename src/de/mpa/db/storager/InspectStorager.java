@@ -92,7 +92,7 @@ public class InspectStorager extends BasicStorager {
             hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumID);
             
             // Get the peptide id
-            long peptideID = PeptideAccessor.findPeptideIdfromSequence(hit.getAnnotation(), conn);            
+            long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getAnnotation(), conn);            
             hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideID);
             
             hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
