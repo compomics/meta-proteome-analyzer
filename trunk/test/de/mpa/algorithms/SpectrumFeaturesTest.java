@@ -29,6 +29,7 @@ public class SpectrumFeaturesTest extends TestCase{
 	@Test
 	public void testGetY1PeakInt() {
 		assertEquals(694.973365, specFeatures.getY1PeakInt());
+		
 	}
 
 }

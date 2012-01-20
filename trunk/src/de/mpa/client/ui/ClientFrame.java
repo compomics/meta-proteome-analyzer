@@ -54,7 +54,6 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -83,10 +82,7 @@ import org.apache.log4j.Logger;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.Options;
-import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
-import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
@@ -98,7 +94,6 @@ import de.mpa.client.ProcessSettings;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.ProteinHit;
 import de.mpa.client.model.ProteinHitSet;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
@@ -2855,42 +2850,6 @@ public class ClientFrame extends JFrame {
 		public void done() {
 			procBtn.setEnabled(true);
 		}
-	}
-
-	/**
-	 * This method sets the look&feel for the application.
-	 */
-	private static void setLookAndFeel() {
-		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
-		Options.setUseSystemFonts(true);
-		//Options.setDefaultIconSize(new Dimension(18, 18));
-		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
-		Options.setPopupDropShadowEnabled(true);
-		String lafName = LookUtils.IS_OS_WINDOWS 
-		? WindowsLookAndFeel.class.getName()
-				: Plastic3DLookAndFeel.class.getName();
-		try {
-			UIManager.setLookAndFeel(lafName);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Main method ==> Entry point to the application.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// Set the look&feel
-		setLookAndFeel();
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new ClientFrame();
-			}
-		});
 	}
 }
 
