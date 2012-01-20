@@ -1,28 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 02/12/2011
- * Time: 15:03:15
+ * Date: 20/01/2012
+ * Time: 13:27:07
  */
 package de.mpa.db.accessor;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Vector;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:

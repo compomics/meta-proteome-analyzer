@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class Speclibentry extends SpeclibentryTableAccessor {
+public class Spec2pep extends Spec2pepTableAccessor {
 
     /**
      * Calls the super class.
      * @param params
      */
-    public Speclibentry(HashMap params){
+    public Spec2pep(HashMap params){
         super(params);
     }
     
@@ -26,7 +26,7 @@ public class Speclibentry extends SpeclibentryTableAccessor {
      * @param aRS ResultSet to read the data from.
      * @throws SQLException when reading the ResultSet failed.
      */
-    public Speclibentry(ResultSet aRS) throws SQLException {
+    public Spec2pep(ResultSet aRS) throws SQLException {
         super(aRS);
     }
     
@@ -38,11 +38,11 @@ public class Speclibentry extends SpeclibentryTableAccessor {
      * @return
      * @throws SQLException
      */
-    public static List<Speclibentry> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
-    	List<Speclibentry> temp = new ArrayList<Speclibentry>();
+    public static List<Spec2pep> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
+    	List<Spec2pep> temp = new ArrayList<Spec2pep>();
 //        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
-        																 " ON speclibentry." + Speclibentry.FK_SPECTRUMID +
+        																 " ON spec2pep." + Spec2pep.FK_SPECTRUMID +
         																 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
         																 " WHERE " + Libspectrum.PRECURSOR_MZ + " >= ?" +
         																 " AND "   + Libspectrum.PRECURSOR_MZ + " <= ?");
@@ -52,7 +52,7 @@ public class Speclibentry extends SpeclibentryTableAccessor {
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp.add(new Speclibentry(rs));
+            temp.add(new Spec2pep(rs));
         }
         rs.close();
         ps.close();
@@ -60,22 +60,22 @@ public class Speclibentry extends SpeclibentryTableAccessor {
     }
     
     /**
-     * This method will find a speclibentry entry from the current connection, based on the specified spectrumid.
+     * This method will find a spec2pep entry from the current connection, based on the specified spectrumid.
      *
      * @param aSpectrumID long with the spectrumid of the spectrum file to find.
      * @param aConn Connection to read the spectrum File from.
      * @return Speclibentry with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Speclibentry findFromID(long aSpectrumID, Connection aConn) throws SQLException {
-    	Speclibentry temp = null;
+    public static Spec2pep findFromID(long aSpectrumID, Connection aConn) throws SQLException {
+    	Spec2pep temp = null;
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where speclibid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Speclibentry(rs);
+            temp = new Spec2pep(rs);
         }
         rs.close();
         ps.close();
@@ -88,7 +88,7 @@ public class Speclibentry extends SpeclibentryTableAccessor {
     }
 
 	/**
-     * This method will find a speclibentry entry from the current connection, based on foreign spectrum- and peptideIDs.
+     * This method will find a spec2pep entry from the current connection, based on foreign spectrum- and peptideIDs.
      *
      * @param spectrumID long with the spectrum ID of the link to find.
      * @param peptideID long with the peptide ID of the link to find.
@@ -96,9 +96,9 @@ public class Speclibentry extends SpeclibentryTableAccessor {
      * @return Speclibentry with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Speclibentry findLink(Long spectrumID, Long peptideID, Connection aConn) throws SQLException {
+    public static Spec2pep findLink(Long spectrumID, Long peptideID, Connection aConn) throws SQLException {
 
-    	Speclibentry temp = null;
+    	Spec2pep temp = null;
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + FK_SPECTRUMID + " = ?" +
         																   " AND " + FK_PEPTIDEID  + " = ?");
         ps.setLong(1, spectrumID);
@@ -107,7 +107,7 @@ public class Speclibentry extends SpeclibentryTableAccessor {
         int counter = 0;
         while (rs.next()) {
             counter++;
-            temp = new Speclibentry(rs);
+            temp = new Spec2pep(rs);
         }
         rs.close();
         ps.close();
