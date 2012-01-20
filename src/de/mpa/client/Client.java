@@ -39,7 +39,7 @@ import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.Speclibentry;
+import de.mpa.db.accessor.Spec2pep;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
@@ -431,10 +431,10 @@ public class Client {
 				
 				if (procSet.getAnnotatedOnly()) {
 					// grab appropriate library spectra (candidates for similarity scoring)
-					List<Speclibentry> entries = Speclibentry.getEntriesWithinPrecursorRange(precursorMz, procSet.getTolMz(), conn);
+					List<Spec2pep> entries = Spec2pep.getEntriesWithinPrecursorRange(precursorMz, procSet.getTolMz(), conn);
 					// iterate candidates, score & store
 					Map<Long, ArrayList<RankedLibrarySpectrum>> pep2spec = new HashMap<Long, ArrayList<RankedLibrarySpectrum>>();
-					for (Speclibentry entry : entries) {
+					for (Spec2pep entry : entries) {
 						long spectrumID = entry.getFk_spectrumid();
 						MascotGenericFile mgfLib = specEx.getUnzippedFile(spectrumID);
 						

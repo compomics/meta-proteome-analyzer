@@ -12,7 +12,7 @@ import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Speclibentry;
+import de.mpa.db.accessor.Spec2pep;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 
@@ -44,10 +44,10 @@ public class SpectrumExtractor {
 		List<LibrarySpectrum> libSpectra = new ArrayList<LibrarySpectrum>();
 		
 		// Get the spectral library entries with similar precursor mass.
-		List<Speclibentry> entries = Speclibentry.getEntriesWithinPrecursorRange(precursorMz, tolMz, conn);
+		List<Spec2pep> entries = Spec2pep.getEntriesWithinPrecursorRange(precursorMz, tolMz, conn);
 		
 		// Iterate the spectral library entries.
-		for (Speclibentry entry : entries) {
+		for (Spec2pep entry : entries) {
 			long spectrumID = entry.getFk_spectrumid();
 			MascotGenericFile mgf = getUnzippedFile(spectrumID);
 			// get list of proteins from list of peptides and gather annotations

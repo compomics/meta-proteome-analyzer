@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 02/12/2011
- * Time: 15:03:25
+ * Date: 20/01/2012
+ * Time: 13:27:14
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -28,11 +19,11 @@ import com.compomics.util.db.interfaces.Updateable;
  */
 
 /**
- * This class is a generated accessor for the Speclibentry table.
+ * This class is a generated accessor for the Spec2pep table.
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
-public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
+public class Spec2pepTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
 
 	/**
 	 * This variable tracks changes to the object.
@@ -45,9 +36,9 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	protected Object[] iKeys = null;
 
 	/**
-	 * This variable represents the contents for the 'speclibid' column.
+	 * This variable represents the contents for the 'spec2pepid' column.
 	 */
-	protected long iSpeclibid = Long.MIN_VALUE;
+	protected long iSpec2pepid = Long.MIN_VALUE;
 
 
 	/**
@@ -63,21 +54,9 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 
 
 	/**
-	 * This variable represents the contents for the 'creationdate' column.
+	 * This variable represents the key for the 'spec2pepid' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
-
-
-	/**
-	 * This variable represents the contents for the 'modificationdate' column.
-	 */
-	protected java.sql.Timestamp iModificationdate = null;
-
-
-	/**
-	 * This variable represents the key for the 'speclibid' column.
-	 */
-	public static final String SPECLIBID = "SPECLIBID";
+	public static final String SPEC2PEPID = "SPEC2PEPID";
 
 	/**
 	 * This variable represents the key for the 'fk_spectrumid' column.
@@ -89,34 +68,24 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
 
-	/**
-	 * This variable represents the key for the 'creationdate' column.
-	 */
-	public static final String CREATIONDATE = "CREATIONDATE";
-
-	/**
-	 * This variable represents the key for the 'modificationdate' column.
-	 */
-	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
-
 
 
 
 	/**
 	 * Default constructor.
 	 */
-	public SpeclibentryTableAccessor() {
+	public Spec2pepTableAccessor() {
 	}
 
 	/**
-	 * This constructor allows the creation of the 'SpeclibentryTableAccessor' object based on a set of values in the HashMap.
+	 * This constructor allows the creation of the 'Spec2pepTableAccessor' object based on a set of values in the HashMap.
 	 *
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public SpeclibentryTableAccessor(HashMap aParams) {
-		if(aParams.containsKey(SPECLIBID)) {
-			this.iSpeclibid = ((Long)aParams.get(SPECLIBID)).longValue();
+	public Spec2pepTableAccessor(HashMap aParams) {
+		if(aParams.containsKey(SPEC2PEPID)) {
+			this.iSpec2pepid = ((Long)aParams.get(SPEC2PEPID)).longValue();
 		}
 		if(aParams.containsKey(FK_SPECTRUMID)) {
 			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
@@ -124,41 +93,33 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
-		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
-		}
 		this.iUpdated = true;
 	}
 
 
 	/**
-	 * This constructor allows the creation of the 'SpeclibentryTableAccessor' object based on a resultset
-	 * obtained by a 'select * from Speclibentry' query.
+	 * This constructor allows the creation of the 'Spec2pepTableAccessor' object based on a resultset
+	 * obtained by a 'select * from Spec2pep' query.
 	 *
 	 * @param	aResultSet	ResultSet with the required columns to initialize this object with.
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
-	public SpeclibentryTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iSpeclibid = aResultSet.getLong("speclibid");
+	public Spec2pepTableAccessor(ResultSet aResultSet) throws SQLException {
+		this.iSpec2pepid = aResultSet.getLong("spec2pepid");
 		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
 
 
 	/**
-	 * This method returns the value for the 'Speclibid' column
+	 * This method returns the value for the 'Spec2pepid' column
 	 * 
-	 * @return	long	with the value for the Speclibid column.
+	 * @return	long	with the value for the Spec2pepid column.
 	 */
-	public long getSpeclibid() {
-		return this.iSpeclibid;
+	public long getSpec2pepid() {
+		return this.iSpec2pepid;
 	}
 
 	/**
@@ -180,30 +141,12 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	}
 
 	/**
-	 * This method returns the value for the 'Creationdate' column
+	 * This method sets the value for the 'Spec2pepid' column
 	 * 
-	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 * @param	aSpec2pepid	long with the value for the Spec2pepid column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
-	}
-
-	/**
-	 * This method returns the value for the 'Modificationdate' column
-	 * 
-	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
-	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
-	}
-
-	/**
-	 * This method sets the value for the 'Speclibid' column
-	 * 
-	 * @param	aSpeclibid	long with the value for the Speclibid column.
-	 */
-	public void setSpeclibid(long aSpeclibid) {
-		this.iSpeclibid = aSpeclibid;
+	public void setSpec2pepid(long aSpec2pepid) {
+		this.iSpec2pepid = aSpec2pepid;
 		this.iUpdated = true;
 	}
 
@@ -227,26 +170,6 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		this.iUpdated = true;
 	}
 
-	/**
-	 * This method sets the value for the 'Creationdate' column
-	 * 
-	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
-	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Modificationdate' column
-	 * 
-	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
-	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
-	}
-
 
 
 	/**
@@ -256,8 +179,8 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int delete(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM speclibentry WHERE speclibid = ?");
-		lStat.setLong(1, iSpeclibid);
+		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM spec2pep WHERE spec2pepid = ?");
+		lStat.setLong(1, iSpec2pepid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -272,30 +195,28 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(SPECLIBID)) {
-			throw new IllegalArgumentException("Primary key field 'SPECLIBID' is missing in HashMap!");
+		if(!aKeys.containsKey(SPEC2PEPID)) {
+			throw new IllegalArgumentException("Primary key field 'SPEC2PEPID' is missing in HashMap!");
 		} else {
-			iSpeclibid = ((Long)aKeys.get(SPECLIBID)).longValue();
+			iSpec2pepid = ((Long)aKeys.get(SPEC2PEPID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
-		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM speclibentry WHERE speclibid = ?");
-		lStat.setLong(1, iSpeclibid);
+		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM spec2pep WHERE spec2pepid = ?");
+		lStat.setLong(1, iSpec2pepid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iSpeclibid = lRS.getLong("speclibid");
+			iSpec2pepid = lRS.getLong("spec2pepid");
 			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
 		if(hits>1) {
-			throw new SQLException("More than one hit found for the specified primary keys in the 'speclibentry' table! Object is initialized to last row returned.");
+			throw new SQLException("More than one hit found for the specified primary keys in the 'spec2pep' table! Object is initialized to last row returned.");
 		} else if(hits == 0) {
-			throw new SQLException("No hits found for the specified primary keys in the 'speclibentry' table! Object is not initialized correctly!");
+			throw new SQLException("No hits found for the specified primary keys in the 'spec2pep' table! Object is not initialized correctly!");
 		}
 	}
 	/**
@@ -304,7 +225,7 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @return   String with the basic select statement for this table.
 	 */
 	public static String getBasicSelect(){
-		return "select * from speclibentry";
+		return "select * from spec2pep";
 	}
 
 	/**
@@ -312,14 +233,14 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * table from a persistent store.
 	 *
 	 * @param   aConn Connection to the persitent store.
-	 * @return   ArrayList<SpeclibentryTableAccessor>   with all entries for this table.
+	 * @return   ArrayList<Spec2pepTableAccessor>   with all entries for this table.
 	 */
-	public static ArrayList<SpeclibentryTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
-		ArrayList<SpeclibentryTableAccessor>  entities = new ArrayList<SpeclibentryTableAccessor>();
+	public static ArrayList<Spec2pepTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
+		ArrayList<Spec2pepTableAccessor>  entities = new ArrayList<Spec2pepTableAccessor>();
 		Statement stat = aConn.createStatement();
 		ResultSet rs = stat.executeQuery(getBasicSelect());
 		while(rs.next()) {
-			entities.add(new SpeclibentryTableAccessor(rs));
+			entities.add(new Spec2pepTableAccessor(rs));
 		}
 		rs.close();
 		stat.close();
@@ -338,12 +259,11 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE speclibentry SET speclibid = ?, fk_spectrumid = ?, fk_peptideid = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE speclibid = ?");
-		lStat.setLong(1, iSpeclibid);
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE spec2pep SET spec2pepid = ?, fk_spectrumid = ?, fk_peptideid = ? WHERE spec2pepid = ?");
+		lStat.setLong(1, iSpec2pepid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
-		lStat.setObject(4, iCreationdate);
-		lStat.setLong(5, iSpeclibid);
+		lStat.setLong(4, iSpec2pepid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -358,11 +278,11 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO speclibentry (speclibid, fk_spectrumid, fk_peptideid, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-		if(iSpeclibid == Long.MIN_VALUE) {
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spec2pep (spec2pepid, fk_spectrumid, fk_peptideid) values(?, ?, ?)");
+		if(iSpec2pepid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iSpeclibid);
+			lStat.setLong(1, iSpec2pepid);
 		}
 		if(iFk_spectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
@@ -393,7 +313,7 @@ public class SpeclibentryTableAccessor implements Deleteable, Retrievable, Updat
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iSpeclibid = ((Number) iKeys[0]).longValue();
+			iSpec2pepid = ((Number) iKeys[0]).longValue();
 		}
 		this.iUpdated = false;
 		return result;

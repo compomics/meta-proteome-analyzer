@@ -34,7 +34,7 @@ import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Speclibentry;
+import de.mpa.db.accessor.Spec2pep;
 import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -297,14 +297,14 @@ public class SpecLibFrame extends JFrame {
     								peptideID = peptide.getPeptideid();
     							}
         						
-    							Speclibentry sle = Speclibentry.findLink(spectrumID, peptideID, conn);
+    							Spec2pep sle = Spec2pep.findLink(spectrumID, peptideID, conn);
     							if (sle == null) {	// link doesn't exist yet
     								HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
 
-    								dataSpecLib.put(Speclibentry.FK_SPECTRUMID, spectrumID);
-    								dataSpecLib.put(Speclibentry.FK_PEPTIDEID, peptideID);
+    								dataSpecLib.put(Spec2pep.FK_SPECTRUMID, spectrumID);
+    								dataSpecLib.put(Spec2pep.FK_PEPTIDEID, peptideID);
 
-    								Speclibentry libEntry = new Speclibentry(dataSpecLib);
+    								Spec2pep libEntry = new Spec2pep(dataSpecLib);
     								libEntry.persist(conn);
     							}
         						
