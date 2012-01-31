@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import de.mpa.client.DbConnectionSettings;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
@@ -222,7 +223,7 @@ public class SpecLibFrame extends JFrame {
         	
         	try {
     			// connect to server
-    			DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
+    			DBConfiguration dbconfig = new DBConfiguration("metaprot", false,new DbConnectionSettings());
     			Connection conn = dbconfig.getConnection();
     			
     			// this list will store identified protein hits to avoid redundant sql queries further down 

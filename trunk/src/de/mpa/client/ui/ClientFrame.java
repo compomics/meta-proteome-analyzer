@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,9 +20,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +48,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -54,6 +59,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -61,6 +67,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -82,11 +90,15 @@ import org.apache.log4j.Logger;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
+import de.mpa.client.DbConnectionSettings;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.FilterSettings;
@@ -96,9 +108,13 @@ import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.ProteinHitSet;
 import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.ExpProperty;
+import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pepnovohit;
+import de.mpa.db.accessor.Project;
+import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.io.MascotGenericFile;
@@ -130,6 +146,10 @@ public class ClientFrame extends JFrame {
 	private final static String PATH = "test/de/mpa/resources/";
 
 	private ClientFrame frame;
+
+	private JPanel projectPnl;
+
+	private JPanel menubarDbPnl;
 
 	private Client client;
 
@@ -224,10 +244,10 @@ public class ClientFrame extends JFrame {
 
 	// placeholder filter criteria
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
-//	private int minPeaks = 5;
-//	private double minTIC = 100.0;
-//	private double minSNR = 1.0;
-	
+	//	private int minPeaks = 5;
+	//	private double minTIC = 100.0;
+	//	private double minSNR = 1.0;
+
 	private DbSearchResult dbSearchResult;
 	private DenovoSearchResult denovoSearchResult;
 	private JProgressBar denovoPrg;
@@ -272,6 +292,11 @@ public class ClientFrame extends JFrame {
 	private JPanel proteinViewPnl;
 	private JScrollPane proteinTblScp;
 	private JScrollPane peptidesTblScp;
+	private JTable projectsTbl;
+	private JTable projectPropertiesTbl;
+	private JTable experimentsNameTbl;
+	private JTable experimentPropertiesTbl;
+
 
 	/**
 	 * Constructor for the ClientFrame
@@ -286,6 +311,9 @@ public class ClientFrame extends JFrame {
 		this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));		
 		frame = this;
 
+		// Get the client instance
+		client = Client.getInstance();
+
 		// Init components
 		initComponents();
 
@@ -295,7 +323,7 @@ public class ClientFrame extends JFrame {
 		cp.add(menuBar, BorderLayout.NORTH);
 
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
-
+		tabPane.addTab("Project",projectPnl);
 		tabPane.addTab("Input Spectra", filePnl);
 		tabPane.addTab("Server Configuration", srvPnl);
 		tabPane.addTab("Spectral Library Search", specLibPnl);
@@ -310,9 +338,6 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Logging", lggPnl);
 
 		cp.add(tabPane);
-
-		// Get the client instance
-		client = Client.getInstance();
 
 		// Register the property change listener.
 		client.addPropertyChangeListener(new PropertyChangeListener() {
@@ -397,6 +422,9 @@ public class ClientFrame extends JFrame {
 		// File panel
 		constuctFilePanel();
 
+		// Project panel
+		constructProjectPanel();
+
 		// Server panel
 		constructServerPanel();
 
@@ -414,15 +442,468 @@ public class ClientFrame extends JFrame {
 
 		// MS2 Results Panel
 		constructMS2ResultsPanel();
-		
+
 		// Protein Panel
 		constructProteinPanel();
-		
+
 		// DeNovoResults
 		constructDenovoResultPanel();
 
 		// Logging panel		
 		constructLogPanel();
+	}
+// for construct panel to recreate tables
+	public void recreateTable() {
+		((DefaultTableModel)projectsTbl.getModel()).setRowCount(0);
+		((DefaultTableModel)projectPropertiesTbl.getModel()).setRowCount(0);
+		((DefaultTableModel)experimentsNameTbl.getModel()).setRowCount(0);
+		((DefaultTableModel)experimentPropertiesTbl.getModel()).setRowCount(0);
+		//refill project Table
+		ArrayList<Project> projectList= new ArrayList<Project>(); 
+		try {
+			client.initDBConnection();
+			projectList = new ArrayList<Project>(client.getProjects());
+			client.clearDBConnection();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT</b></html>", null});
+		for (int i = 0; i < projectList.size(); i++) {
+			((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {projectList.get(i).getProjectid(),projectList.get(i).getTitle(), projectList.get(i).getCreationdate()});
+		}
+		// justify column width
+		packColumn(projectsTbl,0,5);
+		projectsTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
+		packColumn(projectsTbl, 2, 5);
+	};
+	// Build Panel for project and experiment structure
+	private void constructProjectPanel(){
+		projectPnl = new JPanel();
+		projectPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, t:p,5dlu, t:p, 5dlu, t:p:g, 5dlu"));
+		//Projects
+		JPanel updateProjectsPnl = new JPanel();
+		updateProjectsPnl.setBorder(new TitledBorder("Update to database"));
+		updateProjectsPnl.setLayout(new FormLayout("5dlu, p, 5dlu,p,p:g",// Spalten
+				"5dlu, p, 5dlu"));			// Zeilen
+		JButton refreshBtn= new JButton("refresh");
+				refreshBtn.addActionListener(new ActionListener() {
+			@Override
+			
+			public void actionPerformed(ActionEvent e) {
+				//delete all Tables
+				recreateTable();
+			}
+		});
+		refreshBtn.setPreferredSize(new Dimension(80,30));
+		updateProjectsPnl.add(refreshBtn,cc.xy(2, 2));
+		JButton saveProjectsBtn = new JButton("save changes");
+		saveProjectsBtn.setPreferredSize(new Dimension(80,30));
+		updateProjectsPnl.add(saveProjectsBtn,cc.xy(4, 2));
+		projectPnl.add(updateProjectsPnl,cc.xy(2, 2));
+
+		JPanel manageProjectsPnl = new JPanel();
+		manageProjectsPnl.setBorder(new TitledBorder("Manage projects"));
+		manageProjectsPnl.setLayout(new FormLayout("5dlu, p,p:g,5dlu,p, p:g, 5dlu","5dlu, t:p:g, 5dlu, t:p, 5dlu"));
+		// Tabel for projects
+		projectsTbl = new JTable(new DefaultTableModel(){						// instance initializer block
+			{ setColumnIdentifiers(new Object[] {"#","project name","creation date"}); }
+			public boolean isCellEditable(int row, int col) {
+				return ((col == 1) ? true : false);
+//				return false;
+			}
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Integer.class;
+				case 1:
+					return String.class;
+				case 2:
+					return Date.class;
+				default:
+					return getValueAt(0,col).getClass();
+				}
+			}
+		});
+		projectsTbl.setAutoCreateRowSorter(true);
+		projectsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		//  fill project Table
+		ArrayList<Project> projectList= new ArrayList<Project>(); 
+		try {
+			client.initDBConnection();
+			projectList = new ArrayList<Project>(client.getProjects());
+			client.clearDBConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT</b></html>", null});
+		for (int i = 0; i < projectList.size(); i++) {
+			((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {projectList.get(i).getProjectid(),projectList.get(i).getTitle(), projectList.get(i).getCreationdate()});
+		}
+		// justify column width
+		packColumn(projectsTbl,0,5);
+		projectsTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
+		packColumn(projectsTbl, 2, 5);
+		
+		JTextField editorTtf = new JTextField();
+		editorTtf.setBorder(null);
+		DefaultCellEditor dce = new DefaultCellEditor(editorTtf);
+		dce.setClickCountToStart(1000);
+		projectsTbl.getColumnModel().getColumn(1).setCellEditor(dce);
+		// Action listener for project Column
+		projectsTbl.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				// if component is enabled and left click and one click--> create other tables
+				if (e.getComponent().isEnabled() && e.getButton() == MouseEvent.BUTTON1) {
+
+					Point p = e.getPoint();
+					int row = projectsTbl.convertRowIndexToModel(projectsTbl.rowAtPoint(p));
+
+					if (e.getClickCount() == 1) {
+						// create Property and Experiment Table
+						if (row > 0) {
+							long fk_projectid = (Long)projectsTbl.getValueAt(row, 0);
+							// Use table.convertRowIndexToModel / table.convertColumnIndexToModle to convert to view indices
+							//empty properties table
+							while (projectPropertiesTbl.getRowCount()>0) {
+								((DefaultTableModel)projectPropertiesTbl.getModel()).removeRow(projectPropertiesTbl.getRowCount()-1);
+							}
+							//refill properties table
+							((DefaultTableModel)projectPropertiesTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT PROPERTY</b></html>", null});
+
+							// query database for properties
+							ArrayList<Property> projectPropertyList= new ArrayList<Property>(); 
+							try {
+								client.initDBConnection();
+								projectPropertyList = new ArrayList<Property>(client.getProjectProperties(fk_projectid));
+								client.clearDBConnection();
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+							for (int i = 0; i < projectPropertyList.size(); i++) {
+								((DefaultTableModel)projectPropertiesTbl.getModel()).addRow(new Object[]{projectPropertyList.get(i).getPropertyid(),projectPropertyList.get(i).getName(),projectPropertyList.get(i).getValue()});
+								// justify column width
+								packColumn(projectPropertiesTbl,0,5);
+								projectPropertiesTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
+								projectPropertiesTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
+							}
+							// fill experiment column
+							//empty experiments table
+							while (experimentsNameTbl.getRowCount()>0) {
+								((DefaultTableModel)experimentsNameTbl.getModel()).removeRow(experimentsNameTbl.getRowCount()-1);
+							}
+							//refill properties table
+							((DefaultTableModel)experimentsNameTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW EXPERIMENT</b></html>", null});
+							// query database for properties
+							ArrayList<Experiment> projectExperimentList = new ArrayList<Experiment>(); 
+							try {
+								client.initDBConnection();
+								projectExperimentList = new ArrayList<Experiment>(client.getProjectExperiments(fk_projectid));
+								client.clearDBConnection();
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+							for (int i = 0; i < projectExperimentList.size(); i++) {
+								Object[] test = new Object[] {projectExperimentList.get(i).getExperimentid(),
+										projectExperimentList.get(i).getTitle(),
+										projectExperimentList.get(i).getCreationdate()};
+								((DefaultTableModel)experimentsNameTbl.getModel()).addRow(test);
+								// justify column width
+								packColumn(experimentsNameTbl,0,5);
+								experimentsNameTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
+								packColumn(experimentsNameTbl,2,5);
+							}
+							//empty experiment properties
+							((DefaultTableModel)experimentPropertiesTbl.getModel()).setRowCount(0);
+						}	
+						// edit cells
+					} else if (e.getClickCount() == 2) {
+					//	String oldVal = projectsTbl.getValueAt(row, 1).toString();
+						if (projectsTbl.getSelectedRow() == 0) {
+							projectsTbl.setValueAt("", row, 1);
+						}
+						projectsTbl.editCellAt(row, 1);
+					}
+				}
+			}
+		});
+
+		projectsTbl.getModel().addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if (e.getType() == TableModelEvent.UPDATE) {
+					int row = projectsTbl.convertRowIndexToModel(e.getFirstRow());
+					if (projectsTbl.getValueAt(row, 1) != "") {
+						try {
+							client.initDBConnection();
+							if (row == 0) {
+								// create new project
+								String pTitle= (String) projectsTbl.getValueAt(e.getFirstRow(), 1);
+								Timestamp pCreationdate= new Timestamp(new Date().getTime());
+								Timestamp pModificationdate = new Timestamp(new Date().getTime());
+								client.createNewProject((String)pTitle,(Timestamp)pCreationdate,(Timestamp)pModificationdate);
+								recreateTable();
+							} else {
+								//change project
+								client.modifyProject((Long)projectsTbl.getValueAt(e.getFirstRow(), 0),
+										projectsTbl.getValueAt(e.getFirstRow(), e.getColumn()).toString());
+							}
+							recreateTable();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+		JScrollPane projectNameScp =new JScrollPane(projectsTbl);
+		projectNameScp.setPreferredSize(new Dimension(300,200));
+		projectNameScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		manageProjectsPnl.add(projectNameScp,cc.xyw(2,2,2));
+		// Button to delete a projects
+		JButton deleteProjectBtn = new JButton("delete project");
+		deleteProjectBtn.setPreferredSize(new Dimension(160,25));
+		deleteProjectBtn.setSize(new Dimension(30,30));
+		//delete Projects
+		deleteProjectBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					client.initDBConnection();
+					long projectID= (Long) projectsTbl.getValueAt(projectsTbl.getSelectedRow(),0);
+					client.removeProjects(projectID);//projectID);
+					recreateTable();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+				
+			
+			}
+		});
+		
+		
+		
+		manageProjectsPnl.add(deleteProjectBtn,cc.xy(2, 4));
+		//Table for project properties
+		projectPropertiesTbl = new JTable(new DefaultTableModel(){
+			{ setColumnIdentifiers(new Object[] {"#","project property","value"}); }
+			public boolean isCellEditable(int row, int col) {
+				return ((col == 0) ? false :true);
+			}
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Long.class;
+				case 1:
+					return String.class;
+				case 2:
+					return String.class;
+				default:
+					return getValueAt(0,col).getClass();
+				}
+			}	
+		});
+		// change and add to the projectProperty Table
+		projectPropertiesTbl.getModel().addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if (e.getType() == TableModelEvent.UPDATE) {
+					int row = projectPropertiesTbl.convertRowIndexToModel(e.getFirstRow());
+					if (projectPropertiesTbl.getValueAt(row, 1) != "") {
+						try {
+							client.initDBConnection();
+							if (row == 0) {
+								// create new project
+								String pTitle= (String) projectPropertiesTbl.getValueAt(e.getFirstRow(), 1);
+								Timestamp pCreationdate= new Timestamp(new Date().getTime());
+								Timestamp pModificationdate = new Timestamp(new Date().getTime());
+								client.createNewProject((String)pTitle,(Timestamp)pCreationdate,(Timestamp)pModificationdate);
+								recreateTable();
+							} else {
+								//change project property
+								client.modifyProjectProperty((Long)projectPropertiesTbl.getValueAt(e.getFirstRow(), 0),  //propertyid,
+										projectPropertiesTbl.getValueAt(e.getFirstRow(), 1).toString(),//propertyName,
+										projectPropertiesTbl.getValueAt(e.getFirstRow(), 2).toString());//propertyValue
+							}
+							recreateTable();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+		JScrollPane projectPropertiesScp = new JScrollPane(projectPropertiesTbl);
+		projectPropertiesScp.setPreferredSize(new Dimension(300,200));
+		projectPropertiesScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		manageProjectsPnl.add(projectPropertiesScp,cc.xyw(5, 2,2));
+		//Button to delete project property
+		JButton deleteProjectPropertyBtn = new JButton("delete project property");
+		deleteProjectPropertyBtn.setPreferredSize(new Dimension(160,25));
+		manageProjectsPnl.add(deleteProjectPropertyBtn,cc.xy(5, 4));
+		//Add manage projects to project panel
+		projectPnl.add(manageProjectsPnl,cc.xy(2, 4));	
+		// Experiments
+		JPanel manageExperimentsPnl = new JPanel();
+		manageExperimentsPnl.setBorder(new TitledBorder("Manage experiments"));
+		manageExperimentsPnl.setLayout(new FormLayout("5dlu, p,p:g, 5dlu, p,p:g, 5dlu","5dlu, t:p:g, 5dlu, t:p, 5dlu"));
+		//Experiment overview Table
+		experimentsNameTbl= new JTable(new DefaultTableModel(){
+			{ setColumnIdentifiers(new Object[] {"#","experiment name","creation date"}); }
+			public boolean isCellEditable(int row, int col) {
+				return ((col == 1) ? true :false);
+			}
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Long.class;
+				case 1:
+					return String.class;
+				case 2:
+					return Date.class;
+				default:
+					return getValueAt(0,col).getClass();
+				}
+			}	
+		});
+		// ActionListener to show Experiment Properties
+		experimentsNameTbl.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getComponent().isEnabled() && 
+						e.getButton() == MouseEvent.BUTTON1 && 
+						e.getClickCount() == 1) {
+					Point p = e.getPoint();
+					int row = experimentsNameTbl.convertRowIndexToModel(experimentsNameTbl.rowAtPoint(p));
+					if (row > 0) {
+						long experimentid = (Long)experimentsNameTbl.getValueAt(row, 0);
+						// Use table.convertRowIndexToModel / table.convertColumnIndexToModle to convert to view indices
+						//empty properties table
+						while (experimentPropertiesTbl.getRowCount()>0) {
+							((DefaultTableModel)experimentPropertiesTbl.getModel()).removeRow(experimentPropertiesTbl.getRowCount()-1);
+						}
+						//refill properties table
+						((DefaultTableModel)experimentPropertiesTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW EXPERIMENT PROPERTY</b></html>", null});
+
+						// query database for properties
+						ArrayList<ExpProperty> experimentPropertyList= new ArrayList<ExpProperty>(); 
+						try {
+							client.initDBConnection();
+							experimentPropertyList = new ArrayList<ExpProperty>(client.getExperimentProperties(experimentid));
+							//						projectPropertyList.addAll(propertyListDB);		
+							client.clearDBConnection();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						for (int i = 0; i < experimentPropertyList.size(); i++) {
+							((DefaultTableModel)experimentPropertiesTbl.getModel()).addRow(new Object[]{experimentPropertyList.get(i).getExppropertyid(),
+									experimentPropertyList.get(i).getName(),
+									experimentPropertyList.get(i).getValue()});
+							// justify column width
+							packColumn(experimentPropertiesTbl,0,5);
+							experimentPropertiesTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
+							experimentPropertiesTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
+						}
+					}
+				}
+			}
+		});
+		// change experiments
+		experimentsNameTbl.getModel().addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if (e.getType() == TableModelEvent.UPDATE) {
+					try {
+						client.initDBConnection();
+						client.modifyExperimentsName((Long)experimentsNameTbl.getValueAt(e.getFirstRow(), 0), //experimentid,
+								experimentsNameTbl.getValueAt(e.getFirstRow(),1).toString());//propertyValue
+
+						client.clearDBConnection();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		JScrollPane experimentsNameScp= new JScrollPane(experimentsNameTbl);
+		experimentsNameScp.setPreferredSize(new Dimension(300,200));
+		experimentsNameScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		manageExperimentsPnl.add(experimentsNameScp,cc.xyw(2, 2,2));
+		// Button to delete experiment
+		JButton deleteExperimentBtn = new JButton("delete experiment");
+		deleteExperimentBtn.setPreferredSize(new Dimension(160,25));
+		manageExperimentsPnl.add(deleteExperimentBtn,cc.xy(2, 4));
+		// ExperimentProperties Table
+		experimentPropertiesTbl= new JTable(new DefaultTableModel(){
+			{ setColumnIdentifiers(new Object[] {"#","experiment property","value"}); }
+			public boolean isCellEditable(int row, int col) {
+				return ((col == 0) ? false :true);
+			}
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Long.class;
+				case 1:
+					return String.class;
+				case 2: 
+					return String.class;
+				default:
+					return getValueAt(0,col).getClass();
+				}
+			}		
+		});
+		// change experimentProperties
+		experimentPropertiesTbl.getModel().addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if (e.getType() == TableModelEvent.UPDATE) {
+					System.out.println(experimentPropertiesTbl.getValueAt(e.getFirstRow(), 0));
+					try {
+						client.initDBConnection();
+						client.modifyExperimentsProperties((Long)experimentPropertiesTbl.getValueAt(e.getFirstRow(), 0),				//exppropertyid, 
+								experimentPropertiesTbl.getValueAt(e.getFirstRow(),1).toString(),			//expProperty,
+								experimentPropertiesTbl.getValueAt(e.getFirstRow(), 2).toString());//expPropertyValue);
+
+						client.clearDBConnection();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		JScrollPane experimentPropertiesScp= new JScrollPane(experimentPropertiesTbl);
+		experimentPropertiesScp.setPreferredSize(new Dimension(300,200));
+		experimentPropertiesScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		manageExperimentsPnl.add(experimentPropertiesScp,cc.xyw(5, 2,2));
+		// Button to delete experiment properties
+		JButton deleteExperimentPropertiesBtn= new JButton("delete experiment properties");
+		deleteExperimentPropertiesBtn.setPreferredSize(new Dimension(160,25));
+		manageExperimentsPnl.add(deleteExperimentPropertiesBtn,cc.xy(5, 4));
+		//Add manageExperiemets to project
+		projectPnl.add(manageExperimentsPnl,cc.xy(2, 6));
 	}
 
 	private void constructProteinPanel() {
@@ -449,14 +930,14 @@ public class ClientFrame extends JFrame {
 				queryProteinTableMouseClicked(evt);
 			}
 		});
-		
+
 		proteinResultTbl.addKeyListener(new java.awt.event.KeyAdapter() {
 
-            @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-            	queryProteinTableKeyReleased(evt);
-            }
-        });
+			@Override
+			public void keyReleased(java.awt.event.KeyEvent evt) {
+				queryProteinTableKeyReleased(evt);
+			}
+		});
 
 		proteinResultTbl.setOpaque(false);
 		proteinTblScp.setViewportView(proteinResultTbl);
@@ -468,7 +949,7 @@ public class ClientFrame extends JFrame {
 		final JPanel peptidesPnl = new JPanel();
 		peptidesPnl.setLayout(new FormLayout("5dlu, p, 5dlu",  "5dlu, p, 5dlu,"));
 		peptidesPnl.setBorder(BorderFactory.createTitledBorder("Peptides"));
-				
+
 		peptidesTblScp = new JScrollPane();
 		peptidesTblScp.setPreferredSize(new Dimension(1000, 250));
 		peptidesTblScp.setViewportView(peptideResultTbl);
@@ -476,7 +957,7 @@ public class ClientFrame extends JFrame {
 
 		proteinViewPnl.add(proteinPnl, cc.xy(2,2));
 		proteinViewPnl.add(peptidesPnl, cc.xy(2,4));
-		
+
 	}
 
 	private void constructMenu() {
@@ -519,8 +1000,83 @@ public class ClientFrame extends JFrame {
 		databaseItem.setText("Database Connection");
 
 		databaseItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
-		settingsMenu.add(databaseItem);
+		// settings for db connection
+		menubarDbPnl= new JPanel();
+		menubarDbPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu  ","5dlu, p, 5dlu ,t:p,5dlu, p, 5dlu, t:p,5dlu, p, 5dlu, t:p, 5dlu, t:p, 5dlu"));
+		menubarDbPnl.setBorder(new TitledBorder("Database"));
+		menubarDbPnl.add(new JLabel("JDBCDriver"),cc.xy(2,2));
+		menubarDbPnl.add(new JLabel("URL_Locale"), cc.xy(2,4));
+		menubarDbPnl.add(new JLabel("URL_Remote"), cc.xy(2,6));
+		menubarDbPnl.add(new JLabel("URL_2"), cc.xy(2,8));
+		menubarDbPnl.add(new JLabel("USER"), cc.xy(2,10));
+		menubarDbPnl.add(new JLabel("PASS"), cc.xy(2,12));
+		final JTextField menubarDBJDBCDriverTxt= new JTextField(client.dbSettings.getJdbcDriver());
+		menubarDbPnl.add(menubarDBJDBCDriverTxt,cc.xy(4, 2));
+		final JTextField menubarDBURL_LocaleTxt= new JTextField(client.dbSettings.getUrlLocale());
+		menubarDbPnl.add(menubarDBURL_LocaleTxt,cc.xy(4, 4));
+		final JTextField menubarDBURL_RemoteTxt= new JTextField(client.dbSettings.getUrlRemote());
+		menubarDbPnl.add(menubarDBURL_RemoteTxt,cc.xy(4, 6));
+		final JTextField menubarDBURL_2Txt= new JTextField(client.dbSettings.getPort());
+		menubarDbPnl.add(menubarDBURL_2Txt,cc.xy(4, 8));
+		final JTextField menubarDBUserTxt= new JTextField(client.dbSettings.getUsername());
+		menubarDbPnl.add(menubarDBUserTxt,cc.xy(4, 10));
+		final JPasswordField menubarDBPassTxt= new JPasswordField(client.dbSettings.getPassword());
+		menubarDbPnl.add(menubarDBPassTxt,cc.xy(4, 12));
+		final JLabel menubarConnectOKLbl = new JLabel("");
+		menubarDbPnl.add(menubarConnectOKLbl,cc.xy(4, 14));
+		JButton menubarDbBtn= new JButton("Test connection");
+		// action listener for button "Test connection"
+		menubarDbBtn.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+
+				client.dbSettings.setJdbcDriver(menubarDBJDBCDriverTxt.getText());
+				client.dbSettings.setUrlLocale(menubarDBURL_LocaleTxt.getText());
+				client.dbSettings.setUrlRemote(menubarDBURL_RemoteTxt.getText());
+				client.dbSettings.setPort(menubarDBURL_2Txt.getText());
+				client.dbSettings.setUsername(menubarDBUserTxt.getText());
+				client.dbSettings.setPassword(new String(menubarDBPassTxt.getPassword()));
+
+				// methode closes old connectiom
+				try {client.clearDBConnection();				
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				// try new connection				
+				try {
+					client.initDBConnection();
+					menubarConnectOKLbl.setText("Connection OK");
+					menubarConnectOKLbl.setForeground(Color.GREEN);
+				} catch (Exception e) {
+					// TODO: handle exception
+					menubarConnectOKLbl.setText("Connection failed");
+					menubarConnectOKLbl.setForeground(Color.RED);
+				}
+			}
+		});
+
+		menubarDbPnl.add(menubarDbBtn,cc.xy(2, 14));
+
+		// action listener for database settings
+		databaseItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int res = JOptionPane.showConfirmDialog(frame, menubarDbPnl, "Database Settings", 
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
+
+				if (res == JOptionPane.OK_OPTION) {
+					// update settings
+
+				} else {	// cancel option or window close option
+					// revert to old settings
+				}		
+			}
+		});
+
+		settingsMenu.add(databaseItem);
 		settingsMenu.addSeparator();
 
 		// serverItem
@@ -606,14 +1162,15 @@ public class ClientFrame extends JFrame {
 	 */
 	private void constuctFilePanel(){
 
+
 		filePnl = new JPanel();
 		filePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-										 "5dlu, f:p:g, 5dlu"));	// row
+				"5dlu, f:p:g, 5dlu"));	// row
 
 		JPanel selPnl = new JPanel();
 		selPnl.setBorder(new TitledBorder("File selection"));
 		selPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
-										"p, 5dlu, f:p:g, 5dlu"));								// row
+				"p, 5dlu, f:p:g, 5dlu"));								// row
 
 		String pathName = "test/de/mpa/resources/";
 		JLabel fileLbl = new JLabel("Spectrum Files (MGF):");
@@ -626,7 +1183,7 @@ public class ClientFrame extends JFrame {
 		filesTtf.setEditable(false);
 		filesTtf.setMaximumSize(new Dimension(filesTtf.getMaximumSize().width, filesTtf.getPreferredSize().height));
 		filesTtf.setText(files.size() + " file(s) selected");
-		
+
 		final JPanel filterPnl = new JPanel();
 		filterPnl.setLayout(new FormLayout("p, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, p:g", "p, 5dlu, p, 5dlu, p, 5dlu, p"));
 		// add labels
@@ -645,27 +1202,27 @@ public class ClientFrame extends JFrame {
 		final JButton noiseEstBtn = new JButton("Estimate... *");
 		noiseEstBtn.setToolTipText("Estimation not yet implemented, will export intensities as .txt file instead");
 		noiseEstBtn.setEnabled(false);
-		
+
 		// add to panel
 		filterPnl.add(minPeaksSpn, cc.xy(7, 1));
 		filterPnl.add(minTICspn, cc.xyw(5, 3, 3));
 		filterPnl.add(minSNRspn, cc.xy(7, 5));
 		filterPnl.add(noiseLvlSpn, cc.xy(3, 7));
 		filterPnl.add(noiseEstBtn, cc.xyw(5, 7, 3));
-		
+
 		JButton filterBtn = new JButton("Filter settings...");
 		filterBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int res = JOptionPane.showConfirmDialog(frame, filterPnl, "Filter Settings", 
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
 				if (res == JOptionPane.OK_OPTION) {
 					// update settings
 					filterSet = new FilterSettings((Integer) minPeaksSpn.getValue(),
-												   (Double) minTICspn.getValue(),
-												   (Double) minSNRspn.getValue(),
-												   (Double) noiseLvlSpn.getValue());
+							(Double) minTICspn.getValue(),
+							(Double) minSNRspn.getValue(),
+							(Double) noiseLvlSpn.getValue());
 				} else {	// cancel option or window close option
 					// revert to old settings
 					minPeaksSpn.setValue(filterSet.getMinPeaks());
@@ -768,7 +1325,7 @@ public class ClientFrame extends JFrame {
 		fileDetailsTbl.getColumnModel().getColumn(0).setPreferredWidth(comp.getPreferredSize().width+10);
 
 		JScrollPane detailScpn = new JScrollPane(fileDetailsTbl);
-		detailScpn.setPreferredSize(new Dimension(0, 0));
+		detailScpn.setPreferredSize(new Dimension(300, 200));
 		detailScpn.setMinimumSize(new Dimension(0, fileDetailsTbl.getRowHeight()));
 		detailScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		detailScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -861,8 +1418,8 @@ public class ClientFrame extends JFrame {
 								double SNR = mgf.getSNR(filterSet.getNoiseLvl());
 								TreePath treePath = new TreePath(spectrumNode.getPath());
 								if ((numPeaks > filterSet.getMinPeaks()) &&
-									(TIC > filterSet.getMinTIC()) &&
-									(SNR > filterSet.getMinSNR())) {
+										(TIC > filterSet.getMinTIC()) &&
+										(SNR > filterSet.getMinSNR())) {
 									toBeAdded.add(treePath);
 								}
 								newLeaves++;
@@ -1487,12 +2044,12 @@ public class ClientFrame extends JFrame {
 				dnStartBtn.setEnabled(false);
 				RunDenovoSearchWorker worker = new RunDenovoSearchWorker();
 				worker.execute();
-				
+
 				// Easter egg stuff
 				Image image = null;
 				try {
 					image = ImageIO.read(new File("docu/Nerds.jpg"));
-					
+
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -1536,7 +2093,7 @@ public class ClientFrame extends JFrame {
 
 	private void constructDenovoResultPanel() {
 		queryDnSpectraTblJScrollPane = new JScrollPane();
-		
+
 		denovoResPnl = new JPanel();
 		denovoResPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu",	// col
 				"5dlu, f:p:g,5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));	// row
@@ -1548,14 +2105,14 @@ public class ClientFrame extends JFrame {
 
 		// Setup the tables
 		setupDenovoSearchResultTableProperties();
-		
+
 		queryDnSpectraTbl.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt) {
 				queryDnSpectraTableMouseClicked(evt);
 			}
 		});
-		
+
 		queryDnSpectraTbl.addKeyListener(new java.awt.event.KeyAdapter() {
 
 			@Override
@@ -1587,7 +2144,7 @@ public class ClientFrame extends JFrame {
 
 		dnResSpectrumPnl.add(topPnl, cc.xy(2, 2));
 		dnResSpectrumPnl.add(queryDnSpectraTblJScrollPane, cc.xy(2, 4));
-		
+
 		// De novo results
 		dnRSeqPnl = new JPanel();
 		dnRSeqPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",	// col
@@ -1603,7 +2160,7 @@ public class ClientFrame extends JFrame {
 		// Use BLAST
 		dnRBlastPnl = new JPanel();
 		dnRBlastPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu",											// col
-											 "5dlu, f:p, 5dlu, f:p, 5dlu,f:p, 5dlu,f:p, 5dlu,f:p, 5dlu"));	// row
+				"5dlu, f:p, 5dlu, f:p, 5dlu,f:p, 5dlu,f:p, 5dlu,f:p, 5dlu"));	// row
 		dnRBlastPnl.setBorder(new TitledBorder("BLAST search"));
 		dnRBlastPnl.add(new JLabel("Database for BLAST search:"),cc.xy(2, 2));
 		dnRBLastCbx = new JComboBox(Constants.DNBLAST_DB);
@@ -1665,11 +2222,11 @@ public class ClientFrame extends JFrame {
 
 		resPnl = new JPanel();
 		resPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-		"5dlu, f:p:g, 5dlu"));	// row
+				"5dlu, f:p:g, 5dlu"));	// row
 
 		JPanel dispPnl = new JPanel();
 		dispPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-		"f:p:g, 5dlu"));		// row
+				"f:p:g, 5dlu"));		// row
 		dispPnl.setBorder(BorderFactory.createTitledBorder("Results"));
 
 		DefaultMutableTreeNode queryRoot = new DefaultMutableTreeNode(((DefaultMutableTreeNode) fileTree.getModel().getRoot()).getUserObject());
@@ -1682,7 +2239,7 @@ public class ClientFrame extends JFrame {
 
 		JPanel leftPnl = new JPanel();
 		leftPnl.setLayout(new FormLayout("p:g",					// col
-		"p, 5dlu, p, f:p:g"));	// row
+				"p, 5dlu, p, f:p:g"));	// row
 		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
 		leftDummyTable.getTableHeader().setReorderingAllowed(false);
 		leftDummyTable.getTableHeader().setResizingAllowed(false);
@@ -1830,7 +2387,7 @@ public class ClientFrame extends JFrame {
 
 		JPanel libPnl = new JPanel();
 		libPnl.setLayout(new FormLayout("l:p:g, r:p",		// col
-										"p, 5dlu, f:p:g"));	// row
+				"p, 5dlu, f:p:g"));	// row
 		libPnl.add(new JLabel("<html><font color=#0000ff>Library spectra</font></html>"), cc.xy(1,1));
 		libPnl.add(expBtn, cc.xy(2,1));
 		libPnl.add(libScpn, cc.xyw(1,3,2));
@@ -1867,7 +2424,7 @@ public class ClientFrame extends JFrame {
 
 		JPanel protPnl = new JPanel();
 		protPnl.setLayout(new FormLayout("p:g",					// col
-		"p, 5dlu, f:p:g"));	// row
+				"p, 5dlu, f:p:g"));	// row
 		JLabel topRightLbl = new JLabel("Protein annotations");
 		topRightLbl.setPreferredSize(new Dimension(topRightLbl.getPreferredSize().width,
 				new JButton(" ").getPreferredSize().height));
@@ -2191,7 +2748,7 @@ public class ClientFrame extends JFrame {
 		voteMap = dbSearchResult.getVoteMap();
 		proteins = dbSearchResult.getProteins();
 		peptideHits = new HashMap<String, List<PeptideHit>>();
-		
+
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
 				Searchspectrum spectrum = querySpectra.get(i);
@@ -2208,7 +2765,7 @@ public class ClientFrame extends JFrame {
 
 		if (proteins != null) {
 			Set<String> accessions = proteins.getPeptideHits().keySet();
-			
+
 			Iterator<String> accIter = accessions.iterator();
 			int i = 0;
 			while(accIter.hasNext()){
@@ -2224,7 +2781,7 @@ public class ClientFrame extends JFrame {
 						"",
 						"", 
 				""});
-			i++;
+				i++;
 			}
 		}
 	}
@@ -2233,7 +2790,7 @@ public class ClientFrame extends JFrame {
 		List<Searchspectrum> querySpectra = denovoSearchResult.getQuerySpectra();
 		pepnovoResults = denovoSearchResult.getPepnovoResults();
 		String identified;
-		
+
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
 				Searchspectrum spectrum = querySpectra.get(i);
@@ -2243,7 +2800,7 @@ public class ClientFrame extends JFrame {
 				} else {
 					identified = "no";
 				}
-				
+
 				((DefaultTableModel) queryDnSpectraTbl.getModel()).addRow(new Object[]{
 						i + 1,
 						title,
@@ -2363,7 +2920,7 @@ public class ClientFrame extends JFrame {
 		// Set the cursor back into the default status.
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 	}
-	
+
 	/**
 	 * Update the peptides tables based on the protein selected.
 	 * 
@@ -2431,7 +2988,7 @@ public class ClientFrame extends JFrame {
 			((DefaultTableModel) pepnovoTbl.getModel()).removeRow(0);
 		}
 	}
-	
+
 	/**
 	 * Clears the peptide result table.
 	 */
@@ -2455,7 +3012,7 @@ public class ClientFrame extends JFrame {
 	private void queryDnSpectraTableKeyReleased(KeyEvent evt) {
 		queryDnSpectraTableMouseClicked(null);
 	}
-	
+
 	/**
 	 * @see #queryDnSpectraTableKeyReleased(java.awt.event.MouseEvent)
 	 */
@@ -2471,11 +3028,11 @@ public class ClientFrame extends JFrame {
 		// main container for tabbed pane
 		lggPnl = new JPanel();
 		lggPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-		"5dlu, f:p:g, 5dlu"));	// row
+				"5dlu, f:p:g, 5dlu"));	// row
 		// container for titled border
 		JPanel brdPnl = new JPanel();
 		brdPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-		"3dlu, f:p:g, 5dlu"));	// row
+				"3dlu, f:p:g, 5dlu"));	// row
 		brdPnl.setBorder(BorderFactory.createTitledBorder("Logging"));
 
 		// actual logging panel
@@ -2850,6 +3407,42 @@ public class ClientFrame extends JFrame {
 		public void done() {
 			procBtn.setEnabled(true);
 		}
+	}
+
+	/**
+	 * This method sets the look&feel for the application.
+	 */
+	private static void setLookAndFeel() {
+		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
+		Options.setUseSystemFonts(true);
+		//Options.setDefaultIconSize(new Dimension(18, 18));
+		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
+		Options.setPopupDropShadowEnabled(true);
+		String lafName = LookUtils.IS_OS_WINDOWS 
+				? WindowsLookAndFeel.class.getName()
+						: Plastic3DLookAndFeel.class.getName();
+				try {
+					UIManager.setLookAndFeel(lafName);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+	}
+
+	/**
+	 * Main method ==> Entry point to the application.
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// Set the look&feel
+		setLookAndFeel();
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new ClientFrame();
+			}
+		});
 	}
 }
 
