@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import de.mpa.client.DbConnectionSettings;
 import de.mpa.db.storager.CruxStorager;
 import de.mpa.db.storager.InspectStorager;
 import de.mpa.db.storager.OmssaStorager;
@@ -45,7 +46,7 @@ public class DBManager {
      */
 	private void init() throws SQLException{		
 		// The database configuration.
-		DBConfiguration dbconfig = new DBConfiguration("metaprot", true);
+		DBConfiguration dbconfig = new DBConfiguration("metaprot", true, new DbConnectionSettings());
 		conn = dbconfig.getConnection();
 		
 		// Set auto commit == FALSE --> Manual commit & rollback.

@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,6 @@ import javax.xml.ws.soap.SOAPBinding;
 import org.apache.log4j.Logger;
 
 import de.mpa.algorithms.CrossCorrelation;
-import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.model.DbSearchResult;
@@ -31,12 +32,16 @@ import de.mpa.client.model.ProteinHit;
 import de.mpa.client.model.ProteinHitSet;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.ExpProperty;
+import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.Project;
+import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spec2pep;
@@ -45,7 +50,7 @@ import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 
-public class Client {
+public class Client<fk_projectid> {
 
 	// Client instance
 	private static Client client = null;
@@ -62,11 +67,13 @@ public class Client {
 	// Connection
 	private Connection conn;
 	
+	public final DbConnectionSettings dbSettings = new DbConnectionSettings();
+	
+		//
 	/**
      *  Property change support for notifying the gui about new messages.
      */
     private PropertyChangeSupport pSupport;
-
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -76,7 +83,6 @@ public class Client {
 	private Client() {
 		pSupport = new PropertyChangeSupport(this);
 	}
-	
 	
 	/**
 	 * Returns a client singleton object.
@@ -92,12 +98,14 @@ public class Client {
 	
 	/**
 	 * Sets the database connection.
+	 * @throws SQLException 
 	 */
-	public void initDBConnection() {
+//	public void initDBConnection(DbConnectionSettings dbSettings) throws SQLException {
+	public void initDBConnection() throws SQLException {
 		// Connection conn
 		if (conn == null) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration("metaprot", false);
+			DBConfiguration dbconfig = new DBConfiguration("metaprot", false, this.dbSettings);
 			this.conn = dbconfig.getConnection();
 		}
 	}
@@ -210,6 +218,110 @@ public class Client {
 	}
 	
 	/**
+	 * gets properties from database
+	 */
+	
+// modifiy project
+	public void modifyProject (long projectid, String projectName) throws SQLException{
+		Project tempProject = Project.findFromProjectID(projectid, conn);
+		tempProject.setTitle(projectName);
+		tempProject.setModificationdate(new Timestamp((new Date()).getTime()));
+		tempProject.update(conn);
+		}
+//modify project property	
+	public void modifyProjectProperty (long propertyid, String propertyName, String propertyValue) throws SQLException{
+		Property tempProperty = Property.findPropertyFromPropertyID(propertyid, conn);
+		tempProperty.setName(propertyName);
+		tempProperty.setValue(propertyValue);
+		tempProperty.update(conn);
+		}
+	
+	//modify experimentsname	
+		public void modifyExperimentsName (long experimentid, String experimentsName) throws SQLException{
+			Experiment tempExperiment = Experiment.findExperimentByID(experimentid, conn);
+			tempExperiment.setTitle(experimentsName);
+			tempExperiment.setModificationdate(new Timestamp((new Date()).getTime()));
+			tempExperiment.update(conn);
+			}	
+		//modify experimentproperty	
+		public void modifyExperimentsProperties (long exppropertyid, String expProperty,String expPropertyValue) throws SQLException{
+			ExpProperty tempExperimentProperty = ExpProperty.findExpPropertyFromID(exppropertyid,conn);
+			tempExperimentProperty.setName(expProperty);
+			tempExperimentProperty.setValue(expPropertyValue);
+			tempExperimentProperty.update(conn);
+		}			
+		// create new Project
+		public void createNewProject (String pTitle,Timestamp pCreationdate, Timestamp pModificationdate) throws SQLException{
+			HashMap<Object, Object> data = new HashMap<Object, Object>(11);
+			data.put(Project.TITLE, pTitle);
+			data.put(Project.CREATIONDATE, pCreationdate);
+			data.put(Project.MODIFICATIONDATE, pModificationdate);
+			Project project = new Project(data);
+			project.persist(conn);
+			project.getGeneratedKeys();
+		}
+		
+		
+		
+
+	//remove projects
+	public void removeProjects(Long projectid)throws SQLException{
+		//delete the entries experiment
+//		List<Experiment> tempExperimentListe = Experiment.findAllExperimentsOfProject(projectid, conn);
+//		if (tempExperimentListe.isEmpty()==false){
+//		for (int i = 0; i < tempExperimentListe.size(); i++) {
+//			Experiment tempExperiment=new Experiment();
+//			tempExperiment=(Experiment)tempExperimentListe(i);
+//			tempExperiment.delete(conn);
+//		}
+//		}
+//		//delete the entries for project property
+//		
+//		List<Property> tempPropertyList = Property.findAllPropertiesOfProject(projectid, conn);
+//		if (tempPropertyList.isEmpty()==false){
+//		for (int i = 0; i < tempPropertyList.size(); i++) {
+//			Property tempProperty = new Property();
+//			tempProperty= (Property)tempExperimentListe(i);
+//			tempProperty.delete(conn);
+//		}}
+		//delete entries for project
+		Project tempproject = Project.findFromProjectID(projectid, conn);
+		tempproject.delete(conn);
+
+		
+		
+		//project.
+	}
+	
+
+	public List<Property> getProjectProperties(long fk_projectid) throws SQLException{
+		return Property.findAllPropertiesOfProject(fk_projectid, conn);
+	}
+	/**
+	 *  get experiments from database 
+	 */
+
+	public List<Experiment> getProjectExperiments(long fk_projectid) throws SQLException{
+		return Experiment.findAllExperimentsOfProject(fk_projectid, conn);
+	}
+
+	
+	/**
+	 *  get experiment property from database 
+	 */
+	public List<ExpProperty> getExperimentProperties(long experimentid) throws SQLException{
+		return ExpProperty.findAllPropertiesOfExperiment(experimentid, conn);
+	}
+	
+	/**
+	 * gets projects from Database
+	 */
+	public List<Project> getProjects() throws SQLException{
+
+		return Project.findAllProjects(conn);
+	}
+	
+	/**
 	 * Runs the denovo search.
 	 * @param file
 	 */
@@ -224,7 +336,11 @@ public class Client {
 	 */
 	public DenovoSearchResult getDenovoSearchResult(File file){
 		// Initialize the connection.
-		initDBConnection();
+		try {
+			initDBConnection();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
 		
 		DenovoSearchResult result = null;
 		
@@ -274,7 +390,11 @@ public class Client {
 	 */
 	public DbSearchResult getDbSearchResult(File file){
 		// Init the database connection.
-		initDBConnection();
+		try {
+			initDBConnection();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
 		
 		DbSearchResult result = null;
 		
