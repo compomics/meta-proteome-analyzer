@@ -1,6 +1,8 @@
 package de.mpa.io;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -46,6 +48,11 @@ public class MascotGenericFileReader {
      * This file stream will be used to read from the specified mergefile.
      */
     protected RandomAccessFile raf;
+
+    /**
+     * Amount of characters that indicate line breaks.
+     */
+	private int newlineCharCount = 0;
     
 
     /**
@@ -169,6 +176,11 @@ public class MascotGenericFileReader {
         int commentLineCounter = 0;
         int lineCounter = 0;
         long posCounter = 0;
+        
+        if (newlineCharCount == 0) {
+        	newlineCharCount = determineNewlineCharCount();
+        }
+        
         int spectrumCounter = 0;
         boolean inSpectrum = false;
         StringBuffer tempComments = new StringBuffer();
@@ -176,8 +188,8 @@ public class MascotGenericFileReader {
         // Cycle the file.
         boolean runnameNotYetFound = true;
         while ((line = raf.readLine()) != null) {
-            lineCounter++;
-            posCounter += line.length()+2;	// length of line plus newline character, TODO: why 2?
+        	lineCounter++;
+            posCounter += line.length() + newlineCharCount;	// length of line plus newline character(s)
             line = line.trim();
             // Skip empty lines and file-level charge statement.
             if (line.equals("") || (lineCounter == 1 && line.startsWith("CHARGE"))) {
@@ -211,7 +223,7 @@ public class MascotGenericFileReader {
                 }
                 // Spectrum comment. Start a new Spectrum!
                 else {
-                    this.spectrumPositions.add(posCounter - (line.length()+2));
+                    this.spectrumPositions.add(posCounter - (line.length() + newlineCharCount));
                     inSpectrum = true;
                     spectrum.append(line + "\n");
                 }
@@ -244,7 +256,7 @@ public class MascotGenericFileReader {
             
             // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
             else if (line.indexOf("BEGIN IONS") >= 0) {
-                this.spectrumPositions.add(posCounter - (line.length()+2));
+                this.spectrumPositions.add(posCounter - (line.length() + newlineCharCount));
                 inSpectrum = true;
                 spectrum.append(line + "\n");
             }
@@ -266,6 +278,32 @@ public class MascotGenericFileReader {
     }
     
     /**
+     * Method to determine linebreak format.
+     * 
+     * @return amount of line-breaking characters per line
+     */
+    private int determineNewlineCharCount() {
+    	int res = 0;
+    	try {
+            BufferedReader br = new BufferedReader(new FileReader(raf.getFD()));
+            int character;
+            boolean eol = false;
+            while ((character = br.read()) != -1) {
+            	if ((character == 13) || (character == 10)) {	// 13 = carriage return '\r', 10 = newline '\n'
+            		res++;
+            		eol = true;
+            	} else if (eol) {
+            		break;
+            	}
+            }
+    		raf.seek(0);	// reset file-pointer to start of file
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	/**
      * This method loads a part of the specified file in this MergeFileReader.
      *
      * @param index number to append to the filename
@@ -319,10 +357,14 @@ public class MascotGenericFileReader {
         int lineCounter = 0;
         long posCounter = 0;
         
+        if (newlineCharCount == 0) {
+        	newlineCharCount = determineNewlineCharCount();
+        }
+        
         // Cycle the file.
         while ((line = raf.readLine()) != null) {
             lineCounter++;
-            posCounter += line.length()+2;	// length of line plus newline character, TODO: why 2?
+            posCounter += line.length() + newlineCharCount;	// length of line plus newline character(s)
             line = line.trim();
             
             // Skip empty lines and file-level charge statement.
@@ -332,7 +374,7 @@ public class MascotGenericFileReader {
 
             // Mark position of spectrum block
             if (line.indexOf("BEGIN IONS") >= 0) {
-                this.spectrumPositions.add(posCounter - (line.length()+2));
+                this.spectrumPositions.add(posCounter - (line.length() + newlineCharCount));
             }
         }
 	}

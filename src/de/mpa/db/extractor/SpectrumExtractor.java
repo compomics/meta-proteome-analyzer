@@ -110,6 +110,42 @@ public class SpectrumExtractor {
 	}
 	
 	/**
+	 * Returns the library spectra which are taken for spectral comparison.
+	 * Condition is to belong to a certain experiment entry.
+	 * @param precursorMz The precursor mass
+     * @param tolMz The precursor mass tolerance
+	 * @return
+	 * @throws SQLException 
+	 * @throws IOException 
+	 */
+	public List<LibrarySpectrum> getLibrarySpectra(long experimentID) throws SQLException, IOException {
+		List<LibrarySpectrum> libSpectra = new ArrayList<LibrarySpectrum>();
+		
+		// Get the spectral library entries with similar precursor mass.
+		List<Spec2pep> entries = Spec2pep.getEntriesFromExperimentID(experimentID, conn);
+		
+		// Iterate the spectral library entries.
+		for (Spec2pep entry : entries) {
+			long spectrumID = entry.getFk_spectrumid();
+			MascotGenericFile mgf = getUnzippedFile(spectrumID);
+			// get list of proteins from list of peptides and gather annotations
+			long peptideID = entry.getFk_peptideid();
+			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
+			for (PeptideAccessor peptide : peptides) {
+				ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
+				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
+				for (Long proteinID : proteinIDs) {
+					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
+				}
+				libSpectra.add(libSpec);
+			}
+		}
+		
+		return libSpectra;
+	}
+	
+	/**
 	 * Returns the unzipped file from the database.
 	 * @param spectrumID
 	 * @return
