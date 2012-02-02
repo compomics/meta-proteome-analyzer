@@ -1,17 +1,17 @@
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot project de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot property de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot libspectrum de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot spectrumfile de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot xtandemhit de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot omssahit de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot inspecthit de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot cruxhit de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot pepnovohit de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot consensusspec de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot experiment de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot expproperty de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot peptide de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot protein de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot pep2prot de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot searchspectrum de.mpa.db.accessor
-call generator.cmd --user root --password bn0785ft com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot spec2pep de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot project de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot property de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot libspectrum de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot spectrumfile de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot xtandemhit de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot omssahit de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot inspecthit de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot cruxhit de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot pepnovohit de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot consensusspec de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot experiment de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot expproperty de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot peptide de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot protein de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot pep2prot de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot searchspectrum de.mpa.db.accessor
+call generator.cmd --user  --password  com.mysql.jdbc.Driver jdbc:mysql://localhost/metaprot spec2pep de.mpa.db.accessor
