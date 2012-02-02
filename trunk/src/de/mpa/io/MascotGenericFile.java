@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.compomics.util.interfaces.SpectrumFile;
@@ -93,7 +94,7 @@ public class MascotGenericFile implements SpectrumFile {
     	return this.lPeaks;
     }
 
-    public ArrayList<Peak> getHighestPeaks(int k) {
+    public ArrayList<Peak> getHighestPeaksList(int k) {
     	
     	ArrayList<Peak>	peaks = new ArrayList<Peak>(lPeaks);
     	
@@ -180,8 +181,8 @@ public class MascotGenericFile implements SpectrumFile {
      * @param aContents String with the contents of the MGF File.
      */
     public MascotGenericFile(String aFilename, String aContents) {
-        this.parseFromString(aContents);
         this.iFilename = aFilename;
+        this.parseFromString(aContents);
     }
 
     /**
@@ -481,6 +482,7 @@ public class MascotGenericFile implements SpectrumFile {
             // Cycle the file.
             int lineCount = 0;
             boolean inSpectrum = false;
+            boolean titleFound = false;
             StringBuffer comments = new StringBuffer();
             while ((line = br.readLine()) != null) {
                 // Advance line count.
@@ -518,6 +520,7 @@ public class MascotGenericFile implements SpectrumFile {
                     if (line.startsWith(TITLE)) {
                         // TITLE line found.
                         this.setTitle(line.substring(equalSignIndex + 1));
+                    	titleFound = true;
                     } else if (line.startsWith(PEPMASS)) {
                         // PEPMASS line found.
                         String value = line.substring(equalSignIndex + 1).trim();
@@ -548,6 +551,10 @@ public class MascotGenericFile implements SpectrumFile {
                     // A peak line should be either of the following two:
                     // 234.56 789
                     // 234.56 789   1+
+                	if (!titleFound) {	// if no title was found, substitute with filename
+                		this.setTitle(this.getFilename());
+                		titleFound = true;
+                	}
                     StringTokenizer st = new StringTokenizer(line, " \t");
                     int count = st.countTokens();
                     if (count == 2 || count == 3) {
@@ -719,6 +726,20 @@ public class MascotGenericFile implements SpectrumFile {
      */
     public HashMap<Double,Double> getPeaks() {
         return iPeaks;
+    }
+    
+    public HashMap<Double,Double> getHighestPeaks(int k) {
+    	HashMap<Double,Double> res = new HashMap<Double,Double>(iPeaks);
+    	TreeSet sortedSet = null;
+    	try {
+    		sortedSet = (TreeSet) res.entrySet();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	while (sortedSet.size() > k) {
+    		sortedSet.remove(sortedSet.first());
+    	}
+        return res;
     }
     
     public double getPrecursorMZ() {

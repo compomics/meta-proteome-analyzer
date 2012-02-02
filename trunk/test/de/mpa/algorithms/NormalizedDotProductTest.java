@@ -44,10 +44,10 @@ public class NormalizedDotProductTest extends TestCase{
 			MascotGenericFile libMGF = libSpectrum.getSpectrumFile();
 			
 			// Highest peaks from the library spectrum
-			ArrayList<Peak> highestLibPeaks = libMGF.getHighestPeaks(k);
+			ArrayList<Peak> highestLibPeaks = libMGF.getHighestPeaksList(k);
 			
 			// Highest peaks from the target (test) spectrum
-			ArrayList<Peak> highestSpectrumPeaks = mgf.getHighestPeaks(k);
+			ArrayList<Peak> highestSpectrumPeaks = mgf.getHighestPeaksList(k);
 			
 			NormalizedDotProduct method = new NormalizedDotProduct(0.5);
 			method.compare(highestLibPeaks, highestSpectrumPeaks);

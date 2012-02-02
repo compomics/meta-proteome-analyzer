@@ -167,6 +167,26 @@ public class Libspectrum extends LibspectrumTableAccessor {
         }
         return temp;
     }
+
+    /**
+     * This method will find a spectrum file from the current connection, based on the specified experimentid.
+     *
+     * @param experimentID long with the spectrumid of the spectrum file to find.
+     * @param aConn           Connection to read the spectrum File from.
+     * @return Spectrumfile with the data.
+     */
+    public static Libspectrum findFromExperimentID(long experimentID, Connection aConn) throws SQLException {
+        Libspectrum temp = null;
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + FK_EXPERIMENTID + " = ?");
+        ps.setLong(1, experimentID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp = new Libspectrum(rs);
+        }
+        rs.close();
+        ps.close();
+        return temp;
+    }
     
     /**
      * Returns the entries within a specified precursor range.
@@ -178,7 +198,8 @@ public class Libspectrum extends LibspectrumTableAccessor {
      */
     public static List<Libspectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Libspectrum> temp = new ArrayList<Libspectrum>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE precursor_mz >= ? AND precursor_mz <= ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PRECURSOR_MZ + " >= ? AND " +
+        																			 PRECURSOR_MZ + " <= ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
         ResultSet rs = ps.executeQuery();

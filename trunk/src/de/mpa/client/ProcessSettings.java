@@ -8,6 +8,17 @@ public class ProcessSettings {
 	private int k;
 	private double threshSc;
 	private boolean annotatedOnly;
+	
+	// XXX
+	private long expID = 0L;
+
+	public long getExpID() {
+		return expID;
+	}
+	public void setExpID(long expID) {
+		this.expID = expID;
+	}
+	// /TBD
 
 	// constructors
 	public ProcessSettings(double tolMz, double threshMz, int k, double threshSc, boolean annotatedOnly) {

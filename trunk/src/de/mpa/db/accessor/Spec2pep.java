@@ -40,7 +40,6 @@ public class Spec2pep extends Spec2pepTableAccessor {
      */
     public static List<Spec2pep> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Spec2pep> temp = new ArrayList<Spec2pep>();
-//        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
         																 " ON spec2pep." + Spec2pep.FK_SPECTRUMID +
         																 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
@@ -59,12 +58,58 @@ public class Spec2pep extends Spec2pepTableAccessor {
         return temp;
     }
     
+    // XXX
+    /**
+     * Returns linked libspectrum entries belonging to a specified experiment entry.
+     * @param experimentID
+     * @param aConn
+     * @return
+     */
+    public static List<Spec2pep> getEntriesFromExperimentID(long experimentID, Connection aConn) throws SQLException {
+    	List<Spec2pep> temp = new ArrayList<Spec2pep>();
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
+        																 " ON spec2pep." + Spec2pep.FK_SPECTRUMID +
+        																 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
+        																 " WHERE " + Libspectrum.FK_EXPERIMENTID + " = ?");
+        ps.setLong(1, experimentID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	temp.add(new Spec2pep(rs));
+        }
+        rs.close();
+        ps.close();
+        return temp;
+    }
+    
+    // XXX
+    public static List<Spec2pep> getEntriesWithinPrecursorRangeFromExperimentID(double precursorMz, double tolMz, long experimentID, Connection aConn) throws SQLException {
+    	List<Spec2pep> temp = new ArrayList<Spec2pep>();
+    	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
+														    			 " ON spec2pep." + Spec2pep.FK_SPECTRUMID +
+														    			 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
+														    			 " WHERE " + Libspectrum.PRECURSOR_MZ + " >= ?" +
+														    			 " AND "   + Libspectrum.PRECURSOR_MZ + " <= ?" +
+        																 " AND "   + Libspectrum.FK_EXPERIMENTID + " = ?");
+    	ps.setDouble(1, precursorMz - tolMz);
+    	ps.setDouble(2, precursorMz + tolMz);
+    	ps.setLong(3, experimentID);
+    	ResultSet rs = ps.executeQuery();
+    	int counter = 0;
+    	while (rs.next()) {
+    		counter++;
+    		temp.add(new Spec2pep(rs));
+    	}
+    	rs.close();
+    	ps.close();
+    	return temp;
+    }
+    
     /**
      * This method will find a spec2pep entry from the current connection, based on the specified spectrumid.
      *
      * @param aSpectrumID long with the spectrumid of the spectrum file to find.
      * @param aConn Connection to read the spectrum File from.
-     * @return Speclibentry with the data.
+     * @return Spec2pep with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
     public static Spec2pep findFromID(long aSpectrumID, Connection aConn) throws SQLException {
@@ -93,7 +138,7 @@ public class Spec2pep extends Spec2pepTableAccessor {
      * @param spectrumID long with the spectrum ID of the link to find.
      * @param peptideID long with the peptide ID of the link to find.
      * @param aConn     Connection to read the spectrum File from.
-     * @return Speclibentry with the data.
+     * @return Spec2pep with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
     public static Spec2pep findLink(Long spectrumID, Long peptideID, Connection aConn) throws SQLException {

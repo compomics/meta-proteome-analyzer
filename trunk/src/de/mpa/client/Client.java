@@ -23,6 +23,7 @@ import javax.xml.ws.soap.SOAPBinding;
 import org.apache.log4j.Logger;
 
 import de.mpa.algorithms.CrossCorrelation;
+import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.model.DbSearchResult;
@@ -551,20 +552,33 @@ public class Client<fk_projectid> {
 				
 				if (procSet.getAnnotatedOnly()) {
 					// grab appropriate library spectra (candidates for similarity scoring)
-					List<Spec2pep> entries = Spec2pep.getEntriesWithinPrecursorRange(precursorMz, procSet.getTolMz(), conn);
+					// XXX
+					List<Spec2pep> entries;
+					if (procSet.getExpID() != 0L) {
+						entries = Spec2pep.getEntriesWithinPrecursorRangeFromExperimentID(precursorMz, procSet.getTolMz(), procSet.getExpID(), conn);
+					} else {
+						entries = Spec2pep.getEntriesWithinPrecursorRange(precursorMz, procSet.getTolMz(), conn);
+					}
 					// iterate candidates, score & store
 					Map<Long, ArrayList<RankedLibrarySpectrum>> pep2spec = new HashMap<Long, ArrayList<RankedLibrarySpectrum>>();
+					
+					// determine auto-correlation
+					method.compare(mgfQuery.getPeaks(), mgfQuery.getPeaks());
+					double autoScore = method.getSimilarity();
+					
 					for (Spec2pep entry : entries) {
 						long spectrumID = entry.getFk_spectrumid();
 						MascotGenericFile mgfLib = specEx.getUnzippedFile(spectrumID);
 						
 						// scoring
-						int k = procSet.getK();		// score k highest peaks
-						k = Math.min(k, mgfQuery.getPeakList().size());
-						k = Math.min(k, mgfLib.getPeakList().size());
-						method.compare(mgfQuery.getHighestPeaks(k), mgfLib.getHighestPeaks(k));
+//						int k = procSet.getK();		// score k highest peaks
+//						k = Math.min(k, mgfQuery.getPeakList().size());
+//						k = Math.min(k, mgfLib.getPeakList().size());
+//						method.compare(mgfQuery.getHighestPeaks(k), mgfLib.getHighestPeaks(k));
+						method.compare(mgfQuery.getPeaks(), mgfLib.getPeaks());
 //						method.compare(mgfQuery.getPeakList(), mgfLib.getPeakList());	// score everything
-						double score = method.getSimilarity();
+//						double score = method.getSimilarity();
+						double score = method.getSimilarity() / autoScore;	// normalize using auto-correlation
 						
 						// score threshold
 						if (score >= procSet.getThreshSc()) {
@@ -612,8 +626,9 @@ public class Client<fk_projectid> {
 						int k = procSet.getK();
 						k = Math.min(k, mgfQuery.getPeakList().size());
 						k = Math.min(k, mgfLib.getPeakList().size());
-						method.compare(mgfQuery.getHighestPeaks(k), mgfLib.getHighestPeaks(k));
+						method.compare(mgfQuery.getHighestPeaksList(k), mgfLib.getHighestPeaksList(k));
 						double score = method.getSimilarity();
+//						if (score < 0.0) { score = 0.0; }
 						
 						// score threshold
 						if (score >= procSet.getThreshSc()) {
@@ -668,6 +683,19 @@ public class Client<fk_projectid> {
 		}
 		return resultMap;
 	}
+
+	// TBD
+	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
+		List<MascotGenericFile> mgfList = new ArrayList<MascotGenericFile>();
+		SpectrumExtractor specEx = new SpectrumExtractor(conn);
+		List<LibrarySpectrum> libSpectra = specEx.getLibrarySpectra(experimentID);
+		for (LibrarySpectrum libSpec : libSpectra) {
+			MascotGenericFile mgf = libSpec.getSpectrumFile();
+			mgf.setTitle(libSpec.getSequence() + " " + mgf.getTitle());
+			mgfList.add(mgf);
+		}
+		return mgfList;
+	} 
 	
 	// Thread polling the server each second.
 	class RequestThread extends Thread {		
@@ -689,5 +717,5 @@ public class Client<fk_projectid> {
      */
     public void addPropertyChangeListener(PropertyChangeListener l ) { 
     	pSupport.addPropertyChangeListener(l); 
-    } 
+    }
 }

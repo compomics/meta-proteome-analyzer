@@ -146,7 +146,7 @@ public class MultiPlotPanel extends JPanel {
 					ArrayList<Peak> peaks = spectrum.getPeakList();
 					ArrayList<Peak> hPeak;
 					if (k > 0) {
-						hPeak = spectrum.getHighestPeaks(k);						
+						hPeak = spectrum.getHighestPeaksList(k);						
 					} else {
 						hPeak = peaks;
 					}

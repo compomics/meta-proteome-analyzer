@@ -192,7 +192,25 @@ public class MascotXMLParser {
 							
 							// get peptide title
 							try {
-								peptideHit.setScanTitle(getTagValue("pep_scan_title", peptideElement));
+								// prune random number (introduced by Mascot) from end of string
+								String scanTitle = getTagValue("pep_scan_title", peptideElement);
+								int lastBracket = scanTitle.lastIndexOf("(");
+								if (lastBracket != -1) {	// title contains left bracket
+									try {
+										// provoke exception
+										long prn = Long.parseLong(scanTitle.substring(lastBracket+1, scanTitle.length()-1));
+										// no exception thrown, therefore check whether the parsed long is very large
+										// (which is indicative of Mascot's added random number term)
+										if (prn >= 31122099235959L) {
+											// prune substring
+											scanTitle = scanTitle.substring(0, lastBracket-1);
+											System.out.println(scanTitle);
+										}
+									} catch (Exception e) {
+										// do nothing
+									}
+								}
+								peptideHit.setScanTitle(scanTitle);
 							} catch (Exception e) {
 								if (verbose) {
 									System.out.println("WARNING: no pep_scan_title found at protein hit " + num +
