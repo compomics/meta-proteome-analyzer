@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:02
+ * Date: 07/02/2012
+ * Time: 16:14:02
  */
 package de.mpa.db.accessor;
 
@@ -126,6 +126,12 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
+	 * This variable represents the contents for the 'pep' column.
+	 */
+	protected Number iPep = null;
+
+
+	/**
 	 * This variable represents the key for the 'xtandemhitid' column.
 	 */
 	public static final String XTANDEMHITID = "XTANDEMHITID";
@@ -200,6 +206,11 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public static final String QVALUE = "QVALUE";
 
+	/**
+	 * This variable represents the key for the 'pep' column.
+	 */
+	public static final String PEP = "PEP";
+
 
 
 
@@ -261,6 +272,9 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(QVALUE)) {
 			this.iQvalue = (Number)aParams.get(QVALUE);
 		}
+		if(aParams.containsKey(PEP)) {
+			this.iPep = (Number)aParams.get(PEP);
+		}
 		this.iUpdated = true;
 	}
 
@@ -288,6 +302,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iPost = (String)aResultSet.getObject("post");
 		this.iMisscleavages = aResultSet.getLong("misscleavages");
 		this.iQvalue = (Number)aResultSet.getObject("qvalue");
+		this.iPep = (Number)aResultSet.getObject("pep");
 
 		this.iUpdated = true;
 	}
@@ -426,6 +441,15 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public Number getQvalue() {
 		return this.iQvalue;
+	}
+
+	/**
+	 * This method returns the value for the 'Pep' column
+	 * 
+	 * @return	Number	with the value for the Pep column.
+	 */
+	public Number getPep() {
+		return this.iPep;
 	}
 
 	/**
@@ -578,6 +602,16 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iUpdated = true;
 	}
 
+	/**
+	 * This method sets the value for the 'Pep' column
+	 * 
+	 * @param	aPep	Number with the value for the Pep column.
+	 */
+	public void setPep(Number aPep) {
+		this.iPep = aPep;
+		this.iUpdated = true;
+	}
+
 
 
 	/**
@@ -630,6 +664,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 			iPost = (String)lRS.getObject("post");
 			iMisscleavages = lRS.getLong("misscleavages");
 			iQvalue = (Number)lRS.getObject("qvalue");
+			iPep = (Number)lRS.getObject("pep");
 		}
 		lRS.close();
 		lStat.close();
@@ -679,7 +714,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE xtandemhit SET xtandemhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, domainid = ?, protein = ?, start = ?, end = ?, evalue = ?, precursor = ?, delta = ?, hyperscore = ?, pre = ?, post = ?, misscleavages = ?, qvalue = ? WHERE xtandemhitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE xtandemhit SET xtandemhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, domainid = ?, protein = ?, start = ?, end = ?, evalue = ?, precursor = ?, delta = ?, hyperscore = ?, pre = ?, post = ?, misscleavages = ?, qvalue = ?, pep = ? WHERE xtandemhitid = ?");
 		lStat.setLong(1, iXtandemhitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
@@ -695,7 +730,8 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		lStat.setObject(13, iPost);
 		lStat.setLong(14, iMisscleavages);
 		lStat.setObject(15, iQvalue);
-		lStat.setLong(16, iXtandemhitid);
+		lStat.setObject(16, iPep);
+		lStat.setLong(17, iXtandemhitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -710,7 +746,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO xtandemhit (xtandemhitid, fk_spectrumid, fk_peptideid, domainid, protein, start, end, evalue, precursor, delta, hyperscore, pre, post, misscleavages, qvalue) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO xtandemhit (xtandemhitid, fk_spectrumid, fk_peptideid, domainid, protein, start, end, evalue, precursor, delta, hyperscore, pre, post, misscleavages, qvalue, pep) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		if(iXtandemhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -785,6 +821,11 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 			lStat.setNull(15, 3);
 		} else {
 			lStat.setObject(15, iQvalue);
+		}
+		if(iPep == null) {
+			lStat.setNull(16, 3);
+		} else {
+			lStat.setObject(16, iPep);
 		}
 		int result = lStat.executeUpdate();
 

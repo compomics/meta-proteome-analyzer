@@ -89,6 +89,7 @@ import no.uib.jsparklines.extra.HtmlLinksRenderer;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.util.Util;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
@@ -2014,6 +2015,14 @@ public class ClientFrame extends JFrame {
 		settings.setOmssa(omssaCbx.isSelected());
 		settings.setCrux(cruxCbx.isSelected());
 		settings.setInspect(inspectCbx.isSelected());
+		if (searchTypeCbx.getSelectedIndex() == 0) {
+			settings.setDecoy(false);
+			System.out.println(settings.isDecoy());
+		}
+		else if (searchTypeCbx.getSelectedIndex() == 1) {
+			settings.setDecoy(true);
+			System.out.println(settings.isDecoy());
+		}
 		return settings;
 	}
 
@@ -2811,7 +2820,7 @@ Thread.sleep(1000);
 		querySpectraTbl.getColumn("Identified").setMaxWidth(80);
 		xTandemTbl = new JTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "hyperscore"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "hyperscore", "PEP", "q-value"}); }
 
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -2821,14 +2830,18 @@ Thread.sleep(1000);
 		xTandemTbl.getColumn(" ").setMinWidth(30);
 		xTandemTbl.getColumn(" ").setMaxWidth(30);
 		xTandemTbl.getColumn("Accession").setCellRenderer(new HtmlLinksRenderer(Constants.SELECTED_ROW_HTML_FONT_COLOR, Constants.NOT_SELECTED_ROW_HTML_FONT_COLOR));
-		xTandemTbl.getColumn("e-value").setMinWidth(90);
-		xTandemTbl.getColumn("e-value").setMaxWidth(90);
+		xTandemTbl.getColumn("e-value").setMinWidth(80);
+		xTandemTbl.getColumn("e-value").setMaxWidth(80);
 		xTandemTbl.getColumn("hyperscore").setMinWidth(90);
 		xTandemTbl.getColumn("hyperscore").setMaxWidth(90);
+		xTandemTbl.getColumn("PEP").setMinWidth(80);
+		xTandemTbl.getColumn("PEP").setMaxWidth(80);
+		xTandemTbl.getColumn("q-value").setMinWidth(80);
+		xTandemTbl.getColumn("q-value").setMaxWidth(80);
 
 		omssaTbl = new JTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "p-value"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "p-value", "PEP", "q-value"}); }
 
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -2838,10 +2851,14 @@ Thread.sleep(1000);
 		omssaTbl.getColumn(" ").setMinWidth(30);
 		omssaTbl.getColumn(" ").setMaxWidth(30);
 		omssaTbl.getColumn("Accession").setCellRenderer(new HtmlLinksRenderer(Constants.SELECTED_ROW_HTML_FONT_COLOR, Constants.NOT_SELECTED_ROW_HTML_FONT_COLOR));
-		omssaTbl.getColumn("e-value").setMinWidth(90);
-		omssaTbl.getColumn("e-value").setMaxWidth(90);
-		omssaTbl.getColumn("p-value").setMinWidth(90);
-		omssaTbl.getColumn("p-value").setMaxWidth(90);
+		omssaTbl.getColumn("e-value").setMinWidth(80);
+		omssaTbl.getColumn("e-value").setMaxWidth(80);
+		omssaTbl.getColumn("p-value").setMinWidth(80);
+		omssaTbl.getColumn("p-value").setMaxWidth(80);
+		omssaTbl.getColumn("PEP").setMinWidth(80);
+		omssaTbl.getColumn("PEP").setMaxWidth(80);
+		omssaTbl.getColumn("q-value").setMinWidth(80);
+		omssaTbl.getColumn("q-value").setMaxWidth(80);
 
 		cruxTbl = new JTable(new DefaultTableModel() {
 			// instance initializer block
@@ -2981,8 +2998,10 @@ Thread.sleep(1000);
 							i + 1,
 							hit.getSequence(),
 							hit.getAccession(),
-							hit.getEvalue(), 
-							hit.getHyperscore()});
+							Util.roundDouble(hit.getEvalue().doubleValue(), 5), 
+							Util.roundDouble(hit.getHyperscore().doubleValue(), 5),
+							Util.roundDouble(hit.getPep().doubleValue(), 5),
+							Util.roundDouble(hit.getQvalue().doubleValue(), 5)});
 				}
 			}
 
@@ -2994,8 +3013,10 @@ Thread.sleep(1000);
 							i + 1,
 							hit.getSequence(),
 							hit.getAccession(),
-							hit.getEvalue(), 
-							hit.getPvalue()});
+							Util.roundDouble(hit.getEvalue().doubleValue(), 5), 
+							Util.roundDouble(hit.getPvalue().doubleValue(), 5), 
+							Util.roundDouble(hit.getPep().doubleValue(), 5),
+							Util.roundDouble(hit.getQvalue().doubleValue(), 5)});
 				}
 			}
 
@@ -3007,8 +3028,8 @@ Thread.sleep(1000);
 							i + 1,
 							hit.getSequence(),
 							hit.getAccession(),
-							hit.getXcorr_score(), 
-							hit.getQvalue()});
+							Util.roundDouble(hit.getXcorr_score().doubleValue(), 5), 
+							Util.roundDouble(hit.getQvalue().doubleValue(), 5)});
 				}
 			}
 
@@ -3021,8 +3042,8 @@ Thread.sleep(1000);
 							i + 1,
 							hit.getSequence(),
 							hit.getAccession(),
-							hit.getF_score(), 
-							hit.getP_value()});
+							Util.roundDouble(hit.getF_score().doubleValue(), 5), 
+							Util.roundDouble(hit.getP_value().doubleValue(), 5)});
 				}
 			}
 		}
@@ -3512,10 +3533,13 @@ Thread.sleep(1000);
 			double progress = 0;
 			double max = files.size();
 			setProgress(0);
+			int i = 1;
+			
 			DbSearchSettings settings = collectDBSearchSettings();
 			try {
 				for (File file : files) {
 					client.runDbSearch(file, settings);
+					i++;
 					progress++;
 					setProgress((int)(progress/max*100));
 				}

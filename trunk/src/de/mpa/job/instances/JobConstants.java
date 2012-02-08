@@ -1,7 +1,7 @@
 package de.mpa.job.instances;
 
 public class JobConstants {
-	
+
 	// Dataset path
 	public final static String DATASET_PATH = "/scratch/metaprot/data/transfer/";
 	
@@ -35,4 +35,10 @@ public class JobConstants {
 	public final static String PEPNOVO_OUTPUT_PATH = "/scratch/metaprot/data/output/pepnovo/";
 	public final static String PEPNOVO_EXE = "PepNovo_bin";
 	
+	// QVality
+	public final static String QVALITY_PATH = "/scratch/metaprot/software/qvality/bin/";
+	public final static String QVALITY_EXE = "qvality";
+	
+	// The decoy suffix string
+	public final static String SUFFIX_DECOY = "_decoy";
 }

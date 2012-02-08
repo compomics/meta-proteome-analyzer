@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:03
+ * Date: 07/02/2012
+ * Time: 16:14:04
  */
 package de.mpa.db.accessor;
 
@@ -114,6 +114,12 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 
 
 	/**
+	 * This variable represents the contents for the 'pep' column.
+	 */
+	protected Number iPep = null;
+
+
+	/**
 	 * This variable represents the key for the 'omssahitid' column.
 	 */
 	public static final String OMSSAHITID = "OMSSAHITID";
@@ -178,6 +184,11 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public static final String QVALUE = "QVALUE";
 
+	/**
+	 * This variable represents the key for the 'pep' column.
+	 */
+	public static final String PEP = "PEP";
+
 
 
 
@@ -233,6 +244,9 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(aParams.containsKey(QVALUE)) {
 			this.iQvalue = (Number)aParams.get(QVALUE);
 		}
+		if(aParams.containsKey(PEP)) {
+			this.iPep = (Number)aParams.get(PEP);
+		}
 		this.iUpdated = true;
 	}
 
@@ -258,6 +272,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		this.iEnd = (String)aResultSet.getObject("end");
 		this.iProtein = (String)aResultSet.getObject("protein");
 		this.iQvalue = (Number)aResultSet.getObject("qvalue");
+		this.iPep = (Number)aResultSet.getObject("pep");
 
 		this.iUpdated = true;
 	}
@@ -378,6 +393,15 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public Number getQvalue() {
 		return this.iQvalue;
+	}
+
+	/**
+	 * This method returns the value for the 'Pep' column
+	 * 
+	 * @return	Number	with the value for the Pep column.
+	 */
+	public Number getPep() {
+		return this.iPep;
 	}
 
 	/**
@@ -510,6 +534,16 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		this.iUpdated = true;
 	}
 
+	/**
+	 * This method sets the value for the 'Pep' column
+	 * 
+	 * @param	aPep	Number with the value for the Pep column.
+	 */
+	public void setPep(Number aPep) {
+		this.iPep = aPep;
+		this.iUpdated = true;
+	}
+
 
 
 	/**
@@ -560,6 +594,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 			iEnd = (String)lRS.getObject("end");
 			iProtein = (String)lRS.getObject("protein");
 			iQvalue = (Number)lRS.getObject("qvalue");
+			iPep = (Number)lRS.getObject("pep");
 		}
 		lRS.close();
 		lStat.close();
@@ -609,7 +644,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE omssahit SET omssahitid = ?, fk_spectrumid = ?, fk_peptideid = ?, hitsetnumber = ?, evalue = ?, pvalue = ?, charge = ?, mass = ?, theomass = ?, start = ?, end = ?, protein = ?, qvalue = ? WHERE omssahitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE omssahit SET omssahitid = ?, fk_spectrumid = ?, fk_peptideid = ?, hitsetnumber = ?, evalue = ?, pvalue = ?, charge = ?, mass = ?, theomass = ?, start = ?, end = ?, protein = ?, qvalue = ?, pep = ? WHERE omssahitid = ?");
 		lStat.setLong(1, iOmssahitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
@@ -623,7 +658,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		lStat.setObject(11, iEnd);
 		lStat.setObject(12, iProtein);
 		lStat.setObject(13, iQvalue);
-		lStat.setLong(14, iOmssahitid);
+		lStat.setObject(14, iPep);
+		lStat.setLong(15, iOmssahitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -638,7 +674,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_spectrumid, fk_peptideid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, protein, qvalue) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_spectrumid, fk_peptideid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, protein, qvalue, pep) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		if(iOmssahitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -703,6 +739,11 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 			lStat.setNull(13, 3);
 		} else {
 			lStat.setObject(13, iQvalue);
+		}
+		if(iPep == null) {
+			lStat.setNull(14, 3);
+		} else {
+			lStat.setObject(14, iPep);
 		}
 		int result = lStat.executeUpdate();
 

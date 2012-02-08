@@ -12,7 +12,10 @@ import org.apache.log4j.Logger;
  * @author Thilo Muth
  *
  */
-public abstract class Job implements Executable{
+public abstract class Job implements Executable {
+	
+	// The job ID
+	protected int id;
 	
 	// Default setting for the error --> NULL
 	protected String error = null;
@@ -88,6 +91,7 @@ public abstract class Job implements Executable{
 			setStatus(JobStatus.ERROR);
 			e.printStackTrace();
 			if (proc != null) {
+				System.out.println("SUBPROCESS KILLED!");
 				proc.destroy();
 			}
 		}		
@@ -140,11 +144,22 @@ public abstract class Job implements Executable{
 	}
 	
 	/**
-	 * Returns the filename for an job specific file.
+	 * Returns the filename for a job specific file.
 	 * @return
 	 */
 	public String getFilename(){
 		return filename;
 	}
+	
+	/**
+	 * Sets the filename for a job specific file.
+	 * @param filename
+	 */
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+	
+	
+	
 }
 
