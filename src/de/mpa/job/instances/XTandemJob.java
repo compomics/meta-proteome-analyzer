@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import de.mpa.job.Job;
+import de.mpa.job.SearchType;
 
 /**
  * Executes an XTandem job.
@@ -14,10 +15,11 @@ import de.mpa.job.Job;
  */
 public class XTandemJob extends Job {	
 	
-	private final static String INPUT_FILE = "input.xml";
+	private final static String INPUT_TARGET_FILE = "input_target.xml";
+	private final static String INPUT_DECOY_FILE = "input_decoy.xml";
     private final static String PARAMETER_FILE = "parameters.xml";   
-    private final static String TAXONOMY_FILE = "taxonomy.xml";   
-    
+    private final static String TAXONOMY_FILE = "taxonomy.xml";
+    private final static String TAXONOMY_DECOY_FILE = "taxonomy_decoy.xml";
     private String filename; 
 	private File xTandemFile;
     private File inputFile;
@@ -28,7 +30,7 @@ public class XTandemJob extends Job {
 	private double fragmentTol;
 	private double precursorTol;
 	private String precursorUnit;	
-	private boolean decoy;
+	private SearchType searchType;
 
 	/**
 	 * Constructor for the XTandemJob..
@@ -37,7 +39,7 @@ public class XTandemJob extends Job {
 	 * @param precursorTol
 	 * @param precursorUnit
 	 */
-	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean precursorPPM, boolean decoy) {
+	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean precursorPPM, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.fragmentTol = fragmentTol;
@@ -47,17 +49,21 @@ public class XTandemJob extends Job {
 		} else {
 			this.precursorUnit = "Daltons";
 		}
-		this.decoy = decoy;
+		this.searchType = searchType;
 		this.xTandemFile = new File(JobConstants.XTANDEM_PATH);
-		if(decoy){
-			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
-		} else {
+		if(searchType == SearchType.TARGET){
+			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
 			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			buildTaxonomyFile();
+			buildInputFile();
+			
+		} else if (searchType == SearchType.DECOY){
+			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
+			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			buildTaxonomyDecoyFile();
+			buildInputDecoyFile();
 		}
-		
-		buildInputFile();
 		buildParameterFile();
-		buildTaxonomyFile();
 		initJob();
 	}
 	
@@ -66,7 +72,7 @@ public class XTandemJob extends Job {
 	 * Constructs the input.xml file needed for the XTandem process.
 	 */
 	private void buildInputFile(){
-	        inputFile = new File(xTandemFile, INPUT_FILE);
+	       
 	        try {
 	            BufferedWriter bw = new BufferedWriter(new FileWriter(inputFile));
 	            bw.write("<?xml version=\"1.0\"?>\n"
@@ -74,6 +80,28 @@ public class XTandemJob extends Job {
 	                    + "\t<note type=\"input\" label=\"list path, default parameters\">" + PARAMETER_FILE + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"list path, taxonomy information\">" + TAXONOMY_FILE + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"protein, taxon\">"  + searchDB + "</note>\n"
+	                    + "\t<note type=\"input\" label=\"spectrum, path\">"+ mgfFile.getAbsolutePath() + "</note>\n"
+	                    + "\t<note type=\"input\" label=\"output, path\">" + filename + "</note>\n"
+	                    + "</bioml>\n");
+	            bw.flush();
+	            bw.close();
+	        } catch (IOException ioe) {
+	           ioe.printStackTrace();
+	        }
+	    }
+	
+	/**
+	 * Constructs the input.xml file needed for the XTandem process.
+	 */
+	private void buildInputDecoyFile(){
+	       
+	        try {
+	            BufferedWriter bw = new BufferedWriter(new FileWriter(inputFile));
+	            bw.write("<?xml version=\"1.0\"?>\n"
+	                    + "<bioml>\n"
+	                    + "\t<note type=\"input\" label=\"list path, default parameters\">" + PARAMETER_FILE + "</note>\n"
+	                    + "\t<note type=\"input\" label=\"list path, taxonomy information\">" + TAXONOMY_DECOY_FILE + "</note>\n"
+	                    + "\t<note type=\"input\" label=\"protein, taxon\">"  + searchDB  + "_decoy" + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"spectrum, path\">"+ mgfFile.getAbsolutePath() + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"output, path\">" + filename + "</note>\n"
 	                    + "</bioml>\n");
@@ -96,6 +124,27 @@ public class XTandemJob extends Job {
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "\">\n"
                             + "\t\t<file format=\"peptide\" URL=\"" + JobConstants.FASTA_PATH + searchDB + ".fasta" + "\" />\n"
+                            + "\t</taxon>\n"
+                            + "</bioml>");
+            bw.flush();
+            bw.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+    
+	/**
+     * This method builds taxonomy file.
+     */
+    public void buildTaxonomyDecoyFile() {
+        taxonomyFile = new File(xTandemFile, TAXONOMY_DECOY_FILE);
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(taxonomyFile));
+            bw.write(
+                    "<?xml version=\"1.0\"?>\n"
+                            + "<bioml label=\"x! taxon-to-file matching list\">\n"
+                            + "\t<taxon label=\"" + searchDB + "_decoy" + "\">\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + JobConstants.FASTA_PATH + searchDB + "_decoy.fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -241,7 +290,7 @@ public class XTandemJob extends Job {
                             + "\t<note type=\"input\" label=\"output, path\">output.xml</note>\n"
                             + "\t<note type=\"input\" label=\"output, sort results by\">spectrum</note>\n"
                             + "\t\t<note>values = protein|spectrum (spectrum is the default)</note>\n"
-                            + "\t<note type=\"input\" label=\"output, path hashing\">yes</note>\n"
+                            + "\t<note type=\"input\" label=\"output, path hashing\">no</note>\n"
                             + "\t\t<note>values = yes|no</note>\n"
                             + "\t<note type=\"input\" label=\"output, xsl path\">tandem-style.xsl</note>\n"
                             + "\t<note type=\"input\" label=\"output, parameters\">yes</note>\n"
@@ -302,7 +351,7 @@ public class XTandemJob extends Job {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob(){
-		setDescription("X!TANDEM");
+		setDescription("X!TANDEM " + searchType.name() + " SEARCH");
 		
 		// full path to executable
 		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + JobConstants.XTANDEM_EXE);
@@ -323,22 +372,6 @@ public class XTandemJob extends Job {
 	 * @return filename
 	 */
 	public String getFilename() {
-		File folder = new File(JobConstants.XTANDEM_OUTPUT_PATH);
-		File[] listOfFiles = folder.listFiles();
-		for (int i = 0; i < listOfFiles.length; i++) {
-			if (listOfFiles[i].isFile()) {
-				if(decoy){
-					if (listOfFiles[i].getName().startsWith(mgfFile.getName().substring(0, mgfFile.getName().length() - 4)) && listOfFiles[i].getName().contains("decoy") && listOfFiles[i].getName().contains("xml")) {
-						return JobConstants.XTANDEM_OUTPUT_PATH + listOfFiles[i].getName();					
-					}
-				} else {
-					if (listOfFiles[i].getName().startsWith(mgfFile.getName().substring(0, mgfFile.getName().length() - 4)) && listOfFiles[i].getName().contains("target") && listOfFiles[i].getName().contains("xml")) {
-						return JobConstants.XTANDEM_OUTPUT_PATH + listOfFiles[i].getName();					
-					}
-				}
-				
-			}
-		}
-		return "";
+		return filename;
 	}
 }

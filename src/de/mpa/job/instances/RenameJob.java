@@ -3,10 +3,15 @@ package de.mpa.job.instances;
 import de.mpa.job.Job;
 
 public class RenameJob extends Job{
-	private String oldname; 
-	private String newname;	
+	protected String oldname; 
+	protected String newname;	
+	
+	public RenameJob(){
+		
+	}
+	
 	/**
-	 * Constructor for the DeleteJob
+	 * Constructor for the RenameJob.
 	 * 
 	 * @param oldname
 	 * @param newname
@@ -16,12 +21,12 @@ public class RenameJob extends Job{
 		this.newname = newname;
 		initJob();
 	}	
-		
+
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
-	private void initJob() {	
-		setDescription("RENAME JOB");
+	protected void initJob() {	
+		setDescription("RENAME JOB: " + oldname + " TO " +newname);
 		// Java commands
 		procCommands.add("mv");
 		procCommands.add(oldname);	
@@ -32,4 +37,5 @@ public class RenameJob extends Job{
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
 	}
+
 }

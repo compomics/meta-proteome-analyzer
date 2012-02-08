@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
@@ -20,14 +21,29 @@ import de.mpa.webservice.Message;
  */
 public class JobManager {
 	
+	/**
+	 * Logger instance.
+	 */
 	private Logger log = Logger.getLogger(JobManager.class);
 	
+	/**
+	 * JobQueue instance.
+	 */
 	private Queue<Job> jobQueue;
 	
+	/**
+	 * List of objects from the various
+	 */
 	private List<Object> objects;
 	
+	/**
+	 * MessageQueue instance.
+	 */
 	private Queue<Message> msgQueue;
 	
+	/**
+	 * Helper map instance for mapping job descriptions to job filenames.
+	 */
 	private Map<String, String> filenameMap; 
 	
 	/**
@@ -60,7 +76,7 @@ public class JobManager {
 	 */
 	public void execute(){
 		// Iterate the job queue
-		for(Job job : jobQueue){		
+		for(Job job : jobQueue){
 			if(job instanceof MS2FormatJob){
 				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
 				ms2formatjob.run();
@@ -68,17 +84,78 @@ public class JobManager {
 				// Set the job status to RUNNING and put the message in the queue
 				msgQueue.add(new Message(job, JobStatus.RUNNING.toString(), new Date()));
 				filenameMap.put(job.getDescription(), job.getFilename());
-				job.execute();
+				log.info("Executing job: " + job.getDescription());
+				
+				// Worker thread, currently only intended for serial execution, thus not really necessary.
+				Worker worker = new Worker(job);
+				worker.run();
 			}
+			// Error logging.
 			if (job.getStatus() == JobStatus.ERROR){
 				log.error(job.getError());
 			}		
 			// Set the job status to FINISHED and put the message in the queue
 			msgQueue.add(new Message(job, JobStatus.FINISHED.toString(), new Date()));
+			
+			// Remove job from the queue after successful execution.
 			jobQueue.remove(job);
 		}
 	}
 	
+    /**
+     *  Worker thread.
+     */
+    private class Worker implements Runnable {
+    	
+        /**
+         * The runLock is acquired and released surrounding each task
+         * execution. Mainly protects against interrupts that are
+         * intended to cancel the worker thread from instead
+         * interrupting the task being run.
+         */
+        private final ReentrantLock runLock = new ReentrantLock();
+
+        /**
+         * Initial job to run before entering run loop
+         */
+        private Job firstJob;
+
+
+        public Worker(Job firstJob) {
+            this.firstJob = firstJob;
+        }
+
+         /**
+         * Run a single task between before/after methods.
+         */
+        private void runJob(Job job) {
+            final ReentrantLock runLock = this.runLock;
+            runLock.lock();
+            try {
+                Thread.interrupted(); // clear interrupt status on entry
+                try {
+                    job.execute();
+                } catch(RuntimeException ex) {
+                	ex.printStackTrace();
+                }
+            } finally {
+                runLock.unlock();
+            }
+        }
+
+        /**
+         * Main run loop.
+         */
+        public void run() {
+			Job job = firstJob;
+			firstJob = null;
+			while (job != null) {
+				runJob(job);
+				job = null; // unnecessary, but may help GC. :-)
+			}
+        }
+    }
+    
 	/**
 	 * Returns a list of objects.
 	 * @return

@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="Omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="precursorIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="decoy" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -44,7 +45,8 @@ import javax.xml.bind.annotation.XmlType;
     "numMissedCleavages",
     "omssa",
     "precursorIonTol",
-    "xTandem"
+    "xTandem",
+    "decoy"
 })
 public class DbSearchSettings {
 
@@ -61,6 +63,7 @@ public class DbSearchSettings {
     protected double precursorIonTol;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
+    protected boolean decoy;
 
     /**
      * Gets the value of the crux property.
@@ -220,6 +223,22 @@ public class DbSearchSettings {
      */
     public void setXTandem(boolean value) {
         this.xTandem = value;
+    }
+
+    /**
+     * Gets the value of the decoy property.
+     * 
+     */
+    public boolean isDecoy() {
+        return decoy;
+    }
+
+    /**
+     * Sets the value of the decoy property.
+     * 
+     */
+    public void setDecoy(boolean value) {
+        this.decoy = value;
     }
 
 }

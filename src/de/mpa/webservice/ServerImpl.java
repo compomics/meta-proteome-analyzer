@@ -22,6 +22,7 @@ import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
+import de.mpa.job.SearchType;
 import de.mpa.job.instances.ConvertJob;
 import de.mpa.job.instances.CruxJob;
 import de.mpa.job.instances.InspectJob;
@@ -33,29 +34,29 @@ import de.mpa.job.instances.PercolatorJob;
 import de.mpa.job.instances.PostProcessorJob;
 import de.mpa.job.instances.RenameJob;
 import de.mpa.job.instances.XTandemJob;
+import de.mpa.job.scoring.OmssaScoreJob;
+import de.mpa.job.scoring.XTandemScoreJob;
 
 
 //Service Implementation Bean
 @MTOM
 @WebService(endpointInterface = "de.mpa.webservice.Server")
 public class ServerImpl implements Server {	
-	
-	
+		
 	/**
      * Init the job logger.
      */
     protected static Logger log = Logger.getLogger(ServerImpl.class);
     
     /**
-     * The message queue.
+     * Message queue instance for communication between server and client.
      */
     private Queue<Message> msgQueue = new ArrayDeque<Message>();
-
+    
     
 	@Override
 	public void receiveMessage(String msg) {
 		log.info("Received message: " + msg);
-		
 	}
 	
 	@Override
@@ -99,14 +100,34 @@ public class ServerImpl implements Server {
 		
 		// X!Tandem job
 		if(params.isXTandem()){
-			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, false);
+			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
 			jobManager.addJob(xtandemJob);
+			
+			// The X!Tandem decoy search is done here.
+			XTandemJob xtandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.DECOY);
+			jobManager.addJob(xtandemDecoyJob);
+			
+			// The score job evaluates X!Tandem target + decoy results.
+			XTandemScoreJob xtandemScoreJob = new XTandemScoreJob(xtandemJob.getFilename(), xtandemDecoyJob.getFilename());
+			jobManager.addJob(xtandemScoreJob);
 		}
 		
 		// Omssa job
 		if(params.isOmssa()){
-			OmssaJob omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, false);
+			OmssaJob omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
 			jobManager.addJob(omssaJob);
+			
+			// Condition if decoy search is done here.
+			if(params.isDecoy()){
+				
+				// The Omssa decoy search is done here.
+				OmssaJob omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, fragIonTol, precIonTol, false, SearchType.DECOY);
+				jobManager.addJob(omssaDecoyJob);
+				
+				// The score job evaluates Omssa target + decoy results.
+				OmssaScoreJob omssaScoreJob = new OmssaScoreJob(omssaJob.getFilename(), omssaDecoyJob.getFilename());
+				jobManager.addJob(omssaScoreJob);
+			}
 		}
 		
 		// Crux job
@@ -131,6 +152,8 @@ public class ServerImpl implements Server {
 			PostProcessorJob postProcessorJob = new PostProcessorJob(file, searchDB);			
 			jobManager.addJob(postProcessorJob);			
 		}
+		
+		// Execute the search engine jobs.
 		jobManager.execute();
 		jobManager.clear();
 		
@@ -141,11 +164,15 @@ public class ServerImpl implements Server {
 		try {
 			// 	DB Manager instance					
 			dbManager = new DBManager();
+			
+			// Store the spectra.
 			dbManager.storeSpectra(file);
-			if(params.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM"));
-			if(params.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA"));
-			if(params.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-			if(params.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
+			
+			// Store the results.
+			if (params.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
+			if (params.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
+			if (params.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
+			if (params.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		} catch (SQLException ex) {
@@ -217,29 +244,4 @@ public class ServerImpl implements Server {
 		} 
 		throw new WebServiceException("Upload Failed!"); 
 	}
-	
-//	/**
-//	 * This method copies the file
-//	 * @param srFile
-//	 * @param dtFile
-//	 */
-//	private static void copyfile(File f1, File f2) {
-//		try {
-//			InputStream in = new FileInputStream(f1);
-//			OutputStream out = new FileOutputStream(f2);
-//
-//			byte[] buf = new byte[1024];
-//			int len;
-//			while ((len = in.read(buf)) > 0) {
-//				out.write(buf, 0, len);
-//			}
-//			in.close();
-//			out.close();
-//		} catch (FileNotFoundException ex) {
-//			System.exit(0);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
-
 }

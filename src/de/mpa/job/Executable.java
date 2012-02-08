@@ -1,6 +1,11 @@
 package de.mpa.job;
 
 
+/**
+ * Executable-Interface implemented by the Job class.
+ * @author Thilo Muth
+ *
+ */
 public interface Executable {
 	/**
 	 * Return a description for the job.
@@ -20,5 +25,9 @@ public interface Executable {
 	 */
 	public String getError();
 	
+	/**
+	 * Execute-method.
+	 */
+	public void execute();
 
 }

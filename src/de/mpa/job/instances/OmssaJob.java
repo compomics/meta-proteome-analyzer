@@ -3,6 +3,7 @@ package de.mpa.job.instances;
 import java.io.File;
 
 import de.mpa.job.Job;
+import de.mpa.job.SearchType;
 
 public class OmssaJob extends Job {
     
@@ -16,7 +17,7 @@ public class OmssaJob extends Job {
     private final static int HITLIST_LENGTH = 25;
     
     // Minimum charge to start looking for multiply charged ions
-    private final static int MINIMUM_CHARGE_MULTIPLE_CHARGED = 3;
+    private final static int MINIMUM_CHARGE_MULTIPLE_CHARGED = 2;
     
     // Fixed modifications 
     // ID 3 == Carbamidomethyl of C
@@ -41,17 +42,21 @@ public class OmssaJob extends Job {
 
     private String filename;
     
+    private SearchType searchType;
+    
 	/**
 	 * Constructor for the XTandemJob retrieving the MGF file as the only parameter.
 	 * @param mgfFile
 	 */
-	public OmssaJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean precursorPPM, boolean decoy) {
+	public OmssaJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean precursorPPM, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.fragmentTol = fragmentTol;
 		this.precursorTol = precursorTol;
 		this.precursorPPM = precursorPPM;
-		if(decoy){
+		this.searchType = searchType;
+		
+		if(searchType == SearchType.DECOY){
 			this.filename = JobConstants.OMSSA_OUTPUT_PATH + mgfFile.getName() + "_decoy.omx";
 		} else {
 			this.filename = JobConstants.OMSSA_OUTPUT_PATH + mgfFile.getName() + "_target.omx";
@@ -126,8 +131,8 @@ public class OmssaJob extends Job {
         procCommands.add("-ox");
         procCommands.add(filename);
         procCommands.trimToSize();
-        
-        setDescription("OMSSA");
+                
+        setDescription("OMSSA " + searchType.name() + " SEARCH");
         procBuilder = new ProcessBuilder(procCommands);
         procBuilder.directory(omssaFile);
         

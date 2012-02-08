@@ -470,7 +470,7 @@ public class Client<fk_projectid> {
 					votes++;
 				}
 				// Inspect
-				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(spectrumID, conn);				
+				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(spectrumID, conn);		
 				if(inspectList.size() > 0) {
 					inspectResults.put(spectrumname, inspectList);
 					for (Inspecthit hit : inspectList) {

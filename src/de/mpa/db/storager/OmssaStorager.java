@@ -43,7 +43,6 @@ public class OmssaStorager extends BasicStorager {
     /**
      * The Omssa output filename without the absolute path!
      */
-    private String filename;
     
     /**
      * The file instance.
@@ -53,7 +52,7 @@ public class OmssaStorager extends BasicStorager {
     /**
      * The file instance.
      */
-    private File qValueFile;
+    private File qValueFile = null;
     
     
     /**
@@ -65,6 +64,14 @@ public class OmssaStorager extends BasicStorager {
 
 	private HashMap<String, Long> hitNumberMap;    
    
+	/**
+     * Default Constructor.
+     */
+    public OmssaStorager(Connection conn, File file){
+    	this.conn = conn;
+    	this.file = file;
+    }
+    
     /**
      * Default Constructor.
      */
@@ -80,7 +87,6 @@ public class OmssaStorager extends BasicStorager {
      */
     public void load() {
         omxFile = new OmssaOmxFile(file.getAbsolutePath());
-        filename = file.getName();
     }
 
     /**
@@ -148,15 +154,18 @@ public class OmssaStorager extends BasicStorager {
 							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 						}
 				}
-                
-    	    	// TODO: remove protein from db schema.
     	    	hitdata.put(OmssahitTableAccessor.PROTEIN, pepHit.MSPepHit_defline);
     	    	
-//    	        qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       
-//    	        // Check for assigned q-value
-//                if(qvalues != null){
-//                	hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
-//                }
+    	    	qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       
+    	        
+    	    	// If no q-value is found: Assign default values.
+                if(qvalues == null){
+                	hitdata.put(OmssahitTableAccessor.PEP, 1.0);
+                    hitdata.put(OmssahitTableAccessor.QVALUE, 1.0);                	
+                } else {
+                	hitdata.put(OmssahitTableAccessor.PEP, qvalues.get(0));
+                    hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
+                }
                 
     	    	// Create the database object.
     	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
@@ -211,7 +220,7 @@ public class OmssaStorager extends BasicStorager {
 	@Override
 	public void run() {
 		this.load();
-		//this.processQValues();
+		if (qValueFile != null) this.processQValues();
 		try {
 			this.store();
 		} catch (IOException e) {

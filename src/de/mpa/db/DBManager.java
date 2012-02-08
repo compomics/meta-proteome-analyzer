@@ -62,9 +62,6 @@ public class DBManager {
 	 * @throws IOException 
 	 */
 	public SpectrumStorager storeSpectra(File mgfFile) throws IOException, SQLException {
-		// Check for duplicate file in the DB!
-		//TODO: Spectrum.checkDuplicateFile(mgfFile.getName(), conn);
-		
 		// TODO: The Project storager is initialized here.
 //		ProjectStorager projectStorager = new ProjectStorager(conn, title);
 //		Thread thread = new Thread(projectStorager);
@@ -98,13 +95,18 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeXTandemResults(String xtandemFilename) throws IOException, SQLException{
+	public void storeXTandemResults(String xtandemFilename, String xtandemQValued) throws IOException, SQLException{
 		try {
 			spectraThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		executor.execute(new XTandemStorager(conn, new File(xtandemFilename), null));
+		if(xtandemQValued != null){
+			executor.execute(new XTandemStorager(conn, new File(xtandemFilename), new File(xtandemQValued)));
+		} else {
+			executor.execute(new XTandemStorager(conn, new File(xtandemFilename)));
+		}
+		
 	}
 	
 	/**
@@ -113,13 +115,17 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeOmssaResults(String omssaFilename) throws IOException, SQLException{
+	public void storeOmssaResults(String omssaFilename, String omssaQValued) throws IOException, SQLException{
 		try {
 			spectraThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		executor.execute(new OmssaStorager(conn, new File(omssaFilename), null));		
+		if(omssaQValued != null){
+			executor.execute(new OmssaStorager(conn, new File(omssaFilename), new File(omssaQValued)));
+		} else {
+			executor.execute(new OmssaStorager(conn, new File(omssaFilename)));
+		}
 	}
 	
 	/**

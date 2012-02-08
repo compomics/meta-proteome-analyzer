@@ -44,10 +44,6 @@ public class XTandemStorager extends BasicStorager {
      */
     private XTandemFile xTandemFile;
     
-    /**
-     * The XTandem output filename without the absolute path!
-     */
-    private String filename; 
     
     /**
      * The file instance.
@@ -57,7 +53,7 @@ public class XTandemStorager extends BasicStorager {
     /**
      * The q-value file.
      */
-    private final File qValueFile;
+    private File qValueFile = null;
     
     /**
      * The Connection instance.
@@ -67,10 +63,19 @@ public class XTandemStorager extends BasicStorager {
     private Map<Double, List<Double>> scoreQValueMap;
 
 	private Map<String, Long> domainMap;
+	
     /**
      * Default Constructor.
      */
-    public XTandemStorager(final Connection conn, final File file, final File qValueFile){
+    public XTandemStorager(final Connection conn, final File file){
+    	this.conn = conn;
+    	this.file = file;
+    }
+    
+    /**
+     * Default Constructor.
+     */
+    public XTandemStorager(final Connection conn, final File file, File qValueFile){
     	this.conn = conn;
     	this.file = file;
     	this.qValueFile = qValueFile;
@@ -83,7 +88,6 @@ public class XTandemStorager extends BasicStorager {
     public void load() {
         try {
             xTandemFile = new XTandemFile(file.getAbsolutePath());
-            filename = file.getName();
         } catch (SAXException saxException) {
             saxException.getMessage();
         }
@@ -163,7 +167,6 @@ public class XTandemStorager extends BasicStorager {
 							}
 						}
                       
-                      // TODO: remove from db schema
                       hitdata.put(XtandemhitTableAccessor.PROTEIN, protMap.getProteinWithPeptideID(domainID).getLabel());
                       hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(peptide.getDomainStart()));
                       hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(peptide.getDomainEnd()));
@@ -174,12 +177,16 @@ public class XTandemStorager extends BasicStorager {
                       hitdata.put(XtandemhitTableAccessor.PRE, peptide.getUpFlankSequence());
                       hitdata.put(XtandemhitTableAccessor.POST, peptide.getDownFlankSequence());                
                       hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(peptide.getMissedCleavages()));
-                      //qvalues = scoreQValueMap.get(peptide.getDomainHyperScore());
+                      qvalues = scoreQValueMap.get(peptide.getDomainHyperScore());
                 	
                       // Check if q-value is provided.
-//                      if(qvalues != null) {
-//                          hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
-//                      }
+                      if(qvalues == null){
+                        	hitdata.put(XtandemhitTableAccessor.PEP, 1.0);
+                            hitdata.put(XtandemhitTableAccessor.QVALUE, 1.0);                	
+                        } else {
+                        	hitdata.put(XtandemhitTableAccessor.PEP, qvalues.get(0));
+                            hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
+                        }
 
                       // Create the database object.
                       XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);                
@@ -234,7 +241,7 @@ public class XTandemStorager extends BasicStorager {
     @Override
 	public void run() {
 		this.load();
-		//TODO: this.processQValues();		
+		if(qValueFile != null) this.processQValues();		
 		try {
 			this.store();
 			
