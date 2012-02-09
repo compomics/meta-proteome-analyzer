@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.compomics.util.interfaces.SpectrumFile;
@@ -207,8 +206,22 @@ public class MascotGenericFile implements SpectrumFile {
         }
     }
 
+    // FIXME: add missing information to constructor, it's totally bare-bones!
+    /**
+     * This constructor takes a peak map and some doubles, please.
+     *
+     * @param aPeaks
+     * @param aPrecursorMz
+     * @param aCharge
+     */
+    public MascotGenericFile(HashMap<Double, Double> aPeaks, double aPrecursorMz, int aCharge, String aTitle) {
+        this.iPeaks = aPeaks;
+        this.iPrecursorMz = aPrecursorMz;
+        this.iCharge = aCharge;
+        this.iTitle = aTitle;
+    }
 
-
+    
     /**
      * This method allows to write the spectrum file to the specified OutputStream.
      *
@@ -724,19 +737,21 @@ public class MascotGenericFile implements SpectrumFile {
      *
      * @return HashMap with Doubles as keys (the masses) and Doubles as values (the intensities).
      */
-    public HashMap<Double,Double> getPeaks() {
+    public HashMap<Double, Double> getPeaks() {
         return iPeaks;
     }
     
-    public HashMap<Double,Double> getHighestPeaks(int k) {
-    	HashMap<Double,Double> res = new HashMap<Double,Double>(iPeaks);
+    public HashMap<Double, Double> getHighestPeaks(int k) {
+    	HashMap<Double, Double> res = new HashMap<Double, Double>(iPeaks);
     	TreeSet sortedSet = null;
     	try {
-    		sortedSet = (TreeSet) res.entrySet();
+//    		sortedSet = (TreeSet) res.entrySet();
+    		sortedSet = new TreeSet<Double>(res.values());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
     	while (sortedSet.size() > k) {
+    		res.values().remove(sortedSet.first());
     		sortedSet.remove(sortedSet.first());
     	}
         return res;
