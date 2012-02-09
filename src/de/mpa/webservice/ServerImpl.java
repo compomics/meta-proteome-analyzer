@@ -25,6 +25,7 @@ import de.mpa.job.JobManager;
 import de.mpa.job.SearchType;
 import de.mpa.job.instances.ConvertJob;
 import de.mpa.job.instances.CruxJob;
+import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
 import de.mpa.job.instances.MS2FormatJob;
@@ -179,6 +180,12 @@ public class ServerImpl implements Server {
 			log.error(ex.getMessage());
 		}
 		msgQueue.add(new Message(null, "DBSEARCH FINISHED", new Date()));
+		
+		// Clear the folders
+//		jobManager.addJob(new DeleteJob());
+//		jobManager.execute();
+//		jobManager.clear();
+//		msgQueue.add(new Message(null, "CLEARED FOLDERS", new Date()));
 	}
 	
 	/**

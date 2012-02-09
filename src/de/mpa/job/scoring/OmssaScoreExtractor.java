@@ -15,7 +15,8 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	
 	private OmssaOmxFile omxFileTarget; 
 	private OmssaOmxFile omxFileDecoy;
-	
+	private File targetFile;
+	private File decoyFile;
 	/**
 	 * Constructor the omssa score extractor.
 	 * @param targetFile
@@ -23,14 +24,16 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	 */
 	public OmssaScoreExtractor(File targetFile, File decoyFile) {
 		super(targetFile, decoyFile);		
+		this.targetFile = targetFile;
+		this.decoyFile = decoyFile;
 	}
 	
 	/**
 	 * Loads the Omssa output OMX files, both target and decoy.
 	 */
 	protected void load() {
-		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
-		omxFileDecoy = new OmssaOmxFile(decoyFile.getAbsolutePath());		
+		//omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
+		//omxFileDecoy = new OmssaOmxFile(decoyFile.getAbsolutePath());		
 	}
 	
 	/**
@@ -39,13 +42,13 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	protected void extract() {
 		// Initialize the score lists
 		targetScores = new ArrayList<Double>();
-		decoyScores = new ArrayList<Double>();
+		decoyScores = new ArrayList<Double>();		
+		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
 		
 		 // Initialize the spectrum iterators
         HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
-    	HashMap<MSSpectrum, MSHitSet> decoyResults = omxFileDecoy.getSpectrumToHitSetMap();
-    	Iterator<MSSpectrum> decoyIter = decoyResults.keySet().iterator();  	
+    	
     	
     	// Target hits
     	while (targetIter.hasNext()) {
@@ -56,6 +59,15 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    	targetScores.add(msHit.MSHits_pvalue);
     	    }
     	}
+    	// Help the GC:
+    	omxFileTarget = null;
+    	targetResults = null;
+    	targetIter = null;
+    	
+    	// Decoy
+    	omxFileDecoy = new OmssaOmxFile(decoyFile.getAbsolutePath());	
+    	HashMap<MSSpectrum, MSHitSet> decoyResults = omxFileDecoy.getSpectrumToHitSetMap();
+    	Iterator<MSSpectrum> decoyIter = decoyResults.keySet().iterator();  	
     	
     	// Decoy hits
     	while (decoyIter.hasNext()) {
