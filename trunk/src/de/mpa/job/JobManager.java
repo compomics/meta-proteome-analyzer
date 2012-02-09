@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
+import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.MS2FormatJob;
 import de.mpa.webservice.Message;
 
@@ -80,6 +81,9 @@ public class JobManager {
 			if(job instanceof MS2FormatJob){
 				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
 				ms2formatjob.run();
+			} else if (job instanceof DeleteJob){
+				DeleteJob deletejob = (DeleteJob) job;
+				deletejob.execute();
 			} else {
 				// Set the job status to RUNNING and put the message in the queue
 				msgQueue.add(new Message(job, JobStatus.RUNNING.toString(), new Date()));

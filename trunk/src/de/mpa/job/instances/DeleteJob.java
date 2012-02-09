@@ -5,17 +5,10 @@ import de.mpa.job.Job;
 public class DeleteJob extends Job {	
 	
 	/**
-	 * The filename String.
-	 */
-	private String filename;
-	
-	/**
 	 * Constructor for the DeleteJob
 	 * 
-	 * @param filename
 	 */
-	public DeleteJob(String filename) {
-		this.filename = filename;
+	public DeleteJob() {
 		initJob();
 	}	
 	
@@ -24,11 +17,10 @@ public class DeleteJob extends Job {
 	 */
 	private void initJob() {		
 		// Java commands
-		procCommands.add("rm");
-		procCommands.add(filename);		
+		procCommands.add("clearfolders.sh");
 		procCommands.trimToSize();		
 		procBuilder = new ProcessBuilder(procCommands);
-		setDescription("DELETE JOB --- " + procCommands);
+		setDescription("CLEAR FOLDERS JOB --- " + procCommands);
 		log.info(getDescription());		
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);

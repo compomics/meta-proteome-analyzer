@@ -47,6 +47,10 @@ public class CruxJob extends Job{
 		// Link to database index directory
 		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");
 		
+		// Parameter-file
+		procCommands.add("--parameter-file");
+		procCommands.add(JobConstants.CRUX_PATH + "default.params");
+		
 		// Link to outputfolder path.
 		procCommands.add("--output-dir");
 		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
