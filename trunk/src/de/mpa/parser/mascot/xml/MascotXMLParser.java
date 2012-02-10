@@ -1,10 +1,5 @@
 package de.mpa.parser.mascot.xml;
-/* Name:				RobbiesDomParser
- * Last changed:		02.11.2011
- * Author:				Robbie
- * Description:			class to parse mascot xml files (using DOM parsing)
- */
-//import******************************************************************************
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,38 +130,6 @@ public class MascotXMLParser {
 					proteinHit.setScores(scores);
 					proteinHit.setMasses(masses);
 					
-//					// get protein accession
-//					proteinHit.setAccessions(hitElement.getElementsByTagName("protein").item(0).getAttributes().item(0).getNodeValue());
-//					// get protein description
-//					try {
-//						proteinHit.setDescriptions(getTagValue("prot_desc", hitElement));
-//					} catch (Exception e) {
-//						if (verbose) {
-//							System.out.println("WARNING: no prot_desc found at protein hit " + num + 
-//									" in file " + xmlFile.getName());
-//						}
-//					}					
-//					// get protein score
-//					try {
-//						proteinHit.setScores(Double.parseDouble(getTagValue("prot_score", hitElement)));
-//					} 
-//					catch (Exception e) {
-//						if (verbose) {
-//							System.out.println("WARNING: no prot_score found at protein hit " + num + 
-//								" in file " + xmlFile.getName());
-//						}
-//					}
-//					// get protein mass
-//					try {
-//						proteinHit.setMasses(Double.parseDouble(getTagValue("prot_mass", hitElement)));
-//					} 
-//					catch (Exception e) {
-//						if (verbose) {
-//							System.out.println("WARNING: no prot_mass found at protein hit " + num + 
-//								" in file " + xmlFile.getName());
-//						}
-//					}
-
 					// grab peptide hits
 					List<PeptideHit> peptideHits = new ArrayList<PeptideHit>();
 					// peptide list is always the same for every protein child node in a hit,
@@ -175,7 +138,6 @@ public class MascotXMLParser {
 					// iterate over peptides in peptideList
 					for (int j = 0; j < peptideList.getLength(); j++) {
 						PeptideHit peptideHit = new PeptideHit(proteinHit);
-						
 						Node peptideNode = peptideList.item(j);
 						
 						NamedNodeMap pepAttributes = peptideNode.getAttributes();
@@ -204,7 +166,6 @@ public class MascotXMLParser {
 										if (prn >= 31122099235959L) {
 											// prune substring
 											scanTitle = scanTitle.substring(0, lastBracket-1);
-											System.out.println(scanTitle);
 										}
 									} catch (Exception e) {
 										// do nothing
