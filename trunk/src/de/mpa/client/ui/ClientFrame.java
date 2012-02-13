@@ -171,7 +171,7 @@ public class ClientFrame extends JFrame {
 
 	private LogPanel logPnl;
 
-	private CellConstraints cc;
+	CellConstraints cc;
 
 	private List<File> files = new ArrayList<File>();
 
@@ -221,7 +221,7 @@ public class ClientFrame extends JFrame {
 	private JTable libTbl;
 	private JTable querySpectraTbl;
 	private JTable queryDnSpectraTbl;
-	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
+	Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 
 	private Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 
@@ -285,7 +285,7 @@ public class ClientFrame extends JFrame {
 	private JSpinner dnThresholdSpn;
 	private JButton dnStartBtn;
 	private JTable dnPTMtbl;
-	private SpectrumTree queryTree;
+	SpectrumTree queryTree;
 	private JScrollPane querySpectraTblJScrollPane;
 	private JTable xTandemTbl;
 	private JScrollPane xTandemTblJScrollPane;
@@ -314,6 +314,7 @@ public class ClientFrame extends JFrame {
 	private JTable projectPropertiesTbl;
 	private JTable experimentsNameTbl;
 	private JTable experimentPropertiesTbl;
+	private ClusterPanel clusterPnl;
 
 
 	/**
@@ -354,6 +355,7 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Database Search Results", resultsTabPane);
 		tabPane.addTab("De novo Results", denovoResPnl);
 		tabPane.addTab("Logging", lggPnl);
+		tabPane.addTab("Clustering", clusterPnl);
 
 		cp.add(tabPane);
 
@@ -438,7 +440,7 @@ public class ClientFrame extends JFrame {
 		constructMenu();
 
 		// File panel
-		constuctFilePanel();
+		constructFilePanel();
 
 		// Project panel
 		constructProjectPanel();
@@ -469,6 +471,10 @@ public class ClientFrame extends JFrame {
 
 		// Logging panel		
 		constructLogPanel();
+		
+		// fabi's test panel
+		clusterPnl = new ClusterPanel(this);
+		
 	}
 // for construct panel to recreate tables
 	public void recreateTable() {
@@ -1179,7 +1185,7 @@ public class ClientFrame extends JFrame {
 	/**
 	 * Construct the file selection panel.
 	 */
-	private void constuctFilePanel(){
+	private void constructFilePanel(){
 
 
 		filePnl = new JPanel();
@@ -3211,8 +3217,7 @@ Thread.sleep(1000);
 
 	private enum TreeType { FILE_SELECT, RESULT_LIST }
 
-	private class SpectrumTree extends JTree 
-	implements TreeSelectionListener {
+	class SpectrumTree extends JTree implements TreeSelectionListener {
 
 		private TreeType treeType;
 		private File lastSelectedFile;

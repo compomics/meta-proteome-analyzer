@@ -19,5 +19,6 @@
 	<classpathentry kind="lib" path="lib/jgoodies-common-1.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsparklines-0.5.22.jar"/>
 	<classpathentry kind="lib" path="lib/utilities-3.3.17.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

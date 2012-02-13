@@ -78,6 +78,7 @@ public class PlotPanel2 extends SpectrumPanel {
 	
 	public void clearSpectrumFile() {
 
+		dataSetCounter = 0;
 		this.iSpecFile = null;
 		iXAxisData = new ArrayList<double[]>();
 		iYAxisData = new ArrayList<double[]>();
