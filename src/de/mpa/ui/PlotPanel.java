@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 
@@ -69,9 +71,9 @@ public class PlotPanel extends JPanel {
 				
 		if (this.spectrum != null) {
 			// grab peaks and draw stuff
-			ArrayList<Peak> peaks = this.spectrum.getPeakList();
-			double minX = peaks.get(0).getMz();
-			double maxX = peaks.get(peaks.size()-1).getMz();
+			TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(this.spectrum.getPeaks());
+			double minX = peaks.firstKey();
+			double maxX = peaks.lastKey();
 			double maxY = this.spectrum.getHighestIntensity();
 			
 			double pow  = Math.floor(Math.log10(maxY));
@@ -83,12 +85,12 @@ public class PlotPanel extends JPanel {
 			}
 			
 			g.setColor(lineColor);
-			for (Peak peak : peaks) {
-				g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-12*padX)+11*padX),
+			for (Entry<Double, Double> peak : peaks.entrySet()) {
+				g.drawLine((int)((peak.getKey()-minX)/(maxX-minX)*(getWidth()-12*padX)+11*padX),
 						   		(getHeight()-3*padY),
-						   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-12*padX)+11*padX),
-						   (int)(getHeight()-3*padY-peak.getIntensity()/maxY*(getHeight()-4*padY)));
-				String s = Double.toString(Math.round(peak.getIntensity()*100.0)/100.0);
+						   (int)((peak.getKey()-minX)/(maxX-minX)*(getWidth()-12*padX)+11*padX),
+						   (int)(getHeight()-3*padY-peak.getValue()/maxY*(getHeight()-4*padY)));
+//				String s = Double.toString(Math.round(peak.getValue()*100.0)/100.0);
 //				g.drawString(s,
 //							 (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-4*padX)+3*padX-g.getFontMetrics().stringWidth(s)/2),
 //							 (int)(getHeight()-3*padY-peak.getIntensity()/maxY*(getHeight()-4*padY))-5);				

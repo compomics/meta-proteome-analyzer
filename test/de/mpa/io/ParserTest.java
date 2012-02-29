@@ -2,6 +2,7 @@ package de.mpa.io;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -52,16 +53,16 @@ public class ParserTest extends TestCase{
 					System.out.println("Charge of Precursor: " + file.getCharge() + "+");
 //					HashMap<Double, Double> peaks = file.getPeaks();
 //					TreeSet<Double> treeset = new TreeSet<Double>(peaks.keySet());
-					ArrayList<Peak> peaks = file.getPeakList();
+					HashMap<Double, Double> peaks = file.getPeaks();
 					int i = 1;
 //					for (Double mz : treeset) {
 //						if (i%15 == 1) System.out.println("#\t   m/z\t\t   I");
 //						System.out.println(i + "\t" + mz.toString() + "\t" + peaks.get(mz).toString());
 //						i++;
 //					}
-					for (Peak peak : peaks) {
+					for (double mz : peaks.keySet()) {
 						if (i%15 == 1) System.out.println("#\t   m/z\t\t   I");
-						System.out.println(i + "\t" + peak.mz + "\t" + peak.intensity);
+						System.out.println(i + "\t" + mz + "\t" + peaks.get(mz));
 						i++;
 					}
 					System.out.println("Highest intensity: " + file.getHighestIntensity());

@@ -1,12 +1,14 @@
 package de.mpa.algorithms;
 
+import java.util.HashMap;
+
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.Peak;
 
 /**
  * This class represents a specification which features are considered for the spectrum quality (filtering).
  * TODO: Optional features!
  * @author Thilo Muth
+ * @author Alexander Behne
  *
  */
 public class SpectrumFeatures {
@@ -104,8 +106,8 @@ public class SpectrumFeatures {
 	 */
 	private double calcPeakIntensityDeviation(){		
 		double sum = 0.0;		
-		for(Peak p : mgf.getPeakList()){
-			sum += Math.pow(p.getIntensity() - this.meanInt, 2);
+		for(double intensity : mgf.getPeaks().values()){
+			sum += Math.pow(intensity - this.meanInt, 2);
 		}
 		return Math.sqrt(sum / this.numPeaks);		
 	}
@@ -117,19 +119,20 @@ public class SpectrumFeatures {
 	 */
 	private double calcY1IonIntensity(){
 		double y1_lysInt = Double.NaN, y1_argInt = Double.NaN;
-		for (int i = 0; i < mgf.getPeakList().size(); i++) {
-			Peak p = mgf.getPeakList().get(i);
-			// y1-Ion matches
-			double y1_lys = Masses.C_term + Masses.aaMap.get('K');
-			double y1_arg = Masses.C_term + Masses.aaMap.get('R');		
-			
+		
+		// y1-Ion matches
+		double y1_lys = Masses.C_term + Masses.aaMap.get('K');
+		double y1_arg = Masses.C_term + Masses.aaMap.get('R');	
+		
+		HashMap<Double, Double> peaks = mgf.getPeaks();
+		for (double mz : peaks.keySet()) {
 			// Check whether both ions match within a certain fragment ion tolerance window.
-			if(Math.abs(p.getMz() - y1_lys) <= fragTol) {
-				y1_lysInt = p.getIntensity();
-			} else if (Math.abs(p.getMz() - y1_arg) <= fragTol) {
-				y1_argInt = p.getIntensity();
+			if(Math.abs(mz - y1_lys) <= fragTol) {
+				y1_lysInt = peaks.get(mz);
+			} else if (Math.abs(mz - y1_arg) <= fragTol) {
+				y1_argInt = peaks.get(mz);
 			}
-		}		
+		}
 		return (y1_lysInt > y1_argInt) ? y1_lysInt : y1_argInt;
 	}
 	

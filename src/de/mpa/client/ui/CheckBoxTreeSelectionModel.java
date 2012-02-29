@@ -16,6 +16,29 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	public CheckBoxTreeSelectionModel(TreeModel model) {
 		this.model = model;
 	}
+	
+	@Override
+	public int getSelectionCount() {
+		return getSelectedChildCount(new TreePath(model.getRoot()));
+	}
+	
+	// recursively count selected children
+	private int getSelectedChildCount(TreePath parentPath) {
+		int selCount = 0;
+		if (isPathSelected(parentPath, true) || isPartiallySelected(parentPath)) {
+			int childCount = model.getChildCount(parentPath.getLastPathComponent());
+			if (childCount == 0) {
+				selCount++;
+			} else {
+				for (int i = 0; i < childCount; i++) {
+					Object child = model.getChild(parentPath.getLastPathComponent(), i);
+					TreePath childPath = parentPath.pathByAddingChild(child);
+					selCount += getSelectedChildCount(childPath);
+				}
+			}
+		}
+		return selCount;
+	}
 
 	// checks whether given path is selected
     // if dig is true, then a path is assumed to be selected, if one of its ancestors is selected

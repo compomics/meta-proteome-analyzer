@@ -3,6 +3,8 @@ package de.mpa.ui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 import javax.swing.JPanel;
 
@@ -120,14 +122,17 @@ public class MultiPlotPanel extends JPanel {
 		if (this.spectra != null) {
 			for (MascotGenericFile spectrum : this.spectra) {
 				if (spectrum != null) {
-					ArrayList<Peak> peaks = spectrum.getPeakList();
+//					ArrayList<Peak> peaks = spectrum.getPeakList();
+					TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(spectrum.getPeaks());
 					// adjust k downwards if needed
 					if (k > 0) {
 						k = Math.min(k, peaks.size());
 					}
 					// assuming masses are ordered; first in list = min, last = max
-					minX = Math.min(minX, peaks.get(0).getMz());
-					maxX = Math.max(maxX, peaks.get(peaks.size()-1).getMz());
+//					minX = Math.min(minX, peaks.get(0).getMz());
+//					maxX = Math.max(maxX, peaks.get(peaks.size()-1).getMz());
+					minX = Math.min(minX, peaks.firstKey());
+					maxX = Math.max(maxX, peaks.lastKey());
 					if (!normalizeSeparately) {
 						maxY = Math.max(maxY, spectrum.getHighestIntensity());
 					}
@@ -143,34 +148,47 @@ public class MultiPlotPanel extends JPanel {
 					if (normalizeSeparately) {
 						maxY = spectrum.getHighestIntensity();
 					}
-					ArrayList<Peak> peaks = spectrum.getPeakList();
-					ArrayList<Peak> hPeak;
+//					ArrayList<Peak> peaks = spectrum.getPeakList();
+					HashMap<Double, Double> peaks = new HashMap<Double, Double>(spectrum.getPeaks());
+//					ArrayList<Peak> hPeak;
+					HashMap<Double, Double> hPeak;
 					if (k > 0) {
-						hPeak = spectrum.getHighestPeaksList(k);						
+						hPeak = spectrum.getHighestPeaks(k);
 					} else {
 						hPeak = peaks;
 					}
-					for (Peak peak : peaks) {
+//					for (Peak peak : peaks) {
+					for (Double mz : peaks.keySet()) {
 						// skip peak if it's part of the list of highlighted peaks
-						if (hPeak.contains(peak)) {
+//						if (hPeak.contains(peak)) {
+						if (hPeak.containsKey(mz)) {
 							continue;
 						}
 						// highlight k highest peaks by brightening all others
 						g.setColor(new Color((lineColors.get(i).getRed()  +7*255)/8,
 								 (lineColors.get(i).getGreen()+7*255)/8,
 								 (lineColors.get(i).getBlue() +7*255)/8));
-						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-									    (getHeight()/2),
-								   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-								   (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
+//						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//									    (getHeight()/2),
+//								   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//								   (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
+						g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+							    		(getHeight()/2),
+							       (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+							       (int)(getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(getHeight()/2-padY)));
 					}
-					for (Peak peak : hPeak) {
+//					for (Peak peak : hPeak) {
+					for (Double mz : hPeak.keySet()) {
 						// plot highlighted peaks on top of other peaks
 						g.setColor(lineColors.get(i));
-						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-							    	    (getHeight()/2),
-							       (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-							       (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
+//						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//							    	    (getHeight()/2),
+//							       (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+//							       (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
+						g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+					    	    		(getHeight()/2),
+					    	       (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
+					    	       (int)(getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(getHeight()/2-padY)));
 					}
 				}
 				i++;

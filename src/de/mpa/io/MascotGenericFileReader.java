@@ -1,5 +1,7 @@
 package de.mpa.io;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -9,11 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class holds the I/O-read functionality for mascot generic files.
+ * This class holds the I/O-read functionality for Mascot generic files.
  * @author Thilo Muth
- */
-/**
- * @author behne
+ * @author Alexander Behne
  *
  */
 
@@ -53,6 +53,33 @@ public class MascotGenericFileReader {
      * Amount of characters that indicate line breaks.
      */
 	private int newlineCharCount = 0;
+	
+	// experimental!
+	/**
+	 * List of registered property change listeners.
+	 */
+	private ArrayList<PropertyChangeListener> listeners;
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		if (listeners == null) {
+			listeners = new ArrayList<PropertyChangeListener>();
+		}
+		listeners.add(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		if (listeners != null) {
+			listeners.remove(listener);
+		}
+	}
+	
+	private void fireProgressMade(long oldProgress, long newProgress) {
+		if (listeners != null) {
+			for (PropertyChangeListener listener : listeners) {
+				listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
+			}
+		}
+	}
     
 
     /**
@@ -175,7 +202,8 @@ public class MascotGenericFileReader {
         String line = null;
         int commentLineCounter = 0;
         int lineCounter = 0;
-        long posCounter = 0;
+        long oldPos = 0L;
+        long newPos = 0L;
         
         if (newlineCharCount == 0) {
         	newlineCharCount = determineNewlineCharCount();
@@ -189,7 +217,7 @@ public class MascotGenericFileReader {
         boolean runnameNotYetFound = true;
         while ((line = raf.readLine()) != null) {
         	lineCounter++;
-            posCounter += line.length() + newlineCharCount;	// length of line plus newline character(s)
+        	newPos = raf.getFilePointer();
             line = line.trim();
             // Skip empty lines and file-level charge statement.
             if (line.equals("") || (lineCounter == 1 && line.startsWith("CHARGE"))) {
@@ -223,7 +251,8 @@ public class MascotGenericFileReader {
                 }
                 // Spectrum comment. Start a new Spectrum!
                 else {
-                    this.spectrumPositions.add(posCounter - (line.length() + newlineCharCount));
+                    fireProgressMade(oldPos, newPos);
+                    this.spectrumPositions.add(oldPos);
                     inSpectrum = true;
                     spectrum.append(line + "\n");
                 }
@@ -256,10 +285,12 @@ public class MascotGenericFileReader {
             
             // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
             else if (line.indexOf("BEGIN IONS") >= 0) {
-                this.spectrumPositions.add(posCounter - (line.length() + newlineCharCount));
+                fireProgressMade(oldPos, newPos);
+                this.spectrumPositions.add(oldPos);
                 inSpectrum = true;
                 spectrum.append(line + "\n");
             }
+            oldPos = newPos;
         }
         // Initialize the comments.
         this.comments = tempComments.toString();
@@ -275,6 +306,9 @@ public class MascotGenericFileReader {
                 runName = this.filename;
             }
         }
+
+        // Fire final progress event
+        fireProgressMade(oldPos, newPos);
     }
     
     /**
@@ -355,7 +389,8 @@ public class MascotGenericFileReader {
 
         String line = null;
         int lineCounter = 0;
-        long posCounter = 0;
+        long oldPos = 0L;
+        long newPos = 0L;
         
         if (newlineCharCount == 0) {
         	newlineCharCount = determineNewlineCharCount();
@@ -364,7 +399,7 @@ public class MascotGenericFileReader {
         // Cycle the file.
         while ((line = raf.readLine()) != null) {
             lineCounter++;
-            posCounter += line.length() + newlineCharCount;	// length of line plus newline character(s)
+            newPos = raf.getFilePointer();
             line = line.trim();
             
             // Skip empty lines and file-level charge statement.
@@ -374,9 +409,14 @@ public class MascotGenericFileReader {
 
             // Mark position of spectrum block
             if (line.indexOf("BEGIN IONS") >= 0) {
-                this.spectrumPositions.add(posCounter - (line.length() + newlineCharCount));
+                fireProgressMade(oldPos, newPos);
+                this.spectrumPositions.add(oldPos);
             }
+            oldPos = newPos;
         }
+        
+        // Fire final progress event
+        fireProgressMade(oldPos, newPos);
 	}
     
     /**
