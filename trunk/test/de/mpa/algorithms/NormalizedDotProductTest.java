@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -12,7 +12,6 @@ import de.mpa.db.DBManager;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.io.Peak;
 
 public class NormalizedDotProductTest extends TestCase{
 	
@@ -44,14 +43,17 @@ public class NormalizedDotProductTest extends TestCase{
 			MascotGenericFile libMGF = libSpectrum.getSpectrumFile();
 			
 			// Highest peaks from the library spectrum
-			ArrayList<Peak> highestLibPeaks = libMGF.getHighestPeaksList(k);
+			HashMap<Double, Double> highestLibPeaks = libMGF.getHighestPeaks(k);
+//			ArrayList<Peak> highestLibPeaks = libMGF.getHighestPeaksList(k);
 			
 			// Highest peaks from the target (test) spectrum
-			ArrayList<Peak> highestSpectrumPeaks = mgf.getHighestPeaksList(k);
+			HashMap<Double, Double> highestSpectrumPeaks = libMGF.getHighestPeaks(k);
+//			ArrayList<Peak> highestSpectrumPeaks = mgf.getHighestPeaksList(k);
 			
-			NormalizedDotProduct method = new NormalizedDotProduct(0.5);
-			method.compare(highestLibPeaks, highestSpectrumPeaks);
-			System.out.println("Similarity of " + mgf.getFilename() + " to " + libMGF.getFilename() + " : " + method.getSimilarity());
+			NormalizedDotProduct comparator = new NormalizedDotProduct();
+			comparator.prepare(highestLibPeaks);
+			comparator.compareTo(highestSpectrumPeaks);
+			System.out.println("Similarity of " + mgf.getFilename() + " to " + libMGF.getFilename() + " : " + comparator.getSimilarity());
 		}
 	   }
 	   

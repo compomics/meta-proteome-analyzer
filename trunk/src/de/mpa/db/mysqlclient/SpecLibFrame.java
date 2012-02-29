@@ -9,6 +9,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,8 +30,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.codec.binary.Base64;
+
 import de.mpa.client.DbConnectionSettings;
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.accessor.ArraySpectrum;
+import de.mpa.db.accessor.ArrayspectrumTableAccessor;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
@@ -260,17 +265,44 @@ public class SpecLibFrame extends JFrame {
     					// Get the spectrumid from the generated keys.
     					Long spectrumID = (Long) spectrum.getGeneratedKeys()[0];
 
-    					// Create the spectrumFile instance.
-    					Spectrumfile spectrumFile = new Spectrumfile();
-    					spectrumFile.setFk_libspectrumid(spectrumID);
-
-    					// Set the file contents
-    					// Read the contents for the file into a byte[].
-    					byte[] fileContents = mgf.toString().getBytes();
-    					// Set the byte[].
-    					spectrumFile.setUnzippedFile(fileContents);
+//    					// Create the spectrumFile instance.
+//    					Spectrumfile spectrumFile = new Spectrumfile();
+//    					spectrumFile.setFk_libspectrumid(spectrumID);
+//
+//    					// Set the file contents
+//    					// Read the contents for the file into a byte[].
+//    					byte[] fileContents = mgf.toString().getBytes();
+//    					// Set the byte[].
+//    					spectrumFile.setUnzippedFile(fileContents);
+//    					// Create the database object.
+//    					spectrumFile.persist(conn);
+    					
+    					// Extract mgf mz/intensity arrays and transform them into byte arrays
+    					ArrayList<Double> mzDoubles = new ArrayList<Double>(mgf.getPeaks().keySet());
+    					byte[] mzBytes = new byte[mzDoubles.size()*8];
+    					ByteBuffer bufMz = ByteBuffer.wrap(mzBytes);
+    			        for (Double mz : mzDoubles) {
+    			            bufMz.putDouble(mz);
+    			        }
+    					String base64mz = Base64.encodeBase64String(mzBytes);
+    					
+    					ArrayList<Double> inDoubles = new ArrayList<Double>(mgf.getPeaks().values());
+    					byte[] inBytes = new byte[inDoubles.size()*8];
+    					ByteBuffer bufIn = ByteBuffer.wrap(inBytes);
+    			        for (Double in : inDoubles) {
+    			            bufIn.putDouble(in);
+    			        }
+    					String base64in = Base64.encodeBase64String(inBytes);
+    					
+    					HashMap<Object, Object> fileData = new HashMap<Object, Object>(4);
+    					fileData.put(ArraySpectrum.FK_LIBSPECTRUMID, spectrumID);
+    					fileData.put(ArraySpectrum.MZARRAY, base64mz);
+    					fileData.put(ArraySpectrum.INTARRAY, base64in);
+    					
     					// Create the database object.
-    					spectrumFile.persist(conn);
+    					ArraySpectrum arraySpec = new ArraySpectrum(fileData);
+    					arraySpec.persist(conn);
+    					
 
     					// grab peptide hits if key exists
     					if (pepMap.containsKey(mgf.getTitle())) {

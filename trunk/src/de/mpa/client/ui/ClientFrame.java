@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -41,7 +42,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -58,7 +58,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
@@ -71,8 +70,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -82,8 +79,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
 
 import no.uib.jsparklines.extra.HtmlLinksRenderer;
 
@@ -103,12 +98,11 @@ import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
-import de.mpa.client.FilterSettings;
-import de.mpa.client.ProcessSettings;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.ProteinHitSet;
+import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
@@ -119,33 +113,27 @@ import de.mpa.db.accessor.Project;
 import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XTandemhit;
+import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.MascotGenericFileReader;
-import de.mpa.io.Peak;
 import de.mpa.job.JobStatus;
-import de.mpa.ui.MgfFilter;
 import de.mpa.ui.MultiPlotPanel;
-import de.mpa.ui.PlotPanel2;
-import de.mpa.utils.ExtensionFileFilter;
 import de.mpa.webservice.WSPublisher;
 
 
-@SuppressWarnings("unchecked")
 /**
  * <b> ClientFrame </b>
  * <p>
  * 	Represents the main graphical user interface for the MetaProteomeAnalyzer-Client.
  * </p>
  * 
- * @author Alex Behne, Thilo Muth
+ * @author Alexander Behne, Thilo Muth
  */
 
 public class ClientFrame extends JFrame {
 
 	private final static int PORT = 8080;
 	private final static String HOST = "0.0.0.0";
-	private Logger log = Logger.getLogger(getClass());
-	private final static String PATH = "test/de/mpa/resources/";
+	Logger log = Logger.getLogger(getClass());
 
 	private ClientFrame frame;
 
@@ -153,9 +141,9 @@ public class ClientFrame extends JFrame {
 
 	private JPanel menubarDbPnl;
 
-	private Client client;
+	Client client;
 
-	private JPanel filePnl;
+	private FilePanel filePnl;
 
 	private JPanel srvPnl;
 
@@ -173,71 +161,49 @@ public class ClientFrame extends JFrame {
 
 	CellConstraints cc;
 
-	private List<File> files = new ArrayList<File>();
-
-	private JTextField filesTtf;
+//	private List<File> files = new ArrayList<File>();
 
 	private JTextField hostTtf;
 
 	private JTextField portTtf;
 
 	private JButton startBtn;
-	private JLabel filesLbl = new JLabel("0 of 0 spectra selected") {
+	JLabel filesLbl = new JLabel("0 of 0 spectra selected") {
 		@Override
 		public void repaint() {
-			if (fileTree != null) {
-				DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) fileTree.getModel().getRoot();
-				CheckBoxTreeSelectionModel selModel = fileTree.getSelectionModel();
+			if ((filePnl != null) && (filePnl.getCheckBoxTree() != null)) {
 				int selCount = 0;
 				int leafCount = 0;
-				for (int i = 0; i < fileRoot.getChildCount(); i++) {
-					DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) fileRoot.getChildAt(i);
-					if (selModel.isPathSelected(new TreePath(fileNode.getPath()), true)) {
-						selCount += fileNode.getChildCount();
-					} else if (selModel.isPartiallySelected(new TreePath(fileNode.getPath()))) {
-						for (int j = 0; j < fileNode.getChildCount(); j++) {
-							DefaultMutableTreeNode specNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-							if (selModel.isPathSelected(new TreePath(specNode.getPath()))) {
-								selCount++;
-							}
-						}
-					}
-					leafCount += fileNode.getChildCount();
+				DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) filePnl.getCheckBoxTree().getModel().getRoot();
+				if (fileRoot.getChildCount() > 0) {
+					selCount = filePnl.getCheckBoxTree().getSelectionModel().getSelectionCount();
+					leafCount = ((DefaultMutableTreeNode) filePnl.getCheckBoxTree().getModel().getRoot()).getLeafCount();
 				}
 				this.setText(selCount + " of " + leafCount + " spectra selected");
 			}
 		}		
 	};
-	private JButton sendBtn;
+	JButton sendBtn;
 	private JMenuBar menuBar;
 	private JMenu fileMenu;
 	private JMenuItem exitItem;
-	private JButton procBtn;
-	private JProgressBar procPrg;
 	private JProgressBar searchPrg;
 
-	private boolean connectedToServer = false;
+	boolean connectedToServer = false;
 
 	private JTable libTbl;
 	private JTable querySpectraTbl;
 	private JTable queryDnSpectraTbl;
 	Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 
-	private Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
+	Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 
-	private JTable fileDetailsTbl;
-	private MultiPlotPanel mPlot;
+	MultiPlotPanel mPlot;
 	protected ArrayList<RankedLibrarySpectrum> resultList;
 	private JPanel lggPnl;
-	private JSpinner tolMzSpn;
-	private JSpinner kSpn;
-	private JSpinner thMzSpn;
-	private JSpinner thScSpn;
-	private JSpinner packSpn;
-	private JCheckBox annotChk;
 
 	private JButton runDbSearchBtn;
-	private JPanel specLibPnl;
+	SpecLibSearchPanel specLibPnl;
 	private JSpinner precTolSpn;
 	private JSpinner fragTolSpn;
 	private JSpinner missClvSpn;
@@ -257,14 +223,8 @@ public class ClientFrame extends JFrame {
 	private JTextField omssaStatTtf;
 	private JComboBox fastaFileCbx;
 
-	private String projectName = "Placeholder Project";
-	private CheckBoxTreeManager fileTree;
+	String projectName = "Placeholder Project";
 
-	// placeholder filter criteria
-	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
-	//	private int minPeaks = 5;
-	//	private double minTIC = 100.0;
-	//	private double minSNR = 1.0;
 
 	private DbSearchResult dbSearchResult;
 	private DenovoSearchResult denovoSearchResult;
@@ -303,8 +263,8 @@ public class ClientFrame extends JFrame {
 	private Map<String, List<Pepnovohit>> pepnovoResults;
 	private Map<String, List<PeptideHit>> peptideHits;
 	private Map<String, Integer> voteMap;
-	private JComboBox spectraCbx;
-	private JComboBox spectraCbx2;
+	JComboBox spectraCbx;
+	JComboBox spectraCbx2;
 	private JTable pepnovoTbl;
 	private JTable proteinResultTbl;
 	private JPanel proteinViewPnl;
@@ -315,6 +275,16 @@ public class ClientFrame extends JFrame {
 	private JTable experimentsNameTbl;
 	private JTable experimentPropertiesTbl;
 	private ClusterPanel clusterPnl;
+	private JPanel dnRSeqPnl;
+	private JPanel dnRBlastPnl;
+	private JPanel dnRBlastRPnl;
+	private JButton dnRStartBLASTBtn;
+	private JComboBox dnRBLastCbx;
+	private JProgressBar blastsearchPrg;
+	private JPanel dnResSpectrumPnl;
+	private JScrollPane queryDnSpectraTblJScrollPane;
+	private JTable peptideResultTbl;
+	private ProteinHitSet proteins;
 
 
 	/**
@@ -416,12 +386,12 @@ public class ClientFrame extends JFrame {
 				inspectStatTtf.setText(finished);
 			}
 		} else if(message.startsWith("DBSEARCH")){
-			for (File file : files) {
+			for (File file : filePnl.files) {
 				dbSearchResult = client.getDbSearchResult(file);
 				updateDbResultsTable();
 			}
 		} else if(message.startsWith("DENOVOSEARCH")){
-			for (File file : files) {
+			for (File file : filePnl.files) {
 				denovoSearchResult = client.getDenovoSearchResult(file);
 				updateDenovoResultsTable();
 			}
@@ -431,7 +401,7 @@ public class ClientFrame extends JFrame {
 	/**
 	 * Initialize the components.
 	 */
-	private void initComponents(){
+	private void initComponents() {
 
 		// Cell constraints
 		cc = new CellConstraints();
@@ -440,7 +410,7 @@ public class ClientFrame extends JFrame {
 		constructMenu();
 
 		// File panel
-		constructFilePanel();
+		filePnl = new FilePanel(this);
 
 		// Project panel
 		constructProjectPanel();
@@ -449,7 +419,7 @@ public class ClientFrame extends JFrame {
 		constructServerPanel();
 
 		// Spectral Library Search Panel
-		constructSpecLibSearchPanel();
+		specLibPnl = new SpecLibSearchPanel(this);
 
 		// MS/MS Database Search Panel
 		constructDatabaseSearchPanel();
@@ -1169,429 +1139,8 @@ public class ClientFrame extends JFrame {
 				"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	private PlotPanel2 filePlotPnl;
-	private JPanel dnRSeqPnl;
-	private JPanel dnRBlastPnl;
-	private JPanel dnRBlastRPnl;
-	private JButton dnRStartBLASTBtn;
-	private JComboBox dnRBLastCbx;
-	private JProgressBar blastsearchPrg;
-	private JPanel dnResSpectrumPnl;
-	private JScrollPane queryDnSpectraTblJScrollPane;
-	private JTable peptideResultTbl;
-	private ProteinHitSet proteins;
-	private JSpinner expIdSpn;
 
-	/**
-	 * Construct the file selection panel.
-	 */
-	private void constructFilePanel(){
-
-
-		filePnl = new JPanel();
-		filePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-										 "5dlu, f:p:g, 5dlu"));	// row
-
-		JPanel selPnl = new JPanel();
-		selPnl.setBorder(new TitledBorder("File selection"));
-		selPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
-										"p, 5dlu, f:p:g, 5dlu"));								// row
-
-		String pathName = "test/de/mpa/resources/";
-		JLabel fileLbl = new JLabel("Spectrum Files (MGF):");
-
-		final JFileChooser fc = new JFileChooser(pathName);
-		fc.setFileFilter(new MgfFilter());
-		fc.setAcceptAllFileFilterUsed(false);
-
-		filesTtf = new JTextField(20);
-		filesTtf.setEditable(false);
-		filesTtf.setMaximumSize(new Dimension(filesTtf.getMaximumSize().width, filesTtf.getPreferredSize().height));
-		filesTtf.setText(files.size() + " file(s) selected");
-
-		// panel containing filter settings
-		final JPanel filterPnl = new JPanel();
-		filterPnl.setLayout(new FormLayout("p, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, p:g", "p, 5dlu, p, 5dlu, p, 5dlu, p"));
-		// add labels
-		filterPnl.add(new JLabel("min. significant peaks"), cc.xyw(1, 1, 5));
-		filterPnl.add(new JLabel("min. total ion current"), cc.xyw(1, 3, 3));
-		filterPnl.add(new JLabel("min. signal-to-noise ratio"), cc.xyw(1, 5, 5));
-		filterPnl.add(new JLabel("noise level"), cc.xy(1, 7));
-		// create other components
-		final JSpinner minPeaksSpn = new JSpinner(new SpinnerNumberModel(filterSet.getMinPeaks(), 0, null, 1));
-		final JSpinner minTICspn = new JSpinner(new SpinnerNumberModel(filterSet.getMinTIC(), 0.0, null, 1.0));
-		minTICspn.setEditor(new JSpinner.NumberEditor(minTICspn, "0.0"));
-		final JSpinner minSNRspn = new JSpinner(new SpinnerNumberModel(filterSet.getMinSNR(), 0.0, null, 0.1));
-		minSNRspn.setEditor(new JSpinner.NumberEditor(minSNRspn, "0.0"));
-		final JSpinner noiseLvlSpn = new JSpinner(new SpinnerNumberModel(filterSet.getNoiseLvl(), 0.0, null, 0.1));
-		noiseLvlSpn.setEditor(new JSpinner.NumberEditor(noiseLvlSpn, "0.00"));
-		final JButton noiseEstBtn = new JButton("Estimate... *");
-		noiseEstBtn.setToolTipText("Estimation not yet implemented, will export intensities as .txt file instead");
-		noiseEstBtn.setEnabled(false);
-
-		// add to panel
-		filterPnl.add(minPeaksSpn, cc.xy(7, 1));
-		filterPnl.add(minTICspn, cc.xyw(5, 3, 3));
-		filterPnl.add(minSNRspn, cc.xy(7, 5));
-		filterPnl.add(noiseLvlSpn, cc.xy(3, 7));
-		filterPnl.add(noiseEstBtn, cc.xyw(5, 7, 3));
-
-		JButton filterBtn = new JButton("Filter settings...");
-		filterBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int res = JOptionPane.showConfirmDialog(frame, filterPnl, "Filter Settings", 
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.PLAIN_MESSAGE);
-				if (res == JOptionPane.OK_OPTION) {
-					// update settings
-					filterSet = new FilterSettings((Integer) minPeaksSpn.getValue(),
-							(Double) minTICspn.getValue(),
-							(Double) minSNRspn.getValue(),
-							(Double) noiseLvlSpn.getValue());
-				} else {	// cancel option or window close option
-					// revert to old settings
-					minPeaksSpn.setValue(filterSet.getMinPeaks());
-					minTICspn.setValue(filterSet.getMinTIC());
-					minSNRspn.setValue(filterSet.getMinSNR());
-					noiseLvlSpn.setValue(filterSet.getNoiseLvl());
-				}
-			}
-		});
-
-		// button for appending local mgf files
-		JButton addBtn = new JButton("Add from File...");
-		
-		// XXX
-		// button for downloading and appending mgf files from remote DB 
-		JButton addDbBtn = new JButton("Add from DB...");
-		// panel containing conditions for remote mgf fetching
-		final JPanel fetchPnl = new JPanel();
-		fetchPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",	// col
-										  "5dlu, p, 5dlu"));		// row
-		final JSpinner expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 1L, null, 1L));
-		fetchPnl.add(new JLabel("Experiment ID"), cc.xy(2, 2));
-		fetchPnl.add(expIdSpn, cc.xy(4, 2));
-		
-		addDbBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int res = JOptionPane.showConfirmDialog(frame, fetchPnl, "Fetch from database", 
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
-				if (res == JOptionPane.OK_OPTION) {
-					try {
-						client.initDBConnection();
-						List<MascotGenericFile> dlSpec = client.downloadSpectra((Long)expIdSpn.getValue());
-						client.clearDBConnection();
-						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
-						for (MascotGenericFile mgf : dlSpec) {
-							mgf.writeToStream(fos);
-						}
-						fos.close();
-					} catch (Exception x) {
-						x.printStackTrace();
-					}
-				}
-			}
-		});
-		// /XXX
-
-		final JButton clrBtn = new JButton("Clear all");
-		clrBtn.setEnabled(false);
-
-		filePlotPnl = new PlotPanel2(null);
-		filePlotPnl.setMinimumSize(new Dimension(200, 150));
-		filePlotPnl.clearSpectrumFile();
-
-		// Tree of loaded spectrum files
-		final DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(this.projectName);
-		final DefaultTreeModel treeModel = new DefaultTreeModel(treeRoot);
-		final SpectrumTree tree = new SpectrumTree(treeModel, TreeType.FILE_SELECT);
-		fileTree = new CheckBoxTreeManager(tree);
-		final CheckBoxTreeSelectionModel selectionModel = fileTree.getSelectionModel();
-
-		tree.addMouseListener(new MouseAdapter() {
-			private int hotspot = new JCheckBox().getPreferredSize().width;
-
-			public void mouseClicked(MouseEvent e) { 
-				TreePath path = tree.getPathForLocation(e.getX(), e.getY()); 
-				if ((path != null) &&											// tree element got hit
-						(e.getX() <= (tree.getPathBounds(path).x + hotspot))) {		// checkbox part got hit
-
-					boolean selected = selectionModel.isPathSelected(path, true);
-
-					try {
-						if (selected) {
-							selectionModel.removeSelectionPath(path);
-						} else {
-							selectionModel.addSelectionPath(path);
-						}
-					} finally {
-						tree.treeDidChange();
-						filesLbl.repaint();
-					}
-				}
-				return;
-			}
-		});
-
-		JScrollPane treePane = new JScrollPane(tree);
-		treePane.setPreferredSize(new Dimension(0, 0));
-
-		// left part of outer split pane
-		JPanel leftPnl = new JPanel();
-		leftPnl.setLayout(new FormLayout("p:g",					// col
-				"p, f:p:g"));	// row
-		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
-		leftDummyTable.getTableHeader().setReorderingAllowed(false);
-		leftDummyTable.getTableHeader().setResizingAllowed(false);
-		leftDummyTable.getTableHeader().setPreferredSize(new JCheckBox().getPreferredSize());
-		JScrollPane leftDummyScpn = new JScrollPane(leftDummyTable);
-		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
-
-		leftPnl.add(leftDummyScpn, cc.xy(1,1));
-		//		leftPnl.add(new JLabel("Files"), cc.xy(1,1));
-		leftPnl.add(treePane, cc.xy(1,2));
-
-		// top part of right-hand inner split pane
-		JPanel topRightPnl = new JPanel();
-		topRightPnl.setLayout(new FormLayout("p:g",					// col
-				"p, f:p:g"));	// row
-		final JTable rightDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Details"})));
-		rightDummyTable.getTableHeader().setReorderingAllowed(false);
-		rightDummyTable.getTableHeader().setResizingAllowed(false);
-		rightDummyTable.getTableHeader().setPreferredSize(new JCheckBox().getPreferredSize());
-		JScrollPane rightDummyScpn = new JScrollPane(rightDummyTable);
-		rightDummyScpn.setPreferredSize(rightDummyTable.getTableHeader().getPreferredSize());
-		//		JLabel rightLbl = new JLabel("Details");
-
-		String[] columnNames = {null, null};
-		Object[][] data = {
-				{"File path",				null},
-				{"Spectrum title",			null},
-				{"Significant peaks",		null},
-				{"Total ion current",		null},
-				{"Signal-to-noise ratio",	null},
-		};
-		fileDetailsTbl = new JTable(new DefaultTableModel(data, columnNames) {
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-		fileDetailsTbl.setAutoscrolls(false);
-		fileDetailsTbl.getTableHeader().setVisible(false);
-		fileDetailsTbl.getTableHeader().setPreferredSize(new Dimension(0, 0));
-		Component comp = fileDetailsTbl.getCellRenderer(4, 0).getTableCellRendererComponent(fileDetailsTbl, fileDetailsTbl.getValueAt(4, 0), false, false, 4, 0);
-		fileDetailsTbl.getColumnModel().getColumn(0).setMaxWidth(comp.getPreferredSize().width+10);
-		fileDetailsTbl.getColumnModel().getColumn(0).setPreferredWidth(comp.getPreferredSize().width+10);
-
-		JScrollPane detailScpn = new JScrollPane(fileDetailsTbl);
-		detailScpn.setPreferredSize(new Dimension(300, 0));
-		detailScpn.setMinimumSize(new Dimension(0, fileDetailsTbl.getRowHeight()));
-		detailScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		detailScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-		topRightPnl.add(rightDummyScpn, cc.xy(1,1));
-		topRightPnl.add(detailScpn, cc.xy(1,2));
-		topRightPnl.setMinimumSize(new Dimension(0, rightDummyTable.getTableHeader().getPreferredSize().height + 
-				fileDetailsTbl.getRowHeight() + 2));
-
-		final JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topRightPnl, filePlotPnl);
-		rightSplit.setBorder(null);
-		rightSplit.setMinimumSize(new Dimension(200, 0));
-		rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
-				(fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
-		rightSplit.setContinuousLayout(true);
-		BasicSplitPaneDivider rightDivider = ((BasicSplitPaneUI) rightSplit.getUI()).getDivider();
-		if (rightDivider != null) { rightDivider.setBorder(null); }
-		rightDivider.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {	// reset divider location on double-click
-					rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
-							(fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
-				}
-			}
-		});
-
-		JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPnl, rightSplit);
-		mainSplit.setBorder(null);
-		mainSplit.setDividerLocation(200);
-		mainSplit.setContinuousLayout(true);
-		BasicSplitPaneDivider mainDivider = ((BasicSplitPaneUI) mainSplit.getUI()).getDivider();
-		if (mainDivider != null) { mainDivider.setBorder(null); }
-
-		// Button action listeners
-		addBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// First check whether a file has already been selected.
-				// If so, start from that file's parent.
-				File startLocation = new File(PATH);
-				if (treeRoot.getChildCount() > 0) {
-					DefaultMutableTreeNode node = (DefaultMutableTreeNode)treeRoot.getChildAt(0);
-					File temp = (File)node.getUserObject();
-					startLocation = temp.getParentFile();
-				}
-				JFileChooser fc = new JFileChooser(startLocation);
-				fc.setFileFilter(new ExtensionFileFilter("mgf", false));
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.setMultiSelectionEnabled(true);
-				int result = fc.showOpenDialog(ClientFrame.this);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					// appear busy
-					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-					File[] selFiles = fc.getSelectedFiles();
-					int newLeaves = 0;
-
-					for (File file : selFiles) {
-						// Add the files for the DB search option
-						files.add(file);
-						ArrayList<Long> spectrumPositions = new ArrayList<Long>();
-						try {
-							MascotGenericFileReader reader = new MascotGenericFileReader(file);
-							ArrayList<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-							spectrumPositions.addAll(reader.getSpectrumPositions());
-							specPosMap.put(file.getAbsolutePath(), spectrumPositions);
-
-							DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file);
-
-							// append new file node to root
-							treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
-							selectionModel.removeSelectionPath(new TreePath(fileNode.getPath()));
-							int index = 1;
-							ArrayList<TreePath> toBeAdded = new ArrayList<TreePath>();
-
-							for (MascotGenericFile mgf : mgfList) {
-								// append new spectrum node to file node
-								DefaultMutableTreeNode spectrumNode = new DefaultMutableTreeNode(index);
-								treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
-
-								// examine spectrum regarding filter criteria
-								int numPeaks = 0;
-								ArrayList<Peak> peaks = mgf.getPeakList();
-								for (Peak peak : peaks) {
-									if (peak.getIntensity() >= filterSet.getNoiseLvl()) {
-										numPeaks++;
-									}
-								}
-								double TIC = mgf.getTotalIntensity();
-								double SNR = mgf.getSNR(filterSet.getNoiseLvl());
-								TreePath treePath = new TreePath(spectrumNode.getPath());
-								if ((numPeaks > filterSet.getMinPeaks()) &&
-										(TIC > filterSet.getMinTIC()) &&
-										(SNR > filterSet.getMinSNR())) {
-									toBeAdded.add(treePath);
-								}
-								newLeaves++;
-								index++;
-							}
-							selectionModel.addSelectionPaths((TreePath[]) toBeAdded.toArray(new TreePath[0]));
-						} catch (Exception x) {
-							x.printStackTrace();
-						}
-					}
-					tree.expandRow(0);
-
-					procPrg.setValue(0);
-
-					String str;
-					int numFiles;
-					str = filesTtf.getText();
-					str = str.substring(0, str.indexOf(" "));
-					numFiles = Integer.parseInt(str) + selFiles.length;
-
-					filesTtf.setText(numFiles + " file(s) selected");
-
-					filesLbl.repaint();
-					log.info("Added " + newLeaves + " file(s).");
-					if (numFiles > 0) {
-						if (connectedToServer) {
-							sendBtn.setEnabled(true);
-						}
-						clrBtn.setEnabled(true);
-						noiseEstBtn.setEnabled(true);
-					}
-
-					// Get selected index for spectra combobox
-					int comboIndex = spectraCbx.getSelectedIndex();
-					spectraCbx.removeAllItems();
-					spectraCbx2.removeAllItems();
-
-					for (int i = 0; i < files.size(); i++) {
-						spectraCbx.addItem(files.get(i).getName());
-						spectraCbx2.addItem(files.get(i).getName());
-					}
-
-					if(comboIndex >= 0)	{
-						spectraCbx.setSelectedIndex(comboIndex);
-						spectraCbx2.setSelectedIndex(comboIndex);
-					}
-					setCursor(null);
-				}
-			}
-		} );
-
-		clrBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				files.clear();
-				specPosMap.clear();
-				filesTtf.setText("0 file(s) selected");
-//				filesLbl.setText("0 of 0 spectra selected");
-				procPrg.setValue(0);
-				clrBtn.setEnabled(false);
-				noiseEstBtn.setEnabled(false);
-				treeRoot.removeAllChildren();
-				treeModel.reload();
-				selectionModel.clearSelection();
-				selectionModel.addSelectionPath(new TreePath(treeRoot));
-				filesLbl.repaint();
-			}
-		});
-
-		noiseEstBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO: generate intensity histogram, noise level is suspected to be in low-intensity area with high abundance
-				try {
-					// for now: write intensities to file, examine using MATLAB
-					FileOutputStream fos = new FileOutputStream(new File("intensities.txt"));
-					OutputStreamWriter osw = new OutputStreamWriter(fos);
-					for (int i = 0; i < treeRoot.getChildCount(); i++) {
-						DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) treeRoot.getChildAt(i);
-						for (int j = 0; j < fileNode.getChildCount(); j++) {
-							DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-							MascotGenericFile spectrum = tree.getSpectrumAt(spectrumNode);
-							for (Peak peak : spectrum.getPeakList()) {
-								osw.write(String.valueOf(peak.getIntensity()) + "\n");
-							}
-						}
-					}
-					osw.close();
-					fos.close();
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-
-		// Input 
-		selPnl.add(fileLbl, cc.xy(2,1));
-		selPnl.add(filesTtf, cc.xy(4,1));
-		selPnl.add(filterBtn, cc.xy(6,1));
-		selPnl.add(addBtn, cc.xy(8,1));
-		selPnl.add(addDbBtn, cc.xy(10, 1));
-		selPnl.add(clrBtn, cc.xy(12,1));
-
-		selPnl.add(mainSplit, cc.xyw(2,3,11));
-
-		filePnl.add(selPnl, cc.xy(2,2));
-	}
-
+	
 	/**
 	 * Construct the server configuration panel.
 	 */
@@ -1628,7 +1177,7 @@ public class ClientFrame extends JFrame {
 
 				client.connect();
 				connectedToServer = true;
-				if (files.size() > 0) {
+				if (filePnl.files.size() > 0) {
 					sendBtn.setEnabled(true);
 				}
 			}
@@ -1639,13 +1188,13 @@ public class ClientFrame extends JFrame {
 		sendBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File [] fileArray = new File[files.size()];
-				files.toArray(fileArray);
+				File [] fileArray = new File[filePnl.files.size()];
+				filePnl.files.toArray(fileArray);
 				try {
 					client.sendFiles(fileArray);
 
 					//files.clear();
-					filesTtf.setText(files.size() + " file(s) selected");
+					filePnl.filesTtf.setText(filePnl.files.size() + " file(s) selected");
 					sendBtn.setEnabled(false);	                    
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
@@ -1664,124 +1213,153 @@ public class ClientFrame extends JFrame {
 		srvPnl.add(setPnl, cc.xy(2,2));
 	}
 
-	/**
-	 * Construct the processing panel.
-	 */
-	private void constructSpecLibSearchPanel() {
-
-		specLibPnl = new JPanel();
-		specLibPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
-				"5dlu, t:p, 5dlu, p, 5dlu"));		// row
-
-		// process button and progress bar
-		JPanel procPnl = new JPanel();
-		procPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p, 2dlu, p, 5dlu",	// col
-				"p, 5dlu, p, 5dlu, p, 5dlu"));		// row	
-		procPnl.setBorder(BorderFactory.createTitledBorder("Process data"));	
-
-		procBtn = new JButton("Process");	    
-		procBtn.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ProcessWorker worker = new ProcessWorker();
-				worker.addPropertyChangeListener(new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-						if ("progress" == evt.getPropertyName()) {
-							int progress = (Integer) evt.getNewValue();
-							procPrg.setValue(progress);
-						} 
-
-					}
-				});
-				worker.execute();
-			}
-		});	    
-
-		procPrg = new JProgressBar(0, 100);
-		procPrg.setStringPainted(true);
-
-		packSpn = new JSpinner(new SpinnerNumberModel(100, 1, null, 1));
-		packSpn.setPreferredSize(new Dimension((int) (packSpn.getPreferredSize().width*1.75),
-				packSpn.getPreferredSize().height));
-		packSpn.setToolTipText("Number of spectra per transfer package");
-
-		procPnl.add(new JLabel("packageSize ="), cc.xy(2,1));
-		procPnl.add(packSpn, cc.xy(4,1));
-		procPnl.add(new JLabel("spectra"), cc.xy(6,1));
-		procPnl.add(procBtn, cc.xyw(2,3,5));
-		procPnl.add(procPrg, cc.xyw(2,5,5));
-
-		// database search parameters
-		JPanel paraDbPnl = new JPanel();
-		paraDbPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",	// col
-										   "p, 5dlu, p, 5dlu, p, 5dlu"));		// row	
-		paraDbPnl.setBorder(BorderFactory.createTitledBorder("Search parameters"));
-
-		tolMzSpn = new JSpinner(new SpinnerNumberModel(5.0, 0.0, null, 0.1));
-		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn.getPreferredSize().width*1.75),
-													   tolMzSpn.getPreferredSize().height));
-		tolMzSpn.setEditor(new JSpinner.NumberEditor(tolMzSpn, "0.00"));
-		tolMzSpn.setToolTipText("Precursor mass tolerance");
-
-		annotChk = new JCheckBox("Annotated only", true);
-		annotChk.setHorizontalTextPosition(JCheckBox.LEFT);
-		annotChk.setToolTipText("Search only annotated spectra");
-		
-		// XXX
-		expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
-		expIdSpn.setEnabled(false);
-		
-		final JCheckBox expIdChk = new JCheckBox("ExperimentID", false);
-		expIdChk.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				expIdSpn.setEnabled(((JCheckBox)e.getSource()).isSelected());
-			}
-		});
-		// /XXX
-
-		paraDbPnl.add(new JLabel("tolMz =", JLabel.RIGHT), cc.xy(2,1));
-		paraDbPnl.add(tolMzSpn, cc.xy(4,1));
-		paraDbPnl.add(new JLabel("Da"), cc.xy(6,1));
-		paraDbPnl.add(annotChk, cc.xyw(2,3,5));
-		paraDbPnl.add(expIdChk, cc.xyw(2,5,3));
-		paraDbPnl.add(expIdSpn, cc.xy(6,5));
-
-		// similarity scoring parameters
-		JPanel paraScPnl = new JPanel();
-		paraScPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p, 2dlu, p, 5dlu",	// col
-				"p, 5dlu, p, 5dlu, p, 5dlu"));			// row	
-		paraScPnl.setBorder(BorderFactory.createTitledBorder("Scoring parameters"));
-
-		kSpn = new JSpinner(new SpinnerNumberModel(20, 1, null, 1));
-		kSpn.setPreferredSize(new Dimension((int) (kSpn.getPreferredSize().width*1.75),
-				kSpn.getPreferredSize().height));
-		kSpn.setToolTipText("Pick up to k highest peaks");
-
-		thMzSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));
-		thMzSpn.setPreferredSize(new Dimension((int)(thMzSpn.getPreferredSize().width*1.75),
-				thMzSpn.getPreferredSize().height));
-		thMzSpn.setEditor(new JSpinner.NumberEditor(thMzSpn, "0.0"));
-		thMzSpn.setToolTipText("Peak mass tolerance");
-
-		thScSpn = new JSpinner(new SpinnerNumberModel(0.5, null, null, 0.1));
-		thScSpn.setEditor(new JSpinner.NumberEditor(thScSpn, "0.00"));
-		thScSpn.setToolTipText("Score threshold");
-
-		paraScPnl.add(new JLabel("k =", JLabel.RIGHT), cc.xy(2,1));
-		paraScPnl.add(kSpn, cc.xy(4,1));
-		paraScPnl.add(new JLabel("threshMz =", JLabel.RIGHT), cc.xy(2,3));
-		paraScPnl.add(thMzSpn, cc.xy(4,3));
-		paraScPnl.add(new JLabel("Da"), cc.xy(6,3));
-		paraScPnl.add(new JLabel("threshSc =", JLabel.RIGHT), cc.xy(2,5));
-		paraScPnl.add(thScSpn, cc.xy(4,5));
-
-		// add everything to parent panel
-		specLibPnl.add(procPnl, cc.xy(2,2));
-		specLibPnl.add(paraDbPnl, cc.xy(4,2));
-		specLibPnl.add(paraScPnl, cc.xy(6,2));
-	}
+//	/**
+//	 * Construct the processing panel.
+//	 */
+//	private void constructSpecLibSearchPanel() {
+//
+//		specLibPnl = new JPanel();
+//		specLibPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu",	// col
+//		   									"5dlu, f:p, 5dlu"));				// row;
+//
+//		// process button and progress bar
+//		JPanel procPnl = new JPanel();
+//		procPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p, 2dlu, p, 5dlu",	// col
+//										 "p, 5dlu, p, 5dlu, p, 5dlu"));		// row	
+//		procPnl.setBorder(BorderFactory.createTitledBorder("Process data"));	
+//		
+//		final JLabel procLbl = new JLabel("0:00:00");	// for displaying remaining time
+//		procLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+//
+//		procBtn = new JButton("Process");	    
+//		procBtn.addActionListener(new ActionListener() {			
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				final long startTime = System.currentTimeMillis();
+//				
+//				ProcessWorker worker = new ProcessWorker();
+//				worker.addPropertyChangeListener(new PropertyChangeListener() {
+//					@Override
+//					public void propertyChange(PropertyChangeEvent evt) {
+//						if ("progress" == evt.getPropertyName()) {
+//							int progress = (Integer) evt.getNewValue();
+//							procPrg.setValue(progress);
+//							long elapsedTime = System.currentTimeMillis() - startTime;
+//							long remainingTime = 0L;
+//							if (progress > 0.0) {
+//								remainingTime = (long) (elapsedTime/progress*(100-progress)/1000);
+//							}
+//							procLbl.setText(String.format("%d:%02d:%02d", remainingTime/3600,
+//									(remainingTime%3600)/60, (remainingTime%60)));
+//						} 
+//
+//					}
+//				});
+//				worker.execute();
+//			}
+//		});
+//
+//		procPrg = new JProgressBar(0, 100);
+//		procPrg.setStringPainted(true);
+//
+//		packSpn = new JSpinner(new SpinnerNumberModel(100, 1, null, 1));
+//		packSpn.setPreferredSize(new Dimension((int) (packSpn.getPreferredSize().width*1.75),
+//				packSpn.getPreferredSize().height));
+//		packSpn.setToolTipText("Number of spectra per transfer package");
+//
+//		procPnl.add(new JLabel("packageSize ="), cc.xy(2,1));
+//		procPnl.add(packSpn, cc.xy(4,1));
+//		procPnl.add(new JLabel("spectra"), cc.xy(6,1));
+//		procPnl.add(procBtn, cc.xyw(2,3,3));
+//		procPnl.add(procLbl, cc.xy(6,3));
+//		procPnl.add(procPrg, cc.xyw(2,5,5));
+//
+//		// database search parameters
+//		JPanel paraDbPnl = new JPanel();
+//		paraDbPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",	// col
+//										   "p, 5dlu, p, 5dlu, p, 5dlu"));		// row	
+//		paraDbPnl.setBorder(BorderFactory.createTitledBorder("Search parameters"));
+//
+//		tolMzSpn = new JSpinner(new SpinnerNumberModel(10.0, 0.0, null, 0.1));
+//		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn.getPreferredSize().width*1.75),
+//													   tolMzSpn.getPreferredSize().height));
+//		tolMzSpn.setEditor(new JSpinner.NumberEditor(tolMzSpn, "0.00"));
+//		tolMzSpn.setToolTipText("Precursor mass tolerance");
+//
+//		annotChk = new JCheckBox("Annotated only", true);
+//		annotChk.setHorizontalTextPosition(JCheckBox.LEFT);
+//		annotChk.setToolTipText("Search only annotated spectra");
+//		
+//		// XXX
+//		expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
+//		expIdSpn.setEnabled(false);
+//		
+//		final JCheckBox expIdChk = new JCheckBox("ExperimentID", false);
+//		expIdChk.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				expIdSpn.setEnabled(((JCheckBox)e.getSource()).isSelected());
+//			}
+//		});
+//		// /XXX
+//
+//		paraDbPnl.add(new JLabel("tolMz =", JLabel.RIGHT), cc.xy(2,1));
+//		paraDbPnl.add(tolMzSpn, cc.xy(4,1));
+//		paraDbPnl.add(new JLabel("Da"), cc.xy(6,1));
+//		paraDbPnl.add(annotChk, cc.xyw(2,3,5));
+//		paraDbPnl.add(expIdChk, cc.xyw(2,5,3));
+//		paraDbPnl.add(expIdSpn, cc.xy(6,5));
+//
+//		// similarity scoring parameters
+//		JPanel paraScPnl = new JPanel();
+//		paraScPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 2dlu, p:g, 5dlu",	// col
+//										   "p, 5dlu, p, 5dlu"));				// row
+//		paraScPnl.setBorder(BorderFactory.createTitledBorder("Scoring parameters"));
+//		
+//		// combo box for method selection
+//		JComboBox methodCbx = new JComboBox(new Object[] {"Normalized dot product",
+//														  "Cross-correlation"});
+//		// spinner for mass bin size
+//		JSpinner binSizeSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
+//		
+//		paraScPnl.add(new JLabel("Method"), cc.xy(2,1));
+//		paraScPnl.add(methodCbx, cc.xyw(4,1,3));
+//		paraScPnl.add(new JLabel("Bin size"), cc.xy(2,3));
+//		paraScPnl.add(binSizeSpn, cc.xy(4,3));
+//		paraScPnl.add(new JLabel("Da"), cc.xy(6,3));
+//		
+////		paraScPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p, 2dlu, p, 5dlu",	// col
+////				"p, 5dlu, p, 5dlu, p, 5dlu"));			// row	
+////		paraScPnl.setBorder(BorderFactory.createTitledBorder("Scoring parameters"));
+////
+////		kSpn = new JSpinner(new SpinnerNumberModel(20, 1, null, 1));
+////		kSpn.setPreferredSize(new Dimension((int) (kSpn.getPreferredSize().width*1.75),
+////				kSpn.getPreferredSize().height));
+////		kSpn.setToolTipText("Pick up to k highest peaks");
+////
+////		thMzSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));
+////		thMzSpn.setPreferredSize(new Dimension((int)(thMzSpn.getPreferredSize().width*1.75),
+////				thMzSpn.getPreferredSize().height));
+////		thMzSpn.setEditor(new JSpinner.NumberEditor(thMzSpn, "0.0"));
+////		thMzSpn.setToolTipText("Peak mass tolerance");
+////
+////		thScSpn = new JSpinner(new SpinnerNumberModel(0.5, null, null, 0.1));
+////		thScSpn.setEditor(new JSpinner.NumberEditor(thScSpn, "0.00"));
+////		thScSpn.setToolTipText("Score threshold");
+////
+////		paraScPnl.add(new JLabel("k =", JLabel.RIGHT), cc.xy(2,1));
+////		paraScPnl.add(kSpn, cc.xy(4,1));
+////		paraScPnl.add(new JLabel("threshMz =", JLabel.RIGHT), cc.xy(2,3));
+////		paraScPnl.add(thMzSpn, cc.xy(4,3));
+////		paraScPnl.add(new JLabel("Da"), cc.xy(6,3));
+////		paraScPnl.add(new JLabel("threshSc =", JLabel.RIGHT), cc.xy(2,5));
+////		paraScPnl.add(thScSpn, cc.xy(4,5));
+//
+//		// add everything to parent panel
+//		specLibPnl.add(procPnl, cc.xy(2,2));
+//		specLibPnl.add(paraDbPnl, cc.xy(4,2));
+//		specLibPnl.add(paraScPnl, cc.xy(6,2));
+//	}
 
 	/**
 	 * Construct the database search panel.
@@ -1931,7 +1509,7 @@ public class ClientFrame extends JFrame {
 					public void propertyChange(PropertyChangeEvent evt) {
 						if ("progress" == evt.getPropertyName()) {
 							int progress = (Integer) evt.getNewValue();
-							procPrg.setValue(progress);
+							specLibPnl.setProgress(progress);
 						} 
 
 					}
@@ -2224,7 +1802,7 @@ public class ClientFrame extends JFrame {
 		updateDnBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for(File file : files){
+				for(File file : filePnl.files){
 					denovoSearchResult = client.getDenovoSearchResult(file);
 					updateDenovoResultsTable();
 				}
@@ -2318,8 +1896,8 @@ public class ClientFrame extends JFrame {
 										 "f:p:g, 5dlu"));		// row
 		dispPnl.setBorder(BorderFactory.createTitledBorder("Results"));
 
-		final DefaultMutableTreeNode queryRoot = new DefaultMutableTreeNode(((DefaultMutableTreeNode) fileTree.getModel().getRoot()).getUserObject());
-		queryTree = new SpectrumTree(new DefaultTreeModel(queryRoot), TreeType.RESULT_LIST);
+		final DefaultMutableTreeNode queryRoot = new DefaultMutableTreeNode(((DefaultMutableTreeNode) filePnl.getCheckBoxTree().getModel().getRoot()).getUserObject());
+		queryTree = new SpectrumTree(new DefaultTreeModel(queryRoot), TreeType.RESULT_LIST, frame);
 		queryTree.setRowHeight(new JCheckBox().getPreferredSize().height);
 
 		JScrollPane queryScpn = new JScrollPane(queryTree);
@@ -2352,7 +1930,7 @@ public class ClientFrame extends JFrame {
 			public Class<?> getColumnClass(int col) {
 				switch (col) {
 				case 0:
-					return Integer.class;
+					return Long.class;
 				case 1:
 					return String.class;
 				case 2:
@@ -2365,6 +1943,15 @@ public class ClientFrame extends JFrame {
 		libTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		libTbl.setAutoCreateRowSorter(true);
 		libTbl.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+		
+		// set sequence column font to mono-spaced for easier fragment length comparison
+		libTbl.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+			Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+			{ setFont(font); }
+			@Override
+			public Font getFont() { return font; }
+		});
+		
 		packColumn(libTbl, 0, 10);
 		libTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
 		packColumn(libTbl, 2, 10);
@@ -2405,10 +1992,11 @@ public class ClientFrame extends JFrame {
 					if (libTbl.getSelectedRowCount() > 0) {
 						// grab mgf
 						int row = libTbl.convertRowIndexToModel(libTbl.getSelectedRow());
-						DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
-						int index = (Integer) libTblMdl.getValueAt(row, 0);
+//						DefaultTableModel libTblMdl = (DefaultTableModel) libTbl.getModel();
+//						int index = (Integer) libTblMdl.getValueAt(row, 0);
 						// plot second spectrum
-						mPlot.setSecondSpectrum(resultList.get(index-1).getSpectrumFile());
+//						mPlot.setSecondSpectrum(resultList.get(index-1).getSpectrumFile());
+						mPlot.setSecondSpectrum(resultList.get(row).getSpectrumFile());
 						mPlot.repaint();
 						// clear protein annotation table
 						DefaultTableModel dtm = (DefaultTableModel) protTbl.getModel();
@@ -2417,7 +2005,8 @@ public class ClientFrame extends JFrame {
 							dtm.removeRow(0);
 						}
 						// repopulate protein annotation table
-						List<Protein> annotations = resultList.get(index-1).getAnnotations();
+//						List<Protein> annotations = resultList.get(index-1).getAnnotations();
+						List<Protein> annotations = resultList.get(row).getAnnotations();
 						if (annotations != null) {
 							int protIndex = 0;
 							for (Protein annotation : annotations) {
@@ -2481,71 +2070,78 @@ public class ClientFrame extends JFrame {
 		    }
 		});
 
-		// TODO: button to export search result scores
+		// button to export search result scores
 		JButton expBtn = new JButton("export scores");
 		expBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				if (libTbl.getRowCount() > 0) {
-//					try {
-//						FileOutputStream fos = new FileOutputStream(new File("scores.txt"));
-//						OutputStreamWriter osw = new OutputStreamWriter(fos);
-//
-//						for (int row = 0; row < libTbl.getRowCount(); row++) {
-//							osw.write(String.valueOf((Double)libTbl.getValueAt(row,2)) + "\n");
-//						}
-//						osw.close();
-//						fos.close();
-//					} catch (FileNotFoundException e1) {
-//						e1.printStackTrace();
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
-//				}
 				if (queryRoot.getChildCount() > 0) {
+					// appear busy
+					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					// build first row in CSV-to-be containing library peptide sequence strings
-					if (resultList == null) {
-						// get any value from result map
-						resultList = resultMap.values().iterator().next();
-					}
-					String row = "";
-					for (RankedLibrarySpectrum rankedLibSpec : resultList) {
-						row += "\t" + rankedLibSpec.getSequence();
-					}
-					FileOutputStream fos;
+					// grab list of annotated library spectra belonging to experiment
 					try {
-						fos = new FileOutputStream(new File("scores.csv"));
+						ArrayList<SpectralSearchCandidate> candidates = client.getCandidatesFromExperiment(specLibPnl.getExperimentID());
+						// substitute 'sequence + spectrum id' with integer indexing
+						HashMap<String, Integer> seq2index = new HashMap<String, Integer>(candidates.size());
+						// substitute 'sequence + precursor charge' with integer indexing
+						HashMap<String, Integer> seq2id = new HashMap<String, Integer>(candidates.size());
+						String row = "";
+						int index = 0;
+						int id = 0;
+						for (SpectralSearchCandidate candidate : candidates) {
+							seq2index.put(candidate.getSequence() + candidate.getSpectrumID(), index);
+							String seq = candidate.getSequence() + candidate.getPrecursorCharge();
+							if (!seq2id.containsKey(seq)) { seq2id.put(seq, id++); }
+//							row += "\t" + candidate.getSequence() + candidate.getPrecursorCharge();
+							row += "\t" + seq2id.get(seq);
+							index++;
+						}
+						FileOutputStream fos = new FileOutputStream(new File("scores.csv"));
 						OutputStreamWriter osw = new OutputStreamWriter(fos);
 						osw.write(row + "\n");
-Thread.sleep(1000);						
 						// traverse query tree
-						for (int i = 0; i < queryRoot.getChildCount(); i++) {
-							DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) queryRoot.getChildAt(i);
-							for (int j = 0; j < fileNode.getChildCount(); j++) {
-								DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-								MascotGenericFile mgf = queryTree.getSpectrumAt(spectrumNode);
-								row = mgf.getTitle();
-								row = row.substring(0, row.indexOf(" "));
-								resultList = resultMap.get(mgf.getTitle());
-								for (RankedLibrarySpectrum rankedSpec : resultList) {
-									row += "\t" + rankedSpec.getScore();
+						DefaultMutableTreeNode leafNode = queryRoot.getFirstLeaf();
+						while (leafNode != null) {
+							MascotGenericFile mgf = queryTree.getSpectrumAt(leafNode);
+							String seq = mgf.getTitle();
+							seq = seq.substring(0, seq.indexOf(" "));
+//							row = mgf.getTitle();
+//							row = row.substring(0, row.indexOf(" "));
+//							row += mgf.getCharge();
+							Integer id2 = seq2id.get(seq + mgf.getCharge());
+							row = String.valueOf((id2 == null) ? -1 : id2);
+							resultList = resultMap.get(mgf.getTitle());
+							int oldIndex = 0;
+							for (RankedLibrarySpectrum rankedSpec : resultList) {
+								index = seq2index.get(rankedSpec.getSequence() + rankedSpec.getSpectrumID());
+								for (int i = oldIndex; i < index; i++) {
+									row += "\t" + 0.0;	// pad with zeros for filtered results
 								}
-								osw.write(row + "\n");
+								row += "\t" + rankedSpec.getScore();
+								oldIndex = index+1;
 							}
+							for (int i = oldIndex; i < candidates.size(); i++) {
+								row += "\t" + 0.0;	// pad with zeros for filtered results
+							}
+							
+							osw.write(row + "\n");
+							leafNode = leafNode.getNextLeaf();
 						}
-						
 						osw.close();
 						fos.close();
-					} catch (Exception e1) {
-						e1.printStackTrace();
+					} catch (Exception ex) {
+						ex.printStackTrace();
 					}
+					// restore cursor
+					setCursor(null);
 				}
 			}
 		});
 
 		JPanel libPnl = new JPanel();
 		libPnl.setLayout(new FormLayout("l:p:g, r:p",		// col
-				"p, 5dlu, f:p:g"));	// row
+										"p, 5dlu, f:p:g"));	// row
 		libPnl.add(new JLabel("<html><font color=#0000ff>Library spectra</font></html>"), cc.xy(1,1));
 		libPnl.add(expBtn, cc.xy(2,1));
 		libPnl.add(libScpn, cc.xyw(1,3,2));
@@ -2664,7 +2260,7 @@ Thread.sleep(1000);
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for(File file : files){
+				for(File file : filePnl.files){
 					dbSearchResult = client.getDbSearchResult(file);
 					updateDbResultsTable();
 				}
@@ -3215,138 +2811,8 @@ Thread.sleep(1000);
 
 	}
 
-	private enum TreeType { FILE_SELECT, RESULT_LIST }
+	
 
-	class SpectrumTree extends JTree implements TreeSelectionListener {
-
-		private TreeType treeType;
-		private File lastSelectedFile;
-		private MascotGenericFileReader reader;
-
-		public SpectrumTree(TreeModel treeModel, TreeType treeType) {
-			super(treeModel);
-			this.treeType = treeType;
-			this.addTreeSelectionListener(this);
-		}
-
-		public String convertValueToText(Object value, boolean selected, boolean expanded,
-				boolean leaf, int row, boolean hasFocus) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-			Object obj = node.getUserObject();
-			if (obj instanceof File) {
-				return ((File)obj).getName();
-			} else if (leaf && !((DefaultMutableTreeNode)value).isRoot()) {
-				if (treeType == TreeType.RESULT_LIST) {
-					try {
-						ArrayList<RankedLibrarySpectrum> hitList = resultMap.get(getSpectrumAt(node).getTitle());
-						int numHits = 0;
-						if (hitList != null) {
-							numHits = hitList.size();
-						}
-						if (numHits == 1) {
-							return ("Spectrum " + obj + "     " + numHits + " hit");
-						} else {
-							return ("Spectrum " + obj + "     " + numHits + " hits");
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					return null;
-				} else {
-					return ("Spectrum " + obj);
-				}
-			} else {
-				return value.toString();
-			}
-		}
-
-		public MascotGenericFile getSpectrumAt(DefaultMutableTreeNode node) throws IOException {
-			if (!node.isRoot() && node.isLeaf()) {
-				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-				File mgfFile = (File) parent.getUserObject();
-				if (!mgfFile.equals(this.lastSelectedFile)) {	// check whether new file has been selected
-					this.lastSelectedFile = mgfFile;			// and open new reader if true
-					if (this.reader != null) {
-						this.reader.close();
-					}
-					this.reader = new MascotGenericFileReader(mgfFile,MascotGenericFileReader.NONE);
-				}
-				int index = (Integer) node.getUserObject();
-				long pos = specPosMap.get(mgfFile.getAbsolutePath()).get(index-1);
- 				return reader.loadNthSpectrum(index, pos);
-			}
-			return null;
-		}
-
-		@Override
-		public void valueChanged(TreeSelectionEvent tse) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
-			MascotGenericFile mgf = null;
-
-			if (node == null) {
-				return;	// nothing is selected.
-			} else {
-				try {
-					mgf = getSpectrumAt(node);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			switch (treeType) {
-			case FILE_SELECT:
-				refreshFileTable(mgf, node);
-				break;
-			case RESULT_LIST:
-				refreshResultsTables(mgf);
-				break;
-			}
-
-		}
-	}
-
-	protected void refreshFileTable(MascotGenericFile mgf, DefaultMutableTreeNode selNode) {
-		if (mgf != null) {
-			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selNode.getParent();
-			File parentFile = (File) parent.getUserObject();
-			fileDetailsTbl.setValueAt(parentFile.getAbsolutePath(), 0, 1);
-			fileDetailsTbl.setValueAt(mgf.getTitle(), 1, 1);
-
-			int numPeaks = 0;
-			ArrayList<Peak> peakList = mgf.getPeakList();
-			for (Peak peak : peakList) {
-				if (peak.getIntensity() > filterSet.getNoiseLvl()) {
-					numPeaks++;
-				}
-			}
-			fileDetailsTbl.setValueAt("<html><font color=#" + ((numPeaks < filterSet.getMinPeaks()) ? "FF" : "00") +
-					"0000>" + numPeaks + " of " + peakList.size() + "</font></html>", 2, 1);
-
-			double TIC = mgf.getTotalIntensity();
-			fileDetailsTbl.setValueAt("<html><font color=#" + ((TIC < filterSet.getMinTIC()) ? "FF" : "00") +
-					"0000>" + TIC + "</font></html>", 3, 1);
-
-			double SNR = mgf.getSNR(filterSet.getNoiseLvl());
-			fileDetailsTbl.setValueAt("<html><font color=#" + ((SNR < filterSet.getMinSNR()) ? "FF" : "00") +
-					"0000>" + SNR + "</font></html>", 4, 1);
-
-			filePlotPnl.setSpectrumFile(mgf,Color.RED);
-			filePlotPnl.repaint();
-			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			packColumn(fileDetailsTbl, 1, 5);
-		} else {
-			fileDetailsTbl.setValueAt(null, 0, 1);
-			fileDetailsTbl.setValueAt(null, 1, 1);
-			fileDetailsTbl.setValueAt(null, 2, 1);
-			fileDetailsTbl.setValueAt(null, 3, 1);
-			fileDetailsTbl.setValueAt(null, 4, 1);
-			filePlotPnl.clearSpectrumFile();
-			filePlotPnl.repaint();
-			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		}
-		packColumn(fileDetailsTbl, 0, 10);
-
-	}
 
 	protected void refreshResultsTables(MascotGenericFile mgf) {
 		// clear library table
@@ -3360,10 +2826,15 @@ Thread.sleep(1000);
 			// re-populate library table
 			resultList = resultMap.get(mgf.getTitle());
 			if (resultList != null) {
-				for (int index = 0; index < resultList.size(); index++) {
-					libTblMdl.addRow(new Object[] { index+1,
-							resultList.get(index).getSequence(),
-							resultList.get(index).getScore() } );
+//				for (int index = 0; index < resultList.size(); index++) {
+//					libTblMdl.addRow(new Object[] { index+1,
+//							resultList.get(index).getSequence(),
+//							resultList.get(index).getScore() } );
+//				}
+				for (RankedLibrarySpectrum rls : resultList) {
+					libTblMdl.addRow(new Object[] { rls.getSpectrumID(),
+													rls.getSequence(),
+													rls.getScore() } );
 				}
 			}
 			packColumn(libTbl, 0, 10);
@@ -3415,118 +2886,7 @@ Thread.sleep(1000);
 		col.setMinWidth(width);
 		col.setPreferredWidth(width);
 	}
-
-
-
-	private class ProcessWorker extends SwingWorker {
-
-		protected Object doInBackground() throws Exception {
-			// appear busy
-			setProgress(0);
-			procBtn.setEnabled(false);
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-			// clone file selection tree, discard unselected branches/leaves
-			CheckBoxTreeSelectionModel selectionModel = fileTree.getSelectionModel();
-			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) fileTree.getModel().getRoot();
-			DefaultTreeModel queryModel = (DefaultTreeModel) queryTree.getModel();
-			DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryModel.getRoot();
-			queryRoot.removeAllChildren();
-
-			for (int i = 0; i < fileRoot.getChildCount(); i++) {
-				DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) fileRoot.getChildAt(i);
-				TreePath filePath = new TreePath(fileNode.getPath());
-				if ((selectionModel.isPathSelected(filePath, true)) || 
-						(selectionModel.isPartiallySelected(filePath))) {
-					// create a new node containing only the file tree node's selected sub-nodes
-					DefaultMutableTreeNode fileNodeClone = new DefaultMutableTreeNode(fileNode.getUserObject());
-					queryModel.insertNodeInto(fileNodeClone, queryRoot, queryRoot.getChildCount());
-					for (int j = 0; j < fileNode.getChildCount(); j++) {
-						DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-						TreePath spectrumPath = new TreePath(spectrumNode.getPath());
-						if (selectionModel.isPathSelected(spectrumPath, true)) {
-							DefaultMutableTreeNode spectrumNodeClone = new DefaultMutableTreeNode(spectrumNode.getUserObject());
-							queryModel.insertNodeInto(spectrumNodeClone, fileNodeClone, fileNodeClone.getChildCount());
-						}
-					}
-				}
-			}
-
-			// consolidate selected spectra into files
-			int packageSize = (Integer) packSpn.getValue();
-			FileOutputStream fos = null;
-
-			ArrayList<File> files = new ArrayList<File>();
-
-			long startTime = System.currentTimeMillis();
-			logPnl.append("Packing files... ");
-			int numSpectra = 0;
-
-			try {
-				for (int i = 0; i < queryRoot.getChildCount(); i++) {
-					DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) queryRoot.getChildAt(i);
-					for (int j = 0; j < fileNode.getChildCount(); j++) {
-						DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
-							if (fos != null) {
-								try {
-									fos.close();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							File file = new File("batch_" + (numSpectra/packageSize) + ".mgf");
-							files.add(file);
-							fos = new FileOutputStream(file);
-						}
-						numSpectra++;
-						MascotGenericFile mgf = queryTree.getSpectrumAt(spectrumNode);
-						mgf.writeToStream(fos);
-						fos.flush();
-					}
-				}
-				fos.close();
-				logPnl.append("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-
-			// process files
-			double progress = 0;
-			double max = files.size();
-			startTime = System.currentTimeMillis();
-			logPnl.append("Processing files...");
-
-			ProcessSettings procSet = new ProcessSettings((Double) tolMzSpn.getValue(),
-														  (Double) thMzSpn.getValue(),
-														  (Integer) kSpn.getValue(),
-														  (Double) thScSpn.getValue(),
-														  (Boolean) annotChk.isSelected());
-			// XXX
-			if (expIdSpn.isEnabled()) { procSet.setExpID((Long)expIdSpn.getValue()); };
-
-			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
-			client.initDBConnection();
-			for (File file : files) {
-				resultMap.putAll(client.process(file, procSet));
-				progress++;
-				setProgress((int)(progress/max*100));
-			}
-			client.clearDBConnection();
-			logPnl.append("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
-
-			return 0;
-		}
-
-		@Override
-		public void done() {
-			procBtn.setEnabled(true);
-			((DefaultTreeModel) queryTree.getModel()).reload();
-			setCursor(null);	//turn off the wait cursor
-		}
-	}
-
+	
 	/**
 	 * RunDBSearchWorker class extending SwingWorker.
 	 * @author Thilo Muth
@@ -3536,19 +2896,19 @@ Thread.sleep(1000);
 
 		protected Object doInBackground() throws Exception {
 			double progress = 0;
-			double max = files.size();
+			double max = filePnl.files.size();
 			setProgress(0);
 			int i = 1;
 			
 			DbSearchSettings settings = collectDBSearchSettings();
 			try {
-				for (File file : files) {
+				for (File file : filePnl.files) {
 					client.runDbSearch(file, settings);
 					i++;
 					progress++;
 					setProgress((int)(progress/max*100));
 				}
-				files.clear();
+				filePnl.files.clear();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -3557,7 +2917,7 @@ Thread.sleep(1000);
 
 		@Override
 		public void done() {
-			procBtn.setEnabled(true);
+			specLibPnl.setButtonEnabled(true);
 		}
 	}
 
@@ -3570,16 +2930,16 @@ Thread.sleep(1000);
 
 		protected Object doInBackground() throws Exception {
 			double progress = 0;
-			double max = files.size();
+			double max = filePnl.files.size();
 			setProgress(0);
 			DenovoSearchSettings settings = collectDenovoSettings();
 			try {
-				for (File file : files) {
+				for (File file : filePnl.files) {
 					client.runDenovoSearch(file, settings);
 					progress++;
 					setProgress((int)(progress/max*100));
 				}
-				files.clear();
+				filePnl.files.clear();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -3588,7 +2948,7 @@ Thread.sleep(1000);
 
 		@Override
 		public void done() {
-			procBtn.setEnabled(true);
+			specLibPnl.setButtonEnabled(true);
 		}
 	}
 
@@ -3609,6 +2969,18 @@ Thread.sleep(1000);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+	}
+	
+	/**
+	 * Method to append text to the logging panel.
+	 * @param str The String to append.
+	 */
+	public void appendToLog(String str) {
+		logPnl.append(str);
+	}
+	
+	public FilePanel getFilePanel() {
+		return filePnl;
 	}
 
 	/**

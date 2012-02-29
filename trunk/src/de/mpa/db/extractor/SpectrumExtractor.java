@@ -2,10 +2,13 @@ package de.mpa.db.extractor;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.Protein;
 import de.mpa.db.accessor.Libspectrum;
@@ -55,7 +58,7 @@ public class SpectrumExtractor {
 			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
 			for (PeptideAccessor peptide : peptides) {
 				ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
+				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, spectrumID, peptide.getSequence());
 				for (Long proteinID : proteinIDs) {
 					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
 					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
@@ -94,7 +97,7 @@ public class SpectrumExtractor {
 				for (PeptideAccessor peptide : peptides) {
 					// find protein annotations next
 					ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-					LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
+					LibrarySpectrum libSpec = new LibrarySpectrum(mgf, libSpecID, peptide.getSequence());
 					for (Long proteinID : proteinIDs) {
 						ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
 						libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
@@ -102,7 +105,7 @@ public class SpectrumExtractor {
 					spectra.add(libSpec);
 				}
 			} else {
-				spectra.add(new LibrarySpectrum(mgf, entry.getPrecursor_mz().doubleValue(), null));
+				spectra.add(new LibrarySpectrum(mgf, libSpecID, null));
 			}
 		}
 		
@@ -133,7 +136,7 @@ public class SpectrumExtractor {
 			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
 			for (PeptideAccessor peptide : peptides) {
 				ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, mgf.getPrecursorMZ(), peptide.getSequence());
+				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, spectrumID, peptide.getSequence());
 				for (Long proteinID : proteinIDs) {
 					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
 					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
@@ -161,5 +164,70 @@ public class SpectrumExtractor {
 		byte[] result = spectrumFile.getUnzippedFile();
 		
 		return new MascotGenericFile(spectrum.getFilename(), new String(result));
+	}
+	
+	/**
+	 * Returns the list of spectrum IDs belonging to spectral search candidates of a specific experiment.
+	 * @param experimentID The ID of the experiment to be queried.
+	 * @return ArrayList containing the spectrum IDs.
+	 * @throws SQLException
+	 */
+	public ArrayList<Long> getCandidateIDsFromExperiment(long experimentID) throws SQLException {
+		ArrayList<Long> res = new ArrayList<Long>();
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT libspectrumid FROM libspectrum " +
+					 								 "INNER JOIN spec2pep ON libspectrum.libspectrumid = spec2pep.fk_spectrumid " + 
+					 								 "WHERE libspectrum.fk_experimentid = " + experimentID);
+		ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            res.add(rs.getLong(1));
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
+	}
+	
+//	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(ArrayList<Interval> precIntervals, long experimentID) throws SQLException {
+	
+	/**
+	 * Returns the list of spectral search candidates that belong to a specific experiment and are bounded by specified precursor mass intervals.
+	 * @param precIntervals The list of precursor mass intervals.
+	 * @param experimentID The ID of the experiment to be queried.
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(ArrayList<Interval> precIntervals, long experimentID) throws SQLException {
+		ArrayList<SpectralSearchCandidate> res = new ArrayList<SpectralSearchCandidate>(precIntervals.size());
+		
+		// construct SQL statement
+		StringBuilder sb = new StringBuilder("SELECT libspectrumid, spectrumname, precursor_mz, charge, mzarray, intarray, fk_peptideid, sequence FROM libspectrum " +
+				   							 "INNER JOIN arrayspectrum ON libspectrum.libspectrumid = arrayspectrum.fk_libspectrumid " +
+				   							 "INNER JOIN spec2pep ON libspectrum.libspectrumid = spec2pep.fk_spectrumid " + 
+				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
+				   							 "WHERE (");
+		for (Interval precInterval : precIntervals) {
+			sb.append("libspectrum.precursor_mz BETWEEN ");
+			sb.append(precInterval.getLeftBorder());
+			sb.append(" AND ");
+			sb.append(precInterval.getRightBorder());
+			sb.append(" OR ");
+		}
+		for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
+		sb.append(") ");
+		if (experimentID != 0L) {
+			sb.append("AND libspectrum.fk_experimentid = " + experimentID);
+		}
+		
+		// execute SQL statement and build result list
+		PreparedStatement ps = conn.prepareStatement(sb.toString());
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            res.add(new SpectralSearchCandidate(rs));
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
 	}
 }

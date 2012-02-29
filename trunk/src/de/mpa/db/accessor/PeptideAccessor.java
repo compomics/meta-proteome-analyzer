@@ -130,9 +130,9 @@ public class PeptideAccessor extends PeptideTableAccessor {
     	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
     	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
 									    			  " INNER JOIN speclibentry" +
-									    			  " ON peptide.peptideid = speclibentry.fk_peptideid" +
+									    			  " ON peptide.peptideid = spec2pep.fk_peptideid" +
 									    			  " INNER JOIN libspectrum" +
-									    			  " ON speclibentry.fk_spectrumid = libspectrum.libspectrumid" +
+									    			  " ON spec2pep.fk_spectrumid = libspectrum.libspectrumid" +
 									    			  " WHERE libspectrum.libspectrumid = ?");
         ps.setLong(1, spectrumID);
         ResultSet rs = ps.executeQuery();

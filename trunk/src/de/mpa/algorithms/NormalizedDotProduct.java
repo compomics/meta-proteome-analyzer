@@ -1,64 +1,108 @@
 package de.mpa.algorithms;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.mpa.interfaces.SpectrumComparator;
-import de.mpa.io.Peak;
 
 public class NormalizedDotProduct implements SpectrumComparator {
 	
-	// threshold below which multiple masses are consolidated into one 
-	private double threshMz;
+	/**
+	 * The bin width into which spectrum intensities are consolidated into during vectorization.
+	 */
+	private double binWidth;
 	
-	private double similarity = 0.0; 
+	/**
+	 * The amount the bin centers are shifted along the m/z axis.
+	 */
+	private double binShift;
 	
-	public NormalizedDotProduct(double threshMz) {
-		this.threshMz = threshMz;
+	/**
+	 * The input transformation method.
+	 */
+	private Trafo trafo;
+
+	/**
+	 * The peak map of the source spectrum which gets auto-correlated during preparation.
+	 */
+	private Map<Double, Double> peaksSrc; 
+	
+	/**
+	 * The similarity score between source spectrum and target spectrum.
+	 * Ranges between 0.0 and 1.0.
+	 */
+	private double similarity = 0.0;
+	
+	/**
+	 * Default class constructor. Bin width and shift default to 1.0 Da and \u00b10.0 Da respectively.
+	 */
+	public NormalizedDotProduct() {
+		this(1.0, 0.0, new Trafo() { public double transform(double input) { return input; } });
+	}
+	
+	/**
+	 * Class constructor.
+	 * @param binWidth The bin width into which spectrum intensities are consolidated into during vectorization.
+	 * @param binShift The amount the bin centers are shifted along the m/z axis.
+	 */
+	public NormalizedDotProduct(double binWidth, double binShift, Trafo trafo) {
+		this.binWidth = binWidth;
+		this.binShift = binShift;
+		this.trafo = trafo;
 	}
 
 	@Override
-	public void compare(ArrayList<Peak> highA, ArrayList<Peak> highB) {
-		ArrayList<Double> sA = new ArrayList<Double>();
-		ArrayList<Double> sB = new ArrayList<Double>();
+	public void prepare(Map<Double, Double> inputPeaksSrc) {
+
+		peaksSrc = new HashMap<Double, Double>(inputPeaksSrc.size());
+
+		// bin source spectrum
+		for (Double mzSrc : inputPeaksSrc.keySet()) {
+			// round peak mass to nearest bin center
+			double roundedMz = Math.round((mzSrc-binShift)/binWidth)*binWidth + binShift;
+			// transform peak intensity
+			double intenSrc = trafo.transform(inputPeaksSrc.get(mzSrc));
+			if (peaksSrc.containsKey(roundedMz)) { intenSrc += peaksSrc.get(roundedMz); }	// add to already existing bin
+			// store transformed peak
+			peaksSrc.put(roundedMz, intenSrc);
+		}
 		
-		if ((highA != null) && (highB != null)) {
-			// build intensity vectors
-			for (Peak peakA : highA) {
-				sA.add(peakA.getIntensity());
-//				sA.add(Math.sqrt(peakA.getIntensity()));	// sqrt-transform to condition Poisson-distributed data
-				
-				// compare each peak mass of spectrum A to all masses of spectrum B
-				// and remove duplicates from the latter
-				for (Iterator<Peak> it = highB.iterator(); it.hasNext();) {
-				    Peak peakB = it.next();
-					if (Math.abs(peakB.getMz()-peakA.getMz()) < this.threshMz) {
-						sB.add(peakB.getIntensity());
-//						sB.add(Math.sqrt(peakB.getIntensity()));
-						it.remove();
-						break;
-					}
-				}
-				if (sB.size() < sA.size()) {	// in case no duplicates were found,
-					sB.add(0.0);				// add zeros instead
-				}
+	}
+	
+	@Override
+	public void compareTo(Map<Double, Double> inputPeaksTrg) {
+		
+		HashMap<Double, Double> peaksTrg = new HashMap<Double, Double>(inputPeaksTrg.size());
+		
+		// bin target spectrum
+		for (Double mzTrg : inputPeaksTrg.keySet()) {
+			// round peak mass to nearest bin center
+			double roundedMz = Math.round((mzTrg-binShift)/binWidth)*binWidth + binShift;
+			// transform peak intensity
+			double intenTrg = trafo.transform(inputPeaksTrg.get(mzTrg));
+			if (peaksTrg.containsKey(roundedMz)) { intenTrg += peaksTrg.get(roundedMz); }	// add to already existing bin
+			// store transformed peak
+			peaksTrg.put(roundedMz, intenTrg);
+		}
+		
+		// calculate dot product
+		double numer = 0.0, denom1 = 0.0, denom2 = 0.0;
+		for (double mzTrg : peaksTrg.keySet()) {
+			double intenTrg = peaksTrg.get(mzTrg);
+			Double intenSrc = peaksSrc.get(mzTrg);
+			if (intenSrc != null) {
+				numer  += intenSrc * intenTrg;
+				denom1 += intenSrc * intenSrc;
 			}
-			for (Peak peakB : highB) {
-				sA.add(0.0);
-				sB.add(peakB.getIntensity());
-//				sB.add(Math.sqrt(peakB.getIntensity()));
-			}
-			
-			// compute normalized dot product
-			double numer = 0.0, denom1 = 0.0, denom2 = 0.0;
-			for (int i = 0; i < sA.size(); i++) {
-				numer  += sA.get(i) * sB.get(i);
-				denom1 += sA.get(i) * sA.get(i);
-				denom2 += sB.get(i) * sB.get(i);
-			}
-			
-			this.similarity = numer / Math.sqrt(denom1 * denom2); 
-		}			
+			denom2 += intenTrg * intenTrg;
+		}
+		
+//		for (double mzTrg : inputPeaksTrg.keySet()) {
+//			double roundedMz = Math.round((mzTrg-binShift)/binWidth)*binWidth + binShift;
+//		}
+		
+		// normalize score
+		this.similarity = numer / Math.sqrt(denom1 * denom2);
 	}
 
 	@Override
@@ -66,12 +110,9 @@ public class NormalizedDotProduct implements SpectrumComparator {
 		return similarity;
 	}
 
-	public double getThreshMz() {
-		return threshMz;
-	}
-
-	public void setThreshMz(double threshMz) {
-		this.threshMz = threshMz;
+	@Override
+	public Map<Double, Double> getSourcePeaks() {
+		return peaksSrc;
 	}
 
 }

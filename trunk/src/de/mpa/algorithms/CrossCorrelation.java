@@ -1,190 +1,147 @@
 package de.mpa.algorithms;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.Map;
 
 import de.mpa.interfaces.SpectrumComparator;
-import de.mpa.io.Peak;
 
 public class CrossCorrelation implements SpectrumComparator {
 	
-	// amount of bins into which the peak intensities are consolidated
-	private int numBins;
-
-	// maximum negative and positive m/z offset
-	private int offset = 75;
+	// TODO: re-normalize after binning?
 	
-	// similarity score
+	/**
+	 * The bin width into which spectrum intensities are consolidated into during vectorization.
+	 */
+	private double binWidth;
+
+	/**
+	 * The amount the bin centers are shifted along the m/z axis.
+	 */
+	private double binShift;
+	
+	/**
+	 * The amount of neighboring bins that are evaluated (in both positive and negative m/z direction) during correlation.
+	 */
+	private int offsets;
+	
+	/**
+	 * The input transformation method.
+	 */
+	private Trafo trafo;
+	
+	/**
+	 * The peak map of the source spectrum which gets auto-correlated during preparation.
+	 */
+	private Map<Double, Double> peaksSrc;
+	
+	/**
+	 * The auto-correlation score of the source spectrum. Used for normalization purposes.
+	 */
+	private double autoCorr = 1.0;
+	
+	/**
+	 * The similarity score between source spectrum and target spectrum.
+	 * Ranges between 0.0 (negative scores are cut off) and around 1.0
+	 * (higher scores are possible due to poor auto-correlation of the source spectrum).
+	 */
 	private double similarity = 0.0;
 	
 	/**
-	 * Class constructor. The amount of bins into which peaks will be consolidated will be determined automatically using 1 Da intervals when calling compare().
+	 * Default class constructor. Bin width and shift default to 1.0 Da and \u00b10.0 Da respectively.
+	 * The algorithm will evaluate the neighboring 75 bins for auto- and cross-correlation.
 	 */
 	public CrossCorrelation() {
-		this(0);
+		this(1.0, 0.0, 75, new Trafo() { public double transform(double input) { return input; } });
 	}
 	
 	/**
 	 * Class constructor.
-	 * @param N int defining the amount of bins to consolidate peaks into. A value of 0 causes the amount of bins to be determined automatically using 1 Da intervals.
+	 * @param binWidth The bin width into which spectrum intensities are consolidated into during vectorization.
+	 * @param binShift The amount the bin centers are shifted along the m/z axis.
+	 * @param offsets The amount of neighboring bins that are evaluated (in either direction) during correlation.
 	 */
-	public CrossCorrelation(int N) {
-		this.numBins = N;
+	public CrossCorrelation(double binWidth, double binShift, int offsets, Trafo trafo) {
+		this.binWidth = binWidth;
+		this.binShift = binShift;
+		this.offsets = offsets;
+		this.trafo = trafo;
 	}
 
 	@Override
-	public void compare(ArrayList<Peak> peaksA, ArrayList<Peak> peaksB) {
-		int numBins = this.numBins;
-		
-		// build intensity vectors
-		ArrayList<Double> sA = new ArrayList<Double>();
-		ArrayList<Double> sB = new ArrayList<Double>();
-		
-		if ((peaksA != null) && (peaksB != null)) {
-			// determine normalization factors
-			double maxIntenA = 0.0, maxIntenB = 0.0;
-			for (Peak peakA : peaksA) {
-				if (peakA.getIntensity() > maxIntenA) { maxIntenA = peakA.getIntensity(); }
-			}
-			for (Peak peakB : peaksB) {
-				if (peakB.getIntensity() > maxIntenB) { maxIntenB = peakB.getIntensity(); }
-			}
-			
-			// left boundary, rounded down to nearest Da
-			double min = Math.floor(Math.min(peaksA.get(0).getMz(), peaksB.get(0).getMz()));
-			// right boundary, rounded up to nearest Da
-			double max = Math.ceil(Math.max(peaksA.get(peaksA.size()-1).getMz(), peaksB.get(peaksB.size()-1).getMz()));
-			// width of a single bin
-			double width = 1.0;	// Da
-			// auto-determine bins if necessary
-			if (numBins == 0) {
-				numBins = (int) (max-min);
-			} else {
-				width = (max-min)/numBins;
-			}
-			// add additional bins to each end
-			min -= this.offset * width;
-			max += this.offset * width;
-			
-//			System.out.println(min + " " + max + " " + width);
-			
-			// iterate over bins and sum peaks within bounds (direct binning)
-			for (int i = 1; i <= numBins + 2*this.offset; i++) {
-				double lBound = min + (i-1) * width;
-				double rBound = min +   i   * width;
-				double intenA = 0.0;
-				// iterate through all peaks and check whether they belong in the current bin
-				for (Peak peak : peaksA) {
-					if (peak.getMz() >= lBound) {
-						if  (peak.getMz() < rBound) {
-							intenA += peak.getIntensity();
-						} else {
-							break;
-						}
-					}
-				}
-				double intenB = 0.0;
-				for (Peak peak : peaksB) {
-					if (peak.getMz() >= lBound) {
-						if  (peak.getMz() < rBound) {
-							intenB += peak.getIntensity();
-						} else {
-							break;
-						}
-					}
-				}
-				// normalization and square root transform for increased sensitivity
-				sA.add(Math.sqrt(intenA/maxIntenA));
-				sB.add(Math.sqrt(intenB/maxIntenB));
-			}
-			
-			// apply cross correlation processing and compute (normalized) dot product
-			double numer = 0.0, denom1 = 0.0, denom2 = 0.0;
-			for (int i = 0; i < numBins; i++) {
-				// transform intensity vector A element-wise
-				double y_tau = 0.0;
-				for (int tau = -this.offset; tau <= this.offset; tau++) {
-					if (tau == 0) {	// skip non-offset spectrum
-						continue;
-					}
-					y_tau += sA.get(i+this.offset+tau);
-				}
-				double y_prime = sA.get(i+this.offset) - y_tau/(2*this.offset);
-				// normalized dot prod parts
-				numer  += sB.get(i+this.offset) * y_prime;
-				denom1 += sB.get(i+this.offset) * sB.get(i+this.offset);
-				denom2 += y_prime * y_prime;
-			}
-			
-			this.similarity = numer;	// non-normalized
-//			this.similarity = numer / Math.sqrt(denom1 * denom2); 
-			
-		}			
-	}
+	public void prepare(Map<Double, Double> inputPeaksSrc) {
 
-	public void compare(HashMap<Double, Double> peaksA,
-						HashMap<Double, Double> peaksB) {
-		// determine normalization factors
-		TreeSet<Double> temp;
-		// sort intensities to find maximum
-		temp = new TreeSet<Double>(peaksA.values());
-		double maxIntenA = temp.last();
-		temp = new TreeSet<Double>(peaksB.values());
-		double maxIntenB = temp.last();
-		
-		// consolidate peaks into single map containing arrays of 2 intensities as values
-		HashMap<Double, double[]> peaks = new HashMap<Double, double[]>();
-		// iterate over first peak map
-		for (double mz : peaksA.keySet()) {
-			double roundedMz = Math.floor(mz);
-			double[] intensities = peaks.get(roundedMz);
-			if (intensities == null) {	// intensity list does not exist yet, therefore create new one
-				intensities = new double[] { peaksA.get(mz)/maxIntenA, 0.0 };
-			} else {	// intensity list already exists, therefore add new intensity to it
-				intensities[0] += peaksA.get(mz)/maxIntenA;
-			}
-			peaks.put(roundedMz, intensities);
-		}
-		// iterate over second peak map
-		for (double mz : peaksB.keySet()) {
-			double roundedMz = Math.floor(mz);
-			double[] intensities = peaks.get(roundedMz);
-			if (intensities == null) {	// intensity list does not exist yet, therefore create new one
-				intensities = new double[] { 0.0, peaksB.get(mz)/maxIntenB };
-			} else {	// intensity list already exists, therefore add new intensity to it
-				intensities[1] += peaksB.get(mz)/maxIntenB;
-			}
-			peaks.put(roundedMz, intensities);
-		}
-		
-		// apply square root transform
-		for (double[] intensities : peaks.values()) {
-			intensities[0] = Math.sqrt(intensities[0]);
-			intensities[1] = Math.sqrt(intensities[1]);
-		}
-		
-		// apply cross correlation processing and compute (normalized?) dot product
-		double numer = 0.0;
-//		double denom1 = 0.0, denom2 = 0.0;
-		for (double mz : peaks.keySet()) {
-			// transform intensities from first map element-wise
-			double y_tau = 0.0;
-			for (int tau = -this.offset; tau <= this.offset; tau++) {
-				if ((!peaks.containsKey(mz + tau)) || (tau == 0)) {
-					continue;	// skip missing or non-offset masses
+		peaksSrc = new HashMap<Double, Double>(inputPeaksSrc.size());
+
+		// bin source spectrum
+		double maxIntenSrc = 0.0;	// maximum intensity, to be used as normalization factor later on
+		for (Double mzSrc : inputPeaksSrc.keySet()) {
+			// round peak mass to nearest bin center
+			double roundedMz = Math.round((mzSrc-binShift)/binWidth)*binWidth + binShift;
+			// transform peak intensity
+			double intenSrc = trafo.transform(inputPeaksSrc.get(mzSrc));
+			// apply cross-correlation processing and store resulting peaks
+			for (int tau = -offsets; tau <= offsets; tau++) {
+				double offsetMz = roundedMz + tau*binWidth;
+				if (peaksSrc.containsKey(offsetMz)) {
+					if (tau == 0) {		// add to central bin
+						intenSrc += peaksSrc.get(offsetMz);
+						peaksSrc.put(offsetMz, intenSrc);
+						maxIntenSrc = (intenSrc > maxIntenSrc) ? intenSrc : maxIntenSrc;
+					} else {			// substract from surrounding bins
+						peaksSrc.put(offsetMz, peaksSrc.get(offsetMz) - intenSrc/(2*offsets));
+					}
+				} else {
+					if (tau == 0) {
+						peaksSrc.put(offsetMz, intenSrc);
+						maxIntenSrc = (intenSrc > maxIntenSrc) ? intenSrc : maxIntenSrc;
+					} else {
+						peaksSrc.put(offsetMz, -intenSrc/(2*offsets));
+					}
 				}
-				y_tau += peaks.get(mz + tau)[0];
 			}
-			double y_prime = peaks.get(mz)[0] - y_tau/(2*this.offset);
-			// dot prod parts
-			numer  += peaks.get(mz)[1] * y_prime;
-//			denom1 += peaks.get(mz)[1] * peaks.get(mz)[1];
-//			denom2 += y_prime * y_prime;
+		}
+		// normalize source spectrum
+		for (double mzSrc : peaksSrc.keySet()) { peaksSrc.put(mzSrc, peaksSrc.get(mzSrc)/maxIntenSrc); }
+		
+		autoCorr = 0.0;
+		for (Double mzSrc : peaksSrc.keySet()) {
+			double intenSrc = peaksSrc.get(mzSrc);
+			autoCorr += intenSrc * intenSrc; 
+		}
+	}
+	
+	@Override
+	public void compareTo(Map<Double, Double> inputPeaksTrg) {
+		
+		HashMap<Double, Double> peaksTrg = new HashMap<Double, Double>(inputPeaksTrg.size());
+		
+		// bin target spectrum
+		double maxIntenTrg = 0.0;	// maximum intensity, to be used as normalization factor later on
+		for (Double mzTrg : inputPeaksTrg.keySet()) {
+			// round peak mass to nearest bin center
+			double roundedMz = Math.round((mzTrg-binShift)/binWidth)*binWidth + binShift;
+			// transform peak intensity
+			double intenTrg = trafo.transform(inputPeaksTrg.get(mzTrg));
+			if (peaksTrg.containsKey(roundedMz)) { intenTrg += peaksTrg.get(roundedMz); }	// add to already existing bin
+			maxIntenTrg = (intenTrg > maxIntenTrg) ? intenTrg : maxIntenTrg;
+			// store transformed peak
+			peaksTrg.put(roundedMz, intenTrg);
+		}
+		// normalize target spectrum
+		for (double mzTrg : peaksTrg.keySet()) { peaksTrg.put(mzTrg, peaksTrg.get(mzTrg)/maxIntenTrg); }
+		
+		// calculate dot product
+		double numer = 0.0;
+		for (double mzTrg : peaksTrg.keySet()) {
+			Double intenSrc = peaksSrc.get(mzTrg);
+			if (intenSrc != null) {
+				numer += intenSrc * peaksTrg.get(mzTrg);
+			}
 		}
 		
-		this.similarity = numer;	// non-normalized
-//		this.similarity = numer / Math.sqrt(denom1 * denom2); 
+		// normalize score using auto-correlation
+		double similarity = numer/autoCorr;
+		this.similarity = (similarity > 0.0) ? similarity : 0.0;	// cut off negative scores, reset to zero
 	}
 
 	@Override
@@ -192,12 +149,9 @@ public class CrossCorrelation implements SpectrumComparator {
 		return similarity;
 	}
 
-	public double getNumBins() {
-		return numBins;
-	}
-
-	public void setNumBins(int numBins) {
-		this.numBins = numBins;
+	@Override
+	public Map<Double, Double> getSourcePeaks() {
+		return peaksSrc;
 	}
 
 }

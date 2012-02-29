@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
@@ -71,8 +70,7 @@ public class MascotGenericFile implements SpectrumFile {
     	
     	double signal = 0.0;
     	double noise = 0.0;
-    	for (Peak peak : lPeaks) {
-    		double intensity = peak.getIntensity();
+    	for (double intensity : iPeaks.values()) {
     		if (intensity > noiseLvl) {
     			signal += intensity;
     		} else {
@@ -87,31 +85,31 @@ public class MascotGenericFile implements SpectrumFile {
     }
     
     
-    private ArrayList<Peak> lPeaks = new ArrayList<Peak>();
-    
-    public ArrayList<Peak> getPeakList() {
-    	return this.lPeaks;
-    }
-
-    public ArrayList<Peak> getHighestPeaksList(int k) {
-    	
-    	ArrayList<Peak>	peaks = new ArrayList<Peak>(lPeaks);
-    	
-    	Collections.sort(peaks, new Comparator<Peak>() { 
-            public int compare(Peak o1, Peak o2) {
-                Peak p1 = (Peak) o1;
-                Peak p2 = (Peak) o2;
-               return Double.compare(p1.getIntensity(),p2.getIntensity());
-            }
-		});
-    	
-    	peaks.subList(0, peaks.size()-k).clear();
-
-    	ArrayList<Peak>	res = new ArrayList<Peak>(lPeaks);
-    	res.retainAll(peaks);
-    	
-    	return res;
-    }
+//    private ArrayList<Peak> lPeaks = new ArrayList<Peak>();
+//    
+//    public ArrayList<Peak> getPeakList() {
+//    	return this.lPeaks;
+//    }
+//
+//    public ArrayList<Peak> getHighestPeaksList(int k) {
+//    	
+//    	ArrayList<Peak>	peaks = new ArrayList<Peak>(lPeaks);
+//    	
+//    	Collections.sort(peaks, new Comparator<Peak>() { 
+//            public int compare(Peak o1, Peak o2) {
+//                Peak p1 = (Peak) o1;
+//                Peak p2 = (Peak) o2;
+//               return Double.compare(p1.getIntensity(),p2.getIntensity());
+//            }
+//		});
+//    	
+//    	peaks.subList(0, peaks.size()-k).clear();
+//
+//    	ArrayList<Peak>	res = new ArrayList<Peak>(lPeaks);
+//    	res.retainAll(peaks);
+//    	
+//    	return res;
+//    }
     
     
     
@@ -576,7 +574,7 @@ public class MascotGenericFile implements SpectrumFile {
                         temp = st.nextToken().trim();
                         Double intensity = new Double(temp);
                         
-                        this.lPeaks.add(new Peak(mass, intensity));
+//                        this.lPeaks.add(new Peak(mass, intensity));
                         
                         this.iPeaks.put(mass, intensity);
                         if (st.hasMoreTokens()) {
@@ -742,19 +740,19 @@ public class MascotGenericFile implements SpectrumFile {
     }
     
     public HashMap<Double, Double> getHighestPeaks(int k) {
-    	HashMap<Double, Double> res = new HashMap<Double, Double>(iPeaks);
-    	TreeSet sortedSet = null;
-    	try {
-//    		sortedSet = (TreeSet) res.entrySet();
-    		sortedSet = new TreeSet<Double>(res.values());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	while (sortedSet.size() > k) {
-    		res.values().remove(sortedSet.first());
-    		sortedSet.remove(sortedSet.first());
+    	if (k == 0) {
+    		return iPeaks;
+    	} else {
+    		HashMap<Double, Double> res = new HashMap<Double, Double>(iPeaks);
+    		ArrayList<Double> sortedList = new ArrayList<Double>(res.values());
+    		Collections.sort(sortedList);
+    		Iterator<Double> iter = sortedList.listIterator();
+    		while (res.size() > k) {
+    			res.values().remove(iter.next());
+    			iter.remove();
+    		}
+    		return res;
     	}
-        return res;
     }
     
     public double getPrecursorMZ() {
