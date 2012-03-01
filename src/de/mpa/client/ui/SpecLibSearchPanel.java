@@ -1,5 +1,6 @@
 package de.mpa.client.ui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -8,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +40,7 @@ import de.mpa.algorithms.CrossCorrelation;
 import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.algorithms.Trafo;
+import de.mpa.client.Client;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
@@ -147,7 +148,7 @@ public class SpecLibSearchPanel extends JPanel {
 	 */
 	private void initComponents() {
 		
-		CellConstraints cc = clientFrame.cc;
+		CellConstraints cc = new CellConstraints();
 		
 		this.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",						// col
 									  "5dlu, p, 5dlu, p, 5dlu, f:p, 0dlu:g, 5dlu"));	// row;
@@ -181,8 +182,13 @@ public class SpecLibSearchPanel extends JPanel {
 							}
 							procLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
 									(remainingTime%3600)/60, (remainingTime%60)));
-						} 
-
+						} else if (evt.getPropertyName() == "foreground") {
+							procPrg.setForeground((Color) evt.getNewValue());
+						} else if (evt.getPropertyName() == "background") {
+							procPrg.setBackground((Color) evt.getNewValue());
+						} else if (evt.getPropertyName() == "text") {
+							procBtn.setText((String) evt.getNewValue());
+						}
 					}
 				});
 				worker.execute();
@@ -509,8 +515,8 @@ public class SpecLibSearchPanel extends JPanel {
 		for (Double mz : transPeaks.keySet()) { transPeaks.put(mz, transPeaks.get(mz)/maxInten); }
 		
 		// add spectra to plot panel and paint them
-		prePlotPnl.setSpectrumFile(new MascotGenericFile( basePeaks, 0.0, 0, ""));
-		prePlotPnl.setSpectrumFile(new MascotGenericFile(transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile.getCharge(), ""));
+		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null,  basePeaks, 			0.0				  , 			0			));
+		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null, transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile.getCharge()));
 		prePlotPnl.repaint();
 	}
 	
@@ -544,12 +550,13 @@ public class SpecLibSearchPanel extends JPanel {
 	public class SpecLibSearchWorker extends SwingWorker {
 
 		private ClientFrame clientFrame;
+		private Client client;
 		
-		private double progress = 0.0;
 		private double maxProgress;
 		
 		public SpecLibSearchWorker(ClientFrame clientFrame) {
 			this.clientFrame = clientFrame;
+			this.client = clientFrame.getClient();
 			this.maxProgress = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel().getSelectionCount();
 		}
 
@@ -557,7 +564,7 @@ public class SpecLibSearchPanel extends JPanel {
 			
 			// appear busy
 			setProgress(0);
-			procPrg.setBackground(UIManager.getColor("ProgressBar.background"));
+			firePropertyChange("background", null, UIManager.getColor("ProgressBar.background"));
 			procBtn.setEnabled(false);
 			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -587,63 +594,44 @@ public class SpecLibSearchPanel extends JPanel {
 				}
 			}
 
-			// consolidate selected spectra into files
-			int packageSize = (Integer) packSpn.getValue();
-			FileOutputStream fos = null;
-
-			ArrayList<File> files = new ArrayList<File>();
-
-			clientFrame.appendToLog("Packing files... ");
-			progress = 0.0;
-			procPrg.setForeground(UIManager.getColor("ProgressBar.foreground").brighter());
-			procBtn.setText("Packing...");
-			int numSpectra = 0;
-			long startTime = System.currentTimeMillis();
-
-			try {
-				DefaultMutableTreeNode spectrumNode = queryRoot.getFirstLeaf();
-				if (spectrumNode != queryRoot) {
-					while (spectrumNode != null) {
-						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
-							if (fos != null) {
-								fos.close();
-							}
-							File file = new File("batch_" + (numSpectra/packageSize) + ".mgf");
-							files.add(file);
-							fos = new FileOutputStream(file);
-						}
-						numSpectra++;
-						MascotGenericFile mgf = clientFrame.queryTree.getSpectrumAt(spectrumNode);
-						mgf.writeToStream(fos);
-						fos.flush();
-						spectrumNode = spectrumNode.getNextLeaf();
-						incrementProgress();
-					}
-					fos.close();
+			// register property change listener with client
+			PropertyChangeListener listener = new PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					setProgress((int)((Integer)evt.getNewValue()/maxProgress*100.0));
 				}
-				clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			};
+			client.addPropertyChangeListener(listener);
+
+			// consolidate selected spectra into files
+			clientFrame.appendToLog("Packing files... ");
+			Color modifiedColor = UIManager.getColor("ProgressBar.foreground").brighter();
+			firePropertyChange("foreground", null, modifiedColor);
+			firePropertyChange("text", null, "Packing...");
+			long startTime = System.currentTimeMillis();
+			
+			ArrayList<File> files = client.packFiles((Integer) packSpn.getValue(), clientFrame.getFilePanel().getCheckBoxTree());
+			
+			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
 
 			// process files
-			progress = 0.0;
-			procPrg.setBackground(procPrg.getForeground());
-			procPrg.setForeground(UIManager.getColor("ProgressBar.foreground"));
-			procBtn.setText("Processing...");
+			firePropertyChange("background", null, modifiedColor);
+			firePropertyChange("text", null, "Processing...");
 			clientFrame.appendToLog("Processing files...");
-			setProgress(0);
 
 			SpecSimSettings specSet = gatherSpecSimSettings();
 
 			clientFrame.resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
-			clientFrame.client.initDBConnection();
+			client.initDBConnection();
 			startTime = System.currentTimeMillis();
+			setProgress(0);
+			firePropertyChange("foreground", null, UIManager.getColor("ProgressBar.foreground"));
 			for (File file : files) {
-				// TODO: implement property change listening structure into client
-				clientFrame.resultMap.putAll(clientFrame.client.searchSpecLib(file, specSet, this));
+				clientFrame.resultMap.putAll(client.searchSpecLib(file, specSet));
 			}
-			clientFrame.client.clearDBConnection();
+			// clean up
+			client.clearDBConnection();
+			client.removePropertyChangeListener(listener);
 			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
 
 			return 0;
@@ -655,11 +643,6 @@ public class SpecLibSearchPanel extends JPanel {
 			procBtn.setEnabled(true);
 			((DefaultTreeModel) clientFrame.queryTree.getModel()).reload();
 			clientFrame.setCursor(null);	//turn off the wait cursor
-		}
-		
-		public void incrementProgress() {
-			progress++;
-			setProgress((int)(progress/maxProgress*100));
 		}
 	}
 

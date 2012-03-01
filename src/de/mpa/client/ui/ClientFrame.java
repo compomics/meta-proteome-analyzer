@@ -141,7 +141,7 @@ public class ClientFrame extends JFrame {
 
 	private JPanel menubarDbPnl;
 
-	Client client;
+	private Client client;
 
 	private FilePanel filePnl;
 
@@ -191,7 +191,7 @@ public class ClientFrame extends JFrame {
 
 	boolean connectedToServer = false;
 
-	private JTable libTbl;
+	JTable libTbl;
 	private JTable querySpectraTbl;
 	private JTable queryDnSpectraTbl;
 	Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
@@ -203,7 +203,7 @@ public class ClientFrame extends JFrame {
 	private JPanel lggPnl;
 
 	private JButton runDbSearchBtn;
-	SpecLibSearchPanel specLibPnl;
+	private SpecLibSearchPanel specLibPnl;
 	private JSpinner precTolSpn;
 	private JSpinner fragTolSpn;
 	private JSpinner missClvSpn;
@@ -255,7 +255,7 @@ public class ClientFrame extends JFrame {
 	private JScrollPane cruxTblJScrollPane;
 	private JTable inspectTbl;
 	private JScrollPane inspectTblJScrollPane;
-	private JTable protTbl;
+	JTable protTbl;
 	private Map<String, List<Omssahit>> ommsaResults;
 	private Map<String, List<XTandemhit>> xTandemResults;
 	private Map<String, List<Cruxhit>> cruxResults;
@@ -2979,9 +2979,30 @@ public class ClientFrame extends JFrame {
 		logPnl.append(str);
 	}
 	
+	/**
+	 * Method to get client instance.
+	 * @return
+	 */
+	public Client getClient() {
+		return client;
+	}
+	
+	/**
+	 * Method to get file panel.
+	 * @return
+	 */
 	public FilePanel getFilePanel() {
 		return filePnl;
 	}
+	
+	/**
+	 * Method to get spectral library search settings panel.
+	 * @return
+	 */
+	public SpecLibSearchPanel getSpecLibSearchPanel() {
+		return specLibPnl;
+	}
+	
 
 	/**
 	 * Main method ==> Entry point to the application.

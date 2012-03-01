@@ -187,8 +187,18 @@ public class SpectrumExtractor {
 		
 		return res;
 	}
-	
-//	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(ArrayList<Interval> precIntervals, long experimentID) throws SQLException {
+
+	/**
+	 * Returns the list of spectral search candidates that belong to a specific experiment.
+	 * @param experimentID The ID of the experiment to be queried.
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
+		ArrayList<Interval> precIntervals = new ArrayList<Interval>();
+		precIntervals.add(new Interval(0.0, Double.MAX_VALUE));
+		return getCandidatesFromExperiment(precIntervals, experimentID);
+	}
 	
 	/**
 	 * Returns the list of spectral search candidates that belong to a specific experiment and are bounded by specified precursor mass intervals.
@@ -206,15 +216,15 @@ public class SpectrumExtractor {
 				   							 "INNER JOIN spec2pep ON libspectrum.libspectrumid = spec2pep.fk_spectrumid " + 
 				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
 				   							 "WHERE (");
-		for (Interval precInterval : precIntervals) {
-			sb.append("libspectrum.precursor_mz BETWEEN ");
-			sb.append(precInterval.getLeftBorder());
-			sb.append(" AND ");
-			sb.append(precInterval.getRightBorder());
-			sb.append(" OR ");
-		}
-		for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
-		sb.append(") ");
+			for (Interval precInterval : precIntervals) {
+				sb.append("libspectrum.precursor_mz BETWEEN ");
+				sb.append(precInterval.getLeftBorder());
+				sb.append(" AND ");
+				sb.append(precInterval.getRightBorder());
+				sb.append(" OR ");
+			}
+			for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
+			sb.append(") ");
 		if (experimentID != 0L) {
 			sb.append("AND libspectrum.fk_experimentid = " + experimentID);
 		}
@@ -224,6 +234,32 @@ public class SpectrumExtractor {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             res.add(new SpectralSearchCandidate(rs));
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
+	}
+
+	/**
+	 * Method to download database spectra belonging to a specific experiment.
+	 * @param experimentID
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<MascotGenericFile> downloadSpectra(long experimentID) throws SQLException {
+		ArrayList<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT filename, spectrumname, mzarray, intarray, precursor_mz, charge, sequence FROM libspectrum " +
+				 									 "INNER JOIN arrayspectrum ON libspectrum.libspectrumid = arrayspectrum.fk_libspectrumid " + 
+				 									 "INNER JOIN spec2pep ON libspectrum.libspectrumid = spec2pep.fk_spectrumid" +
+				 									 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid" +
+				 									 "WHERE libspectrum.fk_experimentid = " + experimentID);
+		ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	MascotGenericFile mgf = new MascotGenericFile(rs);
+        	mgf.setTitle(rs.getString("sequence") + " " + mgf.getTitle());	// prepend peptide sequence
+            res.add(mgf);
         }
         rs.close();
         ps.close();
