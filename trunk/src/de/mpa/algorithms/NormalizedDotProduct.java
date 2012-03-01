@@ -57,15 +57,19 @@ public class NormalizedDotProduct implements SpectrumComparator {
 		peaksSrc = new HashMap<Double, Double>(inputPeaksSrc.size());
 
 		// bin source spectrum
+		double maxIntenSrc = 0.0;	// maximum intensity, to be used as normalization factor later on
 		for (Double mzSrc : inputPeaksSrc.keySet()) {
 			// round peak mass to nearest bin center
 			double roundedMz = Math.round((mzSrc-binShift)/binWidth)*binWidth + binShift;
 			// transform peak intensity
 			double intenSrc = trafo.transform(inputPeaksSrc.get(mzSrc));
 			if (peaksSrc.containsKey(roundedMz)) { intenSrc += peaksSrc.get(roundedMz); }	// add to already existing bin
+			maxIntenSrc = (intenSrc > maxIntenSrc) ? intenSrc : maxIntenSrc;
 			// store transformed peak
 			peaksSrc.put(roundedMz, intenSrc);
 		}
+		// normalize source spectrum
+		for (double mzSrc : peaksSrc.keySet()) { peaksSrc.put(mzSrc, peaksSrc.get(mzSrc)/maxIntenSrc); }
 		
 	}
 	
@@ -75,15 +79,19 @@ public class NormalizedDotProduct implements SpectrumComparator {
 		HashMap<Double, Double> peaksTrg = new HashMap<Double, Double>(inputPeaksTrg.size());
 		
 		// bin target spectrum
+		double maxIntenTrg = 0.0;	// maximum intensity, to be used as normalization factor later on
 		for (Double mzTrg : inputPeaksTrg.keySet()) {
 			// round peak mass to nearest bin center
 			double roundedMz = Math.round((mzTrg-binShift)/binWidth)*binWidth + binShift;
 			// transform peak intensity
 			double intenTrg = trafo.transform(inputPeaksTrg.get(mzTrg));
 			if (peaksTrg.containsKey(roundedMz)) { intenTrg += peaksTrg.get(roundedMz); }	// add to already existing bin
+			maxIntenTrg = (intenTrg > maxIntenTrg) ? intenTrg : maxIntenTrg;
 			// store transformed peak
 			peaksTrg.put(roundedMz, intenTrg);
 		}
+		// normalize target spectrum
+		for (double mzTrg : peaksTrg.keySet()) { peaksTrg.put(mzTrg, peaksTrg.get(mzTrg)/maxIntenTrg); }
 		
 		// calculate dot product
 		double numer = 0.0, denom1 = 0.0, denom2 = 0.0;

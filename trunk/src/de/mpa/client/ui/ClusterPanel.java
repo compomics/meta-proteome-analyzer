@@ -53,7 +53,7 @@ public class ClusterPanel extends JPanel {
 		initComponents();												// function call
 	}
 	
-	// void = ohne Rückgabewert
+	// void = ohne Rï¿½ckgabewert
 	private void initComponents() {										// declaration of initComponents, void = bo return value
 		ClusterPanel clusterPnl = this;									// Init Panel "Clustering"
 		clusterPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",			// col
@@ -68,12 +68,12 @@ public class ClusterPanel extends JPanel {
 			setPnl.setLayout(layout);									// editing layout of setPnl	
 			
 				// table of spectra
-				final ClusterTableModel tblMdl = new ClusterTableModel();	// final für unveränderliche Referenz
+				final ClusterTableModel tblMdl = new ClusterTableModel();	// final fï¿½r unverï¿½nderliche Referenz
 //				tblMdl.addRow(new Object[] {1,"ABCD",true});				// Zeile 1 hart beschreiben (mit String und checkbox)
 				specTbl = new JTable(tblMdl);							    // Init 'specTbl'
 				specTbl.setAutoCreateRowSorter(true);
 //				specTbl.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // disable multiple selections
-				JScrollPane specTblScp = new JScrollPane(specTbl);				// Init Scrollbar für 'specTbl'
+				JScrollPane specTblScp = new JScrollPane(specTbl);				// Init Scrollbar fï¿½r 'specTbl'
 			
 				// panel of table options
 				JPanel intrActPnl = new JPanel();
@@ -237,7 +237,7 @@ public class ClusterPanel extends JPanel {
 					ArrayList<RankedLibrarySpectrum> hitList = parent.resultMap.get(specTitle);
 					for (int i = 0; i < hitList.size(); i++) {
 						//alternativ: for (RankedLibrarySpectrum hit : hitList) 
-						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// wähle Spektren mit Korrelation 1
+						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// wï¿½hle Spektren mit Korrelation 1
 							rls = hitList.get(i);
 							sequence = hitList.get(i).getSequence();
 							if (seqMap.containsKey(sequence)) {
@@ -297,7 +297,7 @@ public class ClusterPanel extends JPanel {
 				}
 			}
 		}
-		return new MascotGenericFile(rsltMap, 0.0, 0, "test");
+		return new MascotGenericFile("", "test", rsltMap, 0.0, 0);
 	}
 
 	private class ClusterTableModel extends DefaultTableModel {

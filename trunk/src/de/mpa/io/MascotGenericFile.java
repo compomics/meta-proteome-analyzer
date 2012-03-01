@@ -13,6 +13,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -204,23 +206,39 @@ public class MascotGenericFile implements SpectrumFile {
         }
     }
 
-    // FIXME: add missing information to constructor, it's totally bare-bones!
     /**
-     * This constructor takes a peak map and some doubles, please.
-     *
-     * @param aPeaks
-     * @param aPrecursorMz
-     * @param aCharge
+     * This constructor takes filename and title strings, a peak map as well as a double and an integer denoting precursor m/z and charge.
+     * 
+     * @param aFileName The filename string.
+     * @param aTitle The spectrum title string.
+     * @param aPeaks The peak map.
+     * @param aPrecursorMz The precursor m/z.
+     * @param aCharge The precursor charge.
      */
-    public MascotGenericFile(HashMap<Double, Double> aPeaks, double aPrecursorMz, int aCharge, String aTitle) {
+    public MascotGenericFile(String aFileName, String aTitle, HashMap<Double, Double> aPeaks, double aPrecursorMz, int aCharge) {
+    	this.iFilename = aFileName;
+        this.iTitle = aTitle;
         this.iPeaks = aPeaks;
         this.iPrecursorMz = aPrecursorMz;
         this.iCharge = aCharge;
-        this.iTitle = aTitle;
     }
 
-    
     /**
+     * This constructor takes a result set from an SQL query.
+     * 
+     * @param rs The result set.
+     * @throws SQLException
+     */
+    public MascotGenericFile(ResultSet aResultSet) throws SQLException {
+    	this.iFilename = aResultSet.getString("filename");
+    	this.iTitle = aResultSet.getString("spectrumname");
+		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decode64bitString(aResultSet.getString("mzarray")),
+				   											 SixtyFourBitStringSupport.decode64bitString(aResultSet.getString("intarray")));
+		this.iPrecursorMz = aResultSet.getDouble("precursor_mz");
+		this.iCharge = aResultSet.getInt("charge");
+	}
+
+	/**
      * This method allows to write the spectrum file to the specified OutputStream.
      *
      * @param aOut OutputStream to write the file to. This Stream will <b>NOT</b> be closed by this method.

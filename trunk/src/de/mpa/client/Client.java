@@ -6,6 +6,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -18,20 +19,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
 
 import de.mpa.algorithms.Interval;
-import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.ProteinHit;
 import de.mpa.client.model.ProteinHitSet;
-import de.mpa.client.ui.SpecLibSearchPanel.SpecLibSearchWorker;
+import de.mpa.client.ui.CheckBoxTreeManager;
+import de.mpa.client.ui.CheckBoxTreeSelectionModel;
+import de.mpa.client.ui.SpectrumTree;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.ExpProperty;
@@ -147,10 +151,10 @@ public class Client {
 		if(message != null && !message.equals("")){
 			log.info(message);
 			EventQueue.invokeLater(new Runnable() {                                                 
-                public void run() {
-                        pSupport.firePropertyChange("New Message", null, message);                                                    
-                }
-        });
+				public void run() {
+					pSupport.firePropertyChange("New Message", null, message);                                                    
+				}
+			});
 		}
 	}
 	
@@ -521,7 +525,7 @@ public class Client {
 	
 	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		initDBConnection();
-		return new SpectrumExtractor(conn).getCandidatesFromExperiment(null, experimentID);
+		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
 	}
 	
 	/**
@@ -531,7 +535,7 @@ public class Client {
 	 * @param processWorker 
 	 * @return resultMap
 	 */
-	public HashMap<String, ArrayList<RankedLibrarySpectrum>> searchSpecLib(File file, SpecSimSettings procSet, SpecLibSearchWorker worker) {
+	public HashMap<String, ArrayList<RankedLibrarySpectrum>> searchSpecLib(File file, SpecSimSettings procSet) {
 		// declare result map
 		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
 		
@@ -573,6 +577,7 @@ public class Client {
 				specEx.getCandidatesFromExperiment(intervals, procSet.getExperimentID());
 			
 			// iterate query spectra to determine similarity scores
+			int progress = 0;
 			for (MascotGenericFile mgfQuery : mgfFiles) {
 				
 				// store results in list of ranked library spectra objects
@@ -600,7 +605,7 @@ public class Client {
 							// store peptide ID in map for annotation gathering later on
 							
 							// create MascotGenericFile from SpectralSearchCandidate object
-							MascotGenericFile mgfLib = new MascotGenericFile(candidate.getPeaks(), candidate.getPrecursorMz(), candidate.getPrecursorCharge(), candidate.getSpectrumTitle());
+							MascotGenericFile mgfLib = new MascotGenericFile(null, candidate.getSpectrumTitle(), candidate.getPeaks(), candidate.getPrecursorMz(), candidate.getPrecursorCharge());
 							
 							resultList.add(new RankedLibrarySpectrum(mgfLib, candidate.getSpectrumID(), candidate.getSequence(), null, score));
 						}
@@ -609,9 +614,8 @@ public class Client {
 					
 				}
 				resultMap.put(mgfQuery.getTitle(), resultList);
-				worker.incrementProgress();
+				pSupport.firePropertyChange("progress", progress++, progress);
 			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -833,17 +837,62 @@ public class Client {
 //		return resultMap;
 //	}
 
+	/**
+	 * Method to consolidate spectra which are selected in a specified checkbox tree into spectrum packages of defined size.
+	 * @param packageSize The amount of spectra per package.
+	 * @param checkBoxTree The checkbox tree.
+	 * @param listener An optional property change listener used to monitor progress.
+	 * @return A list of files.
+	 */
+	public ArrayList<File> packFiles(int packageSize, CheckBoxTreeManager checkBoxTree) {
+		ArrayList<File> files = new ArrayList<File>();
+		FileOutputStream fos = null;
+		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getSelectionModel();
+		DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) checkBoxTree.getModel().getRoot();
+		int numSpectra = 0;
+		try {
+			DefaultMutableTreeNode spectrumNode = fileRoot.getFirstLeaf();
+			if (spectrumNode != fileRoot) {
+				// iterate over all leaves
+				while (spectrumNode != null) {
+					// generate tree path and consult selection model whether path is explicitly or implicitly selected
+					TreePath spectrumPath = new TreePath(spectrumNode.getPath());
+					if (selectionModel.isPathSelected(spectrumPath, true)) {
+						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
+							if (fos != null) {
+								fos.close();
+							}
+							File file = new File("batch_" + (numSpectra/packageSize) + ".mgf");
+							files.add(file);
+							fos = new FileOutputStream(file);
+						}
+						MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
+						mgf.writeToStream(fos);
+						fos.flush();
+						spectrumNode = spectrumNode.getNextLeaf();
+						pSupport.firePropertyChange("progress", numSpectra++, numSpectra);
+					}
+				}
+				fos.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return files;
+	}
+
 	// XXX: TBD
 	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
-		List<MascotGenericFile> mgfList = new ArrayList<MascotGenericFile>();
-		SpectrumExtractor specEx = new SpectrumExtractor(conn);
-		List<LibrarySpectrum> libSpectra = specEx.getLibrarySpectra(experimentID);
-		for (LibrarySpectrum libSpec : libSpectra) {
-			MascotGenericFile mgf = libSpec.getSpectrumFile();
-			mgf.setTitle(libSpec.getSequence() + " " + mgf.getTitle());
-			mgfList.add(mgf);
-		}
-		return mgfList;
+//		List<MascotGenericFile> mgfList = new ArrayList<MascotGenericFile>();
+//		SpectrumExtractor specEx = new SpectrumExtractor(conn);
+//		List<LibrarySpectrum> libSpectra = specEx.getLibrarySpectra(experimentID);
+//		for (LibrarySpectrum libSpec : libSpectra) {
+//			MascotGenericFile mgf = libSpec.getSpectrumFile();
+//			mgf.setTitle(libSpec.getSequence() + " " + mgf.getTitle());
+//			mgfList.add(mgf);
+//		}
+//		return mgfList;
+		return new SpectrumExtractor(conn).downloadSpectra(experimentID);
 	} 
 	
 	// Thread polling the server each second.
@@ -861,10 +910,18 @@ public class Client {
 	}
 	
 	/**
-     * Adds the property change listener.
-     * @param l
+     * Adds a property change listener.
+     * @param pcl
      */
-    public void addPropertyChangeListener(PropertyChangeListener l ) { 
-    	pSupport.addPropertyChangeListener(l); 
+    public void addPropertyChangeListener(PropertyChangeListener pcl) { 
+    	pSupport.addPropertyChangeListener(pcl); 
+    }
+	
+	/**
+     * Removes a property change listener.
+     * @param pcl
+     */
+    public void removePropertyChangeListener(PropertyChangeListener pcl) { 
+    	pSupport.removePropertyChangeListener(pcl); 
     }
 }

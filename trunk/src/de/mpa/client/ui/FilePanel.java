@@ -43,6 +43,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.FilterSettings;
@@ -77,6 +78,8 @@ public class FilePanel extends JPanel {
 
 	private void initComponents() {
 
+		CellConstraints cc = new CellConstraints();
+		
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
 		"5dlu, f:p:g, 5dlu"));	// row
 
@@ -103,10 +106,10 @@ public class FilePanel extends JPanel {
 		final JPanel filterPnl = new JPanel();
 		filterPnl.setLayout(new FormLayout("p, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, p:g", "p, 5dlu, p, 5dlu, p, 5dlu, p"));
 		// add labels
-		filterPnl.add(new JLabel("min. significant peaks"), clientFrame.cc.xyw(1, 1, 5));
-		filterPnl.add(new JLabel("min. total ion current"), clientFrame.cc.xyw(1, 3, 3));
-		filterPnl.add(new JLabel("min. signal-to-noise ratio"), clientFrame.cc.xyw(1, 5, 5));
-		filterPnl.add(new JLabel("noise level"), clientFrame.cc.xy(1, 7));
+		filterPnl.add(new JLabel("min. significant peaks"), cc.xyw(1, 1, 5));
+		filterPnl.add(new JLabel("min. total ion current"), cc.xyw(1, 3, 3));
+		filterPnl.add(new JLabel("min. signal-to-noise ratio"), cc.xyw(1, 5, 5));
+		filterPnl.add(new JLabel("noise level"), cc.xy(1, 7));
 		// create other components
 		final JSpinner minPeaksSpn = new JSpinner(new SpinnerNumberModel(filterSet.getMinPeaks(), 0, null, 1));
 		final JSpinner minTICspn = new JSpinner(new SpinnerNumberModel(filterSet.getMinTIC(), 0.0, null, 1.0));
@@ -120,11 +123,11 @@ public class FilePanel extends JPanel {
 		noiseEstBtn.setEnabled(false);
 
 		// add to panel
-		filterPnl.add(minPeaksSpn, clientFrame.cc.xy(7, 1));
-		filterPnl.add(minTICspn, clientFrame.cc.xyw(5, 3, 3));
-		filterPnl.add(minSNRspn, clientFrame.cc.xy(7, 5));
-		filterPnl.add(noiseLvlSpn, clientFrame.cc.xy(3, 7));
-		filterPnl.add(noiseEstBtn, clientFrame.cc.xyw(5, 7, 3));
+		filterPnl.add(minPeaksSpn, cc.xy(7, 1));
+		filterPnl.add(minTICspn, cc.xyw(5, 3, 3));
+		filterPnl.add(minSNRspn, cc.xy(7, 5));
+		filterPnl.add(noiseLvlSpn, cc.xy(3, 7));
+		filterPnl.add(noiseEstBtn, cc.xyw(5, 7, 3));
 
 		JButton filterBtn = new JButton("Filter settings...");
 		filterBtn.addActionListener(new ActionListener() {
@@ -160,8 +163,8 @@ public class FilePanel extends JPanel {
 		fetchPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",	// col
 		"5dlu, p, 5dlu"));		// row
 		final JSpinner expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 1L, null, 1L));
-		fetchPnl.add(new JLabel("Experiment ID"), clientFrame.cc.xy(2, 2));
-		fetchPnl.add(expIdSpn, clientFrame.cc.xy(4, 2));
+		fetchPnl.add(new JLabel("Experiment ID"), cc.xy(2, 2));
+		fetchPnl.add(expIdSpn, cc.xy(4, 2));
 		// /XXX
 
 		clrBtn = new JButton("Clear all");
@@ -212,9 +215,9 @@ public class FilePanel extends JPanel {
 						JOptionPane.PLAIN_MESSAGE);
 				if (res == JOptionPane.OK_OPTION) {
 					try {
-						clientFrame.client.initDBConnection();
-						List<MascotGenericFile> dlSpec = clientFrame.client.downloadSpectra((Long)expIdSpn.getValue());
-						clientFrame.client.clearDBConnection();
+						clientFrame.getClient().initDBConnection();
+						List<MascotGenericFile> dlSpec = clientFrame.getClient().downloadSpectra((Long)expIdSpn.getValue());
+						clientFrame.getClient().clearDBConnection();
 						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
 						for (MascotGenericFile mgf : dlSpec) {
 							mgf.writeToStream(fos);
@@ -242,9 +245,9 @@ public class FilePanel extends JPanel {
 		JScrollPane leftDummyScpn = new JScrollPane(leftDummyTable);
 		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
 
-		leftPnl.add(leftDummyScpn, clientFrame.cc.xy(1,1));
-		//		leftPnl.add(new JLabel("Files"), clientFrame.cc.xy(1,1));
-		leftPnl.add(treePane, clientFrame.cc.xy(1,2));
+		leftPnl.add(leftDummyScpn, cc.xy(1,1));
+		//		leftPnl.add(new JLabel("Files"), cc.xy(1,1));
+		leftPnl.add(treePane, cc.xy(1,2));
 
 		// top part of right-hand inner split pane
 		JPanel topRightPnl = new JPanel();
@@ -284,8 +287,8 @@ public class FilePanel extends JPanel {
 		detailScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		detailScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-		topRightPnl.add(rightDummyScpn, clientFrame.cc.xy(1,1));
-		topRightPnl.add(detailScpn, clientFrame.cc.xy(1,2));
+		topRightPnl.add(rightDummyScpn, cc.xy(1,1));
+		topRightPnl.add(detailScpn, cc.xy(1,2));
 		topRightPnl.setMinimumSize(new Dimension(0, rightDummyTable.getTableHeader().getPreferredSize().height + 
 				fileDetailsTbl.getRowHeight() + 2));
 
@@ -329,10 +332,12 @@ public class FilePanel extends JPanel {
 				clientFrame.queryTree.clearSelection();
 				((DefaultMutableTreeNode) clientFrame.queryTree.getModel().getRoot()).removeAllChildren();
 				((DefaultTreeModel) clientFrame.queryTree.getModel()).reload();
+				((DefaultTableModel) clientFrame.libTbl.getModel()).setRowCount(0);
+				((DefaultTableModel) clientFrame.protTbl.getModel()).setRowCount(0);
 				clientFrame.mPlot.setFirstSpectrum(null);
 				filesTtf.setText("0 file(s) selected");
 				//				filesLbl.setText("0 of 0 spectra selected");
-				clientFrame.specLibPnl.setProgress(0);
+				clientFrame.getSpecLibSearchPanel().setProgress(0);
 				clrBtn.setEnabled(false);
 				noiseEstBtn.setEnabled(false);
 				treeRoot.removeAllChildren();
@@ -372,17 +377,17 @@ public class FilePanel extends JPanel {
 		});
 
 		// Input 
-		selPnl.add(new JLabel("Spectrum Files (MGF):"), clientFrame.cc.xy(2,1));
-		selPnl.add(filesTtf, clientFrame.cc.xy(4,1));
-		selPnl.add(filesPrg, clientFrame.cc.xy(6,1));
-		selPnl.add(filterBtn, clientFrame.cc.xy(8,1));
-		selPnl.add(addBtn, clientFrame.cc.xy(10,1));
-		selPnl.add(addDbBtn, clientFrame.cc.xy(12, 1));
-		selPnl.add(clrBtn, clientFrame.cc.xy(14,1));
+		selPnl.add(new JLabel("Spectrum Files (MGF):"), cc.xy(2,1));
+		selPnl.add(filesTtf, cc.xy(4,1));
+		selPnl.add(filesPrg, cc.xy(6,1));
+		selPnl.add(filterBtn, cc.xy(8,1));
+		selPnl.add(addBtn, cc.xy(10,1));
+		selPnl.add(addDbBtn, cc.xy(12, 1));
+		selPnl.add(clrBtn, cc.xy(14,1));
 
-		selPnl.add(mainSplit, clientFrame.cc.xyw(2,3,13));
+		selPnl.add(mainSplit, cc.xyw(2,3,13));
 
-		this.add(selPnl, clientFrame.cc.xy(2,2));
+		this.add(selPnl, cc.xy(2,2));
 
 	}
 	
@@ -413,7 +418,7 @@ public class FilePanel extends JPanel {
 
 			filePlotPnl.setSpectrumFile(mgf,Color.RED);
 			filePlotPnl.repaint();
-			clientFrame.specLibPnl.refreshPlot(mgf);
+			clientFrame.getSpecLibSearchPanel().refreshPlot(mgf);
 			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			clientFrame.packColumn(fileDetailsTbl, 1, 5);
 		} else {
@@ -533,12 +538,12 @@ public class FilePanel extends JPanel {
 				tree.expandRow(0);
 
 				try {
-					clientFrame.specLibPnl.refreshPlot(tree.getSpectrumAt(treeRoot.getFirstLeaf()));
+					clientFrame.getSpecLibSearchPanel().refreshPlot(tree.getSpectrumAt(treeRoot.getFirstLeaf()));
 				} catch (IOException x) {
 					x.printStackTrace();
 				}
 
-				clientFrame.specLibPnl.setProgress(0);
+				clientFrame.getSpecLibSearchPanel().setProgress(0);
 
 				String str;
 				int numFiles;
