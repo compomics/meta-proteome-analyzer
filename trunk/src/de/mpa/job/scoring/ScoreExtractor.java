@@ -20,7 +20,6 @@ public abstract class ScoreExtractor {
 	 * @param decoyFile
 	 */
 	public ScoreExtractor(File targetFile, File decoyFile) {
-		super();
 		this.targetFile = targetFile;
 		this.decoyFile = decoyFile;
 		load();

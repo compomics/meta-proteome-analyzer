@@ -91,8 +91,10 @@ public class JobManager {
 				log.info("Executing job: " + job.getDescription());
 				
 				// Worker thread, currently only intended for serial execution, thus not really necessary.
-				Worker worker = new Worker(job);
-				worker.run();
+//				Worker worker = new Worker(job);
+//				worker.run();
+				
+				job.execute();
 			}
 			// Error logging.
 			if (job.getStatus() == JobStatus.ERROR){

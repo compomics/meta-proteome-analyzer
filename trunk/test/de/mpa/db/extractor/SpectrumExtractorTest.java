@@ -3,7 +3,6 @@ package de.mpa.db.extractor;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -11,7 +10,6 @@ import junit.framework.TestCase;
 import de.mpa.algorithms.LibrarySpectrum;
 import de.mpa.db.DBManager;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.Peak;
 
 public class SpectrumExtractorTest extends TestCase {
 	

@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import javax.swing.JPanel;
 
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.Peak;
 
 public class MultiPlotPanel extends JPanel {
 

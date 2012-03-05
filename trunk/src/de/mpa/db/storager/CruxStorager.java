@@ -140,17 +140,21 @@ public class CruxStorager implements Storager {
                 // TODO: remove protein id
                 hitdata.put(CruxhitTableAccessor.PROTEINID, hit.getProteinid());
                 hitdata.put(CruxhitTableAccessor.FLANK_AA, hit.getFlankingAA());
-
-                // Create the database object.
-                CruxhitTableAccessor cruxhit = new CruxhitTableAccessor(hitdata);
-                cruxhit.persist(conn);
                 
-                // Get the cruxhitid
-                Long cruxhitid = (Long) cruxhit.getGeneratedKeys()[0];
-                scanNumberMap.put(hit.getScanNumber(), cruxhitid);                
+                // Create the database object.
+                if((Double)hitdata.get(CruxhitTableAccessor.QVALUE) < 0.1){
+                	// Create the database object.
+                    CruxhitTableAccessor cruxhit = new CruxhitTableAccessor(hitdata);
+                    cruxhit.persist(conn);
+                    
+                    // Get the cruxhitid
+                    Long cruxhitid = (Long) cruxhit.getGeneratedKeys()[0];
+                    scanNumberMap.put(hit.getScanNumber(), cruxhitid);      
+                    conn.commit();
+                }
+                          
         	}   
         }
-        conn.commit();
     }
     
 	@Override

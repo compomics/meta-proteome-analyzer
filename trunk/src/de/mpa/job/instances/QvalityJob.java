@@ -1,6 +1,7 @@
 package de.mpa.job.instances;
 
 import java.io.File;
+
 import de.mpa.job.Job;
 
 /**
@@ -58,7 +59,6 @@ public class QvalityJob extends Job {
 		
 		log.info(procCommands);
 		procBuilder = new ProcessBuilder(procCommands);
-		
 		
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);

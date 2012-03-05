@@ -2,7 +2,11 @@ package de.mpa.job.scoring;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.xml.sax.SAXException;
+
+import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;
 import de.proteinms.xtandemparser.xtandem.Spectrum;
 import de.proteinms.xtandemparser.xtandem.XTandemFile;
@@ -63,10 +67,15 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 			for (int j = 0; j < decoyPepList.size(); j++) {
 				de.proteinms.xtandemparser.xtandem.Peptide hit = targetPepList.get(i);
 				de.proteinms.xtandemparser.xtandem.Peptide decoyhit = decoyPepList.get(j);
-						
-				if (hit.getDomainID().equals(decoyhit.getDomainID())) {
-					targetScores.add(hit.getDomainHyperScore());					
-					decoyScores.add(decoyhit.getDomainHyperScore());
+				List<Domain> targetDomains = hit.getDomains();
+				List<Domain> decoyDomains = decoyhit.getDomains();
+				for (Domain targetDom : targetDomains) {
+					for (Domain decoyDom : decoyDomains) {
+						if (targetDom.getDomainID().equals(decoyDom.getDomainID())) {
+							targetScores.add(targetDom.getDomainHyperScore());					
+							decoyScores.add(decoyDom.getDomainHyperScore());
+						}
+					}
 				}
 			}
 		}

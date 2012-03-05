@@ -1,17 +1,18 @@
 package de.mpa.job.instances;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
+import de.mpa.algorithms.Masses;
+import de.mpa.io.Peak;
 import de.mpa.job.Job;
 
 public class MS2FormatJob extends Job{
 	
-	private String ms2file;
 	private String outputfile;
 	private File mgfFile;
 	
@@ -20,39 +21,63 @@ public class MS2FormatJob extends Job{
 	}
 	
 	public void run() {
-			ms2file = JobConstants.DATASET_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + ".ms2";;
-			outputfile = mgfFile.getAbsolutePath().substring(0, mgfFile.getAbsolutePath().indexOf(".mgf")) + "_format.ms2";;
+			outputfile = mgfFile.getAbsolutePath().substring(0, mgfFile.getAbsolutePath().indexOf(".mgf")) + ".ms2";;
 			setDescription("MS2 FORMAT JOB");
-			BufferedReader reader = null;
 			BufferedWriter writer = null;
-			int scan = 1;
-			String formatted = "";
+			Reader mgfReader = null;
+
 			try {
-				reader = new BufferedReader(new FileReader(ms2file));
-				writer = new BufferedWriter(new FileWriter(outputfile));
-				String nextLine;			
-				String[] splits;
 				
-				// Iterate over all the lines of the file.
-				while ((nextLine = reader.readLine()) != null) {					
-					if(nextLine.charAt(0) == 'S'){
-						splits = nextLine.split("\\s+");
-						formatted = splits[0] + "\t" + scan + "\t" + scan + "\t" + splits[3];
-						writer.write(formatted  + "\n");
-						scan++;
-					} else {
-						writer.write(nextLine  + "\n");
-					}					
-				}			
+				// Parse the mgf file
+				mgfReader = new Reader(mgfFile);
+				List<SpectrumFile> mgfList = mgfReader.getSpectrumFiles();
+				writer = new BufferedWriter(new FileWriter(outputfile));
+				
+				// Write the MS2 HEADER
+				writer.write("H" + "\t");
+				writer.write("CreationDate" + "\t");
+				writer.write(new Date() + "\n");
+				writer.write("H" + "\t");
+				writer.write("Extractor" + "\t");
+				writer.write("MakeMS2" + "\n");
+				writer.write("H" + "\t");
+				writer.write("ExtractorVersion" + "\t");
+				writer.write("1.0" + "\n");
+				writer.write("H" + "\t");
+				writer.write("Comments" + "\t");
+				writer.write("Formatted with MS2FormatJob" + "\n");
+				writer.write("H" + "\t");
+				writer.write("ExtractorOptions" + "\t");
+				writer.write("MS2/MS1" + "\n");
+				
+				
+				// Iterate over all spectra.
+				int i = 1;
+				for (SpectrumFile mgf : mgfList) {
+					writer.write("S" + "\t");
+					writer.write(Integer.toString(i) + "\t");
+					writer.write(Integer.toString(i) + "\t");
+					writer.write(Double.toString(mgf.getPrecursorMZ()) + "\n");
+					writer.write("Z" + "\t");
+					int charge = mgf.getCharge();
+					if(charge == 0) charge = 2;
+					writer.write(charge + "\t");
+					writer.write(Double.toString((mgf.getPrecursorMZ() * charge) - Masses.Hydrogen) + "\n");
+					List<Peak> peaks = mgf.getPeaks();
+					for (Peak p : peaks) {
+						writer.write(p.getMz() + " " + p.getIntensity() + "\n");
+					}
+					i++;
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
 				try {
-					reader.close();
 					writer.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}		
 	}
+
 }

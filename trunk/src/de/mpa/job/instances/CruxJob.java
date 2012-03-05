@@ -26,11 +26,10 @@ public class CruxJob extends Job{
 	public CruxJob(File mgfFile, final String searchDB) {
 		this.searchDB = searchDB;
 		this.cruxFile = new File(JobConstants.CRUX_PATH);	
-		this.ms2File = JobConstants.DATASET_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_format.ms2";;
+		this.ms2File = JobConstants.DATASET_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + ".ms2";;
 		initJob();
 		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
 	}	
-
 	
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.

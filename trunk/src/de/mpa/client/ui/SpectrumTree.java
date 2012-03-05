@@ -40,7 +40,7 @@ public class SpectrumTree extends JTree implements TreeSelectionListener {
 		} else if (leaf && !((DefaultMutableTreeNode)value).isRoot()) {
 			if (treeType == TreeType.RESULT_LIST) {
 				try {
-					ArrayList<RankedLibrarySpectrum> hitList = clientFrame.resultMap.get(getSpectrumAt(node).getTitle());
+					ArrayList<RankedLibrarySpectrum> hitList = clientFrame.getResultMap().get(getSpectrumAt(node).getTitle());
 					int numHits = 0;
 					if (hitList != null) {
 						numHits = hitList.size();

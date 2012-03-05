@@ -167,16 +167,20 @@ public class OmssaStorager extends BasicStorager {
                     hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
                 }
                 
-    	    	// Create the database object.
-    	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
-    	    	omssahit.persist(conn);		
-    	    	
-    	    	// Get the omssahitid
-                Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
-                hitNumberMap.put(msHitSet.MSHitSet_number + "_" + hitnumber, omssahitid);
-                hitnumber++;
+                // Create the database object.
+                if((Double)hitdata.get(OmssahitTableAccessor.QVALUE) < 0.1){
+                	// Create the database object.
+        	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
+        	    	omssahit.persist(conn);		
+        	    	
+        	    	// Get the omssahitid
+                    Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
+                    hitNumberMap.put(msHitSet.MSHitSet_number + "_" + hitnumber, omssahitid);
+                    hitnumber++;
+                    conn.commit();
+                }
 			}    
-    	    conn.commit();
+    	   
         }
     }
     

@@ -172,15 +172,20 @@ public class Client {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public void sendFiles(File[] files) throws FileNotFoundException, IOException {		
+	public void sendFiles(List<File> files) throws FileNotFoundException, IOException {		
 		// Send files iteratively
-		for (int i = 0; i < files.length; i++){			
-			server.uploadFile(files[i].getName(), getBytesFromFile(files[i]));
+		for (int i = 0; i < files.size(); i++){			
+			server.uploadFile(files.get(i).getName(), getBytesFromFile(files.get(i)));
 		}
 	}
 	
-	// Returns the contents of the file in a byte array.
-	public static byte[] getBytesFromFile(File file) throws IOException {
+	/**
+	 * Returns the contents of the file in a byte array.
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	private byte[] getBytesFromFile(File file) throws IOException {
 	    InputStream is = new FileInputStream(file);
 
 	    // Get the size of the file
@@ -217,8 +222,11 @@ public class Client {
 	 * Runs the database search.
 	 * @param file
 	 */
-	public void runDbSearch(File file, DbSearchSettings settings){
-		server.runDbSearch(file.getName(), settings);
+	public void runDbSearch(List<File> files, DbSearchSettings settings){
+		// Iterate the files
+		for (int i = 0; i < files.size(); i++){				
+			server.runDbSearch(files.get(i).getName(), settings);
+		}
 	}
 	
 	/**
@@ -318,19 +326,21 @@ public class Client {
 	}
 	
 	/**
-	 * gets projects from Database
+	 * This method returns all projects from the database.
 	 */
 	public List<Project> getProjects() throws SQLException{
-
 		return Project.findAllProjects(conn);
 	}
 	
 	/**
-	 * Runs the denovo search.
+	 * Runs the de-novo search.
 	 * @param file
 	 */
-	public void runDenovoSearch(File file, DenovoSearchSettings settings){
-		server.runDenovoSearch(file.getName(), settings);
+	public void runDenovoSearch(List<File> files, DenovoSearchSettings settings){
+		// Iterate the files
+		for (int i = 0; i < files.size(); i++){				
+			server.runDenovoSearch(files.get(i).getName(), settings);
+		}
 	}
 	
 	/**
@@ -844,8 +854,8 @@ public class Client {
 	 * @param listener An optional property change listener used to monitor progress.
 	 * @return A list of files.
 	 */
-	public ArrayList<File> packFiles(int packageSize, CheckBoxTreeManager checkBoxTree) {
-		ArrayList<File> files = new ArrayList<File>();
+	public List<File> packFiles(int packageSize, CheckBoxTreeManager checkBoxTree, String filename) {
+		List<File> files = new ArrayList<File>();
 		FileOutputStream fos = null;
 		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getSelectionModel();
 		DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) checkBoxTree.getModel().getRoot();
@@ -862,7 +872,7 @@ public class Client {
 							if (fos != null) {
 								fos.close();
 							}
-							File file = new File("batch_" + (numSpectra/packageSize) + ".mgf");
+							File file = new File(filename + (numSpectra/packageSize) + ".mgf");
 							files.add(file);
 							fos = new FileOutputStream(file);
 						}

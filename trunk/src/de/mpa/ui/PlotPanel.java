@@ -3,14 +3,12 @@ package de.mpa.ui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.Peak;
 
 public class PlotPanel extends JPanel {
 	
