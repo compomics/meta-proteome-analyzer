@@ -23,9 +23,7 @@ import de.mpa.client.DenovoSearchSettings;
 import de.mpa.db.DBManager;
 import de.mpa.job.JobManager;
 import de.mpa.job.SearchType;
-import de.mpa.job.instances.ConvertJob;
 import de.mpa.job.instances.CruxJob;
-import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
 import de.mpa.job.instances.MS2FormatJob;
@@ -133,8 +131,6 @@ public class ServerImpl implements Server {
 		
 		// Crux job
 		if(params.isCrux()){
-			ConvertJob convertJob = new ConvertJob(file);
-			jobManager.addJob(convertJob);
 			MS2FormatJob ms2FormatJob = new MS2FormatJob(file);
 			jobManager.addJob(ms2FormatJob);
 			CruxJob cruxJob = new CruxJob(file, searchDB);

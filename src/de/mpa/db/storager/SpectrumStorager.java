@@ -142,7 +142,6 @@ public class SpectrumStorager extends BasicStorager {
                 //Fill the maps for caching reasons
                 filename2IdMap.put(fileName, spectrumid);
                 spectrumname2IdMap.put(spectrumName, spectrumid);
-                
                 conn.commit();
             } else {
                 //Fill the maps for caching reasons

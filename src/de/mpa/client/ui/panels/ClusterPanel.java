@@ -1,25 +1,21 @@
-package de.mpa.client.ui;
+package de.mpa.client.ui.panels;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
@@ -33,6 +29,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.PlotPanel2;
 
@@ -222,7 +219,7 @@ public class ClusterPanel extends JPanel {
 		Integer sqncCnt = (Integer)sqncCntSpnMdl.getValue();						// Spinnerwert holen
 		DefaultTableModel tblMdl = (DefaultTableModel) specTbl.getModel();
 		tblMdl.setRowCount(0);														// resetting counter to 0
-		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) parent.queryTree.getModel().getRoot();
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) parent.getQueryTree().getModel().getRoot();
 		DefaultMutableTreeNode leafNode = rootNode.getFirstLeaf();		
 		if (rootNode != leafNode) {
 			
@@ -233,8 +230,8 @@ public class ClusterPanel extends JPanel {
 				RankedLibrarySpectrum rls = null;
 				
 				try {
-					String specTitle = parent.queryTree.getSpectrumAt(leafNode).getTitle();
-					ArrayList<RankedLibrarySpectrum> hitList = parent.resultMap.get(specTitle);
+					String specTitle = parent.getQueryTree().getSpectrumAt(leafNode).getTitle();
+					ArrayList<RankedLibrarySpectrum> hitList = parent.getResultMap().get(specTitle);
 					for (int i = 0; i < hitList.size(); i++) {
 						//alternativ: for (RankedLibrarySpectrum hit : hitList) 
 						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// w�hle Spektren mit Korrelation 1

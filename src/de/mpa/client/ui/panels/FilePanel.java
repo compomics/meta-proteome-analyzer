@@ -1,4 +1,4 @@
-package de.mpa.client.ui;
+package de.mpa.client.ui.panels;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -47,6 +47,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.FilterSettings;
+import de.mpa.client.ui.CheckBoxTreeManager;
+import de.mpa.client.ui.CheckBoxTreeSelectionModel;
+import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.SpectrumTree;
 import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -62,15 +66,16 @@ public class FilePanel extends JPanel {
 	private JButton clrBtn;
 	private JButton noiseEstBtn;
 	private JButton addBtn;
-	JTextField filesTtf;
+	public JTextField filesTtf;
 	private JProgressBar filesPrg;
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
-	List<File> files = new ArrayList<File>();
+	public List<File> files = new ArrayList<File>();
 	private JTable fileDetailsTbl;
 	private PlotPanel2 filePlotPnl;
 
 	private CheckBoxTreeManager fileTree;
-
+	private final static String DEFAULT_PROJECT = "Placeholder Project";
+	
 	public FilePanel(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
 		this.initComponents();
@@ -175,7 +180,7 @@ public class FilePanel extends JPanel {
 		filePlotPnl.clearSpectrumFile();
 
 		// Tree of loaded spectrum files
-		final DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(clientFrame.projectName);
+		final DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode(DEFAULT_PROJECT);
 		final DefaultTreeModel treeModel = new DefaultTreeModel(treeRoot);
 		final SpectrumTree tree = new SpectrumTree(treeModel, TreeType.FILE_SELECT, clientFrame);
 		fileTree = new CheckBoxTreeManager(tree);
@@ -329,9 +334,9 @@ public class FilePanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				files.clear();
 				clientFrame.specPosMap.clear();
-				clientFrame.queryTree.clearSelection();
-				((DefaultMutableTreeNode) clientFrame.queryTree.getModel().getRoot()).removeAllChildren();
-				((DefaultTreeModel) clientFrame.queryTree.getModel()).reload();
+				clientFrame.getQueryTree().clearSelection();
+				((DefaultMutableTreeNode) clientFrame.getQueryTree().getModel().getRoot()).removeAllChildren();
+				((DefaultTreeModel) clientFrame.getQueryTree().getModel()).reload();
 				((DefaultTableModel) clientFrame.libTbl.getModel()).setRowCount(0);
 				((DefaultTableModel) clientFrame.protTbl.getModel()).setRowCount(0);
 				clientFrame.mPlot.setFirstSpectrum(null);
@@ -391,7 +396,7 @@ public class FilePanel extends JPanel {
 
 	}
 	
-	protected void refreshFileTable(MascotGenericFile mgf, DefaultMutableTreeNode selNode) {
+	public void refreshFileTable(MascotGenericFile mgf, DefaultMutableTreeNode selNode) {
 		if (mgf != null) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selNode.getParent();
 			File parentFile = (File) parent.getUserObject();

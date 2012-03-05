@@ -103,6 +103,9 @@ import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.ProteinHitSet;
 import de.mpa.client.ui.SpectrumTree.TreeType;
+import de.mpa.client.ui.panels.ClusterPanel;
+import de.mpa.client.ui.panels.FilePanel;
+import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
@@ -133,7 +136,7 @@ public class ClientFrame extends JFrame {
 
 	private final static int PORT = 8080;
 	private final static String HOST = "0.0.0.0";
-	Logger log = Logger.getLogger(getClass());
+	public Logger log = Logger.getLogger(getClass());
 
 	private ClientFrame frame;
 
@@ -159,7 +162,7 @@ public class ClientFrame extends JFrame {
 
 	private LogPanel logPnl;
 
-	CellConstraints cc;
+	public CellConstraints cc;
 
 //	private List<File> files = new ArrayList<File>();
 
@@ -168,7 +171,7 @@ public class ClientFrame extends JFrame {
 	private JTextField portTtf;
 
 	private JButton startBtn;
-	JLabel filesLbl = new JLabel("0 of 0 spectra selected") {
+	public JLabel filesLbl = new JLabel("0 of 0 spectra selected") {
 		@Override
 		public void repaint() {
 			if ((filePnl != null) && (filePnl.getCheckBoxTree() != null)) {
@@ -183,22 +186,22 @@ public class ClientFrame extends JFrame {
 			}
 		}		
 	};
-	JButton sendBtn;
+	public JButton sendBtn;
 	private JMenuBar menuBar;
 	private JMenu fileMenu;
 	private JMenuItem exitItem;
 	private JProgressBar searchPrg;
 
-	boolean connectedToServer = false;
+	public boolean connectedToServer = false;
 
-	JTable libTbl;
+	public  JTable libTbl;
 	private JTable querySpectraTbl;
 	private JTable queryDnSpectraTbl;
-	Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
+	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 
-	Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
+	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 
-	MultiPlotPanel mPlot;
+	public MultiPlotPanel mPlot;
 	protected ArrayList<RankedLibrarySpectrum> resultList;
 	private JPanel lggPnl;
 
@@ -223,7 +226,7 @@ public class ClientFrame extends JFrame {
 	private JTextField omssaStatTtf;
 	private JComboBox fastaFileCbx;
 
-	String projectName = "Placeholder Project";
+	
 
 
 	private DbSearchResult dbSearchResult;
@@ -245,7 +248,7 @@ public class ClientFrame extends JFrame {
 	private JSpinner dnThresholdSpn;
 	private JButton dnStartBtn;
 	private JTable dnPTMtbl;
-	SpectrumTree queryTree;
+	private SpectrumTree queryTree;
 	private JScrollPane querySpectraTblJScrollPane;
 	private JTable xTandemTbl;
 	private JScrollPane xTandemTblJScrollPane;
@@ -255,7 +258,7 @@ public class ClientFrame extends JFrame {
 	private JScrollPane cruxTblJScrollPane;
 	private JTable inspectTbl;
 	private JScrollPane inspectTblJScrollPane;
-	JTable protTbl;
+	public JTable protTbl;
 	private Map<String, List<Omssahit>> ommsaResults;
 	private Map<String, List<XTandemhit>> xTandemResults;
 	private Map<String, List<Cruxhit>> cruxResults;
@@ -263,8 +266,8 @@ public class ClientFrame extends JFrame {
 	private Map<String, List<Pepnovohit>> pepnovoResults;
 	private Map<String, List<PeptideHit>> peptideHits;
 	private Map<String, Integer> voteMap;
-	JComboBox spectraCbx;
-	JComboBox spectraCbx2;
+	public JComboBox spectraCbx;
+	public JComboBox spectraCbx2;
 	private JTable pepnovoTbl;
 	private JTable proteinResultTbl;
 	private JPanel proteinViewPnl;
@@ -285,6 +288,8 @@ public class ClientFrame extends JFrame {
 	private JScrollPane queryDnSpectraTblJScrollPane;
 	private JTable peptideResultTbl;
 	private ProteinHitSet proteins;
+	protected List<File> chunkedFiles;
+	private JButton chunkBtn;
 
 
 	/**
@@ -386,12 +391,12 @@ public class ClientFrame extends JFrame {
 				inspectStatTtf.setText(finished);
 			}
 		} else if(message.startsWith("DBSEARCH")){
-			for (File file : filePnl.files) {
-				dbSearchResult = client.getDbSearchResult(file);
-				updateDbResultsTable();
-			}
+//			for (File file : chunkedFiles) {
+//				dbSearchResult = client.getDbSearchResult(file);
+//				updateDbResultsTable();
+//			}
 		} else if(message.startsWith("DENOVOSEARCH")){
-			for (File file : filePnl.files) {
+			for (File file : chunkedFiles) {
 				denovoSearchResult = client.getDenovoSearchResult(file);
 				updateDenovoResultsTable();
 			}
@@ -1152,7 +1157,7 @@ public class ClientFrame extends JFrame {
 
 		JPanel setPnl = new JPanel();
 		setPnl.setBorder(new TitledBorder("Server Configuration"));
-		setPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu",
+		setPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu",
 										"p, 3dlu, p, 3dlu, p, 5dlu"));
 
 		final JLabel hostLbl = new JLabel("Hostname:"); 
@@ -1182,37 +1187,61 @@ public class ClientFrame extends JFrame {
 				}
 			}
 		});
-
+		chunkBtn = new JButton("Chunk");
+		chunkBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ChunkFileWorker chunkWorker = new ChunkFileWorker();
+				chunkWorker.execute();
+			}
+		});
+		
 		sendBtn = new JButton("Send files");
 		sendBtn.setEnabled(false);
 		sendBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File [] fileArray = new File[filePnl.files.size()];
-				filePnl.files.toArray(fileArray);
-				try {
-					client.sendFiles(fileArray);
-
-					//files.clear();
-					filePnl.filesTtf.setText(filePnl.files.size() + " file(s) selected");
-					sendBtn.setEnabled(false);	                    
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+					
+					
+					try {
+						client.sendFiles(chunkedFiles);
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 			}
 		});
 
 		setPnl.add(startBtn, cc.xyw(6,3,3));
-		setPnl.add(sendBtn, cc.xy(8,5));
-
-		//	    filesLbl = new JLabel("0 of 0 file(s) selected");
+		setPnl.add(chunkBtn, cc.xy(8,5));
+		setPnl.add(sendBtn, cc.xy(10,5));
 		setPnl.add(filesLbl, cc.xyw(2,5,5,"r,c"));
-
 		srvPnl.add(setPnl, cc.xy(2,2));
 	}
+	
+	/**
+	 * SwingWorker class for sending the chunked files to the server.
+	 * @author Thilo Muth
+	 *
+	 */
+	private class ChunkFileWorker extends SwingWorker {
 
+		@Override
+		protected Object doInBackground() throws Exception {
+			String filename = filePnl.files.get(0).getName();
+			sendBtn.setEnabled(false);	 
+			chunkedFiles = client.packFiles(1000, frame.getFilePanel().getCheckBoxTree(), filename.substring(0, filename.indexOf(".mgf")) + "_");
+			return 0;
+		}
+		
+		@Override
+		protected void done() {
+			sendBtn.setEnabled(true);
+		}
+	
+	}
+	
 //	/**
 //	 * Construct the processing panel.
 //	 */
@@ -2857,7 +2886,7 @@ public class ClientFrame extends JFrame {
 	// will be just wide enough to show the column head and the widest cell in the column.
 	// margin pixels are added to the left and right
 	// (resulting in an additional width of 2*margin pixels).
-	protected void packColumn(JTable table, int vColIndex, int margin) {
+	public void packColumn(JTable table, int vColIndex, int margin) {
 		DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
 		TableColumn col = colModel.getColumn(vColIndex);
 		int width = 0;
@@ -2895,19 +2924,9 @@ public class ClientFrame extends JFrame {
 	private class RunDbSearchWorker	extends SwingWorker {
 
 		protected Object doInBackground() throws Exception {
-			double progress = 0;
-			double max = filePnl.files.size();
-			setProgress(0);
-			int i = 1;
-			
 			DbSearchSettings settings = collectDBSearchSettings();
 			try {
-				for (File file : filePnl.files) {
-					client.runDbSearch(file, settings);
-					i++;
-					progress++;
-					setProgress((int)(progress/max*100));
-				}
+				client.runDbSearch(chunkedFiles, settings);
 				filePnl.files.clear();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -2929,20 +2948,9 @@ public class ClientFrame extends JFrame {
 	private class RunDenovoSearchWorker	extends SwingWorker {
 
 		protected Object doInBackground() throws Exception {
-			double progress = 0;
-			double max = filePnl.files.size();
-			setProgress(0);
 			DenovoSearchSettings settings = collectDenovoSettings();
-			try {
-				for (File file : filePnl.files) {
-					client.runDenovoSearch(file, settings);
-					progress++;
-					setProgress((int)(progress/max*100));
-				}
-				filePnl.files.clear();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			client.runDenovoSearch(chunkedFiles, settings);
+			filePnl.files.clear();
 			return 0;
 		}
 
@@ -3020,5 +3028,31 @@ public class ClientFrame extends JFrame {
 			}
 		});
 	}
+	
+	/**
+	 * Returns the query spectrum tree object.
+	 * @return queryTree The query spectrum tree object.
+	 */
+	public SpectrumTree getQueryTree() {
+		return queryTree;
+	}
+	
+	/**
+	 * Returns the result map for the spectral library search.
+	 * @return
+	 */
+	public Map<String, ArrayList<RankedLibrarySpectrum>> getResultMap() {
+		return resultMap;
+	}
+	
+	/**
+	 * Sets the result map for the spectral library search.
+	 * @return
+	 */
+	public void setResultMap(Map<String, ArrayList<RankedLibrarySpectrum>> resultMap) {
+		this.resultMap = resultMap;
+	}
+	
+	
 }
 

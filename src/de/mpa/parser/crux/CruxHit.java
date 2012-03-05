@@ -13,6 +13,8 @@ public class CruxHit {
     private double percolatorScore;
     private int percolatorRank;
     private double qValue;
+    private double pepValue;
+    
     private int matchesSpectrum;    
     private String peptide;
     private String cleavageType;
@@ -113,6 +115,12 @@ public class CruxHit {
 	}
 	public void setFlankingAA(String flankingAA) {
 		this.flankingAA = flankingAA;
+	}
+	public double getPepValue() {
+		return pepValue;
+	}
+	public void setPepValue(double pepValue) {
+		this.pepValue = pepValue;
 	}
     
     

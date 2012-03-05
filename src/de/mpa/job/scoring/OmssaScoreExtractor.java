@@ -15,8 +15,6 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	
 	private OmssaOmxFile omxFileTarget; 
 	private OmssaOmxFile omxFileDecoy;
-	private File targetFile;
-	private File decoyFile;
 	/**
 	 * Constructor the omssa score extractor.
 	 * @param targetFile
@@ -24,8 +22,6 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	 */
 	public OmssaScoreExtractor(File targetFile, File decoyFile) {
 		super(targetFile, decoyFile);		
-		this.targetFile = targetFile;
-		this.decoyFile = decoyFile;
 	}
 	
 	/**
@@ -49,14 +45,13 @@ public class OmssaScoreExtractor extends ScoreExtractor {
         HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
     	
-    	
     	// Target hits
     	while (targetIter.hasNext()) {
     	    MSSpectrum msSpectrum = targetIter.next();   
     	    MSHitSet msHitSet = targetResults.get(msSpectrum);
     	    List<MSHits> targetHits = msHitSet.MSHitSet_hits.MSHits;
     	    for (MSHits msHit : targetHits) {
-    	    	targetScores.add(msHit.MSHits_pvalue);
+    	    	targetScores.add(msHit.MSHits_evalue);
     	    }
     	}
     	// Help the GC:
@@ -75,7 +70,7 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    MSHitSet msHitSet = decoyResults.get(msSpectrum);
     	    List<MSHits> decoyHits = msHitSet.MSHitSet_hits.MSHits;
     	    for (MSHits msHit : decoyHits) {
-    	    	decoyScores.add(msHit.MSHits_pvalue);
+    	    	decoyScores.add(msHit.MSHits_evalue);
     	    }
     	}
    	}	

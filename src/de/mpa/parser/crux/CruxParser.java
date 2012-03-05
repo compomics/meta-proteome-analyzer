@@ -62,11 +62,12 @@ public class CruxParser {
                         hit.setPercolatorScore(Double.valueOf(tokenList.get(8)));
                         hit.setPercolatorRank(Integer.valueOf(tokenList.get(9)));
                         hit.setqValue(Double.valueOf(tokenList.get(10)));
-                        hit.setMatchesSpectrum(Integer.valueOf(tokenList.get(11)));
-                        hit.setPeptide(tokenList.get(12));
-                        hit.setCleavageType(tokenList.get(13));
-                        hit.setProteinid(tokenList.get(14));        
-                        hit.setFlankingAA(tokenList.get(15));
+                        hit.setPepValue(Double.valueOf(tokenList.get(11)));
+                        hit.setMatchesSpectrum(Integer.valueOf(tokenList.get(12)));
+                        hit.setPeptide(tokenList.get(13));
+                        hit.setCleavageType(tokenList.get(14));
+                        hit.setProteinid(tokenList.get(15));        
+                        hit.setFlankingAA(tokenList.get(16));
                         hitList.add(hit);
 					}
 				}

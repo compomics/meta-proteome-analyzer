@@ -1,4 +1,4 @@
-package de.mpa.client.ui;
+package de.mpa.client.ui.panels;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -42,6 +43,9 @@ import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.algorithms.Trafo;
 import de.mpa.client.Client;
 import de.mpa.client.SpecSimSettings;
+import de.mpa.client.ui.CheckBoxTreeSelectionModel;
+import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.SpectrumTree;
 import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.PlotPanel2;
@@ -553,6 +557,7 @@ public class SpecLibSearchPanel extends JPanel {
 		private Client client;
 		
 		private double maxProgress;
+		private HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 		
 		public SpecLibSearchWorker(ClientFrame clientFrame) {
 			this.clientFrame = clientFrame;
@@ -571,7 +576,7 @@ public class SpecLibSearchPanel extends JPanel {
 			// clone file selection tree, discard unselected branches/leaves
 			CheckBoxTreeSelectionModel selectionModel = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel();
 			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) clientFrame.getFilePanel().getCheckBoxTree().getModel().getRoot();
-			DefaultTreeModel queryModel = (DefaultTreeModel) clientFrame.queryTree.getModel();
+			DefaultTreeModel queryModel = (DefaultTreeModel) clientFrame.getQueryTree().getModel();
 			DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryModel.getRoot();
 			queryRoot.removeAllChildren();
 
@@ -610,7 +615,7 @@ public class SpecLibSearchPanel extends JPanel {
 			firePropertyChange("text", null, "Packing...");
 			long startTime = System.currentTimeMillis();
 			
-			ArrayList<File> files = client.packFiles((Integer) packSpn.getValue(), clientFrame.getFilePanel().getCheckBoxTree());
+			List<File> files = client.packFiles((Integer) packSpn.getValue(), clientFrame.getFilePanel().getCheckBoxTree(), "batch_");
 			
 			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
 
@@ -621,14 +626,17 @@ public class SpecLibSearchPanel extends JPanel {
 
 			SpecSimSettings specSet = gatherSpecSimSettings();
 
-			clientFrame.resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
+			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
 			client.initDBConnection();
 			startTime = System.currentTimeMillis();
 			setProgress(0);
 			firePropertyChange("foreground", null, UIManager.getColor("ProgressBar.foreground"));
 			for (File file : files) {
-				clientFrame.resultMap.putAll(client.searchSpecLib(file, specSet));
+				resultMap.putAll(client.searchSpecLib(file, specSet));
 			}
+			// TODO: maybe use this map only in the panel ? 
+			clientFrame.setResultMap(resultMap);
+			
 			// clean up
 			client.clearDBConnection();
 			client.removePropertyChangeListener(listener);
@@ -641,7 +649,7 @@ public class SpecLibSearchPanel extends JPanel {
 		public void done() {
 			procBtn.setText("Process");
 			procBtn.setEnabled(true);
-			((DefaultTreeModel) clientFrame.queryTree.getModel()).reload();
+			((DefaultTreeModel) clientFrame.getQueryTree().getModel()).reload();
 			clientFrame.setCursor(null);	//turn off the wait cursor
 		}
 	}
