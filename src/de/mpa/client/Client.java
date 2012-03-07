@@ -36,7 +36,9 @@ import de.mpa.client.model.ProteinHitSet;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.SpectrumTree;
+import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.DbConnectionSettings;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
@@ -53,6 +55,7 @@ import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.webservice.WSPublisher;
 
 public class Client {
 
@@ -70,10 +73,28 @@ public class Client {
 	
 	// Connection
 	private Connection conn;
+
+	private DbConnectionSettings dbSettings = new DbConnectionSettings();
+	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
+
+	// TODO: move methods
+	public DbConnectionSettings getDbSettings() {
+		return dbSettings;
+	}
+
+	public void setDbSettings(DbConnectionSettings dbSettings) {
+		this.dbSettings = dbSettings;
+	}
 	
-	public final DbConnectionSettings dbSettings = new DbConnectionSettings();
-	
-		//
+	public ServerConnectionSettings getServerSettings() {
+		return srvSettings;
+	}
+
+	public void setServerSettings(ServerConnectionSettings srvSettings) {
+		this.srvSettings = srvSettings;
+	}
+
+	//
 	/**
      *  Property change support for notifying the gui about new messages.
      */
@@ -109,20 +130,19 @@ public class Client {
 		// Connection conn
 		if (conn == null) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration("metaprot", false, this.dbSettings);
+			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, this.dbSettings);
 			this.conn = dbconfig.getConnection();
 		}
 	}
 	
 	/**
 	 * Clears the database connection.
+	 * @throws SQLException 
 	 */
-	public void clearDBConnection() {
-		try {
-			this.conn.close();
-			this.conn = null;
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public void clearDBConnection() throws SQLException {
+		if (conn != null) {
+			conn.close();
+			conn = null;
 		}
 	}
 
@@ -130,6 +150,9 @@ public class Client {
 	 * Connects the client to the web service.
 	 */
 	public void connect() {
+		
+		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
+		
 		service = new ServerImplService();
 		server = service.getServerImplPort();
 		
@@ -224,7 +247,8 @@ public class Client {
 	 */
 	public void runDbSearch(List<File> files, DbSearchSettings settings){
 		// Iterate the files
-		for (int i = 0; i < files.size(); i++){				
+		for (int i = 0; i < files.size(); i++) {
+			System.out.println("test");
 			server.runDbSearch(files.get(i).getName(), settings);
 		}
 	}

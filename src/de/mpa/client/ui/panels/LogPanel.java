@@ -1,4 +1,4 @@
-package de.mpa.client.ui;
+package de.mpa.client.ui.panels;
 
 
 import java.awt.BorderLayout;

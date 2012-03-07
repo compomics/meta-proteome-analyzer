@@ -1,4 +1,4 @@
-package de.mpa.client;
+package de.mpa.db;
 
 import java.io.BufferedReader;
 import java.io.File;
