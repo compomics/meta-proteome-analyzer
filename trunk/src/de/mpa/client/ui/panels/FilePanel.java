@@ -73,6 +73,23 @@ public class FilePanel extends JPanel {
 	private JTable fileDetailsTbl;
 	private PlotPanel2 filePlotPnl;
 
+	// TODO: implement spectrum selection count
+//	public JLabel filesLbl = new JLabel("0 of 0 spectra selected") {
+//		@Override
+//		public void repaint() {
+//			if ((filePnl != null) && (filePnl.getCheckBoxTree() != null)) {
+//				int selCount = 0;
+//				int leafCount = 0;
+//				DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) filePnl.getCheckBoxTree().getModel().getRoot();
+//				if (fileRoot.getChildCount() > 0) {
+//					selCount = filePnl.getCheckBoxTree().getSelectionModel().getSelectionCount();
+//					leafCount = ((DefaultMutableTreeNode) filePnl.getCheckBoxTree().getModel().getRoot()).getLeafCount();
+//				}
+//				this.setText(selCount + " of " + leafCount + " spectra selected");
+//			}
+//		}		
+//	};
+
 	private CheckBoxTreeManager fileTree;
 	private final static String DEFAULT_PROJECT = "Placeholder Project";
 	
@@ -204,7 +221,6 @@ public class FilePanel extends JPanel {
 						}
 					} finally {
 						tree.treeDidChange();
-						clientFrame.filesLbl.repaint();
 					}
 				}
 				return;
@@ -349,7 +365,6 @@ public class FilePanel extends JPanel {
 				treeModel.reload();
 				selectionModel.clearSelection();
 				selectionModel.addSelectionPath(new TreePath(treeRoot));
-				clientFrame.filesLbl.repaint();
 			}
 		});
 
@@ -558,7 +573,6 @@ public class FilePanel extends JPanel {
 
 				filesTtf.setText(numFiles + " file(s) selected");
 
-				clientFrame.filesLbl.repaint();
 				clientFrame.log.info("Added " + newLeaves + " file(s).");
 				if (numFiles > 0) {
 					if (clientFrame.connectedToServer) {

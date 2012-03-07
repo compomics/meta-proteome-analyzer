@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import de.mpa.client.DbConnectionSettings;
 
 /**
  * This class manages the configuration for the database.
@@ -15,17 +14,18 @@ public class DBConfiguration {
 
     private Connection conn;
     private String dbName;
-	private boolean locale;
+	private ConnectionType connType;
 	private DbConnectionSettings dbSettings;
+	
     /**
      * Constructor of the DatabaseStarter.
      * @param awsCredentials
      * @throws SQLException 
      */
-    public DBConfiguration(String dbName, boolean locale, DbConnectionSettings dbSettings) throws SQLException{
+    public DBConfiguration(String dbName, ConnectionType connType, DbConnectionSettings dbSettings) throws SQLException{
     	this.dbSettings = dbSettings;
     	this.dbName = dbName;
-    	this.locale = locale;
+    	this.connType = connType;
         initConnection();
     }
     
@@ -40,8 +40,11 @@ public class DBConfiguration {
 			Class.forName(dbSettings.getJdbcDriver());
 
 			// Do the connection to the DB
-			if(locale) conn = DriverManager.getConnection(dbSettings.getUrlLocale()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
-			else conn = DriverManager.getConnection(dbSettings.getUrlRemote()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
+			if (connType == ConnectionType.LOCAL) {
+				conn = DriverManager.getConnection(dbSettings.getUrlLocale()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
+			} else {
+				conn = DriverManager.getConnection(dbSettings.getUrlRemote()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
+			}
 			
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
