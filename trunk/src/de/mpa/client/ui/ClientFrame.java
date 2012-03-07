@@ -7,10 +7,8 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -18,17 +16,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -52,26 +45,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import no.uib.jsparklines.extra.HtmlLinksRenderer;
-
 import org.apache.log4j.Logger;
 
-import com.compomics.util.Util;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
@@ -83,26 +67,17 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
-import de.mpa.client.model.DbSearchResult;
-import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.ProteinHitSet;
 import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.client.ui.panels.ClusterPanel;
 import de.mpa.client.ui.panels.DBSearchPanel;
+import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.client.ui.panels.LogPanel;
+import de.mpa.client.ui.panels.ProjectPanel;
+import de.mpa.client.ui.panels.ProteinResultPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
-import de.mpa.db.accessor.Cruxhit;
-import de.mpa.db.accessor.ExpProperty;
-import de.mpa.db.accessor.Experiment;
-import de.mpa.db.accessor.Inspecthit;
-import de.mpa.db.accessor.Omssahit;
-import de.mpa.db.accessor.Project;
-import de.mpa.db.accessor.Property;
-import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.job.JobStatus;
@@ -119,12 +94,13 @@ import de.mpa.ui.MultiPlotPanel;
  */
 
 public class ClientFrame extends JFrame {
-	
+
 	public Logger log = Logger.getLogger(getClass());
 
 	private ClientFrame frame;
 
 	private JPanel projectPnl;
+
 
 	private Client client;
 
@@ -144,13 +120,11 @@ public class ClientFrame extends JFrame {
 
 	private CellConstraints cc;
 
-//	private List<File> files = new ArrayList<File>();
 	public JButton sendBtn;
 	private JMenuBar menuBar;
 	public boolean connectedToServer = false;
 
 	public  JTable libTbl;
-	private JTable querySpectraTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 
 	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
@@ -164,39 +138,15 @@ public class ClientFrame extends JFrame {
 	private JTextField cruxStatTtf;
 	private JTextField inspectStatTtf;
 	private JTextField omssaStatTtf;
-	private DbSearchResult dbSearchResult;
 	private SpectrumTree queryTree;
-	private JScrollPane querySpectraTblJScrollPane;
-	private JTable xTandemTbl;
-	private JScrollPane xTandemTblJScrollPane;
-	private JTable omssaTbl;
-	private JScrollPane omssaTblJScrollPane;
-	private JTable cruxTbl;
-	private JScrollPane cruxTblJScrollPane;
-	private JTable inspectTbl;
-	private JScrollPane inspectTblJScrollPane;
 	public JTable protTbl;
-	private Map<String, List<Omssahit>> ommsaResults;
-	private Map<String, List<XTandemhit>> xTandemResults;
-	private Map<String, List<Cruxhit>> cruxResults;
-	private Map<String, List<Inspecthit>> inspectResults;
-	private Map<String, List<PeptideHit>> peptideHits;
-	private Map<String, Integer> voteMap;
 	public JComboBox spectraCbx;
 	public JComboBox spectraCbx2;
-	private JTable proteinResultTbl;
-	private JPanel proteinViewPnl;
-	private JScrollPane proteinTblScp;
-	private JScrollPane peptidesTblScp;
-	private JTable projectsTbl;
-	private JTable projectPropertiesTbl;
-	private JTable experimentsNameTbl;
-	private JTable experimentPropertiesTbl;
 	private ClusterPanel clusterPnl;
-	private JTable peptideResultTbl;
-	private ProteinHitSet proteins;
 	protected List<File> chunkedFiles;
-	
+	private DbSearchResultPanel dbSearchResultPnl;
+	private ProteinResultPanel proteinResultPnl;
+
 	/**
 	 * Constructor for the ClientFrame
 	 */
@@ -222,7 +172,7 @@ public class ClientFrame extends JFrame {
 		cp.add(menuBar, BorderLayout.NORTH);
 
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
-		tabPane.addTab("Project",projectPnl);
+		tabPane.addTab("Project", projectPnl);
 		tabPane.addTab("Input Spectra", filePnl);
 		tabPane.addTab("Spectral Library Search", specLibPnl);
 		tabPane.addTab("MS/MS Database Search", msmsPnl);
@@ -230,8 +180,8 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Spectral Search Results", resPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
-		resultsTabPane.addTab("Protein View", proteinViewPnl);
-		tabPane.addTab("Database Search Results", resultsTabPane);
+		resultsTabPane.addTab("Protein View", proteinResultPnl);
+		tabPane.addTab("Database Search Results", dbSearchResultPnl);
 		tabPane.addTab("De novo Results", denovoResPnl);
 		tabPane.addTab("Logging", lggPnl);
 		tabPane.addTab("Clustering", clusterPnl);
@@ -301,8 +251,8 @@ public class ClientFrame extends JFrame {
 //			}
 		} else if(message.startsWith("DENOVOSEARCH")){
 //			for (File file : chunkedFiles) {
-//				client.getDenovoSearchResult(file);
-//				denovoResPnl.updateDenovoResultsTable();
+//				denovoSearchResult = client.getDenovoSearchResult(file);
+//				updateDenovoResultsTable();
 //			}
 		}
 	}
@@ -322,7 +272,7 @@ public class ClientFrame extends JFrame {
 		filePnl = new FilePanel(this);
 
 		// Project panel
-		constructProjectPanel();
+		projectPnl = new ProjectPanel(this);
 
 		// Spectral Library Search Panel
 		specLibPnl = new SpecLibSearchPanel(this);
@@ -336,15 +286,14 @@ public class ClientFrame extends JFrame {
 		// Results Panel
 		constructSpecResultsPanel();
 
-		// MS2 Results Panel
-		constructMS2ResultsPanel();
+		// Database search result panel
+		dbSearchResultPnl = new DbSearchResultPanel(this);
 
 		// Protein Panel
-		constructProteinPanel();
+		proteinResultPnl = new ProteinResultPanel(this);
 
-		// DeNovoResults
+		// DeNovoResults		
 		denovoResPnl = new DeNovoResultPanel(this);
-//		constructDenovoResultPanel();
 
 		// Logging panel		
 		constructLogPanel();
@@ -353,514 +302,7 @@ public class ClientFrame extends JFrame {
 		clusterPnl = new ClusterPanel(this);
 		
 	}
-// for construct panel to recreate tables
-	public void recreateTable() {
-		((DefaultTableModel)projectsTbl.getModel()).setRowCount(0);
-		((DefaultTableModel)projectPropertiesTbl.getModel()).setRowCount(0);
-		((DefaultTableModel)experimentsNameTbl.getModel()).setRowCount(0);
-		((DefaultTableModel)experimentPropertiesTbl.getModel()).setRowCount(0);
-		//refill project Table
-		ArrayList<Project> projectList= new ArrayList<Project>(); 
-		try {
-			client.initDBConnection();
-			projectList = new ArrayList<Project>(client.getProjects());
-			client.clearDBConnection();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT</b></html>", null});
-		for (int i = 0; i < projectList.size(); i++) {
-			((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {projectList.get(i).getProjectid(),projectList.get(i).getTitle(), projectList.get(i).getCreationdate()});
-		}
-		// justify column width
-		packColumn(projectsTbl,0,5);
-		projectsTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-		packColumn(projectsTbl, 2, 5);
-	};
-	// Build Panel for project and experiment structure
-	private void constructProjectPanel(){
-		projectPnl = new JPanel();
-		projectPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, t:p,5dlu, t:p, 5dlu, t:p:g, 5dlu"));
-		//Projects
-		JPanel updateProjectsPnl = new JPanel();
-		updateProjectsPnl.setBorder(new TitledBorder("Update to database"));
-		updateProjectsPnl.setLayout(new FormLayout("5dlu, p, 5dlu,p,p:g",// Spalten
-				"5dlu, p, 5dlu"));			// Zeilen
-		JButton refreshBtn= new JButton("refresh");
-				refreshBtn.addActionListener(new ActionListener() {
-			@Override
-			
-			public void actionPerformed(ActionEvent e) {
-				//delete all Tables
-				recreateTable();
-			}
-		});
-		refreshBtn.setPreferredSize(new Dimension(80,30));
-		updateProjectsPnl.add(refreshBtn,cc.xy(2, 2));
-		JButton saveProjectsBtn = new JButton("save changes");
-		saveProjectsBtn.setPreferredSize(new Dimension(80,30));
-		updateProjectsPnl.add(saveProjectsBtn,cc.xy(4, 2));
-		projectPnl.add(updateProjectsPnl,cc.xy(2, 2));
-
-		JPanel manageProjectsPnl = new JPanel();
-		manageProjectsPnl.setBorder(new TitledBorder("Manage projects"));
-		manageProjectsPnl.setLayout(new FormLayout("5dlu, p,p:g,5dlu,p, p:g, 5dlu","5dlu, t:p:g, 5dlu, t:p, 5dlu"));
-		// Tabel for projects
-		projectsTbl = new JTable(new DefaultTableModel(){						// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#","project name","creation date"}); }
-			public boolean isCellEditable(int row, int col) {
-				return ((col == 1) ? true : false);
-//				return false;
-			}
-			public Class<?> getColumnClass(int col) {
-				switch (col) {
-				case 0:
-					return Integer.class;
-				case 1:
-					return String.class;
-				case 2:
-					return Date.class;
-				default:
-					return getValueAt(0,col).getClass();
-				}
-			}
-		});
-		projectsTbl.setAutoCreateRowSorter(true);
-		projectsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//  fill project Table
-		ArrayList<Project> projectList= new ArrayList<Project>(); 
-		try {
-			client.initDBConnection();
-			projectList = new ArrayList<Project>(client.getProjects());
-			client.clearDBConnection();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT</b></html>", null});
-		for (int i = 0; i < projectList.size(); i++) {
-			((DefaultTableModel)projectsTbl.getModel()).addRow(new Object[] {projectList.get(i).getProjectid(),projectList.get(i).getTitle(), projectList.get(i).getCreationdate()});
-		}
-		// justify column width
-		packColumn(projectsTbl,0,5);
-		projectsTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-		packColumn(projectsTbl, 2, 5);
-		
-		JTextField editorTtf = new JTextField();
-		editorTtf.setBorder(null);
-		DefaultCellEditor dce = new DefaultCellEditor(editorTtf);
-		dce.setClickCountToStart(1000);
-		projectsTbl.getColumnModel().getColumn(1).setCellEditor(dce);
-		// Action listener for project Column
-		projectsTbl.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				// if component is enabled and left click and one click--> create other tables
-				if (e.getComponent().isEnabled() && e.getButton() == MouseEvent.BUTTON1) {
-
-					Point p = e.getPoint();
-					int row = projectsTbl.convertRowIndexToModel(projectsTbl.rowAtPoint(p));
-
-					if (e.getClickCount() == 1) {
-						// create Property and Experiment Table
-						if (row > 0) {
-							long fk_projectid = (Long)projectsTbl.getValueAt(row, 0);
-							// Use table.convertRowIndexToModel / table.convertColumnIndexToModle to convert to view indices
-							//empty properties table
-							while (projectPropertiesTbl.getRowCount()>0) {
-								((DefaultTableModel)projectPropertiesTbl.getModel()).removeRow(projectPropertiesTbl.getRowCount()-1);
-							}
-							//refill properties table
-							((DefaultTableModel)projectPropertiesTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT PROPERTY</b></html>", null});
-
-							// query database for properties
-							ArrayList<Property> projectPropertyList= new ArrayList<Property>(); 
-							try {
-								client.initDBConnection();
-								projectPropertyList = new ArrayList<Property>(client.getProjectProperties(fk_projectid));
-								client.clearDBConnection();
-							} catch (SQLException e1) {
-								e1.printStackTrace();
-							}
-							for (int i = 0; i < projectPropertyList.size(); i++) {
-								((DefaultTableModel)projectPropertiesTbl.getModel()).addRow(new Object[]{projectPropertyList.get(i).getPropertyid(),projectPropertyList.get(i).getName(),projectPropertyList.get(i).getValue()});
-								// justify column width
-								packColumn(projectPropertiesTbl,0,5);
-								projectPropertiesTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-								projectPropertiesTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
-							}
-							// fill experiment column
-							//empty experiments table
-							while (experimentsNameTbl.getRowCount()>0) {
-								((DefaultTableModel)experimentsNameTbl.getModel()).removeRow(experimentsNameTbl.getRowCount()-1);
-							}
-							//refill properties table
-							((DefaultTableModel)experimentsNameTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW EXPERIMENT</b></html>", null});
-							// query database for properties
-							ArrayList<Experiment> projectExperimentList = new ArrayList<Experiment>(); 
-							try {
-								client.initDBConnection();
-								projectExperimentList = new ArrayList<Experiment>(client.getProjectExperiments(fk_projectid));
-								client.clearDBConnection();
-							} catch (SQLException e1) {
-								e1.printStackTrace();
-							}
-							for (int i = 0; i < projectExperimentList.size(); i++) {
-								Object[] test = new Object[] {projectExperimentList.get(i).getExperimentid(),
-										projectExperimentList.get(i).getTitle(),
-										projectExperimentList.get(i).getCreationdate()};
-								((DefaultTableModel)experimentsNameTbl.getModel()).addRow(test);
-								// justify column width
-								packColumn(experimentsNameTbl,0,5);
-								experimentsNameTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-								packColumn(experimentsNameTbl,2,5);
-							}
-							//empty experiment properties
-							((DefaultTableModel)experimentPropertiesTbl.getModel()).setRowCount(0);
-						}	
-						// edit cells
-					} else if (e.getClickCount() == 2) {
-					//	String oldVal = projectsTbl.getValueAt(row, 1).toString();
-						if (projectsTbl.getSelectedRow() == 0) {
-							projectsTbl.setValueAt("", row, 1);
-						}
-						projectsTbl.editCellAt(row, 1);
-					}
-				}
-			}
-		});
-
-		projectsTbl.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if (e.getType() == TableModelEvent.UPDATE) {
-					int row = projectsTbl.convertRowIndexToModel(e.getFirstRow());
-					if (projectsTbl.getValueAt(row, 1) != "") {
-						try {
-							client.initDBConnection();
-							if (row == 0) {
-								// create new project
-								String pTitle= (String) projectsTbl.getValueAt(e.getFirstRow(), 1);
-								Timestamp pCreationdate= new Timestamp(new Date().getTime());
-								Timestamp pModificationdate = new Timestamp(new Date().getTime());
-								client.createNewProject((String)pTitle,(Timestamp)pCreationdate,(Timestamp)pModificationdate);
-								recreateTable();
-							} else {
-								//change project
-								client.modifyProject((Long)projectsTbl.getValueAt(e.getFirstRow(), 0),
-										projectsTbl.getValueAt(e.getFirstRow(), e.getColumn()).toString());
-							}
-							recreateTable();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-			}
-		});
-		JScrollPane projectNameScp =new JScrollPane(projectsTbl);
-		projectNameScp.setPreferredSize(new Dimension(300,200));
-		projectNameScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		manageProjectsPnl.add(projectNameScp,cc.xyw(2,2,2));
-		// Button to delete a projects
-		JButton deleteProjectBtn = new JButton("delete project");
-		deleteProjectBtn.setPreferredSize(new Dimension(160,25));
-		deleteProjectBtn.setSize(new Dimension(30,30));
-		//delete Projects
-		deleteProjectBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				try {
-					client.initDBConnection();
-					long projectID= (Long) projectsTbl.getValueAt(projectsTbl.getSelectedRow(),0);
-					client.removeProjects(projectID);//projectID);
-					recreateTable();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				
-				
-			
-			}
-		});
-		
-		
-		
-		manageProjectsPnl.add(deleteProjectBtn,cc.xy(2, 4));
-		//Table for project properties
-		projectPropertiesTbl = new JTable(new DefaultTableModel(){
-			{ setColumnIdentifiers(new Object[] {"#","project property","value"}); }
-			public boolean isCellEditable(int row, int col) {
-				return ((col == 0) ? false :true);
-			}
-			public Class<?> getColumnClass(int col) {
-				switch (col) {
-				case 0:
-					return Long.class;
-				case 1:
-					return String.class;
-				case 2:
-					return String.class;
-				default:
-					return getValueAt(0,col).getClass();
-				}
-			}	
-		});
-		// change and add to the projectProperty Table
-		projectPropertiesTbl.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if (e.getType() == TableModelEvent.UPDATE) {
-					int row = projectPropertiesTbl.convertRowIndexToModel(e.getFirstRow());
-					if (projectPropertiesTbl.getValueAt(row, 1) != "") {
-						try {
-							client.initDBConnection();
-							if (row == 0) {
-								// create new project
-								String pTitle= (String) projectPropertiesTbl.getValueAt(e.getFirstRow(), 1);
-								Timestamp pCreationdate= new Timestamp(new Date().getTime());
-								Timestamp pModificationdate = new Timestamp(new Date().getTime());
-								client.createNewProject((String)pTitle,(Timestamp)pCreationdate,(Timestamp)pModificationdate);
-								recreateTable();
-							} else {
-								//change project property
-								client.modifyProjectProperty((Long)projectPropertiesTbl.getValueAt(e.getFirstRow(), 0),  //propertyid,
-										projectPropertiesTbl.getValueAt(e.getFirstRow(), 1).toString(),//propertyName,
-										projectPropertiesTbl.getValueAt(e.getFirstRow(), 2).toString());//propertyValue
-							}
-							recreateTable();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-			}
-		});		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-
-		JScrollPane projectPropertiesScp = new JScrollPane(projectPropertiesTbl);
-		projectPropertiesScp.setPreferredSize(new Dimension(300,200));
-		projectPropertiesScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		manageProjectsPnl.add(projectPropertiesScp,cc.xyw(5, 2,2));
-		//Button to delete project property
-		JButton deleteProjectPropertyBtn = new JButton("delete project property");
-		deleteProjectPropertyBtn.setPreferredSize(new Dimension(160,25));
-		manageProjectsPnl.add(deleteProjectPropertyBtn,cc.xy(5, 4));
-		//Add manage projects to project panel
-		projectPnl.add(manageProjectsPnl,cc.xy(2, 4));	
-		// Experiments
-		JPanel manageExperimentsPnl = new JPanel();
-		manageExperimentsPnl.setBorder(new TitledBorder("Manage experiments"));
-		manageExperimentsPnl.setLayout(new FormLayout("5dlu, p,p:g, 5dlu, p,p:g, 5dlu","5dlu, t:p:g, 5dlu, t:p, 5dlu"));
-		//Experiment overview Table
-		experimentsNameTbl= new JTable(new DefaultTableModel(){
-			{ setColumnIdentifiers(new Object[] {"#","experiment name","creation date"}); }
-			public boolean isCellEditable(int row, int col) {
-				return ((col == 1) ? true :false);
-			}
-			public Class<?> getColumnClass(int col) {
-				switch (col) {
-				case 0:
-					return Long.class;
-				case 1:
-					return String.class;
-				case 2:
-					return Date.class;
-				default:
-					return getValueAt(0,col).getClass();
-				}
-			}	
-		});
-		// ActionListener to show Experiment Properties
-		experimentsNameTbl.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				if (e.getComponent().isEnabled() && 
-						e.getButton() == MouseEvent.BUTTON1 && 
-						e.getClickCount() == 1) {
-					Point p = e.getPoint();
-					int row = experimentsNameTbl.convertRowIndexToModel(experimentsNameTbl.rowAtPoint(p));
-					if (row > 0) {
-						long experimentid = (Long)experimentsNameTbl.getValueAt(row, 0);
-						// Use table.convertRowIndexToModel / table.convertColumnIndexToModle to convert to view indices
-						//empty properties table
-						while (experimentPropertiesTbl.getRowCount()>0) {
-							((DefaultTableModel)experimentPropertiesTbl.getModel()).removeRow(experimentPropertiesTbl.getRowCount()-1);
-						}
-						//refill properties table
-						((DefaultTableModel)experimentPropertiesTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW EXPERIMENT PROPERTY</b></html>", null});
-
-						// query database for properties
-						ArrayList<ExpProperty> experimentPropertyList= new ArrayList<ExpProperty>(); 
-						try {
-							client.initDBConnection();
-							experimentPropertyList = new ArrayList<ExpProperty>(client.getExperimentProperties(experimentid));
-							//						projectPropertyList.addAll(propertyListDB);		
-							client.clearDBConnection();
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						for (int i = 0; i < experimentPropertyList.size(); i++) {
-							((DefaultTableModel)experimentPropertiesTbl.getModel()).addRow(new Object[]{experimentPropertyList.get(i).getExppropertyid(),
-									experimentPropertyList.get(i).getName(),
-									experimentPropertyList.get(i).getValue()});
-							// justify column width
-							packColumn(experimentPropertiesTbl,0,5);
-							experimentPropertiesTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-							experimentPropertiesTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
-						}
-					}
-				}
-			}
-		});
-		// change experiments
-		experimentsNameTbl.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if (e.getType() == TableModelEvent.UPDATE) {
-					try {
-						client.initDBConnection();
-						client.modifyExperimentsName((Long)experimentsNameTbl.getValueAt(e.getFirstRow(), 0), //experimentid,
-								experimentsNameTbl.getValueAt(e.getFirstRow(),1).toString());//propertyValue
-
-						client.clearDBConnection();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-		JScrollPane experimentsNameScp= new JScrollPane(experimentsNameTbl);
-		experimentsNameScp.setPreferredSize(new Dimension(300,200));
-		experimentsNameScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		manageExperimentsPnl.add(experimentsNameScp,cc.xyw(2, 2,2));
-		// Button to delete experiment
-		JButton deleteExperimentBtn = new JButton("delete experiment");
-		deleteExperimentBtn.setPreferredSize(new Dimension(160,25));
-		manageExperimentsPnl.add(deleteExperimentBtn,cc.xy(2, 4));
-		// ExperimentProperties Table
-		experimentPropertiesTbl= new JTable(new DefaultTableModel(){
-			{ setColumnIdentifiers(new Object[] {"#","experiment property","value"}); }
-			public boolean isCellEditable(int row, int col) {
-				return ((col == 0) ? false :true);
-			}
-			public Class<?> getColumnClass(int col) {
-				switch (col) {
-				case 0:
-					return Long.class;
-				case 1:
-					return String.class;
-				case 2: 
-					return String.class;
-				default:
-					return getValueAt(0,col).getClass();
-				}
-			}		
-		});
-		// change experimentProperties
-		experimentPropertiesTbl.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if (e.getType() == TableModelEvent.UPDATE) {
-					System.out.println(experimentPropertiesTbl.getValueAt(e.getFirstRow(), 0));
-					try {
-						client.initDBConnection();
-						client.modifyExperimentsProperties((Long)experimentPropertiesTbl.getValueAt(e.getFirstRow(), 0),				//exppropertyid, 
-								experimentPropertiesTbl.getValueAt(e.getFirstRow(),1).toString(),			//expProperty,
-								experimentPropertiesTbl.getValueAt(e.getFirstRow(), 2).toString());//expPropertyValue);
-
-						client.clearDBConnection();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-		JScrollPane experimentPropertiesScp= new JScrollPane(experimentPropertiesTbl);
-		experimentPropertiesScp.setPreferredSize(new Dimension(300,200));
-		experimentPropertiesScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		manageExperimentsPnl.add(experimentPropertiesScp,cc.xyw(5, 2,2));
-		// Button to delete experiment properties
-		JButton deleteExperimentPropertiesBtn= new JButton("delete experiment properties");
-		deleteExperimentPropertiesBtn.setPreferredSize(new Dimension(160,25));
-		manageExperimentsPnl.add(deleteExperimentPropertiesBtn,cc.xy(5, 4));
-		//Add manageExperiemets to project
-		projectPnl.add(manageExperimentsPnl,cc.xy(2, 6));
-	}
-
-	private void constructProteinPanel() {
-
-		proteinTblScp = new JScrollPane();
-
-		proteinViewPnl = new JPanel();
-		proteinViewPnl.setLayout(new FormLayout("5dlu, p, 5dlu", "5dlu, t:p, 5dlu, t:p, 5dlu"));
-
-		final JPanel proteinPnl = new JPanel();
-		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	"5dlu, f:p:g, 5dlu"));
-		proteinPnl.setBorder(BorderFactory.createTitledBorder("Proteins"));
-
-		// Setup the tables
-		setupProteinResultTableProperties();
-
-		// List with loaded query spectra
-		//querySpectraLst = new JList()
-
-		proteinResultTbl.addMouseListener(new java.awt.event.MouseAdapter() {
-
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent evt) {
-				queryProteinTableMouseClicked(evt);
-			}
-		});
-
-		proteinResultTbl.addKeyListener(new java.awt.event.KeyAdapter() {
-
-			@Override
-			public void keyReleased(java.awt.event.KeyEvent evt) {
-				queryProteinTableKeyReleased(evt);
-			}
-		});
-
-		proteinResultTbl.setOpaque(false);
-		proteinTblScp.setViewportView(proteinResultTbl);
-		proteinTblScp.setPreferredSize(new Dimension(1000, 300));
-
-		proteinPnl.add(proteinTblScp, cc.xy(2, 2));
-
-		// Peptides
-		final JPanel peptidesPnl = new JPanel();
-		peptidesPnl.setLayout(new FormLayout("5dlu, p, 5dlu",  "5dlu, p, 5dlu,"));
-		peptidesPnl.setBorder(BorderFactory.createTitledBorder("Peptides"));
-
-		peptidesTblScp = new JScrollPane();
-		peptidesTblScp.setPreferredSize(new Dimension(1000, 250));
-		peptidesTblScp.setViewportView(peptideResultTbl);
-		peptidesPnl.add(peptidesTblScp, cc.xy(2, 2));
-
-		proteinViewPnl.add(proteinPnl, cc.xy(2,2));
-		proteinViewPnl.add(peptidesPnl, cc.xy(2,4));
-
-	}
-
+	
 	/**
 	 * Construct the spectral search results panel.
 	 */
@@ -931,9 +373,9 @@ public class ClientFrame extends JFrame {
 			public Font getFont() { return font; }
 		});
 		
-		packColumn(libTbl, 0, 10);
+		TableConfig.packColumn(libTbl, 0, 10);
 		libTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-		packColumn(libTbl, 2, 10);
+		TableConfig.packColumn(libTbl, 2, 10);
 
 		// helper text field for use in table cell editor
 		JTextField editorTtf = new JTextField();
@@ -992,8 +434,8 @@ public class ClientFrame extends JFrame {
 								dtm.addRow(new Object[] {++protIndex, annotation.getAccession(), annotation.getDescription()});
 							}
 						}
-						packColumn(protTbl, 0, 10);
-						packColumn(protTbl, 1, 10);
+						TableConfig.packColumn(protTbl, 0, 10);
+						TableConfig.packColumn(protTbl, 1, 10);
 					}
 				}
 			}
@@ -1144,8 +586,8 @@ public class ClientFrame extends JFrame {
 				}
 			}
 		});
-		packColumn(protTbl, 0, 10);
-		packColumn(protTbl, 1, 10);
+		TableConfig.packColumn(protTbl, 0, 10);
+		TableConfig.packColumn(protTbl, 1, 10);
 		protTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
 
 		protTbl.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(editorTtf));
@@ -1186,471 +628,7 @@ public class ClientFrame extends JFrame {
 
 		resPnl.add(dispPnl, cc.xy(2,2));
 	}
-
-	/**
-	 * Construct the MS2 results panel.
-	 */
-	private void constructMS2ResultsPanel() {
-
-		querySpectraTblJScrollPane = new JScrollPane();
-
-		res2Pnl = new JPanel();
-		res2Pnl.setLayout(new FormLayout("5dlu, p, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p"));
-
-		final JPanel spectraPnl = new JPanel();
-		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-											"5dlu, p, 5dlu, f:p:g, 5dlu"));
-		spectraPnl.setBorder(BorderFactory.createTitledBorder("Query Spectra"));
-
-		// Setup the tables
-		setupDbSearchResultTableProperties();
-
-		// List with loaded query spectra
-		//querySpectraLst = new JList()
-
-		querySpectraTbl.addMouseListener(new java.awt.event.MouseAdapter() {
-
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent evt) {
-				querySpectraTableMouseClicked(evt);
-			}
-		});
-
-		querySpectraTbl.addKeyListener(new java.awt.event.KeyAdapter() {
-
-			@Override
-			public void keyReleased(java.awt.event.KeyEvent evt) {
-				querySpectraTableKeyReleased(evt);
-			}
-		});
-
-		querySpectraTbl.setOpaque(false);
-		querySpectraTblJScrollPane.setViewportView(querySpectraTbl);
-		querySpectraTblJScrollPane.setPreferredSize(new Dimension(500, 300));
-
-		spectraCbx = new JComboBox();
-		JButton updateBtn = new JButton("Get results");
-		JPanel topPnl = new JPanel(new FormLayout("p:g, 40dlu, p", "p:g"));
-		topPnl.add(spectraCbx, cc.xy(1, 1));
-		topPnl.add(updateBtn, cc.xy(3, 1));
-		updateBtn.setPreferredSize(new Dimension(150, 20));
-
-		updateBtn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				for(File file : filePnl.files){
-					dbSearchResult = client.getDbSearchResult(file);
-					updateDbResultsTable();
-				}
-			}
-		});
-
-		spectraPnl.add(topPnl, cc.xy(2, 2));
-		spectraPnl.add(querySpectraTblJScrollPane, cc.xy(2, 4));
-
-		// PSMs
-		final JPanel psmPnl = new JPanel();
-		psmPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu",  "5dlu, p, 5dlu, p, 5dlu"));
-		psmPnl.setBorder(BorderFactory.createTitledBorder("Peptide-to-spectrum Matches"));
-
-		// X!Tandem
-		final JPanel xtandemPnl = new JPanel(new FormLayout("p:g", "p:g"));
-		xtandemPnl.setBorder(BorderFactory.createTitledBorder("X!Tandem"));
-		xTandemTblJScrollPane = new JScrollPane();
-		xTandemTblJScrollPane.setPreferredSize(new Dimension(500, 100));
-		xTandemTblJScrollPane.setViewportView(xTandemTbl);
-		xtandemPnl.add(xTandemTblJScrollPane, cc.xy(1, 1));
-		psmPnl.add(xtandemPnl, cc.xy(2, 2));
-
-		// Omssa
-		final JPanel omssaPnl = new JPanel(new FormLayout("p:g", "p:g"));
-		omssaPnl.setBorder(BorderFactory.createTitledBorder("Omssa"));
-		omssaTblJScrollPane = new JScrollPane();
-		omssaTblJScrollPane.setPreferredSize(new Dimension(500, 100));
-		omssaTblJScrollPane.setViewportView(omssaTbl);
-		omssaPnl.add(omssaTblJScrollPane, cc.xy(1, 1));
-		psmPnl.add(omssaPnl, cc.xy(4, 2));
-
-		// Crux
-		final JPanel cruxPnl = new JPanel(new FormLayout("p:g", "p:g"));
-		cruxPnl.setBorder(BorderFactory.createTitledBorder("Crux"));
-		cruxTblJScrollPane = new JScrollPane();
-		cruxTblJScrollPane.setPreferredSize(new Dimension(500, 100));
-		cruxTblJScrollPane.setViewportView(cruxTbl);
-		cruxPnl.add(cruxTblJScrollPane, cc.xy(1, 1));
-		psmPnl.add(cruxPnl, cc.xy(2, 4));
-
-		// Inspect
-		final JPanel inspectPnl = new JPanel(new FormLayout("p:g", "p:g"));
-		inspectPnl.setBorder(BorderFactory.createTitledBorder("Inspect"));
-		inspectTblJScrollPane = new JScrollPane();
-		inspectTblJScrollPane.setPreferredSize(new Dimension(500, 100));
-		inspectTblJScrollPane.setViewportView(inspectTbl);
-		inspectPnl.add(inspectTblJScrollPane, cc.xy(1, 1));
-		psmPnl.add(inspectPnl, cc.xy(4, 4));
-		res2Pnl.add(spectraPnl, cc.xy(2,2));
-		res2Pnl.add(psmPnl, cc.xy(2,4));
-
-	}
-
-	private void setupProteinResultTableProperties(){
-		// Query table
-		proteinResultTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "No. Peptides", "Coverage", "Spectral Count", "NSAF"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-		proteinResultTbl.getColumn(" ").setMinWidth(30);
-		proteinResultTbl.getColumn(" ").setMaxWidth(30);
-		proteinResultTbl.getColumn("Accession").setMinWidth(100);
-		proteinResultTbl.getColumn("Accession").setMaxWidth(100);
-
-		proteinResultTbl.getColumn("No. Peptides").setMinWidth(90);
-		proteinResultTbl.getColumn("No. Peptides").setMaxWidth(90);
-		proteinResultTbl.getColumn("Coverage").setMinWidth(90);
-		proteinResultTbl.getColumn("Coverage").setMaxWidth(90);
-		proteinResultTbl.getColumn("Spectral Count").setMinWidth(90);
-		proteinResultTbl.getColumn("Spectral Count").setMaxWidth(90);
-		proteinResultTbl.getColumn("NSAF").setMinWidth(90);
-		proteinResultTbl.getColumn("NSAF").setMaxWidth(90);
-
-		peptideResultTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "Modification", "Unique", "PSM Votes", "No. Spectra", "Start", "End"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-
-		peptideResultTbl.getColumn(" ").setMinWidth(30);
-		peptideResultTbl.getColumn(" ").setMaxWidth(30);			
-		peptideResultTbl.getColumn("Modification").setMinWidth(90);
-		peptideResultTbl.getColumn("Modification").setMaxWidth(90);
-		peptideResultTbl.getColumn("Unique").setMinWidth(90);
-		peptideResultTbl.getColumn("Unique").setMaxWidth(90);
-		peptideResultTbl.getColumn("PSM Votes").setMinWidth(90);
-		peptideResultTbl.getColumn("PSM Votes").setMaxWidth(90);
-		peptideResultTbl.getColumn("No. Spectra").setMinWidth(90);
-		peptideResultTbl.getColumn("No. Spectra").setMaxWidth(90);
-		peptideResultTbl.getColumn("Start").setMinWidth(90);
-		peptideResultTbl.getColumn("Start").setMaxWidth(90);
-		peptideResultTbl.getColumn("End").setMinWidth(90);
-		peptideResultTbl.getColumn("End").setMaxWidth(90);
-	}
-
-	private void setupDbSearchResultTableProperties(){
-		// Query table
-		querySpectraTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Title", "m/z", "Charge", "Identified"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-		querySpectraTbl.getColumn(" ").setMinWidth(30);
-		querySpectraTbl.getColumn(" ").setMaxWidth(30);
-		querySpectraTbl.getColumn("m/z").setMinWidth(100);
-		querySpectraTbl.getColumn("m/z").setMaxWidth(100);
-		querySpectraTbl.getColumn("Charge").setMinWidth(100);
-		querySpectraTbl.getColumn("Charge").setMaxWidth(100);
-		querySpectraTbl.getColumn("Identified").setMinWidth(80);
-		querySpectraTbl.getColumn("Identified").setMaxWidth(80);
-		xTandemTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "hyperscore", "PEP", "q-value"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-
-		xTandemTbl.getColumn(" ").setMinWidth(30);
-		xTandemTbl.getColumn(" ").setMaxWidth(30);
-		xTandemTbl.getColumn("Accession").setCellRenderer(new HtmlLinksRenderer(Constants.SELECTED_ROW_HTML_FONT_COLOR, Constants.NOT_SELECTED_ROW_HTML_FONT_COLOR));
-		xTandemTbl.getColumn("e-value").setMinWidth(80);
-		xTandemTbl.getColumn("e-value").setMaxWidth(80);
-		xTandemTbl.getColumn("hyperscore").setMinWidth(90);
-		xTandemTbl.getColumn("hyperscore").setMaxWidth(90);
-		xTandemTbl.getColumn("PEP").setMinWidth(80);
-		xTandemTbl.getColumn("PEP").setMaxWidth(80);
-		xTandemTbl.getColumn("q-value").setMinWidth(80);
-		xTandemTbl.getColumn("q-value").setMaxWidth(80);
-
-		omssaTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "e-value", "p-value", "PEP", "q-value"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-
-		omssaTbl.getColumn(" ").setMinWidth(30);
-		omssaTbl.getColumn(" ").setMaxWidth(30);
-		omssaTbl.getColumn("Accession").setCellRenderer(new HtmlLinksRenderer(Constants.SELECTED_ROW_HTML_FONT_COLOR, Constants.NOT_SELECTED_ROW_HTML_FONT_COLOR));
-		omssaTbl.getColumn("e-value").setMinWidth(80);
-		omssaTbl.getColumn("e-value").setMaxWidth(80);
-		omssaTbl.getColumn("p-value").setMinWidth(80);
-		omssaTbl.getColumn("p-value").setMaxWidth(80);
-		omssaTbl.getColumn("PEP").setMinWidth(80);
-		omssaTbl.getColumn("PEP").setMaxWidth(80);
-		omssaTbl.getColumn("q-value").setMinWidth(80);
-		omssaTbl.getColumn("q-value").setMaxWidth(80);
-
-		cruxTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "xCorr", "q-value"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-
-		cruxTbl.getColumn(" ").setMinWidth(30);
-		cruxTbl.getColumn(" ").setMaxWidth(30);
-		cruxTbl.getColumn("xCorr").setMinWidth(90);
-		cruxTbl.getColumn("xCorr").setMaxWidth(90);
-		cruxTbl.getColumn("q-value").setMinWidth(90);
-		cruxTbl.getColumn("q-value").setMaxWidth(90);
-
-		inspectTbl = new JTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Peptide", "Accession", "f-score", "p-value"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-
-		inspectTbl.getColumn(" ").setMinWidth(30);
-		inspectTbl.getColumn(" ").setMaxWidth(30);
-		inspectTbl.getColumn("f-score").setMinWidth(90);
-		inspectTbl.getColumn("f-score").setMaxWidth(90);
-		inspectTbl.getColumn("p-value").setMinWidth(90);
-		inspectTbl.getColumn("p-value").setMaxWidth(90);
-
-		// Reordering not allowed
-		querySpectraTbl.getTableHeader().setReorderingAllowed(false);
-		xTandemTbl.getTableHeader().setReorderingAllowed(false);
-		omssaTbl.getTableHeader().setReorderingAllowed(false);
-		cruxTbl.getTableHeader().setReorderingAllowed(false);
-		inspectTbl.getTableHeader().setReorderingAllowed(false);
-	}
-
-	private void updateDbResultsTable(){
-		List<Searchspectrum> querySpectra = dbSearchResult.getQuerySpectra();
-		xTandemResults = dbSearchResult.getxTandemResults();
-		ommsaResults = dbSearchResult.getOmssaResults();      
-		cruxResults = dbSearchResult.getCruxResults();        	
-		inspectResults = dbSearchResult.getInspectResults();   
-		voteMap = dbSearchResult.getVoteMap();
-		proteins = dbSearchResult.getProteins();
-		peptideHits = new HashMap<String, List<PeptideHit>>();
-
-		if (querySpectra != null) {
-			for (int i = 0; i < querySpectra.size(); i++) {
-				Searchspectrum spectrum = querySpectra.get(i);
-				String title = spectrum.getSpectrumname();
-
-				((DefaultTableModel) querySpectraTbl.getModel()).addRow(new Object[]{
-						i + 1,
-						title,
-						spectrum.getPrecursor_mz(),
-						spectrum.getCharge(), 
-						voteMap.get(title) + " / 4"});
-			}
-		}
-
-		if (proteins != null) {
-			Set<String> accessions = proteins.getPeptideHits().keySet();
-
-			Iterator<String> accIter = accessions.iterator();
-			int i = 0;
-			while(accIter.hasNext()){
-				String accession = accIter.next();	
-				List<PeptideHit> peptides = proteins.getPeptideHits(accession);
-				peptideHits.put(accession, peptides);
-				int nPeptides = peptides.size();
-				((DefaultTableModel) proteinResultTbl.getModel()).addRow(new Object[]{
-						i + 1,
-						accession,
-						proteins.getProteinHit(accession).getDescription(),
-						nPeptides, 
-						"",
-						"", 
-				""});
-				i++;
-			}
-		}
-	}
-
-	/**
-	 * Update the PSM tables based on the spectrum selected.
-	 * 
-	 * @param evt
-	 */
-	private void querySpectraTableMouseClicked(MouseEvent evt) {
-		// Set the cursor into the wait status.
-		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-
-		int row = querySpectraTbl.getSelectedRow();
-
-		// Condition if one row is selected.
-		if (row != -1) {
-
-			// Empty tables.
-			clearDbResultTables();
-
-			String spectrumName = querySpectraTbl.getValueAt(row, 1).toString();
-			if (xTandemResults.containsKey(spectrumName)) {
-				List<XTandemhit> xTandemList = xTandemResults.get(spectrumName);
-				for (int i = 0; i < xTandemList.size(); i++) {
-					XTandemhit hit = xTandemList.get(i);
-					((DefaultTableModel) xTandemTbl.getModel()).addRow(new Object[]{
-							i + 1,
-							hit.getSequence(),
-							hit.getAccession(),
-							Util.roundDouble(hit.getEvalue().doubleValue(), 5), 
-							Util.roundDouble(hit.getHyperscore().doubleValue(), 5),
-							Util.roundDouble(hit.getPep().doubleValue(), 5),
-							Util.roundDouble(hit.getQvalue().doubleValue(), 5)});
-				}
-			}
-
-			if (ommsaResults.containsKey(spectrumName)) {
-				List<Omssahit> omssaList = ommsaResults.get(spectrumName);
-				for (int i = 0; i < omssaList.size(); i++) {
-					Omssahit hit = omssaList.get(i);
-					((DefaultTableModel) omssaTbl.getModel()).addRow(new Object[]{
-							i + 1,
-							hit.getSequence(),
-							hit.getAccession(),
-							Util.roundDouble(hit.getEvalue().doubleValue(), 5), 
-							Util.roundDouble(hit.getPvalue().doubleValue(), 5), 
-							Util.roundDouble(hit.getPep().doubleValue(), 5),
-							Util.roundDouble(hit.getQvalue().doubleValue(), 5)});
-				}
-			}
-
-			if (cruxResults.containsKey(spectrumName)) {
-				List<Cruxhit> cruxList = cruxResults.get(spectrumName);
-				for (int i = 0; i < cruxList.size(); i++) {
-					Cruxhit hit = cruxList.get(i);
-					((DefaultTableModel) cruxTbl.getModel()).addRow(new Object[]{
-							i + 1,
-							hit.getSequence(),
-							hit.getAccession(),
-							Util.roundDouble(hit.getXcorr_score().doubleValue(), 5), 
-							Util.roundDouble(hit.getQvalue().doubleValue(), 5)});
-				}
-			}
-
-
-			if (inspectResults.containsKey(spectrumName)) {
-				List<Inspecthit> inspectList = inspectResults.get(spectrumName);
-				for (int i = 0; i < inspectList.size(); i++) {
-					Inspecthit hit = inspectList.get(i);
-					((DefaultTableModel) inspectTbl.getModel()).addRow(new Object[]{
-							i + 1,
-							hit.getSequence(),
-							hit.getAccession(),
-							Util.roundDouble(hit.getF_score().doubleValue(), 5), 
-							Util.roundDouble(hit.getP_value().doubleValue(), 5)});
-				}
-			}
-		}
-		// Set the cursor back into the default status.
-		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-	}
-
-	/**
-	 * Update the peptides tables based on the protein selected.
-	 * 
-	 * @param evt
-	 */
-	private void queryProteinTableMouseClicked(MouseEvent evt) {
-		// Set the cursor into the wait status.
-		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-
-		int row = proteinResultTbl.getSelectedRow();
-
-		// Condition if one row is selected.
-		if (row != -1) {
-
-			// Empty tables.
-			clearPeptideHitsTable();
-
-			String accession = proteinResultTbl.getValueAt(row, 1).toString();
-			if (peptideHits.containsKey(accession)) {
-				List<PeptideHit> peptideList = peptideHits.get(accession);
-				for (int i = 0; i < peptideList.size(); i++) {
-					PeptideHit hit = peptideList.get(i);
-					((DefaultTableModel) peptideResultTbl.getModel()).addRow(new Object[]{
-							i + 1,
-							hit.getSequence(),
-							"",
-							"", 
-							"", 
-							"",
-							hit.getStart(),
-							hit.getEnd()});
-				}
-			}
-		}
-		// Set the cursor back into the default status.
-		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-	}
-
-	/**
-	 * Clears the result tables.
-	 */
-	private void clearDbResultTables(){
-		// Remove PSMs from all result tables        	 
-		while (xTandemTbl.getRowCount() > 0) {
-			((DefaultTableModel) xTandemTbl.getModel()).removeRow(0);
-		}
-		while (omssaTbl.getRowCount() > 0) {
-			((DefaultTableModel) omssaTbl.getModel()).removeRow(0);
-		}
-		while (cruxTbl.getRowCount() > 0) {
-			((DefaultTableModel) cruxTbl.getModel()).removeRow(0);
-		}
-		while (inspectTbl.getRowCount() > 0) {
-			((DefaultTableModel) inspectTbl.getModel()).removeRow(0);
-		}
-	}
-
-	/**
-	 * Clears the peptide result table.
-	 */
-	private void clearPeptideHitsTable(){
-		// Remove peptides from all result tables        	 
-		while (peptideResultTbl.getRowCount() > 0) {
-			((DefaultTableModel) peptideResultTbl.getModel()).removeRow(0);
-		}
-	}
-
-	/**
-	 * @see #querySpectraTableKeyReleased(java.awt.event.MouseEvent)
-	 */
-	private void querySpectraTableKeyReleased(KeyEvent evt) {
-		querySpectraTableMouseClicked(null);
-	}
-
-	/**
-	 * @see #queryDnSpectraTableKeyReleased(java.awt.event.MouseEvent)
-	 */
-	private void queryProteinTableKeyReleased(KeyEvent evt) {
-		queryProteinTableMouseClicked(null);
-	}
-
+		
 	/**
 	 * Construct the logging panel.
 	 */	
@@ -1701,8 +679,8 @@ public class ClientFrame extends JFrame {
 													rls.getScore() } );
 				}
 			}
-			packColumn(libTbl, 0, 10);
-			packColumn(libTbl, 2, 10);
+			TableConfig.packColumn(libTbl, 0, 10);
+			TableConfig.packColumn(libTbl, 2, 10);
 		}
 		// clear protein annotation table
 		DefaultTableModel protTblMdl = (DefaultTableModel) protTbl.getModel();
@@ -1717,39 +695,6 @@ public class ClientFrame extends JFrame {
 	}
 
 
-	// Sets the preferred width of the visible column specified by vColIndex. The column
-	// will be just wide enough to show the column head and the widest cell in the column.
-	// margin pixels are added to the left and right
-	// (resulting in an additional width of 2*margin pixels).
-	public void packColumn(JTable table, int vColIndex, int margin) {
-		DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
-		TableColumn col = colModel.getColumn(vColIndex);
-		int width = 0;
-
-		// Get width of column header
-		TableCellRenderer renderer = col.getHeaderRenderer();
-		if (renderer == null) {
-			renderer = table.getTableHeader().getDefaultRenderer();
-		}
-		Component comp = renderer.getTableCellRendererComponent(
-				table, col.getHeaderValue(), false, false, 0, 0);
-		width = comp.getPreferredSize().width;
-
-		// Get maximum width of column data
-		for (int r=0; r<table.getRowCount(); r++) {
-			renderer = table.getCellRenderer(r, vColIndex);
-			comp = renderer.getTableCellRendererComponent(
-					table, table.getValueAt(r, vColIndex), false, false, r, vColIndex);
-			width = Math.max(width, comp.getPreferredSize().width);
-		}
-
-		// Add margin
-		width += 2*margin;
-
-		// Set the width
-		col.setMinWidth(width);
-		col.setPreferredWidth(width);
-	}
 
 	
 

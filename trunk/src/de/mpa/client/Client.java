@@ -125,7 +125,6 @@ public class Client {
 	 * Sets the database connection.
 	 * @throws SQLException 
 	 */
-//	public void initDBConnection(DbConnectionSettings dbSettings) throws SQLException {
 	public void initDBConnection() throws SQLException {
 		// Connection conn
 		if (conn == null) {
@@ -139,7 +138,7 @@ public class Client {
 	 * Clears the database connection.
 	 * @throws SQLException 
 	 */
-	public void clearDBConnection() throws SQLException {
+	public void closeDBConnection() throws SQLException {
 		if (conn != null) {
 			conn.close();
 			conn = null;
@@ -656,221 +655,7 @@ public class Client {
 		
 		return resultMap;
 	}
-	
-	
-//	public HashMap<String, ArrayList<RankedLibrarySpectrum>> process(File file, ProcessSettings procSet) {
-//		// init result map
-//		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
-//		
-//		// parse query file
-//		try {
-//			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
-//			List<MascotGenericFile> mgfFiles = mgfReader.getSpectrumFiles();
-//			
-//			// store list of results in HashMap
-//			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>(mgfFiles.size());
-//
-////			NormalizedDotProduct method = new NormalizedDotProduct(procSet.getThreshMz());
-//			CrossCorrelation method = new CrossCorrelation();
-//
-//			SpectrumExtractor specEx = new SpectrumExtractor(conn);
-//			
-//			long startTime;
-//			
-//			// iterate over query spectra
-//			int i = 0;
-//			for (MascotGenericFile mgfQuery : mgfFiles) {
-//				startTime = System.currentTimeMillis();
-//				long extractionDur = 0L, decodingDur = 0L, scoringDur = 0L, annotationDur = 0L;
-//				long grabbingDur = 0L;
-//				
-//				double precursorMz = mgfQuery.getPrecursorMZ();
-//				
-//				// store results in list of ranked library spectra objects
-//				ArrayList<RankedLibrarySpectrum> resultList = new ArrayList<RankedLibrarySpectrum>();
-//				
-//				if (procSet.getAnnotatedOnly()) {
-//					// grab appropriate library spectra (candidates for similarity scoring)
-//					// XXX
-//					long extractionTime = System.currentTimeMillis();
-//					List<Spec2pep> entries = null;
-//					if (procSet.getExpID() != 0L) {
-//						// XXX time-saving in case huge precursor range is meant to grab all spectra from an experiment
-//						if (entries == null) {
-//							entries = Spec2pep.getEntriesWithinPrecursorRangeFromExperimentID(precursorMz, procSet.getTolMz(), procSet.getExpID(), conn);
-//						}
-//					} else {
-//						entries = Spec2pep.getEntriesWithinPrecursorRange(precursorMz, procSet.getTolMz(), conn);
-//					}
-//					// iterate candidates, score & store
-//					Map<Long, ArrayList<RankedLibrarySpectrum>> pep2spec = new HashMap<Long, ArrayList<RankedLibrarySpectrum>>();
-//					
-//					// determine auto-correlation
-//					method.compare(mgfQuery.getPeaks(), mgfQuery.getPeaks());
-//					double autoScore = method.getSimilarity();
-//					
-//					extractionDur = System.currentTimeMillis() - extractionTime;
-//					
-//					for (Spec2pep entry : entries) {
-//						long grabbingTime = System.currentTimeMillis();
-//						
-//						long spectrumID = entry.getFk_spectrumid();
-////						MascotGenericFile mgfLib = specEx.getUnzippedFile(spectrumID);
-//						
-//						ArraySpectrum arraySpec = ArraySpectrum.findFromSpectrumID(spectrumID, conn);
-//						
-//						grabbingDur += System.currentTimeMillis() - grabbingTime;
-//						
-//						long decodingTime = System.currentTimeMillis();
-//						
-//						// decode mz and intensity arrays stored as base64 strings
-//						byte[] byteArrayMZ  = Base64.decodeBase64(arraySpec.getMzarray());
-//						byte[] byteArrayInt = Base64.decodeBase64(arraySpec.getIntarray());
-//						
-//						HashMap<Double, Double> libPeaks = new HashMap<Double, Double>();
-//
-//				        ByteBuffer bbmz = ByteBuffer.wrap(byteArrayMZ);
-////				        bbmz.order(ByteOrder.LITTLE_ENDIAN);
-//				        ByteBuffer bbint = ByteBuffer.wrap(byteArrayInt);
-////				        bbint.order(ByteOrder.LITTLE_ENDIAN);
-//				        
-//				        for (int indexOut = 0; indexOut < byteArrayMZ.length; indexOut += 8) {
-//				        	libPeaks.put(bbmz.getDouble(indexOut), bbint.getDouble(indexOut));
-//				        }
-//				        
-//				        decodingDur += System.currentTimeMillis() - decodingTime;
-//						
-//						long scoringTime = System.currentTimeMillis();
-//				        
-//						// scoring
-////						int k = procSet.getK();		// score k highest peaks
-////						k = Math.min(k, mgfQuery.getPeakList().size());
-////						k = Math.min(k, mgfLib.getPeakList().size());
-////						method.compare(mgfQuery.getHighestPeaks(k), mgfLib.getHighestPeaks(k));
-//						
-////						method.compare(mgfQuery.getPeaks(), mgfLib.getPeaks());
-//						method.compare(mgfQuery.getPeaks(), libPeaks);
-//						
-////						method.compare(mgfQuery.getPeakList(), mgfLib.getPeakList());	// score everything
-////						double score = method.getSimilarity();
-//						double score = method.getSimilarity() / autoScore;	// normalize using auto-correlation
-//						
-//						// score threshold
-//						if (score >= procSet.getThreshSc()) {
-//							long peptideID = entry.getFk_peptideid();
-//							ArrayList<RankedLibrarySpectrum> spectra = pep2spec.get(peptideID);
-//							if (spectra == null) {
-//								spectra = new ArrayList<RankedLibrarySpectrum>();
-//							}
-//							// append ranked spectrum with preliminary null values, which are to be replaced later on
-////							spectra.add(new RankedLibrarySpectrum(mgfLib, mgfLib.getPrecursorMZ(), null, null, score));
-//							spectra.add(new RankedLibrarySpectrum(new MascotGenericFile(libPeaks), 0.0, null, null, score));
-//							pep2spec.put(peptideID, spectra);
-//						}
-//
-//						scoringDur += System.currentTimeMillis() - scoringTime;
-//					}
-//					
-//					long annotationTime = System.currentTimeMillis();
-//					// iterate over found peptides to gather protein annotations
-//					for (long peptideID : pep2spec.keySet()) {
-//						// get list of proteins from list of peptides
-//						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
-//						for (PeptideAccessor peptide : peptides) {	// list should contain only a single peptide due to unique IDs
-//							ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-//							List<Protein> annotations = new ArrayList<Protein>();
-//							// gather annotations
-//							for (Long proteinID : proteinIDs) {
-//								ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-//								annotations.add(new Protein(protein.getAccession(), protein.getDescription()));
-//							}
-//							// replace placeholder null values with actual data
-//							ArrayList<RankedLibrarySpectrum> spectra = pep2spec.get(peptideID);
-//							for (RankedLibrarySpectrum spectrum : spectra) {
-//								spectrum.setSequence(peptide.getSequence());
-//								spectrum.setAnnotations(annotations);
-//								resultList.add(spectrum);
-//							}
-//						}
-//					}
-//					annotationDur = System.currentTimeMillis() - annotationTime;
-//				} else {
-////					// grab appropriate library spectra (candidates for similarity scoring)
-////					List<Libspectrum> entries = Libspectrum.getEntriesWithinPrecursorRange(precursorMz, procSet.getTolMz(), conn);
-////					// iterate candidates, score & store
-////					Map<Long, ArrayList<RankedLibrarySpectrum>> pep2spec = new HashMap<Long, ArrayList<RankedLibrarySpectrum>>();
-////					for (Libspectrum entry : entries) {
-////						long spectrumID = entry.getLibspectrumid();
-////						MascotGenericFile mgfLib = specEx.getUnzippedFile(spectrumID);
-////						
-////						// dot prod
-////						int k = procSet.getK();
-////						k = Math.min(k, mgfQuery.getPeakList().size());
-////						k = Math.min(k, mgfLib.getPeakList().size());
-////						method.compare(mgfQuery.getHighestPeaksList(k), mgfLib.getHighestPeaksList(k));
-////						double score = method.getSimilarity();
-//////						if (score < 0.0) { score = 0.0; }
-////						
-////						// score threshold
-////						if (score >= procSet.getThreshSc()) {
-////							// check whether annotations exist, find peptides first
-////							List<PeptideAccessor> peptides = PeptideAccessor.findFromSpectrumID(spectrumID, conn);
-////							if (!peptides.isEmpty()) {
-////								for (PeptideAccessor peptide : peptides) {	// possibly multiple peptides per single spectrum
-////									long peptideID = peptide.getPeptideid();
-////									ArrayList<RankedLibrarySpectrum> spectra = pep2spec.get(peptideID);
-////									if (spectra == null) {
-////										spectra = new ArrayList<RankedLibrarySpectrum>();
-////									}
-////									// append ranked spectrum with preliminary null values, which are to be replaced later on
-////									spectra.add(new RankedLibrarySpectrum(mgfLib, mgfLib.getPrecursorMZ(), null, null, score));
-////									pep2spec.put(peptideID, spectra);
-////								}
-////							} else {
-////								// directly append ranked spectrum with null values to result list
-////								resultList.add(new RankedLibrarySpectrum(mgfLib, mgfLib.getPrecursorMZ(), null, null, score));
-////							}
-////						}
-////					}
-////					// iterate over found peptides to gather protein annotations
-////					for (Long peptideID : pep2spec.keySet()) {
-////						// get list of proteins from list of peptides
-////						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
-////						for (PeptideAccessor peptide : peptides) {	// list should contain only a single peptide due to unique IDs
-////							ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-////							List<Protein> annotations = new ArrayList<Protein>();
-////							// gather annotations
-////							for (Long proteinID : proteinIDs) {
-////								ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-////								annotations.add(new Protein(protein.getAccession(), protein.getDescription()));
-////							}
-////							// replace placeholder null values with actual data
-////							ArrayList<RankedLibrarySpectrum> spectra = pep2spec.get(peptideID);
-////							for (RankedLibrarySpectrum spectrum : spectra) {
-////								spectrum.setSequence(peptide.getSequence());
-////								spectrum.setAnnotations(annotations);
-////								resultList.add(spectrum);
-////							}
-////						}
-////					}
-//					// TODO: analyze score distribution of selected spectra, e.g. KopievonTest:76
-//				}
-//				resultMap.put(mgfQuery.getTitle(), resultList);
-//				System.out.println(++i + "\t extract: " + extractionDur/1000.0 + 
-//										"s\t grab: " + grabbingDur/1000.0 +
-//										"s\t decode: " + decodingDur/1000.0 +
-//										"s\t score: " + scoringDur/1000.0 +
-//										"s\t annotate: " + annotationDur/1000.0 +
-//										"s\t total: " + (System.currentTimeMillis()-startTime)/1000.0);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return resultMap;
-//	}
-
+		
 	/**
 	 * Method to consolidate spectra which are selected in a specified checkbox tree into spectrum packages of defined size.
 	 * @param packageSize The amount of spectra per package.
@@ -957,5 +742,13 @@ public class Client {
      */
     public void removePropertyChangeListener(PropertyChangeListener pcl) { 
     	pSupport.removePropertyChangeListener(pcl); 
+    }
+    
+    /**
+     * Returns the current connection to the database.
+     * @return
+     */
+    public Connection getConnection(){
+    	return conn;
     }
 }
