@@ -74,7 +74,7 @@ import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
-import de.mpa.client.ui.panels.LogPanel;
+import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ProteinResultPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
@@ -116,7 +116,7 @@ public class ClientFrame extends JFrame {
 
 	private JPanel res2Pnl;
 
-	private LogPanel logPnl;
+	private LoggingPanel logPnl;
 
 	private CellConstraints cc;
 
@@ -645,7 +645,7 @@ public class ClientFrame extends JFrame {
 		brdPnl.setBorder(BorderFactory.createTitledBorder("Logging"));
 
 		// actual logging panel
-		logPnl = new LogPanel();
+		logPnl = new LoggingPanel();
 		logPnl.setPreferredSize(new Dimension(300, 200));
 
 		brdPnl.add(logPnl, cc.xy(2, 2));
