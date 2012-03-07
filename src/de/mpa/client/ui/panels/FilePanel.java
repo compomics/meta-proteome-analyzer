@@ -51,6 +51,7 @@ import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.SpectrumTree;
+import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -238,7 +239,7 @@ public class FilePanel extends JPanel {
 					try {
 						clientFrame.getClient().initDBConnection();
 						List<MascotGenericFile> dlSpec = clientFrame.getClient().downloadSpectra((Long)expIdSpn.getValue());
-						clientFrame.getClient().clearDBConnection();
+						clientFrame.getClient().closeDBConnection();
 						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
 						for (MascotGenericFile mgf : dlSpec) {
 							mgf.writeToStream(fos);
@@ -440,7 +441,7 @@ public class FilePanel extends JPanel {
 			filePlotPnl.repaint();
 			clientFrame.getSpecLibSearchPanel().refreshPlot(mgf);
 			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			clientFrame.packColumn(fileDetailsTbl, 1, 5);
+			TableConfig.packColumn(fileDetailsTbl, 1, 5);
 		} else {
 			fileDetailsTbl.setValueAt(null, 0, 1);
 			fileDetailsTbl.setValueAt(null, 1, 1);
@@ -451,7 +452,7 @@ public class FilePanel extends JPanel {
 			filePlotPnl.repaint();
 			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		}
-		clientFrame.packColumn(fileDetailsTbl, 0, 10);
+		TableConfig.packColumn(fileDetailsTbl, 0, 10);
 
 	}
 

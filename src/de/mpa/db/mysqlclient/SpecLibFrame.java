@@ -32,8 +32,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.codec.binary.Base64;
 
-import de.mpa.client.DbConnectionSettings;
+import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.DbConnectionSettings;
 import de.mpa.db.accessor.ArraySpectrum;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
@@ -226,7 +227,7 @@ public class SpecLibFrame extends JFrame {
         	
         	try {
     			// connect to server
-    			DBConfiguration dbconfig = new DBConfiguration("metaprot", false,new DbConnectionSettings());
+    			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, new DbConnectionSettings());
     			Connection conn = dbconfig.getConnection();
     			
     			// this list will store identified protein hits to avoid redundant sql queries further down 

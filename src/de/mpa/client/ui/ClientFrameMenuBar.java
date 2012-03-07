@@ -250,7 +250,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 				// method closes old connection
 				try {
-					client.clearDBConnection();				
+					client.closeDBConnection();				
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

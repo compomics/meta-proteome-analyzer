@@ -39,13 +39,10 @@ public class Project extends ProjectTableAccessor {
 	 * This method will find a spectrum file from the current connection, based on the filename.
 	 *
 	 * @param fileName String with the filename of the spectrum file to find.
-	 * @param aConn     Connection to read the spectrum File from.
+	 * @param aConn Connection to read the spectrum File from.
 	 * @return Spectrumfile with the data.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-
-
-
 	public static Project findFromTitle(String title, Connection aConn) throws SQLException {
 		Project temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
@@ -63,18 +60,22 @@ public class Project extends ProjectTableAccessor {
 	}
 
 
-
-	public static List<Project> findAllProjects(Connection aConn) throws SQLException {
-		ArrayList<Project> temp = new ArrayList<Project>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+	/**
+	 * This method finds all projects from the database.
+	 * @param conn The database connection
+	 * @return List of retrieved projects.
+	 * @throws SQLException
+	 */
+	public static List<Project> findAllProjects(Connection conn) throws SQLException {
+		List<Project> projects = new ArrayList<Project>();
+		PreparedStatement ps = conn.prepareStatement(getBasicSelect());
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			temp.add( new Project(rs));
+			projects.add(new Project(rs));
 		}
 		rs.close();
 		ps.close();
-
-		return temp;
+		return projects;
 	}
 
 	public static Project findFromProjectID(long projectid, Connection aConn) throws SQLException {

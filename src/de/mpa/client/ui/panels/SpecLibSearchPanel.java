@@ -638,7 +638,7 @@ public class SpecLibSearchPanel extends JPanel {
 			clientFrame.setResultMap(resultMap);
 			
 			// clean up
-			client.clearDBConnection();
+			client.closeDBConnection();
 			client.removePropertyChangeListener(listener);
 			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
 
