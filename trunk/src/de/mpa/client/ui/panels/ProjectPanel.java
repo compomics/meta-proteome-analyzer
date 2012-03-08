@@ -23,6 +23,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.dialogs.ProjectDialog;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
 
@@ -99,6 +100,14 @@ public class ProjectPanel extends JPanel {
 		JPanel manageProjectsPnl = new JPanel();
 		manageProjectsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu", "5dlu, p, 5dlu"));
 		JButton newProjectBtn 		= new JButton("New Project");
+		newProjectBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ProjectDialog projDlg = new ProjectDialog("New Project", clientFrame, projectsTbl);
+				projDlg.setVisible(true);
+			}
+		});
 		JButton openProjectBtn		= new JButton("Open Project");
 		JButton modifyProjectBtn 	= new JButton("Modify Project");
 		JButton deleteProjectbtn	= new JButton("Delete Project");
@@ -131,7 +140,9 @@ public class ProjectPanel extends JPanel {
 		
 		
 	}
-
+	/**
+	 * Methode creating the project table
+	 */
 	private void setupProjectTable() {
 		// Table for projects
 		projectsTbl = new JTable(new DefaultTableModel() { 
