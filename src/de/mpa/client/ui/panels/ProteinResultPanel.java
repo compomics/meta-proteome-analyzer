@@ -47,6 +47,8 @@ public class ProteinResultPanel extends JPanel {
 	 * Initialize the components 
 	 */
 	private void initComponents(){
+		
+		proteinResultTbl = new JTable();
 		CellConstraints cc = new CellConstraints();
 		
 		JScrollPane proteinTblScp = new JScrollPane();

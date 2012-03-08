@@ -1,185 +1,443 @@
+package de.mpa.client.ui.dialogs;
 
-//package de.mpa.client.ui.dialogs;
-//
-//import java.awt.Point;
-//import java.awt.event.MouseAdapter;
-//import java.awt.event.MouseEvent;
-//import java.sql.SQLException;
-//import java.sql.Timestamp;
-//import java.util.ArrayList;
-//import java.util.Date;
-//
-//import javax.swing.JDialog;
-//import javax.swing.event.TableModelEvent;
-//import javax.swing.event.TableModelListener;
-//import javax.swing.table.DefaultTableModel;
-//
-//import de.mpa.db.accessor.Experiment;
-//import de.mpa.db.accessor.Property;
-//
-//public class ProjectDialog extends JDialog {
-//	public ProjectDialog() {
-//		// TODO Auto-generated constructor stub
-//	}
-//	
-//	private void init() {
-//		projectsTbl.addMouseListener(new MouseAdapter() {
-//			public void mouseClicked(MouseEvent e) {
-//				// if component is enabled and left click and one click--> create other tables
-//				if (e.getComponent().isEnabled() && e.getButton() == MouseEvent.BUTTON1) {
-//
-//					Point p = e.getPoint();
-//					int row = projectsTbl.convertRowIndexToModel(projectsTbl.rowAtPoint(p));
-//
-//					if (e.getClickCount() == 1) {
-//						// create Property and Experiment Table
-//						if (row > 0) {
-//							long fk_projectid = (Long)projectsTbl.getValueAt(row, 0);
-//							// Use table.convertRowIndexToModel / table.convertColumnIndexToModle to convert to view indices
-//							//empty properties table
-//							while (projectPropertiesTbl.getRowCount()>0) {
-//								((DefaultTableModel)projectPropertiesTbl.getModel()).removeRow(projectPropertiesTbl.getRowCount()-1);
-//							}
-//							//refill properties table
-//							((DefaultTableModel)projectPropertiesTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW PROJECT PROPERTY</b></html>", null});
-//
-//							// query database for properties
-//							ArrayList<Property> projectPropertyList= new ArrayList<Property>(); 
-//							try {
-//								client.initDBConnection();
-//								projectPropertyList = new ArrayList<Property>(client.getProjectProperties(fk_projectid));
-//								client.closeDBConnection();
-//							} catch (SQLException e1) {
-//								e1.printStackTrace();
-//							}
-//							for (int i = 0; i < projectPropertyList.size(); i++) {
-//								((DefaultTableModel)projectPropertiesTbl.getModel()).addRow(new Object[]{projectPropertyList.get(i).getPropertyid(),projectPropertyList.get(i).getName(),projectPropertyList.get(i).getValue()});
-//								// justify column width
-//								packColumn(projectPropertiesTbl,0,5);
-//								projectPropertiesTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-//								projectPropertiesTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
-//							}
-//							// fill experiment column
-//							//empty experiments table
-//							while (experimentsNameTbl.getRowCount()>0) {
-//								((DefaultTableModel)experimentsNameTbl.getModel()).removeRow(experimentsNameTbl.getRowCount()-1);
-//							}
-//							//refill properties table
-//							((DefaultTableModel)experimentsNameTbl.getModel()).addRow(new Object[] {null,"<html><b>NEW EXPERIMENT</b></html>", null});
-//							// query database for properties
-//							ArrayList<Experiment> projectExperimentList = new ArrayList<Experiment>(); 
-//							try {
-//								client.initDBConnection();
-//								projectExperimentList = new ArrayList<Experiment>(client.getProjectExperiments(fk_projectid));
-//								client.closeDBConnection();
-//							} catch (SQLException e1) {
-//								e1.printStackTrace();
-//							}
-//							for (int i = 0; i < projectExperimentList.size(); i++) {
-//								Object[] test = new Object[] {projectExperimentList.get(i).getExperimentid(),
-//										projectExperimentList.get(i).getTitle(),
-//										projectExperimentList.get(i).getCreationdate()};
-//								((DefaultTableModel)experimentsNameTbl.getModel()).addRow(test);
-//								// justify column width
-//								packColumn(experimentsNameTbl,0,5);
-//								experimentsNameTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-//								packColumn(experimentsNameTbl,2,5);
-//							}
-//							//empty experiment properties
-//							((DefaultTableModel)experimentPropertiesTbl.getModel()).setRowCount(0);
-//						}	
-//						// edit cells
-//					} else if (e.getClickCount() == 2) {
-//					//	String oldVal = projectsTbl.getValueAt(row, 1).toString();
-//						if (projectsTbl.getSelectedRow() == 0) {
-//							projectsTbl.setValueAt("", row, 1);
-//						}
-//						projectsTbl.editCellAt(row, 1);
-//					}
-//				}
-//			}
-//		});
-//
-//		projectsTbl.getModel().addTableModelListener(new TableModelListener() {
-//			@Override
-//			public void tableChanged(TableModelEvent e) {
-//				if (e.getType() == TableModelEvent.UPDATE) {
-//					int row = projectsTbl.convertRowIndexToModel(e.getFirstRow());
-//					if (projectsTbl.getValueAt(row, 1) != "") {
-//						try {
-//							client.initDBConnection();
-//							if (row == 0) {
-//								// create new project
-//								String pTitle= (String) projectsTbl.getValueAt(e.getFirstRow(), 1);
-//								Timestamp pCreationdate= new Timestamp(new Date().getTime());
-//								Timestamp pModificationdate = new Timestamp(new Date().getTime());
-//								client.createNewProject((String)pTitle,(Timestamp)pCreationdate,(Timestamp)pModificationdate);
-//								recreateTable();
-//							} else {
-//								//change project
-//								client.modifyProject((Long)projectsTbl.getValueAt(e.getFirstRow(), 0),
-//										projectsTbl.getValueAt(e.getFirstRow(), e.getColumn()).toString());
-//							}
-//							recreateTable();
-//						} catch (SQLException e1) {
-//							e1.printStackTrace();
-//						}
-//					}
-//				}
-//			}
-//		});
-//
-//	}
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+
+import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+
+import de.mpa.client.ui.ClientFrame;
+import de.mpa.db.accessor.Experiment;
+import de.mpa.db.accessor.Pepnovohit;
+import de.mpa.db.accessor.Project;
+import de.mpa.db.accessor.Property;
+
+public class ProjectDialog extends JDialog {
+	private JTable projPropsTbl;
+	private JTable experimentsTbl;
+	private JTable expPropsTbl;
+	private JTextField propNameTtf;
+	private JTextField propValueTtf;
+	private int projPropCount = 1;
+	private JButton deleteBtn;
+
+	/**
+	 * Declares the ProjectDialog as child of the JDialog, being a component of
+	 * the ClientFrame
+	 * 
+	 * @param title
+	 * @param parent
+	 */
+	public ProjectDialog(String title, ClientFrame parent) {
+		super(parent, title, true);
+		initComponents();
+	}
+
+	/**
+	 * Calling the main constructor adding projects table
+	 * @param title
+	 * @param parent
+	 * @param projectsTbl
+	 */
+	public ProjectDialog(String title, ClientFrame parent, JTable projectsTbl) {
+		this(title, parent);
+	}
+	
+	/**
+	 * Initializes the components.
+	 */
+	private void initComponents() {
+
+		// JGoodies Cellconstrains
+		CellConstraints cc = new CellConstraints();
+
+		// Project dialog panel
+		JPanel projectDialogPnl = new JPanel();
+		projectDialogPnl.setBorder(BorderFactory.createTitledBorder("Project Dialog"));
+		projectDialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu",	"5dlu, t:p, 5dlu,p,5dlu, p, 5dlu"));
+
+		// Current project panel
+		JPanel projectDescPnl = new JPanel();
+		projectDescPnl.setBorder(BorderFactory.createTitledBorder("Project Description"));
+		projectDescPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu","5dlu, p, 5dlu"));
+
+		// Selected project
+		JLabel projectNameLbl = new JLabel("Project Name: ");
+		JTextField projectNameTtf = new JTextField(15);
+		projectNameTtf.setEditable(true);
+		projectNameTtf.setEnabled(true);
+
+		projectDescPnl.add(projectNameLbl, cc.xy(2, 2));
+		projectDescPnl.add(projectNameTtf, cc.xy(4, 2));
+
+		// Project Properties
+		JPanel projectPropPnl = new JPanel();
+		projectPropPnl.setLayout(new FormLayout("5dlu, l:p, 5dlu, r:p, 5dlu","5dlu, t:p, 5dlu,p,5dlu"));
+		projectPropPnl.setBorder(BorderFactory.createTitledBorder("Project Properties"));
+		setupProjectPropertiesTable();
+		
+		// Project property modifications
+		JPanel propertyModPnl = new JPanel();
+		propertyModPnl.setLayout(new FormLayout("p, 5dlu, p, 5dlu","5dlu, p, 5dlu, p,5dlu, p, 5dlu"));
+		
+		JLabel propNameLbl = new JLabel("Property Name:");
+		JLabel propValueLbl = new JLabel("Property Value:");
+		
+		propNameTtf = new JTextField(15);
+		propValueTtf = new JTextField(15);
+		
+		propertyModPnl.add(propNameLbl, cc.xy(1, 2));
+		propertyModPnl.add(propNameTtf, cc.xy(3, 2));
+		propertyModPnl.add(propValueLbl, cc.xy(1, 4));
+		propertyModPnl.add(propValueTtf, cc.xy(3, 4));
+		
+		// Add project property button
+		JButton addProjPropBtn = new JButton("Add");
+		//TODO: setup listener for name: addProjPropBtn.setEnabled(false);
+		
+		addProjPropBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				updatePropertyTable();
+				propNameTtf.setText("");
+				propValueTtf.setText("");
+			}
+		});
+		
+		// Change project property button
+		JButton changeProjPropBtn = new JButton("Change");
+		changeProjPropBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		JPanel propButtonPnl = new JPanel(new FormLayout("r:p, 5dlu, r:p", "p"));
+		propButtonPnl.add(addProjPropBtn, cc.xy(1, 1));
+		propButtonPnl.add(changeProjPropBtn, cc.xy(3, 1));
+		propertyModPnl.add(propButtonPnl, cc.xyw(1, 6, 3));
+		
+		
+		// Add the project table to scroll pane
+		JScrollPane projectPropertyTblScp = new JScrollPane(projPropsTbl);
+		projectPropertyTblScp.setPreferredSize(new Dimension(530, 250));
+		projectPropertyTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		// Delete button
+		deleteBtn = new JButton("Delete");
+		deleteBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				deletePropertyFromSelectedRow();
+			}
+		});
+		
+		projectPropPnl.add(propertyModPnl,cc.xy(2, 2));
+		
+		// Add ScrollPane to Panel
+		projectPropPnl.add(projectPropertyTblScp,cc.xy(4, 2));
+		projectPropPnl.add(deleteBtn, cc.xy(4, 4));
+		
+		// Add Panels to ProjectDialogPanel
+		projectDialogPnl.add(projectDescPnl,cc.xy(2, 2));
+		projectDialogPnl.add(projectPropPnl,cc.xyw(2, 4, 3));
+		
+		
+		JPanel experimentsPnl = new JPanel(new FormLayout("5dlu, l:p, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
+		experimentsPnl.setBorder(BorderFactory.createTitledBorder("Experiments"));
+		
+		JPanel expPropsPnl = new JPanel(new FormLayout("5dlu, l:p, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
+		expPropsPnl.setBorder(BorderFactory.createTitledBorder("Experiment Properties"));
+		
+		// Setup experiments table
+		setupExperimentsTable();
+		
+		// Add the experiments table to scroll pane
+		JScrollPane experimentsTblScp = new JScrollPane(experimentsTbl);
+		experimentsTblScp.setPreferredSize(new Dimension(400, 250));
+		experimentsTblScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		experimentsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		experimentsPnl.add(experimentsTblScp, cc.xy(2,2));
+		projectDialogPnl.add(experimentsPnl, cc.xy(2, 6));
+		
+		// Delete experiments
+		JButton delExpBtn = new JButton("Delete Experiment(s)");
+		delExpBtn.setEnabled(false);
+		
+		delExpBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		deleteBtn.setEnabled(false);
+		
+		experimentsPnl.add(delExpBtn, cc.xy(2, 4));
+		
+		// Setup experiment properties table.
+		setupExpPropsTable();
+		
+		// Add the experiments  properties table to scroll pane
+		JScrollPane expPropsTblScp = new JScrollPane(expPropsTbl);
+		expPropsTblScp.setPreferredSize(new Dimension(400, 250));
+		expPropsTblScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		expPropsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		expPropsPnl.add(expPropsTblScp, cc.xy(2,2));
+		projectDialogPnl.add(expPropsPnl, cc.xy(4, 6));
+		
+		// Delete experiments
+		JButton delExpPropBtn = new JButton("Delete Properties");
+		delExpPropBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		delExpPropBtn.setEnabled(false);
+		
+		expPropsPnl.add(delExpPropBtn, cc.xy(2, 4));
+		
+		//Add Panels to Dialog
+		Container contentPane = this.getContentPane();
+		contentPane.setLayout(new BorderLayout());
+		contentPane.add(projectDialogPnl, BorderLayout.CENTER);
+		
+		
+		// Ok button: Saves the project.
+		JButton okBtn = new JButton("OK");
+		okBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Save to database.
+				
+			}
+		});
+		
+		// Cancel button functionality
+		JButton cancelBtn = new JButton("Cancel"); 
+		cancelBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+			}
+		});
+		JPanel buttonPnl = ButtonBarFactory.buildOKCancelBar(okBtn, cancelBtn);
+		contentPane.add(buttonPnl, BorderLayout.SOUTH);
+		// Set the preferred size
+		this.setPreferredSize(new Dimension(900, 800));
+		pack();
+	}
+	
+	protected void deletePropertyFromSelectedRow() {
+		// TODO: Implement functionality.
+	}
+
+	/**
+	 * Methode creating the projectProperties table
+	 */
+	private void setupProjectPropertiesTable() {
+		// Table for projects
+		projPropsTbl = new JTable(new DefaultTableModel() { 
+			{
+				setColumnIdentifiers(new Object[] { "#", "Property Name", "Property Value"});
+			}
+
+			public boolean isCellEditable(int row, int col) {
+				if (col == 0){
+					return false;
+				}
+				else{
+					return true;	
+				}
+			}
+
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Integer.class;
+				case 1:
+					return String.class;
+				case 2: 
+					return String.class;
+				default:
+					return getValueAt(0, col).getClass();
+				}
+			}
+		});
+		
+		projPropsTbl.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {
+				queryProjPropertyTableMouseClicked(evt);
+			}
+		});
+
+		// TODO: Check for sorting --> Add comparator ?
+		projPropsTbl.setAutoCreateRowSorter(true);
+
+		// Selection model for the list: Select one entry of the table only
+		projPropsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		
+		// Column
+		projPropsTbl.getColumn("#").setMinWidth(30);
+		projPropsTbl.getColumn("#").setMaxWidth(30);
+		projPropsTbl.getColumn("Property Name").setMinWidth(240);
+		projPropsTbl.getColumn("Property Name").setMaxWidth(240);
+		projPropsTbl.getColumn("Property Value").setMinWidth(240);
+		projPropsTbl.getColumn("Property Value").setMaxWidth(240);
+			}
 
 	
-//		manageProjectsPnl.add(deleteProjectBtn,cc.xy(2, 4));
-//		//Table for project properties
-//		projectPropertiesTbl = new JTable(new DefaultTableModel(){
-//			{ setColumnIdentifiers(new Object[] {"#","project property","value"}); }
-//			public boolean isCellEditable(int row, int col) {
-//				return ((col == 0) ? false :true);
-//			}
-//			public Class<?> getColumnClass(int col) {
-//				switch (col) {
-//				case 0:
-//					return Long.class;
-//				case 1:
-//					return String.class;
-//				case 2:
-//					return String.class;
-//				default:
-//					return getValueAt(0,col).getClass();
-//				}
-//			}	
-//		});
-//		// change and add to the projectProperty Table
-//		projectPropertiesTbl.getModel().addTableModelListener(new TableModelListener() {
-//			@Override
-//			public void tableChanged(TableModelEvent e) {
-//				if (e.getType() == TableModelEvent.UPDATE) {
-//					int row = projectPropertiesTbl.convertRowIndexToModel(e.getFirstRow());
-//					if (projectPropertiesTbl.getValueAt(row, 1) != "") {
-//						try {
-//							client.initDBConnection();
-//							if (row == 0) {
-//								// create new project
-//								String pTitle= (String) projectPropertiesTbl.getValueAt(e.getFirstRow(), 1);
-//								Timestamp pCreationdate= new Timestamp(new Date().getTime());
-//								Timestamp pModificationdate = new Timestamp(new Date().getTime());
-//								client.createNewProject((String)pTitle,(Timestamp)pCreationdate,(Timestamp)pModificationdate);
-//								recreateTable();
-//							} else {
-//								//change project property
-//								client.modifyProjectProperty((Long)projectPropertiesTbl.getValueAt(e.getFirstRow(), 0),  //propertyid,
-//										projectPropertiesTbl.getValueAt(e.getFirstRow(), 1).toString(),//propertyName,
-//										projectPropertiesTbl.getValueAt(e.getFirstRow(), 2).toString());//propertyValue
-//							}
-//							recreateTable();
-//						} catch (SQLException e1) {
-//							e1.printStackTrace();
-//						}
-//					}
-//				}
-//			}
-//		});		
-//}
+	protected void queryProjPropertyTableMouseClicked(MouseEvent evt) {
+
+		int row = projPropsTbl.getSelectedRow();
+
+		// Condition if one row is selected.
+		if (row != -1) {
+			String propertyName = projPropsTbl.getValueAt(row, 1).toString();
+			String propertyValue = projPropsTbl.getValueAt(row, 2).toString();
+			propNameTtf.setText(propertyName);
+			propValueTtf.setText(propertyValue);
+			deleteBtn.setEnabled(true);
+		} 
+		
+	}
+
+	/**
+	 * Method creating the experiments table
+	 */
+	private void setupExperimentsTable() {
+		// Table for projects
+		experimentsTbl = new JTable(new DefaultTableModel() { 
+			{
+				setColumnIdentifiers(new Object[] { "#", "Experiment", "Experiment Created"});
+			}
+
+			public boolean isCellEditable(int row, int col) {
+				if (col == 0){
+					return false;
+				}
+				else{
+					return true;	
+				}
+			}
+
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Integer.class;
+				case 1:
+					return String.class;
+				case 2: 
+					return String.class;
+				default:
+					return getValueAt(0, col).getClass();
+				}
+			}
+		});
+
+		// TODO: Check for sorting --> Add comparator ? 
+		experimentsTbl.setAutoCreateRowSorter(true);
+
+		// Selection model for the list: Select one entry of the table only
+		experimentsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		experimentsTbl.getColumn("#").setMinWidth(30);
+		experimentsTbl.getColumn("#").setMaxWidth(30);
+		//experimentsTbl.getColumn("Experiment").setMinWidth(150);
+		//experimentsTbl.getColumn("Experiment").setMaxWidth(150);
+		experimentsTbl.getColumn("Experiment Created").setMinWidth(150);
+		experimentsTbl.getColumn("Experiment Created").setMaxWidth(150);
+	}
+	
+	/**
+	 * Method creating the experiment properties table
+	 */
+	private void setupExpPropsTable() {
+		// Table for projects
+		expPropsTbl = new JTable(new DefaultTableModel() { 
+			{
+				setColumnIdentifiers(new Object[] { "#", "Property Name", "Property Value"});
+			}
+
+			public boolean isCellEditable(int row, int col) {
+				if (col == 0){
+					return false;
+				}
+				else{
+					return true;	
+				}
+			}
+
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Integer.class;
+				case 1:
+					return String.class;
+				case 2: 
+					return String.class;
+				default:
+					return getValueAt(0, col).getClass();
+				}
+			}
+		});
+
+		// TODO: Check for sorting --> Add comparator ? 
+		expPropsTbl.setAutoCreateRowSorter(true);
+
+		// Selection model for the list: Select one entry of the table only
+		expPropsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		// Setup column widths
+		expPropsTbl.getColumn("#").setMinWidth(30);
+		expPropsTbl.getColumn("#").setMaxWidth(30);
+		expPropsTbl.getColumn("Property Value").setMinWidth(150);
+		expPropsTbl.getColumn("Property Value").setMaxWidth(150);
+	}
+	
+	/**
+	 * This method updates the project property table.
+	 */
+	private void updatePropertyTable() {
+		((DefaultTableModel) projPropsTbl.getModel()).addRow(new Object[] {
+				projPropCount, propNameTtf.getText(), propValueTtf.getText() });
+		// Update the project property counter
+		projPropCount++;
+	}
+	
+	
+}
