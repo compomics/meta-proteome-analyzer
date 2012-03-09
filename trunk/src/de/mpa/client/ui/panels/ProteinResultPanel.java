@@ -40,7 +40,7 @@ public class ProteinResultPanel extends JPanel {
 
 	public ProteinResultPanel(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
-		initComponents();
+//		initComponents();
 	}
 
 	/**
