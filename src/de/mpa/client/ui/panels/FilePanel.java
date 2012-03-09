@@ -359,7 +359,7 @@ public class FilePanel extends JPanel {
 				clientFrame.mPlot.setFirstSpectrum(null);
 				filesTtf.setText("0 file(s) selected");
 				//				filesLbl.setText("0 of 0 spectra selected");
-				clientFrame.getSpecLibSearchPanel().setProgress(0);
+//				clientFrame.getSpecLibSearchPanel().setProgress(0);
 				clrBtn.setEnabled(false);
 				noiseEstBtn.setEnabled(false);
 				treeRoot.removeAllChildren();
@@ -564,7 +564,7 @@ public class FilePanel extends JPanel {
 					x.printStackTrace();
 				}
 
-				clientFrame.getSpecLibSearchPanel().setProgress(0);
+//				clientFrame.getSpecLibSearchPanel().setProgress(0);
 
 				String str;
 				int numFiles;

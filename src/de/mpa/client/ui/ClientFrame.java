@@ -43,6 +43,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -71,12 +72,13 @@ import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.client.ui.panels.ClusterPanel;
 import de.mpa.client.ui.panels.DBSearchPanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
-import de.mpa.client.ui.panels.DeNovoPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
+import de.mpa.client.ui.panels.DeNovoSearchPanel;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ProteinResultPanel;
+import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.io.MascotGenericFile;
@@ -101,16 +103,11 @@ public class ClientFrame extends JFrame {
 
 	private JPanel projectPnl;
 
-
 	private Client client;
 
 	private FilePanel filePnl;
 
-	private DBSearchPanel msmsPnl;
-
 	private JPanel resPnl;
-
-	private DeNovoPanel denovoPnl;
 
 	private DeNovoResultPanel denovoResPnl;
 
@@ -147,6 +144,10 @@ public class ClientFrame extends JFrame {
 	private DbSearchResultPanel dbSearchResultPnl;
 	private ProteinResultPanel proteinResultPnl;
 
+	private SettingsPanel setPnl;
+
+	private StatusPanel statusPnl;
+
 	/**
 	 * Constructor for the ClientFrame
 	 */
@@ -174,9 +175,10 @@ public class ClientFrame extends JFrame {
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
 		tabPane.addTab("Project", projectPnl);
 		tabPane.addTab("Input Spectra", filePnl);
-		tabPane.addTab("Spectral Library Search", specLibPnl);
-		tabPane.addTab("MS/MS Database Search", msmsPnl);
-		tabPane.addTab("De-novo Search", denovoPnl);
+//		tabPane.addTab("Spectral Library Search", specLibPnl);
+//		tabPane.addTab("MS/MS Database Search", msmsPnl);
+//		tabPane.addTab("De-novo Search", denovoPnl);
+		tabPane.addTab("Search Settings", setPnl);
 		tabPane.addTab("Spectral Search Results", resPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
@@ -185,8 +187,12 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("De novo Results", denovoResPnl);
 		tabPane.addTab("Logging", lggPnl);
 		tabPane.addTab("Clustering", clusterPnl);
+		
+		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
 
 		cp.add(tabPane);
+		
+		cp.add(statusPnl, BorderLayout.SOUTH);
 
 		// Register the property change listener.
 		client.addPropertyChangeListener(new PropertyChangeListener() {
@@ -267,6 +273,9 @@ public class ClientFrame extends JFrame {
 
 		// Menu
 		menuBar = new ClientFrameMenuBar(this);
+		
+		// Status Bar
+		statusPnl = new StatusPanel(this);
 
 		// File panel
 		filePnl = new FilePanel(this);
@@ -275,13 +284,16 @@ public class ClientFrame extends JFrame {
 		projectPnl = new ProjectPanel(this);
 
 		// Spectral Library Search Panel
-		specLibPnl = new SpecLibSearchPanel(this);
+//		specLibPnl = new SpecLibSearchPanel(this);
 
 		// MS/MS Database Search Panel
-		msmsPnl = new DBSearchPanel(this);
+//		msmsPnl = new DBSearchPanel(this);
 
 		//DeNovo
-		denovoPnl = new DeNovoPanel(this);
+//		denovoPnl = new DeNovoSearchPanel(this);
+		
+		// Settings Panel
+		setPnl = new SettingsPanel(this);
 
 		// Results Panel
 		constructSpecResultsPanel();
@@ -791,6 +803,9 @@ public class ClientFrame extends JFrame {
 		this.resultMap = resultMap;
 	}
 	
+	public StatusPanel getStatusBar() {
+		return statusPnl;
+	}
 	
 }
 
