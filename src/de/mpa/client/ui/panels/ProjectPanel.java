@@ -187,7 +187,7 @@ public class ProjectPanel extends JPanel {
 		
 		// Add the project table to scroll pane
 		projectTblScp = new JScrollPane(projectsTbl);
-		projectTblScp.setPreferredSize(new Dimension(650, 300));
+		projectTblScp.setPreferredSize(new Dimension(650, 400));
 		projectTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
 	}
