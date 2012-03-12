@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -29,6 +30,7 @@ import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.Trafo;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.SpectrumTree;
 import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
@@ -42,38 +44,35 @@ public class SpecLibSearchPanel extends JPanel {
 	private ClientFrame clientFrame;
 
 	/**
-	 * A sub-panel containing database-specific parameters.
-	 */
-	private JPanel paramDbPnl;
-	
-	/**
 	 * The spinner to define the precursor ion mass tolerance window.
 	 */
 	private JSpinner tolMzSpn;
-	
+
 	/**
-	 * The check box to define whether only annotated spectra shall be considered in search queries.
+	 * The check box to define whether only annotated spectra shall be
+	 * considered in search queries.
 	 */
 	private JCheckBox annotChk;
-	
+
 	/**
-	 * The spinner to define which experiment's spectra shall be searched against.
-	 * A value of 0 denotes no limitation by experiment id.
+	 * The spinner to define which experiment's spectra shall be searched
+	 * against. A value of 0 denotes no limitation by experiment id.
 	 */
 	private JSpinner expIdSpn;
 
 	/**
-	 * A sub-panel containing scoring-specific parameters.
+	 * The combo box containing available binning methods.
 	 */
-	private JPanel paramScPnl;
+	private JComboBox binningCbx;
 
 	/**
 	 * The spinner to define the bin width used in vectorization of spectra.
 	 */
 	private JSpinner binWidthSpn;
-	
+
 	/**
-	 * The spinner to define the bin center's shift along the m/z axis used in binning. 
+	 * The spinner to define the bin center's shift along the m/z axis used in
+	 * binning.
 	 */
 	private JSpinner binShiftSpn;
 
@@ -81,7 +80,7 @@ public class SpecLibSearchPanel extends JPanel {
 	 * A sub-panel containing profiling-specific parameters.
 	 */
 	private JPanel proMethodPnl;
-	
+
 	/**
 	 * The combo box containing available profiling shape types.
 	 */
@@ -91,34 +90,32 @@ public class SpecLibSearchPanel extends JPanel {
 	 * A sub-panel containing profiling-specific parameters.
 	 */
 	private JPanel proMErrorPnl;
-	
+
 	/**
 	 * The spinner to define mass error windows used in profiling.
 	 */
 	private JSpinner proMErrorSpn;
 
 	/**
-	 * A sub-panel containing peak picking-specific parameters.
+	 * The check box for determining whether only a certain number of most
+	 * intensive peaks shall be considered in spectral comparison.
 	 */
-	private JPanel pickPnl;
-	
+	private JCheckBox pickChk;
+
 	/**
-	 * The spinner to define the amount of most intensive peaks to be used for spectral comparison.
+	 * The spinner to define the amount of most intensive peaks to be used for
+	 * spectral comparison.
 	 */
 	private JSpinner pickSpn;
-	
+
 	/**
 	 * The combo box containing available input transformation methods.
 	 */
 	private JComboBox trafoCbx;
 
 	/**
-	 * A sub-panel containing similarity measure-specific parameters.
-	 */
-	private JPanel scorSubPnl;
-
-	/**
-	 * The combo box containing available spectral similarity scoring algorithms.
+	 * The combo box containing available spectral similarity scoring
+	 * algorithms.
 	 */
 	private JComboBox measureCbx;
 
@@ -126,9 +123,10 @@ public class SpecLibSearchPanel extends JPanel {
 	 * Left-hand side label of cross-correlation spinner component.
 	 */
 	private JLabel xCorrOffLbl;
-	
+
 	/**
-	 * The spinner to define the amount of neighboring bins that are evaluated when using cross-correlation.
+	 * The spinner to define the amount of neighboring bins that are evaluated
+	 * when using cross-correlation.
 	 */
 	private JSpinner xCorrOffSpn;
 
@@ -136,19 +134,22 @@ public class SpecLibSearchPanel extends JPanel {
 	 * Right-hand side label of cross-correlation spinner component.
 	 */
 	private JLabel xCorrOffLbl2;
-	
+
 	/**
-	 * The spinner to define the minimum score threshold above which a candidate spectrum is accepted as a positive hit.
+	 * The spinner to define the minimum score threshold above which a candidate
+	 * spectrum is accepted as a positive hit.
 	 */
 	private JSpinner threshScSpn;
 
 	/**
-	 * The plot panel displaying original and transformed spectra simultaneously.
+	 * The plot panel displaying original and transformed spectra
+	 * simultaneously.
 	 */
 	private PlotPanel2 prePlotPnl;
 
 	/**
 	 * Class constructor
+	 * 
 	 * @param clientFrame
 	 */
 	public SpecLibSearchPanel(ClientFrame clientFrame) {
@@ -160,24 +161,27 @@ public class SpecLibSearchPanel extends JPanel {
 	 * Method to initialize the panel's components
 	 */
 	private void initComponents() {
-		
+
 		CellConstraints cc = new CellConstraints();
-		
-		this.setLayout(new FormLayout("8dlu, p, 8dlu",					// col
-									  "p, 5dlu, f:p:g, 8dlu, 0dlu"));	// row
+
+		this.setLayout(new FormLayout("9dlu, p, 9dlu", 					// col
+									  "3dlu, p, 6dlu, f:p:g, 9dlu"));	// row
 
 		// spectral library search parameters
-		paramDbPnl = new JPanel();
-		paramDbPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-										   "p, 5dlu, p, 5dlu"));	// row	
-		paramDbPnl.setBorder(BorderFactory.createTitledBorder("Search parameters"));
+		JPanel paramDbPnl = new JPanel();
+		paramDbPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", 			// col
+											"3dlu, p, 5dlu, p, 5dlu")); // row
+		// paramDbPnl.setBorder(BorderFactory.createTitledBorder("Search parameters"));
+		paramDbPnl.setBorder(new ComponentTitledBorder(new JLabel(
+				"Search parameters"), paramDbPnl));
 
 		JPanel topPnl = new JPanel();
 		topPnl.setLayout(new BoxLayout(topPnl, BoxLayout.X_AXIS));
 		topPnl.add(new JLabel("Precursor mass tolerance: "));
 		tolMzSpn = new JSpinner(new SpinnerNumberModel(10.0, 0.0, null, 0.1));
-		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn.getPreferredSize().width*1.75),
-												tolMzSpn.getPreferredSize().height));
+		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn
+				.getPreferredSize().width * 1.75),
+				tolMzSpn.getPreferredSize().height));
 		tolMzSpn.setEditor(new JSpinner.NumberEditor(tolMzSpn, "0.00"));
 		tolMzSpn.setToolTipText("Precursor mass tolerance");
 		topPnl.add(tolMzSpn);
@@ -185,118 +189,127 @@ public class SpecLibSearchPanel extends JPanel {
 
 		annotChk = new JCheckBox("Search only among annotated spectra", true);
 
-//		JPanel bottomPnl = new JPanel();
-//		bottomPnl.setLayout(new BoxLayout(bottomPnl, BoxLayout.X_AXIS));
-//		expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
-//		expIdSpn.setEnabled(false);
-//
-//		final JCheckBox expIdChk = new JCheckBox("Search only from experiment ID: ", false);
-//		expIdChk.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				expIdSpn.setEnabled(((JCheckBox)e.getSource()).isSelected());
-//			}
-//		});
-//		bottomPnl.add(expIdChk);
-//		bottomPnl.add(expIdSpn);
-		
-		paramDbPnl.add(topPnl, cc.xy(2,1));
-		paramDbPnl.add(annotChk, cc.xy(2,3));
-//		paramDbPnl.add(bottomPnl, cc.xy(2,5));
-		
+		// JPanel bottomPnl = new JPanel();
+		// bottomPnl.setLayout(new BoxLayout(bottomPnl, BoxLayout.X_AXIS));
+		// expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
+		// expIdSpn.setEnabled(false);
+		//
+		// final JCheckBox expIdChk = new
+		// JCheckBox("Search only from experiment ID: ", false);
+		// expIdChk.addActionListener(new ActionListener() {
+		// @Override
+		// public void actionPerformed(ActionEvent e) {
+		// expIdSpn.setEnabled(((JCheckBox)e.getSource()).isSelected());
+		// }
+		// });
+		// bottomPnl.add(expIdChk);
+		// bottomPnl.add(expIdSpn);
+
+		paramDbPnl.add(topPnl, cc.xy(2, 2));
+		paramDbPnl.add(annotChk, cc.xy(2, 4));
+		// paramDbPnl.add(bottomPnl, cc.xy(2,6));
+
 		// spectrum previewing
 		JPanel previewPnl = new JPanel();
-		previewPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-											"f:p:g, 5dlu"));
+		previewPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "f:p:g, 5dlu"));
 		previewPnl.setBorder(BorderFactory.createTitledBorder("Preview input"));
 		prePlotPnl = new PlotPanel2(null);
 		prePlotPnl.clearSpectrumFile();
-//		prePlotPnl.setMiniature(true);
-//		prePlotPnl.setMaxPadding(25);
+		// prePlotPnl.setMiniature(true);
+		// prePlotPnl.setMaxPadding(25);
 		prePlotPnl.setPreferredSize(new Dimension(500, 300));
-		previewPnl.add(prePlotPnl, cc.xy(2,1));
-		
+		previewPnl.add(prePlotPnl, cc.xy(2, 1));
+
 		RefreshPlotListener refreshPlotListener = new RefreshPlotListener();
 
 		// similarity scoring parameters
-		paramScPnl = new JPanel();
+		JPanel paramScPnl = new JPanel();
 		paramScPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-											"p, 5dlu, p, 5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu"));
-		paramScPnl.setBorder(BorderFactory.createTitledBorder("Scoring parameters"));
+				"3dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+		// paramScPnl.setBorder(BorderFactory.createTitledBorder("Scoring parameters"));
+		paramScPnl.setBorder(new ComponentTitledBorder(new JLabel(
+				"Scoring parameters"), paramScPnl));
 
 		// sub-panel for binning parameters
 		final JPanel binningPnl = new JPanel();
 		binningPnl.setLayout(new FormLayout("p:g",
-		   									"p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));
-		
+				"p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));
+
 		// sub-sub-panel for binning method
 		JPanel binMethodPnl = new JPanel();
 		binMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
-		
-		final JComboBox binningCbx = new JComboBox(new Object[] { "direct binning", "profiling" });
 
-		binMethodPnl.add(new JLabel("Binning method"), cc.xy(1,1));
-		binMethodPnl.add(binningCbx, cc.xy(3,1));
+		binningCbx = new JComboBox(
+				new Object[] { "direct binning", "profiling" });
+
+		binMethodPnl.add(new JLabel("Binning method"), cc.xy(1, 1));
+		binMethodPnl.add(binningCbx, cc.xy(3, 1));
 
 		// sub-sub-panel for general binning settings
 		JPanel genBinSetPnl = new JPanel();
 		genBinSetPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
-				 			   				  "p, 5dlu, p"));
-		
+				"p, 5dlu, p"));
+
 		binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
 		binWidthSpn.setEditor(new JSpinner.NumberEditor(binWidthSpn, "0.00"));
 		binWidthSpn.addChangeListener(refreshPlotListener);
 		binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
 		binShiftSpn.setEditor(new JSpinner.NumberEditor(binShiftSpn, "0.00"));
 		binShiftSpn.addChangeListener(refreshPlotListener);
-		
-		genBinSetPnl.add(new JLabel("Bin width"), cc.xy(2,1));
-		genBinSetPnl.add(binWidthSpn, cc.xy(4,1));
-		genBinSetPnl.add(new JLabel("Da"), cc.xy(6,1));
-		genBinSetPnl.add(new JLabel("Bin shift"), cc.xy(2,3));
-		genBinSetPnl.add(binShiftSpn, cc.xy(4,3));
-		genBinSetPnl.add(new JLabel("Da"), cc.xy(6,3));
-		
+
+		genBinSetPnl.add(new JLabel("Bin width"), cc.xy(2, 1));
+		genBinSetPnl.add(binWidthSpn, cc.xy(4, 1));
+		genBinSetPnl.add(new JLabel("Da"), cc.xy(6, 1));
+		genBinSetPnl.add(new JLabel("Bin shift"), cc.xy(2, 3));
+		genBinSetPnl.add(binShiftSpn, cc.xy(4, 3));
+		genBinSetPnl.add(new JLabel("Da"), cc.xy(6, 3));
+
 		// sub-sub-panels for profiling settings
 		proMethodPnl = new JPanel();
 		proMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
-		
+
 		proMethodCbx = new JComboBox(new Object[] { "linear", "gaussian" });
 
-		proMethodPnl.add(new JLabel("Profile type"), cc.xy(1,1));
-		proMethodPnl.add(proMethodCbx, cc.xy(3,1));
+		proMethodPnl.add(new JLabel("Profile type"), cc.xy(1, 1));
+		proMethodPnl.add(proMethodCbx, cc.xy(3, 1));
 		proMethodPnl.setEnabled(false);
-		for (Component comp : proMethodPnl.getComponents()) { comp.setEnabled(false); }
-		
+		for (Component comp : proMethodPnl.getComponents()) {
+			comp.setEnabled(false);
+		}
+
 		proMErrorPnl = new JPanel();
-		proMErrorPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p", "p"));
-		
+		proMErrorPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
+				"p"));
+
 		proMErrorSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
 		proMErrorSpn.setEditor(new JSpinner.NumberEditor(proMErrorSpn, "0.00"));
-		
-		proMErrorPnl.add(new JLabel("Mass error window"), cc.xy(2,1));
-		proMErrorPnl.add(proMErrorSpn, cc.xy(4,1));
-		proMErrorPnl.add(new JLabel("Da"), cc.xy(6,1));
+
+		proMErrorPnl.add(new JLabel("Mass error window"), cc.xy(2, 1));
+		proMErrorPnl.add(proMErrorSpn, cc.xy(4, 1));
+		proMErrorPnl.add(new JLabel("Da"), cc.xy(6, 1));
 		proMErrorPnl.setEnabled(false);
-		for (Component comp : proMErrorPnl.getComponents()) { comp.setEnabled(false); }
-		
+		for (Component comp : proMErrorPnl.getComponents()) {
+			comp.setEnabled(false);
+		}
+
 		// sub-sub panel for peak picking
-		pickPnl = new JPanel();
+		final JPanel pickPnl = new JPanel();
 		pickPnl.setLayout(new BoxLayout(pickPnl, BoxLayout.X_AXIS));
-		
-		JCheckBox pickChk = new JCheckBox("Pick only ");
+
+		pickChk = new JCheckBox("Pick only ");
 		pickChk.addActionListener(refreshPlotListener);
-		
+
 		pickSpn = new JSpinner(new SpinnerNumberModel(20, 1, null, 1));
 		pickSpn.setEnabled(false);
 		pickSpn.addChangeListener(refreshPlotListener);
-		
+
 		pickPnl.add(pickChk);
 		pickPnl.add(pickSpn);
 		pickPnl.add(new JLabel(" most intensive peaks"));
 		pickPnl.setEnabled(false);
-		
-		// add action listener to peak picking checkbox to synch enable state with spinner
+
+		// add action listener to peak picking checkbox to synch enable state
+		// with spinner
 		pickChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -305,14 +318,15 @@ public class SpecLibSearchPanel extends JPanel {
 				pickSpn.setEnabled(selected);
 			}
 		});
-		
-		binningPnl.add(binMethodPnl, cc.xy(1,1));
-		binningPnl.add(genBinSetPnl, cc.xy(1,3));
-		binningPnl.add(proMethodPnl, cc.xy(1,5));
-		binningPnl.add(proMErrorPnl, cc.xy(1,7));
-		binningPnl.add(pickPnl, cc.xy(1,9));
 
-		// add action listener to binning method combobox to disable/enable profiling-specific elements
+		binningPnl.add(binMethodPnl, cc.xy(1, 1));
+		binningPnl.add(genBinSetPnl, cc.xy(1, 3));
+		binningPnl.add(proMethodPnl, cc.xy(1, 5));
+		binningPnl.add(proMErrorPnl, cc.xy(1, 7));
+		binningPnl.add(pickPnl, cc.xy(1, 9));
+
+		// add action listener to binning method combobox to disable/enable
+		// profiling-specific elements
 		binningCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -329,52 +343,56 @@ public class SpecLibSearchPanel extends JPanel {
 				}
 			}
 		});
-		
+
 		// sub-panel for data transformation settings
 		JPanel trafoPnl = new JPanel();
 		trafoPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
-		
-		trafoCbx = new JComboBox(new Object[] { "none", "square root", "logarithmic" });
+
+		trafoCbx = new JComboBox(new Object[] { "none", "square root",
+				"logarithmic" });
 		trafoCbx.setSelectedIndex(1);
 		trafoCbx.addActionListener(refreshPlotListener);
-		
-		trafoPnl.add(new JLabel("Input transformation"), cc.xy(1,1));
-		trafoPnl.add(trafoCbx, cc.xy(3,1));
-		
+
+		trafoPnl.add(new JLabel("Input transformation"), cc.xy(1, 1));
+		trafoPnl.add(trafoCbx, cc.xy(3, 1));
+
 		// sub-panel for similarity scoring parameters
 		JPanel scoringPnl = new JPanel();
-		scoringPnl.setLayout(new FormLayout("p, 5dlu, p:g",
-											"p, 5dlu, p"));
-		
-		measureCbx = new JComboBox(new Object[] { "Dot product", "Cross-correlation" });
+		scoringPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p, 5dlu, p"));
+
+		measureCbx = new JComboBox(new Object[] { "Dot product",
+				"Cross-correlation" });
 		measureCbx.addActionListener(refreshPlotListener);
-		
+
 		// sub-sub-panel for further scoring parameters
-		scorSubPnl = new JPanel();
+		JPanel scorSubPnl = new JPanel();
 		scorSubPnl.setLayout(new FormLayout("5dlu:g, r:p, 2dlu, p, 2dlu, p",
-											"p, 5dlu, p"));
+				"p, 5dlu, p"));
 
 		xCorrOffLbl = new JLabel("Correlation offsets  \u00b1");
 		xCorrOffLbl.setEnabled(false);
 		xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
 		xCorrOffSpn.setEnabled(false);
 		xCorrOffSpn.addChangeListener(refreshPlotListener);
+		xCorrOffSpn.setBorder(BorderFactory.createLoweredBevelBorder());
 		xCorrOffLbl2 = new JLabel("Bins");
 		xCorrOffLbl2.setEnabled(false);
-		
+
 		threshScSpn = new JSpinner(new SpinnerNumberModel(0.5, null, null, 0.1));
-		threshScSpn.setPreferredSize(new Dimension((int) (threshScSpn.getPreferredSize().width*1.25),
-														  threshScSpn.getPreferredSize().height));
+		threshScSpn.setPreferredSize(new Dimension((int) (threshScSpn
+				.getPreferredSize().width * 1.25), threshScSpn
+				.getPreferredSize().height));
 		threshScSpn.setEditor(new JSpinner.NumberEditor(threshScSpn, "0.0"));
 
-		scorSubPnl.add(xCorrOffLbl, cc.xy(2,1));
-		scorSubPnl.add(xCorrOffSpn, cc.xy(4,1));
-		scorSubPnl.add(xCorrOffLbl2, cc.xy(6,1));
-		scorSubPnl.add(new JLabel("Score Threshold  \u2265"), cc.xy(2,3));
-		scorSubPnl.add(threshScSpn, cc.xy(4,3));
+		scorSubPnl.add(xCorrOffLbl, cc.xy(2, 1));
+		scorSubPnl.add(xCorrOffSpn, cc.xy(4, 1));
+		scorSubPnl.add(xCorrOffLbl2, cc.xy(6, 1));
+		scorSubPnl.add(new JLabel("Score Threshold  \u2265"), cc.xy(2, 3));
+		scorSubPnl.add(threshScSpn, cc.xy(4, 3));
 		scorSubPnl.setEnabled(false);
 
-		// add action listener to similarity measure combo box to disable/enable xcorr-specific elements
+		// add action listener to similarity measure combo box to disable/enable
+		// xcorr-specific elements
 		measureCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -389,118 +407,152 @@ public class SpecLibSearchPanel extends JPanel {
 				}
 			}
 		});
-		
-		scoringPnl.add(new JLabel("Similarity measure"), cc.xy(1,1));
-		scoringPnl.add(measureCbx, cc.xy(3,1));
-		scoringPnl.add(scorSubPnl, cc.xyw(1,3,3));
-		
-		paramScPnl.add(binningPnl, cc.xy(2,1));
-		paramScPnl.add(new JSeparator(), cc.xy(2,3));
-		paramScPnl.add(trafoPnl, cc.xy(2,5));
-		paramScPnl.add(new JSeparator(), cc.xy(2,7));
-		paramScPnl.add(scoringPnl, cc.xy(2,9));
-		
+
+		scoringPnl.add(new JLabel("Similarity measure"), cc.xy(1, 1));
+		scoringPnl.add(measureCbx, cc.xy(3, 1));
+		scoringPnl.add(scorSubPnl, cc.xyw(1, 3, 3));
+
+		paramScPnl.add(binningPnl, cc.xy(2, 2));
+		paramScPnl.add(new JSeparator(), cc.xy(2, 4));
+		paramScPnl.add(trafoPnl, cc.xy(2, 6));
+		paramScPnl.add(new JSeparator(), cc.xy(2, 8));
+		paramScPnl.add(scoringPnl, cc.xy(2, 10));
+
 		// add everything to parent panel
-		this.add(paramDbPnl, cc.xy(2,1));
-//		this.add(previewPnl, cc.xywh(4,1,1,5));
-		this.add(paramScPnl, cc.xy(2,3));
-		
+		this.add(paramDbPnl, cc.xy(2, 2));
+		// this.add(previewPnl, cc.xywh(4,2,1,5));
+		this.add(paramScPnl, cc.xy(2, 4));
+
 	}
 
 	/**
 	 * Method to gather spectral similarity search settings.
-	 * @return The SpecSimSettings object containing values from various GUI elements.
+	 * 
+	 * @return The SpecSimSettings object containing values from various GUI
+	 *         elements.
 	 */
 	public SpecSimSettings gatherSpecSimSettings() {
-		
+
 		Trafo trafo = null;
 		switch (trafoCbx.getSelectedIndex()) {
 		case 0:
-			trafo = new Trafo() { public double transform(double input) { return input; } };
+			trafo = new Trafo() {
+				public double transform(double input) {
+					return input;
+				}
+			};
 			break;
 		case 1:
-			trafo = new Trafo() { public double transform(double input) { return Math.sqrt(input); } };
+			trafo = new Trafo() {
+				public double transform(double input) {
+					return Math.sqrt(input);
+				}
+			};
 			break;
 		case 2:
-			trafo = new Trafo() { public double transform(double input) { return Math.log(input); } };
+			trafo = new Trafo() {
+				public double transform(double input) {
+					return Math.log(input);
+				}
+			};
 			break;
 		}
-		
+
 		SpectrumComparator method = null;
 		switch (measureCbx.getSelectedIndex()) {
 		case 0:
 			method = new NormalizedDotProduct((Double) binWidthSpn.getValue(),
-					   						  (Double) binShiftSpn.getValue(),
-					   						  trafo);
+					(Double) binShiftSpn.getValue(), trafo);
 			break;
 		case 1:
 			method = new CrossCorrelation((Double) binWidthSpn.getValue(),
-						  				  (Double) binShiftSpn.getValue(),
-										  (Integer) xCorrOffSpn.getValue(),
-						  				  trafo);
+					(Double) binShiftSpn.getValue(),
+					(Integer) xCorrOffSpn.getValue(), trafo);
 			break;
 		}
-		
+
 		int pickCount = 0;
-		if (pickSpn.isEnabled()) { pickCount = (Integer) pickSpn.getValue(); }
-		
+		if (pickSpn.isEnabled()) {
+			pickCount = (Integer) pickSpn.getValue();
+		}
+
 		return new SpecSimSettings((Double) tolMzSpn.getValue(),
-								   annotChk.isSelected(),
-								   (Long) expIdSpn.getValue(),
-								   proMethodCbx.getSelectedIndex(),
-								   (Double) proMErrorSpn.getValue(),
-								   pickCount,
-								   method,
-								   (Double) threshScSpn.getValue());
+				annotChk.isSelected(), (Long) expIdSpn.getValue(),
+				proMethodCbx.getSelectedIndex(),
+				(Double) proMErrorSpn.getValue(), pickCount, method,
+				(Double) threshScSpn.getValue());
 	}
-	
+
 	/**
-	 * Method to repaint the panel's plot component.
-	 * Draws normalized original (black) and transformed (red) versions of the supplied spectrum.
-	 * @param spectrumFile The spectrum file to be plotted.
+	 * Method to repaint the panel's plot component. Draws normalized original
+	 * (black) and transformed (red) versions of the supplied spectrum.
+	 * 
+	 * @param spectrumFile
+	 *            The spectrum file to be plotted.
 	 */
 	public void refreshPlot(MascotGenericFile spectrumFile) {
-		
+
 		prePlotPnl.clearSpectrumFile();
-		
-		HashMap<Double, Double> basePeaks = new HashMap<Double, Double>(spectrumFile.getPeaks());
+
+		HashMap<Double, Double> basePeaks = new HashMap<Double, Double>(
+				spectrumFile.getPeaks());
 		// normalize spectrum file
 		double maxInten = 0.0;
-		for (double inten : basePeaks.values()) { maxInten = (inten > maxInten) ? inten : maxInten; }
+		for (double inten : basePeaks.values()) {
+			maxInten = (inten > maxInten) ? inten : maxInten;
+		}
 		maxInten /= 100.0;
-		for (Double mz : basePeaks.keySet()) { basePeaks.put(mz, basePeaks.get(mz)/maxInten); }
-		
+		for (Double mz : basePeaks.keySet()) {
+			basePeaks.put(mz, basePeaks.get(mz) / maxInten);
+		}
+
 		// transform spectrum file
 		SpecSimSettings specSet = gatherSpecSimSettings();
-		specSet.getSpecComparator().prepare(spectrumFile.getHighestPeaks(specSet.getPickCount()));
-		HashMap<Double, Double> transPeaks = (HashMap<Double, Double>) specSet.getSpecComparator().getSourcePeaks();
+		specSet.getSpecComparator().prepare(
+				spectrumFile.getHighestPeaks(specSet.getPickCount()));
+		HashMap<Double, Double> transPeaks = (HashMap<Double, Double>) specSet
+				.getSpecComparator().getSourcePeaks();
 		// normalize transformed spectrum
 		maxInten = 0.0;
-		for (double inten : transPeaks.values()) { maxInten = (inten > maxInten) ? inten : maxInten; }
+		for (double inten : transPeaks.values()) {
+			maxInten = (inten > maxInten) ? inten : maxInten;
+		}
 		maxInten /= 100.0;
-		for (Double mz : transPeaks.keySet()) { transPeaks.put(mz, transPeaks.get(mz)/maxInten); }
-		
+		for (Double mz : transPeaks.keySet()) {
+			transPeaks.put(mz, transPeaks.get(mz) / maxInten);
+		}
+
 		// add spectra to plot panel and paint them
-		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null,  basePeaks, 			0.0				  , 			0			));
-		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null, transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile.getCharge()));
+		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null, basePeaks,
+				0.0, 0));
+		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null,
+				transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile
+						.getCharge()));
 		prePlotPnl.repaint();
 	}
-	
+
 	/**
-	 * Listener class various GUI elements of the panel to trigger refreshing the preview plot.
+	 * Listener class various GUI elements of the panel to trigger refreshing
+	 * the preview plot.
 	 */
 	private class RefreshPlotListener implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			grabSpectrumAndRefreshPlot();
 		}
+
 		@Override
 		public void stateChanged(ChangeEvent arg0) {
 			grabSpectrumAndRefreshPlot();
 		}
+
 		private void grabSpectrumAndRefreshPlot() {
 			try {
-				MascotGenericFile mgf = ((SpectrumTree) clientFrame.getFilePanel().getCheckBoxTree().getTree()).getSpectrumAt(((DefaultMutableTreeNode) clientFrame.getFilePanel().getCheckBoxTree().getModel().getRoot()).getFirstLeaf());
+				MascotGenericFile mgf = ((SpectrumTree) clientFrame
+						.getFilePanel().getCheckBoxTree().getTree())
+						.getSpectrumAt(((DefaultMutableTreeNode) clientFrame
+								.getFilePanel().getCheckBoxTree().getModel()
+								.getRoot()).getFirstLeaf());
 				if (mgf != null) {
 					refreshPlot(mgf);
 				}
@@ -509,25 +561,29 @@ public class SpecLibSearchPanel extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
-	 * Method to toggle the enabled state of the whole panel.
-	 * Honors separate enabled state of specific sub-components on restore.
+	 * Method to toggle the enabled state of the whole panel. Honors separate
+	 * enabled state of specific sub-components on restore.
 	 */
 	public void setEnabled(boolean enabled) {
 		setChildrenEnabled(this, enabled);
-		if (enabled) {	// restore old enabled state
-			setChildrenEnabled(proMethodPnl, proMethodPnl.isEnabled());
-			setChildrenEnabled(proMErrorPnl, proMErrorPnl.isEnabled());
-			pickSpn.setEnabled(pickPnl.isEnabled());
-			xCorrOffSpn.setEnabled(scorSubPnl.isEnabled());
-			xCorrOffLbl.setEnabled(scorSubPnl.isEnabled());
-			xCorrOffLbl2.setEnabled(scorSubPnl.isEnabled());
+		if (enabled) { // restore old enabled state
+			boolean temp = binningCbx.getSelectedIndex() == 1;
+			setChildrenEnabled(proMethodPnl, temp);
+			setChildrenEnabled(proMErrorPnl, temp);
+			pickSpn.setEnabled(pickChk.isSelected());
+			temp = measureCbx.getSelectedIndex() == 1;
+			xCorrOffSpn.setEnabled(temp);
+			xCorrOffLbl.setEnabled(temp);
+			xCorrOffLbl2.setEnabled(temp);
 		}
 	}
 
 	/**
-	 * Method to recursively iterate a component's children and set their enabled state.
+	 * Method to recursively iterate a component's children and set their
+	 * enabled state.
+	 * 
 	 * @param parent
 	 * @param enabled
 	 */
@@ -537,13 +593,21 @@ public class SpecLibSearchPanel extends JPanel {
 				setChildrenEnabled((JComponent) child, enabled);
 			}
 		}
-		if (!(parent instanceof JPanel)) {	// don't mess with JPanels
+		if (!(parent instanceof JPanel)) { // don't mess with JPanels
 			parent.setEnabled(enabled);
 		}
+		if (!(parent instanceof SpecLibSearchPanel)) { // don't mess with
+														// SpecLibSearchPanels
+			Border border = parent.getBorder();
+			if (border instanceof ComponentTitledBorder) {
+				((ComponentTitledBorder) border).setEnabled(enabled);
+			}
+		}
 	}
-	
+
 	/**
 	 * Method to return the experiment id spinner value.
+	 * 
 	 * @return The experiment id.
 	 */
 	public long getExperimentID() {

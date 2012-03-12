@@ -9,10 +9,13 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 /**
  * MySwing: Advanced Swing Utilites Copyright (C) 2005 Santhosh Kumar T
@@ -29,16 +32,24 @@ import javax.swing.border.Border;
  */
 
 public class ComponentTitledBorder implements Border, MouseListener {
-	int offset = 5;
+	int offset = 6;
 
-	Component comp;
+	JComponent comp;
 	JComponent container;
 	Rectangle rect;
 	Border border;
 	JPanel dummyPanel;
 
-	public ComponentTitledBorder(Component comp, JComponent container, Border border) {
+	public ComponentTitledBorder(JComponent comp, JComponent container) {
+		this(comp, container, BorderFactory.createEtchedBorder());
+	}
+
+	public ComponentTitledBorder(JComponent comp, JComponent container, Border border) {
 		this.comp = comp;
+		this.comp.setOpaque(true);
+		this.comp.setFont(UIManager.getFont("TitledBorder.font"));
+		this.comp.setForeground(UIManager.getColor("TitledBorder.titleColor"));
+		this.comp.setBorder(new EmptyBorder(0, 1, 0, 1));
 		this.container = container;
 		this.border = border;
 		this.dummyPanel = new JPanel();
@@ -64,6 +75,10 @@ public class ComponentTitledBorder implements Border, MouseListener {
 		Insets insets = border.getBorderInsets(c);
 		insets.top = Math.max(insets.top, size.height);
 		return insets;
+	}
+
+	public void setEnabled(boolean enabled) {
+		comp.setEnabled(enabled);
 	}
 
 	private void dispatchEvent(MouseEvent me) {
