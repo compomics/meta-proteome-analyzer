@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -26,6 +27,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -169,22 +171,26 @@ public class ClientFrame extends JFrame {
 		Container cp = this.getContentPane();
 		cp.setLayout(new BorderLayout());		
 		cp.add(menuBar, BorderLayout.NORTH);
+		
+//		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
+		ImageIcon testIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/icon_qm.png"));
+		
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
-		tabPane.addTab("Project", projectPnl);
-		tabPane.addTab("Input Spectra", filePnl);
+		tabPane.addTab("Project", testIcon, projectPnl);
+		tabPane.addTab("Input Spectra", testIcon, filePnl);
 //		tabPane.addTab("Spectral Library Search", specLibPnl);
 //		tabPane.addTab("MS/MS Database Search", msmsPnl);
 //		tabPane.addTab("De-novo Search", denovoPnl);
-		tabPane.addTab("Search Settings", setPnl);
-		tabPane.addTab("Spectral Search Results", resPnl);
+		tabPane.addTab("Search Settings", testIcon, setPnl);
+		tabPane.addTab("Spectral Search Results", testIcon, resPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
 		resultsTabPane.addTab("Protein View", proteinResultPnl);
-		tabPane.addTab("Database Search Results", dbSearchResultPnl);
-		tabPane.addTab("De novo Results", denovoResPnl);
-		tabPane.addTab("Logging", lggPnl);
-		tabPane.addTab("Clustering", clusterPnl);
+		tabPane.addTab("Database Search Results", testIcon, dbSearchResultPnl);
+		tabPane.addTab("De novo Results", testIcon, denovoResPnl);
+		tabPane.addTab("Logging", testIcon, lggPnl);
+		tabPane.addTab("Clustering", testIcon, clusterPnl);
 		
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
 
