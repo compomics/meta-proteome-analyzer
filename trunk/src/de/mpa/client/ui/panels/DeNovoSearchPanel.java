@@ -11,13 +11,14 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.TitledBorder;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
 
 public class DeNovoSearchPanel extends JPanel {
@@ -31,20 +32,28 @@ public class DeNovoSearchPanel extends JPanel {
 //	private JCheckBox dnPepknownChx;
 	private JTable dnPTMtbl;
 	private JPanel parPnl;
+	private JScrollPane dnPTMscp;
+	private JPanel ptmsPnl;
 
 	public DeNovoSearchPanel() {
 		initComponents();
 	}
 
+	/**
+	 * Method to initialize the panel's components
+	 */
 	private void initComponents() {
+		
 		CellConstraints cc = new CellConstraints();
-		this.setLayout(new FormLayout("8dlu, p, 8dlu", "f:p, 5dlu, f:p:g, 8dlu"));
+		
+		this.setLayout(new FormLayout("9dlu, p, 9dlu",					// col
+									  "3dlu, f:p, 5dlu, f:p:g, 9dlu"));	// row
 
 		// Parameters		
 		parPnl = new JPanel();
 		parPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",		// col
-										"p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));	// row
-		parPnl.setBorder(new TitledBorder("Parameters"));
+										"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));	// row
+		parPnl.setBorder(new ComponentTitledBorder(new JLabel("Parameters"), parPnl));
 
 		// Enzymes
 		dnEnzymesCbx = new JComboBox(Constants.DN_ENZYMES);
@@ -62,16 +71,16 @@ public class DeNovoSearchPanel extends JPanel {
 		dnFragTolSpn.setToolTipText("Choose your fragment mass tolerance");
 
 		// for right aligned text in spinners in windows LAF
-		//	private class RightAlignListCellRenderer extends JLabel implements ListCellRenderer<String> {
-		//		@Override
-		//		public Component getListCellRendererComponent(
-		//				JList<? extends String> list, String value, int index,
-		//				boolean isSelected, boolean cellHasFocus) {
-		//			this.setText(value);
-		//			this.setHorizontalAlignment(JLabel.RIGHT);
-		//			return this;
-		//		}
-		//	}
+//		private class RightAlignListCellRenderer extends JLabel implements ListCellRenderer<String> {
+//			@Override
+//			public Component getListCellRendererComponent(
+//					JList<? extends String> list, String value, int index,
+//					boolean isSelected, boolean cellHasFocus) {
+//				this.setText(value);
+//				this.setHorizontalAlignment(JLabel.RIGHT);
+//				return this;
+//			}
+//		}
 
 		// Threshold peptides
 		dnThresholdSpn = new JSpinner(new SpinnerNumberModel(1000, 0, null, 1));
@@ -85,25 +94,25 @@ public class DeNovoSearchPanel extends JPanel {
 //		dnPepknownChx.setToolTipText("Remove all identified peptides");
 
 		
-		parPnl.add(new JLabel("Protease"), cc.xy(2, 1));
-		parPnl.add(dnEnzymesCbx,cc.xyw(4, 1, 5));
-		parPnl.add(new JLabel("Spectrometer"),cc.xy(2, 3));
-		parPnl.add(dnMSCbx,cc.xyw(4, 3, 5));
-		parPnl.add(new JSeparator(), cc.xyw(2, 5, 7));
-		parPnl.add(new JLabel("Fragment mass tolerance"), cc.xyw(2, 7, 3));
-		parPnl.add(dnFragTolSpn,cc.xy(6, 7));
-		parPnl.add(new JLabel("Da"),cc.xy(8, 7));
-		parPnl.add(new JLabel("Peptide intensity threshold"),cc.xyw(2, 9, 3));
-		parPnl.add(dnThresholdSpn,cc.xy(6, 9));
-		parPnl.add(new JLabel("Number of peptides"),cc.xyw(2, 11, 3));
-		parPnl.add(dnNumSolutionsSpn,cc.xy(6, 11));
-//		parPnl.add(dnPepknownChx,cc.xyw(2, 13, 5));
+		parPnl.add(new JLabel("Protease"), cc.xy(2, 2));
+		parPnl.add(dnEnzymesCbx,cc.xyw(4, 2, 5));
+		parPnl.add(new JLabel("Spectrometer"),cc.xy(2, 4));
+		parPnl.add(dnMSCbx,cc.xyw(4, 4, 5));
+		parPnl.add(new JSeparator(), cc.xyw(2, 6, 7));
+		parPnl.add(new JLabel("Fragment mass tolerance"), cc.xyw(2, 8, 3));
+		parPnl.add(dnFragTolSpn,cc.xy(6, 8));
+		parPnl.add(new JLabel("Da"),cc.xy(8, 8));
+		parPnl.add(new JLabel("Peptide intensity threshold"),cc.xyw(2, 10, 3));
+		parPnl.add(dnThresholdSpn,cc.xy(6, 10));
+		parPnl.add(new JLabel("Number of peptides"),cc.xyw(2, 12, 3));
+		parPnl.add(dnNumSolutionsSpn,cc.xy(6, 12));
+//		parPnl.add(dnPepknownChx,cc.xyw(2, 14, 5));
 
 		// Panel PTMs
-		JPanel ptmsPnl = new JPanel();
-		ptmsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",	// col
-										 "f:p:g, 5dlu"));	// row
-		ptmsPnl.setBorder(new TitledBorder("PTMs"));
+		ptmsPnl = new JPanel();
+		ptmsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
+										 "3dlu, f:p:g, 5dlu"));	// row
+		ptmsPnl.setBorder(new ComponentTitledBorder(new JLabel("PTMs"), ptmsPnl));
 
 		DefaultTableModel model = new DefaultTableModel(new Object[] {"PTM", ""}, 0) {
 			public Class<?> getColumnClass(int c) {	// method allows checkboxes in table
@@ -116,23 +125,35 @@ public class DeNovoSearchPanel extends JPanel {
 		for (int i = 0; i < Constants.PTMS.length; i++) {
 			model.addRow(new Object[] {Constants.PTMS[i], false});
 		}
+		// make table components able to appear disabled when table itself is disabled
 		dnPTMtbl = new JTable(model) {
 			public Component prepareRenderer(final TableCellRenderer renderer, int row, int column) {
 				Component comp = super.prepareRenderer(renderer, row, column);
-				comp.setEnabled(isEnabled()); // Enable/disable renderer same as table.
+				comp.setEnabled(isEnabled());	// Enable/disable renderer same as table.
 				return comp;
 			}
 		};
+		final TableCellRenderer tcr = dnPTMtbl.getTableHeader().getDefaultRenderer();
+		dnPTMtbl.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
+			public Component getTableCellRendererComponent(JTable table, Object value,
+					boolean isSelected, boolean hasFocus, int row, int column) {
+				Component comp = tcr.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				comp.setEnabled(dnPTMtbl.isEnabled());
+				return comp;
+			}
+		});
+		dnPTMtbl.getTableHeader().setReorderingAllowed(false);
 
 		dnPTMtbl.getColumnModel().getColumn(1).setMaxWidth(dnPTMtbl.getColumnModel().getColumn(1).getMinWidth());
 		dnPTMtbl.setShowVerticalLines(false);
-		JScrollPane dnPTMscp = new JScrollPane(dnPTMtbl);
+		dnPTMscp = new JScrollPane(dnPTMtbl);
 		//		dnPTMscp.setPreferredSize(new Dimension(0, 0));
 		dnPTMscp.setPreferredSize(new Dimension(200, 100));
 		dnPTMscp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		dnPTMscp.setToolTipText("Choose possible PTMs");
+		dnPTMscp.setEnabled(false);
 		
-		ptmsPnl.add(dnPTMscp,cc.xy(2,1));
+		ptmsPnl.add(dnPTMscp,cc.xy(2,2));
 
 		
 //		// Start panel
@@ -172,8 +193,8 @@ public class DeNovoSearchPanel extends JPanel {
 //		statusPnl.add(denovoPrg, cc.xy(6, 1));
 
 		// add panels
-		this.add(parPnl, cc.xy(2, 1));
-		this.add(ptmsPnl, cc.xy(2, 3));
+		this.add(parPnl, cc.xy(2, 2));
+		this.add(ptmsPnl, cc.xy(2, 4));
 //		this.add(statusPnl, cc.xyw(2, 4, 3));
 	}
 	
@@ -182,7 +203,13 @@ public class DeNovoSearchPanel extends JPanel {
 		for (Component child : parPnl.getComponents()) {
 			child.setEnabled(enabled);
 		}
+		for (Component child : dnPTMscp.getComponents()) {
+			child.setEnabled(enabled);
+		}
+		((ComponentTitledBorder)parPnl.getBorder()).setEnabled(enabled);
+		((ComponentTitledBorder)ptmsPnl.getBorder()).setEnabled(enabled);
 		dnPTMtbl.setEnabled(enabled);
+		dnPTMtbl.setBackground((enabled) ? UIManager.getColor("Table.background") : null);
 	}
 
 //	private DenovoSearchSettings collectDenovoSettings(){

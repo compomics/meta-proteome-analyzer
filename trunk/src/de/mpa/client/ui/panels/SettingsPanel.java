@@ -1,15 +1,20 @@
 package de.mpa.client.ui.panels;
 
+import java.awt.AWTKeyStroke;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -64,10 +70,17 @@ public class SettingsPanel extends JPanel {
 	private void initComponents() {
 
 		CellConstraints cc = new CellConstraints();
+		
+		Set<AWTKeyStroke> forwardKeys = getFocusTraversalKeys(
+				KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
+		Set<AWTKeyStroke> newForwardKeys = new HashSet<AWTKeyStroke>(forwardKeys);
+		newForwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
+				newForwardKeys);
 
 		this.setLayout(new FormLayout("5dlu, p, 15dlu, p, 15dlu, p, 5dlu",
 									  "5dlu, f:p, 5dlu, p, 5dlu"));
-
+		
 		// database search settings panel
 		databasePnl = new DBSearchPanel();
 		databasePnl.setEnabled(true);
@@ -81,7 +94,7 @@ public class SettingsPanel extends JPanel {
 		});
 		
 		ComponentTitledBorder databaseBrd = new ComponentTitledBorder(
-				databaseChk, databasePnl, BorderFactory.createEtchedBorder());
+				databaseChk, databasePnl);
 		databasePnl.setBorder(databaseBrd);
 
 		// spectral library search settings panel
@@ -97,7 +110,7 @@ public class SettingsPanel extends JPanel {
 		});
 		
 		ComponentTitledBorder specLibBrd = new ComponentTitledBorder(
-				specLibChk, specLibPnl, BorderFactory.createEtchedBorder());
+				specLibChk, specLibPnl);
 		specLibPnl.setBorder(specLibBrd);
 
 		// de novo search settings panel
@@ -113,7 +126,7 @@ public class SettingsPanel extends JPanel {
 		});
 		
 		ComponentTitledBorder deNovoBrd = new ComponentTitledBorder(
-				deNovoChk, deNovoPnl, BorderFactory.createEtchedBorder());
+				deNovoChk, deNovoPnl);
 		deNovoPnl.setBorder(deNovoBrd);
 
 		// general settings panel

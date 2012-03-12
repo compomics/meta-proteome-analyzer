@@ -1,15 +1,9 @@
 package de.mpa.client.ui.panels;
 
-import java.awt.AWTKeyStroke;
 import java.awt.Component;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -18,12 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
 
 public class DBSearchPanel extends JPanel {
@@ -46,38 +40,34 @@ public class DBSearchPanel extends JPanel {
 		initComponents();
 	}
 
+	/**
+	 * Method to initialize the panel's components
+	 */
 	private void initComponents() {
-		CellConstraints cc = new CellConstraints();
 		
-		Set<AWTKeyStroke> forwardKeys = getFocusTraversalKeys(
-				KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
-		Set<AWTKeyStroke> newForwardKeys = new HashSet<AWTKeyStroke>(forwardKeys);
-		newForwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
-		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
-				newForwardKeys);
+		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("8dlu, p, 8dlu", "p, 5dlu, p, 5dlu, p, 8dlu"));
+		this.setLayout(new FormLayout("9dlu, p, 9dlu",
+									  "3dlu, p, 5dlu, f:p:g, 5dlu, f:p:g, 9dlu"));
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
 		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p:g, 5dlu",
-				"5dlu, p, 5dlu"));
-		protDatabasePnl.setBorder(BorderFactory
-				.createTitledBorder("Protein Database"));
+												 "3dlu, p, 5dlu"));
+		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
 		fastaFileCbx = new JComboBox(Constants.FASTA_DB);
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), cc.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
-
 		
 		// Parameters Panel
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
-		paramsPnl.setBorder(BorderFactory.createTitledBorder("Parameters"));
+				"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("Parameters"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
@@ -112,8 +102,8 @@ public class DBSearchPanel extends JPanel {
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
 		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu",
-				"5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
-		searchEngPnl.setBorder(BorderFactory.createTitledBorder("Search Engines"));
+				"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		// X!Tandem
 		xTandemChk = new JCheckBox("X!Tandem", true);
@@ -168,16 +158,10 @@ public class DBSearchPanel extends JPanel {
 		searchEngPnl.add(new JLabel("Search strategy:"), cc.xy(2, 12));
 		searchEngPnl.add(searchTypeCbx, cc.xy(4, 12));
 
-
-		// Status Panel
-		JPanel statusPnl = new JPanel();
-		statusPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-				"5dlu, p, 5dlu"));
-		statusPnl.setBorder(BorderFactory.createTitledBorder("Search Status"));
-
-		this.add(protDatabasePnl, cc.xy(2, 1));
-		this.add(paramsPnl, cc.xy(2, 3));
-		this.add(searchEngPnl, cc.xy(2, 5));
+		// add everything to main panel
+		this.add(protDatabasePnl, cc.xy(2, 2));
+		this.add(paramsPnl, cc.xy(2, 4));
+		this.add(searchEngPnl, cc.xy(2, 6));
 
 	}
 	
