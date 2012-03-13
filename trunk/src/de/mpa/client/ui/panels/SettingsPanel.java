@@ -1,17 +1,12 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.AWTKeyStroke;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,17 +22,12 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
-import de.mpa.client.SpecSimSettings;
-import de.mpa.client.ui.CheckBoxTreeSelectionModel;
+import de.mpa.client.DbSearchSettings;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 
@@ -145,27 +135,29 @@ public class SettingsPanel extends JPanel {
 		processBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final long startTime = System.currentTimeMillis();
+				processBtn.setEnabled(false);
+//				final long startTime = System.currentTimeMillis();
 
-				SpecLibSearchWorker worker = new SpecLibSearchWorker(clientFrame);
-				worker.addPropertyChangeListener(new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-						if (evt.getPropertyName() == "progress") {
-							int progress = (Integer) evt.getNewValue();
-							currentPrg.setValue(progress);
-							long elapsedTime = System.currentTimeMillis() - startTime;
-							long remainingTime = 0L;
-							if (progress > 0.0) {
-								remainingTime = (long) (elapsedTime/progress*(100-progress)/1000);
-							}
-							timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
-									(remainingTime%3600)/60, (remainingTime%60)));
-						} else if (evt.getPropertyName() == "text") {
-							statusTtf.setText((String) evt.getNewValue());
-						}
-					}
-				});
+//				SpecLibSearchWorker worker = new SpecLibSearchWorker(clientFrame);
+				RunDbSearchWorker worker = new RunDbSearchWorker();
+//				worker.addPropertyChangeListener(new PropertyChangeListener() {
+//					@Override
+//					public void propertyChange(PropertyChangeEvent evt) {
+//						if (evt.getPropertyName() == "progress") {
+//							int progress = (Integer) evt.getNewValue();
+//							currentPrg.setValue(progress);
+//							long elapsedTime = System.currentTimeMillis() - startTime;
+//							long remainingTime = 0L;
+//							if (progress > 0.0) {
+//								remainingTime = (long) (elapsedTime/progress*(100-progress)/1000);
+//							}
+//							timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
+//									(remainingTime%3600)/60, (remainingTime%60)));
+//						} else if (evt.getPropertyName() == "text") {
+//							statusTtf.setText((String) evt.getNewValue());
+//						}
+//					}
+//				});
 				worker.execute();
 			}
 		});
@@ -181,109 +173,139 @@ public class SettingsPanel extends JPanel {
 		this.add(deNovoPnl, cc.xy(6, 2));
 		this.add(processPanel, cc.xyw(4, 4, 3));
 	}
+	
+
 
 	/**
-	 * Worker class to process spectral library search queries.
+	 * RunDBSearchWorker class extending SwingWorker.
+	 * 
+	 * @author Thilo Muth
+	 * 
 	 */
-	public class SpecLibSearchWorker extends SwingWorker {
-
-		private ClientFrame clientFrame;
-		private Client client;
-
-		private double maxProgress;
-		private HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap;
-
-		public SpecLibSearchWorker(ClientFrame clientFrame) {
-			this.clientFrame = clientFrame;
-			this.client = clientFrame.getClient();
-			this.maxProgress = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel().getSelectionCount();
-		}
+	private class RunDbSearchWorker extends SwingWorker {
 
 		protected Object doInBackground() throws Exception {
-
-			// appear busy
-			//			setProgress(0);
-			firePropertyChange("progress", null, 0);
-			processBtn.setEnabled(false);
-			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-			// clone file selection tree, discard unselected branches/leaves
-			CheckBoxTreeSelectionModel selectionModel = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel();
-			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) clientFrame.getFilePanel().getCheckBoxTree().getModel().getRoot();
-			DefaultTreeModel queryModel = (DefaultTreeModel) clientFrame.getQueryTree().getModel();
-			DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryModel.getRoot();
-			queryRoot.removeAllChildren();
-
-			for (int i = 0; i < fileRoot.getChildCount(); i++) {
-				DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) fileRoot.getChildAt(i);
-				TreePath filePath = new TreePath(fileNode.getPath());
-				if ((selectionModel.isPathSelected(filePath, true)) || 
-						(selectionModel.isPartiallySelected(filePath))) {
-					// create a new node containing only the file tree node's selected sub-nodes
-					DefaultMutableTreeNode fileNodeClone = new DefaultMutableTreeNode(fileNode.getUserObject());
-					queryModel.insertNodeInto(fileNodeClone, queryRoot, queryRoot.getChildCount());
-					for (int j = 0; j < fileNode.getChildCount(); j++) {
-						DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-						TreePath spectrumPath = new TreePath(spectrumNode.getPath());
-						if (selectionModel.isPathSelected(spectrumPath, true)) {
-							DefaultMutableTreeNode spectrumNodeClone = new DefaultMutableTreeNode(spectrumNode.getUserObject());
-							queryModel.insertNodeInto(spectrumNodeClone, fileNodeClone, fileNodeClone.getChildCount());
-						}
-					}
-				}
+			DbSearchSettings settings = databasePnl.collectDBSearchSettings();
+			try {
+				Client client = clientFrame.getClient();
+				List<File> chunkedFiles = client.packFiles((Integer) packSpn.getValue(), clientFrame
+						.getFilePanel().getCheckBoxTree(), "test");
+				client.sendFiles(chunkedFiles);
+				client.runDbSearch(chunkedFiles, settings);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			// register property change listener with client
-			PropertyChangeListener listener = new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					//					setProgress((int)((Integer)evt.getNewValue()/maxProgress*100.0));
-					firePropertyChange("progress", null, (int)((Integer)evt.getNewValue()/maxProgress*100.0));
-				}
-			};
-			client.addPropertyChangeListener(listener);
-
-			// consolidate selected spectra into files
-			clientFrame.appendToLog("Packing files... ");
-			firePropertyChange("text", null, "Packing...");
-			long startTime = System.currentTimeMillis();
-
-			List<File> files = client.packFiles((Integer) packSpn.getValue(), clientFrame.getFilePanel().getCheckBoxTree(), "batch_");
-
-			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
-
-			// process files
-			firePropertyChange("text", null, "Processing...");
-			clientFrame.appendToLog("Processing files...");
-
-			SpecSimSettings specSet = specLibPnl.gatherSpecSimSettings();
-
-			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
-			client.initDBConnection();
-			startTime = System.currentTimeMillis();
-			//			setProgress(0);
-			firePropertyChange("progress", null, 0);
-			for (File file : files) {
-				resultMap.putAll(client.searchSpecLib(file, specSet));
-			}
-			// TODO: maybe use this map only in the panel ? 
-			clientFrame.setResultMap(resultMap);
-
-			// clean up
-			client.closeDBConnection();
-			client.removePropertyChangeListener(listener);
-			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
-
 			return 0;
 		}
 
 		@Override
 		public void done() {
-			firePropertyChange("text", null, "Processing done!");
 			processBtn.setEnabled(true);
-			((DefaultTreeModel) clientFrame.getQueryTree().getModel()).reload();
-			clientFrame.setCursor(null);	//turn off the wait cursor
 		}
 	}
+
+//	/**
+//	 * Worker class to process spectral library search queries.
+//	 */
+//	public class SpecLibSearchWorker extends SwingWorker {
+//
+//		private ClientFrame clientFrame;
+//		private Client client;
+//
+//		private double maxProgress;
+//		private HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap;
+//
+//		public SpecLibSearchWorker(ClientFrame clientFrame) {
+//			this.clientFrame = clientFrame;
+//			this.client = clientFrame.getClient();
+//			this.maxProgress = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel().getSelectionCount();
+//		}
+//
+//		protected Object doInBackground() throws Exception {
+//
+//			// appear busy
+//			//			setProgress(0);
+//			firePropertyChange("progress", null, 0);
+//			processBtn.setEnabled(false);
+//			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+//
+//			// clone file selection tree, discard unselected branches/leaves
+//			CheckBoxTreeSelectionModel selectionModel = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel();
+//			DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) clientFrame.getFilePanel().getCheckBoxTree().getModel().getRoot();
+//			DefaultTreeModel queryModel = (DefaultTreeModel) clientFrame.getQueryTree().getModel();
+//			DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryModel.getRoot();
+//			queryRoot.removeAllChildren();
+//
+//			for (int i = 0; i < fileRoot.getChildCount(); i++) {
+//				DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) fileRoot.getChildAt(i);
+//				TreePath filePath = new TreePath(fileNode.getPath());
+//				if ((selectionModel.isPathSelected(filePath, true)) || 
+//						(selectionModel.isPartiallySelected(filePath))) {
+//					// create a new node containing only the file tree node's selected sub-nodes
+//					DefaultMutableTreeNode fileNodeClone = new DefaultMutableTreeNode(fileNode.getUserObject());
+//					queryModel.insertNodeInto(fileNodeClone, queryRoot, queryRoot.getChildCount());
+//					for (int j = 0; j < fileNode.getChildCount(); j++) {
+//						DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
+//						TreePath spectrumPath = new TreePath(spectrumNode.getPath());
+//						if (selectionModel.isPathSelected(spectrumPath, true)) {
+//							DefaultMutableTreeNode spectrumNodeClone = new DefaultMutableTreeNode(spectrumNode.getUserObject());
+//							queryModel.insertNodeInto(spectrumNodeClone, fileNodeClone, fileNodeClone.getChildCount());
+//						}
+//					}
+//				}
+//			}
+//
+//			// register property change listener with client
+//			PropertyChangeListener listener = new PropertyChangeListener() {
+//				@Override
+//				public void propertyChange(PropertyChangeEvent evt) {
+//					//					setProgress((int)((Integer)evt.getNewValue()/maxProgress*100.0));
+//					firePropertyChange("progress", null, (int)((Integer)evt.getNewValue()/maxProgress*100.0));
+//				}
+//			};
+//			client.addPropertyChangeListener(listener);
+//
+//			// consolidate selected spectra into files
+//			clientFrame.appendToLog("Packing files... ");
+//			firePropertyChange("text", null, "Packing...");
+//			long startTime = System.currentTimeMillis();
+//
+//			List<File> files = client.packFiles((Integer) packSpn.getValue(), clientFrame.getFilePanel().getCheckBoxTree(), "batch_");
+//
+//			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
+//
+//			// process files
+//			firePropertyChange("text", null, "Processing...");
+//			clientFrame.appendToLog("Processing files...");
+//
+//			SpecSimSettings specSet = specLibPnl.gatherSpecSimSettings();
+//
+//			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
+//			client.initDBConnection();
+//			startTime = System.currentTimeMillis();
+//			//			setProgress(0);
+//			firePropertyChange("progress", null, 0);
+//			for (File file : files) {
+//				resultMap.putAll(client.searchSpecLib(file, specSet));
+//			}
+//			// TODO: maybe use this map only in the panel ? 
+//			clientFrame.setResultMap(resultMap);
+//
+//			// clean up
+//			client.closeDBConnection();
+//			client.removePropertyChangeListener(listener);
+//			clientFrame.appendToLog("done (took " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds)\n");
+//
+//			return 0;
+//		}
+//
+//		@Override
+//		public void done() {
+//			firePropertyChange("text", null, "Processing done!");
+//			processBtn.setEnabled(true);
+//			((DefaultTreeModel) clientFrame.getQueryTree().getModel()).reload();
+//			clientFrame.setCursor(null);	//turn off the wait cursor
+//		}
+//	}
 
 }

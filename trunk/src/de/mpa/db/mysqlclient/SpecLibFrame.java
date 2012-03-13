@@ -9,10 +9,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +30,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.commons.codec.binary.Base64;
-
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
@@ -40,8 +38,10 @@ import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Spec2pep;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.io.SixtyFourBitStringSupport;
 import de.mpa.parser.mascot.xml.MascotXMLParser;
 import de.mpa.parser.mascot.xml.PeptideHit;
 import de.mpa.parser.mascot.xml.ProteinHit;
@@ -246,61 +246,66 @@ public class SpecLibFrame extends JFrame {
 
     				// Iterate over all spectra.
     				for (MascotGenericFile mgf : mgfList) {
-    					HashMap<Object, Object> data = new HashMap<Object, Object>(11);
+    					
+    					/* Spectrum section */
+    		            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
+    	            
+    		            // The spectrum title
+    	                data.put(Spectrum.TITLE, mgf.getTitle());
+    	                
+    	                // The precursor mass.
+    	                data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
+    	                
+    	                // The precursor intensity
+    	                data.put(Spectrum.PRECURSOR_INT, mgf.getIntensity());
+    	                
+    	                // The precursor charge
+    	                data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(mgf.getCharge()));
+    	                
+    	                // The m/z array
+    					Double[] mzDoubles = mgf.getPeaks().keySet().toArray(new Double[0]);
+    	                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(mzDoubles));
+    	                
+    	                // The intensity array
+    					Double[] inDoubles = mgf.getPeaks().values().toArray(new Double[0]);
+    	                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
+    	                
+    	                // The charge array
+    					Integer[] chInts = mgf.getCharges().values().toArray(new Integer[0]);
+    	                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
+    	                
+    	                // The total intensity.
+    	                data.put(Spectrum.TOTAL_INT, mgf.getTotalIntensity());
+    	                
+    	                // The highest intensity.
+    	                data.put(Spectrum.MAXIMUM_INT, mgf.getHighestIntensity());
+    	                
+    	                // The creation and modification dates
+    	                long now = Calendar.getInstance().getTime().getTime();
+    	                data.put(Spectrum.CREATIONTIME, new java.sql.Timestamp(now));
+    	                data.put(Spectrum.MODIFICATIONTIME, new java.sql.Timestamp(now));
 
-    					data.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf((Integer)idSpn.getValue()));
-    					data.put(Libspectrum.FILENAME, mgf.getFilename());
-    					data.put(Libspectrum.SPECTRUMNAME, mgf.getTitle());
-    					data.put(Libspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
-    					data.put(Libspectrum.CHARGE, Long.valueOf((Integer) mgf.getCharge()));
-    					data.put(Libspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
-    					data.put(Libspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
+    	                // Create the database object.
+    	                Spectrum spectrum = new Spectrum(data);
+    	                spectrum.persist(conn);
+    	                
+    	                // Get the spectrum ID
+    	                Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
+    					
+    	                /* libspectrum section */
+    					HashMap<Object, Object> libdata = new HashMap<Object, Object>(11);
+    					
+    					libdata.put(Libspectrum.FK_SPECTRUMID, spectrumid);
+    					libdata.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf((Integer)idSpn.getValue()));
+    					libdata.put(Libspectrum.CREATIONDATE, new java.sql.Timestamp(now));
+    					libdata.put(Libspectrum.MODIFICATIONDATE, new java.sql.Timestamp(now));
 
     					// Create the database object.
-    					Libspectrum spectrum = new Libspectrum(data);
-    					spectrum.persist(conn);
+    					Libspectrum libspectrum = new Libspectrum(libdata);
+    					libspectrum.persist(conn);
 
     					// Get the spectrumid from the generated keys.
-    					Long spectrumID = (Long) spectrum.getGeneratedKeys()[0];
-
-//    					// Create the spectrumFile instance.
-//    					Spectrumfile spectrumFile = new Spectrumfile();
-//    					spectrumFile.setFk_libspectrumid(spectrumID);
-//
-//    					// Set the file contents
-//    					// Read the contents for the file into a byte[].
-//    					byte[] fileContents = mgf.toString().getBytes();
-//    					// Set the byte[].
-//    					spectrumFile.setUnzippedFile(fileContents);
-//    					// Create the database object.
-//    					spectrumFile.persist(conn);
-    					
-    					// Extract mgf mz/intensity arrays and transform them into byte arrays
-    					ArrayList<Double> mzDoubles = new ArrayList<Double>(mgf.getPeaks().keySet());
-    					byte[] mzBytes = new byte[mzDoubles.size()*8];
-    					ByteBuffer bufMz = ByteBuffer.wrap(mzBytes);
-    			        for (Double mz : mzDoubles) {
-    			            bufMz.putDouble(mz);
-    			        }
-    					String base64mz = Base64.encodeBase64String(mzBytes);
-    					
-    					ArrayList<Double> inDoubles = new ArrayList<Double>(mgf.getPeaks().values());
-    					byte[] inBytes = new byte[inDoubles.size()*8];
-    					ByteBuffer bufIn = ByteBuffer.wrap(inBytes);
-    			        for (Double in : inDoubles) {
-    			            bufIn.putDouble(in);
-    			        }
-    					String base64in = Base64.encodeBase64String(inBytes);
-    					
-    					HashMap<Object, Object> fileData = new HashMap<Object, Object>(4);
-    					fileData.put(ArraySpectrum.FK_LIBSPECTRUMID, spectrumID);
-    					fileData.put(ArraySpectrum.MZARRAY, base64mz);
-    					fileData.put(ArraySpectrum.INTARRAY, base64in);
-    					
-    					// Create the database object.
-    					ArraySpectrum arraySpec = new ArraySpectrum(fileData);
-    					arraySpec.persist(conn);
-    					
+    					Long spectrumID = (Long) libspectrum.getGeneratedKeys()[0];
 
     					// grab peptide hits if key exists
     					if (pepMap.containsKey(mgf.getTitle())) {

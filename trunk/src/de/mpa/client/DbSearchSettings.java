@@ -63,6 +63,7 @@ public class DbSearchSettings {
     protected double precursorIonTol;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
+    protected boolean mascot;
     protected boolean decoy;
 
     /**
@@ -223,6 +224,22 @@ public class DbSearchSettings {
      */
     public void setXTandem(boolean value) {
         this.xTandem = value;
+    }
+
+    /**
+     * Gets the value of the xTandem property.
+     * 
+     */
+    public boolean isMascot() {
+        return mascot;
+    }
+
+    /**
+     * Sets the value of the xTandem property.
+     * 
+     */
+    public void setMascot(boolean value) {
+        this.mascot = value;
     }
 
     /**

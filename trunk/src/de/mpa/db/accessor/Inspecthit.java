@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Inspecthit extends InspecthitTableAccessor{
@@ -26,6 +27,10 @@ public class Inspecthit extends InspecthitTableAccessor{
         this.accession = (String) aRS.getObject("accession");
     }
     
+	public Inspecthit(HashMap<Object, Object> hitdata) {
+		super(hitdata);
+	}
+
 	/**
      * This method will find the hits from the current connection, based on the specified spectrumid.
      *

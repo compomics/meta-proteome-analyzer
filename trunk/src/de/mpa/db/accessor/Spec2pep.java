@@ -40,17 +40,14 @@ public class Spec2pep extends Spec2pepTableAccessor {
      */
     public static List<Spec2pep> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Spec2pep> temp = new ArrayList<Spec2pep>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
-        																 " ON spec2pep." + Spec2pep.FK_SPECTRUMID +
-        																 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
-        																 " WHERE " + Libspectrum.PRECURSOR_MZ + " >= ?" +
-        																 " AND "   + Libspectrum.PRECURSOR_MZ + " <= ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+        		" INNER JOIN spectrum" + " ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = spectrum." + Spectrum.SPECTRUMID +
+        		" WHERE " + Spectrum.PRECURSOR_MZ +
+        		" BETWEEN ? AND ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new Spec2pep(rs));
         }
         rs.close();
@@ -84,19 +81,18 @@ public class Spec2pep extends Spec2pepTableAccessor {
     // XXX
     public static List<Spec2pep> getEntriesWithinPrecursorRangeFromExperimentID(double precursorMz, double tolMz, long experimentID, Connection aConn) throws SQLException {
     	List<Spec2pep> temp = new ArrayList<Spec2pep>();
-    	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " INNER JOIN libspectrum" +
-														    			 " ON spec2pep." + Spec2pep.FK_SPECTRUMID +
-														    			 " = libspectrum." + Libspectrum.LIBSPECTRUMID +
-														    			 " WHERE " + Libspectrum.PRECURSOR_MZ + " >= ?" +
-														    			 " AND "   + Libspectrum.PRECURSOR_MZ + " <= ?" +
-        																 " AND "   + Libspectrum.FK_EXPERIMENTID + " = ?");
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+				" INNER JOIN spectrum" +
+				" ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = spectrum." + Spectrum.SPECTRUMID + 
+				" INNER JOIN libspectrum" +
+				" ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = libspectrum." + Libspectrum.FK_SPECTRUMID +
+				" WHERE " + Spectrum.PRECURSOR_MZ + " BETWEEN ? AND ?" + 
+				" AND " + Libspectrum.FK_EXPERIMENTID + " = ?");
     	ps.setDouble(1, precursorMz - tolMz);
     	ps.setDouble(2, precursorMz + tolMz);
     	ps.setLong(3, experimentID);
     	ResultSet rs = ps.executeQuery();
-    	int counter = 0;
     	while (rs.next()) {
-    		counter++;
     		temp.add(new Spec2pep(rs));
     	}
     	rs.close();
@@ -149,9 +145,7 @@ public class Spec2pep extends Spec2pepTableAccessor {
         ps.setLong(1, spectrumID);
         ps.setLong(2, peptideID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp = new Spec2pep(rs);
         }
         rs.close();

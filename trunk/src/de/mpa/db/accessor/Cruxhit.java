@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Cruxhit extends CruxhitTableAccessor {
@@ -25,6 +26,10 @@ public class Cruxhit extends CruxhitTableAccessor {
         this.accession = (String) aRS.getObject("accession");
     }
     
+	public Cruxhit(HashMap<Object, Object> hitdata) {
+		super(hitdata);
+	}
+
 	/**
      * This method will find the hits from the current connection, based on the specified spectrumid.
      *

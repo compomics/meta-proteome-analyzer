@@ -9,10 +9,12 @@ import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -164,13 +166,13 @@ public class SpecLibSearchPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("9dlu, p, 9dlu", 					// col
-									  "3dlu, p, 6dlu, f:p:g, 9dlu"));	// row
+		this.setLayout(new FormLayout("9dlu, p, 9dlu", // col
+				"3dlu, p, 6dlu, f:p:g, 9dlu")); // row
 
 		// spectral library search parameters
 		JPanel paramDbPnl = new JPanel();
-		paramDbPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", 			// col
-											"3dlu, p, 5dlu, p, 5dlu")); // row
+		paramDbPnl.setLayout(new FormLayout("5dlu, r:p:g, 5dlu", // col
+				"3dlu, p, 5dlu, p, 5dlu")); // row
 		// paramDbPnl.setBorder(BorderFactory.createTitledBorder("Search parameters"));
 		paramDbPnl.setBorder(new ComponentTitledBorder(new JLabel(
 				"Search parameters"), paramDbPnl));
@@ -189,25 +191,56 @@ public class SpecLibSearchPanel extends JPanel {
 
 		annotChk = new JCheckBox("Search only among annotated spectra", true);
 
-		// JPanel bottomPnl = new JPanel();
-		// bottomPnl.setLayout(new BoxLayout(bottomPnl, BoxLayout.X_AXIS));
-		// expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
-		// expIdSpn.setEnabled(false);
-		//
-		// final JCheckBox expIdChk = new
-		// JCheckBox("Search only from experiment ID: ", false);
-		// expIdChk.addActionListener(new ActionListener() {
-		// @Override
-		// public void actionPerformed(ActionEvent e) {
-		// expIdSpn.setEnabled(((JCheckBox)e.getSource()).isSelected());
-		// }
-		// });
-		// bottomPnl.add(expIdChk);
-		// bottomPnl.add(expIdSpn);
+		JPanel bottomPnl = new JPanel(new FormLayout("r:p", "p"));
+		JButton advBtn = new JButton("Advanced Settings");
+		bottomPnl.add(advBtn, cc.xy(1, 1));
+
+		final JPanel advPnl = new JPanel(new FormLayout("5dlu, p, 5dlu",
+				"3dlu, p, 5dlu, p, 5dlu"));
+		advPnl.setBorder(BorderFactory.createEtchedBorder());
+
+		JPanel expIdPnl = new JPanel();
+		expIdPnl.setLayout(new BoxLayout(expIdPnl, BoxLayout.X_AXIS));
+		expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
+		expIdSpn.setPreferredSize(new Dimension((int)(expIdSpn.getPreferredSize().width * 1.5),
+				expIdSpn.getPreferredSize().height));
+		expIdSpn.setEnabled(false);
+
+		final JCheckBox expIdChk = new JCheckBox(
+				"Search only from experiment ID: ", false);
+		expIdChk.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				expIdSpn.setEnabled(((JCheckBox) e.getSource()).isSelected());
+			}
+		});
+		expIdPnl.add(expIdChk);
+		expIdPnl.add(expIdSpn);
+
+		advPnl.add(annotChk, cc.xy(2, 2));
+		advPnl.add(expIdPnl, cc.xy(2, 4));
+
+		advBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean annotatedOnly = annotChk.isSelected();
+				boolean expIdWanted = expIdChk.isSelected();
+				Long expID = (Long) expIdSpn.getValue();
+				int res = JOptionPane.showConfirmDialog(clientFrame, advPnl,
+						"Advanced Settings", JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
+				if (res != JOptionPane.OK_OPTION) {
+					annotChk.setSelected(annotatedOnly);
+					expIdChk.setSelected(expIdWanted);
+					expIdSpn.setEnabled(expIdWanted);
+					expIdSpn.setValue(expID);
+				}
+			}
+		});
 
 		paramDbPnl.add(topPnl, cc.xy(2, 2));
-		paramDbPnl.add(annotChk, cc.xy(2, 4));
-		// paramDbPnl.add(bottomPnl, cc.xy(2,6));
+		paramDbPnl.add(bottomPnl, cc.xy(2, 4));
 
 		// spectrum previewing
 		JPanel previewPnl = new JPanel();
@@ -374,7 +407,6 @@ public class SpecLibSearchPanel extends JPanel {
 		xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
 		xCorrOffSpn.setEnabled(false);
 		xCorrOffSpn.addChangeListener(refreshPlotListener);
-		xCorrOffSpn.setBorder(BorderFactory.createLoweredBevelBorder());
 		xCorrOffLbl2 = new JLabel("Bins");
 		xCorrOffLbl2.setEnabled(false);
 

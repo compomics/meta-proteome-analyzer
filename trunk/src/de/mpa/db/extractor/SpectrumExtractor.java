@@ -16,6 +16,7 @@ import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Spec2pep;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.io.MascotGenericFile;
 
 public class SpectrumExtractor {
@@ -156,14 +157,18 @@ public class SpectrumExtractor {
 	 * @throws IOException
 	 */
 	public MascotGenericFile getUnzippedFile(long spectrumID) throws SQLException, IOException{		
-		// Get the spectrum + spectrum file.
-		Spectrumfile spectrumFile = Spectrumfile.findFromID(spectrumID, conn);
-		Libspectrum spectrum = Libspectrum.findFromID(spectrumID, conn);
+		MascotGenericFile res;
 		
-		// Get the resultant bytes
-		byte[] result = spectrumFile.getUnzippedFile();
+		PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
+				"WHERE " + Spectrum.SPECTRUMID + " = ?");
+		ps.setLong(1, spectrumID);
 		
-		return new MascotGenericFile(spectrum.getFilename(), new String(result));
+		ResultSet rs = ps.executeQuery();
+		res = new MascotGenericFile(rs);
+		rs.close();
+		ps.close();
+		
+		return res;
 	}
 	
 	/**

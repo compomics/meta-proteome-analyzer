@@ -30,24 +30,30 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
         super(aRS);
     }
     
+    public static Searchspectrum findFromTitle(String title, Connection aConn) throws SQLException {
+    	return findFromTitle(title, aConn, false);
+    }
+    
     /**
      * This method will find a spectrum file from the current connection, based on the spectrum name.
      *
-     * @param spectrumName String with the spectrum name of the spectrum file to find.
+     * @param title String with the spectrum name of the spectrum file to find.
      * @param aConn     Connection to read the spectrum File from.
      * @return Spectrumfile with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Searchspectrum findFromSpectrumName(String spectrumName, Connection aConn, boolean omssa) throws SQLException {
+    public static Searchspectrum findFromTitle(String title, Connection aConn, boolean omssa) throws SQLException {
     	String formatted = "";
-    	if(omssa){
-    		formatted = spectrumName.replace("\\\\", "/");
+    	if (omssa) {
+    		formatted = title.replace("\\\\", "/");
     	} else {
-    		formatted = spectrumName.replace('\\', '/');
+    		formatted = title.replace('\\', '/');
     	}
         Searchspectrum temp = null;
         // Only get the last 1500 records
-        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where spectrumname = ? order by creationdate");
+        PreparedStatement ps = aConn.prepareStatement(Searchspectrum.getBasicSelect() +
+        		" INNER JOIN spectrum ON fk_spectrumid = spectrumid" + 
+        		" WHERE title = ? ORDER BY creationdate");
         ps.setString(1, formatted);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -64,42 +70,42 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
         return temp;
     }
     
-    public static long getSpectrumIdFromSpectrumName(String spectrumName, boolean omssa) {
+    public static long getSpectrumIdFromTitle(String title) {
+    	return getSpectrumIdFromTitle(title, false);
+    }
+    
+    public static long getSpectrumIdFromTitle(String title, boolean omssa) {
     	String formatted = "";
     	if(omssa){
-    		formatted = spectrumName.replace("\\\\", "/");
+    		formatted = title.replace("\\\\", "/");
     	} else {
-    		formatted = spectrumName.replace('\\', '/');
+    		formatted = title.replace('\\', '/');
     	}
-        return MapContainer.Spectrumname2IdMap.get(formatted);
+        return MapContainer.SpectrumTitle2IdMap.get(formatted);
     }
     
-    public static long getSpectrumIdFromFileName(String filename) {    	
-    	return MapContainer.Filename2IdMap.get(filename);
-    }
-    
-    /**
-     * This method will find a spectrum file from the current connection, based on the filename.
-     *
-     * @param fileName String with the filename of the spectrum file to find.
-     * @param aConn     Connection to read the spectrum File from.
-     * @return Spectrumfile with the data.
-     * @throws SQLException when the retrieval did not succeed.
-     */
-    public static Searchspectrum findFromFilename(String filename, Connection aConn) throws SQLException {
-    	
-        Searchspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where filename = ? order by creationdate");
-        ps.setString(1, filename);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            temp = new Searchspectrum(rs);
-        }
-        rs.close();
-        ps.close();
-
-        return temp;
-    }
+//    /**
+//     * This method will find a spectrum file from the current connection, based on the filename.
+//     *
+//     * @param fileName String with the filename of the spectrum file to find.
+//     * @param aConn     Connection to read the spectrum File from.
+//     * @return Spectrumfile with the data.
+//     * @throws SQLException when the retrieval did not succeed.
+//     */
+//    public static Searchspectrum findFromFilename(String filename, Connection aConn) throws SQLException {
+//    	
+//        Searchspectrum temp = null;
+//        PreparedStatement ps = aConn.prepareStatement("select * from searchspectrum where filename = ? order by creationdate");
+//        ps.setString(1, filename);
+//        ResultSet rs = ps.executeQuery();
+//        while (rs.next()) {
+//            temp = new Searchspectrum(rs);
+//        }
+//        rs.close();
+//        ps.close();
+//
+//        return temp;
+//    }
     
     /**
      * This method will find a spectrum file from the current connection, based on the spectrum filename.
@@ -136,7 +142,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
      */
     public static Searchspectrum findFromID(long aSpectrumID, Connection aConn) throws SQLException {
         Searchspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where spectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
@@ -164,13 +170,12 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
      */
     public static List<Searchspectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Searchspectrum> temp = new ArrayList<Searchspectrum>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where precursor_mz >= ? and precursor_mz <= ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+        		" WHERE precursor_mz BETWEEN ? AND ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new Searchspectrum(rs));
         }
         rs.close();

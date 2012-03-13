@@ -30,7 +30,7 @@ import de.mpa.client.model.DenovoSearchResult;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.Constants;
 import de.mpa.db.accessor.Pepnovohit;
-import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spectrum;
 
 public class DeNovoResultPanel extends JPanel {
 
@@ -263,14 +263,14 @@ public class DeNovoResultPanel extends JPanel {
 	}
 
 	public void updateDenovoResultsTable(){
-		List<Searchspectrum> querySpectra = denovoSearchResult.getQuerySpectra();
+		List<Spectrum> querySpectra = denovoSearchResult.getQuerySpectra();
 		pepnovoResults = denovoSearchResult.getPepnovoResults();
 		String identified;
 	
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
-				Searchspectrum spectrum = querySpectra.get(i);
-				String title = spectrum.getSpectrumname();
+				Spectrum spectrum = querySpectra.get(i);
+				String title = spectrum.getTitle();
 				if(pepnovoResults.containsKey(title)){
 					identified = "yes";
 				} else {
@@ -281,7 +281,7 @@ public class DeNovoResultPanel extends JPanel {
 						i + 1,
 						title,
 						spectrum.getPrecursor_mz(),
-						spectrum.getCharge(), 
+						spectrum.getPrecursor_charge(), 
 						identified});
 			}
 		}

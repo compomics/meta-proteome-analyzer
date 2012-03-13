@@ -58,18 +58,6 @@ public class MascotGenericFile implements SpectrumFile {
 
     public double getSNR(double noiseLvl) {
     	
-//    	double mean = this.getTotalIntensity() / lPeaks.size();
-//    	double std = 0.0;
-//    	for (Peak peak : lPeaks) {
-//			std += (peak.getIntensity()-mean)*(peak.getIntensity()-mean);
-//		}
-//    	std = Math.sqrt(std/lPeaks.size());
-//    	if (std > 0) {
-//    		return mean/std;
-//    	} else {
-//    		return mean;
-//    	}
-    	
     	double signal = 0.0;
     	double noise = 0.0;
     	for (double intensity : iPeaks.values()) {
@@ -85,35 +73,6 @@ public class MascotGenericFile implements SpectrumFile {
     		return signal;	// same as total ion current
     	}
     }
-    
-    
-//    private ArrayList<Peak> lPeaks = new ArrayList<Peak>();
-//    
-//    public ArrayList<Peak> getPeakList() {
-//    	return this.lPeaks;
-//    }
-//
-//    public ArrayList<Peak> getHighestPeaksList(int k) {
-//    	
-//    	ArrayList<Peak>	peaks = new ArrayList<Peak>(lPeaks);
-//    	
-//    	Collections.sort(peaks, new Comparator<Peak>() { 
-//            public int compare(Peak o1, Peak o2) {
-//                Peak p1 = (Peak) o1;
-//                Peak p2 = (Peak) o2;
-//               return Double.compare(p1.getIntensity(),p2.getIntensity());
-//            }
-//		});
-//    	
-//    	peaks.subList(0, peaks.size()-k).clear();
-//
-//    	ArrayList<Peak>	res = new ArrayList<Peak>(lPeaks);
-//    	res.retainAll(peaks);
-//    	
-//    	return res;
-//    }
-    
-    
     
     /**
      * This variable holds the precursor M/Z
@@ -230,12 +189,15 @@ public class MascotGenericFile implements SpectrumFile {
      * @throws SQLException
      */
     public MascotGenericFile(ResultSet aResultSet) throws SQLException {
-    	this.iFilename = aResultSet.getString("filename");
+//    	this.iFilename = aResultSet.getString("filename");
     	this.iTitle = aResultSet.getString("spectrumname");
-		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decode64bitString(aResultSet.getString("mzarray")),
-				   											 SixtyFourBitStringSupport.decode64bitString(aResultSet.getString("intarray")));
 		this.iPrecursorMz = aResultSet.getDouble("precursor_mz");
-		this.iCharge = aResultSet.getInt("charge");
+		this.iIntensity = aResultSet.getDouble("precursor_int");
+		this.iCharge = aResultSet.getInt("precursor_charge");
+		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
+				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("intarray")));
+		this.iCharges = SixtyFourBitStringSupport.buildChargeMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
+																 SixtyFourBitStringSupport.decodeBase64StringToInts(aResultSet.getString("chargearray")));
 	}
 
 	/**
@@ -772,6 +734,10 @@ public class MascotGenericFile implements SpectrumFile {
     		return res;
     	}
     }
+    
+	public HashMap<Double, Integer> getCharges() {
+		return iCharges;
+	}
     
     public double getPrecursorMZ() {
         return iPrecursorMz;

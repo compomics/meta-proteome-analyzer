@@ -140,7 +140,7 @@ public class XTandemStorager extends BasicStorager {
                 	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(15);                
                           
                           // Get the spectrum id for the given spectrumName for the XTandemFile     
-                          long spectrumid = Searchspectrum.getSpectrumIdFromSpectrumName(spectrumName, false);
+                          long spectrumid = Searchspectrum.getSpectrumIdFromTitle(spectrumName, false);
                           hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
                           
                           // Get the peptide id
