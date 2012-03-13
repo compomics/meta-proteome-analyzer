@@ -93,7 +93,6 @@ public class ProjectPanel extends JPanel {
 			// Close the connection
 			clientFrame.getClient().closeDBConnection();
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 			
