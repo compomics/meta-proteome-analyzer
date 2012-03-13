@@ -154,8 +154,6 @@ public class OmssaStorager extends BasicStorager {
 							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 						}
 				}
-    	    	hitdata.put(OmssahitTableAccessor.PROTEIN, pepHit.MSPepHit_defline);
-    	    	
     	    	qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       
     	        
     	    	// If no q-value is found: Assign default values.

@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 07/02/2012
- * Time: 16:14:02
+ * Date: 13/03/2012
+ * Time: 13:16:58
  */
 package de.mpa.db.accessor;
 
@@ -63,15 +63,15 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
-	 * This variable represents the contents for the 'domainid' column.
+	 * This variable represents the contents for the 'fk_proteinid' column.
 	 */
-	protected String iDomainid = null;
+	protected long iFk_proteinid = Long.MIN_VALUE;
 
 
 	/**
-	 * This variable represents the contents for the 'protein' column.
+	 * This variable represents the contents for the 'domainid' column.
 	 */
-	protected String iProtein = null;
+	protected String iDomainid = null;
 
 
 	/**
@@ -90,12 +90,6 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * This variable represents the contents for the 'evalue' column.
 	 */
 	protected Number iEvalue = null;
-
-
-	/**
-	 * This variable represents the contents for the 'precursor' column.
-	 */
-	protected Number iPrecursor = null;
 
 
 	/**
@@ -141,6 +135,18 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
+	 * This variable represents the contents for the 'creationdate' column.
+	 */
+	protected java.sql.Timestamp iCreationdate = null;
+
+
+	/**
+	 * This variable represents the contents for the 'modificationdate' column.
+	 */
+	protected java.sql.Timestamp iModificationdate = null;
+
+
+	/**
 	 * This variable represents the key for the 'xtandemhitid' column.
 	 */
 	public static final String XTANDEMHITID = "XTANDEMHITID";
@@ -156,14 +162,14 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	public static final String FK_PEPTIDEID = "FK_PEPTIDEID";
 
 	/**
+	 * This variable represents the key for the 'fk_proteinid' column.
+	 */
+	public static final String FK_PROTEINID = "FK_PROTEINID";
+
+	/**
 	 * This variable represents the key for the 'domainid' column.
 	 */
 	public static final String DOMAINID = "DOMAINID";
-
-	/**
-	 * This variable represents the key for the 'protein' column.
-	 */
-	public static final String PROTEIN = "PROTEIN";
 
 	/**
 	 * This variable represents the key for the 'start' column.
@@ -179,11 +185,6 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * This variable represents the key for the 'evalue' column.
 	 */
 	public static final String EVALUE = "EVALUE";
-
-	/**
-	 * This variable represents the key for the 'precursor' column.
-	 */
-	public static final String PRECURSOR = "PRECURSOR";
 
 	/**
 	 * This variable represents the key for the 'delta' column.
@@ -220,6 +221,16 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public static final String PEP = "PEP";
 
+	/**
+	 * This variable represents the key for the 'creationdate' column.
+	 */
+	public static final String CREATIONDATE = "CREATIONDATE";
+
+	/**
+	 * This variable represents the key for the 'modificationdate' column.
+	 */
+	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
+
 
 
 
@@ -245,11 +256,11 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
 		}
+		if(aParams.containsKey(FK_PROTEINID)) {
+			this.iFk_proteinid = ((Long)aParams.get(FK_PROTEINID)).longValue();
+		}
 		if(aParams.containsKey(DOMAINID)) {
 			this.iDomainid = (String)aParams.get(DOMAINID);
-		}
-		if(aParams.containsKey(PROTEIN)) {
-			this.iProtein = (String)aParams.get(PROTEIN);
 		}
 		if(aParams.containsKey(START)) {
 			this.iStart = ((Long)aParams.get(START)).longValue();
@@ -259,9 +270,6 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		}
 		if(aParams.containsKey(EVALUE)) {
 			this.iEvalue = (Number)aParams.get(EVALUE);
-		}
-		if(aParams.containsKey(PRECURSOR)) {
-			this.iPrecursor = (Number)aParams.get(PRECURSOR);
 		}
 		if(aParams.containsKey(DELTA)) {
 			this.iDelta = (Number)aParams.get(DELTA);
@@ -284,6 +292,12 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(PEP)) {
 			this.iPep = (Number)aParams.get(PEP);
 		}
+		if(aParams.containsKey(CREATIONDATE)) {
+			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		}
+		if(aParams.containsKey(MODIFICATIONDATE)) {
+			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		}
 		this.iUpdated = true;
 	}
 
@@ -299,12 +313,11 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iXtandemhitid = aResultSet.getLong("xtandemhitid");
 		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
+		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
 		this.iDomainid = (String)aResultSet.getObject("domainid");
-		this.iProtein = (String)aResultSet.getObject("protein");
 		this.iStart = aResultSet.getLong("start");
 		this.iEnd = aResultSet.getLong("end");
 		this.iEvalue = (Number)aResultSet.getObject("evalue");
-		this.iPrecursor = (Number)aResultSet.getObject("precursor");
 		this.iDelta = (Number)aResultSet.getObject("delta");
 		this.iHyperscore = (Number)aResultSet.getObject("hyperscore");
 		this.iPre = (String)aResultSet.getObject("pre");
@@ -312,6 +325,8 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iMisscleavages = aResultSet.getLong("misscleavages");
 		this.iQvalue = (Number)aResultSet.getObject("qvalue");
 		this.iPep = (Number)aResultSet.getObject("pep");
+		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
+		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
@@ -345,21 +360,21 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
+	 * This method returns the value for the 'Fk_proteinid' column
+	 * 
+	 * @return	long	with the value for the Fk_proteinid column.
+	 */
+	public long getFk_proteinid() {
+		return this.iFk_proteinid;
+	}
+
+	/**
 	 * This method returns the value for the 'Domainid' column
 	 * 
 	 * @return	String	with the value for the Domainid column.
 	 */
 	public String getDomainid() {
 		return this.iDomainid;
-	}
-
-	/**
-	 * This method returns the value for the 'Protein' column
-	 * 
-	 * @return	String	with the value for the Protein column.
-	 */
-	public String getProtein() {
-		return this.iProtein;
 	}
 
 	/**
@@ -387,15 +402,6 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public Number getEvalue() {
 		return this.iEvalue;
-	}
-
-	/**
-	 * This method returns the value for the 'Precursor' column
-	 * 
-	 * @return	Number	with the value for the Precursor column.
-	 */
-	public Number getPrecursor() {
-		return this.iPrecursor;
 	}
 
 	/**
@@ -462,6 +468,24 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
+	 * This method returns the value for the 'Creationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 */
+	public java.sql.Timestamp getCreationdate() {
+		return this.iCreationdate;
+	}
+
+	/**
+	 * This method returns the value for the 'Modificationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
+	 */
+	public java.sql.Timestamp getModificationdate() {
+		return this.iModificationdate;
+	}
+
+	/**
 	 * This method sets the value for the 'Xtandemhitid' column
 	 * 
 	 * @param	aXtandemhitid	long with the value for the Xtandemhitid column.
@@ -492,22 +516,22 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
+	 * This method sets the value for the 'Fk_proteinid' column
+	 * 
+	 * @param	aFk_proteinid	long with the value for the Fk_proteinid column.
+	 */
+	public void setFk_proteinid(long aFk_proteinid) {
+		this.iFk_proteinid = aFk_proteinid;
+		this.iUpdated = true;
+	}
+
+	/**
 	 * This method sets the value for the 'Domainid' column
 	 * 
 	 * @param	aDomainid	String with the value for the Domainid column.
 	 */
 	public void setDomainid(String aDomainid) {
 		this.iDomainid = aDomainid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Protein' column
-	 * 
-	 * @param	aProtein	String with the value for the Protein column.
-	 */
-	public void setProtein(String aProtein) {
-		this.iProtein = aProtein;
 		this.iUpdated = true;
 	}
 
@@ -538,16 +562,6 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public void setEvalue(Number aEvalue) {
 		this.iEvalue = aEvalue;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Precursor' column
-	 * 
-	 * @param	aPrecursor	Number with the value for the Precursor column.
-	 */
-	public void setPrecursor(Number aPrecursor) {
-		this.iPrecursor = aPrecursor;
 		this.iUpdated = true;
 	}
 
@@ -621,6 +635,26 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iUpdated = true;
 	}
 
+	/**
+	 * This method sets the value for the 'Creationdate' column
+	 * 
+	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
+	 */
+	public void setCreationdate(java.sql.Timestamp aCreationdate) {
+		this.iCreationdate = aCreationdate;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Modificationdate' column
+	 * 
+	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
+	 */
+	public void setModificationdate(java.sql.Timestamp aModificationdate) {
+		this.iModificationdate = aModificationdate;
+		this.iUpdated = true;
+	}
+
 
 
 	/**
@@ -661,12 +695,11 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 			iXtandemhitid = lRS.getLong("xtandemhitid");
 			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
+			iFk_proteinid = lRS.getLong("fk_proteinid");
 			iDomainid = (String)lRS.getObject("domainid");
-			iProtein = (String)lRS.getObject("protein");
 			iStart = lRS.getLong("start");
 			iEnd = lRS.getLong("end");
 			iEvalue = (Number)lRS.getObject("evalue");
-			iPrecursor = (Number)lRS.getObject("precursor");
 			iDelta = (Number)lRS.getObject("delta");
 			iHyperscore = (Number)lRS.getObject("hyperscore");
 			iPre = (String)lRS.getObject("pre");
@@ -674,6 +707,8 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 			iMisscleavages = lRS.getLong("misscleavages");
 			iQvalue = (Number)lRS.getObject("qvalue");
 			iPep = (Number)lRS.getObject("pep");
+			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
+			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -723,23 +758,23 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE xtandemhit SET xtandemhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, domainid = ?, protein = ?, start = ?, end = ?, evalue = ?, precursor = ?, delta = ?, hyperscore = ?, pre = ?, post = ?, misscleavages = ?, qvalue = ?, pep = ? WHERE xtandemhitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE xtandemhit SET xtandemhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, domainid = ?, start = ?, end = ?, evalue = ?, delta = ?, hyperscore = ?, pre = ?, post = ?, misscleavages = ?, qvalue = ?, pep = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE xtandemhitid = ?");
 		lStat.setLong(1, iXtandemhitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
-		lStat.setObject(4, iDomainid);
-		lStat.setObject(5, iProtein);
+		lStat.setLong(4, iFk_proteinid);
+		lStat.setObject(5, iDomainid);
 		lStat.setLong(6, iStart);
 		lStat.setLong(7, iEnd);
 		lStat.setObject(8, iEvalue);
-		lStat.setObject(9, iPrecursor);
-		lStat.setObject(10, iDelta);
-		lStat.setObject(11, iHyperscore);
-		lStat.setObject(12, iPre);
-		lStat.setObject(13, iPost);
-		lStat.setLong(14, iMisscleavages);
-		lStat.setObject(15, iQvalue);
-		lStat.setObject(16, iPep);
+		lStat.setObject(9, iDelta);
+		lStat.setObject(10, iHyperscore);
+		lStat.setObject(11, iPre);
+		lStat.setObject(12, iPost);
+		lStat.setLong(13, iMisscleavages);
+		lStat.setObject(14, iQvalue);
+		lStat.setObject(15, iPep);
+		lStat.setObject(16, iCreationdate);
 		lStat.setLong(17, iXtandemhitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
@@ -755,7 +790,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO xtandemhit (xtandemhitid, fk_spectrumid, fk_peptideid, domainid, protein, start, end, evalue, precursor, delta, hyperscore, pre, post, misscleavages, qvalue, pep) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO xtandemhit (xtandemhitid, fk_spectrumid, fk_peptideid, fk_proteinid, domainid, start, end, evalue, delta, hyperscore, pre, post, misscleavages, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iXtandemhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -771,15 +806,15 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		} else {
 			lStat.setLong(3, iFk_peptideid);
 		}
-		if(iDomainid == null) {
-			lStat.setNull(4, 12);
+		if(iFk_proteinid == Long.MIN_VALUE) {
+			lStat.setNull(4, 4);
 		} else {
-			lStat.setObject(4, iDomainid);
+			lStat.setLong(4, iFk_proteinid);
 		}
-		if(iProtein == null) {
+		if(iDomainid == null) {
 			lStat.setNull(5, 12);
 		} else {
-			lStat.setObject(5, iProtein);
+			lStat.setObject(5, iDomainid);
 		}
 		if(iStart == Long.MIN_VALUE) {
 			lStat.setNull(6, 4);
@@ -796,45 +831,40 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		} else {
 			lStat.setObject(8, iEvalue);
 		}
-		if(iPrecursor == null) {
+		if(iDelta == null) {
 			lStat.setNull(9, 3);
 		} else {
-			lStat.setObject(9, iPrecursor);
-		}
-		if(iDelta == null) {
-			lStat.setNull(10, 3);
-		} else {
-			lStat.setObject(10, iDelta);
+			lStat.setObject(9, iDelta);
 		}
 		if(iHyperscore == null) {
-			lStat.setNull(11, 3);
+			lStat.setNull(10, 3);
 		} else {
-			lStat.setObject(11, iHyperscore);
+			lStat.setObject(10, iHyperscore);
 		}
 		if(iPre == null) {
-			lStat.setNull(12, 12);
+			lStat.setNull(11, 12);
 		} else {
-			lStat.setObject(12, iPre);
+			lStat.setObject(11, iPre);
 		}
 		if(iPost == null) {
-			lStat.setNull(13, 12);
+			lStat.setNull(12, 12);
 		} else {
-			lStat.setObject(13, iPost);
+			lStat.setObject(12, iPost);
 		}
 		if(iMisscleavages == Long.MIN_VALUE) {
-			lStat.setNull(14, 4);
+			lStat.setNull(13, 4);
 		} else {
-			lStat.setLong(14, iMisscleavages);
+			lStat.setLong(13, iMisscleavages);
 		}
 		if(iQvalue == null) {
-			lStat.setNull(15, 3);
+			lStat.setNull(14, 3);
 		} else {
-			lStat.setObject(15, iQvalue);
+			lStat.setObject(14, iQvalue);
 		}
 		if(iPep == null) {
-			lStat.setNull(16, 3);
+			lStat.setNull(15, 3);
 		} else {
-			lStat.setObject(16, iPep);
+			lStat.setObject(15, iPep);
 		}
 		int result = lStat.executeUpdate();
 

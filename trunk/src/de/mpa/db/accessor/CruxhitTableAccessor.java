@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:05
+ * Date: 13/03/2012
+ * Time: 13:17:04
  */
 package de.mpa.db.accessor;
 
@@ -75,12 +75,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
-	 * This variable represents the contents for the 'precursor_mz' column.
-	 */
-	protected Number iPrecursor_mz = null;
-
-
-	/**
 	 * This variable represents the contents for the 'neutral_mass' column.
 	 */
 	protected Number iNeutral_mass = null;
@@ -141,15 +135,21 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
-	 * This variable represents the contents for the 'proteinid' column.
-	 */
-	protected String iProteinid = null;
-
-
-	/**
 	 * This variable represents the contents for the 'flank_aa' column.
 	 */
 	protected String iFlank_aa = null;
+
+
+	/**
+	 * This variable represents the contents for the 'creationdate' column.
+	 */
+	protected java.sql.Timestamp iCreationdate = null;
+
+
+	/**
+	 * This variable represents the contents for the 'modificationdate' column.
+	 */
+	protected String iModificationdate = null;
 
 
 	/**
@@ -176,11 +176,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This variable represents the key for the 'charge' column.
 	 */
 	public static final String CHARGE = "CHARGE";
-
-	/**
-	 * This variable represents the key for the 'precursor_mz' column.
-	 */
-	public static final String PRECURSOR_MZ = "PRECURSOR_MZ";
 
 	/**
 	 * This variable represents the key for the 'neutral_mass' column.
@@ -233,14 +228,19 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	public static final String CLEAVAGE_TYPE = "CLEAVAGE_TYPE";
 
 	/**
-	 * This variable represents the key for the 'proteinid' column.
-	 */
-	public static final String PROTEINID = "PROTEINID";
-
-	/**
 	 * This variable represents the key for the 'flank_aa' column.
 	 */
 	public static final String FLANK_AA = "FLANK_AA";
+
+	/**
+	 * This variable represents the key for the 'creationdate' column.
+	 */
+	public static final String CREATIONDATE = "CREATIONDATE";
+
+	/**
+	 * This variable represents the key for the 'modificationdate' column.
+	 */
+	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
 
 
 
@@ -273,9 +273,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(CHARGE)) {
 			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
 		}
-		if(aParams.containsKey(PRECURSOR_MZ)) {
-			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
-		}
 		if(aParams.containsKey(NEUTRAL_MASS)) {
 			this.iNeutral_mass = (Number)aParams.get(NEUTRAL_MASS);
 		}
@@ -306,11 +303,14 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(CLEAVAGE_TYPE)) {
 			this.iCleavage_type = (String)aParams.get(CLEAVAGE_TYPE);
 		}
-		if(aParams.containsKey(PROTEINID)) {
-			this.iProteinid = (String)aParams.get(PROTEINID);
-		}
 		if(aParams.containsKey(FLANK_AA)) {
 			this.iFlank_aa = (String)aParams.get(FLANK_AA);
+		}
+		if(aParams.containsKey(CREATIONDATE)) {
+			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		}
+		if(aParams.containsKey(MODIFICATIONDATE)) {
+			this.iModificationdate = (String)aParams.get(MODIFICATIONDATE);
 		}
 		this.iUpdated = true;
 	}
@@ -329,7 +329,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
 		this.iScannumber = aResultSet.getLong("scannumber");
 		this.iCharge = aResultSet.getLong("charge");
-		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
 		this.iNeutral_mass = (Number)aResultSet.getObject("neutral_mass");
 		this.iPeptide_mass = (Number)aResultSet.getObject("peptide_mass");
 		this.iDelta_cn = (Number)aResultSet.getObject("delta_cn");
@@ -340,8 +339,9 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iQvalue = (Number)aResultSet.getObject("qvalue");
 		this.iMatches_spectrum = aResultSet.getLong("matches_spectrum");
 		this.iCleavage_type = (String)aResultSet.getObject("cleavage_type");
-		this.iProteinid = (String)aResultSet.getObject("proteinid");
 		this.iFlank_aa = (String)aResultSet.getObject("flank_aa");
+		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
+		this.iModificationdate = (String)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
@@ -390,15 +390,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public long getCharge() {
 		return this.iCharge;
-	}
-
-	/**
-	 * This method returns the value for the 'Precursor_mz' column
-	 * 
-	 * @return	Number	with the value for the Precursor_mz column.
-	 */
-	public Number getPrecursor_mz() {
-		return this.iPrecursor_mz;
 	}
 
 	/**
@@ -492,21 +483,30 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method returns the value for the 'Proteinid' column
-	 * 
-	 * @return	String	with the value for the Proteinid column.
-	 */
-	public String getProteinid() {
-		return this.iProteinid;
-	}
-
-	/**
 	 * This method returns the value for the 'Flank_aa' column
 	 * 
 	 * @return	String	with the value for the Flank_aa column.
 	 */
 	public String getFlank_aa() {
 		return this.iFlank_aa;
+	}
+
+	/**
+	 * This method returns the value for the 'Creationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 */
+	public java.sql.Timestamp getCreationdate() {
+		return this.iCreationdate;
+	}
+
+	/**
+	 * This method returns the value for the 'Modificationdate' column
+	 * 
+	 * @return	String	with the value for the Modificationdate column.
+	 */
+	public String getModificationdate() {
+		return this.iModificationdate;
 	}
 
 	/**
@@ -556,16 +556,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public void setCharge(long aCharge) {
 		this.iCharge = aCharge;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Precursor_mz' column
-	 * 
-	 * @param	aPrecursor_mz	Number with the value for the Precursor_mz column.
-	 */
-	public void setPrecursor_mz(Number aPrecursor_mz) {
-		this.iPrecursor_mz = aPrecursor_mz;
 		this.iUpdated = true;
 	}
 
@@ -670,22 +660,32 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method sets the value for the 'Proteinid' column
-	 * 
-	 * @param	aProteinid	String with the value for the Proteinid column.
-	 */
-	public void setProteinid(String aProteinid) {
-		this.iProteinid = aProteinid;
-		this.iUpdated = true;
-	}
-
-	/**
 	 * This method sets the value for the 'Flank_aa' column
 	 * 
 	 * @param	aFlank_aa	String with the value for the Flank_aa column.
 	 */
 	public void setFlank_aa(String aFlank_aa) {
 		this.iFlank_aa = aFlank_aa;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Creationdate' column
+	 * 
+	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
+	 */
+	public void setCreationdate(java.sql.Timestamp aCreationdate) {
+		this.iCreationdate = aCreationdate;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Modificationdate' column
+	 * 
+	 * @param	aModificationdate	String with the value for the Modificationdate column.
+	 */
+	public void setModificationdate(String aModificationdate) {
+		this.iModificationdate = aModificationdate;
 		this.iUpdated = true;
 	}
 
@@ -731,7 +731,6 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 			iFk_peptideid = lRS.getLong("fk_peptideid");
 			iScannumber = lRS.getLong("scannumber");
 			iCharge = lRS.getLong("charge");
-			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
 			iNeutral_mass = (Number)lRS.getObject("neutral_mass");
 			iPeptide_mass = (Number)lRS.getObject("peptide_mass");
 			iDelta_cn = (Number)lRS.getObject("delta_cn");
@@ -742,8 +741,9 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 			iQvalue = (Number)lRS.getObject("qvalue");
 			iMatches_spectrum = lRS.getLong("matches_spectrum");
 			iCleavage_type = (String)lRS.getObject("cleavage_type");
-			iProteinid = (String)lRS.getObject("proteinid");
 			iFlank_aa = (String)lRS.getObject("flank_aa");
+			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
+			iModificationdate = (String)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -793,26 +793,25 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE cruxhit SET cruxhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, scannumber = ?, charge = ?, precursor_mz = ?, neutral_mass = ?, peptide_mass = ?, delta_cn = ?, xcorr_score = ?, xcorr_rank = ?, percolator_score = ?, percolator_rank = ?, qvalue = ?, matches_spectrum = ?, cleavage_type = ?, proteinid = ?, flank_aa = ? WHERE cruxhitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE cruxhit SET cruxhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, scannumber = ?, charge = ?, neutral_mass = ?, peptide_mass = ?, delta_cn = ?, xcorr_score = ?, xcorr_rank = ?, percolator_score = ?, percolator_rank = ?, qvalue = ?, matches_spectrum = ?, cleavage_type = ?, flank_aa = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE cruxhitid = ?");
 		lStat.setLong(1, iCruxhitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
 		lStat.setLong(4, iScannumber);
 		lStat.setLong(5, iCharge);
-		lStat.setObject(6, iPrecursor_mz);
-		lStat.setObject(7, iNeutral_mass);
-		lStat.setObject(8, iPeptide_mass);
-		lStat.setObject(9, iDelta_cn);
-		lStat.setObject(10, iXcorr_score);
-		lStat.setLong(11, iXcorr_rank);
-		lStat.setObject(12, iPercolator_score);
-		lStat.setLong(13, iPercolator_rank);
-		lStat.setObject(14, iQvalue);
-		lStat.setLong(15, iMatches_spectrum);
-		lStat.setObject(16, iCleavage_type);
-		lStat.setObject(17, iProteinid);
-		lStat.setObject(18, iFlank_aa);
-		lStat.setLong(19, iCruxhitid);
+		lStat.setObject(6, iNeutral_mass);
+		lStat.setObject(7, iPeptide_mass);
+		lStat.setObject(8, iDelta_cn);
+		lStat.setObject(9, iXcorr_score);
+		lStat.setLong(10, iXcorr_rank);
+		lStat.setObject(11, iPercolator_score);
+		lStat.setLong(12, iPercolator_rank);
+		lStat.setObject(13, iQvalue);
+		lStat.setLong(14, iMatches_spectrum);
+		lStat.setObject(15, iCleavage_type);
+		lStat.setObject(16, iFlank_aa);
+		lStat.setObject(17, iCreationdate);
+		lStat.setLong(18, iCruxhitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -827,7 +826,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_spectrumid, fk_peptideid, scannumber, charge, precursor_mz, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, proteinid, flank_aa) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_spectrumid, fk_peptideid, scannumber, charge, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, flank_aa, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iCruxhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -853,70 +852,60 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		} else {
 			lStat.setLong(5, iCharge);
 		}
-		if(iPrecursor_mz == null) {
+		if(iNeutral_mass == null) {
 			lStat.setNull(6, 3);
 		} else {
-			lStat.setObject(6, iPrecursor_mz);
-		}
-		if(iNeutral_mass == null) {
-			lStat.setNull(7, 3);
-		} else {
-			lStat.setObject(7, iNeutral_mass);
+			lStat.setObject(6, iNeutral_mass);
 		}
 		if(iPeptide_mass == null) {
-			lStat.setNull(8, 3);
+			lStat.setNull(7, 3);
 		} else {
-			lStat.setObject(8, iPeptide_mass);
+			lStat.setObject(7, iPeptide_mass);
 		}
 		if(iDelta_cn == null) {
-			lStat.setNull(9, 3);
+			lStat.setNull(8, 3);
 		} else {
-			lStat.setObject(9, iDelta_cn);
+			lStat.setObject(8, iDelta_cn);
 		}
 		if(iXcorr_score == null) {
-			lStat.setNull(10, 3);
+			lStat.setNull(9, 3);
 		} else {
-			lStat.setObject(10, iXcorr_score);
+			lStat.setObject(9, iXcorr_score);
 		}
 		if(iXcorr_rank == Long.MIN_VALUE) {
-			lStat.setNull(11, 4);
+			lStat.setNull(10, 4);
 		} else {
-			lStat.setLong(11, iXcorr_rank);
+			lStat.setLong(10, iXcorr_rank);
 		}
 		if(iPercolator_score == null) {
-			lStat.setNull(12, 3);
+			lStat.setNull(11, 3);
 		} else {
-			lStat.setObject(12, iPercolator_score);
+			lStat.setObject(11, iPercolator_score);
 		}
 		if(iPercolator_rank == Long.MIN_VALUE) {
-			lStat.setNull(13, 4);
+			lStat.setNull(12, 4);
 		} else {
-			lStat.setLong(13, iPercolator_rank);
+			lStat.setLong(12, iPercolator_rank);
 		}
 		if(iQvalue == null) {
-			lStat.setNull(14, 3);
+			lStat.setNull(13, 3);
 		} else {
-			lStat.setObject(14, iQvalue);
+			lStat.setObject(13, iQvalue);
 		}
 		if(iMatches_spectrum == Long.MIN_VALUE) {
-			lStat.setNull(15, 4);
+			lStat.setNull(14, 4);
 		} else {
-			lStat.setLong(15, iMatches_spectrum);
+			lStat.setLong(14, iMatches_spectrum);
 		}
 		if(iCleavage_type == null) {
-			lStat.setNull(16, 12);
+			lStat.setNull(15, 12);
 		} else {
-			lStat.setObject(16, iCleavage_type);
-		}
-		if(iProteinid == null) {
-			lStat.setNull(17, -1);
-		} else {
-			lStat.setObject(17, iProteinid);
+			lStat.setObject(15, iCleavage_type);
 		}
 		if(iFlank_aa == null) {
-			lStat.setNull(18, 12);
+			lStat.setNull(16, 12);
 		} else {
-			lStat.setObject(18, iFlank_aa);
+			lStat.setObject(16, iFlank_aa);
 		}
 		int result = lStat.executeUpdate();
 

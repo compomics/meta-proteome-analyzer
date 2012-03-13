@@ -2,7 +2,7 @@
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
  * Date: 13/03/2012
- * Time: 13:17:07
+ * Time: 13:23:53
  */
 package de.mpa.db.accessor;
 
@@ -28,11 +28,11 @@ import com.compomics.util.db.interfaces.Updateable;
  */
 
 /**
- * This class is a generated accessor for the Consensusspec table.
+ * This class is a generated accessor for the Spectrum table.
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
-public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
+public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
 
 	/**
 	 * This variable tracks changes to the object.
@@ -45,9 +45,15 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	protected Object[] iKeys = null;
 
 	/**
-	 * This variable represents the contents for the 'consensusspecid' column.
+	 * This variable represents the contents for the 'spectrumid' column.
 	 */
-	protected long iConsensusspecid = Long.MIN_VALUE;
+	protected long iSpectrumid = Long.MIN_VALUE;
+
+
+	/**
+	 * This variable represents the contents for the 'title' column.
+	 */
+	protected String iTitle = null;
 
 
 	/**
@@ -87,21 +93,38 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 
 
 	/**
-	 * This variable represents the contents for the 'creationdate' column.
+	 * This variable represents the contents for the 'total_int' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Number iTotal_int = null;
 
 
 	/**
-	 * This variable represents the contents for the 'modificationdate' column.
+	 * This variable represents the contents for the 'maximum_int' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected String iMaximum_int = null;
 
 
 	/**
-	 * This variable represents the key for the 'consensusspecid' column.
+	 * This variable represents the contents for the 'creationtime' column.
 	 */
-	public static final String CONSENSUSSPECID = "CONSENSUSSPECID";
+	protected java.sql.Timestamp iCreationtime = null;
+
+
+	/**
+	 * This variable represents the contents for the 'modificationtime' column.
+	 */
+	protected java.sql.Timestamp iModificationtime = null;
+
+
+	/**
+	 * This variable represents the key for the 'spectrumid' column.
+	 */
+	public static final String SPECTRUMID = "SPECTRUMID";
+
+	/**
+	 * This variable represents the key for the 'title' column.
+	 */
+	public static final String TITLE = "TITLE";
 
 	/**
 	 * This variable represents the key for the 'precursor_mz' column.
@@ -134,14 +157,24 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	public static final String CHARGEARRAY = "CHARGEARRAY";
 
 	/**
-	 * This variable represents the key for the 'creationdate' column.
+	 * This variable represents the key for the 'total_int' column.
 	 */
-	public static final String CREATIONDATE = "CREATIONDATE";
+	public static final String TOTAL_INT = "TOTAL_INT";
 
 	/**
-	 * This variable represents the key for the 'modificationdate' column.
+	 * This variable represents the key for the 'maximum_int' column.
 	 */
-	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
+	public static final String MAXIMUM_INT = "MAXIMUM_INT";
+
+	/**
+	 * This variable represents the key for the 'creationtime' column.
+	 */
+	public static final String CREATIONTIME = "CREATIONTIME";
+
+	/**
+	 * This variable represents the key for the 'modificationtime' column.
+	 */
+	public static final String MODIFICATIONTIME = "MODIFICATIONTIME";
 
 
 
@@ -149,18 +182,21 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	/**
 	 * Default constructor.
 	 */
-	public ConsensusspecTableAccessor() {
+	public SpectrumTableAccessor() {
 	}
 
 	/**
-	 * This constructor allows the creation of the 'ConsensusspecTableAccessor' object based on a set of values in the HashMap.
+	 * This constructor allows the creation of the 'SpectrumTableAccessor' object based on a set of values in the HashMap.
 	 *
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public ConsensusspecTableAccessor(HashMap aParams) {
-		if(aParams.containsKey(CONSENSUSSPECID)) {
-			this.iConsensusspecid = ((Long)aParams.get(CONSENSUSSPECID)).longValue();
+	public SpectrumTableAccessor(HashMap aParams) {
+		if(aParams.containsKey(SPECTRUMID)) {
+			this.iSpectrumid = ((Long)aParams.get(SPECTRUMID)).longValue();
+		}
+		if(aParams.containsKey(TITLE)) {
+			this.iTitle = (String)aParams.get(TITLE);
 		}
 		if(aParams.containsKey(PRECURSOR_MZ)) {
 			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
@@ -180,45 +216,63 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 		if(aParams.containsKey(CHARGEARRAY)) {
 			this.iChargearray = (String)aParams.get(CHARGEARRAY);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(TOTAL_INT)) {
+			this.iTotal_int = (Number)aParams.get(TOTAL_INT);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(MAXIMUM_INT)) {
+			this.iMaximum_int = (String)aParams.get(MAXIMUM_INT);
+		}
+		if(aParams.containsKey(CREATIONTIME)) {
+			this.iCreationtime = (java.sql.Timestamp)aParams.get(CREATIONTIME);
+		}
+		if(aParams.containsKey(MODIFICATIONTIME)) {
+			this.iModificationtime = (java.sql.Timestamp)aParams.get(MODIFICATIONTIME);
 		}
 		this.iUpdated = true;
 	}
 
 
 	/**
-	 * This constructor allows the creation of the 'ConsensusspecTableAccessor' object based on a resultset
-	 * obtained by a 'select * from Consensusspec' query.
+	 * This constructor allows the creation of the 'SpectrumTableAccessor' object based on a resultset
+	 * obtained by a 'select * from Spectrum' query.
 	 *
 	 * @param	aResultSet	ResultSet with the required columns to initialize this object with.
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
-	public ConsensusspecTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iConsensusspecid = aResultSet.getLong("consensusspecid");
+	public SpectrumTableAccessor(ResultSet aResultSet) throws SQLException {
+		this.iSpectrumid = aResultSet.getLong("spectrumid");
+		this.iTitle = (String)aResultSet.getObject("title");
 		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
 		this.iPrecursor_int = (Number)aResultSet.getObject("precursor_int");
 		this.iPrecursor_charge = aResultSet.getLong("precursor_charge");
 		this.iMzarray = (String)aResultSet.getObject("mzarray");
 		this.iIntarray = (String)aResultSet.getObject("intarray");
 		this.iChargearray = (String)aResultSet.getObject("chargearray");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
+		this.iTotal_int = (Number)aResultSet.getObject("total_int");
+		this.iMaximum_int = (String)aResultSet.getObject("maximum_int");
+		this.iCreationtime = (java.sql.Timestamp)aResultSet.getObject("creationtime");
+		this.iModificationtime = (java.sql.Timestamp)aResultSet.getObject("modificationtime");
 
 		this.iUpdated = true;
 	}
 
 
 	/**
-	 * This method returns the value for the 'Consensusspecid' column
+	 * This method returns the value for the 'Spectrumid' column
 	 * 
-	 * @return	long	with the value for the Consensusspecid column.
+	 * @return	long	with the value for the Spectrumid column.
 	 */
-	public long getConsensusspecid() {
-		return this.iConsensusspecid;
+	public long getSpectrumid() {
+		return this.iSpectrumid;
+	}
+
+	/**
+	 * This method returns the value for the 'Title' column
+	 * 
+	 * @return	String	with the value for the Title column.
+	 */
+	public String getTitle() {
+		return this.iTitle;
 	}
 
 	/**
@@ -276,30 +330,58 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	}
 
 	/**
-	 * This method returns the value for the 'Creationdate' column
+	 * This method returns the value for the 'Total_int' column
 	 * 
-	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 * @return	Number	with the value for the Total_int column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Number getTotal_int() {
+		return this.iTotal_int;
 	}
 
 	/**
-	 * This method returns the value for the 'Modificationdate' column
+	 * This method returns the value for the 'Maximum_int' column
 	 * 
-	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
+	 * @return	String	with the value for the Maximum_int column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public String getMaximum_int() {
+		return this.iMaximum_int;
 	}
 
 	/**
-	 * This method sets the value for the 'Consensusspecid' column
+	 * This method returns the value for the 'Creationtime' column
 	 * 
-	 * @param	aConsensusspecid	long with the value for the Consensusspecid column.
+	 * @return	java.sql.Timestamp	with the value for the Creationtime column.
 	 */
-	public void setConsensusspecid(long aConsensusspecid) {
-		this.iConsensusspecid = aConsensusspecid;
+	public java.sql.Timestamp getCreationtime() {
+		return this.iCreationtime;
+	}
+
+	/**
+	 * This method returns the value for the 'Modificationtime' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Modificationtime column.
+	 */
+	public java.sql.Timestamp getModificationtime() {
+		return this.iModificationtime;
+	}
+
+	/**
+	 * This method sets the value for the 'Spectrumid' column
+	 * 
+	 * @param	aSpectrumid	long with the value for the Spectrumid column.
+	 */
+	public void setSpectrumid(long aSpectrumid) {
+		this.iSpectrumid = aSpectrumid;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Title' column
+	 * 
+	 * @param	aTitle	String with the value for the Title column.
+	 */
+	public void setTitle(String aTitle) {
+		this.iTitle = aTitle;
 		this.iUpdated = true;
 	}
 
@@ -364,22 +446,42 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	}
 
 	/**
-	 * This method sets the value for the 'Creationdate' column
+	 * This method sets the value for the 'Total_int' column
 	 * 
-	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
+	 * @param	aTotal_int	Number with the value for the Total_int column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
+	public void setTotal_int(Number aTotal_int) {
+		this.iTotal_int = aTotal_int;
 		this.iUpdated = true;
 	}
 
 	/**
-	 * This method sets the value for the 'Modificationdate' column
+	 * This method sets the value for the 'Maximum_int' column
 	 * 
-	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
+	 * @param	aMaximum_int	String with the value for the Maximum_int column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
+	public void setMaximum_int(String aMaximum_int) {
+		this.iMaximum_int = aMaximum_int;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Creationtime' column
+	 * 
+	 * @param	aCreationtime	java.sql.Timestamp with the value for the Creationtime column.
+	 */
+	public void setCreationtime(java.sql.Timestamp aCreationtime) {
+		this.iCreationtime = aCreationtime;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Modificationtime' column
+	 * 
+	 * @param	aModificationtime	java.sql.Timestamp with the value for the Modificationtime column.
+	 */
+	public void setModificationtime(java.sql.Timestamp aModificationtime) {
+		this.iModificationtime = aModificationtime;
 		this.iUpdated = true;
 	}
 
@@ -392,8 +494,8 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int delete(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM consensusspec WHERE consensusspecid = ?");
-		lStat.setLong(1, iConsensusspecid);
+		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM spectrum WHERE spectrumid = ?");
+		lStat.setLong(1, iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -408,34 +510,37 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 */
 	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(CONSENSUSSPECID)) {
-			throw new IllegalArgumentException("Primary key field 'CONSENSUSSPECID' is missing in HashMap!");
+		if(!aKeys.containsKey(SPECTRUMID)) {
+			throw new IllegalArgumentException("Primary key field 'SPECTRUMID' is missing in HashMap!");
 		} else {
-			iConsensusspecid = ((Long)aKeys.get(CONSENSUSSPECID)).longValue();
+			iSpectrumid = ((Long)aKeys.get(SPECTRUMID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
-		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM consensusspec WHERE consensusspecid = ?");
-		lStat.setLong(1, iConsensusspecid);
+		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM spectrum WHERE spectrumid = ?");
+		lStat.setLong(1, iSpectrumid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iConsensusspecid = lRS.getLong("consensusspecid");
+			iSpectrumid = lRS.getLong("spectrumid");
+			iTitle = (String)lRS.getObject("title");
 			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
 			iPrecursor_int = (Number)lRS.getObject("precursor_int");
 			iPrecursor_charge = lRS.getLong("precursor_charge");
 			iMzarray = (String)lRS.getObject("mzarray");
 			iIntarray = (String)lRS.getObject("intarray");
 			iChargearray = (String)lRS.getObject("chargearray");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+			iTotal_int = (Number)lRS.getObject("total_int");
+			iMaximum_int = (String)lRS.getObject("maximum_int");
+			iCreationtime = (java.sql.Timestamp)lRS.getObject("creationtime");
+			iModificationtime = (java.sql.Timestamp)lRS.getObject("modificationtime");
 		}
 		lRS.close();
 		lStat.close();
 		if(hits>1) {
-			throw new SQLException("More than one hit found for the specified primary keys in the 'consensusspec' table! Object is initialized to last row returned.");
+			throw new SQLException("More than one hit found for the specified primary keys in the 'spectrum' table! Object is initialized to last row returned.");
 		} else if(hits == 0) {
-			throw new SQLException("No hits found for the specified primary keys in the 'consensusspec' table! Object is not initialized correctly!");
+			throw new SQLException("No hits found for the specified primary keys in the 'spectrum' table! Object is not initialized correctly!");
 		}
 	}
 	/**
@@ -444,7 +549,7 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return   String with the basic select statement for this table.
 	 */
 	public static String getBasicSelect(){
-		return "select * from consensusspec";
+		return "select * from spectrum";
 	}
 
 	/**
@@ -452,14 +557,14 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 * table from a persistent store.
 	 *
 	 * @param   aConn Connection to the persitent store.
-	 * @return   ArrayList<ConsensusspecTableAccessor>   with all entries for this table.
+	 * @return   ArrayList<SpectrumTableAccessor>   with all entries for this table.
 	 */
-	public static ArrayList<ConsensusspecTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
-		ArrayList<ConsensusspecTableAccessor>  entities = new ArrayList<ConsensusspecTableAccessor>();
+	public static ArrayList<SpectrumTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
+		ArrayList<SpectrumTableAccessor>  entities = new ArrayList<SpectrumTableAccessor>();
 		Statement stat = aConn.createStatement();
 		ResultSet rs = stat.executeQuery(getBasicSelect());
 		while(rs.next()) {
-			entities.add(new ConsensusspecTableAccessor(rs));
+			entities.add(new SpectrumTableAccessor(rs));
 		}
 		rs.close();
 		stat.close();
@@ -478,16 +583,20 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE consensusspec SET consensusspecid = ?, precursor_mz = ?, precursor_int = ?, precursor_charge = ?, mzarray = ?, intarray = ?, chargearray = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE consensusspecid = ?");
-		lStat.setLong(1, iConsensusspecid);
-		lStat.setObject(2, iPrecursor_mz);
-		lStat.setObject(3, iPrecursor_int);
-		lStat.setLong(4, iPrecursor_charge);
-		lStat.setObject(5, iMzarray);
-		lStat.setObject(6, iIntarray);
-		lStat.setObject(7, iChargearray);
-		lStat.setObject(8, iCreationdate);
-		lStat.setLong(9, iConsensusspecid);
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrum SET spectrumid = ?, title = ?, precursor_mz = ?, precursor_int = ?, precursor_charge = ?, mzarray = ?, intarray = ?, chargearray = ?, total_int = ?, maximum_int = ?, creationtime = ?, modificationtime = ? WHERE spectrumid = ?");
+		lStat.setLong(1, iSpectrumid);
+		lStat.setObject(2, iTitle);
+		lStat.setObject(3, iPrecursor_mz);
+		lStat.setObject(4, iPrecursor_int);
+		lStat.setLong(5, iPrecursor_charge);
+		lStat.setObject(6, iMzarray);
+		lStat.setObject(7, iIntarray);
+		lStat.setObject(8, iChargearray);
+		lStat.setObject(9, iTotal_int);
+		lStat.setObject(10, iMaximum_int);
+		lStat.setObject(11, iCreationtime);
+		lStat.setObject(12, iModificationtime);
+		lStat.setLong(13, iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -502,41 +611,66 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO consensusspec (consensusspecid, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-		if(iConsensusspecid == Long.MIN_VALUE) {
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spectrum (spectrumid, title, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, total_int, maximum_int, creationtime, modificationtime) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		if(iSpectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iConsensusspecid);
+			lStat.setLong(1, iSpectrumid);
+		}
+		if(iTitle == null) {
+			lStat.setNull(2, 12);
+		} else {
+			lStat.setObject(2, iTitle);
 		}
 		if(iPrecursor_mz == null) {
-			lStat.setNull(2, 3);
-		} else {
-			lStat.setObject(2, iPrecursor_mz);
-		}
-		if(iPrecursor_int == null) {
 			lStat.setNull(3, 3);
 		} else {
-			lStat.setObject(3, iPrecursor_int);
+			lStat.setObject(3, iPrecursor_mz);
+		}
+		if(iPrecursor_int == null) {
+			lStat.setNull(4, 3);
+		} else {
+			lStat.setObject(4, iPrecursor_int);
 		}
 		if(iPrecursor_charge == Long.MIN_VALUE) {
-			lStat.setNull(4, 4);
+			lStat.setNull(5, 4);
 		} else {
-			lStat.setLong(4, iPrecursor_charge);
+			lStat.setLong(5, iPrecursor_charge);
 		}
 		if(iMzarray == null) {
-			lStat.setNull(5, -1);
-		} else {
-			lStat.setObject(5, iMzarray);
-		}
-		if(iIntarray == null) {
 			lStat.setNull(6, -1);
 		} else {
-			lStat.setObject(6, iIntarray);
+			lStat.setObject(6, iMzarray);
 		}
-		if(iChargearray == null) {
+		if(iIntarray == null) {
 			lStat.setNull(7, -1);
 		} else {
-			lStat.setObject(7, iChargearray);
+			lStat.setObject(7, iIntarray);
+		}
+		if(iChargearray == null) {
+			lStat.setNull(8, -1);
+		} else {
+			lStat.setObject(8, iChargearray);
+		}
+		if(iTotal_int == null) {
+			lStat.setNull(9, 3);
+		} else {
+			lStat.setObject(9, iTotal_int);
+		}
+		if(iMaximum_int == null) {
+			lStat.setNull(10, 12);
+		} else {
+			lStat.setObject(10, iMaximum_int);
+		}
+		if(iCreationtime == null) {
+			lStat.setNull(11, 93);
+		} else {
+			lStat.setObject(11, iCreationtime);
+		}
+		if(iModificationtime == null) {
+			lStat.setNull(12, 93);
+		} else {
+			lStat.setObject(12, iModificationtime);
 		}
 		int result = lStat.executeUpdate();
 
@@ -557,7 +691,7 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iConsensusspecid = ((Number) iKeys[0]).longValue();
+			iSpectrumid = ((Number) iKeys[0]).longValue();
 		}
 		this.iUpdated = false;
 		return result;

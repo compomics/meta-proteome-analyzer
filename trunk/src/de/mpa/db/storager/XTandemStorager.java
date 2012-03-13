@@ -171,11 +171,9 @@ public class XTandemStorager extends BasicStorager {
     							}
     						}
                           
-                          hitdata.put(XtandemhitTableAccessor.PROTEIN, protMap.getProteinWithPeptideID(domainID).getLabel());
                           hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
                           hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
                           hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
-                          hitdata.put(XtandemhitTableAccessor.PRECURSOR, domain.getDomainMh());
                           hitdata.put(XtandemhitTableAccessor.DELTA, domain.getDomainDeltaMh());
                           hitdata.put(XtandemhitTableAccessor.HYPERSCORE, domain.getDomainHyperScore());                
                           hitdata.put(XtandemhitTableAccessor.PRE, domain.getUpFlankSequence());

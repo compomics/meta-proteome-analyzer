@@ -122,22 +122,22 @@ public class Libspectrum extends LibspectrumTableAccessor {
      * @return Spectrumfile with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static void checkDuplicateFile(String filename, Connection aConn) throws SQLException {
-    	
-        Libspectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement("select * from spectrum");        
-        ResultSet rs = ps.executeQuery();
-        int counter = 0;
-        while (rs.next()) {
-            counter++;
-            temp = new Libspectrum(rs);
-            if(temp.getFilename().equals(filename.substring(0, filename.length() - 4) + "_1.mgf")) {
-            	throw new SQLException("File '" + filename + "' already exists in the DB!");
-            }
-        }
-        rs.close();
-        ps.close();        
-    }
+//    public static void checkDuplicateFile(String filename, Connection aConn) throws SQLException {
+//    	
+//        Libspectrum temp = null;
+//        PreparedStatement ps = aConn.prepareStatement("select * from spectrum");        
+//        ResultSet rs = ps.executeQuery();
+//        int counter = 0;
+//        while (rs.next()) {
+//            counter++;
+//            temp = new Libspectrum(rs);
+//            if(temp.getFilename().equals(filename.substring(0, filename.length() - 4) + "_1.mgf")) {
+//            	throw new SQLException("File '" + filename + "' already exists in the DB!");
+//            }
+//        }
+//        rs.close();
+//        ps.close();        
+//    }
 
 
     /**

@@ -16,7 +16,6 @@ import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Spec2pep;
-import de.mpa.db.accessor.Spectrumfile;
 import de.mpa.io.MascotGenericFile;
 
 public class SpectrumExtractor {
@@ -149,6 +148,7 @@ public class SpectrumExtractor {
 	}
 	
 	/**
+	 * TODO: Modify for array spectrum functionality. 
 	 * Returns the unzipped file from the database.
 	 * @param spectrumID
 	 * @return

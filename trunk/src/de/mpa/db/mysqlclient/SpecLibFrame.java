@@ -35,7 +35,6 @@ import org.apache.commons.codec.binary.Base64;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.ArraySpectrum;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;

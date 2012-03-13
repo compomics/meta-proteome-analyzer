@@ -94,9 +94,7 @@ public class InspectStorager extends BasicStorager {
             // Get the peptide id
             long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getAnnotation(), conn);            
             hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideID);
-            
             hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
-            hitdata.put(InspecthitTableAccessor.ANNOTATION, hit.getAnnotation());
             
         	Long proteinID;
         	// parse the header
@@ -118,8 +116,6 @@ public class InspectStorager extends BasicStorager {
 					}
 			}
             
-            // TODO: Remove protein
-            hitdata.put(InspecthitTableAccessor.PROTEIN, hit.getProtein());
             hitdata.put(InspecthitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
             hitdata.put(InspecthitTableAccessor.MQ_SCORE, hit.getMqScore());
             hitdata.put(InspecthitTableAccessor.LENGTH, Long.valueOf(hit.getLength()));
@@ -136,7 +132,6 @@ public class InspectStorager extends BasicStorager {
             hitdata.put(InspecthitTableAccessor.RECORDNUMBER, hit.getRecordNumber());
             hitdata.put(InspecthitTableAccessor.DBFILEPOS, Long.valueOf(hit.getDbFilePos()));
             hitdata.put(InspecthitTableAccessor.SPECFILEPOS, Long.valueOf(hit.getSpecFilePos()));
-            hitdata.put(InspecthitTableAccessor.PRECURSOR_MZ, hit.getPrecursorMZ());
             hitdata.put(InspecthitTableAccessor.PRECURSOR_MZ_ERROR, hit.getPrecursorMZError());
 
             // Create the database object.
