@@ -94,8 +94,7 @@ public class CruxStorager implements Storager {
                 hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideID);
                 
                 hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
-                hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));            
-                hitdata.put(CruxhitTableAccessor.PRECURSOR_MZ, hit.getPrecursorMZ());
+                hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
                 hitdata.put(CruxhitTableAccessor.NEUTRAL_MASS, hit.getNeutralMass());
                 hitdata.put(CruxhitTableAccessor.PEPTIDE_MASS, hit.getPeptideMass());
                 hitdata.put(CruxhitTableAccessor.DELTA_CN, hit.getDeltaCN());
@@ -136,9 +135,6 @@ public class CruxStorager implements Storager {
         			}
                 }
                 
-                
-                // TODO: remove protein id
-                hitdata.put(CruxhitTableAccessor.PROTEINID, hit.getProteinid());
                 hitdata.put(CruxhitTableAccessor.FLANK_AA, hit.getFlankingAA());
                 
                 // Create the database object.

@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:11
+ * Date: 13/03/2012
+ * Time: 13:17:15
  */
 package de.mpa.db.accessor;
 
@@ -63,6 +63,18 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
+	 * This variable represents the contents for the 'creationdate' column.
+	 */
+	protected java.sql.Timestamp iCreationdate = null;
+
+
+	/**
+	 * This variable represents the contents for the 'modificationdate' column.
+	 */
+	protected java.sql.Timestamp iModificationdate = null;
+
+
+	/**
 	 * This variable represents the key for the 'proteinid' column.
 	 */
 	public static final String PROTEINID = "PROTEINID";
@@ -76,6 +88,16 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This variable represents the key for the 'description' column.
 	 */
 	public static final String DESCRIPTION = "DESCRIPTION";
+
+	/**
+	 * This variable represents the key for the 'creationdate' column.
+	 */
+	public static final String CREATIONDATE = "CREATIONDATE";
+
+	/**
+	 * This variable represents the key for the 'modificationdate' column.
+	 */
+	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
 
 
 
@@ -102,6 +124,12 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(DESCRIPTION)) {
 			this.iDescription = (String)aParams.get(DESCRIPTION);
 		}
+		if(aParams.containsKey(CREATIONDATE)) {
+			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		}
+		if(aParams.containsKey(MODIFICATIONDATE)) {
+			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		}
 		this.iUpdated = true;
 	}
 
@@ -117,6 +145,8 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iProteinid = aResultSet.getLong("proteinid");
 		this.iAccession = (String)aResultSet.getObject("accession");
 		this.iDescription = (String)aResultSet.getObject("description");
+		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
+		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
@@ -150,6 +180,24 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
+	 * This method returns the value for the 'Creationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 */
+	public java.sql.Timestamp getCreationdate() {
+		return this.iCreationdate;
+	}
+
+	/**
+	 * This method returns the value for the 'Modificationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
+	 */
+	public java.sql.Timestamp getModificationdate() {
+		return this.iModificationdate;
+	}
+
+	/**
 	 * This method sets the value for the 'Proteinid' column
 	 * 
 	 * @param	aProteinid	long with the value for the Proteinid column.
@@ -176,6 +224,26 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public void setDescription(String aDescription) {
 		this.iDescription = aDescription;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Creationdate' column
+	 * 
+	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
+	 */
+	public void setCreationdate(java.sql.Timestamp aCreationdate) {
+		this.iCreationdate = aCreationdate;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Modificationdate' column
+	 * 
+	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
+	 */
+	public void setModificationdate(java.sql.Timestamp aModificationdate) {
+		this.iModificationdate = aModificationdate;
 		this.iUpdated = true;
 	}
 
@@ -219,6 +287,8 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 			iProteinid = lRS.getLong("proteinid");
 			iAccession = (String)lRS.getObject("accession");
 			iDescription = (String)lRS.getObject("description");
+			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
+			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -268,11 +338,12 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE protein SET proteinid = ?, accession = ?, description = ? WHERE proteinid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE protein SET proteinid = ?, accession = ?, description = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE proteinid = ?");
 		lStat.setLong(1, iProteinid);
 		lStat.setObject(2, iAccession);
 		lStat.setObject(3, iDescription);
-		lStat.setLong(4, iProteinid);
+		lStat.setObject(4, iCreationdate);
+		lStat.setLong(5, iProteinid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -287,7 +358,7 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description) values(?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iProteinid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

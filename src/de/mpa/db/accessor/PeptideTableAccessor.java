@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:10
+ * Date: 13/03/2012
+ * Time: 13:17:13
  */
 package de.mpa.db.accessor;
 
@@ -57,6 +57,18 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
+	 * This variable represents the contents for the 'creationdate' column.
+	 */
+	protected java.sql.Timestamp iCreationdate = null;
+
+
+	/**
+	 * This variable represents the contents for the 'modificationdate' column.
+	 */
+	protected java.sql.Timestamp iModificationdate = null;
+
+
+	/**
 	 * This variable represents the key for the 'peptideid' column.
 	 */
 	public static final String PEPTIDEID = "PEPTIDEID";
@@ -65,6 +77,16 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This variable represents the key for the 'sequence' column.
 	 */
 	public static final String SEQUENCE = "SEQUENCE";
+
+	/**
+	 * This variable represents the key for the 'creationdate' column.
+	 */
+	public static final String CREATIONDATE = "CREATIONDATE";
+
+	/**
+	 * This variable represents the key for the 'modificationdate' column.
+	 */
+	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
 
 
 
@@ -88,6 +110,12 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(SEQUENCE)) {
 			this.iSequence = (String)aParams.get(SEQUENCE);
 		}
+		if(aParams.containsKey(CREATIONDATE)) {
+			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		}
+		if(aParams.containsKey(MODIFICATIONDATE)) {
+			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		}
 		this.iUpdated = true;
 	}
 
@@ -102,6 +130,8 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	public PeptideTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iPeptideid = aResultSet.getLong("peptideid");
 		this.iSequence = (String)aResultSet.getObject("sequence");
+		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
+		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
@@ -126,6 +156,24 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
+	 * This method returns the value for the 'Creationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 */
+	public java.sql.Timestamp getCreationdate() {
+		return this.iCreationdate;
+	}
+
+	/**
+	 * This method returns the value for the 'Modificationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
+	 */
+	public java.sql.Timestamp getModificationdate() {
+		return this.iModificationdate;
+	}
+
+	/**
 	 * This method sets the value for the 'Peptideid' column
 	 * 
 	 * @param	aPeptideid	long with the value for the Peptideid column.
@@ -142,6 +190,26 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public void setSequence(String aSequence) {
 		this.iSequence = aSequence;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Creationdate' column
+	 * 
+	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
+	 */
+	public void setCreationdate(java.sql.Timestamp aCreationdate) {
+		this.iCreationdate = aCreationdate;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Modificationdate' column
+	 * 
+	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
+	 */
+	public void setModificationdate(java.sql.Timestamp aModificationdate) {
+		this.iModificationdate = aModificationdate;
 		this.iUpdated = true;
 	}
 
@@ -184,6 +252,8 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 			hits++;
 			iPeptideid = lRS.getLong("peptideid");
 			iSequence = (String)lRS.getObject("sequence");
+			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
+			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -233,10 +303,11 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE peptide SET peptideid = ?, sequence = ? WHERE peptideid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE peptide SET peptideid = ?, sequence = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE peptideid = ?");
 		lStat.setLong(1, iPeptideid);
 		lStat.setObject(2, iSequence);
-		lStat.setLong(3, iPeptideid);
+		lStat.setObject(3, iCreationdate);
+		lStat.setLong(4, iPeptideid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -251,7 +322,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO peptide (peptideid, sequence) values(?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO peptide (peptideid, sequence, creationdate, modificationdate) values(?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iPeptideid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

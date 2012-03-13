@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:06
+ * Date: 13/03/2012
+ * Time: 13:17:06
  */
 package de.mpa.db.accessor;
 
@@ -105,6 +105,18 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
+	 * This variable represents the contents for the 'creationdate' column.
+	 */
+	protected java.sql.Timestamp iCreationdate = null;
+
+
+	/**
+	 * This variable represents the contents for the 'modificationdate' column.
+	 */
+	protected java.sql.Timestamp iModificationdate = null;
+
+
+	/**
 	 * This variable represents the key for the 'pepnovohitid' column.
 	 */
 	public static final String PEPNOVOHITID = "PEPNOVOHITID";
@@ -154,6 +166,16 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public static final String CHARGE = "CHARGE";
 
+	/**
+	 * This variable represents the key for the 'creationdate' column.
+	 */
+	public static final String CREATIONDATE = "CREATIONDATE";
+
+	/**
+	 * This variable represents the key for the 'modificationdate' column.
+	 */
+	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
+
 
 
 
@@ -200,6 +222,12 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(CHARGE)) {
 			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
 		}
+		if(aParams.containsKey(CREATIONDATE)) {
+			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		}
+		if(aParams.containsKey(MODIFICATIONDATE)) {
+			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		}
 		this.iUpdated = true;
 	}
 
@@ -222,6 +250,8 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iC_gap = (Number)aResultSet.getObject("c_gap");
 		this.iPrecursor_mh = (Number)aResultSet.getObject("precursor_mh");
 		this.iCharge = aResultSet.getLong("charge");
+		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
+		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
@@ -315,6 +345,24 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public long getCharge() {
 		return this.iCharge;
+	}
+
+	/**
+	 * This method returns the value for the 'Creationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
+	 */
+	public java.sql.Timestamp getCreationdate() {
+		return this.iCreationdate;
+	}
+
+	/**
+	 * This method returns the value for the 'Modificationdate' column
+	 * 
+	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
+	 */
+	public java.sql.Timestamp getModificationdate() {
+		return this.iModificationdate;
 	}
 
 	/**
@@ -417,6 +465,26 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		this.iUpdated = true;
 	}
 
+	/**
+	 * This method sets the value for the 'Creationdate' column
+	 * 
+	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
+	 */
+	public void setCreationdate(java.sql.Timestamp aCreationdate) {
+		this.iCreationdate = aCreationdate;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Modificationdate' column
+	 * 
+	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
+	 */
+	public void setModificationdate(java.sql.Timestamp aModificationdate) {
+		this.iModificationdate = aModificationdate;
+		this.iUpdated = true;
+	}
+
 
 
 	/**
@@ -464,6 +532,8 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 			iC_gap = (Number)lRS.getObject("c_gap");
 			iPrecursor_mh = (Number)lRS.getObject("precursor_mh");
 			iCharge = lRS.getLong("charge");
+			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
+			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -513,7 +583,7 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE pepnovohit SET pepnovohitid = ?, fk_spectrumid = ?, fk_peptideid = ?, indexid = ?, rankscore = ?, pnvscore = ?, n_gap = ?, c_gap = ?, precursor_mh = ?, charge = ? WHERE pepnovohitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE pepnovohit SET pepnovohitid = ?, fk_spectrumid = ?, fk_peptideid = ?, indexid = ?, rankscore = ?, pnvscore = ?, n_gap = ?, c_gap = ?, precursor_mh = ?, charge = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE pepnovohitid = ?");
 		lStat.setLong(1, iPepnovohitid);
 		lStat.setLong(2, iFk_spectrumid);
 		lStat.setLong(3, iFk_peptideid);
@@ -524,7 +594,8 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 		lStat.setObject(8, iC_gap);
 		lStat.setObject(9, iPrecursor_mh);
 		lStat.setLong(10, iCharge);
-		lStat.setLong(11, iPepnovohitid);
+		lStat.setObject(11, iCreationdate);
+		lStat.setLong(12, iPepnovohitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -539,7 +610,7 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pepnovohit (pepnovohitid, fk_spectrumid, fk_peptideid, indexid, rankscore, pnvscore, n_gap, c_gap, precursor_mh, charge) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pepnovohit (pepnovohitid, fk_spectrumid, fk_peptideid, indexid, rankscore, pnvscore, n_gap, c_gap, precursor_mh, charge, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iPepnovohitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

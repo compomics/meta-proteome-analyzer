@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:00
+ * Date: 13/03/2012
+ * Time: 13:16:54
  */
 package de.mpa.db.accessor;
 
@@ -51,6 +51,12 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 
 
 	/**
+	 * This variable represents the contents for the 'fk_spectrumid' column.
+	 */
+	protected long iFk_spectrumid = Long.MIN_VALUE;
+
+
+	/**
 	 * This variable represents the contents for the 'fk_experimentid' column.
 	 */
 	protected long iFk_experimentid = Long.MIN_VALUE;
@@ -60,42 +66,6 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 * This variable represents the contents for the 'fk_consensusspecid' column.
 	 */
 	protected long iFk_consensusspecid = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'filename' column.
-	 */
-	protected String iFilename = null;
-
-
-	/**
-	 * This variable represents the contents for the 'spectrumname' column.
-	 */
-	protected String iSpectrumname = null;
-
-
-	/**
-	 * This variable represents the contents for the 'precursor_mz' column.
-	 */
-	protected Number iPrecursor_mz = null;
-
-
-	/**
-	 * This variable represents the contents for the 'charge' column.
-	 */
-	protected long iCharge = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'totalintensity' column.
-	 */
-	protected Number iTotalintensity = null;
-
-
-	/**
-	 * This variable represents the contents for the 'maximumintensity' column.
-	 */
-	protected Number iMaximumintensity = null;
 
 
 	/**
@@ -116,6 +86,11 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	public static final String LIBSPECTRUMID = "LIBSPECTRUMID";
 
 	/**
+	 * This variable represents the key for the 'fk_spectrumid' column.
+	 */
+	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
+
+	/**
 	 * This variable represents the key for the 'fk_experimentid' column.
 	 */
 	public static final String FK_EXPERIMENTID = "FK_EXPERIMENTID";
@@ -124,36 +99,6 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 * This variable represents the key for the 'fk_consensusspecid' column.
 	 */
 	public static final String FK_CONSENSUSSPECID = "FK_CONSENSUSSPECID";
-
-	/**
-	 * This variable represents the key for the 'filename' column.
-	 */
-	public static final String FILENAME = "FILENAME";
-
-	/**
-	 * This variable represents the key for the 'spectrumname' column.
-	 */
-	public static final String SPECTRUMNAME = "SPECTRUMNAME";
-
-	/**
-	 * This variable represents the key for the 'precursor_mz' column.
-	 */
-	public static final String PRECURSOR_MZ = "PRECURSOR_MZ";
-
-	/**
-	 * This variable represents the key for the 'charge' column.
-	 */
-	public static final String CHARGE = "CHARGE";
-
-	/**
-	 * This variable represents the key for the 'totalintensity' column.
-	 */
-	public static final String TOTALINTENSITY = "TOTALINTENSITY";
-
-	/**
-	 * This variable represents the key for the 'maximumintensity' column.
-	 */
-	public static final String MAXIMUMINTENSITY = "MAXIMUMINTENSITY";
 
 	/**
 	 * This variable represents the key for the 'creationdate' column.
@@ -184,29 +129,14 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 		if(aParams.containsKey(LIBSPECTRUMID)) {
 			this.iLibspectrumid = ((Long)aParams.get(LIBSPECTRUMID)).longValue();
 		}
+		if(aParams.containsKey(FK_SPECTRUMID)) {
+			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
+		}
 		if(aParams.containsKey(FK_EXPERIMENTID)) {
 			this.iFk_experimentid = ((Long)aParams.get(FK_EXPERIMENTID)).longValue();
 		}
 		if(aParams.containsKey(FK_CONSENSUSSPECID)) {
 			this.iFk_consensusspecid = ((Long)aParams.get(FK_CONSENSUSSPECID)).longValue();
-		}
-		if(aParams.containsKey(FILENAME)) {
-			this.iFilename = (String)aParams.get(FILENAME);
-		}
-		if(aParams.containsKey(SPECTRUMNAME)) {
-			this.iSpectrumname = (String)aParams.get(SPECTRUMNAME);
-		}
-		if(aParams.containsKey(PRECURSOR_MZ)) {
-			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
-		}
-		if(aParams.containsKey(CHARGE)) {
-			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
-		}
-		if(aParams.containsKey(TOTALINTENSITY)) {
-			this.iTotalintensity = (Number)aParams.get(TOTALINTENSITY);
-		}
-		if(aParams.containsKey(MAXIMUMINTENSITY)) {
-			this.iMaximumintensity = (Number)aParams.get(MAXIMUMINTENSITY);
 		}
 		if(aParams.containsKey(CREATIONDATE)) {
 			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
@@ -227,14 +157,9 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public LibspectrumTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iLibspectrumid = aResultSet.getLong("libspectrumid");
+		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_experimentid = aResultSet.getLong("fk_experimentid");
 		this.iFk_consensusspecid = aResultSet.getLong("fk_consensusspecid");
-		this.iFilename = (String)aResultSet.getObject("filename");
-		this.iSpectrumname = (String)aResultSet.getObject("spectrumname");
-		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
-		this.iCharge = aResultSet.getLong("charge");
-		this.iTotalintensity = (Number)aResultSet.getObject("totalintensity");
-		this.iMaximumintensity = (Number)aResultSet.getObject("maximumintensity");
 		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
 		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
@@ -249,6 +174,15 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public long getLibspectrumid() {
 		return this.iLibspectrumid;
+	}
+
+	/**
+	 * This method returns the value for the 'Fk_spectrumid' column
+	 * 
+	 * @return	long	with the value for the Fk_spectrumid column.
+	 */
+	public long getFk_spectrumid() {
+		return this.iFk_spectrumid;
 	}
 
 	/**
@@ -267,60 +201,6 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public long getFk_consensusspecid() {
 		return this.iFk_consensusspecid;
-	}
-
-	/**
-	 * This method returns the value for the 'Filename' column
-	 * 
-	 * @return	String	with the value for the Filename column.
-	 */
-	public String getFilename() {
-		return this.iFilename;
-	}
-
-	/**
-	 * This method returns the value for the 'Spectrumname' column
-	 * 
-	 * @return	String	with the value for the Spectrumname column.
-	 */
-	public String getSpectrumname() {
-		return this.iSpectrumname;
-	}
-
-	/**
-	 * This method returns the value for the 'Precursor_mz' column
-	 * 
-	 * @return	Number	with the value for the Precursor_mz column.
-	 */
-	public Number getPrecursor_mz() {
-		return this.iPrecursor_mz;
-	}
-
-	/**
-	 * This method returns the value for the 'Charge' column
-	 * 
-	 * @return	long	with the value for the Charge column.
-	 */
-	public long getCharge() {
-		return this.iCharge;
-	}
-
-	/**
-	 * This method returns the value for the 'Totalintensity' column
-	 * 
-	 * @return	Number	with the value for the Totalintensity column.
-	 */
-	public Number getTotalintensity() {
-		return this.iTotalintensity;
-	}
-
-	/**
-	 * This method returns the value for the 'Maximumintensity' column
-	 * 
-	 * @return	Number	with the value for the Maximumintensity column.
-	 */
-	public Number getMaximumintensity() {
-		return this.iMaximumintensity;
 	}
 
 	/**
@@ -352,6 +232,16 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	}
 
 	/**
+	 * This method sets the value for the 'Fk_spectrumid' column
+	 * 
+	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
+	 */
+	public void setFk_spectrumid(long aFk_spectrumid) {
+		this.iFk_spectrumid = aFk_spectrumid;
+		this.iUpdated = true;
+	}
+
+	/**
 	 * This method sets the value for the 'Fk_experimentid' column
 	 * 
 	 * @param	aFk_experimentid	long with the value for the Fk_experimentid column.
@@ -368,66 +258,6 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public void setFk_consensusspecid(long aFk_consensusspecid) {
 		this.iFk_consensusspecid = aFk_consensusspecid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Filename' column
-	 * 
-	 * @param	aFilename	String with the value for the Filename column.
-	 */
-	public void setFilename(String aFilename) {
-		this.iFilename = aFilename;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Spectrumname' column
-	 * 
-	 * @param	aSpectrumname	String with the value for the Spectrumname column.
-	 */
-	public void setSpectrumname(String aSpectrumname) {
-		this.iSpectrumname = aSpectrumname;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Precursor_mz' column
-	 * 
-	 * @param	aPrecursor_mz	Number with the value for the Precursor_mz column.
-	 */
-	public void setPrecursor_mz(Number aPrecursor_mz) {
-		this.iPrecursor_mz = aPrecursor_mz;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Charge' column
-	 * 
-	 * @param	aCharge	long with the value for the Charge column.
-	 */
-	public void setCharge(long aCharge) {
-		this.iCharge = aCharge;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Totalintensity' column
-	 * 
-	 * @param	aTotalintensity	Number with the value for the Totalintensity column.
-	 */
-	public void setTotalintensity(Number aTotalintensity) {
-		this.iTotalintensity = aTotalintensity;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Maximumintensity' column
-	 * 
-	 * @param	aMaximumintensity	Number with the value for the Maximumintensity column.
-	 */
-	public void setMaximumintensity(Number aMaximumintensity) {
-		this.iMaximumintensity = aMaximumintensity;
 		this.iUpdated = true;
 	}
 
@@ -489,14 +319,9 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 		while(lRS.next()) {
 			hits++;
 			iLibspectrumid = lRS.getLong("libspectrumid");
+			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_experimentid = lRS.getLong("fk_experimentid");
 			iFk_consensusspecid = lRS.getLong("fk_consensusspecid");
-			iFilename = (String)lRS.getObject("filename");
-			iSpectrumname = (String)lRS.getObject("spectrumname");
-			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
-			iCharge = lRS.getLong("charge");
-			iTotalintensity = (Number)lRS.getObject("totalintensity");
-			iMaximumintensity = (Number)lRS.getObject("maximumintensity");
 			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
 			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
@@ -548,18 +373,13 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE libspectrum SET libspectrumid = ?, fk_experimentid = ?, fk_consensusspecid = ?, filename = ?, spectrumname = ?, precursor_mz = ?, charge = ?, totalintensity = ?, maximumintensity = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE libspectrumid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE libspectrum SET libspectrumid = ?, fk_spectrumid = ?, fk_experimentid = ?, fk_consensusspecid = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE libspectrumid = ?");
 		lStat.setLong(1, iLibspectrumid);
-		lStat.setLong(2, iFk_experimentid);
-		lStat.setLong(3, iFk_consensusspecid);
-		lStat.setObject(4, iFilename);
-		lStat.setObject(5, iSpectrumname);
-		lStat.setObject(6, iPrecursor_mz);
-		lStat.setLong(7, iCharge);
-		lStat.setObject(8, iTotalintensity);
-		lStat.setObject(9, iMaximumintensity);
-		lStat.setObject(10, iCreationdate);
-		lStat.setLong(11, iLibspectrumid);
+		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(3, iFk_experimentid);
+		lStat.setLong(4, iFk_consensusspecid);
+		lStat.setObject(5, iCreationdate);
+		lStat.setLong(6, iLibspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -574,51 +394,26 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO libspectrum (libspectrumid, fk_experimentid, fk_consensusspecid, filename, spectrumname, precursor_mz, charge, totalintensity, maximumintensity, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO libspectrum (libspectrumid, fk_spectrumid, fk_experimentid, fk_consensusspecid, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iLibspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iLibspectrumid);
 		}
-		if(iFk_experimentid == Long.MIN_VALUE) {
+		if(iFk_spectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_experimentid);
+			lStat.setLong(2, iFk_spectrumid);
 		}
-		if(iFk_consensusspecid == Long.MIN_VALUE) {
+		if(iFk_experimentid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_consensusspecid);
+			lStat.setLong(3, iFk_experimentid);
 		}
-		if(iFilename == null) {
-			lStat.setNull(4, 12);
+		if(iFk_consensusspecid == Long.MIN_VALUE) {
+			lStat.setNull(4, 4);
 		} else {
-			lStat.setObject(4, iFilename);
-		}
-		if(iSpectrumname == null) {
-			lStat.setNull(5, 12);
-		} else {
-			lStat.setObject(5, iSpectrumname);
-		}
-		if(iPrecursor_mz == null) {
-			lStat.setNull(6, 3);
-		} else {
-			lStat.setObject(6, iPrecursor_mz);
-		}
-		if(iCharge == Long.MIN_VALUE) {
-			lStat.setNull(7, 4);
-		} else {
-			lStat.setLong(7, iCharge);
-		}
-		if(iTotalintensity == null) {
-			lStat.setNull(8, 3);
-		} else {
-			lStat.setObject(8, iTotalintensity);
-		}
-		if(iMaximumintensity == null) {
-			lStat.setNull(9, 3);
-		} else {
-			lStat.setObject(9, iMaximumintensity);
+			lStat.setLong(4, iFk_consensusspecid);
 		}
 		int result = lStat.executeUpdate();
 

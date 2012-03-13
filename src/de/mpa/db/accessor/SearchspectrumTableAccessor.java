@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 20/01/2012
- * Time: 13:27:13
+ * Date: 13/03/2012
+ * Time: 13:17:18
  */
 package de.mpa.db.accessor;
 
@@ -45,51 +45,21 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	protected Object[] iKeys = null;
 
 	/**
-	 * This variable represents the contents for the 'spectrumid' column.
+	 * This variable represents the contents for the 'searchspectrumid' column.
 	 */
-	protected long iSpectrumid = Long.MIN_VALUE;
+	protected long iSearchspectrumid = Long.MIN_VALUE;
+
+
+	/**
+	 * This variable represents the contents for the 'fk_spectrumid' column.
+	 */
+	protected long iFk_spectrumid = Long.MIN_VALUE;
 
 
 	/**
 	 * This variable represents the contents for the 'fk_experimentid' column.
 	 */
 	protected long iFk_experimentid = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'filename' column.
-	 */
-	protected String iFilename = null;
-
-
-	/**
-	 * This variable represents the contents for the 'spectrumname' column.
-	 */
-	protected String iSpectrumname = null;
-
-
-	/**
-	 * This variable represents the contents for the 'precursor_mz' column.
-	 */
-	protected Number iPrecursor_mz = null;
-
-
-	/**
-	 * This variable represents the contents for the 'charge' column.
-	 */
-	protected long iCharge = Long.MIN_VALUE;
-
-
-	/**
-	 * This variable represents the contents for the 'totalintensity' column.
-	 */
-	protected Number iTotalintensity = null;
-
-
-	/**
-	 * This variable represents the contents for the 'maximumintensity' column.
-	 */
-	protected Number iMaximumintensity = null;
 
 
 	/**
@@ -105,44 +75,19 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 
 
 	/**
-	 * This variable represents the key for the 'spectrumid' column.
+	 * This variable represents the key for the 'searchspectrumid' column.
 	 */
-	public static final String SPECTRUMID = "SPECTRUMID";
+	public static final String SEARCHSPECTRUMID = "SEARCHSPECTRUMID";
+
+	/**
+	 * This variable represents the key for the 'fk_spectrumid' column.
+	 */
+	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
 
 	/**
 	 * This variable represents the key for the 'fk_experimentid' column.
 	 */
 	public static final String FK_EXPERIMENTID = "FK_EXPERIMENTID";
-
-	/**
-	 * This variable represents the key for the 'filename' column.
-	 */
-	public static final String FILENAME = "FILENAME";
-
-	/**
-	 * This variable represents the key for the 'spectrumname' column.
-	 */
-	public static final String SPECTRUMNAME = "SPECTRUMNAME";
-
-	/**
-	 * This variable represents the key for the 'precursor_mz' column.
-	 */
-	public static final String PRECURSOR_MZ = "PRECURSOR_MZ";
-
-	/**
-	 * This variable represents the key for the 'charge' column.
-	 */
-	public static final String CHARGE = "CHARGE";
-
-	/**
-	 * This variable represents the key for the 'totalintensity' column.
-	 */
-	public static final String TOTALINTENSITY = "TOTALINTENSITY";
-
-	/**
-	 * This variable represents the key for the 'maximumintensity' column.
-	 */
-	public static final String MAXIMUMINTENSITY = "MAXIMUMINTENSITY";
 
 	/**
 	 * This variable represents the key for the 'creationdate' column.
@@ -170,29 +115,14 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public SearchspectrumTableAccessor(HashMap aParams) {
-		if(aParams.containsKey(SPECTRUMID)) {
-			this.iSpectrumid = ((Long)aParams.get(SPECTRUMID)).longValue();
+		if(aParams.containsKey(SEARCHSPECTRUMID)) {
+			this.iSearchspectrumid = ((Long)aParams.get(SEARCHSPECTRUMID)).longValue();
+		}
+		if(aParams.containsKey(FK_SPECTRUMID)) {
+			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
 		}
 		if(aParams.containsKey(FK_EXPERIMENTID)) {
 			this.iFk_experimentid = ((Long)aParams.get(FK_EXPERIMENTID)).longValue();
-		}
-		if(aParams.containsKey(FILENAME)) {
-			this.iFilename = (String)aParams.get(FILENAME);
-		}
-		if(aParams.containsKey(SPECTRUMNAME)) {
-			this.iSpectrumname = (String)aParams.get(SPECTRUMNAME);
-		}
-		if(aParams.containsKey(PRECURSOR_MZ)) {
-			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
-		}
-		if(aParams.containsKey(CHARGE)) {
-			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
-		}
-		if(aParams.containsKey(TOTALINTENSITY)) {
-			this.iTotalintensity = (Number)aParams.get(TOTALINTENSITY);
-		}
-		if(aParams.containsKey(MAXIMUMINTENSITY)) {
-			this.iMaximumintensity = (Number)aParams.get(MAXIMUMINTENSITY);
 		}
 		if(aParams.containsKey(CREATIONDATE)) {
 			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
@@ -212,14 +142,9 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SearchspectrumTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iSpectrumid = aResultSet.getLong("spectrumid");
+		this.iSearchspectrumid = aResultSet.getLong("searchspectrumid");
+		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
 		this.iFk_experimentid = aResultSet.getLong("fk_experimentid");
-		this.iFilename = (String)aResultSet.getObject("filename");
-		this.iSpectrumname = (String)aResultSet.getObject("spectrumname");
-		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
-		this.iCharge = aResultSet.getLong("charge");
-		this.iTotalintensity = (Number)aResultSet.getObject("totalintensity");
-		this.iMaximumintensity = (Number)aResultSet.getObject("maximumintensity");
 		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
 		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
@@ -228,12 +153,21 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 
 
 	/**
-	 * This method returns the value for the 'Spectrumid' column
+	 * This method returns the value for the 'Searchspectrumid' column
 	 * 
-	 * @return	long	with the value for the Spectrumid column.
+	 * @return	long	with the value for the Searchspectrumid column.
 	 */
-	public long getSpectrumid() {
-		return this.iSpectrumid;
+	public long getSearchspectrumid() {
+		return this.iSearchspectrumid;
+	}
+
+	/**
+	 * This method returns the value for the 'Fk_spectrumid' column
+	 * 
+	 * @return	long	with the value for the Fk_spectrumid column.
+	 */
+	public long getFk_spectrumid() {
+		return this.iFk_spectrumid;
 	}
 
 	/**
@@ -243,60 +177,6 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 */
 	public long getFk_experimentid() {
 		return this.iFk_experimentid;
-	}
-
-	/**
-	 * This method returns the value for the 'Filename' column
-	 * 
-	 * @return	String	with the value for the Filename column.
-	 */
-	public String getFilename() {
-		return this.iFilename;
-	}
-
-	/**
-	 * This method returns the value for the 'Spectrumname' column
-	 * 
-	 * @return	String	with the value for the Spectrumname column.
-	 */
-	public String getSpectrumname() {
-		return this.iSpectrumname;
-	}
-
-	/**
-	 * This method returns the value for the 'Precursor_mz' column
-	 * 
-	 * @return	Number	with the value for the Precursor_mz column.
-	 */
-	public Number getPrecursor_mz() {
-		return this.iPrecursor_mz;
-	}
-
-	/**
-	 * This method returns the value for the 'Charge' column
-	 * 
-	 * @return	long	with the value for the Charge column.
-	 */
-	public long getCharge() {
-		return this.iCharge;
-	}
-
-	/**
-	 * This method returns the value for the 'Totalintensity' column
-	 * 
-	 * @return	Number	with the value for the Totalintensity column.
-	 */
-	public Number getTotalintensity() {
-		return this.iTotalintensity;
-	}
-
-	/**
-	 * This method returns the value for the 'Maximumintensity' column
-	 * 
-	 * @return	Number	with the value for the Maximumintensity column.
-	 */
-	public Number getMaximumintensity() {
-		return this.iMaximumintensity;
 	}
 
 	/**
@@ -318,12 +198,22 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	}
 
 	/**
-	 * This method sets the value for the 'Spectrumid' column
+	 * This method sets the value for the 'Searchspectrumid' column
 	 * 
-	 * @param	aSpectrumid	long with the value for the Spectrumid column.
+	 * @param	aSearchspectrumid	long with the value for the Searchspectrumid column.
 	 */
-	public void setSpectrumid(long aSpectrumid) {
-		this.iSpectrumid = aSpectrumid;
+	public void setSearchspectrumid(long aSearchspectrumid) {
+		this.iSearchspectrumid = aSearchspectrumid;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Fk_spectrumid' column
+	 * 
+	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
+	 */
+	public void setFk_spectrumid(long aFk_spectrumid) {
+		this.iFk_spectrumid = aFk_spectrumid;
 		this.iUpdated = true;
 	}
 
@@ -334,66 +224,6 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 */
 	public void setFk_experimentid(long aFk_experimentid) {
 		this.iFk_experimentid = aFk_experimentid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Filename' column
-	 * 
-	 * @param	aFilename	String with the value for the Filename column.
-	 */
-	public void setFilename(String aFilename) {
-		this.iFilename = aFilename;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Spectrumname' column
-	 * 
-	 * @param	aSpectrumname	String with the value for the Spectrumname column.
-	 */
-	public void setSpectrumname(String aSpectrumname) {
-		this.iSpectrumname = aSpectrumname;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Precursor_mz' column
-	 * 
-	 * @param	aPrecursor_mz	Number with the value for the Precursor_mz column.
-	 */
-	public void setPrecursor_mz(Number aPrecursor_mz) {
-		this.iPrecursor_mz = aPrecursor_mz;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Charge' column
-	 * 
-	 * @param	aCharge	long with the value for the Charge column.
-	 */
-	public void setCharge(long aCharge) {
-		this.iCharge = aCharge;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Totalintensity' column
-	 * 
-	 * @param	aTotalintensity	Number with the value for the Totalintensity column.
-	 */
-	public void setTotalintensity(Number aTotalintensity) {
-		this.iTotalintensity = aTotalintensity;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Maximumintensity' column
-	 * 
-	 * @param	aMaximumintensity	Number with the value for the Maximumintensity column.
-	 */
-	public void setMaximumintensity(Number aMaximumintensity) {
-		this.iMaximumintensity = aMaximumintensity;
 		this.iUpdated = true;
 	}
 
@@ -426,8 +256,8 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int delete(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM searchspectrum WHERE spectrumid = ?");
-		lStat.setLong(1, iSpectrumid);
+		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM searchspectrum WHERE searchspectrumid = ?");
+		lStat.setLong(1, iSearchspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -442,26 +272,21 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 */
 	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(SPECTRUMID)) {
-			throw new IllegalArgumentException("Primary key field 'SPECTRUMID' is missing in HashMap!");
+		if(!aKeys.containsKey(SEARCHSPECTRUMID)) {
+			throw new IllegalArgumentException("Primary key field 'SEARCHSPECTRUMID' is missing in HashMap!");
 		} else {
-			iSpectrumid = ((Long)aKeys.get(SPECTRUMID)).longValue();
+			iSearchspectrumid = ((Long)aKeys.get(SEARCHSPECTRUMID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
-		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM searchspectrum WHERE spectrumid = ?");
-		lStat.setLong(1, iSpectrumid);
+		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM searchspectrum WHERE searchspectrumid = ?");
+		lStat.setLong(1, iSearchspectrumid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iSpectrumid = lRS.getLong("spectrumid");
+			iSearchspectrumid = lRS.getLong("searchspectrumid");
+			iFk_spectrumid = lRS.getLong("fk_spectrumid");
 			iFk_experimentid = lRS.getLong("fk_experimentid");
-			iFilename = (String)lRS.getObject("filename");
-			iSpectrumname = (String)lRS.getObject("spectrumname");
-			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
-			iCharge = lRS.getLong("charge");
-			iTotalintensity = (Number)lRS.getObject("totalintensity");
-			iMaximumintensity = (Number)lRS.getObject("maximumintensity");
 			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
 			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
@@ -513,17 +338,12 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE searchspectrum SET spectrumid = ?, fk_experimentid = ?, filename = ?, spectrumname = ?, precursor_mz = ?, charge = ?, totalintensity = ?, maximumintensity = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE spectrumid = ?");
-		lStat.setLong(1, iSpectrumid);
-		lStat.setLong(2, iFk_experimentid);
-		lStat.setObject(3, iFilename);
-		lStat.setObject(4, iSpectrumname);
-		lStat.setObject(5, iPrecursor_mz);
-		lStat.setLong(6, iCharge);
-		lStat.setObject(7, iTotalintensity);
-		lStat.setObject(8, iMaximumintensity);
-		lStat.setObject(9, iCreationdate);
-		lStat.setLong(10, iSpectrumid);
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE searchspectrum SET searchspectrumid = ?, fk_spectrumid = ?, fk_experimentid = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE searchspectrumid = ?");
+		lStat.setLong(1, iSearchspectrumid);
+		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(3, iFk_experimentid);
+		lStat.setObject(4, iCreationdate);
+		lStat.setLong(5, iSearchspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -538,46 +358,21 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO searchspectrum (spectrumid, fk_experimentid, filename, spectrumname, precursor_mz, charge, totalintensity, maximumintensity, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-		if(iSpectrumid == Long.MIN_VALUE) {
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO searchspectrum (searchspectrumid, fk_spectrumid, fk_experimentid, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		if(iSearchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iSpectrumid);
+			lStat.setLong(1, iSearchspectrumid);
 		}
-		if(iFk_experimentid == Long.MIN_VALUE) {
+		if(iFk_spectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_experimentid);
+			lStat.setLong(2, iFk_spectrumid);
 		}
-		if(iFilename == null) {
-			lStat.setNull(3, 12);
+		if(iFk_experimentid == Long.MIN_VALUE) {
+			lStat.setNull(3, 4);
 		} else {
-			lStat.setObject(3, iFilename);
-		}
-		if(iSpectrumname == null) {
-			lStat.setNull(4, 12);
-		} else {
-			lStat.setObject(4, iSpectrumname);
-		}
-		if(iPrecursor_mz == null) {
-			lStat.setNull(5, 3);
-		} else {
-			lStat.setObject(5, iPrecursor_mz);
-		}
-		if(iCharge == Long.MIN_VALUE) {
-			lStat.setNull(6, 4);
-		} else {
-			lStat.setLong(6, iCharge);
-		}
-		if(iTotalintensity == null) {
-			lStat.setNull(7, 3);
-		} else {
-			lStat.setObject(7, iTotalintensity);
-		}
-		if(iMaximumintensity == null) {
-			lStat.setNull(8, 3);
-		} else {
-			lStat.setObject(8, iMaximumintensity);
+			lStat.setLong(3, iFk_experimentid);
 		}
 		int result = lStat.executeUpdate();
 
@@ -598,7 +393,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iSpectrumid = ((Number) iKeys[0]).longValue();
+			iSearchspectrumid = ((Number) iKeys[0]).longValue();
 		}
 		this.iUpdated = false;
 		return result;
