@@ -22,6 +22,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.ProjectDialog;
 import de.mpa.db.accessor.Experiment;
@@ -105,6 +106,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ProjectDialog projDlg = new ProjectDialog("New Project", clientFrame, projectsTbl);
+				ScreenConfig.centerInScreen(projDlg);
 				projDlg.setVisible(true);
 			}
 		});

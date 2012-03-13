@@ -175,22 +175,24 @@ public class ClientFrame extends JFrame {
 //		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
 		ImageIcon testIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/icon_qm.png"));
-		
+		ImageIcon projectIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/project.png"));
+		ImageIcon addSpectraIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/addspectra.png"));
+		ImageIcon settingsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/settings.png"));
+		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
+		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
+		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
-		tabPane.addTab("Project", testIcon, projectPnl);
-		tabPane.addTab("Input Spectra", testIcon, filePnl);
-//		tabPane.addTab("Spectral Library Search", specLibPnl);
-//		tabPane.addTab("MS/MS Database Search", msmsPnl);
-//		tabPane.addTab("De-novo Search", denovoPnl);
-		tabPane.addTab("Search Settings", testIcon, setPnl);
-		tabPane.addTab("Spectral Search Results", testIcon, resPnl);
+		tabPane.addTab("Project", projectIcon, projectPnl);
+		tabPane.addTab("Input Spectra", addSpectraIcon, filePnl);
+		tabPane.addTab("Search Settings", settingsIcon, setPnl);
+		tabPane.addTab("Spectral Search Results", resultsIcon, resPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
 		resultsTabPane.addTab("Protein View", proteinResultPnl);
-		tabPane.addTab("Database Search Results", testIcon, dbSearchResultPnl);
-		tabPane.addTab("De novo Results", testIcon, denovoResPnl);
-		tabPane.addTab("Logging", testIcon, lggPnl);
-		tabPane.addTab("Clustering", testIcon, clusterPnl);
+		tabPane.addTab("Database Search Results", resultsIcon, dbSearchResultPnl);
+		tabPane.addTab("De novo Results", resultsIcon, denovoResPnl);
+		tabPane.addTab("Logging", loggingIcon, lggPnl);
+		tabPane.addTab("Clustering", clusteringIcon, clusterPnl);
 		
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
 
