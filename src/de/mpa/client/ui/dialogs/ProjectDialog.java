@@ -1,18 +1,12 @@
 package de.mpa.client.ui.dialogs;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.image.ConvolveOp;
-import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -24,12 +18,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -56,29 +47,36 @@ public class ProjectDialog extends JDialog {
 	// Button to delete project property
 	private JButton deleteProjPropBtn;
 
-	// Number of projects in project properties table
-	private int projPropCount = 1;
 	
-// Experiment table
+	// Experiment table
 	private JTable experimentsTbl;
 	
 	// Button to add an experiment
 	private JButton addExperimentBtn;
 	
-	// Number of experiments in experiments table
-	private int experimentCount = 1;
-
 	// Textfield with the name of the experiment
-	private JTextField expNameTfd;
+	private JTextField expNameTtf;
 
 	// Button to change an experiment
-	private JButton changeExperiementBtn;
+	private JButton changeExperimentBtn;
 	
 // Experiment property table
 	private JTable expPropsTbl;
 	
 	// Button to save and leave project property table
 	private JButton okBtn;
+
+	private JButton deleteExperimentBtn;
+
+	private JTextField propNameTtf2;
+
+	private JTextField propValueTtf2;
+
+	private JButton addExpPropBtn;
+
+	private JButton changeExpPropBtn;
+
+	private JButton delExpPropBtn;
 
 	
 
@@ -116,8 +114,8 @@ public class ProjectDialog extends JDialog {
 
 		// Project dialog panel
 		JPanel projectDialogPnl = new JPanel();
-		projectDialogPnl.setBorder(BorderFactory.createTitledBorder("Project Dialog"));
-		projectDialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu",	"5dlu, t:p, 5dlu,p,5dlu, p, 5dlu"));
+		//projectDialogPnl.setBorder(BorderFactory.createTitledBorder("Project Dialog"));
+		projectDialogPnl.setLayout(new FormLayout("5dlu, l:p, 5dlu", "5dlu, t:p, 5dlu,p,5dlu, p, 5dlu, p, 5dlu"));
 
 	// 1. Project Name*******************************************************************	
 		JPanel projectDescPnl = new JPanel();
@@ -158,19 +156,19 @@ public class ProjectDialog extends JDialog {
 		
 		// Project Properties
 		JPanel projectPropPnl = new JPanel();
-		projectPropPnl.setLayout(new FormLayout("5dlu, l:p, 5dlu, r:p, 5dlu","5dlu, t:p, 5dlu,p,5dlu"));
+		projectPropPnl.setLayout(new FormLayout("5dlu, l:p, 5dlu, p, 5dlu","5dlu, t:p, 5dlu"));
 		projectPropPnl.setBorder(BorderFactory.createTitledBorder("Project Properties"));
 		
 		// "Modify project property" subpanel
 		JPanel propertyModPnl = new JPanel();
-		propertyModPnl.setLayout(new FormLayout("p, 5dlu, p, 5dlu","5dlu, p, 5dlu, p,5dlu, p, 5dlu"));
+		propertyModPnl.setLayout(new FormLayout("p, 5dlu, p, 5dlu","5dlu, t:p, 1dlu, p, 5dlu, p, 1dlu, p, 5dlu, p, 5dlu"));
 		
 		// Name and Value of the Property
 		JLabel propNameLbl = new JLabel("Property Name:");
 		JLabel propValueLbl = new JLabel("Property Value:");
 		
 		// Input Fields for Name/Value
-		propNameTtf = new JTextField(15);
+		propNameTtf = new JTextField(12);
 		// When propNameTtf and propValueTtf is filled addProjPropBtn is useable
 		propNameTtf.addKeyListener(new KeyListener() {
 			@Override
@@ -189,7 +187,7 @@ public class ProjectDialog extends JDialog {
 			public void keyPressed(KeyEvent e) {
 			}
 		});
-		propValueTtf = new JTextField(15);
+		propValueTtf = new JTextField(12);
 		propValueTtf.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -210,9 +208,9 @@ public class ProjectDialog extends JDialog {
 		
 		// Add elements to "Modify project property" subpanel
 		propertyModPnl.add(propNameLbl, cc.xy(1, 2));
-		propertyModPnl.add(propNameTtf, cc.xy(3, 2));
-		propertyModPnl.add(propValueLbl, cc.xy(1, 4));
-		propertyModPnl.add(propValueTtf, cc.xy(3, 4));
+		propertyModPnl.add(propNameTtf, cc.xy(1, 4));
+		propertyModPnl.add(propValueLbl, cc.xy(1, 6));
+		propertyModPnl.add(propValueTtf, cc.xy(1, 8));
 		
 		// Button to add project property 
 		addProjPropBtn = new JButton("Add");
@@ -236,27 +234,29 @@ public class ProjectDialog extends JDialog {
 		changeProjPropBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				changeProjPropertyTable();
+				changeProjPropertyTableBtnTriggered();
 			}
 		});
 		
 		// Add buttons to propButtonPnl 
-		JPanel propButtonPnl = new JPanel(new FormLayout("r:p, 5dlu, r:p", "p"));
+		JPanel propButtonPnl = new JPanel(new FormLayout("p, 3dlu, p, 3dlu, p", "p"));
 		propButtonPnl.add(addProjPropBtn, cc.xy(1, 1));
 		propButtonPnl.add(changeProjPropBtn, cc.xy(3, 1));
+	
 		// Add propButtonPnl to propertyModPnl
-		propertyModPnl.add(propButtonPnl, cc.xyw(1, 6, 3));
-		// Add "propertyModPnl to projectPropPnl
-		projectPropPnl.add(propertyModPnl,cc.xy(2, 2));
+		propertyModPnl.add(propButtonPnl, cc.xyw(1, 10, 3));
 		
 		//creates project Property table
 		setupProjectPropertiesTable();
 		// Add the project table to scroll pane
 		JScrollPane projectPropertyTblScp = new JScrollPane(projPropsTbl);
-		projectPropertyTblScp.setPreferredSize(new Dimension(530, 250));
+		projectPropertyTblScp.setPreferredSize(new Dimension(300, 125));
+		projectPropertyTblScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		projectPropertyTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		// Add ScrollPane to Panel
-		projectPropPnl.add(projectPropertyTblScp,cc.xy(4, 2));
+		projectPropPnl.add(projectPropertyTblScp,cc.xy(2, 2));
+		// Add "propertyModPnl to projectPropPnl
+		projectPropPnl.add(propertyModPnl,cc.xy(4, 2));
 		
 		// Delete button
 		deleteProjPropBtn = new JButton("Delete");
@@ -269,57 +269,44 @@ public class ProjectDialog extends JDialog {
 				changeProjPropBtn.setEnabled(false);
 			}
 		});
-		// Add Delete button to projectPropPanel 
-		projectPropPnl.add(deleteProjPropBtn, cc.xy(4, 4));
+		propButtonPnl.add(deleteProjPropBtn, cc.xy(5, 1));
 		
 		// Add Panels to ProjectDialogPanel
 		projectDialogPnl.add(projectDescPnl,cc.xy(2, 2));
-		projectDialogPnl.add(projectPropPnl,cc.xyw(2, 4, 3));
+		projectDialogPnl.add(projectPropPnl,cc.xy(2, 4));
 	
-	// 3. Experiement Panel**********************************************************************	
+		// 3. Experiment Panel**********************************************************************	
 		JPanel experimentsPnl = new JPanel(new FormLayout("5dlu, p,5dlu,p, 5dlu", "5dlu, p, 5dlu, p, 5dlu,p,5dlu"));
 		experimentsPnl.setBorder(BorderFactory.createTitledBorder("Experiments"));
 		
-	// Setup experiments table
+		// Setup experiments table
 		setupExperimentsTable();
 		
 		// Add the experiments table to scroll pane
 		JScrollPane experimentsTblScp = new JScrollPane(experimentsTbl);
-		experimentsTblScp.setPreferredSize(new Dimension(400, 250));
+		experimentsTblScp.setPreferredSize(new Dimension(460, 100));
 		experimentsTblScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		experimentsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		// Add scroll pane to experiment panel 
-		experimentsPnl.add(experimentsTblScp, cc.xyw(2,2,3));
+		experimentsPnl.add(experimentsTblScp, cc.xyw(2,4,3));
 		
-	// Delete experiments
-		JButton delExpBtn = new JButton("Delete Experiment(s)");
-		delExpBtn.setEnabled(false);
-		// Delete the selected experiemt
-		delExpBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
 		deleteProjPropBtn.setEnabled(false);
-		experimentsPnl.add(delExpBtn, cc.xy(4, 4));
 		
-	// Panel to add and modify experiments
+		// Panel to add and modify experiments
 		JPanel experimentMopPnl = new JPanel();
-		experimentMopPnl.setLayout(new FormLayout("5dlu,l:p,5dlu,l:p,5dlu", "5dlu,p,5dlu,p, 5dlu"));
+		experimentMopPnl.setLayout(new FormLayout("l:p,5dlu,l:p,5dlu, r:p, 3dlu, r:p, 3dlu, r:p, 5dlu", "5dlu,p"));
 		
 		// Lable for the name of the experiment
-		JLabel expNameLbl = new JLabel("Experiments Name");
-		experimentMopPnl.add(expNameLbl, cc.xy(2, 2));
+		JLabel expNameLbl = new JLabel("Experiment Name:");
+		experimentMopPnl.add(expNameLbl, cc.xy(1, 2));
 		
 		// Textfield for experiments name
-		expNameTfd = new JTextField("",15);
+		expNameTtf = new JTextField(10);
 		// Add only possible if textfield contains text
-		expNameTfd.addKeyListener(new KeyListener() {
+		expNameTtf.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				if (expNameTfd.getText().isEmpty() == false ){
+				if (expNameTtf.getText().isEmpty() == false ){
 					addExperimentBtn.setEnabled(true);
 				}
 			}
@@ -332,11 +319,8 @@ public class ProjectDialog extends JDialog {
 		});
 		
 		// Add Textfield to Panel
-		experimentMopPnl.add(expNameTfd,cc.xy(4, 2));
+		experimentMopPnl.add(expNameTtf,cc.xy(3, 2));
 		
-		// Panel for add and change Button
-		JPanel expButtonPnl = new JPanel();
-		expButtonPnl.setLayout(new FormLayout("5dlu,l:p, 5dlu, l:p, 5dlu", "p"));
 		
 		// Add Button to add experimentModPnl
 		addExperimentBtn = new JButton("Add");
@@ -346,39 +330,51 @@ public class ProjectDialog extends JDialog {
 		addExperimentBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				updateExperimentTable();
 				// Empty the Textfield
-				expNameTfd.setText("");
+				expNameTtf.setText("");
 				addExperimentBtn.setEnabled(false);
 			}
-
-			
 		});
 		
-		// Add "Add button" to experimentModPnl
-		expButtonPnl.add(addExperimentBtn,cc.xy(2, 1));
-		
 		// Add Button to change experient
-		changeExperiementBtn = new JButton("Change");
-		// Add "change button to panel
-		expButtonPnl.add(changeExperiementBtn,cc.xy(4, 1));
+		changeExperimentBtn = new JButton("Change");
+		changeExperimentBtn.setEnabled(false);
+		changeExperimentBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				changeExperimentTableBtnTriggered();
+			}
+		});
+		
+		// Delete Button to delete the selected experiment
+		deleteExperimentBtn = new JButton("Delete");
+		deleteExperimentBtn.setEnabled(false);
+		
+		// Function to add experiment to table
+		deleteExperimentBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				deleteExperimentFromSelectedRow();
+				// Empty the Textfield
+				expNameTtf.setText("");
+			}
+		});
 		
 		// Add expButtonnl to experimentModPnl
-		experimentMopPnl.add(expButtonPnl,cc.xy(2, 4));
+		experimentMopPnl.add(addExperimentBtn,cc.xy(5, 2));
+		experimentMopPnl.add(changeExperimentBtn,cc.xy(7, 2));
+		experimentMopPnl.add(deleteExperimentBtn,cc.xy(9, 2));
 		
 		// add experimentModPanel to experiments panel
-		experimentsPnl.add(experimentMopPnl,cc.xy(2, 6));
-		
-		
-		
+		experimentsPnl.add(experimentMopPnl,cc.xy(2, 2));
 		
 		
 		// Add experimentPnl to projectDialog
 		projectDialogPnl.add(experimentsPnl, cc.xy(2, 6));
 		
 	// 4. Experiment Property Panel**************************************************************
-		JPanel expPropsPnl = new JPanel(new FormLayout("5dlu, l:p, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
+		JPanel expPropsPnl = new JPanel(new FormLayout("5dlu, l:p, 5dlu, p, 5dlu", "5dlu, t:p, 5dlu"));
 		expPropsPnl.setBorder(BorderFactory.createTitledBorder("Experiment Properties"));
 		
 		
@@ -387,29 +383,116 @@ public class ProjectDialog extends JDialog {
 		
 		// Add the experiments  properties table to scroll pane
 		JScrollPane expPropsTblScp = new JScrollPane(expPropsTbl);
-		expPropsTblScp.setPreferredSize(new Dimension(400, 250));
+		expPropsTblScp.setPreferredSize(new Dimension(300, 120));
 		expPropsTblScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		expPropsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		expPropsPnl.add(expPropsTblScp, cc.xy(2,2));
-		projectDialogPnl.add(expPropsPnl, cc.xy(4, 6));
+		// "Modify experiment property" subpanel
+		JPanel expPropertyModPnl = new JPanel();
+		expPropertyModPnl.setLayout(new FormLayout("p, 5dlu, p, 5dlu","0dlu, t:p, 1dlu, p, 5dlu, p, 1dlu, p, 5dlu, p, 5dlu"));
 		
-		// Delete experiments
-		JButton delExpPropBtn = new JButton("Delete Properties");
-		delExpPropBtn.addActionListener(new ActionListener() {
+		// Name and Value of the Property
+		JLabel propNameLbl2 = new JLabel("Property Name:");
+		JLabel propValueLbl2 = new JLabel("Property Value:");
+		
+		// Input Fields for Name/Value
+		propNameTtf2 = new JTextField(12);
+		// When propNameTtf and propValueTtf is filled addProjPropBtn is useable
+		propNameTtf2.addKeyListener(new KeyListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
+			public void keyTyped(KeyEvent e) {
+				if ((propNameTtf2.getText().isEmpty() == false) && (propValueTtf.getText().isEmpty() == false)		){
+					addProjPropBtn.setEnabled(true);
+				}
+				else {
+					addProjPropBtn.setEnabled(false);
+				}
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+		propValueTtf2 = new JTextField(12);
+		propValueTtf2.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if ((propValueTtf2.getText().isEmpty() == false) && (propValueTtf2.getText().isEmpty() == false)){
+					addExpPropBtn.setEnabled(true);
+				}
+					else {
+						addExpPropBtn.setEnabled(false);
+					}
+				}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		
+		// Add elements to "Modify project property" subpanel
+		expPropertyModPnl.add(propNameLbl2, cc.xy(1, 2));
+		expPropertyModPnl.add(propNameTtf2, cc.xy(1, 4));
+		expPropertyModPnl.add(propValueLbl2, cc.xy(1, 6));
+		expPropertyModPnl.add(propValueTtf2, cc.xy(1, 8));
+		
+		// Button to add project property 
+		addExpPropBtn = new JButton("Add");
+		
+		// Button is only useable when new name and value is filled
+		addExpPropBtn.setEnabled(false);
+		addExpPropBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				updateExpPropertyTable();
+				propNameTtf2.setText("");
+				propValueTtf2.setText("");
+				addExpPropBtn.setEnabled(false);
+			}
+		});
+		
+		// Button to change the project property entries
+		changeExpPropBtn = new JButton("Change");
+		 // ChangeProjPropBtn only visible when entry in table is selected
+		// is existing
+		changeExpPropBtn.setEnabled(false);
+		changeExpPropBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				changeExpPropertyTableBtnTriggered();
+			}
+		});
+		
+		// Add buttons to propButtonPnl 
+		JPanel expPropButtonPnl = new JPanel(new FormLayout("p, 3dlu, p, 3dlu, p", "p"));
+		expPropButtonPnl.add(addExpPropBtn, cc.xy(1, 1));
+		expPropButtonPnl.add(changeExpPropBtn, cc.xy(3, 1));
+	
+		// Add propButtonPnl to propertyModPnl
+		expPropertyModPnl.add(expPropButtonPnl, cc.xyw(1, 10, 3));
+		expPropsPnl.add(expPropertyModPnl, cc.xy(4, 2));
+		
+		projectDialogPnl.add(expPropsPnl, cc.xy(2, 8));
+		
+		// Delete experiments
+		delExpPropBtn = new JButton("Delete");
+		delExpPropBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteExpPropertyFromSelectedRow();
+				addExpPropBtn.setEnabled(false);
+				changeExpPropBtn.setEnabled(false);
+			}
+		});
 		delExpPropBtn.setEnabled(false);
+		expPropButtonPnl.add(delExpPropBtn, cc.xy(5, 1));
 		
-		expPropsPnl.add(delExpPropBtn, cc.xy(2, 4));
-		
-		
-	// 5. ButtonBar******************************************************************************	
+		// 5. ButtonBar******************************************************************************	
 		
 		// Ok button functionality
 		okBtn = new JButton("OK");
@@ -439,10 +522,11 @@ public class ProjectDialog extends JDialog {
 		JPanel buttonPnl = ButtonBarFactory.buildOKCancelBar(okBtn, cancelBtn);
 		contentPane.add(buttonPnl, BorderLayout.SOUTH);
 		// Set the preferred size
-		this.setPreferredSize(new Dimension(1200, 900));
+		this.setPreferredSize(new Dimension(530, 710));
+		this.setMinimumSize(new Dimension(530, 710));
 		pack();
 	}
-	
+
 // SubMethods*************************************************************************		
 	// a. ProjectPropertyTable________________________________________________________
 	/**
@@ -488,7 +572,6 @@ public class ProjectDialog extends JDialog {
 			}
 		});
 
-		// TODO: Check for sorting --> Add comparator ?
 		projPropsTbl.setAutoCreateRowSorter(true);
 
 		// Selection model for the list: Select one entry of the table only
@@ -497,27 +580,35 @@ public class ProjectDialog extends JDialog {
 		// Justify column size
 		projPropsTbl.getColumn("#").setMinWidth(30);
 		projPropsTbl.getColumn("#").setMaxWidth(30);
-		projPropsTbl.getColumn("Property Name").setMinWidth(240);
-		projPropsTbl.getColumn("Property Name").setMaxWidth(240);
-		projPropsTbl.getColumn("Property Value").setMinWidth(240);
-		projPropsTbl.getColumn("Property Value").setMaxWidth(240);
+		projPropsTbl.getColumn("Property Name").setMinWidth(140);
+		projPropsTbl.getColumn("Property Name").setMaxWidth(140);
+		projPropsTbl.getColumn("Property Value").setMinWidth(140);
+		projPropsTbl.getColumn("Property Value").setMaxWidth(140);
 	}
 
 	/**
 	 * This method updates the project property table.
 	 */
 	private void updatePropertyTable() {
+		int row = projPropsTbl.getRowCount();
 		((DefaultTableModel) projPropsTbl.getModel()).addRow(new Object[] {
-				projPropCount, propNameTtf.getText(), propValueTtf.getText() });
-		// Update the project property counter
-		projPropCount++;
+				row+1, propNameTtf.getText(), propValueTtf.getText() });
+	}
+	
+	/**
+	 * This method updates the project property table.
+	 */
+	private void updateExpPropertyTable() {
+		int row = expPropsTbl.getRowCount();
+		((DefaultTableModel) expPropsTbl.getModel()).addRow(new Object[] {
+				row+1, propNameTtf2.getText(), propValueTtf2.getText() });
 	}
 	
 	/**
 	 *  This method fills the textfields for property name and property value 
 	 *  with the values in the selected table row
 	 */
-	protected void queryProjPropertyTableMouseClicked(ListSelectionEvent evt) {
+	private void queryProjPropertyTableMouseClicked(ListSelectionEvent evt) {
 		// Get the selected row
 		int projPropsRow = projPropsTbl.getSelectedRow();
 		// Condition if one row is selected.
@@ -532,13 +623,63 @@ public class ProjectDialog extends JDialog {
 	}
 	
 	/**
-	 * This method changes the entry in the table to the once in the Textfields
+	 *  This method fills the textfields for property name and property value 
+	 *  with the values in the selected table row
 	 */
-	private void changeProjPropertyTable(){
+	private void queryExpPropertyTableMouseClicked(ListSelectionEvent evt) {
+		// Get the selected row
+		int expPropsRow = expPropsTbl.getSelectedRow();
+		// Condition if one row is selected.
+		if (expPropsRow != -1) {
+			String propertyName = expPropsTbl.getValueAt(expPropsRow, 1).toString();
+			String propertyValue = expPropsTbl.getValueAt(expPropsRow, 2).toString();
+			propNameTtf2.setText(propertyName);
+			propValueTtf2.setText(propertyValue);
+			// Allows to delete the table row
+			delExpPropBtn.setEnabled(true);
+		} 
+	}
+	
+	/**
+	 * This method changes the entry in the table to the one in the textfields.
+	 */
+	private void changeProjPropertyTableBtnTriggered(){
 		projPropsTbl.setValueAt(propNameTtf.getText(), projPropsTbl.getSelectedRow(), 1);
 		projPropsTbl.setValueAt(propValueTtf.getText(), projPropsTbl.getSelectedRow(), 2);
 	}
-
+	
+	/**
+	 * This method changes the entry in the table to the one in the textfields.
+	 */
+	protected void changeExpPropertyTableBtnTriggered() {
+		expPropsTbl.setValueAt(propNameTtf2.getText(), expPropsTbl.getSelectedRow(), 1);
+		expPropsTbl.setValueAt(propValueTtf2.getText(), expPropsTbl.getSelectedRow(), 2);
+	}
+	
+	/**
+	 * This method changes the entry in the experiments table to the one in the textfield.
+	 */
+	private void changeExperimentTableBtnTriggered(){
+		experimentsTbl.setValueAt(expNameTtf.getText(), experimentsTbl.getSelectedRow(), 1);
+	}
+	/**
+	 * This	method deletes the selected row of the experiment table.
+	 */
+	protected void deleteExperimentFromSelectedRow() {
+		// Deletes selected Row
+		((DefaultTableModel)experimentsTbl.getModel()).removeRow(experimentsTbl.convertRowIndexToModel(experimentsTbl.getSelectedRow()));
+		// Empty TextFields
+		expNameTtf.setText("");
+		
+		// Enables add and change button after the last entry is deleted
+		// If table is empty change and add is disabled
+		if (experimentsTbl.getRowCount()==0){
+			addExperimentBtn.setEnabled(false);
+			changeExperimentBtn.setEnabled(false);
+			deleteExperimentBtn.setEnabled(false);
+		}
+	}	
+	
 	/**
 	 * This	method deletes the selected row of the projProptable
 	 */
@@ -553,6 +694,25 @@ public class ProjectDialog extends JDialog {
 		if (projPropsTbl.getRowCount()==0){
 			addProjPropBtn.setEnabled(false);
 			changeProjPropBtn.setEnabled(false);
+			deleteProjPropBtn.setEnabled(false);
+		}
+	}	
+	
+	/**
+	 * This	method deletes the selected row of the projProptable
+	 */
+	protected void deleteExpPropertyFromSelectedRow() {
+		// Deletes selected Row
+		((DefaultTableModel)expPropsTbl.getModel()).removeRow(expPropsTbl.convertRowIndexToModel(expPropsTbl.getSelectedRow()));
+		// Empty TextFields
+		propNameTtf2.setText("");
+		propValueTtf2.setText("");
+		// Enables add and change button after the last entry is deleted
+		// If table is empty change and add is disabled
+		if (expPropsTbl.getRowCount()==0){
+			addExpPropBtn.setEnabled(false);
+			changeExpPropBtn.setEnabled(false);
+			delExpPropBtn.setEnabled(false);
 		}
 	}	
 		
@@ -587,21 +747,18 @@ public class ProjectDialog extends JDialog {
 				}
 			}
 		});
-	//  Shows property name and values of the selected table row and enables edting the entry
+		//  Shows property name and values of the selected table row and enables edting the entry
 		experimentsTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
 				// Shows the entries of the table in the textfiels
 				queryExperimentTableMouseClicked(evt);
 				// Enables to change the entries
-				changeExperiementBtn.setEnabled(true);
-				
+				changeExperimentBtn.setEnabled(true);
+				deleteExperimentBtn.setEnabled(true);
 			}
-
-			
 		});
 
-		// TODO: Check for sorting --> Add comparator ? 
 		experimentsTbl.setAutoCreateRowSorter(true);
 
 		// Selection model for the list: Select one entry of the table only
@@ -609,24 +766,32 @@ public class ProjectDialog extends JDialog {
 		// Adjust the tablesize
 		experimentsTbl.getColumn("#").setMinWidth(30);
 		experimentsTbl.getColumn("#").setMaxWidth(30);
-		experimentsTbl.getColumn("Experiment Created").setMinWidth(150);
-		experimentsTbl.getColumn("Experiment Created").setMaxWidth(150);
+		experimentsTbl.getColumn("Experiment Created").setMinWidth(140);
+		experimentsTbl.getColumn("Experiment Created").setMaxWidth(140);
 	}
 	
 	/**
-	 *  This method adds the new experiment   
-	 *  to the experiment table row
+	 *  This method adds the new experiment to the experiment table row.
 	 */
 	private void updateExperimentTable() {
-		// TODO Auto-generated method stub
+		int row = experimentsTbl.getRowCount();
 		((DefaultTableModel) experimentsTbl.getModel()).addRow(new Object[] {
-				experimentCount, expNameTfd.getText(), new Date() });
-		// Update the project property counter
-		experimentCount++;
+				row+1, expNameTtf.getText(), new Date() });
 	}
 	
+	/**
+	 *  This method fills the textfields for the experiment name with the value in the selected table row.
+	 */
 	private void queryExperimentTableMouseClicked(ListSelectionEvent evt) {
-		// TODO Auto-generated method stub
+		// Get the selected row
+		int experimentsRow = experimentsTbl.getSelectedRow();
+		// Condition if one row is selected.
+		if (experimentsRow != -1) {
+			String experimentName = experimentsTbl.getValueAt(experimentsRow, 1).toString();
+			expNameTtf.setText(experimentName);
+			// Allows to delete the table row
+			deleteExperimentBtn.setEnabled(true);
+		} 
 		
 	}
 	
@@ -661,8 +826,19 @@ public class ProjectDialog extends JDialog {
 				}
 			}
 		});
-
-		// TODO: Check for sorting --> Add comparator ? 
+		
+		//  Shows property name and values of the selected table row and enables edting the entry
+		expPropsTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent evt) {
+				// Shows the entries of the table in the textfiels
+				queryExpPropertyTableMouseClicked(evt);
+				// Enables to change the entries
+				changeExpPropBtn.setEnabled(true);
+				
+			}
+		});
+		
 		expPropsTbl.setAutoCreateRowSorter(true);
 
 		// Selection model for the list: Select one entry of the table only
@@ -671,13 +847,9 @@ public class ProjectDialog extends JDialog {
 		// Setup column widths
 		expPropsTbl.getColumn("#").setMinWidth(30);
 		expPropsTbl.getColumn("#").setMaxWidth(30);
-		expPropsTbl.getColumn("Property Value").setMinWidth(150);
-		expPropsTbl.getColumn("Property Value").setMaxWidth(150);
+		expPropsTbl.getColumn("Property Name").setMinWidth(140);
+		expPropsTbl.getColumn("Property Name").setMaxWidth(140);
+		expPropsTbl.getColumn("Property Value").setMinWidth(140);
+		expPropsTbl.getColumn("Property Value").setMaxWidth(140);
 	}
-	
-
-	
-
-	
-	
 }
