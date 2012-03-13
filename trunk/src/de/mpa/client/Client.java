@@ -247,113 +247,11 @@ public class Client {
 	public void runDbSearch(List<File> files, DbSearchSettings settings){
 		// Iterate the files
 		for (int i = 0; i < files.size(); i++) {
-			System.out.println("test");
 			server.runDbSearch(files.get(i).getName(), settings);
 		}
 	}
 	
-	/**
-	 * gets properties from database
-	 */
-	
-// modifiy project
-	public void modifyProject (long projectid, String projectName) throws SQLException{
-		Project tempProject = Project.findFromProjectID(projectid, conn);
-		tempProject.setTitle(projectName);
-		tempProject.setModificationdate(new Timestamp((new Date()).getTime()));
-		tempProject.update(conn);
-		}
-//modify project property	
-	public void modifyProjectProperty (long propertyid, String propertyName, String propertyValue) throws SQLException{
-		Property tempProperty = Property.findPropertyFromPropertyID(propertyid, conn);
-		tempProperty.setName(propertyName);
-		tempProperty.setValue(propertyValue);
-		tempProperty.update(conn);
-		}
-	
-	//modify experimentsname	
-		public void modifyExperimentsName (long experimentid, String experimentsName) throws SQLException{
-			Experiment tempExperiment = Experiment.findExperimentByID(experimentid, conn);
-			tempExperiment.setTitle(experimentsName);
-			tempExperiment.setModificationdate(new Timestamp((new Date()).getTime()));
-			tempExperiment.update(conn);
-			}	
-		//modify experimentproperty	
-		public void modifyExperimentsProperties (long exppropertyid, String expProperty,String expPropertyValue) throws SQLException{
-			ExpProperty tempExperimentProperty = ExpProperty.findExpPropertyFromID(exppropertyid,conn);
-			tempExperimentProperty.setName(expProperty);
-			tempExperimentProperty.setValue(expPropertyValue);
-			tempExperimentProperty.update(conn);
-		}			
-		// create new Project
-		public void createNewProject (String pTitle,Timestamp pCreationdate, Timestamp pModificationdate) throws SQLException{
-			HashMap<Object, Object> data = new HashMap<Object, Object>(11);
-			data.put(Project.TITLE, pTitle);
-			data.put(Project.CREATIONDATE, pCreationdate);
-			data.put(Project.MODIFICATIONDATE, pModificationdate);
-			Project project = new Project(data);
-			project.persist(conn);
-			project.getGeneratedKeys();
-		}
-		
-		
-		
 
-	//remove projects
-	public void removeProjects(Long projectid)throws SQLException{
-		//delete the entries experiment
-//		List<Experiment> tempExperimentListe = Experiment.findAllExperimentsOfProject(projectid, conn);
-//		if (tempExperimentListe.isEmpty()==false){
-//		for (int i = 0; i < tempExperimentListe.size(); i++) {
-//			Experiment tempExperiment=new Experiment();
-//			tempExperiment=(Experiment)tempExperimentListe(i);
-//			tempExperiment.delete(conn);
-//		}
-//		}
-//		//delete the entries for project property
-//		
-//		List<Property> tempPropertyList = Property.findAllPropertiesOfProject(projectid, conn);
-//		if (tempPropertyList.isEmpty()==false){
-//		for (int i = 0; i < tempPropertyList.size(); i++) {
-//			Property tempProperty = new Property();
-//			tempProperty= (Property)tempExperimentListe(i);
-//			tempProperty.delete(conn);
-//		}}
-		//delete entries for project
-		Project tempproject = Project.findFromProjectID(projectid, conn);
-		tempproject.delete(conn);
-
-		
-		
-		//project.
-	}
-	
-
-	public List<Property> getProjectProperties(long fk_projectid) throws SQLException{
-		return Property.findAllPropertiesOfProject(fk_projectid, conn);
-	}
-	/**
-	 *  get experiments from database 
-	 */
-
-	public List<Experiment> getProjectExperiments(long fk_projectid) throws SQLException{
-		return Experiment.findAllExperimentsOfProject(fk_projectid, conn);
-	}
-
-	
-	/**
-	 *  get experiment property from database 
-	 */
-	public List<ExpProperty> getExperimentProperties(long experimentid) throws SQLException{
-		return ExpProperty.findAllPropertiesOfExperiment(experimentid, conn);
-	}
-	
-	/**
-	 * This method returns all projects from the database.
-	 */
-	public List<Project> getProjects() throws SQLException{
-		return Project.findAllProjects(conn);
-	}
 	
 	/**
 	 * Runs the de-novo search.
@@ -747,8 +645,10 @@ public class Client {
     /**
      * Returns the current connection to the database.
      * @return
+     * @throws SQLException 
      */
-    public Connection getConnection(){
+    public Connection getConnection() throws SQLException{
+    	if(conn == null) initDBConnection();
     	return conn;
     }
 }
