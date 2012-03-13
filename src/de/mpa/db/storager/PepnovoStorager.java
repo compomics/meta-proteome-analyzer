@@ -65,7 +65,7 @@ public class PepnovoStorager extends BasicStorager {
         	
             List<Prediction> predList = entry.getPredictionList();
             // Get the spectrum id for the given spectrumName for the PepnovoFile     
-            long spectrumid = Libspectrum.getSpectrumIdFromSpectrumName(entry.getSpectrumName(), false);
+            long spectrumid = Libspectrum.getSpectrumIdFromSpectrumTitle(entry.getSpectrumName(), false);
             for (Prediction hit : predList) {                
                 HashMap<Object, Object> hitdata = new HashMap<Object, Object>(10);
                 

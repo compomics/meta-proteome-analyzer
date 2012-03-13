@@ -49,7 +49,7 @@ import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Project;
 import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -390,15 +390,15 @@ public class Client {
 			
 			// Initialize the result set.
 			result = new DenovoSearchResult();
-			List<Searchspectrum> querySpectra = new ArrayList<Searchspectrum>();
+			List<Spectrum> querySpectra = new ArrayList<Spectrum>();
 			Map<String, List<Pepnovohit>> pepnovoResults = new HashMap<String, List<Pepnovohit>>();
 			
 			// Iterate over query spectra and get the different identification result sets
 			for (MascotGenericFile mgf : mgfFiles) {
-				Searchspectrum spectrum = Searchspectrum.findFromFilename(mgf.getFilename(), conn);
+				Spectrum spectrum = Spectrum.findFromTitle(mgf.getTitle(), conn);
 				querySpectra.add(spectrum);
 				long spectrumID = spectrum.getSpectrumid();
-				String spectrumname = spectrum.getSpectrumname();
+				String spectrumname = spectrum.getTitle();
 				
 				// Pepnovo
 				List<Pepnovohit> pepnovoList = Pepnovohit.getHitsFromSpectrumID(spectrumID, conn);
@@ -444,7 +444,7 @@ public class Client {
 			
 			// Initialize the result set.
 			result = new DbSearchResult();
-			List<Searchspectrum> querySpectra = new ArrayList<Searchspectrum>();
+			List<Spectrum> querySpectra = new ArrayList<Spectrum>();
 			Map<String, List<XTandemhit>> xTandemResults = new HashMap<String, List<XTandemhit>>();
 			Map<String, List<Omssahit>> omssaResults = new HashMap<String, List<Omssahit>>();
 			Map<String, List<Cruxhit>> cruxResults = new HashMap<String, List<Cruxhit>>();
@@ -454,11 +454,11 @@ public class Client {
 			
 			// Iterate over query spectra and get the different identification result sets
 			for (MascotGenericFile mgf : mgfFiles) {
-				Searchspectrum spectrum = Searchspectrum.findFromFilename(mgf.getFilename(), conn);
+				Spectrum spectrum = Spectrum.findFromTitle(mgf.getTitle(), conn);
 				querySpectra.add(spectrum);
 				long spectrumID = spectrum.getSpectrumid();
 				
-				String spectrumname = spectrum.getSpectrumname();
+				String spectrumname = spectrum.getTitle();
 				int votes = 0;
 				// X!Tandem
 				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(spectrumID, conn);

@@ -75,8 +75,7 @@ public class DBManager {
 //		long projectid = projectStorager.getProjectid();		
 		
 		// Store the spectra	
-		// TODO: Remove hard-coded value for experiment id
-		SpectrumStorager specStorager = new SpectrumStorager(conn, mgfFile, 1);
+		SpectrumStorager specStorager = new SpectrumStorager(conn, mgfFile);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
 		
@@ -133,7 +132,7 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeCruxResults(String cruxFilename) throws IOException, SQLException{
+	public void storeCruxResults(String cruxFilename) throws IOException, SQLException {
 		try {
 			spectraThread.join();
 		} catch (InterruptedException e) {
@@ -148,7 +147,8 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeInspectResults(String inspectFilename) throws IOException, SQLException{
+	public void storeInspectResults(String inspectFilename) throws IOException, SQLException {
+		
 		try {
 			spectraThread.join();
 		} catch (InterruptedException e) {

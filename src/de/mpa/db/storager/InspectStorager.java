@@ -9,11 +9,11 @@ import java.util.List;
 
 import com.compomics.util.protein.Header;
 
-import de.mpa.db.accessor.InspecthitTableAccessor;
+import de.mpa.db.MapContainer;
+import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.inspect.InspectFile;
 import de.mpa.parser.inspect.InspectHit;
 import de.mpa.parser.inspect.InspectParser;
@@ -88,13 +88,13 @@ public class InspectStorager extends BasicStorager {
             String name = filename.substring(firstIndex, lastIndex)+ "_" + scannumber  + ".mgf";
             
             // Get the spectrum id
-            long spectrumID = Searchspectrum.getSpectrumIdFromFileName(name);
-            hitdata.put(InspecthitTableAccessor.FK_SPECTRUMID, spectrumID);
+            long spectrumID = MapContainer.FileName2IdMap.get(name);
+            hitdata.put(Inspecthit.FK_SPECTRUMID, spectrumID);
             
             // Get the peptide id
             long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getAnnotation(), conn);            
-            hitdata.put(InspecthitTableAccessor.FK_PEPTIDEID, peptideID);
-            hitdata.put(InspecthitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
+            hitdata.put(Inspecthit.FK_PEPTIDEID, peptideID);
+            hitdata.put(Inspecthit.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             
         	Long proteinID;
         	// parse the header
@@ -116,26 +116,26 @@ public class InspectStorager extends BasicStorager {
 					}
 			}
             
-            hitdata.put(InspecthitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
-            hitdata.put(InspecthitTableAccessor.MQ_SCORE, hit.getMqScore());
-            hitdata.put(InspecthitTableAccessor.LENGTH, Long.valueOf(hit.getLength()));
-            hitdata.put(InspecthitTableAccessor.TOTAL_PRM_SCORE, hit.getTotalPRMScore());
-            hitdata.put(InspecthitTableAccessor.MEDIAN_PRM_SCORE, hit.getMedianPRMScore());
-            hitdata.put(InspecthitTableAccessor.FRACTION_Y, hit.getFractionY());
-            hitdata.put(InspecthitTableAccessor.FRACTION_B, hit.getFractionB());
-            hitdata.put(InspecthitTableAccessor.INTENSITY, hit.getIntensity());
-            hitdata.put(InspecthitTableAccessor.NTT, hit.getNtt());
-            hitdata.put(InspecthitTableAccessor.P_VALUE, hit.getpValue());
-            hitdata.put(InspecthitTableAccessor.F_SCORE, hit.getfScore());
-            hitdata.put(InspecthitTableAccessor.DELTASCORE, hit.getDeltaScore());
-            hitdata.put(InspecthitTableAccessor.DELTASCORE_OTHER, hit.getDeltaScoreOther());
-            hitdata.put(InspecthitTableAccessor.RECORDNUMBER, hit.getRecordNumber());
-            hitdata.put(InspecthitTableAccessor.DBFILEPOS, Long.valueOf(hit.getDbFilePos()));
-            hitdata.put(InspecthitTableAccessor.SPECFILEPOS, Long.valueOf(hit.getSpecFilePos()));
-            hitdata.put(InspecthitTableAccessor.PRECURSOR_MZ_ERROR, hit.getPrecursorMZError());
+            hitdata.put(Inspecthit.CHARGE, Long.valueOf(hit.getCharge()));
+            hitdata.put(Inspecthit.MQ_SCORE, hit.getMqScore());
+            hitdata.put(Inspecthit.LENGTH, Long.valueOf(hit.getLength()));
+            hitdata.put(Inspecthit.TOTAL_PRM_SCORE, hit.getTotalPRMScore());
+            hitdata.put(Inspecthit.MEDIAN_PRM_SCORE, hit.getMedianPRMScore());
+            hitdata.put(Inspecthit.FRACTION_Y, hit.getFractionY());
+            hitdata.put(Inspecthit.FRACTION_B, hit.getFractionB());
+            hitdata.put(Inspecthit.INTENSITY, hit.getIntensity());
+            hitdata.put(Inspecthit.NTT, hit.getNtt());
+            hitdata.put(Inspecthit.P_VALUE, hit.getpValue());
+            hitdata.put(Inspecthit.F_SCORE, hit.getfScore());
+            hitdata.put(Inspecthit.DELTASCORE, hit.getDeltaScore());
+            hitdata.put(Inspecthit.DELTASCORE_OTHER, hit.getDeltaScoreOther());
+            hitdata.put(Inspecthit.RECORDNUMBER, hit.getRecordNumber());
+            hitdata.put(Inspecthit.DBFILEPOS, Long.valueOf(hit.getDbFilePos()));
+            hitdata.put(Inspecthit.SPECFILEPOS, Long.valueOf(hit.getSpecFilePos()));
+            hitdata.put(Inspecthit.PRECURSOR_MZ_ERROR, hit.getPrecursorMZError());
 
             // Create the database object.
-            InspecthitTableAccessor inspecthit = new InspecthitTableAccessor(hitdata);
+            Inspecthit inspecthit = new Inspecthit(hitdata);
             inspecthit.persist(conn);
             
             // Get the cruxhitid

@@ -4,13 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 import de.mpa.db.MapContainer;
-import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.io.SixtyFourBitStringSupport;
 
 /**
  * This class handles the storage of the spectrum files.
@@ -26,11 +28,6 @@ public class SpectrumStorager extends BasicStorager {
     private MascotGenericFileReader mascotGenericFileReader;
     
     /**
-     * Long variable holds the experiment id.
-     */
-    private long expId;
-    
-    /**
      * The file instance.
      */
     private File file;
@@ -39,9 +36,9 @@ public class SpectrumStorager extends BasicStorager {
      * The Connection instance.
      */
     private Connection conn;
-    
-    private HashMap<String, Long> filename2IdMap;
-    private HashMap<String, Long> spectrumname2IdMap;
+
+    private HashMap<String, Long> spectrumTitle2IdMap;
+    private HashMap<String, Long> fileName2IdMap;
         
     private long start;
     private long end;
@@ -51,10 +48,9 @@ public class SpectrumStorager extends BasicStorager {
      *
      * @param instrumentid
      */
-    public SpectrumStorager(Connection conn, File file, long expId) {
+    public SpectrumStorager(Connection conn, File file) {
     	this.conn = conn;
     	this.file = file;
-        this.expId = expId;
     }
 
     /**
@@ -81,55 +77,67 @@ public class SpectrumStorager extends BasicStorager {
         List<MascotGenericFile> spectra = mascotGenericFileReader.getSpectrumFiles();
         
         // Init the hashmap for non-DB caching
-        filename2IdMap = new HashMap<String, Long>();
-        spectrumname2IdMap = new HashMap<String, Long>();
+        spectrumTitle2IdMap = new HashMap<String, Long>();
         
         // Iterate over all the spectra.        
         for (int i = 0; i < spectra.size(); i++) {
             MascotGenericFile mgf = spectra.get(i);
             
             // The filename.
-            String fileName = mgf.getFilename();
+            String title = mgf.getTitle();
+            // Format the spectrum title first.
+            if (title != null){
+            	title = title.replace('\\', '/');
+            }
+            // Remove leading whitespace
+            title = title.replaceAll("^\\s+", "");
+            // Remove trailing whitespace
+            title = title.replaceAll("\\s+$", "");
             
-            // Condition: Only add if the spectra are not stored yet!
-            Searchspectrum query = Searchspectrum.findFromFilename(fileName, conn);
-            if(query == null){
+            // Condition: Only add if the spectrum is not stored yet!
+            Spectrum query = Spectrum.findFromTitle(title, conn);
+            if (query == null) {
             	
 	            /* Spectrum section */
-	            HashMap<Object, Object> data = new HashMap<Object, Object>(10);
-	            // The project id.
-	            data.put(Searchspectrum.FK_EXPERIMENTID, Long.valueOf(expId));
-	            
-	            data.put(Searchspectrum.FILENAME, fileName);
-	            
-	            String spectrumName = "";
-	            
-	            // Format the spectrumname first.
-	            if(mgf.getTitle() != null){
-	            	spectrumName = mgf.getTitle().replace('\\', '/');
-	            }
-	            
-	            // Remove leading whitespace
-	            spectrumName = spectrumName.replaceAll("^\\s+", "");
-	            // Remove trailing whitespace
-	            spectrumName = spectrumName.replaceAll("\\s+$", "");
+	            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
             
-                data.put(Searchspectrum.SPECTRUMNAME, spectrumName);
+	            // The spectrum title
+                data.put(Spectrum.TITLE, title);
                 
                 // The precursor mass.
-                data.put(Searchspectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
+                data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
                 
-                // The charge
-                data.put(Searchspectrum.CHARGE, Long.valueOf(mgf.getCharge()));
+                // The precursor intensity
+                data.put(Spectrum.PRECURSOR_INT, mgf.getIntensity());
+                
+                // The precursor charge
+                data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(mgf.getCharge()));
+                
+                // The m/z array
+				Double[] mzDoubles = mgf.getPeaks().keySet().toArray(new Double[0]);
+                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(mzDoubles));
+                
+                // The intensity array
+				Double[] inDoubles = mgf.getPeaks().values().toArray(new Double[0]);
+                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
+                
+                // The charge array
+				Integer[] chInts = mgf.getCharges().values().toArray(new Integer[0]);
+                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
                 
                 // The total intensity.
-                data.put(Searchspectrum.TOTALINTENSITY, mgf.getTotalIntensity());
+                data.put(Spectrum.TOTAL_INT, mgf.getTotalIntensity());
                 
                 // The highest intensity.
-                data.put(Searchspectrum.MAXIMUMINTENSITY, mgf.getHighestIntensity());
+                data.put(Spectrum.MAXIMUM_INT, mgf.getHighestIntensity());
+                
+                // The creation and modification dates
+                long now = Calendar.getInstance().getTime().getTime();
+                data.put(Spectrum.CREATIONTIME, new java.sql.Timestamp(now));
+                data.put(Spectrum.MODIFICATIONTIME, new java.sql.Timestamp(now));
 
                 // Create the database object.
-                Searchspectrum spectrum = new Searchspectrum(data);
+                Spectrum spectrum = new Spectrum(data);
                 spectrum.persist(conn);
 
                 // Get the spectrumid from the generated keys.
@@ -139,19 +147,19 @@ public class SpectrumStorager extends BasicStorager {
                 if(i == 0) start = spectrumid;
                 if(i == (spectra.size() - 1)) end = spectrumid;
                 
-                //Fill the maps for caching reasons
-                filename2IdMap.put(fileName, spectrumid);
-                spectrumname2IdMap.put(spectrumName, spectrumid);
+                // Fill the maps for caching reasons
+                spectrumTitle2IdMap.put(title, spectrumid);
+                fileName2IdMap.put(mgf.getFilename(), spectrumid);
                 conn.commit();
             } else {
-                //Fill the maps for caching reasons
-                filename2IdMap.put(query.getFilename(), query.getSpectrumid());
-                spectrumname2IdMap.put(query.getSpectrumname(), query.getSpectrumid());
+                // Fill the maps for caching reasons
+                spectrumTitle2IdMap.put(query.getTitle(), query.getSpectrumid());
+                fileName2IdMap.put(mgf.getFilename(), query.getSpectrumid());
             }
  
         }
-        MapContainer.Filename2IdMap = filename2IdMap;
-        MapContainer.Spectrumname2IdMap = spectrumname2IdMap;
+        MapContainer.SpectrumTitle2IdMap = spectrumTitle2IdMap;
+        MapContainer.FileName2IdMap = fileName2IdMap;
     }
     
 	public long getStart() {

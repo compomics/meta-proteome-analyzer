@@ -72,18 +72,14 @@ public class Libspectrum extends LibspectrumTableAccessor {
         return temp;
     }
     
-    public static long getSpectrumIdFromSpectrumName(String spectrumName, boolean omssa) {
+    public static long getSpectrumIdFromSpectrumTitle(String spectrumName, boolean omssa) {
     	String formatted = "";
     	if(omssa){
     		formatted = spectrumName.replace("\\\\", "/");
     	} else {
     		formatted = spectrumName.replace('\\', '/');
     	}
-        return MapContainer.Spectrumname2IdMap.get(formatted);
-    }
-    
-    public static long getSpectrumIdFromFileName(String filename) {    	
-    	return MapContainer.Filename2IdMap.get(filename);
+        return MapContainer.SpectrumTitle2IdMap.get(formatted);
     }
     
     /**
@@ -198,14 +194,16 @@ public class Libspectrum extends LibspectrumTableAccessor {
      */
     public static List<Libspectrum> getEntriesWithinPrecursorRange(double precursorMz, double tolMz, Connection aConn) throws SQLException {
     	List<Libspectrum> temp = new ArrayList<Libspectrum>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PRECURSOR_MZ + " >= ? AND " +
-        																			 PRECURSOR_MZ + " <= ?");
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+        		 " INNER JOIN spectrum" +
+				 " ON spectrum." + Libspectrum.FK_SPECTRUMID +
+				 " = spectrum." + Spectrum.SPECTRUMID +
+				 " WHERE " + Spectrum.PRECURSOR_MZ +
+        		 " BETWEEN ? AND ?");
         ps.setDouble(1, precursorMz - tolMz);
         ps.setDouble(2, precursorMz + tolMz);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new Libspectrum(rs));
         }
         rs.close();

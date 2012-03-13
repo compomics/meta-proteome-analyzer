@@ -17,6 +17,7 @@ import javax.swing.SpinnerNumberModel;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.DbSearchSettings;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
 
@@ -30,11 +31,13 @@ public class DBSearchPanel extends JPanel {
 	private JCheckBox omssaChk;
 	private JCheckBox cruxChk;
 	private JCheckBox inspectChk;
-	private JComboBox searchTypeCbx;
+	private JCheckBox mascotChk;
 	private JButton xTandemSetBtn;
 	private JButton omssaSetBtn;
 	private JButton cruxSetBtn;
 	private JButton inspectSetBtn;
+	private JButton mascotSetBtn;
+	private JComboBox searchTypeCbx;
 
 	public DBSearchPanel() {
 		initComponents();
@@ -102,13 +105,14 @@ public class DBSearchPanel extends JPanel {
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
 		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu",
-				"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+				"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		// X!Tandem
 		xTandemChk = new JCheckBox("X!Tandem", true);
 		xTandemChk.setIconTextGap(10);
 		xTandemSetBtn = new JButton("Advanced Settings");
+		xTandemSetBtn.setEnabled(xTandemChk.isSelected());
 		xTandemChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				xTandemSetBtn.setEnabled(xTandemChk.isSelected());
@@ -118,6 +122,7 @@ public class DBSearchPanel extends JPanel {
 		omssaChk = new JCheckBox("OMSSA", true);
 		omssaChk.setIconTextGap(10);
 		omssaSetBtn = new JButton("Advanced Settings");
+		omssaSetBtn.setEnabled(omssaChk.isSelected());
 		omssaChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				omssaSetBtn.setEnabled(omssaChk.isSelected());
@@ -127,18 +132,31 @@ public class DBSearchPanel extends JPanel {
 		cruxChk = new JCheckBox("Crux", true);
 		cruxChk.setIconTextGap(10);
 		cruxSetBtn = new JButton("Advanced Settings");
+		cruxSetBtn.setEnabled(cruxChk.isSelected());
 		cruxChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				cruxSetBtn.setEnabled(cruxChk.isSelected());
 			}
 		});
+		
 		// InsPecT CheckBox
 		inspectChk = new JCheckBox("InsPecT", true);
 		inspectChk.setIconTextGap(10);
 		inspectSetBtn = new JButton("Advanced Settings");
+		inspectSetBtn.setEnabled(inspectChk.isSelected());
 		inspectChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				inspectSetBtn.setEnabled(inspectChk.isSelected());
+			}
+		});
+		// Mascot CheckBox
+		mascotChk = new JCheckBox("Mascot", false);
+		mascotChk.setIconTextGap(10);
+		mascotSetBtn = new JButton("Advanced Settings");
+		mascotSetBtn.setEnabled(mascotChk.isSelected());
+		mascotChk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				mascotSetBtn.setEnabled(mascotChk.isSelected());
 			}
 		});
 		
@@ -154,9 +172,11 @@ public class DBSearchPanel extends JPanel {
 		searchEngPnl.add(cruxSetBtn, cc.xy(4, 6));
 		searchEngPnl.add(inspectChk, cc.xy(2, 8));
 		searchEngPnl.add(inspectSetBtn, cc.xy(4, 8));
-		searchEngPnl.add(new JSeparator(), cc.xyw(2, 10, 3));
-		searchEngPnl.add(new JLabel("Search strategy:"), cc.xy(2, 12));
-		searchEngPnl.add(searchTypeCbx, cc.xy(4, 12));
+		searchEngPnl.add(mascotChk, cc.xy(2, 10));
+		searchEngPnl.add(mascotSetBtn, cc.xy(4, 10));
+		searchEngPnl.add(new JSeparator(), cc.xyw(2, 12, 3));
+		searchEngPnl.add(new JLabel("Search strategy:"), cc.xy(2, 14));
+		searchEngPnl.add(searchTypeCbx, cc.xy(4, 14));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, cc.xy(2, 2));
@@ -176,6 +196,7 @@ public class DBSearchPanel extends JPanel {
 			omssaSetBtn.setEnabled(omssaChk.isSelected());
 			cruxSetBtn.setEnabled(cruxChk.isSelected());
 			inspectSetBtn.setEnabled(inspectChk.isSelected());
+			mascotSetBtn.setEnabled(mascotChk.isSelected());
 		}
 	}
 
@@ -195,52 +216,20 @@ public class DBSearchPanel extends JPanel {
 		}
 	}
 
-//	/**
-//	 * RunDBSearchWorker class extending SwingWorker.
-//	 * 
-//	 * @author Thilo Muth
-//	 * 
-//	 */
-//	private class RunDbSearchWorker extends SwingWorker {
-//
-//		protected Object doInBackground() throws Exception {
-//			DbSearchSettings settings = collectDBSearchSettings();
-//			try {
-//				List<File> chunkedFiles = client.packFiles(1000, clientFrame
-//						.getFilePanel().getCheckBoxTree(), "test");
-//				client.sendFiles(chunkedFiles);
-//				client.runDbSearch(chunkedFiles, settings);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//			return 0;
-//		}
-//
-//		@Override
-//		public void done() {
-//			runDbSearchBtn.setEnabled(true);
-//		}
-//	}
-
-//	private DbSearchSettings collectDBSearchSettings() {
-//		DbSearchSettings settings = new DbSearchSettings();
-//		settings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
-//		settings.setFragmentIonTol((Double) fragTolSpn.getValue());
-//		settings.setPrecursorIonTol((Double) precTolSpn.getValue());
-//		settings.setNumMissedCleavages((Integer) missClvSpn.getValue());
-//		// TODO: Enzyme: settings.setEnzyme(value)
-//		settings.setXTandem(xTandemChk.isSelected());
-//		settings.setOmssa(omssaChk.isSelected());
-//		settings.setCrux(cruxChk.isSelected());
-//		settings.setInspect(inspectChk.isSelected());
-//		if (searchTypeCbx.getSelectedIndex() == 0) {
-//			settings.setDecoy(false);
-//			System.out.println(settings.isDecoy());
-//		} else if (searchTypeCbx.getSelectedIndex() == 1) {
-//			settings.setDecoy(true);
-//			System.out.println(settings.isDecoy());
-//		}
-//		return settings;
-//	}
+	public DbSearchSettings collectDBSearchSettings() {
+		DbSearchSettings settings = new DbSearchSettings();
+		settings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
+		settings.setFragmentIonTol((Double) fragTolSpn.getValue());
+		settings.setPrecursorIonTol((Double) precTolSpn.getValue());
+		settings.setNumMissedCleavages((Integer) missClvSpn.getValue());
+		// TODO: Enzyme: settings.setEnzyme(value)
+		settings.setXTandem(xTandemChk.isSelected());
+		settings.setOmssa(omssaChk.isSelected());
+		settings.setCrux(cruxChk.isSelected());
+		settings.setInspect(inspectChk.isSelected());
+		settings.setMascot(mascotChk.isSelected());
+		settings.setDecoy(searchTypeCbx.getSelectedIndex() == 1);
+		return settings;
+	}
 
 }

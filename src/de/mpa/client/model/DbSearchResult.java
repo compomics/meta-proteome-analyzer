@@ -9,6 +9,7 @@ import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 
 /**
@@ -19,7 +20,7 @@ import de.mpa.db.accessor.XTandemhit;
 public class DbSearchResult {
 	
 	// Search spectra
-	private List<Searchspectrum> querySpectra = new ArrayList<Searchspectrum>();
+	private List<Spectrum> querySpectra = new ArrayList<Spectrum>();
 		
 	// X!Tandem results
 	private Map<String, List<XTandemhit>> xTandemResults = new HashMap<String, List<XTandemhit>>();
@@ -39,11 +40,11 @@ public class DbSearchResult {
 	// The protein hits.
 	private ProteinHitSet proteins;
 	
-	public List<Searchspectrum> getQuerySpectra() {
+	public List<Spectrum> getQuerySpectra() {
 		return querySpectra;
 	}
 
-	public void setQuerySpectra(List<Searchspectrum> querySpectra) {
+	public void setQuerySpectra(List<Spectrum> querySpectra) {
 		this.querySpectra = querySpectra;
 	}
 

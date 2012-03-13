@@ -114,7 +114,7 @@ public class OmssaStorager extends BasicStorager {
     	    	
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
     	    	String spectrumName = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
-    	    	long spectrumid = Searchspectrum.getSpectrumIdFromSpectrumName(spectrumName, true);
+    	    	long spectrumid = Searchspectrum.getSpectrumIdFromTitle(spectrumName, true);
     	    	hitdata.put(OmssahitTableAccessor.FK_SPECTRUMID, spectrumid);
     	    	
     	    	// Get the MSPepHit (for the accession)

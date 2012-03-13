@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import de.mpa.db.accessor.CruxhitTableAccessor;
+import de.mpa.db.MapContainer;
+import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.parser.crux.CruxFile;
 import de.mpa.parser.crux.CruxHit;
 import de.mpa.parser.crux.CruxParser;
@@ -86,25 +86,25 @@ public class CruxStorager implements Storager {
                 String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
                 
                 // Get the spectrum id
-                long spectrumID = Searchspectrum.getSpectrumIdFromFileName(name);            
-                hitdata.put(CruxhitTableAccessor.FK_SPECTRUMID, spectrumID);
+                long spectrumID = MapContainer.FileName2IdMap.get(name);
+                hitdata.put(Cruxhit.FK_SPECTRUMID, spectrumID);
                 
                 // Get the peptide id
                 long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getPeptide(), conn);
-                hitdata.put(CruxhitTableAccessor.FK_PEPTIDEID, peptideID);
+                hitdata.put(Cruxhit.FK_PEPTIDEID, peptideID);
                 
-                hitdata.put(CruxhitTableAccessor.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
-                hitdata.put(CruxhitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
-                hitdata.put(CruxhitTableAccessor.NEUTRAL_MASS, hit.getNeutralMass());
-                hitdata.put(CruxhitTableAccessor.PEPTIDE_MASS, hit.getPeptideMass());
-                hitdata.put(CruxhitTableAccessor.DELTA_CN, hit.getDeltaCN());
-                hitdata.put(CruxhitTableAccessor.XCORR_SCORE, hit.getxCorrScore());
-                hitdata.put(CruxhitTableAccessor.XCORR_RANK, Long.valueOf(hit.getxCorrRank()));
-                hitdata.put(CruxhitTableAccessor.PERCOLATOR_SCORE, hit.getPercolatorScore());
-                hitdata.put(CruxhitTableAccessor.PERCOLATOR_RANK, Long.valueOf(hit.getPercolatorRank()));
-                hitdata.put(CruxhitTableAccessor.QVALUE, hit.getqValue());
-                hitdata.put(CruxhitTableAccessor.MATCHES_SPECTRUM, Long.valueOf(hit.getMatchesSpectrum()));                
-                hitdata.put(CruxhitTableAccessor.CLEAVAGE_TYPE, hit.getCleavageType());
+                hitdata.put(Cruxhit.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
+                hitdata.put(Cruxhit.CHARGE, Long.valueOf(hit.getCharge()));
+                hitdata.put(Cruxhit.NEUTRAL_MASS, hit.getNeutralMass());
+                hitdata.put(Cruxhit.PEPTIDE_MASS, hit.getPeptideMass());
+                hitdata.put(Cruxhit.DELTA_CN, hit.getDeltaCN());
+                hitdata.put(Cruxhit.XCORR_SCORE, hit.getxCorrScore());
+                hitdata.put(Cruxhit.XCORR_RANK, Long.valueOf(hit.getxCorrRank()));
+                hitdata.put(Cruxhit.PERCOLATOR_SCORE, hit.getPercolatorScore());
+                hitdata.put(Cruxhit.PERCOLATOR_RANK, Long.valueOf(hit.getPercolatorRank()));
+                hitdata.put(Cruxhit.QVALUE, hit.getqValue());
+                hitdata.put(Cruxhit.MATCHES_SPECTRUM, Long.valueOf(hit.getMatchesSpectrum()));                
+                hitdata.put(Cruxhit.CLEAVAGE_TYPE, hit.getCleavageType());
                 
                 Long proteinID;
             	// parse the header
@@ -135,12 +135,12 @@ public class CruxStorager implements Storager {
         			}
                 }
                 
-                hitdata.put(CruxhitTableAccessor.FLANK_AA, hit.getFlankingAA());
+                hitdata.put(Cruxhit.FLANK_AA, hit.getFlankingAA());
                 
                 // Create the database object.
-                if((Double)hitdata.get(CruxhitTableAccessor.QVALUE) < 0.1){
+                if((Double)hitdata.get(Cruxhit.QVALUE) < 0.1){
                 	// Create the database object.
-                    CruxhitTableAccessor cruxhit = new CruxhitTableAccessor(hitdata);
+                    Cruxhit cruxhit = new Cruxhit(hitdata);
                     cruxhit.persist(conn);
                     
                     // Get the cruxhitid

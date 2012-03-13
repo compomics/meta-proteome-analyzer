@@ -34,7 +34,7 @@ import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pepnovohit;
-import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 
 public class DbSearchResultPanel extends JPanel{
@@ -381,7 +381,7 @@ public class DbSearchResultPanel extends JPanel{
 	}
 	
 	private void updateDbResultsTable(){
-		List<Searchspectrum> querySpectra = dbSearchResult.getQuerySpectra();
+		List<Spectrum> querySpectra = dbSearchResult.getQuerySpectra();
 		xTandemResults = dbSearchResult.getxTandemResults();
 		ommsaResults = dbSearchResult.getOmssaResults();      
 		cruxResults = dbSearchResult.getCruxResults();        	
@@ -392,14 +392,14 @@ public class DbSearchResultPanel extends JPanel{
 
 		if (querySpectra != null) {
 			for (int i = 0; i < querySpectra.size(); i++) {
-				Searchspectrum spectrum = querySpectra.get(i);
-				String title = spectrum.getSpectrumname();
+				Spectrum spectrum = querySpectra.get(i);
+				String title = spectrum.getTitle();
 
 				((DefaultTableModel) querySpectraTbl.getModel()).addRow(new Object[]{
 						i + 1,
 						title,
 						spectrum.getPrecursor_mz(),
-						spectrum.getCharge(), 
+						spectrum.getPrecursor_charge(), 
 						voteMap.get(title) + " / 4"});
 			}
 		}

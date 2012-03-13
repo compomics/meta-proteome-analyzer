@@ -59,11 +59,9 @@ public interface Server {
      * @param arg0
      */
     @WebMethod
-    public void runDbSearch(
-        @WebParam(name = "arg0", partName = "arg0")
-        String arg0,
-        @WebParam(name = "arg1", partName = "arg1")
-        DbSearchSettings arg1);
+	public void runDbSearch(
+			@WebParam(name = "arg0", partName = "arg0") String arg0,
+			@WebParam(name = "arg1", partName = "arg1") DbSearchSettings arg1);
 
     /**
      * 
