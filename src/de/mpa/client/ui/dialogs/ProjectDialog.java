@@ -598,6 +598,7 @@ public class ProjectDialog extends JDialog {
 				}
 			}
 		});
+		
 		//  Shows property name and values of the selected table row and enables edting the entry
 		projPropsTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
