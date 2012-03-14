@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.Border;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -50,13 +51,13 @@ public class DBSearchPanel extends JPanel {
 		
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("9dlu, p, 9dlu",
-									  "3dlu, p, 5dlu, f:p:g, 5dlu, f:p:g, 9dlu"));
+		this.setLayout(new FormLayout("7dlu, p, 7dlu",
+									  "0dlu, p, 5dlu, f:p:g, 5dlu, f:p:g, 7dlu"));
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
 		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p:g, 5dlu",
-												 "3dlu, p, 5dlu"));
+												 "0dlu, p, 5dlu"));
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
@@ -69,7 +70,7 @@ public class DBSearchPanel extends JPanel {
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("Parameters"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
@@ -105,7 +106,7 @@ public class DBSearchPanel extends JPanel {
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
 		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu",
-				"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		// X!Tandem
@@ -211,8 +212,12 @@ public class DBSearchPanel extends JPanel {
 				setChildrenEnabled((JComponent) child, enabled);
 			}
 		}
-		if (!(parent instanceof JPanel)) {	// don't mess with JPanels
+		if (!(parent instanceof DBSearchPanel)) { // don't mess with DBSearchPanels
 			parent.setEnabled(enabled);
+			Border border = parent.getBorder();
+			if (border instanceof ComponentTitledBorder) {
+				((ComponentTitledBorder) border).setEnabled(enabled);
+			}
 		}
 	}
 

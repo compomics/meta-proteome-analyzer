@@ -166,13 +166,13 @@ public class SpecLibSearchPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("9dlu, p, 9dlu", // col
-				"3dlu, p, 6dlu, f:p:g, 9dlu")); // row
+		this.setLayout(new FormLayout("7dlu, p, 7dlu", // col
+				"0dlu, p, 6dlu, f:p:g, 7dlu")); // row
 
 		// spectral library search parameters
 		JPanel paramDbPnl = new JPanel();
 		paramDbPnl.setLayout(new FormLayout("5dlu, r:p:g, 5dlu", // col
-				"3dlu, p, 5dlu, p, 5dlu")); // row
+				"0dlu, p, 5dlu, p, 5dlu")); // row
 		// paramDbPnl.setBorder(BorderFactory.createTitledBorder("Search parameters"));
 		paramDbPnl.setBorder(new ComponentTitledBorder(new JLabel(
 				"Search parameters"), paramDbPnl));
@@ -196,7 +196,7 @@ public class SpecLibSearchPanel extends JPanel {
 		bottomPnl.add(advBtn, cc.xy(1, 1));
 
 		final JPanel advPnl = new JPanel(new FormLayout("5dlu, p, 5dlu",
-				"3dlu, p, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu"));
 		advPnl.setBorder(BorderFactory.createEtchedBorder());
 
 		JPanel expIdPnl = new JPanel();
@@ -258,7 +258,7 @@ public class SpecLibSearchPanel extends JPanel {
 		// similarity scoring parameters
 		JPanel paramScPnl = new JPanel();
 		paramScPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-				"3dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
 		// paramScPnl.setBorder(BorderFactory.createTitledBorder("Scoring parameters"));
 		paramScPnl.setBorder(new ComponentTitledBorder(new JLabel(
 				"Scoring parameters"), paramScPnl));
@@ -625,11 +625,8 @@ public class SpecLibSearchPanel extends JPanel {
 				setChildrenEnabled((JComponent) child, enabled);
 			}
 		}
-		if (!(parent instanceof JPanel)) { // don't mess with JPanels
+		if (!(parent instanceof SpecLibSearchPanel)) { // don't mess with SpecLibSearchPanels
 			parent.setEnabled(enabled);
-		}
-		if (!(parent instanceof SpecLibSearchPanel)) { // don't mess with
-														// SpecLibSearchPanels
 			Border border = parent.getBorder();
 			if (border instanceof ComponentTitledBorder) {
 				((ComponentTitledBorder) border).setEnabled(enabled);

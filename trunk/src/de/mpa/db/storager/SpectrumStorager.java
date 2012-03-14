@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -130,11 +129,6 @@ public class SpectrumStorager extends BasicStorager {
                 
                 // The highest intensity.
                 data.put(Spectrum.MAXIMUM_INT, mgf.getHighestIntensity());
-                
-                // The creation and modification dates
-                long now = Calendar.getInstance().getTime().getTime();
-                data.put(Spectrum.CREATIONTIME, new java.sql.Timestamp(now));
-                data.put(Spectrum.MODIFICATIONTIME, new java.sql.Timestamp(now));
 
                 // Create the database object.
                 Spectrum spectrum = new Spectrum(data);

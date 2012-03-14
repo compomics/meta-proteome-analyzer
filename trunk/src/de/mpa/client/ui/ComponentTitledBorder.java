@@ -32,7 +32,7 @@ import javax.swing.border.EmptyBorder;
  */
 
 public class ComponentTitledBorder implements Border, MouseListener {
-	int offset = 6;
+	int offset = 8;
 
 	JComponent comp;
 	JComponent container;
@@ -41,7 +41,7 @@ public class ComponentTitledBorder implements Border, MouseListener {
 	JPanel dummyPanel;
 
 	public ComponentTitledBorder(JComponent comp, JComponent container) {
-		this(comp, container, BorderFactory.createEtchedBorder());
+		this(comp, container, BorderFactory.createTitledBorder(" "));
 	}
 
 	public ComponentTitledBorder(JComponent comp, JComponent container, Border border) {

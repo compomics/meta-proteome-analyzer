@@ -2,25 +2,33 @@ package de.mpa.client.ui.panels;
 
 import java.awt.AWTKeyStroke;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -28,12 +36,15 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 
 public class SettingsPanel extends JPanel {
 
 	private ClientFrame clientFrame;
+	private Client client;
+	
 	/**
 	 * The spinner to define the amount of spectra to be consolidated into a transfer package.
 	 */
@@ -51,6 +62,7 @@ public class SettingsPanel extends JPanel {
 	
 	public SettingsPanel(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
+		this.client = clientFrame.getClient();
 		this.currentPrg = clientFrame.getStatusBar().getCurrentProgressBar();
 		this.statusTtf = clientFrame.getStatusBar().getCurrentStatusTextField();
 		this.timeLbl = clientFrame.getStatusBar().getTimeLabel();
@@ -83,8 +95,7 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		
-		ComponentTitledBorder databaseBrd = new ComponentTitledBorder(
-				databaseChk, databasePnl);
+		ComponentTitledBorder databaseBrd = new ComponentTitledBorder(databaseChk, databasePnl);
 		databasePnl.setBorder(databaseBrd);
 
 		// spectral library search settings panel
@@ -99,8 +110,7 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		
-		ComponentTitledBorder specLibBrd = new ComponentTitledBorder(
-				specLibChk, specLibPnl);
+		ComponentTitledBorder specLibBrd = new ComponentTitledBorder(specLibChk, specLibPnl);
 		specLibPnl.setBorder(specLibBrd);
 
 		// de novo search settings panel
@@ -115,63 +125,51 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		
-		ComponentTitledBorder deNovoBrd = new ComponentTitledBorder(
-				deNovoChk, deNovoPnl);
+		ComponentTitledBorder deNovoBrd = new ComponentTitledBorder(deNovoChk, deNovoPnl);
 		deNovoPnl.setBorder(deNovoBrd);
 
 		// general settings panel
-		JPanel processPanel = new JPanel();
-		processPanel.setLayout(new FormLayout("5dlu, p, 2dlu, p, 2dlu, p, 5dlu:g, p:g, 5dlu",
-											  "5dlu, p, 5dlu"));
+		JPanel processPnl = new JPanel();
+		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",
+											"0dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
+		processPnl.setBorder(BorderFactory.createTitledBorder("General"));
 		
-		JSpinner packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 1));
+		packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 1));
 		packSpn.setToolTipText("Number of spectra per transfer package"); 
 		packSpn.setPreferredSize(new Dimension(packSpn.getPreferredSize().width*2,
 											   packSpn.getPreferredSize().height));
 		
-		processBtn = new JButton("Process");
-		processPanel.setBorder(BorderFactory.createTitledBorder("Start searching"));
+		JCheckBox integrateChk = new JCheckBox(" Embed processed input data in spectral library");
+		
+		ImageIcon processIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/search.png"));
+		processIcon = new ImageIcon(processIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+		
+		processBtn = new JButton("Start searching", processIcon);
+		processBtn.setEnabled(false);
+		
+		processBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		processBtn.setFont(processBtn.getFont().deriveFont(
+				Font.BOLD, processBtn.getFont().getSize2D()*1.0f));
 
 		processBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				processBtn.setEnabled(false);
-//				final long startTime = System.currentTimeMillis();
-
-//				SpecLibSearchWorker worker = new SpecLibSearchWorker(clientFrame);
-				RunDbSearchWorker worker = new RunDbSearchWorker();
-//				worker.addPropertyChangeListener(new PropertyChangeListener() {
-//					@Override
-//					public void propertyChange(PropertyChangeEvent evt) {
-//						if (evt.getPropertyName() == "progress") {
-//							int progress = (Integer) evt.getNewValue();
-//							currentPrg.setValue(progress);
-//							long elapsedTime = System.currentTimeMillis() - startTime;
-//							long remainingTime = 0L;
-//							if (progress > 0.0) {
-//								remainingTime = (long) (elapsedTime/progress*(100-progress)/1000);
-//							}
-//							timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
-//									(remainingTime%3600)/60, (remainingTime%60)));
-//						} else if (evt.getPropertyName() == "text") {
-//							statusTtf.setText((String) evt.getNewValue());
-//						}
-//					}
-//				});
-				worker.execute();
+				new RunDbSearchWorker().execute();
 			}
 		});
 		
-		processPanel.add(new JLabel("Transfer"), cc.xy(2, 2));
-		processPanel.add(packSpn, cc.xy(4, 2));
-		processPanel.add(new JLabel("spectra per package"), cc.xy(6, 2));
-		processPanel.add(processBtn, cc.xy(8, 2));
+		processPnl.add(new JLabel("Transfer up to"), cc.xy(2, 2));
+		processPnl.add(packSpn, cc.xy(4, 2));
+		processPnl.add(new JLabel("spectra per package"), cc.xy(6, 2));
+		processPnl.add(integrateChk, cc.xyw(2, 4, 5));
+		processPnl.add(processBtn, cc.xyw(4, 6, 3));
 		
 		// add sub-panels to main settings panel
 		this.add(databasePnl, cc.xy(2, 2));
 		this.add(specLibPnl, cc.xy(4, 2));
 		this.add(deNovoPnl, cc.xy(6, 2));
-		this.add(processPanel, cc.xyw(4, 4, 3));
+		this.add(processPnl, cc.xy(6, 4));
 	}
 	
 
@@ -184,16 +182,44 @@ public class SettingsPanel extends JPanel {
 	 */
 	private class RunDbSearchWorker extends SwingWorker {
 
-		protected Object doInBackground() throws Exception {
-			DbSearchSettings settings = databasePnl.collectDBSearchSettings();
+		protected Object doInBackground() {
 			try {
-				Client client = clientFrame.getClient();
-				List<File> chunkedFiles = client.packFiles((Integer) packSpn.getValue(), clientFrame
-						.getFilePanel().getCheckBoxTree(), "test");
+				DbSearchSettings settings = databasePnl.collectDBSearchSettings();
+				
+				final long startTime = System.currentTimeMillis();
+				
+				CheckBoxTreeManager checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
+				final int maxProgress = checkBoxTree.getSelectionModel().getSelectionCount();
+				
+				client.addPropertyChangeListener(new PropertyChangeListener() {
+					@Override
+					public void propertyChange(PropertyChangeEvent pce) {
+						if (pce.getPropertyName().equalsIgnoreCase("progress")) {
+							int progressAbs = (Integer) pce.getNewValue();
+							double progressRel = progressAbs*100.0/maxProgress;
+							
+							currentPrg.setValue((int) progressRel);
+							
+							long elapsedTime = System.currentTimeMillis() - startTime;
+							long remainingTime = 0L;
+							if (progressRel > 0.0) {
+								remainingTime = (long) (elapsedTime/progressAbs*(100-progressRel)/1000);
+							}
+							timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
+									(remainingTime%3600)/60, (remainingTime%60)));
+						} else if (pce.getPropertyName().equalsIgnoreCase("new message")) {
+							statusTtf.setText(pce.getNewValue().toString());
+						}
+					}
+				});
+				statusTtf.setText("PACKING SPECTRA");
+				int packSize = (Integer) packSpn.getValue();
+				List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");
+				statusTtf.setText("PACKING SPECTRA FINISHED");
 				client.sendFiles(chunkedFiles);
 				client.runDbSearch(chunkedFiles, settings);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(clientFrame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
 			}
 			return 0;
 		}
@@ -202,6 +228,18 @@ public class SettingsPanel extends JPanel {
 		public void done() {
 			processBtn.setEnabled(true);
 		}
+	}
+
+	/**
+	 * Method to get the spectral library search settings panel.
+	 * @return
+	 */
+	public SpecLibSearchPanel getSpecLibSearchPanel() {
+		return specLibPnl;
+	}
+
+	public JButton getProcessButton() {
+		return processBtn;
 	}
 
 //	/**

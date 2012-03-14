@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -279,11 +278,6 @@ public class SpecLibFrame extends JFrame {
     	                
     	                // The highest intensity.
     	                data.put(Spectrum.MAXIMUM_INT, mgf.getHighestIntensity());
-    	                
-    	                // The creation and modification dates
-    	                long now = Calendar.getInstance().getTime().getTime();
-    	                data.put(Spectrum.CREATIONTIME, new java.sql.Timestamp(now));
-    	                data.put(Spectrum.MODIFICATIONTIME, new java.sql.Timestamp(now));
 
     	                // Create the database object.
     	                Spectrum spectrum = new Spectrum(data);
@@ -297,8 +291,6 @@ public class SpecLibFrame extends JFrame {
     					
     					libdata.put(Libspectrum.FK_SPECTRUMID, spectrumid);
     					libdata.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf((Integer)idSpn.getValue()));
-    					libdata.put(Libspectrum.CREATIONDATE, new java.sql.Timestamp(now));
-    					libdata.put(Libspectrum.MODIFICATIONDATE, new java.sql.Timestamp(now));
 
     					// Create the database object.
     					Libspectrum libspectrum = new Libspectrum(libdata);

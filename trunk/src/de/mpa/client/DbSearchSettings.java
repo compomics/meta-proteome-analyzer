@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="Omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="precursorIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="Mascot" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="decoy" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -46,6 +47,7 @@ import javax.xml.bind.annotation.XmlType;
     "omssa",
     "precursorIonTol",
     "xTandem",
+    "mascot",
     "decoy"
 })
 public class DbSearchSettings {
@@ -63,6 +65,7 @@ public class DbSearchSettings {
     protected double precursorIonTol;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
+    @XmlElement(name = "Mascot")
     protected boolean mascot;
     protected boolean decoy;
 

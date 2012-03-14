@@ -1,12 +1,14 @@
 package de.mpa.client.ui;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
+import javax.swing.text.DefaultCaret;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -18,6 +20,8 @@ public class StatusPanel extends JPanel {
 	private JProgressBar totalPrg;
 	private JTextField statusTtf;
 	private JLabel timeLbl;
+	private JTextField projectTtf;
+	private JTextField experimentTtf;
 
 	public StatusPanel(ClientFrame clientFrame) {
 //		this.clientFrame = clientFrame;
@@ -28,22 +32,34 @@ public class StatusPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("0dlu:g, 2dlu, 0dlu:g, 2dlu, 0dlu:g, 2dlu, 0dlu:g, p, 0dlu:g",
+		this.setLayout(new FormLayout("0dlu:g, 0dlu:g, 2dlu, 0dlu:g, 2dlu, 0dlu:g, 2dlu, 0dlu:g, p, 0dlu:g",
 									  "f:p:g"));
 
-//		JProgressBar dummyPrg = new JProgressBar();
-//		Border progressBorder = dummyPrg.getBorder();
 		BevelBorder bevelBrd = new ThinBevelBorder(BevelBorder.LOWERED);
 		
-		// Project/Experiment name
-		JTextField projectTtf = new JTextField("ProjectName - ExperimentName");
+		// Project name
+		JPanel projectPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
+													  "2dlu, f:p:g, 2dlu"));
+		projectPnl.setBorder(bevelBrd);
+
+		projectTtf = new JTextField("ProjectName");
 		projectTtf.setBorder(null);
 		projectTtf.setEditable(false);
-		
-		JPanel projectPnl = new JPanel(new FormLayout("2dlu, p, 2dlu",
-													  "2dlu, f:p:g, 2dlu"));
+		projectTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
+
 		projectPnl.add(projectTtf, cc.xy(2,2));
-		projectPnl.setBorder(bevelBrd);
+
+		// Experiment name
+		JPanel experimentPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
+														 "2dlu, f:p:g, 2dlu"));
+		experimentPnl.setBorder(bevelBrd);
+		
+		experimentTtf = new JTextField("ExperimentName");
+		experimentTtf.setBorder(null);
+		experimentTtf.setEditable(false);
+		experimentTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
+		
+		experimentPnl.add(experimentTtf, cc.xy(2,2));
 
 		// Settings info
 		JPanel settingsPnl = new JPanel(new FormLayout("2dlu, p, 2dlu",
@@ -51,17 +67,19 @@ public class StatusPanel extends JPanel {
 		JTextField settingsTtf = new JTextField("C:\\Temp\\Settings01.txt");
 		settingsTtf.setBorder(null);
 		settingsTtf.setEditable(false);
+		settingsTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
 
 		settingsPnl.add(settingsTtf, cc.xy(2,2));
 		settingsPnl.setBorder(bevelBrd);
 		
 		// generic text field
-		JPanel textPnl = new JPanel(new FormLayout("2dlu, p, 2dlu",
+		JPanel textPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
 												   "2dlu, f:p:g, 2dlu"));
 		
-		JTextField textTtf = new JTextField("Please wait... search in progress...");
+		JTextField textTtf = new JTextField();
 		textTtf.setEditable(false);
 		textTtf.setBorder(null);
+		textTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
 		
 		textPnl.add(textTtf, cc.xy(2, 2));
 		textPnl.setBorder(bevelBrd);
@@ -71,14 +89,14 @@ public class StatusPanel extends JPanel {
 				   "0dlu, f:p:g(0.66666), f:p:g(0.33333), 0dlu"));
 		currentPrg = new JProgressBar();
 		currentPrg.setStringPainted(true);
-		currentPrg.setValue(23);
+		currentPrg.setValue(100);
 		currentPrg.setBorder(null);
 		currentPrg.setPreferredSize(new Dimension(currentPrg.getPreferredSize().width,
 				(int) (currentPrg.getPreferredSize().height*0.66666)));
 		
 		totalPrg = new JProgressBar();
 		totalPrg.setStringPainted(false);
-		totalPrg.setValue(57);
+		totalPrg.setValue(100);
 		totalPrg.setBorder(null);
 		totalPrg.setPreferredSize(new Dimension(totalPrg.getPreferredSize().width,
 				(int) (totalPrg.getPreferredSize().height*0.33333)));
@@ -96,21 +114,24 @@ public class StatusPanel extends JPanel {
 		progressPnl.setBorder(bevelBrd);
 		
 		// current status message display
-		JPanel currentStatusPnl = new JPanel(new FormLayout("2dlu, p, 2dlu", "2dlu, f:p:g, 2dlu"));
+		JPanel currentStatusPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
+				"2dlu, f:p:g, 2dlu"));
 		
-		statusTtf = new JTextField("X!TANDEM RUNNING");
+		statusTtf = new JTextField();
 		statusTtf.setBorder(null);
 		statusTtf.setEditable(false);
+		statusTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
 		
 		currentStatusPnl.add(statusTtf, cc.xy(2,2));
 		currentStatusPnl.setBorder(bevelBrd);
 		
 		this.add(projectPnl, cc.xy(1, 1));
-		this.add(settingsPnl, cc.xy(3, 1));
-		this.add(textPnl, cc.xy(5, 1));
-		this.add(progressPnl, cc.xy(7, 1));
-		this.add(timePnl, cc.xy(8, 1));
-		this.add(currentStatusPnl, cc.xy(9, 1));
+		this.add(experimentPnl, cc.xy(2, 1));
+		this.add(settingsPnl, cc.xy(4, 1));
+		this.add(textPnl, cc.xy(6, 1));
+		this.add(progressPnl, cc.xy(8, 1));
+		this.add(timePnl, cc.xy(9, 1));
+		this.add(currentStatusPnl, cc.xy(10, 1));
 
 	}
 

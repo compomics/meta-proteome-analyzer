@@ -16,11 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -34,7 +33,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
@@ -255,33 +256,28 @@ public class FilePanel extends JPanel {
 
 		JScrollPane treePane = new JScrollPane(tree);
 		treePane.setPreferredSize(new Dimension(0, 0));
+		treePane.setBorder(null);
 
 		// left part of outer split pane
 		JPanel leftPnl = new JPanel();
-		leftPnl.setLayout(new FormLayout("p:g",					// col
-		"p, f:p:g"));	// row
-		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
-		leftDummyTable.getTableHeader().setReorderingAllowed(false);
-		leftDummyTable.getTableHeader().setResizingAllowed(false);
-		leftDummyTable.getTableHeader().setPreferredSize(new JCheckBox().getPreferredSize());
-		JScrollPane leftDummyScpn = new JScrollPane(leftDummyTable);
-		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
-
-		leftPnl.add(leftDummyScpn, cc.xy(1,1));
-		//		leftPnl.add(new JLabel("Files"), cc.xy(1,1));
+		leftPnl.setLayout(new FormLayout("p:g",			// col
+										 "p, f:p:g"));	// row
+		leftPnl.setBorder(UIManager.getBorder("ScrollPane.border"));
+		
+		JLabel leftHeaderLbl = new JLabel("Files", SwingConstants.CENTER);
+		leftHeaderLbl.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+		
+		leftPnl.add(leftHeaderLbl, cc.xy(1,1));
 		leftPnl.add(treePane, cc.xy(1,2));
 
 		// top part of right-hand inner split pane
 		JPanel topRightPnl = new JPanel();
-		topRightPnl.setLayout(new FormLayout("p:g",					// col
-		"p, f:p:g"));	// row
-		final JTable rightDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Details"})));
-		rightDummyTable.getTableHeader().setReorderingAllowed(false);
-		rightDummyTable.getTableHeader().setResizingAllowed(false);
-		rightDummyTable.getTableHeader().setPreferredSize(new JCheckBox().getPreferredSize());
-		JScrollPane rightDummyScpn = new JScrollPane(rightDummyTable);
-		rightDummyScpn.setPreferredSize(rightDummyTable.getTableHeader().getPreferredSize());
-		//		JLabel rightLbl = new JLabel("Details");
+		topRightPnl.setLayout(new FormLayout("p:g",			// col
+											 "p, f:p:g"));	// row
+		topRightPnl.setBorder(UIManager.getBorder("ScrollPane.border"));
+		
+		final JLabel rightHeaderLbl = new JLabel("Details", SwingConstants.CENTER);
+		rightHeaderLbl.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 
 		String[] columnNames = {null, null};
 		Object[][] data = {
@@ -308,16 +304,17 @@ public class FilePanel extends JPanel {
 		detailScpn.setMinimumSize(new Dimension(0, fileDetailsTbl.getRowHeight()));
 		detailScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		detailScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		detailScpn.setBorder(BorderFactory.createEmptyBorder());
 
-		topRightPnl.add(rightDummyScpn, cc.xy(1,1));
+		topRightPnl.add(rightHeaderLbl, cc.xy(1,1));
 		topRightPnl.add(detailScpn, cc.xy(1,2));
-		topRightPnl.setMinimumSize(new Dimension(0, rightDummyTable.getTableHeader().getPreferredSize().height + 
+		topRightPnl.setMinimumSize(new Dimension(0, rightHeaderLbl.getPreferredSize().height + 
 				fileDetailsTbl.getRowHeight() + 2));
 
 		final JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topRightPnl, filePlotPnl);
 		rightSplit.setBorder(null);
 		rightSplit.setMinimumSize(new Dimension(200, 0));
-		rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
+		rightSplit.setDividerLocation(rightHeaderLbl.getPreferredSize().height + 
 				(fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
 		rightSplit.setContinuousLayout(true);
 		BasicSplitPaneDivider rightDivider = ((BasicSplitPaneUI) rightSplit.getUI()).getDivider();
@@ -326,7 +323,7 @@ public class FilePanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {	// reset divider location on double-click
-					rightSplit.setDividerLocation(rightDummyTable.getTableHeader().getPreferredSize().height + 
+					rightSplit.setDividerLocation(rightHeaderLbl.getPreferredSize().height + 
 							(fileDetailsTbl.getRowCount()+1)*fileDetailsTbl.getRowHeight() + 2);
 				}
 			}
@@ -439,6 +436,7 @@ public class FilePanel extends JPanel {
 
 			filePlotPnl.setSpectrumFile(mgf,Color.RED);
 			filePlotPnl.repaint();
+			SpecLibSearchPanel slsp = clientFrame.getSpecLibSearchPanel();
 			clientFrame.getSpecLibSearchPanel().refreshPlot(mgf);
 			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			TableConfig.packColumn(fileDetailsTbl, 1, 5);
@@ -576,7 +574,7 @@ public class FilePanel extends JPanel {
 
 				clientFrame.log.info("Added " + newLeaves + " file(s).");
 				if (numFiles > 0) {
-					if (clientFrame.connectedToServer) {
+					if (clientFrame.isConnectedToServer()) {
 						clientFrame.sendBtn.setEnabled(true);
 					}
 					clrBtn.setEnabled(true);
