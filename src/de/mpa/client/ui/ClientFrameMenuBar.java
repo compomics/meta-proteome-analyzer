@@ -86,7 +86,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		databaseItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
 		
-		final JPanel dbPnl = constructDbPanel();
+		final JPanel dbPnl = constructDbSettingsPanel();
 
 		// action listener for database settings
 		databaseItem.addActionListener(new ActionListener() {
@@ -208,7 +208,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * Method to construct database settings panel.
 	 * @return
 	 */
-	private JPanel constructDbPanel() {
+	private JPanel constructDbSettingsPanel() {
 		
 		final JPanel dbPnl = new JPanel();
 		
@@ -318,6 +318,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				client.connect();
+				clientFrame.setConnectedToServer(true);
+				clientFrame.getSettingsPanel().getProcessButton().setEnabled(true);
 				JOptionPane.showMessageDialog(clientFrame, "Web Service @" + srvHostTtf.getText() + ":" + srvPortTtf.getText() + " established.");
 			}
 		});

@@ -46,13 +46,13 @@ public class DeNovoSearchPanel extends JPanel {
 		
 		CellConstraints cc = new CellConstraints();
 		
-		this.setLayout(new FormLayout("9dlu, p, 9dlu",					// col
-									  "3dlu, f:p, 5dlu, f:p:g, 9dlu"));	// row
+		this.setLayout(new FormLayout("7dlu, p, 7dlu",					// col
+									  "0dlu, f:p, 5dlu, f:p:g, 7dlu"));	// row
 
 		// Parameters		
 		parPnl = new JPanel();
 		parPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",		// col
-										"3dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));	// row
+										"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));	// row
 		parPnl.setBorder(new ComponentTitledBorder(new JLabel("Parameters"), parPnl));
 
 		// Enzymes
@@ -111,7 +111,7 @@ public class DeNovoSearchPanel extends JPanel {
 		// Panel PTMs
 		ptmsPnl = new JPanel();
 		ptmsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-										 "3dlu, f:p:g, 5dlu"));	// row
+										 "0dlu, f:p:g, 5dlu"));	// row
 		ptmsPnl.setBorder(new ComponentTitledBorder(new JLabel("PTMs"), ptmsPnl));
 
 		DefaultTableModel model = new DefaultTableModel(new Object[] {"PTM", ""}, 0) {

@@ -11,10 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +38,10 @@ import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
 import de.mpa.db.accessor.Cruxhit;
-import de.mpa.db.accessor.ExpProperty;
-import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.Project;
-import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
@@ -560,40 +554,43 @@ public class Client {
 	 * @param checkBoxTree The checkbox tree.
 	 * @param listener An optional property change listener used to monitor progress.
 	 * @return A list of files.
+	 * @throws IOException 
 	 */
-	public List<File> packFiles(int packageSize, CheckBoxTreeManager checkBoxTree, String filename) {
+	public List<File> packSpectra(int packageSize, CheckBoxTreeManager checkBoxTree, String filename) throws IOException {
 		List<File> files = new ArrayList<File>();
 		FileOutputStream fos = null;
 		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getSelectionModel();
 		DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) checkBoxTree.getModel().getRoot();
 		int numSpectra = 0;
-		try {
-			DefaultMutableTreeNode spectrumNode = fileRoot.getFirstLeaf();
-			if (spectrumNode != fileRoot) {
-				// iterate over all leaves
-				while (spectrumNode != null) {
-					// generate tree path and consult selection model whether path is explicitly or implicitly selected
-					TreePath spectrumPath = new TreePath(spectrumNode.getPath());
-					if (selectionModel.isPathSelected(spectrumPath, true)) {
-						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
-							if (fos != null) {
-								fos.close();
-							}
-							File file = new File(filename + (numSpectra/packageSize) + ".mgf");
-							files.add(file);
-							fos = new FileOutputStream(file);
+		DefaultMutableTreeNode spectrumNode = fileRoot.getFirstLeaf();
+		if (spectrumNode != fileRoot) {
+			// iterate over all leaves
+			while (spectrumNode != null) {
+				// generate tree path and consult selection model whether path is explicitly or implicitly selected
+				TreePath spectrumPath = new TreePath(spectrumNode.getPath());
+				if (selectionModel.isPathSelected(spectrumPath, true)) {
+					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
+						if (fos != null) {
+							fos.close();
 						}
-						MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
-						mgf.writeToStream(fos);
-						fos.flush();
-						spectrumNode = spectrumNode.getNextLeaf();
+						File file = new File(filename + (numSpectra/packageSize) + ".mgf");
+						files.add(file);
+						fos = new FileOutputStream(file);
+					}
+					MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
+					mgf.writeToStream(fos);
+					fos.flush();
+					try {
 						pSupport.firePropertyChange("progress", numSpectra++, numSpectra);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
-				fos.close();
+				spectrumNode = spectrumNode.getNextLeaf();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			fos.close();
+		} else {
+			throw new IOException("ERROR: No files selected.");
 		}
 		return files;
 	}

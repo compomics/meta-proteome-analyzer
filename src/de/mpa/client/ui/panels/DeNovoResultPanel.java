@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -88,16 +87,16 @@ public class DeNovoResultPanel extends JPanel {
 		topPnl.add(updateDnBtn, cc.xy(3, 1));
 		updateDnBtn.setPreferredSize(new Dimension(150, 20));
 
-		updateDnBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				List<File> chunkedFiles = client.packFiles(1000, clientFrame.getFilePanel().getCheckBoxTree(), "test");
-				for(File file : chunkedFiles){
-					denovoSearchResult = client.getDenovoSearchResult(file);
-					updateDenovoResultsTable();
-				}
-			}
-		});
+//		updateDnBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				List<File> chunkedFiles = client.packFiles(1000, clientFrame.getFilePanel().getCheckBoxTree(), "test");
+//				for(File file : chunkedFiles){
+//					denovoSearchResult = client.getDenovoSearchResult(file);
+//					updateDenovoResultsTable();
+//				}
+//			}
+//		});
 
 		dnResSpectrumPnl.add(topPnl, cc.xy(2, 2));
 		dnResSpectrumPnl.add(queryDnSpectraTblJScrollPane, cc.xy(2, 4));

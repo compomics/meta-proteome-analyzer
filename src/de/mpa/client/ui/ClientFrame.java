@@ -118,7 +118,7 @@ public class ClientFrame extends JFrame {
 
 	public JButton sendBtn;
 	private JMenuBar menuBar;
-	public boolean connectedToServer = false;
+	private boolean connectedToServer = false;
 
 	public  JTable libTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
@@ -126,14 +126,9 @@ public class ClientFrame extends JFrame {
 	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 
 	public MultiPlotPanel mPlot;
-	protected ArrayList<RankedLibrarySpectrum> resultList;
-	private JPanel lggPnl;
+	private ArrayList<RankedLibrarySpectrum> resultList;
 
 	private SpecLibSearchPanel specLibPnl;
-	private JTextField xtandemStatTtf;
-	private JTextField cruxStatTtf;
-	private JTextField inspectStatTtf;
-	private JTextField omssaStatTtf;
 	private SpectrumTree queryTree;
 	public JTable protTbl;
 	public JComboBox spectraCbx;
@@ -173,7 +168,6 @@ public class ClientFrame extends JFrame {
 		
 //		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
-		ImageIcon testIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/icon_qm.png"));
 		ImageIcon projectIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/project.png"));
 		ImageIcon addSpectraIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/addspectra.png"));
 		ImageIcon settingsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/settings.png"));
@@ -183,17 +177,21 @@ public class ClientFrame extends JFrame {
 		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
 		tabPane.addTab("Project", projectIcon, projectPnl);
 		tabPane.addTab("Input Spectra", addSpectraIcon, filePnl);
-		tabPane.addTab("Search Settings", settingsIcon, setPnl);
+		tabPane.addTab("Search Settings", settingsIcon, getSettingsPanel());
 		tabPane.addTab("Spectral Search Results", resultsIcon, resPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
 		resultsTabPane.addTab("Protein View", proteinResultPnl);
 		tabPane.addTab("Database Search Results", resultsIcon, dbSearchResultPnl);
 		tabPane.addTab("De novo Results", resultsIcon, denovoResPnl);
-		tabPane.addTab("Logging", loggingIcon, lggPnl);
 		tabPane.addTab("Clustering", clusteringIcon, clusterPnl);
+		tabPane.addTab("Logging", loggingIcon, logPnl);
 		
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
+		
+		for (int i = 3; i < 7; i++) {
+			tabPane.setEnabledAt(i, false);
+		}
 
 		cp.add(tabPane);
 		
@@ -226,46 +224,23 @@ public class ClientFrame extends JFrame {
 	public void updateSearchEngineUI(String message){
 		String finished = JobStatus.FINISHED.toString();
 		String running = JobStatus.RUNNING.toString();
-		if(message.startsWith("X!TANDEM")){
-			xtandemStatTtf.setEnabled(true);
-			if(message.contains(running)){
-				xtandemStatTtf.setText(running);
-			} else if(message.contains(finished)){
-				xtandemStatTtf.setText(finished);
-			}
-
-		} else if(message.startsWith("OMSSA")){
-			omssaStatTtf.setEnabled(true);
-			if(message.contains(running)){
-				omssaStatTtf.setText(running);
-			} else if(message.contains(finished)){
-				omssaStatTtf.setText(finished);
-			}
-		} else if(message.startsWith("CRUX")){
-			cruxStatTtf.setEnabled(true);
-			if(message.contains(running)){
-				cruxStatTtf.setText(running);
-			} else if(message.contains(finished)){
-				cruxStatTtf.setText(finished);
-			}
-		} else if(message.startsWith("INSPECT")){
-			inspectStatTtf.setEnabled(true);
-			if(message.contains(running)){
-				inspectStatTtf.setText(running);
-			} else if(message.contains(finished)){
-				inspectStatTtf.setText(finished);
-			}
-		} else if(message.startsWith("DBSEARCH")){
+		if (message.contains(running)) {
+			statusPnl.getCurrentStatusTextField().setText(running);
+		} else if (message.contains(finished)) {
+			statusPnl.getCurrentStatusTextField().setText(finished);
+		}
+		
+//		} else if(message.startsWith("DBSEARCH")){
 //			for (File file : chunkedFiles) {
 //				dbSearchResult = client.getDbSearchResult(file);
 //				updateDbResultsTable();
 //			}
-		} else if(message.startsWith("DENOVOSEARCH")){
+//		} else if(message.startsWith("DENOVOSEARCH")){
 //			for (File file : chunkedFiles) {
 //				denovoSearchResult = client.getDenovoSearchResult(file);
 //				updateDenovoResultsTable();
 //			}
-		}
+//		}
 	}
 
 	/**
@@ -313,7 +288,7 @@ public class ClientFrame extends JFrame {
 		denovoResPnl = new DeNovoResultPanel(this);
 
 		// Logging panel		
-		constructLogPanel();
+		logPnl = new LoggingPanel();
 		
 		// fabi's test panel
 		clusterPnl = new ClusterPanel(this);
@@ -645,33 +620,6 @@ public class ClientFrame extends JFrame {
 
 		resPnl.add(dispPnl, cc.xy(2,2));
 	}
-		
-	/**
-	 * Construct the logging panel.
-	 */	
-	private void constructLogPanel(){
-
-		// main container for tabbed pane
-		lggPnl = new JPanel();
-		lggPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-				"5dlu, f:p:g, 5dlu"));	// row
-		// container for titled border
-		JPanel brdPnl = new JPanel();
-		brdPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
-				"3dlu, f:p:g, 5dlu"));	// row
-		brdPnl.setBorder(BorderFactory.createTitledBorder("Logging"));
-
-		// actual logging panel
-		logPnl = new LoggingPanel();
-		logPnl.setPreferredSize(new Dimension(300, 200));
-
-		brdPnl.add(logPnl, cc.xy(2, 2));
-		lggPnl.add(brdPnl, cc.xy(2, 2));
-
-	}
-
-	
-
 
 	protected void refreshResultsTables(MascotGenericFile mgf) {
 		// clear library table
@@ -759,11 +707,11 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
-	 * Method to get spectral library search settings panel.
+	 * Method to get the spectral library search settings panel.
 	 * @return
 	 */
 	public SpecLibSearchPanel getSpecLibSearchPanel() {
-		return specLibPnl;
+		return getSettingsPanel().getSpecLibSearchPanel();
 	}
 	
 
@@ -810,6 +758,18 @@ public class ClientFrame extends JFrame {
 	
 	public StatusPanel getStatusBar() {
 		return statusPnl;
+	}
+
+	public boolean isConnectedToServer() {
+		return connectedToServer;
+	}
+
+	public void setConnectedToServer(boolean connectedToServer) {
+		this.connectedToServer = connectedToServer;
+	}
+
+	public SettingsPanel getSettingsPanel() {
+		return setPnl;
 	}
 	
 }
