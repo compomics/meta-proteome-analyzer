@@ -141,7 +141,7 @@ public class SettingsPanel extends JPanel {
 		
 		JCheckBox integrateChk = new JCheckBox(" Embed processed input data in spectral library");
 		
-		ImageIcon processIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/search.png"));
+		ImageIcon processIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/project.png"));
 		processIcon = new ImageIcon(processIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
 		
 		processBtn = new JButton("Start searching", processIcon);

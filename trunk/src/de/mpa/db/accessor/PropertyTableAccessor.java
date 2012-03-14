@@ -110,9 +110,6 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
 
-
-
-
 	/**
 	 * Default constructor.
 	 */

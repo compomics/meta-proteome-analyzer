@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ExpProperty extends ExppropertyTableAccessor {
@@ -14,6 +15,14 @@ public class ExpProperty extends ExppropertyTableAccessor {
 
 	public ExpProperty(ResultSet aRS) throws SQLException {
 		super(aRS);
+	}
+	
+	/**
+	 * Calls the super class.
+	 * @param params
+	 */
+	public ExpProperty(HashMap params){
+		super(params);
 	}
 
 	public static ExpProperty findExpPropertyFromTitle(String title, Connection aConn) throws SQLException {

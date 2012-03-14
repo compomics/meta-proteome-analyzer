@@ -3,11 +3,14 @@ package de.mpa.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
@@ -33,7 +36,7 @@ public class ProjectManager {
 	 * @throws SQLException
 	 */
 	public Long createNewProject(String title) throws SQLException {
-		HashMap<Object, Object> data = new HashMap<Object, Object>(11);
+		HashMap<Object, Object> data = new HashMap<Object, Object>(4);
 		data.put(Project.TITLE, title);
 		Project project = new Project(data);
 		project.persist(conn);
@@ -41,30 +44,54 @@ public class ProjectManager {
 	}
 	
 	/**
-	 * This method adds specific properties to the project to the database..
-	 * @param projectID The project ID.
-	 * @param projectProperties Map containing the project properties.
+	 * This method creates a new experiment.
+	 * @param title The experiment title.
+	 * @return Generated experiment ID.
+	 * @throws SQLException
 	 */
-	public void addProjectProperties(Long projectID, Map<String, String> projectProperties){
-		//TODO: @heyer: make this working!
+	public Long createNewExperiment(Long projectID, String title) throws SQLException {
+		HashMap<Object, Object> data = new HashMap<Object, Object>(5);
+		data.put(Experiment.FK_PROJECTID, projectID);
+		data.put(Experiment.TITLE, title);
+		Experiment experiment = new Experiment(data);
+		experiment.persist(conn);
+		return (Long) experiment.getGeneratedKeys()[0];
 	}
 	
 	/**
-	 * This method adds experiment(s) for a specified project.
+	 * This method adds specific properties to the project to the database..
 	 * @param projectID The project ID.
-	 * @param experiments List of experiments.
+	 * @param projectProperties Map containing the project properties.
+	 * @throws SQLException 
 	 */
-	public void addExperimentsForProject(Long projectID, List<String> experiments){
-		//TODO: @heyer: make this working!
+	public void addProjectProperties(Long projectID, Map<String, String> projectProperties) throws SQLException{
+		// Iterate the given project properties and add them to the database.
+		for(Entry entry : projectProperties.entrySet()){
+			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
+			data.put(Property.FK_PROJECTID, projectID);
+			data.put(Property.NAME, entry.getKey());
+			data.put(Property.VALUE, entry.getValue());
+			Property projProperty = new Property(data);
+			projProperty.persist(conn);
+		}
 	}
 	
 	/**
 	 * This method adds specific properties to the experiment.
 	 * @param experimentID The experiment ID.
 	 * @param experimentProperties Map containing experiment properties.
+	 * @throws SQLException 
 	 */
-	public void addExperimentProperties(Long experimentID, Map<String, String> experimentProperties){
-		//TODO: @heyer: make this working!
+	public void addExperimentProperties(Long experimentID, Map<String, String> experimentProperties) throws SQLException{
+		// Iterate the given project properties and add them to the database.
+		for(Entry entry : experimentProperties.entrySet()){
+			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
+			data.put(ExpProperty.FK_EXPERIMENTID, experimentID);
+			data.put(ExpProperty.NAME, entry.getKey());
+			data.put(ExpProperty.VALUE, entry.getValue());
+			ExpProperty expProperty = new ExpProperty(data);
+			expProperty.persist(conn);
+		}
 	}
 	
 	/**
@@ -78,15 +105,14 @@ public class ProjectManager {
 		tempProject.update(conn);
 	}
 
-	// modify project property
-	public void modifyProjectProperty(long propertyid, String propertyName,
-			String propertyValue) throws SQLException {
-		Property tempProperty = Property.findPropertyFromPropertyID(propertyid,
-				conn);
-		tempProperty.setName(propertyName);
-		tempProperty.setValue(propertyValue);
-		tempProperty.update(conn);
-	}
+//	// modify project property
+//	public void modifyProjectProperty(long propertyid, Map<String, String> experimentProperties) throws SQLException {
+//		Map<String, String> experimentProperties;
+//		Property tempProperty = Property.findPropertyFromPropertyID(propertyid,	conn);
+//		tempProperty.setName(propertyName);
+//		tempProperty.setValue(propertyValue);
+//		tempProperty.update(conn);
+//	}
 
 	// modify experimentsname
 	public void modifyExperimentsName(long experimentid, String experimentsName)
@@ -108,32 +134,51 @@ public class ProjectManager {
 
 	/**
 	 * This method removes the project for a specified project ID.
-	 * @param projectid The project ID.
+	 * @param projectId The project ID.
 	 * @throws SQLException
 	 */
-	public void removeProject(Long projectid) throws SQLException {		
-		Project project = Project.findFromProjectID(projectid, conn);
+	public void removeProject(Long projectId) throws SQLException {		
+		Project project = Project.findFromProjectID(projectId, conn);
 		project.delete(conn);
 	}
+	
+	/**
+	 * This method returns the project title for a specified projectID
+	 * @param projectId The project ID.
+	 * @return The project title.
+	 * @throws SQLException
+	 */
+	public String getProjectTitle(long projectId) throws SQLException{
+		return Project.findFromProjectID(projectId, conn).getTitle();
+	}
 
-	public List<Property> getProjectProperties(long fk_projectid) throws SQLException {
-		return Property.findAllPropertiesOfProject(fk_projectid, conn);
+	public List<Property> getProjectProperties(long projectId) throws SQLException {
+		return Property.findAllPropertiesOfProject(projectId, conn);
 	}
 
 	/**
-	 * get experiments from database
+	 * Returns a list experiments from the database.
+	 * @return The list of experiments.
 	 */
 
-	public List<Experiment> getProjectExperiments(long fk_projectid)
-			throws SQLException {
+	public List<Experiment> getProjectExperiments(long fk_projectid) throws SQLException {
 		return Experiment.findAllExperimentsOfProject(fk_projectid, conn);
 	}
-
+	
 	/**
-	 * get experiment property from database
+	 * Return a specified experiment for a specific project.
+	 * @return The specified experiment.
+	 * @throws SQLException 
 	 */
-	public List<ExpProperty> getExperimentProperties(long experimentid)
-			throws SQLException {
+	public Experiment getProjectExperiment(long projectid, long experimentid) throws SQLException {
+		return Experiment.findExperimentByIDandProjectID(experimentid, projectid, conn);
+	}
+	
+	/**
+	 * Returns the experiment property from database.
+	 * @return The list of experimental properties.
+	 */
+	public List<ExpProperty> getExperimentProperties(long experimentid) throws SQLException {
 		return ExpProperty.findAllPropertiesOfExperiment(experimentid, conn);
 	}
 
@@ -154,4 +199,44 @@ public class ProjectManager {
 	// project.persist(conn);
 	// project.getGeneratedKeys();
 	// }
+
+	public void modifyProjectName(Long projectid, String title) throws SQLException {
+		Project project = Project.findFromProjectID(projectid, conn);
+		project.setTitle(title);
+		project.update(conn);
+	}
+
+	public void modifyProjectProperties(Long projectID,
+			Map<String, String> newProperties,
+			ArrayList<Integer> operations) throws SQLException {
+		
+		ArrayList<Property> properties = new ArrayList<Property>(
+				Property.findAllPropertiesOfProject(projectID, conn));
+		
+		int i = 0;
+		for (Entry<String, String> newProperty : newProperties.entrySet()) {
+			switch (operations.get(i)) {
+			case GeneralDialog.CHANGE:
+				properties.get(i).setName(newProperty.getKey());
+				properties.get(i).setValue(newProperty.getValue());
+				properties.get(i).update(conn);
+				break;
+			case GeneralDialog.DELETE:
+				System.out.println("BANG UR DED");
+				properties.get(i).delete(conn);
+				break;
+			case GeneralDialog.ADD:
+				Property property = new Property(projectID, newProperty.getKey(), newProperty.getValue());
+				property.setFk_projectid(projectID);
+				property.persist(conn);
+				break;
+			}
+			i++;
+		}
+		for (int j = i; j < operations.size(); j++) {
+			if (operations.get(j) == GeneralDialog.DELETE) {
+				properties.get(j).delete(conn);
+			}
+		}
+	}
 }

@@ -100,7 +100,7 @@ public class ClientFrame extends JFrame {
 
 	private ClientFrame frame;
 
-	private JPanel projectPnl;
+	private ProjectPanel projectPnl;
 
 	private Client client;
 
@@ -771,6 +771,16 @@ public class ClientFrame extends JFrame {
 	public SettingsPanel getSettingsPanel() {
 		return setPnl;
 	}
+	
+	/**
+	 * Returns the project panel.
+	 * @return
+	 */
+	public ProjectPanel getProjectPnl() {
+		return projectPnl;
+	}
+	
+	
 	
 }
 

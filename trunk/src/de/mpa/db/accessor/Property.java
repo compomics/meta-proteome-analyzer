@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Property extends PropertyTableAccessor {
@@ -12,9 +13,24 @@ public class Property extends PropertyTableAccessor {
 	public Property() {
 		super();
 	}
-
+	
+	/**
+	 * Calls the super class.
+	 * @param params
+	 */
+	public Property(HashMap params){
+		super(params);
+	}
+	
 	public Property(ResultSet aRS) throws SQLException {
 		super(aRS);
+	}
+
+	public Property(long projectID, String name, String value) {
+		super();
+		this.setFk_projectid(projectID);
+		this.setName(name);
+		this.setValue(value);
 	}
 
 	public static Property findPropertyFromTitle(String title, Connection aConn) throws SQLException {
