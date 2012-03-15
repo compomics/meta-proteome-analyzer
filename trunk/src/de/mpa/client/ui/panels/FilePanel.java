@@ -436,7 +436,6 @@ public class FilePanel extends JPanel {
 
 			filePlotPnl.setSpectrumFile(mgf,Color.RED);
 			filePlotPnl.repaint();
-			SpecLibSearchPanel slsp = clientFrame.getSpecLibSearchPanel();
 			clientFrame.getSpecLibSearchPanel().refreshPlot(mgf);
 			fileDetailsTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			TableConfig.packColumn(fileDetailsTbl, 1, 5);

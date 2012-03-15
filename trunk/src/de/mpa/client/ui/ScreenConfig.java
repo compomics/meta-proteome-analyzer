@@ -21,7 +21,7 @@ public class ScreenConfig {
 	public static void centerInScreen(Component aComponent) {
 		Dimension tDim = Toolkit.getDefaultToolkit().getScreenSize();
 		int x = (tDim.width - aComponent.getSize().width) / 2;
-		int y = (tDim.height - aComponent.getSize().height) / 2;
+		int y = (int) ((tDim.height - aComponent.getSize().height) * 0.46);	// slightly above center, feels more balanced
 		aComponent.setLocation(x, y);
 	}
 

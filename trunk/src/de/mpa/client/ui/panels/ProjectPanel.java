@@ -178,11 +178,11 @@ public class ProjectPanel extends JPanel {
 		// Next button, please
 		JPanel nextPnl = new JPanel(new FormLayout("r:p:g", "b:p:g"));
 		
-		ImageIcon nextIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/next.png"));
-		JButton nextBtn = new JButton("Next", nextIcon);
+		JButton nextBtn = new JButton("Next",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/next.png")));
 		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
 		nextBtn.setFont(nextBtn.getFont().deriveFont(
-				Font.BOLD, nextBtn.getFont().getSize2D()*1.0f));
+				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
 		nextBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {

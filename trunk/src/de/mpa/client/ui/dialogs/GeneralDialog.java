@@ -1,8 +1,8 @@
 package de.mpa.client.ui.dialogs;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,18 +14,23 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -35,6 +40,7 @@ import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
+import de.mpa.client.ui.TableConfig;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Property;
@@ -53,7 +59,7 @@ public class GeneralDialog extends JDialog {
 	private JTextField propValueTtf;
 
 	// Button to add project property
-	private JButton addPropertyBtn;
+	private JButton appendPropertyBtn;
 
 	// Button to change a project property
 	private JButton changePropertyBtn;
@@ -115,109 +121,93 @@ public class GeneralDialog extends JDialog {
 	 */
 	private void initComponents() {
 		
-		// JGoodies Cellconstrains
+		// JGoodies CellConstraints
 		CellConstraints cc = new CellConstraints();
 
-		// Dialog panel
-		JPanel dialogPnl = new JPanel();
-		dialogPnl.setLayout(new FormLayout("5dlu, l:p, 5dlu", "5dlu, t:p, 5dlu,p, 5dlu"));
+		// Description panel
+		JPanel descriptionPnl = new JPanel();
+		descriptionPnl.setBorder(BorderFactory.createTitledBorder("Description"));
+		descriptionPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
+				"0dlu, p, 5dlu"));
 
-		JPanel projectDescPnl = new JPanel();
-		projectDescPnl.setBorder(BorderFactory.createTitledBorder("Description"));
-		projectDescPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu","5dlu, p, 5dlu"));
-
-		// Selected project
-		JLabel nameLbl = new JLabel();
-		if(type == DialogType.NEW_PROJECT || type == DialogType.MODIFY_PROJECT){
-			nameLbl.setText("Project Name:");
-		} else {
-			nameLbl.setText("Experiment Name:");
-		}
+		// Selected project/experiment textfield label
+		String name = ((type == DialogType.NEW_PROJECT) || (type == DialogType.MODIFY_PROJECT)) ?
+				"Project Name:" : "Experiment Name:";
 		
-		nameTtf = new JTextField("",15);
+		nameTtf = new JTextField();
 		nameTtf.setEditable(true);
 		
-		
-		nameTtf.setEnabled(true);
-		
-		if(type == DialogType.MODIFY_PROJECT){
+		if (type == DialogType.MODIFY_PROJECT) {
 			nameTtf.setText(currentProjContent.getProjectTitle());
-		}
-		
-		if(type == DialogType.MODIFY_EXPERIMENT){
+		} else if (type == DialogType.MODIFY_EXPERIMENT) {
 			nameTtf.setText(currentExpContent.getExperimentTitle());
 		}
 		
-		// ActionListener, enables the okBtn, when text is in the TextField
+		// ActionListener to enable/disable the 'save' button
+		// depending on whether text has been entered
 		nameTtf.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-				if (nameTtf.getText().isEmpty()){
-					saveBtn.setEnabled(false);
-				}
-				else {
-					saveBtn.setEnabled(true);
-				}
+			public void keyTyped(KeyEvent evt) {
+				saveBtn.setEnabled(!nameTtf.getText().isEmpty());
 			}
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-
-			}
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-
-			}
+			public void keyReleased(KeyEvent evt) {}
+			public void keyPressed(KeyEvent evt) {}
 		});
 		
-		projectDescPnl.add(nameLbl, cc.xy(2, 2));
-		projectDescPnl.add(nameTtf, cc.xy(4, 2));
+		descriptionPnl.add(new JLabel(name), cc.xy(2, 2));
+		descriptionPnl.add(nameTtf, cc.xy(4, 2));
 		
 		// Properties panel
-		JPanel propertyPnl = new JPanel();
-		propertyPnl.setLayout(new FormLayout("5dlu, l:p, 5dlu, p, 5dlu","5dlu, t:p, 5dlu"));
+		JPanel propertyPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "f:p:g, 5dlu"));
 		
-		if(type == DialogType.NEW_PROJECT || type == DialogType.MODIFY_PROJECT){
+		if (type == DialogType.NEW_PROJECT || type == DialogType.MODIFY_PROJECT) {
 			propertyPnl.setBorder(BorderFactory.createTitledBorder("Project Properties"));
 		} else {
 			propertyPnl.setBorder(BorderFactory.createTitledBorder("Experiment Properties"));
 		}
 		
-		// "Modify property" subpanel
-		JPanel propertyModPnl = new JPanel();
-		propertyModPnl.setLayout(new FormLayout("p, 5dlu, p, 5dlu","5dlu, t:p, 1dlu, p, 5dlu, p, 1dlu, p, 5dlu, p, 5dlu"));
+		//Creates project Property table
+		setupPropertiesTable();
 		
-		// Name and Value of the Property
-		JLabel propNameLbl = new JLabel("Property Name:");
-		JLabel propValueLbl = new JLabel("Property Value:");
+		// Fill project property table,in the case of modify
+		if ((type == DialogType.MODIFY_PROJECT) || (type == DialogType.MODIFY_EXPERIMENT)) {
+			fillPropertyTable();
+		}
+
+		// Add table to scroll pane
+		JScrollPane tableScp = new JScrollPane(propertyTbl);
+		tableScp.setPreferredSize(new Dimension(325, 125));
+		tableScp.setMinimumSize(new Dimension(tableScp.getPreferredSize().width/2,
+				tableScp.getPreferredSize().height/2));
+		tableScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		tableScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
-		// Input Fields for Name/Value
-		propNameTtf = new JTextField(15);
-		// When propNameTtf and propValueTtf is filled addProjPropBtn is useable
+		// Panel containing text fields and edit buttons
+		FormLayout editLyt = new FormLayout("p:g, 5dlu, p:g, 5dlu, p:g",
+				"p, 1dlu, p, 5dlu, p, 1dlu, p, 5dlu, t:p:g");
+		editLyt.setColumnGroups(new int[][] {{1,3,5}});
+		JPanel editPnl = new JPanel(editLyt);
+		
+		// Input fields for Name/Value
+		propNameTtf = new JTextField();
+		// When propNameTtf and propValueTtf is filled addProjPropBtn is usable
 		propNameTtf.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				if ((propNameTtf.getText().isEmpty() == false) && (propValueTtf.getText().isEmpty() == false)		){
-					addPropertyBtn.setEnabled(true);
-				}
-				else {
-					addPropertyBtn.setEnabled(false);
-				}
+				appendPropertyBtn.setEnabled(!propNameTtf.getText().isEmpty() &&
+						!propValueTtf.getText().isEmpty());
 			}
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
+			public void keyReleased(KeyEvent e) {}
+			public void keyPressed(KeyEvent e) {}
 		});
+		
 		propValueTtf = new JTextField(15);
 		propValueTtf.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if ((propNameTtf.getText().isEmpty() == false) && (propValueTtf.getText().isEmpty() == false)){
-					addPropertyBtn.setEnabled(true);
+					appendPropertyBtn.setEnabled(true);
 				} else {
-					addPropertyBtn.setEnabled(false);
+					appendPropertyBtn.setEnabled(false);
 				}
 			}
 			@Override
@@ -228,17 +218,12 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		// Add elements to "Modify project property" subpanel
-		propertyModPnl.add(propNameLbl, cc.xy(1, 2));
-		propertyModPnl.add(propNameTtf, cc.xy(1, 4));
-		propertyModPnl.add(propValueLbl, cc.xy(1, 6));
-		propertyModPnl.add(propValueTtf, cc.xy(1, 8));
-		
 		// Button to add project property 
-		addPropertyBtn = new JButton("Add");
+		appendPropertyBtn = new JButton("Add",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/add16.png")));
 		// Button is only useable when new name and value is filled
-		addPropertyBtn.setEnabled(false);
-		addPropertyBtn.addActionListener(new ActionListener() {
+		appendPropertyBtn.setEnabled(false);
+		appendPropertyBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				appendPropertyToTable();
@@ -246,7 +231,8 @@ public class GeneralDialog extends JDialog {
 		});
 		
 		// Button to change the project property entries
-		changePropertyBtn = new JButton("Change");
+		changePropertyBtn = new JButton("Change",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/update16.png")));
 		 // ChangeProjPropBtn only visible when entry in table is selected
 		// is existing
 		changePropertyBtn.setEnabled(false);
@@ -257,34 +243,9 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		// Add buttons to propButtonPnl 
-		JPanel propButtonPnl = new JPanel(new FormLayout("p, 3dlu, p, 3dlu, p", "p"));
-		propButtonPnl.add(addPropertyBtn, cc.xy(1, 1));
-		propButtonPnl.add(changePropertyBtn, cc.xy(3, 1));
-	
-		// Add propButtonPnl to propertyModPnl
-		propertyModPnl.add(propButtonPnl, cc.xyw(1, 10, 3));
-		
-		//Creates project Property table
-		setupPropertiesTable();
-		
-		// Fill project property table,in the case of modify
-		if ((type == DialogType.MODIFY_PROJECT) || (type == DialogType.MODIFY_EXPERIMENT)) {
-			fillPropertyTable();
-		}
-
-		// Add the project table to scroll pane
-		JScrollPane projectPropertyTblScp = new JScrollPane(propertyTbl);
-		projectPropertyTblScp.setPreferredSize(new Dimension(325, 125));
-		projectPropertyTblScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		projectPropertyTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		// Add ScrollPane to Panel
-		propertyPnl.add(projectPropertyTblScp,cc.xy(2, 2));
-		// Add "propertyModPnl to projectPropPnl
-		propertyPnl.add(propertyModPnl,cc.xy(4, 2));
-		
 		// Delete button
-		deletePropertyBtn = new JButton("Delete");
+		deletePropertyBtn = new JButton("Delete",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/cancel16.png")));
 		deletePropertyBtn.setEnabled(false);
 		// Delete the selected project property
 		deletePropertyBtn.addActionListener(new ActionListener() {
@@ -293,24 +254,39 @@ public class GeneralDialog extends JDialog {
 				deletePropertyFromSelectedRow();
 			}
 		});
-		propButtonPnl.add(deletePropertyBtn, cc.xy(5, 1));
 		
-		// Add Panels to ProjectDialogPanel
-		dialogPnl.add(projectDescPnl,cc.xy(2, 2));
-		dialogPnl.add(propertyPnl,cc.xy(2, 4));
+		// add text fields and buttons to edit panel
+		editPnl.add(new JLabel("Property Name:"), cc.xyw(1,1,5));
+		editPnl.add(propNameTtf, cc.xyw(1,3,5));
+		editPnl.add(new JLabel("Property Value:"), cc.xyw(1,5,5));
+		editPnl.add(propValueTtf, cc.xyw(1,7,5));
+		editPnl.add(appendPropertyBtn, cc.xy(1,9));
+		editPnl.add(changePropertyBtn, cc.xy(3,9));
+		editPnl.add(deletePropertyBtn, cc.xy(5,9));
+		
+		// add panels into split pane
+		JSplitPane propertySpp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScp, editPnl);
+		propertySpp.setBorder(null);
+		propertySpp.setContinuousLayout(true);
+		propertySpp.setDividerSize(10);
+		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) propertySpp.getUI()).getDivider();
+		if (divider != null) { divider.setBorder(null); }
+		
+		// Add split pane to property panel
+		propertyPnl.add(propertySpp, cc.xy(2,1));
 		
 		// Save button functionality --> Store to the DB
-		saveBtn = new JButton("Save");
+		saveBtn = new JButton("Save",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_save.png")));
+		saveBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		saveBtn.setFont(saveBtn.getFont().deriveFont(Font.BOLD,
+				saveBtn.getFont().getSize2D()*1.25f));
 		
-		// Disable save button for new project/experiment.
-		if(type == DialogType.NEW_PROJECT || type == DialogType.NEW_EXPERIMENT){
-			saveBtn.setEnabled(false);
-		}
+		saveBtn.setEnabled(type == DialogType.MODIFY_PROJECT || type == DialogType.MODIFY_EXPERIMENT);
 		
 		saveBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
 				switch (type) {
 				case NEW_PROJECT:
 					storeProject();
@@ -325,13 +301,16 @@ public class GeneralDialog extends JDialog {
 					modifyExperiment();
 					break;
 				}
-
 				dispose();	
 			}
 		});
 		
 		// Cancel button functionality: Dispose the dialog without saving the the values to the database.
-		JButton cancelBtn = new JButton("Cancel"); 
+		JButton cancelBtn = new JButton("Cancel",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_delete.png")));
+		cancelBtn.setFont(cancelBtn.getFont().deriveFont(Font.BOLD,
+				cancelBtn.getFont().getSize2D()*1.25f));
+		
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -339,20 +318,22 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		//Add panels to the dialog content pane
+		saveBtn.setPreferredSize(cancelBtn.getPreferredSize());
+		
+		// Add panels to the dialog content pane
 		Container contentPane = this.getContentPane();
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(dialogPnl, BorderLayout.CENTER);
+		contentPane.setLayout(new FormLayout("5dlu, r:p:g, 5dlu, p, 5dlu",
+				"5dlu, p, 5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
-		// Create Button panel
-		JPanel buttonPnl = new JPanel(new FormLayout("250dlu, r:p, 5dlu, r:p", "3dlu, p, 3dlu"));
-		buttonPnl.add(saveBtn, cc.xy(2, 2));
-		buttonPnl.add(cancelBtn, cc.xy(4, 2));
+		// Add Panels to ProjectDialogPanel
+		contentPane.add(descriptionPnl,cc.xyw(2,2,3));
+		contentPane.add(propertyPnl,cc.xyw(2,4,3));
+		contentPane.add(saveBtn, cc.xy(2,6));
+		contentPane.add(cancelBtn, cc.xy(4,6));
 		
-		contentPane.add(buttonPnl, BorderLayout.SOUTH);
 		// Set the preferred size
-		this.setPreferredSize(new Dimension(580, 310));
-		this.setMinimumSize(new Dimension(580, 310));
+		this.setPreferredSize(new Dimension(640, 310));
+		this.setMinimumSize(this.getPreferredSize());
 		pack();
 	}
 
@@ -546,22 +527,20 @@ public class GeneralDialog extends JDialog {
 				queryProjPropertyTableMouseClicked(evt);
 				// Enables to change the entries
 				changePropertyBtn.setEnabled(true);
-				
 			}
 		});
 
 		propertyTbl.setAutoCreateRowSorter(true);
+		propertyTbl.getTableHeader().setReorderingAllowed(false);
 
 		// Selection model for the list: Select one entry of the table only
 		propertyTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		// Justify column size
-		propertyTbl.getColumn("#").setMinWidth(30);
-		propertyTbl.getColumn("#").setMaxWidth(30);
-		propertyTbl.getColumn("Property Name").setMinWidth(140);
-		propertyTbl.getColumn("Property Name").setMaxWidth(140);
-		propertyTbl.getColumn("Property Value").setMinWidth(140);
-		propertyTbl.getColumn("Property Value").setMaxWidth(140);
+		TableConfig.packColumn(propertyTbl, 0, 12);
+		propertyTbl.getColumnModel().getColumn(0).setMaxWidth(
+				propertyTbl.getColumnModel().getColumn(0).getPreferredWidth());
+		propertyTbl.getColumnModel().getColumn(0).setResizable(false);
 	}
 
 	/**
@@ -571,11 +550,11 @@ public class GeneralDialog extends JDialog {
 		int row = propertyTbl.getRowCount();
 		((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] {
 				row+1, propNameTtf.getText(), propValueTtf.getText() });
+		propertyTbl.getSelectionModel().setSelectionInterval(
+				propertyTbl.getRowCount()-1, propertyTbl.getRowCount()-1);
 		
-		// Clear textfields
-		propNameTtf.setText("");
-		propValueTtf.setText("");
-		addPropertyBtn.setEnabled(false);
+		// disable append button to prevent adding multiple times by accident
+		appendPropertyBtn.setEnabled(false);
 	}
 	
 			
@@ -623,7 +602,7 @@ public class GeneralDialog extends JDialog {
 		if (propertyTbl.getRowCount()==0){
 			deletePropertyBtn.setEnabled(false);
 		}
-		addPropertyBtn.setEnabled(false);
+		appendPropertyBtn.setEnabled(false);
 		changePropertyBtn.setEnabled(false);
 		
 		int numProps = 0;	// number of properties before modification
