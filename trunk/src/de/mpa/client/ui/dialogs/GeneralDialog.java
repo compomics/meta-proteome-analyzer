@@ -24,6 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -32,11 +34,14 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ScreenConfig;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Property;
 
 public class GeneralDialog extends JDialog {
+	
+	private long id = 0L;
 	
 	// Project property table
 	private JTable propertyTbl;
@@ -73,13 +78,7 @@ public class GeneralDialog extends JDialog {
 	
 	private ExperimentContent currentExpContent;
 	
-	// constants for database operations
-	public static final int NONE = 0;
-	public static final int ADD = 1;
-	public static final int CHANGE = 2;
-	public static final int DELETE = 3;
-	
-	private ArrayList<Integer> operations = new ArrayList<Integer>();
+	private ArrayList<Operation> operations = new ArrayList<Operation>();
 	
 	/**
 	 * Declares the ProjectDialog as child of the JDialog, being a component of
@@ -96,17 +95,18 @@ public class GeneralDialog extends JDialog {
 	 * Calling the main constructor adding projects table
 	 * @param title
 	 * @param parent
-	 * @param projectsTbl
+	 * @param type
+	 * @param content
 	 */
 	public GeneralDialog(String title, ClientFrame parent, DialogType type, Object content) {
 		super(parent, title, true);
 		this.parent = parent;
 		this.type = type;
-		if(content instanceof ProjectContent){
+		if (content instanceof ProjectContent) {
 			this.currentProjContent = (ProjectContent) content;
-		} else if (content instanceof ExperimentContent){
+		} else if (content instanceof ExperimentContent) {
 			this.currentExpContent = (ExperimentContent) content;
-		} 
+		}
 		initComponents();
 	}
 	
@@ -216,11 +216,10 @@ public class GeneralDialog extends JDialog {
 			public void keyTyped(KeyEvent e) {
 				if ((propNameTtf.getText().isEmpty() == false) && (propValueTtf.getText().isEmpty() == false)){
 					addPropertyBtn.setEnabled(true);
+				} else {
+					addPropertyBtn.setEnabled(false);
 				}
-					else {
-						addPropertyBtn.setEnabled(false);
-					}
-				}
+			}
 			@Override
 			public void keyReleased(KeyEvent e) {
 			}
@@ -267,7 +266,7 @@ public class GeneralDialog extends JDialog {
 		propertyModPnl.add(propButtonPnl, cc.xyw(1, 10, 3));
 		
 		//Creates project Property table
-		setupProjectPropertiesTable();
+		setupPropertiesTable();
 		
 		// Fill project property table,in the case of modify
 		if ((type == DialogType.MODIFY_PROJECT) || (type == DialogType.MODIFY_EXPERIMENT)) {
@@ -324,12 +323,9 @@ public class GeneralDialog extends JDialog {
 					break;
 				case MODIFY_EXPERIMENT:
 					modifyExperiment();
-
-					break;
-				default:
 					break;
 				}
-				
+
 				dispose();	
 			}
 		});
@@ -368,18 +364,21 @@ public class GeneralDialog extends JDialog {
 			List<Property> projectproperties = currentProjContent.getProjectProperties();
 			for (Property property : projectproperties) {
 				// Fills vector for database operations
-				operations.add(NONE);
 				int row = propertyTbl.getRowCount();
 				((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] { row + 1, property.getName(), property.getValue() });
 			}
+			// reset operations vector
+			for (int i = 0; i < operations.size(); i++) { operations.set(i, Operation.NONE); }
 		} else if (type == DialogType.MODIFY_EXPERIMENT) {
 			List<ExpProperty> experimentProperties = currentExpContent.getExperimentProperties();
 			for (ExpProperty expProperty : experimentProperties) {
 				// Fills vector for database operations
-				operations.add(NONE);
+				operations.add(Operation.NONE);
 				int row = propertyTbl.getRowCount();
 				((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] { row + 1, expProperty.getName(), expProperty.getValue() });
 			}
+			// reset operations vector
+			for (int i = 0; i < operations.size(); i++) { operations.set(i, Operation.NONE); }
 		}			
 	}
 
@@ -391,13 +390,13 @@ public class GeneralDialog extends JDialog {
 			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
 
 			// Store the project name
-			Long projectID = manager.createNewProject(nameTtf.getText());
+			id = manager.createNewProject(nameTtf.getText());
 			
 			// Collect properties
 			collectProperties();
 			
 			// Store the project properties
-			manager.addProjectProperties(projectID, properties);
+			manager.addProjectProperties(id, properties);
 			
 			// Update the project table in the project panel.
 			parent.getProjectPnl().refreshProjectTable();
@@ -416,18 +415,19 @@ public class GeneralDialog extends JDialog {
 
 			// Modify the project name
 			manager.modifyProjectName(currentProjContent.getProjectid(), nameTtf.getText());
+			id = currentProjContent.getProjectid();
 			
 			// Collect properties
 			collectProperties();
 			
 			// Modify the project properties
-			manager.modifyProjectProperties(currentProjContent.getProjectid(), properties,operations);
+			manager.modifyProjectProperties(currentProjContent.getProjectid(), properties, operations);
 			
 			// Update the project table in the project panel.
 			parent.getProjectPnl().refreshProjectTable();
 			
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 	}
 	
@@ -439,16 +439,16 @@ public class GeneralDialog extends JDialog {
 			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
 
 			// Store the experiment name
-			Long experimentID = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
+			id = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
 			
 			// Collect properties
 			collectProperties();
 			
 			// Store the project properties
-			manager.addExperimentProperties(experimentID, properties);
+			manager.addExperimentProperties(id, properties);
 			
 			// Update the experiment table in the project panel.
-			parent.getProjectPnl().updateExperimentTable(currentProjContent.getProjectid());
+			parent.getProjectPnl().refreshExperimentTable(currentProjContent.getProjectid());
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -459,44 +459,37 @@ public class GeneralDialog extends JDialog {
 	 * This method modify and delete experiment properties.
 	 */
 	protected void modifyExperiment() {
-		// TODO Auto-generated method stub
-			try {
-				ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
+		try {
+			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
 
-				// Modify the experiment name
-				manager.modifyExperimentName(currentExpContent.getExperimentid(), nameTtf.getText());
-				
-				// Collect properties
-				collectProperties();
-				
-				// Modify the project properties
-				manager.modifyExperimentProperties(currentExpContent.getExperimentid(), properties,operations);
-				
-				// Update the experiment table in the project panel.
-				parent.getProjectPnl().updateExperimentTable(currentProjContent.getProjectid());
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
+			// Modify the experiment name
+			manager.modifyExperimentName(currentExpContent.getExperimentID(), nameTtf.getText());
+			id = currentExpContent.getProjectID();
+
+			// Collect properties
+			collectProperties();
+
+			// Modify the project properties
+			manager.modifyExperimentProperties(currentExpContent.getExperimentID(), properties, operations);
+
+			// Update the experiment table in the project panel.
+			parent.getProjectPnl().refreshExperimentTable(currentExpContent.getProjectID());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-	
-	
 	/**
-	 * Methode creating the projectProperties table
+	 * Method creating the projectProperties table
 	 */
-	private void setupProjectPropertiesTable() {
-		// Table for projects
-		propertyTbl = new JTable(new DefaultTableModel() { 
+	private void setupPropertiesTable() {
+		DefaultTableModel dtm = new DefaultTableModel() { 
 			{
 				setColumnIdentifiers(new Object[] { "#", "Property Name", "Property Value"});
 			}
 			public boolean isCellEditable(int row, int col) {
-				if (col == 0){
-					return false;
-				}
-				else{
-					return true;	
-				}
+				return (col == 0) ? false : true;
 			}
 			// Variable types for columns
 			public Class<?> getColumnClass(int col) {
@@ -511,7 +504,40 @@ public class GeneralDialog extends JDialog {
 					return getValueAt(0, col).getClass();
 				}
 			}
+		};
+		dtm.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent tme) {
+				int row = tme.getFirstRow();
+				switch (tme.getType()) {
+				case TableModelEvent.UPDATE:
+					if (operations.get(row) != Operation.ADD)
+						operations.set(row, Operation.CHANGE);
+					break;
+				case TableModelEvent.INSERT:
+					if (operations.contains(Operation.DELETE)) {
+						operations.set(operations.indexOf(Operation.DELETE), Operation.CHANGE);
+					} else {
+						operations.add(Operation.ADD);
+					}
+					break;
+				case TableModelEvent.DELETE:
+					for (int i = row + 1; i < operations.size(); i++) {
+						if (operations.get(i) == Operation.NONE) {
+							operations.set(i, Operation.CHANGE);
+						} else if (operations.get(i) == Operation.ADD) {
+							operations.set(i, Operation.CHANGE);
+							break;
+						}
+					}
+					operations.remove(row);
+					break;
+				}
+			}
 		});
+		
+		// Table for projects
+		propertyTbl = new JTable(dtm);
 		//  Shows property name and values of the selected table row and enables edting the entry
 		propertyTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -550,12 +576,6 @@ public class GeneralDialog extends JDialog {
 		propNameTtf.setText("");
 		propValueTtf.setText("");
 		addPropertyBtn.setEnabled(false);
-		// Add operation to operation array
-		if (operations.contains(DELETE)) {
-			operations.set(operations.indexOf(DELETE), CHANGE);
-		} else {
-			operations.add(ADD);
-		}
 	}
 	
 			
@@ -585,9 +605,6 @@ public class GeneralDialog extends JDialog {
 		int selRow = propertyTbl.getSelectedRow();
 		propertyTbl.setValueAt(propNameTtf.getText(), selRow, 1);
 		propertyTbl.setValueAt(propValueTtf.getText(), selRow, 2);
-		// Change operation to the operation array
-		if (operations.get(selRow) != ADD)
-			operations.set(selRow, CHANGE);
 	}
 				
 	/**
@@ -609,17 +626,6 @@ public class GeneralDialog extends JDialog {
 		addPropertyBtn.setEnabled(false);
 		changePropertyBtn.setEnabled(false);
 		
-		// Change operations for delete
-		for (int i = selRow + 1; i < operations.size(); i++) {
-			if (operations.get(i) == NONE) {
-				operations.set(i, CHANGE);
-			} else if (operations.get(i) == ADD) {
-				operations.set(i, CHANGE);
-				break;
-			}
-		}
-		operations.remove(selRow);
-		
 		int numProps = 0;	// number of properties before modification
 		if (type == DialogType.MODIFY_PROJECT) {
 			numProps = currentProjContent.getProjectProperties().size();
@@ -627,7 +633,7 @@ public class GeneralDialog extends JDialog {
 			numProps = currentExpContent.getExperimentProperties().size();
 		}
 		if (operations.size() < numProps) {
-			operations.add(DELETE);
+			operations.add(Operation.DELETE);
 		}
 	}	
 	
@@ -639,6 +645,12 @@ public class GeneralDialog extends JDialog {
 		for (int i = 0; i < propertyTbl.getModel().getRowCount(); i++){
 			properties.put(propertyTbl.getValueAt(i, 1).toString(), propertyTbl.getValueAt(i, 2).toString());
 		}
+	}
+
+	public Long start() {
+		ScreenConfig.centerInScreen(this);
+		this.setVisible(true);
+		return id;
 	}
 	
 

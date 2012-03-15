@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.mpa.client.ui.dialogs.GeneralDialog;
+import de.mpa.client.ui.dialogs.Operation;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
@@ -84,14 +84,12 @@ public class ProjectManager {
 	 */
 	public void addExperimentProperties(Long experimentID, Map<String, String> experimentProperties) throws SQLException{
 		// Iterate the given experiment properties and add them to the database.
-		int i=0;
 		for(Entry entry : experimentProperties.entrySet()){
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(ExpProperty.FK_EXPERIMENTID, experimentID);
 			data.put(ExpProperty.NAME, entry.getKey());
 			data.put(ExpProperty.VALUE, entry.getValue());
 			ExpProperty expProperty = new ExpProperty(data);
-			System.out.println(expProperty.getExppropertyid());
 			expProperty.persist(conn);
 		}
 	}
@@ -209,22 +207,24 @@ public class ProjectManager {
 	 */
 	public void modifyProjectProperties(Long projectID,
 			Map<String, String> newProperties,
-			ArrayList<Integer> operations) throws SQLException {
+			ArrayList<Operation> operations) throws SQLException {
 		
 		ArrayList<Property> properties = new ArrayList<Property>(Property.findAllPropertiesOfProject(projectID, conn));
 		
 		int i = 0;
 		for (Entry<String, String> newProperty : newProperties.entrySet()) {
 			switch (operations.get(i)) {
-			case GeneralDialog.CHANGE:
+			case NONE:
+				break;
+			case CHANGE:
 				properties.get(i).setName(newProperty.getKey());
 				properties.get(i).setValue(newProperty.getValue());
 				properties.get(i).update(conn);
 				break;
-			case GeneralDialog.DELETE:
+			case DELETE:
 				properties.get(i).delete(conn);
 				break;
-			case GeneralDialog.ADD:
+			case ADD:
 				Property property = new Property(projectID, newProperty.getKey(), newProperty.getValue());
 				property.setFk_projectid(projectID);
 				property.persist(conn);
@@ -233,7 +233,7 @@ public class ProjectManager {
 			i++;
 		}
 		for (int j = i; j < operations.size(); j++) {
-			if (operations.get(j) == GeneralDialog.DELETE) {
+			if (operations.get(j) == Operation.DELETE) {
 				properties.get(j).delete(conn);
 			}
 		}
@@ -251,26 +251,35 @@ public class ProjectManager {
 		experiment.update(conn);
 	}	
 	
+	/**
+	 * This method modifies the properties of a specific experiment guided by a
+	 * list of singular operations.
+	 * @param experimentID
+	 * @param newProperties
+	 * @param operations
+	 * @throws SQLException
+	 */
 	public void modifyExperimentProperties(Long experimentID,
 			Map<String, String> newProperties,
-			ArrayList<Integer> operations) throws SQLException {
+			ArrayList<Operation> operations) throws SQLException {
 		
 		ArrayList<ExpProperty> expProperties = new ArrayList<ExpProperty>(ExpProperty.findAllPropertiesOfExperiment(experimentID, conn));
 		
 		int i = 0;
 		for (Entry<String, String> newProperty : newProperties.entrySet()) {
 			switch (operations.get(i)) {
-			case GeneralDialog.CHANGE:
+			case NONE:
+				break;
+			case CHANGE:
 				expProperties.get(i).setName(newProperty.getKey());
 				expProperties.get(i).setValue(newProperty.getValue());
 				expProperties.get(i).update(conn);
 				break;
-			case GeneralDialog.DELETE:
+			case DELETE:
 				expProperties.get(i).delete(conn);
 				break;
-			case GeneralDialog.ADD:
-				ExpProperty expProperty = new ExpProperty();
-				new ExpProperty(experimentID, newProperty.getKey(), newProperty.getValue());
+			case ADD:
+				ExpProperty expProperty = new ExpProperty(experimentID, newProperty.getKey(), newProperty.getValue());
 				expProperty.setFk_experimentid(experimentID);
 				expProperty.persist(conn);
 				break;
@@ -278,11 +287,49 @@ public class ProjectManager {
 			i++;
 		}
 		for (int j = i; j < operations.size(); j++) {
-			if (operations.get(j) == GeneralDialog.DELETE) {
+			if (operations.get(j) == Operation.DELETE) {
 				expProperties.get(j).delete(conn);
 			}
 		}
 	}
 	
+	/**
+	 * This method deletes an experiment and all its properties by its ID.
+	 * @param experimentId
+	 * @throws SQLException
+	 */
+	public void deleteExperiment(Long experimentId) throws SQLException {
+		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
+		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
+
+		for (ExpProperty expProperty : expPropList) {
+			expProperty.delete(conn);
+		}
+		experiment.delete(conn);
+	}
+
+	/**
+	 * This method deletes the project with its properties, experiment and experiment properties by the project ID.
+	 * @param projectid
+	 * @throws SQLException
+	 */
+	public void deleteProject(Long projectid) throws SQLException {
+		Project project = Project.findFromProjectID(projectid, conn);
+		List<Experiment> experimentList =  Experiment.findAllExperimentsOfProject(projectid, conn);
+		
+		// Delete all experiment
+		for (int i = 0; i < experimentList.size(); i++) {
+			deleteExperiment(experimentList.get(i).getExperimentid());
+		}
+		
+		// Delete all project properties
+		List<Property> projectPropertyList = Property.findAllPropertiesOfProject(projectid, conn);
+		for (Property property : projectPropertyList) {
+			property.delete(conn);
+		}
+
+		// Delete project
+		project.delete(conn);
+	}
 	
 }
