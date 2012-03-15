@@ -106,7 +106,6 @@ public class ProjectPanel extends JPanel {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	/**
@@ -392,8 +391,7 @@ public class ProjectPanel extends JPanel {
 	 * @param projectList The list of projects from the database.
 	 * @throws SQLException
 	 */
-	private void refreshProjectTable() throws SQLException {
-		// TODO: Use this really ?
+	public void refreshProjectTable() throws SQLException {
 		clearProjectTable();
 		ArrayList<Project> projectList = new ArrayList<Project>(Project.findAllProjects(clientFrame.getClient().getConnection()));
 		for (int i = 0; i < projectList.size(); i++) {

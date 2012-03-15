@@ -115,6 +115,8 @@ public class Client {
 		return client;
 	}
 	
+	
+	//End SQL for protein Databases****************************************************
 	/**
 	 * Sets the database connection.
 	 * @throws SQLException 

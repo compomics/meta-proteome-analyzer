@@ -229,8 +229,6 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		
-		
 		// Add elements to "Modify project property" subpanel
 		propertyModPnl.add(propNameLbl, cc.xy(1, 2));
 		propertyModPnl.add(propNameTtf, cc.xy(1, 4));
@@ -288,6 +286,7 @@ public class GeneralDialog extends JDialog {
 		
 		// Delete button
 		deletePropertyBtn = new JButton("Delete");
+		deletePropertyBtn.setEnabled(false);
 		// Delete the selected project property
 		deletePropertyBtn.addActionListener(new ActionListener() {
 			@Override
@@ -324,6 +323,7 @@ public class GeneralDialog extends JDialog {
 					storeExperiment();
 					break;
 				case MODIFY_EXPERIMENT:
+					modifyExperiment();
 
 					break;
 				default:
@@ -398,6 +398,9 @@ public class GeneralDialog extends JDialog {
 			
 			// Store the project properties
 			manager.addProjectProperties(projectID, properties);
+			
+			// Update the project table in the project panel.
+			parent.getProjectPnl().refreshProjectTable();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -420,6 +423,9 @@ public class GeneralDialog extends JDialog {
 			// Modify the project properties
 			manager.modifyProjectProperties(currentProjContent.getProjectid(), properties,operations);
 			
+			// Update the project table in the project panel.
+			parent.getProjectPnl().refreshProjectTable();
+			
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -433,17 +439,13 @@ public class GeneralDialog extends JDialog {
 			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
 
 			// Store the experiment name
-			Long experimentID = null;
-			if(type == DialogType.NEW_EXPERIMENT){
-				experimentID = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
-				// Store the experiment properties
-				manager.addExperimentProperties(experimentID, properties);
-			} else if (type == DialogType.MODIFY_EXPERIMENT){
-				manager.modifyExperimentsName(currentExpContent.getExperimentid(), nameTtf.getText());
-				experimentID = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
-			}
+			Long experimentID = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
 			
+			// Collect properties
+			collectProperties();
 			
+			// Store the project properties
+			manager.addExperimentProperties(experimentID, properties);
 			
 			// Update the experiment table in the project panel.
 			parent.getProjectPnl().updateExperimentTable(currentProjContent.getProjectid());
@@ -453,8 +455,32 @@ public class GeneralDialog extends JDialog {
 		}
 	}
 
-	// SubMethods*************************************************************************		
-	// a. ProjectPropertyTable________________________________________________________
+	/**
+	 * This method modify and delete experiment properties.
+	 */
+	protected void modifyExperiment() {
+		// TODO Auto-generated method stub
+			try {
+				ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
+
+				// Modify the experiment name
+				manager.modifyExperimentName(currentExpContent.getExperimentid(), nameTtf.getText());
+				
+				// Collect properties
+				collectProperties();
+				
+				// Modify the project properties
+				manager.modifyExperimentProperties(currentExpContent.getExperimentid(), properties,operations);
+				
+				// Update the experiment table in the project panel.
+				parent.getProjectPnl().updateExperimentTable(currentProjContent.getProjectid());
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+	}
+	
+	
+	
 	/**
 	 * Methode creating the projectProperties table
 	 */
@@ -614,5 +640,6 @@ public class GeneralDialog extends JDialog {
 			properties.put(propertyTbl.getValueAt(i, 1).toString(), propertyTbl.getValueAt(i, 2).toString());
 		}
 	}
+	
 
 }

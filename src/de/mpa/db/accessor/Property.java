@@ -21,11 +21,20 @@ public class Property extends PropertyTableAccessor {
 	public Property(HashMap params){
 		super(params);
 	}
-	
+	/**
+	 * Calls the super class
+	 * @param aRS 
+	 */
 	public Property(ResultSet aRS) throws SQLException {
 		super(aRS);
 	}
 
+	/**
+	 * Calls the super class and set the projectID, project property name and project property value .
+	 * @param projectID
+	 * @param name
+	 * @param value
+	 */
 	public Property(long projectID, String name, String value) {
 		super();
 		this.setFk_projectid(projectID);
@@ -33,6 +42,13 @@ public class Property extends PropertyTableAccessor {
 		this.setValue(value);
 	}
 
+	/**
+	 *  This method returns a project property specified by the property title
+	 * @param title
+	 * @param aConn
+	 * @return projectProperty The project property.
+	 * @throws SQLException
+	 */
 	public static Property findPropertyFromTitle(String title, Connection aConn) throws SQLException {
 		Property temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
@@ -47,7 +63,13 @@ public class Property extends PropertyTableAccessor {
 		ps.close();
 		return temp;
 	}
-	
+	/**
+	 * This method returns a project property specified by the property ID
+	 * @param propertyid
+	 * @param aConn
+	 * @return projectProperty. The project Property 
+	 * @throws SQLException
+	 */
 	public static Property findPropertyFromPropertyID(long propertyid, Connection aConn) throws SQLException {
 		Property temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
@@ -63,7 +85,13 @@ public class Property extends PropertyTableAccessor {
 	}
 	
 
-
+	/**
+	 *  This method returns the list of project properties specified by the project ID
+	 * @param fk_projectid
+	 * @param aConn
+	 * @return ArrayList<Property> The list of all properties
+	 * @throws SQLException
+	 */
 	public static List<Property> findAllPropertiesOfProject(long fk_projectid, Connection aConn) throws SQLException {
 		ArrayList<Property> temp = new ArrayList<Property>();
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where fk_projectid = ?");
