@@ -13,8 +13,26 @@ public class ExpProperty extends ExppropertyTableAccessor {
 		super();
 	}
 
+	/**
+	 * Calls the super class
+	 * @param aRS
+	 * @throws SQLException
+	 */
 	public ExpProperty(ResultSet aRS) throws SQLException {
 		super(aRS);
+	}
+	
+	/**
+	 * Calls the super class and sets the experiment ID, experiment property name and value.
+	 * @param experimentID
+	 * @param name
+	 * @param value
+	 */
+	public ExpProperty(long experimentID, String name, String value){
+		super();
+		this.setFk_experimentid(experimentID);
+		this.setName(name);
+		this.setValue(value);
 	}
 	
 	/**
@@ -25,6 +43,13 @@ public class ExpProperty extends ExppropertyTableAccessor {
 		super(params);
 	}
 
+	/**
+	 * This method returns the experiment property specified by a property title
+	 * @param title
+	 * @param aConn
+	 * @return ExpProperty The experiment property.
+	 * @throws SQLException
+	 */
 	public static ExpProperty findExpPropertyFromTitle(String title, Connection aConn) throws SQLException {
 		ExpProperty temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
@@ -39,7 +64,14 @@ public class ExpProperty extends ExppropertyTableAccessor {
 		ps.close();
 		return temp;
 	}
-	// find ExpProperty
+
+	/**
+	 * This method returns the experiment property specified by the experiment property ID
+	 * @param exppropertyid
+	 * @param aConn
+	 * @return expProp The experiment property
+	 * @throws SQLException
+	 */
 	public static ExpProperty findExpPropertyFromID(Long exppropertyid, Connection aConn) throws SQLException {
 		ExpProperty temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where exppropertyid = ?");
@@ -53,6 +85,13 @@ public class ExpProperty extends ExppropertyTableAccessor {
 		return temp;
 	}
 
+	/**
+	 * This method returns the experiment properties specified by the experiment ID
+	 * @param experimentid
+	 * @param aConn
+	 * @return ArrayList<ExpProperty> The List of experiment properties
+	 * @throws SQLException
+	 */
 	public static List<ExpProperty> findAllPropertiesOfExperiment(long experimentid, Connection aConn) throws SQLException {
 		ArrayList<ExpProperty> temp = new ArrayList<ExpProperty>();
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where fk_experimentid = ?");

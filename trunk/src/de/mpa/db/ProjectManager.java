@@ -83,13 +83,15 @@ public class ProjectManager {
 	 * @throws SQLException 
 	 */
 	public void addExperimentProperties(Long experimentID, Map<String, String> experimentProperties) throws SQLException{
-		// Iterate the given project properties and add them to the database.
+		// Iterate the given experiment properties and add them to the database.
+		int i=0;
 		for(Entry entry : experimentProperties.entrySet()){
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(ExpProperty.FK_EXPERIMENTID, experimentID);
 			data.put(ExpProperty.NAME, entry.getKey());
 			data.put(ExpProperty.VALUE, entry.getValue());
 			ExpProperty expProperty = new ExpProperty(data);
+			System.out.println(expProperty.getExppropertyid());
 			expProperty.persist(conn);
 		}
 	}
@@ -105,14 +107,6 @@ public class ProjectManager {
 		tempProject.update(conn);
 	}
 
-//	// modify project property
-//	public void modifyProjectProperty(long propertyid, Map<String, String> experimentProperties) throws SQLException {
-//		Map<String, String> experimentProperties;
-//		Property tempProperty = Property.findPropertyFromPropertyID(propertyid,	conn);
-//		tempProperty.setName(propertyName);
-//		tempProperty.setValue(propertyValue);
-//		tempProperty.update(conn);
-//	}
 
 	// modify experimentsname
 	public void modifyExperimentsName(long experimentid, String experimentsName)
@@ -152,6 +146,12 @@ public class ProjectManager {
 		return Project.findFromProjectID(projectId, conn).getTitle();
 	}
 
+	/**
+	 * This method returns all project properties for a specified projectID
+	 * @param projectId
+	 * @return ProjectProperties The project properties
+	 * @throws SQLException
+	 */
 	public List<Property> getProjectProperties(long projectId) throws SQLException {
 		return Property.findAllPropertiesOfProject(projectId, conn);
 	}
@@ -160,7 +160,6 @@ public class ProjectManager {
 	 * Returns a list experiments from the database.
 	 * @return The list of experiments.
 	 */
-
 	public List<Experiment> getProjectExperiments(long fk_projectid) throws SQLException {
 		return Experiment.findAllExperimentsOfProject(fk_projectid, conn);
 	}
@@ -188,30 +187,31 @@ public class ProjectManager {
 	public List<Project> getProjects() throws SQLException {
 		return Project.findAllProjects(conn);
 	}
-	// create new Project
-	// public void createNewProject (String pTitle,Timestamp pCreationdate,
-	// Timestamp pModificationdate) throws SQLException{
-	// HashMap<Object, Object> data = new HashMap<Object, Object>(11);
-	// data.put(Project.TITLE, pTitle);
-	// data.put(Project.CREATIONDATE, pCreationdate);
-	// data.put(Project.MODIFICATIONDATE, pModificationdate);
-	// Project project = new Project(data);
-	// project.persist(conn);
-	// project.getGeneratedKeys();
-	// }
 
+	/**
+	 * This method change the name of a project specified by the projectid
+	 * @param projectid
+	 * @param title
+	 * @throws SQLException
+	 */
 	public void modifyProjectName(Long projectid, String title) throws SQLException {
 		Project project = Project.findFromProjectID(projectid, conn);
 		project.setTitle(title);
 		project.update(conn);
 	}
 
+	/**
+	 * This method modify ( change/delete/update) the project properties
+	 * @param projectID
+	 * @param newProperties
+	 * @param operations
+	 * @throws SQLException
+	 */
 	public void modifyProjectProperties(Long projectID,
 			Map<String, String> newProperties,
 			ArrayList<Integer> operations) throws SQLException {
 		
-		ArrayList<Property> properties = new ArrayList<Property>(
-				Property.findAllPropertiesOfProject(projectID, conn));
+		ArrayList<Property> properties = new ArrayList<Property>(Property.findAllPropertiesOfProject(projectID, conn));
 		
 		int i = 0;
 		for (Entry<String, String> newProperty : newProperties.entrySet()) {
@@ -222,7 +222,6 @@ public class ProjectManager {
 				properties.get(i).update(conn);
 				break;
 			case GeneralDialog.DELETE:
-				System.out.println("BANG UR DED");
 				properties.get(i).delete(conn);
 				break;
 			case GeneralDialog.ADD:
@@ -239,4 +238,51 @@ public class ProjectManager {
 			}
 		}
 	}
+	
+	/**
+	 * This method changes the name of an experiment specified by the experiment ID.
+	 * @param experimentid
+	 * @param title
+	 * @throws SQLException
+	 */
+	public void modifyExperimentName(Long experimentid, String title) throws SQLException {
+		Experiment experiment = Experiment.findExperimentByID(experimentid, conn);
+		experiment.setTitle(title);
+		experiment.update(conn);
+	}	
+	
+	public void modifyExperimentProperties(Long experimentID,
+			Map<String, String> newProperties,
+			ArrayList<Integer> operations) throws SQLException {
+		
+		ArrayList<ExpProperty> expProperties = new ArrayList<ExpProperty>(ExpProperty.findAllPropertiesOfExperiment(experimentID, conn));
+		
+		int i = 0;
+		for (Entry<String, String> newProperty : newProperties.entrySet()) {
+			switch (operations.get(i)) {
+			case GeneralDialog.CHANGE:
+				expProperties.get(i).setName(newProperty.getKey());
+				expProperties.get(i).setValue(newProperty.getValue());
+				expProperties.get(i).update(conn);
+				break;
+			case GeneralDialog.DELETE:
+				expProperties.get(i).delete(conn);
+				break;
+			case GeneralDialog.ADD:
+				ExpProperty expProperty = new ExpProperty();
+				new ExpProperty(experimentID, newProperty.getKey(), newProperty.getValue());
+				expProperty.setFk_experimentid(experimentID);
+				expProperty.persist(conn);
+				break;
+			}
+			i++;
+		}
+		for (int j = i; j < operations.size(); j++) {
+			if (operations.get(j) == GeneralDialog.DELETE) {
+				expProperties.get(j).delete(conn);
+			}
+		}
+	}
+	
+	
 }
