@@ -62,7 +62,7 @@ public class ExperimentContent {
 	 * Returns the experiment id.
 	 * @return The experiment id.
 	 */
-	public Long getExperimentid() {
+	public Long getExperimentID() {
 		return experimentid;
 	}
 
@@ -78,7 +78,7 @@ public class ExperimentContent {
 	 * Returns the project id.
 	 * @return
 	 */
-	public Long getProjectid() {
+	public Long getProjectID() {
 		return projectid;
 	}
 	

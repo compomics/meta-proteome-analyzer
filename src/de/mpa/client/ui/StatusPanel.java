@@ -42,7 +42,7 @@ public class StatusPanel extends JPanel {
 													  "2dlu, f:p:g, 2dlu"));
 		projectPnl.setBorder(bevelBrd);
 
-		projectTtf = new JTextField("ProjectName");
+		projectTtf = new JTextField("None");
 		projectTtf.setBorder(null);
 		projectTtf.setEditable(false);
 		projectTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
@@ -54,7 +54,7 @@ public class StatusPanel extends JPanel {
 														 "2dlu, f:p:g, 2dlu"));
 		experimentPnl.setBorder(bevelBrd);
 		
-		experimentTtf = new JTextField("ExperimentName");
+		experimentTtf = new JTextField("None");
 		experimentTtf.setBorder(null);
 		experimentTtf.setEditable(false);
 		experimentTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
@@ -149,5 +149,13 @@ public class StatusPanel extends JPanel {
 
 	public JLabel getTimeLabel() {
 		return timeLbl;
+	}
+
+	public JTextField getProjectTextField() {
+		return projectTtf;
+	}
+
+	public JTextField getExperimentTextField() {
+		return experimentTtf;
 	}
 }

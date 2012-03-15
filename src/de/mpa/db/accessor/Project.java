@@ -48,9 +48,7 @@ public class Project extends ProjectTableAccessor {
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
 		ps.setString(1, title);
 		ResultSet rs = ps.executeQuery();
-		int counter = 0;
 		while (rs.next()) {
-			counter++;
 			temp = new Project(rs);
 		}
 		rs.close();
@@ -58,7 +56,6 @@ public class Project extends ProjectTableAccessor {
 
 		return temp;
 	}
-
 
 	/**
 	 * This method finds all projects from the database.

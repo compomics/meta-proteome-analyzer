@@ -2,7 +2,6 @@ package de.mpa.io;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.codec.binary.Base64;
@@ -30,10 +29,10 @@ public class SixtyFourBitStringSupport {
 	}
 	
 	/**
-	 * Method to build a peak HashMap from double arrays representing m/z and intensity pairs.
+	 * Method to build a peak HashMap from double and int arrays representing m/z and charge pairs.
 	 * 
 	 * @param mzArray The array of m/z values.
-	 * @param chArray The array of intensity values.
+	 * @param chArray The array of charge values.
 	 * @return
 	 */
 	public static HashMap<Double, Integer> buildChargeMap(double[] mzArray, int[] chArray) {

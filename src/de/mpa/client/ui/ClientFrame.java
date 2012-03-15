@@ -142,6 +142,8 @@ public class ClientFrame extends JFrame {
 
 	private StatusPanel statusPnl;
 
+	private JTabbedPane tabPane;
+
 	/**
 	 * Constructor for the ClientFrame
 	 */
@@ -174,7 +176,7 @@ public class ClientFrame extends JFrame {
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
-		JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
+		tabPane = new JTabbedPane(JTabbedPane.LEFT);
 		tabPane.addTab("Project", projectIcon, projectPnl);
 		tabPane.addTab("Input Spectra", addSpectraIcon, filePnl);
 		tabPane.addTab("Search Settings", settingsIcon, getSettingsPanel());
@@ -779,8 +781,13 @@ public class ClientFrame extends JFrame {
 	public ProjectPanel getProjectPnl() {
 		return projectPnl;
 	}
-	
-	
+
+	/**
+	 * Returns the tabbed pane.
+	 * @return
+	 */
+	public JTabbedPane getTabPane() {
+		return tabPane;
+	}
 	
 }
-
