@@ -149,7 +149,7 @@ public class SettingsPanel extends JPanel {
 		
 		processBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		processBtn.setFont(processBtn.getFont().deriveFont(
-				Font.BOLD, processBtn.getFont().getSize2D()*1.0f));
+				Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
 
 		processBtn.addActionListener(new ActionListener() {			
 			@Override
