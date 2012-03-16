@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 13/03/2012
- * Time: 13:17:04
+ * Date: 15/03/2012
+ * Time: 14:59:04
  */
 package de.mpa.db.accessor;
 
@@ -51,9 +51,9 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 
 
 	/**
-	 * This variable represents the contents for the 'fk_spectrumid' column.
+	 * This variable represents the contents for the 'fk_searchspectrumid' column.
 	 */
-	protected long iFk_spectrumid = Long.MIN_VALUE;
+	protected long iFk_searchspectrumid = Long.MIN_VALUE;
 
 
 	/**
@@ -158,9 +158,9 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	public static final String CRUXHITID = "CRUXHITID";
 
 	/**
-	 * This variable represents the key for the 'fk_spectrumid' column.
+	 * This variable represents the key for the 'fk_searchspectrumid' column.
 	 */
-	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
+	public static final String FK_SEARCHSPECTRUMID = "FK_SEARCHSPECTRUMID";
 
 	/**
 	 * This variable represents the key for the 'fk_peptideid' column.
@@ -261,8 +261,8 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(CRUXHITID)) {
 			this.iCruxhitid = ((Long)aParams.get(CRUXHITID)).longValue();
 		}
-		if(aParams.containsKey(FK_SPECTRUMID)) {
-			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
+		if(aParams.containsKey(FK_SEARCHSPECTRUMID)) {
+			this.iFk_searchspectrumid = ((Long)aParams.get(FK_SEARCHSPECTRUMID)).longValue();
 		}
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
@@ -325,7 +325,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public CruxhitTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iCruxhitid = aResultSet.getLong("cruxhitid");
-		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
+		this.iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
 		this.iScannumber = aResultSet.getLong("scannumber");
 		this.iCharge = aResultSet.getLong("charge");
@@ -357,12 +357,12 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method returns the value for the 'Fk_spectrumid' column
+	 * This method returns the value for the 'Fk_searchspectrumid' column
 	 * 
-	 * @return	long	with the value for the Fk_spectrumid column.
+	 * @return	long	with the value for the Fk_searchspectrumid column.
 	 */
-	public long getFk_spectrumid() {
-		return this.iFk_spectrumid;
+	public long getFk_searchspectrumid() {
+		return this.iFk_searchspectrumid;
 	}
 
 	/**
@@ -520,12 +520,12 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	}
 
 	/**
-	 * This method sets the value for the 'Fk_spectrumid' column
+	 * This method sets the value for the 'Fk_searchspectrumid' column
 	 * 
-	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
+	 * @param	aFk_searchspectrumid	long with the value for the Fk_searchspectrumid column.
 	 */
-	public void setFk_spectrumid(long aFk_spectrumid) {
-		this.iFk_spectrumid = aFk_spectrumid;
+	public void setFk_searchspectrumid(long aFk_searchspectrumid) {
+		this.iFk_searchspectrumid = aFk_searchspectrumid;
 		this.iUpdated = true;
 	}
 
@@ -727,7 +727,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		while(lRS.next()) {
 			hits++;
 			iCruxhitid = lRS.getLong("cruxhitid");
-			iFk_spectrumid = lRS.getLong("fk_spectrumid");
+			iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
 			iScannumber = lRS.getLong("scannumber");
 			iCharge = lRS.getLong("charge");
@@ -793,9 +793,9 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE cruxhit SET cruxhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, scannumber = ?, charge = ?, neutral_mass = ?, peptide_mass = ?, delta_cn = ?, xcorr_score = ?, xcorr_rank = ?, percolator_score = ?, percolator_rank = ?, qvalue = ?, matches_spectrum = ?, cleavage_type = ?, flank_aa = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE cruxhitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE cruxhit SET cruxhitid = ?, fk_searchspectrumid = ?, fk_peptideid = ?, scannumber = ?, charge = ?, neutral_mass = ?, peptide_mass = ?, delta_cn = ?, xcorr_score = ?, xcorr_rank = ?, percolator_score = ?, percolator_rank = ?, qvalue = ?, matches_spectrum = ?, cleavage_type = ?, flank_aa = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE cruxhitid = ?");
 		lStat.setLong(1, iCruxhitid);
-		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(2, iFk_searchspectrumid);
 		lStat.setLong(3, iFk_peptideid);
 		lStat.setLong(4, iScannumber);
 		lStat.setLong(5, iCharge);
@@ -826,16 +826,16 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_spectrumid, fk_peptideid, scannumber, charge, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, flank_aa, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_searchspectrumid, fk_peptideid, scannumber, charge, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, flank_aa, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iCruxhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iCruxhitid);
 		}
-		if(iFk_spectrumid == Long.MIN_VALUE) {
+		if(iFk_searchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_spectrumid);
+			lStat.setLong(2, iFk_searchspectrumid);
 		}
 		if(iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);

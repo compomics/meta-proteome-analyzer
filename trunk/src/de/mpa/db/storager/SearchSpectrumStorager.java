@@ -1,4 +1,4 @@
-//package de.mpa.db.storager;
+package de.mpa.db.storager;
 //
 //import java.io.File;
 //import java.io.IOException;
@@ -18,7 +18,7 @@
 // * @author Thilo Muth
 // * 
 // */
-//public class SearchSpectrumStorager extends BasicStorager {
+public class SearchSpectrumStorager extends BasicStorager {
 //	
 //    /**
 //     * Variable holding a MGF-file.
@@ -162,4 +162,4 @@
 //		return end;
 //	}
 //
-//}
+}

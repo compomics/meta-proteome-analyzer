@@ -19,10 +19,10 @@ import org.xml.sax.SAXException;
 
 import com.compomics.util.protein.Header;
 
+import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
@@ -123,8 +123,9 @@ public class XTandemStorager extends BasicStorager {
             // Get the next spectrum.
             Spectrum spectrum = iter.next();
             int spectrumNumber = spectrum.getSpectrumNumber();
-            String spectrumName = xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
             
+            String spectrumTitle = xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
+           
             // Get all identifications from the spectrum
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
             List<String> peptides = new ArrayList<String>();
@@ -137,70 +138,76 @@ public class XTandemStorager extends BasicStorager {
                    	String sequence = domain.getDomainSequence();
                 	
                 	if(!peptides.contains(sequence)){
-                	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(15);                
-                          
-                          // Get the spectrum id for the given spectrumName for the XTandemFile     
-                          long spectrumid = Searchspectrum.getSpectrumIdFromTitle(spectrumName, false);
-                          hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, spectrumid);  
-                          
-                          // Get the peptide id
-                          long peptideID = PeptideAccessor.findPeptideIDfromSequence(sequence, conn);
-              	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
-              	    	  
-                          // Set the domain id  
-                          String domainID = domain.getDomainID();
-                          hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
-                          
-                          // parse the FASTA header
-                          Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
-                          String accession = header.getAccession();
-                          String description = header.getDescription();
-                          Long proteinID;
-                          
-                          ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-                          if (protein == null) {	// protein not yet in database
-    							// Add new protein to the database
-    							protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
-    						} else {
-    							proteinID = protein.getProteinid();
-    							// check whether pep2prot link already exists, otherwise create new one
-    							Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-    							if (pep2prot == null) {	// link doesn't exist yet
-    								// Link peptide to protein.
-    								pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-    							}
-    						}
-                          
-                          hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
-                          hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
-                          hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
-                          hitdata.put(XtandemhitTableAccessor.DELTA, domain.getDomainDeltaMh());
-                          hitdata.put(XtandemhitTableAccessor.HYPERSCORE, domain.getDomainHyperScore());                
-                          hitdata.put(XtandemhitTableAccessor.PRE, domain.getUpFlankSequence());
-                          hitdata.put(XtandemhitTableAccessor.POST, domain.getDownFlankSequence());                
-                          hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(domain.getMissedCleavages()));
-                          qvalues = scoreQValueMap.get(domain.getDomainHyperScore());
-                    	
-                          // Check if q-value is provided.
-                          if(qvalues == null){
-                            	hitdata.put(XtandemhitTableAccessor.PEP, 1.0);
-                                hitdata.put(XtandemhitTableAccessor.QVALUE, 1.0);                	
-                            } else {
-                            	hitdata.put(XtandemhitTableAccessor.PEP, qvalues.get(0));
-                                hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
-                            }
-
-                          // Create the database object.
-                          if((Double)hitdata.get(XtandemhitTableAccessor.QVALUE) < 0.1){
-                        	  XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
-                              xtandemhit.persist(conn);
+                	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
+                	      
+                	      // Only store if the search spectrum id is referenced.
+                	      if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)){
+                	    	  long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+                	    	  hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, searchspectrumid);  
                               
-                              // Get the xtandemhitid
-                              Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
-                              domainMap.put(domainID, xtandemhitid);   
-                              peptides.add(sequence);
-                              conn.commit();
-                          }
+             
+                  	    	  
+                              // Set the domain id  
+                              String domainID = domain.getDomainID();
+                              hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
+                              
+                              // parse the FASTA header
+                              Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
+                              String accession = header.getAccession();
+                              String description = header.getDescription();
+             
+                              hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
+                              hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
+                              hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
+                              hitdata.put(XtandemhitTableAccessor.DELTA, domain.getDomainDeltaMh());
+                              hitdata.put(XtandemhitTableAccessor.HYPERSCORE, domain.getDomainHyperScore());                
+                              hitdata.put(XtandemhitTableAccessor.PRE, domain.getUpFlankSequence());
+                              hitdata.put(XtandemhitTableAccessor.POST, domain.getDownFlankSequence());                
+                              hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(domain.getMissedCleavages()));
+                              qvalues = scoreQValueMap.get(domain.getDomainHyperScore());
+                        	
+                              // Check if q-value is provided.
+                              if(qvalues == null){
+                                	hitdata.put(XtandemhitTableAccessor.PEP, 1.0);
+                                    hitdata.put(XtandemhitTableAccessor.QVALUE, 1.0);                	
+                                } else {
+                                	hitdata.put(XtandemhitTableAccessor.PEP, qvalues.get(0));
+                                    hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
+                                }
+
+                              // Create the database object.
+                              if((Double)hitdata.get(XtandemhitTableAccessor.QVALUE) < 0.1){
+                                  // Get and store the peptide.
+                                  long peptideID = PeptideAccessor.findPeptideIDfromSequence(sequence, conn);
+                      	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
+                      	    	  
+                      	    	  // Get the protein(s).
+                                  Long proteinID;
+                                  ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
+                                  if (protein == null) {	// protein not yet in database
+            							// Add new protein to the database
+            							protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
+            						} else {
+            							proteinID = protein.getProteinid();
+            							// check whether pep2prot link already exists, otherwise create new one
+            							Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+            							if (pep2prot == null) {	// link doesn't exist yet
+            								// Link peptide to protein.
+            								pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+            							}
+            						}
+                                  hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, protein.getProteinid());
+                                  
+                            	  XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
+                                  xtandemhit.persist(conn);
+                                  
+                                  // Get the xtandemhitid
+                                  Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
+                                  domainMap.put(domainID, xtandemhitid);   
+                                  peptides.add(sequence);
+                                  conn.commit();
+                              }
+                	      }
                 	}
 				}
      

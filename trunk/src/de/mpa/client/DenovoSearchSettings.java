@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="dnPTMs" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="dnPeptideIntThresh" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="dnRemoveAllPep" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *          &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -39,7 +40,8 @@ import javax.xml.bind.annotation.XmlType;
     "dnNumSolutions",
     "dnPTMs",
     "dnPeptideIntThresh",
-    "dnRemoveAllPep"
+    "dnRemoveAllPep",
+    "experimentid"
 })
 public class DenovoSearchSettings {
 
@@ -50,6 +52,7 @@ public class DenovoSearchSettings {
     protected String dnPTMs;
     protected int dnPeptideIntThresh;
     protected boolean dnRemoveAllPep;
+    protected long experimentid;
 
     /**
      * Gets the value of the dnEnzyme property.
@@ -194,5 +197,20 @@ public class DenovoSearchSettings {
     public void setDnRemoveAllPep(boolean value) {
         this.dnRemoveAllPep = value;
     }
-
+    
+    /**
+     * Returns the experiment id.
+     * @return The experiment id.
+     */
+	public long getExperimentid() {
+		return experimentid;
+	}
+	
+	/**
+	 * Sets the experiment id.
+	 * @param experimentid The experiment id.
+	 */
+	public void setExperimentid(long experimentid) {
+		this.experimentid = experimentid;
+	}
 }

@@ -1,7 +1,6 @@
 package de.mpa.db.storager;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
@@ -14,7 +13,9 @@ import org.apache.log4j.Logger;
  */
 public abstract class BasicStorager implements Storager {
 	
-	private Connection conn;
+	/**
+	 * Logger object for the storagers.
+	 */
 	protected Logger log = Logger.getLogger(getClass());
 	
 	@Override
@@ -22,14 +23,11 @@ public abstract class BasicStorager implements Storager {
 		this.load();
 		try {
 			this.store();
-		} catch (IOException e) {			
-			e.printStackTrace();
+		} catch (IOException ioe) {
+			log.error("Error message: " + ioe.getMessage());
+			ioe.printStackTrace();
 		} catch (SQLException e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+			log.error("Error message: " + e.getMessage() + " - Error code: " + e.getErrorCode());
 			e.printStackTrace();
 		}
 		log.info("Data stored to the DB.");

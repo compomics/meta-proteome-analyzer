@@ -84,7 +84,7 @@ public class SettingsPanel extends JPanel {
 									  "5dlu, f:p, 5dlu, p, 5dlu"));
 		
 		// database search settings panel
-		databasePnl = new DBSearchPanel();
+		databasePnl = new DBSearchPanel(clientFrame);
 		databasePnl.setEnabled(true);
 		
 		JCheckBox databaseChk = new JCheckBox("Database Searching", true);

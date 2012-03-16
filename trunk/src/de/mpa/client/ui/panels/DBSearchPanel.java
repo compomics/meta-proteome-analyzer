@@ -19,6 +19,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
 
@@ -39,8 +40,13 @@ public class DBSearchPanel extends JPanel {
 	private JButton inspectSetBtn;
 	private JButton mascotSetBtn;
 	private JComboBox searchTypeCbx;
-
-	public DBSearchPanel() {
+	private ClientFrame clientFrame;
+	
+	/**
+	 * The default database search panel constructor.
+	 */
+	public DBSearchPanel(ClientFrame clientFrame) {
+		this.clientFrame = clientFrame;
 		initComponents();
 	}
 
@@ -89,7 +95,6 @@ public class DBSearchPanel extends JPanel {
 
 		// Enzyme ComboBox
 		JComboBox enzymeCbx = new JComboBox(Constants.ENZYMES);
-
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));
 		paramsPnl.add(new JLabel("Da"), cc.xy(8, 2));
@@ -101,12 +106,10 @@ public class DBSearchPanel extends JPanel {
 		paramsPnl.add(new JSeparator(), cc.xyw(2, 8, 7));
 		paramsPnl.add(new JLabel("Enzyme (Protease):"), cc.xy(2, 10));
 		paramsPnl.add(enzymeCbx, cc.xyw(4, 10, 5));
-
 		
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
-		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu", "0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		// X!Tandem
@@ -162,8 +165,7 @@ public class DBSearchPanel extends JPanel {
 		});
 		
 		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox(new String[] { "Target only",
-													 "Target-decoy" });
+		searchTypeCbx = new JComboBox(new String[] {"Target-decoy", "Target only"});
 
 		searchEngPnl.add(xTandemChk, cc.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, cc.xy(4, 2));
@@ -220,7 +222,11 @@ public class DBSearchPanel extends JPanel {
 			}
 		}
 	}
-
+	
+	/**
+	 * This method collects the database search settings.
+	 * @return The database search settings.
+	 */
 	public DbSearchSettings collectDBSearchSettings() {
 		DbSearchSettings settings = new DbSearchSettings();
 		settings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
@@ -233,8 +239,10 @@ public class DBSearchPanel extends JPanel {
 		settings.setCrux(cruxChk.isSelected());
 		settings.setInspect(inspectChk.isSelected());
 		settings.setMascot(mascotChk.isSelected());
-		settings.setDecoy(searchTypeCbx.getSelectedIndex() == 1);
+		settings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
+		
+		// Set the current experiment id for the database search settings.
+		settings.setExperimentid(clientFrame.getProjectPnl().getCurrentExperimentId());
 		return settings;
 	}
-
 }

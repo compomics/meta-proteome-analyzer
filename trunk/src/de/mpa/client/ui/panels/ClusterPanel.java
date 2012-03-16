@@ -35,8 +35,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.ui.ExtensionFileFilter;
 import de.mpa.ui.PlotPanel2;
-import de.mpa.utils.ExtensionFileFilter;
 
 public class ClusterPanel extends JPanel {				
 	
@@ -59,7 +59,7 @@ public class ClusterPanel extends JPanel {
 		initComponents();												// function call
 	}
 	
-	// void = ohne Rückgabewert
+	// void = ohne Rï¿½ckgabewert
 	private void initComponents() {										// declaration of initComponents, void = bo return value
 		ClusterPanel clusterPnl = this;									// Init Panel "Clustering"
 		
@@ -77,7 +77,7 @@ public class ClusterPanel extends JPanel {
 			setPnl.setLayout(layout);									// editing layout of setPnl	
 			
 				// table of spectra
-				tblMdl = new ClusterTableModel();	// final für unveränderliche Referenz
+				tblMdl = new ClusterTableModel();	// final fï¿½r unverï¿½nderliche Referenz
 //				tblMdl.addRow(new Object[] {1,"ABCD",true});				// Zeile 1 hart beschreiben (mit String und checkbox)
 				specTbl = new JTable(tblMdl);							    // Init 'specTbl' adding tblMdl as model
 				specTbl.setAutoCreateRowSorter(true);						// enables alphabetic sorting, done by click on column title 
@@ -289,7 +289,7 @@ public class ClusterPanel extends JPanel {
 //		double divisor = 1.0;
 //		if (averagePeakInt) {
 //			divisor = mgfList.size();
-//		} oder kurz ternär:
+//		} oder kurz ternï¿½r:
 		double divisor = (averagePeakInt) ? mgfList.size() : 1.0;
 		boolean nrmlzPeaks = nrmlzPeakInt.isSelected();						// get Checkbox value nrmlzPeakInt
 		for (MascotGenericFile mgf : mgfList) {								// iterate through provided (former selected) spectrum files
@@ -398,7 +398,7 @@ public class ClusterPanel extends JPanel {
 //					ArrayList<RankedLibrarySpectrum> hitList = clientFrame.resultMap.get(specTitle);
 //					for (int i = 0; i < hitList.size(); i++) {
 //						//alternativ: for (RankedLibrarySpectrum hit : hitList) 
-//						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// wähle Spektren mit Korrelation 1
+//						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// wï¿½hle Spektren mit Korrelation 1
 //							rls = hitList.get(i);
 //							sequence = hitList.get(i).getSequence();
 //							if (seqMap.containsKey(sequence)) {

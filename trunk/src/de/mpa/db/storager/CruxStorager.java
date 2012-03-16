@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.Cruxhit2protTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
@@ -86,13 +87,8 @@ public class CruxStorager implements Storager {
                 String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
                 
                 // Get the spectrum id
-                long spectrumID = MapContainer.FileName2IdMap.get(name);
-                hitdata.put(Cruxhit.FK_SPECTRUMID, spectrumID);
-                
-                // Get the peptide id
-                long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getPeptide(), conn);
-                hitdata.put(Cruxhit.FK_PEPTIDEID, peptideID);
-                
+                long searchspectrumid = MapContainer.FileName2IdMap.get(name);
+    	    	hitdata.put(Cruxhit.FK_SEARCHSPECTRUMID, searchspectrumid);
                 hitdata.put(Cruxhit.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
                 hitdata.put(Cruxhit.CHARGE, Long.valueOf(hit.getCharge()));
                 hitdata.put(Cruxhit.NEUTRAL_MASS, hit.getNeutralMass());
@@ -105,46 +101,57 @@ public class CruxStorager implements Storager {
                 hitdata.put(Cruxhit.QVALUE, hit.getqValue());
                 hitdata.put(Cruxhit.MATCHES_SPECTRUM, Long.valueOf(hit.getMatchesSpectrum()));                
                 hitdata.put(Cruxhit.CLEAVAGE_TYPE, hit.getCleavageType());
-                
-                Long proteinID;
-            	// parse the header
-                StringTokenizer tokenizer = new StringTokenizer(hit.getProteinid(), ",");
-                while(tokenizer.hasMoreTokens()){
-                	String token = tokenizer.nextToken();
-                	StringTokenizer tokenizer2 = new StringTokenizer(token, "|");
-                	List<String> tokenList = new ArrayList<String>();
-                	// Iterate over all the tokens
-					while (tokenizer2.hasMoreTokens()) {
-						tokenList.add(tokenizer2.nextToken());
-					}
-					
-                    String accession = tokenList.get(1);
-                    
-                    ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-                    if (protein == null) {	// protein not yet in database
-        					// Add new protein to the database
-        					protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, null, conn);
-        				} else {
-        					proteinID = protein.getProteinid();
-        					// check whether pep2prot link already exists, otherwise create new one
-        					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-        					if (pep2prot == null) {	// link doesn't exist yet
-        						// Link peptide to protein.
-        						pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-        					}
-        			}
-                }
-                
                 hitdata.put(Cruxhit.FLANK_AA, hit.getFlankingAA());
                 
                 // Create the database object.
                 if((Double)hitdata.get(Cruxhit.QVALUE) < 0.1){
-                	// Create the database object.
+                	// Get the peptide id
+                    long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getPeptide(), conn);
+                    hitdata.put(Cruxhit.FK_PEPTIDEID, peptideID);
+                	
+                    // Create the database object.
                     Cruxhit cruxhit = new Cruxhit(hitdata);
                     cruxhit.persist(conn);
                     
                     // Get the cruxhitid
                     Long cruxhitid = (Long) cruxhit.getGeneratedKeys()[0];
+                    
+                    // parse the header
+                    StringTokenizer tokenizer = new StringTokenizer(hit.getProteinid(), ",");
+                    while(tokenizer.hasMoreTokens()){
+                    	String token = tokenizer.nextToken();
+                    	StringTokenizer tokenizer2 = new StringTokenizer(token, "|");
+                    	List<String> tokenList = new ArrayList<String>();
+                    	// Iterate over all the tokens
+                    	while (tokenizer2.hasMoreTokens()) {
+                    		tokenList.add(tokenizer2.nextToken());
+                    	}
+
+                    	String accession = tokenList.get(1);
+
+                    	ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
+                    	if (protein == null) { // protein not yet in database
+                    		// Add new protein to the database
+                    		protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, null, conn);
+                    	} else {
+                    		// check whether pep2prot link already exists,
+                    		// otherwise create new one
+                    		Pep2prot pep2prot = Pep2prot.findLink(peptideID, protein.getProteinid(), conn);
+                    		// If no link from peptide to protein is given.
+                    		if (pep2prot == null) { 
+                    			// Link peptide to protein.
+                    			pep2prot = Pep2prot.linkPeptideToProtein(peptideID, protein.getProteinid(), conn);
+                    		}
+                    	}
+                    	// Update the cruxhit2prot table
+                        HashMap<Object, Object> cruxhitdata = new HashMap<Object, Object>(3);
+                        cruxhitdata.put(Cruxhit2protTableAccessor.FK_CRUXHITID, cruxhitid);
+                        cruxhitdata.put(Cruxhit2protTableAccessor.FK_PROTEINID, protein.getProteinid());
+                        
+                        // Cruxhit2prot: Save the protein ids separately. 
+                        Cruxhit2protTableAccessor cruxhit2prot = new Cruxhit2protTableAccessor(cruxhitdata);
+                        cruxhit2prot.persist(conn);
+                    }
                     scanNumberMap.put(hit.getScanNumber(), cruxhitid);      
                     conn.commit();
                 }

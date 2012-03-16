@@ -82,42 +82,45 @@ public class ServerImpl implements Server {
 	}
 	
 	/**
-	 * Process a derived file.
-	 * @param filename
+	 * Run the database search file. 
+	 * @param filename The spectrum filename.
+	 * @param dbSearchSettings The database search settings.
 	 * @throws Exception
 	 */
-	public void runDbSearch(String filename, DbSearchSettings params) {	
-		File file = new File("/scratch/metaprot/data/transfer/" + filename);
+	public void runDbSearch(String filename, DbSearchSettings dbSearchSettings) {	
+		File file = new File(ServerSettings.TRANSFER_PATH + filename);
 		
-		// Init the job manager
+		// Initialize the job manager.
 		final JobManager jobManager = new JobManager(msgQueue);
 		
-		// Get general parameters 
-		String searchDB = params.getFastaFile();
-		double fragIonTol = params.getFragmentIonTol();
-		double precIonTol = params.getPrecursorIonTol();
+		// Get general parameters .
+		String searchDB = dbSearchSettings.getFastaFile();
+		double fragIonTol = dbSearchSettings.getFragmentIonTol();
+		double precIonTol = dbSearchSettings.getPrecursorIonTol();
 		
 		// X!Tandem job
-		if(params.isXTandem()){
+		if(dbSearchSettings.isXTandem()){
 			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
 			jobManager.addJob(xtandemJob);
-			
-			// The X!Tandem decoy search is done here.
-			XTandemJob xtandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.DECOY);
-			jobManager.addJob(xtandemDecoyJob);
-			
-			// The score job evaluates X!Tandem target + decoy results.
-			XTandemScoreJob xtandemScoreJob = new XTandemScoreJob(xtandemJob.getFilename(), xtandemDecoyJob.getFilename());
-			jobManager.addJob(xtandemScoreJob);
+			// Decoy search only
+			if(dbSearchSettings.isDecoy()){
+				// The X!Tandem decoy search is done here.
+				XTandemJob xtandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.DECOY);
+				jobManager.addJob(xtandemDecoyJob);
+
+				// The score job evaluates X!Tandem target + decoy results.
+				XTandemScoreJob xtandemScoreJob = new XTandemScoreJob(xtandemJob.getFilename(), xtandemDecoyJob.getFilename());
+				jobManager.addJob(xtandemScoreJob);
+			}
 		}
 		
 		// Omssa job
-		if(params.isOmssa()){
+		if(dbSearchSettings.isOmssa()){
 			OmssaJob omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
 			jobManager.addJob(omssaJob);
 			
 			// Condition if decoy search is done here.
-			if(params.isDecoy()){
+			if(dbSearchSettings.isDecoy()){
 				
 				// The Omssa decoy search is done here.
 				OmssaJob omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, fragIonTol, precIonTol, false, SearchType.DECOY);
@@ -130,7 +133,7 @@ public class ServerImpl implements Server {
 		}
 		
 		// Crux job
-		if(params.isCrux()){
+		if(dbSearchSettings.isCrux()){
 			MS2FormatJob ms2FormatJob = new MS2FormatJob(file);
 			jobManager.addJob(ms2FormatJob);
 			CruxJob cruxJob = new CruxJob(file, searchDB);
@@ -143,7 +146,7 @@ public class ServerImpl implements Server {
 		}
 		
 		// Inspect job
-		if(params.isInspect()){
+		if(dbSearchSettings.isInspect()){
 			InspectJob inspectJob = new InspectJob(file, searchDB);			
 			jobManager.addJob(inspectJob);			
 			PostProcessorJob postProcessorJob = new PostProcessorJob(file, searchDB);			
@@ -163,13 +166,13 @@ public class ServerImpl implements Server {
 			dbManager = new DBManager();
 			
 			// Store the spectra.
-			dbManager.storeSpectra(file);
+			dbManager.storeSpectra(file, dbSearchSettings.getExperimentid());
 			
 			// Store the results.
-			if (params.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
-			if (params.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
-			if (params.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-			if (params.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
+			if (dbSearchSettings.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
+			if (dbSearchSettings.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
+			if (dbSearchSettings.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
+			if (dbSearchSettings.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		} catch (SQLException ex) {
@@ -185,19 +188,20 @@ public class ServerImpl implements Server {
 	}
 	
 	/**
-	 * Process the derived pepnovo file.
-	 * @param filename
+	 * This method runs the denovo search on the server.
+	 * @param filename The spectrum filename.
+	 * @param denovoSearchSettings The denovo search settings.
 	 * @throws Exception
 	 */
-	public void runDenovoSearch(String filename, DenovoSearchSettings params) {	
+	public void runDenovoSearch(String filename, DenovoSearchSettings denovoSearchSettings) {	
 		// The denovo file
-		File file = new File("/scratch/metaprot/data/transfer/" + filename);
+		File file = new File(ServerSettings.TRANSFER_PATH + filename);
 		
 		// Init the job manager
 		final JobManager jobManager = new JobManager(msgQueue);
 		
 		// Get general parameters
-		PepnovoJob denovoJob = new PepnovoJob(file, params.getDnFragmentTolerance(), params.getDnNumSolutions());
+		PepnovoJob denovoJob = new PepnovoJob(file, denovoSearchSettings.getDnFragmentTolerance(), denovoSearchSettings.getDnNumSolutions());
 		jobManager.addJob(denovoJob);
 		jobManager.execute();
 		jobManager.clear();
@@ -209,7 +213,7 @@ public class ServerImpl implements Server {
 		try {
 			// 	DB Manager instance					
 			dbManager = new DBManager();
-			dbManager.storeSpectra(file);
+			dbManager.storeSpectra(file, denovoSearchSettings.getExperimentid());
 			dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
 		} catch (IOException e) {
 			log.error(e.getMessage());
@@ -219,7 +223,10 @@ public class ServerImpl implements Server {
 		msgQueue.add(new Message(null, "DENOVOSEARCH FINISHED", new Date()));
 	}
 	
-	@Override		
+	/**
+	 * This method transfers a file to the server webservice.
+	 */
+	@Override
 	public String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data) {
  
 		if(data != null){	
@@ -228,9 +235,9 @@ public class ServerImpl implements Server {
 				io = data.getInputStream();
 				byte b[] = new byte[io.available()];  
 			    io.read(b);
-			    // TODO: Parameterize the path to the data folder!
-			    File file = new File("/scratch/metaprot/data/transfer/" + filename);
 			    
+			    // The file will be put on the transfer file path
+			    File file = new File(ServerSettings.TRANSFER_PATH + filename);
 				FileOutputStream fos = new FileOutputStream(file);
 				
 				fos.write(b);

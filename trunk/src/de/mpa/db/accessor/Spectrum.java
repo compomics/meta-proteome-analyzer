@@ -6,35 +6,68 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import de.mpa.db.MapContainer;
+
 public class Spectrum extends SpectrumTableAccessor {
 
 	public Spectrum(ResultSet rs) throws SQLException {
 		super(rs);
 	}
 
-	public Spectrum(HashMap<Object, Object> data) {
-		super(data);
-	}
+    /**
+     * Calls the super class.
+     * @param params
+     */
+    public Spectrum(HashMap params){
+        super(params);
+    }
 
-	public static Spectrum findFromTitle(String title, Connection conn) throws SQLException{
-		Spectrum res = null;
-		
-		PreparedStatement ps = conn.prepareStatement(getBasicSelect() +
-        		" WHERE title = " + title);
+    /**
+     * This method will find a spectrum file from the current connection, based on the spectrum name.
+     *
+     * @param title String with the spectrum name of the spectrum file to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return Spectrumfile with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static Spectrum findFromTitle(String title, Connection aConn) throws SQLException {
+//    	String formatted = "";
+//    	if (omssa) {
+//    		formatted = title.replace("\\\\", "/");
+//    	} else {
+//    		formatted = title.replace('\\', '/');
+//    	}
+    	Spectrum temp = null;
+        // Only get the last 1500 records
+        PreparedStatement ps = aConn.prepareStatement(Spectrum.getBasicSelect() +
+        		" WHERE title = ? ORDER BY creationdate");
+        ps.setString(1, title);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         while (rs.next()) {
             counter++;
-            res = new Spectrum(rs);
+            temp = new Spectrum(rs);
         }
         rs.close();
         ps.close();
-        if (counter != 1) {
-            SQLException sqe = new SQLException("Select based on spectrum title '" + title + "' resulted in " + counter + " results instead of 1!");
-            sqe.printStackTrace();
-            throw sqe;
+        if (counter > 1) {
+            throw new SQLException("Duplicate spectrum found in the database.");
         }
-        return res;
-	}
+        return temp;
+    }
+    
+    public static long getSpectrumIdFromTitle(String title) {
+    	return getSpectrumIdFromTitle(title, false);
+    }
+    
+    public static long getSpectrumIdFromTitle(String title, boolean omssa) {
+    	String formatted = "";
+    	if(omssa){
+    		formatted = title.replace("\\\\", "/");
+    	} else {
+    		formatted = title.replace('\\', '/');
+    	}
+        return MapContainer.SpectrumTitle2IdMap.get(formatted);
+    }
 
 }
