@@ -16,13 +16,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+import org.jdesktop.swingx.JXTable;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -33,6 +34,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.DialogType;
 import de.mpa.client.ui.dialogs.GeneralDialog;
+import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
@@ -49,7 +51,7 @@ public class ProjectPanel extends JPanel {
 	/**
 	 * The projects table containing the projects. 
 	 */
-	private JTable projectsTbl;
+	private JXTable projectsTbl;
 	
 	/**
 	 * The project panel.
@@ -58,7 +60,7 @@ public class ProjectPanel extends JPanel {
 
 	private JScrollPane projectTblScp;
 
-	private JTable experimentTbl;
+	private JXTable experimentTbl;
 
 	private JScrollPane experimentTblScp;
 
@@ -105,7 +107,7 @@ public class ProjectPanel extends JPanel {
 		try {
 			projectManager = new ProjectManager(clientFrame.getClient().getConnection());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			GeneralExceptionHandler.showSQLErrorDialog(e, clientFrame);
 		}
 	}
 
@@ -154,9 +156,10 @@ public class ProjectPanel extends JPanel {
 			refreshProjectTable();
 			
 			// Close the connection
-			clientFrame.getClient().closeDBConnection();
+		//TODO	clientFrame.getClient().closeDBConnection();
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			GeneralExceptionHandler.showSQLErrorDialog(e1, clientFrame);
+			
 		}
 		
 		// Setup the project management buttons.
@@ -216,7 +219,7 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		modifyProjectBtn 	= new JButton("Modify Project");
+		modifyProjectBtn = new JButton("View/Edit Details");
 		modifyProjectBtn.setEnabled(false);
 		modifyProjectBtn.addActionListener(new ActionListener() {
 			@Override
@@ -239,10 +242,10 @@ public class ProjectPanel extends JPanel {
 
 				if (choice == JOptionPane.OK_OPTION) {
 					try {
-						ProjectManager manager = new ProjectManager(clientFrame.getClient().getConnection());
-						manager.deleteProject(currentProjContent.getProjectid());
+						projectManager.revalidate(clientFrame.getClient().getConnection());
+						projectManager.deleteProject(currentProjContent.getProjectid());
 						refreshProjectTable();
-						clearExperimentTable();
+						TableConfig.clearTable(experimentTbl);
 
 						// Disable buttons
 						modifyProjectBtn.setEnabled(false);
@@ -259,6 +262,7 @@ public class ProjectPanel extends JPanel {
 
 					} catch (Exception e2) {
 						e2.printStackTrace();
+						
 					}
 				}
 			}
@@ -296,7 +300,7 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
-		modifyExperimentBtn = new JButton("Modify Experiment");
+		modifyExperimentBtn = new JButton("View/Edit Details");
 		modifyExperimentBtn.setEnabled(false);
 		modifyExperimentBtn.addActionListener(new ActionListener() {
 			
@@ -311,15 +315,13 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.setEnabled(false);
 		// Delete experiment
 		deleteExperimentBtn.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int choice = JOptionPane.showConfirmDialog(clientFrame, "Are you sure you want to delete the selected experiment? Changes are irreversible.", "Delete Experiment", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 			
 				if (choice == JOptionPane.OK_OPTION) {
 					try {
-						ProjectManager manager = new ProjectManager(clientFrame.getClient().getConnection());
-						manager.deleteExperiment(currentExperimentContent.getExperimentID());
+						projectManager.deleteExperiment(currentExperimentContent.getExperimentID());
 						refreshExperimentTable(currentExperimentContent.getProjectID());
 						
 						// Disable buttons
@@ -348,7 +350,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	private void setupProjectTable() {
 		// Table for projects
-		projectsTbl = new JTable(new DefaultTableModel() { 
+		projectsTbl = new JXTable(new DefaultTableModel() { 
 					{
 						setColumnIdentifiers(new Object[] { "#", "Project", "Project Created"});
 					}
@@ -370,7 +372,7 @@ public class ProjectPanel extends JPanel {
 						}
 					}
 				});
-		projectsTbl.setAutoCreateRowSorter(true);
+		projectsTbl.setColumnControlVisible(true);
 		
 		// Selection model for the list: Select one entry of the table only
 		projectsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -383,19 +385,17 @@ public class ProjectPanel extends JPanel {
 				try {
 					queryProjectTableMouseClicked(evt);
 				} catch (SQLException e) {
-					// TODO: Add user dialog for failure in database connection. 
+					GeneralExceptionHandler.showSQLErrorDialog(e, clientFrame);
 					e.printStackTrace();
 				}
 			}
 		});
 		
 		// Set the first column layout
-		TableConfig.packColumn(projectsTbl, 0,5);
-		
-		projectsTbl.getColumn("Project").setMinWidth(250);
-		projectsTbl.getColumn("Project").setMaxWidth(250);
-		projectsTbl.getColumn("Project Created").setMinWidth(150);
-		projectsTbl.getColumn("Project Created").setMaxWidth(150);
+		TableConfig.packColumn(projectsTbl, 0, 12);
+		projectsTbl.getColumnModel().getColumn(0).setMaxWidth(
+				projectsTbl.getColumnModel().getColumn(0).getPreferredWidth());
+		projectsTbl.getColumnModel().getColumn(0).setResizable(false);
 		
 		// Add the project table to scroll pane
 		projectTblScp = new JScrollPane(projectsTbl);
@@ -408,7 +408,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	private void setupExperimentTable() {
 		// Table for projects
-		experimentTbl = new JTable(new DefaultTableModel() { 
+		experimentTbl = new JXTable(new DefaultTableModel() { 
 					{
 						setColumnIdentifiers(new Object[] { "#", "Experiment", "Experiment Created"});
 					}
@@ -430,7 +430,7 @@ public class ProjectPanel extends JPanel {
 						}
 					}
 				});
-		experimentTbl.setAutoCreateRowSorter(true);
+		experimentTbl.setColumnControlVisible(true);
 		
 		// Selection model for the list: Select one entry of the table only
 		experimentTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -448,12 +448,10 @@ public class ProjectPanel extends JPanel {
 		});
 		
 		// Columns layout
-		experimentTbl.getColumn("#").setMinWidth(30);
-		experimentTbl.getColumn("#").setMaxWidth(30);
-		experimentTbl.getColumn("Experiment").setMinWidth(250);
-		experimentTbl.getColumn("Experiment").setMaxWidth(250);
-		experimentTbl.getColumn("Experiment Created").setMinWidth(150);
-		experimentTbl.getColumn("Experiment Created").setMaxWidth(150);
+		TableConfig.packColumn(experimentTbl, 0, 12);
+		experimentTbl.getColumnModel().getColumn(0).setMaxWidth(
+				experimentTbl.getColumnModel().getColumn(0).getPreferredWidth());
+		experimentTbl.getColumnModel().getColumn(0).setResizable(false);
 		
 		// Add the project table to scroll pane
 		experimentTblScp = new JScrollPane(experimentTbl);
@@ -476,7 +474,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	public void refreshProjectTable(Long projectID) {
 		try {
-			clearProjectTable();
+			TableConfig.clearTable(projectsTbl);
 			ArrayList<Project> projectList;
 			projectList = new ArrayList<Project>(Project.findAllProjects(clientFrame.getClient().getConnection()));
 			for (int i = 0; i < projectList.size(); i++) {
@@ -515,8 +513,9 @@ public class ProjectPanel extends JPanel {
 	 */
 	public void refreshExperimentTable(Long projectID, Long experimentID) {
 		try {
+			projectManager.revalidate(clientFrame.getClient().getConnection());
+			
 			List<Experiment> experiments = projectManager.getProjectExperiments(projectID);
-			//TODO: move this construction in a second method outside
 			List<Property> properties = projectManager.getProjectProperties(projectID);
 			
 			// Fill the current project.
@@ -527,7 +526,7 @@ public class ProjectPanel extends JPanel {
 			currentProjContent.setProjectTitle(projectTitle); 
 
 			// Clear the experiment table
-			clearExperimentTable();
+			TableConfig.clearTable(experimentTbl);
 			
 			// Fill the experiment table with the values retrieved from the database.
 			for (Experiment experiment : experiments) {
@@ -587,21 +586,8 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.setEnabled(true);
 	}
 	
-	/**
-	 * This method clears the project table.
-	 * TODO: Add this to the TableConfig class and make the method static. :)
-	 */
-	private void clearProjectTable(){
-		((DefaultTableModel)projectsTbl.getModel()).setRowCount(0);
-	}
 	
-	/**
-	 * This method clears the project table.
-	 * TODO: Add this to the TableConfig class and make the method static. :)
-	 */
-	private void clearExperimentTable(){
-		((DefaultTableModel) experimentTbl.getModel()).setRowCount(0);
-	}
+
 	
 	/**
 	 * This method gets the selected experiment and retrieves the actual content via table
@@ -616,6 +602,9 @@ public class ProjectPanel extends JPanel {
 		if (selRow != -1) {
 			long projectid = currentProjContent.getProjectid();
 			long experimentid = (Long) experimentTbl.getValueAt(selRow, 0);
+
+			projectManager.revalidate(clientFrame.getClient().getConnection());
+			
 			Experiment experiment = projectManager.getProjectExperiment(projectid, experimentid);
 			List<ExpProperty> expProperties = projectManager.getExperimentProperties(experiment.getExperimentid());
 			currentExperimentContent = new ExperimentContent(projectid, experiment.getExperimentid(), expProperties);
