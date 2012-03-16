@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="Mascot" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="decoy" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -48,7 +49,8 @@ import javax.xml.bind.annotation.XmlType;
     "precursorIonTol",
     "xTandem",
     "mascot",
-    "decoy"
+    "decoy",
+    "experimentid"
 })
 public class DbSearchSettings {
 
@@ -68,6 +70,7 @@ public class DbSearchSettings {
     @XmlElement(name = "Mascot")
     protected boolean mascot;
     protected boolean decoy;
+    protected long experimentid;
 
     /**
      * Gets the value of the crux property.
@@ -230,7 +233,7 @@ public class DbSearchSettings {
     }
 
     /**
-     * Gets the value of the xTandem property.
+     * Gets the value of the mascot property.
      * 
      */
     public boolean isMascot() {
@@ -238,7 +241,7 @@ public class DbSearchSettings {
     }
 
     /**
-     * Sets the value of the xTandem property.
+     * Sets the value of the mascot property.
      * 
      */
     public void setMascot(boolean value) {
@@ -259,6 +262,22 @@ public class DbSearchSettings {
      */
     public void setDecoy(boolean value) {
         this.decoy = value;
+    }
+
+    /**
+     * Gets the value of the experimentid property.
+     * 
+     */
+    public long getExperimentid() {
+        return experimentid;
+    }
+
+    /**
+     * Sets the value of the experimentid property.
+     * 
+     */
+    public void setExperimentid(long value) {
+        this.experimentid = value;
     }
 
 }

@@ -17,11 +17,12 @@ import java.util.StringTokenizer;
 
 import com.compomics.util.protein.Header;
 
+import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
 import de.proteinms.omxparser.util.MSHits;
@@ -110,21 +111,21 @@ public class OmssaStorager extends BasicStorager {
     	    List<MSHits> hitlist = msHitSet.MSHitSet_hits.MSHits;
     	    int hitnumber = 1;
     	    for (MSHits msHit : hitlist) {
-    	    	HashMap<Object, Object> hitdata = new HashMap<Object, Object>(11);    	    	
+    	    	HashMap<Object, Object> hitdata = new HashMap<Object, Object>(16);    	    	
     	    	
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
-    	    	String spectrumName = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
-    	    	long spectrumid = Searchspectrum.getSpectrumIdFromTitle(spectrumName, true);
-    	    	hitdata.put(OmssahitTableAccessor.FK_SPECTRUMID, spectrumid);
+    	    	String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
+    	    	spectrumTitle = spectrumTitle.replace("\\\\", "\\");
+    	    	
+      	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+                hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, searchspectrumid);  
+    	    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
     	    	
     	    	// Get the MSPepHit (for the accession)
     	    	List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
                 Iterator<MSPepHit> pepHitIterator = pepHits.iterator();                
                 MSPepHit pepHit = pepHitIterator.next();               
     	    	
-    	        // Get the peptide id
-                long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
-                hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
     	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
     	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
     	    	hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
@@ -134,27 +135,7 @@ public class OmssaStorager extends BasicStorager {
     	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
     	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
     	    	
-    	    	Long proteinID;
-    	    	 // Parse the FASTA header
-                Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
-                String accession = header.getAccession();
-                String description = header.getDescription();
-                
-                // The Protein
-                ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-                if (protein == null) {	// protein not yet in database
-						// Add new protein to the database
-						protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
-					} else {
-						proteinID = protein.getProteinid();
-						// check whether pep2prot link already exists, otherwise create new one
-						Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-						if (pep2prot == null) {	// link doesn't exist yet
-							// Link peptide to protein.
-							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-						}
-				}
-    	    	qvalues = scoreQValueMap.get(round(msHit.MSHits_pvalue, 5));    	       
+    	    	qvalues = scoreQValueMap.get(round(msHit.MSHits_evalue, 5));    	       
     	        
     	    	// If no q-value is found: Assign default values.
                 if(qvalues == null){
@@ -167,6 +148,32 @@ public class OmssaStorager extends BasicStorager {
                 
                 // Create the database object.
                 if((Double)hitdata.get(OmssahitTableAccessor.QVALUE) < 0.1){
+                	
+                	  // Get the peptide id
+                    long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
+                    hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
+                    
+                	 // Parse the FASTA header
+                    Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
+                    String accession = header.getAccession();
+                    String description = header.getDescription();
+                    Long proteinID;
+                    // The Protein
+                    ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
+                    if (protein == null) {	// protein not yet in database
+    						// Add new protein to the database
+    						protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
+    					} else {
+    						proteinID = protein.getProteinid();
+    						// check whether pep2prot link already exists, otherwise create new one
+    						Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+    						if (pep2prot == null) {	// link doesn't exist yet
+    							// Link peptide to protein.
+    							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+    						}
+    				}
+                    hitdata.put(OmssahitTableAccessor.FK_PROTEINID, protein.getProteinid());
+                    
                 	// Create the database object.
         	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
         	    	omssahit.persist(conn);		

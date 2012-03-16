@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 13/03/2012
- * Time: 13:17:00
+ * Date: 15/03/2012
+ * Time: 14:59:01
  */
 package de.mpa.db.accessor;
 
@@ -51,9 +51,9 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 
 
 	/**
-	 * This variable represents the contents for the 'fk_spectrumid' column.
+	 * This variable represents the contents for the 'fk_searchspectrumid' column.
 	 */
-	protected long iFk_spectrumid = Long.MIN_VALUE;
+	protected long iFk_searchspectrumid = Long.MIN_VALUE;
 
 
 	/**
@@ -146,9 +146,9 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static final String OMSSAHITID = "OMSSAHITID";
 
 	/**
-	 * This variable represents the key for the 'fk_spectrumid' column.
+	 * This variable represents the key for the 'fk_searchspectrumid' column.
 	 */
-	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
+	public static final String FK_SEARCHSPECTRUMID = "FK_SEARCHSPECTRUMID";
 
 	/**
 	 * This variable represents the key for the 'fk_peptideid' column.
@@ -239,8 +239,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(aParams.containsKey(OMSSAHITID)) {
 			this.iOmssahitid = ((Long)aParams.get(OMSSAHITID)).longValue();
 		}
-		if(aParams.containsKey(FK_SPECTRUMID)) {
-			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
+		if(aParams.containsKey(FK_SEARCHSPECTRUMID)) {
+			this.iFk_searchspectrumid = ((Long)aParams.get(FK_SEARCHSPECTRUMID)).longValue();
 		}
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
@@ -297,7 +297,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public OmssahitTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iOmssahitid = aResultSet.getLong("omssahitid");
-		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
+		this.iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
 		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
 		this.iHitsetnumber = aResultSet.getLong("hitsetnumber");
@@ -327,12 +327,12 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	}
 
 	/**
-	 * This method returns the value for the 'Fk_spectrumid' column
+	 * This method returns the value for the 'Fk_searchspectrumid' column
 	 * 
-	 * @return	long	with the value for the Fk_spectrumid column.
+	 * @return	long	with the value for the Fk_searchspectrumid column.
 	 */
-	public long getFk_spectrumid() {
-		return this.iFk_spectrumid;
+	public long getFk_searchspectrumid() {
+		return this.iFk_searchspectrumid;
 	}
 
 	/**
@@ -472,12 +472,12 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	}
 
 	/**
-	 * This method sets the value for the 'Fk_spectrumid' column
+	 * This method sets the value for the 'Fk_searchspectrumid' column
 	 * 
-	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
+	 * @param	aFk_searchspectrumid	long with the value for the Fk_searchspectrumid column.
 	 */
-	public void setFk_spectrumid(long aFk_spectrumid) {
-		this.iFk_spectrumid = aFk_spectrumid;
+	public void setFk_searchspectrumid(long aFk_searchspectrumid) {
+		this.iFk_searchspectrumid = aFk_searchspectrumid;
 		this.iUpdated = true;
 	}
 
@@ -659,7 +659,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		while(lRS.next()) {
 			hits++;
 			iOmssahitid = lRS.getLong("omssahitid");
-			iFk_spectrumid = lRS.getLong("fk_spectrumid");
+			iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
 			iFk_proteinid = lRS.getLong("fk_proteinid");
 			iHitsetnumber = lRS.getLong("hitsetnumber");
@@ -723,9 +723,9 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE omssahit SET omssahitid = ?, fk_spectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, hitsetnumber = ?, evalue = ?, pvalue = ?, charge = ?, mass = ?, theomass = ?, start = ?, end = ?, qvalue = ?, pep = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE omssahitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE omssahit SET omssahitid = ?, fk_searchspectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, hitsetnumber = ?, evalue = ?, pvalue = ?, charge = ?, mass = ?, theomass = ?, start = ?, end = ?, qvalue = ?, pep = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE omssahitid = ?");
 		lStat.setLong(1, iOmssahitid);
-		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(2, iFk_searchspectrumid);
 		lStat.setLong(3, iFk_peptideid);
 		lStat.setLong(4, iFk_proteinid);
 		lStat.setLong(5, iHitsetnumber);
@@ -754,16 +754,16 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_spectrumid, fk_peptideid, fk_proteinid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iOmssahitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iOmssahitid);
 		}
-		if(iFk_spectrumid == Long.MIN_VALUE) {
+		if(iFk_searchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_spectrumid);
+			lStat.setLong(2, iFk_searchspectrumid);
 		}
 		if(iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);

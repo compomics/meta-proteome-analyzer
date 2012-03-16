@@ -52,13 +52,13 @@ import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.SpectrumTree;
-import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.ui.ExtensionFileFilter;
 import de.mpa.ui.MgfFilter;
 import de.mpa.ui.PlotPanel2;
-import de.mpa.utils.ExtensionFileFilter;
 
 public class FilePanel extends JPanel {
 

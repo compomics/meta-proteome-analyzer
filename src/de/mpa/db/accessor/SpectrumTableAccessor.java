@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 13/03/2012
- * Time: 13:23:53
+ * Date: 15/03/2012
+ * Time: 14:59:22
  */
 package de.mpa.db.accessor;
 
@@ -101,19 +101,19 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'maximum_int' column.
 	 */
-	protected String iMaximum_int = null;
+	protected Number iMaximum_int = null;
 
 
 	/**
-	 * This variable represents the contents for the 'creationtime' column.
+	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationtime = null;
+	protected java.sql.Timestamp iCreationdate = null;
 
 
 	/**
-	 * This variable represents the contents for the 'modificationtime' column.
+	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationtime = null;
+	protected java.sql.Timestamp iModificationdate = null;
 
 
 	/**
@@ -167,14 +167,14 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static final String MAXIMUM_INT = "MAXIMUM_INT";
 
 	/**
-	 * This variable represents the key for the 'creationtime' column.
+	 * This variable represents the key for the 'creationdate' column.
 	 */
-	public static final String CREATIONTIME = "CREATIONTIME";
+	public static final String CREATIONDATE = "CREATIONDATE";
 
 	/**
-	 * This variable represents the key for the 'modificationtime' column.
+	 * This variable represents the key for the 'modificationdate' column.
 	 */
-	public static final String MODIFICATIONTIME = "MODIFICATIONTIME";
+	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
 
 
 
@@ -220,13 +220,13 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			this.iTotal_int = (Number)aParams.get(TOTAL_INT);
 		}
 		if(aParams.containsKey(MAXIMUM_INT)) {
-			this.iMaximum_int = (String)aParams.get(MAXIMUM_INT);
+			this.iMaximum_int = (Number)aParams.get(MAXIMUM_INT);
 		}
-		if(aParams.containsKey(CREATIONTIME)) {
-			this.iCreationtime = (java.sql.Timestamp)aParams.get(CREATIONTIME);
+		if(aParams.containsKey(CREATIONDATE)) {
+			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONTIME)) {
-			this.iModificationtime = (java.sql.Timestamp)aParams.get(MODIFICATIONTIME);
+		if(aParams.containsKey(MODIFICATIONDATE)) {
+			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
 		}
 		this.iUpdated = true;
 	}
@@ -249,9 +249,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		this.iIntarray = (String)aResultSet.getObject("intarray");
 		this.iChargearray = (String)aResultSet.getObject("chargearray");
 		this.iTotal_int = (Number)aResultSet.getObject("total_int");
-		this.iMaximum_int = (String)aResultSet.getObject("maximum_int");
-		this.iCreationtime = (java.sql.Timestamp)aResultSet.getObject("creationtime");
-		this.iModificationtime = (java.sql.Timestamp)aResultSet.getObject("modificationtime");
+		this.iMaximum_int = (Number)aResultSet.getObject("maximum_int");
+		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
+		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
 		this.iUpdated = true;
 	}
@@ -341,28 +341,28 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method returns the value for the 'Maximum_int' column
 	 * 
-	 * @return	String	with the value for the Maximum_int column.
+	 * @return	Number	with the value for the Maximum_int column.
 	 */
-	public String getMaximum_int() {
+	public Number getMaximum_int() {
 		return this.iMaximum_int;
 	}
 
 	/**
-	 * This method returns the value for the 'Creationtime' column
+	 * This method returns the value for the 'Creationdate' column
 	 * 
-	 * @return	java.sql.Timestamp	with the value for the Creationtime column.
+	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationtime() {
-		return this.iCreationtime;
+	public java.sql.Timestamp getCreationdate() {
+		return this.iCreationdate;
 	}
 
 	/**
-	 * This method returns the value for the 'Modificationtime' column
+	 * This method returns the value for the 'Modificationdate' column
 	 * 
-	 * @return	java.sql.Timestamp	with the value for the Modificationtime column.
+	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationtime() {
-		return this.iModificationtime;
+	public java.sql.Timestamp getModificationdate() {
+		return this.iModificationdate;
 	}
 
 	/**
@@ -458,30 +458,30 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method sets the value for the 'Maximum_int' column
 	 * 
-	 * @param	aMaximum_int	String with the value for the Maximum_int column.
+	 * @param	aMaximum_int	Number with the value for the Maximum_int column.
 	 */
-	public void setMaximum_int(String aMaximum_int) {
+	public void setMaximum_int(Number aMaximum_int) {
 		this.iMaximum_int = aMaximum_int;
 		this.iUpdated = true;
 	}
 
 	/**
-	 * This method sets the value for the 'Creationtime' column
+	 * This method sets the value for the 'Creationdate' column
 	 * 
-	 * @param	aCreationtime	java.sql.Timestamp with the value for the Creationtime column.
+	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationtime(java.sql.Timestamp aCreationtime) {
-		this.iCreationtime = aCreationtime;
+	public void setCreationdate(java.sql.Timestamp aCreationdate) {
+		this.iCreationdate = aCreationdate;
 		this.iUpdated = true;
 	}
 
 	/**
-	 * This method sets the value for the 'Modificationtime' column
+	 * This method sets the value for the 'Modificationdate' column
 	 * 
-	 * @param	aModificationtime	java.sql.Timestamp with the value for the Modificationtime column.
+	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationtime(java.sql.Timestamp aModificationtime) {
-		this.iModificationtime = aModificationtime;
+	public void setModificationdate(java.sql.Timestamp aModificationdate) {
+		this.iModificationdate = aModificationdate;
 		this.iUpdated = true;
 	}
 
@@ -531,9 +531,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			iIntarray = (String)lRS.getObject("intarray");
 			iChargearray = (String)lRS.getObject("chargearray");
 			iTotal_int = (Number)lRS.getObject("total_int");
-			iMaximum_int = (String)lRS.getObject("maximum_int");
-			iCreationtime = (java.sql.Timestamp)lRS.getObject("creationtime");
-			iModificationtime = (java.sql.Timestamp)lRS.getObject("modificationtime");
+			iMaximum_int = (Number)lRS.getObject("maximum_int");
+			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
+			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -583,7 +583,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrum SET spectrumid = ?, title = ?, precursor_mz = ?, precursor_int = ?, precursor_charge = ?, mzarray = ?, intarray = ?, chargearray = ?, total_int = ?, maximum_int = ?, creationtime = ?, modificationtime = ? WHERE spectrumid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrum SET spectrumid = ?, title = ?, precursor_mz = ?, precursor_int = ?, precursor_charge = ?, mzarray = ?, intarray = ?, chargearray = ?, total_int = ?, maximum_int = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE spectrumid = ?");
 		lStat.setLong(1, iSpectrumid);
 		lStat.setObject(2, iTitle);
 		lStat.setObject(3, iPrecursor_mz);
@@ -594,9 +594,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		lStat.setObject(8, iChargearray);
 		lStat.setObject(9, iTotal_int);
 		lStat.setObject(10, iMaximum_int);
-		lStat.setObject(11, iCreationtime);
-		lStat.setObject(12, iModificationtime);
-		lStat.setLong(13, iSpectrumid);
+		lStat.setObject(11, iCreationdate);
+		lStat.setLong(12, iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -611,7 +610,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spectrum (spectrumid, title, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, total_int, maximum_int, creationtime, modificationtime) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spectrum (spectrumid, title, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, total_int, maximum_int, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iSpectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -658,19 +657,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			lStat.setObject(9, iTotal_int);
 		}
 		if(iMaximum_int == null) {
-			lStat.setNull(10, 12);
+			lStat.setNull(10, 3);
 		} else {
 			lStat.setObject(10, iMaximum_int);
-		}
-		if(iCreationtime == null) {
-			lStat.setNull(11, 93);
-		} else {
-			lStat.setObject(11, iCreationtime);
-		}
-		if(iModificationtime == null) {
-			lStat.setNull(12, 93);
-		} else {
-			lStat.setObject(12, iModificationtime);
 		}
 		int result = lStat.executeUpdate();
 

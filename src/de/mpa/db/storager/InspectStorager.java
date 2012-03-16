@@ -88,8 +88,8 @@ public class InspectStorager extends BasicStorager {
             String name = filename.substring(firstIndex, lastIndex)+ "_" + scannumber  + ".mgf";
             
             // Get the spectrum id
-            long spectrumID = MapContainer.FileName2IdMap.get(name);
-            hitdata.put(Inspecthit.FK_SPECTRUMID, spectrumID);
+            long searchspectrumid = MapContainer.FileName2IdMap.get(name);
+	    	hitdata.put(Inspecthit.FK_SEARCHSPECTRUMID, searchspectrumid);
             
             // Get the peptide id
             long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getAnnotation(), conn);            
@@ -116,6 +116,7 @@ public class InspectStorager extends BasicStorager {
 					}
 			}
             
+            hitdata.put(Inspecthit.FK_PROTEINID, protein.getProteinid());
             hitdata.put(Inspecthit.CHARGE, Long.valueOf(hit.getCharge()));
             hitdata.put(Inspecthit.MQ_SCORE, hit.getMqScore());
             hitdata.put(Inspecthit.LENGTH, Long.valueOf(hit.getLength()));

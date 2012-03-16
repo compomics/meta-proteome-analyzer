@@ -1,8 +1,8 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 13/03/2012
- * Time: 13:16:53
+ * Date: 15/03/2012
+ * Time: 14:58:54
  */
 package de.mpa.db.accessor;
 
@@ -109,6 +109,9 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * This variable represents the key for the 'modificationdate' column.
 	 */
 	public static final String MODIFICATIONDATE = "MODIFICATIONDATE";
+
+
+
 
 	/**
 	 * Default constructor.

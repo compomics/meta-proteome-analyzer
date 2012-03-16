@@ -8,7 +8,6 @@ import java.util.Map;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
-import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 

@@ -20,7 +20,7 @@ public class Constants {
 	public final static String APPTITLE = "MetaProteomicsAnalyzer";
 	
 	// Version number
-	public final static String VER_NUMBER = "0.3";
+	public final static String VER_NUMBER = "0.4";
 	
 	public final static String SELECTED_ROW_HTML_FONT_COLOR = "#FFFFFF";
 	public final static String NOT_SELECTED_ROW_HTML_FONT_COLOR = "#0101DF";

@@ -20,6 +20,7 @@ public class ServerConnectionSettings {
 	 * Default class constructor using default values.
 	 */
 	public ServerConnectionSettings() {
+		// TODO: Remove hard-coded values.
 		this.host = "0.0.0.0";
 		this.port = "8080";
 	}

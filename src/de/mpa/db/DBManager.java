@@ -56,26 +56,16 @@ public class DBManager {
     }
 	
 	/**
-	 * This method stores the spectra contents and files to the DB.
-	 * @throws SQLException 
+	 * This method stores the spectrum contents to the database.
+	 * @param spectrumFile The spectrum file.
+	 * @param experimentid The experiment id.
+	 * @throws SQLException  
 	 * @throws IOException 
 	 */
-	public SpectrumStorager storeSpectra(File mgfFile) throws IOException, SQLException {
-		// TODO: The Project storager is initialized here.
-//		ProjectStorager projectStorager = new ProjectStorager(conn, title);
-//		Thread thread = new Thread(projectStorager);
-//		thread.start();
-//		try {
-//			thread.join();
-//		} catch (InterruptedException e) {			
-//			e.printStackTrace();
-//		}
-//		
-//		// Returns the project id.
-//		long projectid = projectStorager.getProjectid();		
+	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException {
 		
-		// Store the spectra	
-		SpectrumStorager specStorager = new SpectrumStorager(conn, mgfFile);
+		// Store the spectra from the spectrum file for a given experiment.	
+		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
 		
