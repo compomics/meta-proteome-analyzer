@@ -240,7 +240,7 @@ public class FilePanel extends JPanel {
 					try {
 						clientFrame.getClient().initDBConnection();
 						List<MascotGenericFile> dlSpec = clientFrame.getClient().downloadSpectra((Long)expIdSpn.getValue());
-						clientFrame.getClient().closeDBConnection();
+					//	clientFrame.getClient().closeDBConnection();
 						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
 						for (MascotGenericFile mgf : dlSpec) {
 							mgf.writeToStream(fos);

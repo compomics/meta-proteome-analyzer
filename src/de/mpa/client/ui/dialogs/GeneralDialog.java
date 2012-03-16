@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,10 +20,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -32,6 +34,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
+
+import org.jdesktop.swingx.JXTable;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -49,8 +53,8 @@ public class GeneralDialog extends JDialog {
 	
 	private long id = 0L;
 	
-	// Project property table
-	private JTable propertyTbl;
+	// Property table
+	private JXTable propertyTbl;
 	
 	// Textfield with the name of the property 
 	private JTextField propNameTtf;
@@ -58,16 +62,16 @@ public class GeneralDialog extends JDialog {
 	// Textfield with the value of the property
 	private JTextField propValueTtf;
 
-	// Button to add project property
+	// Button to add property
 	private JButton appendPropertyBtn;
 
-	// Button to change a project property
+	// Button to change a property
 	private JButton changePropertyBtn;
 	
-	// Button to delete project property
+	// Button to delete property
 	private JButton deletePropertyBtn;
 	
-	// Button to save and leave project property table
+	// Button to save and leave property table
 	private JButton saveBtn;
 			
 	// Parent client frame.
@@ -87,7 +91,7 @@ public class GeneralDialog extends JDialog {
 	private ArrayList<Operation> operations = new ArrayList<Operation>();
 	
 	/**
-	 * Declares the ProjectDialog as child of the JDialog, being a component of
+	 * Declares the Dialog as child of the JDialog, being a component of
 	 * the ClientFrame
 	 * 
 	 * @param title
@@ -98,7 +102,7 @@ public class GeneralDialog extends JDialog {
 	}
 	
 	/**
-	 * Calling the main constructor adding projects table
+	 * Calling the main constructor adding property contents.
 	 * @param title
 	 * @param parent
 	 * @param type
@@ -145,12 +149,11 @@ public class GeneralDialog extends JDialog {
 		
 		// ActionListener to enable/disable the 'save' button
 		// depending on whether text has been entered
-		nameTtf.addKeyListener(new KeyListener() {
-			public void keyTyped(KeyEvent evt) {
-				saveBtn.setEnabled(!nameTtf.getText().isEmpty());
-			}
-			public void keyReleased(KeyEvent evt) {}
-			public void keyPressed(KeyEvent evt) {}
+		nameTtf.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent evt) { updateSaveButton(); }
+			public void insertUpdate(DocumentEvent evt) { updateSaveButton(); }
+			public void changedUpdate(DocumentEvent evt) { updateSaveButton(); }
+			private void updateSaveButton() { saveBtn.setEnabled(!nameTtf.getText().isEmpty()); }
 		});
 		
 		descriptionPnl.add(new JLabel(name), cc.xy(2, 2));
@@ -165,10 +168,10 @@ public class GeneralDialog extends JDialog {
 			propertyPnl.setBorder(BorderFactory.createTitledBorder("Experiment Properties"));
 		}
 		
-		//Creates project Property table
+		//Creates property table
 		setupPropertiesTable();
 		
-		// Fill project property table,in the case of modify
+		// Fill property table,in the case of modify
 		if ((type == DialogType.MODIFY_PROJECT) || (type == DialogType.MODIFY_EXPERIMENT)) {
 			fillPropertyTable();
 		}
@@ -189,36 +192,20 @@ public class GeneralDialog extends JDialog {
 		
 		// Input fields for Name/Value
 		propNameTtf = new JTextField();
-		// When propNameTtf and propValueTtf is filled addProjPropBtn is usable
-		propNameTtf.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				appendPropertyBtn.setEnabled(!propNameTtf.getText().isEmpty() &&
-						!propValueTtf.getText().isEmpty());
-			}
-			public void keyReleased(KeyEvent e) {}
-			public void keyPressed(KeyEvent e) {}
+		propNameTtf.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent evt) { updateModifyButtons(); }
+			public void insertUpdate(DocumentEvent evt) { updateModifyButtons(); }
+			public void changedUpdate(DocumentEvent evt) { System.out.println(evt); }
 		});
 		
-		propValueTtf = new JTextField(15);
-		propValueTtf.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				if ((propNameTtf.getText().isEmpty() == false) && (propValueTtf.getText().isEmpty() == false)){
-					appendPropertyBtn.setEnabled(true);
-				} else {
-					appendPropertyBtn.setEnabled(false);
-				}
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
+		propValueTtf = new JTextField();
+		propValueTtf.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent evt) { updateModifyButtons(); }
+			public void insertUpdate(DocumentEvent evt) { updateModifyButtons(); }
+			public void changedUpdate(DocumentEvent evt) { System.out.println(evt); }
 		});
 		
-		// Button to add project property 
+		// Button to add property 
 		appendPropertyBtn = new JButton("Add",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/add16.png")));
 		// Button is only useable when new name and value is filled
@@ -230,7 +217,7 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		// Button to change the project property entries
+		// Button to change the property entries
 		changePropertyBtn = new JButton("Change",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/update16.png")));
 		 // ChangeProjPropBtn only visible when entry in table is selected
@@ -239,7 +226,7 @@ public class GeneralDialog extends JDialog {
 		changePropertyBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				changePropertyTableBtnTriggered();
+				changeSelectedProperty();
 			}
 		});
 		
@@ -247,11 +234,11 @@ public class GeneralDialog extends JDialog {
 		deletePropertyBtn = new JButton("Delete",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/cancel16.png")));
 		deletePropertyBtn.setEnabled(false);
-		// Delete the selected project property
+		// Delete the selected property
 		deletePropertyBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				deletePropertyFromSelectedRow();
+				deleteSelectedProperty();
 			}
 		});
 		
@@ -287,6 +274,9 @@ public class GeneralDialog extends JDialog {
 		saveBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				System.out.println(operations);
+				
 				switch (type) {
 				case NEW_PROJECT:
 					storeProject();
@@ -325,7 +315,7 @@ public class GeneralDialog extends JDialog {
 		contentPane.setLayout(new FormLayout("5dlu, r:p:g, 5dlu, p, 5dlu",
 				"5dlu, p, 5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
-		// Add Panels to ProjectDialogPanel
+		// Add Panels to content pane
 		contentPane.add(descriptionPnl,cc.xyw(2,2,3));
 		contentPane.add(propertyPnl,cc.xyw(2,4,3));
 		contentPane.add(saveBtn, cc.xy(2,6));
@@ -336,14 +326,32 @@ public class GeneralDialog extends JDialog {
 		this.setMinimumSize(this.getPreferredSize());
 		pack();
 	}
+	
+	/**
+	 * Method to set the enabled state of the 'Add' and 'Change' buttons depending on
+	 * changes made to the property text fields
+	 */
+	private void updateModifyButtons() {
+		// has the content of the text fields changed?
+		boolean changed = !propNameTtf.getText().equals(propNameTtf.getName()) ||
+				!propValueTtf.getText().equals(propValueTtf.getName());
+		// is there even any text inside the text fields?
+		boolean notEmpty = !propNameTtf.getText().isEmpty() &&
+				!propValueTtf.getText().isEmpty();
+		// is there even any row selected in the table?
+		boolean selected = propertyTbl.getSelectedRow() > -1;
+		// update button enable states
+		appendPropertyBtn.setEnabled(changed && notEmpty);
+		changePropertyBtn.setEnabled(changed && selected);
+	}
 
 	/**
-	 * This method fills the project property table
+	 * This method fills the property table
 	 */
 	private void fillPropertyTable() {
 		if (type == DialogType.MODIFY_PROJECT) {
-			List<Property> projectproperties = currentProjContent.getProjectProperties();
-			for (Property property : projectproperties) {
+			List<Property> projectProperties = currentProjContent.getProjectProperties();
+			for (Property property : projectProperties) {
 				// Fills vector for database operations
 				int row = propertyTbl.getRowCount();
 				((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] { row + 1, property.getName(), property.getValue() });
@@ -354,7 +362,6 @@ public class GeneralDialog extends JDialog {
 			List<ExpProperty> experimentProperties = currentExpContent.getExperimentProperties();
 			for (ExpProperty expProperty : experimentProperties) {
 				// Fills vector for database operations
-				operations.add(Operation.NONE);
 				int row = propertyTbl.getRowCount();
 				((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] { row + 1, expProperty.getName(), expProperty.getValue() });
 			}
@@ -383,7 +390,7 @@ public class GeneralDialog extends JDialog {
 			parent.getProjectPnl().refreshProjectTable();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			GeneralExceptionHandler.showSQLErrorDialog(e, this);
 		}
 	}
 	
@@ -425,14 +432,14 @@ public class GeneralDialog extends JDialog {
 			// Collect properties
 			collectProperties();
 			
-			// Store the project properties
+			// Store the experiment properties
 			manager.addExperimentProperties(id, properties);
 			
-			// Update the experiment table in the project panel.
+			// Update the experiment table in the panel.
 			parent.getProjectPnl().refreshExperimentTable(currentProjContent.getProjectid());
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			GeneralExceptionHandler.showSQLErrorDialog(e, this);
 		}
 	}
 
@@ -450,10 +457,10 @@ public class GeneralDialog extends JDialog {
 			// Collect properties
 			collectProperties();
 
-			// Modify the project properties
+			// Modify the experiment properties
 			manager.modifyExperimentProperties(currentExpContent.getExperimentID(), properties, operations);
 
-			// Update the experiment table in the project panel.
+			// Update the experiment table in the panel.
 			parent.getProjectPnl().refreshExperimentTable(currentExpContent.getProjectID());
 			
 		} catch (Exception e) {
@@ -462,7 +469,7 @@ public class GeneralDialog extends JDialog {
 	}
 	
 	/**
-	 * Method creating the projectProperties table
+	 * Method creating the properties table
 	 */
 	private void setupPropertiesTable() {
 		DefaultTableModel dtm = new DefaultTableModel() { 
@@ -517,20 +524,45 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		// Table for projects
-		propertyTbl = new JTable(dtm);
-		//  Shows property name and values of the selected table row and enables edting the entry
+		// Table for properties
+		propertyTbl = new JXTable(dtm);
+		propertyTbl.setColumnControlVisible(true);
+		
+		//  Shows property name and values of the selected table row and enables editing the entry
 		propertyTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
-				// Shows the entries of the table in the textfiels
-				queryProjPropertyTableMouseClicked(evt);
-				// Enables to change the entries
-				changePropertyBtn.setEnabled(true);
+				if (!evt.getValueIsAdjusting()) {
+					// Shows the entries of the table in the text fields
+					queryPropertyTableSelected(evt);
+				}
+			}
+		});
+		DefaultCellEditor dce = (DefaultCellEditor) propertyTbl.getDefaultEditor(Object.class);
+		final JTextField editor = (JTextField) dce.getComponent();
+		editor.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent arg0) { updateTextFields(); }
+			public void insertUpdate(DocumentEvent arg0) { updateTextFields(); }
+			public void changedUpdate(DocumentEvent arg0) { updateTextFields(); }
+			private void updateTextFields() {
+				int col = propertyTbl.getEditingColumn();
+				if (col == 1) {
+					propNameTtf.setText(editor.getText());
+				} else if (col == 2) {
+					propValueTtf.setText(editor.getText());
+				}
+			}
+		});
+		dce.addCellEditorListener(new CellEditorListener() {
+			public void editingStopped(ChangeEvent evt) {
+			}
+			public void editingCanceled(ChangeEvent evt) {
+				// revert to original values
+				propNameTtf.setText(propNameTtf.getName());
+				propValueTtf.setText(propValueTtf.getName());
 			}
 		});
 
-		propertyTbl.setAutoCreateRowSorter(true);
 		propertyTbl.getTableHeader().setReorderingAllowed(false);
 
 		// Selection model for the list: Select one entry of the table only
@@ -544,7 +576,7 @@ public class GeneralDialog extends JDialog {
 	}
 
 	/**
-	 * This method append a property to the project property table.
+	 * This method append a property to the property table.
 	 */
 	private void appendPropertyToTable() {
 		int row = propertyTbl.getRowCount();
@@ -559,37 +591,49 @@ public class GeneralDialog extends JDialog {
 	
 			
 	/**
-	 *  This method fills the textfields for property name and property value 
+	 *  This method fills the text fields for property name and property value 
 	 *  with the values in the selected table row
 	 */
-	private void queryProjPropertyTableMouseClicked(ListSelectionEvent evt) {
+	private void queryPropertyTableSelected(ListSelectionEvent evt) {
 		// Get the selected row
 		int projPropsRow = propertyTbl.getSelectedRow();
 		// Condition if one row is selected.
 		if (projPropsRow != -1) {
 			String propertyName = propertyTbl.getValueAt(projPropsRow, 1).toString();
 			String propertyValue = propertyTbl.getValueAt(projPropsRow, 2).toString();
+			// Store property name and value for detection of changes
+			propNameTtf.setName(propertyName);
+			propValueTtf.setName(propertyValue);
+			// Display name and value in components
 			propNameTtf.setText(propertyName);
 			propValueTtf.setText(propertyValue);
-			// Allows to delete the table row
+			// Update delete button state
 			deletePropertyBtn.setEnabled(true);
-		} 
+		} else {
+			appendPropertyBtn.setEnabled(false);
+			changePropertyBtn.setEnabled(false);
+			deletePropertyBtn.setEnabled(false);
+		}
 	}
 	
 				
 	/**
-	 * This method changes the entry in the table to the one in the textfields.
+	 * This method changes the entry in the table to the one in the text fields.
 	 */
-	private void changePropertyTableBtnTriggered(){		
+	private void changeSelectedProperty() {
+		// modify table cells
 		int selRow = propertyTbl.getSelectedRow();
 		propertyTbl.setValueAt(propNameTtf.getText(), selRow, 1);
 		propertyTbl.setValueAt(propValueTtf.getText(), selRow, 2);
+		// update button states
+		appendPropertyBtn.setEnabled(false);
+		changePropertyBtn.setEnabled(false);
 	}
 				
 	/**
-	 * This	method deletes the selected row of the projProptable
+	 * This	method deletes the selected row of the properties table
 	 */
-	protected void deletePropertyFromSelectedRow() {
+	protected void deleteSelectedProperty() {
 		
 		int selRow = propertyTbl.convertRowIndexToModel(propertyTbl.getSelectedRow());
 		// Deletes selected Row

@@ -33,7 +33,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -117,7 +116,7 @@ public class ClientFrame extends JFrame {
 	private CellConstraints cc;
 
 	public JButton sendBtn;
-	private JMenuBar menuBar;
+	private ClientFrameMenuBar menuBar;
 	private boolean connectedToServer = false;
 
 	public  JTable libTbl;
@@ -162,11 +161,12 @@ public class ClientFrame extends JFrame {
 
 		// Init components
 		initComponents();
-
+		
 		// Get the content pane
 		Container cp = this.getContentPane();
 		cp.setLayout(new BorderLayout());		
-		cp.add(menuBar, BorderLayout.NORTH);
+//		cp.add(menuBar, BorderLayout.NORTH);
+		this.setJMenuBar(menuBar);
 		
 //		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 

@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -49,5 +50,12 @@ public class TableConfig {
 		// Set the width
 		col.setMinWidth(width);
 		col.setPreferredWidth(width);
+	}
+	
+	/**
+	 * This method clears the project table.
+	 */
+	public static void clearTable(JTable table){
+		((DefaultTableModel) table.getModel()).setRowCount(0);
 	}
 }

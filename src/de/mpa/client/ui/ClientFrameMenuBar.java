@@ -38,6 +38,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JTextField dbUserTtf;
 	private JPasswordField dbPassTtf;
 	private JLabel dbConnTestLbl;
+	private JPanel dbPnl;
 
 	public ClientFrameMenuBar(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
@@ -86,21 +87,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		databaseItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
 		
-		final JPanel dbPnl = constructDbSettingsPanel();
+		dbPnl = constructDbSettingsPanel();
 
 		// action listener for database settings
 		databaseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DbConnectionSettings oldDbSettings = client.getDbSettings();
-				int res = JOptionPane.showConfirmDialog(clientFrame, dbPnl, "Database Settings", 
-						  JOptionPane.OK_CANCEL_OPTION,
-						  JOptionPane.PLAIN_MESSAGE);
-				if (res == JOptionPane.OK_OPTION) {
-					client.setDbSettings(gatherDbSettings());	// update settings
-				} else {	// cancel option or window close option
-					client.setDbSettings(oldDbSettings);	// revert to old settings
-				}		
+				displayDbSettings();
 			}
 		});
 
@@ -159,6 +152,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 		helpMenu.add(aboutItem);
 		this.add(helpMenu);
+	}
+
+	public void displayDbSettings() {
+		DbConnectionSettings oldDbSettings = client.getDbSettings();
+		int res = JOptionPane.showConfirmDialog(clientFrame, dbPnl, "Database Settings", 
+				  JOptionPane.OK_CANCEL_OPTION,
+				  JOptionPane.PLAIN_MESSAGE);
+		if (res == JOptionPane.OK_OPTION) {
+			client.setDbSettings(gatherDbSettings());	// update settings
+		} else {	// cancel option or window close option
+			client.setDbSettings(oldDbSettings);	// revert to old settings
+		}
 	}
 
 	/**

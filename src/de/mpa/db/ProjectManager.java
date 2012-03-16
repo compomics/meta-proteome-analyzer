@@ -18,7 +18,6 @@ import de.mpa.db.accessor.Property;
 
 public class ProjectManager {
 	
-	
 	private Connection conn;
 	
 	/**
@@ -330,6 +329,17 @@ public class ProjectManager {
 
 		// Delete project
 		project.delete(conn);
+	}
+	
+	/**
+	 * This method checks whether the provided connection is consistent with the manager's own
+	 * and updates the latter if needed.
+	 * @param conn
+	 */
+	public void revalidate(Connection conn) {
+		if (this.conn != conn) {
+			this.conn = conn;
+		}
 	}
 	
 }
