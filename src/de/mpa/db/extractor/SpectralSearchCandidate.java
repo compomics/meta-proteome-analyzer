@@ -25,10 +25,10 @@ public class SpectralSearchCandidate {
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SpectralSearchCandidate(ResultSet aResultSet) throws SQLException {
-		this.spectrumID = aResultSet.getLong("libspectrumid");
-		this.spectrumTitle = aResultSet.getString("spectrumname");
+		this.spectrumID = aResultSet.getLong("spectrumid");
+		this.spectrumTitle = aResultSet.getString("title");
 		this.precursorMz = aResultSet.getDouble("precursor_mz");
-		this.precursorCharge = aResultSet.getInt("charge");
+		this.precursorCharge = aResultSet.getInt("precursor_charge");
 		this.peaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
 															SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("intarray")));
 		this.peptideID = aResultSet.getLong("fk_peptideid");

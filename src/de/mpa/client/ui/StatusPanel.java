@@ -32,7 +32,7 @@ public class StatusPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("0dlu:g, 0dlu:g, 2dlu, 0dlu:g, 2dlu, 0dlu:g, 2dlu, 0dlu:g, p, 0dlu:g",
+		this.setLayout(new FormLayout("0dlu:g(3), 0dlu:g(3), 2dlu, 0dlu:g(3), 2dlu, 0dlu:g(5), p, 0dlu:g(4)",
 									  "f:p:g"));
 
 		BevelBorder bevelBrd = new ThinBevelBorder(BevelBorder.LOWERED);
@@ -62,7 +62,7 @@ public class StatusPanel extends JPanel {
 		experimentPnl.add(experimentTtf, cc.xy(2,2));
 
 		// Settings info
-		JPanel settingsPnl = new JPanel(new FormLayout("2dlu, p, 2dlu",
+		JPanel settingsPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
 				  									   "2dlu, f:p:g, 2dlu"));
 		JTextField settingsTtf = new JTextField("C:\\Temp\\Settings01.txt");
 		settingsTtf.setBorder(null);
@@ -72,17 +72,17 @@ public class StatusPanel extends JPanel {
 		settingsPnl.add(settingsTtf, cc.xy(2,2));
 		settingsPnl.setBorder(bevelBrd);
 		
-		// generic text field
-		JPanel textPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
-												   "2dlu, f:p:g, 2dlu"));
-		
-		JTextField textTtf = new JTextField();
-		textTtf.setEditable(false);
-		textTtf.setBorder(null);
-		textTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
-		
-		textPnl.add(textTtf, cc.xy(2, 2));
-		textPnl.setBorder(bevelBrd);
+//		// generic text field
+//		JPanel textPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
+//												   "2dlu, f:p:g, 2dlu"));
+//		
+//		JTextField textTtf = new JTextField();
+//		textTtf.setEditable(false);
+//		textTtf.setBorder(null);
+//		textTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
+//		
+//		textPnl.add(textTtf, cc.xy(2, 2));
+//		textPnl.setBorder(bevelBrd);
 		
 		// progress bars
 		JPanel progressPnl = new JPanel(new FormLayout("0dlu, p:g, 0dlu",
@@ -128,10 +128,10 @@ public class StatusPanel extends JPanel {
 		this.add(projectPnl, cc.xy(1, 1));
 		this.add(experimentPnl, cc.xy(2, 1));
 		this.add(settingsPnl, cc.xy(4, 1));
-		this.add(textPnl, cc.xy(6, 1));
-		this.add(progressPnl, cc.xy(8, 1));
-		this.add(timePnl, cc.xy(9, 1));
-		this.add(currentStatusPnl, cc.xy(10, 1));
+//		this.add(textPnl, cc.xy(6, 1));
+		this.add(progressPnl, cc.xy(6, 1));
+		this.add(timePnl, cc.xy(7, 1));
+		this.add(currentStatusPnl, cc.xy(8, 1));
 
 	}
 

@@ -1,26 +1,21 @@
 package de.mpa.algorithms;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import de.mpa.interfaces.SpectrumComparator;
 
 public class NormalizedDotProduct implements SpectrumComparator {
 	
 	/**
-	 * The bin width into which spectrum intensities are consolidated into during vectorization.
+	 * The input vectorization method.
 	 */
-	private double binWidth;
-	
-	/**
-	 * The amount the bin centers are shifted along the m/z axis.
-	 */
-	private double binShift;
+	private Vectorization vect;
 	
 	/**
 	 * The input transformation method.
 	 */
-	private Trafo trafo;
+	private Transformation trafo;
 
 	/**
 	 * The peak map of the source spectrum which gets auto-correlated during preparation.
@@ -32,85 +27,59 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	 * Ranges between 0.0 and 1.0.
 	 */
 	private double similarity = 0.0;
+
+	/**
+	 * The squared magnitude of the source intensity vector.
+	 */
+	private double denom1;
 	
 	/**
-	 * Default class constructor. Bin width and shift default to 1.0 Da and \u00b10.0 Da respectively.
+	 * Class constructor specifying vectorization and data transformation methods.
+	 * @param vect
+	 * @param trafo
 	 */
-	public NormalizedDotProduct() {
-		this(1.0, 0.0, new Trafo() { public double transform(double input) { return input; } });
-	}
-	
-	/**
-	 * Class constructor.
-	 * @param binWidth The bin width into which spectrum intensities are consolidated into during vectorization.
-	 * @param binShift The amount the bin centers are shifted along the m/z axis.
-	 */
-	public NormalizedDotProduct(double binWidth, double binShift, Trafo trafo) {
-		this.binWidth = binWidth;
-		this.binShift = binShift;
+	public NormalizedDotProduct(Vectorization vect, Transformation trafo) {
+		this.vect = vect;
 		this.trafo = trafo;
 	}
+	
+	// TODO: normalization after binning does not seem to have any effect here, investigate further
 
 	@Override
 	public void prepare(Map<Double, Double> inputPeaksSrc) {
 
-		peaksSrc = new HashMap<Double, Double>(inputPeaksSrc.size());
-
 		// bin source spectrum
-		double maxIntenSrc = 0.0;	// maximum intensity, to be used as normalization factor later on
-		for (Double mzSrc : inputPeaksSrc.keySet()) {
-			// round peak mass to nearest bin center
-			double roundedMz = Math.round((mzSrc-binShift)/binWidth)*binWidth + binShift;
-			// transform peak intensity
-			double intenSrc = trafo.transform(inputPeaksSrc.get(mzSrc));
-			if (peaksSrc.containsKey(roundedMz)) { intenSrc += peaksSrc.get(roundedMz); }	// add to already existing bin
-			maxIntenSrc = (intenSrc > maxIntenSrc) ? intenSrc : maxIntenSrc;
-			// store transformed peak
-			peaksSrc.put(roundedMz, intenSrc);
-		}
-		// normalize source spectrum
-		for (double mzSrc : peaksSrc.keySet()) { peaksSrc.put(mzSrc, peaksSrc.get(mzSrc)/maxIntenSrc); }
+		peaksSrc = vect.vectorize(inputPeaksSrc, trafo);
+
+		denom1 = 0.0;
+		for (double intenSrc : peaksSrc.values()) { denom1 += intenSrc * intenSrc; }
 		
 	}
 	
 	@Override
 	public void compareTo(Map<Double, Double> inputPeaksTrg) {
-		
-		HashMap<Double, Double> peaksTrg = new HashMap<Double, Double>(inputPeaksTrg.size());
-		
+
 		// bin target spectrum
-		double maxIntenTrg = 0.0;	// maximum intensity, to be used as normalization factor later on
-		for (Double mzTrg : inputPeaksTrg.keySet()) {
-			// round peak mass to nearest bin center
-			double roundedMz = Math.round((mzTrg-binShift)/binWidth)*binWidth + binShift;
-			// transform peak intensity
-			double intenTrg = trafo.transform(inputPeaksTrg.get(mzTrg));
-			if (peaksTrg.containsKey(roundedMz)) { intenTrg += peaksTrg.get(roundedMz); }	// add to already existing bin
-			maxIntenTrg = (intenTrg > maxIntenTrg) ? intenTrg : maxIntenTrg;
-			// store transformed peak
-			peaksTrg.put(roundedMz, intenTrg);
-		}
-		// normalize target spectrum
-		for (double mzTrg : peaksTrg.keySet()) { peaksTrg.put(mzTrg, peaksTrg.get(mzTrg)/maxIntenTrg); }
+		Map<Double, Double> peaksTrg = vect.vectorize(inputPeaksTrg, trafo);
 		
 		// calculate dot product
-		double numer = 0.0, denom1 = 0.0, denom2 = 0.0;
-		for (double mzTrg : peaksTrg.keySet()) {
-			double intenTrg = peaksTrg.get(mzTrg);
-			Double intenSrc = peaksSrc.get(mzTrg);
+		double numer = 0.0, denom2 = 0.0;
+		for (Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
+			double intenTrg = peakTrg.getValue();
+			Double intenSrc = peaksSrc.get(peakTrg.getKey());
 			if (intenSrc != null) {
-				numer  += intenSrc * intenTrg;
-				denom1 += intenSrc * intenSrc;
+				numer += intenSrc * intenTrg;
 			}
 			denom2 += intenTrg * intenTrg;
 		}
 		
-//		for (double mzTrg : inputPeaksTrg.keySet()) {
-//			double roundedMz = Math.round((mzTrg-binShift)/binWidth)*binWidth + binShift;
-//		}
-		
 		// normalize score
 		this.similarity = numer / Math.sqrt(denom1 * denom2);
+	}
+
+	@Override
+	public void cleanup() {
+		this.vect.setInput(null);
 	}
 
 	@Override

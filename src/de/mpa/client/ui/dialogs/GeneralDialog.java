@@ -275,7 +275,7 @@ public class GeneralDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				System.out.println(operations);
+//				System.out.println(operations);
 				
 				switch (type) {
 				case NEW_PROJECT:

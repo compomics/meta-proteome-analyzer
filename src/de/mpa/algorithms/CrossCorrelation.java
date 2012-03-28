@@ -25,9 +25,14 @@ public class CrossCorrelation implements SpectrumComparator {
 	private int offsets;
 	
 	/**
+	 * The input vectorization method.
+	 */
+	private Vectorization vect;
+	
+	/**
 	 * The input transformation method.
 	 */
-	private Trafo trafo;
+	private Transformation trafo;
 	
 	/**
 	 * The peak map of the source spectrum which gets auto-correlated during preparation.
@@ -51,7 +56,7 @@ public class CrossCorrelation implements SpectrumComparator {
 	 * The algorithm will evaluate the neighboring 75 bins for auto- and cross-correlation.
 	 */
 	public CrossCorrelation() {
-		this(1.0, 0.0, 75, new Trafo() { public double transform(double input) { return input; } });
+		this(1.0, 0.0, 75, new Transformation() { public double transform(double input) { return input; } });
 	}
 	
 	/**
@@ -60,16 +65,22 @@ public class CrossCorrelation implements SpectrumComparator {
 	 * @param binShift The amount the bin centers are shifted along the m/z axis.
 	 * @param offsets The amount of neighboring bins that are evaluated (in either direction) during correlation.
 	 */
-	public CrossCorrelation(double binWidth, double binShift, int offsets, Trafo trafo) {
+	public CrossCorrelation(double binWidth, double binShift, int offsets, Transformation trafo) {
 		this.binWidth = binWidth;
 		this.binShift = binShift;
 		this.offsets = offsets;
 		this.trafo = trafo;
 	}
+	
+	
+	public CrossCorrelation(Vectorization vect, Transformation trafo) {
+		this.vect = vect;
+		this.trafo = trafo;
+	}
 
 	@Override
 	public void prepare(Map<Double, Double> inputPeaksSrc) {
-
+		// TODO: implement vectorization, make adjustments for peak matching method
 		peaksSrc = new HashMap<Double, Double>(inputPeaksSrc.size());
 
 		// bin source spectrum
@@ -142,6 +153,11 @@ public class CrossCorrelation implements SpectrumComparator {
 		// normalize score using auto-correlation
 		double similarity = numer/autoCorr;
 		this.similarity = (similarity > 0.0) ? similarity : 0.0;	// cut off negative scores, reset to zero
+	}
+
+	@Override
+	public void cleanup() {
+		this.vect.setInput(null);
 	}
 
 	@Override

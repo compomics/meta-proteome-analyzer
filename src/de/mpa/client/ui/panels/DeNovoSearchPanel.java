@@ -200,6 +200,7 @@ public class DeNovoSearchPanel extends JPanel {
 	
 	@Override
 	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
 		for (Component child : parPnl.getComponents()) {
 			child.setEnabled(enabled);
 		}

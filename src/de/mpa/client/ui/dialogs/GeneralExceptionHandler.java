@@ -95,4 +95,75 @@ public class GeneralExceptionHandler {
 		dialog.setVisible(true);
 
 	}
+
+	/**
+	 * This method pops up to show an error
+	 * 
+	 * @param exception
+	 * @param object
+	 */
+	public static void showErrorDialog(Exception e, Window window) {
+
+		// Create dialog
+		final JDialog dialog = new JDialog(window, "Error", Dialog.ModalityType.APPLICATION_MODAL);
+		dialog.setPreferredSize(new Dimension(360, 120));
+		dialog.setResizable(false);
+
+		// Create message panel
+		JPanel errorPnl = new JPanel();
+		CellConstraints cc = new CellConstraints();
+		errorPnl.setLayout(new FormLayout("5dlu, p:g, p, 5dlu, p, 5dlu",
+				"5dlu, p, 5dlu, p, 5dlu, f:p:g, 5dlu"));
+		
+		String message = "<html><p>" + e.getMessage() + "</p></html>";
+		
+		JLabel errorMessageLbl = new JLabel(
+				message,
+				new ImageIcon(ClassLoader.getSystemResource("de/mpa/resources/icons/error.png")),
+				SwingConstants.LEFT);
+		errorMessageLbl.setPreferredSize(new Dimension(errorMessageLbl.getPreferredSize().width,
+				48));
+		JButton okBtn = new JButton("Ok");
+		// Close message
+		okBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dialog.dispose();
+			}
+		});
+
+		JButton detailsBtn = new JButton("Details >");
+		okBtn.setPreferredSize(detailsBtn.getPreferredSize());
+		String stackTrace = "";
+		for (StackTraceElement ste : e.getStackTrace()) {
+			stackTrace += ste + "\n";
+		}
+		JTextArea detailsTxA = new JTextArea(stackTrace);
+		detailsTxA.setEditable(false);
+		final JScrollPane detailsScp = new JScrollPane(detailsTxA);
+		detailsScp.setPreferredSize(new Dimension(100, 100));
+		detailsScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		detailsScp.setVisible(false);
+		detailsOpen = false;
+
+		detailsBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				detailsOpen = !detailsOpen;
+				detailsScp.setVisible(detailsOpen);
+				dialog.setSize(360, 120 + ((detailsOpen) ? 180 : 0));
+			}
+		});
+
+		// Build Panel
+		errorPnl.add(errorMessageLbl, cc.xyw(2, 2, 4));
+		errorPnl.add(okBtn, cc.xy(3, 4));
+		errorPnl.add(detailsBtn, cc.xy(5, 4));
+		errorPnl.add(detailsScp, cc.xyw(2, 6, 4));
+		// Build dialog
+		dialog.add(errorPnl);
+
+		dialog.pack();
+		ScreenConfig.centerInScreen(dialog);
+		dialog.setVisible(true);
+
+	}
 }

@@ -50,7 +50,9 @@ public class NormalizedDotProductTest extends TestCase{
 			HashMap<Double, Double> highestSpectrumPeaks = libMGF.getHighestPeaks(k);
 //			ArrayList<Peak> highestSpectrumPeaks = mgf.getHighestPeaksList(k);
 			
-			NormalizedDotProduct comparator = new NormalizedDotProduct();
+			NormalizedDotProduct comparator = new NormalizedDotProduct(
+					new Vectorization(Vectorization.DIRECT_BINNING, 1.0),
+					new Transformation() { public double transform(double input) { return input; } });
 			comparator.prepare(highestLibPeaks);
 			comparator.compareTo(highestSpectrumPeaks);
 			System.out.println("Similarity of " + mgf.getFilename() + " to " + libMGF.getFilename() + " : " + comparator.getSimilarity());

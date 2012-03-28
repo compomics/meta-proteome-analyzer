@@ -24,6 +24,11 @@ public interface SpectrumComparator {
 	public void compareTo(Map<Double, Double> peaksTrg);
 
 	/**
+	 * Method to reset temporary variables to their defaults.
+	 */
+	public void cleanup();
+
+	/**
 	 * @return The computed similarity value
 	 */
 	public double getSimilarity();

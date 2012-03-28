@@ -504,7 +504,7 @@ public class Client {
 				specEx.getCandidatesFromExperiment(intervals, procSet.getExperimentID());
 			
 			// iterate query spectra to determine similarity scores
-			int progress = 0;
+//			int progress = 0;
 			for (MascotGenericFile mgfQuery : mgfFiles) {
 				
 				// store results in list of ranked library spectra objects
@@ -516,11 +516,9 @@ public class Client {
 				
 				// iterate candidates
 				for (SpectralSearchCandidate candidate : candidates) {
-					
 					// re-check precursor tolerance criterion to determine proper candidates
 					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < procSet.getTolMz()) {
 						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
-						
 						// score query and library spectra
 						procSet.getSpecComparator().compareTo(candidate.getPeaks());
 						double score = procSet.getSpecComparator().getSimilarity();
@@ -536,12 +534,12 @@ public class Client {
 							
 							resultList.add(new RankedLibrarySpectrum(mgfLib, candidate.getSpectrumID(), candidate.getSequence(), null, score));
 						}
-						
 					}
-					
 				}
+				procSet.getSpecComparator().cleanup();
 				resultMap.put(mgfQuery.getTitle(), resultList);
-				pSupport.firePropertyChange("progress", progress++, progress);
+				pSupport.firePropertyChange("progressmade", 0, 1);
+//				pSupport.firePropertyChange("progress", progress++, progress);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -599,15 +597,6 @@ public class Client {
 
 	// XXX: TBD
 	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
-//		List<MascotGenericFile> mgfList = new ArrayList<MascotGenericFile>();
-//		SpectrumExtractor specEx = new SpectrumExtractor(conn);
-//		List<LibrarySpectrum> libSpectra = specEx.getLibrarySpectra(experimentID);
-//		for (LibrarySpectrum libSpec : libSpectra) {
-//			MascotGenericFile mgf = libSpec.getSpectrumFile();
-//			mgf.setTitle(libSpec.getSequence() + " " + mgf.getTitle());
-//			mgfList.add(mgf);
-//		}
-//		return mgfList;
 		return new SpectrumExtractor(conn).downloadSpectra(experimentID);
 	} 
 	
