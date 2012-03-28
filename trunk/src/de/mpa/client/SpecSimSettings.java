@@ -24,10 +24,6 @@ public class SpecSimSettings {
 	 */
 	private long experimentID;
 	
-	// TODO: make it matter :)
-	private int profilingType;
-	private double massError;
-	
 	/**
 	 * The number of most intensive peaks that shall be used for spectral comparison.
 	 */
@@ -45,25 +41,18 @@ public class SpecSimSettings {
 
 	/**
 	 * Class constructor.
-	 * @param packageSize
 	 * @param tolMz
 	 * @param annotatedOnly
 	 * @param experimentID
-	 * @param profilingType
-	 * @param massError
 	 * @param pickCount
-	 * @param trafo
 	 * @param specComp
 	 * @param threshScore
 	 */
-	public SpecSimSettings(double tolMz, boolean annotatedOnly, long experimentID,
-						   int profilingType, double massError,  int pickCount,
+	public SpecSimSettings(double tolMz, boolean annotatedOnly, long experimentID, int pickCount,
 						   SpectrumComparator specComp, double threshScore) {
 		this.tolMz = tolMz;
 		this.annotatedOnly = annotatedOnly;
 		this.experimentID = experimentID;
-		this.profilingType = profilingType;
-		this.massError = massError;
 		this.pickCount = pickCount;
 		this.specComp = specComp;
 		this.threshScore = threshScore;
@@ -91,20 +80,6 @@ public class SpecSimSettings {
 	}
 
 	/**
-	 * @return The type of profiling used.
-	 */
-	public int getProfilingType() {
-		return profilingType;
-	}
-
-	/**
-	 * @return The mass error window used in profiling.
-	 */
-	public double getMassError() {
-		return massError;
-	}
-
-	/**
 	 * @return The amount of most intensive peaks.
 	 */
 	public int getPickCount() {
@@ -116,6 +91,13 @@ public class SpecSimSettings {
 	 */
 	public SpectrumComparator getSpecComparator() {
 		return specComp;
+	}
+
+	/**
+	 * @param specComp the specComp to set
+	 */
+	public void setSpecComparator(SpectrumComparator specComp) {
+		this.specComp = specComp;
 	}
 
 	/**

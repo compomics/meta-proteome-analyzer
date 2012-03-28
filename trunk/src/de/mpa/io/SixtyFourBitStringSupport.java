@@ -38,7 +38,9 @@ public class SixtyFourBitStringSupport {
 	public static HashMap<Double, Integer> buildChargeMap(double[] mzArray, int[] chArray) {
 		HashMap<Double, Integer> peaks = new HashMap<Double, Integer>(mzArray.length);
 		for (int i = 0; i < mzArray.length; i++) {
-			peaks.put(mzArray[i], chArray[i]);
+			if (chArray[i] != 0) {
+				peaks.put(mzArray[i], chArray[i]);
+			}
 		}
 		return peaks;
 	}
@@ -98,29 +100,29 @@ public class SixtyFourBitStringSupport {
         ByteBuffer bb = ByteBuffer.wrap(byteArray);
         bb.order(byteOrder);
 
-        int[] res = new int[byteArray.length/8];
+        int[] res = new int[byteArray.length/4];
         for (int i = 0; i < res.length; i++) {
-        	res[i] = bb.getInt(i*8);
+        	res[i] = bb.getInt(i*4);
         }
 		return res;
 	}
 	
-	public static String encodeDoublesToBase64String(Double[] mzDoubles) {
-		byte[] mzBytes = new byte[mzDoubles.length*8];
-		ByteBuffer bufMz = ByteBuffer.wrap(mzBytes);
-	    for (double mz : mzDoubles) {
-	        bufMz.putDouble(mz);
+	public static String encodeDoublesToBase64String(Double[] doubles) {
+		byte[] bytes = new byte[doubles.length*8];
+		ByteBuffer bb = ByteBuffer.wrap(bytes);
+	    for (Double dbl : doubles) {
+	        bb.putDouble((dbl != null) ? dbl.doubleValue() : 0.0);
 	    }
-		return Base64.encodeBase64String(mzBytes);
+		return Base64.encodeBase64String(bytes);
 	}
 	
-	public static String encodeIntsToBase64String(Integer[] mzInts) {
-		byte[] mzBytes = new byte[mzInts.length*8];
-		ByteBuffer bufMz = ByteBuffer.wrap(mzBytes);
-	    for (int mz : mzInts) {
-	        bufMz.putInt(mz);
+	public static String encodeIntsToBase64String(Integer[] ints) {
+		byte[] bytes = new byte[ints.length*4];
+		ByteBuffer bb = ByteBuffer.wrap(bytes);
+	    for (Integer intgr : ints) {
+	        bb.putInt((intgr != null) ? intgr.intValue() : 0);
 	    }
-		return Base64.encodeBase64String(mzBytes);
+		return Base64.encodeBase64String(bytes);
 	}
 
 }

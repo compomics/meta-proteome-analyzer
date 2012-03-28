@@ -19,18 +19,23 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.CrossCorrelation;
 import de.mpa.algorithms.NormalizedDotProduct;
-import de.mpa.algorithms.Trafo;
+import de.mpa.algorithms.PearsonCorrelation;
+import de.mpa.algorithms.Transformation;
+import de.mpa.algorithms.Vectorization;
 import de.mpa.client.SpecSimSettings;
+import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.SpectrumTree;
@@ -63,20 +68,30 @@ public class SpecLibSearchPanel extends JPanel {
 	private JSpinner expIdSpn;
 
 	/**
-	 * The combo box containing available binning methods.
+	 * The combo box containing available vectorization methods.
 	 */
-	private JComboBox binningCbx;
+	private JComboBox vectMethodCbx;
 
 	/**
 	 * The spinner to define the bin width used in vectorization of spectra.
 	 */
 	private JSpinner binWidthSpn;
-
+	
+	/**
+	 * Left-hand side label of bin shift spinner component.
+	 */
+	private JLabel binShiftLbl;
+	
 	/**
 	 * The spinner to define the bin center's shift along the m/z axis used in
 	 * binning.
 	 */
 	private JSpinner binShiftSpn;
+
+	/**
+	 * Right-hand side label of bin shift spinner component.
+	 */
+	private JLabel binShiftLbl2;
 
 	/**
 	 * A sub-panel containing profiling-specific parameters.
@@ -91,12 +106,12 @@ public class SpecLibSearchPanel extends JPanel {
 	/**
 	 * A sub-panel containing profiling-specific parameters.
 	 */
-	private JPanel proMErrorPnl;
+	private JPanel proBaseWidthPnl;
 
 	/**
-	 * The spinner to define mass error windows used in profiling.
+	 * The spinner to define peak base width windows used in profiling.
 	 */
-	private JSpinner proMErrorSpn;
+	private JSpinner proBaseWidthSpn;
 
 	/**
 	 * The check box for determining whether only a certain number of most
@@ -149,6 +164,12 @@ public class SpecLibSearchPanel extends JPanel {
 	 */
 	private PlotPanel2 prePlotPnl;
 
+	// XXX: TBD
+	private JPanel previewPnl;
+	public JPanel getPreviewPnl() {
+		return previewPnl;
+	}
+
 	/**
 	 * Class constructor
 	 * 
@@ -197,7 +218,7 @@ public class SpecLibSearchPanel extends JPanel {
 
 		final JPanel advPnl = new JPanel(new FormLayout("5dlu, p, 5dlu",
 				"0dlu, p, 5dlu, p, 5dlu"));
-		advPnl.setBorder(BorderFactory.createEtchedBorder());
+		advPnl.setBorder(BorderFactory.createTitledBorder("Advanced Settings"));
 
 		JPanel expIdPnl = new JPanel();
 		expIdPnl.setLayout(new BoxLayout(expIdPnl, BoxLayout.X_AXIS));
@@ -221,7 +242,6 @@ public class SpecLibSearchPanel extends JPanel {
 		advPnl.add(expIdPnl, cc.xy(2, 4));
 
 		advBtn.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean annotatedOnly = annotChk.isSelected();
@@ -243,14 +263,14 @@ public class SpecLibSearchPanel extends JPanel {
 		paramDbPnl.add(bottomPnl, cc.xy(2, 4));
 
 		// spectrum previewing
-		JPanel previewPnl = new JPanel();
+		previewPnl = new JPanel();
 		previewPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "f:p:g, 5dlu"));
 		previewPnl.setBorder(BorderFactory.createTitledBorder("Preview input"));
 		prePlotPnl = new PlotPanel2(null);
 		prePlotPnl.clearSpectrumFile();
 		// prePlotPnl.setMiniature(true);
 		// prePlotPnl.setMaxPadding(25);
-		prePlotPnl.setPreferredSize(new Dimension(500, 300));
+		prePlotPnl.setPreferredSize(new Dimension(350, 150));
 		previewPnl.add(prePlotPnl, cc.xy(2, 1));
 
 		RefreshPlotListener refreshPlotListener = new RefreshPlotListener();
@@ -263,65 +283,71 @@ public class SpecLibSearchPanel extends JPanel {
 		paramScPnl.setBorder(new ComponentTitledBorder(new JLabel(
 				"Scoring parameters"), paramScPnl));
 
-		// sub-panel for binning parameters
-		final JPanel binningPnl = new JPanel();
-		binningPnl.setLayout(new FormLayout("p:g",
+		// sub-panel for vectorization parameters
+		final JPanel vectPnl = new JPanel();
+		vectPnl.setLayout(new FormLayout("p:g",
 				"p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));
 
-		// sub-sub-panel for binning method
-		JPanel binMethodPnl = new JPanel();
-		binMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
+		// sub-sub-panel for vectorization method
+		JPanel vectMethodPnl = new JPanel();
+		vectMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		binningCbx = new JComboBox(
-				new Object[] { "direct binning", "profiling" });
+		vectMethodCbx = new JComboBox(
+				new Object[] { "Peak matching", "Direct binning", "Profiling" });
+		vectMethodCbx.setSelectedIndex(1);
+		vectMethodCbx.addActionListener(refreshPlotListener);
 
-		binMethodPnl.add(new JLabel("Binning method"), cc.xy(1, 1));
-		binMethodPnl.add(binningCbx, cc.xy(3, 1));
+		vectMethodPnl.add(new JLabel("Vectorization"), cc.xy(1, 1));
+		vectMethodPnl.add(vectMethodCbx, cc.xy(3, 1));
 
-		// sub-sub-panel for general binning settings
-		JPanel genBinSetPnl = new JPanel();
-		genBinSetPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
+		// sub-sub-panel for general vectorization settings
+		JPanel genVectSetPnl = new JPanel();
+		genVectSetPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
 				"p, 5dlu, p"));
 
-		binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
+		binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, Double.MIN_VALUE, null, 0.1));
 		binWidthSpn.setEditor(new JSpinner.NumberEditor(binWidthSpn, "0.00"));
 		binWidthSpn.addChangeListener(refreshPlotListener);
+		
+		binShiftLbl = new JLabel("Bin shift");
 		binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
 		binShiftSpn.setEditor(new JSpinner.NumberEditor(binShiftSpn, "0.00"));
 		binShiftSpn.addChangeListener(refreshPlotListener);
+		binShiftLbl2 = new JLabel("Da");
 
-		genBinSetPnl.add(new JLabel("Bin width"), cc.xy(2, 1));
-		genBinSetPnl.add(binWidthSpn, cc.xy(4, 1));
-		genBinSetPnl.add(new JLabel("Da"), cc.xy(6, 1));
-		genBinSetPnl.add(new JLabel("Bin shift"), cc.xy(2, 3));
-		genBinSetPnl.add(binShiftSpn, cc.xy(4, 3));
-		genBinSetPnl.add(new JLabel("Da"), cc.xy(6, 3));
+		genVectSetPnl.add(new JLabel("Bin width"), cc.xy(2, 1));
+		genVectSetPnl.add(binWidthSpn, cc.xy(4, 1));
+		genVectSetPnl.add(new JLabel("Da"), cc.xy(6, 1));
+		genVectSetPnl.add(binShiftLbl, cc.xy(2, 3));
+		genVectSetPnl.add(binShiftSpn, cc.xy(4, 3));
+		genVectSetPnl.add(binShiftLbl2, cc.xy(6, 3));
 
 		// sub-sub-panels for profiling settings
 		proMethodPnl = new JPanel();
 		proMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		proMethodCbx = new JComboBox(new Object[] { "linear", "gaussian" });
+		proMethodCbx = new JComboBox(new Object[] { "Piecewise linear", "Gaussian function" });
 
-		proMethodPnl.add(new JLabel("Profile type"), cc.xy(1, 1));
+		proMethodPnl.add(new JLabel("Profile shape"), cc.xy(1, 1));
 		proMethodPnl.add(proMethodCbx, cc.xy(3, 1));
 		proMethodPnl.setEnabled(false);
 		for (Component comp : proMethodPnl.getComponents()) {
 			comp.setEnabled(false);
 		}
 
-		proMErrorPnl = new JPanel();
-		proMErrorPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
+		proBaseWidthPnl = new JPanel();
+		proBaseWidthPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
 				"p"));
 
-		proMErrorSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
-		proMErrorSpn.setEditor(new JSpinner.NumberEditor(proMErrorSpn, "0.00"));
+		proBaseWidthSpn = new JSpinner(new SpinnerNumberModel(0.5, Double.MIN_VALUE, null, 0.1));
+		proBaseWidthSpn.setEditor(new JSpinner.NumberEditor(proBaseWidthSpn, "0.00"));
+		proBaseWidthSpn.addChangeListener(refreshPlotListener);
 
-		proMErrorPnl.add(new JLabel("Mass error window"), cc.xy(2, 1));
-		proMErrorPnl.add(proMErrorSpn, cc.xy(4, 1));
-		proMErrorPnl.add(new JLabel("Da"), cc.xy(6, 1));
-		proMErrorPnl.setEnabled(false);
-		for (Component comp : proMErrorPnl.getComponents()) {
+		proBaseWidthPnl.add(new JLabel("Peak base width"), cc.xy(2, 1));
+		proBaseWidthPnl.add(proBaseWidthSpn, cc.xy(4, 1));
+		proBaseWidthPnl.add(new JLabel("Da"), cc.xy(6, 1));
+		proBaseWidthPnl.setEnabled(false);
+		for (Component comp : proBaseWidthPnl.getComponents()) {
 			comp.setEnabled(false);
 		}
 
@@ -352,28 +378,35 @@ public class SpecLibSearchPanel extends JPanel {
 			}
 		});
 
-		binningPnl.add(binMethodPnl, cc.xy(1, 1));
-		binningPnl.add(genBinSetPnl, cc.xy(1, 3));
-		binningPnl.add(proMethodPnl, cc.xy(1, 5));
-		binningPnl.add(proMErrorPnl, cc.xy(1, 7));
-		binningPnl.add(pickPnl, cc.xy(1, 9));
+		vectPnl.add(vectMethodPnl, cc.xy(1, 1));
+		vectPnl.add(genVectSetPnl, cc.xy(1, 3));
+		vectPnl.add(proMethodPnl, cc.xy(1, 5));
+		vectPnl.add(proBaseWidthPnl, cc.xy(1, 7));
+		vectPnl.add(pickPnl, cc.xy(1, 9));
 
-		// add action listener to binning method combobox to disable/enable
+		// add action listener to vectorization method combobox to disable/enable
 		// profiling-specific elements
-		binningCbx.addActionListener(new ActionListener() {
+		vectMethodCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				if (binningCbx.getSelectedIndex() == 0) {
-					proMethodPnl.setEnabled(false);
-					setChildrenEnabled(proMethodPnl, false);
-					proMErrorPnl.setEnabled(false);
-					setChildrenEnabled(proMErrorPnl, false);
-				} else {
-					proMethodPnl.setEnabled(true);
-					setChildrenEnabled(proMethodPnl, true);
-					proMErrorPnl.setEnabled(true);
-					setChildrenEnabled(proMErrorPnl, true);
+				boolean[] flags = { false, false, false };
+				switch (vectMethodCbx.getSelectedIndex()) {
+				case 0:
+					break;
+				case 1:
+					flags[0] = true;
+					break;
+				case 2:
+					flags = new boolean[] { true, true, true };
+					break;
 				}
+				binShiftLbl.setEnabled(flags[0]);
+				binShiftSpn.setEnabled(flags[0]);
+				binShiftLbl2.setEnabled(flags[0]);
+				proMethodPnl.setEnabled(flags[1]);
+				setChildrenEnabled(proMethodPnl, flags[1]);
+				proBaseWidthPnl.setEnabled(flags[2]);
+				setChildrenEnabled(proBaseWidthPnl, flags[2]);
 			}
 		});
 
@@ -381,19 +414,20 @@ public class SpecLibSearchPanel extends JPanel {
 		JPanel trafoPnl = new JPanel();
 		trafoPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		trafoCbx = new JComboBox(new Object[] { "none", "square root",
-				"logarithmic" });
+		trafoCbx = new JComboBox(new Object[] { "None", "Square root",
+				"Logarithmic" });
 		trafoCbx.setSelectedIndex(1);
 		trafoCbx.addActionListener(refreshPlotListener);
 
-		trafoPnl.add(new JLabel("Input transformation"), cc.xy(1, 1));
+		trafoPnl.add(new JLabel("Transformation"), cc.xy(1, 1));
 		trafoPnl.add(trafoCbx, cc.xy(3, 1));
 
 		// sub-panel for similarity scoring parameters
 		JPanel scoringPnl = new JPanel();
 		scoringPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p, 5dlu, p"));
 
-		measureCbx = new JComboBox(new Object[] { "Dot product",
+		measureCbx = new JComboBox(new Object[] { "Cosine correlation",
+				"Pearson's correlation",
 				"Cross-correlation" });
 		measureCbx.addActionListener(refreshPlotListener);
 
@@ -428,23 +462,27 @@ public class SpecLibSearchPanel extends JPanel {
 		measureCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (measureCbx.getSelectedIndex() == 0) {
+				switch (measureCbx.getSelectedIndex()) {
+				case 0:
+				case 1:
 					xCorrOffLbl.setEnabled(false);
 					xCorrOffSpn.setEnabled(false);
 					xCorrOffLbl2.setEnabled(false);
-				} else {
+					break;
+				case 2:
 					xCorrOffLbl.setEnabled(true);
 					xCorrOffSpn.setEnabled(true);
 					xCorrOffLbl2.setEnabled(true);
+					break;
 				}
 			}
 		});
 
-		scoringPnl.add(new JLabel("Similarity measure"), cc.xy(1, 1));
+		scoringPnl.add(new JLabel("Measure"), cc.xy(1, 1));
 		scoringPnl.add(measureCbx, cc.xy(3, 1));
 		scoringPnl.add(scorSubPnl, cc.xyw(1, 3, 3));
 
-		paramScPnl.add(binningPnl, cc.xy(2, 2));
+		paramScPnl.add(vectPnl, cc.xy(2, 2));
 		paramScPnl.add(new JSeparator(), cc.xy(2, 4));
 		paramScPnl.add(trafoPnl, cc.xy(2, 6));
 		paramScPnl.add(new JSeparator(), cc.xy(2, 8));
@@ -465,41 +503,44 @@ public class SpecLibSearchPanel extends JPanel {
 	 */
 	public SpecSimSettings gatherSpecSimSettings() {
 
-		Trafo trafo = null;
+		Transformation trafo = null;
 		switch (trafoCbx.getSelectedIndex()) {
 		case 0:
-			trafo = new Trafo() {
+			trafo = new Transformation() {
 				public double transform(double input) {
 					return input;
 				}
 			};
 			break;
 		case 1:
-			trafo = new Trafo() {
+			trafo = new Transformation() {
 				public double transform(double input) {
 					return Math.sqrt(input);
 				}
 			};
 			break;
 		case 2:
-			trafo = new Trafo() {
+			trafo = new Transformation() {
 				public double transform(double input) {
-					return Math.log(input);
+					return (input > 0.0) ? Math.log(input) : 0.0;
 				}
 			};
 			break;
 		}
-
-		SpectrumComparator method = null;
-		switch (measureCbx.getSelectedIndex()) {
+		
+		Vectorization vect = null;
+		switch (vectMethodCbx.getSelectedIndex()) {
 		case 0:
-			method = new NormalizedDotProduct((Double) binWidthSpn.getValue(),
-					(Double) binShiftSpn.getValue(), trafo);
+			vect = new Vectorization(Vectorization.PEAK_MATCHING, (Double) binWidthSpn.getValue());
 			break;
 		case 1:
-			method = new CrossCorrelation((Double) binWidthSpn.getValue(),
-					(Double) binShiftSpn.getValue(),
-					(Integer) xCorrOffSpn.getValue(), trafo);
+			vect = new Vectorization(Vectorization.DIRECT_BINNING, (Double) binWidthSpn.getValue(),
+					(Double) binShiftSpn.getValue());
+			break;
+		case 2:
+			vect = new Vectorization(Vectorization.PROFILING, (Double) binWidthSpn.getValue(),
+					(Double) binShiftSpn.getValue(), proMethodCbx.getSelectedIndex(),
+					(Double) proBaseWidthSpn.getValue());
 			break;
 		}
 
@@ -508,11 +549,27 @@ public class SpecLibSearchPanel extends JPanel {
 			pickCount = (Integer) pickSpn.getValue();
 		}
 
+		SpectrumComparator specComp = null;
+		switch (measureCbx.getSelectedIndex()) {
+		case 0:
+//			specComp = new NormalizedDotProduct((Double) binWidthSpn.getValue(),
+//					(Double) binShiftSpn.getValue(), trafo);
+			specComp = new NormalizedDotProduct(vect, trafo);
+			break;
+		case 1:
+			specComp = new PearsonCorrelation(vect, trafo);
+			break;
+		case 2:
+//			specComp = new CrossCorrelation((Double) binWidthSpn.getValue(),
+//					(Double) binShiftSpn.getValue(),
+//					(Integer) xCorrOffSpn.getValue(), trafo);
+			specComp = new CrossCorrelation(vect, trafo);
+			break;
+		}
+
 		return new SpecSimSettings((Double) tolMzSpn.getValue(),
 				annotChk.isSelected(), (Long) expIdSpn.getValue(),
-				proMethodCbx.getSelectedIndex(),
-				(Double) proMErrorSpn.getValue(), pickCount, method,
-				(Double) threshScSpn.getValue());
+				pickCount, specComp, (Double) threshScSpn.getValue());
 	}
 
 	/**
@@ -579,18 +636,29 @@ public class SpecLibSearchPanel extends JPanel {
 		}
 
 		private void grabSpectrumAndRefreshPlot() {
-			try {
-				MascotGenericFile mgf = ((SpectrumTree) clientFrame
-						.getFilePanel().getCheckBoxTree().getTree())
-						.getSpectrumAt(((DefaultMutableTreeNode) clientFrame
-								.getFilePanel().getCheckBoxTree().getModel()
-								.getRoot()).getFirstLeaf());
-				if (mgf != null) {
-					refreshPlot(mgf);
+			// wrap method inside runnable to prevent Linux from freezing when debugging it
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						CheckBoxTreeManager checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
+						MascotGenericFile mgf = null;
+						TreePath selPath = checkBoxTree.getTree().getSelectionPath();
+						if (selPath == null) {
+							mgf = ((SpectrumTree) checkBoxTree.getTree())
+							.getSpectrumAt(((DefaultMutableTreeNode) checkBoxTree.getModel()
+									.getRoot()).getFirstLeaf());
+						} else {
+							mgf = ((SpectrumTree) checkBoxTree.getTree())
+							.getSpectrumAt((DefaultMutableTreeNode) selPath.getLastPathComponent());
+						}
+						if (mgf != null) {
+							refreshPlot(mgf);
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			});
 		}
 	}
 
@@ -599,16 +667,12 @@ public class SpecLibSearchPanel extends JPanel {
 	 * enabled state of specific sub-components on restore.
 	 */
 	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
 		setChildrenEnabled(this, enabled);
-		if (enabled) { // restore old enabled state
-			boolean temp = binningCbx.getSelectedIndex() == 1;
-			setChildrenEnabled(proMethodPnl, temp);
-			setChildrenEnabled(proMErrorPnl, temp);
+		if (enabled) {	// restore proper enabled state by enforcing listener events
+			vectMethodCbx.setSelectedIndex(vectMethodCbx.getSelectedIndex());
 			pickSpn.setEnabled(pickChk.isSelected());
-			temp = measureCbx.getSelectedIndex() == 1;
-			xCorrOffSpn.setEnabled(temp);
-			xCorrOffLbl.setEnabled(temp);
-			xCorrOffLbl2.setEnabled(temp);
+			measureCbx.setSelectedIndex(measureCbx.getSelectedIndex());
 		}
 	}
 

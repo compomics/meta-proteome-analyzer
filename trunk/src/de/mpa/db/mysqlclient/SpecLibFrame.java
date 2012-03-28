@@ -13,8 +13,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -26,9 +28,11 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import de.mpa.client.ui.ScreenConfig;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
@@ -53,6 +57,8 @@ public class SpecLibFrame extends JFrame {
 	private JSpinner idSpn; 
 	private JButton uplBtn;
 	private JProgressBar uplPrg;
+	
+	private String startPath = "/data/bpt/bptprot/MetaProteomeAnalyzer/Daten fuer MetaProteomeAnalyzer";
 	
 	private ParseTask task;
 
@@ -84,8 +90,7 @@ public class SpecLibFrame extends JFrame {
 		mgfBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				JFileChooser chooser = new JFileChooser("test/de/mpa/resources");
-				JFileChooser chooser = new JFileChooser("/data/bpt/bptprot/MetaproteomeAnalyser/Daten fuer Metaproteomce analyser/Qstar");
+				JFileChooser chooser = new JFileChooser(startPath);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("Mascot Generic Format (*.mgf)", "mgf");
 				chooser.setFileFilter(filter);
 				chooser.setMultiSelectionEnabled(true);
@@ -113,8 +118,7 @@ public class SpecLibFrame extends JFrame {
 		xmlBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				JFileChooser chooser = new JFileChooser("test/de/mpa/resources");
-				JFileChooser chooser = new JFileChooser("/data/bpt/bptprot/MetaproteomeAnalyser/Daten fuer Metaproteomce analyser/Qstar");
+				JFileChooser chooser = new JFileChooser(startPath);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("xml files", "xml");
 				chooser.setFileFilter(filter);
 				chooser.setMultiSelectionEnabled(true);
@@ -139,17 +143,17 @@ public class SpecLibFrame extends JFrame {
 		// components for upload panel
 		JLabel idLbl = new JLabel("ExperimentID");
 		
-		idSpn = new JSpinner();
-		idSpn.setValue(1);
+		idSpn = new JSpinner(new SpinnerNumberModel(Long.valueOf(1L), Long.valueOf(1L), Long.valueOf(Long.MAX_VALUE), Long.valueOf(1L)));
 		
 		uplBtn = new JButton("Upload");
+		uplBtn.setPreferredSize(new Dimension(
+				(int)(uplBtn.getPreferredSize().width*2.5),
+				uplBtn.getPreferredSize().height));
 		uplBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if ((mgfFiles != null) && (xmlFiles != null) && (mgfFiles.length == xmlFiles.length)) {
-					if ((Integer)idSpn.getValue() > 0) {
-						
-//						parseStuff();
+					if ((Long) idSpn.getValue() > 0L) {
 						
 						uplBtn.setEnabled(false);
 				        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -205,7 +209,9 @@ public class SpecLibFrame extends JFrame {
 		contentPane.add(uplPnl);
 		
 		this.setContentPane(contentPane);
-		this.pack();	
+		this.pack();
+		ScreenConfig.centerInScreen(this);
+		
 	}
 	
 	class ParseTask extends SwingWorker<Void, Void> {
@@ -215,10 +221,14 @@ public class SpecLibFrame extends JFrame {
         @Override
         public Void doInBackground() {
         	
-        	int progress = 0;
+        	long currentProgress = 0L;
+        	long totalProgress = 0L;
         	// inefficiently determine maximum progress value
-        	int max = getNumSpectra();
-        	
+//        	int max = getNumSpectra();
+        	long maxProgress = 0L;
+        	for (File mgfFile : mgfFiles) {
+				maxProgress += mgfFile.length();
+			}
         	
             //Initialize progress property.
             setProgress(0);
@@ -232,25 +242,40 @@ public class SpecLibFrame extends JFrame {
 //    			ArrayList<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
     			Map<ProteinHit, ArrayList<ProteinAccessor>> proteinMap = new HashMap<ProteinHit, ArrayList<ProteinAccessor>>(10);
 
+    			// grab experiment id from GUI
+    			long experimentID = (Long) idSpn.getValue();
+    			
     			// attention: the order in which files were selected does matter!
-    			for (int i = 0; i < mgfFiles.length; i++) {
+    			int numFiles = mgfFiles.length;
+    			for (int i = 0; i < numFiles; i++) {
     				// parse mgf
+    				uplBtn.setText("Reading MGF " + (i+1) + "/" + numFiles + "...");
     				MascotGenericFileReader reader = new MascotGenericFileReader(mgfFiles[i]);
-    				List<MascotGenericFile> mgfList = reader.getSpectrumFiles();
+    				List<MascotGenericFile> mgfList = reader.getSpectrumFiles(false);
+    				
+    				// grab spectrum position byte indices for progress reporting
+    				List<Long> spectrumPositions = reader.getSpectrumPositions();
+    				Iterator<Long> specPosIterator = spectrumPositions.iterator();
+					currentProgress = specPosIterator.next();
 
     				// parse xml
+					uplBtn.setText("Reading XML " + (i+1) + "/" + numFiles  + "...");
 //    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i], MascotXMLParser.SUPPRESS_WARNINGS);
     				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i]);
     				Map<String, ArrayList<PeptideHit>> pepMap = readerXML.parse().getPepMap();
 
     				// Iterate over all spectra.
+    				uplBtn.setText("Processing " + (i+1) + "/" + numFiles  + "...");
     				for (MascotGenericFile mgf : mgfList) {
+
+    					// remove leading/trailing whitespaces
+    					String title = mgf.getTitle().trim();
     					
     					/* Spectrum section */
     		            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
     	            
     		            // The spectrum title
-    	                data.put(Spectrum.TITLE, mgf.getTitle());
+    	                data.put(Spectrum.TITLE, title);
     	                
     	                // The precursor mass.
     	                data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
@@ -262,16 +287,24 @@ public class SpecLibFrame extends JFrame {
     	                data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(mgf.getCharge()));
     	                
     	                // The m/z array
-    					Double[] mzDoubles = mgf.getPeaks().keySet().toArray(new Double[0]);
+    	                TreeMap<Double, Double> peakMap = new TreeMap<Double, Double>(mgf.getPeaks());
+    					Double[] mzDoubles = peakMap.keySet().toArray(new Double[0]);
     	                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(mzDoubles));
     	                
     	                // The intensity array
-    					Double[] inDoubles = mgf.getPeaks().values().toArray(new Double[0]);
-    	                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
+    					Double[] inDoubles = peakMap.values().toArray(new Double[0]);
+    	                data.put(Spectrum.INTARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
     	                
     	                // The charge array
-    					Integer[] chInts = mgf.getCharges().values().toArray(new Integer[0]);
-    	                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
+    	                TreeMap<Double, Integer> chargeMap = new TreeMap<Double, Integer>(mgf.getCharges());
+    	                for (Double mz : peakMap.keySet()) {
+							if (!chargeMap.containsKey(mz)) {
+								chargeMap.put(mz, 0);
+							}
+						}
+    					Integer[] chInts = chargeMap.values().toArray(new Integer[0]);
+//    					Integer[] chInts = mgf.getCharges().values().toArray(new Integer[0]);
+    					data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
     	                
     	                // The total intensity.
     	                data.put(Spectrum.TOTAL_INT, mgf.getTotalIntensity());
@@ -284,25 +317,22 @@ public class SpecLibFrame extends JFrame {
     	                spectrum.persist(conn);
     	                
     	                // Get the spectrum ID
-    	                Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
+    	                Long spectrumID = (Long) spectrum.getGeneratedKeys()[0];
     					
     	                /* libspectrum section */
     					HashMap<Object, Object> libdata = new HashMap<Object, Object>(11);
     					
-    					libdata.put(Libspectrum.FK_SPECTRUMID, spectrumid);
-    					libdata.put(Libspectrum.FK_EXPERIMENTID, Long.valueOf((Integer)idSpn.getValue()));
+    					libdata.put(Libspectrum.FK_SPECTRUMID, spectrumID);
+    					libdata.put(Libspectrum.FK_EXPERIMENTID, experimentID);
 
     					// Create the database object.
     					Libspectrum libspectrum = new Libspectrum(libdata);
     					libspectrum.persist(conn);
-
-    					// Get the spectrumid from the generated keys.
-    					Long spectrumID = (Long) libspectrum.getGeneratedKeys()[0];
-
+    					
     					// grab peptide hits if key exists
-    					if (pepMap.containsKey(mgf.getTitle())) {
+    					if (pepMap.containsKey(title)) {
 
-    						ArrayList<PeptideHit> pepHits = pepMap.get(mgf.getTitle());
+    						ArrayList<PeptideHit> pepHits = pepMap.get(title);
     						for (PeptideHit pepHit : pepHits) {
 
 								Long peptideID;
@@ -325,8 +355,8 @@ public class SpecLibFrame extends JFrame {
     								peptideID = peptide.getPeptideid();
     							}
         						
-    							Spec2pep sle = Spec2pep.findLink(spectrumID, peptideID, conn);
-    							if (sle == null) {	// link doesn't exist yet
+    							Spec2pep s2p = Spec2pep.findLink(spectrumID, peptideID, conn);
+    							if (s2p == null) {	// link doesn't exist yet
     								HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
 
     								dataSpecLib.put(Spec2pep.FK_SPECTRUMID, spectrumID);
@@ -384,9 +414,11 @@ public class SpecLibFrame extends JFrame {
         						}
 							}
     					}
-                        progress += 1;
-                        setProgress((int)((double)progress/max*100));
+						currentProgress = (specPosIterator.hasNext()) ?
+								specPosIterator.next() : mgfFiles[i].length();
+                        setProgress((int)((double)(totalProgress+currentProgress)/maxProgress*100));
     				}
+    				totalProgress += currentProgress;
     			}
     			conn.close();
     		} catch (IOException e) {
@@ -403,22 +435,23 @@ public class SpecLibFrame extends JFrame {
         @Override
         public void done() {
             uplBtn.setEnabled(true);
+            uplBtn.setText("Upload");
             setCursor(null); //turn off the wait cursor
 			JOptionPane.showMessageDialog(frame, "Upload complete.", "Success", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-	private int getNumSpectra() {
-		int res = 0;
-		for (File mgf : mgfFiles) {
-			try {
-				MascotGenericFileReader reader = new MascotGenericFileReader(mgf, MascotGenericFileReader.SURVEY);
-				res += reader.getSpectrumPositions().size();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return res;
-	}
+//	private int getNumSpectra() {
+//		int res = 0;
+//		for (File mgf : mgfFiles) {
+//			try {
+//				MascotGenericFileReader reader = new MascotGenericFileReader(mgf, MascotGenericFileReader.SURVEY);
+//				res += reader.getSpectrumPositions().size();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return res;
+//	}
 
 }

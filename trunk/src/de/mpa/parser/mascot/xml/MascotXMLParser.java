@@ -159,18 +159,25 @@ public class MascotXMLParser {
 								int lastBracket = scanTitle.lastIndexOf("(");
 								if (lastBracket != -1) {	// title contains left bracket
 									try {
+										String bracketTerm = scanTitle.substring(lastBracket+1, scanTitle.length()-1);
+										if (bracketTerm.contains("=")) {
+											bracketTerm = bracketTerm.substring(bracketTerm.indexOf("=") + 1);
+										}
 										// provoke exception
-										long prn = Long.parseLong(scanTitle.substring(lastBracket+1, scanTitle.length()-1));
+										long prn = Long.parseLong(bracketTerm);
 										// no exception thrown, therefore check whether the parsed long is very large
 										// (which is indicative of Mascot's added random number term)
 										if (prn >= 31122099235959L) {
 											// prune substring
-											scanTitle = scanTitle.substring(0, lastBracket-1);
+											scanTitle = scanTitle.substring(0, lastBracket);
 										}
 									} catch (Exception e) {
 										// do nothing
 									}
 								}
+								// remove leading/trailing whitespaces
+								scanTitle = scanTitle.trim();
+								
 								peptideHit.setScanTitle(scanTitle);
 							} catch (Exception e) {
 								if (verbose) {

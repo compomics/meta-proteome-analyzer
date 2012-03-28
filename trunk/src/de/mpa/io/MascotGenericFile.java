@@ -189,8 +189,7 @@ public class MascotGenericFile implements SpectrumFile {
      * @throws SQLException
      */
     public MascotGenericFile(ResultSet aResultSet) throws SQLException {
-//    	this.iFilename = aResultSet.getString("filename");
-    	this.iTitle = aResultSet.getString("spectrumname");
+    	this.iTitle = aResultSet.getString("title");
 		this.iPrecursorMz = aResultSet.getDouble("precursor_mz");
 		this.iIntensity = aResultSet.getDouble("precursor_int");
 		this.iCharge = aResultSet.getInt("precursor_charge");
@@ -588,7 +587,9 @@ public class MascotGenericFile implements SpectrumFile {
         BufferedWriter bw = new BufferedWriter(aWriter);
 
         // Comments go first.
-        bw.write(this.getComments());
+        if (iComments != null) {
+            bw.write(iComments);
+        }
         // Next the ion start tag.
         bw.write(IONS_START + "\n");
         // Now the title, or the filename if the substitution flag is 'true'.

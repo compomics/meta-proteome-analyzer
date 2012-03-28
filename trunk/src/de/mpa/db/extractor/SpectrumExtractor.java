@@ -216,13 +216,13 @@ public class SpectrumExtractor {
 		ArrayList<SpectralSearchCandidate> res = new ArrayList<SpectralSearchCandidate>(precIntervals.size());
 		
 		// construct SQL statement
-		StringBuilder sb = new StringBuilder("SELECT libspectrumid, spectrumname, precursor_mz, charge, mzarray, intarray, fk_peptideid, sequence FROM libspectrum " +
-				   							 "INNER JOIN arrayspectrum ON libspectrum.libspectrumid = arrayspectrum.fk_libspectrumid " +
-				   							 "INNER JOIN spec2pep ON libspectrum.libspectrumid = spec2pep.fk_spectrumid " + 
+		StringBuilder sb = new StringBuilder("SELECT spectrumid, title, precursor_mz, precursor_charge, mzarray, intarray, fk_peptideid, sequence FROM spectrum " +
+				   							 "INNER JOIN spec2pep ON spectrum.spectrumid = spec2pep.fk_spectrumid " + 
 				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
+				   							 "INNER JOIN libspectrum ON spectrum.spectrumid = libspectrum.fk_spectrumid " +
 				   							 "WHERE (");
 			for (Interval precInterval : precIntervals) {
-				sb.append("libspectrum.precursor_mz BETWEEN ");
+				sb.append("spectrum.precursor_mz BETWEEN ");
 				sb.append(precInterval.getLeftBorder());
 				sb.append(" AND ");
 				sb.append(precInterval.getRightBorder());
@@ -255,11 +255,13 @@ public class SpectrumExtractor {
 	public ArrayList<MascotGenericFile> downloadSpectra(long experimentID) throws SQLException {
 		ArrayList<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT filename, spectrumname, mzarray, intarray, precursor_mz, charge, sequence FROM libspectrum " +
-				 									 "INNER JOIN arrayspectrum ON libspectrum.libspectrumid = arrayspectrum.fk_libspectrumid " + 
-				 									 "INNER JOIN spec2pep ON libspectrum.libspectrumid = spec2pep.fk_spectrumid" +
-				 									 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid" +
-				 									 "WHERE libspectrum.fk_experimentid = " + experimentID);
+		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+				"precursor_charge, mzarray, intarray, chargearray, sequence FROM spectrum " +
+				"INNER JOIN spec2pep on spectrum.spectrumid = spec2pep.fk_spectrumid " +
+				"INNER JOIN peptide on spec2pep.fk_peptideid = peptide.peptideid " +
+				"INNER JOIN libspectrum on spectrum.spectrumid = libspectrum.fk_spectrumid " +
+				"WHERE libspectrum.fk_experimentid = ?");
+		ps.setLong(1, experimentID);
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
         	MascotGenericFile mgf = new MascotGenericFile(rs);

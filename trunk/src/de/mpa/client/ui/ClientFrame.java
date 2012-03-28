@@ -42,6 +42,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -69,6 +70,7 @@ import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
 import de.mpa.client.ui.SpectrumTree.TreeType;
+import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.panels.ClusterPanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
@@ -127,7 +129,6 @@ public class ClientFrame extends JFrame {
 	public MultiPlotPanel mPlot;
 	private ArrayList<RankedLibrarySpectrum> resultList;
 
-	private SpecLibSearchPanel specLibPnl;
 	private SpectrumTree queryTree;
 	public JTable protTbl;
 	public JComboBox spectraCbx;
@@ -191,7 +192,7 @@ public class ClientFrame extends JFrame {
 		
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
 		
-		for (int i = 3; i < 7; i++) {
+		for (int i = 4; i < 7; i++) {
 			tabPane.setEnabledAt(i, false);
 		}
 
@@ -490,67 +491,7 @@ public class ClientFrame extends JFrame {
 		expBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (queryRoot.getChildCount() > 0) {
-					// appear busy
-					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					// build first row in CSV-to-be containing library peptide sequence strings
-					// grab list of annotated library spectra belonging to experiment
-					try {
-						ArrayList<SpectralSearchCandidate> candidates = client.getCandidatesFromExperiment(specLibPnl.getExperimentID());
-						// substitute 'sequence + spectrum id' with integer indexing
-						HashMap<String, Integer> seq2index = new HashMap<String, Integer>(candidates.size());
-						// substitute 'sequence + precursor charge' with integer indexing
-						HashMap<String, Integer> seq2id = new HashMap<String, Integer>(candidates.size());
-						String row = "";
-						int index = 0;
-						int id = 0;
-						for (SpectralSearchCandidate candidate : candidates) {
-							seq2index.put(candidate.getSequence() + candidate.getSpectrumID(), index);
-							String seq = candidate.getSequence() + candidate.getPrecursorCharge();
-							if (!seq2id.containsKey(seq)) { seq2id.put(seq, id++); }
-//							row += "\t" + candidate.getSequence() + candidate.getPrecursorCharge();
-							row += "\t" + seq2id.get(seq);
-							index++;
-						}
-						FileOutputStream fos = new FileOutputStream(new File("scores.csv"));
-						OutputStreamWriter osw = new OutputStreamWriter(fos);
-						osw.write(row + "\n");
-						// traverse query tree
-						DefaultMutableTreeNode leafNode = queryRoot.getFirstLeaf();
-						while (leafNode != null) {
-							MascotGenericFile mgf = queryTree.getSpectrumAt(leafNode);
-							String seq = mgf.getTitle();
-							seq = seq.substring(0, seq.indexOf(" "));
-//							row = mgf.getTitle();
-//							row = row.substring(0, row.indexOf(" "));
-//							row += mgf.getCharge();
-							Integer id2 = seq2id.get(seq + mgf.getCharge());
-							row = String.valueOf((id2 == null) ? -1 : id2);
-							resultList = resultMap.get(mgf.getTitle());
-							int oldIndex = 0;
-							for (RankedLibrarySpectrum rankedSpec : resultList) {
-								index = seq2index.get(rankedSpec.getSequence() + rankedSpec.getSpectrumID());
-								for (int i = oldIndex; i < index; i++) {
-									row += "\t" + 0.0;	// pad with zeros for filtered results
-								}
-								row += "\t" + rankedSpec.getScore();
-								oldIndex = index+1;
-							}
-							for (int i = oldIndex; i < candidates.size(); i++) {
-								row += "\t" + 0.0;	// pad with zeros for filtered results
-							}
-							
-							osw.write(row + "\n");
-							leafNode = leafNode.getNextLeaf();
-						}
-						osw.close();
-						fos.close();
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-					// restore cursor
-					setCursor(null);
-				}
+				new ExportResultsWorker().execute();
 			}
 		});
 
@@ -621,6 +562,117 @@ public class ClientFrame extends JFrame {
 		dispPnl.add(mainSplit, cc.xy(2,1));
 
 		resPnl.add(dispPnl, cc.xy(2,2));
+	}
+	
+	private class ExportResultsWorker extends SwingWorker {
+
+		private int maxProgress;
+		private long startTime;
+
+		@Override
+		protected Object doInBackground() throws Exception {
+			DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryTree.getModel().getRoot();
+			if (queryRoot.getChildCount() > 0) {
+				// appear busy
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				// build first row in CSV-to-be containing library peptide sequence strings
+				// grab list of annotated library spectra belonging to experiment
+				try {
+					ArrayList<SpectralSearchCandidate> candidates = client.getCandidatesFromExperiment(getSettingsPanel().getSpecLibSearchPanel().getExperimentID());
+					// substitute 'sequence + spectrum id' with integer indexing
+					HashMap<String, Integer> seq2index = new HashMap<String, Integer>(candidates.size());
+					// substitute 'sequence + precursor charge' with integer indexing
+					HashMap<String, Integer> seq2id = new HashMap<String, Integer>(candidates.size());
+					maxProgress = candidates.size() * resultMap.size();
+					int curProgress = 0;
+					startTime = System.currentTimeMillis();
+					progressMade(curProgress);
+					StringBuilder sb = new StringBuilder(maxProgress*2);
+//					String row = "";
+					int index = 0;
+					int id = 0;
+					for (SpectralSearchCandidate candidate : candidates) {
+						seq2index.put(candidate.getSequence() + candidate.getSpectrumID(), index);
+						String seq = candidate.getSequence() + candidate.getPrecursorCharge();
+						if (!seq2id.containsKey(seq)) { seq2id.put(seq, id++); }
+//						row += "\t" + candidate.getSequence() + candidate.getPrecursorCharge();
+						sb.append("\t" + seq2id.get(seq));
+						index++;
+					}
+					sb.append("\n");
+					FileOutputStream fos = new FileOutputStream(new File("scores.csv"));
+					OutputStreamWriter osw = new OutputStreamWriter(fos);
+//					osw.write(sb.toString());
+					// traverse query tree
+					DefaultMutableTreeNode leafNode = queryRoot.getFirstLeaf();
+					while (leafNode != null) {
+						MascotGenericFile mgf = queryTree.getSpectrumAt(leafNode);
+						String seq = mgf.getTitle();
+						seq = seq.substring(0, seq.indexOf(" "));
+//						row = mgf.getTitle();
+//						row = row.substring(0, row.indexOf(" "));
+//						row += mgf.getCharge();
+						Integer id2 = seq2id.get(seq + mgf.getCharge());
+						sb.append(String.valueOf((id2 == null) ? -1 : id2));
+//						row = String.valueOf((id2 == null) ? -1 : id2);
+						resultList = resultMap.get(mgf.getTitle());
+						int oldIndex = 0;
+						for (RankedLibrarySpectrum rankedSpec : resultList) {
+							index = seq2index.get(rankedSpec.getSequence() + rankedSpec.getSpectrumID());
+							for (int i = oldIndex; i < index; i++) {
+								sb.append("\t" + 0.0);
+								progressMade(++curProgress);
+//								row += "\t" + 0.0;	// pad with zeros for filtered results
+							}
+							sb.append("\t" + rankedSpec.getScore());
+							progressMade(++curProgress);
+//							row += "\t" + rankedSpec.getScore();
+							oldIndex = index+1;
+						}
+						for (int i = oldIndex; i < candidates.size(); i++) {
+							sb.append("\t" + 0.0);
+							progressMade(++curProgress);
+//							row += "\t" + 0.0;	// pad with zeros for filtered results
+						}
+						sb.append("\n");
+						osw.append(sb);
+						osw.flush();
+						sb.setLength(0);
+//						osw.write(row + "\n");
+						leafNode = leafNode.getNextLeaf();
+					}
+//					osw.append(sb);
+//					osw.flush();
+					osw.close();
+					fos.close();
+					progressMade(maxProgress);
+				} catch (Exception ex) {
+					GeneralExceptionHandler.showErrorDialog(ex, frame);
+				}
+			}
+			return 0;
+		}
+		
+		@Override
+		protected void done() {
+			// restore cursor
+			setCursor(null);
+		}
+
+		private void progressMade(int curProgress) {
+			double relProgress = curProgress * 100.0 / maxProgress;
+			getStatusBar().getCurrentProgressBar().setValue((int) relProgress);
+			
+			long elapsedTime = System.currentTimeMillis() - startTime;
+			long remainingTime = 0L;
+			if (relProgress > 0.0) {
+				remainingTime = (long) (elapsedTime/relProgress*(100.0-relProgress)/1000.0);
+			}
+			getStatusBar().getTimeLabel().setText(
+					String.format("%02d:%02d:%02d", remainingTime/3600,
+					(remainingTime%3600)/60, (remainingTime%60)));
+		}
+		
 	}
 
 	protected void refreshResultsTables(MascotGenericFile mgf) {
