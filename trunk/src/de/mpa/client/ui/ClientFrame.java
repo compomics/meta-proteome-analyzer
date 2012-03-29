@@ -58,6 +58,8 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.util.protein.Header;
+import com.compomics.util.protein.Protein;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
@@ -66,7 +68,6 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
-import de.mpa.algorithms.Protein;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
 import de.mpa.client.ui.SpectrumTree.TreeType;
@@ -77,7 +78,6 @@ import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
-import de.mpa.client.ui.panels.ProteinResultPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.db.extractor.SpectralSearchCandidate;
@@ -98,37 +98,23 @@ import de.mpa.ui.MultiPlotPanel;
 public class ClientFrame extends JFrame {
 
 	public Logger log = Logger.getLogger(getClass());
-
 	private ClientFrame frame;
-
 	private ProjectPanel projectPnl;
-
 	private Client client;
-
 	private FilePanel filePnl;
-
 	private JPanel resPnl;
-
 	private DeNovoResultPanel denovoResPnl;
-
 	private JPanel res2Pnl;
-
 	private LoggingPanel logPnl;
-
 	private CellConstraints cc;
-
 	public JButton sendBtn;
 	private ClientFrameMenuBar menuBar;
 	private boolean connectedToServer = false;
-
 	public  JTable libTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
-
 	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
-
 	public MultiPlotPanel mPlot;
 	private ArrayList<RankedLibrarySpectrum> resultList;
-
 	private SpectrumTree queryTree;
 	public JTable protTbl;
 	public JComboBox spectraCbx;
@@ -136,12 +122,8 @@ public class ClientFrame extends JFrame {
 	private ClusterPanel clusterPnl;
 	protected List<File> chunkedFiles;
 	private DbSearchResultPanel dbSearchResultPnl;
-	private ProteinResultPanel proteinResultPnl;
-
 	private SettingsPanel setPnl;
-
 	private StatusPanel statusPnl;
-
 	private JTabbedPane tabPane;
 
 	/**
@@ -184,17 +166,16 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Spectral Search Results", resultsIcon, resPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
-		resultsTabPane.addTab("Protein View", proteinResultPnl);
 		tabPane.addTab("Database Search Results", resultsIcon, dbSearchResultPnl);
 		tabPane.addTab("De novo Results", resultsIcon, denovoResPnl);
 		tabPane.addTab("Clustering", clusteringIcon, clusterPnl);
 		tabPane.addTab("Logging", loggingIcon, logPnl);
-		
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
 		
 		for (int i = 4; i < 7; i++) {
 			tabPane.setEnabledAt(i, false);
 		}
+		tabPane.setEnabledAt(4, true);
 
 		cp.add(tabPane);
 		
@@ -283,9 +264,6 @@ public class ClientFrame extends JFrame {
 
 		// Database search result panel
 		dbSearchResultPnl = new DbSearchResultPanel(this);
-
-		// Protein Panel
-		proteinResultPnl = new ProteinResultPanel(this);
 
 		// DeNovoResults		
 		denovoResPnl = new DeNovoResultPanel(this);
@@ -426,7 +404,8 @@ public class ClientFrame extends JFrame {
 						if (annotations != null) {
 							int protIndex = 0;
 							for (Protein annotation : annotations) {
-								dtm.addRow(new Object[] {++protIndex, annotation.getAccession(), annotation.getDescription()});
+								Header header = annotation.getHeader();
+								dtm.addRow(new Object[] {++protIndex, header.getAccession(), header.getDescription()});
 							}
 						}
 						TableConfig.packColumn(protTbl, 0, 10);
@@ -713,10 +692,6 @@ public class ClientFrame extends JFrame {
 		mPlot.repaint();
 	}
 
-
-
-	
-
 	/**
 	 * This method sets the look&feel for the application.
 	 */
@@ -842,4 +817,11 @@ public class ClientFrame extends JFrame {
 		return tabPane;
 	}
 	
+	/**
+	 * Returns the menu bar of the client frame.
+	 * @return menuBar The client frame menu bar.
+	 */
+	public ClientFrameMenuBar getClienFrameMenuBar(){
+		return menuBar;
+	}
 }

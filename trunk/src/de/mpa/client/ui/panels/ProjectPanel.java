@@ -619,5 +619,22 @@ public class ProjectPanel extends JPanel {
 	public long getCurrentExperimentId(){
 		return currentExperimentContent.getExperimentID();
 	}
+
+	/**
+	 * Returns the project content
+	 * @return The project content 
+	 */
+	public ProjectContent getCurrentProjContent() {
+		return currentProjContent;
+	}
+
+	/**
+	 * Returns the experiment content
+	 * @return The experiment content
+	 */
+	public ExperimentContent getCurrentExperimentContent() {
+		return currentExperimentContent;
+	}
+	
 	
 }

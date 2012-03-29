@@ -24,18 +24,20 @@ import de.mpa.client.ui.ScreenConfig;
 public class GeneralExceptionHandler {
 
 	private static boolean detailsOpen;
-
+	
+	private static final String HTML_HEADER = "<html><p>";
+	private static final String HTML_FOOTER = "</p></html>";
 	/**
-	 * This method pops up to show an error with the database connection
+	 * This method shows an error with the database connection.
 	 * 
-	 * @param exception
-	 * @param object
+	 * @param sqe The SQL exception that was thrown. 
+	 * @param window The parent window, could be dialog or frame.
 	 */
-	public static void showSQLErrorDialog(SQLException e, Window window) {
+	public static void showSQLErrorDialog(SQLException sqe, Window window) {
 
 		// Create dialog
 		final JDialog dialog = new JDialog(window, "Error", Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setPreferredSize(new Dimension(360, 120));
+		dialog.setPreferredSize(new Dimension(360, 150));
 		dialog.setResizable(false);
 
 		// Create message panel
@@ -44,12 +46,11 @@ public class GeneralExceptionHandler {
 		errorPnl.setLayout(new FormLayout("5dlu, p:g, p, 5dlu, p, 5dlu",
 				"5dlu, p, 5dlu, p, 5dlu, f:p:g, 5dlu"));
 		
-		String message = "<html><p>" + e.getMessage() + "</p></html>";
+		String message = HTML_HEADER + sqe.getMessage() + HTML_FOOTER;
 		
 		JLabel errorMessageLbl = new JLabel(
 				message,
-				new ImageIcon(ClassLoader.getSystemResource("de/mpa/resources/icons/error.png")),
-				SwingConstants.LEFT);
+				new ImageIcon(ClassLoader.getSystemResource("de/mpa/resources/icons/error.png")),SwingConstants.LEFT);
 		errorMessageLbl.setPreferredSize(new Dimension(errorMessageLbl.getPreferredSize().width,
 				48));
 		JButton okBtn = new JButton("Ok");
@@ -63,7 +64,7 @@ public class GeneralExceptionHandler {
 		JButton detailsBtn = new JButton("Details >");
 		okBtn.setPreferredSize(detailsBtn.getPreferredSize());
 		String stackTrace = "";
-		for (StackTraceElement ste : e.getStackTrace()) {
+		for (StackTraceElement ste : sqe.getStackTrace()) {
 			stackTrace += ste + "\n";
 		}
 		JTextArea detailsTxA = new JTextArea(stackTrace);

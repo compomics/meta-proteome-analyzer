@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="dnPTMs" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="dnPeptideIntThresh" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="dnRemoveAllPep" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *          &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
+ *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -197,20 +197,21 @@ public class DenovoSearchSettings {
     public void setDnRemoveAllPep(boolean value) {
         this.dnRemoveAllPep = value;
     }
-    
+
     /**
-     * Returns the experiment id.
-     * @return The experiment id.
+     * Gets the value of the experimentid property.
+     * 
      */
-	public long getExperimentid() {
-		return experimentid;
-	}
-	
-	/**
-	 * Sets the experiment id.
-	 * @param experimentid The experiment id.
-	 */
-	public void setExperimentid(long experimentid) {
-		this.experimentid = experimentid;
-	}
+    public long getExperimentid() {
+        return experimentid;
+    }
+
+    /**
+     * Sets the value of the experimentid property.
+     * 
+     */
+    public void setExperimentid(long value) {
+        this.experimentid = value;
+    }
+
 }

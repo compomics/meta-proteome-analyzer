@@ -3,6 +3,8 @@ package de.mpa.algorithms;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.compomics.util.protein.Protein;
+
 import de.mpa.io.MascotGenericFile;
 
 /**
