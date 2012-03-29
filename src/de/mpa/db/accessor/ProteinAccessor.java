@@ -36,22 +36,15 @@ public class ProteinAccessor extends ProteinTableAccessor {
     * @throws SQLException when the retrieval did not succeed.
     */
    public static ProteinAccessor findFromID(long proteinID, Connection aConn) throws SQLException {
-   	ProteinAccessor temp = null;
+   	   ProteinAccessor temp = null;
        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PROTEINID + " = ?");
        ps.setLong(1, proteinID);
        ResultSet rs = ps.executeQuery();
-       int counter = 0;
        while (rs.next()) {
-           counter++;
            temp = new ProteinAccessor(rs);
        }
        rs.close();
        ps.close();
-       if (counter != 1) {
-           SQLException sqe = new SQLException("Select based on protein ID '" + proteinID + "' resulted in " + counter + " results instead of 1!");
-           sqe.printStackTrace();
-           throw sqe;
-       }
        return temp;
    }
 

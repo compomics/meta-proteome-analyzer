@@ -1,27 +1,44 @@
 package de.mpa.client.model;
 
+import java.util.TreeMap;
+
+
 /**
  * This class represents a peptide hit.
- * @author Thilo Muth
+ * @author T.Muth
  *
  */
 public class PeptideHit {
 	
-	// The peptide sequence
+	/**
+	 *  The peptide sequence
+	 */
 	private String sequence;
 	
-	// The start of the peptide sequence in the protein.
+	/**
+	 * The start of the peptide sequence in the protein.
+	 */
 	private int start;
 	
-	// The end of the peptide sequence in the protein.
+	/**
+	 *  The end of the peptide sequence in the protein.
+	 */
 	private int end;
+	
+	/**
+	 * The peptide spectrum match for this peptide hit.
+	 */
+	private TreeMap<Long, PeptideSpectrumMatch> peptideSpectrumMatches;
 	
 	/**
 	 * PeptideHit constructor, taking the sequence as only parameter.
 	 * @param sequence The String sequence.
+	 * @param peptideSpectrumMatches The list of peptide spectrum matches.
 	 */
-	public PeptideHit(String sequence) {
+	public PeptideHit(String sequence, PeptideSpectrumMatch peptideSpectrumMatch) {
 		this.sequence = sequence;
+		this.peptideSpectrumMatches = new TreeMap<Long, PeptideSpectrumMatch>();
+		this.peptideSpectrumMatches.put(peptideSpectrumMatch.getSpectrumId(), peptideSpectrumMatch);
 	}
 	
 	/**
@@ -44,6 +61,23 @@ public class PeptideHit {
 	}
 	
 	/**
+	 * Convenience method to retrieve a unique PSM.
+	 * @return The list of PSMs.
+	 */
+	public PeptideSpectrumMatch getSinglePeptideSpectrumMatch() {
+		return peptideSpectrumMatches.firstEntry().getValue();
+	}
+	
+	
+	public TreeMap<Long, PeptideSpectrumMatch> getPeptideSpectrumMatches() {
+		return peptideSpectrumMatches;
+	}
+
+	public void setPeptideSpectrumMatches(TreeMap<Long, PeptideSpectrumMatch> peptideSpectrumMatches) {
+		this.peptideSpectrumMatches = peptideSpectrumMatches;
+	}
+
+	/**
 	 * Returns the peptide start.
 	 * @return the start
 	 */
@@ -57,5 +91,13 @@ public class PeptideHit {
 	 */
 	public int getEnd() {
 		return end;
+	}
+	
+	/**
+	 * Adds a peptide spectrum match to the PeptideHit.
+	 * @param psm The peptide spectrum map.
+	 */
+	public void addPeptideSpectrumMatch(PeptideSpectrumMatch psm){
+		peptideSpectrumMatches.put(psm.getSpectrumId(), psm);
 	}
 }

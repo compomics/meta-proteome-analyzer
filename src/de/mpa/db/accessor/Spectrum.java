@@ -60,6 +60,28 @@ public class Spectrum extends SpectrumTableAccessor {
     	return getSpectrumIdFromTitle(title, false);
     }
     
+    /**
+     * Finds the Spectrum from a given spectrum id.
+     * @param spectrumid The spectrum id given from the actual spectrum.
+     * @param conn The database connection.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static Spectrum findFromSpectrumID(long spectrumid, Connection conn) throws SQLException{
+    	Spectrum temp = null;
+         PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
+         		" WHERE spectrumid = ? ORDER BY creationdate");
+         ps.setLong(1, spectrumid);
+         ResultSet rs = ps.executeQuery();
+         int counter = 0;
+         while (rs.next()) {
+             counter++;
+             temp = new Spectrum(rs);
+         }
+         rs.close();
+         ps.close();
+         return temp;
+    }
+    
     public static long getSpectrumIdFromTitle(String title, boolean omssa) {
     	String formatted = "";
     	if(omssa){

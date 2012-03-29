@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Cruxhit extends CruxhitTableAccessor {
+public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	
 	private String sequence;
 	private String accession;
@@ -40,7 +40,7 @@ public class Cruxhit extends CruxhitTableAccessor {
      */
     public static List<Cruxhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Cruxhit> temp = new ArrayList<Cruxhit>();
-    	PreparedStatement ps = aConn.prepareStatement("select c.*, p.sequence, pr.accession from cruxhit c, peptide p, protein pr, pep2prot p2p where c.fk_peptideid = p.peptideid and c.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinsid = pr.proteinid and c.fk_spectrumid = ?");
+    	PreparedStatement ps = aConn.prepareStatement("select c.*, p.sequence, pr.accession from cruxhit c, peptide p, protein pr, pep2prot p2p where c.fk_peptideid = p.peptideid and c.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and c.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -57,5 +57,12 @@ public class Cruxhit extends CruxhitTableAccessor {
 
 	public String getAccession() {
 		return accession;
+	}
+	
+	
+	@Override
+	public long getFk_proteinid() {
+		// TODO: Find a solution for multiple protein ids...
+		return 0;
 	}
 }

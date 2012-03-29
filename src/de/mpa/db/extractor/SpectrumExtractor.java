@@ -10,11 +10,9 @@ import java.util.List;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.LibrarySpectrum;
-import de.mpa.algorithms.Protein;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Spec2pep;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.io.MascotGenericFile;
@@ -52,19 +50,19 @@ public class SpectrumExtractor {
 		// Iterate the spectral library entries.
 		for (Spec2pep entry : entries) {
 			long spectrumID = entry.getFk_spectrumid();
-			MascotGenericFile mgf = getUnzippedFile(spectrumID);
+			MascotGenericFile mgf = getMascotGenericFile(spectrumID, conn);
 			// get list of proteins from list of peptides and gather annotations
 			long peptideID = entry.getFk_peptideid();
-			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
-			for (PeptideAccessor peptide : peptides) {
-				ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, spectrumID, peptide.getSequence());
-				for (Long proteinID : proteinIDs) {
-					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
-				}
-				libSpectra.add(libSpec);
-			}
+			PeptideAccessor peptide = PeptideAccessor.findFromID(peptideID, conn);
+			ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
+			LibrarySpectrum libSpec = new LibrarySpectrum(mgf, spectrumID, peptide.getSequence());
+			//FIXME!
+//			for (Long proteinID : proteinIDs) {
+//				ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+//				String header = protein.getSource() + "|" + protein.getAccession() + "|" + protein.getDescription();
+//				libSpec.addAnnotation(new Protein();
+//			}
+			libSpectra.add(libSpec);
 		}
 		
 		return libSpectra;
@@ -88,7 +86,7 @@ public class SpectrumExtractor {
 		
 		// Iterate the spectral library entries.
 		for (Libspectrum entry : entries) {
-			MascotGenericFile mgf = getUnzippedFile(entry.getLibspectrumid());
+			MascotGenericFile mgf = getMascotGenericFile(entry.getLibspectrumid(), conn);
 			// check whether annotations exist
 			long libSpecID = entry.getLibspectrumid();
 			// find peptides first
@@ -98,10 +96,11 @@ public class SpectrumExtractor {
 					// find protein annotations next
 					ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
 					LibrarySpectrum libSpec = new LibrarySpectrum(mgf, libSpecID, peptide.getSequence());
-					for (Long proteinID : proteinIDs) {
-						ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-						libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
-					}
+					// FIXME!
+//					for (Long proteinID : proteinIDs) {
+//						ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+//						libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
+//					}
 					spectra.add(libSpec);
 				}
 			} else {
@@ -130,44 +129,37 @@ public class SpectrumExtractor {
 		// Iterate the spectral library entries.
 		for (Spec2pep entry : entries) {
 			long spectrumID = entry.getFk_spectrumid();
-			MascotGenericFile mgf = getUnzippedFile(spectrumID);
+			MascotGenericFile mgf = getMascotGenericFile(spectrumID, conn);
 			// get list of proteins from list of peptides and gather annotations
 			long peptideID = entry.getFk_peptideid();
-			List<PeptideAccessor> peptides = PeptideAccessor.findFromID(peptideID, conn);
-			for (PeptideAccessor peptide : peptides) {
-				ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
-				LibrarySpectrum libSpec = new LibrarySpectrum(mgf, spectrumID, peptide.getSequence());
-				for (Long proteinID : proteinIDs) {
-					ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-					libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
-				}
-				libSpectra.add(libSpec);
-			}
+			PeptideAccessor peptide = PeptideAccessor.findFromID(peptideID, conn);
+			ArrayList<Long> proteinIDs = (ArrayList<Long>) Pep2prot.findProteinIDsFromPeptideID(peptide.getPeptideid(), conn);
+			LibrarySpectrum libSpec = new LibrarySpectrum(mgf, spectrumID, peptide.getSequence());
+			//FIXME!
+//			for (Long proteinID : proteinIDs) {
+//				ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+//				libSpec.addAnnotation(new Protein(protein.getAccession(), protein.getDescription()));
+//			}
+			libSpectra.add(libSpec);
 		}
 		
 		return libSpectra;
 	}
 	
 	/**
-	 * TODO: Modify for array spectrum functionality. 
-	 * Returns the unzipped file from the database.
-	 * @param spectrumID
-	 * @return
-	 * @throws SQLException
-	 * @throws IOException
+	 * Constructs a MascotGenericFile directly from the database.
+	 * @param spectrumID The spectrum id
+	 * @return The MascotGenericFile 
+	 * @throws SQLException when the retrieval did not succeed.
+	 * @throws IOException when the file could not be built.
 	 */
-	public MascotGenericFile getUnzippedFile(long spectrumID) throws SQLException, IOException{		
-		MascotGenericFile res;
+	public static MascotGenericFile getMascotGenericFile(long spectrumID, Connection conn) throws SQLException, IOException{
+		Spectrum spectrum = Spectrum.findFromSpectrumID(spectrumID, conn);
+		MascotGenericFile res = null;
 		
-		PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
-				"WHERE " + Spectrum.SPECTRUMID + " = ?");
-		ps.setLong(1, spectrumID);
-		
-		ResultSet rs = ps.executeQuery();
-		res = new MascotGenericFile(rs);
-		rs.close();
-		ps.close();
-		
+		if (spectrum != null){
+			res = new MascotGenericFile(spectrum);
+		}
 		return res;
 	}
 	

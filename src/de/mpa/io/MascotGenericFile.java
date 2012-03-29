@@ -26,6 +26,8 @@ import java.util.TreeSet;
 
 import com.compomics.util.interfaces.SpectrumFile;
 
+import de.mpa.db.accessor.Spectrum;
+
 /**
  * This class maps a Mascot Generic File to memory. It allows for search and retrieval as well as comparing
  * functionality.
@@ -164,7 +166,7 @@ public class MascotGenericFile implements SpectrumFile {
             this.iFilename = aFilename.getName();
         }
     }
-
+    
     /**
      * This constructor takes filename and title strings, a peak map as well as a double and an integer denoting precursor m/z and charge.
      * 
@@ -181,7 +183,19 @@ public class MascotGenericFile implements SpectrumFile {
         this.iPrecursorMz = aPrecursorMz;
         this.iCharge = aCharge;
     }
-
+    
+    /**
+     * The constructor takes directly the spectrum DAO object.
+     * @param spectrum The spectrum accessor DAO object. 
+     */
+    public MascotGenericFile(Spectrum spectrum) {
+    	this.iTitle = spectrum.getTitle();
+		this.iPrecursorMz = spectrum.getPrecursor_mz().doubleValue();
+		this.iIntensity = spectrum.getPrecursor_int().doubleValue();
+		this.iCharge = (int) spectrum.getPrecursor_charge();
+		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getMzarray()),
+				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getIntarray()));
+	}
     /**
      * This constructor takes a result set from an SQL query.
      * 

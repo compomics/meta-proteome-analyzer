@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FastaLoader {
+public class FastaFilter {
 	
 	public static void main(String[] args) {
 //		FastaDB fastaDB = FastaLoader.read(new File("C:/Documents and Settings/kohrs/My Documents/Downloads/uniprot_sprot.fasta"));

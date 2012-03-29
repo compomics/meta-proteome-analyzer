@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -42,6 +41,7 @@ public class DBSearchPanel extends JPanel {
 	private JButton mascotSetBtn;
 	private JComboBox searchTypeCbx;
 	private ClientFrame clientFrame;
+	private DbSearchSettings settings;
 	
 	/**
 	 * The default database search panel constructor.
@@ -230,7 +230,7 @@ public class DBSearchPanel extends JPanel {
 	 * @return The database search settings.
 	 */
 	public DbSearchSettings collectDBSearchSettings() {
-		DbSearchSettings settings = new DbSearchSettings();
+		settings = new DbSearchSettings();
 		settings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
 		settings.setFragmentIonTol((Double) fragTolSpn.getValue());
 		settings.setPrecursorIonTol((Double) precTolSpn.getValue());
@@ -247,4 +247,16 @@ public class DBSearchPanel extends JPanel {
 		settings.setExperimentid(clientFrame.getProjectPnl().getCurrentExperimentId());
 		return settings;
 	}
+	
+	/**
+	 * Returns the database settings.
+	 * @return The DbSearchSettings.
+	 */
+	public DbSearchSettings getSettings() {
+		return settings;
+	}
+	
+	
+	
+	
 }

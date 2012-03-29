@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Inspecthit extends InspecthitTableAccessor{
+public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
 	
 	private String sequence;
 	private String accession;
@@ -41,7 +41,7 @@ public class Inspecthit extends InspecthitTableAccessor{
      */
     public static List<Inspecthit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Inspecthit> temp = new ArrayList<Inspecthit>();
-    	PreparedStatement ps = aConn.prepareStatement("select i.*, p.sequence, pr.accession from inspecthit i, peptide p, protein pr, pep2prot p2p where i.fk_peptideid = p.peptideid and i.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinsid = pr.proteinid and i.fk_spectrumid = ?");
+    	PreparedStatement ps = aConn.prepareStatement("select i.*, p.sequence, pr.accession from inspecthit i, peptide p, protein pr, pep2prot p2p where i.fk_peptideid = p.peptideid and i.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and i.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -58,5 +58,9 @@ public class Inspecthit extends InspecthitTableAccessor{
 
 	public String getAccession() {
 		return accession;
+	}
+
+	public Number getQvalue() {
+		return iP_value;
 	}
 }

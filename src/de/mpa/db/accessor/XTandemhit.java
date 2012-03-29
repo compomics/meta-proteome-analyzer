@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XTandemhit extends XtandemhitTableAccessor {
+public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	private String sequence = null;
 	private String accession = null;
 	
@@ -34,7 +34,7 @@ public class XTandemhit extends XtandemhitTableAccessor {
      */
     public static List<XTandemhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<XTandemhit> temp = new ArrayList<XTandemhit>();
-        PreparedStatement ps = aConn.prepareStatement("select x.*, p.sequence, pr.accession from xtandemhit x, peptide p, protein pr, pep2prot p2p where x.fk_peptideid = p.peptideid and x.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinsid = pr.proteinid and x.fk_spectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement("select x.*, p.sequence, pr.accession from xtandemhit x, peptide p, protein pr, pep2prot p2p where x.fk_peptideid = p.peptideid and x.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and x.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -52,5 +52,14 @@ public class XTandemhit extends XtandemhitTableAccessor {
 
 	public String getAccession() {
 		return accession;
+	}
+
+	public long getFk_searchspectrumid() {
+		return iFk_spectrumid;
+	}
+	
+	public long getCharge(){
+		//TODO: Include the appropriate charge in the DB.
+		return 2;
 	}
 }

@@ -1,11 +1,15 @@
 package de.mpa.client.ui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -24,6 +28,7 @@ import com.jgoodies.looks.Options;
 import de.mpa.client.Client;
 import de.mpa.client.ServerConnectionSettings;
 import de.mpa.db.DbConnectionSettings;
+import de.mpa.io.ResultExporter;
 
 public class ClientFrameMenuBar extends JMenuBar {
 	
@@ -39,15 +44,25 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JPasswordField dbPassTtf;
 	private JLabel dbConnTestLbl;
 	private JPanel dbPnl;
-
+	private String lastSelectedFolder = System.getProperty("user.home");
+	private JMenuItem exportPeptideItem;
+	private JMenuItem exportPSMItem;
+	private JMenuItem exportProteinsItem;
+	
+	/**
+	 * Constructs the client frame menu bar and initializes the components.
+	 * @param clientFrame The client frame. 
+	 */
 	public ClientFrameMenuBar(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
 		this.client = clientFrame.getClient();
 		initComponents();
 	}
-
+	
+	/**
+	 * Initializes the components.
+	 */
 	private void initComponents() {
-		
 		this.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
 
 		// File Menu
@@ -123,6 +138,46 @@ public class ClientFrameMenuBar extends JMenuBar {
 		settingsMenu.add(serverItem);
 		this.add(settingsMenu);
 
+		// Export menu
+		JMenu exportMenu = new JMenu();
+		exportMenu.setText("Export");
+		// Export proteins
+		exportProteinsItem = new JMenuItem();
+		exportProteinsItem.setText("Protein Results");
+		exportProteinsItem.setEnabled(false);
+		exportProteinsItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				exportResults(evt);
+			}
+		});
+		exportMenu.add(exportProteinsItem);
+		//Export peptides
+		exportPeptideItem = new JMenuItem();
+		exportPeptideItem.setText("Peptide Results");
+		exportPeptideItem.setEnabled(false);
+		exportPeptideItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO: @Fabi Export peptide results.
+			}
+		});
+		exportMenu.add(exportPeptideItem);
+		// Export psm
+		exportPSMItem = new JMenuItem();
+		exportPSMItem.setText("PSM Results");
+		exportPSMItem.setEnabled(false);
+		exportPSMItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO: @Fabi Export PSM results.
+			}
+		});
+		exportMenu.add(exportPSMItem);
+		
+		// Add export menu to menubar.
+		this.add(exportMenu);
+		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
 		helpMenu.setText("Help");
@@ -330,7 +385,90 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 
 		srvPnl.add(startBtn, cc.xyw(2,5,3));
-		
 		return srvPnl;
 	}
+	
+	/**
+	 * Exports the results.
+	 * @param evt The ActionEvent evt
+	 */
+    private void exportResults(ActionEvent evt) {
+        JFileChooser chooser = new JFileChooser(lastSelectedFolder);
+        chooser.setFileFilter(new CsvFileFilter());
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setDialogTitle("Export Spectra File Details");
+        File selectedFile;
+
+        int returnVal = chooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+            selectedFile = chooser.getSelectedFile();
+
+            if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+            }
+
+            while (selectedFile.exists()) {
+                int option = JOptionPane.showConfirmDialog(this, "The  file " + chooser.getSelectedFile().getName()
+                        + " already exists. Replace file?", "Replace File?", JOptionPane.YES_NO_CANCEL_OPTION);
+
+                if (option == JOptionPane.NO_OPTION) {
+                    chooser = new JFileChooser(lastSelectedFolder);
+                    chooser.setFileFilter(new CsvFileFilter());
+                    chooser.setMultiSelectionEnabled(false);
+                    chooser.setDialogTitle("Export matchted fragment ions");
+                    returnVal = chooser.showSaveDialog(this);
+
+                    if (returnVal == JFileChooser.CANCEL_OPTION) {
+                        return;
+                    } else {
+                        selectedFile = chooser.getSelectedFile();
+
+                        if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
+                            selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+                        }
+                    }
+                } else { // YES option
+                    break;
+                }
+            }
+            this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
+            try {
+                selectedFile = chooser.getSelectedFile();
+
+                if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
+                    selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+                }
+
+                if (selectedFile.exists()) {
+                    selectedFile.delete();
+                }
+                selectedFile.createNewFile();
+                ResultExporter.exportProteins(selectedFile.getPath(), client.getExperimentResult());
+                lastSelectedFolder = selectedFile.getPath();
+
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "An error occured when exporting the fragment ion matches.",
+                        "Error Exporting Fragment Ion Matches",
+                        JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this, "Successfully exported the fragment ion matches to the file " + selectedFile.getName() + ".", "Export successful!",
+    	            JOptionPane.INFORMATION_MESSAGE);
+            this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+    
+    /**
+     * Enables the export functionalities.
+     * @param enabled The state of the export menu items.
+     */
+    public void setExportResultsEnabled(boolean enabled){
+    	exportProteinsItem.setEnabled(enabled);
+    	//TODO ADD 
+    	//exportPeptideItem.setEnabled(enabled);
+    	//exportPSMItem.setEnabled(enabled);
+    }
 }

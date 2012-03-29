@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,13 @@ import org.apache.log4j.Logger;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.RankedLibrarySpectrum;
-import de.mpa.client.model.DbSearchResult;
 import de.mpa.client.model.DenovoSearchResult;
+import de.mpa.client.model.ExperimentContent;
+import de.mpa.client.model.ExperimentResult;
 import de.mpa.client.model.PeptideHit;
+import de.mpa.client.model.PeptideSpectrumMatch;
+import de.mpa.client.model.ProjectContent;
 import de.mpa.client.model.ProteinHit;
-import de.mpa.client.model.ProteinHitSet;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.SpectrumTree;
@@ -43,6 +46,8 @@ import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.SearchHit;
+import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectralSearchCandidate;
@@ -93,6 +98,8 @@ public class Client {
      *  Property change support for notifying the gui about new messages.
      */
     private PropertyChangeSupport pSupport;
+
+	private ExperimentResult experimentResult;
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -315,11 +322,11 @@ public class Client {
 	}
 	
 	/**
-	 * Returns the result(s) from the database search performed on the server.
-	 * @param file The query file.
+	 * Returns the result(s) from the database search for a particular experiment.
+	 * @param experimentid The experiment id
 	 * @return DbSearchResult
 	 */
-	public DbSearchResult getDbSearchResult(File file){
+	public void retrieveExperimentResult(ProjectContent projContent,ExperimentContent expContent){
 		// Init the database connection.
 		try {
 			initDBConnection();
@@ -327,136 +334,116 @@ public class Client {
 			e1.printStackTrace();
 		}
 		
-		DbSearchResult result = null;
-		
-		MascotGenericFileReader mgfReader;
-		List<MascotGenericFile> mgfFiles = null;
-		try {
-			// Get the query spectra.
-			mgfReader = new MascotGenericFileReader(file);
-			mgfFiles = mgfReader.getSpectrumFiles();
-			
-			// Initialize the result set.
-			result = new DbSearchResult();
-			List<Spectrum> querySpectra = new ArrayList<Spectrum>();
-			Map<String, List<XTandemhit>> xTandemResults = new HashMap<String, List<XTandemhit>>();
-			Map<String, List<Omssahit>> omssaResults = new HashMap<String, List<Omssahit>>();
-			Map<String, List<Cruxhit>> cruxResults = new HashMap<String, List<Cruxhit>>();
-			Map<String, List<Inspecthit>> inspectResults = new HashMap<String, List<Inspecthit>>();
-			Map<String, Integer> voteMap = new HashMap<String, Integer>();
-			List<ProteinHit> proteins = new ArrayList<ProteinHit>();
+		try {			
+			// The protein hit set, containing all information about found proteins.
+			experimentResult = new ExperimentResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
 			
 			// Iterate over query spectra and get the different identification result sets
-			for (MascotGenericFile mgf : mgfFiles) {
-				Spectrum spectrum = Spectrum.findFromTitle(mgf.getTitle(), conn);
-				querySpectra.add(spectrum);
-				long spectrumID = spectrum.getSpectrumid();
+			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
+			
+			//TODO: Get search date from run table
+			Date searchDate = null;
+			for (Searchspectrum searchSpectrum : searchSpectra) {
 				
-				String spectrumname = spectrum.getTitle();
-				int votes = 0;
+				long searchSpectrumId = searchSpectrum.getSearchspectrumid();
+				
 				// X!Tandem
-				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(spectrumID, conn);
+				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(searchSpectrumId, conn);
 				if(xtandemList.size() > 0) {
-					xTandemResults.put(spectrumname, xtandemList);
 					for (XTandemhit hit : xtandemList) {
-						ProteinHit protHit = new ProteinHit(hit.getAccession());
-						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
-						for (PeptideAccessor peptide : peptides) {
-							PeptideHit pepHit = new PeptideHit(peptide.getSequence(), (int) hit.getStart(), (int) hit.getEnd());
-							protHit.setPeptideHit(pepHit);
-							proteins.add(protHit);
-						}
+						addProteinSearchHit(hit);
 					}
-					votes++;
+					
+					// Set creation date
+					if(searchDate == null){
+						experimentResult.setSearchDate(xtandemList.get(0).getCreationdate());
+					}
 				}
+				
 				// Omssa
-				List<Omssahit> omssaList = Omssahit.getHitsFromSpectrumID(spectrumID, conn);
+				List<Omssahit> omssaList = Omssahit.getHitsFromSpectrumID(searchSpectrumId, conn);
 				if(omssaList.size() > 0) {
-					omssaResults.put(spectrumname, omssaList);
 					for (Omssahit hit : omssaList) {
-						ProteinHit protHit = new ProteinHit(hit.getAccession());
-						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
-						for (PeptideAccessor peptide : peptides) {
-							PeptideHit pepHit = new PeptideHit(peptide.getSequence());
-							protHit.setPeptideHit(pepHit);
-							proteins.add(protHit);
-						}
+						addProteinSearchHit(hit);
 					}
-					votes++;
 				}
 				// Crux
-				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(spectrumID, conn);				
+				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(searchSpectrumId, conn);				
 				if(cruxList.size() > 0) {
-					cruxResults.put(spectrumname, cruxList);
-					for (Cruxhit hit : cruxList) {
-						ProteinHit protHit = new ProteinHit(hit.getAccession());
-						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
-						for (PeptideAccessor peptide : peptides) {
-							PeptideHit pepHit = new PeptideHit(peptide.getSequence());
-							protHit.setPeptideHit(pepHit);
-							proteins.add(protHit);
-						}
-					}
-					votes++;
+					//cruxResults.put(spectrumname, cruxList);
+//					for (Cruxhit hit : cruxList) {
+//						// TODO: addProteinSearchHit(hit);
+//					}
 				}
 				// Inspect
-				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(spectrumID, conn);		
+				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(searchSpectrumId, conn);		
 				if(inspectList.size() > 0) {
-					inspectResults.put(spectrumname, inspectList);
+					//inspectResults.put(spectrumname, inspectList);
 					for (Inspecthit hit : inspectList) {
-						ProteinHit protHit = new ProteinHit(hit.getAccession());
-						List<PeptideAccessor> peptides = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
-						for (PeptideAccessor peptide : peptides) {
-							PeptideHit pepHit = new PeptideHit(peptide.getSequence());
-							protHit.setPeptideHit(pepHit);
-							proteins.add(protHit);
-						}
+						addProteinSearchHit(hit);
 					}
-					votes++;
 				}
-				voteMap.put(spectrumname, votes);
 			}
-			
-			// Set the results.
-			result.setQuerySpectra(querySpectra);
-			result.setxTandemResults(xTandemResults);
-			result.setOmssaResults(omssaResults);
-			result.setCruxResults(cruxResults);
-			result.setInspectResults(inspectResults);
-			result.setVoteMap(voteMap);
-			result.setProteins(getAnnotatedProteins(proteins));
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
+		}  catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return result;
 	}
 	
 	/**
-	 * Get the annotated protein list.
-	 * @param proteinHits
+	 * Returns the current experiment result.
+	 * @param projContent 
+	 * @param expContent
+	 * @return
+	 */
+	public ExperimentResult getExperimentResult(ProjectContent projContent,ExperimentContent expContent) {
+		if(experimentResult == null) {
+			retrieveExperimentResult(projContent, expContent);
+		}
+		return experimentResult;
+	}
+	
+	/**
+	 * Returns the current experiment result.
+	 * @return experimentResult The current experiment result.
+	 */
+	public ExperimentResult getExperimentResult() {
+		return experimentResult;
+	}
+
+	/**
+	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
+	 * @param hit The search hit implementation.
+	 * @throws SQLException when the retrieval did not succeed.
+	 */
+	private void addProteinSearchHit(SearchHit hit) throws SQLException{
+		
+		// Create the PeptideSpectrumMatch
+		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
+		
+		// Get the peptide hit.
+		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
+		PeptideHit peptideHit = new PeptideHit(peptide.getSequence(), psm);
+		
+		// Get the protein accessor.
+		ProteinAccessor protein = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
+		
+		// Add a new protein to the protein hit set.
+		experimentResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), peptideHit));
+	}
+	
+	/**
+	 * TODO: API!
+	 * @param experimentID
 	 * @return
 	 * @throws SQLException
 	 */
-	private ProteinHitSet getAnnotatedProteins(List<ProteinHit> proteinHits) throws SQLException {
-		ProteinHitSet proteins = new ProteinHitSet();
-		for (ProteinHit proteinHit : proteinHits) {
-			ProteinAccessor protein = ProteinAccessor.findFromAttributes(proteinHit.getAccession(), conn);
-			proteinHit.setDescription(protein.getDescription());
-			proteins.addProtein(proteinHit);
-		}
-		return proteins;
-	}
-	
 	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
 	}
 	
 	/**
-	 * Process
+	 * TODO: API!
 	 * @param file
 	 * @param procSet
 	 * @param processWorker 
