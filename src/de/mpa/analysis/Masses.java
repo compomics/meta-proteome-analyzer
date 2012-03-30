@@ -1,4 +1,4 @@
-package de.mpa.fragmentation;
+package de.mpa.analysis;
 
 import java.util.HashMap;
 import java.util.Map;

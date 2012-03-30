@@ -35,7 +35,7 @@ public class ProteinExportTest extends TestCase{
 		PeptideHit peptideHit = new PeptideHit("ALGDLR", psm);
 		PeptideHit peptideHit2 = new PeptideHit("KLLRDR", psm2);
 		ProteinHit proteinHit = new ProteinHit("A0G921",
-				"Thilo Do this yourself", peptideHit);
+				"Thilo Do this yourself", "", peptideHit);
 		proteinHit.addPeptideHit(peptideHit2);
 		expResult = new ExperimentResult("ProjectX", "Experiment Blah", "uniprot.fasta");
 		expResult.addProtein(proteinHit);

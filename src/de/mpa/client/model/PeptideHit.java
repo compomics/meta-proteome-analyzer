@@ -52,6 +52,7 @@ public class PeptideHit {
 		this.start = start;
 		this.end = end;
 	}
+	
 	/**
 	 * Returns the peptide sequence.
 	 * @return the sequence
@@ -93,6 +94,22 @@ public class PeptideHit {
 		return end;
 	}
 	
+	/**
+	 * Sets the start position of the peptide.	
+	 * @param start The start position of the peptide.
+	 */
+	public void setStart(int start) {
+		this.start = start;
+	}
+	
+	/**
+	 * Sets the end position of the peptide.
+	 * @param end The end position of the peptide.
+	 */
+	public void setEnd(int end) {
+		this.end = end;
+	}
+
 	/**
 	 * Adds a peptide spectrum match to the PeptideHit.
 	 * @param psm The peptide spectrum map.

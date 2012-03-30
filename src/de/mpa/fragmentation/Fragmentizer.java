@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.mpa.analysis.Masses;
+
 /**
  * This class is used to do a calculation for the theoretical masses of
  * a, b, c, x, y and z ions (plus double charged ones) and do the matching

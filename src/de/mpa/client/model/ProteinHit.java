@@ -1,5 +1,7 @@
 package de.mpa.client.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -37,6 +39,11 @@ public class ProteinHit {
 	private int specCount;
 	
 	/**
+	 * The sequence of the protein.
+	 */
+	private String sequence;
+	
+	/**
 	 * TODO: Coverage!
 	 */
 	private double coverage;
@@ -46,14 +53,14 @@ public class ProteinHit {
 	 */
 	private double nSAF;
 	
-	
 	/**
 	 * Constructor for a simple protein hit with accesion only.
 	 * @param accession
 	 */
-	public ProteinHit(String accession, String description, PeptideHit peptideHit){
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit){
 		this.accession = accession;
 		this.description = description;
+		this.sequence = sequence;
 		this.peptideHits = new TreeMap<String, PeptideHit>();
 		this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 	}
@@ -81,6 +88,30 @@ public class ProteinHit {
 		return molWeight;
 	}
 	
+	/**
+	 * Sets the molecular weight of the protein.
+	 * @param molWeight The molecular weight of the protein.
+	 */
+	public void setMolWeight(double molWeight) {
+		this.molWeight = molWeight;
+	}
+	
+	/**
+	 * Gets the sequence.
+	 * @return The protein sequence.
+	 */
+	public String getSequence() {
+		return sequence;
+	}
+	
+	
+	/**
+	 * Sets the protein sequence
+	 * @param sequence The sequence of the protein.
+	 */
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
+	}
 	/**
 	 * Returns the sequence coverage.
 	 * @return The sequence coverage
@@ -144,6 +175,14 @@ public class ProteinHit {
 	 */
 	public TreeMap<String, PeptideHit> getPeptideHits() {
 		return peptideHits;
+	}
+	
+	/**
+	 * Returns the peptide hits as list.
+	 * @return The peptide hits as list.
+	 */
+	public List<PeptideHit> getPeptideHitList(){
+		return new ArrayList<PeptideHit>(peptideHits.values());
 	}
 	
 	/**

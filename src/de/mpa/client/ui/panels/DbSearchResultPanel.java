@@ -53,17 +53,18 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.Masses;
 import de.mpa.client.model.ExperimentResult;
 import de.mpa.client.model.PeptideHit;
 import de.mpa.client.model.PeptideSpectrumMatch;
 import de.mpa.client.model.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.fragmentation.FragmentIon;
 import de.mpa.fragmentation.Fragmentizer;
-import de.mpa.fragmentation.Masses;
 import de.mpa.io.MascotGenericFile;
 
 public class DbSearchResultPanel extends JPanel{
@@ -94,11 +95,10 @@ public class DbSearchResultPanel extends JPanel{
 	private Vector<DefaultSpectrumAnnotation> currentAnnotations;
 	private JPanel spectrumJPanel;
 	private AbstractButton precursorJCheckBox;
-	private ListSelectionModel selectionModel;
 	private int maxSpectralCount;
 	private int maxPeptideCount;
 	private int maxPeptideSpectraCount;
-	
+	private JButton getResultsBtn;
 
 	public DbSearchResultPanel(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
@@ -138,13 +138,13 @@ public class DbSearchResultPanel extends JPanel{
 		psmTableScp.setViewportView(psmTbl);
 		psmTableScp.setPreferredSize(new Dimension(350, 150));
 		
-		JButton updateBtn = new JButton("Get results");
+		getResultsBtn = new JButton("Get Results");
+		getResultsBtn.setEnabled(false);
 		JPanel topPnl = new JPanel(new FormLayout("p", "p:g"));
 		
-		topPnl.add(updateBtn, cc.xy(1, 1));
-		updateBtn.setPreferredSize(new Dimension(150, 20));
-	
-		updateBtn.addActionListener(new ActionListener() {
+		topPnl.add(getResultsBtn, cc.xy(1, 1));
+		getResultsBtn.setPreferredSize(new Dimension(150, 20));
+		getResultsBtn.addActionListener(new ActionListener() {
 	
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -229,6 +229,7 @@ public class DbSearchResultPanel extends JPanel{
 		});
 		proteinTbl.getColumn(" ").setMinWidth(30);
 		proteinTbl.getColumn(" ").setMaxWidth(30);
+		proteinTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		proteinTbl.getColumn("Accession").setMinWidth(70);
 		proteinTbl.getColumn("Accession").setMaxWidth(70);
 		proteinTbl.getColumn("Peptide Count").setMinWidth(110);
@@ -300,6 +301,7 @@ public class DbSearchResultPanel extends JPanel{
 		});
 		peptideTbl.getColumn(" ").setMinWidth(30);
 		peptideTbl.getColumn(" ").setMaxWidth(30);
+		peptideTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		peptideTbl.getColumn("Sequence").setMinWidth(70);
 //		peptideTbl.getColumn("Sequence").setMaxWidth(70);
 		peptideTbl.getColumn("No. Spectra").setMinWidth(100);
@@ -355,13 +357,10 @@ public class DbSearchResultPanel extends JPanel{
 		});
 		psmTbl.getColumn(" ").setMinWidth(30);
 		psmTbl.getColumn(" ").setMaxWidth(30);
-//		psmTbl.getColumn("Sequence").setMinWidth(70);
-//		psmTbl.getColumn("Sequence").setMaxWidth(70);
+		psmTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		psmTbl.getColumn("z").setMinWidth(40);
 		psmTbl.getColumn("z").setMaxWidth(40);
-//		psmTbl.getColumn("Score").setMinWidth(100);
-//		psmTbl.getColumn("Score").setMaxWidth(100);
-		
+		psmTbl.getColumn("z").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
 		
 		psmTbl.addMouseListener(new java.awt.event.MouseAdapter() {
 			
@@ -470,9 +469,8 @@ public class DbSearchResultPanel extends JPanel{
 		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 
 		int row = peptideTbl.getSelectedRow();
-
 		// Condition if one row is selected.
-		if (row > 0) {
+		if (row != -1) {
 
 			// Empty tables.
 			clearPsmResultTable();
@@ -520,7 +518,7 @@ public class DbSearchResultPanel extends JPanel{
 		int row = psmTbl.getSelectedRow();
 		
 		// Condition if one row is selected.
-		if (row > 0) {
+		if (row != -1) {
 
 			// Empty spectrum panel.
             while (spectrumJPanel.getComponents().length > 0) {
@@ -530,7 +528,7 @@ public class DbSearchResultPanel extends JPanel{
 			PeptideSpectrumMatch psm = currentPsms.get(Integer.valueOf(psmTbl.getValueAt(row, 0).toString()));
 			
 			// Calculate fragmentIons
-			Fragmentizer insilicoDigester = new Fragmentizer(currentSelectedPeptide, Masses.getMap(), psm.getCharge());
+			Fragmentizer fragmentizer = new Fragmentizer(currentSelectedPeptide, Masses.getMap(), psm.getCharge());
 			
 			
 			// Get the mascot generic file directly from the database.
@@ -542,7 +540,7 @@ public class DbSearchResultPanel extends JPanel{
 		        spectrumJPanel.validate();
 		        spectrumJPanel.repaint();
 
-				addSpectrumAnnotations(insilicoDigester.getFragmentIons());
+				addSpectrumAnnotations(fragmentizer.getFragmentIons());
 				
 			} catch (SQLException sqe) {
 				GeneralExceptionHandler.showSQLErrorDialog(sqe, clientFrame);
@@ -978,5 +976,11 @@ public class DbSearchResultPanel extends JPanel{
 			((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("Peptide Count").getCellRenderer()).showNumberAndChart(true, 20, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
 		}
 	}
-
+	
+	/**
+	 * This method enables the get results button.
+	 */
+	public void setResultsBtnEnabled(boolean enabled){
+		getResultsBtn.setEnabled(enabled);
+	}
 }

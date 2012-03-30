@@ -46,6 +46,7 @@ public class FastaLoader {
 	 * @return instance FastaLoader object.
 	 */
 	public static FastaLoader getInstance() {
+		// Lazy instantation
 		if (instance == null) {
 			instance = new FastaLoader();
 		}

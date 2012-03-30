@@ -61,7 +61,9 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	protected String iDescription = null;
 
-
+	
+	protected String iSequence = null;
+	
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
@@ -177,6 +179,14 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public String getDescription() {
 		return this.iDescription;
+	}
+	
+	/**
+	 * Returns the protein sequence.
+	 * @return
+	 */
+	public String getSequence() {
+		return iSequence;
 	}
 
 	/**
