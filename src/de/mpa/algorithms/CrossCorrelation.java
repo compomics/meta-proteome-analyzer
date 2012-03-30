@@ -76,6 +76,9 @@ public class CrossCorrelation implements SpectrumComparator {
 	public CrossCorrelation(Vectorization vect, Transformation trafo) {
 		this.vect = vect;
 		this.trafo = trafo;
+		// FIXME: write proper constructor?
+		this.offsets = 75;
+		this.binWidth = 1.0;
 	}
 
 	@Override

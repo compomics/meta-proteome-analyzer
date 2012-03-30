@@ -5,79 +5,65 @@ import java.util.Map.Entry;
 
 import de.mpa.interfaces.SpectrumComparator;
 
-public class NormalizedDotProduct implements SpectrumComparator {
-	
-	/**
-	 * The input vectorization method.
-	 */
+public class EuclideanDistance implements SpectrumComparator {
+
 	private Vectorization vect;
-	
-	/**
-	 * The input transformation method.
-	 */
 	private Transformation trafo;
-
-	/**
-	 * The peak map of the source spectrum.
-	 */
-	private Map<Double, Double> peaksSrc; 
+	private Map<Double, Double> peaksSrc;
+	private double magSrc;
+	private double similarity;
 	
-	/**
-	 * The similarity score between source spectrum and target spectrum.
-	 * Ranges between 0.0 and 1.0.
-	 */
-	private double similarity = 0.0;
+//	private final double sqrt2 = Math.sqrt(2.0);
 
-	/**
-	 * The squared magnitude of the source intensity vector.
-	 */
-	private double denom1;
-	
 	/**
 	 * Class constructor specifying vectorization and data transformation methods.
 	 * @param vect
 	 * @param trafo
 	 */
-	public NormalizedDotProduct(Vectorization vect, Transformation trafo) {
+	public EuclideanDistance(Vectorization vect, Transformation trafo) {
 		this.vect = vect;
 		this.trafo = trafo;
 	}
 	
 	@Override
 	public void prepare(Map<Double, Double> inputPeaksSrc) {
-
+		
 		// bin source spectrum
 		peaksSrc = vect.vectorize(inputPeaksSrc, trafo);
-
-		denom1 = 0.0;
-		for (double intenSrc : peaksSrc.values()) { denom1 += intenSrc * intenSrc; }
 		
+		// calculate squared magnitude of source intensity vector
+		magSrc = 0.0;
+		for (double intenSrc : peaksSrc.values()) {
+			magSrc += intenSrc * intenSrc;
+		}
 	}
-	
+
 	@Override
 	public void compareTo(Map<Double, Double> inputPeaksTrg) {
 
 		// bin target spectrum
 		Map<Double, Double> peaksTrg = vect.vectorize(inputPeaksTrg, trafo);
 		
-		// calculate dot product
-		double numer = 0.0, denom2 = 0.0;
+		// calculate euclidean distance
+		double distance = magSrc;
 		for (Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
 			double intenTrg = peakTrg.getValue();
 			Double intenSrc = peaksSrc.get(peakTrg.getKey());
-			if (intenSrc != null) {
-				numer += intenSrc * intenTrg;
+			if (intenSrc == null) { 
+				intenSrc = 0.0;
+			} else {
+				distance -= intenSrc * intenSrc;
 			}
-			denom2 += intenTrg * intenTrg;
+			double delta = intenTrg - intenSrc;
+			distance += delta * delta;
 		}
 		
-		// normalize score
-		this.similarity = numer / Math.sqrt(denom1 * denom2);
+		this.similarity = Math.sqrt(distance);
+//		this.similarity = 1.0 - (Math.sqrt(distance)/sqrt2);
 	}
 
 	@Override
 	public void cleanup() {
-		this.vect.setInput(null);
 	}
 
 	@Override
