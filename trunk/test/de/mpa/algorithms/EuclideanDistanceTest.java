@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import junit.framework.TestCase;
 
 public class EuclideanDistanceTest extends TestCase {
 	

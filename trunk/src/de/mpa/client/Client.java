@@ -428,7 +428,7 @@ public class Client {
 		ProteinAccessor protein = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
 		
 		// Add a new protein to the protein hit set.
-		experimentResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), peptideHit));
+		experimentResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit));
 	}
 	
 	/**

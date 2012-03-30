@@ -523,6 +523,7 @@ public class ProjectPanel extends JPanel {
 			String projectTitle = projectManager.getProjectTitle(projectID);
 			selProjectTtf.setText(projectTitle);
 			clientFrame.getStatusBar().getProjectTextField().setText(projectTitle);
+			
 			currentProjContent.setProjectTitle(projectTitle); 
 
 			// Clear the experiment table
@@ -580,7 +581,7 @@ public class ProjectPanel extends JPanel {
 		fillCurrentExperimentContent();
 		selExperimentTtf.setText(currentExperimentContent.getExperimentTitle());
 		clientFrame.getStatusBar().getExperimentTextField().setText(currentExperimentContent.getExperimentTitle());
-		
+		clientFrame.getDbSearchResultPnl().setResultsBtnEnabled(true);
 		// Enable buttons
 		modifyExperimentBtn.setEnabled(true);
 		deleteExperimentBtn.setEnabled(true);

@@ -821,9 +821,17 @@ public class ClientFrame extends JFrame {
 	
 	/**
 	 * Returns the menu bar of the client frame.
-	 * @return menuBar The client frame menu bar.
+	 * @return The client frame menubar.
 	 */
 	public ClientFrameMenuBar getClienFrameMenuBar(){
 		return menuBar;
+	}
+	
+	/**
+	 * Returns the database search result panel.
+	 * @return The database search result panel.
+	 */
+	public DbSearchResultPanel getDbSearchResultPnl() {
+		return dbSearchResultPnl;
 	}
 }
