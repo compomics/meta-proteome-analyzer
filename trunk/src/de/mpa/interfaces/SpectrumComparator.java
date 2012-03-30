@@ -15,13 +15,13 @@ public interface SpectrumComparator {
 	 * supplied peak map depending on the chosen algorithm.
 	 * @param peaksSrc The peak map with which is compared.
 	 */
-	public void prepare(Map<Double, Double> peaksSrc);
+	public void prepare(Map<Double, Double> inputPeaksSrc);
 	
 	/**
 	 * Method to execute comparator algorithm.
 	 * @param peaksTrg The peak map which is to be searched against.
 	 */
-	public void compareTo(Map<Double, Double> peaksTrg);
+	public void compareTo(Map<Double, Double> inputPeaksTrg);
 
 	/**
 	 * Method to reset temporary variables to their defaults.

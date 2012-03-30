@@ -30,6 +30,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.CrossCorrelation;
+import de.mpa.algorithms.EuclideanDistance;
 import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.PearsonCorrelation;
 import de.mpa.algorithms.Transformation;
@@ -426,9 +427,12 @@ public class SpecLibSearchPanel extends JPanel {
 		JPanel scoringPnl = new JPanel();
 		scoringPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p, 5dlu, p"));
 
-		measureCbx = new JComboBox(new Object[] { "Cosine correlation",
+		measureCbx = new JComboBox(new Object[] {
+				"Euclidean distance",
+				"Cosine correlation",
 				"Pearson's correlation",
 				"Cross-correlation" });
+		measureCbx.setSelectedIndex(1);
 		measureCbx.addActionListener(refreshPlotListener);
 
 		// sub-sub-panel for further scoring parameters
@@ -465,11 +469,12 @@ public class SpecLibSearchPanel extends JPanel {
 				switch (measureCbx.getSelectedIndex()) {
 				case 0:
 				case 1:
+				case 2:
 					xCorrOffLbl.setEnabled(false);
 					xCorrOffSpn.setEnabled(false);
 					xCorrOffLbl2.setEnabled(false);
 					break;
-				case 2:
+				case 3:
 					xCorrOffLbl.setEnabled(true);
 					xCorrOffSpn.setEnabled(true);
 					xCorrOffLbl2.setEnabled(true);
@@ -552,17 +557,15 @@ public class SpecLibSearchPanel extends JPanel {
 		SpectrumComparator specComp = null;
 		switch (measureCbx.getSelectedIndex()) {
 		case 0:
-//			specComp = new NormalizedDotProduct((Double) binWidthSpn.getValue(),
-//					(Double) binShiftSpn.getValue(), trafo);
-			specComp = new NormalizedDotProduct(vect, trafo);
+			specComp = new EuclideanDistance(vect, trafo);
 			break;
 		case 1:
-			specComp = new PearsonCorrelation(vect, trafo);
+			specComp = new NormalizedDotProduct(vect, trafo);
 			break;
 		case 2:
-//			specComp = new CrossCorrelation((Double) binWidthSpn.getValue(),
-//					(Double) binShiftSpn.getValue(),
-//					(Integer) xCorrOffSpn.getValue(), trafo);
+			specComp = new PearsonCorrelation(vect, trafo);
+			break;
+		case 3:
 			specComp = new CrossCorrelation(vect, trafo);
 			break;
 		}

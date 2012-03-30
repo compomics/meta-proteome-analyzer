@@ -7,6 +7,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  * Helper class for JTable layout functionalities.
@@ -58,4 +59,27 @@ public class TableConfig {
 	public static void clearTable(JTable table){
 		((DefaultTableModel) table.getModel()).setRowCount(0);
 	}
+	
+	/**
+	 * 
+	 */
+	public static void setColumnWidths(JTable table, double[] weights) {
+		// normalize weights if needed
+		double sum = 0.0;
+		for (double weight : weights) {
+			sum += weight;
+		}
+		double tableWidth = table.getPreferredSize().width;
+		for (int i = 0; i < weights.length; i++) {
+			weights[i] *= tableWidth/sum;
+		}
+		// iterate columns
+		TableColumnModel tcm = table.getColumnModel();
+		for (int i = 0; i < weights.length; i++) {
+			TableColumn tc = tcm.getColumn(i);
+			tc.setPreferredWidth((int) (weights[i]));
+			tc.setMaxWidth(tc.getPreferredWidth()*10);
+		}
+	}
+	
 }

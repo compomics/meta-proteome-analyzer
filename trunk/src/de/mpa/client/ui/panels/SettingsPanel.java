@@ -90,7 +90,7 @@ public class SettingsPanel extends JPanel {
 		CellConstraints cc = new CellConstraints();
 
 		this.setLayout(new FormLayout("5dlu, p, 15dlu, p, 15dlu, p, 5dlu",
-									  "5dlu, f:p, 5dlu, f:p:g, 5dlu"));
+									  "5dlu, f:p, 5dlu, f:p, 5dlu, f:p:g, 5dlu"));
 		
 		// database search settings panel
 		databasePnl = new DBSearchPanel(clientFrame);
@@ -139,7 +139,7 @@ public class SettingsPanel extends JPanel {
 
 		// general settings panel
 		JPanel processPnl = new JPanel();
-		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, p:g, 2dlu, p, 5dlu",
+		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",
 											"0dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		processPnl.setBorder(BorderFactory.createTitledBorder("General"));
 		
@@ -168,17 +168,17 @@ public class SettingsPanel extends JPanel {
 		});
 		
 		processPnl.add(new JLabel("Transfer"), cc.xy(2, 2));
-		processPnl.add(packSpn, cc.xyw(4, 2, 2));
-		processPnl.add(new JLabel("spectra per package"), cc.xy(7, 2));
-		processPnl.add(integrateChk, cc.xyw(2, 4, 6));
-		processPnl.add(processBtn, cc.xyw(5, 6, 3));
+		processPnl.add(packSpn, cc.xy(4, 2));
+		processPnl.add(new JLabel("spectra per package"), cc.xy(6, 2));
+		processPnl.add(integrateChk, cc.xyw(2, 4, 5));
+		processPnl.add(processBtn, cc.xyw(2, 6, 5));
 		
 		// add sub-panels to main settings panel
 		this.add(databasePnl, cc.xy(2, 2));
 		this.add(specLibPnl, cc.xy(4, 2));
 		this.add(deNovoPnl, cc.xy(6, 2));
 		this.add(processPnl, cc.xy(6, 4));
-		this.add(specLibPnl.getPreviewPnl(), cc.xyw(2, 4, 3));
+		this.add(specLibPnl.getPreviewPnl(), cc.xywh(2, 4, 3, 3));
 	}
 	
 

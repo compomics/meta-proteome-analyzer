@@ -18,7 +18,7 @@ public class PearsonCorrelation implements SpectrumComparator {
 	private Transformation trafo;
 
 	/**
-	 * The peak map of the source spectrum which gets auto-correlated during preparation.
+	 * The peak map of the source spectrum.
 	 */
 	private Map<Double, Double> peaksSrc; 
 	

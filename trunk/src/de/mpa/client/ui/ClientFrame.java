@@ -18,11 +18,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
@@ -41,6 +39,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -57,6 +56,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
@@ -110,13 +110,13 @@ public class ClientFrame extends JFrame {
 	public JButton sendBtn;
 	private ClientFrameMenuBar menuBar;
 	private boolean connectedToServer = false;
-	public  JTable libTbl;
+	public  JXTable libTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
 	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 	public MultiPlotPanel mPlot;
 	private ArrayList<RankedLibrarySpectrum> resultList;
 	private SpectrumTree queryTree;
-	public JTable protTbl;
+	public JXTable protTbl;
 	public JComboBox spectraCbx;
 	public JComboBox spectraCbx2;
 	private ClusterPanel clusterPnl;
@@ -295,27 +295,33 @@ public class ClientFrame extends JFrame {
 		queryTree.setRowHeight(new JCheckBox().getPreferredSize().height);
 
 		JScrollPane queryScpn = new JScrollPane(queryTree);
+		queryScpn.setBorder(null);
 		queryScpn.setPreferredSize(new Dimension(200, 400));
 		queryScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		JPanel leftPnl = new JPanel();
 		leftPnl.setLayout(new FormLayout("p:g",					// col
-										 "p, 5dlu, p, f:p:g"));	// row
-
-		JTable leftDummyTable = new JTable(null, new Vector<String>(Arrays.asList(new String[] {"Files"})));
-		leftDummyTable.getTableHeader().setReorderingAllowed(false);
-		leftDummyTable.getTableHeader().setResizingAllowed(false);
-		JScrollPane leftDummyScpn = new JScrollPane(leftDummyTable);
-		leftDummyScpn.setPreferredSize(leftDummyTable.getTableHeader().getPreferredSize());
+										 "p, 5dlu, f:p:g"));	// row
 
 		JLabel leftLbl = new JLabel("<html><font color=#ff0000>Query spectra</font></html>");
 		leftLbl.setPreferredSize(new Dimension(leftLbl.getPreferredSize().width,
 				new JButton(" ").getPreferredSize().height));
-		leftPnl.add(leftLbl, cc.xy(1,1));
-		leftPnl.add(leftDummyScpn, cc.xy(1,3));
-		leftPnl.add(queryScpn, cc.xy(1,4));
+		
+		JPanel leftInnerPnl = new JPanel(new FormLayout("p", "p, f:p:g"));
+		leftInnerPnl.setBorder(new JScrollPane().getBorder());
 
-		libTbl = new JTable(new DefaultTableModel() {
+		JLabel leftHeaderLbl = new JLabel("Files", SwingConstants.CENTER);
+		leftHeaderLbl.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEmptyBorder(0, 0, 0, (Integer) UIManager.get("ScrollBar.width")), 
+				UIManager.getBorder("TableHeader.cellBorder")));
+		
+		leftInnerPnl.add(leftHeaderLbl, cc.xy(1,1));
+		leftInnerPnl.add(queryScpn, cc.xy(1,2));
+		
+		leftPnl.add(leftLbl, cc.xy(1,1));
+		leftPnl.add(leftInnerPnl, cc.xy(1,3));
+
+		libTbl = new JXTable(new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {"#","Sequence","Score"}); }
 			public boolean isCellEditable(int row, int col) {
@@ -334,6 +340,7 @@ public class ClientFrame extends JFrame {
 				}
 			}
 		});
+		libTbl.setColumnControlVisible(true);
 		libTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		libTbl.setAutoCreateRowSorter(true);
 		libTbl.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
@@ -345,10 +352,8 @@ public class ClientFrame extends JFrame {
 			@Override
 			public Font getFont() { return font; }
 		});
-		
-		TableConfig.packColumn(libTbl, 0, 10);
-		libTbl.getColumnModel().getColumn(1).setPreferredWidth(1000);
-		TableConfig.packColumn(libTbl, 2, 10);
+
+		TableConfig.setColumnWidths(libTbl, new double[] {42, 163, 75});
 
 		// helper text field for use in table cell editor
 		JTextField editorTtf = new JTextField();
@@ -481,7 +486,7 @@ public class ClientFrame extends JFrame {
 		libPnl.add(expBtn, cc.xy(2,1));
 		libPnl.add(libScpn, cc.xyw(1,3,2));
 
-		protTbl = new JTable(new DefaultTableModel() {
+		protTbl = new JXTable(new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {"#","Accession","Description"}); }
 			public boolean isCellEditable(int row, int col) {
@@ -500,9 +505,11 @@ public class ClientFrame extends JFrame {
 				}
 			}
 		});
-		TableConfig.packColumn(protTbl, 0, 10);
-		TableConfig.packColumn(protTbl, 1, 10);
-		protTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
+		protTbl.setColumnControlVisible(true);
+		TableConfig.setColumnWidths(protTbl, new double[] {42, 75, 388});
+//		TableConfig.packColumn(protTbl, 0, 10);
+//		TableConfig.packColumn(protTbl, 1, 10);
+//		protTbl.getColumnModel().getColumn(2).setPreferredWidth(1000);
 
 		protTbl.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(editorTtf));
 		protTbl.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(editorTtf));
@@ -567,63 +574,58 @@ public class ClientFrame extends JFrame {
 					startTime = System.currentTimeMillis();
 					progressMade(curProgress);
 					StringBuilder sb = new StringBuilder(maxProgress*2);
-//					String row = "";
+					FileOutputStream fos = new FileOutputStream(new File("scores.csv"));
+//					GZIPOutputStream gzos = new GZIPOutputStream(fos);
+//					ObjectOutputStream oos = new ObjectOutputStream(gzos);
+					OutputStreamWriter osw = new OutputStreamWriter(fos);
+//					oos.writeDouble(candidates.size()+1.0);
 					int index = 0;
 					int id = 0;
 					for (SpectralSearchCandidate candidate : candidates) {
 						seq2index.put(candidate.getSequence() + candidate.getSpectrumID(), index);
 						String seq = candidate.getSequence() + candidate.getPrecursorCharge();
 						if (!seq2id.containsKey(seq)) { seq2id.put(seq, id++); }
-//						row += "\t" + candidate.getSequence() + candidate.getPrecursorCharge();
 						sb.append("\t" + seq2id.get(seq));
+//						oos.writeDouble(seq2id.get(seq));
 						index++;
 					}
 					sb.append("\n");
-					FileOutputStream fos = new FileOutputStream(new File("scores.csv"));
-					OutputStreamWriter osw = new OutputStreamWriter(fos);
-//					osw.write(sb.toString());
 					// traverse query tree
 					DefaultMutableTreeNode leafNode = queryRoot.getFirstLeaf();
 					while (leafNode != null) {
 						MascotGenericFile mgf = queryTree.getSpectrumAt(leafNode);
 						String seq = mgf.getTitle();
 						seq = seq.substring(0, seq.indexOf(" "));
-//						row = mgf.getTitle();
-//						row = row.substring(0, row.indexOf(" "));
-//						row += mgf.getCharge();
 						Integer id2 = seq2id.get(seq + mgf.getCharge());
 						sb.append(String.valueOf((id2 == null) ? -1 : id2));
-//						row = String.valueOf((id2 == null) ? -1 : id2);
+//						oos.writeDouble((id2 == null) ? -1 : id2);
 						resultList = resultMap.get(mgf.getTitle());
 						int oldIndex = 0;
 						for (RankedLibrarySpectrum rankedSpec : resultList) {
 							index = seq2index.get(rankedSpec.getSequence() + rankedSpec.getSpectrumID());
 							for (int i = oldIndex; i < index; i++) {
 								sb.append("\t" + 0.0);
+//								oos.writeDouble(0.0);
 								progressMade(++curProgress);
-//								row += "\t" + 0.0;	// pad with zeros for filtered results
 							}
 							sb.append("\t" + rankedSpec.getScore());
+//							oos.writeDouble(rankedSpec.getScore());
 							progressMade(++curProgress);
-//							row += "\t" + rankedSpec.getScore();
 							oldIndex = index+1;
 						}
 						for (int i = oldIndex; i < candidates.size(); i++) {
-							sb.append("\t" + 0.0);
+							sb.append("\t" + 0.0);	// pad with zeros for filtered results
+//							oos.writeDouble(0.0);
 							progressMade(++curProgress);
-//							row += "\t" + 0.0;	// pad with zeros for filtered results
 						}
 						sb.append("\n");
 						osw.append(sb);
 						osw.flush();
 						sb.setLength(0);
-//						osw.write(row + "\n");
 						leafNode = leafNode.getNextLeaf();
 					}
-//					osw.append(sb);
-//					osw.flush();
 					osw.close();
-					fos.close();
+//					oos.close();
 					progressMade(maxProgress);
 				} catch (Exception ex) {
 					GeneralExceptionHandler.showErrorDialog(ex, frame);
