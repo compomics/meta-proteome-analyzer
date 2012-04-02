@@ -83,16 +83,16 @@ public class DBSearchPanel extends JPanel {
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.0"));
-		precTolSpn.setToolTipText("Precursor Ion Tolerance:");
+		precTolSpn.setToolTipText("The precursor mass tolerance.");
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
 		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.0"));
-		fragTolSpn.setToolTipText("Fragment Ion Tolerance:");
+		fragTolSpn.setToolTipText("The fragment mass tolerance.");
 
 		// Missed cleavages Spinner
 		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
-		missClvSpn.setToolTipText("Maximum number of missed cleavages:");
+		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 
 		// Enzyme ComboBox
 		JComboBox enzymeCbx = new JComboBox(Constants.ENZYMES);
@@ -166,7 +166,7 @@ public class DBSearchPanel extends JPanel {
 		});
 		
 		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox(new String[] {"Target-decoy", "Target only"});
+		searchTypeCbx = new JComboBox(new String[] {"Target-Decoy", "Target Only"});
 
 		searchEngPnl.add(xTandemChk, cc.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, cc.xy(4, 2));
@@ -179,7 +179,7 @@ public class DBSearchPanel extends JPanel {
 		searchEngPnl.add(mascotChk, cc.xy(2, 10));
 		searchEngPnl.add(mascotSetBtn, cc.xy(4, 10));
 		searchEngPnl.add(new JSeparator(), cc.xyw(2, 12, 3));
-		searchEngPnl.add(new JLabel("Search strategy:"), cc.xy(2, 14));
+		searchEngPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 14));
 		searchEngPnl.add(searchTypeCbx, cc.xy(4, 14));
 
 		// add everything to main panel

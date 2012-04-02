@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="dnMS" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="dnNumSolutions" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="dnPTMs" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="dnPeptideIntThresh" type="{http://www.w3.org/2001/XMLSchema}int"/>
+ *         &lt;element name="dnPrecursorTolerance" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="dnRemoveAllPep" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
@@ -39,18 +39,18 @@ import javax.xml.bind.annotation.XmlType;
     "dnMS",
     "dnNumSolutions",
     "dnPTMs",
-    "dnPeptideIntThresh",
+    "dnPrecursorTolerance",
     "dnRemoveAllPep",
     "experimentid"
 })
 public class DenovoSearchSettings {
 
     protected String dnEnzyme;
-    protected Double dnFragmentTolerance;
+    protected double dnFragmentTolerance;
     protected String dnMS;
     protected int dnNumSolutions;
     protected String dnPTMs;
-    protected int dnPeptideIntThresh;
+    protected double dnPrecursorTolerance;
     protected boolean dnRemoveAllPep;
     protected long experimentid;
 
@@ -167,19 +167,19 @@ public class DenovoSearchSettings {
     }
 
     /**
-     * Gets the value of the dnPeptideIntThresh property.
+     * Gets the value of the dnPrecursorTolerance property.
      * 
      */
-    public int getDnPeptideIntThresh() {
-        return dnPeptideIntThresh;
+    public double getDnPrecursorTolerance() {
+        return dnPrecursorTolerance;
     }
 
     /**
-     * Sets the value of the dnPeptideIntThresh property.
+     * Sets the value of the dnPrecursorTolerance property.
      * 
      */
-    public void setDnPeptideIntThresh(int value) {
-        this.dnPeptideIntThresh = value;
+    public void setDnPrecursorTolerance(double value) {
+        this.dnPrecursorTolerance = value;
     }
 
     /**

@@ -118,7 +118,7 @@ public class OmssaStorager extends BasicStorager {
     	    	spectrumTitle = spectrumTitle.replace("\\\\", "\\");
     	    	
       	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
-                hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, searchspectrumid);  
+                hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
     	    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
     	    	
     	    	// Get the MSPepHit (for the accession)

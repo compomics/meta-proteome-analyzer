@@ -143,7 +143,7 @@ public class SettingsPanel extends JPanel {
 											"0dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		processPnl.setBorder(BorderFactory.createTitledBorder("General"));
 		
-		packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 1));
+		packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 100));
 		packSpn.setToolTipText("Number of spectra per transfer package"); 
 		packSpn.setPreferredSize(new Dimension(packSpn.getPreferredSize().width*2,
 											   packSpn.getPreferredSize().height));
@@ -180,8 +180,6 @@ public class SettingsPanel extends JPanel {
 		this.add(processPnl, cc.xy(6, 4));
 		this.add(specLibPnl.getPreviewPnl(), cc.xywh(2, 4, 3, 3));
 	}
-	
-
 
 	/**
 	 * ProcessWorker class extending SwingWorker.

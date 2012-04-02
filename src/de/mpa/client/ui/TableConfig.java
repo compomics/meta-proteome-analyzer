@@ -11,7 +11,7 @@ import javax.swing.table.TableColumnModel;
 
 /**
  * Helper class for JTable layout functionalities.
- * @author Robert Heyer
+ * @author Alex Behne
  *
  */
 public class TableConfig {
@@ -55,13 +55,16 @@ public class TableConfig {
 	
 	/**
 	 * This method clears the project table.
+	 * @param table The JTable component.
 	 */
 	public static void clearTable(JTable table){
 		((DefaultTableModel) table.getModel()).setRowCount(0);
 	}
 	
 	/**
-	 * 
+	 * Sets dynamically weighted column widths.
+	 * @param table The JTable component.
+	 * @param weights The weight array.
 	 */
 	public static void setColumnWidths(JTable table, double[] weights) {
 		// normalize weights if needed

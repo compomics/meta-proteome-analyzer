@@ -143,9 +143,7 @@ public class XTandemStorager extends BasicStorager {
                 	      // Only store if the search spectrum id is referenced.
                 	      if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)){
                 	    	  long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
-                	    	  hitdata.put(XtandemhitTableAccessor.FK_SPECTRUMID, searchspectrumid);  
-                              
-             
+                	    	  hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
                   	    	  
                               // Set the domain id  
                               String domainID = domain.getDomainID();

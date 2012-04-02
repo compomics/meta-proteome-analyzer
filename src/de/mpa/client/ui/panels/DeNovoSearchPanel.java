@@ -23,13 +23,11 @@ import de.mpa.client.ui.Constants;
 
 public class DeNovoSearchPanel extends JPanel {
 
-
 	private JComboBox dnEnzymesCbx;
-	private JComboBox dnMSCbx;
+	private JComboBox dnModelCbx;
 	private JSpinner dnFragTolSpn;
-	private JSpinner dnThresholdSpn;
+	private JSpinner dnPrecTolSpn;
 	private JSpinner dnNumSolutionsSpn;
-//	private JCheckBox dnPepknownChx;
 	private JTable dnPTMtbl;
 	private JPanel parPnl;
 	private JScrollPane dnPTMscp;
@@ -58,61 +56,45 @@ public class DeNovoSearchPanel extends JPanel {
 		// Enzymes
 		dnEnzymesCbx = new JComboBox(Constants.DN_ENZYMES);
 		dnEnzymesCbx.setToolTipText("Choose the enzyme of the protein digest");
-		//dnEnzymesCbx.setRenderer(new RightAlignListCellRenderer());
 
 		// MS
-		dnMSCbx=new JComboBox(Constants.MASS_SPECTROMETERS);
-		dnMSCbx.setToolTipText("Select your mass spectrometer");
-		//dnMS.setRenderer(new RightAlignListCellRenderer());
+		dnModelCbx=new JComboBox(Constants.DN_MODELS);
+		dnModelCbx.setToolTipText("Select the fragmentation model.");
 
 		// Fragment tolerance
-		dnFragTolSpn = new JSpinner(new SpinnerNumberModel(0.3, 0.0, null, 0.05));
-		dnFragTolSpn.setEditor(new JSpinner.NumberEditor(dnFragTolSpn, "0.00"));
-		dnFragTolSpn.setToolTipText("Choose your fragment mass tolerance");
-
-		// for right aligned text in spinners in windows LAF
-//		private class RightAlignListCellRenderer extends JLabel implements ListCellRenderer<String> {
-//			@Override
-//			public Component getListCellRendererComponent(
-//					JList<? extends String> list, String value, int index,
-//					boolean isSelected, boolean cellHasFocus) {
-//				this.setText(value);
-//				this.setHorizontalAlignment(JLabel.RIGHT);
-//				return this;
-//			}
-//		}
+		dnFragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));
+		dnFragTolSpn.setEditor(new JSpinner.NumberEditor(dnFragTolSpn, "0.0"));
+		dnFragTolSpn.setToolTipText("Choose the fragment mass tolerance.");
 
 		// Threshold peptides
-		dnThresholdSpn = new JSpinner(new SpinnerNumberModel(1000, 0, null, 1));
-		dnThresholdSpn.setToolTipText("Apply peptide threshold");
+		dnPrecTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
+		dnPrecTolSpn.setEditor(new JSpinner.NumberEditor(dnPrecTolSpn, "0.0"));
+		dnPrecTolSpn.setToolTipText("Choose the precursor mass tolerance.");
 
 		// Maximum number of peptides
 		dnNumSolutionsSpn = new JSpinner(new SpinnerNumberModel(10, 0, null, 1));
 		dnNumSolutionsSpn.setToolTipText("Select the maximum number of peaks for de novo sequencing ");
-
-//		dnPepknownChx = new JCheckBox("Remove known peptides");
-//		dnPepknownChx.setToolTipText("Remove all identified peptides");
-
 		
-		parPnl.add(new JLabel("Protease"), cc.xy(2, 2));
+		parPnl.add(new JLabel("Enzyme:"), cc.xy(2, 2));
 		parPnl.add(dnEnzymesCbx,cc.xyw(4, 2, 5));
-		parPnl.add(new JLabel("Spectrometer"),cc.xy(2, 4));
-		parPnl.add(dnMSCbx,cc.xyw(4, 4, 5));
+		parPnl.add(new JLabel("Model:"),cc.xy(2, 4));
+		parPnl.add(dnModelCbx,cc.xyw(4, 4, 5));
 		parPnl.add(new JSeparator(), cc.xyw(2, 6, 7));
-		parPnl.add(new JLabel("Fragment mass tolerance"), cc.xyw(2, 8, 3));
-		parPnl.add(dnFragTolSpn,cc.xy(6, 8));
+		parPnl.add(new JLabel("Precursor Mass Tolerance:"), cc.xyw(2, 8, 3));
+		parPnl.add(dnPrecTolSpn,cc.xy(6, 8));
 		parPnl.add(new JLabel("Da"),cc.xy(8, 8));
-		parPnl.add(new JLabel("Peptide intensity threshold"),cc.xyw(2, 10, 3));
-		parPnl.add(dnThresholdSpn,cc.xy(6, 10));
-		parPnl.add(new JLabel("Number of peptides"),cc.xyw(2, 12, 3));
+		parPnl.add(new JLabel("Fragment Mass Tolerance:"),cc.xyw(2, 10, 3));
+		
+		parPnl.add(dnFragTolSpn,cc.xy(6, 10));
+		parPnl.add(new JLabel("Da"),cc.xy(8, 10));
+		parPnl.add(new JLabel("No. Solutions (max):"),cc.xyw(2, 12, 3));
 		parPnl.add(dnNumSolutionsSpn,cc.xy(6, 12));
-//		parPnl.add(dnPepknownChx,cc.xyw(2, 14, 5));
 
 		// Panel PTMs
 		ptmsPnl = new JPanel();
 		ptmsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
 										 "0dlu, f:p:g, 5dlu"));	// row
-		ptmsPnl.setBorder(new ComponentTitledBorder(new JLabel("PTMs"), ptmsPnl));
+		ptmsPnl.setBorder(new ComponentTitledBorder(new JLabel("Modifications"), ptmsPnl));
 
 		DefaultTableModel model = new DefaultTableModel(new Object[] {"PTM", ""}, 0) {
 			public Class<?> getColumnClass(int c) {	// method allows checkboxes in table
@@ -152,50 +134,11 @@ public class DeNovoSearchPanel extends JPanel {
 		dnPTMscp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		dnPTMscp.setToolTipText("Choose possible PTMs");
 		dnPTMscp.setEnabled(false);
-		
 		ptmsPnl.add(dnPTMscp,cc.xy(2,2));
-
-		
-//		// Start panel
-//		JPanel statusPnl = new JPanel();
-//		statusPnl.setLayout(new FormLayout("5dlu, p, 15dlu, p, 5dlu, p:g, 5dlu",	// col
-//				"p, 5dlu,"));							// row
-//		statusPnl.setBorder(new TitledBorder("Search status"));
-//		// Start button
-//		dnStartBtn = new JButton("Run de-novo search");
-//		dnStartBtn.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				dnStartBtn.setEnabled(false);
-//				RunDenovoSearchWorker worker = new RunDenovoSearchWorker();
-//				worker.execute();
-//
-//				// Easter egg stuff
-//				Image image = null;
-//				try {
-//					image = ImageIO.read(new File("docu/Nerds.jpg"));
-//
-//				} catch (IOException e1) {
-//					e1.printStackTrace();
-//				}
-//				JLabel label = new JLabel("Das passiert wenn man wahllos Knoepfe drueckt!!!", new ImageIcon(image),JLabel.CENTER);
-//				label.setVerticalTextPosition(JLabel.BOTTOM);
-//				label.setHorizontalTextPosition(JLabel.CENTER);
-//				JOptionPane.showMessageDialog(clientFrame, label,"Erwischt!!", JOptionPane.PLAIN_MESSAGE);
-//			}
-//		});
-//		statusPnl.add(dnStartBtn,cc.xy(2, 1));
-//		// Progress bar
-//		statusPnl.add(new JLabel("Progress"),cc.xy(4, 1));
-//		JProgressBar denovoPrg = new JProgressBar(0,100);
-//		denovoPrg.setStringPainted(true);
-//		denovoPrg.setValue(0);
-//		statusPnl.add(denovoPrg, cc.xy(6, 1));
 
 		// add panels
 		this.add(parPnl, cc.xy(2, 2));
 		this.add(ptmsPnl, cc.xy(2, 4));
-//		this.add(statusPnl, cc.xyw(2, 4, 3));
 	}
 	
 	@Override

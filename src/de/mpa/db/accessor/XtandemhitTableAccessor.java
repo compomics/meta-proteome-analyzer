@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 15/03/2012
- * Time: 14:58:59
+ * Date: 02/04/2012
+ * Time: 15:25:45
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -51,9 +42,9 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
-	 * This variable represents the contents for the 'fk_spectrumid' column.
+	 * This variable represents the contents for the 'fk_searchspectrumid' column.
 	 */
-	protected long iFk_spectrumid = Long.MIN_VALUE;
+	protected long iFk_searchspectrumid = Long.MIN_VALUE;
 
 
 	/**
@@ -152,9 +143,9 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	public static final String XTANDEMHITID = "XTANDEMHITID";
 
 	/**
-	 * This variable represents the key for the 'fk_spectrumid' column.
+	 * This variable represents the key for the 'fk_searchspectrumid' column.
 	 */
-	public static final String FK_SPECTRUMID = "FK_SPECTRUMID";
+	public static final String FK_SEARCHSPECTRUMID = "FK_SEARCHSPECTRUMID";
 
 	/**
 	 * This variable represents the key for the 'fk_peptideid' column.
@@ -250,8 +241,8 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(XTANDEMHITID)) {
 			this.iXtandemhitid = ((Long)aParams.get(XTANDEMHITID)).longValue();
 		}
-		if(aParams.containsKey(FK_SPECTRUMID)) {
-			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
+		if(aParams.containsKey(FK_SEARCHSPECTRUMID)) {
+			this.iFk_searchspectrumid = ((Long)aParams.get(FK_SEARCHSPECTRUMID)).longValue();
 		}
 		if(aParams.containsKey(FK_PEPTIDEID)) {
 			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
@@ -311,7 +302,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public XtandemhitTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iXtandemhitid = aResultSet.getLong("xtandemhitid");
-		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
+		this.iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
 		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
 		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
 		this.iDomainid = (String)aResultSet.getObject("domainid");
@@ -342,12 +333,12 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
-	 * This method returns the value for the 'Fk_spectrumid' column
+	 * This method returns the value for the 'Fk_searchspectrumid' column
 	 * 
-	 * @return	long	with the value for the Fk_spectrumid column.
+	 * @return	long	with the value for the Fk_searchspectrumid column.
 	 */
-	public long getFk_spectrumid() {
-		return this.iFk_spectrumid;
+	public long getFk_searchspectrumid() {
+		return this.iFk_searchspectrumid;
 	}
 
 	/**
@@ -496,12 +487,12 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	}
 
 	/**
-	 * This method sets the value for the 'Fk_spectrumid' column
+	 * This method sets the value for the 'Fk_searchspectrumid' column
 	 * 
-	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
+	 * @param	aFk_searchspectrumid	long with the value for the Fk_searchspectrumid column.
 	 */
-	public void setFk_spectrumid(long aFk_spectrumid) {
-		this.iFk_spectrumid = aFk_spectrumid;
+	public void setFk_searchspectrumid(long aFk_searchspectrumid) {
+		this.iFk_searchspectrumid = aFk_searchspectrumid;
 		this.iUpdated = true;
 	}
 
@@ -693,7 +684,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		while(lRS.next()) {
 			hits++;
 			iXtandemhitid = lRS.getLong("xtandemhitid");
-			iFk_spectrumid = lRS.getLong("fk_spectrumid");
+			iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
 			iFk_peptideid = lRS.getLong("fk_peptideid");
 			iFk_proteinid = lRS.getLong("fk_proteinid");
 			iDomainid = (String)lRS.getObject("domainid");
@@ -758,9 +749,9 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE xtandemhit SET xtandemhitid = ?, fk_spectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, domainid = ?, start = ?, end = ?, evalue = ?, delta = ?, hyperscore = ?, pre = ?, post = ?, misscleavages = ?, qvalue = ?, pep = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE xtandemhitid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE xtandemhit SET xtandemhitid = ?, fk_searchspectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, domainid = ?, start = ?, end = ?, evalue = ?, delta = ?, hyperscore = ?, pre = ?, post = ?, misscleavages = ?, qvalue = ?, pep = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE xtandemhitid = ?");
 		lStat.setLong(1, iXtandemhitid);
-		lStat.setLong(2, iFk_spectrumid);
+		lStat.setLong(2, iFk_searchspectrumid);
 		lStat.setLong(3, iFk_peptideid);
 		lStat.setLong(4, iFk_proteinid);
 		lStat.setObject(5, iDomainid);
@@ -790,16 +781,16 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO xtandemhit (xtandemhitid, fk_spectrumid, fk_peptideid, fk_proteinid, domainid, start, end, evalue, delta, hyperscore, pre, post, misscleavages, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO xtandemhit (xtandemhitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, domainid, start, end, evalue, delta, hyperscore, pre, post, misscleavages, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iXtandemhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iXtandemhitid);
 		}
-		if(iFk_spectrumid == Long.MIN_VALUE) {
+		if(iFk_searchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_spectrumid);
+			lStat.setLong(2, iFk_searchspectrumid);
 		}
 		if(iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);

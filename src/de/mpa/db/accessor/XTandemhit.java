@@ -55,7 +55,7 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	}
 
 	public long getFk_searchspectrumid() {
-		return iFk_spectrumid;
+		return iFk_searchspectrumid;
 	}
 	
 	public long getCharge(){
