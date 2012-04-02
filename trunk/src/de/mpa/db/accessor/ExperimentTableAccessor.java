@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 15/03/2012
- * Time: 14:59:09
+ * Date: 02/04/2012
+ * Time: 15:54:20
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -57,6 +48,12 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 
 
 	/**
+	 * This variable represents the contents for the 'fk_settingsid' column.
+	 */
+	protected long iFk_settingsid = Long.MIN_VALUE;
+
+
+	/**
 	 * This variable represents the contents for the 'title' column.
 	 */
 	protected String iTitle = null;
@@ -83,6 +80,11 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 	 * This variable represents the key for the 'fk_projectid' column.
 	 */
 	public static final String FK_PROJECTID = "FK_PROJECTID";
+
+	/**
+	 * This variable represents the key for the 'fk_settingsid' column.
+	 */
+	public static final String FK_SETTINGSID = "FK_SETTINGSID";
 
 	/**
 	 * This variable represents the key for the 'title' column.
@@ -121,6 +123,9 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 		if(aParams.containsKey(FK_PROJECTID)) {
 			this.iFk_projectid = ((Long)aParams.get(FK_PROJECTID)).longValue();
 		}
+		if(aParams.containsKey(FK_SETTINGSID)) {
+			this.iFk_settingsid = ((Long)aParams.get(FK_SETTINGSID)).longValue();
+		}
 		if(aParams.containsKey(TITLE)) {
 			this.iTitle = (String)aParams.get(TITLE);
 		}
@@ -144,6 +149,7 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 	public ExperimentTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iExperimentid = aResultSet.getLong("experimentid");
 		this.iFk_projectid = aResultSet.getLong("fk_projectid");
+		this.iFk_settingsid = aResultSet.getLong("fk_settingsid");
 		this.iTitle = (String)aResultSet.getObject("title");
 		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
 		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
@@ -168,6 +174,15 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public long getFk_projectid() {
 		return this.iFk_projectid;
+	}
+
+	/**
+	 * This method returns the value for the 'Fk_settingsid' column
+	 * 
+	 * @return	long	with the value for the Fk_settingsid column.
+	 */
+	public long getFk_settingsid() {
+		return this.iFk_settingsid;
 	}
 
 	/**
@@ -214,6 +229,16 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 	 */
 	public void setFk_projectid(long aFk_projectid) {
 		this.iFk_projectid = aFk_projectid;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Fk_settingsid' column
+	 * 
+	 * @param	aFk_settingsid	long with the value for the Fk_settingsid column.
+	 */
+	public void setFk_settingsid(long aFk_settingsid) {
+		this.iFk_settingsid = aFk_settingsid;
 		this.iUpdated = true;
 	}
 
@@ -286,6 +311,7 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 			hits++;
 			iExperimentid = lRS.getLong("experimentid");
 			iFk_projectid = lRS.getLong("fk_projectid");
+			iFk_settingsid = lRS.getLong("fk_settingsid");
 			iTitle = (String)lRS.getObject("title");
 			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
 			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
@@ -338,12 +364,13 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE experiment SET experimentid = ?, fk_projectid = ?, title = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE experimentid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE experiment SET experimentid = ?, fk_projectid = ?, fk_settingsid = ?, title = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE experimentid = ?");
 		lStat.setLong(1, iExperimentid);
 		lStat.setLong(2, iFk_projectid);
-		lStat.setObject(3, iTitle);
-		lStat.setObject(4, iCreationdate);
-		lStat.setLong(5, iExperimentid);
+		lStat.setLong(3, iFk_settingsid);
+		lStat.setObject(4, iTitle);
+		lStat.setObject(5, iCreationdate);
+		lStat.setLong(6, iExperimentid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -358,7 +385,7 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO experiment (experimentid, fk_projectid, title, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO experiment (experimentid, fk_projectid, fk_settingsid, title, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iExperimentid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -369,10 +396,15 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 		} else {
 			lStat.setLong(2, iFk_projectid);
 		}
-		if(iTitle == null) {
-			lStat.setNull(3, 12);
+		if(iFk_settingsid == Long.MIN_VALUE) {
+			lStat.setNull(3, 4);
 		} else {
-			lStat.setObject(3, iTitle);
+			lStat.setLong(3, iFk_settingsid);
+		}
+		if(iTitle == null) {
+			lStat.setNull(4, 12);
+		} else {
+			lStat.setObject(4, iTitle);
 		}
 		int result = lStat.executeUpdate();
 

@@ -1,24 +1,15 @@
 /*
  * Created by the DBAccessor generator.
  * Programmer: Lennart Martens
- * Date: 15/03/2012
- * Time: 14:59:14
+ * Date: 02/04/2012
+ * Time: 15:26:01
  */
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.compomics.util.db.interfaces.Deleteable;
-import com.compomics.util.db.interfaces.Persistable;
-import com.compomics.util.db.interfaces.Retrievable;
-import com.compomics.util.db.interfaces.Updateable;
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+import com.compomics.util.db.interfaces.*;
 
 /*
  * CVS information:
@@ -61,9 +52,19 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	protected String iDescription = null;
 
-	
+
+	/**
+	 * This variable represents the contents for the 'sequence' column.
+	 */
 	protected String iSequence = null;
-	
+
+
+	/**
+	 * This variable represents the contents for the 'source' column.
+	 */
+	protected String iSource = null;
+
+
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
@@ -90,6 +91,16 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This variable represents the key for the 'description' column.
 	 */
 	public static final String DESCRIPTION = "DESCRIPTION";
+
+	/**
+	 * This variable represents the key for the 'sequence' column.
+	 */
+	public static final String SEQUENCE = "SEQUENCE";
+
+	/**
+	 * This variable represents the key for the 'source' column.
+	 */
+	public static final String SOURCE = "SOURCE";
 
 	/**
 	 * This variable represents the key for the 'creationdate' column.
@@ -126,6 +137,12 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		if(aParams.containsKey(DESCRIPTION)) {
 			this.iDescription = (String)aParams.get(DESCRIPTION);
 		}
+		if(aParams.containsKey(SEQUENCE)) {
+			this.iSequence = (String)aParams.get(SEQUENCE);
+		}
+		if(aParams.containsKey(SOURCE)) {
+			this.iSource = (String)aParams.get(SOURCE);
+		}
 		if(aParams.containsKey(CREATIONDATE)) {
 			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
 		}
@@ -147,6 +164,8 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iProteinid = aResultSet.getLong("proteinid");
 		this.iAccession = (String)aResultSet.getObject("accession");
 		this.iDescription = (String)aResultSet.getObject("description");
+		this.iSequence = (String)aResultSet.getObject("sequence");
+		this.iSource = (String)aResultSet.getObject("source");
 		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
 		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
 
@@ -180,13 +199,23 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	public String getDescription() {
 		return this.iDescription;
 	}
-	
+
 	/**
-	 * Returns the protein sequence.
-	 * @return
+	 * This method returns the value for the 'Sequence' column
+	 * 
+	 * @return	String	with the value for the Sequence column.
 	 */
 	public String getSequence() {
-		return iSequence;
+		return this.iSequence;
+	}
+
+	/**
+	 * This method returns the value for the 'Source' column
+	 * 
+	 * @return	String	with the value for the Source column.
+	 */
+	public String getSource() {
+		return this.iSource;
 	}
 
 	/**
@@ -234,6 +263,26 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public void setDescription(String aDescription) {
 		this.iDescription = aDescription;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Sequence' column
+	 * 
+	 * @param	aSequence	String with the value for the Sequence column.
+	 */
+	public void setSequence(String aSequence) {
+		this.iSequence = aSequence;
+		this.iUpdated = true;
+	}
+
+	/**
+	 * This method sets the value for the 'Source' column
+	 * 
+	 * @param	aSource	String with the value for the Source column.
+	 */
+	public void setSource(String aSource) {
+		this.iSource = aSource;
 		this.iUpdated = true;
 	}
 
@@ -297,6 +346,8 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 			iProteinid = lRS.getLong("proteinid");
 			iAccession = (String)lRS.getObject("accession");
 			iDescription = (String)lRS.getObject("description");
+			iSequence = (String)lRS.getObject("sequence");
+			iSource = (String)lRS.getObject("source");
 			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
 			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
 		}
@@ -348,12 +399,14 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE protein SET proteinid = ?, accession = ?, description = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE proteinid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE protein SET proteinid = ?, accession = ?, description = ?, sequence = ?, source = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE proteinid = ?");
 		lStat.setLong(1, iProteinid);
 		lStat.setObject(2, iAccession);
 		lStat.setObject(3, iDescription);
-		lStat.setObject(4, iCreationdate);
-		lStat.setLong(5, iProteinid);
+		lStat.setObject(4, iSequence);
+		lStat.setObject(5, iSource);
+		lStat.setObject(6, iCreationdate);
+		lStat.setLong(7, iProteinid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -368,7 +421,7 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description, sequence, source, creationdate, modificationdate) values(?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		if(iProteinid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -383,6 +436,16 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 			lStat.setNull(3, -1);
 		} else {
 			lStat.setObject(3, iDescription);
+		}
+		if(iSequence == null) {
+			lStat.setNull(4, -1);
+		} else {
+			lStat.setObject(4, iSequence);
+		}
+		if(iSource == null) {
+			lStat.setNull(5, 12);
+		} else {
+			lStat.setObject(5, iSource);
 		}
 		int result = lStat.executeUpdate();
 

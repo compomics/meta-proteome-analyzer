@@ -201,13 +201,13 @@ public class SpecLibSearchPanel extends JPanel {
 
 		JPanel topPnl = new JPanel();
 		topPnl.setLayout(new BoxLayout(topPnl, BoxLayout.X_AXIS));
-		topPnl.add(new JLabel("Precursor mass tolerance: "));
+		topPnl.add(new JLabel("Precursor Mass Tolerance: "));
 		tolMzSpn = new JSpinner(new SpinnerNumberModel(10.0, 0.0, null, 0.1));
 		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn
 				.getPreferredSize().width * 1.75),
 				tolMzSpn.getPreferredSize().height));
 		tolMzSpn.setEditor(new JSpinner.NumberEditor(tolMzSpn, "0.00"));
-		tolMzSpn.setToolTipText("Precursor mass tolerance");
+		tolMzSpn.setToolTipText("The precursor mass tolerance.");
 		topPnl.add(tolMzSpn);
 		topPnl.add(new JLabel(" Da"));
 
@@ -298,7 +298,7 @@ public class SpecLibSearchPanel extends JPanel {
 		vectMethodCbx.setSelectedIndex(1);
 		vectMethodCbx.addActionListener(refreshPlotListener);
 
-		vectMethodPnl.add(new JLabel("Vectorization"), cc.xy(1, 1));
+		vectMethodPnl.add(new JLabel("Vectorization:"), cc.xy(1, 1));
 		vectMethodPnl.add(vectMethodCbx, cc.xy(3, 1));
 
 		// sub-sub-panel for general vectorization settings
@@ -310,13 +310,13 @@ public class SpecLibSearchPanel extends JPanel {
 		binWidthSpn.setEditor(new JSpinner.NumberEditor(binWidthSpn, "0.00"));
 		binWidthSpn.addChangeListener(refreshPlotListener);
 		
-		binShiftLbl = new JLabel("Bin shift");
+		binShiftLbl = new JLabel("Bin Shift:");
 		binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
 		binShiftSpn.setEditor(new JSpinner.NumberEditor(binShiftSpn, "0.00"));
 		binShiftSpn.addChangeListener(refreshPlotListener);
 		binShiftLbl2 = new JLabel("Da");
 
-		genVectSetPnl.add(new JLabel("Bin width"), cc.xy(2, 1));
+		genVectSetPnl.add(new JLabel("Bin Width:"), cc.xy(2, 1));
 		genVectSetPnl.add(binWidthSpn, cc.xy(4, 1));
 		genVectSetPnl.add(new JLabel("Da"), cc.xy(6, 1));
 		genVectSetPnl.add(binShiftLbl, cc.xy(2, 3));
@@ -329,7 +329,7 @@ public class SpecLibSearchPanel extends JPanel {
 
 		proMethodCbx = new JComboBox(new Object[] { "Piecewise linear", "Gaussian function" });
 
-		proMethodPnl.add(new JLabel("Profile shape"), cc.xy(1, 1));
+		proMethodPnl.add(new JLabel("Profile Shape:"), cc.xy(1, 1));
 		proMethodPnl.add(proMethodCbx, cc.xy(3, 1));
 		proMethodPnl.setEnabled(false);
 		for (Component comp : proMethodPnl.getComponents()) {
@@ -344,7 +344,7 @@ public class SpecLibSearchPanel extends JPanel {
 		proBaseWidthSpn.setEditor(new JSpinner.NumberEditor(proBaseWidthSpn, "0.00"));
 		proBaseWidthSpn.addChangeListener(refreshPlotListener);
 
-		proBaseWidthPnl.add(new JLabel("Peak base width"), cc.xy(2, 1));
+		proBaseWidthPnl.add(new JLabel("Peak Base Width:"), cc.xy(2, 1));
 		proBaseWidthPnl.add(proBaseWidthSpn, cc.xy(4, 1));
 		proBaseWidthPnl.add(new JLabel("Da"), cc.xy(6, 1));
 		proBaseWidthPnl.setEnabled(false);
@@ -420,7 +420,7 @@ public class SpecLibSearchPanel extends JPanel {
 		trafoCbx.setSelectedIndex(1);
 		trafoCbx.addActionListener(refreshPlotListener);
 
-		trafoPnl.add(new JLabel("Transformation"), cc.xy(1, 1));
+		trafoPnl.add(new JLabel("Transformation:"), cc.xy(1, 1));
 		trafoPnl.add(trafoCbx, cc.xy(3, 1));
 
 		// sub-panel for similarity scoring parameters
@@ -440,7 +440,7 @@ public class SpecLibSearchPanel extends JPanel {
 		scorSubPnl.setLayout(new FormLayout("5dlu:g, r:p, 2dlu, p, 2dlu, p",
 				"p, 5dlu, p"));
 
-		xCorrOffLbl = new JLabel("Correlation offsets  \u00b1");
+		xCorrOffLbl = new JLabel("Correlation Offsets  \u00b1"); // +/- as unicode
 		xCorrOffLbl.setEnabled(false);
 		xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
 		xCorrOffSpn.setEnabled(false);
@@ -457,7 +457,7 @@ public class SpecLibSearchPanel extends JPanel {
 		scorSubPnl.add(xCorrOffLbl, cc.xy(2, 1));
 		scorSubPnl.add(xCorrOffSpn, cc.xy(4, 1));
 		scorSubPnl.add(xCorrOffLbl2, cc.xy(6, 1));
-		scorSubPnl.add(new JLabel("Score Threshold  \u2265"), cc.xy(2, 3));
+		scorSubPnl.add(new JLabel("Score Threshold  \u2265"), cc.xy(2, 3)); // >= as unicode
 		scorSubPnl.add(threshScSpn, cc.xy(4, 3));
 		scorSubPnl.setEnabled(false);
 
@@ -483,7 +483,7 @@ public class SpecLibSearchPanel extends JPanel {
 			}
 		});
 
-		scoringPnl.add(new JLabel("Measure"), cc.xy(1, 1));
+		scoringPnl.add(new JLabel("Measure:"), cc.xy(1, 1));
 		scoringPnl.add(measureCbx, cc.xy(3, 1));
 		scoringPnl.add(scorSubPnl, cc.xyw(1, 3, 3));
 
