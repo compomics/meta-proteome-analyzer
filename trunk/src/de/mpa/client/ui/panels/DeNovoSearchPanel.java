@@ -18,6 +18,8 @@ import javax.swing.table.TableCellRenderer;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.DenovoSearchSettings;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
 
@@ -32,8 +34,13 @@ public class DeNovoSearchPanel extends JPanel {
 	private JPanel parPnl;
 	private JScrollPane dnPTMscp;
 	private JPanel ptmsPnl;
-
-	public DeNovoSearchPanel() {
+	private ClientFrame clientFrame;
+	
+	/**
+	 * The default de-novo search panel constructor.
+	 */
+	public DeNovoSearchPanel(ClientFrame clientFrame) {
+		this.clientFrame = clientFrame;
 		initComponents();
 	}
 
@@ -44,8 +51,7 @@ public class DeNovoSearchPanel extends JPanel {
 		
 		CellConstraints cc = new CellConstraints();
 		
-		this.setLayout(new FormLayout("7dlu, p, 7dlu",					// col
-									  "0dlu, f:p, 5dlu, f:p:g, 7dlu"));	// row
+		this.setLayout(new FormLayout("7dlu, p, 7dlu", "0dlu, f:p, 5dlu, f:p:g, 7dlu"));
 
 		// Parameters		
 		parPnl = new JPanel();
@@ -155,44 +161,27 @@ public class DeNovoSearchPanel extends JPanel {
 		dnPTMtbl.setEnabled(enabled);
 		dnPTMtbl.setBackground((enabled) ? UIManager.getColor("Table.background") : null);
 	}
-
-//	private DenovoSearchSettings collectDenovoSettings(){
-//		DenovoSearchSettings settings = new DenovoSearchSettings();
-//		settings.setDnEnzyme(dnEnzymesCbx.getSelectedItem().toString());
-//		settings.setDnMS(dnMSCbx.getSelectedItem().toString());
-//		settings.setDnFragmentTolerance((Double) dnFragTolSpn.getValue());
-//		settings.setDnPeptideIntThresh((Integer)dnThresholdSpn.getValue() );
-//		settings.setDnNumSolutions((Integer) dnNumSolutionsSpn.getValue());
-//		settings.setDnRemoveAllPep((boolean) dnPepknownChx.isSelected());
-//		String mods = "";
-//		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
-//			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
-//				mods += (String) dnPTMtbl.getValueAt(row, 0);
-//			}
-//		}
-//		settings.setDnPTMs(mods);
-//		return settings;
-//	}	
-
-//	/**
-//	 * RunDBSearchWorker class extending SwingWorker.
-//	 * @author Thilo Muth
-//	 *
-//	 */
-//	private class RunDenovoSearchWorker	extends SwingWorker {
-//
-//		protected Object doInBackground() throws Exception {
-//			DenovoSearchSettings settings = collectDenovoSettings();
-//			List<File> chunkedFiles = client.packFiles(1000, clientFrame.getFilePanel().getCheckBoxTree(), "test");
-//			client.sendFiles(chunkedFiles);
-//			client.runDenovoSearch(chunkedFiles, settings);
-//			return 0;
-//		}
-//
-//		@Override
-//		public void done() {
-//			dnStartBtn.setEnabled(true);
-//		}
-//	}
-
+	
+	/**
+	 * This method collects the de-novo settings.
+	 * @return The DenovoSearchSettings object sent through the webservice.
+	 */
+	public DenovoSearchSettings collectDenovoSettings(){
+		DenovoSearchSettings dnSettings = new DenovoSearchSettings();
+		// Set the current experiment id for the database search settings.
+		dnSettings.setExperimentid(clientFrame.getProjectPnl().getCurrentExperimentId());
+		dnSettings.setEnzyme(dnEnzymesCbx.getSelectedItem().toString());
+		dnSettings.setModel(dnModelCbx.getSelectedItem().toString());
+		dnSettings.setFragMassTol((Double) dnFragTolSpn.getValue());
+		dnSettings.setPrecursorTol((Double)dnPrecTolSpn.getValue() );
+		dnSettings.setNumSolutions((Integer) dnNumSolutionsSpn.getValue());
+		String mods = "";
+		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
+			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
+				mods += (String) dnPTMtbl.getValueAt(row, 0);
+			}
+		}
+		dnSettings.setMods(mods);
+		return dnSettings;
+	}	
 }

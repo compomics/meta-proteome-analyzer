@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -27,13 +26,18 @@ import org.apache.log4j.Logger;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.RankedLibrarySpectrum;
-import de.mpa.client.model.DenovoSearchResult;
+import de.mpa.algorithms.denovo.DenovoTag;
+import de.mpa.algorithms.denovo.GappedPeptide;
+import de.mpa.algorithms.denovo.GappedPeptideCombiner;
 import de.mpa.client.model.ExperimentContent;
-import de.mpa.client.model.ExperimentResult;
-import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.PeptideSpectrumMatch;
 import de.mpa.client.model.ProjectContent;
-import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
+import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.denovo.DenovoSearchResult;
+import de.mpa.client.model.denovo.DenovoTagHit;
+import de.mpa.client.model.denovo.SpectrumHit;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.SpectrumTree;
@@ -99,8 +103,10 @@ public class Client {
      */
     private PropertyChangeSupport pSupport;
 
-	private ExperimentResult experimentResult;
+	private DbSearchResult dbSearchResult;
 
+	private DenovoSearchResult denovoSearchResult;
+	
 	/**
 	 * The constructor for the client (private for singleton object).
 	 * 
@@ -271,54 +277,65 @@ public class Client {
 	 * Returns the result from the de-novo search.
 	 * @param file The query file.
 	 * @return DenovoSearchResult
+	 * @throws SQLException 
 	 */
-	public DenovoSearchResult getDenovoSearchResult(File file){
-		// Initialize the connection.
+	public DenovoSearchResult getDenovoSearchResult(ProjectContent projContent,ExperimentContent expContent){
+		
 		try {
+			// Initialize the connection.
 			initDBConnection();
+			
+			// The protein hit set, containing all information about found proteins.
+			denovoSearchResult = new DenovoSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle());
+			
+			// Iterate over query spectra and get the different identification result sets
+			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
+			
+			// Iterate the search spectra.
+			for (Searchspectrum searchSpectrum : searchSpectra) {
+				
+				long searchSpectrumId = searchSpectrum.getSearchspectrumid();
+				// List for the Pepnovo hits.
+				List<Pepnovohit> pepnovoList = Pepnovohit.getHitsFromSpectrumID(searchSpectrumId, conn);
+				
+				// Fill the map with spectrum IDs as keys and pepnovo hits as values.
+				if(pepnovoList.size() > 0) {
+					
+					// Get the spectrum title
+					String spectrumTitle = Spectrum.findFromSpectrumID(searchSpectrum.getFk_spectrumid(), conn).getTitle();
+					
+					// Reduced pepnovo list
+					List<Pepnovohit> reducedList = new ArrayList<Pepnovohit>();
+					
+					// The list of gapped peptides.
+					List<GappedPeptide> gappedPeptides = new ArrayList<GappedPeptide>();
+					for (Pepnovohit pepnovoHit : pepnovoList) {
+						// Get the denovo-tag
+						
+						//if(pepnovoHit.getPnvscore().doubleValue() > 30){
+							reducedList.add(pepnovoHit);
+							DenovoTag denovoTag = new DenovoTag(pepnovoHit);
+							gappedPeptides.add(new GappedPeptide(denovoTag.convertToGappedPeptideFormat()));
+						//}
+						
+					}
+					
+					// Get the spectrum hit
+					SpectrumHit spectrumHit = new SpectrumHit(searchSpectrumId, spectrumTitle, reducedList);
+					
+					// Construct the gapped peptide combiner object.
+					GappedPeptideCombiner combiner = new GappedPeptideCombiner(gappedPeptides, 0.5);
+					GappedPeptide gappedPeptide = combiner.getCombinedGappedPeptide();
+					if(gappedPeptide != null){
+						denovoSearchResult.addTagHit(new DenovoTagHit(gappedPeptide.getSequence(), gappedPeptide.getTotalMass(), spectrumHit));
+					}
+						
+				}
+			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		
-		DenovoSearchResult result = null;
-		
-		MascotGenericFileReader mgfReader;
-		List<MascotGenericFile> mgfFiles = null;
-		try {
-			// Get the query spectra.
-			mgfReader = new MascotGenericFileReader(file);
-			mgfFiles = mgfReader.getSpectrumFiles();
-			
-			// Initialize the result set.
-			result = new DenovoSearchResult();
-			List<Spectrum> querySpectra = new ArrayList<Spectrum>();
-			Map<String, List<Pepnovohit>> pepnovoResults = new HashMap<String, List<Pepnovohit>>();
-			
-			// Iterate over query spectra and get the different identification result sets
-			for (MascotGenericFile mgf : mgfFiles) {
-				Spectrum spectrum = Spectrum.findFromTitle(mgf.getTitle(), conn);
-				querySpectra.add(spectrum);
-				long spectrumID = spectrum.getSpectrumid();
-				String spectrumname = spectrum.getTitle();
-				
-				// Pepnovo
-				List<Pepnovohit> pepnovoList = Pepnovohit.getHitsFromSpectrumID(spectrumID, conn);
-				if(pepnovoList.size() > 0) {
-					pepnovoResults.put(spectrumname, pepnovoList);
-				}
-				
-			}
-			
-			// Set the results.
-			result.setQuerySpectra(querySpectra);
-			result.setPepnovoResults(pepnovoResults);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return result;
+		return denovoSearchResult;
 	}
 	
 	/**
@@ -336,7 +353,7 @@ public class Client {
 		
 		try {			
 			// The protein hit set, containing all information about found proteins.
-			experimentResult = new ExperimentResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
+			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
 			
 			// Iterate over query spectra and get the different identification result sets
 			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
@@ -356,7 +373,7 @@ public class Client {
 					
 					// Set creation date
 					if(searchDate == null){
-						experimentResult.setSearchDate(xtandemList.get(0).getCreationdate());
+						dbSearchResult.setSearchDate(xtandemList.get(0).getCreationdate());
 					}
 				}
 				
@@ -390,26 +407,27 @@ public class Client {
 	}
 	
 	/**
-	 * Returns the current experiment result.
-	 * @param projContent 
-	 * @param expContent
-	 * @return
+	 * Returns the current database search result.
+	 * @param projContent The project content.
+	 * @param expContent The experiment content.
+	 * @return The current database search result.
 	 */
-	public ExperimentResult getExperimentResult(ProjectContent projContent,ExperimentContent expContent) {
-		if(experimentResult == null) {
+	public DbSearchResult getDbSearchResult(ProjectContent projContent,ExperimentContent expContent) {
+		if(dbSearchResult == null) {
 			retrieveExperimentResult(projContent, expContent);
 		}
-		return experimentResult;
+		return dbSearchResult;
 	}
 	
 	/**
-	 * Returns the current experiment result.
-	 * @return experimentResult The current experiment result.
+	 * Returns the current database search result.
+	 * @return dbSearchResult The current database search result.
 	 */
-	public ExperimentResult getExperimentResult() {
-		return experimentResult;
+	public DbSearchResult getDbSearchResult() {
+		return dbSearchResult;
 	}
-
+	
+	
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
 	 * @param hit The search hit implementation.
@@ -428,7 +446,7 @@ public class Client {
 		ProteinAccessor protein = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
 		
 		// Add a new protein to the protein hit set.
-		experimentResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit));
+		dbSearchResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit));
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-package de.mpa.client.model;
+package de.mpa.client.model.dbsearch;
 
 import de.mpa.db.accessor.SearchHit;
 

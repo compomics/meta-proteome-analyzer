@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import de.mpa.db.accessor.Libspectrum;
+import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.PepnovohitTableAccessor;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.parser.pepnovo.PepnovoEntry;
@@ -60,32 +60,37 @@ public class PepnovoStorager extends BasicStorager {
      */
     public void store() throws IOException,SQLException {
         // Get all the entries
-        List<PepnovoEntry> entryList = pepnovofile.getEntryList();       
-        for (PepnovoEntry entry : entryList) {
-        	
-            List<Prediction> predList = entry.getPredictionList();
-            // Get the spectrum id for the given spectrumName for the PepnovoFile     
-            long spectrumid = Libspectrum.getSpectrumIdFromSpectrumTitle(entry.getSpectrumName(), false);
-            for (Prediction hit : predList) {                
-                HashMap<Object, Object> hitdata = new HashMap<Object, Object>(10);
-                
-                hitdata.put(PepnovohitTableAccessor.FK_SPECTRUMID, spectrumid);
-                long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getSequence(), conn);
-                hitdata.put(PepnovohitTableAccessor.FK_PEPTIDEID, peptideID);
-                hitdata.put(PepnovohitTableAccessor.INDEXID, Long.valueOf(hit.getIndex()));
-                hitdata.put(PepnovohitTableAccessor.RANKSCORE, hit.getRankScore());
-                hitdata.put(PepnovohitTableAccessor.PNVSCORE, hit.getPepNovoScore());
-                hitdata.put(PepnovohitTableAccessor.N_GAP, hit.getnTermGap());
-                hitdata.put(PepnovohitTableAccessor.C_GAP, hit.getcTermGap());
-                hitdata.put(PepnovohitTableAccessor.PRECURSOR_MH, hit.getPrecursorMh());
-                hitdata.put(PepnovohitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
-                
-                // Create the database object.
-                PepnovohitTableAccessor pepnovohit = new PepnovohitTableAccessor(hitdata);
-                pepnovohit.persist(conn);
-            }
-            conn.commit();
-        }
+    	List<PepnovoEntry> entryList = pepnovofile.getEntryList();       
+    	for (PepnovoEntry entry : entryList) {
+
+    		List<Prediction> predList = entry.getPredictionList();
+    		// Get the spectrum id for the given spectrumName for the PepnovoFile   
+    		String spectrumTitle = entry.getSpectrumName().replace('/', '\\');
+    		
+    		if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)){
+    			long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+
+    			for (Prediction hit : predList) {                
+    				HashMap<Object, Object> hitdata = new HashMap<Object, Object>(10);
+
+    				hitdata.put(PepnovohitTableAccessor.FK_SPECTRUMID, searchspectrumid);
+    				long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getSequence(), conn);
+    				hitdata.put(PepnovohitTableAccessor.FK_PEPTIDEID, peptideID);
+    				hitdata.put(PepnovohitTableAccessor.INDEXID, Long.valueOf(hit.getIndex()));
+    				hitdata.put(PepnovohitTableAccessor.RANKSCORE, hit.getRankScore());
+    				hitdata.put(PepnovohitTableAccessor.PNVSCORE, hit.getPepNovoScore());
+    				hitdata.put(PepnovohitTableAccessor.N_GAP, hit.getnTermGap());
+    				hitdata.put(PepnovohitTableAccessor.C_GAP, hit.getcTermGap());
+    				hitdata.put(PepnovohitTableAccessor.PRECURSOR_MH, hit.getPrecursorMh());
+    				hitdata.put(PepnovohitTableAccessor.CHARGE, Long.valueOf(hit.getCharge()));
+
+    				// Create the database object.
+    				PepnovohitTableAccessor pepnovohit = new PepnovohitTableAccessor(hitdata);
+    				pepnovohit.persist(conn);
+    			}
+    			conn.commit();
+    		}
+    	}
     }
     
     @Override

@@ -42,6 +42,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
@@ -96,7 +97,7 @@ public class SettingsPanel extends JPanel {
 		databasePnl = new DBSearchPanel(clientFrame);
 		databasePnl.setEnabled(true);
 		
-		JCheckBox databaseChk = new JCheckBox("Database Searching", true);
+		JCheckBox databaseChk = new JCheckBox("Database Search", true);
 		databaseChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -111,7 +112,7 @@ public class SettingsPanel extends JPanel {
 		specLibPnl = new SpecLibSearchPanel(clientFrame);
 		specLibPnl.setEnabled(false);
 		
-		JCheckBox specLibChk = new JCheckBox("Spectral Library Searching", false);
+		JCheckBox specLibChk = new JCheckBox("Spectral Library Search", false);
 		specLibChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -123,10 +124,10 @@ public class SettingsPanel extends JPanel {
 		specLibPnl.setBorder(specLibBrd);
 
 		// de novo search settings panel
-		deNovoPnl = new DeNovoSearchPanel();
+		deNovoPnl = new DeNovoSearchPanel(clientFrame);
 		deNovoPnl.setEnabled(false);
 		
-		JCheckBox deNovoChk = new JCheckBox("De Novo Searching", false);
+		JCheckBox deNovoChk = new JCheckBox("De-novo Search", false);
 		deNovoChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -234,7 +235,7 @@ public class SettingsPanel extends JPanel {
 			processBtn.setEnabled(false);
 			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			
-			// database search
+			// Database search
 			if (databasePnl.isEnabled()) {
 				try {
 					DbSearchSettings settings = databasePnl.collectDBSearchSettings();
@@ -251,7 +252,24 @@ public class SettingsPanel extends JPanel {
 					JOptionPane.showMessageDialog(clientFrame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
 				}
 			}
-			// spectral library search
+			
+			// Denovo search
+			if (deNovoPnl.isEnabled()) {
+				try {
+					DenovoSearchSettings dnSettings = deNovoPnl.collectDenovoSettings();
+					
+					statusTtf.setText("PACKING SPECTRA");
+					int packSize = (Integer) packSpn.getValue();
+					List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");
+					statusTtf.setText("PACKING SPECTRA FINISHED");
+					client.sendFiles(chunkedFiles);
+					client.runDenovoSearch(chunkedFiles, dnSettings);
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(clientFrame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
+				}
+			}
+			
+			// Spectral library search
 			if (specLibPnl.isEnabled()) {
 				try {
 					// clone file selection tree, discard unselected branches/leaves

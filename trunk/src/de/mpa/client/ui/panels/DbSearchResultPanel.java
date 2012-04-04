@@ -54,10 +54,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.Masses;
-import de.mpa.client.model.ExperimentResult;
-import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.PeptideSpectrumMatch;
-import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
+import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
@@ -72,7 +72,7 @@ public class DbSearchResultPanel extends JPanel{
 	private ClientFrame clientFrame;
 	private DbSearchResultPanel dbSearchResultPnl;
 	private JXTable proteinTbl;
-	private ExperimentResult experimentResult;
+	private DbSearchResult dbSearchResult;
 	private JXTable peptideTbl;
 	private TreeMap<String, PeptideHit> currentPeptideHits;
 	private JXTable psmTbl;
@@ -149,11 +149,10 @@ public class DbSearchResultPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-					experimentResult = clientFrame.getClient().getExperimentResult(clientFrame.getProjectPnl().getCurrentProjContent(), clientFrame.getProjectPnl().getCurrentExperimentContent());
+					dbSearchResult = clientFrame.getClient().getDbSearchResult(clientFrame.getProjectPnl().getCurrentProjContent(), clientFrame.getProjectPnl().getCurrentExperimentContent());
 					//TODO ADD search engine from runtable
 					List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-					experimentResult.setSearchEngines(searchEngines);
-					
+					dbSearchResult.setSearchEngines(searchEngines);
 					
 					updateProteinResultsTable();
 					proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
@@ -250,7 +249,6 @@ public class DbSearchResultPanel extends JPanel{
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt) {
 				queryProteinTableMouseClicked(evt);
-				//TODO
 				// Select first row of peptide table
 				peptideTbl.getSelectionModel().setSelectionInterval(0, 0);	
 				// Creates PSM Table
@@ -401,8 +399,8 @@ public class DbSearchResultPanel extends JPanel{
 			clearPeptideResultTable();
 
 			String accession = proteinTbl.getValueAt(row, 1).toString();
-			currentPeptideHits = experimentResult.getProteinHit(accession).getPeptideHits();
-			Set<Entry<String, PeptideHit>> entrySet = experimentResult.getProteinHit(accession).getPeptideHits().entrySet();
+			currentPeptideHits = dbSearchResult.getProteinHit(accession).getPeptideHits();
+			Set<Entry<String, PeptideHit>> entrySet = dbSearchResult.getProteinHit(accession).getPeptideHits().entrySet();
 			
 			// Counter variable
 			int i = 1;
@@ -486,7 +484,6 @@ public class DbSearchResultPanel extends JPanel{
 			// Iterate the found peptide results
 			for (Entry<Long, PeptideSpectrumMatch> entry : entrySet) {
 				PeptideSpectrumMatch psm = entry.getValue();
-				
 				
 				// Add current PSM to the currentPsms map
 				currentPsms.put(i, psm);
@@ -940,10 +937,10 @@ public class DbSearchResultPanel extends JPanel{
 		maxSpectralCount = 0;
 		maxPeptideCount = 0;
 		// Fill the protein results table.
-		if (experimentResult != null) {
+		if (dbSearchResult != null) {
 			
 			// Iterate the found protein results
-			for (Entry entry : experimentResult.getProteinHits().entrySet()){
+			for (Entry entry : dbSearchResult.getProteinHits().entrySet()){
 				
 				// Get the protein hit.
 				ProteinHit proteinHit = (ProteinHit) entry.getValue();

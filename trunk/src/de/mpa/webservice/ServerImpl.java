@@ -190,18 +190,18 @@ public class ServerImpl implements Server {
 	/**
 	 * This method runs the denovo search on the server.
 	 * @param filename The spectrum filename.
-	 * @param denovoSearchSettings The denovo search settings.
+	 * @param dnSettings The denovo search settings.
 	 * @throws Exception
 	 */
-	public void runDenovoSearch(String filename, DenovoSearchSettings denovoSearchSettings) {	
+	public void runDenovoSearch(String filename, DenovoSearchSettings dnSettings) {	
 		// The denovo file
 		File file = new File(ServerSettings.TRANSFER_PATH + filename);
 		
 		// Init the job manager
 		final JobManager jobManager = new JobManager(msgQueue);
 		
-		// Get general parameters
-		PepnovoJob denovoJob = new PepnovoJob(file, denovoSearchSettings.getDnFragmentTolerance(), denovoSearchSettings.getDnNumSolutions());
+		// Start the de-novo job with the de-novo search settings.
+		PepnovoJob denovoJob = new PepnovoJob(file, dnSettings.getModel(), dnSettings.getPrecursorTol(), dnSettings.getFragMassTol(), dnSettings.getNumSolutions());
 		jobManager.addJob(denovoJob);
 		jobManager.execute();
 		jobManager.clear();
@@ -213,7 +213,7 @@ public class ServerImpl implements Server {
 		try {
 			// 	DB Manager instance					
 			dbManager = new DBManager();
-			dbManager.storeSpectra(file, denovoSearchSettings.getExperimentid());
+			dbManager.storeSpectra(file, dnSettings.getExperimentid());
 			dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
 		} catch (IOException e) {
 			log.error(e.getMessage());

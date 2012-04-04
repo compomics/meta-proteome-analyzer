@@ -1,6 +1,7 @@
-package de.mpa.client.model;
+package de.mpa.client.model.dbsearch;
 
 import java.util.TreeMap;
+
 
 
 /**

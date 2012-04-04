@@ -1,10 +1,11 @@
-package de.mpa.client.model;
+package de.mpa.client.model.dbsearch;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 
 /**
  * This class represents the set of proteins which may hold multiple peptides for each proteinhit (represented by the accession)
@@ -15,7 +16,7 @@ import java.util.TreeMap;
  * @author muth
  *
  */
-public class ExperimentResult {
+public class DbSearchResult {
 	
 	/**
 	 * The project title.
@@ -53,7 +54,7 @@ public class ExperimentResult {
 	 * @param experimentTitle The experiment title.
 	 * @param fastaDB The FASTA database.
 	 */
-	public ExperimentResult(String projectTitle, String experimentTitle, String fastaDB) {
+	public DbSearchResult(String projectTitle, String experimentTitle, String fastaDB) {
 		this.projectTitle = projectTitle;
 		this.experimentTitle = experimentTitle;
 		this.fastaDB = fastaDB;
@@ -99,8 +100,6 @@ public class ExperimentResult {
 					} else {
 						// TODO: Add search engine hits
 					}
-					
-
 				}
 				proteinHits.put(accession, currentProteinHit);
 				
