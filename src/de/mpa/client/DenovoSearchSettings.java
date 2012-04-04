@@ -16,13 +16,12 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="dnEnzyme" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="dnFragmentTolerance" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/>
- *         &lt;element name="dnMS" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="dnNumSolutions" type="{http://www.w3.org/2001/XMLSchema}int"/>
- *         &lt;element name="dnPTMs" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="dnPrecursorTolerance" type="{http://www.w3.org/2001/XMLSchema}int"/>
- *         &lt;element name="dnRemoveAllPep" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="enzyme" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="fragMassTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
+ *         &lt;element name="precursorTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
+ *         &lt;element name="model" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="numSolutions" type="{http://www.w3.org/2001/XMLSchema}int"/>
+ *         &lt;element name="mods" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -34,168 +33,142 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "denovoSearchSettings", propOrder = {
-    "dnEnzyme",
-    "dnFragmentTolerance",
-    "dnMS",
-    "dnNumSolutions",
-    "dnPTMs",
-    "dnPrecursorTolerance",
-    "dnRemoveAllPep",
+    "enzyme",
+    "fragMassTol",
+    "precursorTol",
+    "model",
+    "numSolutions",
+    "mods",
     "experimentid"
 })
 public class DenovoSearchSettings {
 
-    protected String dnEnzyme;
-    protected double dnFragmentTolerance;
-    protected String dnMS;
-    protected int dnNumSolutions;
-    protected String dnPTMs;
-    protected double dnPrecursorTolerance;
-    protected boolean dnRemoveAllPep;
+    protected String enzyme;
+    protected double fragMassTol;
+    protected double precursorTol;
+    protected String model;
+    protected int numSolutions;
+    protected String mods;
     protected long experimentid;
 
     /**
-     * Gets the value of the dnEnzyme property.
+     * Gets the value of the enzyme property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getDnEnzyme() {
-        return dnEnzyme;
+    public String getEnzyme() {
+        return enzyme;
     }
 
     /**
-     * Sets the value of the dnEnzyme property.
+     * Sets the value of the enzyme property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setDnEnzyme(String value) {
-        this.dnEnzyme = value;
+    public void setEnzyme(String value) {
+        this.enzyme = value;
     }
 
     /**
-     * Gets the value of the dnFragmentTolerance property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Double }
-     *     
-     */
-    public Double getDnFragmentTolerance() {
-        return dnFragmentTolerance;
-    }
-
-    /**
-     * Sets the value of the dnFragmentTolerance property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Double }
-     *     
-     */
-    public void setDnFragmentTolerance(Double value) {
-        this.dnFragmentTolerance = value;
-    }
-
-    /**
-     * Gets the value of the dnMS property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDnMS() {
-        return dnMS;
-    }
-
-    /**
-     * Sets the value of the dnMS property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDnMS(String value) {
-        this.dnMS = value;
-    }
-
-    /**
-     * Gets the value of the dnNumSolutions property.
+     * Gets the value of the fragMassTol property.
      * 
      */
-    public int getDnNumSolutions() {
-        return dnNumSolutions;
+    public double getFragMassTol() {
+        return fragMassTol;
     }
 
     /**
-     * Sets the value of the dnNumSolutions property.
+     * Sets the value of the fragMassTol property.
      * 
      */
-    public void setDnNumSolutions(int value) {
-        this.dnNumSolutions = value;
+    public void setFragMassTol(double value) {
+        this.fragMassTol = value;
     }
 
     /**
-     * Gets the value of the dnPTMs property.
+     * Gets the value of the precursorTol property.
+     * 
+     */
+    public double getPrecursorTol() {
+        return precursorTol;
+    }
+
+    /**
+     * Sets the value of the precursorTol property.
+     * 
+     */
+    public void setPrecursorTol(double value) {
+        this.precursorTol = value;
+    }
+
+    /**
+     * Gets the value of the model property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getDnPTMs() {
-        return dnPTMs;
+    public String getModel() {
+        return model;
     }
 
     /**
-     * Sets the value of the dnPTMs property.
+     * Sets the value of the model property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setDnPTMs(String value) {
-        this.dnPTMs = value;
+    public void setModel(String value) {
+        this.model = value;
     }
 
     /**
-     * Gets the value of the dnPrecursorTolerance property.
+     * Gets the value of the numSolutions property.
      * 
      */
-    public double getDnPrecursorTolerance() {
-        return dnPrecursorTolerance;
+    public int getNumSolutions() {
+        return numSolutions;
     }
 
     /**
-     * Sets the value of the dnPrecursorTolerance property.
+     * Sets the value of the numSolutions property.
      * 
      */
-    public void setDnPrecursorTolerance(double value) {
-        this.dnPrecursorTolerance = value;
+    public void setNumSolutions(int value) {
+        this.numSolutions = value;
     }
 
     /**
-     * Gets the value of the dnRemoveAllPep property.
+     * Gets the value of the mods property.
      * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public boolean isDnRemoveAllPep() {
-        return dnRemoveAllPep;
+    public String getMods() {
+        return mods;
     }
 
     /**
-     * Sets the value of the dnRemoveAllPep property.
+     * Sets the value of the mods property.
      * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public void setDnRemoveAllPep(boolean value) {
-        this.dnRemoveAllPep = value;
+    public void setMods(String value) {
+        this.mods = value;
     }
 
     /**

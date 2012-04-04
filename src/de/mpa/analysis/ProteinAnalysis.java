@@ -3,8 +3,8 @@ package de.mpa.analysis;
 import java.util.List;
 import java.util.Map;
 
-import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
 
 public class ProteinAnalysis {
 	

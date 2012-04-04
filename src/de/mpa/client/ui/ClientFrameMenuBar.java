@@ -445,7 +445,7 @@ public class ClientFrameMenuBar extends JMenuBar {
                     selectedFile.delete();
                 }
                 selectedFile.createNewFile();
-                ResultExporter.exportProteins(selectedFile.getPath(), client.getExperimentResult());
+                ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
                 lastSelectedFolder = selectedFile.getPath();
 
             } catch (IOException ex) {

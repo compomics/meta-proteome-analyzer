@@ -41,7 +41,6 @@ public class DBSearchPanel extends JPanel {
 	private JButton mascotSetBtn;
 	private JComboBox searchTypeCbx;
 	private ClientFrame clientFrame;
-	private DbSearchSettings settings;
 	
 	/**
 	 * The default database search panel constructor.
@@ -230,32 +229,24 @@ public class DBSearchPanel extends JPanel {
 	 * @return The database search settings.
 	 */
 	public DbSearchSettings collectDBSearchSettings() {
-		settings = new DbSearchSettings();
-		settings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
-		settings.setFragmentIonTol((Double) fragTolSpn.getValue());
-		settings.setPrecursorIonTol((Double) precTolSpn.getValue());
-		settings.setNumMissedCleavages((Integer) missClvSpn.getValue());
+		DbSearchSettings dbSettings = new DbSearchSettings();
+		dbSettings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
+		dbSettings.setFragmentIonTol((Double) fragTolSpn.getValue());
+		dbSettings.setPrecursorIonTol((Double) precTolSpn.getValue());
+		dbSettings.setNumMissedCleavages((Integer) missClvSpn.getValue());
 		// TODO: Enzyme: settings.setEnzyme(value)
-		settings.setXTandem(xTandemChk.isSelected());
-		settings.setOmssa(omssaChk.isSelected());
-		settings.setCrux(cruxChk.isSelected());
-		settings.setInspect(inspectChk.isSelected());
-		settings.setMascot(mascotChk.isSelected());
-		settings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
+		dbSettings.setXTandem(xTandemChk.isSelected());
+		dbSettings.setOmssa(omssaChk.isSelected());
+		dbSettings.setCrux(cruxChk.isSelected());
+		dbSettings.setInspect(inspectChk.isSelected());
+		dbSettings.setMascot(mascotChk.isSelected());
+		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.
-		settings.setExperimentid(clientFrame.getProjectPnl().getCurrentExperimentId());
-		return settings;
+		dbSettings.setExperimentid(clientFrame.getProjectPnl().getCurrentExperimentId());
+		return dbSettings;
 	}
-	
-	/**
-	 * Returns the database settings.
-	 * @return The DbSearchSettings.
-	 */
-	public DbSearchSettings getSettings() {
-		return settings;
-	}
-	
+		
 	
 	
 	

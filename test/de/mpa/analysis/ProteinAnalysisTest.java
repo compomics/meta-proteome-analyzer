@@ -4,8 +4,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
 
 public class ProteinAnalysisTest extends TestCase {
 

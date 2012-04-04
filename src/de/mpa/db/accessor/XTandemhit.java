@@ -34,7 +34,7 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
      */
     public static List<XTandemhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<XTandemhit> temp = new ArrayList<XTandemhit>();
-        PreparedStatement ps = aConn.prepareStatement("select x.*, p.sequence, pr.accession from xtandemhit x, peptide p, protein pr, pep2prot p2p where x.fk_peptideid = p.peptideid and x.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and x.fk_spectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement("select x.*, p.sequence, pr.accession from xtandemhit x, peptide p, protein pr, pep2prot p2p where x.fk_peptideid = p.peptideid and x.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and x.fk_searchspectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {

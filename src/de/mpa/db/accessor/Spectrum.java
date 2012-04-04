@@ -27,7 +27,7 @@ public class Spectrum extends SpectrumTableAccessor {
      *
      * @param title String with the spectrum name of the spectrum file to find.
      * @param aConn     Connection to read the spectrum File from.
-     * @return Spectrumfile with the data.
+     * @return Spectrum Spectrum DAO with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
     public static Spectrum findFromTitle(String title, Connection aConn) throws SQLException {

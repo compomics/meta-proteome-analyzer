@@ -176,6 +176,7 @@ public class ClientFrame extends JFrame {
 			tabPane.setEnabledAt(i, false);
 		}
 		tabPane.setEnabledAt(4, true);
+		tabPane.setEnabledAt(5, true);
 
 		cp.add(tabPane);
 		

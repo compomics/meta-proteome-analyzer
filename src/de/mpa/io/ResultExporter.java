@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import de.mpa.client.model.ExperimentResult;
-import de.mpa.client.model.PeptideHit;
-import de.mpa.client.model.ProteinHit;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
 
 /**
  * This class holds basic export functionalities. 
@@ -28,7 +28,7 @@ public class ResultExporter {
 	 * @throws IOException
 	 * 
 	 */
-	public static void exportProteins(String filePath, ExperimentResult expResult) throws IOException{
+	public static void exportProteins(String filePath, DbSearchResult expResult) throws IOException{
 		
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));

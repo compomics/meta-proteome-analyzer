@@ -57,7 +57,8 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
 	 */
     public static List<Searchspectrum> findFromExperimentID(long experimentid, Connection conn) throws SQLException{
     	List<Searchspectrum> spectra = new ArrayList<Searchspectrum>();
-		PreparedStatement ps = conn.prepareStatement(getBasicSelect());
+		PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE fk_experimentid = ?");
+		ps.setLong(1, experimentid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			spectra.add(new Searchspectrum(rs));

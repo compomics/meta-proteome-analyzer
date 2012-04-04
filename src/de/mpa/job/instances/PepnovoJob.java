@@ -10,10 +10,6 @@ import de.mpa.job.Job;
 
 public class PepnovoJob extends Job {	
 	
-	// PARAMETERS
-	// Model to choose
-	private final static String MODEL = "CID_IT_TRYP";
-	
 	// Modifications
 	private final static String MODS = "C+57:M+16";
 	
@@ -26,16 +22,26 @@ public class PepnovoJob extends Job {
 	 * The MGF file.
 	 */
 	private File mgfFile;
+	
+	/**
+	 * This variable holds the model, e.g. CID_IT_TRYP.
+	 */
+	private String model;
     
+	/**
+	 * The precursor mass tolerance.
+	 */
+	private double precursorTol;
+	
     /**
      * The fragment ion tolerance.
      */
 	private double fragmentTol;    
 	
 	/**
-	 * Number of suggestions.
+	 * Number of solutions, default = 20.
 	 */
-	private int numSuggestions;
+	private int nSolutions;
 	
     /**
      * The output file if specified.
@@ -48,10 +54,22 @@ public class PepnovoJob extends Job {
 	 * 
 	 * @param mgfFile
 	 */
-	public PepnovoJob(File mgfFile, double fragmentTol, int numSuggestions) {
+    
+    /**
+     * Constructor for the PepnovoJob, retrieving MGF file, model, precursor mass tolerance, 
+     * fragment mass tolerance and number of suggestions as parameters.
+     * @param mgfFile The MGF input file.
+     * @param model The input de-novo model.
+     * @param precursorTol The precursor mass tolerance.
+     * @param fragmentTol The fragment mass tolerance.
+     * @param nSolutions The number of maximum solutions.
+     */
+	public PepnovoJob(File mgfFile, String model, double precursorTol, double fragmentTol, int nSolutions) {
 		this.mgfFile = mgfFile;
+		this.model = model;
+		this.precursorTol = precursorTol;
 		this.fragmentTol = fragmentTol;
-		this.numSuggestions = numSuggestions;
+		this.nSolutions = nSolutions;
 		this.pepnovoFile = new File(JobConstants.PEPNOVO_PATH);		
 		initJob();
 		run();
@@ -61,44 +79,44 @@ public class PepnovoJob extends Job {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob() {
-		// full path to executable
+		// Full path to executable.
 		procCommands.add(pepnovoFile.getAbsolutePath() + "/" + JobConstants.PEPNOVO_EXE);
 		procCommands.trimToSize();
 		
-		// Link to the MGF file
+		// Link to the MGF file.
 		procCommands.add("-file");
 		procCommands.add(mgfFile.getAbsolutePath());
 		
-		// Add Model
+		// Model name.
 		procCommands.add("-model");
-		procCommands.add(MODEL);
+		procCommands.add(model);
 		
 		// Add modifications
 		procCommands.add("-PTMs");
 		procCommands.add(MODS);
 		
-		// Add fragment tolerance
+		// Fragment mass tolerance (each model has a default setting).
 		procCommands.add("-fragment_tolerance");
 		procCommands.add(String.valueOf(fragmentTol));
 		
-		// Add solution number
-		procCommands.add("-num_solutions");
-		procCommands.add(String.valueOf(numSuggestions));
+		// Precursor mass tolerance (each model has a default setting).
+		procCommands.add("-pm_tolerance");
+		procCommands.add(String.valueOf(precursorTol));
 		
-		// Peptide intensity threshold
+		// Number of possible solutions, default == 20
 		procCommands.add("-num_solutions");
-		procCommands.add(String.valueOf(numSuggestions));
+		procCommands.add(String.valueOf(nSolutions));
 		
-		// Add output path
+		// Add output path.
 		outputFile = new File(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName() + ".out");
 		procCommands.trimToSize();
 		
+		// Set the description for the job.
 		setDescription("PEPNOVO");
 		procBuilder = new ProcessBuilder(procCommands);
-		
 		procBuilder.directory(pepnovoFile);
 		  
-		// set error out and std out to same stream
+		// Set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
 	}
 	
