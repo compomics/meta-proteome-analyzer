@@ -35,7 +35,7 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
      */
     public static List<Omssahit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Omssahit> temp = new ArrayList<Omssahit>();
-        PreparedStatement ps = aConn.prepareStatement("select o.*, p.sequence, pr.accession from omssahit o, peptide p, protein pr, pep2prot p2p where o.fk_peptideid = p.peptideid and o.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and o.fk_searchspectrumid = ?");
+        PreparedStatement ps = aConn.prepareStatement("select o.*, p.sequence, pr.accession from omssahit o, peptide p, protein pr where o.fk_peptideid = p.peptideid and o.fk_proteinid = pr.proteinid and o.fk_searchspectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {

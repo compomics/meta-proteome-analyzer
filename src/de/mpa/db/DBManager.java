@@ -90,11 +90,12 @@ public class DBManager {
 			e.printStackTrace();
 		}
 		if(xtandemQValued != null){
-			executor.execute(new XTandemStorager(conn, new File(xtandemFilename), new File(xtandemQValued)));
+			XTandemStorager job = new XTandemStorager(conn, new File(xtandemFilename), new File(xtandemQValued));
+			job.run();
 		} else {
-			executor.execute(new XTandemStorager(conn, new File(xtandemFilename)));
+			XTandemStorager job = new XTandemStorager(conn, new File(xtandemFilename));
+			job.run();
 		}
-		
 	}
 	
 	/**
@@ -110,9 +111,11 @@ public class DBManager {
 			e.printStackTrace();
 		}
 		if(omssaQValued != null){
-			executor.execute(new OmssaStorager(conn, new File(omssaFilename), new File(omssaQValued)));
+			OmssaStorager job = new OmssaStorager(conn, new File(omssaFilename), new File(omssaQValued)); 
+			job.run();
 		} else {
-			executor.execute(new OmssaStorager(conn, new File(omssaFilename)));
+			OmssaStorager job = new OmssaStorager(conn, new File(omssaFilename));
+			job.run();
 		}
 	}
 	
@@ -128,7 +131,8 @@ public class DBManager {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		executor.execute(new CruxStorager(conn, new File(cruxFilename)));		
+		CruxStorager job = new CruxStorager(conn, new File(cruxFilename));	
+		job.run();
 	}
 	
 	/**
@@ -144,7 +148,8 @@ public class DBManager {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		executor.execute(new InspectStorager(conn, new File(inspectFilename)));
+		InspectStorager job = new InspectStorager(conn, new File(inspectFilename));
+		job.run();
 	}
 	
 	/**

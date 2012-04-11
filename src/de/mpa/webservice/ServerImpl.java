@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.db.DBManager;
+import de.mpa.db.MapContainer;
+import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
 import de.mpa.job.SearchType;
 import de.mpa.job.instances.CruxJob;
@@ -98,6 +100,19 @@ public class ServerImpl implements Server {
 		double fragIonTol = dbSearchSettings.getFragmentIonTol();
 		double precIonTol = dbSearchSettings.getPrecursorIonTol();
 		
+		// The FASTA loader
+		FastaLoader fastaLoader = FastaLoader.getInstance();
+		fastaLoader.setFastaFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta"));
+		
+		try {
+			fastaLoader.setIndexFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta.fb"));
+			fastaLoader.readIndexFile();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		MapContainer.FastaLoader = fastaLoader;
 		// X!Tandem job
 		if(dbSearchSettings.isXTandem()){
 			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);

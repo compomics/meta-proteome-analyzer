@@ -24,10 +24,18 @@ public class FastaLoader {
 	 * The accession-To-Position map.
 	 */
 	private HashMap<String, Long> acc2pos;
-
+	
+	/**
+	 * The random access file instance.
+	 */
 	private RandomAccessFile raf;
 
 	private File file;
+	
+	/**
+	 * The index file.
+	 */
+	private File indexFile;
 	
 	/**
 	 * Singleton object of the FastaLoader.
@@ -62,18 +70,29 @@ public class FastaLoader {
 	 */
 	public Protein getProteinFromFasta(String accession) throws IOException {
 		Long pos = acc2pos.get(accession);
-		raf = new RandomAccessFile(file, "r");
-		raf.seek(pos);
-		String line = raf.readLine();
-		// Parse the header
-		String header = line;
-		StringBuilder sb = new StringBuilder();
-		while((line=raf.readLine() )!= null) {
-			if (line.startsWith(">")) break;
-			sb.append(line);
+		
+		if(raf == null){
+			raf = new RandomAccessFile(file, "r");
 		}
+		
+		raf.seek(pos);
+		String line = "";
+		String temp = "";
 
-		return new Protein(header, sb.toString());
+		String header = "";
+		while ((line = raf.readLine()) != null) {
+			line = line.trim();
+
+			if (line.startsWith(">")) {
+				if (!temp.equals("")) {
+					break;
+				}
+				header = line;
+			} else {
+				temp += line;
+			}
+		}
+		return new Protein(header, temp);
 	}
 	
 	/**
@@ -82,7 +101,8 @@ public class FastaLoader {
 	 * @throws IOException
 	 */
 	public void writeIndexFile() throws FileNotFoundException, IOException {
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(file.getName() + ".fb")));
+		indexFile = new File(file.getAbsolutePath() + ".fb");
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
 		oos.writeObject(acc2pos);
 		oos.flush();
 		oos.close();
@@ -94,7 +114,7 @@ public class FastaLoader {
 	 * @throws ClassNotFoundException
 	 */
 	public void readIndexFile() throws IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(new File(file.getName() + ".fb"));
+		FileInputStream fis = new FileInputStream(indexFile);
 		ObjectInputStream ois = new ObjectInputStream(fis);
 		acc2pos = (HashMap<String, Long>) ois.readObject();
 		fis.close();
@@ -160,6 +180,47 @@ public class FastaLoader {
 	public void setFastaFile(File file) {
 		this.file = file;
 	}
+	
+	
+	/**
+	 * Returns the current index file.
+	 * @return indexFile
+	 */
+	public File getIndexFile() {
+		return indexFile;
+	}
+	
+	/**
+	 * Sets the current index file.
+	 * @param indexFile The current index file.
+	 */
+	public void setIndexFile(File indexFile) {
+		this.indexFile = indexFile;
+	}
+	
+	public void close(){
+		try {
+			raf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		File file = new File(args[0]);
+		FastaLoader fastaLoader = FastaLoader.getInstance();
+		fastaLoader.setFastaFile(file);
+		
+		try {
+			fastaLoader.loadFastaFile();
+			fastaLoader.writeIndexFile();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	
 }

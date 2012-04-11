@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import com.compomics.util.protein.Header;
+import com.compomics.util.protein.Protein;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
@@ -23,6 +23,7 @@ import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
+import de.mpa.util.Formatter;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
 import de.proteinms.omxparser.util.MSHits;
@@ -135,7 +136,7 @@ public class OmssaStorager extends BasicStorager {
     	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
     	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
     	    	
-    	    	qvalues = scoreQValueMap.get(round(msHit.MSHits_evalue, 5));    	       
+    	    	qvalues = scoreQValueMap.get(Formatter.roundDouble(msHit.MSHits_evalue, 5));    	       
     	        
     	    	// If no q-value is found: Assign default values.
                 if(qvalues == null){
@@ -149,22 +150,24 @@ public class OmssaStorager extends BasicStorager {
                 // Create the database object.
                 if((Double)hitdata.get(OmssahitTableAccessor.QVALUE) < 0.1){
                 	
-                	  // Get the peptide id
+                	// Get the peptide id
                     long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
                     hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
                     
                 	 // Parse the FASTA header
                     Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
                     String accession = header.getAccession();
-                    String description = header.getDescription();
+                    
                     Long proteinID;
-                    // The Protein
-                    ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-                    if (protein == null) {	// protein not yet in database
+                    // The Protein DAO
+                    ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
+                    if (proteinDAO == null) {	// Protein not yet in database
     						// Add new protein to the database
-    						protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
+                    	 	Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+                    	 	String description = protein.getHeader().getDescription();
+    						proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
     					} else {
-    						proteinID = protein.getProteinid();
+    						proteinID = proteinDAO.getProteinid();
     						// check whether pep2prot link already exists, otherwise create new one
     						Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
     						if (pep2prot == null) {	// link doesn't exist yet
@@ -172,7 +175,7 @@ public class OmssaStorager extends BasicStorager {
     							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
     						}
     				}
-                    hitdata.put(OmssahitTableAccessor.FK_PROTEINID, protein.getProteinid());
+                    hitdata.put(OmssahitTableAccessor.FK_PROTEINID, proteinDAO.getProteinid());
                     
                 	// Create the database object.
         	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
@@ -208,7 +211,7 @@ public class OmssaStorager extends BasicStorager {
 				while (tokenizer.hasMoreTokens()) {
 					tokenList.add(tokenizer.nextToken());
 				}				
-				double score = round(Double.valueOf(tokenList.get(0)), 5);
+				double score = Formatter.roundDouble(Double.valueOf(tokenList.get(0)), 5);
 				qvalityList.add(Double.valueOf(tokenList.get(1)));
 				qvalityList.add(Double.valueOf(tokenList.get(2)));
 				scoreQValueMap.put(score, qvalityList);
@@ -219,12 +222,7 @@ public class OmssaStorager extends BasicStorager {
 			e.printStackTrace();
 		}
 	}
-    
-    public double round(double d, int decimalPlace){
-        BigDecimal bd = new BigDecimal(Double.toString(d));
-        bd = bd.setScale(decimalPlace,BigDecimal.ROUND_HALF_UP);
-        return bd.doubleValue();
-      }
+   
 
 	@Override
 	public void run() {

@@ -3,8 +3,10 @@ package de.mpa.analysis;
 import java.util.List;
 import java.util.Map;
 
+import no.uib.jsparklines.renderers.util.Util;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.util.Formatter;
 
 public class ProteinAnalysis {
 	
@@ -64,6 +66,9 @@ public class ProteinAnalysis {
 	    
 	    // Add the C-terminal mass.
 	    molWeight += Masses.C_term;
+	    
+	    // Get the weight in kDa
+	    molWeight = Util.roundDouble((molWeight / 1000.0), 3);
 	    proteinHit.setMolWeight(molWeight);
 	}
 	
@@ -116,8 +121,8 @@ public class ProteinAnalysis {
 				nCoveredAA++;
 			}
 		}
-		double coverage = (double) nCoveredAA / (double) sequence.length();
-		proteinHit.setCoverage(coverage);
+		double coverage = ((double) nCoveredAA / (double) sequence.length()) * 100.0 ;
+		proteinHit.setCoverage(Formatter.roundDouble(coverage, 2));
 	}
 	
 	/**

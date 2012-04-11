@@ -41,7 +41,7 @@ public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
      */
     public static List<Inspecthit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Inspecthit> temp = new ArrayList<Inspecthit>();
-    	PreparedStatement ps = aConn.prepareStatement("select i.*, p.sequence, pr.accession from inspecthit i, peptide p, protein pr, pep2prot p2p where i.fk_peptideid = p.peptideid and i.fk_peptideid = p2p.fk_peptideid and p2p.fk_proteinid = pr.proteinid and i.fk_searchspectrumid = ?");
+    	PreparedStatement ps = aConn.prepareStatement("select i.*, p.sequence, pr.accession from inspecthit i, peptide p, protein pr where i.fk_peptideid = p.peptideid and i.fk_proteinid = pr.proteinid and i.fk_searchspectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {

@@ -54,12 +54,14 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.Masses;
+import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.CustomTableCellRenderer;
+import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -220,7 +222,7 @@ public class DbSearchResultPanel extends JPanel{
 		// Protein table
 		proteinTbl = new JXTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "Peptide Count", "Spectral Count"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "Coverage (%)", "Mass (kDa)", "Peptide Count", "Spectral Count"}); }
 	
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -231,6 +233,12 @@ public class DbSearchResultPanel extends JPanel{
 		proteinTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		proteinTbl.getColumn("Accession").setMinWidth(70);
 		proteinTbl.getColumn("Accession").setMaxWidth(70);
+		proteinTbl.getColumn("Coverage (%)").setMinWidth(90);
+		proteinTbl.getColumn("Coverage (%)").setMaxWidth(90);
+		proteinTbl.getColumn("Coverage (%)").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
+		proteinTbl.getColumn("Mass (kDa)").setMinWidth(90);
+		proteinTbl.getColumn("Mass (kDa)").setMaxWidth(90);
+		proteinTbl.getColumn("Mass (kDa)").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
 		proteinTbl.getColumn("Peptide Count").setMinWidth(110);
 		proteinTbl.getColumn("Peptide Count").setMaxWidth(110);
 		proteinTbl.getColumn("Spectral Count").setMinWidth(115);
@@ -239,7 +247,8 @@ public class DbSearchResultPanel extends JPanel{
 		// Sort the table by the number of peptides
 		TableRowSorter<TableModel> sorter  = new TableRowSorter<TableModel>(proteinTbl.getModel());
 		List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
-		sortKeys.add(new RowSorter.SortKey(4, SortOrder.DESCENDING));
+		// Sort the table by the descending spectral count.
+		sortKeys.add(new RowSorter.SortKey(6, SortOrder.DESCENDING));
 		
 		sorter.setSortKeys(sortKeys);
 		proteinTbl.setRowSorter(sorter);
@@ -347,18 +356,22 @@ public class DbSearchResultPanel extends JPanel{
 		// Peptide table
 		psmTbl = new JXTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "z"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "z", "Votes"}); }
 	
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
 		});
-		psmTbl.getColumn(" ").setMinWidth(30);
-		psmTbl.getColumn(" ").setMaxWidth(30);
+//		psmTbl.getColumn(" ").setMinWidth(30);
+//		psmTbl.getColumn(" ").setMaxWidth(30);
 		psmTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		psmTbl.getColumn("z").setMinWidth(40);
-		psmTbl.getColumn("z").setMaxWidth(40);
+//		psmTbl.getColumn("z").setMinWidth(40);
+//		psmTbl.getColumn("z").setMaxWidth(40);
 		psmTbl.getColumn("z").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
+//		psmTbl.getColumn("Votes").setMinWidth(40);
+//		psmTbl.getColumn("Votes").setMaxWidth(40);
+		TableConfig.setColumnWidths(psmTbl, new double[]{1, 8, 2, 2});
+		psmTbl.getColumn("Votes").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
 		
 		psmTbl.addMouseListener(new java.awt.event.MouseAdapter() {
 			
@@ -492,7 +505,7 @@ public class DbSearchResultPanel extends JPanel{
 							i,
 							currentSelectedPeptide,
 							"+"+ psm.getCharge(),
-							""});
+							psm.getVotes()});
 				i++;
 				}
 			}
@@ -942,8 +955,8 @@ public class DbSearchResultPanel extends JPanel{
 			// Iterate the found protein results
 			for (Entry entry : dbSearchResult.getProteinHits().entrySet()){
 				
-				// Get the protein hit.
-				ProteinHit proteinHit = (ProteinHit) entry.getValue();
+				// Get the protein hit
+				ProteinHit proteinHit = new ProteinAnalysis((ProteinHit) entry.getValue()).getProteinHit();
 				
 				// Determine the number of containing peptide hits.
 				int peptideCount = proteinHit.getPeptideCount();
@@ -962,6 +975,8 @@ public class DbSearchResultPanel extends JPanel{
 						i ,
 						proteinHit.getAccession(),
 						proteinHit.getDescription(),
+						proteinHit.getCoverage(),
+						proteinHit.getMolWeight(),
 						peptideCount, 
 						spectralCount});
 				i++;
@@ -971,6 +986,8 @@ public class DbSearchResultPanel extends JPanel{
 			
 			proteinTbl.getColumn("Peptide Count").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, (double) maxPeptideCount, true));
 			((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("Peptide Count").getCellRenderer()).showNumberAndChart(true, 20, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
+			//proteinTbl.getColumn("Coverage").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 100.0, true));
+			//((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("Coverage").getCellRenderer()).showNumberAndChart(true, 20, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
 		}
 	}
 	
