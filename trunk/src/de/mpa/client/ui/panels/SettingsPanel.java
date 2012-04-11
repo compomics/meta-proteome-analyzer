@@ -89,15 +89,19 @@ public class SettingsPanel extends JPanel {
 				newForwardKeys);
 
 		CellConstraints cc = new CellConstraints();
+		
+		FormLayout layout = new FormLayout("5dlu, p, 10dlu, p, 10dlu, p, 5dlu",
+		  "5dlu, f:p, 8dlu, f:p:g, 8dlu, b:p, 5dlu");
+		layout.setColumnGroups(new int[][] {{2,4,6}});
 
-		this.setLayout(new FormLayout("5dlu, p, 15dlu, p, 15dlu, p, 5dlu",
-									  "5dlu, f:p, 5dlu, f:p, 5dlu, f:p:g, 5dlu"));
+		this.setLayout(layout);
 		
 		// database search settings panel
 		databasePnl = new DBSearchPanel(clientFrame);
 		databasePnl.setEnabled(true);
 		
 		JCheckBox databaseChk = new JCheckBox("Database Search", true);
+		databaseChk.setFocusPainted(false);
 		databaseChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -177,8 +181,8 @@ public class SettingsPanel extends JPanel {
 		// add sub-panels to main settings panel
 		this.add(databasePnl, cc.xy(2, 2));
 		this.add(specLibPnl, cc.xy(4, 2));
-		this.add(deNovoPnl, cc.xy(6, 2));
-		this.add(processPnl, cc.xy(6, 4));
+		this.add(deNovoPnl, cc.xywh(6, 2, 1, 3));
+		this.add(processPnl, cc.xy(6, 6));
 		this.add(specLibPnl.getPreviewPnl(), cc.xywh(2, 4, 3, 3));
 	}
 
@@ -222,10 +226,10 @@ public class SettingsPanel extends JPanel {
 					long elapsedTime = System.currentTimeMillis() - startTime;
 					long remainingTime = 0L;
 					if (progressRel > 0.0) {
-						remainingTime = (long) (elapsedTime/progressRel*(100.0-progressRel)/1000.0);
+						remainingTime = ((long) (elapsedTime/progressRel*(100.0-progressRel)) + 999L) / 1000L;
 					}
 					timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
-							(remainingTime%3600)/60, (remainingTime%60)));
+							(remainingTime%3600)/60, remainingTime%60));
 				}
 			};
 			client.addPropertyChangeListener(listener);

@@ -9,16 +9,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.UIManager;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.tree.TreePath;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.DenovoSearchSettings;
+import de.mpa.client.ui.CheckBoxTreeSelectionModel;
+import de.mpa.client.ui.CheckBoxTreeTable;
+import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
@@ -30,10 +30,10 @@ public class DeNovoSearchPanel extends JPanel {
 	private JSpinner dnFragTolSpn;
 	private JSpinner dnPrecTolSpn;
 	private JSpinner dnNumSolutionsSpn;
-	private JTable dnPTMtbl;
 	private JPanel parPnl;
-	private JScrollPane dnPTMscp;
-	private JPanel ptmsPnl;
+	private JScrollPane ptmScp;
+	private JPanel ptmPnl;
+	private CheckBoxTreeTable ptmTree;
 	private ClientFrame clientFrame;
 	
 	/**
@@ -51,7 +51,8 @@ public class DeNovoSearchPanel extends JPanel {
 		
 		CellConstraints cc = new CellConstraints();
 		
-		this.setLayout(new FormLayout("7dlu, p, 7dlu", "0dlu, f:p, 5dlu, f:p:g, 7dlu"));
+		this.setLayout(new FormLayout("7dlu, p:g, 7dlu",
+				"0dlu, f:p, 5dlu, f:p:g, 7dlu"));
 
 		// Parameters		
 		parPnl = new JPanel();
@@ -97,69 +98,159 @@ public class DeNovoSearchPanel extends JPanel {
 		parPnl.add(dnNumSolutionsSpn,cc.xy(6, 12));
 
 		// Panel PTMs
-		ptmsPnl = new JPanel();
-		ptmsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
+		ptmPnl = new JPanel();
+		ptmPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
 										 "0dlu, f:p:g, 5dlu"));	// row
-		ptmsPnl.setBorder(new ComponentTitledBorder(new JLabel("Modifications"), ptmsPnl));
-
-		DefaultTableModel model = new DefaultTableModel(new Object[] {"PTM", ""}, 0) {
-			public Class<?> getColumnClass(int c) {	// method allows checkboxes in table
-				return getValueAt(0,c).getClass();
-			}
-			public boolean isCellEditable(int row, int col) { // only allow editing of checkboxes
-				return ((col == 1) ? true : false);
-			}
-		};
-		for (int i = 0; i < Constants.PTMS.length; i++) {
-			model.addRow(new Object[] {Constants.PTMS[i], false});
+		ptmPnl.setBorder(new ComponentTitledBorder(new JLabel("Modifications"), ptmPnl));
+		
+		CheckBoxTreeTableNode ptmRoot = buildPTMtree();
+		
+		ptmTree = new CheckBoxTreeTable(ptmRoot);
+		ptmTree.setRootVisible(false);
+		ptmTree.setShowsRootHandles(true);
+		ptmTree.setTableHeader(null);
+		
+		for (int i = 0; i < ptmRoot.getChildCount(); i++) {
+			TreePath path = new TreePath(new Object[] { ptmRoot, ptmRoot.getChildAt(i) });
+			ptmTree.expandPath(path);
 		}
-		// make table components able to appear disabled when table itself is disabled
-		dnPTMtbl = new JTable(model) {
-			public Component prepareRenderer(final TableCellRenderer renderer, int row, int column) {
-				Component comp = super.prepareRenderer(renderer, row, column);
-				comp.setEnabled(isEnabled());	// Enable/disable renderer same as table.
-				return comp;
-			}
-		};
-		final TableCellRenderer tcr = dnPTMtbl.getTableHeader().getDefaultRenderer();
-		dnPTMtbl.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
-			public Component getTableCellRendererComponent(JTable table, Object value,
-					boolean isSelected, boolean hasFocus, int row, int column) {
-				Component comp = tcr.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				comp.setEnabled(dnPTMtbl.isEnabled());
-				return comp;
-			}
-		});
-		dnPTMtbl.getTableHeader().setReorderingAllowed(false);
-
-		dnPTMtbl.getColumnModel().getColumn(1).setMaxWidth(dnPTMtbl.getColumnModel().getColumn(1).getMinWidth());
-		dnPTMtbl.setShowVerticalLines(false);
-		dnPTMscp = new JScrollPane(dnPTMtbl);
+		
+		CheckBoxTreeSelectionModel cbtsm = ptmTree.getCheckBoxTreeSelectionModel();
+		cbtsm.addSelectionPath(ptmRoot.getFirstLeaf().getPath());
+		
+		ptmScp = new JScrollPane(ptmTree);
 		//		dnPTMscp.setPreferredSize(new Dimension(0, 0));
-		dnPTMscp.setPreferredSize(new Dimension(200, 100));
-		dnPTMscp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		dnPTMscp.setToolTipText("Choose possible PTMs");
-		dnPTMscp.setEnabled(false);
-		ptmsPnl.add(dnPTMscp,cc.xy(2,2));
+		ptmScp.setPreferredSize(new Dimension(200, 100));
+		ptmScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		ptmScp.setToolTipText("Choose possible PTMs");
+		ptmScp.setEnabled(false);
+		ptmPnl.add(ptmScp,cc.xy(2,2));
 
 		// add panels
 		this.add(parPnl, cc.xy(2, 2));
-		this.add(ptmsPnl, cc.xy(2, 4));
+		this.add(ptmPnl, cc.xy(2, 4));
 	}
 	
+	/**
+	 * Method to build tree of possible PepNovo+ PTMs.
+	 * 
+	 * @return The root node of the newly created tree.
+	 */
+	private CheckBoxTreeTableNode buildPTMtree() {
+		
+		CheckBoxTreeTableNode ptmRoot = new CheckBoxTreeTableNode();
+
+		// internal PTMs
+		CheckBoxTreeTableNode internal = new CheckBoxTreeTableNode("Internal");
+		
+		CheckBoxTreeTableNode cam = new CheckBoxTreeTableNode("Carbamidomethyl");
+		cam.add(new CheckBoxTreeTableNode("C+57", true));
+		for (char aa : "HDE".toCharArray())
+			cam.add(new CheckBoxTreeTableNode(aa + "+57"));
+		CheckBoxTreeTableNode lcam = new CheckBoxTreeTableNode("Loss-Carbamidomethyl");
+		lcam.add(new CheckBoxTreeTableNode("C-57"));
+		CheckBoxTreeTableNode form = new CheckBoxTreeTableNode("Formaldehyde");
+		form.add(new CheckBoxTreeTableNode("W+12"));
+		CheckBoxTreeTableNode kynu = new CheckBoxTreeTableNode("Kynurenin-Oxidation");
+		kynu.add(new CheckBoxTreeTableNode("W+4"));
+		CheckBoxTreeTableNode pot = new CheckBoxTreeTableNode("Potassium");
+		for (char aa : "SKNPLRVIEMDGA".toCharArray())
+			pot.add(new CheckBoxTreeTableNode(aa + "+38"));
+		CheckBoxTreeTableNode t2r = new CheckBoxTreeTableNode("Thr/Arg-Substitution");
+		t2r.add(new CheckBoxTreeTableNode("R+55"));
+		CheckBoxTreeTableNode soad = new CheckBoxTreeTableNode("Sodium Adduct");
+		for (char aa : "QVPNYTHDESFAMILG".toCharArray())
+			soad.add(new CheckBoxTreeTableNode(aa + "+22"));
+		CheckBoxTreeTableNode acet = new CheckBoxTreeTableNode("Acetylation");
+		for (char aa : "LTSYGVMPDAK".toCharArray())
+			acet.add(new CheckBoxTreeTableNode(aa + "+42"));
+		CheckBoxTreeTableNode carb = new CheckBoxTreeTableNode("Carbamylation");
+		for (char aa : "PANMETGDLFIQSVK".toCharArray())
+			carb.add(new CheckBoxTreeTableNode(aa + "+43"));
+		CheckBoxTreeTableNode dehy = new CheckBoxTreeTableNode("Dehydration");
+		for (char aa : "EDST".toCharArray())
+			dehy.add(new CheckBoxTreeTableNode(aa + "-18"));
+		CheckBoxTreeTableNode dime = new CheckBoxTreeTableNode("Dimethylation");
+		dime.add(new CheckBoxTreeTableNode("K+28"));
+		CheckBoxTreeTableNode diox = new CheckBoxTreeTableNode("Dioxidation");
+		for (char aa : "MW".toCharArray())
+			diox.add(new CheckBoxTreeTableNode(aa + "+32"));
+		CheckBoxTreeTableNode fory = new CheckBoxTreeTableNode("Formylation");
+		for (char aa : "ST".toCharArray())
+			fory.add(new CheckBoxTreeTableNode(aa + "+28"));
+		CheckBoxTreeTableNode oxid = new CheckBoxTreeTableNode("Oxidation");
+		for (char aa : "MHW".toCharArray())
+			oxid.add(new CheckBoxTreeTableNode(aa + "+16"));
+		CheckBoxTreeTableNode hydr = new CheckBoxTreeTableNode("Hydroxylation");
+		for (char aa : "DKNP".toCharArray())
+			hydr.add(new CheckBoxTreeTableNode(aa + "+16"));
+		CheckBoxTreeTableNode deam = new CheckBoxTreeTableNode("Deamidation");
+		for (char aa : "NQ".toCharArray())
+			deam.add(new CheckBoxTreeTableNode(aa + "+1"));
+		CheckBoxTreeTableNode meth = new CheckBoxTreeTableNode("Methylation");
+		for (char aa : "CHKNQR".toCharArray())
+			meth.add(new CheckBoxTreeTableNode(aa + "+14"));
+		CheckBoxTreeTableNode phos = new CheckBoxTreeTableNode("Phosphorylation");
+		for (char aa : "STY".toCharArray())
+			phos.add(new CheckBoxTreeTableNode(aa + "+80"));
+		CheckBoxTreeTableNode pyro = new CheckBoxTreeTableNode("Pyro-Glu");
+		pyro.add(new CheckBoxTreeTableNode("Q-17"));
+		CheckBoxTreeTableNode succ = new CheckBoxTreeTableNode("N-Succinimide");
+		succ.add(new CheckBoxTreeTableNode("N-17"));
+
+		internal.add(cam);	internal.add(lcam);	internal.add(form);
+		internal.add(kynu);	internal.add(pot);	internal.add(t2r);
+		internal.add(soad);	internal.add(acet);	internal.add(carb);
+		internal.add(dehy);	internal.add(dime);	internal.add(diox);
+		internal.add(fory);	internal.add(oxid);	internal.add(hydr);
+		internal.add(deam);	internal.add(meth);	internal.add(phos);
+		internal.add(pyro);	internal.add(succ);
+		
+		// C-terminal PTMs
+		CheckBoxTreeTableNode cterm = new CheckBoxTreeTableNode("C-Terminal");
+		
+		CheckBoxTreeTableNode cami = new CheckBoxTreeTableNode("C-Amidation");
+		cami.add(new CheckBoxTreeTableNode("$-1"));
+		CheckBoxTreeTableNode o18 = new CheckBoxTreeTableNode("O18-Labeling");
+		o18.add(new CheckBoxTreeTableNode("$+2"));
+		
+		cterm.add(cami);
+		cterm.add(o18);
+		
+		// N-terminal PTMs
+		CheckBoxTreeTableNode nterm = new CheckBoxTreeTableNode("N-Terminal");
+
+		CheckBoxTreeTableNode nmet = new CheckBoxTreeTableNode("N-Methylation");
+		nmet.add(new CheckBoxTreeTableNode("^+14"));
+		CheckBoxTreeTableNode nace = new CheckBoxTreeTableNode("N-Acetylation");
+		nace.add(new CheckBoxTreeTableNode("^+42"));
+		CheckBoxTreeTableNode ntcam = new CheckBoxTreeTableNode("NT+CAM");
+		ntcam.add(new CheckBoxTreeTableNode("^+57"));
+		
+		nterm.add(nmet);
+		nterm.add(nace);
+		nterm.add(ntcam);
+		
+		// add everything to root
+		ptmRoot.add(internal);
+		ptmRoot.add(cterm);
+		ptmRoot.add(nterm);
+		
+		return ptmRoot;
+	}
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		for (Component child : parPnl.getComponents()) {
 			child.setEnabled(enabled);
 		}
-		for (Component child : dnPTMscp.getComponents()) {
+		for (Component child : ptmScp.getComponents()) {
 			child.setEnabled(enabled);
 		}
 		((ComponentTitledBorder)parPnl.getBorder()).setEnabled(enabled);
-		((ComponentTitledBorder)ptmsPnl.getBorder()).setEnabled(enabled);
-		dnPTMtbl.setEnabled(enabled);
-		dnPTMtbl.setBackground((enabled) ? UIManager.getColor("Table.background") : null);
+		((ComponentTitledBorder)ptmPnl.getBorder()).setEnabled(enabled);
+		ptmTree.setEnabled(enabled);
 	}
 	
 	/**
@@ -175,13 +266,16 @@ public class DeNovoSearchPanel extends JPanel {
 		dnSettings.setFragMassTol((Double) dnFragTolSpn.getValue());
 		dnSettings.setPrecursorTol((Double)dnPrecTolSpn.getValue() );
 		dnSettings.setNumSolutions((Integer) dnNumSolutionsSpn.getValue());
-		String mods = "";
-		for (int row = 0; row < dnPTMtbl.getRowCount(); row++) {
-			if ((Boolean) dnPTMtbl.getValueAt(row, 1)){
-				mods += (String) dnPTMtbl.getValueAt(row, 0);
-			}
+		StringBuilder mods = new StringBuilder();
+		CheckBoxTreeTableNode ptmRoot = (CheckBoxTreeTableNode) ptmTree.getTreeTableModel().getRoot();
+		CheckBoxTreeTableNode ptmLeaf = ptmRoot.getFirstLeaf();
+		while (ptmLeaf != null) {
+			mods.append(ptmLeaf.getUserObject().toString());
+			mods.append(":");
+			ptmLeaf = ptmLeaf.getNextLeaf();
 		}
-		dnSettings.setMods(mods);
+		mods.deleteCharAt(mods.length()-1);	// remove final delimiter character
+		dnSettings.setMods(mods.toString());
 		return dnSettings;
 	}	
 }

@@ -38,6 +38,7 @@ import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.treetable.TreeTableModel;
 
 public class SpectrumTreeTable extends JXTreeTable {
 	
@@ -45,7 +46,7 @@ public class SpectrumTreeTable extends JXTreeTable {
 	private SpectrumTreeCellEditor stce;
 	private int hotspot;
 	
-	public SpectrumTreeTable(SpectrumTreeTableModel treeModel) {
+	public SpectrumTreeTable(TreeTableModel treeModel) {
 
 		super(treeModel);
 		

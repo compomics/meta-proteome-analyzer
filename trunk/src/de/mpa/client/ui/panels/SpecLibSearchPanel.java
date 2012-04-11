@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -39,6 +41,7 @@ import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
+import de.mpa.client.ui.DisableComboBox;
 import de.mpa.client.ui.SpectrumTree;
 import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
@@ -135,7 +138,7 @@ public class SpecLibSearchPanel extends JPanel {
 	 * The combo box containing available spectral similarity scoring
 	 * algorithms.
 	 */
-	private JComboBox measureCbx;
+	private DisableComboBox measureCbx;
 
 	/**
 	 * Left-hand side label of cross-correlation spinner component.
@@ -188,7 +191,7 @@ public class SpecLibSearchPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("7dlu, p, 7dlu", // col
+		this.setLayout(new FormLayout("7dlu, p:g, 7dlu", // col
 				"0dlu, p, 6dlu, f:p:g, 7dlu")); // row
 
 		// spectral library search parameters
@@ -269,9 +272,19 @@ public class SpecLibSearchPanel extends JPanel {
 		previewPnl.setBorder(BorderFactory.createTitledBorder("Preview input"));
 		prePlotPnl = new PlotPanel2(null);
 		prePlotPnl.clearSpectrumFile();
-		// prePlotPnl.setMiniature(true);
-		// prePlotPnl.setMaxPadding(25);
 		prePlotPnl.setPreferredSize(new Dimension(350, 150));
+		prePlotPnl.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					boolean isMiniature = prePlotPnl.isMiniature();
+//					prePlotPnl.setMaxPadding((isMiniature) ? 50 : 25);
+					prePlotPnl.setMiniature(!isMiniature);
+					prePlotPnl.repaint();
+				}
+			}
+		});
+		
 		previewPnl.add(prePlotPnl, cc.xy(2, 1));
 
 		RefreshPlotListener refreshPlotListener = new RefreshPlotListener();
@@ -391,13 +404,19 @@ public class SpecLibSearchPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				boolean[] flags = { false, false, false };
+				measureCbx.setItemEnabledAt(3, true);
 				switch (vectMethodCbx.getSelectedIndex()) {
-				case 0:
+				case 0:		// peak matching
+					// disable cross-correlation
+					// TODO: make cross-correlation work with peak matching, if possible
+					if (measureCbx.getSelectedIndex() == 3)
+						measureCbx.setSelectedIndex(1);
+					measureCbx.setItemEnabledAt(3, false);
 					break;
-				case 1:
+				case 1:		// direct binning
 					flags[0] = true;
 					break;
-				case 2:
+				case 2:		// profiling
 					flags = new boolean[] { true, true, true };
 					break;
 				}
@@ -427,7 +446,7 @@ public class SpecLibSearchPanel extends JPanel {
 		JPanel scoringPnl = new JPanel();
 		scoringPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p, 5dlu, p"));
 
-		measureCbx = new JComboBox(new Object[] {
+		measureCbx = new DisableComboBox(new Object[] {
 				"Euclidean distance",
 				"Cosine correlation",
 				"Pearson's correlation",
@@ -467,14 +486,14 @@ public class SpecLibSearchPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				switch (measureCbx.getSelectedIndex()) {
-				case 0:
-				case 1:
-				case 2:
+				case 0:		// euclidean distance
+				case 1:		// cosine correlation
+				case 2:		// pearson's correlation
 					xCorrOffLbl.setEnabled(false);
 					xCorrOffSpn.setEnabled(false);
 					xCorrOffLbl2.setEnabled(false);
 					break;
-				case 3:
+				case 3:		// cross-correlation
 					xCorrOffLbl.setEnabled(true);
 					xCorrOffSpn.setEnabled(true);
 					xCorrOffLbl2.setEnabled(true);
@@ -566,7 +585,7 @@ public class SpecLibSearchPanel extends JPanel {
 			specComp = new PearsonCorrelation(vect, trafo);
 			break;
 		case 3:
-			specComp = new CrossCorrelation(vect, trafo);
+			specComp = new CrossCorrelation(vect, trafo, (Integer) xCorrOffSpn.getValue());
 			break;
 		}
 
@@ -602,8 +621,8 @@ public class SpecLibSearchPanel extends JPanel {
 		SpecSimSettings specSet = gatherSpecSimSettings();
 		specSet.getSpecComparator().prepare(
 				spectrumFile.getHighestPeaks(specSet.getPickCount()));
-		HashMap<Double, Double> transPeaks = (HashMap<Double, Double>) specSet
-				.getSpecComparator().getSourcePeaks();
+		HashMap<Double, Double> transPeaks = new HashMap<Double, Double>(specSet
+				.getSpecComparator().getSourcePeaks());
 		// normalize transformed spectrum
 		maxInten = 0.0;
 		for (double inten : transPeaks.values()) {
