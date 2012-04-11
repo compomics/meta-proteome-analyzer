@@ -32,7 +32,9 @@ public class CrossCorrelationTest extends TestCase {
 	
 	@Test
 	public void testCrossCorrelation() {
-		CrossCorrelation method = new CrossCorrelation();
+		Vectorization vect = new Vectorization(Vectorization.DIRECT_BINNING, 1.0);
+		Transformation trafo = new Transformation() { public double transform(double input) { return Math.sqrt(input); } };
+		CrossCorrelation method = new CrossCorrelation(vect, trafo, 75);
 		method.prepare(spectrumA.getPeaks());
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < numTests; i++) {

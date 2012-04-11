@@ -57,7 +57,7 @@ public class DBSearchPanel extends JPanel {
 		
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("7dlu, p, 7dlu",
+		this.setLayout(new FormLayout("7dlu, p:g, 7dlu",
 									  "0dlu, p, 5dlu, f:p:g, 5dlu, f:p:g, 7dlu"));
 
 		// Protein Database Panel

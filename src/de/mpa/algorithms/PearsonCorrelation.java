@@ -43,27 +43,32 @@ public class PearsonCorrelation implements SpectrumComparator {
 		this.trafo = trafo;
 	}
 	
+	// TODO: remove normalization, seems to have no effect here
+	
 	@Override
 	public void prepare(Map<Double, Double> inputPeaksSrc) {
 		
 		// bin source spectrum
 		peaksSrc = vect.vectorize(inputPeaksSrc, trafo);
 		
-		// calculate mean intensity
+		// calculate magnitude and mean intensity
+		double magSrc = 0.0;
 		double meanSrc = 0.0;
-		for (double intensity : peaksSrc.values()) {
-			meanSrc += intensity;
+		for (double intenSrc : peaksSrc.values()) {
+			magSrc += intenSrc * intenSrc;
+			meanSrc += intenSrc;
 		}
+		magSrc = Math.sqrt(magSrc);
 		meanSrc /= peaksSrc.size();
+		meanSrc /= magSrc;
 		
-		// center source intensities
+		// normalize and center source spectrum peaks
 		denom1 = 0.0;
-		for (Entry<Double, Double> peak : peaksSrc.entrySet()) {
-			double centInt = peak.getValue() - meanSrc;
-			denom1 += centInt * centInt;
-			peaksSrc.put(peak.getKey(), centInt);
+		for (Entry<Double, Double> peakSrc : peaksSrc.entrySet()) {
+			double intenSrc = peakSrc.getValue()/magSrc - meanSrc;
+			peaksSrc.put(peakSrc.getKey(), intenSrc);
+			denom1 += intenSrc * intenSrc;
 		}
-
 	}
 
 	@Override
@@ -72,17 +77,21 @@ public class PearsonCorrelation implements SpectrumComparator {
 		// bin target spectrum
 		Map<Double, Double> peaksTrg = vect.vectorize(inputPeaksTrg, trafo);
 		
-		// calculate mean intensity
+		// calculate magnitude and mean intensity
+		double magTrg = 0.0;
 		double meanTrg = 0.0;
-		for (double intensity : peaksTrg.values()) {
-			meanTrg += intensity;
+		for (double intenTrg : peaksTrg.values()) {
+			magTrg += intenTrg * intenTrg;
+			meanTrg += intenTrg;
 		}
+		magTrg = Math.sqrt(magTrg);
 		meanTrg /= peaksTrg.size();
+		meanTrg /= magTrg;
 		
 		// calculate dot product
 		double numer = 0.0, denom2 = 0.0;
 		for (Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
-			double intenTrg = peakTrg.getValue() - meanTrg;
+			double intenTrg = peakTrg.getValue()/magTrg - meanTrg;	// normalize and center
 			Double intenSrc = peaksSrc.get(peakTrg.getKey());
 			if (intenSrc != null) {
 				numer += intenSrc * intenTrg;
@@ -92,11 +101,12 @@ public class PearsonCorrelation implements SpectrumComparator {
 		
 		// normalize score
 		this.similarity = numer / Math.sqrt(denom1 * denom2);
+		this.similarity = (similarity > 0.0) ? similarity : 0.0;	// cut off negative scores
 	}
 	
 	@Override
 	public void cleanup() {
-		// TODO Auto-generated method stub
+		this.vect.setInput(null);
 	}
 
 	@Override

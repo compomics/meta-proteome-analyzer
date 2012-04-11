@@ -59,11 +59,11 @@ public class EuclideanDistance implements SpectrumComparator {
 		}
 		
 		this.similarity = Math.sqrt(distance);
-//		this.similarity = 1.0 - (Math.sqrt(distance)/sqrt2);
 	}
 
 	@Override
 	public void cleanup() {
+		this.vect.setInput(null);
 	}
 
 	@Override

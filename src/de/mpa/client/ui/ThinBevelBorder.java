@@ -14,6 +14,8 @@ import javax.swing.border.BevelBorder;
  */
 public class ThinBevelBorder extends BevelBorder {
 	
+	private Insets insets;
+
 	/**
 	 * Creates a thin bevel border with the specified type and
 	 * whose colors will be derived from the background color
@@ -21,27 +23,26 @@ public class ThinBevelBorder extends BevelBorder {
 	 * @param bevelType the type of bevel for the border
 	 */
 	public ThinBevelBorder(int bevelType) {
-		super(bevelType);
+		this(bevelType, new Insets(1, 1, 1, 1));
 	}
 	
-	/**
-	 * Returns the insets of the border.
-	 * @param c the component for which this border insets value applies
-	 */
-	public Insets getBorderInsets(Component c) {
-		return new Insets(1, 1, 1, 1);
+	public ThinBevelBorder(int bevelType, Insets insets) {
+		super(bevelType);
+		this.insets = insets;
 	}
-    
-	/**
-	 * Reinitialize the insets parameter with this Border's current Insets.
-	 * @param c the component for which this border insets value applies
-	 * @param insets the object to be reinitialized
-	 */
-	public Insets getBorderInsets(Component c, Insets insets) {
-		insets.set(1, 1, 1, 1);
+	
+	@Override
+	public Insets getBorderInsets(Component c) {
 		return insets;
 	}
-
+    
+	@Override
+	public Insets getBorderInsets(Component c, Insets insets) {
+		insets.set(this.insets.top, this.insets.left, 
+				this.insets.bottom, this.insets.right);
+		return insets;
+	}
+	
 	protected void paintRaisedBevel(Component c, Graphics g,
 									int x, int y,
 									int width, int height)  {
@@ -52,12 +53,12 @@ public class ThinBevelBorder extends BevelBorder {
 		g.translate(x, y);
 
 		g.setColor(getHighlightOuterColor(c));
-		g.drawLine(0, 0, 0, h-1);
-		g.drawLine(1, 0, w-1, 0);
+		g.drawLine(insets.left-1, insets.top-1, insets.left-1, h-insets.bottom);	// left
+		g.drawLine(insets.left, insets.top-1, w-insets.right, insets.top-1);		// top
 
 		g.setColor(getShadowOuterColor(c));
-		g.drawLine(1, h-1, w-1, h-1);
-		g.drawLine(w-1, 1, w-1, h-2);
+		g.drawLine(insets.left, h-insets.bottom, w-insets.right, h-insets.bottom);	// bottom
+		g.drawLine(w-insets.right, insets.top, w-insets.right, h-insets.bottom-1);	// right
 
 		g.translate(-x, -y);
 		g.setColor(oldColor);
@@ -74,12 +75,12 @@ public class ThinBevelBorder extends BevelBorder {
 		g.translate(x, y);
 
 		g.setColor(getShadowInnerColor(c));
-		g.drawLine(0, 0, 0, h-1);
-		g.drawLine(1, 0, w-1, 0);
+		g.drawLine(insets.left-1, insets.top-1, insets.left-1, h-insets.bottom);	// left
+		g.drawLine(insets.left, insets.top-1, w-insets.right, insets.top-1);		// top
 
 		g.setColor(getHighlightOuterColor(c));
-		g.drawLine(1, h-1, w-1, h-1);
-		g.drawLine(w-1, 1, w-1, h-2);
+		g.drawLine(insets.left, h-insets.bottom, w-insets.right, h-insets.bottom);	// bottom
+		g.drawLine(w-insets.right, insets.top, w-insets.right, h-insets.bottom-1);	// right
 
 		g.translate(-x, -y);
 		g.setColor(oldColor);

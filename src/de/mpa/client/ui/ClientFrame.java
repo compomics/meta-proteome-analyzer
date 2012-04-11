@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -148,10 +149,7 @@ public class ClientFrame extends JFrame {
 		// Get the content pane
 		Container cp = this.getContentPane();
 		cp.setLayout(new BorderLayout());		
-//		cp.add(menuBar, BorderLayout.NORTH);
 		this.setJMenuBar(menuBar);
-		
-//		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
 		ImageIcon projectIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/project.png"));
 		ImageIcon addSpectraIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/addspectra.png"));
@@ -159,7 +157,13 @@ public class ClientFrame extends JFrame {
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
+		
+		Insets oldInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
+		Insets newInsets = new Insets(0, oldInsets.left, 0, 0);
+		UIManager.put("TabbedPane.contentBorderInsets", newInsets); 
 		tabPane = new JTabbedPane(JTabbedPane.LEFT);
+		UIManager.put("TabbedPane.contentBorderInsets", oldInsets); 
+		
 		tabPane.addTab("Project", projectIcon, projectPnl);
 		tabPane.addTab("Input Spectra", addSpectraIcon, filePnl);
 		tabPane.addTab("Search Settings", settingsIcon, getSettingsPanel());
@@ -170,13 +174,9 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("De novo Results", resultsIcon, denovoResPnl);
 		tabPane.addTab("Clustering", clusteringIcon, clusterPnl);
 		tabPane.addTab("Logging", loggingIcon, logPnl);
-		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED));
+		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 		
-		for (int i = 4; i < 7; i++) {
-			tabPane.setEnabledAt(i, false);
-		}
-		tabPane.setEnabledAt(4, true);
-		tabPane.setEnabledAt(5, true);
+		tabPane.setEnabledAt(6, false);
 
 		cp.add(tabPane);
 		
@@ -554,7 +554,8 @@ public class ClientFrame extends JFrame {
 	private class ExportResultsWorker extends SwingWorker {
 
 		private int maxProgress;
-		private long startTime;
+		private long oldTime;
+		private double meanTimeDelta;
 
 		@Override
 		protected Object doInBackground() throws Exception {
@@ -572,7 +573,7 @@ public class ClientFrame extends JFrame {
 					HashMap<String, Integer> seq2id = new HashMap<String, Integer>(candidates.size());
 					maxProgress = candidates.size() * resultMap.size();
 					int curProgress = 0;
-					startTime = System.currentTimeMillis();
+					oldTime = System.currentTimeMillis();
 					progressMade(curProgress);
 					StringBuilder sb = new StringBuilder(maxProgress*2);
 					FileOutputStream fos = new FileOutputStream(new File("scores.csv"));
@@ -642,17 +643,28 @@ public class ClientFrame extends JFrame {
 		}
 
 		private void progressMade(int curProgress) {
-			double relProgress = curProgress * 100.0 / maxProgress;
-			getStatusBar().getCurrentProgressBar().setValue((int) relProgress);
+//			double relProgress = curProgress * 100.0 / maxProgress;
+//			getStatusBar().getCurrentProgressBar().setValue((int) relProgress);
+//			
+//			long elapsedTime = System.currentTimeMillis() - startTime;
+//			long remainingTime = 0L;
+//			if (relProgress > 0.0) {
+//				remainingTime = (long) (elapsedTime/relProgress*(100.0-relProgress)/1000.0);
+//			}
 			
-			long elapsedTime = System.currentTimeMillis() - startTime;
-			long remainingTime = 0L;
-			if (relProgress > 0.0) {
-				remainingTime = (long) (elapsedTime/relProgress*(100.0-relProgress)/1000.0);
-			}
+			getStatusBar().getCurrentProgressBar().setValue((int) (curProgress*100.0/maxProgress));
+			
+			int remProgress = maxProgress - curProgress;
+			long timeDelta = System.currentTimeMillis() - oldTime;
+			// calculate running mean
+			meanTimeDelta = (curProgress > 0) ?
+					meanTimeDelta*(curProgress-1.0)/curProgress + timeDelta/(double)curProgress : 0.0;
+			long remainingTime = ((long) (remProgress*meanTimeDelta) + 999L) / 1000L;
+			
 			getStatusBar().getTimeLabel().setText(
 					String.format("%02d:%02d:%02d", remainingTime/3600,
-					(remainingTime%3600)/60, (remainingTime%60)));
+					(remainingTime%3600)/60, remainingTime%60));
+			oldTime += timeDelta;
 		}
 		
 	}
