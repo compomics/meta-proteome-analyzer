@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.compomics.util.protein.Header;
+import com.compomics.util.protein.Protein;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Inspecthit;
@@ -100,14 +101,15 @@ public class InspectStorager extends BasicStorager {
         	// parse the header
             Header header = Header.parseFromFASTA(hit.getProtein());
             String accession = header.getAccession();
-            String description = header.getDescription();
+            Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+            String description = protein.getHeader().getDescription();
         	
-            ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-            if (protein == null) {	// protein not yet in database
+            ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
+            if (proteinDAO == null) {	// protein not yet in database
 					// Add new protein to the database
-					protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
+					proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
 				} else {
-					proteinID = protein.getProteinid();
+					proteinID = proteinDAO.getProteinid();
 					// check whether pep2prot link already exists, otherwise create new one
 					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
 					if (pep2prot == null) {	// link doesn't exist yet
@@ -116,7 +118,7 @@ public class InspectStorager extends BasicStorager {
 					}
 			}
             
-            hitdata.put(Inspecthit.FK_PROTEINID, protein.getProteinid());
+            hitdata.put(Inspecthit.FK_PROTEINID, proteinDAO.getProteinid());
             hitdata.put(Inspecthit.CHARGE, Long.valueOf(hit.getCharge()));
             hitdata.put(Inspecthit.MQ_SCORE, hit.getMqScore());
             hitdata.put(Inspecthit.LENGTH, Long.valueOf(hit.getLength()));
@@ -154,11 +156,11 @@ public class InspectStorager extends BasicStorager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
-			try {
-				conn.commit();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+//			try {
+//				conn.commit();
+//			} catch (SQLException e1) {
+//				e1.printStackTrace();
+//			}
 			e.printStackTrace();
 		}
 		log.info("Inspect results stored to the DB.");

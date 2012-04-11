@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.compomics.util.protein.Protein;
+
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Cruxhit2protTableAccessor;
@@ -71,7 +73,6 @@ public class CruxStorager implements Storager {
      * @throws java.sql.SQLException
      */
     public void store() throws IOException, SQLException {
-                
         List<CruxHit> hitList = cruxFile.getHits();
         String filename = cruxFile.getFilename();
         // Get the start of the spectrum's filename
@@ -128,25 +129,27 @@ public class CruxStorager implements Storager {
                     	}
 
                     	String accession = tokenList.get(1);
-
-                    	ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-                    	if (protein == null) { // protein not yet in database
+                        Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+                        String description = protein.getHeader().getDescription();
+                        
+                    	ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
+                    	if (proteinDAO == null) { // protein not yet in database
                     		// Add new protein to the database
-                    		protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, null, conn);
+                    		proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
                     	} else {
                     		// check whether pep2prot link already exists,
                     		// otherwise create new one
-                    		Pep2prot pep2prot = Pep2prot.findLink(peptideID, protein.getProteinid(), conn);
+                    		Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinDAO.getProteinid(), conn);
                     		// If no link from peptide to protein is given.
                     		if (pep2prot == null) { 
                     			// Link peptide to protein.
-                    			pep2prot = Pep2prot.linkPeptideToProtein(peptideID, protein.getProteinid(), conn);
+                    			pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinDAO.getProteinid(), conn);
                     		}
                     	}
                     	// Update the cruxhit2prot table
                         HashMap<Object, Object> cruxhitdata = new HashMap<Object, Object>(3);
                         cruxhitdata.put(Cruxhit2protTableAccessor.FK_CRUXHITID, cruxhitid);
-                        cruxhitdata.put(Cruxhit2protTableAccessor.FK_PROTEINID, protein.getProteinid());
+                        cruxhitdata.put(Cruxhit2protTableAccessor.FK_PROTEINID, proteinDAO.getProteinid());
                         
                         // Cruxhit2prot: Save the protein ids separately. 
                         Cruxhit2protTableAccessor cruxhit2prot = new Cruxhit2protTableAccessor(cruxhitdata);
@@ -155,7 +158,6 @@ public class CruxStorager implements Storager {
                     scanNumberMap.put(hit.getScanNumber(), cruxhitid);      
                     conn.commit();
                 }
-                          
         	}   
         }
     }

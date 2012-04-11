@@ -120,11 +120,11 @@ public class ProteinAccessor extends ProteinTableAccessor {
      * @return protein The newly created Protein object.
      * @throws SQLException when the persistence did not succeed.
      */
-    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, Connection conn) throws SQLException{
-    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(3);
+    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, Connection conn) throws SQLException{
+    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
 		dataProtein.put(ProteinAccessor.ACCESSION, accession);
 		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
-		
+		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
 		ProteinAccessor protein = new ProteinAccessor(dataProtein);
 		protein.persist(conn);
 

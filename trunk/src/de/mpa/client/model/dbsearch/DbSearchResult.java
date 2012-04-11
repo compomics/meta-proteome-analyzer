@@ -92,13 +92,19 @@ public class DbSearchResult {
 					
 					TreeMap<Long, PeptideSpectrumMatch> currentPsms = currentPeptideHit.getPeptideSpectrumMatches();
 					
+					// Current PSM 
 					if(!currentPsms.containsKey(psm.getSpectrumId())){
 						currentPsms.put(psm.getSpectrumId(), psm);
 						currentPeptideHit.setPeptideSpectrumMatches(currentPsms);
 						currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
 						currentProteinHit.setPeptideHits(currentPeptideHits);
 					} else {
-						// TODO: Add search engine hits
+						PeptideSpectrumMatch currentPsm = currentPsms.get(psm.getSpectrumId());
+						currentPsm.addSearchEngineHit(psm.getFirstSearchEngineHit());
+						currentPsms.put(psm.getSpectrumId(), currentPsm);
+						currentPeptideHit.setPeptideSpectrumMatches(currentPsms);
+						currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
+						currentProteinHit.setPeptideHits(currentPeptideHits);
 					}
 				}
 				proteinHits.put(accession, currentProteinHit);

@@ -35,6 +35,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
@@ -368,7 +369,7 @@ public class Client {
 				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(searchSpectrumId, conn);
 				if(xtandemList.size() > 0) {
 					for (XTandemhit hit : xtandemList) {
-						addProteinSearchHit(hit);
+						addProteinSearchHit(hit, SearchEngineType.XTANDEM);
 					}
 					
 					// Set creation date
@@ -381,23 +382,21 @@ public class Client {
 				List<Omssahit> omssaList = Omssahit.getHitsFromSpectrumID(searchSpectrumId, conn);
 				if(omssaList.size() > 0) {
 					for (Omssahit hit : omssaList) {
-						addProteinSearchHit(hit);
+						addProteinSearchHit(hit, SearchEngineType.OMSSA);
 					}
 				}
 				// Crux
 				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(searchSpectrumId, conn);				
 				if(cruxList.size() > 0) {
-					//cruxResults.put(spectrumname, cruxList);
-//					for (Cruxhit hit : cruxList) {
-//						// TODO: addProteinSearchHit(hit);
-//					}
+					for (Cruxhit hit : cruxList) {
+						//addProteinSearchHit(hit, SearchEngineType.CRUX);
+					}
 				}
 				// Inspect
 				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(searchSpectrumId, conn);		
 				if(inspectList.size() > 0) {
-					//inspectResults.put(spectrumname, inspectList);
 					for (Inspecthit hit : inspectList) {
-						addProteinSearchHit(hit);
+						addProteinSearchHit(hit, SearchEngineType.INSPECT);
 					}
 				}
 			}
@@ -433,10 +432,11 @@ public class Client {
 	 * @param hit The search hit implementation.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	private void addProteinSearchHit(SearchHit hit) throws SQLException{
+	private void addProteinSearchHit(SearchHit hit, SearchEngineType type) throws SQLException{
 		
 		// Create the PeptideSpectrumMatch
-		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
+		// TODO: here add the hit!
+		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit, type);
 		
 		// Get the peptide hit.
 		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);

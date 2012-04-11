@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import org.xml.sax.SAXException;
 
 import com.compomics.util.protein.Header;
+import com.compomics.util.protein.Protein;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Pep2prot;
@@ -152,8 +153,10 @@ public class XTandemStorager extends BasicStorager {
                               // parse the FASTA header
                               Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
                               String accession = header.getAccession();
-                              String description = header.getDescription();
-             
+                              
+                              Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+                              String description = protein.getHeader().getDescription();
+                              
                               hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
                               hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
                               hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
@@ -181,12 +184,12 @@ public class XTandemStorager extends BasicStorager {
                       	    	  
                       	    	  // Get the protein(s).
                                   Long proteinID;
-                                  ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-                                  if (protein == null) {	// protein not yet in database
+                                  ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
+                                  if (proteinDAO == null) {	// protein not yet in database
             							// Add new protein to the database
-            							protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
+                                	  proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
             						} else {
-            							proteinID = protein.getProteinid();
+            							proteinID = proteinDAO.getProteinid();
             							// check whether pep2prot link already exists, otherwise create new one
             							Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
             							if (pep2prot == null) {	// link doesn't exist yet
@@ -194,7 +197,7 @@ public class XTandemStorager extends BasicStorager {
             								pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
             							}
             						}
-                                  hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, protein.getProteinid());
+                                  hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinDAO.getProteinid());
                                   
                             	  XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
                                   xtandemhit.persist(conn);
@@ -208,9 +211,7 @@ public class XTandemStorager extends BasicStorager {
                 	      }
                 	}
 				}
-     
             }      
-           
         }
     }
     
@@ -256,7 +257,6 @@ public class XTandemStorager extends BasicStorager {
 		if(qValueFile != null) this.processQValues();		
 		try {
 			this.store();
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

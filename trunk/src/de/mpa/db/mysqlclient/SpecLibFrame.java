@@ -398,7 +398,7 @@ public class SpecLibFrame extends JFrame {
     	        						ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, description, conn);
     	        						if (protein == null) {	// protein not yet in database
     	        							// Add new protein to the database
-    	        							protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, conn);
+    	        							protein = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, "", conn);
     	    							} else {
     	    								proteinID = protein.getProteinid();
     	    								// check whether pep2prot link already exists, otherwise create new one

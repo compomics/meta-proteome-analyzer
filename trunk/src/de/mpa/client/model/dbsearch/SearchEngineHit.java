@@ -18,13 +18,19 @@ public class SearchEngineHit {
 	private SearchHit searchhit;
 	
 	/**
-	 * 
-	 * @param qvalue
-	 * @param searchhit
+	 * Holds the search engine type.
 	 */
-	public SearchEngineHit(SearchHit searchhit) {
+	private SearchEngineType type;
+	
+	/**
+	 * Builds a search engine hit.
+	 * @param searchhit The search hit.
+	 * @param type The search engine type.
+	 */
+	public SearchEngineHit(SearchHit searchhit, SearchEngineType type) {
 		this.qvalue = searchhit.getQvalue().doubleValue();
 		this.searchhit = searchhit;
+		this.type = type;
 	}
 
 	/**
@@ -41,5 +47,13 @@ public class SearchEngineHit {
 	 */
 	public SearchHit getSearchhit() {
 		return searchhit;
+	}
+	
+	/**
+	 * Returns the search engine type.
+	 * @return The search engine type.
+	 */
+	public SearchEngineType getType() {
+		return type;
 	}
 }
