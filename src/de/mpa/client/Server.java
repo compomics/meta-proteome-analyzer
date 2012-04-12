@@ -55,27 +55,24 @@ public interface Server {
 
     /**
      * 
+     * @param arg4
+     * @param arg3
+     * @param arg2
      * @param arg1
      * @param arg0
      */
     @WebMethod
-    public void runDbSearch(
+    public void runSearches(
         @WebParam(name = "arg0", partName = "arg0")
         String arg0,
         @WebParam(name = "arg1", partName = "arg1")
-        DbSearchSettings arg1);
-
-    /**
-     * 
-     * @param arg1
-     * @param arg0
-     */
-    @WebMethod
-    public void runDenovoSearch(
-        @WebParam(name = "arg0", partName = "arg0")
-        String arg0,
-        @WebParam(name = "arg1", partName = "arg1")
-        DenovoSearchSettings arg1);
+        long arg1,
+        @WebParam(name = "arg2", partName = "arg2")
+        DbSearchSettings arg2,
+        @WebParam(name = "arg3", partName = "arg3")
+        SpecSimSettings arg3,
+        @WebParam(name = "arg4", partName = "arg4")
+        DenovoSearchSettings arg4);
 
     /**
      * 

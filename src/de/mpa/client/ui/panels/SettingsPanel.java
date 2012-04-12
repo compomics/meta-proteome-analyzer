@@ -1,10 +1,14 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.AWTKeyStroke;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,8 +17,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
@@ -32,23 +33,22 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+
+import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.painter.MattePainter;
+import org.jdesktop.swingx.painter.Painter;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
-import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.ComponentTitledBorder;
-import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 
 public class SettingsPanel extends JPanel {
 
@@ -96,57 +96,109 @@ public class SettingsPanel extends JPanel {
 
 		this.setLayout(layout);
 		
+		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
+		
+		UIManager.put("JXTitledPanel.leftDecorationInsets", new Insets(0, 6, 0, 0));
+		Font ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
+		Color ttlFore = dummyPnl.getTitleForeground();
+		final Color bgCol = UIManager.getColor("Label.background");
+		Painter ttlPainter = new MattePainter(new GradientPaint(
+				0, 0, UIManager.getColor("TabbedPane.focus"),
+				0, 20, new Color(107, 147, 193)));
+		Border ttlBorder = UIManager.getBorder("TitledBorder.border");
+		
 		// database search settings panel
 		databasePnl = new DBSearchPanel(clientFrame);
 		databasePnl.setEnabled(true);
 		
-		JCheckBox databaseChk = new JCheckBox("Database Search", true);
-		databaseChk.setFocusPainted(false);
+		JCheckBox databaseChk = new JCheckBox("Database Search", true) {
+			public void paint(Graphics g) {
+				g.setColor(bgCol);
+				g.fillRect(0, 3, 12, 12);
+				super.paint(g);
+			}
+		};
 		databaseChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				databasePnl.setEnabled(((JCheckBox) evt.getSource()).isSelected());
 			}
 		});
+		databaseChk.setFont(ttlFont);
+		databaseChk.setForeground(ttlFore);
+		databaseChk.setFocusPainted(false);
+		databaseChk.setOpaque(false);
 		
-		ComponentTitledBorder databaseBrd = new ComponentTitledBorder(databaseChk, databasePnl);
-		databasePnl.setBorder(databaseBrd);
-
+		JXTitledPanel dbTtlPnl = new JXTitledPanel(" ", databasePnl);
+		dbTtlPnl.setLeftDecoration(databaseChk);
+		dbTtlPnl.setTitleFont(ttlFont);
+		dbTtlPnl.setTitlePainter(ttlPainter);
+		dbTtlPnl.setBorder(ttlBorder);
+		
 		// spectral library search settings panel
 		specLibPnl = new SpecLibSearchPanel(clientFrame);
 		specLibPnl.setEnabled(false);
 		
-		JCheckBox specLibChk = new JCheckBox("Spectral Library Search", false);
+		JCheckBox specLibChk = new JCheckBox("Spectral Library Search", false) {
+			public void paint(Graphics g) {
+				g.setColor(bgCol);
+				g.fillRect(0, 3, 12, 12);
+				super.paint(g);
+			}
+		};
 		specLibChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				specLibPnl.setEnabled(((JCheckBox) evt.getSource()).isSelected());
 			}
 		});
+		specLibChk.setFont(ttlFont);
+		specLibChk.setForeground(ttlFore);
+		specLibChk.setFocusPainted(false);
+		specLibChk.setOpaque(false);
 		
-		ComponentTitledBorder specLibBrd = new ComponentTitledBorder(specLibChk, specLibPnl);
-		specLibPnl.setBorder(specLibBrd);
-
+		JXTitledPanel slTtlPnl = new JXTitledPanel(" ", specLibPnl);
+		slTtlPnl.setLeftDecoration(specLibChk);
+		slTtlPnl.setTitleFont(ttlFont);
+		slTtlPnl.setTitlePainter(ttlPainter);
+		slTtlPnl.setBorder(ttlBorder);
+		
 		// de novo search settings panel
 		deNovoPnl = new DeNovoSearchPanel(clientFrame);
 		deNovoPnl.setEnabled(false);
 		
-		JCheckBox deNovoChk = new JCheckBox("De-novo Search", false);
+		JCheckBox deNovoChk = new JCheckBox("De-novo Search", false) {
+			public void paint(Graphics g) {
+				g.setColor(bgCol);
+				g.fillRect(0, 3, 12, 12);
+				super.paint(g);
+			}
+		};
 		deNovoChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				deNovoPnl.setEnabled(((JCheckBox) evt.getSource()).isSelected());
 			}
 		});
+		deNovoChk.setFont(ttlFont);
+		deNovoChk.setForeground(ttlFore);
+		deNovoChk.setFocusPainted(false);
+		deNovoChk.setOpaque(false);
 		
-		ComponentTitledBorder deNovoBrd = new ComponentTitledBorder(deNovoChk, deNovoPnl);
-		deNovoPnl.setBorder(deNovoBrd);
+		JXTitledPanel dnTtlPnl = new JXTitledPanel(" ", deNovoPnl);
+		dnTtlPnl.setLeftDecoration(deNovoChk);
+		dnTtlPnl.setTitleFont(ttlFont);
+		dnTtlPnl.setTitlePainter(ttlPainter);
+		dnTtlPnl.setBorder(ttlBorder);
+		
+//		ComponentTitledBorder deNovoBrd = new ComponentTitledBorder(deNovoChk, deNovoPnl);
+//		deNovoPnl.setBorder(deNovoBrd);
 
 		// general settings panel
 		JPanel processPnl = new JPanel();
 		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",
 											"0dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
-		processPnl.setBorder(BorderFactory.createTitledBorder("General"));
+//		processPnl.setBorder(BorderFactory.createTitledBorder("General"));
 		
 		packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 100));
 		packSpn.setToolTipText("Number of spectra per transfer package"); 
@@ -177,12 +229,17 @@ public class SettingsPanel extends JPanel {
 		processPnl.add(new JLabel("spectra per package"), cc.xy(6, 2));
 		processPnl.add(integrateChk, cc.xyw(2, 4, 5));
 		processPnl.add(processBtn, cc.xyw(2, 6, 5));
+
+		JXTitledPanel procTtlPnl = new JXTitledPanel("General", processPnl);
 		
 		// add sub-panels to main settings panel
-		this.add(databasePnl, cc.xy(2, 2));
-		this.add(specLibPnl, cc.xy(4, 2));
-		this.add(deNovoPnl, cc.xywh(6, 2, 1, 3));
-		this.add(processPnl, cc.xy(6, 6));
+//		this.add(databasePnl, cc.xy(2, 2));
+//		this.add(specLibPnl, cc.xy(4, 2));
+//		this.add(deNovoPnl, cc.xywh(6, 2, 1, 3));
+		this.add(dbTtlPnl, cc.xy(2, 2));
+		this.add(slTtlPnl, cc.xy(4, 2));
+		this.add(dnTtlPnl, cc.xywh(6, 2, 1, 3));
+		this.add(procTtlPnl, cc.xy(6, 6));
 		this.add(specLibPnl.getPreviewPnl(), cc.xywh(2, 4, 3, 3));
 	}
 
@@ -239,102 +296,24 @@ public class SettingsPanel extends JPanel {
 			processBtn.setEnabled(false);
 			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			
-			// Database search
-			if (databasePnl.isEnabled()) {
-				try {
-					DbSearchSettings settings = databasePnl.collectDBSearchSettings();
-					
-					statusTtf.setText("PACKING SPECTRA");
-					int packSize = (Integer) packSpn.getValue();
-					List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");
-					statusTtf.setText("PACKING SPECTRA FINISHED");
-					client.sendFiles(chunkedFiles);
-					
-					client.runDbSearch(chunkedFiles, settings);
-					
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(clientFrame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
-				}
+			statusTtf.setText("PACKING SPECTRA");
+			try {
+				int packSize = (Integer) packSpn.getValue();
+				List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");
+				statusTtf.setText("PACKING SPECTRA FINISHED");
+				client.sendFiles(chunkedFiles);
+
+				DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
+				SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+				DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
+				
+				long experimentID = (dbss != null) ? dbss.getExperimentid() : (sss != null) ? sss.getExperimentID() : (dnss != null) ? dnss.getExperimentid() : 0L;
+				
+				client.runSearches(chunkedFiles, experimentID, dbss, sss, dnss);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			
-			// Denovo search
-			if (deNovoPnl.isEnabled()) {
-				try {
-					DenovoSearchSettings dnSettings = deNovoPnl.collectDenovoSettings();
-					
-					statusTtf.setText("PACKING SPECTRA");
-					int packSize = (Integer) packSpn.getValue();
-					List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");
-					statusTtf.setText("PACKING SPECTRA FINISHED");
-					client.sendFiles(chunkedFiles);
-					client.runDenovoSearch(chunkedFiles, dnSettings);
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(clientFrame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
-				}
-			}
-			
-			// Spectral library search
-			if (specLibPnl.isEnabled()) {
-				try {
-					// clone file selection tree, discard unselected branches/leaves
-					CheckBoxTreeSelectionModel selectionModel = clientFrame.getFilePanel().getCheckBoxTree().getSelectionModel();
-					DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) clientFrame.getFilePanel().getCheckBoxTree().getModel().getRoot();
-					DefaultTreeModel queryModel = (DefaultTreeModel) clientFrame.getQueryTree().getModel();
-					DefaultMutableTreeNode queryRoot = (DefaultMutableTreeNode) queryModel.getRoot();
-					queryRoot.removeAllChildren();
-		
-					for (int i = 0; i < fileRoot.getChildCount(); i++) {
-						DefaultMutableTreeNode fileNode = (DefaultMutableTreeNode) fileRoot.getChildAt(i);
-						TreePath filePath = new TreePath(fileNode.getPath());
-						if ((selectionModel.isPathSelected(filePath, true)) || 
-								(selectionModel.isPartiallySelected(filePath))) {
-							// create a new node containing only the file tree node's selected sub-nodes
-							DefaultMutableTreeNode fileNodeClone = new DefaultMutableTreeNode(fileNode.getUserObject());
-							queryModel.insertNodeInto(fileNodeClone, queryRoot, queryRoot.getChildCount());
-							for (int j = 0; j < fileNode.getChildCount(); j++) {
-								DefaultMutableTreeNode spectrumNode = (DefaultMutableTreeNode) fileNode.getChildAt(j);
-								TreePath spectrumPath = new TreePath(spectrumNode.getPath());
-								if (selectionModel.isPathSelected(spectrumPath, true)) {
-									DefaultMutableTreeNode spectrumNodeClone = new DefaultMutableTreeNode(spectrumNode.getUserObject());
-									queryModel.insertNodeInto(spectrumNodeClone, fileNodeClone, fileNodeClone.getChildCount());
-								}
-							}
-						}
-					}
-		
-					// consolidate selected spectra into files
-					statusTtf.setText("PACKING SPECTRA");
-		
-					List<File> files = client.packSpectra((Integer) packSpn.getValue(), clientFrame.getFilePanel().getCheckBoxTree(), "batch_");
-		
-					statusTtf.setText("PACKING SPECTRA FINISHED");
-		
-					// process files
-					totalProgress = 0;
-					statusTtf.setText("SPECTRAL LIBRARY SEARCH RUNNING");
-		
-					SpecSimSettings specSet = specLibPnl.gatherSpecSimSettings();
-		
-					HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = 
-						new HashMap<String, ArrayList<RankedLibrarySpectrum>>();
-					client.initDBConnection();
-					firePropertyChange("progress", null, 0);
-					for (File file : files) {
-						resultMap.putAll(client.searchSpecLib(file, specSet));
-					}
-					// TODO: maybe use this map only in the panel ? 
-					clientFrame.setResultMap(resultMap);
-		
-					// clean up
-					client.closeDBConnection();
-					((DefaultTreeModel) clientFrame.getQueryTree().getModel()).reload();
-					
-					statusTtf.setText("SPECTRAL LIBRARY SEARCH FINISHED");
-				} catch (Exception e) {
-//					JOptionPane.showMessageDialog(clientFrame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
-					GeneralExceptionHandler.showErrorDialog(e, clientFrame);
-				}
-			}
 			// deregister progress listener
 			client.removePropertyChangeListener(listener);
 			

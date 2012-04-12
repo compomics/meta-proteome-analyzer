@@ -41,6 +41,8 @@ public class SpectrumStorager extends BasicStorager {
     private HashMap<String, Long> fileName2IdMap;
     
     private long experimentid = -1;
+
+	private List<MascotGenericFile> spectra;
     
     /**
      * Initializes the spectrum storager. 
@@ -88,7 +90,7 @@ public class SpectrumStorager extends BasicStorager {
      */
     public void store() throws IOException, SQLException {
         // Get all the spectra from the MGF-Reader
-        List<MascotGenericFile> spectra = mascotGenericFileReader.getSpectrumFiles();
+        spectra = mascotGenericFileReader.getSpectrumFiles();
         
         // Init the hashmap for non-DB caching
         title2SearchIdMap = new HashMap<String, Long>();
@@ -171,6 +173,7 @@ public class SpectrumStorager extends BasicStorager {
                 }
                 conn.commit();
             } else {
+            	// FIXME: What to do with already stored spectra.
                 //title2SearchIdMap.put(query.getTitle(), query.getSpectrumid());
                 //fileName2IdMap.put(mgf.getFilename(), query.getSpectrumid());
             }
@@ -178,5 +181,13 @@ public class SpectrumStorager extends BasicStorager {
         MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
         MapContainer.FileName2IdMap = fileName2IdMap;
     }
+
+	/**
+	 * Returns the parsed spectra.
+	 * @return the spectra
+	 */
+	public List<MascotGenericFile> getSpectra() {
+		return spectra;
+	}
 
 }

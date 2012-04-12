@@ -12,9 +12,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -24,8 +22,6 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.algorithms.Interval;
-import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.algorithms.denovo.DenovoTag;
 import de.mpa.algorithms.denovo.GappedPeptide;
 import de.mpa.algorithms.denovo.GappedPeptideCombiner;
@@ -39,6 +35,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
+import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.SpectrumTree;
@@ -55,10 +52,8 @@ import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
-import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.MascotGenericFileReader;
 import de.mpa.webservice.WSPublisher;
 
 public class Client {
@@ -250,29 +245,33 @@ public class Client {
 	    return bytes;
 	}
 	
-	/**
-	 * Runs the database search.
-	 * @param file
-	 */
-	public void runDbSearch(List<File> files, DbSearchSettings settings){
-		// Iterate the files
+	public void runSearches(List<File> files, long experimentID, DbSearchSettings dbss, SpecSimSettings sss, DenovoSearchSettings dnss) {
 		for (int i = 0; i < files.size(); i++) {
-			server.runDbSearch(files.get(i).getName(), settings);
+			server.runSearches(files.get(i).getName(), experimentID, dbss, sss, dnss);
 		}
 	}
 	
-
+//	/**
+//	 * Runs the database search.
+//	 * @param file
+//	 */
+//	public void runDbSearch(List<File> files, DbSearchSettings settings){
+//		// Iterate the files
+//		for (int i = 0; i < files.size(); i++) {
+//			server.runDbSearch(files.get(i).getName(), settings);
+//		}
+//	}
 	
-	/**
-	 * Runs the de-novo search.
-	 * @param file
-	 */
-	public void runDenovoSearch(List<File> files, DenovoSearchSettings settings){
-		// Iterate the files
-		for (int i = 0; i < files.size(); i++){				
-			server.runDenovoSearch(files.get(i).getName(), settings);
-		}
-	}
+//	/**
+//	 * Runs the de-novo search.
+//	 * @param file
+//	 */
+//	public void runDenovoSearch(List<File> files, DenovoSearchSettings settings){
+//		// Iterate the files
+//		for (int i = 0; i < files.size(); i++){				
+//			server.runDenovoSearch(files.get(i).getName(), settings);
+//		}
+//	}
 	
 	/**
 	 * Returns the result from the de-novo search.
@@ -280,7 +279,7 @@ public class Client {
 	 * @return DenovoSearchResult
 	 * @throws SQLException 
 	 */
-	public DenovoSearchResult getDenovoSearchResult(ProjectContent projContent,ExperimentContent expContent){
+	public DenovoSearchResult getDenovoSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		
 		try {
 			// Initialize the connection.
@@ -455,104 +454,104 @@ public class Client {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
+	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
 	}
 	
-	/**
-	 * TODO: API!
-	 * @param file
-	 * @param procSet
-	 * @param processWorker 
-	 * @return resultMap
-	 */
-	public HashMap<String, ArrayList<RankedLibrarySpectrum>> searchSpecLib(File file, SpecSimSettings procSet) {
-		// declare result map
-		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
-		
-		try {
-			// parse query file
-			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
-			List<MascotGenericFile> mgfFiles = mgfReader.getSpectrumFiles();
-			
-			// store list of results in HashMap (with spectrum title as key)
-			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>(mgfFiles.size());
-			
-			// iterate query spectra to gather precursor m/z values
-			ArrayList<Double> precursorMZs = new ArrayList<Double>(mgfFiles.size());
-			for (MascotGenericFile mgf : mgfFiles) {
-				precursorMZs.add(mgf.getPrecursorMZ());
-			}
-			Collections.sort(precursorMZs);
-			// build list of precursor m/z intervals using sorted list
-			ArrayList<Interval> intervals = new ArrayList<Interval>();
-			Interval current = null;
-			for (double precursorMz : precursorMZs) {
-				if (current == null) {	// first interval
-					current = new Interval(((precursorMz - procSet.getTolMz()) < 0.0) ? 0.0 : precursorMz - procSet.getTolMz(), precursorMz + procSet.getTolMz());
-					intervals.add(current);
-				} else {
-					// if left border of new interval intersects current interval extend the latter
-					if ((precursorMz - procSet.getTolMz()) < current.getRightBorder()) {
-						current.setRightBorder(precursorMz + procSet.getTolMz());
-					} else {	// generate new interval
-						current = new Interval(precursorMz - procSet.getTolMz(), precursorMz + procSet.getTolMz());
-						intervals.add(current);
-					}
-				}
-			}
-
-			// extract list of candidates
-			SpectrumExtractor specEx = new SpectrumExtractor(conn);
-			ArrayList<SpectralSearchCandidate> candidates = 
-				specEx.getCandidatesFromExperiment(intervals, procSet.getExperimentID());
-			
-			// iterate query spectra to determine similarity scores
-//			int progress = 0;
-			for (MascotGenericFile mgfQuery : mgfFiles) {
-				
-				// store results in list of ranked library spectra objects
-				ArrayList<RankedLibrarySpectrum> resultList = new ArrayList<RankedLibrarySpectrum>();
-				
-				// prepare query spectrum for similarity comparison with candidate spectra,
-				// e.g. vectorize peaks, calculate auto-correlation, etc.
-				procSet.getSpecComparator().prepare(mgfQuery.getHighestPeaks(procSet.getPickCount()));
-				
-				// iterate candidates
-				for (SpectralSearchCandidate candidate : candidates) {
-					// re-check precursor tolerance criterion to determine proper candidates
-					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < procSet.getTolMz()) {
-						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
-						// score query and library spectra
-						procSet.getSpecComparator().compareTo(candidate.getPeaks());
-						double score = procSet.getSpecComparator().getSimilarity();
-						
-						// store result if score is above specified threshold
-						if (score >= procSet.getThreshScore()) {
-							// TODO: finish storage in RankedLibrarySpectrum objects, map everything to peptides and proteins
-							
-							// store peptide ID in map for annotation gathering later on
-							
-							// create MascotGenericFile from SpectralSearchCandidate object
-							MascotGenericFile mgfLib = new MascotGenericFile(null, candidate.getSpectrumTitle(), candidate.getPeaks(), candidate.getPrecursorMz(), candidate.getPrecursorCharge());
-							
-							resultList.add(new RankedLibrarySpectrum(mgfLib, candidate.getSpectrumID(), candidate.getSequence(), null, score));
-						}
-					}
-				}
-				procSet.getSpecComparator().cleanup();
-				resultMap.put(mgfQuery.getTitle(), resultList);
-				pSupport.firePropertyChange("progressmade", 0, 1);
-//				pSupport.firePropertyChange("progress", progress++, progress);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return resultMap;
-	}
-		
+//	/**
+//	 * TODO: API!
+//	 * @param file
+//	 * @param procSet
+//	 * @param processWorker 
+//	 * @return resultMap
+//	 */
+//	public HashMap<String, ArrayList<RankedLibrarySpectrum>> searchSpecLib(File file, SpecSimSettings procSet) {
+//		// declare result map
+//		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
+//		
+//		try {
+//			// parse query file
+//			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
+//			List<MascotGenericFile> mgfFiles = mgfReader.getSpectrumFiles();
+//			
+//			// store list of results in HashMap (with spectrum title as key)
+//			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>(mgfFiles.size());
+//			
+//			// iterate query spectra to gather precursor m/z values
+//			ArrayList<Double> precursorMZs = new ArrayList<Double>(mgfFiles.size());
+//			for (MascotGenericFile mgf : mgfFiles) {
+//				precursorMZs.add(mgf.getPrecursorMZ());
+//			}
+//			Collections.sort(precursorMZs);
+//			// build list of precursor m/z intervals using sorted list
+//			ArrayList<Interval> intervals = new ArrayList<Interval>();
+//			Interval current = null;
+//			for (double precursorMz : precursorMZs) {
+//				if (current == null) {	// first interval
+//					current = new Interval(((precursorMz - procSet.getTolMz()) < 0.0) ? 0.0 : precursorMz - procSet.getTolMz(), precursorMz + procSet.getTolMz());
+//					intervals.add(current);
+//				} else {
+//					// if left border of new interval intersects current interval extend the latter
+//					if ((precursorMz - procSet.getTolMz()) < current.getRightBorder()) {
+//						current.setRightBorder(precursorMz + procSet.getTolMz());
+//					} else {	// generate new interval
+//						current = new Interval(precursorMz - procSet.getTolMz(), precursorMz + procSet.getTolMz());
+//						intervals.add(current);
+//					}
+//				}
+//			}
+//
+//			// extract list of candidates
+//			SpectrumExtractor specEx = new SpectrumExtractor(conn);
+//			ArrayList<SpectralSearchCandidate> candidates = 
+//				specEx.getCandidatesFromExperiment(intervals, procSet.getExperimentID());
+//			
+//			// iterate query spectra to determine similarity scores
+////			int progress = 0;
+//			for (MascotGenericFile mgfQuery : mgfFiles) {
+//				
+//				// store results in list of ranked library spectra objects
+//				ArrayList<RankedLibrarySpectrum> resultList = new ArrayList<RankedLibrarySpectrum>();
+//				
+//				// prepare query spectrum for similarity comparison with candidate spectra,
+//				// e.g. vectorize peaks, calculate auto-correlation, etc.
+//				procSet.getSpecComparator().prepare(mgfQuery.getHighestPeaks(procSet.getPickCount()));
+//				
+//				// iterate candidates
+//				for (SpectralSearchCandidate candidate : candidates) {
+//					// re-check precursor tolerance criterion to determine proper candidates
+//					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < procSet.getTolMz()) {
+//						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
+//						// score query and library spectra
+//						procSet.getSpecComparator().compareTo(candidate.getPeaks());
+//						double score = procSet.getSpecComparator().getSimilarity();
+//						
+//						// store result if score is above specified threshold
+//						if (score >= procSet.getThreshScore()) {
+//							// TODO: finish storage in RankedLibrarySpectrum objects, map everything to peptides and proteins
+//							
+//							// store peptide ID in map for annotation gathering later on
+//							
+//							// create MascotGenericFile from SpectralSearchCandidate object
+//							MascotGenericFile mgfLib = new MascotGenericFile(null, candidate.getSpectrumTitle(), candidate.getPeaks(), candidate.getPrecursorMz(), candidate.getPrecursorCharge());
+//							
+//							resultList.add(new RankedLibrarySpectrum(mgfLib, candidate.getLibpectrumID(), candidate.getSequence(), null, score));
+//						}
+//					}
+//				}
+//				procSet.getSpecComparator().cleanup();
+//				resultMap.put(mgfQuery.getTitle(), resultList);
+//				pSupport.firePropertyChange("progressmade", 0, 1);
+////				pSupport.firePropertyChange("progress", progress++, progress);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		return resultMap;
+//	}
+	
 	/**
 	 * Method to consolidate spectra which are selected in a specified checkbox tree into spectrum packages of defined size.
 	 * @param packageSize The amount of spectra per package.

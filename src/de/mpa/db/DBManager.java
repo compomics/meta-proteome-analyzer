@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.storager.CruxStorager;
 import de.mpa.db.storager.InspectStorager;
 import de.mpa.db.storager.OmssaStorager;
 import de.mpa.db.storager.PepnovoStorager;
+import de.mpa.db.storager.SpecSimStorager;
 import de.mpa.db.storager.SpectrumStorager;
 import de.mpa.db.storager.XTandemStorager;
 
@@ -30,14 +33,23 @@ public class DBManager {
 	
 	// Thread pool handler
 	private ExecutorService executor;
+	
+	private static DBManager instance;
     
 	/**
 	 * Constructor for the database manager.
 	 * @throws SQLException
 	 */
-    public DBManager() throws SQLException {
+    private DBManager() throws SQLException {
 		init();
 	}
+    
+    public static DBManager getInstance() throws SQLException {
+    	if (instance == null) {
+    		instance = new DBManager();
+    	}
+		return instance;
+    }
     
     /**
      * Initialize the database manager.
@@ -150,6 +162,15 @@ public class DBManager {
 		}
 		InspectStorager job = new InspectStorager(conn, new File(inspectFilename));
 		job.run();
+	}
+
+	/**
+	 * 
+	 * @param results
+	 */
+	public void storeSpecSimResults(List<SpectrumSpectrumMatch> results) {
+		SpecSimStorager storager = new SpecSimStorager(conn, results);
+		storager.run();
 	}
 	
 	/**

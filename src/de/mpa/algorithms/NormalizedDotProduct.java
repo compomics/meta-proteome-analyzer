@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 import de.mpa.interfaces.SpectrumComparator;
 
-public class NormalizedDotProduct implements SpectrumComparator {
+public class NormalizedDotProduct extends SpectrumComparator {
 	
 	/**
 	 * The input vectorization method.

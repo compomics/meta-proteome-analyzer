@@ -192,7 +192,7 @@ public class SpecLibSearchPanel extends JPanel {
 		CellConstraints cc = new CellConstraints();
 
 		this.setLayout(new FormLayout("7dlu, p:g, 7dlu", // col
-				"0dlu, p, 6dlu, f:p:g, 7dlu")); // row
+				"5dlu, p, 5dlu, f:p:g, 7dlu")); // row
 
 		// spectral library search parameters
 		JPanel paramDbPnl = new JPanel();
@@ -619,10 +619,10 @@ public class SpecLibSearchPanel extends JPanel {
 
 		// transform spectrum file
 		SpecSimSettings specSet = gatherSpecSimSettings();
-		specSet.getSpecComparator().prepare(
+		specSet.getSpecComp().prepare(
 				spectrumFile.getHighestPeaks(specSet.getPickCount()));
-		HashMap<Double, Double> transPeaks = new HashMap<Double, Double>(specSet
-				.getSpecComparator().getSourcePeaks());
+		HashMap<Double, Double> transPeaks = new HashMap<Double, Double>(
+				specSet.getSpecComp().getSourcePeaks());
 		// normalize transformed spectrum
 		maxInten = 0.0;
 		for (double inten : transPeaks.values()) {

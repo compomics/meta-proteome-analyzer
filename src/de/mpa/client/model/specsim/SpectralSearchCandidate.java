@@ -1,4 +1,4 @@
-package de.mpa.db.extractor;
+package de.mpa.client.model.specsim;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import de.mpa.io.SixtyFourBitStringSupport;
 
 public class SpectralSearchCandidate {
 	
-	private long spectrumID;
+	private long libspectrumID;
 	private String spectrumTitle;
 	private double precursorMz;
 	private int precursorCharge;
@@ -25,7 +25,7 @@ public class SpectralSearchCandidate {
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SpectralSearchCandidate(ResultSet aResultSet) throws SQLException {
-		this.spectrumID = aResultSet.getLong("spectrumid");
+		this.libspectrumID = aResultSet.getLong("libspectrumid");
 		this.spectrumTitle = aResultSet.getString("title");
 		this.precursorMz = aResultSet.getDouble("precursor_mz");
 		this.precursorCharge = aResultSet.getInt("precursor_charge");
@@ -38,8 +38,8 @@ public class SpectralSearchCandidate {
 	/**
 	 * @return the spectrumID
 	 */
-	public long getSpectrumID() {
-		return spectrumID;
+	public long getLibpectrumID() {
+		return libspectrumID;
 	}
 
 	/**

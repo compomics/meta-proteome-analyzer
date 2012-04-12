@@ -30,6 +30,22 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link de.mpa.client.SpectrumComparator.PeaksSrc }
+     * 
+     */
+    public de.mpa.client.SpectrumComparator.PeaksSrc createSpectrumComparatorPeaksSrc() {
+        return new de.mpa.client.SpectrumComparator.PeaksSrc();
+    }
+
+    /**
+     * Create an instance of {@link SpecSimSettings }
+     * 
+     */
+    public SpecSimSettings createSpecSimSettings() {
+        return new SpecSimSettings();
+    }
+
+    /**
      * Create an instance of {@link DenovoSearchSettings }
      * 
      */
@@ -43,6 +59,14 @@ public class ObjectFactory {
      */
     public DbSearchSettings createDbSearchSettings() {
         return new DbSearchSettings();
+    }
+
+    /**
+     * Create an instance of {@link de.mpa.client.SpectrumComparator.PeaksSrc.Entry }
+     * 
+     */
+    public de.mpa.client.SpectrumComparator.PeaksSrc.Entry createSpectrumComparatorPeaksSrcEntry() {
+        return new de.mpa.client.SpectrumComparator.PeaksSrc.Entry();
     }
 
 }
