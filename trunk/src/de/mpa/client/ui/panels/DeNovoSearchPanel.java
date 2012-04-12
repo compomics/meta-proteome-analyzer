@@ -52,7 +52,7 @@ public class DeNovoSearchPanel extends JPanel {
 		CellConstraints cc = new CellConstraints();
 		
 		this.setLayout(new FormLayout("7dlu, p:g, 7dlu",
-				"0dlu, f:p, 5dlu, f:p:g, 7dlu"));
+				"5dlu, f:p, 5dlu, f:p:g, 7dlu"));
 
 		// Parameters		
 		parPnl = new JPanel();

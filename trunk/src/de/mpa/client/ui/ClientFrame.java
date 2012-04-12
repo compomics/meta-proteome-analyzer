@@ -71,6 +71,7 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
+import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.ui.SpectrumTree.TreeType;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.panels.ClusterPanel;
@@ -81,7 +82,6 @@ import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
-import de.mpa.db.extractor.SpectralSearchCandidate;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.job.JobStatus;
 import de.mpa.ui.MultiPlotPanel;
@@ -566,7 +566,7 @@ public class ClientFrame extends JFrame {
 				// build first row in CSV-to-be containing library peptide sequence strings
 				// grab list of annotated library spectra belonging to experiment
 				try {
-					ArrayList<SpectralSearchCandidate> candidates = client.getCandidatesFromExperiment(getSettingsPanel().getSpecLibSearchPanel().getExperimentID());
+					List<SpectralSearchCandidate> candidates = client.getCandidatesFromExperiment(getSettingsPanel().getSpecLibSearchPanel().getExperimentID());
 					// substitute 'sequence + spectrum id' with integer indexing
 					HashMap<String, Integer> seq2index = new HashMap<String, Integer>(candidates.size());
 					// substitute 'sequence + precursor charge' with integer indexing
@@ -584,7 +584,7 @@ public class ClientFrame extends JFrame {
 					int index = 0;
 					int id = 0;
 					for (SpectralSearchCandidate candidate : candidates) {
-						seq2index.put(candidate.getSequence() + candidate.getSpectrumID(), index);
+						seq2index.put(candidate.getSequence() + candidate.getLibpectrumID(), index);
 						String seq = candidate.getSequence() + candidate.getPrecursorCharge();
 						if (!seq2id.containsKey(seq)) { seq2id.put(seq, id++); }
 						sb.append("\t" + seq2id.get(seq));

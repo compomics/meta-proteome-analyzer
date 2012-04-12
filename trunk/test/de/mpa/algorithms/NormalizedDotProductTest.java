@@ -19,7 +19,7 @@ public class NormalizedDotProductTest extends TestCase{
 
 	public NormalizedDotProductTest() {
 		try {
-			DBManager dbManager = new DBManager();
+			DBManager dbManager = DBManager.getInstance();
 			conn = dbManager.getConnection();
 
 		} catch (SQLException e) {

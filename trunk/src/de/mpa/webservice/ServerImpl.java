@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayDeque;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -20,8 +20,12 @@ import org.apache.log4j.Logger;
 
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
+import de.mpa.client.SpecSimSettings;
+import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
+import de.mpa.db.storager.SpectrumStorager;
+import de.mpa.io.MascotGenericFile;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
 import de.mpa.job.SearchType;
@@ -34,6 +38,7 @@ import de.mpa.job.instances.PepnovoJob;
 import de.mpa.job.instances.PercolatorJob;
 import de.mpa.job.instances.PostProcessorJob;
 import de.mpa.job.instances.RenameJob;
+import de.mpa.job.instances.SpecSimJob;
 import de.mpa.job.instances.XTandemJob;
 import de.mpa.job.scoring.OmssaScoreJob;
 import de.mpa.job.scoring.XTandemScoreJob;
@@ -53,13 +58,23 @@ public class ServerImpl implements Server {
      * Message queue instance for communication between server and client.
      */
     private Queue<Message> msgQueue = new ArrayDeque<Message>();
-    
+
+	/**
+	 * The DBManager instance.
+	 */
+	private DBManager dbManager;
+
+	/**
+	 * The JobManager instance.
+	 */
+	private JobManager jobManager;
     
 	@Override
 	public void receiveMessage(String msg) {
 		log.info("Received message: " + msg);
 	}
-	
+
+    // TODO: rewrite message system using listeners or somesuch
 	@Override
 	public String sendMessage() {
 		Message msg = msgQueue.poll();
@@ -83,17 +98,56 @@ public class ServerImpl implements Server {
 		return file; 
 	}
 	
+	public void runSearches(String filename, long expID, DbSearchSettings dbss, SpecSimSettings sss, DenovoSearchSettings dnss) {
+		try {
+			// 	DB Manager instance
+			dbManager = DBManager.getInstance();
+			// Store the spectra.
+			File file = new File(filename);
+			SpectrumStorager storager = dbManager.storeSpectra(file, expID);
+			
+			// Initialize the job manager.
+			jobManager = JobManager.getInstance();
+			
+			// Get the filename map.
+			Map<String, String> filenames = jobManager.getFilenames();
+
+			// run searches and store results
+			if (dbss != null) {
+				// run
+				runDbSearch(filename, dbss);
+				// store
+				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
+				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
+				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
+				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
+			}
+			if (sss != null) {
+				// TODO: run spec sim search
+				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
+				// store
+				dbManager.storeSpecSimResults(results);
+				results = null;
+			}
+			if (dnss != null) {
+				// run
+				runDenovoSearch(filename, dnss);
+				// store
+				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
+			}
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+		}
+	}
+
 	/**
 	 * Run the database search file. 
 	 * @param filename The spectrum filename.
 	 * @param dbSearchSettings The database search settings.
 	 * @throws Exception
 	 */
-	public void runDbSearch(String filename, DbSearchSettings dbSearchSettings) {	
+	private void runDbSearch(String filename, DbSearchSettings dbSearchSettings) {	
 		File file = new File(ServerSettings.TRANSFER_PATH + filename);
-		
-		// Initialize the job manager.
-		final JobManager jobManager = new JobManager(msgQueue);
 		
 		// Get general parameters .
 		String searchDB = dbSearchSettings.getFastaFile();
@@ -170,36 +224,22 @@ public class ServerImpl implements Server {
 		
 		// Execute the search engine jobs.
 		jobManager.execute();
-		jobManager.clear();
 		
-		// Get the filename map.
-		Map<String, String> filenames = jobManager.getFilenames();
-		DBManager dbManager = null;
-		
-		try {
-			// 	DB Manager instance					
-			dbManager = new DBManager();
-			
-			// Store the spectra.
-			dbManager.storeSpectra(file, dbSearchSettings.getExperimentid());
-			
-			// Store the results.
-			if (dbSearchSettings.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
-			if (dbSearchSettings.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
-			if (dbSearchSettings.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-			if (dbSearchSettings.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		} catch (SQLException ex) {
-			log.error(ex.getMessage());
-		}
 		msgQueue.add(new Message(null, "DBSEARCH FINISHED", new Date()));
 		
 		// Clear the folders
+		// FIXME: Thilo, make this working!
 //		jobManager.addJob(new DeleteJob());
 //		jobManager.execute();
 //		jobManager.clear();
 //		msgQueue.add(new Message(null, "CLEARED FOLDERS", new Date()));
+	}
+
+	private List<SpectrumSpectrumMatch> runSpecSimSearch(List<MascotGenericFile> mgfList, SpecSimSettings sss) {
+		SpecSimJob specSimJob = new SpecSimJob(mgfList, sss);
+		jobManager.addJob(specSimJob);
+		jobManager.execute();
+		return specSimJob.getResults();
 	}
 	
 	/**
@@ -208,34 +248,14 @@ public class ServerImpl implements Server {
 	 * @param dnSettings The denovo search settings.
 	 * @throws Exception
 	 */
-	public void runDenovoSearch(String filename, DenovoSearchSettings dnSettings) {	
+	private void runDenovoSearch(String filename, DenovoSearchSettings dnSettings) {	
 		// The denovo file
 		File file = new File(ServerSettings.TRANSFER_PATH + filename);
-		
-		// Init the job manager
-		final JobManager jobManager = new JobManager(msgQueue);
 		
 		// Start the de-novo job with the de-novo search settings.
 		PepnovoJob denovoJob = new PepnovoJob(file, dnSettings.getModel(), dnSettings.getPrecursorTol(), dnSettings.getFragMassTol(), dnSettings.getNumSolutions());
 		jobManager.addJob(denovoJob);
 		jobManager.execute();
-		jobManager.clear();
-		
-		// Get the filename map.
-		Map<String, String> filenames = jobManager.getFilenames();
-		DBManager dbManager = null;
-		
-		try {
-			// 	DB Manager instance					
-			dbManager = new DBManager();
-			dbManager.storeSpectra(file, dnSettings.getExperimentid());
-			dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		} catch (SQLException ex) {
-			log.error(ex.getMessage());
-		}
-		msgQueue.add(new Message(null, "DENOVOSEARCH FINISHED", new Date()));
 	}
 	
 	/**

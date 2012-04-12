@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 import de.mpa.interfaces.SpectrumComparator;
 
-public class PearsonCorrelation implements SpectrumComparator {
+public class PearsonCorrelation extends SpectrumComparator {
 
 	/**
 	 * The input vectorization method.

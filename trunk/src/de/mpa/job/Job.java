@@ -2,9 +2,13 @@ package de.mpa.job;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
+
+import de.mpa.webservice.Message;
+import de.mpa.webservice.MessageQueue;
 
 /**
  * Abstract class of a job to be executed.
@@ -85,7 +89,7 @@ public abstract class Job implements Executable {
 
 		try {
 			proc.waitFor();
-			setStatus(JobStatus.FINISHED);
+			done();
 		} catch (InterruptedException e) {
 			setError(e.getMessage());
 			setStatus(JobStatus.ERROR);
@@ -95,6 +99,15 @@ public abstract class Job implements Executable {
 				proc.destroy();
 			}
 		}		
+	}
+	
+	/**
+	 * Finalizes the job and sets the status to finished.
+	 */
+	private void done() {
+		// Set the job status to FINISHED and put the message in the queue
+		setStatus(JobStatus.FINISHED);
+		MessageQueue.getInstance().add(new Message(this, status.toString(), new Date()));
 	}
 	
 	/**

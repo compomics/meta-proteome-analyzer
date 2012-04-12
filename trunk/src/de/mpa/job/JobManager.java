@@ -6,13 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
 import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.MS2FormatJob;
 import de.mpa.webservice.Message;
+import de.mpa.webservice.MessageQueue;
 
 
 /**
@@ -22,6 +22,11 @@ import de.mpa.webservice.Message;
  */
 public class JobManager {
 	
+	/**
+	 * JobManager instance.
+	 */
+	private static JobManager instance;
+
 	/**
 	 * Logger instance.
 	 */
@@ -50,10 +55,22 @@ public class JobManager {
 	/**
 	 * Constructor for the job manager.
 	 */
-	public JobManager(Queue<Message> msgQueue){
+	private JobManager() {
 		this.jobQueue = new ArrayDeque<Job>();
-		this.msgQueue = msgQueue;
+		this.msgQueue = MessageQueue.getInstance();
 		this.filenameMap = new HashMap<String, String>();
+	}
+	
+	/**
+	 * Returns the JobManager instance.
+	 *
+	 * @return the JobManager instance
+	 */
+	public static JobManager getInstance() {
+		if (instance == null) {
+			instance = new JobManager();
+		}
+		return instance;
 	}
 	
 	/**
@@ -75,13 +92,13 @@ public class JobManager {
 	/**
 	 * Executes the jobs from the queue.
 	 */
-	public void execute(){
+	public void execute() {
 		// Iterate the job queue
-		for(Job job : jobQueue){
-			if(job instanceof MS2FormatJob){
+		for(Job job : jobQueue) {
+			if(job instanceof MS2FormatJob) {
 				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
 				ms2formatjob.run();
-			} else if (job instanceof DeleteJob){
+			} else if (job instanceof DeleteJob) {
 				DeleteJob deletejob = (DeleteJob) job;
 				deletejob.execute();
 			} else {
@@ -97,70 +114,68 @@ public class JobManager {
 				job.execute();
 			}
 			// Error logging.
-			if (job.getStatus() == JobStatus.ERROR){
+			if (job.getStatus() == JobStatus.ERROR) {
 				log.error(job.getError());
 			}		
-			// Set the job status to FINISHED and put the message in the queue
-			msgQueue.add(new Message(job, JobStatus.FINISHED.toString(), new Date()));
 			
 			// Remove job from the queue after successful execution.
 			jobQueue.remove(job);
 		}
 	}
 	
-    /**
-     *  Worker thread.
-     */
-    private class Worker implements Runnable {
-    	
-        /**
-         * The runLock is acquired and released surrounding each task
-         * execution. Mainly protects against interrupts that are
-         * intended to cancel the worker thread from instead
-         * interrupting the task being run.
-         */
-        private final ReentrantLock runLock = new ReentrantLock();
-
-        /**
-         * Initial job to run before entering run loop
-         */
-        private Job firstJob;
-
-
-        public Worker(Job firstJob) {
-            this.firstJob = firstJob;
-        }
-
-         /**
-         * Run a single task between before/after methods.
-         */
-        private void runJob(Job job) {
-            final ReentrantLock runLock = this.runLock;
-            runLock.lock();
-            try {
-                Thread.interrupted(); // clear interrupt status on entry
-                try {
-                    job.execute();
-                } catch(RuntimeException ex) {
-                	ex.printStackTrace();
-                }
-            } finally {
-                runLock.unlock();
-            }
-        }
-
-        /**
-         * Main run loop.
-         */
-        public void run() {
-			Job job = firstJob;
-			firstJob = null;
-			while (job != null) {
-				runJob(job);
-				job = null; // unnecessary, but may help GC. :-)
-			}
-        }
-    }
+//    /**
+//     *  Worker thread.
+//     */
+//    private class Worker implements Runnable {
+//    	
+//        /**
+//         * The runLock is acquired and released surrounding each task
+//         * execution. Mainly protects against interrupts that are
+//         * intended to cancel the worker thread from instead
+//         * interrupting the task being run.
+//         */
+//        private final ReentrantLock runLock = new ReentrantLock();
+//
+//        /**
+//         * Initial job to run before entering run loop
+//         */
+//        private Job firstJob;
+//
+//
+//        public Worker(Job firstJob) {
+//            this.firstJob = firstJob;
+//        }
+//
+//         /**
+//         * Run a single task between before/after methods.
+//         */
+//        private void runJob(Job job) {
+//            final ReentrantLock runLock = this.runLock;
+//            runLock.lock();
+//            try {
+//                Thread.interrupted(); // clear interrupt status on entry
+//                try {
+//                    job.execute();
+//                } catch(RuntimeException ex) {
+//                	ex.printStackTrace();
+//                }
+//            } finally {
+//                runLock.unlock();
+//            }
+//        }
+//
+//        /**
+//         * Main run loop.
+//         */
+//        public void run() {
+//			Job job = firstJob;
+//			firstJob = null;
+//			while (job != null) {
+//				runJob(job);
+//				job = null; // unnecessary, but may help GC. :-)
+//			}
+//        }
+//    }
     
 	/**
 	 * Returns a list of objects.

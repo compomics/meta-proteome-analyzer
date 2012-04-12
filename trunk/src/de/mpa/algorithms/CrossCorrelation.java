@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import de.mpa.interfaces.SpectrumComparator;
 
-public class CrossCorrelation implements SpectrumComparator {
+public class CrossCorrelation extends SpectrumComparator {
 	
 	/**
 	 * The input vectorization method.
@@ -32,6 +32,7 @@ public class CrossCorrelation implements SpectrumComparator {
 	 * The auto-correlation score of the source spectrum. Used for normalization purposes.
 	 */
 	private double autoCorr;
+	
 	
 	/**
 	 * The similarity score between source spectrum and target spectrum.

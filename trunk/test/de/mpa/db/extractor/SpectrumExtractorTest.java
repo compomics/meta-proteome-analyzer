@@ -16,7 +16,7 @@ public class SpectrumExtractorTest extends TestCase {
 	private Connection conn;
 	public SpectrumExtractorTest() {
 		try {
-			DBManager dbManager = new DBManager();
+			DBManager dbManager = DBManager.getInstance();
 			conn = dbManager.getConnection();
 			
 		} catch (SQLException e) {

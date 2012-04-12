@@ -10,6 +10,7 @@ import java.util.List;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.LibrarySpectrum;
+import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
@@ -191,7 +192,7 @@ public class SpectrumExtractor {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
+	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		ArrayList<Interval> precIntervals = new ArrayList<Interval>();
 		precIntervals.add(new Interval(0.0, Double.MAX_VALUE));
 		return getCandidatesFromExperiment(precIntervals, experimentID);
@@ -204,11 +205,11 @@ public class SpectrumExtractor {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<SpectralSearchCandidate> getCandidatesFromExperiment(ArrayList<Interval> precIntervals, long experimentID) throws SQLException {
+	public List<SpectralSearchCandidate> getCandidatesFromExperiment(List<Interval> precIntervals, long experimentID) throws SQLException {
 		ArrayList<SpectralSearchCandidate> res = new ArrayList<SpectralSearchCandidate>(precIntervals.size());
 		
 		// construct SQL statement
-		StringBuilder sb = new StringBuilder("SELECT spectrumid, title, precursor_mz, precursor_charge, mzarray, intarray, fk_peptideid, sequence FROM spectrum " +
+		StringBuilder sb = new StringBuilder("SELECT libspectrumid, title, precursor_mz, precursor_charge, mzarray, intarray, fk_peptideid, sequence FROM spectrum " +
 				   							 "INNER JOIN spec2pep ON spectrum.spectrumid = spec2pep.fk_spectrumid " + 
 				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
 				   							 "INNER JOIN libspectrum ON spectrum.spectrumid = libspectrum.fk_spectrumid " +
