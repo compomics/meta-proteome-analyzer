@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import de.mpa.client.model.SpectrumMatch;
+
 
 /**
  * This class represents the set of proteins which may hold multiple peptides for each proteinhit (represented by the accession)
@@ -86,23 +88,23 @@ public class DbSearchResult {
 					currentProteinHit.setPeptideHits(currentPeptideHits);
 				} else { // If peptide hit is already in the database check the actual PSM.
 					// Returns the single PSM.
-					PeptideSpectrumMatch psm = peptideHit.getSinglePeptideSpectrumMatch();
+					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
 					
 					PeptideHit currentPeptideHit = currentPeptideHits.get(peptideHit.getSequence());
 					
-					TreeMap<Long, PeptideSpectrumMatch> currentPsms = currentPeptideHit.getPeptideSpectrumMatches();
+					TreeMap<Long, SpectrumMatch> currentPsms = currentPeptideHit.getSpectrumMatches();
 					
 					// Current PSM 
 					if(!currentPsms.containsKey(psm.getSpectrumId())){
 						currentPsms.put(psm.getSpectrumId(), psm);
-						currentPeptideHit.setPeptideSpectrumMatches(currentPsms);
+						currentPeptideHit.setSpectrumMatches(currentPsms);
 						currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
 						currentProteinHit.setPeptideHits(currentPeptideHits);
 					} else {
-						PeptideSpectrumMatch currentPsm = currentPsms.get(psm.getSpectrumId());
+						PeptideSpectrumMatch currentPsm = (PeptideSpectrumMatch) currentPsms.get(psm.getSpectrumId());
 						currentPsm.addSearchEngineHit(psm.getFirstSearchEngineHit());
 						currentPsms.put(psm.getSpectrumId(), currentPsm);
-						currentPeptideHit.setPeptideSpectrumMatches(currentPsms);
+						currentPeptideHit.setSpectrumMatches(currentPsms);
 						currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
 						currentProteinHit.setPeptideHits(currentPeptideHits);
 					}
@@ -131,6 +133,7 @@ public class DbSearchResult {
 		return proteinHits;
 	}
 	
+	// TODO: actually use this for exporting results
 	/**
 	 * Returns the project title. 
 	 * @return The project title.

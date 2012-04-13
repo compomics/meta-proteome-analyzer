@@ -1,10 +1,12 @@
 
-package de.mpa.client;
+package de.mpa.client.settings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
+import de.mpa.client.Protease;
 
 
 /**

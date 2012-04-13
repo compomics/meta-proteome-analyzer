@@ -2,7 +2,7 @@ package de.mpa.webservice;
 
 import javax.xml.ws.Endpoint;
 
-import de.mpa.client.ServerConnectionSettings;
+import de.mpa.client.settings.ServerConnectionSettings;
 
 public class WSPublisher {
 	

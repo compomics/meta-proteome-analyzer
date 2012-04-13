@@ -142,7 +142,7 @@ public class ProteinHit {
 		for (Entry<String, PeptideHit> entry : entrySet) {
 				// Get the peptide hit.
 				PeptideHit peptideHit = entry.getValue();
-				count += peptideHit.getPeptideSpectrumMatches().size();
+				count += peptideHit.getSpectrumMatches().size();
 		}
 		this.specCount = count;
 		return specCount;

@@ -6,6 +6,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -36,6 +38,7 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
@@ -45,6 +48,9 @@ import javax.swing.table.TableRowSorter;
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.painter.MattePainter;
+import org.jdesktop.swingx.painter.Painter;
 import org.jfree.chart.plot.PlotOrientation;
 
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
@@ -55,6 +61,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
@@ -113,6 +120,15 @@ public class DbSearchResultPanel extends JPanel{
 	private void initComponents() {
 		// Cell constraints
 		CellConstraints cc = new CellConstraints();
+
+		// Titled panel variables
+		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
+		
+		Font ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
+		Painter ttlPainter = new MattePainter(new GradientPaint(
+				0, 0, UIManager.getColor("TabbedPane.focus"),
+				0, 20, new Color(107, 147, 193)));
+		Border ttlBorder = UIManager.getBorder("TitledBorder.border");
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane();
@@ -123,8 +139,7 @@ public class DbSearchResultPanel extends JPanel{
 		dbSearchResultPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 	
 		final JPanel proteinPnl = new JPanel();
-		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
-		proteinPnl.setBorder(BorderFactory.createTitledBorder("Proteins"));
+		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 	
 		// Setup the tables
 		setupProteinTableProperties();
@@ -142,9 +157,7 @@ public class DbSearchResultPanel extends JPanel{
 		
 		getResultsBtn = new JButton("Get Results");
 		getResultsBtn.setEnabled(false);
-		JPanel topPnl = new JPanel(new FormLayout("p", "p:g"));
 		
-		topPnl.add(getResultsBtn, cc.xy(1, 1));
 		getResultsBtn.setPreferredSize(new Dimension(150, 20));
 		getResultsBtn.addActionListener(new ActionListener() {
 	
@@ -169,41 +182,61 @@ public class DbSearchResultPanel extends JPanel{
 					
 			}
 		});
-		proteinPnl.add(topPnl, cc.xy(2, 2));
-		proteinPnl.add(proteinTableScp, cc.xy(2, 4));
+		proteinPnl.add(proteinTableScp, cc.xy(2, 2));
+		
+		JXTitledPanel protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
+		protTtlPnl.setRightDecoration(getResultsBtn);
+		protTtlPnl.setTitleFont(ttlFont);
+		protTtlPnl.setTitlePainter(ttlPainter);
+		protTtlPnl.setBorder(ttlBorder);
 	
 				
 		// Peptide panel
 		final JPanel peptidePnl = new JPanel();
 		peptidePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",  "5dlu, f:p, 5dlu"));
-		peptidePnl.setBorder(BorderFactory.createTitledBorder("Peptides"));
 		peptidePnl.add(peptideTableScp, cc.xy(2, 2));
+		
+		JXTitledPanel pepTtlPnl = new JXTitledPanel("Peptides", peptidePnl);
+		pepTtlPnl.setTitleFont(ttlFont);
+		pepTtlPnl.setTitlePainter(ttlPainter);
+		pepTtlPnl.setBorder(ttlBorder);
 		
 		// PSM panel
 		final JPanel psmPanel = new JPanel();
 		psmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
-		psmPanel.setBorder(BorderFactory.createTitledBorder("Peptide-Spectrum-Matches"));
 		psmPanel.add(psmTableScp, cc.xy(2, 2));
+		
+		JXTitledPanel psmTtlPnl = new JXTitledPanel("Peptide-Spectrum-Matches", psmPanel);
+		psmTtlPnl.setTitleFont(ttlFont);
+		psmTtlPnl.setTitlePainter(ttlPainter);
+		psmTtlPnl.setBorder(ttlBorder);
 
 		// Peptide and Psm Panel
-		JPanel pepPsmPnl = new JPanel(new FormLayout("p:g","f:p:g,f:p:g"));
+		JPanel pepPsmPnl = new JPanel(new FormLayout("p:g","f:p:g, 5dlu, f:p:g"));
 		
-		pepPsmPnl.add(peptidePnl, cc.xy(1, 1));
-		pepPsmPnl.add(psmPanel, cc.xy(1, 2));
+		pepPsmPnl.add(pepTtlPnl, cc.xy(1, 1));
+		pepPsmPnl.add(psmTtlPnl, cc.xy(1, 3));
 		
 		// Build the spectrum filter panel
 		constructSpectrumFilterPanel();
-		spectrumOverviewPnl = new JPanel(new BorderLayout());
-		spectrumOverviewPnl.setBorder(BorderFactory.createTitledBorder("Spectrum"));
+		spectrumOverviewPnl = new JPanel(new BorderLayout(5,5));
+		
 		spectrumJPanel = new JPanel();
 		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
 		spectrumJPanel.setBackground(Color.WHITE);
+		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		spectrumJPanel.setOpaque(false);
 		
 		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
 		spectrumOverviewPnl.add(spectrumFilterPanel, BorderLayout.EAST);
 		
+		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
+		specTtlPnl.setTitleFont(ttlFont);
+		specTtlPnl.setTitlePainter(ttlPainter);
+		specTtlPnl.setBorder(ttlBorder);
+		
 		// SplitPane
-		JSplitPane splitPn = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, pepPsmPnl, spectrumOverviewPnl);
+		JSplitPane splitPn = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, pepPsmPnl, specTtlPnl);
 		splitPn.setBorder(null);
 		
 		// Remove the border from the splitpane divider
@@ -211,7 +244,7 @@ public class DbSearchResultPanel extends JPanel{
 		if (divider != null) {
 			divider.setBorder(null);
 		}
-		dbSearchResultPnl.add(proteinPnl, cc.xy(2,2));
+		dbSearchResultPnl.add(protTtlPnl, cc.xy(2,2));
 		dbSearchResultPnl.add(splitPn, cc.xy(2, 4));
 	}
 	
@@ -425,7 +458,7 @@ public class DbSearchResultPanel extends JPanel{
 					PeptideHit peptideHit = entry.getValue();
 					
 					// Get number of spectra
-					peptideSpectraCount = peptideHit.getPeptideSpectrumMatches().size();
+					peptideSpectraCount = peptideHit.getSpectrumMatches().size();
 					
 					// Get maximum number of spectra
 					maxPeptideSpectraCount= max(maxPeptideSpectraCount, peptideSpectraCount);
@@ -434,7 +467,7 @@ public class DbSearchResultPanel extends JPanel{
 					((DefaultTableModel) peptideTbl.getModel()).addRow(new Object[]{
 							i,
 							peptideHit.getSequence(),
-							peptideHit.getPeptideSpectrumMatches().size()});
+							peptideHit.getSpectrumMatches().size()});
 					i++;
 				}
 			
@@ -487,7 +520,7 @@ public class DbSearchResultPanel extends JPanel{
 			clearPsmResultTable();
 
 			currentSelectedPeptide = peptideTbl.getValueAt(row, 1).toString();
-			Set<Entry<Long, PeptideSpectrumMatch>> entrySet = currentPeptideHits.get(currentSelectedPeptide).getPeptideSpectrumMatches().entrySet();
+			Set<Entry<Long, SpectrumMatch>> entrySet = currentPeptideHits.get(currentSelectedPeptide).getSpectrumMatches().entrySet();
 			
 			// Clear the currentpsms map.
 			currentPsms.clear();
@@ -495,8 +528,8 @@ public class DbSearchResultPanel extends JPanel{
 			
 			int i = 1;
 			// Iterate the found peptide results
-			for (Entry<Long, PeptideSpectrumMatch> entry : entrySet) {
-				PeptideSpectrumMatch psm = entry.getValue();
+			for (Entry<Long, SpectrumMatch> entry : entrySet) {
+				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) entry.getValue();
 				
 				// Add current PSM to the currentPsms map
 				currentPsms.put(i, psm);

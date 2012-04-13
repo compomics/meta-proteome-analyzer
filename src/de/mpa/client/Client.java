@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +22,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXErrorPane;
 
 import de.mpa.algorithms.denovo.DenovoTag;
 import de.mpa.algorithms.denovo.GappedPeptide;
@@ -35,7 +37,11 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
+import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
+import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.settings.SearchSettings;
+import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.SpectrumTree;
@@ -50,6 +56,7 @@ import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -102,6 +109,8 @@ public class Client {
 	private DbSearchResult dbSearchResult;
 
 	private DenovoSearchResult denovoSearchResult;
+
+	private SpecSimResult specSimResult;
 	
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -245,22 +254,26 @@ public class Client {
 	    return bytes;
 	}
 	
-	public void runSearches(List<File> files, long experimentID, DbSearchSettings dbss, SpecSimSettings sss, DenovoSearchSettings dnss) {
+	public void runSearches(List<File> files, SearchSettings settings) {
 		for (int i = 0; i < files.size(); i++) {
-			server.runSearches(files.get(i).getName(), experimentID, dbss, sss, dnss);
+			try {
+				server.runSearches(files.get(i).getName(), settings);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
-//	/**
-//	 * Runs the database search.
-//	 * @param file
-//	 */
-//	public void runDbSearch(List<File> files, DbSearchSettings settings){
-//		// Iterate the files
-//		for (int i = 0; i < files.size(); i++) {
+	/**
+	 * Runs the database search.
+	 * @param file
+	 */
+	public void runDbSearch(List<File> files, DbSearchSettings settings){
+		// Iterate the files
+		for (int i = 0; i < files.size(); i++) {
 //			server.runDbSearch(files.get(i).getName(), settings);
-//		}
-//	}
+		}
+	}
 	
 //	/**
 //	 * Runs the de-novo search.
@@ -343,15 +356,11 @@ public class Client {
 	 * @param experimentid The experiment id
 	 * @return DbSearchResult
 	 */
-	public void retrieveExperimentResult(ProjectContent projContent,ExperimentContent expContent){
+	private void retrieveDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		// Init the database connection.
 		try {
 			initDBConnection();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		
-		try {			
+			
 			// The protein hit set, containing all information about found proteins.
 			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
 			
@@ -412,7 +421,7 @@ public class Client {
 	 */
 	public DbSearchResult getDbSearchResult(ProjectContent projContent,ExperimentContent expContent) {
 		if(dbSearchResult == null) {
-			retrieveExperimentResult(projContent, expContent);
+			retrieveDbSearchResult(projContent, expContent);
 		}
 		return dbSearchResult;
 	}
@@ -431,10 +440,10 @@ public class Client {
 	 * @param hit The search hit implementation.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	private void addProteinSearchHit(SearchHit hit, SearchEngineType type) throws SQLException{
+	private void addProteinSearchHit(SearchHit hit, SearchEngineType type) throws SQLException {
 		
 		// Create the PeptideSpectrumMatch
-		// TODO: here add the hit!
+		// TODO: add the hit here!
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit, type);
 		
 		// Get the peptide hit.
@@ -447,7 +456,25 @@ public class Client {
 		// Add a new protein to the protein hit set.
 		dbSearchResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit));
 	}
-	
+
+	/**
+	 * Returns the current spectral similarity search result.
+	 * @param projContent The project content.
+	 * @param expContent The experiment content.
+	 * @return The current database search result.
+	 */
+	public SpecSimResult getSpecSimResult(ExperimentContent expContent) {
+		if(specSimResult == null) {
+			try {
+				initDBConnection();
+				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn);
+			} catch (Exception e) {
+				JXErrorPane.showDialog(e);
+			}
+		}
+		return specSimResult;
+	}
+
 	/**
 	 * TODO: API!
 	 * @param experimentID

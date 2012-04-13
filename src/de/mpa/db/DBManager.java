@@ -75,7 +75,6 @@ public class DBManager {
 	 * @throws IOException 
 	 */
 	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException {
-		
 		// Store the spectra from the spectrum file for a given experiment.	
 		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid);
 		spectraThread = new Thread(specStorager);

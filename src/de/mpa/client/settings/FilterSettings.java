@@ -1,4 +1,4 @@
-package de.mpa.client;
+package de.mpa.client.settings;
 
 public class FilterSettings {
 

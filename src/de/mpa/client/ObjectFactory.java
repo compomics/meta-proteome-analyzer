@@ -3,6 +3,11 @@ package de.mpa.client;
 
 import javax.xml.bind.annotation.XmlRegistry;
 
+import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.settings.DenovoSearchSettings;
+import de.mpa.client.settings.SearchSettings;
+import de.mpa.client.settings.SpecSimSettings;
+
 
 /**
  * This object contains factory methods for each 
@@ -30,19 +35,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link de.mpa.client.SpectrumComparator.PeaksSrc }
+     * Create an instance of {@link SearchSettings }
      * 
      */
-    public de.mpa.client.SpectrumComparator.PeaksSrc createSpectrumComparatorPeaksSrc() {
-        return new de.mpa.client.SpectrumComparator.PeaksSrc();
-    }
-
-    /**
-     * Create an instance of {@link SpecSimSettings }
-     * 
-     */
-    public SpecSimSettings createSpecSimSettings() {
-        return new SpecSimSettings();
+    public SearchSettings createSearchSettings() {
+        return new SearchSettings();
     }
 
     /**
@@ -62,11 +59,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link de.mpa.client.SpectrumComparator.PeaksSrc.Entry }
+     * Create an instance of {@link SpecSimSettings }
      * 
      */
-    public de.mpa.client.SpectrumComparator.PeaksSrc.Entry createSpectrumComparatorPeaksSrcEntry() {
-        return new de.mpa.client.SpectrumComparator.PeaksSrc.Entry();
+    public SpecSimSettings createSpecSimSettings() {
+        return new SpecSimSettings();
     }
 
 }
