@@ -1,4 +1,4 @@
-package de.mpa.client;
+package de.mpa.client.settings;
 
 /**
  * Class to hold server connection settings.

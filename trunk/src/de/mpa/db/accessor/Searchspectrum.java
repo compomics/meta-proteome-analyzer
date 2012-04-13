@@ -68,4 +68,25 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
 		return spectra;
     }
     
+    /**
+	 * This method finds all search spectra from a particular experiment.
+	 * @param experimentid The experiment id.
+	 * @param conn The database connection.
+	 * @return List of retrieved search spectra.
+	 * @throws SQLException when the retrieval did not succeed. 
+	 */
+    public static Searchspectrum findFromSpectrumIDAndExperimentID(long spectrumid, long experimentid, Connection conn) throws SQLException{
+    	Searchspectrum spectrum = null;
+		PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE fk_spectrumid = ? AND fk_experimentid = ?");
+		ps.setLong(1, spectrumid);
+		ps.setLong(2, experimentid);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			spectrum = new Searchspectrum(rs);
+		}
+		rs.close();
+		ps.close();
+		return spectrum;
+    }
+    
 }

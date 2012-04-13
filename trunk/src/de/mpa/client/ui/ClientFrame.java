@@ -82,6 +82,7 @@ import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
+import de.mpa.client.ui.panels.SpecSimResultPanel;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.job.JobStatus;
 import de.mpa.ui.MultiPlotPanel;
@@ -103,7 +104,7 @@ public class ClientFrame extends JFrame {
 	private ProjectPanel projectPnl;
 	private Client client;
 	private FilePanel filePnl;
-	private JPanel resPnl;
+	private JPanel specSimResPnl;
 	private DeNovoResultPanel denovoResPnl;
 	private JPanel res2Pnl;
 	private LoggingPanel logPnl;
@@ -122,7 +123,7 @@ public class ClientFrame extends JFrame {
 	public JComboBox spectraCbx2;
 	private ClusterPanel clusterPnl;
 	protected List<File> chunkedFiles;
-	private DbSearchResultPanel dbSearchResultPnl;
+	private DbSearchResultPanel dbSearchResPnl;
 	private SettingsPanel setPnl;
 	private StatusPanel statusPnl;
 	private JTabbedPane tabPane;
@@ -167,10 +168,10 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Project", projectIcon, projectPnl);
 		tabPane.addTab("Input Spectra", addSpectraIcon, filePnl);
 		tabPane.addTab("Search Settings", settingsIcon, getSettingsPanel());
-		tabPane.addTab("Spectral Search Results", resultsIcon, resPnl);
+		tabPane.addTab("Spectral Search Results", resultsIcon, specSimResPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
-		tabPane.addTab("Database Search Results", resultsIcon, dbSearchResultPnl);
+		tabPane.addTab("Database Search Results", resultsIcon, dbSearchResPnl);
 		tabPane.addTab("De novo Results", resultsIcon, denovoResPnl);
 		tabPane.addTab("Clustering", clusteringIcon, clusterPnl);
 		tabPane.addTab("Logging", loggingIcon, logPnl);
@@ -260,11 +261,14 @@ public class ClientFrame extends JFrame {
 		// Settings Panel
 		setPnl = new SettingsPanel(this);
 
-		// Results Panel
-		constructSpecResultsPanel();
+//		// Results Panel
+//		constructSpecResultsPanel();
 
 		// Database search result panel
-		dbSearchResultPnl = new DbSearchResultPanel(this);
+		dbSearchResPnl = new DbSearchResultPanel(this);
+		
+		// Spectral similarity search result panel
+		specSimResPnl = new SpecSimResultPanel(this);
 
 		// DeNovoResults		
 		denovoResPnl = new DeNovoResultPanel(this);
@@ -282,8 +286,8 @@ public class ClientFrame extends JFrame {
 	 */
 	private void constructSpecResultsPanel() {
 
-		resPnl = new JPanel();
-		resPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
+		specSimResPnl = new JPanel();
+		specSimResPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",		// col
 										"5dlu, f:p:g, 5dlu"));	// row
 
 		JPanel dispPnl = new JPanel();
@@ -548,7 +552,7 @@ public class ClientFrame extends JFrame {
 
 		dispPnl.add(mainSplit, cc.xy(2,1));
 
-		resPnl.add(dispPnl, cc.xy(2,2));
+		specSimResPnl.add(dispPnl, cc.xy(2,2));
 	}
 	
 	private class ExportResultsWorker extends SwingWorker {
@@ -845,6 +849,6 @@ public class ClientFrame extends JFrame {
 	 * @return The database search result panel.
 	 */
 	public DbSearchResultPanel getDbSearchResultPnl() {
-		return dbSearchResultPnl;
+		return dbSearchResPnl;
 	}
 }

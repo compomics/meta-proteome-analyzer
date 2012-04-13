@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -37,7 +36,7 @@ import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.PearsonCorrelation;
 import de.mpa.algorithms.Transformation;
 import de.mpa.algorithms.Vectorization;
-import de.mpa.client.SpecSimSettings;
+import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
@@ -268,8 +267,8 @@ public class SpecLibSearchPanel extends JPanel {
 
 		// spectrum previewing
 		previewPnl = new JPanel();
-		previewPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "f:p:g, 5dlu"));
-		previewPnl.setBorder(BorderFactory.createTitledBorder("Preview input"));
+		previewPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+//		previewPnl.setBorder(BorderFactory.createTitledBorder("Preview input"));
 		prePlotPnl = new PlotPanel2(null);
 		prePlotPnl.clearSpectrumFile();
 		prePlotPnl.setPreferredSize(new Dimension(350, 150));
@@ -285,7 +284,7 @@ public class SpecLibSearchPanel extends JPanel {
 			}
 		});
 		
-		previewPnl.add(prePlotPnl, cc.xy(2, 1));
+		previewPnl.add(prePlotPnl, cc.xy(2, 2));
 
 		RefreshPlotListener refreshPlotListener = new RefreshPlotListener();
 
@@ -526,7 +525,36 @@ public class SpecLibSearchPanel extends JPanel {
 	 *         elements.
 	 */
 	public SpecSimSettings gatherSpecSimSettings() {
-
+		SpecSimSettings settings = new SpecSimSettings();
+		
+		// Get the current experiment ID.
+		long expID = clientFrame.getProjectPnl().getCurrentExperimentId();
+		
+		int pickCount = 0;
+		if (pickSpn.isEnabled()) {
+			pickCount = (Integer) pickSpn.getValue();
+		}
+		settings.setExperimentID(expID);
+		settings.setAnnotatedOnly(annotChk.isSelected());
+		settings.setTolMz((Double) tolMzSpn.getValue());
+		settings.setPickCount(pickCount);
+		settings.setThreshScore((Double) threshScSpn.getValue());
+		settings.setCompIndex(measureCbx.getSelectedIndex());
+		settings.setTrafoIndex(trafoCbx.getSelectedIndex());
+		settings.setVectIndex(vectMethodCbx.getSelectedIndex());
+		settings.setBinWidth((Double) binWidthSpn.getValue());
+		settings.setBinShift((Double) binShiftSpn.getValue());
+		settings.setProfileIndex(proMethodCbx.getSelectedIndex());
+		settings.setBaseWidth((Double) proBaseWidthSpn.getValue());
+		settings.setXCorrOffset((Integer) xCorrOffSpn.getValue());
+		return settings;
+	}
+	
+	/**
+	 * Obsolete method: Used for the refresh plot method only.
+	 * @return The current spectrum comparator method.
+	 */
+	private SpectrumComparator getComparator(){
 		Transformation trafo = null;
 		switch (trafoCbx.getSelectedIndex()) {
 		case 0:
@@ -567,12 +595,7 @@ public class SpecLibSearchPanel extends JPanel {
 					(Double) proBaseWidthSpn.getValue());
 			break;
 		}
-
-		int pickCount = 0;
-		if (pickSpn.isEnabled()) {
-			pickCount = (Integer) pickSpn.getValue();
-		}
-
+		
 		SpectrumComparator specComp = null;
 		switch (measureCbx.getSelectedIndex()) {
 		case 0:
@@ -588,12 +611,9 @@ public class SpecLibSearchPanel extends JPanel {
 			specComp = new CrossCorrelation(vect, trafo, (Integer) xCorrOffSpn.getValue());
 			break;
 		}
-
-		return new SpecSimSettings((Double) tolMzSpn.getValue(),
-				annotChk.isSelected(), (Long) expIdSpn.getValue(),
-				pickCount, specComp, (Double) threshScSpn.getValue());
+		
+		return specComp;
 	}
-
 	/**
 	 * Method to repaint the panel's plot component. Draws normalized original
 	 * (black) and transformed (red) versions of the supplied spectrum.
@@ -602,44 +622,43 @@ public class SpecLibSearchPanel extends JPanel {
 	 *            The spectrum file to be plotted.
 	 */
 	public void refreshPlot(MascotGenericFile spectrumFile) {
-
-		prePlotPnl.clearSpectrumFile();
-
-		HashMap<Double, Double> basePeaks = new HashMap<Double, Double>(
-				spectrumFile.getPeaks());
-		// normalize spectrum file
-		double maxInten = 0.0;
-		for (double inten : basePeaks.values()) {
-			maxInten = (inten > maxInten) ? inten : maxInten;
-		}
-		maxInten /= 100.0;
-		for (Double mz : basePeaks.keySet()) {
-			basePeaks.put(mz, basePeaks.get(mz) / maxInten);
-		}
-
-		// transform spectrum file
-		SpecSimSettings specSet = gatherSpecSimSettings();
-		specSet.getSpecComp().prepare(
-				spectrumFile.getHighestPeaks(specSet.getPickCount()));
-		HashMap<Double, Double> transPeaks = new HashMap<Double, Double>(
-				specSet.getSpecComp().getSourcePeaks());
-		// normalize transformed spectrum
-		maxInten = 0.0;
-		for (double inten : transPeaks.values()) {
-			maxInten = (inten > maxInten) ? inten : maxInten;
-		}
-		maxInten /= 100.0;
-		for (Double mz : transPeaks.keySet()) {
-			transPeaks.put(mz, transPeaks.get(mz) / maxInten);
-		}
-
-		// add spectra to plot panel and paint them
-		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null, basePeaks,
-				0.0, 0));
-		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null,
-				transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile
-						.getCharge()));
-		prePlotPnl.repaint();
+//
+//		prePlotPnl.clearSpectrumFile();
+//
+//		HashMap<Double, Double> basePeaks = new HashMap<Double, Double>(
+//				spectrumFile.getPeaks());
+//		// normalize spectrum file
+//		double maxInten = 0.0;
+//		for (double inten : basePeaks.values()) {
+//			maxInten = (inten > maxInten) ? inten : maxInten;
+//		}
+//		maxInten /= 100.0;
+//		for (Double mz : basePeaks.keySet()) {
+//			basePeaks.put(mz, basePeaks.get(mz) / maxInten);
+//		}
+//
+//		// transform spectrum file
+//		SpecSimSettings specSet = gatherSpecSimSettings();
+//		
+//		getComparator().prepare(spectrumFile.getHighestPeaks(specSet.getPickCount()));
+//		HashMap<Double, Double> transPeaks = new HashMap<Double, Double>(getComparator().getSourcePeaks());
+//		// normalize transformed spectrum
+//		maxInten = 0.0;
+//		for (double inten : transPeaks.values()) {
+//			maxInten = (inten > maxInten) ? inten : maxInten;
+//		}
+//		maxInten /= 100.0;
+//		for (Double mz : transPeaks.keySet()) {
+//			transPeaks.put(mz, transPeaks.get(mz) / maxInten);
+//		}
+//
+//		// add spectra to plot panel and paint them
+//		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null, basePeaks,
+//				0.0, 0));
+//		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null,
+//				transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile
+//						.getCharge()));
+//		prePlotPnl.repaint();
 	}
 
 	/**

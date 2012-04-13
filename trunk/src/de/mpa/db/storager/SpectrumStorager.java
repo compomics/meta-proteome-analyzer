@@ -101,15 +101,12 @@ public class SpectrumStorager extends BasicStorager {
             MascotGenericFile mgf = spectra.get(i);
             
             // The filename.
-            String title = mgf.getTitle();
-            // Format the spectrum title first.
-//            if (title != null){
-//            	title = title.replace('\\', '/');
-//            }
+            String title = mgf.getTitle().trim();
+
             // Remove leading whitespace
-            title = title.replaceAll("^\\s+", "");
-            // Remove trailing whitespace
-            title = title.replaceAll("\\s+$", "");
+//            title = title.replaceAll("^\\s+", "");
+              // Remove trailing whitespace
+//            title = title.replaceAll("\\s+$", "");
             
             // TO Condition: Only add if the spectrum is not stored yet!
             Spectrum query = Spectrum.findFromTitle(title, conn);
@@ -154,29 +151,48 @@ public class SpectrumStorager extends BasicStorager {
 
                 // Get the spectrumid from the generated keys.
                 Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
+                System.out.println("expid: " + experimentid);
                 
                 /* Searchspectrum storager*/
-                if(experimentid != -1){
-                	HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
-    	            
-    	            searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
-    	            searchData.put(Searchspectrum.FK_EXPERIMENTID, experimentid);
-    	            
+                HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
+
+                searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
+                searchData.put(Searchspectrum.FK_EXPERIMENTID, experimentid);
+
+                Searchspectrum searchSpectrum = new Searchspectrum(searchData);
+                searchSpectrum.persist(conn);
+
+                // Get the search spectrum id from the generated keys.
+                Long searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
+                // Fill the maps for caching reasons
+                title2SearchIdMap.put(title, searchspectrumid);
+                fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
+            } else {
+            	long spectrumid = query.getSpectrumid();
+             
+                Searchspectrum searchspectrum = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumid, experimentid, conn);
+                long searchspectrumid;
+                
+                if(searchspectrum == null){
+                    /* Searchspectrum storager*/
+                    HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
+                    searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
+                    searchData.put(Searchspectrum.FK_EXPERIMENTID, experimentid);
                     Searchspectrum searchSpectrum = new Searchspectrum(searchData);
                     searchSpectrum.persist(conn);
                     
                     // Get the search spectrum id from the generated keys.
-                    Long searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
-                    // Fill the maps for caching reasons
-                    title2SearchIdMap.put(title, searchspectrumid);
-                    fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
+                    searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
+                    
+                } else {
+                	searchspectrumid = searchspectrum.getSearchspectrumid();
                 }
-                conn.commit();
-            } else {
-            	// FIXME: What to do with already stored spectra.
-                //title2SearchIdMap.put(query.getTitle(), query.getSpectrumid());
-                //fileName2IdMap.put(mgf.getFilename(), query.getSpectrumid());
+                
+                // Fill the maps for caching reasons
+                title2SearchIdMap.put(query.getTitle(), searchspectrumid);
+                fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
             }
+            conn.commit();
         }
         MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
         MapContainer.FileName2IdMap = fileName2IdMap;

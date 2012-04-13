@@ -5,13 +5,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.mpa.algorithms.CrossCorrelation;
+import de.mpa.algorithms.EuclideanDistance;
 import de.mpa.algorithms.Interval;
-import de.mpa.client.SpecSimSettings;
+import de.mpa.algorithms.NormalizedDotProduct;
+import de.mpa.algorithms.PearsonCorrelation;
+import de.mpa.algorithms.Transformation;
+import de.mpa.algorithms.Vectorization;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
+import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.extractor.SpectrumExtractor;
+import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.job.Job;
 
@@ -44,21 +51,31 @@ public class SpecSimJob extends Job {
 			
 			// iterate query spectra to determine similarity scores
 			for (MascotGenericFile mgfQuery : mgfList) {
+				//if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle))
 				
-				long searchspectrumID = MapContainer.FileName2IdMap.get(mgfQuery.getTitle());
+				String title = mgfQuery.getTitle().trim();
+				long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(title);
 				
-				// prepare query spectrum for similarity comparison with candidate spectra,
-				// e.g. vectorize peaks, calculate auto-correlation, etc.
-				settings.getSpecComp().prepare(mgfQuery.getHighestPeaks(settings.getPickCount()));
+				// Vectorization method
+				Vectorization vect = getVectorizationMethod(settings.getVectIndex(), settings.getBinWidth(), settings.getBinShift(), settings.getProfileIndex(), settings.getBaseWidth());
+				
+				// Transformation method
+				Transformation trafo = getTransformationMethod(settings.getTrafoIndex());
+				
+				// Spectrum comparator method
+				SpectrumComparator specComp = getComparatorMethod(settings.getCompIndex(), vect, trafo, settings.getXCorrOffset());
+				
+				// Comparison preparation
+				specComp.prepare(mgfQuery.getHighestPeaks(settings.getPickCount()));
 				
 				// iterate candidates
 				for (SpectralSearchCandidate candidate : candidates) {
 					// re-check precursor tolerance criterion to determine proper candidates
 					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < settings.getTolMz()) {
 						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
-						// score query and library spectra
-						settings.getSpecComp().compareTo(candidate.getPeaks());
-						double score = settings.getSpecComp().getSimilarity();
+						// Score query and library spectra
+						specComp.compareTo(candidate.getPeaks());
+						double score = specComp.getSimilarity();
 						
 						// store result if score is above specified threshold
 						if (score >= settings.getThreshScore()) {
@@ -66,7 +83,7 @@ public class SpecSimJob extends Job {
 						}
 					}
 				}
-				settings.getSpecComp().cleanup();
+				specComp.cleanup();
 				// TODO: re-implement progress event handling
 //				pSupport.firePropertyChange("progressmade", 0, 1);
 			}
@@ -106,7 +123,92 @@ public class SpecSimJob extends Job {
 		}
 		return intervals;
 	}
-
+	
+	/**
+	 * Returns the spectrum comparator method.
+	 * @param index The spectrum comparator method index.
+	 * @param vect The vectorization method.
+	 * @param trafo The transformation method.
+	 * @param xCorrOffset The cross-correlation offset.
+	 * @return The spectrum comparator method.
+	 */
+	private SpectrumComparator getComparatorMethod(int index, Vectorization vect, Transformation trafo, int xCorrOffset){
+		SpectrumComparator specComp = null;
+		switch (index) {
+		case 0:
+			specComp = new EuclideanDistance(vect, trafo);
+			break;
+		case 1:
+			specComp = new NormalizedDotProduct(vect, trafo);
+			break;
+		case 2:
+			specComp = new PearsonCorrelation(vect, trafo);
+			break;
+		case 3:
+			specComp = new CrossCorrelation(vect, trafo, xCorrOffset);
+			break;
+		}
+		
+		return specComp;
+	}
+	
+	/**
+	 * Returns the transformation method.
+	 * @param index The specified index.
+	 * @return The transformation method.
+	 */
+	private Transformation getTransformationMethod(int index){
+		Transformation trafo = null;
+		switch (index) {
+		case 0:
+			trafo = new Transformation() {
+				public double transform(double input) {
+					return input;
+				}
+			};
+			break;
+		case 1:
+			trafo = new Transformation() {
+				public double transform(double input) {
+					return Math.sqrt(input);
+				}
+			};
+			break;
+		case 2:
+			trafo = new Transformation() {
+				public double transform(double input) {
+					return (input > 0.0) ? Math.log(input) : 0.0;
+				}
+			};
+			break;
+		}
+		return trafo;
+	}
+	
+	/**
+	 * Returns the vectorization method
+	 * @param index The vectorization method index.
+	 * @param binWidth
+	 * @param binShift
+	 * @param profileIndex
+	 * @param baseWidth
+	 * @return
+	 */
+	public Vectorization getVectorizationMethod(int index, double binWidth, double binShift, int profileIndex, double baseWidth){
+		Vectorization vect = null;
+		switch (index) {
+		case 0:
+			vect = new Vectorization(Vectorization.PEAK_MATCHING, binWidth);
+			break;
+		case 1:
+			vect = new Vectorization(Vectorization.DIRECT_BINNING, binWidth, binShift);
+			break;
+		case 2:
+			vect = new Vectorization(Vectorization.PROFILING, binWidth, binShift, profileIndex, baseWidth);
+			break;
+		}
+		return vect;
+	}
 	/**
 	 * Returns the list containing found spectrum-to-spectrum matches.
 	 * @return the SSM list

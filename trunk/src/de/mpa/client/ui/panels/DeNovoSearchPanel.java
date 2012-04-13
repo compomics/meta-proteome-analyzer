@@ -15,7 +15,7 @@ import javax.swing.tree.TreePath;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.client.DenovoSearchSettings;
+import de.mpa.client.settings.DenovoSearchSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;

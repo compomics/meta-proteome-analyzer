@@ -2,7 +2,7 @@ package de.mpa.client.model.dbsearch;
 
 import java.util.TreeMap;
 
-
+import de.mpa.client.model.SpectrumMatch;
 
 /**
  * This class represents a peptide hit.
@@ -29,17 +29,17 @@ public class PeptideHit {
 	/**
 	 * The peptide spectrum match for this peptide hit.
 	 */
-	private TreeMap<Long, PeptideSpectrumMatch> peptideSpectrumMatches;
+	private TreeMap<Long, SpectrumMatch> spectrumMatches;
 	
 	/**
 	 * PeptideHit constructor, taking the sequence as only parameter.
 	 * @param sequence The String sequence.
-	 * @param peptideSpectrumMatches The list of peptide spectrum matches.
+	 * @param spectrumMatches The list of peptide spectrum matches.
 	 */
-	public PeptideHit(String sequence, PeptideSpectrumMatch peptideSpectrumMatch) {
+	public PeptideHit(String sequence, SpectrumMatch spectrumMatch) {
 		this.sequence = sequence;
-		this.peptideSpectrumMatches = new TreeMap<Long, PeptideSpectrumMatch>();
-		this.peptideSpectrumMatches.put(peptideSpectrumMatch.getSpectrumId(), peptideSpectrumMatch);
+		this.spectrumMatches = new TreeMap<Long, SpectrumMatch>();
+		this.spectrumMatches.put(spectrumMatch.getSpectrumId(), spectrumMatch);
 	}
 	
 	/**
@@ -66,17 +66,17 @@ public class PeptideHit {
 	 * Convenience method to retrieve a unique PSM.
 	 * @return The list of PSMs.
 	 */
-	public PeptideSpectrumMatch getSinglePeptideSpectrumMatch() {
-		return peptideSpectrumMatches.firstEntry().getValue();
+	public SpectrumMatch getSingleSpectrumMatch() {
+		return spectrumMatches.firstEntry().getValue();
 	}
 	
 	
-	public TreeMap<Long, PeptideSpectrumMatch> getPeptideSpectrumMatches() {
-		return peptideSpectrumMatches;
+	public TreeMap<Long, SpectrumMatch> getSpectrumMatches() {
+		return spectrumMatches;
 	}
 
-	public void setPeptideSpectrumMatches(TreeMap<Long, PeptideSpectrumMatch> peptideSpectrumMatches) {
-		this.peptideSpectrumMatches = peptideSpectrumMatches;
+	public void setSpectrumMatches(TreeMap<Long, SpectrumMatch> spectrumMatches) {
+		this.spectrumMatches = spectrumMatches;
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class PeptideHit {
 	 * Adds a peptide spectrum match to the PeptideHit.
 	 * @param psm The peptide spectrum map.
 	 */
-	public void addPeptideSpectrumMatch(PeptideSpectrumMatch psm){
-		peptideSpectrumMatches.put(psm.getSpectrumId(), psm);
+	public void addSpectrumMatch(SpectrumMatch psm){
+		spectrumMatches.put(psm.getSpectrumId(), psm);
 	}
 }

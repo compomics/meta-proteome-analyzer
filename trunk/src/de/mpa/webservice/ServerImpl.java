@@ -18,10 +18,11 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.client.DbSearchSettings;
-import de.mpa.client.DenovoSearchSettings;
-import de.mpa.client.SpecSimSettings;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
+import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.settings.DenovoSearchSettings;
+import de.mpa.client.settings.SearchSettings;
+import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.storager.SpectrumStorager;
@@ -97,48 +98,6 @@ public class ServerImpl implements Server {
 		File file = new File(filename);		
 		return file; 
 	}
-	
-	public void runSearches(String filename, long expID, DbSearchSettings dbss, SpecSimSettings sss, DenovoSearchSettings dnss) {
-		try {
-			// 	DB Manager instance
-			dbManager = DBManager.getInstance();
-			// Store the spectra.
-			File file = new File(filename);
-			SpectrumStorager storager = dbManager.storeSpectra(file, expID);
-			
-			// Initialize the job manager.
-			jobManager = JobManager.getInstance();
-			
-			// Get the filename map.
-			Map<String, String> filenames = jobManager.getFilenames();
-
-			// run searches and store results
-			if (dbss != null) {
-				// run
-				runDbSearch(filename, dbss);
-				// store
-				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
-				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
-				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
-			}
-			if (sss != null) {
-				// TODO: run spec sim search
-				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
-				// store
-				dbManager.storeSpecSimResults(results);
-				results = null;
-			}
-			if (dnss != null) {
-				// run
-				runDenovoSearch(filename, dnss);
-				// store
-				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
-			}
-		} catch (Exception ex) {
-			log.error(ex.getMessage());
-		}
-	}
 
 	/**
 	 * Run the database search file. 
@@ -157,7 +116,7 @@ public class ServerImpl implements Server {
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta"));
-		
+
 		try {
 			fastaLoader.setIndexFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta.fb"));
 			fastaLoader.readIndexFile();
@@ -167,6 +126,8 @@ public class ServerImpl implements Server {
 			e1.printStackTrace();
 		}
 		MapContainer.FastaLoader = fastaLoader;
+		
+		jobManager = JobManager.getInstance();
 		// X!Tandem job
 		if(dbSearchSettings.isXTandem()){
 			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
@@ -288,5 +249,54 @@ public class ServerImpl implements Server {
 			}      
 		} 
 		throw new WebServiceException("Upload Failed!"); 
+	}
+
+	@Override
+	public void runSearches(String filename, SearchSettings settings) {
+		try {
+			// 	DB Manager instance
+			dbManager = DBManager.getInstance();
+			
+			// Store the spectra.
+			File file = new File(JobConstants.TRANSFER_PATH + filename);
+			SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
+			
+			// Initialize the job manager.
+			jobManager = JobManager.getInstance();
+			
+			// Get the filename map.
+			Map<String, String> filenames = jobManager.getFilenames();
+
+			// run searches and store results
+			if (settings.isDatabase()) {
+				DbSearchSettings dbss = settings.getDbss();
+				// run
+				runDbSearch(filename, dbss);
+				// store
+				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
+				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
+				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
+				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
+			}
+			if (settings.isSpecSim()) {
+				SpecSimSettings sss = settings.getSss();
+				// TODO: run spec sim search
+				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
+				// store
+				dbManager.storeSpecSimResults(results);
+				results = null;
+			}
+			
+//			if (dnss != null) {
+//				// run
+//				runDenovoSearch(filename, dnss);
+//				// store
+//				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
+//			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			log.error(ex.getMessage());
+		}
+		
 	}
 }

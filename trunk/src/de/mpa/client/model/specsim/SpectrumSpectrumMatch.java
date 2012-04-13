@@ -1,16 +1,13 @@
 package de.mpa.client.model.specsim;
 
+import de.mpa.client.model.SpectrumMatch;
+
 /**
  * Data structure for a spectrum-to-spectrum match.
  * 
  * @author behne
  */
-public class SpectrumSpectrumMatch {
-	
-	/**
-	 * The searchspectrum ID.
-	 */
-	private long searchspectrumID;
+public class SpectrumSpectrumMatch extends SpectrumMatch {
 	
 	/**
 	 * The libspectrum ID.
@@ -31,16 +28,9 @@ public class SpectrumSpectrumMatch {
 	 */
 	public SpectrumSpectrumMatch(long searchspectrumID, long libspectrumID,
 			double similarity) {
-		this.searchspectrumID = searchspectrumID;
+		this.searchSpectrumID = searchspectrumID;
 		this.libspectrumID = libspectrumID;
 		this.similarity = similarity;
-	}
-
-	/**
-	 * @return the searchspectrumID
-	 */
-	public long getSearchspectrumID() {
-		return searchspectrumID;
 	}
 
 	/**

@@ -47,7 +47,7 @@ import javax.swing.tree.TreePath;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.client.FilterSettings;
+import de.mpa.client.settings.FilterSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.ClientFrame;

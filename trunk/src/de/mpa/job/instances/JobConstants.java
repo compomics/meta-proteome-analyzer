@@ -3,7 +3,7 @@ package de.mpa.job.instances;
 public class JobConstants {
 
 	// Dataset path
-	public final static String DATASET_PATH = "/scratch/metaprot/data/transfer/";
+	public final static String TRANSFER_PATH = "/scratch/metaprot/data/transfer/";
 	
 	// Path to the fasta files
 	public final static String FASTA_PATH = "/scratch/metaprot/data/fasta/";

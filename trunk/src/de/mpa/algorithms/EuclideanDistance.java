@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 import de.mpa.interfaces.SpectrumComparator;
 
-public class EuclideanDistance extends SpectrumComparator {
+public class EuclideanDistance implements SpectrumComparator {
 
 	private Vectorization vect;
 	private Transformation trafo;

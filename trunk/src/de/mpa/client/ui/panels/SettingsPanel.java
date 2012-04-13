@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -44,9 +43,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
-import de.mpa.client.DbSearchSettings;
-import de.mpa.client.DenovoSearchSettings;
-import de.mpa.client.SpecSimSettings;
+import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.settings.DenovoSearchSettings;
+import de.mpa.client.settings.SearchSettings;
+import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
 
@@ -191,14 +191,10 @@ public class SettingsPanel extends JPanel {
 		dnTtlPnl.setTitlePainter(ttlPainter);
 		dnTtlPnl.setBorder(ttlBorder);
 		
-//		ComponentTitledBorder deNovoBrd = new ComponentTitledBorder(deNovoChk, deNovoPnl);
-//		deNovoPnl.setBorder(deNovoBrd);
-
 		// general settings panel
 		JPanel processPnl = new JPanel();
 		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",
-											"0dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
-//		processPnl.setBorder(BorderFactory.createTitledBorder("General"));
+											"5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		
 		packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 100));
 		packSpn.setToolTipText("Number of spectra per transfer package"); 
@@ -231,16 +227,21 @@ public class SettingsPanel extends JPanel {
 		processPnl.add(processBtn, cc.xyw(2, 6, 5));
 
 		JXTitledPanel procTtlPnl = new JXTitledPanel("General", processPnl);
+		procTtlPnl.setTitleFont(ttlFont);
+		procTtlPnl.setTitlePainter(ttlPainter);
+		procTtlPnl.setBorder(ttlBorder);
+		
+		JXTitledPanel prevTtlPnl = new JXTitledPanel("Preview Input", specLibPnl.getPreviewPnl());
+		prevTtlPnl.setTitleFont(ttlFont);
+		prevTtlPnl.setTitlePainter(ttlPainter);
+		prevTtlPnl.setBorder(ttlBorder);
 		
 		// add sub-panels to main settings panel
-//		this.add(databasePnl, cc.xy(2, 2));
-//		this.add(specLibPnl, cc.xy(4, 2));
-//		this.add(deNovoPnl, cc.xywh(6, 2, 1, 3));
 		this.add(dbTtlPnl, cc.xy(2, 2));
 		this.add(slTtlPnl, cc.xy(4, 2));
 		this.add(dnTtlPnl, cc.xywh(6, 2, 1, 3));
 		this.add(procTtlPnl, cc.xy(6, 6));
-		this.add(specLibPnl.getPreviewPnl(), cc.xywh(2, 4, 3, 3));
+		this.add(prevTtlPnl, cc.xywh(2, 4, 3, 3));
 	}
 
 	/**
@@ -309,7 +310,10 @@ public class SettingsPanel extends JPanel {
 				
 				long experimentID = (dbss != null) ? dbss.getExperimentid() : (sss != null) ? sss.getExperimentID() : (dnss != null) ? dnss.getExperimentid() : 0L;
 				
-				client.runSearches(chunkedFiles, experimentID, dbss, sss, dnss);
+				SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
+				
+				//client.runSearches(chunkedFiles, dbss);
+				client.runSearches(chunkedFiles, settings);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

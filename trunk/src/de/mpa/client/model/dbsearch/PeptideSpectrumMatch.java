@@ -3,13 +3,10 @@ package de.mpa.client.model.dbsearch;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.db.accessor.SearchHit;
 
-public class PeptideSpectrumMatch {
-	/**
-	 * The spectrum id;
-	 */
-	private long spectrumid;
+public class PeptideSpectrumMatch extends SpectrumMatch {
 	
 	/**
 	 * The ion charge.
@@ -35,28 +32,12 @@ public class PeptideSpectrumMatch {
 	 * @param searchEngineHits
 	 */
 	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit, SearchEngineType type) {
-		this.spectrumid = spectrumid;
+		this.searchSpectrumID = spectrumid;
 		this.charge = (int) searchHit.getCharge();
 		this.searchEngineHits = new ArrayList<SearchEngineHit>();
 		this.searchEngineHits.add(new SearchEngineHit(searchHit, type));
 	}
 	
-	/**
-	 * Returns the spectrum specific id.
-	 * @return The spectrum id.
-	 */
-	public long getSpectrumId() {
-		return spectrumid;
-	}
-	
-	/**
-	 * Sets the spectrum id.
-	 * @param spectrumid The spectrum id
-	 */
-	public void setSpectrumId(long spectrumid) {
-		this.spectrumid = spectrumid;
-	}
-
 	/**
 	 * Returns the search engine hit.
 	 * @return The search engine hit.
