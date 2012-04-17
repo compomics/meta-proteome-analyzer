@@ -267,32 +267,40 @@ public class ServerImpl implements Server {
 			// Get the filename map.
 			Map<String, String> filenames = jobManager.getFilenames();
 
-			// run searches and store results
+			// Run searches and store results
 			if (settings.isDatabase()) {
 				DbSearchSettings dbss = settings.getDbss();
-				// run
+				
+				// Run
 				runDbSearch(filename, dbss);
-				// store
+				
+				// Store
 				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
 				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
 				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
 				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
 			}
+			
 			if (settings.isSpecSim()) {
 				SpecSimSettings sss = settings.getSss();
-				// TODO: run spec sim search
+				
+				// Run
 				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
-				// store
+				
+				// Store
 				dbManager.storeSpecSimResults(results);
 				results = null;
 			}
 			
-//			if (dnss != null) {
-//				// run
-//				runDenovoSearch(filename, dnss);
-//				// store
-//				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
-//			}
+			if (settings.isDeNovo()) {
+				DenovoSearchSettings dnss = settings.getDnss();
+				
+				// Run
+				runDenovoSearch(filename, dnss);
+				
+				// Store
+				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			log.error(ex.getMessage());

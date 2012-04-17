@@ -397,7 +397,6 @@ public class Client {
 				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(searchSpectrumId, conn);				
 				if(cruxList.size() > 0) {
 					for (Cruxhit hit : cruxList) {
-						System.out.println(hit);
 						//addProteinSearchHit(hit, SearchEngineType.CRUX);
 					}
 				}
