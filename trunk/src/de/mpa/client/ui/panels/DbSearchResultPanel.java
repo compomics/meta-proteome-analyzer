@@ -13,15 +13,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -56,6 +57,8 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.algorithms.quantification.EmPAIAlgorithm;
+import de.mpa.algorithms.quantification.NSAFAlgorithm;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
@@ -247,7 +250,7 @@ public class DbSearchResultPanel extends JPanel{
 		// Protein table
 		proteinTbl = new JXTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "Coverage (%)", "Mass (kDa)", "Peptide Count", "Spectral Count"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "Coverage (%)", "Mass (kDa)", "Peptide Count", "Spectral Count", "emPAI", "NSAF"}); }
 	
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -268,6 +271,13 @@ public class DbSearchResultPanel extends JPanel{
 		proteinTbl.getColumn("Peptide Count").setMaxWidth(110);
 		proteinTbl.getColumn("Spectral Count").setMinWidth(115);
 		proteinTbl.getColumn("Spectral Count").setMaxWidth(115);
+		proteinTbl.getColumn("emPAI").setMinWidth(115);
+		proteinTbl.getColumn("emPAI").setMaxWidth(115);
+		proteinTbl.getColumn("emPAI").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, 9.0));
+		((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("emPAI").getCellRenderer()).showNumberAndChart(true, 40, new DecimalFormat("0.000"));
+		proteinTbl.getColumn("NSAF").setMinWidth(115);
+		proteinTbl.getColumn("NSAF").setMaxWidth(115);
+		
 		
 		// Sort the table by the number of peptides
 		TableRowSorter<TableModel> sorter  = new TableRowSorter<TableModel>(proteinTbl.getModel());
@@ -974,6 +984,8 @@ public class DbSearchResultPanel extends JPanel{
 		int i = 1;
 		maxSpectralCount = 0;
 		maxPeptideCount = 0;
+		double maxNSAF = 0.0;
+		double minNSAF = Double.MAX_VALUE;
 		// Fill the protein results table.
 		if (dbSearchResult != null) {
 			
@@ -981,7 +993,11 @@ public class DbSearchResultPanel extends JPanel{
 			for (Entry entry : dbSearchResult.getProteinHits().entrySet()){
 				
 				// Get the protein hit
-				ProteinHit proteinHit = new ProteinAnalysis((ProteinHit) entry.getValue()).getProteinHit();
+				ProteinHit proteinHit = (ProteinHit) entry.getValue();
+				ProteinAnalysis.calculateMolecularWeight(proteinHit);
+				ProteinAnalysis.calculateSequenceCoverage(proteinHit);
+				ProteinAnalysis.calculateLabelFree(new EmPAIAlgorithm(), proteinHit);
+				ProteinAnalysis.calculateLabelFree(new NSAFAlgorithm(), dbSearchResult.getProteinHits(), proteinHit);
 				
 				// Determine the number of containing peptide hits.
 				int peptideCount = proteinHit.getPeptideCount();
@@ -989,11 +1005,18 @@ public class DbSearchResultPanel extends JPanel{
 				// Determine the number of containing psm hits 
 				int spectralCount =  proteinHit.getSpecCount();
 				
+				// Determine the NSAF
+				double nSAF = proteinHit.getNSAF();
+				
 				// Remember maximum number of peptides
-				maxPeptideCount= max(maxPeptideCount, peptideCount);
+				maxPeptideCount = Math.max(maxPeptideCount, peptideCount);
 				
 				// Remember maximum number of spectra
-				maxSpectralCount= max(maxSpectralCount, spectralCount);
+				maxSpectralCount = Math.max(maxSpectralCount, spectralCount);
+				
+				// Remember maximum of NSAF
+				maxNSAF = Math.max(maxNSAF, nSAF);
+				minNSAF = Math.min(minNSAF, nSAF);
 				
 				// Add row to the table
 				((DefaultTableModel) proteinTbl.getModel()).addRow(new Object[]{
@@ -1003,7 +1026,11 @@ public class DbSearchResultPanel extends JPanel{
 						proteinHit.getCoverage(),
 						proteinHit.getMolWeight(),
 						peptideCount, 
-						spectralCount});
+						spectralCount,
+						proteinHit.getEmPAI(),
+						proteinHit.getNSAF()}
+				);
+						
 				i++;
 			}
 			proteinTbl.getColumn("Spectral Count").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL,(double) maxSpectralCount, true));
@@ -1011,8 +1038,12 @@ public class DbSearchResultPanel extends JPanel{
 			
 			proteinTbl.getColumn("Peptide Count").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, (double) maxPeptideCount, true));
 			((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("Peptide Count").getCellRenderer()).showNumberAndChart(true, 20, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
-			//proteinTbl.getColumn("Coverage").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 100.0, true));
-			//((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("Coverage").getCellRenderer()).showNumberAndChart(true, 20, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
+		
+			JSparklinesBarChartTableCellRenderer renderer = new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, minNSAF, maxNSAF);
+			proteinTbl.getColumn("NSAF").setCellRenderer(renderer);
+			((JSparklinesBarChartTableCellRenderer) proteinTbl.getColumn("NSAF").getCellRenderer()).showNumberAndChart(true, 40, new DecimalFormat("0.000000"));
+			
+			
 		}
 	}
 	

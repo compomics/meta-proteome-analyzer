@@ -407,6 +407,7 @@ public class Client {
 						addProteinSearchHit(hit, SearchEngineType.INSPECT);
 					}
 				}
+				
 			}
 		}  catch (SQLException e) {
 			e.printStackTrace();
