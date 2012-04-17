@@ -4,10 +4,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
-import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.client.ui.ClientFrame;
 
@@ -22,9 +20,9 @@ public class Starter {
 		//Options.setDefaultIconSize(new Dimension(18, 18));
 		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
 		Options.setPopupDropShadowEnabled(true);
-		String lafName = LookUtils.IS_OS_WINDOWS ? WindowsLookAndFeel.class.getName() : Plastic3DLookAndFeel.class.getName();
 		try {
-			UIManager.setLookAndFeel(lafName);
+			// Set Plastic3DLook&Feel as default for all OS.
+			UIManager.setLookAndFeel(Plastic3DLookAndFeel.class.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

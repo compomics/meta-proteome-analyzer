@@ -1,12 +1,14 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -41,7 +44,11 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.HyperlinkProvider;
+import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jfree.chart.plot.PlotOrientation;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -219,6 +226,25 @@ public class SpecSimResultPanel extends JPanel {
 		tcm.getColumn(5).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
 		tcm.getColumn(6).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
 		
+		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
+		    public void actionPerformed(ActionEvent ev) {
+		        try {
+		            Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		    }
+		};
+		tcm.getColumn(1).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)){
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
+				compLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				return compLabel;
+			}
+		});
+        
 		proteinTbl.setAutoCreateRowSorter(true);
 		proteinTbl.getRowSorter().toggleSortOrder(6);
 		proteinTbl.getRowSorter().toggleSortOrder(6);

@@ -10,7 +10,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
  * @author heyer and kohrs
  *
  */
-public class EmPAIAlgorithm implements QuantMethod{
+public class EmPAIAlgorithm implements QuantMethod {
 
 	private double emPAI = 0.0;
 

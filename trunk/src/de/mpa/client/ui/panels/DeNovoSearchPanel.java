@@ -119,7 +119,7 @@ public class DeNovoSearchPanel extends JPanel {
 		cbtsm.addSelectionPath(ptmRoot.getFirstLeaf().getPath());
 		
 		ptmScp = new JScrollPane(ptmTree);
-		//		dnPTMscp.setPreferredSize(new Dimension(0, 0));
+		// dnPTMscp.setPreferredSize(new Dimension(0, 0));
 		ptmScp.setPreferredSize(new Dimension(200, 100));
 		ptmScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		ptmScp.setToolTipText("Choose possible PTMs");

@@ -5,10 +5,8 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,7 +34,6 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -49,6 +46,7 @@ import de.mpa.client.settings.SearchSettings;
 import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.PanelConfig;
 
 public class SettingsPanel extends JPanel {
 
@@ -95,17 +93,12 @@ public class SettingsPanel extends JPanel {
 		layout.setColumnGroups(new int[][] {{2,4,6}});
 
 		this.setLayout(layout);
-		
-		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
-		
-		UIManager.put("JXTitledPanel.leftDecorationInsets", new Insets(0, 6, 0, 0));
-		Font ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
-		Color ttlFore = dummyPnl.getTitleForeground();
+				
+		Border ttlBorder = PanelConfig.getTtlBorder();
+		Painter ttlPainter = PanelConfig.getTtlPainter();
+		Font ttlFont = PanelConfig.getTtlFont();
+		Color ttlForeground = PanelConfig.getTtlForeground();
 		final Color bgCol = UIManager.getColor("Label.background");
-		Painter ttlPainter = new MattePainter(new GradientPaint(
-				0, 0, UIManager.getColor("TabbedPane.focus"),
-				0, 20, new Color(107, 147, 193)));
-		Border ttlBorder = UIManager.getBorder("TitledBorder.border");
 		
 		// database search settings panel
 		databasePnl = new DBSearchPanel(clientFrame);
@@ -125,7 +118,7 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		databaseChk.setFont(ttlFont);
-		databaseChk.setForeground(ttlFore);
+		databaseChk.setForeground(ttlForeground);
 		databaseChk.setFocusPainted(false);
 		databaseChk.setOpaque(false);
 		
@@ -153,7 +146,7 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		specLibChk.setFont(ttlFont);
-		specLibChk.setForeground(ttlFore);
+		specLibChk.setForeground(ttlForeground);
 		specLibChk.setFocusPainted(false);
 		specLibChk.setOpaque(false);
 		
@@ -181,7 +174,7 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		deNovoChk.setFont(ttlFont);
-		deNovoChk.setForeground(ttlFore);
+		deNovoChk.setForeground(ttlForeground);
 		deNovoChk.setFocusPainted(false);
 		deNovoChk.setOpaque(false);
 		
