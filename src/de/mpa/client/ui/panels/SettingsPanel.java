@@ -111,7 +111,7 @@ public class SettingsPanel extends JPanel {
 		databasePnl = new DBSearchPanel(clientFrame);
 		databasePnl.setEnabled(true);
 		
-		JCheckBox databaseChk = new JCheckBox("Database Search", true) {
+		final JCheckBox databaseChk = new JCheckBox("Database Search", true) {
 			public void paint(Graphics g) {
 				g.setColor(bgCol);
 				g.fillRect(0, 3, 12, 12);

@@ -10,11 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -397,6 +397,7 @@ public class Client {
 				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(searchSpectrumId, conn);				
 				if(cruxList.size() > 0) {
 					for (Cruxhit hit : cruxList) {
+						System.out.println(hit);
 						//addProteinSearchHit(hit, SearchEngineType.CRUX);
 					}
 				}
@@ -464,7 +465,7 @@ public class Client {
 	 * @return The current database search result.
 	 */
 	public SpecSimResult getSpecSimResult(ExperimentContent expContent) {
-		if(specSimResult == null) {
+		if (specSimResult == null) {
 			try {
 				initDBConnection();
 				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn);
@@ -484,6 +485,27 @@ public class Client {
 	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
+	}
+
+	/**
+	 * TODO: API :)
+	 * @param idSet
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<String> getSpectrumTitlesFromIDs(Set<Long> idSet) throws SQLException {
+		initDBConnection();
+		return new SpectrumExtractor(conn).getSpectrumTitlesFromIDs(idSet);
+	}
+	
+	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {
+		initDBConnection();
+		return new SpectrumExtractor(conn).getSpectrumFromSearchSpectrumID(searchspectrumID);
+	}
+	
+	public MascotGenericFile getSpectrumFromLibSpectrumID(long libspectrumID) throws SQLException {
+		initDBConnection();
+		return new SpectrumExtractor(conn).getSpectrumFromLibSpectrumID(libspectrumID);
 	}
 	
 //	/**

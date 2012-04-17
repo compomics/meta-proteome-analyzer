@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.LibrarySpectrum;
@@ -266,4 +267,85 @@ public class SpectrumExtractor {
 		
 		return res;
 	}
+
+	/**
+	 * Method to extract spectrum titles belonging to a set of specified searchspectrum IDs. 
+	 * @param idSet Set of searchspectrum IDs.
+	 * @return List of spectrum title strings.
+	 * @throws SQLException
+	 */
+	public List<String> getSpectrumTitlesFromIDs(Set<Long> idSet) throws SQLException {
+		if (idSet != null && !idSet.isEmpty()) {
+			ArrayList<String> res = new ArrayList<String>(idSet.size());
+			
+			StringBuilder sb = new StringBuilder("SELECT title FROM searchspectrum " +
+					"INNER JOIN spectrum ON searchspectrum.fk_spectrumid = spectrum.spectrumid " +
+					"WHERE ");
+			for (Long id : idSet) {
+				sb.append("searchspectrum.searchspectrumid = " + id);
+				sb.append(" OR ");
+			}
+			for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
+			
+			PreparedStatement ps = conn.prepareStatement(sb.toString());
+			ResultSet rs = ps.executeQuery();
+	        while (rs.next()) {
+	            res.add(rs.getString(1));
+	        }
+	        rs.close();
+	        ps.close();
+			
+			return res;
+		}
+		return null;
+	}
+	
+	/**
+	 * Method to extract a spectrum belonging to a specified searchspectrum ID.
+	 * @param searchspectrumID The searchspectrum ID.
+	 * @return MascotGenericFile containing the desired spectrum.
+	 * @throws SQLException
+	 */
+	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {
+		MascotGenericFile res = null;
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+				"precursor_charge, mzarray, intarray, chargearray FROM searchspectrum " +
+				"INNER JOIN spectrum ON searchspectrum.fk_spectrumid = spectrum.spectrumid " +
+				"WHERE searchspectrum.searchspectrumid = ?");
+		ps.setLong(1, searchspectrumID);
+		ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	res = new MascotGenericFile(rs);
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
+	}
+	
+	/**
+	 * Method to extract a spectrum belonging to a specified libspectrum ID.
+	 * @param libspectrumID The libspectrum ID.
+	 * @return MascotGenericFile containing the desired spectrum.
+	 * @throws SQLException
+	 */
+	public MascotGenericFile getSpectrumFromLibSpectrumID(long libspectrumID) throws SQLException {
+		MascotGenericFile res = null;
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+				"precursor_charge, mzarray, intarray, chargearray FROM libspectrum " +
+				"INNER JOIN spectrum on libspectrum.fk_spectrumid = spectrum.spectrumid " +
+				"WHERE libspectrum.libspectrumid = ?");
+		ps.setLong(1, libspectrumID);
+		ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	res = new MascotGenericFile(rs);
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
+	}
+	
 }
