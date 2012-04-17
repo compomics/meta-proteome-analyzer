@@ -151,7 +151,6 @@ public class SpectrumStorager extends BasicStorager {
 
                 // Get the spectrumid from the generated keys.
                 Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
-                System.out.println("expid: " + experimentid);
                 
                 /* Searchspectrum storager*/
                 HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);

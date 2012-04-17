@@ -1,16 +1,12 @@
 package de.mpa.client.ui.panels;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -45,7 +41,6 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
-import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jfree.chart.plot.PlotOrientation;
 
@@ -60,6 +55,7 @@ import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.CustomTableCellRenderer;
+import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.MultiPlotPanel;
@@ -91,22 +87,17 @@ public class SpecSimResultPanel extends JPanel {
 		// Cell constraints
 		CellConstraints cc = new CellConstraints();
 		
-		// Titled panel variables
-		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
-		
-		Font ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
-		Painter ttlPainter = new MattePainter(new GradientPaint(
-				0, 0, UIManager.getColor("TabbedPane.focus"),
-				0, 20, new Color(107, 147, 193)));
-		Border ttlBorder = UIManager.getBorder("TitledBorder.border");
-		
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-	
+		
+		// Init titled panel variables.
+		Font ttlFont = PanelConfig.getTtlFont();
+		Border ttlBorder = PanelConfig.getTtlBorder();
+		Painter ttlPainter = PanelConfig.getTtlPainter();
+		
 		final JPanel proteinPnl = new JPanel();
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-//		proteinPnl.setBorder(BorderFactory.createTitledBorder("Proteins"));
 		
-		// Setup the tables
+		// Setup tables
 		chartFont = UIManager.getFont("Label.font").deriveFont(12f);
 		setupProteinTableProperties();
 		setupPeptideTableProperties();
@@ -132,6 +123,7 @@ public class SpecSimResultPanel extends JPanel {
 	
 		JXTitledPanel protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
 		protTtlPnl.setRightDecoration(getResultsBtn);
+		
 		protTtlPnl.setTitleFont(ttlFont);
 		protTtlPnl.setTitlePainter(ttlPainter);
 		protTtlPnl.setBorder(ttlBorder);
@@ -162,7 +154,7 @@ public class SpecSimResultPanel extends JPanel {
 		pepPsmPnl.add(pepTtlPnl, cc.xy(1, 1));
 		pepPsmPnl.add(ssmTtlPnl, cc.xy(1, 3));
 		
-		// Build the spectrum filter panel
+		// Build spectrum filter panel
 		JPanel specPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 
 		spectrumJPanel = new MultiPlotPanel();

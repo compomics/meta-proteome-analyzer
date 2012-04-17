@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -32,24 +31,22 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
+import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.painter.MattePainter;
+import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.painter.Painter;
 import org.jfree.chart.plot.PlotOrientation;
 
@@ -68,6 +65,7 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.CustomTableCellRenderer;
+import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.db.accessor.Searchspectrum;
@@ -79,7 +77,6 @@ import de.mpa.io.MascotGenericFile;
 public class DbSearchResultPanel extends JPanel{
 	
 	private ClientFrame clientFrame;
-	private DbSearchResultPanel dbSearchResultPnl;
 	private JXTable proteinTbl;
 	private DbSearchResult dbSearchResult;
 	private JXTable peptideTbl;
@@ -120,24 +117,18 @@ public class DbSearchResultPanel extends JPanel{
 	private void initComponents() {
 		// Cell constraints
 		CellConstraints cc = new CellConstraints();
-
-		// Titled panel variables
-		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		Font ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
-		Painter ttlPainter = new MattePainter(new GradientPaint(
-				0, 0, UIManager.getColor("TabbedPane.focus"),
-				0, 20, new Color(107, 147, 193)));
-		Border ttlBorder = UIManager.getBorder("TitledBorder.border");
+		// Init titled panel variables.
+		Font ttlFont = PanelConfig.getTtlFont();
+		Border ttlBorder = PanelConfig.getTtlBorder();
+		Painter ttlPainter = PanelConfig.getTtlPainter();
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane();
 		JScrollPane peptideTableScp = new JScrollPane();
 		JScrollPane psmTableScp = new JScrollPane();
 		
-		dbSearchResultPnl = this;
-		dbSearchResultPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
-	
 		final JPanel proteinPnl = new JPanel();
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 	
@@ -189,7 +180,6 @@ public class DbSearchResultPanel extends JPanel{
 		protTtlPnl.setTitleFont(ttlFont);
 		protTtlPnl.setTitlePainter(ttlPainter);
 		protTtlPnl.setBorder(ttlBorder);
-	
 				
 		// Peptide panel
 		final JPanel peptidePnl = new JPanel();
@@ -235,17 +225,19 @@ public class DbSearchResultPanel extends JPanel{
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
 		
-		// SplitPane
-		JSplitPane splitPn = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, pepPsmPnl, specTtlPnl);
-		splitPn.setBorder(null);
+		String layoutDef =
+		    "(COLUMN protein (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) plot))";
+		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
-		// Remove the border from the splitpane divider
-		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) splitPn.getUI()).getDivider();
-		if (divider != null) {
-			divider.setBorder(null);
-		}
-		dbSearchResultPnl.add(protTtlPnl, cc.xy(2,2));
-		dbSearchResultPnl.add(splitPn, cc.xy(2, 4));
+		final JXMultiSplitPane multiSplitPane = new JXMultiSplitPane();
+		multiSplitPane.setDividerSize(12);
+		multiSplitPane.getMultiSplitLayout().setModel(modelRoot);
+		multiSplitPane.add(protTtlPnl, "protein");
+		multiSplitPane.add(pepTtlPnl, "peptide");
+		multiSplitPane.add(psmTtlPnl, "psm");
+		multiSplitPane.add(specTtlPnl, "plot");
+		
+		this.add(multiSplitPane, cc.xy(2, 2));
 	}
 	
 	/**

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,22 +21,23 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.border.TitledBorder;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
+import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.painter.Painter;
 import org.jfree.chart.plot.PlotOrientation;
 
 import com.compomics.util.gui.spectrum.SpectrumPanel;
@@ -47,6 +49,7 @@ import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.CustomTableCellRenderer;
+import de.mpa.client.ui.PanelConfig;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -79,28 +82,30 @@ public class DeNovoResultPanel extends JPanel {
 	 */
 	private void initComponents() {
 		CellConstraints cc = new CellConstraints();
-		JScrollPane gappedPeptidesTblScp = new JScrollPane();
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		// Choose your spectra
-		JPanel peptideTagsPnl = new JPanel();
-		peptideTagsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu,"));
-		peptideTagsPnl.setBorder(BorderFactory.createTitledBorder("Peptide Tags"));
+		// Init titled panel variables.
+		Font ttlFont = PanelConfig.getTtlFont();
+		Border ttlBorder = PanelConfig.getTtlBorder();
+		Painter ttlPainter = PanelConfig.getTtlPainter();
+		
+		JScrollPane denovoTagsScp = new JScrollPane();
+		
 
+		final JPanel denovoTagsPnl = new JPanel();
+		denovoTagsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		
 		// Setup the tables
 		setupDenovoSearchResultTableProperties();
 		setupSolutionsTableProperties();
 
-		peptideTagsPnl.setOpaque(false);
-		gappedPeptidesTblScp.setViewportView(peptideTagsTbl);
-		gappedPeptidesTblScp.setPreferredSize(new Dimension(800, 200));
+		denovoTagsScp.setViewportView(peptideTagsTbl);
+		denovoTagsScp.setPreferredSize(new Dimension(800, 200));
+		
+		JButton getResultsBtn = new JButton("Get Results");
+		getResultsBtn.setPreferredSize(new Dimension(150, 20));
 
-		JButton updateDnBtn = new JButton("Get Results");
-		JPanel topPnl = new JPanel(new FormLayout("p", "p"));
-		topPnl.add(updateDnBtn, cc.xy(1, 1));
-		updateDnBtn.setPreferredSize(new Dimension(150, 20));
-
-		updateDnBtn.addActionListener(new ActionListener() {
+		getResultsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -119,15 +124,26 @@ public class DeNovoResultPanel extends JPanel {
 				// TODO: Signalize the user that there are no results.
 			}
 		});
+		
+		denovoTagsPnl.add(denovoTagsScp, cc.xy(2, 2));
+		
+		JXTitledPanel denovoTagsTtlPnl = new JXTitledPanel("De-novo Tags", denovoTagsPnl);
+		denovoTagsTtlPnl.setRightDecoration(getResultsBtn);
+		denovoTagsTtlPnl.setTitleFont(ttlFont);
+		denovoTagsTtlPnl.setTitlePainter(ttlPainter);
+		denovoTagsTtlPnl.setBorder(ttlBorder);
 
-		peptideTagsPnl.add(topPnl, cc.xy(2, 2));
-		peptideTagsPnl.add(gappedPeptidesTblScp, cc.xy(2, 4));
-
+		
 		// Spectra panel.
 		JPanel spectraPnl = new JPanel();
-		spectraPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu", "5dlu, f:p, 5dlu"));
-		spectraPnl.setBorder(new TitledBorder("Spectrum Hits"));
-
+		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
+		
+		
+		JXTitledPanel specHitsTtlPnl = new JXTitledPanel("Spectrum Hits", spectraPnl);
+		specHitsTtlPnl.setTitleFont(ttlFont);
+		specHitsTtlPnl.setTitlePainter(ttlPainter);
+		specHitsTtlPnl.setBorder(ttlBorder);
+		
 		JScrollPane spectraTblScp = new JScrollPane(spectraTbl);
 		spectraTblScp.setPreferredSize(new Dimension(400, 150));
 		
@@ -141,34 +157,47 @@ public class DeNovoResultPanel extends JPanel {
 		
 		final JPanel solutionsPnl = new JPanel();
 		solutionsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
-		solutionsPnl.setBorder(BorderFactory.createTitledBorder("De-novo Solutions"));
 		solutionsPnl.add(solutionsTblScp, cc.xy(2, 2));
-
+		
+		JXTitledPanel solutionsTtlPnl = new JXTitledPanel("Solutions", solutionsPnl);
+		solutionsTtlPnl.setTitleFont(ttlFont);
+		solutionsTtlPnl.setTitlePainter(ttlPainter);
+		solutionsTtlPnl.setBorder(ttlBorder);
+		
 		// Peptide and Psm Panel
 		JPanel bottomPnl = new JPanel(new FormLayout("p:g","f:p:g,f:p:g"));
 		
-		bottomPnl.add(spectraPnl, cc.xy(1, 1));
-		bottomPnl.add(solutionsPnl, cc.xy(1, 2));
+		bottomPnl.add(specHitsTtlPnl, cc.xy(1, 1));
+		bottomPnl.add(solutionsTtlPnl, cc.xy(1, 2));
 		
-		spectrumOverviewPnl = new JPanel(new BorderLayout());
-		spectrumOverviewPnl.setBorder(BorderFactory.createTitledBorder("Spectrum"));
+		spectrumOverviewPnl = new JPanel(new BorderLayout(5,5));
+		
 		spectrumJPanel = new JPanel();
 		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
 		spectrumJPanel.setBackground(Color.WHITE);
+		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		spectrumJPanel.setOpaque(false);
+		
 		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
+				
+		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
+		specTtlPnl.setTitleFont(ttlFont);
+		specTtlPnl.setTitlePainter(ttlPainter);
+		specTtlPnl.setBorder(ttlBorder);
 		
-		// SplitPane
-		JSplitPane splitPn = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, bottomPnl, spectrumOverviewPnl);
-		splitPn.setBorder(null);
+		String layoutDef =
+		    "(COLUMN denovotags (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=spechits) (LEAF weight=0.5 name=solutions)) plot))";
+		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
-		// Remove the border from the splitpane divider
-		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) splitPn.getUI()).getDivider();
-		if (divider != null) {
-			divider.setBorder(null);
-		}
+		final JXMultiSplitPane multiSplitPane = new JXMultiSplitPane();
+		multiSplitPane.setDividerSize(12);
+		multiSplitPane.getMultiSplitLayout().setModel(modelRoot);
+		multiSplitPane.add(denovoTagsTtlPnl, "denovotags");
+		multiSplitPane.add(specHitsTtlPnl, "spechits");
+		multiSplitPane.add(solutionsTtlPnl, "solutions");
+		multiSplitPane.add(specTtlPnl, "plot");
 		
-		this.add(peptideTagsPnl,cc.xy(2, 2));
-		this.add(splitPn,cc.xy(2, 4));
+		this.add(multiSplitPane, cc.xy(2, 2));
 	}
 
 	/**
@@ -454,9 +483,6 @@ public class DeNovoResultPanel extends JPanel {
 				// Get the de-novo tag hit.
 				DenovoTagHit denovoTagHit = (DenovoTagHit) entry.getValue();
 
-				// Determine the number of containing tag hits.
-				int tagCount = denovoTagHit.getTagSpecCount();
-				
 				((DefaultTableModel) peptideTagsTbl.getModel()).addRow(new Object[]{
 						i,
 						denovoTagHit.getTagSequence(),
