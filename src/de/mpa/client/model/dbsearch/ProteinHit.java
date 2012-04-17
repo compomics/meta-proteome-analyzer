@@ -55,6 +55,12 @@ public class ProteinHit {
 	private double nSAF;
 	
 	/**
+	 * The emPAI of the protein
+	 */
+	private double emPAI;
+	
+	
+	/**
 	 * Constructor for a simple protein hit with accesion only.
 	 * @param accession
 	 */
@@ -192,6 +198,22 @@ public class ProteinHit {
 	 */
 	public void setPeptideHits(TreeMap<String, PeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;
+	}
+
+	/**
+	 * Gets the emPAI of the protein
+	 * @return emPAI
+	 */
+	public double getEmPAI() {
+		return emPAI;
+	}
+	
+	/**
+	 * Sets the emPAI of the protein
+	 * @param emPAI
+	 */
+	public void setEmPAI(double emPAI) {
+		this.emPAI = emPAI;
 	}
 	/**
 	 * Adds one peptide to the protein hit.
