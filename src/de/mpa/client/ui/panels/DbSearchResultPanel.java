@@ -4,7 +4,9 @@ import static java.lang.Math.max;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -12,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -19,10 +22,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -32,6 +35,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -48,7 +52,11 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.HyperlinkProvider;
+import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jfree.chart.plot.PlotOrientation;
 
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
@@ -261,6 +269,26 @@ public class DbSearchResultPanel extends JPanel{
 		proteinTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		proteinTbl.getColumn("Accession").setMinWidth(70);
 		proteinTbl.getColumn("Accession").setMaxWidth(70);
+		
+		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
+		    public void actionPerformed(ActionEvent ev) {
+		        try {
+		            Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		    }
+		};
+		proteinTbl.getColumn("Accession").setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)){
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
+				compLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				return compLabel;
+			}
+		});
+
 		proteinTbl.getColumn("Coverage (%)").setMinWidth(90);
 		proteinTbl.getColumn("Coverage (%)").setMaxWidth(90);
 		proteinTbl.getColumn("Coverage (%)").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));

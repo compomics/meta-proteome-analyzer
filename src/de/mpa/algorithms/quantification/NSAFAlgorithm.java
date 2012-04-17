@@ -15,6 +15,7 @@ public class NSAFAlgorithm implements QuantMethod {
 		return nSAF;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void calculate(Object... params) {
 		Map<String,ProteinHit> proteinHitMap = (Map<String, ProteinHit>) params[0];
