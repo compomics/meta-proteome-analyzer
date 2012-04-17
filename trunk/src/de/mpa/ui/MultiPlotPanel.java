@@ -2,11 +2,17 @@ package de.mpa.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import de.mpa.io.MascotGenericFile;
 
@@ -28,7 +34,53 @@ public class MultiPlotPanel extends JPanel {
 	// list of line colors
 	private ArrayList<Color> lineColors;
 	
+	public MultiPlotPanel() {
+		initComponents();
+	}
 	
+	private void initComponents() {
+		// generate default colors
+		lineColors = new ArrayList<Color>();
+		lineColors.add(Color.RED);
+		lineColors.add(Color.BLUE);
+		
+		// generate context menu
+		final JPopupMenu mPlotPopup = new JPopupMenu();
+		final JCheckBoxMenuItem normSepItem = new JCheckBoxMenuItem("Normalize separately", false);
+		normSepItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				repaint(normSepItem.getState());
+			}
+		});
+		final JCheckBoxMenuItem highlightItem = new JCheckBoxMenuItem("Highlight only " + Math.abs(k) + " most intensive peaks", true);
+		highlightItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				k = -k;
+				repaint();
+			}
+		});
+	    mPlotPopup.add(normSepItem);
+	    mPlotPopup.add(highlightItem);
+	    
+		this.addMouseListener(new MouseAdapter() {
+		    public void mousePressed(MouseEvent e) {
+		        maybeShowPopup(e);
+		    }
+
+		    public void mouseReleased(MouseEvent e) {
+		        maybeShowPopup(e);
+		    }
+			private void maybeShowPopup(MouseEvent e) {
+		        if (e.isPopupTrigger()) {
+		            mPlotPopup.show(e.getComponent(),
+		                       e.getX(), e.getY());
+		        }
+		    }
+		});
+	}
+
 	public ArrayList<MascotGenericFile> getSpectra() {
 		return spectra;
 	}
@@ -150,17 +202,17 @@ public class MultiPlotPanel extends JPanel {
 //					ArrayList<Peak> peaks = spectrum.getPeakList();
 					HashMap<Double, Double> peaks = new HashMap<Double, Double>(spectrum.getPeaks());
 //					ArrayList<Peak> hPeak;
-					HashMap<Double, Double> hPeak;
+					HashMap<Double, Double> hPeaks;
 					if (k > 0) {
-						hPeak = spectrum.getHighestPeaks(k);
+						hPeaks = spectrum.getHighestPeaks(k);
 					} else {
-						hPeak = peaks;
+						hPeaks = peaks;
 					}
 //					for (Peak peak : peaks) {
 					for (Double mz : peaks.keySet()) {
 						// skip peak if it's part of the list of highlighted peaks
 //						if (hPeak.contains(peak)) {
-						if (hPeak.containsKey(mz)) {
+						if (hPeaks.containsKey(mz)) {
 							continue;
 						}
 						// highlight k highest peaks by brightening all others
@@ -177,7 +229,7 @@ public class MultiPlotPanel extends JPanel {
 							       (int)(getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(getHeight()/2-padY)));
 					}
 //					for (Peak peak : hPeak) {
-					for (Double mz : hPeak.keySet()) {
+					for (Double mz : hPeaks.keySet()) {
 						// plot highlighted peaks on top of other peaks
 						g.setColor(lineColors.get(i));
 //						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),

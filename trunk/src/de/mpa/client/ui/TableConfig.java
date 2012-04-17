@@ -1,8 +1,10 @@
 package de.mpa.client.ui;
 
 import java.awt.Component;
+import java.text.DecimalFormat;
 
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -83,6 +85,30 @@ public class TableConfig {
 			tc.setPreferredWidth((int) (weights[i]));
 			tc.setMaxWidth(tc.getPreferredWidth()*10);
 		}
+	}
+	
+	public static class CustomTableCellRenderer extends DefaultTableCellRenderer {
+		
+		private final DecimalFormat formatter;
+		
+		public CustomTableCellRenderer(int alignment) {
+			this(alignment, "0");
+		}
+		
+		public CustomTableCellRenderer(int alignment, String decimalFormat) {
+			formatter = new DecimalFormat(decimalFormat);
+			setHorizontalAlignment(alignment);
+		}
+
+		public Component getTableCellRendererComponent(
+				JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			// First format the cell value as required
+			value = formatter.format((Number)value);
+			// And pass it on to parent class
+			return super.getTableCellRendererComponent(
+					table, value, isSelected, hasFocus, row, column );
+		}
+		
 	}
 	
 }

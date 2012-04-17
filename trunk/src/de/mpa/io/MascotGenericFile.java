@@ -209,8 +209,9 @@ public class MascotGenericFile implements SpectrumFile {
 		this.iCharge = aResultSet.getInt("precursor_charge");
 		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
 				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("intarray")));
-		this.iCharges = SixtyFourBitStringSupport.buildChargeMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
-																 SixtyFourBitStringSupport.decodeBase64StringToInts(aResultSet.getString("chargearray")));
+		// FIXME: check SpecLibFrame to make sure charges are stored correctly!
+//		this.iCharges = SixtyFourBitStringSupport.buildChargeMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
+//																 SixtyFourBitStringSupport.decodeBase64StringToInts(aResultSet.getString("chargearray")));
 	}
 
 	/**
