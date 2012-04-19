@@ -25,9 +25,14 @@ public class ProteinHit {
 	private String description;
 	
 	/**
-	 * TODO: Molecular protein weight in kDa.
+	 * Molecular protein weight in kDa.
 	 */
 	private double molWeight;
+	
+	/**
+	 * The isoelectric Point 
+	 */
+	private double pI;
 	
 	/**
 	 * Peptide hits for the protein.
@@ -103,6 +108,12 @@ public class ProteinHit {
 		this.molWeight = molWeight;
 	}
 	
+	public double getpI() {
+		return pI;
+	}
+	public void setpI(double pI) {
+		this.pI = pI;
+	}
 	/**
 	 * Gets the sequence.
 	 * @return The protein sequence.
@@ -110,7 +121,6 @@ public class ProteinHit {
 	public String getSequence() {
 		return sequence;
 	}
-	
 	
 	/**
 	 * Sets the protein sequence

@@ -48,6 +48,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JMenuItem exportPeptideItem;
 	private JMenuItem exportPSMItem;
 	private JMenuItem exportProteinsItem;
+	private final int  PROTEIN = 0; 
+	private final int PEPTIDE = 1; 
+	private final int PSM = 2; 
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -146,20 +149,24 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportProteinsItem.setText("Protein Results");
 		exportProteinsItem.setEnabled(false);
 		exportProteinsItem.addActionListener(new ActionListener() {
+
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportResults(evt);
+				exportResults(PROTEIN);
 			}
 		});
 		exportMenu.add(exportProteinsItem);
+		
 		//Export peptides
 		exportPeptideItem = new JMenuItem();
 		exportPeptideItem.setText("Peptide Results");
 		exportPeptideItem.setEnabled(false);
 		exportPeptideItem.addActionListener(new ActionListener() {
+			
+
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO: @Fabi Export peptide results.
+			public void actionPerformed(ActionEvent evt) {
+				exportResults(PEPTIDE);
 			}
 		});
 		exportMenu.add(exportPeptideItem);
@@ -170,7 +177,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportPSMItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO: @Fabi Export PSM results.
+				exportResults(PSM);
 			}
 		});
 		exportMenu.add(exportPSMItem);
@@ -392,7 +399,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * Exports the results.
 	 * @param evt The ActionEvent evt
 	 */
-    private void exportResults(ActionEvent evt) {
+    private void exportResults(int exportType) {
         JFileChooser chooser = new JFileChooser(lastSelectedFolder);
         chooser.setFileFilter(new CsvFileFilter());
         chooser.setMultiSelectionEnabled(false);
@@ -445,7 +452,22 @@ public class ClientFrameMenuBar extends JMenuBar {
                     selectedFile.delete();
                 }
                 selectedFile.createNewFile();
-                ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
+                
+                switch (exportType) {
+				case PROTEIN:
+					ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
+					break;
+				case PEPTIDE:
+					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDbSearchResult());
+					break;
+				case PSM: 
+					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDbSearchResult());
+					break;
+				default:
+					break;
+				}
+
+                
                 lastSelectedFolder = selectedFile.getPath();
 
             } catch (IOException ex) {
@@ -467,8 +489,7 @@ public class ClientFrameMenuBar extends JMenuBar {
      */
     public void setExportResultsEnabled(boolean enabled){
     	exportProteinsItem.setEnabled(enabled);
-    	//TODO ADD 
-    	//exportPeptideItem.setEnabled(enabled);
-    	//exportPSMItem.setEnabled(enabled);
+    	exportPeptideItem.setEnabled(enabled);
+    	exportPSMItem.setEnabled(enabled);
     }
 }
