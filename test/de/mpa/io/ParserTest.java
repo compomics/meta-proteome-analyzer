@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 public class ParserTest extends TestCase{
 	
 	private ArrayList<String> fileStrings = new ArrayList<String>();
-
+	
 	public ParserTest() {
 		ArrayList<ArrayList<String>> fileNames = new ArrayList<ArrayList<String>>();
 		ArrayList<String> folderNames = new ArrayList<String>();
