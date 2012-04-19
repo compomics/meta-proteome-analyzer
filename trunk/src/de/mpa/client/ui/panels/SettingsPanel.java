@@ -94,10 +94,10 @@ public class SettingsPanel extends JPanel {
 
 		this.setLayout(layout);
 				
-		Border ttlBorder = PanelConfig.getTtlBorder();
-		Painter ttlPainter = PanelConfig.getTtlPainter();
-		Font ttlFont = PanelConfig.getTtlFont();
-		Color ttlForeground = PanelConfig.getTtlForeground();
+		Border ttlBorder = PanelConfig.getTitleBorder();
+		Painter ttlPainter = PanelConfig.getTitlePainter();
+		Font ttlFont = PanelConfig.getTitleFont();
+		Color ttlForeground = PanelConfig.getTitleForeground();
 		final Color bgCol = UIManager.getColor("Label.background");
 		
 		// database search settings panel

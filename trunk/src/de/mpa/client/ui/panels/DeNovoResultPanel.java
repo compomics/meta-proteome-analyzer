@@ -62,7 +62,6 @@ public class DeNovoResultPanel extends JPanel {
 	private JXTable peptideTagsTbl;
 	protected Object filePnl;
 	private DenovoSearchResult denovoSearchResult;
-	private JPanel spectrumOverviewPnl;
 	private JPanel spectrumJPanel;
 	private JXTable solutionsTbl;
 	private SpectrumPanel specPnl;
@@ -85,9 +84,9 @@ public class DeNovoResultPanel extends JPanel {
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
 		// Init titled panel variables.
-		Font ttlFont = PanelConfig.getTtlFont();
-		Border ttlBorder = PanelConfig.getTtlBorder();
-		Painter ttlPainter = PanelConfig.getTtlPainter();
+		Font ttlFont = PanelConfig.getTitleFont();
+		Border ttlBorder = PanelConfig.getTitleBorder();
+		Painter ttlPainter = PanelConfig.getTitlePainter();
 		
 		JScrollPane denovoTagsScp = new JScrollPane();
 		
@@ -136,7 +135,7 @@ public class DeNovoResultPanel extends JPanel {
 		
 		// Spectra panel.
 		JPanel spectraPnl = new JPanel();
-		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
+		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
 		
 		JXTitledPanel specHitsTtlPnl = new JXTitledPanel("Spectrum Hits", spectraPnl);
@@ -156,7 +155,7 @@ public class DeNovoResultPanel extends JPanel {
 		solutionsTblScp.setPreferredSize(new Dimension(400, 150));
 		
 		final JPanel solutionsPnl = new JPanel();
-		solutionsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
+		solutionsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		solutionsPnl.add(solutionsTblScp, cc.xy(2, 2));
 		
 		JXTitledPanel solutionsTtlPnl = new JXTitledPanel("Solutions", solutionsPnl);
@@ -169,15 +168,15 @@ public class DeNovoResultPanel extends JPanel {
 		
 		bottomPnl.add(specHitsTtlPnl, cc.xy(1, 1));
 		bottomPnl.add(solutionsTtlPnl, cc.xy(1, 2));
-		
-		spectrumOverviewPnl = new JPanel(new BorderLayout(5,5));
+
+		JPanel spectrumOverviewPnl = new JPanel(new BorderLayout(5,5));
 		
 		spectrumJPanel = new JPanel();
 		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
 		spectrumJPanel.setBackground(Color.WHITE);
-		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		spectrumJPanel.setBorder(BorderFactory.createEtchedBorder());
 		spectrumJPanel.setOpaque(false);
-		
+
 		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
 				
 		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
@@ -480,15 +479,14 @@ public class DeNovoResultPanel extends JPanel {
 		if(denovoSearchResult != null){
 			for (Entry entry : denovoSearchResult.getTagHits().entrySet()){
 				
-				// Get the de-novo tag hit.
+				// Get the de novo tag hit.
 				DenovoTagHit denovoTagHit = (DenovoTagHit) entry.getValue();
 
-				((DefaultTableModel) peptideTagsTbl.getModel()).addRow(new Object[]{
-						i,
+				((DefaultTableModel) peptideTagsTbl.getModel()).addRow(new Object[] {
+						i++,
 						denovoTagHit.getTagSequence(),
 						denovoTagHit.getTagSpecCount(),
 						denovoTagHit.getTotalMass()});
-				i++;
 			}
 		}
 	}

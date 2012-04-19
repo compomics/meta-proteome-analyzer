@@ -1,15 +1,20 @@
 package de.mpa.client.ui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.text.DecimalFormat;
 
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 /**
  * Helper class for JTable layout functionalities.
@@ -18,6 +23,11 @@ import javax.swing.table.TableColumnModel;
  */
 public class TableConfig {
 	
+	/**
+	 * A simple white-gray striping highlighter for tables
+	 */
+	private static Highlighter simpleStriping;
+
 	/**
 	 * Sets the preferred width of the visible column specified by vColIndex. 
 	 * The column will be just wide enough to show the column head and the widest cell in the column.
@@ -59,8 +69,25 @@ public class TableConfig {
 	 * This method clears the project table.
 	 * @param table The JTable component.
 	 */
-	public static void clearTable(JTable table){
+	public static void clearTable(JTable table) {
 		((DefaultTableModel) table.getModel()).setRowCount(0);
+	}
+	
+	/**
+	 * Method to generate a simple gray-white highlighter for tables.
+	 * @return
+	 */
+	public static Highlighter getSimpleStriping() {
+		if (simpleStriping == null) {
+			Color backCol = UIManager.getColor("Table.background");
+			float hsbVals[] = Color.RGBtoHSB(
+					backCol.getRed(), backCol.getGreen(),
+					backCol.getBlue(), null);
+			Color altCol = Color.getHSBColor(
+					hsbVals[0], hsbVals[1], 0.95f * hsbVals[2]);
+			simpleStriping = HighlighterFactory.createSimpleStriping(altCol);
+		}
+		return simpleStriping;
 	}
 	
 	/**
@@ -87,14 +114,33 @@ public class TableConfig {
 		}
 	}
 	
+	/**
+	 * Custom table cell renderer class providing horizontal alignment 
+	 * and decimal formatting capabilities.
+	 * 
+	 * @author A. Behne
+	 */
 	public static class CustomTableCellRenderer extends DefaultTableCellRenderer {
 		
 		private final DecimalFormat formatter;
 		
+		/**
+		 * Class constructor defining a horizontal alignment.
+		 * @param <code>alignment</code> - One of the following constants defined in SwingConstants: 
+		 * LEFT, CENTER (the default for image-only labels), RIGHT, 
+		 * LEADING (the default for text-only labels) or TRAILING.
+		 */
 		public CustomTableCellRenderer(int alignment) {
 			this(alignment, "0");
 		}
 		
+		/**
+		 * Class constructor defining a horizontal alignment and a decimal format pattern.
+		 * @param <code>alignment</code> - One of the following constants defined in SwingConstants: 
+		 * LEFT, CENTER (the default for image-only labels), RIGHT, 
+		 * LEADING (the default for text-only labels) or TRAILING.
+		 * @param <code>decimalFormat</code> - A non-localized pattern string.
+		 */
 		public CustomTableCellRenderer(int alignment, String decimalFormat) {
 			formatter = new DecimalFormat(decimalFormat);
 			setHorizontalAlignment(alignment);
@@ -102,11 +148,8 @@ public class TableConfig {
 
 		public Component getTableCellRendererComponent(
 				JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			// First format the cell value as required
-			value = formatter.format((Number)value);
-			// And pass it on to parent class
 			return super.getTableCellRendererComponent(
-					table, value, isSelected, hasFocus, row, column );
+					table, formatter.format((Number) value), isSelected, hasFocus, row, column );
 		}
 		
 	}
