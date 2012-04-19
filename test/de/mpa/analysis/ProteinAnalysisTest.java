@@ -9,12 +9,18 @@ import org.junit.Test;
 import com.compomics.util.experiment.biology.Enzyme;
 
 import de.mpa.algorithms.quantification.EmPAIAlgorithm;
+import de.mpa.algorithms.quantification.NSAFAlgorithm;
+import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 
 public class ProteinAnalysisTest extends TestCase {
 
 	private ProteinHit proteinHit;
+	private DbSearchResult dbSearchResult;
+	private ProteinHit proteinNsaf12;
+	private ProteinHit proteinNsaf34;
 	
 	@Override
 	public void setUp() throws Exception {
@@ -25,6 +31,25 @@ public class ProteinAnalysisTest extends TestCase {
 		PeptideHit peptide2 = new PeptideHit("PGNKP", 0,0); // start 182 -end 187 (last) AS
 		proteinHit.addPeptideHit(peptide2);
 		super.setUp();
+
+	// Initialize DBResultSet
+		SpectrumMatch specMatch1 = new SpectrumMatch();
+		PeptideHit peptideNsaf1 = new PeptideHit("AAAAK", specMatch1);
+		SpectrumMatch specMatch2 = new SpectrumMatch();
+		PeptideHit peptideNsaf2 = new PeptideHit("CCCCK", specMatch2);
+		proteinNsaf12 = new ProteinHit("Fabi", "Fabis Keratin- 15 AS long", "AAAAKCCCCKFFFFF", peptideNsaf1);
+		proteinNsaf12.addPeptideHit(peptideNsaf2);
+		
+		SpectrumMatch specMatch3 = new SpectrumMatch();
+		PeptideHit peptideNsaf3 = new PeptideHit("DDDDDK", specMatch3);
+		SpectrumMatch specMatch4 = new SpectrumMatch();
+		PeptideHit peptideNsaf4 = new PeptideHit("MMMMK", specMatch4);
+		proteinNsaf34 = new ProteinHit("Robert", "Roberts Keratin- 18 AS long", "DDDDDKMMMMMMMMMMMM", peptideNsaf3);
+
+	 dbSearchResult = new DbSearchResult("Project 1", "Experiment 1","Fab1Pr0t");
+	 dbSearchResult.addProtein(proteinNsaf12);
+	 dbSearchResult.addProtein(proteinNsaf34);
+	
 	}
 	
 	@Test
@@ -71,6 +96,22 @@ public class ProteinAnalysisTest extends TestCase {
 	public void testEmPAI(){
 		ProteinAnalysis.calculateLabelFree(new EmPAIAlgorithm(),proteinHit);
 		assertEquals(0.66810	, proteinHit.getEmPAI(), 0.01);
+	}
+	
+	@Test
+	public void testNSAF() {
+		//TODO: NSAF needs to be divided by factor 100 
+		ProteinAnalysis.calculateLabelFree(new NSAFAlgorithm(), dbSearchResult.getProteinHits(), proteinNsaf12);
+		assertEquals(70.5882352, proteinNsaf12.getNSAF(), 0.01);
+		
+		ProteinAnalysis.calculateLabelFree(new NSAFAlgorithm(), dbSearchResult.getProteinHits(), proteinNsaf34);
+		assertEquals(29.4117647, proteinNsaf34.getNSAF(), 0.01);
+	}
+	
+	@Test
+	public void testPI(){
+		ProteinAnalysis.calculatePI(proteinHit);
+		assertEquals(5.95, proteinHit.getpI(), 0.1);
 	}
 	
 }

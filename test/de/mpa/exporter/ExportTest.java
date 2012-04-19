@@ -1,5 +1,6 @@
 package de.mpa.exporter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,16 +18,19 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.io.ResultExporter;
 
 
-public class ProteinExportTest extends TestCase{
+public class ExportTest extends TestCase{
 
 	private String	filePath;
 	private DbSearchResult expResult;
+	private String path;
 	
+	//TODO: not running yet for windoof
 	@Before
 	public void setUp() {
-		String path = getClass().getClassLoader().getResource("Export").getPath();
-		filePath = path + "/" + "testProtExp.csv";
-
+		path = getClass().getClassLoader().getResource("Export").getPath();
+		path = path.replaceAll("%20", " ");
+		
+		System.out.println(path);
 		// Create protein
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch();
 		PeptideSpectrumMatch psm2 = new PeptideSpectrumMatch();
@@ -46,9 +50,15 @@ public class ProteinExportTest extends TestCase{
 	}
 	
 	@Test
-	public void testProteinExport() {
+	public void testExport() {
 		try {
+			filePath = path + File.separator + "testProtExp.csv";
 			ResultExporter.exportProteins(filePath, expResult);
+			filePath = path + File.separator  + "testPeptideExp.csv";
+			ResultExporter.exportPeptides(filePath, expResult);
+			filePath = path + File.separator  + "testPSMExp.csv";
+			ResultExporter.exportPSMs(filePath, expResult);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

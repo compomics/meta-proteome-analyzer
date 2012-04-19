@@ -21,7 +21,7 @@ public class ProteinAnalysis {
 		// Start with the N-terminal mass
 		double molWeight = Masses.N_term;
 		
-		// Get the protien sequence.
+		// Get the protein sequence.
 		String sequence = proteinHit.getSequence();
 		
 		// Iterate the protein sequence and add the molecular masses.
@@ -57,6 +57,7 @@ public class ProteinAnalysis {
 	 * @param hitsCoveredOnlyOnce Flag determining whether peptides are counted only once in a protein with repeats.
 	 */
 	public static void calculateSequenceCoverage(ProteinHit proteinHit, boolean hitsCoveredOnlyOnce) {
+		//TODO problem sequence coverage of proteins with PTMs is 0
 		// The Protein sequence.
 		String sequence = proteinHit.getSequence();
 		boolean[] foundAA = new boolean[sequence.length()];
@@ -107,7 +108,25 @@ public class ProteinAnalysis {
 	}
 	
 	/**
-	 * Calculates the emPAI
+	 * Calculates the pI
+	 */
+	public static void calculatePI(ProteinHit proteinHit){
+		Map <Character, Double> pIs = IsoelectricPoints.pIMap;
+		double sumpI = 0.0;
+		for (char aa : proteinHit.getSequence().toCharArray()) {
+			Double pI = pIs.get(aa);
+			if (pI != null) {
+				sumpI += pI;
+			}
+			//TODO: find way to handle non existent Chars
+		}
+		sumpI /= proteinHit.getSequence().length();
+	    proteinHit.setpI(sumpI);
+	}
+	
+	
+	/**
+	 * Calculate the labelfree Quantification
 	 */
 	public static void calculateLabelFree(QuantMethod qm, Object... params) {
 		qm.calculate(params);
