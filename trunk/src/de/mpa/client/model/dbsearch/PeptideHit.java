@@ -39,7 +39,7 @@ public class PeptideHit {
 	public PeptideHit(String sequence, SpectrumMatch spectrumMatch) {
 		this.sequence = sequence;
 		this.spectrumMatches = new TreeMap<Long, SpectrumMatch>();
-		this.spectrumMatches.put(spectrumMatch.getSpectrumId(), spectrumMatch);
+		this.spectrumMatches.put(spectrumMatch.getSpectrumID(), spectrumMatch);
 	}
 	
 	/**
@@ -116,6 +116,6 @@ public class PeptideHit {
 	 * @param psm The peptide spectrum map.
 	 */
 	public void addSpectrumMatch(SpectrumMatch psm){
-		spectrumMatches.put(psm.getSpectrumId(), psm);
+		spectrumMatches.put(psm.getSpectrumID(), psm);
 	}
 }

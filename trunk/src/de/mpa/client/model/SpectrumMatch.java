@@ -16,7 +16,7 @@ public class SpectrumMatch {
 	 * Returns the spectrum specific id.
 	 * @return The spectrum id.
 	 */
-	public long getSpectrumId() {
+	public long getSpectrumID() {
 		return searchSpectrumID;
 	}
 	

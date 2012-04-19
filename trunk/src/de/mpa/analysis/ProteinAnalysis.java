@@ -9,12 +9,16 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.util.Formatter;
 
+/**
+ * Helper class containing various protein-specific calculations.
+ */
 public class ProteinAnalysis {
+	
 	/**
 	 * Calculates the molecular weight of a protein.
 	 * @param The protein hit whose weight shall be calculated.
 	 */
-	public static void calculateMolecularWeight(ProteinHit proteinHit) {
+	public static double calculateMolecularWeight(ProteinHit proteinHit) {
 		// Get the masses with the amino acid masses.
 		Map<String, Double> masses = Masses.getMap();
 		
@@ -37,18 +41,17 @@ public class ProteinAnalysis {
 	    
 	    // Get the weight in kDa
 	    molWeight = Util.roundDouble((molWeight / 1000.0), 3);
-	    proteinHit.setMolWeight(molWeight);
+	   
+	    return molWeight;
 	}
-	
-	
 	
 	/**
 	 * Calculates the sequence coverage of a protein hit with respect to its containing peptides. 
 	 * Multiple occurences of a single peptide will be counted as a single occurence.
 	 * @param proteinHit The protein hit whose coverage shall be calculated.
 	 */
-	public static void calculateSequenceCoverage(ProteinHit proteinHit) {
-		calculateSequenceCoverage(proteinHit, true);
+	public static double calculateSequenceCoverage(ProteinHit proteinHit) {
+		return calculateSequenceCoverage(proteinHit, true);
 	}
 	
 	/**
@@ -56,7 +59,7 @@ public class ProteinAnalysis {
 	 * @param proteinHit The protein hit whose coverage shall be calculated.
 	 * @param hitsCoveredOnlyOnce Flag determining whether peptides are counted only once in a protein with repeats.
 	 */
-	public static void calculateSequenceCoverage(ProteinHit proteinHit, boolean hitsCoveredOnlyOnce) {
+	public static double calculateSequenceCoverage(ProteinHit proteinHit, boolean hitsCoveredOnlyOnce) {
 		//TODO problem sequence coverage of proteins with PTMs is 0
 		// The Protein sequence.
 		String sequence = proteinHit.getSequence();
@@ -104,32 +107,39 @@ public class ProteinAnalysis {
 			}
 		}
 		double coverage = ((double) nCoveredAA / (double) sequence.length()) * 100.0 ;
-		proteinHit.setCoverage(Formatter.roundDouble(coverage, 4));
+		
+		return Formatter.roundDouble(coverage, 4);
 	}
 	
 	/**
-	 * Calculates the pI
+	 * Calculates the isoelectric point of the specified protein.
+	 * @param proteinHit The protein.
+	 * @return The isoelectric point.
 	 */
-	public static void calculatePI(ProteinHit proteinHit){
+	public static double calculateIsoelectricPoint(ProteinHit proteinHit) {
 		Map <Character, Double> pIs = IsoelectricPoints.pIMap;
-		double sumpI = 0.0;
+		double sum_pI = 0.0;
 		for (char aa : proteinHit.getSequence().toCharArray()) {
 			Double pI = pIs.get(aa);
 			if (pI != null) {
-				sumpI += pI;
+				sum_pI += pI;
 			}
-			//TODO: find way to handle non existent Chars
+			// TODO: find a way to deal with unknown chars
 		}
-		sumpI /= proteinHit.getSequence().length();
-	    proteinHit.setpI(sumpI);
+		sum_pI /= proteinHit.getSequence().length();
+		
+	    return sum_pI;
 	}
 	
-	
 	/**
-	 * Calculate the labelfree Quantification
+	 * Calculates label-free quantification measures.
+	 * @param qm The quantification method object.
+	 * @param params Variable argument list of parameters.
+	 * @return The result of the quantification calculation.
 	 */
-	public static void calculateLabelFree(QuantMethod qm, Object... params) {
+	public static double calculateLabelFree(QuantMethod qm, Object... params) {
 		qm.calculate(params);
+		return qm.getResult();
 	}
 	
 	

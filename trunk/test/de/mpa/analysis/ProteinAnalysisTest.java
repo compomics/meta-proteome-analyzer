@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import com.compomics.util.experiment.biology.Enzyme;
 
-import de.mpa.algorithms.quantification.EmPAIAlgorithm;
-import de.mpa.algorithms.quantification.NSAFAlgorithm;
+import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
+import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
@@ -68,7 +68,7 @@ public class ProteinAnalysisTest extends TestCase {
 	@Test
 	public void testCalculateMolecularWeight(){
 		ProteinAnalysis.calculateMolecularWeight(proteinHit);
-		assertEquals(21.72, proteinHit.getMolWeight(), 0.1);
+		assertEquals(21.72, proteinHit.getMolecularWeight(), 0.1);
 	}
 	
 	@Test
@@ -97,24 +97,24 @@ public class ProteinAnalysisTest extends TestCase {
 	
 	@Test
 	public void testEmPAI(){
-		ProteinAnalysis.calculateLabelFree(new EmPAIAlgorithm(),proteinHit);
+		ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(),proteinHit);
 		assertEquals(0.66810, proteinHit.getEmPAI(), 0.01);
 	}
 	
 	@Test
 	public void testNSAF() {
 		//TODO: NSAF needs to be divided by factor 100 
-		ProteinAnalysis.calculateLabelFree(new NSAFAlgorithm(), dbSearchResult.getProteinHits(), proteinNsaf12);
+		ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinNsaf12);
 		assertEquals(70.5882352, proteinNsaf12.getNSAF(), 0.01);
 		
-		ProteinAnalysis.calculateLabelFree(new NSAFAlgorithm(), dbSearchResult.getProteinHits(), proteinNsaf34);
+		ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinNsaf34);
 		assertEquals(29.4117647, proteinNsaf34.getNSAF(), 0.01);
 	}
 	
 	@Test
 	public void testPI(){
-		ProteinAnalysis.calculatePI(proteinHit);
-		assertEquals(5.95, proteinHit.getpI(), 0.1);
+		ProteinAnalysis.calculateIsoelectricPoint(proteinHit);
+		assertEquals(5.95, proteinHit.getPI(), 0.1);
 	}
 	
 }

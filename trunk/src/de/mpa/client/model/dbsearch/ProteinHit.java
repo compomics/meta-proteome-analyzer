@@ -6,6 +6,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import org.jdesktop.swingx.JXErrorPane;
+
+import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
+import de.mpa.analysis.ProteinAnalysis;
+
 
 /**
  * This class represents an identified protein hit.
@@ -27,12 +32,12 @@ public class ProteinHit {
 	/**
 	 * Molecular protein weight in kDa.
 	 */
-	private double molWeight;
+	private double molWeight = -1.0;
 	
 	/**
-	 * The isoelectric Point 
+	 * The isoelectric point of the protein.
 	 */
-	private double pI;
+	private double pI = -1.0;
 	
 	/**
 	 * Peptide hits for the protein.
@@ -42,27 +47,27 @@ public class ProteinHit {
 	/**
 	 * The spectral count, i.e. the number of spectra which relate to the protein.
 	 */
-	private int specCount;
+	private int specCount = -1;
 	
 	/**
-	 * The sequence of the protein.
+	 * The amino acid sequence of the protein.
 	 */
 	private String sequence;
 	
 	/**
-	 * TODO: Coverage!
+	 * The sequence coverage ratio of the protein hit.
 	 */
-	private double coverage;
+	private double coverage = -1.0;
 	
 	/**
-	 * TODO: NSAF!
+	 * The Normalized Spectral Abundance Factor of the protein hit.
 	 */
-	private double nSAF;
+	private double nSAF = -1.0;
 	
 	/**
-	 * The emPAI of the protein
+	 * The Exponentially Modified Protein Abundance Index of the protein hit.
 	 */
-	private double emPAI;
+	private double emPAI = -1.0;
 	
 	
 	/**
@@ -96,7 +101,10 @@ public class ProteinHit {
 	 * Returns the molecular weight.
 	 * @return The molecular weight.
 	 */
-	public double getMolWeight() {
+	public double getMolecularWeight() {
+		if (molWeight < 0.0) {
+			molWeight = ProteinAnalysis.calculateMolecularWeight(this);
+		}
 		return molWeight;
 	}
 	
@@ -104,18 +112,30 @@ public class ProteinHit {
 	 * Sets the molecular weight of the protein.
 	 * @param molWeight The molecular weight of the protein.
 	 */
-	public void setMolWeight(double molWeight) {
+	public void setMolecularWeight(double molWeight) {
 		this.molWeight = molWeight;
 	}
 	
-	public double getpI() {
+	/**
+	 * Gets the isoelectric point of the protein. 
+	 */
+	public double getPI() {
+		if (pI < 0.0) {
+			pI = ProteinAnalysis.calculateIsoelectricPoint(this);
+		}
 		return pI;
 	}
-	public void setpI(double pI) {
+
+	/**	
+	 * Sets the isoelectric point of the protein.
+	 * @param pI The isoelectric point of the protein.
+	 */
+	public void setPI(double pI) {
 		this.pI = pI;
 	}
+	
 	/**
-	 * Gets the sequence.
+	 * Gets the protein's amino acid sequence.
 	 * @return The protein sequence.
 	 */
 	public String getSequence() {
@@ -123,7 +143,7 @@ public class ProteinHit {
 	}
 	
 	/**
-	 * Sets the protein sequence
+	 * Sets the protein's amino acid sequence
 	 * @param sequence The sequence of the protein.
 	 */
 	public void setSequence(String sequence) {
@@ -134,6 +154,9 @@ public class ProteinHit {
 	 * @return The sequence coverage
 	 */
 	public double getCoverage() {
+		if (coverage < 0.0) {
+			coverage = ProteinAnalysis.calculateSequenceCoverage(this);
+		}
 		return coverage;
 	}
 	/**
@@ -148,19 +171,21 @@ public class ProteinHit {
 	 * Calculates and returns the spectral count.
 	 * @return The spectral count.
 	 */
-	public int getSpecCount() {
-		Set<Entry<String, PeptideHit>> entrySet = peptideHits.entrySet();
-		
-		// Counter variable
-		int count = 0;
-		
-		// Iterate the found peptide results
-		for (Entry<String, PeptideHit> entry : entrySet) {
-				// Get the peptide hit.
-				PeptideHit peptideHit = entry.getValue();
-				count += peptideHit.getSpectrumMatches().size();
+	public int getSpectralCount() {
+		if (specCount < 0) {
+			Set<Entry<String, PeptideHit>> entrySet = peptideHits.entrySet();
+			
+			// Counter variable
+			int count = 0;
+			
+			// Iterate the found peptide results
+			for (Entry<String, PeptideHit> entry : entrySet) {
+					// Get the peptide hit.
+					PeptideHit peptideHit = entry.getValue();
+					count += peptideHit.getSpectrumMatches().size();
+			}
+			this.specCount = count;
 		}
-		this.specCount = count;
 		return specCount;
 	}
 	
@@ -177,8 +202,12 @@ public class ProteinHit {
 	 * @return The NSAF protein quantification.
 	 */
 	public double getNSAF() {
+		if (nSAF < 0.0) {
+			JXErrorPane.showDialog(new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first."));
+		}
 		return nSAF;
 	}
+	
 	/**
 	 * Sets the NSAF protein quantification value.
 	 * @param nSAF The NSAF quantification value to set
@@ -215,6 +244,9 @@ public class ProteinHit {
 	 * @return emPAI
 	 */
 	public double getEmPAI() {
+		if (emPAI < 0.0) {
+			emPAI = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
+		}
 		return emPAI;
 	}
 	

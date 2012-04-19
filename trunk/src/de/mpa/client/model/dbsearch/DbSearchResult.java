@@ -72,45 +72,44 @@ public class DbSearchResult {
 		
 		// Check if protein hit is already in the protein hit set.
 		if (proteinHits.containsKey(accession)) {
-				// Current protein hit
-				ProteinHit currentProteinHit = proteinHits.get(accession);
-				
-				// Get the first - and only - peptide hit.
-				PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
-				
-				// Get the current peptide hits.
-				TreeMap<String, PeptideHit> currentPeptideHits = currentProteinHit.getPeptideHits();
-				
-				// Check if peptide hit is not already in the protein hit
-				if(!currentPeptideHits.containsKey(peptideHit.getSequence())){
-					// Add the peptide hit to the protein hit.
-					currentPeptideHits.put(peptideHit.getSequence(), peptideHit);
+			// Current protein hit
+			ProteinHit currentProteinHit = proteinHits.get(accession);
+
+			// Get the first - and only - peptide hit.
+			PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
+
+			// Get the current peptide hits.
+			TreeMap<String, PeptideHit> currentPeptideHits = currentProteinHit.getPeptideHits();
+
+			// Check if peptide hit is not already in the protein hit
+			if (!currentPeptideHits.containsKey(peptideHit.getSequence())) {
+				// Add the peptide hit to the protein hit.
+				currentPeptideHits.put(peptideHit.getSequence(), peptideHit);
+				currentProteinHit.setPeptideHits(currentPeptideHits);
+			} else { // If peptide hit is already in the database check the actual PSM.
+				// Returns the single PSM.
+				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+
+				PeptideHit currentPeptideHit = currentPeptideHits.get(peptideHit.getSequence());
+
+				TreeMap<Long, SpectrumMatch> currentPsms = currentPeptideHit.getSpectrumMatches();
+
+				// Current PSM 
+				if (!currentPsms.containsKey(psm.getSpectrumID())) {
+					currentPsms.put(psm.getSpectrumID(), psm);
+					currentPeptideHit.setSpectrumMatches(currentPsms);
+					currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
 					currentProteinHit.setPeptideHits(currentPeptideHits);
-				} else { // If peptide hit is already in the database check the actual PSM.
-					// Returns the single PSM.
-					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-					
-					PeptideHit currentPeptideHit = currentPeptideHits.get(peptideHit.getSequence());
-					
-					TreeMap<Long, SpectrumMatch> currentPsms = currentPeptideHit.getSpectrumMatches();
-					
-					// Current PSM 
-					if(!currentPsms.containsKey(psm.getSpectrumId())){
-						currentPsms.put(psm.getSpectrumId(), psm);
-						currentPeptideHit.setSpectrumMatches(currentPsms);
-						currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
-						currentProteinHit.setPeptideHits(currentPeptideHits);
-					} else {
-						PeptideSpectrumMatch currentPsm = (PeptideSpectrumMatch) currentPsms.get(psm.getSpectrumId());
-						currentPsm.addSearchEngineHit(psm.getFirstSearchEngineHit());
-						currentPsms.put(psm.getSpectrumId(), currentPsm);
-						currentPeptideHit.setSpectrumMatches(currentPsms);
-						currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
-						currentProteinHit.setPeptideHits(currentPeptideHits);
-					}
+				} else {
+					PeptideSpectrumMatch currentPsm = (PeptideSpectrumMatch) currentPsms.get(psm.getSpectrumID());
+					currentPsm.addSearchEngineHit(psm.getFirstSearchEngineHit());
+					currentPsms.put(psm.getSpectrumID(), currentPsm);
+					currentPeptideHit.setSpectrumMatches(currentPsms);
+					currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
+					currentProteinHit.setPeptideHits(currentPeptideHits);
 				}
-				proteinHits.put(accession, currentProteinHit);
-				
+			}
+			proteinHits.put(accession, currentProteinHit);
 		} else {
 			proteinHits.put(accession, proteinHit);
 		}

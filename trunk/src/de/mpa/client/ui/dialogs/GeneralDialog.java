@@ -387,7 +387,7 @@ public class GeneralDialog extends JDialog {
 			manager.addProjectProperties(id, properties);
 			
 			// Update the project table in the project panel.
-			parent.getProjectPnl().refreshProjectTable();
+			parent.getProjectPanel().refreshProjectTable();
 
 		} catch (SQLException e) {
 			GeneralExceptionHandler.showSQLErrorDialog(e, this);
@@ -412,7 +412,7 @@ public class GeneralDialog extends JDialog {
 			manager.modifyProjectProperties(currentProjContent.getProjectid(), properties, operations);
 			
 			// Update the project table in the project panel.
-			parent.getProjectPnl().refreshProjectTable();
+			parent.getProjectPanel().refreshProjectTable();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -436,7 +436,7 @@ public class GeneralDialog extends JDialog {
 			manager.addExperimentProperties(id, properties);
 			
 			// Update the experiment table in the panel.
-			parent.getProjectPnl().refreshExperimentTable(currentProjContent.getProjectid());
+			parent.getProjectPanel().refreshExperimentTable(currentProjContent.getProjectid());
 			
 		} catch (SQLException e) {
 			GeneralExceptionHandler.showSQLErrorDialog(e, this);
@@ -461,7 +461,7 @@ public class GeneralDialog extends JDialog {
 			manager.modifyExperimentProperties(currentExpContent.getExperimentID(), properties, operations);
 
 			// Update the experiment table in the panel.
-			parent.getProjectPnl().refreshExperimentTable(currentExpContent.getProjectID());
+			parent.getProjectPanel().refreshExperimentTable(currentExpContent.getProjectID());
 			
 		} catch (Exception e) {
 			e.printStackTrace();

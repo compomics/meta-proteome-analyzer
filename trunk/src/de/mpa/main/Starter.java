@@ -36,7 +36,7 @@ public class Starter {
 	public static void main(String[] args) {
 		// Set the look&feel
 		setLookAndFeel();
-
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
