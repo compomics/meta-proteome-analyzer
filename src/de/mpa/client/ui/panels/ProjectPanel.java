@@ -640,7 +640,7 @@ public class ProjectPanel extends JPanel {
 	 * Returns the project content
 	 * @return The project content 
 	 */
-	public ProjectContent getCurrentProjContent() {
+	public ProjectContent getCurrentProjectContent() {
 		return currentProjContent;
 	}
 

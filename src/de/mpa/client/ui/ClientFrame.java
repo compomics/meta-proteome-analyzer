@@ -824,7 +824,7 @@ public class ClientFrame extends JFrame {
 	 * Returns the project panel.
 	 * @return
 	 */
-	public ProjectPanel getProjectPnl() {
+	public ProjectPanel getProjectPanel() {
 		return projectPnl;
 	}
 

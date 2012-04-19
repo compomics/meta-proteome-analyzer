@@ -528,7 +528,7 @@ public class SpecLibSearchPanel extends JPanel {
 		SpecSimSettings settings = new SpecSimSettings();
 		
 		// Get the current experiment ID.
-		long expID = clientFrame.getProjectPnl().getCurrentExperimentId();
+		long expID = clientFrame.getProjectPanel().getCurrentExperimentId();
 		
 		int pickCount = 0;
 		if (pickSpn.isEnabled()) {

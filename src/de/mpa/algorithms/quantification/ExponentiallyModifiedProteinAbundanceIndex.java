@@ -6,11 +6,11 @@ import com.compomics.util.experiment.biology.Enzyme;
 import de.mpa.client.model.dbsearch.ProteinHit;
 
 /**
- * Class to calculate the emPAI
+ * Class to calculate the Exponentially Modified Protein Abundance Index.
  * @author heyer and kohrs
  *
  */
-public class EmPAIAlgorithm implements QuantMethod {
+public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 
 	private double emPAI = 0.0;
 
@@ -45,10 +45,6 @@ public class EmPAIAlgorithm implements QuantMethod {
 
 		// Calculates the emPAI
 		emPAI = Math.pow(10, pAI) - 1;
-		
-		// Sets the emPAi
-		proteinHit.setEmPAI(emPAI);
-
 	}
 
 	@Override

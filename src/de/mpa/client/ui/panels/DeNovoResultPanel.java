@@ -48,8 +48,8 @@ import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.CustomTableCellRenderer;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -108,7 +108,7 @@ public class DeNovoResultPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
-				denovoSearchResult = clientFrame.getClient().getDenovoSearchResult(clientFrame.getProjectPnl().getCurrentProjContent(), clientFrame.getProjectPnl().getCurrentExperimentContent());
+				denovoSearchResult = clientFrame.getClient().getDenovoSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
 				
 				// Check if any results are stored in the database.
 				if(denovoSearchResult.getTagHits().size() > 0){

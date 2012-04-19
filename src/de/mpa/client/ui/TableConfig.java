@@ -90,18 +90,21 @@ public class TableConfig {
 		return simpleStriping;
 	}
 	
+	public static void setColumnWidths(JTable table, double[] weights) {
+		setColumnWidths(table, weights, 1000);
+	}
+	
 	/**
 	 * Sets dynamically weighted column widths.
 	 * @param table The JTable component.
 	 * @param weights The weight array.
 	 */
-	public static void setColumnWidths(JTable table, double[] weights) {
+	public static void setColumnWidths(JTable table, double[] weights, int tableWidth) {
 		// normalize weights if needed
 		double sum = 0.0;
 		for (double weight : weights) {
 			sum += weight;
 		}
-		double tableWidth = table.getPreferredSize().width;
 		for (int i = 0; i < weights.length; i++) {
 			weights[i] *= tableWidth/sum;
 		}
@@ -110,7 +113,7 @@ public class TableConfig {
 		for (int i = 0; i < weights.length; i++) {
 			TableColumn tc = tcm.getColumn(i);
 			tc.setPreferredWidth((int) (weights[i]));
-			tc.setMaxWidth(tc.getPreferredWidth()*10);
+			tc.setMaxWidth(tc.getPreferredWidth()*20000);
 		}
 	}
 	

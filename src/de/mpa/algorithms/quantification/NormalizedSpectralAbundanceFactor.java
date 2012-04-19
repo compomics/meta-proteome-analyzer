@@ -5,14 +5,21 @@ import java.util.Map;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 
-public class NSAFAlgorithm implements QuantMethod {
+/**
+ * Class representing Normalized Spectral Abundance Factor quantification measure calculation.
+ * 
+ * @author heyer et al
+ *
+ */
+public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 
 	// The NSAF
 	private double nSAF;
 
 	@Override
 	public double getResult() {
-		return nSAF;
+		// FIXME: find proper solution for bad rendering of JSparklinesBarChartRenderer
+		return nSAF * 100.0;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -40,9 +47,5 @@ public class NSAFAlgorithm implements QuantMethod {
 
 		// Calculate  NSAF
 		nSAF = protOfInterestSum / protSum;
-		
-		// Set NSAF
-		// FIXME: NSAF rendering without *100 factor
-		proteinHitOfInterest.setNSAF(nSAF*100);
 	}
 }

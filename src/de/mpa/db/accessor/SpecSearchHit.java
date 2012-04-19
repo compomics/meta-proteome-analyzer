@@ -17,7 +17,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 * @param ssm
 	 */
 	public SpecSearchHit(SpectrumSpectrumMatch ssm) {
-		iFk_searchspectrumid = ssm.getSpectrumId();
+		iFk_searchspectrumid = ssm.getSpectrumID();
 		iFk_libspectrumid = ssm.getLibspectrumID();
 		iSimilarity = ssm.getSimilarity();
 	}

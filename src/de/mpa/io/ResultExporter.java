@@ -67,10 +67,10 @@ public class ResultExporter {
 				writer.append(proteinHit.getAccession() + SEP);
 				writer.append(proteinHit.getDescription() + SEP);
 				writer.append(proteinHit.getCoverage() + SEP);
-				writer.append(proteinHit.getMolWeight() + SEP);
-				writer.append((Math.round(proteinHit.getpI() * 100) / 100) + SEP);
+				writer.append(proteinHit.getMolecularWeight() + SEP);
+				writer.append((Math.round(proteinHit.getPI() * 100) / 100) + SEP);
 				writer.append(proteinHit.getPeptideCount() + SEP);
-				writer.append(proteinHit.getSpecCount() + SEP);
+				writer.append(proteinHit.getSpectralCount() + SEP);
 				writer.append(proteinHit.getEmPAI() + SEP);
 				writer.append((Math.round(proteinHit.getNSAF() * 100) / 100) + SEP);
 
@@ -143,8 +143,8 @@ public class ResultExporter {
 					writer.append(peptideHit.getSpectrumMatches().size() + SEP);
 					writer.append(proteinHit.getAccession() + SEP);
 					writer.append(proteinHit.getDescription() + SEP);
-					writer.append(proteinHit.getMolWeight() + SEP);
-					writer.append((Math.round(proteinHit.getpI() * 100.0) / 100.0) + SEP);
+					writer.append(proteinHit.getMolecularWeight() + SEP);
+					writer.append((Math.round(proteinHit.getPI() * 100.0) / 100.0) + SEP);
 					writer.newLine();
 				}
 				writer.flush();}
@@ -199,12 +199,12 @@ public class ResultExporter {
 					// Peptide Spectrum Match Level
 					for (SpectrumMatch psm : peptideHit.getSpectrumMatches().values()) {
 						writer.append(count++ + SEP);
-						writer.append(psm.getSpectrumId() + SEP);
+						writer.append(psm.getSpectrumID() + SEP);
 						writer.append(peptideHit.getSequence() + SEP);
 						writer.append(proteinHit.getAccession() + SEP);
 						writer.append(proteinHit.getDescription() + SEP);
-						writer.append(proteinHit.getMolWeight() + SEP);
-						writer.append((Math.round(proteinHit.getpI() * 100.0) / 100.0) + SEP);
+						writer.append(proteinHit.getMolecularWeight() + SEP);
+						writer.append((Math.round(proteinHit.getPI() * 100.0) / 100.0) + SEP);
 						writer.newLine();
 					}
 				}
