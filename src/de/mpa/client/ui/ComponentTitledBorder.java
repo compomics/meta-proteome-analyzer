@@ -75,7 +75,8 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
 		Insets insets = getBorderInsets(c);
 		int temp = (insets.top - borderInsets.top) / 2;
 		border.paintBorder(c, g, x, y + temp, width, height - temp);
-		g.clearRect(rect.x-1, rect.y, rect.width+2, rect.height);
+		g.setColor(comp.getBackground());
+		g.fillRect(rect.x-1, rect.y, rect.width+2, rect.height);
 		SwingUtilities.paintComponent(g, comp, intermediate, rect);
 	}
 

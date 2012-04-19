@@ -27,24 +27,41 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
+import javax.swing.SizeRequirements;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.Element;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.InlineView;
+import javax.swing.text.html.ParagraphView;
+import javax.swing.text.html.HTMLEditorKit.HTMLFactory;
 
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
@@ -62,7 +79,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.factories.CC;
-import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.quantification.EmPAIAlgorithm;
@@ -96,26 +112,25 @@ public class DbSearchResultPanel extends JPanel{
 	private HashMap<Integer, PeptideSpectrumMatch> currentPsms = new HashMap<Integer, PeptideSpectrumMatch>();
 	private SpectrumPanel specPnl;
 	private String currentSelectedPeptide;
-	private JCheckBox aIonsJCheckBox;
-	private JCheckBox bIonsJCheckBox;
-	private JCheckBox cIonsJCheckBox;
-	private JCheckBox yIonsJCheckBox;
-	private JCheckBox xIonsJCheckBox;
-	private JCheckBox zIonsJCheckBox;
-	private JCheckBox waterLossJCheckBox;
-	private JCheckBox ammoniumLossJCheckBox;
-	private JCheckBox chargeOneJCheckBox;
-	private JCheckBox chargeTwoJCheckBox;
-	private AbstractButton chargeOverTwoJCheckBox;
-	private JPanel spectrumFilterPanel;
-	private JPanel spectrumOverviewPnl;
+	private JCheckBox aIonsChk;
+	private JCheckBox bIonsChk;
+	private JCheckBox cIonsChk;
+	private JCheckBox yIonsChk;
+	private JCheckBox xIonsChk;
+	private JCheckBox zIonsChk;
+	private JCheckBox waterLossChk;
+	private JCheckBox ammoniumLossChk;
+	private JCheckBox chargeOneChk;
+	private JCheckBox chargeTwoChk;
+	private AbstractButton chargeMoreChk;
 	private Vector<DefaultSpectrumAnnotation> currentAnnotations;
 	private JPanel spectrumJPanel;
-	private AbstractButton precursorJCheckBox;
+	private AbstractButton precursorChk;
 	private int maxSpectralCount;
 	private int maxPeptideCount;
 	private int maxPeptideSpectraCount;
 	private JButton getResultsBtn;
+	private JEditorPane coverageTxt;
 
 	public DbSearchResultPanel(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
@@ -126,14 +141,13 @@ public class DbSearchResultPanel extends JPanel{
 	 * Initializes the components of the database search results panel
 	 */
 	private void initComponents() {
-		// Cell constraints
-		CellConstraints cc = new CellConstraints();
+		// Define layout
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
 		// Init titled panel variables.
-		Font ttlFont = PanelConfig.getTtlFont();
-		Border ttlBorder = PanelConfig.getTtlBorder();
-		Painter ttlPainter = PanelConfig.getTtlPainter();
+		Font ttlFont = PanelConfig.getTitleFont();
+		Border ttlBorder = PanelConfig.getTitleBorder();
+		Painter ttlPainter = PanelConfig.getTitlePainter();
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane();
@@ -162,29 +176,25 @@ public class DbSearchResultPanel extends JPanel{
 		
 		getResultsBtn.setPreferredSize(new Dimension(150, 20));
 		getResultsBtn.addActionListener(new ActionListener() {
-	
-			@Override
 			public void actionPerformed(ActionEvent e) {
+				dbSearchResult = clientFrame.getClient().getDbSearchResult(clientFrame.getProjectPnl().getCurrentProjContent(), clientFrame.getProjectPnl().getCurrentExperimentContent());
+				// TODO: ADD search engine from runtable
+				List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+				dbSearchResult.setSearchEngines(searchEngines);
 				
-					dbSearchResult = clientFrame.getClient().getDbSearchResult(clientFrame.getProjectPnl().getCurrentProjContent(), clientFrame.getProjectPnl().getCurrentExperimentContent());
-					//TODO ADD search engine from runtable
-					List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-					dbSearchResult.setSearchEngines(searchEngines);
-					
-					updateProteinResultsTable();
-					proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
-					queryProteinTableMouseClicked(null);
-					peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
-					queryPeptideTableMouseClicked(null);
-					psmTbl.getSelectionModel().setSelectionInterval(0, 0);
-					queryPsmTableMouseClicked(null);
-					
-					// Enables the export functionality
-					clientFrame.getClienFrameMenuBar().setExportResultsEnabled(true);
-					
+				updateProteinResultsTable();
+				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
+				queryProteinTableMouseClicked(null);
+				peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
+				queryPeptideTableMouseClicked(null);
+				psmTbl.getSelectionModel().setSelectionInterval(0, 0);
+				queryPsmTableMouseClicked(null);
+				
+				// Enables the export functionality
+				clientFrame.getClienFrameMenuBar().setExportResultsEnabled(true);
 			}
 		});
-		proteinPnl.add(proteinTableScp, cc.xy(2, 2));
+		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
 		
 		JXTitledPanel protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
 		protTtlPnl.setRightDecoration(getResultsBtn);
@@ -194,8 +204,9 @@ public class DbSearchResultPanel extends JPanel{
 				
 		// Peptide panel
 		final JPanel peptidePnl = new JPanel();
-		peptidePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",  "5dlu, f:p, 5dlu"));
-		peptidePnl.add(peptideTableScp, cc.xy(2, 2));
+		peptidePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",  "5dlu, f:p:g, 5dlu"));
+		
+		peptidePnl.add(peptideTableScp, CC.xy(2, 2));
 		
 		JXTitledPanel pepTtlPnl = new JXTitledPanel("Peptides", peptidePnl);
 		pepTtlPnl.setTitleFont(ttlFont);
@@ -204,8 +215,8 @@ public class DbSearchResultPanel extends JPanel{
 		
 		// PSM panel
 		final JPanel psmPanel = new JPanel();
-		psmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
-		psmPanel.add(psmTableScp, cc.xy(2, 2));
+		psmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		psmPanel.add(psmTableScp, CC.xy(2, 2));
 		
 		JXTitledPanel psmTtlPnl = new JXTitledPanel("Peptide-Spectrum-Matches", psmPanel);
 		psmTtlPnl.setTitleFont(ttlFont);
@@ -215,21 +226,20 @@ public class DbSearchResultPanel extends JPanel{
 		// Peptide and Psm Panel
 		JPanel pepPsmPnl = new JPanel(new FormLayout("p:g","f:p:g, 5dlu, f:p:g"));
 		
-		pepPsmPnl.add(pepTtlPnl, cc.xy(1, 1));
-		pepPsmPnl.add(psmTtlPnl, cc.xy(1, 3));
+		pepPsmPnl.add(pepTtlPnl, CC.xy(1, 1));
+		pepPsmPnl.add(psmTtlPnl, CC.xy(1, 3));
 		
-		// Build the spectrum filter panel
-		constructSpectrumFilterPanel();
-		spectrumOverviewPnl = new JPanel(new BorderLayout(5,5));
+		// Build the spectrum overview panel
+		JPanel spectrumOverviewPnl = new JPanel(new BorderLayout());
 		
 		spectrumJPanel = new JPanel();
 		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
-		spectrumJPanel.setBackground(Color.WHITE);
-		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		spectrumJPanel.setOpaque(false);
+		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
+		spectrumJPanel.add(new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", ""));
+		spectrumJPanel.setMinimumSize(new Dimension(300, 200));
 		
 		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
-		spectrumOverviewPnl.add(spectrumFilterPanel, BorderLayout.EAST);
+		spectrumOverviewPnl.add(constructSpectrumFilterPanel(), BorderLayout.EAST);
 		
 		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
 		specTtlPnl.setTitleFont(ttlFont);
@@ -248,7 +258,7 @@ public class DbSearchResultPanel extends JPanel{
 		multiSplitPane.add(psmTtlPnl, "psm");
 		multiSplitPane.add(specTtlPnl, "plot");
 		
-		this.add(multiSplitPane, cc.xy(2, 2));
+		this.add(multiSplitPane, CC.xy(2, 2));
 	}
 	
 	/**
@@ -372,14 +382,11 @@ public class DbSearchResultPanel extends JPanel{
 				return false;
 			}
 		});
-		peptideTbl.getColumn(" ").setMinWidth(30);
-		peptideTbl.getColumn(" ").setMaxWidth(30);
-		peptideTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		peptideTbl.getColumn("Sequence").setMinWidth(70);
-//		peptideTbl.getColumn("Sequence").setMaxWidth(70);
-		peptideTbl.getColumn("No. Spectra").setMinWidth(100);
-		peptideTbl.getColumn("No. Spectra").setMaxWidth(100);
 		
+		TableConfig.setColumnWidths(peptideTbl, new double[] {3, 24, 12});
+		
+		TableColumnModel tcm = peptideTbl.getColumnModel();
+		tcm.getColumn(0).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.RIGHT));
 		
 		// Sort the table by the number of peptides
 		TableRowSorter<TableModel> sorter  = new TableRowSorter<TableModel>(peptideTbl.getModel());
@@ -612,7 +619,7 @@ public class DbSearchResultPanel extends JPanel{
 				Searchspectrum searchSpectrum = Searchspectrum.findFromSearchSpectrumID(psm.getSpectrumId(), clientFrame.getClient().getConnection());
 				MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(searchSpectrum.getFk_spectrumid(), clientFrame.getClient().getConnection());
 				specPnl = new SpectrumPanel(mgf);
-				spectrumJPanel.add(specPnl);
+				spectrumJPanel.add(specPnl, CC.xy(2, 2));
 		        spectrumJPanel.validate();
 		        spectrumJPanel.repaint();
 
@@ -712,199 +719,74 @@ public class DbSearchResultPanel extends JPanel{
 	/**
 	 * This method constructs the spectrum filter panel.
 	 */
-	private void constructSpectrumFilterPanel(){
+	private JPanel constructSpectrumFilterPanel() {
 		
-			spectrumFilterPanel = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu, p, 2dlu, p, 2dlu, p, 5dlu, p, 5dlu, p, 2dlu, p, 2dlu, p, 5dlu, p, 5dlu, p, 2dlu, p, 5dlu, p, 5dlu, p, 2dlu, p, 2dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
-			aIonsJCheckBox = new JCheckBox();
-		  	aIonsJCheckBox.setSelected(false);
-	        aIonsJCheckBox.setText("a");
-	        aIonsJCheckBox.setToolTipText("Show a-ions");
-	        aIonsJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        aIonsJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        aIonsJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        aIonsJCheckBox.addActionListener(new ActionListener() {
+		JPanel spectrumFilterPanel = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu:g(0.25), p, 2dlu, p, 2dlu, p, c:p:g, p, 2dlu, p, 2dlu, p, c:p:g, p, 2dlu, p, c:p:g, p, 2dlu, p, 2dlu, p, c:p:g, p, 5dlu:g(0.25)"));
+		
+		Dimension size = new Dimension(39, 23);
+		Action action = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				updateFilteredAnnotations();
+			}
+		};
+		
+		aIonsChk = createFilterCheckBox("a", false, "Show a ions", size, action);
+        bIonsChk = createFilterCheckBox("b", true, "Show b ions", size, action);
+        cIonsChk = createFilterCheckBox("c", false, "Show c ions", size, action);
 
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        bIonsJCheckBox = new JCheckBox();
-	        bIonsJCheckBox.setSelected(true);
-	        bIonsJCheckBox.setText("b");
-	        bIonsJCheckBox.setToolTipText("Show b-ions");
-	        bIonsJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        bIonsJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        bIonsJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        bIonsJCheckBox.addActionListener(new ActionListener() {
+        xIonsChk = createFilterCheckBox("x", false, "Show x ions", size, action);
+        yIonsChk = createFilterCheckBox("y", true, "Show y ions", size, action);
+        zIonsChk = createFilterCheckBox("z", false, "Show z ions", size, action);
 
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        cIonsJCheckBox = new JCheckBox();
-	        cIonsJCheckBox.setSelected(false);
-	        cIonsJCheckBox.setText("c");
-	        cIonsJCheckBox.setToolTipText("Show c-ions");
-	        cIonsJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        cIonsJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        cIonsJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        cIonsJCheckBox.addActionListener(new ActionListener() {
+        waterLossChk = createFilterCheckBox("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", size, action);
+        ammoniumLossChk = createFilterCheckBox("*", false, "<html>Show NH<sub>3</sub> losses</html>", size, action);
+        
+        chargeOneChk = createFilterCheckBox("+", true, "Show ions with charge 1", size, action);
+        chargeTwoChk = createFilterCheckBox("++", false, "Show ions with charge 2", size, action);
+        chargeMoreChk = createFilterCheckBox(">2", false, "Show ions with charge >2", size, action);
+        
+        precursorChk = createFilterCheckBox("MH", true, "Show precursor ion", size, action);
 
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        yIonsJCheckBox = new JCheckBox();
-	        yIonsJCheckBox.setSelected(true);
-	        yIonsJCheckBox.setText("y");
-	        yIonsJCheckBox.setToolTipText("Show y-ions");
-	        yIonsJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        yIonsJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        yIonsJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        yIonsJCheckBox.addActionListener(new ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        xIonsJCheckBox = new JCheckBox();
-	        xIonsJCheckBox.setSelected(false);
-	        xIonsJCheckBox.setText("x");
-	        xIonsJCheckBox.setToolTipText("Show x-ions");
-	        xIonsJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        xIonsJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        xIonsJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        xIonsJCheckBox.addActionListener(new ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        zIonsJCheckBox = new JCheckBox();
-	        zIonsJCheckBox.setSelected(false);
-	        zIonsJCheckBox.setText("z");
-	        zIonsJCheckBox.setToolTipText("Show z-ions");
-	        zIonsJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        zIonsJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        zIonsJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        zIonsJCheckBox.addActionListener(new ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        waterLossJCheckBox = new JCheckBox();
-	        waterLossJCheckBox.setSelected(false);
-	        waterLossJCheckBox.setText("°");
-	        waterLossJCheckBox.setToolTipText("Show H20-ions");
-	        waterLossJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        waterLossJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        waterLossJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        waterLossJCheckBox.addActionListener(new ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        ammoniumLossJCheckBox = new JCheckBox();
-	        ammoniumLossJCheckBox.setSelected(false);
-	        ammoniumLossJCheckBox.setText("*");
-	        ammoniumLossJCheckBox.setToolTipText("Show NH3-ions");
-	        ammoniumLossJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        ammoniumLossJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        ammoniumLossJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        ammoniumLossJCheckBox.addActionListener(new ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        chargeOneJCheckBox = new JCheckBox();
-	        chargeOneJCheckBox.setSelected(true);
-	        chargeOneJCheckBox.setText("+");
-	        chargeOneJCheckBox.setToolTipText("Show ions with charge 1");
-	        chargeOneJCheckBox.setMaximumSize(new Dimension(39, 23));
-	        chargeOneJCheckBox.setMinimumSize(new Dimension(39, 23));
-	        chargeOneJCheckBox.setPreferredSize(new Dimension(39, 23));
-	        chargeOneJCheckBox.addActionListener(new ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        	
-	        chargeTwoJCheckBox = new JCheckBox();
-	        chargeTwoJCheckBox.setSelected(false);
-	        chargeTwoJCheckBox.setText("++");
-	        chargeTwoJCheckBox.setToolTipText("Show ions with charge 2");
-	        chargeTwoJCheckBox.setMaximumSize(new java.awt.Dimension(39, 23));
-	        chargeTwoJCheckBox.setMinimumSize(new java.awt.Dimension(39, 23));
-	        chargeTwoJCheckBox.setPreferredSize(new java.awt.Dimension(39, 23));
-	        chargeTwoJCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        chargeOverTwoJCheckBox = new JCheckBox();
-	        chargeOverTwoJCheckBox.setSelected(false);
-	        chargeOverTwoJCheckBox.setText(">2");
-	        chargeOverTwoJCheckBox.setToolTipText("Show ions with charge >2");
-	        chargeOverTwoJCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        precursorJCheckBox = new JCheckBox();
-	        precursorJCheckBox.setSelected(true);
-	        precursorJCheckBox.setText("MH");
-	        precursorJCheckBox.setToolTipText("Show precursor ions");
-	        precursorJCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-	            public void actionPerformed(ActionEvent evt) {
-	            	updateFilteredAnnotations();
-	            }
-	        });
-	        
-	        spectrumFilterPanel.add(aIonsJCheckBox, CC.xy(2, 2));
-	        spectrumFilterPanel.add(bIonsJCheckBox, CC.xy(2, 4));
-	        spectrumFilterPanel.add(cIonsJCheckBox, CC.xy(2, 6));
-	        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 8));
-
-	        spectrumFilterPanel.add(xIonsJCheckBox, CC.xy(2, 10));
-	        spectrumFilterPanel.add(yIonsJCheckBox, CC.xy(2, 12));
-	        spectrumFilterPanel.add(zIonsJCheckBox, CC.xy(2, 14));
-	        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 16));
-	        spectrumFilterPanel.add(waterLossJCheckBox, CC.xy(2, 18));
-	        spectrumFilterPanel.add(ammoniumLossJCheckBox, CC.xy(2, 20));
-	        
-	        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 22));
-	        spectrumFilterPanel.add(chargeOneJCheckBox, CC.xy(2, 24));
-	        spectrumFilterPanel.add(chargeTwoJCheckBox, CC.xy(2, 26));
-	        spectrumFilterPanel.add(chargeOverTwoJCheckBox, CC.xy(2, 28));
-	        
-	        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 30));
-	        spectrumFilterPanel.add(precursorJCheckBox, CC.xy(2, 32));
+        spectrumFilterPanel.add(aIonsChk, CC.xy(2, 2));
+        spectrumFilterPanel.add(bIonsChk, CC.xy(2, 4));
+        spectrumFilterPanel.add(cIonsChk, CC.xy(2, 6));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 7));
+        spectrumFilterPanel.add(xIonsChk, CC.xy(2, 8));
+        spectrumFilterPanel.add(yIonsChk, CC.xy(2, 10));
+        spectrumFilterPanel.add(zIonsChk, CC.xy(2, 12));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 13));
+        spectrumFilterPanel.add(waterLossChk, CC.xy(2, 14));
+        spectrumFilterPanel.add(ammoniumLossChk, CC.xy(2, 16));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 17));
+        spectrumFilterPanel.add(chargeOneChk, CC.xy(2, 18));
+        spectrumFilterPanel.add(chargeTwoChk, CC.xy(2, 20));
+        spectrumFilterPanel.add(chargeMoreChk, CC.xy(2, 22));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 23));
+        spectrumFilterPanel.add(precursorChk, CC.xy(2, 24));
+        
+        return spectrumFilterPanel;
 	}
 	
+	private JCheckBox createFilterCheckBox(String title, boolean selected, String toolTip, Dimension size, Action action) {
+		JCheckBox checkBox = new JCheckBox(action);
+		checkBox.setText(title);
+		checkBox.setSelected(selected);
+		checkBox.setToolTipText(toolTip);
+		checkBox.setMaximumSize(size);
+		checkBox.setMinimumSize(size);
+		checkBox.setPreferredSize(size);
+		return checkBox;
+	}
+
 	/**
 	 * This method updates the filtered annotations due to the respective selected checkboxes.
 	 */
-	private void updateFilteredAnnotations(){
-        specPnl.setAnnotations(filterAnnotations(currentAnnotations));
-        specPnl.validate();
-        specPnl.repaint();
+	private void updateFilteredAnnotations() {
+		if (currentAnnotations != null) {
+	        specPnl.setAnnotations(filterAnnotations(currentAnnotations));
+	        specPnl.validate();
+	        specPnl.repaint();
+		}
 	}
 	
 	 /**
@@ -922,31 +804,31 @@ public class DbSearchResultPanel extends JPanel{
             boolean useAnnotation = true;
             // check ion type
             if (currentLabel.lastIndexOf("a") != -1) {
-                if (!aIonsJCheckBox.isSelected()) {
+                if (!aIonsChk.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("b") != -1) {
-                if (!bIonsJCheckBox.isSelected()) {
+                if (!bIonsChk.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("c") != -1) {
-                if (!cIonsJCheckBox.isSelected()) {
+                if (!cIonsChk.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("x") != -1) {
-                if (!xIonsJCheckBox.isSelected()) {
+                if (!xIonsChk.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("y") != -1) {
-                if (!yIonsJCheckBox.isSelected()) {
+                if (!yIonsChk.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("z") != -1) {
-                if (!zIonsJCheckBox.isSelected()) {
+                if (!zIonsChk.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("M") != -1) {
-                if (!precursorJCheckBox.isSelected()) {
+                if (!precursorChk.isSelected()) {
                     useAnnotation = false;
                 }
             }
@@ -954,25 +836,25 @@ public class DbSearchResultPanel extends JPanel{
             // check ion charge + ammonium and water-loss
             if (useAnnotation) {
                 if (currentLabel.lastIndexOf("+") == -1) {
-                    if (!chargeOneJCheckBox.isSelected()) {
+                    if (!chargeOneChk.isSelected()) {
                         useAnnotation = false;
                     }
                 } else if (currentLabel.lastIndexOf("+++") != -1) {
-                    if (!chargeOverTwoJCheckBox.isSelected()) {
+                    if (!chargeMoreChk.isSelected()) {
                         useAnnotation = false;
                     }
                 } else if (currentLabel.lastIndexOf("++") != -1) {
-                    if (!chargeTwoJCheckBox.isSelected()) {
+                    if (!chargeTwoChk.isSelected()) {
                         useAnnotation = false;
                     }
                 }
                 
                 if (currentLabel.lastIndexOf("*") != -1) {
-                    if (!ammoniumLossJCheckBox.isSelected()) {
+                    if (!ammoniumLossChk.isSelected()) {
                         useAnnotation = false;
                     }
                 } else if (currentLabel.lastIndexOf("°") != -1) {
-                    if (!waterLossJCheckBox.isSelected()) {
+                    if (!waterLossChk.isSelected()) {
                         useAnnotation = false;
                     }
                 }

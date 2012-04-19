@@ -1,11 +1,13 @@
 package de.mpa.client.ui.panels;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
@@ -19,7 +21,6 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -31,7 +32,6 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -44,10 +44,15 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.PainterHighlighter;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
+import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
+import org.jdesktop.swingx.renderer.JRendererLabel;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jfree.chart.plot.PlotOrientation;
 
@@ -61,7 +66,6 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.CustomTableCellRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.io.MascotGenericFile;
@@ -97,9 +101,9 @@ public class SpecSimResultPanel extends JPanel {
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
 		// Init titled panel variables.
-		Font ttlFont = PanelConfig.getTtlFont();
-		Border ttlBorder = PanelConfig.getTtlBorder();
-		Painter ttlPainter = PanelConfig.getTtlPainter();
+		Font ttlFont = PanelConfig.getTitleFont();
+		Border ttlBorder = PanelConfig.getTitleBorder();
+		Painter ttlPainter = PanelConfig.getTitlePainter();
 		
 		final JPanel proteinPnl = new JPanel();
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -258,6 +262,9 @@ public class SpecSimResultPanel extends JPanel {
 		
 		// Only one row is selectable
 		proteinTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		// Add nice striping effect
+		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
 		// Enables column control
 		proteinTbl.setColumnControlVisible(true);
@@ -291,7 +298,7 @@ public class SpecSimResultPanel extends JPanel {
 		TableConfig.setColumnWidths(peptideTbl, new double[] {3, 24, 12});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		tcm.getColumn(0).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.RIGHT));
 		
 		// Sort the table by the number of peptides
 		TableRowSorter<TableModel> sorter  = new TableRowSorter<TableModel>(peptideTbl.getModel());
@@ -299,7 +306,6 @@ public class SpecSimResultPanel extends JPanel {
 		sortKeys.add(new RowSorter.SortKey(2, SortOrder.DESCENDING));
 		sorter.setSortKeys(sortKeys);
 		peptideTbl.setRowSorter(sorter);
-		
 		
 		ListSelectionModel lsm = peptideTbl.getSelectionModel();
 		lsm.addListSelectionListener(new ListSelectionListener() {
@@ -310,6 +316,9 @@ public class SpecSimResultPanel extends JPanel {
 		
 		// Single selection only
 		peptideTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		// Add nice striping effect
+		peptideTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
 		// Enables column control
 		peptideTbl.setColumnControlVisible(true);
@@ -332,21 +341,8 @@ public class SpecSimResultPanel extends JPanel {
 		TableConfig.setColumnWidths(ssmTbl, new double[] { 1, 8, 2 });
 		
 		TableColumnModel tcm = ssmTbl.getColumnModel();
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		// TODO: create static method to generate table cell renderers with specific formatters
-		tcm.getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
-			private final DecimalFormat formatter = new DecimalFormat( "0.000" );
-
-			public Component getTableCellRendererComponent(
-					JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				// First format the cell value as required
-				value = formatter.format((Number)value);
-				// And pass it on to parent class
-				return super.getTableCellRendererComponent(
-						table, value, isSelected, hasFocus, row, column );
-			}
-
-		});
+		tcm.getColumn(0).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.RIGHT));
+//		tcm.getColumn(2).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
 		
 		ListSelectionModel lsm = ssmTbl.getSelectionModel();
 		lsm.addListSelectionListener(new ListSelectionListener() {
@@ -357,6 +353,10 @@ public class SpecSimResultPanel extends JPanel {
 		
 		// Only one row is selectable
 		ssmTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		// Add nice striping effect
+		ssmTbl.addHighlighter(TableConfig.getSimpleStriping());
+		
 		// Enables column control
 		ssmTbl.setColumnControlVisible(true);
 	}
