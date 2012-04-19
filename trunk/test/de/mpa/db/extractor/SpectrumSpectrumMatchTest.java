@@ -1,14 +1,9 @@
 package de.mpa.db.extractor;
 
-import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
 
 import junit.framework.TestCase;
 
@@ -21,7 +16,6 @@ import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.ui.MultiPlotPanel;
 
 public class SpectrumSpectrumMatchTest extends TestCase {
 	

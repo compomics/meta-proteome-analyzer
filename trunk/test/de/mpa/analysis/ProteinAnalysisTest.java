@@ -1,6 +1,7 @@
 package de.mpa.analysis;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -24,6 +25,7 @@ public class ProteinAnalysisTest extends TestCase {
 	
 	@Override
 	public void setUp() throws Exception {
+		
 		// Initialize a test protein
 		PeptideHit peptide1 = new PeptideHit("WVSQD", 0, 0); // start 5, end 10
 		String sequence = "MERCGWVSQDPLYIAYHDNEWGVPETDSKKLFEMWVSQDICLEGQQAGLSWITVLKKRENYRACFHQFDPVKVAAMQEEDVERLVQDAGIIRHRGKIQAIIGNARAYLQMEQNGEPFVDFVWSFVNHQPQVTQATTLSEIPTSTSASDALSKALKKRGFKFVGTTICYSFMQACGLVNDHVVGCCCYPGNKP";
@@ -32,24 +34,24 @@ public class ProteinAnalysisTest extends TestCase {
 		proteinHit.addPeptideHit(peptide2);
 		super.setUp();
 
-	// Initialize DBResultSet
+		// Initialize DBResultSet
 		SpectrumMatch specMatch1 = new SpectrumMatch();
 		PeptideHit peptideNsaf1 = new PeptideHit("AAAAK", specMatch1);
 		SpectrumMatch specMatch2 = new SpectrumMatch();
 		PeptideHit peptideNsaf2 = new PeptideHit("CCCCK", specMatch2);
 		proteinNsaf12 = new ProteinHit("Fabi", "Fabis Keratin- 15 AS long", "AAAAKCCCCKFFFFF", peptideNsaf1);
 		proteinNsaf12.addPeptideHit(peptideNsaf2);
-		
+
 		SpectrumMatch specMatch3 = new SpectrumMatch();
 		PeptideHit peptideNsaf3 = new PeptideHit("DDDDDK", specMatch3);
 		SpectrumMatch specMatch4 = new SpectrumMatch();
 		PeptideHit peptideNsaf4 = new PeptideHit("MMMMK", specMatch4);
 		proteinNsaf34 = new ProteinHit("Robert", "Roberts Keratin- 18 AS long", "DDDDDKMMMMMMMMMMMM", peptideNsaf3);
 
-	 dbSearchResult = new DbSearchResult("Project 1", "Experiment 1","Fab1Pr0t");
-	 dbSearchResult.addProtein(proteinNsaf12);
-	 dbSearchResult.addProtein(proteinNsaf34);
-	
+		dbSearchResult = new DbSearchResult("Project 1", "Experiment 1","Fab1Pr0t");
+		dbSearchResult.addProtein(proteinNsaf12);
+		dbSearchResult.addProtein(proteinNsaf34);
+
 	}
 	
 	@Test
@@ -65,8 +67,8 @@ public class ProteinAnalysisTest extends TestCase {
 	
 	@Test
 	public void testCalculateMolecularWeight(){
-		//TODO: DO THIS THILO
-		
+		ProteinAnalysis.calculateMolecularWeight(proteinHit);
+		assertEquals(21.72, proteinHit.getMolWeight(), 0.1);
 	}
 	
 	@Test
@@ -85,17 +87,18 @@ public class ProteinAnalysisTest extends TestCase {
 		// @param nMissedCleavages      the allowed number of missed cleavages
 		// @param nMin                  the minimal size for a peptide
 		// @param nMax                  the maximal size for a peptide
-		ArrayList<String> insilicoPeptides = new ArrayList<String>();
+		List<String> insilicoPeptides = new ArrayList<String>();
 		insilicoPeptides= trypsin.digest("AAAARPRBBBBKCCCC", 0, 1, 10000);
-		
-		assertEquals(insilicoPeptides.get(1).toString(), "BBBBK");
+		assertEquals(insilicoPeptides.get(0), "CCCC");
+		assertEquals(insilicoPeptides.get(1), "BBBBK");
+		assertEquals(insilicoPeptides.get(2), "AAAARPR");
 	}
 	
 	
 	@Test
 	public void testEmPAI(){
 		ProteinAnalysis.calculateLabelFree(new EmPAIAlgorithm(),proteinHit);
-		assertEquals(0.66810	, proteinHit.getEmPAI(), 0.01);
+		assertEquals(0.66810, proteinHit.getEmPAI(), 0.01);
 	}
 	
 	@Test
