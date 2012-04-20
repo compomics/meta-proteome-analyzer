@@ -36,7 +36,7 @@ import javax.swing.border.Border;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.painter.Painter;
 
-import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
@@ -86,8 +86,6 @@ public class SettingsPanel extends JPanel {
 		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
 				newForwardKeys);
 
-		CellConstraints cc = new CellConstraints();
-		
 		FormLayout layout = new FormLayout("5dlu, p, 10dlu, p, 10dlu, p, 5dlu",
 		  "5dlu, f:p, 8dlu, f:p:g, 8dlu, b:p, 5dlu");
 		layout.setColumnGroups(new int[][] {{2,4,6}});
@@ -213,11 +211,11 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		
-		processPnl.add(new JLabel("Transfer"), cc.xy(2, 2));
-		processPnl.add(packSpn, cc.xy(4, 2));
-		processPnl.add(new JLabel("spectra per package"), cc.xy(6, 2));
-		processPnl.add(integrateChk, cc.xyw(2, 4, 5));
-		processPnl.add(processBtn, cc.xyw(2, 6, 5));
+		processPnl.add(new JLabel("Transfer"), CC.xy(2, 2));
+		processPnl.add(packSpn, CC.xy(4, 2));
+		processPnl.add(new JLabel("spectra per package"), CC.xy(6, 2));
+		processPnl.add(integrateChk, CC.xyw(2, 4, 5));
+		processPnl.add(processBtn, CC.xyw(2, 6, 5));
 
 		JXTitledPanel procTtlPnl = new JXTitledPanel("General", processPnl);
 		procTtlPnl.setTitleFont(ttlFont);
@@ -230,11 +228,11 @@ public class SettingsPanel extends JPanel {
 		prevTtlPnl.setBorder(ttlBorder);
 		
 		// add sub-panels to main settings panel
-		this.add(dbTtlPnl, cc.xy(2, 2));
-		this.add(slTtlPnl, cc.xy(4, 2));
-		this.add(dnTtlPnl, cc.xywh(6, 2, 1, 3));
-		this.add(procTtlPnl, cc.xy(6, 6));
-		this.add(prevTtlPnl, cc.xywh(2, 4, 3, 3));
+		this.add(dbTtlPnl, CC.xy(2, 2));
+		this.add(slTtlPnl, CC.xy(4, 2));
+		this.add(dnTtlPnl, CC.xywh(6, 2, 1, 3));
+		this.add(procTtlPnl, CC.xy(6, 6));
+		this.add(prevTtlPnl, CC.xywh(2, 4, 3, 3));
 	}
 
 	/**

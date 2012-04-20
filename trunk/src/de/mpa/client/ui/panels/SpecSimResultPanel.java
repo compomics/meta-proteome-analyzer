@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
@@ -39,15 +38,10 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
-import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.PainterHighlighter;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
-import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
-import org.jdesktop.swingx.renderer.JRendererLabel;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jfree.chart.plot.PlotOrientation;
 
@@ -240,8 +234,8 @@ public class SpecSimResultPanel extends JPanel {
 				return compLabel;
 			}
 		});
-		
-		tcm.getColumn(3).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
+
+//		tcm.getColumn(3).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
 		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT, "0.000"));
 		tcm.getColumn(5).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
 		tcm.getColumn(6).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
@@ -261,6 +255,9 @@ public class SpecSimResultPanel extends JPanel {
 
 		// Add nice striping effect
 		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
+		
+		
+		proteinTbl.addHighlighter(TableConfig.createGradientHighlighter(3, 100.0, getFontMetrics(chartFont).stringWidth("100.00"), Color.GREEN.darker().darker(), Color.GREEN, new DecimalFormat("##0.00")));
 		
 		// Enables column control
 		proteinTbl.setColumnControlVisible(true);
@@ -357,29 +354,7 @@ public class SpecSimResultPanel extends JPanel {
 		// Add nice striping effect
 		ssmTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
-		// TODO: play around with highlighters some more
-		HighlightPredicate predicate = new HighlightPredicate() {
-			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-				return (adapter.column == 2);
-			}
-		};
-		final DecimalFormat df = new DecimalFormat("0.000");
-		final double maxValue = 1.0;
-		PainterHighlighter ph = new PainterHighlighter(predicate, new MattePainter(Color.RED) {
-			protected void doPaint(Graphics2D g, Object component, int width, int height) {
-				JRendererLabel label = (JRendererLabel) component;
-				double value = Double.valueOf(label.getText());
-				String text = df.format(value);
-				label.setText(text);
-				FontMetrics fm = g.getFontMetrics();
-				int xOffset = fm.stringWidth(text) + 4;
-				width -= xOffset + 2;
-				width = ((width < 0) ? 0 : (int) (value/maxValue * width));
-				g.translate(xOffset, 2);
-				super.doPaint(g, component, width, height-4);
-			}
-		});
-		ssmTbl.addHighlighter(ph);
+		ssmTbl.addHighlighter(TableConfig.createGradientHighlighter(2, 1.0, getFontMetrics(chartFont).stringWidth("1.000"), Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.000")));
 		
 		// Enables column control
 		ssmTbl.setColumnControlVisible(true);
@@ -415,13 +390,13 @@ public class SpecSimResultPanel extends JPanel {
 			
 			Graphics g = getGraphics();
 			FontMetrics fm = g.getFontMetrics(chartFont);
-			DecimalFormat df = new DecimalFormat("##0.00");
+//			DecimalFormat df = new DecimalFormat("##0.00");
 			TableColumnModel tcm = proteinTbl.getColumnModel();
 			JSparklinesBarChartTableCellRenderer renderer;
 			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(3).getCellRenderer();
-			renderer.setMaxValue(maxCoverage);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + df.format(maxCoverage)), chartFont, SwingConstants.RIGHT, df);
+//			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(3).getCellRenderer();
+//			renderer.setMaxValue(maxCoverage);
+//			renderer.showNumberAndChart(true, fm.stringWidth("   " + df.format(maxCoverage)), chartFont, SwingConstants.RIGHT, df);
 			
 			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(5).getCellRenderer();
 			renderer.setMaxValue(maxPeptideCount);

@@ -2,9 +2,16 @@ package de.mpa.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -13,8 +20,13 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.decorator.PainterHighlighter;
+import org.jdesktop.swingx.painter.MattePainter;
+import org.jdesktop.swingx.renderer.JRendererLabel;
 
 /**
  * Helper class for JTable layout functionalities.
@@ -90,14 +102,69 @@ public class TableConfig {
 		return simpleStriping;
 	}
 	
+	/**
+	 * Convenience method to create a bar chart-like highlighter for a specific table column.
+	 * 
+	 * @param column The table column.
+	 * @param startColor The gradient's start color.
+	 * @param endColor The gradient's end color.
+	 * @return A painter highlighter drawing a gradient next to the cell contents.
+	 */
+	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, Color startColor, Color endColor) {
+		return createGradientHighlighter(column, maxValue, baseline, startColor, endColor, new DecimalFormat());
+	}
+	
+	/**
+	 * Convenience method to create a bar chart-like highlighter for a specific table column.
+	 * 
+	 * @param column The table column.
+	 * @param startColor The gradient's start color.
+	 * @param endColor The gradient's end color.
+	 * @param formatter The number formatter for the column cells.
+	 * @return A painter highlighter drawing a gradient next to the cell contents.
+	 */
+	public static Highlighter createGradientHighlighter(final int column, final double maxValue, final int baseline, Color startColor, Color endColor, final NumberFormat formatter) {
+		HighlightPredicate predicate = new HighlightPredicate() {
+			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+				return (adapter.column == column);
+			}
+		};
+		// TODO: parametrize some settings, e.g. horizontal alignment, or create proper sub-class for better control
+		PainterHighlighter ph = new PainterHighlighter(predicate, new MattePainter(new GradientPaint(
+				new Point(0, 0), startColor, new Point(1, 0), endColor), true) {
+			protected void doPaint(Graphics2D g, Object component, int width, int height) {
+				JRendererLabel label = (JRendererLabel) component;
+				label.setHorizontalAlignment(SwingConstants.RIGHT);
+				double value = Double.valueOf(label.getText());
+				String text = formatter.format(value);
+				label.setText(text);
+//				FontMetrics fm = g.getFontMetrics();
+				int xOffset = baseline + 4;
+				label.setBounds(0, 0, baseline, height);
+				width -= xOffset + 2;
+				int clipWidth = ((width < 0) ? 0 : (int) (value/maxValue * width));
+				g.translate(xOffset, 2);
+				g.setClip(0, 0, clipWidth, height);
+				super.doPaint(g, component, width, height-4);
+			}
+		});
+		return ph;
+	}
+	
+	/**
+	 * Sets dynamically weighted column widths for a specified table.
+	 * @param table The JTable component.
+	 * @param weights The weight array.
+	 */
 	public static void setColumnWidths(JTable table, double[] weights) {
 		setColumnWidths(table, weights, 1000);
 	}
 	
 	/**
-	 * Sets dynamically weighted column widths.
+	 * Sets dynamically weighted column widths for a specified table.
 	 * @param table The JTable component.
 	 * @param weights The weight array.
+	 * @param tableWidth The display width of the table.
 	 */
 	public static void setColumnWidths(JTable table, double[] weights, int tableWidth) {
 		// normalize weights if needed
@@ -114,6 +181,31 @@ public class TableConfig {
 			TableColumn tc = tcm.getColumn(i);
 			tc.setPreferredWidth((int) (weights[i]));
 			tc.setMaxWidth(tc.getPreferredWidth()*20000);
+		}
+	}
+	
+	/**
+	 * Automatically determines and sets the minimum widths of a table's columns.
+	 * @param table The table to be adjusted.
+	 * @param padding The amount of pixel padding to either side.
+	 */
+	public static void setColumnMinWidths(JTable table, int padding) {
+		setColumnMinWidths(table, padding, padding);
+	}
+	
+	/**
+	 * Automatically determines and sets the minimum widths of a table's columns.
+	 * @param table The table to be adjusted.
+	 * @param leftPadding The amount of left-hand side pixel padding.
+	 * @param rightPadding The amount of right-hand side pixel padding.
+	 */
+	public static void setColumnMinWidths(JTable table, int leftPadding, int rightPadding) {
+		TableColumnModel tcm = table.getColumnModel();
+		FontMetrics fm = table.getFontMetrics(new Font("SansSerif", Font.PLAIN, 12));
+		for (int col = 0; col < tcm.getColumnCount(); col++) {
+			TableColumn tc = tcm.getColumn(col);
+			// TODO: parametrize hard-coded font
+			tc.setMinWidth(leftPadding + fm.stringWidth(tc.getHeaderValue().toString()) + rightPadding);
 		}
 	}
 	
@@ -151,8 +243,10 @@ public class TableConfig {
 
 		public Component getTableCellRendererComponent(
 				JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			return super.getTableCellRendererComponent(
-					table, formatter.format((Number) value), isSelected, hasFocus, row, column );
+			if (value instanceof Number) {
+				formatter.format((Number) value);
+			}
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column );
 		}
 		
 	}
