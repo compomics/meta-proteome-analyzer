@@ -7,8 +7,12 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -26,12 +30,15 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -40,11 +47,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.JXTableHeader;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -68,6 +80,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
@@ -84,21 +97,22 @@ public class DbSearchResultPanel extends JPanel{
 	private JXTable peptideTbl;
 	private JXTable psmTbl;
 	private SpectrumPanel specPnl;
-	private JCheckBox aIonsChk;
-	private JCheckBox bIonsChk;
-	private JCheckBox cIonsChk;
-	private JCheckBox yIonsChk;
-	private JCheckBox xIonsChk;
-	private JCheckBox zIonsChk;
-	private JCheckBox waterLossChk;
-	private JCheckBox ammoniumLossChk;
-	private JCheckBox chargeOneChk;
-	private JCheckBox chargeTwoChk;
-	private JCheckBox chargeMoreChk;
-	private JCheckBox precursorChk;
+	private JToggleButton aIonsTgl;
+	private JToggleButton bIonsTgl;
+	private JToggleButton cIonsTgl;
+	private JToggleButton yIonsTgl;
+	private JToggleButton xIonsTgl;
+	private JToggleButton zIonsTgl;
+	private JToggleButton waterLossTgl;
+	private JToggleButton ammoniumLossTgl;
+	private JToggleButton chargeOneTgl;
+	private JToggleButton chargeTwoTgl;
+	private JToggleButton chargeMoreTgl;
+	private JToggleButton precursorTgl;
 	private Vector<DefaultSpectrumAnnotation> currentAnnotations;
 	private JPanel spectrumJPanel;
 	private JButton getResultsBtn;
+	private JEditorPane coverageTxt;
 	private Font chartFont;
 
 	public DbSearchResultPanel(ClientFrame clientFrame) {
@@ -163,6 +177,70 @@ public class DbSearchResultPanel extends JPanel{
 		// Peptide panel
 		final JPanel peptidePnl = new JPanel();
 		peptidePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",  "5dlu, f:p:g, 5dlu"));
+		
+//		coverageTxt = new JTextArea(
+//				"        10         20         30         40         50         60 \n" +
+//				"MKWVTFISLF FLFSSAYSRG LVRREAYKSE IAHRYNDLGE EHFRGLVLVA FSQYLQQCPF \n" +
+//				"        70         80         90        100        110        120 \n" + 
+//				"EDHVKLAKEV TEFAKACAAE ESGANCDKSL HTLFGDKLCT VASLRDKYGD MADCCEKQEP \n" +
+//				"       130        140        150        160        170        180 \n" +
+//				"DRNECFLAHK DDNPGFPPLV APEPDALCAA FQDNEQLFLG KYLYEIARRH PYFYAPELLY \n" +
+//				"       190        200        210        220        230        240 \n" +
+//				"YAQQYKGVFA ECCQAADKAA CLGPKIEALR EKVLLSSAKE RFKCASLQKF GDRAFKAWSV \n" + 
+//				"       250        260        270        280        290        300 \n" +
+//				"ARLSQRFPKA DFAEISKVVT DLTKVHKECC HGDLLECADD RADLAKYMCE NQDSISTKLK \n" +
+//				"       310        320        330        340        350        360 \n" +
+//				"ECCDKPVLEK SQCLAEVERD ELPGDLPSLA ADFVEDKEVC KNYQEAKDVF LGTFLYEYAR \n" + 
+//				"       370        380        390        400        410        420 \n" +
+//				"RHPEYSVSLL LRLAKEYEAT LEKCCATDDP PTCYAKVLDE FKPLVDEPQN LVKTNCELFE \n" +
+//				"       430        440        450        460        470        480 \n" +
+//				"KLGEYGFQNA LLVRYTKKAP QVSTPTLVEV SRKLGKVGTK CCKKPESERM SCAEDFLSVV \n" +
+//				"       490        500        510        520        530        540 \n" +
+//				"LNRLCVLHEK TPVSERVTKC CSESLVNRRP CFSGLEVDET YVPKEFNAET FTFHADLCTL \n" +
+//				"       550        560        570        580        590        600 \n" +
+//				"PEAEKQVKKQ TALVELLKHK PKATDEQLKT VMGDFGAFVE KCCAAENKEG CFSEEGPKLV \n" +
+//				"       610 \n" +
+//				"AAAQAALV ");
+		coverageTxt = new JEditorPane();
+		
+		coverageTxt.setEditorKit(PanelConfig.getLetterWrapEditorKit());
+		
+		coverageTxt.setContentType("text/html");
+		String text = "MKWVTFISLFFLFSSAYSRGLVRREAYKSEIAHRYNDLGEEHFRGLVLVAFSQYLQQCPFEDHVKLAKEVTEFAKACAAEESGANCDKSLHTLFGDKLCTVASLRDKYGDMADCCEKQEPDRNECFLAHKDDNPGFPPLVAPEPDALCAAFQDNEQLFLGKYLYEIARRHPYFYAPELLYYAQQYKGVFAECCQAADKAACLGPKIEALREKVLLSSAKERFKCASLQKFGDRAFKAWSVARLSQRFPKADFAEISKVVTDLTKVHKECCHGDLLECADDRADLAKYMCENQDSISTKLKECCDKPVLEKSQCLAEVERDELPGDLPSLAADFVEDKEVCKNYQEAKDVFLGTFLYEYARRHPEYSVSLLLRLAKEYEATLEKCCATDDPPTCYAKVLDEFKPLVDEPQNLVKTNCELFEKLGEYGFQNALLVRYTKKAPQVSTPTLVEVSRKLGKVGTKCCKKPESERMSCAEDFLSVVLNRLCVLHEKTPVSERVTKCCSESLVNRRPCFSGLEVDETYVPKEFNAETFTFHADLCTLPEAEKQVKKQTALVELLKHKPKATDEQLKTVMGDFGAFVEKCCAAENKEGCFSEEGPKLVAAAQAALV";
+		coverageTxt.setText(text);
+		
+		MutableAttributeSet attr = new SimpleAttributeSet();
+		StyleConstants.setLineSpacing(attr, 0.25f);
+		
+		StyledDocument doc = (StyledDocument) coverageTxt.getDocument();
+
+//		coverageTxt.setParagraphAttributes(attr, true);
+		coverageTxt.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		coverageTxt.getCaret().setSelectionVisible(false);
+		coverageTxt.getCaret().setVisible(false);
+		
+		SimpleAttributeSet sas = new SimpleAttributeSet();
+	    StyleConstants.setForeground(sas, Color.RED);
+		
+		String[] peptides = new String[] {
+				"SEIAHRYNDLGE",
+				"AAEESGANCD",
+				"AECCQAADKAACLGPKIEALREKVLLS",
+				"KLGEYGFQNALLVRYTKKAPQVS"};
+		for (String string : peptides) {
+			int startPos = text.indexOf(string);
+			if (startPos != -1) {
+				doc.setCharacterAttributes(startPos, string.length(), sas, false);
+			}
+		}
+
+		JPanel noWrapPnl = new JPanel(new BorderLayout());
+		noWrapPnl.add(coverageTxt);
+		
+		JScrollPane coverageScpn = new JScrollPane(coverageTxt);
+		coverageScpn.setPreferredSize(new Dimension(350, 150));
+		coverageScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//		peptidePnl.add(coverageScpn, CC.xy(2, 2));
 		
 		peptidePnl.add(peptideTableScp, CC.xy(2, 2));
 		
@@ -260,9 +338,10 @@ public class DbSearchResultPanel extends JPanel{
 			}
 		});
 		
-		TableConfig.setColumnWidths(proteinTbl, new double[] {2, 6, 16, 7, 5.5, 3, 8, 8, 5, 6 });
+		TableConfig.setColumnWidths(proteinTbl, new double[] { 2, 6, 15.5, 7, 5.5, 3, 8, 8, 5.5, 6 });
+		TableConfig.setColumnMinWidths(proteinTbl, 1);
 		
-		TableColumnModel tcm = proteinTbl.getColumnModel();
+		final TableColumnModel tcm = proteinTbl.getColumnModel();
 		
 		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		
@@ -290,6 +369,81 @@ public class DbSearchResultPanel extends JPanel{
 		tcm.getColumn(6).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
 		tcm.getColumn(7).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
 		tcm.getColumn(8).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, 9.0));
+		
+		final JPopupMenu testPopup = new JPopupMenu();
+//		testPopup.add(new JMenuItem("here be text"));
+		final JTextField testTtf = new JTextField(10);
+		testPopup.add(testTtf);
+		final JToggleButton testBtn = new JToggleButton();
+		testBtn.setPreferredSize(new Dimension(15, 12));
+		testBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (testBtn.isSelected()) {
+					Rectangle rect = proteinTbl.getTableHeader().getHeaderRect(8);
+					testPopup.show(proteinTbl.getTableHeader(), rect.x - 1,
+							proteinTbl.getTableHeader().getHeight() - 1);
+					testTtf.requestFocus();
+				} else {
+					testPopup.setVisible(false);
+					proteinTbl.requestFocus();
+				}
+			}
+		});
+		testTtf.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				testPopup.setVisible(false);
+				proteinTbl.requestFocus();
+				testBtn.setSelected(false);
+				proteinTbl.getTableHeader().repaint();
+			}
+		});
+		testTtf.addFocusListener(new FocusAdapter() {
+			public void focusLost(FocusEvent fe) {
+				testPopup.setVisible(false);
+				if (!testBtn.getModel().isArmed()) {
+					testBtn.setSelected(false);
+					proteinTbl.requestFocus();
+					proteinTbl.getTableHeader().repaint();
+				}
+			};
+		});
+		tcm.getColumn(8).setHeaderRenderer(new ComponentHeaderRenderer(testBtn));
+
+		// hacky mouse event interception to avoid row sorting when hitting table header component
+		proteinTbl.setTableHeader(new JXTableHeader(tcm) {
+			protected void processMouseEvent(MouseEvent me) {
+				if (me.getID() == MouseEvent.MOUSE_PRESSED ||
+						me.getID() == MouseEvent.MOUSE_RELEASED ||
+						me.getID() == MouseEvent.MOUSE_CLICKED) {
+					int col = tcm.getColumnIndexAtX(me.getX());
+					if (col != -1) {
+						if (tcm.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
+							ComponentHeaderRenderer chr = (ComponentHeaderRenderer) tcm.getColumn(col).getHeaderRenderer();
+							Rectangle headerRect = proteinTbl.getTableHeader().getHeaderRect(col);
+							Rectangle compRect = chr.getComponent().getBounds();
+							compRect.x += headerRect.x;
+							if (compRect.contains(me.getPoint())) {
+								chr.dispatchEvent(new MouseEvent(
+										me.getComponent(), me.getID(), me.getWhen(), me.getModifiers(),
+										me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
+										me.getClickCount(), me.isPopupTrigger(), me.getButton()));
+								proteinTbl.getTableHeader().repaint();
+								return;
+							}
+						}
+					}
+				}
+				super.processMouseEvent(me);
+			}
+			@Override
+			protected void processMouseMotionEvent(MouseEvent me) {
+				// TODO Auto-generated method stub
+				if (me.getID() == MouseEvent.MOUSE_RELEASED) {
+					System.out.println("herp");
+				}
+				super.processMouseMotionEvent(me);
+			}
+		});
 		
 		FontMetrics fm = getFontMetrics(chartFont);
 		String pattern = "0.000";
@@ -426,7 +580,7 @@ public class DbSearchResultPanel extends JPanel{
 	 */
 	private JPanel constructSpectrumFilterPanel() {
 		
-		JPanel spectrumFilterPanel = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu:g(0.25), p, 2dlu, p, 2dlu, p, c:p:g, p, 2dlu, p, 2dlu, p, c:p:g, p, 2dlu, p, c:p:g, p, 2dlu, p, 2dlu, p, c:p:g, p, 5dlu:g(0.25)"));
+		JPanel spectrumFilterPanel = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu, f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 5dlu"));
 		
 		Dimension size = new Dimension(39, 23);
 		Action action = new AbstractAction() {
@@ -435,39 +589,39 @@ public class DbSearchResultPanel extends JPanel{
 			}
 		};
 		
-		aIonsChk = createFilterCheckBox("a", false, "Show a ions", size, action);
-        bIonsChk = createFilterCheckBox("b", true, "Show b ions", size, action);
-        cIonsChk = createFilterCheckBox("c", false, "Show c ions", size, action);
+		aIonsTgl = createFilterToggleButton("a", false, "Show a ions", size, action);
+        bIonsTgl = createFilterToggleButton("b", true, "Show b ions", size, action);
+        cIonsTgl = createFilterToggleButton("c", false, "Show c ions", size, action);
 
-        xIonsChk = createFilterCheckBox("x", false, "Show x ions", size, action);
-        yIonsChk = createFilterCheckBox("y", true, "Show y ions", size, action);
-        zIonsChk = createFilterCheckBox("z", false, "Show z ions", size, action);
+        xIonsTgl = createFilterToggleButton("x", false, "Show x ions", size, action);
+        yIonsTgl = createFilterToggleButton("y", true, "Show y ions", size, action);
+        zIonsTgl = createFilterToggleButton("z", false, "Show z ions", size, action);
 
-        waterLossChk = createFilterCheckBox("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", size, action);
-        ammoniumLossChk = createFilterCheckBox("*", false, "<html>Show NH<sub>3</sub> losses</html>", size, action);
+        waterLossTgl = createFilterToggleButton("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", size, action);
+        ammoniumLossTgl = createFilterToggleButton("*", false, "<html>Show NH<sub>3</sub> losses</html>", size, action);
         
-        chargeOneChk = createFilterCheckBox("+", true, "Show ions with charge 1", size, action);
-        chargeTwoChk = createFilterCheckBox("++", false, "Show ions with charge 2", size, action);
-        chargeMoreChk = createFilterCheckBox(">2", false, "Show ions with charge >2", size, action);
+        chargeOneTgl = createFilterToggleButton("+", true, "Show ions with charge 1", size, action);
+        chargeTwoTgl = createFilterToggleButton("++", false, "Show ions with charge 2", size, action);
+        chargeMoreTgl = createFilterToggleButton(">2", false, "Show ions with charge >2", size, action);
         
-        precursorChk = createFilterCheckBox("MH", true, "Show precursor ion", size, action);
+        precursorTgl = createFilterToggleButton("MH", true, "Show precursor ion", size, action);
 
-        spectrumFilterPanel.add(aIonsChk, CC.xy(2, 2));
-        spectrumFilterPanel.add(bIonsChk, CC.xy(2, 4));
-        spectrumFilterPanel.add(cIonsChk, CC.xy(2, 6));
-        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 7));
-        spectrumFilterPanel.add(xIonsChk, CC.xy(2, 8));
-        spectrumFilterPanel.add(yIonsChk, CC.xy(2, 10));
-        spectrumFilterPanel.add(zIonsChk, CC.xy(2, 12));
-        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 13));
-        spectrumFilterPanel.add(waterLossChk, CC.xy(2, 14));
-        spectrumFilterPanel.add(ammoniumLossChk, CC.xy(2, 16));
-        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 17));
-        spectrumFilterPanel.add(chargeOneChk, CC.xy(2, 18));
-        spectrumFilterPanel.add(chargeTwoChk, CC.xy(2, 20));
-        spectrumFilterPanel.add(chargeMoreChk, CC.xy(2, 22));
-        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 23));
-        spectrumFilterPanel.add(precursorChk, CC.xy(2, 24));
+        spectrumFilterPanel.add(aIonsTgl, CC.xy(2, 2));
+        spectrumFilterPanel.add(bIonsTgl, CC.xy(2, 4));
+        spectrumFilterPanel.add(cIonsTgl, CC.xy(2, 6));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 8));
+        spectrumFilterPanel.add(xIonsTgl, CC.xy(2, 10));
+        spectrumFilterPanel.add(yIonsTgl, CC.xy(2, 12));
+        spectrumFilterPanel.add(zIonsTgl, CC.xy(2, 14));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 16));
+        spectrumFilterPanel.add(waterLossTgl, CC.xy(2, 18));
+        spectrumFilterPanel.add(ammoniumLossTgl, CC.xy(2, 20));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 22));
+        spectrumFilterPanel.add(chargeOneTgl, CC.xy(2, 24));
+        spectrumFilterPanel.add(chargeTwoTgl, CC.xy(2, 26));
+        spectrumFilterPanel.add(chargeMoreTgl, CC.xy(2, 28));
+        spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 30));
+        spectrumFilterPanel.add(precursorTgl, CC.xy(2, 32));
         
         return spectrumFilterPanel;
 	}
@@ -481,22 +635,22 @@ public class DbSearchResultPanel extends JPanel{
 	 * @param action
 	 * @return A JCheckBox with the defined parameters.
 	 */
-	private JCheckBox createFilterCheckBox(String title, boolean selected, String toolTip, Dimension size, Action action) {
-		JCheckBox checkBox = new JCheckBox(action);
-		checkBox.setText(title);
-		checkBox.setSelected(selected);
-		checkBox.setToolTipText(toolTip);
-		checkBox.setMaximumSize(size);
-		checkBox.setMinimumSize(size);
-		checkBox.setPreferredSize(size);
-		return checkBox;
+	private JToggleButton createFilterToggleButton(String title, boolean selected, String toolTip, Dimension size, Action action) {
+		JToggleButton toggleButton = new JToggleButton(action);
+		toggleButton.setText(title);
+		toggleButton.setSelected(selected);
+		toggleButton.setToolTipText(toolTip);
+		toggleButton.setMaximumSize(size);
+		toggleButton.setMinimumSize(size);
+		toggleButton.setPreferredSize(size);
+		return toggleButton;
 	}
 
 	/**
 	 * Method to refresh protein table contents.
 	 */
 	protected void refreshProteinTable() {
-		TableConfig.setColumnWidths(proteinTbl, new double[] {2, 6, 16, 7, 5.5, 3, 8, 8, 5, 6 });
+		
 		dbSearchResult = clientFrame.getClient().getDbSearchResult(
 				clientFrame.getProjectPanel().getCurrentProjectContent(),
 				clientFrame.getProjectPanel().getCurrentExperimentContent());
@@ -776,31 +930,31 @@ public class DbSearchResultPanel extends JPanel{
             boolean useAnnotation = true;
             // check ion type
             if (currentLabel.lastIndexOf("a") != -1) {
-                if (!aIonsChk.isSelected()) {
+                if (!aIonsTgl.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("b") != -1) {
-                if (!bIonsChk.isSelected()) {
+                if (!bIonsTgl.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("c") != -1) {
-                if (!cIonsChk.isSelected()) {
+                if (!cIonsTgl.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("x") != -1) {
-                if (!xIonsChk.isSelected()) {
+                if (!xIonsTgl.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("y") != -1) {
-                if (!yIonsChk.isSelected()) {
+                if (!yIonsTgl.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("z") != -1) {
-                if (!zIonsChk.isSelected()) {
+                if (!zIonsTgl.isSelected()) {
                     useAnnotation = false;
                 }
             } else if (currentLabel.lastIndexOf("M") != -1) {
-                if (!precursorChk.isSelected()) {
+                if (!precursorTgl.isSelected()) {
                     useAnnotation = false;
                 }
             }
@@ -808,25 +962,25 @@ public class DbSearchResultPanel extends JPanel{
             // check ion charge + ammonium and water-loss
             if (useAnnotation) {
                 if (currentLabel.lastIndexOf("+") == -1) {
-                    if (!chargeOneChk.isSelected()) {
+                    if (!chargeOneTgl.isSelected()) {
                         useAnnotation = false;
                     }
                 } else if (currentLabel.lastIndexOf("+++") != -1) {
-                    if (!chargeMoreChk.isSelected()) {
+                    if (!chargeMoreTgl.isSelected()) {
                         useAnnotation = false;
                     }
                 } else if (currentLabel.lastIndexOf("++") != -1) {
-                    if (!chargeTwoChk.isSelected()) {
+                    if (!chargeTwoTgl.isSelected()) {
                         useAnnotation = false;
                     }
                 }
                 
                 if (currentLabel.lastIndexOf("*") != -1) {
-                    if (!ammoniumLossChk.isSelected()) {
+                    if (!ammoniumLossTgl.isSelected()) {
                         useAnnotation = false;
                     }
                 } else if (currentLabel.lastIndexOf("°") != -1) {
-                    if (!waterLossChk.isSelected()) {
+                    if (!waterLossTgl.isSelected()) {
                         useAnnotation = false;
                     }
                 }
