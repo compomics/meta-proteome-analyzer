@@ -11,7 +11,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -22,14 +21,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter;
-import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+import javax.swing.table.TableColumnModel;
 
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
@@ -45,8 +41,9 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.model.denovo.DenovoSearchResult;
-import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
+import de.mpa.client.model.denovo.Tag;
+import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
@@ -236,27 +233,22 @@ public class DeNovoResultPanel extends JPanel {
 		// Query table
 		peptideTagsTbl = new JXTable(new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "Tag Count", "Total Mass"}); }
+			{ setColumnIdentifiers(new Object[] {" ", "Formatted Sequence", "Gapped Sequence", "Tag Count", "Total Mass"}); }
 
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
 		});
+		
+		TableColumnModel tcm = peptideTagsTbl.getColumnModel();
+		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		
 		peptideTagsTbl.getColumn(" ").setMinWidth(30);
 		peptideTagsTbl.getColumn(" ").setMaxWidth(30);
-		peptideTagsTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		peptideTagsTbl.getColumn("Tag Count").setMinWidth(100);
 		peptideTagsTbl.getColumn("Tag Count").setMaxWidth(100);
 		peptideTagsTbl.getColumn("Total Mass").setMinWidth(80);
 		peptideTagsTbl.getColumn("Total Mass").setMaxWidth(80);
-		
-		// Sort the table by the number of peptides
-		TableRowSorter<TableModel> sorter  = new TableRowSorter<TableModel>(peptideTagsTbl.getModel());
-		List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
-		sortKeys.add(new RowSorter.SortKey(2, SortOrder.DESCENDING));
-		
-		sorter.setSortKeys(sortKeys);
-		peptideTagsTbl.setRowSorter(sorter);
 		
 		// Only one row is selectable
 		peptideTagsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -307,13 +299,16 @@ public class DeNovoResultPanel extends JPanel {
 			}
 		});
 		
+		TableColumnModel spectraTblMdl = spectraTbl.getColumnModel();
+		spectraTblMdl.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		
 		spectraTbl.getColumn(" ").setMinWidth(30);
 		spectraTbl.getColumn(" ").setMaxWidth(30);
-		spectraTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		spectraTbl.getColumn("No. Solutions").setMinWidth(90);
 		spectraTbl.getColumn("No. Solutions").setMaxWidth(90);
 		spectraTbl.getColumn("No. Solutions").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL,(double) 10, true));
 		((JSparklinesBarChartTableCellRenderer) spectraTbl.getColumn("No. Solutions").getCellRenderer()).showNumberAndChart(true, 25, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
+		
 		// Only one row is selectable
 		spectraTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
@@ -348,9 +343,13 @@ public class DeNovoResultPanel extends JPanel {
 				return false;
 			}
 		});
+		
+		
+		TableColumnModel tcm = solutionsTbl.getColumnModel();
+		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		
 		solutionsTbl.getColumn(" ").setMinWidth(30);
 		solutionsTbl.getColumn(" ").setMaxWidth(30);
-		solutionsTbl.getColumn(" ").setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		solutionsTbl.getColumn("Score").setMinWidth(100);
 		solutionsTbl.getColumn("Score").setMaxWidth(100);
 		solutionsTbl.getColumn("N-Gap").setMinWidth(60);
@@ -359,7 +358,6 @@ public class DeNovoResultPanel extends JPanel {
 		solutionsTbl.getColumn("C-Gap").setMaxWidth(60);
 		solutionsTbl.getColumn("z").setMinWidth(30);
 		solutionsTbl.getColumn("z").setMaxWidth(30);
-		solutionsTbl.getColumn("z").setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
 		
 		// Only one row is selectable
 		solutionsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -393,8 +391,8 @@ public class DeNovoResultPanel extends JPanel {
 			
 			// Counter variable
 			int i = 1;
-			String tagSequence = peptideTagsTbl.getValueAt(row, 1).toString();
-			DenovoTagHit tagHit = denovoSearchResult.getTagHit(tagSequence);
+			String tagSequence = peptideTagsTbl.getValueAt(row, 2).toString();
+			TagHit tagHit = denovoSearchResult.getTagHit(tagSequence);
 			
 			// Iterate all spectrum hits.
 			for(Entry entry : tagHit.getSpectrumHits().entrySet()){
@@ -480,13 +478,14 @@ public class DeNovoResultPanel extends JPanel {
 			for (Entry entry : denovoSearchResult.getTagHits().entrySet()){
 				
 				// Get the de novo tag hit.
-				DenovoTagHit denovoTagHit = (DenovoTagHit) entry.getValue();
-
+				TagHit denovoTagHit = (TagHit) entry.getValue();
+				Tag tag = denovoTagHit.getTag();
 				((DefaultTableModel) peptideTagsTbl.getModel()).addRow(new Object[] {
 						i++,
-						denovoTagHit.getTagSequence(),
+						tag.getFormattedSeq(),
+						tag.getGappedSeq(),
 						denovoTagHit.getTagSpecCount(),
-						denovoTagHit.getTotalMass()});
+						tag.getTotalMass()});
 			}
 		}
 	}

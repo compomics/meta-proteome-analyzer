@@ -3,17 +3,13 @@ package de.mpa.client.model.denovo;
 import java.util.TreeMap;
 
 
-public class DenovoTagHit {
+public class TagHit {
 	
 	/**
-	 * The tag sequence.
+	 * The de-novo tag.
 	 */
-	private String tagSequence;
-	
-	/**
-	 * The total mass
-	 */
-	private double totalMass;
+	private Tag tag;
+
 	
 	/**
 	 * Spectrum hit for the de-novo tag.
@@ -22,31 +18,22 @@ public class DenovoTagHit {
 	
 	/**
 	 * Constructor building a de-novo tag hit. Parameters are the tag sequence, the total mass and the (first) spectrum hit.
-	 * @param tagSequence The tag sequence.
+	 * @param tag The de-novo tag.
 	 * @param totalMass The total mass of the hit.
 	 * @param spectrumHit The (first) spectrum hit.
 	 */
-	public DenovoTagHit(String tagSequence, double totalMass, SpectrumHit spectrumHit) {
-		this.tagSequence = tagSequence;
-		this.totalMass = totalMass;
+	public TagHit(Tag tag, SpectrumHit spectrumHit) {
+		this.tag = tag;
 		this.spectrumHits = new TreeMap<Long, SpectrumHit>();
 		this.spectrumHits.put(spectrumHit.getSpectrumid(), spectrumHit);
 	}
 
 	/**
-	 * Returns the tag sequence.
-	 * @return The tag sequence.
+	 * Returns the de-novo tag.
+	 * @return
 	 */
-	public String getTagSequence() {
-		return tagSequence;
-	}
-	
-	/**
-	 * Returns the total mass.
-	 * @return The total mass.
-	 */
-	public double getTotalMass() {
-		return totalMass;
+	public Tag getTag() {
+		return tag;
 	}
 
 	/**

@@ -30,7 +30,6 @@ public class ExportTest extends TestCase{
 		path = getClass().getClassLoader().getResource("Export").getPath();
 		path = path.replaceAll("%20", " ");
 		
-		System.out.println(path);
 		// Create protein
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch();
 		PeptideSpectrumMatch psm2 = new PeptideSpectrumMatch();

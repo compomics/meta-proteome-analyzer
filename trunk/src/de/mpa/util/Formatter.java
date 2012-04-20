@@ -111,26 +111,47 @@ public class Formatter {
 	 * @param decimalPlaces The number of decimals.
 	 * @return The rounded double
 	 */
-	public static double roundDouble(double d, int decimalPlaces) {
+	public static double roundBigDecimalDouble(double d, int decimalPlaces) {
 		BigDecimal bd = new BigDecimal(Double.toString(d));
 		bd = bd.setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP);
 		return bd.doubleValue();
 	}
+	
+	/**
+     * Rounds a double value to the wanted number of decimal places.
+     *
+     * @param d the double to round of
+     * @param places number of decimal places wanted
+     * @return double - the new double
+     */
+    public static double roundDouble(double d, int places) {
+        return Math.round(d * Math.pow(10, (double) places)) / Math.pow(10, (double) places);
+    }
+
 
 	/**
-	 * parse an integer value from the given string
-	 * @param aStr
+	 * This method parses an integer value from the given string
+	 * @param str
 	 */
-	public static int stringToInteger(String aStr) {
+	public static int stringToInteger(String str) {
 		int tBack;
 		try {
-			tBack = Integer.parseInt(aStr);
+			tBack = Integer.parseInt(str);
 		} catch (NumberFormatException e) {
 			tBack = 0;
 		}
 		return tBack;
 	}
-
+	
+	/**
+	 * This method reverses a string.
+	 * @param string String to be reversed.
+	 * @return The reversed String.
+	 */
+	public static String reverseString(String str) {
+		return new StringBuffer(str).reverse().toString();
+	}
+	
 	/**
 	 * boolean to string
 	 * @param aValue
