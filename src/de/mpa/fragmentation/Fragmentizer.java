@@ -147,11 +147,12 @@ public class Fragmentizer {
 
             // For each amino acid add the specific mass
             String aa = String.valueOf(iSequence.charAt(i));
-            mass += iMasses.get(aa);
-            mh += mass;
-            // Add each specific mass to the array
-            peptideMasses[i] = mass;
-            
+            if(iMasses.containsKey(aa)){
+            	mass += iMasses.get(aa);
+                mh += mass;
+                // Add each specific mass to the array
+                peptideMasses[i] = mass;
+            }
         }
         return peptideMasses;
     }

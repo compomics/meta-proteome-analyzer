@@ -27,7 +27,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -261,7 +260,7 @@ public class DbSearchResultPanel extends JPanel{
 			}
 		});
 		
-		TableConfig.setColumnWidths(proteinTbl, new double[] { 2, 6, 16, 7, 5.5, 3, 8, 8, 5, 6 });
+		TableConfig.setColumnWidths(proteinTbl, new double[] {2, 6, 16, 7, 5.5, 3, 8, 8, 5, 6 });
 		
 		TableColumnModel tcm = proteinTbl.getColumnModel();
 		
@@ -497,7 +496,7 @@ public class DbSearchResultPanel extends JPanel{
 	 * Method to refresh protein table contents.
 	 */
 	protected void refreshProteinTable() {
-		TableConfig.setColumnWidths(proteinTbl, new double[] { 1, 6, 16, 7, 5.5, 3, 8, 8, 5, 6 });
+		TableConfig.setColumnWidths(proteinTbl, new double[] {2, 6, 16, 7, 5.5, 3, 8, 8, 5, 6 });
 		dbSearchResult = clientFrame.getClient().getDbSearchResult(
 				clientFrame.getProjectPanel().getCurrentProjectContent(),
 				clientFrame.getProjectPanel().getCurrentExperimentContent());
@@ -655,7 +654,7 @@ public class DbSearchResultPanel extends JPanel{
 						spectrumJPanel.validate();
 						spectrumJPanel.repaint();
 						
-						Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getMap(), psm.getCharge());
+						Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), psm.getCharge());
 						addSpectrumAnnotations(fragmentizer.getFragmentIons());
 						
 					} catch (SQLException sqe) {

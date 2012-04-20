@@ -1,7 +1,13 @@
 package de.mpa.algorithms.denovo;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
+
+import de.mpa.analysis.Masses;
+import de.mpa.util.Formatter;
 
 /**
  * This class represents a gapped peptide object.
@@ -18,32 +24,30 @@ public class GappedPeptide {
     private Vector<String> iTagSequenceVector;
     private Vector<Boolean> iTagNotInCombinationUsedVector;
 
-    public GappedPeptide(String lGappedPeptide){
+    public GappedPeptide(String gappedPeptide){
         this.calculateMasses();
-        lGappedPeptide = lGappedPeptide.replace("C<Pyr,", "C<Pyr|");
-        String[] lElements = lGappedPeptide.split(",");
+        gappedPeptide = gappedPeptide.replace("C<Pyr,", "C<Pyr|");
+        String[] elements = gappedPeptide.split(",");
         iSum = 0.0;
         iMassVector = new Vector<Double>();
         iTagSequenceVector = new Vector<String>();
         iMassSumVector = new Vector<Double>();
         iTagVector = new Vector<Boolean>();
         iTagNotInCombinationUsedVector = new Vector<Boolean>();
-        boolean lPreviousTag = true;
+        boolean previousTag = true;
 
-        for(int i = 0; i<lElements.length; i ++){
-            String lElement = lElements[i];
-            lElement = lElement.replace("C<Pyr|", "C<Pyr,");
-            lElement = lElement.replace("#Gln->pyro-Glu (N-term Q)#-Q", "NH2-Q<Pyr>");
-            lElement = lElement.replace("#Glu->pyro-Glu (N-term E)#-E", "NH2-E<Pyr>");
-            lElement = lElement.replace("#Pyro-carbamidomethyl (N-term C)#-C", "NH2-C<Pyr,Cmm>");
-            //lElement = lElement.replace("#Pyro-c", "NH2-C<Pyr,Cmm>");
+        for(int i = 0; i<elements.length; i ++){
+            String element = elements[i];
+            element = element.replace("C<Pyr|", "C<Pyr,");
+            element = element.replace("#Gln->pyro-Glu (N-term Q)#-Q", "NH2-Q<Pyr>");
+            element = element.replace("#Glu->pyro-Glu (N-term E)#-E", "NH2-E<Pyr>");
+            element = element.replace("#Pyro-carbamidomethyl (N-term C)#-C", "NH2-C<Pyr,Cmm>");
 
             try{
                 double lMass = 0.0;
-                if(lElement.startsWith("<")){
-                    if(lPreviousTag){
-                        //System.out.println(lElement);
-                        lMass = Double.valueOf(lElement.substring(1,lElement.indexOf(">")));
+                if(element.startsWith("<")){
+                    if(previousTag){
+                        lMass = Double.valueOf(element.substring(1,element.indexOf(">")));
                         iMassVector.add(lMass);
                         iTagSequenceVector.add(null);
                         iTagVector.add(false);
@@ -54,43 +58,41 @@ public class GappedPeptide {
                             iMassSumVector.add(lMass + iMassSumVector.get(iMassSumVector.size() - 1));
                         }
                     } else {
-                        iMassVector.set(iMassVector.size()-1, iMassVector.get(iMassVector.size()-1) + iMasses.get(lElement));
-                        iMassSumVector.set(iMassSumVector.size()-1, iMassSumVector.get(iMassSumVector.size()-1) + iMasses.get(lElement));
+                        iMassVector.set(iMassVector.size()-1, iMassVector.get(iMassVector.size()-1) + iMasses.get(element));
+                        iMassSumVector.set(iMassSumVector.size()-1, iMassSumVector.get(iMassSumVector.size()-1) + iMasses.get(element));
                     }
-                    lPreviousTag = false;
+                    previousTag = false;
                 } else {
-                    //System.out.println(lElement);
-                    if(iMasses.get(lElement) == null){
-                        System.out.println(lElement + "   " + lGappedPeptide);
+                    if(iMasses.get(element) == null){
+                        System.out.println(element + "   " + gappedPeptide);
                     }
-                    lMass = iMasses.get(lElement);
-                    iMassVector.add(iMasses.get(lElement));
-                    iTagSequenceVector.add(lElement);
+                    lMass = iMasses.get(element);
+                    iMassVector.add(iMasses.get(element));
+                    iTagSequenceVector.add(element);
                     if(iMassSumVector.size() == 0){
-                        iMassSumVector.add(iMasses.get(lElement));
+                        iMassSumVector.add(iMasses.get(element));
                     } else {
-                        iMassSumVector.add(iMasses.get(lElement) + iMassSumVector.get(iMassSumVector.size() - 1));
+                        iMassSumVector.add(iMasses.get(element) + iMassSumVector.get(iMassSumVector.size() - 1));
                     }
-                    lPreviousTag = true;
+                    previousTag = true;
                     iTagVector.add(true);
                     iTagNotInCombinationUsedVector.add(true);
                 }
                 iSum =  iSum + lMass;
             } catch(StringIndexOutOfBoundsException e){
-                System.out.println(lElement);
                 e.printStackTrace();
             }
         }
     }
 
     public int getTagCount(){
-        int lCount = 0;
-        for(int i = 0; i<iTagVector.size(); i ++){
+        int count = 0;
+        for(int i = 0; i < iTagVector.size(); i++){
             if(iTagVector.get(i)){
-                lCount = lCount + 1;
+                count++;
             }
         }
-        return lCount;
+        return count;
     }
     
     public double getSum() {
@@ -114,9 +116,7 @@ public class GappedPeptide {
     }
 
     private void calculateMasses() {
-
         iMasses = MassesMap.getInstance().getMasses();
-
     }
     
     /**
@@ -139,34 +139,80 @@ public class GappedPeptide {
     }	
 	
 	/**
-	 * Returns the (formatted) sequence of the gapped peptide.
-	 * @return The formatted sequence string of the gapped peptide.
+	 * Returns the gapped sequence of the peptide.
+	 * @return The gapped sequence string of the peptide.
 	 */
-	public String getSequence(){
+	public String getGappedSequence(){
 		String sequence = "";
         for(int i = 0; i<iTagVector.size(); i ++){
             if(iTagVector.get(i)){
                 sequence = sequence + iTagSequenceVector.get(i);
             } else {
-                sequence = sequence + "<" + iMassVector.get(i) + ">";
+                sequence = sequence + "<" + Formatter.roundDouble(iMassVector.get(i), 3) + ">";
             }
         }
         return sequence;
 	}
 	
-    public String toString(){
-        String sequence = "";
+	/**
+	 * Returns the formatted sequence, i.e. the gaps are replaced by amino acid suggestions.
+	 * @return
+	 */
+	public String getFormattedSequence() {
+		String format = "";
         for(int i = 0; i<iTagVector.size(); i ++){
             if(iTagVector.get(i)){
-                sequence = sequence + iTagSequenceVector.get(i) + ",";
+                format += iTagSequenceVector.get(i);
             } else {
-                sequence = sequence + "<" + iMassVector.get(i) + ">,";
+            	double mass = iMassVector.get(i);
+            	if(getDiPeptide(mass).length() > 0){
+            		format += getDiPeptide(mass);
+            	} else {
+            		format += "<" +  Formatter.roundDouble(mass, 3) + ">";
+            	}
             }
         }
-        sequence = sequence.substring(0, sequence.lastIndexOf(","));
-        return sequence;
+        return format;
+	}
+	
+	public String getDiPeptide(double mass){
+		String seq = "";
+		Map<String, Double> masses = Masses.getInstance();
+		Map<Double, String> dipeptides = DiPeptideMap.getInstance();
+		Set<Double> dipeptideMasses = dipeptides.keySet();
+		Set<Entry<String, Double>> entrySet = masses.entrySet();
+		
+		for (Entry<String, Double> entry : entrySet) {
+			double delta = Math.abs(mass - entry.getValue());
+			
+			// Check for single amino acid mapping.
+			if(delta <= 0.5) {
+				seq = "[" + entry.getKey();
+			}
+		}	
+		// Check for di-peptides.
+		for (Double mass2 : dipeptideMasses) {
+				double delta2 = Math.abs(mass - mass2);
+				if(seq.length() > 0){					
+					if(delta2 <= 0.5){
+						seq += "|" + dipeptides.get(mass2); // + "|" + Formatter.reverseString(dipeptides.get(mass2));
+					}
+				} else {
+					if(delta2 <= 0.5) {
+						seq = "[" + dipeptides.get(mass2); // + "|" + Formatter.reverseString(dipeptides.get(mass2));
+				}
+			}
+		}
+		
+		if(seq.length() > 0) seq += "]";
+		
+		return seq;
+	}
+	
+    public String toString(){
+    	return getGappedSequence();
     }
-
+    
     public Vector<String> getTagSequenceVector() {
         return iTagSequenceVector;
     }

@@ -14,7 +14,7 @@ public class FragmentizerTest extends TestCase{
 	Fragmentizer fragmentizer;
 	@Before
 	public void setUp(){
-		fragmentizer = new Fragmentizer("LDRLD", Masses.getMap(), 1);
+		fragmentizer = new Fragmentizer("LDRLD", Masses.getInstance(), 1);
 	}
 	
 	/**

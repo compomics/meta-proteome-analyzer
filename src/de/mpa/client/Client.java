@@ -35,8 +35,9 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.denovo.DenovoSearchResult;
-import de.mpa.client.model.denovo.DenovoTagHit;
 import de.mpa.client.model.denovo.SpectrumHit;
+import de.mpa.client.model.denovo.Tag;
+import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.DbSearchSettings;
@@ -338,10 +339,11 @@ public class Client {
 					
 					// Construct the gapped peptide combiner object.
 					GappedPeptideCombiner combiner = new GappedPeptideCombiner(gappedPeptides, 0.5);
-					GappedPeptide gappedPeptide = combiner.getCombinedGappedPeptide();
-					if(gappedPeptide != null){
-						denovoSearchResult.addTagHit(new DenovoTagHit(gappedPeptide.getSequence(), gappedPeptide.getTotalMass(), spectrumHit));
-					}
+					GappedPeptide peptide = combiner.getCombinedGappedPeptide();
+					Tag tag = new Tag(peptide.getGappedSequence(), peptide.getFormattedSequence(), peptide.getTotalMass());
+					
+					// Add the tag hit.
+					denovoSearchResult.addTagHit(new TagHit(tag, spectrumHit));
 						
 				}
 			}

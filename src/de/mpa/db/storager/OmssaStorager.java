@@ -136,7 +136,7 @@ public class OmssaStorager extends BasicStorager {
     	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
     	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
     	    	
-    	    	qvalues = scoreQValueMap.get(Formatter.roundDouble(msHit.MSHits_evalue, 5));    	       
+    	    	qvalues = scoreQValueMap.get(Formatter.roundBigDecimalDouble(msHit.MSHits_evalue, 5));    	       
     	        
     	    	// If no q-value is found: Assign default values.
                 if(qvalues == null){
@@ -211,7 +211,7 @@ public class OmssaStorager extends BasicStorager {
 				while (tokenizer.hasMoreTokens()) {
 					tokenList.add(tokenizer.nextToken());
 				}				
-				double score = Formatter.roundDouble(Double.valueOf(tokenList.get(0)), 5);
+				double score = Formatter.roundBigDecimalDouble(Double.valueOf(tokenList.get(0)), 5);
 				qvalityList.add(Double.valueOf(tokenList.get(1)));
 				qvalityList.add(Double.valueOf(tokenList.get(2)));
 				scoreQValueMap.put(score, qvalityList);

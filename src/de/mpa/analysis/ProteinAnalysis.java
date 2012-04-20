@@ -3,7 +3,6 @@ package de.mpa.analysis;
 import java.util.List;
 import java.util.Map;
 
-import no.uib.jsparklines.renderers.util.Util;
 import de.mpa.algorithms.quantification.QuantMethod;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
@@ -20,7 +19,7 @@ public class ProteinAnalysis {
 	 */
 	public static double calculateMolecularWeight(ProteinHit proteinHit) {
 		// Get the masses with the amino acid masses.
-		Map<String, Double> masses = Masses.getMap();
+		Map<String, Double> masses = Masses.getInstance();
 		
 		// Start with the N-terminal mass
 		double molWeight = Masses.N_term;
@@ -40,7 +39,7 @@ public class ProteinAnalysis {
 	    molWeight += Masses.C_term;
 	    
 	    // Get the weight in kDa
-	    molWeight = Util.roundDouble((molWeight / 1000.0), 3);
+	    molWeight = Formatter.roundDouble((molWeight / 1000.0), 3);
 	   
 	    return molWeight;
 	}

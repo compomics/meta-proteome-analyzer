@@ -14,7 +14,7 @@ public class DenovoSearchResult {
 	/**
 	 * This map contains all the retrieved de-novo tag hits.
 	 */
-	private Map<String, DenovoTagHit> tagHits = new HashMap<String, DenovoTagHit>();
+	private Map<String, TagHit> tagHits = new HashMap<String, TagHit>();
 	
 	/**
 	 * The project title.
@@ -40,16 +40,16 @@ public class DenovoSearchResult {
 	 * Add a tag hit to the de-novo search result
 	 * @param tagHit The de-novo tag hit.
 	 */
-	public void addTagHit(DenovoTagHit tagHit){
+	public void addTagHit(TagHit tagHit){
 		
 			// The tag sequence
-			String tagSequence = tagHit.getTagSequence();
+			String tagSequence = tagHit.getTag().getGappedSeq();
 			
 			// Check if tag hit is already in the tag hit set.
 			if (tagHits.containsKey(tagSequence)) {
 				
 				// Current protein hit
-				DenovoTagHit currentTagHit = tagHits.get(tagSequence);
+				TagHit currentTagHit = tagHits.get(tagSequence);
 					
 				// Get the first - and only - spectrum hit.
 				SpectrumHit spectrumHit = tagHit.getFirstSpectrumHit();
@@ -63,7 +63,7 @@ public class DenovoSearchResult {
 					currentTagHit.setSpectrumHits(currentSpectrumHits);
 				} 
 			} else {
-				tagHits.put(tagHit.getTagSequence(), tagHit);
+				tagHits.put(tagSequence, tagHit);
 			}
 	}
 	
@@ -71,7 +71,7 @@ public class DenovoSearchResult {
 	 * Returns the de-novo tag hits from the result set.
 	 * @return The de-novo tag hits.
 	 */
-	public Map<String, DenovoTagHit> getTagHits() {
+	public Map<String, TagHit> getTagHits() {
 		return tagHits;
 	}
 	
@@ -80,7 +80,7 @@ public class DenovoSearchResult {
 	 * @param tagSequence The tag sequence.
 	 * @return The de-novo tag hit for a corresponding sequence.
 	 */
-	public DenovoTagHit getTagHit(String tagSequence){
+	public TagHit getTagHit(String tagSequence){
 		return tagHits.get(tagSequence);
 	}
 	

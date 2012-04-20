@@ -1,6 +1,7 @@
 package de.mpa.algorithms.quantification;
 
 import java.util.ArrayList;
+
 import com.compomics.util.experiment.biology.Enzyme;
 
 import de.mpa.client.model.dbsearch.ProteinHit;
