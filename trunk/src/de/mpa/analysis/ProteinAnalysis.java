@@ -1,5 +1,7 @@
 package de.mpa.analysis;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -116,18 +118,72 @@ public class ProteinAnalysis {
 	 * @return The isoelectric point.
 	 */
 	public static double calculateIsoelectricPoint(ProteinHit proteinHit) {
-		Map <Character, Double> pIs = IsoelectricPoints.pIMap;
-		double sum_pI = 0.0;
-		for (char aa : proteinHit.getSequence().toCharArray()) {
-			Double pI = pIs.get(aa);
-			if (pI != null) {
-				sum_pI += pI;
+		// Get pKas from amino acids
+		char[] aa = proteinHit.getSequence().toCharArray();
+		ArrayList<Double> pKaListAcidicNeg = new ArrayList<Double>();
+		ArrayList<Double> pKaListBasicPos = new ArrayList<Double>();
+		Double pKa;
+		for (int i = 0; i < aa.length; i++) {
+			if (i == 0){
+				pKa = IsoelectricPoints.pKaNtermMap.get(aa[i]);
+				if(pKa != null) {
+					pKaListBasicPos.add(pKa);
+				}
+			} else if (i == aa.length - 1) {
+				pKa = IsoelectricPoints.pKaCtermMap.get(aa[i]);
+				if (pKa != null) {
+					pKaListAcidicNeg.add(pKa);
+				}
+			} else {
+				pKa = IsoelectricPoints.pKaSideChainMap.get(aa[i]);
+				if (pKa != null) {
+					if ((aa[i] == 'D') || (aa[i] == 'E') || (aa[i] == 'C') || (aa[i] == 'Y')) {
+						pKaListAcidicNeg.add(pKa);
+					}
+					if ((aa[i] == 'H') || (aa[i] == 'K') || (aa[i] == 'R')) {
+						pKaListBasicPos.add(pKa);
+					}
+				}
 			}
-			// TODO: find a way to deal with unknown chars
 		}
-		sum_pI /= proteinHit.getSequence().length();
 		
-	    return sum_pI;
+		// calculate charge of protein
+		double pHMin = 0.0;
+		double pHMax = 14.0;
+		double pH = 0.0;
+		int loops = 2000;
+		double epsilon = 0.0001;
+		double netCharge = 1.0;
+		int actualLoop = 1;
+		
+		// Search for min charge after Newton
+		while (((pHMax - pHMin) > epsilon) && (actualLoop < loops)) {
+			// Iteration steps
+			actualLoop++;
+			// set pH
+			pH = pHMin + (pHMax - pHMin) / 2;
+
+			double chargeAcidicAA = 0.0;
+			double chargeBasicAA  = 0.0;
+			for (Double pKaValue : pKaListAcidicNeg) {
+				// Acidic amino acids
+				chargeAcidicAA += -1 / ( Math.pow(10, (pKaValue - pH) ) + 1 );
+			}
+			for (Double pKaValue : pKaListBasicPos) {
+				// Basic amino acids
+				chargeBasicAA +=  1 / ( Math.pow(10, (pH - pKaValue) ) + 1);
+			}
+			// Calculate charge
+			netCharge = chargeAcidicAA + chargeBasicAA;
+			// Set new pH
+			if (netCharge > 0.0) {
+				pHMin = pH;
+			} else {
+				pHMax = pH;
+			}
+		}		
+		System.out.println("pI: " + pH);
+		return pH ;
 	}
 	
 	/**
