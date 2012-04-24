@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,12 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -37,11 +33,9 @@ import de.mpa.algorithms.PearsonCorrelation;
 import de.mpa.algorithms.Transformation;
 import de.mpa.algorithms.Vectorization;
 import de.mpa.client.settings.SpecSimSettings;
-import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
-import de.mpa.client.ui.SpectrumTree;
 import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.PlotPanel2;
@@ -677,29 +671,29 @@ public class SpecLibSearchPanel extends JPanel {
 		}
 
 		private void grabSpectrumAndRefreshPlot() {
-			// wrap method inside runnable to prevent Linux from freezing when debugging it
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						CheckBoxTreeManager checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
-						MascotGenericFile mgf = null;
-						TreePath selPath = checkBoxTree.getTree().getSelectionPath();
-						if (selPath == null) {
-							mgf = ((SpectrumTree) checkBoxTree.getTree())
-							.getSpectrumAt(((DefaultMutableTreeNode) checkBoxTree.getModel()
-									.getRoot()).getFirstLeaf());
-						} else {
-							mgf = ((SpectrumTree) checkBoxTree.getTree())
-							.getSpectrumAt((DefaultMutableTreeNode) selPath.getLastPathComponent());
-						}
-						if (mgf != null) {
-							refreshPlot(mgf);
-						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-			});
+//			// wrap method inside runnable to prevent Linux from freezing when debugging it
+//			SwingUtilities.invokeLater(new Runnable() {
+//				public void run() {
+//					try {
+//						CheckBoxTreeManager checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
+//						MascotGenericFile mgf = null;
+//						TreePath selPath = checkBoxTree.getTree().getSelectionPath();
+//						if (selPath == null) {
+//							mgf = ((SpectrumTree) checkBoxTree.getTree())
+//							.getSpectrumAt(((DefaultMutableTreeNode) checkBoxTree.getModel()
+//									.getRoot()).getFirstLeaf());
+//						} else {
+//							mgf = ((SpectrumTree) checkBoxTree.getTree())
+//							.getSpectrumAt((DefaultMutableTreeNode) selPath.getLastPathComponent());
+//						}
+//						if (mgf != null) {
+//							refreshPlot(mgf);
+//						}
+//					} catch (IOException e1) {
+//						e1.printStackTrace();
+//					}
+//				}
+//			});
 		}
 	}
 

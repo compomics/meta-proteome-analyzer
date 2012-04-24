@@ -18,6 +18,7 @@ import org.jdesktop.swingx.JXTableHeader;
 public class ComponentHeader extends JXTableHeader {
 
 	private ComponentHeaderRenderer chr;
+	private boolean[] reorderingAllowedColumns;
 	
     /**
      * Constructs a <code>JTableHeader</code> which is initialized with
@@ -27,6 +28,8 @@ public class ComponentHeader extends JXTableHeader {
      */
 	public ComponentHeader(TableColumnModel columnModel) {
 		super(columnModel);
+		reorderingAllowedColumns = new boolean[columnModel.getColumnCount()];
+		
 	}
 
 	// hacky mouse event interception to avoid row sorting when hitting table header component
@@ -36,6 +39,7 @@ public class ComponentHeader extends JXTableHeader {
 				me.getID() == MouseEvent.MOUSE_CLICKED) {
 			int col = columnModel.getColumnIndexAtX(me.getX());
 			if (col != -1) {
+				reorderingAllowed = reorderingAllowedColumns[col];
 				if (columnModel.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
 					chr = (ComponentHeaderRenderer) columnModel.getColumn(col).getHeaderRenderer();
 					Rectangle headerRect = this.getHeaderRect(col);
@@ -47,7 +51,7 @@ public class ComponentHeader extends JXTableHeader {
 								me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
 								me.getClickCount(), me.isPopupTrigger(), me.getButton()));
 						this.repaint();
-						reorderingAllowed = (me.getID() != MouseEvent.MOUSE_PRESSED);
+						reorderingAllowed &= (me.getID() != MouseEvent.MOUSE_PRESSED);
 						// fool other listeners by changing click-type events into release-type ones
 						if (me.getID() == MouseEvent.MOUSE_CLICKED) {
 							me = new MouseEvent(
@@ -67,6 +71,16 @@ public class ComponentHeader extends JXTableHeader {
 			}
 		}
 		super.processMouseEvent(me);
+	}
+
+	/**
+	 * Sets whether the user can drag the specified column's header to reorder columns. 
+	 * 
+	 * @param reorderingAllowed <code>true</code> if the table view should allow reordering; otherwise <code>false</code>.
+	 * @param column the column to be affected.
+	 */
+	public void setReorderingAllowed(boolean reorderingAllowed, int column) {
+		reorderingAllowedColumns[column] = reorderingAllowed;
 	}
 	
 //	@Override

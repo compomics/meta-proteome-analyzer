@@ -257,7 +257,7 @@ public class SpecSimResultPanel extends JPanel {
 		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
 		
-		proteinTbl.addHighlighter(TableConfig.createGradientHighlighter(3, 100.0, getFontMetrics(chartFont).stringWidth("100.00"), Color.GREEN.darker().darker(), Color.GREEN, new DecimalFormat("##0.00")));
+		proteinTbl.addHighlighter(TableConfig.createGradientHighlighter(3, 100.0, getFontMetrics(chartFont).stringWidth("100.00"), SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, new DecimalFormat("##0.00")));
 		
 		// Enables column control
 		proteinTbl.setColumnControlVisible(true);
@@ -354,7 +354,7 @@ public class SpecSimResultPanel extends JPanel {
 		// Add nice striping effect
 		ssmTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
-		ssmTbl.addHighlighter(TableConfig.createGradientHighlighter(2, 1.0, getFontMetrics(chartFont).stringWidth("1.000"), Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.000")));
+		ssmTbl.addHighlighter(TableConfig.createGradientHighlighter(2, 1.0, getFontMetrics(chartFont).stringWidth("1.000"), SwingConstants.HORIZONTAL, Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.000")));
 		
 		// Enables column control
 		ssmTbl.setColumnControlVisible(true);

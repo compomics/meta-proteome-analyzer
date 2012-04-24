@@ -16,13 +16,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 import de.mpa.algorithms.denovo.DenovoTag;
 import de.mpa.algorithms.denovo.GappedPeptide;
@@ -43,9 +43,10 @@ import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.DbSearchSettings;
 import de.mpa.client.settings.SearchSettings;
 import de.mpa.client.settings.ServerConnectionSettings;
-import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
-import de.mpa.client.ui.SpectrumTree;
+import de.mpa.client.ui.CheckBoxTreeTable;
+import de.mpa.client.ui.CheckBoxTreeTableNode;
+import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
@@ -611,18 +612,18 @@ public class Client {
 	 * @return A list of files.
 	 * @throws IOException 
 	 */
-	public List<File> packSpectra(int packageSize, CheckBoxTreeManager checkBoxTree, String filename) throws IOException {
+	public List<File> packSpectra(int packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException {
 		List<File> files = new ArrayList<File>();
 		FileOutputStream fos = null;
-		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getSelectionModel();
-		DefaultMutableTreeNode fileRoot = (DefaultMutableTreeNode) checkBoxTree.getModel().getRoot();
+		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
+		CheckBoxTreeTableNode fileRoot = (CheckBoxTreeTableNode) ((DefaultTreeTableModel) checkBoxTree.getTreeTableModel()).getRoot();
 		int numSpectra = 0;
-		DefaultMutableTreeNode spectrumNode = fileRoot.getFirstLeaf();
+		CheckBoxTreeTableNode spectrumNode = fileRoot.getFirstLeaf();
 		if (spectrumNode != fileRoot) {
 			// iterate over all leaves
 			while (spectrumNode != null) {
 				// generate tree path and consult selection model whether path is explicitly or implicitly selected
-				TreePath spectrumPath = new TreePath(spectrumNode.getPath());
+				TreePath spectrumPath = spectrumNode.getPath();
 				if (selectionModel.isPathSelected(spectrumPath, true)) {
 					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
 						if (fos != null) {
@@ -632,7 +633,8 @@ public class Client {
 						files.add(file);
 						fos = new FileOutputStream(file);
 					}
-					MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
+//					MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
+					MascotGenericFile mgf = FilePanel.getSpectrumForNode(spectrumNode);
 					mgf.writeToStream(fos);
 					fos.flush();
 					try {

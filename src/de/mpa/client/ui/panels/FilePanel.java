@@ -7,9 +7,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -19,10 +24,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
@@ -31,11 +37,12 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
+import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.model.ProjectContent;
 import de.mpa.client.settings.FilterSettings;
-import de.mpa.client.ui.CheckBoxTreeManager;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
@@ -53,18 +60,15 @@ public class FilePanel extends JPanel {
 	private final static String PATH = "test/de/mpa/resources/";
 	
 	private ClientFrame clientFrame;
-//	private JButton clrBtn;
-//	private JButton noiseEstBtn;
-//	private JButton addBtn;
-//	public JTextField filesTtf;
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
-//	public List<File> files = new ArrayList<File>();
-//	private JTable fileDetailsTbl;
-//	private PlotPanel2 filePlotPnl;
 
-//	private CheckBoxTreeManager fileTree;
-	
-	private final static String DEFAULT_PROJECT = "Placeholder Project";
+	private CheckBoxTreeTable treeTbl;
+
+	private JPanel viewerPnl;
+
+	protected static MascotGenericFileReader reader;
+
+	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
 	
 	public FilePanel(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
@@ -156,7 +160,12 @@ public class FilePanel extends JPanel {
 		buttonPnl.add(clrBtn, CC.xy(11, 1));
 		
 		// tree table containing spectrum details
-		final CheckBoxTreeTableNode treeRoot = new CheckBoxTreeTableNode(DEFAULT_PROJECT, null, null, null, null);
+		final CheckBoxTreeTableNode treeRoot = new CheckBoxTreeTableNode("no project selected") {
+			public String toString() {
+				ProjectContent pj =  clientFrame.getProjectPanel().getCurrentProjectContent();
+				return (pj != null) ? pj.getProjectTitle() : "no project selected";
+			}
+		};
 		final DefaultTreeTableModel treeModel = new DefaultTreeTableModel(treeRoot) {
 			{ setColumnIdentifiers(Arrays.asList(new String[] { "Spectra", "Path / Title", "Peaks", "TIC", "SNR"})); }
 			@Override
@@ -172,7 +181,7 @@ public class FilePanel extends JPanel {
 				}
 			}
 		};
-		final CheckBoxTreeTable treeTbl = new CheckBoxTreeTable(treeModel);
+		treeTbl = new CheckBoxTreeTable(treeModel);
 		treeTbl.setRootVisible(true);
 		treeTbl.setAutoCreateRowSorter(true);
 		
@@ -189,7 +198,7 @@ public class FilePanel extends JPanel {
 		testBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (testBtn.isSelected()) {
-					Rectangle rect = treeTbl.getTableHeader().getHeaderRect(8);
+					Rectangle rect = treeTbl.getTableHeader().getHeaderRect(treeTbl.getHierarchicalColumn());
 					filterPopup.show(treeTbl.getTableHeader(), rect.x - 1,
 							treeTbl.getTableHeader().getHeight() - 1);
 					filterBtn.requestFocus();
@@ -218,6 +227,14 @@ public class FilePanel extends JPanel {
 			};
 		});
 		treeTbl.getColumnModel().getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(testBtn));
+		treeTbl.setPreferredScrollableViewportSize(new Dimension(320, 200));
+		
+		treeTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent evt) {
+				refreshPlot();
+			}
+		});
 		
 //		treeTbl.getColumnModel().getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(component))
 		
@@ -232,8 +249,17 @@ public class FilePanel extends JPanel {
 		// wrap top panel in titled panel
 		JXTitledPanel topTtlPnl = PanelConfig.createTitledPanel("File input", topPnl);
 		
+		// bottom panel containing spectrum viewer
+		viewerPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		
+		// spectrum viewer
+		SpectrumPanel viewer = new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", "", 50, false, false, false);
+		
+		viewerPnl.add(viewer, CC.xy(2, 2));
+		
 		// wrap bottom panel in titled panel
-		JXTitledPanel bottomTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", new JTable());
+		JXTitledPanel bottomTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", viewerPnl);
+		bottomTtlPnl.setMinimumSize(new Dimension(300, 200));
 		
 		// add titled panels to split pane
 		String layoutDef = "(COLUMN top bottom)";
@@ -273,20 +299,24 @@ public class FilePanel extends JPanel {
 					for (File file : selFiles) {
 						ArrayList<Long> spectrumPositions = new ArrayList<Long>();
 						try {
-							MascotGenericFileReader reader = new MascotGenericFileReader(file, MascotGenericFileReader.NONE);
-//							reader.addPropertyChangeListener(new PropertyChangeListener() {
-//								@Override
-//								public void propertyChange(PropertyChangeEvent evt) {
-//									if (evt.getPropertyName() == "progress") {
-//										double progress = (Long) evt.getNewValue();
-//										filesPrg.setValue((int) (progress/maxProgress*100.0));
-//									} 
-//								}
-//							});
+							reader = new MascotGenericFileReader(file, MascotGenericFileReader.NONE);
+							
+							final long maxProgress = file.length();
+							
+							reader.addPropertyChangeListener(new PropertyChangeListener() {
+								@Override
+								public void propertyChange(PropertyChangeEvent evt) {
+									if (evt.getPropertyName() == "progress") {
+										double progress = (Long) evt.getNewValue();
+										// TODO: configurate progress stuff properly
+										clientFrame.getStatusBar().getCurrentProgressBar().setValue((int) (progress/maxProgress*100.0));
+									} 
+								}
+							});
 							reader.load();
 							ArrayList<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-							spectrumPositions.addAll(reader.getSpectrumPositions());
-//							clientFrame.specPosMap.put(file.getAbsolutePath(), spectrumPositions);
+							spectrumPositions.addAll(reader.getSpectrumPositions(false));
+							specPosMap.put(file.getAbsolutePath(), spectrumPositions);
 
 							CheckBoxTreeTableNode fileNode = new CheckBoxTreeTableNode(file, null) {
 								public Object getValueAt(int column) {
@@ -317,7 +347,11 @@ public class FilePanel extends JPanel {
 								
 								// append new spectrum node to file node
 								CheckBoxTreeTableNode spectrumNode = new CheckBoxTreeTableNode(
-										index, mgf.getTitle(), numPeaks, TIC, SNR);
+										index, mgf.getTitle(), numPeaks, TIC, SNR) {
+									public String toString() {
+										return "Spectrum " + super.toString();
+									}
+								};
 								treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
 								
 								TreePath treePath = spectrumNode.getPath();
@@ -348,6 +382,54 @@ public class FilePanel extends JPanel {
 				}
 			}
 		});
+			
+		clrBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				treeRoot.removeAllChildren();
+				specPosMap.clear();
+			}
+		});
+	}
+
+	/**
+	 * Method to refresh the spectrum viewer panel.
+	 */
+	protected void refreshPlot() {
+		TreePath path = treeTbl.getPathForRow(treeTbl.getSelectedRow());
+		CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) path.getLastPathComponent();
+		if (node.isLeaf() && (node.getParent() != null)) {
+			try {
+				MascotGenericFile mgf = getSpectrumForNode(node);
+				viewerPnl.removeAll();
+				SpectrumPanel viewer = new SpectrumPanel(mgf, false);
+				viewerPnl.add(viewer, CC.xy(2, 2));
+				viewerPnl.validate();
+			} catch (IOException e) {
+				JXErrorPane.showDialog(e);
+			}
+		}
+	}
+
+	/**
+	 * Returns a spectrum file encoded in the specified leaf node of the file panel's tree table.
+	 * @param spectrumNode The leaf node containing information pertaining to the whereabouts of its corresponding spectrum file.
+	 * @return The spectrum file.
+	 * @throws IOException
+	 */
+	public static MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException {
+		CheckBoxTreeTableNode fileNode = (CheckBoxTreeTableNode) spectrumNode.getParent();
+		String fileName = fileNode.toString();
+		if (!reader.getFilename().equals(fileName)) {
+			reader = new MascotGenericFileReader((File) fileNode.getValueAt(0));
+		}
+		String absPath = (String) fileNode.getValueAt(1);
+		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
+		long spectrumPosition = specPosMap.get(absPath).get(spectrumIndex);
+		
+		return reader.loadNthSpectrum(spectrumIndex, spectrumPosition);
+	}
+	
 //							selectionModel.removeSelectionPath(new TreePath(fileNode.getPath()));
 //							int index = 1;
 //							ArrayList<TreePath> toBeAdded = new ArrayList<TreePath>();
@@ -425,9 +507,6 @@ public class FilePanel extends JPanel {
 //				return 0;
 			
 //			}
-			
-		
-	}
 
 //	private void initComponents() {
 //
@@ -941,8 +1020,7 @@ public class FilePanel extends JPanel {
 	 * Method to return the file panel's tree component.
 	 * @return The panel's SpectrumTree.
 	 */
-	public CheckBoxTreeManager getCheckBoxTree() {
-		return null;
-//		return fileTree;
+	public CheckBoxTreeTable getCheckBoxTree() {
+		return treeTbl;
 	}
 }

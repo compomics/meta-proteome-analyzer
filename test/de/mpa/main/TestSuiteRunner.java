@@ -9,7 +9,6 @@ import de.mpa.algorithms.EuclideanDistanceTest;
 import de.mpa.algorithms.NormalizedDotProductTest;
 import de.mpa.algorithms.denovo.GappedPeptideCombinerTest;
 import de.mpa.algorithms.denovo.GappedPeptideTest;
-import de.mpa.analysis.ProteinAnalysisTest;
 import de.mpa.db.extractor.SpectrumExtractorTest;
 import de.mpa.db.extractor.SpectrumSpectrumMatchTest;
 import de.mpa.exporter.ExportTest;
@@ -25,7 +24,6 @@ import de.mpa.parser.mascot.xml.MascotXMLParserTest;
 					EuclideanDistanceTest.class,
 					NormalizedDotProductTest.class,
 					GappedPeptideCombinerTest.class, 
-					ProteinAnalysisTest.class,
 					SpectrumExtractorTest.class,
 					SpectrumSpectrumMatchTest.class, 
 					ExportTest.class, TestFastaLoader.class,
