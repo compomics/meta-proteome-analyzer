@@ -8,42 +8,143 @@ import java.util.Map;
  * This class holds the pIs of the amino acids.<br>
  * Source: <a href ="http://www.mhhe.com/physsci/chemistry/carey5e/Ch27/ch27-1-4-2.html">
  * http://www.mhhe.com/physsci/chemistry/carey5e/Ch27/ch27-1-4-2.html</a>
+ * source of here titled expasy list: http://old.nabble.com/Expasy-pI-calculation-algorythm-td31300241.html
  * 
  * @author heyer, kohrs
  */
 public class IsoelectricPoints {
 
-	// The pIs of all aminoacids
-	public static final double G = 5.97;	// Glycine
-	public static final double A = 6.00;	// Alanine
-	public static final double V = 5.96;	// Valine
-	public static final double L = 5.98;	// Leucine
-	public static final double I = 6.02;	// Isoleucine
-	public static final double M = 5.74;	// Methionine
-	public static final double P = 6.30;	// Proline
-	public static final double F = 5.48;	// Phenylalanine
-	public static final double W = 5.89;	// Tryptophane
-	public static final double N = 5.41;	// Asparagine
-	public static final double Q = 5.65;	// Gluatamine
-	public static final double S = 5.68;	// Serine
-	public static final double T = 5.60;	// Threonine
-	public static final double Y = 5.66;	// Tyrosine
-	public static final double C = 5.07;	// Cysteine
-	public static final double D = 2.77;	// Aspartic acid
-	public static final double E = 3.22;	// Glutamic acid
-	public static final double K = 9.74;	// Lysine
-	public static final double R = 10.76;	// Arginine
-	public static final double H = 7.59;	// Histidine
 	
-	public static final Map<Character, Double> pIMap;
+// Expasy	
+	public static final Map<Character, Double> pKaCtermMap;
 	static {
 		Map<Character, Double> map = new HashMap<Character, Double>(20);
-		map.put('A', A);	map.put('C', C);	map.put('D', D);	map.put('E', E);
-		map.put('F', F);	map.put('G', G);	map.put('H', H);	map.put('I', I);
-		map.put('K', K);	map.put('L', L);	map.put('M', M);	map.put('N', N);
-		map.put('P', P);	map.put('Q', Q);	map.put('R', R);	map.put('S', S);
-		map.put('T', T);	map.put('V', V);	map.put('W', W);	map.put('Y', Y);
-		pIMap = Collections.unmodifiableMap(map);
+		map.put('A', 3.55);
+		map.put('C', 3.55);
+		map.put('D', 4.55);
+		map.put('E', 4.75);
+		map.put('F', 3.55);
+		map.put('G', 3.55);
+		map.put('H', 3.55);
+		map.put('I', 3.55);
+		map.put('K', 3.55);
+		map.put('L', 3.55);
+		map.put('M', 3.55);
+		map.put('N', 3.55);
+		map.put('P', 3.55);
+		map.put('Q', 3.55);
+		map.put('R', 3.55);
+		map.put('S', 3.55);
+		map.put('T', 3.55);
+		map.put('V', 3.55);
+		map.put('W', 3.55);
+		map.put('Y', 3.55);
+		pKaCtermMap = Collections.unmodifiableMap(map);
 	}
-
+	
+	public static final Map<Character, Double> pKaNtermMap;
+	static {
+		Map<Character, Double> map = new HashMap<Character, Double>(20);
+		map.put('A', 7.59);
+		map.put('C', 7.50);
+		map.put('D', 7.50);
+		map.put('E', 7.50);
+		map.put('F', 7.50);
+		map.put('G', 7.50);
+		map.put('H', 7.50);
+		map.put('I', 7.50);
+		map.put('K', 7.50);
+		map.put('L', 7.50);
+		map.put('M', 7.50);
+		map.put('N', 7.50);
+		map.put('P', 8.36);
+		map.put('Q', 7.50);
+		map.put('R', 7.50);
+		map.put('S', 6.93);
+		map.put('T', 6.82);
+		map.put('V', 7.44);
+		map.put('W', 7.50);
+		map.put('Y', 7.55);
+		pKaNtermMap = Collections.unmodifiableMap(map);
+	}
+	
+	public static final Map<Character, Double> pKaSideChainMap;
+	static {
+		//FIXME
+		Map<Character, Double> map = new HashMap<Character, Double>(20);
+		map.put('C', 9.0);
+		map.put('D', 4.05);
+		map.put('E', 4.45);
+		map.put('H', 5.98);
+		map.put('K',10.00);
+		map.put('R',12.00);
+		map.put('Y',10.00);
+		pKaSideChainMap = Collections.unmodifiableMap(map);
+	}	
+	
+	
+	
+// Internet source	
+//	public static final Map<Character, Double> pKaCtermMap;
+//	static {
+//		Map<Character, Double> map = new HashMap<Character, Double>(20);
+//		map.put('A', 2.34);
+//		map.put('C', 1.96);
+//		map.put('D', 1.88);
+//		map.put('E', 2.19);
+//		map.put('F', 1.83);
+//		map.put('G', 2.34);
+//		map.put('H', 1.82);
+//		map.put('I', 2.36);
+//		map.put('K', 2.18);
+//		map.put('L', 2.36);
+//		map.put('M', 2.28);
+//		map.put('N', 2.02);
+//		map.put('P', 1.99);
+//		map.put('Q', 2.17);
+//		map.put('R', 2.17);
+//		map.put('S', 2.21);
+//		map.put('T', 2.09);
+//		map.put('V', 2.32);
+//		map.put('W', 2.83);
+//		map.put('Y', 2.20);
+//		pKaCtermMap = Collections.unmodifiableMap(map);
+//	}
+//	
+//	public static final Map<Character, Double> pKaNtermMap;
+//	static {
+//		Map<Character, Double> map = new HashMap<Character, Double>(20);
+//		map.put('A', 9.69);
+//		map.put('C', 8.18);
+//		map.put('D', 9.60);
+//		map.put('E', 9.67);
+//		map.put('F', 9.13);
+//		map.put('G', 9.60);
+//		map.put('H', 9.17);
+//		map.put('I', 9.60);
+//		map.put('K', 8.95);
+//		map.put('L', 9.60);
+//		map.put('M', 9.21);
+//		map.put('N', 8.80);
+//		map.put('P',10.60);
+//		map.put('Q', 9.13);
+//		map.put('R', 9.04);
+//		map.put('S', 9.15);
+//		map.put('T', 9.10);
+//		map.put('V', 9.62);
+//		map.put('W', 9.39);
+//		map.put('Y', 9.11);
+//		pKaNtermMap = Collections.unmodifiableMap(map);
+//	}
+//	
+//	public static final Map<Character, Double> pKaSideChainMap;
+//	static {
+//		Map<Character, Double> map = new HashMap<Character, Double>(20);
+//		map.put('D', 3.65);
+//		map.put('E', 4.25);
+//		map.put('K',10.53);
+//		map.put('R',12.48);
+//		map.put('H', 6.00);
+//		pKaSideChainMap = Collections.unmodifiableMap(map);
+//	}
 }

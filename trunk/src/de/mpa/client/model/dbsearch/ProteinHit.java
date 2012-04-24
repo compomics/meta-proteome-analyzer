@@ -30,6 +30,11 @@ public class ProteinHit {
 	private String description;
 	
 	/**
+	 * The species of the protein
+	 */
+	private String species;
+	
+	/**
 	 * Molecular protein weight in kDa.
 	 */
 	private double molWeight = -1.0;
@@ -97,6 +102,28 @@ public class ProteinHit {
 		return description;
 	}
 	
+	/**
+	 * Sets the description 
+	 * @param description
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	/**
+	 * Returns the species of the protein
+	 * @return species
+	 */
+	public String getSpecies() {
+		return species;
+	}
+	
+	/**
+	 * Sets the species of the protein
+	 * @param species
+	 */
+	public void setSpecies(String species) {
+		this.species = species;
+	}
 	/**
 	 * Returns the molecular weight.
 	 * @return The molecular weight.
