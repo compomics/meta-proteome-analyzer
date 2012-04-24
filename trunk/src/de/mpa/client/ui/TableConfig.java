@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -106,46 +105,69 @@ public class TableConfig {
 	 * Convenience method to create a bar chart-like highlighter for a specific table column.
 	 * 
 	 * @param column The table column.
+	 * @param maxValue 
+	 * @param baseline
 	 * @param startColor The gradient's start color.
 	 * @param endColor The gradient's end color.
 	 * @return A painter highlighter drawing a gradient next to the cell contents.
 	 */
 	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, Color startColor, Color endColor) {
-		return createGradientHighlighter(column, maxValue, baseline, startColor, endColor, new DecimalFormat());
+		return createGradientHighlighter(column, maxValue, baseline, SwingConstants.HORIZONTAL, startColor, endColor, new DecimalFormat());
+	}
+	
+	/**
+	 * Convenience method to create a bar chart-like highlighter for a specific table column.
+	 * 
+	 * @param column
+	 * @param maxValue
+	 * @param baseline
+	 * @param orientation
+	 * @param startColor
+	 * @param endColor
+	 * @return A painter highlighter drawing a gradient next to the cell contents.
+	 */
+	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, int orientation, Color startColor, Color endColor) {
+		return createGradientHighlighter(column, maxValue, baseline, orientation, startColor, endColor, new DecimalFormat());
 	}
 	
 	/**
 	 * Convenience method to create a bar chart-like highlighter for a specific table column.
 	 * 
 	 * @param column The table column.
+	 * @param maxValue
+	 * @param baseline
+	 * @param orientation
 	 * @param startColor The gradient's start color.
 	 * @param endColor The gradient's end color.
 	 * @param formatter The number formatter for the column cells.
 	 * @return A painter highlighter drawing a gradient next to the cell contents.
 	 */
-	public static Highlighter createGradientHighlighter(final int column, final double maxValue, final int baseline, Color startColor, Color endColor, final NumberFormat formatter) {
+	public static Highlighter createGradientHighlighter(final int column, final double maxValue, final int baseline, int orientation, Color startColor, Color endColor, final NumberFormat formatter) {
 		HighlightPredicate predicate = new HighlightPredicate() {
 			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-				return (adapter.column == column);
+				return (adapter.column == adapter.convertColumnIndexToView(column));
 			}
 		};
 		// TODO: parametrize some settings, e.g. horizontal alignment, or create proper sub-class for better control
+		final int x = (orientation == SwingConstants.HORIZONTAL) ? 1 : 0;
+		final int y = (orientation == SwingConstants.VERTICAL) ? 1 : 0;
 		PainterHighlighter ph = new PainterHighlighter(predicate, new MattePainter(new GradientPaint(
-				0, 0, startColor, 1, 0, endColor), true) {
+				0, y, startColor, x, 0, endColor), true) {
 			protected void doPaint(Graphics2D g, Object component, int width, int height) {
 				JRendererLabel label = (JRendererLabel) component;
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
 				double value = Double.valueOf(label.getText());
 				String text = formatter.format(value);
 				label.setText(text);
-//				FontMetrics fm = g.getFontMetrics();
-				int xOffset = baseline + 4;
+				int xOffset = (baseline > 0) ? baseline + 4 : 2;
 				label.setBounds(0, 0, baseline, height);
 				width -= xOffset + 2;
-				int clipWidth = ((width < 0) ? 0 : (int) (value/maxValue * width));
-				g.translate(xOffset, 2);
-				g.setClip(0, 0, clipWidth, height);
-				super.doPaint(g, component, width, height-4);
+				int clipWidth = ((width < 0) ? 0 : (x == 0) ? width : (int) (value/maxValue * width));
+				int clipHeight = (y == 0) ? (height - 4) : (int) (value/maxValue * (height - 4));
+				int yOffset = height - clipHeight - 2;
+				g.translate(xOffset, 0);
+				g.setClip(0, yOffset, clipWidth, clipHeight);
+				super.doPaint(g, component, width, height);
 			}
 		});
 		return ph;
@@ -245,7 +267,7 @@ public class TableConfig {
 				JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
 			if (value instanceof Number) {
-				formatter.format((Number) value);
+				value = formatter.format((Number) value);
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column );
 		}

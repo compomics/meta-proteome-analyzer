@@ -45,6 +45,8 @@ import de.mpa.client.settings.DenovoSearchSettings;
 import de.mpa.client.settings.SearchSettings;
 import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeManager;
+import de.mpa.client.ui.CheckBoxTreeSelectionModel;
+import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 
@@ -205,7 +207,6 @@ public class SettingsPanel extends JPanel {
 				Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
 
 		processBtn.addActionListener(new ActionListener() {			
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				new ProcessWorker().execute();
 			}
@@ -249,9 +250,9 @@ public class SettingsPanel extends JPanel {
 		protected Object doInBackground() {
 			
 			// register progress listener
-			CheckBoxTreeManager checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
+			CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
 			totalProgress = 0;
-			final int maxProgress = checkBoxTree.getSelectionModel().getSelectionCount();
+			final int maxProgress = (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount();
 			final long startTime = System.currentTimeMillis();
 			PropertyChangeListener listener = new PropertyChangeListener() {
 				@Override
@@ -303,13 +304,12 @@ public class SettingsPanel extends JPanel {
 				
 				SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
 				
-				//client.runSearches(chunkedFiles, dbss);
 				client.runSearches(chunkedFiles, settings);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
-			// deregister progress listener
+			// de-register progress listener
 			client.removePropertyChangeListener(listener);
 			
 			return 0;
