@@ -139,7 +139,7 @@ public class DeNovoSearchPanel extends JPanel {
 	private CheckBoxTreeTableNode buildPTMtree() {
 		
 		CheckBoxTreeTableNode ptmRoot = new CheckBoxTreeTableNode();
-
+		
 		// internal PTMs
 		CheckBoxTreeTableNode internal = new CheckBoxTreeTableNode("Internal");
 		

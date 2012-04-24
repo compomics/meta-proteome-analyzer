@@ -65,19 +65,6 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 //				}
 			}
 		});
-//		this.addMouseMotionListener(new MouseMotionAdapter() {
-//			public void mouseMoved(MouseEvent me) {
-//				forwardEvent(me);
-//			}
-//			public void mouseDragged(MouseEvent me) {
-//				forwardEvent(me);
-//			}
-//			private void forwardEvent(MouseEvent me) {
-////				if (comp.getBounds().contains(me.getPoint())) {
-//					comp.dispatchEvent(SwingUtilities.convertMouseEvent(panel, me, comp));
-////				}
-//			}
-//		});
 	}
 	
 	@Override

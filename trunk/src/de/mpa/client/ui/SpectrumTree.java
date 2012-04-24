@@ -63,20 +63,20 @@ public class SpectrumTree extends JTree implements TreeSelectionListener {
 	}
 
 	public MascotGenericFile getSpectrumAt(DefaultMutableTreeNode node) throws IOException {
-		if (!node.isRoot() && node.isLeaf() && !clientFrame.specPosMap.isEmpty()) {
-			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-			File mgfFile = (File) parent.getUserObject();
-			if (!mgfFile.equals(this.lastSelectedFile)) {	// check whether new file has been selected
-				this.lastSelectedFile = mgfFile;			// and open new reader if true
-				if (this.reader != null) {
-					this.reader.close();
-				}
-				this.reader = new MascotGenericFileReader(mgfFile, MascotGenericFileReader.NONE);
-			}
-			int index = (Integer) node.getUserObject();
-			long pos = clientFrame.specPosMap.get(mgfFile.getAbsolutePath()).get(index-1);
-				return reader.loadNthSpectrum(index, pos);
-		}
+//		if (!node.isRoot() && node.isLeaf() && !clientFrame.specPosMap.isEmpty()) {
+//			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+//			File mgfFile = (File) parent.getUserObject();
+//			if (!mgfFile.equals(this.lastSelectedFile)) {	// check whether new file has been selected
+//				this.lastSelectedFile = mgfFile;			// and open new reader if true
+//				if (this.reader != null) {
+//					this.reader.close();
+//				}
+//				this.reader = new MascotGenericFileReader(mgfFile, MascotGenericFileReader.NONE);
+//			}
+//			int index = (Integer) node.getUserObject();
+//			long pos = clientFrame.specPosMap.get(mgfFile.getAbsolutePath()).get(index-1);
+//				return reader.loadNthSpectrum(index, pos);
+//		}
 		return null;
 	}
 
@@ -97,7 +97,7 @@ public class SpectrumTree extends JTree implements TreeSelectionListener {
 
 		switch (treeType) {
 		case FILE_SELECT:
-			clientFrame.getFilePanel().refreshFileTable(mgf, node);
+//			clientFrame.getFilePanel().refreshFileTable(mgf, node);
 			break;
 		case RESULT_LIST:
 			clientFrame.refreshResultsTables(mgf);

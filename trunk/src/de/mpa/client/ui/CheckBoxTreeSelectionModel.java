@@ -187,6 +187,11 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		}
 		return true;
 	}
+	
+//	@Override
+//	public void removeSelectionPath(TreePath path) {
+//		removeSelectionPaths(new TreePath[] { path });
+//	}
 
     @Override
 	public void removeSelectionPaths(TreePath[] paths) {
@@ -281,7 +286,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
      * @return <code>true</code> if the path is fixed, false otherwise.
      */
 	private boolean isPathFixed(TreePath path) {
-		CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) path.getLastPathComponent();
+		CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) (path.getLastPathComponent());
 		return node.isFixed();
 	}
 	

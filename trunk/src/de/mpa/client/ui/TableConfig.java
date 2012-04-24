@@ -131,7 +131,7 @@ public class TableConfig {
 		};
 		// TODO: parametrize some settings, e.g. horizontal alignment, or create proper sub-class for better control
 		PainterHighlighter ph = new PainterHighlighter(predicate, new MattePainter(new GradientPaint(
-				new Point(0, 0), startColor, new Point(1, 0), endColor), true) {
+				0, 0, startColor, 1, 0, endColor), true) {
 			protected void doPaint(Graphics2D g, Object component, int width, int height) {
 				JRendererLabel label = (JRendererLabel) component;
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -157,7 +157,7 @@ public class TableConfig {
 	 * @param weights The weight array.
 	 */
 	public static void setColumnWidths(JTable table, double[] weights) {
-		setColumnWidths(table, weights, 1000);
+		setColumnWidths(table, weights, 800);
 	}
 	
 	/**

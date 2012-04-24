@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -56,7 +55,6 @@ import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTableHeader;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -80,6 +78,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
@@ -282,6 +281,17 @@ public class DbSearchResultPanel extends JPanel{
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
 		
+		JButton yatb = new JButton("hrmpf");
+		yatb.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ComponentHeader ch = (ComponentHeader) proteinTbl.getTableHeader();
+				System.out.println(((ComponentHeaderRenderer) proteinTbl.getColumnModel().getColumn(8).getHeaderRenderer()).getPanel());
+				ch.repaint();
+			}
+		});
+		specTtlPnl.setRightDecoration(yatb);
+		
+		// set up multi split pane
 		String layoutDef =
 		    "(COLUMN protein (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) plot))";
 		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
@@ -302,7 +312,7 @@ public class DbSearchResultPanel extends JPanel{
 	 */
 	private void setupProteinTableProperties(){
 		// Protein table
-		proteinTbl = new JXTable(new DefaultTableModel() {
+		final DefaultTableModel proteinTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {
 					" ",
@@ -336,12 +346,16 @@ public class DbSearchResultPanel extends JPanel{
 					return String.class;
 				}
 			}
-		});
+		};
+		proteinTbl = new JXTable(proteinTblMdl);
 		
 		TableConfig.setColumnWidths(proteinTbl, new double[] { 2, 6, 15.5, 7, 5.5, 3, 8, 8, 5.5, 6 });
 		TableConfig.setColumnMinWidths(proteinTbl, 1);
 		
 		final TableColumnModel tcm = proteinTbl.getColumnModel();
+		
+		// apply component header capabilities
+		proteinTbl.setTableHeader(new ComponentHeader(tcm));
 		
 		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		
@@ -379,7 +393,8 @@ public class DbSearchResultPanel extends JPanel{
 		testBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (testBtn.isSelected()) {
-					Rectangle rect = proteinTbl.getTableHeader().getHeaderRect(8);
+					Rectangle rect = proteinTbl.getTableHeader().getHeaderRect(
+							proteinTbl.convertColumnIndexToView(8));
 					testPopup.show(proteinTbl.getTableHeader(), rect.x - 1,
 							proteinTbl.getTableHeader().getHeight() - 1);
 					testTtf.requestFocus();
@@ -408,42 +423,6 @@ public class DbSearchResultPanel extends JPanel{
 			};
 		});
 		tcm.getColumn(8).setHeaderRenderer(new ComponentHeaderRenderer(testBtn));
-
-		// hacky mouse event interception to avoid row sorting when hitting table header component
-		proteinTbl.setTableHeader(new JXTableHeader(tcm) {
-			protected void processMouseEvent(MouseEvent me) {
-				if (me.getID() == MouseEvent.MOUSE_PRESSED ||
-						me.getID() == MouseEvent.MOUSE_RELEASED ||
-						me.getID() == MouseEvent.MOUSE_CLICKED) {
-					int col = tcm.getColumnIndexAtX(me.getX());
-					if (col != -1) {
-						if (tcm.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
-							ComponentHeaderRenderer chr = (ComponentHeaderRenderer) tcm.getColumn(col).getHeaderRenderer();
-							Rectangle headerRect = proteinTbl.getTableHeader().getHeaderRect(col);
-							Rectangle compRect = chr.getComponent().getBounds();
-							compRect.x += headerRect.x;
-							if (compRect.contains(me.getPoint())) {
-								chr.dispatchEvent(new MouseEvent(
-										me.getComponent(), me.getID(), me.getWhen(), me.getModifiers(),
-										me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
-										me.getClickCount(), me.isPopupTrigger(), me.getButton()));
-								proteinTbl.getTableHeader().repaint();
-								return;
-							}
-						}
-					}
-				}
-				super.processMouseEvent(me);
-			}
-			@Override
-			protected void processMouseMotionEvent(MouseEvent me) {
-				// TODO Auto-generated method stub
-				if (me.getID() == MouseEvent.MOUSE_RELEASED) {
-					System.out.println("herp");
-				}
-				super.processMouseMotionEvent(me);
-			}
-		});
 		
 		FontMetrics fm = getFontMetrics(chartFont);
 		String pattern = "0.000";
