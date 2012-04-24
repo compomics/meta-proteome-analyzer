@@ -114,7 +114,7 @@ public class ClientFrame extends JFrame {
 	private boolean connectedToServer = false;
 	public  JXTable libTbl;
 	private Map<String, ArrayList<RankedLibrarySpectrum>> resultMap;
-//	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
+	public Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>(1);
 	public MultiPlotPanel mPlot;
 	private ArrayList<RankedLibrarySpectrum> resultList;
 	private SpectrumTree queryTree;
@@ -177,7 +177,7 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Logging", loggingIcon, logPnl);
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 		
-		tabPane.setEnabledAt(6, false);
+//		tabPane.setEnabledAt(6, false);
 
 		cp.add(tabPane);
 		

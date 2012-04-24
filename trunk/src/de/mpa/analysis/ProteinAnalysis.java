@@ -14,7 +14,7 @@ import de.mpa.util.Formatter;
  * Helper class containing various protein-specific calculations.
  */
 public class ProteinAnalysis {
-	
+
 	/**
 	 * Calculates the molecular weight of a protein.
 	 * @param The protein hit whose weight shall be calculated.
@@ -22,13 +22,13 @@ public class ProteinAnalysis {
 	public static double calculateMolecularWeight(ProteinHit proteinHit) {
 		// Get the masses with the amino acid masses.
 		Map<String, Double> masses = Masses.getInstance();
-		
+
 		// Start with the N-terminal mass
 		double molWeight = Masses.N_term;
-		
+
 		// Get the protein sequence.
 		String sequence = proteinHit.getSequence();
-		
+
 		// Iterate the protein sequence and add the molecular masses.
 		for (char letter : sequence.toCharArray()) {
 			// Skip the wildcard amino acid.
@@ -36,16 +36,16 @@ public class ProteinAnalysis {
 				molWeight += masses.get(String.valueOf(letter));
 			}
 		}
-	    
-	    // Add the C-terminal mass.
-	    molWeight += Masses.C_term;
-	    
-	    // Get the weight in kDa
-	    molWeight = Formatter.roundDouble((molWeight / 1000.0), 3);
-	   
-	    return molWeight;
+
+		// Add the C-terminal mass.
+		molWeight += Masses.C_term;
+
+		// Get the weight in kDa
+		molWeight = Formatter.roundDouble((molWeight / 1000.0), 3);
+
+		return molWeight;
 	}
-	
+
 	/**
 	 * Calculates the sequence coverage of a protein hit with respect to its containing peptides. 
 	 * Multiple occurences of a single peptide will be counted as a single occurence.
@@ -54,7 +54,7 @@ public class ProteinAnalysis {
 	public static double calculateSequenceCoverage(ProteinHit proteinHit) {
 		return calculateSequenceCoverage(proteinHit, true);
 	}
-	
+
 	/**
 	 * Calculates the sequence coverage of a protein hit with respect to its containing peptides.
 	 * @param proteinHit The protein hit whose coverage shall be calculated.
@@ -108,10 +108,10 @@ public class ProteinAnalysis {
 			}
 		}
 		double coverage = ((double) nCoveredAA / (double) sequence.length()) * 100.0 ;
-		
+
 		return Formatter.roundDouble(coverage, 4);
 	}
-	
+
 	/**
 	 * Calculates the isoelectric point of the specified protein.
 	 * @param proteinHit The protein.
@@ -120,8 +120,8 @@ public class ProteinAnalysis {
 	public static double calculateIsoelectricPoint(ProteinHit proteinHit) {
 		// Get pKas from amino acids
 		char[] aa = proteinHit.getSequence().toCharArray();
-		ArrayList<Double> pKaListAcidicNeg = new ArrayList<Double>();
-		ArrayList<Double> pKaListBasicPos = new ArrayList<Double>();
+		List<Double> pKaListAcidicNeg = new ArrayList<Double>();
+		List<Double> pKaListBasicPos = new ArrayList<Double>();
 		Double pKa;
 		for (int i = 0; i < aa.length; i++) {
 			if (i == 0){
@@ -146,17 +146,16 @@ public class ProteinAnalysis {
 				}
 			}
 		}
-		
 		// calculate charge of protein
 		double pHMin = 0.0;
 		double pHMax = 14.0;
 		double pH = 0.0;
-		int loops = 2000;
-		double epsilon = 0.0001;
+		int loops = 100;
+		double epsilon = 0.01;
 		double netCharge = 1.0;
 		int actualLoop = 1;
-		
-		// Search for min charge after Newton
+
+		// Search for min charge according to Newton
 		while (((pHMax - pHMin) > epsilon) && (actualLoop < loops)) {
 			// Iteration steps
 			actualLoop++;
@@ -182,10 +181,10 @@ public class ProteinAnalysis {
 				pHMax = pH;
 			}
 		}		
-		System.out.println("pI: " + pH);
+//		System.out.println("pI: " + pH);
 		return pH ;
 	}
-	
+
 	/**
 	 * Calculates label-free quantification measures.
 	 * @param qm The quantification method object.
@@ -196,7 +195,7 @@ public class ProteinAnalysis {
 		qm.calculate(params);
 		return qm.getResult();
 	}
-	
-	
-	
+
+
+
 }
