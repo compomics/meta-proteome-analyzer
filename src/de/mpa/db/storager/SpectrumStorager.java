@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Searchspectrum;
@@ -128,16 +129,24 @@ public class SpectrumStorager extends BasicStorager {
                 data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(mgf.getCharge()));
                 
                 // The m/z array
-				Double[] mzDoubles = mgf.getPeaks().keySet().toArray(new Double[0]);
+                TreeMap<Double, Double> peakMap = new TreeMap<Double, Double>(mgf.getPeaks());
+				Double[] mzDoubles = peakMap.keySet().toArray(new Double[0]);
                 data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(mzDoubles));
                 
                 // The intensity array
-				Double[] inDoubles = mgf.getPeaks().values().toArray(new Double[0]);
+				Double[] inDoubles = peakMap.values().toArray(new Double[0]);
                 data.put(Spectrum.INTARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
                 
                 // The charge array
-				Integer[] chInts = mgf.getCharges().values().toArray(new Integer[0]);
-                data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
+                TreeMap<Double, Integer> chargeMap = new TreeMap<Double, Integer>(mgf.getCharges());
+                for (Double mz : peakMap.keySet()) {
+					if (!chargeMap.containsKey(mz)) {
+						chargeMap.put(mz, 0);
+					}
+				}
+				Integer[] chInts = chargeMap.values().toArray(new Integer[0]);
+//				Integer[] chInts = mgf.getCharges().values().toArray(new Integer[0]);
+				data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
                 
                 // The total intensity.
                 data.put(Spectrum.TOTAL_INT, mgf.getTotalIntensity());

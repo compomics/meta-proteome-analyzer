@@ -1,10 +1,12 @@
 package de.mpa.client.ui;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Insets;
 
+import javax.swing.JComponent;
 import javax.swing.SizeRequirements;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -56,30 +58,60 @@ public class PanelConfig {
 		UIManager.put("JXTitledPanel.leftDecorationInsets", new Insets(0, 6, 0, 0));
 		
 		ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
-		ttlPainter = new MattePainter(new GradientPaint(0, 0, new Color(166, 202, 240), 0, 20, new Color(107, 147, 193)));
+		ttlPainter = new MattePainter(new GradientPaint(
+				0, 0, new Color(166, 202, 240), 0, 1, new Color(107, 147, 193)), true);
 		ttlBorder = UIManager.getBorder("TitledBorder.border");
 		ttlForeground = dummyPnl.getTitleForeground();
 	}
 
 	public static Font getTitleFont() {
-		if(ttlFont == null) init();
+		if (ttlFont == null) init();
 		return ttlFont;
 	}
-	
 
 	public static Painter getTitlePainter() {
-		if(ttlPainter == null) init();
+		if (ttlPainter == null) init();
 		return ttlPainter;
 	}
 
 	public static Border getTitleBorder() {
-		if(ttlBorder == null) init();
+		if (ttlBorder == null) init();
 		return ttlBorder;
 	}
 
 	public static Color getTitleForeground() {
-		if(ttlForeground == null) init();
+		if (ttlForeground == null) init();
 		return ttlForeground;
+	}
+	
+	/**
+	 * Factory method to create a pre-formatted titled panel.
+	 * @param title The title string to be displayed.
+	 * @param content The container around which the panel shall be wrapped.
+	 * @return A pre-formatted titled panel.
+	 */
+	public static JXTitledPanel createTitledPanel(String title, Container content) {
+		return createTitledPanel(title, content, null, null);
+	}
+	
+	/**
+	 * Factory method to create a pre-formatted titled panel with decoration components.
+	 * @param title The title string to be displayed.
+	 * @param content The container around which the panel shall be wrapped.
+	 * @param leftDecoration The decoration component to be displayed in the top left corner.
+	 * @param rightDecoration The decoration component to be displayed in the top right corner.
+	 * @return A pre-formatted titled panel.
+	 */
+	public static JXTitledPanel createTitledPanel(String title, Container content,
+			JComponent leftDecoration, JComponent rightDecoration) {
+		JXTitledPanel panel = new JXTitledPanel(title, content);
+		panel.setLeftDecoration(leftDecoration);
+		panel.setRightDecoration(rightDecoration);
+		panel.setTitleFont(getTitleFont());
+		panel.setTitlePainter(getTitlePainter());
+		panel.setBorder(getTitleBorder());
+		panel.setTitleForeground(getTitleForeground());
+		return panel;
 	}
 	
 	public static EditorKit getLetterWrapEditorKit() {

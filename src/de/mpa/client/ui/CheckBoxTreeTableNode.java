@@ -13,22 +13,75 @@ import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 
 	/**
+	 * The node's user objects.
+	 */
+	protected transient Object[] userObjects;
+	
+	/**
 	 * The flag determining whether the selection state may be changed.
 	 */
 	private boolean fixed = false;
 	
 	public CheckBoxTreeTableNode() {
-		super();
+		this(new Object());
+	}
+	
+	/**
+	 * Class constructor accepting one or more objects corresponding to the node's columns.
+	 * @param userObjects The objects to store.
+	 */
+	public CheckBoxTreeTableNode(Object... userObjects) {
+		super(userObjects[0]);
+		this.userObjects = userObjects;
 	}
 
-	public CheckBoxTreeTableNode(Object obj) {
-		super(obj);
+	/**
+	 * Class constructor accepting a single user object and for setting the node's fixed state flag, 
+	 * which determines whether the node's selection state may be changed.
+	 * @param userObject The object to store.
+	 * @param fixed The node's fixed state flag. <code>true</code> if the selection may be changed, 
+	 * <code>false</code> otherwise 
+	 */
+	public CheckBoxTreeTableNode(Object userObject, boolean fixed) {
+		this(userObject);
+		this.fixed = fixed;
 	}
 	
+	@Override
+	public Object getUserObject() {
+		return this.getUserObject(0);
+	}
+
+	/**
+	 * Returns this node's i-th user object. 
+	 * @param i The index of the user object to retrieve.
+	 * @return The i-th object stored in this node.
+	 */
+	private Object getUserObject(int i) {
+		return this.userObjects[i];
+	}
+
+	/**
+	 * Sets the user objects stored in this node. 
+	 * @param userObjects The objects to store.
+	 */
+	public void setUserObjects(Object... userObjects) {
+		this.userObjects = userObjects;
+	}
 	
-	public CheckBoxTreeTableNode(Object obj, boolean fixed) {
-		super(obj);
-		this.fixed = fixed;
+	@Override
+	public int getColumnCount() {
+		return this.userObjects.length;
+	}
+	
+	@Override
+	public Object getValueAt(int column) {
+		return this.userObjects[column];
+	}
+	
+	@Override
+	public void setValueAt(Object aValue, int column) {
+		this.userObjects[column] = aValue;
 	}
 	
 	public boolean isFixed() {
@@ -39,8 +92,17 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 		this.fixed = fixed;
 	}
 	
-	// starting here everything was copied from CheckBoxTreeTableNode
+	// starting here everything was copied from DefaultMutableTreeNode
 	// TODO: optimize finding all leaves (see depthFirstEnumeration)
+
+	/**
+	 * Removes all child nodes from this node.
+	 */
+	public void removeAllChildren() {
+		for (int i = getChildCount()-1; i >= 0; i--) {
+			remove(i);
+		}
+	}
 
     /**
      * Returns true if <code>aNode</code> is a child of this node.  If

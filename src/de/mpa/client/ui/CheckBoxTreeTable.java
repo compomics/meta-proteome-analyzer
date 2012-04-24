@@ -200,21 +200,22 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		treeTable.setColumnControlVisible(true);
 		treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		Color backCol = UIManager.getColor("Table.background");
-		float hsbVals[] = Color.RGBtoHSB(
+//		Color backCol = UIManager.getColor("Table.background");
+//		float hsbVals[] = Color.RGBtoHSB(
+//				backCol.getRed(), backCol.getGreen(),
+//				backCol.getBlue(), null);
+//		Color altCol = Color.getHSBColor(
+//				hsbVals[0], hsbVals[1], 0.95f * hsbVals[2]);
+//		enabledHighlighter = HighlighterFactory.createSimpleStriping(altCol);
+		enabledHighlighter = TableConfig.getSimpleStriping();
+		treeTable.addHighlighter(enabledHighlighter);
+		
+		Color backCol = UIManager.getColor("Panel.background");
+		float[] hsbVals = Color.RGBtoHSB(
 				backCol.getRed(), backCol.getGreen(),
 				backCol.getBlue(), null);
 		Color altCol = Color.getHSBColor(
-				hsbVals[0], hsbVals[1], 0.975f * hsbVals[2]);
-		enabledHighlighter = HighlighterFactory.createSimpleStriping(altCol);
-		treeTable.addHighlighter(enabledHighlighter);
-		
-		backCol = UIManager.getColor("Panel.background");
-		hsbVals = Color.RGBtoHSB(
-				backCol.getRed(), backCol.getGreen(),
-				backCol.getBlue(), null);
-		altCol = Color.getHSBColor(
-				hsbVals[0], hsbVals[1], 0.975f * hsbVals[2]);
+				hsbVals[0], hsbVals[1], 0.95f * hsbVals[2]);
 		disabledHighlighter = HighlighterFactory.createAlternateStriping(backCol, altCol);
 	}
 	

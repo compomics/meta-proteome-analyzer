@@ -186,6 +186,36 @@ public class SpectrumExtractor {
 		
 		return res;
 	}
+	
+	public List<SpectralSearchCandidate> getCandidates(List<Interval> precIntervals) throws SQLException {
+		ArrayList<SpectralSearchCandidate> res = new ArrayList<SpectralSearchCandidate>(precIntervals.size());
+		
+		// construct SQL statement
+		StringBuilder sb = new StringBuilder("SELECT libspectrumid, title, precursor_mz, precursor_charge, mzarray, intarray, fk_peptideid, sequence FROM spectrum " +
+				   							 "INNER JOIN spec2pep ON spectrum.spectrumid = spec2pep.fk_spectrumid " + 
+				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
+				   							 "INNER JOIN libspectrum ON spectrum.spectrumid = libspectrum.fk_spectrumid " +
+				   							 "WHERE ");
+		for (Interval precInterval : precIntervals) {
+			sb.append("spectrum.precursor_mz BETWEEN ");
+			sb.append(precInterval.getLeftBorder());
+			sb.append(" AND ");
+			sb.append(precInterval.getRightBorder());
+			sb.append(" OR ");
+		}
+		for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
+		
+		// execute SQL statement and build result list
+		PreparedStatement ps = conn.prepareStatement(sb.toString());
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            res.add(new SpectralSearchCandidate(rs));
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
+	}
 
 	/**
 	 * Returns the list of spectral search candidates that belong to a specific experiment.
