@@ -35,12 +35,11 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 		// @param nMax                  the maximal size for a peptide
 		ArrayList<String> insilicoPeptides = new ArrayList<String>();
 		insilicoPeptides= trypsin.digest(proteinHit.getSequence(), 0, 4, 1000);
-
+		
 		double pAI;
 		double peptideObserved = proteinHit.getPeptideCount();
 		//TODO Control PeptideCount to misscleavages
 		double peptideObservable = insilicoPeptides.size();
-
 		// Calculates the PAI
 		pAI = peptideObserved / peptideObservable;
 

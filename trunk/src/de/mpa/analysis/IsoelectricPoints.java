@@ -48,14 +48,14 @@ public class IsoelectricPoints {
 		map.put('A', 7.59);
 		map.put('C', 7.50);
 		map.put('D', 7.50);
-		map.put('E', 7.50);
+		map.put('E', 7.70);
 		map.put('F', 7.50);
 		map.put('G', 7.50);
 		map.put('H', 7.50);
 		map.put('I', 7.50);
 		map.put('K', 7.50);
 		map.put('L', 7.50);
-		map.put('M', 7.50);
+		map.put('M', 7.00);
 		map.put('N', 7.50);
 		map.put('P', 8.36);
 		map.put('Q', 7.50);
@@ -64,7 +64,7 @@ public class IsoelectricPoints {
 		map.put('T', 6.82);
 		map.put('V', 7.44);
 		map.put('W', 7.50);
-		map.put('Y', 7.55);
+		map.put('Y', 7.50);
 		pKaNtermMap = Collections.unmodifiableMap(map);
 	}
 	

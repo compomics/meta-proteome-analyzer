@@ -1,6 +1,5 @@
 package de.mpa.analysis;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,14 +60,18 @@ public class ProteinAnalysis {
 	 * @param hitsCoveredOnlyOnce Flag determining whether peptides are counted only once in a protein with repeats.
 	 */
 	public static double calculateSequenceCoverage(ProteinHit proteinHit, boolean hitsCoveredOnlyOnce) {
-		//TODO problem sequence coverage of proteins with PTMs is 0
 		// The Protein sequence.
 		String sequence = proteinHit.getSequence();
 		boolean[] foundAA = new boolean[sequence.length()];
 		List<PeptideHit> peptides = proteinHit.getPeptideHitList();
-
+		String pSequence;
 		// Iterate the peptides in the protein.
 		for (PeptideHit peptideHit : peptides) {
+			// replacement of PTMs for the calculation of the sequence coverage
+			//			System.out.println(peptideHit.getSequence());
+			pSequence = peptideHit.getSequence().replaceAll("[^A-Z]", "");
+			//			System.out.println(pSequence);
+			peptideHit.setSequence(pSequence);
 			// Indices for the pattern
 			int startIndex = 0;
 			int endIndex = 0;
@@ -116,6 +119,7 @@ public class ProteinAnalysis {
 	 * Calculates the isoelectric point of the specified protein.
 	 * @param proteinHit The protein.
 	 * @return The isoelectric point.
+	 * //http://scansite.mit.edu/cgi-bin/calcpi pI
 	 */
 	public static double calculateIsoelectricPoint(ProteinHit proteinHit) {
 		// Get pKas from amino acids
@@ -129,73 +133,80 @@ public class ProteinAnalysis {
 				if(pKa != null) {
 					pKaListBasicPos.add(pKa);
 				}
-			} else if (i == aa.length - 1) {
+			}
+			
+			if (i == aa.length - 1) {
 				pKa = IsoelectricPoints.pKaCtermMap.get(aa[i]);
 				if (pKa != null) {
 					pKaListAcidicNeg.add(pKa);
 				}
-			} else {
-				pKa = IsoelectricPoints.pKaSideChainMap.get(aa[i]);
-				if (pKa != null) {
-					if ((aa[i] == 'D') || (aa[i] == 'E') || (aa[i] == 'C') || (aa[i] == 'Y')) {
-						pKaListAcidicNeg.add(pKa);
-					}
-					if ((aa[i] == 'H') || (aa[i] == 'K') || (aa[i] == 'R')) {
-						pKaListBasicPos.add(pKa);
-					}
+			}
+
+			pKa = IsoelectricPoints.pKaSideChainMap.get(aa[i]);
+			if (pKa != null) {
+				if ((aa[i] == 'D') || (aa[i] == 'E') || (aa[i] == 'C') || (aa[i] == 'Y')) 
+				{
+					pKaListAcidicNeg.add(pKa);
+				}
+				if ((aa[i] == 'H') || (aa[i] == 'K') || (aa[i] == 'R')) {
+					pKaListBasicPos.add(pKa);
 				}
 			}
 		}
-		// calculate charge of protein
-		double pHMin = 0.0;
-		double pHMax = 14.0;
-		double pH = 0.0;
-		int loops = 100;
-		double epsilon = 0.01;
-		double netCharge = 1.0;
-		int actualLoop = 1;
+			// calculate charge of protein
+			double pHMin = 0.0;
+			double pHMax = 14.0;
+			double pH = 0.0;
+			int loops = 2000;
+			double epsilon = 0.0001;
+			double netCharge = 1.0;
+			int actualLoop = 1;
 
-		// Search for min charge according to Newton
-		while (((pHMax - pHMin) > epsilon) && (actualLoop < loops)) {
-			// Iteration steps
-			actualLoop++;
-			// set pH
-			pH = pHMin + (pHMax - pHMin) / 2;
+			// Search for min charge according to Newton
+			while (((pHMax - pHMin) > epsilon) && (actualLoop < loops)) {
+				// Iteration steps
+				actualLoop++;
+				// set pH
+				pH = pHMin + (pHMax - pHMin) / 2;
+				double chargeAcidicAA = 0.0;
+				double chargeBasicAA  = 0.0;
+				for (Double pKaValue : pKaListAcidicNeg) {
+					// Acidic amino acids
+//					double charge = -1 / ( Math.exp(pKaValue - pH)  + 1 );
+					double charge = -1 / ( Math.pow(10,(pKaValue - pH))  + 1 );
+					chargeAcidicAA += charge;
+				}
+				
+				for (Double pKaValue : pKaListBasicPos) {
+					// Basic amino acids
+//					double charge = 1 / ( Math.exp( pH - pKaValue ) + 1);
+					double charge = 1 / ( Math.pow(10, ( pH - pKaValue )) + 1);
+					chargeBasicAA += charge;
+				}
+				
+				// Calculate charge
+				netCharge = chargeAcidicAA + chargeBasicAA;
+				// Set new pH
+				if (netCharge > 0.0) {
+					pHMin = pH;
+				} else {
+					pHMax = pH;
+				}
+			}		
+			return pH;
+		}
 
-			double chargeAcidicAA = 0.0;
-			double chargeBasicAA  = 0.0;
-			for (Double pKaValue : pKaListAcidicNeg) {
-				// Acidic amino acids
-				chargeAcidicAA += -1 / ( Math.pow(10, (pKaValue - pH) ) + 1 );
-			}
-			for (Double pKaValue : pKaListBasicPos) {
-				// Basic amino acids
-				chargeBasicAA +=  1 / ( Math.pow(10, (pH - pKaValue) ) + 1);
-			}
-			// Calculate charge
-			netCharge = chargeAcidicAA + chargeBasicAA;
-			// Set new pH
-			if (netCharge > 0.0) {
-				pHMin = pH;
-			} else {
-				pHMax = pH;
-			}
-		}		
-//		System.out.println("pI: " + pH);
-		return pH ;
+		/**
+		 * Calculates label-free quantification measures.
+		 * @param qm The quantification method object.
+		 * @param params Variable argument list of parameters.
+		 * @return The result of the quantification calculation.
+		 */
+		public static double calculateLabelFree(QuantMethod qm, Object... params) {
+			qm.calculate(params);
+			return qm.getResult();
+		}
+
+
+
 	}
-
-	/**
-	 * Calculates label-free quantification measures.
-	 * @param qm The quantification method object.
-	 * @param params Variable argument list of parameters.
-	 * @return The result of the quantification calculation.
-	 */
-	public static double calculateLabelFree(QuantMethod qm, Object... params) {
-		qm.calculate(params);
-		return qm.getResult();
-	}
-
-
-
-}

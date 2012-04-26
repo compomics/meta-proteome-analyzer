@@ -63,6 +63,14 @@ public class PeptideHit {
 	}
 	
 	/**
+	 * Sets the peptide sequence
+	 * @param the peptide sequence
+	 */
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
+	}
+
+	/**
 	 * Convenience method to retrieve a unique PSM.
 	 * @return The list of PSMs.
 	 */
