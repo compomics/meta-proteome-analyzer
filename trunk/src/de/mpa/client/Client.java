@@ -267,28 +267,6 @@ public class Client {
 	}
 	
 	/**
-	 * Runs the database search.
-	 * @param file
-	 */
-	public void runDbSearch(List<File> files, DbSearchSettings settings){
-		// Iterate the files
-		for (int i = 0; i < files.size(); i++) {
-//			server.runDbSearch(files.get(i).getName(), settings);
-		}
-	}
-	
-//	/**
-//	 * Runs the de-novo search.
-//	 * @param file
-//	 */
-//	public void runDenovoSearch(List<File> files, DenovoSearchSettings settings){
-//		// Iterate the files
-//		for (int i = 0; i < files.size(); i++){				
-//			server.runDenovoSearch(files.get(i).getName(), settings);
-//		}
-//	}
-	
-	/**
 	 * Returns the result from the de-novo search.
 	 * @param file The query file.
 	 * @return DenovoSearchResult
@@ -472,6 +450,7 @@ public class Client {
 			try {
 				initDBConnection();
 				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn);
+				specSimResult.setScoreMatrixImage(SpecSearchHit.getScoreMatrixImage(expContent.getExperimentID(), conn));
 			} catch (Exception e) {
 				JXErrorPane.showDialog(e);
 			}

@@ -1,9 +1,13 @@
 package de.mpa.db.accessor;
 
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
@@ -21,25 +25,6 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		iFk_libspectrumid = ssm.getLibspectrumID();
 		iSimilarity = ssm.getSimilarity();
 	}
-
-//	/**
-//	 * Method to query the search spectra from the database.
-//	 * @return list containing the spectral similarity search hit IDs belonging to the specified experiment ID.
-//	 */
-//	public static List<Long> getSpecSearchHitIDsFromExperimentID(long experimentID, Connection conn) throws SQLException {
-//		List<Long> res = new ArrayList<Long>();
-//        PreparedStatement ps = conn.prepareStatement("SELECT specsearchhitid FROM specsearchhit ssh" +
-//        		" INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid" +
-//        		" WHERE ss.fk_experimentid = ?");
-//        ps.setLong(1, experimentID);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            res.add(rs.getLong("specsearchhitid"));
-//        }
-//        rs.close();
-//        ps.close();
-//        return res;
-//	}
 
 	/**
 	 * Method to query the search spectra from the database.
@@ -75,6 +60,55 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
         rs.close();
         ps.close();
         return res;
+	}
+	
+	public static BufferedImage getScoreMatrixImage(long experimentID, Connection conn) throws SQLException {
+		BufferedImage res = null;
+		// determine image dimensions
+		PreparedStatement ps = conn.prepareStatement(
+				"SELECT COUNT(DISTINCT ssh.fk_libspectrumid), COUNT(DISTINCT ssh.fk_searchspectrumid) FROM specsearchhit ssh " +
+				"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
+				"WHERE ss.fk_experimentid = ?");
+		ps.setLong(1, experimentID);
+		ResultSet rs = ps.executeQuery();
+		if (rs.next()) {
+			int width = rs.getInt(1) + 1;
+			int height = rs.getInt(2) + 1;
+
+			res = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			
+			ps = conn.prepareStatement(
+					"SELECT fk_libspectrumid, fk_searchspectrumid, similarity FROM specsearchhit ssh " +
+					"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
+//					"INNER JOIN spectrum s1 ON ss.fk_spectrumid = s1.spectrumid" +
+					"WHERE ss.fk_experimentid = ?");
+			ps.setLong(1, experimentID);
+			rs = ps.executeQuery();
+			
+			Map<Long, Integer> lsID2x = new HashMap<Long, Integer>(width);
+			Map<Long, Integer> ssID2y = new HashMap<Long, Integer>(height);
+			int maxX = 1, maxY = 1;
+			
+			while (rs.next()) {
+				// x coordinate lookup
+				Long lsID = rs.getLong(1);
+				Integer x = lsID2x.get(lsID);
+				x = (x == null) ? maxX++ : x;
+				// y coordinate lookup
+				Long ssID = rs.getLong(2);
+				Integer y = ssID2y.get(ssID);
+				y = (y == null) ? maxY++ : y;
+				// score
+				Double score = rs.getDouble(3);
+				// truncate score to 32-bit float precision, convert bytes to integer
+				byte[] bytes = new byte[4];
+		        ByteBuffer buf = ByteBuffer.wrap(bytes);
+		        buf.putFloat(score.floatValue());
+				// set pixel color
+				res.setRGB(x, y, buf.getInt(0));
+			}
+		}
+		return res;
 	}
 	
 }

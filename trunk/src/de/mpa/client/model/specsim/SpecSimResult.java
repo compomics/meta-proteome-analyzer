@@ -1,5 +1,6 @@
 package de.mpa.client.model.specsim;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,12 +13,12 @@ public class SpecSimResult {
 	 * The number of retrieved protein hits from the searches.
 	 */
 	private Map<String, ProteinHit> proteinHits = new HashMap<String, ProteinHit>();
+	private BufferedImage scoreMatrixImage;
 
 	/**
 	 * Adding a protein to the protein hit set.
 	 * 
-	 * @param proteinHit
-	 *            The ProteinHit
+	 * @param proteinHit The ProteinHit
 	 */
 	public void addProtein(ProteinHit newProteinHit) {
 		String accession = newProteinHit.getAccession();
@@ -44,7 +45,7 @@ public class SpecSimResult {
 	/**
 	 * Returns the protein hit for a particular accession.
 	 * 
-	 * @param accession
+	 * @param accession The accession string.
 	 * @return
 	 */
 	public ProteinHit getProteinHit(String accession) {
@@ -58,6 +59,17 @@ public class SpecSimResult {
 	 */
 	public Map<String, ProteinHit> getProteinHits() {
 		return proteinHits;
+	}
+
+	/**
+	 * @return the scoreMatrixImage
+	 */
+	public BufferedImage getScoreMatrixImage() {
+		return scoreMatrixImage;
+	}
+
+	public void setScoreMatrixImage(BufferedImage scoreMatrixImage) {
+		this.scoreMatrixImage = scoreMatrixImage;
 	}
 
 }
