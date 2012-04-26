@@ -388,6 +388,7 @@ public class DbSearchResultPanel extends JPanel {
 //				}
 			}
 		};
+		selChk.setPreferredSize(new Dimension(14, 12));
 		selChk.setSelected(true);
 		selChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

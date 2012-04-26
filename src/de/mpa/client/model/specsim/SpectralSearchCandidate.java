@@ -3,6 +3,7 @@ package de.mpa.client.model.specsim;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 import de.mpa.io.SixtyFourBitStringSupport;
@@ -13,7 +14,7 @@ public class SpectralSearchCandidate {
 	private String spectrumTitle;
 	private double precursorMz;
 	private int precursorCharge;
-	private HashMap<Double, Double> peaks;
+	private Map<Double, Double> peaks;
 	private long peptideID;
 	private String sequence;
 	
@@ -66,14 +67,14 @@ public class SpectralSearchCandidate {
 	/**
 	 * @return the peaks
 	 */
-	public HashMap<Double, Double> getPeaks() {
+	public Map<Double, Double> getPeaks() {
 		return peaks;
 	}
 	
 	/**
 	 * @return the peaks
 	 */
-	public HashMap<Double, Double> getHighestPeaks(int k) {
+	public Map<Double, Double> getHighestPeaks(int k) {
 		if (k == 0) {
     		return peaks;
     	} else {

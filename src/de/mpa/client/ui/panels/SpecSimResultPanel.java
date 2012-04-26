@@ -1,5 +1,7 @@
 package de.mpa.client.ui.panels;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -9,6 +11,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -17,8 +22,11 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -45,7 +53,7 @@ import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jfree.chart.plot.PlotOrientation;
 
-import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.ProteinAnalysis;
@@ -71,6 +79,7 @@ public class SpecSimResultPanel extends JPanel {
 	private MultiPlotPanel spectrumJPanel;
 	protected SpecSimResult specSimResult;
 	private Font chartFont;
+	private JLabel matLbl;
 
 	/**
 	 * Class constructor defining the parent client frame.
@@ -85,8 +94,6 @@ public class SpecSimResultPanel extends JPanel {
 	 * Initializes the components of the database search results panel
 	 */
 	private void initComponents() {
-		// Cell constraints
-		CellConstraints cc = new CellConstraints();
 		
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
@@ -120,7 +127,7 @@ public class SpecSimResultPanel extends JPanel {
 				refreshProteinTable();
 			}
 		});
-		proteinPnl.add(proteinTableScp, cc.xy(2, 2));
+		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
 	
 		JXTitledPanel protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
 		protTtlPnl.setRightDecoration(getResultsBtn);
@@ -132,7 +139,7 @@ public class SpecSimResultPanel extends JPanel {
 		// Peptide panel
 		final JPanel peptidePnl = new JPanel();
 		peptidePnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",  "5dlu, f:p:g, 5dlu"));
-		peptidePnl.add(peptideTableScp, cc.xy(2, 2));
+		peptidePnl.add(peptideTableScp, CC.xy(2, 2));
 		
 		JXTitledPanel pepTtlPnl = new JXTitledPanel("Peptides", peptidePnl);
 		pepTtlPnl.setTitleFont(ttlFont);
@@ -142,7 +149,7 @@ public class SpecSimResultPanel extends JPanel {
 		// PSM panel
 		final JPanel ssmPanel = new JPanel();
 		ssmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		ssmPanel.add(ssmTableScp, cc.xy(2, 2));
+		ssmPanel.add(ssmTableScp, CC.xy(2, 2));
 		
 		JXTitledPanel ssmTtlPnl = new JXTitledPanel("Spectrum-Spectrum-Matches", ssmPanel);
 		ssmTtlPnl.setTitleFont(ttlFont);
@@ -152,8 +159,11 @@ public class SpecSimResultPanel extends JPanel {
 		// Peptide and Psm Panel
 		JPanel pepPsmPnl = new JPanel(new FormLayout("p:g","f:p:g, 5dlu, f:p:g"));
 		
-		pepPsmPnl.add(pepTtlPnl, cc.xy(1, 1));
-		pepPsmPnl.add(ssmTtlPnl, cc.xy(1, 3));
+		pepPsmPnl.add(pepTtlPnl, CC.xy(1, 1));
+		pepPsmPnl.add(ssmTtlPnl, CC.xy(1, 3));
+		
+		final CardLayout cl = new CardLayout();
+		final JPanel viewPnl = new JPanel(cl);
 		
 		// Build spectrum filter panel
 		JPanel specPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -161,12 +171,48 @@ public class SpecSimResultPanel extends JPanel {
 		spectrumJPanel = new MultiPlotPanel();
 		spectrumJPanel.setBorder(BorderFactory.createEtchedBorder());
 		
-		specPnl.add(spectrumJPanel, cc.xy(2, 2));
+		specPnl.add(spectrumJPanel, CC.xy(2, 2));
 		
-		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", specPnl); 
+		// build score matrix visualizer panel
+		JPanel matPnl = new JPanel(new FormLayout("5dlu, m:g, 5dlu", "5dlu, f:m:g, 5dlu"));
+		
+		matLbl = new JLabel();
+		
+		JScrollPane matScpn = new JScrollPane(matLbl);
+		matScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		matScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		
+		matPnl.add(matScpn, CC.xy(2, 2));
+		
+		// Add cards
+		viewPnl.add(specPnl, 0);
+		viewPnl.add(matPnl, 1);
+
+		// build control button panel for card layout
+		JButton prevBtn = new JButton("\u25C2");
+		prevBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cl.previous(viewPnl);
+			}
+		});
+		JButton nextBtn = new JButton("\u25B8");
+		nextBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cl.next(viewPnl);
+			}
+		});
+		
+		JPanel controlPnl = new JPanel(new BorderLayout());
+		controlPnl.add(prevBtn, BorderLayout.WEST);
+		controlPnl.add(nextBtn, BorderLayout.EAST);
+		
+		// wrap viewer panels in titled panel with control buttons in title
+		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", viewPnl); 
 		specTtlPnl.setTitleFont(ttlFont);
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
+		specTtlPnl.setRightDecoration(controlPnl);
 		
 		String layoutDef =
 		    "(COLUMN protein (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=ssm)) plot))";
@@ -180,7 +226,7 @@ public class SpecSimResultPanel extends JPanel {
 		multiSplitPane.add(ssmTtlPnl, "ssm");
 		multiSplitPane.add(specTtlPnl, "plot");
 		
-		this.add(multiSplitPane, cc.xy(2, 2));
+		this.add(multiSplitPane, CC.xy(2, 2));
 	}
 
 	/**
@@ -407,6 +453,15 @@ public class SpecSimResultPanel extends JPanel {
 			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxSpecCount), chartFont, SwingConstants.RIGHT);
 			
 			proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
+			
+			BufferedImage scoreMatrix = specSimResult.getScoreMatrixImage();
+			matLbl.setIcon(new ImageIcon(scoreMatrix.getSubimage(1, 1, scoreMatrix.getWidth()-1, scoreMatrix.getHeight()-1)));
+		    File outputfile = new File("saved.png");
+		    try {
+				ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
