@@ -8,6 +8,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -19,6 +20,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -156,18 +158,26 @@ public class TableConfig {
 			protected void doPaint(Graphics2D g, Object component, int width, int height) {
 				JRendererLabel label = (JRendererLabel) component;
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				double value = Double.valueOf(label.getText());
-				String text = formatter.format(value);
-				label.setText(text);
-				int xOffset = (baseline > 0) ? baseline + 4 : 2;
-				label.setBounds(0, 0, baseline, height);
-				width -= xOffset + 2;
-				int clipWidth = ((width < 0) ? 0 : (x == 0) ? width : (int) (value/maxValue * width));
-				int clipHeight = (y == 0) ? (height - 4) : (int) (value/maxValue * (height - 4));
-				int yOffset = height - clipHeight - 2;
-				g.translate(xOffset, 0);
-				g.setClip(0, yOffset, clipWidth, clipHeight);
-				super.doPaint(g, component, width, height);
+				
+				try {
+					NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+				    Number number = format.parse(label.getText());
+				    double value = number.doubleValue();
+
+					String text = formatter.format(value);
+					label.setText(text);
+					int xOffset = (baseline > 0) ? baseline + 4 : 2;
+					label.setBounds(0, 0, baseline, height);
+					width -= xOffset + 2;
+					int clipWidth = ((width < 0) ? 0 : (x == 0) ? width : (int) (value/maxValue * width));
+					int clipHeight = (y == 0) ? (height - 4) : (int) (value/maxValue * (height - 4));
+					int yOffset = height - clipHeight - 2;
+					g.translate(xOffset, 0);
+					g.setClip(0, yOffset, clipWidth, clipHeight);
+					super.doPaint(g, component, width, height);
+				} catch (Exception e) {
+					JXErrorPane.showDialog(e);
+				}
 			}
 		});
 		return ph;

@@ -39,7 +39,7 @@ public class ComponentHeader extends JXTableHeader {
 				me.getID() == MouseEvent.MOUSE_CLICKED) {
 			int col = columnModel.getColumnIndexAtX(me.getX());
 			if (col != -1) {
-				reorderingAllowed = reorderingAllowedColumns[col];
+//				reorderingAllowed = reorderingAllowedColumns[col];
 				if (columnModel.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
 					chr = (ComponentHeaderRenderer) columnModel.getColumn(col).getHeaderRenderer();
 					Rectangle headerRect = this.getHeaderRect(col);
@@ -51,7 +51,7 @@ public class ComponentHeader extends JXTableHeader {
 								me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
 								me.getClickCount(), me.isPopupTrigger(), me.getButton()));
 						this.repaint();
-						reorderingAllowed &= (me.getID() != MouseEvent.MOUSE_PRESSED);
+//						reorderingAllowed &= (me.getID() != MouseEvent.MOUSE_PRESSED);
 						// fool other listeners by changing click-type events into release-type ones
 						if (me.getID() == MouseEvent.MOUSE_CLICKED) {
 							me = new MouseEvent(
@@ -67,7 +67,7 @@ public class ComponentHeader extends JXTableHeader {
 				chr.dispatchEvent(me);
 				chr = null;
 				this.repaint();
-				reorderingAllowed = true;
+//				reorderingAllowed = true;
 			}
 		}
 		super.processMouseEvent(me);
