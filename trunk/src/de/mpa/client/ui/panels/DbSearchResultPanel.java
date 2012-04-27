@@ -89,6 +89,10 @@ import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
+import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.Inspecthit;
+import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.XTandemhit;
 import de.mpa.fragmentation.FragmentIon;
 import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
@@ -925,57 +929,67 @@ public class DbSearchResultPanel extends JPanel {
 		panel.setOpaque(true);
 		panel.setBackground(new Color(240,240,240));
 		
-		JLabel xTandemLbl = new JLabel("0.000");
+		JLabel xTandemLbl = new JLabel("");
 		xTandemLbl.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(0, 0, 2, 0),
 				BorderFactory.createLineBorder(Color.GREEN)));
-//		JLabel xTandemLbl = new JLabel(" ", new ImageIcon() {
-//			public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-//				g.setColor(Color.GREEN);
-//				g.fillRect(x, y, 12, 12);
-//			}
-//		}, SwingConstants.LEFT);
-		JLabel omssaLbl = new JLabel("0.000");
+
+		JLabel omssaLbl = new JLabel("");
 		omssaLbl.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(2, 0, 2, 0),
 				BorderFactory.createLineBorder(Color.CYAN)));
-		JLabel cruxLbl = new JLabel("0.000");
+		JLabel cruxLbl = new JLabel("");
 		cruxLbl.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(2, 0, 2, 0),
 				BorderFactory.createLineBorder(Color.BLUE)));
-		JLabel inspectLbl = new JLabel("0.000");
+		JLabel inspectLbl = new JLabel("");
 		inspectLbl.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(2, 0, 0, 0),
 				BorderFactory.createLineBorder(Color.MAGENTA)));
-		DecimalFormat df = new DecimalFormat("0.000");
+		DecimalFormat df = new DecimalFormat("0.00");
+		int yIndex = 1;
 		for (SearchEngineHit hit : psm.getSearchEngineHits()) {
-			JLabel label;
 			switch (hit.getType()) {
 			case XTANDEM:
-				label = xTandemLbl;	break;
+				XTandemhit xtandemhit = (XTandemhit) hit.getSearchhit();
+				xTandemLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+						" | HScore: " + df.format(xtandemhit.getHyperscore().doubleValue()) + 
+						" | E-value: "  + df.format(xtandemhit.getEvalue().doubleValue()));
+				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,yIndex));
+				panel.add(xTandemLbl, CC.xy(3, yIndex));
+				yIndex += 2;
+				break;
 			case OMSSA:
-				label = omssaLbl;	break;
+				Omssahit omssahit = (Omssahit) hit.getSearchhit();
+				omssaLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+						" | P-value: " + df.format(omssahit.getPvalue().doubleValue()) + 
+						" | E-value: "  + df.format(omssahit.getEvalue().doubleValue()));
+				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,yIndex));
+				panel.add(omssaLbl, CC.xy(3,yIndex));
+				yIndex += 2;
+				break;
 			case CRUX:
-				label = cruxLbl;	break;
+				Cruxhit cruxhit = (Cruxhit) hit.getSearchhit();
+				cruxLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+						" | XCorr: " + df.format(cruxhit.getXcorr_score().doubleValue()));
+				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,yIndex));
+				panel.add(cruxLbl, CC.xy(3,yIndex));
+				yIndex += 2;
+				break;
 			case INSPECT:
-				label = inspectLbl;	break;
+				Inspecthit inspecthit = (Inspecthit) hit.getSearchhit();
+				inspectLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+						" | FScore: " + df.format(inspecthit.getF_score().doubleValue()) + 
+						" | DeltaScore: "  + df.format(inspecthit.getDeltascore().doubleValue()));
+				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,yIndex));
+				panel.add(inspectLbl, CC.xy(3,yIndex));
+				yIndex += 2;
+				break;
 			default:
-				label = new JLabel(); break;
+				break;
 			}
-			label.setText("Confidence = " + df.format(1.0 - hit.getQvalue()));
 		}
-
-		panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,1));
-		panel.add(xTandemLbl, CC.xy(3,1));
-		panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,3));
-		panel.add(omssaLbl, CC.xy(3,3));
-		panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,5));
-		panel.add(cruxLbl, CC.xy(3,5));
-		panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,7));
-		panel.add(inspectLbl, CC.xy(3,7));
-		
 		popup.add(panel);
-		
 		Rectangle cellRect = psmTbl.getCellRect(ssmRow, psmTbl.getColumnCount()-1, true);
 		popup.show(psmTbl, cellRect.x + cellRect.width, cellRect.y - popup.getPreferredSize().height/2 + cellRect.height/2);
 	}
