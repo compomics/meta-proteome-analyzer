@@ -12,6 +12,7 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	
 	private String sequence;
 	private String accession;
+	private long proteinid;
 	
     /**
      * This constructor reads the spectrum file from a resultset. The ResultSet should be positioned such that a single
@@ -24,6 +25,7 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
         super(aRS);
         this.sequence = (String) aRS.getObject("sequence");
         this.accession = (String) aRS.getObject("accession");
+        this.proteinid = aRS.getLong("proteinid");
     }
     
 	public Cruxhit(HashMap<Object, Object> hitdata) {
@@ -40,7 +42,7 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
      */
     public static List<Cruxhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Cruxhit> temp = new ArrayList<Cruxhit>();
-    	PreparedStatement ps = aConn.prepareStatement("select c.*, p.sequence, pr.accession from cruxhit c, peptide p, protein pr, cruxhit2prot c2p where c.fk_peptideid = p.peptideid and c.cruxhitid = c2p.fk_cruxhitid and c2p.fk_proteinid = pr.proteinid and c.fk_searchspectrumid = ?");
+    	PreparedStatement ps = aConn.prepareStatement("select c.*, p.sequence, pr.accession, pr.proteinid from cruxhit c, peptide p, protein pr, cruxhit2prot c2p where c.fk_peptideid = p.peptideid and c.cruxhitid = c2p.fk_cruxhitid and c2p.fk_proteinid = pr.proteinid and c.fk_searchspectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -59,10 +61,8 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 		return accession;
 	}
 	
-	
 	@Override
 	public long getFk_proteinid() {
-		// TODO: Find a solution for multiple protein ids...
-		return 0;
+		return proteinid;
 	}
 }

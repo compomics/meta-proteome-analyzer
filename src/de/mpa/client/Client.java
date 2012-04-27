@@ -379,7 +379,7 @@ public class Client {
 				if(cruxList.size() > 0) {
 					for (Cruxhit hit : cruxList) {
 						hit.getAccession();
-						//addProteinSearchHit(hit, SearchEngineType.CRUX);
+						addProteinSearchHit(hit, SearchEngineType.CRUX);
 					}
 				}
 				// Inspect
