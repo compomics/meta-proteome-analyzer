@@ -19,8 +19,8 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -186,8 +186,8 @@ public class SpecSimResultPanel extends JPanel {
 		matPnl.add(matScpn, CC.xy(2, 2));
 		
 		// Add cards
-		viewPnl.add(specPnl, 0);
-		viewPnl.add(matPnl, 1);
+//		viewPnl.add(specPnl, 0);
+//		viewPnl.add(matPnl, 1);
 
 		// build control button panel for card layout
 		JButton prevBtn = new JButton("\u25C2");

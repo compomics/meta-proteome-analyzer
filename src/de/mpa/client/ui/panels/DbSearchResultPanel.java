@@ -8,11 +8,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -48,12 +51,16 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import net.java.balloontip.BalloonTip.AttachLocation;
+import net.java.balloontip.BalloonTip.Orientation;
+import net.java.balloontip.styles.EdgedBalloonStyle;
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
@@ -88,6 +95,7 @@ import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
@@ -378,7 +386,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// apply component header capabilities
 		ComponentHeader ch = new ComponentHeader(tcm);
-		ch.setReorderingAllowed(false, PROT_SELECTION);
+//		ch.setReorderingAllowed(false, PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
 		
 		final JCheckBox selChk = new JCheckBox() {
@@ -1190,19 +1198,58 @@ public class DbSearchResultPanel extends JPanel {
 		testPopup.add(testTtf);
 		final JToggleButton button = new JToggleButton();
 		button.setPreferredSize(new Dimension(15, 12));
+		
+		
+		
 		button.addActionListener(new ActionListener() {
+			
+			FilterBalloonTip balloonTip;
+			
 			public void actionPerformed(ActionEvent e) {
 				if (button.isSelected()) {
-					Rectangle rect = proteinTbl.getTableHeader().getHeaderRect(
-							proteinTbl.convertColumnIndexToView(column));
-					testPopup.show(proteinTbl.getTableHeader(), rect.x - 1,
-							proteinTbl.getTableHeader().getHeight() - 1);
-					testTtf.requestFocus();
+					JTableHeader th = proteinTbl.getTableHeader();
+					Rectangle rect = th.getHeaderRect(proteinTbl.convertColumnIndexToView(column));
+					int width = th.getWidth();
+					String filterString = (balloonTip != null) ? balloonTip.getFilterString() : "";						
+					balloonTip = new FilterBalloonTip(th,
+							new EdgedBalloonStyle(new Color(255,253,245), new Color(64,64,64)),
+							Orientation.RIGHT_BELOW, AttachLocation.CENTER, 75, 10, false);
+					balloonTip.setFilterString(filterString);
+					balloonTip.addPropertyChangeListener(new PropertyChangeListener() {
+						public void propertyChange(PropertyChangeEvent pce) {
+							if (pce.getPropertyName().equals("ancestor")) {
+								// balloon has probably been closed
+								button.setSelected(false);
+								// TODO: maybe store original focus on first click and restore when closing again?
+								proteinTbl.requestFocus();
+								proteinTbl.getTableHeader().repaint();
+								// maybe apply filtering
+								if (balloonTip.isConfirmed()) {
+									updateSelections(column, balloonTip.getFilterString());
+								}
+							}
+						}
+					});
+					Point location = balloonTip.getLocation();
+					balloonTip.setLocation(location.x - width/2 + rect.x + rect.width - 10, location.y);
+					balloonTip.requestFocus();
 				} else {
-					testPopup.setVisible(false);
-					proteinTbl.requestFocus();
+					balloonTip.closeBalloon();
 				}
 			}
+			
+//			public void actionPerformed(ActionEvent e) {
+//				if (button.isSelected()) {
+//					Rectangle rect = proteinTbl.getTableHeader().getHeaderRect(
+//							proteinTbl.convertColumnIndexToView(column));
+//					testPopup.show(proteinTbl.getTableHeader(), rect.x - 1,
+//							proteinTbl.getTableHeader().getHeight() - 1);
+//					testTtf.requestFocus();
+//				} else {
+//					testPopup.setVisible(false);
+//					proteinTbl.requestFocus();
+//				}
+//			}
 		});
 		testTtf.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1223,5 +1270,41 @@ public class DbSearchResultPanel extends JPanel {
 			};
 		});
 		return button;
+	}
+
+	/**
+	 * Method to update the checkbox column values depending on pattern 
+	 * matching in the specified column using the specified pattern string.
+	 * @param column The column to check.
+	 * @param filterString Comma-separated string patterns.
+	 */
+	private void updateSelections(int column, String filterString) {
+		String[] filterStrings = filterString.split(",");
+		List<String> restrictive = new ArrayList<String>();
+		List<String> permissive = new ArrayList<String>();
+		for (int i = 0; i < filterStrings.length; i++) {
+			String s = filterStrings[i].trim();
+			if (s.startsWith("-")) {
+				restrictive.add(s.substring(1));
+			} else {
+				permissive.add(s);
+			}
+		}
+		column = proteinTbl.convertColumnIndexToView(column);
+		for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+			String value = proteinTbl.getValueAt(row, column).toString();
+			boolean selected = true;
+			// check excludes
+			for (String s : restrictive) {
+				selected &= !value.contains(s);
+				if (!selected) break;
+			}
+			// check includes
+			for (String s : permissive) {
+				if (selected) break;
+				selected |= value.contains(s);
+			}
+			proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToModel(PROT_SELECTION));
+		}
 	}
 }

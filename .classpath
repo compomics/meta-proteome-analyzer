@@ -27,5 +27,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar" sourcepath="/BalloonTip/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
