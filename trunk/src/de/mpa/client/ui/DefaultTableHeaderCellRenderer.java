@@ -6,8 +6,8 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
-import javax.swing.UIManager;
 import javax.swing.RowSorter.SortKey;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 

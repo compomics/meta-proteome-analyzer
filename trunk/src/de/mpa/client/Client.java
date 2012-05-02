@@ -40,7 +40,6 @@ import de.mpa.client.model.denovo.Tag;
 import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
-import de.mpa.client.settings.DbSearchSettings;
 import de.mpa.client.settings.SearchSettings;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;

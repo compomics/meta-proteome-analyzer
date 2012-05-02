@@ -44,8 +44,6 @@ import de.mpa.client.settings.DbSearchSettings;
 import de.mpa.client.settings.DenovoSearchSettings;
 import de.mpa.client.settings.SearchSettings;
 import de.mpa.client.settings.SpecSimSettings;
-import de.mpa.client.ui.CheckBoxTreeManager;
-import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
