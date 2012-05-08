@@ -18,8 +18,7 @@ public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 
 	@Override
 	public double getResult() {
-		// FIXME: find proper solution for bad rendering of JSparklinesBarChartRenderer
-		return nSAF * 100.0;
+		return nSAF;
 	}
 
 	@SuppressWarnings("unchecked")

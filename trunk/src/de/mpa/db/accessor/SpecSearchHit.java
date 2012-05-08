@@ -1,13 +1,14 @@
 package de.mpa.db.accessor;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
@@ -21,8 +22,8 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 * @param ssm
 	 */
 	public SpecSearchHit(SpectrumSpectrumMatch ssm) {
-		iFk_searchspectrumid = ssm.getSpectrumID();
-		iFk_libspectrumid = ssm.getLibspectrumID();
+		iFk_searchspectrumid = ssm.getSearchSpectrumID();
+		iFk_libspectrumid = ssm.getLibSpectrumID();
 		iSimilarity = ssm.getSimilarity();
 	}
 
@@ -32,7 +33,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 */
 	public static SpecSimResult getAnnotations(long experimentID, Connection conn) throws SQLException {
 		SpecSimResult res = new SpecSimResult();
-        PreparedStatement ps = conn.prepareStatement("SELECT specsearchhitid, ssh.fk_searchspectrumid, ssh.fk_libspectrumid, similarity, p.sequence, accession, description, pr.sequence FROM specsearchhit ssh" +
+        PreparedStatement ps = conn.prepareStatement("SELECT ssh.fk_searchspectrumid, ssh.fk_libspectrumid, similarity, p.sequence, accession, description, pr.sequence FROM specsearchhit ssh" +
         		" INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid" +
         		" INNER JOIN libspectrum ls ON ssh.fk_libspectrumid = ls.libspectrumid" +
         		" INNER JOIN spectrum s ON ls.fk_spectrumid = s.spectrumid" +
@@ -45,8 +46,8 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
         	SpectrumSpectrumMatch ssm = new SpectrumSpectrumMatch(
-        			rs.getLong("fk_searchspectrumid"),
-        			rs.getLong("fk_libspectrumid"),
+        			rs.getLong("ssh.fk_searchspectrumid"),
+        			rs.getLong("ssh.fk_libspectrumid"),
         			rs.getDouble("similarity"));
         	PeptideHit peptideHit = new PeptideHit(
         			rs.getString("p.sequence"),
@@ -80,24 +81,30 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 			ps = conn.prepareStatement(
 					"SELECT fk_libspectrumid, fk_searchspectrumid, similarity FROM specsearchhit ssh " +
 					"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
-//					"INNER JOIN spectrum s1 ON ss.fk_spectrumid = s1.spectrumid" +
-					"WHERE ss.fk_experimentid = ?");
+					"WHERE ss.fk_experimentid = ? " +
+					"ORDER BY fk_libspectrumid");
 			ps.setLong(1, experimentID);
 			rs = ps.executeQuery();
 			
-			Map<Long, Integer> lsID2x = new HashMap<Long, Integer>(width);
-			Map<Long, Integer> ssID2y = new HashMap<Long, Integer>(height);
-			int maxX = 1, maxY = 1;
+			Map<Long, Integer> lsID2x = new TreeMap<Long, Integer>();
+			Map<Long, Integer> ssID2y = new TreeMap<Long, Integer>();
+			int curX = 1, curY = 1;
 			
+			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			// iterate result set, paint pixels
 			while (rs.next()) {
 				// x coordinate lookup
 				Long lsID = rs.getLong(1);
-				Integer x = lsID2x.get(lsID);
-				x = (x == null) ? maxX++ : x;
+				Integer mapX = lsID2x.get(lsID);
+				if (mapX == null) {
+					lsID2x.put(lsID, mapX = curX++);
+				}
 				// y coordinate lookup
 				Long ssID = rs.getLong(2);
-				Integer y = ssID2y.get(ssID);
-				y = (y == null) ? maxY++ : y;
+				Integer mapY = ssID2y.get(ssID);
+				if (mapY == null) {
+					ssID2y.put(ssID, mapY = curY++);
+				}
 				// score
 				Double score = rs.getDouble(3);
 				// truncate score to 32-bit float precision, convert bytes to integer
@@ -105,7 +112,15 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		        ByteBuffer buf = ByteBuffer.wrap(bytes);
 		        buf.putFloat(score.floatValue());
 				// set pixel color
-				res.setRGB(x, y, buf.getInt(0));
+				img.setRGB(mapX, mapY, buf.getInt(0));
+			}
+
+			// reorder pixel rows w.r.t. search spectrum ID ordering
+			int[] srcBuf = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+			int[] dstBuf = ((DataBufferInt) res.getRaster().getDataBuffer()).getData();
+			curY = 1;
+			for (int mapY : ssID2y.values()) {
+				System.arraycopy(srcBuf, mapY * width, dstBuf, curY++ * width, width);
 			}
 		}
 		return res;

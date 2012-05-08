@@ -6,6 +6,7 @@ import javax.swing.UIManager;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
+import com.jgoodies.looks.plastic.theme.SkyBlue;
 
 import de.mpa.client.ui.ClientFrame;
 
@@ -22,6 +23,7 @@ public class Starter {
 		Options.setPopupDropShadowEnabled(true);
 		try {
 			// Set Plastic3DLook&Feel as default for all OS.
+			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue());
 			UIManager.setLookAndFeel(Plastic3DLookAndFeel.class.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -40,7 +42,7 @@ public class Starter {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				new ClientFrame();
+				ClientFrame.getInstance();
 			}
 		});
 	}

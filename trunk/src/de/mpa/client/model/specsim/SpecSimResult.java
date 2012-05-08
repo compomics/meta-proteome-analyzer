@@ -1,7 +1,7 @@
 package de.mpa.client.model.specsim;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.mpa.client.model.dbsearch.PeptideHit;
@@ -12,7 +12,7 @@ public class SpecSimResult {
 	/**
 	 * The number of retrieved protein hits from the searches.
 	 */
-	private Map<String, ProteinHit> proteinHits = new HashMap<String, ProteinHit>();
+	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 	private BufferedImage scoreMatrixImage;
 
 	/**
@@ -32,12 +32,13 @@ public class SpecSimResult {
 					newProteinHit.getSinglePeptideHit().getSequence());
 			if (currentPeptideHit == null) {
 				// append new peptide hit
-				currentProteinHit.addPeptideHit(newProteinHit.getSinglePeptideHit());
+				currentPeptideHit = newProteinHit.getSinglePeptideHit();
 			} else {
 				// append SSM to existing peptide hit
-				currentProteinHit.getSinglePeptideHit().addSpectrumMatch(
+				currentPeptideHit.addSpectrumMatch(
 						newProteinHit.getSinglePeptideHit().getSingleSpectrumMatch());
 			}
+			currentProteinHit.addPeptideHit(currentPeptideHit);
 		}
 		proteinHits.put(accession, currentProteinHit);
 	}
@@ -50,6 +51,15 @@ public class SpecSimResult {
 	 */
 	public ProteinHit getProteinHit(String accession) {
 		return proteinHits.get(accession);
+	}
+	
+	/**
+	 * Returns <code>true</code> if this result object contains no protein hits.
+	 * 
+	 * @return <code>true</code> if this result object contains no protein hits.
+	 */
+	public boolean isEmpty() {
+		return proteinHits.isEmpty();
 	}
 
 	/**

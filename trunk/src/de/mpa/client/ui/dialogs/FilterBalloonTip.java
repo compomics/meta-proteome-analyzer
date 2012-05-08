@@ -2,9 +2,18 @@ package de.mpa.client.ui.dialogs;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -12,42 +21,56 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 import net.java.balloontip.BalloonTip;
+import net.java.balloontip.CustomBalloonTip;
+import net.java.balloontip.positioners.BalloonTipPositioner;
 import net.java.balloontip.positioners.LeftBelowPositioner;
-import net.java.balloontip.styles.BalloonTipStyle;
+import net.java.balloontip.styles.EdgedBalloonStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+
+import org.jdesktop.swingx.JXErrorPane;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-public class FilterBalloonTip extends BalloonTip {
+import de.mpa.client.ui.icons.IconConstants;
+
+public class FilterBalloonTip extends CustomBalloonTip {
 	
-	private BalloonTip innerBalloonTip;
 	private JTextField filterTtf;
 	private String filterString;
 	private boolean confirmed = false;
 
 	/**
-	 * Constructor. TODO: API
+	 * Constructs a custom balloon tip attached to
+	 * <code>attachedComponent</code> using a specified <code>offset</code>
+	 * containing several components related to column filtering.
+	 * 
 	 * @param attachedComponent
-	 * @param style
-	 * @param orientation
-	 * @param attachLocation
-	 * @param horizontalOffset
-	 * @param verticalOffset
-	 * @param useCloseButton
+	 *            The custom component to attach the balloon tip to (may not be
+	 *            null).
+	 * @param offset
+	 *            Specifies a rectangle within the attached component; the
+	 *            balloon tip will attach to this rectangle. (may not be null)
+	 *            Do note that the coordinates should be relative to the
+	 *            attached component's top left corner.
 	 */
-	public FilterBalloonTip(JComponent attachedComponent, BalloonTipStyle style, Orientation orientation, AttachLocation attachLocation, int horizontalOffset, int verticalOffset, boolean useCloseButton) {
-		super(attachedComponent, new JLabel(), style, orientation, attachLocation, horizontalOffset, verticalOffset, useCloseButton);
-		this.setContents(createFilterPanel());
+	public FilterBalloonTip(JComponent attachedComponent, Rectangle offset) {
+		super(attachedComponent, new JLabel(), offset, new EdgedBalloonStyle(
+				UIManager.getColor("Panel.background"), new Color(64, 64, 64)),
+				Orientation.LEFT_BELOW, AttachLocation.WEST, 125, 10, false);
+		try {
+			setContents(createFilterPanel());
+		} catch (IOException e) {
+			JXErrorPane.showDialog(e);
+		}
 	}
-	
+
 	@Override
-	public void closeBalloon() {
-		innerBalloonTip.closeBalloon();
-		super.closeBalloon();
-//		setVisible(false);
+	public void requestFocus() {
+		filterTtf.requestFocus();
 	}
 
 	/**
@@ -85,42 +108,93 @@ public class FilterBalloonTip extends BalloonTip {
 
 	/**
 	 * constructing/setting pop-up button
+	 * @throws IOException 
 	 */	
-	private JPanel createFilterPanel() {
+	private JComponent createFilterPanel() throws IOException {
 
-		JPanel panel = new JPanel(new FormLayout("2px, p:g, 2px, p, 2px, p, 2px", "2px, p, 2px"));
-
-		filterTtf = new JTextField(20);
-		int height = filterTtf.getPreferredSize().height;
+		JPanel panel = new JPanel(new FormLayout("2px, l:m, 4px, p:g, 2px, p, 2px, p, 2px", "2px, p, 2px"));
+		panel.setOpaque(false);
 		
-		final JButton acceptBtn = new JButton(new ImageIcon(panel.getClass().getResource("/de/mpa/resources/icons/check16.png")));
-		acceptBtn.setPreferredSize(new Dimension(height, height));
-		acceptBtn.setOpaque(false);
-		
-		JButton cancelBtn = new JButton(new ImageIcon(panel.getClass().getResource("/de/mpa/resources/icons/cancel16.png")));
-		cancelBtn.setPreferredSize(new Dimension(height, height));
-		cancelBtn.setOpaque(false);
+		JButton helpBtn = new JButton(IconConstants.HELP_ICON);
+		helpBtn.setRolloverIcon(IconConstants.HELP_ROLLOVER_ICON);
+		helpBtn.setBorder(BorderFactory.createEmptyBorder(0, 0, 1, 0));
+		helpBtn.setFocusPainted(false);
+		helpBtn.setBorderPainted(false);
+		helpBtn.setContentAreaFilled(false);
+		helpBtn.setFocusable(false);
 
-		panel.add(filterTtf, CC.xy(2, 2));
-		panel.add(acceptBtn, CC.xy(4, 2));
-		panel.add(cancelBtn, CC.xy(6, 2));
-
-//		JLabel toolTipLbl = new JLabel("<html>Enter comma-separated patterns to exclude or include specific values in this column.<br>" +
-//				"E.g. 'Escherichia, -aurescens' (without quotes) to include everything containing 'Escherichia', but not 'aurescens'.</html>",
-		JLabel toolTipLbl = new JLabel("<html>Enter comma-separated text patterns to exclude or include<br>" +
-				"specific values, e.g. 'Escherichia, -aurescens' (without quotes).</html>",
+		JLabel toolTipLbl = new JLabel("<html><p style=\"text-align:justify;width:187px\">" +
+				"Enter comma-separated text patterns to exclude  or include specific values, " +
+				"e.g. <font color=#009900>>0.52, &lt=11.4</font> for numerical data " +
+				"or <font color=#009900>Escherichia, -aurescens</font> for text.</p></html>",
 				new ImageIcon(panel.getClass().getResource("/de/mpa/resources/icons/bulb32.png")),
 				SwingConstants.LEADING);
-		innerBalloonTip = new BalloonTip(filterTtf, toolTipLbl, new RoundedBalloonStyle(6, 6, new Color(255, 255, 225), Color.BLACK), true);
-		innerBalloonTip.setPositioner(new LeftBelowPositioner(15, 10));
-		innerBalloonTip.setOpacity(0.95f);
+		final BalloonTip innerBalloonTip = new BalloonTip(helpBtn, toolTipLbl, new RoundedBalloonStyle(6, 6, new Color(255, 255, 225), Color.BLACK), false);
+		BalloonTipPositioner positioner = new LeftBelowPositioner(15, 10);
+		innerBalloonTip.setPositioner(positioner);
+//		innerBalloonTip.setOpacity(0.95f);
+		innerBalloonTip.setVisible(false);
+		
+		helpBtn.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent me) {
+				innerBalloonTip.setVisible(true);
+			}
+			public void mouseExited(MouseEvent me) {
+				innerBalloonTip.setVisible(false);
+			}
+		});
+
+		filterTtf = new JTextField(20);
+		filterTtf.setPreferredSize(new Dimension(filterTtf.getPreferredSize().width, 20));
+		
+		final JButton acceptBtn = new JButton(IconConstants.CHECK_ICON);
+		acceptBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
+		acceptBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
+		acceptBtn.setPreferredSize(new Dimension(20, 20));
+		acceptBtn.setOpaque(false);
+		acceptBtn.setMargin(new Insets(0, 0, 0, 1));
+		final DefaultButtonModel dbma = (DefaultButtonModel) acceptBtn.getModel();
+		
+		JButton cancelBtn = new JButton(IconConstants.CROSS_ICON);
+		cancelBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
+		cancelBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
+		cancelBtn.setPreferredSize(new Dimension(20, 20));
+		cancelBtn.setOpaque(false);
+		cancelBtn.setMargin(new Insets(1, 0, 0, 1));
+		final DefaultButtonModel dbmc = (DefaultButtonModel) cancelBtn.getModel();
+
+		panel.add(helpBtn, CC.xy(2, 2));
+		panel.add(filterTtf, CC.xy(4, 2));
+		panel.add(acceptBtn, CC.xy(6, 2));
+		panel.add(cancelBtn, CC.xy(8, 2));
+		
+		filterTtf.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent ke) {
+				// make appropriate buttons appear pressed
+				if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
+					dbma.setPressed(true);
+					dbma.setArmed(true);
+				} else if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					dbmc.setPressed(true);
+					dbmc.setArmed(true);
+				}
+			}
+			public void keyReleased(KeyEvent ke) {
+				// make appropriate buttons fire a pressed event
+				if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
+					dbma.setPressed(false);
+				} else if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					dbmc.setPressed(false);
+				}
+			}
+		});
 		
 		acceptBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// apply changes to text field
 				filterString = filterTtf.getText();
 				confirmed = true;
-				closeBalloon();
+				setVisible(false);
 			}
 		});
 
@@ -128,63 +202,10 @@ public class FilterBalloonTip extends BalloonTip {
 			public void actionPerformed(ActionEvent e) {
 				// revert text field contents to previous state
 				filterTtf.setText(filterString);
-				closeBalloon();
+				setVisible(false);
 			}
 		});
 
-		//			final JPanel filterPanel = new JPanel();
-		//			final JTextField textTtf = new JTextField(10);
-		//			
-		//			filterPanel.setLayout(new FormLayout("1dlu, p:g, 1dlu, p, 1dlu",
-		//					"1dlu, p, 1dlu"));
-		//			JButton acceptBtn = new JButton(new ImageIcon(filterPanel.getClass().getResource("/de/mpa/resources/icons/check16.png")));
-		//			acceptBtn.setPreferredSize(new Dimension(21, 21));
-		//			acceptBtn.setOpaque(false);
-		//			BalloonTipStyle edgedLook = new EdgedBalloonStyle(Color.yellow, Color.BLACK);
-		//
-		//			filterPanel.add(textTtf, CC.xy(2, 2));
-		//			filterPanel.add(acceptBtn, CC.xy(4,2));
-		//			
-		//			final JToggleButton button = new JToggleButton();
-		//			button.setPreferredSize(new Dimension(15, 12));
-		//			button.addActionListener(new ActionListener() {
-		//				@Override
-		//				public void actionPerformed(ActionEvent arg0) {
-		//					if (button.isSelected()) {
-		//						Rectangle rect = table.getTableHeader().getHeaderRect(
-		//								table.convertColumnIndexToView(column));
-		//						
-		//							new BalloonTip(filterPanel, new JLabel("I'm a BalloonTip!"),
-		//								new EdgedBalloonStyle(new Color(255,253,245), new Color(64,64,64)),
-		//								new LeftBelowPositioner(15, 10), 
-		//								null);
-		//							textTtf.requestFocus();
-		//					} else {
-		////						popup.setVisible(false);
-		//						table.requestFocus();
-		//					}
-		//				}
-		//			});
-		//			
-		//			textTtf.addActionListener(new ActionListener() {
-		//				public void actionPerformed(ActionEvent e) {
-		////					popup.setVisible(false);
-		//					table.requestFocus();
-		//					button.setSelected(false);
-		//					table.getTableHeader().repaint();
-		//				}
-		//			});
-		//			
-		//			textTtf.addFocusListener(new FocusAdapter() {
-		//				public void focusLost(FocusEvent fe) {
-		////					popup.setVisible(false);
-		//					if (!button.getModel().isArmed()) {
-		//						button.setSelected(false);
-		//						table.requestFocus();
-		//						table.getTableHeader().repaint();
-		//					}
-		//				};
-		//			});
 		return panel;
 	}
 }

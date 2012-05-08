@@ -3,6 +3,7 @@ package de.mpa.client.ui.dialogs;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
@@ -13,7 +14,6 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -37,7 +37,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.JXTable;
 
-import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.model.ExperimentContent;
@@ -45,6 +45,7 @@ import de.mpa.client.model.ProjectContent;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Property;
@@ -118,15 +119,14 @@ public class GeneralDialog extends JDialog {
 			this.currentExpContent = (ExperimentContent) content;
 		}
 		initComponents();
+		this.setIconImage((type == DialogType.MODIFY_PROJECT || type == DialogType.NEW_PROJECT) ? IconConstants.ADD_FOLDER_ICON
+				.getImage() : IconConstants.ADD_PAGE_ICON.getImage());
 	}
 	
 	/**
 	 * Initializes the components.
 	 */
 	private void initComponents() {
-		
-		// JGoodies CellConstraints
-		CellConstraints cc = new CellConstraints();
 
 		// Description panel
 		JPanel descriptionPnl = new JPanel();
@@ -156,8 +156,8 @@ public class GeneralDialog extends JDialog {
 			private void updateSaveButton() { saveBtn.setEnabled(!nameTtf.getText().isEmpty()); }
 		});
 		
-		descriptionPnl.add(new JLabel(name), cc.xy(2, 2));
-		descriptionPnl.add(nameTtf, cc.xy(4, 2));
+		descriptionPnl.add(new JLabel(name), CC.xy(2, 2));
+		descriptionPnl.add(nameTtf, CC.xy(4, 2));
 		
 		// Properties panel
 		JPanel propertyPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "f:p:g, 5dlu"));
@@ -206,8 +206,9 @@ public class GeneralDialog extends JDialog {
 		});
 		
 		// Button to add property 
-		appendPropertyBtn = new JButton("Add",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/add16.png")));
+		appendPropertyBtn = new JButton("Add", IconConstants.ADD_ICON);
+		appendPropertyBtn.setRolloverIcon(IconConstants.ADD_ROLLOVER_ICON);
+		appendPropertyBtn.setPressedIcon(IconConstants.ADD_PRESSED_ICON);
 		// Button is only useable when new name and value is filled
 		appendPropertyBtn.setEnabled(false);
 		appendPropertyBtn.addActionListener(new ActionListener() {
@@ -218,10 +219,10 @@ public class GeneralDialog extends JDialog {
 		});
 		
 		// Button to change the property entries
-		changePropertyBtn = new JButton("Change",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/update16.png")));
-		 // ChangeProjPropBtn only visible when entry in table is selected
-		// is existing
+		changePropertyBtn = new JButton("Change", IconConstants.UPDATE_ICON);
+		changePropertyBtn.setRolloverIcon(IconConstants.UPDATE_ROLLOVER_ICON);
+		changePropertyBtn.setPressedIcon(IconConstants.UPDATE_PRESSED_ICON);
+		// ChangeProjPropBtn only visible when entry in table is selected
 		changePropertyBtn.setEnabled(false);
 		changePropertyBtn.addActionListener(new ActionListener() {
 			@Override
@@ -231,8 +232,9 @@ public class GeneralDialog extends JDialog {
 		});
 		
 		// Delete button
-		deletePropertyBtn = new JButton("Delete",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/cancel16.png")));
+		deletePropertyBtn = new JButton("Delete", IconConstants.CANCEL_ICON);
+		deletePropertyBtn.setRolloverIcon(IconConstants.CANCEL_ROLLOVER_ICON);
+		deletePropertyBtn.setPressedIcon(IconConstants.CANCEL_PRESSED_ICON);
 		deletePropertyBtn.setEnabled(false);
 		// Delete the selected property
 		deletePropertyBtn.addActionListener(new ActionListener() {
@@ -243,13 +245,13 @@ public class GeneralDialog extends JDialog {
 		});
 		
 		// add text fields and buttons to edit panel
-		editPnl.add(new JLabel("Property Name:"), cc.xyw(1,1,5));
-		editPnl.add(propNameTtf, cc.xyw(1,3,5));
-		editPnl.add(new JLabel("Property Value:"), cc.xyw(1,5,5));
-		editPnl.add(propValueTtf, cc.xyw(1,7,5));
-		editPnl.add(appendPropertyBtn, cc.xy(1,9));
-		editPnl.add(changePropertyBtn, cc.xy(3,9));
-		editPnl.add(deletePropertyBtn, cc.xy(5,9));
+		editPnl.add(new JLabel("Property Name:"), CC.xyw(1,1,5));
+		editPnl.add(propNameTtf, CC.xyw(1,3,5));
+		editPnl.add(new JLabel("Property Value:"), CC.xyw(1,5,5));
+		editPnl.add(propValueTtf, CC.xyw(1,7,5));
+		editPnl.add(appendPropertyBtn, CC.xy(1,9));
+		editPnl.add(changePropertyBtn, CC.xy(3,9));
+		editPnl.add(deletePropertyBtn, CC.xy(5,9));
 		
 		// add panels into split pane
 		JSplitPane propertySpp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScp, editPnl);
@@ -260,11 +262,14 @@ public class GeneralDialog extends JDialog {
 		if (divider != null) { divider.setBorder(null); }
 		
 		// Add split pane to property panel
-		propertyPnl.add(propertySpp, cc.xy(2,1));
+		propertyPnl.add(propertySpp, CC.xy(2,1));
 		
-		// Save button functionality --> Store to the DB
-		saveBtn = new JButton("Save",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_save.png")));
+		// Save button functionality -> store values in DB
+		saveBtn = new JButton("Save", IconConstants.SAVE_DB_ICON);
+		saveBtn.setRolloverIcon(IconConstants.SAVE_DB_ROLLOVER_ICON);
+		saveBtn.setPressedIcon(IconConstants.SAVE_DB_PRESSED_ICON);
+		saveBtn.setMargin(new Insets(2, 2, 2, 2));
+		saveBtn.setIconTextGap(10);
 		saveBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		saveBtn.setFont(saveBtn.getFont().deriveFont(Font.BOLD,
 				saveBtn.getFont().getSize2D()*1.25f));
@@ -274,9 +279,6 @@ public class GeneralDialog extends JDialog {
 		saveBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-//				System.out.println(operations);
-				
 				switch (type) {
 				case NEW_PROJECT:
 					storeProject();
@@ -295,9 +297,11 @@ public class GeneralDialog extends JDialog {
 			}
 		});
 		
-		// Cancel button functionality: Dispose the dialog without saving the the values to the database.
-		JButton cancelBtn = new JButton("Cancel",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_delete.png")));
+		// Cancel button functionality -> dispose dialog without storing values in DB
+		JButton cancelBtn = new JButton("Cancel", IconConstants.DELETE_DB_ICON);
+		cancelBtn.setRolloverIcon(IconConstants.DELETE_DB_ROLLOVER_ICON);
+		cancelBtn.setPressedIcon(IconConstants.DELETE_DB_PRESSED_ICON);
+		cancelBtn.setMargin(new Insets(3, 2, 2, 5));
 		cancelBtn.setFont(cancelBtn.getFont().deriveFont(Font.BOLD,
 				cancelBtn.getFont().getSize2D()*1.25f));
 		
@@ -316,15 +320,14 @@ public class GeneralDialog extends JDialog {
 				"5dlu, p, 5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
 		// Add Panels to content pane
-		contentPane.add(descriptionPnl,cc.xyw(2,2,3));
-		contentPane.add(propertyPnl,cc.xyw(2,4,3));
-		contentPane.add(saveBtn, cc.xy(2,6));
-		contentPane.add(cancelBtn, cc.xy(4,6));
+		contentPane.add(descriptionPnl,CC.xyw(2,2,3));
+		contentPane.add(propertyPnl,CC.xyw(2,4,3));
+		contentPane.add(saveBtn, CC.xy(2,6));
+		contentPane.add(cancelBtn, CC.xy(4,6));
 		
 		// Set the preferred size
-		this.setPreferredSize(new Dimension(640, 310));
-		this.setMinimumSize(this.getPreferredSize());
-		pack();
+		this.pack();
+		this.setMinimumSize(this.getSize());
 	}
 	
 	/**

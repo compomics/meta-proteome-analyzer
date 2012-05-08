@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -11,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,6 +37,7 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.algorithms.RankedLibrarySpectrum;
 import de.mpa.client.Client;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ClusterPanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
@@ -59,11 +64,9 @@ import de.mpa.ui.MultiPlotPanel;
 public class ClientFrame extends JFrame {
 
 	public Logger log = Logger.getLogger(getClass());
-	private ClientFrame frame;
 	private ProjectPanel projectPnl;
 	private Client client;
 	private FilePanel filePnl;
-	private JPanel specSimResPnl;
 	private DeNovoResultPanel denovoResPnl;
 	private JPanel res2Pnl;
 	private LoggingPanel logPnl;
@@ -81,22 +84,37 @@ public class ClientFrame extends JFrame {
 	private ClusterPanel clusterPnl;
 	protected List<File> chunkedFiles;
 	private DbSearchResultPanel dbSearchResPnl;
+	private SpecSimResultPanel specSimResPnl;
 	private SettingsPanel setPnl;
 	private StatusPanel statusPnl;
 	private JTabbedPane tabPane;
+	private int rolloverIndex = -1;
+	private static ClientFrame frame;
 
+	/**
+	 * Returns a client singleton object.
+	 * 
+	 * @return client Client singleton object
+	 */
+	public static ClientFrame getInstance() {
+		if (frame == null) {
+			frame = new ClientFrame();
+		}
+		return frame;
+	}
+	
 	/**
 	 * Constructor for the ClientFrame
 	 */
-	public ClientFrame() {
+	private ClientFrame() {
 
 		// Application title
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
+		frame = this;
 
 		// Frame size
 		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
 		this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));		
-		frame = this;
 
 		// Get the client instance
 		client = Client.getInstance();
@@ -112,19 +130,34 @@ public class ClientFrame extends JFrame {
 		ImageIcon projectIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/project.png"));
 		ImageIcon addSpectraIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/addspectra.png"));
 		ImageIcon settingsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/settings.png"));
-		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
+		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
+		
+		final List<Icon> icons = new ArrayList<Icon>();
+		icons.add(projectIcon);
+		icons.add(addSpectraIcon);
+		icons.add(settingsIcon);
+		icons.add(resultsIcon);
+		icons.add(resultsIcon);
+		icons.add(resultsIcon);
+		icons.add(clusteringIcon);
+		icons.add(loggingIcon);
+		
+		final List<Icon> rollovers = new ArrayList<Icon>(icons.size());
+		for (Icon icon : icons) {
+			rollovers.add(IconConstants.createRescaledIcon((ImageIcon) icon, 1.1f));
+		}
 		
 		Insets oldInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		Insets newInsets = new Insets(0, oldInsets.left, 0, 0);
-		UIManager.put("TabbedPane.contentBorderInsets", newInsets); 
+		UIManager.put("TabbedPane.contentBorderInsets", newInsets);
 		tabPane = new JTabbedPane(JTabbedPane.LEFT);
 		UIManager.put("TabbedPane.contentBorderInsets", oldInsets); 
 		
 		tabPane.addTab("Project", projectIcon, projectPnl);
 		tabPane.addTab("Input Spectra", addSpectraIcon, filePnl);
-		tabPane.addTab("Search Settings", settingsIcon, getSettingsPanel());
+		tabPane.addTab("Search Settings", settingsIcon, setPnl);
 		tabPane.addTab("Spectral Search Results", resultsIcon, specSimResPnl);
 		JTabbedPane resultsTabPane = new JTabbedPane(JTabbedPane.TOP);
 		resultsTabPane.addTab("Search View", res2Pnl);
@@ -133,6 +166,30 @@ public class ClientFrame extends JFrame {
 		tabPane.addTab("Clustering", clusteringIcon, clusterPnl);
 		tabPane.addTab("Logging", loggingIcon, logPnl);
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
+		
+		tabPane.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent me) {
+				int index = tabPane.indexAtLocation(me.getX(), me.getY());
+				if (index != rolloverIndex) {
+					if (index != -1) {
+						tabPane.setIconAt(index, rollovers.get(index));
+					}
+					if (rolloverIndex != -1) {
+						tabPane.setIconAt(rolloverIndex, icons.get(rolloverIndex));
+					}
+					rolloverIndex = index;
+				}
+			}
+		});
+		tabPane.addMouseListener(new MouseAdapter() {
+			public void mouseExited(MouseEvent me) {
+				if (rolloverIndex != -1) {
+					tabPane.setIconAt(rolloverIndex, icons.get(rolloverIndex));
+					rolloverIndex = -1;
+				}
+			}
+		});
 		
 //		tabPane.setEnabledAt(6, false);
 
@@ -146,7 +203,6 @@ public class ClientFrame extends JFrame {
 			// Update the 
 			public void propertyChange(PropertyChangeEvent evt) {
 				updateSearchEngineUI(evt.getNewValue().toString());
-
 			}
 		});
 
@@ -442,24 +498,6 @@ public class ClientFrame extends JFrame {
 		return getSettingsPanel().getSpecLibSearchPanel();
 	}
 	
-
-	/**
-	 * Main method ==> Entry point to the application.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// Set the look&feel
-		setLookAndFeel();
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new ClientFrame();
-			}
-		});
-	}
-	
 	/**
 	 * Returns the query spectrum tree object.
 	 * @return queryTree The query spectrum tree object.
@@ -525,10 +563,26 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
+	 * Returns the spectral similarity search result panel.
+	 * @return The spectral similarity search result panel.
+	 */
+	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
+		return specSimResPnl;
+	}
+	
+	/**
 	 * Returns the database search result panel.
 	 * @return The database search result panel.
 	 */
-	public DbSearchResultPanel getDbSearchResultPnl() {
+	public DbSearchResultPanel getDbSearchResultPanel() {
 		return dbSearchResPnl;
+	}
+	
+	/**
+	 * Returns the de novo search result panel.
+	 * @return The de novo similarity search result panel.
+	 */
+	public DeNovoResultPanel getDeNovoSearchResultPanel() {
+		return denovoResPnl;
 	}
 }

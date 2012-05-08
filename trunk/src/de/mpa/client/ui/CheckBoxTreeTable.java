@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -61,26 +62,28 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		tree = (JXTree) this.getCellRenderer(-1, this.getHierarchicalColumn());
 		selectionModel = new CheckBoxTreeSelectionModel(treeModel);
 
+		final Color bgCol = UIManager.getColor("Table.background");
 		// create checkbox for use as tree cell editor
 		final JCheckBox editorBox = new JCheckBox() {
 			public void paint(Graphics g) {
 				int row = rowAtPoint(this.getLocation());
+				int x = tree.getRowBounds(row).x;
+				g.setColor(bgCol);
+				g.fillRect(x+center, 5, 9, 9);
+				super.paint(g);
 				if (selectionModel.isPartiallySelected(getPathForRow(row))) {
 					setSelected(false);
-					super.paint(g);
 					g.setColor(Color.BLACK);
-					int x = tree.getRowBounds(row).x;
 					g.fillRect(x+center, 8, 8, 2);
-				} else {
-					super.paint(g);
 				}
 			}
 		};
 		editorBox.setOpaque(false);
 		editorBox.setInputMap(JComponent.WHEN_FOCUSED, null);	// make checkbox ignore keyboard input
 		
+		Insets insets = (Insets) UIManager.get("CheckBox.totalInsets");
 		hotspot = editorBox.getPreferredSize().width;
-		center = hotspot/2 - 4;
+		center = insets.left + (hotspot-insets.right)/2 - 6;
 		
 		stce = new CheckBoxTreeCellEditor(editorBox, tree);
 		
@@ -338,6 +341,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		private JCheckBox checkbox;
 		private JLabel iconLbl;
 		private Boolean selected;
+		private Color bgCol;
 		
 		/**
 		 * Default class constructor.
@@ -345,6 +349,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		 * and a label, capable of bearing an icon next to the checkboxes.
 		 */
 		public IconCheckBox() {
+			bgCol = UIManager.getColor("Table.background");
 
 		    this.setLayout(new BorderLayout());
 			this.setOpaque(false);
@@ -366,6 +371,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		
 		@Override
 		public void paint(Graphics g) {
+			if (isEnabled()) {
+				g.setColor(bgCol);
+				g.fillRect(2, 4, 10, 10);
+			}
 			super.paint(g);
 			if (selected == null) {
 				Color col = (isEnabled()) ? Color.BLACK : UIManager.getColor("controlShadow");

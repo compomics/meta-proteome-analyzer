@@ -8,20 +8,18 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +33,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,26 +41,25 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-
-import net.java.balloontip.BalloonTip.AttachLocation;
-import net.java.balloontip.BalloonTip.Orientation;
-import net.java.balloontip.styles.EdgedBalloonStyle;
-import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
@@ -72,8 +70,10 @@ import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
+import org.jdesktop.swingx.sort.SortUtils;
 import org.jdesktop.swingx.sort.TableSortController;
-import org.jfree.chart.plot.PlotOrientation;
+import org.jdesktop.swingx.table.ColumnControlButton;
+import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
@@ -89,6 +89,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.SearchEngineHit;
+import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
@@ -97,6 +98,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
@@ -109,6 +111,7 @@ public class DbSearchResultPanel extends JPanel {
 	
 	private ClientFrame clientFrame;
 	private JXTable proteinTbl;
+	protected FilterButton lastSelectedFilterBtn = new FilterButton(0, null);
 	private DbSearchResult dbSearchResult;
 	private JXTable peptideTbl;
 	private JXTable psmTbl;
@@ -130,6 +133,8 @@ public class DbSearchResultPanel extends JPanel {
 	private JButton getResultsBtn;
 	private JEditorPane coverageTxt;
 	private Font chartFont;
+	
+	FilterBalloonTip filterTip;
 	
 	// Protein table column indices
 	private final int PROT_SELECTION 		= 0;
@@ -170,7 +175,7 @@ public class DbSearchResultPanel extends JPanel {
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 	
 		// Setup tables
-		chartFont = UIManager.getFont("Label.font").deriveFont(12f);
+		chartFont = UIManager.getFont("Label.font");
 		setupProteinTableProperties();
 		setupPeptideTableProperties();
 		setupPsmTableProperties();
@@ -183,10 +188,15 @@ public class DbSearchResultPanel extends JPanel {
 		JScrollPane psmTableScp = new JScrollPane(psmTbl);
 		psmTableScp.setPreferredSize(new Dimension(350, 150));
 		
-		getResultsBtn = new JButton("Get Results");
+		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
+		
 		getResultsBtn.setEnabled(false);
 		
-		getResultsBtn.setPreferredSize(new Dimension(150, 20));
+		getResultsBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
+		getResultsBtn.setFocusPainted(false);
+		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				dbSearchResult = clientFrame.getClient().getDbSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
@@ -336,20 +346,20 @@ public class DbSearchResultPanel extends JPanel {
 	 * This method sets up the protein results table.
 	 */
 	private void setupProteinTableProperties(){
-		// Protein table
-		final DefaultTableModel proteinTblMdl = new DefaultTableModel() {
+		// Create protein table model
+		final TableModel proteinTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {
-					" ", 				//0
+					"", 				//0
 					"#", 				//1
 					"Accession", 		//2
 					"Description",  	//3
 					"Species", 			//4
-					"Coverage [%]", 	//5
-					"MW [kDa]",     	//6
+					"SC", 				//5
+					"MW",     			//6
 					"pI",				//7
-					"Peptide Count", 	//8
-					"Spectral Count",	//9
+					"PepC", 			//8
+					"SpC",				//9
 					"emPAI",			//10
 					"NSAF"}); }			//11
 	
@@ -376,16 +386,41 @@ public class DbSearchResultPanel extends JPanel {
 				}
 			}
 		};
-		proteinTbl = new JXTable(proteinTblMdl);
+		proteinTbl = new JXTable(proteinTblMdl) {
+			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer,
+					int row, int column) {
+				Component comp = super.prepareRenderer(renderer, row, column);
+				if (comp instanceof JComponent) {
+					((JComponent) comp).setBorder(padding);
+				}
+				return comp;
+			}
+		};
 		
-		TableConfig.setColumnWidths(proteinTbl, new double[] { 2, 2, 6, 8, 7, 7, 5.5, 3, 8, 8, 5.5, 6 });
+		// adjust column widths
+		TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
 		TableConfig.setColumnMinWidths(proteinTbl, 1);
 		
-		// Create table model
+		// Get table column model
 		final TableColumnModel tcm = proteinTbl.getColumnModel();
-		
-		// apply component header capabilities
-		ComponentHeader ch = new ComponentHeader(tcm);
+
+		// Apply component header capabilities as well as column header tooltips
+		String[] columnToolTips = {
+			    "Selection for Export",
+			    "Result Index",
+			    "Protein Accession Number",
+			    "Protein Description",
+			    "Species",
+			    "Sequence Coverage in %",
+			    "Molecular Weight in kDa",
+			    "Isoelectric Point",
+			    "Peptide Count",
+			    "Spectral Count",
+			    "Exponentially Modified Protein Abundance Index",
+			    "Normalized Spectral Abundance Factor"};
+		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 //		ch.setReorderingAllowed(false, PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
 		
@@ -400,21 +435,18 @@ public class DbSearchResultPanel extends JPanel {
 //				}
 			}
 		};
-		selChk.setPreferredSize(new Dimension(14, 12));
+		selChk.setPreferredSize(new Dimension(15, 15));
 		selChk.setSelected(true);
-		selChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				boolean selected = selChk.isSelected();
-				for (int row = 0; row < proteinTbl.getRowCount()-1; row++) {
-					proteinTbl.setValueAt(selected, row, PROT_SELECTION);
-				}
-			}
-		});
+
+		// Add filter button widgets to column headers
+		tcm.getColumn(PROT_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
+		tcm.getColumn(PROT_SELECTION).setMinWidth(19);
+		tcm.getColumn(PROT_SELECTION).setMaxWidth(19);
+		for (int col = 1; col < tcm.getColumnCount(); col++) {
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl)));
+		}
 		
-		tcm.getColumn(PROT_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk));
-		tcm.getColumn(PROT_SELECTION).setMinWidth(21);
-		tcm.getColumn(PROT_SELECTION).setMaxWidth(21);
-		
+		// Apply custom cell renderers/highlighters to columns 
 		tcm.getColumn(PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		
 		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
@@ -436,77 +468,77 @@ public class DbSearchResultPanel extends JPanel {
 		});
 		tcm.getColumn(PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		tcm.getColumn(PROT_SPECIES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		tcm.getColumn(PROT_COVERAGE).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
+		((TableColumnExt) tcm.getColumn(PROT_COVERAGE)).addHighlighter(new BarChartHighlighter(
+				0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, new DecimalFormat("0.00")));
 		tcm.getColumn(PROT_MW).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
-		tcm.getColumn(PROT_PI).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "#0.00"));
-		tcm.getColumn(PROT_PEPTIDECOUNT).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
-		tcm.getColumn(PROT_SPECTRALCOUNT).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
-		tcm.getColumn(PROT_EMPAI).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, 9.0));
+		tcm.getColumn(PROT_PI).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
+		((TableColumnExt) tcm.getColumn(PROT_PEPTIDECOUNT)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(PROT_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(PROT_EMPAI)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
+		((TableColumnExt) tcm.getColumn(PROT_NSAF)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
 		
+		// Make table always sort primarily by selection state of selection column
+		final SortKey selKey = new SortKey(PROT_SELECTION, SortOrder.DESCENDING);
 		
-
-		// Add filter pop-ups to columns header
-		JToggleButton eindexBtn = createFilterButton(PROT_INDEX);
-		tcm.getColumn(PROT_INDEX).setHeaderRenderer(new ComponentHeaderRenderer(eindexBtn));
-		
-		JToggleButton protAccBtn = createFilterButton(PROT_ACCESSION);
-		tcm.getColumn(PROT_ACCESSION).setHeaderRenderer(new ComponentHeaderRenderer(protAccBtn));
-		
-		JToggleButton descBtn = createFilterButton(PROT_DESCRIPTION);
-		tcm.getColumn(PROT_DESCRIPTION).setHeaderRenderer(new ComponentHeaderRenderer(descBtn));
-		
-		JToggleButton speciesBtn = createFilterButton(PROT_SPECIES);
-		tcm.getColumn(PROT_SPECIES).setHeaderRenderer(new ComponentHeaderRenderer(speciesBtn));
-		
-		JToggleButton coverageBtn = createFilterButton(PROT_COVERAGE);
-		tcm.getColumn(PROT_COVERAGE).setHeaderRenderer(new ComponentHeaderRenderer(coverageBtn));
-		
-		JToggleButton mwBtn = createFilterButton(PROT_MW);
-		tcm.getColumn(PROT_MW).setHeaderRenderer(new ComponentHeaderRenderer(mwBtn));
-		
-		JToggleButton pIBtn = createFilterButton(PROT_PI);
-		tcm.getColumn(PROT_PI).setHeaderRenderer(new ComponentHeaderRenderer(pIBtn));
-		
-		JToggleButton pepCountBtn = createFilterButton(PROT_PEPTIDECOUNT);
-		tcm.getColumn(PROT_PEPTIDECOUNT).setHeaderRenderer(new ComponentHeaderRenderer(pepCountBtn));
-		
-		JToggleButton specCountBtn = createFilterButton(PROT_SPECTRALCOUNT);
-		tcm.getColumn(PROT_SPECTRALCOUNT).setHeaderRenderer(new ComponentHeaderRenderer(specCountBtn));
-		
-		JToggleButton nsafBtn = createFilterButton(PROT_NSAF);
-		tcm.getColumn(PROT_NSAF).setHeaderRenderer(new ComponentHeaderRenderer(nsafBtn));
-		
-		JToggleButton emPAIBtn = createFilterButton(PROT_EMPAI);
-		tcm.getColumn(PROT_EMPAI).setHeaderRenderer(new ComponentHeaderRenderer(emPAIBtn));
-		
-		FontMetrics fm = getFontMetrics(chartFont);
-		String pattern = "0.000";
-		((JSparklinesBarChartTableCellRenderer) tcm.getColumn(PROT_EMPAI).getCellRenderer()).showNumberAndChart(true, fm.stringWidth("   " + pattern), chartFont, SwingConstants.CENTER, new DecimalFormat(pattern));
-		
-		// TODO: this is just a hack to work around JSparklinesBarChartTableCellRenderer failing to render properly here, find a proper solution
-		pattern = "0.00000";
-		final DecimalFormat formatter = new DecimalFormat(pattern);
-		JSparklinesBarChartTableCellRenderer renderer = new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, 1.0) {
-			public Component getTableCellRendererComponent(JTable table,
-					Object value, boolean isSelected, boolean hasFocus,
-					int row, int column) {
-				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-						row, column);
-				JLabel valueLabel = (JLabel) this.getComponent(0);
-				valueLabel.setText(formatter.format(Double.valueOf(valueLabel.getText()) / 100.0));
-				return comp;
+		final TableSortController<TableModel> tsc = new TableSortController<TableModel>(proteinTblMdl) {
+			@Override
+			public void toggleSortOrder(int column) {
+		        List<SortKey> keys = new ArrayList<SortKey>(getSortKeys());
+		        SortKey sortKey = SortUtils.getFirstSortKeyForColumn(keys, column);
+		        if (keys.indexOf(sortKey) == 1)  {
+		            // primary key: cycle sort order
+		        	SortOrder so = (sortKey.getSortOrder() == SortOrder.ASCENDING) ?
+		        			SortOrder.DESCENDING : SortOrder.ASCENDING;
+		            keys.set(1, new SortKey(column, so));
+		        } else {
+		            // all others: insert new 
+		            keys.remove(sortKey);
+		            keys.add(1, new SortKey(column, SortOrder.DESCENDING));
+		        }
+		        if (keys.size() > getMaxSortKeys()) {
+		            keys = keys.subList(0, getMaxSortKeys());
+		        }
+		        setSortKeys(keys);
+			}
+			@Override
+			public void setSortKeys(
+					List<? extends SortKey> sortKeys) {
+				List<SortKey> newKeys = new ArrayList<SortKey>(sortKeys);
+				// make sure selection column sorting always occurs before other columns
+				newKeys.remove(selKey);
+				newKeys.add(0, selKey);
+				super.setSortKeys(newKeys);
 			}
 		};
-		renderer.showNumberAndChart(true, fm.stringWidth("   " + pattern), chartFont, SwingConstants.CENTER);
-		tcm.getColumn(PROT_NSAF).setCellRenderer(renderer);
+		proteinTbl.setRowSorter(tsc);
 		
-		// Sort the protein table by spectral count
-		proteinTbl.setAutoCreateRowSorter(true);
-		TableSortController tsc = (TableSortController) proteinTbl.getRowSorter();
+		// register action listener on selection column header checkbox
+		selChk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean selected = selChk.isSelected();
+				// prevent auto-resorting while iterating rows for performance reasons
+				tsc.setSortsOnUpdates(false);
+				for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+					proteinTblMdl.setValueAt(selected, row, PROT_SELECTION);
+				}
+				tsc.setSortsOnUpdates(true);
+				// re-sort rows after iteration finished
+				tsc.sort();
+			}
+		});
+		
+		// Specify initial sort order
+		List<SortKey> sortKeys = new ArrayList<SortKey>(2);
+		sortKeys.add(0, new SortKey(PROT_SELECTION, SortOrder.DESCENDING));
+		sortKeys.add(1, new SortKey(PROT_SPECTRALCOUNT, SortOrder.DESCENDING));
+		tsc.setSortKeys(sortKeys);
+		
+		// Prevent messing with sort order of selection column
 		tsc.setSortable(PROT_SELECTION, false);
-		tsc.toggleSortOrder(PROT_SPECTRALCOUNT);
-		tsc.toggleSortOrder(PROT_SPECTRALCOUNT);
 		
+		// Register list selection listener
 		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
 				refreshPeptideTable();
@@ -521,7 +553,11 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Enables column control
 		proteinTbl.setColumnControlVisible(true);
-		
+		proteinTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		proteinTbl.getColumnControl().setOpaque(false);
+		((ColumnControlButton) proteinTbl.getColumnControl()).setAdditionalActionsVisible(false);
 	}
 	
 	/**
@@ -534,23 +570,47 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PEP_SEQUENCE		= 1;
 	private final int PEP_SPECTRALCOUNT	= 2;
 	
-	private void setupPeptideTableProperties(){
+	private void setupPeptideTableProperties() {
 		// Peptide table
-		peptideTbl = new JXTable(new DefaultTableModel() {
+		TableModel peptideTblMdl = new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "No. Spectra"}); }
+			{ setColumnIdentifiers(new Object[] {"#", "Sequence", "No. Spectra"}); }
+			
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				switch (columnIndex) {
+				case PEP_INDEX:
+				case PEP_SPECTRALCOUNT:
+					return Integer.class;
+				case PEP_SEQUENCE:
+				default:
+					return String.class;
+				}
+			}
 	
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
-		});
+		};
+		peptideTbl = new JXTable(peptideTblMdl) {
+			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer,
+					int row, int column) {
+				Component comp = super.prepareRenderer(renderer, row, column);
+				if (comp instanceof JComponent) {
+					((JComponent) comp).setBorder(padding);
+				}
+				return comp;
+			}
+		};
 		
 		TableConfig.setColumnWidths(peptideTbl, new double[] {3, 24, 12});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
-		
-		tcm.getColumn(PEP_SPECTRALCOUNT).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		tcm.getColumn(PEP_SPECTRALCOUNT).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 1.0, true));
+
+		tcm.getColumn(PEP_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
 		
 		// Sort the peptide table by the number of peptide hits
 		peptideTbl.setAutoCreateRowSorter(true);
@@ -572,36 +632,39 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Enables column control
 		peptideTbl.setColumnControlVisible(true);
+		peptideTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		peptideTbl.getColumnControl().setOpaque(false);
+		((ColumnControlButton) peptideTbl.getColumnControl()).setAdditionalActionsVisible(false);
 	}
+	
+	// PSM table column indices
+	private final int PSM_SELECTION	= 0;
+	private final int PSM_INDEX		= 1;
+	private final int PSM_SEQUENCE	= 2;
+	private final int PSM_CHARGE	= 3;
+	private final int PSM_VOTES		= 4;
+	private final int PSM_XTANDEM 	= 5;
+	private final int PSM_OMSSA 	= 6;
+	private final int PSM_CRUX 		= 7;
+	private final int PSM_INSPECT 	= 8;
 	
 	/**
 	 * This method sets up the PSM results table.
 	 */
-	
-	// PSM table column indices
-//	private final int PSM_SELECTION		= X;
-	private final int PSM_INDEX			= 0;
-	private final int PSM_SEQUENCE		= 1;
-	private final int PSM_CHARGE		= 2;
-	private final int PSM_VOTES			= 3;
-	private final int PSM_XTANDEM 		= 4;
-	private final int PSM_OMSSA 		= 5;
-	private final int PSM_CRUX 			= 6;
-	private final int PSM_INSPECT 		= 7;
-	
 	private void setupPsmTableProperties() {
 		// PSM table
-		psmTbl = new JXTable(new DefaultTableModel() {
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "z", "Votes", "X", "O", "C", "I"}); }
-	
+		final TableModel psmTblMdl = new DefaultTableModel() {
+			{ setColumnIdentifiers(new Object[] {"", "#", "Sequence", "z", "Votes", "X", "O", "C", "I"}); }
+
 			public boolean isCellEditable(int row, int col) {
-				return false;
+				return (col == PSM_SELECTION) ? true : false;
 			}
-			
+
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
 				case PSM_INDEX:
-				case PSM_SEQUENCE:
 				case PSM_CHARGE:
 				case PSM_VOTES:
 					return Integer.class;
@@ -610,46 +673,178 @@ public class DbSearchResultPanel extends JPanel {
 				case PSM_CRUX:
 				case PSM_INSPECT:
 					return Double.class;
-				default:
+				case PSM_SELECTION:
+					return Boolean.class;
+				case PSM_SEQUENCE:
+				default: 
 					return String.class;
 				}
 			}
-		});
+		};
+		final DecimalFormat df = new DecimalFormat("0.000%");
+		psmTbl = new JXTable(psmTblMdl) {
+			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer,
+					int row, int column) {
+				Component comp = super.prepareRenderer(renderer, row, column);
+				if (comp instanceof JComponent) {
+					((JComponent) comp).setBorder(padding);
+				}
+				return comp;
+			}
+			@Override
+			public String getToolTipText(MouseEvent me) {
+				int col = columnAtPoint(me.getPoint());
+				if (col == convertColumnIndexToModel(PSM_XTANDEM) ||
+						col == convertColumnIndexToModel(PSM_OMSSA) ||
+						col == convertColumnIndexToModel(PSM_CRUX) ||
+						col == convertColumnIndexToModel(PSM_INSPECT)) {
+					int row = rowAtPoint(me.getPoint());
+					if (row != -1) {
+						return df.format(getValueAt(row, col));
+					}
+				}
+				return null;
+			}
+		};
 		
-		TableConfig.setColumnWidths(psmTbl, new double[] { 1, 6, 1.5, 2.5 });
+		// adjust column widths
+		TableConfig.setColumnWidths(psmTbl, new double[] { 0, 1, 6, 1.5, 2.5 });
 		
-		TableColumnModel tcm = psmTbl.getColumnModel();
+		// Get table column model
+		final TableColumnModel tcm = psmTbl.getColumnModel();
 		
+		// Apply component header capabilities as well as column header tooltips
+		String[] columnToolTips = {
+			    "Selection for Export",
+			    "PSM Index",
+			    "Peptide Sequence",
+			    "Precursor Charge",
+			    "Number of Votes",
+			    "X!Tandem Confidence",
+			    "Omssa Confidence",
+			    "Crux Confidence",
+			    "InsPecT Confidence" };
+		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
+		psmTbl.setTableHeader(ch);
+		
+		final JCheckBox selChk = new JCheckBox() {
+			public void paint(Graphics g) {
+				// TODO: make checkbox honor tri-state
+				super.paint(g);
+//				if (selected == null) {
+//					Color col = (isEnabled()) ? Color.BLACK : UIManager.getColor("controlShadow");
+//					g.setColor(col);
+//					g.fillRect(center, 8, 8, 2);
+//				}
+			}
+		};
+		selChk.setPreferredSize(new Dimension(15, 15));
+		selChk.setSelected(true);
+
+		// Add filter button widgets to column headers
+		tcm.getColumn(PSM_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
+		tcm.getColumn(PSM_SELECTION).setMinWidth(19);
+		tcm.getColumn(PSM_SELECTION).setMaxWidth(19);
+		for (int col = PSM_INDEX; col < tcm.getColumnCount(); col++) {
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(new JLabel()));
+		}
+		
+		// Apply custom cell renderers/highlighters to columns 
 		tcm.getColumn(PSM_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		tcm.getColumn(PSM_CHARGE).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "+0"));
-		tcm.getColumn(PSM_VOTES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
+//		tcm.getColumn(PSM_VOTES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
+		((TableColumnExt) tcm.getColumn(PSM_VOTES)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED));
+		((TableColumnExt) tcm.getColumn(PSM_XTANDEM)).addHighlighter(new BarChartHighlighter(
+				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.GREEN.darker().darker(), Color.GREEN));
+		((TableColumnExt) tcm.getColumn(PSM_OMSSA)).addHighlighter(new BarChartHighlighter(
+				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.CYAN.darker().darker(), Color.CYAN));
+		((TableColumnExt) tcm.getColumn(PSM_CRUX)).addHighlighter(new BarChartHighlighter(
+				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.BLUE.darker().darker(), Color.BLUE));
+		((TableColumnExt) tcm.getColumn(PSM_INSPECT)).addHighlighter(new BarChartHighlighter(
+				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.MAGENTA.darker().darker(), Color.MAGENTA));
 		
-		// Sort the PSM table by the number of votes
-		psmTbl.setAutoCreateRowSorter(true);
-		psmTbl.getRowSorter().toggleSortOrder(PSM_VOTES);
-		psmTbl.getRowSorter().toggleSortOrder(PSM_VOTES);
-
-		// register list selection listener
+		// Make table always sort primarily by selection state of selection column
+		final SortKey selKey = new SortKey(PSM_SELECTION, SortOrder.DESCENDING);
+		
+		final TableSortController<TableModel> tsc = new TableSortController<TableModel>(psmTblMdl) {
+			@Override
+			public void toggleSortOrder(int column) {
+		        List<SortKey> keys = new ArrayList<SortKey>(getSortKeys());
+		        SortKey sortKey = SortUtils.getFirstSortKeyForColumn(keys, column);
+		        if (keys.indexOf(sortKey) == 1)  {
+		            // primary key: cycle sort order
+		        	SortOrder so = (sortKey.getSortOrder() == SortOrder.ASCENDING) ?
+		        			SortOrder.DESCENDING : SortOrder.ASCENDING;
+		            keys.set(1, new SortKey(column, so));
+		        } else {
+		            // all others: insert new 
+		            keys.remove(sortKey);
+		            keys.add(1, new SortKey(column, SortOrder.DESCENDING));
+		        }
+		        if (keys.size() > getMaxSortKeys()) {
+		            keys = keys.subList(0, getMaxSortKeys());
+		        }
+		        setSortKeys(keys);
+			}
+			@Override
+			public void setSortKeys(List<? extends SortKey> sortKeys) {
+				List<SortKey> newKeys = new ArrayList<SortKey>(sortKeys);
+				// make sure selection column sorting always occurs before other columns
+				newKeys.remove(selKey);
+				newKeys.add(0, selKey);
+				super.setSortKeys(newKeys);
+			}
+		};
+		psmTbl.setRowSorter(tsc);
+		
+		// register action listener on selection column header checkbox
+		selChk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean selected = selChk.isSelected();
+				// prevent auto-resorting while iterating rows for performance reasons
+				tsc.setSortsOnUpdates(false);
+				for (int row = 0; row < psmTbl.getRowCount(); row++) {
+					psmTblMdl.setValueAt(selected, row, PSM_SELECTION);
+				}
+				tsc.setSortsOnUpdates(true);
+				// re-sort rows after iteration finished
+				tsc.sort();
+			}
+		});
+		
+		// Specify initial sort order
+		List<SortKey> sortKeys = new ArrayList<SortKey>(2);
+		sortKeys.add(0, new SortKey(PSM_SELECTION, SortOrder.DESCENDING));
+		sortKeys.add(1, new SortKey(PSM_VOTES, SortOrder.DESCENDING));
+		tsc.setSortKeys(sortKeys);
+		
+		// Prevent messing with sort order of selection column
+//		tsc.setSortable(PSM_SELECTION, false);
+		
+		// Register list selection listener
 		psmTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				refreshPlotAndShowPopup();
 			}
 		});
-	
+		
 		// Only one row is selectable
 		psmTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		// Add nice striping effect
 		psmTbl.addHighlighter(TableConfig.getSimpleStriping());
-
-		psmTbl.addHighlighter(TableConfig.createGradientHighlighter(PSM_XTANDEM, 1.0, 0, SwingConstants.VERTICAL, Color.GREEN.darker().darker(), Color.GREEN));
-		psmTbl.addHighlighter(TableConfig.createGradientHighlighter(PSM_OMSSA, 1.0, 0, SwingConstants.VERTICAL, Color.CYAN.darker().darker(), Color.CYAN));
-		psmTbl.addHighlighter(TableConfig.createGradientHighlighter(PSM_CRUX, 1.0, 0, SwingConstants.VERTICAL, Color.BLUE.darker().darker(), Color.BLUE));
-		psmTbl.addHighlighter(TableConfig.createGradientHighlighter(PSM_INSPECT, 1.0, 0, SwingConstants.VERTICAL, Color.MAGENTA.darker().darker(), Color.MAGENTA));
 		
 		// Enables column control
 		psmTbl.setColumnControlVisible(true);
+		psmTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		psmTbl.getColumnControl().setOpaque(false);
+		((ColumnControlButton) psmTbl.getColumnControl()).setAdditionalActionsVisible(false);
 	}
 
 	/**
@@ -732,10 +927,11 @@ public class DbSearchResultPanel extends JPanel {
 				clientFrame.getProjectPanel().getCurrentProjectContent(),
 				clientFrame.getProjectPanel().getCurrentExperimentContent());
 		
-		if (dbSearchResult != null) {
+		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
 			boolean selected = ((AbstractButton) ((ComponentHeaderRenderer) proteinTbl.getColumnModel().getColumn(PROT_SELECTION).getHeaderRenderer()).getComponent()).isSelected();
-			
+
+			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 			int i = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 			for (Entry<String, ProteinHit> entry : dbSearchResult.getProteinHits().entrySet()) {
@@ -745,20 +941,22 @@ public class DbSearchResultPanel extends JPanel {
 				// Protein species
 				String desc = proteinHit.getDescription();
 				String[] split = desc.split(" OS=");
-				proteinHit.setDescription(split[0]);
-				String species = split[1].substring(0, split[1].indexOf(" GN="));
-				proteinHit.setSpecies(species);
+				if (split.length > 1) {
+					proteinHit.setDescription(split[0]);
+					String species = split[1].substring(0, split[1].indexOf(" GN="));
+					proteinHit.setSpecies(species);
+				}
 				
 				double nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinHit);
 				proteinHit.setNSAF(nsaf);
 				maxCoverage = Math.max(maxCoverage, proteinHit.getCoverage());
 				maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
 				maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
-				maxNSAF = Math.max(maxNSAF, nsaf);
 				max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
 				min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
+				maxNSAF = Math.max(maxNSAF, nsaf);
 				
-				((DefaultTableModel) proteinTbl.getModel()).addRow(new Object[] {
+				proteinTblMdl.addRow(new Object[] {
 						selected,
 						i++,
 						proteinHit.getAccession(),
@@ -770,34 +968,37 @@ public class DbSearchResultPanel extends JPanel {
 						proteinHit.getPeptideCount(), 
 						proteinHit.getSpectralCount(),
 						proteinHit.getEmPAI(),
-						proteinHit.getNSAF()});
+						nsaf});
 			}
 			
-			FontMetrics fm = getFontMetrics(chartFont);
-			DecimalFormat df = new DecimalFormat("##0.00");
-			TableColumnModel tcm = proteinTbl.getColumnModel();
-			JSparklinesBarChartTableCellRenderer renderer;
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_COVERAGE)).getCellRenderer();
-			renderer.setMaxValue(maxCoverage);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + df.format(maxCoverage)), chartFont, SwingConstants.RIGHT, df);
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_PEPTIDECOUNT)).getCellRenderer();
-			renderer.setMaxValue(maxPeptideCount);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxPeptideCount), chartFont, SwingConstants.RIGHT);
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_SPECTRALCOUNT)).getCellRenderer();
-			renderer.setMaxValue(maxSpecCount);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxSpecCount), chartFont, SwingConstants.RIGHT);
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_EMPAI)).getCellRenderer();
-			renderer.setMinValue(min_emPAI);
-			renderer.setMaxValue(max_emPAI);
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_NSAF)).getCellRenderer();
-			renderer.setMaxValue(maxNSAF);
-			
-			proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
+			if (proteinTbl.getRowCount() > 0) {
+				FontMetrics fm = getFontMetrics(chartFont);
+				TableColumnModel tcm = proteinTbl.getColumnModel();
+				
+				BarChartHighlighter highlighter;
+				
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_COVERAGE))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
+				highlighter.setRange(0.0, maxCoverage);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_PEPTIDECOUNT))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
+				highlighter.setRange(0.0, maxPeptideCount);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_SPECTRALCOUNT))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+				highlighter.setRange(0.0, maxSpecCount);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_EMPAI))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
+				highlighter.setRange(min_emPAI, max_emPAI);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_NSAF))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
+				highlighter.setRange(0.0, maxNSAF);
+				
+				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
+			}
 		}
 	}
 
@@ -812,12 +1013,13 @@ public class DbSearchResultPanel extends JPanel {
 			String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
 			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(actualAccession);
 			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
-			
+
+			DefaultTableModel peptideTblMdl = (DefaultTableModel) peptideTbl.getModel();
 			int i = 1, maxSpecCount = 0;
 			for (PeptideHit peptideHit : peptideHits) {
 				int specCount = peptideHit.getSpectrumMatches().size();
 				maxSpecCount = Math.max(maxSpecCount, specCount);
-				((DefaultTableModel) peptideTbl.getModel()).addRow(new Object[] {
+				peptideTblMdl.addRow(new Object[] {
 						i++,
 						peptideHit.getSequence(),
 						specCount});
@@ -825,12 +1027,13 @@ public class DbSearchResultPanel extends JPanel {
 
 			FontMetrics fm = getFontMetrics(chartFont);
 			TableColumnModel tcm = peptideTbl.getColumnModel();
-			JSparklinesBarChartTableCellRenderer renderer;
 
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_ACCESSION)).getCellRenderer();
-			renderer.setMaxValue(maxSpecCount);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxSpecCount), chartFont, SwingConstants.RIGHT);
-
+			BarChartHighlighter highlighter;
+			
+			highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(peptideTbl.convertColumnIndexToView(PEP_SPECTRALCOUNT))).getHighlighters()[0];
+			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+			highlighter.setRange(0.0, maxSpecCount);
+			
 			peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
 		}
 	}
@@ -849,9 +1052,11 @@ public class DbSearchResultPanel extends JPanel {
 				String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
 				PeptideHit peptideHit = dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence);
 				
-				int i = 1;
-				for (Entry<Long, SpectrumMatch> entry : peptideHit.getSpectrumMatches().entrySet()) {
-					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) entry.getValue();
+				DefaultTableModel psmTblMdl = (DefaultTableModel) psmTbl.getModel();
+				int i = 1, maxVotes = 0;
+				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
+//					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) entry.getValue();
+					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 					List<SearchEngineHit> searchEngineHits = psm.getSearchEngineHits();
 					double[] qValues = { 0.0, 0.0, 0.0, 0.0 };
 					for (SearchEngineHit searchEngineHit : searchEngineHits) {
@@ -866,7 +1071,9 @@ public class DbSearchResultPanel extends JPanel {
 							qValues[3] = 1.0 - searchEngineHit.getQvalue(); break;
 						}
 					}
-					((DefaultTableModel) psmTbl.getModel()).addRow(new Object[] {
+					maxVotes = Math.max(maxVotes, psm.getVotes());
+					psmTblMdl.addRow(new Object[] {
+							true,
 							i++,
 							peptideHit.getSequence(),
 							psm.getCharge(),
@@ -876,6 +1083,16 @@ public class DbSearchResultPanel extends JPanel {
 							qValues[2],
 							qValues[3]});
 				}
+
+				FontMetrics fm = getFontMetrics(chartFont);
+				TableColumnModel tcm = psmTbl.getColumnModel();
+
+				BarChartHighlighter highlighter;
+				
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(psmTbl.convertColumnIndexToView(PSM_VOTES))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxVotes)));
+				highlighter.setRange(0.0, maxVotes);
+				
 				psmTbl.getSelectionModel().setSelectionInterval(0, 0);
 			}
 		}
@@ -886,8 +1103,8 @@ public class DbSearchResultPanel extends JPanel {
 		if (protRow != -1) {
 			int pepRow = peptideTbl.getSelectedRow();
 			if (pepRow != -1) {
-				int ssmRow = psmTbl.getSelectedRow();
-				if (ssmRow != -1) {
+				int psmRow = psmTbl.getSelectedRow();
+				if (psmRow != -1) {
 					// clear the spectrum panel
 					while (spectrumJPanel.getComponents().length > 0) {
 		                spectrumJPanel.remove(0);
@@ -895,17 +1112,11 @@ public class DbSearchResultPanel extends JPanel {
 					// get the list of spectrum matches
 					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
 					String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
-					Iterator<SpectrumMatch> iter = dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().values().iterator();
-					// find the n-th spectrum match
-					int i = 0, index = (Integer) psmTbl.getValueAt(ssmRow, psmTbl.convertColumnIndexToView(PEP_INDEX));
-					PeptideSpectrumMatch psm = null;
-					while (i < index) {
-						psm = (PeptideSpectrumMatch) iter.next();
-						i++;
-					}
+					int index = psmTbl.convertRowIndexToModel(psmRow);
+					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					// grab corresponding spectrum from the database and display it
 					try {
-						MascotGenericFile mgf = clientFrame.getClient().getSpectrumFromSearchSpectrumID(psm.getSpectrumID());
+						MascotGenericFile mgf = clientFrame.getClient().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
 						
 						specPnl = new SpectrumPanel(mgf);
 						spectrumJPanel.add(specPnl, CC.xy(2, 2));
@@ -930,7 +1141,6 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param psm
 	 */
 	private void showPopup(PeptideSpectrumMatch psm) {
-		int ssmRow = psmTbl.getSelectedRow();
 		JPopupMenu popup = new JPopupMenu();
 		
 		JPanel panel = new JPanel(new FormLayout("p, 5dlu, p", "p, 2dlu, p, 2dlu, p, 2dlu, p"));
@@ -998,8 +1208,8 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		}
 		popup.add(panel);
-		Rectangle cellRect = psmTbl.getCellRect(ssmRow, psmTbl.getColumnCount()-1, true);
-		popup.show(psmTbl, cellRect.x + cellRect.width, cellRect.y - popup.getPreferredSize().height/2 + cellRect.height/2);
+//		Rectangle cellRect = psmTbl.getCellRect(psmTbl.getSelectedRow(), psmTbl.getColumnCount()-1, true);
+//		popup.show(psmTbl, cellRect.x + cellRect.width, cellRect.y - popup.getPreferredSize().height/2 + cellRect.height/2);
 	}
 
 	/**
@@ -1179,9 +1389,9 @@ public class DbSearchResultPanel extends JPanel {
     }
 	
 	/**
-	 * This method enables the get results button.
+	 * This method sets the enabled state of the get results button.
 	 */
-	public void setResultsBtnEnabled(boolean enabled) {
+	public void setResultsButtonEnabled(boolean enabled) {
 		getResultsBtn.setEnabled(enabled);
 	}
 	
@@ -1190,86 +1400,102 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param column
 	 * @return 
 	 */
-	public JToggleButton createFilterButton(final int column){
-		// New PopUp
-		final JPopupMenu testPopup = new JPopupMenu();
-//		testPopup.add(new JMenuItem("here be text"));
-		final JTextField testTtf = new JTextField(10);
-		testPopup.add(testTtf);
-		final JToggleButton button = new JToggleButton();
-		button.setPreferredSize(new Dimension(15, 12));
+	public JPanel createFilterButton(int column, JTable table){
+		// button widget with little black triangle
+		final FilterButton button = new FilterButton(column, table);
+		button.setPreferredSize(new Dimension(11, 11));
+	
+		// wrap button in panel to apply padding
+		final JPanel panel = new JPanel(new FormLayout("0px, p, 3px", "2px, p, 2px"));
+		panel.setOpaque(false);
+		panel.add(button, CC.xy(2, 2));
 		
+		// forward mouse events on panel to button
+		panel.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent me) {
+				forwardEvent(me);
+			}
+			public void mouseReleased(MouseEvent me) {
+				forwardEvent(me);
+			}
+			public void mouseClicked(MouseEvent me) {
+				forwardEvent(me);
+			}
+			private void forwardEvent(MouseEvent me) {
+				button.dispatchEvent(SwingUtilities.convertMouseEvent(panel, me, button));
+			}
+		});
+		return panel;
+	}
+	
+	private class FilterButton extends JToggleButton {
 		
+		private FilterBalloonTip filterTip;
+		private FilterButton button;
 		
-		button.addActionListener(new ActionListener() {
-			
-			FilterBalloonTip balloonTip;
-			
-			public void actionPerformed(ActionEvent e) {
-				if (button.isSelected()) {
-					JTableHeader th = proteinTbl.getTableHeader();
-					Rectangle rect = th.getHeaderRect(proteinTbl.convertColumnIndexToView(column));
-					int width = th.getWidth();
-					String filterString = (balloonTip != null) ? balloonTip.getFilterString() : "";						
-					balloonTip = new FilterBalloonTip(th,
-							new EdgedBalloonStyle(new Color(255,253,245), new Color(64,64,64)),
-							Orientation.RIGHT_BELOW, AttachLocation.CENTER, 75, 10, false);
-					balloonTip.setFilterString(filterString);
-					balloonTip.addPropertyChangeListener(new PropertyChangeListener() {
-						public void propertyChange(PropertyChangeEvent pce) {
-							if (pce.getPropertyName().equals("ancestor")) {
-								// balloon has probably been closed
+		/**
+		 * Constructs a filter toggle button widget which shows its own balloon
+		 * tip pop-up containing filtering-related components for the specified
+		 * <code>column</code>.
+		 * 
+		 * @param column
+		 */
+		public FilterButton(final int column, final JTable table) {
+			super();
+			this.button = this;
+			this.addActionListener(new ActionListener() {
+				
+				public void actionPerformed(ActionEvent e) {
+					if (button != lastSelectedFilterBtn) {
+//						lastSelectedFilterBtn.setSelected(false);
+						lastSelectedFilterBtn.setFilterTipVisible(false);
+						lastSelectedFilterBtn = button;
+					}
+					if (button.isSelected()) {
+						JTableHeader th = table.getTableHeader();
+						String filterString = (filterTip != null) ? filterTip.getFilterString() : "";	
+						
+						Rectangle rect = th.getHeaderRect(table.convertColumnIndexToView(column));
+						rect.x += rect.width - 9;
+						rect.y += 1;
+						filterTip = new FilterBalloonTip(th, rect);
+						filterTip.addComponentListener(new ComponentAdapter() {
+							public void componentHidden(ComponentEvent ce) {
 								button.setSelected(false);
-								// TODO: maybe store original focus on first click and restore when closing again?
-								proteinTbl.requestFocus();
-								proteinTbl.getTableHeader().repaint();
-								// maybe apply filtering
-								if (balloonTip.isConfirmed()) {
-									updateSelections(column, balloonTip.getFilterString());
+								table.getTableHeader().repaint();
+								// TODO: maybe store and restore original focus instead of shifting it always onto the table?
+								table.requestFocus();
+								if (filterTip.isConfirmed()) {
+									updateSelections(column, filterTip.getFilterString());
 								}
-							}
-						}
-					});
-					Point location = balloonTip.getLocation();
-					balloonTip.setLocation(location.x - width/2 + rect.x + rect.width - 10, location.y);
-					balloonTip.requestFocus();
-				} else {
-					balloonTip.closeBalloon();
+							};
+						});
+						filterTip.setFilterString(filterString);
+						filterTip.requestFocus();
+					} else {
+						filterTip.setVisible(false);
+					}
 				}
+			});
+		}
+		
+		/**
+		 * Method to remotely hide/show the filter balloon tip.
+		 * @param visible
+		 */
+		protected void setFilterTipVisible(boolean visible) {
+			if (filterTip != null) {
+				filterTip.setVisible(visible);
 			}
-			
-//			public void actionPerformed(ActionEvent e) {
-//				if (button.isSelected()) {
-//					Rectangle rect = proteinTbl.getTableHeader().getHeaderRect(
-//							proteinTbl.convertColumnIndexToView(column));
-//					testPopup.show(proteinTbl.getTableHeader(), rect.x - 1,
-//							proteinTbl.getTableHeader().getHeight() - 1);
-//					testTtf.requestFocus();
-//				} else {
-//					testPopup.setVisible(false);
-//					proteinTbl.requestFocus();
-//				}
-//			}
-		});
-		testTtf.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				testPopup.setVisible(false);
-				proteinTbl.requestFocus();
-				button.setSelected(false);
-				proteinTbl.getTableHeader().repaint();
-			}
-		});
-		testTtf.addFocusListener(new FocusAdapter() {
-			public void focusLost(FocusEvent fe) {
-				testPopup.setVisible(false);
-				if (!button.getModel().isArmed()) {
-					button.setSelected(false);
-					proteinTbl.requestFocus();
-					proteinTbl.getTableHeader().repaint();
-				}
-			};
-		});
-		return button;
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			g.setColor(Color.BLACK);
+			g.fillPolygon(new int[] { 3, 8, 8 }, new int[] { 8, 8, 3 }, 3);
+		}
+		
 	}
 
 	/**
@@ -1279,32 +1505,74 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param filterString Comma-separated string patterns.
 	 */
 	private void updateSelections(int column, String filterString) {
-		String[] filterStrings = filterString.split(",");
-		List<String> restrictive = new ArrayList<String>();
-		List<String> permissive = new ArrayList<String>();
-		for (int i = 0; i < filterStrings.length; i++) {
-			String s = filterStrings[i].trim();
-			if (s.startsWith("-")) {
-				restrictive.add(s.substring(1));
-			} else {
-				permissive.add(s);
-			}
-		}
 		column = proteinTbl.convertColumnIndexToView(column);
-		for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-			String value = proteinTbl.getValueAt(row, column).toString();
-			boolean selected = true;
-			// check excludes
-			for (String s : restrictive) {
-				selected &= !value.contains(s);
-				if (!selected) break;
+		// prevent auto-resorting while iterating rows for performance reasons
+		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(false);
+		// Check whether we're dealing with numerical values or with text
+		if (Number.class.isAssignableFrom(proteinTbl.getColumnClass(column))) {
+			List<Number> greater = new ArrayList<Number>();
+			List<Number> greaterEqual = new ArrayList<Number>();
+			List<Number> less = new ArrayList<Number>();
+			List<Number> lessEqual = new ArrayList<Number>();
+			// parse filter strings
+			String[] filterStrings = filterString.split(",");
+			for (int i = 0; i < filterStrings.length; i++) {
+				String s = filterStrings[i].trim();
+				// TODO: maybe add more symbols, e.g. !=
+				if (s.startsWith(">")) {
+					s = s.substring(1);
+					if (s.startsWith("=")) {
+						greaterEqual.add(Double.parseDouble(s.substring(1)));
+					} else {
+						greater.add(Double.parseDouble(s));
+					}
+				} else if (s.startsWith("<")){
+					s = s.substring(1);
+					if (s.startsWith("=")) {
+						lessEqual.add(Double.parseDouble(s.substring(1)));
+					} else {
+						less.add(Double.parseDouble(s));
+					}
+				}
 			}
-			// check includes
-			for (String s : permissive) {
-				if (selected) break;
-				selected |= value.contains(s);
+//			List<Interval> intervals = new ArrayList<Interval>();
+			// iterate table rows and check intervals
+			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+				// TODO: extend interval class to contain inclusive/exclusive border capabilities
+				// TODO: build intervals
 			}
-			proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToModel(PROT_SELECTION));
+		} else {
+			List<String> restrictive = new ArrayList<String>();
+			List<String> permissive = new ArrayList<String>();
+			// parse filter strings
+			String[] filterStrings = filterString.split(",");
+			for (int i = 0; i < filterStrings.length; i++) {
+				String s = filterStrings[i].trim();
+				if (s.startsWith("-")) {
+					restrictive.add(s.substring(1));
+				} else {
+					permissive.add(s);
+				}
+			}
+			// iterate table rows and check filter patterns
+			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+				String value = proteinTbl.getValueAt(row, column).toString();
+				boolean selected = true;
+				// check excludes
+				for (String s : restrictive) {
+					selected &= !value.contains(s);
+					if (!selected) break;
+				}
+				// check includes
+				for (String s : permissive) {
+					if (selected) break;
+					selected |= value.contains(s);
+				}
+				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToModel(PROT_SELECTION));
+			}
 		}
+		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
+		// re-sort rows after iteration finished
+		((TableSortController) proteinTbl.getRowSorter()).sort();
 	}
 }

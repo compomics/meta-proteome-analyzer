@@ -198,9 +198,9 @@ public class ResultExporter {
 				// Peptide level
 				for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 					// Peptide Spectrum Match Level
-					for (SpectrumMatch psm : peptideHit.getSpectrumMatches().values()) {
+					for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
 						writer.append(count++ + SEP);
-						writer.append(psm.getSpectrumID() + SEP);
+						writer.append(sm.getSearchSpectrumID() + SEP);
 						writer.append(peptideHit.getSequence() + SEP);
 						writer.append(proteinHit.getAccession() + SEP);
 						writer.append(proteinHit.getDescription() + SEP);
