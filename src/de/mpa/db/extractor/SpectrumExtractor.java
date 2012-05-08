@@ -6,11 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.LibrarySpectrum;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.db.accessor.Libspectrum;
 import de.mpa.db.accessor.Pep2prot;
@@ -188,33 +190,7 @@ public class SpectrumExtractor {
 	}
 	
 	public List<SpectralSearchCandidate> getCandidates(List<Interval> precIntervals) throws SQLException {
-		ArrayList<SpectralSearchCandidate> res = new ArrayList<SpectralSearchCandidate>(precIntervals.size());
-		
-		// construct SQL statement
-		StringBuilder sb = new StringBuilder("SELECT libspectrumid, title, precursor_mz, precursor_charge, mzarray, intarray, fk_peptideid, sequence FROM spectrum " +
-				   							 "INNER JOIN spec2pep ON spectrum.spectrumid = spec2pep.fk_spectrumid " + 
-				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
-				   							 "INNER JOIN libspectrum ON spectrum.spectrumid = libspectrum.fk_spectrumid " +
-				   							 "WHERE ");
-		for (Interval precInterval : precIntervals) {
-			sb.append("spectrum.precursor_mz BETWEEN ");
-			sb.append(precInterval.getLeftBorder());
-			sb.append(" AND ");
-			sb.append(precInterval.getRightBorder());
-			sb.append(" OR ");
-		}
-		for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
-		
-		// execute SQL statement and build result list
-		PreparedStatement ps = conn.prepareStatement(sb.toString());
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            res.add(new SpectralSearchCandidate(rs));
-        }
-        rs.close();
-        ps.close();
-		
-		return res;
+		return getCandidatesFromExperiment(precIntervals, 0L);
 	}
 
 	/**
@@ -299,28 +275,31 @@ public class SpectrumExtractor {
 	}
 
 	/**
-	 * Method to extract spectrum titles belonging to a set of specified searchspectrum IDs. 
-	 * @param idSet Set of searchspectrum IDs.
+	 * Method to extract spectrum titles belonging to a list of specified searchspectrum IDs. 
+	 * @param matches List of searchspectrum IDs.
 	 * @return List of spectrum title strings.
 	 * @throws SQLException
 	 */
-	public List<String> getSpectrumTitlesFromIDs(Set<Long> idSet) throws SQLException {
-		if (idSet != null && !idSet.isEmpty()) {
-			ArrayList<String> res = new ArrayList<String>(idSet.size());
+	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
+		if (matches != null && !matches.isEmpty()) {
+			Map<Long, String> res = new HashMap<Long, String>(matches.size());
 			
-			StringBuilder sb = new StringBuilder("SELECT title FROM searchspectrum " +
+			StringBuilder sb = new StringBuilder("SELECT searchspectrumid, title FROM searchspectrum " +
 					"INNER JOIN spectrum ON searchspectrum.fk_spectrumid = spectrum.spectrumid " +
 					"WHERE ");
-			for (Long id : idSet) {
-				sb.append("searchspectrum.searchspectrumid = " + id);
-				sb.append(" OR ");
+			for (SpectrumMatch match : matches) {
+				if (!res.containsKey(match.getSearchSpectrumID())) {
+					sb.append("searchspectrum.searchspectrumid = " + match.getSearchSpectrumID());
+					sb.append(" OR ");
+					res.put(match.getSearchSpectrumID(), null);
+				}
 			}
 			for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
 			
 			PreparedStatement ps = conn.prepareStatement(sb.toString());
 			ResultSet rs = ps.executeQuery();
 	        while (rs.next()) {
-	            res.add(rs.getString(1));
+	            res.put(rs.getLong(1), rs.getString(2));
 	        }
 	        rs.close();
 	        ps.close();
@@ -364,9 +343,9 @@ public class SpectrumExtractor {
 		MascotGenericFile res = null;
 		
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
-				"precursor_charge, mzarray, intarray, chargearray FROM libspectrum " +
-				"INNER JOIN spectrum on libspectrum.fk_spectrumid = spectrum.spectrumid " +
-				"WHERE libspectrum.libspectrumid = ?");
+				"precursor_charge, mzarray, intarray, chargearray FROM libspectrum ls " +
+				"INNER JOIN spectrum s on ls.fk_spectrumid = s.spectrumid " +
+				"WHERE ls.libspectrumid = ?");
 		ps.setLong(1, libspectrumID);
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {

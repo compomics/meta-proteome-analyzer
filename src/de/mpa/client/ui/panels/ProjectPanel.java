@@ -3,6 +3,7 @@ package de.mpa.client.ui.panels;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -28,8 +30,9 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.table.ColumnControlButton;
 
-import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.model.ExperimentContent;
@@ -40,6 +43,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.DialogType;
 import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
@@ -52,8 +56,6 @@ public class ProjectPanel extends JPanel {
 	 * Parent class client frame.
 	 */
 	private ClientFrame clientFrame;
-	
-	private CellConstraints cc;
 
 	private ProjectManager projectManager;
 	private ProjectContent currentProjContent;
@@ -113,7 +115,6 @@ public class ProjectPanel extends JPanel {
 	 * Initializes the components.
 	 */
 	private void initComponents() {
-		cc = new CellConstraints();
 		
 		// Layout for the project panel
 		this.setLayout(new FormLayout("5dlu, p:g, 10dlu, p:g, 5dlu",
@@ -138,11 +139,11 @@ public class ProjectPanel extends JPanel {
 		selExperimentTtf.setEditable(false);
 		selExperimentTtf.setText("None");
 		
-		curProjectPnl.add(new JLabel("Selected Project:"), cc.xy(2,2));
-		curProjectPnl.add(selProjectTtf, cc.xy(4,2));
+		curProjectPnl.add(new JLabel("Selected Project:"), CC.xy(2,2));
+		curProjectPnl.add(selProjectTtf, CC.xy(4,2));
 		
-		curProjectPnl.add(new JLabel("Selected Experiment:"), cc.xy(2,4));
-		curProjectPnl.add(selExperimentTtf, cc.xy(4,4));
+		curProjectPnl.add(new JLabel("Selected Experiment:"), CC.xy(2,4));
+		curProjectPnl.add(selExperimentTtf, CC.xy(4,4));
 		
 		JXTitledPanel curProjTtlPnl = new JXTitledPanel("Current Project", curProjectPnl);
 		curProjTtlPnl.setBorder(ttlBorder);
@@ -157,8 +158,8 @@ public class ProjectPanel extends JPanel {
 		JPanel projectBtnPnl = setupProjectButtonPnl();
 		
 		JPanel projectPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu, p, 5dlu"));
-		projectPnl.add(projectTblScp, cc.xy(2, 2));
-		projectPnl.add(projectBtnPnl, cc.xy(2, 4));
+		projectPnl.add(projectTblScp, CC.xy(2, 2));
+		projectPnl.add(projectBtnPnl, CC.xy(2, 4));
 		
 		JXTitledPanel projTtlPnl = new JXTitledPanel("Project Viewer", projectPnl);
 		projTtlPnl.setBorder(ttlBorder);
@@ -173,8 +174,8 @@ public class ProjectPanel extends JPanel {
 		JPanel experimentBtnPnl = setupExperimentButtonPnl();
 		
 		JPanel experimentPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu, p, 5dlu"));
-		experimentPnl.add(experimentTblScp, cc.xy(2, 2));
-		experimentPnl.add(experimentBtnPnl, cc.xy(2, 4));
+		experimentPnl.add(experimentTblScp, CC.xy(2, 2));
+		experimentPnl.add(experimentBtnPnl, CC.xy(2, 4));
 		
 		JXTitledPanel expTtlPnl = new JXTitledPanel("Experiment Viewer", experimentPnl);
 		expTtlPnl.setBorder(ttlBorder);
@@ -197,12 +198,12 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		nextPnl.add(nextBtn, cc.xy(1,1));
+		nextPnl.add(nextBtn, CC.xy(1,1));
 
-		this.add(curProjTtlPnl, cc.xy(2, 2));
-		this.add(projTtlPnl, cc.xy(2, 4));
-		this.add(expTtlPnl, cc.xy(4, 4));
-		this.add(nextPnl, cc.xy(4, 6));
+		this.add(curProjTtlPnl, CC.xy(2, 2));
+		this.add(projTtlPnl, CC.xy(2, 4));
+		this.add(expTtlPnl, CC.xy(4, 4));
+		this.add(nextPnl, CC.xy(4, 6));
 	}
 
 	/**
@@ -212,9 +213,12 @@ public class ProjectPanel extends JPanel {
 		
 		// Manage the Projects
 		JPanel manageProjectsPnl = new JPanel();
-		manageProjectsPnl.setLayout(new FormLayout("p:g, 5dlu, p:g, 5dlu, p:g", "5dlu, p, 5dlu"));
+		manageProjectsPnl.setLayout(new FormLayout("p:g, 5dlu, p:g, 5dlu, p:g", "0dlu, p, 0dlu"));
 		
-		addProjectBtn = new JButton("New Project");
+		addProjectBtn = new JButton("New Project   ", IconConstants.ADD_FOLDER_ICON);
+		addProjectBtn.setRolloverIcon(IconConstants.ADD_FOLDER_ROLLOVER_ICON);
+		addProjectBtn.setPressedIcon(IconConstants.ADD_FOLDER_PRESSED_ICON);
+		addProjectBtn.setMargin(new Insets(5, 4, 5, 4));
 		addProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -224,7 +228,10 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		modifyProjectBtn = new JButton("View/Edit Details");
+		modifyProjectBtn = new JButton("View/Edit Details   ", IconConstants.VIEW_FOLDER_ICON);
+		modifyProjectBtn.setRolloverIcon(IconConstants.VIEW_FOLDER_ROLLOVER_ICON);
+		modifyProjectBtn.setPressedIcon(IconConstants.VIEW_FOLDER_PRESSED_ICON);
+		modifyProjectBtn.setMargin(new Insets(5, 4, 5, 4));
 		modifyProjectBtn.setEnabled(false);
 		modifyProjectBtn.addActionListener(new ActionListener() {
 			@Override
@@ -237,7 +244,10 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		deleteProjectBtn = new JButton("Delete Project");
+		deleteProjectBtn = new JButton("Delete Project   ", IconConstants.DELETE_FOLDER_ICON);
+		deleteProjectBtn.setRolloverIcon(IconConstants.DELETE_FOLDER_ROLLOVER_ICON);
+		deleteProjectBtn.setPressedIcon(IconConstants.DELETE_FOLDER_PRESSED_ICON);
+		deleteProjectBtn.setMargin(new Insets(5, 4, 5, 4));
 		deleteProjectBtn.setEnabled(false);
 		// Delete experiment
 		deleteProjectBtn.addActionListener(new ActionListener() {
@@ -275,9 +285,9 @@ public class ProjectPanel extends JPanel {
 		});
 		
 		//Add buttons to panel
-		manageProjectsPnl.add(addProjectBtn,cc.xy(1, 2));
-		manageProjectsPnl.add(modifyProjectBtn,cc.xy(3, 2));
-		manageProjectsPnl.add(deleteProjectBtn,cc.xy(5, 2));
+		manageProjectsPnl.add(addProjectBtn,CC.xy(1, 2));
+		manageProjectsPnl.add(modifyProjectBtn,CC.xy(3, 2));
+		manageProjectsPnl.add(deleteProjectBtn,CC.xy(5, 2));
 		
 		return manageProjectsPnl;
 	}
@@ -289,8 +299,11 @@ public class ProjectPanel extends JPanel {
 		
 		// Manage the Projects
 		JPanel manageExperimentsPnl = new JPanel();
-		manageExperimentsPnl.setLayout(new FormLayout("p:g, 5dlu, p:g, 5dlu, p:g", "5dlu, p, 5dlu"));
-		addExperimentBtn = new JButton("Add Experiment");
+		manageExperimentsPnl.setLayout(new FormLayout("p:g, 5dlu, p:g, 5dlu, p:g", "0dlu, p, 0dlu"));
+		addExperimentBtn = new JButton("Add Experiment   ", IconConstants.ADD_PAGE_ICON);
+		addExperimentBtn.setRolloverIcon(IconConstants.ADD_PAGE_ROLLOVER_ICON);
+		addExperimentBtn.setPressedIcon(IconConstants.ADD_PAGE_PRESSED_ICON);
+		addExperimentBtn.setMargin(new Insets(5, 4, 5, 4));
 		addExperimentBtn.setEnabled(false);
 		addExperimentBtn.addActionListener(new ActionListener() {
 			
@@ -308,7 +321,10 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
-		modifyExperimentBtn = new JButton("View/Edit Details");
+		modifyExperimentBtn = new JButton("View/Edit Details   ", IconConstants.VIEW_PAGE_ICON);
+		modifyExperimentBtn.setRolloverIcon(IconConstants.VIEW_PAGE_ROLLOVER_ICON);
+		modifyExperimentBtn.setPressedIcon(IconConstants.VIEW_PAGE_PRESSED_ICON);
+		modifyExperimentBtn.setMargin(new Insets(5, 4, 5, 4));
 		modifyExperimentBtn.setEnabled(false);
 		modifyExperimentBtn.addActionListener(new ActionListener() {
 			
@@ -319,7 +335,10 @@ public class ProjectPanel extends JPanel {
 				refreshExperimentTable(currentExperimentContent.getProjectID(), currentExperimentContent.getExperimentID());
 			}
 		});
-		deleteExperimentBtn = new JButton("Delete Experiment");
+		deleteExperimentBtn = new JButton("Delete Experiment   ", IconConstants.DELETE_PAGE_ICON);
+		deleteExperimentBtn.setRolloverIcon(IconConstants.DELETE_PAGE_ROLLOVER_ICON);
+		deleteExperimentBtn.setPressedIcon(IconConstants.DELETE_PAGE_PRESSED_ICON);
+		deleteExperimentBtn.setMargin(new Insets(5, 4, 5, 4));
 		deleteExperimentBtn.setEnabled(false);
 		// Delete experiment
 		deleteExperimentBtn.addActionListener(new ActionListener() {
@@ -348,9 +367,9 @@ public class ProjectPanel extends JPanel {
 		});
 		
 		//Add buttons to panel
-		manageExperimentsPnl.add(addExperimentBtn,cc.xy(1, 2));
-		manageExperimentsPnl.add(modifyExperimentBtn,cc.xy(3, 2));
-		manageExperimentsPnl.add(deleteExperimentBtn,cc.xy(5, 2));
+		manageExperimentsPnl.add(addExperimentBtn,CC.xy(1, 2));
+		manageExperimentsPnl.add(modifyExperimentBtn,CC.xy(3, 2));
+		manageExperimentsPnl.add(deleteExperimentBtn,CC.xy(5, 2));
 		
 		return manageExperimentsPnl;
 	}
@@ -394,7 +413,7 @@ public class ProjectPanel extends JPanel {
 			public void valueChanged(ListSelectionEvent evt) {
 				// This stuff happens when the project table is being selected.
 				try {
-					queryProjectTableMouseClicked(evt);
+					queryProjectTableSelected(evt);
 				} catch (SQLException e) {
 					GeneralExceptionHandler.showSQLErrorDialog(e, clientFrame);
 					e.printStackTrace();
@@ -407,8 +426,15 @@ public class ProjectPanel extends JPanel {
 
 		// Add nice striping effect
 		projectTbl.addHighlighter(TableConfig.getSimpleStriping());
+
+		// Modify column control widget
+		projectTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		projectTbl.getColumnControl().setOpaque(false);
+		((ColumnControlButton) projectTbl.getColumnControl()).setAdditionalActionsVisible(false);
 		
-		// Add the project table to scroll pane
+		// Add project table to scroll pane
 		JScrollPane projectTblScp = new JScrollPane(projectTbl);
 		projectTblScp.setPreferredSize(new Dimension(450, 350));
 		projectTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -453,7 +479,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
 				try {
-					queryExperimentTableMouseClicked(evt);
+					queryExperimentTableSelected(evt);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -465,8 +491,15 @@ public class ProjectPanel extends JPanel {
 
 		// Add nice striping effect
 		experimentTbl.addHighlighter(TableConfig.getSimpleStriping());
+
+		// Modify column control widget
+		experimentTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		experimentTbl.getColumnControl().setOpaque(false);
+		((ColumnControlButton) experimentTbl.getColumnControl()).setAdditionalActionsVisible(false);
 		
-		// Add the project table to scroll pane
+		// Add experiment table to scroll pane
 		JScrollPane experimentTblScp = new JScrollPane(experimentTbl);
 		experimentTblScp.setPreferredSize(new Dimension(450, 350));
 		experimentTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -570,34 +603,47 @@ public class ProjectPanel extends JPanel {
 	 *  This method retrieves the experiments from the database for an selected project.
 	 * @throws SQLException 
 	 */
-	private void queryProjectTableMouseClicked(ListSelectionEvent evt) throws SQLException {
+	private void queryProjectTableSelected(ListSelectionEvent evt) throws SQLException {
 		// Get the selected row
 		int selRow = projectTbl.getSelectedRow();
 		
-		// Condition if one row is selected.
+		// Check whether a row is currently selected
 		if (selRow != -1) {
 			refreshExperimentTable((Long) projectTbl.getValueAt(selRow, 0));
 		}
 		selExperimentTtf.setText("None");
 		clientFrame.getStatusBar().getExperimentTextField().setText("None");
 		
-		// Enables to change the entries
+		// Enable buttons
 		modifyProjectBtn.setEnabled(true);
 		deleteProjectBtn.setEnabled(true);
 		addExperimentBtn.setEnabled(true);
+		
+		// Disable buttons
+		clientFrame.getDbSearchResultPanel().setResultsButtonEnabled(false);
+		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
+		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(false);
+		
+		// Clear any fetched results
+		clientFrame.getClient().clearDbSearchResult();
+		clientFrame.getClient().clearSpecSimResult();
 	}
 	
 	/**
 	 *  This method retrieves the experiments from the database for an selected project.
 	 * @throws SQLException 
 	 */
-	private void queryExperimentTableMouseClicked(ListSelectionEvent evt) throws SQLException {
+	private void queryExperimentTableSelected(ListSelectionEvent evt) throws SQLException {
 		
 		fillCurrentExperimentContent();
+		
 		selExperimentTtf.setText(currentExperimentContent.getExperimentTitle());
 		clientFrame.getStatusBar().getExperimentTextField().setText(currentExperimentContent.getExperimentTitle());
-		clientFrame.getDbSearchResultPnl().setResultsBtnEnabled(true);
+		
 		// Enable buttons
+		clientFrame.getDbSearchResultPanel().setResultsButtonEnabled(true);
+		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(true);
+		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(true);
 		modifyExperimentBtn.setEnabled(true);
 		deleteExperimentBtn.setEnabled(true);
 	}

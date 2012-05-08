@@ -36,7 +36,7 @@ public class SpectrumSpectrumMatch extends SpectrumMatch {
 	/**
 	 * @return the libspectrumID
 	 */
-	public long getLibspectrumID() {
+	public long getLibSpectrumID() {
 		return libspectrumID;
 	}
 

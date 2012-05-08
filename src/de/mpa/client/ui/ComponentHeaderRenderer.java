@@ -1,26 +1,31 @@
 package de.mpa.client.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import com.jgoodies.forms.factories.CC;
+import com.jgoodies.forms.layout.FormLayout;
 
 public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 
 	private JLabel label;
 	private JComponent comp;
 	private JPanel panel;
+	private Icon icon;
 	
 	/**
 	 * @return the comp
@@ -35,20 +40,28 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	public JPanel getPanel() {
 		return panel;
 	}
-
+	
 	public ComponentHeaderRenderer(JComponent component) {
+		this(component, null);
+		final int iconWidth = UIManager.getIcon("Table.ascendingSortIcon").getIconWidth();
+		final int iconHeight = UIManager.getIcon("Table.ascendingSortIcon").getIconHeight();
+		this.icon = new Icon() {
+			public void paintIcon(Component c, Graphics g, int x, int y) { }
+			public int getIconWidth() { return iconWidth; }
+			public int getIconHeight() { return iconHeight; }
+		};
+	}
+
+	public ComponentHeaderRenderer(JComponent component, Icon icon) {
 		super();
 		setHorizontalTextPosition(RIGHT);
 		label = new JLabel("", SwingConstants.CENTER);
-		label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, label.getIconTextGap()));
 		comp = component;
-		panel = new JPanel(new BorderLayout());
-		panel.add(this, BorderLayout.WEST);		// icon
-		panel.add(label, BorderLayout.CENTER);	// label
-		panel.add(comp, BorderLayout.EAST);		// component
-		panel.setBorder(BorderFactory.createCompoundBorder(
-				UIManager.getBorder("TableHeader.cellBorder"),
-				BorderFactory.createEmptyBorder(0, 0, 0, 3)));
+		panel = new JPanel(new FormLayout("0px, l:m, 0px, 0px:g, 0px, r:p, 1px", "p"));
+		panel.add(this, CC.xy(2, 1));
+		panel.add(label, CC.xy(4, 1));
+		panel.add(comp, CC.xy(6, 1));
+		panel.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		this.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent me) {
 				forwardEvent(me);
@@ -65,6 +78,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 //				}
 			}
 		});
+		this.icon = icon;
 	}
 	
 	@Override
@@ -81,14 +95,21 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	@Override
 	public Icon getIcon() {
 		Icon icon = super.getIcon();
-		if (icon == null) {
-			icon = new Icon() {
-				public void paintIcon(Component c, Graphics g, int x, int y) { }
-				public int getIconWidth() { return UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(); }
-				public int getIconHeight() { return UIManager.getIcon("Table.ascendingSortIcon").getIconHeight(); }
-			};
+		return (icon == null) ? this.icon : icon;
+	}
+	
+	@Override
+	protected SortKey getSortKey(JTable table, int column) {
+		RowSorter rowSorter = table.getRowSorter();
+		if (rowSorter == null) {
+			return null;
 		}
-		return icon;
+
+		List sortedColumns = rowSorter.getSortKeys();
+		if (sortedColumns.size() > 0) {
+			return (SortKey) sortedColumns.get(1);
+		}
+		return null;
 	}
 
 }

@@ -8,28 +8,33 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -37,10 +42,11 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
-import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
-
+import org.jdesktop.swingx.JXColorSelectionButton;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
@@ -51,21 +57,22 @@ import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
-import org.jfree.chart.plot.PlotOrientation;
+import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
+import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.MultiPlotPanel;
 
@@ -76,7 +83,7 @@ public class SpecSimResultPanel extends JPanel {
 	private JXTable peptideTbl;
 	private JXTable ssmTbl;
 	private JButton getResultsBtn;
-	private MultiPlotPanel spectrumJPanel;
+	private MultiPlotPanel plotPnl;
 	protected SpecSimResult specSimResult;
 	private Font chartFont;
 	private JLabel matLbl;
@@ -106,7 +113,7 @@ public class SpecSimResultPanel extends JPanel {
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
 		// Setup tables
-		chartFont = UIManager.getFont("Label.font").deriveFont(12f);
+		chartFont = UIManager.getFont("Label.font");
 		setupProteinTableProperties();
 		setupPeptideTableProperties();
 		setupSsmTableProperties();
@@ -119,9 +126,15 @@ public class SpecSimResultPanel extends JPanel {
 		JScrollPane ssmTableScp = new JScrollPane(ssmTbl);
 		ssmTableScp.setPreferredSize(new Dimension(350, 150));
 		
-		getResultsBtn = new JButton("Get Results");
-//		getResultsBtn.setEnabled(false);
-		getResultsBtn.setPreferredSize(new Dimension(150, 20));
+		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
+		
+		getResultsBtn.setEnabled(false);
+
+		getResultsBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
+		getResultsBtn.setFocusPainted(false);
+		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				refreshProteinTable();
@@ -166,53 +179,77 @@ public class SpecSimResultPanel extends JPanel {
 		final JPanel viewPnl = new JPanel(cl);
 		
 		// Build spectrum filter panel
-		JPanel specPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		final JPanel specPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, p, f:p:g, 5dlu"));
 
-		spectrumJPanel = new MultiPlotPanel();
-		spectrumJPanel.setBorder(BorderFactory.createEtchedBorder());
+		plotPnl = new MultiPlotPanel();
+		plotPnl.setBorder(BorderFactory.createEtchedBorder());
 		
-		specPnl.add(spectrumJPanel, CC.xy(2, 2));
+		specPnl.add(plotPnl, CC.xywh(2, 2, 1, 2));
 		
 		// build score matrix visualizer panel
-		JPanel matPnl = new JPanel(new FormLayout("5dlu, m:g, 5dlu", "5dlu, f:m:g, 5dlu"));
+		final JPanel matPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p, 5dlu", "5dlu, p, f:p:g, 5dlu"));
 		
 		matLbl = new JLabel();
+		matLbl.setOpaque(true);
 		
 		JScrollPane matScpn = new JScrollPane(matLbl);
 		matScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		matScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		matScpn.setPreferredSize(new Dimension(0, 0));
 		
+		final JXColorSelectionButton colBtn = new JXColorSelectionButton();
+		colBtn.setPreferredSize(new Dimension(39, 39));
+		colBtn.addPropertyChangeListener("background", new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent arg0) {
+				matLbl.setBackground(colBtn.getBackground());
+			}
+		});
+		colBtn.setBackground(Color.WHITE);
 		
-		matPnl.add(matScpn, CC.xy(2, 2));
+		matPnl.add(matScpn, CC.xywh(2, 2, 1, 2));
+		matPnl.add(colBtn, CC.xy(4, 2));
 		
 		// Add cards
-//		viewPnl.add(specPnl, 0);
-//		viewPnl.add(matPnl, 1);
+		viewPnl.add(specPnl, "Spectrum");
+		viewPnl.add(matPnl, "Matrix");
 
 		// build control button panel for card layout
-		JButton prevBtn = new JButton("\u25C2");
-		prevBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cl.previous(viewPnl);
-			}
-		});
-		JButton nextBtn = new JButton("\u25B8");
-		nextBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cl.next(viewPnl);
-			}
-		});
+		JButton prevBtn = new JButton("<");
+		prevBtn.setPreferredSize(new Dimension(22, 18));
+		JButton nextBtn = new JButton(">");
+		nextBtn.setPreferredSize(new Dimension(22, 18));
 		
 		JPanel controlPnl = new JPanel(new BorderLayout());
 		controlPnl.add(prevBtn, BorderLayout.WEST);
 		controlPnl.add(nextBtn, BorderLayout.EAST);
 		
 		// wrap viewer panels in titled panel with control buttons in title
-		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", viewPnl); 
+		final JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", viewPnl); 
 		specTtlPnl.setTitleFont(ttlFont);
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
 		specTtlPnl.setRightDecoration(controlPnl);
+
+		prevBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cl.previous(viewPnl);
+				Component[] components = viewPnl.getComponents();
+				for (Component component : components) {
+					if (component.isVisible()) {
+						if (component == specPnl) {
+							specTtlPnl.setTitle("Spectrum Viewer");
+						} else {
+							specTtlPnl.setTitle("Score Matrix Viewer");
+						}
+					}
+				}
+			}
+		});
+		nextBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cl.next(viewPnl);
+			}
+		});
 		
 		String layoutDef =
 		    "(COLUMN protein (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=ssm)) plot))";
@@ -228,13 +265,23 @@ public class SpecSimResultPanel extends JPanel {
 		
 		this.add(multiSplitPane, CC.xy(2, 2));
 	}
+	
+	// Protein table column indices
+	private final int PROT_SELECTION	 = -1;
+	private final int PROT_INDEX		 = 0;
+	private final int PROT_ACCESSION	 = 1;
+	private final int PROT_DESCRIPTION	 = 2;
+	private final int PROT_COVERAGE		 = 3;
+	private final int PROT_MW	 = 4;
+	private final int PROT_PEPTIDECOUNT	 = 5;
+	private final int PROT_SPECTRALCOUNT = 6;
 
 	/**
 	 * This method sets up the protein results table.
 	 */
 	private void setupProteinTableProperties() {
 		// Protein table
-		proteinTbl = new JXTable(new DefaultTableModel() {
+		TableModel proteinTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {" ", "Accession", "Description", "Coverage [%]", "MW [kDa]", "Peptide Count", "Spectral Count"}); }
 	
@@ -244,24 +291,40 @@ public class SpecSimResultPanel extends JPanel {
 			
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
-				case 3:
-				case 4:
+				case PROT_SELECTION:
+					return Boolean.class;
+				case PROT_COVERAGE:
+				case PROT_MW:
 					return Double.class;
-				case 0:
-				case 5:
-				case 6:
+				case PROT_INDEX:
+				case PROT_PEPTIDECOUNT:
+				case PROT_SPECTRALCOUNT:
 					return Integer.class;
+				case PROT_ACCESSION:
+				case PROT_DESCRIPTION:
 				default:
 					return String.class;
 				}
 			}
-		});
+		};
+		proteinTbl = new JXTable(proteinTblMdl) {
+			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer,
+					int row, int column) {
+				Component comp = super.prepareRenderer(renderer, row, column);
+				if (comp instanceof JComponent) {
+					((JComponent) comp).setBorder(padding);
+				}
+				return comp;
+			}
+		};
 		
 		TableConfig.setColumnWidths(proteinTbl, new double[] { 2, 6, 30, 7, 5.5, 8, 8 });
 		
 		TableColumnModel tcm = proteinTbl.getColumnModel();
 		
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		tcm.getColumn(PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 
 		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
 		    public void actionPerformed(ActionEvent ev) {
@@ -272,7 +335,7 @@ public class SpecSimResultPanel extends JPanel {
 		        }
 		    }
 		};
-		tcm.getColumn(1).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
+		tcm.getColumn(PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
@@ -280,15 +343,16 @@ public class SpecSimResultPanel extends JPanel {
 				return compLabel;
 			}
 		});
-
-//		tcm.getColumn(3).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
-		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT, "0.000"));
-		tcm.getColumn(5).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
-		tcm.getColumn(6).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 0.0, true));
+		tcm.getColumn(PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		((TableColumnExt) tcm.getColumn(PROT_COVERAGE)).addHighlighter(new BarChartHighlighter(
+		0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, new DecimalFormat("0.00")));
+		tcm.getColumn(PROT_MW).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		((TableColumnExt) tcm.getColumn(PROT_PEPTIDECOUNT)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(PROT_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
 		
 		proteinTbl.setAutoCreateRowSorter(true);
-		proteinTbl.getRowSorter().toggleSortOrder(6);
-		proteinTbl.getRowSorter().toggleSortOrder(6);
+		proteinTbl.getRowSorter().toggleSortOrder(PROT_SPECTRALCOUNT);
+		proteinTbl.getRowSorter().toggleSortOrder(PROT_SPECTRALCOUNT);
 
 		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
@@ -302,48 +366,74 @@ public class SpecSimResultPanel extends JPanel {
 		// Add nice striping effect
 		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
-		
-		proteinTbl.addHighlighter(TableConfig.createGradientHighlighter(3, 100.0, getFontMetrics(chartFont).stringWidth("100.00"), SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, new DecimalFormat("##0.00")));
-		
 		// Enables column control
 		proteinTbl.setColumnControlVisible(true);
 		
 	}
+	
+	// Peptide table column indices
+//	private int PEP_SELECTION		= X;
+	private final int PEP_INDEX			= 0;
+	private final int PEP_SEQUENCE		= 1;
+	private final int PEP_SPECTRALCOUNT	= 2;
 
 	/**
-	 * This method sets up the peptide results table.
+	 * Method to set up the peptide results table.
 	 */
 	private void setupPeptideTableProperties() {
 		// Peptide table
-		peptideTbl = new JXTable(new DefaultTableModel() {
+		final TableModel peptideTblMdl = new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "No. Spectra"}); }
+			{ setColumnIdentifiers(new Object[] {"#", "Sequence", "No. Spectra"}); }
 	
 			public boolean isCellEditable(int row, int col) {
-				return false;
+				return (col == PEP_SEQUENCE) ? true : false;
 			}
 			
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
-				case 0:
-				case 2:
+				case PEP_INDEX:
+				case PEP_SPECTRALCOUNT:
 					return Integer.class;
 				default:
 					return String.class;
 				}
 			}
-		});
+		};
+		peptideTbl = new JXTable(peptideTblMdl) {
+			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer,
+					int row, int column) {
+				Component comp = super.prepareRenderer(renderer, row, column);
+				if (comp instanceof JComponent) {
+					((JComponent) comp).setBorder(padding);
+				}
+				return comp;
+			}
+		};
 		
 		TableConfig.setColumnWidths(peptideTbl, new double[] {3, 24, 12});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		tcm.getColumn(2).setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 1.0, true));
+		
+		tcm.getColumn(PEP_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
+		
+		final JTextField editor = new JTextField();
+		editor.setEditable(false);
+		editor.setBorder(BorderFactory.createLineBorder(UIManager.getColor("Table.dropLineColor")));
+		editor.addFocusListener(new FocusAdapter() {
+			public void focusGained(FocusEvent fe) {
+				editor.selectAll();
+			}
+		});
+		tcm.getColumn(PEP_SEQUENCE).setCellEditor(new DefaultCellEditor(editor));
 
 		// Sort the peptide table by the number of peptide hits
 		peptideTbl.setAutoCreateRowSorter(true);
-		peptideTbl.getRowSorter().toggleSortOrder(2);
-		peptideTbl.getRowSorter().toggleSortOrder(2);
+		peptideTbl.getRowSorter().toggleSortOrder(PEP_SPECTRALCOUNT);
+		peptideTbl.getRowSorter().toggleSortOrder(PEP_SPECTRALCOUNT);
 		
 		// register list selection listener
 		peptideTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -361,31 +451,64 @@ public class SpecSimResultPanel extends JPanel {
 		// Enables column control
 		peptideTbl.setColumnControlVisible(true);
 	}
+	
+	// PSM table column indices
+//	private final int SSM_SELECTION	= 0;
+	private final int SSM_INDEX		= 0;
+	private final int SSM_TITLE		= 1;
+	private final int SSM_SCORE		= 2;
 
 	/**
 	 * This method sets up the SSM results table.
 	 */
 	private void setupSsmTableProperties(){
-		// Peptide table
-		ssmTbl = new JXTable(new DefaultTableModel() {
+		// SSM table
+		TableModel ssmTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{ setColumnIdentifiers(new Object[] {"#", "Spectrum Title", "Score"}); }
+			
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				switch (columnIndex) {
+				case SSM_INDEX:
+					return Integer.class;
+				case SSM_SCORE:
+					return Double.class;
+				case SSM_TITLE:
+				default:
+					return String.class;
+				}
+			}
 	
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
-		});
+		};
+		ssmTbl = new JXTable(ssmTblMdl) {
+			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer,
+					int row, int column) {
+				Component comp = super.prepareRenderer(renderer, row, column);
+				if (comp instanceof JComponent) {
+					((JComponent) comp).setBorder(padding);
+				}
+				return comp;
+			}
+		};
 		
 		TableConfig.setColumnWidths(ssmTbl, new double[] { 1, 8, 2 });
 		
 		TableColumnModel tcm = ssmTbl.getColumnModel();
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-//		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		tcm.getColumn(SSM_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		((TableColumnExt) tcm.getColumn(SSM_SCORE)).addHighlighter(new BarChartHighlighter(
+				0.0, 1.0, getFontMetrics(chartFont).stringWidth("0.000"), SwingConstants.HORIZONTAL,
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.000")));
 		
 		// Sort the SSM table by score
 		ssmTbl.setAutoCreateRowSorter(true);
-		ssmTbl.getRowSorter().toggleSortOrder(2);
-		ssmTbl.getRowSorter().toggleSortOrder(2);
+		ssmTbl.getRowSorter().toggleSortOrder(SSM_INDEX);
+		ssmTbl.getRowSorter().toggleSortOrder(SSM_INDEX);
 		
 		// register list selection listener
 		ssmTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -400,7 +523,7 @@ public class SpecSimResultPanel extends JPanel {
 		// Add nice striping effect
 		ssmTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
-		ssmTbl.addHighlighter(TableConfig.createGradientHighlighter(2, 1.0, getFontMetrics(chartFont).stringWidth("1.000"), SwingConstants.HORIZONTAL, Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.000")));
+//		ssmTbl.addHighlighter(TableConfig.createGradientHighlighter(2, 1.0, getFontMetrics(chartFont).stringWidth("1.000"), SwingConstants.HORIZONTAL, Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.000")));
 		
 		// Enables column control
 		ssmTbl.setColumnControlVisible(true);
@@ -412,15 +535,16 @@ public class SpecSimResultPanel extends JPanel {
 	protected void refreshProteinTable() {
 		specSimResult = clientFrame.getClient().getSpecSimResult(clientFrame.getProjectPanel().getCurrentExperimentContent());
 		
-		if (specSimResult != null) {
+		if (specSimResult != null && !specSimResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
 			
 			int i = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0;
 			for (Entry<String, ProteinHit> entry : specSimResult.getProteinHits().entrySet()) {
 				ProteinHit proteinHit = entry.getValue();
-				ProteinAnalysis.calculateMolecularWeight(proteinHit);
-				ProteinAnalysis.calculateSequenceCoverage(proteinHit);
+//				if (i == 1) {
+//					System.out.println(((SpectrumSpectrumMatch) proteinHit.getPeptideHitList().get(0).getSingleSpectrumMatch()).getLibSpectrumID());
+//				}
 				maxCoverage = Math.max(maxCoverage, proteinHit.getCoverage());
 				maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
 				maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
@@ -434,33 +558,34 @@ public class SpecSimResultPanel extends JPanel {
 						proteinHit.getSpectralCount()});
 			}
 			
-			Graphics g = getGraphics();
-			FontMetrics fm = g.getFontMetrics(chartFont);
-//			DecimalFormat df = new DecimalFormat("##0.00");
-			TableColumnModel tcm = proteinTbl.getColumnModel();
-			JSparklinesBarChartTableCellRenderer renderer;
-			
-//			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(3).getCellRenderer();
-//			renderer.setMaxValue(maxCoverage);
-//			renderer.showNumberAndChart(true, fm.stringWidth("   " + df.format(maxCoverage)), chartFont, SwingConstants.RIGHT, df);
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(5).getCellRenderer();
-			renderer.setMaxValue(maxPeptideCount);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxPeptideCount), chartFont, SwingConstants.RIGHT);
-			
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(6).getCellRenderer();
-			renderer.setMaxValue(maxSpecCount);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxSpecCount), chartFont, SwingConstants.RIGHT);
-			
-			proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
-			
-			BufferedImage scoreMatrix = specSimResult.getScoreMatrixImage();
-			matLbl.setIcon(new ImageIcon(scoreMatrix.getSubimage(1, 1, scoreMatrix.getWidth()-1, scoreMatrix.getHeight()-1)));
-		    File outputfile = new File("saved.png");
-		    try {
-				ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (proteinTbl.getRowCount() > 0) {
+				FontMetrics fm = getFontMetrics(chartFont);
+				TableColumnModel tcm = proteinTbl.getColumnModel();
+				
+				BarChartHighlighter highlighter;
+				
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_COVERAGE))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
+				highlighter.setRange(0.0, maxCoverage);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_PEPTIDECOUNT))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
+				highlighter.setRange(0.0, maxPeptideCount);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_SPECTRALCOUNT))).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+				highlighter.setRange(0.0, maxSpecCount);
+
+				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
+				
+				BufferedImage scoreMatrix = specSimResult.getScoreMatrixImage();
+				matLbl.setIcon(new ImageIcon(scoreMatrix.getSubimage(1, 1, scoreMatrix.getWidth()-1, scoreMatrix.getHeight()-1)));
+			    File outputfile = new File("saved.png");
+			    try {
+					ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -487,13 +612,14 @@ public class SpecSimResultPanel extends JPanel {
 						peptideHit.getSpectrumMatches().size()});
 			}
 
-			FontMetrics fm = getGraphics().getFontMetrics(chartFont);
+			FontMetrics fm = getFontMetrics(chartFont);
 			TableColumnModel tcm = peptideTbl.getColumnModel();
-			JSparklinesBarChartTableCellRenderer renderer;
 
-			renderer = (JSparklinesBarChartTableCellRenderer) tcm.getColumn(2).getCellRenderer();
-			renderer.setMaxValue(maxSpecCount);
-			renderer.showNumberAndChart(true, fm.stringWidth("   " + maxSpecCount), chartFont, SwingConstants.RIGHT);
+			BarChartHighlighter highlighter;
+			
+			highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(peptideTbl.convertColumnIndexToView(PEP_SPECTRALCOUNT))).getHighlighters()[0];
+			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+			highlighter.setRange(0.0, maxSpecCount);
 			
 			peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
 		}
@@ -513,16 +639,17 @@ public class SpecSimResultPanel extends JPanel {
 				String sequence = (String) peptideTbl.getValueAt(pepRow, 1);
 				PeptideHit peptideHit = specSimResult.getProteinHits().get(accession).getPeptideHits().get(sequence);
 				
-				TreeMap<Long, SpectrumMatch> matches = peptideHit.getSpectrumMatches();
+				List<SpectrumMatch> matches = peptideHit.getSpectrumMatches();
 				try {
-					List<String> titles = clientFrame.getClient().getSpectrumTitlesFromIDs(matches.keySet());
+					Map<Long, String> titles = clientFrame.getClient().getSpectrumTitlesFromMatches(matches);
 					
-					int i = 0;
-					for (Entry<Long, SpectrumMatch> entry : matches.entrySet()) {
-						SpectrumSpectrumMatch ssm = (SpectrumSpectrumMatch) entry.getValue();
+					int i = 1;
+					for (SpectrumMatch sm : matches) {
+						SpectrumSpectrumMatch ssm = (SpectrumSpectrumMatch) sm;
 						((DefaultTableModel) ssmTbl.getModel()).addRow(new Object[] {
-								i+1,
-								titles.get(i++),
+								i++,
+//								ssm.getSearchSpectrumID() + " " + ssm.getLibSpectrumID() + " " + titles.get(ssm.getSearchSpectrumID()),
+								titles.get(ssm.getSearchSpectrumID()),
 								ssm.getSimilarity()});
 					}
 					
@@ -544,27 +671,29 @@ public class SpecSimResultPanel extends JPanel {
 			if (pepRow != -1) {
 				int ssmRow = ssmTbl.getSelectedRow();
 				if (ssmRow != -1) {
-					String accession = (String) proteinTbl.getValueAt(protRow, 1);
-					String sequence = (String) peptideTbl.getValueAt(pepRow, 1);
-					Iterator<SpectrumMatch> iter = specSimResult.getProteinHits().get(accession).getPeptideHits().get(sequence).getSpectrumMatches().values().iterator();
-					int i = 0, index = (Integer) ssmTbl.getValueAt(ssmRow, 0);
-					SpectrumSpectrumMatch ssm = null;
-					while (i < index) {
-						ssm = (SpectrumSpectrumMatch) iter.next();
-						i++;
-					}
+					String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
+					String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
+					int index = ssmTbl.convertRowIndexToModel(ssmRow);
+					SpectrumSpectrumMatch ssm = (SpectrumSpectrumMatch) specSimResult.getProteinHits().get(accession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					try {
-						MascotGenericFile mgfQuery = clientFrame.getClient().getSpectrumFromSearchSpectrumID(ssm.getSpectrumID());
-						MascotGenericFile mgfLib = clientFrame.getClient().getSpectrumFromLibSpectrumID(ssm.getLibspectrumID());
-						spectrumJPanel.setFirstSpectrum(mgfQuery);
-						spectrumJPanel.setSecondSpectrum(mgfLib);
-						spectrumJPanel.repaint();
+						MascotGenericFile mgfQuery = clientFrame.getClient().getSpectrumFromSearchSpectrumID(ssm.getSearchSpectrumID());
+						MascotGenericFile mgfLib = clientFrame.getClient().getSpectrumFromLibSpectrumID(ssm.getLibSpectrumID());
+						plotPnl.setFirstSpectrum(mgfQuery);
+						plotPnl.setSecondSpectrum(mgfLib);
+						plotPnl.repaint();
 					} catch (SQLException e) {
 						JXErrorPane.showDialog(e);
 					}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Sets the enabled state of the get results button.
+	 */
+	public void setResultsButtonEnabled(boolean enabled) {
+		getResultsBtn.setEnabled(enabled);
 	}
 	
 }

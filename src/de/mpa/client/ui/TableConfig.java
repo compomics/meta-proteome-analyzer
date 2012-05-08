@@ -112,7 +112,9 @@ public class TableConfig {
 	 * @param startColor The gradient's start color.
 	 * @param endColor The gradient's end color.
 	 * @return A painter highlighter drawing a gradient next to the cell contents.
+	 * @deprecated Replaced by {@link BarChartHighlighter BarChartHighlighter} class.
 	 */
+	@Deprecated
 	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, Color startColor, Color endColor) {
 		return createGradientHighlighter(column, maxValue, baseline, SwingConstants.HORIZONTAL, startColor, endColor, new DecimalFormat());
 	}
@@ -127,7 +129,9 @@ public class TableConfig {
 	 * @param startColor
 	 * @param endColor
 	 * @return A painter highlighter drawing a gradient next to the cell contents.
+	 * @deprecated Replaced by <code>BarChartHighlighter</code> class.
 	 */
+	@Deprecated
 	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, int orientation, Color startColor, Color endColor) {
 		return createGradientHighlighter(column, maxValue, baseline, orientation, startColor, endColor, new DecimalFormat());
 	}
@@ -143,7 +147,9 @@ public class TableConfig {
 	 * @param endColor The gradient's end color.
 	 * @param formatter The number formatter for the column cells.
 	 * @return A painter highlighter drawing a gradient next to the cell contents.
+	 * @deprecated Replaced by <code>BarChartHighlighter</code> class.
 	 */
+	@Deprecated
 	public static Highlighter createGradientHighlighter(final int column, final double maxValue, final int baseline, int orientation, Color startColor, Color endColor, final NumberFormat formatter) {
 		HighlightPredicate predicate = new HighlightPredicate() {
 			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {

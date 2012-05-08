@@ -1,6 +1,9 @@
 package de.mpa.client.model.dbsearch;
 
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import de.mpa.client.model.SpectrumMatch;
 
@@ -29,7 +32,12 @@ public class PeptideHit {
 	/**
 	 * The peptide spectrum match for this peptide hit.
 	 */
-	private TreeMap<Long, SpectrumMatch> spectrumMatches;
+	private List<SpectrumMatch> spectrumMatches;
+	
+	/**
+	 * 
+	 */
+	private Map<Long, Integer> id2index = new HashMap<Long, Integer>();
 	
 	/**
 	 * PeptideHit constructor, taking the sequence as only parameter.
@@ -38,8 +46,8 @@ public class PeptideHit {
 	 */
 	public PeptideHit(String sequence, SpectrumMatch spectrumMatch) {
 		this.sequence = sequence;
-		this.spectrumMatches = new TreeMap<Long, SpectrumMatch>();
-		this.spectrumMatches.put(spectrumMatch.getSpectrumID(), spectrumMatch);
+		this.spectrumMatches = new ArrayList<SpectrumMatch>();
+		addSpectrumMatch(spectrumMatch);
 	}
 	
 	/**
@@ -75,15 +83,15 @@ public class PeptideHit {
 	 * @return The list of PSMs.
 	 */
 	public SpectrumMatch getSingleSpectrumMatch() {
-		return spectrumMatches.firstEntry().getValue();
+		return spectrumMatches.get(0);
 	}
 	
 	
-	public TreeMap<Long, SpectrumMatch> getSpectrumMatches() {
+	public List<SpectrumMatch> getSpectrumMatches() {
 		return spectrumMatches;
 	}
 
-	public void setSpectrumMatches(TreeMap<Long, SpectrumMatch> spectrumMatches) {
+	public void setSpectrumMatches(List<SpectrumMatch> spectrumMatches) {
 		this.spectrumMatches = spectrumMatches;
 	}
 
@@ -120,10 +128,36 @@ public class PeptideHit {
 	}
 
 	/**
-	 * Adds a peptide spectrum match to the PeptideHit.
-	 * @param psm The peptide spectrum map.
+	 * Adds a spectrum match to the PeptideHit. 
+	 * @param sm The spectrum match.
 	 */
-	public void addSpectrumMatch(SpectrumMatch psm){
-		spectrumMatches.put(psm.getSpectrumID(), psm);
+	public void addSpectrumMatch(SpectrumMatch sm) {
+		id2index.put(sm.getSearchSpectrumID(), spectrumMatches.size());
+		spectrumMatches.add(sm);
+	}
+
+	/**
+	 * Replaces an existing spectrum match which contains the same search
+	 * spectrum ID with the specified spectrum match or appends it if no such ID
+	 * exists yet.
+	 * @param sm The spectrum match to be inserted.
+	 */
+	public void replaceSpectrumMatch(SpectrumMatch sm) {
+		Integer index = id2index.get(sm.getSearchSpectrumID());
+		if (index == null) {
+			addSpectrumMatch(sm);
+		} else {
+			spectrumMatches.set(index, sm);
+		}
+	}
+	
+	/**
+	 * Returns the spectrum match that is mapped to the specified search spectrum ID.
+	 * @param id The search spectrum ID.
+	 * @return The mapped spectrum match.
+	 */
+	public SpectrumMatch getSpectrumMatch(long id) {
+		Integer index = id2index.get(id);
+		return (index != null) ? spectrumMatches.get(id2index.get(id)) : null;
 	}
 }

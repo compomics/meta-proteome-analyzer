@@ -10,10 +10,12 @@ import java.awt.event.FocusEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -144,8 +146,17 @@ public class FilePanel extends JPanel {
 		// button to add spectra from a file
 		final JButton addBtn = new JButton("Add from File...");
 		
-		// button to add spectra from the database
+		// XXX
+		// button for downloading and appending mgf files from remote DB 
 		final JButton addDbBtn = new JButton("Add from DB...");
+		// panel containing conditions for remote mgf fetching
+		final JPanel fetchPnl = new JPanel();
+		fetchPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",	// col
+		"5dlu, p, 5dlu"));		// row
+		final JSpinner expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 1L, null, 1L));
+		fetchPnl.add(new JLabel("Experiment ID"), CC.xy(2, 2));
+		fetchPnl.add(expIdSpn, CC.xy(4, 2));
+		// /XXX
 		
 		// button to reset file tree contents
 		final JButton clrBtn = new JButton("Clear all");
@@ -382,6 +393,31 @@ public class FilePanel extends JPanel {
 				}
 			}
 		});
+		
+		// XXX
+		addDbBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int res = JOptionPane.showConfirmDialog(clientFrame, fetchPnl, "Fetch from database", 
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
+				if (res == JOptionPane.OK_OPTION) {
+					try {
+						clientFrame.getClient().initDBConnection();
+						List<MascotGenericFile> dlSpec = clientFrame.getClient().downloadSpectra((Long)expIdSpn.getValue());
+					//	clientFrame.getClient().closeDBConnection();
+						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
+						for (MascotGenericFile mgf : dlSpec) {
+							mgf.writeToStream(fos);
+						}
+						fos.close();
+					} catch (Exception x) {
+						x.printStackTrace();
+					}
+				}
+			}
+		});
+		// /XXX
 			
 		clrBtn.addActionListener(new ActionListener() {
 			@Override
@@ -430,84 +466,6 @@ public class FilePanel extends JPanel {
 		return reader.loadNthSpectrum(spectrumIndex, spectrumPosition);
 	}
 	
-//							selectionModel.removeSelectionPath(new TreePath(fileNode.getPath()));
-//							int index = 1;
-//							ArrayList<TreePath> toBeAdded = new ArrayList<TreePath>();
-//
-//							for (MascotGenericFile mgf : mgfList) {
-//								// append new spectrum node to file node
-//								DefaultMutableTreeNode spectrumNode = new DefaultMutableTreeNode(index);
-//								treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
-//
-//								// examine spectrum regarding filter criteria
-//								int numPeaks = 0;
-//								for (double intensity : mgf.getPeaks().values()) {
-//									if (intensity > filterSet.getNoiseLvl()) {
-//										numPeaks++;
-//									}
-//								}
-//								double TIC = mgf.getTotalIntensity();
-//								double SNR = mgf.getSNR(filterSet.getNoiseLvl());
-//								TreePath treePath = new TreePath(spectrumNode.getPath());
-//								if ((numPeaks > filterSet.getMinPeaks()) &&
-//										(TIC > filterSet.getMinTIC()) &&
-//										(SNR > filterSet.getMinSNR())) {
-//									toBeAdded.add(treePath);
-//								}
-//								newLeaves++;
-//								index++;
-//							}
-//							selectionModel.addSelectionPaths((TreePath[]) toBeAdded.toArray(new TreePath[0]));
-//						} catch (Exception x) {
-//							x.printStackTrace();
-//						}
-//					}
-//					tree.expandRow(0);
-//
-//					try {
-//						clientFrame.getSpecLibSearchPanel().refreshPlot(tree.getSpectrumAt(treeRoot.getFirstLeaf()));
-//					} catch (IOException x) {
-//						x.printStackTrace();
-//					}
-//
-//					//					clientFrame.getSpecLibSearchPanel().setProgress(0);
-//
-//					String str;
-//					int numFiles;
-//					str = filesTtf.getText();
-//					str = str.substring(0, str.indexOf(" "));
-//					numFiles = Integer.parseInt(str) + selFiles.length;
-//
-//					filesTtf.setText(numFiles + " file(s) selected");
-//
-//					clientFrame.log.info("Added " + newLeaves + " file(s).");
-//					if (numFiles > 0) {
-//						if (clientFrame.isConnectedToServer()) {
-//							clientFrame.sendBtn.setEnabled(true);
-//						}
-//						clrBtn.setEnabled(true);
-//						noiseEstBtn.setEnabled(true);
-//					}
-//
-//					// Get selected index for spectra combobox
-//					int comboIndex = clientFrame.spectraCbx.getSelectedIndex();
-//					clientFrame.spectraCbx.removeAllItems();
-//					clientFrame.spectraCbx2.removeAllItems();
-//
-//					for (int i = 0; i < files.size(); i++) {
-//						clientFrame.spectraCbx.addItem(files.get(i).getName());
-//						clientFrame.spectraCbx2.addItem(files.get(i).getName());
-//					}
-//
-//					if(comboIndex >= 0)	{
-//						clientFrame.spectraCbx.setSelectedIndex(comboIndex);
-//						clientFrame.spectraCbx2.setSelectedIndex(comboIndex);
-//					}
-//				}
-//				return 0;
-			
-//			}
-
 //	private void initComponents() {
 //
 //		CellConstraints cc = new CellConstraints();

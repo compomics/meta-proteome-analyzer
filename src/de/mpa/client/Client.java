@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
@@ -22,6 +22,8 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 import de.mpa.algorithms.denovo.DenovoTag;
@@ -29,6 +31,7 @@ import de.mpa.algorithms.denovo.GappedPeptide;
 import de.mpa.algorithms.denovo.GappedPeptideCombiner;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
@@ -45,6 +48,7 @@ import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
@@ -272,7 +276,13 @@ public class Client {
 	 * @throws SQLException 
 	 */
 	public DenovoSearchResult getDenovoSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		
+		if (denovoSearchResult == null) {
+			retrieveDeNovoSearchResult(projContent, expContent);
+		}
+		return denovoSearchResult;
+	}
+
+	private void retrieveDeNovoSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		try {
 			// Initialize the connection.
 			initDBConnection();
@@ -325,10 +335,30 @@ public class Client {
 						
 				}
 			}
-		} catch (SQLException e1) {
-			e1.printStackTrace();
+		} catch (SQLException e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
-		return denovoSearchResult;
+	}
+	
+	/**
+	 * Returns the current database search result.
+	 * @return dbSearchResult The current database search result.
+	 */
+	public DbSearchResult getDbSearchResult() {
+		return dbSearchResult;
+	}
+	
+	/**
+	 * Returns the current database search result.
+	 * @param projContent The project content.
+	 * @param expContent The experiment content.
+	 * @return The current database search result.
+	 */
+	public DbSearchResult getDbSearchResult(ProjectContent projContent,ExperimentContent expContent) {
+		if (dbSearchResult == null) {
+			retrieveDbSearchResult(projContent, expContent);
+		}
+		return dbSearchResult;
 	}
 	
 	/**
@@ -395,26 +425,11 @@ public class Client {
 	}
 	
 	/**
-	 * Returns the current database search result.
-	 * @param projContent The project content.
-	 * @param expContent The experiment content.
-	 * @return The current database search result.
+	 * Resets the current database search result reference.
 	 */
-	public DbSearchResult getDbSearchResult(ProjectContent projContent,ExperimentContent expContent) {
-		if(dbSearchResult == null) {
-			retrieveDbSearchResult(projContent, expContent);
-		}
-		return dbSearchResult;
+	public void clearDbSearchResult() {
+		dbSearchResult = null;
 	}
-	
-	/**
-	 * Returns the current database search result.
-	 * @return dbSearchResult The current database search result.
-	 */
-	public DbSearchResult getDbSearchResult() {
-		return dbSearchResult;
-	}
-	
 	
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
@@ -451,10 +466,17 @@ public class Client {
 				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn);
 				specSimResult.setScoreMatrixImage(SpecSearchHit.getScoreMatrixImage(expContent.getExperimentID(), conn));
 			} catch (Exception e) {
-				JXErrorPane.showDialog(e);
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
 		return specSimResult;
+	}
+	
+	/**
+	 * Resets the current spectral similarity search result reference.
+	 */
+	public void clearSpecSimResult() {
+		specSimResult = null;
 	}
 
 	/**
@@ -474,9 +496,9 @@ public class Client {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<String> getSpectrumTitlesFromIDs(Set<Long> idSet) throws SQLException {
+	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
 		initDBConnection();
-		return new SpectrumExtractor(conn).getSpectrumTitlesFromIDs(idSet);
+		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
 	}
 	
 	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {

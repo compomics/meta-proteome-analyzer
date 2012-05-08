@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="lib/utilities-3.3.17.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.3.10.jar"/>
-	<classpathentry kind="lib" path="lib/swingx-all-1.6.3.jar"/>
+	<classpathentry kind="lib" path="lib/swingx-all-1.6.3.jar" sourcepath="javadoc/swingx-1.6.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jsparklines-0.5.35.jar" sourcepath="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/JSparklines/src/main/java">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/JSparklines/doc/"/>
@@ -27,6 +27,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar"/>
-	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar" sourcepath="/BalloonTip/src"/>
+	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar" sourcepath="javadoc/balloontip-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

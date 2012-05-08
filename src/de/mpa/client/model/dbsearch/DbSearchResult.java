@@ -1,12 +1,9 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import de.mpa.client.model.SpectrumMatch;
 
 
 /**
@@ -48,7 +45,7 @@ public class DbSearchResult {
 	/**
 	 * The number of retrieved protein hits from the searches.
 	 */
-	private Map<String, ProteinHit> proteinHits = new HashMap<String, ProteinHit>();
+	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 	
 	/**
 	 * Constructors the project title, the experiment title and the FASTA database.
@@ -79,7 +76,7 @@ public class DbSearchResult {
 			PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
 
 			// Get the current peptide hits.
-			TreeMap<String, PeptideHit> currentPeptideHits = currentProteinHit.getPeptideHits();
+			Map<String, PeptideHit> currentPeptideHits = currentProteinHit.getPeptideHits();
 
 			// Check if peptide hit is not already in the protein hit
 			if (!currentPeptideHits.containsKey(peptideHit.getSequence())) {
@@ -92,22 +89,13 @@ public class DbSearchResult {
 
 				PeptideHit currentPeptideHit = currentPeptideHits.get(peptideHit.getSequence());
 
-				TreeMap<Long, SpectrumMatch> currentPsms = currentPeptideHit.getSpectrumMatches();
-
-				// Current PSM 
-				if (!currentPsms.containsKey(psm.getSpectrumID())) {
-					currentPsms.put(psm.getSpectrumID(), psm);
-					currentPeptideHit.setSpectrumMatches(currentPsms);
-					currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
-					currentProteinHit.setPeptideHits(currentPeptideHits);
+				PeptideSpectrumMatch currentPSM = (PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(psm.getSearchSpectrumID()); 
+				if (currentPSM != null) {
+					currentPSM.addSearchEngineHit(psm.getFirstSearchEngineHit());
 				} else {
-					PeptideSpectrumMatch currentPsm = (PeptideSpectrumMatch) currentPsms.get(psm.getSpectrumID());
-					currentPsm.addSearchEngineHit(psm.getFirstSearchEngineHit());
-					currentPsms.put(psm.getSpectrumID(), currentPsm);
-					currentPeptideHit.setSpectrumMatches(currentPsms);
-					currentPeptideHits.put(currentPeptideHit.getSequence(), currentPeptideHit);
-					currentProteinHit.setPeptideHits(currentPeptideHits);
+					currentPSM = psm;
 				}
+				currentPeptideHit.replaceSpectrumMatch(currentPSM);
 			}
 			proteinHits.put(accession, currentProteinHit);
 		} else {
@@ -122,6 +110,15 @@ public class DbSearchResult {
 	 */
 	public ProteinHit getProteinHit(String accession){
 		return proteinHits.get(accession);
+	}
+	
+	/**
+	 * Returns <code>true</code> if this result object contains no protein hits.
+	 * 
+	 * @return <code>true</code> if this result object contains no protein hits.
+	 */
+	public boolean isEmpty() {
+		return proteinHits.isEmpty();
 	}
 	
 	/**

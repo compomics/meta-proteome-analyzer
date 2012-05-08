@@ -18,18 +18,39 @@ import org.jdesktop.swingx.JXTableHeader;
 public class ComponentHeader extends JXTableHeader {
 
 	private ComponentHeaderRenderer chr;
+	private String[] columnToolTips;
 	private boolean[] reorderingAllowedColumns;
 	
     /**
      * Constructs a <code>JTableHeader</code> which is initialized with
-     * <code>cm</code> as the column model.
+     * <code>columnModel</code> as the column model.
      * 
      * @param columnModel the column model for the table
      */
 	public ComponentHeader(TableColumnModel columnModel) {
+		this(columnModel, null);
+	}
+	
+	/**
+	 * Constructs a <code>JTableHeader</code> which is initialized with
+	 * <code>columnModel</code> as the column model and a string array
+	 * containing column-specific tooltips.
+	 * 
+	 * @param columnModel the column model for the table
+	 */
+	public ComponentHeader(TableColumnModel columnModel, String[] columnToolTips) {
 		super(columnModel);
+		this.columnToolTips = columnToolTips;
 		reorderingAllowedColumns = new boolean[columnModel.getColumnCount()];
-		
+	}
+	
+	@Override
+	public String getToolTipText(MouseEvent me) {
+		if (columnToolTips != null) {
+			return columnToolTips[table.convertColumnIndexToModel(
+					columnModel.getColumnIndexAtX(me.getX()))];
+		}
+		return super.getToolTipText(me);
 	}
 
 	// hacky mouse event interception to avoid row sorting when hitting table header component

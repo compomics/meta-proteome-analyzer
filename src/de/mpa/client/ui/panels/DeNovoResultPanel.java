@@ -47,6 +47,7 @@ import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -63,6 +64,7 @@ public class DeNovoResultPanel extends JPanel {
 	private JXTable solutionsTbl;
 	private SpectrumPanel specPnl;
 	private HashMap<Integer, SpectrumHit> currentSpectrumHits = new HashMap<Integer, SpectrumHit>();
+	private JButton getResultsBtn;
 	
 	/**
 	 * The DeNovoResultPanel.
@@ -86,7 +88,6 @@ public class DeNovoResultPanel extends JPanel {
 		Painter ttlPainter = PanelConfig.getTitlePainter();
 		
 		JScrollPane denovoTagsScp = new JScrollPane();
-		
 
 		final JPanel denovoTagsPnl = new JPanel();
 		denovoTagsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -98,8 +99,14 @@ public class DeNovoResultPanel extends JPanel {
 		denovoTagsScp.setViewportView(peptideTagsTbl);
 		denovoTagsScp.setPreferredSize(new Dimension(800, 200));
 		
-		JButton getResultsBtn = new JButton("Get Results");
-		getResultsBtn.setPreferredSize(new Dimension(150, 20));
+		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
+		
+		getResultsBtn.setEnabled(false);
+
+		getResultsBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
+		getResultsBtn.setFocusPainted(false);
 
 		getResultsBtn.addActionListener(new ActionListener() {
 			@Override
@@ -488,6 +495,13 @@ public class DeNovoResultPanel extends JPanel {
 						tag.getTotalMass()});
 			}
 		}
+	}
+	
+	/**
+	 * This method sets the enabled state of the get results button.
+	 */
+	public void setResultsButtonEnabled(boolean enabled) {
+		getResultsBtn.setEnabled(enabled);
 	}
 
 }

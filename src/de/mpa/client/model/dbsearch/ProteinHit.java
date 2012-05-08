@@ -1,10 +1,11 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.jdesktop.swingx.JXErrorPane;
 
@@ -47,7 +48,7 @@ public class ProteinHit {
 	/**
 	 * Peptide hits for the protein.
 	 */
-	private TreeMap<String, PeptideHit> peptideHits;
+	private Map<String, PeptideHit> peptideHits;
 	
 	/**
 	 * The spectral count, i.e. the number of spectra which relate to the protein.
@@ -83,7 +84,7 @@ public class ProteinHit {
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
-		this.peptideHits = new TreeMap<String, PeptideHit>();
+		this.peptideHits = new LinkedHashMap<String, PeptideHit>();
 		this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 	}
 	/**
@@ -246,7 +247,7 @@ public class ProteinHit {
 	 * Returns a list of peptide hits.
 	 * @return The list of peptide hits.
 	 */
-	public TreeMap<String, PeptideHit> getPeptideHits() {
+	public Map<String, PeptideHit> getPeptideHits() {
 		return peptideHits;
 	}
 	
@@ -262,7 +263,7 @@ public class ProteinHit {
 	 * Sets the list of peptide hits.
 	 * @param peptideHits The list of peptide hits to set.
 	 */
-	public void setPeptideHits(TreeMap<String, PeptideHit> peptideHits) {
+	public void setPeptideHits(Map<String, PeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;
 	}
 
@@ -295,7 +296,7 @@ public class ProteinHit {
 	/**
 	 * Convenience method to retrieve a unique peptide hit.
 	 */
-	public PeptideHit getSinglePeptideHit(){
-		return peptideHits.firstEntry().getValue();
+	public PeptideHit getSinglePeptideHit() {
+		return peptideHits.values().iterator().next();
 	}
 }
