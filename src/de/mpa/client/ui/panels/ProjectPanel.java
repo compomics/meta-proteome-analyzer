@@ -35,6 +35,7 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.ui.ClientFrame;
@@ -56,6 +57,7 @@ public class ProjectPanel extends JPanel {
 	 * Parent class client frame.
 	 */
 	private ClientFrame clientFrame;
+	private Client client;
 
 	private ProjectManager projectManager;
 	private ProjectContent currentProjContent;
@@ -81,14 +83,15 @@ public class ProjectPanel extends JPanel {
 	 * The project panel constructor initializes the basic components for 
 	 * the project configuration.
 	 */
-	public ProjectPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public ProjectPanel() {
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance(); 
 		initComponents();
 		initProjectManager();
 
 		try {
 			// Initialize the database connection
-			clientFrame.getClient().initDBConnection();
+			client.initDBConnection();
 				
 			// Updates the project table.
 			refreshProjectTable();
@@ -105,7 +108,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	private void initProjectManager() {
 		try {
-			projectManager = new ProjectManager(clientFrame.getClient().getConnection());
+			projectManager = new ProjectManager(client.getConnection());
 		} catch (SQLException e) {
 			GeneralExceptionHandler.showSQLErrorDialog(e, clientFrame);
 		}
@@ -258,7 +261,7 @@ public class ProjectPanel extends JPanel {
 
 				if (choice == JOptionPane.OK_OPTION) {
 					try {
-						projectManager.revalidate(clientFrame.getClient().getConnection());
+						projectManager.revalidate(client.getConnection());
 						projectManager.deleteProject(currentProjContent.getProjectid());
 						refreshProjectTable();
 						TableConfig.clearTable(experimentTbl);
@@ -524,7 +527,7 @@ public class ProjectPanel extends JPanel {
 		try {
 			TableConfig.clearTable(projectTbl);
 			ArrayList<Project> projectList;
-			projectList = new ArrayList<Project>(Project.findAllProjects(clientFrame.getClient().getConnection()));
+			projectList = new ArrayList<Project>(Project.findAllProjects(client.getConnection()));
 			for (int i = 0; i < projectList.size(); i++) {
 				Project project = projectList.get(i);
 				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] {
@@ -561,7 +564,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	public void refreshExperimentTable(Long projectID, Long experimentID) {
 		try {
-			projectManager.revalidate(clientFrame.getClient().getConnection());
+			projectManager.revalidate(client.getConnection());
 			
 			List<Experiment> experiments = projectManager.getProjectExperiments(projectID);
 			List<Property> properties = projectManager.getProjectProperties(projectID);
@@ -625,8 +628,8 @@ public class ProjectPanel extends JPanel {
 		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(false);
 		
 		// Clear any fetched results
-		clientFrame.getClient().clearDbSearchResult();
-		clientFrame.getClient().clearSpecSimResult();
+		client.clearDbSearchResult();
+		client.clearSpecSimResult();
 	}
 	
 	/**
@@ -665,7 +668,7 @@ public class ProjectPanel extends JPanel {
 			long projectid = currentProjContent.getProjectid();
 			long experimentid = (Long) experimentTbl.getValueAt(selRow, 0);
 
-			projectManager.revalidate(clientFrame.getClient().getConnection());
+			projectManager.revalidate(client.getConnection());
 			
 			Experiment experiment = projectManager.getProjectExperiment(projectid, experimentid);
 			List<ExpProperty> expProperties = projectManager.getExperimentProperties(experiment.getExperimentid());

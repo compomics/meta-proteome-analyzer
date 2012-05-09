@@ -110,9 +110,9 @@ public class ProteinAnalysis {
 				nCoveredAA++;
 			}
 		}
-		double coverage = ((double) nCoveredAA / (double) sequence.length()) * 100.0 ;
+		double coverage = ((double) nCoveredAA / (double) sequence.length());
 
-		return Formatter.roundDouble(coverage, 4);
+		return Formatter.roundDouble(coverage, 6);
 	}
 
 	/**

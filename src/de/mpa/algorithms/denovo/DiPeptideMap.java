@@ -1,8 +1,8 @@
 package de.mpa.algorithms.denovo;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import de.mpa.analysis.Masses;
 

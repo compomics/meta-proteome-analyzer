@@ -56,9 +56,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * Constructs the client frame menu bar and initializes the components.
 	 * @param clientFrame The client frame. 
 	 */
-	public ClientFrameMenuBar(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
-		this.client = clientFrame.getClient();
+	public ClientFrameMenuBar() {
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance();
 		initComponents();
 	}
 	

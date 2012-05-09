@@ -54,12 +54,12 @@ public class ClusterPanel extends JPanel {
 	protected MascotGenericFile mergedMGF;
 	private ClusterTableModel tblMdl;
 
-	public ClusterPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public ClusterPanel() {
+		this.clientFrame = ClientFrame.getInstance();
 		initComponents();												// function call
 	}
 	
-	// void = ohne R�ckgabewert
+	// void = without return value
 	private void initComponents() {										// declaration of initComponents, void = bo return value
 		ClusterPanel clusterPnl = this;									// Init Panel "Clustering"
 		
@@ -77,8 +77,8 @@ public class ClusterPanel extends JPanel {
 			setPnl.setLayout(layout);									// editing layout of setPnl	
 			
 				// table of spectra
-				tblMdl = new ClusterTableModel();	// final f�r unver�nderliche Referenz
-//				tblMdl.addRow(new Object[] {1,"ABCD",true});				// Zeile 1 hart beschreiben (mit String und checkbox)
+				tblMdl = new ClusterTableModel();						// final for immutable reference
+//				tblMdl.addRow(new Object[] {1,"ABCD",true});				// 'force-feed' first line (with String and CheckBox)
 				specTbl = new JTable(tblMdl);							    // Init 'specTbl' adding tblMdl as model
 				specTbl.setAutoCreateRowSorter(true);						// enables alphabetic sorting, done by click on column title 
 //				specTbl.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // disable multiple selections
@@ -92,9 +92,9 @@ public class ClusterPanel extends JPanel {
 
 					sqncCntSpnMdl = new SpinnerNumberModel(1, 					// default
 														   1, 					// min	
-													   	   null, 				// max unbegrenzt
+													   	   null, 				// max unbounded
 													       1);					// step  
-					JSpinner sqncCntSpn = new JSpinner();							// init spinner with prior definded model
+					JSpinner sqncCntSpn = new JSpinner();							// init spinner with prior defined model
 					sqncCntSpn.setModel(sqncCntSpnMdl);								// assign model to spinner 
 					sqncCntSpn.addChangeListener(new ChangeListener() {				// add changelistener to spinner
 					
@@ -186,7 +186,7 @@ public class ClusterPanel extends JPanel {
 													 "5dlu, p, 5dlu, p:g, 5dlu, p:g, 5dlu"));
 					final SpinnerModel binSizeSpnMdl = new SpinnerNumberModel(1.0, 		// default
 																			  0.1, 	// min	
-																			  1e4, 		// max unbegrenzt
+																			  1e4, 		// max unbounded
 																			  0.1);		// step  
 					binSizeSpn = new JSpinner();							// init spinner
 					binSizeSpn.setModel(binSizeSpnMdl);						// assign model to spinner 
@@ -398,7 +398,7 @@ public class ClusterPanel extends JPanel {
 //					ArrayList<RankedLibrarySpectrum> hitList = clientFrame.resultMap.get(specTitle);
 //					for (int i = 0; i < hitList.size(); i++) {
 //						//alternativ: for (RankedLibrarySpectrum hit : hitList) 
-//						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// w�hle Spektren mit Korrelation 1
+//						if (Math.round(hitList.get(i).getScore()*1e6) == 1e6) {		// choose spectra with correlation == 1
 //							rls = hitList.get(i);
 //							sequence = hitList.get(i).getSequence();
 //							if (seqMap.containsKey(sequence)) {
@@ -420,7 +420,7 @@ public class ClusterPanel extends JPanel {
 //			}
 //			for (int row = 0; row < specTbl.getRowCount(); row++) {
 //				String sequence = (String) tblMdl.getValueAt(row, 1);
-//				if (seqMap.get(sequence) >= sqncCnt) {					// if sequence appears more often than spincount demands...
+//				if (seqMap.get(sequence) >= sqncCnt) {					// if sequence appears more often than spin count demands...
 //					tblMdl.setValueAt(true, row, 2);					// ...add mark to checkbox in table
 //				}
 //			}

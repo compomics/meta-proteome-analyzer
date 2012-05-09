@@ -104,28 +104,4 @@ public class ComponentHeader extends JXTableHeader {
 		reorderingAllowedColumns[column] = reorderingAllowed;
 	}
 	
-//	@Override
-//	protected void processMouseMotionEvent(MouseEvent me) {
-////		if (!table.getBounds().contains(me.getPoint())) {
-//			if (chr != null) {
-////				System.out.println(col);
-////				System.out.println(me.getID());
-////				int col = table.convertColumnIndexToView(draggedColumn.getModelIndex());
-//				Rectangle headerRect = this.getHeaderRect(table.convertColumnIndexToView(col));
-//				Point point = new Point(me.getPoint().x-headerRect.x, me.getPoint().y);
-////				System.out.println(me.getPoint() + " " + point);
-//				if (!reorderingAllowed) {
-//					System.out.println("fire");
-//					chr.dispatchEvent(new MouseEvent(
-//							me.getComponent(), me.getID(), me.getWhen(), me.getModifiers(),
-//							point.x, point.y, me.getXOnScreen(), me.getYOnScreen(),
-//							me.getClickCount(), me.isPopupTrigger(), me.getButton()));
-//				}
-////				chr = null;
-////				this.repaint();
-//			}
-////		}
-//		super.processMouseMotionEvent(me);
-//	}
-	
 }

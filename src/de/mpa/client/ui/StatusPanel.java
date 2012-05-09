@@ -15,7 +15,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 public class StatusPanel extends JPanel {
 
-//	private ClientFrame clientFrame;
 	private JProgressBar currentPrg;
 	private JProgressBar totalPrg;
 	private JTextField statusTtf;
@@ -23,8 +22,7 @@ public class StatusPanel extends JPanel {
 	private JTextField projectTtf;
 	private JTextField experimentTtf;
 
-	public StatusPanel(ClientFrame clientFrame) {
-//		this.clientFrame = clientFrame;
+	public StatusPanel() {
 		initComponents();
 	}
 

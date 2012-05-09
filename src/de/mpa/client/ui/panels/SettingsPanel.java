@@ -68,9 +68,9 @@ public class SettingsPanel extends JPanel {
 	private JLabel timeLbl;
 	private JTextField statusTtf;
 	
-	public SettingsPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
-		this.client = clientFrame.getClient();
+	public SettingsPanel() {
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance();
 		this.currentPrg = clientFrame.getStatusBar().getCurrentProgressBar();
 		this.statusTtf = clientFrame.getStatusBar().getCurrentStatusTextField();
 		this.timeLbl = clientFrame.getStatusBar().getTimeLabel();

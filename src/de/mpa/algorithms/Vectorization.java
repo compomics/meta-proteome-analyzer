@@ -2,8 +2,8 @@ package de.mpa.algorithms;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 /**
  * Class to store vectorization-specific settings and methods.
