@@ -40,6 +40,7 @@ import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.denovo.SpectrumHit;
 import de.mpa.client.model.denovo.Tag;
@@ -56,6 +57,7 @@ import de.mpa.io.MascotGenericFile;
 public class DeNovoResultPanel extends JPanel {
 
 	private ClientFrame clientFrame;
+	private Client client;
 	private JXTable spectraTbl;
 	private JXTable peptideTagsTbl;
 	protected Object filePnl;
@@ -70,8 +72,9 @@ public class DeNovoResultPanel extends JPanel {
 	 * The DeNovoResultPanel.
 	 * @param clientFrame The client frame.
 	 */
-	public DeNovoResultPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public DeNovoResultPanel() {
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance();
 		initComponents();
 	}
 	
@@ -112,7 +115,7 @@ public class DeNovoResultPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
-				denovoSearchResult = clientFrame.getClient().getDenovoSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
+				denovoSearchResult = client.getDenovoSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
 				
 				// Check if any results are stored in the database.
 				if(denovoSearchResult.getTagHits().size() > 0){
@@ -445,8 +448,8 @@ public class DeNovoResultPanel extends JPanel {
 			SpectrumHit spectrumHit = currentSpectrumHits.get(Integer.valueOf(spectraTbl.getValueAt(row, 0).toString()));
 			Searchspectrum searchSpectrum;
 			try {
-				searchSpectrum = Searchspectrum.findFromSearchSpectrumID(spectrumHit.getSpectrumid(), clientFrame.getClient().getConnection());
-				MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(searchSpectrum.getFk_spectrumid(), clientFrame.getClient().getConnection());
+				searchSpectrum = Searchspectrum.findFromSearchSpectrumID(spectrumHit.getSpectrumid(), client.getConnection());
+				MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(searchSpectrum.getFk_spectrumid(), client.getConnection());
 				specPnl = new SpectrumPanel(mgf);
 				spectrumJPanel.add(specPnl);
 		        spectrumJPanel.validate();

@@ -3,6 +3,7 @@ package de.mpa.client.ui.dialogs;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +41,7 @@ import org.jdesktop.swingx.JXTable;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.ui.ClientFrame;
@@ -53,6 +55,12 @@ import de.mpa.db.accessor.Property;
 public class GeneralDialog extends JDialog {
 	
 	private long id = 0L;
+			
+	// Parent client frame.
+	private ClientFrame clientFrame;
+			
+	// Parent client.
+	private Client client;
 	
 	// Property table
 	private JXTable propertyTbl;
@@ -74,9 +82,6 @@ public class GeneralDialog extends JDialog {
 	
 	// Button to save and leave property table
 	private JButton saveBtn;
-			
-	// Parent client frame.
-	private ClientFrame parent;
 
 	private JTextField nameTtf;
 
@@ -98,8 +103,8 @@ public class GeneralDialog extends JDialog {
 	 * @param title
 	 * @param parent
 	 */
-	public GeneralDialog(String title, ClientFrame parent, DialogType type) {
-		this(title, parent, type, null);
+	public GeneralDialog(String title, Frame owner, DialogType type) {
+		this(title, owner, type, null);
 	}
 	
 	/**
@@ -109,9 +114,10 @@ public class GeneralDialog extends JDialog {
 	 * @param type
 	 * @param content
 	 */
-	public GeneralDialog(String title, ClientFrame parent, DialogType type, Object content) {
-		super(parent, title, true);
-		this.parent = parent;
+	public GeneralDialog(String title, Frame owner, DialogType type, Object content) {
+		super(owner, title, true);
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance();
 		this.type = type;
 		if (content instanceof ProjectContent) {
 			this.currentProjContent = (ProjectContent) content;
@@ -378,7 +384,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void storeProject() {
 		try {
-			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
+			ProjectManager manager = new ProjectManager(client.getConnection());
 
 			// Store the project name
 			id = manager.createNewProject(nameTtf.getText());
@@ -390,7 +396,7 @@ public class GeneralDialog extends JDialog {
 			manager.addProjectProperties(id, properties);
 			
 			// Update the project table in the project panel.
-			parent.getProjectPanel().refreshProjectTable();
+			clientFrame.getProjectPanel().refreshProjectTable();
 
 		} catch (SQLException e) {
 			GeneralExceptionHandler.showSQLErrorDialog(e, this);
@@ -402,7 +408,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void modifyProject() {
 		try {
-			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
+			ProjectManager manager = new ProjectManager(client.getConnection());
 
 			// Modify the project name
 			manager.modifyProjectName(currentProjContent.getProjectid(), nameTtf.getText());
@@ -415,7 +421,7 @@ public class GeneralDialog extends JDialog {
 			manager.modifyProjectProperties(currentProjContent.getProjectid(), properties, operations);
 			
 			// Update the project table in the project panel.
-			parent.getProjectPanel().refreshProjectTable();
+			clientFrame.getProjectPanel().refreshProjectTable();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -427,7 +433,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void storeExperiment() {
 		try {
-			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
+			ProjectManager manager = new ProjectManager(client.getConnection());
 
 			// Store the experiment name
 			id = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
@@ -439,7 +445,7 @@ public class GeneralDialog extends JDialog {
 			manager.addExperimentProperties(id, properties);
 			
 			// Update the experiment table in the panel.
-			parent.getProjectPanel().refreshExperimentTable(currentProjContent.getProjectid());
+			clientFrame.getProjectPanel().refreshExperimentTable(currentProjContent.getProjectid());
 			
 		} catch (SQLException e) {
 			GeneralExceptionHandler.showSQLErrorDialog(e, this);
@@ -451,7 +457,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void modifyExperiment() {
 		try {
-			ProjectManager manager = new ProjectManager(parent.getClient().getConnection());
+			ProjectManager manager = new ProjectManager(client.getConnection());
 
 			// Modify the experiment name
 			manager.modifyExperimentName(currentExpContent.getExperimentID(), nameTtf.getText());
@@ -464,7 +470,7 @@ public class GeneralDialog extends JDialog {
 			manager.modifyExperimentProperties(currentExpContent.getExperimentID(), properties, operations);
 
 			// Update the experiment table in the panel.
-			parent.getProjectPanel().refreshExperimentTable(currentExpContent.getProjectID());
+			clientFrame.getProjectPanel().refreshExperimentTable(currentExpContent.getProjectID());
 			
 		} catch (Exception e) {
 			e.printStackTrace();

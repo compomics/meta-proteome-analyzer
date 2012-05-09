@@ -2,7 +2,6 @@ package de.mpa.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
@@ -10,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -179,7 +179,7 @@ public class TableConfig {
 					int clipHeight = (y == 0) ? (height - 4) : (int) (value/maxValue * (height - 4));
 					int yOffset = height - clipHeight - 2;
 					g.translate(xOffset, 0);
-					g.setClip(0, yOffset, clipWidth, clipHeight);
+					g.clipRect(0, yOffset, clipWidth, clipHeight);
 					super.doPaint(g, component, width, height);
 				} catch (Exception e) {
 					JXErrorPane.showDialog(e);
@@ -239,7 +239,7 @@ public class TableConfig {
 	 */
 	public static void setColumnMinWidths(JTable table, int leftPadding, int rightPadding) {
 		TableColumnModel tcm = table.getColumnModel();
-		FontMetrics fm = table.getFontMetrics(new Font("SansSerif", Font.PLAIN, 12));
+		FontMetrics fm = table.getFontMetrics(new JLabel().getFont());
 		for (int col = 0; col < tcm.getColumnCount(); col++) {
 			TableColumn tc = tcm.getColumn(col);
 			// TODO: parametrize hard-coded font

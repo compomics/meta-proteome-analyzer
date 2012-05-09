@@ -43,6 +43,7 @@ import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.settings.FilterSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
@@ -58,10 +59,10 @@ import de.mpa.io.MascotGenericFileReader;
 import de.mpa.ui.ExtensionFileFilter;
 
 public class FilePanel extends JPanel {
-
-	private final static String PATH = "test/de/mpa/resources/";
 	
 	private ClientFrame clientFrame;
+	private Client client;
+	
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
 
 	private CheckBoxTreeTable treeTbl;
@@ -71,9 +72,12 @@ public class FilePanel extends JPanel {
 	protected static MascotGenericFileReader reader;
 
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
+
+	private final static String PATH = "test/de/mpa/resources/";
 	
-	public FilePanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public FilePanel() {
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance();
 		this.initComponents();
 	}
 
@@ -403,8 +407,8 @@ public class FilePanel extends JPanel {
 						JOptionPane.PLAIN_MESSAGE);
 				if (res == JOptionPane.OK_OPTION) {
 					try {
-						clientFrame.getClient().initDBConnection();
-						List<MascotGenericFile> dlSpec = clientFrame.getClient().downloadSpectra((Long)expIdSpn.getValue());
+						client.initDBConnection();
+						List<MascotGenericFile> dlSpec = client.downloadSpectra((Long)expIdSpn.getValue());
 					//	clientFrame.getClient().closeDBConnection();
 						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
 						for (MascotGenericFile mgf : dlSpec) {

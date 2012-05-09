@@ -62,6 +62,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
@@ -79,6 +80,7 @@ import de.mpa.ui.MultiPlotPanel;
 public class SpecSimResultPanel extends JPanel {
 	
 	private ClientFrame clientFrame;
+	private Client client;
 	private JXTable proteinTbl;
 	private JXTable peptideTbl;
 	private JXTable ssmTbl;
@@ -92,8 +94,9 @@ public class SpecSimResultPanel extends JPanel {
 	 * Class constructor defining the parent client frame.
 	 * @param clientFrame
 	 */
-	public SpecSimResultPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public SpecSimResultPanel() {
+		this.clientFrame = ClientFrame.getInstance();
+		this.client = Client.getInstance();
 		initComponents();
 	}
 	
@@ -214,10 +217,10 @@ public class SpecSimResultPanel extends JPanel {
 		viewPnl.add(matPnl, "Matrix");
 
 		// build control button panel for card layout
-		JButton prevBtn = new JButton("<");
-		prevBtn.setPreferredSize(new Dimension(22, 18));
-		JButton nextBtn = new JButton(">");
-		nextBtn.setPreferredSize(new Dimension(22, 18));
+		JButton prevBtn = new JButton("\u2039");
+		prevBtn.setPreferredSize(new Dimension(19, 18));
+		JButton nextBtn = new JButton("\u203A");
+		nextBtn.setPreferredSize(new Dimension(19, 18));
 		
 		JPanel controlPnl = new JPanel(new BorderLayout());
 		controlPnl.add(prevBtn, BorderLayout.WEST);
@@ -533,7 +536,7 @@ public class SpecSimResultPanel extends JPanel {
 	 * Method to refresh protein table contents.
 	 */
 	protected void refreshProteinTable() {
-		specSimResult = clientFrame.getClient().getSpecSimResult(clientFrame.getProjectPanel().getCurrentExperimentContent());
+		specSimResult = client.getSpecSimResult(clientFrame.getProjectPanel().getCurrentExperimentContent());
 		
 		if (specSimResult != null && !specSimResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
@@ -641,7 +644,7 @@ public class SpecSimResultPanel extends JPanel {
 				
 				List<SpectrumMatch> matches = peptideHit.getSpectrumMatches();
 				try {
-					Map<Long, String> titles = clientFrame.getClient().getSpectrumTitlesFromMatches(matches);
+					Map<Long, String> titles = client.getSpectrumTitlesFromMatches(matches);
 					
 					int i = 1;
 					for (SpectrumMatch sm : matches) {
@@ -676,8 +679,8 @@ public class SpecSimResultPanel extends JPanel {
 					int index = ssmTbl.convertRowIndexToModel(ssmRow);
 					SpectrumSpectrumMatch ssm = (SpectrumSpectrumMatch) specSimResult.getProteinHits().get(accession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					try {
-						MascotGenericFile mgfQuery = clientFrame.getClient().getSpectrumFromSearchSpectrumID(ssm.getSearchSpectrumID());
-						MascotGenericFile mgfLib = clientFrame.getClient().getSpectrumFromLibSpectrumID(ssm.getLibSpectrumID());
+						MascotGenericFile mgfQuery = client.getSpectrumFromSearchSpectrumID(ssm.getSearchSpectrumID());
+						MascotGenericFile mgfLib = client.getSpectrumFromLibSpectrumID(ssm.getLibSpectrumID());
 						plotPnl.setFirstSpectrum(mgfQuery);
 						plotPnl.setSecondSpectrum(mgfLib);
 						plotPnl.repaint();
