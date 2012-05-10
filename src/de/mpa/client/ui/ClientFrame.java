@@ -205,7 +205,7 @@ public class ClientFrame extends JFrame {
 		logPnl = new LoggingPanel();
 		
 		// fabi's test panel
-		clusterPnl = new ClusterPanel();
+//		clusterPnl = new ClusterPanel();
 		
 	}
 

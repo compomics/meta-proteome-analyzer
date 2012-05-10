@@ -17,6 +17,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.font.TextAttribute;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -24,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -39,17 +42,20 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -94,8 +100,8 @@ import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.WrapLayout;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.WrapLayout;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.icons.IconConstants;
@@ -930,7 +936,8 @@ public class DbSearchResultPanel extends JPanel {
 				String[] split = desc.split(" OS=");
 				if (split.length > 1) {
 					proteinHit.setDescription(split[0]);
-					String species = split[1].substring(0, split[1].indexOf(" GN="));
+					String species = (split[1].contains(" GN=")) ?
+							split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
 					proteinHit.setSpecies(species);
 				}
 				
@@ -1052,62 +1059,57 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			
 			int blockSize = 10, length = sequence.length();
-			boolean intervalOpen = false;
+			int intervalOpen = 0;
 			for (int start = 0; start < length; start += blockSize) {
 				int end = start + blockSize;
 				end = (end > length) ? length : end;
-				StringBuilder sb = new StringBuilder("<html><code>");
+				StringBuilder indexRow = new StringBuilder("<html><code>");
 				int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
 				for (int i = 0; i < spaces; i++) {
-					sb.append("&nbsp");
+					indexRow.append("&nbsp");
 				}
-				sb.append(" " + (start + blockSize));
-				sb.append("<br>");
-				if (intervalOpen) {
-					sb.append("<font color=\"red\">");
-				}
-				StringBuffer block = new StringBuffer(sequence.substring(start, end));
-				int blockLength = block.length();
-				List<Integer> lefts = new ArrayList<Integer>();
-				List<Integer> rights = new ArrayList<Integer>();
+				indexRow.append(" " + (start + blockSize));
+				indexRow.append("</html></code>");
+				
+				JPanel blockPnl = new JPanel(new BorderLayout());
+				blockPnl.setOpaque(false);
+				JLabel indexLbl = new JLabel(indexRow.toString());
+				indexLbl.setBackground(new Color(0, 255, 0, 32));
+				indexLbl.setOpaque(true);
+				blockPnl.add(indexLbl, BorderLayout.NORTH);
+				
+				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				subBlockPnl.setOpaque(false);
+				
+				String blockSeq = sequence.substring(start, end); 
+				int blockLength = blockSeq.length();
+				int subIndex = 0;
+				
 				for (int i = 0; i < blockLength; i++) {
 					int pos = start + i;
 					for (Interval interval : peptideIntervals) {
 						if ((pos == (int) interval.getLeftBorder())) {
-							lefts.add(i);
-							intervalOpen = true;
-							break;
+							subBlockPnl.add(new JLabel(
+									"<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>"));
+							intervalOpen++;
+							subIndex = i;
 						}
 						if ((pos == (int) interval.getRightBorder())) {
-							// TODO: find a way to deal with missed cleavages
-							rights.add(i);
-							intervalOpen = false;
-							break;
+							subBlockPnl.add(new HoverLabel(blockSeq.substring(subIndex, i)));
+							intervalOpen--;
+							subIndex = i;
 						}
 					}
 				}
-				int offset = 0, leftIndex = 0, rightIndex = 0, size = lefts.size() + rights.size();
-				for (int j = 0; j < size; j++) {
-					Integer leftPos = (lefts.isEmpty()) ? null : lefts.get(leftIndex);
-					Integer rightPos = (rights.isEmpty()) ? null : rights.get(rightIndex);
-					leftPos = (leftPos == null) ? Integer.MAX_VALUE : leftPos;
-					rightPos = (rightPos == null) ? Integer.MAX_VALUE : rightPos;
-					if (leftPos < rightPos) {
-						block.insert(leftPos + offset, "<font color=\"red\">");
-						leftIndex++;
-						offset += 18;
-					} else {
-						block.insert(rightPos + offset, "</font>");
-						rightIndex++;
-						offset += 7;
-					}
+				if (intervalOpen > 0) {
+					subBlockPnl.add(new HoverLabel(blockSeq.substring(subIndex)));
+				} else {
+					subBlockPnl.add(new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>"));
 				}
-				if (intervalOpen) {
-					block.append("</font>");
-				}
-				sb.append(block);
-				sb.append("</html></code>");
-				coveragePnl.add(new JLabel(sb.toString()));
+				
+				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
+				
+				coveragePnl.add(blockPnl);
 			}
 		}
 		coveragePnl.revalidate();
@@ -1649,5 +1651,42 @@ public class DbSearchResultPanel extends JPanel {
 		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
 		// re-sort rows after iteration finished
 		((TableSortController) proteinTbl.getRowSorter()).sort();
+	}
+
+	/**
+	 * A clickable label with rollover effect.
+	 * @author A. Behne
+	 */
+	private class HoverLabel extends JButton {
+
+		public HoverLabel(String text) {
+			this(text, Color.RED);
+		}
+		
+		public HoverLabel(String text, Color color) {
+			super(text);
+			setForeground(color);
+			setFocusPainted(false);
+//			setContentAreaFilled(false);
+			setOpaque(false);
+			setBorder(null);
+			setFont(new Font("Monospaced", Font.PLAIN, 12));
+			// TODO: use binding to synchronize multiple buttons and their models
+			addMouseListener(new MouseAdapter() {
+				private Font originalFont, underlineFont;
+				{
+					originalFont = getFont();
+					Map attributes = originalFont.getAttributes();
+					attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+					underlineFont = originalFont.deriveFont(attributes);
+				}
+				public void mouseEntered(MouseEvent me) {
+					((JComponent) me.getSource()).setFont(underlineFont);
+				}
+				public void mouseExited(MouseEvent me) {
+					((JComponent) me.getSource()).setFont(originalFont);
+				}
+			});
+		}
 	}
 }
