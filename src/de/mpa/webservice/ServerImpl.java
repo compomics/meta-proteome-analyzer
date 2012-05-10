@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,9 @@ import de.mpa.db.storager.SpectrumStorager;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
+import de.mpa.job.JobStatus;
 import de.mpa.job.SearchType;
+import de.mpa.job.instances.CommonJob;
 import de.mpa.job.instances.CruxJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
@@ -58,7 +59,7 @@ public class ServerImpl implements Server {
     /**
      * Message queue instance for communication between server and client.
      */
-    private Queue<Message> msgQueue = new ArrayDeque<Message>();
+    private Queue<Message> msgQueue = MessageQueue.getInstance();
 
 	/**
 	 * The DBManager instance.
@@ -79,14 +80,14 @@ public class ServerImpl implements Server {
 	@Override
 	public String sendMessage() {
 		Message msg = msgQueue.poll();
+		
 		if(msg != null){
 			String composedMessage;
-			if(msg.getJob() != null){
-				composedMessage = msg.getJob().getDescription() + " " + msg.getData();
+			if(msg.getStatus() == JobStatus.ERROR){
+				composedMessage = JobStatus.ERROR.toString() + ": " + msg.getDescription() + " " + msg.getError();
 			} else {
-				composedMessage = msg.getData();
+				composedMessage = msg.getDescription() + " " + msg.getStatus().toString();
 			}
-			
 			log.info(composedMessage);
 			return composedMessage;
 		}
@@ -186,7 +187,7 @@ public class ServerImpl implements Server {
 		// Execute the search engine jobs.
 		jobManager.execute();
 		
-		msgQueue.add(new Message(null, "DBSEARCH FINISHED", new Date()));
+		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DATABASE SEARCH"), new Date()));
 		
 		// Clear the folders
 		// FIXME: Thilo, make this working!
@@ -200,6 +201,8 @@ public class ServerImpl implements Server {
 		SpecSimJob specSimJob = new SpecSimJob(mgfList, sss);
 		jobManager.addJob(specSimJob);
 		jobManager.execute();
+		
+		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "SPECTRAL SIMILARITY SEARCH"), new Date()));
 		return specSimJob.getResults();
 	}
 	
@@ -217,6 +220,8 @@ public class ServerImpl implements Server {
 		PepnovoJob denovoJob = new PepnovoJob(file, dnSettings.getModel(), dnSettings.getPrecursorTol(), dnSettings.getFragMassTol(), dnSettings.getNumSolutions());
 		jobManager.addJob(denovoJob);
 		jobManager.execute();
+		
+		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DE NOVO SEARCH"), new Date()));
 	}
 	
 	/**

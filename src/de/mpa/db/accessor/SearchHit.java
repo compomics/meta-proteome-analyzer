@@ -1,6 +1,9 @@
 package de.mpa.db.accessor;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
+
 public interface SearchHit {
+	public SearchEngineType getType();
 	public String getSequence();
 	public String getAccession();
 	public Number getQvalue();

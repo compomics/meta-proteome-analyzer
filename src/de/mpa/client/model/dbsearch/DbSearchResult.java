@@ -91,7 +91,7 @@ public class DbSearchResult {
 
 				PeptideSpectrumMatch currentPSM = (PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(psm.getSearchSpectrumID()); 
 				if (currentPSM != null) {
-					currentPSM.addSearchEngineHit(psm.getFirstSearchEngineHit());
+					currentPSM.addSearchEngineHit(psm.getFirstSearchHit());
 				} else {
 					currentPSM = psm;
 				}

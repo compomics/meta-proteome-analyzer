@@ -25,13 +25,13 @@ public abstract class Job implements Executable {
 	protected String error = null;
 	
 	// Default setting on JobStatus.WAITING
-	private JobStatus status = JobStatus.WAITING;
+	protected JobStatus status = JobStatus.WAITING;
 
 	// Default description is an empty string
-	private String description = "";
+	protected String description = "";
 	
 	// Filename representing the file.
-	private String filename;
+	protected String filename;
 	
 	/**
 	 * The ProcessBuilder object
@@ -62,7 +62,6 @@ public abstract class Job implements Executable {
 			proc = procBuilder.start();
 			setStatus(JobStatus.RUNNING);
 		} catch (IOException ioe) {
-			setStatus(JobStatus.ERROR);
 			setError(ioe.getMessage());
 			ioe.printStackTrace();
 		}
@@ -92,10 +91,9 @@ public abstract class Job implements Executable {
 			done();
 		} catch (InterruptedException e) {
 			setError(e.getMessage());
-			setStatus(JobStatus.ERROR);
 			e.printStackTrace();
 			if (proc != null) {
-				System.out.println("SUBPROCESS KILLED!");
+				log.error("SUBPROCESS KILLED!");
 				proc.destroy();
 			}
 		}		
@@ -107,7 +105,7 @@ public abstract class Job implements Executable {
 	private void done() {
 		// Set the job status to FINISHED and put the message in the queue
 		setStatus(JobStatus.FINISHED);
-		MessageQueue.getInstance().add(new Message(this, status.toString(), new Date()));
+		
 	}
 	
 	/**
@@ -122,6 +120,8 @@ public abstract class Job implements Executable {
 	 */
 	public void setError(String error) {		
 		this.error = error;
+		log.error(error);
+		setStatus(JobStatus.ERROR);
 	}
 
 	/**
@@ -138,6 +138,7 @@ public abstract class Job implements Executable {
 	 */
 	public void setStatus(JobStatus status) {
 		this.status = status;
+		MessageQueue.getInstance().add(new Message(this, new Date()));
 	}
 
 	/**
@@ -171,8 +172,4 @@ public abstract class Job implements Executable {
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
-	
-	
-	
 }
-

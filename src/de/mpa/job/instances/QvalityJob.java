@@ -40,6 +40,8 @@ public class QvalityJob extends Job {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob(){
+		setDescription("QVALITY JOB");
+		
 		// full path to executable
 		procCommands.add("qvality");
 		

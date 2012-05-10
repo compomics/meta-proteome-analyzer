@@ -87,7 +87,6 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.SearchEngineHit;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ClientFrameMenuBar;
@@ -103,6 +102,7 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.fragmentation.FragmentIon;
 import de.mpa.fragmentation.Fragmentizer;
@@ -1132,18 +1132,18 @@ public class DbSearchResultPanel extends JPanel {
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
 //					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) entry.getValue();
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
-					List<SearchEngineHit> searchEngineHits = psm.getSearchEngineHits();
+					List<SearchHit> searchHits = psm.getSearchHits();
 					double[] qValues = { 0.0, 0.0, 0.0, 0.0 };
-					for (SearchEngineHit searchEngineHit : searchEngineHits) {
-						switch (searchEngineHit.getType()) {
+					for (SearchHit searchHit : searchHits) {
+						switch (searchHit.getType()) {
 						case XTANDEM:
-							qValues[0] = 1.0 - searchEngineHit.getQvalue(); break;
+							qValues[0] = 1.0 - searchHit.getQvalue().doubleValue(); break;
 						case OMSSA:
-							qValues[1] = 1.0 - searchEngineHit.getQvalue(); break;
+							qValues[1] = 1.0 - searchHit.getQvalue().doubleValue(); break;
 						case CRUX:
-							qValues[2] = 1.0 - searchEngineHit.getQvalue(); break;
+							qValues[2] = 1.0 - searchHit.getQvalue().doubleValue(); break;
 						case INSPECT:
-							qValues[3] = 1.0 - searchEngineHit.getQvalue(); break;
+							qValues[3] = 1.0 - searchHit.getQvalue().doubleValue(); break;
 						}
 					}
 					maxVotes = Math.max(maxVotes, psm.getVotes());
@@ -1241,11 +1241,11 @@ public class DbSearchResultPanel extends JPanel {
 				BorderFactory.createLineBorder(Color.MAGENTA)));
 		DecimalFormat df = new DecimalFormat("0.00");
 		int yIndex = 1;
-		for (SearchEngineHit hit : psm.getSearchEngineHits()) {
+		for (SearchHit hit : psm.getSearchHits()) {
 			switch (hit.getType()) {
 			case XTANDEM:
-				XTandemhit xtandemhit = (XTandemhit) hit.getSearchhit();
-				xTandemLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+				XTandemhit xtandemhit = (XTandemhit) hit;
+				xTandemLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | HScore: " + df.format(xtandemhit.getHyperscore().doubleValue()) + 
 						" | E-value: "  + df.format(xtandemhit.getEvalue().doubleValue()));
 				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,yIndex));
@@ -1253,8 +1253,8 @@ public class DbSearchResultPanel extends JPanel {
 				yIndex += 2;
 				break;
 			case OMSSA:
-				Omssahit omssahit = (Omssahit) hit.getSearchhit();
-				omssaLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+				Omssahit omssahit = (Omssahit) hit;
+				omssaLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | P-value: " + df.format(omssahit.getPvalue().doubleValue()) + 
 						" | E-value: "  + df.format(omssahit.getEvalue().doubleValue()));
 				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,yIndex));
@@ -1262,16 +1262,16 @@ public class DbSearchResultPanel extends JPanel {
 				yIndex += 2;
 				break;
 			case CRUX:
-				Cruxhit cruxhit = (Cruxhit) hit.getSearchhit();
-				cruxLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+				Cruxhit cruxhit = (Cruxhit) hit;
+				cruxLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | XCorr: " + df.format(cruxhit.getXcorr_score().doubleValue()));
 				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,yIndex));
 				panel.add(cruxLbl, CC.xy(3,yIndex));
 				yIndex += 2;
 				break;
 			case INSPECT:
-				Inspecthit inspecthit = (Inspecthit) hit.getSearchhit();
-				inspectLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue())*100.0) + "%" +
+				Inspecthit inspecthit = (Inspecthit) hit;
+				inspectLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | FScore: " + df.format(inspecthit.getF_score().doubleValue()) + 
 						" | DeltaScore: "  + df.format(inspecthit.getDeltascore().doubleValue()));
 				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,yIndex));

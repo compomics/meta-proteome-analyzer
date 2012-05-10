@@ -27,10 +27,10 @@ public class SearchEngineHit {
 	 * @param searchhit The search hit.
 	 * @param type The search engine type.
 	 */
-	public SearchEngineHit(SearchHit searchhit, SearchEngineType type) {
+	public SearchEngineHit(SearchHit searchhit) {
 		this.qvalue = searchhit.getQvalue().doubleValue();
 		this.searchhit = searchhit;
-		this.type = type;
+		this.type = searchhit.getType();
 	}
 
 	/**

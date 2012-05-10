@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
+
 public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	private String sequence = null;
 	private String accession = null;
@@ -45,6 +47,27 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
         ps.close();
         return temp;
     }
+    
+	/**
+     * This method will find the hits from the current connection, based on the specified spectrumid.
+     *
+     * @param experimentID long with the experimentID.
+     * @param conn DB connection.
+     * @return List of Crux hits.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static List<XTandemhit> getHitsFromExperimentID(long experimentID, Connection conn) throws SQLException {
+    	List<XTandemhit> temp = new ArrayList<XTandemhit>();
+    	PreparedStatement ps = conn.prepareStatement("select x.*, p.sequence, pr.accession from xtandemhit x, searchspectrum s, peptide p, protein pr where x.fk_peptideid = p.peptideid and x.fk_proteinid = pr.proteinid and s.searchspectrumid = x.fk_searchspectrumid and s.fk_experimentid = ?");
+        ps.setLong(1, experimentID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new XTandemhit(rs));
+        }
+        rs.close();
+        ps.close();
+        return temp;
+    }
 
 	public String getSequence() {
 		return sequence;
@@ -61,5 +84,10 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	public long getCharge(){
 		//TODO: Include the appropriate charge in the DB.
 		return 2;
+	}
+	
+	@Override
+	public SearchEngineType getType() {
+		return SearchEngineType.XTANDEM;
 	}
 }

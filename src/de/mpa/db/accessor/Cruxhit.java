@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
+
 public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	
 	private String sequence;
@@ -36,14 +38,35 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
      * This method will find the hits from the current connection, based on the specified spectrumid.
      *
      * @param aSpectrumID long with the spectrumid of the spectrum file to find.
-     * @param aConn           Connection to read the spectrum File from.
-     * @return Spectrumfile with the data.
+     * @param conn DB connection.
+     * @return List of Crux hits.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static List<Cruxhit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
+    public static List<Cruxhit> getHitsFromSpectrumID(long aSpectrumID, Connection conn) throws SQLException {
     	List<Cruxhit> temp = new ArrayList<Cruxhit>();
-    	PreparedStatement ps = aConn.prepareStatement("select c.*, p.sequence, pr.accession, pr.proteinid from cruxhit c, peptide p, protein pr, cruxhit2prot c2p where c.fk_peptideid = p.peptideid and c.cruxhitid = c2p.fk_cruxhitid and c2p.fk_proteinid = pr.proteinid and c.fk_searchspectrumid = ?");
+    	PreparedStatement ps = conn.prepareStatement("select c.*, p.sequence, pr.accession, pr.proteinid from cruxhit c, peptide p, protein pr, cruxhit2prot c2p where c.fk_peptideid = p.peptideid and c.cruxhitid = c2p.fk_cruxhitid and c2p.fk_proteinid = pr.proteinid and c.fk_searchspectrumid = ?");
         ps.setLong(1, aSpectrumID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new Cruxhit(rs));
+        }
+        rs.close();
+        ps.close();
+        return temp;
+    }
+    
+	/**
+     * This method will find the hits from the current connection, based on the specified spectrumid.
+     *
+     * @param experimentID long with the experimentID.
+     * @param conn DB connection.
+     * @return List of Crux hits.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static List<Cruxhit> getHitsFromExperimentID(long experimentID, Connection conn) throws SQLException {
+    	List<Cruxhit> temp = new ArrayList<Cruxhit>();
+    	PreparedStatement ps = conn.prepareStatement("select c.*, p.sequence, pr.accession, pr.proteinid from cruxhit c, searchspectrum s, peptide p, protein pr, cruxhit2prot c2p where c.fk_peptideid = p.peptideid and c.cruxhitid = c2p.fk_cruxhitid and c2p.fk_proteinid = pr.proteinid and s.searchspectrumid = c.fk_searchspectrumid and s.fk_experimentid = ?");
+        ps.setLong(1, experimentID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             temp.add(new Cruxhit(rs));
@@ -64,5 +87,10 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	@Override
 	public long getFk_proteinid() {
 		return proteinid;
+	}
+
+	@Override
+	public SearchEngineType getType() {
+		return SearchEngineType.CRUX;
 	}
 }

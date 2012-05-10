@@ -16,7 +16,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	/**
 	 * The search engine hits.
 	 */
-	private List<SearchEngineHit> searchEngineHits;
+	private List<SearchHit> searchHits;
 	
 	/**
 	 * Default empty constructor.
@@ -29,37 +29,37 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * Constructor for the PeptideSpectrumMatch.
 	 * @param spectrumid
 	 * @param votes
-	 * @param searchEngineHits
+	 * @param searchHits
 	 */
-	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit, SearchEngineType type) {
+	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit) {
 		this.searchSpectrumID = spectrumid;
 		this.charge = (int) searchHit.getCharge();
-		this.searchEngineHits = new ArrayList<SearchEngineHit>();
-		this.searchEngineHits.add(new SearchEngineHit(searchHit, type));
+		this.searchHits = new ArrayList<SearchHit>();
+		this.searchHits.add(searchHit);
 	}
 	
 	/**
-	 * Returns the search engine hit.
-	 * @return The search engine hit.
+	 * Returns the search hit.
+	 * @return The search hit.
 	 */
-	public SearchEngineHit getFirstSearchEngineHit() {
-		return searchEngineHits.get(0);
+	public SearchHit getFirstSearchHit() {
+		return searchHits.get(0);
 	}
 	
 	/**
-	 * Returns the list of search engine hits.
-	 * @return The list of search engine hits.
+	 * Returns the list of search hits.
+	 * @return The list of search hits.
 	 */
-	public List<SearchEngineHit> getSearchEngineHits() {
-		return searchEngineHits;
+	public List<SearchHit> getSearchHits() {
+		return searchHits;
 	}
 	
 	/**
 	 * Adds a search engine hit to the PSM.
 	 * @param hit Another search engine hit to be added.
 	 */
-	public void addSearchEngineHit(SearchEngineHit hit) {
-		this.searchEngineHits.add(hit);
+	public void addSearchEngineHit(SearchHit hit) {
+		this.searchHits.add(hit);
 	}
 
 	/**
@@ -75,6 +75,6 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return The number of votes for the search engine hits.
 	 */
 	public int getVotes(){
-		return searchEngineHits.size();
+		return searchHits.size();
 	}
 }

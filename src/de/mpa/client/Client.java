@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,6 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.denovo.SpectrumHit;
 import de.mpa.client.model.denovo.Tag;
@@ -53,9 +51,6 @@ import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.Cruxhit;
-import de.mpa.db.accessor.Inspecthit;
-import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
@@ -63,7 +58,7 @@ import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Spectrum;
-import de.mpa.db.accessor.XTandemhit;
+import de.mpa.db.extractor.SearchHitExtractor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.webservice.WSPublisher;
@@ -371,54 +366,16 @@ public class Client {
 		try {
 			initDBConnection();
 			
-			// The protein hit set, containing all information about found proteins.
+			// The protein hit set, contain>ing all information about found proteins.
 			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
 			
 			// Iterate over query spectra and get the different identification result sets
-			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
 			
-			//TODO: Get search date from run table
-			Date searchDate = null;
-			for (Searchspectrum searchSpectrum : searchSpectra) {
-				
-				long searchSpectrumId = searchSpectrum.getSearchspectrumid();
-				
-				// X!Tandem
-				List<XTandemhit> xtandemList = XTandemhit.getHitsFromSpectrumID(searchSpectrumId, conn);
-				if(xtandemList.size() > 0) {
-					for (XTandemhit hit : xtandemList) {
-						addProteinSearchHit(hit, SearchEngineType.XTANDEM);
-					}
-					
-					// Set creation date
-					if(searchDate == null){
-						dbSearchResult.setSearchDate(xtandemList.get(0).getCreationdate());
-					}
-				}
-				
-				// Omssa
-				List<Omssahit> omssaList = Omssahit.getHitsFromSpectrumID(searchSpectrumId, conn);
-				if(omssaList.size() > 0) {
-					for (Omssahit hit : omssaList) {
-						addProteinSearchHit(hit, SearchEngineType.OMSSA);
-					}
-				}
-				// Crux
-				List<Cruxhit> cruxList = Cruxhit.getHitsFromSpectrumID(searchSpectrumId, conn);				
-				if(cruxList.size() > 0) {
-					for (Cruxhit hit : cruxList) {
-						hit.getAccession();
-						addProteinSearchHit(hit, SearchEngineType.CRUX);
-					}
-				}
-				// Inspect
-				List<Inspecthit> inspectList = Inspecthit.getHitsFromSpectrumID(searchSpectrumId, conn);		
-				if(inspectList.size() > 0) {
-					for (Inspecthit hit : inspectList) {
-						addProteinSearchHit(hit, SearchEngineType.INSPECT);
-					}
-				}
+			List<SearchHit> findSearchHitsFromExperimentID = SearchHitExtractor.findSearchHitsFromExperimentID(expContent.getExperimentID(), conn);
+			for (SearchHit searchHit : findSearchHitsFromExperimentID) {
+				addProteinSearchHit(searchHit);
 			}
+		
 		}  catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -436,11 +393,11 @@ public class Client {
 	 * @param hit The search hit implementation.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	private void addProteinSearchHit(SearchHit hit, SearchEngineType type) throws SQLException {
+	private void addProteinSearchHit(SearchHit hit) throws SQLException {
 		
 		// Create the PeptideSpectrumMatch
 		// TODO: add the hit here!
-		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit, type);
+		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
 		
 		// Get the peptide hit.
 		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
