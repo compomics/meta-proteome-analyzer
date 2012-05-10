@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
+
 public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
 	
 	private String sequence;
@@ -52,6 +54,27 @@ public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
         return temp;
     }
     
+	/**
+     * This method will find the hits from the current connection, based on the specified spectrumid.
+     *
+     * @param experimentID long with the experimentID.
+     * @param conn DB connection.
+     * @return List of Inspect hits.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static List<Inspecthit> getHitsFromExperimentID(long experimentID, Connection conn) throws SQLException {
+    	List<Inspecthit> temp = new ArrayList<Inspecthit>();
+    	PreparedStatement ps = conn.prepareStatement("select i.*, p.sequence, pr.accession from inspecthit i, searchspectrum s, peptide p, protein pr where i.fk_peptideid = p.peptideid and i.fk_proteinid = pr.proteinid and s.searchspectrumid = i.fk_searchspectrumid and s.fk_experimentid = ?");
+        ps.setLong(1, experimentID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new Inspecthit(rs));
+        }
+        rs.close();
+        ps.close();
+        return temp;
+    }
+    
     public String getSequence() {
 		return sequence;
 	}
@@ -62,5 +85,10 @@ public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
 
 	public Number getQvalue() {
 		return iP_value;
+	}
+	
+	@Override
+	public SearchEngineType getType() {
+		return SearchEngineType.INSPECT;
 	}
 }

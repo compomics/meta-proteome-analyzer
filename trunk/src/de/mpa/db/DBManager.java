@@ -76,7 +76,8 @@ public class DBManager {
 	 */
 	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException {
 		// Store the spectra from the spectrum file for a given experiment.	
-		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid);
+		// TODO: No redudancy check uses for the spectrum storing... add flag option to client ?
+		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid, false);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
 		

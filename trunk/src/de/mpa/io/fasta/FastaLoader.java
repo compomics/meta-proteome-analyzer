@@ -141,6 +141,7 @@ public class FastaLoader {
 			
 			// Line in the file
 			String line;
+			int count = 1;
 			
 			// Iterate the fasta file line by line.
 			while ((line = raf.readLine()) != null) {
@@ -149,10 +150,10 @@ public class FastaLoader {
 				if (line.startsWith(">")) {
 					// Parse the header
 					Header header = Header.parseFromFASTA(line);
-					
+					System.out.println(count + ": " + header.getAccession());
 					// Fill the map.
 					acc2pos.put(header.getAccession(), pos);
-
+					count++;
 				} else {
 					// End of the sequence part == Start of a new header
 					pos = raf.getFilePointer();

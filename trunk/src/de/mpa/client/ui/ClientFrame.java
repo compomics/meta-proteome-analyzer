@@ -223,6 +223,7 @@ public class ClientFrame extends JFrame {
 			statusPnl.getCurrentStatusTextField().setText(finished);
 		}
 		
+		//appendToLog(message);
 //		} else if(message.startsWith("DBSEARCH")){
 //			for (File file : chunkedFiles) {
 //				dbSearchResult = client.getDbSearchResult(file);

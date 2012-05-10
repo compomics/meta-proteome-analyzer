@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
+
 public class Omssahit extends OmssahitTableAccessor implements SearchHit{
 	
 	private String sequence;
@@ -45,6 +47,27 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
         ps.close();
         return temp;
     }
+    
+	/**
+     * This method will find the hits from the current connection, based on the specified spectrumid.
+     *
+     * @param experimentID long with the experimentID.
+     * @param conn DB connection.
+     * @return List of OMSSA hits.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static List<Omssahit> getHitsFromExperimentID(long experimentID, Connection conn) throws SQLException {
+    	List<Omssahit> temp = new ArrayList<Omssahit>();
+    	PreparedStatement ps = conn.prepareStatement("select o.*, p.sequence, pr.accession from omssahit o, searchspectrum s, peptide p, protein pr where o.fk_peptideid = p.peptideid and o.fk_proteinid = pr.proteinid and s.searchspectrumid = o.fk_searchspectrumid and s.fk_experimentid = ?");
+        ps.setLong(1, experimentID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new Omssahit(rs));
+        }
+        rs.close();
+        ps.close();
+        return temp;
+    }
 
 	public String getSequence() {
 		return sequence;
@@ -52,5 +75,10 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
 
 	public String getAccession() {
 		return accession;
+	}
+	
+	@Override
+	public SearchEngineType getType() {
+		return SearchEngineType.OMSSA;
 	}
 }

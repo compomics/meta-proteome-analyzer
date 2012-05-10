@@ -45,6 +45,8 @@ public class SpectrumStorager extends BasicStorager {
 
 	private List<MascotGenericFile> spectra;
     
+	private boolean redundancyCheck;
+	
     /**
      * Initializes the spectrum storager. 
      *
@@ -64,10 +66,11 @@ public class SpectrumStorager extends BasicStorager {
      * @param file The spectrum search file.
      * @param experimentid The experiment id.
      */
-    public SpectrumStorager(Connection conn, File file, long experimentid) {
+    public SpectrumStorager(Connection conn, File file, long experimentid, boolean redundancyCheck) {
     	this.conn = conn;
     	this.file = file;
     	this.experimentid = experimentid;
+    	this.redundancyCheck = redundancyCheck;
     }
 
     /**
@@ -110,7 +113,11 @@ public class SpectrumStorager extends BasicStorager {
 //            title = title.replaceAll("\\s+$", "");
             
             // TO Condition: Only add if the spectrum is not stored yet!
-            Spectrum query = Spectrum.findFromTitle(title, conn);
+            Spectrum query = null;
+            
+            if(redundancyCheck)
+            	query = Spectrum.findFromTitle(title, conn);
+            
             if (query == null) {
             	
 	            /* Spectrum section */

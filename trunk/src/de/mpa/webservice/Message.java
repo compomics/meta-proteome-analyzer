@@ -3,6 +3,7 @@ package de.mpa.webservice;
 import java.util.Date;
 
 import de.mpa.job.Job;
+import de.mpa.job.JobStatus;
 
 /**
  * <b> Message.java</b>
@@ -14,49 +15,67 @@ import de.mpa.job.Job;
  */
 public class Message {
 	
-	// From which job comes the message
-	private Job job;
+	// Job error
+	protected String error;
 	
-	// The data contained in the message
-	private String data;
+	// Job status
+	protected JobStatus status;
+	
+	// Job description
+	protected String description;
 	
 	// When was the message sent 
 	private Date dateSent;
-
+	
+	/**
+	 * Convenience constructor. 
+	 * @param job The executed job.
+	 */
+	public Message(Job job) {
+		this(job, new Date());
+	}
 	
 	/**
 	 * The message object.
 	 * @param job
-	 * @param data
 	 * @param dateSent
 	 */
-	public Message(Job job, String data, Date dateSent) {
-		this.job = job;
-		this.data = data;
+	public Message(Job job, Date dateSent) {
+		this.status = job.getStatus();
+		this.description = job.getDescription();
+		this.error = job.getError();
 		this.dateSent = dateSent;
 	}
-	
-	/**
-	 * Returns the job which created the message.
-	 * @return
-	 */
-	public Job getJob() {
-		return job;
-	}	
-	
-	/**
-	 * Returns the message data content.
-	 * @return
-	 */
-	public String getData() {
-		return data;
-	}	
-	
+		
 	/**
 	 * Returns the date when the message was sent.
 	 * @return
 	 */
 	public Date getDateSent() {
 		return dateSent;
+	}
+	
+	/**
+	 * Returns the job error message. 
+	 * @return The error message.
+	 */
+	public String getError() {
+		return error;
+	}
+	
+	/**
+	 * Returns the job status. 
+	 * @return The job status.
+	 */
+	public JobStatus getStatus() {
+		return status;
+	}
+	
+	/**
+	 * Returns the job description.
+	 * @return The job description.
+	 */
+	public String getDescription() {
+		return description;
 	}	
 }
