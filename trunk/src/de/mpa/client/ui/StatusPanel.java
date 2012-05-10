@@ -40,6 +40,7 @@ public class StatusPanel extends JPanel {
 													  "2dlu, f:p:g, 2dlu"));
 		projectPnl.setBorder(bevelBrd);
 
+		// TODO: use binding to synchronize text field values with project properties
 		projectTtf = new JTextField("None");
 		projectTtf.setBorder(null);
 		projectTtf.setEditable(false);
