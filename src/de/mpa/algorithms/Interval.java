@@ -64,5 +64,10 @@ public class Interval {
 	public double getWidth() {
 		return this.rightBorder - this.leftBorder;
 	}
+	
+	@Override
+	public String toString() {
+		return "[" + leftBorder + ", " + rightBorder + "]";
+	}
 
 }

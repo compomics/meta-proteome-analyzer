@@ -76,6 +76,8 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
+import com.jgoodies.binding.adapter.RadioButtonAdapter;
+import com.jgoodies.binding.value.ValueHolder;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -538,8 +540,8 @@ public class DbSearchResultPanel extends JPanel {
 		// Register list selection listener
 		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
-				refreshPeptideTable();
 				refreshCoverageViewer();
+				refreshPeptideTable();
 			}
 		});
 		
@@ -619,6 +621,9 @@ public class DbSearchResultPanel extends JPanel {
 		peptideTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
 				refreshPsmTable();
+				// TODO: use binding to synchronize selection state with table
+				int index = peptideTbl.convertRowIndexToModel(peptideTbl.getSelectedRow());
+				coverageSelectionModel.setValue(index);
 			}
 		});
 	
@@ -657,6 +662,8 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PSM_OMSSA 	= 6;
 	private final int PSM_CRUX 		= 7;
 	private final int PSM_INSPECT 	= 8;
+
+	private ValueHolder coverageSelectionModel;
 	
 	/**
 	 * This method sets up the PSM results table.
@@ -1072,9 +1079,14 @@ public class DbSearchResultPanel extends JPanel {
 					peptideIntervals.add(new Interval(index, index + pepSeq.length()));
 				}
 			}
+
+			int matchIndex = -1;
+			RadioButtonAdapter rba = null;
+			coverageSelectionModel = new ValueHolder(matchIndex++);
 			
-			int blockSize = 10, length = sequence.length();
-			int intervalOpen = 0;
+			List<HoverLabel> hovers = null;
+			
+			int blockSize = 10, length = sequence.length(), openIntervals = 0;
 			for (int start = 0; start < length; start += blockSize) {
 				int end = start + blockSize;
 				end = (end > length) ? length : end;
@@ -1099,25 +1111,39 @@ public class DbSearchResultPanel extends JPanel {
 				String blockSeq = sequence.substring(start, end); 
 				int blockLength = blockSeq.length();
 				int subIndex = 0;
-				
 				for (int i = 0; i < blockLength; i++) {
 					int pos = start + i;
 					for (Interval interval : peptideIntervals) {
 						if ((pos == (int) interval.getLeftBorder())) {
 							subBlockPnl.add(new JLabel(
 									"<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>"));
-							intervalOpen++;
+
+							rba = new RadioButtonAdapter(coverageSelectionModel, matchIndex);
+							hovers = new ArrayList<HoverLabel>();
+							
 							subIndex = i;
+							openIntervals++;
 						}
 						if ((pos == (int) interval.getRightBorder())) {
-							subBlockPnl.add(new HoverLabel(blockSeq.substring(subIndex, i)));
-							intervalOpen--;
+							HoverLabel hover = new HoverLabel(blockSeq.substring(subIndex, i));
+							hover.setModel(rba);
+							hovers.add(hover);
+							subBlockPnl.add(hover);
+							for (HoverLabel hl : hovers) {
+								hl.setSiblings(hovers);
+							}
+							
 							subIndex = i;
+							matchIndex++;
+							openIntervals--;
 						}
 					}
 				}
-				if (intervalOpen > 0) {
-					subBlockPnl.add(new HoverLabel(blockSeq.substring(subIndex)));
+				if (openIntervals > 0) {
+					HoverLabel hover = new HoverLabel(blockSeq.substring(subIndex));
+					hover.setModel(rba);
+					hovers.add(hover);
+					subBlockPnl.add(hover);
 				} else {
 					subBlockPnl.add(new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>"));
 				}
@@ -1680,23 +1706,32 @@ public class DbSearchResultPanel extends JPanel {
 
 	/**
 	 * A clickable label with rollover effect.
+	 * 
 	 * @author A. Behne
 	 */
-	private class HoverLabel extends JButton {
+	private class HoverLabel extends JToggleButton {
+		
+		private Color selected;
+		private List<HoverLabel> siblings;
 
 		public HoverLabel(String text) {
 			this(text, Color.RED);
 		}
-		
-		public HoverLabel(String text, Color color) {
+
+		public HoverLabel(String text, Color foreground) {
+			this(text, foreground, new Color(foreground.getRed(), foreground.getGreen(),
+					foreground.getBlue(), (foreground.getAlpha() + 1) / 8));
+		}
+
+		public HoverLabel(String text, Color foreground, Color selected) {
 			super(text);
-			setForeground(color);
+			this.selected = selected;
+			this.siblings = new ArrayList<HoverLabel>();
+			setForeground(foreground);
 			setFocusPainted(false);
-//			setContentAreaFilled(false);
-			setOpaque(false);
+			setContentAreaFilled(false);
 			setBorder(null);
 			setFont(new Font("Monospaced", Font.PLAIN, 12));
-			// TODO: use binding to synchronize multiple buttons and their models
 			addMouseListener(new MouseAdapter() {
 				private Font originalFont, underlineFont;
 				{
@@ -1706,12 +1741,37 @@ public class DbSearchResultPanel extends JPanel {
 					underlineFont = originalFont.deriveFont(attributes);
 				}
 				public void mouseEntered(MouseEvent me) {
-					((JComponent) me.getSource()).setFont(underlineFont);
+					for (HoverLabel sibling : siblings) {
+						sibling.setFont(underlineFont);
+					}
 				}
 				public void mouseExited(MouseEvent me) {
-					((JComponent) me.getSource()).setFont(originalFont);
+					for (HoverLabel sibling : siblings) {
+						sibling.setFont(originalFont);
+					}
+				}
+			});
+			// TODO: use binding to synchronize selection state with table
+			addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int index = peptideTbl.convertRowIndexToView((Integer) coverageSelectionModel.getValue());
+					peptideTbl.getSelectionModel().setSelectionInterval(index, index);
 				}
 			});
 		}
+		
+		public void setSiblings(List<HoverLabel> siblings) {
+			this.siblings = siblings;
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+			if (isSelected()) {
+				g.setColor(selected);
+				g.fillRect(0, 0, getWidth(), getHeight());
+			}
+			super.paintComponent(g);
+		}
 	}
+	
 }

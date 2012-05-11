@@ -69,17 +69,17 @@ public class ResultExporter {
 				writer.append(proteinHit.getDescription() + SEP);
 				writer.append(proteinHit.getCoverage() + SEP);
 				writer.append(proteinHit.getMolecularWeight() + SEP);
-				writer.append((Math.round(proteinHit.getPI() * 100) / 100) + SEP);
+				writer.append((Math.round(proteinHit.getPI() * 100.0) / 100.0) + SEP);
 				writer.append(proteinHit.getPeptideCount() + SEP);
 				writer.append(proteinHit.getSpectralCount() + SEP);
 				writer.append(proteinHit.getEmPAI() + SEP);
-				writer.append((Math.round(proteinHit.getNSAF() * 100) / 100) + SEP);
+				writer.append((Math.round(proteinHit.getNSAF() * 100.0) / 100.0) + SEP);
 
 				// Get the peptide hits.
 				Set<Entry<String, PeptideHit>> entrySet = proteinHit.getPeptideHits().entrySet();
 				int pepCount = 1;
 				for (Entry<String, PeptideHit> peptideEntry : entrySet) {
-					if(pepCount < entrySet.size()){
+					if (pepCount < entrySet.size()) {
 						writer.append(pepCount + ": " + peptideEntry.getValue().getSequence() + ",");
 					} else {
 						writer.append(pepCount + ": " + peptideEntry.getValue().getSequence());
