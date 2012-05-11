@@ -18,18 +18,17 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -42,20 +41,17 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -98,10 +94,11 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
+import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.icons.IconConstants;
@@ -119,7 +116,7 @@ public class DbSearchResultPanel extends JPanel {
 	private ClientFrame clientFrame;
 	
 	private JXTable proteinTbl;
-	protected FilterButton lastSelectedFilterBtn = new FilterButton(0, null);
+	protected FilterButton lastSelectedFilterBtn = new FilterButton(0, null,0);
 	private DbSearchResult dbSearchResult;
 	private JXTable peptideTbl;
 	private JXTable psmTbl;
@@ -144,20 +141,6 @@ public class DbSearchResultPanel extends JPanel {
 	private JPanel coveragePnl;
 	
 	FilterBalloonTip filterTip;
-	
-	// Protein table column indices
-	private final int PROT_SELECTION 		= 0;
-	private final int PROT_INDEX 			= 1;
-	private final int PROT_ACCESSION 		= 2;
-	private final int PROT_DESCRIPTION 		= 3;
-	private final int PROT_SPECIES 			= 4;
-	private final int PROT_COVERAGE 		= 5;
-	private final int PROT_MW 				= 6;
-	private final int PROT_PI 				= 7;
-	private final int PROT_PEPTIDECOUNT 	= 8;
-	private final int PROT_SPECTRALCOUNT 	= 9;
-	private final int PROT_EMPAI 			= 10;
-	private final int PROT_NSAF 			= 11;
 	
 	/**
 	 * Constructor for a database results panel.
@@ -319,6 +302,20 @@ public class DbSearchResultPanel extends JPanel {
 		
 		this.add(multiSplitPane, CC.xy(2, 2));
 	}
+	
+	// Protein table column indices
+	private final int PROT_SELECTION 		= 0;
+	private final int PROT_INDEX 			= 1;
+	private final int PROT_ACCESSION 		= 2;
+	private final int PROT_DESCRIPTION 		= 3;
+	private final int PROT_SPECIES 			= 4;
+	private final int PROT_COVERAGE 		= 5;
+	private final int PROT_MW 				= 6;
+	private final int PROT_PI 				= 7;
+	private final int PROT_PEPTIDECOUNT 	= 8;
+	private final int PROT_SPECTRALCOUNT 	= 9;
+	private final int PROT_EMPAI 			= 10;
+	private final int PROT_NSAF 			= 11;
 
 	/**
 	 * This method sets up the protein results table.
@@ -381,7 +378,7 @@ public class DbSearchResultPanel extends JPanel {
 		TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
 		TableConfig.setColumnMinWidths(proteinTbl,
 				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
-				createFilterButton(0, null).getPreferredSize().width + 8);
+				createFilterButton(0, null, 0).getPreferredSize().width + 8);
 		
 		// Get table column model
 		final TableColumnModel tcm = proteinTbl.getColumnModel();
@@ -418,12 +415,30 @@ public class DbSearchResultPanel extends JPanel {
 		selChk.setPreferredSize(new Dimension(15, 15));
 		selChk.setSelected(true);
 
-		// Add filter button widgets to column headers
-		tcm.getColumn(PROT_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
-		tcm.getColumn(PROT_SELECTION).setMinWidth(19);
-		tcm.getColumn(PROT_SELECTION).setMaxWidth(19);
-		for (int col = 1; col < tcm.getColumnCount(); col++) {
-			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl)));
+		// Add filter button and checkbox widgets to column headers
+		for (int col = 0; col < tcm.getColumnCount(); col++) {
+			switch (col) {
+			case PROT_SELECTION:
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
+				tcm.getColumn(col).setMinWidth(19);
+				tcm.getColumn(col).setMaxWidth(19);
+				break;
+			case PROT_INDEX:
+			case PROT_COVERAGE:
+			case PROT_MW:
+			case PROT_PI:
+			case PROT_PEPTIDECOUNT:
+			case PROT_SPECTRALCOUNT:
+			case PROT_EMPAI:
+			case PROT_NSAF:
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERICAL)));
+				break;
+			case PROT_ACCESSION: 
+			case PROT_DESCRIPTION:
+			case PROT_SPECIES: 
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHA_NUMERICAL)));
+				break;
+			}
 		}
 		
 		// Apply custom cell renderers/highlighters to columns 
@@ -1449,7 +1464,7 @@ public class DbSearchResultPanel extends JPanel {
                     if (!ammoniumLossTgl.isSelected()) {
                         useAnnotation = false;
                     }
-                } else if (currentLabel.lastIndexOf("°") != -1) {
+                } else if (currentLabel.lastIndexOf("\u00C2\u00B0") != -1) {
                     if (!waterLossTgl.isSelected()) {
                         useAnnotation = false;
                     }
@@ -1477,9 +1492,9 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param column
 	 * @return 
 	 */
-	public JPanel createFilterButton(int column, JTable table) {
+	public JPanel createFilterButton(int column, JTable table, int filterType) {
 		// button widget with little black triangle
-		final FilterButton button = new FilterButton(column, table);
+		final FilterButton button = new FilterButton(column, table, filterType);
 		button.setPreferredSize(new Dimension(11, 11));
 	
 		// wrap button in panel to apply padding
@@ -1517,7 +1532,7 @@ public class DbSearchResultPanel extends JPanel {
 		 * 
 		 * @param column
 		 */
-		public FilterButton(final int column, final JTable table) {
+		public FilterButton(final int column, final JTable table, final int filterType) {
 			super();
 			this.button = this;
 			this.addActionListener(new ActionListener() {
@@ -1535,7 +1550,7 @@ public class DbSearchResultPanel extends JPanel {
 						Rectangle rect = th.getHeaderRect(table.convertColumnIndexToView(column));
 						rect.x += rect.width - 9;
 						rect.y += 1;
-						filterTip = new FilterBalloonTip(th, rect);
+						filterTip = new FilterBalloonTip(th, rect, filterType);
 						filterTip.addComponentListener(new ComponentAdapter() {
 							public void componentHidden(ComponentEvent ce) {
 								button.setSelected(false);
@@ -1575,6 +1590,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 	}
 
+
 	/**
 	 * Method to update the checkbox column values depending on pattern 
 	 * matching in the specified column using the specified pattern string.
@@ -1587,36 +1603,38 @@ public class DbSearchResultPanel extends JPanel {
 		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(false);
 		// Check whether we're dealing with numerical values or with text
 		if (Number.class.isAssignableFrom(proteinTbl.getColumnClass(column))) {
-			List<Number> greater = new ArrayList<Number>();
-			List<Number> greaterEqual = new ArrayList<Number>();
-			List<Number> less = new ArrayList<Number>();
-			List<Number> lessEqual = new ArrayList<Number>();
+//			List<Number> greater = new ArrayList<Number>();
+//			List<Number> less = new ArrayList<Number>();
 			// parse filter strings
 			String[] filterStrings = filterString.split(",");
+			double left = Double.MIN_VALUE, right = Double.MAX_VALUE;
 			for (int i = 0; i < filterStrings.length; i++) {
 				String s = filterStrings[i].trim();
-				// TODO: maybe add more symbols, e.g. !=
 				if (s.startsWith(">")) {
-					s = s.substring(1);
-					if (s.startsWith("=")) {
-						greaterEqual.add(Double.parseDouble(s.substring(1)));
+					double val = Double.parseDouble(s.substring(1));
+					if (left == Double.MIN_VALUE) {
+						left = val;
 					} else {
-						greater.add(Double.parseDouble(s));
+						left = Math.min(left, val);
 					}
-				} else if (s.startsWith("<")){
-					s = s.substring(1);
-					if (s.startsWith("=")) {
-						lessEqual.add(Double.parseDouble(s.substring(1)));
+					// greater.add(val);
+				} else if (s.startsWith("<")) {
+					double val = Double.parseDouble(s.substring(1));
+					if (right == Double.MAX_VALUE) {
+						right = val;
 					} else {
-						less.add(Double.parseDouble(s));
+						right = Math.max(right, val);
 					}
 				}
 			}
-//			List<Interval> intervals = new ArrayList<Interval>();
+			Interval interval = new Interval(left, right);
 			// iterate table rows and check intervals
 			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-				// TODO: extend interval class to contain inclusive/exclusive border capabilities
-				// TODO: build intervals
+				if (!(Boolean) proteinTbl.getValueAt(row, PROT_SELECTION)) {
+					break;
+				}
+				proteinTbl.setValueAt(	interval.contains(((Number) proteinTbl.getValueAt(row, column)).doubleValue()),
+										row, proteinTbl.convertColumnIndexToView(PROT_SELECTION));
 			}
 		} else {
 			List<String> restrictive = new ArrayList<String>();
@@ -1633,19 +1651,26 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			// iterate table rows and check filter patterns
 			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+				if (!(Boolean) proteinTbl.getValueAt(row, PROT_SELECTION)) {
+					break;
+				}
 				String value = proteinTbl.getValueAt(row, column).toString();
-				boolean selected = true;
-				// check excludes
-				for (String s : restrictive) {
-					selected &= !value.contains(s);
-					if (!selected) break;
-				}
+				boolean selected;
 				// check includes
-				for (String s : permissive) {
-					if (selected) break;
-					selected |= value.contains(s);
+				if (!permissive.isEmpty()) {
+					selected = false;
+					for (String s : permissive) {
+						selected |= value.contains(s);
+					}
+				} else {
+					// check excludes
+					selected = true;
+					for (String s : restrictive) {
+						selected &= !value.contains(s);
+						if (!selected) break;
+					}
 				}
-				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToModel(PROT_SELECTION));
+				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToView(PROT_SELECTION));
 			}
 		}
 		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
@@ -1676,7 +1701,7 @@ public class DbSearchResultPanel extends JPanel {
 				private Font originalFont, underlineFont;
 				{
 					originalFont = getFont();
-					Map attributes = originalFont.getAttributes();
+					Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
 					attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 					underlineFont = originalFont.deriveFont(attributes);
 				}

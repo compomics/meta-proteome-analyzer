@@ -34,4 +34,7 @@ public class Constants {
 			"empty", ("BEGIN IONS\n" + "0.0\t999.0\n" + "90.909\t0.0\n"
 					+ "END IONS"));
 
+	public static final int ALPHA_NUMERICAL = 0;
+	public static final int NUMERICAL = 1;
+
 }
