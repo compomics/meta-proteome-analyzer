@@ -22,6 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.CustomBalloonTip;
@@ -35,6 +39,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class FilterBalloonTip extends CustomBalloonTip {
@@ -42,6 +47,7 @@ public class FilterBalloonTip extends CustomBalloonTip {
 	private JTextField filterTtf;
 	private String filterString;
 	private boolean confirmed = false;
+	private int filterType;
 
 	/**
 	 * Constructs a custom balloon tip attached to
@@ -57,10 +63,11 @@ public class FilterBalloonTip extends CustomBalloonTip {
 	 *            Do note that the coordinates should be relative to the
 	 *            attached component's top left corner.
 	 */
-	public FilterBalloonTip(JComponent attachedComponent, Rectangle offset) {
+	public FilterBalloonTip(JComponent attachedComponent, Rectangle offset, int filterType) {
 		super(attachedComponent, new JLabel(), offset, new EdgedBalloonStyle(
 				UIManager.getColor("Panel.background"), new Color(64, 64, 64)),
 				Orientation.LEFT_BELOW, AttachLocation.WEST, 125, 10, false);
+		this.filterType = filterType;
 		try {
 			setContents(createFilterPanel());
 		} catch (IOException e) {
@@ -125,7 +132,7 @@ public class FilterBalloonTip extends CustomBalloonTip {
 
 		JLabel toolTipLbl = new JLabel("<html><p style=\"text-align:justify;width:187px\">" +
 				"Enter comma-separated text patterns to exclude  or include specific values, " +
-				"e.g. <font color=#009900>>0.52, &lt=11.4</font> for numerical data " +
+				"e.g. <font color=#009900>>0.52, &lt11.4</font> for numerical data " +
 				"or <font color=#009900>Escherichia, -aurescens</font> for text.</p></html>",
 				new ImageIcon(panel.getClass().getResource("/de/mpa/resources/icons/bulb32.png")),
 				SwingConstants.LEADING);
@@ -146,6 +153,25 @@ public class FilterBalloonTip extends CustomBalloonTip {
 
 		filterTtf = new JTextField(20);
 		filterTtf.setPreferredSize(new Dimension(filterTtf.getPreferredSize().width, 20));
+		switch (filterType) {
+		case Constants.ALPHA_NUMERICAL:
+			break;
+		case Constants.NUMERICAL:
+			((AbstractDocument) filterTtf.getDocument()).setDocumentFilter(new DocumentFilter() {
+				public String TEXT_PATTERN = "[\\d\\s<>,.]";
+				@Override
+				public void replace(FilterBypass fb, int offset, int length,
+						String text, AttributeSet attrs)
+				throws BadLocationException {
+					if (text.matches(TEXT_PATTERN)) {
+						super.replace(fb, offset, length, text, attrs);
+					}
+				}
+			});
+			break;
+		default:
+			break;
+		}
 		
 		final JButton acceptBtn = new JButton(IconConstants.CHECK_ICON);
 		acceptBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);

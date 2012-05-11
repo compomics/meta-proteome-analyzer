@@ -27,7 +27,7 @@ public class Interval {
 	 * @return
 	 */
 	public boolean contains(double value) {
-		return ((value >= leftBorder) && (value <= rightBorder));
+		return ((value > leftBorder) && (value < rightBorder));
 	}
 
 	/**
