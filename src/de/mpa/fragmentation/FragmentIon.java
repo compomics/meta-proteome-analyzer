@@ -194,13 +194,13 @@ public class FragmentIon implements Ion {
             case FragmentIon.A_ION:
                 return "a";
             case FragmentIon.AH2O_ION:
-                return "a°";
+                return "a\u00B0";
             case FragmentIon.ANH3_ION:
                 return "a*";
             case FragmentIon.B_ION:
                 return "b";
             case FragmentIon.BH2O_ION:
-                return "b°";
+                return "b\u00B0";
             case FragmentIon.BNH3_ION:
                 return "b*";
             case FragmentIon.C_ION:
@@ -210,7 +210,7 @@ public class FragmentIon implements Ion {
             case FragmentIon.Y_ION:
                 return "y";
             case FragmentIon.YH2O_ION:
-                return "y°";
+                return "y\u00B0";
             case FragmentIon.YNH3_ION:
                 return "y*";
             case FragmentIon.Z_ION:
@@ -220,7 +220,7 @@ public class FragmentIon implements Ion {
             case FragmentIon.MHNH3_ION:
                 return "MH*";
             case FragmentIon.MHH2O_ION:
-                return "MH°";
+                return "MH\u00B0";
         }
         return null;
 

@@ -88,7 +88,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exitItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/exit.gif")));
 		exitItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				client.exit();
 			}
 		});
 		fileMenu.add(newProjectItem);

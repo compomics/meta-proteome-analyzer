@@ -5,8 +5,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -91,7 +94,12 @@ public class ClientFrame extends JFrame {
 
 		// Application title
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+//		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				client.exit();
+			}
+		});
 		frame = this;
 
 		// Frame size
@@ -165,6 +173,9 @@ public class ClientFrame extends JFrame {
 				updateSearchEngineUI(evt.getNewValue().toString());
 			}
 		});
+		
+		// Set application icon
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/de/mpa/resources/icons/mpa01.png")));
 
 		// Move frame to center of the screen
 		this.pack();

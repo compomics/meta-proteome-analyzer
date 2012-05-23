@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -74,6 +75,7 @@ import org.jdesktop.swingx.sort.TableSortController;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 
+import com.compomics.util.gui.interfaces.SpectrumAnnotation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.binding.adapter.RadioButtonAdapter;
@@ -135,7 +137,7 @@ public class DbSearchResultPanel extends JPanel {
 	private JToggleButton chargeTwoTgl;
 	private JToggleButton chargeMoreTgl;
 	private JToggleButton precursorTgl;
-	private Vector<DefaultSpectrumAnnotation> currentAnnotations;
+	private Vector<SpectrumAnnotation> currentAnnotations;
 	private JPanel spectrumJPanel;
 	private JButton getResultsBtn;
 	private Font chartFont;
@@ -183,6 +185,7 @@ public class DbSearchResultPanel extends JPanel {
 		JScrollPane coverageScpn = new JScrollPane(coveragePnl);
 		coverageScpn.setPreferredSize(new Dimension(350, 150));
 		coverageScpn.getVerticalScrollBar().setUnitIncrement(16);
+		coverageScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		JScrollPane psmTableScp = new JScrollPane(psmTbl);
 		psmTableScp.setPreferredSize(new Dimension(350, 150));
 		
@@ -326,19 +329,11 @@ public class DbSearchResultPanel extends JPanel {
 		// Create protein table model
 		final TableModel proteinTblMdl = new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {
-					"", 				//0
-					"#", 				//1
-					"Accession", 		//2
-					"Description",  	//3
-					"Species", 			//4
-					"SC", 				//5
-					"MW",     			//6
-					"pI",				//7
-					"PepC", 			//8
-					"SpC",				//9
-					"emPAI",			//10
-					"NSAF"}); }			//11
+			{
+				setColumnIdentifiers(new Object[] { "", "#", "Accession",
+						"Description", "Species", "SC", "MW", "pI", "PepC",
+						"SpC", "emPAI", "NSAF" });
+			}
 	
 			public boolean isCellEditable(int row, int col) {
 				return (col == PROT_SELECTION);
@@ -540,8 +535,8 @@ public class DbSearchResultPanel extends JPanel {
 		// Register list selection listener
 		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
-				refreshCoverageViewer();
-				refreshPeptideTable();
+				refreshPeptideViews();
+//				refreshCoverageViewer();
 			}
 		});
 		
@@ -565,20 +560,25 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	
 	// Peptide table column indices
-//	private int PEP_SELECTION		= X;
-	private final int PEP_INDEX			= 0;
-	private final int PEP_SEQUENCE		= 1;
-	private final int PEP_SPECTRALCOUNT	= 2;
+	private final int PEP_SELECTION		= 0;
+	private final int PEP_INDEX			= 1;
+	private final int PEP_SEQUENCE		= 2;
+	private final int PEP_SPECTRALCOUNT	= 3;
 	
 	private void setupPeptideTableProperties() {
 		// Peptide table
-		TableModel peptideTblMdl = new DefaultTableModel() {
+		final TableModel peptideTblMdl = new DefaultTableModel() {
 			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {"#", "Sequence", "No. Spectra"}); }
+			{
+				setColumnIdentifiers(new Object[] { "", "#", "Sequence",
+						"No. Spectra" });
+			}
 			
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
+				case PEP_SELECTION:
+					return Boolean.class;
 				case PEP_INDEX:
 				case PEP_SPECTRALCOUNT:
 					return Integer.class;
@@ -604,26 +604,94 @@ public class DbSearchResultPanel extends JPanel {
 				return comp;
 			}
 		};
-		
-		TableConfig.setColumnWidths(peptideTbl, new double[] {3, 24, 12});
+
+		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 1, 4, 3});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
+		
+		ComponentHeader ch = new ComponentHeader(tcm);
+		peptideTbl.setTableHeader(ch);
+		
+		final JCheckBox selChk = new JCheckBox();
+		selChk.setPreferredSize(new Dimension(15, 15));
+		selChk.setSelected(true);
+
+		// Add filter button widgets to column headers
+		tcm.getColumn(PEP_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
+		tcm.getColumn(PEP_SELECTION).setMinWidth(19);
+		tcm.getColumn(PEP_SELECTION).setMaxWidth(19);
+		for (int col = PEP_INDEX; col < tcm.getColumnCount(); col++) {
+			JPanel panel = new JPanel();
+			panel.setPreferredSize(new Dimension(13, 13));
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel));
+		}
 
 		tcm.getColumn(PEP_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
 		
-		// Sort the peptide table by the number of peptide hits
-		peptideTbl.setAutoCreateRowSorter(true);
-		peptideTbl.getRowSorter().toggleSortOrder(PEP_SPECTRALCOUNT);
-		peptideTbl.getRowSorter().toggleSortOrder(PEP_SPECTRALCOUNT);
+		// Make table always sort primarily by selection state of selection column
+		final SortKey selKey = new SortKey(PEP_SELECTION, SortOrder.DESCENDING);
+		
+		final TableSortController<TableModel> tsc = new TableSortController<TableModel>(peptideTblMdl) {
+			@Override
+			public void toggleSortOrder(int column) {
+		        List<SortKey> keys = new ArrayList<SortKey>(getSortKeys());
+		        SortKey sortKey = SortUtils.getFirstSortKeyForColumn(keys, column);
+		        if (keys.indexOf(sortKey) == 1)  {
+		            // primary key: cycle sort order
+		        	SortOrder so = (sortKey.getSortOrder() == SortOrder.ASCENDING) ?
+		        			SortOrder.DESCENDING : SortOrder.ASCENDING;
+		            keys.set(1, new SortKey(column, so));
+		        } else {
+		            // all others: insert new 
+		            keys.remove(sortKey);
+		            keys.add(1, new SortKey(column, SortOrder.DESCENDING));
+		        }
+		        if (keys.size() > getMaxSortKeys()) {
+		            keys = keys.subList(0, getMaxSortKeys());
+		        }
+		        setSortKeys(keys);
+			}
+			@Override
+			public void setSortKeys(List<? extends SortKey> sortKeys) {
+				List<SortKey> newKeys = new ArrayList<SortKey>(sortKeys);
+				// make sure selection column sorting always occurs before other columns
+				newKeys.remove(selKey);
+				newKeys.add(0, selKey);
+				super.setSortKeys(newKeys);
+			}
+		};
+		peptideTbl.setRowSorter(tsc);
+		
+		// register action listener on selection column header checkbox
+		selChk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean selected = selChk.isSelected();
+				// prevent auto-resorting while iterating rows for performance reasons
+				tsc.setSortsOnUpdates(false);
+				for (int row = 0; row < peptideTbl.getRowCount(); row++) {
+					peptideTblMdl.setValueAt(selected, row, PEP_SELECTION);
+				}
+				tsc.setSortsOnUpdates(true);
+				// re-sort rows after iteration finished
+				tsc.sort();
+			}
+		});
+		
+		// Specify initial sort order
+		List<SortKey> sortKeys = new ArrayList<SortKey>(2);
+		sortKeys.add(0, new SortKey(PEP_SELECTION, SortOrder.DESCENDING));
+		sortKeys.add(1, new SortKey(PEP_SPECTRALCOUNT, SortOrder.DESCENDING));
+		tsc.setSortKeys(sortKeys);
 		
 		// register list selection listener
 		peptideTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
+				int selRow = peptideTbl.getSelectedRow();
+				if (selRow != -1) {
+					coverageSelectionModel.setValue(peptideTbl.convertRowIndexToModel(selRow));
+				}
 				refreshPsmTable();
-				// TODO: use binding to synchronize selection state with table
-				int index = peptideTbl.convertRowIndexToModel(peptideTbl.getSelectedRow());
-				coverageSelectionModel.setValue(index);
 			}
 		});
 	
@@ -655,15 +723,15 @@ public class DbSearchResultPanel extends JPanel {
 	// PSM table column indices
 	private final int PSM_SELECTION	= 0;
 	private final int PSM_INDEX		= 1;
-	private final int PSM_SEQUENCE	= 2;
-	private final int PSM_CHARGE	= 3;
-	private final int PSM_VOTES		= 4;
-	private final int PSM_XTANDEM 	= 5;
-	private final int PSM_OMSSA 	= 6;
-	private final int PSM_CRUX 		= 7;
-	private final int PSM_INSPECT 	= 8;
+//	private final int PSM_SEQUENCE	= 2;
+	private final int PSM_CHARGE	= 2;
+	private final int PSM_VOTES		= 3;
+	private final int PSM_XTANDEM 	= 4;
+	private final int PSM_OMSSA 	= 5;
+	private final int PSM_CRUX 		= 6;
+	private final int PSM_INSPECT 	= 7;
 
-	private ValueHolder coverageSelectionModel;
+	private ValueHolder coverageSelectionModel = new ValueHolder(-1);
 	
 	/**
 	 * This method sets up the PSM results table.
@@ -671,7 +739,10 @@ public class DbSearchResultPanel extends JPanel {
 	private void setupPsmTableProperties() {
 		// PSM table
 		final TableModel psmTblMdl = new DefaultTableModel() {
-			{ setColumnIdentifiers(new Object[] {"", "#", "Sequence", "z", "Votes", "X", "O", "C", "I"}); }
+			{
+				setColumnIdentifiers(new Object[] { "", "#", "z", "Votes", "X",
+						"O", "C", "I" });
+			}
 
 			public boolean isCellEditable(int row, int col) {
 				return (col == PSM_SELECTION) ? true : false;
@@ -679,6 +750,8 @@ public class DbSearchResultPanel extends JPanel {
 
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
+				case PSM_SELECTION:
+					return Boolean.class;
 				case PSM_INDEX:
 				case PSM_CHARGE:
 				case PSM_VOTES:
@@ -688,9 +761,7 @@ public class DbSearchResultPanel extends JPanel {
 				case PSM_CRUX:
 				case PSM_INSPECT:
 					return Double.class;
-				case PSM_SELECTION:
-					return Boolean.class;
-				case PSM_SEQUENCE:
+//				case PSM_SEQUENCE:
 				default: 
 					return String.class;
 				}
@@ -725,7 +796,7 @@ public class DbSearchResultPanel extends JPanel {
 		};
 		
 		// adjust column widths
-		TableConfig.setColumnWidths(psmTbl, new double[] { 0, 1, 6, 1.5, 2.5 });
+		TableConfig.setColumnWidths(psmTbl, new double[] { 0, 1, 1, 2, 1, 1, 1, 1 });
 		
 		// Get table column model
 		final TableColumnModel tcm = psmTbl.getColumnModel();
@@ -744,17 +815,7 @@ public class DbSearchResultPanel extends JPanel {
 		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 		psmTbl.setTableHeader(ch);
 		
-		final JCheckBox selChk = new JCheckBox() {
-			public void paint(Graphics g) {
-				// TODO: make checkbox honor tri-state
-				super.paint(g);
-//				if (selected == null) {
-//					Color col = (isEnabled()) ? Color.BLACK : UIManager.getColor("controlShadow");
-//					g.setColor(col);
-//					g.fillRect(center, 8, 8, 2);
-//				}
-			}
-		};
+		final JCheckBox selChk = new JCheckBox();
 		selChk.setPreferredSize(new Dimension(15, 15));
 		selChk.setSelected(true);
 
@@ -763,7 +824,9 @@ public class DbSearchResultPanel extends JPanel {
 		tcm.getColumn(PSM_SELECTION).setMinWidth(19);
 		tcm.getColumn(PSM_SELECTION).setMaxWidth(19);
 		for (int col = PSM_INDEX; col < tcm.getColumnCount(); col++) {
-			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(new JLabel()));
+			JPanel panel = new JPanel();
+			panel.setPreferredSize(new Dimension(13, 13));
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel));
 		}
 		
 		// Apply custom cell renderers/highlighters to columns 
@@ -1019,28 +1082,48 @@ public class DbSearchResultPanel extends JPanel {
 	}
 
 	/**
-	 * Method to refresh peptide table contents.
+	 * Method to refresh peptide table contents and sequence coverage viewer.
 	 */
-	protected void refreshPeptideTable() {
+	protected void refreshPeptideViews() {
+		// Clear existing contents
 		TableConfig.clearTable(peptideTbl);
+		coveragePnl.removeAll();
 
 		int protRow = proteinTbl.getSelectedRow();
 		if (protRow != -1) {
+			// Get protein and peptide information 
 			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
 			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
+			String sequence = proteinHit.getSequence();
 			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
-
+			
+			// Iterate peptide hit list to fill table and build coverage view
+			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
 			DefaultTableModel peptideTblMdl = (DefaultTableModel) peptideTbl.getModel();
-			int i = 1, maxSpecCount = 0;
+			int row = 0, maxSpecCount = 0;
 			for (PeptideHit peptideHit : peptideHits) {
+				// Find occurences of peptide sequences in protein sequence
+				String pepSeq = peptideHit.getSequence();
+				int index = -1;
+				while (true) {
+					index = sequence.indexOf(pepSeq, index + 1);
+					if (index == -1) break;
+					// Store position of peptide sequence match in interval object
+					Interval interval = new Interval(index, index + pepSeq.length(), row++);
+					peptideIntervals.add(interval);
+				}
+				// Determine maximum spectral count
 				int specCount = peptideHit.getSpectrumMatches().size();
 				maxSpecCount = Math.max(maxSpecCount, specCount);
+				// Add table row
 				peptideTblMdl.addRow(new Object[] {
-						i++,
+						true,
+						row,
 						peptideHit.getSequence(),
 						specCount});
 			}
 
+			// Update table highlighters
 			FontMetrics fm = getFontMetrics(chartFont);
 			TableColumnModel tcm = peptideTbl.getColumnModel();
 
@@ -1050,46 +1133,16 @@ public class DbSearchResultPanel extends JPanel {
 			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
 			highlighter.setRange(0.0, maxSpecCount);
 			
-			peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
-		}
-	}
-	
-	// TODO: merge with refreshPeptideTable()
-	/**
-	 * Method to refresh coverage viewer contents.
-	 */
-	protected void refreshCoverageViewer() {
-		coveragePnl.removeAll();
-		
-		int protRow = proteinTbl.getSelectedRow();
-		if (protRow != -1) {
-			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
-			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
-			String sequence = proteinHit.getSequence();
-			
-			// Find start and end indices of peptides inside protein sequence
-			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
-			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
-			for (PeptideHit peptideHit : peptideHits) {
-				String pepSeq = peptideHit.getSequence();
-				int index = -1;
-				while (true) {
-					index = sequence.indexOf(pepSeq, index + 1);
-					if (index == -1) break;
-					peptideIntervals.add(new Interval(index, index + pepSeq.length()));
-				}
-			}
-
-			int matchIndex = -1;
+			// Build coverage view
 			RadioButtonAdapter rba = null;
-			coverageSelectionModel = new ValueHolder(matchIndex++);
-			
 			List<HoverLabel> hovers = null;
 			
+			// Iterate protein sequence blocks
 			int blockSize = 10, length = sequence.length(), openIntervals = 0;
 			for (int start = 0; start < length; start += blockSize) {
 				int end = start + blockSize;
 				end = (end > length) ? length : end;
+				// Create upper label containing position index on light green background
 				StringBuilder indexRow = new StringBuilder("<html><code>");
 				int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
 				for (int i = 0; i < spaces; i++) {
@@ -1104,57 +1157,181 @@ public class DbSearchResultPanel extends JPanel {
 				indexLbl.setBackground(new Color(0, 255, 0, 32));
 				indexLbl.setOpaque(true);
 				blockPnl.add(indexLbl, BorderLayout.NORTH);
-				
+
+				// Create lower panel containing label-like buttons and plain labels
 				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 				subBlockPnl.setOpaque(false);
 				
-				String blockSeq = sequence.substring(start, end); 
-				int blockLength = blockSeq.length();
-				int subIndex = 0;
+				JComponent label = null;
+				
+				// Iterate characters inside block to find upper/lower interval boundaries
+				String blockSeq = sequence.substring(start, end);
+				int blockLength = blockSeq.length(), subIndex = 0;
 				for (int i = 0; i < blockLength; i++) {
 					int pos = start + i;
+					boolean isBorder = false;
+					// Compare all intervals' bounds with current absolute character position
 					for (Interval interval : peptideIntervals) {
 						if ((pos == (int) interval.getLeftBorder())) {
-							subBlockPnl.add(new JLabel(
-									"<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>"));
+							// Highlightable part begins here, store contents up to this point in label
+							label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
 
-							rba = new RadioButtonAdapter(coverageSelectionModel, matchIndex);
+							// Init data binding adapter to synchronize selection state of hover labels
+							rba = new RadioButtonAdapter(coverageSelectionModel,
+									((Integer) interval.getUserObject()).intValue());
 							hovers = new ArrayList<HoverLabel>();
 							
-							subIndex = i;
+							isBorder = true;
 							openIntervals++;
 						}
 						if ((pos == (int) interval.getRightBorder())) {
-							HoverLabel hover = new HoverLabel(blockSeq.substring(subIndex, i));
-							hover.setModel(rba);
-							hovers.add(hover);
-							subBlockPnl.add(hover);
+							// Highlightable part ends here, store contents in hover label
+							label = new HoverLabel(blockSeq.substring(subIndex, i));
+							((HoverLabel) label).setModel(rba);
+							hovers.add((HoverLabel) label);
+							// Make hover label aware of its surrounding siblings for synchronized rollover effects
 							for (HoverLabel hl : hovers) {
 								hl.setSiblings(hovers);
 							}
 							
-							subIndex = i;
-							matchIndex++;
+							isBorder = true;
 							openIntervals--;
+						}
+						if (isBorder) {
+							// Add new label to panel, move index pointer forward
+							subBlockPnl.add(label);
+							subIndex = i;
 						}
 					}
 				}
+				// Store any remaining subsequences in (hover) label
 				if (openIntervals > 0) {
-					HoverLabel hover = new HoverLabel(blockSeq.substring(subIndex));
-					hover.setModel(rba);
-					hovers.add(hover);
-					subBlockPnl.add(hover);
+					label = new HoverLabel(blockSeq.substring(subIndex));
+					((HoverLabel) label).setModel(rba);
+					hovers.add((HoverLabel) label);
 				} else {
-					subBlockPnl.add(new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>"));
+					label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
 				}
-				
+				subBlockPnl.add(label);
+
 				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
 				
 				coveragePnl.add(blockPnl);
 			}
+
+			// Select first row in table
+			peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
 		}
 		coveragePnl.revalidate();
 	}
+	
+//	// TODO: merge with refreshPeptideTable()
+//	/**
+//	 * Method to refresh coverage viewer contents.
+//	 */
+//	protected void refreshCoverageViewer() {
+//		coveragePnl.removeAll();
+//		
+//		int protRow = proteinTbl.getSelectedRow();
+//		if (protRow != -1) {
+//			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
+//			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
+//			String sequence = proteinHit.getSequence();
+//			
+//			// Find start and end indices of peptides inside protein sequence
+//			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
+//			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
+//			int row = 0;
+//			for (PeptideHit peptideHit : peptideHits) {
+//				String pepSeq = peptideHit.getSequence();
+//				int index = -1;
+//				while (true) {
+//					index = sequence.indexOf(pepSeq, index + 1);
+//					if (index == -1) break;
+//					Interval interval = new Interval(index, index + pepSeq.length(), row++);
+//					peptideIntervals.add(interval);
+//				}
+//			}
+//			
+//			RadioButtonAdapter rba = null;
+//			List<HoverLabel> hovers = null;
+//			
+//			int blockSize = 10, length = sequence.length(), openIntervals = 0;
+//			for (int start = 0; start < length; start += blockSize) {
+//				int end = start + blockSize;
+//				end = (end > length) ? length : end;
+//				StringBuilder indexRow = new StringBuilder("<html><code>");
+//				int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
+//				for (int i = 0; i < spaces; i++) {
+//					indexRow.append("&nbsp");
+//				}
+//				indexRow.append(" " + (start + blockSize));
+//				indexRow.append("</html></code>");
+//				
+//				JPanel blockPnl = new JPanel(new BorderLayout());
+//				blockPnl.setOpaque(false);
+//				JLabel indexLbl = new JLabel(indexRow.toString());
+//				indexLbl.setBackground(new Color(0, 255, 0, 32));
+//				indexLbl.setOpaque(true);
+//				blockPnl.add(indexLbl, BorderLayout.NORTH);
+//
+//				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+//				subBlockPnl.setOpaque(false);
+//				subBlockPnl.setPreferredSize(new Dimension(70, 15));
+//				
+//				String blockSeq = sequence.substring(start, end);
+//				
+//				JComponent label = null;
+//				int blockLength = blockSeq.length();
+//				int subIndex = 0;
+//				for (int i = 0; i < blockLength; i++) {
+//					int pos = start + i;
+//					boolean isBorder = false;
+//					for (Interval interval : peptideIntervals) {
+//						if ((pos == (int) interval.getLeftBorder())) {
+//							label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
+//
+//							rba = new RadioButtonAdapter(coverageSelectionModel,
+//									((Integer) interval.getUserObject()).intValue());
+//							hovers = new ArrayList<HoverLabel>();
+//							
+//							isBorder = true;
+//							openIntervals++;
+//						}
+//						if ((pos == (int) interval.getRightBorder())) {
+//							label = new HoverLabel(blockSeq.substring(subIndex, i));
+//							((HoverLabel) label).setModel(rba);
+//							hovers.add((HoverLabel) label);
+//							
+//							for (HoverLabel hl : hovers) {
+//								hl.setSiblings(hovers);
+//							}
+//							
+//							isBorder = true;
+//							openIntervals--;
+//						}
+//						if (isBorder) {
+//							subBlockPnl.add(label);
+//							subIndex = i;
+//						}
+//					}
+//				}
+//				if (openIntervals > 0) {
+//					label = new HoverLabel(blockSeq.substring(subIndex));
+//					((HoverLabel) label).setModel(rba);
+//					hovers.add((HoverLabel) label);
+//				} else {
+//					label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
+//				}
+//				subBlockPnl.add(label);
+//
+//				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
+//				
+//				coveragePnl.add(blockPnl);
+//			}
+//		}
+//		coveragePnl.revalidate();
+//	}
 	
 	/**
 	 * Method to refresh PSM table contents.
@@ -1193,7 +1370,6 @@ public class DbSearchResultPanel extends JPanel {
 					psmTblMdl.addRow(new Object[] {
 							true,
 							i++,
-							peptideHit.getSequence(),
 							psm.getCharge(),
 							psm.getVotes(),
 							qValues[0],
@@ -1253,7 +1429,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Method to generate and show a popup containing PSM-specific details.
 	 * @param psm
@@ -1335,10 +1511,10 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param fragmentIons
 	 */
 	private void addSpectrumAnnotations(Map<String, FragmentIon[]> fragmentIons) {
-		String sequence = (String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(),peptideTbl.convertColumnIndexToView(PEP_SEQUENCE) );
-		int[][] ionCoverage = new int[sequence.length() + 1][12];
+//		String sequence = (String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(),peptideTbl.convertColumnIndexToView(PEP_SEQUENCE) );
+//		int[][] ionCoverage = new int[sequence.length() + 1][12];
 
-        currentAnnotations = new Vector<DefaultSpectrumAnnotation>();
+        currentAnnotations = new Vector<SpectrumAnnotation>();
        	Set<Entry<String, FragmentIon[]>> entrySet = fragmentIons.entrySet();
        	int i = 0;
        	for (Entry<String, FragmentIon[]> entry : entrySet) {
@@ -1346,7 +1522,7 @@ public class DbSearchResultPanel extends JPanel {
         		
 	            for (FragmentIon ion : ions) {
 	                int ionNumber = ion.getNumber();
-	                int ionType = ion.getType();
+//	                int ionType = ion.getType();
 	                double mzValue = ion.getMZ();
 	                Color color;
 	                if (i % 2 == 0) {
@@ -1354,42 +1530,43 @@ public class DbSearchResultPanel extends JPanel {
 	                } else {
 	                    color = Color.BLACK;
 	                }
-	                if (ionType == FragmentIon.A_ION) {
-	                    ionCoverage[ionNumber][0]++;
-	                }
-	                if (ionType == FragmentIon.AH2O_ION) {
-	                    ionCoverage[ionNumber][1]++;
-	                }
-	                if (ionType == FragmentIon.ANH3_ION) {
-	                    ionCoverage[ionNumber][2]++;
-	                }
-	                if (ionType == FragmentIon.B_ION) {
-	                    ionCoverage[ionNumber][3]++;
-	                }
-	                if (ionType == FragmentIon.BH2O_ION) {
-	                    ionCoverage[ionNumber][4]++;
-	                }
-	                if (ionType == FragmentIon.BNH3_ION) {
-	                    ionCoverage[ionNumber][5]++;
-	                }
-	                if (ionType == FragmentIon.C_ION) {
-	                    ionCoverage[ionNumber][6]++;
-	                }
-	                if (ionType == FragmentIon.X_ION) {
-	                    ionCoverage[ionNumber][7]++;
-	                }
-	                if (ionType == FragmentIon.Y_ION) {
-	                    ionCoverage[ionNumber][8]++;
-	                }
-	                if (ionType == FragmentIon.YH2O_ION) {
-	                    ionCoverage[ionNumber][9]++;
-	                }
-	                if (ionType == FragmentIon.YNH3_ION) {
-	                    ionCoverage[ionNumber][10]++;
-	                }
-	                if (ionType == FragmentIon.Z_ION) {
-	                    ionCoverage[ionNumber][11]++;
-	                }
+	                // TODO: @Thilo: What's ion coverage and why isn't it used for anything? :)
+//	                if (ionType == FragmentIon.A_ION) {
+//	                    ionCoverage[ionNumber][0]++;
+//	                }
+//	                if (ionType == FragmentIon.AH2O_ION) {
+//	                    ionCoverage[ionNumber][1]++;
+//	                }
+//	                if (ionType == FragmentIon.ANH3_ION) {
+//	                    ionCoverage[ionNumber][2]++;
+//	                }
+//	                if (ionType == FragmentIon.B_ION) {
+//	                    ionCoverage[ionNumber][3]++;
+//	                }
+//	                if (ionType == FragmentIon.BH2O_ION) {
+//	                    ionCoverage[ionNumber][4]++;
+//	                }
+//	                if (ionType == FragmentIon.BNH3_ION) {
+//	                    ionCoverage[ionNumber][5]++;
+//	                }
+//	                if (ionType == FragmentIon.C_ION) {
+//	                    ionCoverage[ionNumber][6]++;
+//	                }
+//	                if (ionType == FragmentIon.X_ION) {
+//	                    ionCoverage[ionNumber][7]++;
+//	                }
+//	                if (ionType == FragmentIon.Y_ION) {
+//	                    ionCoverage[ionNumber][8]++;
+//	                }
+//	                if (ionType == FragmentIon.YH2O_ION) {
+//	                    ionCoverage[ionNumber][9]++;
+//	                }
+//	                if (ionType == FragmentIon.YNH3_ION) {
+//	                    ionCoverage[ionNumber][10]++;
+//	                }
+//	                if (ionType == FragmentIon.Z_ION) {
+//	                    ionCoverage[ionNumber][11]++;
+//	                }
 	                // Use standard ion type names, such as y5++
 	                String ionDesc = ion.getLetter();
 	                if (ionNumber > 0) {
@@ -1432,76 +1609,44 @@ public class DbSearchResultPanel extends JPanel {
      * @param annotations the annotations to be filtered
      * @return the filtered annotations
      */
-    private Vector<DefaultSpectrumAnnotation> filterAnnotations(Vector<DefaultSpectrumAnnotation> annotations) {
+    private Vector<SpectrumAnnotation> filterAnnotations(Vector<SpectrumAnnotation> annotations) {
 
-        Vector<DefaultSpectrumAnnotation> filteredAnnotations = new Vector<DefaultSpectrumAnnotation>();
+        Vector<SpectrumAnnotation> filteredAnnotations = new Vector<SpectrumAnnotation>();
+        
+		JToggleButton[] ionToggles = new JToggleButton[] { aIonsTgl, bIonsTgl,
+				cIonsTgl, xIonsTgl, yIonsTgl, zIonsTgl, precursorTgl };
+        String ionTokens = "abcxyzM";
+        
+		JToggleButton[] miscToggles = new JToggleButton[] { chargeOneTgl,
+				chargeMoreTgl, chargeTwoTgl, ammoniumLossTgl, waterLossTgl };
+		String[] miscTokens = new String[]  { "+", "+++", "++", "*", "\u00B0" };
 
-        for (int i = 0; i < annotations.size(); i++) {
-            String currentLabel = annotations.get(i).getLabel();
+		for (SpectrumAnnotation annotation : annotations) {
+            String currentLabel = annotation.getLabel();
             boolean useAnnotation = true;
             // check ion type
-            if (currentLabel.lastIndexOf("a") != -1) {
-                if (!aIonsTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            } else if (currentLabel.lastIndexOf("b") != -1) {
-                if (!bIonsTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            } else if (currentLabel.lastIndexOf("c") != -1) {
-                if (!cIonsTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            } else if (currentLabel.lastIndexOf("x") != -1) {
-                if (!xIonsTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            } else if (currentLabel.lastIndexOf("y") != -1) {
-                if (!yIonsTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            } else if (currentLabel.lastIndexOf("z") != -1) {
-                if (!zIonsTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            } else if (currentLabel.lastIndexOf("M") != -1) {
-                if (!precursorTgl.isSelected()) {
-                    useAnnotation = false;
-                }
-            }
+            for (int i = 0; i < ionToggles.length; i++) {
+            	if (currentLabel.lastIndexOf(ionTokens.charAt(i)) != -1) {
+    				useAnnotation &= ionToggles[i].isSelected();
+            	}
+            	if (!useAnnotation) break;
+			}
 
             // check ion charge + ammonium and water-loss
             if (useAnnotation) {
-                if (currentLabel.lastIndexOf("+") == -1) {
-                    if (!chargeOneTgl.isSelected()) {
-                        useAnnotation = false;
-                    }
-                } else if (currentLabel.lastIndexOf("+++") != -1) {
-                    if (!chargeMoreTgl.isSelected()) {
-                        useAnnotation = false;
-                    }
-                } else if (currentLabel.lastIndexOf("++") != -1) {
-                    if (!chargeTwoTgl.isSelected()) {
-                        useAnnotation = false;
-                    }
-                }
-                
-                if (currentLabel.lastIndexOf("*") != -1) {
-                    if (!ammoniumLossTgl.isSelected()) {
-                        useAnnotation = false;
-                    }
-                } else if (currentLabel.lastIndexOf("\u00C2\u00B0") != -1) {
-                    if (!waterLossTgl.isSelected()) {
-                        useAnnotation = false;
-                    }
-                }
+            	for (int i = 0; i < miscToggles.length; i++) {
+					if (currentLabel.lastIndexOf(miscTokens[i]) != -1) {
+						useAnnotation &= miscToggles[i].isSelected();
+					}
+					if (!useAnnotation) break;
+				}
             }
             
             // If not used, don't add the annotation.
             if (useAnnotation) {
-                filteredAnnotations.add(annotations.get(i));
+                filteredAnnotations.add(annotation);
             }
-        }
+		}
 
         return filteredAnnotations;
     }
@@ -1659,7 +1804,7 @@ public class DbSearchResultPanel extends JPanel {
 				if (!(Boolean) proteinTbl.getValueAt(row, PROT_SELECTION)) {
 					break;
 				}
-				proteinTbl.setValueAt(	interval.contains(((Number) proteinTbl.getValueAt(row, column)).doubleValue()),
+				proteinTbl.setValueAt(	interval.containsExclusive(((Number) proteinTbl.getValueAt(row, column)).doubleValue()),
 										row, proteinTbl.convertColumnIndexToView(PROT_SELECTION));
 			}
 		} else {
@@ -1732,6 +1877,7 @@ public class DbSearchResultPanel extends JPanel {
 			setContentAreaFilled(false);
 			setBorder(null);
 			setFont(new Font("Monospaced", Font.PLAIN, 12));
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			addMouseListener(new MouseAdapter() {
 				private Font originalFont, underlineFont;
 				{

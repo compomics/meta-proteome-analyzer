@@ -45,7 +45,7 @@ public class DBManager {
 	}
     
     public static DBManager getInstance() throws SQLException {
-    	if (instance == null) {
+    	if (instance == null || !instance.getConnection().isValid(1)) {
     		instance = new DBManager();
     	}
 		return instance;
