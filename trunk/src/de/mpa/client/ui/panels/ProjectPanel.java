@@ -626,10 +626,6 @@ public class ProjectPanel extends JPanel {
 		clientFrame.getDbSearchResultPanel().setResultsButtonEnabled(false);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
 		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(false);
-		
-		// Clear any fetched results
-		client.clearDbSearchResult();
-		client.clearSpecSimResult();
 	}
 	
 	/**
@@ -649,6 +645,10 @@ public class ProjectPanel extends JPanel {
 		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(true);
 		modifyExperimentBtn.setEnabled(true);
 		deleteExperimentBtn.setEnabled(true);
+		
+		// Clear any fetched results
+		client.clearDbSearchResult();
+		client.clearSpecSimResult();
 	}
 	
 	

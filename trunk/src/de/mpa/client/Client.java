@@ -141,7 +141,7 @@ public class Client {
 	 */
 	public void initDBConnection() throws SQLException {
 		// Connection conn
-		if (conn == null) {
+		if (conn == null || !conn.isValid(0)) {
 			// connect to database
 			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, this.dbSettings);
 			this.conn = dbconfig.getConnection();
@@ -163,7 +163,6 @@ public class Client {
 	 * Connects the client to the web service.
 	 */
 	public void connect() {
-		
 		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
 		
 		service = new ServerImplService();
@@ -653,4 +652,16 @@ public class Client {
     	if(conn == null) initDBConnection();
     	return conn;
     }
+
+    /**
+     * 
+     */
+	public void exit() {
+		try {
+			closeDBConnection();
+		} catch (SQLException e) {
+			JXErrorPane.showDialog(e);
+		}
+		System.exit(0);
+	}
 }

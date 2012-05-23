@@ -54,8 +54,9 @@ public class DBConfiguration {
     /**
      * Returns the connection.
      * @return connection Connection instance
+     * @throws SQLException 
      */
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
         return conn;
     }
 }
