@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
@@ -181,13 +182,13 @@ public class Client {
 	/**
 	 * Requests the server for response.
 	 */
-	public void request(){
+	public void request() {
 		final String message = receiveMessage();
-		if(message != null && !message.equals("")){
+		if (message != null && !message.isEmpty()) {
 			log.info(message);
-			EventQueue.invokeLater(new Runnable() {                                                 
+			EventQueue.invokeLater(new Runnable() {
 				public void run() {
-					pSupport.firePropertyChange("New Message", null, message);                                                    
+					pSupport.firePropertyChange("New Message", null, message);
 				}
 			});
 		}
@@ -365,7 +366,7 @@ public class Client {
 		try {
 			initDBConnection();
 			
-			// The protein hit set, contain>ing all information about found proteins.
+			// The protein hit set, containing all information about found proteins.
 			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
 			
 			// Iterate over query spectra and get the different identification result sets
@@ -415,12 +416,16 @@ public class Client {
 	 * @param expContent The experiment content.
 	 * @return The current database search result.
 	 */
-	public SpecSimResult getSpecSimResult(ExperimentContent expContent) {
+	public SpecSimResult getSpecSimResult(final ExperimentContent expContent) {
 		if (specSimResult == null) {
 			try {
 				initDBConnection();
-				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn);
-				specSimResult.setScoreMatrixImage(SpecSearchHit.getScoreMatrixImage(expContent.getExperimentID(), conn));
+				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn, pSupport);
+//				specSimResult.setScoreMatrixImage(SpecSearchHit.getScoreMatrixImage(expContent.getExperimentID(), conn));
+				if (specSimResult.getScoreMatrixImage() != null) {
+					File outputfile = new File("saved.png");
+					ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
+				}
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
@@ -640,7 +645,18 @@ public class Client {
      * @param pcl
      */
     public void removePropertyChangeListener(PropertyChangeListener pcl) { 
-    	pSupport.removePropertyChangeListener(pcl); 
+    	pSupport.removePropertyChangeListener(pcl);
+    }
+    
+    /**
+     * Forwards a bound property update to any registered listeners. 
+     * No event is fired if old and new are equal and non-null. 
+     * @param propertyName The programmatic name of the property that was changed.
+     * @param oldValue The old value of the property.
+     * @param newValue The new value of the property.
+     */
+	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+		pSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
     
     /**

@@ -287,7 +287,7 @@ public class Cruxhit2protTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit2prot (cruxhit2protid, fk_cruxhitid, fk_proteinid) values(?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit2prot (cruxhit2protid, fk_cruxhitid, fk_proteinid) values(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iCruxhit2protid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

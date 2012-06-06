@@ -11,8 +11,6 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -243,44 +241,43 @@ public class SettingsPanel extends JPanel {
 	 */
 	private class ProcessWorker extends SwingWorker {
 
-		private int totalProgress;
-
 		protected Object doInBackground() {
 			
 			// register progress listener
 			CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
-			totalProgress = 0;
 			final int maxProgress = (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount();
 			final long startTime = System.currentTimeMillis();
-			PropertyChangeListener listener = new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent pce) {
-					if (pce.getPropertyName().equalsIgnoreCase("progressmade")) {
-						totalProgress++;
-						updateTime();
-					} else if (pce.getPropertyName().equalsIgnoreCase("progress")) {
-						totalProgress = (Integer) pce.getNewValue();
-						updateTime();
-					} else if (pce.getPropertyName().equalsIgnoreCase("new message")) {
-						statusTtf.setText(pce.getNewValue().toString());
-					}
-				}
-
-				private void updateTime() {
-					double progressRel = totalProgress*100.0/maxProgress;
-
-					currentPrg.setValue((int) progressRel);
-
-					long elapsedTime = System.currentTimeMillis() - startTime;
-					long remainingTime = 0L;
-					if (progressRel > 0.0) {
-						remainingTime = ((long) (elapsedTime/progressRel*(100.0-progressRel)) + 999L) / 1000L;
-					}
-					timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
-							(remainingTime%3600)/60, remainingTime%60));
-				}
-			};
-			client.addPropertyChangeListener(listener);
+			// TODO: implement progress listening
+//			PropertyChangeListener listener = new PropertyChangeListener() {
+//				private int totalProgress = 0;
+//				@Override
+//				public void propertyChange(PropertyChangeEvent pce) {
+//					if (pce.getPropertyName().equalsIgnoreCase("progressmade")) {
+//						totalProgress++;
+//						updateTime();
+//					} else if (pce.getPropertyName().equalsIgnoreCase("progress")) {
+//						totalProgress = (Integer) pce.getNewValue();
+//						updateTime();
+//					} else if (pce.getPropertyName().equalsIgnoreCase("new message")) {
+//						statusTtf.setText(pce.getNewValue().toString());
+//					}
+//				}
+//
+//				private void updateTime() {
+//					double progressRel = totalProgress*100.0/maxProgress;
+//
+//					currentPrg.setValue((int) progressRel);
+//
+//					long elapsedTime = System.currentTimeMillis() - startTime;
+//					long remainingTime = 0L;
+//					if (progressRel > 0.0) {
+//						remainingTime = ((long) (elapsedTime/progressRel*(100.0-progressRel)) + 999L) / 1000L;
+//					}
+//					timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
+//							(remainingTime%3600)/60, remainingTime%60));
+//				}
+//			};
+//			client.addPropertyChangeListener(listener);
 			
 			// appear busy
 			firePropertyChange("progress", null, 0);
@@ -290,7 +287,7 @@ public class SettingsPanel extends JPanel {
 			statusTtf.setText("PACKING SPECTRA");
 			try {
 				int packSize = (Integer) packSpn.getValue();
-				List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");
+				List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
 				statusTtf.setText("PACKING SPECTRA FINISHED");
 				client.sendFiles(chunkedFiles);
 
@@ -307,8 +304,8 @@ public class SettingsPanel extends JPanel {
 				e.printStackTrace();
 			}
 			
-			// de-register progress listener
-			client.removePropertyChangeListener(listener);
+//			// de-register progress listener
+//			client.removePropertyChangeListener(listener);
 			
 			return 0;
 		}

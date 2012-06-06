@@ -10,8 +10,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
 
@@ -40,7 +38,6 @@ import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
-import de.mpa.job.JobStatus;
 
 
 /**
@@ -137,7 +134,13 @@ public class ClientFrame extends JFrame {
 		Insets contentBorderInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		UIManager.put("TabbedPane.tabInsets", new Insets(2, 6, 1, 7));
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, contentBorderInsets.left, 0, 0));
-		tabPane = new JTabbedPane(JTabbedPane.LEFT);
+		tabPane = new JTabbedPane(JTabbedPane.LEFT) {
+			@Override
+			public void setEnabledAt(int index, boolean enabled) {
+				super.setEnabledAt(index, enabled);
+				getTabComponentAt(index).setEnabled(enabled);
+			}
+		};
 		UIManager.put("TabbedPane.tabInsets", tabInsets);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets); 
 		
@@ -159,20 +162,20 @@ public class ClientFrame extends JFrame {
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 		
-//		tabPane.setEnabledAt(6, false);
+		tabPane.setEnabledAt(6, false);
 
 		// Add components to content pane
 		this.setJMenuBar(menuBar);
 		cp.add(tabPane);
 		cp.add(statusPnl, BorderLayout.SOUTH);
 
-		// Register property change listener
-		client.addPropertyChangeListener(new PropertyChangeListener() {
-			// Update the 
-			public void propertyChange(PropertyChangeEvent evt) {
-				updateSearchEngineUI(evt.getNewValue().toString());
-			}
-		});
+//		// Register property change listener
+//		client.addPropertyChangeListener(new PropertyChangeListener() {
+//			// Update the 
+//			public void propertyChange(PropertyChangeEvent evt) {
+//				updateSearchEngineUI(evt.getNewValue().toString());
+//			}
+//		});
 		
 		// Set application icon
 		this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/de/mpa/resources/icons/mpa01.png")));
@@ -220,41 +223,41 @@ public class ClientFrame extends JFrame {
 		
 	}
 
-	/**
-	 * Update the search engine user interface 
-	 * whenever a new message comes in.
-	 * @param message
-	 */
-	public void updateSearchEngineUI(String message){
-		String finished = JobStatus.FINISHED.toString();
-		String running = JobStatus.RUNNING.toString();
-		if (message.contains(running)) {
-			statusPnl.getCurrentStatusTextField().setText(running);
-		} else if (message.contains(finished)) {
-			statusPnl.getCurrentStatusTextField().setText(finished);
-		}
-		
-		//appendToLog(message);
-//		} else if(message.startsWith("DBSEARCH")){
-//			for (File file : chunkedFiles) {
-//				dbSearchResult = client.getDbSearchResult(file);
-//				updateDbResultsTable();
-//			}
-//		} else if(message.startsWith("DENOVOSEARCH")){
-//			for (File file : chunkedFiles) {
-//				denovoSearchResult = client.getDenovoSearchResult(file);
-//				updateDenovoResultsTable();
-//			}
+//	/**
+//	 * Update the search engine user interface 
+//	 * whenever a new message comes in.
+//	 * @param message
+//	 */
+//	public void updateSearchEngineUI(String message){
+//		String finished = JobStatus.FINISHED.toString();
+//		String running = JobStatus.RUNNING.toString();
+//		if (message.contains(running)) {
+//			statusPnl.getCurrentStatusTextField().setText(running);
+//		} else if (message.contains(finished)) {
+//			statusPnl.getCurrentStatusTextField().setText(finished);
 //		}
-	}
-	
-	/**
-	 * Method to append text to the logging panel.
-	 * @param str The String to append.
-	 */
-	public void appendToLog(String str) {
-		logPnl.append(str);
-	}
+//		
+//		//appendToLog(message);
+////		} else if(message.startsWith("DBSEARCH")){
+////			for (File file : chunkedFiles) {
+////				dbSearchResult = client.getDbSearchResult(file);
+////				updateDbResultsTable();
+////			}
+////		} else if(message.startsWith("DENOVOSEARCH")){
+////			for (File file : chunkedFiles) {
+////				denovoSearchResult = client.getDenovoSearchResult(file);
+////				updateDenovoResultsTable();
+////			}
+////		}
+//	}
+//	
+//	/**
+//	 * Method to append text to the logging panel.
+//	 * @param str The String to append.
+//	 */
+//	public void appendToLog(String str) {
+//		logPnl.append(str);
+//	}
 	
 	/**
 	 * Returns the file selection panel.

@@ -464,7 +464,7 @@ public class SpecLibSearchPanel extends JPanel {
 		threshScSpn.setPreferredSize(new Dimension((int) (threshScSpn
 				.getPreferredSize().width * 1.25), threshScSpn
 				.getPreferredSize().height));
-		threshScSpn.setEditor(new JSpinner.NumberEditor(threshScSpn, "0.0"));
+		threshScSpn.setEditor(new JSpinner.NumberEditor(threshScSpn, "0.00"));
 
 		scorSubPnl.add(xCorrOffLbl, cc.xy(2, 1));
 		scorSubPnl.add(xCorrOffSpn, cc.xy(4, 1));

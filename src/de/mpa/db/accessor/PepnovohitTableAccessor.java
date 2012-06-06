@@ -610,7 +610,7 @@ public class PepnovohitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pepnovohit (pepnovohitid, fk_spectrumid, fk_peptideid, indexid, rankscore, pnvscore, n_gap, c_gap, precursor_mh, charge, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pepnovohit (pepnovohitid, fk_spectrumid, fk_peptideid, indexid, rankscore, pnvscore, n_gap, c_gap, precursor_mh, charge, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iPepnovohitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

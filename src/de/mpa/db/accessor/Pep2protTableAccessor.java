@@ -287,7 +287,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pep2prot (pep2protid, fk_peptideid, fk_proteinid) values(?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pep2prot (pep2protid, fk_peptideid, fk_proteinid) values(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iPep2protid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

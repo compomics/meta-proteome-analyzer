@@ -394,7 +394,7 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO libspectrum (libspectrumid, fk_spectrumid, fk_experimentid, fk_consensusspecid, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO libspectrum (libspectrumid, fk_spectrumid, fk_experimentid, fk_consensusspecid, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iLibspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

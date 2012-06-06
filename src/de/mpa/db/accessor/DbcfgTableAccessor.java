@@ -575,7 +575,7 @@ public class DbcfgTableAccessor implements Deleteable, Retrievable, Updateable, 
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO dbcfg (dbcfgid, fastadb, precursor_tol, fragmention_tol, missed_cleavages, enzyme, isdecoy, xtandem_cmd, omssa_cmd, inspect_cmd, crux_cmd) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO dbcfg (dbcfgid, fastadb, precursor_tol, fragmention_tol, missed_cleavages, enzyme, isdecoy, xtandem_cmd, omssa_cmd, inspect_cmd, crux_cmd) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iDbcfgid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

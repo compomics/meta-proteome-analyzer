@@ -33,8 +33,8 @@ public class ExportTest extends TestCase{
 		// Create protein
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch();
 		PeptideSpectrumMatch psm2 = new PeptideSpectrumMatch();
-		psm.setSpectrumId(1);
-		psm2.setSpectrumId(2);
+		psm.setSearchSpectrumID(1);
+		psm2.setSearchSpectrumID(2);
 		PeptideHit peptideHit = new PeptideHit("ALGDLR", psm);
 		PeptideHit peptideHit2 = new PeptideHit("KLLRDR", psm2);
 		ProteinHit proteinHit = new ProteinHit("A0G921",

@@ -826,7 +826,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_searchspectrumid, fk_peptideid, scannumber, charge, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, flank_aa, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO cruxhit (cruxhitid, fk_searchspectrumid, fk_peptideid, scannumber, charge, neutral_mass, peptide_mass, delta_cn, xcorr_score, xcorr_rank, percolator_score, percolator_rank, qvalue, matches_spectrum, cleavage_type, flank_aa, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iCruxhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

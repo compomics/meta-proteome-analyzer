@@ -21,10 +21,16 @@ public class SpectrumMatch {
 	}
 	
 	/**
-	 * Sets the spectrum id.
-	 * @param spectrumid The spectrum id
+	 * Sets the search spectrum id.
+	 * @param searchSpectrumID The search spectrum id
 	 */
-	public void setSpectrumId(long spectrumid) {
-		this.searchSpectrumID = spectrumid;
+	public void setSearchSpectrumID(long searchSpectrumID) {
+		this.searchSpectrumID = searchSpectrumID;
 	}
+	
+	@Override
+	public String toString() {
+		return "[ssID = " + searchSpectrumID + "]"; 
+	}
+
 }

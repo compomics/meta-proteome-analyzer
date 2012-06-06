@@ -647,7 +647,7 @@ public class SscfgTableAccessor implements Deleteable, Retrievable, Updateable, 
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO sscfg (sscfgid, precursor_tol, annotated_only, vectorization_type, bin_width, bin_shift, profile_shape, peakbase_width, pick_count, transformation_type, measure_type, corr_offsets, score_threshold) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO sscfg (sscfgid, precursor_tol, annotated_only, vectorization_type, bin_width, bin_shift, profile_shape, peakbase_width, pick_count, transformation_type, measure_type, corr_offsets, score_threshold) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iSscfgid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

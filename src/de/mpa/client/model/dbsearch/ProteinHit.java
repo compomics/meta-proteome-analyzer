@@ -1,6 +1,7 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.jdesktop.swingx.JXErrorPane;
 
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.client.model.SpectrumMatch;
 
 
 /**
@@ -195,24 +197,43 @@ public class ProteinHit {
 		this.coverage = coverage;
 	}
 	
+//	/**
+//	 * Calculates and returns the spectral count.
+//	 * @return The spectral count.
+//	 */
+//	public int getSpectralCount() {
+//		if (specCount < 0) {
+//			Set<Entry<String, PeptideHit>> entrySet = peptideHits.entrySet();
+//			
+//			// Counter variable
+//			int count = 0;
+//			
+//			// Iterate the found peptide results
+//			for (Entry<String, PeptideHit> entry : entrySet) {
+//					// Get the peptide hit.
+//					PeptideHit peptideHit = entry.getValue();
+//					count += peptideHit.getSpectrumMatches().size();
+//			}
+//			this.specCount = count;
+//		}
+//		return specCount;
+//	}
+	
 	/**
 	 * Calculates and returns the spectral count.
 	 * @return The spectral count.
 	 */
 	public int getSpectralCount() {
 		if (specCount < 0) {
-			Set<Entry<String, PeptideHit>> entrySet = peptideHits.entrySet();
-			
-			// Counter variable
-			int count = 0;
-			
+			Set<Long> matches = new HashSet<Long>();
 			// Iterate the found peptide results
-			for (Entry<String, PeptideHit> entry : entrySet) {
-					// Get the peptide hit.
-					PeptideHit peptideHit = entry.getValue();
-					count += peptideHit.getSpectrumMatches().size();
+			for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
+				// Store the spectrum matches
+				for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
+					matches.add(match.getSearchSpectrumID());
+				}
 			}
-			this.specCount = count;
+			this.specCount = matches.size();
 		}
 		return specCount;
 	}

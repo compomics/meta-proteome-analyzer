@@ -754,7 +754,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iOmssahitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
