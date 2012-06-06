@@ -502,7 +502,7 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO consensusspec (consensusspecid, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO consensusspec (consensusspecid, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iConsensusspecid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

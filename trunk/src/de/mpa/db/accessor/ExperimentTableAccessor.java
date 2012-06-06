@@ -394,7 +394,7 @@ public class ExperimentTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO experiment (experimentid, fk_projectid, fk_settingsid, title, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO experiment (experimentid, fk_projectid, fk_settingsid, title, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iExperimentid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

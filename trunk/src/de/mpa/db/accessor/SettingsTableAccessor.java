@@ -323,7 +323,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO settings (settingsid, fk_sscfgid, fk_dbcfgid, fk_dncfgid) values(?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO settings (settingsid, fk_sscfgid, fk_dbcfgid, fk_dncfgid) values(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iSettingsid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

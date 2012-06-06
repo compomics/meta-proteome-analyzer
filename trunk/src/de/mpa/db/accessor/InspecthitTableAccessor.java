@@ -1042,7 +1042,7 @@ public class InspecthitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO inspecthit (inspecthitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, scannumber, charge, mq_score, length, total_prm_score, median_prm_score, fraction_y, fraction_b, intensity, ntt, p_value, f_score, deltascore, deltascore_other, recordnumber, dbfilepos, specfilepos, precursor_mz_error, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO inspecthit (inspecthitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, scannumber, charge, mq_score, length, total_prm_score, median_prm_score, fraction_y, fraction_b, intensity, ntt, p_value, f_score, deltascore, deltascore_other, recordnumber, dbfilepos, specfilepos, precursor_mz_error, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iInspecthitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

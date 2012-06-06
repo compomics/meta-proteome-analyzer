@@ -3,7 +3,11 @@ package de.mpa.client.ui.panels;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -13,13 +17,14 @@ import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+
+import de.mpa.client.Client;
 
 /**
  * <b>Log Panel</b>
@@ -41,6 +46,7 @@ public class LoggingPanel extends JPanel {
 	public LoggingPanel() {
 
 		initComponents();
+		initListener();
         
         // configure local log
         writer = new LogWriter(this);
@@ -48,7 +54,7 @@ public class LoggingPanel extends JPanel {
         BasicConfigurator.configure(appender);
 
 	}
-	
+
 	private void initComponents() {
 		
 		CellConstraints cc = new CellConstraints();
@@ -76,14 +82,26 @@ public class LoggingPanel extends JPanel {
 		this.add(brdPnl, cc.xy(2, 2));
 		
 	}
-
-	public Appender getAppender() {
-		return appender;
+	
+	private void initListener() {
+		PropertyChangeListener listener = new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent pce) {
+				if (pce.getPropertyName().equalsIgnoreCase("new message")) {
+					append(pce.getNewValue().toString());
+				}
+			}
+		};
+		Client.getInstance().addPropertyChangeListener(listener);
 	}
+
+//	public Appender getAppender() {
+//		return appender;
+//	}
 	
 	public void append(String str) {
 		// append string
-		textArea.append(str);
+		textArea.append("[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) +  "] " + str + "\n");
 
 		// check line count
 		int lines = textArea.getLineCount();

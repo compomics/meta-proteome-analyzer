@@ -394,7 +394,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO expproperty (exppropertyid, fk_experimentid, name, value, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO expproperty (exppropertyid, fk_experimentid, name, value, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iExppropertyid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

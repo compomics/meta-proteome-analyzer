@@ -2,6 +2,8 @@ package de.mpa.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,19 +15,57 @@ import javax.swing.text.DefaultCaret;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
+
 public class StatusPanel extends JPanel {
 
-	private JProgressBar currentPrg;
-	private JProgressBar totalPrg;
+	/**
+	 * The client instance
+	 */
+	private Client client;
+	
+	/**
+	 * The progress bar displaying current process progress.
+	 */
+	private JProgressBar currentPrg = new JProgressBar();
+	
+	/**
+	 * The progress bar displaying total process progress.
+	 */
+	private JProgressBar totalPrg = new JProgressBar();
+	
+	/**
+	 * A text field displaying the current process status.
+	 */
 	private JTextField statusTtf;
+	
+	/**
+	 * A label displaying estimated remaining time to finish the current process.
+	 */
 	private JLabel timeLbl;
+	
+	/**
+	 * A text field displaying the currently selected project's name.
+	 */
 	private JTextField projectTtf;
+	
+	/**
+	 * A text field displaying the currently selected experiment's name.
+	 */
 	private JTextField experimentTtf;
 
+	/**
+	 * Creates the client frame's status bar panel.
+	 */
 	public StatusPanel() {
+		client = Client.getInstance();
 		initComponents();
+		initListener();
 	}
 
+	/**
+	 * Creates and configures the status bar components.
+	 */
 	private void initComponents() {
 
 		CellConstraints cc = new CellConstraints();
@@ -132,6 +172,71 @@ public class StatusPanel extends JPanel {
 		this.add(timePnl, cc.xy(7, 1));
 		this.add(currentStatusPnl, cc.xy(8, 1));
 
+	}
+
+	/**
+	 * Creates and registers a property listener which controls the status bar components' contents.
+	 */
+	private void initListener() {
+		PropertyChangeListener listener = new PropertyChangeListener() {
+			
+			private long startTime;
+			private long curProgress;
+			private long totProgressTillNow;
+			private long totProgress;
+			private long maxCurProgress;
+			private long maxTotProgress;
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent pce) {
+				String name = pce.getPropertyName();
+				if (name.equalsIgnoreCase("resetall")) {
+					startTime = System.currentTimeMillis();
+					curProgress = 0L;
+					totProgressTillNow = 0L;
+					totProgress = 0L;
+					maxCurProgress = 0L;
+					maxTotProgress = (Long) pce.getNewValue();
+					currentPrg.setValue(0);
+					totalPrg.setValue(0);
+				} else if (name.equalsIgnoreCase("resetcur")) {
+					startTime = System.currentTimeMillis();
+					curProgress = 0L;
+					totProgressTillNow += maxCurProgress;
+					maxCurProgress = (Long) pce.getNewValue();
+					currentPrg.setValue(0);
+				} else if (name.equalsIgnoreCase("indeterminate")) {
+					currentPrg.setIndeterminate((Boolean) pce.getNewValue());
+				} else if (name.equalsIgnoreCase("progressmade")) {
+					curProgress++;
+					totProgress++;
+					updateTime();
+				} else if (name.equalsIgnoreCase("progress")) {
+					curProgress = (Long) pce.getNewValue();
+					totProgress = totProgressTillNow + curProgress;
+					updateTime();
+				} else if (name.equalsIgnoreCase("new message")) {
+					statusTtf.setText(pce.getNewValue().toString());
+				}
+			}
+
+			private void updateTime() {
+				double curProgressRel = curProgress*100.0 / (double) maxCurProgress;
+				double totProgressRel = totProgress*100.0 / (double) maxTotProgress;
+
+				currentPrg.setValue((int) curProgressRel);
+				totalPrg.setValue((int) totProgressRel);
+
+				long elapsedTime = System.currentTimeMillis() - startTime;
+				long remainingTime = 0L;
+				if (curProgressRel > 0.0) {
+					remainingTime = ((long) (elapsedTime/curProgressRel*(100.0-curProgressRel)) + 999L) / 1000L;
+				}
+				timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
+						(remainingTime%3600)/60, remainingTime%60));
+			}
+		};
+		client.addPropertyChangeListener(listener);
 	}
 
 	public JProgressBar getCurrentProgressBar() {

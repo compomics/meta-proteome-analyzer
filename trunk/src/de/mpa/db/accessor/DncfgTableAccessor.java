@@ -467,7 +467,7 @@ public class DncfgTableAccessor implements Deleteable, Retrievable, Updateable, 
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO dncfg (dncfgid, model, fragment_tol, precursor_tol, enzyme, num_solutions, tag_length, ptms) values(?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO dncfg (dncfgid, model, fragment_tol, precursor_tol, enzyme, num_solutions, tag_length, ptms) values(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iDncfgid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

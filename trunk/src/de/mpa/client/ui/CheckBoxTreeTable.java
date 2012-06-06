@@ -105,15 +105,17 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				checkbox.setIcon(context.getIcon());
 				checkbox.setEnabled(treeTable.isEnabled());
 				CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) context.getValue();
-				TreePath path = node.getPath();
-				Boolean selected = false;
-				if (selectionModel.isPathSelected(path, true)) {
-					selected = true;
-				} else if (selectionModel.isPartiallySelected(path)) {
-					selected = null;
+				if (node != null) {
+					TreePath path = node.getPath();
+					Boolean selected = false;
+					if (selectionModel.isPathSelected(path, true)) {
+						selected = true;
+					} else if (selectionModel.isPartiallySelected(path)) {
+						selected = null;
+					}
+					checkbox.setSelected(selected);
+					checkbox.setFixed(node.isFixed());
 				}
-				checkbox.setSelected(selected);
-				checkbox.setFixed(node.isFixed());
 			}
 			
 		}));

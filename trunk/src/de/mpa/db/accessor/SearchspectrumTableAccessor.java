@@ -358,7 +358,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO searchspectrum (searchspectrumid, fk_spectrumid, fk_experimentid, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO searchspectrum (searchspectrumid, fk_spectrumid, fk_experimentid, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iSearchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

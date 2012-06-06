@@ -58,26 +58,19 @@ public class MascotGenericFileReader {
 	/**
 	 * List of registered property change listeners.
 	 */
-	private ArrayList<PropertyChangeListener> listeners;
+	private List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		if (listeners == null) {
-			listeners = new ArrayList<PropertyChangeListener>();
-		}
 		listeners.add(listener);
 	}
 	
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		if (listeners != null) {
-			listeners.remove(listener);
-		}
+		listeners.remove(listener);
 	}
 	
 	private void fireProgressMade(long oldProgress, long newProgress) {
-		if (listeners != null) {
-			for (PropertyChangeListener listener : listeners) {
-				listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
-			}
+		for (PropertyChangeListener listener : listeners) {
+			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
 		}
 	}
     
@@ -308,7 +301,7 @@ public class MascotGenericFileReader {
         }
 
         // Fire final progress event
-        fireProgressMade(oldPos, newPos);
+        fireProgressMade(spectrumPositions.get(spectrumPositions.size() - 1), newPos);
     }
     
     /**

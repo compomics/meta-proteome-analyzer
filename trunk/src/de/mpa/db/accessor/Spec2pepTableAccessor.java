@@ -287,7 +287,7 @@ public class Spec2pepTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spec2pep (spec2pepid, fk_spectrumid, fk_peptideid) values(?, ?, ?)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO spec2pep (spec2pepid, fk_spectrumid, fk_peptideid) values(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iSpec2pepid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
