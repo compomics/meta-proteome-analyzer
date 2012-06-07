@@ -1,9 +1,7 @@
 package de.mpa.job;
 
 import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
@@ -11,8 +9,6 @@ import org.apache.log4j.Logger;
 import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.MS2FormatJob;
 import de.mpa.job.instances.RenameJob;
-import de.mpa.webservice.Message;
-import de.mpa.webservice.MessageQueue;
 
 
 /**
@@ -43,22 +39,10 @@ public class JobManager {
 	private List<Object> objects;
 	
 	/**
-	 * MessageQueue instance.
-	 */
-	private Queue<Message> msgQueue;
-	
-	/**
-	 * Helper map instance for mapping job descriptions to job filenames.
-	 */
-	private Map<String, String> filenameMap; 
-	
-	/**
 	 * Constructor for the job manager.
 	 */
 	private JobManager() {
 		this.jobQueue = new ArrayDeque<Job>();
-		this.msgQueue = MessageQueue.getInstance();
-		this.filenameMap = new HashMap<String, String>();
 	}
 	
 	/**
@@ -106,16 +90,9 @@ public class JobManager {
 				renameJob.execute();
 			} else {
 				// Set the job status to RUNNING and put the message in the queue
-				//msgQueue.add(new Message(job, new Date()));
-				filenameMap.put(job.getDescription(), job.getFilename());
 				log.info("Executing job: " + job.getDescription());
 				job.execute();
 			}
-			// Error logging.
-//			if (job.getStatus() == JobStatus.ERROR) {
-//				msgQueue.add(new Message(job, new Date()));
-//				log.error(job.getError());
-//			}		
 			
 			// Remove job from the queue after successful execution.
 			jobQueue.remove(job);
@@ -137,11 +114,4 @@ public class JobManager {
 		jobQueue.clear();
 	}
 	
-	/**
-	 * Returns the filenames.
-	 * @return filename map The Map<String, String>
-	 */
-	public Map<String, String> getFilenames(){
-		return filenameMap;
-	}
 }

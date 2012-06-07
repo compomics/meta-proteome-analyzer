@@ -31,11 +31,11 @@ public class SpecSimJob extends Job {
 	public SpecSimJob(List<MascotGenericFile> mgfList, SpecSimSettings settings) {
 		this.mgfList = mgfList;
 		this.settings = settings;
+		setDescription("SPECTRAL SIMILARITY SEARCH");
 	}
 
 	@Override
 	public void execute() {
-		setDescription("SPECTRAL SIMILARITY SEARCH");
 		
 		// store list of results in HashMap (with spectrum title as key)
 		ssmList = new ArrayList<SpectrumSpectrumMatch>();
@@ -88,7 +88,7 @@ public class SpecSimJob extends Job {
 //				pSupport.firePropertyChange("progressmade", 0, 1);
 			}
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e.getCause());
+			setError(e);
 		}
 	}
 	

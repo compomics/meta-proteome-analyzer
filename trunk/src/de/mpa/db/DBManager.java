@@ -55,7 +55,7 @@ public class DBManager {
      * Initialize the database manager.
      * @throws SQLException
      */
-	private void init() throws SQLException{		
+	private void init() throws SQLException {	
 		// The database configuration.
 		DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.LOCAL, new DbConnectionSettings());
 		conn = dbconfig.getConnection();
@@ -74,18 +74,13 @@ public class DBManager {
 	 * @throws SQLException  
 	 * @throws IOException 
 	 */
-	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException {
+	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException, InterruptedException {
 		// Store the spectra from the spectrum file for a given experiment.	
 		// TODO: No redudancy check uses for the spectrum storing... add flag option to client ?
 		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid, false);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
-		
-		try {
-			spectraThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}		
+		spectraThread.join();		
 		return specStorager;
 	}
 	
@@ -95,13 +90,9 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeXTandemResults(String xtandemFilename, String xtandemQValued) throws IOException, SQLException{
-		try {
-			spectraThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(xtandemQValued != null){
+	public void storeXTandemResults(String xtandemFilename, String xtandemQValued) throws IOException, SQLException, InterruptedException {
+		spectraThread.join();
+		if (xtandemQValued != null) {
 			XTandemStorager job = new XTandemStorager(conn, new File(xtandemFilename), new File(xtandemQValued));
 			job.run();
 		} else {
@@ -116,13 +107,9 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeOmssaResults(String omssaFilename, String omssaQValued) throws IOException, SQLException{
-		try {
-			spectraThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(omssaQValued != null){
+	public void storeOmssaResults(String omssaFilename, String omssaQValued) throws IOException, SQLException, InterruptedException {
+		spectraThread.join();
+		if (omssaQValued != null) {
 			OmssaStorager job = new OmssaStorager(conn, new File(omssaFilename), new File(omssaQValued)); 
 			job.run();
 		} else {
@@ -137,12 +124,8 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeCruxResults(String cruxFilename) throws IOException, SQLException {
-		try {
-			spectraThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public void storeCruxResults(String cruxFilename) throws IOException, SQLException, InterruptedException {
+		spectraThread.join();
 		CruxStorager job = new CruxStorager(conn, new File(cruxFilename));	
 		job.run();
 	}
@@ -153,13 +136,8 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storeInspectResults(String inspectFilename) throws IOException, SQLException {
-		
-		try {
-			spectraThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public void storeInspectResults(String inspectFilename) throws IOException, SQLException, InterruptedException {
+		spectraThread.join();
 		InspectStorager job = new InspectStorager(conn, new File(inspectFilename));
 		job.run();
 	}
@@ -179,12 +157,8 @@ public class DBManager {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void storePepnovoResults(String pepnovoFilename) throws IOException, SQLException{
-		try {
-			spectraThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public void storePepnovoResults(String pepnovoFilename) throws IOException, SQLException, InterruptedException {
+		spectraThread.join();
 		executor.execute(new PepnovoStorager(conn, new File(pepnovoFilename)));
 	}
 	

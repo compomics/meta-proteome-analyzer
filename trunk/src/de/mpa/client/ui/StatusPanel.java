@@ -210,6 +210,7 @@ public class StatusPanel extends JPanel {
 				} else if (name.equalsIgnoreCase("progressmade")) {
 					curProgress++;
 					totProgress++;
+//					System.out.println("" + curProgress + "/" + maxCurProgress + "\t"+ totProgress + "/" + maxTotProgress);
 					updateTime();
 				} else if (name.equalsIgnoreCase("progress")) {
 					curProgress = (Long) pce.getNewValue();

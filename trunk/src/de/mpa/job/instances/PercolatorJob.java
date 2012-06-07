@@ -8,7 +8,6 @@ import de.mpa.job.Job;
 public class PercolatorJob extends Job{
 	
 	private final File cruxFile;
-	private String ms2File;	
 	private final String searchDB;
 	private final String filename;
 	 

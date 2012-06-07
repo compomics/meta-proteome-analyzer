@@ -78,7 +78,7 @@ public interface Server {
     @WebMethod
     public void runSearches(
         @WebParam(name = "arg0", partName = "arg0")
-        String arg0,
+        String[] arg0,
         @WebParam(name = "arg1", partName = "arg1")
         SearchSettings arg1);
 

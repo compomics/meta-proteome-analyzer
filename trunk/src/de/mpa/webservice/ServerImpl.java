@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 
 import javax.activation.DataHandler;
 import javax.jws.WebService;
@@ -17,7 +15,6 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.settings.DbSearchSettings;
 import de.mpa.client.settings.DenovoSearchSettings;
 import de.mpa.client.settings.SearchSettings;
@@ -27,6 +24,7 @@ import de.mpa.db.MapContainer;
 import de.mpa.db.storager.SpectrumStorager;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.fasta.FastaLoader;
+import de.mpa.job.Job;
 import de.mpa.job.JobManager;
 import de.mpa.job.JobStatus;
 import de.mpa.job.SearchType;
@@ -44,6 +42,12 @@ import de.mpa.job.instances.SpecSimJob;
 import de.mpa.job.instances.XTandemJob;
 import de.mpa.job.scoring.OmssaScoreJob;
 import de.mpa.job.scoring.XTandemScoreJob;
+import de.mpa.job.storing.CruxStoreJob;
+import de.mpa.job.storing.InspectStoreJob;
+import de.mpa.job.storing.OmssaStoreJob;
+import de.mpa.job.storing.PepnovoStoreJob;
+import de.mpa.job.storing.SpecSimStoreJob;
+import de.mpa.job.storing.XTandemStoreJob;
 
 
 //Service Implementation Bean
@@ -59,7 +63,7 @@ public class ServerImpl implements Server {
     /**
      * Message queue instance for communication between server and client.
      */
-    private Queue<Message> msgQueue = MessageQueue.getInstance();
+    private MessageQueue msgQueue = MessageQueue.getInstance();
 
 	/**
 	 * The DBManager instance.
@@ -79,19 +83,8 @@ public class ServerImpl implements Server {
     // TODO: rewrite message system using listeners or somesuch
 	@Override
 	public String sendMessage() {
-		Message msg = msgQueue.poll();
-		
-		if(msg != null){
-			String composedMessage;
-			if(msg.getStatus() == JobStatus.ERROR){
-				composedMessage = JobStatus.ERROR.toString() + ": " + msg.getDescription() + " " + msg.getError();
-			} else {
-				composedMessage = msg.getDescription() + " " + msg.getStatus().toString();
-			}
-			log.info(composedMessage);
-			return composedMessage;
-		}
-		return "";
+		String msg = msgQueue.poll();
+		return (msg == null) ? "" : msg;
 	}
 
 	@Override
@@ -106,7 +99,7 @@ public class ServerImpl implements Server {
 	 * @param dbSearchSettings The database search settings.
 	 * @throws Exception
 	 */
-	private void runDbSearch(String filename, DbSearchSettings dbSearchSettings) {	
+	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
 		File file = new File(ServerSettings.TRANSFER_PATH + filename);
 		
 		// Get general parameters .
@@ -121,73 +114,84 @@ public class ServerImpl implements Server {
 		try {
 			fastaLoader.setIndexFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta.fb"));
 			fastaLoader.readIndexFile();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e.getCause());
+			e.printStackTrace();
 		}
 		MapContainer.FastaLoader = fastaLoader;
 		
-		jobManager = JobManager.getInstance();
 		// X!Tandem job
-		if(dbSearchSettings.isXTandem()){
-			XTandemJob xtandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
-			jobManager.addJob(xtandemJob);
+		if (dbSearchSettings.isXTandem()) {
+			Job xTandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
+			jobManager.addJob(xTandemJob);
 			// Decoy search only
-			if(dbSearchSettings.isDecoy()){
-				// The X!Tandem decoy search is done here.
-				XTandemJob xtandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.DECOY);
-				jobManager.addJob(xtandemDecoyJob);
+			if (dbSearchSettings.isDecoy()) {
+				// The X!Tandem decoy search is added here
+				Job xTandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.DECOY);
+				jobManager.addJob(xTandemDecoyJob);
 
-				// The score job evaluates X!Tandem target + decoy results.
-				XTandemScoreJob xtandemScoreJob = new XTandemScoreJob(xtandemJob.getFilename(), xtandemDecoyJob.getFilename());
-				jobManager.addJob(xtandemScoreJob);
+				// The score job evaluates X!Tandem target + decoy results
+				Job xTandemScoreJob = new XTandemScoreJob(xTandemJob.getFilename(), xTandemDecoyJob.getFilename());
+				jobManager.addJob(xTandemScoreJob);
+				
+				// Add store job
+				jobManager.addJob(new XTandemStoreJob(xTandemJob.getFilename(), xTandemScoreJob.getFilename()));
+			} else {
+				// Add store job
+				jobManager.addJob(new XTandemStoreJob(xTandemJob.getFilename(), null));
 			}
 		}
 		
 		// Omssa job
-		if(dbSearchSettings.isOmssa()){
-			OmssaJob omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
+		if (dbSearchSettings.isOmssa()) {
+			Job omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
 			jobManager.addJob(omssaJob);
 			
-			// Condition if decoy search is done here.
-			if(dbSearchSettings.isDecoy()){
-				
-				// The Omssa decoy search is done here.
-				OmssaJob omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, fragIonTol, precIonTol, false, SearchType.DECOY);
+			// Condition if decoy search is done here
+			if (dbSearchSettings.isDecoy()) {
+				// The Omssa decoy search is added here
+				Job omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, fragIonTol, precIonTol, false, SearchType.DECOY);
 				jobManager.addJob(omssaDecoyJob);
 				
-				// The score job evaluates Omssa target + decoy results.
-				OmssaScoreJob omssaScoreJob = new OmssaScoreJob(omssaJob.getFilename(), omssaDecoyJob.getFilename());
+				// The score job evaluates Omssa target + decoy results
+				Job omssaScoreJob = new OmssaScoreJob(omssaJob.getFilename(), omssaDecoyJob.getFilename());
 				jobManager.addJob(omssaScoreJob);
+				
+				// Add store job
+				jobManager.addJob(new OmssaStoreJob(omssaJob.getFilename(), omssaScoreJob.getFilename()));
+			} else {
+				// Add store job
+				jobManager.addJob(new OmssaStoreJob(omssaJob.getFilename(), null));
 			}
 		}
 		
 		// Crux job
-		if(dbSearchSettings.isCrux()){
-			MS2FormatJob ms2FormatJob = new MS2FormatJob(file);
+		if (dbSearchSettings.isCrux()) {
+			Job ms2FormatJob = new MS2FormatJob(file);
 			jobManager.addJob(ms2FormatJob);
-			CruxJob cruxJob = new CruxJob(file, searchDB);
+			Job cruxJob = new CruxJob(file, searchDB);
 			jobManager.addJob(cruxJob);
-			PercolatorJob percolatorJob = new PercolatorJob(file, searchDB);
+			Job percolatorJob = new PercolatorJob(file, searchDB);
 			jobManager.addJob(percolatorJob);
 			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
-			RenameJob renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.txt", percolatorfile);
+			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.txt", percolatorfile);
 			jobManager.addJob(renameJob);
+			jobManager.addJob(new CruxStoreJob(cruxJob.getFilename()));
 		}
 		
 		// Inspect job
-		if(dbSearchSettings.isInspect()){
-			InspectJob inspectJob = new InspectJob(file, searchDB);			
+		if (dbSearchSettings.isInspect()) {
+			Job inspectJob = new InspectJob(file, searchDB);			
 			jobManager.addJob(inspectJob);			
-			PostProcessorJob postProcessorJob = new PostProcessorJob(file, searchDB);			
+			Job postProcessorJob = new PostProcessorJob(file, searchDB);			
 			jobManager.addJob(postProcessorJob);			
+			jobManager.addJob(new InspectStoreJob(postProcessorJob.getFilename()));
 		}
 		
-		// Execute the search engine jobs.
-		jobManager.execute();
+//		// Execute the search engine jobs.
+//		jobManager.execute();
 		
-		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DATABASE SEARCH"), new Date()));
+//		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DATABASE SEARCH"), new Date()));
 		
 		// Clear the folders
 		// FIXME: Thilo, make this working!
@@ -197,31 +201,35 @@ public class ServerImpl implements Server {
 //		msgQueue.add(new Message(null, "CLEARED FOLDERS", new Date()));
 	}
 
-	private List<SpectrumSpectrumMatch> runSpecSimSearch(List<MascotGenericFile> mgfList, SpecSimSettings sss) {
+	private void addSpecSimSearchJob(List<MascotGenericFile> mgfList, SpecSimSettings sss) {
 		SpecSimJob specSimJob = new SpecSimJob(mgfList, sss);
 		jobManager.addJob(specSimJob);
-		jobManager.execute();
+		jobManager.addJob(new SpecSimStoreJob(specSimJob));
 		
-		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "SPECTRAL SIMILARITY SEARCH"), new Date()));
-		return specSimJob.getResults();
+//		jobManager.execute();
+//		
+//		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, specSimJob.getDescription()), new Date()));
 	}
 	
 	/**
-	 * This method runs the denovo search on the server.
+	 * This method runs the de novo search on the server.
 	 * @param filename The spectrum filename.
-	 * @param dnSettings The denovo search settings.
+	 * @param dnSettings The de novo search settings.
 	 * @throws Exception
 	 */
-	private void runDenovoSearch(String filename, DenovoSearchSettings dnSettings) {	
-		// The denovo file
+	private void addDeNovoSearchJob(String filename, DenovoSearchSettings dnSettings) {	
+		// The de novo file
 		File file = new File(ServerSettings.TRANSFER_PATH + filename);
+
+		// Add a de novo search job with the de novo search settings
+		Job pepNovoJob = new PepnovoJob(file, dnSettings.getModel(), dnSettings.getPrecursorTol(), dnSettings.getFragMassTol(), dnSettings.getNumSolutions());
+		jobManager.addJob(pepNovoJob);
+		// Add a de novo search results storing job
+		jobManager.addJob(new PepnovoStoreJob(pepNovoJob.getFilename()));
 		
-		// Start the de-novo job with the de-novo search settings.
-		PepnovoJob denovoJob = new PepnovoJob(file, dnSettings.getModel(), dnSettings.getPrecursorTol(), dnSettings.getFragMassTol(), dnSettings.getNumSolutions());
-		jobManager.addJob(denovoJob);
-		jobManager.execute();
-		
-		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DE NOVO SEARCH"), new Date()));
+//		jobManager.execute();
+//		
+//		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DE NOVO SEARCH"), new Date()));
 	}
 	
 	/**
@@ -229,8 +237,7 @@ public class ServerImpl implements Server {
 	 */
 	@Override
 	public String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data) {
- 
-		if(data != null){	
+		if (data != null) {
 		    InputStream io;
 			try {
 				io = data.getInputStream();
@@ -250,66 +257,110 @@ public class ServerImpl implements Server {
 				log.info("Upload Successful: " + file.getName());
 				return file.getAbsolutePath();
 			} catch (IOException e) {
+				log.error(e.getMessage(), e.getCause());
 				e.printStackTrace();
 			}      
 		} 
 		throw new WebServiceException("Upload Failed!"); 
 	}
 
+//	@Override
+//	public void runSearches(String filename, SearchSettings settings) {
+//		try {
+//			// 	DB Manager instance
+//			dbManager = DBManager.getInstance();
+//			
+//			// Store the spectra.
+//			File file = new File(JobConstants.TRANSFER_PATH + filename);
+//			SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
+//			
+//			// Initialize the job manager.
+//			jobManager = JobManager.getInstance();
+//			
+//			// Get the filename map.
+//			Map<String, String> filenames = jobManager.getFilenames();
+//
+//			// Run searches and store results
+//			if (settings.isDatabase()) {
+//				DbSearchSettings dbss = settings.getDbss();
+//				
+//				// Run
+//				runDbSearch(filename, dbss);
+//				
+//				// Store
+//				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
+//				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
+//				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
+//				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
+//			}
+//			
+//			if (settings.isSpecSim()) {
+//				SpecSimSettings sss = settings.getSss();
+//				
+//				// Run
+//				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
+//				
+//				// Store
+//				dbManager.storeSpecSimResults(results);
+//				results = null;
+//			}
+//			
+//			if (settings.isDeNovo()) {
+//				DenovoSearchSettings dnss = settings.getDnss();
+//				
+//				// Run
+//				runDenovoSearch(filename, dnss);
+//				
+//				// Store
+//				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
+//			}
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//			log.error(ex.getMessage());
+//		}
+//		
+//	}
+
 	@Override
-	public void runSearches(String filename, SearchSettings settings) {
+	public void runSearches(String[] filenames, SearchSettings settings) {
 		try {
 			// 	DB Manager instance
 			dbManager = DBManager.getInstance();
 			
-			// Store the spectra.
-			File file = new File(JobConstants.TRANSFER_PATH + filename);
-			SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
-			
-			// Initialize the job manager.
+			// Initialize the job manager
 			jobManager = JobManager.getInstance();
 			
-			// Get the filename map.
-			Map<String, String> filenames = jobManager.getFilenames();
+			// Iterate uploaded files
+			int i = 1;
+			for (String filename : filenames) {
+				// Store uploaded spectrum files to DB
+				File file = new File(JobConstants.TRANSFER_PATH + filename);
+				SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
 
-			// Run searches and store results
-			if (settings.isDatabase()) {
-				DbSearchSettings dbss = settings.getDbss();
+				// Add search jobs to job manager queue
+				if (settings.isDatabase()) {
+					addDbSearchJobs(filename, settings.getDbss());
+				}
+				if (settings.isSpecSim()) {
+					addSpecSimSearchJob(storager.getSpectra(), settings.getSss());
+				}
+				if (settings.isDeNovo()) {
+					addDeNovoSearchJob(filename, settings.getDnss());
+				}
+
+				msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.length), new Date()), log);
 				
-				// Run
-				runDbSearch(filename, dbss);
+				// Batch-execute jobs
+				jobManager.execute();
 				
-				// Store
-				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
-				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
-				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
+				msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.length), new Date()), log);
+				i++;
 			}
-			
-			if (settings.isSpecSim()) {
-				SpecSimSettings sss = settings.getSss();
-				
-				// Run
-				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
-				
-				// Store
-				dbManager.storeSpecSimResults(results);
-				results = null;
-			}
-			
-			if (settings.isDeNovo()) {
-				DenovoSearchSettings dnss = settings.getDnss();
-				
-				// Run
-				runDenovoSearch(filename, dnss);
-				
-				// Store
-				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			log.error(ex.getMessage());
+		} catch (Exception e) {
+			log.error(e.getMessage(), e.getCause());
+			e.printStackTrace();
 		}
 		
 	}
+	
 }

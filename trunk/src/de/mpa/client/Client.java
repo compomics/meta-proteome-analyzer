@@ -20,7 +20,6 @@ import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
@@ -72,8 +71,8 @@ public class Client {
 	// Server service
 	private ServerImplService service;
 	
-	// Logger
-	private Logger log = Logger.getLogger(getClass());
+//	// Logger
+//	private Logger log = Logger.getLogger(getClass());
 	
 	// Server instance
 	private Server server;
@@ -185,7 +184,7 @@ public class Client {
 	public void request() {
 		final String message = receiveMessage();
 		if (message != null && !message.isEmpty()) {
-			log.info(message);
+//			log.info(message);
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					pSupport.firePropertyChange("New Message", null, message);
@@ -198,7 +197,7 @@ public class Client {
 	 * Send the message. 
 	 * @param msg
 	 */
-	public String receiveMessage(){
+	public String receiveMessage() {
 		return server.sendMessage();
 	}
 	
@@ -255,12 +254,21 @@ public class Client {
 	}
 	
 	public void runSearches(List<File> files, SearchSettings settings) {
-		for (int i = 0; i < files.size(); i++) {
-			try {
-				server.runSearches(files.get(i).getName(), settings);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+//		for (int i = 0; i < files.size(); i++) {
+//			try {
+//				server.runSearches(files.get(i).getName(), settings);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+		String[] filenames = new String[files.size()];
+		for (int i = 0; i < filenames.length; i++) {
+			filenames[i] = files.get(i).getName();
+		}
+		try {
+			server.runSearches(filenames, settings);
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 	
@@ -573,20 +581,24 @@ public class Client {
 	 * @return A list of files.
 	 * @throws IOException 
 	 */
-	public List<File> packSpectra(int packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException {
+	public List<File> packSpectra(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException {
 		List<File> files = new ArrayList<File>();
 		FileOutputStream fos = null;
 		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
 		CheckBoxTreeTableNode fileRoot = (CheckBoxTreeTableNode) ((DefaultTreeTableModel) checkBoxTree.getTreeTableModel()).getRoot();
-		int numSpectra = 0;
+		long numSpectra = 0;
+		long maxSpectra = selectionModel.getSelectionCount();
 		CheckBoxTreeTableNode spectrumNode = fileRoot.getFirstLeaf();
 		if (spectrumNode != fileRoot) {
+			pSupport.firePropertyChange("resetall", 0L, maxSpectra);
 			// iterate over all leaves
 			while (spectrumNode != null) {
 				// generate tree path and consult selection model whether path is explicitly or implicitly selected
 				TreePath spectrumPath = spectrumNode.getPath();
 				if (selectionModel.isPathSelected(spectrumPath, true)) {
 					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
+						long remaining = maxSpectra - numSpectra;
+						pSupport.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 						if (fos != null) {
 							fos.close();
 						}
@@ -598,11 +610,7 @@ public class Client {
 					MascotGenericFile mgf = FilePanel.getSpectrumForNode(spectrumNode);
 					mgf.writeToStream(fos);
 					fos.flush();
-					try {
-						pSupport.firePropertyChange("progress", numSpectra++, numSpectra);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					pSupport.firePropertyChange("progressmade", 0L, ++numSpectra);
 				}
 				spectrumNode = spectrumNode.getNextLeaf();
 			}
@@ -680,4 +688,5 @@ public class Client {
 		}
 		System.exit(0);
 	}
+
 }

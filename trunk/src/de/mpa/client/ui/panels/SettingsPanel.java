@@ -22,9 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
@@ -62,16 +60,9 @@ public class SettingsPanel extends JPanel {
 
 	private JButton processBtn;
 	
-	private JProgressBar currentPrg;
-	private JLabel timeLbl;
-	private JTextField statusTtf;
-	
 	public SettingsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
 		this.client = Client.getInstance();
-		this.currentPrg = clientFrame.getStatusBar().getCurrentProgressBar();
-		this.statusTtf = clientFrame.getStatusBar().getCurrentStatusTextField();
-		this.timeLbl = clientFrame.getStatusBar().getTimeLabel();
 		initComponents();
 	}
 
@@ -185,7 +176,7 @@ public class SettingsPanel extends JPanel {
 		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",
 											"5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		
-		packSpn = new JSpinner(new SpinnerNumberModel(1000, 1, null, 100));
+		packSpn = new JSpinner(new SpinnerNumberModel(1000L, 1L, null, 100L));
 		packSpn.setToolTipText("Number of spectra per transfer package"); 
 		packSpn.setPreferredSize(new Dimension(packSpn.getPreferredSize().width*2,
 											   packSpn.getPreferredSize().height));
@@ -242,53 +233,21 @@ public class SettingsPanel extends JPanel {
 	private class ProcessWorker extends SwingWorker {
 
 		protected Object doInBackground() {
+			CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
 			
 			// register progress listener
-			CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
-			final int maxProgress = (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount();
-			final long startTime = System.currentTimeMillis();
-			// TODO: implement progress listening
-//			PropertyChangeListener listener = new PropertyChangeListener() {
-//				private int totalProgress = 0;
-//				@Override
-//				public void propertyChange(PropertyChangeEvent pce) {
-//					if (pce.getPropertyName().equalsIgnoreCase("progressmade")) {
-//						totalProgress++;
-//						updateTime();
-//					} else if (pce.getPropertyName().equalsIgnoreCase("progress")) {
-//						totalProgress = (Integer) pce.getNewValue();
-//						updateTime();
-//					} else if (pce.getPropertyName().equalsIgnoreCase("new message")) {
-//						statusTtf.setText(pce.getNewValue().toString());
-//					}
-//				}
-//
-//				private void updateTime() {
-//					double progressRel = totalProgress*100.0/maxProgress;
-//
-//					currentPrg.setValue((int) progressRel);
-//
-//					long elapsedTime = System.currentTimeMillis() - startTime;
-//					long remainingTime = 0L;
-//					if (progressRel > 0.0) {
-//						remainingTime = ((long) (elapsedTime/progressRel*(100.0-progressRel)) + 999L) / 1000L;
-//					}
-//					timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
-//							(remainingTime%3600)/60, remainingTime%60));
-//				}
-//			};
-//			client.addPropertyChangeListener(listener);
+			client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
 			
 			// appear busy
 			firePropertyChange("progress", null, 0);
 			processBtn.setEnabled(false);
 			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			
-			statusTtf.setText("PACKING SPECTRA");
+			client.firePropertyChange("new message", null, "PACKING SPECTRA");
 			try {
-				int packSize = (Integer) packSpn.getValue();
+				long packSize = (Long) packSpn.getValue();
 				List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
-				statusTtf.setText("PACKING SPECTRA FINISHED");
+				client.firePropertyChange("new message", null, "SENDING FILES");
 				client.sendFiles(chunkedFiles);
 
 				DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
@@ -299,13 +258,11 @@ public class SettingsPanel extends JPanel {
 				
 				SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
 				
+				client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 				client.runSearches(chunkedFiles, settings);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-//			// de-register progress listener
-//			client.removePropertyChangeListener(listener);
 			
 			return 0;
 		}

@@ -120,6 +120,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		rs = ps.executeQuery();
 		pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
 		pSupport.firePropertyChange("indeterminate", true, false);
+		pSupport.firePropertyChange("resetcur", 0L, rowCount);
 		
 		Map<Long, Integer> lsID2x = new HashMap<Long, Integer>(width - 1);
 		Map<Long, Integer> ssID2y = new TreeMap<Long, Integer>();
