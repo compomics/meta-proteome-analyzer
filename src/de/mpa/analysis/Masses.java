@@ -27,11 +27,15 @@ public class Masses extends HashMap<String, Double> {
     public static final double L = 113.084064;
     public static final double M = 131.040485;
     public static final double N = 114.042927;
+    // Pyrrolysine
+    public static final double O = 237.147727;
     public static final double P = 97.052764;
     public static final double Q = 128.058578;
     public static final double R = 156.101111;
     public static final double S = 87.032028;
     public static final double T = 101.047679;
+    // Selenocysteine
+    public static final double U = 150.953636;
     public static final double V = 99.068414;
     public static final double W = 186.079313;
     public static final double Y = 163.06332;
@@ -88,11 +92,13 @@ public class Masses extends HashMap<String, Double> {
          this.put("L", Masses.L);
          this.put("M", Masses.M);
          this.put("N", Masses.N);
+         this.put("O", Masses.O);
          this.put("P", Masses.P);
          this.put("Q", Masses.Q);
          this.put("R", Masses.R);
          this.put("S", Masses.S);
          this.put("T", Masses.T);
+         this.put("U", Masses.U);
          this.put("V", Masses.V);
          this.put("W", Masses.W);
          this.put("Y", Masses.Y);
