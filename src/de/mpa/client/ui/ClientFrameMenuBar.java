@@ -48,12 +48,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JMenuItem exportPeptideItem;
 	private JMenuItem exportPSMItem;
 	private JMenuItem exportProteinsItem;
-	private final int  PROTEIN = 0; 
-	private final int PEPTIDE = 1; 
-	private final int PSM = 2;
 	private JMenuItem exportSelProteinsItem;
 	private JMenuItem exportSelPeptideItem;
-	private JMenuItem exportSelPSMItem; 
+	private JMenuItem exportSelPSMItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -64,6 +61,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.client = Client.getInstance();
 		initComponents();
 	}
+
+	// Constants
+	private final int PROTEIN = 0; 
+	private final int PEPTIDE = 1; 
+	private final int PSM = 2;
 	
 	/**
 	 * Initializes the components.
@@ -412,17 +414,15 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		ServerConnectionSettings srvSettings = client.getServerSettings();
 		
-		final JLabel hostLbl = new JLabel("Hostname:"); 
 		srvHostTtf = new JTextField(8);
 		srvHostTtf.setText(srvSettings.getHost());
 
-		final JLabel portLbl = new JLabel("Port:");
 		srvPortTtf = new JTextField(8);
 		srvPortTtf.setText(srvSettings.getPort());
 
-		srvPnl.add(hostLbl, cc.xy(2,1));
+		srvPnl.add(new JLabel("Hostname:"), cc.xy(2,1));
 		srvPnl.add(srvHostTtf, cc.xy(4,1));
-		srvPnl.add(portLbl, cc.xy(2,3));
+		srvPnl.add(new JLabel("Port:"), cc.xy(2,3));
 		srvPnl.add(srvPortTtf, cc.xy(4,3));
 
 		JButton startBtn = new JButton("Connect to server");	    
@@ -500,7 +500,7 @@ public class ClientFrameMenuBar extends JMenuBar {
                 
                 switch (exportType) {
 				case PROTEIN:
-//					ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult(), clientFrame.getDbSearchResultPanel().getProteinTable());
+					ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
 					break;
 				case PEPTIDE:
 					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDbSearchResult());
@@ -511,7 +511,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 				default:
 					break;
 				}
-
                 
                 lastSelectedFolder = selectedFile.getPath();
 

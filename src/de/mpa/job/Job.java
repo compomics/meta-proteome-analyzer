@@ -54,7 +54,7 @@ public abstract class Job implements Executable {
     protected static Logger log = Logger.getLogger(Job.class);
     
 	/**
-	 * Executes a job.
+	 * Executes the job.
 	 */
 	public void execute() {
 		proc = null;
@@ -62,7 +62,7 @@ public abstract class Job implements Executable {
 			proc = procBuilder.start();
 			setStatus(JobStatus.RUNNING);
 		} catch (IOException ioe) {
-			setError(ioe.getMessage());
+			setError(ioe);
 			ioe.printStackTrace();
 		}
 
@@ -90,7 +90,7 @@ public abstract class Job implements Executable {
 			proc.waitFor();
 			done();
 		} catch (InterruptedException e) {
-			setError(e.getMessage());
+			setError(e);
 			e.printStackTrace();
 			if (proc != null) {
 				log.error("SUBPROCESS KILLED!");
@@ -105,7 +105,6 @@ public abstract class Job implements Executable {
 	private void done() {
 		// Set the job status to FINISHED and put the message in the queue
 		setStatus(JobStatus.FINISHED);
-		
 	}
 	
 	/**
@@ -116,11 +115,20 @@ public abstract class Job implements Executable {
 	}
 	
 	/**
-	 * Returns the error message of the job. 
+	 * Sets the job's error message.
+	 * @param error The error message string to be set.
 	 */
-	public void setError(String error) {		
-		this.error = error;
-		log.error(error);
+	public void setError(String error) {
+		setError(new Exception(error));
+	}
+	
+	/**
+	 * Sets the job's error message. 
+	 * @param e The exception to be logged.
+	 */
+	public void setError(Exception e) {
+		log.error(e.getMessage(), e.getCause());
+		this.error = e.getMessage();
 		setStatus(JobStatus.ERROR);
 	}
 
@@ -138,7 +146,7 @@ public abstract class Job implements Executable {
 	 */
 	public void setStatus(JobStatus status) {
 		this.status = status;
-		MessageQueue.getInstance().add(new Message(this, new Date()));
+		MessageQueue.getInstance().add(new Message(this, new Date()), log);
 	}
 
 	/**
