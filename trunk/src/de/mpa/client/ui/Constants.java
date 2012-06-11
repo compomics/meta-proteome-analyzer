@@ -5,14 +5,12 @@ import de.mpa.io.MascotGenericFile;
 public class Constants {
 	public static final int MAINFRAME_WIDTH = 1280;
 	public static final int MAINFRAME_HEIGHT = 800;
-	public static final String[] FASTA_DB = { "uniprot_sprot", "ecoli" };
-	public static final String[] ENZYMES = { "Trypsin", "Semi-tryptic" };
+	public static final String[] FASTA_DB = { "uniprot_sprot", "ecoli", "methanomicrobia", "archaea"};
+	public static final String[] ENZYMES = { "Trypsin", "Semi-tryptic"};
 
 	// TODO: consolidate Thilo's and Robert's possibly redundant constants?
-	public static final String[] DN_FASTA_DB = { "NCBI", "uniprot_sprot" };
 	public static final String[] DN_ENZYMES = { "Trypsin", "Unspecific" };
-	public static final String[] PTMS = { "Oxidation (M)",
-			"Carbamidomethyl (C)" };
+	
 	public static final String[] DN_MODELS = { "CID_IT_TRYP",
 			"CID_IT_TRYP_CSP", "CID_IT_TRYP_DB", "CID_IT_TRYP_DNVPART",
 			"CID_IT_TRYP_SCORE", "CID_IT_TRYP_TAG3", "CID_IT_TRYP_TAG4",
