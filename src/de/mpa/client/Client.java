@@ -254,13 +254,6 @@ public class Client {
 	}
 	
 	public void runSearches(List<File> files, SearchSettings settings) {
-//		for (int i = 0; i < files.size(); i++) {
-//			try {
-//				server.runSearches(files.get(i).getName(), settings);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
 		String[] filenames = new String[files.size()];
 		for (int i = 0; i < filenames.length; i++) {
 			filenames[i] = files.get(i).getName();

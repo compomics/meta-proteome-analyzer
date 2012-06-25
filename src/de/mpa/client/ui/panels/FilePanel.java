@@ -41,6 +41,7 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jfree.chart.ChartPanel;
 
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.factories.CC;
@@ -57,6 +58,8 @@ import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.chart.SpectrumData;
+import de.mpa.client.ui.chart.TotalIonHistogram;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.ui.ExtensionFileFilter;
@@ -64,28 +67,22 @@ import de.mpa.ui.ExtensionFileFilter;
 public class FilePanel extends JPanel {
 	
 	private ClientFrame clientFrame;
-	private Client client;
-	
+	private Client client;	
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
-
 	private CheckBoxTreeTable treeTbl;
-
-	private JPanel viewerPnl;
-	
+	private JPanel spectrumPnl;	
 	private JTextField filesTtf;
 	private JButton filterBtn;
 	private JButton addBtn;
 	private JButton addDbBtn;
-	private JButton clrBtn;
-	
+	private JButton clrBtn;	
 	protected static MascotGenericFileReader reader;
-
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
-
-	private final static String PATH = "test/de/mpa/resources/";
-	
+	private final static String PATH = "test/de/mpa/resources/";	
 	private boolean busy;
-	private JXMultiSplitPane split;
+	private JXMultiSplitPane split;	
+	private List<MascotGenericFile> totalSpectraList = new ArrayList<MascotGenericFile>();
+	private JPanel histPnl;
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
@@ -100,13 +97,13 @@ public class FilePanel extends JPanel {
 		
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		// top panel containing buttons and spectrum treetable
+		// top panel containing buttons and spectrum tree table
 		JPanel topPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
 		
 		// button panel
 		JPanel buttonPnl = new JPanel(new FormLayout("p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
 		
-		// textfield displaying amount of selected files, TODO: display number of spectra
+		// Textfield displaying amount of selected files
 		filesTtf = new JTextField(20);
 		filesTtf.setEditable(false);
 		filesTtf.setMaximumSize(new Dimension(filesTtf.getMaximumSize().width, filesTtf.getPreferredSize().height));
@@ -218,8 +215,6 @@ public class FilePanel extends JPanel {
 		treeTbl.setTableHeader(new ComponentHeader(treeTbl.getColumnModel()));
 		
 		final JPopupMenu filterPopup = new JPopupMenu();
-//		testPopup.add(new JMenuItem("here be text"));
-//		final JTextField testTtf = new JTextField(10);
 		filterPopup.add(filterBtn);
 		final JToggleButton testBtn = new JToggleButton();
 		testBtn.setPreferredSize(new Dimension(15, 12));
@@ -264,8 +259,6 @@ public class FilePanel extends JPanel {
 			}
 		});
 		
-//		treeTbl.getColumnModel().getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(component))
-		
 		// wrap tree table in scroll pane
 		JScrollPane treeScpn = new JScrollPane(treeTbl);
 		TableConfig.setColumnWidths(treeTbl, new double[] { 2.5, 6.5, 1, 1, 1 });
@@ -277,20 +270,29 @@ public class FilePanel extends JPanel {
 		// wrap top panel in titled panel
 		JXTitledPanel topTtlPnl = PanelConfig.createTitledPanel("File input", topPnl);
 		
-		// bottom panel containing spectrum viewer
-		viewerPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		// Build bottom panel
+		histPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		histPnl.setMinimumSize(new Dimension(300, 250));
+		histPnl.setPreferredSize(new Dimension(300, 250));
 		
-		// spectrum viewer
+		// Spectrum panel containing spectrum viewer
+		spectrumPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		
+		// Spectrum viewer
 		SpectrumPanel viewer = new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", "", 50, false, false, false);
+		spectrumPnl.add(viewer, CC.xy(2, 2));
 		
-		viewerPnl.add(viewer, CC.xy(2, 2));
+		// wrap spectrum panel in titled panel
+		JXTitledPanel spectrumTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", spectrumPnl);
+		spectrumTtlPnl.setMinimumSize(new Dimension(450, 350));
 		
-		// wrap bottom panel in titled panel
-		JXTitledPanel bottomTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", viewerPnl);
-		bottomTtlPnl.setMinimumSize(new Dimension(300, 200));
+		// wrap spectrum panel in titled panel
+		JXTitledPanel histTtlPnl = PanelConfig.createTitledPanel("Histogram", histPnl);
+		histTtlPnl.setMinimumSize(new Dimension(450, 350));
+		
 		
 		// add titled panels to split pane
-		String layoutDef = "(COLUMN top bottom)";
+		String layoutDef = "(COLUMN top (ROW (LEAF weight=0.5 name=bottom) (LEAF weight=0.5 name=histogram))";
 		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
 		split = new JXMultiSplitPane() {
@@ -308,7 +310,8 @@ public class FilePanel extends JPanel {
 		split.setDividerSize(12);
 		split.getMultiSplitLayout().setModel(modelRoot);
 		split.add(topTtlPnl, "top");
-		split.add(bottomTtlPnl, "bottom");
+		split.add(spectrumTtlPnl, "bottom");
+		split.add(histTtlPnl, "histogram");
 		
 		// add everything to main panel
 		this.add(split, CC.xy(2, 2));
@@ -353,8 +356,8 @@ public class FilePanel extends JPanel {
 				}
 			}
 		});
-		// /XXX
-			
+		
+		// Clear the spectra.			
 		clrBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -362,6 +365,8 @@ public class FilePanel extends JPanel {
 					treeModel.removeNodeFromParent((MutableTreeTableNode) treeModel.getChild(treeRoot, treeRoot.getChildCount()-1));
 				}
 				treeTbl.getCheckBoxTreeSelectionModel().clearSelection();
+				totalSpectraList.clear();
+				filesTtf.setText("0 file(s) selected");
 				specPosMap.clear();
 			}
 		});
@@ -377,10 +382,10 @@ public class FilePanel extends JPanel {
 			if (node.isLeaf() && (node.getParent() != null)) {
 				try {
 					MascotGenericFile mgf = getSpectrumForNode(node);
-					viewerPnl.removeAll();
+					spectrumPnl.removeAll();
 					SpectrumPanel viewer = new SpectrumPanel(mgf, false);
-					viewerPnl.add(viewer, CC.xy(2, 2));
-					viewerPnl.validate();
+					spectrumPnl.add(viewer, CC.xy(2, 2));
+					spectrumPnl.validate();
 				} catch (IOException e) {
 					JXErrorPane.showDialog(e);
 				}
@@ -396,13 +401,13 @@ public class FilePanel extends JPanel {
 	 */
 	public static MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException {
 		CheckBoxTreeTableNode fileNode = (CheckBoxTreeTableNode) spectrumNode.getParent();
-		String fileName = fileNode.toString();
-		if (!reader.getFilename().equals(fileName)) {
-			reader = new MascotGenericFileReader((File) fileNode.getValueAt(0));
+		File file = (File) fileNode.getValueAt(0);
+		if (!reader.getFilename().equals(file.getName())) {
+			// TODO: process file switching using background worker linked to progress bar
+			reader = new MascotGenericFileReader(file);
 		}
-		String absPath = (String) fileNode.getValueAt(1);
 		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
-		long spectrumPosition = specPosMap.get(absPath).get(spectrumIndex);
+		long spectrumPosition = specPosMap.get(file.getAbsolutePath()).get(spectrumIndex);
 		
 		return reader.loadNthSpectrum(spectrumIndex, spectrumPosition);
 	}
@@ -424,7 +429,7 @@ public class FilePanel extends JPanel {
 		protected Object doInBackground() throws Exception {
 			// appear busy
 			setBusy(true);
-
+			
 			DefaultTreeTableModel treeModel = (DefaultTreeTableModel) treeTbl.getTreeTableModel();
 			CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) treeModel.getRoot();
 			CheckBoxTreeSelectionModel selectionModel = treeTbl.getCheckBoxTreeSelectionModel();
@@ -449,21 +454,19 @@ public class FilePanel extends JPanel {
 						@Override
 						public void propertyChange(PropertyChangeEvent pce) {
 							if (pce.getPropertyName() == "progress") {
-//								double progress = (Long) evt.getNewValue();
-//								clientFrame.getStatusBar().getCurrentProgressBar().setValue((int) (progress/maxProgress*100.0));
 								client.firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
 							}
 						}
 					});
 					reader.load();
-					ArrayList<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
+					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
+					totalSpectraList.addAll(mgfList);
+					
+					// 
 					spectrumPositions.addAll(reader.getSpectrumPositions(false));
 					specPosMap.put(file.getAbsolutePath(), spectrumPositions);
 
-					CheckBoxTreeTableNode fileNode = new CheckBoxTreeTableNode(file, null) {
-						public Object getValueAt(int column) {
-							return (column == 1) ? ((File) userObject).getPath() : null;
-						};
+					CheckBoxTreeTableNode fileNode = new CheckBoxTreeTableNode(file) {
 						public String toString() {
 							return ((File) userObject).getName();
 						};
@@ -521,10 +524,18 @@ public class FilePanel extends JPanel {
 			
 			// stop appearing busy
 			setBusy(false);
-			
+
 			String str = filesTtf.getText();
 			str = str.substring(0, str.indexOf(" "));
-			filesTtf.setText((Integer.parseInt(str) + selFiles.length) + " file(s) selected");
+			filesTtf.setText((Integer.parseInt(str) + selFiles.length) + " file(s) selected - " + totalSpectraList.size() + " total spectra");
+			
+			// Show histogram TODO: Currently the histogram is shown for all files... would be better to show for selected files only.
+			TotalIonHistogram histogram = new TotalIonHistogram(new SpectrumData(totalSpectraList, selFiles[0].getName()));
+			
+			// Create chart panel
+			ChartPanel chartPanel = new ChartPanel(histogram.getChart());
+			chartPanel.setPreferredSize(new Dimension(380, 360));
+			histPnl.add(chartPanel, CC.xy(2, 2));
 		}
 	}
 	

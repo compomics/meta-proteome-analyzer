@@ -50,6 +50,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
@@ -145,6 +146,12 @@ public class DbSearchResultPanel extends JPanel {
 	private JPanel coveragePnl;
 	
 	FilterBalloonTip filterTip;
+
+	private JXTitledPanel pepTtlPnl;
+
+	private JXTitledPanel protTtlPnl;
+
+	private JXTitledPanel psmTtlPnl;
 	
 	/**
 	 * Constructor for a database results panel.
@@ -200,20 +207,12 @@ public class DbSearchResultPanel extends JPanel {
 		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dbSearchResult = Client.getInstance().getDbSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
-				// TODO: ADD search engine from runtable
-				List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-				dbSearchResult.setSearchEngines(searchEngines);
-				
-				refreshProteinTable();
-				
-				// Enables the export functionality
-				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+				getResultsButtonPressed();
 			}
 		});
 		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
 		
-		JXTitledPanel protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
+		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
 		protTtlPnl.setRightDecoration(getResultsBtn);
 		protTtlPnl.setTitleFont(ttlFont);
 		protTtlPnl.setTitlePainter(ttlPainter);
@@ -237,7 +236,7 @@ public class DbSearchResultPanel extends JPanel {
 		nextBtn.setPreferredSize(new Dimension(19, 18));
 		
 		// Wrap peptide panel in titled panel with control buttons in title
-		final JXTitledPanel pepTtlPnl = new JXTitledPanel("Peptide Table", peptidePnl);
+		pepTtlPnl = new JXTitledPanel("Peptides", peptidePnl);
 		pepTtlPnl.setTitleFont(ttlFont);
 		pepTtlPnl.setTitlePainter(ttlPainter);
 		pepTtlPnl.setBorder(ttlBorder);
@@ -264,7 +263,7 @@ public class DbSearchResultPanel extends JPanel {
 		psmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		psmPanel.add(psmTableScp, CC.xy(2, 2));
 		
-		JXTitledPanel psmTtlPnl = new JXTitledPanel("Peptide-Spectrum-Matches", psmPanel);
+		psmTtlPnl = new JXTitledPanel("Peptide-Spectrum-Matches", psmPanel);
 		psmTtlPnl.setTitleFont(ttlFont);
 		psmTtlPnl.setTitlePainter(ttlPainter);
 		psmTtlPnl.setBorder(ttlBorder);
@@ -308,6 +307,44 @@ public class DbSearchResultPanel extends JPanel {
 		this.add(multiSplitPane, CC.xy(2, 2));
 	}
 	
+	protected void getResultsButtonPressed() {
+		ResultsTask resultsTask = new ResultsTask();
+		resultsTask.execute();
+		
+	}
+	
+	private class ResultsTask extends SwingWorker {
+
+		protected Object doInBackground() throws Exception {
+			try {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				// Fetch the database search result.
+				dbSearchResult = Client.getInstance().getDbSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			finished();
+			return 0;
+		}
+
+		/**
+		 * Continues when the results retrieval has finished.
+		 */
+		public void finished() {
+			// TODO: ADD search engine from runtable
+			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+			dbSearchResult.setSearchEngines(searchEngines);
+			
+			refreshProteinTable();
+			
+			// Enables the export functionality
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+
+
 	// Protein table column indices
 	private final int PROT_SELECTION 		= 0;
 	private final int PROT_INDEX 			= 1;
@@ -1012,6 +1049,11 @@ public class DbSearchResultPanel extends JPanel {
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 			int i = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
+			
+			// Number of proteins
+			int numProteins = dbSearchResult.getProteinHits().size();
+			protTtlPnl.setTitle("Proteins (" + numProteins + ")");
+			
 			for (Entry<String, ProteinHit> entry : dbSearchResult.getProteinHits().entrySet()) {
 				
 				ProteinHit proteinHit = entry.getValue();
@@ -1096,6 +1138,7 @@ public class DbSearchResultPanel extends JPanel {
 			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
 			String sequence = proteinHit.getSequence();
 			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
+			pepTtlPnl.setTitle("Peptides (" + peptideHits.size() + ")");
 			
 			// Iterate peptide hit list to fill table and build coverage view
 			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
@@ -1349,8 +1392,10 @@ public class DbSearchResultPanel extends JPanel {
 				
 				DefaultTableModel psmTblMdl = (DefaultTableModel) psmTbl.getModel();
 				int i = 1, maxVotes = 0;
-				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
-//					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) entry.getValue();
+				List<SpectrumMatch> spectrumMatches = peptideHit.getSpectrumMatches();
+				psmTtlPnl.setTitle("Peptide-Spectrum-Matches (" + spectrumMatches.size() + ")");
+				
+				for (SpectrumMatch sm : spectrumMatches) {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 					List<SearchHit> searchHits = psm.getSearchHits();
 					double[] qValues = { 0.0, 0.0, 0.0, 0.0 };
@@ -1413,6 +1458,8 @@ public class DbSearchResultPanel extends JPanel {
 						MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
 						
 						specPnl = new SpectrumPanel(mgf);
+//						specPnl.showAnnotatedPeaksOnly(true);	// pretty slow!
+						
 						spectrumJPanel.add(specPnl, CC.xy(2, 2));
 						spectrumJPanel.validate();
 						spectrumJPanel.repaint();

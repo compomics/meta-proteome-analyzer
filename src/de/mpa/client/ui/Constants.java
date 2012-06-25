@@ -5,7 +5,7 @@ import de.mpa.io.MascotGenericFile;
 public class Constants {
 	public static final int MAINFRAME_WIDTH = 1280;
 	public static final int MAINFRAME_HEIGHT = 800;
-	public static final String[] FASTA_DB = { "uniprot_sprot", "ecoli", "methanomicrobia", "archaea"};
+	public static final String[] FASTA_DB = { "uniprot_sprot", "ecoli", "methanomicrobia", "archaea", "firmicutes"};
 	public static final String[] ENZYMES = { "Trypsin", "Semi-tryptic"};
 
 	// TODO: consolidate Thilo's and Robert's possibly redundant constants?
