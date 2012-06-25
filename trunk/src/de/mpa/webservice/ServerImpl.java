@@ -236,7 +236,7 @@ public class ServerImpl implements Server {
 	 * This method transfers a file to the server webservice.
 	 */
 	@Override
-	public String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data) {
+	public synchronized String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data) {
 		if (data != null) {
 		    InputStream io;
 			try {
@@ -322,7 +322,7 @@ public class ServerImpl implements Server {
 //	}
 
 	@Override
-	public void runSearches(String[] filenames, SearchSettings settings) {
+	public synchronized void runSearches(String[] filenames, SearchSettings settings) {
 		try {
 			// 	DB Manager instance
 			dbManager = DBManager.getInstance();
@@ -332,11 +332,14 @@ public class ServerImpl implements Server {
 			
 			// Iterate uploaded files
 			int i = 1;
+			System.out.println("filenames array length = " + filenames.length);
 			for (String filename : filenames) {
 				// Store uploaded spectrum files to DB
 				File file = new File(JobConstants.TRANSFER_PATH + filename);
+				System.out.println("storing file to db: " + file.getAbsolutePath());
 				SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
 
+				System.out.println("remaining jobs before addition: " + jobManager.getRemainingJobs());
 				// Add search jobs to job manager queue
 				if (settings.isDatabase()) {
 					addDbSearchJobs(filename, settings.getDbss());
@@ -347,14 +350,17 @@ public class ServerImpl implements Server {
 				if (settings.isDeNovo()) {
 					addDeNovoSearchJob(filename, settings.getDnss());
 				}
+				System.out.println("remaining jobs after addition: " + jobManager.getRemainingJobs());
 
 				msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.length), new Date()), log);
 				
 				// Batch-execute jobs
 				jobManager.execute();
+
+				System.out.println("remaining jobs after executing: " + jobManager.getRemainingJobs());
 				
 				msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.length), new Date()), log);
-				i++;
+				System.out.println("i was " + i++ + ", is now " + i);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e.getCause());

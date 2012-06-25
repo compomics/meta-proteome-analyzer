@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 
 import org.jdesktop.swingx.JXErrorPane;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
@@ -76,6 +78,9 @@ public class ProteinHit {
 	 * The Exponentially Modified Protein Abundance Index of the protein hit.
 	 */
 	private double emPAI = -1.0;
+
+	private UniProtEntry uniprotEntry;
+	
 	
 	
 	/**
@@ -319,5 +324,21 @@ public class ProteinHit {
 	 */
 	public PeptideHit getSinglePeptideHit() {
 		return peptideHits.values().iterator().next();
+	}
+	
+	/**
+	 * Sets an UniProt entry.
+	 * @param uniprotEntry The UniProtEntry object
+	 */
+	public void setUniprotEntry(UniProtEntry uniprotEntry) {
+		this.uniprotEntry = uniprotEntry;
+	}
+	
+	/**
+	 * Returns the UniProt entry.
+	 * @return The UniProtEntry object.
+	 */
+	public UniProtEntry getUniprotEntry() {
+		return uniprotEntry;
 	}
 }

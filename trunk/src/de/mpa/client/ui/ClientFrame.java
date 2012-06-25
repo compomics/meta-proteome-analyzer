@@ -38,6 +38,7 @@ import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
+import de.mpa.client.ui.panels.TreePanel;
 
 
 /**
@@ -70,6 +71,7 @@ public class ClientFrame extends JFrame {
 	private SettingsPanel setPnl;
 	private StatusPanel statusPnl;
 	private JTabbedPane tabPane;
+	private TreePanel treePnl;
 	private static ClientFrame frame;
 
 	/**
@@ -121,13 +123,14 @@ public class ClientFrame extends JFrame {
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
+		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
 		
 		ImageIcon[] icons = new ImageIcon[] { projectIcon, addSpectraIcon, settingsIcon, resultsIcon, 
-				resultsIcon, resultsIcon, clusteringIcon, loggingIcon };
+				resultsIcon, resultsIcon, treeIcon, clusteringIcon, loggingIcon };
 		String[] titles = new String[] { "Project", "Input Spectra","Search Settings", "Spectral Search Results",
-				"Database Search Results", "De novo Results", "Clustering", "Logging"};
+				"Database Search Results", "De novo Results", "Phylogeny", "Clustering", "Logging"};
 		Component[] panels = new Component[] { projectPnl, filePnl, setPnl, specSimResPnl, 
-				dbSearchResPnl, denovoResPnl, clusterPnl, logPnl};
+				dbSearchResPnl, denovoResPnl, treePnl, clusterPnl, logPnl};
 
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets tabInsets = UIManager.getInsets("TabbedPane.tabInsets");
@@ -162,7 +165,7 @@ public class ClientFrame extends JFrame {
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 		
-		tabPane.setEnabledAt(6, false);
+		tabPane.setEnabledAt(7, false);
 
 		// Add components to content pane
 		this.setJMenuBar(menuBar);
@@ -215,8 +218,13 @@ public class ClientFrame extends JFrame {
 		// DeNovoResults		
 		denovoResPnl = new DeNovoResultPanel();
 
+		// Tree panel
+		treePnl = new TreePanel();
+		
 		// Logging panel		
 		logPnl = new LoggingPanel();
+		
+		
 		
 		// fabi's test panel
 //		clusterPnl = new ClusterPanel();

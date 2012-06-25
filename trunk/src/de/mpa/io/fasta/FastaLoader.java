@@ -150,7 +150,6 @@ public class FastaLoader {
 				if (line.startsWith(">")) {
 					// Parse the header
 					Header header = Header.parseFromFASTA(line);
-					System.out.println(count + ": " + header.getAccession());
 					// Fill the map.
 					acc2pos.put(header.getAccession(), pos);
 					count++;

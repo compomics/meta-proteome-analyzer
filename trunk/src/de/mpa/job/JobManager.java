@@ -1,7 +1,6 @@
 package de.mpa.job;
 
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
@@ -33,10 +32,10 @@ public class JobManager {
 	 */
 	private Queue<Job> jobQueue;
 	
-	/**
-	 * List of objects from the various
-	 */
-	private List<Object> objects;
+//	/**
+//	 * List of objects from the various
+//	 */
+//	private List<Object> objects;
 	
 	/**
 	 * Constructor for the job manager.
@@ -78,8 +77,8 @@ public class JobManager {
 	 */
 	public void execute() {
 		// Iterate the job queue
-		for(Job job : jobQueue) {
-			if(job instanceof MS2FormatJob) {
+		for (Job job : jobQueue) {
+			if (job instanceof MS2FormatJob) {
 				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
 				ms2formatjob.run();
 			} else if (job instanceof DeleteJob) {
@@ -99,19 +98,27 @@ public class JobManager {
 		}
 	}
     
-	/**
-	 * Returns a list of objects.
-	 * @return
-	 */
-	public List<Object> getObjects(){
-		return objects;
-	}
+//	/**
+//	 * Returns a list of objects.
+//	 * @return
+//	 */
+//	public List<Object> getObjects(){
+//		return objects;
+//	}
 	
 	/**
 	 * This method deletes all the jobs from the queue.	
 	 */	
 	public void clear(){		
 		jobQueue.clear();
+	}
+	
+	/**
+	 * Returns the number of jobs that have yet to be processed.
+	 * @return The number of remaining jobs.
+	 */
+	public int getRemainingJobs() {
+		return jobQueue.size();
 	}
 	
 }

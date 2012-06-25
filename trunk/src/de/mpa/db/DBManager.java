@@ -80,7 +80,7 @@ public class DBManager {
 		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid, false);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
-		spectraThread.join();		
+		spectraThread.join();
 		return specStorager;
 	}
 	
@@ -143,12 +143,15 @@ public class DBManager {
 	}
 
 	/**
-	 * 
-	 * @param results
+	 * Stores found spectrum-spectrum matches to the DB.
+	 * @param results List of SSMs.
+	 * @throws InterruptedException 
 	 */
-	public void storeSpecSimResults(List<SpectrumSpectrumMatch> results) {
+	public void storeSpecSimResults(List<SpectrumSpectrumMatch> results) throws InterruptedException {
 		SpecSimStorager storager = new SpecSimStorager(conn, results);
-		storager.run();
+		Thread thread = new Thread(storager);
+		thread.start();
+		thread.join();
 	}
 	
 	/**
