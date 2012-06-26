@@ -212,7 +212,4 @@ public class ProteinAnalysis {
 			qm.calculate(params);
 			return qm.getResult();
 		}
-
-
-
 	}

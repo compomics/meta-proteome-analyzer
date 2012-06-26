@@ -249,7 +249,7 @@ public class DbSearchResultPanel extends JPanel {
 				for (Component component : components) {
 					if (component.isVisible()) {
 						if (component == pepTblScpnPnl) {
-							pepTtlPnl.setTitle("Peptide Table");
+							pepTtlPnl.setTitle("Peptides");
 						} else {
 							pepTtlPnl.setTitle("Sequence Coverage Viewer");
 						}
@@ -1558,8 +1558,6 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param fragmentIons
 	 */
 	private void addSpectrumAnnotations(Map<String, FragmentIon[]> fragmentIons) {
-//		String sequence = (String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(),peptideTbl.convertColumnIndexToView(PEP_SEQUENCE) );
-//		int[][] ionCoverage = new int[sequence.length() + 1][12];
 
         currentAnnotations = new Vector<SpectrumAnnotation>();
        	Set<Entry<String, FragmentIon[]>> entrySet = fragmentIons.entrySet();
@@ -1569,7 +1567,6 @@ public class DbSearchResultPanel extends JPanel {
         		
 	            for (FragmentIon ion : ions) {
 	                int ionNumber = ion.getNumber();
-//	                int ionType = ion.getType();
 	                double mzValue = ion.getMZ();
 	                Color color;
 	                if (i % 2 == 0) {
@@ -1577,43 +1574,7 @@ public class DbSearchResultPanel extends JPanel {
 	                } else {
 	                    color = Color.BLACK;
 	                }
-	                // TODO: @Thilo: What's ion coverage and why isn't it used for anything? :)
-//	                if (ionType == FragmentIon.A_ION) {
-//	                    ionCoverage[ionNumber][0]++;
-//	                }
-//	                if (ionType == FragmentIon.AH2O_ION) {
-//	                    ionCoverage[ionNumber][1]++;
-//	                }
-//	                if (ionType == FragmentIon.ANH3_ION) {
-//	                    ionCoverage[ionNumber][2]++;
-//	                }
-//	                if (ionType == FragmentIon.B_ION) {
-//	                    ionCoverage[ionNumber][3]++;
-//	                }
-//	                if (ionType == FragmentIon.BH2O_ION) {
-//	                    ionCoverage[ionNumber][4]++;
-//	                }
-//	                if (ionType == FragmentIon.BNH3_ION) {
-//	                    ionCoverage[ionNumber][5]++;
-//	                }
-//	                if (ionType == FragmentIon.C_ION) {
-//	                    ionCoverage[ionNumber][6]++;
-//	                }
-//	                if (ionType == FragmentIon.X_ION) {
-//	                    ionCoverage[ionNumber][7]++;
-//	                }
-//	                if (ionType == FragmentIon.Y_ION) {
-//	                    ionCoverage[ionNumber][8]++;
-//	                }
-//	                if (ionType == FragmentIon.YH2O_ION) {
-//	                    ionCoverage[ionNumber][9]++;
-//	                }
-//	                if (ionType == FragmentIon.YNH3_ION) {
-//	                    ionCoverage[ionNumber][10]++;
-//	                }
-//	                if (ionType == FragmentIon.Z_ION) {
-//	                    ionCoverage[ionNumber][11]++;
-//	                }
+
 	                // Use standard ion type names, such as y5++
 	                String ionDesc = ion.getLetter();
 	                if (ionNumber > 0) {

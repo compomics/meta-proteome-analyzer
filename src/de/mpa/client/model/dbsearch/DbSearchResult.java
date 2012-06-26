@@ -129,7 +129,6 @@ public class DbSearchResult {
 		return proteinHits;
 	}
 	
-	// TODO: actually use this for exporting results
 	/**
 	 * Returns the project title. 
 	 * @return The project title.

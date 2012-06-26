@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
 
@@ -28,6 +30,18 @@ public class Formatter {
 	 * CSV FIELD SEPARATOR
 	 */
 	public final static String CSVFIELDSEPARATOR = ";";
+	
+	/**
+	 * Check whether an input string is numeric.
+	 * @param aStringValue Input string
+	 * @return Condition if numeric or not
+	 */
+	public static boolean isNumeric(String aStringValue) {
+		Pattern pattern = Pattern.compile( "\\d+" );
+
+		Matcher matcher = pattern.matcher(aStringValue);
+		return matcher.matches();
+	} 
 	
 	/**
 	 * generate a string representation of the given double with defined precision
@@ -159,18 +173,6 @@ public class Formatter {
 	 */
 	public static String booleanToString(boolean aValue) {
 		return aValue?"1":"0";
-	}
-
-	/**
-	 * string to boolean
-	 * @param aValue
-	 */
-	public static boolean string2Boolean(String aValue) {
-		boolean tBack = false;
-		if (aValue!=null) {
-			tBack = aValue.trim().equals("1");
-		}
-		return tBack;
 	}
 
 	/**

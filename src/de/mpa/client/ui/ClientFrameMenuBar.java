@@ -187,7 +187,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 		exportMenu.add(exportPSMItem);
 		
-		// Export selected proteins/ peptides and PSMs TODO
 		// Export selected proteins
 		exportSelProteinsItem = new JMenuItem();
 		exportSelProteinsItem.setText("Selected Protein Results");
