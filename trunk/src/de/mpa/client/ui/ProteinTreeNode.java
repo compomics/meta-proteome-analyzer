@@ -2,18 +2,26 @@ package de.mpa.client.ui;
 
 import java.util.List;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.Organism;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.Field;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.NameType;
 
-public class ProteinTreeNode extends DefaultMutableTreeNode {
+public class ProteinTreeNode extends DefaultMutableTreeTableNode {
 	
-	public ProteinTreeNode(String accession, ProteinDescription desc) {
-		userObject = accession + " | " + getProteinNames(desc) + " | " + getECNumberString(desc);
+	private Object[] userObjects;
+
+	public ProteinTreeNode(Object... userObjects) {
+		super(userObjects[0]);
+		this.userObjects = userObjects;
+		if(userObjects[1] instanceof ProteinDescription) {
+			userObjects[1] = getProteinName((ProteinDescription) userObjects[1]);
+		}
+		if(userObjects[2] instanceof Organism) {
+			userObjects[2] = ((Organism) userObjects[2]).getScientificName().getValue();
+		}
 	}
 	
 	/**
@@ -28,22 +36,18 @@ public class ProteinTreeNode extends DefaultMutableTreeNode {
 	 * @param desc ProteinDescription object.
 	 * @return Protein name(s) as formatted string.
 	 */
-	public String getProteinNames(ProteinDescription desc) {
-		StringBuilder sb = new StringBuilder();
+	public String getProteinName(ProteinDescription desc) {
+		Name name = null;
 		
-		List<Name> names = desc.getSection().getNames();
-		for (Name name : names) {
-			
-			List<Field> fields = name.getFields();
-			for (Field field : fields) {
-				// Exclude EC number here.
-				if(field.getType() != FieldType.EC){
-					sb.append(field.getValue());
-				}
-				
-			}
+		// Recommended name only.
+		if(desc.hasRecommendedName()){
+			name = desc.getRecommendedName();
+		} else if(desc.hasAlternativeNames()) {
+			name = desc.getAlternativeNames().get(0);
+		} else if(desc.hasSubNames()) {
+			name = desc.getSubNames().get(0);
 		}
-		return sb.toString();
+		return name == null ? "" : name.getFieldsByType(FieldType.FULL).get(0).getValue();
 	}
 	
 	/**
@@ -62,5 +66,35 @@ public class ProteinTreeNode extends DefaultMutableTreeNode {
 			}
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public Object getUserObject() {
+		return this.getUserObject(0);
+	}
+
+	private Object getUserObject(int i) {
+		return this.userObjects[i];
+	}
+
+	@Override
+	public int getColumnCount() {
+		return this.userObjects.length;
+	}
+	
+	@Override
+	public Object getValueAt(int column) {
+		return this.userObjects[column];
+	}
+	
+	@Override
+	public void setValueAt(Object aValue, int column) {
+		this.userObjects[column] = aValue;
+	}
+	
+	public void removeAllChildren() {
+		for (int i = getChildCount()-1; i >= 0; i--) {
+			remove(i);
+		}
 	}
 }

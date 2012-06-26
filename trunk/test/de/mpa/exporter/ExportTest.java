@@ -18,13 +18,12 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.io.ResultExporter;
 
 
-public class ExportTest extends TestCase{
+public class ExportTest extends TestCase {
 
 	private String	filePath;
 	private DbSearchResult expResult;
 	private String path;
 	
-	//TODO: not running yet for windoof
 	@Before
 	public void setUp() {
 		path = getClass().getClassLoader().getResource("Export").getPath();

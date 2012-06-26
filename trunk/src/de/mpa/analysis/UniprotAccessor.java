@@ -14,15 +14,18 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
 
+/**
+ * Class to access the UniProt EBI WebService.
+ * @author T.Muth
+ * @date 25-06-2012
+ *
+ */
 public class UniprotAccessor {
 	
 	/**
 	 * UniProt Query Service. 
 	 */
 	private static UniProtQueryService uniProtQueryService;
-	
-	public UniprotAccessor() {
-	}
 	
 	/**
 	 * Retrieve a list of protein entries which hold protein hits and UniProt entries.

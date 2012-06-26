@@ -116,7 +116,7 @@ public class GappedPeptide {
     }
 
     private void calculateMasses() {
-        iMasses = MassesMap.getInstance().getMasses();
+        iMasses = Masses.getInstance();
     }
     
     /**

@@ -126,7 +126,7 @@ public class DeNovoResultPanel extends JPanel {
 					spectraTbl.getSelectionModel().setSelectionInterval(0, 0);
 					querySpectrumTableMouseClicked(null);
 					solutionsTbl.getSelectionModel().setSelectionInterval(0, 0);
-				}
+				} 
 				// TODO: Signalize the user that there are no results.
 			}
 		});

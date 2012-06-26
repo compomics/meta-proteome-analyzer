@@ -40,7 +40,7 @@ public class MascotXMLParserTest extends TestCase {
 		
 		MascotXMLParser parser = new MascotXMLParser(bande1XML);
 		
-		// MascotRecord TODO: @heyer: Make this working!!!
+		// MascotRecord 
 		MascotRecord record = parser.parse();
 		
 		// File name test

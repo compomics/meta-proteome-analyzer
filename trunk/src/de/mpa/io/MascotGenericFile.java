@@ -253,12 +253,6 @@ public class MascotGenericFile implements SpectrumFile {
         fos.close();
     }
     
-//    TODO
-//    public ArrayList<File> writeToFiles(int n) {
-//    	return null;
-//    }
-    
-
     /**
      * This methods returns the comments for this MascotGenericFile.
      *

@@ -121,7 +121,6 @@ public class ProteinAnalysisTest extends TestCase {
 
 	@Test
 	public void testNSAF() {
-		//TODO: NSAF needs to be divided by factor 100 
 		double nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinNsaf12);
 		assertEquals(70.585, nsaf, 0.1);
 
