@@ -3,11 +3,6 @@ package de.mpa.client;
 
 import javax.xml.bind.annotation.XmlRegistry;
 
-import de.mpa.client.settings.DbSearchSettings;
-import de.mpa.client.settings.DenovoSearchSettings;
-import de.mpa.client.settings.SearchSettings;
-import de.mpa.client.settings.SpecSimSettings;
-
 
 /**
  * This object contains factory methods for each 
@@ -51,19 +46,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DbSearchSettings }
-     * 
-     */
-    public DbSearchSettings createDbSearchSettings() {
-        return new DbSearchSettings();
-    }
-
-    /**
      * Create an instance of {@link SpecSimSettings }
      * 
      */
     public SpecSimSettings createSpecSimSettings() {
         return new SpecSimSettings();
+    }
+
+    /**
+     * Create an instance of {@link DbSearchSettings }
+     * 
+     */
+    public DbSearchSettings createDbSearchSettings() {
+        return new DbSearchSettings();
     }
 
 }

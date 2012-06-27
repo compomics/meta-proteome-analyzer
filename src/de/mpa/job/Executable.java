@@ -6,7 +6,7 @@ package de.mpa.job;
  * @author Thilo Muth
  *
  */
-public interface Executable {
+public interface Executable extends Runnable {
 	/**
 	 * Return a description for the job.
 	 * @return description The description represented as String
@@ -26,8 +26,8 @@ public interface Executable {
 	public String getError();
 	
 	/**
-	 * Execute-method.
+	 * Run-method.
 	 */
-	public void execute();
+	public void run();
 
 }

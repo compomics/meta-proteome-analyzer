@@ -41,7 +41,6 @@ import de.mpa.client.model.denovo.Tag;
 import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
-import de.mpa.client.settings.SearchSettings;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -71,9 +70,6 @@ public class Client {
 	// Server service
 	private ServerImplService service;
 	
-//	// Logger
-//	private Logger log = Logger.getLogger(getClass());
-	
 	// Server instance
 	private Server server;
 	
@@ -83,24 +79,6 @@ public class Client {
 	private DbConnectionSettings dbSettings = new DbConnectionSettings();
 	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
 
-	// TODO: move methods
-	public DbConnectionSettings getDbSettings() {
-		return dbSettings;
-	}
-
-	public void setDbSettings(DbConnectionSettings dbSettings) {
-		this.dbSettings = dbSettings;
-	}
-	
-	public ServerConnectionSettings getServerSettings() {
-		return srvSettings;
-	}
-
-	public void setServerSettings(ServerConnectionSettings srvSettings) {
-		this.srvSettings = srvSettings;
-	}
-
-	//
 	/**
      *  Property change support for notifying the gui about new messages.
      */
@@ -184,7 +162,6 @@ public class Client {
 	public void request() {
 		final String message = receiveMessage();
 		if (message != null && !message.isEmpty()) {
-//			log.info(message);
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					pSupport.firePropertyChange("New Message", null, message);
@@ -254,12 +231,11 @@ public class Client {
 	}
 	
 	public void runSearches(List<File> files, SearchSettings settings) {
-		String[] filenames = new String[files.size()];
-		for (int i = 0; i < filenames.length; i++) {
-			filenames[i] = files.get(i).getName();
+		for (int i = 0; i < files.size(); i++) {
+			settings.getFilenames().add(files.get(i).getName());
 		}
 		try {
-			server.runSearches(filenames, settings);
+			server.runSearches(settings);
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
@@ -397,7 +373,6 @@ public class Client {
 	private void addProteinSearchHit(SearchHit hit) throws SQLException {
 		
 		// Create the PeptideSpectrumMatch
-		// TODO: add the hit here!
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
 		
 		// Get the peptide hit.
@@ -671,7 +646,7 @@ public class Client {
     }
 
     /**
-     * 
+     * Shuts down the JVM.
      */
 	public void exit() {
 		try {
@@ -680,6 +655,38 @@ public class Client {
 			JXErrorPane.showDialog(e);
 		}
 		System.exit(0);
+	}
+	
+	/**
+	 * Returns the DbConnectionSettings.
+	 * @return dbSettings The DBConnectionSettings object.
+	 */
+	public DbConnectionSettings getDbSettings() {
+		return dbSettings;
+	}
+	
+	/**
+	 * Sets the DbConnectionSettings.
+	 * @param dbSettings The DBConnectionSettings object.
+	 */
+	public void setDbSettings(DbConnectionSettings dbSettings) {
+		this.dbSettings = dbSettings;
+	}
+	
+	/**
+	 * Returns the ServerConnectionSettings.
+	 * @return dbSettings The ServerConnectionSettings object.
+	 */
+	public ServerConnectionSettings getServerSettings() {
+		return srvSettings;
+	}
+	
+	/**
+	 * Sets the ServerConnectionSettings.
+	 * @param srvSettings The ServerConnectionSettings object.
+	 */
+	public void setServerSettings(ServerConnectionSettings srvSettings) {
+		this.srvSettings = srvSettings;
 	}
 
 }

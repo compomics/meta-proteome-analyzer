@@ -10,7 +10,7 @@ import de.mpa.job.Job;
  * @author Thilo Muth
  *
  */
-public class CruxJob extends Job{	
+public class CruxJob extends Job {	
 	
 	private final File cruxFile;
 	private String ms2File;	

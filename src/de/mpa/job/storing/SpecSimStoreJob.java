@@ -39,7 +39,7 @@ public class SpecSimStoreJob extends Job {
 	}
 	
 	@Override
-	public void execute() {
+	public void run() {
 		try {
 			dbManager.storeSpecSimResults(specSimJob.getResults());
 		} catch (Exception e) {

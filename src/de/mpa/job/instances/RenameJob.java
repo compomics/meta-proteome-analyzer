@@ -2,7 +2,7 @@ package de.mpa.job.instances;
 
 import de.mpa.job.Job;
 
-public class RenameJob extends Job{
+public class RenameJob extends Job {
 	protected String oldname; 
 	protected String newname;	
 	

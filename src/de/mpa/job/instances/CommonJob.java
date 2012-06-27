@@ -19,4 +19,9 @@ public class CommonJob extends Job {
 		this.status = status;
 		this.description = description;
 	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+	}
 }

@@ -15,10 +15,10 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.client.settings.DbSearchSettings;
-import de.mpa.client.settings.DenovoSearchSettings;
-import de.mpa.client.settings.SearchSettings;
-import de.mpa.client.settings.SpecSimSettings;
+import de.mpa.client.DbSearchSettings;
+import de.mpa.client.DenovoSearchSettings;
+import de.mpa.client.SearchSettings;
+import de.mpa.client.SpecSimSettings;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.storager.SpectrumStorager;
@@ -194,7 +194,7 @@ public class ServerImpl implements Server {
 //		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DATABASE SEARCH"), new Date()));
 		
 		// Clear the folders
-		// FIXME: Thilo, make this working!
+		// FIXME: Include recursive remove script for the DeleteJob!
 //		jobManager.addJob(new DeleteJob());
 //		jobManager.execute();
 //		jobManager.clear();
@@ -322,17 +322,18 @@ public class ServerImpl implements Server {
 //	}
 
 	@Override
-	public synchronized void runSearches(String[] filenames, SearchSettings settings) {
+	public synchronized void runSearches(SearchSettings settings) {
 		try {
 			// 	DB Manager instance
 			dbManager = DBManager.getInstance();
 			
 			// Initialize the job manager
 			jobManager = JobManager.getInstance();
+			List<String> filenames = settings.getFilenames();
+			System.out.println(filenames.size());
 			
 			// Iterate uploaded files
 			int i = 1;
-			System.out.println("filenames array length = " + filenames.length);
 			for (String filename : filenames) {
 				// Store uploaded spectrum files to DB
 				File file = new File(JobConstants.TRANSFER_PATH + filename);
@@ -352,14 +353,14 @@ public class ServerImpl implements Server {
 				}
 				System.out.println("remaining jobs after addition: " + jobManager.getRemainingJobs());
 
-				msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.length), new Date()), log);
+				msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
 				
 				// Batch-execute jobs
 				jobManager.execute();
 
 				System.out.println("remaining jobs after executing: " + jobManager.getRemainingJobs());
 				
-				msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.length), new Date()), log);
+				msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
 				System.out.println("i was " + i++ + ", is now " + i);
 			}
 		} catch (Exception e) {

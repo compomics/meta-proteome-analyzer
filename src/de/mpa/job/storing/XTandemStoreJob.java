@@ -40,7 +40,7 @@ public class XTandemStoreJob extends Job {
 	}
 	
 	@Override
-	public void execute() {
+	public void run() {
 		try {
 			dbManager.storeXTandemResults(getFilename(), xtandemQValued);
 		} catch (Exception e) {

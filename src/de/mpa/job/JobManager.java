@@ -83,16 +83,22 @@ public class JobManager {
 				ms2formatjob.run();
 			} else if (job instanceof DeleteJob) {
 				DeleteJob deletejob = (DeleteJob) job;
-				deletejob.execute();
+				deletejob.run();
 			} else if (job instanceof RenameJob) {
 				RenameJob renameJob = (RenameJob) job;
-				renameJob.execute();
+				renameJob.run();
 			} else {
 				// Set the job status to RUNNING and put the message in the queue
-				log.info("Executing job: " + job.getDescription());
-				job.execute();
+				try {
+					log.info("Executing job: " + job.getDescription());
+					Thread jobThread = new Thread(job);
+					jobThread.start();
+					jobThread.join();
+				} catch (InterruptedException e) {
+					log.error("Error in job: " + job.getDescription());
+					e.printStackTrace();
+				}
 			}
-			
 			// Remove job from the queue after successful execution.
 			jobQueue.remove(job);
 		}

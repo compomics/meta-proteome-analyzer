@@ -20,20 +20,29 @@ import de.mpa.db.storager.XTandemStorager;
 /**
  * This class serves for handling and managing the database.
  * 
- * @author Thilo Muth
+ * @author T.Muth
  *
  */
 public class DBManager {
 	
-	// Database connection
+	/**
+	 * Database connection.
+	 */
     private Connection conn;
     
-    // Separate spectrum storage thread
+    /**
+     * Separate spectrum storage thread.
+     */
 	private Thread spectraThread;
 	
-	// Thread pool handler
+	/**
+	 * Thread pool handler.
+	 */
 	private ExecutorService executor;
 	
+	/**
+	 * DBManager instance.
+	 */
 	private static DBManager instance;
     
 	/**
@@ -44,6 +53,11 @@ public class DBManager {
 		init();
 	}
     
+    /**
+     * Returns an instance of the DBManager.
+     * @return DBMananger instance.
+     * @throws SQLException
+     */
     public static DBManager getInstance() throws SQLException {
     	if (instance == null || !instance.getConnection().isValid(1)) {
     		instance = new DBManager();

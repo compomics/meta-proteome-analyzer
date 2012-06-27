@@ -33,7 +33,7 @@ public class CruxStoreJob extends Job {
 	}
 	
 	@Override
-	public void execute() {
+	public void run() {
 		try {
 			dbManager.storeCruxResults(getFilename());
 		} catch (Exception e) {

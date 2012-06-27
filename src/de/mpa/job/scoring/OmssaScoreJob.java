@@ -39,13 +39,13 @@ public class OmssaScoreJob extends Job{
 	/**
 	 * Initalize the job.
 	 */
-	public void execute() {
+	public void run() {
 		
 		// Extract the scores for X!Tandem target and decoy search
 		OmssaScoreExtractor omssaExtractor = new OmssaScoreExtractor(new File(targetFile), new File(decoyFile));
 		
 		// Executes QVality
 		QvalityJob omssaQVality = new QvalityJob(omssaExtractor.getTargetOutput(), omssaExtractor.getDecoyOutput(), true);
-		omssaQVality.execute();
+		omssaQVality.run();
 	}
 }

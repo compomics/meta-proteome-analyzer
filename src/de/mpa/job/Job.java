@@ -56,7 +56,7 @@ public abstract class Job implements Executable {
 	/**
 	 * Executes the job.
 	 */
-	public void execute() {
+	public void run() {
 		proc = null;
 		try {
 			proc = procBuilder.start();

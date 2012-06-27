@@ -2,14 +2,14 @@ package de.mpa.analysis;
 
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.junit.Test;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-
-import junit.framework.TestCase;
 
 public class UniprotAccessorTest extends TestCase {
 	

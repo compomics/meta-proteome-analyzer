@@ -32,7 +32,7 @@ import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.PearsonCorrelation;
 import de.mpa.algorithms.Transformation;
 import de.mpa.algorithms.Vectorization;
-import de.mpa.client.settings.SpecSimSettings;
+import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
