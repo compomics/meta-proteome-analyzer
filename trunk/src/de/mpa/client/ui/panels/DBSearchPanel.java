@@ -18,7 +18,7 @@ import javax.swing.border.Border;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.DbSearchSettings;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;

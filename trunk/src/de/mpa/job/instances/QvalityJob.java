@@ -69,5 +69,7 @@ public class QvalityJob extends Job {
 	public String getQValuedOutput(){
 		return qvaluedOutput;
 	}
+
+	
 }
 

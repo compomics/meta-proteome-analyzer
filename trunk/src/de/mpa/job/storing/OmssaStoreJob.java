@@ -40,7 +40,7 @@ public class OmssaStoreJob extends Job {
 	}
 	
 	@Override
-	public void execute() {
+	public void run() {
 		try {
 			dbManager.storeOmssaResults(getFilename(), omssaQValued);
 		} catch (Exception e) {

@@ -5,24 +5,53 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * This class represents the settings for the database connection.
+ * @author T.Muth
+ *
+ */
 public class DbConnectionSettings {
-
+	
+	/**
+	 * JDBC driver.
+	 */
 	private String jdbcDriver = "com.mysql.jdbc.Driver";
+	
+	/**
+	 * Locale URL.
+	 */
 	private String urlLocale = "jdbc:mysql://";
+	
+	/**
+	 * Remote URL.
+	 */
 	private String urlRemote = "jdbc:mysql://";
+	
+	/**
+	 * Connection port.
+	 */
 	private String port = ":";
+	
+	/**
+	 * Database username.
+	 */
 	private String username;
+	
+	/**
+	 * Database password.
+	 */
 	private String password;
-
+	
+	/**
+	 * Loads the database connection settings from the settings file.
+	 */
 	public DbConnectionSettings() {
-		// read settings from file
 		try {
 			readSettingsFromFile(new File("password/DbConnectionSettings.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	/**
 	 * Method to read database connection setting parameters from an external file.
@@ -32,7 +61,6 @@ public class DbConnectionSettings {
 	public void readSettingsFromFile(File settingsFile) throws IOException {
 		FileReader fr = new FileReader(settingsFile);
 		BufferedReader textReader = new BufferedReader(fr);
-//		System.out.println(textReader.readLine());
 		urlLocale += textReader.readLine();
 		urlRemote += textReader.readLine();
 		port += textReader.readLine() + "/";

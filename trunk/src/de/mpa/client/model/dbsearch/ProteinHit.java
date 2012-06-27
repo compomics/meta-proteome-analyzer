@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import org.jdesktop.swingx.JXErrorPane;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;

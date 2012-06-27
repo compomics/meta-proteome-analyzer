@@ -12,9 +12,9 @@ import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.PearsonCorrelation;
 import de.mpa.algorithms.Transformation;
 import de.mpa.algorithms.Vectorization;
+import de.mpa.client.SpecSimSettings;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
-import de.mpa.client.settings.SpecSimSettings;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -35,7 +35,7 @@ public class SpecSimJob extends Job {
 	}
 
 	@Override
-	public void execute() {
+	public void run() {
 		
 		// store list of results in HashMap (with spectrum title as key)
 		ssmList = new ArrayList<SpectrumSpectrumMatch>();

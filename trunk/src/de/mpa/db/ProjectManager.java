@@ -16,13 +16,21 @@ import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
 import de.mpa.db.accessor.Property;
 
+/**
+ * This class handles the project management by accessing project and experiments in the database.
+ * @author T.Muth, A.Behne
+ *
+ */
 public class ProjectManager {
 	
+	/**
+	 * Database connection.
+	 */
 	private Connection conn;
 	
 	/**
-	 * 
-	 * @param conn
+	 * Sets up the project manager with an existing database connection.
+	 * @param conn Database connection.
 	 */
 	public ProjectManager(Connection conn) {
 		this.conn = conn;
@@ -93,10 +101,13 @@ public class ProjectManager {
 		}
 	}
 	
+	
 	/**
-	 * gets properties from database
+	 * This method modifies a project.
+	 * @param projectid The project id.
+	 * @param projectName The project name.
+	 * @throws SQLException
 	 */
-	// modifiy project
 	public void modifyProject(long projectid, String projectName) throws SQLException {
 		Project tempProject = Project.findFromProjectID(projectid, conn);
 		tempProject.setTitle(projectName);
@@ -105,17 +116,28 @@ public class ProjectManager {
 	}
 
 
-	// modify experimentsname
-	public void modifyExperimentsName(long experimentid, String experimentsName)
+	/**
+	 * This method modifies the experiment name.
+	 * @param experimentid The experiment id.
+	 * @param experimentName The experiment name.
+	 * @throws SQLException
+	 */
+	public void modifyExperimentName(long experimentid, String experimentName)
 			throws SQLException {
 		Experiment tempExperiment = Experiment.findExperimentByID(experimentid, conn);
-		tempExperiment.setTitle(experimentsName);
+		tempExperiment.setTitle(experimentName);
 		tempExperiment.setModificationdate(new Timestamp((new Date()).getTime()));
 		tempExperiment.update(conn);
 	}
 
-	// modify experimentproperty
-	public void modifyExperimentsProperties(long exppropertyid,	String expProperty, String expPropertyValue) throws SQLException {
+	/**
+	 * This method modifies the experiment properties.
+	 * @param exppropertyid The experiment property id.
+	 * @param expProperty The experiment property.
+	 * @param expPropertyValue The experiment property value.
+	 * @throws SQLException
+	 */
+	public void modifyExperimentProperties(long exppropertyid,	String expProperty, String expPropertyValue) throws SQLException {
 		ExpProperty tempExperimentProperty = ExpProperty.findExpPropertyFromID(exppropertyid, conn);
 		tempExperimentProperty.setName(expProperty);
 		tempExperimentProperty.setValue(expPropertyValue);
@@ -258,11 +280,9 @@ public class ProjectManager {
 	 * @param operations
 	 * @throws SQLException
 	 */
-	public void modifyExperimentProperties(Long experimentID,
-			Map<String, String> newProperties,
-			ArrayList<Operation> operations) throws SQLException {
+	public void modifyExperimentProperties(Long experimentID, Map<String, String> newProperties, List<Operation> operations) throws SQLException {
 		
-		ArrayList<ExpProperty> expProperties = new ArrayList<ExpProperty>(ExpProperty.findAllPropertiesOfExperiment(experimentID, conn));
+		List<ExpProperty> expProperties = new ArrayList<ExpProperty>(ExpProperty.findAllPropertiesOfExperiment(experimentID, conn));
 		
 		int i = 0;
 		for (Entry<String, String> newProperty : newProperties.entrySet()) {
@@ -309,7 +329,7 @@ public class ProjectManager {
 
 	/**
 	 * This method deletes the project with its properties, experiment and experiment properties by the project ID.
-	 * @param projectid
+	 * @param projectid The project id. 
 	 * @throws SQLException
 	 */
 	public void deleteProject(Long projectid) throws SQLException {
@@ -334,7 +354,7 @@ public class ProjectManager {
 	/**
 	 * This method checks whether the provided connection is consistent with the manager's own
 	 * and updates the latter if needed.
-	 * @param conn
+	 * @param conn The database connection.
 	 */
 	public void revalidate(Connection conn) {
 		if (this.conn != conn) {

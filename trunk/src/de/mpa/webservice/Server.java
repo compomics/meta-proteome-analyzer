@@ -9,7 +9,7 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlMimeType;
 
-import de.mpa.client.settings.SearchSettings;
+import de.mpa.client.SearchSettings;
 
 @WebService
 @SOAPBinding(style = Style.RPC)
@@ -32,7 +32,7 @@ public interface Server {
 	  * @param filenames Array of filenames associated with previously uploaded files.
 	  * @param settings Settings object containing search parameters.
 	  */
-	 @WebMethod void runSearches(String[] filenames, SearchSettings settings);
+	 @WebMethod void runSearches(SearchSettings settings);
 	 
 	 /**
 	  * Download a specified file from the server

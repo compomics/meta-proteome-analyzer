@@ -41,7 +41,7 @@ public class XTandemScoreJob extends Job{
 		
 		// Executes QVality
 		QvalityJob xTandemQVality = new QvalityJob(xTandemExtractor.getTargetOutput(), xTandemExtractor.getDecoyOutput(), false);
-		xTandemQVality.execute();
+		xTandemQVality.run();
 	}
 
 }

@@ -70,7 +70,6 @@ public class IsoelectricPoints {
 	
 	public static final Map<Character, Double> pKaSideChainMap;
 	static {
-		//FIXME
 		Map<Character, Double> map = new HashMap<Character, Double>(20);
 		map.put('C', 9.0);
 		map.put('D', 4.05);
@@ -81,70 +80,4 @@ public class IsoelectricPoints {
 		map.put('Y',10.00);
 		pKaSideChainMap = Collections.unmodifiableMap(map);
 	}	
-	
-	
-	
-// Internet source	
-//	public static final Map<Character, Double> pKaCtermMap;
-//	static {
-//		Map<Character, Double> map = new HashMap<Character, Double>(20);
-//		map.put('A', 2.34);
-//		map.put('C', 1.96);
-//		map.put('D', 1.88);
-//		map.put('E', 2.19);
-//		map.put('F', 1.83);
-//		map.put('G', 2.34);
-//		map.put('H', 1.82);
-//		map.put('I', 2.36);
-//		map.put('K', 2.18);
-//		map.put('L', 2.36);
-//		map.put('M', 2.28);
-//		map.put('N', 2.02);
-//		map.put('P', 1.99);
-//		map.put('Q', 2.17);
-//		map.put('R', 2.17);
-//		map.put('S', 2.21);
-//		map.put('T', 2.09);
-//		map.put('V', 2.32);
-//		map.put('W', 2.83);
-//		map.put('Y', 2.20);
-//		pKaCtermMap = Collections.unmodifiableMap(map);
-//	}
-//	
-//	public static final Map<Character, Double> pKaNtermMap;
-//	static {
-//		Map<Character, Double> map = new HashMap<Character, Double>(20);
-//		map.put('A', 9.69);
-//		map.put('C', 8.18);
-//		map.put('D', 9.60);
-//		map.put('E', 9.67);
-//		map.put('F', 9.13);
-//		map.put('G', 9.60);
-//		map.put('H', 9.17);
-//		map.put('I', 9.60);
-//		map.put('K', 8.95);
-//		map.put('L', 9.60);
-//		map.put('M', 9.21);
-//		map.put('N', 8.80);
-//		map.put('P',10.60);
-//		map.put('Q', 9.13);
-//		map.put('R', 9.04);
-//		map.put('S', 9.15);
-//		map.put('T', 9.10);
-//		map.put('V', 9.62);
-//		map.put('W', 9.39);
-//		map.put('Y', 9.11);
-//		pKaNtermMap = Collections.unmodifiableMap(map);
-//	}
-//	
-//	public static final Map<Character, Double> pKaSideChainMap;
-//	static {
-//		Map<Character, Double> map = new HashMap<Character, Double>(20);
-//		map.put('D', 3.65);
-//		map.put('E', 4.25);
-//		map.put('K',10.53);
-//		map.put('R',12.48);
-//		map.put('H', 6.00);
-//		pKaSideChainMap = Collections.unmodifiableMap(map);
-//	}
 }

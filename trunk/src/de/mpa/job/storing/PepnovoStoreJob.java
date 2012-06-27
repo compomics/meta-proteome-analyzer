@@ -33,7 +33,7 @@ public class PepnovoStoreJob extends Job {
 	}
 	
 	@Override
-	public void execute() {
+	public void run() {
 		try {
 			dbManager.storePepnovoResults(getFilename());
 		} catch (Exception e) {

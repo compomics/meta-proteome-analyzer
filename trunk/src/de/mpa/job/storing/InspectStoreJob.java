@@ -33,7 +33,7 @@ public class InspectStoreJob extends Job {
 	}
 	
 	@Override
-	public void execute() {
+	public void run() {
 		try {
 			dbManager.storeInspectResults(getFilename());
 		} catch (Exception e) {
