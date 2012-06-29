@@ -242,6 +242,42 @@ public class Client {
 	}
 	
 	/**
+	 * Returns the current spectral similarity search result.
+	 * @param expContent The experiment content.
+	 * @return The current spectral similarity search result.
+	 */
+	public SpecSimResult getSpecSimResult(ExperimentContent expContent) {
+		if (specSimResult == null) {
+			retrieveSpecSimResult(expContent.getExperimentID());
+		}
+		return specSimResult;
+	}
+
+	/**
+	 * Returns the result(s) of a spectral similarity search belonging to a particular experiment.
+	 * @param experimentID The experiment's primary key.
+	 */
+	private void retrieveSpecSimResult(Long experimentID) {
+		try {
+			initDBConnection();
+			specSimResult = SpecSearchHit.getAnnotations(experimentID, conn, pSupport);
+			if (specSimResult.getScoreMatrixImage() != null) {
+				File outputfile = new File("saved.png");
+				ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
+			}
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
+	}
+
+	/**
+	 * Resets the current spectral similarity search result reference.
+	 */
+	public void clearSpecSimResult() {
+		specSimResult = null;
+	}
+
+	/**
 	 * Returns the result from the de-novo search.
 	 * @param file The query file.
 	 * @return DenovoSearchResult
@@ -326,7 +362,7 @@ public class Client {
 	 * @param expContent The experiment content.
 	 * @return The current database search result.
 	 */
-	public DbSearchResult getDbSearchResult(ProjectContent projContent,ExperimentContent expContent) {
+	public DbSearchResult getDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		if (dbSearchResult == null) {
 			retrieveDbSearchResult(projContent, expContent);
 		}
@@ -344,14 +380,28 @@ public class Client {
 			initDBConnection();
 			
 			// The protein hit set, containing all information about found proteins.
-			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(),  "EASTER EGG");
+			// TODO: use fastaDB parameter properly
+			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), "EASTER EGG");
+
+			// Set up progress monitoring
+			firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
+			pSupport.firePropertyChange("resetall", 0L, 100L);
+			pSupport.firePropertyChange("indeterminate", false, true);
 			
-			// Iterate over query spectra and get the different identification result sets
+			// Query database search hits and them to result object
+			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(expContent.getExperimentID(), conn);
 			
-			List<SearchHit> findSearchHitsFromExperimentID = SearchHitExtractor.findSearchHitsFromExperimentID(expContent.getExperimentID(), conn);
-			for (SearchHit searchHit : findSearchHitsFromExperimentID) {
+			long maxProgress = searchHits.size();
+			long curProgress = 0;
+			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
+			pSupport.firePropertyChange("indeterminate", true, false);
+			pSupport.firePropertyChange("resetall", 0L, maxProgress);
+			pSupport.firePropertyChange("resetcur", 0L, maxProgress);
+			for (SearchHit searchHit : searchHits) {
 				addProteinSearchHit(searchHit);
+				pSupport.firePropertyChange("progress", 0L, ++curProgress);
 			}
+			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 		
 		}  catch (SQLException e) {
 			e.printStackTrace();
@@ -387,50 +437,24 @@ public class Client {
 	}
 
 	/**
-	 * Returns the current spectral similarity search result.
-	 * @param projContent The project content.
-	 * @param expContent The experiment content.
-	 * @return The current database search result.
-	 */
-	public SpecSimResult getSpecSimResult(final ExperimentContent expContent) {
-		if (specSimResult == null) {
-			try {
-				initDBConnection();
-				specSimResult = SpecSearchHit.getAnnotations(expContent.getExperimentID(), conn, pSupport);
-//				specSimResult.setScoreMatrixImage(SpecSearchHit.getScoreMatrixImage(expContent.getExperimentID(), conn));
-				if (specSimResult.getScoreMatrixImage() != null) {
-					File outputfile = new File("saved.png");
-					ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
-				}
-			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			}
-		}
-		return specSimResult;
-	}
-	
-	/**
-	 * Resets the current spectral similarity search result reference.
-	 */
-	public void clearSpecSimResult() {
-		specSimResult = null;
-	}
-
-	/**
-	 * TODO: API!
-	 * @param experimentID
-	 * @return
+	 * Queries the database to retrieve a list of all possible candidates for 
+	 * spectral comparison belonging to a specified experiment ID.
+	 * @deprecated Not used anymore, server handles spectral comparison now. Feel free to delete.
+	 * @param experimentID The experiment's ID.
+	 * @return A list of candidates for spectral comparison.
 	 * @throws SQLException
 	 */
+	@Deprecated
 	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
 	}
 
 	/**
-	 * TODO: API :)
-	 * @param idSet
-	 * @return
+	 * Queries the database to retrieve a mapping of search spectrum IDs 
+	 * to their respective spectrum file titles.
+	 * @param matches A list of SpectrumMatch objects
+	 * @return A map containing containing ID-title pairs.
 	 * @throws SQLException
 	 */
 	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
@@ -438,108 +462,27 @@ public class Client {
 		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
 	}
 	
+	/**
+	 * Queries the database to retrieve a spectrum file belonging to a specific searchspectrum entry.
+	 * @param searchspectrumID The primary key of the searchspectrum entry.
+	 * @return The corresponding spectrum file object.
+	 * @throws SQLException
+	 */
 	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromSearchSpectrumID(searchspectrumID);
 	}
 	
+	/**
+	 * Queries the database to retrieve a spectrum file belonging to a specific libspectrum entry.
+	 * @param libspectrumID The primary key of the libspectrum entry.
+	 * @return The corresponding spectrum file object.
+	 * @throws SQLException
+	 */
 	public MascotGenericFile getSpectrumFromLibSpectrumID(long libspectrumID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromLibSpectrumID(libspectrumID);
 	}
-	
-//	/**
-//	 * TODO: API!
-//	 * @param file
-//	 * @param procSet
-//	 * @param processWorker 
-//	 * @return resultMap
-//	 */
-//	public HashMap<String, ArrayList<RankedLibrarySpectrum>> searchSpecLib(File file, SpecSimSettings procSet) {
-//		// declare result map
-//		HashMap<String, ArrayList<RankedLibrarySpectrum>> resultMap = null;
-//		
-//		try {
-//			// parse query file
-//			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
-//			List<MascotGenericFile> mgfFiles = mgfReader.getSpectrumFiles();
-//			
-//			// store list of results in HashMap (with spectrum title as key)
-//			resultMap = new HashMap<String, ArrayList<RankedLibrarySpectrum>>(mgfFiles.size());
-//			
-//			// iterate query spectra to gather precursor m/z values
-//			ArrayList<Double> precursorMZs = new ArrayList<Double>(mgfFiles.size());
-//			for (MascotGenericFile mgf : mgfFiles) {
-//				precursorMZs.add(mgf.getPrecursorMZ());
-//			}
-//			Collections.sort(precursorMZs);
-//			// build list of precursor m/z intervals using sorted list
-//			ArrayList<Interval> intervals = new ArrayList<Interval>();
-//			Interval current = null;
-//			for (double precursorMz : precursorMZs) {
-//				if (current == null) {	// first interval
-//					current = new Interval(((precursorMz - procSet.getTolMz()) < 0.0) ? 0.0 : precursorMz - procSet.getTolMz(), precursorMz + procSet.getTolMz());
-//					intervals.add(current);
-//				} else {
-//					// if left border of new interval intersects current interval extend the latter
-//					if ((precursorMz - procSet.getTolMz()) < current.getRightBorder()) {
-//						current.setRightBorder(precursorMz + procSet.getTolMz());
-//					} else {	// generate new interval
-//						current = new Interval(precursorMz - procSet.getTolMz(), precursorMz + procSet.getTolMz());
-//						intervals.add(current);
-//					}
-//				}
-//			}
-//
-//			// extract list of candidates
-//			SpectrumExtractor specEx = new SpectrumExtractor(conn);
-//			ArrayList<SpectralSearchCandidate> candidates = 
-//				specEx.getCandidatesFromExperiment(intervals, procSet.getExperimentID());
-//			
-//			// iterate query spectra to determine similarity scores
-////			int progress = 0;
-//			for (MascotGenericFile mgfQuery : mgfFiles) {
-//				
-//				// store results in list of ranked library spectra objects
-//				ArrayList<RankedLibrarySpectrum> resultList = new ArrayList<RankedLibrarySpectrum>();
-//				
-//				// prepare query spectrum for similarity comparison with candidate spectra,
-//				// e.g. vectorize peaks, calculate auto-correlation, etc.
-//				procSet.getSpecComparator().prepare(mgfQuery.getHighestPeaks(procSet.getPickCount()));
-//				
-//				// iterate candidates
-//				for (SpectralSearchCandidate candidate : candidates) {
-//					// re-check precursor tolerance criterion to determine proper candidates
-//					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < procSet.getTolMz()) {
-//						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
-//						// score query and library spectra
-//						procSet.getSpecComparator().compareTo(candidate.getPeaks());
-//						double score = procSet.getSpecComparator().getSimilarity();
-//						
-//						// store result if score is above specified threshold
-//						if (score >= procSet.getThreshScore()) {
-//							// TODO: finish storage in RankedLibrarySpectrum objects, map everything to peptides and proteins
-//							
-//							// store peptide ID in map for annotation gathering later on
-//							
-//							// create MascotGenericFile from SpectralSearchCandidate object
-//							MascotGenericFile mgfLib = new MascotGenericFile(null, candidate.getSpectrumTitle(), candidate.getPeaks(), candidate.getPrecursorMz(), candidate.getPrecursorCharge());
-//							
-//							resultList.add(new RankedLibrarySpectrum(mgfLib, candidate.getLibpectrumID(), candidate.getSequence(), null, score));
-//						}
-//					}
-//				}
-//				procSet.getSpecComparator().cleanup();
-//				resultMap.put(mgfQuery.getTitle(), resultList);
-//				pSupport.firePropertyChange("progressmade", 0, 1);
-////				pSupport.firePropertyChange("progress", progress++, progress);
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return resultMap;
-//	}
 	
 	/**
 	 * Method to consolidate spectra which are selected in a specified checkbox tree into spectrum packages of defined size.
@@ -565,14 +508,14 @@ public class Client {
 				TreePath spectrumPath = spectrumNode.getPath();
 				if (selectionModel.isPathSelected(spectrumPath, true)) {
 					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
-						long remaining = maxSpectra - numSpectra;
-						pSupport.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 						if (fos != null) {
 							fos.close();
 						}
 						File file = new File(filename + (numSpectra/packageSize) + ".mgf");
 						files.add(file);
 						fos = new FileOutputStream(file);
+						long remaining = maxSpectra - numSpectra;
+						pSupport.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 					}
 //					MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
 					MascotGenericFile mgf = FilePanel.getSpectrumForNode(spectrumNode);
@@ -589,7 +532,14 @@ public class Client {
 		return files;
 	}
 
-	// XXX: TBD
+	/**
+	 * Queries the database to retrieve a list of spectrum files belonging to a specified experiment.
+	 * @deprecated For spectral similarity tuning use only. Will be deleted at some point in the future. 
+	 * @param experimentID The primary key of the experiment.
+	 * @return A list of spectrum files.
+	 * @throws Exception
+	 */
+	@Deprecated
 	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
 		return new SpectrumExtractor(conn).downloadSpectra(experimentID);
 	} 

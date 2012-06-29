@@ -24,6 +24,7 @@ public class PlotPanel2 extends SpectrumPanel {
 		super.setSpectrumFile(aSpecFile);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void setSpectrumFile(SpectrumFile aSpecFile, Color lineCol) {
 		
 		if (aSpecFile == null) {
@@ -46,11 +47,11 @@ public class PlotPanel2 extends SpectrumPanel {
 
 			iFilename = aSpecFile.getFilename();
 
-			// Maximum intensity of the peaks.
-			double maxInt = 0.0;
+//			// Maximum intensity of the peaks.
+//			double maxInt = 0.0;
 
 			// TreeSets are sorted.
-			TreeSet masses = new TreeSet(peaks.keySet());
+			TreeSet<Double> masses = new TreeSet<Double>(peaks.keySet());
 			Iterator iter = masses.iterator();
 
 			int count = 0;

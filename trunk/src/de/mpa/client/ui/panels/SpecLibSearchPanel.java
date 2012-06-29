@@ -26,17 +26,10 @@ import javax.swing.event.ChangeListener;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.algorithms.CrossCorrelation;
-import de.mpa.algorithms.EuclideanDistance;
-import de.mpa.algorithms.NormalizedDotProduct;
-import de.mpa.algorithms.PearsonCorrelation;
-import de.mpa.algorithms.Transformation;
-import de.mpa.algorithms.Vectorization;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
-import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.PlotPanel2;
 
@@ -544,70 +537,71 @@ public class SpecLibSearchPanel extends JPanel {
 		return settings;
 	}
 	
-	/**
-	 * Obsolete method: Used for the refresh plot method only.
-	 * @return The current spectrum comparator method.
-	 */
-	private SpectrumComparator getComparator(){
-		Transformation trafo = null;
-		switch (trafoCbx.getSelectedIndex()) {
-		case 0:
-			trafo = new Transformation() {
-				public double transform(double input) {
-					return input;
-				}
-			};
-			break;
-		case 1:
-			trafo = new Transformation() {
-				public double transform(double input) {
-					return Math.sqrt(input);
-				}
-			};
-			break;
-		case 2:
-			trafo = new Transformation() {
-				public double transform(double input) {
-					return (input > 0.0) ? Math.log(input) : 0.0;
-				}
-			};
-			break;
-		}
-		
-		Vectorization vect = null;
-		switch (vectMethodCbx.getSelectedIndex()) {
-		case 0:
-			vect = new Vectorization(Vectorization.PEAK_MATCHING, (Double) binWidthSpn.getValue());
-			break;
-		case 1:
-			vect = new Vectorization(Vectorization.DIRECT_BINNING, (Double) binWidthSpn.getValue(),
-					(Double) binShiftSpn.getValue());
-			break;
-		case 2:
-			vect = new Vectorization(Vectorization.PROFILING, (Double) binWidthSpn.getValue(),
-					(Double) binShiftSpn.getValue(), proMethodCbx.getSelectedIndex(),
-					(Double) proBaseWidthSpn.getValue());
-			break;
-		}
-		
-		SpectrumComparator specComp = null;
-		switch (measureCbx.getSelectedIndex()) {
-		case 0:
-			specComp = new EuclideanDistance(vect, trafo);
-			break;
-		case 1:
-			specComp = new NormalizedDotProduct(vect, trafo);
-			break;
-		case 2:
-			specComp = new PearsonCorrelation(vect, trafo);
-			break;
-		case 3:
-			specComp = new CrossCorrelation(vect, trafo, (Integer) xCorrOffSpn.getValue());
-			break;
-		}
-		
-		return specComp;
-	}
+//	/**
+//	 * Obsolete method: Used for the refresh plot method only.
+//	 * @return The current spectrum comparator method.
+//	 */
+//	private SpectrumComparator getComparator(){
+//		Transformation trafo = null;
+//		switch (trafoCbx.getSelectedIndex()) {
+//		case 0:
+//			trafo = new Transformation() {
+//				public double transform(double input) {
+//					return input;
+//				}
+//			};
+//			break;
+//		case 1:
+//			trafo = new Transformation() {
+//				public double transform(double input) {
+//					return Math.sqrt(input);
+//				}
+//			};
+//			break;
+//		case 2:
+//			trafo = new Transformation() {
+//				public double transform(double input) {
+//					return (input > 0.0) ? Math.log(input) : 0.0;
+//				}
+//			};
+//			break;
+//		}
+//		
+//		Vectorization vect = null;
+//		switch (vectMethodCbx.getSelectedIndex()) {
+//		case 0:
+//			vect = new Vectorization(Vectorization.PEAK_MATCHING, (Double) binWidthSpn.getValue());
+//			break;
+//		case 1:
+//			vect = new Vectorization(Vectorization.DIRECT_BINNING, (Double) binWidthSpn.getValue(),
+//					(Double) binShiftSpn.getValue());
+//			break;
+//		case 2:
+//			vect = new Vectorization(Vectorization.PROFILING, (Double) binWidthSpn.getValue(),
+//					(Double) binShiftSpn.getValue(), proMethodCbx.getSelectedIndex(),
+//					(Double) proBaseWidthSpn.getValue());
+//			break;
+//		}
+//		
+//		SpectrumComparator specComp = null;
+//		switch (measureCbx.getSelectedIndex()) {
+//		case 0:
+//			specComp = new EuclideanDistance(vect, trafo);
+//			break;
+//		case 1:
+//			specComp = new NormalizedDotProduct(vect, trafo);
+//			break;
+//		case 2:
+//			specComp = new PearsonCorrelation(vect, trafo);
+//			break;
+//		case 3:
+//			specComp = new CrossCorrelation(vect, trafo, (Integer) xCorrOffSpn.getValue());
+//			break;
+//		}
+//		
+//		return specComp;
+//	}
+	
 	/**
 	 * Method to repaint the panel's plot component. Draws normalized original
 	 * (black) and transformed (red) versions of the supplied spectrum.

@@ -681,8 +681,8 @@ public class ProjectPanel extends JPanel {
 	 * Returns the id of the current (user-selected) experiment.
 	 * @return The experiment id of an selected experiment.
 	 */
-	public long getCurrentExperimentId(){
-		return currentExperimentContent.getExperimentID();
+	public long getCurrentExperimentId() {
+		return (currentExperimentContent == null) ? 0L : currentExperimentContent.getExperimentID();
 	}
 
 	/**

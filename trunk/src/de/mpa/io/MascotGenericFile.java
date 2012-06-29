@@ -54,7 +54,7 @@ public class MascotGenericFile implements SpectrumFile {
     /**
      * This HashMap holds all the peaks in the spectrum file.
      */
-    protected HashMap<Double,Double> iPeaks = new HashMap<Double,Double>();
+    protected HashMap<Double,Double> iPeaks = new HashMap<Double, Double>();
 
     
 
@@ -728,6 +728,11 @@ public class MascotGenericFile implements SpectrumFile {
         return iPeaks;
     }
     
+    /**
+     * Returns the k highest peaks of the spectrum.
+     * @param k The amount of peaks to be picked.
+     * @return Map containing mass-intensity pairs.
+     */
     public HashMap<Double, Double> getHighestPeaks(int k) {
     	if (k == 0) {
     		return iPeaks;
@@ -770,6 +775,8 @@ public class MascotGenericFile implements SpectrumFile {
 	public void setFilename(String aFilename) {
 		this.iFilename = aFilename;
 	}
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setPeaks(HashMap aPeaks) {
 		this.iPeaks = aPeaks;
