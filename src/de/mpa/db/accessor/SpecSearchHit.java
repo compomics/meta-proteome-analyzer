@@ -169,22 +169,22 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 			rgb = (int) (score * Integer.MAX_VALUE);
 			tmp.setRGB(mapX, mapY, rgb);
 			
-//			// search spectrum sequence
-//			String ssSeq = rs.getString(4);
-//			ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString(5);
-//			rgb = seq2ID.get(ssSeq);
-//			if (rgb == null) {
-//				seq2ID.put(ssSeq, rgb = curID++);
-//			}
-//			tmp.setRGB(0, mapY, rgb);
-//			
-//			// lib spectrum sequence
-//			String lsSeq = rs.getString(6) + rs.getString(7);
-//			rgb = seq2ID.get(lsSeq);
-//			if (rgb == null) {
-//				seq2ID.put(lsSeq, rgb = curID++);
-//			}
-//			tmp.setRGB(mapX, 0, rgb);
+			// search spectrum sequence
+			String ssSeq = rs.getString(4);
+			ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString(5);
+			rgb = seq2ID.get(ssSeq);
+			if (rgb == null) {
+				seq2ID.put(ssSeq, rgb = curID++);
+			}
+			tmp.setRGB(0, mapY, rgb);
+			
+			// lib spectrum sequence
+			String lsSeq = rs.getString(6) + rs.getString(7);
+			rgb = seq2ID.get(lsSeq);
+			if (rgb == null) {
+				seq2ID.put(lsSeq, rgb = curID++);
+			}
+			tmp.setRGB(mapX, 0, rgb);
 
 			row++;
 		}
@@ -281,22 +281,22 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 				rgb = (int) (score * Integer.MAX_VALUE);
 				img.setRGB(mapX, mapY, rgb);
 				
-//				// search spectrum sequence
-//				String ssSeq = rs.getString(4);
-//				ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString(5);
-//				rgb = seq2ID.get(ssSeq);
-//				if (rgb == null) {
-//					seq2ID.put(ssSeq, rgb = curID++);
-//				}
-//				img.setRGB(0, mapY, rgb);
-//				
-//				// lib spectrum sequence
-//				String lsSeq = rs.getString(6) + rs.getString(7);
-//				rgb = seq2ID.get(lsSeq);
-//				if (rgb == null) {
-//					seq2ID.put(lsSeq, rgb = curID++);
-//				}
-//				img.setRGB(mapX, 0, rgb);
+				// search spectrum sequence
+				String ssSeq = rs.getString(4);
+				ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString(5);
+				rgb = seq2ID.get(ssSeq);
+				if (rgb == null) {
+					seq2ID.put(ssSeq, rgb = curID++);
+				}
+				img.setRGB(0, mapY, rgb);
+				
+				// lib spectrum sequence
+				String lsSeq = rs.getString(6) + rs.getString(7);
+				rgb = seq2ID.get(lsSeq);
+				if (rgb == null) {
+					seq2ID.put(lsSeq, rgb = curID++);
+				}
+				img.setRGB(mapX, 0, rgb);
 			}
 
 			// reorder pixel rows w.r.t. search spectrum ID ordering

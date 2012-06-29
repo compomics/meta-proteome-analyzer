@@ -3,13 +3,14 @@ package de.mpa.db.extractor;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
-import de.mpa.algorithms.LibrarySpectrum;
+import de.mpa.algorithms.Interval;
+import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.db.DBManager;
-import de.mpa.io.MascotGenericFile;
 
 public class SpectrumExtractorTest extends TestCase {
 	
@@ -24,19 +25,25 @@ public class SpectrumExtractorTest extends TestCase {
 		}
 	}
 	
-	// Testing the extraction of the library spectra from the database + the zipped spectrum files.
-	public void testGetLibrarySpectra() throws SQLException, IOException{
+	/**
+	 * Tests the extraction of spectral search candidates from the database.
+	 */
+	public void testGetLibrarySpectra() throws SQLException, IOException {
 		SpectrumExtractor specExtractor = new SpectrumExtractor(conn);
-		List<LibrarySpectrum> libSpectra = specExtractor.getLibrarySpectra(1098.4841, 0.0);
-		LibrarySpectrum libSpectrum1 = libSpectra.get(0);
+		
+		List<Interval> intervals = new ArrayList<Interval>(1);
+		intervals.add(new Interval(1098.4841, 1098.4841));
+		
+		List<SpectralSearchCandidate> candidates = specExtractor.getCandidates(intervals);
+		
+		SpectralSearchCandidate candidate = candidates.get(0);
+		
 		// Test library spectrum
-		assertEquals("TDGAEMSK", libSpectrum1.getSequence());
-		assertEquals(1098.4841, libSpectrum1.getSpectrumFile().getPrecursorMZ());
+		assertEquals("TDGAEMSK", candidate.getSequence());
+		assertEquals(1098.4841, candidate.getPrecursorMz());
 		
 		// Test spectrum file extraction
-		MascotGenericFile mgf = libSpectrum1.getSpectrumFile();
-		assertEquals("1A1_1.mgf", mgf.getFilename());
-		TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(mgf.getPeaks());
+		TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(candidate.getPeaks());
 		
 		// Test the m/z value
 		assertEquals(55.708918, peaks.firstEntry().getKey(), 0.0001);

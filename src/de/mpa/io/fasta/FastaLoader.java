@@ -113,6 +113,7 @@ public class FastaLoader {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
+	@SuppressWarnings("unchecked")
 	public void readIndexFile() throws IOException, ClassNotFoundException {
 		FileInputStream fis = new FileInputStream(indexFile);
 		ObjectInputStream ois = new ObjectInputStream(fis);

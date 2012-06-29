@@ -21,6 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
@@ -233,38 +234,44 @@ public class SettingsPanel extends JPanel {
 	private class ProcessWorker extends SwingWorker {
 
 		protected Object doInBackground() {
-			CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
-			
-			// register progress listener
-			client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
-			
-			// appear busy
-			firePropertyChange("progress", null, 0);
-			processBtn.setEnabled(false);
-			clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			
-			client.firePropertyChange("new message", null, "PACKING SPECTRA");
-			try {
-				long packSize = (Long) packSpn.getValue();
-				List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
-				client.firePropertyChange("new message", null, "SENDING FILES");
-				client.sendFiles(chunkedFiles);
+			if (clientFrame.getProjectPanel().getCurrentExperimentId() != 0L) {
+				
+				CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
+				
+				// register progress listener
+				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
+				
+				// appear busy
+				firePropertyChange("progress", null, 0);
+				processBtn.setEnabled(false);
+				clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				
+				client.firePropertyChange("new message", null, "PACKING SPECTRA");
+				try {
+					long packSize = (Long) packSpn.getValue();
+					List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
+					client.firePropertyChange("new message", null, "SENDING FILES");
+					client.sendFiles(chunkedFiles);
 
-				DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
-				SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-				DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
+					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
+					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+					DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
+					
+					long experimentID = (dbss != null) ? dbss.getExperimentid() : (sss != null) ? sss.getExperimentID() : (dnss != null) ? dnss.getExperimentid() : 0L;
+					
+					SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
+					
+					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
+					client.runSearches(chunkedFiles, settings);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				
-				long experimentID = (dbss != null) ? dbss.getExperimentid() : (sss != null) ? sss.getExperimentID() : (dnss != null) ? dnss.getExperimentid() : 0L;
-				
-				SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
-				
-				client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-				client.runSearches(chunkedFiles, settings);
-			} catch (IOException e) {
-				e.printStackTrace();
+				return 0;
+			} else {
+				JOptionPane.showMessageDialog(clientFrame, "No experiment selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				return 404;
 			}
-			
-			return 0;
 		}
 
 		@Override
