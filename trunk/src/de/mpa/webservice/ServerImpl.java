@@ -74,6 +74,8 @@ public class ServerImpl implements Server {
 	 * The JobManager instance.
 	 */
 	private JobManager jobManager;
+
+	private RunOptions runOptions;
     
 	@Override
 	public void receiveMessage(String msg) {
@@ -238,8 +240,11 @@ public class ServerImpl implements Server {
 	@Override
 	public synchronized String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data) {
 		if (data != null) {
+			runOptions = RunOptions.getInstance();
+			
 		    InputStream io;
 			try {
+				
 				io = data.getInputStream();
 				byte b[] = new byte[io.available()];  
 			    io.read(b);
@@ -253,7 +258,7 @@ public class ServerImpl implements Server {
 				// Close the streams.
 				io.close();
 				fos.close();
-				
+				runOptions.setRunCount(0);
 				log.info("Upload Successful: " + file.getName());
 				return file.getAbsolutePath();
 			} catch (IOException e) {
@@ -324,45 +329,53 @@ public class ServerImpl implements Server {
 	@Override
 	public synchronized void runSearches(SearchSettings settings) {
 		try {
-			// 	DB Manager instance
-			dbManager = DBManager.getInstance();
 			
-			// Initialize the job manager
-			jobManager = JobManager.getInstance();
-			List<String> filenames = settings.getFilenames();
-			System.out.println(filenames.size());
+			runOptions = RunOptions.getInstance();
 			
-			// Iterate uploaded files
-			int i = 1;
-			for (String filename : filenames) {
-				// Store uploaded spectrum files to DB
-				File file = new File(JobConstants.TRANSFER_PATH + filename);
-				System.out.println("storing file to db: " + file.getAbsolutePath());
-				SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
-
-				System.out.println("remaining jobs before addition: " + jobManager.getRemainingJobs());
-				// Add search jobs to job manager queue
-				if (settings.isDatabase()) {
-					addDbSearchJobs(filename, settings.getDbss());
-				}
-				if (settings.isSpecSim()) {
-					addSpecSimSearchJob(storager.getSpectra(), settings.getSss());
-				}
-				if (settings.isDeNovo()) {
-					addDeNovoSearchJob(filename, settings.getDnss());
-				}
-				System.out.println("remaining jobs after addition: " + jobManager.getRemainingJobs());
-
-				msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
+			if(!runOptions.hasRunAlready()){
+				// DB Manager instance
+				dbManager = DBManager.getInstance();
 				
-				// Batch-execute jobs
-				jobManager.execute();
-
-				System.out.println("remaining jobs after executing: " + jobManager.getRemainingJobs());
+				// Initialize the job manager
+				jobManager = JobManager.getInstance();
+				List<String> filenames = settings.getFilenames();
 				
-				msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
-				System.out.println("i was " + i++ + ", is now " + i);
+				// Iterate uploaded files
+				int i = 1;
+				for (String filename : filenames) {
+					// Store uploaded spectrum files to DB
+					File file = new File(JobConstants.TRANSFER_PATH + filename);
+					System.out.println("storing file to db: " + file.getAbsolutePath());
+					SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
+
+					System.out.println("remaining jobs before addition: " + jobManager.getRemainingJobs());
+					// Add search jobs to job manager queue
+					if (settings.isDatabase()) {
+						addDbSearchJobs(filename, settings.getDbss());
+					}
+					if (settings.isSpecSim()) {
+						addSpecSimSearchJob(storager.getSpectra(), settings.getSss());
+					}
+					if (settings.isDeNovo()) {
+						addDeNovoSearchJob(filename, settings.getDnss());
+					}
+					System.out.println("remaining jobs after addition: " + jobManager.getRemainingJobs());
+
+					msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
+					
+					// Batch-execute jobs
+					Thread managerThread = new Thread(jobManager);
+					managerThread.start();
+					managerThread.join();
+
+					System.out.println("remaining jobs after executing: " + jobManager.getRemainingJobs());
+					
+					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
+					System.out.println("i was " + i++ + ", is now " + i);
+					runOptions.setRunCount(1);
+				}
 			}
+
 		} catch (Exception e) {
 			log.error(e.getMessage(), e.getCause());
 			e.printStackTrace();

@@ -258,7 +258,7 @@ public class MascotGenericFileReader {
                 // Adding this line to the spectrum StringBuffer.
                 spectrum.append(line + "\n");
                 // See if it was an 'END IONS', in which case we stop being in a spectrum.
-                if (line.indexOf("END IONS") >= 0) {
+                if (line.startsWith("END")) {
                     // End detected. Much to do!
                     // Reset boolean.
                     inSpectrum = false;
@@ -277,7 +277,7 @@ public class MascotGenericFileReader {
             }
             
             // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
-            else if (line.indexOf("BEGIN IONS") >= 0) {
+            else if (line.startsWith("BEGIN")) {
                 fireProgressMade(oldPos, newPos);
                 this.spectrumPositions.add(oldPos);
                 inSpectrum = true;
@@ -401,7 +401,7 @@ public class MascotGenericFileReader {
             }
 
             // Mark position of spectrum block
-            if (line.indexOf("BEGIN IONS") >= 0) {
+            if (line.startsWith("BEGIN")) {
                 fireProgressMade(oldPos, newPos);
                 this.spectrumPositions.add(oldPos);
             }

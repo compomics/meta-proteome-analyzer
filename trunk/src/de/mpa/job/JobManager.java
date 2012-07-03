@@ -15,7 +15,7 @@ import de.mpa.job.instances.RenameJob;
  * @author Thilo Muth
  *
  */
-public class JobManager {
+public class JobManager implements Runnable {
 	
 	/**
 	 * JobManager instance.
@@ -75,7 +75,7 @@ public class JobManager {
 	/**
 	 * Executes the jobs from the queue.
 	 */
-	public void execute() {
+	public void run() {
 		// Iterate the job queue
 		for (Job job : jobQueue) {
 			if (job instanceof MS2FormatJob) {
