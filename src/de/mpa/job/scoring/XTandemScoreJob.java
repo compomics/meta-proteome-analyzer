@@ -35,7 +35,7 @@ public class XTandemScoreJob extends Job{
 	/**
 	 * Initalize the job.
 	 */
-	public void execute() {
+	public void run() {
 		// Extract the scores for X!Tandem target and decoy search
 		XTandemScoreExtractor xTandemExtractor = new XTandemScoreExtractor(new File(targetFile), new File(decoyFile));
 		

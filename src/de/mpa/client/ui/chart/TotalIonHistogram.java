@@ -9,6 +9,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
+import org.jfree.chart.axis.LogarithmicAxis;
 
 import de.mpa.io.MascotGenericFile;
 
@@ -66,9 +67,7 @@ public class TotalIonHistogram extends Chart {
         
         // Dynamically set the bin size 
         // TODO: use a better formula for the bin size...
-        int binSize = (int) Math.log10(dataArray.length) * 10;
-        
-        dataset.addSeries(filename, dataArray, binSize);
+        dataset.addSeries(filename, dataArray, 40);
         chart = ChartFactory.createHistogram(getChartTitle(),
                 "Total Ion Count",
                 "Frequency",
@@ -83,6 +82,7 @@ public class TotalIonHistogram extends Chart {
         plot.setBackgroundAlpha(0f);
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
+        //plot.setDomainAxis(new LogarithmicAxis("Total Ion Count"));
         plot.setOutlineVisible(false);
         XYBarRenderer renderer = new XYBarRenderer();
         renderer.setShadowVisible(false);

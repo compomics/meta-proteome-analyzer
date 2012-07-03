@@ -171,10 +171,6 @@ public class Fragmentizer {
 
         // Calculate ions masses for each charge
         int length = iSequence.length();
-        // TODO: @Thilo: what does this do? can it be removed?
-//        if (iSequence.compareTo("LHYFNAR") == 0) {
-//            int a = 0;
-//        }
         int cptb = 0;
         int cpty = 0;
         for (int charge = 1; charge <= iPeptideCharge; charge++) {

@@ -148,6 +148,13 @@ public class Client {
 		
 		// enable MTOM in client
 		BindingProvider bp = (BindingProvider) server;
+		
+		// Connection timeout: 12 hours
+		bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
+		
+		// Request timeout: 24 hours
+		bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
+		 
 		SOAPBinding binding = (SOAPBinding) bp.getBinding();
 		binding.setMTOMEnabled(true);
 		
