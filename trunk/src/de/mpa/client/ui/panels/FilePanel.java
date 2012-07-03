@@ -58,7 +58,6 @@ import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.chart.SpectrumData;
 import de.mpa.client.ui.chart.TotalIonHistogram;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -81,8 +80,8 @@ public class FilePanel extends JPanel {
 	private final static String PATH = "test/de/mpa/resources/";	
 	private boolean busy;
 	private JXMultiSplitPane split;	
-	private List<MascotGenericFile> totalSpectraList = new ArrayList<MascotGenericFile>();
 	private JPanel histPnl;
+	private ArrayList<Double> ticList = new ArrayList<Double>();
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
@@ -365,7 +364,8 @@ public class FilePanel extends JPanel {
 					treeModel.removeNodeFromParent((MutableTreeTableNode) treeModel.getChild(treeRoot, treeRoot.getChildCount()-1));
 				}
 				treeTbl.getCheckBoxTreeSelectionModel().clearSelection();
-				totalSpectraList.clear();
+//				totalSpectraList.clear();
+				ticList.clear();
 				filesTtf.setText("0 file(s) selected");
 				specPosMap.clear();
 			}
@@ -458,9 +458,9 @@ public class FilePanel extends JPanel {
 							}
 						}
 					});
-					reader.load();
-					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-					totalSpectraList.addAll(mgfList);
+					reader.survey();
+//					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
+//					totalSpectraList.addAll(mgfList);
 					
 					// 
 					spectrumPositions.addAll(reader.getSpectrumPositions(false));
@@ -478,7 +478,10 @@ public class FilePanel extends JPanel {
 
 					int index = 1;
 					ArrayList<TreePath> toBeAdded = new ArrayList<TreePath>();
-					for (MascotGenericFile mgf : mgfList) {
+					for (Long specPos : spectrumPositions) {
+						MascotGenericFile mgf = reader.loadNthSpectrum(index, specPos);
+//						totalSpectraList.add(mgf);
+						ticList.add(mgf.getTotalIntensity());
 
 						// examine spectrum regarding filter criteria
 						int numPeaks = 0;
@@ -527,10 +530,11 @@ public class FilePanel extends JPanel {
 
 			String str = filesTtf.getText();
 			str = str.substring(0, str.indexOf(" "));
-			filesTtf.setText((Integer.parseInt(str) + selFiles.length) + " file(s) selected - " + totalSpectraList.size() + " total spectra");
+			filesTtf.setText((Integer.parseInt(str) + selFiles.length) + " file(s) selected - " + ticList.size() + " total spectra");
 			
 			// Show histogram TODO: Currently the histogram is shown for all files... would be better to show for selected files only.
-			TotalIonHistogram histogram = new TotalIonHistogram(new SpectrumData(totalSpectraList, selFiles[0].getName()));
+//			TotalIonHistogram histogram = new TotalIonHistogram(new SpectrumData(totalSpectraList, selFiles[0].getName()));
+			TotalIonHistogram histogram = new TotalIonHistogram(ticList);
 			
 			// Create chart panel
 			ChartPanel chartPanel = new ChartPanel(histogram.getChart());
