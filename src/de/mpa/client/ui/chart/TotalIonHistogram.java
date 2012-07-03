@@ -36,15 +36,20 @@ public class TotalIonHistogram extends Chart {
     	// List of all total intensities
         List<Double> ticList = new ArrayList<Double>();
         
-    	if(data instanceof SpectrumData){
-    		SpectrumData spectrumData = (SpectrumData) data;
-    		filename = spectrumData.getFilename();
-    		
-    		List<MascotGenericFile> spectra = spectrumData.getSpectra();
-    		for (MascotGenericFile mgf : spectra) {
+		if (data instanceof SpectrumData) {
+			SpectrumData spectrumData = (SpectrumData) data;
+			filename = spectrumData.getFilename();
+
+			List<MascotGenericFile> spectra = spectrumData.getSpectra();
+			for (MascotGenericFile mgf : spectra) {
 				ticList.add(mgf.getTotalIntensity());
 			}
-    	}
+		} else if (data instanceof List<?>) {
+			filename = "default";
+			if (((List<Object>) data).get(0) instanceof Double) {
+				ticList = (List<Double>) data;
+			}
+		}
               
         // Set data.
         dataArray = new double[ticList.size()];

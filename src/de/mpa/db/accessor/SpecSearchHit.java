@@ -100,7 +100,8 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		pSupport.firePropertyChange("resetall", 0L, rowCount);
 		pSupport.firePropertyChange("resetcur", 0L, rowCount);
 
-		ps = conn.prepareStatement("SELECT ssh.fk_searchspectrumid, ssh.fk_libspectrumid, ssh.similarity, p.sequence, " +
+		ps = conn.prepareStatement("SELECT ssh.fk_searchspectrumid, ssh.fk_libspectrumid, ssh.similarity, " +
+				"s1.title, s1.precursor_charge, p.sequence, s2.precursor_charge, " +
 				"pr.accession, pr.description, pr.sequence FROM specsearchhit ssh " +
 				"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
 				"INNER JOIN spectrum s1 ON ss.fk_spectrumid = s1.spectrumid " +
@@ -129,6 +130,8 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		Integer rgb;
 
 		BufferedImage tmp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//		WritableRaster wr = tmp.getRaster();
+
 //		System.out.println("" + width + " " + height);
 		long row = 1;
 		while (rs.next()) {
@@ -165,21 +168,28 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 				ssID2y.put(ssID, mapY = curY++);
 			}
 			
-			// truncate score to 32-bit integer
-			rgb = (int) (score * Integer.MAX_VALUE);
+			// truncate score to 8-bit integer
+//			rgb = (int) (score * Integer.MAX_VALUE);
+			byte[] argb = new byte[4];
+			argb[1] = (byte) (score * 255);
+			rgb = 0;
+		    for (int i=0; i<4; i++) {
+		      rgb = ( rgb << 8 ) + (int) argb[i];
+		    }
 			tmp.setRGB(mapX, mapY, rgb);
 			
 			// search spectrum sequence
-			String ssSeq = rs.getString(4);
-			ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString(5);
+			String ssSeq = rs.getString("s1.title");
+			ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString("s1.precursor_charge");
 			rgb = seq2ID.get(ssSeq);
 			if (rgb == null) {
 				seq2ID.put(ssSeq, rgb = curID++);
 			}
 			tmp.setRGB(0, mapY, rgb);
 			
+			
 			// lib spectrum sequence
-			String lsSeq = rs.getString(6) + rs.getString(7);
+			String lsSeq = rs.getString("p.sequence") + rs.getString("s2.precursor_charge");
 			rgb = seq2ID.get(lsSeq);
 			if (rgb == null) {
 				seq2ID.put(lsSeq, rgb = curID++);
@@ -196,6 +206,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		// reorder pixel rows w.r.t. search spectrum ID ordering
 		int[] srcBuf = ((DataBufferInt) tmp.getRaster().getDataBuffer()).getData();
 		int[] dstBuf = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		
 		curY = 1;
 		for (int mapY : ssID2y.values()) {
 			System.arraycopy(srcBuf, mapY * width, dstBuf, curY++ * width, width);
@@ -204,116 +215,11 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		System.arraycopy(srcBuf, 0, dstBuf, 0, width);
 		
 		res.setScoreMatrixImage(img);
+//		res.setScoreMatrixImage(tmp);
 		
 		pSupport.firePropertyChange("progress", 0L, rowCount);
 		pSupport.firePropertyChange("new message", null, "DATABASE TRANSACTION FINISHED");
         return res;
-	}
-	
-	public static BufferedImage getScoreMatrixImage(long experimentID, Connection conn) throws SQLException {
-		BufferedImage res = null;
-		// determine image dimensions
-		PreparedStatement ps = conn.prepareStatement(
-				"SELECT COUNT(DISTINCT ssh.fk_libspectrumid), COUNT(DISTINCT ssh.fk_searchspectrumid) FROM specsearchhit ssh " +
-				"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
-				"WHERE ss.fk_experimentid = ?");
-		ps.setLong(1, experimentID);
-        long startTime = System.currentTimeMillis();
-        System.out.print("Querying image dimensions ");
-		ResultSet rs = ps.executeQuery();
-		if (rs.next()) {
-			int width = rs.getInt(1) + 1;
-			int height = rs.getInt(2) + 1;
-	        System.out.println("[" + width + ", " + height + "] took " + (System.currentTimeMillis() - startTime) + "ms");
-	        rs.close();
-	        ps.close();
-
-			res = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			
-			ps = conn.prepareStatement(
-//					"SELECT ssh.fk_libspectrumid, ssh.fk_searchspectrumid, ssh.similarity, s1.title, s1.precursor_charge, p.sequence, s2.precursor_charge FROM specsearchhit ssh " +
-					"SELECT ssh.fk_libspectrumid, ssh.fk_searchspectrumid, ssh.similarity FROM specsearchhit ssh " +
-					"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
-//					"INNER JOIN spectrum s1 ON ss.fk_spectrumid = s1.spectrumid " +
-//					"INNER JOIN libspectrum ls ON ssh.fk_libspectrumid = ls.libspectrumid " +
-//					"INNER JOIN spectrum s2 ON ls.fk_spectrumid = s2.spectrumid " +
-//					"INNER JOIN spec2pep s2p ON s2.spectrumid = s2p.fk_spectrumid " +
-//					"INNER JOIN peptide p ON s2p.fk_peptideid = p.peptideid " + 
-					"WHERE ss.fk_experimentid = ? " +
-//					"GROUP BY ssh.fk_libspectrumid, ssh.fk_searchspectrumid");
-					"ORDER BY ssh.fk_libspectrumid",
-	        		ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-	        ps.setLong(1, experimentID);
-	        ps.setFetchSize(Integer.MIN_VALUE);
-			startTime = System.currentTimeMillis();
-	        System.out.print("Querying scores ");
-			rs = ps.executeQuery();
-	        System.out.println("took " + (System.currentTimeMillis() - startTime) + "ms");
-			
-			Map<Long, Integer> lsID2x = new HashMap<Long, Integer>(width - 1);
-			Map<Long, Integer> ssID2y = new TreeMap<Long, Integer>();
-			Map<String, Integer> seq2ID = new HashMap<String, Integer>();
-			int curX = 1, curY = 1, curID = 0;
-			Integer rgb;
-			
-			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			// iterate result set, paint pixels
-	        startTime = System.currentTimeMillis();
-	        System.out.print("Building image ");
-			while (rs.next()) {
-				// x coordinate lookup
-				Long lsID = rs.getLong(1);
-				Integer mapX = lsID2x.get(lsID);
-				if (mapX == null) {
-					lsID2x.put(lsID, mapX = curX++);
-				}
-				
-				// y coordinate lookup
-				Long ssID = rs.getLong(2);
-				Integer mapY = ssID2y.get(ssID);
-				if (mapY == null) {
-					ssID2y.put(ssID, mapY = curY++);
-				}
-				
-				// score
-				Double score = rs.getDouble(3);
-				// truncate score to 32-bit integer
-				rgb = (int) (score * Integer.MAX_VALUE);
-				img.setRGB(mapX, mapY, rgb);
-				
-				// search spectrum sequence
-				String ssSeq = rs.getString(4);
-				ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString(5);
-				rgb = seq2ID.get(ssSeq);
-				if (rgb == null) {
-					seq2ID.put(ssSeq, rgb = curID++);
-				}
-				img.setRGB(0, mapY, rgb);
-				
-				// lib spectrum sequence
-				String lsSeq = rs.getString(6) + rs.getString(7);
-				rgb = seq2ID.get(lsSeq);
-				if (rgb == null) {
-					seq2ID.put(lsSeq, rgb = curID++);
-				}
-				img.setRGB(mapX, 0, rgb);
-			}
-
-			// reorder pixel rows w.r.t. search spectrum ID ordering
-			int[] srcBuf = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
-			int[] dstBuf = ((DataBufferInt) res.getRaster().getDataBuffer()).getData();
-			curY = 1;
-			for (int mapY : ssID2y.values()) {
-				System.arraycopy(srcBuf, mapY * width, dstBuf, curY++ * width, width);
-			}
-			// don't forget top row
-			System.arraycopy(srcBuf, 0, dstBuf, 0, width);
-
-			System.out.println("took " + (System.currentTimeMillis() - startTime) + "ms");
-		} else {
-			System.out.println("failed");
-		}
-		return res;
 	}
 	
 }
