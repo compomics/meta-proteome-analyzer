@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,9 +17,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicTreeUI;
+import javax.swing.table.TableColumnModel;
 
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
@@ -34,6 +40,7 @@ import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ProteinTreeNode;
 import de.mpa.client.ui.TableConfig;
@@ -58,6 +65,40 @@ public class TreePanel extends JPanel {
 		this.initComponents();
 	}
 	
+	private void setupTaxonomyTreeTable() {
+		DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode();
+		taxonTreeModel = new DefaultTreeTableModel(root) {
+			{ setColumnIdentifiers(Arrays.asList(new String[] { "Taxon", "Description", "#Proteins", "SpC"})); }
+			@Override
+			public Class<?> getColumnClass(int column) {
+				switch (column) {
+				case 2: 
+				case 3:
+					return Integer.class;
+				case 1:
+				default:
+					return String.class;
+				}
+			}
+		};
+		
+		taxonomyTree = new JXTreeTable(taxonTreeModel);
+		BasicTreeUI btui = (BasicTreeUI) ((JXTree) (taxonomyTree.getCellRenderer(0, taxonomyTree.getHierarchicalColumn()))).getUI();
+		btui.setLeftChildIndent(5);
+		btui.setRightChildIndent(7);
+		TableConfig.setColumnWidths(taxonomyTree, new double[] {3, 4, 1, 1});
+		
+		TableColumnModel tcm = taxonomyTree.getColumnModel();
+		((TableColumnExt) tcm.getColumn(2)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter());
+		
+		taxonomyTree.setColumnMargin(1);
+		taxonomyTree.setRowMargin(1);
+		taxonomyTree.setShowGrid(true);
+		taxonomyTree.setColumnControlVisible(true);
+		taxonomyTree.addHighlighter(TableConfig.getSimpleStriping());
+	}
+
 	private void setupEnzymeTreeTable() {
 		DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode();
 		enzymeTreeModel = new DefaultTreeTableModel(root) {
@@ -81,29 +122,6 @@ public class TreePanel extends JPanel {
 		enzymeTree.getColumnModel().getColumn(3).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
 	}
 	
-	private void setupTaxonomyTreeTable() {
-		DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode();
-		taxonTreeModel = new DefaultTreeTableModel(root) {
-			{ setColumnIdentifiers(Arrays.asList(new String[] { "Taxon", "Description", "#Proteins", "SpC"})); }
-			@Override
-			public Class<?> getColumnClass(int column) {
-				switch (column) {
-				case 1:
-					return String.class;
-				case 2: 
-				case 3:
-					return Integer.class;
-				default:
-					return String.class;
-				}
-			}
-		};
-		
-		taxonomyTree = new JXTreeTable(taxonTreeModel);
-		TableConfig.setColumnWidths(taxonomyTree, new double[] {6, 4, 1, 1});
-		taxonomyTree.getColumnModel().getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
-		taxonomyTree.getColumnModel().getColumn(3).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
-	}
 	/**
 	 * Initialize the components.
 	 */
@@ -116,9 +134,7 @@ public class TreePanel extends JPanel {
 		JScrollPane treeScp = new JScrollPane(taxonomyTree);
 		JScrollPane tree2Scp = new JScrollPane(enzymeTree);
 		treeScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		treeScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		tree2Scp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		tree2Scp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		
 		// Set the leaf icon
 		ImageIcon proteinIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/protein.png"));
@@ -187,6 +203,7 @@ public class TreePanel extends JPanel {
 		// Empty the tree.
 		//((DefaultMutableTreeTableNode) treeModel.getRoot()).removeAllChildren();
 		//treeModel.reload();
+		DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode) taxonTreeModel.getRoot();
 		
 		// Get the result object.
 		DbSearchResult dbSearchResult = client.getDbSearchResult();
@@ -196,11 +213,11 @@ public class TreePanel extends JPanel {
 			List<NcbiTaxon> ncbiTaxa = entry.getTaxonomy();
 			List<Object> taxa = new ArrayList<Object>(ncbiTaxa);
 			taxa.add(entry.getOrganism());
-			DefaultMutableTreeTableNode parent = (DefaultMutableTreeTableNode) taxonTreeModel.getRoot();
+			DefaultMutableTreeTableNode parent = root;
 			
 			// Iterate the taxonomic ranks in descending order: 
 			// Domain --> Phylum --> Class --> Order --> Family --> Genus --> Species
-			if(taxa.size() == 7){
+//			if (taxa.size() == 7) {
 				for (int i = 0; i < taxa.size(); i++) {
 					TaxonTreeNode childNode = new TaxonTreeNode(taxa.get(i));
 					 
@@ -208,22 +225,45 @@ public class TreePanel extends JPanel {
 					boolean existsNode = false;
 					for (int j = 0; j < childCount; j++) {
 						TaxonTreeNode subNode = (TaxonTreeNode) parent.getChildAt(j);
-						if(existsNode |= subNode.getUserObject().equals(childNode.getUserObject())) {
+						if (existsNode |= subNode.getUserObject().equals(childNode.getUserObject())) {
 							parent = subNode;
 							break;
 						}
 					}
-					if(!existsNode) {
+					if (!existsNode) {
 						taxonTreeModel.insertNodeInto(childNode, parent, parent.getChildCount());
 						parent = childNode;
 					}
 				}
-				ProteinTreeNode proteinNode = new ProteinTreeNode(entry.getPrimaryUniProtAccession().getValue(), entry.getProteinDescription(), "", proteinHit.getSpectralCount());
+				TaxonTreeNode proteinNode = new TaxonTreeNode(proteinHit);
 				
 				// Finally insert the protein itself.
 				taxonTreeModel.insertNodeInto(proteinNode, parent, parent.getChildCount());
-			}
+//			} else {
+//				System.out.println(taxa.size());
+//				for (int i = 0; i < taxa.size(); i++) {
+//					System.out.println(taxa.get(i));
+//				}
+//			}
 		}
+		int maxProtCount = 0, maxSpecCount = 0;
+		for (int i = 0; i < root.getChildCount(); i++) {
+			TaxonTreeNode domain = (TaxonTreeNode) root.getChildAt(i);
+			maxProtCount = Math.max(maxProtCount, (Integer) domain.getValueAt(taxonomyTree.convertColumnIndexToView(2)));
+			maxSpecCount = Math.max(maxSpecCount, (Integer) domain.getValueAt(taxonomyTree.convertColumnIndexToView(3)));
+		}
+		
+		FontMetrics fm = getFontMetrics(UIManager.getFont("Label.font"));
+		TableColumnModel tcm = taxonomyTree.getColumnModel();
+		BarChartHighlighter highlighter;
+		
+		highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(taxonomyTree.convertColumnIndexToView(2))).getHighlighters()[0];
+		highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxProtCount)));
+		highlighter.setRange(0.0, maxProtCount);
+
+		highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(taxonomyTree.convertColumnIndexToView(3))).getHighlighters()[0];
+		highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+		highlighter.setRange(0.0, maxSpecCount);
 	}
 	
 	/**
