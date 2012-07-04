@@ -9,9 +9,7 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -223,47 +221,56 @@ public class SpecSimResultPanel extends JPanel {
 		
 		// Create color model mapping scores to a red-yellow-green-cyan-blue gradient
 		matrixColorModel = new ColorModel(32) {
-			private Color[] colors;
+			private int numCols = 256;
+			double val2ind = 255.0 / (numCols-1);
+			private int[][] colors = new int[numCols][3];
 			{
 				// pre-calculate colors
-				int numCols = 1000;
-				colors = new Color[numCols];
 				for (int i = 0; i < numCols; i++) {
-					colors[i] = new Color(
-							(float) trapezoidal(i*2.0/765.0, 5.0/6.0),
-							(float) trapezoidal(i*2.0/765.0, 1.0/6.0),
-							(float) trapezoidal(i*2.0/765.0, 0.5));
+					double r = -Math.abs(i+1 - numCols*0.75) * 4.0/numCols + 1.5;
+					double g = -Math.abs(i+1 - numCols*0.50) * 4.0/numCols + 1.5;
+					double b = -Math.abs(i+1 - numCols*0.25) * 4.0/numCols + 1.5;
+					r = (r > 1.0) ? 1.0 : (r < 0.0) ? 0.0 : r;
+					g = (g > 1.0) ? 1.0 : (g < 0.0) ? 0.0 : g;
+					b = (b > 1.0) ? 1.0 : (b < 0.0) ? 0.0 : b;
+					colors[i][0] = (int) (r*255.0);
+					colors[i][1] = (int) (g*255.0);
+					colors[i][2] = (int) (b*255.0);
+//					colors[i] = new Color(
+//							(float) trapezoidal(i*2.0/765.0, 5.0/6.0),
+//							(float) trapezoidal(i*2.0/765.0, 1.0/6.0),
+//							(float) trapezoidal(i*2.0/765.0, 0.5));
 				}
 			}
 			public int getAlpha(int pixel) {
 				return 255;
 			}
 			public int getRed(int pixel) {
-				int index = (int) (pixel / (double) Integer.MAX_VALUE * 255.0);
-				return colors[index].getRed();
+				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
+				return colors[index][0];
 			}
 			public int getGreen(int pixel) {
-				int index = (int) (pixel / (double) Integer.MAX_VALUE * 255.0);
-				return colors[index].getGreen();
+				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
+				return colors[index][1];
 			}
 			public int getBlue(int pixel) {
-				int index = (int) (pixel / (double) Integer.MAX_VALUE * 255.0);
-				return colors[index].getBlue();
+				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
+				return colors[index][2];
 			}
 			@Override	// this is pretty hacky, but it works :)
 			public boolean isCompatibleRaster(Raster raster) {
 				return true;
 			}
-			private double trapezoidal(double d, double s) {
-				double res = 
-					Math.abs(6.0 * (((d + s) - Math.floor((d + s) - 0.5)) - 1.0)) - 1.0;
-				if (res > 1.0) {
-					res = 1.0;
-				} else if (res < 0.0) {
-					res = 0.0;
-				}
-				return res;
-			}
+//			private double trapezoidal(double d, double s) {
+//				double res = 
+//					Math.abs(6.0 * (((d + s) - Math.floor((d + s) - 0.5)) - 1.0)) - 1.0;
+//				if (res > 1.0) {
+//					res = 1.0;
+//				} else if (res < 0.0) {
+//					res = 0.0;
+//				}
+//				return res;
+//			}
 		};
 		
 		JScrollPane matScpn = new JScrollPane(matLbl);
@@ -283,21 +290,17 @@ public class SpecSimResultPanel extends JPanel {
 			NumberFormat formatter = new DecimalFormat("0.000");
 			@Override
 			protected void paintComponent(Graphics g) {
-				int width = getWidth(), height = getHeight(), heightInc = height/4, rest = height % 4;
-				Graphics2D g2 = (Graphics2D) g;
-				g2.setPaint(new GradientPaint(0.0f, 0.0f, Color.RED, 0.0f, heightInc, Color.YELLOW));
-				g2.fillRect(0, 0, width, heightInc);
-				g2.translate(0, heightInc);
-				g2.setPaint(new GradientPaint(0.0f, 0.0f, Color.YELLOW, 0.0f, heightInc, Color.GREEN));
-				g2.fillRect(0, 0, width, heightInc);
-				g2.translate(0, heightInc);
-				g2.setPaint(new GradientPaint(0.0f, 0.0f, Color.GREEN, 0.0f, heightInc, Color.CYAN));
-				g2.fillRect(0, 0, width, heightInc);
-				g2.translate(0, heightInc);
-				g2.setPaint(new GradientPaint(0.0f, 0.0f, Color.CYAN, 0.0f, heightInc, Color.BLUE));
-				g2.fillRect(0, 0, width, heightInc + rest);
-				g2.translate(0, heightInc * -3);
-
+				int width = getWidth(), height = getHeight();
+				for (int y = 0; y < height; y++) {
+					float colR = -Math.abs(y+1 - height*0.25f) * 4.0f/height + 1.5f;
+					float colG = -Math.abs(y+1 - height*0.50f) * 4.0f/height + 1.5f;
+					float colB = -Math.abs(y+1 - height*0.75f) * 4.0f/height + 1.5f;
+					colR = (colR > 1.0f) ? 1.0f : (colR < 0.0f) ? 0.0f : colR;
+					colG = (colG > 1.0f) ? 1.0f : (colG < 0.0f) ? 0.0f : colG;
+					colB = (colB > 1.0f) ? 1.0f : (colB < 0.0f) ? 0.0f : colB;
+					g.setColor(new Color(colR, colG, colB));
+					g.drawLine(0, y, width, y);
+				}
 				g.setColor(Color.GRAY);
 				int left = getBorder().getBorderInsets(this).left;
 				int right = width - getBorder().getBorderInsets(this).right - 1;
@@ -375,9 +378,9 @@ public class SpecSimResultPanel extends JPanel {
 					}
 					zoomImg = image.getSubimage(x, y, zoomWidth, zoomHeight);
 					zoomPnl.repaint();
-					infoTtf.setText(formatter.format(
-							specSimResult.getScoreMatrixImage().getRGB(
-									me.getX() + 1, me.getY() + 1) / (double) Integer.MAX_VALUE));
+					double red = ((specSimResult.getScoreMatrixImage().getRGB(
+							me.getX() + 1, me.getY() + 1) >> 16) & 0xFF) / 255.0;
+					infoTtf.setText(formatter.format(red));
 				}
 			}
 		});
