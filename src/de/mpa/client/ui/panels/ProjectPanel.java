@@ -158,7 +158,7 @@ public class ProjectPanel extends JPanel {
 		JScrollPane projectTblScp = setupProjectTable();
 		
 		// Setup the project management buttons.
-		JPanel projectBtnPnl = setupProjectButtonPnl();
+		JPanel projectBtnPnl = setupProjectButtonPanel();
 		
 		JPanel projectPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu, p, 5dlu"));
 		projectPnl.add(projectTblScp, CC.xy(2, 2));
@@ -174,7 +174,7 @@ public class ProjectPanel extends JPanel {
 		JScrollPane experimentTblScp = setupExperimentTable();
 
 		// Setup the experiment management buttons.
-		JPanel experimentBtnPnl = setupExperimentButtonPnl();
+		JPanel experimentBtnPnl = setupExperimentButtonPanel();
 		
 		JPanel experimentPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu, p, 5dlu"));
 		experimentPnl.add(experimentTblScp, CC.xy(2, 2));
@@ -187,7 +187,7 @@ public class ProjectPanel extends JPanel {
 		expTtlPnl.setTitleForeground(ttlForeground);
 		
 		// Next button
-		JPanel nextPnl = new JPanel(new FormLayout("r:p:g", "b:p:g"));
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g", "b:p:g"));
 		
 		JButton nextBtn = new JButton("Next",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/next.png")));
@@ -201,18 +201,18 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		nextPnl.add(nextBtn, CC.xy(1,1));
+		navPnl.add(nextBtn, CC.xy(1,1));
 
 		this.add(curProjTtlPnl, CC.xy(2, 2));
 		this.add(projTtlPnl, CC.xy(2, 4));
 		this.add(expTtlPnl, CC.xy(4, 4));
-		this.add(nextPnl, CC.xy(4, 6));
+		this.add(navPnl, CC.xy(4, 6));
 	}
 
 	/**
 	 * This method sets up the project management buttons.
 	 */
-	private JPanel setupProjectButtonPnl() {
+	private JPanel setupProjectButtonPanel() {
 		
 		// Manage the Projects
 		JPanel manageProjectsPnl = new JPanel();
@@ -298,7 +298,7 @@ public class ProjectPanel extends JPanel {
 	/**
 	 * This method sets up the experiment management buttons.
 	 */
-	private JPanel setupExperimentButtonPnl() {
+	private JPanel setupExperimentButtonPanel() {
 		
 		// Manage the Projects
 		JPanel manageExperimentsPnl = new JPanel();
@@ -347,7 +347,7 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int choice = JOptionPane.showConfirmDialog(clientFrame, "Are you sure you want to delete the selected experiment? Changes are irreversible.", "Delete Experiment", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				int choice = JOptionPane.showConfirmDialog(clientFrame, "Are you sure you want to delete the selected experiment?<br>Changes are irreversible.", "Delete Experiment", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 			
 				if (choice == JOptionPane.OK_OPTION) {
 					try {

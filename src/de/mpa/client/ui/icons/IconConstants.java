@@ -2,10 +2,13 @@ package de.mpa.client.ui.icons;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
 import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
 
 /**
  * Class holding icons and icon manipulation-related methods.
@@ -115,6 +118,20 @@ public class IconConstants {
 	/** @see IconConstants#DELETE_PAGE_ICON */
 	public static final ImageIcon DELETE_PAGE_PRESSED_ICON = createRescaledIcon(DELETE_PAGE_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/next.png"> */
+	public static final ImageIcon NEXT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/next.png"));
+	/** @see IconConstants#DELETE_PAGE_ICON */
+	public static final ImageIcon NEXT_ROLLOVER_ICON = createRescaledIcon(NEXT_ICON, 1.1f);
+	/** @see IconConstants#DELETE_PAGE_ICON */
+	public static final ImageIcon NEXT_PRESSED_ICON = createRescaledIcon(NEXT_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/next.png"> (flipped horizontally)*/
+	public static final ImageIcon PREV_ICON = createFlippedIcon(NEXT_ICON, SwingConstants.HORIZONTAL);
+	/** @see IconConstants#DELETE_PAGE_ICON */
+	public static final ImageIcon PREV_ROLLOVER_ICON = createRescaledIcon(PREV_ICON, 1.1f);
+	/** @see IconConstants#DELETE_PAGE_ICON */
+	public static final ImageIcon PREV_PRESSED_ICON = createRescaledIcon(PREV_ICON, 0.8f);
+	
 	/**
 	 * Rescales color space of a provided icon. Use to brighten or darken icons.
 	 * 
@@ -135,6 +152,24 @@ public class IconConstants {
 		float[] factors = new float[] { scale, scale, scale, 1.0f };
 		float[] offsets = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
 		RescaleOp op = new RescaleOp(factors, offsets, null);
+		
+		return new ImageIcon(op.filter(bi, null));
+	}
+	
+	public static ImageIcon createFlippedIcon(ImageIcon icon, int orientation) {
+		Image image = icon.getImage();
+		
+		// transfer image data to buffered image
+		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = bi.createGraphics();
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+
+		// flip pixel coordinates
+		AffineTransform tx = (orientation == SwingConstants.HORIZONTAL) ?
+				AffineTransform.getScaleInstance(-1, 1) : AffineTransform.getScaleInstance(1, -1);
+		tx.translate(-bi.getWidth(), 0);
+		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 		
 		return new ImageIcon(op.filter(bi, null));
 	}

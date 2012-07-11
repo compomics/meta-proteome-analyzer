@@ -125,8 +125,21 @@ public class GeneralDialog extends JDialog {
 			this.currentExpContent = (ExperimentContent) content;
 		}
 		initComponents();
-		this.setIconImage((type == DialogType.MODIFY_PROJECT || type == DialogType.NEW_PROJECT) ? IconConstants.ADD_FOLDER_ICON
-				.getImage() : IconConstants.ADD_PAGE_ICON.getImage());
+		// set frame icon
+		switch (type) {
+		case NEW_PROJECT:
+			this.setIconImage(IconConstants.ADD_FOLDER_ICON.getImage());
+			break;
+		case MODIFY_PROJECT:
+			this.setIconImage(IconConstants.VIEW_FOLDER_ICON.getImage());
+			break;
+		case NEW_EXPERIMENT:
+			this.setIconImage(IconConstants.ADD_PAGE_ICON.getImage());
+			break;
+		case MODIFY_EXPERIMENT:
+			this.setIconImage(IconConstants.VIEW_PAGE_ICON.getImage());
+			break;
+		}
 	}
 	
 	/**
@@ -412,7 +425,6 @@ public class GeneralDialog extends JDialog {
 
 			// Modify the project name
 			manager.modifyProjectName(currentProjContent.getProjectid(), nameTtf.getText());
-			id = currentProjContent.getProjectid();
 			
 			// Collect properties
 			collectProperties();
@@ -453,15 +465,15 @@ public class GeneralDialog extends JDialog {
 	}
 
 	/**
-	 * This method modify and delete experiment properties.
+	 * Modifies or deletes experiment properties.
 	 */
 	protected void modifyExperiment() {
 		try {
 			ProjectManager manager = new ProjectManager(client.getConnection());
 
 			// Modify the experiment name
+			// TODO: some foreign key constraint regarding the 'settings' table breaks updating, need to investigate
 			manager.modifyExperimentName(currentExpContent.getExperimentID(), nameTtf.getText());
-			id = currentExpContent.getProjectID();
 
 			// Collect properties
 			collectProperties();

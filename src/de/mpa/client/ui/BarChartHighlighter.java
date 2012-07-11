@@ -216,8 +216,14 @@ public class BarChartHighlighter extends PainterHighlighter {
 			JRendererLabel label = (JRendererLabel) component;
 			label.setHorizontalAlignment(SwingConstants.RIGHT);
 			// parse value and format label
-			double value = this.value.doubleValue();
-			label.setText(formatter.format(value));
+			double value;
+			if (this.value != null) {
+				value = this.value.doubleValue();
+				label.setText(formatter.format(value));
+			} else {
+				value = 0;
+				label.setText(null);
+			}
 			// correct value by specified minimum
 			value -= minValue;
 			double range = maxValue - minValue;

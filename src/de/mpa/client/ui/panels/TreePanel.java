@@ -235,15 +235,12 @@ public class TreePanel extends JPanel {
 						parent = childNode;
 					}
 				}
-				TaxonTreeNode proteinNode = new TaxonTreeNode(proteinHit);
 				
 				// Finally insert the protein itself.
+				TaxonTreeNode proteinNode = new TaxonTreeNode(proteinHit);
 				taxonTreeModel.insertNodeInto(proteinNode, parent, parent.getChildCount());
-//			} else {
-//				System.out.println(taxa.size());
-//				for (int i = 0; i < taxa.size(); i++) {
-//					System.out.println(taxa.get(i));
-//				}
+				// Insert spectrum count information which will propagate along all parents
+				proteinNode.setValueAt(proteinHit.getSpectrumIDs(), 3);
 //			}
 		}
 		int maxProtCount = 0, maxSpecCount = 0;

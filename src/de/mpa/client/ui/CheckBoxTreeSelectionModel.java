@@ -1,6 +1,7 @@
 package de.mpa.client.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -112,6 +113,10 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 			}
 		}
 		return true;
+	}
+	
+	public void addSelectionPaths(List<TreePath> paths) {
+		addSelectionPaths((TreePath[]) paths.toArray(new TreePath[0]));
 	}
 
 	// TODO: make path addition honor fixed state
