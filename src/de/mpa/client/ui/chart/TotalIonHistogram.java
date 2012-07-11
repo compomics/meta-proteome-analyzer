@@ -63,14 +63,14 @@ public class TotalIonHistogram extends Chart {
     @Override
     protected void setChart() {
         HistogramDataset dataset = new HistogramDataset();
-        dataset.setType(HistogramType.FREQUENCY);
+        dataset.setType(HistogramType.RELATIVE_FREQUENCY);
         
         // Dynamically set the bin size 
         // TODO: use a better formula for the bin size...
         dataset.addSeries(filename, dataArray, 40);
         chart = ChartFactory.createHistogram(getChartTitle(),
                 "Total Ion Count",
-                "Frequency",
+                "Rel. Frequency",
                 dataset,
                 PlotOrientation.VERTICAL,
                 false,

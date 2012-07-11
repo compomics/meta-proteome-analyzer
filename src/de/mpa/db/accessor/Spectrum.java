@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import de.mpa.db.MapContainer;
+import de.mpa.io.MascotGenericFile;
 
 public class Spectrum extends SpectrumTableAccessor {
 
@@ -31,12 +32,6 @@ public class Spectrum extends SpectrumTableAccessor {
      * @throws SQLException when the retrieval did not succeed.
      */
     public static Spectrum findFromTitle(String title, Connection aConn) throws SQLException {
-//    	String formatted = "";
-//    	if (omssa) {
-//    		formatted = title.replace("\\\\", "/");
-//    	} else {
-//    		formatted = title.replace('\\', '/');
-//    	}
     	Spectrum temp = null;
         // Only get the last 1500 records
         PreparedStatement ps = aConn.prepareStatement(Spectrum.getBasicSelect() +
@@ -56,6 +51,34 @@ public class Spectrum extends SpectrumTableAccessor {
         return temp;
     }
     
+    /**
+     * This method will find a spectrum file from the current connection, based on the spectrum name.
+     *
+     * @param title String with the spectrum name of the spectrum file to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return Spectrum Spectrum DAO with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static MascotGenericFile getSpectrumFileFromTitle(String title, Connection conn) throws SQLException {
+		MascotGenericFile res = null;
+        // Only get the last 1500 records
+        PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
+        		" WHERE title = ? ORDER BY creationdate");
+        ps.setString(1, title);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            res = new MascotGenericFile(rs);
+        }
+        rs.close();
+        ps.close();
+        return res;
+    }
+    
+    /**
+     * Returns the spectrum id for a provided title.
+     * @param title
+     * @return
+     */
     public static long getSpectrumIdFromTitle(String title) {
     	return getSpectrumIdFromTitle(title, false);
     }

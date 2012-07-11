@@ -5,6 +5,9 @@ public class JobConstants {
 	// Dataset path
 	public final static String TRANSFER_PATH = "/scratch/metaprot/data/transfer/";
 	
+	// Software path
+	public final static String MAIN_PATH = "/scratch/metaprot/software/";
+
 	// Path to the fasta files
 	public final static String FASTA_PATH = "/scratch/metaprot/data/fasta/";
 	

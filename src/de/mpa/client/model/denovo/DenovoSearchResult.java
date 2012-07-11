@@ -1,8 +1,11 @@
 package de.mpa.client.model.denovo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+
+import de.mpa.db.accessor.Pepnovohit;
+import de.mpa.io.MascotGenericFile;
 
 /**
  * The instance of the DenovoSearchResult class holds the results for the de-novo search result.
@@ -12,10 +15,15 @@ import java.util.TreeMap;
 public class DenovoSearchResult {
 	
 	/**
-	 * This map contains all the retrieved de-novo tag hits.
+	 * This map contains all the retrieved de novo hits.
 	 */
-	private Map<String, TagHit> tagHits = new HashMap<String, TagHit>();
+	private Map<String, List<Pepnovohit>> denovoHits = new HashMap<String, List<Pepnovohit>>();
 	
+	/**
+	 * Holds the title to spectrum id mapping.
+	 */
+	private Map<String, Long> titleToSpectrumIdMap = new HashMap<String, Long>();
+
 	/**
 	 * The project title.
 	 */
@@ -27,7 +35,7 @@ public class DenovoSearchResult {
 	private String experimentTitle;
 	
 	/**
-	 * The de-novo search result.
+	 * The de novo search result.
 	 * @param projectTitle The project title.
 	 * @param experimentTitle The experiment title.
 	 */
@@ -40,50 +48,28 @@ public class DenovoSearchResult {
 	 * Add a tag hit to the de-novo search result
 	 * @param tagHit The de-novo tag hit.
 	 */
-	public void addTagHit(TagHit tagHit){
-		
-			// The tag sequence
-			String tagSequence = tagHit.getTag().getGappedSeq();
-			
-			// Check if tag hit is already in the tag hit set.
-			if (tagHits.containsKey(tagSequence)) {
-				
-				// Current protein hit
-				TagHit currentTagHit = tagHits.get(tagSequence);
-					
-				// Get the first - and only - spectrum hit.
-				SpectrumHit spectrumHit = tagHit.getFirstSpectrumHit();
-				
-				// Get the current spectrum hits.
-				TreeMap<Long, SpectrumHit> currentSpectrumHits = currentTagHit.getSpectrumHits();
-				
-				// If the spectrum hit is not in the list of current hits.
-				if(!currentSpectrumHits.containsKey(spectrumHit.getSpectrumid())){
-					currentSpectrumHits.put(spectrumHit.getSpectrumid(), spectrumHit);
-					currentTagHit.setSpectrumHits(currentSpectrumHits);
-				} 
-			} else {
-				tagHits.put(tagSequence, tagHit);
-			}
+	public void addHitSet(String title, Long spectrumid, List<Pepnovohit> hits){
+		denovoHits.put(title, hits);
+		titleToSpectrumIdMap.put(title, spectrumid);
 	}
 	
 	/**
-	 * Returns the de-novo tag hits from the result set.
-	 * @return The de-novo tag hits.
+	 * Returns the spectrum id for a specific title.
+	 * @param title The spectrum title.
+	 * @return The spectrum id.
 	 */
-	public Map<String, TagHit> getTagHits() {
-		return tagHits;
+	public Long getSpectrumIdfromTitle(String title){
+		return titleToSpectrumIdMap.get(title);
 	}
-	
+
 	/**
-	 * Returns a specific de-novo tag hit.
-	 * @param tagSequence The tag sequence.
-	 * @return The de-novo tag hit for a corresponding sequence.
+	 * Returns all the de novo hits.
+	 * @return
 	 */
-	public TagHit getTagHit(String tagSequence){
-		return tagHits.get(tagSequence);
+	public Map<String, List<Pepnovohit>> getDenovoHits() {
+		return denovoHits;
 	}
-	
+
 	/**
 	 * Returns the project title.
 	 * @return The project title.
