@@ -25,9 +25,6 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
-import de.mpa.algorithms.denovo.DenovoTag;
-import de.mpa.algorithms.denovo.GappedPeptide;
-import de.mpa.algorithms.denovo.GappedPeptideCombiner;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.model.SpectrumMatch;
@@ -36,9 +33,6 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.denovo.DenovoSearchResult;
-import de.mpa.client.model.denovo.SpectrumHit;
-import de.mpa.client.model.denovo.Tag;
-import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.ServerConnectionSettings;
@@ -296,7 +290,12 @@ public class Client {
 		}
 		return denovoSearchResult;
 	}
-
+	
+	/**
+	 * This method retrieves the de novo result from the database for a specific project and experiment.
+	 * @param projContent The project content.
+	 * @param expContent The experiment content.
+	 */
 	private void retrieveDeNovoSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		try {
 			// Initialize the connection.
@@ -305,51 +304,35 @@ public class Client {
 			// The protein hit set, containing all information about found proteins.
 			denovoSearchResult = new DenovoSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle());
 			
+			// Set up progress monitoring
+			firePropertyChange("new message", null, "QUERYING DE NOVO SEARCH HITS");
+			pSupport.firePropertyChange("resetall", 0L, 100L);
+			pSupport.firePropertyChange("indeterminate", false, true);
+			
 			// Iterate over query spectra and get the different identification result sets
 			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
+			
+			long maxProgress = searchSpectra.size();
+			long curProgress = 0;
+			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
+			pSupport.firePropertyChange("indeterminate", true, false);
+			pSupport.firePropertyChange("resetall", 0L, maxProgress);
+			pSupport.firePropertyChange("resetcur", 0L, maxProgress);
+			
 			
 			// Iterate the search spectra.
 			for (Searchspectrum searchSpectrum : searchSpectra) {
 				
-				long searchSpectrumId = searchSpectrum.getSearchspectrumid();
-				// List for the Pepnovo hits.
-				List<Pepnovohit> pepnovoList = Pepnovohit.getHitsFromSpectrumID(searchSpectrumId, conn);
-				
-				// Fill the map with spectrum IDs as keys and pepnovo hits as values.
-				if(pepnovoList.size() > 0) {
-					
-					// Get the spectrum title
-					String spectrumTitle = Spectrum.findFromSpectrumID(searchSpectrum.getFk_spectrumid(), conn).getTitle();
-					
-					// Reduced pepnovo list
-					List<Pepnovohit> reducedList = new ArrayList<Pepnovohit>();
-					
-					// The list of gapped peptides.
-					List<GappedPeptide> gappedPeptides = new ArrayList<GappedPeptide>();
-					for (Pepnovohit pepnovoHit : pepnovoList) {
-						// Get the denovo-tag
+				long spectrumId = searchSpectrum.getSearchspectrumid();
+                // List for the Pepnovo hits.
+                List<Pepnovohit> hits = Pepnovohit.getHitsFromSpectrumID(spectrumId, conn);
+
+				Spectrum spectrum = Spectrum.findFromSpectrumID(searchSpectrum.getFk_spectrumid(), conn);
+				denovoSearchResult.addHitSet(spectrum.getTitle(), Long.valueOf(spectrumId), hits);
+				pSupport.firePropertyChange("progress", 0L, ++curProgress);
 						
-						//if(pepnovoHit.getPnvscore().doubleValue() > 30){
-							reducedList.add(pepnovoHit);
-							DenovoTag denovoTag = new DenovoTag(pepnovoHit);
-							gappedPeptides.add(new GappedPeptide(denovoTag.convertToGappedPeptideFormat()));
-						//}
-						
-					}
-					
-					// Get the spectrum hit
-					SpectrumHit spectrumHit = new SpectrumHit(searchSpectrumId, spectrumTitle, reducedList);
-					
-					// Construct the gapped peptide combiner object.
-					GappedPeptideCombiner combiner = new GappedPeptideCombiner(gappedPeptides, 0.5);
-					GappedPeptide peptide = combiner.getCombinedGappedPeptide();
-					Tag tag = new Tag(peptide.getGappedSequence(), peptide.getFormattedSequence(), peptide.getTotalMass());
-					
-					// Add the tag hit.
-					denovoSearchResult.addTagHit(new TagHit(tag, spectrumHit));
-						
-				}
 			}
+			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
@@ -478,6 +461,17 @@ public class Client {
 	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromSearchSpectrumID(searchspectrumID);
+	}
+	
+	/**
+	 * Queries the database to retrieve a spectrum file belonging to a specific spectrum title.
+	 * @param title The spectrum title.
+	 * @return The corresponding spectrum file object.
+	 * @throws SQLException
+	 */
+	public MascotGenericFile getSpectrumFromTitle(String title) throws SQLException {
+		initDBConnection();
+		return Spectrum.getSpectrumFileFromTitle(title, conn);
 	}
 	
 	/**

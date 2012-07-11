@@ -176,7 +176,8 @@ public class DBManager {
 	 */
 	public void storePepnovoResults(String pepnovoFilename) throws IOException, SQLException, InterruptedException {
 		spectraThread.join();
-		executor.execute(new PepnovoStorager(conn, new File(pepnovoFilename)));
+		PepnovoStorager job = new PepnovoStorager(conn, new File(pepnovoFilename));
+		job.run();
 	}
 	
 	/**

@@ -37,8 +37,6 @@ public class PepnovoStorager extends BasicStorager {
      */
     private Connection conn;
     
-   
-    
     /**
      * Constructor with spectrumid as parameter.
      * @param spectrumid

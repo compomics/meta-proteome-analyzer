@@ -7,51 +7,55 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
+import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 
-import org.jdesktop.swingx.JXMultiSplitPane;
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.MultiSplitLayout;
-import org.jdesktop.swingx.painter.Painter;
 import org.jfree.chart.plot.PlotOrientation;
 
+import com.compomics.util.experiment.biology.Ion;
+import com.compomics.util.experiment.biology.Peptide;
+import com.compomics.util.experiment.biology.ions.PeptideFragmentIon;
+import com.compomics.util.experiment.identification.NeutralLossesMap;
+import com.compomics.util.experiment.identification.SpectrumAnnotator;
+import com.compomics.util.experiment.identification.matches.IonMatch;
+import com.compomics.util.experiment.identification.matches.ModificationMatch;
+import com.compomics.util.experiment.massspectrometry.Charge;
+import com.compomics.util.experiment.massspectrometry.MSnSpectrum;
+import com.compomics.util.experiment.massspectrometry.Peak;
+import com.compomics.util.experiment.massspectrometry.Precursor;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.model.denovo.DenovoSearchResult;
-import de.mpa.client.model.denovo.SpectrumHit;
-import de.mpa.client.model.denovo.Tag;
-import de.mpa.client.model.denovo.TagHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Pepnovohit;
-import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 
 public class DeNovoResultPanel extends JPanel {
@@ -59,14 +63,14 @@ public class DeNovoResultPanel extends JPanel {
 	private ClientFrame clientFrame;
 	private Client client;
 	private JXTable spectraTbl;
-	private JXTable peptideTagsTbl;
 	protected Object filePnl;
 	private DenovoSearchResult denovoSearchResult;
-	private JPanel spectrumJPanel;
+	private Map<Integer, Pepnovohit> denovoHits = new HashMap<Integer, Pepnovohit>();
+	private SpectrumPanel spectrumPanel;
+    private JPanel spectrumJPanel;
 	private JXTable solutionsTbl;
-	private SpectrumPanel specPnl;
-	private HashMap<Integer, SpectrumHit> currentSpectrumHits = new HashMap<Integer, SpectrumHit>();
 	private JButton getResultsBtn;
+	private MascotGenericFile mgf;
 	
 	/**
 	 * The DeNovoResultPanel.
@@ -83,25 +87,23 @@ public class DeNovoResultPanel extends JPanel {
 	 */
 	private void initComponents() {
 		CellConstraints cc = new CellConstraints();
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, t:p:g, 5dlu, t:p:g, 5dlu"));
 		
-		// Init titled panel variables.
-		Font ttlFont = PanelConfig.getTitleFont();
-		Border ttlBorder = PanelConfig.getTitleBorder();
-		Painter ttlPainter = PanelConfig.getTitlePainter();
-		
-		JScrollPane denovoTagsScp = new JScrollPane();
+        // Build the spectrum overview panel
+        JPanel spectrumOverviewPnl = new JPanel(new BorderLayout());
+        spectrumJPanel = new JPanel();
+        spectrumJPanel.setLayout(new BorderLayout());
+        spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
+        spectrumJPanel.add(new SpectrumPanel(new double[]{0.0, 100.0}, new double[]{100.0, 0.0}, 0.0, "", ""));
+        spectrumJPanel.setPreferredSize(new Dimension(100, 400));
+        spectrumOverviewPnl.add(spectrumJPanel);
 
-		final JPanel denovoTagsPnl = new JPanel();
-		denovoTagsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		JXTitledPanel specTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", spectrumOverviewPnl);
 		
 		// Setup the tables
-		setupDenovoSearchResultTableProperties();
-		setupSolutionsTableProperties();
+		setupSpectraTableProperties();
+		setupDenovoTableProperties();
 
-		denovoTagsScp.setViewportView(peptideTagsTbl);
-		denovoTagsScp.setPreferredSize(new Dimension(800, 200));
-		
 		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
 		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
 		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
@@ -110,48 +112,20 @@ public class DeNovoResultPanel extends JPanel {
 
 		getResultsBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
 		getResultsBtn.setFocusPainted(false);
-
 		getResultsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
-				denovoSearchResult = client.getDenovoSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
-				
-				// Check if any results are stored in the database.
-				if(denovoSearchResult.getTagHits().size() > 0){
-					clearDenovoTagResultTable();
-					updatePeptideTagsTable();
-					peptideTagsTbl.getSelectionModel().setSelectionInterval(0, 0);
-					queryPeptideTagsTableMouseClicked(null);
-					spectraTbl.getSelectionModel().setSelectionInterval(0, 0);
-					querySpectrumTableMouseClicked(null);
-					solutionsTbl.getSelectionModel().setSelectionInterval(0, 0);
-				} 
-				// TODO: Signalize the user that there are no results.
+					getResultsButtonPressed();
 			}
 		});
-		
-		denovoTagsPnl.add(denovoTagsScp, cc.xy(2, 2));
-		
-		JXTitledPanel denovoTagsTtlPnl = new JXTitledPanel("De-novo Tags", denovoTagsPnl);
-		denovoTagsTtlPnl.setRightDecoration(getResultsBtn);
-		denovoTagsTtlPnl.setTitleFont(ttlFont);
-		denovoTagsTtlPnl.setTitlePainter(ttlPainter);
-		denovoTagsTtlPnl.setBorder(ttlBorder);
-
 		
 		// Spectra panel.
 		JPanel spectraPnl = new JPanel();
 		spectraPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		
-		JXTitledPanel specHitsTtlPnl = new JXTitledPanel("Spectrum Hits", spectraPnl);
-		specHitsTtlPnl.setTitleFont(ttlFont);
-		specHitsTtlPnl.setTitlePainter(ttlPainter);
-		specHitsTtlPnl.setBorder(ttlBorder);
-		
+		JXTitledPanel specHitsTtlPnl = PanelConfig.createTitledPanel("Query Spectra", spectraPnl);
 		JScrollPane spectraTblScp = new JScrollPane(spectraTbl);
-		spectraTblScp.setPreferredSize(new Dimension(400, 150));
+		spectraTblScp.setPreferredSize(new Dimension(400, 230));
 		
 		spectraTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		spectraTblScp.setToolTipText("Select spectra");
@@ -159,51 +133,25 @@ public class DeNovoResultPanel extends JPanel {
 		
 		JScrollPane solutionsTblScp = new JScrollPane();
 		solutionsTblScp.setViewportView(solutionsTbl);
-		solutionsTblScp.setPreferredSize(new Dimension(400, 150));
+		solutionsTblScp.setPreferredSize(new Dimension(550, 230));
 		
 		final JPanel solutionsPnl = new JPanel();
 		solutionsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		solutionsPnl.add(solutionsTblScp, cc.xy(2, 2));
 		
-		JXTitledPanel solutionsTtlPnl = new JXTitledPanel("Solutions", solutionsPnl);
-		solutionsTtlPnl.setTitleFont(ttlFont);
-		solutionsTtlPnl.setTitlePainter(ttlPainter);
-		solutionsTtlPnl.setBorder(ttlBorder);
+		JXTitledPanel solutionsTtlPnl = PanelConfig.createTitledPanel("De Novo Hits", solutionsPnl);
 		
 		// Peptide and Psm Panel
 		JPanel bottomPnl = new JPanel(new FormLayout("p:g","f:p:g,f:p:g"));
 		
 		bottomPnl.add(specHitsTtlPnl, cc.xy(1, 1));
 		bottomPnl.add(solutionsTtlPnl, cc.xy(1, 2));
+		
 
-		JPanel spectrumOverviewPnl = new JPanel(new BorderLayout(5,5));
-		
-		spectrumJPanel = new JPanel();
-		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
-		spectrumJPanel.setBackground(Color.WHITE);
-		spectrumJPanel.setBorder(BorderFactory.createEtchedBorder());
-		spectrumJPanel.setOpaque(false);
-
-		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
-				
-		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
-		specTtlPnl.setTitleFont(ttlFont);
-		specTtlPnl.setTitlePainter(ttlPainter);
-		specTtlPnl.setBorder(ttlBorder);
-		
-		String layoutDef =
-		    "(COLUMN denovotags (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=spechits) (LEAF weight=0.5 name=solutions)) plot))";
-		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
-		
-		final JXMultiSplitPane multiSplitPane = new JXMultiSplitPane();
-		multiSplitPane.setDividerSize(12);
-		multiSplitPane.getMultiSplitLayout().setModel(modelRoot);
-		multiSplitPane.add(denovoTagsTtlPnl, "denovotags");
-		multiSplitPane.add(specHitsTtlPnl, "spechits");
-		multiSplitPane.add(solutionsTtlPnl, "solutions");
-		multiSplitPane.add(specTtlPnl, "plot");
-		
-		this.add(multiSplitPane, cc.xy(2, 2));
+		specTtlPnl.setRightDecoration(getResultsBtn);
+	    this.add(specTtlPnl, cc.xyw(2, 2, 3));
+	    this.add(specHitsTtlPnl, cc.xy(2, 4));
+	    this.add(solutionsTtlPnl, cc.xy(4, 4));
 	}
 
 	/**
@@ -214,17 +162,7 @@ public class DeNovoResultPanel extends JPanel {
 		while (solutionsTbl.getRowCount() > 0) {
 			((DefaultTableModel) solutionsTbl.getModel()).removeRow(0);
 		}
-	}
-	
-	/**
-	 * Clears the denovotag result table.
-	 */
-	private void clearDenovoTagResultTable() {
-		// Remove PSMs from all result tables        	 
-		while (peptideTagsTbl.getRowCount() > 0) {
-			((DefaultTableModel) peptideTagsTbl.getModel()).removeRow(0);
-		}
-	}
+	}	
 	
 	/**
 	 * Clears the spectrum table.
@@ -236,269 +174,334 @@ public class DeNovoResultPanel extends JPanel {
 		}
 	}
 	
-	/**
-	 * Setup the de-novo search result. 
-	 */
-	private void setupDenovoSearchResultTableProperties(){
-		// Query table
-		peptideTagsTbl = new JXTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Formatted Sequence", "Gapped Sequence", "Tag Count", "Total Mass"}); }
 
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-		
-		TableColumnModel tcm = peptideTagsTbl.getColumnModel();
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		
-		peptideTagsTbl.getColumn(" ").setMinWidth(30);
-		peptideTagsTbl.getColumn(" ").setMaxWidth(30);
-		peptideTagsTbl.getColumn("Tag Count").setMinWidth(100);
-		peptideTagsTbl.getColumn("Tag Count").setMaxWidth(100);
-		peptideTagsTbl.getColumn("Total Mass").setMinWidth(80);
-		peptideTagsTbl.getColumn("Total Mass").setMaxWidth(80);
-		
-		// Only one row is selectable
-		peptideTagsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		// Enables column control
-		peptideTagsTbl.setColumnControlVisible(true);
-		
-		
-		peptideTagsTbl.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent evt) {
-				queryPeptideTagsTableMouseClicked(evt);
-				
-				// Select first row of spectra table
-				spectraTbl.getSelectionModel().setSelectionInterval(0, 0);	
-				
-				// Creates spectra table
-				querySpectrumTableMouseClicked(evt);
-				
-				// Select first row of solutions table
-				solutionsTbl.getSelectionModel().setSelectionInterval(0, 0);	
-
-			}
-		});
-
-		peptideTagsTbl.addKeyListener(new java.awt.event.KeyAdapter() {
-			@Override
-			public void keyReleased(java.awt.event.KeyEvent evt) {
-				queryPeptideTagsTableKeyReleased(evt);
-				
-				// Select first row of spectra table
-				spectraTbl.getSelectionModel().setSelectionInterval(0, 0);	
-				
-				// Creates spectra table
-				querySpectrumTableMouseClicked(null);
-				
-				// Select first row of solutions table
-				solutionsTbl.getSelectionModel().setSelectionInterval(0, 0);	
-			}
-		});
-		
-		spectraTbl = new JXTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Spectrum Title", "No. Solutions"}); }
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-		
-		TableColumnModel spectraTblMdl = spectraTbl.getColumnModel();
-		spectraTblMdl.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		
-		spectraTbl.getColumn(" ").setMinWidth(30);
-		spectraTbl.getColumn(" ").setMaxWidth(30);
-		spectraTbl.getColumn("No. Solutions").setMinWidth(90);
-		spectraTbl.getColumn("No. Solutions").setMaxWidth(90);
-		spectraTbl.getColumn("No. Solutions").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL,(double) 10, true));
-		((JSparklinesBarChartTableCellRenderer) spectraTbl.getColumn("No. Solutions").getCellRenderer()).showNumberAndChart(true, 25, UIManager.getFont("Label.font").deriveFont(12f), SwingConstants.LEFT);
-		
-		// Only one row is selectable
-		spectraTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		// Enables column control
-		spectraTbl.setColumnControlVisible(true);
-		
-		spectraTbl.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent evt) {
-				querySpectrumTableMouseClicked(evt);
-			}
-		});
 	
-		spectraTbl.addKeyListener(new java.awt.event.KeyAdapter() {
-			@Override
-			public void keyReleased(java.awt.event.KeyEvent evt) {
-				querySpectrumTableMouseClicked(null);
-			}
-		});
-	}
-	
-	/**
-	 * This method sets up the de-novo solutions table.
-	 */
-	private void setupSolutionsTableProperties(){
-		// Peptide table
-		solutionsTbl = new JXTable(new DefaultTableModel() {
-			// instance initializer block
-			{ setColumnIdentifiers(new Object[] {" ", "Sequence", "N-Gap", "C-Gap", "Score", "z"}); }
-	
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-		});
-		
-		
-		TableColumnModel tcm = solutionsTbl.getColumnModel();
-		tcm.getColumn(0).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		
-		solutionsTbl.getColumn(" ").setMinWidth(30);
-		solutionsTbl.getColumn(" ").setMaxWidth(30);
-		solutionsTbl.getColumn("Score").setMinWidth(100);
-		solutionsTbl.getColumn("Score").setMaxWidth(100);
-		solutionsTbl.getColumn("N-Gap").setMinWidth(60);
-		solutionsTbl.getColumn("N-Gap").setMaxWidth(60);
-		solutionsTbl.getColumn("C-Gap").setMinWidth(60);
-		solutionsTbl.getColumn("C-Gap").setMaxWidth(60);
-		solutionsTbl.getColumn("z").setMinWidth(30);
-		solutionsTbl.getColumn("z").setMaxWidth(30);
-		
-		// Only one row is selectable
-		solutionsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		// Enables column control
-		solutionsTbl.setColumnControlVisible(true);
-	}
-
-	/**
-	 * @see #queryPeptideTagsTableKeyReleased(java.awt.event.MouseEvent)
-	 */
-	private void queryPeptideTagsTableKeyReleased(KeyEvent evt) {
-		queryPeptideTagsTableMouseClicked(null);
-	}
-
-	/**
-	 * Update the spectrum table based on the peptide tag selected.
-	 * 
-	 * @param evt
-	 */
-	private void queryPeptideTagsTableMouseClicked(MouseEvent evt) {
-		// Set the cursor into the wait status.
-		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-		
-		int row = peptideTagsTbl.getSelectedRow();
-		// Condition if one row is selected.
-		if (row != -1) {
-			
-			// Empty tables.
-			clearSpectrumTable();
-			clearDenovoHitResultTable();
-			
-			// Counter variable
-			int i = 1;
-			String tagSequence = peptideTagsTbl.getValueAt(row, 2).toString();
-			TagHit tagHit = denovoSearchResult.getTagHit(tagSequence);
-			
-			// Iterate all spectrum hits.
-			for(Entry entry : tagHit.getSpectrumHits().entrySet()){
-				
-				// Get the spectrum hit
-				SpectrumHit spectrumHit = (SpectrumHit) entry.getValue();
-				
-				// Add the current spectrum hit to the map
-				currentSpectrumHits.put(i, spectrumHit);
-				((DefaultTableModel) spectraTbl.getModel()).addRow(new Object[]{
-						i ,
-						spectrumHit.getSpectrumTitle(),
-						spectrumHit.getNumberOfSolutions()
-						});
-				i++;
-			}
-		}
-		// Set the cursor back into the default status.
-		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-	}
-	
-	/**
-	 * Update the solutions table based on the spectrum selected.
-	 * 
-	 * @param evt
-	 */
-	private void querySpectrumTableMouseClicked(MouseEvent evt) {
-		// Set the cursor into the wait status.
-		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-		
-		int row = spectraTbl.getSelectedRow();
-		// Condition if one row is selected.
-		if (row != -1) {
-			
-			// Empty spectrum panel.
-            while (spectrumJPanel.getComponents().length > 0) {
-                spectrumJPanel.remove(0);
+    /**
+     * This method prepares the denovo hits table.
+     */
+    private void setupDenovoTableProperties() {
+    	solutionsTbl = new JXTable(new DefaultTableModel() {
+            // instance initializer block
+            {
+                setColumnIdentifiers(new Object[]{"#", "Peptide", "Score", "N-Gap", "C-Gap", "m/z", "Charge"});
             }
-            clearDenovoHitResultTable();
-            
-			// Counter variable
-			int i = 1;
-			SpectrumHit spectrumHit = currentSpectrumHits.get(Integer.valueOf(spectraTbl.getValueAt(row, 0).toString()));
-			Searchspectrum searchSpectrum;
-			try {
-				searchSpectrum = Searchspectrum.findFromSearchSpectrumID(spectrumHit.getSpectrumid(), client.getConnection());
-				MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(searchSpectrum.getFk_spectrumid(), client.getConnection());
-				specPnl = new SpectrumPanel(mgf);
-				spectrumJPanel.add(specPnl);
-		        spectrumJPanel.validate();
-		        spectrumJPanel.repaint();
-		        
-		        List<Pepnovohit> denovoHits = spectrumHit.getDenovoHits();
-				for (Pepnovohit pepnovohit : denovoHits) {
-					((DefaultTableModel) solutionsTbl.getModel()).addRow(new Object[]{
-							i,
-							pepnovohit.getSequence(),
-							pepnovohit.getN_gap().doubleValue(),
-							pepnovohit.getC_gap().doubleValue(),
-							pepnovohit.getPnvscore(),
-							"+" + pepnovohit.getCharge()
-							});
-					i++;
-				}
+
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+
+            public Class<?> getColumnClass(int columnIndex) {
+                switch (columnIndex) {
+                    case 0:
+                    case 6:
+                        return Integer.class;
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        return Double.class;
+                    default:
+                        return String.class;
+                }
+            }
+
+        });
+
+        // JSparklines for Scoring
+    	solutionsTbl.getColumn("Score").setCellRenderer(new JSparklinesBarChartTableCellRenderer(PlotOrientation.HORIZONTAL, 100.0, new Color(110, 196, 97)));
+        ((JSparklinesBarChartTableCellRenderer) solutionsTbl.getColumn("Score").getCellRenderer()).showNumberAndChart(true, 50, new Font("Arial", Font.PLAIN, 12), 0);
+
+        TableConfig.setColumnWidths(solutionsTbl, new double[]{1, 10, 8, 3, 3, 4, 3});
+        TableColumnModel tcm = solutionsTbl.getColumnModel();
+        tcm.getColumn(0).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.RIGHT));
+
+        // Sort the peptide table by the number of peptide hits
+        solutionsTbl.setAutoCreateRowSorter(true);
+
+        // register list selection listener
+        solutionsTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                refreshSpectrumPanel();
+                updateAnnotations();
+            }
+        });
+
+        // Single selection only
+        solutionsTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        solutionsTbl.setSelectionBackground(new Color(130, 207, 250));
+
+        // Add nice striping effect
+        solutionsTbl.addHighlighter(TableConfig.getSimpleStriping());
+
+        // Enables column control
+        solutionsTbl.setColumnControlVisible(true);
+    }
+
+    /**
+     * This method sets the spectra table up.
+     */
+    private void setupSpectraTableProperties() {
+        // Query table
+        spectraTbl = new JXTable(new DefaultTableModel() {
+            // instance initializer block
+            {
+                setColumnIdentifiers(new Object[]{"#", "Spectrum Title"});
+            }
+
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+
+            public Class<?> getColumnClass(int columnIndex) {
+                switch (columnIndex) {
+                    case 0:
+                        return Integer.class;
+                    case 1:
+                        return String.class;
+                    default:
+                        return String.class;
+                }
+            }
+        });
+
+        TableConfig.setColumnWidths(spectraTbl, new double[]{1, 10});
+        TableColumnModel tcm = spectraTbl.getColumnModel();
+        tcm.getColumn(0).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.RIGHT));
+
+        // Sort the peptide table by the number of peptide hits
+        spectraTbl.setAutoCreateRowSorter(true);
+        spectraTbl.getRowSorter().toggleSortOrder(0);
+
+        // register list selection listener
+        spectraTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                refreshSpectrumPanel();
+                refreshDenovoTable();
+            }
+        });
+
+        // Single selection only
+        spectraTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        spectraTbl.setSelectionBackground(new Color(130, 207, 250));
+
+        // Add nice striping effect
+        spectraTbl.addHighlighter(TableConfig.getSimpleStriping());
+
+        // Enables column control
+        spectraTbl.setColumnControlVisible(true);
+    }
+
+    /**
+     * Updates the spectrum panel.
+     */
+    private void refreshSpectrumPanel() {
+        
+        int row = spectraTbl.getSelectedRow();
+        
+        if (row != -1) {
+        	// TODO: Exception handling!
+        	String title = (String) spectraTbl.getValueAt(row, spectraTbl.convertColumnIndexToView(1));
+        	try {
+				mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(denovoSearchResult.getSpectrumIdfromTitle(title));
+				// convert the spectrum
+	            ArrayList<Charge> precursorCharges = new ArrayList<Charge>();
+	            precursorCharges.add(new Charge(mgf.getCharge(), Charge.PLUS));
+	            HashMap<Double,Peak> peakMap = new HashMap<Double, Peak>();
+	            HashMap<Double,Double> mgfPeaks = mgf.getPeaks();
+	            Iterator<Double> iterator = mgfPeaks.keySet().iterator();
+	            while (iterator.hasNext()) {
+	                Double mass = iterator.next();
+	                peakMap.put(mass, new Peak(mass, mgfPeaks.get(mass)));
+	            }
+	            MSnSpectrum currentSpectrum = new MSnSpectrum(2, new Precursor(0.0, mgf.getPrecursorMZ(), precursorCharges), mgf.getTitle(), peakMap, mgf.getFilename());
+
+	            spectrumPanel = new SpectrumPanel(
+	                            currentSpectrum.getMzValuesAsArray(), currentSpectrum.getIntensityValuesAsArray(),
+	                            mgf.getPrecursorMZ(), mgf.getCharge() + "+",
+	                            "", 40, false, false, false, 2, false);
+	            
+	            spectrumJPanel.removeAll();
+	            spectrumJPanel.add(spectrumPanel);
+	            spectrumJPanel.revalidate();
+	            spectrumJPanel.repaint();
+				
 			} catch (SQLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				JXErrorPane.showDialog(e);
 			}
-			
-		}
-		// Set the cursor back into the default status.
-		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    /**
+     * Updates the annotations.
+     */
+    private void updateAnnotations() {
+        int row = solutionsTbl.getSelectedRow();
+        if (row != -1) {
+            Pepnovohit hit = denovoHits.get(solutionsTbl.convertRowIndexToModel(row)); // @TODO: this only works if the table is no sorted!!
+            if (hit != null) {
+                addAnnotations(hit);
+            }
+        }
+    }
+    
+    /**
+     * Adds spectrum annotations based on the selected de novo hit.
+     * 
+     * @param hit 
+     */
+    private void addAnnotations(Pepnovohit hit) {
+        
+        int row = spectraTbl.getSelectedRow();
+        
+        if (row != -1) {
+            // convert the spectrum
+            ArrayList<Charge> precursorCharges = new ArrayList<Charge>();
+            precursorCharges.add(new Charge(mgf.getCharge(), Charge.PLUS));
+            HashMap<Double,Peak> peakMap = new HashMap<Double, Peak>();
+            HashMap<Double,Double> mgfPeaks = mgf.getPeaks();
+            Iterator<Double> iterator = mgfPeaks.keySet().iterator();
+            while (iterator.hasNext()) {
+                Double mass = iterator.next();
+                peakMap.put(mass, new Peak(mass, mgfPeaks.get(mass)));
+            }
+            MSnSpectrum currentSpectrum = new MSnSpectrum(2, new Precursor(0.0, mgf.getPrecursorMZ(), precursorCharges), "no title", peakMap, "no filename");
+
+            // add the annotations
+            SpectrumAnnotator spectrumAnnotator = new SpectrumAnnotator();
+
+            HashMap<Ion.IonType, ArrayList<Integer>> ionTypes = new HashMap<Ion.IonType, ArrayList<Integer>>();
+            ArrayList<Integer> ions = new ArrayList<Integer>();
+            ions.add(PeptideFragmentIon.B_ION); // @TODO: ion types should not be hardcoded but rather based on the annotation menu bar!!
+            ions.add(PeptideFragmentIon.Y_ION);
+            ionTypes.put(Ion.IonType.PEPTIDE_FRAGMENT_ION, ions);
+
+            ArrayList<Integer> charges = new ArrayList<Integer>();
+            charges.add(1); // @TODO: charge should not be hardcoded but rather be based on the user selection in the annotation menu bar!!
+
+            Peptide currentPeptide = new Peptide(hit.getSequence(), new ArrayList<String>(), new ArrayList<ModificationMatch>()); // @TODO: add ptms!!
+
+            ArrayList<IonMatch> annotations = spectrumAnnotator.getSpectrumAnnotation(
+                            ionTypes,
+                            new NeutralLossesMap(), // @TODO: extend this to support neutral losses in the annotations
+                            charges,
+                            (int) hit.getCharge(),
+                            currentSpectrum, currentPeptide,
+                            currentSpectrum.getIntensityLimit(0.0), // @TODO: should not be hardcoded?
+                            0.5, // @TODO: get fragment ion mass error from the search parameters! 
+                            false);
+
+            spectrumPanel.setAnnotations(SpectrumAnnotator.getSpectrumAnnotation(annotations));
+            
+            // add de novo sequencing
+            spectrumPanel.addAutomaticDeNovoSequencing(currentPeptide, annotations, 
+                    PeptideFragmentIon.B_ION, // @TODO: choose the forward fragment ion type from the annotation menu bar!!
+                    PeptideFragmentIon.Y_ION, // @TODO: choose the reverse fragment ion type from the annotation menu bar!!
+                    1, // @TODO: get the charge from the annotation menu bar!!
+                    true, // @TODO: get if forward ions are to be shown or not from the annotation menu bar!!
+                    true); // @TODO: get if reverse ions are to be shown or not from the annotation menu bar!!
+        }
+    }
+
+    /**
+     * Update the denovo hit table based on the spectrum selected via mouse click.
+     */
+    private void refreshDenovoTable() {
+        // Set the cursor into the wait status.
+        this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
+        TableConfig.clearTable(solutionsTbl);
+
+        int row = spectraTbl.getSelectedRow();
+        
+        // Condition if one row is selected.
+        if (row != -1) {
+
+            String title = spectraTbl.getValueAt(row, spectraTbl.convertColumnIndexToView(1)).toString();
+            Map<String, List<Pepnovohit>> hits = denovoSearchResult.getDenovoHits();
+            if (hits.containsKey(title)) {
+                List<Pepnovohit> pepnovoList = hits.get(title);
+
+                for (int i = 0; i < pepnovoList.size(); i++) {
+                	Pepnovohit hit = pepnovoList.get(i);
+                    if (hit != null) {
+                        denovoHits.put(i, hit);
+                        ((DefaultTableModel) solutionsTbl.getModel()).addRow(new Object[]{
+                                i + 1,
+                                hit.getSequence(),
+                                hit.getPnvscore().doubleValue(),
+                                hit.getN_gap().doubleValue(),
+                                hit.getC_gap().doubleValue(),
+                                hit.getPrecursor_mh().doubleValue(),
+                                hit.getCharge()
+                        });
+                    }
+                }
+            }
+            solutionsTbl.getSelectionModel().setSelectionInterval(0, 0);
+        }
+        // Set the cursor back into the default status.
+        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+    /**
+     * Method invoked when the Get Results button is pressed.
+     */
+    protected void getResultsButtonPressed() {
+		ResultsTask resultsTask = new ResultsTask();
+		resultsTask.execute();
+		
 	}
 	
-	/**
-	 * Updates the peptide tags table.
-	 */
-	public void updatePeptideTagsTable(){
-		int i = 1;
-		// Iterate the found protein results
-		if(denovoSearchResult != null){
-			for (Entry entry : denovoSearchResult.getTagHits().entrySet()){
+    /**
+     * Task for fetching the results from the database.
+     * @author T. Muth
+     *
+     */
+	private class ResultsTask extends SwingWorker {
+
+		protected Object doInBackground() throws Exception {
+			try {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				// Fetch the database search result.
+				denovoSearchResult = client.getDenovoSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
 				
-				// Get the de novo tag hit.
-				TagHit denovoTagHit = (TagHit) entry.getValue();
-				Tag tag = denovoTagHit.getTag();
-				((DefaultTableModel) peptideTagsTbl.getModel()).addRow(new Object[] {
-						i++,
-						tag.getFormattedSeq(),
-						tag.getGappedSeq(),
-						denovoTagHit.getTagSpecCount(),
-						tag.getTotalMass()});
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			finished();
+			return 0;
+		}
+
+		/**
+		 * Continues when the results retrieval has finished.
+		 */
+		public void finished() {
+			// Check if any results are stored in the database.
+			if(denovoSearchResult.getDenovoHits().size() > 0){
+				refreshSpectraTable();
+				refreshDenovoTable();
+			}
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
+    /**
+     * This method updates the spectra table.
+     */
+    private void refreshSpectraTable() {
+        TableConfig.clearTable(spectraTbl);
+        Set<String> titleSet = denovoSearchResult.getDenovoHits().keySet();
+        int count = 1;
+        if (titleSet != null) {
+	        for (String title : titleSet) {
+	        	((DefaultTableModel) spectraTbl.getModel()).addRow(new Object[]{
+	                    count++,
+	                    title,
+	            });
+			}
+            spectraTbl.getSelectionModel().setSelectionInterval(0, 0);
+        }
+    }
+
 	
 	/**
 	 * This method sets the enabled state of the get results button.

@@ -39,6 +39,7 @@ public class Masses extends HashMap<String, Double> {
     public static final double V = 99.068414;
     public static final double W = 186.079313;
     public static final double Y = 163.06332;
+    public static final double X = 0.0;
 
     /**
      * The mass of Hydrogen

@@ -3,7 +3,6 @@ package de.mpa.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -49,18 +48,8 @@ public class SearchSettings {
     protected SpecSimSettings sss;
     @XmlElement(nillable = true)
     protected List<String> filenames;
-    
-    public SearchSettings() {
-	}
-    
-    public SearchSettings(DbSearchSettings dbss, SpecSimSettings sss, DenovoSearchSettings dnss, long expID) {
-    	this.dbss = dbss;
-    	this.sss = sss;
-    	this.dnss = dnss;
-    	this.expID = expID;
-	}
 
-	/**
+    /**
      * Gets the value of the dbss property.
      * 
      * @return
@@ -176,29 +165,5 @@ public class SearchSettings {
         }
         return this.filenames;
     }
-    
-    /**
-     * Returns whether database search shall be performed.
-     * @return
-     */
-    public boolean isDatabase() {
-            return (dbss != null); 
-    }
 
-    /**
-     * Returns whether spectral similarity search shall be performed.
-     * @return
-     */
-    public boolean isSpecSim() {
-            return (sss != null); 
-    }
-
-    /**
-     * Returns whether de novo search shall be performed.
-     * @return
-     */
-    public boolean isDeNovo() {
-            return (dnss != null); 
-    }
-    
 }

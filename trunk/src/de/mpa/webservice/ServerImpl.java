@@ -30,6 +30,7 @@ import de.mpa.job.JobStatus;
 import de.mpa.job.SearchType;
 import de.mpa.job.instances.CommonJob;
 import de.mpa.job.instances.CruxJob;
+import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
 import de.mpa.job.instances.MS2FormatJob;
@@ -96,7 +97,7 @@ public class ServerImpl implements Server {
 	}
 
 	/**
-	 * Run the database search file. 
+	 * Adds database search jobs. 
 	 * @param filename The spectrum filename.
 	 * @param dbSearchSettings The database search settings.
 	 * @throws Exception
@@ -190,27 +191,14 @@ public class ServerImpl implements Server {
 			jobManager.addJob(new InspectStoreJob(postProcessorJob.getFilename()));
 		}
 		
-//		// Execute the search engine jobs.
-//		jobManager.execute();
-		
-//		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DATABASE SEARCH"), new Date()));
-		
 		// Clear the folders
-		// FIXME: Include recursive remove script for the DeleteJob!
-//		jobManager.addJob(new DeleteJob());
-//		jobManager.execute();
-//		jobManager.clear();
-//		msgQueue.add(new Message(null, "CLEARED FOLDERS", new Date()));
+		jobManager.addJob(new DeleteJob());
 	}
 
 	private void addSpecSimSearchJob(List<MascotGenericFile> mgfList, SpecSimSettings sss) {
 		SpecSimJob specSimJob = new SpecSimJob(mgfList, sss);
 		jobManager.addJob(specSimJob);
 		jobManager.addJob(new SpecSimStoreJob(specSimJob));
-		
-//		jobManager.execute();
-//		
-//		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, specSimJob.getDescription()), new Date()));
 	}
 	
 	/**
@@ -229,9 +217,8 @@ public class ServerImpl implements Server {
 		// Add a de novo search results storing job
 		jobManager.addJob(new PepnovoStoreJob(pepNovoJob.getFilename()));
 		
-//		jobManager.execute();
-//		
-//		msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "DE NOVO SEARCH"), new Date()));
+		// Clear the folders
+		jobManager.addJob(new DeleteJob());
 	}
 	
 	/**
@@ -269,63 +256,6 @@ public class ServerImpl implements Server {
 		throw new WebServiceException("Upload Failed!"); 
 	}
 
-//	@Override
-//	public void runSearches(String filename, SearchSettings settings) {
-//		try {
-//			// 	DB Manager instance
-//			dbManager = DBManager.getInstance();
-//			
-//			// Store the spectra.
-//			File file = new File(JobConstants.TRANSFER_PATH + filename);
-//			SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
-//			
-//			// Initialize the job manager.
-//			jobManager = JobManager.getInstance();
-//			
-//			// Get the filename map.
-//			Map<String, String> filenames = jobManager.getFilenames();
-//
-//			// Run searches and store results
-//			if (settings.isDatabase()) {
-//				DbSearchSettings dbss = settings.getDbss();
-//				
-//				// Run
-//				runDbSearch(filename, dbss);
-//				
-//				// Store
-//				if (dbss.isXTandem()) dbManager.storeXTandemResults(filenames.get("X!TANDEM TARGET SEARCH"), filenames.get("X!TANDEM QVALUES"));
-//				if (dbss.isOmssa()) dbManager.storeOmssaResults(filenames.get("OMSSA TARGET SEARCH"), filenames.get("OMSSA QVALUES"));
-//				if (dbss.isCrux()) dbManager.storeCruxResults(filenames.get("CRUX"));
-//				if (dbss.isInspect()) dbManager.storeInspectResults(filenames.get("POST-PROCESSING JOB"));
-//			}
-//			
-//			if (settings.isSpecSim()) {
-//				SpecSimSettings sss = settings.getSss();
-//				
-//				// Run
-//				List<SpectrumSpectrumMatch> results = runSpecSimSearch(storager.getSpectra(), sss);
-//				
-//				// Store
-//				dbManager.storeSpecSimResults(results);
-//				results = null;
-//			}
-//			
-//			if (settings.isDeNovo()) {
-//				DenovoSearchSettings dnss = settings.getDnss();
-//				
-//				// Run
-//				runDenovoSearch(filename, dnss);
-//				
-//				// Store
-//				dbManager.storePepnovoResults(filenames.get("PEPNOVO"));
-//			}
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//			log.error(ex.getMessage());
-//		}
-//		
-//	}
-
 	@Override
 	public synchronized void runSearches(SearchSettings settings) {
 		try {
@@ -345,10 +275,8 @@ public class ServerImpl implements Server {
 				for (String filename : filenames) {
 					// Store uploaded spectrum files to DB
 					File file = new File(JobConstants.TRANSFER_PATH + filename);
-					System.out.println("storing file to db: " + file.getAbsolutePath());
 					SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
 
-					System.out.println("remaining jobs before addition: " + jobManager.getRemainingJobs());
 					// Add search jobs to job manager queue
 					if (settings.isDatabase()) {
 						addDbSearchJobs(filename, settings.getDbss());
@@ -359,7 +287,6 @@ public class ServerImpl implements Server {
 					if (settings.isDeNovo()) {
 						addDeNovoSearchJob(filename, settings.getDnss());
 					}
-					System.out.println("remaining jobs after addition: " + jobManager.getRemainingJobs());
 
 					msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
 					
@@ -367,20 +294,15 @@ public class ServerImpl implements Server {
 					Thread managerThread = new Thread(jobManager);
 					managerThread.start();
 					managerThread.join();
-
-					System.out.println("remaining jobs after executing: " + jobManager.getRemainingJobs());
 					
 					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
-					System.out.println("i was " + i++ + ", is now " + i);
 					runOptions.setRunCount(1);
 				}
 			}
-
 		} catch (Exception e) {
 			log.error(e.getMessage(), e.getCause());
 			e.printStackTrace();
 		}
-		
 	}
 	
 }
