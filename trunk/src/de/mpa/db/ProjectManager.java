@@ -15,6 +15,7 @@ import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
 import de.mpa.db.accessor.Property;
+import de.mpa.db.accessor.Searchspectrum;
 
 /**
  * This class handles the project management by accessing project and experiments in the database.
@@ -268,8 +269,10 @@ public class ProjectManager {
 	 */
 	public void modifyExperimentName(Long experimentid, String title) throws SQLException {
 		Experiment experiment = Experiment.findExperimentByID(experimentid, conn);
-		experiment.setTitle(title);
-		experiment.update(conn);
+		if (!title.equals(experiment.getTitle())) {
+			experiment.setTitle(title);
+			experiment.update(conn);
+		}
 	}	
 	
 	/**
@@ -313,17 +316,23 @@ public class ProjectManager {
 	}
 	
 	/**
-	 * This method deletes an experiment and all its properties by its ID.
-	 * @param experimentId
+	 * Deletes an experiment and all associated properties and spectra.
+	 * @param experimentId The primary identifier of the experiment.
 	 * @throws SQLException
 	 */
 	public void deleteExperiment(Long experimentId) throws SQLException {
 		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
+		
 		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
-
 		for (ExpProperty expProperty : expPropList) {
 			expProperty.delete(conn);
 		}
+		
+		List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(experimentId, conn);
+		for (Searchspectrum searchSpectrum : searchSpectra) {
+			searchSpectrum.delete(conn);
+		}
+		
 		experiment.delete(conn);
 	}
 

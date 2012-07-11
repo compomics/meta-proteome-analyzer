@@ -4,8 +4,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,8 +18,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -30,8 +26,6 @@ import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
-import de.mpa.io.MascotGenericFile;
-import de.mpa.ui.PlotPanel2;
 
 public class SpecLibSearchPanel extends JPanel {
 
@@ -149,18 +143,6 @@ public class SpecLibSearchPanel extends JPanel {
 	private JSpinner threshScSpn;
 
 	/**
-	 * The plot panel displaying original and transformed spectra
-	 * simultaneously.
-	 */
-	private PlotPanel2 prePlotPnl;
-
-	// XXX: TBD
-	private JPanel previewPnl;
-	public JPanel getPreviewPnl() {
-		return previewPnl;
-	}
-
-	/**
 	 * Class constructor
 	 * 
 	 * @param clientFrame
@@ -252,29 +234,6 @@ public class SpecLibSearchPanel extends JPanel {
 		paramDbPnl.add(topPnl, cc.xy(2, 2));
 		paramDbPnl.add(bottomPnl, cc.xy(2, 4));
 
-		// spectrum previewing
-		previewPnl = new JPanel();
-		previewPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-//		previewPnl.setBorder(BorderFactory.createTitledBorder("Preview input"));
-		prePlotPnl = new PlotPanel2(null);
-		prePlotPnl.clearSpectrumFile();
-		prePlotPnl.setPreferredSize(new Dimension(350, 150));
-		prePlotPnl.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					boolean isMiniature = prePlotPnl.isMiniature();
-//					prePlotPnl.setMaxPadding((isMiniature) ? 50 : 25);
-					prePlotPnl.setMiniature(!isMiniature);
-					prePlotPnl.repaint();
-				}
-			}
-		});
-		
-		previewPnl.add(prePlotPnl, cc.xy(2, 2));
-
-		RefreshPlotListener refreshPlotListener = new RefreshPlotListener();
-
 		// similarity scoring parameters
 		JPanel paramScPnl = new JPanel();
 		paramScPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
@@ -295,7 +254,6 @@ public class SpecLibSearchPanel extends JPanel {
 		vectMethodCbx = new JComboBox(
 				new Object[] { "Peak matching", "Direct binning", "Profiling" });
 		vectMethodCbx.setSelectedIndex(1);
-		vectMethodCbx.addActionListener(refreshPlotListener);
 
 		vectMethodPnl.add(new JLabel("Vectorization:"), cc.xy(1, 1));
 		vectMethodPnl.add(vectMethodCbx, cc.xy(3, 1));
@@ -307,12 +265,10 @@ public class SpecLibSearchPanel extends JPanel {
 
 		binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, Double.MIN_VALUE, null, 0.1));
 		binWidthSpn.setEditor(new JSpinner.NumberEditor(binWidthSpn, "0.00"));
-		binWidthSpn.addChangeListener(refreshPlotListener);
 		
 		binShiftLbl = new JLabel("Bin Shift:");
 		binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
 		binShiftSpn.setEditor(new JSpinner.NumberEditor(binShiftSpn, "0.00"));
-		binShiftSpn.addChangeListener(refreshPlotListener);
 		binShiftLbl2 = new JLabel("Da");
 
 		genVectSetPnl.add(new JLabel("Bin Width:"), cc.xy(2, 1));
@@ -341,7 +297,6 @@ public class SpecLibSearchPanel extends JPanel {
 
 		proBaseWidthSpn = new JSpinner(new SpinnerNumberModel(0.5, Double.MIN_VALUE, null, 0.1));
 		proBaseWidthSpn.setEditor(new JSpinner.NumberEditor(proBaseWidthSpn, "0.00"));
-		proBaseWidthSpn.addChangeListener(refreshPlotListener);
 
 		proBaseWidthPnl.add(new JLabel("Peak Base Width:"), cc.xy(2, 1));
 		proBaseWidthPnl.add(proBaseWidthSpn, cc.xy(4, 1));
@@ -356,11 +311,9 @@ public class SpecLibSearchPanel extends JPanel {
 		pickPnl.setLayout(new BoxLayout(pickPnl, BoxLayout.X_AXIS));
 
 		pickChk = new JCheckBox("Pick only ");
-		pickChk.addActionListener(refreshPlotListener);
 
 		pickSpn = new JSpinner(new SpinnerNumberModel(20, 1, null, 1));
 		pickSpn.setEnabled(false);
-		pickSpn.addChangeListener(refreshPlotListener);
 
 		pickPnl.add(pickChk);
 		pickPnl.add(pickSpn);
@@ -423,7 +376,6 @@ public class SpecLibSearchPanel extends JPanel {
 		trafoCbx = new JComboBox(new Object[] { "None", "Square root",
 				"Logarithmic" });
 		trafoCbx.setSelectedIndex(1);
-		trafoCbx.addActionListener(refreshPlotListener);
 
 		trafoPnl.add(new JLabel("Transformation:"), cc.xy(1, 1));
 		trafoPnl.add(trafoCbx, cc.xy(3, 1));
@@ -438,7 +390,6 @@ public class SpecLibSearchPanel extends JPanel {
 				"Pearson's correlation",
 				"Cross-correlation" });
 		measureCbx.setSelectedIndex(1);
-		measureCbx.addActionListener(refreshPlotListener);
 
 		// sub-sub-panel for further scoring parameters
 		JPanel scorSubPnl = new JPanel();
@@ -449,7 +400,6 @@ public class SpecLibSearchPanel extends JPanel {
 		xCorrOffLbl.setEnabled(false);
 		xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
 		xCorrOffSpn.setEnabled(false);
-		xCorrOffSpn.addChangeListener(refreshPlotListener);
 		xCorrOffLbl2 = new JLabel("Bins");
 		xCorrOffLbl2.setEnabled(false);
 
@@ -514,8 +464,8 @@ public class SpecLibSearchPanel extends JPanel {
 	public SpecSimSettings gatherSpecSimSettings() {
 		SpecSimSettings settings = new SpecSimSettings();
 		
-		// Get the current experiment ID.
-		long expID = clientFrame.getProjectPanel().getCurrentExperimentId();
+		// Get the target experiment ID.
+		long expID = (expIdSpn.isEnabled()) ? (Long) expIdSpn.getValue() : 0L;
 		
 		int pickCount = 0;
 		if (pickSpn.isEnabled()) {
@@ -537,160 +487,6 @@ public class SpecLibSearchPanel extends JPanel {
 		return settings;
 	}
 	
-//	/**
-//	 * Obsolete method: Used for the refresh plot method only.
-//	 * @return The current spectrum comparator method.
-//	 */
-//	private SpectrumComparator getComparator(){
-//		Transformation trafo = null;
-//		switch (trafoCbx.getSelectedIndex()) {
-//		case 0:
-//			trafo = new Transformation() {
-//				public double transform(double input) {
-//					return input;
-//				}
-//			};
-//			break;
-//		case 1:
-//			trafo = new Transformation() {
-//				public double transform(double input) {
-//					return Math.sqrt(input);
-//				}
-//			};
-//			break;
-//		case 2:
-//			trafo = new Transformation() {
-//				public double transform(double input) {
-//					return (input > 0.0) ? Math.log(input) : 0.0;
-//				}
-//			};
-//			break;
-//		}
-//		
-//		Vectorization vect = null;
-//		switch (vectMethodCbx.getSelectedIndex()) {
-//		case 0:
-//			vect = new Vectorization(Vectorization.PEAK_MATCHING, (Double) binWidthSpn.getValue());
-//			break;
-//		case 1:
-//			vect = new Vectorization(Vectorization.DIRECT_BINNING, (Double) binWidthSpn.getValue(),
-//					(Double) binShiftSpn.getValue());
-//			break;
-//		case 2:
-//			vect = new Vectorization(Vectorization.PROFILING, (Double) binWidthSpn.getValue(),
-//					(Double) binShiftSpn.getValue(), proMethodCbx.getSelectedIndex(),
-//					(Double) proBaseWidthSpn.getValue());
-//			break;
-//		}
-//		
-//		SpectrumComparator specComp = null;
-//		switch (measureCbx.getSelectedIndex()) {
-//		case 0:
-//			specComp = new EuclideanDistance(vect, trafo);
-//			break;
-//		case 1:
-//			specComp = new NormalizedDotProduct(vect, trafo);
-//			break;
-//		case 2:
-//			specComp = new PearsonCorrelation(vect, trafo);
-//			break;
-//		case 3:
-//			specComp = new CrossCorrelation(vect, trafo, (Integer) xCorrOffSpn.getValue());
-//			break;
-//		}
-//		
-//		return specComp;
-//	}
-	
-	/**
-	 * Method to repaint the panel's plot component. Draws normalized original
-	 * (black) and transformed (red) versions of the supplied spectrum.
-	 * 
-	 * @param spectrumFile
-	 *            The spectrum file to be plotted.
-	 */
-	public void refreshPlot(MascotGenericFile spectrumFile) {
-//
-//		prePlotPnl.clearSpectrumFile();
-//
-//		HashMap<Double, Double> basePeaks = new HashMap<Double, Double>(
-//				spectrumFile.getPeaks());
-//		// normalize spectrum file
-//		double maxInten = 0.0;
-//		for (double inten : basePeaks.values()) {
-//			maxInten = (inten > maxInten) ? inten : maxInten;
-//		}
-//		maxInten /= 100.0;
-//		for (Double mz : basePeaks.keySet()) {
-//			basePeaks.put(mz, basePeaks.get(mz) / maxInten);
-//		}
-//
-//		// transform spectrum file
-//		SpecSimSettings specSet = gatherSpecSimSettings();
-//		
-//		getComparator().prepare(spectrumFile.getHighestPeaks(specSet.getPickCount()));
-//		HashMap<Double, Double> transPeaks = new HashMap<Double, Double>(getComparator().getSourcePeaks());
-//		// normalize transformed spectrum
-//		maxInten = 0.0;
-//		for (double inten : transPeaks.values()) {
-//			maxInten = (inten > maxInten) ? inten : maxInten;
-//		}
-//		maxInten /= 100.0;
-//		for (Double mz : transPeaks.keySet()) {
-//			transPeaks.put(mz, transPeaks.get(mz) / maxInten);
-//		}
-//
-//		// add spectra to plot panel and paint them
-//		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null, basePeaks,
-//				0.0, 0));
-//		prePlotPnl.setSpectrumFile(new MascotGenericFile(null, null,
-//				transPeaks, spectrumFile.getPrecursorMZ(), spectrumFile
-//						.getCharge()));
-//		prePlotPnl.repaint();
-	}
-
-	/**
-	 * Listener class various GUI elements of the panel to trigger refreshing
-	 * the preview plot.
-	 */
-	private class RefreshPlotListener implements ActionListener, ChangeListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			grabSpectrumAndRefreshPlot();
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent arg0) {
-			grabSpectrumAndRefreshPlot();
-		}
-
-		private void grabSpectrumAndRefreshPlot() {
-//			// wrap method inside runnable to prevent Linux from freezing when debugging it
-//			SwingUtilities.invokeLater(new Runnable() {
-//				public void run() {
-//					try {
-//						CheckBoxTreeManager checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
-//						MascotGenericFile mgf = null;
-//						TreePath selPath = checkBoxTree.getTree().getSelectionPath();
-//						if (selPath == null) {
-//							mgf = ((SpectrumTree) checkBoxTree.getTree())
-//							.getSpectrumAt(((DefaultMutableTreeNode) checkBoxTree.getModel()
-//									.getRoot()).getFirstLeaf());
-//						} else {
-//							mgf = ((SpectrumTree) checkBoxTree.getTree())
-//							.getSpectrumAt((DefaultMutableTreeNode) selPath.getLastPathComponent());
-//						}
-//						if (mgf != null) {
-//							refreshPlot(mgf);
-//						}
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
-//				}
-//			});
-		}
-	}
-
 	/**
 	 * Method to toggle the enabled state of the whole panel. Honors separate
 	 * enabled state of specific sub-components on restore.

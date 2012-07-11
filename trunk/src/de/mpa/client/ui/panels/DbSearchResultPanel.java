@@ -406,6 +406,11 @@ public class DbSearchResultPanel extends JPanel {
 				}
 				return comp;
 			}
+			@Override
+			public void setValueAt(Object aValue, int row, int column) {
+				// TODO Auto-generated method stub
+				super.setValueAt(aValue, row, column);
+			}
 		};
 		
 		// Adjust column widths
@@ -591,17 +596,16 @@ public class DbSearchResultPanel extends JPanel {
 		proteinTbl.getColumnControl().setOpaque(false);
 		((ColumnControlButton) proteinTbl.getColumnControl()).setAdditionalActionsVisible(false);
 	}
-
-	/**
-	 * This method sets up the peptide results table.
-	 */
 	
 	// Peptide table column indices
 	private final int PEP_SELECTION		= 0;
 	private final int PEP_INDEX			= 1;
 	private final int PEP_SEQUENCE		= 2;
 	private final int PEP_SPECTRALCOUNT	= 3;
-	
+
+	/**
+	 * This method sets up the peptide results table.
+	 */
 	private void setupPeptideTableProperties() {
 		// Peptide table
 		final TableModel peptideTblMdl = new DefaultTableModel() {
@@ -626,7 +630,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 	
 			public boolean isCellEditable(int row, int col) {
-				return false;
+				return (col == PEP_SELECTION);
 			}
 		};
 		peptideTbl = new JXTable(peptideTblMdl) {

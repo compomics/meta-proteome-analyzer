@@ -81,7 +81,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		editorBox.setOpaque(false);
 		editorBox.setInputMap(JComponent.WHEN_FOCUSED, null);	// make checkbox ignore keyboard input
 		
-		Insets insets = (Insets) UIManager.get("CheckBox.totalInsets");
+//		Insets insets = (Insets) UIManager.get("CheckBox.totalInsets");
+		Insets insets = new Insets(4, 4, 4, 4);
 		hotspot = editorBox.getPreferredSize().width;
 		center = insets.left + (hotspot-insets.right)/2 - 6;
 		

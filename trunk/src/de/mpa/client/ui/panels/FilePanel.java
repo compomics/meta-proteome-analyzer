@@ -2,6 +2,7 @@ package de.mpa.client.ui.panels;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +31,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -54,11 +56,13 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.ComponentHeader;
-import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.SortableCheckBoxTreeTable;
+import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
+import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.TotalIonHistogram;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.ui.ExtensionFileFilter;
@@ -94,7 +98,7 @@ public class FilePanel extends JPanel {
 
 	private void initComponents() {
 		
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
 		// top panel containing buttons and spectrum tree table
 		JPanel topPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
@@ -186,13 +190,14 @@ public class FilePanel extends JPanel {
 		buttonPnl.add(clrBtn, CC.xy(11, 1));
 		
 		// tree table containing spectrum details
-		final CheckBoxTreeTableNode treeRoot = new CheckBoxTreeTableNode("no project selected") {
+		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
+				"no project selected", null, null, null, null) {
 			public String toString() {
 				ProjectContent pj =  clientFrame.getProjectPanel().getCurrentProjectContent();
 				return (pj != null) ? pj.getProjectTitle() : "no project selected";
 			}
 		};
-		final DefaultTreeTableModel treeModel = new DefaultTreeTableModel(treeRoot) {
+		final SortableTreeTableModel treeModel = new SortableTreeTableModel(treeRoot) {
 			{ setColumnIdentifiers(Arrays.asList(new String[] { "Spectra", "Path / Title", "Peaks", "TIC", "SNR"})); }
 			@Override
 			public Class<?> getColumnClass(int column) {
@@ -207,11 +212,26 @@ public class FilePanel extends JPanel {
 				}
 			}
 		};
-		treeTbl = new CheckBoxTreeTable(treeModel);
-		treeTbl.setRootVisible(true);
-		treeTbl.setAutoCreateRowSorter(true);
 		
-		treeTbl.setTableHeader(new ComponentHeader(treeTbl.getColumnModel()));
+		treeTbl = new SortableCheckBoxTreeTable(treeModel) {
+			@Override
+			protected void initializeColumnWidths() {
+				TableConfig.setColumnWidths(this, new double[] { 2.5, 6.5, 1, 1, 1 });
+			}
+		};
+		treeTbl.setRootVisible(true);
+//		treeTbl.getRowSorter().allRowsChanged();
+//		treeTbl.setAutoCreateRowSorter(true);
+		
+//		treeTbl.setTableHeader(new ComponentHeader(treeTbl.getColumnModel()));
+		treeTbl.getTableHeader().setReorderingAllowed(true);
+		
+//		treeTbl.getTableHeader().addMouseListener(new MouseAdapter() {
+//			public void mouseClicked(MouseEvent e) {
+//				int index = treeTbl.getTableHeader().getColumnModel().getColumnIndexAtX(e.getX());
+//				treeTbl.toggleSortOrder(index);
+//			}
+//		});
 		
 		final JPopupMenu filterPopup = new JPopupMenu();
 		filterPopup.add(filterBtn);
@@ -248,7 +268,7 @@ public class FilePanel extends JPanel {
 				}
 			};
 		});
-		treeTbl.getColumnModel().getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(testBtn));
+//		treeTbl.getColumnModel().getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(testBtn));
 		treeTbl.setPreferredScrollableViewportSize(new Dimension(320, 200));
 		
 		treeTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -260,7 +280,6 @@ public class FilePanel extends JPanel {
 		
 		// wrap tree table in scroll pane
 		JScrollPane treeScpn = new JScrollPane(treeTbl);
-		TableConfig.setColumnWidths(treeTbl, new double[] { 2.5, 6.5, 1, 1, 1 });
 		
 		// add components to top panel
 		topPnl.add(buttonPnl, CC.xy(2, 2));
@@ -312,8 +331,39 @@ public class FilePanel extends JPanel {
 		split.add(spectrumTtlPnl, "bottom");
 		split.add(histTtlPnl, "histogram");
 		
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		
+		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
+		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
+		prevBtn.setPressedIcon(IconConstants.PREV_PRESSED_ICON);
+		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
+		prevBtn.setFont(prevBtn.getFont().deriveFont(
+				Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
+		prevBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				clientFrame.getTabPane().setSelectedIndex(0);
+			}
+		});		
+		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
+		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
+		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
+		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
+		nextBtn.setFont(nextBtn.getFont().deriveFont(
+				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
+		nextBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				clientFrame.getTabPane().setSelectedIndex(2);
+			}
+		});
+		
+		navPnl.add(prevBtn, CC.xy(1, 1));
+		navPnl.add(nextBtn, CC.xy(3, 1));
+		
 		// add everything to main panel
 		this.add(split, CC.xy(2, 2));
+		this.add(navPnl, CC.xy(2, 4));
 		
 		// register listeners
 		addBtn.addActionListener(new ActionListener() {
@@ -363,6 +413,7 @@ public class FilePanel extends JPanel {
 				while (treeRoot.getChildCount() > 0) {
 					treeModel.removeNodeFromParent((MutableTreeTableNode) treeModel.getChild(treeRoot, treeRoot.getChildCount()-1));
 				}
+				treeTbl.getRowSorter().allRowsChanged();
 				treeTbl.getCheckBoxTreeSelectionModel().clearSelection();
 //				totalSpectraList.clear();
 				ticList.clear();
@@ -462,22 +513,30 @@ public class FilePanel extends JPanel {
 //					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
 //					totalSpectraList.addAll(mgfList);
 					
-					// 
 					spectrumPositions.addAll(reader.getSpectrumPositions(false));
 					specPosMap.put(file.getAbsolutePath(), spectrumPositions);
 
-					CheckBoxTreeTableNode fileNode = new CheckBoxTreeTableNode(file) {
+					SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
+							file, file.getParentFile().getPath(), null, null, null) {
 						public String toString() {
 							return ((File) userObject).getName();
 						};
+						@Override
+						public Object getValueAt(int column) {
+							if (column >= 2) {
+								double sum = 0.0;
+								for (int j = 0; j < getChildCount(); j++) {
+									sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+								}
+								return sum;
+							} else {
+								return super.getValueAt(column);
+							}
+						}
 					};
 
-					// append new file node to root and initially deselect it
-					treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
-					selectionModel.removeSelectionPath(fileNode.getPath());
-
 					int index = 1;
-					ArrayList<TreePath> toBeAdded = new ArrayList<TreePath>();
+					List<TreePath> toBeAdded = new ArrayList<TreePath>();
 					for (Long specPos : spectrumPositions) {
 						MascotGenericFile mgf = reader.loadNthSpectrum(index, specPos);
 //						totalSpectraList.add(mgf);
@@ -494,27 +553,36 @@ public class FilePanel extends JPanel {
 						double SNR = mgf.getSNR(filterSet.getNoiseLvl());
 
 						// append new spectrum node to file node
-						CheckBoxTreeTableNode spectrumNode = new CheckBoxTreeTableNode(
+						SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
 								index, mgf.getTitle(), numPeaks, TIC, SNR) {
 							public String toString() {
 								return "Spectrum " + super.toString();
+//								return getParent().toString() + " " + super.toString();
 							}
 						};
-						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
+//						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
+						fileNode.add(spectrumNode);
 
-						TreePath treePath = spectrumNode.getPath();
 						if ((numPeaks > filterSet.getMinPeaks()) &&
 								(TIC > filterSet.getMinTIC()) &&
 								(SNR > filterSet.getMinSNR())) {
-							toBeAdded.add(treePath);
+//							toBeAdded.add(spectrumNode.getPath());
+							toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 						}
 						index++;
 					}
-					selectionModel.addSelectionPaths((TreePath[]) toBeAdded.toArray(new TreePath[0]));
+					// append new file node to root and initially deselect it
+					treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
+					selectionModel.removeSelectionPath(fileNode.getPath());
+					// reselect spectrum nodes that meet filter criteria
+					selectionModel.addSelectionPaths(toBeAdded);
+//					treeTbl.getRowSorter().allRowsChanged();
+					
 				} catch (Exception ex) {
 					client.firePropertyChange("new message", null, "READING SPECTRUM FILE(S) ABORTED");
 					JXErrorPane.showDialog(ex);
 				}
+				
 				treeTbl.expandRow(0);
 			}
 

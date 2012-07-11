@@ -224,6 +224,20 @@ public class ProteinHit {
 //	}
 	
 	/**
+	 * Returns a collection of non-redundant spectrum IDs belonging to this protein hit.
+	 * @return A set of spectrum IDs.
+	 */
+	public Set<Long> getSpectrumIDs() {
+		Set<Long> matches = new HashSet<Long>();
+		for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
+			for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
+				matches.add(match.getSearchSpectrumID());
+			}
+		}
+		return matches;
+	}
+	
+	/**
 	 * Calculates and returns the spectral count.
 	 * @return The spectral count.
 	 */
