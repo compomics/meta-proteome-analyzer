@@ -26,13 +26,15 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 	public SortableCheckBoxTreeTableNode(Object userObject, boolean fixed) {
 		super(userObject, fixed);
 	}
-
-	private int convertRowIndexToModel(int index) {
-		return (sorted) ? viewToModel[index].modelIndex : index;
+	
+	@Override
+	public int convertRowIndexToModel(int viewIndex) {
+		return (sorted) ? viewToModel[viewIndex].modelIndex : viewIndex;
 	}
 
-	private int convertRowIndexToView(int index) {
-		return (!sorted || index < 0 || index >= modelToView.length) ? index : modelToView[index];
+	@Override
+	public int convertRowIndexToView(int modelIndex) {
+		return (!sorted || modelIndex < 0 || modelIndex >= modelToView.length) ? modelIndex : modelToView[modelIndex];
 	}
 	
 	@Override
@@ -42,6 +44,12 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 
 	@Override
 	public boolean canSort(List<? extends SortKey> sortKeys) {
+		boolean canSort = canSort();
+		if (canSort) {
+			for (SortKey sortKey : sortKeys) {
+				canSort &= getValueAt(sortKey.getColumn()) instanceof Comparable<?>;
+			}
+		}
 		return canSort();
 	}
 
@@ -52,10 +60,6 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 
 	@Override
 	public void sort(List<? extends SortKey> sortKeys) {
-		sort(sortKeys.get(0).getColumn(), sortKeys.get(0).getSortOrder());
-	}
-	
-	private void sort(int column, SortOrder order) {
 		int count = getChildCount();
 		if (count == 0) {
 			sorted = false;
@@ -66,7 +70,7 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 		viewToModel = new Row[count];
 		int i = 0;
 		for (TreeTableNode node : children) {
-			Row row = new Row(node.getValueAt(column), i, order);
+			Row row = new Row(node, i, sortKeys);
 			viewToModel[i++] = row;			
 		}
 		// sort
@@ -97,40 +101,59 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 	 * Private class representing a sortable tree table row. 
 	 */
 	private class Row implements Comparable<Row> {
-		private Comparable<Object> key;
+		/**
+		 * The tree table node containing the row's cell values.
+		 */
+		private TreeTableNode node;
+		/**
+		 * The row's model index.
+		 */
 		private int modelIndex;
-		private SortOrder order;
+		/**
+		 * The row's list of column indices to be sorted and their respective sort orders.
+		 */
+		private List<? extends SortKey> sortKeys;
 
 		/**
 		 * Constructs a row object.
-		 * @param key The object upon which comparisons are evaluated.
+		 * @param node The node upon which comparisons are evaluated.
 		 * @param modelIndex The row index.
-		 * @param order The sort order.
+		 * @param sortKeys The list of sort keys.
 		 */
-		@SuppressWarnings("unchecked")
-		public Row(Object key, int modelIndex, SortOrder order) {
-			this.key = (Comparable<Object>) key;
+		public Row(TreeTableNode node, int modelIndex, List<? extends SortKey> sortKeys) {
+			this.node = node;
 			this.modelIndex = modelIndex;
-			this.order = order;
+			this.sortKeys = sortKeys;
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public int compareTo(Row row) {
 			int result;
-			// treat null as less than non-null
-			if (this.key == null) {
-				result = (row.key == null) ? 0 : -1;
-			} else {
-				result = (row.key == null) ? 1 : this.key.compareTo(row.key);
+			for (SortKey sortKey : this.sortKeys) {
+				Object this_value = this.node.getValueAt(sortKey.getColumn());
+				Object that_value = row.node.getValueAt(sortKey.getColumn());
+				
+				if (sortKey.getSortOrder() == SortOrder.UNSORTED) {
+					result = this.modelIndex - row.modelIndex;
+				} else {
+					if (this_value == null) {
+						result = (that_value == null) ? 0 : -1;
+					} else if (that_value == null) {
+						result = 1;
+					} else {
+						result = ((Comparable<Object>) this_value).compareTo(that_value);
+					}
+					if (sortKey.getSortOrder() == SortOrder.DESCENDING) {
+						result *= -1;
+					}
+				}
+				if (result != 0) {
+					return result;
+				}
 			}
-			if (order != SortOrder.ASCENDING) {
-				result *= -1;
-			}
-			if (result == 0) {
-				// revert to model order
-				result = this.modelIndex - row.modelIndex;
-			}
-			return result;
+			// If we get here, they're equal. Fall back to model order.
+			return this.modelIndex - row.modelIndex;
 		}
 
 	}

@@ -269,8 +269,8 @@ public class DeNovoResultPanel extends JPanel {
         tcm.getColumn(0).setCellRenderer(new TableConfig.CustomTableCellRenderer(SwingConstants.RIGHT));
 
         // Sort the peptide table by the number of peptide hits
-        spectraTbl.setAutoCreateRowSorter(true);
-        spectraTbl.getRowSorter().toggleSortOrder(0);
+//        spectraTbl.setAutoCreateRowSorter(true);
+//        spectraTbl.getRowSorter().toggleSortOrder(0);
 
         // register list selection listener
         spectraTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -371,14 +371,16 @@ public class DeNovoResultPanel extends JPanel {
 
             HashMap<Ion.IonType, ArrayList<Integer>> ionTypes = new HashMap<Ion.IonType, ArrayList<Integer>>();
             ArrayList<Integer> ions = new ArrayList<Integer>();
-            ions.add(PeptideFragmentIon.B_ION); // @TODO: ion types should not be hardcoded but rather based on the annotation menu bar!!
+            ions.add(PeptideFragmentIon.B_ION); // @TODO: ion types should not be hard-coded but rather based on the annotation menu bar!!
             ions.add(PeptideFragmentIon.Y_ION);
             ionTypes.put(Ion.IonType.PEPTIDE_FRAGMENT_ION, ions);
 
             ArrayList<Integer> charges = new ArrayList<Integer>();
-            charges.add(1); // @TODO: charge should not be hardcoded but rather be based on the user selection in the annotation menu bar!!
+            charges.add(1); // @TODO: charge should not be hard-coded but rather be based on the user selection in the annotation menu bar!!
 
-            Peptide currentPeptide = new Peptide(hit.getSequence(), new ArrayList<String>(), new ArrayList<ModificationMatch>()); // @TODO: add ptms!!
+            // cut out non-alphabetic symbols
+            String sequence = hit.getSequence().replaceAll("[^a-zA-Z]", "");
+            Peptide currentPeptide = new Peptide(sequence, new ArrayList<String>(), new ArrayList<ModificationMatch>()); // @TODO: add PTMs!!
 
             ArrayList<IonMatch> annotations = spectrumAnnotator.getSpectrumAnnotation(
                             ionTypes,
@@ -386,7 +388,7 @@ public class DeNovoResultPanel extends JPanel {
                             charges,
                             (int) hit.getCharge(),
                             currentSpectrum, currentPeptide,
-                            currentSpectrum.getIntensityLimit(0.0), // @TODO: should not be hardcoded?
+                            currentSpectrum.getIntensityLimit(0.0), // @TODO: should not be hard-coded?
                             0.5, // @TODO: get fragment ion mass error from the search parameters! 
                             false);
 

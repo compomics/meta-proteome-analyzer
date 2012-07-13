@@ -71,13 +71,12 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		superSetRowSorter(sorter);
 	}
 	
+	// TODO: API!
 	private class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableModel> {
 		
 		private JXTreeTable treeTable;
 		
 		private SortableTreeTableModel treeModel;
-		
-//		private List<SortKey> sortKeys = new ArrayList<SortKey>();
 		
 		public TreeTableRowSorter(JXTreeTable treeTable) {
 			this.treeTable = treeTable;
@@ -122,7 +121,11 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 						sortOrder = SortOrder.DESCENDING;
 					}
 				}
-				sortKeys.set(0, new SortKey(column, sortOrder));
+				sortKeys.add(0, new SortKey(column, sortOrder));
+				// TODO: possibly parametrize maximum sort key count
+				if (sortKeys.size() > 3) {
+					sortKeys.remove(3);
+				}
 			}
 			setSortKeys(sortKeys);
 		}
@@ -130,8 +133,8 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		@Override
 		public void setSortKeys(List<? extends SortKey> sortKeys) {
 			if (!sortKeys.equals(getSortKeys())) {
-//				this.sortKeys = new ArrayList<SortKey>(sortKeys);
 				fireSortOrderChanged();
+				preCollapse();
 				treeModel.setSortKeys(sortKeys);
 				reExpand();
 			}
@@ -143,7 +146,16 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		}
 		
 		/**
-		 * Restores expanded state of nodes that get collapsed due to sorting.
+		 * Collapses tree before sorting to work around glitchy behavior.
+		 */
+		private void preCollapse() {
+			expanding = true;
+			collapseAll();
+			expanding = false;
+		}
+		
+		/**
+		 * Restores expanded state of nodes before sorting.
 		 */
 		private void reExpand() {
 			expanding = true;

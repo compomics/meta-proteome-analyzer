@@ -47,9 +47,7 @@ public class TotalIonHistogram extends Chart {
 			}
 		} else if (data instanceof List<?>) {
 			filename = "default";
-			if (((List<Object>) data).get(0) instanceof Double) {
-				ticList = (List<Double>) data;
-			}
+			ticList = (List<Double>) data;
 		}
               
         // Set data.
