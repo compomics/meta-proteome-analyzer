@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,10 +33,10 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -56,6 +57,7 @@ import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -65,6 +67,7 @@ import javax.swing.table.TableModel;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
@@ -75,6 +78,8 @@ import org.jdesktop.swingx.sort.SortUtils;
 import org.jdesktop.swingx.sort.TableSortController;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
@@ -101,6 +106,9 @@ import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.SortableCheckBoxTreeTable;
+import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
+import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.WrapLayout;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
@@ -152,6 +160,8 @@ public class DbSearchResultPanel extends JPanel {
 	private JXTitledPanel protTtlPnl;
 
 	private JXTitledPanel psmTtlPnl;
+
+	private SortableCheckBoxTreeTable protTreeTbl;
 	
 	/**
 	 * Constructor for a database results panel.
@@ -210,10 +220,81 @@ public class DbSearchResultPanel extends JPanel {
 				getResultsButtonPressed();
 			}
 		});
-		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
+//		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
+		
+		final CardLayout protCardLyt = new CardLayout();
+		final JPanel protCardPnl = new JPanel(protCardLyt);
+		protCardPnl.add(proteinTableScp);
+		
+		// XXX: protein table as sortable checkbox tree table, lots of test code to be removed later on :)
+		SortableCheckBoxTreeTableNode protTreeRoot = new SortableCheckBoxTreeTableNode("root");
+		SortableTreeTableModel protTreeTblMdl = new SortableTreeTableModel(protTreeRoot) {
+			{ setColumnIdentifiers(Arrays.asList(
+					new String[] { "Accession", "Description", "Species", "SC",
+							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF" } ));
+			}
+		};
+		protTreeTbl = new SortableCheckBoxTreeTable(protTreeTblMdl) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return (column == getHierarchicalColumn());
+			}
+		};
+		
+		BasicTreeUI btui = (BasicTreeUI) ((JXTree) (protTreeTbl.getCellRenderer(0, protTreeTbl.getHierarchicalColumn()))).getUI();
+		btui.setLeftChildIndent(5);
+		btui.setRightChildIndent(7);
+		
+//		protTreeTbl.setShowsRootHandles(false);
+		protTreeTbl.setRootVisible(false);
+		ImageIcon proteinIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/protein.png"));
+		protTreeTbl.setLeafIcon(proteinIcon);
+
+		TableColumnModel tcm = protTreeTbl.getColumnModel();
+		tcm.getColumn(1).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		DecimalFormat x100formatter = new DecimalFormat("0.00");
+		x100formatter.setMultiplier(100);
+		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter(
+				0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, x100formatter));
+		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
+		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
+		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
+		
+		JScrollPane protTreeScpn = new JScrollPane(protTreeTbl);
+		protTreeScpn.setPreferredSize(new Dimension(800, 200));
+		TableConfig.setColumnWidths(protTreeTbl, new double[] { 13.25, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnMinWidths(protTreeTbl,
+				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
+				createFilterButton(0, null, 0).getPreferredSize().width + 8);
+		
+		protCardPnl.add(protTreeScpn);
+		
+		proteinPnl.add(protCardPnl, CC.xy(2, 2));
+		
+		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p", "p"));
+		protBtnPnl.setOpaque(false);
+		
+		JButton swapBtn = new JButton("\u21C4");
+		swapBtn.setPreferredSize(new Dimension(20, 20));
+		swapBtn.setMargin(new Insets(0, 0, 0, 0));
+		swapBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				protCardLyt.next(protCardPnl);
+			}
+		});
+		
+		protBtnPnl.add(swapBtn, CC.xy(1, 1));
+		protBtnPnl.add(getResultsBtn, CC.xy(3, 1));
 		
 		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
-		protTtlPnl.setRightDecoration(getResultsBtn);
+//		protTtlPnl.setRightDecoration(getResultsBtn);
+		protTtlPnl.setRightDecoration(protBtnPnl);
 		protTtlPnl.setTitleFont(ttlFont);
 		protTtlPnl.setTitlePainter(ttlPainter);
 		protTtlPnl.setBorder(ttlBorder);
@@ -315,16 +396,19 @@ public class DbSearchResultPanel extends JPanel {
 	
 	private class ResultsTask extends SwingWorker {
 
-		protected Object doInBackground() throws Exception {
+		protected Object doInBackground() {
 			try {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				// Fetch the database search result.
-				dbSearchResult = Client.getInstance().getDbSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
+				DbSearchResult newResult = Client.getInstance().getDbSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
 				
+				if (!newResult.equals(dbSearchResult)) {
+					dbSearchResult = newResult;
+					finished();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			finished();
 			return 0;
 		}
 
@@ -1074,6 +1158,8 @@ public class DbSearchResultPanel extends JPanel {
 //			boolean selected = ((AbstractButton) ((ComponentHeaderRenderer) proteinTbl.getColumnModel().getColumn(PROT_SELECTION).getHeaderRenderer()).getComponent()).isSelected();
 
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
+			DefaultTreeTableModel protTreeTblMdl = (DefaultTreeTableModel) protTreeTbl.getTreeTableModel();
+			
 			int i = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 			
@@ -1117,6 +1203,20 @@ public class DbSearchResultPanel extends JPanel {
 						proteinHit.getSpectralCount(),
 						proteinHit.getEmPAI(),
 						nsaf});
+				
+				protTreeTblMdl.insertNodeInto(new SortableCheckBoxTreeTableNode(
+						proteinHit.getAccession(),
+						proteinHit.getDescription(),
+						proteinHit.getSpecies(),
+						proteinHit.getCoverage(),
+						proteinHit.getMolecularWeight(),
+						proteinHit.getPI(),
+						proteinHit.getPeptideCount(), 
+						proteinHit.getSpectralCount(),
+						proteinHit.getEmPAI(),
+						nsaf),
+						(MutableTreeTableNode) protTreeTblMdl.getRoot(),
+						protTreeTblMdl.getRoot().getChildCount());
 			}
 			
 			if (proteinTbl.getRowCount() > 0) {
@@ -1146,6 +1246,29 @@ public class DbSearchResultPanel extends JPanel {
 				highlighter.setRange(0.0, maxNSAF);
 				
 				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
+				
+				// XXX: repeat for tree table
+				tcm = protTreeTbl.getColumnModel();
+				
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(3)).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
+				highlighter.setRange(0.0, maxCoverage);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(6)).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
+				highlighter.setRange(0.0, maxPeptideCount);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(7)).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+				highlighter.setRange(0.0, maxSpecCount);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(8)).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
+				highlighter.setRange(min_emPAI, max_emPAI);
+
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(9)).getHighlighters()[0];
+				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
+				highlighter.setRange(0.0, maxNSAF);
 			}
 		}
 	}
@@ -1294,114 +1417,6 @@ public class DbSearchResultPanel extends JPanel {
 		}
 		coveragePnl.revalidate();
 	}
-	
-//	// TODO: merge with refreshPeptideTable()
-//	/**
-//	 * Method to refresh coverage viewer contents.
-//	 */
-//	protected void refreshCoverageViewer() {
-//		coveragePnl.removeAll();
-//		
-//		int protRow = proteinTbl.getSelectedRow();
-//		if (protRow != -1) {
-//			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
-//			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
-//			String sequence = proteinHit.getSequence();
-//			
-//			// Find start and end indices of peptides inside protein sequence
-//			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
-//			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
-//			int row = 0;
-//			for (PeptideHit peptideHit : peptideHits) {
-//				String pepSeq = peptideHit.getSequence();
-//				int index = -1;
-//				while (true) {
-//					index = sequence.indexOf(pepSeq, index + 1);
-//					if (index == -1) break;
-//					Interval interval = new Interval(index, index + pepSeq.length(), row++);
-//					peptideIntervals.add(interval);
-//				}
-//			}
-//			
-//			RadioButtonAdapter rba = null;
-//			List<HoverLabel> hovers = null;
-//			
-//			int blockSize = 10, length = sequence.length(), openIntervals = 0;
-//			for (int start = 0; start < length; start += blockSize) {
-//				int end = start + blockSize;
-//				end = (end > length) ? length : end;
-//				StringBuilder indexRow = new StringBuilder("<html><code>");
-//				int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
-//				for (int i = 0; i < spaces; i++) {
-//					indexRow.append("&nbsp");
-//				}
-//				indexRow.append(" " + (start + blockSize));
-//				indexRow.append("</html></code>");
-//				
-//				JPanel blockPnl = new JPanel(new BorderLayout());
-//				blockPnl.setOpaque(false);
-//				JLabel indexLbl = new JLabel(indexRow.toString());
-//				indexLbl.setBackground(new Color(0, 255, 0, 32));
-//				indexLbl.setOpaque(true);
-//				blockPnl.add(indexLbl, BorderLayout.NORTH);
-//
-//				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-//				subBlockPnl.setOpaque(false);
-//				subBlockPnl.setPreferredSize(new Dimension(70, 15));
-//				
-//				String blockSeq = sequence.substring(start, end);
-//				
-//				JComponent label = null;
-//				int blockLength = blockSeq.length();
-//				int subIndex = 0;
-//				for (int i = 0; i < blockLength; i++) {
-//					int pos = start + i;
-//					boolean isBorder = false;
-//					for (Interval interval : peptideIntervals) {
-//						if ((pos == (int) interval.getLeftBorder())) {
-//							label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
-//
-//							rba = new RadioButtonAdapter(coverageSelectionModel,
-//									((Integer) interval.getUserObject()).intValue());
-//							hovers = new ArrayList<HoverLabel>();
-//							
-//							isBorder = true;
-//							openIntervals++;
-//						}
-//						if ((pos == (int) interval.getRightBorder())) {
-//							label = new HoverLabel(blockSeq.substring(subIndex, i));
-//							((HoverLabel) label).setModel(rba);
-//							hovers.add((HoverLabel) label);
-//							
-//							for (HoverLabel hl : hovers) {
-//								hl.setSiblings(hovers);
-//							}
-//							
-//							isBorder = true;
-//							openIntervals--;
-//						}
-//						if (isBorder) {
-//							subBlockPnl.add(label);
-//							subIndex = i;
-//						}
-//					}
-//				}
-//				if (openIntervals > 0) {
-//					label = new HoverLabel(blockSeq.substring(subIndex));
-//					((HoverLabel) label).setModel(rba);
-//					hovers.add((HoverLabel) label);
-//				} else {
-//					label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
-//				}
-//				subBlockPnl.add(label);
-//
-//				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
-//				
-//				coveragePnl.add(blockPnl);
-//			}
-//		}
-//		coveragePnl.revalidate();
-//	}
 	
 	/**
 	 * Method to refresh PSM table contents.

@@ -188,5 +188,14 @@ public class DbSearchResult {
 		this.searchEngines = searchEngines;
 	}
 	
-	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = (obj instanceof DbSearchResult);
+		if (result) {
+			DbSearchResult that = (DbSearchResult) obj;
+			result = this.getProjectTitle().equals(that.getProjectTitle()) &&
+					this.getExperimentTitle().equals(that.getExperimentTitle());
+		}
+		return result;
+	}
 }

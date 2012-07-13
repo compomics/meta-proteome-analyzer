@@ -31,6 +31,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 		super(root);
 	}
 	
+	// TODO: API!
 	public void setSortKeys(List<? extends SortKey> sortKeys) {
 		if (!sortKeys.equals(this.sortKeys)) {
 			this.sortKeys = new ArrayList<SortKey>(sortKeys);
@@ -60,49 +61,30 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 		return shouldReset;
 	}
 	
-	/**
-	 * Sorts children of node, and all their children. Node need not be
-	 * sortable. (Although if it is not and neither are any descendants, nothing
-	 * will happen.) Called automatically if a child is added to or removed from
-	 * a node. Usually not necessary to call this directly unless node added
-	 * outside model or data changed.
-	 * 
-	 * @param parent - first node to be sorted.
-	 */
 	public void sort(TreeTableNode parent) {
 		doSort(parent, shouldReset());
-		modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));
 	}
 	
-	public void sort(TreePath path) {
-		doSort((TreeTableNode) path.getLastPathComponent(), shouldReset());
-		modelSupport.fireTreeStructureChanged(path);
-	}
-
 	private void doSort(TreeTableNode parent, boolean reset) {
 		if (parent instanceof SortableTreeNode) {
 			SortableTreeNode node = (SortableTreeNode) parent;
-			boolean canSort = node.canSort() && (reset) ? node.isSorted() : node.canSort(getSortKeys());
-			if (canSort) {
+			
+			if (node.canSort()) {
 				if (reset && node.isSorted()) {
 					node.reset();
 				} else if (!reset && node.canSort(getSortKeys())) {
 					node.sort(getSortKeys());
 				}
-			} else {
-				node.reset();
 			}
 			
 			for (int i = 0; i < parent.getChildCount(); i++) {
 			    TreeTableNode child = (TreeTableNode) parent.getChildAt(i);
-			    // TODO: find working way of notifying incremental changes instead of whole tree structure
-//		        modelSupport.firePathChanged(new TreePath(getPathToRoot(child)));
+		        modelSupport.fireChildChanged(new TreePath(getPathToRoot(parent)), i, child);
 		        doSort(child, reset);
 			}
-		    modelSupport.fireTreeStructureChanged(new TreePath(getRoot()));
 		}
 	}
-
+	
 	@Override
 	public void insertNodeInto(MutableTreeTableNode newChild,
 			MutableTreeTableNode parent, int index) {

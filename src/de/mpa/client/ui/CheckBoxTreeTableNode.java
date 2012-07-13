@@ -76,7 +76,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	
 	@Override
 	public Object getValueAt(int column) {
-		return this.userObjects[column];
+		return (column >= this.userObjects.length) ? null : this.userObjects[column];
 	}
 	
 	@Override

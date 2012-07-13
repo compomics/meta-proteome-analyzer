@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -196,6 +197,18 @@ public class FilePanel extends JPanel {
 				ProjectContent pj =  clientFrame.getProjectPanel().getCurrentProjectContent();
 				return (pj != null) ? pj.getProjectTitle() : "no project selected";
 			}
+			@Override
+			public Object getValueAt(int column) {
+				if (column >= 2) {
+					double sum = 0.0;
+					for (int j = 0; j < getChildCount(); j++) {
+						sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+					}
+					return sum;
+				} else {
+					return super.getValueAt(column);
+				}
+			}
 		};
 		final SortableTreeTableModel treeModel = new SortableTreeTableModel(treeRoot) {
 			{ setColumnIdentifiers(Arrays.asList(new String[] { "Spectra", "Path / Title", "Peaks", "TIC", "SNR"})); }
@@ -289,9 +302,6 @@ public class FilePanel extends JPanel {
 		JXTitledPanel topTtlPnl = PanelConfig.createTitledPanel("File input", topPnl);
 		
 		// Build bottom panel
-		histPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		histPnl.setMinimumSize(new Dimension(300, 250));
-		histPnl.setPreferredSize(new Dimension(300, 250));
 		
 		// Spectrum panel containing spectrum viewer
 		spectrumPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -303,6 +313,19 @@ public class FilePanel extends JPanel {
 		// wrap spectrum panel in titled panel
 		JXTitledPanel spectrumTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", spectrumPnl);
 		spectrumTtlPnl.setMinimumSize(new Dimension(450, 350));
+		
+		// Panel containing histogram plot
+		histPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		histPnl.setMinimumSize(new Dimension(300, 250));
+		histPnl.setPreferredSize(new Dimension(300, 250));
+		
+		// Create chart panel
+		ticList.add(0.0);
+		TotalIonHistogram histogram = new TotalIonHistogram(ticList);
+		ChartPanel chartPanel = new ChartPanel(histogram.getChart());
+		chartPanel.setPreferredSize(new Dimension(0, 0));
+		chartPanel.setBorder(BorderFactory.createEtchedBorder());
+		histPnl.add(chartPanel, CC.xy(2, 2));
 		
 		// wrap spectrum panel in titled panel
 		JXTitledPanel histTtlPnl = PanelConfig.createTitledPanel("Histogram", histPnl);
@@ -601,12 +624,13 @@ public class FilePanel extends JPanel {
 			filesTtf.setText((Integer.parseInt(str) + selFiles.length) + " file(s) selected - " + ticList.size() + " total spectra");
 			
 			// Show histogram TODO: Currently the histogram is shown for all files... would be better to show for selected files only.
+			histPnl.removeAll();
 //			TotalIonHistogram histogram = new TotalIonHistogram(new SpectrumData(totalSpectraList, selFiles[0].getName()));
 			TotalIonHistogram histogram = new TotalIonHistogram(ticList);
 			
 			// Create chart panel
 			ChartPanel chartPanel = new ChartPanel(histogram.getChart());
-			chartPanel.setPreferredSize(new Dimension(380, 360));
+			chartPanel.setPreferredSize(new Dimension(0, 0));
 			histPnl.add(chartPanel, CC.xy(2, 2));
 		}
 	}
