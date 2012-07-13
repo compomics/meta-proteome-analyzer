@@ -1,7 +1,10 @@
 package de.mpa.client.model;
 
 public class SpectrumMatch {
-
+	/**
+	 * Marker, if Match is selected for export.
+	 */
+	private boolean selected = true;
 	/**
 	 * The search spectrum id;
 	 */
@@ -33,4 +36,11 @@ public class SpectrumMatch {
 		return "[ssID = " + searchSpectrumID + "]"; 
 	}
 
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
 }

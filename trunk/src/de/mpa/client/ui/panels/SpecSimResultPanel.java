@@ -866,11 +866,11 @@ public class SpecSimResultPanel extends JPanel {
 
 			int i = 1, maxSpecCount = 0;
 			for (PeptideHit peptideHit : peptideHits) {
-				int specCount = peptideHit.getSpectrumMatches().size();
+				int specCount = peptideHit.getSpectralCount();
 				maxSpecCount = Math.max(maxSpecCount, specCount);
 				((DefaultTableModel) peptideTbl.getModel())
 						.addRow(new Object[] { i++, peptideHit.getSequence(),
-								peptideHit.getSpectrumMatches().size() });
+								peptideHit.getSpectralCount() });
 			}
 
 			FontMetrics fm = getFontMetrics(chartFont);

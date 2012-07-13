@@ -13,7 +13,10 @@ import de.mpa.client.model.SpectrumMatch;
  *
  */
 public class PeptideHit {
-	
+	/**
+	 * Marker, if Peptide is selected for export.
+	 */
+	private boolean selected = true; //Math.random()<0.5;	
 	/**
 	 *  The peptide sequence
 	 */
@@ -160,4 +163,20 @@ public class PeptideHit {
 		Integer index = id2index.get(id);
 		return (index != null) ? spectrumMatches.get(id2index.get(id)) : null;
 	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+//		for (SpectrumMatch sm : spectrumMatches) {
+//			sm.setSelected(selected);
+//		}
+	}
+	
+	public int getSpectralCount() {
+		return getSpectrumMatches().size();
+	}
+	
 }

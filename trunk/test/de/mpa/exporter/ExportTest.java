@@ -52,10 +52,10 @@ public class ExportTest extends TestCase {
 		try {
 			filePath = path + File.separator + "testProtExp.csv";
 			ResultExporter.exportProteins(filePath, expResult);
-			filePath = path + File.separator  + "testPeptideExp.csv";
-			ResultExporter.exportPeptides(filePath, expResult);
-			filePath = path + File.separator  + "testPSMExp.csv";
-			ResultExporter.exportPSMs(filePath, expResult);
+//			filePath = path + File.separator  + "testPeptideExp.csv";
+//			ResultExporter.exportPeptides(filePath, expResult);
+//			filePath = path + File.separator  + "testPSMExp.csv";
+//			ResultExporter.exportPSMs(filePath, expResult);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

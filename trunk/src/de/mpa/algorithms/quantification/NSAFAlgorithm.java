@@ -26,7 +26,7 @@ public class NSAFAlgorithm implements QuantMethod {
 		for ( ProteinHit proteinHit : proteinHitMap.values()) {
 			double pepSum = 0.0;
 			for ( PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-				pepSum += peptideHit.getSpectrumMatches().size();
+				pepSum += peptideHit.getSpectralCount();
 			}
 			protSum += pepSum / proteinHit.getSequence().length();
 		}
@@ -34,7 +34,7 @@ public class NSAFAlgorithm implements QuantMethod {
 		// Calculate the number of spectrum matches weighted by sequence length for protein of interest
 		double protOfInterestSum = 0.0;
 		for (PeptideHit peptideHitofInterest : proteinHitOfInterest.getPeptideHitList()) {
-			protOfInterestSum += peptideHitofInterest.getSpectrumMatches().size();
+			protOfInterestSum += peptideHitofInterest.getSpectralCount();
 		}
 		protOfInterestSum /= proteinHitOfInterest.getSequence().length();
 

@@ -24,6 +24,10 @@ import de.mpa.client.model.SpectrumMatch;
  */
 public class ProteinHit {
 	/**
+	 * Marker, if Protein is selected for export.
+	 */
+	private boolean selected = true; //Math.random()<0.5;
+	/**
 	 * Protein accession.
 	 */
 	private String accession;
@@ -353,5 +357,15 @@ public class ProteinHit {
 	 */
 	public UniProtEntry getUniprotEntry() {
 		return uniprotEntry;
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+//		for (PeptideHit ph : peptideHits.values()) {
+//			ph.setSelected(selected);
+//		}
 	}
 }
