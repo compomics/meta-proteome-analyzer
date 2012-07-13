@@ -57,6 +57,8 @@ public class DbSearchResult {
 		this.projectTitle = projectTitle;
 		this.experimentTitle = experimentTitle;
 		this.fastaDB = fastaDB;
+		this.searchDate = new Date();
+		//TODO: set date from actual date to search date
 	}
 
 	/**

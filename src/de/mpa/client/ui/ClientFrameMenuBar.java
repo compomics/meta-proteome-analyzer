@@ -501,12 +501,12 @@ public class ClientFrameMenuBar extends JMenuBar {
 				case PROTEIN:
 					ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
 					break;
-				case PEPTIDE:
-					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDbSearchResult());
-					break;
-				case PSM: 
-					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDbSearchResult());
-					break;
+//				case PEPTIDE:
+//					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDbSearchResult());
+//					break;
+//				case PSM: 
+//					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDbSearchResult());
+//					break;
 				default:
 					break;
 				}

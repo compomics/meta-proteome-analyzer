@@ -396,7 +396,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		};
 		proteinTbl = new JXTable(proteinTblMdl) {
-			private Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+			public Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer,
 					int row, int column) {
@@ -408,8 +408,10 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			@Override
 			public void setValueAt(Object aValue, int row, int column) {
-				// TODO Auto-generated method stub
 				super.setValueAt(aValue, row, column);
+				if (column == PROT_SELECTION) {
+					dbSearchResult.getProteinHits().get(getValueAt(row,PROT_ACCESSION)).setSelected((Boolean) aValue);
+				}
 			}
 		};
 		
@@ -455,7 +457,7 @@ public class DbSearchResultPanel extends JPanel {
 		selChk.setSelected(true);
 
 		// Add filter button and checkbox widgets to column headers
-		for (int col = 0; col < tcm.getColumnCount(); col++) {
+		for (int col = PROT_SELECTION; col < tcm.getColumnCount(); col++) {
 			switch (col) {
 			case PROT_SELECTION:
 				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
@@ -557,7 +559,7 @@ public class DbSearchResultPanel extends JPanel {
 				// prevent auto-resorting while iterating rows for performance reasons
 				tsc.setSortsOnUpdates(false);
 				for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-					proteinTblMdl.setValueAt(selected, row, PROT_SELECTION);
+					proteinTbl.setValueAt(selected, row, PROT_SELECTION);
 				}
 				tsc.setSortsOnUpdates(true);
 				// re-sort rows after iteration finished
@@ -644,6 +646,14 @@ public class DbSearchResultPanel extends JPanel {
 				}
 				return comp;
 			}
+			@Override
+			public void setValueAt(Object aValue, int row, int column) {
+				super.setValueAt(aValue, row, column);
+				if (column == PEP_SELECTION) {
+					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION));
+					proteinHit.getPeptideHits().get(getValueAt(row, PEP_SEQUENCE)).setSelected((Boolean) aValue);
+				}
+			}
 		};
 
 		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 1, 4, 3});
@@ -711,7 +721,7 @@ public class DbSearchResultPanel extends JPanel {
 				// prevent auto-resorting while iterating rows for performance reasons
 				tsc.setSortsOnUpdates(false);
 				for (int row = 0; row < peptideTbl.getRowCount(); row++) {
-					peptideTblMdl.setValueAt(selected, row, PEP_SELECTION);
+					peptideTbl.setValueAt(selected, row, PEP_SELECTION);
 				}
 				tsc.setSortsOnUpdates(true);
 				// re-sort rows after iteration finished
@@ -834,6 +844,19 @@ public class DbSearchResultPanel extends JPanel {
 				}
 				return null;
 			}
+			@Override
+			public void setValueAt(Object aValue, int row, int column) {
+				super.setValueAt(aValue, row, column);
+				if (column == PSM_SELECTION) {
+					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION));
+					
+					Map<String, PeptideHit> peptideHits = proteinHit.getPeptideHits();
+					int selectedPeptideRow = peptideTbl.getSelectedRow();
+					String sequence = (String) peptideTbl.getValueAt(selectedPeptideRow, PEP_SEQUENCE);
+					PeptideHit peptideHit = peptideHits.get(sequence);
+					peptideHit.getSpectrumMatches().get((Integer) getValueAt(row, PSM_INDEX)-1).setSelected((Boolean) aValue);
+				}
+			}
 		};
 		
 		// adjust column widths
@@ -926,7 +949,7 @@ public class DbSearchResultPanel extends JPanel {
 				// prevent auto-resorting while iterating rows for performance reasons
 				tsc.setSortsOnUpdates(false);
 				for (int row = 0; row < psmTbl.getRowCount(); row++) {
-					psmTblMdl.setValueAt(selected, row, PSM_SELECTION);
+					psmTbl.setValueAt(selected, row, PSM_SELECTION);
 				}
 				tsc.setSortsOnUpdates(true);
 				// re-sort rows after iteration finished
@@ -1042,13 +1065,13 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	protected void refreshProteinTable() {
 		
-		dbSearchResult = Client.getInstance().getDbSearchResult(
+				dbSearchResult = Client.getInstance().getDbSearchResult(
 				clientFrame.getProjectPanel().getCurrentProjectContent(),
 				clientFrame.getProjectPanel().getCurrentExperimentContent());
 		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
-			boolean selected = ((AbstractButton) ((ComponentHeaderRenderer) proteinTbl.getColumnModel().getColumn(PROT_SELECTION).getHeaderRenderer()).getComponent()).isSelected();
+//			boolean selected = ((AbstractButton) ((ComponentHeaderRenderer) proteinTbl.getColumnModel().getColumn(PROT_SELECTION).getHeaderRenderer()).getComponent()).isSelected();
 
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 			int i = 1, maxPeptideCount = 0, maxSpecCount = 0;
@@ -1082,7 +1105,7 @@ public class DbSearchResultPanel extends JPanel {
 				maxNSAF = Math.max(maxNSAF, nsaf);
 				
 				proteinTblMdl.addRow(new Object[] {
-						selected,
+						proteinHit.isSelected(),
 						i++,
 						proteinHit.getAccession(),
 						proteinHit.getDescription(),
@@ -1160,11 +1183,11 @@ public class DbSearchResultPanel extends JPanel {
 					peptideIntervals.add(interval);
 				}
 				// Determine maximum spectral count
-				int specCount = peptideHit.getSpectrumMatches().size();
+				int specCount = peptideHit.getSpectralCount();
 				maxSpecCount = Math.max(maxSpecCount, specCount);
 				// Add table row
 				peptideTblMdl.addRow(new Object[] {
-						true,
+						peptideHit.isSelected(),
 						row,
 						peptideHit.getSequence(),
 						specCount});
@@ -1417,7 +1440,7 @@ public class DbSearchResultPanel extends JPanel {
 					}
 					maxVotes = Math.max(maxVotes, psm.getVotes());
 					psmTblMdl.addRow(new Object[] {
-							true,
+							sm.isSelected(),
 							i++,
 							psm.getCharge(),
 							psm.getVotes(),
@@ -1930,6 +1953,5 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			super.paintComponent(g);
 		}
-	}
-	
+	}	
 }
