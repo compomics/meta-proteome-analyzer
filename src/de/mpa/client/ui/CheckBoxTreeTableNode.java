@@ -18,16 +18,21 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	protected transient Object[] userObjects;
 	
 	/**
-	 * The flag determining whether the selection state may be changed.
+	 * The flag determining whether the selection state may be changed. 
+	 * Defaults to <code>false</code>.
 	 */
 	private boolean fixed = false;
 	
+	/**
+	 * Constructs a tree table node bearing checkbox-related properties.
+	 */
 	public CheckBoxTreeTableNode() {
 		this(new Object());
 	}
 	
 	/**
-	 * Class constructor accepting one or more objects corresponding to the node's columns.
+	 * Constructs a tree table node bearing checkbox-related properties 
+	 * accepting one or more objects corresponding to the node's columns.
 	 * @param userObjects The objects to store.
 	 */
 	public CheckBoxTreeTableNode(Object... userObjects) {
@@ -36,11 +41,11 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	}
 
 	/**
-	 * Class constructor accepting a single user object and for setting the node's fixed state flag, 
-	 * which determines whether the node's selection state may be changed.
+	 * Constructs a tree table node bearing checkbox-related properties 
+	 * accepting a single user object and setting the node's <code>fixed</code> state flag.
 	 * @param userObject The object to store.
-	 * @param fixed The node's fixed state flag. <code>true</code> if the selection may be changed, 
-	 * <code>false</code> otherwise 
+	 * @param fixed <code>true</code> if this node's checkbox selection state 
+	 * cannot be changed, <code>false</code> otherwise.
 	 */
 	public CheckBoxTreeTableNode(Object userObject, boolean fixed) {
 		this(userObject);
@@ -84,15 +89,43 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 		this.userObjects[column] = aValue;
 	}
 	
+	/**
+	 * Returns this node's <code>fixed</code> flag.
+	 * @return
+	 */
 	public boolean isFixed() {
 		return fixed;
 	}
 	
+	/**
+	 * Sets this node's <code>fixed</code> flag.
+	 * @param fixed <code>true</code> if this node's checkbox selection state 
+	 * cannot be changed, <code>false</code> otherwise.
+	 */
 	public void setFixed(boolean fixed) {
 		this.fixed = fixed;
 	}
 	
-	// starting here everything was copied from DefaultMutableTreeNode
+	/**
+	 * Returns the {@link TreePath} leading from the tree's root to this node.
+	 * @return The path to this node.
+	 */
+	public TreePath getPath() {
+		CheckBoxTreeTableNode node = this;
+	    List<CheckBoxTreeTableNode> list = new ArrayList<CheckBoxTreeTableNode>();
+
+	    // Add all nodes to list
+	    while (node != null) {
+	        list.add(node);
+	        node = (CheckBoxTreeTableNode) node.getParent();
+	    }
+	    Collections.reverse(list);
+
+	    // Convert array of nodes to TreePath
+	    return new TreePath(list.toArray());
+	}
+	
+	/* starting here everything was copied from DefaultMutableTreeNode */
 	// TODO: optimize finding all leaves (see depthFirstEnumeration)
 
 	/**
@@ -279,21 +312,6 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 			return nextSibling.getFirstLeaf();
 
 		return myParent.getNextLeaf();	// tail recursion
-	}
-	
-	public TreePath getPath() {
-		CheckBoxTreeTableNode node = this;
-	    List<CheckBoxTreeTableNode> list = new ArrayList<CheckBoxTreeTableNode>();
-
-	    // Add all nodes to list
-	    while (node != null) {
-	        list.add(node);
-	        node = (CheckBoxTreeTableNode) node.getParent();
-	    }
-	    Collections.reverse(list);
-
-	    // Convert array of nodes to TreePath
-	    return new TreePath(list.toArray());
 	}
 
 }

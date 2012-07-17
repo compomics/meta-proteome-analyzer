@@ -134,11 +134,11 @@ public class SpecSimResultPanel extends JPanel {
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane(proteinTbl);
-		proteinTableScp.setPreferredSize(new Dimension(800, 200));
+		proteinTableScp.setPreferredSize(new Dimension(800, 180));
 		JScrollPane peptideTableScp = new JScrollPane(peptideTbl);
-		peptideTableScp.setPreferredSize(new Dimension(350, 150));
+		peptideTableScp.setPreferredSize(new Dimension(350, 130));
 		JScrollPane ssmTableScp = new JScrollPane(ssmTbl);
-		ssmTableScp.setPreferredSize(new Dimension(350, 150));
+		ssmTableScp.setPreferredSize(new Dimension(350, 130));
 		
 		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
 		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);

@@ -87,15 +87,15 @@ public class DeNovoResultPanel extends JPanel {
 	 */
 	private void initComponents() {
 		CellConstraints cc = new CellConstraints();
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, t:p:g, 5dlu, t:p:g, 5dlu"));
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		
         // Build the spectrum overview panel
         JPanel spectrumOverviewPnl = new JPanel(new BorderLayout());
         spectrumJPanel = new JPanel();
         spectrumJPanel.setLayout(new BorderLayout());
-        spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
+        spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         spectrumJPanel.add(new SpectrumPanel(new double[]{0.0, 100.0}, new double[]{100.0, 0.0}, 0.0, "", ""));
-        spectrumJPanel.setPreferredSize(new Dimension(100, 400));
+        spectrumJPanel.setPreferredSize(new Dimension(100, 350));
         spectrumOverviewPnl.add(spectrumJPanel);
 
 		JXTitledPanel specTtlPnl = PanelConfig.createTitledPanel("Spectrum Viewer", spectrumOverviewPnl);
@@ -125,7 +125,7 @@ public class DeNovoResultPanel extends JPanel {
 		
 		JXTitledPanel specHitsTtlPnl = PanelConfig.createTitledPanel("Query Spectra", spectraPnl);
 		JScrollPane spectraTblScp = new JScrollPane(spectraTbl);
-		spectraTblScp.setPreferredSize(new Dimension(400, 230));
+		spectraTblScp.setPreferredSize(new Dimension(400, 210));
 		
 		spectraTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		spectraTblScp.setToolTipText("Select spectra");
@@ -133,7 +133,7 @@ public class DeNovoResultPanel extends JPanel {
 		
 		JScrollPane solutionsTblScp = new JScrollPane();
 		solutionsTblScp.setViewportView(solutionsTbl);
-		solutionsTblScp.setPreferredSize(new Dimension(550, 230));
+		solutionsTblScp.setPreferredSize(new Dimension(550, 210));
 		
 		final JPanel solutionsPnl = new JPanel();
 		solutionsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
