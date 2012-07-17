@@ -11,12 +11,13 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
@@ -39,6 +40,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -161,7 +163,7 @@ public class DbSearchResultPanel extends JPanel {
 
 	private JXTitledPanel psmTtlPnl;
 
-	private SortableCheckBoxTreeTable protTreeTbl;
+	private SortableCheckBoxTreeTable protFlatTreeTbl;
 	
 	/**
 	 * Constructor for a database results panel.
@@ -196,15 +198,15 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane(proteinTbl);
-		proteinTableScp.setPreferredSize(new Dimension(800, 200));
+		proteinTableScp.setPreferredSize(new Dimension(800, 180));
 		JScrollPane peptideTableScpn = new JScrollPane(peptideTbl);
-		peptideTableScpn.setPreferredSize(new Dimension(350, 150));
+		peptideTableScpn.setPreferredSize(new Dimension(350, 130));
 		JScrollPane coverageScpn = new JScrollPane(coveragePnl);
-		coverageScpn.setPreferredSize(new Dimension(350, 150));
+		coverageScpn.setPreferredSize(new Dimension(350, 130));
 		coverageScpn.getVerticalScrollBar().setUnitIncrement(16);
 		coverageScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		JScrollPane psmTableScp = new JScrollPane(psmTbl);
-		psmTableScp.setPreferredSize(new Dimension(350, 150));
+		psmTableScp.setPreferredSize(new Dimension(350, 130));
 		
 		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
 		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
@@ -222,74 +224,39 @@ public class DbSearchResultPanel extends JPanel {
 		});
 //		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
 		
+		String[] cardLabels = new String[] {"Original", "Flat View", "Taxonomic View", "E.C. View"};
+		
 		final CardLayout protCardLyt = new CardLayout();
 		final JPanel protCardPnl = new JPanel(protCardLyt);
-		protCardPnl.add(proteinTableScp);
+		protCardPnl.add(proteinTableScp, cardLabels[0]);
 		
-		// XXX: protein table as sortable checkbox tree table, lots of test code to be removed later on :)
-		SortableCheckBoxTreeTableNode protTreeRoot = new SortableCheckBoxTreeTableNode("root");
-		SortableTreeTableModel protTreeTblMdl = new SortableTreeTableModel(protTreeRoot) {
-			{ setColumnIdentifiers(Arrays.asList(
-					new String[] { "Accession", "Description", "Species", "SC",
-							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF" } ));
-			}
-		};
-		protTreeTbl = new SortableCheckBoxTreeTable(protTreeTblMdl) {
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return (column == getHierarchicalColumn());
-			}
-		};
+		setupProteinTreeTables();
+		JScrollPane protFlatTreeScpn = new JScrollPane(protFlatTreeTbl);
+		protFlatTreeScpn.setPreferredSize(new Dimension(800, 180));
+		JScrollPane protTaxonTreeScpn = new JScrollPane();	// TODO: insert proper tree tables
+		protTaxonTreeScpn.setPreferredSize(new Dimension(800, 180));
+		JScrollPane protEnzymeTreeScpn = new JScrollPane();
+		protEnzymeTreeScpn.setPreferredSize(new Dimension(800, 180));
 		
-		BasicTreeUI btui = (BasicTreeUI) ((JXTree) (protTreeTbl.getCellRenderer(0, protTreeTbl.getHierarchicalColumn()))).getUI();
-		btui.setLeftChildIndent(5);
-		btui.setRightChildIndent(7);
-		
-//		protTreeTbl.setShowsRootHandles(false);
-		protTreeTbl.setRootVisible(false);
-		ImageIcon proteinIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/protein.png"));
-		protTreeTbl.setLeafIcon(proteinIcon);
-
-		TableColumnModel tcm = protTreeTbl.getColumnModel();
-		tcm.getColumn(1).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		DecimalFormat x100formatter = new DecimalFormat("0.00");
-		x100formatter.setMultiplier(100);
-		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter(
-				0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, x100formatter));
-		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
-		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
-		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new BarChartHighlighter());
-		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
-		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
-		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
-		
-		JScrollPane protTreeScpn = new JScrollPane(protTreeTbl);
-		protTreeScpn.setPreferredSize(new Dimension(800, 200));
-		TableConfig.setColumnWidths(protTreeTbl, new double[] { 13.25, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
-		TableConfig.setColumnMinWidths(protTreeTbl,
-				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
-				createFilterButton(0, null, 0).getPreferredSize().width + 8);
-		
-		protCardPnl.add(protTreeScpn);
+		protCardPnl.add(protFlatTreeScpn, cardLabels[1]);
+		protCardPnl.add(protTaxonTreeScpn, cardLabels[2]);
+		protCardPnl.add(protEnzymeTreeScpn, cardLabels[3]);
 		
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 		
 		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p", "p"));
 		protBtnPnl.setOpaque(false);
 		
-		JButton swapBtn = new JButton("\u21C4");
-		swapBtn.setPreferredSize(new Dimension(20, 20));
-		swapBtn.setMargin(new Insets(0, 0, 0, 0));
-		swapBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				protCardLyt.next(protCardPnl);
+		JComboBox swapCbx = new JComboBox(cardLabels);
+		swapCbx.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				protCardLyt.show(protCardPnl, (String) e.getItem());
 			}
 		});
+		swapCbx.setPreferredSize(new Dimension(swapCbx.getPreferredSize().width, 20));
 		
-		protBtnPnl.add(swapBtn, CC.xy(1, 1));
+		protBtnPnl.add(swapCbx, CC.xy(1, 1));
 		protBtnPnl.add(getResultsBtn, CC.xy(3, 1));
 		
 		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
@@ -362,7 +329,7 @@ public class DbSearchResultPanel extends JPanel {
 		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
 		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
 		spectrumJPanel.add(new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", ""));
-		spectrumJPanel.setMinimumSize(new Dimension(300, 200));
+		spectrumJPanel.setMinimumSize(new Dimension(300, 180));
 		
 		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
 		spectrumOverviewPnl.add(constructSpectrumFilterPanel(), BorderLayout.EAST);
@@ -384,6 +351,7 @@ public class DbSearchResultPanel extends JPanel {
 		multiSplitPane.add(pepTtlPnl, "peptide");
 		multiSplitPane.add(psmTtlPnl, "psm");
 		multiSplitPane.add(specTtlPnl, "plot");
+//		multiSplitPane.setPreferredSize(new Dimension(0, 0));
 		
 		this.add(multiSplitPane, CC.xy(2, 2));
 	}
@@ -681,6 +649,55 @@ public class DbSearchResultPanel extends JPanel {
 				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
 		proteinTbl.getColumnControl().setOpaque(false);
 		((ColumnControlButton) proteinTbl.getColumnControl()).setAdditionalActionsVisible(false);
+	}
+	
+	private void setupProteinTreeTables() {
+
+		
+		// XXX: protein table as sortable checkbox tree table, lots of test code to be removed later on :)
+		SortableCheckBoxTreeTableNode protTreeRoot = new SortableCheckBoxTreeTableNode("root");
+		SortableTreeTableModel protTreeTblMdl = new SortableTreeTableModel(protTreeRoot) {
+			{ setColumnIdentifiers(Arrays.asList(
+					new String[] { "Accession", "Description", "Species", "SC",
+							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF" } ));
+			}
+		};
+		protFlatTreeTbl = new SortableCheckBoxTreeTable(protTreeTblMdl) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return (column == getHierarchicalColumn());
+			}
+		};
+		
+		BasicTreeUI btui = (BasicTreeUI) ((JXTree) (protFlatTreeTbl.getCellRenderer(0, protFlatTreeTbl.getHierarchicalColumn()))).getUI();
+		btui.setLeftChildIndent(5);
+		btui.setRightChildIndent(7);
+		
+//		protTreeTbl.setShowsRootHandles(false);
+		protFlatTreeTbl.setRootVisible(false);
+		ImageIcon proteinIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/protein.png"));
+		protFlatTreeTbl.setLeafIcon(proteinIcon);
+
+		TableColumnModel tcm = protFlatTreeTbl.getColumnModel();
+		tcm.getColumn(1).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		DecimalFormat x100formatter = new DecimalFormat("0.00");
+		x100formatter.setMultiplier(100);
+		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter(
+				0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, x100formatter));
+		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
+		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
+		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
+				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
+
+		TableConfig.setColumnWidths(protFlatTreeTbl, new double[] { 13.25, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnMinWidths(protFlatTreeTbl,
+				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
+				createFilterButton(0, null, 0).getPreferredSize().width + 8);
 	}
 	
 	// Peptide table column indices
@@ -1158,7 +1175,7 @@ public class DbSearchResultPanel extends JPanel {
 //			boolean selected = ((AbstractButton) ((ComponentHeaderRenderer) proteinTbl.getColumnModel().getColumn(PROT_SELECTION).getHeaderRenderer()).getComponent()).isSelected();
 
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
-			DefaultTreeTableModel protTreeTblMdl = (DefaultTreeTableModel) protTreeTbl.getTreeTableModel();
+			DefaultTreeTableModel protTreeTblMdl = (DefaultTreeTableModel) protFlatTreeTbl.getTreeTableModel();
 			
 			int i = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
@@ -1248,7 +1265,7 @@ public class DbSearchResultPanel extends JPanel {
 				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
 				
 				// XXX: repeat for tree table
-				tcm = protTreeTbl.getColumnModel();
+				tcm = protFlatTreeTbl.getColumnModel();
 				
 				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(3)).getHighlighters()[0];
 				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));

@@ -35,10 +35,10 @@ import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
+import de.mpa.client.ui.panels.ResultsPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
-import de.mpa.client.ui.panels.TreePanel;
 
 
 /**
@@ -56,7 +56,7 @@ public class ClientFrame extends JFrame {
 	private ProjectPanel projectPnl;
 	private Client client;
 	private FilePanel filePnl;
-	private DeNovoResultPanel denovoResPnl;
+//	private DeNovoResultPanel denovoResPnl;
 	private LoggingPanel logPnl;
 	public JButton sendBtn;
 	private ClientFrameMenuBar menuBar;
@@ -66,12 +66,13 @@ public class ClientFrame extends JFrame {
 	public JComboBox spectraCbx2;
 	private ClusterPanel clusterPnl;
 	protected List<File> chunkedFiles;
-	private DbSearchResultPanel dbSearchResPnl;
-	private SpecSimResultPanel specSimResPnl;
+//	private DbSearchResultPanel dbSearchResPnl;
+//	private SpecSimResultPanel specSimResPnl;
 	private SettingsPanel setPnl;
 	private StatusPanel statusPnl;
 	private JTabbedPane tabPane;
-	private TreePanel treePnl;
+//	private TreePanel treePnl;
+	private ResultsPanel resPnl;
 	private static ClientFrame frame;
 
 	/**
@@ -123,14 +124,14 @@ public class ClientFrame extends JFrame {
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
-		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
+//		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
 		
 		ImageIcon[] icons = new ImageIcon[] { projectIcon, addSpectraIcon, settingsIcon, resultsIcon, 
-				resultsIcon, resultsIcon, treeIcon, clusteringIcon, loggingIcon };
-		String[] titles = new String[] { "Project", "Input Spectra","Search Settings", "Spectral Search Results",
-				"Database Search Results", "De novo Results", "Phylogeny", "Clustering", "Logging"};
-		Component[] panels = new Component[] { projectPnl, filePnl, setPnl, specSimResPnl, 
-				dbSearchResPnl, denovoResPnl, treePnl, clusterPnl, logPnl};
+				clusteringIcon, loggingIcon };
+		String[] titles = new String[] { "Project", "Input Spectra","Search Settings", "View Results",
+				"Clustering", "Logging"};
+		Component[] panels = new Component[] { projectPnl, filePnl, setPnl, resPnl, 
+				clusterPnl, logPnl};
 
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets tabInsets = UIManager.getInsets("TabbedPane.tabInsets");
@@ -152,7 +153,7 @@ public class ClientFrame extends JFrame {
 		for (int i = 0; i < panels.length; i++) {
 //			tabPane.addTab(titles[i], icons[i], panels[i]);
 			tabPane.addTab("", panels[i]);
-			JButton tabButton = createTabButton(titles[i], icons[i]);
+			JButton tabButton = createTabButton(titles[i], icons[i], tabPane);
 			tabPane.setTabComponentAt(i, tabButton);
 			maxWidth = Math.max(maxWidth, tabButton.getPreferredSize().width);
 			maxHeight = Math.max(maxHeight, tabButton.getPreferredSize().height);
@@ -165,7 +166,7 @@ public class ClientFrame extends JFrame {
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 		
-		tabPane.setEnabledAt(7, false);
+		tabPane.setEnabledAt(4, false);
 
 		// Add components to content pane
 		this.setJMenuBar(menuBar);
@@ -208,18 +209,21 @@ public class ClientFrame extends JFrame {
 
 		// Settings Panel
 		setPnl = new SettingsPanel();
-
-		// Database search result panel
-		dbSearchResPnl = new DbSearchResultPanel();
 		
-		// Spectral similarity search result panel
-		specSimResPnl = new SpecSimResultPanel();
+		// Results Panel
+		resPnl = new ResultsPanel();
 
-		// DeNovoResults		
-		denovoResPnl = new DeNovoResultPanel();
-
-		// Tree panel
-		treePnl = new TreePanel();
+//		// Database search result panel
+//		dbSearchResPnl = new DbSearchResultPanel();
+//		
+//		// Spectral similarity search result panel
+//		specSimResPnl = new SpecSimResultPanel();
+//
+//		// DeNovoResults		
+//		denovoResPnl = new DeNovoResultPanel();
+//
+//		// Tree panel
+//		treePnl = new TreePanel();
 		
 		// Logging panel		
 		logPnl = new LoggingPanel();
@@ -231,42 +235,6 @@ public class ClientFrame extends JFrame {
 		
 	}
 
-//	/**
-//	 * Update the search engine user interface 
-//	 * whenever a new message comes in.
-//	 * @param message
-//	 */
-//	public void updateSearchEngineUI(String message){
-//		String finished = JobStatus.FINISHED.toString();
-//		String running = JobStatus.RUNNING.toString();
-//		if (message.contains(running)) {
-//			statusPnl.getCurrentStatusTextField().setText(running);
-//		} else if (message.contains(finished)) {
-//			statusPnl.getCurrentStatusTextField().setText(finished);
-//		}
-//		
-//		//appendToLog(message);
-////		} else if(message.startsWith("DBSEARCH")){
-////			for (File file : chunkedFiles) {
-////				dbSearchResult = client.getDbSearchResult(file);
-////				updateDbResultsTable();
-////			}
-////		} else if(message.startsWith("DENOVOSEARCH")){
-////			for (File file : chunkedFiles) {
-////				denovoSearchResult = client.getDenovoSearchResult(file);
-////				updateDenovoResultsTable();
-////			}
-////		}
-//	}
-//	
-//	/**
-//	 * Method to append text to the logging panel.
-//	 * @param str The String to append.
-//	 */
-//	public void appendToLog(String str) {
-//		logPnl.append(str);
-//	}
-	
 	/**
 	 * Returns the file selection panel.
 	 * @return
@@ -320,19 +288,19 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
-	 * Returns the spectral similarity search result panel.
-	 * @return The spectral similarity search result panel.
-	 */
-	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
-		return specSimResPnl;
-	}
-	
-	/**
 	 * Returns the database search result panel.
 	 * @return The database search result panel.
 	 */
 	public DbSearchResultPanel getDbSearchResultPanel() {
-		return dbSearchResPnl;
+		return resPnl.getDbSearchResultPanel();
+	}
+	
+	/**
+	 * Returns the spectral similarity search result panel.
+	 * @return The spectral similarity search result panel.
+	 */
+	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
+		return resPnl.getSpectralSimilarityResultPanel();
 	}
 	
 	/**
@@ -340,7 +308,7 @@ public class ClientFrame extends JFrame {
 	 * @return The de novo similarity search result panel.
 	 */
 	public DeNovoResultPanel getDeNovoSearchResultPanel() {
-		return denovoResPnl;
+		return resPnl.getDeNovoSearchResultPanel();
 	}
 	
 	/**
@@ -349,7 +317,7 @@ public class ClientFrame extends JFrame {
 	 * @param icon
 	 * @return
 	 */
-	private JButton createTabButton(String title, ImageIcon icon) {
+	public JButton createTabButton(String title, ImageIcon icon, final JTabbedPane tabPane) {
 		JButton button = new JButton(title, icon);
 		button.setRolloverIcon(IconConstants.createRescaledIcon(icon, 1.1f));
 		button.setPressedIcon(IconConstants.createRescaledIcon(icon, 0.8f));

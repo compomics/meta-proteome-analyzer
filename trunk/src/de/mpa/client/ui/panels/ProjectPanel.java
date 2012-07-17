@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -187,10 +186,17 @@ public class ProjectPanel extends JPanel {
 		expTtlPnl.setTitleForeground(ttlForeground);
 		
 		// Next button
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g", "b:p:g"));
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
 		
-		JButton nextBtn = new JButton("Next",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/next.png")));
+		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
+		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
+		prevBtn.setFont(prevBtn.getFont().deriveFont(
+				Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
+		prevBtn.setEnabled(false);
+		
+		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
+		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
+		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
 		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
 		nextBtn.setFont(nextBtn.getFont().deriveFont(
 				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
@@ -200,8 +206,9 @@ public class ProjectPanel extends JPanel {
 				clientFrame.getTabPane().setSelectedIndex(1);
 			}
 		});
-		
-		navPnl.add(nextBtn, CC.xy(1,1));
+
+		navPnl.add(prevBtn, CC.xy(1,1));
+		navPnl.add(nextBtn, CC.xy(3,1));
 
 		this.add(curProjTtlPnl, CC.xy(2, 2));
 		this.add(projTtlPnl, CC.xy(2, 4));

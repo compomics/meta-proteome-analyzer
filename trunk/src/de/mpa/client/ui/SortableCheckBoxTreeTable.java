@@ -27,8 +27,15 @@ import org.jdesktop.swingx.treetable.TreeTableModel;
  */
 public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 
+	/**
+	 * Set holding the {@link TreePaths} of the tree's expanded nodes. 
+	 */
 	private Set<TreePath> expanded = new HashSet<TreePath>();
 	
+	/**
+	 * Flag denoting whether expansion states are toggled programmatically to circumvent 
+	 * local {@link TreeExpansionListener} event handling.
+	 */
 	private boolean expanding = false;
 
 	/**
@@ -38,27 +45,32 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 	 */
 	public SortableCheckBoxTreeTable(TreeTableModel treeModel) {
 		super(treeModel);
+		// Check whether the provided tree model is sortable.
 		if (!(treeModel instanceof SortableTreeTableModel)) {
 			throw new IllegalArgumentException(
 					"Model must be a SortableTreeTableModel");
 		}
 
-		superSetSortable(true);
-		setAutoCreateRowSorter(true);
-		setRowSorter(new TreeTableRowSorter<TableModel>(this));
+		// Install row sorter to enable sorting by clicking on column header.
+		this.setSortable(true);
+		this.setAutoCreateRowSorter(true);
+		this.setRowSorter(new TreeTableRowSorter<TableModel>(this));
 		
+		// Install expansion listener to keep track of expanded paths.
 		addTreeExpansionListener(new TreeExpansionListener() {
 			public void treeExpanded(TreeExpansionEvent event) {
-				if (!expanding) {
-					expanded.add(event.getPath());
-				}
+				if (!expanding) expanded.add(event.getPath());
 			}
 			public void treeCollapsed(TreeExpansionEvent event) {
-				if (!expanding) {
-					expanded.remove(event.getPath());
-				}
+				if (!expanding) expanded.remove(event.getPath());
 			}
 		});
+	}
+	
+	/* Overrides of sorting-related methods forwarding to JXTreeTable's hooks. */
+	@Override
+	public void setSortable(boolean sortable) {
+		superSetSortable(sortable);
 	}
 	
 	@Override
@@ -71,13 +83,29 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		superSetRowSorter(sorter);
 	}
 	
-	// TODO: API!
+	/**
+	 * Custom {@link RowSorter} for use with {@link JXTreeTables}. 
+	 * Use in conjunction with {@link SortableTreeTableModel}.
+	 * 
+	 * @author A. Behne
+	 * @param <M> the type of the underlying model
+	 */
 	private class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableModel> {
 		
+		/**
+		 * The {@link JXTreeTable} instance to which the sorter is applied.
+		 */
 		private JXTreeTable treeTable;
 		
+		/**
+		 * The tree table model instance with which the sorter communicates to request sorting.
+		 */
 		private SortableTreeTableModel treeModel;
 		
+		/**
+		 * Constructs a {@link RowSorter} for the provided {@link JXTreeTable}.
+		 * @param treeTable The tree table to which the sorter shall be attached.
+		 */
 		public TreeTableRowSorter(JXTreeTable treeTable) {
 			this.treeTable = treeTable;
 			this.treeModel = (SortableTreeTableModel) treeTable.getTreeTableModel();
@@ -119,6 +147,8 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 				if (sortKeys.get(0).getColumn() == column) {
 					if (sortKeys.get(0).getSortOrder() == SortOrder.ASCENDING) {
 						sortOrder = SortOrder.DESCENDING;
+					} else if (sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
+						sortOrder = SortOrder.UNSORTED;
 					}
 				}
 				sortKeys.add(0, new SortKey(column, sortOrder));
@@ -165,7 +195,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			expanding = false;
 		}
 
-		// don't need the rest for now
+		/* We don't need the rest of the overrides; the tree table model takes care of most of it */
 		public void allRowsChanged() {}
 		public void modelStructureChanged() {}
 		public void rowsDeleted(int firstRow, int endRow) {}

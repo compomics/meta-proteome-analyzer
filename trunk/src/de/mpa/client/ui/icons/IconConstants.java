@@ -121,14 +121,14 @@ public class IconConstants {
 	/** <img src="../../../resources/icons/next.png"> */
 	public static final ImageIcon NEXT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/next.png"));
 	/** @see IconConstants#DELETE_PAGE_ICON */
-	public static final ImageIcon NEXT_ROLLOVER_ICON = createRescaledIcon(NEXT_ICON, 1.1f);
+	public static final ImageIcon NEXT_ROLLOVER_ICON = createRescaledIcon(NEXT_ICON, 1.2f);
 	/** @see IconConstants#DELETE_PAGE_ICON */
 	public static final ImageIcon NEXT_PRESSED_ICON = createRescaledIcon(NEXT_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/next.png"> (flipped horizontally)*/
 	public static final ImageIcon PREV_ICON = createFlippedIcon(NEXT_ICON, SwingConstants.HORIZONTAL);
 	/** @see IconConstants#DELETE_PAGE_ICON */
-	public static final ImageIcon PREV_ROLLOVER_ICON = createRescaledIcon(PREV_ICON, 1.1f);
+	public static final ImageIcon PREV_ROLLOVER_ICON = createRescaledIcon(PREV_ICON, 1.2f);
 	/** @see IconConstants#DELETE_PAGE_ICON */
 	public static final ImageIcon PREV_PRESSED_ICON = createRescaledIcon(PREV_ICON, 0.8f);
 	
