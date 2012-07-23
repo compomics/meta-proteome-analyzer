@@ -185,11 +185,9 @@ public class Client {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public void sendFiles(List<File> files) throws FileNotFoundException, IOException {		
+	public void sendFiles(List<File> files) throws FileNotFoundException, IOException {
+		// FIXME!
 		// Send files iteratively
-		for (int i = 0; i < files.size(); i++){			
-			server.uploadFile(files.get(i).getName(), getBytesFromFile(files.get(i)));
-		}
 	}
 	
 	/**
@@ -231,9 +229,9 @@ public class Client {
 	    return bytes;
 	}
 	
-	public void runSearches(List<File> files, SearchSettings settings) {
-		for (int i = 0; i < files.size(); i++) {
-			settings.getFilenames().add(files.get(i).getName());
+	public void runSearches(List<String> filenames, SearchSettings settings) {
+		for (int i = 0; i < filenames.size(); i++) {
+			settings.getFilenames().add(filenames.get(i));
 		}
 		try {
 			server.runSearches(settings);
@@ -493,8 +491,9 @@ public class Client {
 	 * @return A list of files.
 	 * @throws IOException 
 	 */
-	public List<File> packSpectra(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException {
-		List<File> files = new ArrayList<File>();
+	public List<String> packAndSend(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException {
+		File file = null;
+		List<String> filenames = new ArrayList<String>();
 		FileOutputStream fos = null;
 		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
 		CheckBoxTreeTableNode fileRoot = (CheckBoxTreeTableNode) ((DefaultTreeTableModel) checkBoxTree.getTreeTableModel()).getRoot();
@@ -511,14 +510,16 @@ public class Client {
 					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
 						if (fos != null) {
 							fos.close();
+							server.uploadFile(file.getName(), getBytesFromFile(file));
+							file.delete();
 						}
-						File file = new File(filename + (numSpectra/packageSize) + ".mgf");
-						files.add(file);
+						
+						file = new File(filename + (numSpectra/packageSize) + ".mgf");
+						filenames.add(file.getName());
 						fos = new FileOutputStream(file);
 						long remaining = maxSpectra - numSpectra;
 						pSupport.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 					}
-//					MascotGenericFile mgf = ((SpectrumTree)checkBoxTree.getTree()).getSpectrumAt(spectrumNode);
 					MascotGenericFile mgf = FilePanel.getSpectrumForNode(spectrumNode);
 					mgf.writeToStream(fos);
 					fos.flush();
@@ -527,10 +528,11 @@ public class Client {
 				spectrumNode = spectrumNode.getNextLeaf();
 			}
 			fos.close();
+			server.uploadFile(file.getName(), getBytesFromFile(file));
 		} else {
 			throw new IOException("ERROR: No files selected.");
 		}
-		return files;
+		return filenames;
 	}
 
 	/**

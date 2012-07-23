@@ -38,7 +38,8 @@ import javax.xml.bind.annotation.XmlType;
     "dbss",
     "dnss",
     "expID",
-    "sss"
+    "sss",
+    "filenames"
 })
 public class SearchSettings {
 

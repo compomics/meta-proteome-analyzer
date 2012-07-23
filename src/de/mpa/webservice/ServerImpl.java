@@ -28,6 +28,7 @@ import de.mpa.job.Job;
 import de.mpa.job.JobManager;
 import de.mpa.job.JobStatus;
 import de.mpa.job.SearchType;
+import de.mpa.job.blast.BlastJob;
 import de.mpa.job.instances.CommonJob;
 import de.mpa.job.instances.CruxJob;
 import de.mpa.job.instances.DeleteJob;
@@ -214,11 +215,17 @@ public class ServerImpl implements Server {
 		// Add a de novo search job with the de novo search settings
 		Job pepNovoJob = new PepnovoJob(file, dnSettings.getModel(), dnSettings.getPrecursorTol(), dnSettings.getFragMassTol(), dnSettings.getNumSolutions());
 		jobManager.addJob(pepNovoJob);
+		
+		// Add BLAST search job
+		Job blastJob = new BlastJob(file, "uniprot_sprot.fasta");
+		jobManager.addJob(blastJob);
+		
 		// Add a de novo search results storing job
-		jobManager.addJob(new PepnovoStoreJob(pepNovoJob.getFilename()));
+		// TODO: Adapt this to new BLAST hit model.
+		//jobManager.addJob(new PepnovoStoreJob(pepNovoJob.getFilename()));
 		
 		// Clear the folders
-		jobManager.addJob(new DeleteJob());
+		//jobManager.addJob(new DeleteJob());
 	}
 	
 	/**
