@@ -86,6 +86,13 @@ public class PepnovoJob extends Job {
 		procCommands.add("-file");
 		procCommands.add(mgfFile.getAbsolutePath());
 		
+		// Generate blast queries
+		procCommands.add("-msb_generate_query");
+		
+		// Blast query name
+		procCommands.add("-msb_query_name");
+		procCommands.add(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName());
+		
 		// Model name.
 		procCommands.add("-model");
 		procCommands.add(model);
@@ -114,7 +121,7 @@ public class PepnovoJob extends Job {
 		setDescription("PEPNOVO");
 		procBuilder = new ProcessBuilder(procCommands);
 		procBuilder.directory(pepnovoFile);
-		  
+		
 		// Set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
 	}
@@ -128,7 +135,7 @@ public class PepnovoJob extends Job {
 		try {
 			proc = procBuilder.start();
 		} catch (IOException ioe) {
-			System.out.println(ioe.getMessage());
+			log.error(ioe.getMessage());
 			ioe.printStackTrace();
 		}
 
@@ -144,7 +151,8 @@ public class PepnovoJob extends Job {
 			writer = new BufferedWriter(new FileWriter(outputFile));
 			// Get input from scanner and send to stdout
 			while (scan.hasNext()) {
-				temp = scan.next();								
+				temp = scan.next();		
+				System.out.println(temp);
 				writer.write(temp);	
 				writer.newLine();
 			}

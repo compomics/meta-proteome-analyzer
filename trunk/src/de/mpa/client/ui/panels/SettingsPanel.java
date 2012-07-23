@@ -274,15 +274,12 @@ public class SettingsPanel extends JPanel {
 				processBtn.setEnabled(false);
 				clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				
-				client.firePropertyChange("new message", null, "PACKING SPECTRA");
 				try {
-					// pack files
+					// pack and send files
+					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 					long packSize = (Long) packSpn.getValue();
-					List<File> chunkedFiles = client.packSpectra(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
-					client.firePropertyChange("new message", null, "SENDING FILES");
-					// send files to server
-					client.sendFiles(chunkedFiles);
-
+					List<String> filenames = client.packAndSend(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
+					
 					// collect search settings
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
 					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
@@ -292,7 +289,7 @@ public class SettingsPanel extends JPanel {
 					
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 					// dispatch search request
-					client.runSearches(chunkedFiles, settings);
+					client.runSearches(filenames, settings);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

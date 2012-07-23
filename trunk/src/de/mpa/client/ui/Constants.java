@@ -21,12 +21,10 @@ public class Constants {
 	public final static String APPTITLE = "MetaProteomicsAnalyzer";
 
 	// Version number
-	public final static String VER_NUMBER = "0.4";
+	public final static String VER_NUMBER = "0.5";
 
 	public final static String SELECTED_ROW_HTML_FONT_COLOR = "#FFFFFF";
 	public final static String NOT_SELECTED_ROW_HTML_FONT_COLOR = "#0101DF";
-
-	public static final String[] DNBLAST_DB = { "Uniprot_sprot", "NCBI" };
 
 	public static final MascotGenericFile EMPTY_MGF = new MascotGenericFile(
 			"empty", ("BEGIN IONS\n" + "0.0\t999.0\n" + "90.909\t0.0\n"
@@ -34,5 +32,4 @@ public class Constants {
 
 	public static final int ALPHA_NUMERICAL = 0;
 	public static final int NUMERICAL = 1;
-
 }

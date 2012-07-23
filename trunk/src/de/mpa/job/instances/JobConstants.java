@@ -44,4 +44,8 @@ public class JobConstants {
 	
 	// The decoy suffix string
 	public final static String SUFFIX_DECOY = "_decoy";
+	
+	// Blastp
+	public final static String BLAST_PATH = "/scratch/metaprot/software/blast/bin/";
+	public final static String BLAST_EXE = "blastp";
 }
