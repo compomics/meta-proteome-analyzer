@@ -1,12 +1,15 @@
 package de.mpa.client.ui.panels;
 
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -14,20 +17,28 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot3D;
-import org.jfree.data.general.DefaultPieDataset;
+
+import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.kraken.uuw.services.remoting.RemoteDataAccessException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.UniprotAccessor;
+import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.client.Client;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.chart.OntologyData;
+import de.mpa.client.ui.chart.OntologyPieChart;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class ResultsPanel extends JPanel {
@@ -37,6 +48,12 @@ public class ResultsPanel extends JPanel {
 	private DbSearchResultPanel dbPnl;
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
+	private JButton updateBtn;
+	private Map<String, KeywordOntology> ontologyMap;
+	private HashMap<String, Integer> molFunctionOccMap;
+	private ChartPanel chartPnl;
+	private JXTitledPanel chartTtlPnl;
+	private OntologyData ontologyData;
 	
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
@@ -56,7 +73,8 @@ public class ResultsPanel extends JPanel {
 		JTabbedPane resTpn = new JTabbedPane(JTabbedPane.BOTTOM);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets);
 		
-		ovPnl = createOverviewPanel();
+		ovPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		createOverviewPanel();
 		
 		resTpn.addTab(" ", ovPnl);
 		resTpn.addTab(" ", dbPnl);
@@ -65,14 +83,10 @@ public class ResultsPanel extends JPanel {
 		resTpn.addTab("Phylogeny", new TreePanel());
 		
 		// TODO: use proper icons, possibly slightly larger ones, e.g. 40x40?
-		resTpn.setTabComponentAt(0, clientFrame.createTabButton("Overview",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/overview32.png")), resTpn));
-		resTpn.setTabComponentAt(1, clientFrame.createTabButton("Database Search Results",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/dbsearch32.png")), resTpn));
-		resTpn.setTabComponentAt(2, clientFrame.createTabButton("Spectral Similarity Results",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/view_page32.png")), resTpn));
-		resTpn.setTabComponentAt(3, clientFrame.createTabButton("Blast Search Results",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast32.png")), resTpn));
+		resTpn.setTabComponentAt(0, clientFrame.createTabButton("Overview",	new ImageIcon(getClass().getResource("/de/mpa/resources/icons/overview32.png")), resTpn));
+		resTpn.setTabComponentAt(1, clientFrame.createTabButton("Database Search Results", new ImageIcon(getClass().getResource("/de/mpa/resources/icons/dbsearch32.png")), resTpn));
+		resTpn.setTabComponentAt(2, clientFrame.createTabButton("Spectral Similarity Results", new ImageIcon(getClass().getResource("/de/mpa/resources/icons/view_page32.png")), resTpn));
+		resTpn.setTabComponentAt(3, clientFrame.createTabButton("Blast Search Results",	new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast32.png")), resTpn));
 		Component tabComp = resTpn.getTabComponentAt(0);
 		tabComp.setPreferredSize(new Dimension(tabComp.getPreferredSize().width, 40));
 
@@ -83,8 +97,7 @@ public class ResultsPanel extends JPanel {
 		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
 		prevBtn.setPressedIcon(IconConstants.PREV_PRESSED_ICON);
 		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		prevBtn.setFont(prevBtn.getFont().deriveFont(
-				Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
+		prevBtn.setFont(prevBtn.getFont().deriveFont(Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
 		prevBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -95,8 +108,7 @@ public class ResultsPanel extends JPanel {
 		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
 		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
 		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		nextBtn.setFont(nextBtn.getFont().deriveFont(
-				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
+		nextBtn.setFont(nextBtn.getFont().deriveFont(Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
 		nextBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -111,38 +123,130 @@ public class ResultsPanel extends JPanel {
 		this.add(resTpn, CC.xyw(1, 1, 2));
 		this.add(navPnl, CC.xy(1, 3));
 	}
-
-	private JPanel createOverviewPanel() {
-		JPanel ovPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+	
+	private void createChart() {
 		
-		DefaultPieDataset pieDataset = new DefaultPieDataset();
-		pieDataset.setValue("Resembles Pac-Man", 80);
-		pieDataset.setValue("Does not resemble Pac-Man", 20);
-		
-		JFreeChart pieChart = ChartFactory.createPieChart3D("Chart of the Day", pieDataset, false, false, false);
-		pieChart.setBackgroundPaint(null);
-		
-		PiePlot3D plot = (PiePlot3D) pieChart.getPlot();
-        plot.setStartAngle(324);
-        plot.setCircular(true);
-        plot.setForegroundAlpha(0.75f);
-        plot.setBackgroundPaint(null);
-        plot.setSectionPaint("Resembles Pac-Man", Color.YELLOW);
-        plot.setSectionPaint("Does not resemble Pac-Man", Color.PINK.darker());
-		
-		ChartPanel chartPnl = new ChartPanel(pieChart);
+		OntologyPieChart ontologyPieChart = new OntologyPieChart(ontologyData);
+		// Create chart panel
+		chartPnl = new ChartPanel(ontologyPieChart.getChart());
 		chartPnl.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		
-		JXTitledPanel chartTtlPnl = new JXTitledPanel("Overview", chartPnl);
-		chartTtlPnl.setTitleFont(PanelConfig.getTitleFont());
-		chartTtlPnl.setTitlePainter(PanelConfig.getTitlePainter());
-		chartTtlPnl.setBorder(PanelConfig.getTitleBorder());
-		
+		chartPnl.updateUI();
+		if(chartTtlPnl != null) {
+			chartTtlPnl.removeAll();
+		}
+		chartTtlPnl = PanelConfig.createTitledPanel("Overview", chartPnl);
+		chartTtlPnl.setRightDecoration(updateBtn);
+		chartTtlPnl.repaint();
+		chartTtlPnl.revalidate();
+		if(ovPnl.getComponentCount() > 0) {
+			ovPnl.removeAll();
+		}
 		ovPnl.add(chartTtlPnl, CC.xy(2, 2));
-		
-		return ovPnl;
 	}
+	
+	private void createOverviewPanel() {
+		
+		// Defaults
+		Map<String, Integer> occurrencyMap = new HashMap<String, Integer>();
+		occurrencyMap.put("Resembles Pac-Man", 80);
+		occurrencyMap.put("Does not resemble Pac-Man", 20);
+		ontologyData = new OntologyData(occurrencyMap);
+		
+		updateBtn = new JButton("Update");
+		updateBtn.setFocusPainted(false);
+		updateBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateButtonPressed();
+			}
+		});
+		createChart();
+	}
+	
+	protected void updateButtonPressed() {
+		UpdateTask resultsTask = new UpdateTask();
+		resultsTask.execute();
+		
+	}
+	
+	/**
+	 * This method sets up the ontologies.
+	 * @param dbSearchResult Database search result data.
+	 */
+	public void setupOntologies(DbSearchResult dbSearchResult) {
+		// Get the ontology map.
+		if(ontologyMap == null) {
+			ontologyMap = UniprotAccessor.getOntologyMap();
+		}
+		
+		// Map to count the occurrences of each molecular function.
+		ontologyData.clear();
+		
+		// TODO: Extend this map to support other ontologies!
+		molFunctionOccMap = new HashMap<String, Integer>();
+		
+		for (ProteinHit proteinHit : dbSearchResult.getProteinHits().values()) {
+			UniProtEntry entry = proteinHit.getUniprotEntry();
+			
+			List<Keyword> keywords = entry.getKeywords();
+			for (Keyword kw : keywords) {
+				String keyword = kw.getValue();
+				if(ontologyMap.containsKey(keyword)) {
+					
+					KeywordOntology kwOntology = ontologyMap.get(keyword);
+					switch (kwOntology) {
+					case BIOLOGICAL_PROCESS:
+						// FIXME!
+						break;
+					case CELLULAR_COMPONENT:
+						// FIXME!
+						break;
+					case MOLECULAR_FUNCTION:
+						//TODO: Do the calculation on spectral level.
+						if(molFunctionOccMap.containsKey(keyword)){
+							molFunctionOccMap.put(keyword, molFunctionOccMap.get(keyword)+1);
+						} else {
+							molFunctionOccMap.put(keyword, 1);
+						}
+						break;
+					}
+				}
+			}
+		}
+		ontologyData.setOccurrencyMap(molFunctionOccMap);
+	}
+	
+	
+	private class UpdateTask extends SwingWorker {
 
+		protected Object doInBackground() {
+			DbSearchResult dbSearchResult = null;
+			try {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				// Fetch the database search result.
+				try {
+					dbSearchResult = Client.getInstance().getDbSearchResult();
+					UniprotAccessor.retrieveUniprotEntries(dbSearchResult);
+					setupOntologies(dbSearchResult);
+					finished();
+				} catch (RemoteDataAccessException e) {
+					e.printStackTrace();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return 0;
+		}
+
+		/**
+		 * Continues when the results retrieval has finished.
+		 */
+		public void finished() {
+			createChart();
+			ovPnl.repaint();
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+	
 	/**
 	 * @return the dbPnl
 	 */

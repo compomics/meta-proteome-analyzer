@@ -18,7 +18,7 @@ public class Constants {
 			"LTQ_COMP" };
 
 	// Title of the application
-	public final static String APPTITLE = "MetaProteomicsAnalyzer";
+	public final static String APPTITLE = "MetaProteomeAnalyzer";
 
 	// Version number
 	public final static String VER_NUMBER = "0.5";

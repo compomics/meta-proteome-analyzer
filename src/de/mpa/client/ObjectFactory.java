@@ -38,14 +38,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DbSearchSettings }
-     * 
-     */
-    public DbSearchSettings createDbSearchSettings() {
-        return new DbSearchSettings();
-    }
-
-    /**
      * Create an instance of {@link DenovoSearchSettings }
      * 
      */
@@ -59,6 +51,14 @@ public class ObjectFactory {
      */
     public SpecSimSettings createSpecSimSettings() {
         return new SpecSimSettings();
+    }
+
+    /**
+     * Create an instance of {@link DbSearchSettings }
+     * 
+     */
+    public DbSearchSettings createDbSearchSettings() {
+        return new DbSearchSettings();
     }
 
 }
