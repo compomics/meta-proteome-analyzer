@@ -17,7 +17,12 @@ public abstract class Chart {
      * Histogram chart object.
      */
     protected JFreeChart chart = null;
-
+    
+    /**
+     * Chart title.
+     */
+    protected String chartTitle = "";
+    
     /**
      * Creates an instance of the Chart object.
      * All inheritance classes call this constructor.
@@ -27,6 +32,7 @@ public abstract class Chart {
     public Chart(Object data) {
         if (data != null) {
             process(data);
+            setChart();
         }
     }
 

@@ -9,7 +9,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
-import org.jfree.chart.axis.LogarithmicAxis;
 
 import de.mpa.io.MascotGenericFile;
 
@@ -55,7 +54,6 @@ public class TotalIonHistogram extends Chart {
         for (int i = 0; i < ticList.size(); i++) {
             dataArray[i] = ticList.get(i);
         }
-        setChart();
     }
 
     @Override
