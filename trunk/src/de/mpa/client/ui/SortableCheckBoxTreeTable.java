@@ -133,8 +133,13 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 
 		@Override
 		public int getViewRowCount() {
-			JTree tree = (JTree) treeTable.getCellRenderer(-1, treeTable.getHierarchicalColumn());
-			return tree.getRowCount();
+			int hc = treeTable.getHierarchicalColumn();
+			if (hc == -1) {
+				return 0;
+			} else {
+				JTree tree = (JTree) treeTable.getCellRenderer(-1, hc);
+				return tree.getRowCount();
+			}
 		}
 
 		@Override
@@ -204,6 +209,5 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		public void rowsUpdated(int firstRow, int endRow, int column) {}
 		
 	}
-	
 
 }

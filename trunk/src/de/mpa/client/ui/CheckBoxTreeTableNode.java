@@ -2,9 +2,11 @@ package de.mpa.client.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -246,12 +248,12 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	public CheckBoxTreeTableNode getNextSibling() {
 		CheckBoxTreeTableNode retval;
 
-		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode)getParent();
+		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) getParent();
 
 		if (myParent == null) {
 			retval = null;
 		} else {
-			retval = (CheckBoxTreeTableNode)myParent.getChildAfter(this);	// linear search
+			retval = (CheckBoxTreeTableNode) myParent.getChildAfter(this);	// linear search
 		}
 
 		if (retval != null && !isNodeSibling(retval)) {
@@ -279,7 +281,11 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 
 		return node;
 	}
-    
+	
+	public boolean isRoot() {
+		return (getParent() == null);
+	}
+
 	/**
      * Returns the leaf after this node or null if this node is the
      * last leaf in the tree.
@@ -313,5 +319,58 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 
 		return myParent.getNextLeaf();	// tail recursion
 	}
+	
+	/**
+     * Creates and returns an enumeration that traverses the subtree rooted at
+     * this node in depth-first order.  The first node returned by the
+     * enumeration's <code>nextElement()</code> method is the leftmost leaf.
+     * This is the same as a postorder traversal.<P>
+     *
+     * Modifying the tree by inserting, removing, or moving a node invalidates
+     * any enumerations created before the modification.
+     *
+     * @see     #breadthFirstEnumeration
+     * @see     #postorderEnumeration
+     * @return  an enumeration for traversing the tree in depth-first order
+     */
+    public Enumeration<TreeNode> depthFirstEnumeration() {
+        return new PostorderEnumeration(this);
+    }
 
+	final class PostorderEnumeration implements Enumeration<TreeNode> {
+        protected TreeNode root;
+        protected Enumeration<TreeNode> children;
+        protected Enumeration<TreeNode> subtree;
+
+        @SuppressWarnings("unchecked")
+		public PostorderEnumeration(TreeNode rootNode) {
+            super();
+            root = rootNode;
+            children = root.children();
+            subtree = DefaultMutableTreeNode.EMPTY_ENUMERATION;
+        }
+
+        public boolean hasMoreElements() {
+            return root != null;
+        }
+
+        public TreeNode nextElement() {
+            TreeNode retval;
+
+            if (subtree.hasMoreElements()) {
+                retval = subtree.nextElement();
+            } else if (children.hasMoreElements()) {
+                subtree = new PostorderEnumeration(
+                                (TreeNode)children.nextElement());
+                retval = subtree.nextElement();
+            } else {
+                retval = root;
+                root = null;
+            }
+
+            return retval;
+        }
+
+    }  // End of class PostorderEnumeration
+	
 }

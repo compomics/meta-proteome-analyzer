@@ -39,7 +39,8 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 	
 	@Override
 	public boolean canSort() { 
-		return (getChildCount() > 0);
+		// no use re-sorting a single child
+		return (getChildCount() > 1);
 	}
 
 	@Override
@@ -70,8 +71,7 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 		viewToModel = new Row[count];
 		int i = 0;
 		for (TreeTableNode node : children) {
-			Row row = new Row(node, i, sortKeys);
-			viewToModel[i++] = row;			
+			viewToModel[i] = new Row(node, i++, sortKeys);			
 		}
 		// sort
 		Arrays.sort(viewToModel);
@@ -154,6 +154,11 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode impleme
 			}
 			// If we get here, they're equal. Fall back to model order.
 			return this.modelIndex - row.modelIndex;
+		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(this.modelIndex);
 		}
 
 	}

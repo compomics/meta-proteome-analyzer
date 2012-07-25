@@ -21,6 +21,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -28,6 +29,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.decorator.PainterHighlighter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 /**
  * Helper class for JTable layout functionalities.
@@ -83,7 +85,15 @@ public class TableConfig {
 	 * @param table The JTable component.
 	 */
 	public static void clearTable(JTable table) {
-		((DefaultTableModel) table.getModel()).setRowCount(0);
+		if (table instanceof JXTreeTable) {
+			MutableTreeTableNode root =
+				(MutableTreeTableNode) ((JXTreeTable) table).getTreeTableModel().getRoot();
+			for (int i = 0; i < root.getChildCount(); i++) {
+				root.remove(i);
+			}
+		} else {
+			((DefaultTableModel) table.getModel()).setRowCount(0);
+		}
 	}
 	
 	/**
@@ -215,7 +225,7 @@ public class TableConfig {
 		}
 		// iterate columns
 		TableColumnModel tcm = table.getColumnModel();
-		for (int i = 0; i < weights.length; i++) {
+		for (int i = 0; i < tcm.getColumnCount(); i++) {
 			TableColumn tc = tcm.getColumn(i);
 			tc.setPreferredWidth((int) (weights[i]));
 			tc.setMaxWidth(tc.getPreferredWidth()*20000);
