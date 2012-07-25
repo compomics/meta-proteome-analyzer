@@ -47,7 +47,6 @@ import de.mpa.job.scoring.XTandemScoreJob;
 import de.mpa.job.storing.CruxStoreJob;
 import de.mpa.job.storing.InspectStoreJob;
 import de.mpa.job.storing.OmssaStoreJob;
-import de.mpa.job.storing.PepnovoStoreJob;
 import de.mpa.job.storing.SpecSimStoreJob;
 import de.mpa.job.storing.XTandemStoreJob;
 
@@ -192,8 +191,7 @@ public class ServerImpl implements Server {
 			jobManager.addJob(new InspectStoreJob(postProcessorJob.getFilename()));
 		}
 		
-		// Clear the folders
-		jobManager.addJob(new DeleteJob());
+	
 	}
 
 	private void addSpecSimSearchJob(List<MascotGenericFile> mgfList, SpecSimSettings sss) {
@@ -223,9 +221,6 @@ public class ServerImpl implements Server {
 		// Add a de novo search results storing job
 		// TODO: Adapt this to new BLAST hit model.
 		//jobManager.addJob(new PepnovoStoreJob(pepNovoJob.getFilename()));
-		
-		// Clear the folders
-		//jobManager.addJob(new DeleteJob());
 	}
 	
 	/**
@@ -305,6 +300,8 @@ public class ServerImpl implements Server {
 					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
 					runOptions.setRunCount(1);
 				}
+				// Clear the folders
+				jobManager.addJob(new DeleteJob());
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e.getCause());
