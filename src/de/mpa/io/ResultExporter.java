@@ -88,7 +88,7 @@ public class ResultExporter {
 					writer.append(proteinHit.getSpecies() + SEP);
 					writer.append(proteinHit.getCoverage() + SEP);
 					writer.append(proteinHit.getMolecularWeight() + SEP);
-					writer.append((Math.round(proteinHit.getPI() * 100.0) / 100.0) + SEP);
+					writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + SEP);
 					writer.append(proteinHit.getPeptideCount() + SEP);
 					writer.append(proteinHit.getSpectralCount() + SEP);
 					writer.append(proteinHit.getEmPAI() + SEP);

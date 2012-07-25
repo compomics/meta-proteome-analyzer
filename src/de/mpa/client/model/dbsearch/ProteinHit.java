@@ -157,7 +157,7 @@ public class ProteinHit {
 	/**
 	 * Gets the isoelectric point of the protein. 
 	 */
-	public double getPI() {
+	public double getIsoelectricPoint() {
 		if (pI < 0.0) {
 			pI = ProteinAnalysis.calculateIsoelectricPoint(this);
 		}
@@ -168,7 +168,7 @@ public class ProteinHit {
 	 * Sets the isoelectric point of the protein.
 	 * @param pI The isoelectric point of the protein.
 	 */
-	public void setPI(double pI) {
+	public void setIsoelectricPoint(double pI) {
 		this.pI = pI;
 	}
 	

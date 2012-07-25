@@ -70,7 +70,7 @@ public class ResultsPanel extends JPanel {
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets contentBorderInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, contentBorderInsets.bottom, 0));
-		JTabbedPane resTpn = new JTabbedPane(JTabbedPane.BOTTOM);
+		final JTabbedPane resTpn = new JTabbedPane(JTabbedPane.BOTTOM);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets);
 		
 		ovPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -80,7 +80,6 @@ public class ResultsPanel extends JPanel {
 		resTpn.addTab(" ", dbPnl);
 		resTpn.addTab(" ", ssPnl);
 		resTpn.addTab(" ", dnPnl);
-		resTpn.addTab("Phylogeny", new TreePanel());
 		
 		// TODO: use proper icons, possibly slightly larger ones, e.g. 40x40?
 		resTpn.setTabComponentAt(0, clientFrame.createTabButton("Overview",	new ImageIcon(getClass().getResource("/de/mpa/resources/icons/overview32.png")), resTpn));
@@ -91,7 +90,8 @@ public class ResultsPanel extends JPanel {
 		tabComp.setPreferredSize(new Dimension(tabComp.getPreferredSize().width, 40));
 
 		// create navigation button panel
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		final JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		navPnl.setOpaque(false);
 		
 		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
 		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
@@ -118,10 +118,10 @@ public class ResultsPanel extends JPanel {
 		
 		navPnl.add(prevBtn, CC.xy(1, 1));
 		navPnl.add(nextBtn, CC.xy(3, 1));
-		
+
 		// add everything to main panel
-		this.add(resTpn, CC.xyw(1, 1, 2));
 		this.add(navPnl, CC.xy(1, 3));
+		this.add(resTpn, CC.xyw(1, 1, 2));
 	}
 	
 	private void createChart() {

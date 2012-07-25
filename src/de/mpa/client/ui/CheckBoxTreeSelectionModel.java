@@ -14,7 +14,7 @@ import javax.swing.tree.TreePath;
  * http://www.jroller.com/santhosh/entry/jtree_with_checkboxes</a>
  * 
  * @author Santhosh Kumar T - santhosh@in.fiorano.com
- * @author Alexander Behne
+ * @author A. Behne
  *
  */
 public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
@@ -23,7 +23,6 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 
 	/**
 	 * Class constructor using tree model.
-	 * 
 	 * @param model
 	 */
 	public CheckBoxTreeSelectionModel(TreeModel model) {
@@ -37,7 +36,6 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	
 	/**
 	 * Recursively count selected children below given path.
-	 * 
 	 * @param parentPath
 	 * @return
 	 */
@@ -60,11 +58,11 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	
 	/**
 	 * Checks whether given path is selected.<br>
-	 * If <code>dig</code> is true, then a path is assumed to be selected if one of its ancestors is selected.
-	 * 
+	 * If <code>dig</code> is <code>true</code>, then a path is assumed to be selected 
+	 * if one of its ancestors is selected.
 	 * @param path The TreePath to be checked.
 	 * @param dig The flag determining whether parent paths shall be taken into account.
-	 * @return <i>boolean</i> denoting whether the path is selected.
+	 * @return <code>true</code> if the path is selected, <code>false</code> otherwise.
 	 */
 	public boolean isPathSelected(TreePath path, boolean dig) {
 		if (dig) {
@@ -79,8 +77,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 
 	/**
 	 * Checks whether there are any unselected nodes in the sub-tree of a given path.
-	 * 
-	 * @param path The TreePath to be checked.
+	 * @param path The TreePath to be checked
 	 * @return <i>boolean</i> denoting whether the path is partially selected.
 	 */
 	public boolean isPartiallySelected(TreePath path) {
@@ -98,23 +95,36 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	}
 
 	/**
-	 * Checks whether <code>path1</code> is descendant of <code>path2</code>.
-	 * 
-	 * @param path1
-	 * @param path2
-	 * @return
+	 * Checks whether <code>pathA</code> is descendant of <code>pathB</code>.
+	 * @param pathA The first path
+	 * @param pathB The second path
+	 * @return <code>true</code> if <code>pathA</code> is descendant of 
+	 * <code>pathB</code>, <code>false</code> otherwise.
 	 */
-	private boolean isDescendant(TreePath path1, TreePath path2) {
-		Object obj1[] = path1.getPath();
-		Object obj2[] = path2.getPath();
-		for (int i = 0; i < obj2.length; i++) {
-			if (obj1[i] != obj2[i]) {
-				return false;
-			}
+	private boolean isDescendant(TreePath pathA, TreePath pathB) {
+//		Object objA[] = pathA.getPath();
+//		Object objB[] = pathB.getPath();
+//		for (int i = 0; i < objB.length; i++) {
+//			if (objA[i] != objB[i]) {
+//				return false;
+//			}
+//		}
+//		return true;
+		if (pathA.getPathCount() <= pathB.getPathCount()) {
+			// pathA needs to be longer than pathB to be a descendant of it
+			return false;
+		} else {
+			// if pathA descends from pathB, the latter's last path component 
+			// must also be part of the former at the same position in the path
+			return pathA.getPathComponent(pathB.getPathCount() - 1) ==
+				pathB.getLastPathComponent();
 		}
-		return true;
 	}
 	
+	/**
+	 * Convenience method to pass a List of TreePaths instead of an array.
+	 * @param paths The new paths to add to the current selection
+	 */
 	public void addSelectionPaths(List<TreePath> paths) {
 		addSelectionPaths((TreePath[]) paths.toArray(new TreePath[0]));
 	}
@@ -122,7 +132,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	// TODO: make path addition honor fixed state
 	@Override
     public void addSelectionPaths(TreePath[] paths) {
-        // deselect all descendants of paths[]
+        // deselect all descendants of added paths
         for (int i = 0; i < paths.length; i++) {
             TreePath path = paths[i];
             TreePath[] selectionPaths = getSelectionPaths();
@@ -153,16 +163,16 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
                 path = path.getParentPath();
             }
             if (temp != null) {
+            	// some parent has been determined
                 if (temp.getParentPath() != null) {
                     super.addSelectionPath(temp.getParentPath());
                 } else {
-                    if (!isSelectionEmpty()) {
-                        removeSelectionPaths(getSelectionPaths());
-                    }
-                    super.addSelectionPaths(new TreePath[]{temp});
+                	// root is about to be added, clear whole selection first
+                	clearSelection();
+					super.addSelectionPaths(new TreePath[] { temp });
                 }
             } else {
-                super.addSelectionPaths(new TreePath[]{ path});
+				super.addSelectionPaths(new TreePath[] { path });
             }
         }
     }
@@ -170,7 +180,8 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
     /**
      * Returns whether all siblings of given path are selected.
      * @param path
-     * @return
+     * @return <code>true</code> if all siblings are selected, 
+     * <code>false</code> otherwise
      */
 	private boolean areSiblingsSelected(TreePath path) {
 		TreePath parent = path.getParentPath();
@@ -211,12 +222,10 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	}
     
     /**
-     * Toggles selection state of ancestor and siblings of given path.
-     * 
-     * @param path
+     * Toggles selection state of ancestor and siblings of the given path.
+     * @param path The path whose selection shall be toggled
      */
     private void toggleRemoveSelection(TreePath path) {
-
         // if any ancestor node of given path is selected then deselect it 
         // and select all its descendants except given path and descendants. 
         // otherwise just deselect the given path 
@@ -240,6 +249,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 			return;
 		}
 
+		super.removeSelectionPaths(new TreePath[] { parent });
 		while (!stack.isEmpty()) {
 			TreePath temp = (TreePath) stack.pop();
             TreePath peekPath = (stack.isEmpty()) ? path : (TreePath) stack.peek();
@@ -255,13 +265,12 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
             }
             super.addSelectionPaths(childPaths);
 		}
-		super.removeSelectionPaths(new TreePath[] { parent });
+//		super.removeSelectionPaths(new TreePath[] { parent });
 	}
 	
     // TODO: add instanceof checks to make methods work with non-CheckBoxTreeTableNode objects (default to original behavior)
     /**
      * Recursively determine whether a path is fixed or contains fixed descendants.
-     * 
      * @param path The path to be examined.
      * @param dig The flag determining whether descendants shall be examined.
      * @return <code>true</code> if the path itself or at least one of its 
@@ -286,7 +295,6 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 
     /**
      * Determine whether a given path is fixed.
-     * 
      * @param path The path to be examined.
      * @return <code>true</code> if the path is fixed, false otherwise.
      */
@@ -297,7 +305,6 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	
 	/**
 	 * Recursively find all fixed descendants of a given path.
-	 * 
 	 * @param path The path to be examined.
 	 * @return ArrayList of fixed TreePaths
 	 */
