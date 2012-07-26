@@ -40,7 +40,7 @@ public class UniprotAccessor {
 	 * @param dbSearchResult The database search result.
 	 * @return List of ProteinEntry objects.
 	 */
-	public static List<UniProtEntry> retrieveUniprotEntries(DbSearchResult dbSearchResult) throws RemoteDataAccessException {
+	public static void retrieveUniprotEntries(DbSearchResult dbSearchResult) throws RemoteDataAccessException {
 		
 		// Check whether UniProt query service has been established yet.
 		if(uniProtQueryService == null) {
@@ -50,9 +50,6 @@ public class UniprotAccessor {
 		// Get the protein hits from the search result.
 		Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
 		List<String> accList = new ArrayList<String>(proteinHits.keySet());
-		
-		
-		List<UniProtEntry> entries = new ArrayList<UniProtEntry>();
 		
 		// maxClauseCount is set to 1024
 		if(accList.size() > 1024){
@@ -67,10 +64,17 @@ public class UniprotAccessor {
 					for (UniProtEntry e : entryIterator) {
 						String accession = e.getPrimaryUniProtAccession().getValue();
 						proteinHits.get(accession).setUniprotEntry(e);
-						entries.add(e);
 					}
 					shortList.clear();
 				}
+			}
+			Query query = UniProtQueryBuilder.buildIDListQuery(shortList);
+			EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
+			
+			// Iterate the entries and add them to the list. 
+			for (UniProtEntry e : entryIterator) {
+				String accession = e.getPrimaryUniProtAccession().getValue();
+				proteinHits.get(accession).setUniprotEntry(e);
 			}
 		} else {
 			Query query = UniProtQueryBuilder.buildIDListQuery(accList);
@@ -80,10 +84,8 @@ public class UniprotAccessor {
 			for (UniProtEntry e : entryIterator) {
 				String accession = e.getPrimaryUniProtAccession().getValue();
 				proteinHits.get(accession).setUniprotEntry(e);
-				entries.add(e);
 			}
 		}
-		return entries;
 	}
 	
 	/**
