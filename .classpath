@@ -42,5 +42,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/utilities-3.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/swing-layout-1.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

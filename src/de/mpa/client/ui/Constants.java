@@ -7,8 +7,6 @@ public class Constants {
 	public static final int MAINFRAME_HEIGHT = 800;
 	public static final String[] FASTA_DB = { "uniprot_sprot", "ecoli", "methanomicrobia", "archaea", "firmicutes"};
 	public static final String[] ENZYMES = { "Trypsin", "Semi-tryptic"};
-
-	// TODO: consolidate Thilo's and Robert's possibly redundant constants?
 	public static final String[] DN_ENZYMES = { "Trypsin", "Unspecific" };
 	
 	public static final String[] DN_MODELS = { "CID_IT_TRYP",

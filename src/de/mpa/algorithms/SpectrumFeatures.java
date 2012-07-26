@@ -6,7 +6,6 @@ import de.mpa.io.MascotGenericFile;
 
 /**
  * This class represents a specification which features are considered for the spectrum quality (filtering).
- * TODO: Optional features!
  * @author Thilo Muth
  * @author Alexander Behne
  *

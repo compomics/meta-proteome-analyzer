@@ -91,42 +91,4 @@ public class BlastJob extends Job {
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
 	}
-	
-	
-	/**
-	 * TODO: Writes the final output with the perfect (100%) blast hits.
-	 * The parsing should be done afterwards!
-	 * 
-	 */
-//	private void parseAndWrite() {		
-//		try {			
-//			final BlastParser parser = new BlastParser(blastOutput);			
-//			final String output = blastOutput.getAbsolutePath().substring(0, blastOutput.getAbsolutePath().indexOf(suffix));
-//			finalOutput = new File(output + "_blast.out");
-//			final BufferedWriter writer = new BufferedWriter(new FileWriter(finalOutput));
-//			final List<BlastQuery> queries = parser.getQueries();
-//			for (BlastQuery q : queries) {
-//				final List<BlastHit> hits = q.getPerfectBlastHits();
-//				for (BlastHit hit : hits) {
-//					Entry entry = null;
-//					String targetid = hit.getTargetID();
-//					if(targetid.contains(".fa")){						
-//						final int index = Integer.valueOf(targetid.substring(0, targetid.indexOf("_")));
-//						// Get the specific FASTA entry						
-//						entry = fastaDB.getEntry(index);
-//						writer.write(hit.getParentQuery().getQueryID() + "\t" + hit.getParentQuery().getQuerySequence() + "\t" + index + "\t" + entry.getName() + "\t"	+ hit.getTargetStart() + "\t" + hit.getTargetEnd() + "\t" + entry.getSequenceAsString());
-//						writer.newLine();	
-//					} else {						
-//						entry = fastaDB.getEntry(targetid);
-//						writer.write(hit.getParentQuery().getQueryID() + "\t" + hit.getParentQuery().getQuerySequence() + "\t" + fastaDB.getID(targetid) + "\t" + entry.getName() + "\t"	+ hit.getTargetStart() + "\t" + hit.getTargetEnd() + "\t" + entry.getSequenceAsString());
-//						writer.newLine();	
-//					}
-//				}
-//			}
-//			writer.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
 }

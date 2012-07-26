@@ -172,7 +172,9 @@ public class LoggingPanel extends JPanel {
 	}
 	
 	/**
-	 * TODO: @Thilo API, pls :)
+	 * Log writer class used for the logging appender. 
+	 * @author T.Muth
+	 * @data 25-07-2012
 	 */
 	private class LogWriter extends Writer {
 		

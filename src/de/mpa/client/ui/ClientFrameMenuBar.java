@@ -116,7 +116,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		databaseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				displayDbSettings();
+				showDatabaseSettings();
 			}
 		});
 
@@ -243,7 +243,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		helpMenu.add(helpContentsItem);
 		helpContentsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO: helpTriggered();
+				helpTriggered();
 			}
 		});
 
@@ -261,8 +261,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 		helpMenu.add(aboutItem);
 		this.add(helpMenu);
 	}
-
-	public void displayDbSettings() {
+	
+	/**
+	 * This method is being executed when the help menu item is selected.
+	 */
+	private void helpTriggered() {
+		new HtmlFrame(clientFrame, getClass().getResource("/de/mpa/resources/html/help.html"), "Help");
+	}
+	
+	/**
+	 * Showt the database settings.
+	 */
+	public void showDatabaseSettings() {
 		DbConnectionSettings oldDbSettings = client.getDbSettings();
 		int res = JOptionPane.showConfirmDialog(clientFrame, dbPnl, "Database Settings", 
 				  JOptionPane.OK_CANCEL_OPTION,

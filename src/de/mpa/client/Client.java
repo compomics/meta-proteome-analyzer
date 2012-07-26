@@ -180,17 +180,6 @@ public class Client {
 	}
 	
 	/**
-	 * Send multiple files to the server.
-	 * @param files
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 */
-	public void sendFiles(List<File> files) throws FileNotFoundException, IOException {
-		// FIXME!
-		// Send files iteratively
-	}
-	
-	/**
 	 * Returns the contents of the file in a byte array.
 	 * @param file
 	 * @return

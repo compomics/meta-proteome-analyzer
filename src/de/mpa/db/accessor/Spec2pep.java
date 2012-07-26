@@ -77,10 +77,18 @@ public class Spec2pep extends Spec2pepTableAccessor {
         return temp;
     }
     
-    // XXX
-    public static List<Spec2pep> getEntriesWithinPrecursorRangeFromExperimentID(double precursorMz, double tolMz, long experimentID, Connection aConn) throws SQLException {
+    /**
+     * Returns the Spec2pep entries within a certain precursor range.
+     * @param precursorMz The precursor mass.
+     * @param tolMz The mass tolerance.
+     * @param experimentID The experiment id.
+     * @param conn The database connection.
+     * @return List of Spec2pep entries.
+     * @throws SQLException when the database query has not been successful.
+     */
+    public static List<Spec2pep> getEntriesWithinPrecursorRangeFromExperimentID(double precursorMz, double tolMz, long experimentID, Connection conn) throws SQLException {
     	List<Spec2pep> temp = new ArrayList<Spec2pep>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+		PreparedStatement ps = conn.prepareStatement(getBasicSelect() +
 				" INNER JOIN spectrum ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = spectrum." + Spectrum.SPECTRUMID + 
 				" INNER JOIN libspectrum ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = libspectrum." + Libspectrum.FK_SPECTRUMID +
 				" WHERE spectrum." + Spectrum.PRECURSOR_MZ + " BETWEEN ? AND ?" + 
