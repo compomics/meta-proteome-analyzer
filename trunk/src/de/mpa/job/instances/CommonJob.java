@@ -20,8 +20,9 @@ public class CommonJob extends Job {
 		this.description = description;
 	}
 	
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-	}
+	/**
+	 * Run method has no function.
+	 */
+	public void run() {}
+	
 }

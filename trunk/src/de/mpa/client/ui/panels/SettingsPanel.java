@@ -277,7 +277,7 @@ public class SettingsPanel extends JPanel {
 					// pack and send files
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 					long packSize = (Long) packSpn.getValue();
-					List<String> filenames = client.packAndSend(packSize, checkBoxTree, "test");	// TODO: make filenames dynamic
+					List<String> filenames = client.packAndSend(packSize, checkBoxTree, "batch");	// TODO: make filenames dynamic
 					
 					// collect search settings
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;

@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -26,18 +25,13 @@ import javax.swing.UIManager;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jfree.chart.ChartPanel;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.uuw.services.remoting.RemoteDataAccessException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.chart.ChartType;
@@ -54,13 +48,9 @@ public class ResultsPanel extends JPanel {
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
 	private JButton updateBtn;
-	private Map<String, KeywordOntology> ontologyMap;
-	private HashMap<String, Integer> molFunctionOccMap;
 	private ChartPanel chartPnl;
 	private JXTitledPanel chartTtlPnl;
 	private OntologyData ontologyData;
-	private HashMap<String, Integer> biolProcessOccMap;
-	private HashMap<String, Integer> cellCompOccMap;
 	private JComboBox chartTypeCbx;
 	private ChartType pieChartType = PieChartType.BIOLOGICAL_PROCESS;
 	private JPanel overviewBtnPnl;
@@ -141,7 +131,7 @@ public class ResultsPanel extends JPanel {
 		defaultMap.put("Resembles Pac-Man", 80);
 		defaultMap.put("Does not resemble Pac-Man", 20);
 		ontologyData = new OntologyData();
-		ontologyData.setBiolProcessOccMap(defaultMap);
+		ontologyData.setDefaultMapping(defaultMap);
 		updateBtn = new JButton("Update");
 		updateBtn.setFocusPainted(false);
 		updateBtn.addActionListener(new ActionListener() {
@@ -164,13 +154,15 @@ public class ResultsPanel extends JPanel {
 						break;
 					case 1:
 						pieChartType = PieChartType.MOLECULAR_FUNCTION;
+						break;
 					case 2: 
 						pieChartType = PieChartType.CELLULAR_COMPONENT;
+						break;
 					default:
 						pieChartType = PieChartType.BIOLOGICAL_PROCESS;
 						break;
 					}
-					updateChart();
+					updateButtonPressed();
 				}
 			}
 		});
@@ -187,6 +179,7 @@ public class ResultsPanel extends JPanel {
 	private void updateChart(){
 		OntologyPieChart ontologyPieChart = new OntologyPieChart(ontologyData, pieChartType);
 		// Create chart panel
+		if(chartPnl != null) chartPnl.removeAll();
 		chartPnl = new ChartPanel(ontologyPieChart.getChart());
 		chartPnl.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		chartPnl.updateUI();
@@ -195,9 +188,6 @@ public class ResultsPanel extends JPanel {
 		}
 		chartTtlPnl = PanelConfig.createTitledPanel("Overview", chartPnl);
 		chartTtlPnl.setRightDecoration(overviewBtnPnl);
-		chartTtlPnl.validate();
-		chartTtlPnl.repaint();
-		
 		ovPnl.removeAll();
 		ovPnl.add(chartTtlPnl, CC.xy(2, 2));
 		
@@ -208,68 +198,7 @@ public class ResultsPanel extends JPanel {
 		resultsTask.execute();
 	}
 	
-	/**
-	 * This method sets up the ontologies.
-	 * @param dbSearchResult Database search result data.
-	 */
-	public void setupOntologies(DbSearchResult dbSearchResult) {
-		// Get the ontology map.
-		if(ontologyMap == null) {
-			ontologyMap = UniprotAccessor.getOntologyMap();
-		}
-		
-		// Map to count the occurrences of each molecular function.
-		ontologyData.clear();
-		
-		biolProcessOccMap = new HashMap<String, Integer>();
-		cellCompOccMap = new HashMap<String, Integer>();
-		molFunctionOccMap = new HashMap<String, Integer>();
-		
-		for (ProteinHit proteinHit : dbSearchResult.getProteinHits().values()) {
-			UniProtEntry entry = proteinHit.getUniprotEntry();
-			
-			// Entry must be provided
-			if(entry != null){
-				List<Keyword> keywords = entry.getKeywords();
-				for (Keyword kw : keywords) {
-					String keyword = kw.getValue();
-					if(ontologyMap.containsKey(keyword)) {
-						//TODO: Do the calculation on spectral level.
-						KeywordOntology kwOntology = ontologyMap.get(keyword);
-						switch (kwOntology) {
-						case BIOLOGICAL_PROCESS:
-							if(biolProcessOccMap.containsKey(keyword)){
-								biolProcessOccMap.put(keyword, biolProcessOccMap.get(keyword)+1);
-							} else {
-								biolProcessOccMap.put(keyword, 1);
-							}
-							break;
-						case CELLULAR_COMPONENT:
-							if(cellCompOccMap.containsKey(keyword)){
-								cellCompOccMap.put(keyword, cellCompOccMap.get(keyword)+1);
-							} else {
-								cellCompOccMap.put(keyword, 1);
-							}
-							break;
-						case MOLECULAR_FUNCTION:
-							if(molFunctionOccMap.containsKey(keyword)){
-								molFunctionOccMap.put(keyword, molFunctionOccMap.get(keyword)+1);
-							} else {
-								molFunctionOccMap.put(keyword, 1);
-							}
-							break;
-						}
-					}
-				}
-			}
-		}
-		ontologyData.setBiolProcessOccMap(biolProcessOccMap);
-		ontologyData.setCellCompOccMap(cellCompOccMap);
-		ontologyData.setMolFunctionOccMap(molFunctionOccMap);
-	}
-	
 	private class UpdateTask extends SwingWorker {
-
 		protected Object doInBackground() {
 			DbSearchResult dbSearchResult = null;
 			try {
@@ -277,7 +206,7 @@ public class ResultsPanel extends JPanel {
 				// Fetch the database search result.
 				try {
 					dbSearchResult = Client.getInstance().getDbSearchResult();
-					setupOntologies(dbSearchResult);
+					ontologyData = new OntologyData(dbSearchResult);
 					finished();
 				} catch (RemoteDataAccessException e) {
 					e.printStackTrace();
@@ -293,7 +222,6 @@ public class ResultsPanel extends JPanel {
 		 */
 		public void finished() {
 			updateChart();
-			ovPnl.repaint();
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}

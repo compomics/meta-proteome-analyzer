@@ -61,7 +61,6 @@ public class MascotXMLParser {
 					Element eElement = (Element) nNode;
 					mascotRecord.setURI(getTagValue("URI", eElement));							
 					mascotRecord.setMascotFilename(getTagValue("FILENAME", eElement));
-					
 					mascotRecord.setNumQueries(Integer.parseInt(getTagValue("NumQueries", eElement)));
 				}
 			}

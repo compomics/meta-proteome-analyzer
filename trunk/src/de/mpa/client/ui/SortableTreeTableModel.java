@@ -141,8 +141,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * Overridden to sort newly inserted nodes if necessary.
 	 */
 	@Override
-	public void insertNodeInto(MutableTreeTableNode newChild,
-			MutableTreeTableNode parent, int index) {
+	public void insertNodeInto(MutableTreeTableNode newChild, MutableTreeTableNode parent, int index) {
 		parent.insert(newChild, index);
 		if (shouldSort()) {
 			sort(parent);
