@@ -51,17 +51,37 @@ public class UniprotAccessor {
 		Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
 		List<String> accList = new ArrayList<String>(proteinHits.keySet());
 		
-		Query query = UniProtQueryBuilder.buildIDListQuery(accList);
 		
 		List<UniProtEntry> entries = new ArrayList<UniProtEntry>();
 		
-		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-		
-		// Iterate the entries and add them to the list. 
-		for (UniProtEntry e : entryIterator) {
-			String accession = e.getPrimaryUniProtAccession().getValue();
-			proteinHits.get(accession).setUniprotEntry(e);
-			entries.add(e);
+		// maxClauseCount is set to 1024
+		if(accList.size() > 1024){
+			List<String> shortList = new ArrayList<String>();
+			for (String acc : accList) {
+				shortList.add(acc);
+				if(shortList.size() % 1024 == 0){
+					Query query = UniProtQueryBuilder.buildIDListQuery(shortList);
+					EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
+					
+					// Iterate the entries and add them to the list. 
+					for (UniProtEntry e : entryIterator) {
+						String accession = e.getPrimaryUniProtAccession().getValue();
+						proteinHits.get(accession).setUniprotEntry(e);
+						entries.add(e);
+					}
+					shortList.clear();
+				}
+			}
+		} else {
+			Query query = UniProtQueryBuilder.buildIDListQuery(accList);
+			EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
+			
+			// Iterate the entries and add them to the list. 
+			for (UniProtEntry e : entryIterator) {
+				String accession = e.getPrimaryUniProtAccession().getValue();
+				proteinHits.get(accession).setUniprotEntry(e);
+				entries.add(e);
+			}
 		}
 		return entries;
 	}
@@ -156,7 +176,7 @@ public class UniprotAccessor {
 		map.put("Vasoactive", KeywordOntology.MOLECULAR_FUNCTION);
 		map.put("Viral movement protein", KeywordOntology.MOLECULAR_FUNCTION);
 		
-		// Biological processeses
+		// Biological processes
 		map.put("Abscisic acid biosynthesis", KeywordOntology.BIOLOGICAL_PROCESS);
 		map.put("Abscisic acid signaling pathway", KeywordOntology.BIOLOGICAL_PROCESS);
 		map.put("Acetoin biosynthesis", KeywordOntology.BIOLOGICAL_PROCESS);

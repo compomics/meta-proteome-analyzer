@@ -3,6 +3,8 @@ package de.mpa.client.ui.chart;
 import java.util.ArrayList;
 import java.util.List;
 
+import no.uib.jsparklines.renderers.JSparklines3dTableCellRenderer.PlotType;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -21,14 +23,17 @@ import de.mpa.io.MascotGenericFile;
 public class TotalIonHistogram extends Chart {
     private double[] dataArray;
     private String filename;
-
+    
+    public enum HistChartType implements ChartType {
+    	TOTAL_ION_HIST
+    }
     /**
      * Constructs a denovo score histogram
      *
      * @param resultData
      */
-    public TotalIonHistogram(Object data) {
-        super(data);
+    public TotalIonHistogram(Object data, ChartType chartType) {
+        super(data, chartType);
     }
 
     @Override

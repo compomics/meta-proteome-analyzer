@@ -6,15 +6,20 @@ import org.jfree.data.general.PieDataset;
 
 public class OntologyPieChart extends Chart {
 	
-	 private PieDataset pieDataset;
-
+	private PieDataset pieDataset;
+	
+	public enum PieChartType implements ChartType {
+		MOLECULAR_FUNCTION, BIOLOGICAL_PROCESS, CELLULAR_COMPONENT
+	}
+		
 	/**
      * Constructs an OntologyPieChart.
      *
-     * @param data
+     * @param data Input data.
+     * @param chartType Chart type.
      */
-    public OntologyPieChart(Object data) {
-        super(data);
+    public OntologyPieChart(Object data, ChartType chartType) {
+        super(data, chartType);
     }
 
 	@Override
@@ -26,13 +31,27 @@ public class OntologyPieChart extends Chart {
 	protected void process(Object data) {
 		if (data instanceof OntologyData) {
 			OntologyData ontologyData = (OntologyData) data;
-			pieDataset = ontologyData.getPieDataset();
+			pieDataset = ontologyData.getPieDataset(chartType);
 		}
 	}
 
 	@Override
 	protected void setChart() {
-		chartTitle = "Ontology Pie Chart";
+		PieChartType pieChartType = (PieChartType) chartType;
+		switch (pieChartType) {
+		case BIOLOGICAL_PROCESS:
+			chartTitle = "Biological Process Ontology";
+			break;
+		case MOLECULAR_FUNCTION:
+			chartTitle = "Molecular Function Ontology";
+			break;
+		case CELLULAR_COMPONENT:
+			chartTitle = "Cellular Component Ontology";
+			break;
+		default:
+			chartTitle = "Biological Process Ontology";
+			break;
+		}
 		chart = ChartFactory.createPieChart3D(chartTitle, pieDataset, false, false, false);
 		chart.setBackgroundPaint(null);
 		
@@ -41,7 +60,5 @@ public class OntologyPieChart extends Chart {
         plot.setCircular(true);
         plot.setForegroundAlpha(0.75f);
         plot.setBackgroundPaint(null);
-		
 	}
-
 }
