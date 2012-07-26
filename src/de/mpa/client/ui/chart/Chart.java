@@ -24,16 +24,23 @@ public abstract class Chart {
     protected String chartTitle = "";
     
     /**
+     * Chart type.
+     */
+    protected ChartType chartType;
+    
+    /**
      * Creates an instance of the Chart object.
      * All inheritance classes call this constructor.
      *
      * @param data The processed data
      */
-    public Chart(Object data) {
+    public Chart(Object data, ChartType plotType) {
+    	this.chartType = plotType;
         if (data != null) {
             process(data);
             setChart();
         }
+        
     }
 
     /**
