@@ -20,19 +20,13 @@ public class IdentificationChart extends Chart {
     public IdentificationChart(Object data, BarChartType barPlotType) {
         super(data, barPlotType);
     }
-    
-    
-	@Override
-	public String getChartTitle() {
-		return chartTitle;
-	}
 	
 	@Override
 	protected void process(Object data) {
 		
 		if(data instanceof IdentificationData) {
 			IdentificationData iData = (IdentificationData) data;
-			categoryDataset = iData.getCategoryDataset();
+			categoryDataset = iData.getDataset();
 		}
 	}
 

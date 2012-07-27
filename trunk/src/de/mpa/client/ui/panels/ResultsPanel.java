@@ -34,10 +34,13 @@ import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.chart.Chart;
+import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.OntologyPieChart;
+import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.chart.OntologyPieChart.PieChartType;
+import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class ResultsPanel extends JPanel {
@@ -52,8 +55,9 @@ public class ResultsPanel extends JPanel {
 	private JXTitledPanel chartTtlPnl;
 	private OntologyData ontologyData;
 	private JComboBox chartTypeCbx;
-	private ChartType pieChartType = PieChartType.BIOLOGICAL_PROCESS;
+	private ChartType chartType = PieChartType.BIOLOGICAL_PROCESS;
 	private JPanel overviewBtnPnl;
+	public TopData topData;
 	
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
@@ -140,7 +144,7 @@ public class ResultsPanel extends JPanel {
 			}
 		});
 		
-		final String[] chartTypeLabels = new String[] {"Biological Process" , "Molecular Function", "Cellular Component"};
+		final String[] chartTypeLabels = new String[] {"Biological Process" , "Molecular Function", "Cellular Component", "Top10 Proteins"};
 		
 		chartTypeCbx = new JComboBox(chartTypeLabels);
 		chartTypeCbx.addItemListener(new ItemListener() {
@@ -150,16 +154,19 @@ public class ResultsPanel extends JPanel {
 					int barTypeIndex = chartTypeCbx.getSelectedIndex();
 					switch (barTypeIndex) {
 					case 0:
-						pieChartType = PieChartType.BIOLOGICAL_PROCESS;
+						chartType = (PieChartType) PieChartType.BIOLOGICAL_PROCESS;
 						break;
 					case 1:
-						pieChartType = PieChartType.MOLECULAR_FUNCTION;
+						chartType = (PieChartType) PieChartType.MOLECULAR_FUNCTION;
 						break;
 					case 2: 
-						pieChartType = PieChartType.CELLULAR_COMPONENT;
+						chartType = (PieChartType) PieChartType.CELLULAR_COMPONENT;
+						break;
+					case 3: 
+						chartType = (TopBarChartType) TopBarChartType.PROTEINS;
 						break;
 					default:
-						pieChartType = PieChartType.BIOLOGICAL_PROCESS;
+						chartType = (PieChartType) PieChartType.BIOLOGICAL_PROCESS;
 						break;
 					}
 					updateButtonPressed();
@@ -170,17 +177,22 @@ public class ResultsPanel extends JPanel {
 		overviewBtnPnl = new JPanel(new FormLayout("p, 5dlu, p", "p"));
 		overviewBtnPnl.add(chartTypeCbx, CC.xy(1, 1));
 		overviewBtnPnl.add(updateBtn, CC.xy(3, 1));
-		updateChart();
+		updateCharts();
 	}
 	
 	/**
 	 * Updates the bar plot.
 	 */
-	private void updateChart(){
-		OntologyPieChart ontologyPieChart = new OntologyPieChart(ontologyData, pieChartType);
-		// Create chart panel
+	private void updateCharts(){
+		Chart chart = null;
+		if(chartTypeCbx.getSelectedIndex() < 3) {
+			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+		} else {
+			chart = ChartFactory.createTopBarChart(topData, chartType);
+		}
+		
 		if(chartPnl != null) chartPnl.removeAll();
-		chartPnl = new ChartPanel(ontologyPieChart.getChart());
+		chartPnl = new ChartPanel(chart.getChart());
 		chartPnl.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		chartPnl.updateUI();
 		if(chartTtlPnl != null) {
@@ -194,8 +206,8 @@ public class ResultsPanel extends JPanel {
 	}
 	
 	protected void updateButtonPressed() {
-		UpdateTask resultsTask = new UpdateTask();
-		resultsTask.execute();
+		UpdateTask updateTask = new UpdateTask();
+		updateTask.execute();
 	}
 	
 	private class UpdateTask extends SwingWorker {
@@ -207,6 +219,7 @@ public class ResultsPanel extends JPanel {
 				try {
 					dbSearchResult = Client.getInstance().getDbSearchResult();
 					ontologyData = new OntologyData(dbSearchResult);
+					topData = new TopData(dbSearchResult);
 					finished();
 				} catch (RemoteDataAccessException e) {
 					e.printStackTrace();
@@ -221,7 +234,7 @@ public class ResultsPanel extends JPanel {
 		 * Continues when the results retrieval has finished.
 		 */
 		public void finished() {
-			updateChart();
+			updateCharts();
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}

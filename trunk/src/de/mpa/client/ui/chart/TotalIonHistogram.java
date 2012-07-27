@@ -3,8 +3,6 @@ package de.mpa.client.ui.chart;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.uib.jsparklines.renderers.JSparklines3dTableCellRenderer.PlotType;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;

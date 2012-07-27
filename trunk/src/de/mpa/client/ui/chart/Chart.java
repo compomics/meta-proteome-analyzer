@@ -34,16 +34,16 @@ public abstract class Chart {
      *
      * @param data The processed data
      */
-    public Chart(Object data, ChartType plotType) {
-    	this.chartType = plotType;
+    public Chart(Object data, ChartType chartType) {
+    	this.chartType = chartType;
+    	
         if (data != null) {
             process(data);
             setChart();
         }
-        
     }
 
-    /**
+	/**
      * Show the data in the chart.
      *
      * @param data the processed data
@@ -60,7 +60,9 @@ public abstract class Chart {
      *
      * @return the title of the chart
      */
-    public abstract String getChartTitle();
+    public String getChartTitle() {
+    	return chartTitle;
+    }
 
     /**
      * Returns the chart object.
@@ -70,6 +72,14 @@ public abstract class Chart {
     public final JFreeChart getChart() {
         return chart;
     }
+    
+    /**
+     * Returns the chart type.
+     * @return Chart type 
+     */
+	public ChartType getChartType() {
+		return chartType;
+	}
 }
 
 

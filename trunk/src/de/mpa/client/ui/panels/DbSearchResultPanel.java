@@ -1457,17 +1457,21 @@ public class DbSearchResultPanel extends JPanel {
 						proteinHit.getSpectralCount(),
 						proteinHit.getEmPAI(),
 						nsaf});
-				
-				// Wrap protein data in table node clones and insert them into the relevant trees
-				PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
-				TreePath flatPath = insertFlatNode(flatNode);
-				PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
-				TreePath taxonPath = insertTaxonomicNode(taxonNode);
-				PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
-				TreePath enzymePath = insertEnzymeNode(enzymeNode);
-				
-				// Link nodes to each other
-				linkNodes(flatPath, taxonPath, enzymePath);
+				if(proteinHit.getUniprotEntry() != null) {
+					// Wrap protein data in table node clones and insert them into the relevant trees
+					PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
+					TreePath flatPath = insertFlatNode(flatNode);
+					PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
+					TreePath taxonPath = insertTaxonomicNode(taxonNode);
+					PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
+					TreePath enzymePath = insertEnzymeNode(enzymeNode);
+					
+					// Link nodes to each other
+					linkNodes(flatPath, taxonPath, enzymePath);
+				} else {
+					System.out.println("no entry: " + proteinHit.getAccession());
+				}
+
 			}
 			
 			// Adjust highlighters

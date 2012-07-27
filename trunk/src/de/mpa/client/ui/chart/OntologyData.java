@@ -11,7 +11,6 @@ import org.jfree.data.general.PieDataset;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -25,7 +24,7 @@ import de.mpa.client.ui.chart.OntologyPieChart.PieChartType;
  * @date 25-07-2012
  *
  */
-public class OntologyData {
+public class OntologyData implements ChartData {
 	
 	/**
 	 * Molecular function occurrences map.
@@ -47,6 +46,15 @@ public class OntologyData {
 	 */
 	private Map<String, KeywordOntology> ontologyMap;
 	
+	/**
+	 * The database search result.
+	 */
+	private DbSearchResult dbSearchResult;
+	
+	/**
+	 * The chart type.
+	 */
+	private ChartType chartType;
 	
 	/**
 	 * Empty default constructor.
@@ -59,14 +67,15 @@ public class OntologyData {
 	 * @param dbSearchResult The database search result.
 	 */
 	public OntologyData(DbSearchResult dbSearchResult) {
-		init(dbSearchResult);
+		this.dbSearchResult = dbSearchResult;
+		init();
 	}
 
 	/**
 	 * This method sets up the ontologies.
 	 * @param dbSearchResult Database search result data.
 	 */
-	public void init(DbSearchResult dbSearchResult) {
+	public void init() {
 		// Get the ontology map.
 		if(ontologyMap == null) {
 			ontologyMap = UniprotAccessor.getOntologyMap();
@@ -123,7 +132,7 @@ public class OntologyData {
 	 * Returns the pieDataset.
 	 * @return
 	 */
-	public PieDataset getPieDataset(ChartType chartType) {
+	public PieDataset getDataset() {
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		Set<Entry<String, Integer>> entrySet = null;
 		PieChartType pieChartType = (PieChartType) chartType;
@@ -142,6 +151,14 @@ public class OntologyData {
 			pieDataset.setValue(e.getKey(), e.getValue());
 		}
 		return pieDataset;
+	}
+	
+	/**
+	 * Sets the chart type.
+	 * @param chartType The chart type.
+	 */
+	public void setChartType(ChartType chartType) {
+		this.chartType = chartType;
 	}
 	
 	/**
