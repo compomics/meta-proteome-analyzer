@@ -23,15 +23,11 @@ public class OntologyPieChart extends Chart {
     }
 
 	@Override
-	public String getChartTitle() {
-		return chartTitle;
-	}
-
-	@Override
 	protected void process(Object data) {
 		if (data instanceof OntologyData) {
 			OntologyData ontologyData = (OntologyData) data;
-			pieDataset = ontologyData.getPieDataset(chartType);
+			ontologyData.setChartType(chartType);
+			pieDataset = ontologyData.getDataset();
 		}
 	}
 

@@ -50,16 +50,15 @@ public class UniprotAccessor {
 		// Get the protein hits from the search result.
 		Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
 		List<String> accList = new ArrayList<String>(proteinHits.keySet());
-		
 		// maxClauseCount is set to 1024
 		if(accList.size() > 1024){
 			List<String> shortList = new ArrayList<String>();
+			
 			for (String acc : accList) {
 				shortList.add(acc);
 				if(shortList.size() % 1024 == 0){
 					Query query = UniProtQueryBuilder.buildIDListQuery(shortList);
 					EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-					
 					// Iterate the entries and add them to the list. 
 					for (UniProtEntry e : entryIterator) {
 						String accession = e.getPrimaryUniProtAccession().getValue();
