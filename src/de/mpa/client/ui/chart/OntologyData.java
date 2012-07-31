@@ -147,8 +147,19 @@ public class OntologyData implements ChartData {
 			entrySet = molFunctionOccMap.entrySet();
 			break;
 		}
+		
+		int sumValues = 0;
 		for (Entry<String, Integer> e : entrySet) {
-			pieDataset.setValue(e.getKey(), e.getValue());
+			sumValues += e.getValue();
+		}
+		
+		double limit = 0.01;
+		for (Entry<String, Integer> e : entrySet) {
+			if((e.getValue() * 1.0 / sumValues * 1.0) >= limit) {
+				pieDataset.setValue(e.getKey(), e.getValue());
+			} else {
+				pieDataset.setValue("Others", e.getValue());
+			}
 		}
 		return pieDataset;
 	}
