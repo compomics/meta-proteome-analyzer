@@ -1923,8 +1923,8 @@ public class DbSearchResultPanel extends JPanel {
 				xTandemLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | HScore: " + df.format(xtandemhit.getHyperscore().doubleValue()) + 
 						" | E-value: "  + df.format(xtandemhit.getEvalue().doubleValue()));
-				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,yIndex));
-				panel.add(xTandemLbl, CC.xy(3, yIndex));
+				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,1));
+				panel.add(xTandemLbl, CC.xy(3, 1));
 				yIndex += 2;
 				break;
 			case OMSSA:
@@ -1932,16 +1932,16 @@ public class DbSearchResultPanel extends JPanel {
 				omssaLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | P-value: " + df.format(omssahit.getPvalue().doubleValue()) + 
 						" | E-value: "  + df.format(omssahit.getEvalue().doubleValue()));
-				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,yIndex));
-				panel.add(omssaLbl, CC.xy(3,yIndex));
+				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,3));
+				panel.add(omssaLbl, CC.xy(3,3));
 				yIndex += 2;
 				break;
 			case CRUX:
 				Cruxhit cruxhit = (Cruxhit) hit;
 				cruxLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | XCorr: " + df.format(cruxhit.getXcorr_score().doubleValue()));
-				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,yIndex));
-				panel.add(cruxLbl, CC.xy(3,yIndex));
+				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,5));
+				panel.add(cruxLbl, CC.xy(3,5));
 				yIndex += 2;
 				break;
 			case INSPECT:
@@ -1949,8 +1949,8 @@ public class DbSearchResultPanel extends JPanel {
 				inspectLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
 						" | FScore: " + df.format(inspecthit.getF_score().doubleValue()) + 
 						" | DeltaScore: "  + df.format(inspecthit.getDeltascore().doubleValue()));
-				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,yIndex));
-				panel.add(inspectLbl, CC.xy(3,yIndex));
+				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,7));
+				panel.add(inspectLbl, CC.xy(3,7));
 				yIndex += 2;
 				break;
 			default:
