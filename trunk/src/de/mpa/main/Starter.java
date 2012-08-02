@@ -9,6 +9,7 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.SkyBlue;
 
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.parser.ec.ECMap;
 
 public class Starter {
 	
@@ -29,6 +30,7 @@ public class Starter {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	/**
 	 * Main method ==> Entry point to the application.
