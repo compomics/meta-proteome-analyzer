@@ -40,6 +40,16 @@ public class ChartFactory {
 	}
 	
 	/**
+	 * Returns a TaxonomyPieChart.
+	 * @param data Chart data
+	 * @param chartType Chart type
+	 * @return TaxonomyPieChart object.
+	 */
+	public static TaxonomyPieChart createTaxonomyPieChart(ChartData data, ChartType chartType) {
+		return new TaxonomyPieChart(data, chartType);
+	}
+	
+	/**
 	 * Returns a TopBarChart.
 	 * @param data Chart data
 	 * @param chartType Chart type

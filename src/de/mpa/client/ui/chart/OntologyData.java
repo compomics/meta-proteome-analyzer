@@ -15,7 +15,7 @@ import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.ui.chart.OntologyPieChart.PieChartType;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 
 /**
  * This class structure is used to describe the ontology data set.
@@ -135,7 +135,7 @@ public class OntologyData implements ChartData {
 	public PieDataset getDataset() {
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		Set<Entry<String, Integer>> entrySet = null;
-		PieChartType pieChartType = (PieChartType) chartType;
+		OntologyChartType pieChartType = (OntologyChartType) chartType;
 		switch (pieChartType) {
 		case BIOLOGICAL_PROCESS:
 			entrySet = biolProcessOccMap.entrySet();

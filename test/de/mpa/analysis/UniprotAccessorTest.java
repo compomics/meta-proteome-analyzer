@@ -39,6 +39,7 @@ public class UniprotAccessorTest extends TestCase {
             System.out.println("entry ec numbers = " + entry.getProteinDescription().getEcNumbers());
             List<NcbiTaxon> taxonomy = entry.getTaxonomy();
             for (NcbiTaxon taxon : taxonomy) {
+            	System.out.println(taxon.getValue());
 				System.out.println(taxon.getValue());
 			}
             List<Keyword> keywords = entry.getKeywords();
