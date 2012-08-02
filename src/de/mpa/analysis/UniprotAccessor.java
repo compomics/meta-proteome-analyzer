@@ -102,7 +102,7 @@ public class UniprotAccessor {
 		map.put("Viruses", TaxonomyRank.KINGDOM);
 		map.put("Viroids", TaxonomyRank.KINGDOM);
 		map.put("Archaea", TaxonomyRank.KINGDOM);
-		map.put("Bacteria ", TaxonomyRank.KINGDOM);
+		map.put("Bacteria", TaxonomyRank.KINGDOM);
 		map.put("Eukaryota", TaxonomyRank.KINGDOM);
 		
 		// CLASSES
@@ -146,6 +146,7 @@ public class UniprotAccessor {
 		map.put("Fibrobacteria", TaxonomyRank.CLASS);
 		map.put("Bacilli", TaxonomyRank.CLASS);
 		map.put("Clostridia", TaxonomyRank.CLASS);
+		map.put("Erysipelotrichi", TaxonomyRank.CLASS);
 		map.put("Negativicutes", TaxonomyRank.CLASS);
 		map.put("Thermolithobacteria", TaxonomyRank.CLASS);
 		map.put("Unclassified Firmicutes", TaxonomyRank.CLASS);
@@ -167,14 +168,110 @@ public class UniprotAccessor {
 		map.put("unclassified Tenericutes", TaxonomyRank.CLASS);
 		map.put("Thermodesulfobacteria", TaxonomyRank.CLASS);
 		map.put("Thermotogae", TaxonomyRank.CLASS);
-		map.put("unclassified Bacteria", TaxonomyRank.CLASS);
 		
-		// TODO: Eukaryota CLASSES + ALL PHYLUM entries
+		// TODO: @heyer Eukaryota CLASSES :-) 
 //		map.put("Planctomycetia", TaxonomyRank.CLASS);
 //		map.put("Alphaproteobacteria", TaxonomyRank.CLASS);
 //		map.put("Betaproteobacteria", TaxonomyRank.CLASS);
 //		map.put("Deltaproteobacteria", TaxonomyRank.CLASS);
 		
+		// PHYLA
+		map.put("Actinobacteria", TaxonomyRank.PHYLUM);
+		map.put("Aquificae", TaxonomyRank.PHYLUM);
+		map.put("Armatimonadetes", TaxonomyRank.PHYLUM);
+		map.put("Bacteroidetes", TaxonomyRank.PHYLUM);
+		map.put("Chlorobi", TaxonomyRank.PHYLUM);
+		map.put("Ignavibacteria", TaxonomyRank.PHYLUM);
+		map.put("Caldiserica", TaxonomyRank.PHYLUM);
+		map.put("Chlamydiae", TaxonomyRank.PHYLUM);
+		map.put("Lentisphaerae", TaxonomyRank.PHYLUM);
+		map.put("Verrucomicrobia", TaxonomyRank.PHYLUM);
+		map.put("Chloroflexi", TaxonomyRank.PHYLUM);
+		map.put("Chrysiogenetes", TaxonomyRank.PHYLUM);
+		map.put("Cyanobacteria", TaxonomyRank.PHYLUM);
+		map.put("Deferribacteres", TaxonomyRank.PHYLUM);
+		map.put("Deinococcus-Thermus", TaxonomyRank.PHYLUM);
+		map.put("Dictyoglomi", TaxonomyRank.PHYLUM);
+		map.put("Elusimicrobia", TaxonomyRank.PHYLUM);
+		map.put("Acidobacteria", TaxonomyRank.PHYLUM);
+		map.put("Fibrobacteres", TaxonomyRank.PHYLUM);
+		map.put("Firmicutes", TaxonomyRank.PHYLUM);
+		map.put("Fusobacteria", TaxonomyRank.PHYLUM);
+		map.put("Gemmatimonadetes", TaxonomyRank.PHYLUM);
+		map.put("Nitrospirae", TaxonomyRank.PHYLUM);
+		map.put("Planctomycetes", TaxonomyRank.PHYLUM);
+		map.put("Proteobacteria", TaxonomyRank.PHYLUM);
+		map.put("Spirochaetes", TaxonomyRank.PHYLUM);
+		map.put("Synergistetes", TaxonomyRank.PHYLUM);
+		map.put("Tenericutes", TaxonomyRank.PHYLUM);
+		map.put("Thermodesulfobacteria", TaxonomyRank.PHYLUM);
+		map.put("Thermotogae", TaxonomyRank.PHYLUM);
+		map.put("unclassified Bacteria", TaxonomyRank.PHYLUM);
+		map.put("Crenarchaeota", TaxonomyRank.PHYLUM);
+		map.put("Euryarchaeota", TaxonomyRank.PHYLUM);
+		map.put("Korarchaeota", TaxonomyRank.PHYLUM);
+		map.put("Nanoarchaeota", TaxonomyRank.PHYLUM);
+		map.put("Thaumarchaeota", TaxonomyRank.PHYLUM);
+		map.put("unclassified Archaea", TaxonomyRank.PHYLUM);
+		map.put("Amoebozoa", TaxonomyRank.PHYLUM);
+		map.put("Alveolata", TaxonomyRank.PHYLUM);
+		map.put("Apusozoa", TaxonomyRank.PHYLUM);
+		map.put("Centroheliozoa", TaxonomyRank.PHYLUM);
+		map.put("Euglenozoa", TaxonomyRank.PHYLUM);
+		map.put("Fornicata", TaxonomyRank.PHYLUM);
+		map.put("Haptophyceae", TaxonomyRank.PHYLUM);
+		map.put("Jakobida", TaxonomyRank.PHYLUM);
+		// Fungi
+		map.put("Blastocladiomycota", TaxonomyRank.PHYLUM);
+		map.put("Chytridiomycota", TaxonomyRank.PHYLUM);
+		map.put("Cryptomycota", TaxonomyRank.PHYLUM);
+		map.put("Ascomycota", TaxonomyRank.PHYLUM);
+		map.put("Basidiomycota", TaxonomyRank.PHYLUM);
+		map.put("Fungi incertae sedis", TaxonomyRank.PHYLUM);
+		map.put("Glomeromycota", TaxonomyRank.PHYLUM);
+		map.put("Microsporidia", TaxonomyRank.PHYLUM);
+		map.put("Neocallimastigomycota", TaxonomyRank.PHYLUM);
+		map.put("Platyhelminthes", TaxonomyRank.PHYLUM);
+		map.put("Gnathostomulida", TaxonomyRank.PHYLUM);
+		map.put("Chaetognatha (arrow worms)", TaxonomyRank.PHYLUM);
+		map.put("Chordata", TaxonomyRank.PHYLUM);
+		map.put("Echinodermata", TaxonomyRank.PHYLUM);
+		map.put("Hemichordata (hemichordates)", TaxonomyRank.PHYLUM);
+		map.put("Xenoturbellida", TaxonomyRank.PHYLUM);
+		map.put("Annelida", TaxonomyRank.PHYLUM);
+		map.put("Echiura (spoonworms)", TaxonomyRank.PHYLUM);
+		map.put("Brachiopoda (lampshells)", TaxonomyRank.PHYLUM);
+		map.put("Entoprocta (goblet worms)", TaxonomyRank.PHYLUM);
+		map.put("Mollusca", TaxonomyRank.PHYLUM);
+		map.put("Myzostomida", TaxonomyRank.PHYLUM);
+		map.put("Nemertea (ribbon worms)", TaxonomyRank.PHYLUM);
+		map.put("Arthropoda", TaxonomyRank.PHYLUM);
+		map.put("Onychophora (velvet worms)", TaxonomyRank.PHYLUM);
+		map.put("Tardigrada (water bears)", TaxonomyRank.PHYLUM);
+		map.put("Priapulida (priapulids)", TaxonomyRank.PHYLUM);
+		map.put("Sipuncula (peanut worms) ", TaxonomyRank.PHYLUM);
+		map.put("Acanthocephala (thorny-headed worms)", TaxonomyRank.PHYLUM);
+		map.put("Cycliophora", TaxonomyRank.PHYLUM);
+		map.put("Gastrotricha (gastrotrichs)", TaxonomyRank.PHYLUM);
+		map.put("Kinorhyncha (mud dragons)", TaxonomyRank.PHYLUM);
+		map.put("Loricifera (loriciferans)", TaxonomyRank.PHYLUM);
+		map.put("Micrognathozoa (micrognathozoans)", TaxonomyRank.PHYLUM);
+		map.put("Nematoda (roundworms)", TaxonomyRank.PHYLUM);
+		map.put("Nematomorpha (horsehair worms)", TaxonomyRank.PHYLUM);
+		map.put("Rotifera (rotifers)", TaxonomyRank.PHYLUM);
+		map.put("Cnidaria", TaxonomyRank.PHYLUM);
+		map.put("Ctenophora (ctenophores)", TaxonomyRank.PHYLUM);
+		map.put("Orthonectida", TaxonomyRank.PHYLUM);
+		map.put("Rhombozoa", TaxonomyRank.PHYLUM);
+		map.put("Placozoa (placozoans)", TaxonomyRank.PHYLUM);
+		map.put("Porifera (sponges)", TaxonomyRank.PHYLUM);
+		map.put("Parabasalia (parabasalids)", TaxonomyRank.PHYLUM);
+		map.put("Rhizaria", TaxonomyRank.PHYLUM);
+		map.put("Rhodophyta", TaxonomyRank.PHYLUM);
+		map.put("stramenopiles", TaxonomyRank.PHYLUM);
+		map.put("unclassified eukaryotes", TaxonomyRank.PHYLUM);
+		map.put("Chlorophyta", TaxonomyRank.PHYLUM);
+		map.put("Streptophyta", TaxonomyRank.PHYLUM);
 		return map;
 	}
 	
