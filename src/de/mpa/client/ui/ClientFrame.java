@@ -39,6 +39,7 @@ import de.mpa.client.ui.panels.ResultsPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
+import de.mpa.main.Parameters;
 
 
 /**
@@ -74,6 +75,7 @@ public class ClientFrame extends JFrame {
 //	private TreePanel treePnl;
 	private ResultsPanel resPnl;
 	private static ClientFrame frame;
+	
 
 	/**
 	 * Returns a client singleton object.
@@ -172,7 +174,9 @@ public class ClientFrame extends JFrame {
 		this.setJMenuBar(menuBar);
 		cp.add(tabPane);
 		cp.add(statusPnl, BorderLayout.SOUTH);
-
+		
+		// TODO: notify progress bar for loading paramters.
+		Parameters.getInstance();
 //		// Register property change listener
 //		client.addPropertyChangeListener(new PropertyChangeListener() {
 //			// Update the 

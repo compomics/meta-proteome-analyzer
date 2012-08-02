@@ -27,7 +27,18 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	 * Array of per-column aggregate functions to combine numeric values 
 	 * of this node's children (given there are any). 
 	 */
-	private AggregateFunction[] aggFcns;
+	private AggregateFunction[] aggFcns = new AggregateFunction[] {
+			null,					// Accession
+			null,					// Description
+			null,					// Species
+			AggregateFunction.MAX,	// Coverage
+			AggregateFunction.MEAN,	// Mol. weight
+			AggregateFunction.MEAN, // Isoel. point
+			AggregateFunction.SUM,	// Peptide count
+			AggregateFunction.SUM,	// Spectral count
+			AggregateFunction.MEAN, // emPAI
+			AggregateFunction.SUM	// nSAF
+	};
 	
 	/**
 	 * Constructs a phylogenetic tree table node from an arbitrary Object.<br>
@@ -36,18 +47,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	 */
 	public PhylogenyTreeTableNode(Object userObject) {
 		super(userObject);
-		aggFcns = new AggregateFunction[] {
-				null,					// Accession
-				null,					// Description
-				null,					// Species
-				AggregateFunction.MAX,	// Coverage
-				AggregateFunction.MEAN,	// Mol. weight
-				AggregateFunction.MEAN, // Isoel. point
-				AggregateFunction.SUM,	// Peptide count
-				AggregateFunction.SUM,	// Spectral count
-				AggregateFunction.MEAN, // emPAI
-				AggregateFunction.SUM	// nSAF
-		};
+	}
+	/**
+	 * TODO: ALEX
+	 * @param userObjects
+	 */
+	public PhylogenyTreeTableNode(Object... userObjects) {
+		super(userObjects);
 	}
 	
 	@Override

@@ -137,6 +137,9 @@ import de.mpa.db.accessor.XTandemhit;
 import de.mpa.fragmentation.FragmentIon;
 import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.main.Parameters;
+import de.mpa.parser.ec.ECEntry;
+import de.mpa.parser.ec.ECMap;
 
 public class DbSearchResultPanel extends JPanel {
 	
@@ -762,13 +765,54 @@ public class DbSearchResultPanel extends JPanel {
 				}
 			}
 		};
+		
 		// Create table from model; make only hierarchical column editable (for checkboxes) TODO: make this default behavior of class?
-		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return (column == getHierarchicalColumn());
-			}
-		};
+		final SortableCheckBoxTreeTable treeTbl;
+		// Extra case for EC table, because of extra ToolTip
+		if (root.toString().equals("Root of E.C. View")) {
+			treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
+				@Override
+				public boolean isCellEditable(int row, int column) {
+					return (column == getHierarchicalColumn());
+				}
+				@Override
+				public String getToolTipText(MouseEvent me) {
+					String ecDesc = null;
+					int col = this.columnAtPoint(me.getPoint());
+					if (col == 1) {
+						int row = this.rowAtPoint(me.getPoint());
+						TreePath pathForRow = this.getPathForRow(row);
+						if (pathForRow != null){
+							PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
+							ECEntry ecEntry = Parameters.getInstance().getEcMap().get(node.getValueAt(0));
+							ecDesc = (ecEntry != null) ? ecEntry.getDescription() : null;
+							if (ecDesc != null) {
+								ecDesc = "<html>" + ecDesc + "</html>";
+								StringBuffer strB = new StringBuffer (ecDesc);  
+								String newLine = "<br>"; 
+								for (int i = 70; i < ecDesc.length(); i= i + 70) {
+									int linebreak = strB.indexOf(" ", i);
+									strB.insert (linebreak, newLine);  
+								}
+								ecDesc = strB.toString();
+							}
+						}
+
+					}
+					return ecDesc;
+				}
+			};
+		}else{
+			treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
+				@Override
+				public boolean isCellEditable(int row, int column) {
+					return (column == getHierarchicalColumn());
+				}
+			};
+		}
+		
+
+		
 		
 		// Pre-select root node
 		final TreePath rootPath = new TreePath(root);
@@ -1614,7 +1658,8 @@ public class DbSearchResultPanel extends JPanel {
 			name += (i > 0) ? "." + ecTokens[i] : ecTokens[i];
 			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChild(name);
 			if (child == null) {
-				child = new PhylogenyTreeTableNode(name);
+				ECEntry entry = Parameters.getInstance().getEcMap().get(name);
+				child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
 				treeTblMdl.insertNodeInto(child, parent, 0);
 			}
 			parent = child;
