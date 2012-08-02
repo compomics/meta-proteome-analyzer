@@ -35,8 +35,11 @@ public class UniprotAccessor {
 		BIOLOGICAL_PROCESS, CELLULAR_COMPONENT, MOLECULAR_FUNCTION
 	}
 	
+	/**
+	 * TaxonomyRank enumation.
+	 */
 	public enum TaxonomyRank {
-		KINGDOM, PHYLUM, CLASS, 
+		KINGDOM, PHYLUM, CLASS, SPECIES 
 	}
 	
 	/**

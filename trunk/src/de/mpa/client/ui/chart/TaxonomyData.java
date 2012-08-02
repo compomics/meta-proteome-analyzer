@@ -35,6 +35,11 @@ public class TaxonomyData implements ChartData {
 	private Map<String, Integer> kingdomTaxonomyMap;
 	
 	/**
+	 * Taxonomy species occurrences map.
+	 */
+	private Map<String, Integer> speciesTaxonomyMap;
+	
+	/**
 	 * The ontology map.
 	 */
 	private Map<String, TaxonomyRank> taxonomyMap;
@@ -80,6 +85,7 @@ public class TaxonomyData implements ChartData {
 		classTaxonomyMap = new HashMap<String, Integer>();
 		phylumTaxonomyMap = new HashMap<String, Integer>();
 		kingdomTaxonomyMap = new HashMap<String, Integer>();
+		speciesTaxonomyMap = new HashMap<String, Integer>();
 		
 		for (ProteinHit proteinHit : dbSearchResult.getProteinHits().values()) {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
@@ -118,6 +124,12 @@ public class TaxonomyData implements ChartData {
 						}
 					}
 				}
+				String species = entry.getOrganism().getScientificName().getValue();
+				if(speciesTaxonomyMap.containsKey(species)){
+					speciesTaxonomyMap.put(species, speciesTaxonomyMap.get(species)+1);
+				} else {
+					speciesTaxonomyMap.put(species, 1);
+				}
 			}
 		}
 	}
@@ -139,6 +151,9 @@ public class TaxonomyData implements ChartData {
 			break;
 		case CLASS:
 			entrySet = classTaxonomyMap.entrySet();
+			break;
+		case SPECIES:
+			entrySet = speciesTaxonomyMap.entrySet();
 			break;
 		}
 		
@@ -173,6 +188,7 @@ public class TaxonomyData implements ChartData {
 		if(kingdomTaxonomyMap != null) kingdomTaxonomyMap.clear();
 		if(phylumTaxonomyMap != null) phylumTaxonomyMap.clear();
 		if(classTaxonomyMap != null) classTaxonomyMap.clear();
+		if(speciesTaxonomyMap != null) speciesTaxonomyMap.clear();
 	}
 
 }
