@@ -8,7 +8,7 @@ public class TaxonomyPieChart extends Chart {
 	private PieDataset pieDataset;
 	
 	public enum TaxonomyChartType implements ChartType {
-		KINGDOM, PHYLUM, CLASS
+		KINGDOM, PHYLUM, CLASS, SPECIES
 	}
 		
 	/**
@@ -42,6 +42,9 @@ public class TaxonomyPieChart extends Chart {
 			break;
 		case CLASS:
 			chartTitle = "Class Taxonomy";
+			break;
+		case SPECIES:
+			chartTitle = "Species Taxonomy";
 			break;
 		default:
 			chartTitle = "Class Taxonomy";
