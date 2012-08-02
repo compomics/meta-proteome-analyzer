@@ -132,6 +132,14 @@ public class IconConstants {
 	/** @see IconConstants#DELETE_PAGE_ICON */
 	public static final ImageIcon PREV_PRESSED_ICON = createRescaledIcon(PREV_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/size_vertical_32.png"> */
+	public static final ImageIcon SIZE_VERT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/size_vertical_32.png"));
+	/** @see IconConstants#DELETE_PAGE_ICON */
+	public static final ImageIcon SIZE_VERT_ROLLOVER_ICON = createRescaledIcon(SIZE_VERT_ICON, 1.2f);
+	/** @see IconConstants#DELETE_PAGE_ICON */
+	public static final ImageIcon SIZE_VERT_PRESSED_ICON = createRescaledIcon(SIZE_VERT_ICON, 0.8f);
+	
+	
 	/**
 	 * Rescales color space of a provided icon. Use to brighten or darken icons.
 	 * 
