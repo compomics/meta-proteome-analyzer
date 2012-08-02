@@ -2,8 +2,6 @@ package de.mpa.main;
 
 import java.util.Map;
 
-import javax.swing.JPopupMenu.Separator;
-
 import de.mpa.client.ui.Constants;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.parser.ec.ECReader;
@@ -35,7 +33,7 @@ public class Parameters {
 	 */
 	private void initializeParameters(){
 		// Initialize the EC-number Map
-		String paramsPath = getPath() + "/ECreduced.xml";
+		String paramsPath = "/" + getPath() + "/ECreduced.xml";
 		ecMap = ECReader.readEC(paramsPath);		
 	}
 	

@@ -292,6 +292,14 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
+	 * Returns the results panel.
+	 * @return The results panel.
+	 */
+	public ResultsPanel getResultsPanel() {
+		return resPnl;
+	}
+	
+	/**
 	 * Returns the database search result panel.
 	 * @return The database search result panel.
 	 */

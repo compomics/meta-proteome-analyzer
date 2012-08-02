@@ -1,6 +1,5 @@
 package de.mpa.client.ui.panels;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -10,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,9 +39,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -80,6 +81,7 @@ import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.ui.MultiPlotPanel;
+import de.mpa.util.ColorUtils;
 
 public class SpecSimResultPanel extends JPanel {
 
@@ -89,6 +91,8 @@ public class SpecSimResultPanel extends JPanel {
 	private JXTable peptideTbl;
 	private JXTable ssmTbl;
 	private JButton getResultsBtn;
+	private JPanel specPnl;
+	private JPanel matPnl;
 	private MultiPlotPanel plotPnl;
 	protected SpecSimResult specSimResult;
 	private Font chartFont;
@@ -131,6 +135,7 @@ public class SpecSimResultPanel extends JPanel {
 		setupProteinTableProperties();
 		setupPeptideTableProperties();
 		setupSsmTableProperties();
+		setupViewerPanelProperties();
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane(proteinTbl);
@@ -151,20 +156,17 @@ public class SpecSimResultPanel extends JPanel {
 		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: make this look nicer
-				new SwingWorker() {
-					protected Object doInBackground() throws Exception {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
 						// appear busy
 						setBusy(true);
-						// do stuff
+						// process results
 						refreshProteinTable();
-						return null;
-					}
-					protected void done() {
 						// stop appearing busy
 						setBusy(false);
-					};
-				}.execute();
+					}
+				});
 			}
 		});
 		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
@@ -196,222 +198,26 @@ public class SpecSimResultPanel extends JPanel {
 		ssmTtlPnl.setTitlePainter(ttlPainter);
 		ssmTtlPnl.setBorder(ttlBorder);
 
-		// Peptide and Psm Panel
-		JPanel pepPsmPnl = new JPanel(new FormLayout("p:g","f:p:g, 5dlu, f:p:g"));
-		
-		pepPsmPnl.add(pepTtlPnl, CC.xy(1, 1));
-		pepPsmPnl.add(ssmTtlPnl, CC.xy(1, 3));
-		
+		// Viewer panel
 		final CardLayout cl = new CardLayout();
 		final JPanel viewPnl = new JPanel(cl);
 		
-		// Build spectrum filter panel
-		final JPanel specPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, p, f:p:g, 5dlu"));
-
-		plotPnl = new MultiPlotPanel();
-		plotPnl.setBorder(BorderFactory.createEtchedBorder());
-		
-		specPnl.add(plotPnl, CC.xywh(2, 2, 1, 2));
-		
-		// Build score matrix visualizer panel
-		final JPanel matPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, f:39px, 5dlu, f:p, 5dlu, f:p:g, 5dlu"));
-		
-		// The label whose icon will be used to display the score matrix image
-		matLbl = new JLabel();
-		
-		// Create color model mapping scores to a red-yellow-green-cyan-blue gradient
-		matrixColorModel = new ColorModel(32) {
-			private int numCols = 256;
-			double val2ind = 255.0 / (numCols-1);
-			private int[][] colors = new int[numCols][3];
-			{
-				// pre-calculate colors
-				for (int i = 0; i < numCols; i++) {
-					double r = -Math.abs(i+1 - numCols*0.75) * 4.0/numCols + 1.5;
-					double g = -Math.abs(i+1 - numCols*0.50) * 4.0/numCols + 1.5;
-					double b = -Math.abs(i+1 - numCols*0.25) * 4.0/numCols + 1.5;
-					r = (r > 1.0) ? 1.0 : (r < 0.0) ? 0.0 : r;
-					g = (g > 1.0) ? 1.0 : (g < 0.0) ? 0.0 : g;
-					b = (b > 1.0) ? 1.0 : (b < 0.0) ? 0.0 : b;
-					colors[i][0] = (int) (r*255.0);
-					colors[i][1] = (int) (g*255.0);
-					colors[i][2] = (int) (b*255.0);
-//					colors[i] = new Color(
-//							(float) trapezoidal(i*2.0/765.0, 5.0/6.0),
-//							(float) trapezoidal(i*2.0/765.0, 1.0/6.0),
-//							(float) trapezoidal(i*2.0/765.0, 0.5));
-				}
-			}
-			public int getAlpha(int pixel) {
-				return 255;
-			}
-			public int getRed(int pixel) {
-				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
-				return colors[index][0];
-			}
-			public int getGreen(int pixel) {
-				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
-				return colors[index][1];
-			}
-			public int getBlue(int pixel) {
-				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
-				return colors[index][2];
-			}
-			@Override	// this is pretty hacky, but it works :)
-			public boolean isCompatibleRaster(Raster raster) {
-				return true;
-			}
-//			private double trapezoidal(double d, double s) {
-//				double res = 
-//					Math.abs(6.0 * (((d + s) - Math.floor((d + s) - 0.5)) - 1.0)) - 1.0;
-//				if (res > 1.0) {
-//					res = 1.0;
-//				} else if (res < 0.0) {
-//					res = 0.0;
-//				}
-//				return res;
-//			}
-		};
-		
-		JScrollPane matScpn = new JScrollPane(matLbl);
-		matScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		matScpn.getHorizontalScrollBar().setUnitIncrement(16);
-		matScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		matScpn.getVerticalScrollBar().setUnitIncrement(16);
-		matScpn.setPreferredSize(new Dimension(0, 0));
-		
-		FormLayout layout = new FormLayout("0:g, 1px, p",
-				"9px, 9px, 0:g, p, 0:g, p, 0:g, p, 0:g, p, 0:g, 9px, 9px");
-		layout.setRowGroups(new int[][] { {1, 2}, {12, 13} });
-		
-		JPanel colBarPnl = new JPanel(layout);
-		
-		JPanel colBar = new JPanel() {
-			NumberFormat formatter = new DecimalFormat("0.000");
-			@Override
-			protected void paintComponent(Graphics g) {
-				int width = getWidth(), height = getHeight();
-				for (int y = 0; y < height; y++) {
-					float colR = -Math.abs(y+1 - height*0.25f) * 4.0f/height + 1.5f;
-					float colG = -Math.abs(y+1 - height*0.50f) * 4.0f/height + 1.5f;
-					float colB = -Math.abs(y+1 - height*0.75f) * 4.0f/height + 1.5f;
-					colR = (colR > 1.0f) ? 1.0f : (colR < 0.0f) ? 0.0f : colR;
-					colG = (colG > 1.0f) ? 1.0f : (colG < 0.0f) ? 0.0f : colG;
-					colB = (colB > 1.0f) ? 1.0f : (colB < 0.0f) ? 0.0f : colB;
-					g.setColor(new Color(colR, colG, colB));
-					g.drawLine(0, y, width, y);
-				}
-				g.setColor(Color.GRAY);
-				int left = getBorder().getBorderInsets(this).left;
-				int right = width - getBorder().getBorderInsets(this).right - 1;
-				for (int i = 1; i < 5; i++) {
-					g.drawLine(left, i * height / 5, left + 2, i * height / 5);
-					g.drawLine(right, i * height / 5, right - 2, i * height / 5);
-				}
-			}
-			@Override
-			public String getToolTipText(MouseEvent event) {
-				return formatter.format(1.0 - event.getY() / (double) getHeight());
-			}
-			@Override
-			public Point getToolTipLocation(MouseEvent event) {
-				Point point = event.getPoint();
-				point.translate(-24, 24);
-				return point;
-			}
-		};
-		colBar.setBorder(matScpn.getBorder());
-		colBar.setToolTipText("");
-		
-		colBarPnl.add(colBar, CC.xywh(1, 2, 1, 11));
-		colBarPnl.add(new JLabel("1.0"), CC.xywh(3, 1, 1, 2));
-		for (int i = 4; i > 0; i--) {
-			colBarPnl.add(new JLabel("" + (i/5.0)), CC.xy(3, 12-2*i));
-		}
-		colBarPnl.add(new JLabel("0.0"), CC.xywh(3, 12, 1, 2));
-		
-		final JPanel zoomPnl = new JPanel() {
-			@Override
-			protected void paintComponent(Graphics g) {
-				if (zoomImg != null) {
-					g.drawImage(zoomImg, 2, 2, 35, 35, null);
-					Color col = new Color(((BufferedImage) zoomImg).getRGB(zoomX, zoomY));
-					g.setColor(new Color(255 - col.getRed(), 255 - col.getGreen(), 255 - col.getBlue()));
-					g.drawRect(2 + zoomX * 5, 2 + zoomY * 5, 4, 4);
-				}
-			}
-		};
-		zoomPnl.setBorder(matScpn.getBorder());
-		
-		final JTextField infoTtf = new JTextField("0.000");
-		infoTtf.setEditable(false);
-		infoTtf.setHorizontalAlignment(SwingConstants.CENTER);
-		infoTtf.setBorder(BorderFactory.createCompoundBorder(matScpn.getBorder(),
-				BorderFactory.createEmptyBorder(0, 0, 0, -1)));
-		
-		matLbl.addMouseMotionListener(new MouseMotionAdapter() {
-			int zoomWidth = 7, zoomHeight = 7;
-			NumberFormat formatter = new DecimalFormat("0.000");
-			@Override
-			public void mouseMoved(MouseEvent me) {
-				if (matLbl.getIcon() != null) {
-					BufferedImage image = (BufferedImage) ((ImageIcon) matLbl.getIcon()).getImage();
-					int x = me.getX() - zoomWidth / 2;
-					int y = me.getY() - zoomHeight / 2;
-					if (x < 0) {
-						x = 0;
-						zoomX = me.getX() % zoomWidth;
-					} else if (x + zoomWidth > image.getWidth()) {
-						x = image.getWidth() - zoomWidth;
-						zoomX = me.getX() + zoomWidth - image.getWidth();
-					} else {
-						zoomX = 3;
-					}
-					if (y < 0) {
-						y = 0;
-						zoomY = me.getY() % zoomHeight;
-					} else if (y + zoomHeight > image.getHeight()) {
-						y = image.getHeight() - zoomHeight;
-						zoomY = me.getY() + zoomHeight - image.getHeight();
-					} else {
-						zoomY = 3;
-					}
-					zoomImg = image.getSubimage(x, y, zoomWidth, zoomHeight);
-					zoomPnl.repaint();
-					double red = ((specSimResult.getScoreMatrixImage().getRGB(
-							me.getX() + 1, me.getY() + 1) >> 16) & 0xFF) / 255.0;
-					infoTtf.setText(formatter.format(red));
-				}
-			}
-		});
-		
-		matPnl.add(matScpn, CC.xywh(2, 2, 1, 5));
-		matPnl.add(zoomPnl, CC.xy(4, 2));
-		matPnl.add(infoTtf, CC.xy(4, 4));
-		matPnl.add(colBarPnl, CC.xy(4, 6));
-		
-		// Add cards
+		// add cards
 		viewPnl.add(specPnl, "Spectrum");
 		viewPnl.add(matPnl, "Matrix");
 
 		// build control button panel for card layout
-		JButton prevBtn = new JButton("\u2039");
-		prevBtn.setPreferredSize(new Dimension(19, 18));
-		JButton nextBtn = new JButton("\u203A");
-		nextBtn.setPreferredSize(new Dimension(19, 18));
-		
-		JPanel controlPnl = new JPanel(new BorderLayout());
-		controlPnl.add(prevBtn, BorderLayout.WEST);
-		controlPnl.add(nextBtn, BorderLayout.EAST);
+		JButton swapBtn = new JButton("\u203A");
+		swapBtn.setPreferredSize(new Dimension(19, 18));
 		
 		// wrap viewer panels in titled panel with control buttons in title
 		final JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", viewPnl); 
 		specTtlPnl.setTitleFont(ttlFont);
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
-		specTtlPnl.setRightDecoration(controlPnl);
+		specTtlPnl.setRightDecoration(swapBtn);
 
-		prevBtn.addActionListener(new ActionListener() {
+		swapBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cl.previous(viewPnl);
 				Component[] components = viewPnl.getComponents();
@@ -424,11 +230,6 @@ public class SpecSimResultPanel extends JPanel {
 						}
 					}
 				}
-			}
-		});
-		nextBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cl.next(viewPnl);
 			}
 		});
 		
@@ -768,6 +569,193 @@ public class SpecSimResultPanel extends JPanel {
 		// Enables column control
 		ssmTbl.setColumnControlVisible(true);
 	}
+	
+	private void setupViewerPanelProperties() {
+		// Spectrum panel
+		specPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, f:39px, 5dlu, f:p:g, 5dlu"));
+
+		// Spectrum plot
+		plotPnl = new MultiPlotPanel();
+		plotPnl.setBorder(BorderFactory.createEtchedBorder());
+		
+		// Button controls
+		final JToggleButton normBtn = new JToggleButton(IconConstants.SIZE_VERT_ICON);
+		normBtn.setRolloverIcon(IconConstants.SIZE_VERT_ROLLOVER_ICON);
+		normBtn.setPressedIcon(IconConstants.SIZE_VERT_PRESSED_ICON);
+		normBtn.setSelectedIcon(IconConstants.createRescaledIcon(IconConstants.SIZE_VERT_ICON, 0.9f));
+		normBtn.setRolloverSelectedIcon(IconConstants.SIZE_VERT_ICON);
+		normBtn.setMargin(new Insets(3, 4, 1, 4));
+		normBtn.setToolTipText("Fit to height");
+		
+		normBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				plotPnl.repaint(normBtn.isSelected());
+			}
+		});
+		
+		// Add components to spectrum panel
+		specPnl.add(plotPnl, CC.xywh(2, 2, 1, 3));
+		specPnl.add(normBtn, CC.xy(4, 2));
+		
+		// Score matrix panel
+		matPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, f:39px, 5dlu, f:p, 5dlu, f:p:g, 5dlu"));
+		
+		// The label whose icon will be used to display the score matrix image
+		matLbl = new JLabel();
+		
+		// Create color model mapping scores to a red-yellow-green-cyan-blue gradient
+		matrixColorModel = new ColorModel(32) {
+			private int numCols = 256;
+			double val2ind = 255.0 / (numCols-1);
+			private Color[] colors = ColorUtils.getRainbowGradient(numCols);
+			
+			public int getAlpha(int pixel) {
+				return 255;
+			}
+			public int getRed(int pixel) {
+				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
+				return colors[index].getRed();
+			}
+			public int getGreen(int pixel) {
+				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
+				return colors[index].getGreen();
+			}
+			public int getBlue(int pixel) {
+				int index = (int) (((pixel >> 16) & 0xFF) * val2ind);
+				return colors[index].getBlue();
+			}
+			@Override	// this is pretty hacky, but it works :)
+			public boolean isCompatibleRaster(Raster raster) {
+				return true;
+			}
+		};
+		
+		// Wrap matrix in scroll pane
+		JScrollPane matScpn = new JScrollPane(matLbl);
+		matScpn.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		matScpn.getHorizontalScrollBar().setUnitIncrement(16);
+		matScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		matScpn.getVerticalScrollBar().setUnitIncrement(16);
+		matScpn.setPreferredSize(new Dimension(0, 0));
+		
+		FormLayout layout = new FormLayout("0:g, 1px, p",
+				"9px, 9px, 0:g, p, 0:g, p, 0:g, p, 0:g, p, 0:g, 9px, 9px");
+		layout.setRowGroups(new int[][] { {1, 2}, {12, 13} });
+		
+		// Create color bar
+		JPanel colBarPnl = new JPanel(layout);
+		
+		JPanel colBar = new JPanel() {
+			NumberFormat formatter = new DecimalFormat("0.000");
+			@Override
+			protected void paintComponent(Graphics g) {
+				int width = getWidth(), height = getHeight();
+				// paint gradient
+				Color[] colors = ColorUtils.getRainbowGradient(height);
+				for (int y = 0; y < height; y++) {
+					g.setColor(colors[height - y - 1]);
+					g.drawLine(0, y, width, y);
+				}
+				// paint tick marks
+				g.setColor(Color.GRAY);
+				int left = getBorder().getBorderInsets(this).left;
+				int right = width - getBorder().getBorderInsets(this).right - 1;
+				for (int i = 1; i < 5; i++) {
+					g.drawLine(left, i * height / 5, left + 2, i * height / 5);
+					g.drawLine(right, i * height / 5, right - 2, i * height / 5);
+				}
+			}
+			@Override
+			public String getToolTipText(MouseEvent event) {
+				return formatter.format(1.0 - event.getY() / (double) getHeight());
+			}
+			@Override
+			public Point getToolTipLocation(MouseEvent event) {
+				Point point = event.getPoint();
+				point.translate(-24, 24);
+				return point;
+			}
+		};
+		colBar.setBorder(matScpn.getBorder());
+		colBar.setToolTipText("");
+		
+		// Add tick labels to color bar
+		colBarPnl.add(colBar, CC.xywh(1, 2, 1, 11));
+		colBarPnl.add(new JLabel("1.0"), CC.xywh(3, 1, 1, 2));
+		for (int i = 4; i > 0; i--) {
+			colBarPnl.add(new JLabel("" + (i/5.0)), CC.xy(3, 12-2*i));
+		}
+		colBarPnl.add(new JLabel("0.0"), CC.xywh(3, 12, 1, 2));
+		
+		// Create zoom widget
+		final JPanel zoomPnl = new JPanel() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				if (zoomImg != null) {
+					g.drawImage(zoomImg, 2, 2, 35, 35, null);
+					Color col = new Color(((BufferedImage) zoomImg).getRGB(zoomX, zoomY));
+					g.setColor(new Color(255 - col.getRed(), 255 - col.getGreen(), 255 - col.getBlue()));
+					g.drawRect(2 + zoomX * 5, 2 + zoomY * 5, 4, 4);
+				}
+			}
+		};
+		zoomPnl.setBorder(matScpn.getBorder());
+		
+		// Create widget to display score of pixel below mouse cursor
+		final JTextField infoTtf = new JTextField("0.000");
+		infoTtf.setEditable(false);
+		infoTtf.setHorizontalAlignment(SwingConstants.CENTER);
+		infoTtf.setBorder(BorderFactory.createCompoundBorder(matScpn.getBorder(),
+				BorderFactory.createEmptyBorder(0, 0, 0, -1)));
+		
+		// Install mouse motion listener controlling zoom-related widgets
+		matLbl.addMouseMotionListener(new MouseMotionAdapter() {
+			int zoomWidth = 7, zoomHeight = 7;
+			NumberFormat formatter = new DecimalFormat("0.000");
+			@Override
+			public void mouseMoved(MouseEvent me) {
+				if (matLbl.getIcon() != null) {
+					BufferedImage image = (BufferedImage) ((ImageIcon) matLbl.getIcon()).getImage();
+					// Get top left corner coordinates of sub-image
+					int x = me.getX() - zoomWidth / 2;
+					int y = me.getY() - zoomHeight / 2;
+					// Account for borders
+					if (x < 0) {
+						x = 0;
+						zoomX = me.getX() % zoomWidth;
+					} else if (x + zoomWidth > image.getWidth()) {
+						x = image.getWidth() - zoomWidth;
+						zoomX = me.getX() + zoomWidth - image.getWidth();
+					} else {
+						zoomX = 3;
+					}
+					if (y < 0) {
+						y = 0;
+						zoomY = me.getY() % zoomHeight;
+					} else if (y + zoomHeight > image.getHeight()) {
+						y = image.getHeight() - zoomHeight;
+						zoomY = me.getY() + zoomHeight - image.getHeight();
+					} else {
+						zoomY = 3;
+					}
+					// Get cropped part of matrix
+					zoomImg = image.getSubimage(x, y, zoomWidth, zoomHeight);
+					zoomPnl.repaint();
+					// Get score value (stored in red color channel of pixel)
+					double red = ((specSimResult.getScoreMatrixImage().getRGB(
+							me.getX() + 1, me.getY() + 1) >> 16) & 0xFF) / 255.0;
+					infoTtf.setText(formatter.format(red));
+				}
+			}
+		});
+		
+		// Add components to matrix panel
+		matPnl.add(matScpn, CC.xywh(2, 2, 1, 5));
+		matPnl.add(zoomPnl, CC.xy(4, 2));
+		matPnl.add(infoTtf, CC.xy(4, 4));
+		matPnl.add(colBarPnl, CC.xy(4, 6));
+	}
 
 	/**
 	 * Method to refresh protein table contents.
@@ -992,7 +980,7 @@ public class SpecSimResultPanel extends JPanel {
 		JTabbedPane pane = clientFrame.getTabPane();
 		if (tabEnabled == null) {
 			tabEnabled = new boolean[pane.getComponentCount()];
-			tabEnabled[pane.indexOfComponent(this)] = true;
+			tabEnabled[pane.indexOfComponent(clientFrame.getResultsPanel())] = true;
 		}
 		// Enable/disable tabs
 		for (int i = 0; i < tabEnabled.length; i++) {
