@@ -75,6 +75,11 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.CompoundHighlighter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
+import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -139,7 +144,7 @@ import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
-import de.mpa.parser.ec.ECMap;
+import de.mpa.util.ColorUtils;
 
 public class DbSearchResultPanel extends JPanel {
 	
@@ -543,7 +548,7 @@ public class DbSearchResultPanel extends JPanel {
 			public void setValueAt(Object aValue, int row, int column) {
 				super.setValueAt(aValue, row, column);
 				if (column == PROT_SELECTION) {
-					dbSearchResult.getProteinHits().get(getValueAt(row,PROT_ACCESSION)).setSelected((Boolean) aValue);
+					dbSearchResult.getProteinHits().get(getValueAt(row, PROT_ACCESSION)).setSelected((Boolean) aValue);
 				}
 			}
 		};
@@ -605,12 +610,20 @@ public class DbSearchResultPanel extends JPanel {
 			case PROT_SPECTRALCOUNT:
 			case PROT_EMPAI:
 			case PROT_NSAF:
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERICAL)));
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERICAL)) {
+					protected SortKey getSortKey(JTable table, int column) {
+						return table.getRowSorter().getSortKeys().get(1);
+					}
+				});
 				break;
 			case PROT_ACCESSION: 
 			case PROT_DESCRIPTION:
 			case PROT_SPECIES: 
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHA_NUMERICAL)));
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHA_NUMERICAL)) {
+					protected SortKey getSortKey(JTable table, int column) {
+						return table.getRowSorter().getSortKeys().get(1);
+					}
+				});
 				break;
 			}
 		}
@@ -958,7 +971,17 @@ public class DbSearchResultPanel extends JPanel {
 				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
 		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
 				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
-
+		
+		// Add non-leaf highlighter
+		Color hlCol = new Color(237, 246, 255);	// light blue
+//		Color hlCol = new Color(255, 255, 237);	// light yellow
+		HighlightPredicate notLeaf = new NotHighlightPredicate(HighlightPredicate.IS_LEAF);
+		treeTbl.addHighlighter(new CompoundHighlighter(
+				new ColorHighlighter(new AndHighlightPredicate(
+						notLeaf, HighlightPredicate.EVEN), hlCol, null),
+				new ColorHighlighter(new AndHighlightPredicate(
+						notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
+		
 		// Configure column widths
 		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 5, 4, 3, 4, 4, 4.5, 5 });
 		TableConfig.setColumnMinWidths(treeTbl,
@@ -1040,13 +1063,17 @@ public class DbSearchResultPanel extends JPanel {
 		selChk.setSelected(true);
 
 		// Add filter button widgets to column headers
-		tcm.getColumn(PEP_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
+		tcm.getColumn(PEP_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
 		tcm.getColumn(PEP_SELECTION).setMinWidth(19);
 		tcm.getColumn(PEP_SELECTION).setMaxWidth(19);
 		for (int col = PEP_INDEX; col < tcm.getColumnCount(); col++) {
 			JPanel panel = new JPanel();
 			panel.setPreferredSize(new Dimension(13, 13));
-			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel));
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel) {
+				protected SortKey getSortKey(JTable table, int column) {
+					return table.getRowSorter().getSortKeys().get(1);
+				}
+			});
 		}
 
 		tcm.getColumn(PEP_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
@@ -1256,13 +1283,17 @@ public class DbSearchResultPanel extends JPanel {
 		selChk.setSelected(true);
 
 		// Add filter button widgets to column headers
-		tcm.getColumn(PSM_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null));
+		tcm.getColumn(PSM_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
 		tcm.getColumn(PSM_SELECTION).setMinWidth(19);
 		tcm.getColumn(PSM_SELECTION).setMaxWidth(19);
 		for (int col = PSM_INDEX; col < tcm.getColumnCount(); col++) {
 			JPanel panel = new JPanel();
 			panel.setPreferredSize(new Dimension(13, 13));
-			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel));
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel) {
+				protected SortKey getSortKey(JTable table, int column) {
+					return table.getRowSorter().getSortKeys().get(1);
+				}
+			});
 		}
 		
 		// Apply custom cell renderers/highlighters to columns 
@@ -1501,19 +1532,25 @@ public class DbSearchResultPanel extends JPanel {
 						proteinHit.getSpectralCount(),
 						proteinHit.getEmPAI(),
 						nsaf});
-				if(proteinHit.getUniprotEntry() != null) {
+				
+				if (proteinHit.getUniprotEntry() != null) {
 					// Wrap protein data in table node clones and insert them into the relevant trees
+					URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
+					System.out.println(uri.getUserInfo());
 					PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
+					flatNode.setURI(uri);
 					TreePath flatPath = insertFlatNode(flatNode);
 					PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
+					taxonNode.setURI(uri);
 					TreePath taxonPath = insertTaxonomicNode(taxonNode);
 					PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
+					enzymeNode.setURI(uri);
 					TreePath enzymePath = insertEnzymeNode(enzymeNode);
-					
+
 					// Link nodes to each other
 					linkNodes(flatPath, taxonPath, enzymePath);
 				} else {
-					System.out.println("no entry: " + proteinHit.getAccession());
+					System.out.println("missing UniProt entry: " + proteinHit.getAccession());
 				}
 
 			}
@@ -1569,9 +1606,9 @@ public class DbSearchResultPanel extends JPanel {
 					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
 					highlighter.setRange(min_emPAI, max_emPAI);
 
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
-					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
-					highlighter.setRange(0.0, maxNSAF);
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
+//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
+//					highlighter.setRange(0.0, maxNSAF);
 				}
 			}
 			hierarchyCbx.setEnabled(true);

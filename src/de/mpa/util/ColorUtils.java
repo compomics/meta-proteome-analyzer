@@ -3,6 +3,7 @@ package de.mpa.util;
 import java.awt.Color;
 
 public class ColorUtils {
+	
 	/**
 	 * Returns a rainbow color gradient with a parameterized size.
 	 * @param size Size of gradient color array
@@ -21,5 +22,19 @@ public class ColorUtils {
 			colors[i] = new Color(r, g, b);
 		}
 		return colors;
+	}
+
+	/**
+	 * Returns a color whose brightness has been scaled by the provided factor.
+	 * @param color The input color.
+	 * @param factor The scale factor.
+	 * @return The rescaled color.
+	 */
+	public static Color getRescaledColor(Color color, float factor) {
+		float hsbVals[] = Color.RGBtoHSB(
+				color.getRed(), color.getGreen(),
+				color.getBlue(), null);
+		return Color.getHSBColor(
+				hsbVals[0], hsbVals[1], factor * hsbVals[2]);
 	}
 }

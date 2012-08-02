@@ -1,5 +1,6 @@
 package de.mpa.client.ui;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -24,6 +25,11 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * Defaults to <code>false</code>.
 	 */
 	private boolean fixed = false;
+	
+	/**
+	 * URI reference for hyperlink interactivity in tree views.
+	 */
+	private URI uri;
 	
 	/**
 	 * Constructs a tree table node bearing checkbox-related properties.
@@ -127,8 +133,31 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	    return new TreePath(list.toArray());
 	}
 	
+	/**
+	 * Returns whether this node contains a valid URI reference.
+	 * @return <code>true</code> if the URI is valid, <code>false</code> otherwise.
+	 */
+	public boolean hasURI() {
+		return (uri != null);
+	}
+
+	/**
+	 * Returns this node's URI reference.
+	 * @return This node's URI.
+	 */
+	public URI getURI() {
+		return uri;
+	}
+	
+	/**
+	 * Sets this node's URI reference.
+	 * @param uri The URI to set.
+	 */
+	public void setURI(URI uri) {
+		this.uri = uri;
+	}
+	
 	/* starting here everything was copied from DefaultMutableTreeNode */
-	// TODO: optimize finding all leaves (see depthFirstEnumeration)
 
 	/**
 	 * Removes all child nodes from this node.

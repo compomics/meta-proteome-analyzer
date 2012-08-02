@@ -31,6 +31,8 @@ import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+import de.mpa.util.ColorUtils;
+
 /**
  * Helper class for JTable layout functionalities.
  * @author Alex Behne
@@ -42,6 +44,11 @@ public class TableConfig {
 	 * A simple white-gray striping highlighter for tables
 	 */
 	private static Highlighter simpleStriping;
+	
+	/**
+	 * A simple white-gray striping highlighter for disabled tables
+	 */
+	private static Highlighter disabledStriping;
 
 	/**
 	 * Sets the preferred width of the visible column specified by vColIndex. 
@@ -97,20 +104,25 @@ public class TableConfig {
 	}
 	
 	/**
-	 * Method to generate a simple gray-white highlighter for tables.
+	 * Generates a simple gray-white highlighter for tables.
 	 * @return
 	 */
 	public static Highlighter getSimpleStriping() {
 		if (simpleStriping == null) {
 			Color backCol = UIManager.getColor("Table.background");
-			float hsbVals[] = Color.RGBtoHSB(
-					backCol.getRed(), backCol.getGreen(),
-					backCol.getBlue(), null);
-			Color altCol = Color.getHSBColor(
-					hsbVals[0], hsbVals[1], 0.95f * hsbVals[2]);
-			simpleStriping = HighlighterFactory.createSimpleStriping(altCol);
+			Color altCol = ColorUtils.getRescaledColor(backCol, 0.95f);
+			simpleStriping = HighlighterFactory.createAlternateStriping(backCol, altCol);
 		}
 		return simpleStriping;
+	}
+	
+	public static Highlighter getDisabledStriping() {
+		if (disabledStriping == null) {
+			Color backCol = UIManager.getColor("Panel.background");
+			Color altCol = ColorUtils.getRescaledColor(backCol, 0.95f);
+			disabledStriping = HighlighterFactory.createAlternateStriping(backCol, altCol);
+		}
+		return disabledStriping;
 	}
 	
 	/**
