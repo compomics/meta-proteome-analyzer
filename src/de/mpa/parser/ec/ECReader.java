@@ -79,10 +79,10 @@ public class ECReader {
 						}
 						// Fill  maps
 						ecEntry = new ECEntry();
-						ecEntry.setNumber(ecNumberLevel1);
+						ecEntry.setNumber(ecNumberLevel1+ ".-.-.-");
 						ecEntry.setName(ecNameLevel1);
 						ecEntry.setDescription(ecDescLevel1);
-						ecMap.put(ecNumberLevel1, ecEntry);
+						ecMap.put(ecNumberLevel1+ ".-.-.-", ecEntry);
 						
 						
 						// Level 2 nodes
@@ -102,10 +102,10 @@ public class ECReader {
 								
 								// Fill  maps
 								ecEntry = new ECEntry();
-								ecEntry.setNumber(ecNumberLevel2);
+								ecEntry.setNumber(ecNumberLevel2 + ".-.-");
 								ecEntry.setName(ecNameLevel2);
 								ecEntry.setDescription(ecDescLevel2);
-								ecMap.put(ecNumberLevel2, ecEntry);
+								ecMap.put(ecNumberLevel2 + ".-.-", ecEntry);
 
 								// Level 3 nodes
 								NodeList level3NodeList = level2Node.getChildNodes();
@@ -121,10 +121,10 @@ public class ECReader {
 										
 										// Fill  maps
 										ecEntry = new ECEntry();
-										ecEntry.setNumber(ecNumberLevel3);
+										ecEntry.setNumber(ecNumberLevel3 + ".-");
 										ecEntry.setName(ecNameLevel3);
 										ecEntry.setDescription(ecDescLevel3);
-										ecMap.put(ecNumberLevel3, ecEntry);
+										ecMap.put(ecNumberLevel3 + ".-", ecEntry);
 										
 										// Level 4 nodes
 										NodeList level4NodeList = level3Node.getChildNodes();

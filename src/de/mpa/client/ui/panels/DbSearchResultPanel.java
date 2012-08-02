@@ -1536,7 +1536,6 @@ public class DbSearchResultPanel extends JPanel {
 				if (proteinHit.getUniprotEntry() != null) {
 					// Wrap protein data in table node clones and insert them into the relevant trees
 					URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
-					System.out.println(uri.getUserInfo());
 					PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
 					flatNode.setURI(uri);
 					TreePath flatPath = insertFlatNode(flatNode);
@@ -1690,13 +1689,20 @@ public class DbSearchResultPanel extends JPanel {
 		String[] ecTokens = ecNumbers.get(0).split("[.]");
 		
 		PhylogenyTreeTableNode parent = root;
-		String name = "";
 		for (int i = 0; i < ecTokens.length; i++) {
-			name += (i > 0) ? "." + ecTokens[i] : ecTokens[i];
+			String name = "";
+			for (int j = 0; j < ecTokens.length; j++) {
+				if (j > 0) name += ".";
+				name += (j <= i) ? ecTokens[j] : "-";
+			}
 			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChild(name);
 			if (child == null) {
 				ECEntry entry = Parameters.getInstance().getEcMap().get(name);
 				child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
+				if (!name.equals("Unclassified")) {
+					URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
+					child.setURI(uri);	
+				}
 				treeTblMdl.insertNodeInto(child, parent, 0);
 			}
 			parent = child;

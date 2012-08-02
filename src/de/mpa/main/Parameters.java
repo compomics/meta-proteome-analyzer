@@ -2,6 +2,8 @@ package de.mpa.main;
 
 import java.util.Map;
 
+import javax.swing.JPopupMenu.Separator;
+
 import de.mpa.client.ui.Constants;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.parser.ec.ECReader;
