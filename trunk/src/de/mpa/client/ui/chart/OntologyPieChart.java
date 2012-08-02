@@ -8,7 +8,7 @@ public class OntologyPieChart extends Chart {
 	
 	private PieDataset pieDataset;
 	
-	public enum PieChartType implements ChartType {
+	public enum OntologyChartType implements ChartType {
 		MOLECULAR_FUNCTION, BIOLOGICAL_PROCESS, CELLULAR_COMPONENT
 	}
 		
@@ -33,7 +33,7 @@ public class OntologyPieChart extends Chart {
 
 	@Override
 	protected void setChart() {
-		PieChartType pieChartType = (PieChartType) chartType;
+		OntologyChartType pieChartType = (OntologyChartType) chartType;
 		switch (pieChartType) {
 		case BIOLOGICAL_PROCESS:
 			chartTitle = "Biological Process Ontology";

@@ -244,11 +244,16 @@ public class DbSearchResultPanel extends JPanel {
 	private JButton getResultsBtn;
 	
 	/**
+	 * The parent results panel.
+	 */
+	private ResultsPanel parent;
+	/**
 	 * Constructor for a database results panel.
 	 * @param clientFrame The parent frame.
 	 */
-	public DbSearchResultPanel() {
+	public DbSearchResultPanel(ResultsPanel parent) {
 		this.clientFrame = ClientFrame.getInstance();
+		this.parent = parent;
 		initComponents();
 	}
 
@@ -458,6 +463,7 @@ public class DbSearchResultPanel extends JPanel {
 					Client.getInstance().firePropertyChange("indeterminate", true, false);
 					
 					dbSearchResult = newResult;
+					parent.updateOverview();
 					finished();
 				}
 			} catch (Exception e) {

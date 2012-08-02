@@ -38,9 +38,11 @@ import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.TopData;
-import de.mpa.client.ui.chart.OntologyPieChart.PieChartType;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyData;
+import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
+import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class ResultsPanel extends JPanel {
@@ -50,21 +52,23 @@ public class ResultsPanel extends JPanel {
 	private DbSearchResultPanel dbPnl;
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
-	private JButton updateBtn;
 	private ChartPanel chartPnl;
 	private JXTitledPanel chartTtlPnl;
 	private OntologyData ontologyData;
+	private TaxonomyData taxonomyData;
 	private JComboBox chartTypeCbx;
-	private ChartType chartType = PieChartType.BIOLOGICAL_PROCESS;
+	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
 	private JPanel overviewBtnPnl;
 	public TopData topData;
 	
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
-		this.dbPnl = new DbSearchResultPanel();
+		this.dbPnl = new DbSearchResultPanel(this);
 		this.ssPnl = new SpecSimResultPanel();
 		this.dnPnl = new DeNovoResultPanel();
 		initComponents();
+
+
 	}
 
 	private void initComponents() {
@@ -136,15 +140,8 @@ public class ResultsPanel extends JPanel {
 		defaultMap.put("Does not resemble Pac-Man", 20);
 		ontologyData = new OntologyData();
 		ontologyData.setDefaultMapping(defaultMap);
-		updateBtn = new JButton("Update");
-		updateBtn.setFocusPainted(false);
-		updateBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateButtonPressed();
-			}
-		});
 		
-		final String[] chartTypeLabels = new String[] {"Biological Process" , "Molecular Function", "Cellular Component", "Top10 Proteins"};
+		final String[] chartTypeLabels = new String[] {"Biological Process" , "Molecular Function", "Cellular Component", "Kingdom Taxonomy", "Class Taxonomy", "Top10 Proteins"};
 		
 		chartTypeCbx = new JComboBox(chartTypeLabels);
 		chartTypeCbx.addItemListener(new ItemListener() {
@@ -154,29 +151,34 @@ public class ResultsPanel extends JPanel {
 					int barTypeIndex = chartTypeCbx.getSelectedIndex();
 					switch (barTypeIndex) {
 					case 0:
-						chartType = (PieChartType) PieChartType.BIOLOGICAL_PROCESS;
+						chartType = (OntologyChartType) OntologyChartType.BIOLOGICAL_PROCESS;
 						break;
 					case 1:
-						chartType = (PieChartType) PieChartType.MOLECULAR_FUNCTION;
+						chartType = (OntologyChartType) OntologyChartType.MOLECULAR_FUNCTION;
 						break;
 					case 2: 
-						chartType = (PieChartType) PieChartType.CELLULAR_COMPONENT;
+						chartType = (OntologyChartType) OntologyChartType.CELLULAR_COMPONENT;
 						break;
 					case 3: 
+						chartType = (TaxonomyChartType) TaxonomyChartType.KINGDOM;
+						break;
+					case 4: 
+						chartType = (TaxonomyChartType) TaxonomyChartType.CLASS;
+						break;
+					case 5: 
 						chartType = (TopBarChartType) TopBarChartType.PROTEINS;
 						break;
 					default:
-						chartType = (PieChartType) PieChartType.BIOLOGICAL_PROCESS;
+						chartType = (OntologyChartType) OntologyChartType.BIOLOGICAL_PROCESS;
 						break;
 					}
-					updateButtonPressed();
+					updateOverview();
 				}
 			}
 		});
 		chartTypeCbx.setPreferredSize(new Dimension(chartTypeCbx.getPreferredSize().width, 20));
-		overviewBtnPnl = new JPanel(new FormLayout("p, 5dlu, p", "p"));
+		overviewBtnPnl = new JPanel(new FormLayout("p", "p"));
 		overviewBtnPnl.add(chartTypeCbx, CC.xy(1, 1));
-		overviewBtnPnl.add(updateBtn, CC.xy(3, 1));
 		updateCharts();
 	}
 	
@@ -187,6 +189,8 @@ public class ResultsPanel extends JPanel {
 		Chart chart = null;
 		if(chartTypeCbx.getSelectedIndex() < 3) {
 			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+		} else if (chartTypeCbx.getSelectedIndex() == 3 || chartTypeCbx.getSelectedIndex() == 4) {
+			chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
 		} else {
 			chart = ChartFactory.createTopBarChart(topData, chartType);
 		}
@@ -202,10 +206,9 @@ public class ResultsPanel extends JPanel {
 		chartTtlPnl.setRightDecoration(overviewBtnPnl);
 		ovPnl.removeAll();
 		ovPnl.add(chartTtlPnl, CC.xy(2, 2));
-		
 	}
 	
-	protected void updateButtonPressed() {
+	protected void updateOverview() {
 		UpdateTask updateTask = new UpdateTask();
 		updateTask.execute();
 	}
@@ -219,6 +222,7 @@ public class ResultsPanel extends JPanel {
 				try {
 					dbSearchResult = Client.getInstance().getDbSearchResult();
 					ontologyData = new OntologyData(dbSearchResult);
+					taxonomyData = new TaxonomyData(dbSearchResult);
 					topData = new TopData(dbSearchResult);
 					finished();
 				} catch (RemoteDataAccessException e) {

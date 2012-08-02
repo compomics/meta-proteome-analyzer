@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Paint;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer3D;
 import org.jfree.data.category.CategoryDataset;
@@ -56,7 +58,6 @@ public class TopBarChart extends Chart {
 		default:
 			break;
 		}
-		
     	chart.setTextAntiAlias(true);
 		// set background color
 		chart.getPlot().setBackgroundPaint(Color.WHITE);
@@ -64,12 +65,13 @@ public class TopBarChart extends Chart {
 		CustomBarRenderer3D barRenderer3d = new CustomBarRenderer3D();
 		barRenderer3d.setDrawBarOutline(false);    
 		barRenderer3d.setShadowVisible(false);
-		//barRenderer3d.setSeriesPaint(0, new Color(100, 150, 255));
-        chart.getCategoryPlot().setRenderer(0, barRenderer3d);
-         
-		 // remove space before/after the domain axis
-//        chart.getCategoryPlot().getDomainAxis().setUpperMargin(0);
-//        chart.getCategoryPlot().getDomainAxis().setLowerMargin(0);
+        
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.setRenderer(0, barRenderer3d);
+        
+        // Set the range axis to display integers only...
+        NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 	}
 	
 	private class CustomBarRenderer3D extends BarRenderer3D {

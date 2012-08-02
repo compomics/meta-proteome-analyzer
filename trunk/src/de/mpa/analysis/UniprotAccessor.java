@@ -35,6 +35,10 @@ public class UniprotAccessor {
 		BIOLOGICAL_PROCESS, CELLULAR_COMPONENT, MOLECULAR_FUNCTION
 	}
 	
+	public enum TaxonomyRank {
+		KINGDOM, PHYLUM, CLASS, 
+	}
+	
 	/**
 	 * Retrieve a list of protein entries which hold protein hits and UniProt entries.
 	 * @param dbSearchResult The database search result.
@@ -88,8 +92,95 @@ public class UniprotAccessor {
 	}
 	
 	/**
-	 * Returns the UniProt keyword map.
-	 * @return
+	 * Returns the Uniprot keyword taxonomy map.
+	 * @return The Uniprot keyword taxonomy map.
+	 */
+	public static Map<String, TaxonomyRank> getTaxonomyMap() {
+		Map<String, TaxonomyRank> map = new HashMap<String, TaxonomyRank>();
+		
+		// (SUPER)-KINGDOMS
+		map.put("Viruses", TaxonomyRank.KINGDOM);
+		map.put("Viroids", TaxonomyRank.KINGDOM);
+		map.put("Archaea", TaxonomyRank.KINGDOM);
+		map.put("Bacteria ", TaxonomyRank.KINGDOM);
+		map.put("Eukaryota", TaxonomyRank.KINGDOM);
+		
+		// CLASSES
+		map.put("Thermoprotei", TaxonomyRank.CLASS);
+		map.put("Archaeoglobi", TaxonomyRank.CLASS);
+		map.put("Halobacteria", TaxonomyRank.CLASS);
+		map.put("Methanobacteria", TaxonomyRank.CLASS);
+		map.put("Methanococci", TaxonomyRank.CLASS);
+		map.put("Methanomicrobia", TaxonomyRank.CLASS);
+		map.put("Methanopyri", TaxonomyRank.CLASS);
+		map.put("Nanohaloarchaea", TaxonomyRank.CLASS);
+		map.put("Thermococci", TaxonomyRank.CLASS);
+		map.put("Thermoplasmata", TaxonomyRank.CLASS);
+		map.put("unclassified Euryarchaeota", TaxonomyRank.CLASS);
+		map.put("Actinobacteria (high G+C Gram-positive bacteria)", TaxonomyRank.CLASS);
+		map.put("Aquificae", TaxonomyRank.CLASS);
+		map.put("Armatimonadia", TaxonomyRank.CLASS);
+		map.put("Chthonomonadetes", TaxonomyRank.CLASS);
+		map.put("Bacteroidia", TaxonomyRank.CLASS);
+		map.put("Cytophagia", TaxonomyRank.CLASS);
+		map.put("Flavobacteriia", TaxonomyRank.CLASS);
+		map.put("Sphingobacteriia", TaxonomyRank.CLASS);
+		map.put("Chlorobia", TaxonomyRank.CLASS);
+		map.put("Caldisericia", TaxonomyRank.CLASS);
+		map.put("Chlamydiia", TaxonomyRank.CLASS);
+		map.put("Opitutae", TaxonomyRank.CLASS);
+		map.put("Anaerolineae", TaxonomyRank.CLASS);
+		map.put("Caldilineae", TaxonomyRank.CLASS);
+		map.put("Chloroflexi", TaxonomyRank.CLASS);
+		map.put("Dehalococcoidetes", TaxonomyRank.CLASS);
+		map.put("Ktedonobacteria", TaxonomyRank.CLASS);
+		map.put("Thermomicrobia", TaxonomyRank.CLASS);
+		map.put("Chrysiogenetes", TaxonomyRank.CLASS);
+		map.put("Deferribacteres", TaxonomyRank.CLASS);
+		map.put("Deinococci", TaxonomyRank.CLASS);
+		map.put("Dictyoglomia", TaxonomyRank.CLASS);
+		map.put("Elusimicrobia", TaxonomyRank.CLASS);
+		map.put("Acidobacteriia", TaxonomyRank.CLASS);
+		map.put("Holophagae", TaxonomyRank.CLASS);
+		map.put("Solibacteres", TaxonomyRank.CLASS);
+		map.put("Fibrobacteria", TaxonomyRank.CLASS);
+		map.put("Bacilli", TaxonomyRank.CLASS);
+		map.put("Clostridia", TaxonomyRank.CLASS);
+		map.put("Negativicutes", TaxonomyRank.CLASS);
+		map.put("Thermolithobacteria", TaxonomyRank.CLASS);
+		map.put("Unclassified Firmicutes", TaxonomyRank.CLASS);
+		map.put("Fusobacteriia", TaxonomyRank.CLASS);
+		map.put("Gemmatimonadetes", TaxonomyRank.CLASS);
+		map.put("Nitrospira", TaxonomyRank.CLASS);
+		map.put("Phycisphaerae", TaxonomyRank.CLASS);
+		map.put("Planctomycetia", TaxonomyRank.CLASS);
+		map.put("Alphaproteobacteria", TaxonomyRank.CLASS);
+		map.put("Betaproteobacteria", TaxonomyRank.CLASS);
+		map.put("Deltaproteobacteria", TaxonomyRank.CLASS);		
+		map.put("Gammaproteobacteria", TaxonomyRank.CLASS);
+		map.put("unclassified Proteobacteria", TaxonomyRank.CLASS);
+		map.put("Zetaproteobacteria", TaxonomyRank.CLASS);
+		map.put("Spirochaetia", TaxonomyRank.CLASS);
+		map.put("unclassified Spirochaetes", TaxonomyRank.CLASS);
+		map.put("Synergistia", TaxonomyRank.CLASS);
+		map.put("Mollicutes", TaxonomyRank.CLASS);
+		map.put("unclassified Tenericutes", TaxonomyRank.CLASS);
+		map.put("Thermodesulfobacteria", TaxonomyRank.CLASS);
+		map.put("Thermotogae", TaxonomyRank.CLASS);
+		map.put("unclassified Bacteria", TaxonomyRank.CLASS);
+		
+		// TODO: Eukaryota CLASSES + ALL PHYLUM entries
+//		map.put("Planctomycetia", TaxonomyRank.CLASS);
+//		map.put("Alphaproteobacteria", TaxonomyRank.CLASS);
+//		map.put("Betaproteobacteria", TaxonomyRank.CLASS);
+//		map.put("Deltaproteobacteria", TaxonomyRank.CLASS);
+		
+		return map;
+	}
+	
+	/**
+	 * Returns the Uniprot keyword ontology map.
+	 * @return The Uniprot keyword ontology map.
 	 */
 	public static Map<String, KeywordOntology> getOntologyMap() {
 		Map<String, KeywordOntology> map = new HashMap<String, KeywordOntology>();
