@@ -92,6 +92,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			}
 		} else if ((this.getChildCount() > 0) &&
 				(this.getChildAt(0).getValueAt(column) instanceof Number)) {
+			// TODO: re-write this part, e.g. cache some values because deep hierarchies 
+			// consume lots of time on repaint like this
 			double[] values = new double[this.getChildCount()];
 			for (int i = 0; i < this.getChildCount(); i++) {
 				TreeTableNode child = this.getChildAt(i);
