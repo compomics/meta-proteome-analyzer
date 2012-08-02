@@ -2009,7 +2009,6 @@ public class DbSearchResultPanel extends JPanel {
 				BorderFactory.createEmptyBorder(2, 0, 0, 0),
 				BorderFactory.createLineBorder(Color.MAGENTA)));
 		DecimalFormat df = new DecimalFormat("0.00");
-		int yIndex = 1;
 		for (SearchHit hit : psm.getSearchHits()) {
 			switch (hit.getType()) {
 			case XTANDEM:
@@ -2019,7 +2018,6 @@ public class DbSearchResultPanel extends JPanel {
 						" | E-value: "  + df.format(xtandemhit.getEvalue().doubleValue()));
 				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,1));
 				panel.add(xTandemLbl, CC.xy(3, 1));
-				yIndex += 2;
 				break;
 			case OMSSA:
 				Omssahit omssahit = (Omssahit) hit;
@@ -2028,7 +2026,6 @@ public class DbSearchResultPanel extends JPanel {
 						" | E-value: "  + df.format(omssahit.getEvalue().doubleValue()));
 				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,3));
 				panel.add(omssaLbl, CC.xy(3,3));
-				yIndex += 2;
 				break;
 			case CRUX:
 				Cruxhit cruxhit = (Cruxhit) hit;
@@ -2036,7 +2033,6 @@ public class DbSearchResultPanel extends JPanel {
 						" | XCorr: " + df.format(cruxhit.getXcorr_score().doubleValue()));
 				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,5));
 				panel.add(cruxLbl, CC.xy(3,5));
-				yIndex += 2;
 				break;
 			case INSPECT:
 				Inspecthit inspecthit = (Inspecthit) hit;
@@ -2045,7 +2041,6 @@ public class DbSearchResultPanel extends JPanel {
 						" | DeltaScore: "  + df.format(inspecthit.getDeltascore().doubleValue()));
 				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,7));
 				panel.add(inspectLbl, CC.xy(3,7));
-				yIndex += 2;
 				break;
 			default:
 				break;

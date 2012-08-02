@@ -141,7 +141,7 @@ public class ResultsPanel extends JPanel {
 		ontologyData = new OntologyData();
 		ontologyData.setDefaultMapping(defaultMap);
 		
-		final String[] chartTypeLabels = new String[] {"Biological Process" , "Molecular Function", "Cellular Component", "Kingdom Taxonomy", "Class Taxonomy", "Top10 Proteins"};
+		final String[] chartTypeLabels = new String[] {"Biological Process" , "Molecular Function", "Cellular Component", "Kingdom Taxonomy", "Phylum Taxonomy", "Class Taxonomy", "Top10 Proteins"};
 		
 		chartTypeCbx = new JComboBox(chartTypeLabels);
 		chartTypeCbx.addItemListener(new ItemListener() {
@@ -163,9 +163,12 @@ public class ResultsPanel extends JPanel {
 						chartType = (TaxonomyChartType) TaxonomyChartType.KINGDOM;
 						break;
 					case 4: 
-						chartType = (TaxonomyChartType) TaxonomyChartType.CLASS;
+						chartType = (TaxonomyChartType) TaxonomyChartType.PHYLUM;
 						break;
 					case 5: 
+						chartType = (TaxonomyChartType) TaxonomyChartType.CLASS;
+						break;
+					case 6: 
 						chartType = (TopBarChartType) TopBarChartType.PROTEINS;
 						break;
 					default:
@@ -189,7 +192,7 @@ public class ResultsPanel extends JPanel {
 		Chart chart = null;
 		if(chartTypeCbx.getSelectedIndex() < 3) {
 			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
-		} else if (chartTypeCbx.getSelectedIndex() == 3 || chartTypeCbx.getSelectedIndex() == 4) {
+		} else if (chartTypeCbx.getSelectedIndex() >= 3 && chartTypeCbx.getSelectedIndex() < 6) {
 			chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
 		} else {
 			chart = ChartFactory.createTopBarChart(topData, chartType);
