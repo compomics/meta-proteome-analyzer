@@ -96,6 +96,8 @@ public class TaxonomyData implements ChartData {
 				List<NcbiTaxon> taxonomies = entry.getTaxonomy();
 				for (NcbiTaxon taxon : taxonomies) {
 					String taxonName = taxon.getValue();
+					taxonName = getRuleBasedMapping(taxonName);
+					
 					if(taxonomyMap.containsKey(taxonName)) {
 						//TODO: Do the calculation on spectral level.
 						TaxonomyRank taxonomyRank = taxonomyMap.get(taxonName);
@@ -135,6 +137,21 @@ public class TaxonomyData implements ChartData {
 	}
 	
 	/**
+	 * This mapping has to be done due to inconsistent Uniprot data entries.
+	 * @param taxonName The taxon name.
+	 * @return The rule based taxon name.
+	 */
+	private String getRuleBasedMapping(String taxonName) {
+		// Baciallales and Lactobaciallales do not provide sufficient information. 
+		if(taxonName.equals("Bacillales")) {
+			taxonName = "Bacilli";
+		} else if(taxonName.equals("Lactobacillales")) {
+			taxonName = "Bacilli";
+		}
+		return taxonName;
+	}
+	
+	/**
 	 * Returns the pieDataset.
 	 * @return
 	 */
@@ -163,9 +180,16 @@ public class TaxonomyData implements ChartData {
 		}
 		
 		double limit = 0.01;
+		String temp = "";
 		for (Entry<String, Integer> e : entrySet) {
+			if(e.getKey().contains("(")) {
+				temp = e.getKey().substring(0, e.getKey().indexOf("("));
+			} else {
+				temp = e.getKey();
+			}
+			
 			if((e.getValue() * 1.0 / sumValues * 1.0) >= limit) {
-				pieDataset.setValue(e.getKey(), e.getValue());
+				pieDataset.setValue(temp, e.getValue());
 			} else {
 				pieDataset.setValue("Others", e.getValue());
 			}

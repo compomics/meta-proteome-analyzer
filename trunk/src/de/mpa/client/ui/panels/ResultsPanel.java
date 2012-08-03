@@ -176,7 +176,7 @@ public class ResultsPanel extends JPanel {
 						chartType = (OntologyChartType) OntologyChartType.BIOLOGICAL_PROCESS;
 						break;
 					}
-					updateOverview();
+					updateOverview(false);
 				}
 			}
 		});
@@ -210,24 +210,34 @@ public class ResultsPanel extends JPanel {
 		chartTtlPnl.setRightDecoration(overviewBtnPnl);
 		ovPnl.removeAll();
 		ovPnl.add(chartTtlPnl, CC.xy(2, 2));
+		ovPnl.repaint();
+		ovPnl.revalidate();
 	}
 	
-	protected void updateOverview() {
-		UpdateTask updateTask = new UpdateTask();
+	protected void updateOverview(boolean refresh) {
+		UpdateTask updateTask = new UpdateTask(refresh);
 		updateTask.execute();
 	}
 	
 	private class UpdateTask extends SwingWorker {
+		private boolean refresh;
+		
+		public UpdateTask(boolean refresh) {
+			this.refresh = refresh;
+		}
+		
 		protected Object doInBackground() {
 			DbSearchResult dbSearchResult = null;
 			try {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				// Fetch the database search result.
 				try {
-					dbSearchResult = Client.getInstance().getDbSearchResult();
-					ontologyData = new OntologyData(dbSearchResult);
-					taxonomyData = new TaxonomyData(dbSearchResult);
-					topData = new TopData(dbSearchResult);
+					if(refresh) {
+						dbSearchResult = Client.getInstance().getDbSearchResult();
+						ontologyData = new OntologyData(dbSearchResult);
+						taxonomyData = new TaxonomyData(dbSearchResult);
+						topData = new TopData(dbSearchResult);
+					}
 					finished();
 				} catch (RemoteDataAccessException e) {
 					e.printStackTrace();
