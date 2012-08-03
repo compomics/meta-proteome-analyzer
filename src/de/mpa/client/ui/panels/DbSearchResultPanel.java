@@ -463,7 +463,7 @@ public class DbSearchResultPanel extends JPanel {
 					Client.getInstance().firePropertyChange("indeterminate", true, false);
 					
 					dbSearchResult = newResult;
-					parent.updateOverview();
+					parent.updateOverview(true);
 					finished();
 				}
 			} catch (Exception e) {

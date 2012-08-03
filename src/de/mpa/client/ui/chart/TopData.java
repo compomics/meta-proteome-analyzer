@@ -62,7 +62,8 @@ public class TopData implements ChartData {
 		// Iterate the best ranked (highest spectral count) proteins.
 		for(int i = 0; i < TOP_NUMBER; i++) {
 			ProteinHit proteinHit = topProteins.get(i);
-			dataset.setValue(proteinHit.getSpectralCount(), "No. Spectra", proteinHit.getDescription());
+			String[] split = proteinHit.getDescription().split("\\s+");
+			dataset.setValue(proteinHit.getSpectralCount(), "No. Spectra", split[0]);
 		}
 		return dataset;
 	}

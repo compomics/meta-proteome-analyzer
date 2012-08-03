@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Paint;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
@@ -68,6 +70,10 @@ public class TopBarChart extends Chart {
         
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setRenderer(0, barRenderer3d);
+        
+        // Rotate the label axis up 45°
+        CategoryAxis labelAxis = (CategoryAxis)plot.getDomainAxis();
+        labelAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         
         // Set the range axis to display integers only...
         NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
