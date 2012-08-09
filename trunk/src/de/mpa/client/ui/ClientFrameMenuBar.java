@@ -61,11 +61,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.client = Client.getInstance();
 		initComponents();
 	}
-
-	// Constants
-	private final int PROTEIN = 0; 
-	private final int PEPTIDE = 1; 
-	private final int PSM = 2;
 	
 	/**
 	 * Initializes the components.
@@ -154,79 +149,12 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportProteinsItem.setText("Protein Results");
 		exportProteinsItem.setEnabled(false);
 		exportProteinsItem.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportResults(PROTEIN);
+				exportResults();
 			}
 		});
 		exportMenu.add(exportProteinsItem);
-		
-		//Export peptides
-		exportPeptideItem = new JMenuItem();
-		exportPeptideItem.setText("Peptide Results");
-		exportPeptideItem.setEnabled(false);
-		exportPeptideItem.addActionListener(new ActionListener() {
-			
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				exportResults(PEPTIDE);
-			}
-		});
-		exportMenu.add(exportPeptideItem);
-		// Export psm
-		exportPSMItem = new JMenuItem();
-		exportPSMItem.setText("PSM Results");
-		exportPSMItem.setEnabled(false);
-		exportPSMItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				exportResults(PSM);
-			}
-		});
-		exportMenu.add(exportPSMItem);
-		
-		// Export selected proteins
-		exportSelProteinsItem = new JMenuItem();
-		exportSelProteinsItem.setText("Selected Protein Results");
-		exportSelProteinsItem.setEnabled(false);
-		exportSelProteinsItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				exportResults(PROTEIN);
-			}
-		});
-		exportMenu.add(exportSelProteinsItem);
-		
-		//Export selected peptides
-		exportSelPeptideItem = new JMenuItem();
-		exportSelPeptideItem.setText("Selected Peptide Results");
-		exportSelPeptideItem.setEnabled(false);
-		exportSelPeptideItem.addActionListener(new ActionListener() {
-			
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				exportResults(PEPTIDE);
-			}
-		});
-		exportMenu.add(exportSelPeptideItem);
-		
-		// Export selected psm
-		exportSelPSMItem = new JMenuItem();
-		exportSelPSMItem.setText("Selected PSM Results");
-		exportSelPSMItem.setEnabled(false);
-		exportSelPSMItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				exportResults(PSM);
-			}
-		});
-		exportMenu.add(exportSelPSMItem);
-		
-		
 		
 		// Add export menu to menubar.
 		this.add(exportMenu);
@@ -451,9 +379,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 	
 	/**
 	 * Exports the results.
-	 * @param evt The ActionEvent evt
 	 */
-    private void exportResults(int exportType) {
+    private void exportResults() {
         JFileChooser chooser = new JFileChooser(lastSelectedFolder);
         chooser.setFileFilter(new CsvFileFilter());
         chooser.setMultiSelectionEnabled(false);
@@ -506,21 +433,9 @@ public class ClientFrameMenuBar extends JMenuBar {
                     selectedFile.delete();
                 }
                 selectedFile.createNewFile();
-                
-                switch (exportType) {
-				case PROTEIN:
-					ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
-					break;
-//				case PEPTIDE:
-//					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDbSearchResult());
-//					break;
-//				case PSM: 
-//					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDbSearchResult());
-//					break;
-				default:
-					break;
-				}
-                
+
+                ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
+
                 lastSelectedFolder = selectedFile.getPath();
 
             } catch (IOException ex) {

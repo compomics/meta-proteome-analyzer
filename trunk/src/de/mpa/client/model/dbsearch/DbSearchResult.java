@@ -83,8 +83,8 @@ public class DbSearchResult {
 			// Check if peptide hit is not already in the protein hit
 			if (!currentPeptideHits.containsKey(peptideHit.getSequence())) {
 				// Add the peptide hit to the protein hit.
-				currentPeptideHits.put(peptideHit.getSequence(), peptideHit);
-				currentProteinHit.setPeptideHits(currentPeptideHits);
+				currentProteinHit.addPeptideHit(peptideHit);
+				peptideHit.addProteinHit(currentProteinHit);
 			} else { // If peptide hit is already in the database check the actual PSM.
 				// Returns the single PSM.
 				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
@@ -101,6 +101,23 @@ public class DbSearchResult {
 			}
 			proteinHits.put(accession, currentProteinHit);
 		} else {
+			String currentSequence = proteinHit.getSinglePeptideHit().getSequence();
+			PeptideHit currentPeptideHit = null;
+			for (ProteinHit currentProteinHit : proteinHits.values()) {
+				currentPeptideHit = currentProteinHit.getPeptideHits().get(currentSequence);
+				if (currentPeptideHit != null) {
+					break;
+				}
+			}
+			if (currentPeptideHit != null) {
+				currentPeptideHit.addSpectrumMatch(proteinHit.getSinglePeptideHit().getSingleSpectrumMatch());
+				Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
+				proteinHit.setPeptideHits(newPeptideHits);
+				proteinHit.addPeptideHit(currentPeptideHit);
+			} else {
+				currentPeptideHit = proteinHit.getSinglePeptideHit();
+			}
+			currentPeptideHit.addProteinHit(proteinHit);
 			proteinHits.put(accession, proteinHit);
 		}
 	}

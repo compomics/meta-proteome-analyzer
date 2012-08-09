@@ -28,13 +28,14 @@ public class ResultExporter {
 
 	/**
 	 * This method exports the protein results.
-	 * @param filePath
-	 * @param expResult
+	 * @param filePath The path string pointing to the target file.
+	 * @param expResult The database search result object.
 	 * @throws IOException
 	 */
 	public static void exportProteins(String filePath, DbSearchResult expResult) throws IOException{
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
+				
 		try {
 			// Header format.
 			writer.append("Project: " + SEP + expResult.getProjectTitle());
@@ -69,7 +70,7 @@ public class ResultExporter {
 			
 			// PSM format
 			writer.newLine();
-			for (int i = 0; i < 18; i++) { 	// i = number of header columns
+			for (int i = 0; i < 19; i++) { 	// i = number of header columns
 				writer.append(SEP);			//TODO: make this column count dynamic
 			}
 			writer.append(getPSMHeader());
@@ -86,13 +87,13 @@ public class ResultExporter {
 					writer.append(proteinHit.getAccession() + SEP);
 					writer.append(proteinHit.getDescription() + SEP);
 					writer.append(proteinHit.getSpecies() + SEP);
-					writer.append(proteinHit.getCoverage() + SEP);
+					writer.append(proteinHit.getCoverage()*100 + SEP);
 					writer.append(proteinHit.getMolecularWeight() + SEP);
 					writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + SEP);
 					writer.append(proteinHit.getPeptideCount() + SEP);
 					writer.append(proteinHit.getSpectralCount() + SEP);
 					writer.append(proteinHit.getEmPAI() + SEP);
-					writer.append((Math.round(proteinHit.getNSAF() * 100.0) / 100.0) + SEP);
+					writer.append((Math.round(proteinHit.getNSAF() * 100000.0) / 100000.0) + SEP);
 					writer.append(expResult.getProjectTitle() + '/' + expResult.getExperimentTitle());
 
 					// Get the peptide hits.
@@ -106,6 +107,7 @@ public class ResultExporter {
 							}
 							writer.append("" + ++pepCount + SEP);
 							writer.append(peptideHit.getSequence() + SEP);
+							writer.append(peptideHit.getProteinCount() + SEP);
 							writer.append(peptideHit.getSpectralCount() + SEP);
 							writer.append(expResult.getProjectTitle() + '/' + expResult.getExperimentTitle() + '/' + proteinHit.getAccession());
 						
@@ -128,7 +130,7 @@ public class ResultExporter {
 									}
 								}
 								writer.newLine();
-								for (int i = 0; i < 18; i++) { 	// i = number of header columns
+								for (int i = 0; i < 19; i++) { 	// i = number of header columns
 																//TODO: make this column count dynamic
 									writer.append(SEP);
 								}
@@ -157,126 +159,6 @@ public class ResultExporter {
 		}
 	}
 
-//	/**
-//	 * This method exports the peptide results.
-//	 * @param filePath
-//	 * @param expResult
-//	 * @throws IOException
-//	 */
-//	public static void exportPeptides(String filePath, DbSearchResult expResult) throws IOException{
-//		// Init the buffered writer.
-//		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-//		try {
-//			// Header format.
-//			writer.append("Project: " + SEP + expResult.getProjectTitle());
-//			writer.newLine();
-//			writer.append("Experiment: " + SEP + expResult.getExperimentTitle());
-//			writer.newLine();
-//			writer.append("FASTA Database: " + SEP + expResult.getFastaDB());
-//			writer.newLine();
-//			writer.append("Search Engines: " + SEP);
-//
-//			StringBuilder sb = new StringBuilder();
-//			for (String searchEngine : expResult.getSearchEngines()){
-//				sb.append(searchEngine);
-//				sb.append(",");
-//			}
-//			sb.deleteCharAt(sb.length()-1);
-//			writer.append(sb);
-//			writer.newLine();
-//			writer.append("Search Date: " + SEP + expResult.getSearchDate().toString());
-//			writer.newLine();
-//
-//			// Peptide format.
-//			writer.newLine();
-//			writer.append(getPeptideHeader());
-//			writer.newLine();
-//
-//			int count = 1;
-//			// Protein level
-//			for (Entry entry : expResult.getProteinHits().entrySet()){
-//				ProteinHit proteinHit = (ProteinHit) entry.getValue();
-//				// Peptide level
-//				for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-//
-//					writer.append(count++ + SEP);
-//					writer.append(peptideHit.getSequence() + SEP);
-//					writer.append(peptideHit.getSpectralCount() + SEP);
-//					writer.append(proteinHit.getAccession() + SEP);
-//					writer.append(proteinHit.getDescription() + SEP);
-//					writer.append(proteinHit.getMolecularWeight() + SEP);
-//					writer.append((Math.round(proteinHit.getPI() * 100.0) / 100.0) + SEP);
-//					writer.newLine();
-//				}
-//				writer.flush();}
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			writer.close();
-//		}
-//	}
-//
-//	/**
-//	 * This method exports the psm results.
-//	 * @param path
-//	 * @param dbSearchResult
-//	 */
-//	public static void exportPSMs(String filePath, DbSearchResult expResult) throws IOException {
-//		// Init the buffered writer.
-//		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-//		try {
-//			// Header format.
-//			writer.append("Project: " + SEP + expResult.getProjectTitle());
-//			writer.newLine();
-//			writer.append("Experiment: " + SEP + expResult.getExperimentTitle());
-//			writer.newLine();
-//			writer.append("FASTA Database: " + SEP + expResult.getFastaDB());
-//			writer.newLine();
-//			writer.append("Search Engines: " + SEP);
-//
-//			StringBuilder sb = new StringBuilder();
-//			for (String searchEngine : expResult.getSearchEngines()){
-//				sb.append(searchEngine);
-//				sb.append(",");
-//			}
-//			sb.deleteCharAt(sb.length()-1);
-//			writer.append(sb);
-//			writer.newLine();
-//			writer.append("Search Date: " + SEP + expResult.getSearchDate().toString());
-//			writer.newLine();
-//
-//			// psm format.
-//			writer.newLine();
-//			writer.append(getPSMHeader());
-//			writer.newLine();
-//
-//			int count = 1;
-//			// Protein level
-//			for (Entry entry : expResult.getProteinHits().entrySet()){
-//				ProteinHit proteinHit = (ProteinHit) entry.getValue();
-//				// Peptide level
-//				for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-//					// Peptide Spectrum Match Level
-//					for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
-//						writer.append(count++ + SEP);
-//						writer.append(sm.getSearchSpectrumID() + SEP);
-//						writer.append(peptideHit.getSequence() + SEP);
-//						writer.append(proteinHit.getAccession() + SEP);
-//						writer.append(proteinHit.getDescription() + SEP);
-//						writer.append(proteinHit.getMolecularWeight() + SEP);
-//						writer.append((Math.round(proteinHit.getPI() * 100.0) / 100.0) + SEP);
-//						writer.newLine();
-//					}
-//				}
-//				writer.flush();}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			writer.close();
-//		}
-//	}
-
 	/**
 	 * Returns the protein header string.
 	 * @return The protein header string.
@@ -292,7 +174,7 @@ public class ResultExporter {
 				"Peptide Count" + SEP + 
 				"Spectral Count" + SEP + 
 				"emPAI" + SEP +
-				"NSAF x 100" + SEP +
+				"NSAF" + SEP +
 				"Tag";
 	}
 
@@ -303,6 +185,7 @@ public class ResultExporter {
 	private static String getPeptideHeader() {
 		return  "#" + SEP + 
 				"Sequence" + SEP + 
+				"Protein Count" + SEP + 
 				"Spectral Count" + SEP + 
 				"Tag"; 
 	}
