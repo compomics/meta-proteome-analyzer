@@ -77,10 +77,11 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
+import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -130,6 +131,7 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
@@ -509,6 +511,30 @@ public class DbSearchResultPanel extends JPanel {
 	 * This method sets up the protein results table.
 	 */
 	private void setupProteinTableProperties() {
+		// Init column selection checkbox header widget
+		final JCheckBox selChk = new TriStateCheckBox(2, -1) {
+			@Override
+			public boolean isPartiallySelected() {
+//				if (dbSearchResult != null) {
+//					List<ProteinHit> hitList = dbSearchResult.getProteinHitList();
+//					boolean res = hitList.isEmpty();
+//					if (!res) {
+//						res = hitList.get(0).isSelected();
+//						for (int i = 1; i < hitList.size(); i++) {
+//							boolean sel = hitList.get(i).isSelected();
+//							if (res != sel) {
+//								return true;
+//							}
+//							res = sel;
+//						}
+//					}
+//				}
+				return false;
+			}
+		};
+		selChk.setPreferredSize(new Dimension(15, 15));
+		selChk.setSelected(true);
+		
 		// Create protein table model
 		final TableModel proteinTblMdl = new DefaultTableModel() {
 			// instance initializer block
@@ -556,7 +582,19 @@ public class DbSearchResultPanel extends JPanel {
 			public void setValueAt(Object aValue, int row, int column) {
 				super.setValueAt(aValue, row, column);
 				if (column == PROT_SELECTION) {
-					dbSearchResult.getProteinHits().get(getValueAt(row, PROT_ACCESSION)).setSelected((Boolean) aValue);
+					boolean selected = (Boolean) aValue;
+					Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
+					String accession = (String) getValueAt(row, PROT_ACCESSION);
+					ProteinHit hit = proteinHits.get(accession);
+					hit.setSelected(selected);
+					if (selected) {
+						for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+							selected &= ph.isSelected();
+							if (!selected) break;
+						}
+					}
+					selChk.setSelected(selected);
+					getTableHeader().repaint(getTableHeader().getHeaderRect(PROT_SELECTION));
 				}
 			}
 		};
@@ -588,20 +626,6 @@ public class DbSearchResultPanel extends JPanel {
 //		ch.setReorderingAllowed(false, PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
 		
-		final JCheckBox selChk = new JCheckBox() {
-			public void paint(Graphics g) {
-				// TODO: make checkbox honor tri-state
-				super.paint(g);
-//				if (selected == null) {
-//					Color col = (isEnabled()) ? Color.BLACK : UIManager.getColor("controlShadow");
-//					g.setColor(col);
-//					g.fillRect(center, 8, 8, 2);
-//				}
-			}
-		};
-		selChk.setPreferredSize(new Dimension(15, 15));
-		selChk.setSelected(true);
-
 		// Add filter button and checkbox widgets to column headers
 		for (int col = PROT_SELECTION; col < tcm.getColumnCount(); col++) {
 			switch (col) {
@@ -636,7 +660,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		}
 		
-		// Apply custom cell renderers/highlighters to columns 
+		// Apply custom cell renderers/highlighters to columns
 		tcm.getColumn(PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		
 		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
@@ -661,15 +685,15 @@ public class DbSearchResultPanel extends JPanel {
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
 		((TableColumnExt) tcm.getColumn(PROT_COVERAGE)).addHighlighter(new BarChartHighlighter(
-				0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, x100formatter));
+				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
 		tcm.getColumn(PROT_MW).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
 		tcm.getColumn(PROT_PI).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
 		((TableColumnExt) tcm.getColumn(PROT_PEPTIDECOUNT)).addHighlighter(new BarChartHighlighter());
 		((TableColumnExt) tcm.getColumn(PROT_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
 		((TableColumnExt) tcm.getColumn(PROT_EMPAI)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
 		((TableColumnExt) tcm.getColumn(PROT_NSAF)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 		
 		// Make table always sort primarily by selection state of selection column
 		final SortKey selKey = new SortKey(PROT_SELECTION, SortOrder.DESCENDING);
@@ -745,7 +769,9 @@ public class DbSearchResultPanel extends JPanel {
 		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
 		protCHighlightPredicate = new ProtCHighlighterPredicate();
-		Highlighter protCountHighlighter = new ColorHighlighter(protCHighlightPredicate, new Color(255, 160, 160), null);
+		Color selCol = UIManager.getColor("Table.selectionBackground");
+		selCol = new Color(232, 122, 0, 41);
+		Highlighter protCountHighlighter = new ColorHighlighter(protCHighlightPredicate, selCol, null);
 		proteinTbl.addHighlighter(protCountHighlighter);
 		
 		// Enables column control
@@ -793,7 +819,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Create table from model; make only hierarchical column editable (for checkboxes) TODO: make this default behavior of class?
 		final SortableCheckBoxTreeTable treeTbl;
-		// Extra case for EC table, because of extra ToolTip
+		// Extra case for E.C. table, because of extra ToolTip
 		if (root.toString().equals("Root of E.C. View")) {
 			treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 				@Override
@@ -829,7 +855,7 @@ public class DbSearchResultPanel extends JPanel {
 					return ecDesc;
 				}
 			};
-		}else{
+		} else {
 			treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 				@Override
 				public boolean isCellEditable(int row, int column) {
@@ -837,9 +863,6 @@ public class DbSearchResultPanel extends JPanel {
 				}
 			};
 		}
-		
-
-		
 		
 		// Pre-select root node
 		final TreePath rootPath = new TreePath(root);
@@ -909,17 +932,15 @@ public class DbSearchResultPanel extends JPanel {
 		treeTbl.setTableHeader(ch);
 		
 		// Create checkbox widget for hierarchical column header
-		JCheckBox selChk = new JCheckBox() {
+		JCheckBox selChk = new TriStateCheckBox(2, -1) {
 			{
 				/* Hook into tree table checkbox selection model to synchronize root
 				 * node selection state with checkbox selection state*/ 
 				this.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if (isSelected()) {
-//							cbtsm.setSelectionPath(rootPath);
 							cbtsm.addSelectionPath(rootPath);
 						} else {
-//							cbtsm.clearSelection();
 							cbtsm.removeSelectionPath(rootPath);
 						}
 					}
@@ -933,13 +954,9 @@ public class DbSearchResultPanel extends JPanel {
 					}
 				});
 			}
-			public void paint(Graphics g) {
-				super.paint(g);
-				// Paint black bar instead of check mark to visualize indeterminate state
-				if (cbtsm.isPartiallySelected(rootPath)) {
-					g.setColor(Color.BLACK);
-					g.fillRect(2, 6, 8, 2);
-				}
+			@Override
+			public boolean isPartiallySelected() {
+				return cbtsm.isPartiallySelected(rootPath);
 			}
 		};
 		selChk.setPreferredSize(new Dimension(15, 15));
@@ -976,15 +993,15 @@ public class DbSearchResultPanel extends JPanel {
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
 		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter(
-				0.0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN, x100formatter));
+				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
 		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
 		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
 		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new BarChartHighlighter());
 		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
 		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00")));
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
 		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED, new DecimalFormat("0.00000")));
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 		
 		// Add non-leaf highlighter
 		Color hlCol = new Color(237, 246, 255);	// light blue
@@ -1067,7 +1084,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		};
 
-		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 1, 4, 1.5, 1.5});
+		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 0.9, 3.7, 1.7, 1.7});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
 		
@@ -1093,6 +1110,8 @@ public class DbSearchResultPanel extends JPanel {
 		}
 
 		tcm.getColumn(PEP_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		((TableColumnExt) tcm.getColumn(PEP_PROTEINCOUNT)).addHighlighter(new BarChartHighlighter(
+				ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
 		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
 		
 		// Make table always sort primarily by selection state of selection column
@@ -1169,6 +1188,19 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Add nice striping effect
 		peptideTbl.addHighlighter(TableConfig.getSimpleStriping());
+		
+		// Mark unique peptides by making sequence font bold
+		peptideTbl.addHighlighter(new FontHighlighter(new HighlightPredicate() {
+			@Override
+			public boolean isHighlighted(Component renderer,
+					org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
+				if (adapter.column == PEP_SEQUENCE) {
+					int protCount = (Integer) adapter.getValueAt(adapter.row, PEP_PROTEINCOUNT);
+					return (protCount == 1);
+				}
+				return false;
+			}
+		}, chartFont.deriveFont(Font.BOLD)));
 		
 		// Enables column control
 		peptideTbl.setColumnControlVisible(true);
@@ -1322,15 +1354,15 @@ public class DbSearchResultPanel extends JPanel {
 		tcm.getColumn(PSM_CHARGE).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "+0"));
 //		tcm.getColumn(PSM_VOTES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
 		((TableColumnExt) tcm.getColumn(PSM_VOTES)).addHighlighter(new BarChartHighlighter(
-				Color.RED.darker().darker(), Color.RED));
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED));
 		((TableColumnExt) tcm.getColumn(PSM_XTANDEM)).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.GREEN.darker().darker(), Color.GREEN));
+				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN));
 		((TableColumnExt) tcm.getColumn(PSM_OMSSA)).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.CYAN.darker().darker(), Color.CYAN));
+				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_CYAN, ColorUtils.LIGHT_CYAN));
 		((TableColumnExt) tcm.getColumn(PSM_CRUX)).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.BLUE.darker().darker(), Color.BLUE));
+				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_BLUE, ColorUtils.LIGHT_BLUE));
 		((TableColumnExt) tcm.getColumn(PSM_INSPECT)).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, Color.MAGENTA.darker().darker(), Color.MAGENTA));
+				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
 		
 		// Make table always sort primarily by selection state of selection column
 		final SortKey selKey = new SortKey(PSM_SELECTION, SortOrder.DESCENDING);
@@ -1498,6 +1530,7 @@ public class DbSearchResultPanel extends JPanel {
 			TableConfig.clearTable(proteinTbl);
 			TableConfig.clearTable(protFlatTreeTbl);
 			TableConfig.clearTable(protTaxonTreeTbl);
+			TableConfig.clearTable(protEnzymeTreeTbl);
 			
 			// Prevent switching table view
 			hierarchyCbx.setEnabled(false);
@@ -1769,7 +1802,7 @@ public class DbSearchResultPanel extends JPanel {
 			// Iterate peptide hit list to fill table and build coverage view
 			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
 			DefaultTableModel peptideTblMdl = (DefaultTableModel) peptideTbl.getModel();
-			int row = 0, maxSpecCount = 0;
+			int row = 0, maxProtCount = 0, maxSpecCount = 0;
 			for (PeptideHit peptideHit : peptideHits) {
 				// Find occurences of peptide sequences in protein sequence
 				String pepSeq = peptideHit.getSequence();
@@ -1782,14 +1815,16 @@ public class DbSearchResultPanel extends JPanel {
 					peptideIntervals.add(interval);
 				}
 				// Determine maximum spectral count
+				int protCount = peptideHit.getProteinCount();
 				int specCount = peptideHit.getSpectralCount();
+				maxProtCount = Math.max(maxProtCount, protCount);
 				maxSpecCount = Math.max(maxSpecCount, specCount);
 				// Add table row
 				peptideTblMdl.addRow(new Object[] {
 						peptideHit.isSelected(),
 						row,
 						peptideHit.getSequence(),
-						peptideHit.getProteinCount(),
+						protCount,
 						specCount});
 			}
 
@@ -1798,7 +1833,10 @@ public class DbSearchResultPanel extends JPanel {
 			TableColumnModel tcm = peptideTbl.getColumnModel();
 
 			BarChartHighlighter highlighter;
-			
+
+			highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(peptideTbl.convertColumnIndexToView(PEP_PROTEINCOUNT))).getHighlighters()[0];
+			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxProtCount)));
+			highlighter.setRange(0.0, maxProtCount);
 			highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(peptideTbl.convertColumnIndexToView(PEP_SPECTRALCOUNT))).getHighlighters()[0];
 			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
 			highlighter.setRange(0.0, maxSpecCount);
@@ -2179,11 +2217,16 @@ public class DbSearchResultPanel extends JPanel {
 	public void setResultsButtonEnabled(boolean enabled) {
 		getResultsBtn.setEnabled(enabled);
 	}
-	
+
 	/**
-	 * This methode adds the Filter
-	 * @param column
-	 * @return 
+	 * Creates a filter button widget and installs it in the specified column header 
+	 * of the specified table.
+	 * 
+	 * @param column The column index.
+	 * @param table The table reference.
+	 * @param filterType Either <code>Constants.NUMERICAL</code> or 
+	 * <code>Constants.ALPHA_NUMERICAL</code>.
+	 * @return The filter button widget reference.
 	 */
 	public JPanel createFilterButton(int column, JTable table, int filterType) {
 		// button widget with little black triangle
@@ -2213,6 +2256,11 @@ public class DbSearchResultPanel extends JPanel {
 		return panel;
 	}
 	
+	/**
+	 * Filter button widget for table headers.
+	 * 
+	 * @author A. Behne
+	 */
 	private class FilterButton extends JToggleButton {
 		
 		private FilterBalloonTip filterTip;
@@ -2447,7 +2495,7 @@ public class DbSearchResultPanel extends JPanel {
 	 * @author kohrs
 	 *
 	 */
-	private class ProtCHighlighterPredicate implements HighlightPredicate{
+	private class ProtCHighlighterPredicate implements HighlightPredicate {
 
 		/**
 		 * The list of proteins to be highlighted.
@@ -2481,4 +2529,5 @@ public class DbSearchResultPanel extends JPanel {
 			this.protHits = protHits;
 		}
 	}
+
 }

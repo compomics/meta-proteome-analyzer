@@ -7,9 +7,16 @@ package de.mpa.algorithms;
  */
 public abstract class AggregateFunction {
 	
+	/** Returns null always. */
+	public static final AggregateFunction NONE = new AggregateFunction() {
+		public Double aggregate(double[] values) {
+			return null;
+		}
+	};
+	
 	/** Computes the sum. */
 	public static final AggregateFunction SUM = new AggregateFunction() {
-		public double aggregate(double[] values) {
+		public Double aggregate(double[] values) {
 			double sum = 0.0;
 			for (int i = 0; i < values.length; i++) {
 				sum += values[i];
@@ -20,21 +27,21 @@ public abstract class AggregateFunction {
 	
 	/** Computes the arithmetic mean. */
 	public static final AggregateFunction MEAN = new AggregateFunction() {
-		public double aggregate(double[] values) {
+		public Double aggregate(double[] values) {
 			return SUM.aggregate(values) / values.length;
 		}
 	};
 	
 	/** Computes the element count. */
 	public static final AggregateFunction COUNT = new AggregateFunction() {
-		public double aggregate(double[] values) {
-			return values.length;
+		public Double aggregate(double[] values) {
+			return new Double(values.length);
 		}
 	};
 	
 	/** Computes the minimum. */
 	public static final AggregateFunction MIN = new AggregateFunction() {
-		public double aggregate(double[] values) {
+		public Double aggregate(double[] values) {
 			double min = Double.MAX_VALUE;
 			for (int i = 0; i < values.length; i++) {
 				min = Math.min(values[i], min);
@@ -45,7 +52,7 @@ public abstract class AggregateFunction {
 	
 	/** Computes the maximum. */
 	public static final AggregateFunction MAX = new AggregateFunction() {
-		public double aggregate(double[] values) {
+		public Double aggregate(double[] values) {
 			double max = Double.MIN_VALUE;
 			for (int i = 0; i < values.length; i++) {
 				max = Math.max(values[i], max);
@@ -61,5 +68,5 @@ public abstract class AggregateFunction {
 	 * @param values The array of values to be combined.
 	 * @return The result of the aggregation computation.
 	 */
-	public abstract double aggregate(double[] values);
+	public abstract Double aggregate(double[] values);
 }

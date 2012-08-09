@@ -59,7 +59,7 @@ public class ResultsPanel extends JPanel {
 	private JComboBox chartTypeCbx;
 	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
 	private JPanel overviewBtnPnl;
-	public TopData topData;
+	private TopData topData;
 	
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();

@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.DefaultCaret;
 
@@ -206,7 +207,12 @@ public class StatusPanel extends JPanel {
 					maxCurProgress = (Long) pce.getNewValue();
 					currentPrg.setValue(0);
 				} else if (name.equalsIgnoreCase("indeterminate")) {
-					currentPrg.setIndeterminate((Boolean) pce.getNewValue());
+					final boolean indeterminate = (Boolean) pce.getNewValue();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							currentPrg.setIndeterminate(indeterminate);
+						}
+					});
 				} else if (name.equalsIgnoreCase("progressmade")) {
 					curProgress++;
 					totProgress++;

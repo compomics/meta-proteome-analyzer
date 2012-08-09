@@ -1,5 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -141,10 +142,18 @@ public class DbSearchResult {
 	}
 	
 	/**
-	 * Returns the protein hits.
-	 * @return The protein hits. 
+	 * Returns the list of protein hits.
+	 * @return the list of protein hits.
 	 */
-	public Map<String, ProteinHit> getProteinHits(){
+	public List<ProteinHit> getProteinHitList() {
+		return new ArrayList<ProteinHit>(proteinHits.values());
+	}
+	
+	/**
+	 * Returns the map of protein hits.
+	 * @return The map of protein hits. 
+	 */
+	public Map<String, ProteinHit> getProteinHits() {
 		return proteinHits;
 	}
 	

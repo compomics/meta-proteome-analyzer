@@ -3,9 +3,10 @@ package de.mpa.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -28,8 +29,6 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.decorator.ColorHighlighter;
-import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.renderer.CellContext;
 import org.jdesktop.swingx.renderer.ComponentProvider;
@@ -40,11 +39,17 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
+/**
+ * A specialized {@link JXTreeTable tree table} containing checkboxes and 
+ * hyperlinks in its hierarchical column.
+ * 
+ * @author A. Behne
+ */
 public class CheckBoxTreeTable extends JXTreeTable {
 
 	private JXTreeTable treeTable = this;
 	private JXTree tree;
-	private CheckBoxTreeSelectionModel selectionModel;
+	private CheckBoxTreeSelectionModel cbtsm;
 	private CheckBoxTreeCellEditor cbtce;
 	private int hotspot;
 	private int center;
@@ -53,47 +58,53 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	private Highlighter disabledHighlighter;
 	private IconValue iconValue;
 	
+	/**
+	 * Convenience constructor to create a checkbox tree table from a 
+	 * specified root tree node.
+	 * @param rootNode The root node of the tree table.
+	 */
 	public CheckBoxTreeTable(TreeTableNode rootNode) {
 		this(new DefaultTreeTableModel(rootNode));
 	}
 	
+	/**
+	 * Constructs a checkbox tree table from a specified tree table model.
+	 * @param treeModel The tree table model.
+	 */
 	public CheckBoxTreeTable(TreeTableModel treeModel) {
-		
 		super(treeModel);
 		
 		tree = (JXTree) this.getCellRenderer(-1, this.getHierarchicalColumn());
-		selectionModel = new CheckBoxTreeSelectionModel(treeModel);
 
-//		final Color bgCol = UIManager.getColor("Table.background");
-		// create checkbox for use as tree cell editor
-//		final JCheckBox editorBox = new JCheckBox() {
-//			public void paint(Graphics g) {
-//				int row = rowAtPoint(this.getLocation());
-//				int x = tree.getRowBounds(row).x;
-//				g.setColor(bgCol);
-//				g.fillRect(x+center, 5, 9, 9);
-//				super.paint(g);
-//				if (selectionModel.isPartiallySelected(getPathForRow(row))) {
-//					setSelected(false);
-//					g.setColor(Color.BLACK);
-//					g.fillRect(x+center, 8, 8, 2);
-//				}
-//			}
-//		};
-//		editorBox.setOpaque(false);
-//		editorBox.setInputMap(JComponent.WHEN_FOCUSED, null);	// make checkbox ignore keyboard input
-		final IconCheckBox editorBox = new IconCheckBox();
-		
-//		Insets insets = (Insets) UIManager.get("CheckBox.totalInsets");
-//		Insets insets = new Insets(4, 4, 4, 4);
 		hotspot = UIManager.getIcon("CheckBox.icon").getIconWidth();
-//		center = insets.left + indent + (hotspot-insets.right)/2 - 6;
 		center = indent + (hotspot)/2 - 4;
+
+		final IconCheckBox editorBox = new IconCheckBox();
+		editorBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean selected = editorBox.isCheckBoxSelected();
+				TreePath path = getPathForRow(editingRow);
+				if (selected) {
+					cbtsm.addSelectionPath(path);
+				} else {
+					cbtsm.removeSelectionPath(path);
+				}
+				editorBox.setSelected(selected);
+				// TODO: can repaint() be avoided?
+				treeTable.repaint();
+			}
+		});
+
+		// Install checkbox selection model
+		cbtsm = new CheckBoxTreeSelectionModel(treeModel);
 		
+		// Install tree cell editor
 		cbtce = new CheckBoxTreeCellEditor(editorBox, tree);
 		
+		// Install tree cell renderer
 		tree.setCellRenderer(new DefaultTreeRenderer(new CheckBoxTreeCellRenderer()));
 		
+		// Install rollover functionality
 		treeTable.addPropertyChangeListener(RolloverProducer.ROLLOVER_KEY, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
@@ -105,90 +116,20 @@ public class CheckBoxTreeTable extends JXTreeTable {
 						cbtce.cancelCellEditing();
 					}
 				} else {
-					// TODO: either we're inside the editor or outside the table, how to distinguish?
+					// TODO: null means we're either inside one of the editor's sub-components
+					// or outside the table, how to distinguish?
 //					cbtce.cancelCellEditing();
 				}
 			}
 		});
+		
+		// Install highlighters
+		treeTable.setSelectionBackground(null);
+		treeTable.addHighlighter(enabledHighlighter = TableConfig.getSimpleStriping());
+		
+		disabledHighlighter = TableConfig.getDisabledStriping();
 
-//		treeTable.addMouseMotionListener(new MouseMotionAdapter() {
-//			@Override
-//			public void mouseMoved(MouseEvent me) {
-//				if (isEnabled()) {
-//					int col = columnAtPoint(me.getPoint());
-//					if (col == getHierarchicalColumn()) {
-//						int row = rowAtPoint(me.getPoint());
-//						if (!isEditing()) {
-//							editCellAt(row, getHierarchicalColumn(), me);
-//						} else {
-//							if (!cbtce.isCellEditable(me)) {
-//								cbtce.cancelCellEditing();
-//							}
-//						}
-//					}
-//				}
-//			}
-//		});
-//		treeTable.addKeyListener(new KeyAdapter() {
-//			public void keyPressed(KeyEvent ke) {
-//				int row = treeTable.getSelectedRow();
-//				switch (ke.getKeyCode()) {
-//				case KeyEvent.VK_DOWN:
-//					row = (row < treeTable.getRowCount()-1) ? row+1 : row;
-//					editCellAt(row, editingColumn, ke);
-//					break;
-//				case KeyEvent.VK_UP:
-//					row = (row > 0) ? row-1 : row;
-//					editCellAt(row, editingColumn, ke);
-//					break;
-//				case KeyEvent.VK_LEFT:
-//					if (treeTable.isExpanded(row)) {
-//						treeTable.collapseRow(row);
-//					} else {
-//						TreePath parentPath = treeTable.getPathForRow(row).getParentPath();
-//						if (parentPath.getPathCount() > 1) {
-//							row = treeTable.getRowForPath(parentPath);
-//							tree.setSelectionInterval(row, row);
-//							editCellAt(row, editingColumn, ke);
-//						}
-//					}
-//					break;
-//				case KeyEvent.VK_RIGHT:
-//					if (!treeTable.isExpanded(row)) {
-//						tree.expandRow(row);
-//					} else {
-//						treeTable.dispatchEvent(new KeyEvent(ke.getComponent(),
-//								ke.getID(), ke.getWhen(), ke.getModifiers(),
-//								KeyEvent.VK_DOWN, ke.getKeyChar()));
-//					}
-//					break;
-//				case KeyEvent.VK_SPACE:
-//					if (row != editingRow) {
-//						editCellAt(row, editingColumn, ke);
-//					}
-//					editorBox.getModel().setArmed(true);
-//					break;
-//				}
-//			}
-//			@Override
-//			public void keyReleased(KeyEvent ke) {
-//				if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
-//					editorBox.doClick();
-//				}
-//			}
-//		});
-//		editorBox.addMouseMotionListener(new MouseMotionAdapter() {
-//			public void mouseMoved(MouseEvent me) {
-//				// redirect to tree table event handling
-//				treeTable.dispatchEvent(SwingUtilities.convertMouseEvent(editorBox, me, treeTable));
-//			}
-//		});
-//		editorBox.addKeyListener(new KeyAdapter() {
-//			public void keyPressed(KeyEvent ke) {
-//				treeTable.dispatchEvent(ke);
-//			}
-//		});
-
+		// Misc. settings
 		treeTable.setColumnMargin(1);
 		treeTable.setRowMargin(1);
 		treeTable.setShowGrid(true);
@@ -196,71 +137,23 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		treeTable.setColumnControlVisible(true);
 		treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		enabledHighlighter = TableConfig.getSimpleStriping();
-		treeTable.addHighlighter(enabledHighlighter);
-		
-		disabledHighlighter = TableConfig.getDisabledStriping();
+		treeTable.setLargeModel(true);
 	}
 	
-//	private void installTreeRenderer() {
-//		tree.setCellRenderer(new DefaultTreeRenderer(new ComponentProvider<IconCheckBox>() {
-//
-//			@Override
-//			protected void configureState(CellContext context) { }	// do nothing
-//
-//			@Override
-//			protected IconCheckBox createRendererComponent() {
-//				return new IconCheckBox();
-//			}
-//
-//			@Override
-//			protected void format(CellContext context) {
-//				IconCheckBox checkbox = (IconCheckBox) rendererComponent;
-//				checkbox.setText(getValueAsString(context));
-//				if (iconValue != null) {
-//					checkbox.setIcon(iconValue.getIcon(context));
-//				} else {
-//					checkbox.setIcon(context.getIcon());
-//				}
-//				checkbox.setEnabled(treeTable.isEnabled());
-//				CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) context.getValue();
-//				if (node != null) {
-//					TreePath path = node.getPath();
-//					Boolean selected = false;
-//					if (selectionModel.isPathSelected(path, true)) {
-//						selected = true;
-//					} else if (selectionModel.isPartiallySelected(path)) {
-//						selected = null;
-//					}
-//					checkbox.setSelected(selected);
-//					checkbox.setFixed(node.isFixed());
-//				}
-//			}
-//
-//		}));
-//	}
-	
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to prevent hierarchical node data from being overwritten.
+	 */
 	@Override
-	public void editingStopped(ChangeEvent e) {
-        if (editingColumn == getHierarchicalColumn()) {
-            // Take in the new value
-            if (cbtce != null) {
-            	TreePath path = getPathForRow(editingRow);
-                Boolean selected = (Boolean) cbtce.getCellEditorValue();
-                if (selected != null) {
-                    if (selected) {
-                    	selectionModel.addSelectionPath(path);
-                    } else {
-                    	selectionModel.removeSelectionPath(path);
-                    }
-                }
-                // TODO: can repaint be avoided?
-                treeTable.repaint();
-            }
-        } else {
-    		super.editingStopped(e);
-        }
-    }
+	public void editingStopped(ChangeEvent ce) {
+		if (editingColumn == getHierarchicalColumn()) {
+			// avoid calling setValueAt(), hierarchical column is not editable per se
+			removeEditor();
+		} else {
+			super.editingStopped(ce);
+		}
+	}
 
 	@Override
 	public TableCellEditor getCellEditor(int row, int column) {
@@ -297,7 +190,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		indent = margin;
 		center = margin + (hotspot)/2 - 4;
 		// Refresh tree renderer using new indents
-//		installTreeRenderer();
 		tree.setCellRenderer(new DefaultTreeRenderer(new CheckBoxTreeCellRenderer()));
 	}
 
@@ -306,7 +198,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	 * @return The selection model
 	 */
 	public CheckBoxTreeSelectionModel getCheckBoxTreeSelectionModel() {
-		return selectionModel;
+		return cbtsm;
 	}
 	
 	/**
@@ -314,7 +206,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	 * @param selectionModel The selection model to set
 	 */
 	public void setCheckBoxTreeSelectionModel(CheckBoxTreeSelectionModel selectionModel) {
-		this.selectionModel = selectionModel;
+		this.cbtsm = selectionModel;
 	}
 
 	/**
@@ -351,23 +243,25 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			if (node != null) {
 				TreePath path = node.getPath();
 				Boolean selected = false;
-				if (selectionModel.isPathSelected(path, true)) {
+				if (cbtsm.isPathSelected(path, true)) {
 					selected = true;
-				} else if (selectionModel.isPartiallySelected(path)) {
+				} else if (cbtsm.isPartiallySelected(path)) {
 					selected = null;
 				}
 				checkBox.setSelected(selected);
 				checkBox.setFixed(node.isFixed());
 				checkBox.setURI(node.getURI());
+
+				checkBox.setText(getValueAsString(context));
+				if (iconValue != null) {
+					checkBox.setIcon(iconValue.getIcon(context));
+				} else {
+					checkBox.setIcon(context.getIcon());
+				}
+				checkBox.setEnabled(treeTable.isEnabled());
+				
+//				checkBox.setBorder(BorderFactory.createLineBorder(Color.GREEN));
 			}
-			
-			checkBox.setText(getValueAsString(context));
-			if (iconValue != null) {
-				checkBox.setIcon(iconValue.getIcon(context));
-			} else {
-				checkBox.setIcon(context.getIcon());
-			}
-			checkBox.setEnabled(treeTable.isEnabled());
 		}
 	}
 
@@ -381,7 +275,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 		private IconCheckBox checkBox;
 		private JXTree tree;
-//		private DefaultCellEditor dce;
 		
 		public CheckBoxTreeCellEditor(IconCheckBox checkBox, JXTree tree) {
 			this.checkBox = checkBox;
@@ -408,19 +301,15 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			checkBox.setSelected(rendererChk.isSelected());
 			checkBox.setEnabled(rendererChk.isEnabled());
 			checkBox.setFixed(rendererChk.isFixed());
-			
-			// TODO: find cleverer way to detect background color of current cell 
-			// (does not work with additional highlighters)
-			Color bgCol = ((ColorHighlighter) ((CompoundHighlighter) treeTable
-					.getHighlighters()[0]).getHighlighters()[row % 2])
-					.getBackground();
-			checkBox.setBackground(bgCol);
 
+			compoundHighlighter.highlight(checkBox, getComponentAdapter(row, column));
+			
 			Rectangle cellRect = table.getCellRect(0, column, false);
 			Rectangle nodeRect = tree.getRowBounds(row);
 			int nodeStart = 1 + indent + cellRect.x + nodeRect.x; // + iconWidth;
 
 			checkBox.setBorder(BorderFactory.createEmptyBorder(1, nodeStart, 0, 0));
+//			checkBox.setBorder(BorderFactory.createMatteBorder(1, nodeStart, 0, 0, Color.RED));
 			
 			return checkBox;
 		}
@@ -437,42 +326,44 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	 * @author A. Behne
 	 */
 	private class IconCheckBox extends JPanel {
-
+		
+		/**
+		 * The checkbox sub-component.
+		 */
 		private JCheckBox checkBox;
+		
+		/**
+		 * The hyperlink sub-component.
+		 */
 		private JXHyperlink hyperlink;
+		
+		/**
+		 * The selection state of this component. <code>null</code> denotes indeterminate 
+		 * state.
+		 */
 		private Boolean selected;
+		
+		/**
+		 * The flag denoting whether the selection state of this component cannot be changed.
+		 */
 		private boolean fixed;
-		private Color bgCol;
 		
 		/**
 		 * Constructs a checkbox panel containing a tri-state checkbox and a hyperlink label, 
 		 * capable of bearing an icon.
 		 */
 		public IconCheckBox() {
-			bgCol = UIManager.getColor("Table.background");
-
 		    this.setLayout(new BorderLayout());
 			this.setOpaque(false);
 
 			// top checkbox with tri-state visuals
-			checkBox = new JCheckBox() {
+			checkBox = new TriStateCheckBox(center) {
 				@Override
-				public void paint(Graphics g) {
-					// paint background rectangle
-					if (isEnabled()) {
-						g.setColor(bgCol);
-						g.fillRect(2 + indent, 4, 10, 10);
-					}
-					super.paint(g);
-					// paint black bar on top of deselected box to visualize indeterminate state
-					if (selected == null) {
-						Color col = (isEnabled()) ? Color.BLACK : UIManager
-								.getColor("controlShadow");
-						g.setColor(col);
-						g.fillRect(center, 7, 8, 2);
-					}
+				public boolean isPartiallySelected() {
+					return (selected == null);
 				}
 			};
+			
 			checkBox.setOpaque(false);
 			checkBox.setBorder(BorderFactory.createEmptyBorder(0, 0 + indent, 0, 4));
 			
@@ -483,7 +374,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			hyperlink.setOpaque(true);
 			hyperlink.setVerticalTextPosition(SwingConstants.TOP);
 
-			hyperlink.setUnclickedColor(Color.RED);
 			hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
 
 			// lay out components
@@ -491,19 +381,35 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			this.add(hyperlink, BorderLayout.CENTER);
 		}
 		
+		/**
+		 * Adds an actionlistener to the checkbox sub-component.
+		 * @param l the <code>ActionListener</code> to be added
+		 */
+		public void addActionListener(ActionListener l) {
+			checkBox.addActionListener(l);
+		}
+		
+		/**
+		 * Returns the icon of the hyperlink sub-component.
+		 * @return the hyperlink <code>Icon</code>
+		 */
 		public Icon getIcon() {
 			return hyperlink.getIcon();
 		}
 		
 		/**
-		 * Defines the icon this component will display.
-		 * If the value of icon is null, nothing is displayed. 
-		 * @param icon
+		 * Defines the icon the hyperlink sub-component will display.
+		 * @param icon the <code>Icon</code> to be displayed. Use <code>null</code> 
+		 * to display no icon.
 		 */
 		public void setIcon(Icon icon) {
 			hyperlink.setIcon(icon);
 		}
 		
+		/**
+		 * Returns the text of the hyperlink sub-component.
+		 * @return
+		 */
 		public String getText() {
 			return hyperlink.getText();
 		}
@@ -546,6 +452,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			}
 		}
 		
+		public boolean isCheckBoxSelected() {
+			return checkBox.isSelected();
+		}
+		
 		public Boolean isSelected() {
 			return selected;
 		}
@@ -556,11 +466,13 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		 * <code>false</code> if not selected, <code>null</code> if indeterminate
 		 */
 		public void setSelected(Boolean selected) {
-			this.selected = selected;
-			if (selected == null) {
-				checkBox.setSelected(false);
-			} else {
-				checkBox.setSelected(selected);
+			if (selected != isSelected()) {
+				this.selected = selected;
+				if (selected == null) {
+					checkBox.setSelected(false);
+				} else {
+					checkBox.setSelected(selected);
+				}
 			}
 		}
 		

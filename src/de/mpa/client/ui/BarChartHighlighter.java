@@ -16,6 +16,8 @@ import org.jdesktop.swingx.decorator.PainterHighlighter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
 
+import de.mpa.util.ColorUtils;
+
 /**
  * A simple highlighter for displaying numerical table cell values in a bar chart-like fashion.
  * 
@@ -48,7 +50,7 @@ public class BarChartHighlighter extends PainterHighlighter {
 	 * Convenience constructor for a bar chart highlighter using a default appearance.
 	 */
 	public BarChartHighlighter() {
-		this(0, 100.0, 50, SwingConstants.HORIZONTAL, Color.GREEN.darker().darker(), Color.GREEN);
+		this(0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN);
 	}
 	
 	/**
