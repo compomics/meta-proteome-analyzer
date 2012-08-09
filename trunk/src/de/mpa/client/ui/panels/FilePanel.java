@@ -62,7 +62,6 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.chart.IdentificationChart.BarChartType;
 import de.mpa.client.ui.chart.TotalIonHistogram;
 import de.mpa.client.ui.chart.TotalIonHistogram.HistChartType;
 import de.mpa.client.ui.icons.IconConstants;
@@ -82,7 +81,7 @@ public class FilePanel extends JPanel {
 	private JButton addBtn;
 	private JButton addDbBtn;
 	private JButton clrBtn;	
-	protected static MascotGenericFileReader reader;
+	protected MascotGenericFileReader reader;
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
 	private final static String PATH = "test/de/mpa/resources/";	
 	private boolean busy;
@@ -476,10 +475,10 @@ public class FilePanel extends JPanel {
 	 * @return The spectrum file.
 	 * @throws IOException
 	 */
-	public static MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException {
+	public MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException {
 		CheckBoxTreeTableNode fileNode = (CheckBoxTreeTableNode) spectrumNode.getParent();
 		File file = (File) fileNode.getValueAt(0);
-		if (!reader.getFilename().equals(file.getName())) {
+		if ((reader != null) && (!reader.getFilename().equals(file.getName()))) {
 			// TODO: process file switching using background worker linked to progress bar
 			reader = new MascotGenericFileReader(file);
 		}
@@ -542,6 +541,9 @@ public class FilePanel extends JPanel {
 					spectrumPositions.addAll(reader.getSpectrumPositions(false));
 					specPosMap.put(file.getAbsolutePath(), spectrumPositions);
 
+					client.firePropertyChange("indeterminate", false, true);
+					client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + selFiles.length);
+					
 					SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
 							file, file.getParentFile().getPath(), null, null, null) {
 						public String toString() {
@@ -597,12 +599,15 @@ public class FilePanel extends JPanel {
 						}
 						index++;
 					}
+					
 					// append new file node to root and initially deselect it
 					treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
 					selectionModel.removeSelectionPath(fileNode.getPath());
 					// reselect spectrum nodes that meet filter criteria
 					selectionModel.addSelectionPaths(toBeAdded);
 //					treeTbl.getRowSorter().allRowsChanged();
+					
+					client.firePropertyChange("indeterminate", true, false);
 					
 				} catch (Exception ex) {
 					client.firePropertyChange("new message", null, "READING SPECTRUM FILE(S) ABORTED");

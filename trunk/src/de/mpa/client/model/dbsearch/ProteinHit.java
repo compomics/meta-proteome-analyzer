@@ -286,21 +286,6 @@ public class ProteinHit {
 	public void setNSAF(double nSAF) {
 		this.nSAF = nSAF;
 	}
-	/**
-	 * Returns a list of peptide hits.
-	 * @return The list of peptide hits.
-	 */
-	public Map<String, PeptideHit> getPeptideHits() {
-		return peptideHits;
-	}
-	
-	/**
-	 * Returns the peptide hits as list.
-	 * @return The peptide hits as list.
-	 */
-	public List<PeptideHit> getPeptideHitList(){
-		return new ArrayList<PeptideHit>(peptideHits.values());
-	}
 	
 	/**
 	 * Convenience method to get a peptide hit by its sequence identifier.
@@ -312,8 +297,24 @@ public class ProteinHit {
 	}
 	
 	/**
-	 * Sets the list of peptide hits.
-	 * @param peptideHits The list of peptide hits to set.
+	 * Returns the peptide hits as list.
+	 * @return The peptide hits as list.
+	 */
+	public List<PeptideHit> getPeptideHitList(){
+		return new ArrayList<PeptideHit>(peptideHits.values());
+	}
+	
+	/**
+	 * Returns the map of peptide hits.
+	 * @return The map of peptide hits.
+	 */
+	public Map<String, PeptideHit> getPeptideHits() {
+		return peptideHits;
+	}
+	
+	/**
+	 * Sets the map of peptide hits.
+	 * @param peptideHits The map of peptide hits to set.
 	 */
 	public void setPeptideHits(Map<String, PeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;

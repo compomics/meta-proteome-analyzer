@@ -22,7 +22,9 @@ import javax.swing.table.TableColumnModel;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -104,18 +106,26 @@ public class TableConfig {
 	}
 	
 	/**
-	 * Generates a simple gray-white highlighter for tables.
-	 * @return
+	 * Generates a simple white-gray highlighter for tables.
+	 * @return a striping highlighter
 	 */
 	public static Highlighter getSimpleStriping() {
 		if (simpleStriping == null) {
 			Color backCol = UIManager.getColor("Table.background");
 			Color altCol = ColorUtils.getRescaledColor(backCol, 0.95f);
-			simpleStriping = HighlighterFactory.createAlternateStriping(backCol, altCol);
+			Color selCol = UIManager.getColor("Table.selectionBackground");
+			
+			ColorHighlighter base = new ColorHighlighter(HighlightPredicate.EVEN, backCol, null, selCol, null);
+	        ColorHighlighter alternate = new ColorHighlighter(HighlightPredicate.ODD, altCol, null, selCol, null);
+	        simpleStriping = new CompoundHighlighter(base, alternate);
 		}
 		return simpleStriping;
 	}
 	
+	/**
+	 * Generates a simply gray-dark gray highlighter for disabled tables.
+	 * @return a disabled striping highlighter
+	 */
 	public static Highlighter getDisabledStriping() {
 		if (disabledStriping == null) {
 			Color backCol = UIManager.getColor("Panel.background");

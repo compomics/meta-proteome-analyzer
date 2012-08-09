@@ -27,38 +27,33 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	 * Array of per-column aggregate functions to combine numeric values 
 	 * of this node's children (given there are any). 
 	 */
-	private AggregateFunction[] aggFcns = new AggregateFunction[] {
-			null,					// Accession
-			null,					// Description
-			null,					// Species
-			AggregateFunction.MAX,	// Coverage
-			AggregateFunction.MEAN,	// Mol. weight
-			AggregateFunction.MEAN, // Isoel. point
-			AggregateFunction.SUM,	// Peptide count
-			AggregateFunction.SUM,	// Spectral count
-			AggregateFunction.MEAN, // emPAI
-			AggregateFunction.SUM	// nSAF
-	};
+	private AggregateFunction[] aggFcns;
 	
 	/**
-	 * Constructs a phylogenetic tree table node from an arbitrary Object.<br>
-	 * <b>Note</b>: Use {@link ProteinHit} as parameter for leaves!
-	 * @param userObject
-	 */
-	public PhylogenyTreeTableNode(Object userObject) {
-		super(userObject);
-	}
-	/**
-	 * TODO: ALEX
+	 * Constructs a phylogenetic tree table node from an array of arbitrary Objects.<br>
+	 * <b>Note</b>: Use {@link ProteinHit} as first parameter for leaves!
 	 * @param userObjects
 	 */
 	public PhylogenyTreeTableNode(Object... userObjects) {
 		super(userObjects);
+		aggFcns = new AggregateFunction[getColumnCount()];
+//		aggFcns = new AggregateFunction[] {
+//				null,
+//				null,
+//				null,
+//				AggregateFunction.SUM,
+//				AggregateFunction.MEAN,
+//				AggregateFunction.MAX,
+//				AggregateFunction.MIN,
+//				AggregateFunction.MEAN,
+//				AggregateFunction.MEAN,
+//				AggregateFunction.MEAN
+//		};
 	}
 	
 	@Override
 	public int getColumnCount() {
-		// TODO: parametrize column count
+		// TODO: parametrize column count?
 		return 10;
 	}
 	
@@ -90,16 +85,17 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			default:
 				return null;
 			}
-		} else if ((this.getChildCount() > 0) &&
-				(this.getChildAt(0).getValueAt(column) instanceof Number)) {
-			// TODO: re-write this part, e.g. cache some values because deep hierarchies 
-			// consume lots of time on repaint like this
-			double[] values = new double[this.getChildCount()];
-			for (int i = 0; i < this.getChildCount(); i++) {
-				TreeTableNode child = this.getChildAt(i);
-				values[i] = ((Number) child.getValueAt(column)).doubleValue();
-			}
-			return aggFcns[column].aggregate(values);
+//		} else if ((this.getChildCount() > 0) &&
+//				(this.getChildAt(0).getValueAt(column) instanceof Number) &&
+//				(aggFcns[column] != null)) {
+//			// TODO: re-write this part, e.g. cache some values because deep hierarchies 
+//			// consume lots of time on repaint like this
+//			double[] values = new double[this.getChildCount()];
+//			for (int i = 0; i < this.getChildCount(); i++) {
+//				TreeTableNode child = this.getChildAt(i);
+//				values[i] = ((Number) child.getValueAt(column)).doubleValue();
+//			}
+//			return aggFcns[column].aggregate(values);
 		}
 		// fall-back for when none of the above applies
 		return super.getValueAt(column);
@@ -157,6 +153,24 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	 */
 	public boolean hasLinks() {
 		return ((linkPaths != null) && !linkPaths.isEmpty());
+	}
+	
+	/**
+	 * Returns the array of aggregate functions of this node.
+	 * @return
+	 */
+	public AggregateFunction[] getAggregateFunctions() {
+		return aggFcns;
+	}
+	
+	public AggregateFunction getAggregateFunction(int column) {
+		return (column < getColumnCount()) ? aggFcns[column] : null;
+	}
+	
+	public void setAggregateFunction(int column, AggregateFunction aggFcn) {
+		if (column < getColumnCount()) {
+			aggFcns[column] = aggFcn;
+		}
 	}
 	
 }

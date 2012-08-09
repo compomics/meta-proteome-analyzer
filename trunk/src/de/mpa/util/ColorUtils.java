@@ -4,6 +4,22 @@ import java.awt.Color;
 
 public class ColorUtils {
 	
+	/* Color constants */
+	public static final Color LIGHT_RED = new Color(255, 127, 127);
+	public static final Color DARK_RED = new Color(127, 0, 0);
+	public static final Color LIGHT_MAGENTA = new Color(255, 127, 255);
+	public static final Color DARK_MAGENTA = new Color(127, 0, 127);
+	public static final Color LIGHT_BLUE = new Color(127, 127, 255);
+	public static final Color DARK_BLUE = new Color(0, 0, 127);
+	public static final Color LIGHT_CYAN = new Color(127, 255, 255);
+	public static final Color DARK_CYAN = new Color(0, 127, 127); 
+	public static final Color LIGHT_GREEN = new Color(127, 255, 127);
+	public static final Color DARK_GREEN = new Color(0, 127, 0);
+	public static final Color LIGHT_YELLOW = new Color(255, 255, 127);
+	public static final Color DARK_YELLOW = new Color(127, 127, 0);
+	public static final Color LIGHT_ORANGE = new Color(255, 191, 127);
+	public static final Color DARK_ORANGE = new Color(127, 63, 0);
+	
 	/**
 	 * Returns a rainbow color gradient with a parameterized size.
 	 * @param size Size of gradient color array
