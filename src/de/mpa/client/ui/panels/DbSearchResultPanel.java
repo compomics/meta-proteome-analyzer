@@ -80,6 +80,7 @@ import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -464,10 +465,11 @@ public class DbSearchResultPanel extends JPanel {
 					
 					dbSearchResult = newResult;
 					parent.updateOverview(true);
-					finished();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				finished();
 			}
 			return 0;
 		}
@@ -742,6 +744,10 @@ public class DbSearchResultPanel extends JPanel {
 		// Add nice striping effect
 		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
+		protCHighlightPredicate = new ProtCHighlighterPredicate();
+		Highlighter protCountHighlighter = new ColorHighlighter(protCHighlightPredicate, new Color(255, 160, 160), null);
+		proteinTbl.addHighlighter(protCountHighlighter);
+		
 		// Enables column control
 		proteinTbl.setColumnControlVisible(true);
 		proteinTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
@@ -811,7 +817,9 @@ public class DbSearchResultPanel extends JPanel {
 								String newLine = "<br>"; 
 								for (int i = 70; i < ecDesc.length(); i= i + 70) {
 									int linebreak = strB.indexOf(" ", i);
-									strB.insert (linebreak, newLine);  
+									if (linebreak!= -1) {
+										strB.insert (linebreak, newLine); 
+									} 
 								}
 								ecDesc = strB.toString();
 							}
@@ -1004,7 +1012,8 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PEP_SELECTION		= 0;
 	private final int PEP_INDEX			= 1;
 	private final int PEP_SEQUENCE		= 2;
-	private final int PEP_SPECTRALCOUNT	= 3;
+	private final int PEP_PROTEINCOUNT	= 3;
+	private final int PEP_SPECTRALCOUNT	= 4;
 
 	/**
 	 * This method sets up the peptide results table.
@@ -1014,8 +1023,7 @@ public class DbSearchResultPanel extends JPanel {
 		final TableModel peptideTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{
-				setColumnIdentifiers(new Object[] { "", "#", "Sequence",
-						"No. Spectra" });
+				setColumnIdentifiers(new Object[] { "", "#", "Sequence", "ProtC", "SpC" });
 			}
 			
 			@Override
@@ -1025,6 +1033,8 @@ public class DbSearchResultPanel extends JPanel {
 					return Boolean.class;
 				case PEP_INDEX:
 				case PEP_SPECTRALCOUNT:
+					return Integer.class;
+				case PEP_PROTEINCOUNT:
 					return Integer.class;
 				case PEP_SEQUENCE:
 				default:
@@ -1057,7 +1067,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		};
 
-		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 1, 4, 3});
+		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 1, 4, 1.5, 1.5});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
 		
@@ -1146,6 +1156,9 @@ public class DbSearchResultPanel extends JPanel {
 				int selRow = peptideTbl.getSelectedRow();
 				if (selRow != -1) {
 					coverageSelectionModel.setValue(peptideTbl.convertRowIndexToModel(selRow));
+					PeptideHit peptideHit = dbSearchResult.getProteinHit((String) proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION)).getPeptideHit((String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE));
+					protCHighlightPredicate.setProteinHits(peptideHit.getProteinList());
+					proteinTbl.repaint();
 				}
 				refreshPsmTable();
 			}
@@ -1188,6 +1201,8 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PSM_INSPECT 	= 7;
 
 	private ValueHolder coverageSelectionModel = new ValueHolder(-1);
+
+	private ProtCHighlighterPredicate protCHighlightPredicate;
 	
 	/**
 	 * This method sets up the PSM results table.
@@ -1774,6 +1789,7 @@ public class DbSearchResultPanel extends JPanel {
 						peptideHit.isSelected(),
 						row,
 						peptideHit.getSequence(),
+						peptideHit.getProteinCount(),
 						specCount});
 			}
 
@@ -2424,5 +2440,45 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			super.paintComponent(g);
 		}
-	}	
+	}
+
+	/**
+	 * Custom highlighter predicate for protein count visualization.
+	 * @author kohrs
+	 *
+	 */
+	private class ProtCHighlighterPredicate implements HighlightPredicate{
+
+		/**
+		 * The list of proteins to be highlighted.
+		 */
+		private List<ProteinHit> protHits = new ArrayList<ProteinHit>();
+		
+		@Override
+		public boolean isHighlighted(Component renderer,
+				org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
+			for (ProteinHit protHit : getProteinHits()) {
+				if (protHit.getAccession().equals(adapter.getValue(PROT_ACCESSION))) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		/**
+		 * Returns the list of protein hits.
+		 * @return the list of protein hits.
+		 */
+		public List<ProteinHit> getProteinHits() {
+			return protHits;
+		}
+		
+		/**
+		 * Sets the list of protein hits.
+		 * @param protHits the list of protein hits to set.
+		 */
+		public void setProteinHits(List<ProteinHit> protHits) {
+			this.protHits = protHits;
+		}
+	}
 }

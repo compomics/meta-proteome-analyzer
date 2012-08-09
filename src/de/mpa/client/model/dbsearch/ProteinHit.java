@@ -87,7 +87,7 @@ public class ProteinHit {
 	
 	
 	/**
-	 * Constructor for a simple protein hit with accesion only.
+	 * Constructor for a simple protein hit with accession only.
 	 * @param accession
 	 */
 	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit){
@@ -303,6 +303,15 @@ public class ProteinHit {
 	}
 	
 	/**
+	 * Convenience method to get a peptide hit by its sequence identifier.
+	 * @param sequence The identifier string.
+	 * @return the desired peptide hit or <code>null</code> if the retrieval failed.
+	 */
+	public PeptideHit getPeptideHit(String sequence) {
+		return peptideHits.get(sequence);
+	}
+	
+	/**
 	 * Sets the list of peptide hits.
 	 * @param peptideHits The list of peptide hits to set.
 	 */
@@ -358,12 +367,24 @@ public class ProteinHit {
 	public UniProtEntry getUniprotEntry() {
 		return uniprotEntry;
 	}
+	
+	/**
+	 * Returns whether this protein hit is selected for exporting. 
+	 * @return <code>true</code> if protein is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
 	public boolean isSelected() {
 		return selected;
 	}
 	
+	/**
+	 * Sets whether this protein hit is selected for exporting. 
+	 * @param selected <code>true</code> if protein is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+//		makes child peptides inherit selection state of protein:
 //		for (PeptideHit ph : peptideHits.values()) {
 //			ph.setSelected(selected);
 //		}

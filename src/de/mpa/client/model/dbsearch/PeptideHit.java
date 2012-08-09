@@ -14,9 +14,9 @@ import de.mpa.client.model.SpectrumMatch;
  */
 public class PeptideHit {
 	/**
-	 * Marker, if Peptide is selected for export.
+	 * Label, if Peptide is selected for export.
 	 */
-	private boolean selected = true; //Math.random()<0.5;	
+	private boolean selected = true;
 	/**
 	 *  The peptide sequence
 	 */
@@ -33,12 +33,17 @@ public class PeptideHit {
 	private int end;
 	
 	/**
+	 *  The list of protein hits associated with this peptide hit.
+	 */
+	private List<ProteinHit> proteinHits;
+	
+	/**
 	 * The peptide spectrum match for this peptide hit.
 	 */
 	private List<SpectrumMatch> spectrumMatches;
 	
 	/**
-	 * 
+	 *  TODO
 	 */
 	private Map<Long, Integer> id2index = new HashMap<Long, Integer>();
 	
@@ -49,6 +54,7 @@ public class PeptideHit {
 	 */
 	public PeptideHit(String sequence, SpectrumMatch spectrumMatch) {
 		this.sequence = sequence;
+		this.proteinHits = new ArrayList<ProteinHit>();
 		this.spectrumMatches = new ArrayList<SpectrumMatch>();
 		addSpectrumMatch(spectrumMatch);
 	}
@@ -89,11 +95,18 @@ public class PeptideHit {
 		return spectrumMatches.get(0);
 	}
 	
-	
+	/**
+	 * Returns the list of spectrum matches.
+	 * @return the list of spectrum matches.
+	 */
 	public List<SpectrumMatch> getSpectrumMatches() {
 		return spectrumMatches;
 	}
 
+	/**
+	 * Sets the list of spectrum matches.
+	 * @param spectrumMatches the list of spectrum matches to set.
+	 */
 	public void setSpectrumMatches(List<SpectrumMatch> spectrumMatches) {
 		this.spectrumMatches = spectrumMatches;
 	}
@@ -163,20 +176,58 @@ public class PeptideHit {
 		Integer index = id2index.get(id);
 		return (index != null) ? spectrumMatches.get(id2index.get(id)) : null;
 	}
-
+	
+	/**
+	 * Returns whether this peptide hit is selected for exporting. 
+	 * @return <code>true</code> if peptide is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
 	public boolean isSelected() {
 		return selected;
 	}
-	
+
+	/**
+	 * Sets whether this peptide hit is selected for exporting. 
+	 * @param selected <code>true</code> if peptide is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+//		makes child psms inherit selection state of peptide:
 //		for (SpectrumMatch sm : spectrumMatches) {
 //			sm.setSelected(selected);
 //		}
 	}
 	
+	/**
+	 * Returns spectral count.
+	 * @return the spectral count.
+	 */
 	public int getSpectralCount() {
 		return getSpectrumMatches().size();
 	}
+
+	/**
+	 * Adds the specified ProteinHit to the list of proteins associated with this peptide.  
+	 * @param proteinHit The hit to add.
+	 */
+	public void addProteinHit(ProteinHit proteinHit) {
+		proteinHits.add(proteinHit);
+	}
 	
+	/**
+	 * Returns the number of proteins associated with this peptide.
+	 * @return The protein count.
+	 */
+	public int getProteinCount() {
+		return proteinHits.size();
+	}
+	
+	/**
+	 * Returns the list of proteins associated with this peptide.
+	 * @return The protein list.
+	 */
+	public List<ProteinHit> getProteinList() {
+		return proteinHits;
+	}
 }
