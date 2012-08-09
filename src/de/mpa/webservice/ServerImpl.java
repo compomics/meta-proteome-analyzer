@@ -298,6 +298,7 @@ public class ServerImpl implements Server {
 					managerThread.join();
 					
 					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
+					i++;
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
