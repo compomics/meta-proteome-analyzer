@@ -18,9 +18,9 @@ import de.mpa.client.model.SpectrumMatch;
 
 /**
  * This class represents an identified protein hit.
- * It contains information about accession, description and a list of containing peptide hits.
+ * It contains information about accession, description and a list of associated peptide hits.
+ * 
  * @author T. Muth, R. Heyer, A. Behne, F. Kohrs
- *
  */
 public class ProteinHit {
 	
@@ -99,6 +99,23 @@ public class ProteinHit {
 		this.peptideHits = new LinkedHashMap<String, PeptideHit>();
 		this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 	}
+	
+	/**
+	 * Gets the protein's amino acid sequence.
+	 * @return The protein sequence.
+	 */
+	public String getSequence() {
+		return sequence;
+	}
+	
+	/**
+	 * Sets the protein's amino acid sequence
+	 * @param sequence The sequence of the protein.
+	 */
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
+	}
+	
 	/**
 	 * Returns the accession.
 	 * @return the accession
@@ -122,6 +139,7 @@ public class ProteinHit {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
 	/**
 	 * Returns the species of the protein
 	 * @return species
@@ -137,6 +155,25 @@ public class ProteinHit {
 	public void setSpecies(String species) {
 		this.species = species;
 	}
+	
+	/**
+	 * Returns the sequence coverage.
+	 * @return The sequence coverage
+	 */
+	public double getCoverage() {
+		if (coverage < 0.0) {
+			coverage = ProteinAnalysis.calculateSequenceCoverage(this);
+		}
+		return coverage;
+	}
+	/**
+	 * Sets the sequence coverage.
+	 * @param coverage The sequence coverage to set
+	 */
+	public void setCoverage(double coverage) {
+		this.coverage = coverage;
+	}
+	
 	/**
 	 * Returns the molecular weight.
 	 * @return The molecular weight.
@@ -175,72 +212,11 @@ public class ProteinHit {
 	}
 	
 	/**
-	 * Gets the protein's amino acid sequence.
-	 * @return The protein sequence.
+	 * Returns the peptide count for the protein hit.
+	 * @return The number of peptides found in the protein hit.
 	 */
-	public String getSequence() {
-		return sequence;
-	}
-	
-	/**
-	 * Sets the protein's amino acid sequence
-	 * @param sequence The sequence of the protein.
-	 */
-	public void setSequence(String sequence) {
-		this.sequence = sequence;
-	}
-	/**
-	 * Returns the sequence coverage.
-	 * @return The sequence coverage
-	 */
-	public double getCoverage() {
-		if (coverage < 0.0) {
-			coverage = ProteinAnalysis.calculateSequenceCoverage(this);
-		}
-		return coverage;
-	}
-	/**
-	 * Sets the sequence coverage.
-	 * @param coverage The sequence coverage to set
-	 */
-	public void setCoverage(double coverage) {
-		this.coverage = coverage;
-	}
-	
-//	/**
-//	 * Calculates and returns the spectral count.
-//	 * @return The spectral count.
-//	 */
-//	public int getSpectralCount() {
-//		if (specCount < 0) {
-//			Set<Entry<String, PeptideHit>> entrySet = peptideHits.entrySet();
-//			
-//			// Counter variable
-//			int count = 0;
-//			
-//			// Iterate the found peptide results
-//			for (Entry<String, PeptideHit> entry : entrySet) {
-//					// Get the peptide hit.
-//					PeptideHit peptideHit = entry.getValue();
-//					count += peptideHit.getSpectrumMatches().size();
-//			}
-//			this.specCount = count;
-//		}
-//		return specCount;
-//	}
-	
-	/**
-	 * Returns a collection of non-redundant spectrum IDs belonging to this protein hit.
-	 * @return A set of spectrum IDs.
-	 */
-	public Set<Long> getSpectrumIDs() {
-		Set<Long> matches = new HashSet<Long>();
-		for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
-			for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
-				matches.add(match.getSearchSpectrumID());
-			}
-		}
-		return matches;
+	public int getPeptideCount(){
+		return peptideHits.size();
 	}
 	
 	/**
@@ -261,13 +237,24 @@ public class ProteinHit {
 		}
 		return specCount;
 	}
+
+	/**
+	 * Gets the emPAI of the protein
+	 * @return emPAI
+	 */
+	public double getEmPAI() {
+		if (emPAI < 0.0) {
+			emPAI = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
+		}
+		return emPAI;
+	}
 	
 	/**
-	 * Returns the peptide count for the protein hit.
-	 * @return The number of peptides found in the protein hit.
+	 * Sets the emPAI of the protein
+	 * @param emPAI
 	 */
-	public int getPeptideCount(){
-		return peptideHits.size();
+	public void setEmPAI(double emPAI) {
+		this.emPAI = emPAI;
 	}
 
 	/**
@@ -321,25 +308,7 @@ public class ProteinHit {
 	public void setPeptideHits(Map<String, PeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;
 	}
-
-	/**
-	 * Gets the emPAI of the protein
-	 * @return emPAI
-	 */
-	public double getEmPAI() {
-		if (emPAI < 0.0) {
-			emPAI = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
-		}
-		return emPAI;
-	}
 	
-	/**
-	 * Sets the emPAI of the protein
-	 * @param emPAI
-	 */
-	public void setEmPAI(double emPAI) {
-		this.emPAI = emPAI;
-	}
 	/**
 	 * Adds one peptide to the protein hit.
 	 * @param peptidehit
@@ -353,6 +322,20 @@ public class ProteinHit {
 	 */
 	public PeptideHit getSinglePeptideHit() {
 		return peptideHits.values().iterator().next();
+	}
+	
+	/**
+	 * Returns a collection of non-redundant spectrum IDs belonging to this protein hit.
+	 * @return A set of spectrum IDs.
+	 */
+	public Set<Long> getSpectrumIDs() {
+		Set<Long> matches = new HashSet<Long>();
+		for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
+			for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
+				matches.add(match.getSearchSpectrumID());
+			}
+		}
+		return matches;
 	}
 	
 	/**
@@ -396,5 +379,14 @@ public class ProteinHit {
 	@Override
 	public String toString() {
 		return (getAccession() + " | " + getDescription());
+	}
+	
+	// TODO: investigate whether this kind of equality check causes problems
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ProteinHit) {
+			return getAccession().equals(((ProteinHit) obj).getAccession());
+		}
+		return false;
 	}
 }

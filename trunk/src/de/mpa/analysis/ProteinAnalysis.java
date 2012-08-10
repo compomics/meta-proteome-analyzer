@@ -30,15 +30,11 @@ public class ProteinAnalysis {
 
 		// Iterate the protein sequence and add the molecular masses.
 		for (char letter : sequence.toCharArray()) {
-//			// Skip the wildcard amino acid.
-//			if (letter != '*') {
-//				molWeight += masses.get(String.valueOf(letter));
-//			}
 			Double aaWeight = masses.get(String.valueOf(letter));
 			if (aaWeight != null) {
 				molWeight += aaWeight;
 			} else {
-				System.out.println(letter);
+				System.out.println("unknown amino acid: " + letter);
 			}
 		}
 

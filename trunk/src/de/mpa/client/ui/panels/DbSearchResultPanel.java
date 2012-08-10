@@ -486,7 +486,7 @@ public class DbSearchResultPanel extends JPanel {
 			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
 			dbSearchResult.setSearchEngines(searchEngines);
 			
-			refreshProteinTable();
+			refreshProteinTables();
 			
 			// Enable export functionality
 			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
@@ -1522,13 +1522,22 @@ public class DbSearchResultPanel extends JPanel {
 	/**
 	 * Method to refresh protein table contents.
 	 */
-	protected void refreshProteinTable() {
+	protected void refreshProteinTables() {
 		
-		dbSearchResult = Client.getInstance().getDbSearchResult(
-				clientFrame.getProjectPanel().getCurrentProjectContent(),
-				clientFrame.getProjectPanel().getCurrentExperimentContent());
+//		dbSearchResult = Client.getInstance().getDbSearchResult(
+//				clientFrame.getProjectPanel().getCurrentProjectContent(),
+//				clientFrame.getProjectPanel().getCurrentExperimentContent());
 		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
+			// Display number of proteins in title area
+			int numProteins = dbSearchResult.getProteinHits().size();
+			protTtlPnl.setTitle("Proteins (" + numProteins + ")");
+			
+			// Notify status bar
+			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES");
+			Client.getInstance().firePropertyChange("resetall", null, (long) numProteins);
+			Client.getInstance().firePropertyChange("resetcur", null, (long) numProteins);
+			
 			// Empty protein tables
 			TableConfig.clearTable(proteinTbl);
 			TableConfig.clearTable(protFlatTreeTbl);
@@ -1543,10 +1552,6 @@ public class DbSearchResultPanel extends JPanel {
 			
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
-			
-			// Display number of proteins in title area
-			int numProteins = dbSearchResult.getProteinHits().size();
-			protTtlPnl.setTitle("Proteins (" + numProteins + ")");
 			
 			// Iterate protein hits
 			for (Entry<String, ProteinHit> entry : dbSearchResult.getProteinHits().entrySet()) {
@@ -1608,7 +1613,8 @@ public class DbSearchResultPanel extends JPanel {
 				} else {
 					System.out.println("missing UniProt entry: " + proteinHit.getAccession());
 				}
-
+				
+				Client.getInstance().firePropertyChange("progressmade", false, true);
 			}
 			
 			// Adjust highlighters
@@ -1667,6 +1673,8 @@ public class DbSearchResultPanel extends JPanel {
 //					highlighter.setRange(0.0, maxNSAF);
 				}
 			}
+			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
+			
 			hierarchyCbx.setEnabled(true);
 			
 			protTaxonTreeTbl.expandAll();
