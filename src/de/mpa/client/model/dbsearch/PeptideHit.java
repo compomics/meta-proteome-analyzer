@@ -193,7 +193,9 @@ public class PeptideHit {
 	 * @param proteinHit The hit to add.
 	 */
 	public void addProteinHit(ProteinHit proteinHit) {
-		proteinHits.add(proteinHit);
+		if (!proteinHits.contains(proteinHit)) {
+			proteinHits.add(proteinHit);
+		}
 	}
 	
 	/**
@@ -238,9 +240,13 @@ public class PeptideHit {
 	public String toString() {
 		return getSequence();
 	}
-	
+
+	// TODO: investigate whether this kind of equality check causes problems
 	@Override
 	public boolean equals(Object obj) {
-		return obj.equals(getSequence());
+		if (obj instanceof PeptideHit) {
+			return getSequence().equals(((PeptideHit) obj).getSequence());
+		}
+		return false;
 	}
 }

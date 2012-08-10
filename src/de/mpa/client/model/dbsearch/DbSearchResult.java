@@ -63,73 +63,95 @@ public class DbSearchResult {
 	}
 	
 	/**
-	 * Adding a protein to the protein hit set.
-	 * @param proteinHit The ProteinHit
+	 * Adds a protein hit to the protein hit set.
+	 * @param proteinHit The {@link ProteinHit} to add
 	 */
 	public void addProtein(ProteinHit proteinHit) {
-
 		String accession = proteinHit.getAccession();
 		
+		// Get the first - and only - peptide hit
+		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
+
+		// Find current protein hit, will be null if it's a new protein
+		ProteinHit currentProteinHit = proteinHits.get(accession);
+		// Find current peptide hit, ideally inside current protein hit
+		PeptideHit currentPeptideHit = findExistingPeptide(
+				peptideHit.getSequence(), currentProteinHit);
+		
 		// Check if protein hit is already in the protein hit set.
-		if (proteinHits.containsKey(accession)) {
-			// Current protein hit
-			ProteinHit currentProteinHit = proteinHits.get(accession);
-
-			// Get the first - and only - peptide hit.
-			PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
-			
-			// Get the current peptide hits.
-			Map<String, PeptideHit> currentPeptideHits = currentProteinHit.getPeptideHits();
-			
-			// Check if peptide hit is not already in the protein hit
-			if (!currentPeptideHits.containsKey(peptideHit.getSequence())) {
-				// Add the peptide hit to the protein hit.
-				currentProteinHit.addPeptideHit(peptideHit);
-				// Link parent protein hit to peptide hit
-				peptideHit.addProteinHit(currentProteinHit);
-			} else { // If peptide hit is already in the database check the actual PSM.
-				// Returns the single PSM.
-				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-
-				PeptideHit currentPeptideHit = currentPeptideHits.get(peptideHit.getSequence());
-
-				PeptideSpectrumMatch currentPSM = (PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(psm.getSearchSpectrumID()); 
-				if (currentPSM != null) {
-					currentPSM.addSearchEngineHit(psm.getFirstSearchHit());
+		if (currentProteinHit != null) {
+			// Check whether peptide hit match has been found
+			if (currentPeptideHit != null) {
+				// Peptide hit is already stored somewhere in the result object, therefore inspect new PSM
+				PeptideSpectrumMatch match = (PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+				
+				PeptideSpectrumMatch currentMatch =
+					(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(match.getSearchSpectrumID());
+				if (currentMatch != null) {
+					currentMatch.addSearchEngineHit(match.getFirstSearchHit());
 				} else {
-					currentPSM = psm;
+					currentMatch = match;
 				}
-				currentPeptideHit.replaceSpectrumMatch(currentPSM);
+				currentPeptideHit.replaceSpectrumMatch(currentMatch);
+			} else {
+				// No match found, peptide hit is new 
+				currentPeptideHit = peptideHit;
 			}
-			proteinHits.put(accession, currentProteinHit);
+			currentProteinHit.addPeptideHit(currentPeptideHit);
 		} else {
-			// Get the single peptide sequence from the protein hit to be added 
-			String currentSequence = proteinHit.getSinglePeptideHit().getSequence();
-			PeptideHit currentPeptideHit = null;
-			// Iterate already stored peptide hits and look for possible matches
-			for (ProteinHit currentProteinHit : proteinHits.values()) {
-				currentPeptideHit = currentProteinHit.getPeptideHits().get(currentSequence);
-				if (currentPeptideHit != null) {
-					// A match has been found, abort loop
-					break;
-				}
-			}
-			// Check again whether match has been found
+			currentProteinHit = proteinHit;
+			// Check whether peptide hit match has been found
 			if (currentPeptideHit != null) {
 				// Link new PSM to found peptide
-				currentPeptideHit.addSpectrumMatch(proteinHit.getSinglePeptideHit().getSingleSpectrumMatch());
+				currentPeptideHit.addSpectrumMatch(peptideHit.getSingleSpectrumMatch());
 				// Link found peptide to new Protein by replacing hit map
 				Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
-				proteinHit.setPeptideHits(newPeptideHits);
-				proteinHit.addPeptideHit(currentPeptideHit);
+				currentProteinHit.setPeptideHits(newPeptideHits);
+				currentProteinHit.addPeptideHit(currentPeptideHit);
 			} else {
 				// No match found, both protein and peptide hits are new 
-				currentPeptideHit = proteinHit.getSinglePeptideHit();
+				currentPeptideHit = peptideHit;
 			}
-			// Link parent protein hit to peptide hit
-			currentPeptideHit.addProteinHit(proteinHit);
-			proteinHits.put(accession, proteinHit);
 		}
+		// Link parent protein hit to peptide hit
+		currentPeptideHit.addProteinHit(proteinHit);
+		
+		proteinHits.put(accession, currentProteinHit);
+		
+	}
+	
+	/**
+	 * Searches all lists of peptide hits and returns the first matching occurrence 
+	 * of a peptide hit identified by the provided sequence.
+	 * @param sequence the peptide sequence identifier
+	 * @param first a protein hit reference which will be searched first and skipped 
+	 * later on when iterating the list of other stored protein hits
+	 * @return the first matching occurrence of the desired peptide hit or 
+	 * <code>null</code> if the hit is not stored yet
+	 */
+	private PeptideHit findExistingPeptide(String sequence, ProteinHit first) {
+		PeptideHit peptideHit = null;
+		// Check provided protein hit (most likely candidate), if applicable
+		if (first != null) {
+			peptideHit = first.getPeptideHits().get(sequence);
+			if (peptideHit != null) {
+				return peptideHit;
+			}
+		}
+		// Iterate already stored peptide hits and look for possible matches
+		for (ProteinHit proteinHit : proteinHits.values()) {
+			// TODO: is skipping necessary given the total number of peptides exceeds the number of peptides associated with a single protein by far? 
+			// In that case the number of comparisons for skipping might be much larger than the number of extra peptide reference comparisons... 
+			if (proteinHit == first) {
+				continue;
+			}
+			peptideHit = proteinHit.getPeptideHits().get(sequence);
+			if (peptideHit != null) {
+				// A match has been found, abort loop
+				return peptideHit;
+			}
+		}
+		return peptideHit;
 	}
 	
 	/**
