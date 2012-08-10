@@ -455,7 +455,9 @@ public class DbSearchResultPanel extends JPanel {
 			try {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				// Fetch the database search result.
-				DbSearchResult newResult = Client.getInstance().getDbSearchResult(clientFrame.getProjectPanel().getCurrentProjectContent(), clientFrame.getProjectPanel().getCurrentExperimentContent());
+				DbSearchResult newResult = Client.getInstance().getDbSearchResult(
+						clientFrame.getProjectPanel().getCurrentProjectContent(), 
+						clientFrame.getProjectPanel().getCurrentExperimentContent());
 				
 				if (!newResult.equals(dbSearchResult)) {
 					// Retrieve UniProt data
@@ -1194,8 +1196,9 @@ public class DbSearchResultPanel extends JPanel {
 			@Override
 			public boolean isHighlighted(Component renderer,
 					org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
-				if (adapter.column == PEP_SEQUENCE) {
-					int protCount = (Integer) adapter.getValueAt(adapter.row, PEP_PROTEINCOUNT);
+				if (adapter.convertColumnIndexToModel(adapter.column) == PEP_SEQUENCE) {
+					int protCount = (Integer) adapter.getValueAt(
+							adapter.convertRowIndexToModel(adapter.row), PEP_PROTEINCOUNT);
 					return (protCount == 1);
 				}
 				return false;

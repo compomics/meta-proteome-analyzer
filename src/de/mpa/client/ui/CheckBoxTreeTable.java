@@ -117,7 +117,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 					}
 				} else {
 					// TODO: null means we're either inside one of the editor's sub-components
-					// or outside the table, how to distinguish?
+					// or outside the table, how to distinguish one from the other?
 //					cbtce.cancelCellEditing();
 				}
 			}

@@ -13,10 +13,12 @@ import de.mpa.client.model.SpectrumMatch;
  *
  */
 public class PeptideHit {
+	
 	/**
-	 * Label, if Peptide is selected for export.
+	 * Flag denoting whether this peptide is selected for export.
 	 */
 	private boolean selected = true;
+	
 	/**
 	 *  The peptide sequence
 	 */
@@ -43,7 +45,8 @@ public class PeptideHit {
 	private List<SpectrumMatch> spectrumMatches;
 	
 	/**
-	 *  TODO
+	 * Map linking search spectrum IDs of matches to their position in this 
+	 * peptide hit's list of matches.
 	 */
 	private Map<Long, Integer> id2index = new HashMap<Long, Integer>();
 	
@@ -178,28 +181,6 @@ public class PeptideHit {
 	}
 	
 	/**
-	 * Returns whether this peptide hit is selected for exporting. 
-	 * @return <code>true</code> if peptide is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
-	public boolean isSelected() {
-		return selected;
-	}
-
-	/**
-	 * Sets whether this peptide hit is selected for exporting. 
-	 * @param selected <code>true</code> if peptide is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-//		makes child psms inherit selection state of peptide:
-//		for (SpectrumMatch sm : spectrumMatches) {
-//			sm.setSelected(selected);
-//		}
-	}
-	
-	/**
 	 * Returns spectral count.
 	 * @return the spectral count.
 	 */
@@ -229,5 +210,37 @@ public class PeptideHit {
 	 */
 	public List<ProteinHit> getProteinList() {
 		return proteinHits;
+	}
+	
+	/**
+	 * Returns whether this peptide hit is selected for exporting. 
+	 * @return <code>true</code> if peptide is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isSelected() {
+		return selected;
+	}
+
+	/**
+	 * Sets whether this peptide hit is selected for exporting. 
+	 * @param selected <code>true</code> if peptide is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+		// make child matches inherit selection state
+//		for (SpectrumMatch sm : spectrumMatches) {
+//			sm.setSelected(selected);
+//		}
+	}
+	
+	@Override
+	public String toString() {
+		return getSequence();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj.equals(getSequence());
 	}
 }
