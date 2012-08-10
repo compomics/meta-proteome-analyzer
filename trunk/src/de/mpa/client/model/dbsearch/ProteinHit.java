@@ -19,14 +19,16 @@ import de.mpa.client.model.SpectrumMatch;
 /**
  * This class represents an identified protein hit.
  * It contains information about accession, description and a list of containing peptide hits.
- * @author T. Muth, R. Heyer
+ * @author T. Muth, R. Heyer, A. Behne, F. Kohrs
  *
  */
 public class ProteinHit {
+	
 	/**
-	 * Marker, if Protein is selected for export.
+	 *  Flag denoting whether this protein is selected for export.
 	 */
-	private boolean selected = true; //Math.random()<0.5;
+	private boolean selected = true;
+	
 	/**
 	 * Protein accession.
 	 */
@@ -300,7 +302,7 @@ public class ProteinHit {
 	 * Returns the peptide hits as list.
 	 * @return The peptide hits as list.
 	 */
-	public List<PeptideHit> getPeptideHitList(){
+	public List<PeptideHit> getPeptideHitList() {
 		return new ArrayList<PeptideHit>(peptideHits.values());
 	}
 	
@@ -385,9 +387,14 @@ public class ProteinHit {
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
-//		makes child peptides inherit selection state of protein:
+		// make child peptides inherit selection state
 //		for (PeptideHit ph : peptideHits.values()) {
 //			ph.setSelected(selected);
 //		}
+	}
+	
+	@Override
+	public String toString() {
+		return (getAccession() + " | " + getDescription());
 	}
 }

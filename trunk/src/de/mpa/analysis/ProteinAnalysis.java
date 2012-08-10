@@ -66,27 +66,20 @@ public class ProteinAnalysis {
 	 * @param hitsCoveredOnlyOnce Flag determining whether peptides are counted only once in a protein with repeats.
 	 */
 	public static double calculateSequenceCoverage(ProteinHit proteinHit, boolean hitsCoveredOnlyOnce) {
-		// The Protein sequence.
+		// The Protein sequence
 		String sequence = proteinHit.getSequence();
 		boolean[] foundAA = new boolean[sequence.length()];
 		List<PeptideHit> peptides = proteinHit.getPeptideHitList();
-		String pSequence;
-		// Iterate the peptides in the protein.
+		// Iterate the peptides in the protein
 		for (PeptideHit peptideHit : peptides) {
-			// replacement of PTMs for the calculation of the sequence coverage
-			//			System.out.println(peptideHit.getSequence());
-			pSequence = peptideHit.getSequence().replaceAll("[^A-Z]", "");
-			//			System.out.println(pSequence);
-			peptideHit.setSequence(pSequence);
 			// Indices for the pattern
 			int startIndex = 0;
 			int endIndex = 0;
-			// The pattern == The peptide sequence
-			String pattern = peptideHit.getSequence();
+			// Strip PTMs off the sequence string
+			String pattern = peptideHit.getSequence().replaceAll("[^A-Z]", "");
 
 			// Iterate the protein sequence and check for pattern.
 			while (sequence.indexOf(pattern, startIndex) != -1) {
-
 				// Search for multiple hits
 				startIndex = sequence.indexOf(pattern, startIndex);
 				peptideHit.setStart(startIndex);

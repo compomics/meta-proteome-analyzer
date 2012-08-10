@@ -61,7 +61,7 @@ public class DbSearchResult {
 		this.searchDate = new Date();
 		//TODO: set date from actual date to search date
 	}
-
+	
 	/**
 	 * Adding a protein to the protein hit set.
 	 * @param proteinHit The ProteinHit
@@ -77,14 +77,15 @@ public class DbSearchResult {
 
 			// Get the first - and only - peptide hit.
 			PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
-
+			
 			// Get the current peptide hits.
 			Map<String, PeptideHit> currentPeptideHits = currentProteinHit.getPeptideHits();
-
+			
 			// Check if peptide hit is not already in the protein hit
 			if (!currentPeptideHits.containsKey(peptideHit.getSequence())) {
 				// Add the peptide hit to the protein hit.
 				currentProteinHit.addPeptideHit(peptideHit);
+				// Link parent protein hit to peptide hit
 				peptideHit.addProteinHit(currentProteinHit);
 			} else { // If peptide hit is already in the database check the actual PSM.
 				// Returns the single PSM.
@@ -102,22 +103,30 @@ public class DbSearchResult {
 			}
 			proteinHits.put(accession, currentProteinHit);
 		} else {
+			// Get the single peptide sequence from the protein hit to be added 
 			String currentSequence = proteinHit.getSinglePeptideHit().getSequence();
 			PeptideHit currentPeptideHit = null;
+			// Iterate already stored peptide hits and look for possible matches
 			for (ProteinHit currentProteinHit : proteinHits.values()) {
 				currentPeptideHit = currentProteinHit.getPeptideHits().get(currentSequence);
 				if (currentPeptideHit != null) {
+					// A match has been found, abort loop
 					break;
 				}
 			}
+			// Check again whether match has been found
 			if (currentPeptideHit != null) {
+				// Link new PSM to found peptide
 				currentPeptideHit.addSpectrumMatch(proteinHit.getSinglePeptideHit().getSingleSpectrumMatch());
+				// Link found peptide to new Protein by replacing hit map
 				Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
 				proteinHit.setPeptideHits(newPeptideHits);
 				proteinHit.addPeptideHit(currentPeptideHit);
 			} else {
+				// No match found, both protein and peptide hits are new 
 				currentPeptideHit = proteinHit.getSinglePeptideHit();
 			}
+			// Link parent protein hit to peptide hit
 			currentPeptideHit.addProteinHit(proteinHit);
 			proteinHits.put(accession, proteinHit);
 		}

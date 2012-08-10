@@ -392,6 +392,7 @@ public class MascotGenericFileReader {
         // Cycle the file.
         while ((line = raf.readLine()) != null) {
             lineCounter++;
+            oldPos = newPos;
             newPos = raf.getFilePointer();
             line = line.trim();
             
@@ -405,7 +406,6 @@ public class MascotGenericFileReader {
                 fireProgressMade(oldPos, newPos);
                 this.spectrumPositions.add(oldPos);
             }
-            oldPos = newPos;
         }
         
         // Fire final progress event
