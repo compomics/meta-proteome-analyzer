@@ -8,7 +8,6 @@ import java.util.List;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Omssahit;
-import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.XTandemhit;
 

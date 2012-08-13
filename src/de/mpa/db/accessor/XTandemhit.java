@@ -90,4 +90,19 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	public SearchEngineType getType() {
 		return SearchEngineType.XTANDEM;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SearchHit) {
+			SearchHit hit = ((SearchHit) obj);
+			if (hit.getType() == this.getType()) {
+				if (hit.getFk_searchspectrumid() == this.getFk_searchspectrumid()) {
+					if (hit.getFk_peptideid() == this.getFk_peptideid()) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 }

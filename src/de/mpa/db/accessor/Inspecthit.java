@@ -11,7 +11,7 @@ import java.util.List;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 
-public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
+public class Inspecthit extends InspecthitTableAccessor implements SearchHit {
 	
 	private String sequence;
 	private String accession;
@@ -90,5 +90,20 @@ public class Inspecthit extends InspecthitTableAccessor implements SearchHit{
 	@Override
 	public SearchEngineType getType() {
 		return SearchEngineType.INSPECT;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SearchHit) {
+			SearchHit hit = ((SearchHit) obj);
+			if (hit.getType() == this.getType()) {
+				if (hit.getFk_searchspectrumid() == this.getFk_searchspectrumid()) {
+					if (hit.getFk_peptideid() == this.getFk_peptideid()) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }
