@@ -55,11 +55,13 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	}
 	
 	/**
-	 * Adds a search engine hit to the PSM.
+	 * Adds a search engine hit to the PSM. Checks for redundancy.
 	 * @param hit Another search engine hit to be added.
 	 */
 	public void addSearchEngineHit(SearchHit hit) {
-		this.searchHits.add(hit);
+		if (!searchHits.contains(hit)) {
+			this.searchHits.add(hit);
+		}
 	}
 
 	/**
