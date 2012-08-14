@@ -27,6 +27,8 @@ import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ServerConnectionSettings;
+import de.mpa.client.ui.dialogs.PathwayDialog;
+import de.mpa.client.ui.dialogs.PathwayType;
 import de.mpa.db.DbConnectionSettings;
 import de.mpa.io.ResultExporter;
 
@@ -45,12 +47,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JLabel dbConnTestLbl;
 	private JPanel dbPnl;
 	private String lastSelectedFolder = System.getProperty("user.home");
-	private JMenuItem exportPeptideItem;
-	private JMenuItem exportPSMItem;
 	private JMenuItem exportProteinsItem;
-	private JMenuItem exportSelProteinsItem;
-	private JMenuItem exportSelPeptideItem;
-	private JMenuItem exportSelPSMItem;
+	private JMenuItem keggItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -158,6 +156,25 @@ public class ClientFrameMenuBar extends JMenuBar {
 		
 		// Add export menu to menubar.
 		this.add(exportMenu);
+		
+		// Pathway menu
+		JMenu pathwayMenu = new JMenu();		
+		pathwayMenu.setText("Pathways");
+
+		// Kegg item
+		keggItem = new JMenuItem();
+		keggItem.setText("Kegg");
+		keggItem.setEnabled(false);
+		keggItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/kegg.gif")));
+		keggItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PathwayDialog pathwayDialogPdg = new PathwayDialog(PathwayType.KEGG,clientFrame);
+			}
+		});
+		pathwayMenu.add(keggItem);
+		// Add pathway to menubar
+		this.add(pathwayMenu);
+		
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
@@ -455,12 +472,15 @@ public class ClientFrameMenuBar extends JMenuBar {
      * Enables the export functionalities.
      * @param enabled The state of the export menu items.
      */
-    public void setExportResultsEnabled(boolean enabled){
+	public void setExportResultsEnabled(boolean enabled) {
     	exportProteinsItem.setEnabled(enabled);
-    	exportPeptideItem.setEnabled(enabled);
-    	exportPSMItem.setEnabled(enabled);
-    	exportSelProteinsItem.setEnabled(enabled);
-    	exportSelPeptideItem.setEnabled(enabled);
-    	exportSelPSMItem.setEnabled(enabled);
+    }
+    
+    /**
+     * Enables the pathway functionalities
+     * @param enabled The state of the pathway menu items.
+     */
+	public void setPathwayFunctionalityEnabled(boolean enabled) {
+    	keggItem.setEnabled(enabled);
     }
 }
