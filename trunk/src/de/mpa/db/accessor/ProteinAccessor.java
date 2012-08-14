@@ -137,5 +137,10 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		
 		return protein;
     }
+    
+    @Override
+    public String toString() {
+    	return ("" + iProteinid + " " + iAccession + " " + iDescription);
+    }
 
 }

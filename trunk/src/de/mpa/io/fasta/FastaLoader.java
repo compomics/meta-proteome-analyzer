@@ -9,27 +9,37 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
 /**
- * This class a fasta file via random access.
+ * Singleton class providing FASTA read/write capabilities via random access
+ * file.
+ * 
  * @author Thilo Muth
- *
  */
 public class FastaLoader {
 	
 	/**
-	 * The accession-To-Position map.
+	 * The accession-to-position map.
 	 */
-	private HashMap<String, Long> acc2pos;
+	private Map<String, Long> acc2pos;
+	
+	/**
+	 * Collection containing identifier-to-accession mappings.
+	 */
+	private Map<String, String> id2acc;
 	
 	/**
 	 * The random access file instance.
 	 */
 	private RandomAccessFile raf;
 
+	/**
+	 * The FASTA file instance.
+	 */
 	private File file;
 	
 	/**
@@ -38,7 +48,7 @@ public class FastaLoader {
 	private File indexFile;
 	
 	/**
-	 * Singleton object of the FastaLoader.
+	 * Singleton object instance of the FastaLoader class.
 	 */
 	private static FastaLoader instance;
 
@@ -51,7 +61,7 @@ public class FastaLoader {
 	/**
 	 * Returns the singleton object of the FastaLoader.
 	 * 
-	 * @return instance FastaLoader object.
+	 * @return FastaLoader object instance.
 	 */
 	public static FastaLoader getInstance() {
 		// Lazy instantation
@@ -62,19 +72,41 @@ public class FastaLoader {
 	}
 
 	/**
-	 * Returns a specific protein from the fasta file.
+	 * Returns a specific protein from the FASTA file.
 	 * 
-	 * @param accession The protein accession as key.
+	 * @param id The protein identifier. May be the UniProt identifier or accession number.
 	 * @return The Protein object.
 	 * @throws IOException 
 	 */
-	public Protein getProteinFromFasta(String accession) throws IOException {
-		Long pos = acc2pos.get(accession);
-		
-		if(raf == null){
+	public Protein getProteinFromFasta(String id) throws IOException {
+		if (acc2pos == null) {
+			if ((indexFile == null) || (file == null)) {
+				return null;
+			} else {
+				try {
+					readIndexFile();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}
+		Long pos = acc2pos.get(id);
+		if (pos == null) {
+			// perhaps the provided string is a UniProt identifier
+			String accession = id2acc.get(id);
+			if (accession == null) {
+				throw new IOException("Provided string does not match any protein entry: " +
+						id);
+			} else {
+				pos = acc2pos.get(accession);
+			}
+		}
+
+		if (raf == null) {
 			raf = new RandomAccessFile(file, "r");
 		}
-		
+
 		raf.seek(pos);
 		String line = "";
 		String temp = "";
@@ -96,7 +128,7 @@ public class FastaLoader {
 	}
 	
 	/**
-	 * Write the FASTA index file.
+	 * Writes the FASTA index file to the disk.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
@@ -104,12 +136,13 @@ public class FastaLoader {
 		indexFile = new File(file.getAbsolutePath() + ".fb");
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
 		oos.writeObject(acc2pos);
+		oos.writeObject(id2acc);
 		oos.flush();
 		oos.close();
 	}
 	
 	/**
-	 * Read the FASTA index file.
+	 * Read the FASTA index file and stores its contents to memory.
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
@@ -117,43 +150,44 @@ public class FastaLoader {
 	public void readIndexFile() throws IOException, ClassNotFoundException {
 		FileInputStream fis = new FileInputStream(indexFile);
 		ObjectInputStream ois = new ObjectInputStream(fis);
-		acc2pos = (HashMap<String, Long>) ois.readObject();
+		acc2pos = (Map<String, Long>) ois.readObject();
+		id2acc = (Map<String, String>) ois.readObject();
 		fis.close();
 		ois.close();
 	}
-	
+
 	/**
-	 * This method loads the fast file by random access and fills the acc2Pos
-	 * map for mapping accession to byte positions in the fasta file.
+	 * Loads the FASTA file by random access and maps accessions of found 
+	 * protein blocks to their respective byte positions in the file.
 	 * 
-	 * @param file The fasta file.
-	 * @throws FileNotFoundException when the file could not be found.
+	 * @param file The FASTA file.
+	 * @throws FileNotFoundException
+	 *             when the file could not be found.
 	 */
 	public void loadFastaFile() throws FileNotFoundException {
 		try {
-			// Initialize the random access file.
+			// Initialize the random access file instance
 			raf = new RandomAccessFile(file, "r");
 			
-			// Initialize the acc2Pos map for indexing.
+			// Initialize index maps
 			acc2pos = new HashMap<String, Long>();
+			id2acc = new HashMap<String, String>();
 			
-			// Get the first position at the beginning of the file.
+			// Get the first position at the beginning of the file
 			Long pos = raf.getFilePointer();
 			
-			// Line in the file
+			// Iterate FASTA file line by line
 			String line;
-			int count = 1;
-			
-			// Iterate the fasta file line by line.
 			while ((line = raf.readLine()) != null) {
-				
-				// Header
+				// Check for header
 				if (line.startsWith(">")) {
-					// Parse the header
+					// Parse header
 					Header header = Header.parseFromFASTA(line);
-					// Fill the map.
+					// Add map entry
 					acc2pos.put(header.getAccession(), pos);
-					count++;
+					String identifier = header.getDescription();
+					identifier = identifier.substring(0, identifier.indexOf(" "));
+					id2acc.put(identifier, header.getAccession());
 				} else {
 					// End of the sequence part == Start of a new header
 					pos = raf.getFilePointer();
@@ -167,10 +201,10 @@ public class FastaLoader {
 	}
 
 	/**
-	 * Gets the index map.
+	 * Returns the accession-to-position index map.
 	 * @return indexMap The index map. 
 	 */
-	public HashMap<String, Long> getIndexMap() {
+	public Map<String, Long> getIndexMap() {
 		return acc2pos;
 	}
 
@@ -180,11 +214,13 @@ public class FastaLoader {
 	 */
 	public void setFastaFile(File file) {
 		this.file = file;
+		// reset map on change of FASTA file
+		this.acc2pos = null;
 	}
 	
 	
 	/**
-	 * Returns the current index file.
+	 * Returns the current index file instance.
 	 * @return indexFile
 	 */
 	public File getIndexFile() {
@@ -192,36 +228,38 @@ public class FastaLoader {
 	}
 	
 	/**
-	 * Sets the current index file.
+	 * Sets the current index file instance.
 	 * @param indexFile The current index file.
 	 */
 	public void setIndexFile(File indexFile) {
 		this.indexFile = indexFile;
-	}
-	
-	public void close(){
-		try {
-			raf.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// reset map on change of index file
+		this.acc2pos = null;
 	}
 
+	/**
+	 * Utility method to load a specified FASTA file by hand.
+	 * 
+	 * @param args String argument containing the path pointing to a FASTA file.
+	 */
 	public static void main(String[] args) {
-		File file = new File(args[0]);
-		FastaLoader fastaLoader = FastaLoader.getInstance();
-		fastaLoader.setFastaFile(file);
-		
-		try {
-			fastaLoader.loadFastaFile();
-			fastaLoader.writeIndexFile();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (args.length < 1) {
+			System.err.println("No file provided.");
+		} else {
+			File file = new File(args[0]);
+			FastaLoader fastaLoader = FastaLoader.getInstance();
+			fastaLoader.setFastaFile(file);
+			try {
+				System.out.print("Loading file... ");
+				fastaLoader.loadFastaFile();
+				System.out.print(" done.\nWriting output... ");
+				fastaLoader.writeIndexFile();
+				System.out.println("done.");
+			} catch (Exception e) {
+				System.err.println("aborted.");
+				e.printStackTrace();
+			}
 		}
 	}
-	
-	
 	
 }

@@ -1,6 +1,3 @@
-package de.mpa.algorithms.quantification;
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
