@@ -1,12 +1,12 @@
 package de.mpa.parser.mascot.xml;
 
-
 import java.io.File;
 
 import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
+
 public class MascotXMLParserTest extends TestCase {
 	
 	private MascotXMLParser parser;
@@ -19,7 +19,6 @@ public class MascotXMLParserTest extends TestCase {
 	
 	@Test
 	public void testParse() {
-		
 		// MascotRecord
 		MascotRecord record = parser.parse();
 		

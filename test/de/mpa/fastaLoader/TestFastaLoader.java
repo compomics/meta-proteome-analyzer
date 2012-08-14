@@ -3,7 +3,7 @@ package de.mpa.fastaLoader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -34,10 +34,10 @@ public class TestFastaLoader extends TestCase {
 	@Test 
 	public void testLoadFastaFile(){
 		try {
-			HashMap<String, Long> indexMap1 = fastaLoader.getIndexMap();
+			Map<String, Long> indexMap1 = fastaLoader.getIndexMap();
 			fastaLoader.writeIndexFile();
 			fastaLoader.readIndexFile();
-			HashMap<String, Long> indexMap2 = fastaLoader.getIndexMap();
+			Map<String, Long> indexMap2 = fastaLoader.getIndexMap();
 			assertEquals(indexMap1, indexMap2);
 		} catch (Exception e) {
 			e.printStackTrace();

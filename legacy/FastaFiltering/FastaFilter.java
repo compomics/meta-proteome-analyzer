@@ -1,73 +1,71 @@
-package de.mpa.algorithms.quantification;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FastaFilter {
 	
-	public static void main(String[] args) {
-//		FastaDB fastaDB = FastaLoader.read(new File("C:/Documents and Settings/kohrs/My Documents/Downloads/uniprot_sprot.fasta"));
-//		//fastaDB.getEntry(accession)
-//		Entry entry = fastaDB.getEntry(1);
-//		System.out.println(entry.getSequence());
-//		System.out.println(entry.getLength());
-		File fastaFile = new File("C:/Documents and Settings/kohrs/My Documents/Downloads/uniprot_sprot.fasta");
-//		filter(fastaFile, "Escherichia");
-		ArrayList<String> filterStrings = new ArrayList<String>();
-		filterStrings.add("_ECO");
-		filterStrings.add("Escherichia coli");
-
-		// Methode zum Filtern einer unter dem Pfad hinterlegten FASTA-Datei nach den angegebenen FilterStrings
-		// Ausgabe ist eine gefilterte FASTA-Datei
-		
-		filter(fastaFile, filterStrings);
-	}
+	/**
+	 * The FASTA file to be filtered.
+	 */
+	private File fastaFile;
 	
-	public static void filter(File fastaFile, ArrayList<String> filterStrings) {
-		
-		try {
-			File fastaOutput = new File(fastaFile.getPath().replace(".", "_filtered."));
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fastaOutput)));
+	/**
+	 * The list of filter string patterns.
+	 */
+	private List<String> filterStrings;
 
-			BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
-			String line;
-			boolean ofInterest = false;
-//			int numEntries = 0;
-			while ((line = reader.readLine()) != null) {
-				if (line.startsWith(">")) {		// new header found
-					ofInterest = false;
-					for (String filterString : filterStrings) {
-						ofInterest |= line.contains(filterString);
-						if (ofInterest) {
-//							numEntries++;
-//							if (numEntries == 22889) {
-//								System.out.println("stopp");
-//							} 
-							break;
-						}
-					}
-//					ofInterest = line.contains(filterString);
-				}
-				if (ofInterest) {
-					bw.write(line);
-					bw.flush();
-					bw.write("\n");
-				}
-			}
-//			System.out.println(numEntries);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	/**
+	 * Constructs a FASTA filter object instance.
+	 * 
+	 * @param fastaFile the FASTA file instance
+	 * @param filterStrings the list of filter string patterns
+	 */
+	public FastaFilter(File fastaFile, List<String> filterStrings) {
+		this.fastaFile = fastaFile;
+		this.filterStrings = filterStrings;
+	}
+
+	/**
+	 * Parses a specified FASTA file and writes protein entries whose headers
+	 * match the specified filter strings to a separate output file.
+	 * 
+	 * @param fastaFile The file to be filtered
+	 * @param filterStrings The filter string patterns
+	 */
+	public void filter() throws IOException {
 		
+		File fastaOutput = new File(fastaFile.getPath().replace(".", "_filtered."));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fastaOutput)));
+
+		BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
+		String line;
+		boolean ofInterest = false;
+		while ((line = reader.readLine()) != null) {
+			if (line.startsWith(">")) {		// new header found
+				ofInterest = false;
+				for (String filterString : filterStrings) {
+					ofInterest |= line.contains(filterString);
+					if (ofInterest) {
+						break;
+					}
+				}
+				//					ofInterest = line.contains(filterString);
+			}
+			if (ofInterest) {
+				bw.write(line);
+				bw.flush();
+				bw.write("\n");
+			}
+		}
+
 	}
 	
 	/**
@@ -75,65 +73,95 @@ public class FastaFilter {
 	 * 
 	 * @return FastaDB db
 	 */
-	public static FastaDB read(File fastaFile) {
+	public FastaDB read(File fastaFile) throws IOException {
 		FastaDB database = null;
-		try {
-			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
-			String nextLine;
-			nextLine = reader.readLine();
-			boolean firstline = true;
-			final ArrayList<String> proteinIDs = new ArrayList<String>();
-			final ArrayList<String> proteinSeqs = new ArrayList<String>();
-			StringBuffer stringBf = new StringBuffer();
-			while (nextLine != null) {					
-				if (nextLine != null && nextLine.trim().length() > 0){	
-					if (nextLine.charAt(0) == '>') {	
-						nextLine = nextLine.substring(1);
-						if(firstline){
-							proteinIDs.add(nextLine);
-						} else {								
-							proteinSeqs.add(stringBf.toString());
-							stringBf = new StringBuffer(); 
-							proteinIDs.add(nextLine);
-						}							
-					} else {
-						stringBf.append(nextLine);		
-					}	
-				}
-				nextLine = reader.readLine();
-				firstline = false;	
-			}
-			proteinSeqs.add(stringBf.toString());
-			
-			// Map of entries
-			Map<Integer, Entry> entryMap = new HashMap<Integer, Entry>();
-			Map<String, Integer> entryIdMap = new HashMap<String, Integer>();
-			
-			// Iterate over the proteinIDs
-			// TODO: Use utitlities
-			//Header header = Header.parseFromFASTA("");
-			//String accession = header.getAccession(); 
-			
-			for(int i = 0; i < proteinIDs.size(); i++){
-				entryMap.put(i+1, new Entry((i+1), getFormattedName(proteinIDs.get(i)), proteinSeqs.get(i)));
-				//TODO: entryMap.put(i+1, new Entry((i+1), accession, proteinSeqs.get(i)));
-				entryIdMap.put(getFormattedName(proteinIDs.get(i)), i+1);
-			}
-			
-			// Instantiate the FastaDB object.
-			database = new FastaDB(fastaFile.getName(), entryMap, entryIdMap);			
-			reader.close();
 
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		ArrayList<String> proteinIDs = new ArrayList<String>();
+		ArrayList<String> proteinSeqs = new ArrayList<String>();
+		
+		StringBuffer stringBf = new StringBuffer();
+		boolean firstline = true;
+		
+		BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
+		String nextLine;
+		while ((nextLine = reader.readLine()) != null) {
+			// skip empty lines
+			if (nextLine.trim().length() > 0) {
+				// check for header lines
+				if (nextLine.startsWith(">")) {
+					// trim '>' character
+					nextLine = nextLine.substring(1);
+					if (!firstline) {
+						// add sequence
+						proteinSeqs.add(stringBf.toString());
+						// re-initialize buffer
+						stringBf = new StringBuffer();
+					}
+					// add header
+					proteinIDs.add(nextLine);
+				} else {
+					// append partial sequence
+					stringBf.append(nextLine);
+				}
+				firstline = false;
+			}
 		}
+		proteinSeqs.add(stringBf.toString());
+
+		// Map of FASTA entries
+		Map<Integer, Entry> entryMap = new HashMap<Integer, Entry>();
+		Map<String, Integer> entryIdMap = new HashMap<String, Integer>();
+
+		for(int i = 0; i < proteinIDs.size(); i++){
+			entryMap.put(i+1, new Entry((i+1), getFormattedName(proteinIDs.get(i)), proteinSeqs.get(i)));
+			entryIdMap.put(getFormattedName(proteinIDs.get(i)), i+1);
+		}
+
+		// Instantiate the FastaDB object.
+		database = new FastaDB(fastaFile.getName(), entryMap, entryIdMap);			
+		reader.close();
+
 		return database;
 	}
 	
-	public static String getFormattedName(String accession) {
+	public String getFormattedName(String accession) {
 		String[] split = accession.split(" ");
 		return split[0];
+	}
+
+	/**
+	 * Utility method to read entries from a specified FASTA file and write them
+	 * out to a different file if the specified String parameters are contained
+	 * in the protein headers.
+	 * 
+	 * @param args
+	 *            The list of String arguments. First argument must be a path
+	 *            pointing to the FASTA file to be filtered. The following
+	 *            arguments specify String identifiers for pattern matching in
+	 *            protein headers.
+	 */
+	public static void main(String[] args) {
+		if (args.length < 2) {
+			System.err.println("Must specify a file path and at least one filter String pattern.");
+			return;
+		}
+		
+		File fastaFile = new File(args[0]);
+		
+		List<String> filterStrings = new ArrayList<String>();
+		for (int i = 1; i < args.length; i++) {
+			filterStrings.add(args[i]);
+		}
+		
+		FastaFilter ff = new FastaFilter(fastaFile, filterStrings);
+
+		try {
+			System.out.print("Filtering... ");
+			ff.filter();
+			System.out.println("done.");
+		} catch (IOException e) {
+			System.err.println("aborted.");
+			e.printStackTrace();
+		}
 	}
 }

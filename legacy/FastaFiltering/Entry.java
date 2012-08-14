@@ -1,11 +1,7 @@
-package de.mpa.algorithms.quantification;
-
-
 /**
- * This class represents an FASTA entry.
+ * This class represents a FASTA entry.
  * 
  * @author Thilo Muth
- *
  */
 public class Entry {
 	
