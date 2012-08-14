@@ -490,7 +490,10 @@ public class DbSearchResultPanel extends JPanel {
 			
 			// Enable export functionality
 			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+			// Enable pathway functionality
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setPathwayFunctionalityEnabled(true);
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		
 		}
 	}
 
