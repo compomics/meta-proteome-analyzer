@@ -6,7 +6,6 @@ import java.util.List;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
-import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import de.mpa.algorithms.AggregateFunction;
 import de.mpa.client.model.dbsearch.ProteinHit;

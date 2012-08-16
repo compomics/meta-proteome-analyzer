@@ -51,19 +51,11 @@ public class SpecSimJob extends Job {
 			
 			// iterate query spectra to determine similarity scores
 			for (MascotGenericFile mgfQuery : mgfList) {
-				//if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle))
-				
 				String title = mgfQuery.getTitle().trim();
 				long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(title);
 				
-				// Vectorization method
-				Vectorization vect = getVectorizationMethod(settings.getVectIndex(), settings.getBinWidth(), settings.getBinShift(), settings.getProfileIndex(), settings.getBaseWidth());
-				
-				// Transformation method
-				Transformation trafo = getTransformationMethod(settings.getTrafoIndex());
-				
 				// Spectrum comparator method
-				SpectrumComparator specComp = getComparatorMethod(settings.getCompIndex(), vect, trafo, settings.getXCorrOffset());
+				SpectrumComparator specComp = getComparatorMethod(settings);
 				
 				// Comparison preparation
 				specComp.prepare(mgfQuery.getHighestPeaks(settings.getPickCount()));
@@ -83,7 +75,8 @@ public class SpecSimJob extends Job {
 						}
 					}
 				}
-				specComp.cleanup();
+				specComp.getVectorization().cleanup();
+				
 				// TODO: re-implement progress event handling
 //				pSupport.firePropertyChange("progressmade", 0, 1);
 			}
@@ -123,6 +116,54 @@ public class SpecSimJob extends Job {
 		}
 		return intervals;
 	}
+
+	/**
+	 * Returns the vectorization method
+	 * 
+	 * @param index The vectorization method index.
+	 * @param binWidth
+	 * @param binShift
+	 * @param profileIndex
+	 * @param baseWidth
+	 * @return
+	 */
+	private Vectorization getVectorizationMethod(SpecSimSettings settings) {
+		Vectorization vect = null;
+		switch (settings.getVectIndex()) {
+		case 0:
+			vect = Vectorization.createPeakMatching(settings.getBinWidth());
+			break;
+		case 1:
+			vect = Vectorization.createDirectBinning(settings.getBinWidth(), settings.getBinShift());
+			break;
+		case 2:
+			vect = Vectorization.createProfiling(settings.getBinWidth(), settings.getBinShift(), 
+					settings.getProfileIndex(), settings.getBaseWidth());
+			break;
+		}
+		return vect;
+	}
+	
+	/**
+	 * Returns the transformation method.
+	 * @param index The specified index.
+	 * @return The transformation method.
+	 */
+	private Transformation getTransformationMethod(SpecSimSettings settings) {
+		Transformation trafo = null;
+		switch (settings.getTrafoIndex()) {
+		case 0:
+			trafo = Transformation.NONE;
+			break;
+		case 1:
+			trafo = Transformation.SQRT;
+			break;
+		case 2:
+			trafo = Transformation.LOG;
+			break;
+		}
+		return trafo;
+	}
 	
 	/**
 	 * Returns the spectrum comparator method.
@@ -132,9 +173,11 @@ public class SpecSimJob extends Job {
 	 * @param xCorrOffset The cross-correlation offset.
 	 * @return The spectrum comparator method.
 	 */
-	private SpectrumComparator getComparatorMethod(int index, Vectorization vect, Transformation trafo, int xCorrOffset){
+	private SpectrumComparator getComparatorMethod(SpecSimSettings settings) { //int index, Vectorization vect, Transformation trafo, int xCorrOffset) {
 		SpectrumComparator specComp = null;
-		switch (index) {
+		Vectorization vect = getVectorizationMethod(settings);
+		Transformation trafo = getTransformationMethod(settings);
+		switch (settings.getCompIndex()) {
 		case 0:
 			specComp = new EuclideanDistance(vect, trafo);
 			break;
@@ -145,70 +188,13 @@ public class SpecSimJob extends Job {
 			specComp = new PearsonCorrelation(vect, trafo);
 			break;
 		case 3:
-			specComp = new CrossCorrelation(vect, trafo, xCorrOffset);
+			specComp = new CrossCorrelation(vect, trafo, settings.getBinWidth(), settings.getXCorrOffset());
 			break;
 		}
 		
 		return specComp;
 	}
 	
-	/**
-	 * Returns the transformation method.
-	 * @param index The specified index.
-	 * @return The transformation method.
-	 */
-	private Transformation getTransformationMethod(int index){
-		Transformation trafo = null;
-		switch (index) {
-		case 0:
-			trafo = new Transformation() {
-				public double transform(double input) {
-					return input;
-				}
-			};
-			break;
-		case 1:
-			trafo = new Transformation() {
-				public double transform(double input) {
-					return Math.sqrt(input);
-				}
-			};
-			break;
-		case 2:
-			trafo = new Transformation() {
-				public double transform(double input) {
-					return (input > 0.0) ? Math.log(input) : 0.0;
-				}
-			};
-			break;
-		}
-		return trafo;
-	}
-	
-	/**
-	 * Returns the vectorization method
-	 * @param index The vectorization method index.
-	 * @param binWidth
-	 * @param binShift
-	 * @param profileIndex
-	 * @param baseWidth
-	 * @return
-	 */
-	public Vectorization getVectorizationMethod(int index, double binWidth, double binShift, int profileIndex, double baseWidth){
-		Vectorization vect = null;
-		switch (index) {
-		case 0:
-			vect = new Vectorization(Vectorization.PEAK_MATCHING, binWidth);
-			break;
-		case 1:
-			vect = new Vectorization(Vectorization.DIRECT_BINNING, binWidth, binShift);
-			break;
-		case 2:
-			vect = new Vectorization(Vectorization.PROFILING, binWidth, binShift, profileIndex, baseWidth);
-			break;
-		}
-		return vect;
-	}
 	/**
 	 * Returns the list containing found spectrum-to-spectrum matches.
 	 * @return the SSM list

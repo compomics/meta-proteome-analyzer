@@ -76,11 +76,6 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	}
 
 	@Override
-	public void cleanup() {
-		this.vect.setInput(null);
-	}
-
-	@Override
 	public double getSimilarity() {
 		return similarity;
 	}
@@ -88,6 +83,11 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	@Override
 	public Map<Double, Double> getSourcePeaks() {
 		return peaksSrc;
+	}
+
+	@Override
+	public Vectorization getVectorization() {
+		return vect;
 	}
 
 }
