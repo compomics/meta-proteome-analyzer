@@ -56,12 +56,8 @@ public class NormalizedDotProductTest extends TestCase {
 	public void testNormalizedDotProduct() {
 		// Set up comparator algorithm
 		NormalizedDotProduct comparator = new NormalizedDotProduct(
-				new Vectorization(Vectorization.DIRECT_BINNING, 1.0),
-				new Transformation() {
-					public double transform(double input) {
-						return input;
-					}
-				});
+				Vectorization.createDirectBinning(1.0, 0.0),
+				Transformation.NONE);
 		// Calculate similarity
 		comparator.prepare(srcPeaks);
 		comparator.compareTo(trgPeaks);

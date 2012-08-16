@@ -29,6 +29,11 @@ public class CrossCorrelation implements SpectrumComparator {
 	private Map<Double,Double> peaksSrc;
 	
 	/**
+	 * The bin width.
+	 */
+	private double binWidth;
+	
+	/**
 	 * The auto-correlation score of the source spectrum. Used for normalization purposes.
 	 */
 	private double autoCorr;
@@ -41,9 +46,10 @@ public class CrossCorrelation implements SpectrumComparator {
 	 */
 	private double similarity;
 	
-	public CrossCorrelation(Vectorization vect, Transformation trafo, int offsets) {
+	public CrossCorrelation(Vectorization vect, Transformation trafo, double binWidth, int offsets) {
 		this.vect = vect;
 		this.trafo = trafo;
+		this.binWidth = binWidth;
 		this.offsets = offsets;
 	}
 
@@ -72,7 +78,7 @@ public class CrossCorrelation implements SpectrumComparator {
 				if (tau == 0) {
 					peaksSrc.put(peakSrc.getKey(), intenSrc);
 				} else {
-					double offsetMz = peakSrc.getKey() + tau*vect.getBinWidth();
+					double offsetMz = peakSrc.getKey() + tau*binWidth;
 					Double existingInten = peaksSrc.get(offsetMz);
 					if (existingInten == null) existingInten = 0.0;
 					peaksSrc.put(offsetMz, existingInten - intenSrc/(2*offsets));
@@ -112,11 +118,6 @@ public class CrossCorrelation implements SpectrumComparator {
 	}
 
 	@Override
-	public void cleanup() {
-		this.vect.setInput(null);
-	}
-
-	@Override
 	public double getSimilarity() {
 		return similarity;
 	}
@@ -124,6 +125,11 @@ public class CrossCorrelation implements SpectrumComparator {
 	@Override
 	public Map<Double, Double> getSourcePeaks() {
 		return peaksSrc;
+	}
+
+	@Override
+	public Vectorization getVectorization() {
+		return vect;
 	}
 
 }

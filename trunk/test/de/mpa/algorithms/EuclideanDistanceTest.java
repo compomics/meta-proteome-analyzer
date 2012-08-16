@@ -31,12 +31,8 @@ public class EuclideanDistanceTest extends TestCase {
 	
 	@Test
 	public void testCrossCorrelation() {
-		Vectorization vect = new Vectorization(Vectorization.DIRECT_BINNING, 1.0, 0.0);
-		Transformation trafo = new Transformation() {
-			public double transform(double input) {
-				return Math.sqrt(input);
-			}
-		};
+		Vectorization vect = Vectorization.createDirectBinning(1.0, 0.0);
+		Transformation trafo = Transformation.SQRT;
 		
 		EuclideanDistance euclidDist = new EuclideanDistance(vect, trafo);
 		euclidDist.prepare(spectrumA.getPeaks());

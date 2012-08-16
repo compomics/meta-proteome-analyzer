@@ -103,11 +103,6 @@ public class PearsonCorrelation implements SpectrumComparator {
 		this.similarity = numer / Math.sqrt(denom1 * denom2);
 		this.similarity = (similarity > 0.0) ? similarity : 0.0;	// cut off negative scores
 	}
-	
-	@Override
-	public void cleanup() {
-		this.vect.setInput(null);
-	}
 
 	@Override
 	public double getSimilarity() {
@@ -117,6 +112,11 @@ public class PearsonCorrelation implements SpectrumComparator {
 	@Override
 	public Map<Double, Double> getSourcePeaks() {
 		return peaksSrc;
+	}
+
+	@Override
+	public Vectorization getVectorization() {
+		return vect;
 	}
 
 }

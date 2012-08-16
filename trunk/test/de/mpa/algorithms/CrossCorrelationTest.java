@@ -24,7 +24,6 @@ public class CrossCorrelationTest extends TestCase {
 			List<MascotGenericFile> spectrumFiles = mgfReader.getSpectrumFiles();
 			spectrumA = spectrumFiles.get(1);
 			spectrumB = spectrumFiles.get(10);
-			System.out.println();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -32,9 +31,10 @@ public class CrossCorrelationTest extends TestCase {
 	
 	@Test
 	public void testCrossCorrelation() {
-		Vectorization vect = new Vectorization(Vectorization.DIRECT_BINNING, 1.0);
-		Transformation trafo = new Transformation() { public double transform(double input) { return Math.sqrt(input); } };
-		CrossCorrelation method = new CrossCorrelation(vect, trafo, 75);
+		double binWidth = 1.0;
+		Vectorization vect = Vectorization.createDirectBinning(binWidth, 0.0);
+		Transformation trafo = Transformation.SQRT;
+		CrossCorrelation method = new CrossCorrelation(vect, trafo, binWidth, 75);
 		method.prepare(spectrumA.getPeaks());
 		method.compareTo(spectrumB.getPeaks());
 		assertEquals(0.018876804386547614, method.getSimilarity(), 1e-6);
