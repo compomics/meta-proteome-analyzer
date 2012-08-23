@@ -1,7 +1,9 @@
 package de.mpa.main;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.mpa.analysis.KeggMaps;
 import de.mpa.client.ui.Constants;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.parser.ec.ECReader;
@@ -15,6 +17,10 @@ public class Parameters {
 	public static Parameters instance;
 	
 	private Map<String, ECEntry> ecMap;
+
+	private LinkedHashMap<String, String> keggTaxonomyMap;
+
+	private LinkedHashMap<String, String> keggPathwayMap;
 	
 	private Parameters() {
 		// TODO: Loading parameter dialog.
@@ -32,16 +38,22 @@ public class Parameters {
 	 * This method initialize the parameters
 	 */
 	private void initializeParameters(){
-		// Initialize the EC-number Map
+		// Initialize the EC-number map
 		String paramsPath = "/" + getPath() + "/ECreduced.xml";
-		ecMap = ECReader.readEC(paramsPath);		
+		ecMap = ECReader.readEC(paramsPath);
+		// Initialize the Kegg pathway map
+		String keggPathwayPath = "/" + getPath() + "/keggPathways.txt";
+		keggPathwayMap = KeggMaps.getKeggPathwayList(keggPathwayPath);
+		// Initialize the Kegg taxonomy map
+		String keggTaxonomyPath = "/" + getPath() + "/keggTaxonomyMap.txt";
+		keggTaxonomyMap = KeggMaps.getKeggTaxonomie(keggTaxonomyPath);
 	}
 	
 	/**
 	 * This method returns the path of the parameters.
-	 * @return String patn. Returns the part of parameters.
+	 * @return String path. Returns the path of parameters.
 	 */
-	private String getPath() {
+	public String getPath() {
 		String path = this.getClass().getResource("Parameters.class").getPath();
 		if (path.indexOf("/" + Constants.APPTITLE) != -1) {
             path = path.substring(1, path.lastIndexOf("/" + Constants.APPTITLE) + Constants.APPTITLE.length() + 1);
@@ -60,4 +72,22 @@ public class Parameters {
 	public Map<String, ECEntry> getEcMap() {
 		return ecMap;
 	}
+
+	/**
+	 * This method returns the map of all KeggPathways
+	 * @return keggPathwayMap. The map of all KeggPathways
+	 */
+	public LinkedHashMap<String, String> getKeggPathwayMap() {
+		return keggPathwayMap;
+	}
+
+	/**
+	 * This method returns the map of all KeggTaxons
+	 * @return keggTaxonomyMap
+	 */
+	public LinkedHashMap<String, String> getKeggTaxonomyMap() {
+		return keggTaxonomyMap;
+	}
+	
+	
 }

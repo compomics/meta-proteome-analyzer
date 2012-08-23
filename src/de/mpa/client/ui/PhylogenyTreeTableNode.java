@@ -50,6 +50,10 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 //		};
 	}
 	
+	public boolean isProtein() {
+		return (userObject instanceof ProteinHit);
+	}
+	
 	@Override
 	public int getColumnCount() {
 		// TODO: parametrize column count?

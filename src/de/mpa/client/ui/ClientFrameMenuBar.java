@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -28,7 +29,6 @@ import com.jgoodies.looks.Options;
 import de.mpa.client.Client;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.dialogs.PathwayDialog;
-import de.mpa.client.ui.dialogs.PathwayType;
 import de.mpa.db.DbConnectionSettings;
 import de.mpa.io.ResultExporter;
 
@@ -168,7 +168,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 		keggItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/kegg.gif")));
 		keggItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PathwayDialog pathwayDialogPdg = new PathwayDialog(PathwayType.KEGG,clientFrame);
+//				PathwayDialog pathwayDialogPdg = new PathwayDialog(PathwayType.KEGG,clientFrame);
+				new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						clientFrame.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+						PathwayDialog.showKeggDialog(clientFrame);
+						return null;
+					}
+					protected void done() {
+						clientFrame.setCursor(null);
+					};
+				}.execute();
 			}
 		});
 		pathwayMenu.add(keggItem);
