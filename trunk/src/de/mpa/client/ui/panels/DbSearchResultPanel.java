@@ -467,6 +467,8 @@ public class DbSearchResultPanel extends JPanel {
 					Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 					Client.getInstance().firePropertyChange("indeterminate", true, false);
 					
+					
+					 
 					dbSearchResult = newResult;
 					parent.updateOverview(true);
 				}
@@ -762,7 +764,8 @@ public class DbSearchResultPanel extends JPanel {
 		// Register list selection listener
 		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
-				refreshPeptideViews();
+				int protRow = proteinTbl.getSelectedRow();
+				refreshPeptideViews(protRow);
 //				refreshCoverageViewer();
 			}
 		});
@@ -873,6 +876,23 @@ public class DbSearchResultPanel extends JPanel {
 		final TreePath rootPath = new TreePath(root);
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(rootPath);
+		
+		//
+		treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent tse) {
+				PhylogenyTreeTableNode node = ((PhylogenyTreeTableNode) tse.getPath().getLastPathComponent());
+				if (node.isProtein()) {
+					String accession = ((ProteinHit) node.getUserObject()).getAccession();
+					for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+						if (proteinTbl.getValueAt(row, PROT_ACCESSION).equals(accession)) {
+							proteinTbl.getSelectionModel().setSelectionInterval(row, row);
+							return;
+						}
+					}
+				}
+			}
+		});
 
 		// Add listener to synchronize selection state of nodes throughout multiple trees
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
@@ -1799,12 +1819,11 @@ public class DbSearchResultPanel extends JPanel {
 	/**
 	 * Method to refresh peptide table contents and sequence coverage viewer.
 	 */
-	protected void refreshPeptideViews() {
+	protected void refreshPeptideViews(int protRow) {
 		// Clear existing contents
 		TableConfig.clearTable(peptideTbl);
 		coveragePnl.removeAll();
 
-		int protRow = proteinTbl.getSelectedRow();
 		if (protRow != -1) {
 			// Get protein and peptide information 
 			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
