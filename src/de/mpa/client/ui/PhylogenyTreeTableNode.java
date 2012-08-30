@@ -50,10 +50,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 //		};
 	}
 	
-	public boolean isProtein() {
-		return (userObject instanceof ProteinHit);
-	}
-	
 	@Override
 	public int getColumnCount() {
 		// TODO: parametrize column count?
@@ -62,7 +58,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	
 	@Override
 	public Object getValueAt(int column) {
-		if (userObject instanceof ProteinHit) {
+		if (isProtein()) {
 			ProteinHit ph = (ProteinHit) userObject;
 			switch (column) {
 			case 0:
@@ -104,13 +100,14 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		return super.getValueAt(column);
 	}
 	
-	@Override
-	public String toString() {
-		if (userObject instanceof ProteinHit) {
-			return ((ProteinHit) userObject).getAccession();
-		}
-		return super.toString();
-	};
+	/**
+	 * Returns whether this node stores protein hit data.
+	 * @return <code>true</code> if this node contains protein hit data, 
+	 * <code>false</code> otherwise
+	 */
+	public boolean isProtein() {
+		return (userObject instanceof ProteinHit);
+	}
 	
 	/**
 	 * Returns a child identified by its string representation.<br>
@@ -118,7 +115,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	 * @param name The string identifier.
 	 * @return The child identified by the provided string.
 	 */
-	public MutableTreeTableNode getChild(String name) {
+	public MutableTreeTableNode getChildByName(String name) {
 		for (MutableTreeTableNode child : children) {
 			if (child.toString().equals(name)) {
 				return child;
@@ -175,5 +172,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			aggFcns[column] = aggFcn;
 		}
 	}
+	
+	@Override
+	public String toString() {
+		if (isProtein()) {
+			return ((ProteinHit) userObject).getAccession();
+		}
+		return super.toString();
+	};
 	
 }

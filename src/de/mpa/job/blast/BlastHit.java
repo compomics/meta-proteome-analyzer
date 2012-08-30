@@ -1,10 +1,18 @@
 package de.mpa.job.blast;
 
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.BIT;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.EVALUE;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.IDENTITY;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.LENGTH;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.MISMATCH;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.QUERY;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.TARGET;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.TEND;
+import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.TSTART;
+
 import java.util.Map;
 
 import de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum;
-
-import static de.mpa.job.blast.BlastQuery.BlastHitHeaderEnum.*;
 
 /**
  * This class represents a single BlastHit.

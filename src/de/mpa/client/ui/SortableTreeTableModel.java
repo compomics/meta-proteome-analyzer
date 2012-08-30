@@ -1,10 +1,14 @@
 package de.mpa.client.ui;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
-import javax.swing.SortOrder;
+import javax.swing.RowFilter;
 import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
@@ -26,6 +30,12 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * sort orders
 	 */
 	private List<SortKey> sortKeys = new ArrayList<SortKey>();
+	
+	/**
+	 * The row filter object specifying whether certain children of a node shall
+	 * be hidden.
+	 */
+	private RowFilter<? super TableModel,? super Integer> rowFilter;
 
 	/**
 	 * Constructs a sortable tree table model using the specified root node.
@@ -35,6 +45,14 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 		super(root);
 	}
 	
+	/**
+	 * Returns the sort keys.
+	 * @return The sort keys.
+	 */
+	public List<? extends SortKey> getSortKeys() {
+		return sortKeys;
+	}
+
 	/**
 	 * Sets the sort keys. Causes the model to re-sort if the provided keys 
 	 * differ from the stored state.
@@ -48,11 +66,24 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	}
 	
 	/**
-	 * Returns the sort keys.
-	 * @return The sort keys.
+	 * Returns the row filter.
+	 * @return The row filter.
 	 */
-	public List<? extends SortKey> getSortKeys() {
-		return sortKeys;
+	public RowFilter<? super TableModel,? super Integer> getRowFilter() {
+		return rowFilter;
+	}
+
+	/**
+	 * Sets the row filter. Causes the model to re-sort if the provided filter
+	 * differs from the stored state.
+	 * 
+	 * @param rowFilter The new row filter to set.
+	 */
+	public void setRowFilter(RowFilter<? super TableModel,? super Integer> rowFilter) {
+		if (rowFilter != this.rowFilter) {
+			this.rowFilter = rowFilter;
+			sort();
+		}
 	}
 	
 	/**
@@ -61,12 +92,12 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * otherwise 
 	 */
 	private boolean shouldSort() {
-		boolean shouldSort = false;
 		for (SortKey sortKey : getSortKeys()) {
-			shouldSort |= sortKey.getSortOrder() != SortOrder.UNSORTED;
-			if (shouldSort) break;
+			if (sortKey.getSortOrder() != SortOrder.UNSORTED) {
+				return true;
+			}
 		}
-		return shouldSort;
+		return false;
 	}
 	
 	/**
@@ -76,27 +107,22 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * otherwise 
 	 */
 	private boolean shouldReset() {
-		boolean shouldReset = true;
-		for (SortKey sortKey : getSortKeys()) {
-			shouldReset &= sortKey.getSortOrder() == SortOrder.UNSORTED;
-			if (!shouldReset) break;
+		if (rowFilter != null) {
+			return false;
 		}
-		return shouldReset;
+		for (SortKey sortKey : getSortKeys()) {
+			if (sortKey.getSortOrder() != SortOrder.UNSORTED) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
-	 * Sorts the whole model w.r.t. the stores sort keys.
+	 * Sorts the whole model w.r.t. the stored sort keys.
 	 */
 	public void sort() {
 		sort(getRoot());
-		modelSupport.fireTreeStructureChanged(new TreePath(getRoot()) {
-			// hack to work around tree model listener causing the whole table 
-			// (including column widths and highlighters) to be recreated, we 
-			// want only the displayed data to be updated
-			public TreePath getParentPath() {
-				return new TreePath(0);
-			}
-		});
 	}
 	
 	/**
@@ -105,10 +131,18 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 */
 	private void sort(TreeTableNode parent) {
 		doSort(parent, shouldReset());
+		
+//		modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));
+		
+		// notify model handler of tree UI to rebuild the visible tree structure - totally hacky!
+		// TODO: find a safe and proper way to notify all model listeners without resetting the whole table
+		modelSupport.getTreeModelListeners()[0].treeStructureChanged(
+						new TreeModelEvent(this, new TreePath(getPathToRoot(parent)), null, null));
+		
 	}
 
 	/**
-	 * Recursively sorts or resets the provided parent node's children.
+	 * Recursively filters, sorts or resets the provided parent node's children.
 	 * @param parent The parent node whose children shall be sorted/reset.
 	 * @param reset <code>true</code> if the original sort order shall be 
 	 * restored, <code>false</code> otherwise
@@ -116,22 +150,28 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	private void doSort(TreeTableNode parent, boolean reset) {
 		if (parent instanceof SortableTreeNode) {
 			SortableTreeNode node = (SortableTreeNode) parent;
+
+			// depth-first sorting, start with leaves by recursing downwards
+			Enumeration<? extends TreeTableNode> childEnum = parent.children();
+			while (childEnum.hasMoreElements()) {
+				TreeTableNode child = (TreeTableNode) childEnum.nextElement();
+				doSort(child, reset);
+			}
 			
-			boolean canSort = node.canSort();
-			if (canSort) {
-				if (reset && node.isSorted()) {
-					node.reset();
-				} else if (!reset && node.canSort(getSortKeys())) {
-					node.sort(getSortKeys());
+			// sort node itself, if possible
+			if (node.canSort()) {
+				if (reset) {
+					// reset only if node was sorted before
+					if (node.isSorted()) {
+						node.reset();
+					}
+				} else {
+					if (node.canSort(getSortKeys())) {
+						node.sort(getSortKeys(), getRowFilter());
+					}
 				}
 			}
 
-			for (int i = 0; i < parent.getChildCount(); i++) {
-				int modelIndex = node.convertRowIndexToModel(i);
-			    TreeTableNode child = (TreeTableNode) parent.getChildAt(modelIndex);
-		        doSort(child, reset);
-			}
-			
 		}
 	}
 	
@@ -142,13 +182,10 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 */
 	@Override
 	public void insertNodeInto(MutableTreeTableNode newChild, MutableTreeTableNode parent, int index) {
-		parent.insert(newChild, index);
+		super.insertNodeInto(newChild, parent, index);
+		
 		if (shouldSort()) {
 			sort(parent);
-			// TODO: add model notification
-		} else {
-			modelSupport.fireChildAdded(new TreePath(getPathToRoot(parent)),
-					index, newChild);
 		}
 	}
 	

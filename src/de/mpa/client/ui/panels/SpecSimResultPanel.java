@@ -42,7 +42,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -156,17 +156,18 @@ public class SpecSimResultPanel extends JPanel {
 		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SwingUtilities.invokeLater(new Runnable() {
+				new SwingWorker() {
 					@Override
-					public void run() {
+					protected Object doInBackground() throws Exception {
 						// appear busy
 						setBusy(true);
 						// process results
 						refreshProteinTable();
 						// stop appearing busy
 						setBusy(false);
+						return null;
 					}
-				});
+				}.execute();
 			}
 		});
 		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
@@ -691,7 +692,8 @@ public class SpecSimResultPanel extends JPanel {
 		// Create zoom widget
 		final JPanel zoomPnl = new JPanel() {
 			@Override
-			protected void paintComponent(Graphics g) {
+			public void paint(Graphics g) {
+				super.paint(g);
 				if (zoomImg != null) {
 					g.drawImage(zoomImg, 2, 2, 35, 35, null);
 					Color col = new Color(((BufferedImage) zoomImg).getRGB(zoomX, zoomY));

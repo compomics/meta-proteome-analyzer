@@ -5,10 +5,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import keggapi.KEGG;
+import java.util.Set;
 
 import org.jdesktop.swingx.JXErrorPane;
 
@@ -91,16 +89,6 @@ public class ProteinHit {
 	private double emPAI = -1.0;
 
 	private UniProtEntry uniprotEntry = null;
-	
-	/**
-	 * The KO number to access on Kegg pathways.
-	 */
-	private String koForKEGG = null;
-	
-	/**
-	 * The Kegg identifier for access to pathways
-	 */
-	private String keggIDForKegg = null;
 	
 	/**
 	 * The pathways from Kegg

@@ -2,8 +2,8 @@ package de.mpa.algorithms;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 /**
  * Factory class providing access to various vectorization method implementations.

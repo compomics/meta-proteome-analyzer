@@ -1,18 +1,12 @@
 package de.mpa.analysis;
 
 import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import keggapi.KEGGLocator;
 import keggapi.KEGGPortType;
 
 import org.junit.Test;
-
-import de.mpa.client.model.dbsearch.ProteinHit;
 
 public class KeggAccessorTest extends TestCase {
 

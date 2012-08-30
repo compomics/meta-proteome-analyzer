@@ -30,9 +30,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -50,15 +51,19 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -79,9 +84,9 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -131,9 +136,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.icons.IconConstants;
@@ -250,6 +255,10 @@ public class DbSearchResultPanel extends JPanel {
 	 * The parent results panel.
 	 */
 	private ResultsPanel parent;
+	
+
+	private ProtCHighlighterPredicate protCHighlightPredicate;
+	
 	/**
 	 * Constructor for a database results panel.
 	 * @param clientFrame The parent frame.
@@ -315,8 +324,11 @@ public class DbSearchResultPanel extends JPanel {
 		final CardLayout protCardLyt = new CardLayout();
 		final JPanel protCardPnl = new JPanel(protCardLyt);
 		protCardPnl.add(proteinTableScp, cardLabels[0]);
-		
-		setupProteinTreeTables();
+		try {
+			setupProteinTreeTables();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		JScrollPane protFlatTreeScpn = new JScrollPane(protFlatTreeTbl);
 		protFlatTreeScpn.setPreferredSize(new Dimension(800, 180));
 		JScrollPane protTaxonTreeScpn = new JScrollPane(protTaxonTreeTbl);
@@ -330,7 +342,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 		
-		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p", "p"));
+		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p, p, p", "p"));
 		protBtnPnl.setOpaque(false);
 		
 		hierarchyCbx = new JComboBox(cardLabels);
@@ -346,6 +358,39 @@ public class DbSearchResultPanel extends JPanel {
 		
 		protBtnPnl.add(hierarchyCbx, CC.xy(1, 1));
 		protBtnPnl.add(getResultsBtn, CC.xy(3, 1));
+		
+		// XXX: only for testing purposes, please remove when appropriate
+		final JTextField testTtf = new JTextField(20);
+		testTtf.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent e) { filter(e); }
+			public void insertUpdate(DocumentEvent e) { filter(e); }
+			public void changedUpdate(DocumentEvent e) { filter(e); }
+			private void filter(DocumentEvent e) {
+				RowFilter<Object, Object> rowFilter = null;
+				String pattern = testTtf.getText();
+				if (!pattern.isEmpty()) {
+					try {
+						rowFilter = RowFilter.regexFilter(pattern, 1);
+						testTtf.setForeground(Color.BLACK);
+					} catch (PatternSyntaxException pse) {
+						testTtf.setForeground(Color.RED);
+					}
+				}
+				protFlatTreeTbl.setRowFilter(rowFilter);
+				protTaxonTreeTbl.setRowFilter(rowFilter);
+				protEnzymeTreeTbl.setRowFilter(rowFilter);
+			}
+		});
+		protBtnPnl.add(testTtf, CC.xy(4, 1));
+		
+//		JButton testBtn = new JButton("test");
+//		testBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				System.out.println(protFlatTreeTbl.getCellRect(1, 0, false));
+//			}
+//		});
+//		protBtnPnl.add(testBtn, CC.xy(5, 1));
 		
 		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
 //		protTtlPnl.setRightDecoration(getResultsBtn);
@@ -460,12 +505,14 @@ public class DbSearchResultPanel extends JPanel {
 						clientFrame.getProjectPanel().getCurrentExperimentContent());
 				
 				if (!newResult.equals(dbSearchResult)) {
-					// Retrieve UniProt data
-					Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-					Client.getInstance().firePropertyChange("indeterminate", false, true);
-					UniprotAccessor.retrieveUniprotEntries(newResult);
-					Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
-					Client.getInstance().firePropertyChange("indeterminate", true, false);
+					if (!newResult.isEmpty()) {
+						// Retrieve UniProt data
+						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
+						Client.getInstance().firePropertyChange("indeterminate", false, true);
+						UniprotAccessor.retrieveUniprotEntries(newResult);
+						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
+						Client.getInstance().firePropertyChange("indeterminate", true, false);
+					}
 					
 					
 					 
@@ -877,7 +924,12 @@ public class DbSearchResultPanel extends JPanel {
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(rootPath);
 		
-		//
+		// Toggle default sort order (spectral count, descending)
+		treeTbl.getRowSorter().toggleSortOrder(7);
+		treeTbl.getRowSorter().toggleSortOrder(7);
+		
+		// Synchronize selection with original view table
+		// TODO: find proper way to synchronize selections when original view will be removed in the future 
 		treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent tse) {
@@ -990,7 +1042,7 @@ public class DbSearchResultPanel extends JPanel {
 		// Add widgets to column headers
 		tcm.getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
 		
-		// Make tree structure visuals more compact
+		// Reduce node indents to make visuals more compact
 		treeTbl.setIndents(6, 4, 2);
 		treeTbl.setRootVisible(false);
 		
@@ -1043,6 +1095,14 @@ public class DbSearchResultPanel extends JPanel {
 		TableConfig.setColumnMinWidths(treeTbl,
 				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
 				createFilterButton(0, null, 0).getPreferredSize().width + 8);
+		
+		// Enable column control widget
+		treeTbl.setColumnControlVisible(true);
+		treeTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		treeTbl.getColumnControl().setOpaque(false);
+		((ColumnControlButton) treeTbl.getColumnControl()).setAdditionalActionsVisible(false);
 		
 		// Add table to link map
 		linkMap.put(root.toString(), treeTbl);
@@ -1259,8 +1319,6 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PSM_INSPECT 	= 7;
 
 	private ValueHolder coverageSelectionModel = new ValueHolder(-1);
-
-	private ProtCHighlighterPredicate protCHighlightPredicate;
 	
 	/**
 	 * This method sets up the PSM results table.
@@ -1741,7 +1799,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		PhylogenyTreeTableNode parent = root;
 		for (String name : names) {
-			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChild(name);
+			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
 			if (child == null) {
 				child = new PhylogenyTreeTableNode(name);
 				treeTblMdl.insertNodeInto(child, parent, 0);
@@ -1783,7 +1841,7 @@ public class DbSearchResultPanel extends JPanel {
 				if (j > 0) name += ".";
 				name += (j <= i) ? ecTokens[j] : "-";
 			}
-			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChild(name);
+			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
 			if (child == null) {
 				ECEntry entry = Parameters.getInstance().getEcMap().get(name);
 				child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");

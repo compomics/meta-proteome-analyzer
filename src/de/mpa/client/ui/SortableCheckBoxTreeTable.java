@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JTree;
+import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.event.TreeExpansionEvent;
@@ -37,7 +38,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 	 * local {@link TreeExpansionListener} event handling.
 	 */
 	private boolean expanding = false;
-
+	
 	/**
 	 * Constructs a sortable tree table with checkboxes from a tree table model.
 	 * @param treeModel The tree model to be used. Must be an instance of 
@@ -82,6 +83,18 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 	public void setRowSorter(RowSorter<? extends TableModel> sorter) {
 		superSetRowSorter(sorter);
 	}
+
+	@Override
+	public RowFilter<?, ?> getRowFilter() {
+		return ((TreeTableRowSorter<?>) getRowSorter()).getRowFilter();
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R extends TableModel> void setRowFilter(RowFilter<? super R, ? super Integer> filter) {
+            // all fine, because R extends TableModel
+            ((TreeTableRowSorter<R>) getRowSorter()).setRowFilter(filter);
+    }
 	
 	/**
 	 * Custom {@link RowSorter} for use with {@link JXTreeTables}. 
@@ -101,7 +114,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 * The tree table model instance with which the sorter communicates to request sorting.
 		 */
 		private SortableTreeTableModel treeModel;
-		
+
 		/**
 		 * Constructs a {@link RowSorter} for the provided {@link JXTreeTable}.
 		 * @param treeTable The tree table to which the sorter shall be attached.
@@ -166,6 +179,11 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		}
 
 		@Override
+		public List<? extends SortKey> getSortKeys() {
+			return treeModel.getSortKeys();
+		}
+
+		@Override
 		public void setSortKeys(List<? extends SortKey> sortKeys) {
 			if (!sortKeys.equals(getSortKeys())) {
 				fireSortOrderChanged();
@@ -175,9 +193,18 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			}
 		}
 
-		@Override
-		public List<? extends SortKey> getSortKeys() {
-			return treeModel.getSortKeys();
+		public RowFilter<? super M,? super Integer> getRowFilter() {
+			return treeModel.getRowFilter();
+		}
+		
+		@SuppressWarnings("unchecked")
+		public void setRowFilter(RowFilter<? super M,? super Integer> rowFilter) {
+			// force re-sort
+			fireSortOrderChanged();
+			preCollapse();
+			treeModel.setRowFilter(
+					(RowFilter<? super TableModel, ? super Integer>) rowFilter);
+			reExpand();
 		}
 		
 		/**
@@ -185,7 +212,10 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 */
 		private void preCollapse() {
 			expanding = true;
-			collapseAll();
+//			collapseAll();
+			for (TreePath path : expanded) {
+				collapsePath(path);
+			}
 			expanding = false;
 		}
 		
@@ -194,12 +224,13 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 */
 		private void reExpand() {
 			expanding = true;
+//			expandAll();
 			for (TreePath path : expanded) {
 				expandPath(path);
 			}
 			expanding = false;
 		}
-
+		
 		/* We don't need the rest of the overrides; the tree table model takes care of most of it */
 		public void allRowsChanged() {}
 		public void modelStructureChanged() {}
