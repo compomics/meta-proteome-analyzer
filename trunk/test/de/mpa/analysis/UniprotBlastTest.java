@@ -3,6 +3,8 @@ package de.mpa.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.junit.Test;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -15,7 +17,6 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastData;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastHit;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastInput;
-import junit.framework.TestCase;
 
 public class UniprotBlastTest extends TestCase{
 	

@@ -3,7 +3,6 @@ package de.mpa.analysis;
 import java.util.List;
 
 import junit.framework.TestCase;
-import keggapi.KEGG;
 
 import org.junit.Before;
 import org.junit.Test;

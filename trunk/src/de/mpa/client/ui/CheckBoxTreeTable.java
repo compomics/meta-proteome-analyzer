@@ -3,10 +3,13 @@ package de.mpa.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -16,6 +19,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -24,6 +28,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.TableCellEditor;
+import javax.swing.tree.AbstractLayoutCache.NodeDimensions;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -104,7 +109,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		// Install tree cell renderer
 		tree.setCellRenderer(new DefaultTreeRenderer(new CheckBoxTreeCellRenderer()));
 		
+		tree.setUI(new FillToEdgeTreeUI());
+		
 		// Install rollover functionality
+		// TODO: rollover seems to become unresponsive when clicking expand/collapse controls
 		treeTable.addPropertyChangeListener(RolloverProducer.ROLLOVER_KEY, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
@@ -116,10 +124,22 @@ public class CheckBoxTreeTable extends JXTreeTable {
 						cbtce.cancelCellEditing();
 					}
 				} else {
-					// TODO: null means we're either inside one of the editor's sub-components
-					// or outside the table, how to distinguish one from the other?
+					// TODO: null means we're either inside one of the
+					// editor's sub-components or outside the table, how
+					// to distinguish one from the other?
 //					cbtce.cancelCellEditing();
 				}
+			}
+		});
+		
+		// Install mouse listener to work around background colors not being
+		// updated when editing row is selected
+		treeTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent me) {
+				// force re-creation of editor on click
+				editCellAt(getRowForPath(getPathForLocation(me.getX(), me.getY())),
+						getHierarchicalColumn());
 			}
 		});
 		
@@ -225,6 +245,39 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		this.iconValue = iconValue;
 	}
 	
+	private class FillToEdgeTreeUI extends BasicTreeUI {
+		@Override
+		protected NodeDimensions createNodeDimensions() {
+			return new NodeDimensionsHandler() {
+				@Override
+				public Rectangle getNodeDimensions(
+						Object value, int row, int depth, boolean expanded,
+						Rectangle size) {
+					Rectangle dimensions = super.getNodeDimensions(value, row,
+							depth, expanded, size);
+					dimensions.width =
+							tree.getWidth() - getRowX(row, depth);
+					return dimensions;
+				}
+			};
+		}
+		@Override
+		protected void paintHorizontalLine(Graphics g, JComponent c,
+				int y, int left, int right) { } // do nothing
+		@Override
+		protected void paintVerticalLine(Graphics g, JComponent c, int x,
+				int top, int bottom) { } // do nothing
+		
+		@Override
+		protected void drawCentered(Component c, Graphics graphics, Icon icon,
+				int x, int y) {
+			icon.paintIcon(c, graphics, 
+					x - icon.getIconWidth() / 2 - 1, 
+					y - icon.getIconHeight() / 2);
+		    
+		}
+	}
+	
 	private class CheckBoxTreeCellRenderer extends ComponentProvider<IconCheckBox> {
 
 		@Override
@@ -237,6 +290,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 		@Override
 		protected void format(CellContext context) {
+			
 			IconCheckBox checkBox = (IconCheckBox) rendererComponent;
 			CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) context.getValue();
 			
@@ -259,8 +313,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 					checkBox.setIcon(context.getIcon());
 				}
 				checkBox.setEnabled(treeTable.isEnabled());
-				
-//				checkBox.setBorder(BorderFactory.createLineBorder(Color.GREEN));
 			}
 		}
 	}
@@ -302,6 +354,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			checkBox.setEnabled(rendererChk.isEnabled());
 			checkBox.setFixed(rendererChk.isFixed());
 
+			// inherit visuals from respective table row
 			compoundHighlighter.highlight(checkBox, getComponentAdapter(row, column));
 			
 			Rectangle cellRect = table.getCellRect(0, column, false);
@@ -309,7 +362,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			int nodeStart = 1 + indent + cellRect.x + nodeRect.x; // + iconWidth;
 
 			checkBox.setBorder(BorderFactory.createEmptyBorder(1, nodeStart, 0, 0));
-//			checkBox.setBorder(BorderFactory.createMatteBorder(1, nodeStart, 0, 0, Color.RED));
 			
 			return checkBox;
 		}
@@ -354,6 +406,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		 */
 		public IconCheckBox() {
 		    this.setLayout(new BorderLayout());
+//		    this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 			this.setOpaque(false);
 
 			// top checkbox with tri-state visuals
@@ -379,6 +432,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			// lay out components
 			this.add(checkBox, BorderLayout.WEST);
 			this.add(hyperlink, BorderLayout.CENTER);
+//			this.add(checkBox);
+//			this.add(hyperlink);
 		}
 		
 		/**

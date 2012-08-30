@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.mpa.db.accessor.Pepnovohit;
-import de.mpa.io.MascotGenericFile;
 
 /**
  * The instance of the DenovoSearchResult class holds the results for the de-novo search result.
