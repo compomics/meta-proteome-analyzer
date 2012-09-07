@@ -5,10 +5,7 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,14 +27,9 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
-import de.mpa.client.model.SpectrumMatch;
-import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.PeptideHit;
-import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.dialogs.PathwayDialog;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.io.MascotGenericFile;
 import de.mpa.io.ResultExporter;
 
 public class ClientFrameMenuBar extends JMenuBar {
@@ -60,7 +52,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JMenuItem saveProjectItem;
 	private JMenu settingsMenu;
 	private ServerConnectionSettings srvSettings;
-	protected DbSearchResult dbSearchResult;
 	
 	/**
 	 * Method to get the settingsMenu
@@ -103,43 +94,20 @@ public class ClientFrameMenuBar extends JMenuBar {
 		saveProjectItem.setText("Save Project");
 		saveProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/save16.png")));
 		saveProjectItem.setEnabled(false);
-		// Add ActionListener to save project
 		saveProjectItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String selectedFile = null;
-				dbSearchResult = Client.getInstance().getDbSearchResult();
-				for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
-					for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
-						for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
-							long searchSpectrumID = specMatch.getSearchSpectrumID();
-							try {
-								MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(searchSpectrumID);
-								specMatch.setMgf(mgf);
-							} catch (SQLException e) {
-								e.printStackTrace();
-							}
-							
-						}
-					}
-				}
-				
+			public void actionPerformed(ActionEvent ae) {
+				String filename = null;
 				
 				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
 				int returnVal = chooser.showSaveDialog(clientFrame);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					selectedFile = chooser.getSelectedFile() + ".mpa";
+					filename = chooser.getSelectedFile() + ".mpa";
 				}
-
-				FileOutputStream fos = null;
-				//Save Data
-				try {
-					fos = new FileOutputStream(new File(selectedFile));
-					ObjectOutputStream oos = new ObjectOutputStream(fos);
-					oos.writeObject(dbSearchResult);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}finally{
-					try {fos.close();} catch (IOException e) {e.printStackTrace();}
+				
+				if (filename != null) {
+					Client.getInstance().writeDbSearchResultToFile(filename);
 				}
 			}
 		});
@@ -482,7 +450,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 */
     private void exportResults() {
         JFileChooser chooser = new JFileChooser(lastSelectedFolder);
-        chooser.setFileFilter(new CsvFileFilter());
+        chooser.setFileFilter(Constants.CSV_FILE_FILTER);
+		chooser.setAcceptAllFileFilterUsed(false);
         chooser.setMultiSelectionEnabled(false);
         chooser.setDialogTitle("Export Spectra File Details");
         File selectedFile;
@@ -502,7 +471,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 
                 if (option == JOptionPane.NO_OPTION) {
                     chooser = new JFileChooser(lastSelectedFolder);
-                    chooser.setFileFilter(new CsvFileFilter());
+                    chooser.setFileFilter(Constants.CSV_FILE_FILTER);
+    				chooser.setAcceptAllFileFilterUsed(false);
                     chooser.setMultiSelectionEnabled(false);
                     chooser.setDialogTitle("Export matchted fragment ions");
                     returnVal = chooser.showSaveDialog(this);

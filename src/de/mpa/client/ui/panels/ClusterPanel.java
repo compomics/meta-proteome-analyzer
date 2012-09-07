@@ -33,9 +33,9 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.Constants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.ui.ExtensionFileFilter;
 import de.mpa.ui.PlotPanel2;
 
 public class ClusterPanel extends JPanel {				
@@ -119,8 +119,9 @@ public class ClusterPanel extends JPanel {
 					getValueBtn.addActionListener(new ActionListener() {		
 						@Override
 						public void actionPerformed(ActionEvent evt) {
-							final JFileChooser fc = new JFileChooser("C:/Documents and Settings/kohrs/My Documents/Workspace/MetaProteomeAnalyzer");
-							fc.setFileFilter(new ExtensionFileFilter("mgf", false));
+							final JFileChooser fc = new JFileChooser();
+							fc.setFileFilter(Constants.MGF_FILE_FILTER);
+							fc.setAcceptAllFileFilterUsed(false);
 							fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 							fc.setMultiSelectionEnabled(true); 							
 							int result = fc.showOpenDialog(clientFrame);
@@ -289,7 +290,7 @@ public class ClusterPanel extends JPanel {
 //		double divisor = 1.0;
 //		if (averagePeakInt) {
 //			divisor = mgfList.size();
-//		} oder kurz tern�r:
+//		} or in short using ternary notation:
 		double divisor = (averagePeakInt) ? mgfList.size() : 1.0;
 		boolean nrmlzPeaks = nrmlzPeakInt.isSelected();						// get Checkbox value nrmlzPeakInt
 		for (MascotGenericFile mgf : mgfList) {								// iterate through provided (former selected) spectrum files
