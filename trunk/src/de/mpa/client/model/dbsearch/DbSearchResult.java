@@ -1,10 +1,16 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.mpa.client.Client;
+import de.mpa.client.model.SpectrumMatch;
+import de.mpa.io.MascotGenericFile;
 
 
 /**
@@ -16,7 +22,7 @@ import java.util.Map;
  * @author muth
  *
  */
-public class DbSearchResult {
+public class DbSearchResult implements Serializable {
 	
 	/**
 	 * The project title.
@@ -255,4 +261,26 @@ public class DbSearchResult {
 		}
 		return result;
 	}
+	
+	/**
+	 * Returns the mgf with the spectrum ID.
+	 * @param specID
+	 * @return mgf File for the spectrum
+	 * @throws SQLException  
+	 */
+	public MascotGenericFile getMgfFromSearchSpectrumID(long specID) throws SQLException {
+		for (ProteinHit protHit : this.getProteinHitList()) {
+			for (PeptideHit peptide : protHit.getPeptideHitList()) {
+//				for (SpectrumMatch specMatch : peptide.getSpectrumMatches()) {
+//					if (specID == specMatch.getSearchSpectrumID()) {
+//						return specMatch.getMgf();
+//					}
+//				}
+				SpectrumMatch match = peptide.getSpectrumMatch(specID);
+				return match.getMgf();
+			}
+		}
+		return Client.getInstance().getSpectrumFromSearchSpectrumID(specID);
+	}
+	
 }

@@ -63,11 +63,11 @@ public class ProteinAnalysisTest extends TestCase {
 
 		// Search each peptide only once in the protein
 		double coverage = ProteinAnalysis.calculateSequenceCoverage(proteinHit);
-		assertEquals(8.08, coverage, 0.1);
+		assertEquals(0.0808, coverage, 0.01);
 
 		// Search each peptide multiple times in the protein
 		coverage = ProteinAnalysis.calculateSequenceCoverage(proteinHit, false);
-		assertEquals(10.61, coverage, 0.1);
+		assertEquals(0.1061, coverage, 0.001);
 	}
 
 	@Test
@@ -122,9 +122,9 @@ public class ProteinAnalysisTest extends TestCase {
 	@Test
 	public void testNSAF() {
 		double nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinNsaf12);
-		assertEquals(70.585, nsaf, 0.1);
+		assertEquals(0.70585, nsaf, 0.1);
 
 		nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinNsaf3);
-		assertEquals(29.4117647, nsaf, 0.1);
+		assertEquals(0.294117647, nsaf, 0.1);
 	}
 }

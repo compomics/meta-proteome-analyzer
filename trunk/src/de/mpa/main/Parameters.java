@@ -39,19 +39,43 @@ public class Parameters {
 	 */
 	private void initializeParameters(){
 		// Initialize the EC-number map
-		String paramsPath = "/" + getPath() + "/ECreduced.xml";
+		String paramsPath = "/" + getConfPath() + "/ECreduced.xml";
 		ecMap = ECReader.readEC(paramsPath);
 		// Initialize the Kegg pathway map
-		String keggPathwayPath = "/" + getPath() + "/keggPathways.txt";
+		String keggPathwayPath = "/" + getConfPath() + "/keggPathways.txt";
 		keggPathwayMap = KeggMaps.getKeggPathwayList(keggPathwayPath);
 		// Initialize the Kegg taxonomy map
-		String keggTaxonomyPath = "/" + getPath() + "/keggTaxonomyMap.txt";
+		String keggTaxonomyPath = "/" + getConfPath() + "/keggTaxonomyMap.txt";
 		keggTaxonomyMap = KeggMaps.getKeggTaxonomie(keggTaxonomyPath);
+	}
+	
+	/**
+	 * Returns the array of enabled panels for the Viewer
+	 * @return Array of enabled panels
+	 */
+	public String[] getEnabledItemsForViewer() {
+		return new String[] { "View Results" };
 	}
 	
 	/**
 	 * This method returns the path of the parameters.
 	 * @return String path. Returns the path of parameters.
+	 */
+	public String getConfPath() {
+		String path = this.getClass().getResource("Parameters.class").getPath();
+		if (path.indexOf("/" + Constants.APPTITLE) != -1) {
+            path = path.substring(1, path.lastIndexOf("/" + Constants.APPTITLE) + Constants.APPTITLE.length() + 1);
+            path = path.replace("%20", " ");
+            path = path.replace("%5b", "[");
+            path = path.replace("%5d", "]");
+            path += "/conf";
+		}
+		return path;
+	}
+	
+	/**
+	 * This method returns the path of the mpa.
+	 * @return String path. Returns the path of the mpa.
 	 */
 	public String getPath() {
 		String path = this.getClass().getResource("Parameters.class").getPath();
@@ -60,7 +84,6 @@ public class Parameters {
             path = path.replace("%20", " ");
             path = path.replace("%5b", "[");
             path = path.replace("%5d", "]");
-            path += "/conf";
 		}
 		return path;
 	}

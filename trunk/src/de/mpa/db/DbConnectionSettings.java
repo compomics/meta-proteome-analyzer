@@ -5,6 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
+
+import de.mpa.client.ui.ClientFrame;
+
 /**
  * This class represents the settings for the database connection.
  * @author T.Muth
@@ -49,7 +55,8 @@ public class DbConnectionSettings {
 		try {
 			readSettingsFromFile(new File("password/DbConnectionSettings.txt"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 

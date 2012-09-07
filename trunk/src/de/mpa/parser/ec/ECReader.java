@@ -58,6 +58,7 @@ public class ECReader {
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder dBuilder;
 				dBuilder = dbFactory.newDocumentBuilder();
+//				System.out.println(xmlFile);
 				Document doc = dBuilder.parse(xmlFile);
 				// normalize text representation
 				doc.getDocumentElement().normalize();	

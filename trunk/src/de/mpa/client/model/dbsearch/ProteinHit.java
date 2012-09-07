@@ -1,14 +1,17 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -18,6 +21,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.ui.ClientFrame;
 
 
 /**
@@ -26,7 +30,7 @@ import de.mpa.client.model.SpectrumMatch;
  * 
  * @author T. Muth, R. Heyer, A. Behne, F. Kohrs
  */
-public class ProteinHit {
+public class ProteinHit implements Serializable {
 	
 	/**
 	 *  Flag denoting whether this protein is selected for export.
@@ -270,7 +274,9 @@ public class ProteinHit {
 	 */
 	public double getNSAF() {
 		if (nSAF < 0.0) {
-			JXErrorPane.showDialog(new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first."));
+			Exception e = new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first.");
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 		return nSAF;
 	}

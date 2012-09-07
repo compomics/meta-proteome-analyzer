@@ -57,6 +57,8 @@ import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -914,7 +916,8 @@ public class SpecSimResultPanel extends JPanel {
 
 					ssmTbl.getSelectionModel().setSelectionInterval(0, 0);
 				} catch (SQLException e) {
-					JXErrorPane.showDialog(e);
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
 			}
 		}
@@ -950,7 +953,8 @@ public class SpecSimResultPanel extends JPanel {
 						plotPnl.setSecondSpectrum(mgfLib);
 						plotPnl.repaint();
 					} catch (SQLException e) {
-						JXErrorPane.showDialog(e);
+						JXErrorPane.showDialog(ClientFrame.getInstance(),
+								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 					}
 				}
 			}

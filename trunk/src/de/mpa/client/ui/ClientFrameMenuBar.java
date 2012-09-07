@@ -5,7 +5,10 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -27,9 +30,14 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
+import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.dialogs.PathwayDialog;
 import de.mpa.db.DbConnectionSettings;
+import de.mpa.io.MascotGenericFile;
 import de.mpa.io.ResultExporter;
 
 public class ClientFrameMenuBar extends JMenuBar {
@@ -49,7 +57,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private String lastSelectedFolder = System.getProperty("user.home");
 	private JMenuItem exportProteinsItem;
 	private JMenuItem keggItem;
+	private JMenuItem saveProjectItem;
+	private JMenu settingsMenu;
+	private ServerConnectionSettings srvSettings;
+	protected DbSearchResult dbSearchResult;
 	
+	/**
+	 * Method to get the settingsMenu
+	 * @return The settings menu
+	 */
+	public JMenu getSettingsMenu() {
+		return settingsMenu;
+	}
+
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
 	 * @param clientFrame The client frame. 
@@ -68,17 +88,64 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		// File Menu
 		JMenu fileMenu = new JMenu();
+		fileMenu.setText("File");
 		JMenuItem newProjectItem = new JMenuItem();
 		newProjectItem.setText("New Project");
 		newProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/new_project.gif")));
+		newProjectItem.setEnabled(false);
 
 		JMenuItem openProjectItem = new JMenuItem();
 		openProjectItem.setText("Open Project");
 		openProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/open_project.gif")));
-		JMenuItem exitItem = new JMenuItem();
-		fileMenu.setText("File");
+		openProjectItem.setEnabled(false);
+		
+		saveProjectItem = new JMenuItem();
+		saveProjectItem.setText("Save Project");
+		saveProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/save16.png")));
+		saveProjectItem.setEnabled(false);
+		// Add ActionListener to save project
+		saveProjectItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String selectedFile = null;
+				dbSearchResult = Client.getInstance().getDbSearchResult();
+				for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+					for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
+						for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
+							long searchSpectrumID = specMatch.getSearchSpectrumID();
+							try {
+								MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(searchSpectrumID);
+								specMatch.setMgf(mgf);
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+							
+						}
+					}
+				}
+				
+				
+				JFileChooser chooser = new JFileChooser();
+				int returnVal = chooser.showSaveDialog(clientFrame);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					selectedFile = chooser.getSelectedFile() + ".mpa";
+				}
+
+				FileOutputStream fos = null;
+				//Save Data
+				try {
+					fos = new FileOutputStream(new File(selectedFile));
+					ObjectOutputStream oos = new ObjectOutputStream(fos);
+					oos.writeObject(dbSearchResult);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}finally{
+					try {fos.close();} catch (IOException e) {e.printStackTrace();}
+				}
+			}
+		});
 
 		// exitItem
+		JMenuItem exitItem = new JMenuItem();
 		exitItem.setText("Exit");
 		exitItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/exit.gif")));
 		exitItem.addActionListener(new ActionListener() {
@@ -88,12 +155,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 		fileMenu.add(newProjectItem);
 		fileMenu.add(openProjectItem);
+		fileMenu.add(saveProjectItem);
 		fileMenu.addSeparator();
 		fileMenu.add(exitItem);
 		this.add(fileMenu);
 
 		// Settings Menu
-		JMenu settingsMenu = new JMenu();
+		settingsMenu = new JMenu();
 
 		settingsMenu.setText("Settings");
 
@@ -102,8 +170,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		databaseItem.setText("Database Connection");
 
 		databaseItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
-		
-		dbPnl = constructDbSettingsPanel();
 
 		// action listener for database settings
 		databaseItem.addActionListener(new ActionListener() {
@@ -229,6 +295,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * Showt the database settings.
 	 */
 	public void showDatabaseSettings() {
+		if (dbPnl == null) {
+			dbPnl = constructDbSettingsPanel();
+		}
+		
 		DbConnectionSettings oldDbSettings = client.getDbSettings();
 		int res = JOptionPane.showConfirmDialog(clientFrame, dbPnl, "Database Settings", 
 				  JOptionPane.OK_CANCEL_OPTION,
@@ -377,8 +447,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 										"p, 3dlu, p, 3dlu, p, 5dlu"));	// row
 		srvPnl.setBorder(new TitledBorder("Server Configuration"));
 
-		ServerConnectionSettings srvSettings = client.getServerSettings();
-		
+		srvSettings = client.getServerSettings();
 		srvHostTtf = new JTextField(8);
 		srvHostTtf.setText(srvSettings.getHost());
 
@@ -402,6 +471,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 
 		srvPnl.add(startBtn, cc.xyw(2,5,3));
+		
+		
+		
 		return srvPnl;
 	}
 	
@@ -494,4 +566,14 @@ public class ClientFrameMenuBar extends JMenuBar {
 	public void setPathwayFunctionalityEnabled(boolean enabled) {
     	keggItem.setEnabled(enabled);
     }
+	
+    /**
+     * Enables the pathway functionalities
+     * @param enabled The state of the pathway menu items.
+     */
+	public void setSaveprojectFunctionalityEnabled(boolean enabled) {
+    	saveProjectItem.setEnabled(enabled);
+    }
+	
+	
 }

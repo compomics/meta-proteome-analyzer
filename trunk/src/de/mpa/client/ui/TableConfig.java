@@ -29,6 +29,8 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.decorator.PainterHighlighter;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
@@ -214,7 +216,8 @@ public class TableConfig {
 					g.clipRect(0, yOffset, clipWidth, clipHeight);
 					super.doPaint(g, component, width, height);
 				} catch (Exception e) {
-					JXErrorPane.showDialog(e);
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
 			}
 		});

@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.mpa.client.ui.Constants;
+import de.mpa.main.Parameters;
 
 
 public class EcParserTest extends TestCase {
@@ -15,16 +15,8 @@ public class EcParserTest extends TestCase {
 
 	@Before
 	public void setUp() {
-		// Initialize the EC-number Map
-		String path = this.getClass().getResource("EcParserTest.class").getPath();
-		if (path.indexOf("/" + Constants.APPTITLE) != -1) {
-	            path = path.substring(1, path.lastIndexOf("/" + Constants.APPTITLE) + Constants.APPTITLE.length() + 1);
-	            path = path.replace("%20", " ");
-	            path = path.replace("%5b", "[");
-	            path = path.replace("%5d", "]");
-	            path += "/conf";
-		}
-		String paramsPath = path + "/ECreduced.xml";
+//		// Initialize the EC-number Map
+		String paramsPath = "/" + Parameters.getInstance().getConfPath() + "/ECreduced.xml";
 		ecMap = ECReader.readEC(paramsPath);		
 	}
 

@@ -35,10 +35,13 @@ import net.java.balloontip.styles.EdgedBalloonStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
 
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.icons.IconConstants;
 
@@ -71,7 +74,8 @@ public class FilterBalloonTip extends CustomBalloonTip {
 		try {
 			setContents(createFilterPanel());
 		} catch (IOException e) {
-			JXErrorPane.showDialog(e);
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 

@@ -1,6 +1,10 @@
 package de.mpa.client.model;
 
-public class SpectrumMatch {
+import java.io.Serializable;
+
+import de.mpa.io.MascotGenericFile;
+
+public class SpectrumMatch implements Serializable {
 	
 	/**
 	 * Flag denoting whether this match is selected for export.
@@ -11,6 +15,11 @@ public class SpectrumMatch {
 	 * The search spectrum id;
 	 */
 	protected long searchSpectrumID;
+	
+	/**
+	 * The Mascot Generic File
+	 */
+	private MascotGenericFile mgf;
 
 	/**
 	 * Default empty constructor.
@@ -31,6 +40,22 @@ public class SpectrumMatch {
 	 */
 	public void setSearchSpectrumID(long searchSpectrumID) {
 		this.searchSpectrumID = searchSpectrumID;
+	}
+	
+	/**
+	 * Returns the spectrum file reference.
+	 * @return the spectrum file reference.
+	 */
+	public MascotGenericFile getMgf() {
+		return mgf;
+	}
+	
+	/**
+	 * Sets the spectrum file reference.
+	 * @param mgf the spectrum file to set.
+	 */
+	public void setMgf(MascotGenericFile mgf) {
+		this.mgf = mgf;
 	}
 
 	/**

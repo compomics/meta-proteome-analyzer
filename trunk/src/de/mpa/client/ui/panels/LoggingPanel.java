@@ -62,6 +62,7 @@ public class LoggingPanel extends JPanel {
 
 		initComponents();
 		initListener();
+
         
         // configure local log
         writer = new LogWriter(this);

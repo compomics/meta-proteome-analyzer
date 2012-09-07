@@ -21,6 +21,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -30,9 +33,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.AbstractAction;
@@ -45,6 +48,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -55,12 +59,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -68,6 +72,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -76,6 +81,7 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
@@ -84,9 +90,11 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -136,11 +144,10 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
-import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
@@ -255,6 +262,8 @@ public class DbSearchResultPanel extends JPanel {
 	 * The parent results panel.
 	 */
 	private ResultsPanel parent;
+
+	private JButton getResultsFromFileBtn;
 	
 
 	private ProtCHighlighterPredicate protCHighlightPredicate;
@@ -303,7 +312,7 @@ public class DbSearchResultPanel extends JPanel {
 		JScrollPane psmTableScp = new JScrollPane(psmTbl);
 		psmTableScp.setPreferredSize(new Dimension(350, 130));
 		
-		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
+		getResultsBtn = new JButton("Get Results from DB  ", IconConstants.REFRESH_DB_ICON);
 		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
 		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
 		
@@ -317,7 +326,30 @@ public class DbSearchResultPanel extends JPanel {
 				getResultsButtonPressed();
 			}
 		});
-//		proteinPnl.add(proteinTableScp, CC.xy(2, 2));
+		getResultsFromFileBtn = new JButton("Get Results from File   ", IconConstants.REFRESH_PAGE_ICON);
+		getResultsFromFileBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
+		getResultsFromFileBtn.setFocusPainted(false);
+		
+		getResultsFromFileBtn.addActionListener(new ActionListener() {
+			private JFileChooser chooser;
+
+			public void actionPerformed(ActionEvent arg0) {
+				chooser = new JFileChooser();
+				chooser.setFileFilter(new FileFilter() {
+					public String getDescription() {
+						return "Get MPA File";
+					}
+					public boolean accept(File f) {
+						return f.getName().toLowerCase().endsWith(".mpa")|| f.isDirectory();
+					}
+				});
+				int returnValue = chooser.showOpenDialog(clientFrame);
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = chooser.getSelectedFile();
+					getResultsFromFile(selectedFile);
+				}
+			}
+		});
 		
 		final String[] cardLabels = new String[] {"Original", "Flat View", "Taxonomic View", "E.C. View"};
 		
@@ -356,8 +388,9 @@ public class DbSearchResultPanel extends JPanel {
 		});
 		hierarchyCbx.setPreferredSize(new Dimension(hierarchyCbx.getPreferredSize().width, 20));
 		
-		protBtnPnl.add(hierarchyCbx, CC.xy(1, 1));
-		protBtnPnl.add(getResultsBtn, CC.xy(3, 1));
+		protBtnPnl.add(hierarchyCbx, CC.xy(3, 1));
+		protBtnPnl.add(getResultsBtn, CC.xy(4, 1));
+		protBtnPnl.add(getResultsFromFileBtn, CC.xy(5, 1));
 		
 		// XXX: only for testing purposes, please remove when appropriate
 		final JTextField testTtf = new JTextField(20);
@@ -381,7 +414,7 @@ public class DbSearchResultPanel extends JPanel {
 				protEnzymeTreeTbl.setRowFilter(rowFilter);
 			}
 		});
-		protBtnPnl.add(testTtf, CC.xy(4, 1));
+		protBtnPnl.add(testTtf, CC.xy(1, 1));
 		
 //		JButton testBtn = new JButton("test");
 //		testBtn.addActionListener(new ActionListener() {
@@ -489,11 +522,19 @@ public class DbSearchResultPanel extends JPanel {
 		this.add(multiSplitPane, CC.xy(2, 2));
 	}
 	
+	/**
+	 * Method to get the dbSearchResult from the database
+	 */
 	protected void getResultsButtonPressed() {
 		ResultsTask resultsTask = new ResultsTask();
 		resultsTask.execute();
 	}
 	
+	/**
+	 * Class to get dbSearchResult from the database in the Background
+	 * @author heyer
+	 *
+	 */
 	private class ResultsTask extends SwingWorker {
 
 		protected Object doInBackground() {
@@ -526,25 +567,82 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			return 0;
 		}
+	}
+
+	/**
+	 * Get dbSearchResult from a local file
+	 * @param selectedFile
+	 */
+	protected void getResultsFromFile(File selectedFile) {
+		ResultsFromFileTask resultsTask = new ResultsFromFileTask(selectedFile);
+		resultsTask.execute();
+	}
+
+	/**
+	 * Class to get dbsearchRsultObject from a local file
+	 * @author R. Heyer
+	 *
+	 */
+	private class ResultsFromFileTask extends SwingWorker {
+
+		private File selectedFile;
 
 		/**
-		 * Continues when the results retrieval has finished.
+		 * Constructor for the selected file
+		 * @param selectedFile
 		 */
-		public void finished() {
-			// TODO: ADD search engine from runtable
-			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-			dbSearchResult.setSearchEngines(searchEngines);
-			
-			refreshProteinTables();
-			
-			// Enable export functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-			// Enable pathway functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setPathwayFunctionalityEnabled(true);
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		
+		public ResultsFromFileTask(File selectedFile) {
+			this.selectedFile= selectedFile;
+		}
+
+		protected Object doInBackground() throws Exception {
+			try {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				// Get the database search result from the local file.
+				// ReadData
+				FileInputStream fis = new FileInputStream(selectedFile);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				DbSearchResult newResult = (DbSearchResult) ois.readObject();
+				ois.close();
+
+				// Retrieve UniProt data
+				// TODO: make UniProt query optional
+				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
+				Client.getInstance().firePropertyChange("indeterminate", false, true);
+				UniprotAccessor.retrieveUniprotEntries(newResult);
+				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+				dbSearchResult = newResult;
+				Client.getInstance().setDbSearchResult(dbSearchResult);
+				parent.updateOverview(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				finished();
+				
+			}
+			return 0;
 		}
 	}
+	/**
+	 * Continues when the results retrieval has finished.
+	 */
+	public void finished() {
+		// TODO: ADD search engine from runtable
+		List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+		dbSearchResult.setSearchEngines(searchEngines);
+
+		refreshProteinTables();
+
+		// Enable export functionality
+		((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+		// Enable pathway functionality
+		((ClientFrameMenuBar) clientFrame.getJMenuBar()).setPathwayFunctionalityEnabled(true);
+
+		// Enable Save Project functionalty
+		((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
 
 
 	// Protein table column indices
@@ -1605,10 +1703,6 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	protected void refreshProteinTables() {
 		
-//		dbSearchResult = Client.getInstance().getDbSearchResult(
-//				clientFrame.getProjectPanel().getCurrentProjectContent(),
-//				clientFrame.getProjectPanel().getCurrentExperimentContent());
-		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 			// Display number of proteins in title area
 			int numProteins = dbSearchResult.getProteinHits().size();
@@ -2103,8 +2197,11 @@ public class DbSearchResultPanel extends JPanel {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					// grab corresponding spectrum from the database and display it
 					try {
-						MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
-						
+						MascotGenericFile mgf = psm.getMgf();
+						if (mgf == null) {
+							mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
+						}
+
 						specPnl = new SpectrumPanel(mgf);
 						specPnl.showAnnotatedPeaksOnly(true);
 						
@@ -2115,8 +2212,9 @@ public class DbSearchResultPanel extends JPanel {
 						Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), psm.getCharge());
 						addSpectrumAnnotations(fragmentizer.getFragmentIons());
 						
-					} catch (SQLException sqe) {
-						GeneralExceptionHandler.showSQLErrorDialog(sqe, clientFrame);
+					} catch (SQLException e) {
+						JXErrorPane.showDialog(ClientFrame.getInstance(),
+								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 					}
 					// show popup
 					showPopup(psm);

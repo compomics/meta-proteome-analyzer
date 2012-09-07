@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -34,7 +35,7 @@ import de.mpa.db.accessor.Spectrum;
  *
  * @author Thilo Muth
  */
-public class MascotGenericFile implements SpectrumFile {
+public class MascotGenericFile implements SpectrumFile, Serializable {
 
     /**
      * This variable holds the filename for the spectrum file.
