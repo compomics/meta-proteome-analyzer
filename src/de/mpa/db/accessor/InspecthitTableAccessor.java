@@ -6,6 +6,7 @@
  */
 package de.mpa.db.accessor;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,7 +33,7 @@ import com.compomics.util.db.interfaces.Updateable;
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
-public class InspecthitTableAccessor implements Deleteable, Retrievable, Updateable, Persistable {
+public class InspecthitTableAccessor implements Deleteable, Retrievable, Updateable, Persistable, Serializable {
 
 	/**
 	 * This variable tracks changes to the object.

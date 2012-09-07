@@ -68,7 +68,7 @@ public class Client {
 	// Connection
 	private Connection conn;
 
-	private DbConnectionSettings dbSettings = new DbConnectionSettings();
+	private DbConnectionSettings dbSettings;
 	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
 
 	/**
@@ -81,6 +81,11 @@ public class Client {
 	private DenovoSearchResult denovoSearchResult;
 
 	private SpecSimResult specSimResult;
+	
+	/**
+	 * Flag denoting whether client is in viewer mode.
+	 */
+	private boolean viewer = false;
 	
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -97,13 +102,13 @@ public class Client {
 	 * @return client Client singleton object
 	 */
 	public static Client getInstance() {
-		if (client == null) {
-			client = new Client();
-		}
-		return client;
+        if (client == null) {
+        	client = new Client();
+        }
+
+        return client;
 	}
-	
-	
+
 	//End SQL for protein Databases****************************************************
 	/**
 	 * Sets the database connection.
@@ -113,7 +118,7 @@ public class Client {
 		// Connection conn
 		if (conn == null || !conn.isValid(0)) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, this.dbSettings);
+			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, getDbSettings());
 			this.conn = dbconfig.getConnection();
 		}
 	}
@@ -330,6 +335,13 @@ public class Client {
 	public DbSearchResult getDbSearchResult() {
 		return dbSearchResult;
 	}
+	/**
+	 * Sets the current database search result
+	 * @param dbSearchResult
+	 */
+	public void setDbSearchResult(DbSearchResult dbSearchResult) {
+		this.dbSearchResult = dbSearchResult;
+	}
 	
 	/**
 	 * Returns the current database search result.
@@ -346,17 +358,29 @@ public class Client {
 	
 	/**
 	 * Returns the result(s) from the database search for a particular experiment.
-	 * @param experimentid The experiment id
+	 * @param ProjectContent, ExperimentConten
 	 * @return DbSearchResult
 	 */
 	private void retrieveDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
+		retrieveDbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
+	}
+	
+	/**
+	 * Returns the result(s) from the database search for a particular experiment.
+	 * @param experimentName 
+	 * @param projectname 
+	 * @param ProjectID, ExperimentID
+	 * @return DbSearchResult
+	 */
+	public void retrieveDbSearchResult(String projectName, String experimentName, long experimentID) {
 		// Init the database connection.
 		try {
 			initDBConnection();
 			
 			// The protein hit set, containing all information about found proteins.
 			// TODO: use fastaDB parameter properly
-			dbSearchResult = new DbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), "EASTER EGG");
+			
+			dbSearchResult = new DbSearchResult(projectName, experimentName, "is Missing");
 
 			// Set up progress monitoring
 			firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
@@ -364,7 +388,7 @@ public class Client {
 			pSupport.firePropertyChange("indeterminate", false, true);
 			
 			// Query database search hits and them to result object
-			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(expContent.getExperimentID(), conn);
+			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 			
 			long maxProgress = searchHits.size();
 			long curProgress = 0;
@@ -592,7 +616,8 @@ public class Client {
 		try {
 			closeDBConnection();
 		} catch (SQLException e) {
-			JXErrorPane.showDialog(e);
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 		System.exit(0);
 	}
@@ -602,6 +627,9 @@ public class Client {
 	 * @return dbSettings The DBConnectionSettings object.
 	 */
 	public DbConnectionSettings getDbSettings() {
+		if (dbSettings == null) {
+			dbSettings = new DbConnectionSettings();
+		}
 		return dbSettings;
 	}
 	
@@ -627,6 +655,22 @@ public class Client {
 	 */
 	public void setServerSettings(ServerConnectionSettings srvSettings) {
 		this.srvSettings = srvSettings;
+	}
+
+	/**
+	 * Returns whether the client is in viewer mode.
+	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
+	 */
+	public boolean isViewer() {
+		return this.viewer;
+	}
+	
+	/**
+	 * Sets the client's viewer mode property.
+	 * @param viewer <code>true</code> if in viewer mode, <code>false</code> otherwise.
+	 */
+	public void setViewer(boolean viewer) {
+		this.viewer = viewer;
 	}
 
 }

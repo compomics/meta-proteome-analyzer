@@ -1,5 +1,7 @@
 package de.mpa.client.model.dbsearch;
 
-public enum SearchEngineType {
+import java.io.Serializable;
+
+public enum SearchEngineType implements Serializable {
 	XTANDEM, OMSSA, CRUX, INSPECT
 }

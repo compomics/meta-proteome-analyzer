@@ -36,7 +36,10 @@ import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -412,7 +415,8 @@ public class GeneralDialog extends JDialog {
 			clientFrame.getProjectPanel().refreshProjectTable();
 
 		} catch (SQLException e) {
-			GeneralExceptionHandler.showSQLErrorDialog(e, this);
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 	
@@ -460,7 +464,8 @@ public class GeneralDialog extends JDialog {
 			clientFrame.getProjectPanel().refreshExperimentTable(currentProjContent.getProjectid());
 			
 		} catch (SQLException e) {
-			GeneralExceptionHandler.showSQLErrorDialog(e, this);
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 

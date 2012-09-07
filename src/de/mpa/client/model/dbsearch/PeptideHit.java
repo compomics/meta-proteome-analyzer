@@ -1,5 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +13,7 @@ import de.mpa.client.model.SpectrumMatch;
  * @author T.Muth
  *
  */
-public class PeptideHit {
+public class PeptideHit implements Serializable{
 	
 	/**
 	 * Flag denoting whether this peptide is selected for export.

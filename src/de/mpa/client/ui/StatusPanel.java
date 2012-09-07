@@ -21,11 +21,6 @@ import de.mpa.client.Client;
 public class StatusPanel extends JPanel {
 
 	/**
-	 * The client instance
-	 */
-	private Client client;
-	
-	/**
 	 * The progress bar displaying current process progress.
 	 */
 	private JProgressBar currentPrg = new JProgressBar();
@@ -59,7 +54,6 @@ public class StatusPanel extends JPanel {
 	 * Creates the client frame's status bar panel.
 	 */
 	public StatusPanel() {
-		client = Client.getInstance();
 		initComponents();
 		initListener();
 	}
@@ -243,7 +237,9 @@ public class StatusPanel extends JPanel {
 						(remainingTime%3600)/60, remainingTime%60));
 			}
 		};
-		client.addPropertyChangeListener(listener);
+		
+		Client.getInstance().addPropertyChangeListener(listener);
+		
 	}
 
 	public JProgressBar getCurrentProgressBar() {

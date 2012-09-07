@@ -110,6 +110,13 @@ public class IconConstants {
 	public static final ImageIcon VIEW_PAGE_ROLLOVER_ICON = createRescaledIcon(VIEW_PAGE_ICON, 1.1f);
 	/** @see IconConstants#VIEW_PAGE_ICON */
 	public static final ImageIcon VIEW_PAGE_PRESSED_ICON = createRescaledIcon(VIEW_PAGE_ICON, 0.8f);
+
+	/** <img src="../../../resources/icons/database_refresh.png"> */
+	public static final ImageIcon REFRESH_PAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/file_refresh16.png"));
+	/** @see IconConstants#REFRESH_DB_ICON */
+	public static final ImageIcon REFRESH_PAGE_ROLLOVER_ICON = createRescaledIcon(REFRESH_PAGE_ICON, 1.1f);
+	/** @see IconConstants#REFRESH_DB_ICON */
+	public static final ImageIcon REFRESH_PAGE_PRESSED_ICON = createRescaledIcon(REFRESH_PAGE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/delete_page16.png"> */
 	public static final ImageIcon DELETE_PAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/delete_page16.png"));

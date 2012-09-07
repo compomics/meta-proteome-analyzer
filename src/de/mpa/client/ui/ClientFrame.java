@@ -10,14 +10,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -25,11 +24,9 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXTable;
 
 import de.mpa.client.Client;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.client.ui.panels.ClusterPanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
@@ -40,7 +37,6 @@ import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
 import de.mpa.main.Parameters;
-
 
 /**
  * <b> ClientFrame </b>
@@ -53,30 +49,29 @@ import de.mpa.main.Parameters;
 
 public class ClientFrame extends JFrame {
 
-	public Logger log = Logger.getLogger(getClass());
-	private ProjectPanel projectPnl;
-	private Client client;
-	private FilePanel filePnl;
-//	private DeNovoResultPanel denovoResPnl;
-	private LoggingPanel logPnl;
-	public JButton sendBtn;
-	private ClientFrameMenuBar menuBar;
-	private boolean connectedToServer = false;
-	public JXTable protTbl;
-	public JComboBox spectraCbx;
-	public JComboBox spectraCbx2;
-	private ClusterPanel clusterPnl;
-	protected List<File> chunkedFiles;
-//	private DbSearchResultPanel dbSearchResPnl;
-//	private SpecSimResultPanel specSimResPnl;
-	private SettingsPanel setPnl;
-	private StatusPanel statusPnl;
-	private JTabbedPane tabPane;
-//	private TreePanel treePnl;
-	private ResultsPanel resPnl;
 	private static ClientFrame frame;
-	
 
+	/**
+	 * The menu bar instance.
+	 */
+	private ClientFrameMenuBar menuBar;
+
+	private JTabbedPane tabPane;
+	
+	private JPanel projectPnl = new JPanel();
+	private JPanel filePnl = new JPanel();
+	private JPanel setPnl = new JPanel();
+	private JPanel resPnl = new JPanel();
+	private JPanel clusterPnl = new JPanel();
+	private JPanel logPnl = new JPanel();
+	
+	private StatusPanel statusPnl;
+	
+	public Logger log = Logger.getLogger(getClass());
+	
+	
+	private boolean connectedToServer = false;
+	
 	/**
 	 * Returns a client singleton object.
 	 * 
@@ -99,20 +94,40 @@ public class ClientFrame extends JFrame {
 //		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				client.exit();
+				Client.getInstance().exit();
 			}
 		});
 		frame = this;
+		
+		// Question to start Viewer or complete Version
+		// TODO: export project using different run configurations instead of using this selection dialog
+		Object[] options = {"Full MPA","Viewer MPA"};
+		int buttonIndex = JOptionPane.showOptionDialog(frame,
+				"Which Type of MPA you want to use",
+				"MPA", JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[1]);
+		
+		switch (buttonIndex) {
+		case -1:
+			System.exit(1);
+			break;
+		case 0:
+			Client.getInstance();
+			break;
+		case 1: // Viewer
+			Client.getInstance().setViewer(true);
+		}
+		
 
 		// Frame size
 		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
 		this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));	
 		this.setResizable(true);
 
-		// Get the client instance
-		client = Client.getInstance();
-
-		// Init components
+		// Build Components
 		initComponents();
 		
 		// Get the content pane
@@ -177,13 +192,26 @@ public class ClientFrame extends JFrame {
 		
 		// TODO: notify progress bar for loading paramters.
 		Parameters.getInstance();
-//		// Register property change listener
-//		client.addPropertyChangeListener(new PropertyChangeListener() {
-//			// Update the 
-//			public void propertyChange(PropertyChangeEvent evt) {
-//				updateSearchEngineUI(evt.getNewValue().toString());
-//			}
-//		});
+		
+		// Enables Functions for the Viewer
+		if (Client.getInstance().isViewer()) {
+			// Enables Parts 
+			String[] enabledItems = Parameters.getInstance().getEnabledItemsForViewer();
+			
+			for (int i = 0; i < panels.length; i++) {
+				tabPane.setEnabledAt(i, false);
+				for (int j = 0; j < enabledItems.length; j++) {
+					if (((JButton) tabPane.getTabComponentAt(i)).getText().equals(enabledItems[j])) {
+						tabPane.setEnabledAt(i, true);
+						break;
+					}
+				}
+			}
+			// Enables Server Connections
+			menuBar.getSettingsMenu().setEnabled(false);
+
+			tabPane.setSelectedIndex(3);
+		}
 		
 		// Set application icon
 		this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/de/mpa/resources/icons/mpa01.png")));
@@ -204,37 +232,25 @@ public class ClientFrame extends JFrame {
 		
 		// Status Bar
 		statusPnl = new StatusPanel();
+		
+		if (!Client.getInstance().isViewer()) {
+			// Project panel
+			projectPnl = new ProjectPanel();
 
-		// Project panel
-		projectPnl = new ProjectPanel();
+			// File panel
+			filePnl = new FilePanel();
 
-		// File panel
-		filePnl = new FilePanel();
+			// Settings Panel
+			setPnl = new SettingsPanel();
 
-		// Settings Panel
-		setPnl = new SettingsPanel();
+			// Logging panel		
+			logPnl = new LoggingPanel();
+		}
 		
 		// Results Panel
 		resPnl = new ResultsPanel();
-
-//		// Database search result panel
-//		dbSearchResPnl = new DbSearchResultPanel();
-//		
-//		// Spectral similarity search result panel
-//		specSimResPnl = new SpecSimResultPanel();
-//
-//		// DeNovoResults		
-//		denovoResPnl = new DeNovoResultPanel();
-//
-//		// Tree panel
-//		treePnl = new TreePanel();
 		
-		// Logging panel		
-		logPnl = new LoggingPanel();
-		
-		
-		
-		// fabi's test panel
+		// Fabi's test panel
 //		clusterPnl = new ClusterPanel();
 		
 	}
@@ -244,7 +260,7 @@ public class ClientFrame extends JFrame {
 	 * @return
 	 */
 	public FilePanel getFilePanel() {
-		return filePnl;
+		return (FilePanel) filePnl;
 	}
 	
 	/**
@@ -272,7 +288,7 @@ public class ClientFrame extends JFrame {
 	}
 
 	public SettingsPanel getSettingsPanel() {
-		return setPnl;
+		return (SettingsPanel) setPnl;
 	}
 	
 	/**
@@ -280,7 +296,7 @@ public class ClientFrame extends JFrame {
 	 * @return
 	 */
 	public ProjectPanel getProjectPanel() {
-		return projectPnl;
+		return (ProjectPanel) projectPnl;
 	}
 
 	/**
@@ -296,7 +312,7 @@ public class ClientFrame extends JFrame {
 	 * @return The results panel.
 	 */
 	public ResultsPanel getResultsPanel() {
-		return resPnl;
+		return (ResultsPanel) resPnl;
 	}
 	
 	/**
@@ -304,7 +320,7 @@ public class ClientFrame extends JFrame {
 	 * @return The database search result panel.
 	 */
 	public DbSearchResultPanel getDbSearchResultPanel() {
-		return resPnl.getDbSearchResultPanel();
+		return getResultsPanel().getDbSearchResultPanel();
 	}
 	
 	/**
@@ -312,7 +328,7 @@ public class ClientFrame extends JFrame {
 	 * @return The spectral similarity search result panel.
 	 */
 	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
-		return resPnl.getSpectralSimilarityResultPanel();
+		return getResultsPanel().getSpectralSimilarityResultPanel();
 	}
 	
 	/**
@@ -320,7 +336,7 @@ public class ClientFrame extends JFrame {
 	 * @return The de novo similarity search result panel.
 	 */
 	public DeNovoResultPanel getDeNovoSearchResultPanel() {
-		return resPnl.getDeNovoSearchResultPanel();
+		return getResultsPanel().getDeNovoSearchResultPanel();
 	}
 	
 	/**

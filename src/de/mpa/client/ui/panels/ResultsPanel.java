@@ -38,11 +38,11 @@ import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
+import de.mpa.client.ui.chart.TopData;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
-import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class ResultsPanel extends JPanel {
@@ -109,7 +109,9 @@ public class ResultsPanel extends JPanel {
 			public void actionPerformed(ActionEvent evt) {
 				clientFrame.getTabPane().setSelectedIndex(2);
 			}
-		});		
+		});
+		prevBtn.setEnabled(!Client.getInstance().isViewer());
+		
 		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
 		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
 		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
@@ -121,6 +123,7 @@ public class ResultsPanel extends JPanel {
 				clientFrame.getTabPane().setSelectedIndex(5);
 			}
 		});
+		nextBtn.setEnabled(!Client.getInstance().isViewer());
 		
 		navPnl.add(prevBtn, CC.xy(1, 1));
 		navPnl.add(nextBtn, CC.xy(3, 1));

@@ -16,11 +16,11 @@ public class KeggMapsTest extends TestCase{
 	@Override
 	public void setUp() throws Exception {
 		// Pathways
-		String pathwayPath = "/" + Parameters.getInstance().getPath() + "/keggPathways.txt";
+		String pathwayPath = "/" + Parameters.getInstance().getConfPath() + "/keggPathways.txt";
 		keggPathwayList = KeggMaps.getKeggPathwayList(pathwayPath);
 		
 		// Taxonomy
-		String taxonomyPath = "/" + Parameters.getInstance().getPath() + "/keggTaxonomyMap.txt";
+		String taxonomyPath = "/" + Parameters.getInstance().getConfPath() + "/keggTaxonomyMap.txt";
 		keggTaxonomie = KeggMaps.getKeggTaxonomie(taxonomyPath);
 	}
 	

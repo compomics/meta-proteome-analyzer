@@ -42,6 +42,8 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jfree.chart.ChartPanel;
@@ -463,7 +465,8 @@ public class FilePanel extends JPanel {
 					spectrumPnl.add(viewer, CC.xy(2, 2));
 					spectrumPnl.validate();
 				} catch (IOException e) {
-					JXErrorPane.showDialog(e);
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
 			}
 		}
@@ -611,7 +614,8 @@ public class FilePanel extends JPanel {
 					
 				} catch (Exception ex) {
 					client.firePropertyChange("new message", null, "READING SPECTRUM FILE(S) ABORTED");
-					JXErrorPane.showDialog(ex);
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", ex.getMessage(), null, null, ex, ErrorLevel.SEVERE, null));
 				}
 				
 				treeTbl.expandRow(0);

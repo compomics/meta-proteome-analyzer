@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.table.ColumnControlButton;
 
@@ -42,7 +44,6 @@ import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.DialogType;
 import de.mpa.client.ui.dialogs.GeneralDialog;
-import de.mpa.client.ui.dialogs.GeneralExceptionHandler;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
@@ -77,7 +78,6 @@ public class ProjectPanel extends JPanel {
 	private JButton modifyExperimentBtn;
 	private JButton deleteExperimentBtn;
 
-	
 	/**
 	 * The project panel constructor initializes the basic components for 
 	 * the project configuration.
@@ -91,14 +91,15 @@ public class ProjectPanel extends JPanel {
 		try {
 			// Initialize the database connection
 			client.initDBConnection();
-				
+
 			// Updates the project table.
 			refreshProjectTable();
-			
+				
 			// Close the connection
 			// TODO:	clientFrame.getClient().closeDBConnection();
 		} catch (SQLException e) {
-			JXErrorPane.showDialog(e);
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 	
@@ -109,7 +110,8 @@ public class ProjectPanel extends JPanel {
 		try {
 			projectManager = new ProjectManager(client.getConnection());
 		} catch (SQLException e) {
-			GeneralExceptionHandler.showSQLErrorDialog(e, clientFrame);
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 
@@ -425,8 +427,8 @@ public class ProjectPanel extends JPanel {
 				try {
 					queryProjectTableSelected(evt);
 				} catch (SQLException e) {
-					GeneralExceptionHandler.showSQLErrorDialog(e, clientFrame);
-					e.printStackTrace();
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
 			}
 		});
@@ -571,6 +573,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	public void refreshExperimentTable(Long projectID, Long experimentID) {
 		try {
+
 			projectManager.revalidate(client.getConnection());
 			
 			List<Experiment> experiments = projectManager.getProjectExperiments(projectID);
@@ -654,6 +657,8 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.setEnabled(true);
 		
 		// Clear any fetched results
+		//TODO Client
+
 		client.clearDbSearchResult();
 		client.clearSpecSimResult();
 	}
@@ -675,6 +680,7 @@ public class ProjectPanel extends JPanel {
 			long projectid = currentProjContent.getProjectid();
 			long experimentid = (Long) experimentTbl.getValueAt(selRow, 0);
 
+			//TODO Client
 			projectManager.revalidate(client.getConnection());
 			
 			Experiment experiment = projectManager.getProjectExperiment(projectid, experimentid);
