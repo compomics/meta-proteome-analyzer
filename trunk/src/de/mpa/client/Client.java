@@ -3,16 +3,19 @@ package de.mpa.client;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.tree.TreePath;
@@ -671,6 +674,41 @@ public class Client {
 	 */
 	public void setViewer(boolean viewer) {
 		this.viewer = viewer;
+	}
+
+	/**
+	 * Writes the current database search result object to a the specified file.
+	 * @param filename The String representing the desired file path and name.
+	 */
+	public void writeDbSearchResultToFile(String filename) {
+		// TODO: add progress bar information and status messages 
+		
+		// prepare result object for export by iterating spectrum matches and adding spectrum files to them
+		for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+			for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
+				for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
+					long searchSpectrumID = specMatch.getSearchSpectrumID();
+					try {
+						MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(searchSpectrumID);
+						specMatch.setMgf(mgf);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					
+				}
+			}
+		}
+
+		try {
+			// dump to file
+			FileOutputStream fos = new FileOutputStream(new File(filename));
+			// store as compressed binary object
+			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(fos)));
+			oos.writeObject(dbSearchResult);
+		} catch (IOException e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
 	}
 
 }

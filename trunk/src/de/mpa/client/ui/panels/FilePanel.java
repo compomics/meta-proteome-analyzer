@@ -59,6 +59,7 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
@@ -69,7 +70,6 @@ import de.mpa.client.ui.chart.TotalIonHistogram.HistChartType;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.ui.ExtensionFileFilter;
 
 public class FilePanel extends JPanel {
 	
@@ -399,7 +399,8 @@ public class FilePanel extends JPanel {
 				File startLocation = new File(PATH);
 				
 				JFileChooser fc = new JFileChooser(startLocation);
-				fc.setFileFilter(new ExtensionFileFilter("mgf", false));
+				fc.setFileFilter(Constants.MGF_FILE_FILTER);
+				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(true);
 				int result = fc.showOpenDialog(clientFrame);

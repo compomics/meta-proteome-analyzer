@@ -2,55 +2,94 @@ package de.mpa.ui;
 
 import java.io.File;
 
+import javax.swing.filechooser.FileFilter;
+
 /**
  * This class allows customizable file extension filtering.
  *
- * @author Thilo Muth
+ * @author T. Muth, A. Behne
  * @version $Id$
  */
-public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
+public class ExtensionFileFilter extends FileFilter {
 
     /**
      * The extension to filter on. Will always be prefixed with a '.'.
      */
     private String extension = null;
+    
     /**
-     * Boolean to indicate whether the matching needs to be case sensitive.
+     * The description String to be displayed in file chooser dialogs.
+     */
+    private String description = null;
+    
+    /**
+     * Boolean to indicate whether the matching needs to be case-sensitive.
      */
     private boolean caseSensitive = false;
+    
+    /**
+     * Constructs a file filter that filters on the specified extension.
+     * 
+     * @param aExtension The extension String. Will automatically prepend '.' if not already present.
+     */
+    public ExtensionFileFilter(String aExtension) {
+    	this(aExtension, false);
+    }
 
     /**
-     * Constructor that takes the file extension to filter on, and whether filtering
-     * should be case sensitive.
-     *
-     * @param aExtension     String with the extension. If not already prefixed with '.',
-     *                       the '.' will automatically be prefixed.
-     * @param aCaseSensitive boolean to indicate case sensitivity.
+     * Constructs a file filter that filters on the specified extension.
+     * 
+     * @param aExtension The extension String. Will automatically prepend '.' if not already present.
+     * @param aCaseSensitive boolean denoting case sensitivity. <code>true</code> if case-sensitive,
+     * <code>false</code> otherwise.
      */
     public ExtensionFileFilter(String aExtension, boolean aCaseSensitive) {
-        caseSensitive = aCaseSensitive;
-        // Check for prefixed '.', if not present, prefix it automatically.
+    	this(aExtension, aCaseSensitive, null);
+    }
+    
+    /**
+     * Constructs a file filter that filters on the specified extension.
+     * 
+     * @param aExtension The extension String. Will automatically prepend '.' if not already present.
+     * @param aCaseSensitive boolean denoting case sensitivity. <code>true</code> if case-sensitive,
+     * <code>false</code> otherwise.
+     * @param aDescription The description String to be displayed in file chooser dialogs. Will use 
+     * default ".ext files" pattern if <code>null</code> is provided.
+     */
+    public ExtensionFileFilter(String aExtension, boolean aCaseSensitive,
+			String aDescription) {
+        
+        // Check whether description was provided, if not, fall back to default.
+        if (aDescription == null) {
+        	aDescription = aExtension.toUpperCase() + " Files";
+        }
+        
+        // Check for prefixed '.', if not present, prepend it.
         if (!aExtension.startsWith(".")) {
             aExtension = "." + aExtension;
         }
+        
         // Case sensitivity.
         if (!caseSensitive) {
             aExtension = aExtension.toLowerCase();
         }
+        
         this.extension = aExtension;
-    }
+        this.caseSensitive = aCaseSensitive;
+        this.description = aDescription;
+	}
 
-    /**
+	/**
      * This method checks whether the specified file is acceptable.
      *
      * @param pathname File with the full pathname for the file.
-     * @return boolean to indicate acceptance ('true') or refusal ('false')
+     * @return <code>true</code> if the file is acceptable, <code>false</code> otherwise.
      */
     public boolean accept(File pathname) {
         boolean result = false;
         if (pathname.isFile()) {
             String name = pathname.getName();
-            // See if we need to work case insensitive...
+            // See if we need to work case-insensitive...
             if (!caseSensitive) {
                 name = name.toLowerCase();
             }
@@ -66,18 +105,18 @@ public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
     }
 
     /**
-     * Returns true if the filter is case sensitive.
+     * Returns whether the filter is case-sensitive.
      *
-     * @return true if the filter is case sensitive
+     * @return <code>true</code> if the filter is case-sensitive, <code>false</code> otherwise.
      */
     public boolean isCaseSensitive() {
         return caseSensitive;
     }
 
     /**
-     * Returns the extension.
+     * Returns the extension String.
      *
-     * @return the extension
+     * @return the extension String.
      */
     public String getExtension() {
         return extension;
@@ -89,6 +128,6 @@ public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
      * @see javax.swing.filechooser.FileView#getName
      */
     public String getDescription() {
-        return extension + " files";
+        return description;
     }
 }

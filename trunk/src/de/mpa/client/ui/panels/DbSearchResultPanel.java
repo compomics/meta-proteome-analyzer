@@ -72,7 +72,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -258,13 +257,12 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private JButton getResultsBtn;
 	
+//	private JButton getResultsFromFileBtn;
+	
 	/**
 	 * The parent results panel.
 	 */
 	private ResultsPanel parent;
-
-	private JButton getResultsFromFileBtn;
-	
 
 	private ProtCHighlighterPredicate protCHighlightPredicate;
 	
@@ -326,23 +324,16 @@ public class DbSearchResultPanel extends JPanel {
 				getResultsButtonPressed();
 			}
 		});
-		getResultsFromFileBtn = new JButton("Get Results from File   ", IconConstants.REFRESH_PAGE_ICON);
-		getResultsFromFileBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
+		JButton getResultsFromFileBtn = new JButton("Get Results from File   ", IconConstants.REFRESH_PAGE_ICON);
+		getResultsFromFileBtn.setPreferredSize(new Dimension(getResultsFromFileBtn.getPreferredSize().width, 20));
 		getResultsFromFileBtn.setFocusPainted(false);
 		
 		getResultsFromFileBtn.addActionListener(new ActionListener() {
-			private JFileChooser chooser;
-
 			public void actionPerformed(ActionEvent arg0) {
-				chooser = new JFileChooser();
-				chooser.setFileFilter(new FileFilter() {
-					public String getDescription() {
-						return "Get MPA File";
-					}
-					public boolean accept(File f) {
-						return f.getName().toLowerCase().endsWith(".mpa")|| f.isDirectory();
-					}
-				});
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				int returnValue = chooser.showOpenDialog(clientFrame);
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = chooser.getSelectedFile();
@@ -374,7 +365,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 		
-		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p, p, p", "p"));
+		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
 		protBtnPnl.setOpaque(false);
 		
 		hierarchyCbx = new JComboBox(cardLabels);
@@ -389,8 +380,8 @@ public class DbSearchResultPanel extends JPanel {
 		hierarchyCbx.setPreferredSize(new Dimension(hierarchyCbx.getPreferredSize().width, 20));
 		
 		protBtnPnl.add(hierarchyCbx, CC.xy(3, 1));
-		protBtnPnl.add(getResultsBtn, CC.xy(4, 1));
-		protBtnPnl.add(getResultsFromFileBtn, CC.xy(5, 1));
+		protBtnPnl.add(getResultsBtn, CC.xy(5, 1));
+		protBtnPnl.add(getResultsFromFileBtn, CC.xy(7, 1));
 		
 		// XXX: only for testing purposes, please remove when appropriate
 		final JTextField testTtf = new JTextField(20);

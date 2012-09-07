@@ -99,28 +99,23 @@ public class ClientFrame extends JFrame {
 		});
 		frame = this;
 		
-		// Question to start Viewer or complete Version
+		// Prompt to start in Viewer mode
 		// TODO: export project using different run configurations instead of using this selection dialog
-		Object[] options = {"Full MPA","Viewer MPA"};
-		int buttonIndex = JOptionPane.showOptionDialog(frame,
-				"Which Type of MPA you want to use",
-				"MPA", JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,
-				options,
-				options[1]);
+		int buttonIndex = JOptionPane.showConfirmDialog(frame,
+				"Launch in viewer mode?",
+				"Mode Selection",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
 		
 		switch (buttonIndex) {
-		case -1:
-			System.exit(1);
-			break;
-		case 0:
+		case JOptionPane.YES_OPTION:
+			Client.getInstance().setViewer(true);
+		case JOptionPane.NO_OPTION:
 			Client.getInstance();
 			break;
-		case 1: // Viewer
-			Client.getInstance().setViewer(true);
+		default:
+			System.exit(0);
 		}
-		
 
 		// Frame size
 		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));

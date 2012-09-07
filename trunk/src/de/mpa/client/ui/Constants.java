@@ -1,8 +1,12 @@
 package de.mpa.client.ui;
 
+import javax.swing.filechooser.FileFilter;
+
 import de.mpa.io.MascotGenericFile;
+import de.mpa.ui.ExtensionFileFilter;
 
 public class Constants {
+	
 	public static final int MAINFRAME_WIDTH = 1280;
 	public static final int MAINFRAME_HEIGHT = 800;
 	public static final String[] FASTA_DB = { "uniprot_sprot", "ecoli", "methanomicrobia", "archaea", "firmicutes"};
@@ -30,4 +34,12 @@ public class Constants {
 
 	public static final int ALPHA_NUMERICAL = 0;
 	public static final int NUMERICAL = 1;
+	
+	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
+			"Mascot Generic Format Files (*.mgf)");
+	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
+			"MetaProteomeAnalyzer Project Files (*.mpa)");
+	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
+			"CSV (tab-separated) Files (*.csv)");
+	
 }

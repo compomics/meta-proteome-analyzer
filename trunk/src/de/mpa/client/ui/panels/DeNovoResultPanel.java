@@ -32,6 +32,8 @@ import no.uib.jsparklines.renderers.JSparklinesBarChartTableCellRenderer;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jfree.chart.plot.PlotOrientation;
 
 import com.compomics.util.experiment.biology.Ion;
@@ -326,7 +328,8 @@ public class DeNovoResultPanel extends JPanel {
 	            spectrumJPanel.repaint();
 				
 			} catch (SQLException e) {
-				JXErrorPane.showDialog(e);
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
         }
     }
