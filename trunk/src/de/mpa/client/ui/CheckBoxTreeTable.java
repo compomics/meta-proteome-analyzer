@@ -112,7 +112,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		tree.setUI(new FillToEdgeTreeUI());
 		
 		// Install rollover functionality
-		// TODO: rollover seems to become unresponsive when clicking expand/collapse controls
+		// TODO: rollover seems to become unresponsive when clicking expand/collapse controls - investigate!
 		treeTable.addPropertyChangeListener(RolloverProducer.ROLLOVER_KEY, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
@@ -124,9 +124,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 						cbtce.cancelCellEditing();
 					}
 				} else {
-					// TODO: null means we're either inside one of the
-					// editor's sub-components or outside the table, how
-					// to distinguish one from the other?
+					// TODO: null means we're either inside one of the editor's sub-components or outside the table - how to distinguish one from the other?
 //					cbtce.cancelCellEditing();
 				}
 			}

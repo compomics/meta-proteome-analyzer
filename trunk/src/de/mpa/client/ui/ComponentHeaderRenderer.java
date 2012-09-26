@@ -1,5 +1,6 @@
 package de.mpa.client.ui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
@@ -12,10 +13,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.RowSorter.SortKey;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -46,7 +47,9 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 		panel.add(this, CC.xy((orientation == SwingConstants.TRAILING) ? 4 : 2, 1));
 		panel.add(label, CC.xy(3, 1));
 		panel.add(comp, CC.xy((orientation == SwingConstants.TRAILING) ? 2 : 4, 1));
+		panel.setBackground(new Color(164, 164, 164));
 		panel.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+		panel.setOpaque(false);
 		
 		this.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent me) {

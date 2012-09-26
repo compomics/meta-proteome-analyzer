@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -11,16 +12,19 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -31,25 +35,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -70,8 +81,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -84,7 +98,12 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
+import org.jdesktop.swingx.MultiSplitLayout.Divider;
+import org.jdesktop.swingx.MultiSplitLayout.Node;
+import org.jdesktop.swingx.MultiSplitLayout.Split;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
@@ -108,7 +127,10 @@ import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
@@ -120,6 +142,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
+import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniprotAccessor;
@@ -137,6 +160,7 @@ import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.Constants;
+import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.PhylogenyTreeTableNode;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
@@ -179,7 +203,6 @@ public class DbSearchResultPanel extends JPanel {
 	private JXTable peptideTbl;
 	private JPanel coveragePnl;
 	private JXTable psmTbl;
-	private JPanel spectrumJPanel;
 	private SpectrumPanel specPnl;
 	
 	/*
@@ -235,11 +258,13 @@ public class DbSearchResultPanel extends JPanel {
 	 * Tree table displaying proteins hierarchically by their Enzyme Commission number.
 	 */
 	private SortableCheckBoxTreeTable protEnzymeTreeTbl;
+
+	private SortableCheckBoxTreeTable protPathwayTreeTbl;
 	
 	/**
 	 * Map linking root node names to their respective tree table
 	 */
-	private Map<String, CheckBoxTreeTable> linkMap = new HashMap<String, CheckBoxTreeTable>();
+	private Map<String, CheckBoxTreeTable> linkMap = new LinkedHashMap<String, CheckBoxTreeTable>();
 	
 	/**
 	 * Flag indicating whether checkbox selections inside tree tables are currently 
@@ -247,10 +272,10 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private boolean synching = false;
 
-	/**
-	 * Combo box for choosing which hierarchical protein view to display.
-	 */
-	private JComboBox hierarchyCbx;
+//	/**
+//	 * Combo box for choosing which hierarchical protein view to display.
+//	 */
+//	private JComboBox hierarchyCbx;
 	
 	/**
 	 * The button to query database results and refresh detail views.
@@ -300,33 +325,154 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Scroll panes
 		JScrollPane proteinTableScp = new JScrollPane(proteinTbl);
-		proteinTableScp.setPreferredSize(new Dimension(800, 180));
+		proteinTableScp.setPreferredSize(new Dimension(800, 150));
 		JScrollPane peptideTableScpn = new JScrollPane(peptideTbl);
-		peptideTableScpn.setPreferredSize(new Dimension(350, 130));
+		peptideTableScpn.setPreferredSize(new Dimension(350, 100));
 		JScrollPane coverageScpn = new JScrollPane(coveragePnl);
-		coverageScpn.setPreferredSize(new Dimension(350, 130));
+		coverageScpn.setPreferredSize(new Dimension(350, 100));
 		coverageScpn.getVerticalScrollBar().setUnitIncrement(16);
 		coverageScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		JScrollPane psmTableScp = new JScrollPane(psmTbl);
-		psmTableScp.setPreferredSize(new Dimension(350, 130));
+		psmTableScp.setPreferredSize(new Dimension(350, 100));
 		
-		getResultsBtn = new JButton("Get Results from DB  ", IconConstants.REFRESH_DB_ICON);
-		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
-		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
+		// Hierarchical view options
+		final String[] cardLabels = new String[] {"Original", "Flat View",
+				"Taxonomic View", "E.C. View", "Pathway View"};
 		
-		getResultsBtn.setEnabled(false);
+		final CardLayout protCardLyt = new CardLayout();
+		final JPanel protCardPnl = new JPanel(protCardLyt);
+		protCardPnl.add(proteinTableScp, cardLabels[0]);
 		
-		getResultsBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
-		getResultsBtn.setFocusPainted(false);
+		setupProteinTreeTables();
+		int i = 1;
+		for (CheckBoxTreeTable cbtt : linkMap.values()) {
+			JScrollPane scrollPane = new JScrollPane(cbtt);
+			scrollPane.setPreferredSize(new Dimension(800, 150));
+			protCardPnl.add(scrollPane, cardLabels[i++]);
+		}
+		
+		proteinPnl.add(protCardPnl, CC.xy(2, 2));
+		
+		final JToggleButton hierarchyBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
+		hierarchyBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ROLLOVER_ICON));
+		hierarchyBtn.setPressedIcon(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_PRESSED_ICON));
+		hierarchyBtn.setToolTipText("Select Hierarchical View");
+		
+		hierarchyBtn.setUI(new RoundedHoverButtonUI());
+
+		hierarchyBtn.setOpaque(false);
+		hierarchyBtn.setBorderPainted(false);
+		hierarchyBtn.setMargin(new Insets(1, 0, 0, 0));
+		
+		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
+		hierarchyBtn.addMouseListener(ittml);
+		
+		final JPopupMenu hierarchyPop = new JPopupMenu();
+		ActionListener hierarchyListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				protCardLyt.show(protCardPnl, ((AbstractButton) e.getSource()).getText());
+			}
+		};
+		for (int j = 0; j < cardLabels.length; j++) {
+			JMenuItem item = new JMenuItem(cardLabels[j]);
+			item.addActionListener(hierarchyListener);
+			hierarchyPop.add(item);
+		}
+		hierarchyPop.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+				hierarchyBtn.setSelected(false);
+			}
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
+			public void popupMenuCanceled(PopupMenuEvent e) {}
+		});
+		
+		hierarchyBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				hierarchyPop.show(hierarchyBtn, 0, hierarchyBtn.getHeight());
+			}
+		});
+		
+//		final JComboBox hierarchyCbx = new JComboBox(cardLabels) {
+//			private boolean layingOut = false;
+//			@Override
+//			public void doLayout() {
+//				try {
+//					layingOut = true;
+//					super.doLayout();
+//				} finally {
+//					layingOut = false;
+//				}
+//			}
+//			@Override
+//			public Dimension getSize() {
+//				Dimension dim = super.getSize();
+//				if (!layingOut)
+//					dim.width = Math.max(dim.width, getPreferredSize().width);
+//				return dim;
+//			}
+//		};
+//		hierarchyCbx.addItemListener(new ItemListener() {
+//			@Override
+//			public void itemStateChanged(final ItemEvent e) {
+//				if (e.getStateChange() == ItemEvent.SELECTED) {
+//					protCardLyt.show(protCardPnl, (String) e.getItem());
+//				}
+//			}
+//		});
+//		hierarchyCbx.setPreferredSize(new Dimension(hierarchyCbx.getPreferredSize().width + 18, 20));
+//		hierarchyCbx.setRenderer(new ListCellRenderer() {
+//			private ListCellRenderer delegate = hierarchyCbx.getRenderer();
+//			private Icon icon = new Icon() {
+//				private Icon delegate = 
+//					new ImageIcon(getClass().getResource("/de/mpa/resources/icons/hierarchy16.png"));
+//				public void paintIcon(Component c, Graphics g, int x, int y) { delegate.paintIcon(c, g, x, y + 1); }
+//				public int getIconWidth() { return delegate.getIconWidth(); }
+//				public int getIconHeight() { return delegate.getIconHeight() + 1; }
+//			};
+//			@Override
+//			public Component getListCellRendererComponent(JList list, Object value,
+//					int index, boolean isSelected, boolean cellHasFocus) {
+//				if (index == -1) {
+//					return new JLabel((String) value, icon, SwingConstants.LEFT);
+//				}
+//				return delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+//			}
+//		});
+		
+		getResultsBtn = new JButton(IconConstants.GO_DB_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		getResultsBtn.setToolTipText("Get Results from DB");
+		
+		getResultsBtn.setUI(new RoundedHoverButtonUI());
+
+		getResultsBtn.setOpaque(false);
+		getResultsBtn.setBorderPainted(false);
+		getResultsBtn.setMargin(new Insets(1, 0, 0, 0));
+		
+		getResultsBtn.addMouseListener(ittml);
 		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getResultsButtonPressed();
 			}
 		});
-		JButton getResultsFromFileBtn = new JButton("Get Results from File   ", IconConstants.REFRESH_PAGE_ICON);
-		getResultsFromFileBtn.setPreferredSize(new Dimension(getResultsFromFileBtn.getPreferredSize().width, 20));
-		getResultsFromFileBtn.setFocusPainted(false);
+		getResultsBtn.setEnabled(false);
+		
+		JButton getResultsFromFileBtn = new JButton(IconConstants.GO_PAGE_ICON);
+		getResultsFromFileBtn.setRolloverIcon(IconConstants.GO_PAGE_ROLLOVER_ICON);
+		getResultsFromFileBtn.setPressedIcon(IconConstants.GO_PAGE_PRESSED_ICON);
+		getResultsFromFileBtn.setToolTipText("Get Results from File");
+		
+		getResultsFromFileBtn.setUI(new RoundedHoverButtonUI());
+
+		getResultsFromFileBtn.setOpaque(false);
+		getResultsFromFileBtn.setBorderPainted(false);
+		getResultsFromFileBtn.setMargin(new Insets(1, 0, 0, 0));
+		
+		getResultsFromFileBtn.addMouseListener(ittml);
 		
 		getResultsFromFileBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -342,46 +488,14 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 		
-		final String[] cardLabels = new String[] {"Original", "Flat View", "Taxonomic View", "E.C. View"};
-		
-		final CardLayout protCardLyt = new CardLayout();
-		final JPanel protCardPnl = new JPanel(protCardLyt);
-		protCardPnl.add(proteinTableScp, cardLabels[0]);
-		try {
-			setupProteinTreeTables();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		JScrollPane protFlatTreeScpn = new JScrollPane(protFlatTreeTbl);
-		protFlatTreeScpn.setPreferredSize(new Dimension(800, 180));
-		JScrollPane protTaxonTreeScpn = new JScrollPane(protTaxonTreeTbl);
-		protTaxonTreeScpn.setPreferredSize(new Dimension(800, 180));
-		JScrollPane protEnzymeTreeScpn = new JScrollPane(protEnzymeTreeTbl);
-		protEnzymeTreeScpn.setPreferredSize(new Dimension(800, 180));
-		
-		protCardPnl.add(protFlatTreeScpn, cardLabels[1]);
-		protCardPnl.add(protTaxonTreeScpn, cardLabels[2]);
-		protCardPnl.add(protEnzymeTreeScpn, cardLabels[3]);
-		
-		proteinPnl.add(protCardPnl, CC.xy(2, 2));
-		
-		JPanel protBtnPnl = new JPanel(new FormLayout("p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
+		JPanel protBtnPnl = new JPanel(new FormLayout("p, 2dlu, 36px, c:5dlu, p, 2dlu, p, 1px", "0px, f:p:g, 0px"));
 		protBtnPnl.setOpaque(false);
 		
-		hierarchyCbx = new JComboBox(cardLabels);
-		hierarchyCbx.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(final ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					protCardLyt.show(protCardPnl, (String) e.getItem());
-				}
-			}
-		});
-		hierarchyCbx.setPreferredSize(new Dimension(hierarchyCbx.getPreferredSize().width, 20));
-		
-		protBtnPnl.add(hierarchyCbx, CC.xy(3, 1));
-		protBtnPnl.add(getResultsBtn, CC.xy(5, 1));
-		protBtnPnl.add(getResultsFromFileBtn, CC.xy(7, 1));
+		protBtnPnl.add(hierarchyBtn, CC.xy(3, 2));
+//		protBtnPnl.add(hierarchyCbx, CC.xy(3, 2));
+		protBtnPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(4, 2));
+		protBtnPnl.add(getResultsBtn, CC.xy(5, 2));
+		protBtnPnl.add(getResultsFromFileBtn, CC.xy(7, 2));
 		
 		// XXX: only for testing purposes, please remove when appropriate
 		final JTextField testTtf = new JTextField(20);
@@ -403,9 +517,15 @@ public class DbSearchResultPanel extends JPanel {
 				protFlatTreeTbl.setRowFilter(rowFilter);
 				protTaxonTreeTbl.setRowFilter(rowFilter);
 				protEnzymeTreeTbl.setRowFilter(rowFilter);
+//				protPathwayTreeTbl.setRowFilter(rowFilter);
 			}
 		});
-		protBtnPnl.add(testTtf, CC.xy(1, 1));
+		testTtf.setBorder(BorderFactory.createCompoundBorder(testTtf.getBorder(),
+				BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 16, 0, 0,
+						new ImageIcon(getClass().getResource("/de/mpa/resources/icons/filter16.png"))),
+						BorderFactory.createEmptyBorder(0, 3, 0, 0))));
+		
+//		protBtnPnl.add(testTtf, CC.xy(1, 2));
 		
 //		JButton testBtn = new JButton("test");
 //		testBtn.addActionListener(new ActionListener() {
@@ -472,23 +592,17 @@ public class DbSearchResultPanel extends JPanel {
 		psmTtlPnl.setTitleFont(ttlFont);
 		psmTtlPnl.setTitlePainter(ttlPainter);
 		psmTtlPnl.setBorder(ttlBorder);
-
-		// Peptide and Psm Panel
-		JPanel pepPsmPnl = new JPanel(new FormLayout("p:g","f:p:g, 5dlu, f:p:g"));
-		
-		pepPsmPnl.add(pepTtlPnl, CC.xy(1, 1));
-		pepPsmPnl.add(psmTtlPnl, CC.xy(1, 3));
 		
 		// Build the spectrum overview panel
 		JPanel spectrumOverviewPnl = new JPanel(new BorderLayout());
 		
-		spectrumJPanel = new JPanel();
-		spectrumJPanel.setLayout(new BoxLayout(spectrumJPanel, BoxLayout.LINE_AXIS));
-		spectrumJPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
-		spectrumJPanel.add(new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", ""));
-		spectrumJPanel.setMinimumSize(new Dimension(300, 180));
+		JPanel specCont = new JPanel();
+		specCont.setLayout(new BoxLayout(specCont, BoxLayout.LINE_AXIS));
+		specCont.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
+		specCont.add(specPnl = new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", ""));
+		specCont.setMinimumSize(new Dimension(200, 200));
 		
-		spectrumOverviewPnl.add(spectrumJPanel, BorderLayout.CENTER);
+		spectrumOverviewPnl.add(specCont, BorderLayout.CENTER);
 		spectrumOverviewPnl.add(constructSpectrumFilterPanel(), BorderLayout.EAST);
 		
 		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
@@ -496,21 +610,141 @@ public class DbSearchResultPanel extends JPanel {
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
 		
-		// set up multi split pane
+		// Set up multi-split pane
 		String layoutDef =
-		    "(COLUMN protein (ROW weight=0.0 (COLUMN (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) plot))";
-		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
+			"(COLUMN (LEAF weight=0.35 name=protein) (ROW weight=0.65 (COLUMN weight=0.35 (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) (LEAF weight=0.65 name=plot)))";
+		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
-		final JXMultiSplitPane multiSplitPane = new JXMultiSplitPane();
-		multiSplitPane.setDividerSize(12);
-		multiSplitPane.getMultiSplitLayout().setModel(modelRoot);
-		multiSplitPane.add(protTtlPnl, "protein");
-		multiSplitPane.add(pepTtlPnl, "peptide");
-		multiSplitPane.add(psmTtlPnl, "psm");
-		multiSplitPane.add(specTtlPnl, "plot");
-//		multiSplitPane.setPreferredSize(new Dimension(0, 0));
+		MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
+		msl.setLayoutByWeight(true);
 		
-		this.add(multiSplitPane, CC.xy(2, 2));
+		final JXMultiSplitPane msp = new JXMultiSplitPane(msl);
+		msp.setDividerSize(12);
+		
+		msp.add(protTtlPnl, "protein");
+		msp.add(pepTtlPnl, "peptide");
+		msp.add(psmTtlPnl, "psm");
+		msp.add(specTtlPnl, "plot");
+		
+		this.add(msp, CC.xy(2, 2));
+		
+		// Apply one-touch-collapsible capabilities to divider between protein table and lower parts
+		final Divider mainDivider = (Divider) ((Split) modelRoot).getChildren().get(1);
+
+		// After initializing the layout fix it in place to avoid the layout
+		// manager falsely distributing excess space when resizing
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				msp.getMultiSplitLayout().setLayoutByWeight(false);
+				msp.getMultiSplitLayout().setFloatingDividers(false);
+				// weights don't matter anymore at this point, make protein
+				// table receive maximum weight
+				mainDivider.nextSibling().setWeight(0.0);
+				mainDivider.previousSibling().setWeight(1.0);
+			}
+		});
+
+		/** Custom painter to draw one-touch-collapsible widget onto main divider. */
+		class CollapsibleDividerPainter extends DividerPainter {
+			/** Denotes arrow direction. Either SwingConstants.NORTH or SOUTH. */
+			private int direction;
+			/** Constructs a custom divider painter */
+			public CollapsibleDividerPainter(int direction) {
+				this.direction = direction;
+			}
+			@Override
+			protected void doPaint(Graphics2D g, Divider divider, int width, int height) {
+				// we only want a specific divider to be affected
+				if (divider == mainDivider) {
+					int x = width - 25;
+					int y = height / 2 - 2;
+					// paint triangle indicator
+					g.setColor(Color.BLACK);
+					g.fillPolygon(calcTriX(x - 1, 10), calcTriY(y - 1, 5), 3);
+					g.setColor(Color.WHITE);
+					g.fillPolygon(calcTriX(x, 10), calcTriY(y, 5), 3);
+					g.setColor(Color.GRAY);
+					g.fillPolygon(calcTriX((direction == SwingUtilities.SOUTH) ? x : x + 1, 8), calcTriY(y, 4), 3);
+					// paint rivet decorations
+					int[] yPoints = (direction == SwingUtilities.SOUTH) ?
+							new int[] { y - 2, y - 2, y + 1, y + 1, y + 4, y + 4, y + 4 } :
+							new int[] { y + 4, y + 4, y + 1, y + 1, y - 2, y - 2, y - 2 };
+					paintRivets(g, new int[] { x - 13, x - 7, x - 10 , x - 4, x - 13, x - 7, x - 1 },
+							yPoints);
+					paintRivets(g, new int[] { x + 18, x + 24, x + 15 , x + 21, x + 12, x + 18, x + 24 },
+							yPoints);
+				}
+			}
+			/** Aux method to calculate x-coordinates of a triangular polygon. */
+			private int[] calcTriX(int x, int w) {
+				return new int[] { x, x + w, x + w / 2 };
+			}
+			/** Aux method to calculate y-coordinates of a triangular polygon. */
+			private int[] calcTriY(int y, int h) {
+				return (direction == SwingUtilities.SOUTH) ?
+						new int[] { y, y, y + h } : new int[] { y + h, y + h, y };
+			}
+			/** Aux method to paint rivet-like decorations. */
+			private void paintRivets(Graphics g, int[] xPoints, int[] yPoints) {
+				for (int i = 0; i < xPoints.length; i++) {
+					int x = xPoints[i], y = yPoints[i];
+					g.setColor(Color.BLACK);
+					g.fillPolygon(new int[] { x - 2, x, x - 2 }, new int[] { y, y, y + 2 }, 3);
+					g.setColor(Color.WHITE);
+					g.fillPolygon(new int[] { x, x, x - 2 }, new int[] { y, y + 2, y + 2 }, 3);
+				}
+			}
+			
+		}
+
+		// Set aside different painters for expanded/collapsed main divider
+		final DividerPainter southPainter = new CollapsibleDividerPainter(SwingConstants.SOUTH);
+		final DividerPainter northPainter = new CollapsibleDividerPainter(SwingConstants.NORTH);
+		msp.setDividerPainter(southPainter);
+		
+		// Add mouse listener to split pane to detect clicks on one-touch-collapsible widget
+		msp.addMouseListener(new MouseAdapter() {
+			/** State flag denoting whether the lower parts are collapsed. */
+			private boolean visible = false;
+			/** Point where collapse action was triggered. Used for restoring divider position on restore. */
+			private Point clickPoint = null;
+			@Override
+			public void mouseClicked(MouseEvent me) {
+				final MultiSplitLayout msl = msp.getMultiSplitLayout();
+				Divider divider = msl.dividerAt(me.getX(), me.getY());
+				// we only want a specific divider to be targetable
+				if (divider == mainDivider) {
+					// check whether arrow part got clicked
+					int x = mainDivider.getBounds().width - me.getX();
+					if ((x > 15) && (x < 26)) {
+						// hide nodes below main divider
+						msl.displayNode("plot", visible);
+						msl.displayNode("psm", visible);
+						msl.displayNode("peptide", visible);
+						if (!visible) {
+							// unhide main divider and change painter to display upward-pointing triangle
+							mainDivider.setVisible(true);
+							msp.setDividerPainter(northPainter);
+							clickPoint = me.getPoint();
+						} else {
+//							// fake mouse events to move divider near original position
+							msp.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_PRESSED, me.getPoint()));
+							msp.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_DRAGGED, clickPoint));
+							msp.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_RELEASED, clickPoint));
+							// reset painter to display downward-pointing triangle
+							msp.setDividerPainter(southPainter);
+						}
+						visible = !visible;
+					}
+				}
+			}
+			/** Aux method to ease creation of fake mouse events */
+			private MouseEvent convertMouseEvent(MouseEvent me, int id, Point p) {
+				return new MouseEvent((Component) me.getSource(), id, me.getWhen(),
+						me.getModifiers(), p.x, p.y, me.getXOnScreen(), me.getYOnScreen(),
+						me.getClickCount(), me.isPopupTrigger(), me.getButton());
+			}
+		});
 	}
 	
 	/**
@@ -576,14 +810,14 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private class ResultsFromFileTask extends SwingWorker {
 
-		private File selectedFile;
+		private File selFile;
 
 		/**
 		 * Constructor for the selected file
 		 * @param selectedFile
 		 */
 		public ResultsFromFileTask(File selectedFile) {
-			this.selectedFile= selectedFile;
+			this.selFile = selectedFile;
 		}
 
 		protected Object doInBackground() throws Exception {
@@ -591,8 +825,8 @@ public class DbSearchResultPanel extends JPanel {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				// Get the database search result from the local file.
 				// ReadData
-				FileInputStream fis = new FileInputStream(selectedFile);
-				ObjectInputStream ois = new ObjectInputStream(fis);
+				FileInputStream fis = new FileInputStream(selFile);
+				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(fis)));
 				DbSearchResult newResult = (DbSearchResult) ois.readObject();
 				ois.close();
 
@@ -623,17 +857,21 @@ public class DbSearchResultPanel extends JPanel {
 		List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
 		dbSearchResult.setSearchEngines(searchEngines);
 
-		refreshProteinTables();
+		try {
+			refreshProteinTables();
 
-		// Enable export functionality
-		((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-		// Enable pathway functionality
-		((ClientFrameMenuBar) clientFrame.getJMenuBar()).setPathwayFunctionalityEnabled(true);
+			// Enable export functionality
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+//			// Enable pathway functionality
+//			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setPathwayFunctionalityEnabled(true);
 
-		// Enable Save Project functionalty
-		((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			// Enable Save Project functionalty
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
 
 
 	// Protein table column indices
@@ -677,6 +915,8 @@ public class DbSearchResultPanel extends JPanel {
 		};
 		selChk.setPreferredSize(new Dimension(15, 15));
 		selChk.setSelected(true);
+		selChk.setOpaque(false);
+		selChk.setBackground(new Color(0, 0, 0, 0));
 		
 		// Create protein table model
 		final TableModel proteinTblMdl = new DefaultTableModel() {
@@ -785,7 +1025,7 @@ public class DbSearchResultPanel extends JPanel {
 			case PROT_SPECTRALCOUNT:
 			case PROT_EMPAI:
 			case PROT_NSAF:
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERICAL)) {
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERIC)) {
 					protected SortKey getSortKey(JTable table, int column) {
 						return table.getRowSorter().getSortKeys().get(1);
 					}
@@ -794,7 +1034,7 @@ public class DbSearchResultPanel extends JPanel {
 			case PROT_ACCESSION: 
 			case PROT_DESCRIPTION:
 			case PROT_SPECIES: 
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHA_NUMERICAL)) {
+				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHANUMERIC)) {
 					protected SortKey getSortKey(JTable table, int column) {
 						return table.getRowSorter().getSortKeys().get(1);
 					}
@@ -936,9 +1176,12 @@ public class DbSearchResultPanel extends JPanel {
 		
 		protEnzymeTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of E.C. View"));
 		
+		protPathwayTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Pathway View"));
+		
 		linkNodes(new TreePath(protFlatTreeTbl.getTreeTableModel().getRoot()),
 				new TreePath(protTaxonTreeTbl.getTreeTableModel().getRoot()),
-				new TreePath(protEnzymeTreeTbl.getTreeTableModel().getRoot()));
+				new TreePath(protEnzymeTreeTbl.getTreeTableModel().getRoot()),
+				new TreePath(protPathwayTreeTbl.getTreeTableModel().getRoot()));
 	}
 	
 	private SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
@@ -951,6 +1194,7 @@ public class DbSearchResultPanel extends JPanel {
 							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF" } ));
 			}
 			// Fool-proof table by allowing only one type of node
+			@Override
 			public void insertNodeInto(MutableTreeTableNode newChild,
 					MutableTreeTableNode parent, int index) {
 				if (newChild instanceof PhylogenyTreeTableNode) {
@@ -961,52 +1205,19 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		};
 		
-		// Create table from model; make only hierarchical column editable (for checkboxes) TODO: make this default behavior of class?
-		final SortableCheckBoxTreeTable treeTbl;
-		// Extra case for E.C. table, because of extra ToolTip
-		if (root.toString().equals("Root of E.C. View")) {
-			treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
-				@Override
-				public boolean isCellEditable(int row, int column) {
-					return (column == getHierarchicalColumn());
-				}
-				@Override
-				public String getToolTipText(MouseEvent me) {
-					String ecDesc = null;
-					int col = this.columnAtPoint(me.getPoint());
-					if (col == 1) {
-						int row = this.rowAtPoint(me.getPoint());
-						TreePath pathForRow = this.getPathForRow(row);
-						if (pathForRow != null){
-							PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
-							ECEntry ecEntry = Parameters.getInstance().getEcMap().get(node.getValueAt(0));
-							ecDesc = (ecEntry != null) ? ecEntry.getDescription() : null;
-							if (ecDesc != null) {
-								ecDesc = "<html>" + ecDesc + "</html>";
-								StringBuffer strB = new StringBuffer (ecDesc);  
-								String newLine = "<br>"; 
-								for (int i = 70; i < ecDesc.length(); i= i + 70) {
-									int linebreak = strB.indexOf(" ", i);
-									if (linebreak!= -1) {
-										strB.insert (linebreak, newLine); 
-									} 
-								}
-								ecDesc = strB.toString();
-							}
-						}
-
-					}
-					return ecDesc;
-				}
-			};
-		} else {
-			treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
-				@Override
-				public boolean isCellEditable(int row, int column) {
-					return (column == getHierarchicalColumn());
-				}
-			};
-		}
+		// Create table from model; make only hierarchical column editable (for checkboxes)
+		// TODO: make this default behavior of class?
+		// TODO: handle editability via column model
+		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return (column == getHierarchicalColumn());
+			}
+			@Override
+			public String getToolTipText(MouseEvent me) {
+				return getTableToolTipText(me);
+			}
+		};
 		
 		// Pre-select root node
 		final TreePath rootPath = new TreePath(root);
@@ -1097,11 +1308,111 @@ public class DbSearchResultPanel extends JPanel {
 		final ComponentHeader ch = new ComponentHeader(tcm);
 		treeTbl.setTableHeader(ch);
 		
+		// Install mouse listeners in header for right-click popup capabilities
+		MouseAdapter mouseAdapter = new MouseAdapter() {
+			private int col = -1;
+			
+			private JPopupMenu testPopup = new JPopupMenu() {
+				@Override
+				public void setVisible(boolean b) {
+					if (!b) {
+						raise();
+					}
+					super.setVisible(b);
+				}
+			};
+			
+			{
+				JMenu sortMenu = new JMenu("Sort... (NYI)");
+				JCheckBoxMenuItem ascChk = new JCheckBoxMenuItem("Ascending");
+				JCheckBoxMenuItem desChk = new JCheckBoxMenuItem("Descending");
+				JCheckBoxMenuItem unsChk = new JCheckBoxMenuItem("Unsorted", true);
+				ButtonGroup sortBg = new ButtonGroup();
+				sortBg.add(ascChk);
+				sortBg.add(desChk);
+				sortBg.add(unsChk);
+				sortMenu.add(ascChk);
+				sortMenu.add(desChk);
+				sortMenu.add(unsChk);
+				
+				testPopup.add(sortMenu);
+				testPopup.add(new JMenuItem("Coming soon..."));
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent me) {
+				int col = ch.columnAtPoint(me.getPoint());
+				if ((col != -1) && (me.getButton() == MouseEvent.BUTTON3)) {
+					this.col = col;
+					lower();
+				}
+			}
+			@Override
+			public void mouseReleased(MouseEvent me) {
+				if ((me.getButton() == MouseEvent.BUTTON3) && 
+						(ch.getBounds().contains(me.getPoint()))) {
+					testPopup.show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
+				}
+			}
+			@Override
+			public void mouseDragged(MouseEvent me) {
+				int col = treeTbl.convertColumnIndexToView(ch.getDraggedColumn().getModelIndex());
+				if ((col != -1) && (col != this.col)) {
+					this.col = col;
+				}
+			}
+			@Override
+			public void mouseExited(MouseEvent me) {
+				if ((this.col != -1) && 
+						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+					raise();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent me) {
+				if ((this.col != -1) && 
+						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+					lower();
+				}
+			}
+			private void lower() {
+				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
+				if (hr instanceof ComponentHeaderRenderer) {
+					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
+					chr.getPanel().setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(Color.GRAY),
+							BorderFactory.createEmptyBorder(1, 1, 0, -1)));
+					chr.getPanel().setOpaque(true);
+					ch.repaint(ch.getHeaderRect(this.col));
+				}
+			}
+			private void raise() {
+				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
+				if (hr instanceof ComponentHeaderRenderer) {
+					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
+					chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+					chr.getPanel().setOpaque(false);
+					ch.repaint(ch.getHeaderRect(this.col));
+				}
+			}
+		};
+		ch.addMouseListener(mouseAdapter);
+		ch.addMouseMotionListener(mouseAdapter);
+
+		// Add widgets to column headers
+		for (int i = 1; i < tcm.getColumnCount(); i++) {
+			JPanel panel = new JPanel();
+			panel.setOpaque(false);
+			panel.setPreferredSize(new Dimension(13, 13));
+			tcm.getColumn(i).setHeaderRenderer(
+					new ComponentHeaderRenderer(panel, null, SwingConstants.TRAILING));
+		}
+		
 		// Create checkbox widget for hierarchical column header
 		JCheckBox selChk = new TriStateCheckBox(2, -1) {
 			{
-				/* Hook into tree table checkbox selection model to synchronize root
-				 * node selection state with checkbox selection state*/ 
+				/* Hook into tree table checkbox selection model to synchronize 
+				 * root node selection state with checkbox selection state */ 
 				this.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if (isSelected()) {
@@ -1116,7 +1427,8 @@ public class DbSearchResultPanel extends JPanel {
 						if (tse.getPath().equals(rootPath)) {
 							setSelected(cbtsm.isPathSelected(rootPath));
 						}
-						ch.repaint();
+						// TODO: use column index constants
+						ch.repaint(ch.getHeaderRect(0));
 					}
 				});
 			}
@@ -1127,9 +1439,11 @@ public class DbSearchResultPanel extends JPanel {
 		};
 		selChk.setPreferredSize(new Dimension(15, 15));
 		selChk.setSelected(true);
-
-		// Add widgets to column headers
-		tcm.getColumn(0).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
+		selChk.setOpaque(false);
+		selChk.setBackground(new Color(0, 0, 0, 0));
+		
+		tcm.getColumn(0).setHeaderRenderer(
+				new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
 		
 		// Reduce node indents to make visuals more compact
 		treeTbl.setIndents(6, 4, 2);
@@ -1197,6 +1511,42 @@ public class DbSearchResultPanel extends JPanel {
 		linkMap.put(root.toString(), treeTbl);
 		
 		return treeTbl;
+	}
+	
+	/**
+	 * Delegate method to display table-specific tooltips.
+	 * @param me The MouseEvent triggering the tooltip.
+	 * @return The tooltip's text or <code>null</code>.
+	 */
+	private String getTableToolTipText(MouseEvent me) {
+		JXTreeTable table = (JXTreeTable) me.getSource();
+		if (table == protEnzymeTreeTbl) {
+			String ecDesc = null;
+			int col = table.columnAtPoint(me.getPoint());
+			if (col == 1) {
+				int row = table.rowAtPoint(me.getPoint());
+				TreePath pathForRow = table.getPathForRow(row);
+				if (pathForRow != null){
+					PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
+					ECEntry ecEntry = Parameters.getInstance().getEcMap().get(node.getValueAt(0));
+					ecDesc = (ecEntry != null) ? ecEntry.getDescription() : null;
+					if (ecDesc != null) {
+						ecDesc = "<html>" + ecDesc + "</html>";
+						StringBuffer sb = new StringBuffer (ecDesc);  
+						String newLine = "<br>"; 
+						for (int i = 70; i < ecDesc.length(); i += 70) {
+							int linebreak = sb.indexOf(" ", i);
+							if (linebreak != -1) {
+								sb.insert(linebreak, newLine);
+							}
+						}
+						ecDesc = sb.toString();
+					}
+				}
+			}
+			return ecDesc;
+		}
+		return null;
 	}
 	
 	// Peptide table column indices
@@ -1273,9 +1623,9 @@ public class DbSearchResultPanel extends JPanel {
 		tcm.getColumn(PEP_SELECTION).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
 		tcm.getColumn(PEP_SELECTION).setMinWidth(19);
 		tcm.getColumn(PEP_SELECTION).setMaxWidth(19);
+		JPanel panel = new JPanel();
+		panel.setPreferredSize(new Dimension(13, 13));
 		for (int col = PEP_INDEX; col < tcm.getColumnCount(); col++) {
-			JPanel panel = new JPanel();
-			panel.setPreferredSize(new Dimension(13, 13));
 			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(panel) {
 				protected SortKey getSortKey(JTable table, int column) {
 					return table.getRowSorter().getSortKeys().get(1);
@@ -1625,7 +1975,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		JPanel spectrumFilterPanel = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu, f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, 5dlu, p, 5dlu, f:p:g, 5dlu"));
 		
-		Dimension size = new Dimension(39, 23);
+		Dimension size = new Dimension(39, 0);
 		Action action = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				updateFilteredAnnotations();
@@ -1706,12 +2056,15 @@ public class DbSearchResultPanel extends JPanel {
 			
 			// Empty protein tables
 			TableConfig.clearTable(proteinTbl);
+			
+			// TODO: remove row filter
 			TableConfig.clearTable(protFlatTreeTbl);
 			TableConfig.clearTable(protTaxonTreeTbl);
 			TableConfig.clearTable(protEnzymeTreeTbl);
+			TableConfig.clearTable(protPathwayTreeTbl);
 			
-			// Prevent switching table view
-			hierarchyCbx.setEnabled(false);
+			// TODO: Prevent switching table view
+//			hierarchyCbx.setEnabled(false);
 			
 			// Gather models
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
@@ -1773,14 +2126,62 @@ public class DbSearchResultPanel extends JPanel {
 					PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
 					enzymeNode.setURI(uri);
 					TreePath enzymePath = insertEnzymeNode(enzymeNode);
+					PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
+					pathwayNode.setURI(uri);
+					TreePath[] pathwayPaths = insertPathwayNode(pathwayNode);
 
 					// Link nodes to each other
 					linkNodes(flatPath, taxonPath, enzymePath);
 				} else {
-					System.out.println("missing UniProt entry: " + proteinHit.getAccession());
+					System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 				}
 				
 				Client.getInstance().firePropertyChange("progressmade", false, true);
+			}
+			
+			// Iterate pathway nodes in respective hierarchical view and update URIs
+			Enumeration childrenA = ((TreeNode) protPathwayTreeTbl.getTreeTableModel().getRoot()).children();
+			while (childrenA.hasMoreElements()) {
+				// Level A: pathway supergroups
+				TreeNode childA = (TreeNode) childrenA.nextElement();
+				Enumeration childrenB = childA.children();
+				while (childrenB.hasMoreElements()) {
+					// Level B: pathway groups
+					TreeNode childB = (TreeNode) childrenB.nextElement();
+					Enumeration childrenC = childB.children();
+					while (childrenC.hasMoreElements()) {
+						// Level C: pathways
+						PhylogenyTreeTableNode childC = (PhylogenyTreeTableNode) childrenC.nextElement();
+						StringBuilder sb = new StringBuilder("http://www.kegg.jp/kegg-bin/show_pathway?map");
+						// Append pathway ID to URL
+						sb.append(childC.getUserObject());
+						// Gather K and EC numbers
+						// TODO: maybe gather only numbers that are in some way connected to the pathway in question
+						Set<String> kNumbers = new HashSet<String>();
+						Set<String> ecNumbers = new HashSet<String>();
+						Enumeration<? extends MutableTreeTableNode> children = childC.children();
+						while (children.hasMoreElements()) {
+							PhylogenyTreeTableNode protNode = 
+								(PhylogenyTreeTableNode) children.nextElement();
+							ProteinHit protHit = (ProteinHit) protNode.getUserObject();
+							for (DatabaseCrossReference xref : 
+								protHit.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+							}
+							ecNumbers.addAll(protHit.getUniprotEntry().getProteinDescription().getEcNumbers());
+						}
+						// Append K and EC numbers to URL
+						for (String kNumber : kNumbers) {
+							sb.append("+");
+							sb.append(kNumber);
+						}
+						for (String ecNumber : ecNumbers) {
+							sb.append("+");
+							sb.append(ecNumber);
+						}
+						childC.setURI(URI.create(sb.toString()));
+					}
+				}
 			}
 			
 			// Adjust highlighters
@@ -1841,10 +2242,11 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
 			
-			hierarchyCbx.setEnabled(true);
+//			hierarchyCbx.setEnabled(true);
 			
 			protTaxonTreeTbl.expandAll();
 			protEnzymeTreeTbl.expandAll();
+			protPathwayTreeTbl.expandAll();
 		}
 	}
 
@@ -1911,7 +2313,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		List<String> ecNumbers = ph.getUniprotEntry().getProteinDescription().getEcNumbers();
 		
-		if (ecNumbers.size() < 1) {
+		if (ecNumbers.isEmpty()) {
 			ecNumbers.add("Unclassified");
 		}
 		
@@ -1941,6 +2343,136 @@ public class DbSearchResultPanel extends JPanel {
 		treeTblMdl.insertNodeInto(protNode, parent, parent.getChildCount());
 		
 		return new TreePath(treeTblMdl.getPathToRoot(protNode));
+	}
+
+	/**
+	 * Inserts a protein tree node into the 'Pathway View' tree table and
+	 * returns the tree paths to where its instances were inserted (in case the
+	 * protein is part of multiple pathways).
+	 * @param protNode The protein tree node to insert
+	 * @return The tree paths pointing to the insertion locations
+	 */
+	private TreePath[] insertPathwayNode(PhylogenyTreeTableNode protNode) {
+		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protPathwayTreeTbl.getTreeTableModel();
+
+		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
+		
+		ProteinHit ph = (ProteinHit) protNode.getUserObject();
+
+		// gather K and EC numbers for pathway lookup
+		List<String> kNumbers = new ArrayList<String>();
+		for (DatabaseCrossReference xref : 
+			ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+			kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+		}
+		List<String> ecNumbers = ph.getUniprotEntry().getProteinDescription().getEcNumbers();
+		
+		// perform pathway lookup
+		Set<Short> pathways = new HashSet<Short>();
+		for (String ko : kNumbers) {
+			List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko.substring(1));
+			if (pathwaysByKO != null) {
+				pathways.addAll(pathwaysByKO);
+			}
+		}
+		for (String ec : ecNumbers) {
+			List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+			if (pathwaysByEC != null) {
+				pathways.addAll(pathwaysByEC);
+			}
+		}
+		
+		List<TreePath> treePaths = new ArrayList<TreePath>();
+		PhylogenyTreeTableNode parent = root;
+		
+		// iterate found pathways
+		if (!pathways.isEmpty()) {
+			// iterate pathway IDs
+			for (Short pw : pathways) {
+				// look for pathway in existing tree
+				parent = findPathway(pw);
+				
+				// check whether pathway retrieval succeeded
+				if (parent == null) {
+					// look for pathway in global pathway tree
+					Object[] nodeNames = Constants.getKEGGPathwayPath(pw);
+					
+					parent = root;
+					for (int i = 1; i < 4; i++) {
+						String nodeName = (String) nodeNames[i];
+						String[] splitName = nodeName.split("  ");
+						PhylogenyTreeTableNode child = 
+							(PhylogenyTreeTableNode) parent.getChildByName(splitName[0]);
+						if (child == null) {
+							for (int j = i; j < 4; j++) {
+								child = new PhylogenyTreeTableNode(
+										(Object[]) ((String) nodeNames[j]).split("  "));
+								treeTblMdl.insertNodeInto(child, parent, parent.getChildCount());
+								parent = child;
+							}
+							break;
+						} else {
+							parent = child;
+						}
+					}						
+				}
+				
+				// add clone of protein node to each pathway
+				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+				cloneNode.setURI(protNode.getURI());
+				treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
+				treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
+			}
+		} else {
+			// no pathways were found, therefore look for 'Unclassified' node in tree
+			Enumeration<? extends MutableTreeTableNode> children = root.children();
+			while (children.hasMoreElements()) {
+				MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
+				if (child.getUserObject().equals("Unclassified")) {
+					parent = (PhylogenyTreeTableNode) child;
+					break;
+				}
+			}
+			if (parent == root) {
+				// 'Unclassified' node does not exist yet, therefore create it
+				parent = new PhylogenyTreeTableNode("Unclassified");
+				treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
+			}
+			// add clone of protein node to 'Unclassified' branch
+			PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+			cloneNode.setURI(protNode.getURI());
+			treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
+			treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
+		}
+		// TODO: add redundancy check in case a protein has multiple KOs pointing to the same pathway
+			
+		return treePaths.toArray(new TreePath[0]);
+	}
+
+	/**
+	 * Auxiliary method to find the pathway node which is identified by the
+	 * provided pathway ID in the pathway tree.
+	 * @param pw The pathway ID
+	 * @return The desired pathway node or <code>null</code> if it could not be found
+	 */
+	private PhylogenyTreeTableNode findPathway(Short pw) {
+		Enumeration<? extends MutableTreeTableNode> childrenA = 
+			((MutableTreeTableNode) protPathwayTreeTbl.getTreeTableModel().getRoot()).children();
+		while (childrenA.hasMoreElements()) {
+			MutableTreeTableNode childA = (MutableTreeTableNode) childrenA.nextElement();
+			Enumeration<? extends MutableTreeTableNode> childrenB = childA.children();
+			while (childrenB.hasMoreElements()) {
+				MutableTreeTableNode childB = (MutableTreeTableNode) childrenB.nextElement();
+				Enumeration<? extends MutableTreeTableNode> childrenC = childB.children();
+				while (childrenC.hasMoreElements()) {
+					MutableTreeTableNode childC = (MutableTreeTableNode) childrenC.nextElement();
+					if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
+						return (PhylogenyTreeTableNode) childC;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -2178,8 +2710,9 @@ public class DbSearchResultPanel extends JPanel {
 				int psmRow = psmTbl.getSelectedRow();
 				if (psmRow != -1) {
 					// clear the spectrum panel
-					while (spectrumJPanel.getComponents().length > 0) {
-		                spectrumJPanel.remove(0);
+					Container specCont = specPnl.getParent();
+					while (specCont.getComponents().length > 0) {
+						specCont.remove(0);
 		            }
 					// get the list of spectrum matches
 					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
@@ -2196,9 +2729,9 @@ public class DbSearchResultPanel extends JPanel {
 						specPnl = new SpectrumPanel(mgf);
 						specPnl.showAnnotatedPeaksOnly(true);
 						
-						spectrumJPanel.add(specPnl, CC.xy(2, 2));
-						spectrumJPanel.validate();
-						spectrumJPanel.repaint();
+						specCont.add(specPnl, CC.xy(2, 2));
+						specCont.validate();
+						specCont.repaint();
 						
 						Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), psm.getCharge());
 						addSpectrumAnnotations(fragmentizer.getFragmentIons());
@@ -2707,6 +3240,41 @@ public class DbSearchResultPanel extends JPanel {
 		 */
 		public void setProteinHits(List<ProteinHit> protHits) {
 			this.protHits = protHits;
+		}
+	}
+	
+	/**
+	 * Custom button UI to create toolbar button-like visuals for title panel components. 
+	 * 
+	 * @author A. Behne
+	 */
+	public class RoundedHoverButtonUI extends BasicButtonUI {
+		
+		@Override
+		public void update(Graphics g, JComponent c) {
+            AbstractButton b = (AbstractButton) c;
+			if (b.getModel().isRollover() || b.isSelected()) {
+				g.setColor(new Color(255, 255, 255, 159));
+				g.fillRoundRect(0, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
+
+				g.setColor(Color.WHITE);
+				g.drawRoundRect(1, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
+				g.drawRoundRect(0, 1, c.getWidth()-2, c.getHeight()-2, 5, 5);
+				g.setColor(Color.GRAY);
+				g.drawRoundRect(0, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
+	        }
+	        paint(g, c);
+	        if (b.isSelected()) {
+	        	paintButtonPressed(g, b);
+	        }
+		}
+		
+		@Override
+		protected void paintButtonPressed(Graphics g, AbstractButton b) {
+			if (b.isContentAreaFilled()) {
+				g.setColor(new Color(0, 0, 0, 47));
+				g.fillRoundRect(0, 0, b.getWidth()-2, b.getHeight()-2, 5, 5);
+	        }
 		}
 	}
 

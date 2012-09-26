@@ -210,12 +210,15 @@ public class StatusPanel extends JPanel {
 				} else if (name.equalsIgnoreCase("progressmade")) {
 					curProgress++;
 					totProgress++;
-//					System.out.println("" + curProgress + "/" + maxCurProgress + "\t"+ totProgress + "/" + maxTotProgress);
 					updateTime();
 				} else if (name.equalsIgnoreCase("progress")) {
 					curProgress = (Long) pce.getNewValue();
 					totProgress = totProgressTillNow + curProgress;
 					updateTime();
+//				} else if (name.equalsIgnoreCase("orientation")) {
+//					currentPrg.setComponentOrientation((ComponentOrientation) pce.getNewValue());
+//				} else if (name.equalsIgnoreCase("reverseprogress")) {
+//					curProgress = (Long) pce.getNewValue();
 				} else if (name.equalsIgnoreCase("new message")) {
 					statusTtf.setText(pce.getNewValue().toString());
 				}

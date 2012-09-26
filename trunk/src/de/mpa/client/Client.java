@@ -171,7 +171,7 @@ public class Client {
 		if (message != null && !message.isEmpty()) {
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
-					pSupport.firePropertyChange("New Message", null, message);
+					firePropertyChange("New Message", null, message);
 				}
 			});
 		}
@@ -299,18 +299,18 @@ public class Client {
 			
 			// Set up progress monitoring
 			firePropertyChange("new message", null, "QUERYING DE NOVO SEARCH HITS");
-			pSupport.firePropertyChange("resetall", 0L, 100L);
-			pSupport.firePropertyChange("indeterminate", false, true);
+			firePropertyChange("resetall", 0L, 100L);
+			firePropertyChange("indeterminate", false, true);
 			
 			// Iterate over query spectra and get the different identification result sets
 			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
 			
 			long maxProgress = searchSpectra.size();
 			long curProgress = 0;
-			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
-			pSupport.firePropertyChange("indeterminate", true, false);
-			pSupport.firePropertyChange("resetall", 0L, maxProgress);
-			pSupport.firePropertyChange("resetcur", 0L, maxProgress);
+			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
+			firePropertyChange("indeterminate", true, false);
+			firePropertyChange("resetall", 0L, maxProgress);
+			firePropertyChange("resetcur", 0L, maxProgress);
 			
 			
 			// Iterate the search spectra.
@@ -322,10 +322,10 @@ public class Client {
 
 				Spectrum spectrum = Spectrum.findFromSpectrumID(searchSpectrum.getFk_spectrumid(), conn);
 				denovoSearchResult.addHitSet(spectrum.getTitle(), Long.valueOf(spectrumId), hits);
-				pSupport.firePropertyChange("progress", 0L, ++curProgress);
+				firePropertyChange("progress", 0L, ++curProgress);
 						
 			}
-			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
+			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
@@ -387,23 +387,23 @@ public class Client {
 
 			// Set up progress monitoring
 			firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
-			pSupport.firePropertyChange("resetall", 0L, 100L);
-			pSupport.firePropertyChange("indeterminate", false, true);
+			firePropertyChange("resetall", 0L, 100L);
+			firePropertyChange("indeterminate", false, true);
 			
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 			
 			long maxProgress = searchHits.size();
 			long curProgress = 0;
-			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
-			pSupport.firePropertyChange("indeterminate", true, false);
-			pSupport.firePropertyChange("resetall", 0L, maxProgress);
-			pSupport.firePropertyChange("resetcur", 0L, maxProgress);
+			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
+			firePropertyChange("indeterminate", true, false);
+			firePropertyChange("resetall", 0L, maxProgress);
+			firePropertyChange("resetcur", 0L, maxProgress);
 			for (SearchHit searchHit : searchHits) {
 				addProteinSearchHit(searchHit);
-				pSupport.firePropertyChange("progress", 0L, ++curProgress);
+				firePropertyChange("progress", 0L, ++curProgress);
 			}
-			pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
+			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 		
 		}  catch (SQLException e) {
 			e.printStackTrace();
@@ -515,7 +515,7 @@ public class Client {
 		long maxSpectra = selectionModel.getSelectionCount();
 		CheckBoxTreeTableNode spectrumNode = fileRoot.getFirstLeaf();
 		if (spectrumNode != fileRoot) {
-			pSupport.firePropertyChange("resetall", 0L, maxSpectra);
+			firePropertyChange("resetall", 0L, maxSpectra);
 			// iterate over all leaves
 			while (spectrumNode != null) {
 				// generate tree path and consult selection model whether path is explicitly or implicitly selected
@@ -532,12 +532,12 @@ public class Client {
 						filenames.add(file.getName());
 						fos = new FileOutputStream(file);
 						long remaining = maxSpectra - numSpectra;
-						pSupport.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+						firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 					}
 					MascotGenericFile mgf = ClientFrame.getInstance().getFilePanel().getSpectrumForNode(spectrumNode);
 					mgf.writeToStream(fos);
 					fos.flush();
-					pSupport.firePropertyChange("progressmade", 0L, ++numSpectra);
+					firePropertyChange("progressmade", 0L, ++numSpectra);
 				}
 				spectrumNode = spectrumNode.getNextLeaf();
 			}
@@ -681,10 +681,13 @@ public class Client {
 	 * @param filename The String representing the desired file path and name.
 	 */
 	public void writeDbSearchResultToFile(String filename) {
-		// TODO: add progress bar information and status messages 
+		List<ProteinHit> proteinHitList = dbSearchResult.getProteinHitList();
 		
 		// prepare result object for export by iterating spectrum matches and adding spectrum files to them
-		for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+		firePropertyChange("new message", null, "INSERTING SPECTRA INTO RESULT OBJECT");
+		firePropertyChange("resetall", -1L, (long) proteinHitList.size());
+		firePropertyChange("resetcur", -1L, (long) proteinHitList.size());
+		for (ProteinHit protHit : proteinHitList) {
 			for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
 				for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
 					long searchSpectrumID = specMatch.getSearchSpectrumID();
@@ -697,18 +700,29 @@ public class Client {
 					
 				}
 			}
+			firePropertyChange("progressmade", false, true);
 		}
+		firePropertyChange("new message", null, "INSERTING SPECTRA INTO RESULT OBJECT FINISHED");
 
+		String status;
+		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
 		try {
+			firePropertyChange("indeterminate", false, true);
 			// dump to file
 			FileOutputStream fos = new FileOutputStream(new File(filename));
 			// store as compressed binary object
 			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(fos)));
 			oos.writeObject(dbSearchResult);
+			oos.flush();
+			oos.close();
+			status = "FINISHED";
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
 		}
+		firePropertyChange("indeterminate", true, false);
+		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 
 }

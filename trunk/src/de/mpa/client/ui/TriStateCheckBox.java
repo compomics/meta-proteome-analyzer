@@ -15,16 +15,6 @@ import javax.swing.UIManager;
 public abstract class TriStateCheckBox extends JCheckBox {
 	
 	/**
-	 * The background color
-	 */
-	private Color bgCol = UIManager.getColor("Table.background");
-	
-	/**
-	 * The foreground color
-	 */
-	private Color fgCol = UIManager.getColor("controlShadow");
-	
-	/**
 	 * The horizontal offset for painting the background and indeterminate mark
 	 */
 	private int hOffset;
@@ -57,6 +47,7 @@ public abstract class TriStateCheckBox extends JCheckBox {
 	 */
 	public TriStateCheckBox(int hOffset, int vOffset) {
 		super();
+		setBackground(UIManager.getColor("Table.background"));
 		this.hOffset = hOffset;
 		this.vOffset = vOffset;
 	}
@@ -65,14 +56,23 @@ public abstract class TriStateCheckBox extends JCheckBox {
 	public void paint(Graphics g) {
 		// paint background rectangle
 		if (isEnabled()) {
-			g.setColor(bgCol);
+			g.setColor(getBackground());
 			g.fillRect(hOffset-2, 2+vOffset, 11, 11);
 		}
 		super.paint(g);
 		// paint black bar on top of deselected box to visualize indeterminate state
 		if (isPartiallySelected()) {
-			g.setColor((isEnabled()) ? Color.BLACK : fgCol);
+			g.setColor(getForeground());
 			g.fillRect(hOffset, 7+vOffset, 8, 2);
+		}
+	}
+	
+	@Override
+	public Color getForeground() {
+		if (isEnabled()) {
+			return super.getForeground();
+		} else {
+			return UIManager.getColor("controlShadow");
 		}
 	}
 	

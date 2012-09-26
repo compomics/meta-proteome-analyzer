@@ -67,11 +67,12 @@ public class ComponentHeader extends JXTableHeader {
 					Rectangle compRect = chr.getComponent().getBounds();
 					compRect.x += headerRect.x;
 					if ((compRect.contains(me.getPoint()))) {
+						
 						chr.dispatchEvent(new MouseEvent(
 								me.getComponent(), me.getID(), me.getWhen(), me.getModifiers(),
 								me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
 								me.getClickCount(), me.isPopupTrigger(), me.getButton()));
-						this.repaint();
+						this.repaint(headerRect);
 //						reorderingAllowed &= (me.getID() != MouseEvent.MOUSE_PRESSED);
 						// fool other listeners by changing click-type events into release-type ones
 						if (me.getID() == MouseEvent.MOUSE_CLICKED) {
@@ -86,6 +87,8 @@ public class ComponentHeader extends JXTableHeader {
 		} else if (me.getID() == MouseEvent.MOUSE_RELEASED) {
 			if (chr != null) {
 				chr.dispatchEvent(me);
+//				chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+//				chr.getPanel().setOpaque(false);
 				chr = null;
 				this.repaint();
 //				reorderingAllowed = true;

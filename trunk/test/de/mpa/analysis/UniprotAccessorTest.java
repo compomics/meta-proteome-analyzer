@@ -15,7 +15,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.Go;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.kegg.Kegg;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-import uk.ac.ebi.kraken.interfaces.uniprot.evidences.EvidenceId;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
@@ -76,20 +75,20 @@ public class UniprotAccessorTest extends TestCase {
 
 			// Uniprot keywords
 			keywords = entry.getKeywords();
-			for (Keyword kw : keywords) {
-				List<EvidenceId> evidenceIds = kw.getEvidenceIds();
-				for (EvidenceId id : evidenceIds) {
-					//System.out.println(id.getValue());
-				}
-				//keyword.add(kw.getValue().toString());
-			}
+//			for (Keyword kw : keywords) {
+//				List<EvidenceId> evidenceIds = kw.getEvidenceIds();
+//				for (EvidenceId id : evidenceIds) {
+//					System.out.println(id.getValue());
+//				}
+//				keyword.add(kw.getValue().toString());
+//			}
 
 			// Uniprot GO annotation
 			goTerms = entry.getGoTerms();
-			for (Go go : goTerms) {
-				//System.out.println("Go Term: " + go.getGoTerm().getValue());
-				//System.out.println("Ontology Type: " + go.getOntologyType().getValue());
-			}
+//			for (Go go : goTerms) {
+//				System.out.println("Go Term: " + go.getGoTerm().getValue());
+//				System.out.println("Ontology Type: " + go.getOntologyType().getValue());
+//			}
 		}
 	}
 

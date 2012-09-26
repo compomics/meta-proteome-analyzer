@@ -158,9 +158,9 @@ public class FilterBalloonTip extends CustomBalloonTip {
 		filterTtf = new JTextField(20);
 		filterTtf.setPreferredSize(new Dimension(filterTtf.getPreferredSize().width, 20));
 		switch (filterType) {
-		case Constants.ALPHA_NUMERICAL:
+		case Constants.ALPHANUMERIC:
 			break;
-		case Constants.NUMERICAL:
+		case Constants.NUMERIC:
 			((AbstractDocument) filterTtf.getDocument()).setDocumentFilter(new DocumentFilter() {
 				public String TEXT_PATTERN = "[\\d\\s<>,.]";
 				@Override

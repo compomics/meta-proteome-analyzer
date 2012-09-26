@@ -15,7 +15,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -78,8 +77,12 @@ public class ClientFrame extends JFrame {
 	 * @return client Client singleton object
 	 */
 	public static ClientFrame getInstance() {
+		return getInstance(false);
+	}
+	
+	public static ClientFrame getInstance(boolean viewerMode) {
 		if (frame == null) {
-			frame = new ClientFrame();
+			frame = new ClientFrame(viewerMode);
 		}
 		return frame;
 	}
@@ -87,7 +90,7 @@ public class ClientFrame extends JFrame {
 	/**
 	 * Constructor for the ClientFrame
 	 */
-	private ClientFrame() {
+	private ClientFrame(boolean viewerMode) {
 
 		// Application title
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
@@ -101,21 +104,22 @@ public class ClientFrame extends JFrame {
 		
 		// Prompt to start in Viewer mode
 		// TODO: export project using different run configurations instead of using this selection dialog
-		int buttonIndex = JOptionPane.showConfirmDialog(frame,
-				"Launch in viewer mode?",
-				"Mode Selection",
-				JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE);
-		
-		switch (buttonIndex) {
-		case JOptionPane.YES_OPTION:
-			Client.getInstance().setViewer(true);
-		case JOptionPane.NO_OPTION:
-			Client.getInstance();
-			break;
-		default:
-			System.exit(0);
-		}
+//		int buttonIndex = JOptionPane.showConfirmDialog(frame,
+//				"Launch in viewer mode?",
+//				"Mode Selection",
+//				JOptionPane.YES_NO_CANCEL_OPTION,
+//				JOptionPane.QUESTION_MESSAGE);
+//		
+//		switch (buttonIndex) {
+//		case JOptionPane.YES_OPTION:
+//			Client.getInstance().setViewer(true);
+//		case JOptionPane.NO_OPTION:
+//			Client.getInstance();
+//			break;
+//		default:
+//			System.exit(0);
+//		}
+		Client.getInstance().setViewer(viewerMode);
 
 		// Frame size
 		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));

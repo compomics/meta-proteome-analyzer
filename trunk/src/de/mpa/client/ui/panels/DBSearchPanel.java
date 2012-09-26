@@ -94,7 +94,7 @@ public class DBSearchPanel extends JPanel {
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 
 		// Enzyme ComboBox
-		JComboBox enzymeCbx = new JComboBox(Constants.ENZYMES);
+		JComboBox enzymeCbx = new JComboBox(Constants.DB_ENZYMES);
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));
 		paramsPnl.add(new JLabel("Da"), cc.xy(8, 2));
