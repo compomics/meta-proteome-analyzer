@@ -134,10 +134,15 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 		
 //		modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));
 		
-		// notify model handler of tree UI to rebuild the visible tree structure - totally hacky!
+		// hackily notify select listeners that the tree structure changed -
+		// certain listeners will cause the whole table to be reset (including
+		// highlighters and column widths)
 		// TODO: find a safe and proper way to notify all model listeners without resetting the whole table
-		modelSupport.getTreeModelListeners()[0].treeStructureChanged(
-						new TreeModelEvent(this, new TreePath(getPathToRoot(parent)), null, null));
+		int[] indices = { 0, 2 };
+		TreeModelEvent tme = new TreeModelEvent(this, new TreePath(getPathToRoot(parent)), null, null);
+		for (int i = 0; i < indices.length; i++) {
+			modelSupport.getTreeModelListeners()[0].treeStructureChanged(tme);
+		}
 		
 	}
 

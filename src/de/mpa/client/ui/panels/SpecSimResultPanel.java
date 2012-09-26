@@ -147,9 +147,9 @@ public class SpecSimResultPanel extends JPanel {
 		JScrollPane ssmTableScp = new JScrollPane(ssmTbl);
 		ssmTableScp.setPreferredSize(new Dimension(350, 130));
 		
-		getResultsBtn = new JButton("Get Results   ", IconConstants.REFRESH_DB_ICON);
-		getResultsBtn.setRolloverIcon(IconConstants.REFRESH_DB_ROLLOVER_ICON);
-		getResultsBtn.setPressedIcon(IconConstants.REFRESH_DB_PRESSED_ICON);
+		getResultsBtn = new JButton("Get Results   ", IconConstants.GO_DB_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
 		
 		getResultsBtn.setEnabled(false);
 

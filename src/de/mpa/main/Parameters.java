@@ -1,10 +1,10 @@
 package de.mpa.main;
 
-import java.util.LinkedHashMap;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import de.mpa.analysis.KeggMaps;
-import de.mpa.client.ui.Constants;
+import de.mpa.client.ui.SortableTreeNode;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.parser.ec.ECReader;
 
@@ -18,17 +18,24 @@ public class Parameters {
 	
 	private Map<String, ECEntry> ecMap;
 
-	private LinkedHashMap<String, String> keggTaxonomyMap;
-
-	private LinkedHashMap<String, String> keggPathwayMap;
+	private Map<String, Character> keggTaxonomyMap;
+	private Map<String, Character> keggPathwayMap;
 	
+	private SortableTreeNode keggOrganismTreeRoot;
+	private SortableTreeNode keggPathwayTreeRoot;
+
 	private Parameters() {
 		// TODO: Loading parameter dialog.
-		initializeParameters();
+		try {
+			initializeParameters();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static Parameters getInstance() {
-		if (instance == null){
+		if (instance == null) {
 			instance = new Parameters();
 		}
 		return instance;
@@ -36,17 +43,19 @@ public class Parameters {
 	
 	/**
 	 * This method initialize the parameters
+	 * @throws URISyntaxException 
 	 */
-	private void initializeParameters(){
+	private void initializeParameters() throws URISyntaxException {
 		// Initialize the EC-number map
-		String paramsPath = "/" + getConfPath() + "/ECreduced.xml";
-		ecMap = ECReader.readEC(paramsPath);
-		// Initialize the Kegg pathway map
-		String keggPathwayPath = "/" + getConfPath() + "/keggPathways.txt";
-		keggPathwayMap = KeggMaps.getKeggPathwayList(keggPathwayPath);
-		// Initialize the Kegg taxonomy map
-		String keggTaxonomyPath = "/" + getConfPath() + "/keggTaxonomyMap.txt";
-		keggTaxonomyMap = KeggMaps.getKeggTaxonomie(keggTaxonomyPath);
+		ecMap = ECReader.readEC(
+				getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
+		
+		// Initialize the KEGG pathway map
+		keggPathwayMap = KeggMaps.readKeggPathways(
+				getClass().getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
+		// Initialize the KEGG taxonomy map
+		keggTaxonomyMap = KeggMaps.readKeggOrganisms(
+				getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
 	}
 	
 	/**
@@ -57,37 +66,6 @@ public class Parameters {
 		return new String[] { "View Results" };
 	}
 	
-	/**
-	 * This method returns the path of the parameters.
-	 * @return String path. Returns the path of parameters.
-	 */
-	public String getConfPath() {
-		String path = this.getClass().getResource("Parameters.class").getPath();
-		if (path.indexOf("/" + Constants.APPTITLE) != -1) {
-            path = path.substring(1, path.lastIndexOf("/" + Constants.APPTITLE) + Constants.APPTITLE.length() + 1);
-            path = path.replace("%20", " ");
-            path = path.replace("%5b", "[");
-            path = path.replace("%5d", "]");
-            path += "/conf";
-		}
-		return path;
-	}
-	
-	/**
-	 * This method returns the path of the mpa.
-	 * @return String path. Returns the path of the mpa.
-	 */
-	public String getPath() {
-		String path = this.getClass().getResource("Parameters.class").getPath();
-		if (path.indexOf("/" + Constants.APPTITLE) != -1) {
-            path = path.substring(1, path.lastIndexOf("/" + Constants.APPTITLE) + Constants.APPTITLE.length() + 1);
-            path = path.replace("%20", " ");
-            path = path.replace("%5b", "[");
-            path = path.replace("%5d", "]");
-		}
-		return path;
-	}
-
 	/**
 	 * This method returns the EC-map
 	 * @return Map<String, ECEntry>. Returns the ECMap
@@ -100,7 +78,7 @@ public class Parameters {
 	 * This method returns the map of all KeggPathways
 	 * @return keggPathwayMap. The map of all KeggPathways
 	 */
-	public LinkedHashMap<String, String> getKeggPathwayMap() {
+	public Map<String, Character> getKeggPathwayMap() {
 		return keggPathwayMap;
 	}
 
@@ -108,9 +86,24 @@ public class Parameters {
 	 * This method returns the map of all KeggTaxons
 	 * @return keggTaxonomyMap
 	 */
-	public LinkedHashMap<String, String> getKeggTaxonomyMap() {
+	public Map<String, Character> getKeggTaxonomyMap() {
 		return keggTaxonomyMap;
 	}
 	
+	/**
+	 * Returns the KEGG organism tree root.
+	 * @return the KEGG organism tree root.
+	 */
+	public SortableTreeNode getKeggOrganismTreeRoot() {
+		return keggOrganismTreeRoot;
+	}
+	
+	/**
+	 * Returns the KEGG pathway tree root.
+	 * @return the KEGG pathway tree root.
+	 */
+	public SortableTreeNode getKeggPathwayTreeRoot() {
+		return keggPathwayTreeRoot;
+	}
 	
 }

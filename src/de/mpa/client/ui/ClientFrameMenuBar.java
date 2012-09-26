@@ -28,7 +28,6 @@ import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ServerConnectionSettings;
-import de.mpa.client.ui.dialogs.PathwayDialog;
 import de.mpa.db.DbConnectionSettings;
 import de.mpa.io.ResultExporter;
 
@@ -48,7 +47,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JPanel dbPnl;
 	private String lastSelectedFolder = System.getProperty("user.home");
 	private JMenuItem exportProteinsItem;
-	private JMenuItem keggItem;
+//	private JMenuItem keggItem;
 	private JMenuItem saveProjectItem;
 	private JMenu settingsMenu;
 	private ServerConnectionSettings srvSettings;
@@ -96,19 +95,40 @@ public class ClientFrameMenuBar extends JMenuBar {
 		saveProjectItem.setEnabled(false);
 		saveProjectItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				String filename = null;
-				
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
-				chooser.setAcceptAllFileFilterUsed(false);
-				int returnVal = chooser.showSaveDialog(clientFrame);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					filename = chooser.getSelectedFile() + ".mpa";
-				}
-				
-				if (filename != null) {
-					Client.getInstance().writeDbSearchResultToFile(filename);
-				}
+				new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						JFileChooser chooser = new JFileChooser() {
+							public void approveSelection() {
+								File selFile = getSelectedFile();
+								if (selFile.exists()) {
+									int result = JOptionPane.showOptionDialog(this, 
+											"A file with the selected name already exists. Do you want to replace it?", 
+											"Confirm overwrite", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
+											null, new String[] { "Cancel", "Replace" }, "Cancel");
+									if (result != 1) {
+										return;
+									}
+								}
+								super.approveSelection();
+							}
+						};
+						chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+						chooser.setAcceptAllFileFilterUsed(false);
+						int returnVal = chooser.showSaveDialog(clientFrame);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File selFile = chooser.getSelectedFile();
+							if (selFile != null) {
+								String filePath = selFile.getPath();
+								if (!filePath.toLowerCase().endsWith(".mpa")) {
+									filePath += ".mpa";
+								}
+								Client.getInstance().writeDbSearchResultToFile(filePath);
+							}
+						}
+						return null;
+					}
+				}.execute();
 			}
 		});
 
@@ -191,34 +211,34 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// Add export menu to menubar.
 		this.add(exportMenu);
 		
-		// Pathway menu
-		JMenu pathwayMenu = new JMenu();		
-		pathwayMenu.setText("Pathways");
-
-		// Kegg item
-		keggItem = new JMenuItem();
-		keggItem.setText("Kegg");
-		keggItem.setEnabled(false);
-		keggItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/kegg.gif")));
-		keggItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-//				PathwayDialog pathwayDialogPdg = new PathwayDialog(PathwayType.KEGG,clientFrame);
-				new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						clientFrame.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-						PathwayDialog.showKeggDialog(clientFrame);
-						return null;
-					}
-					protected void done() {
-						clientFrame.setCursor(null);
-					};
-				}.execute();
-			}
-		});
-		pathwayMenu.add(keggItem);
-		// Add pathway to menubar
-		this.add(pathwayMenu);
+//		// Pathway menu
+//		JMenu pathwayMenu = new JMenu();		
+//		pathwayMenu.setText("Pathways");
+//
+//		// Kegg item
+//		keggItem = new JMenuItem();
+//		keggItem.setText("Kegg");
+//		keggItem.setEnabled(false);
+//		keggItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/kegg.png")));
+//		keggItem.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+////				PathwayDialog pathwayDialogPdg = new PathwayDialog(PathwayType.KEGG,clientFrame);
+//				new SwingWorker<Void, Void>() {
+//					@Override
+//					protected Void doInBackground() throws Exception {
+//						clientFrame.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+//						PathwayDialog.showKeggDialog(clientFrame);
+//						return null;
+//					}
+//					protected void done() {
+//						clientFrame.setCursor(null);
+//					};
+//				}.execute();
+//			}
+//		});
+//		pathwayMenu.add(keggItem);
+//		// Add pathway to menubar
+//		this.add(pathwayMenu);
 		
 		
 		// Help Menu
@@ -533,17 +553,8 @@ public class ClientFrameMenuBar extends JMenuBar {
      * Enables the pathway functionalities
      * @param enabled The state of the pathway menu items.
      */
-	public void setPathwayFunctionalityEnabled(boolean enabled) {
-    	keggItem.setEnabled(enabled);
-    }
-	
-    /**
-     * Enables the pathway functionalities
-     * @param enabled The state of the pathway menu items.
-     */
 	public void setSaveprojectFunctionalityEnabled(boolean enabled) {
     	saveProjectItem.setEnabled(enabled);
     }
-	
 	
 }

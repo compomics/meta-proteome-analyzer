@@ -1,5 +1,6 @@
 package de.mpa.main;
 
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -21,10 +22,12 @@ public class Starter {
 		//Options.setDefaultIconSize(new Dimension(18, 18));
 		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
 		Options.setPopupDropShadowEnabled(true);
+		UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
 		try {
 			// Set Plastic3DLook&Feel as default for all OS.
 			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue());
 			UIManager.setLookAndFeel(Plastic3DLookAndFeel.class.getName());
+			Options.setPopupDropShadowEnabled(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -37,13 +40,20 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		final boolean viewerMode;
+		if (args.length > 0) {
+			viewerMode = Boolean.parseBoolean(args[0]);
+		} else {
+			viewerMode = false;
+		}
+		
 		// Set the look&feel
 		setLookAndFeel();
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				ClientFrame.getInstance();
+				ClientFrame.getInstance(viewerMode);
 			}
 		});
 	}

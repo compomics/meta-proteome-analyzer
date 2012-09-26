@@ -7,8 +7,6 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.mpa.main.Parameters;
-
 
 public class EcParserTest extends TestCase {
 	private Map<String, ECEntry> ecMap;
@@ -16,8 +14,8 @@ public class EcParserTest extends TestCase {
 	@Before
 	public void setUp() {
 //		// Initialize the EC-number Map
-		String paramsPath = "/" + Parameters.getInstance().getConfPath() + "/ECreduced.xml";
-		ecMap = ECReader.readEC(paramsPath);		
+		ecMap = ECReader.readEC(
+				getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
 	}
 
 	@Test
