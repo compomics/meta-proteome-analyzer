@@ -1,6 +1,9 @@
 package de.mpa.client.ui.chart;
 
+import java.text.AttributedString;
+
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.labels.PieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.data.general.PieDataset;
 
@@ -52,9 +55,26 @@ public class OntologyPieChart extends Chart {
 		chart.setBackgroundPaint(null);
 		
 		PiePlot3D plot = (PiePlot3D) chart.getPlot();
+		plot.setLabelGenerator(new PieSectionLabelGenerator() {
+			@Override
+			public String generateSectionLabel(PieDataset dataset, Comparable key) {
+				Integer value = (Integer) dataset.getValue(key);
+				double total = 0.0;
+				for (int i = 0; i < dataset.getItemCount(); i++) {
+					total += ((Integer) dataset.getValue(i)).doubleValue();
+				}
+				double relVal = value.doubleValue() / total;
+				return key.toString() + "\n" + value + " (" + (Math.round(relVal * 1000.0) / 10.0) + "%)";
+			}
+			@Override
+			public AttributedString generateAttributedSectionLabel(PieDataset dataset, Comparable key) {
+				return null;	// unused
+			}
+		});
         plot.setStartAngle(324);
         plot.setCircular(true);
         plot.setForegroundAlpha(0.75f);
         plot.setBackgroundPaint(null);
+        plot.setOutlineVisible(false);
 	}
 }
