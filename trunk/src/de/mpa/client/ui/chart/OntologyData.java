@@ -77,7 +77,7 @@ public class OntologyData implements ChartData {
 	 */
 	public void init() {
 		// Get the ontology map.
-		if(ontologyMap == null) {
+		if (ontologyMap == null) {
 			ontologyMap = UniprotAccessor.getOntologyMap();
 		}
 		
@@ -92,30 +92,30 @@ public class OntologyData implements ChartData {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
 			
 			// Entry must be provided
-			if(entry != null){
+			if (entry != null) {
 				List<Keyword> keywords = entry.getKeywords();
 				for (Keyword kw : keywords) {
 					String keyword = kw.getValue();
-					if(ontologyMap.containsKey(keyword)) {
+					if (ontologyMap.containsKey(keyword)) {
 						//TODO: Do the calculation on spectral level.
 						KeywordOntology kwOntology = ontologyMap.get(keyword);
 						switch (kwOntology) {
 						case BIOLOGICAL_PROCESS:
-							if(biolProcessOccMap.containsKey(keyword)){
+							if (biolProcessOccMap.containsKey(keyword)) {
 								biolProcessOccMap.put(keyword, biolProcessOccMap.get(keyword)+1);
 							} else {
 								biolProcessOccMap.put(keyword, 1);
 							}
 							break;
 						case CELLULAR_COMPONENT:
-							if(cellCompOccMap.containsKey(keyword)){
+							if (cellCompOccMap.containsKey(keyword)) {
 								cellCompOccMap.put(keyword, cellCompOccMap.get(keyword)+1);
 							} else {
 								cellCompOccMap.put(keyword, 1);
 							}
 							break;
 						case MOLECULAR_FUNCTION:
-							if(molFunctionOccMap.containsKey(keyword)){
+							if (molFunctionOccMap.containsKey(keyword)) {
 								molFunctionOccMap.put(keyword, molFunctionOccMap.get(keyword)+1);
 							} else {
 								molFunctionOccMap.put(keyword, 1);
@@ -153,13 +153,19 @@ public class OntologyData implements ChartData {
 			sumValues += e.getValue();
 		}
 		
+		int sumOthers = 0;
 		double limit = 0.01;
 		for (Entry<String, Integer> e : entrySet) {
-			if((e.getValue() * 1.0 / sumValues * 1.0) >= limit) {
-				pieDataset.setValue(e.getKey(), e.getValue());
+			Integer absVal = e.getValue();
+			double relVal = absVal * 1.0 / sumValues * 1.0;
+			Comparable key;
+			if (relVal >= limit) {
+				key = e.getKey();
 			} else {
-				pieDataset.setValue("Others", e.getValue());
+				key = "Others";
+				absVal = (sumOthers += absVal);
 			}
+			pieDataset.setValue(key, absVal);
 		}
 		return pieDataset;
 	}
@@ -176,9 +182,9 @@ public class OntologyData implements ChartData {
 	 * Clears the occurrences map. 
 	 */
 	public void clear() {
-		if(biolProcessOccMap != null) biolProcessOccMap.clear();
-		if(molFunctionOccMap != null) molFunctionOccMap.clear();
-		if(cellCompOccMap != null) cellCompOccMap.clear();
+		if (biolProcessOccMap != null) biolProcessOccMap.clear();
+		if (molFunctionOccMap != null) molFunctionOccMap.clear();
+		if (cellCompOccMap != null) cellCompOccMap.clear();
 	}
 	
 	/**

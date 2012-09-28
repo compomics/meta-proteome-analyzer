@@ -125,6 +125,21 @@ public class IconConstants {
 	public static final ImageIcon HIERARCHY_ROLLOVER_ICON = createRescaledIcon(HIERARCHY_ICON, 1.2f);
 	public static final ImageIcon HIERARCHY_PRESSED_ICON = createRescaledIcon(HIERARCHY_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/pie_chart16.png"> */
+	public static final ImageIcon PIE_CHART_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/pie_chart16.png"));
+	public static final ImageIcon PIE_CHART_ROLLOVER_ICON = createRescaledIcon(PIE_CHART_ICON, 1.2f);
+	public static final ImageIcon PIE_CHART_PRESSED_ICON = createRescaledIcon(PIE_CHART_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/frame_full16.png"> */
+	public static final ImageIcon FRAME_FULL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/frame_full16.png"));
+	public static final ImageIcon FRAME_FULL_ROLLOVER_ICON = createRescaledIcon(FRAME_FULL_ICON, 1.2f);
+	public static final ImageIcon FRAME_FULL_PRESSED_ICON = createRescaledIcon(FRAME_FULL_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/frame_tiled16.png"> */
+	public static final ImageIcon FRAME_TILED_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/frame_tiled16.png"));
+	public static final ImageIcon FRAME_TILED_ROLLOVER_ICON = createRescaledIcon(FRAME_TILED_ICON, 1.2f);
+	public static final ImageIcon FRAME_TILED_PRESSED_ICON = createRescaledIcon(FRAME_TILED_ICON, 0.8f);
+	
 	
 	/**
 	 * Rescales color space of a provided icon. Use to brighten or darken icons.

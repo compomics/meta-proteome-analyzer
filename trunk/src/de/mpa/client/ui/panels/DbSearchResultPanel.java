@@ -85,7 +85,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -163,6 +162,7 @@ import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.PhylogenyTreeTableNode;
+import de.mpa.client.ui.RoundedHoverButtonUI;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
@@ -393,53 +393,6 @@ public class DbSearchResultPanel extends JPanel {
 				hierarchyPop.show(hierarchyBtn, 0, hierarchyBtn.getHeight());
 			}
 		});
-		
-//		final JComboBox hierarchyCbx = new JComboBox(cardLabels) {
-//			private boolean layingOut = false;
-//			@Override
-//			public void doLayout() {
-//				try {
-//					layingOut = true;
-//					super.doLayout();
-//				} finally {
-//					layingOut = false;
-//				}
-//			}
-//			@Override
-//			public Dimension getSize() {
-//				Dimension dim = super.getSize();
-//				if (!layingOut)
-//					dim.width = Math.max(dim.width, getPreferredSize().width);
-//				return dim;
-//			}
-//		};
-//		hierarchyCbx.addItemListener(new ItemListener() {
-//			@Override
-//			public void itemStateChanged(final ItemEvent e) {
-//				if (e.getStateChange() == ItemEvent.SELECTED) {
-//					protCardLyt.show(protCardPnl, (String) e.getItem());
-//				}
-//			}
-//		});
-//		hierarchyCbx.setPreferredSize(new Dimension(hierarchyCbx.getPreferredSize().width + 18, 20));
-//		hierarchyCbx.setRenderer(new ListCellRenderer() {
-//			private ListCellRenderer delegate = hierarchyCbx.getRenderer();
-//			private Icon icon = new Icon() {
-//				private Icon delegate = 
-//					new ImageIcon(getClass().getResource("/de/mpa/resources/icons/hierarchy16.png"));
-//				public void paintIcon(Component c, Graphics g, int x, int y) { delegate.paintIcon(c, g, x, y + 1); }
-//				public int getIconWidth() { return delegate.getIconWidth(); }
-//				public int getIconHeight() { return delegate.getIconHeight() + 1; }
-//			};
-//			@Override
-//			public Component getListCellRendererComponent(JList list, Object value,
-//					int index, boolean isSelected, boolean cellHasFocus) {
-//				if (index == -1) {
-//					return new JLabel((String) value, icon, SwingConstants.LEFT);
-//				}
-//				return delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-//			}
-//		});
 		
 		getResultsBtn = new JButton(IconConstants.GO_DB_ICON);
 		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
@@ -3240,41 +3193,6 @@ public class DbSearchResultPanel extends JPanel {
 		 */
 		public void setProteinHits(List<ProteinHit> protHits) {
 			this.protHits = protHits;
-		}
-	}
-	
-	/**
-	 * Custom button UI to create toolbar button-like visuals for title panel components. 
-	 * 
-	 * @author A. Behne
-	 */
-	public class RoundedHoverButtonUI extends BasicButtonUI {
-		
-		@Override
-		public void update(Graphics g, JComponent c) {
-            AbstractButton b = (AbstractButton) c;
-			if (b.getModel().isRollover() || b.isSelected()) {
-				g.setColor(new Color(255, 255, 255, 159));
-				g.fillRoundRect(0, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
-
-				g.setColor(Color.WHITE);
-				g.drawRoundRect(1, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
-				g.drawRoundRect(0, 1, c.getWidth()-2, c.getHeight()-2, 5, 5);
-				g.setColor(Color.GRAY);
-				g.drawRoundRect(0, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
-	        }
-	        paint(g, c);
-	        if (b.isSelected()) {
-	        	paintButtonPressed(g, b);
-	        }
-		}
-		
-		@Override
-		protected void paintButtonPressed(Graphics g, AbstractButton b) {
-			if (b.isContentAreaFilled()) {
-				g.setColor(new Color(0, 0, 0, 47));
-				g.fillRoundRect(0, 0, b.getWidth()-2, b.getHeight()-2, 5, 5);
-	        }
 		}
 	}
 
