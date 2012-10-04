@@ -821,6 +821,8 @@ public class DbSearchResultPanel extends JPanel {
 			// Enable Save Project functionalty
 			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
 				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				
+			clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

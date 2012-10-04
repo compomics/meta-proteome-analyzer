@@ -1,31 +1,41 @@
 package de.mpa.client.ui.panels;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -34,6 +44,8 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
 
 import uk.ac.ebi.kraken.uuw.services.remoting.RemoteDataAccessException;
 
@@ -50,11 +62,12 @@ import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.TaxonomyData;
-import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
+import de.mpa.client.ui.chart.PiePlot3DExt;
+import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
+import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class ResultsPanel extends JPanel {
@@ -69,6 +82,8 @@ public class ResultsPanel extends JPanel {
 	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
 	private TopData topData;
 	private MultiSplitLayout msl;
+	private JScrollBar chartBar;
+	private JToggleButton chartTypeBtn;
 	
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
@@ -203,10 +218,11 @@ public class ResultsPanel extends JPanel {
 				"Top10 Proteins"
 				}));
 		
-		final JToggleButton chartTypeBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
+		chartTypeBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
 		chartTypeBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
 		chartTypeBtn.setPressedIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
 		chartTypeBtn.setToolTipText("Select Chart Type");
+		chartTypeBtn.setEnabled(false);
 		
 		chartTypeBtn.setUI(new RoundedHoverButtonUI());
 
@@ -255,9 +271,11 @@ public class ResultsPanel extends JPanel {
 				updateOverview(chartTypeIndex, false);
 			}
 		};
+		ButtonGroup chartBtnGrp = new ButtonGroup();
 		for (int j = 0; j < chartLabels.size(); j++) {
-			JMenuItem item = new JMenuItem(chartLabels.get(j));
+			JMenuItem item = new JCheckBoxMenuItem(chartLabels.get(j), (j == 0));
 			item.addActionListener(chartListener);
+			chartBtnGrp.add(item);
 			chartPop.add(item);
 		}
 		chartPop.addPopupMenuListener(new PopupMenuListener() {
@@ -284,29 +302,83 @@ public class ResultsPanel extends JPanel {
 		chartBtnPnl.add(resizeBtn, CC.xy(3, 1));
 
 		// Default pie chart
-		Map<String, Integer> defaultMap = new HashMap<String, Integer>();
-		defaultMap.put("Resembles Pac-Man", 80);
-		defaultMap.put("Does not resemble Pac-Man", 20);
+		final Map<String, Integer> defaultMap = new LinkedHashMap<String, Integer>();
+//		defaultMap.put("Resembles Pac-Man", 80);
+//		defaultMap.put("Does not resemble Pac-Man", 20);
+		defaultMap.put("Data 1", 46);
+		defaultMap.put("Data 2", 35);
+		defaultMap.put("Data 3", 64);
+		defaultMap.put("Data 4", 23);
+		defaultMap.put("Data 5", 32);
+		defaultMap.put("Data 6", 11);
 		ontologyData = new OntologyData();
 		ontologyData.setDefaultMapping(defaultMap);
 		
-		JPanel chartContPanel = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		Chart chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+		JPanel chartScrollPnl = new JPanel(new BorderLayout());
+		chartScrollPnl.setBorder(new Border() {
+			private Border delegate = BorderFactory.createEtchedBorder();
+			public void paintBorder(Component c, Graphics g, int x, int y, int width,
+					int height) {
+				delegate.paintBorder(c, g, x, y, width, height);
+			}
+			public boolean isBorderOpaque() { return true; }
+			public Insets getBorderInsets(Component c) {
+				Insets insets = delegate.getBorderInsets(c);
+				insets.set(1, 2, 2, 1);
+				return insets;
+			}
+		});
 		
-		chartPnl = new ChartPanel(chart.getChart());
+		chartPnl = new ChartPanel(null);
 		chartPnl.setMinimumDrawHeight(144);
 		chartPnl.setMaximumDrawHeight(1440);
 		chartPnl.setMinimumDrawWidth(256);
 		chartPnl.setMaximumDrawWidth(2560);
-		chartPnl.setBorder(BorderFactory.createEtchedBorder());
 		chartPnl.setBackground(Color.WHITE);
 		chartPnl.setPreferredSize(new Dimension(256, 144));
 		chartPnl.setMinimumSize(new Dimension(256, 144));
 		
-		chartContPanel.add(chartPnl, CC.xy(2, 2));
+		chartPnl.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent me) {
+				JFreeChart chart = chartPnl.getChart();
+				if (chart != null) {
+					if (chart.getPlot() instanceof PiePlot3DExt) {
+						PiePlot3DExt piePlot = (PiePlot3DExt) chart.getPlot();
+						Comparable key = piePlot.getSectionKeyForPoint(me.getPoint());
+						if (key != null) {
+							for (Object dataKey : piePlot.getDataset().getKeys()) {
+								piePlot.setExplodePercent((Comparable) dataKey, 0.0);
+							}
+							piePlot.setExplodePercent(key, 0.2);
+						}
+					}
+				}
+			}
+		});
 		
-		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel("Chart View", chartContPanel);
+		chartBar = new JScrollBar(JScrollBar.VERTICAL, 39, 0, 0, 360);
+		chartBar.setBorder(BorderFactory.createEmptyBorder(-1, 0, -1, -1));
+		
+		chartBar.addAdjustmentListener(new AdjustmentListener() {
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+				JFreeChart chart = chartPnl.getChart();
+				if (chart != null) {
+					if (chart.getPlot() instanceof PiePlot) {
+						((PiePlot) chart.getPlot()).setStartAngle(ae.getValue());
+					}
+				}
+			}
+		});
+		
+		chartScrollPnl.add(chartPnl, BorderLayout.CENTER);
+		chartScrollPnl.add(chartBar, BorderLayout.EAST);
+
+		chartMarginPnl.add(chartScrollPnl, CC.xy(2, 2));
+		
+		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel("Chart View", chartMarginPnl);
 		chartTtlPnl.setRightDecoration(chartBtnPnl);
 		
 		return chartTtlPnl;
@@ -361,20 +433,36 @@ public class ResultsPanel extends JPanel {
 		case 0:
 		case 1:
 		case 2:
-			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+			if (ontologyData != null) {
+				chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+				((PiePlot) chart.getChart().getPlot()).setExplodePercent(
+						ontologyData.getDataset().getKey(0), 0.2);
+			}
 			break;
 		case 3:
 		case 4:
 		case 5:
 		case 6:
-			chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
+			if (taxonomyData != null) {
+				chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
+				((PiePlot) chart.getChart().getPlot()).setExplodePercent(
+						ontologyData.getDataset().getKey(0), 0.2);
+			}
 			break;
 		default:
 			chart = ChartFactory.createTopBarChart(topData, chartType);
 			break;
 		}
 		
-		chartPnl.setChart(chart.getChart());
+		if (chart != null) {
+			chartPnl.setChart(chart.getChart());
+			if (chart.getChart().getPlot() instanceof PiePlot) {
+//				chartBar.setVisibleAmount(0);
+				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartBar.getValue());
+			} else {
+//				chartBar.setVisibleAmount(Integer.MAX_VALUE);
+			}
+		}
 	}
 
 	protected void updateOverview(boolean refresh) {
@@ -445,6 +533,14 @@ public class ResultsPanel extends JPanel {
 	 */
 	public DeNovoResultPanel getDeNovoSearchResultPanel() {
 		return dnPnl;
+	}
+
+	/**
+	 * Returns the button to select the type of the chart inside the chart view panel.
+	 * @return the chart type button
+	 */
+	public JToggleButton getChartTypeButton() {
+		return chartTypeBtn;
 	}
 
 }
