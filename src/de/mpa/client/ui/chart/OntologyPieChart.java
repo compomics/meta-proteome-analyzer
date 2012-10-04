@@ -3,9 +3,11 @@ package de.mpa.client.ui.chart;
 import java.text.AttributedString;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.PieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.data.general.PieDataset;
+import org.jfree.ui.RectangleInsets;
 
 public class OntologyPieChart extends Chart {
 	
@@ -51,10 +53,15 @@ public class OntologyPieChart extends Chart {
 			chartTitle = "Biological Process Ontology";
 			break;
 		}
-		chart = ChartFactory.createPieChart3D(chartTitle, pieDataset, false, false, false);
-		chart.setBackgroundPaint(null);
 		
-		PiePlot3D plot = (PiePlot3D) chart.getPlot();
+		PiePlot3D plot = new PiePlot3DExt(pieDataset);
+        plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));
+        plot.setStartAngle(324);
+        plot.setCircular(true);
+        plot.setForegroundAlpha(0.75f);
+        plot.setBackgroundPaint(null);
+        plot.setOutlineVisible(false);
+        
 		plot.setLabelGenerator(new PieSectionLabelGenerator() {
 			@Override
 			public String generateSectionLabel(PieDataset dataset, Comparable key) {
@@ -71,10 +78,11 @@ public class OntologyPieChart extends Chart {
 				return null;	// unused
 			}
 		});
-        plot.setStartAngle(324);
-        plot.setCircular(true);
-        plot.setForegroundAlpha(0.75f);
-        plot.setBackgroundPaint(null);
-        plot.setOutlineVisible(false);
+        
+        chart = new JFreeChart(chartTitle, JFreeChart.DEFAULT_TITLE_FONT,
+                plot, false);
+        ChartFactory.getChartTheme().apply(chart);
+		
+		chart.setBackgroundPaint(null);
 	}
 }
