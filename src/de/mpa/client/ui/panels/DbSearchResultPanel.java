@@ -732,8 +732,6 @@ public class DbSearchResultPanel extends JPanel {
 						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 						Client.getInstance().firePropertyChange("indeterminate", true, false);
 					}
-					
-					
 					 
 					dbSearchResult = newResult;
 					parent.updateOverview(true);

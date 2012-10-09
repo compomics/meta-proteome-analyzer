@@ -68,4 +68,10 @@ public class TopData implements ChartData {
 		return dataset;
 	}
 
+	@Override
+	public List<ProteinHit> getProteinHits(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

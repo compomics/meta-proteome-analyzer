@@ -393,27 +393,27 @@ public class ProjectPanel extends JPanel {
 	private JScrollPane setupProjectTable() {
 		// Table for projects
 		projectTbl = new JXTable(new DefaultTableModel() { 
-					{
-						setColumnIdentifiers(new Object[] { "#", "Project Title", "Creation Date"});
-					}
+			{
+				setColumnIdentifiers(new Object[] { "#", "Project Title", "Creation Date"});
+			}
 
-					public boolean isCellEditable(int row, int col) {
-						return false;
-					}
+			public boolean isCellEditable(int row, int col) {
+				return false;
+			}
 
-					public Class<?> getColumnClass(int col) {
-						switch (col) {
-						case 0:
-							return Integer.class;
-						case 1:
-							return String.class;
-						case 2:
-							return Date.class;
-						default:
-							return getValueAt(0, col).getClass();
-						}
-					}
-				});
+			public Class<?> getColumnClass(int col) {
+				switch (col) {
+				case 0:
+					return Integer.class;
+				case 1:
+					return String.class;
+				case 2:
+					return Date.class;
+				default:
+					return getValueAt(0, col).getClass();
+				}
+			}
+		});
 		projectTbl.setColumnControlVisible(true);
 		
 		// Selection model for the list: Select one entry of the table only

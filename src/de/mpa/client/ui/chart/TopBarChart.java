@@ -17,7 +17,19 @@ import de.mpa.util.ColorUtils;
 public class TopBarChart extends Chart {
 	
 	public enum TopBarChartType implements ChartType {
-		PROTEINS, SPECIES, ENZYMES
+		PROTEINS("Proteins"),
+		SPECIES("Species"),
+		ENZYMES("Enzymes");
+
+		private String title;
+		
+		private TopBarChartType(String title) {
+			this.title = title;
+		}
+		@Override
+		public String getTitle() {
+			return "Top10 " + title;
+		}
 	}
 
 	private CategoryDataset categoryDataset;
@@ -43,24 +55,12 @@ public class TopBarChart extends Chart {
 	@Override
 	protected void setChart() {
 		TopBarChartType topBarChartType = (TopBarChartType) chartType;
+		chartTitle = topBarChartType.getTitle();
+		String title = chartTitle.trim().substring(chartTitle.lastIndexOf(' ') + 1);
+		chart = ChartFactory.createBarChart3D(chartTitle, title, "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
 		
-		switch (topBarChartType) {
-		case PROTEINS:
-			chartTitle = "Top10 Proteins Chart";
-			chart = ChartFactory.createBarChart3D(chartTitle, "Proteins", "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
-			break;
-		case SPECIES:
-			chartTitle = "Top10 Species Chart";
-			chart = ChartFactory.createBarChart3D(chartTitle, "Species", "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
-			break;
-		case ENZYMES:
-			chartTitle = "Top10 Enzymes Chart";
-			chart = ChartFactory.createBarChart3D(chartTitle, "Enzymes", "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
-			break;
-		default:
-			break;
-		}
     	chart.setTextAntiAlias(true);
+    	
 		// set background color
 		chart.getPlot().setBackgroundPaint(Color.WHITE);
 		chart.setBackgroundPaint(Color.WHITE);
@@ -71,7 +71,7 @@ public class TopBarChart extends Chart {
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setRenderer(0, barRenderer3d);
         
-        // Rotate the label axis up 45°
+        // Rotate the label axis up 45 degrees
         CategoryAxis labelAxis = (CategoryAxis)plot.getDomainAxis();
         labelAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         

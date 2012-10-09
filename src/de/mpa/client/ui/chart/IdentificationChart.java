@@ -10,7 +10,19 @@ public class IdentificationChart extends Chart {
 	private CategoryDataset categoryDataset;
 	
 	public enum BarChartType implements ChartType {
-		PROTEIN_LEVEL, PEPTIDE_LEVEL, PSM_LEVEL
+		PROTEIN_LEVEL("Protein"),
+		PEPTIDE_LEVEL("Peptide"),
+		PSM_LEVEL("PSM");
+
+		private String title;
+		
+		private BarChartType(String title) {
+			this.title = title;
+		}
+		@Override
+		public String getTitle() {
+			return title;
+		}
 	}
 	
 	/**
@@ -33,23 +45,9 @@ public class IdentificationChart extends Chart {
 	@Override
 	protected void setChart() {
 		BarChartType barPlotType = (BarChartType) chartType;
-		
-		switch (barPlotType) {
-		case PROTEIN_LEVEL:
-			chartTitle = "Protein Bar Chart";
-			chart = ChartFactory.createBarChart(chartTitle, "Search Engines", "No. Proteins", categoryDataset, PlotOrientation.VERTICAL, true, true, false);
-			break;
-		case PEPTIDE_LEVEL:
-			chartTitle = "Peptide Bar Chart";
-			chart = ChartFactory.createBarChart(chartTitle, "Search Engines", "No. Peptides", categoryDataset, PlotOrientation.VERTICAL, true, true, false);
-			break;
-		case PSM_LEVEL:
-			chartTitle = "PSM Bar Chart";
-			chart = ChartFactory.createBarChart(chartTitle, "Search Engines", "No. PSMs", categoryDataset, PlotOrientation.VERTICAL, true, true, false);
-			break;
-		default:
-			break;
-		}
+		String title = barPlotType.getTitle();
+		chartTitle = title + " Bar Chart";
+		chart = ChartFactory.createBarChart(chartTitle, "Search Engines", "No. " + title + "s", categoryDataset, PlotOrientation.VERTICAL, true, true, false);
 		chart.setBackgroundPaint(null);
 	}
 }

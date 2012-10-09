@@ -75,7 +75,7 @@ public class TaxonomyData implements ChartData {
 	 */
 	public void init() {
 		// Get the taxonomy map.
-		if(taxonomyMap == null) {
+		if (taxonomyMap == null) {
 			taxonomyMap = UniprotAccessor.getTaxonomyMap();
 		}
 		
@@ -91,14 +91,14 @@ public class TaxonomyData implements ChartData {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
 			
 			// Entry must be provided
-			if(entry != null){
+			if (entry != null) {
 				
 				List<NcbiTaxon> taxonomies = entry.getTaxonomy();
 				for (NcbiTaxon taxon : taxonomies) {
 					String taxonName = taxon.getValue();
 					taxonName = getRuleBasedMapping(taxonName);
 					
-					if(taxonomyMap.containsKey(taxonName)) {
+					if (taxonomyMap.containsKey(taxonName)) {
 						//TODO: Do the calculation on spectral level.
 						TaxonomyRank taxonomyRank = taxonomyMap.get(taxonName);
 						switch (taxonomyRank) {
@@ -127,7 +127,7 @@ public class TaxonomyData implements ChartData {
 					}
 				}
 				String species = entry.getOrganism().getScientificName().getValue();
-				if(speciesTaxonomyMap.containsKey(species)){
+				if (speciesTaxonomyMap.containsKey(species)) {
 					speciesTaxonomyMap.put(species, speciesTaxonomyMap.get(species)+1);
 				} else {
 					speciesTaxonomyMap.put(species, 1);
@@ -142,10 +142,10 @@ public class TaxonomyData implements ChartData {
 	 * @return The rule based taxon name.
 	 */
 	private String getRuleBasedMapping(String taxonName) {
-		// Baciallales and Lactobaciallales do not provide sufficient information. 
-		if(taxonName.equals("Bacillales")) {
+		// Baciallales and Lactobaciallales do not provide sufficient information.
+		if (taxonName.equals("Bacillales")) {
 			taxonName = "Bacilli";
-		} else if(taxonName.equals("Lactobacillales")) {
+		} else if (taxonName.equals("Lactobacillales")) {
 			taxonName = "Bacilli";
 		}
 		return taxonName;
@@ -156,6 +156,7 @@ public class TaxonomyData implements ChartData {
 	 * @return
 	 */
 	public PieDataset getDataset() {
+		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		Set<Entry<String, Integer>> entrySet = null;
 		TaxonomyChartType pieChartType = (TaxonomyChartType) chartType;
@@ -182,19 +183,25 @@ public class TaxonomyData implements ChartData {
 		double limit = 0.01;
 		String temp = "";
 		for (Entry<String, Integer> e : entrySet) {
-			if(e.getKey().contains("(")) {
+			if (e.getKey().contains("(")) {
 				temp = e.getKey().substring(0, e.getKey().indexOf("("));
 			} else {
 				temp = e.getKey();
 			}
 			
-			if((e.getValue() * 1.0 / sumValues * 1.0) >= limit) {
+			if ((e.getValue() * 1.0 / sumValues * 1.0) >= limit) {
 				pieDataset.setValue(temp, e.getValue());
 			} else {
 				pieDataset.setValue("Others", e.getValue());
 			}
 		}
 		return pieDataset;
+	}
+
+	@Override
+	public List<ProteinHit> getProteinHits(String key) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	/**
@@ -209,10 +216,10 @@ public class TaxonomyData implements ChartData {
 	 * Clears the occurrences map. 
 	 */
 	public void clear() {
-		if(kingdomTaxonomyMap != null) kingdomTaxonomyMap.clear();
-		if(phylumTaxonomyMap != null) phylumTaxonomyMap.clear();
-		if(classTaxonomyMap != null) classTaxonomyMap.clear();
-		if(speciesTaxonomyMap != null) speciesTaxonomyMap.clear();
+		if (kingdomTaxonomyMap != null)	kingdomTaxonomyMap.clear();
+		if (phylumTaxonomyMap != null)	phylumTaxonomyMap.clear();
+		if (classTaxonomyMap != null)	classTaxonomyMap.clear();
+		if (speciesTaxonomyMap != null)	speciesTaxonomyMap.clear();
 	}
 
 }

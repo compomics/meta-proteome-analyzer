@@ -12,16 +12,16 @@ import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.PieSectionEntity;
@@ -38,9 +38,21 @@ import org.jfree.ui.RectangleInsets;
 public class PiePlot3DExt extends PiePlot3D {
 
 	private PiePlotState state;
+	private List<Arc2D> arcList;
+	private double maximumExplodePercent = 0.0;
+	private List<IndexedFace> faceList;
 
 	public PiePlot3DExt(PieDataset dataset) {
 		super(dataset);
+	}
+	
+	@Override
+	public double getMaximumExplodePercent() {
+		return maximumExplodePercent;
+	}
+	
+	public void setMaximumExplodePercent(double maximumExplodePercent) {
+		this.maximumExplodePercent = maximumExplodePercent;
 	}
 
 	/**
@@ -206,12 +218,14 @@ public class PiePlot3DExt extends PiePlot3D {
 			return;  // if depth is negative don't draw anything
 		}
 
-		List<Arc2D> arcList = new ArrayList<Arc2D>();
+		arcList = new ArrayList<Arc2D>(sectionKeys.size());
+		faceList = new ArrayList<IndexedFace>(sectionKeys.size());
 		Arc2D.Double arc;
 		Paint paint;
 		Paint outlinePaint;
 		Stroke outlineStroke;
 
+		int cat = 0;
 		Iterator iterator = sectionKeys.iterator();
 		while (iterator.hasNext()) {
 
@@ -219,11 +233,13 @@ public class PiePlot3DExt extends PiePlot3D {
 			Number dataValue = dataset.getValue(currentKey);
 			if (dataValue == null) {
 				arcList.add(null);
+				cat++;
 				continue;
 			}
 			double value = dataValue.doubleValue();
-			if (value <= 0) {
+			if (value <= 0.0) {
 				arcList.add(null);
+				cat++;
 				continue;
 			}
 			double startAngle = getStartAngle();
@@ -237,18 +253,21 @@ public class PiePlot3DExt extends PiePlot3D {
 				double centerAngle = Math.toRadians(arcStartAngle + arcAngleExtent / 2.0);
 				double xOffset = expPercent * state.getPieWRadius() * Math.cos(centerAngle);
 				double yOffset = expPercent * state.getPieHRadius() * Math.sin(centerAngle);
-				//				double xOffset = 0.0;
-				//				double yOffset = 0.0;
 
-				arcList.add(new Arc2D.Double(arcX + xOffset, arcY - yOffset + depth,
+				arc = new Arc2D.Double(arcX + xOffset, arcY - yOffset + depth,
 						pieArea.getWidth(), pieArea.getHeight() - depth,
-						arcStartAngle, arcAngleExtent, Arc2D.PIE));
+						arcStartAngle, arcAngleExtent, Arc2D.PIE);
+				arcList.add(arc);
+
+				faceList.add(new IndexedFace(cat, true, arc.getStartPoint().getX() > state.getPieCenterX()));
+				faceList.add(new IndexedFace(cat, false, arc.getEndPoint().getX() < state.getPieCenterX()));
 			} else {
 				arcList.add(null);
 			}
 			runningTotal += value;
+			cat++;
 		}
-
+		
 		Shape oldClip = g2.getClip();
 
 		// draw the bottom segments
@@ -267,179 +286,80 @@ public class PiePlot3DExt extends PiePlot3D {
 			g2.setPaint(outlinePaint);
 			g2.setStroke(outlineStroke);
 			g2.draw(arc);
+		}
+
+		// sort segment side point list to be in back-to-front order
+		Collections.sort(faceList);
+		
+		// paint faces
+		Set<Integer> visitedIndices = new TreeSet<Integer>();	// paint mantle faces only once
+		for (IndexedFace indexedFace : faceList) {
+			int index = indexedFace.index;
+			Arc2D segment = arcList.get(index);
+			if (segment == null) {
+				continue;
+			}
+			Comparable key = getSectionKey(index);
+			paint = lookupSectionPaint(key);
+			outlinePaint = lookupSectionOutlinePaint(key);
+			outlineStroke = lookupSectionOutlineStroke(key);
+			boolean visited = visitedIndices.contains(index);
+			
+			// shade and paint mantle back face
+			if (!visited) {
+				Area backMantle = getArcMantleBackArea(segment, depth);
+				
+				g2.setPaint(Color.GRAY);
+				g2.fill(backMantle);
+
+				g2.setPaint(paint);
+				g2.fill(backMantle);
+				g2.setStroke(outlineStroke);
+				g2.setPaint(outlinePaint);
+				g2.draw(backMantle);
+			}
+
+			// shade and paint inner face
+			double centerX = segment.getCenterX();
+			double centerY = segment.getCenterY();
+
+			Path2D path = new Path2D.Double();
+
+			path.moveTo(centerX, centerY);
+			path.lineTo(centerX, centerY - depth);
+
+			Point2D point = (indexedFace.startFace) ? segment.getStartPoint() : segment.getEndPoint();
+
+			path.lineTo(point.getX(), point.getY() - depth);
+			path.lineTo(point.getX(), point.getY());
+			path.closePath();
+
+			g2.setPaint(Color.GRAY);
+			g2.fill(path);
+			
 			g2.setPaint(paint);
-
-//			Point2D p1 = arc.getStartPoint();
-//
-//			// draw the height at start edge
-//			Path2D path = new Path2D.Double();
-//			path.moveTo(arc.getCenterX(), arc.getCenterY());
-//			path.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
-//			path.lineTo(p1.getX(), p1.getY() - depth);
-//			path.lineTo(p1.getX(), p1.getY());
-//			path.closePath();
-//			
-//			g2.setPaint(Color.LIGHT_GRAY);
-//			g2.fill(path);
-//			g2.setPaint(outlinePaint);
-//			g2.setStroke(outlineStroke);
-//			g2.draw(path);
-//
-//			Point2D p2 = arc.getEndPoint();
-//
-//			// draw the height at end edge
-//			path = new Path2D.Double();
-//			path.moveTo(arc.getCenterX(), arc.getCenterY());
-//			path.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
-//			path.lineTo(p2.getX(), p2.getY() - depth);
-//			path.lineTo(p2.getX(), p2.getY());
-//			path.closePath();
-//
-//			g2.fill(path);
-//			g2.setPaint(outlinePaint);
-//			g2.setStroke(outlineStroke);
-//			g2.draw(path);
-
-		}
-
-		// shade back faces
-		g2.setPaint(Color.GRAY);
-		iterator = arcList.iterator();
-		while (iterator.hasNext()) {
-			arc = (Arc2D.Double) iterator.next();
-			if (arc != null) {
-				Area extSeg = getExtrudedArcArea(arc, depth);
-				extSeg.subtract(new Area(arc));
-				g2.fill(extSeg);
-			}
-		}
-		
-		// cycle through once drawing only the sides at the back...
-		int cat = 0;
-		iterator = arcList.iterator();
-		while (iterator.hasNext()) {
-			Arc2D segment = (Arc2D) iterator.next();
-			if (segment != null) {
-				Comparable key = getSectionKey(cat);
-				paint = lookupSectionPaint(key);
-				outlinePaint = lookupSectionOutlinePaint(key);
-				outlineStroke = lookupSectionOutlineStroke(key);
+			g2.fill(path);
+			g2.setStroke(outlineStroke);
+			g2.setPaint(outlinePaint);
+			g2.draw(path);
+			
+			// shade and paint mantle front face
+			if (visited) {
+				Area frontMantle = getArcMantleFrontArea(segment, depth);
 				
-				Area extSeg = getExtrudedArcArea(segment, depth);
-				extSeg.subtract(new Area(segment));
+				g2.setPaint(Color.GRAY);
+				g2.fill(frontMantle);
 
 				g2.setPaint(paint);
-				g2.fill(extSeg);
-//				g2.setPaint(outlinePaint);
-//				g2.setStroke(outlineStroke);
-//				g2.draw(extSeg);
-//				g2.setPaint(paint);
+				g2.fill(frontMantle);
+				g2.setStroke(outlineStroke);
+				g2.setPaint(outlinePaint);
+				g2.draw(frontMantle);
 			}
-			cat++;
-		}
-		
-		cat = 0;
-
-		// shade front faces
-		g2.setPaint(Color.GRAY);
-		Arc2D upperArc;
-		iterator = arcList.iterator();
-		while (iterator.hasNext()) {
-			Arc2D segment = (Arc2D) iterator.next();
-			if (segment != null) {
-				Area extSeg = getExtrudedArcArea(segment, depth);
-				upperArc = new Arc2D.Double(segment.getX(), segment.getY() - depth,
-						pieArea.getWidth(), pieArea.getHeight() - depth,
-						segment.getAngleStart(), segment.getAngleExtent(), Arc2D.PIE);
-				extSeg.subtract(new Area(upperArc));
-				g2.fill(extSeg);
-			}
+			
+			visitedIndices.add(index);
 		}
 
-		// cycle through again drawing only the sides at the front...
-		ArrayList<Arc2D> sortedArcList = new ArrayList<Arc2D>(arcList);
-		Collections.sort(sortedArcList, new Comparator<Arc2D>() {
-			@Override
-			public int compare(Arc2D arcA, Arc2D arcB) {
-				double distA = 1.0 - Math.sin(Math.toRadians(fixAngle(
-						arcA.getAngleStart() + arcA.getAngleExtent() / 2.0)));
-				double distB = 1.0 - Math.sin(Math.toRadians(fixAngle(
-						arcB.getAngleStart() + arcB.getAngleExtent() / 2.0)));
-				return (distA < distB) ? -1 : (distA > distB) ? 1 : 0;
-			}
-			private double fixAngle(double angle) {
-				return (angle > 180.0) ? angle - 360.0 : (angle < -180.0) ? angle + 360.0 : angle;
-			}
-		});
-
-		Paint shade = new Color(0, 0, 0, 4);
-		Path2D path;
-		iterator = sortedArcList.iterator();
-		while (iterator.hasNext()) {
-			Arc2D segment = (Arc2D) iterator.next();
-			if (segment != null) {
-				cat = arcList.indexOf(segment);
-				Comparable key = getSectionKey(cat);
-				paint = lookupSectionPaint(key);
-				outlinePaint = lookupSectionOutlinePaint(key);
-				outlineStroke = lookupSectionOutlineStroke(key);
-
-				double centerX = segment.getCenterX();
-				double centerY = segment.getCenterY();
-				
-				// draw the height at start edge
-				Point2D p1 = segment.getStartPoint();
-
-				path = new Path2D.Double();
-				
-				path.moveTo(centerX, centerY);
-				path.lineTo(centerX, centerY - depth);
-				path.lineTo(p1.getX(), p1.getY() - depth);
-				path.lineTo(p1.getX(), p1.getY());
-				path.closePath();
-				
-				g2.setPaint(shade);
-				g2.fill(path);
-				g2.setPaint(outlinePaint);
-				g2.setStroke(outlineStroke);
-//				g2.draw(path);
-				
-				// draw the height at end edge
-				Point2D p2 = segment.getEndPoint();
-
-				path = new Path2D.Double();
-				path.moveTo(centerX, centerY);
-				path.lineTo(centerX, centerY - depth);
-				path.lineTo(p2.getX(), p2.getY() - depth);
-				path.lineTo(p2.getX(), p2.getY());
-				path.closePath();
-
-				g2.setPaint(shade);
-				g2.fill(path);
-				g2.setPaint(outlinePaint);
-				g2.setStroke(outlineStroke);
-//				g2.draw(path);
-				
-				Area extSeg = getExtrudedArcArea(segment, depth);
-				upperArc = new Arc2D.Double(segment.getX(), segment.getY() - depth,
-						pieArea.getWidth(), pieArea.getHeight() - depth,
-						segment.getAngleStart(), segment.getAngleExtent(), Arc2D.PIE);
-				extSeg.subtract(new Area(upperArc));
-
-				paint = lookupSectionPaint(key, true);
-				g2.setPaint(paint);
-				g2.fill(extSeg);
-				g2.setPaint(outlinePaint);
-				g2.setStroke(outlineStroke);
-				g2.draw(extSeg);
-				
-				g2.draw(new Line2D.Double(p1, new Point2D.Double(p1.getX(), p1.getY() - depth)));
-				g2.draw(new Line2D.Double(p2, new Point2D.Double(p2.getX(), p2.getY() - depth)));
-				g2.draw(new Line2D.Double(new Point2D.Double(centerX, centerY),
-						new Point2D.Double(centerX, centerY - depth)));
-			}
-		}
-		
 		g2.setClip(oldClip);
 
 		// draw the sections at the top of the pie (and set up tooltips)...
@@ -448,7 +368,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			if (arc == null) {
 				continue;
 			}
-			upperArc = new Arc2D.Double(arc.getX(), arc.getY() - depth,
+			Arc2D upperArc = new Arc2D.Double(arc.getX(), arc.getY() - depth,
 					pieArea.getWidth(), pieArea.getHeight() - depth,
 					arc.getAngleStart(), arc.getAngleExtent(), Arc2D.PIE);
 
@@ -516,54 +436,237 @@ public class PiePlot3DExt extends PiePlot3D {
 		drawOutline(g2, originalPlotArea);
 
 	}
-	
-	private Area getExtrudedArcArea(Arc2D arc, int depth) {
+
+	/**
+	 * Utility method to return front-facing mantle area of a pie segment.
+	 * @param arc The pie segment's bottom arc shape.
+	 * @param depth The pie's extrusion height.
+	 * @return The front-facing mantle area.
+	 */
+	private Area getArcMantleFrontArea(Arc2D arc, double depth) {
 		
 		Area extArc = new Area(arc);
 		
-		// add inner sides
-		Path2D startFace = new Path2D.Double();
-		startFace.moveTo(arc.getCenterX(), arc.getCenterY());
-		startFace.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
-		startFace.lineTo(arc.getStartPoint().getX(), arc.getStartPoint().getY() - depth);
-		startFace.lineTo(arc.getStartPoint().getX(), arc.getStartPoint().getY());
-		startFace.closePath();
-
-		extArc.add(new Area(startFace));
-		
-		Path2D endFace = new Path2D.Double();
-		endFace.moveTo(arc.getCenterX(), arc.getCenterY());
-		endFace.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
-		endFace.lineTo(arc.getEndPoint().getX(), arc.getEndPoint().getY() - depth);
-		endFace.lineTo(arc.getEndPoint().getX(), arc.getEndPoint().getY());
-		endFace.closePath();
-		
-		extArc.add(new Area(endFace));
-
-		// fill in missing outer side space if necessary
-		double angleStart = arc.getAngleStart();
+		// insert quadrilaterals masking gaps between top and bottom arcs
+		double angleStart = fixAngle(arc.getAngleStart());
 		double angleEnd = angleStart + arc.getAngleExtent();
-		double width = arc.getWidth() * 0.5;
-		width -= Math.sqrt(width * width - depth * depth);
-		if ((angleStart >= 0.0) && (angleEnd < 0.0)) {
-			extArc.add(new Area(new Rectangle2D.Double(
-					arc.getMaxX() - width, arc.getCenterY() - depth,
-					width + 0.5, depth)));
+		double centerY = arc.getCenterY();
+		if (angleStart <= 0.0) {
+			// start point is in lower half
+			Point2D startPoint = arc.getStartPoint();
+			Path2D path = new Path2D.Double();
+			path.moveTo(startPoint.getX(), startPoint.getY());
+			path.lineTo(startPoint.getX(), startPoint.getY() - depth);
+			if (angleEnd < -180.0) {
+				// end point reaches into upper half (and possibly beyond)
+				path.lineTo(arc.getX(), centerY - depth);
+				path.lineTo(arc.getX(), centerY);
+			} else {
+				// end point is also in lower half
+				Point2D endPoint = arc.getEndPoint();
+				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
+				path.lineTo(endPoint.getX(), endPoint.getY());
+			}
+			path.closePath();
+
+			extArc.add(new Area(path));
+		} else {
+			// special case for concave segments
+			// TODO: investigate ghosty stroke traces around +90deg
+			if (angleEnd <= -180.0) {
+				Path2D path = new Path2D.Double();
+				path.moveTo(arc.getCenterX(), centerY);
+				path.lineTo(arc.getCenterX(), centerY - depth);
+				path.lineTo(arc.getMaxX(), centerY - depth);
+				path.lineTo(arc.getMaxX(), centerY);
+				path.closePath();
+
+				extArc.add(new Area(path));
+			}
 		}
-		if (((angleStart > -180.0) && (angleEnd <= -180.0)) ||
-				((angleStart > 180.0) && (angleEnd <= 180.0))) {
-			extArc.add(new Area(new Rectangle2D.Double(
-					arc.getX() - 0.5, arc.getCenterY() - depth,
-					width + 0.5, depth)));
+		double fixAngleEnd = fixAngle(angleEnd);
+		if (fixAngleEnd < 0.0) {
+			if ((fixAngleEnd - arc.getAngleExtent()) > 0.0) {
+				// end point is in lower half while start point is in upper half
+				Point2D startPoint = new Point2D.Double(arc.getMaxX(), centerY);
+				Path2D path = new Path2D.Double();
+				path.moveTo(startPoint.getX(), startPoint.getY());
+				path.lineTo(startPoint.getX(), startPoint.getY() - depth);
+				if (angleEnd < -180.0) {
+					// end point reaches into upper half (and possibly beyond)
+					path.lineTo(arc.getX(), centerY - depth);
+					path.lineTo(arc.getX(), centerY);
+				} else {
+					// end point is also in lower half
+					Point2D endPoint = arc.getEndPoint();
+					path.lineTo(endPoint.getX(), endPoint.getY() - depth);
+					path.lineTo(endPoint.getX(), endPoint.getY());
+				}
+				path.closePath();
+
+				extArc.add(new Area(path));
+			}
+		} else {
+			// special case for concave segments
+			if ((fixAngleEnd - arc.getAngleExtent()) > 360.0) {
+				Path2D path = new Path2D.Double();
+				path.moveTo(arc.getX(), centerY);
+				path.lineTo(arc.getX(), centerY - depth);
+				path.lineTo(arc.getCenterX(), centerY - depth);
+				path.lineTo(arc.getCenterX(), centerY);
+				path.closePath();
+
+				extArc.add(new Area(path));
+			}
 		}
 		
-		// add top arc
+		// subtract exposed inner sides
+		angleEnd = fixAngleEnd;
+		if ((angleEnd >= -90.0) && (angleEnd <= 90.0)) {
+			double w = arc.getEndPoint().getX() - arc.getCenterX();
+			double h;
+			if (angleEnd > 0.0) {
+				h = centerY - arc.getY();
+			} else {
+				h = arc.getHeight();
+			}
+			Rectangle2D rect = new Rectangle2D.Double(
+					arc.getCenterX(), arc.getY(), w, h);
+			extArc.subtract(new Area(rect));
+		}
+		double absAngleStart = Math.abs(angleStart);
+		if ((absAngleStart >= 90.0) && (absAngleStart <= 180.0)) {
+			double w = arc.getCenterX() - arc.getStartPoint().getX();
+			double h;
+			if (angleStart > 0.0) {
+				h = centerY - arc.getY();
+			} else {
+				h = arc.getHeight();
+			}
+			Rectangle2D rect = new Rectangle2D.Double(
+					arc.getStartPoint().getX(), arc.getY(), w, h);
+			extArc.subtract(new Area(rect));
+		}
+		
+		// subtract top arc
 		Arc2D topArc = new Arc2D.Double(arc.getX(), arc.getY() - depth,
 				arc.getWidth(), arc.getHeight(), arc.getAngleStart(),
 				arc.getAngleExtent(), Arc2D.PIE);
-		extArc.add(new Area(topArc));
+		extArc.subtract(new Area(topArc));
 		
 		return extArc;
+	}
+	
+	/**
+	 * Utility method to return back-facing mantle area of a pie segment.
+	 * @param arc The pie segment's bottom arc shape.
+	 * @param depth The pie's extrusion height.
+	 * @return The back-facing mantle area.
+	 */
+	private Area getArcMantleBackArea(Arc2D arc, double depth) {
+
+		Arc2D topArc = new Arc2D.Double(arc.getX(), arc.getY() - depth,
+				arc.getWidth(), arc.getHeight(), arc.getAngleStart(),
+				arc.getAngleExtent(), Arc2D.PIE);
+		Area extArc = new Area(topArc);
+		
+		// insert quadrilaterals masking gaps between top and bottom arcs
+		double angleStart = fixAngle(arc.getAngleStart());
+		double angleEnd = angleStart + arc.getAngleExtent();
+		double fixAngleEnd = fixAngle(angleEnd);
+		if (angleStart >= 0.0) {
+			Point2D startPoint = arc.getStartPoint();
+			Path2D path = new Path2D.Double();
+			path.moveTo(startPoint.getX(), startPoint.getY());
+			path.lineTo(startPoint.getX(), startPoint.getY() - depth);
+			if (angleEnd < 0.0) {
+				path.lineTo(arc.getMaxX(), arc.getCenterY() - depth);
+				path.lineTo(arc.getMaxX(), arc.getCenterY());
+			} else {
+				Point2D endPoint = arc.getEndPoint();
+				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
+				path.lineTo(endPoint.getX(), endPoint.getY());
+			}
+			path.closePath();
+
+			extArc.add(new Area(path));
+		} else {
+			// special case for concave segments
+			if (angleEnd <= -360.0) {
+				Point2D startPoint = arc.getStartPoint();
+				Path2D path = new Path2D.Double();
+				path.moveTo(startPoint.getX(), startPoint.getY());
+				path.lineTo(startPoint.getX(), startPoint.getY() - depth);
+				path.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
+				path.lineTo(arc.getCenterX(), arc.getCenterY());
+				path.closePath();
+
+				extArc.add(new Area(path));
+			}
+		}
+		if (fixAngleEnd > 0.0) {
+			if (angleStart < 0.0) {
+				Point2D endPoint = arc.getEndPoint();
+				Path2D path = new Path2D.Double();
+				path.moveTo(endPoint.getX(), endPoint.getY());
+				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
+				path.lineTo(arc.getX(), arc.getCenterY() - depth);
+				path.lineTo(arc.getX(), arc.getCenterY());
+				path.closePath();
+
+				extArc.add(new Area(path));
+			}
+		} else {
+			if (angleStart < 0.0) {
+				Point2D endPoint = arc.getEndPoint();
+				Path2D path = new Path2D.Double();
+				path.moveTo(endPoint.getX(), endPoint.getY());
+				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
+				path.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
+				path.lineTo(arc.getCenterX(), arc.getCenterY());
+				path.closePath();
+
+				extArc.add(new Area(path));
+			}
+		}
+		
+		// subtract exposed inner sides
+		angleEnd = fixAngleEnd;
+		double absAngleEnd = Math.abs(angleEnd);
+		if ((absAngleEnd >= 90.0) && (absAngleEnd <= 180.0)) {
+			double w = arc.getCenterX() - arc.getEndPoint().getX();
+			double y;
+			if (angleEnd > 0.0) {
+				y = arc.getY() - depth;
+			} else {
+				y = arc.getCenterY() - depth;
+			}
+			Rectangle2D rect = new Rectangle2D.Double(
+					arc.getEndPoint().getX(), y, w, arc.getHeight());;
+			extArc.subtract(new Area(rect));
+		}
+		if ((angleStart >= -90.0) && (angleStart <= 90.0)) {
+			double w = arc.getStartPoint().getX() - arc.getCenterX();
+			double y;
+			if (angleStart > 0.0) {
+				y = arc.getY() - depth;
+			} else {
+				y = arc.getCenterY() - depth;
+			}
+			Rectangle2D rect = new Rectangle2D.Double(
+					arc.getCenterX(), y, w, arc.getHeight());
+			extArc.subtract(new Area(rect));
+		}
+		
+		// subtract bottom arc
+		extArc.subtract(new Area(arc));
+		
+		return extArc;
+	}
+
+	private double fixAngle(double angle) {
+		return (angle > 180.0) ? fixAngle(angle - 360.0) :
+					(angle < -180.0) ? fixAngle(angle + 360.0) : angle;
 	}
 	
 	public Comparable getSectionKeyForPoint(Point2D point) {
@@ -607,6 +710,65 @@ public class PiePlot3DExt extends PiePlot3D {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Utility class containing all necessary information to create an inner
+	 * face of a pie segment.
+	 */
+	private class IndexedFace implements Comparable<IndexedFace> {
+		/** The pie section index */
+		private int index;
+		/** Flag denoting whether this is a polygon at the start edge of the indexed arc. */
+		private boolean startFace;
+		/** Flag denoting whether this is a back-facing polygon. */
+		private boolean backFace;
+
+		/**
+		 * Constructs an IndexedFace object.
+		 * @param index the pie section index.
+		 * @param startFace <code>true</code> if this face is at the start edge of the
+		 *            indexed pie section, <code>false</code> otherwise.
+		 * @param backFace <code>true</code> if this face is pointing backwards,
+		 *            <code>false</code> otherwise.
+		 */
+		public IndexedFace(int index, boolean startFace, boolean backFace) {
+			this.index = index;
+			this.startFace = startFace;
+			this.backFace = backFace;
+		}
+
+		@Override
+		public int compareTo(IndexedFace that) {
+			Point2D thisPoint = getNonExplodedPoint(this);
+			Point2D thatPoint = getNonExplodedPoint(that);
+			int delta = (int) thisPoint.getY() - (int) thatPoint.getY();
+			// consider back-faces as greater than front-faces (will be drawn on top) 
+			return (delta < 0) ? -1 : (delta > 0) ? 1 : (this.backFace) ? 1 : -1;
+		}
+
+		/**
+		 * Utility method to extract the point on the pie's non-exploded
+		 * circumference that corresponds with the specified IndexedFace.
+		 * @param face the indexedFace
+		 * @return the desired point
+		 */
+		public Point2D getNonExplodedPoint(IndexedFace face) {
+			Arc2D arc = arcList.get(face.index);
+			
+			double expPercent = getExplodePercent(getSectionKey(face.index));
+			if (expPercent > 0.0) {
+				Rectangle2D pieArea = state.getPieArea();
+				int depth = (int) (pieArea.getHeight() * getDepthFactor());
+				arc = new Arc2D.Double(pieArea.getX(), pieArea.getY() + depth,
+						pieArea.getWidth(), pieArea.getHeight() - depth,
+						arc.getAngleStart(), arc.getAngleExtent(), Arc2D.PIE);
+			}
+			
+			Point2D point = (face.startFace) ? arc.getStartPoint() : arc.getEndPoint();
+			
+			return point;
+		}
 	}
 	
 }

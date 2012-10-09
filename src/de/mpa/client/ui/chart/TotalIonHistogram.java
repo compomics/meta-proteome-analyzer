@@ -23,7 +23,12 @@ public class TotalIonHistogram extends Chart {
     private String filename;
     
     public enum HistChartType implements ChartType {
-    	TOTAL_ION_HIST
+    	TOTAL_ION_HIST;
+
+		@Override
+		public String getTitle() {
+			return "";
+		}
     }
     /**
      * Constructs a denovo score histogram
