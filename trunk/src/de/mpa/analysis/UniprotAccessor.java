@@ -69,7 +69,10 @@ public class UniprotAccessor {
 					// Iterate the entries and add them to the list. 
 					for (UniProtEntry e : entryIterator) {
 						String accession = e.getPrimaryUniProtAccession().getValue();
-						proteinHits.get(accession).setUniprotEntry(e);
+						ProteinHit proteinHit = proteinHits.get(accession);
+						if(proteinHit != null) {
+							proteinHit.setUniprotEntry(e);
+						}
 					}
 					shortList.clear();
 				}
@@ -88,8 +91,11 @@ public class UniprotAccessor {
 			
 			// Iterate the entries and add them to the list. 
 			for (UniProtEntry e : entryIterator) {
-				String accession = e.getPrimaryUniProtAccession().getValue();
-				proteinHits.get(accession).setUniprotEntry(e);
+				if (e != null) {
+					String accession = e.getPrimaryUniProtAccession()
+							.getValue();
+					proteinHits.get(accession).setUniprotEntry(e);
+				}
 			}
 		}
 	}
