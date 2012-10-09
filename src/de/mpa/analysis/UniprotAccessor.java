@@ -91,9 +91,9 @@ public class UniprotAccessor {
 			
 			// Iterate the entries and add them to the list. 
 			for (UniProtEntry e : entryIterator) {
-				if (e != null) {
-					String accession = e.getPrimaryUniProtAccession()
-							.getValue();
+				String accession = e.getPrimaryUniProtAccession().getValue();
+				//TODO: Handle this query adequately!
+				if (proteinHits.get(accession) != null) {
 					proteinHits.get(accession).setUniprotEntry(e);
 				}
 			}
