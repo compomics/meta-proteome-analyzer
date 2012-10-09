@@ -13,7 +13,20 @@ public class TaxonomyPieChart extends Chart {
 	private PieDataset pieDataset;
 	
 	public enum TaxonomyChartType implements ChartType {
-		KINGDOM, PHYLUM, CLASS, SPECIES
+		KINGDOM("Kingdom"),
+		PHYLUM("Phylum"),
+		CLASS("Class"),
+		SPECIES("Species");
+
+		private String title;
+		
+		private TaxonomyChartType(String title) {
+			this.title = title;
+		}
+		@Override
+		public String getTitle() {
+			return title + " Taxonomy";
+		}
 	}
 		
 	/**
@@ -38,23 +51,7 @@ public class TaxonomyPieChart extends Chart {
 	@Override
 	protected void setChart() {
 		TaxonomyChartType pieChartType = (TaxonomyChartType) chartType;
-		switch (pieChartType) {
-		case KINGDOM:
-			chartTitle = "Kingdom Taxonomy";
-			break;
-		case PHYLUM:
-			chartTitle = "Phylum Taxonomy";
-			break;
-		case CLASS:
-			chartTitle = "Class Taxonomy";
-			break;
-		case SPECIES:
-			chartTitle = "Species Taxonomy";
-			break;
-		default:
-			chartTitle = "Class Taxonomy";
-			break;
-		}
+		chartTitle = pieChartType.getTitle();
 		
 		PiePlot3D plot = new PiePlot3DExt(pieDataset);
         plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));

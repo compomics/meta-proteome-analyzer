@@ -163,7 +163,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * Removes all child nodes from this node.
 	 */
 	public void removeAllChildren() {
-		for (int i = getChildCount()-1; i >= 0; i--) {
+		for (int i = getChildCount() - 1; i >= 0; i--) {
 			remove(i);
 		}
 	}

@@ -14,7 +14,19 @@ public class OntologyPieChart extends Chart {
 	private PieDataset pieDataset;
 	
 	public enum OntologyChartType implements ChartType {
-		MOLECULAR_FUNCTION, BIOLOGICAL_PROCESS, CELLULAR_COMPONENT
+		MOLECULAR_FUNCTION("Molecular Function"),
+		BIOLOGICAL_PROCESS("Biological Process"),
+		CELLULAR_COMPONENT("Cellular Component");
+		
+		private String title;
+		
+		private OntologyChartType(String title) {
+			this.title = title;
+		}
+		@Override
+		public String getTitle() {
+			return title;
+		}
 	}
 		
 	/**
@@ -39,20 +51,7 @@ public class OntologyPieChart extends Chart {
 	@Override
 	protected void setChart() {
 		OntologyChartType pieChartType = (OntologyChartType) chartType;
-		switch (pieChartType) {
-		case BIOLOGICAL_PROCESS:
-			chartTitle = "Biological Process Ontology";
-			break;
-		case MOLECULAR_FUNCTION:
-			chartTitle = "Molecular Function Ontology";
-			break;
-		case CELLULAR_COMPONENT:
-			chartTitle = "Cellular Component Ontology";
-			break;
-		default:
-			chartTitle = "Biological Process Ontology";
-			break;
-		}
+		chartTitle = pieChartType.getTitle() + " Ontology";
 		
 		PiePlot3D plot = new PiePlot3DExt(pieDataset);
         plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));

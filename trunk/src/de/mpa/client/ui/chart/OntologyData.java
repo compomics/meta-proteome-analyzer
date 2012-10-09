@@ -1,5 +1,6 @@
 package de.mpa.client.ui.chart;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +30,17 @@ public class OntologyData implements ChartData {
 	/**
 	 * Molecular function occurrences map.
 	 */
-	private Map<String, Integer> molFunctionOccMap;
+	private Map<String, List<ProteinHit>> molFunctionOccMap;
 	
 	/**
 	 * Biological process occurrences map.
 	 */
-	private Map<String, Integer> biolProcessOccMap;
+	private Map<String, List<ProteinHit>> biolProcessOccMap;
 	
 	/**
 	 * Cellular component occurrences map.
 	 */
-	private Map<String, Integer> cellCompOccMap;
+	private Map<String, List<ProteinHit>> cellCompOccMap;
 	
 	/**
 	 * The ontology map.
@@ -81,14 +82,13 @@ public class OntologyData implements ChartData {
 			ontologyMap = UniprotAccessor.getOntologyMap();
 		}
 		
-		// Map to count the occurrences of each molecular function.
-		clear();
+		// Maps to count the occurrences of each molecular function.
+//		clear();
+		biolProcessOccMap = new HashMap<String, List<ProteinHit>>();
+		cellCompOccMap = new HashMap<String, List<ProteinHit>>();
+		molFunctionOccMap = new HashMap<String, List<ProteinHit>>();
 		
-		biolProcessOccMap = new HashMap<String, Integer>();
-		cellCompOccMap = new HashMap<String, Integer>();
-		molFunctionOccMap = new HashMap<String, Integer>();
-		
-		for (ProteinHit proteinHit : dbSearchResult.getProteinHits().values()) {
+		for (ProteinHit proteinHit : dbSearchResult.getProteinHitList()) {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
 			
 			// Entry must be provided
@@ -101,73 +101,100 @@ public class OntologyData implements ChartData {
 						KeywordOntology kwOntology = ontologyMap.get(keyword);
 						switch (kwOntology) {
 						case BIOLOGICAL_PROCESS:
-							if (biolProcessOccMap.containsKey(keyword)) {
-								biolProcessOccMap.put(keyword, biolProcessOccMap.get(keyword)+1);
-							} else {
-								biolProcessOccMap.put(keyword, 1);
-							}
+							appendHit(keyword, biolProcessOccMap, proteinHit);
 							break;
 						case CELLULAR_COMPONENT:
-							if (cellCompOccMap.containsKey(keyword)) {
-								cellCompOccMap.put(keyword, cellCompOccMap.get(keyword)+1);
-							} else {
-								cellCompOccMap.put(keyword, 1);
-							}
+							appendHit(keyword, cellCompOccMap, proteinHit);
 							break;
 						case MOLECULAR_FUNCTION:
-							if (molFunctionOccMap.containsKey(keyword)) {
-								molFunctionOccMap.put(keyword, molFunctionOccMap.get(keyword)+1);
-							} else {
-								molFunctionOccMap.put(keyword, 1);
-							}
+							appendHit(keyword, molFunctionOccMap, proteinHit);
 							break;
 						}
 					}
 				}
 			}
 		}
+		// TODO: maybe merge pairs whose values are identical but differ in their key(word)s?
+	}
+	
+	/**
+	 * Utility method to append a protein hit to the specified occurrence map.
+	 * @param keyword The key for an entry in the occurrence map.
+	 * @param map The occurrence map.
+	 * @param proteinHit The protein hit to append.
+	 */
+	protected void appendHit(String keyword, Map<String, List<ProteinHit>> map, ProteinHit proteinHit) {
+		List<ProteinHit> protHits = map.get(keyword);
+		if (protHits == null) {
+			protHits = new ArrayList<ProteinHit>();
+		}
+		protHits.add(proteinHit);
+		map.put(keyword, protHits);
 	}
 	
 	/**
 	 * Returns the pieDataset.
 	 * @return
 	 */
+	@Override
 	public PieDataset getDataset() {
+		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
-		Set<Entry<String, Integer>> entrySet = null;
-		OntologyChartType pieChartType = (OntologyChartType) chartType;
-		switch (pieChartType) {
+		
+		Map<String, List<ProteinHit>> map = null;
+		switch ((OntologyChartType) chartType) {
 		case BIOLOGICAL_PROCESS:
-			entrySet = biolProcessOccMap.entrySet();
+			map = biolProcessOccMap;
 			break;
 		case CELLULAR_COMPONENT:
-			entrySet = cellCompOccMap.entrySet();
+			map = cellCompOccMap;
 			break;
 		case MOLECULAR_FUNCTION:
-			entrySet = molFunctionOccMap.entrySet();
+			map = molFunctionOccMap;
 			break;
 		}
+		Set<Entry<String, List<ProteinHit>>> entrySet = map.entrySet();
 		
 		int sumValues = 0;
-		for (Entry<String, Integer> e : entrySet) {
-			sumValues += e.getValue();
+		for (Entry<String, List<ProteinHit>> e : entrySet) {
+			sumValues += e.getValue().size();
 		}
 		
-		int sumOthers = 0;
+		List<ProteinHit> others = new ArrayList<ProteinHit>();
 		double limit = 0.01;
-		for (Entry<String, Integer> e : entrySet) {
-			Integer absVal = e.getValue();
+		for (Entry<String, List<ProteinHit>> e : entrySet) {
+			Integer absVal = e.getValue().size();
 			double relVal = absVal * 1.0 / sumValues * 1.0;
 			Comparable key;
 			if (relVal >= limit) {
 				key = e.getKey();
 			} else {
 				key = "Others";
-				absVal = (sumOthers += absVal);
+				// add grouped hits to list and store it in map they originate from
+				// TODO: do this in pre-processing step, e.g. inside init()
+				others.addAll(e.getValue());
+				
+				absVal = others.size();
 			}
 			pieDataset.setValue(key, absVal);
 		}
+		map.put("Others", others);
+		
 		return pieDataset;
+	}
+	
+	@Override
+	public List<ProteinHit> getProteinHits(String key) {
+		switch ((OntologyChartType) chartType) {
+		case BIOLOGICAL_PROCESS:
+			return biolProcessOccMap.get(key);
+		case CELLULAR_COMPONENT:
+			return cellCompOccMap.get(key);
+		case MOLECULAR_FUNCTION:
+			return molFunctionOccMap.get(key);
+		default:
+			return null;
+		}
 	}
 	
 	/**
@@ -191,7 +218,7 @@ public class OntologyData implements ChartData {
 	 * Sets up the default maps.
 	 * @param defaultMap
 	 */
-	public void setDefaultMapping(Map<String, Integer> defaultMap) {
+	public void setDefaultMapping(Map<String, List<ProteinHit>> defaultMap) {
 		this.biolProcessOccMap = defaultMap;
 		this.cellCompOccMap = defaultMap;
 		this.molFunctionOccMap = defaultMap;

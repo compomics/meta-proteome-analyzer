@@ -99,8 +99,12 @@ public class TableConfig {
 		if (table instanceof JXTreeTable) {
 			MutableTreeTableNode root =
 				(MutableTreeTableNode) ((JXTreeTable) table).getTreeTableModel().getRoot();
-			for (int i = 0; i < root.getChildCount(); i++) {
-				root.remove(i);
+			if (root instanceof CheckBoxTreeTableNode) {
+				((CheckBoxTreeTableNode) root).removeAllChildren();
+			} else {
+				for (int i = root.getChildCount() - 1; i >= 0; i--) {
+					root.remove(i);
+				}
 			}
 		} else {
 			((DefaultTableModel) table.getModel()).setRowCount(0);

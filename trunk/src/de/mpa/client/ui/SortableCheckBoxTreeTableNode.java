@@ -69,6 +69,27 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 		return (sorted) ? viewToModel.length : super.getChildCount();
 	}
 	
+//	@Override
+//	public void remove(int index) {
+//		super.remove(index);
+//		
+//		Row[] viewToModel = new Row[this.viewToModel.length - 1];
+//		System.arraycopy(this.viewToModel, 0, viewToModel, 0, index);
+//		System.arraycopy(this.viewToModel, index + 1, viewToModel, index, this.viewToModel.length - index - 1);
+//		this.viewToModel = viewToModel;
+//		
+//		int[] modelToView = new int[this.modelToView.length - 1];
+//		System.arraycopy(this.modelToView, 0, modelToView, 0, index);
+//		System.arraycopy(this.modelToView, index + 1, modelToView, index, this.modelToView.length - index - 1);
+//		this.modelToView = modelToView;
+//	}
+	
+	@Override
+	public void removeAllChildren() {
+		sorted = false;
+		super.removeAllChildren();
+	}
+	
 	@Override
 	public boolean isLeaf() {
 		return (children.size() == 0);
