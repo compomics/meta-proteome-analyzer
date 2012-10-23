@@ -13,8 +13,10 @@ import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import javax.imageio.ImageIO;
@@ -382,8 +384,7 @@ public class Client {
 			
 			// The protein hit set, containing all information about found proteins.
 			// TODO: use fastaDB parameter properly
-			
-			dbSearchResult = new DbSearchResult(projectName, experimentName, "is Missing");
+			dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
 
 			// Set up progress monitoring
 			firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
@@ -393,6 +394,14 @@ public class Client {
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 			
+			dbSearchResult.setTotalSpectrumCount(
+					Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn));
+
+			Set<Long> searchSpectrumIDs = new HashSet<Long>();
+			Set<String> peptideSequences = new HashSet<String>();
+			int totalPeptides = 0;
+//			int modifiedPeptides = 0;
+			
 			long maxProgress = searchHits.size();
 			long curProgress = 0;
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
@@ -401,11 +410,27 @@ public class Client {
 			firePropertyChange("resetcur", 0L, maxProgress);
 			for (SearchHit searchHit : searchHits) {
 				addProteinSearchHit(searchHit);
+				
+				searchSpectrumIDs.add(searchHit.getFk_searchspectrumid());
+				String pepSeq = searchHit.getSequence();
+//				if (!pepSeq.matches("^[A-Z]*$")) {
+//					modifiedPeptides++;
+//				}
+				peptideSequences.add(pepSeq);
+				
 				firePropertyChange("progress", 0L, ++curProgress);
 			}
+			for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+				totalPeptides += ph.getPeptideCount();
+			}
+			
+			dbSearchResult.setIdentifiedSpectrumCount(searchSpectrumIDs.size());
+			dbSearchResult.setTotalPeptideCount(totalPeptides);
+			dbSearchResult.setUniquePeptideCount(peptideSequences.size());
+			
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 		
-		}  catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}

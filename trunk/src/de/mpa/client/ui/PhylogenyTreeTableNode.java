@@ -45,7 +45,15 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			case 0:
 				return this.toString();
 			case 1:
-				return ph.getDescription();
+				String description = ph.getDescription();
+				int underscore = description.indexOf("_");
+				if (underscore > 0) {
+					int whitespace = description.indexOf(" ");
+					if (whitespace > underscore) {
+						return description.substring(whitespace + 1);
+					}
+				}
+				return description;
 			case 2:
 				return ph.getSpecies();
 			case 3:

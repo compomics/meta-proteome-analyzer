@@ -9,9 +9,12 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -43,16 +46,22 @@ public class KeggAccessor {
 	/**
 	 * Map containing KO-to-pathways pairs.
 	 */
-	private HashMap<Short,List<Short>> ko2pathway;
+	private Map<Short,List<Short>> ko2pathway;
 
 	/**
 	 * Map containing pathway-to-KOs pairs.
 	 */
-	private HashMap<Short,List<Short>> pathway2ko;
+	private Map<Short,List<Short>> pathway2ko;
 
-	private HashMap<short[],List<Short>> ec2pathway;
+	/**
+	 * Map containing E.C.-to-pathways pairs.
+	 */
+	private Map<short[],List<Short>> ec2pathway;
 
-	private HashMap<Short,List<short[]>> pathway2ec;
+	/**
+	 * Map containing pathway-to-E.C. pairs
+	 */
+	private Map<Short,List<short[]>> pathway2ec;
 
 	/**
 	 * Private singleton constructor.
@@ -92,11 +101,10 @@ public class KeggAccessor {
 	 * @return A list of pathways mapped to the specified K number.
 	 */
 	public List<Short> getPathwaysByKO(String ko) {
-		try {
-			return getPathwaysByKO(Short.parseShort(ko));
-		} catch (Exception e) {
-			return null;
+		if (ko.startsWith("K")) {
+			ko = ko.substring(1);
 		}
+		return getPathwaysByKO(Short.parseShort(ko));
 	}
 
 	/**
@@ -156,25 +164,6 @@ public class KeggAccessor {
 		}
 		return pathway2ec.get(pw);
 	}
-
-	/**
-	 * Converts an EC number String of the format "A.B.C.D" into an array of shorts.
-	 * @param ecString The EC number in String representation.
-	 * @return An array of shorts containing the 
-	 */
-	public short[] tokenizeEC(String ecString) {
-		short[] ec = new short[4];
-		// TODO: handle non-numerical first token, e.g. when dealing with Strings of the pattern "ec:A.B.C.D"
-		String[] ecTokens = ecString.split("[.]");
-		for (int j = 0; j < ec.length; j++) {
-			try {
-				ec[j] = Short.parseShort(ecTokens[j]);
-			} catch (Exception e) {
-				ec[j] = 0;
-			}
-		}
-		return ec;
-	}
 	
 	/**
 	 * Reads dumped pathway-to-KOs and KO-to-pathways maps from a local file.
@@ -191,7 +180,23 @@ public class KeggAccessor {
 
 			ko2pathway = (HashMap<Short, List<Short>>) ois.readObject();
 			pathway2ko = (HashMap<Short, List<Short>>) ois.readObject();
-			ec2pathway = (HashMap<short[], List<Short>>) ois.readObject();
+			
+//			ec2pathway = (HashMap<short[], List<Short>>) ois.readObject();
+			ec2pathway = new TreeMap<short[], List<Short>>(
+					new Comparator<short[]>() {
+						public int compare(short[] o1, short[] o2) {
+							int delta = 0;
+							for (int i = 0; i < o1.length; i++) {
+								delta = o1[i] - o2[i];
+								if (delta != 0) {
+									break;
+								}
+							}
+							return delta;
+						}
+			});
+			ec2pathway.putAll((Map<? extends short[], ? extends List<Short>>) ois.readObject());
+			
 			pathway2ec = (HashMap<Short, List<short[]>>) ois.readObject();
 			ois.close();
 		} catch (Exception e) {
@@ -281,6 +286,25 @@ public class KeggAccessor {
 		oos.writeObject(pathway2ec);
 		oos.flush();
 		oos.close();
+	}
+
+	/**
+	 * Converts an EC number String of the format "A.B.C.D" into an array of shorts.
+	 * @param ecString The EC number in String representation.
+	 * @return An array of shorts containing the 
+	 */
+	protected short[] tokenizeEC(String ecString) {
+		short[] ec = new short[4];
+		// TODO: handle non-numerical first token, e.g. when dealing with Strings of the pattern "ec:A.B.C.D"
+		String[] ecTokens = ecString.split("[.]");
+		for (int j = 0; j < ec.length; j++) {
+			try {
+				ec[j] = Short.parseShort(ecTokens[j]);
+			} catch (Exception e) {
+				ec[j] = 0;
+			}
+		}
+		return ec;
 	}
 	
 }

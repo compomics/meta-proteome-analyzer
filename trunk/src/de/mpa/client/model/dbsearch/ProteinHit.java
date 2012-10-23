@@ -13,11 +13,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.kegg.Kegg;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
@@ -92,12 +88,10 @@ public class ProteinHit implements Serializable {
 	 */
 	private double emPAI = -1.0;
 
-	private UniProtEntry uniprotEntry = null;
-	
 	/**
-	 * The pathways from Kegg
+	 * The UniProt entry object containing additional metadata.
 	 */
-	private String[] keggPathways = null;	
+	private UniProtEntry uniprotEntry = null;
 	
 	/**
 	 * Constructor for a simple protein hit with accession only.
@@ -376,61 +370,6 @@ public class ProteinHit implements Serializable {
 		return selected;
 	}
 	
-	/**
-	 * Method to get KO numbers for KEGG pathways
-	 * @return List<String>: KEGG:KO
-	 */
-	public List<String> getKoForKEGG() {
-		List<String> koList = new ArrayList<String>();
-
-		// Null check for changed entries in uniprot
-		if (uniprotEntry == null) {
-			System.out.println("Entry in uniprot missing");
-		} else {
-			for (DatabaseCrossReference dcr : uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO)) {
-				koList.add(((KO) dcr).getKOIdentifier().getValue());
-			}
-		}
-		return koList;
-	}
-	
-	/**
-	 * Method to get KEGG identifier for KEGG pathways
-	 * @return List<String>: KEGG:KO
-	 */
-	public String getKeggIDForKegg() {
-		String keggID = null;
-		// Null check for changed entries in uniprot
-		if (uniprotEntry == null) {
-			System.out.println("Entry in uniprot missing");
-		} else {
-			List<DatabaseCrossReference> dcrKegg = uniprotEntry.getDatabaseCrossReferences(DatabaseType.KEGG);
-			if (!dcrKegg.isEmpty()) {
-				keggID = ((Kegg) dcrKegg.get(0)).getKeggAccessionNumber().getValue();
-			}
-			if (keggID == null) {
-				System.out.println("No Kegg Pathway for Protein:" + uniprotEntry.getUniProtId());
-			}
-		}
-		return keggID;
-	}
-	
-	/**
-	 * Gets the KeggPathways
-	 * @return String[]: The Kegg pathways.
-	 */
-	public String[] getKeggPathways() {
-		return keggPathways;
-	}
-
-	/**
-	 * Sets the KeggPathways
-	 * @param keggPathways String[]
-	 */
-	public void setKeggPathways(String[] keggPathways) {
-		this.keggPathways = keggPathways;
-	}
-
 	/**
 	 * Sets whether this protein hit is selected for exporting. 
 	 * @param selected <code>true</code> if protein is selected for export, 

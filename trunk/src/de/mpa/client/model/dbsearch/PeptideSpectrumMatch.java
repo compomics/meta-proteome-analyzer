@@ -21,9 +21,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	/**
 	 * Default empty constructor.
 	 */
-	public PeptideSpectrumMatch() {
-		
-	}
+	public PeptideSpectrumMatch() {}
 	
 	/**
 	 * Constructor for the PeptideSpectrumMatch.
@@ -76,7 +74,18 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * Returns the votes.
 	 * @return The number of votes for the search engine hits.
 	 */
-	public int getVotes(){
+	public int getVotes() {
 		return searchHits.size();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof PeptideSpectrumMatch) {
+			PeptideSpectrumMatch that = (PeptideSpectrumMatch) obj;
+			if (this.getSearchSpectrumID() == that.getSearchSpectrumID()) {
+				return this.getSearchHits().containsAll(that.getSearchHits());
+			}
+		}
+		return false;
 	}
 }

@@ -65,8 +65,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.chart.TotalIonHistogram;
-import de.mpa.client.ui.chart.TotalIonHistogram.HistChartType;
+import de.mpa.client.ui.chart.HistogramData;
+import de.mpa.client.ui.chart.HistogramChart;
+import de.mpa.client.ui.chart.HistogramChart.HistChartType;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -324,8 +325,8 @@ public class FilePanel extends JPanel {
 		
 		// Create chart panel
 		ticList.add(0.0);
-		// TODO: Use different hito
-		TotalIonHistogram histogram = new TotalIonHistogram(ticList, HistChartType.TOTAL_ION_HIST);
+		// TODO: determine bin size via formula
+		HistogramChart histogram = new HistogramChart(new HistogramData(ticList, 40), HistChartType.TOTAL_ION_HIST);
 		ChartPanel chartPanel = new ChartPanel(histogram.getChart());
 		chartPanel.setPreferredSize(new Dimension(0, 0));
 		chartPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -639,7 +640,7 @@ public class FilePanel extends JPanel {
 			// Show histogram TODO: Currently the histogram is shown for all files... would be better to show for selected files only.
 			histPnl.removeAll();
 //			TotalIonHistogram histogram = new TotalIonHistogram(new SpectrumData(totalSpectraList, selFiles[0].getName()));
-			TotalIonHistogram histogram = new TotalIonHistogram(ticList, HistChartType.TOTAL_ION_HIST);
+			HistogramChart histogram = new HistogramChart(new HistogramData(ticList, 40), HistChartType.TOTAL_ION_HIST);
 			
 			// Create chart panel
 			ChartPanel chartPanel = new ChartPanel(histogram.getChart());

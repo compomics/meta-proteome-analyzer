@@ -139,6 +139,9 @@ public class IconConstants {
 	public static final ImageIcon FRAME_TILED_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/frame_tiled16.png"));
 	public static final ImageIcon FRAME_TILED_ROLLOVER_ICON = createRescaledIcon(FRAME_TILED_ICON, 1.2f);
 	public static final ImageIcon FRAME_TILED_PRESSED_ICON = createRescaledIcon(FRAME_TILED_ICON, 0.8f);
+
+	/** <img src="../../../resources/icons/protein.png"> */
+	public static final ImageIcon PROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/protein.png"));
 	
 	
 	/**
@@ -193,33 +196,34 @@ public class IconConstants {
 
 	public static Icon createArrowedIcon(final Icon icon, final int location, final int direction) {
 		final int xPadding, yPadding;
+		final int xMargin = 2, yMargin = 2;
 		if (location == SwingConstants.WEST || location == SwingConstants.EAST) {
-			yPadding = 0;
 			// to the left or right of the icon
+			yPadding = 0;
 			if (direction == SwingConstants.WEST || direction == SwingConstants.EAST) {
 				// left- or right-pointing triangle
-				xPadding = 6;
+				xPadding = 6 + xMargin;
 			} else {
 				// up- or down-pointing triangle
-				xPadding = 10;
+				xPadding = 10 + xMargin;
 			}
 		} else {
-			xPadding = 0;
 			// above or below the icon
+			xPadding = 0;
 			if (direction == SwingConstants.WEST || direction == SwingConstants.EAST) {
 				// left- or right-pointing triangle
-				yPadding = 10;
+				yPadding = 10 + yMargin;
 			} else {
 				// up- or down-pointing triangle
-				yPadding = 6;
+				yPadding = 6 + yMargin;
 			}
 		}
 		
 		return new Icon() {
 			public void paintIcon(Component c, Graphics g, int x, int y) {
 				// paint original icon
-				icon.paintIcon(c, g, (location == SwingConstants.WEST) ? x + xPadding : x,
-						(location == SwingConstants.NORTH) ? y + yPadding : y);
+				icon.paintIcon(c, g, (location == SwingConstants.WEST) ? x + xPadding + xMargin: x,
+						(location == SwingConstants.NORTH) ? y + yPadding + yMargin : y);
 				// determine arrowhead offsets
 				int xOffset = 0, yOffset = 0;
 				switch (location) {
@@ -232,7 +236,7 @@ public class IconConstants {
 					}
 					break;
 				case SwingConstants.EAST:
-					xOffset = 1 + icon.getIconWidth();
+					xOffset = icon.getIconWidth() + xMargin + 1;
 					if (direction == SwingConstants.WEST || direction == SwingConstants.EAST) {
 						yOffset = icon.getIconHeight() / 2 - 4;
 					} else {
@@ -248,7 +252,7 @@ public class IconConstants {
 					}
 					break;
 				case SwingConstants.SOUTH:
-					yOffset = 1 + icon.getIconHeight();
+					yOffset = icon.getIconHeight() + yMargin + 1;
 					if (direction == SwingConstants.WEST || direction == SwingConstants.EAST) {
 						xOffset = icon.getIconWidth() / 2 - 2;
 					} else {

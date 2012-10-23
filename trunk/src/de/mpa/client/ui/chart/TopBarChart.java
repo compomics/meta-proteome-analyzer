@@ -40,12 +40,12 @@ public class TopBarChart extends Chart {
      * @param data Input data.
      * @param chartType Chart type.
      */
-    public TopBarChart(Object data, ChartType chartType) {
+    public TopBarChart(ChartData data, ChartType chartType) {
         super(data, chartType);
     }
 
 	@Override
-	protected void process(Object data) {
+	protected void process(ChartData data) {
 		if(data instanceof TopData) {
 			TopData topData = (TopData) data;
 			categoryDataset = topData.getDataset();
