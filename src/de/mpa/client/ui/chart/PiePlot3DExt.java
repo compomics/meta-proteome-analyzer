@@ -42,8 +42,9 @@ public class PiePlot3DExt extends PiePlot3D {
 	private double maximumExplodePercent = 0.0;
 	private List<IndexedFace> faceList;
 
-	public PiePlot3DExt(PieDataset dataset) {
+	public PiePlot3DExt(PieDataset dataset, double maximumExplodePercent) {
 		super(dataset);
+		setMaximumExplodePercent(maximumExplodePercent);
 	}
 	
 	@Override
@@ -408,9 +409,10 @@ public class PiePlot3DExt extends PiePlot3D {
 
 		List keys = dataset.getKeys();
 		Rectangle2D adjustedPlotArea = new Rectangle2D.Double(
-				originalPlotArea.getX(), originalPlotArea.getY(),
-				originalPlotArea.getWidth(), originalPlotArea.getHeight()
-				- depth);
+                originalPlotArea.getX(), originalPlotArea.getY() + 8.0,
+                originalPlotArea.getWidth(), originalPlotArea.getHeight()
+                - getShadowYOffset() - 8.0);
+		setInteriorGap(0.0);
 		if (getSimpleLabels()) {
 			drawSimpleLabels(g2, keys, totalValue, adjustedPlotArea,
 					linkArea, state);
@@ -418,6 +420,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			drawLabels(g2, keys, totalValue, adjustedPlotArea, linkArea,
 					state);
 		}
+		setInteriorGap(gapPercent);
 
 		if (getShadowGenerator() != null) {
 			BufferedImage shadowImage 

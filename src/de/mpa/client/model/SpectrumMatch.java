@@ -80,4 +80,14 @@ public class SpectrumMatch implements Serializable {
 	public String toString() {
 		return "[ssID = " + searchSpectrumID + "]"; 
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SpectrumMatch) {
+			SpectrumMatch that = (SpectrumMatch) obj;
+			return (this.getSearchSpectrumID() == that.getSearchSpectrumID());
+		}
+		return false;
+	}
+	
 }

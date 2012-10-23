@@ -1,11 +1,10 @@
 package de.mpa.client.ui.chart;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
@@ -16,6 +15,7 @@ import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 
 /**
@@ -30,17 +30,17 @@ public class OntologyData implements ChartData {
 	/**
 	 * Molecular function occurrences map.
 	 */
-	private Map<String, List<ProteinHit>> molFunctionOccMap;
+	private Map<String, ProteinHitList> molFunctionOccMap;
 	
 	/**
 	 * Biological process occurrences map.
 	 */
-	private Map<String, List<ProteinHit>> biolProcessOccMap;
+	private Map<String, ProteinHitList> biolProcessOccMap;
 	
 	/**
 	 * Cellular component occurrences map.
 	 */
-	private Map<String, List<ProteinHit>> cellCompOccMap;
+	private Map<String, ProteinHitList> cellCompOccMap;
 	
 	/**
 	 * The ontology map.
@@ -56,6 +56,12 @@ public class OntologyData implements ChartData {
 	 * The chart type.
 	 */
 	private ChartType chartType;
+	
+	/**
+	 * The hierarchy level (protein, peptide or spectrum).
+	 */
+	// TODO: make proper use of this field (getters, setters, GUI components)
+	private HierarchyLevel hierarchyLevel = HierarchyLevel.PROTEIN_LEVEL;
 	
 	/**
 	 * Empty default constructor.
@@ -84,9 +90,9 @@ public class OntologyData implements ChartData {
 		
 		// Maps to count the occurrences of each molecular function.
 //		clear();
-		biolProcessOccMap = new HashMap<String, List<ProteinHit>>();
-		cellCompOccMap = new HashMap<String, List<ProteinHit>>();
-		molFunctionOccMap = new HashMap<String, List<ProteinHit>>();
+		biolProcessOccMap = new HashMap<String, ProteinHitList>();
+		cellCompOccMap = new HashMap<String, ProteinHitList>();
+		molFunctionOccMap = new HashMap<String, ProteinHitList>();
 		
 		for (ProteinHit proteinHit : dbSearchResult.getProteinHitList()) {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
@@ -123,25 +129,25 @@ public class OntologyData implements ChartData {
 	 * @param map The occurrence map.
 	 * @param proteinHit The protein hit to append.
 	 */
-	protected void appendHit(String keyword, Map<String, List<ProteinHit>> map, ProteinHit proteinHit) {
-		List<ProteinHit> protHits = map.get(keyword);
+	protected void appendHit(String keyword, Map<String, ProteinHitList> map, ProteinHit proteinHit) {
+		ProteinHitList protHits = map.get(keyword);
 		if (protHits == null) {
-			protHits = new ArrayList<ProteinHit>();
+			protHits = new ProteinHitList();
 		}
 		protHits.add(proteinHit);
 		map.put(keyword, protHits);
 	}
 	
 	/**
-	 * Returns the pieDataset.
-	 * @return
+	 * Returns the pie dataset.
+	 * @return the pie dataset.
 	 */
 	@Override
 	public PieDataset getDataset() {
 		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		
-		Map<String, List<ProteinHit>> map = null;
+		Map<String, ProteinHitList> map = null;
 		switch ((OntologyChartType) chartType) {
 		case BIOLOGICAL_PROCESS:
 			map = biolProcessOccMap;
@@ -153,38 +159,61 @@ public class OntologyData implements ChartData {
 			map = molFunctionOccMap;
 			break;
 		}
-		Set<Entry<String, List<ProteinHit>>> entrySet = map.entrySet();
-		
+		Set<Entry<String, ProteinHitList>> entrySet = map.entrySet();
+
 		int sumValues = 0;
-		for (Entry<String, List<ProteinHit>> e : entrySet) {
-			sumValues += e.getValue().size();
+		for (Entry<String, ProteinHitList> entry : entrySet) {
+			sumValues += getSizeByHierarchy(entry.getValue(), hierarchyLevel);
 		}
 		
-		List<ProteinHit> others = new ArrayList<ProteinHit>();
+		ProteinHitList others = new ProteinHitList();
 		double limit = 0.01;
-		for (Entry<String, List<ProteinHit>> e : entrySet) {
-			Integer absVal = e.getValue().size();
+		for (Entry<String, ProteinHitList> entry : entrySet) {
+			Integer absVal = getSizeByHierarchy(entry.getValue(), hierarchyLevel);
 			double relVal = absVal * 1.0 / sumValues * 1.0;
 			Comparable key;
 			if (relVal >= limit) {
-				key = e.getKey();
+				key = entry.getKey();
 			} else {
 				key = "Others";
 				// add grouped hits to list and store it in map they originate from
 				// TODO: do this in pre-processing step, e.g. inside init()
-				others.addAll(e.getValue());
+				others.addAll(entry.getValue());
 				
-				absVal = others.size();
+				absVal = getSizeByHierarchy(others, hierarchyLevel);
 			}
 			pieDataset.setValue(key, absVal);
 		}
-		map.put("Others", others);
+		if (!others.isEmpty()) {
+			map.put("Others", others);
+		}
 		
 		return pieDataset;
 	}
+
+	/**
+	 * Utility method to return size of hierarchically grouped data in a protein
+	 * hit list.
+	 * @param phl the protein hit list
+	 * @param hl the hierarchy level, one of <code>PROTEIN_LEVEL</code>, 
+	 * <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>
+	 * @return the data size
+	 */
+	private int getSizeByHierarchy(ProteinHitList phl, HierarchyLevel hl) {
+		switch (hl) {
+		case PROTEIN_LEVEL:
+			return phl.size();
+		case PEPTIDE_LEVEL:
+			return phl.getPeptideSet().size();
+		case SPECTRUM_LEVEL:
+			return phl.getMatchSet().size();
+		default:
+			return 0;
+		}
+	}
 	
 	@Override
-	public List<ProteinHit> getProteinHits(String key) {
+	public ProteinHitList getProteinHits(String key) {
 		switch ((OntologyChartType) chartType) {
 		case BIOLOGICAL_PROCESS:
 			return biolProcessOccMap.get(key);
@@ -218,7 +247,7 @@ public class OntologyData implements ChartData {
 	 * Sets up the default maps.
 	 * @param defaultMap
 	 */
-	public void setDefaultMapping(Map<String, List<ProteinHit>> defaultMap) {
+	public void setDefaultMapping(Map<String, ProteinHitList> defaultMap) {
 		this.biolProcessOccMap = defaultMap;
 		this.cellCompOccMap = defaultMap;
 		this.molFunctionOccMap = defaultMap;

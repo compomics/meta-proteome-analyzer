@@ -35,12 +35,12 @@ public class TaxonomyPieChart extends Chart {
      * @param data Input data.
      * @param chartType Chart type.
      */
-    public TaxonomyPieChart(Object data, ChartType chartType) {
+    public TaxonomyPieChart(ChartData data, ChartType chartType) {
         super(data, chartType);
     }
 
 	@Override
-	protected void process(Object data) {
+	protected void process(ChartData data) {
 		if (data instanceof TaxonomyData) {
 			TaxonomyData taxonomyData = (TaxonomyData) data;
 			taxonomyData.setChartType(chartType);
@@ -53,7 +53,7 @@ public class TaxonomyPieChart extends Chart {
 		TaxonomyChartType pieChartType = (TaxonomyChartType) chartType;
 		chartTitle = pieChartType.getTitle();
 		
-		PiePlot3D plot = new PiePlot3DExt(pieDataset);
+		PiePlot3D plot = new PiePlot3DExt(pieDataset, 0.2);
         plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));
         plot.setStartAngle(324);
         plot.setCircular(true);

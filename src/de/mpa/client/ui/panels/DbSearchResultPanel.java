@@ -63,6 +63,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
@@ -88,6 +89,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
@@ -374,9 +376,11 @@ public class DbSearchResultPanel extends JPanel {
 				protCardLyt.show(protCardPnl, ((AbstractButton) e.getSource()).getText());
 			}
 		};
+		ButtonGroup bg = new ButtonGroup();
 		for (int j = 0; j < cardLabels.length; j++) {
-			JMenuItem item = new JMenuItem(cardLabels[j]);
+			JMenuItem item = new JRadioButtonMenuItem(cardLabels[j], (j == 0));
 			item.addActionListener(hierarchyListener);
+			bg.add(item);
 			hierarchyPop.add(item);
 		}
 		hierarchyPop.addPopupMenuListener(new PopupMenuListener() {
@@ -1309,9 +1313,12 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			@Override
 			public void mouseDragged(MouseEvent me) {
-				int col = treeTbl.convertColumnIndexToView(ch.getDraggedColumn().getModelIndex());
-				if ((col != -1) && (col != this.col)) {
-					this.col = col;
+				TableColumn draggedColumn = ch.getDraggedColumn();
+				if (draggedColumn != null) {
+					int col = treeTbl.convertColumnIndexToView(draggedColumn.getModelIndex());
+					if ((col != -1) && (col != this.col)) {
+						this.col = col;
+					}
 				}
 			}
 			@Override
@@ -1404,13 +1411,12 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Set up node icons
 		// TODO: add icons for non-leaves
-		final ImageIcon proteinIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/protein.png"));
 		IconValue iv = new IconValue() {
 			@Override
 			public Icon getIcon(Object value) {
 				TreeCellContext context = (TreeCellContext) value;
 				if (context.isLeaf()) {
-					return proteinIcon;
+					return IconConstants.PROTEIN_TREE_ICON;
 				} else {
 					// fall back to defaults
 					return context.getIcon();
@@ -1422,17 +1428,25 @@ public class DbSearchResultPanel extends JPanel {
 		// Install renderers and highlighters
 		// TODO: use proper column index variables
 		tcm.getColumn(1).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		
 		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
 		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter(
 				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
+		
 		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		
 		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
+		
 		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new BarChartHighlighter());
+		
 		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
+		
 		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
+		
 		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 		
@@ -1973,7 +1987,7 @@ public class DbSearchResultPanel extends JPanel {
 	}
 	
 	/**
-	 * Helper method to ease checkbox construction.
+	 * Utility method to ease checkbox construction.
 	 * @param title
 	 * @param selected
 	 * @param toolTip
@@ -1981,7 +1995,8 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param action
 	 * @return A JCheckBox with the defined parameters.
 	 */
-	private JToggleButton createIonToggleButton(String title, boolean selected, String toolTip, Dimension size, Action action) {
+	private JToggleButton createIonToggleButton(String title, boolean selected,
+			String toolTip, Dimension size, Action action) {
 		JToggleButton toggleButton = new JToggleButton(action);
 		toggleButton.setText(title);
 		toggleButton.setSelected(selected);

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryIterator;
 import uk.ac.ebi.kraken.uuw.services.remoting.Query;
@@ -50,52 +51,52 @@ public class UniprotAccessor {
 	public static void retrieveUniprotEntries(DbSearchResult dbSearchResult) throws RemoteDataAccessException {
 		
 		// Check whether UniProt query service has been established yet.
-		if(uniProtQueryService == null) {
+		if (uniProtQueryService == null) {
 			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
 		}
 		
-		// Get the protein hits from the search result.
+		// Get protein hits from the search result
 		Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
 		List<String> accList = new ArrayList<String>(proteinHits.keySet());
 		// maxClauseCount is set to 1024
-		if(accList.size() > 1024){
+		if (accList.size() > 1024) {
 			List<String> shortList = new ArrayList<String>();
 			
 			for (String acc : accList) {
 				shortList.add(acc);
-				if(shortList.size() % 1024 == 0){
-					Query query = UniProtQueryBuilder.buildIDListQuery(shortList);
-					EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-					// Iterate the entries and add them to the list. 
-					for (UniProtEntry e : entryIterator) {
-						String accession = e.getPrimaryUniProtAccession().getValue();
-						ProteinHit proteinHit = proteinHits.get(accession);
-						if(proteinHit != null) {
-							proteinHit.setUniprotEntry(e);
-						}
-					}
+				if (shortList.size() % 1024 == 0) {
+					addUniProtEntries(shortList, proteinHits);
 					shortList.clear();
 				}
 			}
-			Query query = UniProtQueryBuilder.buildIDListQuery(shortList);
-			EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-			
-			// Iterate the entries and add them to the list. 
-			for (UniProtEntry e : entryIterator) {
-				String accession = e.getPrimaryUniProtAccession().getValue();
-				proteinHits.get(accession).setUniprotEntry(e);
-			}
-		} else {
-			Query query = UniProtQueryBuilder.buildIDListQuery(accList);
-			EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-			
-			// Iterate the entries and add them to the list. 
-			for (UniProtEntry e : entryIterator) {
-				String accession = e.getPrimaryUniProtAccession().getValue();
-				//TODO: Handle this query adequately!
-				if (proteinHits.get(accession) != null) {
-					proteinHits.get(accession).setUniprotEntry(e);
+			accList = shortList;
+		}
+		addUniProtEntries(accList, proteinHits);
+	}
+	
+	private static void addUniProtEntries(List<String> accList, Map<String, ProteinHit> proteinHits) {
+		Query query = UniProtQueryBuilder.buildIDListQuery(accList);
+		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
+		
+		// Iterate the entries and add them to the list. 
+		for (UniProtEntry entry : entryIterator) {
+			String accession = entry.getPrimaryUniProtAccession().getValue();
+			ProteinHit proteinHit = proteinHits.get(accession);
+			if (proteinHit != null) {
+				proteinHit.setUniprotEntry(entry);
+			} else {
+				// primary accession could not be found, try secondary accessions
+				List<SecondaryUniProtAccession> secAccs = entry.getSecondaryUniProtAccessions();
+				for (SecondaryUniProtAccession secAcc : secAccs) {
+					accession = secAcc.getValue();
+					proteinHit = proteinHits.get(accession);
+					if (proteinHit != null) {
+						proteinHit.setUniprotEntry(entry);
+						break;
+					}
 				}
+				// none of the secondary accessions could be found, throw error
+				System.err.println("Unable to link UniProt entry to protein hit!");
 			}
 		}
 	}

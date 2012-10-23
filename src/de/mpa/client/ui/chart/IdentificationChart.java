@@ -29,12 +29,12 @@ public class IdentificationChart extends Chart {
      * Constructs an IdentificationChart.
      * @param data
      */
-    public IdentificationChart(Object data, BarChartType barPlotType) {
+    public IdentificationChart(ChartData data, BarChartType barPlotType) {
         super(data, barPlotType);
     }
 	
 	@Override
-	protected void process(Object data) {
+	protected void process(ChartData data) {
 		
 		if(data instanceof IdentificationData) {
 			IdentificationData iData = (IdentificationData) data;

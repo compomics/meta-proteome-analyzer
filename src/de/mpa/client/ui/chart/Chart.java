@@ -34,7 +34,7 @@ public abstract class Chart {
      *
      * @param data The processed data
      */
-    public Chart(Object data, ChartType chartType) {
+    public Chart(ChartData data, ChartType chartType) {
     	this.chartType = chartType;
     	
         if (data != null) {
@@ -48,7 +48,7 @@ public abstract class Chart {
      *
      * @param data the processed data
      */
-    protected abstract void process(Object data);
+    protected abstract void process(ChartData data);
 
     /**
      * Sets the chart object.

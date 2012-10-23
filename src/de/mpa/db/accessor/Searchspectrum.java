@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Searchspectrum extends SearchspectrumTableAccessor{
+public class Searchspectrum extends SearchspectrumTableAccessor {
     /**
      * Calls the super class.
      * @param params
@@ -34,7 +34,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
      * @param conn The database connection.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Searchspectrum findFromSearchSpectrumID(long searchspectrumid, Connection conn) throws SQLException{
+    public static Searchspectrum findFromSearchSpectrumID(long searchspectrumid, Connection conn) throws SQLException {
     	 Searchspectrum temp = null;
          PreparedStatement ps = conn.prepareStatement(Searchspectrum.getBasicSelect() +
          		" WHERE searchspectrumid = ? ORDER BY creationdate");
@@ -55,7 +55,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
 	 * @return List of retrieved search spectra.
 	 * @throws SQLException when the retrieval did not succeed. 
 	 */
-    public static List<Searchspectrum> findFromExperimentID(long experimentid, Connection conn) throws SQLException{
+    public static List<Searchspectrum> findFromExperimentID(long experimentid, Connection conn) throws SQLException {
     	List<Searchspectrum> spectra = new ArrayList<Searchspectrum>();
 		PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE fk_experimentid = ?");
 		ps.setLong(1, experimentid);
@@ -75,7 +75,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
 	 * @return List of retrieved search spectra.
 	 * @throws SQLException when the retrieval did not succeed. 
 	 */
-    public static Searchspectrum findFromSpectrumIDAndExperimentID(long spectrumid, long experimentid, Connection conn) throws SQLException{
+    public static Searchspectrum findFromSpectrumIDAndExperimentID(long spectrumid, long experimentid, Connection conn) throws SQLException {
     	Searchspectrum spectrum = null;
 		PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE fk_spectrumid = ? AND fk_experimentid = ?");
 		ps.setLong(1, spectrumid);
@@ -87,6 +87,22 @@ public class Searchspectrum extends SearchspectrumTableAccessor{
 		rs.close();
 		ps.close();
 		return spectrum;
+    }
+    
+    public static int getSpectralCountFromExperimentID(long experimentID, Connection conn) throws SQLException {
+    	int specCount = -1;
+    	PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM searchspectrum  " +
+    			"WHERE " + FK_EXPERIMENTID + " = ?");
+    	ps.setLong(1, experimentID);
+    	ResultSet rs = ps.executeQuery();
+    	rs.next();
+    	specCount = rs.getInt(1);
+    	if (rs.next()) {
+    		throw new SQLException("Count query returned more than one result!");
+    	}
+    	rs.close();
+    	ps.close();
+    	return specCount;
     }
     
 }

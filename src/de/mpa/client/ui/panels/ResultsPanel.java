@@ -6,29 +6,37 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -52,14 +60,19 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import uk.ac.ebi.kraken.uuw.services.remoting.RemoteDataAccessException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.KeggAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
@@ -76,6 +89,7 @@ import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.util.ColorUtils;
 
 public class ResultsPanel extends JPanel {
 	
@@ -92,6 +106,15 @@ public class ResultsPanel extends JPanel {
 	private JScrollBar chartBar;
 	private JToggleButton chartTypeBtn;
 	private JXTable detailsTbl;
+	private JLabel totalSpecLbl;
+	private JLabel identSpecLbl;
+	private JLabel totalPepLbl;
+	private JLabel uniquePepLbl;
+	private JLabel totalProtLbl;
+	private JLabel specificProtLbl;
+	private JLabel speciesLbl;
+	private JLabel enzymesLbl;
+	private JLabel pathwaysLbl;
 	
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
@@ -193,22 +216,56 @@ public class ResultsPanel extends JPanel {
 		summaryBtnPnl.setOpaque(false);
 		summaryBtnPnl.add(resizeBtn, CC.xy(1, 1));
 		
-		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, r:p:g, 5dlu, r:p:g, 5dlu", "5dlu, t:p, 5dlu, t:p, 5dlu, t:p, 5dlu, t:p, 5dlu:g"));
-
-		summaryPnl.add(new JLabel("total"), CC.xy(4, 2));
-		summaryPnl.add(new JLabel("unique"), CC.xy(6, 2));
-
-		summaryPnl.add(new JLabel("spectra"), CC.xy(2, 4));
-		summaryPnl.add(new JLabel("1234"), CC.xy(4, 4));
-		summaryPnl.add(new JLabel("123"), CC.xy(6, 4));
+		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
 		
-		summaryPnl.add(new JLabel("peptides"), CC.xy(2, 6));
-		summaryPnl.add(new JLabel("123"), CC.xy(4, 6));
-		summaryPnl.add(new JLabel("12"), CC.xy(6, 6));
+		JPanel generalPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu",
+				"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
+		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
+
+		// total vs. identified spectra
+		totalSpecLbl = new JLabel("0");
+		identSpecLbl = new JLabel("0");
+		JPanel specBarPnl = new BarChartPanel(totalSpecLbl, identSpecLbl);
 		
-		summaryPnl.add(new JLabel("proteins"), CC.xy(2, 8));
-		summaryPnl.add(new JLabel("12"), CC.xy(4, 8));
-		summaryPnl.add(new JLabel("1"), CC.xy(6, 8));
+		generalPnl.add(new JLabel("Total spectra"), CC.xy(2, 2));
+		generalPnl.add(totalSpecLbl, CC.xy(4, 2));
+		generalPnl.add(specBarPnl, CC.xy(6, 2));
+		generalPnl.add(identSpecLbl, CC.xy(8, 2));
+		generalPnl.add(new JLabel("identified spectra"), CC.xy(10, 2));
+
+		// total vs. unique peptides
+		totalPepLbl = new JLabel("0");
+		uniquePepLbl = new JLabel("0");
+		JPanel pepBarPnl = new BarChartPanel(totalPepLbl, uniquePepLbl);
+		
+		generalPnl.add(new JLabel("Total peptides"), CC.xy(2, 4));
+		generalPnl.add(totalPepLbl, CC.xy(4, 4));
+		generalPnl.add(pepBarPnl, CC.xy(6, 4));
+		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
+		generalPnl.add(new JLabel("unique peptides"), CC.xy(10, 4));
+
+		// total vs. species-specific proteins
+		totalProtLbl = new JLabel("0");
+		specificProtLbl = new JLabel("0");
+		JPanel protBarPnl = new BarChartPanel(totalProtLbl, specificProtLbl);
+		
+		generalPnl.add(new JLabel("Total proteins"), CC.xy(2, 6));
+		generalPnl.add(totalProtLbl, CC.xy(4, 6));
+		generalPnl.add(protBarPnl, CC.xy(6, 6));
+		generalPnl.add(specificProtLbl, CC.xy(8, 6));
+		generalPnl.add(new JLabel("specific proteins"), CC.xy(10, 6));
+
+		speciesLbl = new JLabel("0");
+		enzymesLbl = new JLabel("0");
+		pathwaysLbl = new JLabel("0");
+		generalPnl.add(new JLabel("Distinct species"), CC.xy(2, 8));
+		generalPnl.add(speciesLbl, CC.xy(4, 8));
+		generalPnl.add(new JLabel("Distinct enzymes"), CC.xy(2, 10));
+		generalPnl.add(enzymesLbl, CC.xy(4, 10));
+		generalPnl.add(new JLabel("Distinct pathways"), CC.xy(2, 12));
+		generalPnl.add(pathwaysLbl, CC.xy(4, 12));
+		
+		summaryPnl.add(generalPnl, CC.xy(2, 2));
 		
 		JXTitledPanel summaryTtlPnl = PanelConfig.createTitledPanel("Summary", summaryPnl);
 		summaryTtlPnl.setRightDecoration(summaryBtnPnl);
@@ -270,7 +327,7 @@ public class ResultsPanel extends JPanel {
 		};
 		ButtonGroup chartBtnGrp = new ButtonGroup();
 		for (int j = 0; j < chartTypes.size(); j++) {
-			JMenuItem item = new JCheckBoxMenuItem(chartTypes.get(j).getTitle(), (j == 0));
+			JMenuItem item = new JRadioButtonMenuItem(chartTypes.get(j).getTitle(), (j == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
 			chartPop.add(item);
@@ -299,9 +356,9 @@ public class ResultsPanel extends JPanel {
 		chartBtnPnl.add(resizeBtn, CC.xy(3, 1));
 
 		// Default pie chart
-		final Map<String, List<ProteinHit>> defaultMap = new LinkedHashMap<String, List<ProteinHit>>();
-		defaultMap.put("Resembles Pac-Man", Arrays.asList(new ProteinHit[80]));
-		defaultMap.put("Does not resemble Pac-Man", Arrays.asList(new ProteinHit[20]));
+		final Map<String, ProteinHitList> defaultMap = new LinkedHashMap<String, ProteinHitList>();
+		defaultMap.put("Resembles Pac-Man", new ProteinHitList(Arrays.asList(new ProteinHit[80])));
+		defaultMap.put("Does not resemble Pac-Man", new ProteinHitList(Arrays.asList(new ProteinHit[20])));
 		ontologyData = new OntologyData();
 		ontologyData.setDefaultMapping(defaultMap);
 		
@@ -559,9 +616,6 @@ public class ResultsPanel extends JPanel {
 		case 2:
 			if (ontologyData != null) {
 				chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
-//				((PiePlot) chart.getChart().getPlot()).setExplodePercent(
-//						ontologyData.getDataset().getKey(0), 0.2);
-				((PiePlot3DExt) chart.getChart().getPlot()).setMaximumExplodePercent(0.2);
 			}
 			break;
 		case 3:
@@ -570,9 +624,6 @@ public class ResultsPanel extends JPanel {
 		case 6:
 			if (taxonomyData != null) {
 				chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
-//				((PiePlot) chart.getChart().getPlot()).setExplodePercent(
-//						ontologyData.getDataset().getKey(0), 0.2);
-				((PiePlot3DExt) chart.getChart().getPlot()).setMaximumExplodePercent(0.2);
 			}
 			break;
 		default:
@@ -585,7 +636,7 @@ public class ResultsPanel extends JPanel {
 //				chartBar.setVisibleAmount(0);
 				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartBar.getValue());
 			} else {
-				// TODO: find way to make scroll bar non-interactive (without disabling it) for non-pie charts
+				// TODO: find way to make scroll bar non-interactive (without disabling it) for non-pie charts, similar as its done for tables
 //				chartBar.setVisibleAmount(Integer.MAX_VALUE);
 			}
 			chartPnl.setChart(chart.getChart());
@@ -618,6 +669,42 @@ public class ResultsPanel extends JPanel {
 				try {
 					if (refresh) {
 						dbSearchResult = Client.getInstance().getDbSearchResult();
+
+						Set<String> speciesNames = new HashSet<String>();
+						Set<String> ecNumbers = new HashSet<String>();
+						Set<String> kNumbers = new HashSet<String>();
+						for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+							speciesNames.add(ph.getSpecies());
+							ecNumbers.addAll(ph.getUniprotEntry().getProteinDescription().getEcNumbers());
+							for (DatabaseCrossReference xref : 
+								ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+							}
+						}
+						Set<Short> pathwayIDs = new HashSet<Short>();
+						for (String ec : ecNumbers) {
+							List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+							if (pathwaysByEC != null) {
+								pathwayIDs.addAll(pathwaysByEC);
+							}
+						}
+						for (String ko : kNumbers) {
+							List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+							if (pathwaysByKO != null) {
+								pathwayIDs.addAll(pathwaysByKO);
+							}
+						}
+
+						totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+						identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+						totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
+						uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+						totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+						specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
+						speciesLbl.setText("" + speciesNames.size());
+						enzymesLbl.setText("" + ecNumbers.size());
+						pathwaysLbl.setText("" + pathwayIDs.size());
+						
 						ontologyData = new OntologyData(dbSearchResult);
 						taxonomyData = new TaxonomyData(dbSearchResult);
 						topData = new TopData(dbSearchResult);
@@ -635,7 +722,7 @@ public class ResultsPanel extends JPanel {
 		/**
 		 * Continues when the results retrieval has finished.
 		 */
-		public void finished() {
+		private void finished() {
 			updateCharts(chartTypeIndex);
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -670,4 +757,53 @@ public class ResultsPanel extends JPanel {
 		return chartTypeBtn;
 	}
 
+	private class BarChartPanel extends JPanel {
+		private JLabel totalLbl;
+		private JLabel fracLbl;
+		
+		public BarChartPanel(JLabel totalLbl, JLabel fracLbl) {
+			this.totalLbl = totalLbl;
+			this.fracLbl = fracLbl;
+		}
+		
+		public void paint(Graphics g) {
+			Graphics2D g2 = (Graphics2D) g;
+			Point pt1 = new Point();
+			Point pt2 = new Point(getWidth(), 0);
+			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
+			g2.fillRect(0, 0, getWidth(), getHeight());
+
+//			if ((totalLbl != null) && (fracLbl != null)) {
+			try {
+				double total = Double.parseDouble(totalLbl.getText());
+				if (total > 0.0) {
+					double rel = Double.parseDouble(fracLbl.getText()) / total;
+					int width = (int) (getWidth() * rel);
+					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE, pt2, ColorUtils.LIGHT_ORANGE));
+					g2.fillRect(getWidth() - width, 0, width, getHeight());
+					String str = String.format("%.1f", rel * 100.0) + "%";
+					FontMetrics fm = g2.getFontMetrics();
+					Rectangle2D bounds = fm.getStringBounds(str, g2);
+
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//						g2.setPaint(ColorUtils.DARK_ORANGE);
+					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
+					if (x < 2.0f) {
+						x = getWidth() - width + 2.0f;
+					}
+					float y = (float) (-bounds.getY() + getHeight()) / 2.0f - 1.0f;
+					g2.setPaint(Color.BLACK);
+					g2.drawString(str, x + 1.0f, y + 1.0f);
+					g2.setPaint(Color.GRAY);
+					g2.drawString(str, x + 1.0f, y + 1.0f);
+					g2.setPaint(Color.WHITE);
+					g2.drawString(str, x, y);
+					g2.drawString(str, x, y);
+				}
+			} catch (Exception e) {
+				// catch NPEs and failed parse attempts, draw nothing
+			}
+		};
+	}
+	
 }
