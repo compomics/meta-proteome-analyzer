@@ -4,18 +4,24 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -63,13 +69,13 @@ public class Client {
 
 	// Client instance
 	private static Client client = null;
-	
+
 	// Server service
 	private ServerImplService service;
-	
+
 	// Server instance
 	private Server server;
-	
+
 	// Connection
 	private Connection conn;
 
@@ -77,21 +83,23 @@ public class Client {
 	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
 
 	/**
-     *  Property change support for notifying the gui about new messages.
-     */
-    private PropertyChangeSupport pSupport;
+	 *  Property change support for notifying the gui about new messages.
+	 */
+	private PropertyChangeSupport pSupport;
 
 	private DbSearchResult dbSearchResult;
 
 	private DenovoSearchResult denovoSearchResult;
 
 	private SpecSimResult specSimResult;
-	
+
 	/**
 	 * Flag denoting whether client is in viewer mode.
 	 */
 	private boolean viewer = false;
-	
+
+	private String filename;
+
 	/**
 	 * The constructor for the client (private for singleton object).
 	 * 
@@ -100,18 +108,18 @@ public class Client {
 	private Client() {
 		pSupport = new PropertyChangeSupport(this);
 	}
-	
+
 	/**
 	 * Returns a client singleton object.
 	 * 
 	 * @return client Client singleton object
 	 */
 	public static Client getInstance() {
-        if (client == null) {
-        	client = new Client();
-        }
+		if (client == null) {
+			client = new Client();
+		}
 
-        return client;
+		return client;
 	}
 
 	//End SQL for protein Databases****************************************************
@@ -127,7 +135,7 @@ public class Client {
 			this.conn = dbconfig.getConnection();
 		}
 	}
-	
+
 	/**
 	 * Clears the database connection.
 	 * @throws SQLException 
@@ -144,27 +152,27 @@ public class Client {
 	 */
 	public void connect() {
 		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
-		
+
 		service = new ServerImplService();
 		server = service.getServerImplPort();
-		
+
 		// enable MTOM in client
 		BindingProvider bp = (BindingProvider) server;
-		
+
 		// Connection timeout: 12 hours
 		bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
-		
+
 		// Request timeout: 24 hours
 		bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
-		 
+
 		SOAPBinding binding = (SOAPBinding) bp.getBinding();
 		binding.setMTOMEnabled(true);
-		
+
 		// Start requesting
 		RequestThread thread = new RequestThread();
 		thread.start();
 	}
-	
+
 	/**
 	 * Requests the server for response.
 	 */
@@ -178,7 +186,7 @@ public class Client {
 			});
 		}
 	}
-	
+
 	/**
 	 * Send the message. 
 	 * @param msg
@@ -186,7 +194,7 @@ public class Client {
 	public String receiveMessage() {
 		return server.sendMessage();
 	}
-	
+
 	/**
 	 * Returns the contents of the file in a byte array.
 	 * @param file
@@ -194,38 +202,38 @@ public class Client {
 	 * @throws IOException
 	 */
 	private byte[] getBytesFromFile(File file) throws IOException {
-	    InputStream is = new FileInputStream(file);
+		InputStream is = new FileInputStream(file);
 
-	    // Get the size of the file
-	    long length = file.length();
+		// Get the size of the file
+		long length = file.length();
 
-	    // Before converting to an int type, check to ensure that file is not larger than Integer.MAX_VALUE.
-	    if (length > Integer.MAX_VALUE) {
-	        // File is too large
-	    	throw new IOException("File size too long: " + length);
-	    }
+		// Before converting to an int type, check to ensure that file is not larger than Integer.MAX_VALUE.
+		if (length > Integer.MAX_VALUE) {
+			// File is too large
+			throw new IOException("File size too long: " + length);
+		}
 
-	    // Create the byte array to hold the data
-	    byte[] bytes = new byte[(int)length];
+		// Create the byte array to hold the data
+		byte[] bytes = new byte[(int)length];
 
-	    // Read in the bytes
-	    int offset = 0;
-	    int numRead = 0;
-	    while (offset < bytes.length
-	           && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
-	        offset += numRead;
-	    }
+		// Read in the bytes
+		int offset = 0;
+		int numRead = 0;
+		while (offset < bytes.length
+				&& (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+			offset += numRead;
+		}
 
-	    // Ensure all the bytes have been read in
-	    if (offset < bytes.length) {
-	        throw new IOException("Could not completely read file " + file.getName());
-	    }
+		// Ensure all the bytes have been read in
+		if (offset < bytes.length) {
+			throw new IOException("Could not completely read file " + file.getName());
+		}
 
-	    // Close the input stream and return bytes
-	    is.close();
-	    return bytes;
+		// Close the input stream and return bytes
+		is.close();
+		return bytes;
 	}
-	
+
 	public void runSearches(List<String> filenames, SearchSettings settings) {
 		for (int i = 0; i < filenames.size(); i++) {
 			settings.getFilenames().add(filenames.get(i));
@@ -236,7 +244,7 @@ public class Client {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
-	
+
 	/**
 	 * Returns the current spectral similarity search result.
 	 * @param expContent The experiment content.
@@ -285,7 +293,7 @@ public class Client {
 		}
 		return denovoSearchResult;
 	}
-	
+
 	/**
 	 * This method retrieves the de novo result from the database for a specific project and experiment.
 	 * @param projContent The project content.
@@ -295,44 +303,44 @@ public class Client {
 		try {
 			// Initialize the connection.
 			initDBConnection();
-			
+
 			// The protein hit set, containing all information about found proteins.
 			denovoSearchResult = new DenovoSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle());
-			
+
 			// Set up progress monitoring
 			firePropertyChange("new message", null, "QUERYING DE NOVO SEARCH HITS");
 			firePropertyChange("resetall", 0L, 100L);
 			firePropertyChange("indeterminate", false, true);
-			
+
 			// Iterate over query spectra and get the different identification result sets
 			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
-			
+
 			long maxProgress = searchSpectra.size();
 			long curProgress = 0;
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
 			firePropertyChange("indeterminate", true, false);
 			firePropertyChange("resetall", 0L, maxProgress);
 			firePropertyChange("resetcur", 0L, maxProgress);
-			
-			
+
+
 			// Iterate the search spectra.
 			for (Searchspectrum searchSpectrum : searchSpectra) {
-				
+
 				long spectrumId = searchSpectrum.getSearchspectrumid();
-                // List for the Pepnovo hits.
-                List<Pepnovohit> hits = Pepnovohit.getHitsFromSpectrumID(spectrumId, conn);
+				// List for the Pepnovo hits.
+				List<Pepnovohit> hits = Pepnovohit.getHitsFromSpectrumID(spectrumId, conn);
 
 				Spectrum spectrum = Spectrum.findFromSpectrumID(searchSpectrum.getFk_spectrumid(), conn);
 				denovoSearchResult.addHitSet(spectrum.getTitle(), Long.valueOf(spectrumId), hits);
 				firePropertyChange("progress", 0L, ++curProgress);
-						
+
 			}
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
-	
+
 	/**
 	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
@@ -347,7 +355,7 @@ public class Client {
 	public void setDbSearchResult(DbSearchResult dbSearchResult) {
 		this.dbSearchResult = dbSearchResult;
 	}
-	
+
 	/**
 	 * Returns the current database search result.
 	 * @param projContent The project content.
@@ -360,7 +368,10 @@ public class Client {
 		}
 		return dbSearchResult;
 	}
-	
+
+
+
+
 	/**
 	 * Returns the result(s) from the database search for a particular experiment.
 	 * @param ProjectContent, ExperimentConten
@@ -369,7 +380,7 @@ public class Client {
 	private void retrieveDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		retrieveDbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
 	}
-	
+
 	/**
 	 * Returns the result(s) from the database search for a particular experiment.
 	 * @param experimentName 
@@ -381,7 +392,7 @@ public class Client {
 		// Init the database connection.
 		try {
 			initDBConnection();
-			
+
 			// The protein hit set, containing all information about found proteins.
 			// TODO: use fastaDB parameter properly
 			dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
@@ -390,10 +401,10 @@ public class Client {
 			firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
 			firePropertyChange("resetall", 0L, 100L);
 			firePropertyChange("indeterminate", false, true);
-			
+
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
-			
+
 			dbSearchResult.setTotalSpectrumCount(
 					Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn));
 
@@ -429,36 +440,36 @@ public class Client {
 			dbSearchResult.setUniquePeptideCount(peptideSequences.size());
 			
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
-		
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Resets the current database search result reference.
 	 */
 	public void clearDbSearchResult() {
 		dbSearchResult = null;
 	}
-	
+
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
 	 * @param hit The search hit implementation.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
 	private void addProteinSearchHit(SearchHit hit) throws SQLException {
-		
+
 		// Create the PeptideSpectrumMatch
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
-		
+
 		// Get the peptide hit.
 		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
 		PeptideHit peptideHit = new PeptideHit(peptide.getSequence(), psm);
-		
+
 		// Get the protein accessor.
 		ProteinAccessor protein = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
-		
+
 		// Add a new protein to the protein hit set.
 		dbSearchResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit));
 	}
@@ -488,7 +499,7 @@ public class Client {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
 	}
-	
+
 	/**
 	 * Queries the database to retrieve a spectrum file belonging to a specific searchspectrum entry.
 	 * @param searchspectrumID The primary key of the searchspectrum entry.
@@ -499,7 +510,7 @@ public class Client {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromSearchSpectrumID(searchspectrumID);
 	}
-	
+
 	/**
 	 * Queries the database to retrieve a spectrum file belonging to a specific spectrum title.
 	 * @param title The spectrum title.
@@ -510,7 +521,7 @@ public class Client {
 		initDBConnection();
 		return Spectrum.getSpectrumFileFromTitle(title, conn);
 	}
-	
+
 	/**
 	 * Queries the database to retrieve a spectrum file belonging to a specific libspectrum entry.
 	 * @param libspectrumID The primary key of the libspectrum entry.
@@ -521,7 +532,7 @@ public class Client {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromLibSpectrumID(libspectrumID);
 	}
-	
+
 	/**
 	 * Method to consolidate spectra which are selected in a specified checkbox tree into spectrum packages of defined size.
 	 * @param packageSize The amount of spectra per package.
@@ -552,7 +563,7 @@ public class Client {
 							server.uploadFile(file.getName(), getBytesFromFile(file));
 							file.delete();
 						}
-						
+
 						file = new File(filename + (numSpectra/packageSize) + ".mgf");
 						filenames.add(file.getName());
 						fos = new FileOutputStream(file);
@@ -585,7 +596,7 @@ public class Client {
 	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
 		return new SpectrumExtractor(conn).downloadSpectra(experimentID);
 	} 
-	
+
 	// Thread polling the server each second.
 	class RequestThread extends Thread {		
 		public void run() {
@@ -599,47 +610,47 @@ public class Client {
 			}
 		}
 	}
-	
+
 	/**
-     * Adds a property change listener.
-     * @param pcl
-     */
-    public void addPropertyChangeListener(PropertyChangeListener pcl) { 
-    	pSupport.addPropertyChangeListener(pcl); 
-    }
-	
+	 * Adds a property change listener.
+	 * @param pcl
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener pcl) { 
+		pSupport.addPropertyChangeListener(pcl); 
+	}
+
 	/**
-     * Removes a property change listener.
-     * @param pcl
-     */
-    public void removePropertyChangeListener(PropertyChangeListener pcl) { 
-    	pSupport.removePropertyChangeListener(pcl);
-    }
-    
-    /**
-     * Forwards a bound property update to any registered listeners. 
-     * No event is fired if old and new are equal and non-null. 
-     * @param propertyName The programmatic name of the property that was changed.
-     * @param oldValue The old value of the property.
-     * @param newValue The new value of the property.
-     */
+	 * Removes a property change listener.
+	 * @param pcl
+	 */
+	public void removePropertyChangeListener(PropertyChangeListener pcl) { 
+		pSupport.removePropertyChangeListener(pcl);
+	}
+
+	/**
+	 * Forwards a bound property update to any registered listeners. 
+	 * No event is fired if old and new are equal and non-null. 
+	 * @param propertyName The programmatic name of the property that was changed.
+	 * @param oldValue The old value of the property.
+	 * @param newValue The new value of the property.
+	 */
 	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
 		pSupport.firePropertyChange(propertyName, oldValue, newValue);
-    }
-    
-    /**
-     * Returns the current connection to the database.
-     * @return
-     * @throws SQLException 
-     */
-    public Connection getConnection() throws SQLException{
-    	if(conn == null) initDBConnection();
-    	return conn;
-    }
+	}
 
-    /**
-     * Shuts down the JVM.
-     */
+	/**
+	 * Returns the current connection to the database.
+	 * @return
+	 * @throws SQLException 
+	 */
+	public Connection getConnection() throws SQLException{
+		if(conn == null) initDBConnection();
+		return conn;
+	}
+
+	/**
+	 * Shuts down the JVM.
+	 */
 	public void exit() {
 		try {
 			closeDBConnection();
@@ -649,7 +660,7 @@ public class Client {
 		}
 		System.exit(0);
 	}
-	
+
 	/**
 	 * Returns the DbConnectionSettings.
 	 * @return dbSettings The DBConnectionSettings object.
@@ -660,7 +671,7 @@ public class Client {
 		}
 		return dbSettings;
 	}
-	
+
 	/**
 	 * Sets the DbConnectionSettings.
 	 * @param dbSettings The DBConnectionSettings object.
@@ -668,7 +679,7 @@ public class Client {
 	public void setDbSettings(DbConnectionSettings dbSettings) {
 		this.dbSettings = dbSettings;
 	}
-	
+
 	/**
 	 * Returns the ServerConnectionSettings.
 	 * @return dbSettings The ServerConnectionSettings object.
@@ -676,7 +687,7 @@ public class Client {
 	public ServerConnectionSettings getServerSettings() {
 		return srvSettings;
 	}
-	
+
 	/**
 	 * Sets the ServerConnectionSettings.
 	 * @param srvSettings The ServerConnectionSettings object.
@@ -692,7 +703,7 @@ public class Client {
 	public boolean isViewer() {
 		return this.viewer;
 	}
-	
+
 	/**
 	 * Sets the client's viewer mode property.
 	 * @param viewer <code>true</code> if in viewer mode, <code>false</code> otherwise.
@@ -705,30 +716,68 @@ public class Client {
 	 * Writes the current database search result object to a the specified file.
 	 * @param filename The String representing the desired file path and name.
 	 */
+	public void writeDbSearchResultToFile(String filename, DbSearchResult dbSearchResult) {
+		this.dbSearchResult = dbSearchResult;
+		this.filename		= filename;
+		System.out.println(filename);
+		writeDbSearchResultToFile(filename);
+	}
+
+	/**
+	 * Writes the current database search result object to a the specified file.
+	 * @param filename The String representing the desired file path and name.
+	 */
 	public void writeDbSearchResultToFile(String filename) {
 		List<ProteinHit> proteinHitList = dbSearchResult.getProteinHitList();
-		
+
 		// prepare result object for export by iterating spectrum matches and adding spectrum files to them
 		firePropertyChange("new message", null, "INSERTING SPECTRA INTO RESULT OBJECT");
 		firePropertyChange("resetall", -1L, (long) proteinHitList.size());
 		firePropertyChange("resetcur", -1L, (long) proteinHitList.size());
-		for (ProteinHit protHit : proteinHitList) {
-			for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
-				for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
-					long searchSpectrumID = specMatch.getSearchSpectrumID();
-					try {
-						MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(searchSpectrumID);
-						specMatch.setMgf(mgf);
-					} catch (SQLException e) {
-						e.printStackTrace();
+
+		// Save as mgf
+		String mgfFilename = filename.substring(0, filename.indexOf('.'));
+		try{
+			FileWriter fwMgf 			= new FileWriter(new File(mgfFilename + ".mgf"));
+			BufferedWriter  bwMgf		= new BufferedWriter(fwMgf);
+			int line					= 0;
+			for (ProteinHit protHit : proteinHitList) {
+				for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
+					for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
+						long searchSpectrumID = specMatch.getSearchSpectrumID();
+						try {
+							MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(searchSpectrumID);
+							if (mgf != null) {
+
+								// Save the mgf
+								line++; bwMgf.write("<Begin Ions>" + "\n");
+								specMatch.setIndexLine(line);
+								line++; bwMgf.write(	mgf.getTitle() 		+ "\n");
+								line++; bwMgf.write(	mgf.getCharge() 	+ "\n");
+								double precursorMZ = mgf.getPrecursorMZ();
+								line++; bwMgf.write(	precursorMZ+ "\n");
+								double intensity = mgf.getIntensity();
+								line++; bwMgf.write( intensity + "\n");
+								HashMap<Double, Double> peaks = mgf.getPeaks();// masses + intensities
+								for (Entry<Double, Double> entry : peaks.entrySet()) {
+									line++; bwMgf.write(new String(entry.getKey() +"\t" + entry.getValue()) + "\n");
+								}	
+								line++; line++; bwMgf.write("<End Ions>" + "\n" + "\n");
+							}
+							//						specMatch.setMgf(mgf);
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
 					}
-					
 				}
+				firePropertyChange("progressmade", false, true);
 			}
-			firePropertyChange("progressmade", false, true);
+			bwMgf.flush();
+			bwMgf.close();
+		}catch(Exception e1){
+			e1.printStackTrace();
 		}
 		firePropertyChange("new message", null, "INSERTING SPECTRA INTO RESULT OBJECT FINISHED");
-
 		String status;
 		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
 		try {
@@ -750,4 +799,36 @@ public class Client {
 		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 
+	/**
+	 *  This method gets an mgf from the mgf File.
+	 * @param filepath
+	 * @param lineNumber
+	 * @return returns a certain mgf, defined by the line in the mgf.
+	 */
+	public MascotGenericFile readMgf(String filepath, Long lineNumber){
+		MascotGenericFile mgf = null;
+		String line = "";
+		try {
+			FileReader fr = new FileReader(new File(filepath));
+			BufferedReader br = new BufferedReader(fr);
+			line = null;
+			for (int i = 0; i < lineNumber; i++) {
+				line = br.readLine();
+			}
+			// Start to create new mgf
+			String title =br.readLine();
+			int charge = Integer.valueOf(br.readLine());
+			double precursor = Double.valueOf(br.readLine());
+			double intensity = Double.valueOf(br.readLine());
+			HashMap<Double, Double> peaks = new HashMap<Double, Double>();// masses + intensities
+			while (!(line = br.readLine()).contains("<End Ions>")) {
+				peaks.put(Double.valueOf(line.split("\t")[0]), Double.valueOf(line.split("\t")[1]));
+			}
+			mgf = new MascotGenericFile("", title, peaks, precursor, charge);
+			mgf.setIntensity(intensity);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mgf;
+	}
 }

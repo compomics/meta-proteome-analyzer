@@ -136,7 +136,7 @@ public class DbSearchResult implements Serializable {
 			}
 		}
 		// Link parent protein hit to peptide hit
-		currentPeptideHit.addProteinHit(proteinHit);
+		currentPeptideHit.addProteinHit(currentProteinHit);
 
 		proteinHits.put(accession, currentProteinHit);
 
@@ -204,7 +204,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the list of protein hits.
 	 */
 	public List<ProteinHit> getProteinHitList() {
-		return new ArrayList<ProteinHit>(proteinHits.values());
+		return new ProteinHitList(proteinHits.values());
 	}
 
 	/**

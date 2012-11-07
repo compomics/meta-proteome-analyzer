@@ -39,9 +39,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
 
@@ -71,12 +71,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -92,16 +92,20 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
-import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
@@ -109,9 +113,9 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -131,6 +135,8 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
+import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
@@ -153,6 +159,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -169,9 +176,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
@@ -184,6 +191,8 @@ import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
+import de.mpa.taxonomy.NcbiTaxonomy;
+import de.mpa.taxonomy.TaxonNode;
 import de.mpa.util.ColorUtils;
 
 public class DbSearchResultPanel extends JPanel {
@@ -292,6 +301,12 @@ public class DbSearchResultPanel extends JPanel {
 	private ResultsPanel parent;
 
 	private ProtCHighlighterPredicate protCHighlightPredicate;
+
+	private JXTree robsTaxTree;
+
+	private JScrollPane robsTaxTreeScpn;
+
+	protected File selectedFile;
 	
 	/**
 	 * Constructor for a database results panel.
@@ -714,8 +729,7 @@ public class DbSearchResultPanel extends JPanel {
 	
 	/**
 	 * Class to get dbSearchResult from the database in the Background
-	 * @author heyer
-	 *
+	 * @author R. Heyer
 	 */
 	private class ResultsTask extends SwingWorker {
 
@@ -735,6 +749,43 @@ public class DbSearchResultPanel extends JPanel {
 						UniprotAccessor.retrieveUniprotEntries(newResult);
 						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 						Client.getInstance().firePropertyChange("indeterminate", true, false);
+					}
+					
+					// Get all distinct peptides from result object
+					Set<PeptideHit> peptideSet = ((ProteinHitList) newResult.getProteinHitList()).getPeptideSet();
+					for (PeptideHit peptideHit : peptideSet) {
+						// Build taxon node list
+						List<TaxonNode> taxList = new ArrayList<TaxonNode>();
+						for (ProteinHit protHit : peptideHit.getProteinList()) {
+							UniProtEntry uniprotEntry = protHit.getUniprotEntry();
+							if (uniprotEntry != null) {
+								List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
+								int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
+								TaxonNode taxonNode = NcbiTaxonomy.getInstance().getLeafMap().get(taxId);
+								// For case that taxId is not a leaf
+								if (taxonNode == null) {
+									Enumeration dfe = NcbiTaxonomy.getInstance().getRootNode().depthFirstEnumeration();
+									while (dfe.hasMoreElements()) {
+										TaxonNode node = (TaxonNode) dfe.nextElement();
+										if (node.getTaxId() == taxId) {
+											taxonNode = node;
+										}
+									}
+								}
+								taxList.add(taxonNode);
+
+								// Find common ancestor of all taxon nodes in list
+								TaxonNode ancestor = taxList.get(0);
+								for (int i = 1; i < taxList.size(); i++) {
+									ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
+								}
+								// Set peptide hit's common taxonomy ancestor
+								peptideHit.setTaxonNode(ancestor);
+							} else {
+								System.out.println(protHit.getAccession() + " | " + protHit.getDescription());
+								peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
+							}
+						}
 					}
 					 
 					dbSearchResult = newResult;
@@ -1522,6 +1573,7 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PEP_SEQUENCE		= 2;
 	private final int PEP_PROTEINCOUNT	= 3;
 	private final int PEP_SPECTRALCOUNT	= 4;
+	private final int PEP_TAXONOMY		= 5;
 
 	/**
 	 * This method sets up the peptide results table.
@@ -1531,7 +1583,7 @@ public class DbSearchResultPanel extends JPanel {
 		final TableModel peptideTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{
-				setColumnIdentifiers(new Object[] { "", "#", "Sequence", "ProtC", "SpC" });
+				setColumnIdentifiers(new Object[] { "", "#", "Sequence", "ProtC", "SpC", "Tax" });
 			}
 			
 			@Override
@@ -1545,6 +1597,7 @@ public class DbSearchResultPanel extends JPanel {
 				case PEP_PROTEINCOUNT:
 					return Integer.class;
 				case PEP_SEQUENCE:
+				case PEP_TAXONOMY:
 				default:
 					return String.class;
 				}
@@ -1575,7 +1628,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		};
 
-		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 0.9, 3.7, 1.7, 1.7});
+		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 0.9, 3.7, 1.7, 1.7,1.7});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
 		
@@ -2496,12 +2549,20 @@ public class DbSearchResultPanel extends JPanel {
 				maxProtCount = Math.max(maxProtCount, protCount);
 				maxSpecCount = Math.max(maxSpecCount, specCount);
 				// Add table row
+				TaxonNode taxonNode = peptideHit.getTaxonNode();
+				String string = "";
+				if (taxonNode != null) {
+					string = "" + taxonNode.getTaxName() + " (" + taxonNode.getTaxId() + ")";
+				}
+			
 				peptideTblMdl.addRow(new Object[] {
 						peptideHit.isSelected(),
 						row,
 						peptideHit.getSequence(),
 						protCount,
-						specCount});
+						specCount,
+						string
+						});
 			}
 
 			// Update table highlighters
@@ -2689,9 +2750,14 @@ public class DbSearchResultPanel extends JPanel {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					// grab corresponding spectrum from the database and display it
 					try {
-						MascotGenericFile mgf = psm.getMgf();
+//						MascotGenericFile mgf = psm.getMgf();
+						MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
+						// Wennot try to read from file
 						if (mgf == null) {
-							mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
+							//TODO Tets
+							String path = selectedFile.getPath();
+							System.out.println(path);
+							mgf = Client.getInstance().readMgf(path, psm.getIndexLine());
 						}
 
 						specPnl = new SpectrumPanel(mgf);

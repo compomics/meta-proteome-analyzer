@@ -1,12 +1,22 @@
 package de.mpa.main;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.LinkedHashMap;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.zip.GZIPInputStream;
 
 import de.mpa.analysis.KeggMaps;
 import de.mpa.client.ui.SortableTreeNode;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.parser.ec.ECReader;
+import de.mpa.taxonomy.NcbiTaxonomy;
 
 /**
  * This class initialize the parameters
@@ -14,8 +24,14 @@ import de.mpa.parser.ec.ECReader;
  */
 public class Parameters {
 
+	/**
+	 * Instance
+	 */
 	public static Parameters instance;
 	
+	/**
+	 *  Map of all EC.-numbers and descriptions
+	 */
 	private Map<String, ECEntry> ecMap;
 
 	private Map<String, Character> keggTaxonomyMap;
@@ -24,6 +40,38 @@ public class Parameters {
 	private SortableTreeNode keggOrganismTreeRoot;
 	private SortableTreeNode keggPathwayTreeRoot;
 
+	/**
+	 *  Map of all Uniprot peptides and the according accessions
+	 */
+	private Map<String, String[]> uniProtPeptideMap = null;
+	
+	/**
+	 *  Map of all Uniprot accessions and the associated peptides
+	 */
+	private Map<String, String[]> uniProtAccMap = null;
+	
+	private NcbiTaxonomy ncbiTaxonomy = null;
+	
+	/**
+	 * Method gets the NCBI taxonomy maps.
+	 * @return Ncbi tax maps.
+	 */
+	public NcbiTaxonomy getNcbiMaps() {
+		if (ncbiTaxonomy == null) {
+			try {
+				InputStream fis = getClass().getResourceAsStream("/de/mpa/resources/conf/NcbiTaxonomy");
+				ObjectInputStream ois  = new ObjectInputStream(fis);
+				ncbiTaxonomy = (NcbiTaxonomy)ois.readObject();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		return ncbiTaxonomy;
+	}
+
+	/**
+	 * Constructor
+	 */
 	private Parameters() {
 		// TODO: Loading parameter dialog.
 		try {
@@ -34,6 +82,10 @@ public class Parameters {
 		}
 	}
 	
+	/**
+	 * Method to create instance.
+	 * @return the Parameters.
+	 */
 	public static Parameters getInstance() {
 		if (instance == null) {
 			instance = new Parameters();
@@ -58,6 +110,51 @@ public class Parameters {
 				getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
 	}
 	
+	/**
+	 * Returns the UniProt peptide map with the associated accessions
+	 * @return Treemap of all UniProt peptides
+	 */
+	public TreeMap<String, String[]> getUniProtPeptideMap() {
+		if (uniProtPeptideMap == null) {
+			// Initialize UniProt peptide map
+			
+			  
+			try {
+				InputStream fosP = getClass().getResourceAsStream("/de/mpa/resources/conf/UniProtMapOfAllPeptide");
+				ObjectInputStream oosP = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(fosP)));
+				uniProtPeptideMap = (TreeMap<String, String[]>)oosP.readObject();
+				oosP.close();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		return (TreeMap<String, String[]>) uniProtPeptideMap ;
+	}
+	
+	/**
+	 * Returns the UniProt accession map with the associated peptides
+	 * @return Treemap of all UniProt accessions
+	 */
+	public TreeMap<String, String[]> getUniProtAccMap() {
+		if (uniProtAccMap == null) {
+			// Initialize Uniprot accession map
+			try {
+				InputStream fosAcc = getClass().getResourceAsStream("/de/mpa/resources/conf/UniProtMapOfAllAccessions");
+				ObjectInputStream oosAcc = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(fosAcc)));
+				uniProtAccMap = ((Map<String, String[]>)oosAcc.readObject());
+				oosAcc.close();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		return (TreeMap<String, String[]>)uniProtAccMap  ;
+	}
+
 	/**
 	 * Returns the array of enabled panels for the Viewer
 	 * @return Array of enabled panels

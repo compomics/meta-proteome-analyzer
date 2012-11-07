@@ -7,13 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.taxonomy.TaxonNode;
 
 /**
  * This class represents a peptide hit.
  * @author T.Muth
  *
  */
-public class PeptideHit implements Serializable{
+public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	
 	/**
 	 * Flag denoting whether this peptide is selected for export.
@@ -50,6 +51,12 @@ public class PeptideHit implements Serializable{
 	 * peptide hit's list of matches.
 	 */
 	private Map<Long, Integer> id2index = new HashMap<Long, Integer>();
+	
+	/**
+	 * The NCBI taxonomy node of the peptide.
+	 */
+	private TaxonNode taxonNode;
+	
 	
 	/**
 	 * PeptideHit constructor, taking the sequence as only parameter.
@@ -216,6 +223,22 @@ public class PeptideHit implements Serializable{
 	}
 	
 	/**
+	 * Returns the NCBI taxonomy node.
+	 * @return the NCBI taxonomy node.
+	 */
+	public TaxonNode getTaxonNode() {
+		return taxonNode;
+	}
+
+	/**
+	 * Sets the NCBI taxonomy node.
+	 * @param taxonNode the NCBI taxonomy node to set
+	 */
+	public void setTaxonNode(TaxonNode taxonNode) {
+		this.taxonNode = taxonNode;
+	}
+
+	/**
 	 * Returns whether this peptide hit is selected for exporting. 
 	 * @return <code>true</code> if peptide is selected for export, 
 	 * <code>false</code> otherwise.
@@ -242,12 +265,18 @@ public class PeptideHit implements Serializable{
 		return getSequence();
 	}
 
-	// TODO: investigate whether this kind of equality check causes problems
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof PeptideHit) {
 			return getSequence().equals(((PeptideHit) obj).getSequence());
 		}
 		return false;
+	}
+
+	/**
+	 * Function to use as TreeSet
+	 */
+	public int compareTo(PeptideHit that) {
+		return this.getSequence().compareTo(that.getSequence());
 	}
 }
