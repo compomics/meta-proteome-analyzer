@@ -150,6 +150,13 @@ public class ProteinHit implements Serializable {
 	 * @return species
 	 */
 	public String getSpecies() {
+		// Extract species string from description
+		String[] split = description.split(" OS=");
+		if (split.length > 1) {
+			description = split[0];
+			species = (split[1].contains(" GN=")) ?
+					split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
+		}
 		return species;
 	}
 	

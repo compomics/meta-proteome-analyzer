@@ -228,30 +228,24 @@ public class ClientFrame extends JFrame {
 
 		// Menu
 		menuBar = new ClientFrameMenuBar();
-		
 		// Status Bar
 		statusPnl = new StatusPanel();
 		
 		if (!Client.getInstance().isViewer()) {
 			// Project panel
 			projectPnl = new ProjectPanel();
-
 			// File panel
 			filePnl = new FilePanel();
-
 			// Settings Panel
 			setPnl = new SettingsPanel();
-
 			// Logging panel		
 			logPnl = new LoggingPanel();
 		}
-		
 		// Results Panel
 		resPnl = new ResultsPanel();
 		
 		// Fabi's test panel
 //		clusterPnl = new ClusterPanel();
-		
 	}
 
 	/**

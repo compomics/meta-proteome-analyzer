@@ -678,7 +678,7 @@ public class FilePanel extends JPanel {
 			tabEnabled[pane.indexOfComponent(this)] = true;
 		}
 		// Enable/disable tabs
-		for (int i = 0; i < tabEnabled.length; i++) {
+		for (int i = 0; i < tabEnabled.length - 1; i++) {
 			boolean temp = pane.isEnabledAt(i);
 			pane.setEnabledAt(i, tabEnabled[i]);
 			tabEnabled[i] = temp;

@@ -146,6 +146,9 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         this.parseFromString(aContents);
     }
 
+    
+    
+    
     /**
      * This constructor takes the filename of the MGF File as argument and loads it form the hard drive.
      *

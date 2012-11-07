@@ -33,7 +33,6 @@ public class Starter {
 		}
 	}
 	
-	
 	/**
 	 * Main method ==> Entry point to the application.
 	 * 

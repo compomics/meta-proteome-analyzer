@@ -30,6 +30,28 @@ public class SpectrumMatch implements Serializable {
 	 * Returns the spectrum specific id.
 	 * @return The spectrum id.
 	 */
+	
+	/**
+	 * The line in the saved mgf(Export).
+	 */
+	private long indexLine;
+	
+	/**
+	 * Gets the beginning line of the mgf.
+	 * @return index of the line.
+	 */
+	public long getIndexLine() {
+		return indexLine;
+	}
+
+	/**
+	 * Sets the beginning line of the mgf.
+	 * @param indexLine
+	 */
+	public void setIndexLine(long indexLine) {
+		this.indexLine = indexLine;
+	}
+
 	public long getSearchSpectrumID() {
 		return searchSpectrumID;
 	}
