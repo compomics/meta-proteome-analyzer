@@ -1,19 +1,19 @@
-package de.mpa.algorithms;
+package de.mpa.algorithms.similarity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 /**
  * Factory class providing access to various vectorization method implementations.
  * 
  * @author A. Behne
  */
-public abstract class Vectorization {
+public abstract class VectorizationFactory {
 
 	/**
-	 * Creates a vectorization method, that tries to match peak positions of
+	 * Creates a vectorization method that tries to match peak positions of
 	 * provided target inputs to those of a reference input inside the specified
 	 * mass delta window.<br>
 	 * Call <code>vectorize()</code> after creation to specify the reference
@@ -80,7 +80,17 @@ public abstract class Vectorization {
 			}
 		};
 	}
-	
+
+	/**
+	 * Creates a vectorization method that will replace spectrum peak map
+	 * position keys which fall into intervals defined by the specified
+	 * parameters with the central value of these intervals. Peaks that share
+	 * the same bin will be merged, meaning that their intensitie values will be
+	 * summed.
+	 * @param binWidth The width of the bins.
+	 * @param binShift The shift of the bin boundaries along the position axis.
+	 * @return the direct binning vectorization method
+	 */
 	public static Vectorization createDirectBinning(final double binWidth, final double binShift) {
 		return new Vectorization() {
 			@Override
@@ -107,7 +117,19 @@ public abstract class Vectorization {
 			public void cleanup() {}
 		};
 	}
-	
+
+	/**
+	 * Creates a vectorization method that will replace spectrum peak map
+	 * position keys which fall into intervals defined by the specified
+	 * parameters with the central value of these intervals. Peak intensities
+	 * will be distributed among neighboring bins according to their specified
+	 * profile shape and base width parameters.
+	 * @param binWidth The width of the bins.
+	 * @param binShift The shift of the bin boundaries along the position axis.
+	 * @param profShape The profile shape index. <i>(so far unused, will be 0 for triangular, 1 for gaussian, etc.)</i>
+	 * @param baseWidth The base width of the profile shape.
+	 * @return the direct binning vectorization method
+	 */
 	public static Vectorization createProfiling(final double binWidth, final double binShift,
 			final int profShape, final double baseWidth) {
 		return new Vectorization() {
@@ -156,9 +178,5 @@ public abstract class Vectorization {
 			public void cleanup() {}
 		};
 	}
-	
-	public abstract Map<Double, Double> vectorize(Map<Double, Double> input, Transformation trafo);
-	
-	public abstract void cleanup();
 
 }

@@ -1,12 +1,9 @@
 package de.mpa.main;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.LinkedHashMap;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.TreeMap;

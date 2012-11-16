@@ -9,6 +9,9 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.algorithms.similarity.Transformation;
+import de.mpa.algorithms.similarity.Vectorization;
+import de.mpa.algorithms.similarity.VectorizationFactory;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 
@@ -32,7 +35,7 @@ public class CrossCorrelationTest extends TestCase {
 	@Test
 	public void testCrossCorrelation() {
 		double binWidth = 1.0;
-		Vectorization vect = Vectorization.createDirectBinning(binWidth, 0.0);
+		Vectorization vect = VectorizationFactory.createDirectBinning(binWidth, 0.0);
 		Transformation trafo = Transformation.SQRT;
 		CrossCorrelation method = new CrossCorrelation(vect, trafo, binWidth, 75);
 		method.prepare(spectrumA.getPeaks());

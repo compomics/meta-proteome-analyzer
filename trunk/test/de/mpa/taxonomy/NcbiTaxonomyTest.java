@@ -5,21 +5,22 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 /**
- * Test the dumb of the ncbi taxonomy tree.
- * @author A. Behne and R. Heyer
+ * Tests for NCBI taxonomy-related classes and methods.
+ * @author R. Heyer, A. Behne
  */
 public class NcbiTaxonomyTest extends TestCase {
 	
-//	@Test uncomment just onces necessary for new taxonomy version
-//	public void testNcbiTaxonomyDumping() throws IOException {
-//		// dump to file
+	@Test
+	public void testNcbiTaxonomyDumping() {
+		// dump to file
 //		NcbiTaxonomy.dumpTaxonomies("Z:\\bpt\\bptprot\\MetaProteomeAnalyzer\\databases\\NCBI Taxonomy\\taxdmp\\" );
-//		
-//		// read dumped data by instancing NcbiTaxonomy object
-//		NcbiTaxonomy ncbiTaxonomy = NcbiTaxonomy.getInstance();
-//		
-//		assertEquals(1, ncbiTaxonomy.getRootNode().getTaxId());
-//	}
+		NcbiTaxonomy.dumpTaxonomies("/data/bpt/bptprot/MetaProteomeAnalyzer/databases/NCBI Taxonomy/taxdmp/");
+		
+		// read dumped data by instancing NcbiTaxonomy object
+		NcbiTaxonomy ncbiTaxonomy = NcbiTaxonomy.getInstance();
+		
+		assertEquals(1, ncbiTaxonomy.getRootNode().getTaxId());
+	}
 	
 	@Test
 	public void testCommonAncestorRetrieval() {

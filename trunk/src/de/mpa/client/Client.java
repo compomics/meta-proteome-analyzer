@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.zip.GZIPOutputStream;
 
 import javax.imageio.ImageIO;
@@ -264,7 +264,9 @@ public class Client {
 	private void retrieveSpecSimResult(Long experimentID) {
 		try {
 			initDBConnection();
+			
 			specSimResult = SpecSearchHit.getAnnotations(experimentID, conn, pSupport);
+			
 			if (specSimResult.getScoreMatrixImage() != null) {
 				File outputfile = new File("saved.png");
 				ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);

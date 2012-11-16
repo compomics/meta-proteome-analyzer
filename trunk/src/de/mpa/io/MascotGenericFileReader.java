@@ -135,14 +135,14 @@ public class MascotGenericFileReader {
         return this.filename;
     }
     
-    
     /**
-     * Type-safe enum to determine behavior on creation of reader.
+     * Enum to determine behavior on creation of reader.
      */
-    public static class LoadMode { private LoadMode() { } }
-    public static final LoadMode LOAD = new LoadMode();		// includes surveying
-    public static final LoadMode SURVEY = new LoadMode();	// survey only
-    public static final LoadMode NONE = new LoadMode();		// do nothing
+    public enum LoadMode {
+    	LOAD,
+    	SURVEY,
+    	NONE;
+    }
     
 	/**
      * This constructor opens the specified mergefile and maps it to memory.
@@ -151,7 +151,7 @@ public class MascotGenericFileReader {
      * @throws java.io.IOException when the file could not be read.
      */
     public MascotGenericFileReader(File file) throws IOException {
-    	this(file, LOAD);
+    	this(file, LoadMode.LOAD);
     }
         
     /**
@@ -168,9 +168,9 @@ public class MascotGenericFileReader {
             // Read the filename.
             this.filename = file.getName();
             this.raf = new RandomAccessFile(file, "r");
-            if (mode == LOAD) {
+            if (mode == LoadMode.LOAD) {
             	this.load();
-            } else if (mode == SURVEY) {
+            } else if (mode == LoadMode.SURVEY) {
             	this.survey();
             }
         }

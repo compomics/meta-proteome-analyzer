@@ -9,6 +9,8 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.algorithms.similarity.Transformation;
+import de.mpa.algorithms.similarity.VectorizationFactory;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 
@@ -56,7 +58,7 @@ public class NormalizedDotProductTest extends TestCase {
 	public void testNormalizedDotProduct() {
 		// Set up comparator algorithm
 		NormalizedDotProduct comparator = new NormalizedDotProduct(
-				Vectorization.createDirectBinning(1.0, 0.0),
+				VectorizationFactory.createDirectBinning(1.0, 0.0),
 				Transformation.NONE);
 		// Calculate similarity
 		comparator.prepare(srcPeaks);

@@ -27,7 +27,7 @@ public class TopBarChart extends Chart {
 			this.title = title;
 		}
 		@Override
-		public String getTitle() {
+		public String toString() {
 			return "Top10 " + title;
 		}
 	}
@@ -55,7 +55,7 @@ public class TopBarChart extends Chart {
 	@Override
 	protected void setChart() {
 		TopBarChartType topBarChartType = (TopBarChartType) chartType;
-		chartTitle = topBarChartType.getTitle();
+		chartTitle = topBarChartType.toString();
 		String title = chartTitle.trim().substring(chartTitle.lastIndexOf(' ') + 1);
 		chart = ChartFactory.createBarChart3D(chartTitle, title, "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
 		

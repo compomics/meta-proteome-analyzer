@@ -85,7 +85,7 @@ public class OntologyData implements ChartData {
 	public void init() {
 		// Get the ontology map.
 		if (ontologyMap == null) {
-			ontologyMap = UniprotAccessor.getOntologyMap();
+			ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
 		}
 		
 		// Maps to count the occurrences of each molecular function.

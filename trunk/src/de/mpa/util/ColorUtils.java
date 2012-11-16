@@ -1,6 +1,9 @@
 package de.mpa.util;
 
 import java.awt.Color;
+import java.awt.Paint;
+
+import org.jfree.chart.ChartColor;
 
 public class ColorUtils {
 	
@@ -53,4 +56,53 @@ public class ColorUtils {
 		return Color.getHSBColor(
 				hsbVals[0], hsbVals[1], factor * hsbVals[2]);
 	}
+	
+	/**
+     * Convenience method to return an array of <code>Paint</code> objects that
+     * represent the pre-defined colors in the <code>Color</code> and
+     * <code>ChartColor</code> objects.<p>
+     * Copied from {@link ChartColor}, with a different gray tone.
+     *
+     * @return An array of objects with the <code>Paint</code> interface.
+     */
+    public static Paint[] createDefaultPaintArray() {
+
+        return new Paint[] {
+            new Color(0xFF, 0x55, 0x55),
+            new Color(0x55, 0x55, 0xFF),
+            new Color(0x55, 0xFF, 0x55),
+            new Color(0xFF, 0xFF, 0x55),
+            new Color(0xFF, 0x55, 0xFF),
+            new Color(0x55, 0xFF, 0xFF),
+            Color.PINK,
+            new Color(160, 160, 160),
+            ChartColor.DARK_RED,
+            ChartColor.DARK_BLUE,
+            ChartColor.DARK_GREEN,
+            ChartColor.DARK_YELLOW,
+            ChartColor.DARK_MAGENTA,
+            ChartColor.DARK_CYAN,
+            Color.DARK_GRAY,
+            ChartColor.LIGHT_RED,
+            ChartColor.LIGHT_BLUE,
+            ChartColor.LIGHT_GREEN,
+            ChartColor.LIGHT_YELLOW,
+            ChartColor.LIGHT_MAGENTA,
+            ChartColor.LIGHT_CYAN,
+            Color.LIGHT_GRAY,
+            ChartColor.VERY_DARK_RED,
+            ChartColor.VERY_DARK_BLUE,
+            ChartColor.VERY_DARK_GREEN,
+            ChartColor.VERY_DARK_YELLOW,
+            ChartColor.VERY_DARK_MAGENTA,
+            ChartColor.VERY_DARK_CYAN,
+            ChartColor.VERY_LIGHT_RED,
+            ChartColor.VERY_LIGHT_BLUE,
+            ChartColor.VERY_LIGHT_GREEN,
+            ChartColor.VERY_LIGHT_YELLOW,
+            ChartColor.VERY_LIGHT_MAGENTA,
+            ChartColor.VERY_LIGHT_CYAN
+        };
+    }
+    
 }

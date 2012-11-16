@@ -160,13 +160,17 @@ public class SpecSimResultPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				new SwingWorker() {
 					@Override
-					protected Object doInBackground() throws Exception {
-						// appear busy
-						setBusy(true);
-						// process results
-						refreshProteinTable();
-						// stop appearing busy
-						setBusy(false);
+					protected Object doInBackground() {
+						try {
+							// appear busy
+							setBusy(true);
+							// process results
+							refreshProteinTable();
+							// stop appearing busy
+							setBusy(false);
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
 						return null;
 					}
 				}.execute();
@@ -985,7 +989,7 @@ public class SpecSimResultPanel extends JPanel {
 		
 		JTabbedPane pane = clientFrame.getTabPane();
 		if (tabEnabled == null) {
-			tabEnabled = new boolean[pane.getComponentCount()];
+			tabEnabled = new boolean[pane.getTabCount()];
 			tabEnabled[pane.indexOfComponent(clientFrame.getResultsPanel())] = true;
 		}
 		// Enable/disable tabs

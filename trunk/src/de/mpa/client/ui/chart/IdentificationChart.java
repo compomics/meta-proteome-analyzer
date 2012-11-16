@@ -20,7 +20,7 @@ public class IdentificationChart extends Chart {
 			this.title = title;
 		}
 		@Override
-		public String getTitle() {
+		public String toString() {
 			return title;
 		}
 	}
@@ -45,7 +45,7 @@ public class IdentificationChart extends Chart {
 	@Override
 	protected void setChart() {
 		BarChartType barPlotType = (BarChartType) chartType;
-		String title = barPlotType.getTitle();
+		String title = barPlotType.toString();
 		chartTitle = title + " Bar Chart";
 		chart = ChartFactory.createBarChart(chartTitle, "Search Engines", "No. " + title + "s", categoryDataset, PlotOrientation.VERTICAL, true, true, false);
 		chart.setBackgroundPaint(null);

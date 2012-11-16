@@ -10,8 +10,9 @@ import de.mpa.algorithms.EuclideanDistance;
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.NormalizedDotProduct;
 import de.mpa.algorithms.PearsonCorrelation;
-import de.mpa.algorithms.Transformation;
-import de.mpa.algorithms.Vectorization;
+import de.mpa.algorithms.similarity.Transformation;
+import de.mpa.algorithms.similarity.Vectorization;
+import de.mpa.algorithms.similarity.VectorizationFactory;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
@@ -131,13 +132,13 @@ public class SpecSimJob extends Job {
 		Vectorization vect = null;
 		switch (settings.getVectIndex()) {
 		case 0:
-			vect = Vectorization.createPeakMatching(settings.getBinWidth());
+			vect = VectorizationFactory.createPeakMatching(settings.getBinWidth());
 			break;
 		case 1:
-			vect = Vectorization.createDirectBinning(settings.getBinWidth(), settings.getBinShift());
+			vect = VectorizationFactory.createDirectBinning(settings.getBinWidth(), settings.getBinShift());
 			break;
 		case 2:
-			vect = Vectorization.createProfiling(settings.getBinWidth(), settings.getBinShift(), 
+			vect = VectorizationFactory.createProfiling(settings.getBinWidth(), settings.getBinShift(), 
 					settings.getProfileIndex(), settings.getBaseWidth());
 			break;
 		}

@@ -2,7 +2,7 @@ package de.mpa.interfaces;
 
 import java.util.Map;
 
-import de.mpa.algorithms.Vectorization;
+import de.mpa.algorithms.similarity.Vectorization;
 
 public interface SpectrumComparator {
 	public double getSimilarity();
