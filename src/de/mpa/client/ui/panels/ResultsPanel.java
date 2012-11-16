@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -20,7 +21,7 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -41,6 +42,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
@@ -55,6 +57,10 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
+import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.HyperlinkProvider;
+import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -63,7 +69,6 @@ import org.jfree.chart.plot.PiePlot;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-import uk.ac.ebi.kraken.uuw.services.remoting.RemoteDataAccessException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -94,9 +99,11 @@ import de.mpa.util.ColorUtils;
 public class ResultsPanel extends JPanel {
 	
 	private ClientFrame clientFrame;
+	
 	private DbSearchResultPanel dbPnl;
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
+	
 	private ChartPanel chartPnl;
 	private OntologyData ontologyData;
 	private TaxonomyData taxonomyData;
@@ -278,7 +285,7 @@ public class ResultsPanel extends JPanel {
 	 */
 	private JPanel createChartPanel() {
 		
-		final List<ChartType> chartTypes = new ArrayList<ChartType>(Arrays.asList(new ChartType[] {
+		final ChartType[] chartTypes = new ChartType[] {
 				OntologyChartType.BIOLOGICAL_PROCESS,
 				OntologyChartType.MOLECULAR_FUNCTION,
 				OntologyChartType.CELLULAR_COMPONENT,
@@ -287,7 +294,7 @@ public class ResultsPanel extends JPanel {
 				TaxonomyChartType.CLASS,
 				TaxonomyChartType.SPECIES,
 				TopBarChartType.PROTEINS
-		}));
+		};
 		
 		chartTypeBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
 		chartTypeBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
@@ -309,25 +316,24 @@ public class ResultsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				String title = ((JMenuItem) ae.getSource()).getText();
-				int chartTypeIndex;
-				for (chartTypeIndex = 0; chartTypeIndex < chartTypes.size(); chartTypeIndex++) {
-					if (title.equals(chartTypes.get(chartTypeIndex).getTitle())) {
-						break;
+				ChartType newChartType = null;
+				for (ChartType chartType : chartTypes) {
+					if (title.equals(chartType.toString())) {
+						newChartType = chartType;
 					}
 				}
-				ChartType newChartType = chartTypes.get(chartTypeIndex);
 				if (newChartType != chartType) {
 					// clear details table TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
 					
-					chartType = newChartType;
-					updateOverview(chartTypeIndex, false);
+					updateChart(newChartType);
 				}
 			}
 		};
 		ButtonGroup chartBtnGrp = new ButtonGroup();
-		for (int j = 0; j < chartTypes.size(); j++) {
-			JMenuItem item = new JRadioButtonMenuItem(chartTypes.get(j).getTitle(), (j == 0));
+		int j = 0;
+		for (ChartType chartType : chartTypes) {
+			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
 			chartPop.add(item);
@@ -423,6 +429,8 @@ public class ResultsPanel extends JPanel {
 							// update table if new section got clicked
 							updateDetailsTable(highlightedKey);
 						}
+					} else {
+						TableConfig.clearTable(detailsTbl);
 					}
 					selectedKey = highlightedKey;
 				}
@@ -519,6 +527,24 @@ public class ResultsPanel extends JPanel {
 		});
 		TableConfig.setColumnWidths(detailsTbl, new double[] { 1.0, 3.0, 12.0 });
 		
+		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
+		    public void actionPerformed(ActionEvent ev) {
+		        try {
+		            Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		    }
+		};
+		detailsTbl.getColumn(1).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
+				compLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				return compLabel;
+			}
+		});
+		
 		detailsTbl.setColumnControlVisible(true);
 		detailsTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
@@ -608,27 +634,15 @@ public class ResultsPanel extends JPanel {
 	/**
 	 * Updates the bar plot.
 	 */
-	private void updateCharts(int chartTypeIndex) {
+	private void updateChart(ChartType chartType) {
 		Chart chart = null;
-		switch (chartTypeIndex) {
-		case 0:
-		case 1:
-		case 2:
-			if (ontologyData != null) {
-				chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
-			}
-			break;
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-			if (taxonomyData != null) {
-				chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
-			}
-			break;
-		default:
+		
+		if (chartType instanceof OntologyChartType) {
+			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+		} else if (chartType instanceof TaxonomyChartType) {
+			chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
+		} else {
 			chart = ChartFactory.createTopBarChart(topData, chartType);
-			break;
 		}
 		
 		if (chart != null) {
@@ -641,91 +655,81 @@ public class ResultsPanel extends JPanel {
 			}
 			chartPnl.setChart(chart.getChart());
 		}
+		
+		this.chartType = chartType;
 	}
 
 	protected void updateOverview(boolean refresh) {
-		updateOverview(0, refresh);
-	}
-	
-	protected void updateOverview(int chartTypeIndex, boolean refresh) {
-		UpdateTask ut = new UpdateTask(chartTypeIndex, refresh);
-		ut.execute();
+		new UpdateTask(refresh).execute();
 	}
 	
 	private class UpdateTask extends SwingWorker {
-		private int chartTypeIndex;
 		private boolean refresh;
 		
-		public UpdateTask(int chartTypeIndex, boolean refresh) {
-			this.chartTypeIndex = chartTypeIndex;
+		public UpdateTask(boolean refresh) {
 			this.refresh = refresh;
 		}
 		
 		protected Object doInBackground() {
 			DbSearchResult dbSearchResult = null;
-			try {
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				// Fetch the database search result.
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			// Fetch the database search result.
+			if (refresh) {
 				try {
-					if (refresh) {
-						dbSearchResult = Client.getInstance().getDbSearchResult();
+					dbSearchResult = Client.getInstance().getDbSearchResult();
 
-						Set<String> speciesNames = new HashSet<String>();
-						Set<String> ecNumbers = new HashSet<String>();
-						Set<String> kNumbers = new HashSet<String>();
-						for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
-							speciesNames.add(ph.getSpecies());
-							ecNumbers.addAll(ph.getUniprotEntry().getProteinDescription().getEcNumbers());
-							for (DatabaseCrossReference xref : 
-								ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
-							}
+					Set<String> speciesNames = new HashSet<String>();
+					Set<String> ecNumbers = new HashSet<String>();
+					Set<String> kNumbers = new HashSet<String>();
+					for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+						speciesNames.add(ph.getSpecies());
+						ecNumbers.addAll(ph.getUniprotEntry().getProteinDescription().getEcNumbers());
+						for (DatabaseCrossReference xref : 
+							ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
 						}
-						Set<Short> pathwayIDs = new HashSet<Short>();
-						for (String ec : ecNumbers) {
-							List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-							if (pathwaysByEC != null) {
-								pathwayIDs.addAll(pathwaysByEC);
-							}
-						}
-						for (String ko : kNumbers) {
-							List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
-							if (pathwaysByKO != null) {
-								pathwayIDs.addAll(pathwaysByKO);
-							}
-						}
-
-						totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-						identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-						totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-						uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-						totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-						specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
-						speciesLbl.setText("" + speciesNames.size());
-						enzymesLbl.setText("" + ecNumbers.size());
-						pathwaysLbl.setText("" + pathwayIDs.size());
-						
-						ontologyData = new OntologyData(dbSearchResult);
-						taxonomyData = new TaxonomyData(dbSearchResult);
-						topData = new TopData(dbSearchResult);
 					}
-					finished();
-				} catch (RemoteDataAccessException e) {
+					Set<Short> pathwayIDs = new HashSet<Short>();
+					for (String ec : ecNumbers) {
+						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+						if (pathwaysByEC != null) {
+							pathwayIDs.addAll(pathwaysByEC);
+						}
+					}
+					for (String ko : kNumbers) {
+						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+						if (pathwaysByKO != null) {
+							pathwayIDs.addAll(pathwaysByKO);
+						}
+					}
+
+					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+					totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
+					uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+					specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
+					speciesLbl.setText("" + speciesNames.size());
+					enzymesLbl.setText("" + ecNumbers.size());
+					pathwaysLbl.setText("" + pathwayIDs.size());
+					
+					ontologyData = new OntologyData(dbSearchResult);
+					taxonomyData = new TaxonomyData(dbSearchResult);
+					topData = new TopData(dbSearchResult);
+
+					updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			return 0;
 		}
-
-		/**
-		 * Continues when the results retrieval has finished.
-		 */
-		private void finished() {
-			updateCharts(chartTypeIndex);
+		
+		@Override
+		protected void done() {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
+		
 	}
 	
 	/**

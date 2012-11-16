@@ -3,6 +3,8 @@ package de.mpa.algorithms;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.mpa.algorithms.similarity.Transformation;
+import de.mpa.algorithms.similarity.Vectorization;
 import de.mpa.interfaces.SpectrumComparator;
 
 public class EuclideanDistance implements SpectrumComparator {

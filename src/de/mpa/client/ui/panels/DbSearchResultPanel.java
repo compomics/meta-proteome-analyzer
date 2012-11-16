@@ -39,9 +39,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
 
@@ -71,12 +71,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -92,20 +92,16 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
@@ -113,9 +109,9 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -176,9 +172,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
@@ -270,6 +266,9 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private SortableCheckBoxTreeTable protEnzymeTreeTbl;
 
+	/**
+	 * Tree table displaying proteins hierarchically by their KEGG pathway.
+	 */
 	private SortableCheckBoxTreeTable protPathwayTreeTbl;
 	
 	/**
@@ -283,17 +282,10 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private boolean synching = false;
 
-//	/**
-//	 * Combo box for choosing which hierarchical protein view to display.
-//	 */
-//	private JComboBox hierarchyCbx;
-	
 	/**
 	 * The button to query database results and refresh detail views.
 	 */
 	private JButton getResultsBtn;
-	
-//	private JButton getResultsFromFileBtn;
 	
 	/**
 	 * The parent results panel.
@@ -301,10 +293,6 @@ public class DbSearchResultPanel extends JPanel {
 	private ResultsPanel parent;
 
 	private ProtCHighlighterPredicate protCHighlightPredicate;
-
-	private JXTree robsTaxTree;
-
-	private JScrollPane robsTaxTreeScpn;
 
 	protected File selectedFile;
 	
@@ -428,7 +416,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		getResultsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getResultsButtonPressed();
+				new ResultsTask(null).execute();
 			}
 		});
 		getResultsBtn.setEnabled(false);
@@ -455,7 +443,7 @@ public class DbSearchResultPanel extends JPanel {
 				int returnValue = chooser.showOpenDialog(clientFrame);
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = chooser.getSelectedFile();
-					getResultsFromFile(selectedFile);
+					new ResultsTask(selectedFile).execute();
 				}
 			}
 		});
@@ -720,33 +708,53 @@ public class DbSearchResultPanel extends JPanel {
 	}
 	
 	/**
-	 * Method to get the dbSearchResult from the database
-	 */
-	protected void getResultsButtonPressed() {
-		ResultsTask resultsTask = new ResultsTask();
-		resultsTask.execute();
-	}
-	
-	/**
-	 * Class to get dbSearchResult from the database in the Background
-	 * @author R. Heyer
+	 * Class to fetch protein database search results in a background thread.
+	 * It's possible to fetch from the remote SQL database or from a local file instance.
+	 * 
+	 * @author A. Behne, R. Heyer
 	 */
 	private class ResultsTask extends SwingWorker {
+		
+		/**
+		 * The file object reference for when file-based results shall be read.
+		 */
+		private File file;
 
+		/**
+		 * Constructs a task instance.
+		 * @param file
+		 *	the file instance from which results shall be fetched. If
+		 *	<code>null</code> the results will be fetched from the SQL
+		 *	database.
+		 */
+		public ResultsTask(File file) {
+			this.file = file;
+		}
+
+		@Override
 		protected Object doInBackground() {
 			try {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				// Fetch the database search result.
-				DbSearchResult newResult = Client.getInstance().getDbSearchResult(
-						clientFrame.getProjectPanel().getCurrentProjectContent(), 
-						clientFrame.getProjectPanel().getCurrentExperimentContent());
+				
+				// Fetch the database search result object
+				DbSearchResult newResult;
+				if (file == null) {
+					newResult = Client.getInstance().getDbSearchResult(
+							clientFrame.getProjectPanel().getCurrentProjectContent(), 
+							clientFrame.getProjectPanel().getCurrentExperimentContent());
+				} else {
+					ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
+							new GZIPInputStream(new FileInputStream(file))));
+					newResult = (DbSearchResult) ois.readObject();
+					ois.close();
+				}
 				
 				if (!newResult.equals(dbSearchResult)) {
 					if (!newResult.isEmpty()) {
 						// Retrieve UniProt data
 						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 						Client.getInstance().firePropertyChange("indeterminate", false, true);
-						UniprotAccessor.retrieveUniprotEntries(newResult);
+						UniprotAccessor.retrieveUniProtEntries(newResult);
 						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 						Client.getInstance().firePropertyChange("indeterminate", true, false);
 					}
@@ -793,91 +801,30 @@ public class DbSearchResultPanel extends JPanel {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			} finally {
-				finished();
 			}
 			return 0;
 		}
-	}
+		
+		@Override
+		protected void done() {
+			// TODO: ADD search engine from runtable
+			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+			dbSearchResult.setSearchEngines(searchEngines);
 
-	/**
-	 * Get dbSearchResult from a local file
-	 * @param selectedFile
-	 */
-	protected void getResultsFromFile(File selectedFile) {
-		ResultsFromFileTask resultsTask = new ResultsFromFileTask(selectedFile);
-		resultsTask.execute();
-	}
-
-	/**
-	 * Class to get dbsearchRsultObject from a local file
-	 * @author R. Heyer
-	 *
-	 */
-	private class ResultsFromFileTask extends SwingWorker {
-
-		private File selFile;
-
-		/**
-		 * Constructor for the selected file
-		 * @param selectedFile
-		 */
-		public ResultsFromFileTask(File selectedFile) {
-			this.selFile = selectedFile;
-		}
-
-		protected Object doInBackground() throws Exception {
 			try {
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				// Get the database search result from the local file.
-				// ReadData
-				FileInputStream fis = new FileInputStream(selFile);
-				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(fis)));
-				DbSearchResult newResult = (DbSearchResult) ois.readObject();
-				ois.close();
+				refreshProteinTables();
 
-				// Retrieve UniProt data
-				// TODO: make UniProt query optional
-				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-				Client.getInstance().firePropertyChange("indeterminate", false, true);
-				UniprotAccessor.retrieveUniprotEntries(newResult);
-				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
-				dbSearchResult = newResult;
-				Client.getInstance().setDbSearchResult(dbSearchResult);
-				parent.updateOverview(true);
+				// Enable export functionality
+				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+
+				// Enable Save Project functionality
+				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					
+				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();
-			} finally {
-				finished();
-				
 			}
-			return 0;
-		}
-	}
-	/**
-	 * Continues when the results retrieval has finished.
-	 */
-	public void finished() {
-		// TODO: ADD search engine from runtable
-		List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-		dbSearchResult.setSearchEngines(searchEngines);
-
-		try {
-			refreshProteinTables();
-
-			// Enable export functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-//			// Enable pathway functionality
-//			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setPathwayFunctionalityEnabled(true);
-
-			// Enable Save Project functionalty
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
-				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-				
-			clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

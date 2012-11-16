@@ -1,6 +1,7 @@
 package de.mpa.analysis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,30 +26,30 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 public class UniprotAccessor {
 	
 	/**
-	 * UniProt Query Service. 
+	 * The shared UniProt query service instance. 
 	 */
 	private static UniProtQueryService uniProtQueryService;
 	
 	/**
-	 * KeywordOntology enumeration.
+	 * Enumeration holding ontology keywords.
 	 */
 	public enum KeywordOntology {
 		BIOLOGICAL_PROCESS, CELLULAR_COMPONENT, MOLECULAR_FUNCTION
 	}
 	
 	/**
-	 * TaxonomyRank enumation.
+	 * Enumeration holding taxonomic ranks.
 	 */
 	public enum TaxonomyRank {
 		KINGDOM, PHYLUM, CLASS, SPECIES 
 	}
-	
+
 	/**
-	 * Retrieve a list of protein entries which hold protein hits and UniProt entries.
-	 * @param dbSearchResult The database search result.
-	 * @return List of ProteinEntry objects.
+	 * Queries UniProt entries from protein accessions stored in the specified
+	 * result object and appends them to the respective protein hits.
+	 * @param dbSearchResult The result object.
 	 */
-	public static void retrieveUniprotEntries(DbSearchResult dbSearchResult) throws RemoteDataAccessException {
+	public static void retrieveUniProtEntries(DbSearchResult dbSearchResult) throws RemoteDataAccessException {
 		
 		// Check whether UniProt query service has been established yet.
 		if (uniProtQueryService == null) {
@@ -73,7 +74,13 @@ public class UniprotAccessor {
 		}
 		addUniProtEntries(accList, proteinHits);
 	}
-	
+
+	/**
+	 * Convenience method to query UniProt entries from a list of accession
+	 * strings and link them to their respective protein hits.
+	 * @param accList The list of accession strings.
+	 * @param proteinHits The map of protein hits identified by their accession.
+	 */
 	private static void addUniProtEntries(List<String> accList, Map<String, ProteinHit> proteinHits) {
 		Query query = UniProtQueryBuilder.buildIDListQuery(accList);
 		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
@@ -102,20 +109,20 @@ public class UniprotAccessor {
 	}
 	
 	/**
-	 * Returns the Uniprot keyword taxonomy map.
-	 * @return The Uniprot keyword taxonomy map.
+	 * The UniProt keyword taxonomy map.
 	 */
-	public static Map<String, TaxonomyRank> getTaxonomyMap() {
+	public static final Map<String, TaxonomyRank> TAXONOMY_MAP;
+	static {
 		Map<String, TaxonomyRank> map = new HashMap<String, TaxonomyRank>();
 		
-		// (SUPER)-KINGDOMS
+		// (Super-)Kingdoms
 		map.put("Viruses", TaxonomyRank.KINGDOM);
 		map.put("Viroids", TaxonomyRank.KINGDOM);
 		map.put("Archaea", TaxonomyRank.KINGDOM);
 		map.put("Bacteria", TaxonomyRank.KINGDOM);
 		map.put("Eukaryota", TaxonomyRank.KINGDOM);
 		
-		// CLASSES
+		// Classes
 		map.put("Thermoprotei", TaxonomyRank.CLASS);
 		map.put("Archaeoglobi", TaxonomyRank.CLASS);
 		map.put("Halobacteria", TaxonomyRank.CLASS);
@@ -178,8 +185,6 @@ public class UniprotAccessor {
 		map.put("unclassified Tenericutes", TaxonomyRank.CLASS);
 		map.put("Thermodesulfobacteria", TaxonomyRank.CLASS);
 		map.put("Thermotogae", TaxonomyRank.CLASS);
-		
-		// Eukaryota Class
 		map.put("Asteroidea (starfishes)", TaxonomyRank.CLASS);
 		map.put("Echinoidea (sea urchins)", TaxonomyRank.CLASS);
 		map.put("Cryptophyta", TaxonomyRank.CLASS);
@@ -368,7 +373,7 @@ public class UniprotAccessor {
 		map.put("Ginkgoopsida", TaxonomyRank.CLASS);
 		map.put("Ellipura", TaxonomyRank.CLASS);
 
-		// PHYLA
+		// Phyla
 		map.put("Actinobacteria", TaxonomyRank.PHYLUM);
 		map.put("Aquificae", TaxonomyRank.PHYLUM);
 		map.put("Armatimonadetes", TaxonomyRank.PHYLUM);
@@ -414,7 +419,6 @@ public class UniprotAccessor {
 		map.put("Fornicata", TaxonomyRank.PHYLUM);
 		map.put("Haptophyceae", TaxonomyRank.PHYLUM);
 		map.put("Jakobida", TaxonomyRank.PHYLUM);
-		// Fungi
 		map.put("Blastocladiomycota", TaxonomyRank.PHYLUM);
 		map.put("Chytridiomycota", TaxonomyRank.PHYLUM);
 		map.put("Cryptomycota", TaxonomyRank.PHYLUM);
@@ -465,14 +469,15 @@ public class UniprotAccessor {
 		map.put("unclassified eukaryotes", TaxonomyRank.PHYLUM);
 		map.put("Chlorophyta", TaxonomyRank.PHYLUM);
 		map.put("Streptophyta", TaxonomyRank.PHYLUM);
-		return map;
+		
+		TAXONOMY_MAP = Collections.unmodifiableMap(map);
 	}
 	
 	/**
-	 * Returns the Uniprot keyword ontology map.
-	 * @return The Uniprot keyword ontology map.
+	 * The UniProt keyword ontology map.
 	 */
-	public static Map<String, KeywordOntology> getOntologyMap() {
+	public static final Map<String, KeywordOntology> ONTOLOGY_MAP;
+	static {
 		Map<String, KeywordOntology> map = new HashMap<String, KeywordOntology>();
 		
 		// Molecular functions
@@ -900,6 +905,7 @@ public class UniprotAccessor {
 		map.put("Viral occlusion body", KeywordOntology.CELLULAR_COMPONENT);
 		map.put("Virion", KeywordOntology.CELLULAR_COMPONENT);
 		map.put("VLDL", KeywordOntology.CELLULAR_COMPONENT);
-		return map;
+		
+		ONTOLOGY_MAP = Collections.unmodifiableMap(map);
 	}
 }

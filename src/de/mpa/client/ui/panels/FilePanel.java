@@ -65,12 +65,13 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.HistogramChart;
+import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.HistogramChart.HistChartType;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
+import de.mpa.io.MascotGenericFileReader.LoadMode;
 
 public class FilePanel extends JPanel {
 	
@@ -527,7 +528,7 @@ public class FilePanel extends JPanel {
 				
 				ArrayList<Long> spectrumPositions = new ArrayList<Long>();
 				try {
-					reader = new MascotGenericFileReader(file, MascotGenericFileReader.NONE);
+					reader = new MascotGenericFileReader(file, LoadMode.NONE);
 
 					client.firePropertyChange("resetcur", 0, file.length());
 					

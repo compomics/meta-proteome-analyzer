@@ -3,8 +3,8 @@ package de.mpa.client.ui.chart;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
@@ -76,7 +76,7 @@ public class TaxonomyData implements ChartData {
 	public void init() {
 		// Get the taxonomy map.
 		if (taxonomyMap == null) {
-			taxonomyMap = UniprotAccessor.getTaxonomyMap();
+			taxonomyMap = UniprotAccessor.TAXONOMY_MAP;
 		}
 		
 		// Map to count the occurrences of each molecular function.

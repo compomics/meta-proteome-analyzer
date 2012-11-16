@@ -24,7 +24,7 @@ public class OntologyPieChart extends Chart {
 			this.title = title;
 		}
 		@Override
-		public String getTitle() {
+		public String toString() {
 			return title;
 		}
 	}
@@ -51,7 +51,7 @@ public class OntologyPieChart extends Chart {
 	@Override
 	protected void setChart() {
 		OntologyChartType pieChartType = (OntologyChartType) chartType;
-		chartTitle = pieChartType.getTitle() + " Ontology";
+		chartTitle = pieChartType.toString() + " Ontology";
 		
 		PiePlot3D plot = new PiePlot3DExt(pieDataset, 0.2);
         plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));

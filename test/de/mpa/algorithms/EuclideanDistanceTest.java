@@ -9,6 +9,9 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.algorithms.similarity.Transformation;
+import de.mpa.algorithms.similarity.Vectorization;
+import de.mpa.algorithms.similarity.VectorizationFactory;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 
@@ -31,7 +34,7 @@ public class EuclideanDistanceTest extends TestCase {
 	
 	@Test
 	public void testCrossCorrelation() {
-		Vectorization vect = Vectorization.createDirectBinning(1.0, 0.0);
+		Vectorization vect = VectorizationFactory.createDirectBinning(1.0, 0.0);
 		Transformation trafo = Transformation.SQRT;
 		
 		EuclideanDistance euclidDist = new EuclideanDistance(vect, trafo);

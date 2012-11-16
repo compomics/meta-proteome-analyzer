@@ -13,10 +13,10 @@ import de.mpa.db.extractor.SpectrumExtractorTest;
 import de.mpa.exporter.ExportTest;
 import de.mpa.fastaLoader.TestFastaLoader;
 import de.mpa.fragmentation.FragmentizerTest;
-import de.mpa.io.ParserTest;
 import de.mpa.io.SixtyFourBitStringDecoderTest;
 import de.mpa.io.SixtyFourBitStringEncoderTest;
 import de.mpa.parser.mascot.xml.MascotXMLParserTest;
+import de.mpa.parser.mgf.MascotGenericFileReaderTest;
 
 @RunWith(Suite.class)
 @SuiteClasses( {	CrossCorrelationTest.class,
@@ -26,7 +26,7 @@ import de.mpa.parser.mascot.xml.MascotXMLParserTest;
 					SpectrumExtractorTest.class,
 					ExportTest.class, TestFastaLoader.class,
 					FragmentizerTest.class, 
-					ParserTest.class,
+					MascotGenericFileReaderTest.class,
 					SixtyFourBitStringDecoderTest.class, 
 					SixtyFourBitStringEncoderTest.class,
 					MascotXMLParserTest.class,

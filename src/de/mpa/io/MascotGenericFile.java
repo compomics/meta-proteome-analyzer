@@ -649,7 +649,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         }
 
         bw.write(IONS_END);
-        bw.write("\n");
+        bw.write("\n\n");
 
         bw.flush();
     }

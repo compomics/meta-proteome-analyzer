@@ -24,7 +24,7 @@ public class TaxonomyPieChart extends Chart {
 			this.title = title;
 		}
 		@Override
-		public String getTitle() {
+		public String toString() {
 			return title + " Taxonomy";
 		}
 	}
@@ -51,7 +51,7 @@ public class TaxonomyPieChart extends Chart {
 	@Override
 	protected void setChart() {
 		TaxonomyChartType pieChartType = (TaxonomyChartType) chartType;
-		chartTitle = pieChartType.getTitle();
+		chartTitle = pieChartType.toString();
 		
 		PiePlot3D plot = new PiePlot3DExt(pieDataset, 0.2);
         plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));

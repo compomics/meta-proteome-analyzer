@@ -20,7 +20,7 @@ public class HistogramChart extends Chart {
     	TOTAL_ION_HIST;
 
 		@Override
-		public String getTitle() {
+		public String toString() {
 			return "";
 		}
     }
