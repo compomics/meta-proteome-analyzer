@@ -60,12 +60,13 @@ public class UniprotAccessor {
 		Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
 		List<String> accList = new ArrayList<String>(proteinHits.keySet());
 		// maxClauseCount is set to 1024
-		if (accList.size() > 1024) {
+		int maxClauseCount = 1024;
+		if (accList.size() > maxClauseCount) {
 			List<String> shortList = new ArrayList<String>();
 			
 			for (String acc : accList) {
 				shortList.add(acc);
-				if (shortList.size() % 1024 == 0) {
+				if (shortList.size() % maxClauseCount == 0) {
 					addUniProtEntries(shortList, proteinHits);
 					shortList.clear();
 				}

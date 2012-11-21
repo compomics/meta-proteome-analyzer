@@ -9,15 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
-
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
-import de.mpa.client.ui.ClientFrame;
 
 
 /**
@@ -274,11 +269,11 @@ public class ProteinHit implements Serializable {
 	 * @return The NSAF protein quantification.
 	 */
 	public double getNSAF() {
-		if (nSAF < 0.0) {
-			Exception e = new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first.");
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
+//		if (nSAF < 0.0) {
+//			Exception e = new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first.");
+//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+//		}
 		return nSAF;
 	}
 	

@@ -1,15 +1,10 @@
 package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import de.mpa.client.Client;
-import de.mpa.client.model.SpectrumMatch;
-import de.mpa.io.MascotGenericFile;
 
 /**
  * This class represents the set of proteins which may hold multiple peptides
@@ -280,37 +275,25 @@ public class DbSearchResult implements Serializable {
 		this.searchEngines = searchEngines;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = (obj instanceof DbSearchResult);
-		if (result) {
-			DbSearchResult that = (DbSearchResult) obj;
-			result = this.getProjectTitle().equals(that.getProjectTitle())
-					&& this.getExperimentTitle().equals(
-							that.getExperimentTitle());
-		}
-		return result;
-	}
-
-	/**
-	 * Returns the {@link MascotGenericFile} associated with the specified search spectrum ID.
-	 * @param specID the search spectrum ID.
-	 * @return the spectrum file.
-	 * @throws SQLException
-	 */
-	public MascotGenericFile getMgfFromSearchSpectrumID(long specID)
-			throws SQLException {
-		for (ProteinHit protHit : this.getProteinHitList()) {
-			for (PeptideHit peptide : protHit.getPeptideHitList()) {
-				SpectrumMatch match = peptide.getSpectrumMatch(specID);
-				if (match != null) {
-					return match.getMgf();
-				}
-			}
-		}
-		// fall back to database query 
-		return Client.getInstance().getSpectrumFromSearchSpectrumID(specID);
-	}
+//	/**
+//	 * Returns the {@link MascotGenericFile} associated with the specified search spectrum ID.
+//	 * @param specID the search spectrum ID.
+//	 * @return the spectrum file.
+//	 * @throws SQLException
+//	 */
+//	public MascotGenericFile getMgfFromSearchSpectrumID(long specID)
+//			throws SQLException {
+//		for (ProteinHit protHit : this.getProteinHitList()) {
+//			for (PeptideHit peptide : protHit.getPeptideHitList()) {
+//				SpectrumMatch match = peptide.getSpectrumMatch(specID);
+//				if (match != null) {
+//					return match.getMgf();
+//				}
+//			}
+//		}
+//		// fall back to database query 
+//		return Client.getInstance().getSpectrumFromSearchSpectrumID(specID);
+//	}
 	
 	/**
 	 * Returns the total amount of queried spectra.
@@ -370,6 +353,18 @@ public class DbSearchResult implements Serializable {
 	 */
 	public void setUniquePeptideCount(int uniquePeptides) {
 		this.uniquePeptides = uniquePeptides;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = (obj instanceof DbSearchResult);
+		if (result) {
+			DbSearchResult that = (DbSearchResult) obj;
+			result = this.getProjectTitle().equals(that.getProjectTitle())
+					&& this.getExperimentTitle().equals(
+							that.getExperimentTitle());
+		}
+		return result;
 	}
 
 }
