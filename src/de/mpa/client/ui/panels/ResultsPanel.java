@@ -1,6 +1,5 @@
 package de.mpa.client.ui.panels;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -33,6 +32,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -86,6 +86,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.PiePlot3DExt;
 import de.mpa.client.ui.chart.TaxonomyData;
@@ -100,19 +101,25 @@ public class ResultsPanel extends JPanel {
 	
 	private ClientFrame clientFrame;
 	
+	private MultiSplitLayout msl;
+	
 	private DbSearchResultPanel dbPnl;
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
-	
+
+	private JToggleButton chartTypeBtn;
 	private ChartPanel chartPnl;
+	private JScrollBar chartBar;
+	private JComboBox hierarchyCbx;
+	private double pieChartAngle = 36.0;
+
+	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
 	private OntologyData ontologyData;
 	private TaxonomyData taxonomyData;
-	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
 	private TopData topData;
-	private MultiSplitLayout msl;
-	private JScrollBar chartBar;
-	private JToggleButton chartTypeBtn;
+	
 	private JXTable detailsTbl;
+	
 	private JLabel totalSpecLbl;
 	private JLabel identSpecLbl;
 	private JLabel totalPepLbl;
@@ -225,7 +232,7 @@ public class ResultsPanel extends JPanel {
 		
 		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
 		
-		JPanel generalPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu",
+		JPanel generalPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
 				"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
 		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
 
@@ -311,7 +318,7 @@ public class ResultsPanel extends JPanel {
 		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
 		chartTypeBtn.addMouseListener(ittml);
 		
-		final JPopupMenu chartPop = new JPopupMenu();
+		final JPopupMenu chartTypePop = new JPopupMenu();
 		ActionListener chartListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent ae) {
@@ -336,9 +343,9 @@ public class ResultsPanel extends JPanel {
 			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
-			chartPop.add(item);
+			chartTypePop.add(item);
 		}
-		chartPop.addPopupMenuListener(new PopupMenuListener() {
+		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 				chartTypeBtn.setSelected(false);
 			}
@@ -349,7 +356,7 @@ public class ResultsPanel extends JPanel {
 		chartTypeBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				chartPop.show(chartTypeBtn, 0, chartTypeBtn.getHeight());
+				chartTypePop.show(chartTypeBtn, 0, chartTypeBtn.getHeight());
 			}
 		});
 		
@@ -370,7 +377,7 @@ public class ResultsPanel extends JPanel {
 		
 		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		JPanel chartScrollPnl = new JPanel(new BorderLayout());
+		JPanel chartScrollPnl = new JPanel(new FormLayout("0:g, p, 0:g, r:p", "f:p:g, b:p, 2dlu"));
 		chartScrollPnl.setBorder(new Border() {
 			private Border delegate = BorderFactory.createEtchedBorder();
 			public void paintBorder(Component c, Graphics g, int x, int y, int width,
@@ -384,13 +391,14 @@ public class ResultsPanel extends JPanel {
 				return insets;
 			}
 		});
+		chartScrollPnl.setBackground(Color.WHITE);
 		
 		chartPnl = new ChartPanel(null);
 		chartPnl.setMinimumDrawHeight(144);
 		chartPnl.setMaximumDrawHeight(1440);
 		chartPnl.setMinimumDrawWidth(256);
 		chartPnl.setMaximumDrawWidth(2560);
-		chartPnl.setBackground(Color.WHITE);
+		chartPnl.setOpaque(false);
 		chartPnl.setPreferredSize(new Dimension(256, 144));
 		chartPnl.setMinimumSize(new Dimension(256, 144));
 		
@@ -464,8 +472,8 @@ public class ResultsPanel extends JPanel {
 		};
 		chartPnl.addMouseListener(adapter);
 		chartPnl.addMouseMotionListener(adapter);
-		
-		chartBar = new JScrollBar(JScrollBar.VERTICAL, 39, 0, 0, 360);
+
+		chartBar = new JScrollBar(JScrollBar.VERTICAL, 0, 0, 0, 0);
 		chartBar.setBorder(BorderFactory.createEmptyBorder(-1, 0, -1, -1));
 		chartBar.setBlockIncrement(36);
 		
@@ -474,14 +482,39 @@ public class ResultsPanel extends JPanel {
 				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
 					if (chart.getPlot() instanceof PiePlot) {
-						((PiePlot) chart.getPlot()).setStartAngle(ae.getValue());
+						pieChartAngle = ae.getValue();
+						((PiePlot) chart.getPlot()).setStartAngle(pieChartAngle);
 					}
 				}
 			}
 		});
-		
-		chartScrollPnl.add(chartPnl, BorderLayout.CENTER);
-		chartScrollPnl.add(chartBar, BorderLayout.EAST);
+
+		hierarchyCbx = new JComboBox(new String[] { "Proteins", "Peptides", "Spectra" });
+		hierarchyCbx.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				HierarchyLevel hl = null;
+				switch (((JComboBox) e.getSource()).getSelectedIndex()) {
+				case 0:
+					hl = HierarchyLevel.PROTEIN_LEVEL;
+					break;
+				case 1:
+					hl = HierarchyLevel.PEPTIDE_LEVEL;
+					break;
+				case 2:
+					hl = HierarchyLevel.SPECTRUM_LEVEL;
+				}
+				ontologyData.setHierarchyLevel(hl);
+				taxonomyData.setHierarchyLevel(hl);
+				updateChart(chartType);
+			}
+		});
+		hierarchyCbx.setVisible(false);
+
+		chartScrollPnl.add(hierarchyCbx, CC.xy(2, 2));
+		chartScrollPnl.add(chartPnl, CC.xywh(1, 1, 3, 3));
+		chartScrollPnl.add(chartBar, CC.xywh(4, 1, 1, 3));
 
 		chartMarginPnl.add(chartScrollPnl, CC.xy(2, 2));
 		
@@ -632,7 +665,8 @@ public class ResultsPanel extends JPanel {
 	}
 	
 	/**
-	 * Updates the bar plot.
+	 * Refreshes the chart updating its content reflecting the specified chart type.
+	 * @param chartType the type of chart to be displayed.
 	 */
 	private void updateChart(ChartType chartType) {
 		Chart chart = null;
@@ -647,11 +681,15 @@ public class ResultsPanel extends JPanel {
 		
 		if (chart != null) {
 			if (chart.getChart().getPlot() instanceof PiePlot) {
-//				chartBar.setVisibleAmount(0);
-				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartBar.getValue());
+				chartBar.setMaximum(360);
+				chartBar.setValue((int) pieChartAngle);
+				((PiePlot) chart.getChart().getPlot()).setStartAngle(pieChartAngle);
+				hierarchyCbx.setVisible(true);
 			} else {
-				// TODO: find way to make scroll bar non-interactive (without disabling it) for non-pie charts, similar as its done for tables
-//				chartBar.setVisibleAmount(Integer.MAX_VALUE);
+				double temp = pieChartAngle;
+				chartBar.setMaximum(0);
+				pieChartAngle = temp;
+				hierarchyCbx.setVisible(false);
 			}
 			chartPnl.setChart(chart.getChart());
 		}
@@ -659,74 +697,89 @@ public class ResultsPanel extends JPanel {
 		this.chartType = chartType;
 	}
 
-	protected void updateOverview(boolean refresh) {
-		new UpdateTask(refresh).execute();
+	/**
+	 * Refreshes the overview panel by updating the charts, tables and labels
+	 * containing the various experiment statistics.
+	 */
+	protected void updateOverview() {
+		new UpdateTask().execute();
 	}
-	
+
+	/**
+	 * Worker class to process search results and generate statistics from it in
+	 * a background thread.
+	 * 
+	 * @author T. Muth, A. Behne
+	 */
 	private class UpdateTask extends SwingWorker {
-		private boolean refresh;
-		
-		public UpdateTask(boolean refresh) {
-			this.refresh = refresh;
-		}
 		
 		protected Object doInBackground() {
 			DbSearchResult dbSearchResult = null;
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			// Fetch the database search result.
-			if (refresh) {
-				try {
-					dbSearchResult = Client.getInstance().getDbSearchResult();
+			try {
+				dbSearchResult = Client.getInstance().getDbSearchResult();
 
-					Set<String> speciesNames = new HashSet<String>();
-					Set<String> ecNumbers = new HashSet<String>();
-					Set<String> kNumbers = new HashSet<String>();
-					for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
-						speciesNames.add(ph.getSpecies());
-						ecNumbers.addAll(ph.getUniprotEntry().getProteinDescription().getEcNumbers());
-						for (DatabaseCrossReference xref : 
-							ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
-						}
+				Set<String> speciesNames = new HashSet<String>();
+				Set<String> ecNumbers = new HashSet<String>();
+				Set<String> kNumbers = new HashSet<String>();
+				for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+					speciesNames.add(ph.getSpecies());
+					ecNumbers.addAll(ph.getUniprotEntry().getProteinDescription().getEcNumbers());
+					for (DatabaseCrossReference xref : 
+						ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+						kNumbers.add(((KO) xref).getKOIdentifier().getValue());
 					}
-					Set<Short> pathwayIDs = new HashSet<Short>();
-					for (String ec : ecNumbers) {
-						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-						if (pathwaysByEC != null) {
-							pathwayIDs.addAll(pathwaysByEC);
-						}
-					}
-					for (String ko : kNumbers) {
-						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
-						if (pathwaysByKO != null) {
-							pathwayIDs.addAll(pathwaysByKO);
-						}
-					}
-
-					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-					totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-					uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-					specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
-					speciesLbl.setText("" + speciesNames.size());
-					enzymesLbl.setText("" + ecNumbers.size());
-					pathwaysLbl.setText("" + pathwayIDs.size());
-					
-					ontologyData = new OntologyData(dbSearchResult);
-					taxonomyData = new TaxonomyData(dbSearchResult);
-					topData = new TopData(dbSearchResult);
-
-					updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
+				Set<Short> pathwayIDs = new HashSet<Short>();
+				for (String ec : ecNumbers) {
+					List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+					if (pathwaysByEC != null) {
+						pathwayIDs.addAll(pathwaysByEC);
+					}
+				}
+				for (String ko : kNumbers) {
+					List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+					if (pathwaysByKO != null) {
+						pathwayIDs.addAll(pathwaysByKO);
+					}
+				}
+
+				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
+				uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+				specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
+				speciesLbl.setText("" + speciesNames.size());
+				enzymesLbl.setText("" + ecNumbers.size());
+				pathwaysLbl.setText("" + pathwayIDs.size());
+				
+				HierarchyLevel hl = null;
+				switch (hierarchyCbx.getSelectedIndex()) {
+				case 0:
+					hl = HierarchyLevel.PROTEIN_LEVEL;
+					break;
+				case 1:
+					hl = HierarchyLevel.PEPTIDE_LEVEL;
+					break;
+				case 2:
+					hl = HierarchyLevel.SPECTRUM_LEVEL;
+				}
+				ontologyData = new OntologyData(dbSearchResult, hl);
+				taxonomyData = new TaxonomyData(dbSearchResult, hl);
+				topData = new TopData(dbSearchResult);
+
+				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			return 0;
 		}
 		
 		@Override
 		protected void done() {
+			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 		
@@ -777,7 +830,6 @@ public class ResultsPanel extends JPanel {
 			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
 			g2.fillRect(0, 0, getWidth(), getHeight());
 
-//			if ((totalLbl != null) && (fracLbl != null)) {
 			try {
 				double total = Double.parseDouble(totalLbl.getText());
 				if (total > 0.0) {

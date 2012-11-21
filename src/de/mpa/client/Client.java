@@ -4,25 +4,19 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
+import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
 import javax.imageio.ImageIO;
@@ -42,6 +36,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
@@ -63,6 +58,8 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.extractor.SearchHitExtractor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.MascotGenericFileReader;
+import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.webservice.WSPublisher;
 
 public class Client {
@@ -97,8 +94,6 @@ public class Client {
 	 * Flag denoting whether client is in viewer mode.
 	 */
 	private boolean viewer = false;
-
-	private String filename;
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -410,8 +405,8 @@ public class Client {
 			dbSearchResult.setTotalSpectrumCount(
 					Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn));
 
-			Set<Long> searchSpectrumIDs = new HashSet<Long>();
-			Set<String> peptideSequences = new HashSet<String>();
+			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
+			Set<String> peptideSequences = new TreeSet<String>();
 			int totalPeptides = 0;
 //			int modifiedPeptides = 0;
 			
@@ -508,7 +503,7 @@ public class Client {
 	 * @return The corresponding spectrum file object.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {
+	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromSearchSpectrumID(searchspectrumID);
 	}
@@ -519,7 +514,7 @@ public class Client {
 	 * @return The corresponding spectrum file object.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumFromTitle(String title) throws SQLException {
+	public MascotGenericFile getSpectrumByTitle(String title) throws SQLException {
 		initDBConnection();
 		return Spectrum.getSpectrumFileFromTitle(title, conn);
 	}
@@ -530,9 +525,28 @@ public class Client {
 	 * @return The corresponding spectrum file object.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumFromLibSpectrumID(long libspectrumID) throws SQLException {
+	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
 		initDBConnection();
 		return new SpectrumExtractor(conn).getSpectrumFromLibSpectrumID(libspectrumID);
+	}
+
+	/**
+	 * Convenience method to read a spectrum from the MGF file in the specified
+	 * path at the specified byte position.
+	 * @param pathname The pathname string pointing to the desired file.
+	 * @param indexPos The byte position of the spectrum in the desired file.
+	 * @return the desired spectrum
+	 */
+	public MascotGenericFile readSpectrumFromFile(String pathname, Long indexPos) {
+		MascotGenericFile mgf = null;
+		try {
+			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
+			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
+			mgf = reader.loadNthSpectrum(0, indexPos);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return mgf;
 	}
 
 	/**
@@ -645,8 +659,9 @@ public class Client {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public Connection getConnection() throws SQLException{
-		if(conn == null) initDBConnection();
+	public Connection getConnection() throws SQLException {
+		if (conn == null)
+			initDBConnection();
 		return conn;
 	}
 
@@ -718,80 +733,45 @@ public class Client {
 	 * Writes the current database search result object to a the specified file.
 	 * @param filename The String representing the desired file path and name.
 	 */
-	public void writeDbSearchResultToFile(String filename, DbSearchResult dbSearchResult) {
-		this.dbSearchResult = dbSearchResult;
-		this.filename		= filename;
-		System.out.println(filename);
-		writeDbSearchResultToFile(filename);
-	}
-
-	/**
-	 * Writes the current database search result object to a the specified file.
-	 * @param filename The String representing the desired file path and name.
-	 */
 	public void writeDbSearchResultToFile(String filename) {
-		List<ProteinHit> proteinHitList = dbSearchResult.getProteinHitList();
+		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
 
-		// prepare result object for export by iterating spectrum matches and adding spectrum files to them
-		firePropertyChange("new message", null, "INSERTING SPECTRA INTO RESULT OBJECT");
-		firePropertyChange("resetall", -1L, (long) proteinHitList.size());
-		firePropertyChange("resetcur", -1L, (long) proteinHitList.size());
-
-		// Save as mgf
-		String mgfFilename = filename.substring(0, filename.indexOf('.'));
-		try{
-			FileWriter fwMgf 			= new FileWriter(new File(mgfFilename + ".mgf"));
-			BufferedWriter  bwMgf		= new BufferedWriter(fwMgf);
-			int line					= 0;
-			for (ProteinHit protHit : proteinHitList) {
-				for (PeptideHit peptideHit : protHit.getPeptideHitList()) {
-					for (SpectrumMatch specMatch: peptideHit.getSpectrumMatches()) {
-						long searchSpectrumID = specMatch.getSearchSpectrumID();
-						try {
-							MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(searchSpectrumID);
-							if (mgf != null) {
-
-								// Save the mgf
-								line++; bwMgf.write("<Begin Ions>" + "\n");
-								specMatch.setIndexLine(line);
-								line++; bwMgf.write(	mgf.getTitle() 		+ "\n");
-								line++; bwMgf.write(	mgf.getCharge() 	+ "\n");
-								double precursorMZ = mgf.getPrecursorMZ();
-								line++; bwMgf.write(	precursorMZ+ "\n");
-								double intensity = mgf.getIntensity();
-								line++; bwMgf.write( intensity + "\n");
-								HashMap<Double, Double> peaks = mgf.getPeaks();// masses + intensities
-								for (Entry<Double, Double> entry : peaks.entrySet()) {
-									line++; bwMgf.write(new String(entry.getKey() +"\t" + entry.getValue()) + "\n");
-								}	
-								line++; line++; bwMgf.write("<End Ions>" + "\n" + "\n");
-							}
-							//						specMatch.setMgf(mgf);
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-					}
-				}
+		// Dump referenced spectra to separate MGF
+		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+		String status = "FINISHED";
+		try {
+			String prefix = filename.substring(0, filename.indexOf('.'));
+			File mgfFile = new File(prefix + ".mgf");
+			FileOutputStream fos = new FileOutputStream(mgfFile);
+			for (SpectrumMatch spectrumMatch : spectrumMatches) {
+				spectrumMatch.setIndexPosition(mgfFile.length());
+				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(
+						spectrumMatch.getSearchSpectrumID());
+				mgf.writeToStream(fos);
 				firePropertyChange("progressmade", false, true);
 			}
-			bwMgf.flush();
-			bwMgf.close();
-		}catch(Exception e1){
-			e1.printStackTrace();
+			fos.flush();
+			fos.close();
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
 		}
-		firePropertyChange("new message", null, "INSERTING SPECTRA INTO RESULT OBJECT FINISHED");
-		String status;
+		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+		
+		// Dump results object to file
 		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+		status = "FINISHED";
 		try {
 			firePropertyChange("indeterminate", false, true);
-			// dump to file
-			FileOutputStream fos = new FileOutputStream(new File(filename));
 			// store as compressed binary object
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(fos)));
+			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
+					new GZIPOutputStream(new FileOutputStream(new File(filename)))));
 			oos.writeObject(dbSearchResult);
 			oos.flush();
 			oos.close();
-			status = "FINISHED";
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -801,36 +781,4 @@ public class Client {
 		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 
-	/**
-	 *  This method gets an mgf from the mgf File.
-	 * @param filepath
-	 * @param lineNumber
-	 * @return returns a certain mgf, defined by the line in the mgf.
-	 */
-	public MascotGenericFile readMgf(String filepath, Long lineNumber){
-		MascotGenericFile mgf = null;
-		String line = "";
-		try {
-			FileReader fr = new FileReader(new File(filepath));
-			BufferedReader br = new BufferedReader(fr);
-			line = null;
-			for (int i = 0; i < lineNumber; i++) {
-				line = br.readLine();
-			}
-			// Start to create new mgf
-			String title =br.readLine();
-			int charge = Integer.valueOf(br.readLine());
-			double precursor = Double.valueOf(br.readLine());
-			double intensity = Double.valueOf(br.readLine());
-			HashMap<Double, Double> peaks = new HashMap<Double, Double>();// masses + intensities
-			while (!(line = br.readLine()).contains("<End Ions>")) {
-				peaks.put(Double.valueOf(line.split("\t")[0]), Double.valueOf(line.split("\t")[1]));
-			}
-			mgf = new MascotGenericFile("", title, peaks, precursor, charge);
-			mgf.setIntensity(intensity);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return mgf;
-	}
 }

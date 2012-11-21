@@ -43,11 +43,6 @@ public class OntologyData implements ChartData {
 	private Map<String, ProteinHitList> cellCompOccMap;
 	
 	/**
-	 * The ontology map.
-	 */
-	private Map<String, KeywordOntology> ontologyMap;
-	
-	/**
 	 * The database search result.
 	 */
 	private DbSearchResult dbSearchResult;
@@ -60,36 +55,44 @@ public class OntologyData implements ChartData {
 	/**
 	 * The hierarchy level (protein, peptide or spectrum).
 	 */
-	// TODO: make proper use of this field (getters, setters, GUI components)
-	private HierarchyLevel hierarchyLevel = HierarchyLevel.PROTEIN_LEVEL;
+	private HierarchyLevel hierarchyLevel;
 	
 	/**
 	 * Empty default constructor.
 	 */
 	public OntologyData() {
 	}
-	
+
 	/**
-	 * OntologyData constructor taking the database seach result 
-	 * @param dbSearchResult The database search result.
+	 * Constructs ontology data from a database search result object using the
+	 * default protein hierarchy level.
+	 * @param dbSearchResult The database search result object.
 	 */
 	public OntologyData(DbSearchResult dbSearchResult) {
+		this(dbSearchResult, HierarchyLevel.PROTEIN_LEVEL);
+	}
+	
+	/**
+	 * Constructs ontology data from a database search result object and the 
+	 * specified hierarchy level.
+	 * @param dbSearchResult The database search result object.
+	 * @param hierarchyLevel The hierarchy level, one of <code>PROTEIN_LEVEL</code>, 
+	 * <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>.
+	 */
+	public OntologyData(DbSearchResult dbSearchResult, HierarchyLevel hierarchyLevel) {
 		this.dbSearchResult = dbSearchResult;
+		this.hierarchyLevel = hierarchyLevel;
 		init();
 	}
 
 	/**
-	 * This method sets up the ontologies.
-	 * @param dbSearchResult Database search result data.
+	 * Sets up the ontologies.
 	 */
 	public void init() {
 		// Get the ontology map.
-		if (ontologyMap == null) {
-			ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
-		}
+		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
 		
 		// Maps to count the occurrences of each molecular function.
-//		clear();
 		biolProcessOccMap = new HashMap<String, ProteinHitList>();
 		cellCompOccMap = new HashMap<String, ProteinHitList>();
 		molFunctionOccMap = new HashMap<String, ProteinHitList>();
@@ -103,7 +106,6 @@ public class OntologyData implements ChartData {
 				for (Keyword kw : keywords) {
 					String keyword = kw.getValue();
 					if (ontologyMap.containsKey(keyword)) {
-						//TODO: Do the calculation on spectral level.
 						KeywordOntology kwOntology = ontologyMap.get(keyword);
 						switch (kwOntology) {
 						case BIOLOGICAL_PROCESS:
@@ -120,7 +122,7 @@ public class OntologyData implements ChartData {
 				}
 			}
 		}
-		// TODO: maybe merge pairs whose values are identical but differ in their key(word)s?
+		// TODO: maybe merge pairs whose values are identical but differ in their key(word)s? E.g. 
 	}
 	
 	/**
@@ -233,16 +235,17 @@ public class OntologyData implements ChartData {
 	public void setChartType(ChartType chartType) {
 		this.chartType = chartType;
 	}
-	
+
 	/**
-	 * Clears the occurrences map. 
+	 * Sets the hierarchy level of the occurrences to be returned. Either one of
+	 * <code>PROTEIN_LEVEL</code>, <code>PEPTIDE_LEVEL</code> or
+	 * <code>SPECTRUM_LEVEL</code>
+	 * @param hierarchyLevel the hierarchy level
 	 */
-	public void clear() {
-		if (biolProcessOccMap != null) biolProcessOccMap.clear();
-		if (molFunctionOccMap != null) molFunctionOccMap.clear();
-		if (cellCompOccMap != null) cellCompOccMap.clear();
+	public void setHierarchyLevel(HierarchyLevel hierarchyLevel) {
+		this.hierarchyLevel = hierarchyLevel;
 	}
-	
+
 	/**
 	 * Sets up the default maps.
 	 * @param defaultMap
@@ -252,4 +255,5 @@ public class OntologyData implements ChartData {
 		this.cellCompOccMap = defaultMap;
 		this.molFunctionOccMap = defaultMap;
 	}
+	
 }

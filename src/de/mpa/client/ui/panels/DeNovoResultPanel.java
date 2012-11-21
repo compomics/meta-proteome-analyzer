@@ -304,7 +304,7 @@ public class DeNovoResultPanel extends JPanel {
         	// TODO: Exception handling!
         	String title = (String) spectraTbl.getValueAt(row, spectraTbl.convertColumnIndexToView(1));
         	try {
-				mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(denovoSearchResult.getSpectrumIdfromTitle(title));
+				mgf = Client.getInstance().getSpectrumBySearchSpectrumID(denovoSearchResult.getSpectrumIdfromTitle(title));
 				// convert the spectrum
 	            ArrayList<Charge> precursorCharges = new ArrayList<Charge>();
 	            precursorCharges.add(new Charge(mgf.getCharge(), Charge.PLUS));

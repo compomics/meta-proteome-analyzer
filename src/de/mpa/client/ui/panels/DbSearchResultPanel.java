@@ -131,8 +131,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
-import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
@@ -155,7 +153,6 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -187,7 +184,6 @@ import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
-import de.mpa.taxonomy.NcbiTaxonomy;
 import de.mpa.taxonomy.TaxonNode;
 import de.mpa.util.ColorUtils;
 
@@ -294,7 +290,7 @@ public class DbSearchResultPanel extends JPanel {
 
 	private ProtCHighlighterPredicate protCHighlightPredicate;
 
-	protected File selectedFile;
+	protected File importFile;
 	
 	/**
 	 * Constructor for a database results panel.
@@ -442,8 +438,8 @@ public class DbSearchResultPanel extends JPanel {
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				int returnValue = chooser.showOpenDialog(clientFrame);
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = chooser.getSelectedFile();
-					new ResultsTask(selectedFile).execute();
+					importFile = chooser.getSelectedFile();
+					new ResultsTask(importFile).execute();
 				}
 			}
 		});
@@ -738,66 +734,94 @@ public class DbSearchResultPanel extends JPanel {
 				
 				// Fetch the database search result object
 				DbSearchResult newResult;
+				Client client = Client.getInstance();
 				if (file == null) {
-					newResult = Client.getInstance().getDbSearchResult(
+					newResult = client.getDbSearchResult(
 							clientFrame.getProjectPanel().getCurrentProjectContent(), 
 							clientFrame.getProjectPanel().getCurrentExperimentContent());
 				} else {
+					client.firePropertyChange("new message", null, "READING RESULTS FILE");
+					client.firePropertyChange("resetall", 0L, 100L);
+					client.firePropertyChange("indeterminate", false, true);
 					ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
 							new GZIPInputStream(new FileInputStream(file))));
 					newResult = (DbSearchResult) ois.readObject();
 					ois.close();
+					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
+					client.firePropertyChange("indeterminate", true, false);
 				}
 				
 				if (!newResult.equals(dbSearchResult)) {
-					if (!newResult.isEmpty()) {
+					if (!newResult.isEmpty() && !client.isViewer()) {
 						// Retrieve UniProt data
-						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-						Client.getInstance().firePropertyChange("indeterminate", false, true);
+						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
+						client.firePropertyChange("indeterminate", false, true);
 						UniprotAccessor.retrieveUniProtEntries(newResult);
-						Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
-						Client.getInstance().firePropertyChange("indeterminate", true, false);
-					}
-					
-					// Get all distinct peptides from result object
-					Set<PeptideHit> peptideSet = ((ProteinHitList) newResult.getProteinHitList()).getPeptideSet();
-					for (PeptideHit peptideHit : peptideSet) {
-						// Build taxon node list
-						List<TaxonNode> taxList = new ArrayList<TaxonNode>();
-						for (ProteinHit protHit : peptideHit.getProteinList()) {
-							UniProtEntry uniprotEntry = protHit.getUniprotEntry();
-							if (uniprotEntry != null) {
-								List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
-								int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
-								TaxonNode taxonNode = NcbiTaxonomy.getInstance().getLeafMap().get(taxId);
-								// For case that taxId is not a leaf
-								if (taxonNode == null) {
-									Enumeration dfe = NcbiTaxonomy.getInstance().getRootNode().depthFirstEnumeration();
-									while (dfe.hasMoreElements()) {
-										TaxonNode node = (TaxonNode) dfe.nextElement();
-										if (node.getTaxId() == taxId) {
-											taxonNode = node;
-										}
-									}
-								}
-								taxList.add(taxonNode);
-
-								// Find common ancestor of all taxon nodes in list
-								TaxonNode ancestor = taxList.get(0);
-								for (int i = 1; i < taxList.size(); i++) {
-									ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
-								}
-								// Set peptide hit's common taxonomy ancestor
-								peptideHit.setTaxonNode(ancestor);
-							} else {
-								System.out.println(protHit.getAccession() + " | " + protHit.getDescription());
-								peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
-							}
-						}
+						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
+						client.firePropertyChange("indeterminate", true, false);
+						
+//						// Get all distinct peptides from result object
+//						Set<PeptideHit> peptideSet = ((ProteinHitList) newResult.getProteinHitList()).getPeptideSet();
+//						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
+//						Client.getInstance().firePropertyChange("resetall", -1L, (long) peptideSet.size());
+//						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+//						for (PeptideHit peptideHit : peptideSet) {
+//							// Build taxon node list
+//							List<TaxonNode> taxList = new ArrayList<TaxonNode>();
+//							for (ProteinHit protHit : peptideHit.getProteinList()) {
+//								UniProtEntry uniprotEntry = protHit.getUniprotEntry();
+//								if (uniprotEntry != null) {
+//									List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
+//									int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
+//									TaxonNode taxonNode = NcbiTaxonomy.getInstance().getLeafMap().get(taxId);
+//									// For case that taxId is not a leaf
+//									if (taxonNode == null) {
+//										Enumeration dfe = NcbiTaxonomy.getInstance().getRootNode().depthFirstEnumeration();
+//										while (dfe.hasMoreElements()) {
+//											TaxonNode node = (TaxonNode) dfe.nextElement();
+//											if (node.getTaxId() == taxId) {
+//												taxonNode = node;
+//											}
+//										}
+//									}
+//									taxList.add(taxonNode);
+	//
+//									// Find common ancestor of all taxon nodes in list
+//									TaxonNode ancestor = taxList.get(0);
+//									for (int i = 1; i < taxList.size(); i++) {
+//										ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
+//									}
+//									// Set peptide hit's common taxonomy ancestor
+//									peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
+//								} else {
+//									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
+//									peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
+//								}
+//							}
+//							Client.getInstance().firePropertyChange("progressmade", false, true);
+//						}
+//						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 					}
 					 
 					dbSearchResult = newResult;
-					parent.updateOverview(true);
+					client.setDbSearchResult(newResult);
+					parent.updateOverview();
+
+					// TODO: ADD search engine from runtable
+					List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+					dbSearchResult.setSearchEngines(searchEngines);
+					
+					// Populate tables
+					refreshProteinTables();
+
+					// Enable export functionality
+					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+
+					// Enable Save Project functionality
+					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+						setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						
+					clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -805,27 +829,27 @@ public class DbSearchResultPanel extends JPanel {
 			return 0;
 		}
 		
-		@Override
-		protected void done() {
-			// TODO: ADD search engine from runtable
-			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-			dbSearchResult.setSearchEngines(searchEngines);
-
-			try {
-				refreshProteinTables();
-
-				// Enable export functionality
-				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-
-				// Enable Save Project functionality
-				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
-					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					
-				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+//		@Override
+//		protected void done() {
+//			// TODO: ADD search engine from runtable
+//			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+//			dbSearchResult.setSearchEngines(searchEngines);
+//
+//			try {
+//				refreshProteinTables();
+//
+//				// Enable export functionality
+//				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+//
+//				// Enable Save Project functionality
+//				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+//					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+//					
+//				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 
@@ -1605,6 +1629,8 @@ public class DbSearchResultPanel extends JPanel {
 				ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
 		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
 		
+		((TableColumnExt) tcm.getColumn(PEP_TAXONOMY)).setVisible(false);
+		
 		// Make table always sort primarily by selection state of selection column
 		final SortKey selKey = new SortKey(PEP_SELECTION, SortOrder.DESCENDING);
 		
@@ -2055,9 +2081,12 @@ public class DbSearchResultPanel extends JPanel {
 					proteinHit.setSpecies(species);
 				}
 				
-				// Calculate NSAF
-				double nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinHit);
-				proteinHit.setNSAF(nsaf);
+				double nsaf = proteinHit.getNSAF();
+				if (nsaf < 0.0) {
+					// Calculate NSAF
+					nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinHit);
+					proteinHit.setNSAF(nsaf);
+				}
 				
 				// Determine maximum values for visualization later on
 				maxCoverage = Math.max(maxCoverage, proteinHit.getCoverage());
@@ -2497,9 +2526,9 @@ public class DbSearchResultPanel extends JPanel {
 				maxSpecCount = Math.max(maxSpecCount, specCount);
 				// Add table row
 				TaxonNode taxonNode = peptideHit.getTaxonNode();
-				String string = "";
+				String taxonName = "";
 				if (taxonNode != null) {
-					string = "" + taxonNode.getTaxName() + " (" + taxonNode.getTaxId() + ")";
+					taxonName += taxonNode.getTaxName() + " (" + taxonNode.getTaxId() + ")";
 				}
 			
 				peptideTblMdl.addRow(new Object[] {
@@ -2508,7 +2537,7 @@ public class DbSearchResultPanel extends JPanel {
 						peptideHit.getSequence(),
 						protCount,
 						specCount,
-						string
+						taxonName
 						});
 			}
 
@@ -2696,31 +2725,41 @@ public class DbSearchResultPanel extends JPanel {
 					int index = psmTbl.convertRowIndexToModel(psmRow);
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					// grab corresponding spectrum from the database and display it
-					try {
-//						MascotGenericFile mgf = psm.getMgf();
-						MascotGenericFile mgf = Client.getInstance().getSpectrumFromSearchSpectrumID(psm.getSearchSpectrumID());
-						// Wennot try to read from file
-						if (mgf == null) {
-							//TODO Tets
-							String path = selectedFile.getPath();
-							System.out.println(path);
-							mgf = Client.getInstance().readMgf(path, psm.getIndexLine());
+//					Connection conn = null;
+//					try {
+//						// Try to determine whether a valid connection to the database exists
+//						conn = Client.getInstance().getConnection();
+//					} catch (SQLException e) {
+//						// Do nothing
+//					}
+					MascotGenericFile mgf = null;
+					// TODO: Note: loading spectra from database is faster than parsing from file, optimization required?
+//					if (conn != null) {
+					if (!Client.getInstance().isViewer()) {
+						// Get spectrum file from database when connected
+						try {
+							mgf = Client.getInstance().getSpectrumBySearchSpectrumID(psm.getSearchSpectrumID());
+						} catch (SQLException e) {
+							JXErrorPane.showDialog(ClientFrame.getInstance(),
+									new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 						}
-
-						specPnl = new SpectrumPanel(mgf);
-						specPnl.showAnnotatedPeaksOnly(true);
-						
-						specCont.add(specPnl, CC.xy(2, 2));
-						specCont.validate();
-						specCont.repaint();
-						
-						Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), psm.getCharge());
-						addSpectrumAnnotations(fragmentizer.getFragmentIons());
-						
-					} catch (SQLException e) {
-						JXErrorPane.showDialog(ClientFrame.getInstance(),
-								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+					} else {
+						// Read spectrum from MGF file accompanying imported result object, if possible
+						String mgfPath = importFile.getPath();
+						mgfPath = mgfPath.substring(0, mgfPath.lastIndexOf('.')) + ".mgf";
+						mgf = Client.getInstance().readSpectrumFromFile(mgfPath, psm.getIndexPosition());
 					}
+
+					specPnl = new SpectrumPanel(mgf);
+					specPnl.showAnnotatedPeaksOnly(true);
+
+					specCont.add(specPnl, CC.xy(2, 2));
+					specCont.validate();
+					specCont.repaint();
+
+					Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), psm.getCharge());
+					addSpectrumAnnotations(fragmentizer.getFragmentIons());
+						
 					// show popup
 					showPopup(psm);
 				}

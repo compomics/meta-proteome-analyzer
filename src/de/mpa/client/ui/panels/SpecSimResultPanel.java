@@ -948,10 +948,10 @@ public class SpecSimResultPanel extends JPanel {
 							.get(sequence).getSpectrumMatches().get(index);
 					try {
 						MascotGenericFile mgfQuery = client
-								.getSpectrumFromSearchSpectrumID(ssm
+								.getSpectrumBySearchSpectrumID(ssm
 										.getSearchSpectrumID());
 						MascotGenericFile mgfLib = client
-								.getSpectrumFromLibSpectrumID(ssm
+								.getSpectrumByLibSpectrumID(ssm
 										.getLibSpectrumID());
 						plotPnl.setFirstSpectrum(mgfQuery);
 						plotPnl.setSecondSpectrum(mgfLib);

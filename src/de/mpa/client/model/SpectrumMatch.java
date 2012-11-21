@@ -2,9 +2,7 @@ package de.mpa.client.model;
 
 import java.io.Serializable;
 
-import de.mpa.io.MascotGenericFile;
-
-public class SpectrumMatch implements Serializable {
+public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
 	
 	/**
 	 * Flag denoting whether this match is selected for export.
@@ -17,68 +15,14 @@ public class SpectrumMatch implements Serializable {
 	protected long searchSpectrumID;
 	
 	/**
-	 * The Mascot Generic File
+	 * The line in the saved mgf(Export).
 	 */
-	private MascotGenericFile mgf;
+	private long indexPos;
 
 	/**
 	 * Default empty constructor.
 	 */
 	public SpectrumMatch() { }
-	
-	/**
-	 * Returns the spectrum specific id.
-	 * @return The spectrum id.
-	 */
-	
-	/**
-	 * The line in the saved mgf(Export).
-	 */
-	private long indexLine;
-	
-	/**
-	 * Gets the beginning line of the mgf.
-	 * @return index of the line.
-	 */
-	public long getIndexLine() {
-		return indexLine;
-	}
-
-	/**
-	 * Sets the beginning line of the mgf.
-	 * @param indexLine
-	 */
-	public void setIndexLine(long indexLine) {
-		this.indexLine = indexLine;
-	}
-
-	public long getSearchSpectrumID() {
-		return searchSpectrumID;
-	}
-	
-	/**
-	 * Sets the search spectrum id.
-	 * @param searchSpectrumID The search spectrum id
-	 */
-	public void setSearchSpectrumID(long searchSpectrumID) {
-		this.searchSpectrumID = searchSpectrumID;
-	}
-	
-	/**
-	 * Returns the spectrum file reference.
-	 * @return the spectrum file reference.
-	 */
-	public MascotGenericFile getMgf() {
-		return mgf;
-	}
-	
-	/**
-	 * Sets the spectrum file reference.
-	 * @param mgf the spectrum file to set.
-	 */
-	public void setMgf(MascotGenericFile mgf) {
-		this.mgf = mgf;
-	}
 
 	/**
 	 * Returns whether this spectrum match is selected for exporting. 
@@ -97,6 +41,40 @@ public class SpectrumMatch implements Serializable {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+
+	/**
+	 * Returns the search spectrum ID.
+	 * @return the search spectrum ID
+	 */
+	public long getSearchSpectrumID() {
+		return searchSpectrumID;
+	}
+	
+	/**
+	 * Sets the search spectrum id.
+	 * @param searchSpectrumID The search spectrum id
+	 */
+	public void setSearchSpectrumID(long searchSpectrumID) {
+		this.searchSpectrumID = searchSpectrumID;
+	}
+
+	/**
+	 * Returns the byte position of the spectrum associated with this match
+	 * inside an exported spectrum container file.
+	 * @return the byte position pointing to the spectrum
+	 */
+	public long getIndexPosition() {
+		return indexPos;
+	}
+
+	/**
+	 * Sets the byte position of a spectrum to be associated with this match
+	 * inside a spectrum container file which is to be exported.
+	 * @param indexPos the byte position pointing to the spectrum
+	 */
+	public void setIndexPosition(long indexPos) {
+		this.indexPos = indexPos;
+	}
 	
 	@Override
 	public String toString() {
@@ -110,6 +88,12 @@ public class SpectrumMatch implements Serializable {
 			return (this.getSearchSpectrumID() == that.getSearchSpectrumID());
 		}
 		return false;
+	}
+
+	@Override
+	public int compareTo(SpectrumMatch that) {
+		long delta = this.getSearchSpectrumID() - that.getSearchSpectrumID();
+		return (delta < 0L) ? -1 : (delta > 0L) ? 1 : 0;
 	}
 	
 }
