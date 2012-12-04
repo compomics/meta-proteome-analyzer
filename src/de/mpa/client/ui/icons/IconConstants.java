@@ -142,6 +142,8 @@ public class IconConstants {
 
 	/** <img src="../../../resources/icons/protein.png"> */
 	public static final ImageIcon PROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/protein.png"));
+	/** <img src="../../../resources/icons/metaprotein.png"> */
+	public static final ImageIcon METAPROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/metaprotein.png"));
 	
 	
 	/**

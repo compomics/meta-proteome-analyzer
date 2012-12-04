@@ -22,3 +22,4 @@ next.png
 update16.png
 view_folder16.png
 view_page16.png
+compare16.png

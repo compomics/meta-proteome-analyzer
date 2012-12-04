@@ -417,7 +417,7 @@ public class Client {
 			firePropertyChange("resetall", 0L, maxProgress);
 			firePropertyChange("resetcur", 0L, maxProgress);
 			for (SearchHit searchHit : searchHits) {
-				addProteinSearchHit(searchHit);
+				this.addProteinSearchHit(searchHit);
 				
 				searchSpectrumIDs.add(searchHit.getFk_searchspectrumid());
 				String pepSeq = searchHit.getSequence();
