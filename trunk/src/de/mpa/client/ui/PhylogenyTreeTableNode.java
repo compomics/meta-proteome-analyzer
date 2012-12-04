@@ -34,7 +34,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	@Override
 	public int getColumnCount() {
 		// TODO: parametrize column count?
-		return 10;
+		return 11;
 	}
 	
 	@Override
@@ -57,18 +57,20 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			case 2:
 				return ph.getSpecies();
 			case 3:
-				return ph.getCoverage();
+				return ph.getIdentity();	
 			case 4:
-				return ph.getMolecularWeight();
+				return ph.getCoverage();
 			case 5:
-				return ph.getIsoelectricPoint();
+				return ph.getMolecularWeight();
 			case 6:
-				return ph.getPeptideCount();
+				return ph.getIsoelectricPoint();
 			case 7:
-				return ph.getSpectralCount();
+				return ph.getPeptideCount();
 			case 8:
-				return ph.getEmPAI();
+				return ph.getSpectralCount();
 			case 9:
+				return ph.getEmPAI();
+			case 10:
 				return ph.getNSAF();
 			default:
 				return null;

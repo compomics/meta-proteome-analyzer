@@ -44,6 +44,11 @@ public class ProteinHit implements Serializable {
 	private String species;
 	
 	/**
+	 * The amino acid identity between protein in percent
+	 */
+	private double identity = 100.0;
+	
+	/**
 	 * Molecular protein weight in kDa.
 	 */
 	private double molWeight = -1.0;
@@ -97,7 +102,9 @@ public class ProteinHit implements Serializable {
 		this.description = description;
 		this.sequence = sequence;
 		this.peptideHits = new LinkedHashMap<String, PeptideHit>();
-		this.peptideHits.put(peptideHit.getSequence(), peptideHit);
+		if (peptideHit != null) {
+			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
+		}
 	}
 	
 	/**
@@ -163,6 +170,22 @@ public class ProteinHit implements Serializable {
 		this.species = species;
 	}
 	
+	/**
+	 * Gets lowest protein identity between this and the other proteins of this (meta) protein.
+	 * @return identity
+	 */
+	public double getIdentity() {
+		return identity;
+	}
+
+	/**
+	 * Sets the protein identity for this protein against the other proteins in this group
+	 * @param identity
+	 */
+	public void setIdentity(double identity) {
+		this.identity = identity;
+	}
+
 	/**
 	 * Returns the sequence coverage.
 	 * @return The sequence coverage
@@ -327,6 +350,14 @@ public class ProteinHit implements Serializable {
 	}
 	
 	/**
+	 * Add all peptides to the protein hit.
+	 * @param peptidehit
+	 */
+	public void addPeptideHits(Map<String, PeptideHit> peptidehits) {
+		peptideHits.putAll(peptidehits);
+	}
+	
+	/**
 	 * Convenience method to retrieve a unique peptide hit.
 	 */
 	public PeptideHit getSinglePeptideHit() {
@@ -398,4 +429,6 @@ public class ProteinHit implements Serializable {
 		}
 		return false;
 	}
+	
+	
 }

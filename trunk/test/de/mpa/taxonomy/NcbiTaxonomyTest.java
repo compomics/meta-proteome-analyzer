@@ -13,8 +13,9 @@ public class NcbiTaxonomyTest extends TestCase {
 	@Test
 	public void testNcbiTaxonomyDumping() {
 		// dump to file
-//		NcbiTaxonomy.dumpTaxonomies("Z:\\bpt\\bptprot\\MetaProteomeAnalyzer\\databases\\NCBI Taxonomy\\taxdmp\\" );
-		NcbiTaxonomy.dumpTaxonomies("/data/bpt/bptprot/MetaProteomeAnalyzer/databases/NCBI Taxonomy/taxdmp/");
+		NcbiTaxonomy.dumpTaxonomies("Z:\\bpt\\bptprot\\MetaProteomeAnalyzer\\databases\\NCBI Taxonomy\\taxdmp\\" );
+	
+		//		NcbiTaxonomy.dumpTaxonomies("/data/bpt/bptprot/MetaProteomeAnalyzer/databases/NCBI Taxonomy/taxdmp/");
 		
 		// read dumped data by instancing NcbiTaxonomy object
 		NcbiTaxonomy ncbiTaxonomy = NcbiTaxonomy.getInstance();

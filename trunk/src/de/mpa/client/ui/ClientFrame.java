@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import de.mpa.client.Client;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
@@ -63,6 +64,7 @@ public class ClientFrame extends JFrame {
 	private JPanel resPnl = new JPanel();
 	private JPanel clusterPnl = new JPanel();
 	private JPanel logPnl = new JPanel();
+	private JPanel comparePnl;
 	
 	private StatusPanel statusPnl;
 	
@@ -70,6 +72,8 @@ public class ClientFrame extends JFrame {
 	
 	
 	private boolean connectedToServer = false;
+
+	
 	
 	/**
 	 * Returns a client singleton object.
@@ -140,14 +144,15 @@ public class ClientFrame extends JFrame {
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
+//		ImageIcon compareIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/compare32.png"));
 //		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
 		
 		ImageIcon[] icons = new ImageIcon[] { projectIcon, addSpectraIcon, settingsIcon, resultsIcon, 
-				clusteringIcon, loggingIcon };
+				clusteringIcon, loggingIcon};//, compareIcon };
 		String[] titles = new String[] { "Project", "Input Spectra","Search Settings", "View Results",
-				"Clustering", "Logging"};
+				"Clustering", "Logging"};//, "Comparison"};
 		Component[] panels = new Component[] { projectPnl, filePnl, setPnl, resPnl, 
-				clusterPnl, logPnl};
+				clusterPnl, logPnl};//,// comparePnl};
 
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets tabInsets = UIManager.getInsets("TabbedPane.tabInsets");
@@ -240,6 +245,9 @@ public class ClientFrame extends JFrame {
 			setPnl = new SettingsPanel();
 			// Logging panel		
 			logPnl = new LoggingPanel();
+			
+			// TODO: Compare panel (Robbies prototyp)
+//			comparePnl = new ComparePanel();
 		}
 		// Results Panel
 		resPnl = new ResultsPanel();

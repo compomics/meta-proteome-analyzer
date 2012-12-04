@@ -1,6 +1,7 @@
 package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +44,8 @@ public class DbSearchResult implements Serializable {
 	 * The number of retrieved protein hits from the searches.
 	 */
 	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
+	
+	private List<ProteinHitList> metaProteins = new ArrayList<ProteinHitList>();
 
 	/**
 	 * The total amount of spectra queried.
@@ -114,7 +117,13 @@ public class DbSearchResult implements Serializable {
 			}
 			currentProteinHit.addPeptideHit(currentPeptideHit);
 		} else {
+			// A new protein is to be added
 			currentProteinHit = proteinHit;
+
+			ProteinHitList meta = new ProteinHitList();
+			meta.add(currentProteinHit);
+			metaProteins.add(meta);
+			
 			// Check whether peptide hit match has been found
 			if (currentPeptideHit != null) {
 				// Link new PSM to found peptide
@@ -133,7 +142,6 @@ public class DbSearchResult implements Serializable {
 		currentPeptideHit.addProteinHit(currentProteinHit);
 
 		proteinHits.put(accession, currentProteinHit);
-
 	}
 
 	/**
@@ -365,6 +373,14 @@ public class DbSearchResult implements Serializable {
 							that.getExperimentTitle());
 		}
 		return result;
+	}
+
+	/**
+	 * Returns the list of metaproteins containing grouped protein hits.
+	 * @return the list of metaproteins.
+	 */
+	public List<ProteinHitList> getMetaProteins() {
+		return metaProteins;
 	}
 
 }

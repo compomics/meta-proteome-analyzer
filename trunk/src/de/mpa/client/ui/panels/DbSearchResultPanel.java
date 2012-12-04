@@ -1,5 +1,12 @@
 package de.mpa.client.ui.panels;
 
+import jaligner.Alignment;
+import jaligner.Sequence;
+import jaligner.SmithWatermanGotoh;
+import jaligner.matrix.Matrix;
+import jaligner.matrix.MatrixLoader;
+import jaligner.matrix.MatrixLoaderException;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -36,12 +43,16 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
 
@@ -71,12 +82,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -97,11 +108,11 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
-import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
@@ -109,9 +120,9 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -131,6 +142,8 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
+import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
@@ -140,7 +153,6 @@ import com.jgoodies.binding.adapter.RadioButtonAdapter;
 import com.jgoodies.binding.value.ValueHolder;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.KeggAccessor;
@@ -153,6 +165,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -169,9 +182,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
@@ -184,6 +197,7 @@ import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
+import de.mpa.taxonomy.NcbiTaxonomy;
 import de.mpa.taxonomy.TaxonNode;
 import de.mpa.util.ColorUtils;
 
@@ -726,7 +740,6 @@ public class DbSearchResultPanel extends JPanel {
 		public ResultsTask(File file) {
 			this.file = file;
 		}
-
 		@Override
 		protected Object doInBackground() {
 			try {
@@ -760,47 +773,71 @@ public class DbSearchResultPanel extends JPanel {
 						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 						client.firePropertyChange("indeterminate", true, false);
 						
-//						// Get all distinct peptides from result object
-//						Set<PeptideHit> peptideSet = ((ProteinHitList) newResult.getProteinHitList()).getPeptideSet();
-//						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-//						Client.getInstance().firePropertyChange("resetall", -1L, (long) peptideSet.size());
-//						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
-//						for (PeptideHit peptideHit : peptideSet) {
-//							// Build taxon node list
-//							List<TaxonNode> taxList = new ArrayList<TaxonNode>();
-//							for (ProteinHit protHit : peptideHit.getProteinList()) {
-//								UniProtEntry uniprotEntry = protHit.getUniprotEntry();
-//								if (uniprotEntry != null) {
-//									List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
-//									int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
-//									TaxonNode taxonNode = NcbiTaxonomy.getInstance().getLeafMap().get(taxId);
-//									// For case that taxId is not a leaf
-//									if (taxonNode == null) {
-//										Enumeration dfe = NcbiTaxonomy.getInstance().getRootNode().depthFirstEnumeration();
-//										while (dfe.hasMoreElements()) {
-//											TaxonNode node = (TaxonNode) dfe.nextElement();
-//											if (node.getTaxId() == taxId) {
-//												taxonNode = node;
-//											}
-//										}
-//									}
-//									taxList.add(taxonNode);
-	//
-//									// Find common ancestor of all taxon nodes in list
-//									TaxonNode ancestor = taxList.get(0);
-//									for (int i = 1; i < taxList.size(); i++) {
-//										ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
-//									}
-//									// Set peptide hit's common taxonomy ancestor
-//									peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
-//								} else {
-//									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
-//									peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
-//								}
-//							}
-//							Client.getInstance().firePropertyChange("progressmade", false, true);
-//						}
-//						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
+						// Get all distinct peptides from result object
+						ProteinHitList proteinHitList = (ProteinHitList) newResult.getProteinHitList();
+						Set<PeptideHit> peptideSet = proteinHitList.getPeptideSet();
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
+						Client.getInstance().firePropertyChange("resetall", -1L, (long) peptideSet.size());
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+						for (PeptideHit peptideHit : peptideSet) {
+							// Build taxon node list
+							List<TaxonNode> taxList = new ArrayList<TaxonNode>();
+							for (ProteinHit protHit : peptideHit.getProteinList()) {
+								UniProtEntry uniprotEntry = protHit.getUniprotEntry();
+								if (uniprotEntry != null) {
+									List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
+									int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
+									TaxonNode taxonNode = NcbiTaxonomy.getInstance().getLeafMap().get(taxId);
+									// For case that taxId is not a leaf
+									if (taxonNode == null) {
+										Enumeration dfe = NcbiTaxonomy.getInstance().getRootNode().depthFirstEnumeration();
+										while (dfe.hasMoreElements()) {
+											TaxonNode node = (TaxonNode) dfe.nextElement();
+											if (node.getTaxId() == taxId) {
+												taxonNode = node;
+											}
+										}
+									}
+									taxList.add(taxonNode);
+	
+									// Find common ancestor of all taxon nodes in list
+									TaxonNode ancestor = taxList.get(0);
+									for (int i = 1; i < taxList.size(); i++) {
+										ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
+									}
+									// Set peptide hit's common taxonomy ancestor
+									peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
+								} else {
+									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
+									peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
+								}
+							}
+							Client.getInstance().firePropertyChange("progressmade", false, true);
+						}
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
+						
+						
+						// Combine protein hits to metaproteins  if they share all proteins
+						List<ProteinHitList> metaProteins = newResult.getMetaProteins();
+						Iterator<ProteinHitList> rowIter = metaProteins.iterator();
+						while (rowIter.hasNext()) {
+							ProteinHitList rowMP = (ProteinHitList) rowIter.next();
+							Set<PeptideHit> rowPS = rowMP.getPeptideSet();
+							ListIterator<ProteinHitList> colIter = metaProteins.listIterator(metaProteins.size());
+							// Start to iterate beginning from the end to improve cpu time.
+							while (colIter.hasPrevious()) {
+								ProteinHitList colMP = (ProteinHitList) colIter.previous();
+								if (rowMP == colMP) {
+									break;
+								}
+								Set<PeptideHit> colPS = colMP.getPeptideSet();
+								if (colPS.containsAll(rowPS) || rowPS.containsAll(colPS)) {
+									colMP.addAll(rowMP);
+									rowIter.remove();
+									break;
+								}
+							}
+						}
 					}
 					 
 					dbSearchResult = newResult;
@@ -1150,7 +1187,7 @@ public class DbSearchResultPanel extends JPanel {
 		protFlatTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Flat View"));
 		
 		protTaxonTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Taxonomic View"));
-		TableConfig.setColumnWidths(protTaxonTreeTbl, new double[] { 20.25, 22, 0, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnWidths(protTaxonTreeTbl, new double[] { 20.25, 22, 0, 4, 5, 4, 3, 4, 4, 4.5, 5 });
 		protTaxonTreeTbl.getColumnExt("Species").setVisible(false);
 		
 		protEnzymeTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of E.C. View"));
@@ -1169,7 +1206,7 @@ public class DbSearchResultPanel extends JPanel {
 		SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Define column header strings
 			{ setColumnIdentifiers(Arrays.asList(
-					new String[] { "Accession", "Description", "Species", "SC",
+					new String[] { "Accession", "Description", "Species", "AId", "SC",
 							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF" } ));
 			}
 			// Fool-proof table by allowing only one type of node
@@ -1437,8 +1474,11 @@ public class DbSearchResultPanel extends JPanel {
 			@Override
 			public Icon getIcon(Object value) {
 				TreeCellContext context = (TreeCellContext) value;
+				PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) context.getValue();
 				if (context.isLeaf()) {
 					return IconConstants.PROTEIN_TREE_ICON;
+				} else if (node.getUserObject() instanceof ProteinHitList) {
+					return IconConstants.METAPROTEIN_TREE_ICON;
 				} else {
 					// fall back to defaults
 					return context.getIcon();
@@ -1449,27 +1489,34 @@ public class DbSearchResultPanel extends JPanel {
 
 		// Install renderers and highlighters
 		// TODO: use proper column index variables
+		FontMetrics fm = getFontMetrics(chartFont);
+		
 		tcm.getColumn(1).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		
 		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		
+		BarChartHighlighter bch = new BarChartHighlighter(
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.0"));
+		bch.setBaseline(1 + fm.stringWidth(bch.getFormatter().format(100.0)));
+		((TableColumnExt) tcm.getColumn(3)).addHighlighter(bch);
+		
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
-		((TableColumnExt) tcm.getColumn(3)).addHighlighter(new BarChartHighlighter(
+		((TableColumnExt) tcm.getColumn(4)).addHighlighter(new BarChartHighlighter(
 				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
 		
-		tcm.getColumn(4).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
 		
-		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
-		
-		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new BarChartHighlighter());
+		tcm.getColumn(6).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
 		
 		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
 		
-		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter(
-				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
+		((TableColumnExt) tcm.getColumn(8)).addHighlighter(new BarChartHighlighter());
 		
 		((TableColumnExt) tcm.getColumn(9)).addHighlighter(new BarChartHighlighter(
+				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
+		
+		((TableColumnExt) tcm.getColumn(10)).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 		
 		// Add non-leaf highlighter
@@ -1483,7 +1530,7 @@ public class DbSearchResultPanel extends JPanel {
 						notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
 		
 		// Configure column widths
-		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5 });
 		TableConfig.setColumnMinWidths(treeTbl,
 				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
 				createFilterButton(0, null, 0).getPreferredSize().width + 8);
@@ -2063,77 +2110,150 @@ public class DbSearchResultPanel extends JPanel {
 			// Gather models
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 			
+			// Values for construction of highlighter
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 			
-			// Iterate protein hits
-			for (Entry<String, ProteinHit> entry : dbSearchResult.getProteinHits().entrySet()) {
+			// Iterate over metaproteins to fill the columns in the flatview
+			int metaIndex = 1;
+			// Get Matrix for the calculation of the identity
+			Matrix matrix = null;
+			Logger logger = Logger.getLogger(MatrixLoader.class.getName());
+			logger.setLevel(Level.OFF);
+			try {
+				matrix = MatrixLoader.load("BLOSUM62");
+			} catch (MatrixLoaderException e) {
+				e.printStackTrace();
+			}
+			for (ProteinHitList metaProtein : dbSearchResult.getMetaProteins()) {
+				// Create default values for meta-ProteinHit;
+				String metaDesc 	= "";
+				double metaSC		= 0.0;
+				double metaIdentity = 100.0;
+				double metaMW		= 0.0;
+				double metaPI		= 0.0;
+				double metaEmPai	= 0.0;
+				double metaNsaf     = 0.0;
 				
-				ProteinHit proteinHit = entry.getValue();
-
-				// Extract species string from description
-				String desc = proteinHit.getDescription();
-				String[] split = desc.split(" OS=");
-				if (split.length > 1) {
-					proteinHit.setDescription(split[0]);
-					String species = (split[1].contains(" GN=")) ?
-							split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
-					proteinHit.setSpecies(species);
-				}
-				
-				double nsaf = proteinHit.getNSAF();
-				if (nsaf < 0.0) {
+				ProteinHit metaProteinHit = new ProteinHit("Meta-Protein " + (metaIndex++),"", "", null);
+				PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProteinHit);
+				for (ProteinHit proteinHit : metaProtein) {
+					// Extract species string from description
+					String desc = proteinHit.getDescription();
+					String[] split = desc.split(" OS=");
+					if (split.length > 1) {
+						proteinHit.setDescription(split[0]);
+						String species = (split[1].contains(" GN=")) ?
+								split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
+						proteinHit.setSpecies(species);
+					}
 					// Calculate NSAF
-					nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinHit);
-					proteinHit.setNSAF(nsaf);
-				}
-				
-				// Determine maximum values for visualization later on
-				maxCoverage = Math.max(maxCoverage, proteinHit.getCoverage());
-				maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
-				maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
-				max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
-				min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
-				maxNSAF = Math.max(maxNSAF, nsaf);
-				
-				// Insert protein data into table
-				proteinTblMdl.addRow(new Object[] {
-						proteinHit.isSelected(),
-						protIndex++,
-						proteinHit.getAccession(),
-						proteinHit.getDescription(),
-						proteinHit.getSpecies(),
-						proteinHit.getCoverage(),
-						proteinHit.getMolecularWeight(),
-						proteinHit.getIsoelectricPoint(),
-						proteinHit.getPeptideCount(), 
-						proteinHit.getSpectralCount(),
-						proteinHit.getEmPAI(),
-						nsaf});
-				
-				if (proteinHit.getUniprotEntry() != null) {
-					// Wrap protein data in table node clones and insert them into the relevant trees
-					URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
-					PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
-					flatNode.setURI(uri);
-					TreePath flatPath = insertFlatNode(flatNode);
-					PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
-					taxonNode.setURI(uri);
-					TreePath taxonPath = insertTaxonomicNode(taxonNode);
-					PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
-					enzymeNode.setURI(uri);
-					TreePath enzymePath = insertEnzymeNode(enzymeNode);
-					PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
-					pathwayNode.setURI(uri);
-					TreePath[] pathwayPaths = insertPathwayNode(pathwayNode);
+					double nsaf = proteinHit.getNSAF();
+					if (nsaf < 0.0) {
+						// Calculate NSAF
+						nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinHit);
+						proteinHit.setNSAF(nsaf);
+					}
+					
+					// Determine maximum values for visualization later on
+					maxCoverage = Math.max(maxCoverage, proteinHit.getCoverage());
+					maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
+					maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
+					max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
+					min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
+					maxNSAF = Math.max(maxNSAF, nsaf);
 
-					// Link nodes to each other
-					linkNodes(flatPath, taxonPath, enzymePath);
-				} else {
-					System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
+					// Get common taxonomy for each protein Hit
+					TaxonNode commonAncestorNode = proteinHit.getPeptideHitList().get(0).getTaxonNode();
+					for (PeptideHit peptidHit : proteinHit.getPeptideHitList()) {
+						commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(commonAncestorNode, peptidHit.getTaxonNode());
+					}
+					proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
+					
+					// Get minimal identity for the protein
+					double identity;
+					for (ProteinHit furtherproteinHit : metaProtein){
+						logger = Logger.getLogger(SmithWatermanGotoh.class.getName());
+						logger.setLevel(Level.OFF);
+						Alignment align = SmithWatermanGotoh.align(new Sequence(proteinHit.getSequence()), new Sequence(furtherproteinHit.getSequence()),matrix, 10.0f, 0.5f);
+							
+							identity = align.getIdentity()* 100.0 / proteinHit.getSequence().length();
+							if (proteinHit.getIdentity()> identity) {
+								proteinHit.setIdentity(identity);
+							}
+					}
+					
+					// Insert protein data into table
+					proteinTblMdl.addRow(new Object[] {
+							proteinHit.isSelected(),
+							protIndex++,
+							proteinHit.getAccession(),
+							proteinHit.getDescription(),
+							proteinHit.getSpecies(),
+							proteinHit.getCoverage(),
+							proteinHit.getMolecularWeight(),
+							proteinHit.getIsoelectricPoint(),
+							proteinHit.getPeptideCount(), 
+							proteinHit.getSpectralCount(),
+							proteinHit.getEmPAI(),
+							nsaf});
+					
+					// Update MetaproteinHit
+					metaDesc 	= proteinHit.getDescription();
+					metaSC		= Math.max(metaSC, proteinHit.getCoverage());
+					metaIdentity= Math.min(metaIdentity, proteinHit.getIdentity());
+					metaMW		= metaMW + proteinHit.getMolecularWeight()  / metaProtein.size();
+					metaPI		= metaPI + proteinHit.getIsoelectricPoint() / metaProtein.size() ;
+					metaProteinHit.addPeptideHits(proteinHit.getPeptideHits());
+					metaEmPai	= Math.max(metaEmPai, proteinHit.getEmPAI());
+					metaNsaf    = Math.max(metaNsaf, proteinHit.getNSAF());
+					
+					if (proteinHit.getUniprotEntry() != null) {
+						// Wrap protein data in table node clones and insert them into the relevant trees
+						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
+						PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
+						flatNode.setURI(uri);
+						metaNode.add(flatNode);
+//						TreePath flatPath = insertFlatNode(flatNode);
+//						PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
+//						taxonNode.setURI(uri);
+//						TreePath taxonPath = insertTaxonomicNode(taxonNode);
+//						PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
+//						enzymeNode.setURI(uri);
+//						TreePath enzymePath = insertEnzymeNode(enzymeNode);
+//						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
+//						pathwayNode.setURI(uri);
+//						TreePath[] pathwayPaths = insertPathwayNode(pathwayNode);
+
+//						// Link nodes to each other
+//						linkNodes(flatPath, taxonPath, enzymePath);
+					} else {
+						System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
+					}
+					
+					Client.getInstance().firePropertyChange("progressmade", false, true);
+				}
+				if (metaNode.getChildCount() == 1) {
+					metaNode = (PhylogenyTreeTableNode) metaNode.getChildAt(0);
 				}
 				
-				Client.getInstance().firePropertyChange("progressmade", false, true);
+				// Set values for the metaprotein
+				metaProteinHit.setDescription(metaDesc);
+				// Get highest common Taxonomy
+				TaxonNode firstNode = metaProteinHit.getPeptideHitList().get(0).getTaxonNode();
+				for (PeptideHit peptideHit : metaProteinHit.getPeptideHitList()) {
+					TaxonNode taxonNode = peptideHit.getTaxonNode();
+					firstNode = NcbiTaxonomy.getInstance().getCommonAncestor(firstNode,taxonNode);
+				}
+				metaProteinHit.setSpecies(firstNode.getTaxName() + " (" + firstNode.getRank() +")");
+				metaProteinHit.setIdentity(metaIdentity);
+				metaProteinHit.setCoverage(metaSC);
+				metaProteinHit.setMolecularWeight(metaMW);
+				metaProteinHit.setIsoelectricPoint(metaPI);
+				metaProteinHit.setEmPAI(metaEmPai);
+				metaProteinHit.setNSAF(metaNsaf);
+				metaProteinHit.setCoverage(metaSC);
+				TreePath flatPath = insertFlatNode(metaNode);
 			}
 			
 			// Iterate pathway nodes in respective hierarchical view and update URIs
@@ -2216,23 +2336,24 @@ public class DbSearchResultPanel extends JPanel {
 
 					// TODO: use proper column index variables
 					// TODO: make use of non-leaf nodes in hierarchical column to determine maxima
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(3))).getHighlighters()[0];
+					
+					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(4))).getHighlighters()[0];
 					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
 					highlighter.setRange(0.0, maxCoverage);
 
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(6))).getHighlighters()[0];
+					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(7))).getHighlighters()[0];
 					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
 					highlighter.setRange(0.0, maxPeptideCount);
 
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(7))).getHighlighters()[0];
+					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(8))).getHighlighters()[0];
 					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
 					highlighter.setRange(0.0, maxSpecCount);
 
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(8))).getHighlighters()[0];
+					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
 					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
 					highlighter.setRange(min_emPAI, max_emPAI);
 
-//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(10))).getHighlighters()[0];
 //					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
 //					highlighter.setRange(0.0, maxNSAF);
 				}
@@ -2255,9 +2376,21 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private TreePath insertFlatNode(PhylogenyTreeTableNode protNode) {
 		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protFlatTreeTbl.getTreeTableModel();
-		treeTblMdl.insertNodeInto(protNode,
-				(MutableTreeTableNode) treeTblMdl.getRoot(),
-				treeTblMdl.getRoot().getChildCount());
+		
+//		if (Math.random() < 0.5) {
+//			ProteinHitList hitList = new ProteinHitList();
+//			hitList.add((ProteinHit) protNode.getUserObject());
+//			PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(hitList);
+//			
+//			treeTblMdl.insertNodeInto(metaNode,
+//					(MutableTreeTableNode) treeTblMdl.getRoot(),
+//					treeTblMdl.getRoot().getChildCount());
+//			treeTblMdl.insertNodeInto(protNode, metaNode, metaNode.getChildCount());
+//		} else {
+			treeTblMdl.insertNodeInto(protNode,
+					(MutableTreeTableNode) treeTblMdl.getRoot(),
+					treeTblMdl.getRoot().getChildCount());
+//		}
 		
 		return new TreePath(treeTblMdl.getPathToRoot(protNode));
 	}
