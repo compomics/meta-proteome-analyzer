@@ -196,7 +196,7 @@ public class Client {
 	 * @return
 	 * @throws IOException
 	 */
-	private byte[] getBytesFromFile(File file) throws IOException {
+	public byte[] getBytesFromFile(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
 
 		// Get the size of the file
@@ -229,6 +229,11 @@ public class Client {
 		return bytes;
 	}
 
+	/**
+	 * TODO: API
+	 * @param filenames
+	 * @param settings
+	 */
 	public void runSearches(List<String> filenames, SearchSettings settings) {
 		for (int i = 0; i < filenames.size(); i++) {
 			settings.getFilenames().add(filenames.get(i));
@@ -567,7 +572,7 @@ public class Client {
 		long maxSpectra = selectionModel.getSelectionCount();
 		CheckBoxTreeTableNode spectrumNode = fileRoot.getFirstLeaf();
 		if (spectrumNode != fileRoot) {
-			firePropertyChange("resetall", 0L, maxSpectra);
+			this.firePropertyChange("resetall", 0L, maxSpectra);
 			// iterate over all leaves
 			while (spectrumNode != null) {
 				// generate tree path and consult selection model whether path is explicitly or implicitly selected
@@ -576,7 +581,7 @@ public class Client {
 					if ((numSpectra % packageSize) == 0) {			// create a new package every x files
 						if (fos != null) {
 							fos.close();
-							server.uploadFile(file.getName(), getBytesFromFile(file));
+							this.uploadFile(file.getName(), this.getBytesFromFile(file));
 							file.delete();
 						}
 
@@ -584,31 +589,40 @@ public class Client {
 						filenames.add(file.getName());
 						fos = new FileOutputStream(file);
 						long remaining = maxSpectra - numSpectra;
-						firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+						this.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 					}
 					MascotGenericFile mgf = ClientFrame.getInstance().getFilePanel().getSpectrumForNode(spectrumNode);
 					mgf.writeToStream(fos);
 					fos.flush();
-					firePropertyChange("progressmade", 0L, ++numSpectra);
+					this.firePropertyChange("progressmade", 0L, ++numSpectra);
 				}
 				spectrumNode = spectrumNode.getNextLeaf();
 			}
 			fos.close();
-			server.uploadFile(file.getName(), getBytesFromFile(file));
+			this.uploadFile(file.getName(), this.getBytesFromFile(file));
 		} else {
 			throw new IOException("ERROR: No files selected.");
 		}
 		return filenames;
 	}
+	
+	/**
+	 * Uploads a file with the specified data contents to the server instance.
+	 * @param filename The name of the file to upload
+	 * @param data The contents of the file to upload
+	 * @return The path of the new file instance on the server
+	 */
+	public String uploadFile(String filename, byte[] data) {
+		return server.uploadFile(filename, data);
+	}
 
 	/**
 	 * Queries the database to retrieve a list of spectrum files belonging to a specified experiment.
-	 * @deprecated For spectral similarity tuning use only. Will be deleted at some point in the future. 
+//	 * @deprecated For spectral similarity tuning use only. Will be deleted at some point in the future. 
 	 * @param experimentID The primary key of the experiment.
 	 * @return A list of spectrum files.
 	 * @throws Exception
 	 */
-	@Deprecated
 	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
 		return new SpectrumExtractor(conn).downloadSpectra(experimentID);
 	} 

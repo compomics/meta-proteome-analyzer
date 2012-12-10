@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -184,35 +183,9 @@ public class ResultsPanel extends JPanel {
 		// create navigation button panel
 		final JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
 		navPnl.setOpaque(false);
-		
-		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
-		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
-		prevBtn.setPressedIcon(IconConstants.PREV_PRESSED_ICON);
-		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		prevBtn.setFont(prevBtn.getFont().deriveFont(Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
-		prevBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(2);
-			}
-		});
-		prevBtn.setEnabled(!Client.getInstance().isViewer());
-		
-		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
-		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
-		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
-		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		nextBtn.setFont(nextBtn.getFont().deriveFont(Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
-		nextBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(5);
-			}
-		});
-		nextBtn.setEnabled(!Client.getInstance().isViewer());
-		
-		navPnl.add(prevBtn, CC.xy(1, 1));
-		navPnl.add(nextBtn, CC.xy(3, 1));
+
+		navPnl.add(clientFrame.createNavigationButton(false, !Client.getInstance().isViewer()), CC.xy(1, 1));
+		navPnl.add(clientFrame.createNavigationButton(true, !Client.getInstance().isViewer()), CC.xy(3, 1));
 
 		// add everything to main panel
 		this.add(navPnl, CC.xy(1, 3));

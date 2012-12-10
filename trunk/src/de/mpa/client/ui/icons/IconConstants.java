@@ -105,6 +105,11 @@ public class IconConstants {
 	public static final ImageIcon DELETE_PAGE_ROLLOVER_ICON = createRescaledIcon(DELETE_PAGE_ICON, 1.1f);
 	public static final ImageIcon DELETE_PAGE_PRESSED_ICON = createRescaledIcon(DELETE_PAGE_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/lightning16.png"> */
+	public static final ImageIcon LIGHTNING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/lightning32.png"));
+	public static final ImageIcon LIGHTNING_ROLLOVER_ICON = createRescaledIcon(LIGHTNING_ICON, 1.2f);
+	public static final ImageIcon LIGHTNING_PRESSED_ICON = createRescaledIcon(LIGHTNING_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/next.png"> */
 	public static final ImageIcon NEXT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/next.png"));
 	public static final ImageIcon NEXT_ROLLOVER_ICON = createRescaledIcon(NEXT_ICON, 1.2f);
