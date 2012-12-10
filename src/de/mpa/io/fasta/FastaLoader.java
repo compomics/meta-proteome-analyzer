@@ -28,11 +28,6 @@ public class FastaLoader {
 	private Map<String, Long> acc2pos;
 	
 	/**
-	 * Collection containing identifier-to-accession mappings.
-	 */
-	private Map<String, String> id2acc;
-	
-	/**
 	 * The random access file instance.
 	 */
 	private RandomAccessFile raf;
@@ -46,6 +41,8 @@ public class FastaLoader {
 	 * The index file.
 	 */
 	private File indexFile;
+
+	private boolean hasChanged;
 	
 	/**
 	 * Singleton object instance of the FastaLoader class.
@@ -93,14 +90,7 @@ public class FastaLoader {
 		}
 		Long pos = acc2pos.get(id);
 		if (pos == null) {
-			// perhaps the provided string is a UniProt identifier
-			String accession = id2acc.get(id);
-			if (accession == null) {
-				throw new IOException("Provided string does not match any protein entry: " +
-						id);
-			} else {
-				pos = acc2pos.get(accession);
-			}
+				throw new IOException("Provided string does not match any protein entry: " + id);
 		}
 
 		if (raf == null) {
@@ -131,14 +121,29 @@ public class FastaLoader {
 	 * Writes the FASTA index file to the disk.
 	 * @throws FileNotFoundException
 	 * @throws IOException
+	 * @throws ClassNotFoundException 
 	 */
-	public void writeIndexFile() throws FileNotFoundException, IOException {
+	public void writeIndexFile() throws FileNotFoundException, IOException, ClassNotFoundException {
 		indexFile = new File(file.getAbsolutePath() + ".fb");
+		
+		if(indexFile.exists()){
+			FileInputStream fis = new FileInputStream(indexFile);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			Map<String, Long> tempMap = (Map<String, Long>) ois.readObject();
+			fis.close();
+			ois.close();
+			
+			// Add entries of old map
+			acc2pos.putAll(tempMap);
+		}
+
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
 		oos.writeObject(acc2pos);
-		oos.writeObject(id2acc);
 		oos.flush();
 		oos.close();
+		acc2pos = null;
+		System.gc();
+		
 	}
 	
 	/**
@@ -148,12 +153,14 @@ public class FastaLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	public void readIndexFile() throws IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(indexFile);
-		ObjectInputStream ois = new ObjectInputStream(fis);
-		acc2pos = (Map<String, Long>) ois.readObject();
-		id2acc = (Map<String, String>) ois.readObject();
-		fis.close();
-		ois.close();
+		if(hasChanged) {
+			FileInputStream fis = new FileInputStream(indexFile);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			acc2pos = (Map<String, Long>) ois.readObject();
+			fis.close();
+			ois.close();
+		}
+	
 	}
 
 	/**
@@ -171,11 +178,11 @@ public class FastaLoader {
 			
 			// Initialize index maps
 			acc2pos = new HashMap<String, Long>();
-			id2acc = new HashMap<String, String>();
+			//id2acc = new HashMap<String, String>();
 			
 			// Get the first position at the beginning of the file
 			Long pos = raf.getFilePointer();
-			
+			int count = 0;
 			// Iterate FASTA file line by line
 			String line;
 			while ((line = raf.readLine()) != null) {
@@ -185,9 +192,16 @@ public class FastaLoader {
 					Header header = Header.parseFromFASTA(line);
 					// Add map entry
 					acc2pos.put(header.getAccession(), pos);
-					String identifier = header.getDescription();
-					identifier = identifier.substring(0, identifier.indexOf(" "));
-					id2acc.put(identifier, header.getAccession());
+					count++;
+					if(count % 10000 == 0) {						
+						System.out.println(count + " sequences parsed...");
+					} 
+					if(count % 1000000 == 0) {
+						System.out.println(count + " sequences parsed... Writing map...");
+						writeIndexFile();
+						acc2pos = new HashMap<String, Long>();
+					}
+
 				} else {
 					// End of the sequence part == Start of a new header
 					pos = raf.getFilePointer();
@@ -195,6 +209,8 @@ public class FastaLoader {
 			}
 			raf.close();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		
@@ -232,10 +248,15 @@ public class FastaLoader {
 	 * @param indexFile The current index file.
 	 */
 	public void setIndexFile(File indexFile) {
-		this.indexFile = indexFile;
-		// reset map on change of index file
-		this.acc2pos = null;
+		// Compare two file paths
+		if (!indexFile.equals(this.indexFile)) {
+			this.indexFile = indexFile;
+			hasChanged = true;
+			// reset map on change of index file
+			this.acc2pos = null;
+		}
 	}
+
 
 	/**
 	 * Utility method to load a specified FASTA file by hand.
