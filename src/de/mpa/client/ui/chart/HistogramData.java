@@ -12,11 +12,16 @@ public class HistogramData implements ChartData {
 	
 	private HistogramDataset histDataset;
 	private ArrayList<Double> values;
-	private int binSize;
+	private int binCount;
 	
-	public HistogramData(ArrayList<Double> values, int binSize) {
+	/**
+	 * Creates a histogram data object from the specified values list and bin count parameter.
+	 * @param values the list of values
+	 * @param binCount the number of bins
+	 */
+	public HistogramData(ArrayList<Double> values, int binCount) {
 		this.values = values;
-		this.binSize = binSize;
+		this.binCount = binCount;
 		init();
 	}
 
@@ -41,7 +46,7 @@ public class HistogramData implements ChartData {
 		for (int i = 0; i < size; i++) {
 			values[i] = this.values.get(i).doubleValue();
 		}
-		histDataset.addSeries("key", values, binSize);
+		histDataset.addSeries("key", values, binCount);
 	}
 
 }

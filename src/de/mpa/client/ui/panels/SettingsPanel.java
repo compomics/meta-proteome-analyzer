@@ -11,7 +11,10 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,13 +22,13 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -43,8 +46,12 @@ import de.mpa.client.SearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.MascotGenericFile;
+import de.mpa.io.MascotGenericFileReader;
+import de.mpa.io.MascotGenericFileReader.LoadMode;
 
 public class SettingsPanel extends JPanel {
 
@@ -212,35 +219,84 @@ public class SettingsPanel extends JPanel {
 		procTtlPnl.setTitlePainter(ttlPainter);
 		procTtlPnl.setBorder(ttlBorder);
 		
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
-		
-		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
-		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
-		prevBtn.setPressedIcon(IconConstants.PREV_PRESSED_ICON);
-		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		prevBtn.setFont(prevBtn.getFont().deriveFont(
-				Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
-		prevBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(1);
-			}
-		});		
-		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
-		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
-		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
-		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		nextBtn.setFont(nextBtn.getFont().deriveFont(
-				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
-		nextBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(3);
+		// XXX: just a placeholder, remove or relocate button/functionality
+		JButton quickBtn = new JButton("Quick Search File", IconConstants.LIGHTNING_ICON);
+		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
+		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
+		quickBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(Constants.MGF_FILE_FILTER);
+				fc.setAcceptAllFileFilterUsed(false);
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fc.setMultiSelectionEnabled(false);
+				int result = fc.showOpenDialog(clientFrame);
+				if (result == JFileChooser.APPROVE_OPTION) {
+					new SwingWorker() {
+						protected Object doInBackground() throws Exception {
+							File file = null;
+							List<String> filenames = new ArrayList<String>();
+							FileOutputStream fos = null;
+							client.firePropertyChange("indeterminate", false, true);
+							client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
+							MascotGenericFileReader reader = new MascotGenericFileReader(fc.getSelectedFile(), LoadMode.SURVEY);
+							client.firePropertyChange("indeterminate", true, false);
+							client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
+							List<Long> spectrumPositions = reader.getSpectrumPositions(false);
+							long numSpectra = 0L;
+							long maxSpectra = (long) spectrumPositions.size();
+							long packageSize = (Long) packSpn.getValue();
+							client.firePropertyChange("resetall", 0L, maxSpectra);
+							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
+							// iterate over all spectra
+							for (Long pos : spectrumPositions) {
+								if ((numSpectra % packageSize) == 0) {
+									if (fos != null) {
+										fos.close();
+										client.uploadFile(file.getName(), client.getBytesFromFile(file));
+										file.delete();
+									}
+									file = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
+									filenames.add(file.getName());
+									fos = new FileOutputStream(file);
+									long remaining = maxSpectra - numSpectra;
+									firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+								}
+								MascotGenericFile mgf = reader.loadNthSpectrum((int) numSpectra, pos);
+								mgf.writeToStream(fos);
+								fos.flush();
+								firePropertyChange("progressmade", 0L, ++numSpectra);
+							}
+							fos.close();
+							client.uploadFile(file.getName(), client.getBytesFromFile(file));
+							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
+							
+							// collect search settings
+							DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
+							SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+							DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
+							
+							SearchSettings settings = new SearchSettings(dbss, sss, dnss,
+									clientFrame.getProjectPanel().getCurrentExperimentId());
+							
+							client.firePropertyChange("new message", null, "SEARCHES RUNNING");
+							// dispatch search request
+							client.runSearches(filenames, settings);
+							
+							return null;
+						}
+					}.execute();
+				}
 			}
 		});
+		JPanel quickPnl = new JPanel(new FormLayout("r:p:g, 5dlu", "b:p:g, 5dlu"));
+		quickPnl.add(quickBtn, CC.xy(1, 1));
+		this.add(quickPnl, CC.xy(4, 4));
 		
-		navPnl.add(prevBtn, CC.xy(1, 1));
-		navPnl.add(nextBtn, CC.xy(3, 1));
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		
+		navPnl.add(clientFrame.createNavigationButton(false, true), CC.xy(1, 1));
+		navPnl.add(clientFrame.createNavigationButton(true, true), CC.xy(3, 1));
 		
 //		addExperimentBtn = new JButton("Add Experiment   ", IconConstants.ADD_PAGE_ICON);
 //		addExperimentBtn.setRolloverIcon(IconConstants.ADD_PAGE_ROLLOVER_ICON);

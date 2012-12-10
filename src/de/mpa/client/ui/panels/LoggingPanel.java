@@ -3,20 +3,16 @@ package de.mpa.client.ui.panels;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JViewport;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
@@ -32,7 +28,6 @@ import de.mpa.client.Client;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TextLineNumber;
-import de.mpa.client.ui.icons.IconConstants;
 
 /**
  * <b>Log Panel</b>
@@ -104,32 +99,13 @@ public class LoggingPanel extends JPanel {
 
 		// create navigation button panel
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
-		
-		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
-		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
-		prevBtn.setPressedIcon(IconConstants.PREV_PRESSED_ICON);
-		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		prevBtn.setFont(prevBtn.getFont().deriveFont(
-				Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
-		prevBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(3);
-			}
-		});		
-		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
-		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		nextBtn.setFont(nextBtn.getFont().deriveFont(
-				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
-		nextBtn.setEnabled(false);
-		
-		navPnl.add(prevBtn, CC.xy(1, 1));
-		navPnl.add(nextBtn, CC.xy(3, 1));
+
+		navPnl.add(clientFrame.createNavigationButton(false, true), CC.xy(1, 1));
+		navPnl.add(clientFrame.createNavigationButton(true, false), CC.xy(3, 1));
 
 		// add everything to main panel
 		this.add(logTtlPnl, CC.xy(2, 2));
 		this.add(navPnl, CC.xy(2, 4));
-		
 	}
 	
 	/**

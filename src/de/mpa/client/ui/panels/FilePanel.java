@@ -2,7 +2,6 @@ package de.mpa.client.ui.panels;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +31,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -68,7 +66,6 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.HistogramChart;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.HistogramChart.HistChartType;
-import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -324,10 +321,19 @@ public class FilePanel extends JPanel {
 		histPnl.setMinimumSize(new Dimension(300, 250));
 		histPnl.setPreferredSize(new Dimension(300, 250));
 		
-		// Create chart panel
-		ticList.add(0.0);
+		// Create chart panel, initially plot bell curve
+		int binCount = 40;
+		double mean = 0.5, variance = 0.05, stdDeviation = Math.sqrt(variance);
+		for (int i = 0; i < binCount; i++) {
+			double x = i / (double) (binCount - 1);
+			long y = Math.round(100.0 * Math.pow(Math.exp(-(((x - mean) * (x - mean)) / 
+					((2 * variance)))), 1 / (stdDeviation * Math.sqrt(2 * Math.PI))));
+			for (int j = 0; j < y; j++) {
+				ticList.add(x); 
+			}
+		}
 		// TODO: determine bin size via formula
-		HistogramChart histogram = new HistogramChart(new HistogramData(ticList, 40), HistChartType.TOTAL_ION_HIST);
+		HistogramChart histogram = new HistogramChart(new HistogramData(ticList, binCount), HistChartType.TOTAL_ION_HIST);
 		ChartPanel chartPanel = new ChartPanel(histogram.getChart());
 		chartPanel.setPreferredSize(new Dimension(0, 0));
 		chartPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -343,7 +349,6 @@ public class FilePanel extends JPanel {
 		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
 		split = new JXMultiSplitPane() {
-
 			@Override
 			public void setCursor(Cursor cursor) {
 				if (busy) {
@@ -362,33 +367,8 @@ public class FilePanel extends JPanel {
 		
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
 		
-		JButton prevBtn = new JButton("Prev", IconConstants.PREV_ICON);
-		prevBtn.setRolloverIcon(IconConstants.PREV_ROLLOVER_ICON);
-		prevBtn.setPressedIcon(IconConstants.PREV_PRESSED_ICON);
-		prevBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		prevBtn.setFont(prevBtn.getFont().deriveFont(
-				Font.BOLD, prevBtn.getFont().getSize2D()*1.25f));
-		prevBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(0);
-			}
-		});		
-		JButton nextBtn = new JButton("Next", IconConstants.NEXT_ICON);
-		nextBtn.setRolloverIcon(IconConstants.NEXT_ROLLOVER_ICON);
-		nextBtn.setPressedIcon(IconConstants.NEXT_PRESSED_ICON);
-		nextBtn.setHorizontalTextPosition(SwingConstants.LEFT);
-		nextBtn.setFont(nextBtn.getFont().deriveFont(
-				Font.BOLD, nextBtn.getFont().getSize2D()*1.25f));
-		nextBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				clientFrame.getTabPane().setSelectedIndex(2);
-			}
-		});
-		
-		navPnl.add(prevBtn, CC.xy(1, 1));
-		navPnl.add(nextBtn, CC.xy(3, 1));
+		navPnl.add(clientFrame.createNavigationButton(false, true), CC.xy(1, 1));
+		navPnl.add(clientFrame.createNavigationButton(true, true), CC.xy(3, 1));
 		
 		// add everything to main panel
 		this.add(split, CC.xy(2, 2));
@@ -422,13 +402,16 @@ public class FilePanel extends JPanel {
 				if (res == JOptionPane.OK_OPTION) {
 					try {
 						client.initDBConnection();
-						List<MascotGenericFile> dlSpec = client.downloadSpectra((Long)expIdSpn.getValue());
+						List<MascotGenericFile> dlSpec = client.downloadSpectra((Long) expIdSpn.getValue());
 					//	clientFrame.getClient().closeDBConnection();
-						FileOutputStream fos = new FileOutputStream(new File("experiment_" + expIdSpn.getValue() + ".mgf"));
+						File file = new File("experiment_" + expIdSpn.getValue() + ".mgf");
+						FileOutputStream fos = new FileOutputStream(file);
 						for (MascotGenericFile mgf : dlSpec) {
 							mgf.writeToStream(fos);
 						}
 						fos.close();
+						// Add downloaded file contents to tree
+						new AddFileWorker(new File[] { file }).execute();
 					} catch (Exception x) {
 						x.printStackTrace();
 					}

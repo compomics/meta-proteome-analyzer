@@ -4,14 +4,18 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -26,7 +30,6 @@ import org.apache.log4j.Logger;
 
 import de.mpa.client.Client;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
@@ -131,7 +134,7 @@ public class ClientFrame extends JFrame {
 		this.setResizable(true);
 
 		// Build Components
-		initComponents();
+		this.initComponents();
 		
 		// Get the content pane
 		Container cp = this.getContentPane();
@@ -306,6 +309,91 @@ public class ClientFrame extends JFrame {
 	 */
 	public JTabbedPane getTabPane() {
 		return tabPane;
+	}
+	
+	/**
+	 * Convenience method to create a navigation button for cycling tab selection.
+	 * @param next <code>true</code> if this button shall advance the tab selection 
+	 * 				in ascending index order, <code>false</code> otherwise
+	 * @param enabled <code>true</code> if this button shall be initially disabled, 
+	 * 				<code>false</code> otherwise
+	 * @return The created navigation button
+	 */
+	public JButton createNavigationButton(boolean next, boolean enabled) {
+		String text;
+		Icon icon, ricon, picon;
+		ActionListener al;
+		if (next) {
+			text = "Next";
+			icon = IconConstants.NEXT_ICON;
+			ricon = IconConstants.NEXT_ROLLOVER_ICON;
+			picon = IconConstants.NEXT_PRESSED_ICON;
+			al = nextTabListener;
+		} else {
+			text = "Prev";
+			icon = IconConstants.PREV_ICON;
+			ricon = IconConstants.PREV_ROLLOVER_ICON;
+			picon = IconConstants.PREV_PRESSED_ICON;
+			al = prevTabListener;
+		}
+		JButton button = new JButton(text, icon);
+		button.setRolloverIcon(ricon);
+		button.setPressedIcon(picon);
+		button.addActionListener(al);
+		button.setEnabled(enabled);
+		button.setFont(button.getFont().deriveFont(
+				Font.BOLD, button.getFont().getSize2D()*1.25f));
+		button.setHorizontalTextPosition(SwingConstants.LEFT);
+		
+		return button;
+	}
+	
+	/**
+	 * General-purpose listener for 'Next' navigation buttons.
+	 */
+	private ActionListener nextTabListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			nextTab();
+		}
+	};
+	
+	/**
+	 * General-purpose listener for 'Prev' navigation buttons.
+	 */
+	private ActionListener prevTabListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			previousTab();
+		}
+	};
+	
+	/**
+	 * Selects the previous non-disabled tab before the one currently selected
+	 * if one exists.
+	 */
+	public void previousTab() {
+		int index = tabPane.getSelectedIndex() - 1;
+		while (index >= 0) {
+			if (tabPane.isEnabledAt(index)) {
+				tabPane.setSelectedIndex(index);
+				return;
+			}
+			index--;
+		}
+	}
+
+	/**
+	 * Selects the next non-disabled tab after the one currently selected if one
+	 * exists.
+	 */
+	public void nextTab() {
+		int index = tabPane.getSelectedIndex() + 1;
+		while (index < tabPane.getTabCount()) {
+			if (tabPane.isEnabledAt(index)) {
+				tabPane.setSelectedIndex(index);
+				return;
+			}
+			index++;
+		}
 	}
 	
 	/**
