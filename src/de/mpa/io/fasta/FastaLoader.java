@@ -1,5 +1,8 @@
 package de.mpa.io.fasta;
 
+import gnu.trove.map.TObjectLongMap;
+import gnu.trove.map.hash.TObjectLongHashMap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,7 +11,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
-import java.util.Map;
+
+import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
+import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
+import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
+import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
+import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
@@ -24,7 +34,7 @@ public class FastaLoader {
 	/**
 	 * The accession-to-position map.
 	 */
-	private CachedHashMap<String, Long> acc2pos;
+	private TObjectLongMap<String> acc2pos;
 	
 	/**
 	 * The random access file instance.
@@ -40,8 +50,18 @@ public class FastaLoader {
 	 * The index file.
 	 */
 	private File indexFile;
-
+	
 	private boolean hasChanged;
+	
+	/**
+	 * UniProt Query Service object.
+	 */
+	private Object uniProtQueryService;
+	
+	/**
+	 * UniProt Entry Retrieval Service object.
+	 */
+	private EntryRetrievalService entryRetrievalService;
 	
 	/**
 	 * Singleton object instance of the FastaLoader class.
@@ -52,6 +72,7 @@ public class FastaLoader {
 	 * Private constructor as FastaLoader is a singleton object.
 	 */
 	private FastaLoader() {
+		setupUniProtQueryService();
 	}
 
 	/**
@@ -66,7 +87,59 @@ public class FastaLoader {
 		}
 		return instance;
 	}
-
+	
+	/**
+	 * This method setups the uniprot query service.
+	 */
+	private void setupUniProtQueryService() {
+		// Check whether UniProt query service has been established yet.
+		if (uniProtQueryService == null) {
+			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
+			
+			// Create entry retrival service
+			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
+		}		
+	}
+	
+	/**
+	 * Returns a protein object queried by the UniProt webservice (if no indexed FASTA is available.
+	 * @param id Protein accession.
+	 * @return Protein object containing header + sequence.
+	 */
+	public Protein getProteinFromWebService(String id) {
+		// Retrieve UniProt entry by its accession number
+		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry(id);
+		String header = ">";
+		if(entry.getType() == UniProtEntryType.TREMBL) {
+			header += "tr|";
+		} else if(entry.getType() == UniProtEntryType.SWISSPROT) {
+			header += "sw|";
+		}
+		header += id + "|";
+		
+		header += getProteinName(entry.getProteinDescription());
+		String sequence = entry.getSequence().getValue();
+		return new Protein(header, sequence);
+	}
+	
+	/**
+	 * Returns the protein name(s) as formatted string
+	 * @param desc ProteinDescription object.
+	 * @return Protein name(s) as formatted string.
+	 */
+	public String getProteinName(ProteinDescription desc) {
+		Name name = null;
+		
+		if (desc.hasRecommendedName()) {
+			name = desc.getRecommendedName();
+		} else if (desc.hasAlternativeNames()) {
+			name = desc.getAlternativeNames().get(0);
+		} else if (desc.hasSubNames()) {
+			name = desc.getSubNames().get(0);
+		}
+		return (name == null) ? "unknown" : name.getFieldsByType(FieldType.FULL).get(0).getValue();
+	}
+	
 	/**
 	 * Returns a specific protein from the FASTA file.
 	 * 
@@ -75,9 +148,11 @@ public class FastaLoader {
 	 * @throws IOException 
 	 */
 	public Protein getProteinFromFasta(String id) throws IOException {
+		// No mapping provided.
 		if (acc2pos == null) {
+			// No index file given.
 			if ((indexFile == null) || (file == null)) {
-				return null;
+				return getProteinFromWebService(id);
 			} else {
 				try {
 					readIndexFile();
@@ -90,6 +165,7 @@ public class FastaLoader {
 		Long pos = acc2pos.get(id);
 		if (pos == null) {
 				throw new IOException("Provided string does not match any protein entry: " + id);
+				
 		}
 
 		if (raf == null) {
@@ -128,15 +204,15 @@ public class FastaLoader {
 		if(indexFile.exists()){
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			CachedHashMap<String, Long> tempMap = (CachedHashMap<String, Long>) ois.readObject();
+			TObjectLongHashMap<String> tempMap = (TObjectLongHashMap<String>) ois.readObject();
 			fis.close();
 			ois.close();
 			
 			// Add entries of old map
 			acc2pos.putAll(tempMap);
 			tempMap.clear();
-		}
-
+		}		
+		
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
 		oos.writeObject(acc2pos);
 		oos.flush();
@@ -154,7 +230,8 @@ public class FastaLoader {
 		if(hasChanged) {
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			acc2pos = (CachedHashMap<String, Long>) ois.readObject();
+			
+			acc2pos = (TObjectLongHashMap<String>) ois.readObject();
 			fis.close();
 			ois.close();
 		}
@@ -175,7 +252,7 @@ public class FastaLoader {
 			raf = new RandomAccessFile(file, "r");
 			
 			// Initialize index maps
-			acc2pos = new CachedHashMap<String, Long>();
+			acc2pos = new TObjectLongHashMap<String>();
 			
 			// Get the first position at the beginning of the file
 			Long pos = raf.getFilePointer();
@@ -192,9 +269,9 @@ public class FastaLoader {
 					count++;
 					if(count % 10000 == 0) {						
 						System.out.println(count + " sequences parsed...");
-					} 
-					if(count % 1000000 == 0) {
-						System.out.println(count + " sequences parsed... Writing map...");
+					} 	
+					if(count % 1000000 == 0) {						
+						System.out.println("Writing index file...");
 						writeIndexFile();
 					}
 
@@ -208,7 +285,7 @@ public class FastaLoader {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-		}
+		} 
 		
 	}
 
@@ -216,7 +293,7 @@ public class FastaLoader {
 	 * Returns the accession-to-position index map.
 	 * @return indexMap The index map. 
 	 */
-	public Map<String, Long> getIndexMap() {
+	public TObjectLongMap<String> getIndexMap() {
 		return acc2pos;
 	}
 
@@ -269,7 +346,7 @@ public class FastaLoader {
 			try {
 				System.out.print("Loading file... ");
 				fastaLoader.loadFastaFile();
-				System.out.print(" done.\nWriting output... ");
+				System.out.print(" done.\nWriting final output... ");
 				fastaLoader.writeIndexFile();
 				System.out.println("done.");
 			} catch (Exception e) {

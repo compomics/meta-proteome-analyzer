@@ -493,7 +493,7 @@ public class FilePanel extends JPanel {
 		@Override
 		protected Object doInBackground() throws Exception {
 			// appear busy
-			setBusy(true);
+			//setBusy(true);
 			
 			DefaultTreeTableModel treeModel = (DefaultTreeTableModel) treeTbl.getTreeTableModel();
 			CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) treeModel.getRoot();
@@ -615,7 +615,7 @@ public class FilePanel extends JPanel {
 			client.firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");
 			
 			// stop appearing busy
-			setBusy(false);
+			//setBusy(false);
 
 			String str = filesTtf.getText();
 			str = str.substring(0, str.indexOf(" "));

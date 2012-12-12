@@ -57,7 +57,9 @@ public class UniprotAccessorTest extends TestCase {
 		if (entry != null) {
 			// UniprotID
 			uniProtID = entry.getUniProtId().getValue();
-
+			
+			System.out.println("type: " + entry.getType().name());
+			System.out.println(entry.getProteinDescription().getRecommendedName().getFields());
 			// UniprotKO
 			List<DatabaseCrossReference> dcrKO = entry.getDatabaseCrossReferences(DatabaseType.KO);
 			uniprotKO = ((KO) dcrKO.get(0)).getKOIdentifier().getValue();

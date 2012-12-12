@@ -49,5 +49,6 @@
 	<classpathentry kind="lib" path="lib/wsdl4j-1.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="javadoc/jfreechart-1.0.14.zip"/>
 	<classpathentry kind="lib" path="lib/jaligner.jar"/>
+	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -2679,7 +2679,7 @@ public class DbSearchResultPanel extends JPanel {
 			TableColumnModel tcm = peptideTbl.getColumnModel();
 
 			BarChartHighlighter highlighter;
-
+			// FIXME: ArrayIndexOut...
 			highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(peptideTbl.convertColumnIndexToView(PEP_PROTEINCOUNT))).getHighlighters()[0];
 			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxProtCount)));
 			highlighter.setRange(0.0, maxProtCount);
