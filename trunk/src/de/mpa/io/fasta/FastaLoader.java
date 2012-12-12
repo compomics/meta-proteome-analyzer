@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.compomics.util.protein.Header;
@@ -25,7 +24,7 @@ public class FastaLoader {
 	/**
 	 * The accession-to-position map.
 	 */
-	private Map<String, Long> acc2pos;
+	private CachedHashMap<String, Long> acc2pos;
 	
 	/**
 	 * The random access file instance.
@@ -129,21 +128,20 @@ public class FastaLoader {
 		if(indexFile.exists()){
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			Map<String, Long> tempMap = (Map<String, Long>) ois.readObject();
+			CachedHashMap<String, Long> tempMap = (CachedHashMap<String, Long>) ois.readObject();
 			fis.close();
 			ois.close();
 			
 			// Add entries of old map
 			acc2pos.putAll(tempMap);
+			tempMap.clear();
 		}
 
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
 		oos.writeObject(acc2pos);
 		oos.flush();
 		oos.close();
-		acc2pos = null;
-		System.gc();
-		
+		acc2pos.clear();
 	}
 	
 	/**
@@ -156,7 +154,7 @@ public class FastaLoader {
 		if(hasChanged) {
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			acc2pos = (Map<String, Long>) ois.readObject();
+			acc2pos = (CachedHashMap<String, Long>) ois.readObject();
 			fis.close();
 			ois.close();
 		}
@@ -177,8 +175,7 @@ public class FastaLoader {
 			raf = new RandomAccessFile(file, "r");
 			
 			// Initialize index maps
-			acc2pos = new HashMap<String, Long>();
-			//id2acc = new HashMap<String, String>();
+			acc2pos = new CachedHashMap<String, Long>();
 			
 			// Get the first position at the beginning of the file
 			Long pos = raf.getFilePointer();
@@ -199,7 +196,6 @@ public class FastaLoader {
 					if(count % 1000000 == 0) {
 						System.out.println(count + " sequences parsed... Writing map...");
 						writeIndexFile();
-						acc2pos = new HashMap<String, Long>();
 					}
 
 				} else {
