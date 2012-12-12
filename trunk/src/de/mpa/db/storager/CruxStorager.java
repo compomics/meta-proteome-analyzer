@@ -129,8 +129,11 @@ public class CruxStorager implements Storager {
                     	}
 
                     	String accession = tokenList.get(1);
-                        Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+                        Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);                        
+                      
                         String description = protein.getHeader().getDescription();
+                        
+                       
                         
                     	ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
                     	if (proteinDAO == null) { // protein not yet in database

@@ -1,9 +1,10 @@
 package de.mpa.fastaLoader;
 
+import gnu.trove.map.TObjectLongMap;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -21,7 +22,7 @@ public class TestFastaLoader extends TestCase {
 	
 	@Before
 	public void setUp(){
-		file = new File(getClass().getClassLoader().getResource("Fasta/test.fasta").getPath());
+		file = new File(getClass().getClassLoader().getResource("test.fasta").getPath());
 		fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(file);
 		try {
@@ -34,10 +35,10 @@ public class TestFastaLoader extends TestCase {
 	@Test 
 	public void testLoadFastaFile(){
 		try {
-			Map<String, Long> indexMap1 = fastaLoader.getIndexMap();
+			TObjectLongMap<String> indexMap1 = fastaLoader.getIndexMap();
 			fastaLoader.writeIndexFile();
 			fastaLoader.readIndexFile();
-			Map<String, Long> indexMap2 = fastaLoader.getIndexMap();
+			TObjectLongMap<String> indexMap2 = fastaLoader.getIndexMap();
 			assertEquals(indexMap1, indexMap2);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,7 +67,4 @@ public class TestFastaLoader extends TestCase {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
 }

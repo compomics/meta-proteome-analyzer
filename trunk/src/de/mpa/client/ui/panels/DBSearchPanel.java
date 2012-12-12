@@ -19,9 +19,11 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
+import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 
 public class DBSearchPanel extends JPanel {
 
@@ -115,13 +117,25 @@ public class DBSearchPanel extends JPanel {
 		// X!Tandem
 		xTandemChk = new JCheckBox("X!Tandem", true);
 		xTandemChk.setIconTextGap(10);
+		
+		// Load default X!Tandem settings
 		xTandemSetBtn = new JButton("Advanced Settings");
+		xTandemSetBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new AdvancedSettingsDialog(clientFrame, "X!Tandem Advanced Parameters", true, new XTandemParameters());
+			}
+		});
+		
 		xTandemSetBtn.setEnabled(xTandemChk.isSelected());
+		
 		xTandemChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				xTandemSetBtn.setEnabled(xTandemChk.isSelected());
 			}
 		});
+		
 		// OMSSA
 		omssaChk = new JCheckBox("OMSSA", true);
 		omssaChk.setIconTextGap(10);

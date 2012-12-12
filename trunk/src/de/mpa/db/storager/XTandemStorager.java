@@ -142,7 +142,7 @@ public class XTandemStorager extends BasicStorager {
                 	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
                 	      
                 	      // Only store if the search spectrum id is referenced.
-                	      if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)){
+                	      if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	  long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
                 	    	  hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
                   	    	  

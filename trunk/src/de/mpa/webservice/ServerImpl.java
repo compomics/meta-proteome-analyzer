@@ -115,8 +115,11 @@ public class ServerImpl implements Server {
 		fastaLoader.setFastaFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta"));
 
 		try {
-			fastaLoader.setIndexFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta.fb"));
-			fastaLoader.readIndexFile();
+			File indexFile = new File(JobConstants.FASTA_PATH + searchDB  + ".fasta.fb");
+			if(indexFile.exists()) {
+				fastaLoader.setIndexFile(indexFile);
+				fastaLoader.readIndexFile();
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e.getCause());
 			e.printStackTrace();
