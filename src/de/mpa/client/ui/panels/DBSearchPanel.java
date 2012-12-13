@@ -19,6 +19,9 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.settings.CruxParameters;
+import de.mpa.client.settings.InspectParameters;
+import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
@@ -35,12 +38,10 @@ public class DBSearchPanel extends JPanel {
 	private JCheckBox omssaChk;
 	private JCheckBox cruxChk;
 	private JCheckBox inspectChk;
-	private JCheckBox mascotChk;
 	private JButton xTandemSetBtn;
 	private JButton omssaSetBtn;
 	private JButton cruxSetBtn;
 	private JButton inspectSetBtn;
-	private JButton mascotSetBtn;
 	private JComboBox searchTypeCbx;
 	private ClientFrame clientFrame;
 	
@@ -111,7 +112,7 @@ public class DBSearchPanel extends JPanel {
 		
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
-		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu", "0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
+		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu", "0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		// X!Tandem
@@ -140,6 +141,13 @@ public class DBSearchPanel extends JPanel {
 		omssaChk = new JCheckBox("OMSSA", true);
 		omssaChk.setIconTextGap(10);
 		omssaSetBtn = new JButton("Advanced Settings");
+		omssaSetBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new AdvancedSettingsDialog(clientFrame, "OMSSA Advanced Parameters", true, new OmssaParameters());
+			}
+		});
+		
 		omssaSetBtn.setEnabled(omssaChk.isSelected());
 		omssaChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -150,6 +158,13 @@ public class DBSearchPanel extends JPanel {
 		cruxChk = new JCheckBox("Crux", true);
 		cruxChk.setIconTextGap(10);
 		cruxSetBtn = new JButton("Advanced Settings");
+		cruxSetBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new AdvancedSettingsDialog(clientFrame, "Crux Advanced Parameters", true, new CruxParameters());
+			}
+		});
+		
 		cruxSetBtn.setEnabled(cruxChk.isSelected());
 		cruxChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -161,20 +176,17 @@ public class DBSearchPanel extends JPanel {
 		inspectChk = new JCheckBox("InsPecT", true);
 		inspectChk.setIconTextGap(10);
 		inspectSetBtn = new JButton("Advanced Settings");
+		inspectSetBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new AdvancedSettingsDialog(clientFrame, "InsPect Advanced Parameters", true, new InspectParameters());
+			}
+		});
+		
 		inspectSetBtn.setEnabled(inspectChk.isSelected());
 		inspectChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				inspectSetBtn.setEnabled(inspectChk.isSelected());
-			}
-		});
-		// Mascot CheckBox
-		mascotChk = new JCheckBox("Mascot", false);
-		mascotChk.setIconTextGap(10);
-		mascotSetBtn = new JButton("Advanced Settings");
-		mascotSetBtn.setEnabled(mascotChk.isSelected());
-		mascotChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				mascotSetBtn.setEnabled(mascotChk.isSelected());
 			}
 		});
 		
@@ -189,11 +201,9 @@ public class DBSearchPanel extends JPanel {
 		searchEngPnl.add(cruxSetBtn, cc.xy(4, 6));
 		searchEngPnl.add(inspectChk, cc.xy(2, 8));
 		searchEngPnl.add(inspectSetBtn, cc.xy(4, 8));
-		searchEngPnl.add(mascotChk, cc.xy(2, 10));
-		searchEngPnl.add(mascotSetBtn, cc.xy(4, 10));
-		searchEngPnl.add(new JSeparator(), cc.xyw(2, 12, 3));
-		searchEngPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 14));
-		searchEngPnl.add(searchTypeCbx, cc.xy(4, 14));
+		searchEngPnl.add(new JSeparator(), cc.xyw(2, 10, 3));
+		searchEngPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 12));
+		searchEngPnl.add(searchTypeCbx, cc.xy(4, 12));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, cc.xy(2, 2));
@@ -214,7 +224,6 @@ public class DBSearchPanel extends JPanel {
 			omssaSetBtn.setEnabled(omssaChk.isSelected());
 			cruxSetBtn.setEnabled(cruxChk.isSelected());
 			inspectSetBtn.setEnabled(inspectChk.isSelected());
-			mascotSetBtn.setEnabled(mascotChk.isSelected());
 		}
 	}
 
@@ -253,7 +262,6 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setOmssa(omssaChk.isSelected());
 		dbSettings.setCrux(cruxChk.isSelected());
 		dbSettings.setInspect(inspectChk.isSelected());
-		dbSettings.setMascot(mascotChk.isSelected());
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.
