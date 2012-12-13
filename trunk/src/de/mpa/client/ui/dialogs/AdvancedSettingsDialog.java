@@ -3,17 +3,21 @@ package de.mpa.client.ui.dialogs;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
@@ -43,7 +47,11 @@ public class AdvancedSettingsDialog extends JDialog {
 	/**
 	 * Mapping from section to list of parameters.
 	 */
-	private HashMap<String, List<Parameter>> sectionMap; 
+	private HashMap<String, List<Parameter>> sectionMap;
+
+	private JButton okBtn;
+
+	private JButton cancelBtn; 
 	
 	/**
 	 * Constructor for the AdvancedSettingsDialog.
@@ -122,18 +130,41 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Add panels to the dialog content pane
 		Container contentPane = this.getContentPane();
 		contentPane.setLayout(new FormLayout("5dlu, p:g, 5dlu",
-				"5dlu, f:p:g, 5dlu"));
-		
-		// Add Panels to content pane
-//		contentPane.add(descriptionPnl,CC.xyw(2,2,3));
-//		contentPane.add(propertyPnl,CC.xyw(2,4,3));
-//		contentPane.add(saveBtn, CC.xy(2,6));
-//		contentPane.add(cancelBtn, CC.xy(4,6));
+				"5dlu, f:p:g, 5dlu, p, 5dlu"));	
+
 		
 		contentPane.add(tpc, CC.xy(2, 2));
+		
+		
+		JPanel buttonPnl = new JPanel();
+		buttonPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p, 5dlu", "5dlu, p, 5dlu"));
+		
+		okBtn = new JButton("OK");
+		okBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO: Get the new settings
+				dispose();
+			}
+		});
+		
+		cancelBtn = new JButton("Cancel");
+		cancelBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+				
+			}
+		});
+		
+		buttonPnl.add(okBtn, CC.xy(2, 2));
+		buttonPnl.add(cancelBtn, CC.xy(4, 2));
+		
+		contentPane.add(buttonPnl, CC.xy(2, 4, CC.CENTER, CC.BOTTOM));
 		// Set the preferred size
 		this.pack();
 		Dimension size = this.getSize();
+		
 		this.setMinimumSize(new Dimension(size.width, size.height + 6));
 		
 		ScreenConfig.centerInScreen(this);
