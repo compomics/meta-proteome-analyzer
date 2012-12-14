@@ -67,6 +67,7 @@ import org.jfree.chart.plot.PiePlot;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.jgoodies.forms.factories.CC;
@@ -212,35 +213,35 @@ public class ResultsPanel extends JPanel {
 		// total vs. identified spectra
 		totalSpecLbl = new JLabel("0");
 		identSpecLbl = new JLabel("0");
-		JPanel specBarPnl = new BarChartPanel(totalSpecLbl, identSpecLbl);
+		JPanel specBarPnl = new BarChartPanel(identSpecLbl, totalSpecLbl);
 		
-		generalPnl.add(new JLabel("Total spectra"), CC.xy(2, 2));
-		generalPnl.add(totalSpecLbl, CC.xy(4, 2));
+		generalPnl.add(new JLabel("Total spectra"), CC.xy(10, 2));
+		generalPnl.add(totalSpecLbl, CC.xy(8, 2));
 		generalPnl.add(specBarPnl, CC.xy(6, 2));
-		generalPnl.add(identSpecLbl, CC.xy(8, 2));
-		generalPnl.add(new JLabel("identified spectra"), CC.xy(10, 2));
+		generalPnl.add(identSpecLbl, CC.xy(4, 2));
+		generalPnl.add(new JLabel("Identified spectra"), CC.xy(2, 2));
 
 		// total vs. unique peptides
 		totalPepLbl = new JLabel("0");
 		uniquePepLbl = new JLabel("0");
-		JPanel pepBarPnl = new BarChartPanel(totalPepLbl, uniquePepLbl);
+		JPanel pepBarPnl = new BarChartPanel(uniquePepLbl, totalPepLbl);
 		
-		generalPnl.add(new JLabel("Total peptides"), CC.xy(2, 4));
-		generalPnl.add(totalPepLbl, CC.xy(4, 4));
+		generalPnl.add(new JLabel("Total peptides"), CC.xy(10, 4));
+		generalPnl.add(totalPepLbl, CC.xy(8, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
-		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("unique peptides"), CC.xy(10, 4));
+		generalPnl.add(uniquePepLbl, CC.xy(4, 4));
+		generalPnl.add(new JLabel("Unique peptides"), CC.xy(2, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
 		specificProtLbl = new JLabel("0");
-		JPanel protBarPnl = new BarChartPanel(totalProtLbl, specificProtLbl);
+		JPanel protBarPnl = new BarChartPanel(specificProtLbl, totalProtLbl);
 		
-		generalPnl.add(new JLabel("Total proteins"), CC.xy(2, 6));
-		generalPnl.add(totalProtLbl, CC.xy(4, 6));
+		generalPnl.add(new JLabel("Total proteins"), CC.xy(10, 6));
+		generalPnl.add(totalProtLbl, CC.xy(8, 6));
 		generalPnl.add(protBarPnl, CC.xy(6, 6));
-		generalPnl.add(specificProtLbl, CC.xy(8, 6));
-		generalPnl.add(new JLabel("specific proteins"), CC.xy(10, 6));
+		generalPnl.add(specificProtLbl, CC.xy(4, 6));
+		generalPnl.add(new JLabel("Specific proteins"), CC.xy(2, 6));
 
 		speciesLbl = new JLabel("0");
 		enzymesLbl = new JLabel("0");
@@ -698,10 +699,13 @@ public class ResultsPanel extends JPanel {
 				Set<String> kNumbers = new HashSet<String>();
 				for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 					speciesNames.add(ph.getSpecies());
-					ecNumbers.addAll(ph.getUniprotEntry().getProteinDescription().getEcNumbers());
-					for (DatabaseCrossReference xref : 
-						ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-						kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+					UniProtEntry uniProtEntry = ph.getUniprotEntry();
+					if (uniProtEntry != null) {
+						ecNumbers.addAll(uniProtEntry.getProteinDescription().getEcNumbers());
+						for (DatabaseCrossReference xref : 
+							ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+						}
 					}
 				}
 				Set<Short> pathwayIDs = new HashSet<Short>();
@@ -787,20 +791,26 @@ public class ResultsPanel extends JPanel {
 		return chartTypeBtn;
 	}
 
+	/**
+	 * Custom label painting a bar chart-like background with areas derived from
+	 * numeric values stored in associated JLabels.
+	 * 
+	 * @author A. Behne
+	 */
 	private class BarChartPanel extends JPanel {
 		private JLabel totalLbl;
 		private JLabel fracLbl;
 		
-		public BarChartPanel(JLabel totalLbl, JLabel fracLbl) {
-			this.totalLbl = totalLbl;
+		public BarChartPanel(JLabel fracLbl, JLabel totalLbl) {
 			this.fracLbl = fracLbl;
+			this.totalLbl = totalLbl;
 		}
 		
 		public void paint(Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;
 			Point pt1 = new Point();
 			Point pt2 = new Point(getWidth(), 0);
-			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
+			g2.setPaint(new GradientPaint(pt1, Color.GRAY, pt2, Color.LIGHT_GRAY));
 			g2.fillRect(0, 0, getWidth(), getHeight());
 
 			try {
@@ -808,17 +818,19 @@ public class ResultsPanel extends JPanel {
 				if (total > 0.0) {
 					double rel = Double.parseDouble(fracLbl.getText()) / total;
 					int width = (int) (getWidth() * rel);
-					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE, pt2, ColorUtils.LIGHT_ORANGE));
-					g2.fillRect(getWidth() - width, 0, width, getHeight());
+					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
+//					g2.fillRect(getWidth() - width, 0, width, getHeight());
+					g2.fillRect(0, 0, width, getHeight());
 					String str = String.format("%.1f", rel * 100.0) + "%";
 					FontMetrics fm = g2.getFontMetrics();
 					Rectangle2D bounds = fm.getStringBounds(str, g2);
 
 					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//						g2.setPaint(ColorUtils.DARK_ORANGE);
-					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
+//					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
+					float x = (float) (width - bounds.getWidth() - 2.0f);
 					if (x < 2.0f) {
-						x = getWidth() - width + 2.0f;
+//						x = getWidth() - width + 2.0f;
+						x = width + 2.0f;
 					}
 					float y = (float) (-bounds.getY() + getHeight()) / 2.0f - 1.0f;
 					g2.setPaint(Color.BLACK);
