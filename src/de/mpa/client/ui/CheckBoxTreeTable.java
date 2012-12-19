@@ -25,11 +25,12 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.TableCellEditor;
-import javax.swing.tree.AbstractLayoutCache.NodeDimensions;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.AbstractLayoutCache.NodeDimensions;
 
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTree;
@@ -52,15 +53,54 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
  */
 public class CheckBoxTreeTable extends JXTreeTable {
 
+	/**
+	 * The tree table instance.
+	 */
 	private JXTreeTable treeTable = this;
+	
+	/**
+	 * The tree inside the hierarchical column of this tree table.
+	 */
 	private JXTree tree;
+	
+	/**
+	 * The selection model for the checkboxes inside the hierarchical column.
+	 */
 	private CheckBoxTreeSelectionModel cbtsm;
+	
+	/**
+	 * The editor instance for the hierarchical column.
+	 */
 	private CheckBoxTreeCellEditor cbtce;
+	
+	/**
+	 * The width of the checkbox part of a cell inside the hierarchical column.
+	 */
 	private int hotspot;
+	
+	/**
+	 * The center of the checkbox part of a cell inside the hierarchical column.
+	 */
 	private int center;
+	
+	/**
+	 * An additional margin between a tree cell's expansion handle and the checkbox part inside the hierarchical column.
+	 */
 	private int indent = 0;
+	
+	/**
+	 * A highlighter used for when the tree table is enabled.
+	 */
 	private Highlighter enabledHighlighter;
+	
+	/**
+	 * A highlighter used for when the tree table is disabled.
+	 */
 	private Highlighter disabledHighlighter;
+	
+	/**
+	 * A data structure allowing storage of context-sensitive icons inside the hierarchical column.
+	 */
 	private IconValue iconValue;
 	
 	/**
@@ -80,10 +120,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		super(treeModel);
 		
 		tree = (JXTree) this.getCellRenderer(-1, this.getHierarchicalColumn());
-
+		
 		hotspot = UIManager.getIcon("CheckBox.icon").getIconWidth();
 		center = indent + (hotspot)/2 - 4;
-
+		
 		final IconCheckBox editorBox = new IconCheckBox();
 		editorBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -143,8 +183,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		
 		// Install highlighters
 		treeTable.setSelectionBackground(null);
-		treeTable.addHighlighter(enabledHighlighter = TableConfig.getSimpleStriping());
 		
+		treeTable.addHighlighter(enabledHighlighter = TableConfig.getSimpleStriping());
 		disabledHighlighter = TableConfig.getDisabledStriping();
 
 		// Misc. settings
@@ -254,7 +294,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 					Rectangle dimensions = super.getNodeDimensions(value, row,
 							depth, expanded, size);
 					dimensions.width =
-							tree.getWidth() - getRowX(row, depth);
+							tree.getWidth() - getRowX(row, depth) - 1;
 					return dimensions;
 				}
 			};
@@ -293,6 +333,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) context.getValue();
 			
 			if (node != null) {
+				checkBox.setVisible(!context.isSelected());
 				TreePath path = node.getPath();
 				Boolean selected = false;
 				if (cbtsm.isPathSelected(path, true)) {
@@ -325,6 +366,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 		private IconCheckBox checkBox;
 		private JXTree tree;
+		private Border highlightBorder = UIManager.getBorder("Table.focusCellHighlightBorder");
 		
 		public CheckBoxTreeCellEditor(IconCheckBox checkBox, JXTree tree) {
 			this.checkBox = checkBox;
@@ -357,9 +399,14 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			
 			Rectangle cellRect = table.getCellRect(0, column, false);
 			Rectangle nodeRect = tree.getRowBounds(row);
-			int nodeStart = 1 + indent + cellRect.x + nodeRect.x; // + iconWidth;
+			int nodeStart = 1 + indent + cellRect.x + nodeRect.x;
 
-			checkBox.setBorder(BorderFactory.createEmptyBorder(1, nodeStart, 0, 0));
+			if (table.isColumnSelected(column) && table.isRowSelected(row)) {
+				checkBox.setBorder(BorderFactory.createCompoundBorder(highlightBorder,
+						BorderFactory.createEmptyBorder(1, nodeStart - 1, 0, 0)));
+			} else {
+				checkBox.setBorder(BorderFactory.createEmptyBorder(1, nodeStart, 0, 1));
+			}
 			
 			return checkBox;
 		}
@@ -430,8 +477,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			// lay out components
 			this.add(checkBox, BorderLayout.WEST);
 			this.add(hyperlink, BorderLayout.CENTER);
-//			this.add(checkBox);
-//			this.add(hyperlink);
 		}
 		
 		/**

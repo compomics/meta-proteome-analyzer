@@ -48,9 +48,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
@@ -82,12 +82,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -108,11 +108,11 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
@@ -120,9 +120,9 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -153,6 +153,7 @@ import com.jgoodies.binding.adapter.RadioButtonAdapter;
 import com.jgoodies.binding.value.ValueHolder;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+
 import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.KeggAccessor;
@@ -182,9 +183,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
@@ -221,6 +222,16 @@ public class DbSearchResultPanel extends JPanel {
 	private JPanel coveragePnl;
 	private JXTable psmTbl;
 	private SpectrumPanel specPnl;
+
+	/**
+	 * Multi split pane containing all sub-panels.
+	 */
+	private JXMultiSplitPane split;
+
+	/**
+	 * Flag denoting whether the application shall currently appear busy.
+	 */
+	private boolean busy;
 	
 	/*
 	 * Toggle buttons for ion annotations in spectrum plot 
@@ -293,9 +304,19 @@ public class DbSearchResultPanel extends JPanel {
 	private boolean synching = false;
 
 	/**
-	 * The button to query database results and refresh detail views.
+	 * The button to show a context menu for selecting which hierarchical protein view to display.
 	 */
-	private JButton getResultsBtn;
+	private JToggleButton hierarchyBtn;
+
+	/**
+	 * The button to query search results from the remote database and refresh detail views.
+	 */
+	private JButton getResultsFromDbBtn;
+
+	/**
+	 * The button to query search results from a specified file and refresh detail views.
+	 */
+	private JButton getResultsFromFileBtn;
 	
 	/**
 	 * The parent results panel.
@@ -368,7 +389,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 		
-		final JToggleButton hierarchyBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
+		hierarchyBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
 		hierarchyBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ROLLOVER_ICON));
 		hierarchyBtn.setPressedIcon(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_PRESSED_ICON));
 		hierarchyBtn.setToolTipText("Select Hierarchical View");
@@ -411,27 +432,27 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 		
-		getResultsBtn = new JButton(IconConstants.GO_DB_ICON);
-		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		getResultsBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
-		getResultsBtn.setToolTipText("Get Results from DB");
+		getResultsFromDbBtn = new JButton(IconConstants.GO_DB_ICON);
+		getResultsFromDbBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		getResultsFromDbBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		getResultsFromDbBtn.setToolTipText("Get Results from DB");
 		
-		getResultsBtn.setUI(new RoundedHoverButtonUI());
+		getResultsFromDbBtn.setUI(new RoundedHoverButtonUI());
 
-		getResultsBtn.setOpaque(false);
-		getResultsBtn.setBorderPainted(false);
-		getResultsBtn.setMargin(new Insets(1, 0, 0, 0));
+		getResultsFromDbBtn.setOpaque(false);
+		getResultsFromDbBtn.setBorderPainted(false);
+		getResultsFromDbBtn.setMargin(new Insets(1, 0, 0, 0));
 		
-		getResultsBtn.addMouseListener(ittml);
+		getResultsFromDbBtn.addMouseListener(ittml);
 		
-		getResultsBtn.addActionListener(new ActionListener() {
+		getResultsFromDbBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new ResultsTask(null).execute();
 			}
 		});
-		getResultsBtn.setEnabled(false);
+		getResultsFromDbBtn.setEnabled(false);
 		
-		JButton getResultsFromFileBtn = new JButton(IconConstants.GO_PAGE_ICON);
+		getResultsFromFileBtn = new JButton(IconConstants.GO_PAGE_ICON);
 		getResultsFromFileBtn.setRolloverIcon(IconConstants.GO_PAGE_ROLLOVER_ICON);
 		getResultsFromFileBtn.setPressedIcon(IconConstants.GO_PAGE_PRESSED_ICON);
 		getResultsFromFileBtn.setToolTipText("Get Results from File");
@@ -464,7 +485,7 @@ public class DbSearchResultPanel extends JPanel {
 		protBtnPnl.add(hierarchyBtn, CC.xy(3, 2));
 //		protBtnPnl.add(hierarchyCbx, CC.xy(3, 2));
 		protBtnPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(4, 2));
-		protBtnPnl.add(getResultsBtn, CC.xy(5, 2));
+		protBtnPnl.add(getResultsFromDbBtn, CC.xy(5, 2));
 		protBtnPnl.add(getResultsFromFileBtn, CC.xy(7, 2));
 		
 		// XXX: only for testing purposes, please remove when appropriate
@@ -588,15 +609,25 @@ public class DbSearchResultPanel extends JPanel {
 		MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
 		msl.setLayoutByWeight(true);
 		
-		final JXMultiSplitPane msp = new JXMultiSplitPane(msl);
-		msp.setDividerSize(12);
+		split = new JXMultiSplitPane(msl) {
+			@Override
+			public void setCursor(Cursor cursor) {
+				if (busy) {
+					if ((cursor == null) || (cursor.getType() == Cursor.DEFAULT_CURSOR)) {
+						cursor = clientFrame.getCursor();
+					}
+				}
+				super.setCursor(cursor);
+			}
+		};
+		split.setDividerSize(12);
 		
-		msp.add(protTtlPnl, "protein");
-		msp.add(pepTtlPnl, "peptide");
-		msp.add(psmTtlPnl, "psm");
-		msp.add(specTtlPnl, "plot");
+		split.add(protTtlPnl, "protein");
+		split.add(pepTtlPnl, "peptide");
+		split.add(psmTtlPnl, "psm");
+		split.add(specTtlPnl, "plot");
 		
-		this.add(msp, CC.xy(2, 2));
+		this.add(split, CC.xy(2, 2));
 		
 		// Apply one-touch-collapsible capabilities to divider between protein table and lower parts
 		final Divider mainDivider = (Divider) ((Split) modelRoot).getChildren().get(1);
@@ -605,8 +636,8 @@ public class DbSearchResultPanel extends JPanel {
 		// manager falsely distributing excess space when resizing
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				msp.getMultiSplitLayout().setLayoutByWeight(false);
-				msp.getMultiSplitLayout().setFloatingDividers(false);
+				split.getMultiSplitLayout().setLayoutByWeight(false);
+				split.getMultiSplitLayout().setFloatingDividers(false);
 				// weights don't matter anymore at this point, make protein
 				// table receive maximum weight
 				mainDivider.nextSibling().setWeight(0.0);
@@ -670,17 +701,17 @@ public class DbSearchResultPanel extends JPanel {
 		// Set aside different painters for expanded/collapsed main divider
 		final DividerPainter southPainter = new CollapsibleDividerPainter(SwingConstants.SOUTH);
 		final DividerPainter northPainter = new CollapsibleDividerPainter(SwingConstants.NORTH);
-		msp.setDividerPainter(southPainter);
+		split.setDividerPainter(southPainter);
 		
 		// Add mouse listener to split pane to detect clicks on one-touch-collapsible widget
-		msp.addMouseListener(new MouseAdapter() {
+		split.addMouseListener(new MouseAdapter() {
 			/** State flag denoting whether the lower parts are collapsed. */
 			private boolean visible = false;
 			/** Point where collapse action was triggered. Used for restoring divider position on restore. */
 			private Point clickPoint = null;
 			@Override
 			public void mouseClicked(MouseEvent me) {
-				final MultiSplitLayout msl = msp.getMultiSplitLayout();
+				final MultiSplitLayout msl = split.getMultiSplitLayout();
 				Divider divider = msl.dividerAt(me.getX(), me.getY());
 				// we only want a specific divider to be targetable
 				if (divider == mainDivider) {
@@ -694,15 +725,15 @@ public class DbSearchResultPanel extends JPanel {
 						if (!visible) {
 							// unhide main divider and change painter to display upward-pointing triangle
 							mainDivider.setVisible(true);
-							msp.setDividerPainter(northPainter);
+							split.setDividerPainter(northPainter);
 							clickPoint = me.getPoint();
 						} else {
 //							// fake mouse events to move divider near original position
-							msp.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_PRESSED, me.getPoint()));
-							msp.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_DRAGGED, clickPoint));
-							msp.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_RELEASED, clickPoint));
+							split.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_PRESSED, me.getPoint()));
+							split.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_DRAGGED, clickPoint));
+							split.dispatchEvent(convertMouseEvent(me, MouseEvent.MOUSE_RELEASED, clickPoint));
 							// reset painter to display downward-pointing triangle
-							msp.setDividerPainter(southPainter);
+							split.setDividerPainter(southPainter);
 						}
 						visible = !visible;
 					}
@@ -743,7 +774,8 @@ public class DbSearchResultPanel extends JPanel {
 		@Override
 		protected Object doInBackground() {
 			try {
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				// Begin appearing busy
+				setBusy(true);
 				
 				// Fetch the database search result object
 				DbSearchResult newResult;
@@ -856,12 +888,17 @@ public class DbSearchResultPanel extends JPanel {
 
 					// Enable Save Project functionality
 					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
-						setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						
-					clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				Client.getInstance().firePropertyChange("new message", null, "FAILED");
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+			} finally {
+				// Stop appearing busy
+				setBusy(false);
+					
+				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 			}
 			return 0;
 		}
@@ -1011,7 +1048,7 @@ public class DbSearchResultPanel extends JPanel {
 		String[] columnToolTips = {
 			    "Selection for Export",
 			    "Result Index",
-			    "Protein Accession Number",
+			    "Protein Accession",
 			    "Protein Description",
 			    "Species",
 			    "Sequence Coverage in %",
@@ -1183,6 +1220,9 @@ public class DbSearchResultPanel extends JPanel {
 		((ColumnControlButton) proteinTbl.getColumnControl()).setAdditionalActionsVisible(false);
 	}
 	
+	/**
+	 * Initializes all hierarchical protein tree table views
+	 */
 	private void setupProteinTreeTables() {
 		protFlatTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Flat View"));
 		
@@ -1200,6 +1240,11 @@ public class DbSearchResultPanel extends JPanel {
 				new TreePath(protPathwayTreeTbl.getTreeTableModel().getRoot()));
 	}
 	
+	/**
+	 * Creates and returns a protein tree table anchored to the specified root node.
+	 * @param root the root node of the tree table
+	 * @return he generated tree table
+	 */
 	private SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
 		
 		// Set up table model
@@ -1321,7 +1366,20 @@ public class DbSearchResultPanel extends JPanel {
 		
 		// Install component header
 		TableColumnModel tcm = treeTbl.getColumnModel();
-		final ComponentHeader ch = new ComponentHeader(tcm);
+		String[] columnToolTips = {
+			    "Protein Accession",
+			    "Protein Description",
+			    "Species",
+			    "Alignment Identity",
+			    "Sequence Coverage in %",
+			    "Molecular Weight in kDa",
+			    "Isoelectric Point",
+			    "Peptide Count",
+			    "Spectral Count",
+			    "Exponentially Modified Protein Abundance Index",
+			    "Normalized Spectral Abundance Factor"
+			    };
+		final ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 		treeTbl.setTableHeader(ch);
 		
 		// Install mouse listeners in header for right-click popup capabilities
@@ -1477,12 +1535,14 @@ public class DbSearchResultPanel extends JPanel {
 				PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) context.getValue();
 				if (context.isLeaf()) {
 					return IconConstants.PROTEIN_TREE_ICON;
-				} else if (node.getUserObject() instanceof ProteinHitList) {
-					return IconConstants.METAPROTEIN_TREE_ICON;
-				} else {
-					// fall back to defaults
-					return context.getIcon();
+				} else if (node.isProtein()) {
+					ProteinHit ph = (ProteinHit) node.getUserObject();
+					if (ph.getAccession().startsWith("Meta-Protein")) {
+						return IconConstants.METAPROTEIN_TREE_ICON;
+					}
 				}
+				// fall back to defaults
+				return context.getIcon();
 			}
 		};
 		treeTbl.setIconValue(iv);
@@ -1523,11 +1583,12 @@ public class DbSearchResultPanel extends JPanel {
 		Color hlCol = new Color(237, 246, 255);	// light blue
 //		Color hlCol = new Color(255, 255, 237);	// light yellow
 		HighlightPredicate notLeaf = new NotHighlightPredicate(HighlightPredicate.IS_LEAF);
+		HighlightPredicate notSel = new NotHighlightPredicate(HighlightPredicate.IS_SELECTED);
 		treeTbl.addHighlighter(new CompoundHighlighter(
 				new ColorHighlighter(new AndHighlightPredicate(
-						notLeaf, HighlightPredicate.EVEN), hlCol, null),
+						notSel, notLeaf, HighlightPredicate.EVEN), hlCol, null),
 				new ColorHighlighter(new AndHighlightPredicate(
-						notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
+						notSel, notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
 		
 		// Configure column widths
 		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5 });
@@ -1649,8 +1710,16 @@ public class DbSearchResultPanel extends JPanel {
 		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 0.9, 3.7, 1.7, 1.7,1.7});
 		
 		TableColumnModel tcm = peptideTbl.getColumnModel();
-		
-		ComponentHeader ch = new ComponentHeader(tcm);
+
+		String[] columnToolTips = {
+			    "Selection for Export",
+			    "Peptide Index",
+			    "Peptide Sequence",
+			    "Protein Count",
+			    "Spectral Count",
+			    "Peptide Taxonomy"
+			    };
+		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 		peptideTbl.setTableHeader(ch);
 		
 		final JCheckBox selChk = new JCheckBox();
@@ -1884,7 +1953,6 @@ public class DbSearchResultPanel extends JPanel {
 		String[] columnToolTips = {
 			    "Selection for Export",
 			    "PSM Index",
-			    "Peptide Sequence",
 			    "Precursor Charge",
 			    "Number of Votes",
 			    "X!Tandem Confidence",
@@ -2215,15 +2283,15 @@ public class DbSearchResultPanel extends JPanel {
 						flatNode.setURI(uri);
 						metaNode.add(flatNode);
 //						TreePath flatPath = insertFlatNode(flatNode);
-//						PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
-//						taxonNode.setURI(uri);
-//						TreePath taxonPath = insertTaxonomicNode(taxonNode);
-//						PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
-//						enzymeNode.setURI(uri);
-//						TreePath enzymePath = insertEnzymeNode(enzymeNode);
-//						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
-//						pathwayNode.setURI(uri);
-//						TreePath[] pathwayPaths = insertPathwayNode(pathwayNode);
+						PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
+						taxonNode.setURI(uri);
+						TreePath taxonPath = insertTaxonomicNode(taxonNode);
+						PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
+						enzymeNode.setURI(uri);
+						TreePath enzymePath = insertEnzymeNode(enzymeNode);
+						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
+						pathwayNode.setURI(uri);
+						TreePath[] pathwayPaths = insertPathwayNode(pathwayNode);
 
 //						// Link nodes to each other
 //						linkNodes(flatPath, taxonPath, enzymePath);
@@ -2857,14 +2925,7 @@ public class DbSearchResultPanel extends JPanel {
 					String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
 					int index = psmTbl.convertRowIndexToModel(psmRow);
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
-					// grab corresponding spectrum from the database and display it
-//					Connection conn = null;
-//					try {
-//						// Try to determine whether a valid connection to the database exists
-//						conn = Client.getInstance().getConnection();
-//					} catch (SQLException e) {
-//						// Do nothing
-//					}
+
 					MascotGenericFile mgf = null;
 					// TODO: Note: loading spectra from database is faster than parsing from file, optimization required?
 //					if (conn != null) {
@@ -3080,8 +3141,8 @@ public class DbSearchResultPanel extends JPanel {
 	/**
 	 * This method sets the enabled state of the get results button.
 	 */
-	public void setResultsButtonEnabled(boolean enabled) {
-		getResultsBtn.setEnabled(enabled);
+	public void setResultsFromDbButtonEnabled(boolean enabled) {
+		getResultsFromDbBtn.setEnabled(enabled);
 	}
 
 	/**
@@ -3120,6 +3181,21 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 		return panel;
+	}
+	
+	/**
+	 * Makes the frame and this panel appear busy.
+	 * @param busy <code>true</code> if busy, <code>false</code> otherwise.
+	 */
+	public void setBusy(boolean busy) {
+		this.busy = busy;
+		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
+		clientFrame.setCursor(cursor);
+		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
+
+		hierarchyBtn.setEnabled(!busy);
+		setResultsFromDbButtonEnabled(!busy);
+		getResultsFromFileBtn.setEnabled(!busy);
 	}
 	
 	/**

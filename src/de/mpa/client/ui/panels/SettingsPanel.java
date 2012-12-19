@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -345,7 +344,7 @@ public class SettingsPanel extends JPanel {
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 					// dispatch search request
 					client.runSearches(filenames, settings);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				
