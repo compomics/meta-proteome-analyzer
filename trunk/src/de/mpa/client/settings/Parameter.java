@@ -1,60 +1,77 @@
 package de.mpa.client.settings;
 
+/**
+ * Container class for storing search engine parameter-related variables.
+ * 
+ * @author T. Muth, F. Kohrs, A. Behne
+ */
 public class Parameter {
 	
 	/**
-	 * Type of the parameter, e.g. Boolean.class, String.class
-	 */
-	private Class type;
-	
-	/**
-	 * Section for the parameter.
-	 */
-	private String section;
-	
-	/**
-	 * Parameter value.
-	 */
-	private Object value;
-	
-	/**
-	 * Name of the parameter.
+	 * The name of the parameter.
 	 */
 	private String name;
 	
 	/**
-	 * Description of the parameter.
+	 * The value of the parameter.
 	 */
-	private String description;
+	private Object value;
+
+	/**
+	 * The section identifier of the parameter.
+	 */
+	private String section;
 	
-	public Parameter(String name, Object value, Class type, String section, String description) {
+	/**
+	 * The tooltip string of the parameter.
+	 */
+	private String tooltip;
+	
+	/**
+	 * Constructs a configuration parameter object instance from the specified variables.
+	 * 
+	 * @param name the name of the parameter
+	 * @param value the value of the parameter
+	 * @param section the section identifier of the parameter
+	 * @param tooltip the tooltip string of the parameter
+	 */
+	public Parameter(String name, Object value, String section, String tooltip) {
 		this.section = section;
 		this.value = value;
 		this.name = name;
-		this.description = description;
-		this.type = type;
+		this.tooltip = tooltip;
 	}
 
-	public String getSection() {
-		return section;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
+	/**
+	 * Returns the name of the parameter.
+	 * @return the name of the parameter
+	 */
 	public String getName() {
 		return name;
 	}
 
-	public String getDescription() {
-		return description;
+	/**
+	 * Returns the value of the parameter.
+	 * @return the value of the parameter
+	 */
+	public Object getValue() {
+		return value;
 	}
-	
-	public Class getType() {
-		return type;
+
+	/**
+	 * Returns the section identifier of the parameter.
+	 * @return the section identifier of the parameter
+	 */
+	public String getSection() {
+		return section;
 	}
-	
-	
+
+	/**
+	 * Returns the tooltip string of the parameter.
+	 * @return the tooltip string of the parameter
+	 */
+	public String getTooltip() {
+		return tooltip;
+	}
 
 }

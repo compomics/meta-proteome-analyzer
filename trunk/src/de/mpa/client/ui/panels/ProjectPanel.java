@@ -613,7 +613,7 @@ public class ProjectPanel extends JPanel {
 		addExperimentBtn.setEnabled(true);
 		
 		// Disable buttons
-		clientFrame.getDbSearchResultPanel().setResultsButtonEnabled(false);
+		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(false);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
 		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(false);
 	}
@@ -630,7 +630,7 @@ public class ProjectPanel extends JPanel {
 		clientFrame.getStatusBar().getExperimentTextField().setText(currentExperimentContent.getExperimentTitle());
 		
 		// Enable buttons
-		clientFrame.getDbSearchResultPanel().setResultsButtonEnabled(true);
+		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(true);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(true);
 		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(true);
 		modifyExperimentBtn.setEnabled(true);

@@ -16,25 +16,25 @@ public class XTandemParameters extends DbSearchSettings implements ParameterSet 
 	public void setDefaults() {
 		params = new ArrayList<Parameter>();
 		// TODO: Class type not needed anymore!
-		params.add(new Parameter("<html>Fragment Mass<br>Error Unit</html>", new Object[] { "Daltons", "ppm" }, List.class, "Spectrum", "Fragment monoisotopic mass error units: Daltons|ppm"));
-		params.add(new Parameter("Fragment Mass Type", new Object[] { "monoisotopic", "average" }, List.class, "Spectrum", "Fragment mass type: monoisotopic|average"));
-		params.add(new Parameter("Total Peaks", 50, Integer.class, "Spectrum", " The number of most intense peaks to be taken."));
-		params.add(new Parameter("Minimum Peaks", 15, Integer.class, "Spectrum", "The number of minimum peaks to be considered for the search."));
-		params.add(new Parameter("Minimum precursor mass", 500.0, Double.class, "Spectrum", "The minimum parent mass."));
-		params.add(new Parameter("Minimum fragment m/z", 150.0, Double.class, "Spectrum", "The minimum fragment m/z."));
-		params.add(new Parameter("Worker threads", 1, Integer.class, "Spectrum", "The number of threads X!Tandem is using for processing."));
-		params.add(new Parameter("<html>Fasta sequence<br>batch size</html>", 1000, Integer.class, "Spectrum", "The number of FASTA sequences X!Tandem is processing in one batch at the same time."));
-		params.add(new Parameter("Use first-pass search (refinement)", true, Boolean.class, "Refinement", "Enable first-pass search (refinement)"));
-		params.add(new Parameter("<html>Predict synthetic spectra<br>and return ions</html>", true, Boolean.class, "Refinement", "predict a synthetic spectrum and reward ions that agree with the predicted spectrum"));
-		params.add(new Parameter("<html>E-value cut-off for<br>second-pass search</html>", 0.1, Double.class, "Refinement", "Only hits below this threshold are considered for a second-pass search."));
-		params.add(new Parameter("Allow point mutations", true, Boolean.class, "Refinement", "Enables the use of amino acid single point mutations (using PAM matrix)."));
-		params.add(new Parameter("<html>Minimum required number<br>of ions per spectrum</html>", 4, Integer.class, "Scoring parameters", "Minimum number of ions that a spectrum has to contain."));
-		params.add(new Parameter("Use x ions in spectrum scoring", false, Boolean.class, "Scoring parameters", "Allows peptide sequence x ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use y ions in spectrum scoring", true, Boolean.class, "Scoring parameters", "Allows peptide sequence y ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use z ions in spectrum scoring", false, Boolean.class, "Scoring parameters", "Allows peptide sequence z ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use a ions in spectrum scoring", false, Boolean.class, "Scoring parameters", "Allows peptide sequence a ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use b ions in spectrum scoring", true, Boolean.class, "Scoring parameters", "Allows peptide sequence b ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use c ions in spectrum scoring", false, Boolean.class, "Scoring parameters", "Allows peptide sequence c ions to be used in the spectrum scoring algorithm."));
+		params.add(new Parameter("<html>Fragment Mass<br>Error Unit</html>", new Object[] { "Daltons", "ppm" }, "Spectrum", "Fragment monoisotopic mass error units: Daltons|ppm"));
+		params.add(new Parameter("Fragment Mass Type", new Object[] { "monoisotopic", "average" }, "Spectrum", "Fragment mass type: monoisotopic|average"));
+		params.add(new Parameter("Total Peaks", 50, "Spectrum", " The number of most intense peaks to be taken."));
+		params.add(new Parameter("Minimum Peaks", 15, "Spectrum", "The number of minimum peaks to be considered for the search."));
+		params.add(new Parameter("Minimum precursor mass", 500.0, "Spectrum", "The minimum parent mass."));
+		params.add(new Parameter("Minimum fragment m/z", 150.0, "Spectrum", "The minimum fragment m/z."));
+		params.add(new Parameter("Worker threads", 1, "Spectrum", "The number of threads X!Tandem is using for processing."));
+		params.add(new Parameter("<html>Fasta sequence<br>batch size</html>", 1000, "Spectrum", "The number of FASTA sequences X!Tandem is processing in one batch at the same time."));
+		params.add(new Parameter("Use first-pass search (refinement)", true, "Refinement", "Enable first-pass search (refinement)"));
+		params.add(new Parameter("<html>Predict synthetic spectra<br>and return ions</html>", true, "Refinement", "predict a synthetic spectrum and reward ions that agree with the predicted spectrum"));
+		params.add(new Parameter("<html>E-value cut-off for<br>second-pass search</html>", 0.1, "Refinement", "Only hits below this threshold are considered for a second-pass search."));
+		params.add(new Parameter("Allow point mutations", true, "Refinement", "Enables the use of amino acid single point mutations (using PAM matrix)."));
+		params.add(new Parameter("<html>Minimum required number<br>of ions per spectrum</html>", 4, "Scoring parameters", "Minimum number of ions that a spectrum has to contain."));
+		params.add(new Parameter("Use x ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence x ions to be used in the spectrum scoring algorithm."));
+		params.add(new Parameter("Use y ions in spectrum scoring", true, "Scoring parameters", "Allows peptide sequence y ions to be used in the spectrum scoring algorithm."));
+		params.add(new Parameter("Use z ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence z ions to be used in the spectrum scoring algorithm."));
+		params.add(new Parameter("Use a ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence a ions to be used in the spectrum scoring algorithm."));
+		params.add(new Parameter("Use b ions in spectrum scoring", true, "Scoring parameters", "Allows peptide sequence b ions to be used in the spectrum scoring algorithm."));
+		params.add(new Parameter("Use c ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence c ions to be used in the spectrum scoring algorithm."));
 	}
 
 	@Override
