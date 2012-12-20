@@ -23,9 +23,9 @@ public class Parameter {
 	private String section;
 	
 	/**
-	 * The tooltip string of the parameter.
+	 * The description string of the parameter. Used for tooltips.
 	 */
-	private String tooltip;
+	private String description;
 	
 	/**
 	 * Constructs a configuration parameter object instance from the specified variables.
@@ -33,13 +33,13 @@ public class Parameter {
 	 * @param name the name of the parameter
 	 * @param value the value of the parameter
 	 * @param section the section identifier of the parameter
-	 * @param tooltip the tooltip string of the parameter
+	 * @param description the description string of the parameter
 	 */
-	public Parameter(String name, Object value, String section, String tooltip) {
+	public Parameter(String name, Object value, String section, String description) {
 		this.section = section;
 		this.value = value;
 		this.name = name;
-		this.tooltip = tooltip;
+		this.description = description;
 	}
 
 	/**
@@ -57,6 +57,14 @@ public class Parameter {
 	public Object getValue() {
 		return value;
 	}
+	
+	/**
+	 * Sets the value of the parameter.
+	 * @param value the value to set
+	 */
+	public void setValue(Object value) {
+		this.value = value;
+	}
 
 	/**
 	 * Returns the section identifier of the parameter.
@@ -67,11 +75,11 @@ public class Parameter {
 	}
 
 	/**
-	 * Returns the tooltip string of the parameter.
-	 * @return the tooltip string of the parameter
+	 * Returns the description string of the parameter.
+	 * @return the description string of the parameter
 	 */
-	public String getTooltip() {
-		return tooltip;
+	public String getDescription() {
+		return description;
 	}
 
 }

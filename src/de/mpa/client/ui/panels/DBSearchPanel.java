@@ -28,22 +28,91 @@ import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 
+/**
+ * Panel containing control components for database search-related settings.
+ * 
+ * @author T. Muth, A. Behne
+ */
 public class DBSearchPanel extends JPanel {
 
-	private JComboBox fastaFileCbx;
-	private JSpinner fragTolSpn;
-	private JSpinner precTolSpn;
-	private JSpinner missClvSpn;
-	private JCheckBox xTandemChk;
-	private JCheckBox omssaChk;
-	private JCheckBox cruxChk;
-	private JCheckBox inspectChk;
-	private JButton xTandemSetBtn;
-	private JButton omssaSetBtn;
-	private JButton cruxSetBtn;
-	private JButton inspectSetBtn;
-	private JComboBox searchTypeCbx;
+	/**
+	 * The client frame instance
+	 */
 	private ClientFrame clientFrame;
+
+	/**
+	 * Combo box referencing FASTA files available for database searching.
+	 */
+	private JComboBox fastaFileCbx;
+	
+	/**
+	 * Spinner for controlling precursor mass tolerance.
+	 */
+	private JSpinner precTolSpn;
+	
+	/**
+	 * Spinner for controlling fragment ion tolerance.
+	 */
+	private JSpinner fragTolSpn;
+
+	/**
+	 * Spinner for controlling the amount of missed cleavages to account for.
+	 */
+	private JSpinner missClvSpn;
+	
+	/**
+	 * TODO: Enzyme combo box missing, maybe remove?
+	 */
+	
+	/**
+	 * Checkbox for controlling whether the X!Tandem search engine shall be used.
+	 */
+	private JCheckBox xTandemChk;
+	
+	/**
+	 * Button to show advanced settings for the X!Tandem search engine.
+	 */
+	private JButton xTandemSetBtn;
+	
+	/**
+	 * Parameter map containing advanced settings for the X!Tandem search engine.
+	 */
+	private XTandemParameters xTandemParams = new XTandemParameters();
+
+	/**
+	 * Checkbox for controlling whether the OMSSA search engine shall be used.
+	 */
+	private JCheckBox omssaChk;
+	
+	/**
+	 * Button to show advanced settings for the OMSSA search engine.
+	 */
+	private JButton omssaSetBtn;
+
+	/**
+	 * Checkbox for controlling whether the Crux search engine shall be used.
+	 */
+	private JCheckBox cruxChk;
+
+	/**
+	 * Button to show advanced settings for the Crux search engine.
+	 */
+	private JButton cruxSetBtn;
+
+	/**
+	 * Checkbox for controlling whether the InsPecT search engine shall be used.
+	 */
+	private JCheckBox inspectChk;
+
+	/**
+	 * Button to show advanced settings for the InsPecT search engine.
+	 */
+	private JButton inspectSetBtn;
+	
+	/**
+	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
+	 */
+	private JComboBox searchTypeCbx;
 	
 	/**
 	 * The default database search panel constructor.
@@ -54,7 +123,7 @@ public class DBSearchPanel extends JPanel {
 	}
 
 	/**
-	 * Method to initialize the panel's components
+	 * Method to initialize the panel's components.
 	 */
 	private void initComponents() {
 		
@@ -97,7 +166,9 @@ public class DBSearchPanel extends JPanel {
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 
 		// Enzyme ComboBox
+		// TODO: unused control, maybe remove altogether?
 		JComboBox enzymeCbx = new JComboBox(Constants.DB_ENZYMES);
+		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));
 		paramsPnl.add(new JLabel("Da"), cc.xy(8, 2));
@@ -112,23 +183,20 @@ public class DBSearchPanel extends JPanel {
 		
 		// Search Engine Panel
 		final JPanel searchEngPnl = new JPanel();
-		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu", "0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu"));
+		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu", "0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		// X!Tandem
 		xTandemChk = new JCheckBox("X!Tandem", true);
 		xTandemChk.setIconTextGap(10);
 		
-		// Load default X!Tandem settings
 		xTandemSetBtn = new JButton("Advanced Settings");
 		xTandemSetBtn.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new AdvancedSettingsDialog(clientFrame, "X!Tandem Advanced Parameters", true, new XTandemParameters());
+				new AdvancedSettingsDialog(clientFrame, "X!Tandem Advanced Parameters", true, xTandemParams);
 			}
 		});
-		
 		xTandemSetBtn.setEnabled(xTandemChk.isSelected());
 		
 		xTandemChk.addActionListener(new ActionListener() {
@@ -154,6 +222,7 @@ public class DBSearchPanel extends JPanel {
 				omssaSetBtn.setEnabled(omssaChk.isSelected());
 			}
 		});
+		
 		// Crux
 		cruxChk = new JCheckBox("Crux", true);
 		cruxChk.setIconTextGap(10);
@@ -172,14 +241,14 @@ public class DBSearchPanel extends JPanel {
 			}
 		});
 		
-		// InsPecT CheckBox
+		// InsPecT
 		inspectChk = new JCheckBox("InsPecT", true);
 		inspectChk.setIconTextGap(10);
 		inspectSetBtn = new JButton("Advanced Settings");
 		inspectSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new AdvancedSettingsDialog(clientFrame, "InsPect Advanced Parameters", true, new InspectParameters());
+				new AdvancedSettingsDialog(clientFrame, "InsPecT Advanced Parameters", true, new InspectParameters());
 			}
 		});
 		
@@ -248,16 +317,16 @@ public class DBSearchPanel extends JPanel {
 	}
 	
 	/**
-	 * This method collects the database search settings.
-	 * @return The database search settings.
+	 * Utility method to collect and consolidate all relevant database search settings.
+	 * @return the database search settings object instance.
 	 */
-	public DbSearchSettings collectDBSearchSettings() {
+	public DbSearchSettings gatherDBSearchSettings() {
 		DbSearchSettings dbSettings = new DbSearchSettings();
 		dbSettings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
 		dbSettings.setFragmentIonTol((Double) fragTolSpn.getValue());
 		dbSettings.setPrecursorIonTol((Double) precTolSpn.getValue());
 		dbSettings.setNumMissedCleavages((Integer) missClvSpn.getValue());
-		// TODO: Enzyme: settings.setEnzyme(value)
+		// TODO: Unused parameter: Enzyme (settings.setEnzyme(value))
 		dbSettings.setXTandem(xTandemChk.isSelected());
 		dbSettings.setOmssa(omssaChk.isSelected());
 		dbSettings.setCrux(cruxChk.isSelected());

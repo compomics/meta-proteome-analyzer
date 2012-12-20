@@ -271,7 +271,7 @@ public class SettingsPanel extends JPanel {
 							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 							
 							// collect search settings
-							DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
+							DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 							SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
 							DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
 							
@@ -335,7 +335,7 @@ public class SettingsPanel extends JPanel {
 					List<String> filenames = client.packAndSend(packSize, checkBoxTree, "batch");	// TODO: make filenames dynamic
 					
 					// collect search settings
-					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.collectDBSearchSettings() : null;
+					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
 					DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
 					
