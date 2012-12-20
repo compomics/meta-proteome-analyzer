@@ -1,183 +1,102 @@
 package de.mpa.client.settings;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map.Entry;
 
-import de.mpa.client.DbSearchSettings;
-
-public class XTandemParameters extends DbSearchSettings implements ParameterSet {
+/**
+ * Class for storing X!Tandem search engine-specific settings.
+ * 
+ * @author T. Muth, F. Kohrs, A. Behne
+ */
+public class XTandemParameters extends ParameterMap {
 	
-	private List<Parameter> params;
-	
+	/**
+	 * Constructs a parameter map initialized with default values.
+	 */
 	public XTandemParameters() {
-		this.setDefaults();
-	}
-	
-	public void setDefaults() {
-		params = new ArrayList<Parameter>();
-		// TODO: Class type not needed anymore!
-		params.add(new Parameter("<html>Fragment Mass<br>Error Unit</html>", new Object[] { "Daltons", "ppm" }, "Spectrum", "Fragment monoisotopic mass error units: Daltons|ppm"));
-		params.add(new Parameter("Fragment Mass Type", new Object[] { "monoisotopic", "average" }, "Spectrum", "Fragment mass type: monoisotopic|average"));
-		params.add(new Parameter("Total Peaks", 50, "Spectrum", " The number of most intense peaks to be taken."));
-		params.add(new Parameter("Minimum Peaks", 15, "Spectrum", "The number of minimum peaks to be considered for the search."));
-		params.add(new Parameter("Minimum precursor mass", 500.0, "Spectrum", "The minimum parent mass."));
-		params.add(new Parameter("Minimum fragment m/z", 150.0, "Spectrum", "The minimum fragment m/z."));
-		params.add(new Parameter("Worker threads", 1, "Spectrum", "The number of threads X!Tandem is using for processing."));
-		params.add(new Parameter("<html>Fasta sequence<br>batch size</html>", 1000, "Spectrum", "The number of FASTA sequences X!Tandem is processing in one batch at the same time."));
-		params.add(new Parameter("Use first-pass search (refinement)", true, "Refinement", "Enable first-pass search (refinement)"));
-		params.add(new Parameter("<html>Predict synthetic spectra<br>and return ions</html>", true, "Refinement", "predict a synthetic spectrum and reward ions that agree with the predicted spectrum"));
-		params.add(new Parameter("<html>E-value cut-off for<br>second-pass search</html>", 0.1, "Refinement", "Only hits below this threshold are considered for a second-pass search."));
-		params.add(new Parameter("Allow point mutations", true, "Refinement", "Enables the use of amino acid single point mutations (using PAM matrix)."));
-		params.add(new Parameter("<html>Minimum required number<br>of ions per spectrum</html>", 4, "Scoring parameters", "Minimum number of ions that a spectrum has to contain."));
-		params.add(new Parameter("Use x ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence x ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use y ions in spectrum scoring", true, "Scoring parameters", "Allows peptide sequence y ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use z ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence z ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use a ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence a ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use b ions in spectrum scoring", true, "Scoring parameters", "Allows peptide sequence b ions to be used in the spectrum scoring algorithm."));
-		params.add(new Parameter("Use c ions in spectrum scoring", false, "Scoring parameters", "Allows peptide sequence c ions to be used in the spectrum scoring algorithm."));
+		this.initDefaults();
 	}
 
 	@Override
-	public List<Parameter> getParameters() {
-		return params;
+	public void initDefaults() {
+		// TODO: Idea: parse X!Tandem default_input.xml instead of hard-coding
+		this.put("spectrum, fragment mass error units", new Parameter("<html>Fragment Mass Error Unit</html>", new Object[] { "Daltons", "ppm" }, "Spectrum", "Units for fragment ion mass tolerance (chemical average mass)."));
+		this.put("spectrum, fragment mass type", new Parameter("Fragment Mass Type", new Object[] { "monoisotopic", "average" }, "Spectrum", "Use chemical average or monoisotopic mass for fragment ions."));
+		this.put("spectrum, total peaks", new Parameter("Total Peaks", 50, "Spectrum", "Maximum number of peaks to be used from a spectrum."));
+		this.put("spectrum, minimum peaks", new Parameter("Minimum Peaks", 15, "Spectrum", "The minimum number of peaks required for a spectrum to be considered."));
+		this.put("spectrum, minimum parent m+h", new Parameter("Minimum precursor mass", 500.0, "Spectrum", "The minimum parent mass required for a spectrum to be considered."));
+		this.put("spectrum, minimum fragment mz", new Parameter("Minimum fragment m/z", 150.0, "Spectrum", "The minimum fragment m/z to be considered.."));
+		this.put("spectrum, threads", new Parameter("Worker threads", 1, "Spectrum", "The number of worker threads to be used for calculation."));
+		this.put("spectrum, sequence batch size", new Parameter("<html>Fasta sequence<br>batch size</html>", 1000, "Spectrum", "The number of FASTA sequences X!Tandem is processing per batch."));
+		this.put("refine", new Parameter("Use first-pass search (refinement)", true, "Refinement", "Enable first-pass search (refinement)"));
+		this.put("refine, spectrum synthesis", new Parameter("Use spectrum synthesis scoring", true, "Refinement", "Predict a synthetic spectrum and reward ions that agree with the predicted spectrum"));
+		this.put("refine, maximum valid expectation value", new Parameter("E-value cut-off for refinement", 0.1, "Refinement", "Only hits below this threshold are considered for a second-pass search."));
+		this.put("refine, point mutations", new Parameter("Allow point mutations", true, "Refinement", "Enables the use of amino acid single point mutations (using PAM matrix)."));
+		this.put("scoring, minimum ion count", new Parameter("Minimum number of ions required", 4, "Scoring", "The minimum number of ions required for a peptide to be scored."));
+//		this.put("scoring, ions", new Parameter("use x ions|use y ions|use z ions||use a ions|use b ions|use c ions", new Boolean[][] { { false, true, false }, { false, true, false }}, "Scoring",
+//				"Allows the use of a-ions in scoring.|Allows the use of b-ions in scoring.|Allows the use of c-ions in scoring.||Allows the use of x-ions in scoring.|Allows the use of y-ions in scoring.|Allows the use of z-ions in scoring."));
+		this.put("scoring, x ions", new Parameter("Use x ions in spectrum scoring", false, "Scoring", "Allows the use of x-ions in scoring."));
+		this.put("scoring, y ions", new Parameter("Use y ions in spectrum scoring", true, "Scoring", "Allows the use of y-ions in scoring."));
+		this.put("scoring, z ions", new Parameter("Use z ions in spectrum scoring", false, "Scoring", "Allows the use of z-ions in scoring."));
+		this.put("scoring, a ions", new Parameter("Use a ions in spectrum scoring", false, "Scoring", "Allows the use of a-ions in scoring."));
+		this.put("scoring, b ions", new Parameter("Use b ions in spectrum scoring", true, "Scoring", "Allows the use of b-ions in scoring."));
+		this.put("scoring, c ions", new Parameter("Use c ions in spectrum scoring", false, "Scoring", "Allows the use of c-ions in scoring."));
+	}
+
+	/**
+	 * Returns <code>null</code> as X!Tandem does not use command-line
+	 * parameters to specify single settings. Refer to the
+	 * {@link #toFile(String path) toFile()} method.
+	 */
+	@Override
+	public String toString() {
+		return null;
+	}
+
+	/**
+	 * Generates a BIOML-compliant parameter file containing only parameters
+	 * with non-default values for use with X!Tandem.
+	 * @param path the path string pointing to the directory the file shall be created in
+	 * @return the parameter file
+	 * @throws IOException if the file could not be written
+	 */
+	@Override
+	public File toFile(String path) throws IOException {
+		if (!path.endsWith(".xml")) {
+			path += ".xml";
+		}
+		
+		File file = new File(path);
+		
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+		bw.append("<bioml>");
+		bw.newLine();
+		
+		XTandemParameters defaults = new XTandemParameters();
+		for (Entry<String, Parameter> entry : this.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue().getValue();
+			Object defaultValue = defaults.get(key).getValue();
+			if (!value.equals(defaultValue)) {
+				// TODO: find proper way to handle Object[] values
+				if (value instanceof Boolean) {
+					value = (((Boolean) value).booleanValue()) ? "yes" : "no";
+				}
+				bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value + "</note>");
+				bw.newLine();
+			}
+		}
+		
+		bw.append("</bioml>");
+		bw.newLine();
+		
+		bw.flush();
+		bw.close();
+		
+		return file;
 	}
 	
-//	// Spectrum + Spectrum conditioning section
-//	/**
-//	 * Fragment monoisotopic mass error units: Daltons|ppm
-//	 */
-//	private String fragmentErrorMassUnit = "Daltons";
-//	
-//	/**
-//	 * Fragment mass type: monoisotopic|average
-//	 */
-//	private String fragmentMassType = "monoisotopic";
-//	
-//	/**
-//	 * The number of most intense peaks to be taken.
-//	 */
-//	private int totalPeaks = 50;
-//	
-//	/**
-//	 * The number of minimum peaks to be considered for the search. 
-//	 */
-//	private int minPeaks = 15;
-//	
-//	/**
-//	 * Minimum parent mass.
-//	 */
-//	private double minParentMass = 500;
-//	
-//	/**
-//	 * Minimum fragment m/z.
-//	 */
-//	private double minFragmentMz = 150;
-//	
-//	/**
-//	 * The number of threads X!Tandem is using for processing.
-//	 */
-//	private int workerThreads = 1;
-//	
-//	/**
-//	 * The number of FASTA sequences X!Tandem is processing in one batch at the same time.
-//	 */
-//	private int fastaSeqBatchSize = 1000;
-//	
-//	
-//	// Refinement section: The first-pass search settings
-//	
-//	/**
-//	 * Use of the refinement aka. the first-pass search.
-//	 */
-//	private boolean useRefinement = true;
-//	
-//	/**
-//	 * This parameter effectively predicts a "synthetic" spectrum and rewards ions that agree with the predicted spectrum.
-//	 */
-//	private boolean spectrumSynthesis = true;
-//	
-//	/**
-//	 * Only hits below this threshold are considered for a second-pass search.
-//	 */
-//	private double maxValidEValue = 0.1;
-//	
-//	/**
-//	 * Enables the use of amino acid single point mutations (using PAM matrix). 
-//	 */
-//	private boolean usePointMutations = false;
-//	
-//	
-//	// Scoring parameters 
-//	
-//	/**
-//	 * Minimum number of ions that a spectrum has to contain.
-//	 */
-//	private int minimumIonCount = 4;
-//	
-//	/**
-//	 * Maximum number of missed cleavage sites allowed.
-//	 */
-//	private int maxMissedCleavagesites = 1;
-//	
-//	/**
-//	 * Allows peptide sequence x ions to be used in the spectrum scoring algorithm.
-//	 */
-//	private boolean xIonsAllowed = false;
-//	
-//	/**
-//	 * Allows peptide sequence y ions to be used in the spectrum scoring algorithm.
-//	 */
-//	private boolean yIonsAllowed = true;
-//	
-//	/**
-//	 * Allows peptide sequence z ions to be used in the spectrum scoring algorithm.
-//	 */
-//	private boolean zIonsAllowed = false;
-//	
-//	/**
-//	 * Allows peptide sequence a ions to be used in the spectrum scoring algorithm.
-//	 */
-//	private boolean aIonsAllowed = false;
-//	
-//	/**
-//	 * Allows peptide sequence b ions to be used in the spectrum scoring algorithm.
-//	 */
-//	private boolean bIonsAllowed = true;
-//	
-//	/**
-//	 * Allows peptide sequence c ions to be used in the spectrum scoring algorithm.
-//	 */
-//	private boolean cIonsAllowed = false;
-//	
-//	
-//	// Output parameters
-//
-//	/**The value for this parameter determines which results are written to the output file 
-//	 * at the end of a modelling session. The three possible values cover the most interesting 
-//	 * use cases for X! TANDEM, from a bioinformatics perspective. The exact form of the reported
-//	 * results will depend on the values chosen for other output parameters.
-//     *  all - When this value is set, results are reported for all of the spectra 
-//     *  	  that were used in the modelling session. This value is not recommended 
-//     *  	  for normal use, as most spectra in a large data set will not return useful 
-//     *  	  results. Storing the large volume of purely stochastic matches that can results 
-//     *  	  is a waste of resources, for most users.
-//     *  valid - When this value is set, results that have an expectation value less than output,
-//     *  	    maximum valid expectation value are reported. This setting is of the most general 
-//     *  	    use.
-//     *  stochastic - When this value is set, results that have an expectation value greater than 
-//     *  	  		 output, maximum valid expectation value are all reported. This is the compliment 
-//     *  	  		 to the valid set, and it can be useful for debugging and bioinformatics purposes.
-//	 */
-//	
-//	/**
-//	 * When the outputResultsValue is set to valid, the value of this parameter sets 
-//	 * the maximum expectation value recorded in the output file for a modelling session. 
-//	 * All results with expectation values less than this value are considered to be 
-//	 * statisitically significant and are recorded. In the case that outputResultsValue 
-//	 * is set to stochastic, results with expectation values greater than this 
-//	 * value are recorded. 
-//	 */
-//	private double maxValidExpectationValue = 0.1;
-//
-
 }
