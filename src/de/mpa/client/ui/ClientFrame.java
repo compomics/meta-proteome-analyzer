@@ -67,7 +67,7 @@ public class ClientFrame extends JFrame {
 	private JPanel resPnl = new JPanel();
 	private JPanel clusterPnl = new JPanel();
 	private JPanel logPnl = new JPanel();
-	private JPanel comparePnl;
+//	private JPanel comparePnl;
 	
 	private StatusPanel statusPnl;
 	
@@ -312,43 +312,6 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
-	 * Convenience method to create a navigation button for cycling tab selection.
-	 * @param next <code>true</code> if this button shall advance the tab selection 
-	 * 				in ascending index order, <code>false</code> otherwise
-	 * @param enabled <code>true</code> if this button shall be initially disabled, 
-	 * 				<code>false</code> otherwise
-	 * @return The created navigation button
-	 */
-	public JButton createNavigationButton(boolean next, boolean enabled) {
-		String text;
-		Icon icon, ricon, picon;
-		ActionListener al;
-		if (next) {
-			text = "Next";
-			icon = IconConstants.NEXT_ICON;
-			ricon = IconConstants.NEXT_ROLLOVER_ICON;
-			picon = IconConstants.NEXT_PRESSED_ICON;
-			al = nextTabListener;
-		} else {
-			text = "Prev";
-			icon = IconConstants.PREV_ICON;
-			ricon = IconConstants.PREV_ROLLOVER_ICON;
-			picon = IconConstants.PREV_PRESSED_ICON;
-			al = prevTabListener;
-		}
-		JButton button = new JButton(text, icon);
-		button.setRolloverIcon(ricon);
-		button.setPressedIcon(picon);
-		button.addActionListener(al);
-		button.setEnabled(enabled);
-		button.setFont(button.getFont().deriveFont(
-				Font.BOLD, button.getFont().getSize2D()*1.25f));
-		button.setHorizontalTextPosition(SwingConstants.LEFT);
-		
-		return button;
-	}
-	
-	/**
 	 * General-purpose listener for 'Next' navigation buttons.
 	 */
 	private ActionListener nextTabListener = new ActionListener() {
@@ -426,6 +389,43 @@ public class ClientFrame extends JFrame {
 	 */
 	public DeNovoResultPanel getDeNovoSearchResultPanel() {
 		return getResultsPanel().getDeNovoSearchResultPanel();
+	}
+	
+	/**
+	 * Convenience method to create a navigation button for cycling tab selection.
+	 * @param next <code>true</code> if this button shall advance the tab selection 
+	 * 				in ascending index order, <code>false</code> otherwise
+	 * @param enabled <code>true</code> if this button shall be initially disabled, 
+	 * 				<code>false</code> otherwise
+	 * @return The created navigation button
+	 */
+	public JButton createNavigationButton(boolean next, boolean enabled) {
+		String text;
+		Icon icon, ricon, picon;
+		ActionListener al;
+		if (next) {
+			text = "Next";
+			icon = IconConstants.NEXT_ICON;
+			ricon = IconConstants.NEXT_ROLLOVER_ICON;
+			picon = IconConstants.NEXT_PRESSED_ICON;
+			al = nextTabListener;
+		} else {
+			text = "Prev";
+			icon = IconConstants.PREV_ICON;
+			ricon = IconConstants.PREV_ROLLOVER_ICON;
+			picon = IconConstants.PREV_PRESSED_ICON;
+			al = prevTabListener;
+		}
+		JButton button = new JButton(text, icon);
+		button.setRolloverIcon(ricon);
+		button.setPressedIcon(picon);
+		button.addActionListener(al);
+		button.setEnabled(enabled);
+		button.setFont(button.getFont().deriveFont(
+				Font.BOLD, button.getFont().getSize2D()*1.25f));
+		button.setHorizontalTextPosition(SwingConstants.LEFT);
+		
+		return button;
 	}
 	
 	/**

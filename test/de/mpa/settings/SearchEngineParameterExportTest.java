@@ -21,29 +21,38 @@ public class SearchEngineParameterExportTest extends TestCase {
 	
 	@Test
 	public void testXtandemExport() throws IOException {
-		int expected = 123;
+		int minPeaks = 123;
+		Boolean[][] ions = new Boolean[][] { { true, false, false }, { false, false, true } };
 		
 		// Init default parameter map
 		XTandemParameters params = new XTandemParameters();
 		
-		// Grab and modify a single parameter
-		Parameter parameter = params.get("spectrum, minimum peaks");
-		parameter.setValue(expected);
-		params.put("spectrum, minimum peaks", parameter);
+		// Grab and modify a bunch of parameters
+		String key = "spectrum, minimum peaks";
+		Parameter parameter = params.get(key);
+		parameter.setValue(minPeaks);
+		params.put(key, parameter);
+		
+		key = "scoring, ions";
+		parameter = params.get(key);
+		parameter.setValue(ions);
+		params.put(key, parameter);
 		
 		// Create file representation of parameter map
 		File file = params.toFile("input.xml");
 		
+		// Dig through file and try to recover inserted non-default values
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
 		while ((line = br.readLine()) != null) {
-			if (line.contains("spectrum, minimum peaks")) {
+			if (line.contains(key)) {
 				String value = line.substring(line.indexOf(">", 1) + 1,
 						line.lastIndexOf("<", line.length() - 1));
-				assertEquals(expected, Integer.parseInt(value));
+				assertEquals(minPeaks, Integer.parseInt(value));
 				break;
 			}
 		}
+		br.close();
 	}
 
 }

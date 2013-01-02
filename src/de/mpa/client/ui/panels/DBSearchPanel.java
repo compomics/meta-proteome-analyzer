@@ -22,6 +22,7 @@ import de.mpa.client.DbSearchSettings;
 import de.mpa.client.settings.CruxParameters;
 import de.mpa.client.settings.InspectParameters;
 import de.mpa.client.settings.OmssaParameters;
+import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
@@ -61,8 +62,13 @@ public class DBSearchPanel extends JPanel {
 	private JSpinner missClvSpn;
 	
 	/**
-	 * TODO: Enzyme combo box missing, maybe remove?
+	 * TODO: Enzyme combo box is missing here, maybe remove it altogether?
 	 */
+	
+	/**
+	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
+	 */
+	private JComboBox searchTypeCbx;
 	
 	/**
 	 * Checkbox for controlling whether the X!Tandem search engine shall be used.
@@ -77,7 +83,7 @@ public class DBSearchPanel extends JPanel {
 	/**
 	 * Parameter map containing advanced settings for the X!Tandem search engine.
 	 */
-	private XTandemParameters xTandemParams = new XTandemParameters();
+	private ParameterMap xTandemParams = new XTandemParameters();
 
 	/**
 	 * Checkbox for controlling whether the OMSSA search engine shall be used.
@@ -88,6 +94,11 @@ public class DBSearchPanel extends JPanel {
 	 * Button to show advanced settings for the OMSSA search engine.
 	 */
 	private JButton omssaSetBtn;
+	
+	/**
+	 * Parameter map containing advanced settings for the OMSSA search engine.
+	 */
+	private ParameterMap omssaParams = new OmssaParameters();
 
 	/**
 	 * Checkbox for controlling whether the Crux search engine shall be used.
@@ -98,6 +109,11 @@ public class DBSearchPanel extends JPanel {
 	 * Button to show advanced settings for the Crux search engine.
 	 */
 	private JButton cruxSetBtn;
+	
+	/**
+	 * Parameter map containing advanced settings for the OMSSA search engine.
+	 */
+	private ParameterMap cruxParams = new CruxParameters();
 
 	/**
 	 * Checkbox for controlling whether the InsPecT search engine shall be used.
@@ -110,9 +126,12 @@ public class DBSearchPanel extends JPanel {
 	private JButton inspectSetBtn;
 	
 	/**
-	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
+	 * Parameter map containing advanced settings for the OMSSA search engine.
 	 */
-	private JComboBox searchTypeCbx;
+	private ParameterMap inspectParams = new InspectParameters();
+
+	private JCheckBox mascotChk;
+	private JButton mascotSetBtn;
 	
 	/**
 	 * The default database search panel constructor.
@@ -130,11 +149,11 @@ public class DBSearchPanel extends JPanel {
 		CellConstraints cc = new CellConstraints();
 
 		this.setLayout(new FormLayout("7dlu, p:g, 7dlu",
-									  "5dlu, p, 5dlu, f:p:g, 5dlu, f:p:g, 7dlu"));
+									  "5dlu, p, 5dlu, f:p:g, 5dlu, f:p, 7dlu"));
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
-		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 15dlu, p:g, 5dlu",
+		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
 												 "0dlu, p, 5dlu"));
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
@@ -144,12 +163,12 @@ public class DBSearchPanel extends JPanel {
 		protDatabasePnl.add(new JLabel("FASTA File:"), cc.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
 		
-		// Parameters Panel
+		// General Settings Panel
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
-		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("Parameters"), paramsPnl));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu, p, 5dlu"));
+		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
@@ -169,6 +188,9 @@ public class DBSearchPanel extends JPanel {
 		// TODO: unused control, maybe remove altogether?
 		JComboBox enzymeCbx = new JComboBox(Constants.DB_ENZYMES);
 		
+		// Search strategy ComboBox
+		searchTypeCbx = new JComboBox(new String[] { "Target-Decoy", "Target Only" });
+		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));
 		paramsPnl.add(new JLabel("Da"), cc.xy(8, 2));
@@ -180,21 +202,24 @@ public class DBSearchPanel extends JPanel {
 		paramsPnl.add(new JSeparator(), cc.xyw(2, 8, 7));
 		paramsPnl.add(new JLabel("Enzyme (Protease):"), cc.xy(2, 10));
 		paramsPnl.add(enzymeCbx, cc.xyw(4, 10, 5));
+//		paramsPnl.add(new JSeparator(), cc.xyw(2, 12, 7));
+		paramsPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 12));
+		paramsPnl.add(searchTypeCbx, cc.xyw(4, 12, 5));
 		
-		// Search Engine Panel
+		// Search Engine Settings Panel
 		final JPanel searchEngPnl = new JPanel();
-		searchEngPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, p:g, 5dlu", "0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu"));
-		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
+		searchEngPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p:g, 5dlu",
+				"0dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu"));
+		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engine Settings"), searchEngPnl));
 
 		// X!Tandem
 		xTandemChk = new JCheckBox("X!Tandem", true);
 		xTandemChk.setIconTextGap(10);
-		
 		xTandemSetBtn = new JButton("Advanced Settings");
 		xTandemSetBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new AdvancedSettingsDialog(clientFrame, "X!Tandem Advanced Parameters", true, xTandemParams);
+			public void actionPerformed(ActionEvent evt) {
+				showAdvancedSettings("X!Tandem Advanced Parameters", xTandemParams);
 			}
 		});
 		xTandemSetBtn.setEnabled(xTandemChk.isSelected());
@@ -211,8 +236,8 @@ public class DBSearchPanel extends JPanel {
 		omssaSetBtn = new JButton("Advanced Settings");
 		omssaSetBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new AdvancedSettingsDialog(clientFrame, "OMSSA Advanced Parameters", true, new OmssaParameters());
+			public void actionPerformed(ActionEvent evt) {
+				new AdvancedSettingsDialog(clientFrame, "OMSSA Advanced Parameters", true, omssaParams);
 			}
 		});
 		
@@ -229,8 +254,8 @@ public class DBSearchPanel extends JPanel {
 		cruxSetBtn = new JButton("Advanced Settings");
 		cruxSetBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new AdvancedSettingsDialog(clientFrame, "Crux Advanced Parameters", true, new CruxParameters());
+			public void actionPerformed(ActionEvent evt) {
+				new AdvancedSettingsDialog(clientFrame, "Crux Advanced Parameters", true, cruxParams);
 			}
 		});
 		
@@ -247,8 +272,8 @@ public class DBSearchPanel extends JPanel {
 		inspectSetBtn = new JButton("Advanced Settings");
 		inspectSetBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new AdvancedSettingsDialog(clientFrame, "InsPecT Advanced Parameters", true, new InspectParameters());
+			public void actionPerformed(ActionEvent evt) {
+				new AdvancedSettingsDialog(clientFrame, "InsPecT Advanced Parameters", true, inspectParams);
 			}
 		});
 		
@@ -259,8 +284,24 @@ public class DBSearchPanel extends JPanel {
 			}
 		});
 		
-		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox(new String[] {"Target-Decoy", "Target Only"});
+		// Mascot
+		mascotChk = new JCheckBox("Mascot", false);
+		mascotChk.setIconTextGap(10);
+		mascotSetBtn = new JButton("Advanced Settings");
+		mascotChk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				mascotSetBtn.setEnabled(mascotChk.isSelected());
+			}
+		});
+
+		mascotSetBtn.setEnabled(mascotChk.isSelected());
+		mascotChk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mascotSetBtn.setEnabled(mascotChk.isSelected());
+			}
+		});
+		
+		mascotChk.setEnabled(false);
 
 		searchEngPnl.add(xTandemChk, cc.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, cc.xy(4, 2));
@@ -270,50 +311,14 @@ public class DBSearchPanel extends JPanel {
 		searchEngPnl.add(cruxSetBtn, cc.xy(4, 6));
 		searchEngPnl.add(inspectChk, cc.xy(2, 8));
 		searchEngPnl.add(inspectSetBtn, cc.xy(4, 8));
-		searchEngPnl.add(new JSeparator(), cc.xyw(2, 10, 3));
-		searchEngPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 12));
-		searchEngPnl.add(searchTypeCbx, cc.xy(4, 12));
+		searchEngPnl.add(mascotChk, cc.xy(2, 10));
+		searchEngPnl.add(mascotSetBtn, cc.xy(4, 10));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, cc.xy(2, 2));
 		this.add(paramsPnl, cc.xy(2, 4));
 		this.add(searchEngPnl, cc.xy(2, 6));
 
-	}
-	
-	/**
-	 * Method to toggle the enabled state of the whole panel.
-	 * Honors separate enabled state of specific sub-components on restore.
-	 */
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		setChildrenEnabled(this, enabled);
-		if (enabled) {
-			xTandemSetBtn.setEnabled(xTandemChk.isSelected());
-			omssaSetBtn.setEnabled(omssaChk.isSelected());
-			cruxSetBtn.setEnabled(cruxChk.isSelected());
-			inspectSetBtn.setEnabled(inspectChk.isSelected());
-		}
-	}
-
-	/**
-	 * Method to recursively iterate a component's children and set their enabled state.
-	 * @param parent
-	 * @param enabled
-	 */
-	public void setChildrenEnabled(JComponent parent, boolean enabled) {
-		for (Component child : parent.getComponents()) {
-			if (child instanceof JComponent) {
-				setChildrenEnabled((JComponent) child, enabled);
-			}
-		}
-		if (!(parent instanceof DBSearchPanel)) { // don't mess with DBSearchPanels
-			parent.setEnabled(enabled);
-			Border border = parent.getBorder();
-			if (border instanceof ComponentTitledBorder) {
-				((ComponentTitledBorder) border).setEnabled(enabled);
-			}
-		}
 	}
 	
 	/**
@@ -337,8 +342,51 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setExperimentid(clientFrame.getProjectPanel().getCurrentExperimentId());
 		return dbSettings;
 	}
-		
 	
-	
-	
+	/**
+	 * Utility method to display an advanced settings dialog.
+	 * @param title
+	 * @param params
+	 */
+	protected void showAdvancedSettings(String title, ParameterMap params) {
+		gatherDBSearchSettings();
+		AdvancedSettingsDialog.showDialog(clientFrame, title, true, params);
+	}
+
+	/**
+	 * Method to toggle the enabled state of the whole panel.
+	 * Honors separate enabled state of specific sub-components on restore.
+	 */
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		setChildrenEnabled(this, enabled);
+		if (enabled) {
+			xTandemSetBtn.setEnabled(xTandemChk.isSelected());
+			omssaSetBtn.setEnabled(omssaChk.isSelected());
+			cruxSetBtn.setEnabled(cruxChk.isSelected());
+			inspectSetBtn.setEnabled(inspectChk.isSelected());
+			mascotSetBtn.setEnabled(mascotChk.isSelected());
+		}
+	}
+
+	/**
+	 * Method to recursively iterate a component's children and set their enabled state.
+	 * @param parent
+	 * @param enabled
+	 */
+	public void setChildrenEnabled(JComponent parent, boolean enabled) {
+		for (Component child : parent.getComponents()) {
+			if (child instanceof JComponent) {
+				setChildrenEnabled((JComponent) child, enabled);
+			}
+		}
+		if (!(parent instanceof DBSearchPanel)) { // don't mess with DBSearchPanels
+			parent.setEnabled(enabled);
+			Border border = parent.getBorder();
+			if (border instanceof ComponentTitledBorder) {
+				((ComponentTitledBorder) border).setEnabled(enabled);
+			}
+		}
+	}
+
 }
