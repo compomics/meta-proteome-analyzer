@@ -26,6 +26,7 @@ public abstract class ParameterMap extends LinkedHashMap<String, Parameter> {
 	 */
 	public abstract void initDefaults();
 	
+	// TODO: take general search engine settings into account for toString() and toFile()
 	/**
 	 * Consolidates suitable parameters into a single string usable as a series of command line arguments.
 	 * @return a string representation of all suitable parameters

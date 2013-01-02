@@ -1,28 +1,47 @@
 package de.mpa.client.settings;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map.Entry;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+
+/**
+ * Class for storing InsPecT search engine-specific settings.
+ * 
+ * @author T. Muth, F. Kohrs, A. Behne
+ */
 public class InspectParameters extends ParameterMap {
 	
-	private List<Parameter> params;
-	
+	/**
+	 * Constructs a parameter map initialized with default values.
+	 */
 	public InspectParameters() {
 		this.initDefaults();
 	}
 
 	@Override
 	public void initDefaults() {
-		params = new ArrayList<Parameter>();
-		// Unrestrictive mode		
-		params.add(new Parameter("Unrestrictive Mode", false, "Unrestrictive PTM Mode", "Performs MS-Alignment algorithm to perform unrestrictive search, allowing arbitrary modification masses."));
-		params.add(new Parameter("Maximum PTM Size (Da)", 250,  "Unrestrictive PTM Mode", "For blind search, specifies the maximum modification size (in Da) to consider."));
+		/* Non-configurable settings */
+		this.put("PMTolerance", new Parameter(null, 1.0, "General", null));		// precursor tolerance
+		this.put("IonTolerance", new Parameter(null, 0.5, "General", null));	// fragment tolerance
+//		this.put(???, new Parameter(null, 2, "General", null));					// missed cleavages
+		this.put("Protease", new Parameter(null, "Trypsin", "General", null));	// protease
 		
-		// Scoring parameters.
-		params.add(new Parameter("Multiple precursor charge", true, "Scoring parameters", "Attempts to guess the precursor charge and mass and consider multiple charge states if feasible."));
-		params.add(new Parameter("Instrument Type", new Object[] { "ESI-ION-TRAP", "QTOF", "FT-HYBRID" }, "Scoring parameters", "Instrument type model."));
-		params.add(new Parameter("Tag Length", 3, "Scoring parameters", "Tag length 1-6."));
+		/* Configurable settings */
+		// PTM section
+		this.put("Mod", new Parameter("Searchable PTMs", "+57,C,fix,CAM\n+16,M,opt,MetOx\n","PTM","<html>Specify PTMs in the format <b>[MASS]</b>,<b>[RESIDUES]</b>,<b>[TYPE]</b>,<b>[NAME]</b>.<br>The <i>mass</i> (in Da) and affected amino acid <i>residues</i> are mandatory.<br>Valid values for <i>type</i> are <i>fix</i>, <i>cterminal</i>, <i>nterminal</i>, and <i>opt</i> (default).<br>The first four characters of the <i>name</i> parameter should be unique.</html>"));
+		this.put("Mods", new Parameter("PTMs per peptide", 1, "PTM", "Number of PTMs permitted in a single peptide. Set this to 1 (or higher) if you specify PTMs to search for."));
+		this.put("Unrestrictive", new Parameter("Perform unrestrictive search", false, "PTM", "If checked, use the MS-Alignment algorithm to perform an unrestrictive search (allowing arbitrary modification masses). Running an unrestrictive search is slower than the normal (tag-based) search."));
+		this.put("MaxPTMSize", new Parameter("Maximum PTM Size", 250,  "PTM", "Specifies the maximum modification size (in Da) to consider. Larger values require more time to search."));
+		// Scoring section
+		this.put("MultiCharge", new Parameter("Multiple precursor charge", true, "Scoring", "Attempts to guess the precursor charge and mass and consider multiple charge states if feasible."));
+		this.put("Instrument", new Parameter("Instrument Type", new DefaultComboBoxModel(new Object[] { "ESI-ION-TRAP", "QTOF", "FT-HYBRID" }), "Scoring", "Instrument type. Affects fragmentation model for spectrum matching."));
+		this.put("TagCount", new Parameter("Tag Count", 100, "Scoring", "Number of tags to generate."));
+		this.put("TagLength", new Parameter("Tag Length", new Integer[] { 3, 1, 6 }, "Scoring", "Length of peptide sequence tags."));
 	}
 
 	@Override
@@ -32,9 +51,62 @@ public class InspectParameters extends ParameterMap {
 	}
 
 	@Override
-	public File toFile(String path) {
-		// TODO Auto-generated method stub
-		return null;
+	public File toFile(String path) throws IOException {
+		// Append extension if it's missing
+		// TODO: add check for whether path does point to a file (and not a directory)
+		if (!path.endsWith(".txt")) {
+			path += ".txt";
+		}
+		
+		// Create new file at specified path
+		File file = new File(path);
+		
+		// Set up writer for parameter file
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+		
+		// Grab a set of default parameters for comparison purposes
+		InspectParameters defaults = new InspectParameters();
+		// Iterate stored parameter values and compare them to the defaults
+		for (Entry<String, Parameter> entry : this.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue().getValue();
+			Object defaultValue = defaults.get(key).getValue();
+			// special case for encapsulated values
+			if (value instanceof ComboBoxModel) {
+				value = ((ComboBoxModel) value).getSelectedItem();
+				defaultValue = ((ComboBoxModel) defaultValue).getSelectedItem();
+			} else if (value instanceof Integer[]) {
+				value = ((Integer[]) value)[0];
+				defaultValue = ((Integer[]) defaultValue)[0];
+			}
+			if (value instanceof String) {
+				// special case for PTMs, split multi-line string
+				String[] values = value.toString().split("\\n");
+				for (String val : values) {
+					if (!val.isEmpty()) {
+						// Write line
+						bw.append(key + "," + val);
+						bw.newLine();
+					}
+				}
+			} else if (!value.equals(defaultValue)) {
+				if (value instanceof Boolean) {
+					// turn true/false into yes/no
+					value = (((Boolean) value).booleanValue()) ? 1 : 0;
+				}
+				// Write line containing non-default value
+				bw.append(key + "," + value);
+				bw.newLine();
+			}
+		}
+		
+		bw.append("</bioml>");
+		
+		// Close writer
+		bw.flush();
+		bw.close();
+		
+		return file;
 	}
 
 }

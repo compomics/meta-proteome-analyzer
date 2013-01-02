@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GradientPaint;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractButton;
+import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -21,10 +24,14 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -35,6 +42,7 @@ import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
@@ -83,6 +91,18 @@ public class AdvancedSettingsDialog extends JDialog {
 	}
 	
 	/**
+	 * Displays a dialog dynamically generated from the specified collection of
+	 * parameters and provides controls to interact with them.
+	 * @param owner the <code>Frame</code> from which the dialog is displayed
+	 * @param title the <code>String</code> to display in the dialog's title bar
+	 * @param modal specifies whether dialog blocks user input to other top-level windows when shown.
+	 * @param parameterMap the collection of parameters upon which the dialog shall be built
+	 */
+	public static void showDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
+		new AdvancedSettingsDialog(owner, title, modal, parameterMap);
+	}
+	
+	/**
 	 * Groups parameters by their section.
 	 * @return a map containing lists of parameters mapped to their section key.
 	 */
@@ -121,45 +141,53 @@ public class AdvancedSettingsDialog extends JDialog {
 		
 		// Iterate sections
 		for (Entry<String, List<Parameter>> entry : sectionMap.entrySet()) {
-			// Create collapsible task pane for section
-			JXTaskPane taskPane = new JXTaskPane(entry.getKey());
-			taskPane.setUI(new GlossyTaskPaneUI());
-			
-			// Apply component listener to synchronize task pane size with dialog size
-			taskPane.addComponentListener(new ComponentAdapter() {
-				private Dimension size = null;
-				@Override
-				public void componentResized(ComponentEvent e) {
-					Dimension newSize = e.getComponent().getSize();
-					if (size != null) {
-						int delta = newSize.height - size.height;
-						Dimension dialogSize = new Dimension(getSize());
-						dialogSize.height += delta;
-						setSize(dialogSize);
+			String key = entry.getKey();
+			// Exclude general settings
+			if (!key.equals("General")) {
+				// Create collapsible task pane for section
+				JXTaskPane taskPane = new JXTaskPane(key);
+				taskPane.setUI(new GlossyTaskPaneUI());
+				
+				// Apply component listener to synchronize task pane size with dialog size
+				taskPane.addComponentListener(new ComponentAdapter() {
+					private Dimension size = null;
+					@Override
+					public void componentResized(ComponentEvent e) {
+						Dimension newSize = e.getComponent().getSize();
+						if (size != null) {
+							int delta = newSize.height - size.height;
+							Dimension dialogSize = new Dimension(getSize());
+							dialogSize.height += delta;
+							setSize(dialogSize);
+						}
+						size = newSize;
 					}
-					size = newSize;
-				}
-			});
-			
-			// Set up builder for the section
-			DefaultFormBuilder builder = new DefaultFormBuilder(
-					new FormLayout("p, 5dlu, p:g"), taskPane);
+				});
+				
+				// Set up builder for the section
+				DefaultFormBuilder builder = new DefaultFormBuilder(
+						new FormLayout("p, 5dlu, p:g"), taskPane);
+				builder.setDefaultRowSpec(RowSpec.decode("f:p:g"));
 
-			// Iterate parameters to build section components
-			for (Parameter p : entry.getValue()) {
-				JComponent comp = createParameterControl(p);
-				if ((comp instanceof JCheckBox) || (comp instanceof JPanel)) {
-					// Special case for checkboxes which come with labels of their own
-					builder.append(comp, 3);
-				} else {
-					// Add component, generate label to go with it
-					JLabel label = new JLabel(p.getName());
-					label.setToolTipText(p.getDescription());
-					builder.append(label, comp);
+				// Iterate parameters to build section components
+				for (Parameter p : entry.getValue()) {
+					JComponent comp = createParameterControl(p);
+					if ((comp instanceof JCheckBox) || (comp instanceof JPanel)) {
+						// Special case for checkboxes which come with labels of their own
+						builder.append(comp, 3);
+					} else {
+						// Add component, generate label to go with it
+						JLabel label = new JLabel(p.getName());
+						if (comp instanceof JScrollPane) {
+							label.setVerticalAlignment(SwingConstants.TOP);
+						}
+						label.setToolTipText(p.getDescription());
+						builder.append(label, comp);
+					}
+					builder.nextLine();
 				}
-				builder.nextLine();
+				tpc.add(taskPane);
 			}
-			tpc.add(taskPane);
 		}
 		
 		// Configure button panel containing 'OK' and 'Cancel' options
@@ -240,12 +268,35 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Update parameters
 		for (Parameter param : parameterMap.values()) {
 			JComponent comp = param2comp.get(param.getName());
+			if (comp == null) {
+				// skip default values
+				continue;
+			}
 			if (comp instanceof JCheckBox) {
 				param.setValue(((JCheckBox) comp).isSelected());
+			} else if (comp instanceof JPanel) {
+				// assume we are dealing with a matrix of checkboxes
+				Boolean[][] values = (Boolean[][]) param.getValue();
+				int k = 0;
+				for (int i = 0; i < values.length; i++) {
+					for (int j = 0; j < values[i].length; j++) {
+						values[i][j] = ((AbstractButton) comp.getComponent(k++)).isSelected();
+					}
+				}
+				param.setValue(values);
 			} else if (comp instanceof JComboBox) {
-				// TODO: find proper way to reflect selection in parameters 
+				param.setValue(((JComboBox) comp).getModel());
 			} else if (comp instanceof JSpinner) {
-				param.setValue(((JSpinner) comp).getValue());
+				JSpinner spinner = (JSpinner) comp;
+				if (param.getValue() instanceof Number[]) {
+					Number[] value = (Number[]) param.getValue();
+					value[0] = (Number) spinner.getValue();
+					param.setValue(value);
+				} else {
+					param.setValue(spinner.getValue());
+				}
+			} else if (comp instanceof JScrollPane) {
+				param.setValue(((JTextComponent) ((JScrollPane) comp).getViewport().getView()).getText());
 			} else {
 				// When we get here something went wrong - investigate!
 				System.out.println("UH OH " + comp.getClass());
@@ -263,13 +314,31 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Update controls
 		for (Parameter param : parameterMap.values()) {
 			JComponent comp = param2comp.get(param.getName());
+			if (comp == null) {
+				// skip default values
+				continue;
+			}
 			if (comp instanceof JCheckBox) {
 				((JCheckBox) comp).setSelected((Boolean) param.getValue());
+			} else if (comp instanceof JPanel) {
+				Boolean[][] rows = (Boolean[][]) param.getValue();
+				int counter = 0;
+				for (Boolean[] row : rows) {
+					for (Boolean sel : row) {
+						((AbstractButton) comp.getComponent(counter++)).setSelected(sel);
+					}
+				}
 			} else if (comp instanceof JComboBox) {
 				// assuming first item in list is default
 				((JComboBox) comp).setSelectedIndex(0);
 			} else if (comp instanceof JSpinner) {
-				((JSpinner) comp).setValue(param.getValue());
+				if (param.getValue() instanceof Number[]) {
+					((JSpinner) comp).setValue(((Number[]) param.getValue())[0]);
+				} else {
+					((JSpinner) comp).setValue(param.getValue());
+				}
+			} else if (comp instanceof JScrollPane) {
+				((JTextComponent) ((JScrollPane) comp).getViewport().getView()).setText(param.getValue().toString());
 			} else {
 				// When we get here something went wrong - investigate!
 				System.out.println("UH OH " + comp);
@@ -292,41 +361,43 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Determine type of value and generate appropriate control component
 		if (value instanceof Boolean) {
 			// Checkbox
-			JCheckBox checkBox = new JCheckBox(param.getName(), (Boolean) param.getValue());
+			JCheckBox checkBox = new JCheckBox(param.getName(), null, (Boolean) param.getValue());
 			checkBox.setHorizontalAlignment(SwingConstants.RIGHT);
 			checkBox.setHorizontalTextPosition(SwingConstants.LEFT);
 			checkBox.setIconTextGap(15);
 			checkBox.setToolTipText(param.getDescription());
+			Insets margin = checkBox.getMargin();
+			margin.left = -11;
+			checkBox.setMargin(margin);
 			comp = checkBox;
-//		} else if (value instanceof Boolean[][]) {
-//			// Matrix of checkboxes
-//			Boolean[][] values = (Boolean[][]) value;
-//			String[] rows = param.getName().split("\\|\\|");
-//			String[] trows = param.getDescription().split("\\|\\|");
-//			String encodedColumnSpecs = "";
-//			int len = rows[0].split("\\|").length;
-//			for (int i = 1; i < len; i++) {
-//				encodedColumnSpecs += "p:g, 5dlu, ";
-//			}
-//			encodedColumnSpecs += "p";
-//			DefaultFormBuilder builder = new DefaultFormBuilder(
-//					new FormLayout(encodedColumnSpecs));
-//			for (int i = 0; i < rows.length; i++) {
-//				String[] cols = rows[i].split("\\|");
-//				String[] tcols = trows[i].split("\\|");
-//				for (int j = 0; j < cols.length; j++) {
-//					JCheckBox checkbox = new JCheckBox(cols[j], values[i][j]);
-//					checkbox.setToolTipText(tcols[j]);
-//					builder.append(checkbox);
-//				}
-//				builder.nextLine();
-//			}
-//			return builder.getPanel();
-		} else if (value instanceof Object[]) {
+		} else if (value instanceof Boolean[][]) {
+			// Matrix of checkboxes
+			Boolean[][] values = (Boolean[][]) value;
+			String[] rows = param.getName().split("\\|\\|");
+			String[] trows = param.getDescription().split("\\|\\|");
+			String encodedColumnSpecs = "";
+			int len = rows[0].split("\\|").length;
+			for (int i = 1; i < len; i++) {
+				encodedColumnSpecs += "p:g, 5dlu, ";
+			}
+			encodedColumnSpecs += "p";
+			DefaultFormBuilder builder = new DefaultFormBuilder(
+					new FormLayout(encodedColumnSpecs));
+			for (int i = 0; i < rows.length; i++) {
+				String[] cols = rows[i].split("\\|");
+				String[] tcols = trows[i].split("\\|");
+				for (int j = 0; j < cols.length; j++) {
+					JCheckBox checkbox = new JCheckBox(cols[j], values[i][j]);
+					checkbox.setToolTipText(tcols[j]);
+					builder.append(checkbox);
+				}
+				builder.nextLine();
+			}
+			comp = builder.getPanel();
+		} else if (value instanceof ComboBoxModel) {
 			// Combobox
-			JComboBox comboBox = new JComboBox((Object[]) value);
+			JComboBox comboBox = new JComboBox((ComboBoxModel) value);
 			comboBox.setToolTipText(param.getDescription());
-			// TODO: find proper way to reflect changes in parameter object
 			comp = comboBox;
 		} else if (value instanceof Double) {
 			// Spinner with 2 decimal places
@@ -339,19 +410,28 @@ public class AdvancedSettingsDialog extends JDialog {
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel((Integer) value, 0, null, 1));
 			spinner.setToolTipText(param.getDescription());
 			comp = spinner;
+		} else if (value instanceof Integer[]) {
+			// Spinner without decimal places with defined min and max
+			Integer[] values = (Integer[]) value;
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(
+					values[0].intValue(), values[1].intValue(), values[2].intValue(), 1));
+			spinner.setToolTipText(param.getDescription());
+			comp = spinner;
+		} else if (value instanceof String) {
+			// Text field or text area
+			if (value.toString().contains("\n")) {
+				comp = new JScrollPane(new JTextArea(value.toString()),
+						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			} else {
+				comp = new JTextField(value.toString());
+			}
 		} else {
 			// When we get here something went wrong - investigate!
 			System.out.println("UH OH " + value.getClass());
 		}
-		if (comp == null) {
-			System.out.println("CRAP");
-		}
 		param2comp.put(param.getName(), comp);
 		return comp;
 	}
-	
-//	public ParameterMap getParameters() {
-//		return parameterMap;
-//	}
 	
 }
