@@ -34,6 +34,7 @@ public class FastaLoader {
 	/**
 	 * The accession-to-position map.
 	 */
+	// TODO: Take hashcode values instead of strings 
 	private TObjectLongMap<String> acc2pos;
 	
 	/**

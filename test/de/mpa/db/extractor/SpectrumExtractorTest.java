@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import de.mpa.algorithms.Interval;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.db.DBManager;
@@ -15,11 +19,12 @@ import de.mpa.db.DBManager;
 public class SpectrumExtractorTest extends TestCase {
 	
 	private Connection conn;
-	public SpectrumExtractorTest() {
+	
+	@Before
+	public void setUp() {
 		try {
 			DBManager dbManager = DBManager.getInstance();
 			conn = dbManager.getConnection();
-			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -28,6 +33,7 @@ public class SpectrumExtractorTest extends TestCase {
 	/**
 	 * Tests the extraction of spectral search candidates from the database.
 	 */
+	@Test
 	public void testGetLibrarySpectra() throws SQLException, IOException {
 		SpectrumExtractor specExtractor = new SpectrumExtractor(conn);
 		

@@ -336,7 +336,7 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int choice = JOptionPane.showConfirmDialog(clientFrame, "Are you sure you want to delete the selected experiment?<br>Changes are irreversible.", "Delete Experiment", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				int choice = JOptionPane.showConfirmDialog(clientFrame, "<html>Are you sure you want to delete the selected experiment?<br>Changes are irreversible.</html>", "Delete Experiment", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 			
 				if (choice == JOptionPane.OK_OPTION) {
 					try {

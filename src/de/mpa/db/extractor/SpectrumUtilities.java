@@ -1,6 +1,7 @@
 package de.mpa.db.extractor;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,13 +13,17 @@ import java.util.List;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.SearchHit;
 import de.mpa.io.MascotGenericFile;
 
+/**
+ * TODO: API
+ * 
+ * @author T. Muth
+ */
 public class SpectrumUtilities {
 	
 	/**
-	 * 
+	 * The database connection instance.
 	 */
 	private Connection conn;
 	
@@ -35,18 +40,23 @@ public class SpectrumUtilities {
 		}
 	}
 	
+	/**
+	 * TODO: API
+	 * @param spectra
+	 * @param filePath
+	 */
 	public static void writeToFile(List<MascotGenericFile> spectra, String filePath) {
-		for (MascotGenericFile mgf : spectra) {
-			try {
-				mgf.writeToFile(new File(filePath));
-			} catch (IOException e) {
-				e.printStackTrace();
+		try {
+			File file = new File(filePath);
+			FileOutputStream fos = new FileOutputStream(file);
+			for (MascotGenericFile mgf : spectra) {
+				mgf.writeToStream(fos);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		
-		
 	}
-	
+
 	/**
 	 * Method to download database spectra belonging to a specific experiment.
 	 * @param experimentID

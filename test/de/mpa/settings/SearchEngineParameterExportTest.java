@@ -39,7 +39,7 @@ public class SearchEngineParameterExportTest extends TestCase {
 		params.put(key, parameter);
 		
 		// Create file representation of parameter map
-		File file = params.toFile("input.xml");
+		File file = params.toFile("test/de/mpa/resources/input.xml");
 		
 		// Dig through file and try to recover inserted non-default values
 		BufferedReader br = new BufferedReader(new FileReader(file));

@@ -30,6 +30,7 @@ public class SpectrumExtractor {
 	public SpectrumExtractor(Connection conn) {
 		this.conn = conn;
 	}
+	// TODO: replace methods with static versions specifying connection externally
 	
 	/**
 	 * Constructs a MascotGenericFile directly from the database.
@@ -70,6 +71,12 @@ public class SpectrumExtractor {
 		return res;
 	}
 	
+	/**
+	 * TODO: API!
+	 * @param precIntervals
+	 * @return
+	 * @throws SQLException
+	 */
 	public List<SpectralSearchCandidate> getCandidates(List<Interval> precIntervals) throws SQLException {
 		return getCandidatesFromExperiment(precIntervals, 0L);
 	}
@@ -129,24 +136,18 @@ public class SpectrumExtractor {
 
 	/**
 	 * Method to download database spectra belonging to a specific experiment.
-	 * @param experimentID
-	 * @param saveToFile 
-	 * @return
+	 * @param experimentID The experiment ID.
+	 * @param saveToFile Flag for saving the spectrum to a file.
+	 * @return List of MGF objects.
 	 * @throws SQLException
 	 */
 	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean saveToFile) throws SQLException {
 		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
-		
-//		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
-//				"precursor_charge, mzarray, intarray, chargearray, sequence FROM spectrum s " +
-//				"INNER JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid " +
-//				"INNER JOIN peptide p ON s2p.fk_peptideid = p.peptideid " +
-//				"INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
-//				"WHERE libspectrum.fk_experimentid = ?");
+
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum s " +
-				"INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
-				"WHERE ls.fk_experimentid = ?");
+				"INNER JOIN searchspectrum ss ON s.spectrumid = ss.fk_spectrumid " +
+				"WHERE ss.fk_experimentid = ? GROUP BY s.spectrumid");
 		ps.setLong(1, experimentID);
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -161,6 +162,7 @@ public class SpectrumExtractor {
         	if (comments == null) {
         		comments = "";
         	}
+        	// Adds spectrum id as comment to existing comments
         	comments += "#sid " + rs.getLong("spectrumid") + "\n";
         	mgf.setComments(comments);
             res.add(mgf);
@@ -216,15 +218,62 @@ public class SpectrumExtractor {
 		MascotGenericFile res = null;
 		
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
-				"precursor_charge, mzarray, intarray, chargearray FROM spectrum " +
+				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum " +
 				"WHERE spectrum.spectrumid = ?");
 		ps.setLong(1, spectrumID);
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
         	res = new MascotGenericFile(rs);
+        	// Adds spectrum id as comment to existing comments
+        	long spectrumid = rs.getLong("spectrumid");
+        	res.setComments("#sid " + spectrumid + "\n");
+        	res.setSpectrumID(spectrumid);
         }
         rs.close();
         ps.close();
+		return res;
+	}
+	
+	/**
+	 * Method to extract a number of spectra by their spectrum IDs.
+	 * @param spectrumIDs DB Spectrum IDs
+	 * @return List of MGF objects.
+	 * @throws SQLException if a database access error occurs or this method is called on a closed connection
+	 */
+	public List<MascotGenericFile> getSpectraBySpectrumIDs(List<Long> spectrumIDs) throws SQLException {
+		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
+		
+		// build string for WHERE IN clause containing multiple wildcards
+		StringBuilder clause = new StringBuilder("(");
+		for (int i = 0; i < spectrumIDs.size(); i++) {
+			clause.append("?,");
+		}
+		// replace last comma with closing bracket
+		clause.setCharAt(clause.length() - 1, ')');
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum " +
+				"WHERE spectrum.spectrumid IN " + clause);
+		for (int i = 0; i < spectrumIDs.size(); i++) {
+			ps.setLong(i + 1, spectrumIDs.get(i));
+		}
+		ResultSet rs = ps.executeQuery();
+		int counter = 0;
+        while (rs.next()) {
+        	MascotGenericFile mgf = new MascotGenericFile(rs);
+        	// Adds spectrum id as comment to existing comments
+        	long spectrumid = rs.getLong("spectrumid");
+        	mgf.setComments("#sid " + spectrumid + "\n");
+			res.add(mgf);
+        	counter++;
+        }
+        rs.close();
+        ps.close();
+        
+        // check whether result set contains the expected number of results
+        if (counter < spectrumIDs.size()) {
+        	throw new SQLException("Result set contains fewer elements than expected.");
+        }
 		return res;
 	}
 	
