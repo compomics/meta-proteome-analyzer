@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.activation.DataHandler;
@@ -21,8 +25,11 @@ import de.mpa.client.SearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
+import de.mpa.db.extractor.SpectrumExtractor;
+import de.mpa.db.extractor.SpectrumUtilities;
 import de.mpa.db.storager.SpectrumStorager;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.Job;
 import de.mpa.job.JobManager;
@@ -76,6 +83,9 @@ public class ServerImpl implements Server {
 	 */
 	private JobManager jobManager;
 
+	/**
+	 * TODO: API
+	 */
 	private RunOptions runOptions;
     
 	@Override
@@ -148,7 +158,7 @@ public class ServerImpl implements Server {
 			}
 		}
 		
-		// Omssa job
+		// OMSSA job
 		if (dbSearchSettings.isOmssa()) {
 			Job omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
 			jobManager.addJob(omssaJob);
@@ -185,7 +195,7 @@ public class ServerImpl implements Server {
 			jobManager.addJob(new CruxStoreJob(cruxJob.getFilename()));
 		}
 		
-		// Inspect job
+		// InsPecT job
 		if (dbSearchSettings.isInspect()) {
 			Job inspectJob = new InspectJob(file, searchDB);			
 			jobManager.addJob(inspectJob);			
@@ -193,7 +203,6 @@ public class ServerImpl implements Server {
 			jobManager.addJob(postProcessorJob);			
 			jobManager.addJob(new InspectStoreJob(postProcessorJob.getFilename()));
 		}
-		
 	
 	}
 
@@ -267,7 +276,7 @@ public class ServerImpl implements Server {
 			
 			runOptions = RunOptions.getInstance();
 			
-			if(!runOptions.hasRunAlready()){
+			if (!runOptions.hasRunAlready()) {
 				// DB Manager instance
 				dbManager = DBManager.getInstance();
 				
@@ -280,6 +289,10 @@ public class ServerImpl implements Server {
 				for (String filename : filenames) {
 					// Store uploaded spectrum files to DB
 					File file = new File(JobConstants.TRANSFER_PATH + filename);
+					
+					// Repair spectra
+					repairSpectra(file, dbManager.getConnection());
+					
 					SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
 
 					// Add search jobs to job manager queue
@@ -296,9 +309,10 @@ public class ServerImpl implements Server {
 					msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
 					
 					// Batch-execute jobs
-					Thread managerThread = new Thread(jobManager);
-					managerThread.start();
-					managerThread.join();
+//					Thread managerThread = new Thread(jobManager);
+//					managerThread.start();
+//					managerThread.join();
+					jobManager.run();
 					
 					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
 					i++;
@@ -306,10 +320,63 @@ public class ServerImpl implements Server {
 				}
 				// Clear the folders
 				jobManager.addJob(new DeleteJob());
+				jobManager.run();
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(), e.getCause());
 			e.printStackTrace();
+			log.error(e.getMessage(), e.getCause());
+		}
+	}
+
+	/**
+	 * Scans the specified spectrum file for dummy entries and replaces them 
+	 * with contents fetched from the remote database.
+	 * @param file The spectrum file
+	 * @param conn The database connection
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public static void repairSpectra(File file, Connection conn) throws IOException, SQLException {
+		repairSpectra(file, conn, file.getPath());
+	}
+
+	/**
+	 * Scans the specified spectrum file for dummy entries, replaces them with
+	 * contents fetched from the remote database and writes the result out to a
+	 * file with the specified path.
+	 * @param file The spectrum file.
+	 * @param conn The database connection
+	 * @param path The new file path
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public static void repairSpectra(File file, Connection conn, String path) throws IOException, SQLException {
+		MascotGenericFileReader reader = new MascotGenericFileReader(file);
+		List<MascotGenericFile> spectra = reader.getSpectrumFiles(true);
+		
+		List<Long> spectrumIDs = new ArrayList<Long>();
+		Iterator<MascotGenericFile> iterator = spectra.iterator();
+		while (iterator.hasNext()) {
+			MascotGenericFile mgf = (MascotGenericFile) iterator.next();
+			if (mgf.getSpectrumID() != null) {
+				spectrumIDs.add(mgf.getSpectrumID());
+				iterator.remove();
+			}
+		}
+		if (!spectrumIDs.isEmpty()) {
+			if (path.equals(file.getPath())) {
+				// remove old mgf file
+				file.delete();
+			}
+			file = new File(path);
+			
+			// download whole spectra for identified dummies
+			SpectrumExtractor specEx = new SpectrumExtractor(conn);
+			List<MascotGenericFile> newSpectra = specEx.getSpectraBySpectrumIDs(spectrumIDs);
+			
+			// write all spectra to new mgf file
+			spectra.addAll(newSpectra);
+			SpectrumUtilities.writeToFile(spectra, path);
 		}
 	}
 	

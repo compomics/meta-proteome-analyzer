@@ -26,7 +26,7 @@ public class SpectrumStorager extends BasicStorager {
     /**
      * The spectrum file reader instance.
      */
-    private MascotGenericFileReader mascotGenericFileReader;
+    private MascotGenericFileReader reader;
     
     /**
      * The spectrum file instance.
@@ -86,7 +86,7 @@ public class SpectrumStorager extends BasicStorager {
      */
     public void load() {
         try {
-            mascotGenericFileReader = new MascotGenericFileReader(file);
+            reader = new MascotGenericFileReader(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,7 +100,7 @@ public class SpectrumStorager extends BasicStorager {
      */
     public void store() throws IOException, SQLException {
         // Get all spectra from the reader.
-        spectra = mascotGenericFileReader.getSpectrumFiles();
+        spectra = reader.getSpectrumFiles();
         
         // Init cache maps.
         title2SearchIdMap = new HashMap<String, Long>();
@@ -116,7 +116,7 @@ public class SpectrumStorager extends BasicStorager {
             
             Long searchspectrumid;
 			if (query == null) {
-	            /* Spectrum section */
+	            /* New spectrum section */
 	            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
             
 	            // The spectrum title
@@ -157,11 +157,11 @@ public class SpectrumStorager extends BasicStorager {
                 data.put(Spectrum.MAXIMUM_INT, mgf.getHighestIntensity());
 
                 // Create the database object.
-                Spectrum spectrum = new Spectrum(data);
-                spectrum.persist(conn);
+                query = new Spectrum(data);
+                query.persist(conn);
 
                 // Get the spectrumid from the generated keys.
-                Long spectrumid = (Long) spectrum.getGeneratedKeys()[0];
+                Long spectrumid = (Long) query.getGeneratedKeys()[0];
                 
                 /* Searchspectrum storager*/
                 HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
@@ -176,7 +176,7 @@ public class SpectrumStorager extends BasicStorager {
                 searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
                 
             } else {
-            	/* Redundant spectrum */
+            	/* Redundant spectrum section */
             	long spectrumid = query.getSpectrumid();
             	
             	// Find possibly already existing search spectrum for this experiment
@@ -208,6 +208,8 @@ public class SpectrumStorager extends BasicStorager {
         }
         MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
         MapContainer.FileName2IdMap = fileName2IdMap;
+        
+        reader.close();
     }
 
 	/**

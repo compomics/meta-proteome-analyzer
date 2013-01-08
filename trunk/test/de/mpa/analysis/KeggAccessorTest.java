@@ -13,6 +13,8 @@ import org.junit.Test;
 
 public class KeggAccessorTest extends TestCase {
 
+	// FIXME: possibly obsolete class, investigate!
+	
 	private KeggAccessor accessor;
 	
 	private String[] genes = {
@@ -90,23 +92,23 @@ public class KeggAccessorTest extends TestCase {
 		assertTrue(actualPathways.containsAll(expectedPathways));
 	}
 	
-	@Test
-	public void testPathwayDumping() throws IOException {
-		// Warning: dumping takes several minutes to finish! Uncomment only if absolutely necessary :)
-		accessor.dumpRemoteKeggPathways();
-		
-		// Glycolysis/Gluconeogenesis pathway
-		short pathwayID = 10;
-		
-		short koToDump = accessor.getKOsByPathway(pathwayID).get(0);
-		
-		accessor.readDumpedKeggPathways();
-		
-		short dumpedKo = accessor.getKOsByPathway(pathwayID).get(0);
-		
-		System.out.println(accessor.getECsByPathway(pathwayID).get(0)[0]);
-		
-		assertEquals(koToDump, dumpedKo);
-	}
+//	@Test
+//	public void testPathwayDumping() throws IOException {
+//		// Warning: dumping takes several minutes to finish! Uncomment only if absolutely necessary :)
+//		accessor.dumpRemoteKeggPathways();
+//		
+//		// Glycolysis/Gluconeogenesis pathway
+//		short pathwayID = 10;
+//		
+//		short koToDump = accessor.getKOsByPathway(pathwayID).get(0);
+//		
+//		accessor.readDumpedKeggPathways();
+//		
+//		short dumpedKo = accessor.getKOsByPathway(pathwayID).get(0);
+//		
+//		System.out.println(accessor.getECsByPathway(pathwayID).get(0)[0]);
+//		
+//		assertEquals(koToDump, dumpedKo);
+//	}
 	
 }

@@ -55,8 +55,9 @@ public class DbConnectionSettings {
 		try {
 			readSettingsFromFile(new File("password/DbConnectionSettings.txt"));
 		} catch (IOException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			e.printStackTrace();
+//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
 

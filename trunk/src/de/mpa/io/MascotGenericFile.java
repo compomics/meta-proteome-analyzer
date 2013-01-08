@@ -819,6 +819,15 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	public Long getSpectrumID() {
 		return spectrumID;
 	}
+	
+	/**
+	 * 
+	 * @param spectrumID
+	 */
+	public void setSpectrumID(Long spectrumID) {
+		// TODO: automatically adapt #sid comment
+		this.spectrumID = spectrumID;
+	}
     
     // inherited from SpectrumFile
 	@Override
