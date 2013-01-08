@@ -215,9 +215,9 @@ public class MascotGenericFileReader {
             // Skip empty lines and file-level charge statement.
             if (line.equals("") || (lineCounter == 1 && line.startsWith("CHARGE"))) {
                 continue;
-            }
-            // Comment lines.
-            else if (line.startsWith("#") && !inSpectrum) {
+            } else if (line.startsWith("#") && !inSpectrum) {
+                // Comment lines.
+            	
                 // First strip off the comment markings in a new String ('cleanLine').
                 String cleanLine = this.cleanCommentMarks(line);
                 // If cleanLine trimmed is empty String, it's an empty comment line
@@ -225,11 +225,10 @@ public class MascotGenericFileReader {
                 String cleanLineTrimmed = cleanLine.trim();
                 if (cleanLineTrimmed.equals("")) {
                     continue;
-                }
-                // If it is not empty String, yet starts with a space (note that we verify
-                // using the untrimmed cleanLine!), it is a header
-                // comment, so we start by counting it!
-                else if (cleanLine.startsWith(" ") || cleanLine.startsWith("\t")) {
+                } else if (cleanLine.startsWith(" ") || cleanLine.startsWith("\t")) {
+                    // If it is not empty String, yet starts with a space (note that we verify
+                    // using the untrimmed cleanLine!), it is a header
+                    // comment, so we start by counting it!
                     commentLineCounter++;
                     // See if it is the second non-empty comment line.
                     if (runnameNotYetFound && commentLineCounter >= 2 && cleanLineTrimmed.indexOf("Instrument:") < 0 && cleanLineTrimmed.indexOf("Manufacturer:") < 0) {
@@ -241,20 +240,19 @@ public class MascotGenericFileReader {
                     // StringBuffer, the contents of which are afterwards copied into
                     // the 'iComments' variable.
                     tempComments.append(line + "\n");
-                }
-                // Spectrum comment. Start a new Spectrum!
-                else {
+                } else {
+                    // Spectrum comment. Start a new Spectrum!
                     fireProgressMade(oldPos, newPos);
                     this.spectrumPositions.add(oldPos);
                     inSpectrum = true;
                     spectrum.append(line + "\n");
                 }
-            }
-            // Not an empty line, not an initial charge line, not a comment line and inside a spectrum.
-            // It could be 'BEGIN IONS', 'END IONS', 'TITLE=...', 'PEPMASS=...',
-            // in-spectrum 'CHARGE=...' or, finally, a genuine peak line.
-            // Whatever it is, add it to the spectrum StringBuffer.
-            else if (inSpectrum) {
+            } else if (inSpectrum) {
+                // Not an empty line, not an initial charge line, not a comment line and inside a spectrum.
+                // It could be 'BEGIN IONS', 'END IONS', 'TITLE=...', 'PEPMASS=...',
+                // in-spectrum 'CHARGE=...' or, finally, a genuine peak line.
+                // Whatever it is, add it to the spectrum StringBuffer.
+            	
                 // Adding this line to the spectrum StringBuffer.
                 spectrum.append(line + "\n");
                 // See if it was an 'END IONS', in which case we stop being in a spectrum.
@@ -274,10 +272,8 @@ public class MascotGenericFileReader {
                     // Reset the spectrum StringBuffer.
                     spectrum = new StringBuffer();
                 }
-            }
-            
-            // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
-            else if (line.startsWith("BEGIN")) {
+            } else if (line.startsWith("BEGIN")) {
+                // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
                 fireProgressMade(oldPos, newPos);
                 this.spectrumPositions.add(oldPos);
                 inSpectrum = true;
@@ -388,6 +384,8 @@ public class MascotGenericFileReader {
         if (newlineCharCount == 0) {
         	newlineCharCount = determineNewlineCharCount();
         }
+
+        boolean inSpectrum = false;
         
         // Cycle the file.
         while ((line = raf.readLine()) != null) {
@@ -399,10 +397,26 @@ public class MascotGenericFileReader {
             // Skip empty lines and file-level charge statement.
             if (line.equals("") || (lineCounter == 1 && line.startsWith("CHARGE"))) {
                 continue;
-            }
-
-            // Mark position of spectrum block
-            if (line.startsWith("BEGIN")) {
+            } else if (line.startsWith("#") && !inSpectrum) {            	
+                String cleanLine = this.cleanCommentMarks(line);
+                String cleanLineTrimmed = cleanLine.trim();
+                if (cleanLineTrimmed.equals("")) {
+                	// Empty comment
+                    continue;
+                } else if (cleanLine.startsWith(" ") || cleanLine.startsWith("\t")) {
+                	// Header comment
+                    continue;
+                } else {
+                    // Spectrum comment, start a new Spectrum!
+                    fireProgressMade(oldPos, newPos);
+                    this.spectrumPositions.add(oldPos);
+                    inSpectrum = true;
+                }
+            } else if (inSpectrum) {
+				if (line.startsWith("END")) {
+					inSpectrum = false;
+				}
+            } else if (line.startsWith("BEGIN")) {
                 fireProgressMade(oldPos, newPos);
                 this.spectrumPositions.add(oldPos);
             }

@@ -33,6 +33,7 @@ public class XTandemParameters extends ParameterMap {
 		this.put("spectrum, parent monoisotopic mass error minus", new Parameter(null, 1.0, "General", null));
 		this.put("spectrum, fragment monoisotopic mass error", new Parameter(null, 0.5, "General", null));		// fragment tolerance
 		this.put("scoring, maximum missed cleavage sites", new Parameter(null, 2, "General", null));			// missed cleavages
+		this.put("protein, cleavage site", new Parameter(null, "[KR]|{P}", "General", null));					// protease
 //		this.put("list path, taxonomy information", new Parameter(null, "taxonomy.xml", "General", null));
 		
 		// TODO: add missing parameters with fixed non-default values, if any

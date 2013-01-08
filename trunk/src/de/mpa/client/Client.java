@@ -510,18 +510,18 @@ public class Client {
 	 */
 	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
 		initDBConnection();
-		return new SpectrumExtractor(conn).getSpectrumFromSearchSpectrumID(searchspectrumID);
+		return new SpectrumExtractor(conn).getSpectrumBySearchSpectrumID(searchspectrumID);
 	}
 
 	/**
-	 * Queries the database to retrieve a spectrum file belonging to a specific spectrum title.
-	 * @param title The spectrum title.
+	 * Queries the database to retrieve a spectrum file belonging to a specific spectrum entry.
+	 * @param spectrumID The primary key of the spectrum entry.
 	 * @return The corresponding spectrum file object.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumByTitle(String title) throws SQLException {
+	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
 		initDBConnection();
-		return Spectrum.getSpectrumFileFromTitle(title, conn);
+		return new SpectrumExtractor(conn).getSpectrumBySpectrumID(spectrumID);
 	}
 
 	/**
@@ -532,7 +532,7 @@ public class Client {
 	 */
 	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
 		initDBConnection();
-		return new SpectrumExtractor(conn).getSpectrumFromLibSpectrumID(libspectrumID);
+		return new SpectrumExtractor(conn).getSpectrumByLibSpectrumID(libspectrumID);
 	}
 
 	/**
@@ -560,9 +560,10 @@ public class Client {
 	 * @param checkBoxTree The checkbox tree.
 	 * @param listener An optional property change listener used to monitor progress.
 	 * @return A list of files.
-	 * @throws IOException 
+	 * @throws IOException if reading a spectrum file fails
+	 * @throws SQLException if fetching spectrum data from the database fails
 	 */
-	public List<String> packAndSend(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException {
+	public List<String> packAndSend(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException, SQLException {
 		File file = null;
 		List<String> filenames = new ArrayList<String>();
 		FileOutputStream fos = null;
@@ -620,11 +621,12 @@ public class Client {
 	 * Queries the database to retrieve a list of spectrum files belonging to a specified experiment.
 //	 * @deprecated For spectral similarity tuning use only. Will be deleted at some point in the future. 
 	 * @param experimentID The primary key of the experiment.
+	 * @param saveToFile <code>true</code> if the spectra are to be written to a file, <code>false</code> otherwise
 	 * @return A list of spectrum files.
 	 * @throws Exception
 	 */
-	public List<MascotGenericFile> downloadSpectra(long experimentID) throws Exception {
-		return new SpectrumExtractor(conn).downloadSpectra(experimentID);
+	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean saveToFile) throws Exception {
+		return new SpectrumExtractor(conn).downloadSpectra(experimentID, saveToFile);
 	} 
 
 	// Thread polling the server each second.

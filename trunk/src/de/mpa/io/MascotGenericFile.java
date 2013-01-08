@@ -57,27 +57,12 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      */
     protected HashMap<Double,Double> iPeaks = new HashMap<Double, Double>();
 
-    
-
-    public double getSNR(double noiseLvl) {
-    	
-    	double signal = 0.0;
-    	double noise = 0.0;
-    	for (double intensity : iPeaks.values()) {
-    		if (intensity > noiseLvl) {
-    			signal += intensity;
-    		} else {
-    			noise += intensity;
-    		}
-		}
-    	if (noise > 0.0) {
-    		return signal/noise;
-    	} else {
-    		return signal;	// same as total ion current
-    	}
-    }
-    
     /**
+     * The spectrum's database ID. Used to mark spectrum as already stored. 
+     */
+    private Long spectrumID;
+
+	/**
      * This variable holds the precursor M/Z
      */
     protected double iPrecursorMz = -1.0;
@@ -501,6 +486,13 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                 }
                 // Read all starting comments.
                 if (line.startsWith("#")) {
+                	if (line.startsWith("sid", 1)) {
+                		try {
+                    		this.spectrumID = Long.parseLong(line.substring(5));
+						} catch (Exception e) {
+							// do nothing, just catch failed parse attempt
+						}
+                	}
                     comments.append(line + "\n");
                 }
                 // BEGIN IONS marks the start of the real file.
@@ -511,7 +503,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                 else if (line.equals(IONS_END)) {
                     inSpectrum = false;
                 }
-                // Read embedded parameters. The most important parameters (such as TITLE, PEPMASS and optional CHARGE fields )
+                // Read embedded parameters. The most important parameters (such as TITLE, PEPMASS and optional CHARGE fields)
                 // will be saved as instance variables as well as in the iEmbeddedParameter Properties instance.
                 else if (inSpectrum && (line.indexOf("=") >= 0)) {
                     // Find the starting location of the value (which is one beyond the location
@@ -565,11 +557,9 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                         temp = st.nextToken().trim();
                         Double intensity = new Double(temp);
                         
-//                        this.lPeaks.add(new Peak(mass, intensity));
-                        
                         this.iPeaks.put(mass, intensity);
                         if (st.hasMoreTokens()) {
-                            int charge = this.extractCharge(st.nextToken());
+                            int charge = extractCharge(st.nextToken());
                             iCharges.put(mass, new Integer(charge));
                         }                     
                     } else {
@@ -609,11 +599,15 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
             // Substituting the title with the filename.
             bw.write(TITLE + "=" + this.getFilename() + "\n");
         } else {
-            // Keeping the title.
-            bw.write(TITLE + "=" + this.getTitle() + "\n");
+        	if (this.getTitle() != null) {
+                // Keeping the title.
+                bw.write(TITLE + "=" + this.getTitle() + "\n");
+        	}
         }
         // Precursor M/Z and intensity (separated by a space).
-        bw.write(PEPMASS + "=" + this.getPrecursorMZ() + " " + this.getIntensity() + "\n");
+        if ((this.getPrecursorMZ() > 0.0) && (this.getIntensity() > 0.0)) {
+            bw.write(PEPMASS + "=" + this.getPrecursorMZ() + " " + this.getIntensity() + "\n");
+        }
         // For charge: see if it is present first (charge != 0).
         // If it is not present, omit this line altogether.
         if (this.getCharge() != 0) {
@@ -695,6 +689,32 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
     }
 
     /**
+     * Calculates and returns the signal-to-noise ratio of the spectrum.
+     * @param noiseLvl The intensity below which peaks are assumed to be noise.
+     * @return The signal-to-noise ratio.
+     */
+    public double getSNR(double noiseLvl) {
+    	if (noiseLvl <= 0.0) {
+    		return getTotalIntensity();
+    	}
+    	
+    	double signal = 0.0;
+    	double noise = 0.0;
+    	for (double intensity : iPeaks.values()) {
+    		if (intensity > noiseLvl) {
+    			signal += intensity;
+    		} else {
+    			noise += intensity;
+    		}
+		}
+    	if (noise > 0.0) {
+    		return signal/noise;
+    	} else {
+    		return signal;	// same as total ion current
+    	}
+    }
+
+    /**
      * This method reports on the charge of the precursor ion. Note that when the charge could not be determined, this
      * method will return '0'.
      *
@@ -753,26 +773,52 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
     	}
     }
     
+    /**
+     * Returns the charges map.
+     * @return Map containing fragment m/z-to-charge pairs.
+     */
 	public HashMap<Double, Integer> getCharges() {
 		return iCharges;
 	}
     
+	/**
+	 * Returns the precursor ion m/z.
+	 */
     public double getPrecursorMZ() {
         return iPrecursorMz;
     }
     
-     public void setCharge(int aCharge) {
-        this.iCharge = aCharge;
-    }
+    /**
+     * Sets the precursor ion charge.
+     * @param aCharge the charge to set
+     */
+	public void setCharge(int aCharge) {
+		this.iCharge = aCharge;
+	}
 
+	/**
+	 * Sets the precursor ion intensity.
+	 * @param aIntensity the intensity to set
+	 */
     public void setIntensity(double aIntensity) {
         this.iIntensity = aIntensity;
     }
 
+    /**
+     * Sets the precursor m/z.
+     * @param the m/z to set
+     */
     public void setPrecursorMZ(double aPrecursorMz) {
         this.iPrecursorMz = aPrecursorMz;
     }
-
+    
+    /**
+     * Returns the spectrum's database ID.
+	 * @return the spectrum ID or <code>null</code> if undefined.
+	 */
+	public Long getSpectrumID() {
+		return spectrumID;
+	}
     
     // inherited from SpectrumFile
 	@Override
@@ -787,4 +833,3 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	}
 
 }
-
