@@ -93,7 +93,7 @@ public class ResultsDumpTest extends TestCase {
 	@Test
 	public void testSerializeDeserialize() throws IOException, ClassNotFoundException {
 		// init target file
-		File file = new File("DumpTest.mpa");
+		File file = new File("test/de/mpa/resources/DumpTest.mpa".replaceAll("/", File.separator));
 		
 		// dump to file
 		FileOutputStream fos = new FileOutputStream(file);
@@ -122,56 +122,6 @@ public class ResultsDumpTest extends TestCase {
 		SearchHit impHit = ((PeptideSpectrumMatch) importedResult.getProteinHitList().get(0).
 				getPeptideHitList().get(0).getSpectrumMatches().get(0)).getSearchHits().get(0);
 		assertEquals(expHit, impHit);	// using equals() implementation of SearchHit implementations
-	}
-
+	}	
 	
-	
-	/**
-	 * Test to write and read the mgf as extra File
-	 */
-	@Test
-	public void testClientwriteDbSearchResultToFile() {
-		Client.getInstance().setDbSearchResult(resultToExport);
-		// FIXME: @ROBERT: DOES NOT WORK IN NON-WINDOWS ENVIRONMENT, RE-WRITE PROPERLY
-		Client.getInstance().writeDbSearchResultToFile(
-				"C:\\Documents and Settings\\heyer\\Desktop\\RobertTestet.mpa");
-
-		MascotGenericFile mgfOriginal2385 = null;
-		MascotGenericFile mgfOriginal1081669 = null;
-
-		List<ProteinHit> proteinHitList = resultToExport.getProteinHitList();
-		List<PeptideHit> peptideHitList = proteinHitList.get(2).getPeptideHitList();
-		List<SpectrumMatch> spectrumMatches = peptideHitList.get(0).getSpectrumMatches();
-		// Get original mgf
-		try {
-			mgfOriginal2385 = Client.getInstance().getSpectrumBySearchSpectrumID(
-							spectrumMatches.get(0).getSearchSpectrumID());
-			mgfOriginal1081669 = Client.getInstance().getSpectrumBySearchSpectrumID(1081669L);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		// Get original peaks
-		HashMap<Double, Double> peaksOrigin2385 = mgfOriginal2385.getPeaks();
-		HashMap<Double, Double> peaksOrigin1081669 = mgfOriginal1081669.getPeaks();
-
-		// Reload Mgfs
-		String pathname = "C:\\Documents and Settings\\heyer\\Desktop\\RobertTestet.mgf";
-		MascotGenericFile mgfFile2385 = Client.getInstance().readSpectrumFromFile(
-				pathname, 2385L);
-		HashMap<Double, Double> peaksReLoaded2385 = mgfFile2385.getPeaks();
-
-		MascotGenericFile mgfFile2683 = Client.getInstance().readSpectrumFromFile(
-				pathname, 2683L);
-		HashMap<Double, Double> peaksReLoaded2683 = mgfFile2683.getPeaks();
-
-		// Tests
-		assertEquals(peaksOrigin2385, peaksReLoaded2385);
-		assertEquals(mgfOriginal2385.getTitle(), mgfFile2385.getTitle());
-		assertEquals(mgfOriginal2385.getCharge(), mgfFile2385.getCharge());
-		assertEquals(mgfOriginal2385.getPrecursorMZ(), mgfFile2385
-				.getPrecursorMZ());
-		assertEquals(mgfOriginal2385.getIntensity(), mgfFile2385.getIntensity());
-		assertEquals(peaksOrigin1081669, peaksReLoaded2683);
-	}
 }
