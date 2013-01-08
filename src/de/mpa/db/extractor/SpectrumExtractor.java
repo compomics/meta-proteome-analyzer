@@ -130,23 +130,39 @@ public class SpectrumExtractor {
 	/**
 	 * Method to download database spectra belonging to a specific experiment.
 	 * @param experimentID
+	 * @param saveToFile 
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<MascotGenericFile> downloadSpectra(long experimentID) throws SQLException {
-		ArrayList<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
+	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean saveToFile) throws SQLException {
+		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 		
+//		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+//				"precursor_charge, mzarray, intarray, chargearray, sequence FROM spectrum s " +
+//				"INNER JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid " +
+//				"INNER JOIN peptide p ON s2p.fk_peptideid = p.peptideid " +
+//				"INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
+//				"WHERE libspectrum.fk_experimentid = ?");
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
-				"precursor_charge, mzarray, intarray, chargearray, sequence FROM spectrum " +
-				"INNER JOIN spec2pep on spectrum.spectrumid = spec2pep.fk_spectrumid " +
-				"INNER JOIN peptide on spec2pep.fk_peptideid = peptide.peptideid " +
-				"INNER JOIN libspectrum on spectrum.spectrumid = libspectrum.fk_spectrumid " +
-				"WHERE libspectrum.fk_experimentid = ?");
+				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum s " +
+				"INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
+				"WHERE ls.fk_experimentid = ?");
 		ps.setLong(1, experimentID);
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-        	MascotGenericFile mgf = new MascotGenericFile(rs);
-        	mgf.setTitle(rs.getString("sequence") + " " + mgf.getTitle());	// prepend peptide sequence
+        	MascotGenericFile mgf;
+        	if (saveToFile) {
+				mgf = new MascotGenericFile(rs);
+        	} else {
+        		mgf = new MascotGenericFile(null, null, new HashMap<Double, Double>(), 0.0, 0);
+        	}
+//        	mgf.setTitle(rs.getString("sequence") + " " + mgf.getTitle());	// prepend peptide sequence
+        	String comments = mgf.getComments();
+        	if (comments == null) {
+        		comments = "";
+        	}
+        	comments += "#sid " + rs.getLong("spectrumid") + "\n";
+        	mgf.setComments(comments);
             res.add(mgf);
         }
         rs.close();
@@ -191,12 +207,34 @@ public class SpectrumExtractor {
 	}
 	
 	/**
+	 * Method to extract a spectrum belonging to a specified spectrum ID.
+	 * @param spectrumID The spectrum ID.
+	 * @return MascotGenericFile containing the desired spectrum.
+	 * @throws SQLException
+	 */
+	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
+		MascotGenericFile res = null;
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+				"precursor_charge, mzarray, intarray, chargearray FROM spectrum " +
+				"WHERE spectrum.spectrumid = ?");
+		ps.setLong(1, spectrumID);
+		ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	res = new MascotGenericFile(rs);
+        }
+        rs.close();
+        ps.close();
+		return res;
+	}
+	
+	/**
 	 * Method to extract a spectrum belonging to a specified searchspectrum ID.
 	 * @param searchspectrumID The searchspectrum ID.
 	 * @return MascotGenericFile containing the desired spectrum.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumFromSearchSpectrumID(long searchspectrumID) throws SQLException {
+	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
 		MascotGenericFile res = null;
 		
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
@@ -219,7 +257,7 @@ public class SpectrumExtractor {
 	 * @return MascotGenericFile containing the desired spectrum.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumFromLibSpectrumID(long libspectrumID) throws SQLException {
+	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
 		MascotGenericFile res = null;
 		
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +

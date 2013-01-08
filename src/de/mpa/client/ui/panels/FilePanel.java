@@ -12,6 +12,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -66,6 +68,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.HistogramChart;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.HistogramChart.HistChartType;
+import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -168,17 +171,16 @@ public class FilePanel extends JPanel {
 		// button to add spectra from a file
 		addBtn = new JButton("Add from File...");
 		
-		// XXX
 		// button for downloading and appending mgf files from remote DB 
 		addDbBtn = new JButton("Add from DB...");
 		// panel containing conditions for remote mgf fetching
 		final JPanel fetchPnl = new JPanel();
-		fetchPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",	// col
-		"5dlu, p, 5dlu"));		// row
+		fetchPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
 		final JSpinner expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 1L, null, 1L));
-		fetchPnl.add(new JLabel("Experiment ID"), CC.xy(2, 2));
+		fetchPnl.add(new JLabel("Database Experiment ID"), CC.xy(2, 2));
 		fetchPnl.add(expIdSpn, CC.xy(4, 2));
-		// /XXX
+		final JCheckBox saveChk = new JCheckBox("Save Fetched Spectra to File", false);
+		fetchPnl.add(saveChk, CC.xyw(2, 4, 3));
 		
 		// button to reset file tree contents
 		clrBtn = new JButton("Clear all");
@@ -402,7 +404,8 @@ public class FilePanel extends JPanel {
 				if (res == JOptionPane.OK_OPTION) {
 					try {
 						client.initDBConnection();
-						List<MascotGenericFile> dlSpec = client.downloadSpectra((Long) expIdSpn.getValue());
+						List<MascotGenericFile> dlSpec = client.downloadSpectra(
+								(Long) expIdSpn.getValue(), saveChk.isSelected());
 					//	clientFrame.getClient().closeDBConnection();
 						File file = new File("experiment_" + expIdSpn.getValue() + ".mgf");
 						FileOutputStream fos = new FileOutputStream(file);
@@ -450,7 +453,7 @@ public class FilePanel extends JPanel {
 					SpectrumPanel viewer = new SpectrumPanel(mgf, false);
 					spectrumPnl.add(viewer, CC.xy(2, 2));
 					spectrumPnl.validate();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
 							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
@@ -462,9 +465,10 @@ public class FilePanel extends JPanel {
 	 * Returns a spectrum file encoded in the specified leaf node of the file panel's tree table.
 	 * @param spectrumNode The leaf node containing information pertaining to the whereabouts of its corresponding spectrum file.
 	 * @return The spectrum file.
-	 * @throws IOException
+	 * @throws IOException if reading the spectrum file fails
+	 * @throws SQLException if fetching spectrum data from the database fails
 	 */
-	public MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException {
+	public MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException, SQLException {
 		CheckBoxTreeTableNode fileNode = (CheckBoxTreeTableNode) spectrumNode.getParent();
 		File file = (File) fileNode.getValueAt(0);
 		if ((reader != null) && (!reader.getFilename().equals(file.getName()))) {
@@ -474,7 +478,13 @@ public class FilePanel extends JPanel {
 		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
 		long spectrumPosition = specPosMap.get(file.getAbsolutePath()).get(spectrumIndex);
 		
-		return reader.loadNthSpectrum(spectrumIndex, spectrumPosition);
+		MascotGenericFile spectrum = reader.loadNthSpectrum(spectrumIndex, spectrumPosition);
+		Long spectrumID = spectrum.getSpectrumID();
+		if (spectrumID != null) {
+			// this is just a dummy spectrum, fetch from database
+			spectrum = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
+		}
+		return spectrum;
 	}
 	
 	/**
@@ -533,8 +543,12 @@ public class FilePanel extends JPanel {
 					client.firePropertyChange("indeterminate", false, true);
 					client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + selFiles.length);
 					
+					File parentFile = file.getParentFile();
+					if (parentFile == null) {
+						parentFile = file;
+					}
 					SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
-							file, file.getParentFile().getPath(), null, null, null) {
+							file, parentFile.getPath(), null, null, null) {
 						public String toString() {
 							return ((File) userObject).getName();
 						};
