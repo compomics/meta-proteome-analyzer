@@ -16,7 +16,7 @@ import de.mpa.db.accessor.SearchSpectrumAccessorTest;
 import de.mpa.db.extractor.SpectrumExtractorTest;
 import de.mpa.exporter.ExportTest;
 import de.mpa.exporter.ResultsDumpTest;
-import de.mpa.fastaLoader.TestFastaLoader;
+import de.mpa.fastaLoader.FastaLoaderTest;
 import de.mpa.fragmentation.FragmentizerTest;
 import de.mpa.io.SixtyFourBitStringDecoderTest;
 import de.mpa.io.SixtyFourBitStringEncoderTest;
@@ -46,7 +46,7 @@ import de.mpa.webservice.ServerImplTest;
 					ExportTest.class,
 					ResultsDumpTest.class,
 					
-					TestFastaLoader.class,
+					FastaLoaderTest.class,
 
 					FragmentizerTest.class,
 					

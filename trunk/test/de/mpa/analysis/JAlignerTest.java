@@ -15,6 +15,11 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 
+/**
+ * Method to test the JAligner library,
+ * @author Robert Heyer
+ *
+ */
 public class JAlignerTest extends TestCase{
 	
 	String seq1 = "MAYEAQYYPGATSVGANRRKHMSGKLEKLREISDEDLTAVLGHRAPGSDYPSTHPPLAEMGEPACSIREAVAATPGAAAGDRVRYVQFADSMYNAPATPYFRSYFAAINFRGVDPGTLSG" + 
@@ -33,7 +38,6 @@ public class JAlignerTest extends TestCase{
 			matrix = MatrixLoader.load("PAM30");
 			align = SmithWatermanGotoh.align(new Sequence(seq1), new Sequence(seq2),matrix, 10.0f, 0.5f);
 		} catch (MatrixLoaderException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

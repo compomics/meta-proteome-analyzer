@@ -11,7 +11,7 @@ import java.util.List;
 public class Graph {
 	
 	// The vertices/nodes
-	private List<Vertex> vertices;
+	private List<GraphVertex> vertices;
 	
 	// The egdes/weights
 	private List<Edge> edges;
@@ -21,7 +21,7 @@ public class Graph {
 	 * @param vertices
 	 * @param edges
 	 */
-	public Graph(List<Vertex> vertices, List<Edge> edges) {
+	public Graph(List<GraphVertex> vertices, List<Edge> edges) {
 		super();
 		this.vertices = vertices;
 		this.edges = edges;
@@ -31,7 +31,7 @@ public class Graph {
 	 * Returns the vertices in the graph.
 	 * @return
 	 */
-	public List<Vertex> getVertices() {
+	public List<GraphVertex> getVertices() {
 		return vertices;
 	}
 	
@@ -47,7 +47,7 @@ public class Graph {
 	 * Adds a vertex to the graph.
 	 * @param v
 	 */
-	public void addVertex(Vertex v){
+	public void addVertex(GraphVertex v){
 		vertices.add(v);
 	}	
 	

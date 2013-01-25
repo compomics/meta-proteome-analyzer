@@ -20,8 +20,8 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 
 /**
- * Methode to Test UniprotAPi
- * @author heyer
+ * Method to test the UniprotAPi
+ * @author Robert Heyer, Thilo Muth
  *
  */
 public class UniprotAccessorTest extends TestCase {
@@ -32,6 +32,7 @@ public class UniprotAccessorTest extends TestCase {
 	private static UniProtQueryService uniProtQueryService;
 	private String uniprotKO;
 	private String uniProtID;
+	private String type;
 	private List<String> ecNumbers;
 	private List<NcbiTaxon> taxonomy;
 	private String taxon;
@@ -52,14 +53,14 @@ public class UniprotAccessorTest extends TestCase {
 		// Retrieve UniProt entry by its accession number
 		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry("P11558");
 
-		// If entry with a given accession number is not found, entry will be
-		// equal null
+		// If entry with a given accession number is not found, entry will be == null
 		if (entry != null) {
 			// UniprotID
 			uniProtID = entry.getUniProtId().getValue();
 			
-			System.out.println("type: " + entry.getType().name());
-			System.out.println(entry.getProteinDescription().getRecommendedName().getFields());
+			// Type
+			type = entry.getType().name();
+			
 			// UniprotKO
 			List<DatabaseCrossReference> dcrKO = entry.getDatabaseCrossReferences(DatabaseType.KO);
 			uniprotKO = ((KO) dcrKO.get(0)).getKOIdentifier().getValue();
@@ -77,23 +78,17 @@ public class UniprotAccessorTest extends TestCase {
 
 			// Uniprot keywords
 			keywords = entry.getKeywords();
-//			for (Keyword kw : keywords) {
-//				List<EvidenceId> evidenceIds = kw.getEvidenceIds();
-//				for (EvidenceId id : evidenceIds) {
-//					System.out.println(id.getValue());
-//				}
-//				keyword.add(kw.getValue().toString());
-//			}
 
 			// Uniprot GO annotation
 			goTerms = entry.getGoTerms();
-//			for (Go go : goTerms) {
-//				System.out.println("Go Term: " + go.getGoTerm().getValue());
-//				System.out.println("Ontology Type: " + go.getOntologyType().getValue());
-//			}
+
 		}
 	}
-
+	
+	@Test // Test Type
+	public void testType() {
+		assertEquals(type, "SWISSPROT");
+	}
 	@Test // Test UniProtID
 	public void testUniProtID() {
 		assertEquals(uniProtID, "MCRA_METTM");

@@ -1,0 +1,874 @@
+<?xml version="1.0" ?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.1/graphml.xsd">
+    <key id="ACCESSION" for="node" attr.name="ACCESSION" attr.type="string"></key>
+    <key id="COVERAGE" for="node" attr.name="COVERAGE" attr.type="double"></key>
+    <key id="DESCRIPTION" for="node" attr.name="DESCRIPTION" attr.type="string"></key>
+    <key id="ECNUMBER" for="node" attr.name="ECNUMBER" attr.type="string"></key>
+    <key id="KEYWORD" for="node" attr.name="KEYWORD" attr.type="string"></key>
+    <key id="KONUMBER" for="node" attr.name="KONUMBER" attr.type="string"></key>
+    <key id="LENGTH" for="node" attr.name="LENGTH" attr.type="int"></key>
+    <key id="NAME" for="node" attr.name="NAME" attr.type="string"></key>
+    <key id="PROTEINSEQUENCE" for="node" attr.name="PROTEINSEQUENCE" attr.type="string"></key>
+    <key id="SEQUENCE" for="node" attr.name="SEQUENCE" attr.type="string"></key>
+    <key id="SPECTRUMID" for="node" attr.name="SPECTRUMID" attr.type="long"></key>
+    <key id="TYPE" for="node" attr.name="TYPE" attr.type="string"></key>
+    <key id="VOTES" for="node" attr.name="VOTES" attr.type="int"></key>
+    <key id="LABEL" for="edge" attr.name="LABEL" attr.type="string"></key>
+    <graph id="G" edgedefault="directed">
+        <node id="0"></node>
+        <node id="1">
+            <data key="ACCESSION">Q8CPN2</data>
+            <data key="COVERAGE">0.04</data>
+            <data key="DESCRIPTION">ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta</data>
+            <data key="LENGTH">325</data>
+            <data key="PROTEINSEQUENCE">MAQMTMVQAINDALKSELKRDEDVLVFGEDVGVNGGVFRVTEGLQKEFGEDRVFDTPLAESGIGGLALGLAVTGFRPVMEIQFLGFVYEVFDEVAGQIARTRFRSGGTKPAPVTIRTPFGGGVHTPELHADNLEGILAQSPGLKVVIPSGPYDAKGLLISSIQSNDPVVYLEHMKLYRSFREEVPEEEYKIDIGKANVKKEGNDITLISYGAMVQESLKAAEELEKDGYSVEVIDLRTVQPIDIDTLVASVEKTGRAVVVQEAQRQAGVGAQVAAELAERAILSLEAPIARVAASDTIYPFTQAENVWLPNKKDIIEQAKATLEF</data>
+        </node>
+        <node id="10">
+            <data key="LENGTH">13</data>
+            <data key="SEQUENCE">TCVADESHAGCEK</data>
+        </node>
+        <node id="11">
+            <data key="SPECTRUMID">1081625</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="12">
+            <data key="SPECTRUMID">1081627</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="13">
+            <data key="NAME">Bos taurus (species)</data>
+        </node>
+        <node id="14">
+            <data key="KONUMBER">K16141</data>
+        </node>
+        <node id="15">
+            <data key="KEYWORD">Secreted</data>
+            <data key="TYPE">CELLULAR_COMPONENT</data>
+        </node>
+        <node id="16">
+            <data key="ACCESSION">P0A954</data>
+            <data key="COVERAGE">0.024631</data>
+            <data key="DESCRIPTION">FABB_ECOL6 3-oxoacyl-[acyl-carrier-protein] synthase 1</data>
+            <data key="LENGTH">406</data>
+            <data key="PROTEINSEQUENCE">MKRAVITGLGIVSSIGNNQQEVLASLREGRSGITFSQELKDSGMRSHVWGNVKLDTTGLIDRKVVRFMSDASIYAFLSMEQAIADAGLSPEAYQNNPRVGLIAGSGGGSPRFQVFGADAMRGPRGLKAVGPYVVTKAMASGVSACLATPFKIHGVNYSISSACATSAHCIGNAVEQIQLGKQDIVFAGGGEELCWEMACEFDAMGALSTKYNDTPEKASRTYDAHRDGFVIAGGGGMVVVEELEHALARGAHIYAEIVGYGATSDGADMVAPSGEGAVRCMKMAMHGVDTPIDYLNSHGTSTPVGDVKELAAIREVFGDKSPAISATKAMTGHSLGAAGVQEAIYSLLMLEHGFIAPSINIEELDEQAAGLNIVTETTDRELTTVMSNSFGFGGTNATLVMRKLKD</data>
+        </node>
+        <node id="17">
+            <data key="LENGTH">10</data>
+            <data key="SEQUENCE">LDTTGLIDRK</data>
+        </node>
+        <node id="18">
+            <data key="SPECTRUMID">1081651</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="19">
+            <data key="SPECTRUMID">1081653</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="2">
+            <data key="LENGTH">13</data>
+            <data key="SEQUENCE">QMTMVQAINDALK</data>
+        </node>
+        <node id="20">
+            <data key="SPECTRUMID">1081659</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="21">
+            <data key="SPECTRUMID">1081669</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="22">
+            <data key="NAME">Escherichia coli (species)</data>
+        </node>
+        <node id="23">
+            <data key="ECNUMBER">2.3.1.41</data>
+        </node>
+        <node id="24">
+            <data key="KONUMBER">K00647</data>
+        </node>
+        <node id="25">
+            <data key="KEYWORD">Cytoplasm</data>
+            <data key="TYPE">CELLULAR_COMPONENT</data>
+        </node>
+        <node id="26">
+            <data key="KEYWORD">Lipid metabolism</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="27">
+            <data key="KEYWORD">Transferase</data>
+            <data key="TYPE">MOLECULAR_FUNCTION</data>
+        </node>
+        <node id="28">
+            <data key="ACCESSION">Q8FHG5</data>
+            <data key="COVERAGE">0.023605</data>
+            <data key="DESCRIPTION">DCEB_ECOL6 Glutamate decarboxylase beta</data>
+            <data key="LENGTH">466</data>
+            <data key="PROTEINSEQUENCE">MDKKQVTDLRSELLDSRFGAKSISTIAESKRFPLHEMRDDVAFQIINDELYLDGNARQNLATFCQTWDDDNVHKLMDLSINKNWIDKEEYPQSAAIDLRCVNMVADLWHAPAPKNGQAVGTNTIGSSEACMLGGMAMKWRWRKRMEAAGKPTNKPNLVCGPVQICWHKFARYWDVELREIPMRPGQLFMDPKRMIEACDENTIGVVPTFGVTYTGNYEFPQPLHDALDKFQADTGIDIDMHIDAASGGFLAPFVAPDIVWDFRLPRVKSISASGHKFGLAPLGCGWVIWRDEEALPQELVFNVDYLGGQIGTFAINFSRPAGQVIAQYYEFLRLGREGYTKVQNASYQVAAYLADEIAKLGPYEFICTGRPDEGIPAVCFKLKDGEDPGYTLYDLSERLRLRGWQVPAFTLGGEATDIVVMRIMCRRGFEMDFAELLLEDYKASLKYLSDHPKLQGIAQQNSFKHT</data>
+        </node>
+        <node id="29">
+            <data key="LENGTH">11</data>
+            <data key="SEQUENCE">LQGIAQQNSFK</data>
+        </node>
+        <node id="3">
+            <data key="SPECTRUMID">1081621</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="30">
+            <data key="SPECTRUMID">1081652</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="31">
+            <data key="SPECTRUMID">1081658</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="32">
+            <data key="SPECTRUMID">1081661</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="33">
+            <data key="SPECTRUMID">1081668</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="34">
+            <data key="ECNUMBER">4.1.1.15</data>
+        </node>
+        <node id="35">
+            <data key="KONUMBER">K01580</data>
+        </node>
+        <node id="36">
+            <data key="KEYWORD">Lyase</data>
+            <data key="TYPE">MOLECULAR_FUNCTION</data>
+        </node>
+        <node id="37">
+            <data key="ACCESSION">P69910</data>
+            <data key="COVERAGE">0.023605</data>
+            <data key="DESCRIPTION">DCEB_ECOLI Glutamate decarboxylase beta</data>
+            <data key="LENGTH">466</data>
+            <data key="PROTEINSEQUENCE">MDKKQVTDLRSELLDSRFGAKSISTIAESKRFPLHEMRDDVAFQIINDELYLDGNARQNLATFCQTWDDENVHKLMDLSINKNWIDKEEYPQSAAIDLRCVNMVADLWHAPAPKNGQAVGTNTIGSSEACMLGGMAMKWRWRKRMEAAGKPTDKPNLVCGPVQICWHKFARYWDVELREIPMRPGQLFMDPKRMIEACDENTIGVVPTFGVTYTGNYEFPQPLHDALDKFQADTGIDIDMHIDAASGGFLAPFVAPDIVWDFRLPRVKSISASGHKFGLAPLGCGWVIWRDEEALPQELVFNVDYLGGQIGTFAINFSRPAGQVIAQYYEFLRLGREGYTKVQNASYQVAAYLADEIAKLGPYEFICTGRPDEGIPAVCFKLKDGEDPGYTLYDLSERLRLRGWQVPAFTLGGEATDIVVMRIMCRRGFEMDFAELLLEDYKASLKYLSDHPKLQGIAQQNSFKHT</data>
+        </node>
+        <node id="38">
+            <data key="KEYWORD">Membrane</data>
+            <data key="TYPE">CELLULAR_COMPONENT</data>
+        </node>
+        <node id="39">
+            <data key="ACCESSION">P0A953</data>
+            <data key="COVERAGE">0.024631</data>
+            <data key="DESCRIPTION">FABB_ECOLI 3-oxoacyl-[acyl-carrier-protein] synthase 1</data>
+            <data key="LENGTH">406</data>
+            <data key="PROTEINSEQUENCE">MKRAVITGLGIVSSIGNNQQEVLASLREGRSGITFSQELKDSGMRSHVWGNVKLDTTGLIDRKVVRFMSDASIYAFLSMEQAIADAGLSPEAYQNNPRVGLIAGSGGGSPRFQVFGADAMRGPRGLKAVGPYVVTKAMASGVSACLATPFKIHGVNYSISSACATSAHCIGNAVEQIQLGKQDIVFAGGGEELCWEMACEFDAMGALSTKYNDTPEKASRTYDAHRDGFVIAGGGGMVVVEELEHALARGAHIYAEIVGYGATSDGADMVAPSGEGAVRCMKMAMHGVDTPIDYLNSHGTSTPVGDVKELAAIREVFGDKSPAISATKAMTGHSLGAAGVQEAIYSLLMLEHGFIAPSINIEELDEQAAGLNIVTETTDRELTTVMSNSFGFGGTNATLVMRKLKD</data>
+        </node>
+        <node id="4">
+            <data key="NAME">Staphylococcus epidermidis ATCC 12228 (no rank)</data>
+        </node>
+        <node id="40">
+            <data key="ACCESSION">P58228</data>
+            <data key="COVERAGE">0.023605</data>
+            <data key="DESCRIPTION">DCEA_ECO57 Glutamate decarboxylase alpha</data>
+            <data key="LENGTH">466</data>
+            <data key="PROTEINSEQUENCE">MDQKLLTDFRSELLDSRFGAKAISTIAESKRFPLHEMRDDVAFQIINDELYLDGNARQNLATFCQTWDDENVHKLMDLSINKNWIDKEEYPQSAAIDLRCVNMVADLWHAPAPKNGQAVGTNTIGSSEACMLGGMAMKWRWRKRMEAAGKPTDKPNLVCGPVQICWHKFARYWDVELREIPMRPGQLFMDPKRMIEACDENTIGVVPTFGVTYTGNYEFPQPLHDALDKFQADTGIDIDMHIDAASGGFLAPFVAPDIVWDFRLPRVKSISASGHKFGLAPLGCGWVIWRDEEALPQELVFNVDYLGGQIGTFAINFSRPAGQVIAQYYEFLRLGREGYTKVQNASYQVAAYLADEIAKLGPYEFICTGRPDEGIPAVCFKLKEGEDPGYTLYDLSERLRLRGWQVPAFTLGGEATDIVVMRIMCRRGFEMDFAELLLEDYKASLKYLSDHPKLQGIAQQNSFKHT</data>
+        </node>
+        <node id="41">
+            <data key="ACCESSION">P69908</data>
+            <data key="COVERAGE">0.023605</data>
+            <data key="DESCRIPTION">DCEA_ECOLI Glutamate decarboxylase alpha</data>
+            <data key="LENGTH">466</data>
+            <data key="PROTEINSEQUENCE">MDQKLLTDFRSELLDSRFGAKAISTIAESKRFPLHEMRDDVAFQIINDELYLDGNARQNLATFCQTWDDENVHKLMDLSINKNWIDKEEYPQSAAIDLRCVNMVADLWHAPAPKNGQAVGTNTIGSSEACMLGGMAMKWRWRKRMEAAGKPTDKPNLVCGPVQICWHKFARYWDVELREIPMRPGQLFMDPKRMIEACDENTIGVVPTFGVTYTGNYEFPQPLHDALDKFQADTGIDIDMHIDAASGGFLAPFVAPDIVWDFRLPRVKSISASGHKFGLAPLGCGWVIWRDEEALPQELVFNVDYLGGQIGTFAINFSRPAGQVIAQYYEFLRLGREGYTKVQNASYQVAAYLADEIAKLGPYEFICTGRPDEGIPAVCFKLKDGEDPGYTLYDLSERLRLRGWQVPAFTLGGEATDIVVMRIMCRRGFEMDFAELLLEDYKASLKYLSDHPKLQGIAQQNSFKHT</data>
+        </node>
+        <node id="42">
+            <data key="ACCESSION">P0ABQ3</data>
+            <data key="COVERAGE">0.064626</data>
+            <data key="DESCRIPTION">GARR_ECOL6 2-hydroxy-3-oxopropionate reductase</data>
+            <data key="LENGTH">294</data>
+            <data key="PROTEINSEQUENCE">MKVGFIGLGIMGKPMSKNLLKAGYSLVVADRNPEAIADVIAAGAETASTAKAIAEQCDVIITMLPNSPHVKEVALGENGIIEGAKPGTVLIDMSSIAPLASREISEALKAKGIDMLDAPVSGGEPKAIDGTLSVMVGGDKAIFDKYYDLMKAMAGSVVHTGEIGAGNVTKLANQVIVALNIAAMSEALTLATKAGVNPDLVYQAIRGGLAGSTVLDAKAPMVMDRNFKPGFRIDLHIKDLANALDTSHGVGAQLPLTAAVMEMMQALRADGLGTADHSALACYYEKLAKVEVTR</data>
+        </node>
+        <node id="43">
+            <data key="LENGTH">19</data>
+            <data key="SEQUENCE">VGFIGLGIMGKPMSKNLLK</data>
+        </node>
+        <node id="44">
+            <data key="SPECTRUMID">1081664</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="45">
+            <data key="NAME">Escherichia coli CFT073 (no rank)</data>
+        </node>
+        <node id="46">
+            <data key="ECNUMBER">1.1.1.60</data>
+        </node>
+        <node id="47">
+            <data key="KONUMBER">K00042</data>
+        </node>
+        <node id="48">
+            <data key="ACCESSION">P0ABQ1</data>
+            <data key="COVERAGE">0.034483</data>
+            <data key="DESCRIPTION">COABC_ECOL6 Coenzyme A biosynthesis bifunctional protein CoaBC</data>
+            <data key="LENGTH">406</data>
+            <data key="PROTEINSEQUENCE">MSLAGKKIVLGVSGGIAAYKTPELVRRLRDRGADVRVAMTEAAKAFITPLSLQAVSGYPVSDSLLDPAAEAAMGHIELGKWADLVILAPATADLIARVAAGMANDLVSTICLATPAPVAVLPAMNQQMYRAAATQHNLEVLASRGLLIWGPDSGSQACGDIGPGRMLDPLTIVDMAVAHFSPVNDLKHLNIMITAGPTREPLDPVRYISNHSSGKMGFAIAAAAARRGANVTLVSGPVSLPTPPFVKRVDVMTALEMEAAVNASVQQQNIFIGCAAVADYRAATVAPEKIKKQATQGDELTIKMVKNPDIVAGVAALKDHRPYVVGFAAETNNVEEYARQKRIRKNLDLICANDVSQPTQGFNSDNNALHLFWQDGDKVLPLERKELLGQLLLDEIVTRYDEKNRR</data>
+        </node>
+        <node id="49">
+            <data key="LENGTH">14</data>
+            <data key="SEQUENCE">AAATQHNLEVLASR</data>
+        </node>
+        <node id="5">
+            <data key="ECNUMBER">1.2.4.1</data>
+        </node>
+        <node id="50">
+            <data key="SPECTRUMID">1081665</data>
+            <data key="VOTES">2</data>
+        </node>
+        <node id="51">
+            <data key="ECNUMBER">4.1.1.36</data>
+        </node>
+        <node id="52">
+            <data key="ECNUMBER">6.3.2.5</data>
+        </node>
+        <node id="53">
+            <data key="KONUMBER">K13038</data>
+        </node>
+        <node id="54">
+            <data key="KEYWORD">Ligase</data>
+            <data key="TYPE">MOLECULAR_FUNCTION</data>
+        </node>
+        <node id="55">
+            <data key="ACCESSION">P0AAI6</data>
+            <data key="COVERAGE">0.021792</data>
+            <data key="DESCRIPTION">FABF_ECOL6 3-oxoacyl-[acyl-carrier-protein] synthase 2</data>
+            <data key="LENGTH">413</data>
+            <data key="PROTEINSEQUENCE">MSKRRVVVTGLGMLSPVGNTVESTWKALLAGQSGISLIDHFDTSAYATKFAGLVKDFNCEDIISRKEQRKMDAFIQYGIVAGVQAMQDSGLEITEENATRIGAAIGSGIGGLGLIEENHTSLMNGGPRKISPFFVPSTIVNMVAGHLTIMYGLRGPSISIATACTSGVHNIGHAARIIAYGDADVMVAGGAEKASTPLGVGGFGAARALSTRNDNPQAASRPWDKERDGFVLGDGAGMLVLEEYEHAKKRGAKIYAELVGFGMSSDAYHMTSPPENGAGAALAMANALRDAGIEASQIGYVNAHGTSTPAGDKAEAQAVKTIFGEAASRVLVSSTKSMTGHLLGAAGAVESIYSILALRDQAVPPTINLDNPDEGCDLDFVPHEARQVSGMEYTLCNSFGFGGTNGSLIFKKI</data>
+        </node>
+        <node id="56">
+            <data key="LENGTH">9</data>
+            <data key="SEQUENCE">TIFGEAASR</data>
+        </node>
+        <node id="57">
+            <data key="SPECTRUMID">1081666</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="58">
+            <data key="ECNUMBER">2.3.1.179</data>
+        </node>
+        <node id="59">
+            <data key="KONUMBER">K09458</data>
+        </node>
+        <node id="6">
+            <data key="KONUMBER">K00162</data>
+        </node>
+        <node id="60">
+            <data key="ACCESSION">A7ZSL4</data>
+            <data key="COVERAGE">0.030457</data>
+            <data key="DESCRIPTION">EFTU1_ECO24 Elongation factor Tu 1</data>
+            <data key="LENGTH">394</data>
+            <data key="PROTEINSEQUENCE">MSKEKFERTKPHVNVGTIGHVDHGKTTLTAAITTVLAKTYGGAARAFDQIDNAPEEKARGITINTSHVEYDTPTRHYAHVDCPGHADYVKNMITGAAQMDGAILVVAATDGPMPQTREHILLGRQVGVPYIIVFLNKCDMVDDEELLELVEMEVRELLSQYDFPGDDTPIVRGSALKALEGDAEWEAKILELAGFLDSYIPEPERAIDKPFLLPIEDVFSISGRGTVVTGRVERGIIKVGEEVEIVGIKETQKSTCTGVEMFRKLLDEGRAGENVGVLLRGIKREEIERGQVLAKPGTIKPHTKFESEVYILSKDEGGRHTPFFKGYRPQFYFRTTDVTGTIELPEGVEMVMPGDNIKMVVTLIHPIAMDDGLRFAIREGGRTVGAGVVAKVLG</data>
+        </node>
+        <node id="61">
+            <data key="LENGTH">12</data>
+            <data key="SEQUENCE">AFDQIDNAPEEK</data>
+        </node>
+        <node id="62">
+            <data key="SPECTRUMID">1081667</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="63">
+            <data key="KONUMBER">K02358</data>
+        </node>
+        <node id="64">
+            <data key="KEYWORD">Elongation factor</data>
+            <data key="TYPE">MOLECULAR_FUNCTION</data>
+        </node>
+        <node id="65">
+            <data key="KEYWORD">Protein biosynthesis</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="66">
+            <data key="ACCESSION">Q0TCC0</data>
+            <data key="COVERAGE">0.030457</data>
+            <data key="DESCRIPTION">EFTU1_ECOL5 Elongation factor Tu 1</data>
+            <data key="LENGTH">394</data>
+            <data key="PROTEINSEQUENCE">MSKEKFERTKPHVNVGTIGHVDHGKTTLTAAITTVLAKTYGGAARAFDQIDNAPEEKARGITINTSHVEYDTPTRHYAHVDCPGHADYVKNMITGAAQMDGAILVVAATDGPMPQTREHILLGRQVGVPYIIVFLNKCDMVDDEELLELVEMEVRELLSQYDFPGDDTPIVRGSALKALEGDAEWEAKILELAGFLDSYIPEPERAIDKPFLLPIEDVFSISGRGTVVTGRVERGIIKVGEEVEIVGIKETQKSTCTGVEMFRKLLDEGRAGENVGVLLRGIKREEIERGQVLAKPGTIKPHTKFESEVYILSKDEGGRHTPFFKGYRPQFYFRTTDVTGTIELPEGVEMVMPGDNIKMVVTLIHPIAMDDGLRFAIREGGRTVGAGVVAKVLG</data>
+        </node>
+        <node id="67">
+            <data key="ACCESSION">P69909</data>
+            <data key="COVERAGE">0.023605</data>
+            <data key="DESCRIPTION">DCEA_ECOL6 Glutamate decarboxylase alpha</data>
+            <data key="LENGTH">466</data>
+            <data key="PROTEINSEQUENCE">MDQKLLTDFRSELLDSRFGAKAISTIAESKRFPLHEMRDDVAFQIINDELYLDGNARQNLATFCQTWDDENVHKLMDLSINKNWIDKEEYPQSAAIDLRCVNMVADLWHAPAPKNGQAVGTNTIGSSEACMLGGMAMKWRWRKRMEAAGKPTDKPNLVCGPVQICWHKFARYWDVELREIPMRPGQLFMDPKRMIEACDENTIGVVPTFGVTYTGNYEFPQPLHDALDKFQADTGIDIDMHIDAASGGFLAPFVAPDIVWDFRLPRVKSISASGHKFGLAPLGCGWVIWRDEEALPQELVFNVDYLGGQIGTFAINFSRPAGQVIAQYYEFLRLGREGYTKVQNASYQVAAYLADEIAKLGPYEFICTGRPDEGIPAVCFKLKDGEDPGYTLYDLSERLRLRGWQVPAFTLGGEATDIVVMRIMCRRGFEMDFAELLLEDYKASLKYLSDHPKLQGIAQQNSFKHT</data>
+        </node>
+        <node id="68">
+            <data key="ACCESSION">B7UGZ1</data>
+            <data key="COVERAGE">0.016787</data>
+            <data key="DESCRIPTION">GLYA_ECO27 Pyridoxal-phosphate-dependent serine hydroxymethyltransferase</data>
+            <data key="LENGTH">417</data>
+            <data key="PROTEINSEQUENCE">MLKREMNIADYDAELWQAMEQEKVRQEEHIELIASENYTSPRVMQAQGSQLTNKYAEGYPGKRYYGGCEYVDIVEQLAIDRAKELFGADYANVQPHSGSQANFAVYTALLEPGDTVLGMNLAHGGHLTHGSPVNFSGKLYNIVPYGIDATGHIDYADLEKQAKEHKPKMIIGGFSAYSGVVDWAKMREIADSIGAYLFVDMAHVAGLVAAGVYPNPVPHAHVVTTTTHKTLAGPRGGLILAKGGSEELYKKLNSAVFPGGQGGPLMHVIAGKAVALKEAMEPEFKTYQQQVAKNAKAMVEVFLERGYKVVSGGTDNHLFLVDLVDKNLTGKEADAALGRANITVNKNSVPNDPKSPFVTSGIRVGTPAITRRGFKEAEAKELAGWMCDVLDSINDEAVIERIKGKVLDICARYPVYA</data>
+        </node>
+        <node id="69">
+            <data key="LENGTH">7</data>
+            <data key="SEQUENCE">GGLILAK</data>
+        </node>
+        <node id="7">
+            <data key="KEYWORD">Glycolysis</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="70">
+            <data key="SPECTRUMID">1081650</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="71">
+            <data key="NAME">Escherichia coli O127:H6 str. E2348/69 (no rank)</data>
+        </node>
+        <node id="72">
+            <data key="ECNUMBER">2.1.2.1</data>
+        </node>
+        <node id="73">
+            <data key="KONUMBER">K00600</data>
+        </node>
+        <node id="74">
+            <data key="KEYWORD">Amino-acid biosynthesis</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="75">
+            <data key="KEYWORD">One-carbon metabolism</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="76">
+            <data key="ACCESSION">P69911</data>
+            <data key="COVERAGE">0.023605</data>
+            <data key="DESCRIPTION">DCEB_ECO57 Glutamate decarboxylase beta</data>
+            <data key="LENGTH">466</data>
+            <data key="PROTEINSEQUENCE">MDKKQVTDLRSELLDSRFGAKSISTIAESKRFPLHEMRDDVAFQIINDELYLDGNARQNLATFCQTWDDENVHKLMDLSINKNWIDKEEYPQSAAIDLRCVNMVADLWHAPAPKNGQAVGTNTIGSSEACMLGGMAMKWRWRKRMEAAGKPTDKPNLVCGPVQICWHKFARYWDVELREIPMRPGQLFMDPKRMIEACDENTIGVVPTFGVTYTGNYEFPQPLHDALDKFQADTGIDIDMHIDAASGGFLAPFVAPDIVWDFRLPRVKSISASGHKFGLAPLGCGWVIWRDEEALPQELVFNVDYLGGQIGTFAINFSRPAGQVIAQYYEFLRLGREGYTKVQNASYQVAAYLADEIAKLGPYEFICTGRPDEGIPAVCFKLKDGEDPGYTLYDLSERLRLRGWQVPAFTLGGEATDIVVMRIMCRRGFEMDFAELLLEDYKASLKYLSDHPKLQGIAQQNSFKHT</data>
+        </node>
+        <node id="77">
+            <data key="ACCESSION">Q52312</data>
+            <data key="COVERAGE">0.027933</data>
+            <data key="DESCRIPTION">INCC1_ECOLX Protein IncC</data>
+            <data key="LENGTH">358</data>
+            <data key="PROTEINSEQUENCE">MGAIHEETANRSPIPDGHQGAGDRAADHRHSARRAGRWPAPGGVCHFAGADQGGGVAGGQSRMGSSRGTAPRGLRASDGGTAGASSVHRQEVGSRRQEETGTQVMKTLVTAIQKGGQGKTFATCHLAFDFLERGLRVAVIDLDTQGNASFTLSAYQSGYLASQLFTGDTDDLRYWFGKREGESLALIAADANLANLDKMELSQAAAALRASVAALGEFFDVCLIDTAPSLGVAMTAAVLTADYMLSPIEMEAYSLQGMKKMVAVISNLRKQNPKLRFLGMVPNKVDARKPRHVNNLATLQQAYPQLILPFSIGARDSIAEALGEQMPVWKIKKTAARKATQEVRALADYVFTKMEIAQ</data>
+        </node>
+        <node id="78">
+            <data key="LENGTH">10</data>
+            <data key="SEQUENCE">MVAVISNLRK</data>
+        </node>
+        <node id="79">
+            <data key="KEYWORD">DNA replication</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="8">
+            <data key="KEYWORD">Oxidoreductase</data>
+            <data key="TYPE">MOLECULAR_FUNCTION</data>
+        </node>
+        <node id="80">
+            <data key="ACCESSION">P64462</data>
+            <data key="COVERAGE">0.104167</data>
+            <data key="DESCRIPTION">LSRG_ECO57 Autoinducer 2-degrading protein lsrG</data>
+            <data key="LENGTH">96</data>
+            <data key="PROTEINSEQUENCE">MHVTLVEINVHEDKVDEFIEVFRQNHLGSVQEEGNLRFDVLQDPEVNSRFYIYEAYKDEDAVAFHKTTPHYKTCVAKLESLMTGPRKKRLFNGLMP</data>
+        </node>
+        <node id="81">
+            <data key="LENGTH">10</data>
+            <data key="SEQUENCE">LESLMTGPRK</data>
+        </node>
+        <node id="82">
+            <data key="NAME">Escherichia coli O157:H7 (no rank)</data>
+        </node>
+        <node id="83">
+            <data key="KONUMBER">K11530</data>
+        </node>
+        <node id="84">
+            <data key="ACCESSION">P0AC95</data>
+            <data key="COVERAGE">0.049217</data>
+            <data key="DESCRIPTION">GNTP_ECO57 High-affinity gluconate transporter</data>
+            <data key="LENGTH">447</data>
+            <data key="PROTEINSEQUENCE">MHVLNILWVVFGIGLMLVLNLKFKINSMVALLVAALSVGMLAGMDLMSLLHTMKAGFGNTLGELAIIVVFGAVIGKLMVDSGAAHQIAHTLLARLGLRYVQLSVIIIGLIFGLAMFYEVAFIMLAPLVIVIAAEAKIPFLKLAIPAVAAATTAHSLFPPQPGPVALVNAYGADMGMVYIYGVLVTIPSVICAGLILPKFLGNLERPTPSFLKADQPVDMNNLPSFGVSILVPLIPAIIMISTTIANIWLVKDTPAWEVVNFIGSSPIAMFIAMVVAFVLFGTARGHDMQWVMNAFESAVKSIAMVILIIGAGGVLKQTIIDTGIGDTIGMLMSHGNISPYIMAWLITVLIRLATGQGVVSAMTAAGIISAAILDPATGQLVGVNPALLVLATAAGSNTLTHINDASFWLFKGYFDLSVKDTLKTWGLLELVNSVVGLIIVLIISMVA</data>
+        </node>
+        <node id="85">
+            <data key="LENGTH">22</data>
+            <data key="SEQUENCE">AGFGNTLGELAIIVVFGAVIGK</data>
+        </node>
+        <node id="86">
+            <data key="SPECTRUMID">1081663</data>
+            <data key="VOTES">1</data>
+        </node>
+        <node id="87">
+            <data key="KONUMBER">K16321</data>
+        </node>
+        <node id="88">
+            <data key="KEYWORD">Gluconate utilization</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="89">
+            <data key="KEYWORD">Transport</data>
+            <data key="TYPE">BIOLOGICAL_PROCESS</data>
+        </node>
+        <node id="9">
+            <data key="ACCESSION">P02769</data>
+            <data key="COVERAGE">0.021417</data>
+            <data key="DESCRIPTION">ALBU_BOVIN Serum albumin</data>
+            <data key="LENGTH">607</data>
+            <data key="PROTEINSEQUENCE">MKWVTFISLLLLFSSAYSRGVFRRDTHKSEIAHRFKDLGEEHFKGLVLIAFSQYLQQCPFDEHVKLVNELTEFAKTCVADESHAGCEKSLHTLFGDELCKVASLRETYGDMADCCEKQEPERNECFLSHKDDSPDLPKLKPDPNTLCDEFKADEKKFWGKYLYEIARRHPYFYAPELLYYANKYNGVFQECCQAEDKGACLLPKIETMREKVLASSARQRLRCASIQKFGERALKAWSVARLSQKFPKAEFVEVTKLVTDLTKVHKECCHGDLLECADDRADLAKYICDNQDTISSKLKECCDKPLLEKSHCIAEVEKDAIPENLPPLTADFAEDKDVCKNYQEAKDAFLGSFLYEYSRRHPEYAVSVLLRLAKEYEATLEECCAKDDPHACYSTVFDKLKHLVDEPQNLIKQNCDQFEKLGEYGFQNALIVRYTRKVPQVSTPTLVEVSRSLGKVGTRCCTKPESERMPCTEDYLSLILNRLCVLHEKTPVSEKVTKCCTESLVNRRPCFSALTPDETYVPKAFDEKLFTFHADICTLPDTEKQIKKQTALVELLKHKPKATEEQLKTVMENFVAFVDKCCAADDKEACFAVEGPKLVVSTQTALA</data>
+        </node>
+        <node id="90">
+            <data key="ACCESSION">A7ZUJ2</data>
+            <data key="COVERAGE">0.030457</data>
+            <data key="DESCRIPTION">EFTU2_ECO24 Elongation factor Tu 2</data>
+            <data key="LENGTH">394</data>
+            <data key="PROTEINSEQUENCE">MSKEKFERTKPHVNVGTIGHVDHGKTTLTAAITTVLAKTYGGAARAFNQIDNAPEEKARGITINTSHVEYDTPTRHYAHVDCPGHADYVKNMITGAAQMDGAILVVAATDGPMPQTREHILLGRQVGVPYIIVFLNKCDMVDDEELLELVEMEVRELLSQYDFPGDDTPIVRGSALKALEGDAEWEAKILELAGFLDSYIPEPERAIDKPFLLPIEDVFSISGRGTVVTGRVERGIIKVGEEVEIVGIKETQKSTCTGVEMFRKLLDEGRAGENVGVLLRGIKREEIERGQVLAKPGTIKPHTKFESEVYILSKDEGGRHTPFFKGYRPQFYFRTTDVTGTIELPEGVEMVMPGDNIKMVVTLIHPIAMDDGLRFAIREGGRTVGAGVVAKVLS</data>
+        </node>
+        <node id="91">
+            <data key="LENGTH">12</data>
+            <data key="SEQUENCE">AFNQIDNAPEEK</data>
+        </node>
+        <node id="92">
+            <data key="NAME">Escherichia coli E24377A (no rank)</data>
+        </node>
+        <node id="93">
+            <data key="ACCESSION">P0AAI7</data>
+            <data key="COVERAGE">0.021792</data>
+            <data key="DESCRIPTION">FABF_ECO57 3-oxoacyl-[acyl-carrier-protein] synthase 2</data>
+            <data key="LENGTH">413</data>
+            <data key="PROTEINSEQUENCE">MSKRRVVVTGLGMLSPVGNTVESTWKALLAGQSGISLIDHFDTSAYATKFAGLVKDFNCEDIISRKEQRKMDAFIQYGIVAGVQAMQDSGLEITEENATRIGAAIGSGIGGLGLIEENHTSLMNGGPRKISPFFVPSTIVNMVAGHLTIMYGLRGPSISIATACTSGVHNIGHAARIIAYGDADVMVAGGAEKASTPLGVGGFGAARALSTRNDNPQAASRPWDKERDGFVLGDGAGMLVLEEYEHAKKRGAKIYAELVGFGMSSDAYHMTSPPENGAGAALAMANALRDAGIEASQIGYVNAHGTSTPAGDKAEAQAVKTIFGEAASRVLVSSTKSMTGHLLGAAGAVESIYSILALRDQAVPPTINLDNPDEGCDLDFVPHEARQVSGMEYTLCNSFGFGGTNGSLIFKKI</data>
+        </node>
+        <node id="94">
+            <data key="ACCESSION">A1AGM6</data>
+            <data key="COVERAGE">0.030457</data>
+            <data key="DESCRIPTION">EFTU1_ECOK1 Elongation factor Tu 1</data>
+            <data key="LENGTH">394</data>
+            <data key="PROTEINSEQUENCE">MSKEKFERTKPHVNVGTIGHVDHGKTTLTAAITTVLAKTYGGAARAFDQIDNAPEEKARGITINTSHVEYDTPTRHYAHVDCPGHADYVKNMITGAAQMDGAILVVAATDGPMPQTREHILLGRQVGVPYIIVFLNKCDMVDDEELLELVEMEVRELLSQYDFPGDDTPIVRGSALKALEGDAEWEAKILELAGFLDSYIPEPERAIDKPFLLPIEDVFSISGRGTVVTGRVERGIIKVGEEVEIVGIKETQKSTCTGVEMFRKLLDEGRAGENVGVLLRGIKREEIERGQVLAKPGTIKPHTKFESEVYILSKDEGGRHTPFFKGYRPQFYFRTTDVTGTIELPEGVEMVMPGDNIKMVVTLIHPIAMDDGLRFAIREGGRTVGAGVVAKVLG</data>
+        </node>
+        <edge id="0" source="1" target="2" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="1" source="2" target="3" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="10" source="9" target="13" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="100" source="68" target="73" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="101" source="68" target="74" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="102" source="68" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="103" source="68" target="75" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="104" source="68" target="27" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="105" source="76" target="29" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="106" source="76" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="107" source="76" target="34" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="108" source="76" target="35" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="109" source="76" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="11" source="9" target="14" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="110" source="77" target="78" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="111" source="78" target="19" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="112" source="77" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="113" source="77" target="79" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="114" source="80" target="81" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="115" source="81" target="19" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="116" source="80" target="82" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="117" source="80" target="83" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="118" source="80" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="119" source="84" target="85" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="12" source="9" target="15" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="120" source="85" target="86" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="121" source="84" target="82" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="122" source="84" target="87" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="123" source="84" target="88" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="124" source="84" target="38" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="125" source="84" target="89" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="126" source="90" target="91" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="127" source="91" target="44" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="128" source="91" target="62" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="129" source="90" target="92" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="13" source="16" target="17" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="130" source="90" target="63" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="131" source="90" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="132" source="90" target="64" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="133" source="90" target="65" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="134" source="93" target="56" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="135" source="93" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="136" source="93" target="58" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="137" source="93" target="59" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="138" source="93" target="26" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="139" source="93" target="27" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="14" source="17" target="18" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="140" source="94" target="61" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="141" source="94" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="142" source="94" target="63" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="143" source="94" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="144" source="94" target="64" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="145" source="94" target="65" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="15" source="17" target="19" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="16" source="17" target="20" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="17" source="17" target="21" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="18" source="16" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="19" source="16" target="23" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="2" source="1" target="4" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="20" source="16" target="24" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="21" source="16" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="22" source="16" target="26" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="23" source="16" target="27" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="24" source="28" target="29" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="25" source="29" target="30" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="26" source="29" target="31" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="27" source="29" target="32" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="28" source="29" target="33" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="29" source="28" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="3" source="1" target="5" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="30" source="28" target="34" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="31" source="28" target="35" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="32" source="28" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="33" source="37" target="29" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="34" source="37" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="35" source="37" target="34" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="36" source="37" target="35" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="37" source="37" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="38" source="37" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="39" source="37" target="38" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="4" source="1" target="6" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="40" source="39" target="17" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="41" source="39" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="42" source="39" target="23" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="43" source="39" target="24" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="44" source="39" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="45" source="39" target="26" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="46" source="39" target="27" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="47" source="40" target="29" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="48" source="40" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="49" source="40" target="34" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="5" source="1" target="7" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="50" source="40" target="35" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="51" source="40" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="52" source="41" target="29" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="53" source="41" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="54" source="41" target="34" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="55" source="41" target="35" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="56" source="41" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="57" source="42" target="43" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="58" source="43" target="44" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="59" source="42" target="45" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="6" source="1" target="8" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="60" source="42" target="46" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="61" source="42" target="47" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="62" source="42" target="8" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="63" source="48" target="49" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="64" source="49" target="50" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="65" source="48" target="45" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="66" source="48" target="51" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="67" source="48" target="52" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="68" source="48" target="53" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="69" source="48" target="54" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="7" source="9" target="10" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="70" source="48" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="71" source="55" target="56" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="72" source="56" target="57" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="73" source="55" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="74" source="55" target="58" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="75" source="55" target="59" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="76" source="55" target="26" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="77" source="55" target="27" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="78" source="60" target="61" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="79" source="61" target="62" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="8" source="10" target="11" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="80" source="60" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="81" source="60" target="63" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="82" source="60" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="83" source="60" target="64" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="84" source="60" target="65" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="85" source="66" target="61" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="86" source="66" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="87" source="66" target="63" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="88" source="66" target="25" label="CONTAINED_IN_COMPONENT">
+            <data key="LABEL">CONTAINED_IN_COMPONENT</data>
+        </edge>
+        <edge id="89" source="66" target="64" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="9" source="10" target="12" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="90" source="66" target="65" label="INVOLVED_IN_BIOPROCESS">
+            <data key="LABEL">INVOLVED_IN_BIOPROCESS</data>
+        </edge>
+        <edge id="91" source="67" target="29" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="92" source="67" target="22" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="93" source="67" target="34" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="94" source="67" target="35" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="95" source="67" target="36" label="HAS_MOLECULAR_FUNCTION">
+            <data key="LABEL">HAS_MOLECULAR_FUNCTION</data>
+        </edge>
+        <edge id="96" source="68" target="69" label="HASPEPTIDE">
+            <data key="LABEL">HASPEPTIDE</data>
+        </edge>
+        <edge id="97" source="69" target="70" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="98" source="68" target="71" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+        <edge id="99" source="68" target="72" label="BELONGS_TO">
+            <data key="LABEL">BELONGS_TO</data>
+        </edge>
+    </graph>
+</graphml>

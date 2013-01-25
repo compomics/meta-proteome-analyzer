@@ -2,8 +2,8 @@ package de.mpa.io.fasta;
 
 import java.util.List;
 
-public 	class Database {
-	
+public class Database {
+
 	/**
 	 * The filename of the FASTA-Database
 	 */
@@ -13,7 +13,6 @@ public 	class Database {
 	 * The list of FASTA entries.
 	 */
 	private final List<Entry> entries;
-
 
 	public Database(final String filename, List<Entry> entries) {
 		this.filename = filename;
@@ -28,7 +27,7 @@ public 	class Database {
 		return entries;
 	}
 
-	public Entry getEntry(final int index){
+	public Entry getEntry(final int index) {
 		return entries.get(index);
-	}	
 	}
+}

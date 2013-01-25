@@ -48,9 +48,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
@@ -82,12 +82,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -108,11 +108,11 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
-import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
@@ -120,9 +120,9 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
@@ -183,9 +183,9 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.Cruxhit;
@@ -214,13 +214,29 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private DbSearchResult dbSearchResult;
 	
-	/*
-	 * Components containing protein, peptide, PSM and spectrum detail views
+	/**
+	 * Protein table.
 	 */
 	private JXTable proteinTbl;
+	
+	/**
+	 * Peptide table.
+	 */
 	private JXTable peptideTbl;
+	
+	/**
+	 * Protein sequence coverage panel.
+	 */
 	private JPanel coveragePnl;
+	
+	/**
+	 * PSM table.
+	 */
 	private JXTable psmTbl;
+	
+	/**
+	 * Spectrum panel.
+	 */
 	private SpectrumPanel specPnl;
 
 	/**
@@ -323,8 +339,14 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private ResultsPanel parent;
 
+	/**
+	 * Highlighter predicate.
+	 */
 	private ProtCHighlighterPredicate protCHighlightPredicate;
 
+	/**
+	 * Import file.
+	 */
 	protected File importFile;
 	
 	/**
@@ -838,6 +860,7 @@ public class DbSearchResultPanel extends JPanel {
 										ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
 									}
 									// Set peptide hit's common taxonomy ancestor
+									// FIXME: NullPointerException is thrown on OE1201_3195_Trembl
 									peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
 								} else {
 									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
@@ -873,6 +896,7 @@ public class DbSearchResultPanel extends JPanel {
 					}
 					 
 					dbSearchResult = newResult;
+					
 					client.setDbSearchResult(newResult);
 					parent.updateOverview();
 
@@ -882,7 +906,19 @@ public class DbSearchResultPanel extends JPanel {
 					
 					// Populate tables
 					refreshProteinTables();
-
+					
+					//*********************************************************//
+					//FIXME: GRAPH DATABASE IMPLEMENTATION
+					// Starts the graph database.
+//					GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
+//					DataInserter dataInserter = new DataInserter(graphDb.getService());
+//					dataInserter.setData(dbSearchResult);
+//					
+//					dataInserter.insert();
+//					dataInserter.exportGraph(new File("Test.graphml"));
+//					graphDb.shutDown();
+					//*********************************************************//
+					
 					// Enable export functionality
 					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
 
@@ -928,6 +964,7 @@ public class DbSearchResultPanel extends JPanel {
 
 
 	// Protein table column indices
+	// FIXME: Find another (more elegant) solution for this here:
 	private final int PROT_SELECTION 		= 0;
 	private final int PROT_INDEX 			= 1;
 	private final int PROT_ACCESSION 		= 2;
@@ -2178,6 +2215,7 @@ public class DbSearchResultPanel extends JPanel {
 			// Gather models
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 			
+			// FIXME: Coulde the following code be sourced out please ?!
 			// Values for construction of highlighter
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
@@ -2193,6 +2231,7 @@ public class DbSearchResultPanel extends JPanel {
 			} catch (MatrixLoaderException e) {
 				e.printStackTrace();
 			}
+			
 			for (ProteinHitList metaProtein : dbSearchResult.getMetaProteins()) {
 				// Create default values for meta-ProteinHit;
 				String metaDesc 	= "";
