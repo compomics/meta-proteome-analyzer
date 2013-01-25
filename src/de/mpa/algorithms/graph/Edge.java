@@ -8,10 +8,10 @@ package de.mpa.algorithms.graph;
 public class Edge implements Comparable<Edge> { 
 	
 	// The first node
-    private Vertex v;
+    private GraphVertex v;
     
     // The second node (other end for the edge)
-    private Vertex w;
+    private GraphVertex w;
     
     // The weight for the edge
     private double weight;
@@ -19,7 +19,7 @@ public class Edge implements Comparable<Edge> {
    /**
      * Create an edge between v and w with given weight of the m/z difference.
      */
-    public Edge(Vertex v, Vertex w) {
+    public Edge(GraphVertex v, GraphVertex w) {
         this.v = v;
         this.w = w;
         this.weight = Math.abs(v.getMass() - w.getMass());
@@ -35,7 +35,7 @@ public class Edge implements Comparable<Edge> {
    /**
      * Returns the end of this edge that is different from the given vertex.
      */
-    public Vertex getOther(Vertex vertex) {
+    public GraphVertex getOther(GraphVertex vertex) {
     	if      (vertex == v) return w;
         else if (vertex == w) return v;
         else return null;
