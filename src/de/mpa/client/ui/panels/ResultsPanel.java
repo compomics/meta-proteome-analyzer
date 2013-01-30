@@ -67,6 +67,7 @@ import org.jfree.chart.plot.PiePlot;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
+import uk.ac.ebi.kraken.interfaces.uniprot.PrimaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
@@ -98,11 +99,11 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
 public class ResultsPanel extends JPanel {
-	
+
 	private ClientFrame clientFrame;
-	
+
 	private MultiSplitLayout msl;
-	
+
 	private DbSearchResultPanel dbPnl;
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
@@ -117,9 +118,9 @@ public class ResultsPanel extends JPanel {
 	private OntologyData ontologyData;
 	private TaxonomyData taxonomyData;
 	private TopData topData;
-	
+
 	private JXTable detailsTbl;
-	
+
 	private JLabel totalSpecLbl;
 	private JLabel identSpecLbl;
 	private JLabel totalPepLbl;
@@ -129,7 +130,7 @@ public class ResultsPanel extends JPanel {
 	private JLabel speciesLbl;
 	private JLabel enzymesLbl;
 	private JLabel pathwaysLbl;
-	
+
 	public ResultsPanel() {
 		this.clientFrame = ClientFrame.getInstance();
 		this.dbPnl = new DbSearchResultPanel(this);
@@ -141,38 +142,38 @@ public class ResultsPanel extends JPanel {
 	private void initComponents() {
 		// configure main panel layout
 		this.setLayout(new FormLayout("p:g, 5dlu", "f:p:g, -40px, b:p, 5dlu"));
-		
+
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets contentBorderInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, contentBorderInsets.bottom, 0));
 		final JTabbedPane resTpn = new JTabbedPane(JTabbedPane.BOTTOM);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets);
-		
+
 		JPanel ovPnl = new JPanel(new FormLayout(
 				"5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		
+
 		String layoutDef =
-			"(ROW (LEAF weight=0.5 name=summary) (COLUMN weight=0.5 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
+				"(ROW (LEAF weight=0.5 name=summary) (COLUMN weight=0.5 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
 		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
-		
+
 		msl = new MultiSplitLayout(modelRoot);
-		
+
 		final JXMultiSplitPane msp = new JXMultiSplitPane(msl);
 		msp.setDividerSize(12);
-		
+
 		msp.add(createSummaryPanel(), "summary");
 		msp.add(createChartPanel(), "chart");
 		msp.add(createDetailsPanel(), "details");
-//		msp.add(PanelConfig.createTitledPanel("Placeholder",
-//				new JLabel("open to suggestions...", SwingConstants.CENTER)), "placeholder");
-		
+		//		msp.add(PanelConfig.createTitledPanel("Placeholder",
+		//				new JLabel("open to suggestions...", SwingConstants.CENTER)), "placeholder");
+
 		ovPnl.add(msp, CC.xy(2, 2));
-		
+
 		resTpn.addTab(" ", ovPnl);
 		resTpn.addTab(" ", dbPnl);
 		resTpn.addTab(" ", ssPnl);
 		resTpn.addTab(" ", dnPnl);
-		
+
 		// TODO: use proper icons, possibly slightly larger ones, e.g. 40x40?
 		resTpn.setTabComponentAt(0, clientFrame.createTabButton("Overview",	new ImageIcon(getClass().getResource("/de/mpa/resources/icons/overview32.png")), resTpn));
 		resTpn.setTabComponentAt(1, clientFrame.createTabButton("Database Search Results", new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_search32.png")), resTpn));
@@ -197,15 +198,15 @@ public class ResultsPanel extends JPanel {
 	 * Creates and returns the left-hand summary panel (wrapped in a JXTitledPanel)
 	 */
 	private JPanel createSummaryPanel() {
-		
+
 		JButton resizeBtn = createResizeButton("chart", "details");
-		
+
 		JPanel summaryBtnPnl = new JPanel(new FormLayout("p, 1px", "f:p:g"));
 		summaryBtnPnl.setOpaque(false);
 		summaryBtnPnl.add(resizeBtn, CC.xy(1, 1));
-		
+
 		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
-		
+
 		JPanel generalPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
 				"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
 		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
@@ -213,35 +214,35 @@ public class ResultsPanel extends JPanel {
 		// total vs. identified spectra
 		totalSpecLbl = new JLabel("0");
 		identSpecLbl = new JLabel("0");
-		JPanel specBarPnl = new BarChartPanel(identSpecLbl, totalSpecLbl);
-		
-		generalPnl.add(new JLabel("Total spectra"), CC.xy(10, 2));
-		generalPnl.add(totalSpecLbl, CC.xy(8, 2));
+		JPanel specBarPnl = new BarChartPanel(totalSpecLbl, identSpecLbl);
+
+		generalPnl.add(new JLabel("Total spectra"), CC.xy(2, 2));
+		generalPnl.add(totalSpecLbl, CC.xy(4, 2));
 		generalPnl.add(specBarPnl, CC.xy(6, 2));
-		generalPnl.add(identSpecLbl, CC.xy(4, 2));
-		generalPnl.add(new JLabel("Identified spectra"), CC.xy(2, 2));
+		generalPnl.add(identSpecLbl, CC.xy(8, 2));
+		generalPnl.add(new JLabel("identified spectra"), CC.xy(10, 2));
 
 		// total vs. unique peptides
 		totalPepLbl = new JLabel("0");
 		uniquePepLbl = new JLabel("0");
-		JPanel pepBarPnl = new BarChartPanel(uniquePepLbl, totalPepLbl);
-		
-		generalPnl.add(new JLabel("Total peptides"), CC.xy(10, 4));
-		generalPnl.add(totalPepLbl, CC.xy(8, 4));
+		JPanel pepBarPnl = new BarChartPanel(totalPepLbl, uniquePepLbl);
+
+		generalPnl.add(new JLabel("Total peptides"), CC.xy(2, 4));
+		generalPnl.add(totalPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
-		generalPnl.add(uniquePepLbl, CC.xy(4, 4));
-		generalPnl.add(new JLabel("Unique peptides"), CC.xy(2, 4));
+		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
+		generalPnl.add(new JLabel("unique peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
 		specificProtLbl = new JLabel("0");
-		JPanel protBarPnl = new BarChartPanel(specificProtLbl, totalProtLbl);
-		
-		generalPnl.add(new JLabel("Total proteins"), CC.xy(10, 6));
-		generalPnl.add(totalProtLbl, CC.xy(8, 6));
+		JPanel protBarPnl = new BarChartPanel(totalProtLbl, specificProtLbl);
+
+		generalPnl.add(new JLabel("Total proteins"), CC.xy(2, 6));
+		generalPnl.add(totalProtLbl, CC.xy(4, 6));
 		generalPnl.add(protBarPnl, CC.xy(6, 6));
-		generalPnl.add(specificProtLbl, CC.xy(4, 6));
-		generalPnl.add(new JLabel("Specific proteins"), CC.xy(2, 6));
+		generalPnl.add(specificProtLbl, CC.xy(8, 6));
+		generalPnl.add(new JLabel("specific proteins"), CC.xy(10, 6));
 
 		speciesLbl = new JLabel("0");
 		enzymesLbl = new JLabel("0");
@@ -252,12 +253,12 @@ public class ResultsPanel extends JPanel {
 		generalPnl.add(enzymesLbl, CC.xy(4, 10));
 		generalPnl.add(new JLabel("Distinct pathways"), CC.xy(2, 12));
 		generalPnl.add(pathwaysLbl, CC.xy(4, 12));
-		
+
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
-		
+
 		JXTitledPanel summaryTtlPnl = PanelConfig.createTitledPanel("Summary", summaryPnl);
 		summaryTtlPnl.setRightDecoration(summaryBtnPnl);
-		
+
 		return summaryTtlPnl;
 	}
 
@@ -265,7 +266,7 @@ public class ResultsPanel extends JPanel {
 	 * Creates and returns the top-right chart panel (wrapped in a JXTitledPanel)
 	 */
 	private JPanel createChartPanel() {
-		
+
 		final ChartType[] chartTypes = new ChartType[] {
 				OntologyChartType.BIOLOGICAL_PROCESS,
 				OntologyChartType.MOLECULAR_FUNCTION,
@@ -276,22 +277,22 @@ public class ResultsPanel extends JPanel {
 				TaxonomyChartType.SPECIES,
 				TopBarChartType.PROTEINS
 		};
-		
+
 		chartTypeBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
 		chartTypeBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
 		chartTypeBtn.setPressedIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
 		chartTypeBtn.setToolTipText("Select Chart Type");
 		chartTypeBtn.setEnabled(false);
-		
+
 		chartTypeBtn.setUI(new RoundedHoverButtonUI());
 
 		chartTypeBtn.setOpaque(false);
 		chartTypeBtn.setBorderPainted(false);
 		chartTypeBtn.setMargin(new Insets(1, 0, 0, 0));
-		
+
 		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
 		chartTypeBtn.addMouseListener(ittml);
-		
+
 		final JPopupMenu chartTypePop = new JPopupMenu();
 		ActionListener chartListener = new ActionListener() {
 			@Override
@@ -306,7 +307,7 @@ public class ResultsPanel extends JPanel {
 				if (newChartType != chartType) {
 					// clear details table TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
-					
+
 					updateChart(newChartType);
 				}
 			}
@@ -326,16 +327,16 @@ public class ResultsPanel extends JPanel {
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
 			public void popupMenuCanceled(PopupMenuEvent e) {}
 		});
-		
+
 		chartTypeBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				chartTypePop.show(chartTypeBtn, 0, chartTypeBtn.getHeight());
 			}
 		});
-		
+
 		JButton resizeBtn = createResizeButton("summary", "details");
-		
+
 		JPanel chartBtnPnl = new JPanel(new FormLayout("p, c:5dlu, p, 1px", "f:p:g"));
 		chartBtnPnl.setOpaque(false);
 		chartBtnPnl.add(chartTypeBtn, CC.xy(1, 1));
@@ -348,9 +349,9 @@ public class ResultsPanel extends JPanel {
 		defaultMap.put("Does not resemble Pac-Man", new ProteinHitList(Arrays.asList(new ProteinHit[20])));
 		ontologyData = new OntologyData();
 		ontologyData.setDefaultMapping(defaultMap);
-		
+
 		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		
+
 		JPanel chartScrollPnl = new JPanel(new FormLayout("0:g, p, 0:g, r:p", "f:p:g, b:p, 2dlu"));
 		chartScrollPnl.setBorder(new Border() {
 			private Border delegate = BorderFactory.createEtchedBorder();
@@ -366,7 +367,7 @@ public class ResultsPanel extends JPanel {
 			}
 		});
 		chartScrollPnl.setBackground(Color.WHITE);
-		
+
 		chartPnl = new ChartPanel(null);
 		chartPnl.setMinimumDrawHeight(144);
 		chartPnl.setMaximumDrawHeight(1440);
@@ -375,7 +376,7 @@ public class ResultsPanel extends JPanel {
 		chartPnl.setOpaque(false);
 		chartPnl.setPreferredSize(new Dimension(256, 144));
 		chartPnl.setMinimumSize(new Dimension(256, 144));
-		
+
 		MouseAdapter adapter = new MouseAdapter() {
 			Comparable highlightedKey = null;
 			Comparable selectedKey = null;
@@ -450,7 +451,7 @@ public class ResultsPanel extends JPanel {
 		chartBar = new JScrollBar(JScrollBar.VERTICAL, 0, 0, 0, 0);
 		chartBar.setBorder(BorderFactory.createEmptyBorder(-1, 0, -1, -1));
 		chartBar.setBlockIncrement(36);
-		
+
 		chartBar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent ae) {
 				JFreeChart chart = chartPnl.getChart();
@@ -465,7 +466,7 @@ public class ResultsPanel extends JPanel {
 
 		hierarchyCbx = new JComboBox(new String[] { "Proteins", "Peptides", "Spectra" });
 		hierarchyCbx.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				HierarchyLevel hl = null;
@@ -491,10 +492,10 @@ public class ResultsPanel extends JPanel {
 		chartScrollPnl.add(chartBar, CC.xywh(4, 1, 1, 3));
 
 		chartMarginPnl.add(chartScrollPnl, CC.xy(2, 2));
-		
+
 		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel("Chart View", chartMarginPnl);
 		chartTtlPnl.setRightDecoration(chartBtnPnl);
-		
+
 		return chartTtlPnl;
 	}
 
@@ -502,7 +503,7 @@ public class ResultsPanel extends JPanel {
 	 * Creates and returns the bottom-right chart details panel (wrapped in a JXTitledPanel)
 	 */
 	private Component createDetailsPanel() {
-		
+
 		JButton resizeBtn = createResizeButton("summary", "chart");
 
 		JPanel detailsBtnPnl = new JPanel(new FormLayout("p, 1px", "f:p:g"));
@@ -533,16 +534,37 @@ public class ResultsPanel extends JPanel {
 			}
 		});
 		TableConfig.setColumnWidths(detailsTbl, new double[] { 1.0, 3.0, 12.0 });
+
+//		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
+//			public void actionPerformed(ActionEvent ev) {
+//				try {
+//					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		};
 		
-		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
-		    public void actionPerformed(ActionEvent ev) {
-		        try {
-		            Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
-		    }
+		AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
+			public void actionPerformed(ActionEvent ev) {
+				try {
+					//Use UniProt identifier also for NCBI entries
+					if (target.matches("^\\d*$")) { // if contains non-numerical character UniProt
+						UniProtEntry uniprotEntry = dbPnl.getDbSearchResult().getProteinHit(target).getUniprotEntry();
+						if (uniprotEntry != null) {
+							PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
+							target = primaryUniProtAccession.getValue();
+						}else{
+							target = "";
+						}
+					}
+					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		};
+		
 		detailsTbl.getColumn(1).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -551,21 +573,21 @@ public class ResultsPanel extends JPanel {
 				return compLabel;
 			}
 		});
-		
+
 		detailsTbl.setColumnControlVisible(true);
 		detailsTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
 				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
 		detailsTbl.getColumnControl().setOpaque(false);
 		((ColumnControlButton) detailsTbl.getColumnControl()).setAdditionalActionsVisible(false);
-		
+
 		// Add nice striping effect
 		detailsTbl.addHighlighter(TableConfig.getSimpleStriping());
-		
+
 		JScrollPane detailsScpn = new JScrollPane(detailsTbl);
 		detailsScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		detailsScpn.setPreferredSize(new Dimension(100, 100));
-		
+
 		detailsPnl.add(detailsScpn, CC.xy(2, 2));
 
 		JXTitledPanel detailsTtlPnl = PanelConfig.createTitledPanel("Chart Details", detailsPnl);
@@ -599,20 +621,20 @@ public class ResultsPanel extends JPanel {
 	 * @return The widget button.
 	 */
 	private JButton createResizeButton(final String... nodes2hide) {
-		
+
 		JButton resizeBtn = new JButton(IconConstants.FRAME_FULL_ICON);
 		resizeBtn.setRolloverIcon(IconConstants.FRAME_FULL_ROLLOVER_ICON);
 		resizeBtn.setPressedIcon(IconConstants.FRAME_FULL_PRESSED_ICON);
 		resizeBtn.setToolTipText("Maximize");
-		
+
 		resizeBtn.setUI(new RoundedHoverButtonUI());
 
 		resizeBtn.setOpaque(false);
 		resizeBtn.setBorderPainted(false);
 		resizeBtn.setMargin(new Insets(1, 0, 0, 0));
-		
+
 		resizeBtn.addMouseListener(new InstantToolTipMouseListener());
-		
+
 		resizeBtn.addActionListener(new ActionListener() {
 			boolean maximized = false;
 			public void actionPerformed(ActionEvent ae) {
@@ -634,17 +656,17 @@ public class ResultsPanel extends JPanel {
 				maximized = !maximized;
 			}
 		});
-		
+
 		return resizeBtn;
 	}
-	
+
 	/**
 	 * Refreshes the chart updating its content reflecting the specified chart type.
 	 * @param chartType the type of chart to be displayed.
 	 */
 	private void updateChart(ChartType chartType) {
 		Chart chart = null;
-		
+
 		if (chartType instanceof OntologyChartType) {
 			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
 		} else if (chartType instanceof TaxonomyChartType) {
@@ -652,7 +674,7 @@ public class ResultsPanel extends JPanel {
 		} else {
 			chart = ChartFactory.createTopBarChart(topData, chartType);
 		}
-		
+
 		if (chart != null) {
 			if (chart.getChart().getPlot() instanceof PiePlot) {
 				chartBar.setMaximum(360);
@@ -667,7 +689,7 @@ public class ResultsPanel extends JPanel {
 			}
 			chartPnl.setChart(chart.getChart());
 		}
-		
+
 		this.chartType = chartType;
 	}
 
@@ -686,7 +708,7 @@ public class ResultsPanel extends JPanel {
 	 * @author T. Muth, A. Behne
 	 */
 	private class UpdateTask extends SwingWorker {
-		
+
 		protected Object doInBackground() {
 			DbSearchResult dbSearchResult = null;
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -699,69 +721,77 @@ public class ResultsPanel extends JPanel {
 				Set<String> kNumbers = new HashSet<String>();
 				for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 					speciesNames.add(ph.getSpecies());
-					UniProtEntry uniProtEntry = ph.getUniprotEntry();
-					if (uniProtEntry != null) {
-						ecNumbers.addAll(uniProtEntry.getProteinDescription().getEcNumbers());
+					UniProtEntry uniprotEntry = ph.getUniprotEntry();
+					if (uniprotEntry != null) {
+						ecNumbers.addAll(uniprotEntry.getProteinDescription().getEcNumbers());
 						for (DatabaseCrossReference xref : 
-							ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+							uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO)) {
 							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
 						}
+						UniProtEntry uniProtEntry = ph.getUniprotEntry();
+						if (uniProtEntry != null) {
+							ecNumbers.addAll(uniProtEntry.getProteinDescription().getEcNumbers());
+							for (DatabaseCrossReference xref : 
+								ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+							}
+						}
 					}
-				}
-				Set<Short> pathwayIDs = new HashSet<Short>();
-				for (String ec : ecNumbers) {
-					List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-					if (pathwaysByEC != null) {
-						pathwayIDs.addAll(pathwaysByEC);
+					Set<Short> pathwayIDs = new HashSet<Short>();
+					for (String ec : ecNumbers) {
+						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+						if (pathwaysByEC != null) {
+							pathwayIDs.addAll(pathwaysByEC);
+						}
 					}
-				}
-				for (String ko : kNumbers) {
-					List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
-					if (pathwaysByKO != null) {
-						pathwayIDs.addAll(pathwaysByKO);
+					for (String ko : kNumbers) {
+						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+						if (pathwaysByKO != null) {
+							pathwayIDs.addAll(pathwaysByKO);
+						}
 					}
-				}
 
-				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-				uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-				specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
-				speciesLbl.setText("" + speciesNames.size());
-				enzymesLbl.setText("" + ecNumbers.size());
-				pathwaysLbl.setText("" + pathwayIDs.size());
-				
-				HierarchyLevel hl = null;
-				switch (hierarchyCbx.getSelectedIndex()) {
-				case 0:
-					hl = HierarchyLevel.PROTEIN_LEVEL;
-					break;
-				case 1:
-					hl = HierarchyLevel.PEPTIDE_LEVEL;
-					break;
-				case 2:
-					hl = HierarchyLevel.SPECTRUM_LEVEL;
-				}
-				ontologyData = new OntologyData(dbSearchResult, hl);
-				taxonomyData = new TaxonomyData(dbSearchResult, hl);
-				topData = new TopData(dbSearchResult);
+					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+					totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
+					uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+					specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
+					speciesLbl.setText("" + speciesNames.size());
+					enzymesLbl.setText("" + ecNumbers.size());
+					pathwaysLbl.setText("" + pathwayIDs.size());
 
-				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
-			} catch (Exception e) {
+					HierarchyLevel hl = null;
+					switch (hierarchyCbx.getSelectedIndex()) {
+					case 0:
+						hl = HierarchyLevel.PROTEIN_LEVEL;
+						break;
+					case 1:
+						hl = HierarchyLevel.PEPTIDE_LEVEL;
+						break;
+					case 2:
+						hl = HierarchyLevel.SPECTRUM_LEVEL;
+					}
+					ontologyData = new OntologyData(dbSearchResult, hl);
+					taxonomyData = new TaxonomyData(dbSearchResult, hl);
+					topData = new TopData(dbSearchResult);
+
+					updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+				}
+			}catch (Exception e) {
 				e.printStackTrace();
 			}
 			return 0;
 		}
-		
+
 		@Override
 		protected void done() {
 			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
-		
+
 	}
-	
+
 	/**
 	 * @return the dbPnl
 	 */
@@ -791,26 +821,20 @@ public class ResultsPanel extends JPanel {
 		return chartTypeBtn;
 	}
 
-	/**
-	 * Custom label painting a bar chart-like background with areas derived from
-	 * numeric values stored in associated JLabels.
-	 * 
-	 * @author A. Behne
-	 */
 	private class BarChartPanel extends JPanel {
 		private JLabel totalLbl;
 		private JLabel fracLbl;
-		
-		public BarChartPanel(JLabel fracLbl, JLabel totalLbl) {
-			this.fracLbl = fracLbl;
+
+		public BarChartPanel(JLabel totalLbl, JLabel fracLbl) {
 			this.totalLbl = totalLbl;
+			this.fracLbl = fracLbl;
 		}
-		
+
 		public void paint(Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;
 			Point pt1 = new Point();
 			Point pt2 = new Point(getWidth(), 0);
-			g2.setPaint(new GradientPaint(pt1, Color.GRAY, pt2, Color.LIGHT_GRAY));
+			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
 			g2.fillRect(0, 0, getWidth(), getHeight());
 
 			try {
@@ -818,19 +842,17 @@ public class ResultsPanel extends JPanel {
 				if (total > 0.0) {
 					double rel = Double.parseDouble(fracLbl.getText()) / total;
 					int width = (int) (getWidth() * rel);
-					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
-//					g2.fillRect(getWidth() - width, 0, width, getHeight());
-					g2.fillRect(0, 0, width, getHeight());
+					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE, pt2, ColorUtils.LIGHT_ORANGE));
+					g2.fillRect(getWidth() - width, 0, width, getHeight());
 					String str = String.format("%.1f", rel * 100.0) + "%";
 					FontMetrics fm = g2.getFontMetrics();
 					Rectangle2D bounds = fm.getStringBounds(str, g2);
 
 					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
-					float x = (float) (width - bounds.getWidth() - 2.0f);
+					//						g2.setPaint(ColorUtils.DARK_ORANGE);
+					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
 					if (x < 2.0f) {
-//						x = getWidth() - width + 2.0f;
-						x = width + 2.0f;
+						x = getWidth() - width + 2.0f;
 					}
 					float y = (float) (-bounds.getY() + getHeight()) / 2.0f - 1.0f;
 					g2.setPaint(Color.BLACK);
@@ -846,5 +868,5 @@ public class ResultsPanel extends JPanel {
 			}
 		};
 	}
-	
+
 }

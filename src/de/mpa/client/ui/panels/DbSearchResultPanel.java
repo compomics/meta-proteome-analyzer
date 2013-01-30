@@ -143,6 +143,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
+import uk.ac.ebi.kraken.interfaces.uniprot.PrimaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
@@ -214,6 +215,11 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private DbSearchResult dbSearchResult;
 	
+
+	public DbSearchResult getDbSearchResult() {
+		return dbSearchResult;
+	}
+
 	/**
 	 * Protein table.
 	 */
@@ -823,7 +829,14 @@ public class DbSearchResultPanel extends JPanel {
 						// Retrieve UniProt data
 						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 						client.firePropertyChange("indeterminate", false, true);
-						UniprotAccessor.retrieveUniProtEntries(newResult);
+						try {
+							UniprotAccessor.retrieveUniProtEntries(newResult);
+						} catch (Exception e) {
+							JXErrorPane.showDialog(clientFrame, new ErrorInfo("Error",
+									"UniProt access failed. Please try again later.",
+									e.getMessage(), null, e, Level.SEVERE, null));
+						}
+						
 						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 						client.firePropertyChange("indeterminate", true, false);
 						
@@ -855,22 +868,25 @@ public class DbSearchResultPanel extends JPanel {
 									taxList.add(taxonNode);
 	
 									// Find common ancestor of all taxon nodes in list
+									
 									TaxonNode ancestor = taxList.get(0);
 									for (int i = 1; i < taxList.size(); i++) {
 										ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
 									}
-									// Set peptide hit's common taxonomy ancestor
-									// FIXME: NullPointerException is thrown on OE1201_3195_Trembl
-									peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
+									if (ancestor != null) {
+										// Set peptide hit's common taxonomy ancestor
+										peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
+									} else {
+										peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
+									}
 								} else {
-									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
+//									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
 									peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
 								}
 							}
 							Client.getInstance().firePropertyChange("progressmade", false, true);
 						}
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
-						
 						
 						// Combine protein hits to metaproteins  if they share all proteins
 						List<ProteinHitList> metaProteins = newResult.getMetaProteins();
@@ -905,7 +921,12 @@ public class DbSearchResultPanel extends JPanel {
 					dbSearchResult.setSearchEngines(searchEngines);
 					
 					// Populate tables
-					refreshProteinTables();
+					try {
+						refreshProteinTables();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				
 					
 					//*********************************************************//
 					//FIXME: GRAPH DATABASE IMPLEMENTATION
@@ -937,29 +958,7 @@ public class DbSearchResultPanel extends JPanel {
 				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 			}
 			return 0;
-		}
-		
-//		@Override
-//		protected void done() {
-//			// TODO: ADD search engine from runtable
-//			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-//			dbSearchResult.setSearchEngines(searchEngines);
-//
-//			try {
-//				refreshProteinTables();
-//
-//				// Enable export functionality
-//				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-//
-//				// Enable Save Project functionality
-//				((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
-//					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-//					
-//				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
+		}		
 	}
 
 
@@ -1136,14 +1135,24 @@ public class DbSearchResultPanel extends JPanel {
 		// Apply custom cell renderers/highlighters to columns
 		tcm.getColumn(PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		
-		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
-		    public void actionPerformed(ActionEvent ev) {
-		        try {
-		            Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
-		    }
+		AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
+			public void actionPerformed(ActionEvent ev) {
+				try {
+					//Use UniProt identifier also for NCBI entries
+					if (target.matches("^\\d*$")) { // if contains non-numerical character UniProt
+						UniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
+						if (uniprotEntry != null) {
+							PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
+							target = primaryUniProtAccession.getValue();
+						}else{
+							target = "";
+						}
+					}
+					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		};
 		tcm.getColumn(PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -2224,12 +2233,13 @@ public class DbSearchResultPanel extends JPanel {
 			int metaIndex = 1;
 			// Get Matrix for the calculation of the identity
 			Matrix matrix = null;
-			Logger logger = Logger.getLogger(MatrixLoader.class.getName());
-			logger.setLevel(Level.OFF);
-			try {
-				matrix = MatrixLoader.load("BLOSUM62");
-			} catch (MatrixLoaderException e) {
-				e.printStackTrace();
+			if (!Client.getInstance().isViewer()) {
+				try {
+					Logger.getLogger(MatrixLoader.class.getName()).setLevel(Level.OFF);
+					matrix = MatrixLoader.load("BLOSUM62");
+				} catch (MatrixLoaderException e) {
+					e.printStackTrace();
+				}
 			}
 			
 			for (ProteinHitList metaProtein : dbSearchResult.getMetaProteins()) {
@@ -2271,23 +2281,25 @@ public class DbSearchResultPanel extends JPanel {
 					maxNSAF = Math.max(maxNSAF, nsaf);
 
 					// Get common taxonomy for each protein Hit
-					TaxonNode commonAncestorNode = proteinHit.getPeptideHitList().get(0).getTaxonNode();
-					for (PeptideHit peptidHit : proteinHit.getPeptideHitList()) {
-						commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(commonAncestorNode, peptidHit.getTaxonNode());
-					}
-					proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
-					
-					// Get minimal identity for the protein
-					double identity;
-					for (ProteinHit furtherproteinHit : metaProtein){
-						logger = Logger.getLogger(SmithWatermanGotoh.class.getName());
-						logger.setLevel(Level.OFF);
-						Alignment align = SmithWatermanGotoh.align(new Sequence(proteinHit.getSequence()), new Sequence(furtherproteinHit.getSequence()),matrix, 10.0f, 0.5f);
-							
+					if (!Client.getInstance().isViewer()) { // Check for viewer Mode
+						TaxonNode commonAncestorNode = proteinHit.getPeptideHitList().get(0).getTaxonNode();
+						for (PeptideHit peptidHit : proteinHit.getPeptideHitList()) {
+							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(
+									commonAncestorNode, peptidHit.getTaxonNode());
+						}
+						proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
+						
+						// Get minimal identity for the protein
+						double identity;
+						Logger.getLogger(SmithWatermanGotoh.class.getName()).setLevel(Level.OFF);
+						for (ProteinHit furtherproteinHit : metaProtein){
+							Alignment align = SmithWatermanGotoh.align(new Sequence(proteinHit.getSequence()), new Sequence(furtherproteinHit.getSequence()),matrix, 10.0f, 0.5f);
+								
 							identity = align.getIdentity()* 100.0 / proteinHit.getSequence().length();
 							if (proteinHit.getIdentity()> identity) {
 								proteinHit.setIdentity(identity);
 							}
+						}
 					}
 					
 					// Insert protein data into table
@@ -2306,18 +2318,30 @@ public class DbSearchResultPanel extends JPanel {
 							nsaf});
 					
 					// Update MetaproteinHit
-					metaDesc 	= proteinHit.getDescription();
-					metaSC		= Math.max(metaSC, proteinHit.getCoverage());
-					metaIdentity= Math.min(metaIdentity, proteinHit.getIdentity());
-					metaMW		= metaMW + proteinHit.getMolecularWeight()  / metaProtein.size();
-					metaPI		= metaPI + proteinHit.getIsoelectricPoint() / metaProtein.size() ;
+					metaDesc = proteinHit.getDescription();
+					metaSC = Math.max(metaSC, proteinHit.getCoverage());
+					metaIdentity = Math.min(metaIdentity, proteinHit.getIdentity());
+					metaMW = metaMW + proteinHit.getMolecularWeight() / metaProtein.size();
+					metaPI = metaPI + proteinHit.getIsoelectricPoint() / metaProtein.size();
 					metaProteinHit.addPeptideHits(proteinHit.getPeptideHits());
-					metaEmPai	= Math.max(metaEmPai, proteinHit.getEmPAI());
-					metaNsaf    = Math.max(metaNsaf, proteinHit.getNSAF());
+					metaEmPai = Math.max(metaEmPai, proteinHit.getEmPAI());
+					metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
 					
 					if (proteinHit.getUniprotEntry() != null) {
 						// Wrap protein data in table node clones and insert them into the relevant trees
-						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
+						// For case of NCBI accessions
+						String target = proteinHit.getAccession();
+						//Use UniProt identifier also for NCBI entries
+						if (target.matches("^\\d*$")) { // if contains non-numerical character UniProt
+							UniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
+							if (uniprotEntry != null) {
+								PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
+								target = primaryUniProtAccession.getValue();
+							}else{
+								target = "";
+							}
+						}
+						URI uri = URI.create("http://www.uniprot.org/uniprot/" + target);
 						PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
 						flatNode.setURI(uri);
 						metaNode.add(flatNode);
@@ -2346,13 +2370,16 @@ public class DbSearchResultPanel extends JPanel {
 				
 				// Set values for the metaprotein
 				metaProteinHit.setDescription(metaDesc);
-				// Get highest common Taxonomy
-				TaxonNode firstNode = metaProteinHit.getPeptideHitList().get(0).getTaxonNode();
-				for (PeptideHit peptideHit : metaProteinHit.getPeptideHitList()) {
-					TaxonNode taxonNode = peptideHit.getTaxonNode();
-					firstNode = NcbiTaxonomy.getInstance().getCommonAncestor(firstNode,taxonNode);
+				if (!Client.getInstance().isViewer()) {
+					// Get highest common Taxonomy
+					TaxonNode firstNode = metaProteinHit.getPeptideHitList().get(0).getTaxonNode();
+					for (PeptideHit peptideHit : metaProteinHit.getPeptideHitList()) {
+						TaxonNode taxonNode = peptideHit.getTaxonNode();
+						firstNode = NcbiTaxonomy.getInstance().getCommonAncestor(firstNode,taxonNode);
+					}
+					metaProtein.setSpecies(firstNode.getTaxName() + " (" + firstNode.getRank() +")");
 				}
-				metaProteinHit.setSpecies(firstNode.getTaxName() + " (" + firstNode.getRank() +")");
+				metaProteinHit.setSpecies(metaProtein.getSpecies());
 				metaProteinHit.setIdentity(metaIdentity);
 				metaProteinHit.setCoverage(metaSC);
 				metaProteinHit.setMolecularWeight(metaMW);
@@ -2360,6 +2387,7 @@ public class DbSearchResultPanel extends JPanel {
 				metaProteinHit.setEmPAI(metaEmPai);
 				metaProteinHit.setNSAF(metaNsaf);
 				metaProteinHit.setCoverage(metaSC);
+				
 				TreePath flatPath = insertFlatNode(metaNode);
 			}
 			
@@ -3510,5 +3538,10 @@ public class DbSearchResultPanel extends JPanel {
 			this.protHits = protHits;
 		}
 	}
+	
+	/**
+	 * Gets the dbSearchResult Object.
+	 * @return dbSearchResult 
+	 */
 
 }

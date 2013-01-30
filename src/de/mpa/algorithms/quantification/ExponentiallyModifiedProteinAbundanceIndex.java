@@ -34,6 +34,8 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 		// @param nMin                  the minimal size for a peptide
 		// @param nMax                  the maximal size for a peptide
 		ArrayList<String> insilicoPeptides = new ArrayList<String>();
+		//TODO: # missed cleavages has to be taken from search parameters to avoid misscalculations 
+		//		or remove misscleaved peptides from calculation.
 		insilicoPeptides= trypsin.digest(proteinHit.getSequence(), 0, 4, 1000);
 		
 		double pAI;

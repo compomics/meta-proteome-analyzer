@@ -96,6 +96,7 @@ public class TableConfig {
 	 * @param table The JTable component.
 	 */
 	public static void clearTable(JTable table) {
+		table.clearSelection();
 		if (table instanceof JXTreeTable) {
 			MutableTreeTableNode root =
 				(MutableTreeTableNode) ((JXTreeTable) table).getTreeTableModel().getRoot();

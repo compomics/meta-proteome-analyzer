@@ -29,7 +29,13 @@ import javax.swing.border.BevelBorder;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.Client;
+import de.mpa.client.ui.ClientFrameMenuBar;
+import de.mpa.client.ui.Constants;
+import de.mpa.client.ui.ScreenConfig;
+import de.mpa.client.ui.StatusPanel;
+import de.mpa.client.ui.ThinBevelBorder;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.DeNovoResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
@@ -75,6 +81,8 @@ public class ClientFrame extends JFrame {
 	
 	
 	private boolean connectedToServer = false;
+
+	private Component comparePnl;
 
 	
 	
@@ -147,15 +155,15 @@ public class ClientFrame extends JFrame {
 		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
-//		ImageIcon compareIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/compare32.png"));
-//		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
+		ImageIcon compareIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/compare32.png"));
+		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
 		
 		ImageIcon[] icons = new ImageIcon[] { projectIcon, addSpectraIcon, settingsIcon, resultsIcon, 
-				clusteringIcon, loggingIcon};//, compareIcon };
+				clusteringIcon, loggingIcon, compareIcon };
 		String[] titles = new String[] { "Project", "Input Spectra","Search Settings", "View Results",
-				"Clustering", "Logging"};//, "Comparison"};
+				"Clustering", "Logging", "Comparison"};
 		Component[] panels = new Component[] { projectPnl, filePnl, setPnl, resPnl, 
-				clusterPnl, logPnl};//,// comparePnl};
+				clusterPnl, logPnl, comparePnl};
 
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets tabInsets = UIManager.getInsets("TabbedPane.tabInsets");
@@ -250,7 +258,7 @@ public class ClientFrame extends JFrame {
 			logPnl = new LoggingPanel();
 			
 			// TODO: Compare panel (Robbies prototyp)
-//			comparePnl = new ComparePanel();
+			comparePnl = new ComparePanel();
 		}
 		// Results Panel
 		resPnl = new ResultsPanel();
