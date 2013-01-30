@@ -29,6 +29,11 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 	 * Flag to indicate whether the cached sets need to be regenerated.
 	 */
 	private boolean hasChanged = true;
+
+	/**
+	 * Species string denoting the common ancestor of the proteins in this list.
+	 */
+	private String species;
 	
 	/**
 	 * Constructs an empty list with an initial capacity of ten.
@@ -139,6 +144,14 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 			peptideSet.addAll(peptideHitList);
 		}
 		hasChanged = false;
+	}
+
+	public String getSpecies() {
+		return species;
+	}
+
+	public void setSpecies(String species) {
+		this.species = species;
 	}
 
 }
