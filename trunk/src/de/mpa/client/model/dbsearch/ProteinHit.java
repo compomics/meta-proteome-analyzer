@@ -130,7 +130,7 @@ public class ProteinHit implements Serializable {
 	public String getAccession() {
 		return accession;
 	}
-
+	
 	/**
 	 * Returns the description.
 	 * @return the description
