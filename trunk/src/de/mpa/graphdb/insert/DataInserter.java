@@ -26,7 +26,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.graphdb.access.DataAccessor;
+import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.io.GraphMLHandler;
 import de.mpa.graphdb.properties.EdgeProperty;
 import de.mpa.graphdb.properties.EnzymeProperty;
@@ -151,10 +151,8 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 			// Index the species by the species name.
 			speciesIndex.put(SpeciesProperty.NAME.name(), species, speciesVertex);
 		}
-//		System.out.println(species);
-//		System.out.println(proteinVertex.getProperty(ProteinProperty.ACCESSION.name()));
 		// Add edge between protein and species.
-		addEdge(proteinVertex, speciesVertex, "BELONGS_TO");
+		addEdge(proteinVertex, speciesVertex, RelationType.BELONGS_TO);
 	}
 	
 	/**
@@ -172,12 +170,11 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 				// Create new vertex.
 				enzymeVertex = graph.addVertex(null);
 				enzymeVertex.setProperty(EnzymeProperty.ECNUMBER.name(), ecNumber);
-				
 				// Index the enzyme by the EC Number.
 				enzymeIndex.put(EnzymeProperty.ECNUMBER.name(), ecNumber, enzymeVertex);
 			}
 			// Add edge between protein and enzyme number.
-			addEdge(proteinVertex, enzymeVertex, "BELONGS_TO");
+			addEdge(proteinVertex, enzymeVertex, RelationType.BELONGS_TO_ENZYME);
 		}
 	}
 	
@@ -198,12 +195,12 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 				pathwayVertex = graph.addVertex(null);
 				pathwayVertex.setProperty(PathwayProperty.KONUMBER.name(), koNumber);
 				//TODO: Add KEGG description + KEGG Number!
-				//
+
 				// Index the pathway by the ID.
 				pathwayIndex.put(PathwayProperty.KONUMBER.name(), koNumber, pathwayVertex);
 			}
 			// Add edge between protein and pathway.
-			addEdge(proteinVertex, pathwayVertex, "BELONGS_TO");
+			addEdge(proteinVertex, pathwayVertex, RelationType.BELONGS_TO_PATHWAY);
 		}
 	}
 	
@@ -242,13 +239,13 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 					// Add edge between protein and ontology.
 					switch (type) {
 					case BIOLOGICAL_PROCESS:
-						addEdge(proteinVertex, ontologyVertex, "INVOLVED_IN_BIOPROCESS");
+						addEdge(proteinVertex, ontologyVertex, RelationType.INVOLVED_IN_BIOPROCESS);
 						break;
 					case CELLULAR_COMPONENT:
-						addEdge(proteinVertex, ontologyVertex, "CONTAINED_IN_COMPONENT");
+						addEdge(proteinVertex, ontologyVertex, RelationType.CONTAINED_IN_COMPONENT);
 						break;
 					case MOLECULAR_FUNCTION:
-						addEdge(proteinVertex, ontologyVertex, "HAS_MOLECULAR_FUNCTION");
+						addEdge(proteinVertex, ontologyVertex, RelationType.HAS_MOLECULAR_FUNCTION);
 						break;
 					}
 					
@@ -256,20 +253,6 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 			}
 		}
 	}
-	
-//	private void addSingleOntology(String keyword, KeywordOntology ontology, Vertex proteinVertex) {
-//		switch (kwOntology) {
-//		case BIOLOGICAL_PROCESS:
-//			appendHit(keyword, biolProcessOccMap, proteinHit);
-//			break;
-//		case CELLULAR_COMPONENT:
-//			appendHit(keyword, cellCompOccMap, proteinHit);
-//			break;
-//		case MOLECULAR_FUNCTION:
-//			appendHit(keyword, molFunctionOccMap, proteinHit);
-//			break;
-//		}
-//	}
 	
 	/**
 	 * Adds peptides to the graph.
@@ -294,7 +277,7 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 			}			
 			
 			// Add edge between peptide and protein.
-			addEdge(proteinVertex, peptideVertex, "HASPEPTIDE");
+			addEdge(proteinVertex, peptideVertex, RelationType.HAS_PEPTIDE);
 		
 			// Add PSMs.
 			addPeptideSpectrumMatches(peptideHit.getSpectrumMatches(), peptideVertex);
@@ -325,7 +308,7 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 				// Index the proteins by their accession.
 				psmIndex.put(PsmProperty.SPECTRUMID.name(), spectrumID, psmVertex);
 			}	
-			addEdge(peptideVertex, psmVertex, "BELONGS_TO");
+			addEdge(psmVertex, peptideVertex, RelationType.IS_MATCH_IN);
 		}
 	}
 	
@@ -336,13 +319,13 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 	 * @param inVertex The incoming vertex.
 	 * @param label The edge label.
 	 */
-	private void addEdge(final Vertex outVertex, final Vertex inVertex, final String label) {
+	private void addEdge(final Vertex outVertex, final Vertex inVertex, final RelationType relType) {
 		
 		String id = outVertex.getId()+ "_" + inVertex.getId();
 		// Check if edge is not already contained in the graph.
 		if(!edgeIndex.get(EdgeProperty.ID.name(), id).iterator().hasNext()) {
-			Edge edge = graph.addEdge(id, outVertex, inVertex, label);
-			edge.setProperty(EdgeProperty.LABEL.name(), label);
+			Edge edge = graph.addEdge(id, outVertex, inVertex, relType.name());
+			edge.setProperty(EdgeProperty.LABEL.name(), relType.name());
 			edgeIndex.put(EdgeProperty.ID.name(), id, edge);
 		} 
 	}
@@ -445,8 +428,5 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 		
 	}
 	
-	public DataAccessor getDataAccessor() {		
-		
-		return dataAccessor;
-	}
+	
 }
