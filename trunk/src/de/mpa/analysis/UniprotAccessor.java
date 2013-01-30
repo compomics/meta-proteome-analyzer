@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -24,19 +25,19 @@ import de.mpa.client.model.dbsearch.ProteinHit;
  *
  */
 public class UniprotAccessor {
-	
+
 	/**
 	 * The shared UniProt query service instance. 
 	 */
 	private static UniProtQueryService uniProtQueryService;
-	
+
 	/**
 	 * Enumeration holding ontology keywords.
 	 */
 	public enum KeywordOntology {
 		BIOLOGICAL_PROCESS, CELLULAR_COMPONENT, MOLECULAR_FUNCTION
 	}
-	
+
 	/**
 	 * Enumeration holding taxonomic ranks.
 	 */
@@ -50,12 +51,12 @@ public class UniprotAccessor {
 	 * @param dbSearchResult The result object.
 	 */
 	public static void retrieveUniProtEntries(DbSearchResult dbSearchResult) throws RemoteDataAccessException {
-		
+
 		// Check whether UniProt query service has been established yet.
 		if (uniProtQueryService == null) {
 			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
 		}
-		
+
 		// Get protein hits from the search result
 		Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
 		List<String> accList = new ArrayList<String>(proteinHits.keySet());
@@ -63,18 +64,51 @@ public class UniprotAccessor {
 		int maxClauseCount = 1024;
 		if (accList.size() > maxClauseCount) {
 			List<String> shortList = new ArrayList<String>();
-			
+
 			for (String acc : accList) {
 				shortList.add(acc);
 				if (shortList.size() % maxClauseCount == 0) {
-					addUniProtEntries(shortList, proteinHits);
+					addUniProtEntries2(shortList, proteinHits);
 					shortList.clear();
 				}
 			}
 			accList = shortList;
 		}
-		addUniProtEntries(accList, proteinHits);
+		addUniProtEntries2(accList, proteinHits);
 	}
+
+	//	/**
+	//	 * Convenience method to query UniProt entries from a list of accession
+	//	 * strings and link them to their respective protein hits.
+	//	 * @param accList The list of accession strings.
+	//	 * @param proteinHits The map of protein hits identified by their accession.
+	//	 */
+	//	private static void addUniProtEntries(List<String> accList, Map<String, ProteinHit> proteinHits) {
+	//		Query query = UniProtQueryBuilder.buildIDListQuery(accList);
+	//		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
+	//		
+	//		// Iterate the entries and add them to the list. 
+	//		for (UniProtEntry entry : entryIterator) {
+	//			String accession = entry.getPrimaryUniProtAccession().getValue();
+	//			ProteinHit proteinHit = proteinHits.get(accession);
+	//			if (proteinHit != null) {
+	//				proteinHit.setUniprotEntry(entry);
+	//			} else {
+	//				// primary accession could not be found, try secondary accessions
+	//				List<SecondaryUniProtAccession> secAccs = entry.getSecondaryUniProtAccessions();
+	//				for (SecondaryUniProtAccession secAcc : secAccs) {
+	//					accession = secAcc.getValue();
+	//					proteinHit = proteinHits.get(accession);
+	//					if (proteinHit != null) {
+	//						proteinHit.setUniprotEntry(entry);
+	//						break;
+	//					}
+	//				}
+	//				// none of the secondary accessions could be found, throw error
+	//				System.err.println("Unable to link UniProt entry to protein hit!");
+	//			}
+	//		}
+	//	}
 
 	/**
 	 * Convenience method to query UniProt entries from a list of accession
@@ -82,47 +116,94 @@ public class UniprotAccessor {
 	 * @param accList The list of accession strings.
 	 * @param proteinHits The map of protein hits identified by their accession.
 	 */
-	private static void addUniProtEntries(List<String> accList, Map<String, ProteinHit> proteinHits) {
-		Query query = UniProtQueryBuilder.buildIDListQuery(accList);
+	private static void addUniProtEntries2(List<String> accList, Map<String, ProteinHit> proteinHits) {
+
+		// List of ncbi accession for mapping to UniProt
+		List<String> ncbiList = new ArrayList<String>() ;
+
+		// List for query UniProt for UniProt Entry
+		List<String> queryList = new ArrayList<String>() ;
+
+		// Mapping UniProt 2 NCBi
+		Map<String, String> mapping = new TreeMap<String, String>();
+
+		// Correct NCBI to UniProt accession
+		for (String acc : accList) { // Loop  to collect NCBI entries
+			if (!acc.matches("^\\d*$")) { // if contains non-numerical character UniProt
+				queryList.add(acc);
+			} else { // Else NCBI and then get UniProt mapping if possible
+				// For NCBI GI numbers as key
+				ncbiList.add(acc);
+			}
+		}
+		// Get mapping NCBI to UniProt
+		if (ncbiList.size() > 0) {
+			mapping = UniProtGiMapper.getMapping(ncbiList);
+			queryList.addAll(mapping.values());
+		}
+
+		Query query = UniProtQueryBuilder.buildIDListQuery(queryList);
 		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-		
-		// Iterate the entries and add them to the list. 
+		// Save UniProtEntries from iterator in a separate list to iterate over it
+		ArrayList<UniProtEntry> uniProtEntryList = new ArrayList<UniProtEntry>();
 		for (UniProtEntry entry : entryIterator) {
-			String accession = entry.getPrimaryUniProtAccession().getValue();
-			ProteinHit proteinHit = proteinHits.get(accession);
-			if (proteinHit != null) {
-				proteinHit.setUniprotEntry(entry);
-			} else {
-				// primary accession could not be found, try secondary accessions
-				List<SecondaryUniProtAccession> secAccs = entry.getSecondaryUniProtAccessions();
-				for (SecondaryUniProtAccession secAcc : secAccs) {
-					accession = secAcc.getValue();
-					proteinHit = proteinHits.get(accession);
-					if (proteinHit != null) {
-						proteinHit.setUniprotEntry(entry);
-						break;
+			uniProtEntryList.add(entry);
+		}
+
+		// Add UniProt entries to proteinHits
+		boolean found; 
+		String uniProtAcc; 
+		for (String acc : accList) {
+
+			// Get definitiv the UniProt accession
+			uniProtAcc = mapping.get(acc);
+			if (uniProtAcc == null) {
+				uniProtAcc = acc;
+			}
+
+			ProteinHit proteinHit = proteinHits.get(acc);
+			// Iterate the entries and add them to the list. 
+			found = false;
+
+			for (int i = 0; i < uniProtEntryList.size(); i++) {
+				UniProtEntry entry = uniProtEntryList.get(i);
+				if (entry.getPrimaryUniProtAccession() != null && entry.getPrimaryUniProtAccession().getValue().equals(uniProtAcc)) {
+					proteinHit.setUniprotEntry(entry);
+					found = true;
+					break;
+				} else {
+					// primary accession could not be found, try secondary accessions
+					List<SecondaryUniProtAccession> secAccs = entry.getSecondaryUniProtAccessions();
+					for (SecondaryUniProtAccession secAcc : secAccs) {
+						if (secAcc.getValue().equals(uniProtAcc) ) {
+							proteinHit.setUniprotEntry(entry);
+							found = true;
+							break;
+						}
 					}
 				}
+			}
+			if (!found) {
 				// none of the secondary accessions could be found, throw error
-				System.err.println("Unable to link UniProt entry to protein hit!");
+				System.err.println("Unable to link Entry: " + acc + " to protein hit!");
 			}
 		}
 	}
-	
+
 	/**
 	 * The UniProt keyword taxonomy map.
 	 */
 	public static final Map<String, TaxonomyRank> TAXONOMY_MAP;
 	static {
 		Map<String, TaxonomyRank> map = new HashMap<String, TaxonomyRank>();
-		
+
 		// (Super-)Kingdoms
 		map.put("Viruses", TaxonomyRank.KINGDOM);
 		map.put("Viroids", TaxonomyRank.KINGDOM);
 		map.put("Archaea", TaxonomyRank.KINGDOM);
 		map.put("Bacteria", TaxonomyRank.KINGDOM);
 		map.put("Eukaryota", TaxonomyRank.KINGDOM);
-		
+
 		// Classes
 		map.put("Thermoprotei", TaxonomyRank.CLASS);
 		map.put("Archaeoglobi", TaxonomyRank.CLASS);
@@ -470,17 +551,17 @@ public class UniprotAccessor {
 		map.put("unclassified eukaryotes", TaxonomyRank.PHYLUM);
 		map.put("Chlorophyta", TaxonomyRank.PHYLUM);
 		map.put("Streptophyta", TaxonomyRank.PHYLUM);
-		
+
 		TAXONOMY_MAP = Collections.unmodifiableMap(map);
 	}
-	
+
 	/**
 	 * The UniProt keyword ontology map.
 	 */
 	public static final Map<String, KeywordOntology> ONTOLOGY_MAP;
 	static {
 		Map<String, KeywordOntology> map = new HashMap<String, KeywordOntology>();
-		
+
 		// Molecular functions
 		map.put("Actin capping", KeywordOntology.MOLECULAR_FUNCTION);
 		map.put("Activator", KeywordOntology.MOLECULAR_FUNCTION);
@@ -563,7 +644,7 @@ public class UniprotAccessor {
 		map.put("Tumor antigen", KeywordOntology.MOLECULAR_FUNCTION);
 		map.put("Vasoactive", KeywordOntology.MOLECULAR_FUNCTION);
 		map.put("Viral movement protein", KeywordOntology.MOLECULAR_FUNCTION);
-		
+
 		// Biological processes
 		map.put("Abscisic acid biosynthesis", KeywordOntology.BIOLOGICAL_PROCESS);
 		map.put("Abscisic acid signaling pathway", KeywordOntology.BIOLOGICAL_PROCESS);
@@ -827,7 +908,7 @@ public class UniprotAccessor {
 		map.put("Virus exit from host cell", KeywordOntology.BIOLOGICAL_PROCESS);
 		map.put("Wnt signaling pathway", KeywordOntology.BIOLOGICAL_PROCESS);
 		map.put("Xylan degradation", KeywordOntology.BIOLOGICAL_PROCESS);
-		
+
 		// Cellular components
 		map.put("Amyloid", KeywordOntology.CELLULAR_COMPONENT);
 		map.put("Antenna complex", KeywordOntology.CELLULAR_COMPONENT);
@@ -906,7 +987,7 @@ public class UniprotAccessor {
 		map.put("Viral occlusion body", KeywordOntology.CELLULAR_COMPONENT);
 		map.put("Virion", KeywordOntology.CELLULAR_COMPONENT);
 		map.put("VLDL", KeywordOntology.CELLULAR_COMPONENT);
-		
+
 		ONTOLOGY_MAP = Collections.unmodifiableMap(map);
 	}
 }

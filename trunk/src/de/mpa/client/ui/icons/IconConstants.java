@@ -21,6 +21,11 @@ import javax.swing.SwingConstants;
  */
 public class IconConstants {
 
+	/** <img src="../../../resources/icons/excel_export16.png"> */
+	public static final ImageIcon EXCEL_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/excel_export16.png"));
+	public static final ImageIcon EXCEL_EXPORT_ROLLOVER_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 1.1f);
+	public static final ImageIcon EXCEL_EXPORT_PRESSED_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/check16.png"> */
 	public static final ImageIcon CHECK_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/check16.png"));
 	public static final ImageIcon CHECK_ROLLOVER_ICON = createRescaledIcon(CHECK_ICON, 1.1f);

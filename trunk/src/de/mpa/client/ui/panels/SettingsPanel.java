@@ -13,7 +13,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -318,7 +320,8 @@ public class SettingsPanel extends JPanel {
 	private class ProcessWorker extends SwingWorker {
 
 		protected Object doInBackground() {
-			long experimentID = clientFrame.getProjectPanel().getCurrentExperimentId();
+			ProjectPanel projectPanel = clientFrame.getProjectPanel();
+			long experimentID = projectPanel.getCurrentExperimentId();
 			if (experimentID != 0L) {
 				CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
 				// reset progress
@@ -332,7 +335,9 @@ public class SettingsPanel extends JPanel {
 					// pack and send files
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 					long packSize = (Long) packSpn.getValue();
-					List<String> filenames = client.packAndSend(packSize, checkBoxTree, "batch");	// TODO: make filenames dynamic
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+					List<String> filenames = client.packAndSend(packSize, checkBoxTree,
+							projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
 					
 					// collect search settings
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
