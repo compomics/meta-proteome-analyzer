@@ -12,7 +12,7 @@ public interface Enzyme extends VertexFrame {
 	@Property("DESCRIPTION")
 	public String getDescription();
 	
-	@Adjacency(label="BELONGS_TO", direction=Direction.IN)
+	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.IN)
 	public Iterable<Protein> getProteins();
 	
 	@Property("ECNUMBER")

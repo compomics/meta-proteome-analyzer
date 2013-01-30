@@ -2,8 +2,8 @@ package de.mpa.graphdb.properties;
 
 public enum PsmProperty implements ElementProperty {
 	
-	SPECTRUMID("spectrumid"),
-	VOTES("votes");
+	SPECTRUMID("SPECTRUMID"),
+	VOTES("VOTES");
 	
 	PsmProperty(final String propertyName){
 		this.propertyName = propertyName;

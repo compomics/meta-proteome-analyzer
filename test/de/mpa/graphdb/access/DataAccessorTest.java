@@ -37,7 +37,8 @@ import de.mpa.graphdb.vertices.Protein;
 import de.mpa.graphdb.vertices.Species;
 
 /**
- * Test class for starting up the graph database and accessing it.
+ * Test class for starting up the graph database and accessing it 
+ * by using Tinkerpop Blueprints framework: https://github.com/tinkerpop/blueprints/wiki
  * @author Thilo Muth
  *
  */

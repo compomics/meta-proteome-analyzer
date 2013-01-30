@@ -86,10 +86,10 @@ public class DataAccessor {
 	
 	/**
 	 * Constructor for DataAccessObject 
-	 * @param db Neo4jGraph instance to be wrapped in a FramedGraph
+	 * @param graphDb Neo4jGraph instance to be wrapped in a FramedGraph
 	 */
-	public DataAccessor(GraphDatabaseService db) {
-		Neo4jGraph neograph = new Neo4jGraph(db);
+	public DataAccessor(GraphDatabaseService graphDb) {
+		Neo4jGraph neograph = new Neo4jGraph(graphDb);
 		baseGraph = neograph;
 		this.graph = new FramedGraph<Neo4jGraph>(neograph);
 		proteinIndex = neograph.getIndex("proteins", Vertex.class);
