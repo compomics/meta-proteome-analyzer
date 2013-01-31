@@ -320,7 +320,7 @@ public class SpecLibFrame extends JFrame {
     	                Long spectrumID = (Long) spectrum.getGeneratedKeys()[0];
     					
     	                /* libspectrum section */
-    					HashMap<Object, Object> libdata = new HashMap<Object, Object>(11);
+    					HashMap<Object, Object> libdata = new HashMap<Object, Object>(6);
     					
     					libdata.put(Libspectrum.FK_SPECTRUMID, spectrumID);
     					libdata.put(Libspectrum.FK_EXPERIMENTID, experimentID);

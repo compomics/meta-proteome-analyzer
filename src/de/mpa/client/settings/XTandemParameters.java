@@ -129,7 +129,7 @@ public class XTandemParameters extends ParameterMap {
 					value = (((Boolean) value).booleanValue()) ? "yes" : "no";
 				}
 				// Write BIOML <note> tag containing non-default value
-				bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value + "</note>");
+				bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value.toString() + "</note>");
 				bw.newLine();
 			}
 		}

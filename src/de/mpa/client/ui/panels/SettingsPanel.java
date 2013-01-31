@@ -56,9 +56,6 @@ import de.mpa.io.MascotGenericFileReader.LoadMode;
 
 public class SettingsPanel extends JPanel {
 
-	private ClientFrame clientFrame;
-	private Client client;
-	
 	/**
 	 * The spinner to define the amount of spectra to be consolidated into a transfer package.
 	 */
@@ -71,8 +68,6 @@ public class SettingsPanel extends JPanel {
 	private JButton processBtn;
 	
 	public SettingsPanel() {
-		this.clientFrame = ClientFrame.getInstance();
-		this.client = Client.getInstance();
 		initComponents();
 	}
 
@@ -98,7 +93,7 @@ public class SettingsPanel extends JPanel {
 		final Color bgCol = UIManager.getColor("Label.background");
 		
 		// database search settings panel
-		databasePnl = new DBSearchPanel(clientFrame);
+		databasePnl = new DBSearchPanel();
 		databasePnl.setEnabled(true);
 		
 		final JCheckBox databaseChk = new JCheckBox("Database Search", true) {
@@ -126,7 +121,7 @@ public class SettingsPanel extends JPanel {
 		dbTtlPnl.setBorder(ttlBorder);
 		
 		// spectral library search settings panel
-		specLibPnl = new SpecLibSearchPanel(clientFrame);
+		specLibPnl = new SpecLibSearchPanel();
 		specLibPnl.setEnabled(false);
 		
 		JCheckBox specLibChk = new JCheckBox("Spectral Library Search", false) {
@@ -154,7 +149,7 @@ public class SettingsPanel extends JPanel {
 		slTtlPnl.setBorder(ttlBorder);
 		
 		// de novo search settings panel
-		deNovoPnl = new DeNovoSearchPanel(clientFrame);
+		deNovoPnl = new DeNovoSearchPanel();
 		deNovoPnl.setEnabled(false);
 		
 		JCheckBox deNovoChk = new JCheckBox("De-novo Search", false) {
@@ -231,13 +226,14 @@ public class SettingsPanel extends JPanel {
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(false);
-				int result = fc.showOpenDialog(clientFrame);
+				int result = fc.showOpenDialog(ClientFrame.getInstance());
 				if (result == JFileChooser.APPROVE_OPTION) {
 					new SwingWorker() {
 						protected Object doInBackground() throws Exception {
 							File file = null;
 							List<String> filenames = new ArrayList<String>();
 							FileOutputStream fos = null;
+							Client client = Client.getInstance();
 							client.firePropertyChange("indeterminate", false, true);
 							client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
 							MascotGenericFileReader reader = new MascotGenericFileReader(fc.getSelectedFile(), LoadMode.SURVEY);
@@ -278,7 +274,7 @@ public class SettingsPanel extends JPanel {
 							DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
 							
 							SearchSettings settings = new SearchSettings(dbss, sss, dnss,
-									clientFrame.getProjectPanel().getCurrentExperimentId());
+									ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
 							
 							client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 							// dispatch search request
@@ -296,8 +292,8 @@ public class SettingsPanel extends JPanel {
 		
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
 		
-		navPnl.add(clientFrame.createNavigationButton(false, true), CC.xy(1, 1));
-		navPnl.add(clientFrame.createNavigationButton(true, true), CC.xy(3, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, true), CC.xy(1, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, true), CC.xy(3, 1));
 		
 //		addExperimentBtn = new JButton("Add Experiment   ", IconConstants.ADD_PAGE_ICON);
 //		addExperimentBtn.setRolloverIcon(IconConstants.ADD_PAGE_ROLLOVER_ICON);
@@ -320,16 +316,17 @@ public class SettingsPanel extends JPanel {
 	private class ProcessWorker extends SwingWorker {
 
 		protected Object doInBackground() {
-			ProjectPanel projectPanel = clientFrame.getProjectPanel();
+			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
 			long experimentID = projectPanel.getCurrentExperimentId();
 			if (experimentID != 0L) {
-				CheckBoxTreeTable checkBoxTree = clientFrame.getFilePanel().getCheckBoxTree();
+				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
 				// reset progress
+				Client client = Client.getInstance();
 				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
 				// appear busy
 				firePropertyChange("progress", null, 0);
 				processBtn.setEnabled(false);
-				clientFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				
 				try {
 					// pack and send files
@@ -355,24 +352,16 @@ public class SettingsPanel extends JPanel {
 				
 				return 0;
 			} else {
-				JOptionPane.showMessageDialog(clientFrame, "No experiment selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(ClientFrame.getInstance(), "No experiment selected.", "Error", JOptionPane.ERROR_MESSAGE);
 				return 404;
 			}
 		}
 
 		@Override
 		public void done() {
-			clientFrame.setCursor(null);
+			ClientFrame.getInstance().setCursor(null);
 			processBtn.setEnabled(true);
 		}
-	}
-
-	/**
-	 * Returns the spectral library search settings panel reference.
-	 * @return The spectral library search settings panel reference
-	 */
-	public SpecLibSearchPanel getSpecLibSearchPanel() {
-		return specLibPnl;
 	}
 
 	/**

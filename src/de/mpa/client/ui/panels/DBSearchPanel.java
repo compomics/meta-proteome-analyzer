@@ -37,11 +37,6 @@ import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 public class DBSearchPanel extends JPanel {
 
 	/**
-	 * The client frame instance
-	 */
-	private ClientFrame clientFrame;
-
-	/**
 	 * Combo box referencing FASTA files available for database searching.
 	 */
 	private JComboBox fastaFileCbx;
@@ -136,8 +131,7 @@ public class DBSearchPanel extends JPanel {
 	/**
 	 * The default database search panel constructor.
 	 */
-	public DBSearchPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public DBSearchPanel() {
 		initComponents();
 	}
 
@@ -222,8 +216,6 @@ public class DBSearchPanel extends JPanel {
 				showAdvancedSettings("X!Tandem Advanced Parameters", xTandemParams);
 			}
 		});
-		xTandemSetBtn.setEnabled(xTandemChk.isSelected());
-		
 		xTandemChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				xTandemSetBtn.setEnabled(xTandemChk.isSelected());
@@ -237,11 +229,9 @@ public class DBSearchPanel extends JPanel {
 		omssaSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(clientFrame, "OMSSA Advanced Parameters", true, omssaParams);
+				new AdvancedSettingsDialog(ClientFrame.getInstance(), "OMSSA Advanced Parameters", true, omssaParams);
 			}
 		});
-		
-		omssaSetBtn.setEnabled(omssaChk.isSelected());
 		omssaChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				omssaSetBtn.setEnabled(omssaChk.isSelected());
@@ -255,11 +245,9 @@ public class DBSearchPanel extends JPanel {
 		cruxSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(clientFrame, "Crux Advanced Parameters", true, cruxParams);
+				new AdvancedSettingsDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
 			}
 		});
-		
-		cruxSetBtn.setEnabled(cruxChk.isSelected());
 		cruxChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				cruxSetBtn.setEnabled(cruxChk.isSelected());
@@ -273,11 +261,9 @@ public class DBSearchPanel extends JPanel {
 		inspectSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(clientFrame, "InsPecT Advanced Parameters", true, inspectParams);
+				new AdvancedSettingsDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
 			}
 		});
-		
-		inspectSetBtn.setEnabled(inspectChk.isSelected());
 		inspectChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				inspectSetBtn.setEnabled(inspectChk.isSelected());
@@ -287,21 +273,18 @@ public class DBSearchPanel extends JPanel {
 		// Mascot
 		mascotChk = new JCheckBox("Mascot", false);
 		mascotChk.setIconTextGap(10);
+		
 		mascotSetBtn = new JButton("Advanced Settings");
 		mascotChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mascotSetBtn.setEnabled(mascotChk.isSelected());
 			}
 		});
-
-		mascotSetBtn.setEnabled(mascotChk.isSelected());
 		mascotChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mascotSetBtn.setEnabled(mascotChk.isSelected());
 			}
 		});
-		
-		mascotChk.setEnabled(false);
 
 		searchEngPnl.add(xTandemChk, cc.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, cc.xy(4, 2));
@@ -339,7 +322,7 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.
-		dbSettings.setExperimentid(clientFrame.getProjectPanel().getCurrentExperimentId());
+		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
 		return dbSettings;
 	}
 	
@@ -350,7 +333,7 @@ public class DBSearchPanel extends JPanel {
 	 */
 	protected void showAdvancedSettings(String title, ParameterMap params) {
 		gatherDBSearchSettings();
-		AdvancedSettingsDialog.showDialog(clientFrame, title, true, params);
+		AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), title, true, params);
 	}
 
 	/**
@@ -365,6 +348,7 @@ public class DBSearchPanel extends JPanel {
 			omssaSetBtn.setEnabled(omssaChk.isSelected());
 			cruxSetBtn.setEnabled(cruxChk.isSelected());
 			inspectSetBtn.setEnabled(inspectChk.isSelected());
+			mascotChk.setEnabled(false);
 			mascotSetBtn.setEnabled(mascotChk.isSelected());
 		}
 	}

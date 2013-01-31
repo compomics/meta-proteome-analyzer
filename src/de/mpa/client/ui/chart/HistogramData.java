@@ -1,6 +1,5 @@
 package de.mpa.client.ui.chart;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jfree.data.general.Dataset;
@@ -11,7 +10,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 public class HistogramData implements ChartData {
 	
 	private HistogramDataset histDataset;
-	private ArrayList<Double> values;
+	private List<Double> values;
 	private int binCount;
 	
 	/**
@@ -19,7 +18,7 @@ public class HistogramData implements ChartData {
 	 * @param values the list of values
 	 * @param binCount the number of bins
 	 */
-	public HistogramData(ArrayList<Double> values, int binCount) {
+	public HistogramData(List<Double> values, int binCount) {
 		this.values = values;
 		this.binCount = binCount;
 		init();

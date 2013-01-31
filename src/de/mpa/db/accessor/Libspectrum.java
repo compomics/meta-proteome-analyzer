@@ -171,17 +171,17 @@ public class Libspectrum extends LibspectrumTableAccessor {
      * @param aConn           Connection to read the spectrum File from.
      * @return Spectrumfile with the data.
      */
-    public static Libspectrum findFromExperimentID(long experimentID, Connection aConn) throws SQLException {
-        Libspectrum temp = null;
+    public static List<Libspectrum> findFromExperimentID(long experimentID, Connection aConn) throws SQLException {
+        List<Libspectrum> res = new ArrayList<Libspectrum>();
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + FK_EXPERIMENTID + " = ?");
         ps.setLong(1, experimentID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            temp = new Libspectrum(rs);
+            res.add(new Libspectrum(rs));
         }
         rs.close();
         ps.close();
-        return temp;
+        return res;
     }
     
     /**
