@@ -16,7 +16,7 @@ import de.mpa.db.DbConnectionSettings;
 import de.mpa.io.MascotGenericFile;
 
 /**
- * TODO: API
+ * SpectrumUtilities class is mainly used to access the database and retrieve unidentified and identified spectra.
  * 
  * @author T. Muth
  */
@@ -41,9 +41,9 @@ public class SpectrumUtilities {
 	}
 	
 	/**
-	 * TODO: API
-	 * @param spectra
-	 * @param filePath
+	 * Writes a list of MascoGenericFile spectra to a file.
+	 * @param spectra List of MascotGenericFile spectra.
+	 * @param filePath File path.
 	 */
 	public static void writeToFile(List<MascotGenericFile> spectra, String filePath) {
 		try {
