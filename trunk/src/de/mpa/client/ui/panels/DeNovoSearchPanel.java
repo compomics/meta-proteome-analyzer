@@ -34,13 +34,11 @@ public class DeNovoSearchPanel extends JPanel {
 	private JScrollPane ptmScp;
 	private JPanel ptmPnl;
 	private CheckBoxTreeTable ptmTree;
-	private ClientFrame clientFrame;
 	
 	/**
-	 * The default de-novo search panel constructor.
+	 * Constructs a panel containing controls for de novo search settings.
 	 */
-	public DeNovoSearchPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public DeNovoSearchPanel() {
 		initComponents();
 	}
 
@@ -260,7 +258,7 @@ public class DeNovoSearchPanel extends JPanel {
 	public DenovoSearchSettings collectDenovoSettings(){
 		DenovoSearchSettings dnSettings = new DenovoSearchSettings();
 		// Set the current experiment id for the database search settings.
-		dnSettings.setExperimentid(clientFrame.getProjectPanel().getCurrentExperimentId());
+		dnSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
 		dnSettings.setEnzyme(dnEnzymesCbx.getSelectedItem().toString());
 		dnSettings.setModel(dnModelCbx.getSelectedItem().toString());
 		dnSettings.setFragMassTol((Double) dnFragTolSpn.getValue());

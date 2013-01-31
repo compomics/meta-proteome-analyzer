@@ -43,7 +43,6 @@ import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
-import de.mpa.client.ui.panels.SpecLibSearchPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
 import de.mpa.main.Parameters;
 
@@ -273,14 +272,6 @@ public class ClientFrame extends JFrame {
 	 */
 	public FilePanel getFilePanel() {
 		return (FilePanel) filePnl;
-	}
-	
-	/**
-	 * Returns the spectral library search settings panel.
-	 * @return
-	 */
-	public SpecLibSearchPanel getSpecLibSearchPanel() {
-		return getSettingsPanel().getSpecLibSearchPanel();
 	}
 	
 	/**

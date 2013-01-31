@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -28,11 +29,6 @@ import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
 
 public class SpecLibSearchPanel extends JPanel {
-
-	/**
-	 * The parent frame.
-	 */
-	private ClientFrame clientFrame;
 
 	/**
 	 * The spinner to define the precursor ion mass tolerance window.
@@ -62,35 +58,20 @@ public class SpecLibSearchPanel extends JPanel {
 	private JSpinner binWidthSpn;
 	
 	/**
-	 * Left-hand side label of bin shift spinner component.
-	 */
-	private JLabel binShiftLbl;
-	
-	/**
 	 * The spinner to define the bin center's shift along the m/z axis used in
 	 * binning.
 	 */
 	private JSpinner binShiftSpn;
 
 	/**
-	 * Right-hand side label of bin shift spinner component.
-	 */
-	private JLabel binShiftLbl2;
-
-	/**
 	 * A sub-panel containing profiling-specific parameters.
 	 */
-	private JPanel proMethodPnl;
+	private JPanel profilingPnl;
 
 	/**
 	 * The combo box containing available profiling shape types.
 	 */
 	private JComboBox proMethodCbx;
-
-	/**
-	 * A sub-panel containing profiling-specific parameters.
-	 */
-	private JPanel proBaseWidthPnl;
 
 	/**
 	 * The spinner to define peak base width windows used in profiling.
@@ -121,20 +102,10 @@ public class SpecLibSearchPanel extends JPanel {
 	private DisableComboBox measureCbx;
 
 	/**
-	 * Left-hand side label of cross-correlation spinner component.
-	 */
-	private JLabel xCorrOffLbl;
-
-	/**
 	 * The spinner to define the amount of neighboring bins that are evaluated
 	 * when using cross-correlation.
 	 */
 	private JSpinner xCorrOffSpn;
-
-	/**
-	 * Right-hand side label of cross-correlation spinner component.
-	 */
-	private JLabel xCorrOffLbl2;
 
 	/**
 	 * The spinner to define the minimum score threshold above which a candidate
@@ -143,12 +114,9 @@ public class SpecLibSearchPanel extends JPanel {
 	private JSpinner threshScSpn;
 
 	/**
-	 * Class constructor
-	 * 
-	 * @param clientFrame
+	 * Constructs a panel containing controls for spectral library search settings.
 	 */
-	public SpecLibSearchPanel(ClientFrame clientFrame) {
-		this.clientFrame = clientFrame;
+	public SpecLibSearchPanel() {
 		initComponents();
 	}
 
@@ -219,7 +187,7 @@ public class SpecLibSearchPanel extends JPanel {
 				boolean annotatedOnly = annotChk.isSelected();
 				boolean expIdWanted = expIdChk.isSelected();
 				Long expID = (Long) expIdSpn.getValue();
-				int res = JOptionPane.showConfirmDialog(clientFrame, advPnl,
+				int res = JOptionPane.showConfirmDialog(ClientFrame.getInstance(), advPnl,
 						"Advanced Settings", JOptionPane.OK_CANCEL_OPTION,
 						JOptionPane.PLAIN_MESSAGE);
 				if (res != JOptionPane.OK_OPTION) {
@@ -244,8 +212,7 @@ public class SpecLibSearchPanel extends JPanel {
 
 		// sub-panel for vectorization parameters
 		final JPanel vectPnl = new JPanel();
-		vectPnl.setLayout(new FormLayout("p:g",
-				"p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));
+		vectPnl.setLayout(new FormLayout("p:g", "p, 5dlu, p, 5dlu, p, 5dlu, p"));
 
 		// sub-sub-panel for vectorization method
 		JPanel vectMethodPnl = new JPanel();
@@ -266,11 +233,11 @@ public class SpecLibSearchPanel extends JPanel {
 		binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, Double.MIN_VALUE, null, 0.1));
 		binWidthSpn.setEditor(new JSpinner.NumberEditor(binWidthSpn, "0.00"));
 		
-		binShiftLbl = new JLabel("Bin Shift:");
+		final JLabel binShiftLbl = new JLabel("Bin Shift:");
 		binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
 		binShiftSpn.setEditor(new JSpinner.NumberEditor(binShiftSpn, "0.00"));
-		binShiftLbl2 = new JLabel("Da");
-
+		final JLabel binShiftLbl2 = new JLabel("Da");
+		
 		genVectSetPnl.add(new JLabel("Bin Width:"), cc.xy(2, 1));
 		genVectSetPnl.add(binWidthSpn, cc.xy(4, 1));
 		genVectSetPnl.add(new JLabel("Da"), cc.xy(6, 1));
@@ -279,30 +246,21 @@ public class SpecLibSearchPanel extends JPanel {
 		genVectSetPnl.add(binShiftLbl2, cc.xy(6, 3));
 
 		// sub-sub-panels for profiling settings
-		proMethodPnl = new JPanel();
-		proMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
+		profilingPnl = new JPanel(new FormLayout("p, 5dlu, 0px:g, 5dlu, p, 2dlu, p", "p, 5dlu, p"));
 
 		proMethodCbx = new JComboBox(new Object[] { "Piecewise linear", "Gaussian function" });
 
-		proMethodPnl.add(new JLabel("Profile Shape:"), cc.xy(1, 1));
-		proMethodPnl.add(proMethodCbx, cc.xy(3, 1));
-		proMethodPnl.setEnabled(false);
-		for (Component comp : proMethodPnl.getComponents()) {
-			comp.setEnabled(false);
-		}
-
-		proBaseWidthPnl = new JPanel();
-		proBaseWidthPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
-				"p"));
+		profilingPnl.add(new JLabel("Profile Shape:"), cc.xy(1, 1));
+		profilingPnl.add(proMethodCbx, cc.xyw(3, 1, 5));
 
 		proBaseWidthSpn = new JSpinner(new SpinnerNumberModel(0.5, Double.MIN_VALUE, null, 0.1));
 		proBaseWidthSpn.setEditor(new JSpinner.NumberEditor(proBaseWidthSpn, "0.00"));
 
-		proBaseWidthPnl.add(new JLabel("Peak Base Width:"), cc.xy(2, 1));
-		proBaseWidthPnl.add(proBaseWidthSpn, cc.xy(4, 1));
-		proBaseWidthPnl.add(new JLabel("Da"), cc.xy(6, 1));
-		proBaseWidthPnl.setEnabled(false);
-		for (Component comp : proBaseWidthPnl.getComponents()) {
+		profilingPnl.add(new JLabel("Peak Base Width:", SwingConstants.RIGHT), cc.xyw(1, 3, 3));
+		profilingPnl.add(proBaseWidthSpn, cc.xy(5, 3));
+		profilingPnl.add(new JLabel("Da"), cc.xy(7, 3));
+		
+		for (Component comp : profilingPnl.getComponents()) {
 			comp.setEnabled(false);
 		}
 
@@ -333,39 +291,39 @@ public class SpecLibSearchPanel extends JPanel {
 
 		vectPnl.add(vectMethodPnl, cc.xy(1, 1));
 		vectPnl.add(genVectSetPnl, cc.xy(1, 3));
-		vectPnl.add(proMethodPnl, cc.xy(1, 5));
-		vectPnl.add(proBaseWidthPnl, cc.xy(1, 7));
-		vectPnl.add(pickPnl, cc.xy(1, 9));
+		vectPnl.add(profilingPnl, cc.xy(1, 5));
+		vectPnl.add(pickPnl, cc.xy(1, 7));
 
 		// add action listener to vectorization method combobox to disable/enable
-		// profiling-specific elements
+		// method-specific elements
 		vectMethodCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				boolean[] flags = { false, false, false };
+				/** Boolean flags, { bin shift, profiling } */
+				boolean[] enabled = null;
 				measureCbx.setItemEnabledAt(3, true);
 				switch (vectMethodCbx.getSelectedIndex()) {
 				case 0:		// peak matching
 					// disable cross-correlation
 					// TODO: make cross-correlation work with peak matching, if possible
-					if (measureCbx.getSelectedIndex() == 3)
+					if (measureCbx.getSelectedIndex() == 3) {
 						measureCbx.setSelectedIndex(1);
+					}
 					measureCbx.setItemEnabledAt(3, false);
+					enabled = new boolean[] { false, false };
 					break;
 				case 1:		// direct binning
-					flags[0] = true;
+					enabled = new boolean[] { true, false };
 					break;
 				case 2:		// profiling
-					flags = new boolean[] { true, true, true };
+					enabled = new boolean[] { true, true };
 					break;
 				}
-				binShiftLbl.setEnabled(flags[0]);
-				binShiftSpn.setEnabled(flags[0]);
-				binShiftLbl2.setEnabled(flags[0]);
-				proMethodPnl.setEnabled(flags[1]);
-				setChildrenEnabled(proMethodPnl, flags[1]);
-				proBaseWidthPnl.setEnabled(flags[2]);
-				setChildrenEnabled(proBaseWidthPnl, flags[2]);
+				binShiftLbl.setEnabled(enabled[0]);
+				binShiftSpn.setEnabled(enabled[0]);
+				binShiftLbl2.setEnabled(enabled[0]);
+				profilingPnl.setEnabled(enabled[1]);
+				setChildrenEnabled(profilingPnl, enabled[1]);
 			}
 		});
 
@@ -396,11 +354,11 @@ public class SpecLibSearchPanel extends JPanel {
 		scorSubPnl.setLayout(new FormLayout("5dlu:g, r:p, 2dlu, p, 2dlu, p",
 				"p, 5dlu, p"));
 
-		xCorrOffLbl = new JLabel("Correlation Offsets  \u00b1"); // +/- as unicode
+		final JLabel xCorrOffLbl = new JLabel("Correlation Offsets  \u00b1"); // +/- as unicode
 		xCorrOffLbl.setEnabled(false);
 		xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
 		xCorrOffSpn.setEnabled(false);
-		xCorrOffLbl2 = new JLabel("Bins");
+		final JLabel xCorrOffLbl2 = new JLabel("Bins");
 		xCorrOffLbl2.setEnabled(false);
 
 		threshScSpn = new JSpinner(new SpinnerNumberModel(0.5, null, null, 0.1));
@@ -457,24 +415,15 @@ public class SpecLibSearchPanel extends JPanel {
 
 	/**
 	 * Method to gather spectral similarity search settings.
-	 * 
 	 * @return The SpecSimSettings object containing values from various GUI
 	 *         elements.
 	 */
 	public SpecSimSettings gatherSpecSimSettings() {
 		SpecSimSettings settings = new SpecSimSettings();
-		
-		// Get the target experiment ID.
-		long expID = (expIdSpn.isEnabled()) ? (Long) expIdSpn.getValue() : 0L;
-		
-		int pickCount = 0;
-		if (pickSpn.isEnabled()) {
-			pickCount = (Integer) pickSpn.getValue();
-		}
-		settings.setExperimentID(expID);
+		settings.setExperimentID((expIdSpn.isEnabled()) ? (Long) expIdSpn.getValue() : 0L);
 		settings.setAnnotatedOnly(annotChk.isSelected());
 		settings.setTolMz((Double) tolMzSpn.getValue());
-		settings.setPickCount(pickCount);
+		settings.setPickCount(pickSpn.isEnabled() ? (Integer) pickSpn.getValue() : 0);
 		settings.setThreshScore((Double) threshScSpn.getValue());
 		settings.setCompIndex(measureCbx.getSelectedIndex());
 		settings.setTrafoIndex(trafoCbx.getSelectedIndex());
@@ -504,11 +453,11 @@ public class SpecLibSearchPanel extends JPanel {
 	/**
 	 * Method to recursively iterate a component's children and set their
 	 * enabled state.
-	 * 
-	 * @param parent
-	 * @param enabled
+	 * @param parent the parent component
+	 * @param enabled <code>true if the sub-components should be enabled,
+	 * 				  <code>false</code> otherwise
 	 */
-	public void setChildrenEnabled(JComponent parent, boolean enabled) {
+	private void setChildrenEnabled(JComponent parent, boolean enabled) {
 		for (Component child : parent.getComponents()) {
 			if (child instanceof JComponent) {
 				setChildrenEnabled((JComponent) child, enabled);
@@ -521,15 +470,6 @@ public class SpecLibSearchPanel extends JPanel {
 				((ComponentTitledBorder) border).setEnabled(enabled);
 			}
 		}
-	}
-
-	/**
-	 * Method to return the experiment id spinner value.
-	 * 
-	 * @return The experiment id.
-	 */
-	public long getExperimentID() {
-		return (Long) expIdSpn.getValue();
 	}
 
 }

@@ -20,19 +20,27 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.event.IIOWriteProgressListener;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -77,6 +85,8 @@ import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ConfirmFileChooser;
+import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
@@ -87,8 +97,6 @@ import de.mpa.util.ColorUtils;
 
 public class SpecSimResultPanel extends JPanel {
 
-	private ClientFrame clientFrame;
-	private Client client;
 	private JXTable proteinTbl;
 	private JXTable peptideTbl;
 	private JXTable ssmTbl;
@@ -105,6 +113,7 @@ public class SpecSimResultPanel extends JPanel {
 	protected int zoomY = 3;
 	private boolean busy;
 	private JXMultiSplitPane split;
+	private JButton saveImgBtn;
 
 	/**
 	 * Class constructor defining the parent client frame.
@@ -112,8 +121,6 @@ public class SpecSimResultPanel extends JPanel {
 	 * @param clientFrame
 	 */
 	public SpecSimResultPanel() {
-		this.clientFrame = ClientFrame.getInstance();
-		this.client = Client.getInstance();
 		initComponents();
 	}
 
@@ -157,7 +164,7 @@ public class SpecSimResultPanel extends JPanel {
 		getResultsBtn.setFocusPainted(false);
 		
 		getResultsBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent ae) {
 				new SwingWorker() {
 					@Override
 					protected Object doInBackground() {
@@ -166,10 +173,12 @@ public class SpecSimResultPanel extends JPanel {
 							setBusy(true);
 							// process results
 							refreshProteinTable();
+						} catch (Exception e) {
+							JXErrorPane.showDialog(ClientFrame.getInstance(),
+									new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+						} finally {
 							// stop appearing busy
 							setBusy(false);
-						} catch (Exception ex) {
-							ex.printStackTrace();
 						}
 						return null;
 					}
@@ -249,7 +258,7 @@ public class SpecSimResultPanel extends JPanel {
 			public void setCursor(Cursor cursor) {
 				if (busy) {
 					if ((cursor == null) || (cursor.getType() == Cursor.DEFAULT_CURSOR)) {
-						cursor = clientFrame.getCursor();
+						cursor = ClientFrame.getInstance().getCursor();
 					}
 				}
 				super.setCursor(cursor);
@@ -606,7 +615,7 @@ public class SpecSimResultPanel extends JPanel {
 		specPnl.add(normBtn, CC.xy(4, 2));
 		
 		// Score matrix panel
-		matPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, f:39px, 5dlu, f:p, 5dlu, f:p:g, 5dlu"));
+		matPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, 39px, 5dlu", "5dlu, f:39px, 5dlu, f:p, 5dlu, f:p:g, 5dlu, f:39px, 5dlu"));
 		
 		// The label whose icon will be used to display the score matrix image
 		matLbl = new JLabel();
@@ -758,19 +767,106 @@ public class SpecSimResultPanel extends JPanel {
 			}
 		});
 		
+		saveImgBtn = new JButton(IconConstants.SAVE_FILE_ICON);
+		saveImgBtn.setRolloverIcon(IconConstants.SAVE_FILE_ROLLOVER_ICON);
+		saveImgBtn.setPressedIcon(IconConstants.SAVE_FILE_PRESSED_ICON);
+		saveImgBtn.setEnabled(false);
+		
+		saveImgBtn.addActionListener(new ActionListener() {
+			/** Path of the last selected file. */
+			private String lastSelected = System.getProperty("user.home");
+			/** File descriptor of the file the image shall be written to. */
+			private File outputfile;
+			/** Progress listener for saving the score matrix image to a file */
+			private IIOWriteProgressListener listener = new IIOWriteProgressListener() {
+				public void writeAborted(ImageWriter source) { }
+				public void thumbnailStarted(ImageWriter source, int imageIndex, int thumbnailIndex) { }
+				public void thumbnailProgress(ImageWriter source, float percentageDone) { }
+				public void thumbnailComplete(ImageWriter source) { }
+				
+				public void imageStarted(ImageWriter source, int imageIndex) { 
+					Client.getInstance().firePropertyChange("new message", null, "SAVING SCORE MATRIX IMAGE");
+					Client.getInstance().firePropertyChange("resetall", -1L, 100L);
+					Client.getInstance().firePropertyChange("resetcur", -1L, 100L);
+				}
+				public void imageProgress(ImageWriter source, float percentageDone) {
+					Client.getInstance().firePropertyChange("progress", -1L, (long) percentageDone);
+				}
+				public void imageComplete(ImageWriter source) {
+					Client.getInstance().firePropertyChange("new message", null, "SAVING SCORE MATRIX IMAGE FINISHED");
+					Client.getInstance().firePropertyChange("progress", -1L, 100L);
+				}
+			};
+			
+			/** Prompts to select a file to save the score matrix image to. */
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new ConfirmFileChooser(lastSelected);
+				chooser.setFileFilter(Constants.PNG_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
+				chooser.setMultiSelectionEnabled(false);
+				chooser.setDialogTitle("Save Score Matrix Image");
+
+				int returnVal = chooser.showSaveDialog(ClientFrame.getInstance());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					outputfile = chooser.getSelectedFile();
+					if (!outputfile.getPath().toLowerCase().endsWith(".png")) {
+						outputfile = new File(outputfile.getParentFile(), outputfile.getName() + ".png"); 
+					}
+					
+					new SwingWorker<Object, Object>() {
+						@Override
+						protected Object doInBackground() throws Exception {
+							try {
+								setBusy(true);
+								
+								Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("png");
+								ImageWriter writer = writers.next();
+								ImageOutputStream ios = ImageIO.createImageOutputStream(outputfile);
+								writer.setOutput(ios);
+								writer.addIIOWriteProgressListener(listener);
+								writer.write(specSimResult.getScoreMatrixImage());
+								ios.flush();
+								ios.close();
+								
+//								ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
+							} catch (IOException ex) {
+								Client.getInstance().firePropertyChange("new message", null, "SAVING SCORE MATRIX IMAGE FAILED");
+								JXErrorPane.showDialog(ClientFrame.getInstance(),
+										new ErrorInfo("Severe Error", ex.getMessage(), null, null, ex, ErrorLevel.SEVERE, null));
+							} finally {
+								setBusy(false);
+							}
+							return null;
+						}
+					}.execute();
+					
+					lastSelected = outputfile.getParent();
+				}
+			}
+		});
+		
+		saveImgBtn.setEnabled(false);
+		
 		// Add components to matrix panel
-		matPnl.add(matScpn, CC.xywh(2, 2, 1, 5));
+		matPnl.add(matScpn, CC.xywh(2, 2, 1, 7));
 		matPnl.add(zoomPnl, CC.xy(4, 2));
 		matPnl.add(infoTtf, CC.xy(4, 4));
 		matPnl.add(colBarPnl, CC.xy(4, 6));
+		matPnl.add(saveImgBtn, CC.xy(4, 8));
+		
 	}
 
 	/**
 	 * Method to refresh protein table contents.
 	 */
 	protected void refreshProteinTable() {
-		specSimResult = client.getSpecSimResult(clientFrame.getProjectPanel()
-				.getCurrentExperimentContent());
+		try {
+			
+		} finally {
+			
+		}
+		specSimResult = Client.getInstance().getSpecSimResult(
+				ClientFrame.getInstance().getProjectPanel().getCurrentExperimentContent());
 
 		if (specSimResult != null && !specSimResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
@@ -836,13 +932,16 @@ public class SpecSimResultPanel extends JPanel {
 				matLbl.setIcon(new ImageIcon(scoreMatrix
 						.getSubimage(1, 1, scoreMatrix.getWidth() - 1,
 								scoreMatrix.getHeight() - 1)));
-				// File outputfile = new File("saved.png");
-				// try {
-				// ImageIO.write(specSimResult.getScoreMatrixImage(), "png",
-				// outputfile);
-				// } catch (IOException e) {
-				// e.printStackTrace();
-				// }
+//				File outputfile = new File("saved.png");
+//				try {
+//					ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+			}
+			
+			if (specSimResult.getScoreMatrixImage() != null) {
+				saveImgBtn.setEnabled(true);
 			}
 		}
 	}
@@ -903,8 +1002,8 @@ public class SpecSimResultPanel extends JPanel {
 
 				List<SpectrumMatch> matches = peptideHit.getSpectrumMatches();
 				try {
-					Map<Long, String> titles = client
-							.getSpectrumTitlesFromMatches(matches);
+					Map<Long, String> titles =
+						Client.getInstance().getSpectrumTitlesFromMatches(matches);
 
 					int i = 1;
 					for (SpectrumMatch sm : matches) {
@@ -937,22 +1036,21 @@ public class SpecSimResultPanel extends JPanel {
 			if (pepRow != -1) {
 				int ssmRow = ssmTbl.getSelectedRow();
 				if (ssmRow != -1) {
-					String accession = (String) proteinTbl
-							.getValueAt(protRow, proteinTbl
-									.convertColumnIndexToView(PROT_ACCESSION));
+					String accession = (String) proteinTbl.getValueAt(
+							protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
 					String sequence = (String) peptideTbl.getValueAt(pepRow,
 							peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
 					int index = ssmTbl.convertRowIndexToModel(ssmRow);
-					SpectrumSpectrumMatch ssm = (SpectrumSpectrumMatch) specSimResult
-							.getProteinHits().get(accession).getPeptideHits()
-							.get(sequence).getSpectrumMatches().get(index);
+					SpectrumSpectrumMatch ssm =
+						(SpectrumSpectrumMatch) specSimResult.getProteinHits().get(accession)
+						.getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 					try {
-						MascotGenericFile mgfQuery = client
-								.getSpectrumBySearchSpectrumID(ssm
-										.getSearchSpectrumID());
-						MascotGenericFile mgfLib = client
-								.getSpectrumByLibSpectrumID(ssm
-										.getLibSpectrumID());
+						MascotGenericFile mgfQuery =
+							Client.getInstance().getSpectrumBySearchSpectrumID(
+									ssm.getSearchSpectrumID());
+						MascotGenericFile mgfLib = 
+							Client.getInstance().getSpectrumByLibSpectrumID(
+									ssm.getLibSpectrumID());
 						plotPnl.setFirstSpectrum(mgfQuery);
 						plotPnl.setSecondSpectrum(mgfLib);
 						plotPnl.repaint();
@@ -984,6 +1082,7 @@ public class SpecSimResultPanel extends JPanel {
 	public void setBusy(boolean busy) {
 		this.busy = busy;
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
+		ClientFrame clientFrame = ClientFrame.getInstance();
 		clientFrame.setCursor(cursor);
 		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
 		
@@ -993,7 +1092,7 @@ public class SpecSimResultPanel extends JPanel {
 			tabEnabled[pane.indexOfComponent(clientFrame.getResultsPanel())] = true;
 		}
 		// Enable/disable tabs
-		for (int i = 0; i < tabEnabled.length; i++) {
+		for (int i = 0; i < tabEnabled.length - 1; i++) {
 			boolean temp = pane.isEnabledAt(i);
 			pane.setEnabledAt(i, tabEnabled[i]);
 			tabEnabled[i] = temp;
@@ -1003,6 +1102,7 @@ public class SpecSimResultPanel extends JPanel {
 			clientFrame.getJMenuBar().getMenu(i).setEnabled(!busy);
 		}
 		getResultsBtn.setEnabled(!busy);
+		saveImgBtn.setEnabled(!busy);
 	}
 	
 }

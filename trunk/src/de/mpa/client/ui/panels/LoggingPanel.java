@@ -3,13 +3,22 @@ package de.mpa.client.ui.panels;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JViewport;
@@ -88,6 +97,32 @@ public class LoggingPanel extends JPanel {
         // add line number widget to scroll pane
         TextLineNumber tln = new TextLineNumber(textArea);
         logScpn.setRowHeaderView(tln);
+        
+        textArea.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mouseClicked(MouseEvent e) {
+        		if (e.getButton() == MouseEvent.BUTTON3) {
+        			// Create popup
+        			JPopupMenu popup = new JPopupMenu();
+        	        JMenuItem copyItem = new JMenuItem("Copy to Clipboard");
+        	        if (textArea.getSelectedText() != null) {
+        	        	copyItem.addActionListener(new ActionListener() {
+            				public void actionPerformed(ActionEvent e) {
+            					StringSelection selection = new StringSelection(textArea.getSelectedText());
+            				    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            				    clipboard.setContents(selection, selection);
+            				}
+            			});
+        	        } else {
+        	        	copyItem.setEnabled(false);
+        	        }
+        	        popup.add(copyItem);
+        			
+        			Point p = SwingUtilities.convertPoint(textArea, e.getPoint(), logScpn);
+        			popup.show(logScpn, p.x, p.y);
+        		}
+        	}
+		});
         
 		brdPnl.add(logScpn, CC.xy(2, 2));
 

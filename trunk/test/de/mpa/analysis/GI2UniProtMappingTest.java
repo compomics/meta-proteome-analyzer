@@ -1,22 +1,19 @@
 package de.mpa.analysis;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.TreeMap;
 
 import junit.framework.TestCase;
-import junit.framework.TestListener;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import de.mpa.analysis.UniProtGiMapper;
 
 /**
  * Class to test the mapping from GI number to UniProt via web service
  * @author R. Heyer
  */
-public class TestUniProt_Gi_Mapper extends TestCase {
+public class GI2UniProtMappingTest extends TestCase {
 
 	ArrayList<String> testList;
 	
@@ -35,7 +32,7 @@ public class TestUniProt_Gi_Mapper extends TestCase {
 	}
 	
 	@Test
-	public void testMapping(){
+	public void testMapping() throws IOException {
 		Map<String, String> mapping = UniProtGiMapper.getMapping(testList);
 
 		assertEquals(mapping.get("81941549"),"Q6GZX4");

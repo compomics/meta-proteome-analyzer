@@ -98,21 +98,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new SwingWorker<Void, Void>() {
 					@Override
 					protected Void doInBackground() throws Exception {
-						JFileChooser chooser = new JFileChooser() {
-							public void approveSelection() {
-								File selFile = getSelectedFile();
-								if (selFile.exists()) {
-									int result = JOptionPane.showOptionDialog(this, 
-											"A file with the selected name already exists. Do you want to replace it?", 
-											"Confirm overwrite", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
-											null, new String[] { "Cancel", "Replace" }, "Cancel");
-									if (result != 1) {
-										return;
-									}
-								}
-								super.approveSelection();
-							}
-						};
+						JFileChooser chooser = new ConfirmFileChooser();
 						chooser.setFileFilter(Constants.MPA_FILE_FILTER);
 						chooser.setAcceptAllFileFilterUsed(false);
 						int returnVal = chooser.showSaveDialog(clientFrame);
@@ -469,7 +455,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * Exports the results.
 	 */
     private void exportResults() {
-        JFileChooser chooser = new JFileChooser(lastSelectedFolder);
+        JFileChooser chooser = new ConfirmFileChooser(lastSelectedFolder);
         chooser.setFileFilter(Constants.CSV_FILE_FILTER);
 		chooser.setAcceptAllFileFilterUsed(false);
         chooser.setMultiSelectionEnabled(false);
@@ -485,40 +471,9 @@ public class ClientFrameMenuBar extends JMenuBar {
                 selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
             }
 
-            while (selectedFile.exists()) {
-                int option = JOptionPane.showConfirmDialog(this, "The  file " + chooser.getSelectedFile().getName()
-                        + " already exists. Replace file?", "Replace File?", JOptionPane.YES_NO_CANCEL_OPTION);
-
-                if (option == JOptionPane.NO_OPTION) {
-                    chooser = new JFileChooser(lastSelectedFolder);
-                    chooser.setFileFilter(Constants.CSV_FILE_FILTER);
-    				chooser.setAcceptAllFileFilterUsed(false);
-                    chooser.setMultiSelectionEnabled(false);
-                    chooser.setDialogTitle("Export matchted fragment ions");
-                    returnVal = chooser.showSaveDialog(this);
-
-                    if (returnVal == JFileChooser.CANCEL_OPTION) {
-                        return;
-                    } else {
-                        selectedFile = chooser.getSelectedFile();
-
-                        if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
-                            selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
-                        }
-                    }
-                } else { // YES option
-                    break;
-                }
-            }
             this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 
             try {
-                selectedFile = chooser.getSelectedFile();
-
-                if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
-                    selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
-                }
-
                 if (selectedFile.exists()) {
                     selectedFile.delete();
                 }

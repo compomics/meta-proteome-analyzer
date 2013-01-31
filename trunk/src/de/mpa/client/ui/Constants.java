@@ -126,7 +126,6 @@ public class Constants {
 		System.arraycopy(B, 0, C, A.length, B.length);
 		return C;
 	}
-
 	
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format Files (*.mgf)");
@@ -134,5 +133,7 @@ public class Constants {
 			"MetaProteomeAnalyzer Project Files (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"CSV (tab-separated) Files (*.csv)");
+	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
+	"Portable Network Graphics (*.png)");
 	
 }

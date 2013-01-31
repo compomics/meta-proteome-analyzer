@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
-import javax.imageio.ImageIO;
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
@@ -264,14 +263,10 @@ public class Client {
 	private void retrieveSpecSimResult(Long experimentID) {
 		try {
 			initDBConnection();
-			
 			specSimResult = SpecSearchHit.getAnnotations(experimentID, conn, pSupport);
-			
-			if (specSimResult.getScoreMatrixImage() != null) {
-				File outputfile = new File("saved.png");
-				ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
-			}
 		} catch (Exception e) {
+			pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED");
+			pSupport.firePropertyChange("indeterminate", true, false);
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
@@ -599,8 +594,10 @@ public class Client {
 				}
 				spectrumNode = spectrumNode.getNextLeaf();
 			}
-			fos.close();
-			this.uploadFile(file.getName(), this.getBytesFromFile(file));
+			if (fos != null) {
+				fos.close();
+				this.uploadFile(file.getName(), this.getBytesFromFile(file));
+			}
 		} else {
 			throw new IOException("ERROR: No files selected.");
 		}
@@ -625,8 +622,8 @@ public class Client {
 	 * @return A list of spectrum files.
 	 * @throws Exception
 	 */
-	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean saveToFile) throws Exception {
-		return new SpectrumExtractor(conn).downloadSpectra(experimentID, saveToFile);
+	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean annotatedOnly, boolean fromLibrary, boolean saveToFile) throws Exception {
+		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotatedOnly, fromLibrary, saveToFile);
 	} 
 
 	// Thread polling the server each second.

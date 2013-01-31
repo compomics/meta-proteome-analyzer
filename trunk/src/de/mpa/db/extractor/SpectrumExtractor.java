@@ -70,16 +70,6 @@ public class SpectrumExtractor {
 		
 		return res;
 	}
-	
-	/**
-	 * TODO: API!
-	 * @param precIntervals
-	 * @return
-	 * @throws SQLException
-	 */
-	public List<SpectralSearchCandidate> getCandidates(List<Interval> precIntervals) throws SQLException {
-		return getCandidatesFromExperiment(precIntervals, 0L);
-	}
 
 	/**
 	 * Returns the list of spectral search candidates that belong to a specific experiment.
@@ -104,13 +94,13 @@ public class SpectrumExtractor {
 		ArrayList<SpectralSearchCandidate> res = new ArrayList<SpectralSearchCandidate>(precIntervals.size());
 		
 		// construct SQL statement
-		StringBuilder sb = new StringBuilder("SELECT libspectrumid, title, precursor_mz, precursor_charge, mzarray, intarray, fk_peptideid, sequence FROM spectrum " +
-				   							 "INNER JOIN spec2pep ON spectrum.spectrumid = spec2pep.fk_spectrumid " + 
-				   							 "INNER JOIN peptide ON spec2pep.fk_peptideid = peptide.peptideid " +
-				   							 "INNER JOIN libspectrum ON spectrum.spectrumid = libspectrum.fk_spectrumid " +
+		StringBuilder sb = new StringBuilder("SELECT ls.libspectrumid, s.*, p.peptideid, p.sequence FROM spectrum s " +
+				   							 "INNER JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid " + 
+				   							 "INNER JOIN peptide p ON s2p.fk_peptideid = p.peptideid " +
+				   							 "INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
 				   							 "WHERE (");
 			for (Interval precInterval : precIntervals) {
-				sb.append("spectrum.precursor_mz BETWEEN ");
+				sb.append("s.precursor_mz BETWEEN ");
 				sb.append(precInterval.getLeftBorder());
 				sb.append(" AND ");
 				sb.append(precInterval.getRightBorder());
@@ -119,7 +109,7 @@ public class SpectrumExtractor {
 			for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
 			sb.append(") ");
 		if (experimentID != 0L) {
-			sb.append("AND libspectrum.fk_experimentid = " + experimentID);
+			sb.append("AND ls.fk_experimentid = " + experimentID);
 		}
 		
 		// execute SQL statement and build result list
@@ -127,45 +117,6 @@ public class SpectrumExtractor {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             res.add(new SpectralSearchCandidate(rs));
-        }
-        rs.close();
-        ps.close();
-		
-		return res;
-	}
-
-	/**
-	 * Method to download database spectra belonging to a specific experiment.
-	 * @param experimentID The experiment ID.
-	 * @param saveToFile Flag for saving the spectrum to a file.
-	 * @return List of MGF objects.
-	 * @throws SQLException
-	 */
-	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean saveToFile) throws SQLException {
-		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
-
-		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
-				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum s " +
-				"INNER JOIN searchspectrum ss ON s.spectrumid = ss.fk_spectrumid " +
-				"WHERE ss.fk_experimentid = ? GROUP BY s.spectrumid");
-		ps.setLong(1, experimentID);
-		ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-        	MascotGenericFile mgf;
-        	if (saveToFile) {
-				mgf = new MascotGenericFile(rs);
-        	} else {
-        		mgf = new MascotGenericFile(null, null, new HashMap<Double, Double>(), 0.0, 0);
-        	}
-//        	mgf.setTitle(rs.getString("sequence") + " " + mgf.getTitle());	// prepend peptide sequence
-        	String comments = mgf.getComments();
-        	if (comments == null) {
-        		comments = "";
-        	}
-        	// Adds spectrum id as comment to existing comments
-        	comments += "#sid " + rs.getLong("spectrumid") + "\n";
-        	mgf.setComments(comments);
-            res.add(mgf);
         }
         rs.close();
         ps.close();
@@ -209,6 +160,52 @@ public class SpectrumExtractor {
 	}
 	
 	/**
+	 * Method to extract spectra belonging to a specific experiment.
+	 * @param experimentID the experiment ID.
+	 * @param fromLibrary <code>true</code> if the spectra shall be pulled from the spectral library, 
+	 * 					  <code>false</code> when they shall be pulled from previous searches. 
+	 * @param saveToFile if <code>false</code> the resulting spectra will contain no data apart from their ID
+	 * @return List of MGF objects.
+	 * @throws SQLException
+	 */
+	public List<MascotGenericFile> getSpectraByExperimentID(long experimentID, boolean annotatedOnly, boolean fromLibrary, boolean saveToFile) throws SQLException {
+		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
+
+		String statement = "SELECT s.* FROM spectrum s ";
+		if (annotatedOnly) {
+			statement += "INNER JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid ";
+		}
+		if (fromLibrary) {
+			statement += "INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
+				"WHERE ls.fk_experimentid = ? ";
+		} else {
+			statement += "INNER JOIN searchspectrum ss ON s.spectrumid = ss.fk_spectrumid " +
+				"WHERE ss.fk_experimentid = ? ";
+		}
+		statement += "GROUP BY s.spectrumid";
+		
+		PreparedStatement ps = conn.prepareStatement(statement);
+		ps.setLong(1, experimentID);
+		
+		ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	MascotGenericFile mgf;
+        	if (saveToFile) {
+				mgf = new MascotGenericFile(rs);
+        	} else {
+        		mgf = new MascotGenericFile(null, null, new HashMap<Double, Double>(), 0.0, 0);
+        	}
+//        	mgf.setTitle(rs.getString("sequence") + " " + mgf.getTitle());	// prepend peptide sequence
+        	mgf.setComments("#sid " + rs.getLong("spectrumid") + "\n");
+            res.add(mgf);
+        }
+        rs.close();
+        ps.close();
+		
+		return res;
+	}
+	
+	/**
 	 * Method to extract a spectrum belonging to a specified spectrum ID.
 	 * @param spectrumID The spectrum ID.
 	 * @return MascotGenericFile containing the desired spectrum.
@@ -218,16 +215,15 @@ public class SpectrumExtractor {
 		MascotGenericFile res = null;
 		
 		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
-				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum " +
-				"WHERE spectrum.spectrumid = ?");
+				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum s " +
+				"WHERE s.spectrumid = ?");
 		ps.setLong(1, spectrumID);
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
         	res = new MascotGenericFile(rs);
-        	// Adds spectrum id as comment to existing comments
-        	long spectrumid = rs.getLong("spectrumid");
-        	res.setComments("#sid " + spectrumid + "\n");
-        	res.setSpectrumID(spectrumid);
+        	// Add spectrum id as comment
+        	res.setComments("#sid " + rs.getLong("spectrumid") + "\n");
+        	res.setSpectrumID(rs.getLong("spectrumid"));
         }
         rs.close();
         ps.close();
@@ -261,9 +257,8 @@ public class SpectrumExtractor {
 		int counter = 0;
         while (rs.next()) {
         	MascotGenericFile mgf = new MascotGenericFile(rs);
-        	// Adds spectrum id as comment to existing comments
-        	long spectrumid = rs.getLong("spectrumid");
-        	mgf.setComments("#sid " + spectrumid + "\n");
+        	// Add spectrum id as comment
+        	mgf.setComments("#sid " + rs.getLong("spectrumid") + "\n");
 			res.add(mgf);
         	counter++;
         }

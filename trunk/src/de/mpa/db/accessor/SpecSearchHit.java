@@ -78,7 +78,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 			pSupport.firePropertyChange("indeterminate", true, false);
 			pSupport.firePropertyChange("progress", 0L, rowCount);
 			pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED (EMPTY RESULTSET)");
-			return res;
+			return null;
 		}
 		
 		// determine image dimensions
@@ -100,20 +100,36 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		pSupport.firePropertyChange("resetall", 0L, rowCount);
 		pSupport.firePropertyChange("resetcur", 0L, rowCount);
 
-		ps = conn.prepareStatement("SELECT ssh.fk_searchspectrumid, ssh.fk_libspectrumid, ssh.similarity, " +
-				"s1.title, s1.precursor_charge, p.sequence, s2.precursor_charge, " +
-				"pr.accession, pr.description, pr.sequence FROM specsearchhit ssh " +
+//		ps = conn.prepareStatement("SELECT ssh.fk_searchspectrumid, ssh.fk_libspectrumid, ssh.similarity, " +
+//				"s1.title, s1.precursor_charge, p.sequence, s2.precursor_charge, " +
+//				"pr.accession, pr.description, pr.sequence FROM specsearchhit ssh " +
+//				"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
+//				"INNER JOIN spectrum s1 ON ss.fk_spectrumid = s1.spectrumid " +
+//				"INNER JOIN libspectrum ls ON ssh.fk_libspectrumid = ls.libspectrumid " +
+//				"INNER JOIN spectrum s2 ON ls.fk_spectrumid = s2.spectrumid " +
+//				"INNER JOIN spec2pep s2p ON s2.spectrumid = s2p.fk_spectrumid " +
+//				"INNER JOIN peptide p ON s2p.fk_peptideid = p.peptideid " +
+//				"INNER JOIN pep2prot p2p ON p.peptideid = p2p.fk_peptideid " +
+//				"INNER JOIN protein pr ON p2p.fk_proteinid = pr.proteinid " +
+//				"WHERE ss.fk_experimentid = ? " +
+//				"ORDER BY ssh.fk_libspectrumid",
+//				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		
+		ps = conn.prepareStatement("SELECT ssh.*, s1.*, p1.*, s2.*, p2.*, pr.* FROM specsearchhit ssh " +
 				"INNER JOIN searchspectrum ss ON ssh.fk_searchspectrumid = ss.searchspectrumid " +
 				"INNER JOIN spectrum s1 ON ss.fk_spectrumid = s1.spectrumid " +
+				"INNER JOIN spec2pep s2p1 ON s1.spectrumid = s2p1.fk_spectrumid " +
+				"INNER JOIN peptide p1 ON s2p1.fk_peptideid = p1.peptideid " +
 				"INNER JOIN libspectrum ls ON ssh.fk_libspectrumid = ls.libspectrumid " +
 				"INNER JOIN spectrum s2 ON ls.fk_spectrumid = s2.spectrumid " +
-				"INNER JOIN spec2pep s2p ON s2.spectrumid = s2p.fk_spectrumid " +
-				"INNER JOIN peptide p ON s2p.fk_peptideid = p.peptideid " +
-				"INNER JOIN pep2prot p2p ON p.peptideid = p2p.fk_peptideid " +
+				"INNER JOIN spec2pep s2p2 ON s2.spectrumid = s2p2.fk_spectrumid " +
+				"INNER JOIN peptide p2 ON s2p2.fk_peptideid = p2.peptideid " +
+				"INNER JOIN pep2prot p2p ON p2.peptideid = p2p.fk_peptideid " +
 				"INNER JOIN protein pr ON p2p.fk_proteinid = pr.proteinid " +
-				"WHERE ss.fk_experimentid = ? " +
-				"ORDER BY ssh.fk_libspectrumid",
+				"WHERE ss.fk_experimentid = ?",
+//				"ORDER BY ssh.fk_libspectrumid",
 				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		
 		ps.setLong(1, experimentID);
 		ps.setFetchSize(Integer.MIN_VALUE);
 
@@ -123,7 +139,8 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		pSupport.firePropertyChange("indeterminate", true, false);
 		pSupport.firePropertyChange("resetcur", 0L, rowCount);
 		
-		Map<Long, Integer> lsID2x = new HashMap<Long, Integer>(width - 1);
+//		int capacity = (int) Math.ceil(width / 0.75);
+		Map<Long, Integer> lsID2x = new TreeMap<Long, Integer>();
 		Map<Long, Integer> ssID2y = new TreeMap<Long, Integer>();
 		Map<String, Integer> seq2ID = new HashMap<String, Integer>();
 		int curX = 1, curY = 1, curID = 0;
@@ -147,7 +164,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 					lsID,
 					score);
 			PeptideHit peptideHit = new PeptideHit(
-					rs.getString("p.sequence"),
+					rs.getString("p2.sequence"),
 					ssm);
 			ProteinHit proteinHit = new ProteinHit(
 					rs.getString("pr.accession"),
@@ -178,9 +195,10 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		    }
 			tmp.setRGB(mapX, mapY, rgb);
 			
-			// search spectrum sequence
-			String ssSeq = rs.getString("s1.title");
-			ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString("s1.precursor_charge");
+			// searchspectrum sequence
+//			String ssSeq = rs.getString("s1.title");
+//			ssSeq = ssSeq.substring(0, ssSeq.indexOf(" ")) + rs.getString("s1.precursor_charge");
+			String ssSeq = rs.getString("p1.sequence") + rs.getString("s1.precursor_charge");
 			rgb = seq2ID.get(ssSeq);
 			if (rgb == null) {
 				seq2ID.put(ssSeq, rgb = curID++);
@@ -188,18 +206,26 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 			tmp.setRGB(0, mapY, rgb);
 			
 			
-			// lib spectrum sequence
-			String lsSeq = rs.getString("p.sequence") + rs.getString("s2.precursor_charge");
+			// libspectrum sequence
+			String lsSeq = rs.getString("p2.sequence") + rs.getString("s2.precursor_charge");
 			rgb = seq2ID.get(lsSeq);
 			if (rgb == null) {
 				seq2ID.put(lsSeq, rgb = curID++);
 			}
 			tmp.setRGB(mapX, 0, rgb);
+			
+//			if (score > 0.9) {
+//				System.out.println(ssSeq + " " + lsSeq + " " + score);
+//			}
 
 			row++;
 		}
 		rs.close();
 		ps.close();
+		
+		pSupport.firePropertyChange("progress", 0L, rowCount);
+		pSupport.firePropertyChange("new message", null, "DATABASE TRANSACTION FINISHED");
+		pSupport.firePropertyChange("new message", null, "REFINING SCORE MATRIX IMAGE");
 
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
@@ -208,17 +234,31 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		int[] dstBuf = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
 		
 		curY = 1;
+		int[] tmpSrcBuf = new int[width];
+		int[] tmpDstBuf = new int[width];
 		for (int mapY : ssID2y.values()) {
-			System.arraycopy(srcBuf, mapY * width, dstBuf, curY++ * width, width);
+			System.arraycopy(srcBuf, mapY * width, tmpSrcBuf, 0, width);
+			tmpDstBuf[0] = tmpSrcBuf[0];
+			// reorder pixel columns w.r.t. library spectrum ID ordering
+			curX = 1;
+			for (int mapX : lsID2x.values()) {
+				tmpDstBuf[curX++] = tmpSrcBuf[mapX];
+			}
+			System.arraycopy(tmpDstBuf, 0, dstBuf, curY++ * width, width);
+			pSupport.firePropertyChange("progressmade", true, false);
 		}
 		// don't forget top row
-		System.arraycopy(srcBuf, 0, dstBuf, 0, width);
+		curX = 1;
+		for (int mapX : lsID2x.values()) {
+			tmpDstBuf[curX++] = srcBuf[mapX];
+		}
+		System.arraycopy(tmpDstBuf, 0, dstBuf, 0, width);
+		pSupport.firePropertyChange("progressmade", true, false);
 		
 		res.setScoreMatrixImage(img);
-//		res.setScoreMatrixImage(tmp);
 		
 		pSupport.firePropertyChange("progress", 0L, rowCount);
-		pSupport.firePropertyChange("new message", null, "DATABASE TRANSACTION FINISHED");
+		pSupport.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
         return res;
 	}
 	

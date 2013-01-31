@@ -32,7 +32,7 @@ public class SpectralSearchCandidate {
 		this.precursorCharge = aResultSet.getInt("precursor_charge");
 		this.peaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
 															SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("intarray")));
-		this.peptideID = aResultSet.getLong("fk_peptideid");
+		this.peptideID = aResultSet.getLong("peptideid");
 		this.sequence = aResultSet.getString("sequence");
 	}
 

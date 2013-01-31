@@ -817,6 +817,19 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	 * @return the spectrum ID or <code>null</code> if undefined.
 	 */
 	public Long getSpectrumID() {
+		if (spectrumID == null) {
+			if (iComments != null) {
+				int indexOfID = iComments.indexOf("#sid ");
+				if (indexOfID >= 0) {
+					int indexOfBr = iComments.indexOf("\n", indexOfID);
+					if (indexOfBr > 0) {
+						spectrumID = Long.parseLong(iComments.substring(indexOfID + 5, indexOfBr));
+					} else {
+						spectrumID = Long.parseLong(iComments.substring(indexOfID + 5));
+					}
+				}
+			}
+		}
 		return spectrumID;
 	}
 	

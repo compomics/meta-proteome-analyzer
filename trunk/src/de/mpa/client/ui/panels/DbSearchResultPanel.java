@@ -48,9 +48,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
@@ -82,12 +82,12 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -107,12 +107,13 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
@@ -120,18 +121,21 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.renderer.CellContext;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jdesktop.swingx.renderer.TreeCellContext;
+import org.jdesktop.swingx.rollover.RolloverRenderer;
+import org.jdesktop.swingx.rollover.TableRolloverController;
 import org.jdesktop.swingx.sort.SortUtils;
 import org.jdesktop.swingx.sort.TableSortController;
 import org.jdesktop.swingx.table.ColumnControlButton;
@@ -184,16 +188,12 @@ import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.accessor.Cruxhit;
-import de.mpa.db.accessor.Inspecthit;
-import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.XTandemhit;
 import de.mpa.fragmentation.FragmentIon;
 import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
@@ -618,7 +618,7 @@ public class DbSearchResultPanel extends JPanel {
 		JPanel specCont = new JPanel();
 		specCont.setLayout(new BoxLayout(specCont, BoxLayout.LINE_AXIS));
 		specCont.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 0));
-		specCont.add(specPnl = new SpectrumPanel(new double[] { 0.0, 100.0 }, new double[] { 100.0, 0.0 }, 0.0, "", ""));
+		specCont.add(specPnl = FilePanel.createDefaultSpectrumPanel());
 		specCont.setMinimumSize(new Dimension(200, 200));
 		
 		spectrumOverviewPnl.add(specCont, BorderLayout.CENTER);
@@ -1097,7 +1097,7 @@ public class DbSearchResultPanel extends JPanel {
 		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 //		ch.setReorderingAllowed(false, PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
-		
+
 		// Add filter button and checkbox widgets to column headers
 		for (int col = PROT_SELECTION; col < tcm.getColumnCount(); col++) {
 			switch (col) {
@@ -1135,31 +1135,60 @@ public class DbSearchResultPanel extends JPanel {
 		// Apply custom cell renderers/highlighters to columns
 		tcm.getColumn(PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 		
-		AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
+		// Hyperlink renderer for Accession column
+		final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
 			public void actionPerformed(ActionEvent ev) {
 				try {
-					//Use UniProt identifier also for NCBI entries
-					if (target.matches("^\\d*$")) { // if contains non-numerical character UniProt
-						UniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
-						if (uniprotEntry != null) {
-							PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
-							target = primaryUniProtAccession.getValue();
-						}else{
-							target = "";
-						}
+					if (target != null) {
+						Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
 					}
-					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
 				} catch (Exception e) {
-					e.printStackTrace();
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
 			}
 		};
-		tcm.getColumn(PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
+		HyperlinkProvider hlp = new HyperlinkProvider(linkAction) {
+			@Override
+			protected JXHyperlink createRendererComponent() {
+				JXHyperlink comp = super.createRendererComponent();
+				comp.setHorizontalAlignment(SwingConstants.CENTER);
+				return comp;
+			}
+			@Override
+			protected void format(CellContext context) {
+				super.format(context);
+				Object value = context.getValue();
+				String target = value.toString();
+				if (target.matches("^\\d*$")) {
+					// target string contains only numeric characters -> probably GI number
+					UniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
+					// change target to UniProt accession inside associated UniProtEntry
+					if (uniprotEntry != null) {
+						target = uniprotEntry.getPrimaryUniProtAccession().getValue();
+					} else {
+						target = null;
+					}
+				} else {
+					// target string contains non-numeric characters -> probably UniProt accession
+					// do nothing
+				}
+				linkAction.setTarget(target);
+				rendererComponent.setText(value.toString());
+			}
+		};
+		tcm.getColumn(PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(hlp) {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
-				compLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				return compLabel;
+				JXRendererHyperlink comp = (JXRendererHyperlink) super.getTableCellRendererComponent(
+						table, value, isSelected, hasFocus, row, column);
+				// when no target is specified replace hyperlink with a simple label
+				if (linkAction.getTarget() == null) {
+					JLabel label = new JLabel(comp.getText(), SwingConstants.CENTER);
+					label.setOpaque(true);
+					label.setBackground(comp.getBackground());
+					return label;
+				}
+				return comp;
 			}
 		});
 		tcm.getColumn(PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
@@ -1349,6 +1378,9 @@ public class DbSearchResultPanel extends JPanel {
 							return;
 						}
 					}
+				} else {
+					proteinTbl.clearSelection();
+					refreshPeptideViews(-1);
 				}
 			}
 		});
@@ -2103,7 +2135,7 @@ public class DbSearchResultPanel extends JPanel {
 		psmTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				refreshPlotAndShowPopup();
+				refreshPlot();
 			}
 		});
 		
@@ -2910,6 +2942,8 @@ public class DbSearchResultPanel extends JPanel {
 
 			// Select first row in table
 			peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
+		} else {
+			pepTtlPnl.setTitle("Peptides");
 		}
 		coveragePnl.revalidate();
 	}
@@ -2972,10 +3006,12 @@ public class DbSearchResultPanel extends JPanel {
 				
 				psmTbl.getSelectionModel().setSelectionInterval(0, 0);
 			}
+		} else {
+			psmTtlPnl.setTitle("Peptide-Spectrum-Matches");
 		}
 	}
 	
-	protected void refreshPlotAndShowPopup() {
+	protected void refreshPlot() {
 		int protRow = proteinTbl.getSelectedRow();
 		if (protRow != -1) {
 			int pepRow = peptideTbl.getSelectedRow();
@@ -2984,9 +3020,10 @@ public class DbSearchResultPanel extends JPanel {
 				if (psmRow != -1) {
 					// clear the spectrum panel
 					Container specCont = specPnl.getParent();
-					while (specCont.getComponents().length > 0) {
-						specCont.remove(0);
-		            }
+//					while (specCont.getComponents().length > 0) {
+//						specCont.remove(0);
+//		            }
+					specCont.removeAll();
 					// get the list of spectrum matches
 					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
 					String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
@@ -3014,90 +3051,96 @@ public class DbSearchResultPanel extends JPanel {
 					specPnl = new SpectrumPanel(mgf);
 					specPnl.showAnnotatedPeaksOnly(true);
 
-					specCont.add(specPnl, CC.xy(2, 2));
+					specCont.add(specPnl);
 					specCont.validate();
 					specCont.repaint();
 
 					Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), psm.getCharge());
 					addSpectrumAnnotations(fragmentizer.getFragmentIons());
 						
-					// show popup
-					showPopup(psm);
+//					// show popup
+//					showPopup(psm);
 				}
 			}
+		} else {
+			Container specCont = specPnl.getParent();
+			specCont.removeAll();
+			specPnl = FilePanel.createDefaultSpectrumPanel();
+			specCont.add(specPnl);
+			specCont.validate();
 		}
 	}
 
-	/**
-	 * Method to generate and show a popup containing PSM-specific details.
-	 * @param psm
-	 */
-	private void showPopup(PeptideSpectrumMatch psm) {
-		JPopupMenu popup = new JPopupMenu();
-		
-		JPanel panel = new JPanel(new FormLayout("p, 5dlu, p", "p, 2dlu, p, 2dlu, p, 2dlu, p"));
-		panel.setOpaque(true);
-		panel.setBackground(new Color(240,240,240));
-		
-		JLabel xTandemLbl = new JLabel("");
-		xTandemLbl.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(0, 0, 2, 0),
-				BorderFactory.createLineBorder(Color.GREEN)));
-
-		JLabel omssaLbl = new JLabel("");
-		omssaLbl.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(2, 0, 2, 0),
-				BorderFactory.createLineBorder(Color.CYAN)));
-		JLabel cruxLbl = new JLabel("");
-		cruxLbl.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(2, 0, 2, 0),
-				BorderFactory.createLineBorder(Color.BLUE)));
-		JLabel inspectLbl = new JLabel("");
-		inspectLbl.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(2, 0, 0, 0),
-				BorderFactory.createLineBorder(Color.MAGENTA)));
-		DecimalFormat df = new DecimalFormat("0.00");
-		for (SearchHit hit : psm.getSearchHits()) {
-			switch (hit.getType()) {
-			case XTANDEM:
-				XTandemhit xtandemhit = (XTandemhit) hit;
-				xTandemLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
-						" | HScore: " + df.format(xtandemhit.getHyperscore().doubleValue()) + 
-						" | E-value: "  + df.format(xtandemhit.getEvalue().doubleValue()));
-				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,1));
-				panel.add(xTandemLbl, CC.xy(3, 1));
-				break;
-			case OMSSA:
-				Omssahit omssahit = (Omssahit) hit;
-				omssaLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
-						" | P-value: " + df.format(omssahit.getPvalue().doubleValue()) + 
-						" | E-value: "  + df.format(omssahit.getEvalue().doubleValue()));
-				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,3));
-				panel.add(omssaLbl, CC.xy(3,3));
-				break;
-			case CRUX:
-				Cruxhit cruxhit = (Cruxhit) hit;
-				cruxLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
-						" | XCorr: " + df.format(cruxhit.getXcorr_score().doubleValue()));
-				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,5));
-				panel.add(cruxLbl, CC.xy(3,5));
-				break;
-			case INSPECT:
-				Inspecthit inspecthit = (Inspecthit) hit;
-				inspectLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
-						" | FScore: " + df.format(inspecthit.getF_score().doubleValue()) + 
-						" | DeltaScore: "  + df.format(inspecthit.getDeltascore().doubleValue()));
-				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,7));
-				panel.add(inspectLbl, CC.xy(3,7));
-				break;
-			default:
-				break;
-			}
-		}
-		popup.add(panel);
-//		Rectangle cellRect = psmTbl.getCellRect(psmTbl.getSelectedRow(), psmTbl.getColumnCount()-1, true);
-//		popup.show(psmTbl, cellRect.x + cellRect.width, cellRect.y - popup.getPreferredSize().height/2 + cellRect.height/2);
-	}
+//	/**
+//	 * Method to generate and show a popup containing PSM-specific details.
+//	 * @param psm
+//	 */
+//	private void showPopup(PeptideSpectrumMatch psm) {
+//		JPopupMenu popup = new JPopupMenu();
+//		
+//		JPanel panel = new JPanel(new FormLayout("p, 5dlu, p", "p, 2dlu, p, 2dlu, p, 2dlu, p"));
+//		panel.setOpaque(true);
+//		panel.setBackground(new Color(240,240,240));
+//		
+//		JLabel xTandemLbl = new JLabel("");
+//		xTandemLbl.setBorder(BorderFactory.createCompoundBorder(
+//				BorderFactory.createEmptyBorder(0, 0, 2, 0),
+//				BorderFactory.createLineBorder(Color.GREEN)));
+//
+//		JLabel omssaLbl = new JLabel("");
+//		omssaLbl.setBorder(BorderFactory.createCompoundBorder(
+//				BorderFactory.createEmptyBorder(2, 0, 2, 0),
+//				BorderFactory.createLineBorder(Color.CYAN)));
+//		JLabel cruxLbl = new JLabel("");
+//		cruxLbl.setBorder(BorderFactory.createCompoundBorder(
+//				BorderFactory.createEmptyBorder(2, 0, 2, 0),
+//				BorderFactory.createLineBorder(Color.BLUE)));
+//		JLabel inspectLbl = new JLabel("");
+//		inspectLbl.setBorder(BorderFactory.createCompoundBorder(
+//				BorderFactory.createEmptyBorder(2, 0, 0, 0),
+//				BorderFactory.createLineBorder(Color.MAGENTA)));
+//		DecimalFormat df = new DecimalFormat("0.00");
+//		for (SearchHit hit : psm.getSearchHits()) {
+//			switch (hit.getType()) {
+//			case XTANDEM:
+//				XTandemhit xtandemhit = (XTandemhit) hit;
+//				xTandemLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
+//						" | HScore: " + df.format(xtandemhit.getHyperscore().doubleValue()) + 
+//						" | E-value: "  + df.format(xtandemhit.getEvalue().doubleValue()));
+//				panel.add(new JLabel("<html><font color='#00FF00'>\u25cf</font> X!Tandem</html>"), CC.xy(1,1));
+//				panel.add(xTandemLbl, CC.xy(3, 1));
+//				break;
+//			case OMSSA:
+//				Omssahit omssahit = (Omssahit) hit;
+//				omssaLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
+//						" | P-value: " + df.format(omssahit.getPvalue().doubleValue()) + 
+//						" | E-value: "  + df.format(omssahit.getEvalue().doubleValue()));
+//				panel.add(new JLabel("<html><font color='#00FFFF'>\u25cf</font> OMSSA</html>"), CC.xy(1,3));
+//				panel.add(omssaLbl, CC.xy(3,3));
+//				break;
+//			case CRUX:
+//				Cruxhit cruxhit = (Cruxhit) hit;
+//				cruxLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
+//						" | XCorr: " + df.format(cruxhit.getXcorr_score().doubleValue()));
+//				panel.add(new JLabel("<html><font color='#0000FF'>\u25cf</font> Crux</html>"), CC.xy(1,5));
+//				panel.add(cruxLbl, CC.xy(3,5));
+//				break;
+//			case INSPECT:
+//				Inspecthit inspecthit = (Inspecthit) hit;
+//				inspectLbl.setText("Conf: " + df.format((1.0 - hit.getQvalue().doubleValue())*100.0) + "%" +
+//						" | FScore: " + df.format(inspecthit.getF_score().doubleValue()) + 
+//						" | DeltaScore: "  + df.format(inspecthit.getDeltascore().doubleValue()));
+//				panel.add(new JLabel("<html><font color='#FF00FF'>\u25cf</font> InsPecT</html>"), CC.xy(1,7));
+//				panel.add(inspectLbl, CC.xy(3,7));
+//				break;
+//			default:
+//				break;
+//			}
+//		}
+//		popup.add(panel);
+////		Rectangle cellRect = psmTbl.getCellRect(psmTbl.getSelectedRow(), psmTbl.getColumnCount()-1, true);
+////		popup.show(psmTbl, cellRect.x + cellRect.width, cellRect.y - popup.getPreferredSize().height/2 + cellRect.height/2);
+//	}
 
 	/**
 	 * Method to add annotations to spectrum plot.
@@ -3258,7 +3301,7 @@ public class DbSearchResultPanel extends JPanel {
 		this.busy = busy;
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		clientFrame.setCursor(cursor);
-		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
+		split.setCursor(cursor);
 
 		hierarchyBtn.setEnabled(!busy);
 		setResultsFromDbButtonEnabled(!busy);
