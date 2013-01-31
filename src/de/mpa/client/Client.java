@@ -229,9 +229,9 @@ public class Client {
 	}
 
 	/**
-	 * TODO: API
-	 * @param filenames
-	 * @param settings
+	 * Runs the searches by retrieving a bunch of spectrum file names and the global search settings.
+	 * @param filenames The spectrum file names
+	 * @param settings Global search settings
 	 */
 	public void runSearches(List<String> filenames, SearchSettings settings) {
 		for (int i = 0; i < filenames.size(); i++) {

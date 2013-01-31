@@ -36,7 +36,7 @@ public class ECEntry {
 
 	/**
 	 * This method sets the ECName
-	 * @param name TODO: API!
+	 * @param name Name of the ECEntry
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -44,7 +44,7 @@ public class ECEntry {
 
 	/**
 	 * This method gets the EC-description
-	 * @return description
+	 * @return EC-description
 	 */
 	public String getDescription() {
 		return description;
@@ -52,7 +52,7 @@ public class ECEntry {
 
 	/**
 	 * This method sets the EC-description
-	 * @param description
+	 * @param description EC-description
 	 */
 	public void setDescription(String description) {
 		this.description = description;

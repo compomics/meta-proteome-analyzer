@@ -84,7 +84,7 @@ public class ServerImpl implements Server {
 	private JobManager jobManager;
 
 	/**
-	 * TODO: API
+	 * The RunOptions instance.
 	 */
 	private RunOptions runOptions;
     
@@ -229,10 +229,6 @@ public class ServerImpl implements Server {
 		// Add BLAST search job
 		Job blastJob = new BlastJob(file, "uniprot_sprot.fasta");
 		jobManager.addJob(blastJob);
-		
-		// Add a de novo search results storing job
-		// TODO: Adapt this to new BLAST hit model.
-		//jobManager.addJob(new PepnovoStoreJob(pepNovoJob.getFilename()));
 	}
 	
 	/**
@@ -307,11 +303,6 @@ public class ServerImpl implements Server {
 					}
 
 					msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
-					
-					// Batch-execute jobs
-//					Thread managerThread = new Thread(jobManager);
-//					managerThread.start();
-//					managerThread.join();
 					jobManager.run();
 					
 					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
