@@ -41,13 +41,13 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;

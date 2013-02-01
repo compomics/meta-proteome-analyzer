@@ -24,7 +24,7 @@ import javax.xml.rpc.ServiceException;
 
 import keggapi.KEGGLocator;
 import keggapi.KEGGPortType;
-import de.mpa.client.ui.Constants;
+import de.mpa.client.Constants;
 
 /**
  * Class providing access to KEGG remote service and local dumps of database contents.

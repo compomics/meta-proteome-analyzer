@@ -61,13 +61,13 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.settings.FilterSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;

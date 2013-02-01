@@ -29,8 +29,8 @@ import javax.swing.border.BevelBorder;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrameMenuBar;
-import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.StatusPanel;
 import de.mpa.client.ui.ThinBevelBorder;

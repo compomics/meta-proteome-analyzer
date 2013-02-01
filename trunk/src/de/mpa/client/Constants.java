@@ -1,4 +1,4 @@
-package de.mpa.client.ui;
+package de.mpa.client;
 
 import java.util.Enumeration;
 
@@ -7,8 +7,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import de.mpa.analysis.KeggMaps;
+import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.ui.ExtensionFileFilter;
 
 /**
  * Class providing general constants and methods used throughout the whole
@@ -41,7 +41,7 @@ public class Constants {
 	/**
 	 * The names of FASTA database files available for searches.
 	 */
-	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_trembl", "ecoli", "methanomicrobia", "archaea", "firmicutes", "human_gut", "metadb_potsdam"};
+	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_trembl", "ecoli", "methanomicrobia", "UniProt_Archaea", "NCBI_Archaea", "firmicutes", "human_gut", "metadb_potsdam"};
 	
 	/**
 	 * The names of cleaving enzymes available for database searches.

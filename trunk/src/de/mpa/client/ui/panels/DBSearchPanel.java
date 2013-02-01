@@ -18,6 +18,7 @@ import javax.swing.border.Border;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.settings.CruxParameters;
 import de.mpa.client.settings.InspectParameters;
@@ -26,7 +27,6 @@ import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
-import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 
 /**

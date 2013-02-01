@@ -27,6 +27,7 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.db.DbConnectionSettings;
 import de.mpa.io.ResultExporter;

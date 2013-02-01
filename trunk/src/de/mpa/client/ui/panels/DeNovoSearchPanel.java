@@ -15,13 +15,13 @@ import javax.swing.tree.TreePath;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Constants;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
-import de.mpa.client.ui.Constants;
 
 public class DeNovoSearchPanel extends JPanel {
 

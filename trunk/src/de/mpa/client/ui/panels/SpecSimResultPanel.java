@@ -78,6 +78,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
@@ -86,13 +87,11 @@ import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
-import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.ui.MultiPlotPanel;
 import de.mpa.util.ColorUtils;
 
 public class SpecSimResultPanel extends JPanel {
