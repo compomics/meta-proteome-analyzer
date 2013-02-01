@@ -64,13 +64,24 @@ public class CypherQuery {
 	
 	/**
 	 * Returns all peptides for a protein (specified by its accession).
-	 * @param accession
+	 * @param accession Protein accession
 	 * @return Peptide node(s) ExecutionResult
 	 */
 	public ExecutionResult getPeptidesForProtein(String accession) {
 		return engine.execute("START protein=node:proteins(ACCESSION = {accession}) " +
                 "MATCH (protein)-->(peptide) " +
                 "RETURN peptide", map("accession", accession));
+	}
+	
+	/**
+	 * Returns all proteins for a peptide (specified by its sequence).	 * 
+	 * @param sequence Peptide sequence
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForPeptide(String sequence) {
+		return engine.execute("START peptide=node:peptides(SEQUENCE = {sequence}) " +
+                "MATCH (peptide)<-[:HAS_PEPTIDE]-(protein) " +
+                "RETURN protein", map("sequence", sequence));
 	}
 	
 	/**
