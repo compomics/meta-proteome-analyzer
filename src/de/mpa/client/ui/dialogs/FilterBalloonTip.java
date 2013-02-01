@@ -41,8 +41,8 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.Constants;
 import de.mpa.client.ui.icons.IconConstants;
 
 public class FilterBalloonTip extends CustomBalloonTip {

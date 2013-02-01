@@ -32,11 +32,10 @@ import javax.swing.table.DefaultTableModel;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.Constants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.ui.PlotPanel2;
 
 public class ClusterPanel extends JPanel {				
 	

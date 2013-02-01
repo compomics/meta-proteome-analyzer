@@ -13,6 +13,8 @@ import javax.swing.event.HyperlinkEvent;
 
 import com.compomics.util.examples.BareBonesBrowserLaunch;
 
+import de.mpa.client.Constants;
+
 /**
  * <b>HtmlFrame</b>
  * <p/>

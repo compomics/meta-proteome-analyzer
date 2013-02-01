@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project MetaProteomeAnalyzer with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/afs/mpi-magdeburg.mpg.de/home/muth/server.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="de.mpa.webservice.WSPublisher"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ junit-4.9.jar jgoodies-forms-1.5.0.jar omssa-parser-1.4.1.jar xpp3-1.1.4c.jar jgoodies-looks-2.5.0.jar jgoodies-common-1.3.0.jar commons-codec-1.6.jar xtandem-parser-1.3.10.jar swingx-all-1.6.4.jar jsparklines-0.5.35.jar jcommon-1.0.16.jar balloontip-1.2.1.jar jgoodies-binding-2.6.1.jar mysql-connector-java-5.1.20-bin.jar aopalliance.jar commons-httpclient.jar commons-logging.jar spring.aop.jar spring.beans.jar spring.context.jar spring.core.jar spring.web.jar uniprotjapi.jar utilities-3.6.2.jar log4j-1.2.17.jar swing-layout-1.0.3.jar keggapi.jar jaxrpc.jar axis.jar commons-discovery-0.2.jar wsdl4j-1.5.1.jar jfreechart-1.0.14.jar jaligner.jar trove-3.0.3.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/bin"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="junit-4.9.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jgoodies-forms-1.5.0.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="omssa-parser-1.4.1.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="xpp3-1.1.4c.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jgoodies-looks-2.5.0.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jgoodies-common-1.3.0.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="commons-codec-1.6.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="xtandem-parser-1.3.10.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="swingx-all-1.6.4.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jsparklines-0.5.35.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jcommon-1.0.16.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="balloontip-1.2.1.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jgoodies-binding-2.6.1.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="mysql-connector-java-5.1.20-bin.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="aopalliance.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="commons-httpclient.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="commons-logging.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="spring.aop.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="spring.beans.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="spring.context.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="spring.core.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="spring.web.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="uniprotjapi.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="utilities-3.6.2.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="log4j-1.2.17.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="swing-layout-1.0.3.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="keggapi.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jaxrpc.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="axis.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="commons-discovery-0.2.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="wsdl4j-1.5.1.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jfreechart-1.0.14.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="jaligner.jar"/>
+            <zipfileset dir="/afs/mpi-magdeburg.mpg.de/home/muth/work/workspace/MetaProteomeAnalyzer/lib" includes="trove-3.0.3.jar"/>
+        </jar>
+    </target>
+</project>
