@@ -28,6 +28,9 @@ public interface Protein extends VertexFrame {
 	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.OUT)
 	public Iterable<Enzyme> getEnzymes();
 	
+	@Adjacency(label="BELONGS_TO_PATHWAY", direction=Direction.OUT)
+	public Iterable<Pathway> getPathways();
+	
 	@Adjacency(label="BELONGS_IN_FUNCTION_GROUP")
 	public Iterable<Ontology> getFunctionGroup();
 	

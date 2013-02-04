@@ -14,7 +14,12 @@ import java.util.Map;
  * @author T. Muth, R. Heyer
  */
 public class DbSearchResult implements Serializable {
-
+	
+	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
+	
 	/**
 	 * The project title.
 	 */
