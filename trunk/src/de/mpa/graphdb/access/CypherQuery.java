@@ -74,6 +74,19 @@ public class CypherQuery {
 	}
 	
 	/**
+	 * Returns the unique peptides for a protein (specified by its accession).
+	 * @param accession Protein accession
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getUniquePeptidesForProtein(String accession) {
+		return engine.execute("START protein=node:proteins(ACCESSION = {accession}) " +
+                "MATCH (protein)-->(peptide) " +
+                "RETURN peptide", map("accession", accession));
+	}
+	
+	
+	
+	/**
 	 * Returns all proteins for a peptide (specified by its sequence).	 * 
 	 * @param sequence Peptide sequence
 	 * @return Protein node(s) ExecutionResult
@@ -82,6 +95,73 @@ public class CypherQuery {
 		return engine.execute("START peptide=node:peptides(SEQUENCE = {sequence}) " +
                 "MATCH (peptide)<-[:HAS_PEPTIDE]-(protein) " +
                 "RETURN protein", map("sequence", sequence));
+	}
+	
+	/**
+	 * Returns all proteins for species (specified by species name). 
+	 * @param species Species name
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForSpecies(String species) {
+		return engine.execute("START species=node:species(NAME = {species}) " +
+                "MATCH (species)<-[:BELONGS_TO]-(protein) " +
+                "RETURN protein", map("species", species));
+	}
+	
+	/**
+	 * Returns all proteins for an enzyme (specified by its E.C. number). 
+	 * @param ecNumber Enzyme E.C. number
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForEnzyme(String ecNumber) {
+		return engine.execute("START enzyme=node:enzymes(ECNUMBER = {ecnumber}) " +
+                "MATCH (enzyme)<-[:BELONGS_TO_ENZYME]-(protein) " +
+                "RETURN protein", map("ecnumber", ecNumber));
+	}
+	
+	/**
+	 * Returns all proteins for a pathway (specified by its KO number). 
+	 * @param koNumber Pathway KO number
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForPathway(String koNumber) {
+		return engine.execute("START pathway=node:pathways(KONUMBER = {konumber}) " +
+                "MATCH (pathway)<-[:BELONGS_TO_PATHWAY]-(protein) " +
+                "RETURN protein", map("konumber", koNumber));
+	}
+	
+	
+	/**
+	 * Returns all proteins for biological process (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForBiologicalProcess(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:INVOLVED_IN_BIOPROCESS]-(protein) " +
+                "RETURN protein", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all proteins for molecular function (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForMolecularFunction(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:HAS_MOLECULAR_FUNCTION]-(protein) " +
+                "RETURN protein", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all proteins for cellular component (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return Protein node(s) ExecutionResult
+	 */
+	public ExecutionResult getProteinsForCellularComponent(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:BELONGS_TO_COMPONENT]-(protein) " +
+                "RETURN protein", map("keyword", keyword));
 	}
 	
 	/**

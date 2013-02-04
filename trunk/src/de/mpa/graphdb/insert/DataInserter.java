@@ -242,7 +242,7 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 						addEdge(proteinVertex, ontologyVertex, RelationType.INVOLVED_IN_BIOPROCESS);
 						break;
 					case CELLULAR_COMPONENT:
-						addEdge(proteinVertex, ontologyVertex, RelationType.CONTAINED_IN_COMPONENT);
+						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_COMPONENT);
 						break;
 					case MOLECULAR_FUNCTION:
 						addEdge(proteinVertex, ontologyVertex, RelationType.HAS_MOLECULAR_FUNCTION);

@@ -12,7 +12,7 @@ public interface Pathway extends VertexFrame {
 	@Property("DESCRIPTION")
 	public String getDescription();
 	
-	@Adjacency(label="BELONGS_TO", direction=Direction.IN)
+	@Adjacency(label="BELONGS_TO_PATHWAY", direction=Direction.IN)
 	public Iterable<Protein> getProteins();
 	
 	@Property("KONUMBER")

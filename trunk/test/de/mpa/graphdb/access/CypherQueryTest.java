@@ -15,6 +15,7 @@ import java.util.zip.GZIPInputStream;
 import junit.framework.TestCase;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -34,35 +35,31 @@ import de.mpa.graphdb.setup.GraphDatabase;
  *
  */
 
-public class CypherQueryTest extends TestCase {
-	private DbSearchResult dbSearchResult;
-	private GraphDatabase graphDb;
-	private GraphDatabaseService service;
+public class CypherQueryTest {
 	private CypherQuery cypherQuery;
+	private static GraphDatabase graphDb;
+	private static DataInserter dataInserter;
 	
 	@BeforeClass
-	public void setUp() {
+	public static void setUpClass() {
 		// Proteins file.
-		File file = new File(getClass().getClassLoader().getResource("DumpTest.mpa").getPath());
-		
+		File file = new File("test/de/mpa/resources/DumpTest.mpa");
 		// Object input stream.
 		ObjectInputStream ois;
 		try {
-			ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
-			dbSearchResult = (DbSearchResult) ois.readObject();
+			ois = new ObjectInputStream(new BufferedInputStream(
+					new GZIPInputStream(new FileInputStream(file))));
+			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
 			// Create a graph database.
 			graphDb = new GraphDatabase("target/graphdb", true);
-			assertNotNull(graphDb);
-			service =  graphDb.getService();
-			assertNotNull(service);
-			
+			GraphDatabaseService service = graphDb.getService();
+
 			// Insert the data.
-			DataInserter dataInserter = new DataInserter(service);
+			dataInserter = new DataInserter(service);
 			dataInserter.setData(dbSearchResult);
 			dataInserter.insert();
+
 			
-			cypherQuery = dataInserter.getCypherQuery();
-			assertNotNull(cypherQuery);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -70,6 +67,12 @@ public class CypherQueryTest extends TestCase {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Before
+	public void setUp() {
+		cypherQuery = dataInserter.getCypherQuery();
+		TestCase.assertNotNull(cypherQuery);
 	}
 	
 	@Test
@@ -80,8 +83,8 @@ public class CypherQueryTest extends TestCase {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
-                assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
+                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
             }
         }
     }
@@ -93,8 +96,8 @@ public class CypherQueryTest extends TestCase {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
-                assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
+                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
             }
         }
     }
@@ -108,7 +111,7 @@ public class CypherQueryTest extends TestCase {
             if (value instanceof Node) {
                 Node n = (Node)value;
                 if(n.hasProperty(PeptideProperty.SEQUENCE.name())){
-                    assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
+                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
                 }
             }
         }
@@ -128,8 +131,8 @@ public class CypherQueryTest extends TestCase {
                 }
             }
         }
-        assertEquals(1081652L, nodeList.get(0).getProperty(PsmProperty.SPECTRUMID.name()));
-        assertEquals(4, nodeList.size());
+        TestCase.assertEquals(1081652L, nodeList.get(0).getProperty(PsmProperty.SPECTRUMID.name()));
+        TestCase.assertEquals(4, nodeList.size());
     }
 	
 	@Test
@@ -137,8 +140,8 @@ public class CypherQueryTest extends TestCase {
 		// Multiple PSMs for one protein and peptide
 		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForEnzymeNumber("4.1.1.15"), "psm", PsmProperty.SPECTRUMID);
         
-        assertEquals(1081661L, nodeSet.iterator().next().getProperty(PsmProperty.SPECTRUMID.name()));
-        assertEquals(4, nodeSet.size());
+		TestCase.assertEquals(1081661L, nodeSet.iterator().next().getProperty(PsmProperty.SPECTRUMID.name()));
+		TestCase.assertEquals(4, nodeSet.size());
     }
 	
 	@Test
@@ -146,12 +149,12 @@ public class CypherQueryTest extends TestCase {
 		// Multiple PSMs for one protein and peptide
 		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForPathway("K01580"), "psm", PsmProperty.SPECTRUMID);
         
-        assertEquals(1081661L, nodeSet.iterator().next().getProperty(PsmProperty.SPECTRUMID.name()));
-        assertEquals(4, nodeSet.size());
+		TestCase.assertEquals(1081661L, nodeSet.iterator().next().getProperty(PsmProperty.SPECTRUMID.name()));
+		TestCase.assertEquals(4, nodeSet.size());
     }
 	
-	@AfterClass
-	public void tearDown() throws Exception {
-		graphDb.shutDown();
-	}
+    @AfterClass
+    public static void tearDownClass() throws IOException {
+    	graphDb.shutDown();
+    }
 }
