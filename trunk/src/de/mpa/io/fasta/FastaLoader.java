@@ -205,6 +205,7 @@ public class FastaLoader {
 		if(indexFile.exists()){
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
+			@SuppressWarnings("unchecked")
 			TObjectLongHashMap<String> tempMap = (TObjectLongHashMap<String>) ois.readObject();
 			fis.close();
 			ois.close();

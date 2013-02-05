@@ -29,9 +29,7 @@ public class Pepnovohit extends PepnovohitTableAccessor {
     	PreparedStatement ps = aConn.prepareStatement("select d.*, p.sequence from pepnovohit d, peptide p where d.fk_peptideid = p.peptideid and d.fk_spectrumid = ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new Pepnovohit(rs));
         }
         rs.close();

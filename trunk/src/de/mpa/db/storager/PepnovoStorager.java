@@ -50,7 +50,7 @@ public class PepnovoStorager extends BasicStorager {
      * Loads the Pepnovo data.
      */
     public void load() {
-        pepnovofile = new PepnovoParser().read(file.getAbsolutePath());
+        pepnovofile = PepnovoParser.read(file.getAbsolutePath());
     }
     
     /**

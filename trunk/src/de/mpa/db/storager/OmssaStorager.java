@@ -22,7 +22,6 @@ import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.util.Formatter;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -116,10 +115,11 @@ public class OmssaStorager extends BasicStorager {
     	    	
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
     	    	String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
+    	    	
     	    	spectrumTitle = spectrumTitle.replace("\\\\", "\\");
+    	    	spectrumTitle = spectrumTitle.replace("\\\"", "\"");
     	    	
       	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
-                hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
     	    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
     	    	
     	    	// Get the MSPepHit (for the accession)

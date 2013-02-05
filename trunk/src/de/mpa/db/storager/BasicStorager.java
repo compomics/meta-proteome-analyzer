@@ -29,6 +29,9 @@ public abstract class BasicStorager implements Storager {
 		} catch (SQLException e) {
 			log.error("Error message: " + e.getMessage() + " - Error code: " + e.getErrorCode());
 			e.printStackTrace();
+		} catch (Exception e) {
+			log.error("Error message: " + e.getMessage());
+			e.printStackTrace();
 		}
 		log.info("Data stored to the DB.");
 	}

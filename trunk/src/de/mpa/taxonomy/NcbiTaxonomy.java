@@ -18,8 +18,8 @@ import java.util.zip.GZIPOutputStream;
 import javax.swing.tree.TreeNode;
 
 /**
- * This class holds the ncbi taxonomy maps
- * Class to create the Phylogenic Tree from NCBI: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
+ * This class holds the NCBI taxonomy maps.
+ * Class to create the phylogenic tree from NCBI: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
  * @author heyer
  */
 public class NcbiTaxonomy implements Serializable {
@@ -68,14 +68,15 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param flatPath The path to the NCBI taxonomy flat file.
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public static void dumpTaxonomies(String flatPath) {
 		try {
 			String line;
 			
 			// Parse nodes file
 			File namesFile = new File(flatPath + "names.dmp");
-			FileReader fr 		= new FileReader(namesFile);
-			BufferedReader br 	= new BufferedReader(fr);
+			FileReader fr = new FileReader(namesFile);
+			BufferedReader br = new BufferedReader(fr);
 			
 			Map<Integer,String> namesMap = new HashMap<Integer, String>();
 			while ((line = br.readLine()) != null) {
@@ -84,7 +85,7 @@ public class NcbiTaxonomy implements Serializable {
 				String[] split 	= line.split("(\t\\|\t)");
 				int taxid 		= Integer.parseInt(split[0]);
 				
-				// sci for scientific name
+				// sci stands for scientific name
 				if (!namesMap.containsKey(taxid) && split[3].startsWith("sci")) {
 					namesMap.put(taxid, split[1]);
 				}
@@ -92,8 +93,8 @@ public class NcbiTaxonomy implements Serializable {
 			
 			// Parse nodes file
 			File nodesFile = new File(flatPath + "nodes.dmp");
-			fr 		= new FileReader(nodesFile);
-			br 	= new BufferedReader(fr);
+			fr = new FileReader(nodesFile);
+			br = new BufferedReader(fr);
 
 			Map<Integer, TaxonNode> taxMap = new TreeMap<Integer, TaxonNode>();
 			Map<Integer, Integer> parentMap = new TreeMap<Integer, Integer>();
@@ -137,6 +138,7 @@ public class NcbiTaxonomy implements Serializable {
 			oos.writeObject(rootNode);
 			oos.writeObject(leafMap);
 			oos.close();
+			br.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

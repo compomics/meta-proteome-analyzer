@@ -54,9 +54,7 @@ public class Property extends PropertyTableAccessor {
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
 		ps.setString(1, title);
 		ResultSet rs = ps.executeQuery();
-		int counter = 0;
 		while (rs.next()) {
-			counter++;
 			temp = new Property(rs);
 		}
 		rs.close();

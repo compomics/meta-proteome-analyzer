@@ -30,10 +30,6 @@ import org.apache.log4j.Logger;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.ui.ClientFrameMenuBar;
-import de.mpa.client.ui.ScreenConfig;
-import de.mpa.client.ui.StatusPanel;
-import de.mpa.client.ui.ThinBevelBorder;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
@@ -155,7 +151,6 @@ public class ClientFrame extends JFrame {
 		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
 		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
 		ImageIcon compareIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/compare32.png"));
-		ImageIcon treeIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/tree.png"));
 		
 		ImageIcon[] icons = new ImageIcon[] { projectIcon, addSpectraIcon, settingsIcon, resultsIcon, 
 				clusteringIcon, loggingIcon, compareIcon };

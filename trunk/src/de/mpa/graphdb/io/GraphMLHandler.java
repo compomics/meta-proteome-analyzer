@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
-
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.TransactionalGraph;
@@ -23,7 +22,7 @@ import de.mpa.graphdb.properties.SpeciesProperty;
 
 /**
  * Utility class that handles importing and exporting to and from GraphML format
- * @author Miro Lehtevä, Thilo Muth
+ * @author Miro Lehtevï¿½, Thilo Muth
  * @date 2013-01-09
  * @version 0.6.1
  *

@@ -30,11 +30,25 @@ public class Parameters {
 	 *  Map of all EC.-numbers and descriptions
 	 */
 	private Map<String, ECEntry> ecMap;
-
+	
+	/**
+	 * KEGG taxonomy map.
+	 */
 	private Map<String, Character> keggTaxonomyMap;
+	
+	/**
+	 * KEGG pathway map.
+	 */
 	private Map<String, Character> keggPathwayMap;
 	
+	/**
+	 * KEGG organism tree root node.
+	 */
 	private SortableTreeNode keggOrganismTreeRoot;
+	
+	/**
+	 * KEGG pathway tree root node.
+	 */
 	private SortableTreeNode keggPathwayTreeRoot;
 
 	/**
@@ -47,6 +61,9 @@ public class Parameters {
 	 */
 	private Map<String, String[]> uniProtAccMap = null;
 	
+	/**
+	 * NcbiTaxonomy object. 
+	 */
 	private NcbiTaxonomy ncbiTaxonomy = null;
 	
 	/**
@@ -67,14 +84,13 @@ public class Parameters {
 	}
 
 	/**
-	 * Constructor
+	 * Private constructor for the parameters.
 	 */
 	private Parameters() {
 		// TODO: Loading parameter dialog.
 		try {
 			initializeParameters();
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -96,26 +112,23 @@ public class Parameters {
 	 */
 	private void initializeParameters() throws URISyntaxException {
 		// Initialize the EC-number map
-		ecMap = ECReader.readEC(
-				getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
+		ecMap = ECReader.readEC(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
 		
 		// Initialize the KEGG pathway map
-		keggPathwayMap = KeggMaps.readKeggPathways(
-				getClass().getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
+		keggPathwayMap = KeggMaps.readKeggPathways(getClass().getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
+		
 		// Initialize the KEGG taxonomy map
-		keggTaxonomyMap = KeggMaps.readKeggOrganisms(
-				getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
+		keggTaxonomyMap = KeggMaps.readKeggOrganisms(getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
 	}
 	
 	/**
 	 * Returns the UniProt peptide map with the associated accessions
 	 * @return Treemap of all UniProt peptides
 	 */
+	@SuppressWarnings("unchecked")
 	public TreeMap<String, String[]> getUniProtPeptideMap() {
 		if (uniProtPeptideMap == null) {
 			// Initialize UniProt peptide map
-			
-			  
 			try {
 				InputStream fosP = getClass().getResourceAsStream("/de/mpa/resources/conf/UniProtMapOfAllPeptide");
 				ObjectInputStream oosP = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(fosP)));
@@ -127,7 +140,6 @@ public class Parameters {
 				e1.printStackTrace();
 			}
 		}
-		
 		return (TreeMap<String, String[]>) uniProtPeptideMap ;
 	}
 	
@@ -135,6 +147,7 @@ public class Parameters {
 	 * Returns the UniProt accession map with the associated peptides
 	 * @return Treemap of all UniProt accessions
 	 */
+	@SuppressWarnings("unchecked")
 	public TreeMap<String, String[]> getUniProtAccMap() {
 		if (uniProtAccMap == null) {
 			// Initialize Uniprot accession map

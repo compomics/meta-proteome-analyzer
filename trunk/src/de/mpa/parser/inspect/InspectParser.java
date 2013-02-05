@@ -81,7 +81,7 @@ public class InspectParser {
 					}
 				}
 			}
-
+		reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

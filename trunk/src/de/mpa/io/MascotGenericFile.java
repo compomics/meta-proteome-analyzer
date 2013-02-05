@@ -524,7 +524,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                         if (st.hasMoreTokens()) {
                             this.setIntensity(Double.parseDouble(st.nextToken().trim()));
                         } else {
-                            this.setIntensity(0.0);
+                        	this.setIntensity(0.0);
                         }
                     } else if (line.startsWith(CHARGE)) {
                         // CHARGE line found.
@@ -605,7 +605,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         	}
         }
         // Precursor M/Z and intensity (separated by a space).
-        if ((this.getPrecursorMZ() > 0.0) && (this.getIntensity() > 0.0)) {
+        if ((this.getPrecursorMZ() >= 0.0)) {
             bw.write(PEPMASS + "=" + this.getPrecursorMZ() + " " + this.getIntensity() + "\n");
         }
         // For charge: see if it is present first (charge != 0).

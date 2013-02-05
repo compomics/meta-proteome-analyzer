@@ -17,8 +17,7 @@ public class PepnovoParser {
 	/**
 	 * Default contructor for the PepNovoParser.
 	 */
-	public PepnovoParser() {
-		
+	private PepnovoParser() {
 	}
 
 	/**
@@ -27,8 +26,7 @@ public class PepnovoParser {
 	 * @param file
 	 * @return pepNovoFile PepNovoFile object
 	 */
-	public PepnovoFile read(String file) {
-		
+	public static PepnovoFile read(String file) {
 		PepnovoFile pepNovoFile = new PepnovoFile(file);		
 		BufferedReader reader = null;
 		PepnovoEntry entry = null;		
@@ -95,6 +93,7 @@ public class PepnovoParser {
             if(predictionList != null) {
             	entry.setPredictionList(predictionList);
             }
+        reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

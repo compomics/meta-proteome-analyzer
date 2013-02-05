@@ -166,12 +166,12 @@ public class DBSearchPanel extends JPanel {
 
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
-		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.0"));
+		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.00"));
 		precTolSpn.setToolTipText("The precursor mass tolerance.");
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
-		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.0"));
+		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.00"));
 		fragTolSpn.setToolTipText("The fragment mass tolerance.");
 
 		// Missed cleavages Spinner

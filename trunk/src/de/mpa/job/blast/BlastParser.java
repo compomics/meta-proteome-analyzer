@@ -56,11 +56,13 @@ public class BlastParser {
 			}
 
 			if (strBuf == null) {
+				bReader.close();
 				throw new Exception("No BlastP output in the given file!!");
 			} else if (!strBuf.toString().equals("")) {
 				BlastQuery query = new BlastQuery(strBuf.toString());
 				blastQueries.add(query);
 			}
+			bReader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
