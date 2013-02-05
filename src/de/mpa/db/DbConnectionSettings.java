@@ -5,12 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
-
-import de.mpa.client.ui.ClientFrame;
-
 /**
  * This class represents the settings for the database connection.
  * @author T.Muth

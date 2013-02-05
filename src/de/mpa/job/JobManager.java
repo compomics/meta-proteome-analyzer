@@ -3,12 +3,6 @@ package de.mpa.job;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
-
-import de.mpa.job.instances.DeleteJob;
-import de.mpa.job.instances.MS2FormatJob;
-import de.mpa.job.instances.RenameJob;
-
 
 /**
  * The JobManager handles the execution of the various jobs.
@@ -23,19 +17,10 @@ public class JobManager implements Runnable {
 	private static JobManager instance;
 
 	/**
-	 * Logger instance.
-	 */
-	private Logger log = Logger.getLogger(JobManager.class);
-	
-	/**
 	 * JobQueue instance.
 	 */
 	private Queue<Job> jobQueue;
 	
-//	/**
-//	 * List of objects from the various
-//	 */
-//	private List<Object> objects;
 	
 	/**
 	 * Constructor for the job manager.
@@ -77,43 +62,13 @@ public class JobManager implements Runnable {
 	 */
 	public void run() {
 		// Iterate the job queue
-		for (Job job : jobQueue) {
-//			if (job instanceof MS2FormatJob) {
-//				MS2FormatJob ms2formatjob = (MS2FormatJob) job;
-//				ms2formatjob.run();
-//			} else if (job instanceof DeleteJob) {
-//				DeleteJob deletejob = (DeleteJob) job;
-//				deletejob.run();
-//			} else if (job instanceof RenameJob) {
-//				RenameJob renameJob = (RenameJob) job;
-//				renameJob.run();
-//			} else {
-//				// Set the job status to RUNNING and put the message in the queue
-//				try {
-//					log.info("Executing job: " + job.getDescription());
-//					Thread jobThread = new Thread(job);
-//					jobThread.start();
-//					jobThread.join();
-//				} catch (InterruptedException e) {
-//					log.error("Error in job: " + job.getDescription());
-//					e.printStackTrace();
-//				}
-//			}
-			
+		for (Job job : jobQueue) {			
 			job.run();
 			// Remove job from the queue after successful execution.
 			jobQueue.remove(job);
 		}
 	}
     
-//	/**
-//	 * Returns a list of objects.
-//	 * @return
-//	 */
-//	public List<Object> getObjects(){
-//		return objects;
-//	}
-	
 	/**
 	 * This method deletes all the jobs from the queue.	
 	 */	

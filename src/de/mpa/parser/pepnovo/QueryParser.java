@@ -26,7 +26,6 @@ public class QueryParser {
 	 * @return queryFile QueryFile object
 	 */
 	public static QueryFile read(String filename) {
-				
 		BufferedReader reader = null;
 		QueryEntry queryEntry = null;		
 		List<QueryEntry> entryList = new ArrayList<QueryEntry>();
@@ -49,6 +48,7 @@ public class QueryParser {
 				}
 				entryList.add(queryEntry);
 			}
+			reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.storager.CruxStorager;
@@ -34,11 +32,6 @@ public class DBManager {
      * Separate spectrum storage thread.
      */
 	private Thread spectraThread;
-	
-	/**
-	 * Thread pool handler.
-	 */
-	private ExecutorService executor;
 	
 	/**
 	 * DBManager instance.
@@ -76,9 +69,6 @@ public class DBManager {
 		
 		// Set auto commit == FALSE --> Manual commit & rollback.
 		conn.setAutoCommit(false);
-		
-		// Start the cached thread pool.
-		executor = Executors.newCachedThreadPool();
     }
 	
 	/**

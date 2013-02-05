@@ -47,9 +47,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE sequence = ?");
         ps.setString(1, sequence);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp = new PeptideAccessor(rs);
         }
         rs.close();
@@ -126,9 +124,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
             ps.setLong(i+1, peptideIDs.get(i));
 		}
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new PeptideAccessor(rs));
         }
         rs.close();
@@ -149,9 +145,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
 									    			  " WHERE libspectrum.libspectrumid = ?");
         ps.setLong(1, spectrumID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(new PeptideAccessor(rs));
         }
         rs.close();

@@ -75,6 +75,7 @@ public class CypherQuery {
 	
 	/**
 	 * Returns the unique peptides for a protein (specified by its accession).
+	 * TODO:
 	 * @param accession Protein accession
 	 * @return Peptide node(s) ExecutionResult
 	 */
@@ -83,8 +84,6 @@ public class CypherQuery {
                 "MATCH (protein)-->(peptide) " +
                 "RETURN peptide", map("accession", accession));
 	}
-	
-	
 	
 	/**
 	 * Returns all proteins for a peptide (specified by its sequence).	 * 

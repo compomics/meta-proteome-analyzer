@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
@@ -64,16 +63,12 @@ import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.painter.Painter;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtAccession;
-
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.UniProtGiMapper;
-import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -87,7 +82,6 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
-import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * Prototyp for comparison of different samples.
@@ -712,7 +706,6 @@ public class ComparePanel extends JPanel{
 
 						//TODO Insert correction to UNIPROT
 						if (!entryCbx.getSelectedItem().equals("Accessions")) {
-							int testIndex = 1;
 							// Collect proteinHits without UniProt accession
 							ArrayList<Long> ncbiAccList = new ArrayList<Long>();
 							for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {

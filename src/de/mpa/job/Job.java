@@ -18,19 +18,29 @@ import de.mpa.webservice.MessageQueue;
  */
 public abstract class Job implements Executable {
 	
-	// The job ID
+	/**
+	 * Job identifier.
+	 */
 	protected int id;
 	
-	// Default setting for the error --> NULL
+	/**
+	 * Job error string.
+	 */
 	protected String error = null;
 	
-	// Default setting on JobStatus.WAITING
+	/**
+	 * JobStatus status.
+	 */
 	protected JobStatus status = JobStatus.WAITING;
 
-	// Default description is an empty string
+	/**
+	 * Job description.
+	 */
 	protected String description = "";
 	
-	// Filename representing the file.
+	/**
+	 * Job filename.
+	 */
 	protected String filename;
 	
 	/**

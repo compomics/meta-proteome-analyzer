@@ -1,7 +1,6 @@
 package de.mpa.graphdb.access;
 import org.neo4j.graphdb.GraphDatabaseService;
 
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.IndexableGraph;
 import com.tinkerpop.blueprints.TransactionalGraph;
@@ -29,7 +28,7 @@ import de.mpa.graphdb.vertices.Species;
 /**
  * A DataAccessor class provides access to vertices of the graph by querying any property that 
  * the vertices has. Class is meant to access single or group of vertices that are having certain properties.
- * @author Miro Lehtevä, Thilo Muth
+ * @author Miro Lehtevï¿½, Thilo Muth
  *
  */
 public class DataAccessor {
@@ -82,7 +81,7 @@ public class DataAccessor {
 	/**
 	 * Edge index.
 	 */
-	private Index<Edge> edgeIndex;
+	//private Index<Edge> edgeIndex;
 	
 	/**
 	 * Constructor for DataAccessObject 
@@ -99,7 +98,7 @@ public class DataAccessor {
 		enzymeIndex = neograph.getIndex("enzymes", Vertex.class);
 		pathwayIndex = neograph.getIndex("pathways", Vertex.class);
 		ontologyIndex = neograph.getIndex("ontologies", Vertex.class);
-		edgeIndex = neograph.getIndex("edges", Edge.class);
+		//edgeIndex = neograph.getIndex("edges", Edge.class);
 		this.stopTransaction();
 	}
 	
@@ -116,7 +115,7 @@ public class DataAccessor {
 		enzymeIndex = baseGraph.getIndex("enzymes", Vertex.class);
 		pathwayIndex = baseGraph.getIndex("pathways", Vertex.class);
 		ontologyIndex = baseGraph.getIndex("ontologies", Vertex.class);
-		edgeIndex = baseGraph.getIndex("edges", Edge.class);
+		//edgeIndex = baseGraph.getIndex("edges", Edge.class);
 		this.stopTransaction();
 	}
 	

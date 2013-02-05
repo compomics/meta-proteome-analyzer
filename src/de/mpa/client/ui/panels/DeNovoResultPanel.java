@@ -156,27 +156,6 @@ public class DeNovoResultPanel extends JPanel {
 	    this.add(solutionsTtlPnl, cc.xy(4, 4));
 	}
 
-	/**
-	 * Clears the hit result table.
-	 */
-	private void clearDenovoHitResultTable() {
-		// Remove solutions from the table.        	 
-		while (solutionsTbl.getRowCount() > 0) {
-			((DefaultTableModel) solutionsTbl.getModel()).removeRow(0);
-		}
-	}	
-	
-	/**
-	 * Clears the spectrum table.
-	 */
-	private void clearSpectrumTable() {
-		// Remove spectra from all result tables        	 
-		while (spectraTbl.getRowCount() > 0) {
-			((DefaultTableModel) spectraTbl.getModel()).removeRow(0);
-		}
-	}
-	
-
 	
     /**
      * This method prepares the denovo hits table.

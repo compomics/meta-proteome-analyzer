@@ -11,6 +11,11 @@ import com.jgoodies.looks.plastic.theme.SkyBlue;
 
 import de.mpa.client.ui.ClientFrame;
 
+/**
+ * Starter class for the main application.
+ * @author T. Muth
+ *
+ */
 public class Starter {
 	
 	/**
@@ -19,7 +24,6 @@ public class Starter {
 	private static void setLookAndFeel() {
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
 		Options.setUseSystemFonts(true);
-		//Options.setDefaultIconSize(new Dimension(18, 18));
 		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
 		Options.setPopupDropShadowEnabled(true);
 		UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);

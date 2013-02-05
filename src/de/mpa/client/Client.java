@@ -204,6 +204,7 @@ public class Client {
 		// Before converting to an int type, check to ensure that file is not larger than Integer.MAX_VALUE.
 		if (length > Integer.MAX_VALUE) {
 			// File is too large
+			is.close();
 			throw new IOException("File size too long: " + length);
 		}
 
@@ -220,6 +221,7 @@ public class Client {
 
 		// Ensure all the bytes have been read in
 		if (offset < bytes.length) {
+			is.close();
 			throw new IOException("Could not completely read file " + file.getName());
 		}
 

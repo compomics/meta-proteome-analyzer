@@ -95,9 +95,7 @@ public class Spectrum extends SpectrumTableAccessor {
          		" WHERE spectrumid = ? ORDER BY creationdate");
          ps.setLong(1, spectrumid);
          ResultSet rs = ps.executeQuery();
-         int counter = 0;
          while (rs.next()) {
-             counter++;
              temp = new Spectrum(rs);
          }
          rs.close();

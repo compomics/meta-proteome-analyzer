@@ -46,9 +46,7 @@ public class Pep2prot extends Pep2protTableAccessor {
         ps.setLong(1, peptideID);
         ps.setLong(2, proteinID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp = new Pep2prot(rs);
         }
         rs.close();
@@ -89,9 +87,7 @@ public class Pep2prot extends Pep2protTableAccessor {
         											  " WHERE " + FK_PEPTIDEID  + " = ?");
         ps.setLong(1, peptideID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
             temp.add(rs.getLong(FK_PROTEINID));
         }
         rs.close();

@@ -1,8 +1,5 @@
 package de.mpa.analysis;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jaligner.Alignment;
 import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
@@ -10,10 +7,13 @@ import jaligner.matrix.Matrix;
 import jaligner.matrix.MatrixLoader;
 import jaligner.matrix.MatrixLoaderException;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Method to test the JAligner library,
