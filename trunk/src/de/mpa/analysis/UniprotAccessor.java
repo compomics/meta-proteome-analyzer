@@ -80,8 +80,11 @@ public class UniprotAccessor {
 			Map<String, String> mapping = UniProtGiMapper.getMapping(idList);
 			for (String gi : idList) {
 				String acc = mapping.get(gi);
-				// store re-mapped protein hit
-				proteinHits.put(acc, resultHits.get(gi));
+				// store re-mapped protein hit 
+				if (acc != null) {
+					proteinHits.put(acc, resultHits.get(gi));
+				}
+				
 			}
 		}
 		

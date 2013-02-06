@@ -18,8 +18,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.Set;
 import java.util.Vector;
 
@@ -56,12 +59,18 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.Painter;
+
+import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtAccession;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -69,6 +78,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -446,8 +456,6 @@ public class ComparePanel extends JPanel{
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		buttonPanel.setOpaque(false);
 
-
-
 		final String[] cardLabels = new String[] {"Original", "Flat View"};
 		final CardLayout cardLyt = new CardLayout();
 		final JPanel cardPnl = new JPanel(cardLyt);
@@ -704,28 +712,22 @@ public class ComparePanel extends JPanel{
 						Client.getInstance().retrieveDbSearchResult(groupEntry.getKey(),experiment.getTitle(),experiment.getExperimentid() );
 						DbSearchResult dbSearchResult = client.getDbSearchResult();
 
-						//TODO Insert correction to UNIPROT
-						if (!entryCbx.getSelectedItem().equals("Accessions")) {
-							// Collect proteinHits without UniProt accession
-							ArrayList<Long> ncbiAccList = new ArrayList<Long>();
-							for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
-								// Check whether key is not UniProt
-								if (!protHit.getAccession().contains("[A-Za-z]")) {
-									ncbiAccList.add(Long.valueOf(protHit.getAccession()));
-								}
-								
+						if (!dbSearchResult.isEmpty()) {
+							// Retrieve UniProt data
+							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
+							client.firePropertyChange("indeterminate", false, true);
+							try {
+								UniprotAccessor.retrieveUniProtEntries(dbSearchResult);
+							} catch (Exception e) {
+								JXErrorPane.showDialog(clientFrame, new ErrorInfo("Error",
+										"UniProt access failed. Please try again later.",
+										e.getMessage(), null, e, Level.SEVERE, null));
 							}
 							
-//							TreeMap<Long, String> mapping = UniProtGiMapper.getMapping(ncbiAccList);
-//							for (Entry<Long, String> ncbi2UniProt : mapping.entrySet()) {
-////								dbSearchResult.getProteinHit(ncbi2UniProt.getKey().toString()).set
-//								System.out.println("" +ncbi2UniProt.getKey() +" " + ncbi2UniProt.getValue());
-//								
-////								UniprotAccessor.
-//							}
-							
-							
+							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
+							client.firePropertyChange("indeterminate", true, false);
 						}
+						
 						proteinSet.addAll(dbSearchResult.getProteinHitList());
 						resultList.add(dbSearchResult);
 					}
@@ -741,7 +743,36 @@ public class ComparePanel extends JPanel{
 				}
 			}
 		}
-
+		List<ProteinHit> removeList = new ArrayList<ProteinHit>();
+		// List for mapping back from UniProt2NCBI
+		Map<String,String> uniProt2NCBI = new TreeMap<String, String>(); 
+		// For NCBI2UniProt correction
+		if (!entryCbx.getSelectedItem().equals("Accessions")) {
+			for (ProteinHit proteinHit : proteinSet) {
+				String accession = proteinHit.getAccession();
+				UniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
+				// Case that NCBI accession with UniProt Mapping
+				if (uniprotEntry != null) {
+					// Build list of UniProt accessions
+					List<String> uniProtAccs = new ArrayList<String>();
+					uniProtAccs.add(uniprotEntry.getPrimaryUniProtAccession().getValue());
+					ListIterator<SecondaryUniProtAccession> secondaryUniProtAccessions = uniprotEntry.getSecondaryUniProtAccessions().listIterator();
+					while (secondaryUniProtAccessions.hasNext()) {
+						uniProtAccs.add(secondaryUniProtAccessions.next().getValue());
+					}
+					if (!uniProtAccs.contains(accession)) { // Check for non UNIProt entries
+						removeList.add(proteinHit);
+						uniProt2NCBI.put(uniProtAccs.get(0), accession);
+					}
+				}
+			}
+			// Remove redundant entries
+			for (ProteinHit proteinHit : removeList) {
+				proteinSet.remove(proteinHit);
+				
+			}
+		}
+		
 		// 2. Create table
 		int rowIndex = 1;
 		for (ProteinHit proteinEntry : proteinSet) {
@@ -752,9 +783,25 @@ public class ComparePanel extends JPanel{
 			row.add(proteinEntry.getDescription());
 
 			for (List<DbSearchResult> resultList : groupResultList) {
-				List<Double> groupValues = new ArrayList<Double>(); // For grouping
+				List<Double> groupValues = new ArrayList<Double>(); 			// For grouping
 				for (DbSearchResult dbSearchResult : resultList) {
-					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinEntry.getAccession());
+					ProteinHit proteinHit = null;
+					if (!entryCbx.getSelectedItem().equals("Accessions")) { 	// Try to correct to UniProt
+					String accSet = proteinEntry.getAccession();
+						proteinHit = dbSearchResult.getProteinHits().get(accSet);
+						if (proteinHit == null) { 								// No UniProt identifier
+							String ncbiAcc = uniProt2NCBI.get(accSet);
+							if (ncbiAcc == null) {								// UniProt
+								proteinHit = dbSearchResult.getProteinHits().get(proteinEntry.getAccession());
+							} else {
+								proteinHit = dbSearchResult.getProteinHits().get(ncbiAcc);
+							}
+						}
+					}
+					else{ // Use original identifier
+						proteinHit = dbSearchResult.getProteinHits().get(proteinEntry.getAccession());
+					}
+					
 					if (proteinHit == null) {
 						row.add(0); // If protein is not included in the experiment
 					} else {
@@ -816,6 +863,7 @@ public class ComparePanel extends JPanel{
 			model.addRow(row);
 		}
 	}
+
 	/**
 	 * Method to export compare table as csv. format, but tab separated
 	 */
