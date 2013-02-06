@@ -69,20 +69,33 @@ public class CypherQuery {
 	 */
 	public ExecutionResult getPeptidesForProtein(String accession) {
 		return engine.execute("START protein=node:proteins(ACCESSION = {accession}) " +
-                "MATCH (protein)-->(peptide) " +
+                "MATCH (protein)-[:HAS_PEPTIDE]->(peptide) " +
                 "RETURN peptide", map("accession", accession));
 	}
 	
 	/**
-	 * Returns the unique peptides for a protein (specified by its accession).
+	 * Returns all unique peptides of the dataset.
 	 * TODO:
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getAllUniquePeptides() {
+		return engine.execute("START n=node(*) " +
+				"MATCH (n)-[r]->() " + 
+				"WITH count(r) as pc " +
+				"WHERE pc = 1" + 
+				"RETURN n");
+	}
+	
+	/**
+	 * Returns the unique peptides for a protein (specified by its accession).
 	 * @param accession Protein accession
 	 * @return Peptide node(s) ExecutionResult
 	 */
 	public ExecutionResult getUniquePeptidesForProtein(String accession) {
 		return engine.execute("START protein=node:proteins(ACCESSION = {accession}) " +
-                "MATCH (protein)-->(peptide) " +
-                "RETURN peptide", map("accession", accession));
+				"MATCH (protein)-->(peptide)-->(protein2) " + 
+				"WHERE count(protein2) = 1" + "RETURN peptide",
+				map("accession", accession));
 	}
 	
 	/**
@@ -129,7 +142,6 @@ public class CypherQuery {
                 "RETURN protein", map("konumber", koNumber));
 	}
 	
-	
 	/**
 	 * Returns all proteins for biological process (specified by keyword). 
 	 * @param keyword Ontology keyword
@@ -164,6 +176,84 @@ public class CypherQuery {
 	}
 	
 	/**
+	 * Returns all peptides for species (specified by species name). 
+	 * @param species Species name
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getPeptidesForSpecies(String species) {
+		return engine.execute("START species=node:species(NAME = {species}) " +
+                "MATCH (species)<-[:BELONGS_TO]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
+                "RETURN peptide", map("species", species));
+	}
+	
+	/**
+	 * Returns all peptides for an enzyme (specified by its E.C. number). 
+	 * @param ecNumber Enzyme E.C. number
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getPeptidesForEnzyme(String ecNumber) {
+		return engine.execute("START enzyme=node:enzymes(ECNUMBER = {ecnumber}) " +
+                "MATCH (enzyme)<-[:BELONGS_TO_ENZYME]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
+                "RETURN peptide", map("ecnumber", ecNumber));
+	}
+	
+	/**
+	 * Returns all peptides for a pathway (specified by its KO number). 
+	 * @param koNumber Pathway KO number
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getPeptidesForPathway(String koNumber) {
+		return engine.execute("START pathway=node:pathways(KONUMBER = {konumber}) " +
+                "MATCH (pathway)<-[:BELONGS_TO_PATHWAY]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
+                "RETURN peptide", map("konumber", koNumber));
+	}
+	
+	/**
+	 * Returns all peptides for biological process (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getPeptidesForBiologicalProcess(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:INVOLVED_IN_BIOPROCESS]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
+                "RETURN peptide", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all peptides for molecular function (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getPeptidesForMolecularFunction(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:HAS_MOLECULAR_FUNCTION]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
+                "RETURN peptide", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all peptides for cellular component (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getPeptidesForCellularComponent(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:BELONGS_TO_COMPONENT]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
+                "RETURN peptide", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all PSMS for a peptide (specified by its sequence):
+	 * peptide<-IS_MATCH_IN-psm
+	 * @param sequence Peptide sequence
+	 * @return PSM node(s) ExecutionResult
+	 */
+	public ExecutionResult getPSMsForPeptide(String sequence) {
+		return engine.execute("START peptide=node:peptides(SEQUENCE = {sequence}) " +
+                "MATCH (peptide)<-[:IS_MATCH_IN]-(psm) " +
+                "RETURN psm", map("sequence", sequence));
+	}
+	
+	/**
 	 * Returns all PSMS for a protein (specified by its accession):
 	 * Protein-HAS_PEPTIDE->Peptide<-IS_MATCH_IN-Psm
 	 * @param accession Protein accession
@@ -181,7 +271,7 @@ public class CypherQuery {
 	 * @param ecNumber Enzyme number
 	 * @return PSM node(s) ExecutionResult
 	 */
-	public ExecutionResult getPSMsForEnzymeNumber(String ecNumber) {
+	public ExecutionResult getPSMsForEnzyme(String ecNumber) {
 		return engine.execute("START enzyme=node:enzymes(ECNUMBER = {ecNumber}) " +
                 "MATCH (enzyme)<-[:BELONGS_TO_ENZYME]-(protein)-[:HAS_PEPTIDE]->(peptide)<-[:IS_MATCH_IN]-(psm) " +
                 "RETURN psm", map("ecNumber", ecNumber));
@@ -198,7 +288,7 @@ public class CypherQuery {
                 "MATCH (pathway)<-[:BELONGS_TO_PATHWAY]-(protein)-[:HAS_PEPTIDE]->(peptide)<-[:IS_MATCH_IN]-(psm) " +
                 "RETURN psm", map("koNumber", koNumber));
 	}
-    
+	
     /**
      * Returns the relationships from the protein. 
      * @return ExecutionResult object
@@ -239,11 +329,12 @@ public class CypherQuery {
 	public static Set<Node> retrieveNodeSet(ExecutionResult executionResult, String columnName, ElementProperty property) {
 		Iterator<Object> columnAs = executionResult.columnAs(columnName);
 		Set<Node> nodeSet = new HashSet<Node>();
+		
         while (columnAs.hasNext()) {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                if(n.hasProperty(property.toString())){
+                if(n.hasProperty(property.toString().toUpperCase())){
                 	nodeSet.add(n);
                 }
             }

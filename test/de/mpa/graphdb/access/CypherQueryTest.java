@@ -76,7 +76,7 @@ public class CypherQueryTest {
 	}
 	
 	@Test
-    public void testFirstNode() {
+    public void testGetFirstNode() {
 		// Getting the first inserted protein node.
         Iterator<Object> columnAs = cypherQuery.getFirstNode().columnAs("n");
         while (columnAs.hasNext()) {
@@ -103,7 +103,7 @@ public class CypherQueryTest {
     }
 	
 	@Test
-    public void testPeptidesForProtein() {
+    public void testGetPeptidesForProtein() {
 		// Test1 : One peptide only!
         Iterator<Object> columnAs = cypherQuery.getPeptidesForProtein("P64462").columnAs("peptide");
         while (columnAs.hasNext()) {
@@ -118,7 +118,24 @@ public class CypherQueryTest {
     }
 	
 	@Test
-    public void testPSMsForProtein() {
+    public void testGetUniquePeptidesForProtein() {
+		// Test1 : One peptide only!
+		// TODO
+//        Iterator<Object> columnAs = cypherQuery.getUniquePeptidesForProtein("P64462").columnAs("peptide");
+//        while (columnAs.hasNext()) {
+//            final Object value = columnAs.next();
+//            if (value instanceof Node) {
+//                Node n = (Node)value;
+//                if(n.hasProperty(PeptideProperty.SEQUENCE.name())){
+//                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
+//                }
+//            }
+//        }
+    }
+	
+	
+	@Test
+    public void testGetPSMsForProtein() {
 		// Multiple PSMs for one protein and peptide
         Iterator<Object> columnAs = cypherQuery.getPSMsForProtein("P69908").columnAs("psm");
         List<Node> nodeList = new ArrayList<Node>();
@@ -136,16 +153,34 @@ public class CypherQueryTest {
     }
 	
 	@Test
-    public void testPSMsForEnzyme() {
+	public void testGetPSMsForPeptide() {
+		// One PSM for one peptide
+        Iterator<Object> columnAs = cypherQuery.getPSMsForPeptide("LESLMTGPRK").columnAs("psm");
+        List<Node> nodeList = new ArrayList<Node>();
+        while (columnAs.hasNext()) {
+            final Object value = columnAs.next();
+            if (value instanceof Node) {
+                Node n = (Node)value;
+                if(n.hasProperty(PsmProperty.SPECTRUMID.name())){
+                	nodeList.add(n);
+                }
+            }
+        }
+        TestCase.assertEquals(1081653L, nodeList.get(0).getProperty(PsmProperty.SPECTRUMID.name()));
+        TestCase.assertEquals(1, nodeList.size());
+    }
+	
+	@Test
+    public void testGetPSMsForEnzyme() {
 		// Multiple PSMs for one protein and peptide
-		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForEnzymeNumber("4.1.1.15"), "psm", PsmProperty.SPECTRUMID);
+		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForEnzyme("4.1.1.15"), "psm", PsmProperty.SPECTRUMID);
         
 		TestCase.assertEquals(1081661L, nodeSet.iterator().next().getProperty(PsmProperty.SPECTRUMID.name()));
 		TestCase.assertEquals(4, nodeSet.size());
     }
 	
 	@Test
-    public void testPSMsForPathway() {
+    public void testGetPSMsForPathway() {
 		// Multiple PSMs for one protein and peptide
 		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForPathway("K01580"), "psm", PsmProperty.SPECTRUMID);
         

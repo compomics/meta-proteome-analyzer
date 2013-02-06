@@ -33,6 +33,8 @@ public class TopData implements ChartData {
 	 * The top proteins map.
 	 */
 	private HashMap<ProteinHit, Integer> topProteinsMap;
+
+	private List<ProteinHit> topProteins;
 	
 	/**
 	 * TopData constructor
@@ -56,8 +58,7 @@ public class TopData implements ChartData {
 	@Override
 	public CategoryDataset getDataset() {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		// Get the reversely sorted top proteins map.
-		List<ProteinHit> topProteins = MapUtil.getKeysSortedByValue(topProteinsMap, true);
+		topProteins = MapUtil.getKeysSortedByValue(topProteinsMap, true);
 		
 		// Iterate the best ranked (highest spectral count) proteins.
 		for(int i = 0; i < TOP_NUMBER; i++) {
@@ -70,8 +71,7 @@ public class TopData implements ChartData {
 
 	@Override
 	public List<ProteinHit> getProteinHits(String key) {
-		// TODO Auto-generated method stub
-		return null;
+		return topProteins;
 	}
 
 }
