@@ -8,6 +8,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class provides a method to retrieve a mapping of NCBI GI numbers to
@@ -74,6 +75,7 @@ public class UniProtGiMapper {
 				conn.disconnect();
 			}
 		}
+		int index = 0;
 		return gi2acc;
 	}
 }
