@@ -27,6 +27,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -62,6 +64,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -99,10 +102,12 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -1759,7 +1764,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 	
 			public boolean isCellEditable(int row, int col) {
-				return (col == PEP_SELECTION);
+				return (col == PEP_SELECTION || col == PEP_SEQUENCE);
 			}
 		};
 		peptideTbl = new JXTable(peptideTblMdl) {
@@ -1774,6 +1779,14 @@ public class DbSearchResultPanel extends JPanel {
 				return comp;
 			}
 			@Override
+			public Component prepareEditor(TableCellEditor editor, int row,
+					int column) {
+				Component comp = super.prepareEditor(editor, row, column);
+				comp.setFont(chartFont);
+				compoundHighlighter.highlight(comp, getComponentAdapter(row, column));
+				return comp;
+			}
+			@Override
 			public void setValueAt(Object aValue, int row, int column) {
 				super.setValueAt(aValue, row, column);
 				if (column == PEP_SELECTION) {
@@ -1781,6 +1794,12 @@ public class DbSearchResultPanel extends JPanel {
 					proteinHit.getPeptideHits().get(getValueAt(row, PEP_SEQUENCE)).setSelected((Boolean) aValue);
 				}
 			}
+//			@Override
+//			public org.jdesktop.swingx.decorator.ComponentAdapter getComponentAdapter(
+//					int row, int column) {
+//				// TODO Auto-generated method stub
+//				return super.getComponentAdapter(row, column);
+//			}
 		};
 
 		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 0.9, 3.7, 1.7, 1.7,1.7});
@@ -1904,8 +1923,9 @@ public class DbSearchResultPanel extends JPanel {
 			public boolean isHighlighted(Component renderer,
 					org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
 				if (adapter.convertColumnIndexToModel(adapter.column) == PEP_SEQUENCE) {
-					int protCount = (Integer) adapter.getValueAt(
-							adapter.convertRowIndexToModel(adapter.row), PEP_PROTEINCOUNT);
+//					int protCount = (Integer) adapter.getValueAt(
+//							adapter.convertRowIndexToModel(adapter.row), PEP_PROTEINCOUNT);
+					int protCount = (Integer) adapter.getValue(PEP_PROTEINCOUNT);
 					return (protCount == 1);
 				}
 				return false;
@@ -1919,6 +1939,18 @@ public class DbSearchResultPanel extends JPanel {
 				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
 		peptideTbl.getColumnControl().setOpaque(false);
 		((ColumnControlButton) peptideTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		
+		JTextField editorTtf = new JTextField();
+		editorTtf.setEditable(false);
+		editorTtf.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+		editorTtf.setSelectionColor(Color.WHITE);
+		editorTtf.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				((JTextComponent) e.getSource()).selectAll();
+			}
+		});
+		tcm.getColumn(PEP_SEQUENCE).setCellEditor(new DefaultCellEditor(editorTtf));
 	}
 	
 	/**
@@ -2272,6 +2304,7 @@ public class DbSearchResultPanel extends JPanel {
 				}
 			}
 			
+			Logger.getLogger(SmithWatermanGotoh.class.getName()).setLevel(Level.OFF);
 			for (ProteinHitList metaProtein : dbSearchResult.getMetaProteins()) {
 				// Create default values for meta-ProteinHit;
 				String metaDesc 	= "";
@@ -2320,14 +2353,20 @@ public class DbSearchResultPanel extends JPanel {
 						proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
 						// Get minimal identity for the protein
-						double identity;
-						Logger.getLogger(SmithWatermanGotoh.class.getName()).setLevel(Level.OFF);
-						for (ProteinHit furtherproteinHit : metaProtein){
-							Alignment align = SmithWatermanGotoh.align(new Sequence(proteinHit.getSequence()), new Sequence(furtherproteinHit.getSequence()),matrix, 10.0f, 0.5f);
-								
-							identity = align.getIdentity()* 100.0 / proteinHit.getSequence().length();
-							if (proteinHit.getIdentity()> identity) {
-								proteinHit.setIdentity(identity);
+						if (proteinHit.getSequence().length() <= 5000) {
+							for (ProteinHit furtherproteinHit : metaProtein) {
+								if (furtherproteinHit.getSequence().length() <= 5000) {
+									Alignment align = SmithWatermanGotoh.align(
+											new Sequence(proteinHit.getSequence()),
+											new Sequence(furtherproteinHit.getSequence()),
+											matrix, 10.0f, 0.5f);
+
+									double identity = align.getIdentity() * 100.0 /
+											proteinHit.getSequence().length();
+									if (proteinHit.getIdentity() > identity) {
+										proteinHit.setIdentity(identity);
+									}
+								}
 							}
 						}
 					}
@@ -2542,20 +2581,9 @@ public class DbSearchResultPanel extends JPanel {
 	private TreePath insertFlatNode(PhylogenyTreeTableNode protNode) {
 		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protFlatTreeTbl.getTreeTableModel();
 		
-//		if (Math.random() < 0.5) {
-//			ProteinHitList hitList = new ProteinHitList();
-//			hitList.add((ProteinHit) protNode.getUserObject());
-//			PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(hitList);
-//			
-//			treeTblMdl.insertNodeInto(metaNode,
-//					(MutableTreeTableNode) treeTblMdl.getRoot(),
-//					treeTblMdl.getRoot().getChildCount());
-//			treeTblMdl.insertNodeInto(protNode, metaNode, metaNode.getChildCount());
-//		} else {
-			treeTblMdl.insertNodeInto(protNode,
-					(MutableTreeTableNode) treeTblMdl.getRoot(),
-					treeTblMdl.getRoot().getChildCount());
-//		}
+		treeTblMdl.insertNodeInto(protNode,
+				(MutableTreeTableNode) treeTblMdl.getRoot(),
+				treeTblMdl.getRoot().getChildCount());
 		
 		return new TreePath(treeTblMdl.getPathToRoot(protNode));
 	}
