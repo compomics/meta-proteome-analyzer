@@ -65,5 +65,6 @@
 	<classpathentry kind="lib" path="lib/neo4j-udc-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.9.1-1.jar"/>
 	<classpathentry kind="lib" path="lib/server-api-1.8.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/heyer/Desktop/msparser_2_4_02_i386_rh80.tar/msparser.jar" sourcepath="C:/Documents and Settings/heyer/Desktop/msparser_2_4_02_i386_rh80.tar/msparser.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
