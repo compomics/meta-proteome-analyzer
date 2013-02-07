@@ -15,16 +15,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -69,7 +67,6 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.Painter;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
 import com.jgoodies.forms.factories.CC;
@@ -665,7 +662,23 @@ public class ComparePanel extends JPanel{
 				// Set header to table model
 				setColumnIdentifiers(tableHeaderVector);
 			}
+			// Set variable types of columns for row sorting
+			public Class<?> getColumnClass(int columnIndex) {
+				switch (columnIndex) {
+				case 0: 
+					return Boolean.class;
+				case 1:
+					return Double.class;
+				case 2: 
+				case 3:
+					return String.class;
+				default:
+					return Long.class;
+				}
+			}
 		};
+		
+		
 		return compareTableMdl;
 	}
 
@@ -699,7 +712,7 @@ public class ComparePanel extends JPanel{
 		}
 
 		// 1. Create proteinHitSet
-		Set<ProteinHit> proteinSet = new HashSet<ProteinHit>();
+		Map<String,ProteinHit> proteinMap = new TreeMap<String,ProteinHit>();
 		if (experimentsHaveChanged) {
 			groupResultList = new ArrayList<List<DbSearchResult>>();
 			for (Entry<String, List<Experiment>> groupEntry: groupMap.entrySet()) {
@@ -728,7 +741,12 @@ public class ComparePanel extends JPanel{
 							client.firePropertyChange("indeterminate", true, false);
 						}
 						
-						proteinSet.addAll(dbSearchResult.getProteinHitList());
+						//TODO remove double entries
+						for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+							if (!proteinMap.containsKey(protHit.getAccession())) {
+								proteinMap.put(protHit.getAccession(), protHit);
+							}
+						}
 						resultList.add(dbSearchResult);
 					}
 				}
@@ -738,7 +756,11 @@ public class ComparePanel extends JPanel{
 			if (groupResultList != null) {
 				for (List<DbSearchResult> resultList : groupResultList) {
 					for (DbSearchResult dbSearchResult : resultList) {
-						proteinSet.addAll(dbSearchResult.getProteinHitList());
+						for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+							if (!proteinMap.containsKey(protHit.getAccession())) {
+								proteinMap.put(protHit.getAccession(), protHit);
+							}
+						}
 					}
 				}
 			}
@@ -748,7 +770,7 @@ public class ComparePanel extends JPanel{
 		Map<String,String> uniProt2NCBI = new TreeMap<String, String>(); 
 		// For NCBI2UniProt correction
 		if (!entryCbx.getSelectedItem().equals("Accessions")) {
-			for (ProteinHit proteinHit : proteinSet) {
+			for (ProteinHit proteinHit : proteinMap.values()) {
 				String accession = proteinHit.getAccession();
 				UniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
 				// Case that NCBI accession with UniProt Mapping
@@ -768,14 +790,13 @@ public class ComparePanel extends JPanel{
 			}
 			// Remove redundant entries
 			for (ProteinHit proteinHit : removeList) {
-				proteinSet.remove(proteinHit);
-				
+				proteinMap.remove(proteinHit.getAccession());
 			}
 		}
 		
 		// 2. Create table
 		int rowIndex = 1;
-		for (ProteinHit proteinEntry : proteinSet) {
+		for (ProteinHit proteinEntry : proteinMap.values()) {
 			Vector<Object> row = new Vector<Object>();
 			row.add(true);
 			row.add(rowIndex++);
