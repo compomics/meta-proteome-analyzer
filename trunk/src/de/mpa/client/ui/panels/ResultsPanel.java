@@ -20,15 +20,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,7 +44,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
@@ -64,6 +62,7 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
+import org.jfree.data.xy.MatrixSeries;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -78,7 +77,6 @@ import de.mpa.analysis.KeggAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
@@ -87,6 +85,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
@@ -100,22 +99,30 @@ import de.mpa.util.ColorUtils;
 
 public class ResultsPanel extends JPanel {
 
-	private ClientFrame clientFrame;
-
 	private MultiSplitLayout msl;
 
 	private DbSearchResultPanel dbPnl;
 	private SpecSimResultPanel ssPnl;
 	private DeNovoResultPanel dnPnl;
 
+	/**
+	 * Button for showing button to select the type of chart to be displayed
+	 * inside the chart panel.
+	 */
 	private JToggleButton chartTypeBtn;
+
+	/**
+	 * Chart panel capable of displaying various charts (mainly ontology pie
+	 * charts).
+	 */
 	private ChartPanel chartPnl;
+
 	private JScrollBar chartBar;
 	private JComboBox hierarchyCbx;
 	private double pieChartAngle = 36.0;
 
 	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
-	private OntologyData ontologyData;
+	private OntologyData ontologyData = new OntologyData();
 	private TaxonomyData taxonomyData;
 	private TopData topData;
 
@@ -132,7 +139,6 @@ public class ResultsPanel extends JPanel {
 	private JLabel pathwaysLbl;
 
 	public ResultsPanel() {
-		this.clientFrame = ClientFrame.getInstance();
 		this.dbPnl = new DbSearchResultPanel(this);
 		this.ssPnl = new SpecSimResultPanel();
 		this.dnPnl = new DeNovoResultPanel();
@@ -143,17 +149,19 @@ public class ResultsPanel extends JPanel {
 		// configure main panel layout
 		this.setLayout(new FormLayout("p:g, 5dlu", "f:p:g, -40px, b:p, 5dlu"));
 
-		// Modify tab pane visuals for this single instance, restore defaults afterwards
-		Insets contentBorderInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
-		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, contentBorderInsets.bottom, 0));
+		// Modify tab pane visuals for this single instance, restore defaults
+		// afterwards
+		Insets contentBorderInsets = UIManager
+				.getInsets("TabbedPane.contentBorderInsets");
+		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0,
+				contentBorderInsets.bottom, 0));
 		final JTabbedPane resTpn = new JTabbedPane(JTabbedPane.BOTTOM);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets);
 
-		JPanel ovPnl = new JPanel(new FormLayout(
-				"5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		JPanel ovPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p:g, 5dlu"));
 
-		String layoutDef =
-				"(ROW (LEAF weight=0.5 name=summary) (COLUMN weight=0.5 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
+		String layoutDef = "(ROW (LEAF weight=0.5 name=summary) (COLUMN weight=0.5 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
 		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 
 		msl = new MultiSplitLayout(modelRoot);
@@ -164,8 +172,9 @@ public class ResultsPanel extends JPanel {
 		msp.add(createSummaryPanel(), "summary");
 		msp.add(createChartPanel(), "chart");
 		msp.add(createDetailsPanel(), "details");
-		//		msp.add(PanelConfig.createTitledPanel("Placeholder",
-		//				new JLabel("open to suggestions...", SwingConstants.CENTER)), "placeholder");
+		// msp.add(PanelConfig.createTitledPanel("Placeholder",
+		// new JLabel("open to suggestions...", SwingConstants.CENTER)),
+		// "placeholder");
 
 		ovPnl.add(msp, CC.xy(2, 2));
 
@@ -175,19 +184,38 @@ public class ResultsPanel extends JPanel {
 		resTpn.addTab(" ", dnPnl);
 
 		// TODO: use proper icons, possibly slightly larger ones, e.g. 40x40?
-		resTpn.setTabComponentAt(0, clientFrame.createTabButton("Overview",	new ImageIcon(getClass().getResource("/de/mpa/resources/icons/overview32.png")), resTpn));
-		resTpn.setTabComponentAt(1, clientFrame.createTabButton("Database Search Results", new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_search32.png")), resTpn));
-		resTpn.setTabComponentAt(2, clientFrame.createTabButton("Spectral Similarity Results", new ImageIcon(getClass().getResource("/de/mpa/resources/icons/spectral_search32.png")), resTpn));
-		resTpn.setTabComponentAt(3, clientFrame.createTabButton("BLAST Search Results",	new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast32.png")), resTpn));
+		ClientFrame clientFrame = ClientFrame.getInstance();
+		resTpn.setTabComponentAt(0, clientFrame.createTabButton(
+				"Overview",
+				new ImageIcon(getClass().getResource(
+						"/de/mpa/resources/icons/overview32.png")), resTpn));
+		resTpn.setTabComponentAt(1, clientFrame.createTabButton(
+				"Database Search Results",
+				new ImageIcon(getClass().getResource(
+						"/de/mpa/resources/icons/database_search32.png")),
+				resTpn));
+		resTpn.setTabComponentAt(2, clientFrame.createTabButton(
+				"Spectral Similarity Results",
+				new ImageIcon(getClass().getResource(
+						"/de/mpa/resources/icons/spectral_search32.png")),
+				resTpn));
+		resTpn.setTabComponentAt(3, clientFrame.createTabButton(
+				"BLAST Search Results",
+				new ImageIcon(getClass().getResource(
+						"/de/mpa/resources/icons/blast32.png")), resTpn));
 		Component tabComp = resTpn.getTabComponentAt(0);
-		tabComp.setPreferredSize(new Dimension(tabComp.getPreferredSize().width, 40));
+		tabComp.setPreferredSize(new Dimension(
+				tabComp.getPreferredSize().width, 40));
 
 		// create navigation button panel
-		final JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		final JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p",
+				"b:p:g"));
 		navPnl.setOpaque(false);
 
-		navPnl.add(clientFrame.createNavigationButton(false, !Client.getInstance().isViewer()), CC.xy(1, 1));
-		navPnl.add(clientFrame.createNavigationButton(true, !Client.getInstance().isViewer()), CC.xy(3, 1));
+		navPnl.add(clientFrame.createNavigationButton(false, !Client
+				.getInstance().isViewer()), CC.xy(1, 1));
+		navPnl.add(clientFrame.createNavigationButton(true, !Client
+				.getInstance().isViewer()), CC.xy(3, 1));
 
 		// add everything to main panel
 		this.add(navPnl, CC.xy(1, 3));
@@ -195,7 +223,8 @@ public class ResultsPanel extends JPanel {
 	}
 
 	/**
-	 * Creates and returns the left-hand summary panel (wrapped in a JXTitledPanel)
+	 * Creates and returns the left-hand summary panel (wrapped in a
+	 * JXTitledPanel)
 	 */
 	private JPanel createSummaryPanel() {
 
@@ -205,11 +234,15 @@ public class ResultsPanel extends JPanel {
 		summaryBtnPnl.setOpaque(false);
 		summaryBtnPnl.add(resizeBtn, CC.xy(1, 1));
 
-		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu"));
+		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p, 5dlu, f:p:g, 5dlu"));
 
-		JPanel generalPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
-				"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
-		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
+		JPanel generalPnl = new JPanel(
+				new FormLayout(
+						"5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
+						"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
+		generalPnl.setBorder(BorderFactory
+				.createTitledBorder("General Statistics"));
 
 		// total vs. identified spectra
 		totalSpecLbl = new JLabel("0");
@@ -253,34 +286,66 @@ public class ResultsPanel extends JPanel {
 		generalPnl.add(enzymesLbl, CC.xy(4, 10));
 		generalPnl.add(new JLabel("Distinct pathways"), CC.xy(2, 12));
 		generalPnl.add(pathwaysLbl, CC.xy(4, 12));
-
+		
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 
-		JXTitledPanel summaryTtlPnl = PanelConfig.createTitledPanel("Summary", summaryPnl);
+		// Add experimental heat map chart
+		// TODO: make heat map display useful information
+		int height = 26, width = 26;
+		MatrixSeries series = new MatrixSeries("1", height, width);
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				double mij = Math.sin((j + 0.5) / width * Math.PI) *
+							 Math.cos((i + 0.5) / height * Math.PI - Math.PI / 2.0);
+				series.update(i, j, mij);
+			}
+		}
+
+		String[] xLabels = new String[width];
+		for (int i = 0; i < xLabels.length; i++) {
+			xLabels[i] = "" + (i + 1);
+		}
+
+		String[] yLabels = new String[height];
+		for (int i = 0; i < yLabels.length; i++) {
+			yLabels[i] = "" + (char) (i + 'A');
+		}
+
+		HeatMapPane heatMap = new HeatMapPane("Heat Map", xLabels, yLabels, series);
+		heatMap.setVisibleColumnCount(13);
+		heatMap.setVisibleRowCount(13);
+
+		summaryPnl.add(heatMap, CC.xy(2, 4));
+
+		JXTitledPanel summaryTtlPnl = PanelConfig.createTitledPanel("Summary",
+				summaryPnl);
 		summaryTtlPnl.setRightDecoration(summaryBtnPnl);
 
 		return summaryTtlPnl;
 	}
 
 	/**
-	 * Creates and returns the top-right chart panel (wrapped in a JXTitledPanel)
+	 * Creates and returns the top-right chart panel (wrapped in a
+	 * JXTitledPanel)
 	 */
 	private JPanel createChartPanel() {
 
+		// init chart types
 		final ChartType[] chartTypes = new ChartType[] {
 				OntologyChartType.BIOLOGICAL_PROCESS,
 				OntologyChartType.MOLECULAR_FUNCTION,
 				OntologyChartType.CELLULAR_COMPONENT,
-				TaxonomyChartType.KINGDOM,
-				TaxonomyChartType.PHYLUM,
-				TaxonomyChartType.CLASS,
-				TaxonomyChartType.SPECIES,
-				TopBarChartType.PROTEINS
-		};
+				TaxonomyChartType.KINGDOM, TaxonomyChartType.PHYLUM,
+				TaxonomyChartType.CLASS, TaxonomyChartType.SPECIES,
+				TopBarChartType.PROTEINS };
 
-		chartTypeBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
-		chartTypeBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
-		chartTypeBtn.setPressedIcon(IconConstants.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
+		// create and configure button for chart type selection
+		chartTypeBtn = new JToggleButton(
+				IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
+		chartTypeBtn.setRolloverIcon(IconConstants
+				.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
+		chartTypeBtn.setPressedIcon(IconConstants
+				.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
 		chartTypeBtn.setToolTipText("Select Chart Type");
 		chartTypeBtn.setEnabled(false);
 
@@ -293,6 +358,7 @@ public class ResultsPanel extends JPanel {
 		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
 		chartTypeBtn.addMouseListener(ittml);
 
+		// create chart type selection popup
 		final JPopupMenu chartTypePop = new JPopupMenu();
 		ActionListener chartListener = new ActionListener() {
 			@Override
@@ -305,17 +371,23 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 				if (newChartType != chartType) {
-					// clear details table TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
+					// clear details table TODO: maybe this ought to be
+					// elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
 
 					updateChart(newChartType);
+					
+					if (newChartType instanceof TopBarChartType) {
+						updateDetailsTable(null);
+					}
 				}
 			}
 		};
 		ButtonGroup chartBtnGrp = new ButtonGroup();
 		int j = 0;
 		for (ChartType chartType : chartTypes) {
-			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
+			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(),
+					(j++ == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
 			chartTypePop.add(item);
@@ -324,10 +396,15 @@ public class ResultsPanel extends JPanel {
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 				chartTypeBtn.setSelected(false);
 			}
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
-			public void popupMenuCanceled(PopupMenuEvent e) {}
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			}
+
+			public void popupMenuCanceled(PopupMenuEvent e) {
+			}
 		});
 
+		// link popup to button
 		chartTypeBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -335,39 +412,15 @@ public class ResultsPanel extends JPanel {
 			}
 		});
 
-		JButton resizeBtn = createResizeButton("summary", "details");
-
-		JPanel chartBtnPnl = new JPanel(new FormLayout("p, c:5dlu, p, 1px", "f:p:g"));
+		// arrange button in panel
+		JPanel chartBtnPnl = new JPanel(new FormLayout("p, c:5dlu, p, 1px",
+				"f:p:g"));
 		chartBtnPnl.setOpaque(false);
 		chartBtnPnl.add(chartTypeBtn, CC.xy(1, 1));
 		chartBtnPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(2, 1));
-		chartBtnPnl.add(resizeBtn, CC.xy(3, 1));
+		chartBtnPnl.add(createResizeButton("summary", "details"), CC.xy(3, 1));
 
-		// Default pie chart
-		final Map<String, ProteinHitList> defaultMap = new LinkedHashMap<String, ProteinHitList>();
-		defaultMap.put("Resembles Pac-Man", new ProteinHitList(Arrays.asList(new ProteinHit[80])));
-		defaultMap.put("Does not resemble Pac-Man", new ProteinHitList(Arrays.asList(new ProteinHit[20])));
-		ontologyData = new OntologyData();
-		ontologyData.setDefaultMapping(defaultMap);
-
-		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-
-		JPanel chartScrollPnl = new JPanel(new FormLayout("0:g, p, 0:g, r:p", "f:p:g, b:p, 2dlu"));
-		chartScrollPnl.setBorder(new Border() {
-			private Border delegate = BorderFactory.createEtchedBorder();
-			public void paintBorder(Component c, Graphics g, int x, int y, int width,
-					int height) {
-				delegate.paintBorder(c, g, x, y, width, height);
-			}
-			public boolean isBorderOpaque() { return true; }
-			public Insets getBorderInsets(Component c) {
-				Insets insets = delegate.getBorderInsets(c);
-				insets.set(1, 2, 2, 1);
-				return insets;
-			}
-		});
-		chartScrollPnl.setBackground(Color.WHITE);
-
+		// create and configure chart panel for plots
 		chartPnl = new ChartPanel(null);
 		chartPnl.setMinimumDrawHeight(144);
 		chartPnl.setMaximumDrawHeight(1440);
@@ -377,18 +430,22 @@ public class ResultsPanel extends JPanel {
 		chartPnl.setPreferredSize(new Dimension(256, 144));
 		chartPnl.setMinimumSize(new Dimension(256, 144));
 
+		// create mouse adapter to interact with pie plot sections
 		MouseAdapter adapter = new MouseAdapter() {
 			Comparable highlightedKey = null;
 			Comparable selectedKey = null;
+
 			@Override
 			public void mouseMoved(MouseEvent me) {
 				PiePlot3DExt piePlot = getPiePlot();
 				if (piePlot != null) {
-					Comparable key = piePlot.getSectionKeyForPoint(me.getPoint());
+					Comparable key = piePlot.getSectionKeyForPoint(me
+							.getPoint());
 					if (key != highlightedKey) {
 						for (Object dataKey : piePlot.getDataset().getKeys()) {
 							if (dataKey != selectedKey) {
-								piePlot.setExplodePercent((Comparable) dataKey, 0.0);
+								piePlot.setExplodePercent((Comparable) dataKey,
+										0.0);
 							}
 						}
 						if ((key != null) && (key != selectedKey)) {
@@ -398,6 +455,7 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				PiePlot3DExt piePlot = getPiePlot();
@@ -418,6 +476,7 @@ public class ResultsPanel extends JPanel {
 					selectedKey = highlightedKey;
 				}
 			}
+
 			@Override
 			public void mouseEntered(MouseEvent me) {
 				// re-validate fields in case chart type has been changed
@@ -434,6 +493,7 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 			}
+
 			/** Utility method to get valid pie plot. */
 			private PiePlot3DExt getPiePlot() {
 				JFreeChart chart = chartPnl.getChart();
@@ -448,25 +508,11 @@ public class ResultsPanel extends JPanel {
 		chartPnl.addMouseListener(adapter);
 		chartPnl.addMouseMotionListener(adapter);
 
-		chartBar = new JScrollBar(JScrollBar.VERTICAL, 0, 0, 0, 0);
-		chartBar.setBorder(BorderFactory.createEmptyBorder(-1, 0, -1, -1));
-		chartBar.setBlockIncrement(36);
-
-		chartBar.addAdjustmentListener(new AdjustmentListener() {
-			public void adjustmentValueChanged(AdjustmentEvent ae) {
-				JFreeChart chart = chartPnl.getChart();
-				if (chart != null) {
-					if (chart.getPlot() instanceof PiePlot) {
-						pieChartAngle = ae.getValue();
-						((PiePlot) chart.getPlot()).setStartAngle(pieChartAngle);
-					}
-				}
-			}
-		});
-
-		hierarchyCbx = new JComboBox(new String[] { "Proteins", "Peptides", "Spectra" });
+		// create combobox to control what counts to display in the plots
+		// (protein/peptide/spectrum count)
+		hierarchyCbx = new JComboBox(new String[] { "Proteins", "Peptides",
+				"Spectra" });
 		hierarchyCbx.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				HierarchyLevel hl = null;
@@ -487,20 +533,55 @@ public class ResultsPanel extends JPanel {
 		});
 		hierarchyCbx.setVisible(false);
 
-		chartScrollPnl.add(hierarchyCbx, CC.xy(2, 2));
-		chartScrollPnl.add(chartPnl, CC.xywh(1, 1, 3, 3));
-		chartScrollPnl.add(chartBar, CC.xywh(4, 1, 1, 3));
+		chartPnl.setLayout(new FormLayout("c:p:g", "b:p:g, 2dlu"));
+		chartPnl.add(hierarchyCbx, CC.xy(1, 1));
 
-		chartMarginPnl.add(chartScrollPnl, CC.xy(2, 2));
+		JScrollPane chartScp = new JScrollPane(chartPnl,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		for (ChangeListener cl : chartScp.getViewport().getChangeListeners()) {
+			chartScp.getViewport().removeChangeListener(cl);
+		}
+		chartScp.getViewport().setBackground(Color.WHITE);
 
-		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel("Chart View", chartMarginPnl);
+		chartBar = chartScp.getVerticalScrollBar();
+		chartBar.setValues(0, 0, 0, 0);
+		chartBar.setBlockIncrement(36);
+		DefaultBoundedRangeModel chartBarMdl = (DefaultBoundedRangeModel) chartBar
+				.getModel();
+		ChangeListener[] cbcl = chartBarMdl.getChangeListeners();
+		chartBarMdl.removeChangeListener(cbcl[0]);
+
+		chartBar.addAdjustmentListener(new AdjustmentListener() {
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+				JFreeChart chart = chartPnl.getChart();
+				if (chart != null) {
+					if (chart.getPlot() instanceof PiePlot) {
+						pieChartAngle = ae.getValue();
+						((PiePlot) chart.getPlot())
+								.setStartAngle(pieChartAngle);
+					}
+				}
+			}
+		});
+
+		// wrap scroll pane in panel with 5dlu margin around it
+		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p:g, 5dlu"));
+		chartMarginPnl.add(chartScp, CC.xy(2, 2));
+
+		// wrap everything in titled panel containing button panel in the top
+		// right corner
+		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel("Chart View",
+				chartMarginPnl);
 		chartTtlPnl.setRightDecoration(chartBtnPnl);
 
 		return chartTtlPnl;
 	}
 
 	/**
-	 * Creates and returns the bottom-right chart details panel (wrapped in a JXTitledPanel)
+	 * Creates and returns the bottom-right chart details panel (wrapped in a
+	 * JXTitledPanel)
 	 */
 	private Component createDetailsPanel() {
 
@@ -510,11 +591,13 @@ public class ResultsPanel extends JPanel {
 		detailsBtnPnl.setOpaque(false);
 		detailsBtnPnl.add(resizeBtn, CC.xy(1, 1));
 
-		JPanel detailsPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		JPanel detailsPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p:g, 5dlu"));
 
 		detailsTbl = new JXTable(new DefaultTableModel() {
 			{
-				setColumnIdentifiers(new Object[] { "#", "Accession", "Description"});
+				setColumnIdentifiers(new Object[] { "#", "Accession",
+						"Description" });
 			}
 
 			public boolean isCellEditable(int row, int col) {
@@ -533,91 +616,122 @@ public class ResultsPanel extends JPanel {
 				}
 			}
 		});
-		TableConfig.setColumnWidths(detailsTbl, new double[] { 1.0, 3.0, 12.0 });
+		TableConfig
+				.setColumnWidths(detailsTbl, new double[] { 1.0, 3.0, 12.0 });
 
-//		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
-//			public void actionPerformed(ActionEvent ev) {
-//				try {
-//					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		};
-		
+		// AbstractHyperlinkAction<URI> linkAction = new
+		// AbstractHyperlinkAction<URI>() {
+		// public void actionPerformed(ActionEvent ev) {
+		// try {
+		// Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/"
+		// + target));
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// };
+
 		AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
 			public void actionPerformed(ActionEvent ev) {
 				try {
-					//Use UniProt identifier also for NCBI entries
-					if (target.matches("^\\d*$")) { // if contains non-numerical character UniProt
-						UniProtEntry uniprotEntry = dbPnl.getDbSearchResult().getProteinHit(target).getUniprotEntry();
+					// Use UniProt identifier also for NCBI entries
+					if (target.matches("^\\d*$")) { // if contains non-numerical
+													// character UniProt
+						UniProtEntry uniprotEntry = dbPnl.getDbSearchResult()
+								.getProteinHit(target).getUniprotEntry();
 						if (uniprotEntry != null) {
-							PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
+							PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry
+									.getPrimaryUniProtAccession();
 							target = primaryUniProtAccession.getValue();
-						}else{
+						} else {
 							target = "";
 						}
 					}
-					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+					Desktop.getDesktop()
+							.browse(new URI("http://www.uniprot.org/uniprot/"
+									+ target));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		};
-		
-		detailsTbl.getColumn(1).setCellRenderer(new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
-				compLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				return compLabel;
-			}
-		});
+
+		detailsTbl.getColumn(1).setCellRenderer(
+				new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
+					public Component getTableCellRendererComponent(
+							JTable table, Object value, boolean isSelected,
+							boolean hasFocus, int row, int column) {
+						Component comp = super
+								.getTableCellRendererComponent(table, value,
+										isSelected, hasFocus, row, column);
+						JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
+						compLabel.setHorizontalAlignment(SwingConstants.CENTER);
+						return compLabel;
+					}
+				});
 
 		detailsTbl.setColumnControlVisible(true);
-		detailsTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		detailsTbl.getColumnControl()
+				.setBorder(
+						BorderFactory.createCompoundBorder(BorderFactory
+								.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+								BorderFactory.createMatteBorder(0, 0, 1, 0,
+										Color.GRAY)));
 		detailsTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) detailsTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		((ColumnControlButton) detailsTbl.getColumnControl())
+				.setAdditionalActionsVisible(false);
 
 		// Add nice striping effect
 		detailsTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		JScrollPane detailsScpn = new JScrollPane(detailsTbl);
-		detailsScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		detailsScpn
+				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		detailsScpn.setPreferredSize(new Dimension(100, 100));
 
 		detailsPnl.add(detailsScpn, CC.xy(2, 2));
 
-		JXTitledPanel detailsTtlPnl = PanelConfig.createTitledPanel("Chart Details", detailsPnl);
+		JXTitledPanel detailsTtlPnl = PanelConfig.createTitledPanel(
+				"Chart Details", detailsPnl);
 		detailsTtlPnl.setRightDecoration(detailsBtnPnl);
 
 		return detailsTtlPnl;
 	}
 
+	/**
+	 * Refreshes the details table with proteins stored inside the active data
+	 * collection and which is identified by the specified key.
+	 * @param key the key by which the proteins are identified
+	 */
 	protected void updateDetailsTable(Comparable key) {
-		DefaultTableModel detailsTblMdl = (DefaultTableModel) detailsTbl.getModel();
+		DefaultTableModel detailsTblMdl = 
+				(DefaultTableModel) detailsTbl.getModel();
 		detailsTblMdl.setRowCount(0);
 		List<ProteinHit> proteinHits = null;
 		if (chartType instanceof OntologyChartType) {
 			proteinHits = ontologyData.getProteinHits((String) key);
+		} else if (chartType instanceof TaxonomyChartType) {
+			proteinHits = taxonomyData.getProteinHits((String) key);
+		} else if (chartType instanceof TopBarChartType) {
+			proteinHits = topData.getProteinHits(null);
 		}
 		if (proteinHits != null) {
 			int i = 1;
 			for (ProteinHit proteinHit : proteinHits) {
 				detailsTblMdl.addRow(new Object[] {
-						i++,
-						proteinHit.getAccession(),
-						proteinHit.getDescription()
-				});
+						i++, proteinHit.getAccession(),
+						proteinHit.getDescription() });
 			}
 		}
 	}
 
 	/**
-	 * Utility method to create the resize/restore widget for use in titled panels.
-	 * @param nodes2hide The names of the MultiSplitPane nodes that are to be hidden/restored.
+	 * Utility method to create the resize/restore widget for use in titled
+	 * panels.
+	 * 
+	 * @param nodes2hide
+	 *            The names of the MultiSplitPane nodes that are to be
+	 *            hidden/restored.
 	 * @return The widget button.
 	 */
 	private JButton createResizeButton(final String... nodes2hide) {
@@ -637,6 +751,7 @@ public class ResultsPanel extends JPanel {
 
 		resizeBtn.addActionListener(new ActionListener() {
 			boolean maximized = false;
+
 			public void actionPerformed(ActionEvent ae) {
 				JButton btn = (JButton) ae.getSource();
 				if (maximized) {
@@ -661,16 +776,21 @@ public class ResultsPanel extends JPanel {
 	}
 
 	/**
-	 * Refreshes the chart updating its content reflecting the specified chart type.
-	 * @param chartType the type of chart to be displayed.
+	 * Refreshes the chart updating its content reflecting the specified chart
+	 * type.
+	 * 
+	 * @param chartType
+	 *            the type of chart to be displayed.
 	 */
 	private void updateChart(ChartType chartType) {
 		Chart chart = null;
 
 		if (chartType instanceof OntologyChartType) {
-			chart = ChartFactory.createOntologyPieChart(ontologyData, chartType);
+			chart = ChartFactory
+					.createOntologyPieChart(ontologyData, chartType);
 		} else if (chartType instanceof TaxonomyChartType) {
-			chart = ChartFactory.createTaxonomyPieChart(taxonomyData, chartType);
+			chart = ChartFactory
+					.createTaxonomyPieChart(taxonomyData, chartType);
 		} else {
 			chart = ChartFactory.createTopBarChart(topData, chartType);
 		}
@@ -679,7 +799,8 @@ public class ResultsPanel extends JPanel {
 			if (chart.getChart().getPlot() instanceof PiePlot) {
 				chartBar.setMaximum(360);
 				chartBar.setValue((int) pieChartAngle);
-				((PiePlot) chart.getChart().getPlot()).setStartAngle(pieChartAngle);
+				((PiePlot) chart.getChart().getPlot())
+						.setStartAngle(pieChartAngle);
 				hierarchyCbx.setVisible(true);
 			} else {
 				double temp = pieChartAngle;
@@ -723,40 +844,54 @@ public class ResultsPanel extends JPanel {
 					speciesNames.add(ph.getSpecies());
 					UniProtEntry uniprotEntry = ph.getUniprotEntry();
 					if (uniprotEntry != null) {
-						ecNumbers.addAll(uniprotEntry.getProteinDescription().getEcNumbers());
-						for (DatabaseCrossReference xref : 
-							uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO)) {
-							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+						ecNumbers.addAll(uniprotEntry.getProteinDescription()
+								.getEcNumbers());
+						for (DatabaseCrossReference xref : uniprotEntry
+								.getDatabaseCrossReferences(DatabaseType.KO)) {
+							kNumbers.add(((KO) xref).getKOIdentifier()
+									.getValue());
 						}
 						UniProtEntry uniProtEntry = ph.getUniprotEntry();
 						if (uniProtEntry != null) {
-							ecNumbers.addAll(uniProtEntry.getProteinDescription().getEcNumbers());
-							for (DatabaseCrossReference xref : 
-								ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
+							ecNumbers.addAll(uniProtEntry
+									.getProteinDescription().getEcNumbers());
+							for (DatabaseCrossReference xref : ph
+									.getUniprotEntry()
+									.getDatabaseCrossReferences(DatabaseType.KO)) {
+								kNumbers.add(((KO) xref).getKOIdentifier()
+										.getValue());
 							}
 						}
 					}
 					Set<Short> pathwayIDs = new HashSet<Short>();
 					for (String ec : ecNumbers) {
-						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+						List<Short> pathwaysByEC = KeggAccessor.getInstance()
+								.getPathwaysByEC(ec);
 						if (pathwaysByEC != null) {
 							pathwayIDs.addAll(pathwaysByEC);
 						}
 					}
 					for (String ko : kNumbers) {
-						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+						List<Short> pathwaysByKO = KeggAccessor.getInstance()
+								.getPathwaysByKO(ko);
 						if (pathwaysByKO != null) {
 							pathwayIDs.addAll(pathwaysByKO);
 						}
 					}
 
-					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-					totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-					uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-					specificProtLbl.setText("" + "??");	// TODO: determining protein redundancy is an unsolved problem!
+					totalSpecLbl.setText(""
+							+ dbSearchResult.getTotalSpectrumCount());
+					identSpecLbl.setText(""
+							+ dbSearchResult.getIdentifiedSpectrumCount());
+					totalPepLbl.setText(""
+							+ dbSearchResult.getTotalPeptideCount());
+					uniquePepLbl.setText(""
+							+ dbSearchResult.getUniquePeptideCount());
+					totalProtLbl.setText(""
+							+ dbSearchResult.getProteinHitList().size());
+					specificProtLbl.setText("" + "??"); // TODO: determining
+														// protein redundancy is
+														// an unsolved problem!
 					speciesLbl.setText("" + speciesNames.size());
 					enzymesLbl.setText("" + ecNumbers.size());
 					pathwaysLbl.setText("" + pathwayIDs.size());
@@ -778,7 +913,7 @@ public class ResultsPanel extends JPanel {
 
 					updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 				}
-			}catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return 0;
@@ -786,7 +921,8 @@ public class ResultsPanel extends JPanel {
 
 		@Override
 		protected void done() {
-			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
+			// TODO: delegate cursor setting to top-level containers so the
+			// whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 
@@ -814,7 +950,9 @@ public class ResultsPanel extends JPanel {
 	}
 
 	/**
-	 * Returns the button to select the type of the chart inside the chart view panel.
+	 * Returns the button to select the type of the chart inside the chart view
+	 * panel.
+	 * 
 	 * @return the chart type button
 	 */
 	public JToggleButton getChartTypeButton() {
@@ -834,7 +972,8 @@ public class ResultsPanel extends JPanel {
 			Graphics2D g2 = (Graphics2D) g;
 			Point pt1 = new Point();
 			Point pt2 = new Point(getWidth(), 0);
-			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2, ColorUtils.LIGHT_GREEN));
+			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2,
+					ColorUtils.LIGHT_GREEN));
 			g2.fillRect(0, 0, getWidth(), getHeight());
 
 			try {
@@ -842,14 +981,16 @@ public class ResultsPanel extends JPanel {
 				if (total > 0.0) {
 					double rel = Double.parseDouble(fracLbl.getText()) / total;
 					int width = (int) (getWidth() * rel);
-					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE, pt2, ColorUtils.LIGHT_ORANGE));
+					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE,
+							pt2, ColorUtils.LIGHT_ORANGE));
 					g2.fillRect(getWidth() - width, 0, width, getHeight());
 					String str = String.format("%.1f", rel * 100.0) + "%";
 					FontMetrics fm = g2.getFontMetrics();
 					Rectangle2D bounds = fm.getStringBounds(str, g2);
 
-					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-					//						g2.setPaint(ColorUtils.DARK_ORANGE);
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+							RenderingHints.VALUE_ANTIALIAS_ON);
+					// g2.setPaint(ColorUtils.DARK_ORANGE);
 					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
 					if (x < 2.0f) {
 						x = getWidth() - width + 2.0f;
