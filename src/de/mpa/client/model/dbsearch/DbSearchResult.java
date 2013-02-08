@@ -106,7 +106,7 @@ public class DbSearchResult implements Serializable {
 				// therefore inspect new PSM
 				PeptideSpectrumMatch match = 
 					(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-
+				
 				PeptideSpectrumMatch currentMatch = 
 					(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
 							match.getSearchSpectrumID());
@@ -131,9 +131,21 @@ public class DbSearchResult implements Serializable {
 			
 			// Check whether peptide hit match has been found
 			if (currentPeptideHit != null) {
-				// Link new PSM to found peptide
-				currentPeptideHit.addSpectrumMatch(peptideHit
-						.getSingleSpectrumMatch());
+				// Peptide hit is already stored somewhere in the result object,
+				// therefore inspect new PSM
+				PeptideSpectrumMatch match = 
+					(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+				
+				PeptideSpectrumMatch currentMatch = 
+					(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
+							match.getSearchSpectrumID());
+				if (currentMatch != null) {
+					currentMatch.addSearchEngineHit(match.getFirstSearchHit());
+				} else {
+					currentMatch = match;
+				}
+				currentPeptideHit.replaceSpectrumMatch(currentMatch);
+				
 				// Link found peptide to new Protein by replacing hit map
 				Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
 				currentProteinHit.setPeptideHits(newPeptideHits);
