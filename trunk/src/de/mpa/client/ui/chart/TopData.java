@@ -59,7 +59,8 @@ public class TopData implements ChartData {
 		List<ProteinHit> topProteins = MapUtil.getKeysSortedByValue(tempMap, true);
 		
 		topProteinsMap = new LinkedHashMap<ProteinHit, Integer>(TOP_NUMBER);
-		for (int i = 0; i < TOP_NUMBER; i++) {
+		int max = Math.min(TOP_NUMBER, topProteins.size());
+		for (int i = 0; i < max; i++) {
 			ProteinHit proteinHit = topProteins.get(i);
 			topProteinsMap.put(proteinHit, proteinHit.getSpectralCount());
 		}

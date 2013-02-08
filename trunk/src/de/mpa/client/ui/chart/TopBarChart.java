@@ -28,7 +28,7 @@ public class TopBarChart extends Chart {
 		}
 		@Override
 		public String toString() {
-			return "Top10 " + title;
+			return "Top 10 " + title;
 		}
 	}
 
@@ -56,8 +56,8 @@ public class TopBarChart extends Chart {
 	protected void setChart() {
 		TopBarChartType topBarChartType = (TopBarChartType) chartType;
 		chartTitle = topBarChartType.toString();
-		String title = chartTitle.trim().substring(chartTitle.lastIndexOf(' ') + 1);
-		chart = ChartFactory.createBarChart3D(chartTitle, title, "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
+		String xLabel = chartTitle.trim().substring(chartTitle.lastIndexOf(' ') + 1);
+		chart = ChartFactory.createBarChart3D(chartTitle, xLabel, "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
 		
     	chart.setTextAntiAlias(true);
     	
@@ -85,9 +85,9 @@ public class TopBarChart extends Chart {
         public CustomBarRenderer3D() {
         }
 
-        public Paint getItemPaint(int row, int column) {
-        	Color[] colors = ColorUtils.getRainbowGradient(10);
-            	return colors[column];
+		public Paint getItemPaint(int row, int column) {
+			Color[] colors = ColorUtils.getRainbowGradient(10);
+			return colors[column];
         }
     }
 }

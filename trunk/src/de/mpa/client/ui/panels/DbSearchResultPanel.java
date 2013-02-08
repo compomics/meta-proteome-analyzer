@@ -2346,9 +2346,9 @@ public class DbSearchResultPanel extends JPanel {
 					// Get common taxonomy for each protein Hit
 					if (!Client.getInstance().isViewer()) { // Check for viewer Mode
 						TaxonNode commonAncestorNode = proteinHit.getPeptideHitList().get(0).getTaxonNode();
-						for (PeptideHit peptidHit : proteinHit.getPeptideHitList()) {
+						for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(
-									commonAncestorNode, peptidHit.getTaxonNode());
+									commonAncestorNode, peptideHit.getTaxonNode());
 						}
 						proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
