@@ -98,7 +98,8 @@ public class StatusPanel extends JPanel {
 		// Settings info
 		JPanel settingsPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
 				  									   "2dlu, f:p:g, 2dlu"));
-		JTextField settingsTtf = new JTextField("C:\\Temp\\Settings01.txt");
+//		JTextField settingsTtf = new JTextField("C:\\Temp\\Settings01.txt");
+		JTextField settingsTtf = new JTextField();
 		settingsTtf.setBorder(null);
 		settingsTtf.setEditable(false);
 		settingsTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });

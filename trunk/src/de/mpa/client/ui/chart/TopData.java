@@ -1,7 +1,10 @@
 package de.mpa.client.ui.chart;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -34,8 +37,6 @@ public class TopData implements ChartData {
 	 */
 	private HashMap<ProteinHit, Integer> topProteinsMap;
 
-	private List<ProteinHit> topProteins;
-	
 	/**
 	 * TopData constructor
 	 * @param dbSearchResult The database search result.
@@ -47,22 +48,31 @@ public class TopData implements ChartData {
 
 	@Override
 	public void init() {
-		topProteinsMap = new HashMap<ProteinHit, Integer> ();
+		HashMap<ProteinHit, Integer> tempMap = new HashMap<ProteinHit, Integer>();
 		
 		// Iterate protein hits and fill proteins map.
 		for (ProteinHit proteinHit : dbSearchResult.getProteinHits().values()) {
+			tempMap.put(proteinHit, proteinHit.getSpectralCount());
+		}
+		
+		// Get list of map keys sorted by map value 
+		List<ProteinHit> topProteins = MapUtil.getKeysSortedByValue(tempMap, true);
+		
+		topProteinsMap = new LinkedHashMap<ProteinHit, Integer>(TOP_NUMBER);
+		for (int i = 0; i < TOP_NUMBER; i++) {
+			ProteinHit proteinHit = topProteins.get(i);
 			topProteinsMap.put(proteinHit, proteinHit.getSpectralCount());
 		}
+		tempMap = null;
 	}
 	
 	@Override
 	public CategoryDataset getDataset() {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		topProteins = MapUtil.getKeysSortedByValue(topProteinsMap, true);
 		
 		// Iterate the best ranked (highest spectral count) proteins.
-		for(int i = 0; i < TOP_NUMBER; i++) {
-			ProteinHit proteinHit = topProteins.get(i);
+		for (Entry<ProteinHit, Integer> entry : topProteinsMap.entrySet()) {
+			ProteinHit proteinHit = entry.getKey();
 			String[] split = proteinHit.getDescription().split("\\s+");
 			dataset.setValue(proteinHit.getSpectralCount(), "No. Spectra", split[0]);
 		}
@@ -71,7 +81,7 @@ public class TopData implements ChartData {
 
 	@Override
 	public List<ProteinHit> getProteinHits(String key) {
-		return topProteins;
+		return new ArrayList<ProteinHit>(topProteinsMap.keySet());
 	}
 
 }
