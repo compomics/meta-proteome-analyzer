@@ -60,18 +60,21 @@ public class OntologyPieChart extends Chart {
         plot.setForegroundAlpha(0.75f);
         plot.setBackgroundPaint(null);
         plot.setOutlineVisible(false);
-//        plot.setInteriorGap(0.0);
         
 		plot.setLabelGenerator(new PieSectionLabelGenerator() {
 			@Override
 			public String generateSectionLabel(PieDataset dataset, Comparable key) {
-				Integer value = (Integer) dataset.getValue(key);
+				double value = Math.round(dataset.getValue(key).doubleValue());
+				if (value <= 0.0) {
+					return null;
+				}
 				double total = 0.0;
 				for (int i = 0; i < dataset.getItemCount(); i++) {
-					total += ((Integer) dataset.getValue(i)).doubleValue();
+					total += dataset.getValue(i).doubleValue();
 				}
-				double relVal = value.doubleValue() / total;
-				return key.toString() + "\n" + value + " (" + (Math.round(relVal * 1000.0) / 10.0) + "%)";
+				double relVal = value / total;
+				return key.toString() + "\n" + ((int) value) +
+						" (" + (Math.round(relVal * 1000.0) / 10.0) + "%)";
 			}
 			@Override
 			public AttributedString generateAttributedSectionLabel(PieDataset dataset, Comparable key) {

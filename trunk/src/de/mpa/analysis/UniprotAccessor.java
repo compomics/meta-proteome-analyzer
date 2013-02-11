@@ -52,7 +52,6 @@ public class UniprotAccessor {
 	 * @throws IOException 
 	 */
 	public static void retrieveUniProtEntries(DbSearchResult dbSearchResult) throws IOException {
-
 		// Check whether UniProt query service has been established yet.
 		if (uniProtQueryService == null) {
 			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
@@ -74,17 +73,26 @@ public class UniprotAccessor {
 		}
 		
 		// Check whether any identifiers are in need of re-mapping
-		if (idList.size() > 0) {
+		if (!idList.isEmpty()) {
 			// TODO: add mapping support for other protein databases (when demanded)
 			// Retrieve GI number-to-UniProt mapping
-			Map<String, String> mapping = UniProtGiMapper.getMapping(idList);
-			for (String gi : idList) {
-				String acc = mapping.get(gi);
-				// store re-mapped protein hit 
-				if (acc != null) {
-					proteinHits.put(acc, resultHits.get(gi));
+			int increment = 512;
+			for (int fromIndex = 0; fromIndex < idList.size(); fromIndex += increment) {
+				int toIndex = fromIndex + increment;
+				if (toIndex > idList.size()) {
+					toIndex = idList.size();
 				}
-				
+				List<String> subList = idList.subList(fromIndex, toIndex);
+				Map<String, String> mapping = UniProtGiMapper.getMapping(subList);
+				if ((mapping != null) && !mapping.isEmpty()) {
+					for (String gi : idList) {
+						String acc = mapping.get(gi);
+						// store re-mapped protein hit 
+						if (acc != null) {
+							proteinHits.put(acc, resultHits.get(gi));
+						}
+					}
+				}
 			}
 		}
 		
@@ -137,7 +145,7 @@ public class UniprotAccessor {
 					}
 				}
 				// none of the secondary accessions could be found, throw error
-				System.err.println("Unable to link UniProt entry to protein hit!");
+				System.err.println("Unable to link UniProt entry " + accession + " to protein hit!");
 			}
 		}
 	}

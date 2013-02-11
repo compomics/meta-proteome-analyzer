@@ -81,13 +81,18 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 
+/**
+ * Panel for importing spectrum files to be used for searches.
+ * 
+ * @author A. Behne
+ */
 public class FilePanel extends JPanel {
 	
-	private ClientFrame clientFrame;
-	private Client client;	
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
+	private JXMultiSplitPane split;	
 	private CheckBoxTreeTable treeTbl;
 	private JPanel specPnl;	
+	private JPanel histPnl;
 	private JTextField filesTtf;
 	private JButton filterBtn;
 	private JButton addBtn;
@@ -97,20 +102,17 @@ public class FilePanel extends JPanel {
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
 	private final static String PATH = "test/de/mpa/resources/";	
 	private boolean busy;
-	private JXMultiSplitPane split;	
-	private JPanel histPnl;
 	private ArrayList<Double> ticList = new ArrayList<Double>();
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
 	 */
 	public FilePanel() {
-		this.clientFrame = ClientFrame.getInstance();
-		this.client = Client.getInstance();
 		this.initComponents();
 	}
 
 	private void initComponents() {
+		final ClientFrame clientFrame = ClientFrame.getInstance();
 		
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
@@ -398,7 +400,8 @@ public class FilePanel extends JPanel {
 						JOptionPane.PLAIN_MESSAGE);
 				if (res == JOptionPane.OK_OPTION) {
 					try {
-						client.initDBConnection();
+						Client client = Client.getInstance();
+						client .initDBConnection();
 						List<MascotGenericFile> dlSpec = client.downloadSpectra(
 								(Long) expIdSpn.getValue(), annotChk.isSelected(), libChk.isSelected(), saveChk.isSelected());
 					//	clientFrame.getClient().closeDBConnection();
@@ -495,7 +498,7 @@ public class FilePanel extends JPanel {
 		Long spectrumID = spectrum.getSpectrumID();
 		if (spectrumID != null) {
 			// this is just a dummy spectrum, fetch from database
-			spectrum = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
+			spectrum = new SpectrumExtractor(Client.getInstance().getConnection()).getSpectrumBySpectrumID(spectrumID);
 		}
 		return spectrum;
 	}
@@ -517,6 +520,8 @@ public class FilePanel extends JPanel {
 		protected Object doInBackground() throws Exception {
 			// appear busy
 			setBusy(true);
+			
+			final Client client = Client.getInstance();
 			
 			DefaultTreeTableModel treeModel = (DefaultTreeTableModel) treeTbl.getTreeTableModel();
 			CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) treeModel.getRoot();
@@ -647,7 +652,7 @@ public class FilePanel extends JPanel {
 		
 		@Override
 		protected void done() {
-			client.firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");
+			Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");
 			
 			// stop appearing busy
 			setBusy(false);
@@ -691,6 +696,7 @@ public class FilePanel extends JPanel {
 	 */
 	public void setBusy(boolean busy) {
 		this.busy = busy;
+		ClientFrame clientFrame = ClientFrame.getInstance();
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		clientFrame.setCursor(cursor);
 		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);

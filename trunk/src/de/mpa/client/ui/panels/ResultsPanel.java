@@ -24,11 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -62,6 +64,8 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.Plot;
+import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.MatrixSeries;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
@@ -97,12 +101,32 @@ import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
+/**
+ * Panel providing overview information about fetched results in the form of
+ * assorted charts and tables.
+ * 
+ * @author A. Behne
+ */
 public class ResultsPanel extends JPanel {
 
+	/**
+	 * The split pane layout for the panel.
+	 */
 	private MultiSplitLayout msl;
 
+	/**
+	 * The database search results panel.
+	 */
 	private DbSearchResultPanel dbPnl;
+	
+	/**
+	 * The spectral similarity results panel.
+	 */
 	private SpecSimResultPanel ssPnl;
+	
+	/**
+	 * The de novo and BLAST results panel. TODO: decide fate of de novo/BLAST results panel
+	 */
 	private DeNovoResultPanel dnPnl;
 
 	/**
@@ -117,27 +141,107 @@ public class ResultsPanel extends JPanel {
 	 */
 	private ChartPanel chartPnl;
 
-	private JScrollBar chartBar;
+	/**
+	 * Scrollbar for the top right chart pane.
+	 */
+	private JScrollBar chartBar = new JScrollBar(0, 0, 36, 0, 360);
+	
+	/**
+	 * Combobox for specifying the displayed hierarchy level of pie plots
+	 * (protein, peptide, spectrum level).
+	 */
 	private JComboBox hierarchyCbx;
+
+	/**
+	 * Checkbox for flagging whether proteins grouped as 'Unknown' in pie charts
+	 * shall be hidden.
+	 */
+	private JCheckBox hideChk;
+	
+	/**
+	 * The rotation angle of pie plots.
+	 */
 	private double pieChartAngle = 36.0;
 
+	/**
+	 * The type of chart to be displayed in the top right chart pane.
+	 */
 	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
+	
+	/**
+	 * Data container for ontological meta-information of the fetched results.
+	 */
 	private OntologyData ontologyData = new OntologyData();
+	
+	/**
+	 * Data container for taxonomic meta-information of the fetched results.
+	 */
 	private TaxonomyData taxonomyData;
+	
+	/**
+	 * Data container for 'Top 10 Proteins' chart.
+	 */
 	private TopData topData;
 
+	/**
+	 * Table containing expanded details for proteins selected/displayed in the
+	 * chart pane.
+	 */
 	private JXTable detailsTbl;
 
+	/**
+	 * Label displaying the total count of spectra used in the search.
+	 */
 	private JLabel totalSpecLbl;
+	
+	/**
+	 * Label displaying the number of spectra annotated by the search.
+	 */
 	private JLabel identSpecLbl;
+	
+	/**
+	 * Label displaying the total count of peptide associations in the result.
+	 */
 	private JLabel totalPepLbl;
+	
+	/**
+	 * Label displaying the number of peptides with unique sequences in the result.
+	 */
 	private JLabel uniquePepLbl;
+	
+	/**
+	 * Label displaying the total count of proteins identified by the search.
+	 */
 	private JLabel totalProtLbl;
+	
+	/**
+	 * Label displaying the number of proteins specific to unique species
+	 * identified in the search.
+	 */
 	private JLabel specificProtLbl;
+	
+	/**
+	 * Label displaying the number of unique species identified by protein
+	 * associations by the search.
+	 */
 	private JLabel speciesLbl;
+	
+	/**
+	 * Label displaying the number of unique enzymes identified by protein
+	 * associations by the search.
+	 */
 	private JLabel enzymesLbl;
+	
+	/**
+	 * Label displaying the number of unique pathways identified by protein
+	 * associations by the search.
+	 */
 	private JLabel pathwaysLbl;
 
+	/**
+	 * Constructs a results panel containing the detail views for database,
+	 * spectral similarity and de novo search results as bottom-aligned tabs.
+	 */
 	public ResultsPanel() {
 		this.dbPnl = new DbSearchResultPanel(this);
 		this.ssPnl = new SpecSimResultPanel();
@@ -145,6 +249,9 @@ public class ResultsPanel extends JPanel {
 		initComponents();
 	}
 
+	/**
+	 * Creates and initializes the various GUI components.
+	 */
 	private void initComponents() {
 		// configure main panel layout
 		this.setLayout(new FormLayout("p:g, 5dlu", "f:p:g, -40px, b:p, 5dlu"));
@@ -328,6 +435,7 @@ public class ResultsPanel extends JPanel {
 	 * Creates and returns the top-right chart panel (wrapped in a
 	 * JXTitledPanel)
 	 */
+	@SuppressWarnings("unchecked")
 	private JPanel createChartPanel() {
 
 		// init chart types
@@ -533,8 +641,67 @@ public class ResultsPanel extends JPanel {
 		});
 		hierarchyCbx.setVisible(false);
 
-		chartPnl.setLayout(new FormLayout("c:p:g", "b:p:g, 2dlu"));
-		chartPnl.add(hierarchyCbx, CC.xy(1, 1));
+		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, l:p:g", "0px:g, p, 2dlu"));
+		chartPnl.add(hierarchyCbx, CC.xy(1, 2));
+		
+		hideChk = new JCheckBox("Hide Unknown", false);
+		hideChk.setOpaque(false);
+		hideChk.setVisible(false);
+		hideChk.addActionListener(new ActionListener() {
+			private boolean doHide;
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				doHide = ((AbstractButton) evt.getSource()).isSelected();
+				ontologyData.setHideUnknown(doHide);
+				taxonomyData.setHideUnknown(doHide);
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground() throws Exception {
+						Plot plot = chartPnl.getChart().getPlot();
+						if (plot instanceof PiePlot) {
+							DefaultPieDataset dataset =
+									(DefaultPieDataset) ((PiePlot) plot).getDataset();
+							if (doHide) {
+								double val = dataset.getValue("Unknown").doubleValue();
+								for (int i = 0; i < 11; i++) {
+									double tmp = 1.0 - i / 10.0;
+									double newVal = val * tmp * tmp;
+									dataset.setValue("Unknown", newVal);
+									if (newVal > 0.0) {
+										Thread.sleep(33);
+									} else {
+										break;
+									}
+								}
+							} else {
+								double val;
+								if (chartType instanceof OntologyChartType) {
+									val = ontologyData.getDataset().getValue("Unknown").doubleValue();
+								} else {
+									val = taxonomyData.getDataset().getValue("Unknown").doubleValue();
+								}
+								for (int i = 0; i < 11; i++) {
+									double tmp = i / 10.0;
+									double newVal = val * tmp * tmp;
+									if (newVal <= 0.0) {
+										continue;
+									}
+									dataset.setValue("Unknown", newVal);
+									if (newVal < val) {
+										Thread.sleep(33);
+									} else {
+										break;
+									}
+								}
+							}
+						}
+						return null;
+					}
+					
+				}.execute();
+			}
+		});
+		chartPnl.add(hideChk, CC.xy(3, 2));
 
 		JScrollPane chartScp = new JScrollPane(chartPnl,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -547,8 +714,8 @@ public class ResultsPanel extends JPanel {
 		chartBar = chartScp.getVerticalScrollBar();
 		chartBar.setValues(0, 0, 0, 0);
 		chartBar.setBlockIncrement(36);
-		DefaultBoundedRangeModel chartBarMdl = (DefaultBoundedRangeModel) chartBar
-				.getModel();
+		DefaultBoundedRangeModel chartBarMdl =
+				(DefaultBoundedRangeModel) chartBar.getModel();
 		ChangeListener[] cbcl = chartBarMdl.getChangeListeners();
 		chartBarMdl.removeChangeListener(cbcl[0]);
 
@@ -558,8 +725,7 @@ public class ResultsPanel extends JPanel {
 				if (chart != null) {
 					if (chart.getPlot() instanceof PiePlot) {
 						pieChartAngle = ae.getValue();
-						((PiePlot) chart.getPlot())
-								.setStartAngle(pieChartAngle);
+						((PiePlot) chart.getPlot()).setStartAngle(pieChartAngle);
 					}
 				}
 			}
@@ -572,8 +738,8 @@ public class ResultsPanel extends JPanel {
 
 		// wrap everything in titled panel containing button panel in the top
 		// right corner
-		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel("Chart View",
-				chartMarginPnl);
+		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel(
+				"Chart View", chartMarginPnl);
 		chartTtlPnl.setRightDecoration(chartBtnPnl);
 
 		return chartTtlPnl;
@@ -784,29 +950,33 @@ public class ResultsPanel extends JPanel {
 	 */
 	private void updateChart(ChartType chartType) {
 		Chart chart = null;
-
+		
 		if (chartType instanceof OntologyChartType) {
-			chart = ChartFactory
-					.createOntologyPieChart(ontologyData, chartType);
+			chart = ChartFactory.createOntologyPieChart(
+					ontologyData, chartType);
 		} else if (chartType instanceof TaxonomyChartType) {
-			chart = ChartFactory
-					.createTaxonomyPieChart(taxonomyData, chartType);
+			chart = ChartFactory.createTaxonomyPieChart(
+					taxonomyData, chartType);
 		} else {
-			chart = ChartFactory.createTopBarChart(topData, chartType);
+			chart = ChartFactory.createTopBarChart(
+					topData, chartType);
 		}
 
 		if (chart != null) {
-			if (chart.getChart().getPlot() instanceof PiePlot) {
+			Plot plot = chart.getChart().getPlot();
+			if (plot instanceof PiePlot) {
 				chartBar.setMaximum(360);
 				chartBar.setValue((int) pieChartAngle);
 				((PiePlot) chart.getChart().getPlot())
 						.setStartAngle(pieChartAngle);
 				hierarchyCbx.setVisible(true);
+				hideChk.setVisible(true);
 			} else {
 				double temp = pieChartAngle;
 				chartBar.setMaximum(0);
 				pieChartAngle = temp;
 				hierarchyCbx.setVisible(false);
+				hideChk.setVisible(false);
 			}
 			chartPnl.setChart(chart.getChart());
 		}

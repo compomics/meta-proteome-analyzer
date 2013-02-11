@@ -57,6 +57,13 @@ public class TaxonomyData implements ChartData {
 	private HierarchyLevel hierarchyLevel = HierarchyLevel.PROTEIN_LEVEL;
 	
 	/**
+	 * Flag to determine whether proteins grouped under the 'Unknown' tag shall
+	 * be excluded in dataset generation and therefore will subsequently not be
+	 * displayed in any associated plots.
+	 */
+	private boolean hideUnknown;
+	
+	/**
 	 * Empty default constructor.
 	 */
 	public TaxonomyData() {
@@ -99,6 +106,9 @@ public class TaxonomyData implements ChartData {
 		
 		for (ProteinHit proteinHit : dbSearchResult.getProteinHitList()) {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
+
+			boolean kingFound, phylFound, clasFound, specFound;
+			kingFound = phylFound = clasFound = specFound = false;
 			
 			// Entry must be provided
 			if (entry != null) {
@@ -113,18 +123,35 @@ public class TaxonomyData implements ChartData {
 						switch (taxonomyRank) {
 						case KINGDOM:
 							appendHit(keyword, kingdomOccMap, proteinHit);
+							kingFound = true;
 							break;
 						case PHYLUM:
 							appendHit(keyword, phylumOccMap, proteinHit);
+							phylFound = true;
 							break;
 						case CLASS:
 							appendHit(keyword, classOccMap, proteinHit);
+							clasFound = true;
 							break;
 						}
 					}
 				}
 				String species = entry.getOrganism().getScientificName().getValue();
 				appendHit(species, speciesOccMap, proteinHit);
+				specFound = true;
+			} else {
+			}
+			if (!kingFound) {
+				appendHit("Unknown", kingdomOccMap, proteinHit);
+			}
+			if (!phylFound) {
+				appendHit("Unknown", phylumOccMap, proteinHit);
+			}
+			if (!clasFound) {
+				appendHit("Unknown", classOccMap, proteinHit);
+			}
+			if (!specFound) {
+				appendHit("Unknown", speciesOccMap, proteinHit);
 			}
 		}
 	}
@@ -207,8 +234,11 @@ public class TaxonomyData implements ChartData {
 			}
 			pieDataset.setValue(key, absVal);
 		}
-		if (!others.isEmpty()) {
+		if (!others.isEmpty() && !map.containsKey("Others")) {
 			map.put("Others", others);
+		}
+		if (hideUnknown) {
+			pieDataset.setValue("Unknown", new Integer(0));
 		}
 		
 		return pieDataset;
@@ -277,6 +307,15 @@ public class TaxonomyData implements ChartData {
 		if (phylumOccMap != null)	phylumOccMap.clear();
 		if (classOccMap != null)	classOccMap.clear();
 		if (speciesOccMap != null)	speciesOccMap.clear();
+	}
+
+	/**
+	 * Excludes proteins grouped in 'Unknown' category from dataset creation.
+	 * @param hideUnknown <code>true</code> if 'Unknown' proteins shall be excluded, 
+	 * 					  <code>false</code> otherwise
+	 */
+	public void setHideUnknown(boolean hideUnknown) {
+		this.hideUnknown = hideUnknown;
 	}
 
 }

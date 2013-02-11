@@ -58,6 +58,13 @@ public class OntologyData implements ChartData {
 	private HierarchyLevel hierarchyLevel;
 	
 	/**
+	 * Flag to determine whether proteins grouped under the 'Unknown' tag shall
+	 * be excluded in dataset generation and therefore will subsequently not be
+	 * displayed in any associated plots.
+	 */
+	private boolean hideUnknown;
+	
+	/**
 	 * Empty default constructor.
 	 */
 	public OntologyData() {
@@ -100,6 +107,9 @@ public class OntologyData implements ChartData {
 		for (ProteinHit proteinHit : dbSearchResult.getProteinHitList()) {
 			UniProtEntry entry = proteinHit.getUniprotEntry();
 			
+			boolean procFound, compFound, funcFound;
+			procFound = compFound = funcFound = false;
+			
 			// Entry must be provided
 			if (entry != null) {
 				List<Keyword> keywords = entry.getKeywords();
@@ -110,16 +120,28 @@ public class OntologyData implements ChartData {
 						switch (kwOntology) {
 						case BIOLOGICAL_PROCESS:
 							appendHit(keyword, biolProcessOccMap, proteinHit);
+							procFound = true;	// mark keyword type found
 							break;
 						case CELLULAR_COMPONENT:
 							appendHit(keyword, cellCompOccMap, proteinHit);
+							compFound = true;	// mark keyword type found
 							break;
 						case MOLECULAR_FUNCTION:
 							appendHit(keyword, molFunctionOccMap, proteinHit);
+							funcFound = true;	// mark keyword type found
 							break;
 						}
 					}
 				}
+			}
+			if (!procFound) {
+				appendHit("Unknown", biolProcessOccMap, proteinHit);
+			}
+			if (!compFound) {
+				appendHit("Unknown", cellCompOccMap, proteinHit);
+			}
+			if (!funcFound) {
+				appendHit("Unknown", molFunctionOccMap, proteinHit);
 			}
 		}
 		// TODO: maybe merge pairs whose values are identical but differ in their key(word)s? E.g. 
@@ -148,6 +170,7 @@ public class OntologyData implements ChartData {
 	public PieDataset getDataset() {
 		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
+		pieDataset.setValue("Unknown", new Integer(0));
 		
 		Map<String, ProteinHitList> map = null;
 		switch ((OntologyChartType) chartType) {
@@ -188,6 +211,9 @@ public class OntologyData implements ChartData {
 		}
 		if (!others.isEmpty()) {
 			map.put("Others", others);
+		}
+		if (hideUnknown) {
+			pieDataset.setValue("Unknown", new Integer(0));
 		}
 		
 		return pieDataset;
@@ -254,6 +280,15 @@ public class OntologyData implements ChartData {
 		this.biolProcessOccMap = defaultMap;
 		this.cellCompOccMap = defaultMap;
 		this.molFunctionOccMap = defaultMap;
+	}
+
+	/**
+	 * Excludes proteins grouped in 'Unknown' category from dataset creation.
+	 * @param hideUnknown <code>true</code> if 'Unknown' proteins shall be excluded, 
+	 * 					  <code>false</code> otherwise
+	 */
+	public void setHideUnknown(boolean hideUnknown) {
+		this.hideUnknown = hideUnknown;
 	}
 	
 }
