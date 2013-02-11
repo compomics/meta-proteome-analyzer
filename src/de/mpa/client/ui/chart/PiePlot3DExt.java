@@ -231,6 +231,9 @@ public class PiePlot3DExt extends PiePlot3D {
 		while (iterator.hasNext()) {
 
 			Comparable currentKey = (Comparable) iterator.next();
+			
+			lookupSectionPaint(currentKey);
+			
 			Number dataValue = dataset.getValue(currentKey);
 			if (dataValue == null) {
 				arcList.add(null);
@@ -412,7 +415,7 @@ public class PiePlot3DExt extends PiePlot3D {
                 originalPlotArea.getX(), originalPlotArea.getY() + 8.0,
                 originalPlotArea.getWidth(), originalPlotArea.getHeight()
                 - getShadowYOffset() - 8.0);
-		setInteriorGap(0.0);
+//		setInteriorGap(0.0);
 		if (getSimpleLabels()) {
 			drawSimpleLabels(g2, keys, totalValue, adjustedPlotArea,
 					linkArea, state);
@@ -420,7 +423,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			drawLabels(g2, keys, totalValue, adjustedPlotArea, linkArea,
 					state);
 		}
-		setInteriorGap(gapPercent);
+//		setInteriorGap(gapPercent);
 
 		if (getShadowGenerator() != null) {
 			BufferedImage shadowImage 
