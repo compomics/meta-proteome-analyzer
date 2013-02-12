@@ -220,7 +220,7 @@ public class SettingsPanel extends JPanel {
 		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
 		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
 		quickBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				final JFileChooser fc = new JFileChooser();
 				fc.setFileFilter(Constants.MGF_FILE_FILTER);
 				fc.setAcceptAllFileFilterUsed(false);
@@ -239,14 +239,18 @@ public class SettingsPanel extends JPanel {
 							MascotGenericFileReader reader = new MascotGenericFileReader(fc.getSelectedFile(), LoadMode.SURVEY);
 							client.firePropertyChange("indeterminate", true, false);
 							client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
-							List<Long> spectrumPositions = reader.getSpectrumPositions(false);
+							List<Long> positions = reader.getSpectrumPositions(false);
 							long numSpectra = 0L;
-							long maxSpectra = (long) spectrumPositions.size();
+							long maxSpectra = (long) positions.size();
 							long packageSize = (Long) packSpn.getValue();
 							client.firePropertyChange("resetall", 0L, maxSpectra);
 							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 							// iterate over all spectra
-							for (Long pos : spectrumPositions) {
+//							for (Long pos : spectrumPositions) {
+							for (int j = 0; j < positions.size(); j++) {
+								long startPos = positions.get(j);
+								long endPos = (j == (positions.size() -1)) ? file.length() : positions.get(j + 1);
+								
 								if ((numSpectra % packageSize) == 0) {
 									if (fos != null) {
 										fos.close();
@@ -259,13 +263,15 @@ public class SettingsPanel extends JPanel {
 									long remaining = maxSpectra - numSpectra;
 									firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 								}
-								MascotGenericFile mgf = reader.loadNthSpectrum((int) numSpectra, pos);
+								
+								MascotGenericFile mgf = reader.loadNthSpectrum((int) numSpectra, startPos, endPos);
 								mgf.writeToStream(fos);
 								fos.flush();
 								firePropertyChange("progressmade", 0L, ++numSpectra);
 							}
 							fos.close();
 							client.uploadFile(file.getName(), client.getBytesFromFile(file));
+							file.delete();
 							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 							
 							// collect search settings

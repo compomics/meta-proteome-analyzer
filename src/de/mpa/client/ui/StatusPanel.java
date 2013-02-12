@@ -192,14 +192,14 @@ public class StatusPanel extends JPanel {
 					totProgressTillNow = 0L;
 					totProgress = 0L;
 					maxCurProgress = 0L;
-					maxTotProgress = (Long) pce.getNewValue();
+					maxTotProgress = ((Number) pce.getNewValue()).longValue();
 					currentPrg.setValue(0);
 					totalPrg.setValue(0);
 				} else if (name.equalsIgnoreCase("resetcur")) {
 					startTime = System.currentTimeMillis();
 					curProgress = 0L;
 					totProgressTillNow += maxCurProgress;
-					maxCurProgress = (Long) pce.getNewValue();
+					maxCurProgress = ((Number) pce.getNewValue()).longValue();
 					currentPrg.setValue(0);
 				} else if (name.equalsIgnoreCase("indeterminate")) {
 					final boolean indeterminate = (Boolean) pce.getNewValue();
@@ -213,7 +213,7 @@ public class StatusPanel extends JPanel {
 					totProgress++;
 					updateTime();
 				} else if (name.equalsIgnoreCase("progress")) {
-					curProgress = (Long) pce.getNewValue();
+					curProgress = ((Number) pce.getNewValue()).longValue();
 					totProgress = totProgressTillNow + curProgress;
 					updateTime();
 //				} else if (name.equalsIgnoreCase("orientation")) {

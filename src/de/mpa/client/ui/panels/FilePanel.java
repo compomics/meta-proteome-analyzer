@@ -53,7 +53,6 @@ import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jfree.chart.ChartPanel;
 
 import com.compomics.util.gui.spectrum.SpectrumPanel;
@@ -74,8 +73,8 @@ import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.HistogramChart;
-import de.mpa.client.ui.chart.HistogramChart.HistChartType;
 import de.mpa.client.ui.chart.HistogramData;
+import de.mpa.client.ui.chart.HistogramChart.HistChartType;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
@@ -423,10 +422,7 @@ public class FilePanel extends JPanel {
 		clrBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				// reset table
-				while (treeRoot.getChildCount() > 0) {
-					treeModel.removeNodeFromParent((MutableTreeTableNode) treeModel.getChild(treeRoot, treeRoot.getChildCount()-1));
-				}
+				TableConfig.clearTable(treeTbl);
 				treeTbl.getRowSorter().allRowsChanged();
 				treeTbl.getCheckBoxTreeSelectionModel().clearSelection();
 				
@@ -492,9 +488,11 @@ public class FilePanel extends JPanel {
 			reader = new MascotGenericFileReader(file);
 		}
 		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
-		long spectrumPosition = specPosMap.get(file.getAbsolutePath()).get(spectrumIndex);
+		ArrayList<Long> positions = specPosMap.get(file.getAbsolutePath());
+		long startPos = positions.get(spectrumIndex);
+		long endPos = (spectrumIndex == (positions.size() -1)) ? file.length() : positions.get(spectrumIndex + 1);
 		
-		MascotGenericFile spectrum = reader.loadNthSpectrum(spectrumIndex, spectrumPosition);
+		MascotGenericFile spectrum = reader.loadNthSpectrum(spectrumIndex, startPos, endPos);
 		Long spectrumID = spectrum.getSpectrumID();
 		if (spectrumID != null) {
 			// this is just a dummy spectrum, fetch from database
@@ -510,10 +508,19 @@ public class FilePanel extends JPanel {
 	 */
 	private class AddFileWorker extends SwingWorker {
 		
-		private File[] selFiles;
-		
+		/**
+		 * The spectrum files.
+		 */
+		private File[] files;
+
+		/**
+		 * Constructs a worker instance for parsing the specified spectrum files
+		 * and inserting node representations of them into the spectrum tree
+		 * view.
+		 * @param files the spectrum file descriptors
+		 */
 		public AddFileWorker(File[] files) {
-			this.selFiles = files;
+			this.files = files;
 		}
 
 		@Override
@@ -528,20 +535,20 @@ public class FilePanel extends JPanel {
 			CheckBoxTreeSelectionModel selectionModel = treeTbl.getCheckBoxTreeSelectionModel();
 
 			long totalSize = 0L;
-			for (File file : selFiles) {
+			for (File file : files) {
 				totalSize += file.length();
 			}
 			client.firePropertyChange("resetall", 0, totalSize);
 			
 			int i = 0;
-			for (File file : selFiles) {
-				client.firePropertyChange("new message", null, "READING SPECTRUM FILE " + ++i + "/" + selFiles.length);
+			for (File file : files) {
+				client.firePropertyChange("new message", null, "READING SPECTRUM FILE " + ++i + "/" + files.length);
 				
-				ArrayList<Long> spectrumPositions = new ArrayList<Long>();
+				ArrayList<Long> positions = new ArrayList<Long>();
 				try {
 					reader = new MascotGenericFileReader(file, LoadMode.NONE);
 
-					client.firePropertyChange("resetcur", 0, file.length());
+					client.firePropertyChange("resetcur", -1L, file.length());
 					
 					reader.addPropertyChangeListener(new PropertyChangeListener() {
 						@Override
@@ -555,11 +562,10 @@ public class FilePanel extends JPanel {
 //					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
 //					totalSpectraList.addAll(mgfList);
 					
-					spectrumPositions.addAll(reader.getSpectrumPositions(false));
-					specPosMap.put(file.getAbsolutePath(), spectrumPositions);
+					positions.addAll(reader.getSpectrumPositions(false));
+					specPosMap.put(file.getAbsolutePath(), positions);
 
-					client.firePropertyChange("indeterminate", false, true);
-					client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + selFiles.length);
+					client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
 					
 					File parentFile = file.getParentFile();
 					if (parentFile == null) {
@@ -583,11 +589,16 @@ public class FilePanel extends JPanel {
 							}
 						}
 					};
+					
+					client.firePropertyChange("resetcur", -1L, positions.size());
 
 					int index = 1;
 					List<TreePath> toBeAdded = new ArrayList<TreePath>();
-					for (Long specPos : spectrumPositions) {
-						MascotGenericFile mgf = reader.loadNthSpectrum(index, specPos);
+					for (int j = 0; j < positions.size(); j++) {
+						long startPos = positions.get(j);
+						long endPos = (j == (positions.size() -1)) ? file.length() : positions.get(j + 1);
+						
+						MascotGenericFile mgf = reader.loadNthSpectrum(index, startPos, endPos);
 						
 						Long spectrumID = mgf.getSpectrumID();
 						if (spectrumID != null) {
@@ -625,7 +636,13 @@ public class FilePanel extends JPanel {
 							toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 						}
 						index++;
+						
+						client.firePropertyChange("progressmade", false, true);
 					}
+					client.firePropertyChange("progress", -1L, -positions.size());
+
+					client.firePropertyChange("indeterminate", false, true);
+					client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
 					
 					// append new file node to root and initially deselect it
 					if (fileNode.getChildCount() > 0) {
@@ -659,7 +676,7 @@ public class FilePanel extends JPanel {
 
 			String str = filesTtf.getText();
 			str = str.substring(0, str.indexOf(" "));
-			filesTtf.setText((Integer.parseInt(str) + selFiles.length) + " file(s) added - " + ticList.size() + " spectra in total");
+			filesTtf.setText((Integer.parseInt(str) + files.length) + " file(s) added - " + ticList.size() + " spectra in total");
 			
 			// Show histogram
 			if (!ticList.isEmpty()) {

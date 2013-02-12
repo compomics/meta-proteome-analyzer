@@ -33,6 +33,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
+import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import de.mpa.util.ColorUtils;
@@ -98,8 +99,17 @@ public class TableConfig {
 	public static void clearTable(JTable table) {
 		table.clearSelection();
 		if (table instanceof JXTreeTable) {
-			MutableTreeTableNode root =
-				(MutableTreeTableNode) ((JXTreeTable) table).getTreeTableModel().getRoot();
+			// get model and root instances
+			DefaultTreeTableModel model =
+				(DefaultTreeTableModel) ((JXTreeTable) table).getTreeTableModel();
+			MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
+			
+			// remove and destroy root children
+			for (int i = 0; i < root.getChildCount(); i++) {
+				MutableTreeTableNode child = (MutableTreeTableNode) model.getChild(root, 0);
+				model.removeNodeFromParent(child);
+				child = null;
+			}
 			if (root instanceof CheckBoxTreeTableNode) {
 				((CheckBoxTreeTableNode) root).removeAllChildren();
 			} else {
@@ -108,6 +118,7 @@ public class TableConfig {
 				}
 			}
 		} else {
+			// for simple JTables setRowCount(0) is sufficient
 			((DefaultTableModel) table.getModel()).setRowCount(0);
 		}
 	}

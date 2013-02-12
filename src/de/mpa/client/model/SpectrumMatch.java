@@ -15,9 +15,14 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
 	protected long searchSpectrumID;
 	
 	/**
-	 * The line in the saved mgf(Export).
+	 * The start index byte position of the associated spectrum.
 	 */
-	private long indexPos;
+	private long startIndex;
+	
+	/**
+	 * The end index byte position of the associated spectrum.
+	 */
+	private long endIndex;
 
 	/**
 	 * Default empty constructor.
@@ -59,21 +64,39 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
 	}
 
 	/**
-	 * Returns the byte position of the spectrum associated with this match
-	 * inside an exported spectrum container file.
-	 * @return the byte position pointing to the spectrum
+	 * Returns the byte position of the beginning of the spectrum associated
+	 * with this match inside an exported spectrum container file.
+	 * @return the start index byte position
 	 */
-	public long getIndexPosition() {
-		return indexPos;
+	public long getStartIndex() {
+		return startIndex;
 	}
 
 	/**
 	 * Sets the byte position of a spectrum to be associated with this match
 	 * inside a spectrum container file which is to be exported.
-	 * @param indexPos the byte position pointing to the spectrum
+	 * @param startIndex the start index byte position
 	 */
-	public void setIndexPosition(long indexPos) {
-		this.indexPos = indexPos;
+	public void setStartIndex(long startIndex) {
+		this.startIndex = startIndex;
+	}
+
+	/**
+	 * Returns the byte position of the end of the spectrum associated with this
+	 * match inside an exported spectrum container file.
+	 * @return the end index byte position
+	 */
+	public long getEndIndex() {
+		return endIndex;
+	}
+
+	/**
+	 * Sets the byte position of the end of the spectrum associated with this
+	 * match inside an exported spectrum container file.
+	 * @param endIndex the end index byte position
+	 */
+	public void setEndIndex(long endIndex) {
+		this.endIndex = endIndex;
 	}
 	
 	@Override
