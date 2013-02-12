@@ -9,6 +9,13 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 import com.tinkerpop.frames.FramedGraph;
 
+import de.mpa.graphdb.nodes.Enzyme;
+import de.mpa.graphdb.nodes.Ontology;
+import de.mpa.graphdb.nodes.Pathway;
+import de.mpa.graphdb.nodes.Peptide;
+import de.mpa.graphdb.nodes.PeptideSpectrumMatch;
+import de.mpa.graphdb.nodes.Protein;
+import de.mpa.graphdb.nodes.Species;
 import de.mpa.graphdb.properties.EnzymeProperty;
 import de.mpa.graphdb.properties.FunctionProperty;
 import de.mpa.graphdb.properties.OntologyProperty;
@@ -17,13 +24,6 @@ import de.mpa.graphdb.properties.PeptideProperty;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
 import de.mpa.graphdb.properties.SpeciesProperty;
-import de.mpa.graphdb.vertices.Enzyme;
-import de.mpa.graphdb.vertices.Ontology;
-import de.mpa.graphdb.vertices.Pathway;
-import de.mpa.graphdb.vertices.Peptide;
-import de.mpa.graphdb.vertices.PeptideSpectrumMatch;
-import de.mpa.graphdb.vertices.Protein;
-import de.mpa.graphdb.vertices.Species;
 
 /**
  * A DataAccessor class provides access to vertices of the graph by querying any property that 

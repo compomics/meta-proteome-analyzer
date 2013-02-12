@@ -138,6 +138,7 @@ public abstract class Job implements Executable {
 	 */
 	public void setError(Exception e) {
 		log.error(e.getMessage(), e.getCause());
+		e.printStackTrace();
 		this.error = e.getMessage();
 		setStatus(JobStatus.ERROR);
 	}

@@ -55,11 +55,20 @@ public class CypherQuery {
 	
     /**
      * Returns the protein by its accession.
-     * @param accession Protein accesssion
+     * @param accession Protein accession
      * @return Protein node ExecutionResult
      */
 	public ExecutionResult getProteinByAccession(String accession) {
         return engine.execute("START protein=node:proteins(ACCESSION = {accession}) return protein", map("accession", accession));
+	}
+	
+    /**
+     * Returns the protein by its sequence.
+     * @param accession Protein sequence
+     * @return Protein node ExecutionResult
+     */
+	public ExecutionResult getProteinBySequence(String sequence) {
+		return engine.execute("START protein=node:proteins(PROTEINSEQUENCE = {sequence}) return protein", map("sequence", sequence));
 	}
 	
 	/**
@@ -75,27 +84,54 @@ public class CypherQuery {
 	
 	/**
 	 * Returns all unique peptides of the dataset.
-	 * TODO:
 	 * @return Peptide node(s) ExecutionResult
 	 */
 	public ExecutionResult getAllUniquePeptides() {
-		return engine.execute("START n=node(*) " +
-				"MATCH (n)-[r]->() " + 
-				"WITH count(r) as pc " +
-				"WHERE pc = 1" + 
-				"RETURN n");
+		return engine.execute("START peptide=node(*) " +
+				"MATCH (peptide)<-[rel:HAS_PEPTIDE]-(protein) " + 
+				"WITH peptide, count(rel) as cn " +
+				"WHERE cn = 1 " + 
+				"RETURN peptide");
+	}
+	
+	/**
+	 * Returns all shared peptides of the dataset.
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getAllSharedPeptides() {
+		return engine.execute("START peptide=node(*) " +
+				"MATCH (peptide)<-[rel:HAS_PEPTIDE]-(protein) " + 
+				"WITH peptide, count(rel) as cn " +
+				"WHERE cn > 1 " + 
+				"RETURN peptide");
 	}
 	
 	/**
 	 * Returns the unique peptides for a protein (specified by its accession).
-	 * @param accession Protein accession
 	 * @return Peptide node(s) ExecutionResult
 	 */
 	public ExecutionResult getUniquePeptidesForProtein(String accession) {
 		return engine.execute("START protein=node:proteins(ACCESSION = {accession}) " +
-				"MATCH (protein)-->(peptide)-->(protein2) " + 
-				"WHERE count(protein2) = 1" + "RETURN peptide",
-				map("accession", accession));
+				"MATCH (protein)-[:HAS_PEPTIDE]->(peptide) " +
+				"WITH peptide " +
+				"MATCH (peptide)<-[rel:HAS_PEPTIDE]-(protein2) " +
+				"WITH peptide, count(rel) as cn " + 
+				"WHERE cn = 1 " + 
+				"RETURN peptide", map("accession", accession));
+	}
+	
+	/**
+	 * Returns the shared peptides for a protein (specified by its accession).
+	 * @return Peptide node(s) ExecutionResult
+	 */
+	public ExecutionResult getSharedPeptidesForProtein(String accession) {
+		return engine.execute("START protein=node:proteins(ACCESSION = {accession}) " +
+				"MATCH (protein)-[:HAS_PEPTIDE]->(peptide) " +
+				"WITH peptide " +
+				"MATCH (peptide)<-[rel:HAS_PEPTIDE]-(protein2) " +
+				"WITH peptide, count(rel) as cn " + 
+				"WHERE cn > 1 " + 
+				"RETURN peptide", map("accession", accession));
 	}
 	
 	/**
@@ -287,6 +323,39 @@ public class CypherQuery {
 		return engine.execute("START pathway=node:pathways(KONUMBER = {koNumber}) " +
                 "MATCH (pathway)<-[:BELONGS_TO_PATHWAY]-(protein)-[:HAS_PEPTIDE]->(peptide)<-[:IS_MATCH_IN]-(psm) " +
                 "RETURN psm", map("koNumber", koNumber));
+	}
+	
+	/**
+	 * Returns all PSMs for biological process (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return PSM node(s) ExecutionResult
+	 */
+	public ExecutionResult getPSMsForBiologicalProcess(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:INVOLVED_IN_BIOPROCESS]-(protein)-[:HAS_PEPTIDE]->(peptide)<-[:IS_MATCH_IN]-(psm) " +
+                "RETURN psm", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all PSMs for molecular function (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return PSM node(s) ExecutionResult
+	 */
+	public ExecutionResult getPSMsForMolecularFunction(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:HAS_MOLECULAR_FUNCTION]-(protein)-[:HAS_PEPTIDE]->(peptide)<-[:IS_MATCH_IN]-(psm) " +
+                "RETURN psm", map("keyword", keyword));
+	}
+	
+	/**
+	 * Returns all PSMs for cellular component (specified by keyword). 
+	 * @param keyword Ontology keyword
+	 * @return PSM node(s) ExecutionResult
+	 */
+	public ExecutionResult getPSMsForCellularComponent(String keyword) {
+		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
+                "MATCH (ontology)<-[:BELONGS_TO_COMPONENT]-(protein)-[:HAS_PEPTIDE]->(peptide)<-[:IS_MATCH_IN]-(psm) " +
+                "RETURN psm", map("keyword", keyword));
 	}
 	
     /**

@@ -1,4 +1,4 @@
-package de.mpa.graphdb.vertices;
+package de.mpa.graphdb.nodes;
 
 
 import com.tinkerpop.blueprints.Direction;

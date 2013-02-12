@@ -137,7 +137,6 @@ public class XTandemStorager extends BasicStorager {
             	List<Domain> domains = peptide.getDomains();
             	for (Domain domain : domains) {
                    	String sequence = domain.getDomainSequence();
-                	
                 	if(!peptides.contains(sequence)){
                 	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
                 	      
