@@ -120,7 +120,7 @@ public class ComparePanel extends JPanel{
 	 * The map with the compared Objects
 	 */
 	private Map<String, List<Experiment>> groupMap =  new LinkedHashMap<String, List<Experiment>>();
-
+	
 	private boolean experimentsHaveChanged = false;
 
 	/**

@@ -103,6 +103,21 @@ public class CypherQueryTest {
     }
 	
 	@Test
+    public void testGetProteinBySequence() {
+		String sequence = "MAQMTMVQAINDALKSELKRDEDVLVFGEDVGVNGGVFRVTEGLQKEFGEDRVFDTPLAESGIGGLALGLAVTGFRPVMEIQFLGFVYEVFDEVAGQIARTRFRSGGTKPAPVTIRTPFGGGVHTPELHADNLEGILAQSPGLKVVIPSGPYDAKGLLISSIQSNDPVVYLEHMKLYRSFREEVPEEEYKIDIGKANVKKEGNDITLISYGAMVQESLKAAEELEKDGYSVEVIDLRTVQPIDIDTLVASVEKTGRAVVVQEAQRQAGVGAQVAAELAERAILSLEAPIARVAASDTIYPFTQAENVWLPNKKDIIEQAKATLEF";
+        Iterator<Object> columnAs = cypherQuery.getProteinBySequence(sequence).columnAs("protein");
+        while (columnAs.hasNext()) {
+            final Object value = columnAs.next();
+            if (value instanceof Node) {
+                Node n = (Node)value;
+                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
+                
+            }
+        }
+    }
+	
+	@Test
     public void testGetPeptidesForProtein() {
 		// Test1 : One peptide only!
         Iterator<Object> columnAs = cypherQuery.getPeptidesForProtein("P64462").columnAs("peptide");
@@ -116,21 +131,32 @@ public class CypherQueryTest {
             }
         }
     }
+
+	@Test
+	public void testGetAllUniquePeptides() {
+		Set<Node> nodeSet =CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "peptide", PeptideProperty.SEQUENCE);
+		TestCase.assertEquals(9, nodeSet.size());
+	}
+	
+	@Test
+	public void testGetAllSharedPeptides() {
+		Set<Node> nodeSet =CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "peptide", PeptideProperty.SEQUENCE);
+		TestCase.assertEquals(4, nodeSet.size());
+	}
 	
 	@Test
     public void testGetUniquePeptidesForProtein() {
 		// Test1 : One peptide only!
-		// TODO
-//        Iterator<Object> columnAs = cypherQuery.getUniquePeptidesForProtein("P64462").columnAs("peptide");
-//        while (columnAs.hasNext()) {
-//            final Object value = columnAs.next();
-//            if (value instanceof Node) {
-//                Node n = (Node)value;
-//                if(n.hasProperty(PeptideProperty.SEQUENCE.name())){
-//                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
-//                }
-//            }
-//        }
+        Iterator<Object> columnAs = cypherQuery.getUniquePeptidesForProtein("P64462").columnAs("peptide");
+        while (columnAs.hasNext()) {
+            final Object value = columnAs.next();
+            if (value instanceof Node) {
+                Node n = (Node)value;
+                if(n.hasProperty(PeptideProperty.SEQUENCE.name())){
+                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
+                }
+            }
+        }
     }
 	
 	
@@ -187,6 +213,28 @@ public class CypherQueryTest {
 		TestCase.assertEquals(1081661L, nodeSet.iterator().next().getProperty(PsmProperty.SPECTRUMID.name()));
 		TestCase.assertEquals(4, nodeSet.size());
     }
+	
+	@Test
+    public void testGetPSMsForMolecularFunction() {
+		// Get PSMs for molecular function.
+		Set<Node> psmNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForMolecularFunction("Transferase"), "psm", PsmProperty.SPECTRUMID);
+        TestCase.assertEquals(6, psmNodes.size());
+    }
+	
+	@Test
+    public void testGetPSMsForBiologicalProcess() {
+		// Get PSMs for molecular function.
+		Set<Node> psmNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForBiologicalProcess("Methanogenesis"), "psm", PsmProperty.SPECTRUMID);
+        TestCase.assertEquals(0, psmNodes.size());
+    }
+	
+	@Test
+    public void testGetPSMsForCellularComponent() {
+		// Get PSMs for molecular function.
+		Set<Node> psmNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPSMsForCellularComponent("Cytoplasm"), "psm", PsmProperty.SPECTRUMID);
+        TestCase.assertEquals(11, psmNodes.size());
+    }
+	
 	
     @AfterClass
     public static void tearDownClass() throws IOException {

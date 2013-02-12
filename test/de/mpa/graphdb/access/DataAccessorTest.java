@@ -20,6 +20,13 @@ import org.neo4j.graphdb.GraphDatabaseService;
 
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.graphdb.insert.DataInserter;
+import de.mpa.graphdb.nodes.Enzyme;
+import de.mpa.graphdb.nodes.Ontology;
+import de.mpa.graphdb.nodes.Pathway;
+import de.mpa.graphdb.nodes.Peptide;
+import de.mpa.graphdb.nodes.PeptideSpectrumMatch;
+import de.mpa.graphdb.nodes.Protein;
+import de.mpa.graphdb.nodes.Species;
 import de.mpa.graphdb.properties.EnzymeProperty;
 import de.mpa.graphdb.properties.OntologyProperty;
 import de.mpa.graphdb.properties.PathwayProperty;
@@ -28,13 +35,6 @@ import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
 import de.mpa.graphdb.properties.SpeciesProperty;
 import de.mpa.graphdb.setup.GraphDatabase;
-import de.mpa.graphdb.vertices.Enzyme;
-import de.mpa.graphdb.vertices.Ontology;
-import de.mpa.graphdb.vertices.Pathway;
-import de.mpa.graphdb.vertices.Peptide;
-import de.mpa.graphdb.vertices.PeptideSpectrumMatch;
-import de.mpa.graphdb.vertices.Protein;
-import de.mpa.graphdb.vertices.Species;
 
 /**
  * Test class for starting up the graph database and accessing it 

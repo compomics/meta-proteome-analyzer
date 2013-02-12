@@ -81,10 +81,9 @@ public class PeptideQueryTest {
     }
 	
 	@Test 
-	public void testGetUniquePeptides() {
-		// Retrieve all peptides for species.
-		System.out.println(cypherQuery.getAllUniquePeptides().toString());
-        Iterator<Object> columnAs = cypherQuery.getAllUniquePeptides().columnAs("n");
+	public void testGetAllUniquePeptides() {
+		// Retrieve all unique peptides from the dataset = 201 Unique peptides
+        Iterator<Object> columnAs = cypherQuery.getAllUniquePeptides().columnAs("peptide");
         List<Node> nodes = new ArrayList<Node>();
         while (columnAs.hasNext()) {
             final Object value = columnAs.next();
@@ -93,7 +92,43 @@ public class PeptideQueryTest {
                 nodes.add(n);
             }
         }
-        TestCase.assertEquals(10, nodes.size());
+        TestCase.assertEquals(201, nodes.size());
+    }
+	
+	@Test 
+	public void testGetAllSharedPeptides() {
+		// Retrieve all unique peptides from the dataset = 201 Unique peptides
+        Iterator<Object> columnAs = cypherQuery.getAllSharedPeptides().columnAs("peptide");
+        List<Node> nodes = new ArrayList<Node>();
+        while (columnAs.hasNext()) {
+            final Object value = columnAs.next();
+            if (value instanceof Node) {
+                Node n = (Node)value;
+                nodes.add(n);
+            }
+        }
+        TestCase.assertEquals(21, nodes.size());
+	}
+	
+	@Test
+    public void testGetPeptidesForProtein() {
+		// Protein contains three peptides.
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForProtein("P07955"), "peptide", PeptideProperty.SEQUENCE);
+		TestCase.assertEquals(3, peptideNodes.size());
+    }
+	
+	@Test
+    public void testGetUniquePeptidesForProtein() {
+		// Protein contains two unique peptides.
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getUniquePeptidesForProtein("P07955"), "peptide", PeptideProperty.SEQUENCE);
+		TestCase.assertEquals(2, peptideNodes.size());
+    }
+	
+	@Test
+    public void testGetSharedPeptidesForProtein() {
+		// Protein contains two unique peptides.
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getSharedPeptidesForProtein("P07955"), "peptide", PeptideProperty.SEQUENCE);
+		TestCase.assertEquals(1, peptideNodes.size());
     }
 	
 	@Test
