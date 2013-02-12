@@ -3071,7 +3071,8 @@ public class DbSearchResultPanel extends JPanel {
 						// Read spectrum from MGF file accompanying imported result object, if possible
 						String mgfPath = importFile.getPath();
 						mgfPath = mgfPath.substring(0, mgfPath.lastIndexOf('.')) + ".mgf";
-						mgf = Client.getInstance().readSpectrumFromFile(mgfPath, psm.getIndexPosition());
+						mgf = Client.getInstance().readSpectrumFromFile(
+								mgfPath, psm.getStartIndex(), psm.getEndIndex());
 					}
 
 					specPnl = new SpectrumPanel(mgf);

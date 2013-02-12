@@ -539,12 +539,12 @@ public class Client {
 	 * @param indexPos The byte position of the spectrum in the desired file.
 	 * @return the desired spectrum
 	 */
-	public MascotGenericFile readSpectrumFromFile(String pathname, Long indexPos) {
+	public MascotGenericFile readSpectrumFromFile(String pathname, long startPos, long endPos) {
 		MascotGenericFile mgf = null;
 		try {
 			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
 			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
-			mgf = reader.loadNthSpectrum(0, indexPos);
+			mgf = reader.loadNthSpectrum(0, startPos, endPos);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -599,6 +599,7 @@ public class Client {
 			if (fos != null) {
 				fos.close();
 				this.uploadFile(file.getName(), this.getBytesFromFile(file));
+				file.delete();
 			}
 		} else {
 			throw new IOException("ERROR: No files selected.");
@@ -760,11 +761,14 @@ public class Client {
 			String prefix = filename.substring(0, filename.indexOf('.'));
 			File mgfFile = new File(prefix + ".mgf");
 			FileOutputStream fos = new FileOutputStream(mgfFile);
+			long index = 0L;
 			for (SpectrumMatch spectrumMatch : spectrumMatches) {
-				spectrumMatch.setIndexPosition(mgfFile.length());
+				spectrumMatch.setStartIndex(index);
 				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(
 						spectrumMatch.getSearchSpectrumID());
 				mgf.writeToStream(fos);
+				index = mgfFile.length();
+				spectrumMatch.setEndIndex(index);
 				firePropertyChange("progressmade", false, true);
 			}
 			fos.flush();
