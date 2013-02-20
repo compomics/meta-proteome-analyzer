@@ -295,7 +295,7 @@ public class MascotGenericFileReader {
         }
 
         // Fire final progress event
-        fireProgressMade(spectrumPositions.get(spectrumPositions.size() - 1), newPos);
+        fireProgressMade(-1L, newPos);
     }
     
     /**
@@ -318,7 +318,7 @@ public class MascotGenericFileReader {
             		break;
             	}
             }
-    		raf.seek(0);	// reset file-pointer to start of file
+//    		raf.seek(0);	// reset file-pointer to start of file
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

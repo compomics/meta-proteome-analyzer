@@ -53,6 +53,9 @@ import de.mpa.main.Parameters;
 
 public class ClientFrame extends JFrame {
 
+	/**
+	 * The singleton instance of this client frame.
+	 */
 	private static ClientFrame frame;
 
 	/**
@@ -60,51 +63,97 @@ public class ClientFrame extends JFrame {
 	 */
 	private ClientFrameMenuBar menuBar;
 
+	/**
+	 * The tab pane containing the various panel views of the client user
+	 * interface.
+	 */
 	private JTabbedPane tabPane;
 	
+	/**
+	 * The panel containing project selection and management functionalities.
+	 */
 	private JPanel projectPnl = new JPanel();
-	private JPanel filePnl = new JPanel();
-	private JPanel setPnl = new JPanel();
-	private JPanel resPnl = new JPanel();
-	private JPanel clusterPnl = new JPanel();
-	private JPanel logPnl = new JPanel();
-//	private JPanel comparePnl;
-	
-	private StatusPanel statusPnl;
-	
-	public Logger log = Logger.getLogger(getClass());
-	
-	
-	private boolean connectedToServer = false;
-
-	private Component comparePnl;
-
-	
 	
 	/**
-	 * Returns a client singleton object.
+	 * The panel containing file input and pre-processing functionalities.
+	 */
+	private JPanel filePnl = new JPanel();
+
+	/**
+	 * The panel containing controls for editing search engine settings and for
+	 * launching searches.
+	 */
+	private JPanel settingsPnl = new JPanel();
+	
+	/**
+	 * The panel containing search result views.
+	 */
+	private JPanel resultPnl = new JPanel();
+	
+//	/**
+//	 * The panel containing spectrum clustering functionalities.
+//	 */
+//	private JPanel clusterPnl = new JPanel();
+	
+	/**
+	 * The panel containing search results comparison functionalities.
+	 */
+	private JPanel comparePnl = new JPanel();
+	
+	/**
+	 * The panel containing general logging functionalities.
+	 */
+	private JPanel loggingPnl = new JPanel();
+	
+	/**
+	 * Panel serving as the client frame's status bar.
+	 */
+	private StatusPanel statusPnl;
+	
+	/**
+	 * The logger instance.
+	 */
+	public Logger log = Logger.getLogger(getClass());
+
+	/**
+	 * Flag indicating whether a connection to a server instance is established.
+	 */
+	private boolean connectedToServer = false;
+	
+	/**
+	 * Returns the client frame's singleton instance.
 	 * 
-	 * @return client Client singleton object
+	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance() {
 		return getInstance(false);
 	}
 	
+	/**
+	 * Returns the client frame's singleton instance.
+	 * @param viewerMode flag indicating whether the client is running in viewer mode.
+	 * @return the client frame's singleton instance.
+	 */
 	public static ClientFrame getInstance(boolean viewerMode) {
 		if (frame == null) {
 			frame = new ClientFrame(viewerMode);
 		}
 		return frame;
 	}
+
+	public static final int PROJECT_PANEL = 0;
+	public static final int INPUT_PANEL = 1;
+	public static final int SETTINGS_PANEL = 2;
+	public static final int RESULTS_PANEL = 3;
+	public static final int COMPARE_PANEL = 4;
+	public static final int LOGGING_PANEL = 5;
 	
 	/**
 	 * Constructor for the ClientFrame
 	 */
 	private ClientFrame(boolean viewerMode) {
-
-		// Application title
+		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
-//		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				Client.getInstance().exit();
@@ -112,23 +161,6 @@ public class ClientFrame extends JFrame {
 		});
 		frame = this;
 		
-		// Prompt to start in Viewer mode
-		// TODO: export project using different run configurations instead of using this selection dialog
-//		int buttonIndex = JOptionPane.showConfirmDialog(frame,
-//				"Launch in viewer mode?",
-//				"Mode Selection",
-//				JOptionPane.YES_NO_CANCEL_OPTION,
-//				JOptionPane.QUESTION_MESSAGE);
-//		
-//		switch (buttonIndex) {
-//		case JOptionPane.YES_OPTION:
-//			Client.getInstance().setViewer(true);
-//		case JOptionPane.NO_OPTION:
-//			Client.getInstance();
-//			break;
-//		default:
-//			System.exit(0);
-//		}
 		Client.getInstance().setViewer(viewerMode);
 
 		// Frame size
@@ -144,20 +176,33 @@ public class ClientFrame extends JFrame {
 		cp.setLayout(new BorderLayout());
 
 		// Store tab icons, titles and corresponding panels in arrays
-		ImageIcon projectIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/project.png"));
-		ImageIcon addSpectraIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/addspectra.png"));
-		ImageIcon settingsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/settings.png"));
-		ImageIcon resultsIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/results.png"));
-		ImageIcon clusteringIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/clustering.png"));
-		ImageIcon loggingIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/logging.png"));
-		ImageIcon compareIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/compare32.png"));
-		
-		ImageIcon[] icons = new ImageIcon[] { projectIcon, addSpectraIcon, settingsIcon, resultsIcon, 
-				clusteringIcon, loggingIcon, compareIcon };
-		String[] titles = new String[] { "Project", "Input Spectra","Search Settings", "View Results",
-				"Clustering", "Logging", "Comparison"};
-		Component[] panels = new Component[] { projectPnl, filePnl, setPnl, resPnl, 
-				clusterPnl, logPnl, comparePnl};
+		ImageIcon[] icons = new ImageIcon[] {
+				IconConstants.PROJECT_ICON,
+				IconConstants.INPUT_ICON,
+				IconConstants.SETTINGS_ICON,
+				IconConstants.RESULTS_ICON, 
+//				IconConstants.CLUSTERING_ICON,
+				IconConstants.COMPARE_ICON,
+				IconConstants.LOGGING_ICON
+		};
+		String[] titles = new String[] {
+				"Project",
+				"Input Spectra",
+				"Search Settings",
+				"View Results",
+//				"Clustering",
+				"Compare Results",
+				"Logging"
+		};
+		Component[] panels = new Component[] {
+				projectPnl,
+				filePnl,
+				settingsPnl,
+				resultPnl, 
+//				clusterPnl,
+				comparePnl,
+				loggingPnl
+		};
 
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
 		Insets tabInsets = UIManager.getInsets("TabbedPane.tabInsets");
@@ -191,15 +236,18 @@ public class ClientFrame extends JFrame {
 		
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
-		
-		tabPane.setEnabledAt(4, false);
+
+//		tabPane.setEnabledAt(4, false);
+		for (int i = INPUT_PANEL; i < COMPARE_PANEL; i++) {
+			tabPane.setEnabledAt(i, false);
+		}
 
 		// Add components to content pane
 		this.setJMenuBar(menuBar);
 		cp.add(tabPane);
 		cp.add(statusPnl, BorderLayout.SOUTH);
 		
-		// TODO: notify progress bar for loading paramters.
+		// TODO: notify progress bar for loading parameters.
 		Parameters.getInstance();
 		
 		// Enables Functions for the Viewer
@@ -247,18 +295,15 @@ public class ClientFrame extends JFrame {
 			// File panel
 			filePnl = new FilePanel();
 			// Settings Panel
-			setPnl = new SettingsPanel();
-			// Logging panel		
-			logPnl = new LoggingPanel();
-			
-			// TODO: Compare panel (Robbies prototyp)
+			settingsPnl = new SettingsPanel();
+			// Compare panel
 			comparePnl = new ComparePanel();
+			// Logging panel		
+			loggingPnl = new LoggingPanel();
 		}
 		// Results Panel
-		resPnl = new ResultsPanel();
+		resultPnl = new ResultsPanel();
 		
-		// Fabi's test panel
-//		clusterPnl = new ClusterPanel();
 	}
 
 	/**
@@ -286,7 +331,7 @@ public class ClientFrame extends JFrame {
 	}
 
 	public SettingsPanel getSettingsPanel() {
-		return (SettingsPanel) setPnl;
+		return (SettingsPanel) settingsPnl;
 	}
 	
 	/**
@@ -358,7 +403,7 @@ public class ClientFrame extends JFrame {
 	 * @return The results panel.
 	 */
 	public ResultsPanel getResultsPanel() {
-		return (ResultsPanel) resPnl;
+		return (ResultsPanel) resultPnl;
 	}
 	
 	/**

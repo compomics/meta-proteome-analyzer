@@ -166,6 +166,11 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 	public boolean isSorted() {
 		return sorted;
 	}
+	
+	@Override
+	public void setParent(MutableTreeTableNode newParent) {
+		super.setParent(newParent);
+	}
 
 	/**
 	 * Provides a child node with the ability to be sorted and/or filtered.

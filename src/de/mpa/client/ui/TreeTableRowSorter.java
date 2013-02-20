@@ -38,7 +38,7 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 		this.treeTable = treeTable;
 		this.treeModel = (SortableTreeTableModel) treeTable.getTreeTableModel();
 	}
-
+	
 	// Leave model/view index conversion to node implementation
 	@Override
 	public int convertRowIndexToModel(int index) {

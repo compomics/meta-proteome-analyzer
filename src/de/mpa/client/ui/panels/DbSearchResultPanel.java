@@ -249,6 +249,11 @@ public class DbSearchResultPanel extends JPanel {
 	private SpectrumPanel specPnl;
 
 	/**
+	 * The maximum x value to which the spectrum view shall be scaled.
+	 */
+	private double maxX;
+
+	/**
 	 * Multi split pane containing all sub-panels.
 	 */
 	private JXMultiSplitPane split;
@@ -463,9 +468,9 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 		
-		getResultsFromDbBtn = new JButton(IconConstants.GO_DB_ICON);
-		getResultsFromDbBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		getResultsFromDbBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		getResultsFromDbBtn = new JButton(IconConstants.GO_DB_SMALL_ICON);
+		getResultsFromDbBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
+		getResultsFromDbBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
 		getResultsFromDbBtn.setToolTipText("Get Results from DB");
 		
 		getResultsFromDbBtn.setUI(new RoundedHoverButtonUI());
@@ -2979,6 +2984,7 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	protected void refreshPsmTable() {
 		TableConfig.clearTable(psmTbl);
+		maxX = 0.0;
 		
 		int protRow = proteinTbl.getSelectedRow();
 		if (protRow != -1) {
@@ -3077,6 +3083,10 @@ public class DbSearchResultPanel extends JPanel {
 
 					specPnl = new SpectrumPanel(mgf);
 					specPnl.showAnnotatedPeaksOnly(true);
+					specPnl.setShowResolution(false);
+					
+					maxX = Math.max(maxX, specPnl.getMaxXAxisValue());
+					specPnl.rescale(0.0, maxX);
 
 					specCont.add(specPnl);
 					specCont.validate();

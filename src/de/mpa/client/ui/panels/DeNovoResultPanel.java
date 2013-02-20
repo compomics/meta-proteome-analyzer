@@ -106,9 +106,9 @@ public class DeNovoResultPanel extends JPanel {
 		setupSpectraTableProperties();
 		setupDenovoTableProperties();
 
-		getResultsBtn = new JButton("Get Results   ", IconConstants.GO_DB_ICON);
-		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		getResultsBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		getResultsBtn = new JButton("Get Results   ", IconConstants.GO_DB_SMALL_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
 		
 		getResultsBtn.setEnabled(false);
 
