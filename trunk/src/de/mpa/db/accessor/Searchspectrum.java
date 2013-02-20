@@ -13,7 +13,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
      * Calls the super class.
      * @param params
      */
-    public Searchspectrum(HashMap params){
+	public Searchspectrum(HashMap params) {
         super(params);
     }
     
@@ -89,6 +89,13 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
 		return spectrum;
     }
     
+    /**
+     * Returns the number of searchspectrum entries for the specified experiment ID.
+     * @param experimentID the database ID of the experiment
+     * @param conn the database connection
+     * @return the spectral count
+     * @throws SQLException when the retrieval did not succeed
+     */
     public static int getSpectralCountFromExperimentID(long experimentID, Connection conn) throws SQLException {
     	int specCount = -1;
     	PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM searchspectrum  " +
@@ -103,6 +110,30 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
     	rs.close();
     	ps.close();
     	return specCount;
+    }
+
+	/**
+	 * Returns whether the experiment with the specified ID has any
+	 * searchspectrum entries associated with it.
+	 * @param experimentID the database ID of the experiment
+	 * @param conn the database connection
+	 * @return <code>true</code> if the experiment has spectra, <code>false</code> otherwise
+	 * @throws SQLException when the retrieval did not succeed
+	 */
+    public static boolean hasSearchSpectra(long experimentID, Connection conn) throws SQLException {
+    	boolean res = false;
+    	PreparedStatement ps = conn.prepareStatement(
+    			"SELECT EXISTS(SELECT 1 FROM searchspectrum ss WHERE ss.fk_experimentid = ?)");
+    	ps.setLong(1, experimentID);
+    	ResultSet rs = ps.executeQuery();
+    	rs.next();
+    	res = rs.getBoolean(1);
+    	if (rs.next()) {
+    		throw new SQLException("Count query returned more than one result!");
+    	}
+    	rs.close();
+    	ps.close();
+    	return res;
     }
     
 }
