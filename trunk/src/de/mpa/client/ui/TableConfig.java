@@ -105,7 +105,8 @@ public class TableConfig {
 			MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
 			
 			// remove and destroy root children
-			for (int i = 0; i < root.getChildCount(); i++) {
+			int childCount = root.getChildCount();
+			for (int i = 0; i < childCount; i++) {
 				MutableTreeTableNode child = (MutableTreeTableNode) model.getChild(root, 0);
 				model.removeNodeFromParent(child);
 				child = null;

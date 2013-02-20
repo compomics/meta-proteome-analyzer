@@ -18,7 +18,6 @@ import java.util.EventObject;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -29,8 +28,8 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.TableCellEditor;
-import javax.swing.tree.AbstractLayoutCache.NodeDimensions;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.AbstractLayoutCache.NodeDimensions;
 
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTree;
@@ -401,12 +400,14 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			Rectangle nodeRect = tree.getRowBounds(row);
 			int nodeStart = 1 + indent + cellRect.x + nodeRect.x;
 
+			Border border;
 			if (table.isColumnSelected(column) && table.isRowSelected(row)) {
-				checkBox.setBorder(BorderFactory.createCompoundBorder(highlightBorder,
-						BorderFactory.createEmptyBorder(1, nodeStart - 1, 0, 0)));
+				border = BorderFactory.createCompoundBorder(highlightBorder,
+						BorderFactory.createEmptyBorder(0, nodeStart - 1, 0, 0));
 			} else {
-				checkBox.setBorder(BorderFactory.createEmptyBorder(1, nodeStart, 0, 1));
+				border = BorderFactory.createEmptyBorder(1, nodeStart, 0, 1);
 			}
+			checkBox.setBorder(border);
 			
 			return checkBox;
 		}
@@ -415,6 +416,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		public Object getCellEditorValue() {
 			return checkBox.isSelected();
 		}
+		
 	}
 	
 	/**
@@ -427,7 +429,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		/**
 		 * The checkbox sub-component.
 		 */
-		private JCheckBox checkBox;
+		private TriStateCheckBox checkBox;
 		
 		/**
 		 * The hyperlink sub-component.
@@ -450,12 +452,22 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		 * capable of bearing an icon.
 		 */
 		public IconCheckBox() {
+			this(0);
+		}
+		
+		/**
+		 * Constructs a checkbox panel containing a tri-state checkbox and a hyperlink label, 
+		 * capable of bearing an icon.
+		 * @param vOffset a vertical pixel offset for painting the indeterminate state
+		 */
+		public IconCheckBox(int vOffset) {
+
 		    this.setLayout(new BorderLayout());
 //		    this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 			this.setOpaque(false);
 
 			// top checkbox with tri-state visuals
-			checkBox = new TriStateCheckBox(center) {
+			checkBox = new TriStateCheckBox(center, vOffset) {
 				@Override
 				public boolean isPartiallySelected() {
 					return (selected == null);
@@ -463,12 +475,12 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			};
 			
 			checkBox.setOpaque(false);
-			checkBox.setBorder(BorderFactory.createEmptyBorder(0, 0 + indent, 0, 4));
+			checkBox.setBorder(BorderFactory.createEmptyBorder(0, 0 + indent, -1, 4));
 			
 			// icon-bearing hyperlink label, uninstall button UI to make it look like a plain label
 			hyperlink = new JXHyperlink();
 			hyperlink.getUI().uninstallUI(hyperlink);
-			hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+			hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
 			hyperlink.setOpaque(true);
 			hyperlink.setVerticalTextPosition(SwingConstants.TOP);
 
@@ -478,7 +490,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			this.add(checkBox, BorderLayout.WEST);
 			this.add(hyperlink, BorderLayout.CENTER);
 		}
-		
+
 		/**
 		 * Adds an actionlistener to the checkbox sub-component.
 		 * @param l the <code>ActionListener</code> to be added
@@ -523,9 +535,14 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		
 		@Override
 		public void setBackground(Color bg) {
-			if (hyperlink != null) {
-				hyperlink.setBackground(bg);
+			for (Component comp : getComponents()) {
+				if (comp != checkBox) {
+					comp.setBackground(bg);
+				}
 			}
+//			if (hyperlink != null) {
+//				hyperlink.setBackground(bg);
+//			}
 		}
 		
 		/**
@@ -539,7 +556,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				if (hyperlink.getAction() != null) {
 					hyperlink.getUI().uninstallUI(hyperlink);
 					hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
-					hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+					hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
 				}
 				hyperlink.setAction(null);
 			} else {
@@ -550,10 +567,18 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			}
 		}
 		
+		/**
+		 * 
+		 * @return
+		 */
 		public boolean isCheckBoxSelected() {
 			return checkBox.isSelected();
 		}
 		
+		/**
+		 * 
+		 * @return
+		 */
 		public Boolean isSelected() {
 			return selected;
 		}

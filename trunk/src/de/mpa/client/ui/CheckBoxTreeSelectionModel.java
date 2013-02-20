@@ -143,30 +143,59 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
             super.removeSelectionPaths((TreePath[]) toBeRemoved.toArray(new TreePath[0]));
         }
 
-        // if all siblings are selected then deselect them and select parent recursively
-        // otherwise just select that path.
+//        // if all siblings are selected then deselect them and select parent recursively
+//        // otherwise just select that path.
+//        for (int i = 0; i < paths.length; i++) {
+//            TreePath path = paths[i];
+//            TreePath temp = null;
+//            while (areSiblingsSelected(path)) {
+//                temp = path;
+//                if (path.getParentPath() == null) {
+//                    break;
+//                }
+//                path = path.getParentPath();
+//            }
+//            if (temp != null) {
+//            	// some parent has been determined
+//                if (temp.getParentPath() != null) {
+//                    super.addSelectionPath(temp.getParentPath());
+//                } else {
+//                	// root is about to be added, clear whole selection first
+//                	clearSelection();
+//					super.addSelectionPaths(new TreePath[] { temp });
+//                }
+//            } else {
+//				super.addSelectionPaths(new TreePath[] { path });
+//            }
+//        }
+
+        // add each path
+        TreePath path = null;
         for (int i = 0; i < paths.length; i++) {
-            TreePath path = paths[i];
-            TreePath temp = null;
-            while (areSiblingsSelected(path)) {
-                temp = path;
-                if (path.getParentPath() == null) {
-                    break;
-                }
-                path = path.getParentPath();
+            path = paths[i];
+            super.addSelectionPaths(new TreePath[] { path });
+        }
+		// if all siblings of last added path are selected then deselect them
+		// and select parent recursively
+        TreePath temp = null;
+        while (areSiblingsSelected(path)) {
+            temp = path;
+            if (path.getParentPath() == null) {
+                break;
             }
-            if (temp != null) {
-            	// some parent has been determined
-                if (temp.getParentPath() != null) {
-                    super.addSelectionPath(temp.getParentPath());
-                } else {
-                	// root is about to be added, clear whole selection first
-                	clearSelection();
-					super.addSelectionPaths(new TreePath[] { temp });
-                }
+            path = path.getParentPath();
+        }
+        if (temp != null) {
+        	// some parent has been determined
+            if (temp.getParentPath() != null) {
+                super.addSelectionPath(temp.getParentPath());
             } else {
-				super.addSelectionPaths(new TreePath[] { path });
+            	// root is about to be added, clear whole selection first
+            	clearSelection();
+				super.addSelectionPaths(new TreePath[] { temp });
             }
+//        } else {
+//			super.addSelectionPaths(new TreePath[] { path });
         }
     }
 
@@ -176,7 +205,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
      * @return <code>true</code> if all siblings are selected, 
      * <code>false</code> otherwise
      */
-	private boolean areSiblingsSelected(TreePath path) {
+	public boolean areSiblingsSelected(TreePath path) {
 		TreePath parent = path.getParentPath();
 		if (parent == null) {
 			return true;
@@ -190,7 +219,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 			if (childNode == node) {
 				continue;
 			}
-			if (!isPathSelected(parent.pathByAddingChild(childNode))) {
+			if (!isPathSelected(parent.pathByAddingChild(childNode), true)) {
 				return false;
 			}
 		}

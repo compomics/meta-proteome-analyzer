@@ -92,12 +92,12 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.PiePlot3DExt;
 import de.mpa.client.ui.chart.TaxonomyData;
+import de.mpa.client.ui.chart.TopData;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
-import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
@@ -290,7 +290,6 @@ public class ResultsPanel extends JPanel {
 		resTpn.addTab(" ", ssPnl);
 		resTpn.addTab(" ", dnPnl);
 
-		// TODO: use proper icons, possibly slightly larger ones, e.g. 40x40?
 		ClientFrame clientFrame = ClientFrame.getInstance();
 		resTpn.setTabComponentAt(0, clientFrame.createTabButton(
 				"Overview",
@@ -394,11 +393,32 @@ public class ResultsPanel extends JPanel {
 		generalPnl.add(new JLabel("Distinct pathways"), CC.xy(2, 12));
 		generalPnl.add(pathwaysLbl, CC.xy(4, 12));
 		
+		// panel containing buttons to fetch results
+		FormLayout layout = new FormLayout("p:g, 5dlu, p:g", "f:p:g");
+		layout.setColumnGroups(new int[][] { { 1, 3 } });
+		JPanel fetchPnl = new JPanel(layout);
+		
+		JButton fetchRemoteBtn = new JButton("<html><center>Fetch Results<br>from DB</center></html>", IconConstants.GO_DB_ICON);
+		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		fetchRemoteBtn.setIconTextGap(7);
+		JButton fetchLocalBtn = new JButton("<html><center>Fetch Results<br>from File</center></html>", IconConstants.GO_FOLDER_ICON);
+		fetchLocalBtn.setRolloverIcon(IconConstants.GO_FOLDER_ROLLOVER_ICON);
+		fetchLocalBtn.setPressedIcon(IconConstants.GO_FOLDER_PRESSED_ICON);
+		fetchLocalBtn.setIconTextGap(10);
+		
+		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
+		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
+		fetchPnl.setPreferredSize(new Dimension());
+		// TODO: add functionality to fetch buttons
+		
+		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
+		
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 
 		// Add experimental heat map chart
 		// TODO: make heat map display useful information
-		int height = 26, width = 26;
+		int height = 25, width = 27;
 		MatrixSeries series = new MatrixSeries("1", height, width);
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -419,7 +439,7 @@ public class ResultsPanel extends JPanel {
 		}
 
 		HeatMapPane heatMap = new HeatMapPane("Heat Map", xLabels, yLabels, series);
-		heatMap.setVisibleColumnCount(13);
+		heatMap.setVisibleColumnCount(14);
 		heatMap.setVisibleRowCount(13);
 
 		summaryPnl.add(heatMap, CC.xy(2, 4));
@@ -479,8 +499,7 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 				if (newChartType != chartType) {
-					// clear details table TODO: maybe this ought to be
-					// elsewhere, e.g. inside updateOverview()?
+					// clear details table TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
 
 					updateChart(newChartType);
@@ -657,6 +676,7 @@ public class ResultsPanel extends JPanel {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws Exception {
+						hideChk.setEnabled(false);
 						Plot plot = chartPnl.getChart().getPlot();
 						if (plot instanceof PiePlot) {
 							DefaultPieDataset dataset =
@@ -697,6 +717,10 @@ public class ResultsPanel extends JPanel {
 						}
 						return null;
 					}
+					@Override
+					protected void done() {
+						hideChk.setEnabled(true);
+					};
 					
 				}.execute();
 			}
@@ -1059,9 +1083,7 @@ public class ResultsPanel extends JPanel {
 							+ dbSearchResult.getUniquePeptideCount());
 					totalProtLbl.setText(""
 							+ dbSearchResult.getProteinHitList().size());
-					specificProtLbl.setText("" + "??"); // TODO: determining
-														// protein redundancy is
-														// an unsolved problem!
+					specificProtLbl.setText("" + "??"); // TODO: determining protein redundancy is an unsolved problem!
 					speciesLbl.setText("" + speciesNames.size());
 					enzymesLbl.setText("" + ecNumbers.size());
 					pathwaysLbl.setText("" + pathwayIDs.size());
@@ -1091,8 +1113,7 @@ public class ResultsPanel extends JPanel {
 
 		@Override
 		protected void done() {
-			// TODO: delegate cursor setting to top-level containers so the
-			// whole frame is affected instead of only this panel
+			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 

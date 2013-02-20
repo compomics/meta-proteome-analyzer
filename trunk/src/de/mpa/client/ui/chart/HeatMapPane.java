@@ -7,8 +7,11 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,7 @@ import org.jfree.chart.renderer.PaintScale;
 import org.jfree.chart.renderer.xy.XYBlockRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.title.PaintScaleLegend;
+import org.jfree.data.Range;
 import org.jfree.data.xy.MatrixSeries;
 import org.jfree.data.xy.MatrixSeriesCollection;
 import org.jfree.data.xy.XYDataset;
@@ -181,7 +185,27 @@ public class HeatMapPane extends JScrollPane {
 		chart.setBackgroundPaint(Color.WHITE);
 		
 		// wrap chart in panel, remove default context menu capabilities
-		ChartPanel chartPnl = new ChartPanel(chart);
+		ChartPanel chartPnl = new ChartPanel(chart) {
+			Format formatter = new DecimalFormat("0.00");
+			@Override
+			public String getToolTipText(MouseEvent evt) {
+				Point2D p = evt.getPoint();
+				Rectangle2D plotArea = getScreenDataArea();
+				XYPlot plot = (XYPlot) getChart().getPlot();
+				int chartX = (int) Math.round(plot.getDomainAxis().java2DToValue(
+						p.getX(), plotArea, plot.getDomainAxisEdge()));
+				int chartY = (int) Math.round(plot.getRangeAxis().java2DToValue(
+						p.getY(), plotArea, plot.getRangeAxisEdge()));
+				Range rangeX = plot.getDomainAxis().getRange();
+				Range rangeY = plot.getRangeAxis().getRange();
+				if (rangeX.contains(chartX) && rangeY.contains(chartY)) {
+					MatrixSeriesCollection dataset = (MatrixSeriesCollection) plot.getDataset();
+					double chartZ = dataset.getSeries(0).get(chartY, chartX);
+					return formatter.format(chartZ);
+				}
+				return null;
+			}
+		};
 		chartPnl.setPreferredSize(new Dimension());
 		chartPnl.removeMouseListener(chartPnl.getMouseListeners()[1]);
 		

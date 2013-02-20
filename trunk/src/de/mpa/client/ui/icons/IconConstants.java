@@ -20,11 +20,14 @@ import javax.swing.SwingConstants;
  * @author Behne
  */
 public class IconConstants {
-
-	/** <img src="../../../resources/icons/excel_export16.png"> */
-	public static final ImageIcon EXCEL_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/excel_export16.png"));
-	public static final ImageIcon EXCEL_EXPORT_ROLLOVER_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 1.1f);
-	public static final ImageIcon EXCEL_EXPORT_PRESSED_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 0.8f);
+	
+	public static final ImageIcon PROJECT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project.png"));
+	public static final ImageIcon INPUT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/addspectra.png"));
+	public static final ImageIcon SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings.png"));
+	public static final ImageIcon RESULTS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/results.png"));
+//	public static final ImageIcon CLUSTERING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/clustering.png"));
+	public static final ImageIcon COMPARE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/compare48.png"));
+	public static final ImageIcon LOGGING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/logging.png"));
 	
 	/** <img src="../../../resources/icons/check16.png"> */
 	public static final ImageIcon CHECK_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/check16.png"));
@@ -65,8 +68,13 @@ public class IconConstants {
 	public static final ImageIcon SAVE_DB_ROLLOVER_ICON = createRescaledIcon(SAVE_DB_ICON, 1.1f);
 	public static final ImageIcon SAVE_DB_PRESSED_ICON = createRescaledIcon(SAVE_DB_ICON, 0.8f);
 
-	/** <img src="../../../resources/icons/database_refresh.png"> */
-	public static final ImageIcon GO_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_go16.png"));
+	/** <img src="../../../resources/icons/database_go16.png"> */
+	public static final ImageIcon GO_DB_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_go16.png"));
+	public static final ImageIcon GO_DB_SMALL_ROLLOVER_ICON = createRescaledIcon(GO_DB_SMALL_ICON, 1.1f);
+	public static final ImageIcon GO_DB_SMALL_PRESSED_ICON = createRescaledIcon(GO_DB_SMALL_ICON, 0.8f);
+
+	/** <img src="../../../resources/icons/database_go32.png"> */
+	public static final ImageIcon GO_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_go32.png"));
 	public static final ImageIcon GO_DB_ROLLOVER_ICON = createRescaledIcon(GO_DB_ICON, 1.1f);
 	public static final ImageIcon GO_DB_PRESSED_ICON = createRescaledIcon(GO_DB_ICON, 0.8f);
 
@@ -74,6 +82,11 @@ public class IconConstants {
 	public static final ImageIcon DELETE_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_delete.png"));
 	public static final ImageIcon DELETE_DB_ROLLOVER_ICON = createRescaledIcon(DELETE_DB_ICON, 1.1f);
 	public static final ImageIcon DELETE_DB_PRESSED_ICON = createRescaledIcon(DELETE_DB_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/folder_go32.png"> */
+	public static final ImageIcon GO_FOLDER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/folder_go32.png"));
+	public static final ImageIcon GO_FOLDER_ROLLOVER_ICON = createRescaledIcon(GO_FOLDER_ICON, 1.1f);
+	public static final ImageIcon GO_FOLDER_PRESSED_ICON = createRescaledIcon(GO_FOLDER_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/add_folder16.png"> */
 	public static final ImageIcon ADD_FOLDER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/add_folder16.png"));
@@ -125,6 +138,11 @@ public class IconConstants {
 	public static final ImageIcon PREV_ROLLOVER_ICON = createRescaledIcon(PREV_ICON, 1.2f);
 	public static final ImageIcon PREV_PRESSED_ICON = createRescaledIcon(PREV_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/skip32.png"> */
+	public static final ImageIcon SKIP_ICON = createRotatedIcon(NEXT_ICON, Math.PI / 2.0);
+	public static final ImageIcon SKIP_ROLLOVER_ICON = createRescaledIcon(SKIP_ICON, 1.2f);
+	public static final ImageIcon SKIP_PRESSED_ICON = createRescaledIcon(SKIP_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/size_vertical_32.png"> */
 	public static final ImageIcon SIZE_VERT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/size_vertical_32.png"));
 	public static final ImageIcon SIZE_VERT_ROLLOVER_ICON = createRescaledIcon(SIZE_VERT_ICON, 1.2f);
@@ -159,22 +177,26 @@ public class IconConstants {
 	public static final ImageIcon PROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/protein.png"));
 	/** <img src="../../../resources/icons/metaprotein.png"> */
 	public static final ImageIcon METAPROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/metaprotein.png"));
+
+	/** <img src="../../../resources/icons/excel_export16.png"> */
+	public static final ImageIcon EXCEL_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/excel_export16.png"));
+	public static final ImageIcon EXCEL_EXPORT_ROLLOVER_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 1.1f);
+	public static final ImageIcon EXCEL_EXPORT_PRESSED_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 0.8f);
 	
 	
 	/**
-	 * Rescales color space of a provided icon. Use to brighten or darken icons.
+	 * Rescales the color space of the provided icon. Use to brighten or darken icons.
 	 * 
-	 * @param icon The icon to be rescaled.
-	 * @param scale The scale to be used. Below 1.0 will darken, above 1.0 will brighten the image.
-	 * @return An icon with rescaled color space.
+	 * @param icon he icon to be rescaled
+	 * @param scale the scale factor to be used. Below 1.0 will darken, above 1.0 will brighten the image.
+	 * @return the icon with rescaled color space
 	 */
 	public static ImageIcon createRescaledIcon(ImageIcon icon, float scale) {
-		Image image = icon.getImage();
 		
 		// transfer image data to buffered image
-		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = bi.createGraphics();
-		g.drawImage(image, 0, 0, null);
+		icon.paintIcon(null, g, 0, 0);
 		g.dispose();
 		
 		// re-scale pixel intensities
@@ -185,6 +207,13 @@ public class IconConstants {
 		return new ImageIcon(op.filter(bi, null));
 	}
 	
+	/**
+	 * Flips the provided icon along the specified axis.
+	 * 
+	 * @param icon the icon to be flipped
+	 * @param orientation either {@link SwingConstants.HORIZONTAL} or {@link SwingConstants.VERTICAL}
+	 * @return the flipped icon
+	 */
 	public static ImageIcon createFlippedIcon(ImageIcon icon, int orientation) {
 		Image image = icon.getImage();
 		
@@ -203,14 +232,54 @@ public class IconConstants {
 		return new ImageIcon(op.filter(bi, null));
 	}
 	
+	public static ImageIcon createRotatedIcon(ImageIcon icon, double theta) {
+
+		// transfer image data to buffered image
+		BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = bi.createGraphics();
+		icon.paintIcon(null, g, 0, 0);
+		g.dispose();
+		
+		// rotate icon around its center
+		double centerX = bi.getWidth() / 2.0;
+		double centerY = bi.getHeight() / 2.0;
+		AffineTransform tx = AffineTransform.getRotateInstance(theta, centerX, centerY);
+		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+		
+		return new ImageIcon(op.filter(bi, null));
+	}
+
+	/**
+	 * Creates an icon with an additional downward pointing triangle to the
+	 * right of it.
+	 * @param icon the icon
+	 * @return an icon with additional arrow
+	 */
 	public static Icon createArrowedIcon(Icon icon) {
 		return createArrowedIcon(icon, SwingConstants.EAST);
 	}
-	
+
+	/**
+	 * Creates an icon with an additional downward pointing triangle at the
+	 * specified relative location.
+	 * 
+	 * @param icon the icon
+	 * @param location the location of the arrow
+	 * @return an icon with additional arrow
+	 */
 	public static Icon createArrowedIcon(Icon icon, int location) {
 		return createArrowedIcon(icon, location, SwingConstants.SOUTH);
 	}
 
+	/**
+	 * Creates an icon with an additional triangle at the specified relative
+	 * location pointing in the specified direction.
+	 * 
+	 * @param icon the icon
+	 * @param location the location of the arrow
+	 * @param direction the direction the arrow is pointing in
+	 * @return an icon with additional arrow
+	 */
 	public static Icon createArrowedIcon(final Icon icon, final int location, final int direction) {
 		final int xPadding, yPadding;
 		final int xMargin = 2, yMargin = 2;

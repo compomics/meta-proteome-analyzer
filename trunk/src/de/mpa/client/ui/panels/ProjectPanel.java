@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
@@ -49,6 +50,7 @@ import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
 import de.mpa.db.accessor.Property;
+import de.mpa.db.accessor.Searchspectrum;
 
 public class ProjectPanel extends JPanel {
 	
@@ -120,6 +122,10 @@ public class ProjectPanel extends JPanel {
 	 * Button to remove the currently selected experiment from the database.
 	 */
 	private JButton deleteExperimentBtn;
+
+	private JButton nextBtn;
+
+	private JButton skipBtn;
 
 	/**
 	 * Constructs a panel containing components for selecting and configuring
@@ -226,10 +232,28 @@ public class ProjectPanel extends JPanel {
 		expTtlPnl.setTitleForeground(ttlForeground);
 		
 		// Next button
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p, 5dlu, r:p", "b:p:g"));
+		
+		skipBtn = ClientFrame.getInstance().createNavigationButton(true, false);
+		skipBtn.setText("Results");
+		skipBtn.setIcon(IconConstants.SKIP_ICON);
+		skipBtn.setRolloverIcon(IconConstants.SKIP_ROLLOVER_ICON);
+		skipBtn.setPressedIcon(IconConstants.SKIP_PRESSED_ICON);
+		skipBtn.removeActionListener(skipBtn.getActionListeners()[0]);
+		skipBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ClientFrame clientFrame = ClientFrame.getInstance();
+				JTabbedPane tabPane = clientFrame.getTabPane();
+				tabPane.setSelectedIndex(ClientFrame.RESULTS_PANEL);
+			}
+		});
+
+		nextBtn = ClientFrame.getInstance().createNavigationButton(true, false);
 		
 		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, false), CC.xy(1, 1));
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, true), CC.xy(3, 1));
+		navPnl.add(skipBtn, CC.xy(3, 1));
+		navPnl.add(nextBtn, CC.xy(5, 1));
 
 		this.add(curProjTtlPnl, CC.xy(2, 2));
 		this.add(projTtlPnl, CC.xy(2, 4));
@@ -664,6 +688,17 @@ public class ProjectPanel extends JPanel {
 		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(false);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
 		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(false);
+		
+		// Disable input, setting and results tabs
+		for (int i = ClientFrame.INPUT_PANEL; i < ClientFrame.COMPARE_PANEL; i++) {
+			clientFrame.getTabPane().setEnabledAt(i, false);
+		}
+		
+		// Disable navigation buttons
+		skipBtn.setEnabled(false);
+		skipBtn.setToolTipText(null);
+		nextBtn.setEnabled(false);
+		
 	}
 	
 	/**
@@ -690,10 +725,21 @@ public class ProjectPanel extends JPanel {
 		// Clear any fetched results
 		Client.getInstance().clearDbSearchResult();
 		Client.getInstance().clearSpecSimResult();
+		
+		// Check whether the selected experiment has any search results associated with it
+		boolean hasResults = Searchspectrum.hasSearchSpectra(
+				expCont.getExperimentID(), Client.getInstance().getConnection());
+		
+		// Enable input and results tabs
+		clientFrame.getTabPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
+		clientFrame.getTabPane().setEnabledAt(ClientFrame.RESULTS_PANEL, hasResults);
+		
+		// Enable navigation buttons
+		skipBtn.setEnabled(hasResults);
+		skipBtn.setToolTipText((hasResults) ? null : "No searches have been performed under this experiment yet.");
+		nextBtn.setEnabled(true);
+		
 	}
-	
-	
-
 	
 	/**
 	 * This method gets the selected experiment and retrieves the actual content via table
@@ -740,6 +786,5 @@ public class ProjectPanel extends JPanel {
 	public ExperimentContent getCurrentExperimentContent() {
 		return expCont;
 	}
-	
 	
 }

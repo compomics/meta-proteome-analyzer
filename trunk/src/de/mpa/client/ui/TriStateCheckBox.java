@@ -57,13 +57,13 @@ public abstract class TriStateCheckBox extends JCheckBox {
 		// paint background rectangle
 		if (isEnabled()) {
 			g.setColor(getBackground());
-			g.fillRect(hOffset-2, 2+vOffset, 11, 11);
+			g.fillRect(hOffset - 2, 2 + vOffset, 11, 11);
 		}
 		super.paint(g);
 		// paint black bar on top of deselected box to visualize indeterminate state
 		if (isPartiallySelected()) {
 			g.setColor(getForeground());
-			g.fillRect(hOffset, 7+vOffset, 8, 2);
+			g.fillRect(hOffset, 7 + vOffset - getBorder().getBorderInsets(this).top, 8, 2);
 		}
 	}
 	
