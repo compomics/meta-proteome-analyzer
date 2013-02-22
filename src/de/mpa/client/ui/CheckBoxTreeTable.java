@@ -28,8 +28,8 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.TableCellEditor;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.AbstractLayoutCache.NodeDimensions;
+import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTree;

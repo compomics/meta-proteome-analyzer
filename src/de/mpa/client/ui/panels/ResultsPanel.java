@@ -92,12 +92,12 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyData;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.PiePlot3DExt;
 import de.mpa.client.ui.chart.TaxonomyData;
-import de.mpa.client.ui.chart.TopData;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
+import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 

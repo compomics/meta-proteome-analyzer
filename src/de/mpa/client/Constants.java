@@ -41,7 +41,7 @@ public class Constants {
 	/**
 	 * The names of FASTA database files available for searches.
 	 */
-	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_trembl", "ecoli", "methanomicrobia", "uniprot_canis", "ncbi_canis", "UniProt_Archaea", "NCBI_Archaea", "firmicutes", "human_gut", "metadb_potsdam"};
+	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme"};
 	
 	/**
 	 * The names of cleaving enzymes available for database searches.
