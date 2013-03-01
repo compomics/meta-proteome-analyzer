@@ -184,8 +184,9 @@ public class SpectrumExtractor {
 		}
 		statement += "GROUP BY s.spectrumid";
 		
-		PreparedStatement ps = conn.prepareStatement(statement);
+		PreparedStatement ps = conn.prepareStatement(statement, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		ps.setLong(1, experimentID);
+		ps.setFetchSize(Integer.MIN_VALUE);
 		
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {

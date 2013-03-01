@@ -1155,7 +1155,7 @@ public class DbSearchResultPanel extends JPanel {
 							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				}
 			}
-		};
+		};		
 		HyperlinkProvider hlp = new HyperlinkProvider(linkAction) {
 			@Override
 			protected JXHyperlink createRendererComponent() {
