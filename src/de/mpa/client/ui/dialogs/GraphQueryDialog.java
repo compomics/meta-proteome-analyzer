@@ -11,10 +11,16 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -67,7 +73,7 @@ public class GraphQueryDialog extends JDialog {
 	private void initComponents() {
 		// Define dialog content pane layout
 		Container contentPane = this.getContentPane();
-		contentPane.setLayout(new FormLayout("5dlu, p:g, 5dlu",
+		contentPane.setLayout(new FormLayout("5dlu, r:p:g, 5dlu",
 				"5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
 		// Init task pane container
@@ -76,11 +82,12 @@ public class GraphQueryDialog extends JDialog {
 		tpc.setBackground(UIManager.getColor("ProgressBar.foreground"));
 		
 		// Create collapsible task pane for section
-		JXTaskPane taskPane = new JXTaskPane("Predefined Queries");
-		taskPane.setUI(new GlossyTaskPaneUI());
+		JXTaskPane queryTaskPane = new JXTaskPane("Predefined Queries");
+		queryTaskPane.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu "));
+		queryTaskPane.setUI(new GlossyTaskPaneUI());
 		
 		// Apply component listener to synchronize task pane size with dialog size
-		taskPane.addComponentListener(new ComponentAdapter() {
+		queryTaskPane.addComponentListener(new ComponentAdapter() {
 			private Dimension size = null;
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -95,11 +102,53 @@ public class GraphQueryDialog extends JDialog {
 			}
 		});
 		
+		queryTaskPane.add(new JLabel("Query: "), CC.xy(2, 2));
+		final JTextField queryTtf = new JTextField(30);
+		queryTaskPane.add(queryTtf, CC.xy(2, 4));		
+		
+		String[] data = new String[6];
+		
+		data[0] = PredefinedQueries.GETALLSHAREDPEPTIDES;
+		data[1] = PredefinedQueries.GETALLUNIQUEPEPTIDES;
+		data[2] = PredefinedQueries.GETPEPTIDESFORPROTEIN;
+		data[3] = PredefinedQueries.GETPROTEINSFORSPECIES;
+		data[4] = PredefinedQueries.GETPEPTIDESFORSPECIES;
+		data[5] = PredefinedQueries.GETPROTEINSFORENZYME;
+		
+		final JXList predefinedList = new JXList(data);
+		predefinedList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		predefinedList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent evt) {
+				if(!evt.getValueIsAdjusting()) {
+					queryTtf.setText(predefinedList.getSelectedValue().toString());
+				}
+			}
+		});
+		
+		queryTaskPane.add(predefinedList, CC.xy(2, 6));
+		
+		JLabel paramLbl = new JLabel("Parameter X: ");
+		queryTaskPane.add(paramLbl, CC.xy(4, 2));
+		JTextField paramTtf = new JTextField(15);
+		queryTaskPane.add(paramTtf, CC.xy(4, 4));
+		tpc.add(queryTaskPane);
+		
+		// Create collapsible task pane for section
+		JXTaskPane compositeQueryTaskPane = new JXTaskPane("Composite Queries");
+		compositeQueryTaskPane.setUI(new GlossyTaskPaneUI());
+		
+		// Create collapsible task pane for section
+		JXTaskPane consoleQueryTaskPane = new JXTaskPane("Cypher Console");		
+		queryTaskPane.setUI(new GlossyTaskPaneUI());
+		tpc.add(compositeQueryTaskPane);
+		tpc.add(consoleQueryTaskPane);
+		
 		// Configure button panel containing 'OK' and 'Cancel' options
 		FormLayout layout = new FormLayout("p, 5dlu:g, p", "p");
-		layout.setColumnGroups(new int[][] { { 3, 5 } });
+
 		JPanel buttonPnl = new JPanel(layout);
-		
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
@@ -108,7 +157,6 @@ public class GraphQueryDialog extends JDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: applyChanges();
 				dispose();
 			}
 		});
@@ -124,11 +172,6 @@ public class GraphQueryDialog extends JDialog {
 				dispose();
 			}
 		});
-		
-		// Align label of 'OK' button
-		int labelWidth = getFontMetrics(okBtn.getFont()).stringWidth("OK");
-		okBtn.setIconTextGap(cancelBtn.getPreferredSize().width/2 -
-				okBtn.getIcon().getIconWidth() - labelWidth/2);
 		
 		// Lay out button panel
 		buttonPnl.add(okBtn, CC.xy(1, 1));
@@ -147,6 +190,10 @@ public class GraphQueryDialog extends JDialog {
 		
 		// Show dialog
 		this.setVisible(true);
+	}
+	
+	public static void main(String[] args) {
+		new GraphQueryDialog(null, "", true);
 	}
 	
 	
