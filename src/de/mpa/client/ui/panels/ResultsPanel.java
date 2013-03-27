@@ -98,6 +98,7 @@ import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
+import de.mpa.client.ui.dialogs.GraphQueryDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
@@ -409,8 +410,15 @@ public class ResultsPanel extends JPanel {
 		
 		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
 		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
-		fetchPnl.setPreferredSize(new Dimension());
+		fetchPnl.setPreferredSize(new Dimension());	
+		
 		// TODO: add functionality to fetch buttons
+		fetchRemoteBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				new GraphQueryDialog(ClientFrame.getInstance(), "Graph Database", true);
+			}
+		});
 		
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
 		

@@ -54,6 +54,24 @@ public class Constants {
 	public static final String[] DN_ENZYMES = { "Trypsin", "Unspecific" };
 	
 	/**
+	 * Entities for the graph query dialog (Compound section: First parameter after GET).
+	 */
+	public static final String[] QUERY_ENTITIES_GET = { "Proteins", "Peptides", "Unique Peptides", "Shared Peptides", "PSMs"};
+	
+	/**
+	 * Entities for the graph query dialog (Compound section: Second parameter after BY).
+	 */
+	public static final String[] QUERY_ENTITIES_BY = {  "Protein Accession",
+														"Protein Sequence",
+														"Peptide Sequence", 
+														"Species", 
+														"Enzyme",
+														"Pathway",
+														"Biological Process", 
+														"Molecular Function", 
+														"Cellullar Component"};
+	
+	/**
 	 * The names of fragmentation models available to the PepNovo+ algorithm.
 	 */
 	public static final String[] DN_MODELS = { "CID_IT_TRYP",

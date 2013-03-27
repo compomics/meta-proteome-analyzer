@@ -10,6 +10,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +31,7 @@ import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Constants;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
@@ -136,13 +138,35 @@ public class GraphQueryDialog extends JDialog {
 		tpc.add(queryTaskPane);
 		
 		// Create collapsible task pane for section
-		JXTaskPane compositeQueryTaskPane = new JXTaskPane("Composite Queries");
-		compositeQueryTaskPane.setUI(new GlossyTaskPaneUI());
+		/* COMPOUND QUERIES */
+		JXTaskPane compoundQueryTaskPane = new JXTaskPane("Compound Queries");
+		compoundQueryTaskPane.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
+		compoundQueryTaskPane.setUI(new GlossyTaskPaneUI());
+		
+		compoundQueryTaskPane.add(new JLabel("GET"), CC.xy(2, 2));
+		JComboBox getEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_GET);
+		compoundQueryTaskPane.add(getEntititiesCbx, CC.xy(4, 2));
+		
+		compoundQueryTaskPane.add(new JLabel("BY"), CC.xy(6, 2));
+		
+		JComboBox byEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_BY);
+		compoundQueryTaskPane.add(byEntititiesCbx, CC.xy(8, 2));
+				
+		compoundQueryTaskPane.add(new JLabel("AND"), CC.xy(10, 2));
+		
+		JComboBox andEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_BY);
+		compoundQueryTaskPane.add(andEntititiesCbx, CC.xy(12, 2));
+		
+		JTextField byParameterTtf = new JTextField(15);
+		compoundQueryTaskPane.add(byParameterTtf, CC.xy(8, 4));
+		
+		JTextField andEntititiesTtf = new JTextField(15);
+		compoundQueryTaskPane.add(andEntititiesTtf, CC.xy(12, 4));
 		
 		// Create collapsible task pane for section
 		JXTaskPane consoleQueryTaskPane = new JXTaskPane("Cypher Console");		
 		queryTaskPane.setUI(new GlossyTaskPaneUI());
-		tpc.add(compositeQueryTaskPane);
+		tpc.add(compoundQueryTaskPane);
 		tpc.add(consoleQueryTaskPane);
 		
 		// Configure button panel containing 'OK' and 'Cancel' options
