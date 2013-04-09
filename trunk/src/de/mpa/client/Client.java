@@ -27,6 +27,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
@@ -56,6 +57,8 @@ import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.extractor.SearchHitExtractor;
 import de.mpa.db.extractor.SpectrumExtractor;
+import de.mpa.graphdb.insert.GraphDatabaseHandler;
+import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -94,6 +97,8 @@ public class Client {
 	 */
 	private boolean viewer = false;
 
+	private GraphDatabase graphDb;
+	
 	/**
 	 * The constructor for the client (private for singleton object).
 	 * 
@@ -339,7 +344,33 @@ public class Client {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
+	
+	/**
+	 * Returns the GraphDatabaseHandler object.
+	 * @return The GraphDatabaseHandler object.
+	 */
+	public GraphDatabaseHandler getGraphDatabaseHandler() {
+		// Create a graph database.
+		if(graphDb == null){
+			graphDb = new GraphDatabase("target/graphdb", true);
+		}
 
+		// Setup the graph database handler. 
+		GraphDatabaseHandler graphDatabaseHandler = new GraphDatabaseHandler(graphDb.getService());
+		graphDatabaseHandler.setData(dbSearchResult);
+		
+		return graphDatabaseHandler;
+	}
+	
+	/**
+	 * Shutdown the graph database.
+	 */
+	public void shutdownGraphDatabase() {
+		if(graphDb != null){
+			graphDb.shutDown();
+		}
+	}
+	
 	/**
 	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
@@ -367,9 +398,6 @@ public class Client {
 		}
 		return dbSearchResult;
 	}
-
-
-
 
 	/**
 	 * Returns the result(s) from the database search for a particular experiment.
@@ -685,8 +713,15 @@ public class Client {
 	 * Shuts down the JVM.
 	 */
 	public void exit() {
+		
+		// Shutdown the graph database
+		shutdownGraphDatabase();
+		
 		try {
+			// Close SQL DB connection
 			closeDBConnection();
+			
+
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));

@@ -44,7 +44,7 @@ import de.mpa.graphdb.properties.SpeciesProperty;
  * @version 0.6.1
  *
  */
-public class DataInserter extends AbstractDataInserter implements Inserter {
+public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
 	
 	private Index<Vertex> proteinIndex;
 	private Index<Vertex> peptideIndex;
@@ -55,14 +55,14 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 	private Index<Vertex> ontologyIndex;
 	private Index<Edge> edgeIndex;
 	
-	public DataInserter(GraphDatabaseService graphDb) {
+	public GraphDatabaseHandler(GraphDatabaseService graphDb) {
 		super(graphDb);
 		setupIndices();
 		
 	}
 	
 	/**
-	 * TODO: Move this function to the data accessor class!
+	 * Exports the graph to an GraphML output file.
 	 */
 	public void exportGraph(File outputFile) {
 		GraphMLHandler.exportGraphML(graph, outputFile);
@@ -71,14 +71,15 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 	/**
 	 * Sets the data object.
 	 */
-	@Override
 	public void setData(Object data) {
 		this.data = data;
+		insert();
 	}
 	
-	
-	@Override
-	public void insert() {
+	/**
+	 * This method inserts the data into the graph database and stops the transaction afterwards.
+	 */
+	private void insert() {
 		if(data instanceof DbSearchResult) {
 			DbSearchResult dbSearchResult = (DbSearchResult) data;
 			List<ProteinHit> proteinHits = dbSearchResult.getProteinHitList();
@@ -330,7 +331,6 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 		} 
 	}
 	
-	@Override
 	public void setupIndices() {
 		// Protein index
 		proteinIndex = indexGraph.getIndex("proteins", Vertex.class);
@@ -398,30 +398,7 @@ public class DataInserter extends AbstractDataInserter implements Inserter {
 		}
 	}
 
-	@Override
-	public int[] getDefaultIndexes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public String getDefaultDelimiter() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setDefaultIndexes(int[] indexes) {
-		
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void setDefaultDelimiter(String delimiter) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
 	public void stop() {
 		graph.stopTransaction(Conclusion.SUCCESS);
 		((TransactionalGraph)indexGraph).stopTransaction(Conclusion.SUCCESS);

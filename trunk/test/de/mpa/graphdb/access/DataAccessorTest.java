@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.graphdb.insert.DataInserter;
+import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.nodes.Enzyme;
 import de.mpa.graphdb.nodes.Ontology;
 import de.mpa.graphdb.nodes.Pathway;
@@ -66,11 +66,10 @@ public class DataAccessorTest extends TestCase {
 			assertNotNull(service);
 			
 			// Insert the data.
-			DataInserter dataInserter = new DataInserter(service);
-			dataInserter.setData(dbSearchResult);
-			dataInserter.insert();
+			GraphDatabaseHandler graphDbHandler = new GraphDatabaseHandler(service);
+			graphDbHandler.setData(dbSearchResult);
 			
-			dataAccessor = dataInserter.getDataAccessor();
+			dataAccessor = graphDbHandler.getDataAccessor();
 			assertNotNull(dataAccessor);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
