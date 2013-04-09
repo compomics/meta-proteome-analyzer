@@ -21,7 +21,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.graphdb.insert.DataInserter;
+import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.setup.GraphDatabase;
 
@@ -36,7 +36,7 @@ import de.mpa.graphdb.setup.GraphDatabase;
 public class ProteinQueryTest {
 	private CypherQuery cypherQuery;
 	private static GraphDatabase graphDb;
-	private static DataInserter dataInserter;
+	private static GraphDatabaseHandler graphDbHandler;
 	
 	@BeforeClass
 	public static void setUpClass() {
@@ -53,9 +53,8 @@ public class ProteinQueryTest {
 			GraphDatabaseService service = graphDb.getService();
 
 			// Insert the data.
-			dataInserter = new DataInserter(service);
-			dataInserter.setData(dbSearchResult);
-			dataInserter.insert();
+			graphDbHandler = new GraphDatabaseHandler(service);
+			graphDbHandler.setData(dbSearchResult);
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -68,7 +67,7 @@ public class ProteinQueryTest {
 	
 	@Before
 	public void setUp() {
-		cypherQuery = dataInserter.getCypherQuery();
+		cypherQuery = graphDbHandler.getCypherQuery();
 		TestCase.assertNotNull(cypherQuery);
 	}
 	

@@ -5,6 +5,11 @@ import java.io.Serializable;
 public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
 	
 	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
+	
+	/**
 	 * Flag denoting whether this match is selected for export.
 	 */
 	private boolean selected = true;

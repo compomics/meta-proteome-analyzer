@@ -33,7 +33,7 @@ import de.mpa.client.Constants;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
-import de.mpa.client.ui.panels.DeNovoResultPanel;
+import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
@@ -426,7 +426,7 @@ public class ClientFrame extends JFrame {
 	 * Returns the de novo search result panel.
 	 * @return The de novo similarity search result panel.
 	 */
-	public DeNovoResultPanel getDeNovoSearchResultPanel() {
+	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
 		return getResultsPanel().getDeNovoSearchResultPanel();
 	}
 	

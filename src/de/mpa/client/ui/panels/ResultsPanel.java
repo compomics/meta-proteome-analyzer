@@ -98,7 +98,6 @@ import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
-import de.mpa.client.ui.dialogs.GraphQueryDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
@@ -128,7 +127,7 @@ public class ResultsPanel extends JPanel {
 	/**
 	 * The de novo and BLAST results panel. TODO: decide fate of de novo/BLAST results panel
 	 */
-	private DeNovoResultPanel dnPnl;
+	private GraphDatabaseResultPanel dnPnl;
 
 	/**
 	 * Button for showing button to select the type of chart to be displayed
@@ -246,7 +245,7 @@ public class ResultsPanel extends JPanel {
 	public ResultsPanel() {
 		this.dbPnl = new DbSearchResultPanel(this);
 		this.ssPnl = new SpecSimResultPanel();
-		this.dnPnl = new DeNovoResultPanel();
+		this.dnPnl = new GraphDatabaseResultPanel();
 		initComponents();
 	}
 
@@ -413,15 +412,7 @@ public class ResultsPanel extends JPanel {
 		fetchPnl.setPreferredSize(new Dimension());	
 		
 		// TODO: add functionality to fetch buttons
-		fetchRemoteBtn.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {				
-				new GraphQueryDialog(ClientFrame.getInstance(), "Graph Database", true);
-			}
-		});
-		
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
-		
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 
 		// Add experimental heat map chart
@@ -1144,7 +1135,7 @@ public class ResultsPanel extends JPanel {
 	/**
 	 * @return the dnPnl
 	 */
-	public DeNovoResultPanel getDeNovoSearchResultPanel() {
+	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
 		return dnPnl;
 	}
 

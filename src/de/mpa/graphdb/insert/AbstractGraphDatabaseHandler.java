@@ -13,13 +13,13 @@ import de.mpa.graphdb.access.CypherQuery;
 import de.mpa.graphdb.access.DataAccessor;
 
 /**
- * AbstractDataInserter provides the minimum of needed fields and methods for graph database insertions.
+ * AbstractDataInserter provides the minimum of needed fields and methods for graph database inserting.
  * @author Thilo Muth
  * @date 2013-01-09
  * @version 0.6.1
  *
  */
-public abstract class AbstractDataInserter {
+public abstract class AbstractGraphDatabaseHandler {
 	
 	/**
 	 * Graph database service.
@@ -52,7 +52,7 @@ public abstract class AbstractDataInserter {
 	protected CypherQuery cypherQuery;
 	
 	
-	public AbstractDataInserter(GraphDatabaseService graphDb) {
+	public AbstractGraphDatabaseHandler(GraphDatabaseService graphDb) {
 		this.graphDb = graphDb;
 		indexGraph = new Neo4jGraph(graphDb);
 		graph = new Neo4jGraph(graphDb);

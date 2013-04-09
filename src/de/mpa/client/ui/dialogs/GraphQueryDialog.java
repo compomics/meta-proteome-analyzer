@@ -1,6 +1,8 @@
 package de.mpa.client.ui.dialogs;
 
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GradientPaint;
@@ -8,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -17,24 +20,32 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
+import de.mpa.graphdb.access.QueryHandler;
 
 /**
  * The graph query dialog allows three modes:
@@ -45,14 +56,18 @@ import de.mpa.client.ui.icons.IconConstants;
  * @date 21/02/2013
  */
 public class GraphQueryDialog extends JDialog {
+	private JXList predefinedList;
+	private GraphDatabaseResultPanel parent;
+	
 	/**
 	 * Graph query dialog
 	 * @param owner the <code>Frame</code> from which the dialog is displayed
 	 * @param title the <code>String</code> to display in the dialog's title bar
 	 * @param modal specifies whether dialog blocks user input to other top-level windows when shown.
 	 */
-	public GraphQueryDialog(Frame owner, String title, boolean modal) {
+	public GraphQueryDialog(Frame owner, GraphDatabaseResultPanel parent, String title, boolean modal) {
 		super(owner, title, modal);
+		this.parent = parent;
 		setupUI();
 		initComponents();
 	}
@@ -78,12 +93,12 @@ public class GraphQueryDialog extends JDialog {
 		contentPane.setLayout(new FormLayout("5dlu, r:p:g, 5dlu",
 				"5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
-		// Init task pane container
+		// Initialize task pane container
 		final JXTaskPaneContainer tpc = new JXTaskPaneContainer();
 		((VerticalLayout) tpc.getLayout()).setGap(10);
 		tpc.setBackground(UIManager.getColor("ProgressBar.foreground"));
 		
-		// Create collapsible task pane for section
+		// Predefined query section.
 		JXTaskPane queryTaskPane = new JXTaskPane("Predefined Queries");
 		queryTaskPane.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu "));
 		queryTaskPane.setUI(new GlossyTaskPaneUI());
@@ -117,7 +132,7 @@ public class GraphQueryDialog extends JDialog {
 		data[4] = PredefinedQueries.GETPEPTIDESFORSPECIES;
 		data[5] = PredefinedQueries.GETPROTEINSFORENZYME;
 		
-		final JXList predefinedList = new JXList(data);
+		predefinedList = new JXList(data);
 		predefinedList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		predefinedList.addListSelectionListener(new ListSelectionListener() {
@@ -137,24 +152,21 @@ public class GraphQueryDialog extends JDialog {
 		queryTaskPane.add(paramTtf, CC.xy(4, 4));
 		tpc.add(queryTaskPane);
 		
-		// Create collapsible task pane for section
-		/* COMPOUND QUERIES */
+		// Compound query section.		
 		JXTaskPane compoundQueryTaskPane = new JXTaskPane("Compound Queries");
 		compoundQueryTaskPane.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
 		compoundQueryTaskPane.setUI(new GlossyTaskPaneUI());
-		
 		compoundQueryTaskPane.add(new JLabel("GET"), CC.xy(2, 2));
-		JComboBox getEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_GET);
-		compoundQueryTaskPane.add(getEntititiesCbx, CC.xy(4, 2));
 		
+		JComboBox getEntititiesCbx = new JComboBox<String>(Constants.QUERY_ENTITIES_GET);
+		compoundQueryTaskPane.add(getEntititiesCbx, CC.xy(4, 2));
 		compoundQueryTaskPane.add(new JLabel("BY"), CC.xy(6, 2));
 		
-		JComboBox byEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_BY);
+		JComboBox byEntititiesCbx = new JComboBox<String>(Constants.QUERY_ENTITIES_BY);
 		compoundQueryTaskPane.add(byEntititiesCbx, CC.xy(8, 2));
-				
 		compoundQueryTaskPane.add(new JLabel("AND"), CC.xy(10, 2));
 		
-		JComboBox andEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_BY);
+		JComboBox andEntititiesCbx = new JComboBox<String>(Constants.QUERY_ENTITIES_BY);
 		compoundQueryTaskPane.add(andEntititiesCbx, CC.xy(12, 2));
 		
 		JTextField byParameterTtf = new JTextField(15);
@@ -163,9 +175,17 @@ public class GraphQueryDialog extends JDialog {
 		JTextField andEntititiesTtf = new JTextField(15);
 		compoundQueryTaskPane.add(andEntititiesTtf, CC.xy(12, 4));
 		
-		// Create collapsible task pane for section
-		JXTaskPane consoleQueryTaskPane = new JXTaskPane("Cypher Console");		
-		queryTaskPane.setUI(new GlossyTaskPaneUI());
+		// Console query section.
+		JXTaskPane consoleQueryTaskPane = new JXTaskPane("Cypher Console");	
+		consoleQueryTaskPane.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu"));
+		consoleQueryTaskPane.setUI(new GlossyTaskPaneUI());
+		
+		JTextField consoleTtf = new JTextField(15);
+		consoleQueryTaskPane.add(consoleTtf, CC.xy(2, 2));
+		consoleTtf.setBackground(Color.BLACK);
+		consoleTtf.setForeground(Color.GREEN.darker());
+		consoleTtf.setCaretColor(Color.GREEN.darker());
+		
 		tpc.add(compoundQueryTaskPane);
 		tpc.add(consoleQueryTaskPane);
 		
@@ -181,7 +201,7 @@ public class GraphQueryDialog extends JDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispose();
+				new ResultsTask().execute();
 			}
 		});
 		
@@ -216,10 +236,46 @@ public class GraphQueryDialog extends JDialog {
 		this.setVisible(true);
 	}
 	
-	public static void main(String[] args) {
-		new GraphQueryDialog(null, "", true);
+	/**
+	 * Collect the query value.
+	 * @return Query value for the graph database query.
+	 */
+	public String collectQueryValue() {
+		return predefinedList.getSelectedValue().toString();
 	}
 	
+	/**
+	 * Class to fetch graph database search results in a background thread.
+	 * @author Thilo Muth
+	 */
+	private class ResultsTask extends SwingWorker {
+		Iterator<Object> resultObjects;
 	
-
+		@Override
+		protected Object doInBackground() {
+			try {
+				// Begin appearing busy
+				//setBusy(true);
+				String query = collectQueryValue();
+				Client client = Client.getInstance();
+				resultObjects = QueryHandler.executePredefinedQuery(client.getGraphDatabaseHandler(), query, "");
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				Client.getInstance().firePropertyChange("new message", null, "FAILED");
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+			}
+			finished();
+			return 0;
+		}		
+		
+		/**
+		 * Continues when the results retrieval has finished.
+		 */
+		public void finished() {
+			parent.updateResults(resultObjects);
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			dispose();
+		}
+	}
 }

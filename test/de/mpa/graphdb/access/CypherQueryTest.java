@@ -22,7 +22,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.graphdb.insert.DataInserter;
+import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.properties.PeptideProperty;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
@@ -38,7 +38,7 @@ import de.mpa.graphdb.setup.GraphDatabase;
 public class CypherQueryTest {
 	private CypherQuery cypherQuery;
 	private static GraphDatabase graphDb;
-	private static DataInserter dataInserter;
+	private static GraphDatabaseHandler graphDbHandler;
 	
 	@BeforeClass
 	public static void setUpClass() {
@@ -55,9 +55,8 @@ public class CypherQueryTest {
 			GraphDatabaseService service = graphDb.getService();
 
 			// Insert the data.
-			dataInserter = new DataInserter(service);
-			dataInserter.setData(dbSearchResult);
-			dataInserter.insert();
+			graphDbHandler = new GraphDatabaseHandler(service);
+			graphDbHandler.setData(dbSearchResult);
 
 			
 		} catch (FileNotFoundException e) {
@@ -71,7 +70,7 @@ public class CypherQueryTest {
 	
 	@Before
 	public void setUp() {
-		cypherQuery = dataInserter.getCypherQuery();
+		cypherQuery = graphDbHandler.getCypherQuery();
 		TestCase.assertNotNull(cypherQuery);
 	}
 	
@@ -134,13 +133,13 @@ public class CypherQueryTest {
 
 	@Test
 	public void testGetAllUniquePeptides() {
-		Set<Node> nodeSet =CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "peptide", PeptideProperty.SEQUENCE);
 		TestCase.assertEquals(9, nodeSet.size());
 	}
 	
 	@Test
 	public void testGetAllSharedPeptides() {
-		Set<Node> nodeSet =CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "peptide", PeptideProperty.SEQUENCE);
 		TestCase.assertEquals(4, nodeSet.size());
 	}
 	
