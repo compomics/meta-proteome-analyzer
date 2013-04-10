@@ -18,6 +18,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
@@ -130,7 +131,15 @@ public class CypherQueryTest {
             }
         }
     }
-
+	
+	@Test
+	public void testGetAllProteins() {
+		ExecutionResult allProteins = cypherQuery.getAllProteins();
+		//Set<Node> nodes = CypherQuery.retrieveNodeSet(allProteins, "protein", null);
+		CypherQuery.printResult("Returns all proteins", allProteins, "protein");
+		//TestCase.assertEquals(22, nodes.size());		
+	}
+	
 	@Test
 	public void testGetAllUniquePeptides() {
 		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "peptide", PeptideProperty.SEQUENCE);

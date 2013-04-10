@@ -935,19 +935,6 @@ public class DbSearchResultPanel extends JPanel {
 						e.printStackTrace();
 					}
 				
-					
-					//*********************************************************//
-					//FIXME: GRAPH DATABASE IMPLEMENTATION
-					// Starts the graph database.
-//					GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
-//					DataInserter dataInserter = new DataInserter(graphDb.getService());
-//					dataInserter.setData(dbSearchResult);
-//					
-//					dataInserter.insert();
-//					dataInserter.exportGraph(new File("Test.graphml"));
-//					graphDb.shutDown();
-					//*********************************************************//
-					
 					// Enable export functionality
 					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
 

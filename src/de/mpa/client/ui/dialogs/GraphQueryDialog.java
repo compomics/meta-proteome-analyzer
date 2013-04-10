@@ -34,6 +34,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -45,6 +46,7 @@ import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
+import de.mpa.graphdb.access.CypherQuery;
 import de.mpa.graphdb.access.QueryHandler;
 
 /**
@@ -158,15 +160,15 @@ public class GraphQueryDialog extends JDialog {
 		compoundQueryTaskPane.setUI(new GlossyTaskPaneUI());
 		compoundQueryTaskPane.add(new JLabel("GET"), CC.xy(2, 2));
 		
-		JComboBox getEntititiesCbx = new JComboBox<String>(Constants.QUERY_ENTITIES_GET);
+		JComboBox getEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_GET);
 		compoundQueryTaskPane.add(getEntititiesCbx, CC.xy(4, 2));
 		compoundQueryTaskPane.add(new JLabel("BY"), CC.xy(6, 2));
 		
-		JComboBox byEntititiesCbx = new JComboBox<String>(Constants.QUERY_ENTITIES_BY);
+		JComboBox byEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_BY);
 		compoundQueryTaskPane.add(byEntititiesCbx, CC.xy(8, 2));
 		compoundQueryTaskPane.add(new JLabel("AND"), CC.xy(10, 2));
 		
-		JComboBox andEntititiesCbx = new JComboBox<String>(Constants.QUERY_ENTITIES_BY);
+		JComboBox andEntititiesCbx = new JComboBox(Constants.QUERY_ENTITIES_BY);
 		compoundQueryTaskPane.add(andEntititiesCbx, CC.xy(12, 2));
 		
 		JTextField byParameterTtf = new JTextField(15);
@@ -249,31 +251,32 @@ public class GraphQueryDialog extends JDialog {
 	 * @author Thilo Muth
 	 */
 	private class ResultsTask extends SwingWorker {
-		Iterator<Object> resultObjects;
+		private ExecutionResult result;
 	
 		@Override
 		protected Object doInBackground() {
 			try {
 				// Begin appearing busy
-				//setBusy(true);
-				String query = collectQueryValue();
+				//TODO: setBusy(true);
+				//String query = collectQueryValue();
 				Client client = Client.getInstance();
-				resultObjects = QueryHandler.executePredefinedQuery(client.getGraphDatabaseHandler(), query, "");
+				CypherQuery cypherQuery = client.getGraphDatabaseHandler().getCypherQuery();
+				result = cypherQuery.getAllProteins();
+				//resultObjects = QueryHandler.executePredefinedQuery(client.getGraphDatabaseHandler(), query, "");
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				Client.getInstance().firePropertyChange("new message", null, "FAILED");
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
+				//Client.getInstance().firePropertyChange("new message", null, "FAILED");
+				//Client.getInstance().firePropertyChange("indeterminate", true, false);
 			}
-			finished();
 			return 0;
 		}		
 		
 		/**
 		 * Continues when the results retrieval has finished.
 		 */
-		public void finished() {
-			parent.updateResults(resultObjects);
+		public void done() {
+			parent.updateResults(result);
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			dispose();
 		}

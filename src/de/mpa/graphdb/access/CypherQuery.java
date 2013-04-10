@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -92,6 +95,12 @@ public class CypherQuery {
 				"WITH peptide, count(rel) as cn " +
 				"WHERE cn = 1 " + 
 				"RETURN peptide");
+	}
+	
+	public ExecutionResult getAllProteins() {
+		return engine.execute("START protein=node:proteins(\"ACCESSION:*\")  " +
+				"MATCH (protein)-[:HAS_PEPTIDE]->(peptide) " +
+				"RETURN protein, peptide");
 	}
 	
 	/**
@@ -403,7 +412,8 @@ public class CypherQuery {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                if(n.hasProperty(property.toString().toUpperCase())){
+                if(property == null) nodeSet.add(n);
+                else if(n.hasProperty(property.toString().toUpperCase())){
                 	nodeSet.add(n);
                 }
             }
@@ -419,18 +429,32 @@ public class CypherQuery {
      */
     public static void printResult(String msg, ExecutionResult result, String column) {
         System.out.println(msg);
+        
         Iterator<Object> columnAs = result.columnAs(column);
-        while (columnAs.hasNext()) {
-            final Object value = columnAs.next();
-            if (value instanceof Node) {
-                Node n = (Node)value;
-                for (String key : n.getPropertyKeys()) {
-                    System.out.println("{ " + key + " : " + n.getProperty(key)	+ "; id: " + n.getId() + " } ");
-                }
-            } else {
-                System.out.println("{ " + column + " : " + value + " } ");
-            }
+        Iterator<Map<String, Object>> iterator = result.iterator();
+        while(iterator.hasNext()) {
+        	Map<String, Object> map = iterator.next();
+        	Set<Entry<String, Object>> entrySet = map.entrySet();
+        	for (Entry<String, Object> entry : entrySet) {
+				System.out.println(entry.getKey());
+				System.out.println(entry.getValue().toString());
+			}
+        	System.out.println();
         }
+        
+//        while (columnAs.hasNext()) {
+//            final Object value = columnAs.next();
+//            if (value instanceof Node) {
+//                Node n = (Node)value;
+//                System.out.println(n);
+//                System.out.println(n.getId());
+//                for (String key : n.getPropertyKeys()) {
+//                    System.out.println("{ " + key + " : " + n.getProperty(key)	+ "; id: " + n.getId() + " } ");
+//                }
+//            } else {
+//                System.out.println("{ " + column + " : " + value + " } ");
+//            }
+//        }
     }
     
     /**
