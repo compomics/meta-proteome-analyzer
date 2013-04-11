@@ -17,8 +17,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,6 +60,8 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jfree.chart.ChartPanel;
 
+import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
+import com.compomics.mascotdatfile.util.mascot.Parameters;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -66,10 +70,13 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.settings.FilterSettings;
+import de.mpa.client.settings.Parameter;
+import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.MultiExtensionFileFilter;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
@@ -461,7 +468,12 @@ public class FilePanel extends JPanel {
 				File startLocation = new File(path);
 				
 				JFileChooser fc = new JFileChooser(startLocation);
-				fc.setFileFilter(Constants.MGF_FILE_FILTER);
+				fc.setFileFilter(new MultiExtensionFileFilter(
+						"All supported formats (*.mgf, *.dat)",
+						Constants.MGF_FILE_FILTER,
+						Constants.DAT_FILE_FILTER));
+				fc.addChoosableFileFilter(Constants.MGF_FILE_FILTER);
+				fc.addChoosableFileFilter(Constants.DAT_FILE_FILTER);
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(true);
@@ -633,121 +645,138 @@ public class FilePanel extends JPanel {
 			for (File file : files) {
 				client.firePropertyChange("new message", null, "READING SPECTRUM FILE " + ++i + "/" + files.length);
 				
-				ArrayList<Long> positions = new ArrayList<Long>();
-				try {
-					reader = new MascotGenericFileReader(file, LoadMode.NONE);
-
-					client.firePropertyChange("resetcur", -1L, file.length());
-					
-					reader.addPropertyChangeListener(new PropertyChangeListener() {
-						@Override
-						public void propertyChange(PropertyChangeEvent pce) {
-							if (pce.getPropertyName() == "progress") {
-								client.firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
-							}
-						}
-					});
-					reader.survey();
-//					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-//					totalSpectraList.addAll(mgfList);
-					
-					positions.addAll(reader.getSpectrumPositions(false));
-					specPosMap.put(file.getAbsolutePath(), positions);
-
-					client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
-					
-					File parentFile = file.getParentFile();
-					if (parentFile == null) {
-						parentFile = file;
-					}
-					SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
-							file, parentFile.getPath(), null, null, null) {
-						public String toString() {
-							return ((File) userObject).getName();
-						};
-						@Override
-						public Object getValueAt(int column) {
-							if (column >= 2) {
-								double sum = 0.0;
-								for (int j = 0; j < getChildCount(); j++) {
-									sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+				if (file.getName().toLowerCase().endsWith(".mgf")) {
+					ArrayList<Long> positions = new ArrayList<Long>();
+					try {
+						reader = new MascotGenericFileReader(file, LoadMode.NONE);
+	
+						client.firePropertyChange("resetcur", -1L, file.length());
+						
+						reader.addPropertyChangeListener(new PropertyChangeListener() {
+							@Override
+							public void propertyChange(PropertyChangeEvent pce) {
+								if (pce.getPropertyName() == "progress") {
+									client.firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
 								}
-								return sum;
-							} else {
-								return super.getValueAt(column);
 							}
-						}
-					};
-					
-					client.firePropertyChange("resetcur", -1L, positions.size());
-
-					int index = 1;
-					List<TreePath> toBeAdded = new ArrayList<TreePath>();
-					for (int j = 0; j < positions.size(); j++) {
-						long startPos = positions.get(j);
-						long endPos = (j == (positions.size() -1)) ? file.length() : positions.get(j + 1);
+						});
+						reader.survey();
+	//					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
+	//					totalSpectraList.addAll(mgfList);
 						
-						MascotGenericFile mgf = reader.loadNthSpectrum(index, startPos, endPos);
+						positions.addAll(reader.getSpectrumPositions(false));
+						specPosMap.put(file.getAbsolutePath(), positions);
+	
+						client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
 						
-						Long spectrumID = mgf.getSpectrumID();
-						if (spectrumID != null) {
-							// this is just a dummy spectrum, fetch from database
-							mgf = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
+						File parentFile = file.getParentFile();
+						if (parentFile == null) {
+							parentFile = file;
 						}
-//						totalSpectraList.add(mgf);
-						ticList.add(mgf.getTotalIntensity());
-
-						// examine spectrum regarding filter criteria
-						int numPeaks = 0;
-						for (double intensity : mgf.getPeaks().values()) {
-							if (intensity > filterSet.getNoiseLvl()) {
-								numPeaks++;
-							}
-						}
-						double TIC = mgf.getTotalIntensity();
-						double SNR = mgf.getSNR(filterSet.getNoiseLvl());
-
-						// append new spectrum node to file node
-						SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
-								index, mgf.getTitle(), numPeaks, TIC, SNR) {
+						SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
+								file, parentFile.getPath(), null, null, null) {
 							public String toString() {
-								return "Spectrum " + super.toString();
-//								return getParent().toString() + " " + super.toString();
+								return ((File) userObject).getName();
+							};
+							@Override
+							public Object getValueAt(int column) {
+								if (column >= 2) {
+									double sum = 0.0;
+									for (int j = 0; j < getChildCount(); j++) {
+										sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+									}
+									return sum;
+								} else {
+									return super.getValueAt(column);
+								}
 							}
 						};
-//						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
-						fileNode.add(spectrumNode);
-
-						if ((numPeaks > filterSet.getMinPeaks()) &&
-								(TIC > filterSet.getMinTIC()) &&
-								(SNR > filterSet.getMinSNR())) {
-//							toBeAdded.add(spectrumNode.getPath());
-							toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
-						}
-						index++;
 						
-						client.firePropertyChange("progressmade", false, true);
+						client.firePropertyChange("resetcur", -1L, positions.size());
+	
+						int index = 1;
+						List<TreePath> toBeAdded = new ArrayList<TreePath>();
+						for (int j = 0; j < positions.size(); j++) {
+							long startPos = positions.get(j);
+							long endPos = (j == (positions.size() -1)) ? file.length() : positions.get(j + 1);
+							
+							MascotGenericFile mgf = reader.loadNthSpectrum(index, startPos, endPos);
+							
+							Long spectrumID = mgf.getSpectrumID();
+							if (spectrumID != null) {
+								// this is just a dummy spectrum, fetch from database
+								mgf = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
+							}
+	//						totalSpectraList.add(mgf);
+							ticList.add(mgf.getTotalIntensity());
+	
+							// examine spectrum regarding filter criteria
+							int numPeaks = 0;
+							for (double intensity : mgf.getPeaks().values()) {
+								if (intensity > filterSet.getNoiseLvl()) {
+									numPeaks++;
+								}
+							}
+							double TIC = mgf.getTotalIntensity();
+							double SNR = mgf.getSNR(filterSet.getNoiseLvl());
+	
+							// append new spectrum node to file node
+							SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
+									index, mgf.getTitle(), numPeaks, TIC, SNR) {
+								public String toString() {
+									return "Spectrum " + super.toString();
+	//								return getParent().toString() + " " + super.toString();
+								}
+							};
+	//						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
+							fileNode.add(spectrumNode);
+	
+							if ((numPeaks > filterSet.getMinPeaks()) &&
+									(TIC > filterSet.getMinTIC()) &&
+									(SNR > filterSet.getMinSNR())) {
+	//							toBeAdded.add(spectrumNode.getPath());
+								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
+							}
+							index++;
+							
+							client.firePropertyChange("progressmade", false, true);
+						}
+	//					client.firePropertyChange("progress", -1L, -positions.size());
+	
+						client.firePropertyChange("indeterminate", false, true);
+						client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
+						
+						// append new file node to root and initially deselect it
+						if (fileNode.getChildCount() > 0) {
+							treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
+							selectionModel.removeSelectionPath(fileNode.getPath());
+							// reselect spectrum nodes that meet filter criteria
+							selectionModel.addSelectionPaths(toBeAdded);
+	//						treeTbl.getRowSorter().allRowsChanged();
+						}
+						
+						client.firePropertyChange("indeterminate", true, false);
+						
+					} catch (Exception e) {
+						JXErrorPane.showDialog(ClientFrame.getInstance(),
+								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+						return false;
 					}
-//					client.firePropertyChange("progress", -1L, -positions.size());
-
-					client.firePropertyChange("indeterminate", false, true);
-					client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
+				} else if (file.getName().toLowerCase().endsWith(".dat")) {
+					MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
+					Parameters parameters = mascotDatfile.getParametersSection();
+					ParameterMap mascotParams =
+							ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotParameterMap();
 					
-					// append new file node to root and initially deselect it
-					if (fileNode.getChildCount() > 0) {
-						treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
-						selectionModel.removeSelectionPath(fileNode.getPath());
-						// reselect spectrum nodes that meet filter criteria
-						selectionModel.addSelectionPaths(toBeAdded);
-//						treeTbl.getRowSorter().allRowsChanged();
-					}
-					
-					client.firePropertyChange("indeterminate", true, false);
-					
-				} catch (Exception e) {
-					JXErrorPane.showDialog(ClientFrame.getInstance(),
-							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-					return false;
+					mascotParams.put("precTol",
+							new Parameter(null, parameters.getTOL(), "General", null));
+					mascotParams.put("fragTol",
+							new Parameter(null, parameters.getITOL(), "General", null));
+					mascotParams.put("missClv",
+							new Parameter(null, parameters.getCleavage(), "General", null));
+					// TODO: getCleavage() does not return number of missed cleavages allowed, find proper parameter
+				} else {
+					System.out.println("If you got here something went horribly wrong!");
 				}
 				
 				treeTbl.expandRow(0);

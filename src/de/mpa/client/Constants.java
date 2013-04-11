@@ -153,5 +153,7 @@ public class Constants {
 			"CSV (tab-separated) Files (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 	"Portable Network Graphics (*.png)");
+	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
+			"Raw Mascot Result File (*.dat)");
 	
 }

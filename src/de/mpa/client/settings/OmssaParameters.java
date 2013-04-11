@@ -41,7 +41,7 @@ public class OmssaParameters extends ParameterMap {
 		this.put("hl", new Parameter("Maximum number of hits", 30, "Scoring", "Maximum number of hits retained per precursor charge state per spectrum."));
 		this.put("he", new Parameter("Maximum e-value allowed", 1000.00, "Scoring", "Maximum e-value allowed in the hit list."));
 		this.put("i", new Parameter("use x ions|use y ions|use z ions||use a ions|use b ions|use c ions", new Boolean[][] { { false, true, false }, { false, true, false }}, "Scoring",
-				"Allows the use of a-ions in scoring.|Allows the use of b-ions in scoring.|Allows the use of c-ions in scoring.||Allows the use of x-ions in scoring.|Allows the use of y-ions in scoring.|Allows the use of z-ions in scoring."));
+				"Allows the use of x-ions in scoring.|Allows the use of y-ions in scoring.|Allows the use of z-ions in scoring.||Allows the use of a-ions in scoring.|Allows the use of b-ions in scoring.|Allows the use of c-ions in scoring."));
 	}
 
 	@Override
