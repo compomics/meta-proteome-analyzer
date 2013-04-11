@@ -292,14 +292,39 @@ public class AdvancedSettingsDialog extends JDialog {
 				param.setValue(((JCheckBox) comp).isSelected());
 			} else if (comp instanceof JPanel) {
 				// assume we are dealing with a matrix of checkboxes
-				Boolean[][] values = (Boolean[][]) param.getValue();
+				Object[][] values = (Object[][]) param.getValue();
 				int k = 0;
 				for (int i = 0; i < values.length; i++) {
 					for (int j = 0; j < values[i].length; j++) {
-						values[i][j] = ((AbstractButton) comp.getComponent(k++)).isSelected();
+						Component subComp = comp.getComponent(k++);
+						if (subComp instanceof AbstractButton) {
+							values[i][j] = ((AbstractButton) subComp).isSelected();
+						} else if (subComp instanceof JSpinner) {
+							values[i][j] = ((JSpinner) subComp).getValue();
+						}
 					}
 				}
 				param.setValue(values);
+				
+				Object[][] rows = (Object[][]) param.getValue();
+				int counter = 0;
+				if (rows instanceof Boolean[][]) {
+					// matrix of checkboxes
+					for (Boolean[] row : (Boolean[][]) rows) {
+						for (Boolean sel : row) {
+							((AbstractButton) comp.getComponent(counter++)).setSelected(sel);
+						}
+					}
+				} else {
+					// stack of radio button-and-other component pairs
+					for (Object[] row : rows) {
+						Component rightComp = comp.getComponent(++counter);
+						if (rightComp instanceof JSpinner) {
+							((JSpinner) rightComp).setValue(row[1]);
+						}
+						counter++;
+					}
+				}
 			} else if (comp instanceof JComboBox) {
 				param.setValue(((JComboBox) comp).getModel());
 			} else if (comp instanceof JSpinner) {
@@ -337,11 +362,23 @@ public class AdvancedSettingsDialog extends JDialog {
 			if (comp instanceof JCheckBox) {
 				((JCheckBox) comp).setSelected((Boolean) param.getValue());
 			} else if (comp instanceof JPanel) {
-				Boolean[][] rows = (Boolean[][]) param.getValue();
+				Object[][] rows = (Object[][]) param.getValue();
 				int counter = 0;
-				for (Boolean[] row : rows) {
-					for (Boolean sel : row) {
-						((AbstractButton) comp.getComponent(counter++)).setSelected(sel);
+				if (rows instanceof Boolean[][]) {
+					// matrix of checkboxes
+					for (Boolean[] row : (Boolean[][]) rows) {
+						for (Boolean sel : row) {
+							((AbstractButton) comp.getComponent(counter++)).setSelected(sel);
+						}
+					}
+				} else {
+					// stack of radio button-and-other component pairs
+					for (Object[] row : rows) {
+						Component rightComp = comp.getComponent(++counter);
+						if (rightComp instanceof JSpinner) {
+							((JSpinner) rightComp).setValue(row[1]);
+						}
+						counter++;
 					}
 				}
 			} else if (comp instanceof JComboBox) {
@@ -432,23 +469,12 @@ public class AdvancedSettingsDialog extends JDialog {
 						radioButton.setToolTipText(tooltips[i]);
 						comp = radioButton;
 					} else if (val instanceof Number) {
-						comp = createParameterControl(new Parameter(null, val, param.getSection(), tooltips[i]));
+						comp = createParameterControl(new Parameter(param.getName(), val, param.getSection(), tooltips[i]));
 					}
 					builder.append(comp);
 				}
 				builder.nextLine();
 			}
-//			for (Object val : values) {
-//				if (val instanceof Boolean) {
-//					JRadioButton radioButton = new JRadioButton(param.getName(), null, (Boolean) val);
-//					radioButton.setIconTextGap(15);
-//					radioButton.setToolTipText(param.getDescription());
-//					comp = radioButton;
-//				} else if (val instanceof Number) {
-//					comp = createParameterControl(new Parameter(param.getName(), val, param.getSection(), param.getDescription()));
-//				}
-//				builder.append(comp);
-//			}
 			comp = builder.getPanel();
 		} else if (value instanceof ComboBoxModel) {
 			// Combobox

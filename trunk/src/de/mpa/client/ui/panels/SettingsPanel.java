@@ -378,4 +378,12 @@ public class SettingsPanel extends JPanel {
 		return processBtn;
 	}
 
+	/**
+	 * Returns the database search settings panel.
+	 * @return the database search settings panel
+	 */
+	public DBSearchPanel getDatabaseSearchSettingsPanel() {
+		return databasePnl;
+	}
+
 }

@@ -773,7 +773,7 @@ public class FilePanel extends JPanel {
 					mascotParams.put("fragTol",
 							new Parameter(null, parameters.getITOL(), "General", null));
 					mascotParams.put("missClv",
-							new Parameter(null, parameters.getCleavage(), "General", null));
+							new Parameter(null, parameters.getPFA(), "General", null));
 					// TODO: getCleavage() does not return number of missed cleavages allowed, find proper parameter
 				} else {
 					System.out.println("If you got here something went horribly wrong!");
