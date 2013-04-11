@@ -1,5 +1,6 @@
 package de.mpa.client.ui.dialogs;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -24,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
@@ -168,12 +171,25 @@ public class AdvancedSettingsDialog extends JDialog {
 				DefaultFormBuilder builder = new DefaultFormBuilder(
 						new FormLayout("p, 5dlu, p:g"), taskPane);
 				builder.setDefaultRowSpec(RowSpec.decode("f:p:g"));
-
+				
 				// Iterate parameters to build section components
 				for (Parameter p : entry.getValue()) {
 					JComponent comp = createParameterControl(p);
-					if ((comp instanceof JCheckBox) || (comp instanceof JPanel)) {
+					if (comp instanceof JCheckBox) {
 						// Special case for checkboxes which come with labels of their own
+						builder.append(comp, 3);
+					} else if (comp instanceof JPanel) {
+						// check sub-components for possible radio buttons
+						JRadioButton radioBtn = null;
+						ButtonGroup bg = new ButtonGroup();
+						for (Component childComp : comp.getComponents()) {
+							if (childComp instanceof JRadioButton) {
+								// add found radio button to button group
+								radioBtn = (JRadioButton) childComp;
+								bg.add(radioBtn);
+							}
+						}
+						// add panel to task pane layout
 						builder.append(comp, 3);
 					} else {
 						// Add component, generate label to go with it
@@ -359,7 +375,9 @@ public class AdvancedSettingsDialog extends JDialog {
 		JComponent comp = null;
 		Object value = param.getValue();
 		// Determine type of value and generate appropriate control component
-		if (value instanceof Boolean) {
+		if (value instanceof JComponent) {
+			return (JComponent) value;
+		} else if (value instanceof Boolean) {
 			// Checkbox
 			JCheckBox checkBox = new JCheckBox(param.getName(), null, (Boolean) param.getValue());
 			checkBox.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -393,6 +411,44 @@ public class AdvancedSettingsDialog extends JDialog {
 				}
 				builder.nextLine();
 			}
+			comp = builder.getPanel();
+		} else if (value instanceof Object[][]) {
+			Object[][] values = (Object[][]) value;
+			String[] names = param.getName().split("\\|");
+			String[] tooltips = param.getDescription().split("\\|");
+			String encodedColumnSpecs = "";
+			for (int i = 1; i < values[0].length; i++) {
+				encodedColumnSpecs += "l:p:g, 5dlu, ";
+			}
+			encodedColumnSpecs += "p:g";
+			DefaultFormBuilder builder = new DefaultFormBuilder(
+					new FormLayout(encodedColumnSpecs));
+			for (int i = 0; i < values.length; i++) {
+				for (int j = 0; j < values[0].length; j++) {
+					Object val = values[i][j];
+					if (val instanceof Boolean) {
+						JRadioButton radioButton = new JRadioButton(names[i], null, (Boolean) val);
+						radioButton.setIconTextGap(15);
+						radioButton.setToolTipText(tooltips[i]);
+						comp = radioButton;
+					} else if (val instanceof Number) {
+						comp = createParameterControl(new Parameter(null, val, param.getSection(), tooltips[i]));
+					}
+					builder.append(comp);
+				}
+				builder.nextLine();
+			}
+//			for (Object val : values) {
+//				if (val instanceof Boolean) {
+//					JRadioButton radioButton = new JRadioButton(param.getName(), null, (Boolean) val);
+//					radioButton.setIconTextGap(15);
+//					radioButton.setToolTipText(param.getDescription());
+//					comp = radioButton;
+//				} else if (val instanceof Number) {
+//					comp = createParameterControl(new Parameter(param.getName(), val, param.getSection(), param.getDescription()));
+//				}
+//				builder.append(comp);
+//			}
 			comp = builder.getPanel();
 		} else if (value instanceof ComboBoxModel) {
 			// Combobox

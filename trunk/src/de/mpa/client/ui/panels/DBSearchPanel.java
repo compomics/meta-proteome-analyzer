@@ -22,6 +22,7 @@ import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.settings.CruxParameters;
 import de.mpa.client.settings.InspectParameters;
+import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
@@ -106,7 +107,7 @@ public class DBSearchPanel extends JPanel {
 	private JButton cruxSetBtn;
 	
 	/**
-	 * Parameter map containing advanced settings for the OMSSA search engine.
+	 * Parameter map containing advanced settings for the Crux search engine.
 	 */
 	private ParameterMap cruxParams = new CruxParameters();
 
@@ -121,12 +122,24 @@ public class DBSearchPanel extends JPanel {
 	private JButton inspectSetBtn;
 	
 	/**
-	 * Parameter map containing advanced settings for the OMSSA search engine.
+	 * Parameter map containing advanced settings for the InsPecT search engine.
 	 */
 	private ParameterMap inspectParams = new InspectParameters();
 
+	/**
+	 * Checkbox for controlling whether imported Mascot search engine results shall be uploaded.
+	 */
 	private JCheckBox mascotChk;
+	
+	/**
+	 * Button to show advanced settings for imported Mascot search engine results.
+	 */
 	private JButton mascotSetBtn;
+	
+	/**
+	 * Parameter map containing advanced settings for uploading imported Mascot search engine results.
+	 */
+	private ParameterMap mascotParams = new MascotParameters();
 	
 	/**
 	 * The default database search panel constructor.
@@ -152,7 +165,7 @@ public class DBSearchPanel extends JPanel {
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox(Constants.FASTA_DB);
+		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), cc.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
@@ -180,10 +193,10 @@ public class DBSearchPanel extends JPanel {
 
 		// Enzyme ComboBox
 		// TODO: unused control, maybe remove altogether?
-		JComboBox enzymeCbx = new JComboBox(Constants.DB_ENZYMES);
+		JComboBox enzymeCbx = new JComboBox<String>(Constants.DB_ENZYMES);
 		
 		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox(new String[] { "Target-Decoy", "Target Only" });
+		searchTypeCbx = new JComboBox<String>(new String[] { "Target-Decoy", "Target Only" });
 		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));
@@ -273,18 +286,21 @@ public class DBSearchPanel extends JPanel {
 		// Mascot
 		mascotChk = new JCheckBox("Mascot", false);
 		mascotChk.setIconTextGap(10);
-		
 		mascotSetBtn = new JButton("Advanced Settings");
+		mascotSetBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				new AdvancedSettingsDialog(ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
+			}
+		});
 		mascotChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				mascotSetBtn.setEnabled(mascotChk.isSelected());
 			}
 		});
-		mascotChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mascotSetBtn.setEnabled(mascotChk.isSelected());
-			}
-		});
+		// Mascot functionality is initially disabled unless a .dat file is imported
+		mascotChk.setEnabled(false);
+		mascotSetBtn.setEnabled(false);
 
 		searchEngPnl.add(xTandemChk, cc.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, cc.xy(4, 2));
@@ -320,6 +336,7 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setCrux(cruxChk.isSelected());
 		dbSettings.setInspect(inspectChk.isSelected());
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
+		dbSettings.setMascot(mascotChk.isSelected());
 		
 		// Set the current experiment id for the database search settings.
 		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
@@ -348,7 +365,6 @@ public class DBSearchPanel extends JPanel {
 			omssaSetBtn.setEnabled(omssaChk.isSelected());
 			cruxSetBtn.setEnabled(cruxChk.isSelected());
 			inspectSetBtn.setEnabled(inspectChk.isSelected());
-			mascotChk.setEnabled(false);
 			mascotSetBtn.setEnabled(mascotChk.isSelected());
 		}
 	}
@@ -373,4 +389,51 @@ public class DBSearchPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Returns the precursor tolerance spinner.
+	 * @return the precursor tolerance spinner
+	 */
+	public JSpinner getPrecursorToleranceSpinner() {
+		return precTolSpn;
+	}
+
+	/**
+	 * Returns the fragment tolerance spinner.
+	 * @return the fragment tolerance spinner
+	 */
+	public JSpinner getFragmentToleranceSpinner() {
+		return fragTolSpn;
+	}
+
+	/**
+	 * Returns the missed cleavages spinner.
+	 * @return the missed cleavages spinner
+	 */
+	public JSpinner getMissedCleavageSpinner() {
+		return missClvSpn;
+	}
+
+	/**
+	 * TODO: API
+	 * @return
+	 */
+	public ParameterMap getXTandemParameterMap() {
+		return xTandemParams;
+	}
+
+	public ParameterMap getOmssaParameterMap() {
+		return omssaParams;
+	}
+
+	public ParameterMap getCruxParameterMap() {
+		return cruxParams;
+	}
+
+	public ParameterMap getInspectParameterMap() {
+		return inspectParams;
+	}
+
+	public ParameterMap getMascotParameterMap() {
+		return mascotParams;
+	}
 }
