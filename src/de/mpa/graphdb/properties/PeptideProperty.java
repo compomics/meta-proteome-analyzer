@@ -1,6 +1,7 @@
 package de.mpa.graphdb.properties;
 
 public enum PeptideProperty implements ElementProperty {
+	IDENTIFIER("identifier"),
 	SEQUENCE("sequence"),
 	LENGTH("length");
 	

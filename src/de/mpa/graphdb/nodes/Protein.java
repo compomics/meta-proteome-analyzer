@@ -7,10 +7,10 @@ import com.tinkerpop.frames.VertexFrame;
 
 public interface Protein extends VertexFrame {
 
-	@Property("ACCESSION")
-	public String getAccession();
+	@Property("IDENTIFIER")
+	public String getIdentifier();
 	
-	@Property("PROTEINSEQUENCE")
+	@Property("SEQUENCE")
 	public String getSequence();
 	
 	@Property("LENGTH")
@@ -19,11 +19,8 @@ public interface Protein extends VertexFrame {
 	@Property("DESCRIPTION")
 	public String getDescription();
 	
-	@Property("DB_TYPE")
-	public String getDatabaseType();
-	
 	@Adjacency(label="BELONGS_TO", direction=Direction.OUT)
-	public Iterable<Species> getSpecies();
+	public Iterable<Taxon> getTaxa();
 	
 	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.OUT)
 	public Iterable<Enzyme> getEnzymes();
@@ -40,7 +37,6 @@ public interface Protein extends VertexFrame {
 	@Adjacency(label = "HAS_PEPTIDE")
     public void setPeptides(final Iterable<Peptide> peptides);
 	
-	
-	@Property("ACCESSION")
+	@Property("IDENTIFIER")
 	public String toString();
 }

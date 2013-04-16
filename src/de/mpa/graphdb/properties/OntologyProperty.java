@@ -1,7 +1,8 @@
 package de.mpa.graphdb.properties;
 
 public enum OntologyProperty implements ElementProperty {
-	KEYWORD("ecnumber"),
+	IDENTIFIER("identifier"),
+	KEYWORD("keyword"),
 	TYPE("type");
 	
 	OntologyProperty(final String propertyName){

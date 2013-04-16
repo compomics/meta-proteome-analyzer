@@ -79,7 +79,7 @@ public class ProteinQueryTest {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                TestCase.assertEquals("O27233", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("O27233", n.getProperty(ProteinProperty.IDENTIFIER.name()));
             }
         }
         
@@ -93,8 +93,8 @@ public class ProteinQueryTest {
                 nodes.add(n);
             }
         }
-        TestCase.assertEquals("G9BY94", nodes.get(0).getProperty(ProteinProperty.ACCESSION.name()));
-        TestCase.assertEquals("A3CT50", nodes.get(1).getProperty(ProteinProperty.ACCESSION.name()));
+        TestCase.assertEquals("G9BY94", nodes.get(0).getProperty(ProteinProperty.IDENTIFIER.name()));
+        TestCase.assertEquals("A3CT50", nodes.get(1).getProperty(ProteinProperty.IDENTIFIER.name()));
     }
 	
 	@Test
@@ -125,7 +125,7 @@ public class ProteinQueryTest {
             }
         }
         TestCase.assertEquals(3, nodes.size());
-        TestCase.assertEquals("Q8TN68", nodes.get(0).getProperty(ProteinProperty.ACCESSION.name()));
+        TestCase.assertEquals("Q8TN68", nodes.get(0).getProperty(ProteinProperty.IDENTIFIER.name()));
     }
 	
 	@Test
@@ -141,7 +141,7 @@ public class ProteinQueryTest {
             }
         }
         TestCase.assertEquals(5, nodes.size());
-        TestCase.assertEquals("Q60186", nodes.get(0).getProperty(ProteinProperty.ACCESSION.name()));
+        TestCase.assertEquals("Q60186", nodes.get(0).getProperty(ProteinProperty.IDENTIFIER.name()));
     }
 	
 	@Test
@@ -172,7 +172,7 @@ public class ProteinQueryTest {
             }
         }
         TestCase.assertEquals(36, nodes.size());
-        TestCase.assertEquals("Q9C4Z4", nodes.get(0).getProperty(ProteinProperty.ACCESSION.name()));
+        TestCase.assertEquals("Q9C4Z4", nodes.get(0).getProperty(ProteinProperty.IDENTIFIER.name()));
     }
 	
 	@Test

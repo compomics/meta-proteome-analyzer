@@ -165,7 +165,7 @@ public class DBSearchPanel extends JPanel {
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
+		fastaFileCbx = new JComboBox(Constants.FASTA_DB);
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), cc.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
@@ -193,10 +193,10 @@ public class DBSearchPanel extends JPanel {
 
 		// Enzyme ComboBox
 		// TODO: unused control, maybe remove altogether?
-		JComboBox enzymeCbx = new JComboBox<String>(Constants.DB_ENZYMES);
+		JComboBox enzymeCbx = new JComboBox(Constants.DB_ENZYMES);
 		
 		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox<String>(new String[] { "Target-Decoy", "Target Only" });
+		searchTypeCbx = new JComboBox(new String[] { "Target-Decoy", "Target Only" });
 		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));

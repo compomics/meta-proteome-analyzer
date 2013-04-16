@@ -1,10 +1,10 @@
 package de.mpa.graphdb.properties;
 
 public enum ProteinProperty implements ElementProperty {
-	ACCESSION("accession"),
+	IDENTIFIER("identifier"),
 	DESCRIPTION("description"),
 	LENGTH("length"),
-	PROTEINSEQUENCE("proteinsequence"),
+	SEQUENCE("sequence"),
 	COVERAGE("coverage");
 	
 	ProteinProperty(final String propertyName){
