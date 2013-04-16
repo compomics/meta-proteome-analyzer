@@ -1,10 +1,11 @@
 package de.mpa.graphdb.properties;
 
-public enum FunctionProperty implements ElementProperty {
-	NAME("name"),
-	DESCRIPTION("description");
+public enum TaxonProperty implements ElementProperty {
+	IDENTIFIER("identifier"),
+	TAXID("taxid"),
+	RANK("rank");	
 	
-	FunctionProperty(final String propertyName){
+	TaxonProperty(final String propertyName){
 		this.propertyName = propertyName;
 	}
 	

@@ -483,7 +483,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		getResultsFromDbBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ResultsTask(null).execute();
+				fetchResultsFromDatabase();
 			}
 		});
 		getResultsFromDbBtn.setEnabled(false);
@@ -503,15 +503,7 @@ public class DbSearchResultPanel extends JPanel {
 		
 		getResultsFromFileBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
-				chooser.setAcceptAllFileFilterUsed(false);
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				int returnValue = chooser.showOpenDialog(clientFrame);
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					importFile = chooser.getSelectedFile();
-					new ResultsTask(importFile).execute();
-				}
+				fetchResultsFromFile();
 			}
 		});
 		
@@ -3565,7 +3557,29 @@ public class DbSearchResultPanel extends JPanel {
 			super.paintComponent(g);
 		}
 	}
-
+	
+	/**
+	 * Method to fetch the processed results from file.
+	 */
+	public void fetchResultsFromFile() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+		chooser.setAcceptAllFileFilterUsed(false);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int returnValue = chooser.showOpenDialog(clientFrame);
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			importFile = chooser.getSelectedFile();
+			new ResultsTask(importFile).execute();
+		}
+	}
+	
+	/**
+	 * Method to fetch the processed results from the database.
+	 */
+	public void fetchResultsFromDatabase() {
+		new ResultsTask(null).execute();
+	}
+	
 	/**
 	 * Custom highlighter predicate for protein count visualization.
 	 * @author kohrs

@@ -6,16 +6,20 @@ import com.tinkerpop.frames.Property;
 import com.tinkerpop.frames.VertexFrame;
 
 public interface Pathway extends VertexFrame {
-	@Property("KONUMBER")
-	public String getKONumber();
+	
+	@Property("IDENTIFIER")
+	public String getIdentifier();
 	
 	@Property("DESCRIPTION")
 	public String getDescription();
 	
+	@Property("PATHWAYID")
+	public String getPathwayID();
+	
 	@Adjacency(label="BELONGS_TO_PATHWAY", direction=Direction.IN)
 	public Iterable<Protein> getProteins();
 	
-	@Property("KONUMBER")
+	@Property("IDENTIFIER")
 	public String toString();
 
 }

@@ -6,15 +6,18 @@ import com.tinkerpop.frames.VertexFrame;
 
 public interface PeptideSpectrumMatch extends VertexFrame {
 
+	@Property("IDENTIFIER")
+	public String getIdentifier();
+	
 	@Property("SPECTRUMID")
 	public Long getSpectrumID();
 	
-	@Property("VOTES")
-	public Integer getVotes();
+	@Property("SCORES")
+	public Integer getScores();
 	
 	@Adjacency(label="IS_MATCH_IN")
 	public Peptide getMatchedPeptide();
 
-	@Property("SPECTRUMID")
+	@Property("IDENTIFIER")
 	public String toString();
 }

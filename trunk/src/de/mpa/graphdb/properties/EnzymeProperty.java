@@ -1,7 +1,7 @@
 package de.mpa.graphdb.properties;
 
 public enum EnzymeProperty implements ElementProperty {
-	ECNUMBER("ecnumber"),
+	IDENTIFIER("identifier"),
 	DESCRIPTION("description");
 	
 	EnzymeProperty(final String propertyName){

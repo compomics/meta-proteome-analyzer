@@ -83,7 +83,7 @@ public class CypherQueryTest {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.IDENTIFIER.name()));
                 TestCase.assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
             }
         }
@@ -96,7 +96,7 @@ public class CypherQueryTest {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.IDENTIFIER.name()));
                 TestCase.assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
             }
         }
@@ -110,7 +110,7 @@ public class CypherQueryTest {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.ACCESSION.name()));
+                TestCase.assertEquals("Q8CPN2", n.getProperty(ProteinProperty.IDENTIFIER.name()));
                 TestCase.assertEquals("ODPB_STAES Pyruvate dehydrogenase E1 component subunit beta", n.getProperty(ProteinProperty.DESCRIPTION.name()));
                 
             }
@@ -142,13 +142,13 @@ public class CypherQueryTest {
 	
 	@Test
 	public void testGetAllUniquePeptides() {
-		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "aPeptide", PeptideProperty.SEQUENCE);
 		TestCase.assertEquals(9, nodeSet.size());
 	}
 	
 	@Test
 	public void testGetAllSharedPeptides() {
-		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "aPeptide", PeptideProperty.SEQUENCE);
 		TestCase.assertEquals(4, nodeSet.size());
 	}
 	

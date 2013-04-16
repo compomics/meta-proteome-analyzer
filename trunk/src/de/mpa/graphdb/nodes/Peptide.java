@@ -20,6 +20,6 @@ public interface Peptide extends VertexFrame {
 	@Adjacency(label="IS_MATCH_IN", direction=Direction.IN)
 	public Iterable<PeptideSpectrumMatch> getPSMs();
 
-	@Property("SEQUENCE")
+	@Property("IDENTIFIER")
 	public String toString();
 }

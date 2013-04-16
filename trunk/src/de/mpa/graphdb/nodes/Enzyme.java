@@ -6,8 +6,9 @@ import com.tinkerpop.frames.Property;
 import com.tinkerpop.frames.VertexFrame;
 
 public interface Enzyme extends VertexFrame {
-	@Property("ECNUMBER")
-	public String getECNumber();
+	
+	@Property("IDENTIFIER")
+	public String getIdentifier();
 	
 	@Property("DESCRIPTION")
 	public String getDescription();
@@ -15,7 +16,7 @@ public interface Enzyme extends VertexFrame {
 	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.IN)
 	public Iterable<Protein> getProteins();
 	
-	@Property("ECNUMBER")
+	@Property("IDENTIFIER")
 	public String toString();
 
 }

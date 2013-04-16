@@ -15,20 +15,20 @@ import de.mpa.graphdb.nodes.Pathway;
 import de.mpa.graphdb.nodes.Peptide;
 import de.mpa.graphdb.nodes.PeptideSpectrumMatch;
 import de.mpa.graphdb.nodes.Protein;
-import de.mpa.graphdb.nodes.Species;
+import de.mpa.graphdb.nodes.Taxon;
 import de.mpa.graphdb.properties.EnzymeProperty;
-import de.mpa.graphdb.properties.FunctionProperty;
 import de.mpa.graphdb.properties.OntologyProperty;
 import de.mpa.graphdb.properties.PathwayProperty;
 import de.mpa.graphdb.properties.PeptideProperty;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
-import de.mpa.graphdb.properties.SpeciesProperty;
+import de.mpa.graphdb.properties.TaxonProperty;
 
 /**
  * A DataAccessor class provides access to vertices of the graph by querying any property that 
  * the vertices has. Class is meant to access single or group of vertices that are having certain properties.
- * @author Miro Lehtev�, Thilo Muth
+ * FIXME: Parts here are legacy code: Remove unused bits. 
+ * @author Miro Lehteva, Thilo Muth
  *
  */
 public class DataAccessor {
@@ -142,8 +142,8 @@ public class DataAccessor {
 	 * @param value Object value of the property
 	 * @return a Iterable of Species found
 	 */
-	public Iterable<Species> getSpecies(SpeciesProperty property, Object value) {
-		Iterable<Species> itty = graph.getVertices(property.name(), value, Species.class);
+	public Iterable<Taxon> getSpecies(TaxonProperty property, Object value) {
+		Iterable<Taxon> itty = graph.getVertices(property.name(), value, Taxon.class);
 		this.stopTransaction();
 		return itty;
 	}
@@ -154,13 +154,13 @@ public class DataAccessor {
 	 * @param value Object value of the property
 	 * @return a Species from index
 	 */
-	public Species getSingleSpecies(SpeciesProperty property, Object value) {
-		Species s = null;
+	public Taxon getTaxon(TaxonProperty property, Object value) {
+		Taxon s = null;
 		if(speciesIndex != null) {
 			Vertex v  = speciesIndex.get(property.name(), value).iterator().next(); 
-			s =  graph.frame(v, Species.class);	 
+			s =  graph.frame(v, Taxon.class);	 
 		} else {
-			s = graph.getVertices(property.name(), value, Species.class).iterator().next();
+			s = graph.getVertices(property.name(), value, Taxon.class).iterator().next();
 		}
 		this.stopTransaction();
 		return s;
@@ -310,24 +310,13 @@ public class DataAccessor {
 		this.stopTransaction();
 		return itty;
 	}
-	
-	/**
-	 * Retrieves functions for specified property.
-	 * @param property FunctionProperty you want to query
-	 * @param value Object value of the property
-	 * @return a Iterable of Functions found
-	 */
-	public Iterable<Ontology> getFunctionGroups(FunctionProperty property, Object value) {
-		Iterable<Ontology> itty =  graph.getVertices(property.name(), value, Ontology.class);
-		this.stopTransaction();
-		return itty;
-	}
+
 	/**
 	 * Returns all Species frame objects from the graph
 	 * @return Iterable of Species frames 
 	 */
-	public Iterable<Species> getAllSpecies(){
-		Iterable<Species> itty = graph.getVertices(SpeciesProperty.TAXON.toString(), "*", Species.class);
+	public Iterable<Taxon> getAllSpecies(){
+		Iterable<Taxon> itty = graph.getVertices(TaxonProperty.IDENTIFIER.toString(), "*", Taxon.class);
 		this.stopTransaction();
 		return itty;
 	}

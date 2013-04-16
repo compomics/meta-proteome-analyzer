@@ -125,7 +125,7 @@ public class ResultsPanel extends JPanel {
 	private SpecSimResultPanel ssPnl;
 	
 	/**
-	 * The de novo and BLAST results panel. TODO: decide fate of de novo/BLAST results panel
+	 * The GraphDatabaseResultPanel. TODO: decide fate of de novo/BLAST results panel
 	 */
 	private GraphDatabaseResultPanel dnPnl;
 
@@ -400,18 +400,32 @@ public class ResultsPanel extends JPanel {
 		
 		JButton fetchRemoteBtn = new JButton("<html><center>Fetch Results<br>from DB</center></html>", IconConstants.GO_DB_ICON);
 		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);		
 		fetchRemoteBtn.setIconTextGap(7);
+		
+		fetchRemoteBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dbPnl.fetchResultsFromDatabase();
+			}
+		});
 		JButton fetchLocalBtn = new JButton("<html><center>Fetch Results<br>from File</center></html>", IconConstants.GO_FOLDER_ICON);
 		fetchLocalBtn.setRolloverIcon(IconConstants.GO_FOLDER_ROLLOVER_ICON);
 		fetchLocalBtn.setPressedIcon(IconConstants.GO_FOLDER_PRESSED_ICON);
 		fetchLocalBtn.setIconTextGap(10);
 		
+		fetchLocalBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				dbPnl.fetchResultsFromFile();
+			}
+		});
+		
 		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
 		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
+
 		fetchPnl.setPreferredSize(new Dimension());	
 		
-		// TODO: add functionality to fetch buttons
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 

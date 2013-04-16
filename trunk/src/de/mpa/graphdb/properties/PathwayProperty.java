@@ -1,8 +1,9 @@
 package de.mpa.graphdb.properties;
 
 public enum PathwayProperty implements ElementProperty {
-	KONUMBER("konumber"),
-	DESCRIPTION("description");
+	IDENTIFIER("identifier"),
+	DESCRIPTION("description"),
+	PATHWAYID("pathwayid");
 	
 	PathwayProperty(final String propertyName){
 		this.propertyName = propertyName;

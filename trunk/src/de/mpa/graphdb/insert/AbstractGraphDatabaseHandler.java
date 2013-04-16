@@ -60,6 +60,10 @@ public abstract class AbstractGraphDatabaseHandler {
 		cypherQuery = new CypherQuery(graphDb);
 	}
 	
+	public GraphDatabaseService getGraphDatabaseService() {
+		return graphDb;
+	}
+
 	/**
 	 * Returns the DataAccessor object.
 	 * @return DataAccessor object

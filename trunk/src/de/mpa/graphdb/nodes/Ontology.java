@@ -7,8 +7,8 @@ import com.tinkerpop.frames.VertexFrame;
 
 public interface Ontology extends VertexFrame {
 
-	@Property("KEYWORD")
-	public String getKeyword();
+	@Property("IDENTIFIER")
+	public String getIdentifier();
 	
 	@Property("DESCRIPTION")
 	public String getDescription();
@@ -22,6 +22,6 @@ public interface Ontology extends VertexFrame {
 	@Adjacency(label="HAS_MOLECULAR_FUNCTION", direction=Direction.IN)
 	public Iterable<Protein> getMolecularFunctionProteins();
 	
-	@Property("KEYWORD")
+	@Property("IDENTIFIER")
 	public String toString();
 }

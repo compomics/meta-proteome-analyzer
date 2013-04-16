@@ -10,13 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -47,7 +47,7 @@ import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
 import de.mpa.graphdb.access.CypherQuery;
-import de.mpa.graphdb.access.QueryHandler;
+import de.mpa.graphdb.access.CypherQueryFactory;
 
 /**
  * The graph query dialog allows three modes:
@@ -146,7 +146,7 @@ public class GraphQueryDialog extends JDialog {
 			}
 		});
 		
-		queryTaskPane.add(predefinedList, CC.xy(2, 6));
+		queryTaskPane.add(new JScrollPane(predefinedList), CC.xyw(2, 6, 3));
 		
 		JLabel paramLbl = new JLabel("Parameter X: ");
 		queryTaskPane.add(paramLbl, CC.xy(4, 2));
@@ -219,6 +219,8 @@ public class GraphQueryDialog extends JDialog {
 			}
 		});
 		
+		okBtn.setPreferredSize(cancelBtn.getPreferredSize());
+		
 		// Lay out button panel
 		buttonPnl.add(okBtn, CC.xy(1, 1));
 		buttonPnl.add(cancelBtn, CC.xy(3, 1));
@@ -260,8 +262,11 @@ public class GraphQueryDialog extends JDialog {
 				//TODO: setBusy(true);
 				//String query = collectQueryValue();
 				Client client = Client.getInstance();
-				CypherQuery cypherQuery = client.getGraphDatabaseHandler().getCypherQuery();
-				result = cypherQuery.getAllProteins();
+//				CypherQuery cypherQuery = client.getGraphDatabaseHandler().getCypherQuery();
+				//result = cypherQuery.getAllEnzymes();
+//				result = cypherQuery.getAllProteins();
+				result = CypherQueryFactory.getProteinsByPeptides(
+						client.getGraphDatabaseHandler().getGraphDatabaseService());
 				//resultObjects = QueryHandler.executePredefinedQuery(client.getGraphDatabaseHandler(), query, "");
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),

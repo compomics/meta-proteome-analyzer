@@ -27,7 +27,6 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;

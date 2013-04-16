@@ -26,14 +26,14 @@ import de.mpa.graphdb.nodes.Pathway;
 import de.mpa.graphdb.nodes.Peptide;
 import de.mpa.graphdb.nodes.PeptideSpectrumMatch;
 import de.mpa.graphdb.nodes.Protein;
-import de.mpa.graphdb.nodes.Species;
+import de.mpa.graphdb.nodes.Taxon;
 import de.mpa.graphdb.properties.EnzymeProperty;
 import de.mpa.graphdb.properties.OntologyProperty;
 import de.mpa.graphdb.properties.PathwayProperty;
 import de.mpa.graphdb.properties.PeptideProperty;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
-import de.mpa.graphdb.properties.SpeciesProperty;
+import de.mpa.graphdb.properties.TaxonProperty;
 import de.mpa.graphdb.setup.GraphDatabase;
 
 /**
@@ -83,10 +83,10 @@ public class DataAccessorTest extends TestCase {
 	@Test
 	public void testProteins() {
 		// Protein
-		Protein prot1 = dataAccessor.getSingleProtein(ProteinProperty.ACCESSION, "P64462");
+		Protein prot1 = dataAccessor.getSingleProtein(ProteinProperty.IDENTIFIER, "P64462");
 		
 		// Test protein specification.
-		assertEquals("P64462", prot1.getAccession());
+		assertEquals("P64462", prot1.getIdentifier());
 		assertEquals("MHVTLVEINVHEDKVDEFIEVFRQNHLGSVQEEGNLRFDVLQDPEVNSRFYIYEAYKDEDAVAFHKTTPHYKTCVAKLESLMTGPRKKRLFNGLMP", prot1.getSequence());
 		assertEquals("LSRG_ECO57 Autoinducer 2-degrading protein lsrG", prot1.getDescription());
 		
@@ -99,17 +99,17 @@ public class DataAccessorTest extends TestCase {
 	@Test
 	public void testSpecies() {
 		// Get single species.
-		Species species = dataAccessor.getSingleSpecies(SpeciesProperty.NAME, "Escherichia coli (species)");
-		assertEquals("Escherichia coli (species)", species.getName());
+		Taxon taxon = dataAccessor.getTaxon(TaxonProperty.IDENTIFIER, "Escherichia coli (species)");
+		assertEquals("Escherichia coli (species)", taxon.getIdentifier());
 
 		// Test connected proteins		
-		Iterator<Protein> iter = species.getProteins().iterator();
+		Iterator<Protein> iter = taxon.getProteins().iterator();
 		List<Protein> proteins = new ArrayList<Protein>();
 		
 		while(iter.hasNext()) {
 			proteins.add(iter.next());
 		}
-		assertEquals("P0A954", proteins.get(0).getAccession());
+		assertEquals("P0A954", proteins.get(0).getIdentifier());
 		assertEquals(14, proteins.size());
 	}
 	
@@ -123,13 +123,12 @@ public class DataAccessorTest extends TestCase {
 	public void testPSMs() {
 		PeptideSpectrumMatch psm = dataAccessor.getSinglePSM(PsmProperty.SPECTRUMID, 1081621L);
 		assertEquals((Long) 1081621L, psm.getSpectrumID());
-		assertEquals((Integer) 1, psm.getVotes());
 	}
 	
 	@Test
 	public void testEnzymes() {
-		Enzyme enzyme = dataAccessor.getSingleEnzyme(EnzymeProperty.ECNUMBER, "4.1.1.15");
-		assertEquals("4.1.1.15", enzyme.getECNumber());
+		Enzyme enzyme = dataAccessor.getSingleEnzyme(EnzymeProperty.IDENTIFIER, "4.1.1.15");
+		assertEquals("4.1.1.15", enzyme.getIdentifier());
 		
 		// Test connected proteins		
 		Iterator<Protein> iter = enzyme.getProteins().iterator();
@@ -138,15 +137,15 @@ public class DataAccessorTest extends TestCase {
 		while(iter.hasNext()) {
 			proteins.add(iter.next());
 		}
-		assertEquals("Q8FHG5", proteins.get(0).getAccession());
+		assertEquals("Q8FHG5", proteins.get(0).getIdentifier());
 		assertEquals(6, proteins.size());
 		
 	}
 	
 	@Test
 	public void testPathways() {
-		Pathway pathway = dataAccessor.getSinglePathway(PathwayProperty.KONUMBER, "K02358");
-		assertEquals("K02358", pathway.getKONumber());
+		Pathway pathway = dataAccessor.getSinglePathway(PathwayProperty.IDENTIFIER, "K02358");
+		assertEquals("K02358", pathway.getIdentifier());
 		
 		// Test connected proteins		
 		Iterator<Protein> iter = pathway.getProteins().iterator();
@@ -155,14 +154,14 @@ public class DataAccessorTest extends TestCase {
 		while(iter.hasNext()) {
 			proteins.add(iter.next());
 		}
-		assertEquals("A7ZSL4", proteins.get(0).getAccession());
+		assertEquals("A7ZSL4", proteins.get(0).getIdentifier());
 		assertEquals(4, proteins.size());
 	}
 	
 	@Test
 	public void testOntologies() {
 		Ontology ontology = dataAccessor.getSingleOntology(OntologyProperty.KEYWORD, "Protein biosynthesis");
-		assertEquals("Protein biosynthesis", ontology.getKeyword());
+		assertEquals("Protein biosynthesis", ontology.getIdentifier());
 		
 		// Test connected proteins		
 		Iterator<Protein> iter = ontology.getBiologicalProcessProteins().iterator();
@@ -171,7 +170,7 @@ public class DataAccessorTest extends TestCase {
 		while(iter.hasNext()) {
 			proteins.add(iter.next());
 		}
-		assertEquals("A7ZSL4", proteins.get(0).getAccession());
+		assertEquals("A7ZSL4", proteins.get(0).getIdentifier());
 		assertEquals(4, proteins.size());
 	}
 

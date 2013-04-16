@@ -5,29 +5,26 @@ import com.tinkerpop.frames.Adjacency;
 import com.tinkerpop.frames.Property;
 import com.tinkerpop.frames.VertexFrame;
 
-public interface Species extends VertexFrame {
+public interface Taxon extends VertexFrame {
 
-	@Property("NAME")
-	public String getName();
+	@Property("IDENTIFIER")
+	public String getIdentifier();
 	
-	@Property("TAXON")
-	public String getTaxon();
+	@Property("TAXID")
+	public String getTaxID();
 	
 	@Property("RANK")
 	public String getRank();
 	
-	@Property("DESCRIPTION")
-	public String getDescription();
-	
 	@Adjacency(label="BELONGS_TO")
-	public Species getSuperspecies();
+	public Taxon getParentTaxon();
 	
 	@Adjacency(label="IS_PARENT_OF", direction=Direction.IN)
-	public Iterable<Species> getSubspecies();
+	public Iterable<Taxon> getChildTaxa();
 	
 	@Adjacency(label="BELONGS_TO", direction=Direction.IN)
 	public Iterable<Protein> getProteins();
 	
-	@Property("NAME")
+	@Property("IDENTIFIER")
 	public String toString();
 }
