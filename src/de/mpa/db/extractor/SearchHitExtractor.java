@@ -9,6 +9,7 @@ import java.util.Map;
 
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Inspecthit;
+import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.XTandemhit;
@@ -23,6 +24,7 @@ public class SearchHitExtractor {
 		searchHits.addAll(Omssahit.getHitsFromExperimentID(experimentID, conn));
 		searchHits.addAll(Cruxhit.getHitsFromExperimentID(experimentID, conn));
 		searchHits.addAll(Inspecthit.getHitsFromExperimentID(experimentID, conn));
+		searchHits.addAll(Mascothit.getHitsFromExperimentID(experimentID, conn));
 		
 		for (SearchHit searchHit : searchHits) {			
 			MAP.put(searchHit.getFk_searchspectrumid(), true);

@@ -3,8 +3,8 @@ package de.mpa.graphdb.access;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import de.mpa.graphdb.edges.DirectionType;

@@ -218,11 +218,6 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	private DbSearchResult dbSearchResult;
 	
-
-	public DbSearchResult getDbSearchResult() {
-		return dbSearchResult;
-	}
-
 	/**
 	 * Protein table.
 	 */
@@ -362,6 +357,7 @@ public class DbSearchResultPanel extends JPanel {
 	 * Import file.
 	 */
 	protected File importFile;
+	
 	
 	/**
 	 * Constructor for a database results panel.
@@ -927,6 +923,19 @@ public class DbSearchResultPanel extends JPanel {
 						e.printStackTrace();
 					}
 				
+					
+					//*********************************************************//
+					//FIXME: GRAPH DATABASE IMPLEMENTATION
+					// Starts the graph database.
+//					GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
+//					DataInserter dataInserter = new DataInserter(graphDb.getService());
+//					dataInserter.setData(dbSearchResult);
+//					
+//					dataInserter.insert();
+//					dataInserter.exportGraph(new File("Test.graphml"));
+//					graphDb.shutDown();
+					//*********************************************************//
+					
 					// Enable export functionality
 					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
 
@@ -972,6 +981,7 @@ public class DbSearchResultPanel extends JPanel {
 		final JCheckBox selChk = new TriStateCheckBox(2, -1) {
 			@Override
 			public boolean isPartiallySelected() {
+				
 //				if (dbSearchResult != null) {
 //					List<ProteinHit> hitList = dbSearchResult.getProteinHitList();
 //					boolean res = hitList.isEmpty();
@@ -989,6 +999,7 @@ public class DbSearchResultPanel extends JPanel {
 				return false;
 			}
 		};
+			
 		selChk.setPreferredSize(new Dimension(15, 15));
 		selChk.setSelected(true);
 		selChk.setOpaque(false);
@@ -1957,6 +1968,7 @@ public class DbSearchResultPanel extends JPanel {
 	private final int PSM_OMSSA 	= 5;
 	private final int PSM_CRUX 		= 6;
 	private final int PSM_INSPECT 	= 7;
+	private final int PSM_MASCOT 	= 8;
 
 	private ValueHolder coverageSelectionModel = new ValueHolder(-1);
 	
@@ -1968,7 +1980,7 @@ public class DbSearchResultPanel extends JPanel {
 		final TableModel psmTblMdl = new DefaultTableModel() {
 			{
 				setColumnIdentifiers(new Object[] { "", "#", "z", "Votes", "X",
-						"O", "C", "I" });
+						"O", "C", "I", "M" });
 			}
 
 			public boolean isCellEditable(int row, int col) {
@@ -1987,6 +1999,7 @@ public class DbSearchResultPanel extends JPanel {
 				case PSM_OMSSA:
 				case PSM_CRUX:
 				case PSM_INSPECT:
+				case PSM_MASCOT:
 					return Double.class;
 //				case PSM_SEQUENCE:
 				default: 
@@ -2012,7 +2025,8 @@ public class DbSearchResultPanel extends JPanel {
 				if (col == convertColumnIndexToModel(PSM_XTANDEM) ||
 						col == convertColumnIndexToModel(PSM_OMSSA) ||
 						col == convertColumnIndexToModel(PSM_CRUX) ||
-						col == convertColumnIndexToModel(PSM_INSPECT)) {
+						col == convertColumnIndexToModel(PSM_INSPECT) ||
+						col == convertColumnIndexToModel(PSM_MASCOT)) {
 					int row = rowAtPoint(me.getPoint());
 					if (row != -1) {
 						return df.format(getValueAt(row, col));
@@ -2036,7 +2050,7 @@ public class DbSearchResultPanel extends JPanel {
 		};
 		
 		// adjust column widths
-		TableConfig.setColumnWidths(psmTbl, new double[] { 0, 1, 1, 2, 1, 1, 1, 1 });
+		TableConfig.setColumnWidths(psmTbl, new double[] { 0, 1, 1, 2, 1, 1, 1, 1 ,1 });
 		
 		// Get table column model
 		final TableColumnModel tcm = psmTbl.getColumnModel();
@@ -2050,7 +2064,8 @@ public class DbSearchResultPanel extends JPanel {
 			    "X!Tandem Confidence",
 			    "Omssa Confidence",
 			    "Crux Confidence",
-			    "InsPecT Confidence" };
+			    "InsPecT Confidence",
+			    "Mascot Confidence"};
 		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 		psmTbl.setTableHeader(ch);
 		
@@ -2086,6 +2101,8 @@ public class DbSearchResultPanel extends JPanel {
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_BLUE, ColorUtils.LIGHT_BLUE));
 		((TableColumnExt) tcm.getColumn(PSM_INSPECT)).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
+		((TableColumnExt) tcm.getColumn(PSM_MASCOT)).addHighlighter(new BarChartHighlighter(
+				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
 		
 		// Make table always sort primarily by selection state of selection column
 		final SortKey selKey = new SortKey(PSM_SELECTION, SortOrder.DESCENDING);
@@ -2304,13 +2321,16 @@ public class DbSearchResultPanel extends JPanel {
 				for (ProteinHit proteinHit : metaProtein) {
 					// Extract species string from description
 					String desc = proteinHit.getDescription();
-					String[] split = desc.split(" OS=");
-					if (split.length > 1) {
-						proteinHit.setDescription(split[0]);
-						String species = (split[1].contains(" GN=")) ?
-								split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
-						proteinHit.setSpecies(species);
+					if (desc != null) {
+						String[] split = desc.split(" OS=");
+						if (split.length > 1) {
+							proteinHit.setDescription(split[0]);
+							String species = (split[1].contains(" GN=")) ?
+									split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
+							proteinHit.setSpecies(species);
+						}
 					}
+					
 					// Calculate NSAF
 					double nsaf = proteinHit.getNSAF();
 					if (nsaf < 0.0) {
@@ -2337,7 +2357,7 @@ public class DbSearchResultPanel extends JPanel {
 						proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
 						// Get minimal identity for the protein
-						if (proteinHit.getSequence().length() <= 5000) {
+						if (proteinHit.getSequence().length() > 0 && proteinHit.getSequence().length() <= 5000) {
 							for (ProteinHit furtherproteinHit : metaProtein) {
 								if (furtherproteinHit.getSequence().length() <= 5000) {
 									Alignment align = SmithWatermanGotoh.align(
@@ -2981,7 +3001,7 @@ public class DbSearchResultPanel extends JPanel {
 				for (SpectrumMatch sm : spectrumMatches) {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 					List<SearchHit> searchHits = psm.getSearchHits();
-					double[] qValues = { 0.0, 0.0, 0.0, 0.0 };
+					double[] qValues = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 					for (SearchHit searchHit : searchHits) {
 						switch (searchHit.getType()) {
 						case XTANDEM:
@@ -2992,6 +3012,8 @@ public class DbSearchResultPanel extends JPanel {
 							qValues[2] = 1.0 - searchHit.getQvalue().doubleValue(); break;
 						case INSPECT:
 							qValues[3] = 1.0 - searchHit.getQvalue().doubleValue(); break;
+						case MASCOT:
+							qValues[4] = 0.95; break; // TODO Robbie Find Qvalue for MASCOT
 						}
 					}
 					maxVotes = Math.max(maxVotes, psm.getVotes());
@@ -3003,7 +3025,8 @@ public class DbSearchResultPanel extends JPanel {
 							qValues[0],
 							qValues[1],
 							qValues[2],
-							qValues[3]});
+							qValues[3],
+							qValues[4]});
 				}
 
 				FontMetrics fm = getFontMetrics(chartFont);
@@ -3624,5 +3647,17 @@ public class DbSearchResultPanel extends JPanel {
 	 * Gets the dbSearchResult Object.
 	 * @return dbSearchResult 
 	 */
+	public DbSearchResult getDbSearchResult() {
+		return dbSearchResult;
+	}
 
+	
+
+	/**
+	 * Gets the protein result table
+	 */
+	public JXTable getProteinTbl() {
+		return proteinTbl;
+	}
+	
 }

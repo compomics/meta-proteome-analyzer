@@ -14,7 +14,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 
 	// The NSAF
-	private double nSAF;
+	private double nSAF = 0.0;
 
 	@Override
 	public double getResult() {
@@ -34,7 +34,12 @@ public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 			for ( PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 				pepSum += peptideHit.getSpectralCount();
 			}
-			protSum += pepSum / proteinHit.getSequence().length();
+			// Check for missing protein sequence 
+				if (proteinHit.getSequence() != null && proteinHit.getSequence().length() > 0 ) {
+					protSum += pepSum / proteinHit.getSequence().length();
+				}
+				
+
 		}
 
 		// Calculate the number of spectrum matches weighted by sequence length for protein of interest
@@ -42,9 +47,19 @@ public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 		for (PeptideHit peptideHitofInterest : proteinHitOfInterest.getPeptideHitList()) {
 			protOfInterestSum += peptideHitofInterest.getSpectralCount();
 		}
-		protOfInterestSum /= proteinHitOfInterest.getSequence().length();
-
-		// Calculate  NSAF
-		nSAF = protOfInterestSum / protSum;
+		
+		// Check for no protein sequence 
+		if (proteinHitOfInterest.getSequence() != null && proteinHitOfInterest.getSequence().length() > 0 ) {
+			protOfInterestSum /= proteinHitOfInterest.getSequence().length();
+			// Calculate  NSAF
+			nSAF = protOfInterestSum / protSum;
+		}else{
+			nSAF = 0.0;
+		}
+			
+		
+			
+		
+		
 	}
 }

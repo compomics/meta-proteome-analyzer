@@ -1,17 +1,35 @@
 package de.mpa.db.accessor;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 
-public class Mascothit extends MascothitTableAccessor implements SearchHit{
-	
+/**
+ * This class holds the results of a Mascot hit
+ * @author F. Kohrs and R. Heyer
+ */
+public class Mascothit extends MascothitTableAccessor implements SearchHit {
+
+	// The AS sequence of the search hit
 	private String sequence;
+	
+	// The accession of the search hit.
 	private String accession;
+	
+	// The title of the search hit
+	private String title;
+	
+	/**
+	 * Default constructor for parsing of mascot dat.files
+	 */
+	public Mascothit(){
+	}
 	
     /**
      * This constructor reads the spectrum file from a resultset. The ResultSet should be positioned such that a single
@@ -21,11 +39,15 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit{
      * @throws SQLException when reading the ResultSet failed.
      */
     public Mascothit(ResultSet aRS) throws SQLException {
-        super(aRS);
+        super(aRS); 
         this.sequence = (String) aRS.getObject("sequence");
         this.accession = (String) aRS.getObject("accession");
     }
     
+	public Mascothit(HashMap<Object, Object> hitdata) {
+		super(hitdata);  
+	}
+
 	/**
      * This method will find the hits from the current connection, based on the specified spectrumid.
      *
@@ -36,15 +58,15 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit{
      */
     public static List<Mascothit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
     	List<Mascothit> temp = new ArrayList<Mascothit>();
-//TODO: Query Mascot hits
-//        PreparedStatement ps = aConn.prepareStatement("select o.*, p.sequence, pr.accession from omssahit o, peptide p, protein pr where o.fk_peptideid = p.peptideid and o.fk_proteinid = pr.proteinid and o.fk_searchspectrumid = ?");
-//        ps.setLong(1, aSpectrumID);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            temp.add(new Omssahit(rs));
-//        }
-//        rs.close();
-//        ps.close();
+    	//TODO check cast
+    	PreparedStatement ps =  aConn.prepareStatement("select i.*, p.sequence, pr.accession from mascothit i, peptide p, protein pr where i.fk_peptideid = p.peptideid and i.fk_proteinid = pr.proteinid and i.fk_searchspectrumid = ?");
+        ps.setLong(1, aSpectrumID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new Mascothit(rs));
+        }
+        rs.close();
+        ps.close();
         return temp;
     }
     
@@ -53,36 +75,37 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit{
      *
      * @param experimentID long with the experimentID.
      * @param conn DB connection.
-     * @return List of Mascot hits.
+     * @return List of Inspect hits.
      * @throws SQLException when the retrieval did not succeed.
      */
     public static List<Mascothit> getHitsFromExperimentID(long experimentID, Connection conn) throws SQLException {
     	List<Mascothit> temp = new ArrayList<Mascothit>();
-// TODO: Mascot hits...
-//    	PreparedStatement ps = conn.prepareStatement("select o.*, p.sequence, pr.accession from omssahit o, searchspectrum s, peptide p, protein pr where o.fk_peptideid = p.peptideid and o.fk_proteinid = pr.proteinid and s.searchspectrumid = o.fk_searchspectrumid and s.fk_experimentid = ?");
-//        ps.setLong(1, experimentID);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            temp.add(new Omssahit(rs));
-//        }
-//        rs.close();
-//        ps.close();
+    	PreparedStatement ps = conn.prepareStatement("select i.*, p.sequence, pr.accession from mascothit i, searchspectrum s, peptide p, protein pr where i.fk_peptideid = p.peptideid and i.fk_proteinid = pr.proteinid and s.searchspectrumid = i.fk_searchspectrumid and s.fk_experimentid = ?");
+        ps.setLong(1, experimentID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new Mascothit(rs));
+        }
+        rs.close();
+        ps.close();
         return temp;
     }
-
-	public String getSequence() {
-		return sequence;
-	}
-
-	public String getAccession() {
-		return accession;
-	}
-	
+    
 	@Override
 	public SearchEngineType getType() {
 		return SearchEngineType.MASCOT;
 	}
-	
+
+	@Override
+	public String getSequence() {
+		return sequence;
+	}
+
+	@Override
+	public String getAccession() {
+		return accession;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SearchHit) {
@@ -98,15 +121,28 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit{
 		return false;
 	}
 
+	/**
+	 * Gets the title of the Mascot query
+	 * @return The title of the Mascot query
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * Sets the title of the Mascot query
+	 * @param title
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	@Override
 	public Number getQvalue() {
-		// e-value instead of q-value: no default target-decoy searching used in Mascot here.
-		return iEvalue;
+		return null;
 	}
 
-	@Override
-	public long getCharge() {
-		return iCharge;
-	}
+	
+	
+
 }
-

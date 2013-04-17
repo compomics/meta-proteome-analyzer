@@ -108,6 +108,11 @@ public class FilePanel extends JPanel {
 	private JPanel histPnl;
 	private JXMultiSplitPane split;
 	
+	// Selected past of the .mgf or .dat File
+	private String selPath = "test/de/mpa/resources/";
+	// Selected file of the .mgf or .dat File
+	private File selFile = null;
+	
 	private JButton nextBtn;
 	
 	protected MascotGenericFileReader reader;
@@ -462,10 +467,9 @@ public class FilePanel extends JPanel {
 		
 		// register listeners
 		addBtn.addActionListener(new ActionListener() {
-			private String path = "test/de/mpa/resources/";	
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File startLocation = new File(path);
+				File startLocation = new File(selPath);
 				
 				JFileChooser fc = new JFileChooser(startLocation);
 				fc.setFileFilter(new MultiExtensionFileFilter(
@@ -480,10 +484,6 @@ public class FilePanel extends JPanel {
 				int result = fc.showOpenDialog(clientFrame);
 				if (result == JFileChooser.APPROVE_OPTION) {
 					new AddFileWorker(fc.getSelectedFiles()).execute();
-				}
-				File selFile = fc.getSelectedFile();
-				if (selFile != null) {
-					path = selFile.getParent();
 				}
 			}
 		});
@@ -775,6 +775,12 @@ public class FilePanel extends JPanel {
 					mascotParams.put("missClv",
 							new Parameter(null, parameters.getPFA(), "General", null));
 					// TODO: getCleavage() does not return number of missed cleavages allowed, find proper parameter
+					//TODO allow to add several files
+					selFile = file;
+					if (selFile != null) {
+						selPath = selFile.getParent();
+					}
+				
 				} else {
 					System.out.println("If you got here something went horribly wrong!");
 				}
@@ -989,6 +995,22 @@ public class FilePanel extends JPanel {
 		panel.setBorder(BorderFactory.createEtchedBorder());
 		
 		return panel;
+	}
+
+	/**
+	 * Gets the selected path of the .mgf or .dat file
+	 * @return The selected path of the .mgf or .dat file
+	 */
+	public String getSelPath() {
+		return selPath;
+	}
+
+	/**
+	 * Gets the selected file of the .mgf or .dat file
+	 * @return The selected file of the .mgf or .dat file
+	 */
+	public File getSelFile() {
+		return selFile;
 	}
 	
 }
