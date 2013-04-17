@@ -538,7 +538,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO mascothit (mascothitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, charge, ionscore, evalue, delta, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO mascothit (mascothitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, charge, ionscore, evalue, delta, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(iMascothitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

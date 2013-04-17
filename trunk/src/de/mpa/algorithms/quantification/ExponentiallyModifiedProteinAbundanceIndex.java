@@ -36,17 +36,23 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 		ArrayList<String> insilicoPeptides = new ArrayList<String>();
 		//TODO: # missed cleavages has to be taken from search parameters to avoid misscalculations 
 		//		or remove misscleaved peptides from calculation.
-		insilicoPeptides= trypsin.digest(proteinHit.getSequence(), 0, 4, 1000);
-		
-		double pAI;
-		double peptideObserved = proteinHit.getPeptideCount();
-		//TODO Control PeptideCount to misscleavages
-		double peptideObservable = insilicoPeptides.size();
-		// Calculates the PAI
-		pAI = peptideObserved / peptideObservable;
+		if (proteinHit.getSequence() != null && proteinHit.getSequence().length() >0) {
+			insilicoPeptides= trypsin.digest(proteinHit.getSequence(), 0, 4, 1000);
+			double pAI;
+			double peptideObserved = proteinHit.getPeptideCount();
+			//TODO Control PeptideCount to misscleavages
+			double peptideObservable = insilicoPeptides.size();
+			// Calculates the PAI
+			pAI = peptideObserved / peptideObservable;
 
-		// Calculates the emPAI
-		emPAI = Math.pow(10, pAI) - 1;
+			// Calculates the emPAI
+			emPAI = Math.pow(10, pAI) - 1;
+		}else{
+			emPAI = 0.0;
+		}
+		
+		
+		
 	}
 
 	@Override

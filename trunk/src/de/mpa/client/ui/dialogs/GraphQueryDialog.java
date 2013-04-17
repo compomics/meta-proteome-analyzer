@@ -46,7 +46,6 @@ import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
-import de.mpa.graphdb.access.CypherQuery;
 import de.mpa.graphdb.access.CypherQueryFactory;
 
 /**

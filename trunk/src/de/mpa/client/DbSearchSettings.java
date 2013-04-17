@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="Omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="precursorIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *         &lt;element name="Mascot" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="decoy" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
@@ -48,7 +47,6 @@ import javax.xml.bind.annotation.XmlType;
     "omssa",
     "precursorIonTol",
     "xTandem",
-    "mascot",
     "decoy",
     "experimentid"
 })
@@ -67,8 +65,6 @@ public class DbSearchSettings {
     protected double precursorIonTol;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
-    @XmlElement(name = "Mascot")
-    protected boolean mascot;
     protected boolean decoy;
     protected long experimentid;
 
@@ -232,23 +228,7 @@ public class DbSearchSettings {
         this.xTandem = value;
     }
 
-    /**
-     * Gets the value of the mascot property.
-     * 
-     */
-    public boolean isMascot() {
-        return mascot;
-    }
-
-    /**
-     * Sets the value of the mascot property.
-     * 
-     */
-    public void setMascot(boolean value) {
-        this.mascot = value;
-    }
-
-    /**
+	/**
      * Gets the value of the decoy property.
      * 
      */

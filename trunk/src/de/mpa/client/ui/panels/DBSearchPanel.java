@@ -335,8 +335,6 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setOmssa(omssaChk.isSelected());
 		dbSettings.setCrux(cruxChk.isSelected());
 		dbSettings.setInspect(inspectChk.isSelected());
-		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
-		dbSettings.setMascot(mascotChk.isSelected());
 		
 		// Set the current experiment id for the database search settings.
 		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
@@ -435,5 +433,13 @@ public class DBSearchPanel extends JPanel {
 
 	public ParameterMap getMascotParameterMap() {
 		return mascotParams;
+	}
+	
+	/**
+	 * Gets the status of the mascot check box.
+	 * @return the mascot checkbox.
+	 */
+	public JCheckBox getMascotChk() {
+		return mascotChk;
 	}
 }

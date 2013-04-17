@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -461,15 +463,28 @@ public class AdvancedSettingsDialog extends JDialog {
 			DefaultFormBuilder builder = new DefaultFormBuilder(
 					new FormLayout(encodedColumnSpecs));
 			for (int i = 0; i < values.length; i++) {
+				JRadioButton radioButton = null;
 				for (int j = 0; j < values[0].length; j++) {
 					Object val = values[i][j];
-					if (val instanceof Boolean) {
-						JRadioButton radioButton = new JRadioButton(names[i], null, (Boolean) val);
+//					if (val instanceof Boolean) {
+					if (j == 0) {
+						radioButton = new JRadioButton(names[i], null, (Boolean) val);
 						radioButton.setIconTextGap(15);
 						radioButton.setToolTipText(tooltips[i]);
 						comp = radioButton;
-					} else if (val instanceof Number) {
-						comp = createParameterControl(new Parameter(param.getName(), val, param.getSection(), tooltips[i]));
+					} else {
+						if (val instanceof Number) {
+							comp = createParameterControl(new Parameter(param.getName(), val, param.getSection(), tooltips[i]));
+						}
+						comp.setEnabled((Boolean) values[i][0]);
+						final Component temp = comp;
+						radioButton.addItemListener(new ItemListener() {
+							@Override
+							public void itemStateChanged(ItemEvent evt) {
+								boolean sel = evt.getStateChange() == ItemEvent.SELECTED;
+								temp.setEnabled(sel);
+							}
+						});
 					}
 					builder.append(comp);
 				}
