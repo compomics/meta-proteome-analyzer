@@ -115,8 +115,11 @@ public class Client {
 	 * Flag denoting whether client is in viewer mode.
 	 */
 	private boolean viewer = false;
-
-	private GraphDatabase graphDb;
+	
+	/**
+	 * GraphDatabaseHandler.
+	 */
+	private GraphDatabaseHandler graphDatabaseHandler;
 
 	/**
 	 * Service to query UniProt.
@@ -821,26 +824,28 @@ public class Client {
 	 * Returns the GraphDatabaseHandler object.
 	 * @return The GraphDatabaseHandler object.
 	 */
-	public GraphDatabaseHandler getGraphDatabaseHandler() {
-		// Create a graph database.
-		if(graphDb == null){
-			graphDb = new GraphDatabase("target/graphdb", true);
+	private void setupGraphDatabaseContent() {
+		
+		// If graph database is already in use.
+		if (graphDatabaseHandler != null) {
+			// Shutdown old graph database.
+			graphDatabaseHandler.shutDown();
 		}
-
+		
+		// Create a new graph database.
+		GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
+		
 		// Setup the graph database handler. 
-		GraphDatabaseHandler graphDatabaseHandler = new GraphDatabaseHandler(graphDb.getService());
+		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
 		graphDatabaseHandler.setData(dbSearchResult);
-
-		return graphDatabaseHandler;
 	}
 
 	/**
-	 * Shutdown the graph database.
+	 * Returns the {@link GraphDatabaseHandler} object.
+	 * @return {@link GraphDatabaseHandler}
 	 */
-	public void shutdownGraphDatabase() {
-		if(graphDb != null){
-			graphDb.shutDown();
-		}
+	public GraphDatabaseHandler getGraphDatabaseHandler() {
+		return graphDatabaseHandler;
 	}
 
 	/**
@@ -856,6 +861,7 @@ public class Client {
 	 */
 	public void setDbSearchResult(DbSearchResult dbSearchResult) {
 		this.dbSearchResult = dbSearchResult;
+		setupGraphDatabaseContent();
 	}
 
 	/**
@@ -1195,12 +1201,13 @@ public class Client {
 	public void exit() {
 
 		// Shutdown the graph database
-		shutdownGraphDatabase();
+		if (graphDatabaseHandler != null) {
+			graphDatabaseHandler.shutDown();
+		}
 
 		try {
 			// Close SQL DB connection
 			closeDBConnection();
-
 
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),

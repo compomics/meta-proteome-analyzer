@@ -1,4 +1,6 @@
-package de.mpa.graphdb.access;
+package de.mpa.graphdb.cypher;
+
+import de.mpa.graphdb.access.OperatorType;
 
 /**
  * Class representing (part of) a conditional statement for use in Cyper queries.

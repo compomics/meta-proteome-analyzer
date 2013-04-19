@@ -732,6 +732,7 @@ public class ProjectPanel extends JPanel {
 		
 		// Enable input and results tabs
 		clientFrame.getTabPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
+		clientFrame.getTabPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, clientFrame.getFilePanel().hasFiles());
 		clientFrame.getTabPane().setEnabledAt(ClientFrame.RESULTS_PANEL, hasResults);
 		
 		// Enable navigation buttons

@@ -29,7 +29,7 @@ public class GraphDatabase {
 	}
 
 	/**
-	 * Constructor for starting a new neo4reactome database.
+	 * Constructor for starting a new graph database.
 	 * 
 	 * @param dbPath Database path.
 	 * @param cleanStart Condition whether to clear the database previously.

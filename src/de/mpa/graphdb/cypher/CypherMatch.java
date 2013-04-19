@@ -1,4 +1,4 @@
-package de.mpa.graphdb.access;
+package de.mpa.graphdb.cypher;
 
 import de.mpa.graphdb.edges.DirectionType;
 import de.mpa.graphdb.edges.RelationType;
@@ -22,6 +22,11 @@ public class CypherMatch {
 	private RelationType relation;
 	
 	/**
+	 * Variable specifying the relation.
+	 */
+	private String relationVar;
+	
+	/**
 	 * The direction of the relation.
 	 */
 	private DirectionType direction;
@@ -32,8 +37,9 @@ public class CypherMatch {
 	 * @param relation the relation type
 	 * @param direction the relation direction
 	 */
-	public CypherMatch(String targetVar, RelationType relation, DirectionType direction) {
+	public CypherMatch(String targetVar, RelationType relation, String relationVar, DirectionType direction) {
 		this.targetVar = targetVar;
+		this.relationVar = (relationVar == null) ? "" : relationVar;
 		this.relation = relation;
 		this.direction = direction;
 	}
@@ -42,7 +48,7 @@ public class CypherMatch {
 	public String toString() {
 		String match = "(" + getTargetVar() + ")";
 		if (relation != null) {
-			match += direction.getLeft() + "[:" + relation + "]" + direction.getRight();
+			match += direction.getLeft() + "[" + relationVar + ":" + relation + "]" + direction.getRight();
 		} else {
 			if (direction != null) {
 				match += direction.getLeft() + direction.getRight();

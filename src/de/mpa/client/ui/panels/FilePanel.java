@@ -58,6 +58,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.chart.ChartPanel;
 
 import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
@@ -1011,6 +1012,18 @@ public class FilePanel extends JPanel {
 	 */
 	public File getSelFile() {
 		return selFile;
+	}
+	
+	/**
+	 * Returns whether any files have been added to the panel.
+	 * @return
+	 */
+	public boolean hasFiles() {
+		if (treeTbl != null) {
+			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
+			return (root.getChildCount() > 0);
+		}
+		return false;
 	}
 	
 }

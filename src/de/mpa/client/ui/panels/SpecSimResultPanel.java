@@ -37,6 +37,7 @@ import javax.imageio.event.IIOWriteProgressListener;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -618,6 +619,7 @@ public class SpecSimResultPanel extends JPanel {
 		
 		// The label whose icon will be used to display the score matrix image
 		matLbl = new JLabel();
+		matLbl.setVerticalAlignment(SwingConstants.TOP);
 		
 		// Create color model mapping scores to a red-yellow-green-cyan-blue gradient
 		matrixColorModel = new ColorModel(32) {
@@ -731,37 +733,42 @@ public class SpecSimResultPanel extends JPanel {
 			NumberFormat formatter = new DecimalFormat("0.000");
 			@Override
 			public void mouseMoved(MouseEvent me) {
-				if (matLbl.getIcon() != null) {
-					BufferedImage image = (BufferedImage) ((ImageIcon) matLbl.getIcon()).getImage();
-					// Get top left corner coordinates of sub-image
-					int x = me.getX() - zoomWidth / 2;
-					int y = me.getY() - zoomHeight / 2;
-					// Account for borders
-					if (x < 0) {
-						x = 0;
-						zoomX = me.getX() % zoomWidth;
-					} else if (x + zoomWidth > image.getWidth()) {
-						x = image.getWidth() - zoomWidth;
-						zoomX = me.getX() + zoomWidth - image.getWidth();
-					} else {
-						zoomX = 3;
+				Icon icon = matLbl.getIcon();
+				if (icon != null) {
+					int mouseX = me.getX();
+					int mouseY = me.getY();
+					if ((mouseX < icon.getIconWidth()) && (mouseY < icon.getIconHeight())) {
+						BufferedImage image = (BufferedImage) ((ImageIcon) icon).getImage();
+						// Get top left corner coordinates of sub-image
+						int x = mouseX - zoomWidth / 2;
+						int y = mouseY - zoomHeight / 2;
+						// Account for borders
+						if (x < 0) {
+							x = 0;
+							zoomX = mouseX % zoomWidth;
+						} else if (x + zoomWidth > image.getWidth()) {
+							x = image.getWidth() - zoomWidth;
+							zoomX = mouseX + zoomWidth - image.getWidth();
+						} else {
+							zoomX = 3;
+						}
+						if (y < 0) {
+							y = 0;
+							zoomY = mouseY % zoomHeight;
+						} else if (y + zoomHeight > image.getHeight()) {
+							y = image.getHeight() - zoomHeight;
+							zoomY = mouseY + zoomHeight - image.getHeight();
+						} else {
+							zoomY = 3;
+						}
+						// Get cropped part of matrix
+						zoomImg = image.getSubimage(x, y, zoomWidth, zoomHeight);
+						zoomPnl.repaint();
+						// Get score value (stored in red color channel of pixel)
+						double red = ((specSimResult.getScoreMatrixImage().getRGB(
+								mouseX + 1, mouseY + 1) >> 16) & 0xFF) / 255.0;
+						infoTtf.setText(formatter.format(red));
 					}
-					if (y < 0) {
-						y = 0;
-						zoomY = me.getY() % zoomHeight;
-					} else if (y + zoomHeight > image.getHeight()) {
-						y = image.getHeight() - zoomHeight;
-						zoomY = me.getY() + zoomHeight - image.getHeight();
-					} else {
-						zoomY = 3;
-					}
-					// Get cropped part of matrix
-					zoomImg = image.getSubimage(x, y, zoomWidth, zoomHeight);
-					zoomPnl.repaint();
-					// Get score value (stored in red color channel of pixel)
-					double red = ((specSimResult.getScoreMatrixImage().getRGB(
-							me.getX() + 1, me.getY() + 1) >> 16) & 0xFF) / 255.0;
-					infoTtf.setText(formatter.format(red));
 				}
 			}
 		});

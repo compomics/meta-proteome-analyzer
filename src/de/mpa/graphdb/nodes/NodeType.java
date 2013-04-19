@@ -6,11 +6,30 @@ package de.mpa.graphdb.nodes;
  * @author T. Muth, A. Behne
  */
 public enum NodeType {
-	PROTEINS,
-	PEPTIDES,
-	PSMS,
-	ENZYMES,
-	PATHWAYS,
-	ONTOLOGIES,
-	TAXA;
+	
+	PROTEINS("Proteins"),
+	PEPTIDES("Peptides"),
+	PSMS("PSMs"),
+	ENZYMES("Enzymes"),
+	PATHWAYS("Pathways"),
+	ONTOLOGIES("Ontologies"),
+	TAXA("Taxa");
+	
+	/**
+	 * A descriptive string for the node type.
+	 */
+	private String description;
+
+	/**
+	 * Constructs a node type enum member from the specified description.
+	 * @param description the description
+	 */
+	private NodeType(String description) {
+		this.description = description;
+	}
+	
+	@Override
+	public String toString() {
+		return description;
+	}
 }
