@@ -1,4 +1,4 @@
-package de.mpa.graphdb.access;
+package de.mpa.graphdb.cypher;
 
 import de.mpa.graphdb.nodes.NodeType;
 import de.mpa.graphdb.properties.ElementProperty;

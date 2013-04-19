@@ -16,7 +16,6 @@ import junit.framework.TestCase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
@@ -46,7 +45,6 @@ public class DataAccessorTest extends TestCase {
 	
 	private DbSearchResult dbSearchResult;
 	private GraphDatabase graphDb;
-	private GraphDatabaseService service;
 	private DataAccessor dataAccessor;
 	
 	@BeforeClass
@@ -61,15 +59,12 @@ public class DataAccessorTest extends TestCase {
 			dbSearchResult = (DbSearchResult) ois.readObject();
 			// Create a graph database.
 			graphDb = new GraphDatabase("target/graphdb", true);
-			assertNotNull(graphDb);
-			service =  graphDb.getService();
-			assertNotNull(service);
 			
 			// Insert the data.
-			GraphDatabaseHandler graphDbHandler = new GraphDatabaseHandler(service);
+			GraphDatabaseHandler graphDbHandler = new GraphDatabaseHandler(graphDb);
 			graphDbHandler.setData(dbSearchResult);
 			
-			dataAccessor = graphDbHandler.getDataAccessor();
+			//dataAccessor = graphDbHandler.getDataAccessor();
 			assertNotNull(dataAccessor);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

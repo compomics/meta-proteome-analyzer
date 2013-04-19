@@ -1,5 +1,7 @@
 package de.mpa.graphdb.access;
 
+import de.mpa.graphdb.cypher.CypherQuery;
+
 /**
  * Enumeration holding various operators for use in conditional statements of Cypher queries.
  * @see CypherQuery

@@ -29,8 +29,10 @@ public class Starter {
 		UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
 		try {
 			// Set Plastic3DLook&Feel as default for all OS.
-			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue());
+			SkyBlue skyBlue = new SkyBlue();
+			Plastic3DLookAndFeel.setPlasticTheme(skyBlue);
 			UIManager.setLookAndFeel(Plastic3DLookAndFeel.class.getName());
+			
 			Options.setPopupDropShadowEnabled(false);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
@@ -15,9 +17,11 @@ import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Index;
+import com.tinkerpop.blueprints.IndexableGraph;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
@@ -26,6 +30,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.io.GraphMLHandler;
 import de.mpa.graphdb.nodes.NodeType;
@@ -37,15 +42,37 @@ import de.mpa.graphdb.properties.PeptideProperty;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
 import de.mpa.graphdb.properties.TaxonProperty;
+import de.mpa.graphdb.setup.GraphDatabase;
 
 /**
- * DataInserter provides the minimum of needed fields and methods for graph database insertions.
+ * GraphDatabaseHandler provides possibilities to insert data into the graph database.
+ * 
  * @author Thilo Muth
- * @date 2013-01-09
- * @version 0.6.1
+ * @date 2013-04-17
+ * @version 0.7.0
  *
  */
-public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
+public class GraphDatabaseHandler {
+	
+	/**
+	 *  Data to be inserted in the graph.
+	 */
+	private Object data;
+	
+	/**
+	 * By default, the first operation on a TransactionalGraph will start a transaction automatically.
+	 */
+	private TransactionalGraph graph;
+	
+	/**
+	 *  An IndexableGraph is a graph that supports the manual indexing of its elements.
+	 */
+	private IndexableGraph indexGraph;
+	
+	/**
+	 * GraphDatabase object.
+	 */
+	private GraphDatabase graphDb;
 	
 	private Index<Vertex> proteinIndex;
 	private Index<Vertex> peptideIndex;
@@ -55,9 +82,14 @@ public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
 	private Index<Vertex> pathwayIndex;
 	private Index<Vertex> ontologyIndex;
 	private Index<Edge> edgeIndex;
+
+	private ExecutionEngine engine;
 	
-	public GraphDatabaseHandler(GraphDatabaseService graphDb) {
-		super(graphDb);
+	
+	public GraphDatabaseHandler(GraphDatabase graphDb) {
+		this.graphDb = graphDb;
+		indexGraph = new Neo4jGraph(graphDb.getService());
+		graph = new Neo4jGraph(graphDb.getService());
 		setupIndices();
 		
 	}
@@ -75,8 +107,17 @@ public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
 	public void setData(Object data) {
 		this.data = data;
 		insert();
+		setupExecutionEngine();
 	}
 	
+	/**
+	 * Sets upd the execution engine.
+	 */
+	private void setupExecutionEngine() {
+		engine = new ExecutionEngine(graphDb.getService());
+		
+	}
+
 	/**
 	 * This method inserts the data into the graph database and stops the transaction afterwards.
 	 */
@@ -90,7 +131,7 @@ public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
 		}
 		
 		// Stop the transaction
-		stop();
+		stopTransaction();
 	}
 	
 	/**
@@ -366,6 +407,9 @@ public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
 		} 
 	}
 	
+	/**
+	 * Method sets up the indices graph.
+	 */
 	public void setupIndices() {
 		// Protein index
 		proteinIndex = indexGraph.getIndex(NodeType.PROTEINS.toString(), Vertex.class);
@@ -433,12 +477,42 @@ public class GraphDatabaseHandler extends AbstractGraphDatabaseHandler {
 		}
 	}
 
+	/**
+	 * Returns the graph database service.
+	 * @return {@link GraphDatabaseService}
+	 */
+	public GraphDatabaseService getGraphDatabaseService() {
+		return graphDb.getService();
+	}
+	
+	/**
+	 * Executes a cypher query {@link CypherQuery}.
+	 * @param cypherQuery {@link CypherQuery}
+	 * @return {@link ExecutionResult}
+	 * @throws Exception 
+	 */
+	public ExecutionResult executeCypherQuery(CypherQuery cypherQuery) throws Exception {
+		if (cypherQuery.isValid()) {
+			return engine.execute(cypherQuery.toString());
+		} else {
+			throw new Exception("Invalid Cypher Query");
+		}
+	}
 
-	public void stop() {
+	/**
+	 * Stops the transaction of a graph database.
+	 */
+	public void stopTransaction() {
 		graph.stopTransaction(Conclusion.SUCCESS);
 		((TransactionalGraph)indexGraph).stopTransaction(Conclusion.SUCCESS);
 		
 	}
 	
+	/**
+	 * Shuts down the graph database.
+	 */
+	public void shutDown() {
+		graphDb.shutDown();
+	}
 	
 }

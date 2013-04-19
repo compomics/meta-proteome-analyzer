@@ -156,11 +156,11 @@ public class InspectStorager extends BasicStorager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
-//			try {
-//				conn.commit();
-//			} catch (SQLException e1) {
-//				e1.printStackTrace();
-//			}
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		log.info("Inspect results stored to the DB.");

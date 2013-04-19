@@ -48,6 +48,16 @@ public class IconConstants {
 	public static final ImageIcon ADD_ROLLOVER_ICON = createRescaledIcon(ADD_ICON, 1.1f);
 	public static final ImageIcon ADD_PRESSED_ICON = createRescaledIcon(ADD_ICON, 0.8f);
 
+	/** <img src="../../../resources/icons/delete16.png"> */
+	public static final ImageIcon DELETE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/delete16.png"));
+	public static final ImageIcon DELETE_ROLLOVER_ICON = createRescaledIcon(DELETE_ICON, 1.1f);
+	public static final ImageIcon DELETE_PRESSED_ICON = createRescaledIcon(DELETE_ICON, 0.8f);
+
+	/** <img src="../../../resources/icons/plugin16.png"> */
+	public static final ImageIcon PLUGIN_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/plugin16.png"));
+	public static final ImageIcon PLUGIN_ROLLOVER_ICON = createRescaledIcon(PLUGIN_ICON, 1.1f);
+	public static final ImageIcon PLUGIN_PRESSED_ICON = createRescaledIcon(PLUGIN_ICON, 0.8f);
+
 	/** <img src="../../../resources/icons/update16.png"> */
 	public static final ImageIcon UPDATE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/update16.png"));
 	public static final ImageIcon UPDATE_ROLLOVER_ICON = createRescaledIcon(UPDATE_ICON, 1.1f);

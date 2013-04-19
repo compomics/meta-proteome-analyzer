@@ -42,7 +42,6 @@ public class GraphDatabaseResultPanel extends JPanel {
 	private SortableCheckBoxTreeTable treeTable;
 	protected Object filePnl;
 	private JButton getResultsBtn;
-	private SortableTreeTableModel sortableTreeTableModel;
 	private GraphDatabaseResultPanel panel;
 	private List<String> columnIdentifiers;
 	
@@ -101,8 +100,8 @@ public class GraphDatabaseResultPanel extends JPanel {
      */
     private void setupFirstDimTable() {
         // Query table
-        sortableTreeTableModel = new SortableTreeTableModel(new SortableCheckBoxTreeTableNode());
-		treeTable = new SortableCheckBoxTreeTable(sortableTreeTableModel);
+        treeTable = new SortableCheckBoxTreeTable(
+        		new SortableTreeTableModel(new SortableCheckBoxTreeTableNode()));
 		
         // register list selection listener
         treeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -134,18 +133,19 @@ public class GraphDatabaseResultPanel extends JPanel {
      * Method invoked when the Get Results button is pressed.
      */
     public void updateResults(ExecutionResult result) {
+
+        SortableCheckBoxTreeTableNode root = new SortableCheckBoxTreeTableNode();
+		SortableTreeTableModel model = new SortableTreeTableModel(root);
     	
     	List<String> resultColumns = result.columns();
     	columnIdentifiers = new ArrayList<String>();
-    	
-		int nodeCounter = 0;
+
+		boolean first = true;
 		
-		for(Map<String, Object> map : result) {
+		for (Map<String, Object> map : result) {
     		
-    		// TODO investigate result maps: entry order seems to be deterministic, but cannot be inferred from Cypher query alone
-			//Map<String, Object> map = new TreeMap<String, Object>((Map<String, Object>) resIter.next());
-		
-    		if (nodeCounter == 0) {
+			// Fill column identifiers list
+    		if (first) {
     			for (String col : resultColumns) {
     				Node graphNode = (Node) map.get(col);
     				for (String key : graphNode.getPropertyKeys()) {
@@ -171,19 +171,36 @@ public class GraphDatabaseResultPanel extends JPanel {
 			Object newChild = newPath.getPathComponent(0);
     		
 			// find node in existing tree to which (part of) the node chain shall be added
-    		MutableTreeTableNode insertionNode = (MutableTreeTableNode) findInsertionNode(
-    				(SortableCheckBoxTreeTableNode) sortableTreeTableModel.getRoot(), (TreeTableNode) newChild);
+    		MutableTreeTableNode insertionNode =
+    				(MutableTreeTableNode) findInsertionNode(root, (TreeTableNode) newChild);
     		// determine insertion depth
     		int depth = ((CheckBoxTreeTableNode) insertionNode).getPath().getPathCount() - 1;
     		// insert sub-chain as child of insertion node
     		MutableTreeTableNode node2insert = (MutableTreeTableNode) newPath.getPathComponent(depth);
-    		sortableTreeTableModel.insertNodeInto(node2insert, insertionNode, insertionNode.getChildCount());
+    		model.insertNodeInto(node2insert, insertionNode, insertionNode.getChildCount());
+//    		while (!node2insert.isLeaf()) {
+//    			MutableTreeTableNode child = (MutableTreeTableNode) node2insert.getChildAt(0);
+//    			child.removeFromParent();
+//    			model.insertNodeInto(child, node2insert, insertionNode.getChildCount());
+//    			node2insert = child;
+//    		}
     		
+    		first = false;
 		}
-    	sortableTreeTableModel.setColumnIdentifiers(columnIdentifiers);
+		model.setColumnIdentifiers(columnIdentifiers);
     	
+    	treeTable.setTreeTableModel(model);
 	}
     
+    /**
+	 * Convenience method to recursively find an existing tree node inside a
+	 * tree structure headed by the specified parent node into which the specified
+	 * child node shall be inserted.
+	 * 
+	 * @param parent the root of the tree (or subtree) structure
+	 * @param child2find the child to insert into the tree structure
+	 * @return the insertion node
+	 */
     private TreeTableNode findInsertionNode(TreeTableNode parent, TreeTableNode child2find) {
     	for (int i = 0; i < parent.getChildCount(); i++) {
 			TreeTableNode treeChild = parent.getChildAt(i);
@@ -193,7 +210,12 @@ public class GraphDatabaseResultPanel extends JPanel {
 		}
     	return parent;
     }
-
+    
+    /**
+     * Converts a graph-related node into a tree node for visualization.
+     * @param node Graph database node
+     * @return {@link SortableCheckBoxTreeTableNode}
+     */
 	private SortableCheckBoxTreeTableNode convertGraphToTreeNode(Node node) {
 		Object[] values = new Object[columnIdentifiers.size()];
 		for (String key : node.getPropertyKeys()) {

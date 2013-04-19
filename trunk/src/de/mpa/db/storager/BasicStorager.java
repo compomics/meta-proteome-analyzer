@@ -20,6 +20,7 @@ public abstract class BasicStorager implements Storager {
 	
 	@Override
 	public void run() {
+		// FIXME: Refactor run-methods in all subclasses!
 		this.load();
 		try {
 			this.store();

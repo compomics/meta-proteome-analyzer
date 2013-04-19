@@ -17,10 +17,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.setup.GraphDatabase;
@@ -50,10 +50,9 @@ public class ProteinQueryTest {
 			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
 			// Create a graph database.
 			graphDb = new GraphDatabase("target/graphdb", true);
-			GraphDatabaseService service = graphDb.getService();
 
 			// Insert the data.
-			graphDbHandler = new GraphDatabaseHandler(service);
+			graphDbHandler = new GraphDatabaseHandler(graphDb);
 			graphDbHandler.setData(dbSearchResult);
 			
 		} catch (FileNotFoundException e) {
@@ -67,7 +66,7 @@ public class ProteinQueryTest {
 	
 	@Before
 	public void setUp() {
-		cypherQuery = graphDbHandler.getCypherQuery();
+		cypherQuery = new CypherQuery(graphDbHandler.getGraphDatabaseService());
 		TestCase.assertNotNull(cypherQuery);
 	}
 	

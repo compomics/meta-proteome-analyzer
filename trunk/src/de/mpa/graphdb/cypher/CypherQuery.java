@@ -1,4 +1,4 @@
-package de.mpa.graphdb.access;
+package de.mpa.graphdb.cypher;
 
 import static org.neo4j.helpers.collection.MapUtil.map;
 
@@ -19,6 +19,7 @@ import org.neo4j.graphdb.Relationship;
 
 import de.mpa.graphdb.nodes.NodeType;
 import de.mpa.graphdb.properties.ElementProperty;
+import de.mpa.graphdb.properties.ProteinProperty;
 
 /**
  * Query class using the Cypher query language.
@@ -85,18 +86,18 @@ public class CypherQuery {
 		}
 		// Add matches, if any were defined
 		if (matches != null) {
-			statement += " MATCH ";
+			statement += "\nMATCH ";
 			for (CypherMatch match : matches) {
 				statement += match;
 			}
 		}
 		if (conditions != null) {
-			statement += " WHERE ";
+			statement += "\nWHERE ";
 			for (CypherCondition cond : conditions) {
 				statement += cond;
 			}
 		}
-		statement += " RETURN ";
+		statement += "\nRETURN ";
 		first = true;
 		for (Integer returnIndex : returnIndices) {
 			if (!first) {
@@ -252,7 +253,7 @@ public class CypherQuery {
 	 * @return Peptide node(s) ExecutionResult
 	 */
 	public ExecutionResult getUniquePeptidesForProtein(String accession) {
-		return engine.execute("START protein=node:proteins(IDENTIFIER = {accession}) " +
+		return engine.execute("START protein=node:" + NodeType.PROTEINS + "(" + ProteinProperty.IDENTIFIER + " = {accession}) " +
 				"MATCH (protein)-[:HAS_PEPTIDE]->(peptide) " +
 				"WITH peptide " +
 				"MATCH (peptide)<-[rel:HAS_PEPTIDE]-(protein2) " +
