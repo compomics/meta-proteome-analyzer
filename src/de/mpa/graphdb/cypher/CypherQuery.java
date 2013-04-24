@@ -32,7 +32,7 @@ public class CypherQuery {
 	 * The list of starting nodes of the query.
 	 */
 	private List<CypherStartNode> startNodes;
-	
+
 	/**
 	 * The list of match statements of the query.
 	 */
@@ -103,12 +103,29 @@ public class CypherQuery {
 			if (!first) {
 				statement += ", ";
 			}
-			statement += matches.get(returnIndex).getTargetVar();
+			statement += matches.get(returnIndex).getTargetVariableName();
 			first = false;
 		}
 		
 		return statement;
 	}
+
+	/**
+	 * Returns the list of start nodes.
+	 * @return the start nodes
+	 */
+	public List<CypherStartNode> getStartNodes() {
+		return startNodes;
+	}
+
+	/**
+	 * Returns the list of matches.
+	 * @return the matches
+	 */
+	public List<CypherMatch> getMatches() {
+		return matches;
+	}
+	
 	
 	/* only legacy code below this line - TODO: remove/refactor */
 
@@ -605,4 +622,5 @@ public class CypherQuery {
             }
         }
     }
+    
 }

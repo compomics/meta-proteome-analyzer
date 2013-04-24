@@ -44,9 +44,38 @@ public class CypherMatch {
 		this.direction = direction;
 	}
 
+	/**
+	 * Returns the targeted variable name.
+	 * @return the targeted variable name
+	 */
+	public String getTargetVariableName() {
+		return targetVar;
+	}
+
+	/**
+	 * @return the relationVar
+	 */
+	public String getRelationVariableName() {
+		return relationVar;
+	}
+
+	/**
+	 * @return the relation
+	 */
+	public RelationType getRelation() {
+		return relation;
+	}
+
+	/**
+	 * @return the direction
+	 */
+	public DirectionType getDirection() {
+		return direction;
+	}
+
 	@Override
 	public String toString() {
-		String match = "(" + getTargetVar() + ")";
+		String match = "(" + getTargetVariableName() + ")";
 		if (relation != null) {
 			match += direction.getLeft() + "[" + relationVar + ":" + relation + "]" + direction.getRight();
 		} else {
@@ -55,14 +84,6 @@ public class CypherMatch {
 			}
 		}
 		return match;
-	}
-
-	/**
-	 * Returns the targeted variable name.
-	 * @return the targeted variable name
-	 */
-	public String getTargetVar() {
-		return targetVar;
 	}
 
 }

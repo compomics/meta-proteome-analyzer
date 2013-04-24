@@ -8,6 +8,12 @@ import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.nodes.NodeType;
 import de.mpa.graphdb.properties.ProteinProperty;
 
+/**
+ * Factory class providing methods to generate various Cypher query objects.
+ * @see CypherQuery
+ * 
+ * @author A. Behne, T. Muth
+ */
 public class CypherQueryFactory {
 	
 	/**
@@ -16,7 +22,7 @@ public class CypherQueryFactory {
 	private CypherQueryFactory() {}
 	
 	/**
-	 * 
+	 * TODO: API
 	 * @return
 	 */
 	public static CypherQuery getProteinsByEnzymes() {
@@ -47,17 +53,17 @@ public class CypherQueryFactory {
 	public static CypherQuery getPeptidesByProteins() {
 		
 		List<CypherStartNode> startNodes = new ArrayList<CypherStartNode>();
-		startNodes.add(new CypherStartNode("protein", NodeType.PROTEINS, ProteinProperty.IDENTIFIER, "*"));
+		startNodes.add(new CypherStartNode("peptide", NodeType.PEPTIDES, ProteinProperty.IDENTIFIER, "*"));
 		
 		List<CypherMatch> matches = new ArrayList<CypherMatch>();
-		matches.add(new CypherMatch("protein", RelationType.HAS_PEPTIDE, null, DirectionType.OUT));
-		matches.add(new CypherMatch("peptide", null, null, null));
+		matches.add(new CypherMatch("peptide", RelationType.HAS_PEPTIDE, null, DirectionType.IN));
+		matches.add(new CypherMatch("protein", null, null, null));
 		
 		List<CypherCondition> conditions = null;
 		
 		List<Integer> returnIndices = new ArrayList<Integer>();
-		returnIndices.add(0);
 		returnIndices.add(1);
+		returnIndices.add(0);
 		
 		return new CypherQuery(startNodes, matches, conditions, returnIndices);
 	}

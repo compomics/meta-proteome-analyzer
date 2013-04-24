@@ -134,6 +134,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 					cbtsm.removeSelectionPath(path);
 				}
 				editorBox.setSelected(selected);
+				firePropertyChange("checkBoxSelectionChanged", false, true);
 				// TODO: can repaint() be avoided?
 				treeTable.repaint();
 			}
@@ -174,9 +175,11 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		treeTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent me) {
-				// force re-creation of editor on click
-				editCellAt(getRowForPath(getPathForLocation(me.getX(), me.getY())),
-						getHierarchicalColumn());
+				if (treeTable.columnAtPoint(me.getPoint()) == treeTable.getHierarchicalColumn()) {
+					// force re-creation of editor on click
+					editCellAt(getRowForPath(getPathForLocation(me.getX(), me.getY())),
+							getHierarchicalColumn());
+				}
 			}
 		});
 		

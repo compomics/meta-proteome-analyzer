@@ -19,12 +19,13 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.IndexableGraph;
 import com.tinkerpop.blueprints.TransactionalGraph;
-import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
@@ -111,7 +112,7 @@ public class GraphDatabaseHandler {
 	}
 	
 	/**
-	 * Sets upd the execution engine.
+	 * Initializes the execution engine instance.
 	 */
 	private void setupExecutionEngine() {
 		engine = new ExecutionEngine(graphDb.getService());
@@ -125,9 +126,17 @@ public class GraphDatabaseHandler {
 		if (data instanceof DbSearchResult) {
 			DbSearchResult dbSearchResult = (DbSearchResult) data;
 			List<ProteinHit> proteinHits = dbSearchResult.getProteinHitList();
-			for (ProteinHit protHit : proteinHits) {
-				addProtein(protHit);
+			
+			Client client = Client.getInstance();
+			client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE");
+			client.firePropertyChange("resetall", -1L, Long.valueOf(proteinHits.size()));
+			
+			for (ProteinHit proteinHit : proteinHits) {
+				addProtein(proteinHit);
+				client.firePropertyChange("progressmade", -1L, 0L);
 			}
+			
+			client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE FINISHED");
 		}
 		
 		// Stop the transaction
@@ -181,22 +190,22 @@ public class GraphDatabaseHandler {
 	 * @param proteinVertex Involved protein vertex (outgoing edge).
 	 */
 	private void addSpecies(String species, Vertex proteinVertex) {
-		Vertex speciesVertex = null;
-		// Check if peptide is already contained in the graph.
-		// TODO: Add more information on the species.
-		Iterator<Vertex> speciesIterator =
-				speciesIndex.get(TaxonProperty.IDENTIFIER.toString(), species).iterator();
-		if (speciesIterator.hasNext()) {
-			speciesVertex = speciesIterator.next();
-		} else {
-			// Create new vertex.
-			speciesVertex = graph.addVertex(null);
-			speciesVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
-			// Index the species by the species name.
-			speciesIndex.put(TaxonProperty.IDENTIFIER.toString(), species, speciesVertex);
+		if (species == null) {
+			species = "Unknown";
 		}
-		// Add edge between protein and species.
-		addEdge(proteinVertex, speciesVertex, RelationType.BELONGS_TO);
+		Vertex speciesVertex = null;
+		Iterator<Vertex> speciesIterator = speciesIndex.get(TaxonProperty.IDENTIFIER.toString(), species).iterator();
+			if (speciesIterator.hasNext()) {
+				speciesVertex = speciesIterator.next();
+			} else {
+				// Create new vertex.
+				speciesVertex = graph.addVertex(null);
+				speciesVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
+				// Index the species by the species name.
+				speciesIndex.put(TaxonProperty.IDENTIFIER.toString(), species, speciesVertex);
+			}
+			// Add edge between protein and species.
+			addEdge(proteinVertex, speciesVertex, RelationType.BELONGS_TO);
 	}
 	
 	/**

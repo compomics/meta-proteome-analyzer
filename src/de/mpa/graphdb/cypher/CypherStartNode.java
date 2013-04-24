@@ -12,7 +12,7 @@ import de.mpa.graphdb.properties.ElementProperty;
 public class CypherStartNode {
 	
 	/**
-	 * The variable name for the list of nodes.
+	 * The variable name for the (list of) node(s).
 	 */
 	private String varName;
 
@@ -47,6 +47,22 @@ public class CypherStartNode {
 		this.index = index;
 		this.property = property;
 		this.value = value;
+	}
+	
+	/**
+	 * Returns the variable name
+	 * @return the variable name
+	 */
+	public String getVariableName() {
+		return varName;
+	}
+
+	/**
+	 * Returns the node index reference.
+	 * @return the node index
+	 */
+	public NodeType getIndex() {
+		return index;
 	}
 
 	@Override

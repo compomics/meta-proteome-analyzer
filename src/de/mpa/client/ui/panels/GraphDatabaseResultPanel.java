@@ -78,7 +78,7 @@ public class GraphDatabaseResultPanel extends JPanel {
 		getResultsBtn.setFocusPainted(false);
 		getResultsBtn.addActionListener(new ActionListener() {			
 			@Override
-			public void actionPerformed(ActionEvent arg0) {				
+			public void actionPerformed(ActionEvent evt) {
 				new GraphQueryDialog(ClientFrame.getInstance(), panel, "Graph Database", true);
 			}
 		});

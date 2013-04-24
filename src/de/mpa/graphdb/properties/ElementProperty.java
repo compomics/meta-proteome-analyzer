@@ -7,6 +7,17 @@ package de.mpa.graphdb.properties;
  * @version 0.6.1
  */
 public interface ElementProperty {
+	
+	/**
+	 * The generic identifier property.
+	 */
+	public static final ElementProperty IDENTIFIER = new ElementProperty() {
+		@Override
+		public String toString() {
+			return "identifier";
+		}
+	};
+	
 	@Override
 	public String toString();
 }
