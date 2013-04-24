@@ -3,7 +3,7 @@ package de.mpa.graphdb.cypher;
 import de.mpa.graphdb.access.OperatorType;
 
 /**
- * Class representing (part of) a conditional statement for use in Cyper queries.
+ * Class representing (part of) a conditional statement for use in Cypher queries.
  * @see CypherQuery
  * 
  * @author T. Muth, A. Behne

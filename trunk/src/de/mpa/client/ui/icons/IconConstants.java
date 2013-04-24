@@ -58,6 +58,11 @@ public class IconConstants {
 	public static final ImageIcon PLUGIN_ROLLOVER_ICON = createRescaledIcon(PLUGIN_ICON, 1.1f);
 	public static final ImageIcon PLUGIN_PRESSED_ICON = createRescaledIcon(PLUGIN_ICON, 0.8f);
 
+	/** <img src="../../../resources/icons/textfield16.png"> */
+	public static final ImageIcon TEXTFIELD_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/textfield16.png"));
+	public static final ImageIcon TEXTFIELD_ROLLOVER_ICON = createRescaledIcon(TEXTFIELD_ICON, 1.1f);
+	public static final ImageIcon TEXTFIELD_PRESSED_ICON = createRescaledIcon(TEXTFIELD_ICON, 0.8f);
+
 	/** <img src="../../../resources/icons/update16.png"> */
 	public static final ImageIcon UPDATE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/update16.png"));
 	public static final ImageIcon UPDATE_ROLLOVER_ICON = createRescaledIcon(UPDATE_ICON, 1.1f);

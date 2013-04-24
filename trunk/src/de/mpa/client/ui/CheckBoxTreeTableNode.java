@@ -267,12 +267,14 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	}
 
 	/**
-     * Returns true if <code>anotherNode</code> is a sibling of (has the
-     * same parent as) this node.  A node is its own sibling.  If
-     * <code>anotherNode</code> is null, returns false.
+     * Returns the next sibling of this node in the parent's children array.
+     * Returns null if this node has no parent or is the parent's last child.
+     * This method performs a linear search that is O(n) where n is the number
+     * of children; to traverse the entire array, use the parent's child
+     * enumeration instead.
      *
-     * @param	anotherNode	node to test as sibling of this node
-     * @return	true if <code>anotherNode</code> is a sibling of this node
+     * @see     #children
+     * @return  the sibling of this node that immediately follows this node
      */
 	public CheckBoxTreeTableNode getNextSibling() {
 		CheckBoxTreeTableNode retval;

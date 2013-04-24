@@ -32,7 +32,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
 
@@ -276,12 +275,10 @@ public class GeneralDialog extends JDialog {
 		editPnl.add(deletePropertyBtn, CC.xy(5,9));
 		
 		// add panels into split pane
-		JSplitPane propertySpp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScp, editPnl);
+		JSplitPane propertySpp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, tableScp, editPnl);
 		propertySpp.setBorder(null);
-		propertySpp.setContinuousLayout(true);
 		propertySpp.setDividerSize(10);
-		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) propertySpp.getUI()).getDivider();
-		if (divider != null) { divider.setBorder(null); }
+		((BasicSplitPaneUI) propertySpp.getUI()).getDivider().setBorder(null);
 		
 		// Add split pane to property panel
 		propertyPnl.add(propertySpp, CC.xy(2,1));

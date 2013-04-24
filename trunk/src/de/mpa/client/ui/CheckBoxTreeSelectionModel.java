@@ -8,6 +8,8 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.jdesktop.swingx.treetable.TreeTableNode;
+
 /**
  * Tree selection model used with JTree containing checkboxes.<br>
  * Based upon <a href="http://www.jroller.com/santhosh/entry/jtree_with_checkboxes">
@@ -226,11 +228,6 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		return true;
 	}
 	
-//	@Override
-//	public void removeSelectionPath(TreePath path) {
-//		removeSelectionPaths(new TreePath[] { path });
-//	}
-
     @Override
 	public void removeSelectionPaths(TreePath[] paths) {
 		for (int i = 0; i < paths.length; i++) {
@@ -301,11 +298,13 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	private boolean isPathFixed(TreePath path, boolean dig) {
 		if (dig) {
 			Object node = path.getLastPathComponent();
-			int childCount = model.getChildCount(node);
+//			int childCount = model.getChildCount(node);
+			int childCount = ((TreeTableNode) node).getChildCount();
 			boolean fixed = ((CheckBoxTreeTableNode) node).isFixed();
 			if (!fixed) {
 				for (int i = 0; i < childCount; i++) {
-					Object childNode = model.getChild(node, i);
+//					Object childNode = model.getChild(node, i);
+					TreeTableNode childNode = ((TreeTableNode) node).getChildAt(i);
 					fixed |= isPathFixed(path.pathByAddingChild(childNode), true);
 				}
 			}

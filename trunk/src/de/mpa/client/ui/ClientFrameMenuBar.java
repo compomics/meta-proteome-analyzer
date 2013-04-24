@@ -21,6 +21,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
+
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.HeaderStyle;
@@ -418,9 +422,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 		
 		CellConstraints cc = new CellConstraints();
 
-		srvPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",		// col
-										"p, 3dlu, p, 3dlu, p, 5dlu"));	// row
-		srvPnl.setBorder(new TitledBorder("Server Configuration"));
+		srvPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
+										"p, 3dlu, p, 3dlu, p, 5dlu"));
+		srvPnl.setBorder(new TitledBorder("Server Address"));
 
 		srvSettings = client.getServerSettings();
 		srvHostTtf = new JTextField(8);
@@ -434,20 +438,23 @@ public class ClientFrameMenuBar extends JMenuBar {
 		srvPnl.add(new JLabel("Port:"), cc.xy(2,3));
 		srvPnl.add(srvPortTtf, cc.xy(4,3));
 
-		JButton startBtn = new JButton("Connect to server");	    
-		startBtn.addActionListener(new ActionListener() {			
+		JButton connectBtn = new JButton("Connect to server");	    
+		connectBtn.addActionListener(new ActionListener() {			
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				client.connect();
-				clientFrame.setConnectedToServer(true);
-				clientFrame.getSettingsPanel().getProcessButton().setEnabled(true);
-				JOptionPane.showMessageDialog(clientFrame, "Web Service @" + srvHostTtf.getText() + ":" + srvPortTtf.getText() + " established.");
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					client.connect();
+					clientFrame.setConnectedToServer(true);
+					clientFrame.getSettingsPanel().getProcessButton().setEnabled(true);
+					JOptionPane.showMessageDialog(clientFrame, "Web Service @" + srvHostTtf.getText() + ":" + srvPortTtf.getText() + " established.");
+				} catch (Exception e) {
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", "<html>Could not establish connection to specified server.<br>Please check your configuration and/or try again later.</html>", null, null, e, ErrorLevel.SEVERE, null));
+				}
 			}
 		});
 
-		srvPnl.add(startBtn, cc.xyw(2,5,3));
-		
-		
+		srvPnl.add(connectBtn, cc.xyw(2,5,3));
 		
 		return srvPnl;
 	}
