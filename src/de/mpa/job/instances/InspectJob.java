@@ -9,6 +9,7 @@ import de.mpa.job.Job;
 
 /**
  * This job executes an Inspect database search.
+ * http://proteomics.ucsd.edu/InspectDocs/Searching.html
  * @author Thilo Muth
  *
  */
@@ -32,18 +33,27 @@ public class InspectJob extends Job {
 	private File inputFile;
 	private File mgfFile;
 	private String searchDB;
+	private final double precIonTol;
+	private final double fragIonTol;
+	private final boolean isPrecIonTolPpm;
 
 	/**
 	 * Constructor for the InspectJob.
 	 * 
 	 * @param mgfFile
 	 * @param searchDB
+	 * @param isPrecIonTolPpm 
+	 * @param precIonTol 
+	 * @param fragIonTol 
 	 * @param decoy
 	 */
-	public InspectJob(File mgfFile, String searchDB) {
+	public InspectJob(File mgfFile, String searchDB, double precIonTol, boolean isPrecIonTolPpm, double fragIonTol) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB + ".RS.trie";
 		this.inspectFile = new File(JobConstants.INSPECT_PATH);
+		this.precIonTol = precIonTol;
+		this.isPrecIonTolPpm = isPrecIonTolPpm;
+		this.fragIonTol = fragIonTol;
 		buildInputFile();
 		initJob();
 	}
@@ -83,6 +93,14 @@ public class InspectJob extends Job {
 		procCommands.add("-o");
 		procCommands.add(JobConstants.INSPECT_RAW_OUTPUT_PATH + mgfFile.getName() + ".out");
 		
+		// Set precursor and fragment tolerance
+		if (isPrecIonTolPpm) {
+			procCommands.add("PMTolerance,"+ precIonTol);
+		}else {
+			procCommands.add("ParentPPM," + precIonTol);
+		}
+		procCommands.add("IonTolerance," + fragIonTol );
+		
 		procCommands.trimToSize();
 
 		setDescription("INSPECT");
@@ -92,5 +110,4 @@ public class InspectJob extends Job {
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);
 	}
-	
 }

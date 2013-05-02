@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="numMissedCleavages" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="Omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="precursorIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
+ *         &lt;element name="precursorIonUnit" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="decoy" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
@@ -46,6 +47,7 @@ import javax.xml.bind.annotation.XmlType;
     "numMissedCleavages",
     "omssa",
     "precursorIonTol",
+    "precursorIonUnit",
     "xTandem",
     "decoy",
     "experimentid"
@@ -63,6 +65,7 @@ public class DbSearchSettings {
     @XmlElement(name = "Omssa")
     protected boolean omssa;
     protected double precursorIonTol;
+    protected boolean precursorIonUnit;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
     protected boolean decoy;
@@ -148,7 +151,7 @@ public class DbSearchSettings {
         this.fragmentIonTol = value;
     }
 
-    /**
+	/**
      * Gets the value of the inspect property.
      * 
      */
@@ -213,6 +216,22 @@ public class DbSearchSettings {
     }
 
     /**
+     * Gets the precursor ion unit
+     * @return True for ppm and false for Da.
+     */
+    public boolean isPrecursorIonUnitPpm() {
+		return precursorIonUnit;
+	}
+
+    /**
+     * Sets the precursor ion unit
+     * @param precursorIonUnit. True for ppm and false for Da.
+     */
+	public void setPrecursorIonUnitPpm(boolean precursorIonUnit) {
+		this.precursorIonUnit = precursorIonUnit;
+	}
+
+	/**
      * Gets the value of the xTandem property.
      * 
      */
@@ -260,4 +279,5 @@ public class DbSearchSettings {
         this.experimentid = value;
     }
 
+    
 }

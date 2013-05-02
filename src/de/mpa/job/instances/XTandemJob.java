@@ -29,6 +29,7 @@ public class XTandemJob extends Job {
 	private String searchDB;
 	private double fragmentTol;
 	private double precursorTol;
+	// String of precursor ion tolerance unit ( ppm versus Da)
 	private String precursorUnit;	
 	private SearchType searchType;
 
@@ -39,12 +40,13 @@ public class XTandemJob extends Job {
 	 * @param precursorTol
 	 * @param precursorUnit
 	 */
-	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean precursorPPM, SearchType searchType) {
+	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean isPrecursorTolerancePpm, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.fragmentTol = fragmentTol;
 		this.precursorTol = precursorTol;
-		if(precursorPPM){ 
+		// Add units for fragments and precursors
+		if(isPrecursorTolerancePpm){ 
 			this.precursorUnit = "ppm";
 		} else {
 			this.precursorUnit = "Daltons";

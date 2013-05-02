@@ -140,7 +140,13 @@ public class DBSearchPanel extends JPanel {
 	 * Parameter map containing advanced settings for uploading imported Mascot search engine results.
 	 */
 	private ParameterMap mascotParams = new MascotParameters();
+
 	
+	/**
+	 * Checkbox for the units of the precursor tolerance
+	 */
+	private JComboBox precTolCbx;
+
 	/**
 	 * The default database search panel constructor.
 	 */
@@ -178,15 +184,16 @@ public class DBSearchPanel extends JPanel {
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
-		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 10.0, 0.1));
+		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 100.0, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.00"));
 		precTolSpn.setToolTipText("The precursor mass tolerance.");
+		precTolCbx = new JComboBox(Constants.TOLERANCE_UNITS);
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
 		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.00"));
 		fragTolSpn.setToolTipText("The fragment mass tolerance.");
-
+		
 		// Missed cleavages Spinner
 		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
@@ -200,7 +207,7 @@ public class DBSearchPanel extends JPanel {
 		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, cc.xy(6, 2));
-		paramsPnl.add(new JLabel("Da"), cc.xy(8, 2));
+		paramsPnl.add(precTolCbx, cc.xy(8, 2));
 		paramsPnl.add(new JLabel("Fragment Ion Tolerance:"), cc.xyw(2, 4, 3));
 		paramsPnl.add(fragTolSpn, cc.xy(6, 4));
 		paramsPnl.add(new JLabel("Da"), cc.xy(8, 4));
@@ -329,6 +336,7 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
 		dbSettings.setFragmentIonTol((Double) fragTolSpn.getValue());
 		dbSettings.setPrecursorIonTol((Double) precTolSpn.getValue());
+		dbSettings.setPrecursorIonUnitPpm(precTolCbx.getSelectedIndex()==1);
 		dbSettings.setNumMissedCleavages((Integer) missClvSpn.getValue());
 		// TODO: Unused parameter: Enzyme (settings.setEnzyme(value))
 		dbSettings.setXTandem(xTandemChk.isSelected());
@@ -443,4 +451,5 @@ public class DBSearchPanel extends JPanel {
 	public JCheckBox getMascotChk() {
 		return mascotChk;
 	}
+
 }
