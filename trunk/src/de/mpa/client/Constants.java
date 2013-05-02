@@ -103,6 +103,11 @@ public class Constants {
 	 */
 	public static final TreeNode KEGG_PATHWAY_ROOT = KeggMaps.readKeggTree(
 			Constants.class.getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
+	
+	/**
+	 * Units for precurcor and MS/MS tolerance
+	 */
+	public static final String[] TOLERANCE_UNITS = {"Da", "ppm"};
 
 //	public static final TreeNode KEGG_TAXONOMY_ROOT = KeggMaps.readKeggTree(new File("conf/keggTaxonomyMap.txt"));
 

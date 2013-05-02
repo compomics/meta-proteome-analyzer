@@ -119,6 +119,7 @@ public class ServerImpl implements Server {
 		String searchDB = dbSearchSettings.getFastaFile();
 		double fragIonTol = dbSearchSettings.getFragmentIonTol();
 		double precIonTol = dbSearchSettings.getPrecursorIonTol();
+		boolean isPrecIonTolPpm = dbSearchSettings.isPrecursorIonUnitPpm();
 		
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
@@ -138,12 +139,12 @@ public class ServerImpl implements Server {
 		
 		// X!Tandem job
 		if (dbSearchSettings.isXTandem()) {
-			Job xTandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
+			Job xTandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, isPrecIonTolPpm, SearchType.TARGET);
 			jobManager.addJob(xTandemJob);
 			// Decoy search only
 			if (dbSearchSettings.isDecoy()) {
 				// The X!Tandem decoy search is added here
-				Job xTandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.DECOY);
+				Job xTandemDecoyJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, isPrecIonTolPpm, SearchType.DECOY);
 				jobManager.addJob(xTandemDecoyJob);
 
 				// The score job evaluates X!Tandem target + decoy results
@@ -160,13 +161,13 @@ public class ServerImpl implements Server {
 		
 		// OMSSA job
 		if (dbSearchSettings.isOmssa()) {
-			Job omssaJob = new OmssaJob(file, searchDB, fragIonTol, precIonTol, false, SearchType.TARGET);
+			Job omssaJob = new OmssaJob(file, searchDB, fragIonTol,precIonTol, isPrecIonTolPpm, SearchType.TARGET);
 			jobManager.addJob(omssaJob);
 			
 			// Condition if decoy search is done here
 			if (dbSearchSettings.isDecoy()) {
 				// The Omssa decoy search is added here
-				Job omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, fragIonTol, precIonTol, false, SearchType.DECOY);
+				Job omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, fragIonTol, precIonTol, isPrecIonTolPpm, SearchType.DECOY);
 				jobManager.addJob(omssaDecoyJob);
 				
 				// The score job evaluates Omssa target + decoy results
@@ -185,7 +186,7 @@ public class ServerImpl implements Server {
 		if (dbSearchSettings.isCrux()) {
 			Job ms2FormatJob = new MS2FormatJob(file);
 			jobManager.addJob(ms2FormatJob);
-			Job cruxJob = new CruxJob(file, searchDB);
+			Job cruxJob = new CruxJob(file, searchDB, precIonTol, isPrecIonTolPpm);
 			jobManager.addJob(cruxJob);
 			Job percolatorJob = new PercolatorJob(file, searchDB);
 			jobManager.addJob(percolatorJob);
@@ -197,13 +198,12 @@ public class ServerImpl implements Server {
 		
 		// InsPecT job
 		if (dbSearchSettings.isInspect()) {
-			Job inspectJob = new InspectJob(file, searchDB);			
+			Job inspectJob = new InspectJob(file, searchDB, precIonTol, isPrecIonTolPpm, fragIonTol);			
 			jobManager.addJob(inspectJob);			
 			Job postProcessorJob = new PostProcessorJob(file, searchDB);			
 			jobManager.addJob(postProcessorJob);			
 			jobManager.addJob(new InspectStoreJob(postProcessorJob.getFilename()));
 		}
-	
 	}
 
 	private void addSpecSimSearchJob(List<MascotGenericFile> mgfList, SpecSimSettings sss) {

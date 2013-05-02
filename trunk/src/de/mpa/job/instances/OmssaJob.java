@@ -37,23 +37,24 @@ public class OmssaJob extends Job {
     // Mass tolerance for precursor
     private double precursorTol;
     
-    // Boolean if precursorUnit is PPM
-    private boolean precursorPPM;
 
     private String filename;
     
     private SearchType searchType;
     
+    // String of precursor ion tolerance unit ( ppm versus Da)
+    private boolean isPrecursorIonTolPpm;	
 	/**
-	 * Constructor for the XTandemJob retrieving the MGF file as the only parameter.
+	 * Constructor for the Ommsa retrieving the MGF file as the only parameter.
+	 * http://proteomicsresource.washington.edu/omssa.php
 	 * @param mgfFile
 	 */
-	public OmssaJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean precursorPPM, SearchType searchType) {
+	public OmssaJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean isPrecursorIonTolPpm, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.fragmentTol = fragmentTol;
 		this.precursorTol = precursorTol;
-		this.precursorPPM = precursorPPM;
+		this.isPrecursorIonTolPpm = isPrecursorIonTolPpm;
 		this.searchType = searchType;
 		
 		if(searchType == SearchType.DECOY){
@@ -76,6 +77,7 @@ public class OmssaJob extends Job {
         procCommands.add("-w");
 
         // FragmentTolerance
+        //http://pubchem.ncbi.nlm.nih.gov/omssa/run.htm
         procCommands.add("-to");
         procCommands.add(Double.toString(fragmentTol));
         
@@ -83,8 +85,10 @@ public class OmssaJob extends Job {
         procCommands.add("-te");
         procCommands.add(Double.toString(precursorTol));
        
-       // Unit PPM:
-       if(precursorPPM) procCommands.add("-teppm");        
+       // Add flag if unit of precursors is in PPM:
+       if(isPrecursorIonTolPpm){
+    	   procCommands.add("-teppm");        
+       }
 
         // Minimum charge of multiple charged ions
         procCommands.add("-zt");
