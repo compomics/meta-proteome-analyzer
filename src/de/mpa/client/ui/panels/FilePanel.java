@@ -12,6 +12,8 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
@@ -31,6 +33,7 @@ import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -38,6 +41,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
@@ -45,6 +49,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
@@ -60,6 +65,7 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 
 import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
 import com.compomics.mascotdatfile.util.mascot.Parameters;
@@ -77,15 +83,17 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.FileChooserDecorationFactory;
 import de.mpa.client.ui.MultiExtensionFileFilter;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
+import de.mpa.client.ui.FileChooserDecorationFactory.DecorationType;
 import de.mpa.client.ui.chart.HistogramChart;
-import de.mpa.client.ui.chart.HistogramChart.HistChartType;
 import de.mpa.client.ui.chart.HistogramData;
+import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
@@ -106,7 +114,8 @@ public class FilePanel extends JPanel {
 	private JButton clrBtn;	
 	private CheckBoxTreeTable treeTbl;
 	private JPanel specPnl;	
-	private JPanel histPnl;
+	private ChartPanel chartPnl;
+	private JScrollBar chartBar;
 	private JXMultiSplitPane split;
 	
 	// Selected past of the .mgf or .dat File
@@ -115,6 +124,7 @@ public class FilePanel extends JPanel {
 	private File selFile = null;
 	
 	private JButton nextBtn;
+	private JButton prevBtn;
 	
 	protected MascotGenericFileReader reader;
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
@@ -421,19 +431,56 @@ public class FilePanel extends JPanel {
 		spectrumTtlPnl.setMinimumSize(new Dimension(450, 350));
 		
 		// Panel containing histogram plot
-		histPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		histPnl.setMinimumSize(new Dimension(300, 250));
-		histPnl.setPreferredSize(new Dimension(300, 250));
+		chartPnl = createDefaultHistogramPanel();
 		
-		ChartPanel chartPanel = createDefaultHistogramPanel();
-		histPnl.add(chartPanel, CC.xy(2, 2));
+		JScrollPane chartScp = new JScrollPane(chartPnl,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		for (ChangeListener cl : chartScp.getViewport().getChangeListeners()) {
+			chartScp.getViewport().removeChangeListener(cl);
+		}
+		chartScp.getViewport().setBackground(Color.WHITE);
+
+		chartBar = chartScp.getVerticalScrollBar();
+		chartBar.setValues(1, 0, 1, 1);
+		chartBar.setBlockIncrement(36);
+		DefaultBoundedRangeModel chartBarMdl =
+				(DefaultBoundedRangeModel) chartBar.getModel();
+		ChangeListener[] cbcl = chartBarMdl.getChangeListeners();
+		chartBarMdl.removeChangeListener(cbcl[0]);
+
+		chartBar.addAdjustmentListener(new AdjustmentListener() {
+			public void adjustmentValueChanged(AdjustmentEvent evt) {
+				JFreeChart chart = chartPnl.getChart();
+				if (chart != null) {
+					int value = evt.getValue();
+					
+					Container cont = chartPnl.getParent();
+					
+					HistogramChart histogram = new HistogramChart(
+							new HistogramData(ticList, 40, 0, value), HistogramChartType.TOTAL_ION_HIST);
+					
+					chartPnl = new ChartPanel(histogram.getChart());
+					chartPnl.setPreferredSize(new Dimension(0, 0));
+					cont.removeAll();
+					cont.add(chartPnl, CC.xy(2, 2));
+					cont.validate();
+				}
+			}
+		});
+
+		// wrap scroll pane in panel with 5dlu margin around it
+		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p:g, 5dlu"));
+		chartMarginPnl.add(chartScp, CC.xy(2, 2));
 		
-		// wrap spectrum panel in titled panel
-		JXTitledPanel histTtlPnl = PanelConfig.createTitledPanel("Histogram", histPnl);
-		histTtlPnl.setMinimumSize(new Dimension(450, 350));
+		// wrap chart panel in titled panel
+		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel(
+				"Histogram", chartMarginPnl);
+		chartTtlPnl.setMinimumSize(new Dimension(450, 350));
 		
 		// add titled panels to split pane
-		String layoutDef = "(COLUMN top (ROW (LEAF weight=0.65 name=spectrum) (LEAF weight=0.35 name=histogram))";
+		String layoutDef = "(COLUMN top (ROW (LEAF weight=0.5 name=spectrum) (LEAF weight=0.5 name=histogram))";
 		MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
 		split = new JXMultiSplitPane() {
@@ -451,7 +498,7 @@ public class FilePanel extends JPanel {
 		split.getMultiSplitLayout().setModel(modelRoot);
 		split.add(topTtlPnl, "top");
 		split.add(spectrumTtlPnl, "spectrum");
-		split.add(histTtlPnl, "histogram");
+		split.add(chartTtlPnl, "histogram");
 		
 		// create panel containing navigation buttons
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
@@ -482,6 +529,7 @@ public class FilePanel extends JPanel {
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(true);
+				FileChooserDecorationFactory.decorate(fc, DecorationType.TEXT_PREVIEW);
 				int result = fc.showOpenDialog(clientFrame);
 				if (result == JFileChooser.APPROVE_OPTION) {
 					new AddFileWorker(fc.getSelectedFiles()).execute();
@@ -532,10 +580,13 @@ public class FilePanel extends JPanel {
 				specPnl.removeAll();
 				specPnl.add(spec, CC.xy(2, 2));
 				specPnl.validate();
-				ChartPanel hist = createDefaultHistogramPanel();
-				histPnl.removeAll();
-				histPnl.add(hist, CC.xy(2, 2));
-				histPnl.validate();
+
+				chartBar.setValues(1, 0, 1, 1);
+				Container cont = chartPnl.getParent();
+				chartPnl = createDefaultHistogramPanel();
+				cont.removeAll();
+				cont.add(chartPnl, CC.xy(2, 2));
+				cont.validate();
 				
 				// clear caches
 //				totalSpectraList.clear();
@@ -807,20 +858,13 @@ public class FilePanel extends JPanel {
 
 				String str = filesTtf.getText();
 				str = str.substring(0, str.indexOf(" "));
-				filesTtf.setText((Integer.parseInt(str) + files.length) + " file(s) added - " + ticList.size() + " spectra in total");
+				int size = ticList.size();
+				filesTtf.setText((Integer.parseInt(str) + files.length) + " file(s) added - " + size + " spectra in total");
 				
 				// show histogram
 				if (!ticList.isEmpty()) {
-					// TODO: Currently the histogram is shown for all files... would be better to show only for selected files (ticked spectra?).
-					histPnl.removeAll();
-					
-					HistogramChart histogram = new HistogramChart(new HistogramData(ticList, 40), HistChartType.TOTAL_ION_HIST);
-					
-					// create chart panel
-					ChartPanel chartPanel = new ChartPanel(histogram.getChart());
-					chartPanel.setPreferredSize(new Dimension(0, 0));
-					chartPanel.setBorder(BorderFactory.createEtchedBorder());
-					histPnl.add(chartPanel, CC.xy(2, 2));
+//					// TODO: Currently the histogram is shown for all files... would be better to show only for selected files (ticked spectra?).
+					chartBar.setValues(size, size / 10, 1, size);
 				}
 				
 				// enable navigation buttons and search settings tab
@@ -846,7 +890,6 @@ public class FilePanel extends JPanel {
 	 * Holds the previous enable states of the client frame's tabs.
 	 */
 	private boolean[] tabEnabled;
-	private JButton prevBtn;
 	
 	/**
 	 * Makes the frame and this panel appear busy.
@@ -964,7 +1007,7 @@ public class FilePanel extends JPanel {
 		}
 		
 		// TODO: determine bin size via formula
-		HistogramChart histogram = new HistogramChart(new HistogramData(ticList, binCount), HistChartType.TOTAL_ION_HIST);
+		HistogramChart histogram = new HistogramChart(new HistogramData(ticList, binCount, 0, ticList.size()), HistogramChartType.TOTAL_ION_HIST);
 		ChartPanel panel = new ChartPanel(histogram.getChart()) {
 			@Override
 			public void paint(Graphics g) {
@@ -993,7 +1036,7 @@ public class FilePanel extends JPanel {
 			}
 		};
 		panel.setPreferredSize(new Dimension(0, 0));
-		panel.setBorder(BorderFactory.createEtchedBorder());
+		panel.setBorder(BorderFactory.createEmptyBorder());
 		
 		return panel;
 	}

@@ -91,13 +91,15 @@ import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.PiePlot3DExt;
 import de.mpa.client.ui.chart.TaxonomyData;
+import de.mpa.client.ui.chart.TopData;
+import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
-import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
@@ -182,6 +184,11 @@ public class ResultsPanel extends JPanel {
 	 * Data container for 'Top 10 Proteins' chart.
 	 */
 	private TopData topData;
+	
+	/**
+	 * Data container for total ion current histogram chart.
+	 */
+	private HistogramData histogramData;
 
 	/**
 	 * Table containing expanded details for proteins selected/displayed in the
@@ -345,7 +352,7 @@ public class ResultsPanel extends JPanel {
 
 		JPanel generalPnl = new JPanel(
 				new FormLayout(
-						"5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
+						"5dlu, p, 5dlu, r:50px, 5dlu, 0px:g, 5dlu, r:25px, 5dlu, p, 5dlu",
 						"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
 		generalPnl.setBorder(BorderFactory
 				.createTitledBorder("General Statistics"));
@@ -468,7 +475,6 @@ public class ResultsPanel extends JPanel {
 	 * Creates and returns the top-right chart panel (wrapped in a
 	 * JXTitledPanel)
 	 */
-	@SuppressWarnings("unchecked")
 	private JPanel createChartPanel() {
 
 		// init chart types
@@ -478,7 +484,8 @@ public class ResultsPanel extends JPanel {
 				OntologyChartType.CELLULAR_COMPONENT,
 				TaxonomyChartType.KINGDOM, TaxonomyChartType.PHYLUM,
 				TaxonomyChartType.CLASS, TaxonomyChartType.SPECIES,
-				TopBarChartType.PROTEINS };
+				TopBarChartType.PROTEINS,
+				HistogramChartType.TOTAL_ION_HIST };
 
 		// create and configure button for chart type selection
 		chartTypeBtn = new JToggleButton(
@@ -994,9 +1001,12 @@ public class ResultsPanel extends JPanel {
 		} else if (chartType instanceof TaxonomyChartType) {
 			chart = ChartFactory.createTaxonomyPieChart(
 					taxonomyData, chartType);
-		} else {
+		} else if (chartType instanceof TopBarChartType) {
 			chart = ChartFactory.createTopBarChart(
 					topData, chartType);
+		} else if (chartType instanceof HistogramChartType) {
+			chart = ChartFactory.createHistogramChart(
+					histogramData, chartType);
 		}
 
 		if (chart != null) {
@@ -1016,6 +1026,8 @@ public class ResultsPanel extends JPanel {
 				hideChk.setVisible(false);
 			}
 			chartPnl.setChart(chart.getChart());
+		} else {
+			System.err.println("Chart type could not be determined!");
 		}
 
 		this.chartType = chartType;
@@ -1037,6 +1049,7 @@ public class ResultsPanel extends JPanel {
 	 */
 	private class UpdateTask extends SwingWorker {
 
+		@Override
 		protected Object doInBackground() {
 			DbSearchResult dbSearchResult = null;
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -1115,6 +1128,7 @@ public class ResultsPanel extends JPanel {
 					ontologyData = new OntologyData(dbSearchResult, hl);
 					taxonomyData = new TaxonomyData(dbSearchResult, hl);
 					topData = new TopData(dbSearchResult);
+					histogramData = new HistogramData(dbSearchResult, 40);
 
 					updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 				}

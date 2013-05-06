@@ -29,6 +29,7 @@ import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 
 public class FileChooserDecorationFactory {
 	
@@ -62,7 +63,12 @@ public class FileChooserDecorationFactory {
 	}
 	
 	public static void decorateWithTextPreview(JFileChooser fc, JComponent addComp) {
-		JPanel panel = new JPanel(new FormLayout("p:g", "t:p, 2dlu, f:p:g, 2dlu, b:p"));
+		FormLayout fl = new FormLayout("p:g", "t:p, 2dlu, f:p:g");
+		if (addComp != null) {
+			fl.appendRow(RowSpec.decode("2dlu"));
+			fl.appendRow(RowSpec.decode("b:p"));
+		}
+		JPanel panel = new JPanel(fl);
 		
 		final JTextArea textArea = new JTextArea() {
 			@Override
@@ -88,10 +94,12 @@ public class FileChooserDecorationFactory {
 		
 		panel.add(new JLabel("Preview"), CC.xy(1, 1));
 		panel.add(textPane, CC.xy(1, 3));
-		panel.add(addComp, CC.xy(1, 5));
+		if (addComp != null) {
+			panel.add(addComp, CC.xy(1, 5));
+		}
 		
-		BorderLayout layout = (BorderLayout) fc.getLayout();
-		Component fsv = layout.getLayoutComponent(BorderLayout.CENTER);
+		BorderLayout bl = (BorderLayout) fc.getLayout();
+		Component fsv = bl.getLayoutComponent(BorderLayout.CENTER);
 		Dimension fsvSize = fsv.getPreferredSize();
 		fsv.setPreferredSize(new Dimension(fsvSize.width - 100, fsvSize.height));
 		

@@ -1,5 +1,7 @@
 package de.mpa.client.model.dbsearch;
 
+import gnu.trove.map.hash.TLongDoubleHashMap;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,12 +52,15 @@ public class DbSearchResult implements Serializable {
 	 */
 	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 	
+	/**
+	 * The list of meta-proteins.
+	 */
 	private List<ProteinHitList> metaProteins = new ArrayList<ProteinHitList>();
 
 	/**
-	 * The total amount of spectra queried.
+	 * Map containing search spectrum id-to-TIC pairs
 	 */
-	private int totalSpectra;
+	private TLongDoubleHashMap ticMap;
 	
 	/**
 	 * The amount of spectra with peptide associations.
@@ -300,40 +305,28 @@ public class DbSearchResult implements Serializable {
 		this.searchEngines = searchEngines;
 	}
 
-//	/**
-//	 * Returns the {@link MascotGenericFile} associated with the specified search spectrum ID.
-//	 * @param specID the search spectrum ID.
-//	 * @return the spectrum file.
-//	 * @throws SQLException
-//	 */
-//	public MascotGenericFile getMgfFromSearchSpectrumID(long specID)
-//			throws SQLException {
-//		for (ProteinHit protHit : this.getProteinHitList()) {
-//			for (PeptideHit peptide : protHit.getPeptideHitList()) {
-//				SpectrumMatch match = peptide.getSpectrumMatch(specID);
-//				if (match != null) {
-//					return match.getMgf();
-//				}
-//			}
-//		}
-//		// fall back to database query 
-//		return Client.getInstance().getSpectrumFromSearchSpectrumID(specID);
-//	}
-	
 	/**
 	 * Returns the total amount of queried spectra.
 	 * @return the total spectral count.
 	 */
 	public int getTotalSpectrumCount() {
-		return totalSpectra;
+		return ticMap.size();
 	}
 	
 	/**
-	 * Sets the total amount of queried spectra.
-	 * @param totalSpectra the total spectral count.
+	 * Returns the total ion current map.
+	 * @return the total ion current map
 	 */
-	public void setTotalSpectrumCount(int totalSpectra) {
-		this.totalSpectra = totalSpectra;
+	public TLongDoubleHashMap getTotalIonCurrentMap() {
+		return ticMap;
+	}
+	
+	/**
+	 * Sets the total ion current map.
+	 * @param ticMap the total ion current map to set.
+	 */
+	public void setTotalIonCurrentMap(TLongDoubleHashMap ticMap) {
+		this.ticMap = ticMap;
 	}
 	
 	/**
