@@ -30,32 +30,42 @@ public class ChartFactory {
 	}
 	
 	/**
-	 * Returns an OntologyPieChart.
+	 * Returns an interactive pie chart displaying sections derived from keyword ontologies.
 	 * @param data Chart data
 	 * @param chartType Chart type
-	 * @return OntologyPieChart object.
+	 * @return an ontology pie chart
 	 */
 	public static OntologyPieChart createOntologyPieChart(ChartData data, ChartType chartType) {
 		return new OntologyPieChart(data, chartType);
 	}
 	
 	/**
-	 * Returns a TaxonomyPieChart.
+	 * Returns an interactive pie chart displaying sections derived from taxonomic information.
 	 * @param data Chart data
 	 * @param chartType Chart type
-	 * @return TaxonomyPieChart object.
+	 * @return a taxonomy pie chart
 	 */
 	public static TaxonomyPieChart createTaxonomyPieChart(ChartData data, ChartType chartType) {
 		return new TaxonomyPieChart(data, chartType);
 	}
 	
 	/**
-	 * Returns a TopBarChart.
+	 * Returns a bar chart displaying the top number of proteins.
 	 * @param data Chart data
 	 * @param chartType Chart type
-	 * @return TopBarChart object.
+	 * @return a top bar chart
 	 */
 	public static TopBarChart createTopBarChart(ChartData data, ChartType chartType) {
 		return new TopBarChart(data, chartType);
+	}
+
+	/**
+	 * Returns a total ion current histogram of identified and non-identified spectra.
+	 * @param data Chart data
+	 * @param chartType Chart type
+	 * @return a histogram chart
+	 */
+	public static Chart createHistogramChart(ChartData data, ChartType chartType) {
+		return new HistogramChart(data, chartType);
 	}
 }

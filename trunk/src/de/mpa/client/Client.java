@@ -855,6 +855,7 @@ public class Client {
 	public DbSearchResult getDbSearchResult() {
 		return dbSearchResult;
 	}
+	
 	/**
 	 * Sets the current database search result
 	 * @param dbSearchResult
@@ -911,8 +912,8 @@ public class Client {
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 
-			dbSearchResult.setTotalSpectrumCount(
-					Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn));
+			dbSearchResult.setTotalIonCurrentMap(
+					Searchspectrum.getTICsByExperimentID(experimentID, conn));
 
 			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
 			Set<String> peptideSequences = new TreeSet<String>();

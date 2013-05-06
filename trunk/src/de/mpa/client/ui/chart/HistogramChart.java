@@ -1,6 +1,7 @@
 package de.mpa.client.ui.chart;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -16,12 +17,25 @@ public class HistogramChart extends Chart {
 	
 	private HistogramDataset histDataset;
     
-    public enum HistChartType implements ChartType {
-    	TOTAL_ION_HIST;
+    public enum HistogramChartType implements ChartType {
+    	TOTAL_ION_HIST("Total Ion Current", "Abs. Frequency");
 
+    	private String xLabel;
+    	private String yLabel;
+    	
+		private HistogramChartType(String xLabel, String yLabel) {
+			this.xLabel = xLabel;
+			this.yLabel = yLabel;
+		}
 		@Override
 		public String toString() {
-			return "";
+			return "TIC Histogram";
+		}
+		public String getXLabel() {
+			return xLabel;
+		}
+		public String getYLabel() {
+			return yLabel;
 		}
     }
     /**
@@ -39,46 +53,32 @@ public class HistogramChart extends Chart {
     		HistogramData totalIonData = (HistogramData) data;
 			histDataset = (HistogramDataset) totalIonData.getDataset();
 		}
-//    	// List of all total intensities
-//        List<Double> ticList = new ArrayList<Double>();
-//        
-//		if (data instanceof SpectrumData) {
-//			SpectrumData spectrumData = (SpectrumData) data;
-//			filename = spectrumData.getFilename();
-//
-//			List<MascotGenericFile> spectra = spectrumData.getSpectra();
-//			for (MascotGenericFile mgf : spectra) {
-//				ticList.add(mgf.getTotalIntensity());
-//			}
-//		} else if (data instanceof List<?>) {
-//			filename = "default";
-//			ticList = (List<Double>) data;
-//		}
-//              
-//        // Set data.
-//        dataArray = new double[ticList.size()];
-//        for (int i = 0; i < ticList.size(); i++) {
-//            dataArray[i] = ticList.get(i);
-//        }
     }
 
     @Override
     protected void setChart() {
+    	HistogramChartType hct = (HistogramChartType) chartType;
         chart = ChartFactory.createHistogram(getChartTitle(),
-                "Total Ion Count",
-                "Rel. Frequency",
+                hct.getXLabel(),
+                hct.getYLabel(),
                 histDataset,
                 PlotOrientation.VERTICAL,
                 false,
                 true,
                 false);
-
-        
         XYPlot plot = (XYPlot) chart.getPlot();
-        plot.setBackgroundAlpha(0f);
+        
+        plot.setBackgroundAlpha(0.0f);
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
-        //plot.setDomainAxis(new LogarithmicAxis("Total Ion Count"));
+//		plot.setDomainAxis(new LogarithmicAxis(hct.getXLabel()));
+        
+        LogarithmicAxis yAxis = new LogarithmicAxis(hct.getYLabel());
+        yAxis.setLabelFont(plot.getRangeAxis().getLabelFont());
+        yAxis.setTickLabelFont(plot.getRangeAxis().getTickLabelFont());
+        yAxis.setAllowNegativesFlag(true);
+		plot.setRangeAxis(yAxis);
+		
         plot.setOutlineVisible(false);
         XYBarRenderer renderer = new XYBarRenderer();
         renderer.setShadowVisible(false);

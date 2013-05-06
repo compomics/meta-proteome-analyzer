@@ -1,5 +1,7 @@
 package de.mpa.db.accessor;
 
+import gnu.trove.map.hash.TLongDoubleHashMap;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -131,6 +133,33 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
     	if (rs.next()) {
     		throw new SQLException("Count query returned more than one result!");
     	}
+    	rs.close();
+    	ps.close();
+    	return res;
+    }
+
+	/**
+	 * Returns the total ion current values of all spectra belonging to the
+	 * specified experiment mapped by their search spectrum ID.
+	 * @param experimentID the database ID of the experiment
+	 * @param conn the database connection
+	 * @return a map containing searchspectrumID-to-TIC pairs
+	 * @throws SQLException when the retrieval did not succeed
+	 */
+    public static TLongDoubleHashMap getTICsByExperimentID(long experimentID, Connection conn) throws SQLException {
+    	TLongDoubleHashMap res = new TLongDoubleHashMap();
+    	PreparedStatement ps = conn.prepareStatement(
+    			"SELECT ss.searchspectrumid, s.total_int FROM searchspectrum ss " +
+    			"INNER JOIN spectrum s ON ss.fk_spectrumid = s.spectrumid " +
+    			"WHERE ss.fk_experimentid = ?",
+				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+    	ps.setLong(1, experimentID);
+		ps.setFetchSize(Integer.MIN_VALUE);
+		
+    	ResultSet rs = ps.executeQuery();
+    	while (rs.next()) {
+			res.put(rs.getLong(1), rs.getDouble(2));
+		}
     	rs.close();
     	ps.close();
     	return res;
