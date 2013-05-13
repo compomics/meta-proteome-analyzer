@@ -16,6 +16,9 @@ public class TaxonomyPieChart extends Chart {
 		KINGDOM("Kingdom"),
 		PHYLUM("Phylum"),
 		CLASS("Class"),
+		ORDER("Order"),
+		FAMILY("Family"),
+		GENUS("Genus"),
 		SPECIES("Species");
 
 		private String title;

@@ -482,8 +482,13 @@ public class ResultsPanel extends JPanel {
 				OntologyChartType.BIOLOGICAL_PROCESS,
 				OntologyChartType.MOLECULAR_FUNCTION,
 				OntologyChartType.CELLULAR_COMPONENT,
-				TaxonomyChartType.KINGDOM, TaxonomyChartType.PHYLUM,
-				TaxonomyChartType.CLASS, TaxonomyChartType.SPECIES,
+				TaxonomyChartType.KINGDOM,
+				TaxonomyChartType.PHYLUM,
+				TaxonomyChartType.CLASS,
+				TaxonomyChartType.ORDER,
+				TaxonomyChartType.FAMILY,
+				TaxonomyChartType.GENUS,
+				TaxonomyChartType.SPECIES,
 				TopBarChartType.PROTEINS,
 				HistogramChartType.TOTAL_ION_HIST };
 

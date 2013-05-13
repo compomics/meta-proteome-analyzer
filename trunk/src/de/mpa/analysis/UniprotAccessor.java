@@ -42,7 +42,7 @@ public class UniprotAccessor {
 	 * Enumeration holding taxonomic ranks.
 	 */
 	public enum TaxonomyRank {
-		KINGDOM, PHYLUM, CLASS, SPECIES 
+		KINGDOM, PHYLUM, CLASS,	ORDER, FAMILY, GENUS, SPECIES 
 	}
 
 	/**

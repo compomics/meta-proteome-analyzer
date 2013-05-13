@@ -1,5 +1,6 @@
 package de.mpa.client;
 
+import java.io.File;
 import java.util.Enumeration;
 
 import javax.swing.filechooser.FileFilter;
@@ -99,10 +100,15 @@ public class Constants {
 	public static final int NUMERIC = 1;
 
 	/**
+	 * Path string of folder containing configuration resources.
+	 */
+	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
+
+	/**
 	 * Root node of a tree containing all pathways mapped in the KEGG database.
 	 */
 	public static final TreeNode KEGG_PATHWAY_ROOT = KeggMaps.readKeggTree(
-			Constants.class.getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
+			Constants.class.getResourceAsStream(CONFIGURATION_PATH + "keggPathways.txt"));
 	
 	/**
 	 * Units for precurcor and MS/MS tolerance
@@ -157,7 +163,7 @@ public class Constants {
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"CSV (tab-separated) Files (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
-	"Portable Network Graphics (*.png)");
+			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
 			"Raw Mascot Result File (*.dat)");
 	
