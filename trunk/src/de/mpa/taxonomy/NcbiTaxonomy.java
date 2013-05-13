@@ -310,16 +310,9 @@ public class NcbiTaxonomy implements Serializable {
 		
 		// Read line and isolate second numeric value
 		String line = nodesRaf.readLine();
-		String lines = line.substring(line.indexOf("\t|\t") + 3);
-		lines = lines.substring(0, lines.indexOf("\t"));
-		try {
-			Integer.valueOf(lines);
-		} catch (Exception e) {
-			System.out.println("TaxID\t" + taxID);
-			System.out.println("whole Line:\t" + line);
-			System.out.println("Integer:\t" +lines);
-		}
-		return Integer.valueOf(lines);
+		line = line.substring(line.indexOf("\t|\t") + 3);
+		line = line.substring(0, line.indexOf("\t"));
+		return Integer.valueOf(line);
 		
 	}
 	
