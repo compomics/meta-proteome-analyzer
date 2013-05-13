@@ -275,7 +275,7 @@ public class TaxonomyData implements ChartData {
 			map = classOccMap;
 			break;
 		case ORDER:
-			map = classOccMap;
+			map = orderOccMap;
 			break;
 		case FAMILY:
 			map = familyOccMap;

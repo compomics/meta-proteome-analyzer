@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -91,15 +90,15 @@ import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.OntologyData;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.PiePlot3DExt;
 import de.mpa.client.ui.chart.TaxonomyData;
-import de.mpa.client.ui.chart.TopData;
-import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
+import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.ColorUtils;
 
@@ -377,7 +376,7 @@ public class ResultsPanel extends JPanel {
 		generalPnl.add(totalPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
 		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("unique peptides"), CC.xy(10, 4));
+		generalPnl.add(new JLabel("specific peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
@@ -680,6 +679,7 @@ public class ResultsPanel extends JPanel {
 				}
 				ontologyData.setHierarchyLevel(hl);
 				taxonomyData.setHierarchyLevel(hl);
+
 				updateChart(chartType);
 			}
 		});
@@ -1065,78 +1065,64 @@ public class ResultsPanel extends JPanel {
 				Set<String> speciesNames = new HashSet<String>();
 				Set<String> ecNumbers = new HashSet<String>();
 				Set<String> kNumbers = new HashSet<String>();
+				Set<Short> pathwayIDs = new HashSet<Short>();
 				for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 					speciesNames.add(ph.getSpecies());
 					UniProtEntry uniprotEntry = ph.getUniprotEntry();
 					if (uniprotEntry != null) {
-						ecNumbers.addAll(uniprotEntry.getProteinDescription()
-								.getEcNumbers());
-						for (DatabaseCrossReference xref : uniprotEntry
-								.getDatabaseCrossReferences(DatabaseType.KO)) {
-							kNumbers.add(((KO) xref).getKOIdentifier()
-									.getValue());
+						ecNumbers.addAll(uniprotEntry.getProteinDescription().getEcNumbers());
+						for (DatabaseCrossReference xref : uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO)) {
+							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
 						}
 						UniProtEntry uniProtEntry = ph.getUniprotEntry();
 						if (uniProtEntry != null) {
-							ecNumbers.addAll(uniProtEntry
-									.getProteinDescription().getEcNumbers());
-							for (DatabaseCrossReference xref : ph
-									.getUniprotEntry()
-									.getDatabaseCrossReferences(DatabaseType.KO)) {
-								kNumbers.add(((KO) xref).getKOIdentifier()
-										.getValue());
+							ecNumbers.addAll(uniProtEntry.getProteinDescription().getEcNumbers());
+							for (DatabaseCrossReference xref : ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
+								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
 							}
 						}
 					}
-					Set<Short> pathwayIDs = new HashSet<Short>();
 					for (String ec : ecNumbers) {
-						List<Short> pathwaysByEC = KeggAccessor.getInstance()
-								.getPathwaysByEC(ec);
+						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
 						if (pathwaysByEC != null) {
 							pathwayIDs.addAll(pathwaysByEC);
 						}
 					}
 					for (String ko : kNumbers) {
-						List<Short> pathwaysByKO = KeggAccessor.getInstance()
-								.getPathwaysByKO(ko);
+						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
 						if (pathwaysByKO != null) {
 							pathwayIDs.addAll(pathwaysByKO);
 						}
 					}
-
-					totalSpecLbl.setText(""
-							+ dbSearchResult.getTotalSpectrumCount());
-					identSpecLbl.setText(""
-							+ dbSearchResult.getIdentifiedSpectrumCount());
-					totalPepLbl.setText(""
-							+ dbSearchResult.getTotalPeptideCount());
-					uniquePepLbl.setText(""
-							+ dbSearchResult.getUniquePeptideCount());
-					totalProtLbl.setText(""
-							+ dbSearchResult.getProteinHitList().size());
-					specificProtLbl.setText("" + "??"); // TODO: determining protein redundancy is an unsolved problem!
-					speciesLbl.setText("" + speciesNames.size());
-					enzymesLbl.setText("" + ecNumbers.size());
-					pathwaysLbl.setText("" + pathwayIDs.size());
-
-					HierarchyLevel hl = null;
-					switch (hierarchyCbx.getSelectedIndex()) {
-					case 0:
-						hl = HierarchyLevel.PROTEIN_LEVEL;
-						break;
-					case 1:
-						hl = HierarchyLevel.PEPTIDE_LEVEL;
-						break;
-					case 2:
-						hl = HierarchyLevel.SPECTRUM_LEVEL;
-					}
-					ontologyData = new OntologyData(dbSearchResult, hl);
-					taxonomyData = new TaxonomyData(dbSearchResult, hl);
-					topData = new TopData(dbSearchResult);
-					histogramData = new HistogramData(dbSearchResult, 40);
-
-					updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 				}
+
+				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
+				uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+				specificProtLbl.setText("" + 0); // TODO: determining protein redundancy is an unsolved problem!
+				speciesLbl.setText("" + speciesNames.size());
+				enzymesLbl.setText("" + ecNumbers.size());
+				pathwaysLbl.setText("" + pathwayIDs.size());
+
+				HierarchyLevel hl = null;
+				switch (hierarchyCbx.getSelectedIndex()) {
+				case 0:
+					hl = HierarchyLevel.PROTEIN_LEVEL;
+					break;
+				case 1:
+					hl = HierarchyLevel.PEPTIDE_LEVEL;
+					break;
+				case 2:
+					hl = HierarchyLevel.SPECTRUM_LEVEL;
+				}
+				ontologyData = new OntologyData(dbSearchResult, hl);
+				taxonomyData = new TaxonomyData(dbSearchResult, hl);
+				topData = new TopData(dbSearchResult);
+				histogramData = new HistogramData(dbSearchResult, 40);
+
+				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -1145,6 +1131,9 @@ public class ResultsPanel extends JPanel {
 
 		@Override
 		protected void done() {
+			// Enable chart type button
+			chartTypeBtn.setEnabled(true);
+			
 			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -1152,45 +1141,57 @@ public class ResultsPanel extends JPanel {
 	}
 
 	/**
-	 * @return the dbPnl
+	 * Returns the database search result panel.
+	 * @return the database search result panel
 	 */
 	public DbSearchResultPanel getDbSearchResultPanel() {
 		return dbPnl;
 	}
 
 	/**
-	 * @return the ssPnl
+	 * Returns the spectral similarity search result panel.
+	 * @return the spectral similarity search result panel
 	 */
 	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
 		return ssPnl;
 	}
 
 	/**
-	 * @return the dnPnl
+	 * Returns the de novo search result panel.
+	 * @return the de novo search result panel
 	 */
 	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
 		return dnPnl;
 	}
 
 	/**
-	 * Returns the button to select the type of the chart inside the chart view
-	 * panel.
+	 * Panel implementation for painting bar chart-like data
 	 * 
-	 * @return the chart type button
+	 * @author A. Behne
 	 */
-	public JToggleButton getChartTypeButton() {
-		return chartTypeBtn;
-	}
-
 	private class BarChartPanel extends JPanel {
+		
+		/**
+		 * Label for left-hand total value.
+		 */
 		private JLabel totalLbl;
+		
+		/**
+		 * Label for right-hand fractional value.
+		 */
 		private JLabel fracLbl;
 
+		/**
+		 * Constructs a bar chart panel featuring the specified total and fractional labels.
+		 * @param totalLbl the left-hand total value label
+		 * @param fracLbl the right-hand fractional value label
+		 */
 		public BarChartPanel(JLabel totalLbl, JLabel fracLbl) {
 			this.totalLbl = totalLbl;
 			this.fracLbl = fracLbl;
 		}
-
+		
+		@Override
 		public void paint(Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;
 			Point pt1 = new Point();
@@ -1208,8 +1209,7 @@ public class ResultsPanel extends JPanel {
 							pt2, ColorUtils.LIGHT_ORANGE));
 					g2.fillRect(getWidth() - width, 0, width, getHeight());
 					String str = String.format("%.1f", rel * 100.0) + "%";
-					FontMetrics fm = g2.getFontMetrics();
-					Rectangle2D bounds = fm.getStringBounds(str, g2);
+					Rectangle2D bounds = g2.getFontMetrics().getStringBounds(str, g2);
 
 					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
@@ -1218,7 +1218,7 @@ public class ResultsPanel extends JPanel {
 					if (x < 2.0f) {
 						x = getWidth() - width + 2.0f;
 					}
-					float y = (float) (-bounds.getY() + getHeight()) / 2.0f - 1.0f;
+					float y = (float) (getHeight() - bounds.getY()) / 2.0f - 1.0f;
 					g2.setPaint(Color.BLACK);
 					g2.drawString(str, x + 1.0f, y + 1.0f);
 					g2.setPaint(Color.GRAY);
@@ -1228,7 +1228,18 @@ public class ResultsPanel extends JPanel {
 					g2.drawString(str, x, y);
 				}
 			} catch (Exception e) {
-				// catch NPEs and failed parse attempts, draw nothing
+				// catch NPEs and failed parse attempts, draw error message
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+						RenderingHints.VALUE_ANTIALIAS_ON);
+				String str = e.toString();
+				Rectangle2D bounds = g2.getFontMetrics().getStringBounds(str, g2);
+				float y = (float) (getHeight() - bounds.getY()) / 2.0f - 2.0f;
+				g2.setPaint(ColorUtils.DARK_RED);
+				g2.drawString(str, 2.0f, y + 1.0f);
+				g2.setPaint(Color.RED);
+				g2.drawString(str, 2.0f, y + 1.0f);
+				g2.setPaint(Color.ORANGE);
+				g2.drawString(str, 1.0f, y);
 			}
 		};
 	}
