@@ -184,18 +184,18 @@ public class DBSearchPanel extends JPanel {
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
-		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 100.0, 0.1));
+		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.00"));
 		precTolSpn.setToolTipText("The precursor mass tolerance.");
 		precTolCbx = new JComboBox(Constants.TOLERANCE_UNITS);
 
 		// Fragment ion tolerance Spinner
-		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 10.0, 0.1));
+		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));
 		fragTolSpn.setEditor(new JSpinner.NumberEditor(fragTolSpn, "0.00"));
 		fragTolSpn.setToolTipText("The fragment mass tolerance.");
 		
 		// Missed cleavages Spinner
-		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, 10, 1));
+		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, null, 1));
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 
 		// Enzyme ComboBox

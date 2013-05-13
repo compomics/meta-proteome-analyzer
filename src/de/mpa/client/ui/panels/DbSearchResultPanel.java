@@ -1,11 +1,6 @@
 package de.mpa.client.ui.panels;
 
-import jaligner.Alignment;
-import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
-import jaligner.matrix.Matrix;
-import jaligner.matrix.MatrixLoader;
-import jaligner.matrix.MatrixLoaderException;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -149,7 +144,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
-import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
 import uk.ac.ebi.kraken.interfaces.uniprot.PrimaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
@@ -206,6 +200,11 @@ import de.mpa.taxonomy.NcbiTaxonomy;
 import de.mpa.taxonomy.TaxonNode;
 import de.mpa.util.ColorUtils;
 
+/**
+ * Panel implementation for viewing of database search results.
+ * 
+ * @author A. Behne, T. Muth, R. Heyer, F. Kohrs
+ */
 public class DbSearchResultPanel extends JPanel {
 	
 	/**
@@ -358,7 +357,7 @@ public class DbSearchResultPanel extends JPanel {
 	 */
 	protected File importFile;
 	
-	
+
 	/**
 	 * Constructor for a database results panel.
 	 * @param clientFrame The parent frame.
@@ -816,10 +815,12 @@ public class DbSearchResultPanel extends JPanel {
 							new GZIPInputStream(new FileInputStream(file))));
 					newResult = (DbSearchResult) ois.readObject();
 					ois.close();
+					client.setDbSearchResult(newResult);
 					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
 					client.firePropertyChange("indeterminate", true, false);
 				}
 				
+				// Fetching UniProt entries and taxonomic information.
 				if (!newResult.equals(dbSearchResult)) {
 					if (!newResult.isEmpty() && !client.isViewer()) {
 						// Retrieve UniProt data
@@ -842,44 +843,10 @@ public class DbSearchResultPanel extends JPanel {
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
 						Client.getInstance().firePropertyChange("resetall", -1L, (long) peptideSet.size());
 						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+						
+						// Add taxon nodes to the peptides
 						for (PeptideHit peptideHit : peptideSet) {
-							// Build taxon node list
-							List<TaxonNode> taxList = new ArrayList<TaxonNode>();
-							for (ProteinHit protHit : peptideHit.getProteinList()) {
-								UniProtEntry uniprotEntry = protHit.getUniprotEntry();
-								if (uniprotEntry != null) {
-									List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
-									int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
-									TaxonNode taxonNode = NcbiTaxonomy.getInstance().getLeafMap().get(taxId);
-									// For case that taxId is not a leaf
-									if (taxonNode == null) {
-										Enumeration dfe = NcbiTaxonomy.getInstance().getRootNode().depthFirstEnumeration();
-										while (dfe.hasMoreElements()) {
-											TaxonNode node = (TaxonNode) dfe.nextElement();
-											if (node.getTaxId() == taxId) {
-												taxonNode = node;
-											}
-										}
-									}
-									taxList.add(taxonNode);
-	
-									// Find common ancestor of all taxon nodes in list
-									
-									TaxonNode ancestor = taxList.get(0);
-									for (int i = 1; i < taxList.size(); i++) {
-										ancestor = NcbiTaxonomy.getInstance().getCommonAncestor(ancestor, taxList.get(i));
-									}
-									if (ancestor != null) {
-										// Set peptide hit's common taxonomy ancestor
-										peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
-									} else {
-										peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
-									}
-								} else {
-//									System.err.println("Missing UniProt entry: " + protHit.getAccession() + " | " + protHit.getDescription());
-									peptideHit.setTaxonNode(new TaxonNode(0, "unknown",	"unknown"));
-								}
-							}
+							peptideHit.getCommonNcbiTaxonomy(peptideHit);	// Build taxon node list
 							Client.getInstance().firePropertyChange("progressmade", false, true);
 						}
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
@@ -906,57 +873,38 @@ public class DbSearchResultPanel extends JPanel {
 							}
 						}
 					}
-					 
+					// Update result object reference
 					dbSearchResult = newResult;
-					
-					client.setDbSearchResult(newResult);
-					parent.updateOverview();
 
-					// TODO: ADD search engine from runtable
-					List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
-					dbSearchResult.setSearchEngines(searchEngines);
+					// Update overview panel
+					parent.updateOverview();
 					
 					// Populate tables
-					try {
-						refreshProteinTables();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				
-					
-					//*********************************************************//
-					//FIXME: GRAPH DATABASE IMPLEMENTATION
-					// Starts the graph database.
-//					GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
-//					DataInserter dataInserter = new DataInserter(graphDb.getService());
-//					dataInserter.setData(dbSearchResult);
-//					
-//					dataInserter.insert();
-//					dataInserter.exportGraph(new File("Test.graphml"));
-//					graphDb.shutDown();
-					//*********************************************************//
-					
-					// Enable export functionality
-					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-
-					// Enable Save Project functionality
-					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+					refreshProteinTables();
 				}
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				Client.getInstance().firePropertyChange("new message", null, "FAILED");
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
-			} finally {
-				// Stop appearing busy
-				setBusy(false);
-					
-				clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
 			}
 			return 0;
-		}		
+		}
+		
+		@Override
+		protected void done() {
+			// Stop appearing busy
+			setBusy(false);
+			
+			clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
+			
+			// Enable export functionality
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+			// Enable Save Project functionality
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+		}
+		
 	}
-
 
 	// Protein table column indices
 	// FIXME: Find another (more elegant) solution for this here:
@@ -2294,16 +2242,17 @@ public class DbSearchResultPanel extends JPanel {
 			
 			// Iterate over metaproteins to fill the columns in the flatview
 			int metaIndex = 1;
-			// Get Matrix for the calculation of the identity
-			Matrix matrix = null;
-			if (!Client.getInstance().isViewer()) {
-				try {
-					Logger.getLogger(MatrixLoader.class.getName()).setLevel(Level.OFF);
-					matrix = MatrixLoader.load("BLOSUM62");
-				} catch (MatrixLoaderException e) {
-					e.printStackTrace();
-				}
-			}
+			
+//			// Get Matrix for the calculation of the identity
+//			Matrix matrix = null;
+//			if (!Client.getInstance().isViewer()) {
+//				try {
+//					Logger.getLogger(MatrixLoader.class.getName()).setLevel(Level.OFF);
+//					matrix = MatrixLoader.load("BLOSUM62");
+//				} catch (MatrixLoaderException e) {
+//					e.printStackTrace();
+//				}
+//			}
 			
 			Logger.getLogger(SmithWatermanGotoh.class.getName()).setLevel(Level.OFF);
 			for (ProteinHitList metaProtein : dbSearchResult.getMetaProteins()) {
@@ -2351,28 +2300,28 @@ public class DbSearchResultPanel extends JPanel {
 					if (!Client.getInstance().isViewer()) { // Check for viewer Mode
 						TaxonNode commonAncestorNode = proteinHit.getPeptideHitList().get(0).getTaxonNode();
 						for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(
-									commonAncestorNode, peptideHit.getTaxonNode());
+							// TODO Changed commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(commonAncestorNode, peptideHit.getTaxonNode());
+							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(commonAncestorNode, peptideHit.getTaxonNode());
 						}
 						proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
-						// Get minimal identity for the protein
-						if (proteinHit.getSequence().length() > 0 && proteinHit.getSequence().length() <= 5000) {
-							for (ProteinHit furtherproteinHit : metaProtein) {
-								if (furtherproteinHit.getSequence().length() <= 5000) {
-									Alignment align = SmithWatermanGotoh.align(
-											new Sequence(proteinHit.getSequence()),
-											new Sequence(furtherproteinHit.getSequence()),
-											matrix, 10.0f, 0.5f);
-
-									double identity = align.getIdentity() * 100.0 /
-											proteinHit.getSequence().length();
-									if (proteinHit.getIdentity() > identity) {
-										proteinHit.setIdentity(identity);
-									}
-								}
-							}
-						}
+//						// Get minimal identity for the protein
+//						if (proteinHit.getSequence().length() > 0 && proteinHit.getSequence().length() <= 5000) {
+//							for (ProteinHit furtherproteinHit : metaProtein) {
+//								if (furtherproteinHit.getSequence().length() <= 5000) {
+//									Alignment align = SmithWatermanGotoh.align(
+//											new Sequence(proteinHit.getSequence()),
+//											new Sequence(furtherproteinHit.getSequence()),
+//											matrix, 10.0f, 0.5f);
+//
+//									double identity = align.getIdentity() * 100.0 /
+//											proteinHit.getSequence().length();
+//									if (proteinHit.getIdentity() > identity) {
+//										proteinHit.setIdentity(identity);
+//									}
+//								}
+//							}
+//						}
 					}
 					
 					// Insert protein data into table
@@ -2448,7 +2397,7 @@ public class DbSearchResultPanel extends JPanel {
 					TaxonNode firstNode = metaProteinHit.getPeptideHitList().get(0).getTaxonNode();
 					for (PeptideHit peptideHit : metaProteinHit.getPeptideHitList()) {
 						TaxonNode taxonNode = peptideHit.getTaxonNode();
-						firstNode = NcbiTaxonomy.getInstance().getCommonAncestor(firstNode,taxonNode);
+						firstNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(firstNode,taxonNode);
 					}
 					metaProtein.setSpecies(firstNode.getTaxName() + " (" + firstNode.getRank() +")");
 				}

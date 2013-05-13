@@ -1,12 +1,18 @@
 package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.taxonomy.NcbiTaxonomy;
 import de.mpa.taxonomy.TaxonNode;
 
 /**
@@ -15,48 +21,52 @@ import de.mpa.taxonomy.TaxonNode;
  *
  */
 public class PeptideHit implements Serializable, Comparable<PeptideHit> {
-	
+
 	/**
 	 * Flag denoting whether this peptide is selected for export.
 	 */
 	private boolean selected = true;
-	
+
 	/**
 	 *  The peptide sequence
 	 */
 	private String sequence;
-	
+
 	/**
 	 * The start of the peptide sequence in the protein.
 	 */
 	private int start;
-	
+
 	/**
 	 *  The end of the peptide sequence in the protein.
 	 */
 	private int end;
-	
+
 	/**
 	 *  The list of protein hits associated with this peptide hit.
 	 */
 	private List<ProteinHit> proteinHits;
-	
+
 	/**
 	 * The peptide spectrum match for this peptide hit.
 	 */
 	private List<SpectrumMatch> spectrumMatches;
-	
+
 	/**
 	 * Map linking search spectrum IDs of matches to their position in this 
 	 * peptide hit's list of matches.
 	 */
 	private Map<Long, Integer> id2index = new HashMap<Long, Integer>();
-	
+
 	/**
 	 * The NCBI taxonomy node of the peptide.
 	 */
 	private TaxonNode taxonNode;
-	
+
+	/** 
+	 * The NCBI taxonomy
+	 */
+	private NcbiTaxonomy ncbiTax;
 	
 	/**
 	 * PeptideHit constructor, taking the sequence as only parameter.
@@ -69,7 +79,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 		this.spectrumMatches = new ArrayList<SpectrumMatch>();
 		addSpectrumMatch(spectrumMatch);
 	}
-	
+
 	/**
 	 * PeptideHit constructor, taking sequence, start and end as parameters.
 	 * @param sequence The String sequence.
@@ -81,7 +91,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 		this.start = start;
 		this.end = end;
 	}
-	
+
 	/**
 	 * Returns the peptide sequence.
 	 * @return the sequence
@@ -89,7 +99,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public String getSequence() {
 		return sequence;
 	}
-	
+
 	/**
 	 * Sets the peptide sequence
 	 * @param the peptide sequence
@@ -105,7 +115,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public SpectrumMatch getSingleSpectrumMatch() {
 		return spectrumMatches.get(0);
 	}
-	
+
 	/**
 	 * Returns the list of spectrum matches.
 	 * @return the list of spectrum matches.
@@ -129,7 +139,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public int getStart() {
 		return start;
 	}
-	
+
 	/**
 	 * Returns the peptide end.
 	 * @return the end
@@ -137,7 +147,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public int getEnd() {
 		return end;
 	}
-	
+
 	/**
 	 * Sets the start position of the peptide.	
 	 * @param start The start position of the peptide.
@@ -145,7 +155,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public void setStart(int start) {
 		this.start = start;
 	}
-	
+
 	/**
 	 * Sets the end position of the peptide.
 	 * @param end The end position of the peptide.
@@ -177,7 +187,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 			spectrumMatches.set(index, sm);
 		}
 	}
-	
+
 	/**
 	 * Returns the spectrum match that is mapped to the specified search spectrum ID.
 	 * @param id The search spectrum ID.
@@ -187,7 +197,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 		Integer index = id2index.get(id);
 		return (index != null) ? spectrumMatches.get(id2index.get(id)) : null;
 	}
-	
+
 	/**
 	 * Returns spectral count.
 	 * @return the spectral count.
@@ -205,7 +215,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 			proteinHits.add(proteinHit);
 		}
 	}
-	
+
 	/**
 	 * Returns the number of proteins associated with this peptide.
 	 * @return The protein count.
@@ -213,7 +223,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public int getProteinCount() {
 		return proteinHits.size();
 	}
-	
+
 	/**
 	 * Returns the list of proteins associated with this peptide.
 	 * @return The protein list.
@@ -221,7 +231,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public List<ProteinHit> getProteinList() {
 		return proteinHits;
 	}
-	
+
 	/**
 	 * Returns the NCBI taxonomy node.
 	 * @return the NCBI taxonomy node.
@@ -255,11 +265,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 		// make child matches inherit selection state
-//		for (SpectrumMatch sm : spectrumMatches) {
-//			sm.setSelected(selected);
-//		}
+		//		for (SpectrumMatch sm : spectrumMatches) {
+		//			sm.setSelected(selected);
+		//		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return getSequence();
@@ -279,4 +289,44 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit> {
 	public int compareTo(PeptideHit that) {
 		return this.getSequence().compareTo(that.getSequence());
 	}
+
+	/**
+	 * This method creates for a peptide hit the common taxon node, for all subsequent protein hits.
+	 * @param peptideHit
+	 */
+	public void getCommonNcbiTaxonomy(PeptideHit peptideHit) {
+		// Get taxonomy class instance
+		if (ncbiTax == null) {
+			ncbiTax = NcbiTaxonomy.getInstance();
+		}
+		
+		// Init list of taxonomy nodes of all proteins sharing this peptide
+		List<TaxonNode> taxList = new ArrayList<TaxonNode>();
+		
+		// Iterate proteins, check for UniProt entries, store taxonomy IDs in nodes
+		for (ProteinHit protHit : peptideHit.getProteinList()) {
+			UniProtEntry uniprotEntry = protHit.getUniprotEntry();
+			if (uniprotEntry != null) {
+				List<NcbiTaxonomyId> ncbiTaxonomyIds = uniprotEntry.getNcbiTaxonomyIds();
+				int taxId = Integer.parseInt(ncbiTaxonomyIds.get(0).getValue());
+				TaxonNode taxonNode = ncbiTax.createTaxonNode(taxId);
+				taxList.add(taxonNode);
+			}
+		}
+		
+		// Determine common taxonomy node
+		if ((taxList != null) && !taxList.isEmpty()) {
+			TaxonNode ancestor = taxList.get(0);
+			for (int i = 1; i < taxList.size(); i++) {
+				ancestor = ncbiTax.getCommonTaxonNode(ancestor, taxList.get(i));
+			}
+			// Set peptide hit's common taxonomy node
+			peptideHit.setTaxonNode(new TaxonNode(ancestor.getTaxId(), ancestor.getRank(), ancestor.getTaxName()));
+		} else {
+			// Fall-back value: assume root as common taxonomy node
+			peptideHit.setTaxonNode(new TaxonNode(1, "no rank",	"root"));
+		}	
+		
+	}
+	
 }

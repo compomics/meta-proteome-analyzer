@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -945,6 +946,10 @@ public class Client {
 			dbSearchResult.setIdentifiedSpectrumCount(searchSpectrumIDs.size());
 			dbSearchResult.setTotalPeptideCount(totalPeptides);
 			dbSearchResult.setUniquePeptideCount(peptideSequences.size());
+
+			// TODO: ADD search engine from runtable
+			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+			dbSearchResult.setSearchEngines(searchEngines);
 
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 
