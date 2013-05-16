@@ -1,6 +1,5 @@
 package de.mpa.taxonomy;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * This class represents a NCBI taxonomy entry, complete with taxonomy ID as
@@ -8,7 +7,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * 
  * @author R. Heyer and A. Behne
  */
-public class TaxonNode extends DefaultMutableTreeNode {
+public class TaxonomyNode {
 
 	/**
 	 * The taxonomy ID.
@@ -31,25 +30,17 @@ public class TaxonNode extends DefaultMutableTreeNode {
 	 * @param rank The taxonomic rank
 	 * @param taxName The taxonomy name
 	 */
-	public TaxonNode(int taxId, String rank, String taxName){
+	public TaxonomyNode(int taxId, String rank, String taxName){
 		this.taxId = taxId;
 		this.rank = rank;
 		this.taxName = taxName;
-	}
-	
-	/**
-	 * Copy constructor.
-	 * @param that The taxonomy node to copy from
-	 */
-	public TaxonNode(TaxonNode that) {
-		this(that.getTaxId(), that.getRank(), that.getTaxName());
 	}
 
 	/**
 	 * Returns the taxonomy ID.
 	 * @return the taxonomy ID
 	 */
-	public int getTaxId() {
+	public int getId() {
 		return taxId;
 	}
 
@@ -57,7 +48,7 @@ public class TaxonNode extends DefaultMutableTreeNode {
 	 * Sets the taxonomy ID.
 	 * @param taxId The taxonomy ID to set
 	 */
-	public void setTaxId(int taxId) {
+	public void setId(int taxId) {
 		this.taxId = taxId;
 	}
 
@@ -81,7 +72,7 @@ public class TaxonNode extends DefaultMutableTreeNode {
 	 * Returns the taxonomy name.
 	 * @return the taxonomy name
 	 */
-	public String getTaxName() {
+	public String getName() {
 		return taxName;
 	}
 	
@@ -89,12 +80,12 @@ public class TaxonNode extends DefaultMutableTreeNode {
 	 * Sets the taxonomy name.
 	 * @param taxName the taxonomy name to set
 	 */
-	public void setTaxName(String taxName) {
+	public void setName(String taxName) {
 		this.taxName = taxName;
 	}
 
 	@Override
 	public String toString() {
-		return "" + getTaxName() + " (" + getTaxId() + ") | " + getRank() ;
+		return "" + getName() + " (" + getId() + ") | " + getRank() ;
 	}
 }

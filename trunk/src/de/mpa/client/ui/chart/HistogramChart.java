@@ -37,6 +37,10 @@ public class HistogramChart extends Chart {
 		public String getYLabel() {
 			return yLabel;
 		}
+		@Override
+		public String getTitle() {
+			return null;
+		}
     }
     /**
      * Constructs a denovo score histogram

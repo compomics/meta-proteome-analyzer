@@ -173,6 +173,11 @@ public class IconConstants {
 	public static final ImageIcon PIE_CHART_ROLLOVER_ICON = createRescaledIcon(PIE_CHART_ICON, 1.2f);
 	public static final ImageIcon PIE_CHART_PRESSED_ICON = createRescaledIcon(PIE_CHART_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/bar_chart16.png"> */
+	public static final ImageIcon BAR_CHART_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bar_chart16.png"));
+	public static final ImageIcon BAR_CHART_ROLLOVER_ICON = createRescaledIcon(BAR_CHART_ICON, 1.2f);
+	public static final ImageIcon BAR_CHART_PRESSED_ICON = createRescaledIcon(BAR_CHART_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/frame_full16.png"> */
 	public static final ImageIcon FRAME_FULL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/frame_full16.png"));
 	public static final ImageIcon FRAME_FULL_ROLLOVER_ICON = createRescaledIcon(FRAME_FULL_ICON, 1.2f);
@@ -187,6 +192,9 @@ public class IconConstants {
 	public static final ImageIcon SAVE_FILE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/page_save32.png"));
 	public static final ImageIcon SAVE_FILE_ROLLOVER_ICON = createRescaledIcon(SAVE_FILE_ICON, 1.2f);
 	public static final ImageIcon SAVE_FILE_PRESSED_ICON = createRescaledIcon(SAVE_FILE_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/file_csv16.png"> */
+	public static final ImageIcon FILE_CSV = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/file_csv16.png"));
 
 	/** <img src="../../../resources/icons/protein.png"> */
 	public static final ImageIcon PROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/protein.png"));

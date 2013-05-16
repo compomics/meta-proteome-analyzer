@@ -27,6 +27,11 @@ public class OntologyPieChart extends Chart {
 		public String toString() {
 			return title;
 		}
+		
+		@Override
+		public String getTitle() {
+			return title;
+		}
 	}
 		
 	/**

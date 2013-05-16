@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.Constants;
 
 /**
@@ -86,9 +87,10 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param taxonNode1 the first taxonomy node
 	 * @param taxonNode2 the second taxonomy node
 	 * @return the common taxonomy node
+	 * @throws Exception 
 	 */
-	synchronized public TaxonNode getCommonTaxonNode(TaxonNode taxonNode1, TaxonNode taxonNode2){
-		return getCommonTaxonNode(taxonNode1.getTaxId(),taxonNode2.getTaxId());
+	synchronized public TaxonomyNode getCommonTaxonNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) throws Exception{
+		return getCommonTaxonNode(taxonNode1.getId(),taxonNode2.getId());
 	}
 	
 	/**
@@ -97,8 +99,9 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param taxId1 the first taxonomy ID
 	 * @param taxId2 the second taxonomy ID
 	 * @return the common taxonomy node
+	 * @throws Exception 
 	 */
-	synchronized public TaxonNode getCommonTaxonNode(int taxId1, int taxId2){
+	synchronized public TaxonomyNode getCommonTaxonNode(int taxId1, int taxId2) throws Exception{
 		return this.createTaxonNode(this.getCommonTaxonomyID(taxId1, taxId2));
 	}
 	
@@ -107,8 +110,9 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param taxId1 NCBI taxonomy of the first entry
 	 * @param taxId2 NCBI taxonomy of the second entry
 	 * @return the NCBI taxonomy ID where both entries intersect (or 0 when something went wrong)
+	 * @throws Exception 
 	 */
-	synchronized public int getCommonTaxonomyID(int taxId1, int taxId2) {
+	synchronized public int getCommonTaxonomyID(int taxId1, int taxId2) throws Exception {
 		
 		// List of taxonomy entries for the first taxonomy entry.
 		List<Integer> taxList1 = new ArrayList<Integer>();
@@ -135,15 +139,23 @@ public class NcbiTaxonomy implements Serializable {
 		}
 		
 		// Get common ancestor
+		Integer taxId = 0;
 		for (int i = 0; i < taxList1.size(); i++) {
-			Integer taxId = taxList1.get(i);
+			taxId = taxList1.get(i);
 			if (taxList2.contains(taxId)) {
-				return taxId;
+				break;
 			}
 		}
 		
-		// If we got here, something went wrong. Return 0 as error indicator.
-		return 0;
+		// Find ancestor of closest known rank type
+		List<String> rankTypes = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
+//		rankTypes.remove(rankTypes.size() - 1);	// remove 'no rank'
+		
+		while (!rankTypes.contains(this.getRank(taxId)) && (taxId != 1)) {
+			taxId = this.getParentTaxID(taxId);
+		}
+		
+		return taxId;
 	}
 
 	/**
@@ -345,10 +357,10 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param taxID the taxonomy id
 	 * @return The taxonNode containing the taxID, rank, taxName
 	 */
-	public TaxonNode createTaxonNode(int taxID){
-		TaxonNode taxNode = null;
+	public TaxonomyNode createTaxonNode(int taxID){
+		TaxonomyNode taxNode = null;
 		try {
-			taxNode = new TaxonNode(taxID,
+			taxNode = new TaxonomyNode(taxID,
 					this.getRank(taxID),
 					this.getTaxonName(taxID));
 		} catch (Exception e) {

@@ -676,6 +676,9 @@ public class PiePlot3DExt extends PiePlot3D {
 	}
 	
 	public Comparable getSectionKeyForPoint(Point2D point) {
+		if (state == null) {
+			return null;
+		}
 		Rectangle2D explodedPieArea = state.getExplodedPieArea();
 		Ellipse2D explodedEllipse = new Ellipse2D.Double(
 				explodedPieArea.getX(),

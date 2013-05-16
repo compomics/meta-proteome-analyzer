@@ -23,6 +23,11 @@ public class IdentificationChart extends Chart {
 		public String toString() {
 			return title;
 		}
+		
+		@Override
+		public String getTitle() {
+			return title;
+		}
 	}
 	
 	/**

@@ -30,6 +30,11 @@ public class TopBarChart extends Chart {
 		public String toString() {
 			return "Top 10 " + title;
 		}
+		@Override
+		
+		public String getTitle() {
+			return title;
+		}
 	}
 
 	private CategoryDataset categoryDataset;

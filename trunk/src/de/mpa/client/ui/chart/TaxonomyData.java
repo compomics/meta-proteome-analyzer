@@ -1,5 +1,7 @@
 package de.mpa.client.ui.chart;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,50 +11,28 @@ import java.util.Set;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import de.mpa.analysis.UniprotAccessor;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
+import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
-import de.mpa.taxonomy.NcbiTaxonomy;
+import de.mpa.taxonomy.Taxonomic;
+import de.mpa.taxonomy.TaxonomyNode;
 
 // TODO: merge with OntologyData since both classes share the same methods but differ in the type of occurrence maps they use
 public class TaxonomyData implements ChartData {
+	
+	/**
+	 * The hierarchy-level map reference.
+	 */
+	private Map<HierarchyLevel, Collection<? extends Taxonomic>> hierarchyMap;
 
 	/**
-	 * Taxonomy kingdom occurrences map.
+	 * Occurrence map reference.
 	 */
-	private Map<String, ProteinHitList> kingdomOccMap;
-
-	/**
-	 * Taxonomy phylum occurrences map.
-	 */
-	private Map<String, ProteinHitList> phylumOccMap;
-
-	/**
-	 * Taxonomy class occurrences map.
-	 */
-	private Map<String, ProteinHitList> classOccMap;
-
-	/**
-	 * Taxonomy order occurrences map.
-	 */
-	private Map<String, ProteinHitList> orderOccMap;
-
-	/**
-	 * Taxonomy family occurrences map.
-	 */
-	private Map<String, ProteinHitList> familyOccMap;
-
-	/**
-	 * Taxonomy genus occurrences map.
-	 */
-	private Map<String, ProteinHitList> genusOccMap;
-
-	/**
-	 * Taxonomy species occurrences map.
-	 */
-	private Map<String, ProteinHitList> speciesOccMap;
+	private Map<String, ProteinHitList> occMap;
 
 	/**
 	 * The database search result.
@@ -68,21 +48,18 @@ public class TaxonomyData implements ChartData {
 	 * The hierarchy level (protein, peptide or spectrum).
 	 */
 	private HierarchyLevel hierarchyLevel = HierarchyLevel.PROTEIN_LEVEL;
-
+	
+	/**
+	 * The relative threshold below which chart segments get grouped into a category labeled 'Others'.
+	 */
+	private double limit = 0.01;
+	
 	/**
 	 * Flag to determine whether proteins grouped under the 'Unknown' tag shall
 	 * be excluded in dataset generation and therefore will subsequently not be
 	 * displayed in any associated plots.
 	 */
 	private boolean hideUnknown;
-
-	/**
-	 * Enumeration holding taxonomic ranks.
-	 */
-	private enum RankList {
-		KINGDOM, PHYLUM, CLASS,	ORDER, FAMILY, GENUS, SPECIES
-	}
-
 
 	/**
 	 * Empty default constructor.
@@ -117,254 +94,206 @@ public class TaxonomyData implements ChartData {
 	 * @param dbSearchResult Database search result data.
 	 */
 	public void init() {
-
-		kingdomOccMap = new HashMap<String, ProteinHitList>();
-		phylumOccMap = new HashMap<String, ProteinHitList>();
-		classOccMap = new HashMap<String, ProteinHitList>();
-		orderOccMap = new HashMap<String, ProteinHitList>();
-		familyOccMap = new HashMap<String, ProteinHitList>();
-		genusOccMap = new HashMap<String, ProteinHitList>();
-		speciesOccMap = new HashMap<String, ProteinHitList>();
-
 		
+		hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Taxonomic>>();
 
-		//TODO Robbie new Taxonomy
-		// Map to match string rank to ENUM ranks for the switch
-		Map<String, Enum> rankMap = new HashMap<String, Enum>();
-		rankMap.put("kingdom",	RankList.KINGDOM);
-		rankMap.put("phylum",	RankList.PHYLUM);
-		rankMap.put("class",	RankList.CLASS);
-		rankMap.put("order",	RankList.ORDER);
-		rankMap.put("family",	RankList.FAMILY);
-		rankMap.put("genus",	RankList.GENUS);
-		rankMap.put("species",	RankList.SPECIES);
-
-		NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance();
+		ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+		hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, metaProteins);
+		hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, metaProteins.getProteinSet());
+		hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, metaProteins.getPeptideSet());
+		hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, metaProteins.getMatchSet());
 		
-		// Go through dbsearch result object and add taxonomy information to taxanomy maps.
-		for (ProteinHit proteinHit : dbSearchResult.getProteinHitList()) {
-
-			// Get UniProt Entry
-			UniProtEntry entry = proteinHit.getUniprotEntry();
-
-			// booleans for type of found taxonomy
-			boolean kingFound, phylFound, clasFound, ordFound, famFound, genFound, specFound;
-			kingFound = phylFound = clasFound = specFound = ordFound = famFound = genFound = false;
-
-			if (entry != null) {
-				// Get taxonomy ID
-				int taxID = Integer.valueOf(entry.getNcbiTaxonomyIds().get(0).getValue());
-				while (taxID != 1) {
-					try {
-						String rank = ncbiTax.getRank(taxID);
-						String name = ncbiTax.getTaxonName(taxID);
-						RankList rankType = (RankList) rankMap.get(rank);
-						
-						if (rankType != null) {
-							//ADD to taxonomy File
-							switch (rankType) {
-							case KINGDOM:
-								appendHit(name, kingdomOccMap, proteinHit);
-								kingFound = true;
-								break;
-							case PHYLUM:
-								appendHit(name, phylumOccMap, proteinHit);
-								phylFound = true;
-								break;
-							case CLASS:
-								appendHit(name, classOccMap, proteinHit);
-								clasFound = true;
-								break;
-							case ORDER:
-								appendHit(name, orderOccMap, proteinHit);
-								ordFound = true;
-								break;
-							case FAMILY:
-								appendHit(name, familyOccMap, proteinHit);
-								famFound = true;
-								break;
-							case GENUS:
-								appendHit(name, genusOccMap, proteinHit);
-								genFound = true;
-								break;
-							case SPECIES:
-								appendHit(name, speciesOccMap, proteinHit);
-								specFound = true;
-								break;
-							}
-						}
-						//  Get parent tax ID
-						taxID = ncbiTax.getParentTaxID(taxID);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				// ADD unknown
-				if (!kingFound) {
-					appendHit("Unknown", kingdomOccMap, proteinHit);
-				}
-				if (!phylFound) {
-					appendHit("Unknown", phylumOccMap, proteinHit);
-				}
-				if (!clasFound) {
-					appendHit("Unknown", classOccMap, proteinHit);
-				}
-				if (!ordFound) {
-					appendHit("Unknown", orderOccMap, proteinHit);
-				}
-				if (!famFound) {
-					appendHit("Unknown", familyOccMap, proteinHit);
-				}
-				if (!genFound) {
-					appendHit("Unknown", genusOccMap, proteinHit);
-				}
-				if (!specFound) {
-					appendHit("Unknown", speciesOccMap, proteinHit);
-				}
-			}
-		}
 	}
 
 	/**
-	 * Utility method to append a protein hit to the specified occurrence map.
-	 * @param keyword The key for an entry in the occurrence map.
-	 * @param map The occurrence map.
-	 * @param proteinHit The protein hit to append.
+	 * Utility method to append a protein hit list (a.k.a. a meta-protein) to
+	 * the specified occurrence map.
+	 * @param keyword the occurrence map key
+	 * @param map the occurrence map
+	 * @param metaProtein the protein hit list to append
 	 */
-	protected void appendHit(String keyword, Map<String, ProteinHitList> map, ProteinHit proteinHit) {
-		ProteinHitList protHits = map.get(keyword);
-		if (protHits == null) {
-			protHits = new ProteinHitList();
+	protected void appendHit(String keyword, Map<String, ProteinHitList> map, MetaProteinHit metaProtein) {
+		ProteinHitList metaProteins = map.get(keyword);
+		if (metaProteins == null) {
+			metaProteins = new ProteinHitList();
 		}
-		protHits.add(proteinHit);
-		map.put(keyword, protHits);
-	}
-
-	/**
-	 * This mapping has to be done due to inconsistent Uniprot data entries.
-	 * @param taxonName The taxon name.
-	 * @return The rule based taxon name.
-	 */
-	private String getRuleBasedMapping(String taxonName) {
-		// Baciallales and Lactobaciallales do not provide sufficient information.
-		if (taxonName.equals("Bacillales")) {
-			taxonName = "Bacilli";
-		} else if (taxonName.equals("Lactobacillales")) {
-			taxonName = "Bacilli";
+		if (!metaProteins.contains(metaProtein)) {
+			metaProteins.add(metaProtein);
 		}
-		return taxonName;
+		map.put(keyword, metaProteins);
 	}
 
 	/**
 	 * Returns the pieDataset.
 	 * @return
 	 */
+	@Override
 	public PieDataset getDataset() {
 		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
+		pieDataset.setValue("Unknown", new Integer(0));
+		
+		List<String> targetRanks = this.getTargetRanks();
 
-		Map<String, ProteinHitList> map = null;
-		switch ((TaxonomyChartType) chartType) {
-		case KINGDOM:
-			map = kingdomOccMap;
-			break;
-		case PHYLUM:
-			map = phylumOccMap;
-			break;
-		case CLASS:
-			map = classOccMap;
-			break;
-		case ORDER:
-			map = orderOccMap;
-			break;
-		case FAMILY:
-			map = familyOccMap;
-			break;
-		case GENUS:
-			map = genusOccMap;
-			break;
-		case SPECIES:
-			map = speciesOccMap;
-			break;
+		Collection<? extends Taxonomic> coll = this.hierarchyMap.get(hierarchyLevel);
+		List<Taxonomic> knownList = new ArrayList<Taxonomic>();
+		List<Taxonomic> unknownTaxa = new ArrayList<Taxonomic>();
+		for (Taxonomic taxonomic : coll) {
+			TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
+			String rank = taxonNode.getRank();
+			if (targetRanks.contains(rank)) {
+				knownList.add(taxonomic);
+			} else {
+				unknownTaxa.add(taxonomic);
+			}
 		}
-		Set<Entry<String, ProteinHitList>> entrySet = map.entrySet();
-
-		int sumValues = 0;
-		for (Entry<String, ProteinHitList> entry : entrySet) {
-			sumValues += getSizeByHierarchy(entry.getValue(), hierarchyLevel);
+		
+		occMap = new HashMap<String, ProteinHitList>();
+		Map<String, Integer> valMap = new HashMap<String, Integer>();
+		for (Taxonomic taxonomic : knownList) {
+			String key = taxonomic.getTaxonomyNode().getName();
+			
+			ProteinHitList hitList = occMap.get(key);
+			if (hitList == null) {
+				hitList = new ProteinHitList();
+			}
+			hitList.addAll(this.getProteinHits(taxonomic));
+			occMap.put(key, hitList);
+			
+			Integer value = valMap.get(key);
+			value = (value == null) ? 1 : value + 1;
+			valMap.put(key, value);
 		}
-
+		ProteinHitList unknownHits = new ProteinHitList();
+		for (Taxonomic taxonomic : unknownTaxa) {
+			unknownHits.addAll(getProteinHits(taxonomic));
+		}
+		occMap.put("Unknown", unknownHits);
+		valMap.put("Unknown", unknownTaxa.size());
+		
+		if (hierarchyLevel != HierarchyLevel.META_PROTEIN_LEVEL) {
+			// trim redundant elements from protein hit lists
+			for (ProteinHitList phl : occMap.values()) {
+				Set<ProteinHit> proteinSet = phl.getProteinSet();
+				phl.clear();
+				phl.addAll(proteinSet);
+			}
+		}
+		
+		double total = knownList.size() + unknownTaxa.size();
 		ProteinHitList others = new ProteinHitList();
-		double limit = 0.01;
-		for (Entry<String, ProteinHitList> entry : entrySet) {
-			Integer absVal = getSizeByHierarchy(entry.getValue(), hierarchyLevel);
-			double relVal = absVal * 1.0 / sumValues * 1.0;
+		String othersKey = "Others";
+		int othersVal = 0;
+		for (Entry<String, Integer> entry : valMap.entrySet()) {
+			Integer absVal = entry.getValue();
+			double relVal = absVal / total;
 			Comparable key;
-			if (relVal >= limit) {
+			if (relVal >= this.limit) {
 				key = entry.getKey();
 			} else {
-				key = "Others";
+				key = othersKey;
 				// add grouped hits to list and store it in map they originate from
 				// TODO: do this in pre-processing step, e.g. inside init()
-				others.addAll(entry.getValue());
-
-				absVal = getSizeByHierarchy(others, hierarchyLevel);
+				others.addAll(occMap.get(entry.getKey()));
+				
+				othersVal += absVal;
+				absVal = othersVal;
 			}
 			pieDataset.setValue(key, absVal);
 		}
-		if (!others.isEmpty() && !map.containsKey("Others")) {
-			map.put("Others", others);
+		if (!others.isEmpty()) {
+			occMap.put(othersKey, others);
+		} else {
+			occMap.remove(othersKey);
 		}
+		
 		if (hideUnknown) {
-			pieDataset.setValue("Unknown", new Integer(0));
+			pieDataset.setValue("Unknown", 0);
 		}
-
+		
 		return pieDataset;
 	}
 
 	/**
-	 * Utility method to return size of hierarchically grouped data in a protein
-	 * hit list.
-	 * @param phl the protein hit list
-	 * @param hl the hierarchy level, one of <code>PROTEIN_LEVEL</code>, 
-	 * <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>
-	 * @return the data size
+	 * Convenience method to find a protein hit corresponding to the specified
+	 * Taxonomic instance.
+	 * @param taxonomic the Taxonomic instance
+	 * @return a corresponding protein hit
 	 */
-	private int getSizeByHierarchy(ProteinHitList phl, HierarchyLevel hl) {
-		switch (hl) {
-		case PROTEIN_LEVEL:
-			return phl.size();
-		case PEPTIDE_LEVEL:
-			return phl.getPeptideSet().size();
-		case SPECTRUM_LEVEL:
-			return phl.getMatchSet().size();
-		default:
-			return 0;
+	private List<ProteinHit> getProteinHits(Taxonomic taxonomic) {
+		List<ProteinHit> res = new ArrayList<ProteinHit>();
+		if (taxonomic instanceof ProteinHit) {
+			// proteins and meta-proteins can be added as-is
+			ProteinHit proteinHit = (ProteinHit) taxonomic;
+			if (proteinHit.isSelected()) {
+				res.add(proteinHit);
+			}
+		} else if (taxonomic instanceof PeptideHit) {
+			// peptides add their parent proteins
+			PeptideHit peptideHit = (PeptideHit) taxonomic;
+			for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
+				if (proteinHit.isSelected()) {
+					res.add(proteinHit);
+				}
+			}
+//			res.addAll(peptideHit.getProteinHits());
+		} else if (taxonomic instanceof SpectrumMatch) {
+			// find match inside all peptides, add corresponding parent proteins
+			Collection<? extends Taxonomic> coll = hierarchyMap.get(HierarchyLevel.PEPTIDE_LEVEL);
+			for (Taxonomic tax : coll) {
+				PeptideHit peptideHit = (PeptideHit) tax;
+				for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+					if (match.equals(taxonomic)) {
+						res.addAll(getProteinHits(peptideHit));
+						break;
+					}
+				}
+			}
+		} else {
+			// if we got here something went terribly wrong!
+			System.err.println("Unknown Taxonomic instance: " + taxonomic);
 		}
+		return res;
+	}
+
+	/**
+	 * Returns the rank type corresponding to the current chart type and all
+	 * ranks below it.
+	 * @return all target rank types
+	 */
+	private List<String> getTargetRanks() {
+		List<String> targetRanks = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
+		String type = chartType.getTitle().toLowerCase();
+		targetRanks = targetRanks.subList(targetRanks.indexOf(type), targetRanks.size());
+		
+		return targetRanks;
 	}
 
 	@Override
-	public List<ProteinHit> getProteinHits(String key) {
-		switch ((TaxonomyChartType) chartType) {
-		case KINGDOM:
-			return kingdomOccMap.get(key);
-		case PHYLUM:
-			return phylumOccMap.get(key);
-		case CLASS:
-			return classOccMap.get(key);
-		case ORDER:
-			return orderOccMap.get(key);
-		case FAMILY:
-			return familyOccMap.get(key);
-		case GENUS:
-			return genusOccMap.get(key);
-		case SPECIES:
-			return speciesOccMap.get(key);
-		default:
-			return null;
-		}
+	public ProteinHitList getProteinHits(String key) {
+//		Set<ProteinHit> hitSet = new HashSet<ProteinHit>();
+//		if (this.hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
+//			Collection<? extends Taxonomic> coll = this.hierarchyMap.get(HierarchyLevel.META_PROTEIN_LEVEL);
+//			for (Taxonomic taxonomic : coll) {
+//				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
+//				if (key.equals(taxonNode.getName())) {
+//					MetaProteinHit metaProtein = (MetaProteinHit) taxonomic;
+//					hitSet.add(metaProtein);
+//				}
+//			}
+//		} else {
+//			Collection<? extends Taxonomic> coll = this.hierarchyMap.get(HierarchyLevel.PROTEIN_LEVEL);
+//			for (Taxonomic taxonomic : coll) {
+//				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
+//				if (key.equals(taxonNode.getName())) {
+//					hitSet.add((ProteinHit) taxonomic);
+//				}
+//			}
+//		}
+//		return new ProteinHitList(hitSet);
+		return occMap.get(key);
 	}
-
+	
 	/**
 	 * Sets the chart type.
 	 * @param chartType The chart type.
@@ -387,13 +316,17 @@ public class TaxonomyData implements ChartData {
 	 * Clears the occurrences map. 
 	 */
 	public void clear() {
-		if (kingdomOccMap != null)	kingdomOccMap.clear();
-		if (phylumOccMap != null)	phylumOccMap.clear();
-		if (classOccMap != null)	classOccMap.clear();
-		if (orderOccMap != null)	orderOccMap.clear();
-		if (familyOccMap != null)	familyOccMap.clear();
-		if (genusOccMap != null)	genusOccMap.clear();
-		if (speciesOccMap != null)	speciesOccMap.clear();
+		if (hierarchyMap != null) {
+			hierarchyMap.clear();
+		}
+	}
+	
+	/**
+	 * Sets the relative size limit for pie segments.
+	 * @param limit the limit
+	 */
+	public void setLimit(double limit) {
+		this.limit = limit;
 	}
 
 	/**
@@ -404,5 +337,5 @@ public class TaxonomyData implements ChartData {
 	public void setHideUnknown(boolean hideUnknown) {
 		this.hideUnknown = hideUnknown;
 	}
-
+	
 }

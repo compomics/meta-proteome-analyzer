@@ -1,6 +1,5 @@
 package de.mpa.client;
 
-import java.io.File;
 import java.util.Enumeration;
 
 import javax.swing.filechooser.FileFilter;
@@ -160,7 +159,7 @@ public class Constants {
 			"Mascot Generic Format Files (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Project Files (*.mpa)");
-	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
+	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV (tab-separated) Files (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");

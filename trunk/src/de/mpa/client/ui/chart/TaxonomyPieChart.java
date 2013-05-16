@@ -30,6 +30,11 @@ public class TaxonomyPieChart extends Chart {
 		public String toString() {
 			return title + " Taxonomy";
 		}
+		@Override
+		
+		public String getTitle() {
+			return title;
+		}
 	}
 		
 	/**
