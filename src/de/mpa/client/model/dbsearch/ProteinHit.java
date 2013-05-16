@@ -13,6 +13,8 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.taxonomy.Taxonomic;
+import de.mpa.taxonomy.TaxonomyNode;
 
 
 /**
@@ -21,7 +23,7 @@ import de.mpa.client.model.SpectrumMatch;
  * 
  * @author T. Muth, R. Heyer, A. Behne, F. Kohrs
  */
-public class ProteinHit implements Serializable {
+public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonomic {
 	
 	/**
 	 *  Flag denoting whether this protein is selected for export.
@@ -79,23 +81,32 @@ public class ProteinHit implements Serializable {
 	private double coverage = -1.0;
 	
 	/**
-	 * The Normalized Spectral Abundance Factor of the protein hit.
+	 * The normalized spectral abundance factor of the protein hit.
 	 */
-	private double nSAF = -1.0;
+	private double nsaf = -1.0;
 	
 	/**
 	 * The Exponentially Modified Protein Abundance Index of the protein hit.
 	 */
-	private double emPAI = -1.0;
+	private double empai = -1.0;
 
 	/**
-	 * The UniProt entry object containing additional metadata.
+	 * The UniProt entry object containing additional meta-data.
 	 */
 	private UniProtEntry uniprotEntry = null;
 	
 	/**
-	 * Constructor for a simple protein hit with accession only.
-	 * @param accession
+	 * The taxonomy node reference.
+	 */
+	private TaxonomyNode taxonNode = new TaxonomyNode(1, "no rank", "root");
+
+	/**
+	 * Constructs a protein hit from the specified accession, description and
+	 * sequence string as well as a single peptide hit.
+	 * @param accession the protein accession
+	 * @param description the protein description
+	 * @param sequence the protein sequence
+	 * @param peptideHit the peptide hit
 	 */
 	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit){
 		this.accession = accession;
@@ -106,25 +117,33 @@ public class ProteinHit implements Serializable {
 			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 		}
 	}
+
+	/**
+	 * Constructor for a simple protein hit with accession only.
+	 * @param accession the protein accession
+	 */
+	public ProteinHit(String accession) {
+		this(accession, "", "", null);
+	}
 	
 	/**
-	 * Gets the protein's amino acid sequence.
-	 * @return The protein sequence.
+	 * Returns the protein's amino acid sequence.
+	 * @return the sequence
 	 */
 	public String getSequence() {
 		return sequence;
 	}
 	
 	/**
-	 * Sets the protein's amino acid sequence
-	 * @param sequence The sequence of the protein.
+	 * Sets the protein's amino acid sequence.
+	 * @param sequence the sequence to set
 	 */
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
 	}
 	
 	/**
-	 * Returns the accession.
+	 * Returns the protein accession.
 	 * @return the accession
 	 */
 	public String getAccession() {
@@ -132,7 +151,15 @@ public class ProteinHit implements Serializable {
 	}
 	
 	/**
-	 * Returns the description.
+	 * Sets the protein accession.
+	 * @param accession the accession to set
+	 */
+	public void setAccession(String accession) {
+		this.accession = accession;
+	}
+
+	/**
+	 * Returns the protein description.
 	 * @return the description
 	 */
 	public String getDescription() {
@@ -140,8 +167,8 @@ public class ProteinHit implements Serializable {
 	}
 	
 	/**
-	 * Sets the description 
-	 * @param description
+	 * Sets the protein description.
+	 * @param description the description to set
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -149,7 +176,7 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Returns the species of the protein
-	 * @return species
+	 * @return species the species
 	 */
 	public String getSpecies() {
 		// Extract species string from description
@@ -164,23 +191,23 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Sets the species of the protein
-	 * @param species
+	 * @param species the species to set
 	 */
 	public void setSpecies(String species) {
 		this.species = species;
 	}
 	
 	/**
-	 * Gets lowest protein identity between this and the other proteins of this (meta) protein.
-	 * @return identity
+	 * Returns the sequence identity.
+	 * @return identity the sequence identity
 	 */
 	public double getIdentity() {
 		return identity;
 	}
 
 	/**
-	 * Sets the protein identity for this protein against the other proteins in this group
-	 * @param identity
+	 * Sets the sequence identity for this protein w.r.t. other proteins in a group
+	 * @param identity the sequence identity to set
 	 */
 	public void setIdentity(double identity) {
 		this.identity = identity;
@@ -188,7 +215,7 @@ public class ProteinHit implements Serializable {
 
 	/**
 	 * Returns the sequence coverage.
-	 * @return The sequence coverage
+	 * @return the sequence coverage
 	 */
 	public double getCoverage() {
 		if (coverage < 0.0) {
@@ -198,7 +225,7 @@ public class ProteinHit implements Serializable {
 	}
 	/**
 	 * Sets the sequence coverage.
-	 * @param coverage The sequence coverage to set
+	 * @param coverage the sequence coverage to set
 	 */
 	public void setCoverage(double coverage) {
 		this.coverage = coverage;
@@ -206,7 +233,7 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Returns the molecular weight.
-	 * @return The molecular weight.
+	 * @return the molecular weight
 	 */
 	public double getMolecularWeight() {
 		if (molWeight < 0.0) {
@@ -217,7 +244,7 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Sets the molecular weight of the protein.
-	 * @param molWeight The molecular weight of the protein.
+	 * @param molWeight the molecular weight to set
 	 */
 	public void setMolecularWeight(double molWeight) {
 		this.molWeight = molWeight;
@@ -225,6 +252,7 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Gets the isoelectric point of the protein. 
+	 * @return the pI
 	 */
 	public double getIsoelectricPoint() {
 		if (pI < 0.0) {
@@ -235,7 +263,7 @@ public class ProteinHit implements Serializable {
 
 	/**	
 	 * Sets the isoelectric point of the protein.
-	 * @param pI The isoelectric point of the protein.
+	 * @param pI the pI to set
 	 */
 	public void setIsoelectricPoint(double pI) {
 		this.pI = pI;
@@ -243,7 +271,7 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Returns the peptide count for the protein hit.
-	 * @return The number of peptides found in the protein hit.
+	 * @return he number of peptides found in the protein hit
 	 */
 	public int getPeptideCount(){
 		return peptideHits.size();
@@ -251,7 +279,7 @@ public class ProteinHit implements Serializable {
 	
 	/**
 	 * Calculates and returns the spectral count.
-	 * @return The spectral count.
+	 * @return the spectral count
 	 */
 	public int getSpectralCount() {
 		if (specCount < 0) {
@@ -270,42 +298,42 @@ public class ProteinHit implements Serializable {
 
 	/**
 	 * Gets the emPAI of the protein
-	 * @return emPAI
+	 * @return the emPAI
 	 */
 	public double getEmPAI() {
-		if (emPAI < 0.0) {
-			emPAI = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
+		if (empai < 0.0) {
+			empai = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
 		}
-		return emPAI;
+		return empai;
 	}
 	
 	/**
-	 * Sets the emPAI of the protein
-	 * @param emPAI
+	 * Sets the emPAI of the protein.
+	 * @param emPAI the emPAI to set
 	 */
 	public void setEmPAI(double emPAI) {
-		this.emPAI = emPAI;
+		this.empai = emPAI;
 	}
 
 	/**
 	 * Returns the NSAF protein quantification value.
-	 * @return The NSAF protein quantification.
+	 * @return the NSAF
 	 */
 	public double getNSAF() {
-//		if (nSAF < 0.0) {
+//		if (nsaf < 0.0) {
 //			Exception e = new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first.");
 //			JXErrorPane.showDialog(ClientFrame.getInstance(),
 //					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 //		}
-		return nSAF;
+		return nsaf;
 	}
 	
 	/**
-	 * Sets the NSAF protein quantification value.
-	 * @param nSAF The NSAF quantification value to set
+	 * Sets the NSAF protein quantification value
+	 * @param NSAF the NSAF to set
 	 */
-	public void setNSAF(double nSAF) {
-		this.nSAF = nSAF;
+	public void setNSAF(double nsaf) {
+		this.nsaf = nsaf;
 	}
 	
 	/**
@@ -417,6 +445,16 @@ public class ProteinHit implements Serializable {
 	}
 	
 	@Override
+	public TaxonomyNode getTaxonomyNode() {
+		return taxonNode;
+	}
+
+	@Override
+	public void setTaxonomyNode(TaxonomyNode taxonNode) {
+		this.taxonNode = taxonNode;
+	}
+	
+	@Override
 	public String toString() {
 		return (getAccession() + " | " + getDescription());
 	}
@@ -429,6 +467,10 @@ public class ProteinHit implements Serializable {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public int compareTo(ProteinHit that) {
+		return this.getAccession().compareTo(that.getAccession());
+	}
 	
 }

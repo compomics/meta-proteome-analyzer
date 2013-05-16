@@ -20,11 +20,15 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
@@ -59,12 +63,14 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -73,6 +79,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
@@ -87,6 +94,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -140,6 +148,11 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.Plot;
+import org.jfree.data.general.DefaultPieDataset;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -166,6 +179,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
@@ -188,6 +202,14 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.chart.Chart;
+import de.mpa.client.ui.chart.ChartFactory;
+import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.OntologyData;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyData;
+import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
@@ -197,7 +219,7 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.taxonomy.NcbiTaxonomy;
-import de.mpa.taxonomy.TaxonNode;
+import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -618,15 +640,18 @@ public class DbSearchResultPanel extends JPanel {
 		
 		spectrumOverviewPnl.add(specCont, BorderLayout.CENTER);
 		spectrumOverviewPnl.add(constructSpectrumFilterPanel(), BorderLayout.EAST);
+		// FIXME: put spectrum panel in chart panel
 		
 		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
 		specTtlPnl.setTitleFont(ttlFont);
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
 		
+		JXTitledPanel chartTtlPnl = createChartPanel();
+		
 		// Set up multi-split pane
 		String layoutDef =
-			"(COLUMN (LEAF weight=0.35 name=protein) (ROW weight=0.65 (COLUMN weight=0.35 (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) (LEAF weight=0.65 name=plot)))";
+			"(COLUMN (LEAF weight=0.35 name=protein) (ROW weight=0.65 (COLUMN weight=0.35 (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) (LEAF weight=0.65 name=chart)))";
 		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 		
 		MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
@@ -648,7 +673,8 @@ public class DbSearchResultPanel extends JPanel {
 		split.add(protTtlPnl, "protein");
 		split.add(pepTtlPnl, "peptide");
 		split.add(psmTtlPnl, "psm");
-		split.add(specTtlPnl, "plot");
+//		split.add(specTtlPnl, "plot");
+		split.add(specTtlPnl, "chart");
 		
 		this.add(split, CC.xy(2, 2));
 		
@@ -837,41 +863,106 @@ public class DbSearchResultPanel extends JPanel {
 						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 						client.firePropertyChange("indeterminate", true, false);
 						
-						// Get all distinct peptides from result object
-						ProteinHitList proteinHitList = (ProteinHitList) newResult.getProteinHitList();
-						Set<PeptideHit> peptideSet = proteinHitList.getPeptideSet();
+						// Get various hit lists from result object
+						ProteinHitList metaProteinList = newResult.getMetaProteins();
+						ProteinHitList proteinList = (ProteinHitList) newResult.getProteinHitList();
+						Set<PeptideHit> peptideSet = proteinList.getPeptideSet();	// all distinct peptides
+						
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-						Client.getInstance().firePropertyChange("resetall", -1L, (long) peptideSet.size());
+						Client.getInstance().firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteinList.size()));
 						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 						
-						// Add taxon nodes to the peptides
+						// Determine peptide taxonomy
 						for (PeptideHit peptideHit : peptideSet) {
-							peptideHit.getCommonNcbiTaxonomy(peptideHit);	// Build taxon node list
+							// gather protein taxonomy nodes
+							List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+							for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
+								taxonNodes.add(proteinHit.getTaxonomyNode());
+							}
+							// find common ancestor node
+							TaxonomyNode ancestor = taxonNodes.get(0);
+							for (int i = 0; i < taxonNodes.size(); i++) {
+								ancestor = NcbiTaxonomy.getInstance().getCommonTaxonNode(ancestor, taxonNodes.get(i));
+							}
+							// set peptide hit taxon node to ancestor
+							peptideHit.setTaxonomyNode(ancestor);
+							
+							// possible TODO: determine spectrum taxonomy instead of inheriting directly from peptide
+							for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+								match.setTaxonomyNode(ancestor);
+							}
+							// fire progress notification
 							Client.getInstance().firePropertyChange("progressmade", false, true);
 						}
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
+
+						// Determine protein taxonomy
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) proteinList.size());
 						
-						// Combine protein hits to metaproteins  if they share all proteins
-						List<ProteinHitList> metaProteins = newResult.getMetaProteins();
-						Iterator<ProteinHitList> rowIter = metaProteins.iterator();
+						for (ProteinHit proteinHit : proteinList) {
+							// gather protein taxonomy nodes
+							List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+							for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
+								taxonNodes.add(peptideHit.getTaxonomyNode());
+							}
+							// find common ancestor node
+							TaxonomyNode ancestor = taxonNodes.get(0);
+							for (int i = 0; i < taxonNodes.size(); i++) {
+								ancestor = NcbiTaxonomy.getInstance().getCommonTaxonNode(ancestor, taxonNodes.get(i));
+							}
+							// set peptide hit taxon node to ancestor
+							proteinHit.setTaxonomyNode(ancestor);
+							// fire progress notification
+							Client.getInstance().firePropertyChange("progressmade", false, true);
+						}
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+						
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteinList.size());
+						
+						// Combine protein hits to metaproteins if they share all proteins
+						Iterator<ProteinHit> rowIter = metaProteinList.iterator();
 						while (rowIter.hasNext()) {
-							ProteinHitList rowMP = (ProteinHitList) rowIter.next();
+							MetaProteinHit rowMP = (MetaProteinHit) rowIter.next();
 							Set<PeptideHit> rowPS = rowMP.getPeptideSet();
-							ListIterator<ProteinHitList> colIter = metaProteins.listIterator(metaProteins.size());
+							ListIterator<ProteinHit> colIter = metaProteinList.listIterator(metaProteinList.size());
 							// Start to iterate beginning from the end to improve cpu time.
 							while (colIter.hasPrevious()) {
-								ProteinHitList colMP = (ProteinHitList) colIter.previous();
+								MetaProteinHit colMP = (MetaProteinHit) colIter.previous();
 								if (rowMP == colMP) {
 									break;
 								}
 								Set<PeptideHit> colPS = colMP.getPeptideSet();
 								if (colPS.containsAll(rowPS) || rowPS.containsAll(colPS)) {
-									colMP.addAll(rowMP);
+									colMP.addAll(rowMP.getProteinHits());
 									rowIter.remove();
+									Client.getInstance().firePropertyChange("progressmade", false, true);
 									break;
 								}
 							}
 						}
+						
+						int metaIndex = 1;
+						for (ProteinHit metaProteinHit : metaProteinList) {
+							// rename meta-protein
+							metaProteinHit.setAccession("Meta-Protein " + metaIndex++);
+							// gather protein taxonomy nodes
+							List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+							for (ProteinHit proteinHit : ((MetaProteinHit) metaProteinHit).getProteinHits()) {
+								taxonNodes.add(proteinHit.getTaxonomyNode());
+							}
+							// find common ancestor node
+							TaxonomyNode ancestor = taxonNodes.get(0);
+							for (int i = 0; i < taxonNodes.size(); i++) {
+								ancestor = NcbiTaxonomy.getInstance().getCommonTaxonNode(ancestor, taxonNodes.get(i));
+							}
+							// set peptide hit taxon node to ancestor
+							metaProteinHit.setTaxonomyNode(ancestor);
+							// fire progress notification
+							Client.getInstance().firePropertyChange("progressmade", false, true);
+						}
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
 					}
 					// Update result object reference
 					dbSearchResult = newResult;
@@ -896,7 +987,10 @@ public class DbSearchResultPanel extends JPanel {
 			// Stop appearing busy
 			setBusy(false);
 			
-			clientFrame.getResultsPanel().getChartTypeButton().setEnabled(true);
+			chartTypeBtn.setEnabled(true);
+			ontologyData = new OntologyData(dbSearchResult);
+			taxonomyData = new TaxonomyData(dbSearchResult);
+			updateChart(chartType);
 			
 			// Enable export functionality
 			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
@@ -1005,6 +1099,7 @@ public class DbSearchResultPanel extends JPanel {
 					String accession = (String) getValueAt(row, PROT_ACCESSION);
 					ProteinHit hit = proteinHits.get(accession);
 					hit.setSelected(selected);
+					System.out.println(selected);
 					if (selected) {
 						for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 							selected &= ph.isSelected();
@@ -1357,6 +1452,11 @@ public class DbSearchResultPanel extends JPanel {
 									synching = false;
 								}
 							}
+						}
+						if (node.isProtein()) {
+							ProteinHit proteinHit = (ProteinHit) node.getUserObject();
+							proteinHit.setSelected(cbtsm.isPathSelected(paths[i], true));
+							System.out.println(proteinHit.toString() + "   " + proteinHit.isSelected());
 						}
 					}
 				}
@@ -1847,7 +1947,7 @@ public class DbSearchResultPanel extends JPanel {
 				if (selRow != -1) {
 					coverageSelectionModel.setValue(peptideTbl.convertRowIndexToModel(selRow));
 					PeptideHit peptideHit = dbSearchResult.getProteinHit((String) proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION)).getPeptideHit((String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE));
-					protCHighlightPredicate.setProteinHits(peptideHit.getProteinList());
+					protCHighlightPredicate.setProteinHits(peptideHit.getProteinHits());
 					proteinTbl.repaint();
 				}
 				refreshPsmTable();
@@ -2207,8 +2307,9 @@ public class DbSearchResultPanel extends JPanel {
 
 	/**
 	 * Method to refresh protein table contents.
+	 * @throws Exception 
 	 */
-	protected void refreshProteinTables() {
+	protected void refreshProteinTables() throws Exception {
 		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 			// Display number of proteins in title area
@@ -2241,7 +2342,7 @@ public class DbSearchResultPanel extends JPanel {
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 			
 			// Iterate over metaproteins to fill the columns in the flatview
-			int metaIndex = 1;
+//			int metaIndex = 1;
 			
 //			// Get Matrix for the calculation of the identity
 //			Matrix matrix = null;
@@ -2255,7 +2356,8 @@ public class DbSearchResultPanel extends JPanel {
 //			}
 			
 			Logger.getLogger(SmithWatermanGotoh.class.getName()).setLevel(Level.OFF);
-			for (ProteinHitList metaProtein : dbSearchResult.getMetaProteins()) {
+			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+			for (ProteinHit metaProtein : metaProteins) {
 				// Create default values for meta-ProteinHit;
 				String metaDesc 	= "";
 				double metaSC		= 0.0;
@@ -2265,9 +2367,9 @@ public class DbSearchResultPanel extends JPanel {
 				double metaEmPai	= 0.0;
 				double metaNsaf     = 0.0;
 				
-				ProteinHit metaProteinHit = new ProteinHit("Meta-Protein " + (metaIndex++),"", "", null);
-				PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProteinHit);
-				for (ProteinHit proteinHit : metaProtein) {
+//				ProteinHit metaProteinHit = new ProteinHit("Meta-Protein " + (metaIndex++),"", "", null);
+				PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
+				for (ProteinHit proteinHit : ((MetaProteinHit) metaProtein).getProteinHits()) {
 					// Extract species string from description
 					String desc = proteinHit.getDescription();
 					if (desc != null) {
@@ -2298,12 +2400,12 @@ public class DbSearchResultPanel extends JPanel {
 
 					// Get common taxonomy for each protein Hit
 					if (!Client.getInstance().isViewer()) { // Check for viewer Mode
-						TaxonNode commonAncestorNode = proteinHit.getPeptideHitList().get(0).getTaxonNode();
+						TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
 						for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 							// TODO Changed commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(commonAncestorNode, peptideHit.getTaxonNode());
-							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(commonAncestorNode, peptideHit.getTaxonNode());
+							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(commonAncestorNode, peptideHit.getTaxonomyNode());
 						}
-						proteinHit.setSpecies(commonAncestorNode.getTaxName() + " (" + commonAncestorNode.getRank()+ ")" );
+						proteinHit.setSpecies(commonAncestorNode.getName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
 //						// Get minimal identity for the protein
 //						if (proteinHit.getSequence().length() > 0 && proteinHit.getSequence().length() <= 5000) {
@@ -2343,9 +2445,9 @@ public class DbSearchResultPanel extends JPanel {
 					metaDesc = proteinHit.getDescription();
 					metaSC = Math.max(metaSC, proteinHit.getCoverage());
 					metaIdentity = Math.min(metaIdentity, proteinHit.getIdentity());
-					metaMW = metaMW + proteinHit.getMolecularWeight() / metaProtein.size();
-					metaPI = metaPI + proteinHit.getIsoelectricPoint() / metaProtein.size();
-					metaProteinHit.addPeptideHits(proteinHit.getPeptideHits());
+					metaMW = metaMW + proteinHit.getMolecularWeight() / metaProteins.size();
+					metaPI = metaPI + proteinHit.getIsoelectricPoint() / metaProteins.size();
+					metaProtein.addPeptideHits(proteinHit.getPeptideHits());
 					metaEmPai = Math.max(metaEmPai, proteinHit.getEmPAI());
 					metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
 					
@@ -2388,27 +2490,29 @@ public class DbSearchResultPanel extends JPanel {
 				}
 				if (metaNode.getChildCount() == 1) {
 					metaNode = (PhylogenyTreeTableNode) metaNode.getChildAt(0);
+//				} else {
+//					metaProtein.setAccession("Meta-Protein " + metaIndex++);
 				}
 				
 				// Set values for the metaprotein
-				metaProteinHit.setDescription(metaDesc);
+				metaProtein.setDescription(metaDesc);
 				if (!Client.getInstance().isViewer()) {
 					// Get highest common Taxonomy
-					TaxonNode firstNode = metaProteinHit.getPeptideHitList().get(0).getTaxonNode();
-					for (PeptideHit peptideHit : metaProteinHit.getPeptideHitList()) {
-						TaxonNode taxonNode = peptideHit.getTaxonNode();
+					TaxonomyNode firstNode = metaProtein.getPeptideHitList().get(0).getTaxonomyNode();
+					for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
+						TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
 						firstNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(firstNode,taxonNode);
 					}
-					metaProtein.setSpecies(firstNode.getTaxName() + " (" + firstNode.getRank() +")");
+					metaProtein.setSpecies(firstNode.getName() + " (" + firstNode.getRank() +")");
 				}
-				metaProteinHit.setSpecies(metaProtein.getSpecies());
-				metaProteinHit.setIdentity(metaIdentity);
-				metaProteinHit.setCoverage(metaSC);
-				metaProteinHit.setMolecularWeight(metaMW);
-				metaProteinHit.setIsoelectricPoint(metaPI);
-				metaProteinHit.setEmPAI(metaEmPai);
-				metaProteinHit.setNSAF(metaNsaf);
-				metaProteinHit.setCoverage(metaSC);
+//				metaProtein.setSpecies(metaProtein.getSpecies());
+				metaProtein.setIdentity(metaIdentity);
+				metaProtein.setCoverage(metaSC);
+				metaProtein.setMolecularWeight(metaMW);
+				metaProtein.setIsoelectricPoint(metaPI);
+				metaProtein.setEmPAI(metaEmPai);
+				metaProtein.setNSAF(metaNsaf);
+				metaProtein.setCoverage(metaSC);
 				
 				insertFlatNode(metaNode);
 			}
@@ -2804,10 +2908,10 @@ public class DbSearchResultPanel extends JPanel {
 				maxProtCount = Math.max(maxProtCount, protCount);
 				maxSpecCount = Math.max(maxSpecCount, specCount);
 				// Add table row
-				TaxonNode taxonNode = peptideHit.getTaxonNode();
+				TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
 				String taxonName = "";
 				if (taxonNode != null) {
-					taxonName += taxonNode.getTaxName() + " (" + taxonNode.getTaxId() + ")";
+					taxonName += taxonNode.getName() + " (" + taxonNode.getId() + ")";
 				}
 			
 				peptideTblMdl.addRow(new Object[] {
@@ -3592,21 +3696,340 @@ public class DbSearchResultPanel extends JPanel {
 		}
 	}
 	
-	/**
-	 * Gets the dbSearchResult Object.
-	 * @return dbSearchResult 
-	 */
-	public DbSearchResult getDbSearchResult() {
-		return dbSearchResult;
-	}
-
 	
+	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;;
+
+	private ChartPanel chartPnl;
+	private JToggleButton chartTypeBtn;
+	private JComboBox chartPieHierCbx;
+	private JCheckBox chartPieHideChk;
+	private JCheckBox chartPieGroupChk;
+	private JScrollBar chartBar;
+	protected double chartPieAngle;
+
+	protected OntologyData ontologyData;
+	protected TaxonomyData taxonomyData;
+	
+	private ChartType spectrumType = new ChartType() {
+		public String getTitle() { return ""; }
+		public String toString() { return "Spectrum Viewer"; };
+	};
 
 	/**
-	 * Gets the protein result table
+	 * Creates and returns the top-right chart panel (wrapped in a
+	 * JXTitledPanel)
 	 */
-	public JXTable getProteinTbl() {
-		return proteinTbl;
+	private JXTitledPanel createChartPanel() {
+
+		// init chart types
+		final ChartType[] chartTypes = new ChartType[] {
+				OntologyChartType.BIOLOGICAL_PROCESS,
+				OntologyChartType.MOLECULAR_FUNCTION,
+				OntologyChartType.CELLULAR_COMPONENT,
+				TaxonomyChartType.KINGDOM,
+				TaxonomyChartType.PHYLUM,
+				TaxonomyChartType.CLASS,
+				TaxonomyChartType.ORDER,
+				TaxonomyChartType.FAMILY,
+				TaxonomyChartType.GENUS,
+				TaxonomyChartType.SPECIES,
+				spectrumType
+		};
+
+		chartTypeBtn = new JToggleButton(
+				IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
+		chartTypeBtn.setRolloverIcon(IconConstants
+				.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
+		chartTypeBtn.setPressedIcon(IconConstants
+				.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
+		chartTypeBtn.setToolTipText("Select Chart Type");
+		chartTypeBtn.setEnabled(false);
+
+		chartTypeBtn.setUI(new RoundedHoverButtonUI());
+
+		chartTypeBtn.setOpaque(false);
+		chartTypeBtn.setBorderPainted(false);
+		chartTypeBtn.setMargin(new Insets(1, 0, 0, 0));
+
+		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
+		chartTypeBtn.addMouseListener(ittml);
+
+		// create chart type selection popup
+		final JPopupMenu chartTypePop = new JPopupMenu();
+		
+		JMenu ontologyMenu = new JMenu("Ontology");
+		ontologyMenu.setIcon(IconConstants.PIE_CHART_ICON);
+		chartTypePop.add(ontologyMenu);
+		JMenu taxonomyMenu = new JMenu("Taxonomy");
+		taxonomyMenu.setIcon(IconConstants.PIE_CHART_ICON);
+		chartTypePop.add(taxonomyMenu);
+		
+		ActionListener chartListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				String title = ((JMenuItem) evt.getSource()).getText();
+				ChartType newChartType = null;
+				for (ChartType chartType : chartTypes) {
+					if (title.equals(chartType.toString())) {
+						newChartType = chartType;
+					}
+				}
+				if (newChartType != chartType) {
+					updateChart(newChartType);
+				}
+			}
+		};
+		ButtonGroup chartBtnGrp = new ButtonGroup();
+		int j = 0;
+		for (ChartType chartType : chartTypes) {
+			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
+			item.addActionListener(chartListener);
+			chartBtnGrp.add(item);
+			if (chartType instanceof OntologyChartType) {
+				ontologyMenu.add(item);
+			} else if (chartType instanceof TaxonomyChartType) {
+				taxonomyMenu.add(item);
+			} else {
+				item.setIcon(IconConstants.BAR_CHART_ICON);
+				chartTypePop.add(item);
+			}
+		}
+		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+				chartTypeBtn.setSelected(false);
+			}
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			}
+
+			public void popupMenuCanceled(PopupMenuEvent e) {
+			}
+		});
+
+		// link popup to button
+		chartTypeBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				chartTypePop.show(chartTypeBtn, 0, chartTypeBtn.getHeight());
+			}
+		});
+
+		// arrange button in panel
+		JPanel chartBtnPnl = new JPanel(new FormLayout("p, 1px", "f:p:g"));
+		chartBtnPnl.setOpaque(false);
+		chartBtnPnl.add(chartTypeBtn, CC.xy(1, 1));
+
+		// create and configure chart panel for plots
+		chartPnl = new ChartPanel(null);
+		chartPnl.setMinimumDrawHeight(144);
+		chartPnl.setMaximumDrawHeight(1440);
+		chartPnl.setMinimumDrawWidth(256);
+		chartPnl.setMaximumDrawWidth(2560);
+		chartPnl.setOpaque(false);
+		chartPnl.setPreferredSize(new Dimension(256, 144));
+		chartPnl.setMinimumSize(new Dimension(256, 144));
+
+		// create combobox to control what counts to display in the plots
+		// (protein/peptide/spectrum count)
+		chartPieHierCbx = new JComboBox(HierarchyLevel.values());
+		chartPieHierCbx.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == ItemEvent.SELECTED) {
+					HierarchyLevel hl = (HierarchyLevel) evt.getItem();
+					
+					ontologyData.setHierarchyLevel(hl);
+					taxonomyData.setHierarchyLevel(hl);
+					
+					updateChart(chartType);
+				}
+			}
+		});
+		chartPieHierCbx.setVisible(false);
+
+		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
+		
+		chartPieHideChk = new JCheckBox("Hide Unknown", false);
+		chartPieHideChk.setOpaque(false);
+		chartPieHideChk.setVisible(false);
+		chartPieHideChk.addItemListener(new ItemListener() {
+			private boolean doHide;
+			@Override
+			public void itemStateChanged(ItemEvent evt) {
+				doHide = (evt.getStateChange() == ItemEvent.SELECTED);
+				ontologyData.setHideUnknown(doHide);
+				taxonomyData.setHideUnknown(doHide);
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground() throws Exception {
+						chartPieHideChk.setEnabled(false);
+						Plot plot = chartPnl.getChart().getPlot();
+						if (plot instanceof PiePlot) {
+							DefaultPieDataset dataset =
+									(DefaultPieDataset) ((PiePlot) plot).getDataset();
+							if (doHide) {
+								double val = dataset.getValue("Unknown").doubleValue();
+								for (int i = 0; i < 11; i++) {
+									double tmp = 1.0 - i / 10.0;
+									double newVal = val * tmp * tmp;
+									dataset.setValue("Unknown", newVal);
+									if (newVal > 0.0) {
+										Thread.sleep(33);
+									} else {
+										break;
+									}
+								}
+							} else {
+								double val;
+								if (chartType instanceof OntologyChartType) {
+									val = ontologyData.getDataset().getValue("Unknown").doubleValue();
+								} else {
+									val = taxonomyData.getDataset().getValue("Unknown").doubleValue();
+								}
+								for (int i = 0; i < 11; i++) {
+									double tmp = i / 10.0;
+									double newVal = val * tmp * tmp;
+									if (newVal <= 0.0) {
+										continue;
+									}
+									dataset.setValue("Unknown", newVal);
+									if (newVal < val) {
+										Thread.sleep(33);
+									} else {
+										break;
+									}
+								}
+							}
+						}
+						return null;
+					}
+					@Override
+					protected void done() {
+						chartPieHideChk.setEnabled(true);
+					};
+					
+				}.execute();
+			}
+		});
+		
+		chartPieGroupChk = new JCheckBox("Group minor segments", true);
+		chartPieGroupChk.setOpaque(false);
+		chartPieGroupChk.setVisible(false);
+		chartPieGroupChk.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == ItemEvent.SELECTED) {
+					ontologyData.setLimit(0.01);
+					taxonomyData.setLimit(0.01);
+				} else {
+					ontologyData.setLimit(0.0);
+					taxonomyData.setLimit(0.0);
+				}
+				Plot plot = chartPnl.getChart().getPlot();
+				if ((chartType instanceof OntologyChartType)) {
+					((PiePlot) plot).setDataset(ontologyData.getDataset());
+				} else if (chartType instanceof TaxonomyChartType) {
+					((PiePlot) plot).setDataset(taxonomyData.getDataset());
+				}
+			}
+		});
+		
+		chartPnl.add(chartPieHierCbx, CC.xy(1, 2));
+		chartPnl.add(chartPieHideChk, CC.xy(3, 2));
+		chartPnl.add(chartPieGroupChk, CC.xy(5, 2));
+
+		JScrollPane chartScp = new JScrollPane(chartPnl,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		for (ChangeListener cl : chartScp.getViewport().getChangeListeners()) {
+			chartScp.getViewport().removeChangeListener(cl);
+		}
+		chartScp.getViewport().setBackground(Color.WHITE);
+
+		chartBar = chartScp.getVerticalScrollBar();
+		chartBar.setValues(0, 0, 0, 0);
+		chartBar.setBlockIncrement(36);
+		DefaultBoundedRangeModel chartBarMdl =
+				(DefaultBoundedRangeModel) chartBar.getModel();
+		ChangeListener[] cbcl = chartBarMdl.getChangeListeners();
+		chartBarMdl.removeChangeListener(cbcl[0]);
+
+		chartBar.addAdjustmentListener(new AdjustmentListener() {
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+				JFreeChart chart = chartPnl.getChart();
+				if (chart != null) {
+					if (chart.getPlot() instanceof PiePlot) {
+						chartPieAngle = ae.getValue();
+						((PiePlot) chart.getPlot()).setStartAngle(chartPieAngle);
+					}
+				}
+			}
+		});
+
+		// wrap scroll pane in panel with 5dlu margin around it
+		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p:g, 5dlu"));
+		chartMarginPnl.add(chartScp, CC.xy(2, 2));
+
+		// wrap everything in titled panel containing button panel in the top
+		// right corner
+		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel(
+				"Chart View", chartMarginPnl);
+		chartTtlPnl.setRightDecoration(chartBtnPnl);
+
+		return chartTtlPnl;
+	}
+	
+	/**
+	 * Refreshes the chart updating its content reflecting the specified chart
+	 * type.
+	 * @param chartType the type of chart to be displayed.
+	 */
+	private void updateChart(ChartType chartType) {
+		Chart chart = null;
+		
+		// create chart instance
+		if (chartType instanceof OntologyChartType) {
+			ontologyData.init();
+			chart = ChartFactory.createOntologyPieChart(
+					ontologyData, chartType);
+		} else if (chartType instanceof TaxonomyChartType) {
+			taxonomyData.init();
+			chart = ChartFactory.createTaxonomyPieChart(
+					taxonomyData, chartType);
+		} else if (chartType == spectrumType) {
+			// TODO: integrate spectrum panels into chart structure
+			refreshPlot();
+			this.chartType = spectrumType;
+			return;
+		}
+
+		if (chart != null) {
+			Plot plot = chart.getChart().getPlot();
+			boolean isPie = plot instanceof PiePlot;
+			if (isPie) {
+				// enable chart scroll bar
+				chartBar.setMaximum(360);
+				chartBar.setValue((int) chartPieAngle);
+				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartPieAngle);
+			} else {
+				// disable chart scroll bar
+				double temp = chartPieAngle;
+				chartBar.setMaximum(0);
+				chartPieAngle = temp;
+			}
+			// hide/show pie chart-related controls
+			chartPieHierCbx.setVisible(isPie);
+			chartPieHideChk.setVisible(isPie);
+			chartPieGroupChk.setVisible(isPie);
+			
+			// insert chart into panel
+			chartPnl.setChart(chart.getChart());
+		} else {
+			System.err.println("Chart type could not be determined!");
+		}
+
+		this.chartType = chartType;
 	}
 	
 }

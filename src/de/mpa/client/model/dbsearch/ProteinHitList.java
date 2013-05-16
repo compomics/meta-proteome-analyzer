@@ -14,6 +14,11 @@ import de.mpa.client.model.SpectrumMatch;
  * @author A. Behne
  */
 public class ProteinHitList extends ArrayList<ProteinHit> {
+	
+	/**
+	 * The set of protein hits with distinct accessions.
+	 */
+	private Set<ProteinHit> proteinSet;
 
 	/**
 	 * The set of peptide hits with distinct amino acid sequences.
@@ -30,11 +35,6 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 	 */
 	private boolean hasChanged = true;
 
-	/**
-	 * Species string denoting the common ancestor of the proteins in this list.
-	 */
-	private String species;
-	
 	/**
 	 * Constructs an empty list with an initial capacity of ten.
 	 */
@@ -53,57 +53,68 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 	
 	@Override
 	public boolean add(ProteinHit e) {
-		hasChanged = super.add(e);
-		return hasChanged;
+		this.hasChanged = super.add(e);
+		return this.hasChanged;
 	}
 	
 	@Override
 	public void add(int index, ProteinHit element) {
 		super.add(index, element);
-		hasChanged = true;
+		this.hasChanged = true;
 	}
 	
 	@Override
 	public ProteinHit remove(int index) {
 		ProteinHit res = super.remove(index);
-		hasChanged = true;
+		this.hasChanged = true;
 		return res;
 	}
 	
 	@Override
 	public boolean remove(Object o) {
-		hasChanged = super.remove(o);
-		return hasChanged;
+		this.hasChanged = super.remove(o);
+		return this.hasChanged;
 	}
 	
 	@Override
 	public void clear() {
-		hasChanged = this.size() > 0;
+		this.hasChanged = this.size() > 0;
 		super.clear();
 	}
 	
 	@Override
 	public boolean addAll(Collection<? extends ProteinHit> c) {
-		hasChanged = super.addAll(c);
-		return hasChanged;
+		this.hasChanged = super.addAll(c);
+		return this.hasChanged;
 	}
 	
 	@Override
 	public boolean addAll(int index, Collection<? extends ProteinHit> c) {
-		hasChanged = super.addAll(index, c);
-		return hasChanged;
+		this.hasChanged = super.addAll(index, c);
+		return this.hasChanged;
 	}
 	
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		hasChanged = super.removeAll(c);
-		return hasChanged;
+		this.hasChanged = super.removeAll(c);
+		return this.hasChanged;
 	}
 	
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		hasChanged = super.retainAll(c);
-		return hasChanged;
+		this.hasChanged = super.retainAll(c);
+		return this.hasChanged;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Set<ProteinHit> getProteinSet() {
+		if (this.hasChanged) {
+			regenerateSets();
+		}
+		return proteinSet;
 	}
 
 	/**
@@ -112,7 +123,7 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 	 * @return the peptide hit set
 	 */
 	public Set<PeptideHit> getPeptideSet() {
-		if (hasChanged) {
+		if (this.hasChanged) {
 			regenerateSets();
 		}
 		return peptideSet;
@@ -124,7 +135,7 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 	 * @return the spectrum match set
 	 */
 	public Set<SpectrumMatch> getMatchSet() {
-		if (hasChanged) {
+		if (this.hasChanged) {
 			regenerateSets();
 		}
 		return matchSet;
@@ -134,24 +145,32 @@ public class ProteinHitList extends ArrayList<ProteinHit> {
 	 * Caches sets of distinct peptides and spectrum matches contained in this protein list.
 	 */
 	private void regenerateSets() {
+		proteinSet = new TreeSet<ProteinHit>();
 		peptideSet = new TreeSet<PeptideHit>();
 		matchSet = new TreeSet<SpectrumMatch>();
-		for (ProteinHit proteinHit : this) {
-			List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
-			for (PeptideHit peptideHit : peptideHitList) {
-				matchSet.addAll(peptideHit.getSpectrumMatches());
+		if (!this.isEmpty()) {
+			// check whether this list contains meta-proteins or proteins
+			if (this.get(0) instanceof MetaProteinHit) {
+				// this list contains meta-protein hits
+				for (ProteinHit proteinHit : this) {
+					MetaProteinHit metaProteinHit = (MetaProteinHit) proteinHit;
+					proteinSet.addAll(metaProteinHit.getProteinSet());
+					peptideSet.addAll(metaProteinHit.getPeptideSet());
+					matchSet.addAll(metaProteinHit.getMatchSet());
+				}
+			} else {
+				// this list contains protein hits
+				for (ProteinHit proteinHit : this) {
+					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
+					for (PeptideHit peptideHit : peptideHitList) {
+						matchSet.addAll(peptideHit.getSpectrumMatches());
+					}
+					peptideSet.addAll(peptideHitList);
+					proteinSet.add(proteinHit);
+				}
 			}
-			peptideSet.addAll(peptideHitList);
 		}
-		hasChanged = false;
-	}
-
-	public String getSpecies() {
-		return species;
-	}
-
-	public void setSpecies(String species) {
-		this.species = species;
+		this.hasChanged = false;
 	}
 
 }

@@ -91,13 +91,13 @@ public class NcbiTaxonomyTest extends TestCase {
 			assertEquals(1, comTaxID2);
 			
 			// Test common taxon Node
-			TaxonNode comTaxNode1 = ncbiTax.getCommonTaxonNode(269797, 79929);
-			TaxonNode comTaxNode2 = ncbiTax.getCommonTaxonNode(1, 1);
-			assertEquals(28890, comTaxNode1.getTaxId());
-			assertEquals("Euryarchaeota", comTaxNode1.getTaxName());
+			TaxonomyNode comTaxNode1 = ncbiTax.getCommonTaxonNode(269797, 79929);
+			TaxonomyNode comTaxNode2 = ncbiTax.getCommonTaxonNode(1, 1);
+			assertEquals(28890, comTaxNode1.getId());
+			assertEquals("Euryarchaeota", comTaxNode1.getName());
 			assertEquals("phylum", comTaxNode1.getRank());
-			assertEquals(1, comTaxNode2.getTaxId());
-			assertEquals("root", comTaxNode2.getTaxName());
+			assertEquals(1, comTaxNode2.getId());
+			assertEquals("root", comTaxNode2.getName());
 			assertEquals("no rank", comTaxNode2.getRank());
 		} catch (Exception e) {
 			e.printStackTrace();

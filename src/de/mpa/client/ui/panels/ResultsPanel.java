@@ -15,15 +15,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.AbstractButton;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultBoundedRangeModel;
@@ -31,7 +38,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -50,11 +59,14 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
@@ -65,6 +77,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.PieDataset;
 import org.jfree.data.xy.MatrixSeries;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
@@ -78,6 +91,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.ClientFrame;
@@ -151,18 +165,24 @@ public class ResultsPanel extends JPanel {
 	 * Combobox for specifying the displayed hierarchy level of pie plots
 	 * (protein, peptide, spectrum level).
 	 */
-	private JComboBox hierarchyCbx;
+	private JComboBox chartPieHierCbx;
 
 	/**
 	 * Checkbox for flagging whether proteins grouped as 'Unknown' in pie charts
 	 * shall be hidden.
 	 */
-	private JCheckBox hideChk;
+	private JCheckBox chartPieHideChk;
+
+	/**
+	 * Checkbox for flagging whether pie segments of a relative size below a
+	 * threshold of 1% shall be merged into a category labeled 'Others'.
+	 */
+	private JCheckBox chartPieGroupChk;
 	
 	/**
 	 * The rotation angle of pie plots.
 	 */
-	private double pieChartAngle = 36.0;
+	private double chartPieAngle = 36.0;
 
 	/**
 	 * The type of chart to be displayed in the top right chart pane.
@@ -213,7 +233,7 @@ public class ResultsPanel extends JPanel {
 	/**
 	 * Label displaying the number of peptides with unique sequences in the result.
 	 */
-	private JLabel uniquePepLbl;
+	private JLabel distPepLbl;
 	
 	/**
 	 * Label displaying the total count of proteins identified by the search.
@@ -224,7 +244,7 @@ public class ResultsPanel extends JPanel {
 	 * Label displaying the number of proteins specific to unique species
 	 * identified in the search.
 	 */
-	private JLabel specificProtLbl;
+	private JLabel metaProtLbl;
 	
 	/**
 	 * Label displaying the number of unique species identified by protein
@@ -369,25 +389,25 @@ public class ResultsPanel extends JPanel {
 
 		// total vs. unique peptides
 		totalPepLbl = new JLabel("0");
-		uniquePepLbl = new JLabel("0");
-		JPanel pepBarPnl = new BarChartPanel(totalPepLbl, uniquePepLbl);
+		distPepLbl = new JLabel("0");
+		JPanel pepBarPnl = new BarChartPanel(totalPepLbl, distPepLbl);
 
 		generalPnl.add(new JLabel("Total peptides"), CC.xy(2, 4));
 		generalPnl.add(totalPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
-		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("specific peptides"), CC.xy(10, 4));
+		generalPnl.add(distPepLbl, CC.xy(8, 4));
+		generalPnl.add(new JLabel("distinct peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
-		specificProtLbl = new JLabel("0");
-		JPanel protBarPnl = new BarChartPanel(totalProtLbl, specificProtLbl);
+		metaProtLbl = new JLabel("0");
+		JPanel protBarPnl = new BarChartPanel(totalProtLbl, metaProtLbl);
 
 		generalPnl.add(new JLabel("Total proteins"), CC.xy(2, 6));
 		generalPnl.add(totalProtLbl, CC.xy(4, 6));
 		generalPnl.add(protBarPnl, CC.xy(6, 6));
-		generalPnl.add(specificProtLbl, CC.xy(8, 6));
-		generalPnl.add(new JLabel("specific proteins"), CC.xy(10, 6));
+		generalPnl.add(metaProtLbl, CC.xy(8, 6));
+		generalPnl.add(new JLabel("meta-proteins"), CC.xy(10, 6));
 
 		speciesLbl = new JLabel("0");
 		enzymesLbl = new JLabel("0");
@@ -512,10 +532,18 @@ public class ResultsPanel extends JPanel {
 
 		// create chart type selection popup
 		final JPopupMenu chartTypePop = new JPopupMenu();
+		
+		JMenu ontologyMenu = new JMenu("Ontology");
+		ontologyMenu.setIcon(IconConstants.PIE_CHART_ICON);
+		chartTypePop.add(ontologyMenu);
+		JMenu taxonomyMenu = new JMenu("Taxonomy");
+		taxonomyMenu.setIcon(IconConstants.PIE_CHART_ICON);
+		chartTypePop.add(taxonomyMenu);
+		
 		ActionListener chartListener = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent ae) {
-				String title = ((JMenuItem) ae.getSource()).getText();
+			public void actionPerformed(ActionEvent evt) {
+				String title = ((JMenuItem) evt.getSource()).getText();
 				ChartType newChartType = null;
 				for (ChartType chartType : chartTypes) {
 					if (title.equals(chartType.toString())) {
@@ -537,11 +565,17 @@ public class ResultsPanel extends JPanel {
 		ButtonGroup chartBtnGrp = new ButtonGroup();
 		int j = 0;
 		for (ChartType chartType : chartTypes) {
-			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(),
-					(j++ == 0));
+			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
-			chartTypePop.add(item);
+			if (chartType instanceof OntologyChartType) {
+				ontologyMenu.add(item);
+			} else if (chartType instanceof TaxonomyChartType) {
+				taxonomyMenu.add(item);
+			} else {
+				item.setIcon(IconConstants.BAR_CHART_ICON);
+				chartTypePop.add(item);
+			}
 		}
 		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
@@ -583,15 +617,63 @@ public class ResultsPanel extends JPanel {
 
 		// create mouse adapter to interact with pie plot sections
 		MouseAdapter adapter = new MouseAdapter() {
-			Comparable highlightedKey = null;
-			Comparable selectedKey = null;
+			private Comparable highlightedKey = null;
+			private Comparable selectedKey = null;
+			private Action saveAsAction = new AbstractAction() {
+				@Override
+				public void actionPerformed(ActionEvent evt) {
+					PiePlot3DExt piePlot = getPiePlot();
+					if (piePlot != null) {
+						JFileChooser fc = new JFileChooser();
+						fc.setFileFilter(Constants.CSV_FILE_FILTER);
+						fc.setAcceptAllFileFilterUsed(false);
+//						fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+						fc.setMultiSelectionEnabled(false);
+						int option = fc.showSaveDialog(ClientFrame.getInstance());
+
+						if (option == JFileChooser.APPROVE_OPTION) {
+							File selectedFile = fc.getSelectedFile();
+
+				            if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
+				                selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+				            }
+
+				            setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
+				            try {
+				                if (selectedFile.exists()) {
+				                    selectedFile.delete();
+				                }
+				                selectedFile.createNewFile();
+				                
+				                BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
+								
+								PieDataset dataset = piePlot.getDataset();
+								for (int i = 0; i < dataset.getItemCount(); i++) {
+									Comparable key = dataset.getKey(i);
+									Number value = dataset.getValue(key);
+									writer.append("\"" + key + "\"\t" + value);
+									writer.newLine();
+								}
+								writer.flush();
+								writer.close();
+
+				            } catch (IOException ex) {
+				            	JXErrorPane.showDialog(ClientFrame.getInstance(),
+										new ErrorInfo("Severe Error", ex.getMessage(), null, null, ex, ErrorLevel.SEVERE, null));
+				            }
+				            
+				            setCursor(null);
+						}
+					}
+				}
+			};
 
 			@Override
 			public void mouseMoved(MouseEvent me) {
 				PiePlot3DExt piePlot = getPiePlot();
 				if (piePlot != null) {
-					Comparable key = piePlot.getSectionKeyForPoint(me
-							.getPoint());
+					Comparable key = piePlot.getSectionKeyForPoint(me.getPoint());
 					if (key != highlightedKey) {
 						for (Object dataKey : piePlot.getDataset().getKeys()) {
 							if (dataKey != selectedKey) {
@@ -609,22 +691,26 @@ public class ResultsPanel extends JPanel {
 
 			@Override
 			public void mouseClicked(MouseEvent me) {
-				PiePlot3DExt piePlot = getPiePlot();
-				if (piePlot != null) {
-					if (selectedKey != null) {
-						// clear old selection
-						piePlot.setExplodePercent(selectedKey, 0.0);
-					}
-					if (highlightedKey != null) {
-						piePlot.setExplodePercent(highlightedKey, 0.2);
-						if (highlightedKey != selectedKey) {
-							// update table if new section got clicked
-							updateDetailsTable(highlightedKey);
+				if (me.isPopupTrigger()) {
+					maybeShowPopup(me);
+				} else {
+					PiePlot3DExt piePlot = getPiePlot();
+					if (piePlot != null) {
+						if (selectedKey != null) {
+							// clear old selection
+							piePlot.setExplodePercent(selectedKey, 0.0);
 						}
-					} else {
-						TableConfig.clearTable(detailsTbl);
+						if (highlightedKey != null) {
+							piePlot.setExplodePercent(highlightedKey, 0.2);
+							if (highlightedKey != selectedKey) {
+								// update table if new section got clicked
+								updateDetailsTable(highlightedKey);
+							}
+						} else {
+							TableConfig.clearTable(detailsTbl);
+						}
+						selectedKey = highlightedKey;
 					}
-					selectedKey = highlightedKey;
 				}
 			}
 
@@ -644,8 +730,41 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 			}
+			
+			@Override
+			public void mousePressed(MouseEvent me) {
+				maybeShowPopup(me);
+			}
 
-			/** Utility method to get valid pie plot. */
+			@Override
+			public void mouseReleased(MouseEvent me) {
+				maybeShowPopup(me);
+			}
+
+			/**
+			 * Convenience method to show a 'Save as CSV...' context menu.
+			 * @param me the mouse event
+			 */
+			private void maybeShowPopup(MouseEvent me) {
+				if (me.isPopupTrigger()) {
+					PiePlot3DExt piePlot = getPiePlot();
+					if (piePlot != null) {
+						JPopupMenu popup = new JPopupMenu();
+						
+						JMenuItem item = new JMenuItem(saveAsAction);
+						item.setText("Save as CSV...");
+						item.setIcon(IconConstants.FILE_CSV);
+						
+						popup.add(item);
+						
+						popup.show(me.getComponent(), me.getX(), me.getY());
+					}
+				}
+			}
+
+			/** 
+			 * Utility method to get valid pie plot.
+			 */
 			private PiePlot3DExt getPiePlot() {
 				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
@@ -656,52 +775,47 @@ public class ResultsPanel extends JPanel {
 				return null;
 			}
 		};
+		chartPnl.removeMouseListener(chartPnl.getMouseListeners()[1]);
+		chartPnl.removeMouseMotionListener(chartPnl.getMouseMotionListeners()[1]);
 		chartPnl.addMouseListener(adapter);
 		chartPnl.addMouseMotionListener(adapter);
 
 		// create combobox to control what counts to display in the plots
 		// (protein/peptide/spectrum count)
-		hierarchyCbx = new JComboBox(new String[] { "Proteins", "Peptides",
-				"Spectra" });
-		hierarchyCbx.addActionListener(new ActionListener() {
+		chartPieHierCbx = new JComboBox(HierarchyLevel.values());
+		chartPieHierCbx.addItemListener(new ItemListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				HierarchyLevel hl = null;
-				switch (((JComboBox) e.getSource()).getSelectedIndex()) {
-				case 0:
-					hl = HierarchyLevel.PROTEIN_LEVEL;
-					break;
-				case 1:
-					hl = HierarchyLevel.PEPTIDE_LEVEL;
-					break;
-				case 2:
-					hl = HierarchyLevel.SPECTRUM_LEVEL;
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == ItemEvent.SELECTED) {
+					HierarchyLevel hl = (HierarchyLevel) evt.getItem();
+					
+					ontologyData.setHierarchyLevel(hl);
+					taxonomyData.setHierarchyLevel(hl);
+					
+					updateChart(chartType);
+					
+					updateDetailsTable("");
 				}
-				ontologyData.setHierarchyLevel(hl);
-				taxonomyData.setHierarchyLevel(hl);
-
-				updateChart(chartType);
 			}
 		});
-		hierarchyCbx.setVisible(false);
+		chartPieHierCbx.setVisible(false);
 
-		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, l:p:g", "0px:g, p, 2dlu"));
-		chartPnl.add(hierarchyCbx, CC.xy(1, 2));
+		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
 		
-		hideChk = new JCheckBox("Hide Unknown", false);
-		hideChk.setOpaque(false);
-		hideChk.setVisible(false);
-		hideChk.addActionListener(new ActionListener() {
+		chartPieHideChk = new JCheckBox("Hide Unknown", false);
+		chartPieHideChk.setOpaque(false);
+		chartPieHideChk.setVisible(false);
+		chartPieHideChk.addItemListener(new ItemListener() {
 			private boolean doHide;
 			@Override
-			public void actionPerformed(ActionEvent evt) {
-				doHide = ((AbstractButton) evt.getSource()).isSelected();
+			public void itemStateChanged(ItemEvent evt) {
+				doHide = (evt.getStateChange() == ItemEvent.SELECTED);
 				ontologyData.setHideUnknown(doHide);
 				taxonomyData.setHideUnknown(doHide);
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws Exception {
-						hideChk.setEnabled(false);
+						chartPieHideChk.setEnabled(false);
 						Plot plot = chartPnl.getChart().getPlot();
 						if (plot instanceof PiePlot) {
 							DefaultPieDataset dataset =
@@ -744,13 +858,38 @@ public class ResultsPanel extends JPanel {
 					}
 					@Override
 					protected void done() {
-						hideChk.setEnabled(true);
+						chartPieHideChk.setEnabled(true);
 					};
 					
 				}.execute();
 			}
 		});
-		chartPnl.add(hideChk, CC.xy(3, 2));
+		
+		chartPieGroupChk = new JCheckBox("Group minor segments", true);
+		chartPieGroupChk.setOpaque(false);
+		chartPieGroupChk.setVisible(false);
+		chartPieGroupChk.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == ItemEvent.SELECTED) {
+					ontologyData.setLimit(0.01);
+					taxonomyData.setLimit(0.01);
+				} else {
+					ontologyData.setLimit(0.0);
+					taxonomyData.setLimit(0.0);
+				}
+				Plot plot = chartPnl.getChart().getPlot();
+				if ((chartType instanceof OntologyChartType)) {
+					((PiePlot) plot).setDataset(ontologyData.getDataset());
+				} else if (chartType instanceof TaxonomyChartType) {
+					((PiePlot) plot).setDataset(taxonomyData.getDataset());
+				}
+			}
+		});
+		
+		chartPnl.add(chartPieHierCbx, CC.xy(1, 2));
+		chartPnl.add(chartPieHideChk, CC.xy(3, 2));
+		chartPnl.add(chartPieGroupChk, CC.xy(5, 2));
 
 		JScrollPane chartScp = new JScrollPane(chartPnl,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -773,8 +912,8 @@ public class ResultsPanel extends JPanel {
 				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
 					if (chart.getPlot() instanceof PiePlot) {
-						pieChartAngle = ae.getValue();
-						((PiePlot) chart.getPlot()).setStartAngle(pieChartAngle);
+						chartPieAngle = ae.getValue();
+						((PiePlot) chart.getPlot()).setStartAngle(chartPieAngle);
 					}
 				}
 			}
@@ -831,40 +970,28 @@ public class ResultsPanel extends JPanel {
 				}
 			}
 		});
-		TableConfig
-				.setColumnWidths(detailsTbl, new double[] { 1.0, 3.0, 12.0 });
+		TableConfig.setColumnWidths(detailsTbl, new double[] { 1.0, 3.0, 12.0 });
 
-		// AbstractHyperlinkAction<URI> linkAction = new
-		// AbstractHyperlinkAction<URI>() {
-		// public void actionPerformed(ActionEvent ev) {
-		// try {
-		// Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/"
-		// + target));
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// };
-
-		AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
+		final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
 			public void actionPerformed(ActionEvent ev) {
 				try {
-					// Use UniProt identifier also for NCBI entries
-					if (target.matches("^\\d*$")) { // if contains non-numerical
-													// character UniProt
-						UniProtEntry uniprotEntry = dbPnl.getDbSearchResult()
-								.getProteinHit(target).getUniprotEntry();
+					if (target.matches("^\\d*$")) {
+						// if target contains only numerical characters it's probably an NCBI accession,
+						// try to use accession of corresponding UniProt entry (if possible)
+						UniProtEntry uniprotEntry =
+								Client.getInstance().getDbSearchResult().getProteinHit(target).getUniprotEntry();
 						if (uniprotEntry != null) {
-							PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry
-									.getPrimaryUniProtAccession();
+							PrimaryUniProtAccession primaryUniProtAccession =
+									uniprotEntry.getPrimaryUniProtAccession();
 							target = primaryUniProtAccession.getValue();
 						} else {
 							target = "";
 						}
+					} else if (target.startsWith("Meta-Protein")) {
+						return;
 					}
-					Desktop.getDesktop()
-							.browse(new URI("http://www.uniprot.org/uniprot/"
-									+ target));
+					Desktop.getDesktop().browse(
+							new URI("http://www.uniprot.org/uniprot/" + target));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -873,25 +1000,22 @@ public class ResultsPanel extends JPanel {
 
 		detailsTbl.getColumn(1).setCellRenderer(
 				new DefaultTableRenderer(new HyperlinkProvider(linkAction)) {
+					@Override
 					public Component getTableCellRendererComponent(
 							JTable table, Object value, boolean isSelected,
 							boolean hasFocus, int row, int column) {
-						Component comp = super
-								.getTableCellRendererComponent(table, value,
-										isSelected, hasFocus, row, column);
-						JXRendererHyperlink compLabel = (JXRendererHyperlink) comp;
-						compLabel.setHorizontalAlignment(SwingConstants.CENTER);
-						return compLabel;
+						Component comp = super.getTableCellRendererComponent(
+								table, value, isSelected, hasFocus, row, column);
+						JXRendererHyperlink hyperlink = (JXRendererHyperlink) comp;
+						hyperlink.setHorizontalAlignment(SwingConstants.CENTER);
+						return hyperlink;
 					}
 				});
 
 		detailsTbl.setColumnControlVisible(true);
-		detailsTbl.getColumnControl()
-				.setBorder(
-						BorderFactory.createCompoundBorder(BorderFactory
-								.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-								BorderFactory.createMatteBorder(0, 0, 1, 0,
-										Color.GRAY)));
+		detailsTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
 		detailsTbl.getColumnControl().setOpaque(false);
 		((ColumnControlButton) detailsTbl.getColumnControl())
 				.setAdditionalActionsVisible(false);
@@ -900,14 +1024,13 @@ public class ResultsPanel extends JPanel {
 		detailsTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		JScrollPane detailsScpn = new JScrollPane(detailsTbl);
-		detailsScpn
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		detailsScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		detailsScpn.setPreferredSize(new Dimension(100, 100));
 
 		detailsPnl.add(detailsScpn, CC.xy(2, 2));
 
-		JXTitledPanel detailsTtlPnl = PanelConfig.createTitledPanel(
-				"Chart Details", detailsPnl);
+		JXTitledPanel detailsTtlPnl =
+				PanelConfig.createTitledPanel("Chart Details", detailsPnl);
 		detailsTtlPnl.setRightDecoration(detailsBtnPnl);
 
 		return detailsTtlPnl;
@@ -993,13 +1116,12 @@ public class ResultsPanel extends JPanel {
 	/**
 	 * Refreshes the chart updating its content reflecting the specified chart
 	 * type.
-	 * 
-	 * @param chartType
-	 *            the type of chart to be displayed.
+	 * @param chartType the type of chart to be displayed.
 	 */
 	private void updateChart(ChartType chartType) {
 		Chart chart = null;
 		
+		// create chart instance
 		if (chartType instanceof OntologyChartType) {
 			chart = ChartFactory.createOntologyPieChart(
 					ontologyData, chartType);
@@ -1016,20 +1138,24 @@ public class ResultsPanel extends JPanel {
 
 		if (chart != null) {
 			Plot plot = chart.getChart().getPlot();
-			if (plot instanceof PiePlot) {
+			boolean isPie = plot instanceof PiePlot;
+			if (isPie) {
+				// enable chart scroll bar
 				chartBar.setMaximum(360);
-				chartBar.setValue((int) pieChartAngle);
-				((PiePlot) chart.getChart().getPlot())
-						.setStartAngle(pieChartAngle);
-				hierarchyCbx.setVisible(true);
-				hideChk.setVisible(true);
+				chartBar.setValue((int) chartPieAngle);
+				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartPieAngle);
 			} else {
-				double temp = pieChartAngle;
+				// disable chart scroll bar
+				double temp = chartPieAngle;
 				chartBar.setMaximum(0);
-				pieChartAngle = temp;
-				hierarchyCbx.setVisible(false);
-				hideChk.setVisible(false);
+				chartPieAngle = temp;
 			}
+			// hide/show pie chart-related controls
+			chartPieHierCbx.setVisible(isPie);
+			chartPieHideChk.setVisible(isPie);
+			chartPieGroupChk.setVisible(isPie);
+			
+			// insert chart into panel
 			chartPnl.setChart(chart.getChart());
 		} else {
 			System.err.println("Chart type could not be determined!");
@@ -1099,24 +1225,22 @@ public class ResultsPanel extends JPanel {
 				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
 				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
 				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-				uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+				distPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-				specificProtLbl.setText("" + 0); // TODO: determining protein redundancy is an unsolved problem!
+//				int metaCount = 0;
+//				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+//				for (ProteinHit proteinHit : metaProteins) {
+//					MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
+//					if (metaProtein.getProteinHits().size() > 0) {
+//						metaCount++;
+//					}
+//				}
+				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 				speciesLbl.setText("" + speciesNames.size());
 				enzymesLbl.setText("" + ecNumbers.size());
 				pathwaysLbl.setText("" + pathwayIDs.size());
 
-				HierarchyLevel hl = null;
-				switch (hierarchyCbx.getSelectedIndex()) {
-				case 0:
-					hl = HierarchyLevel.PROTEIN_LEVEL;
-					break;
-				case 1:
-					hl = HierarchyLevel.PEPTIDE_LEVEL;
-					break;
-				case 2:
-					hl = HierarchyLevel.SPECTRUM_LEVEL;
-				}
+				HierarchyLevel hl = (HierarchyLevel) chartPieHierCbx.getSelectedItem();
 				ontologyData = new OntologyData(dbSearchResult, hl);
 				taxonomyData = new TaxonomyData(dbSearchResult, hl);
 				topData = new TopData(dbSearchResult);

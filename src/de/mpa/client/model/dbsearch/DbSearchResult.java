@@ -3,7 +3,6 @@ package de.mpa.client.model.dbsearch;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,7 +54,7 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * The list of meta-proteins.
 	 */
-	private List<ProteinHitList> metaProteins = new ArrayList<ProteinHitList>();
+	private ProteinHitList metaProteins = new ProteinHitList();
 
 	/**
 	 * Map containing search spectrum id-to-TIC pairs
@@ -67,8 +66,14 @@ public class DbSearchResult implements Serializable {
 	 */
 	private int identifiedSpectra;
 	
+	/**
+	 * Number of total peptides.
+	 */
 	private int totalPeptides;
 
+	/**
+	 * No of unique peptides
+	 */
 	private int uniquePeptides;
 
 	/**
@@ -130,8 +135,9 @@ public class DbSearchResult implements Serializable {
 			// A new protein is to be added
 			currentProteinHit = proteinHit;
 
-			ProteinHitList meta = new ProteinHitList();
-			meta.add(currentProteinHit);
+			ProteinHitList phl = new ProteinHitList();
+			phl.add(currentProteinHit);
+			MetaProteinHit meta = new MetaProteinHit("Meta-Protein", phl);
 			metaProteins.add(meta);
 			
 			// Check whether peptide hit match has been found
@@ -379,8 +385,7 @@ public class DbSearchResult implements Serializable {
 		if (result) {
 			DbSearchResult that = (DbSearchResult) obj;
 			result = this.getProjectTitle().equals(that.getProjectTitle())
-					&& this.getExperimentTitle().equals(
-							that.getExperimentTitle());
+					&& this.getExperimentTitle().equals(that.getExperimentTitle());
 		}
 		return result;
 	}
@@ -389,8 +394,8 @@ public class DbSearchResult implements Serializable {
 	 * Returns the list of metaproteins containing grouped protein hits.
 	 * @return the list of metaproteins.
 	 */
-	public List<ProteinHitList> getMetaProteins() {
+	public ProteinHitList getMetaProteins() {
 		return metaProteins;
 	}
-
+	
 }

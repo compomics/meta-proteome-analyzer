@@ -2,7 +2,10 @@ package de.mpa.client.model;
 
 import java.io.Serializable;
 
-public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
+import de.mpa.taxonomy.Taxonomic;
+import de.mpa.taxonomy.TaxonomyNode;
+
+public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, Taxonomic {
 	
 	/**
 	 * Serialization ID set to default == 1L;
@@ -28,6 +31,11 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
 	 * The end index byte position of the associated spectrum.
 	 */
 	private long endIndex;
+	
+	/**
+	 * The taxonomy node reference.
+	 */
+	private TaxonomyNode taxonNode;
 
 	/**
 	 * Default empty constructor.
@@ -102,6 +110,16 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch> {
 	 */
 	public void setEndIndex(long endIndex) {
 		this.endIndex = endIndex;
+	}
+
+	@Override
+	public TaxonomyNode getTaxonomyNode() {
+		return taxonNode;
+	}
+
+	@Override
+	public void setTaxonomyNode(TaxonomyNode taxonNode) {
+		this.taxonNode = taxonNode;
 	}
 	
 	@Override
