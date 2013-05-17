@@ -2,6 +2,8 @@ package de.mpa.client.ui.chart;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -73,20 +75,23 @@ public class HistogramChart extends Chart {
         XYPlot plot = (XYPlot) chart.getPlot();
         
         plot.setBackgroundAlpha(0.0f);
-        plot.setDomainGridlinesVisible(false);
-        plot.setRangeGridlinesVisible(false);
-//		plot.setDomainAxis(new LogarithmicAxis(hct.getXLabel()));
+        plot.setOutlineVisible(false);
+        plot.setDomainZeroBaselineVisible(false);
+        plot.setRangeZeroBaselineVisible(false);
+        
+        ValueAxis xAxis = plot.getDomainAxis();
+//        xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		xAxis.setAutoRangeMinimumSize(1.0);
         
         LogarithmicAxis yAxis = new LogarithmicAxis(hct.getYLabel());
         yAxis.setLabelFont(plot.getRangeAxis().getLabelFont());
         yAxis.setTickLabelFont(plot.getRangeAxis().getTickLabelFont());
         yAxis.setAllowNegativesFlag(true);
 		plot.setRangeAxis(yAxis);
-		
-        plot.setOutlineVisible(false);
-        XYBarRenderer renderer = new XYBarRenderer();
+        
+        XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
+        renderer.setMargin(0.125);
         renderer.setShadowVisible(false);
-        plot.setRenderer(renderer);
     }
 
     @Override

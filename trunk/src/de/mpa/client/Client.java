@@ -932,9 +932,9 @@ public class Client {
 
 				searchSpectrumIDs.add(searchHit.getFk_searchspectrumid());
 				String pepSeq = searchHit.getSequence();
-				//				if (!pepSeq.matches("^[A-Z]*$")) {
-				//					modifiedPeptides++;
-				//				}
+//				if (!pepSeq.matches("^[A-Z]*$")) {
+//					modifiedPeptides++;
+//				}
 				peptideSequences.add(pepSeq);
 
 				firePropertyChange("progress", 0L, ++curProgress);
@@ -945,10 +945,10 @@ public class Client {
 
 			dbSearchResult.setIdentifiedSpectrumCount(searchSpectrumIDs.size());
 			dbSearchResult.setTotalPeptideCount(totalPeptides);
-			dbSearchResult.setUniquePeptideCount(peptideSequences.size());
-
+			dbSearchResult.setDistinctPeptideCount(peptideSequences.size());
+			
 			// TODO: ADD search engine from runtable
-			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] {"Crux", "Inspect", "Xtandem","OMSSA"}));
+			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] { "Crux", "Inspect", "Xtandem","OMSSA" }));
 			dbSearchResult.setSearchEngines(searchEngines);
 
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");

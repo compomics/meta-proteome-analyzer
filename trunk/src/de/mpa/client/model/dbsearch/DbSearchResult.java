@@ -375,7 +375,7 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * @param uniquePeptides the uniquePeptides to set
 	 */
-	public void setUniquePeptideCount(int uniquePeptides) {
+	public void setDistinctPeptideCount(int uniquePeptides) {
 		this.uniquePeptides = uniquePeptides;
 	}
 

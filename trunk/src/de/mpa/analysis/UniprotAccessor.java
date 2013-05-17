@@ -44,7 +44,7 @@ public class UniprotAccessor {
 	 * Enumeration holding taxonomic ranks.
 	 */
 	public enum TaxonomyRank {
-		KINGDOM, PHYLUM, CLASS,	ORDER, FAMILY, GENUS, SPECIES, NO_RANK 
+		SUPERKINGDOM, KINGDOM, PHYLUM, CLASS,	ORDER, FAMILY, GENUS, SPECIES, NO_RANK 
 	}
 
 	/**
@@ -177,6 +177,7 @@ public class UniprotAccessor {
 	static {
 		Map<String, TaxonomyRank> map = new LinkedHashMap<String, TaxonomyRank>();
 		
+		map.put("superkingdom", TaxonomyRank.SUPERKINGDOM);
 		map.put("kingdom", TaxonomyRank.KINGDOM);
 		map.put("phylum", TaxonomyRank.PHYLUM);
 		map.put("class", TaxonomyRank.CLASS);

@@ -1,5 +1,9 @@
 package de.mpa.taxonomy;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 
 /**
  * This class represents a NCBI taxonomy entry, complete with taxonomy ID as
@@ -15,14 +19,19 @@ public class TaxonomyNode {
 	private int taxId;
 
 	/**
-	 * The taxonomic rank
+	 * The taxonomic rank.
 	 */
-	private String rank;
+	private String taxRank;
 
 	/**
 	 * The taxonomy name.
 	 */
 	private String taxName;
+	
+	/**
+	 * The parent taxonomy node.
+	 */
+	private TaxonomyNode parentNode;
 
 	/**
 	 * Constructs a NCBI taxonomy node.
@@ -30,10 +39,11 @@ public class TaxonomyNode {
 	 * @param rank The taxonomic rank
 	 * @param taxName The taxonomy name
 	 */
-	public TaxonomyNode(int taxId, String rank, String taxName){
+	public TaxonomyNode(int taxId, String rank, String taxName) {
 		this.taxId = taxId;
-		this.rank = rank;
+		this.taxRank = rank;
 		this.taxName = taxName;
+		this.setParentNode(null);
 	}
 
 	/**
@@ -57,7 +67,7 @@ public class TaxonomyNode {
 	 * @return the taxonomic rank
 	 */
 	public String getRank() {
-		return rank;
+		return taxRank;
 	}
 
 	/**
@@ -65,7 +75,7 @@ public class TaxonomyNode {
 	 * @param rank The taxonomic rank to set
 	 */
 	public void setRank(String rank) {
-		this.rank = rank;
+		this.taxRank = rank;
 	}
 
 	/**
@@ -84,8 +94,83 @@ public class TaxonomyNode {
 		this.taxName = taxName;
 	}
 
+	/**
+	 * Returns the parent taxonomy node.
+	 * @return the parent taxonomy node
+	 */
+	public TaxonomyNode getParentNode() {
+		return parentNode;
+	}
+	
+	/**
+	 * Returns the parent taxonomy node of the specified rank.
+	 * @param rank the desired parent rank
+	 * @return the parent taxonomy node of the desired rank.
+	 */
+	public TaxonomyNode getParentNode(String rank) {
+		TaxonomyNode parentNode = this;
+		String parentRank = parentNode.getRank();
+		while (!rank.equals(parentRank)) {
+			parentNode = parentNode.getParentNode();
+			parentRank = parentNode.getRank();
+			if (parentNode.getId() == 1) {
+//				System.err.println("Root reached, possibly unknown rank identifier " +
+//						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
+				parentNode = new TaxonomyNode(0, rank, "Unclassified " + rank);
+				break;
+			}
+		}
+		return parentNode;
+	}
+
+	/**
+	 * Sets the parent taxonomy node.
+	 * @param parentNode the parent node to set
+	 */
+	public void setParentNode(TaxonomyNode parentNode) {
+		this.parentNode = parentNode;
+	}
+	
+	/**
+	 * Returns whether this node is the taxonomic root.
+	 * @return <code>true</code> if this node is the taxonomic root, <code>false</code> otherwise
+	 */
+	public boolean isRoot() {
+		return (this.taxId == 1);
+	}
+	
+	/**
+	 * Returns the list of parent taxonomy nodes of this node up to the taxonomy
+	 * root. The last element of the list is this node.
+	 * @return the taxonomy path
+	 */
+	public TaxonomyNode[] getPath() {
+		List<TaxonomyNode> path = new ArrayList<TaxonomyNode>();
+		
+		TaxonomyNode parent = this;
+		path.add(parent);
+		while (parent.getId() != 1) {
+			path.add(parent);
+			parent = parent.getParentNode();
+		}
+		
+		Collections.reverse(path);
+		
+		return path.toArray(new TaxonomyNode[path.size()]);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof TaxonomyNode) {
+			TaxonomyNode that = (TaxonomyNode) obj;
+			return (this.getId() == that.getId());
+		}
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		return "" + getName() + " (" + getId() + ") | " + getRank() ;
 	}
+	
 }

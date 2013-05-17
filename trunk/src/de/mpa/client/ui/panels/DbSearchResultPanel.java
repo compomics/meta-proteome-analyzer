@@ -873,6 +873,9 @@ public class DbSearchResultPanel extends JPanel {
 						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 						
 						// Determine peptide taxonomy
+						NcbiTaxonomy ncbiTaxonomy = NcbiTaxonomy.getInstance();
+						Map<Integer, TaxonomyNode> nodeMap = new HashMap<Integer, TaxonomyNode>();
+						nodeMap.put(1, NcbiTaxonomy.ROOT_NODE);
 						for (PeptideHit peptideHit : peptideSet) {
 							// gather protein taxonomy nodes
 							List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
@@ -882,8 +885,47 @@ public class DbSearchResultPanel extends JPanel {
 							// find common ancestor node
 							TaxonomyNode ancestor = taxonNodes.get(0);
 							for (int i = 0; i < taxonNodes.size(); i++) {
-								ancestor = NcbiTaxonomy.getInstance().getCommonTaxonNode(ancestor, taxonNodes.get(i));
+								ancestor = ncbiTaxonomy.createCommonTaxonomyNode(ancestor.getId(), taxonNodes.get(i).getId());
 							}
+							
+							TaxonomyNode child = ancestor;
+							TaxonomyNode parent = nodeMap.get(ancestor.getId());
+							if (parent == null) {
+//								newNode = ancestor;
+//								while (!newNode.isRoot()) {
+//									oldNode = newNode;
+//									newNode = nodeMap.get(oldNode.getId());
+//									if (newNode == null) {
+//										nodeMap.put(oldNode.getId(), oldNode);
+//										newNode = ncbiTaxonomy.getParentTaxonomyNode(oldNode);
+//										TaxonomyNode temp = nodeMap.get(newNode.getId());
+//										if (temp != null) {
+//											newNode = temp;
+//										}
+//										oldNode.setParentNode(newNode);
+//									} else {
+//										oldNode.setParentNode(newNode);
+//										break;
+//									}
+//								}
+
+								parent = ncbiTaxonomy.getParentTaxonomyNode(child);
+								while (true) {
+									TaxonomyNode temp = nodeMap.get(parent.getId());
+									if (temp == null) {
+										child.setParentNode(parent);
+										nodeMap.put(parent.getId(), parent);
+										child = parent;
+										parent = ncbiTaxonomy.getParentTaxonomyNode(parent);
+									} else {
+										child.setParentNode(temp);
+										break;
+									}
+								}
+							} else {
+								ancestor = parent;
+							}
+							
 							// set peptide hit taxon node to ancestor
 							peptideHit.setTaxonomyNode(ancestor);
 							
@@ -908,8 +950,8 @@ public class DbSearchResultPanel extends JPanel {
 							}
 							// find common ancestor node
 							TaxonomyNode ancestor = taxonNodes.get(0);
-							for (int i = 0; i < taxonNodes.size(); i++) {
-								ancestor = NcbiTaxonomy.getInstance().getCommonTaxonNode(ancestor, taxonNodes.get(i));
+							for (int i = 1; i < taxonNodes.size(); i++) {
+								ancestor = ncbiTaxonomy.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 							}
 							// set peptide hit taxon node to ancestor
 							proteinHit.setTaxonomyNode(ancestor);
@@ -955,7 +997,7 @@ public class DbSearchResultPanel extends JPanel {
 							// find common ancestor node
 							TaxonomyNode ancestor = taxonNodes.get(0);
 							for (int i = 0; i < taxonNodes.size(); i++) {
-								ancestor = NcbiTaxonomy.getInstance().getCommonTaxonNode(ancestor, taxonNodes.get(i));
+								ancestor = ncbiTaxonomy.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 							}
 							// set peptide hit taxon node to ancestor
 							metaProteinHit.setTaxonomyNode(ancestor);
@@ -1099,7 +1141,6 @@ public class DbSearchResultPanel extends JPanel {
 					String accession = (String) getValueAt(row, PROT_ACCESSION);
 					ProteinHit hit = proteinHits.get(accession);
 					hit.setSelected(selected);
-					System.out.println(selected);
 					if (selected) {
 						for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 							selected &= ph.isSelected();
@@ -1456,7 +1497,6 @@ public class DbSearchResultPanel extends JPanel {
 						if (node.isProtein()) {
 							ProteinHit proteinHit = (ProteinHit) node.getUserObject();
 							proteinHit.setSelected(cbtsm.isPathSelected(paths[i], true));
-							System.out.println(proteinHit.toString() + "   " + proteinHit.isSelected());
 						}
 					}
 				}
@@ -2403,7 +2443,7 @@ public class DbSearchResultPanel extends JPanel {
 						TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
 						for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 							// TODO Changed commonAncestorNode = NcbiTaxonomy.getInstance().getCommonAncestor(commonAncestorNode, peptideHit.getTaxonNode());
-							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(commonAncestorNode, peptideHit.getTaxonomyNode());
+							commonAncestorNode = NcbiTaxonomy.getInstance().getCommonTaxonomyNode(commonAncestorNode, peptideHit.getTaxonomyNode());
 						}
 						proteinHit.setSpecies(commonAncestorNode.getName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
@@ -2501,7 +2541,7 @@ public class DbSearchResultPanel extends JPanel {
 					TaxonomyNode firstNode = metaProtein.getPeptideHitList().get(0).getTaxonomyNode();
 					for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
 						TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
-						firstNode = NcbiTaxonomy.getInstance().getCommonTaxonNode(firstNode,taxonNode);
+						firstNode = NcbiTaxonomy.getInstance().getCommonTaxonomyNode(firstNode,taxonNode);
 					}
 					metaProtein.setSpecies(firstNode.getName() + " (" + firstNode.getRank() +")");
 				}
