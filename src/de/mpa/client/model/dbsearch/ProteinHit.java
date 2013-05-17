@@ -354,8 +354,8 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	}
 	
 	/**
-	 * Returns the map of peptide hits.
-	 * @return The map of peptide hits.
+	 * Returns the map containing sequence-to-peptide hit pairs.
+	 * @return the map of peptide hits
 	 */
 	public Map<String, PeptideHit> getPeptideHits() {
 		return peptideHits;

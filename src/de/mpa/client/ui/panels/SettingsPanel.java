@@ -279,8 +279,7 @@ public class SettingsPanel extends JPanel {
 							SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
 							DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
 							
-							SearchSettings settings = new SearchSettings(dbss, sss, dnss,
-									ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
+							SearchSettings settings = new SearchSettings(dbss, sss, dnss, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
 							
 							client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 							// dispatch search request

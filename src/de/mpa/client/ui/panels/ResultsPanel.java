@@ -501,6 +501,7 @@ public class ResultsPanel extends JPanel {
 				OntologyChartType.BIOLOGICAL_PROCESS,
 				OntologyChartType.MOLECULAR_FUNCTION,
 				OntologyChartType.CELLULAR_COMPONENT,
+				TaxonomyChartType.SUPERKINGDOM,
 				TaxonomyChartType.KINGDOM,
 				TaxonomyChartType.PHYLUM,
 				TaxonomyChartType.CLASS,

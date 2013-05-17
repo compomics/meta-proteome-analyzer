@@ -121,7 +121,30 @@ public class HistogramData implements ChartData {
 			values = this.values;
 		}
 		
-		histDataset = new HistogramDataset();
+		histDataset = new HistogramDataset() {
+			/*
+			 * Overrides as workaround for when only a single bar is to be
+			 * painted which would otherwise have zero width
+			 */
+			@Override
+			public double getStartXValue(int series, int item) {
+				double startXValue = super.getStartXValue(series, item);
+				double endXValue = super.getEndXValue(series, item);
+				if ((endXValue - startXValue) < 1.0) {
+					return startXValue - (0.5 / binCount);
+				}
+				return startXValue;
+			}
+			@Override
+			public double getEndXValue(int series, int item) {
+				double startXValue = super.getStartXValue(series, item);
+				double endXValue = super.getEndXValue(series, item);
+				if ((endXValue - startXValue) < 1.0) {
+					return endXValue + (0.5 / binCount);
+				}
+				return endXValue;
+			}
+		};
 		
 		histDataset.addSeries("key", values, binCount);
 	}

@@ -55,6 +55,16 @@ public class NcbiTaxonomy implements Serializable {
 	 * Filename of the taxonomy index file.
 	 */
 	private static final String INDEX_FILENAME = "taxonomy.index";
+	
+	/**
+	 * Map containing known taxonomic ranks.
+	 */
+	private List<String> ranks = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
+	
+	/**
+	 * The root node constant.
+	 */
+	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, "no rank", "root");
 
 	/**
 	 * Empty constructor for NCBI tax maps
@@ -81,6 +91,18 @@ public class NcbiTaxonomy implements Serializable {
 		}
 		return instance;
 	}
+	
+	/**
+	 * Creates and returns the common taxonomy node above taxonomy nodes belonging to the
+	 * specified taxonomy IDs.
+	 * @param taxId1 the first taxonomy ID
+	 * @param taxId2 the second taxonomy ID
+	 * @return the common taxonomy node
+	 * @throws Exception 
+	 */
+	synchronized public TaxonomyNode createCommonTaxonomyNode(int taxId1, int taxId2) throws Exception {
+		return this.createTaxonNode(this.getCommonTaxonomyId(taxId1, taxId2));
+	}
 
 	/**
 	 * Returns the common taxonomy node above the two specified taxonomy nodes.
@@ -89,20 +111,23 @@ public class NcbiTaxonomy implements Serializable {
 	 * @return the common taxonomy node
 	 * @throws Exception 
 	 */
-	synchronized public TaxonomyNode getCommonTaxonNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) throws Exception{
-		return getCommonTaxonNode(taxonNode1.getId(),taxonNode2.getId());
-	}
-	
-	/**
-	 * Returns the common taxonomy node above taxonomy nodes belonging to the
-	 * specified taxonomy IDs.
-	 * @param taxId1 the first taxonomy ID
-	 * @param taxId2 the second taxonomy ID
-	 * @return the common taxonomy node
-	 * @throws Exception 
-	 */
-	synchronized public TaxonomyNode getCommonTaxonNode(int taxId1, int taxId2) throws Exception{
-		return this.createTaxonNode(this.getCommonTaxonomyID(taxId1, taxId2));
+	public TaxonomyNode getCommonTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) throws Exception {
+		
+		// Get root paths of both taxonomy nodes
+		TaxonomyNode[] path1 = taxonNode1.getPath();
+		TaxonomyNode[] path2 = taxonNode2.getPath();
+		
+		// Find last common element starting from the root
+		int len = Math.min(path1.length, path2.length);
+		TaxonomyNode ancestor = path1[0];	// initialize ancestor as root
+		for (int i = 1; i < len; i++) {
+			if (!path1[i].equals(path2[i])) {
+				break;
+			}
+			ancestor = path1[i];
+		}
+		
+		return ancestor;
 	}
 	
 	/**
@@ -112,14 +137,14 @@ public class NcbiTaxonomy implements Serializable {
 	 * @return the NCBI taxonomy ID where both entries intersect (or 0 when something went wrong)
 	 * @throws Exception 
 	 */
-	synchronized public int getCommonTaxonomyID(int taxId1, int taxId2) throws Exception {
+	synchronized public int getCommonTaxonomyId(int taxId1, int taxId2) throws Exception {
 		
 		// List of taxonomy entries for the first taxonomy entry.
 		List<Integer> taxList1 = new ArrayList<Integer>();
 		taxList1.add(taxId1);
 		while (taxId1 != 1) {	// 1 is the root node
 			try {
-				taxId1 = this.getParentTaxID(taxId1);
+				taxId1 = this.getParentTaxId(taxId1);
 				taxList1.add(taxId1);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -131,7 +156,7 @@ public class NcbiTaxonomy implements Serializable {
 		taxList2.add(taxId2);
 		while (taxId2 != 1) {	// 1 is the root node
 			try {
-				taxId2 = this.getParentTaxID(taxId2);
+				taxId2 = this.getParentTaxId(taxId2);
 				taxList2.add(taxId2);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -148,11 +173,8 @@ public class NcbiTaxonomy implements Serializable {
 		}
 		
 		// Find ancestor of closest known rank type
-		List<String> rankTypes = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
-//		rankTypes.remove(rankTypes.size() - 1);	// remove 'no rank'
-		
-		while (!rankTypes.contains(this.getRank(taxId)) && (taxId != 1)) {
-			taxId = this.getParentTaxID(taxId);
+		while (!ranks.contains(this.getRank(taxId)) && (taxId != 1)) {
+			taxId = this.getParentTaxId(taxId);
 		}
 		
 		return taxId;
@@ -258,7 +280,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * Write the index files.
 	 * @throws Exception if an I/O error occurs
 	 */
-	private void writeIndexFile() throws Exception  {
+	private void writeIndexFile() throws Exception {
 		
 		File indexFile = new File(
 				this.getClass().getResource(Constants.CONFIGURATION_PATH + INDEX_FILENAME).toURI());
@@ -308,14 +330,14 @@ public class NcbiTaxonomy implements Serializable {
 	
 	/**
 	 * Returns the parent taxonomy id of the taxonomy node belonging to the specified taxonomy id.
-	 * @param taxID the taxonomy id
+	 * @param taxId the taxonomy id
 	 * @return the parent taxonomy id
 	 * @throws Exception if an I/O error occurs
 	 */
-	synchronized public Integer getParentTaxID(int taxID) throws Exception {
+	synchronized public int getParentTaxId(int taxId) throws Exception {
 		
 		// Get mapping
-		int pos = nodesMap.get(taxID);
+		int pos = nodesMap.get(taxId);
 		
 		// Skip to mapped byte position in nodes file
 		nodesRaf.seek(pos);
@@ -324,10 +346,47 @@ public class NcbiTaxonomy implements Serializable {
 		String line = nodesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3);
 		line = line.substring(0, line.indexOf("\t"));
-		return Integer.valueOf(line);
+		return Integer.valueOf(line).intValue();
 		
 	}
 	
+	/**
+	 * Returns a parent taxonomy node of the specified child taxonomy node.
+	 * @param childNode the child node
+	 * @return a parent node
+	 * @throws Exception if an I/O error occurs
+	 */
+	synchronized public TaxonomyNode getParentTaxonomyNode(TaxonomyNode childNode) throws Exception {
+		return this.getParentTaxonomyNode(childNode, true);
+	}
+	
+	/**
+	 * Returns a parent taxonomy node of the specified child taxonomy node. The
+	 * parent node's rank may be forced to conform to the list of known ranks.
+	 * @param childNode the child node
+	 * @param knownRanksOnly <code>true</code> if the parent node's rank shall be
+	 *  one of those specified in the list of known ranks, <code>false</code> otherwise
+	 * @return a parent node
+	 * @throws Exception if an I/O error occurs
+	 */
+	synchronized public TaxonomyNode getParentTaxonomyNode(TaxonomyNode childNode, boolean knownRanksOnly) throws Exception {
+		
+		// Get parent data
+		int parentTaxId = this.getParentTaxId(childNode.getId());
+		String rank = this.getRank(parentTaxId);
+		
+		if (knownRanksOnly) {
+			// As long as parent rank is not inside list of known ranks move up in taxonomic tree
+			while ((parentTaxId != 1) && !ranks.contains(rank)) {
+				parentTaxId = this.getParentTaxId(parentTaxId);
+				rank = this.getRank(parentTaxId);
+			}
+		}
+		
+		// Wrap parent data in taxonomy node
+		return new TaxonomyNode(parentTaxId, rank, this.getTaxonName(parentTaxId));
+	}
+
 	/**
 	 * Returns the taxonomic rank identifier of the taxonomy node belonging to the specified taxonomy id.
 	 * @param taxID the taxonomy id
@@ -354,18 +413,15 @@ public class NcbiTaxonomy implements Serializable {
 	
 	/**
 	 * This method creates a TaxonNode for a certain taxID.
-	 * @param taxID the taxonomy id
+	 * @param taxId the taxonomy id
 	 * @return The taxonNode containing the taxID, rank, taxName
+	 * @throws Exception if an I/O error occurs
 	 */
-	public TaxonomyNode createTaxonNode(int taxID){
+	public TaxonomyNode createTaxonNode(int taxId) throws Exception {
 		TaxonomyNode taxNode = null;
-		try {
-			taxNode = new TaxonomyNode(taxID,
-					this.getRank(taxID),
-					this.getTaxonName(taxID));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		taxNode = new TaxonomyNode(taxId,
+				this.getRank(taxId),
+				this.getTaxonName(taxId));
 		return taxNode;
 	}
 	

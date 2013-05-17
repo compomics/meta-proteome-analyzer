@@ -13,6 +13,7 @@ public class TaxonomyPieChart extends Chart {
 	private PieDataset pieDataset;
 	
 	public enum TaxonomyChartType implements ChartType {
+		SUPERKINGDOM("Superkingdom"),
 		KINGDOM("Kingdom"),
 		PHYLUM("Phylum"),
 		CLASS("Class"),

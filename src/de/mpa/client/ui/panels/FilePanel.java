@@ -14,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +69,10 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.XYPlot;
 
 import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
 import com.compomics.mascotdatfile.util.mascot.Parameters;
@@ -84,16 +91,16 @@ import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.FileChooserDecorationFactory;
+import de.mpa.client.ui.FileChooserDecorationFactory.DecorationType;
 import de.mpa.client.ui.MultiExtensionFileFilter;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.FileChooserDecorationFactory.DecorationType;
 import de.mpa.client.ui.chart.HistogramChart;
-import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
+import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
@@ -345,6 +352,7 @@ public class FilePanel extends JPanel {
 						// determine tree path of cell containing the button
 						TreePath path = getPath();
 						treeTbl.collapsePath(path);
+						
 						// determine table row of cell containing the button
 						int row = treeTbl.getRowForPath(path);
 						if (row == treeTbl.getSelectedRow()) {
@@ -353,16 +361,36 @@ public class FilePanel extends JPanel {
 						}
 						MutableTreeTableNode node = (MutableTreeTableNode) path.getLastPathComponent();
 						CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
-						// file node is about to be removed
+						
+						// change selection
 						if (cbtsm.areSiblingsSelected(path)) {
 							cbtsm.addSelectionPath(path);
 						} else {
 							cbtsm.removeSelectionPath(path);
 						}
+						
+						// remove TICs from cache
+						for (int i = 0; i < node.getChildCount(); i++) {
+							TreeTableNode childAt = node.getChildAt(i);
+							ticList.remove(childAt.getValueAt(3));
+						}
+						
+						// remove node
 						treeModel.removeNodeFromParent(node);
-						// TODO: refresh histogram
+						
+						// refresh histogram
+						if (ticList.isEmpty()) {
+							chartBar.setValues(1, 0, 1, 1);
+						} else {
+							int size = ticList.size();
+							chartBar.setValues(size, size / 10, 1, size);
+						}
+						
 						// forcibly end editing mode
-						treeTbl.getCellEditor().cancelCellEditing();
+						TableCellEditor editor = treeTbl.getCellEditor();
+						if (editor != null) {
+							editor.cancelCellEditing();
+						}
 					}
 				});
 			}
@@ -453,18 +481,21 @@ public class FilePanel extends JPanel {
 			public void adjustmentValueChanged(AdjustmentEvent evt) {
 				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
-					int value = evt.getValue();
-					
-					Container cont = chartPnl.getParent();
-					
-					HistogramChart histogram = new HistogramChart(
-							new HistogramData(ticList, 40, 0, value), HistogramChartType.TOTAL_ION_HIST);
-					
-					chartPnl = new ChartPanel(histogram.getChart());
-					chartPnl.setPreferredSize(new Dimension(0, 0));
-					cont.removeAll();
-					cont.add(chartPnl, CC.xy(2, 2));
-					cont.validate();
+					if (ticList.isEmpty()) {
+						Container cont = chartPnl.getParent();
+						chartPnl = createDefaultHistogramPanel();
+						cont.removeAll();
+						cont.add(chartPnl, CC.xy(2, 2));
+						cont.validate();
+					} else {
+						int value = evt.getValue();
+						
+						Container cont = chartPnl.getParent();
+						chartPnl = createHistogramPanel(ticList, value);
+						cont.removeAll();
+						cont.add(chartPnl, CC.xy(2, 2));
+						cont.validate();
+					}
 				}
 			}
 		});
@@ -987,6 +1018,71 @@ public class FilePanel extends JPanel {
 	}
 	
 	/**
+	 * Convenience class for wrapping histogram charts in pre-configured panels.
+	 * 
+	 * @author A. Behne
+	 */
+	private class HistogramPanel extends ChartPanel {
+
+		public HistogramPanel(HistogramChart histogram) {
+			super(histogram.getChart());
+			
+			this.setPreferredSize(new Dimension(0, 0));
+			this.setBorder(BorderFactory.createEmptyBorder());
+			
+			addLogarithmicAxisWidget(histogram);
+		}
+
+		/**
+		 * Convenience method to add widget to panel to choose between
+		 * logarithmic and linear y axis presentation
+		 * @param histogram the histogram reference
+		 */
+		private void addLogarithmicAxisWidget(final HistogramChart histogram) {
+			
+			this.setLayout(new FormLayout("3dlu, l:p, 0px:g", "0px:g, b:p, 2dlu"));
+			
+			JCheckBox logChk = new JCheckBox("logarithmic y axis", true);
+			logChk.setOpaque(false);
+			logChk.setFocusPainted(false);
+			
+			logChk.addItemListener(new ItemListener() {
+				private XYPlot plot = (XYPlot) histogram.getChart().getPlot();
+				@Override
+				public void itemStateChanged(ItemEvent evt) {
+					ValueAxis yAxis;
+					if (evt.getStateChange() == ItemEvent.SELECTED) {
+						yAxis = new LogarithmicAxis(HistogramChartType.TOTAL_ION_HIST.getYLabel());
+				        ((LogarithmicAxis) yAxis).setAllowNegativesFlag(true);
+					} else {
+						yAxis = new NumberAxis(HistogramChartType.TOTAL_ION_HIST.getYLabel());
+						yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+					}
+					yAxis.setLabelFont(plot.getRangeAxis().getLabelFont());
+			        yAxis.setTickLabelFont(plot.getRangeAxis().getTickLabelFont());
+					plot.setRangeAxis(yAxis);
+				}
+			});
+			
+			this.add(logChk, CC.xy(2, 2));
+		}
+		
+	}
+	
+	/**
+	 * Convenience method to create a histogram panel from the provided values
+	 * and an index specifying the upper boundary of the range of values to be
+	 * considered.
+	 * @param values the values to bin
+	 * @param toIndex the upper boundary index of the values to bin
+	 * @return a histogram panel
+	 */
+	private ChartPanel createHistogramPanel(Collection<Double> values, int toIndex) {
+		return new HistogramPanel(new HistogramChart(
+				new HistogramData(values, 40, 0, toIndex), HistogramChartType.TOTAL_ION_HIST));
+	}
+	
+	/**
 	 * Convenience method to create a default histogram panel displaying bars
 	 * following a bell curve shape and displaying a string notifying the user
 	 * that no files were added yet.
@@ -1002,18 +1098,16 @@ public class FilePanel extends JPanel {
 			long y = Math.round(100.0 * Math.pow(Math.exp(-(((x - mean) * (x - mean)) / 
 					((2 * variance)))), 1 / (stdDeviation * Math.sqrt(2 * Math.PI))));
 			for (int j = 0; j < y; j++) {
-				ticList.add(x); 
+				ticList.add(x * binCount); 
 			}
 		}
 		
-		// TODO: determine bin size via formula
-		HistogramChart histogram = new HistogramChart(new HistogramData(ticList, binCount, 0, ticList.size()), HistogramChartType.TOTAL_ION_HIST);
-		ChartPanel panel = new ChartPanel(histogram.getChart()) {
+		return new HistogramPanel(new HistogramChart(new HistogramData(
+				ticList, binCount, 0, ticList.size()), HistogramChartType.TOTAL_ION_HIST)) {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
 
-//				g.setColor(new Color(255, 255, 255, 160));
 				g.setColor(new Color(255, 255, 255, 191));
 				Insets insets = getBorder().getBorderInsets(this);
 				g.fillRect(insets.left, insets.top,
@@ -1035,10 +1129,6 @@ public class FilePanel extends JPanel {
 				g2d.drawString(str, xOffset, yOffset);
 			}
 		};
-		panel.setPreferredSize(new Dimension(0, 0));
-		panel.setBorder(BorderFactory.createEmptyBorder());
-		
-		return panel;
 	}
 
 	/**

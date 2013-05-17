@@ -131,7 +131,12 @@ public class TaxonomyData implements ChartData {
 	public PieDataset getDataset() {
 		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
-		pieDataset.setValue("Unknown", new Integer(0));
+		
+		// Add empty categories so they always show up first (to keep colors consistent)
+		String unknownKey = "Unknown";
+		pieDataset.setValue(unknownKey, new Integer(0));
+		String othersKey = "Others";
+		pieDataset.setValue(othersKey, new Integer(0));
 		
 		List<String> targetRanks = this.getTargetRanks();
 
@@ -149,9 +154,10 @@ public class TaxonomyData implements ChartData {
 		}
 		
 		occMap = new HashMap<String, ProteinHitList>();
-		Map<String, Integer> valMap = new HashMap<String, Integer>();
+		final Map<String, Integer> valMap = new HashMap<String, Integer>();
 		for (Taxonomic taxonomic : knownList) {
-			String key = taxonomic.getTaxonomyNode().getName();
+			String topRank = chartType.getTitle().toLowerCase();
+			String key = taxonomic.getTaxonomyNode().getParentNode(topRank).getName();
 			
 			ProteinHitList hitList = occMap.get(key);
 			if (hitList == null) {
@@ -168,8 +174,21 @@ public class TaxonomyData implements ChartData {
 		for (Taxonomic taxonomic : unknownTaxa) {
 			unknownHits.addAll(getProteinHits(taxonomic));
 		}
-		occMap.put("Unknown", unknownHits);
-		valMap.put("Unknown", unknownTaxa.size());
+		occMap.put(unknownKey, unknownHits);
+		valMap.put(unknownKey, unknownTaxa.size());
+		
+//		Map<String, Integer> sortedValMap = new TreeMap<String, Integer>(new Comparator<String>() {
+//			@Override
+//			public int compare(String a, String b) {
+//				Integer x = valMap.get(a);
+//				Integer y = valMap.get(b);
+//				if (x.equals(y)) {
+//					return a.compareTo(b);
+//				}
+//				return x.compareTo(y);
+//			}
+//		});
+//		sortedValMap.putAll(valMap);
 		
 		if (hierarchyLevel != HierarchyLevel.META_PROTEIN_LEVEL) {
 			// trim redundant elements from protein hit lists
@@ -182,7 +201,6 @@ public class TaxonomyData implements ChartData {
 		
 		double total = knownList.size() + unknownTaxa.size();
 		ProteinHitList others = new ProteinHitList();
-		String othersKey = "Others";
 		int othersVal = 0;
 		for (Entry<String, Integer> entry : valMap.entrySet()) {
 			Integer absVal = entry.getValue();
@@ -208,7 +226,7 @@ public class TaxonomyData implements ChartData {
 		}
 		
 		if (hideUnknown) {
-			pieDataset.setValue("Unknown", 0);
+			pieDataset.setValue(unknownKey, 0);
 		}
 		
 		return pieDataset;
@@ -263,34 +281,14 @@ public class TaxonomyData implements ChartData {
 	 */
 	private List<String> getTargetRanks() {
 		List<String> targetRanks = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
-		String type = chartType.getTitle().toLowerCase();
-		targetRanks = targetRanks.subList(targetRanks.indexOf(type), targetRanks.size());
+		String topRank = chartType.getTitle().toLowerCase();
+		targetRanks = targetRanks.subList(targetRanks.indexOf(topRank), targetRanks.size());
 		
 		return targetRanks;
 	}
 
 	@Override
 	public ProteinHitList getProteinHits(String key) {
-//		Set<ProteinHit> hitSet = new HashSet<ProteinHit>();
-//		if (this.hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
-//			Collection<? extends Taxonomic> coll = this.hierarchyMap.get(HierarchyLevel.META_PROTEIN_LEVEL);
-//			for (Taxonomic taxonomic : coll) {
-//				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
-//				if (key.equals(taxonNode.getName())) {
-//					MetaProteinHit metaProtein = (MetaProteinHit) taxonomic;
-//					hitSet.add(metaProtein);
-//				}
-//			}
-//		} else {
-//			Collection<? extends Taxonomic> coll = this.hierarchyMap.get(HierarchyLevel.PROTEIN_LEVEL);
-//			for (Taxonomic taxonomic : coll) {
-//				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
-//				if (key.equals(taxonNode.getName())) {
-//					hitSet.add((ProteinHit) taxonomic);
-//				}
-//			}
-//		}
-//		return new ProteinHitList(hitSet);
 		return occMap.get(key);
 	}
 	

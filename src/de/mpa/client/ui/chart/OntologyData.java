@@ -115,7 +115,6 @@ public class OntologyData implements ChartData {
 		for (ProteinHit mp : dbSearchResult.getMetaProteins()) {
 			MetaProteinHit metaProtein = (MetaProteinHit) mp;
 			for (ProteinHit proteinHit : metaProtein.getProteinHits()) {
-				System.out.println(proteinHit.toString() + "   " + proteinHit.isSelected());
 				if (proteinHit.isSelected()) {
 					// Get UniProt Entry
 					UniProtEntry entry = proteinHit.getUniprotEntry();

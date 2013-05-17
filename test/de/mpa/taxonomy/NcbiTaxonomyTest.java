@@ -69,9 +69,9 @@ public class NcbiTaxonomyTest extends TestCase {
 //			System.out.println(" done! (" + (System.currentTimeMillis() - startTime) + " ms)");
 
 			// Get parent from node map
-			int parentTaxID1 = ncbiTax.getParentTaxID(1);
-			int parentTaxID2 = ncbiTax.getParentTaxID(2);
-			int parentTaxID3 = ncbiTax.getParentTaxID(171);
+			int parentTaxID1 = ncbiTax.getParentTaxId(1);
+			int parentTaxID2 = ncbiTax.getParentTaxId(2);
+			int parentTaxID3 = ncbiTax.getParentTaxId(171);
 			assertEquals(1, parentTaxID1);
 			assertEquals(131567, parentTaxID2);
 			assertEquals(170, parentTaxID3);
@@ -85,14 +85,14 @@ public class NcbiTaxonomyTest extends TestCase {
 			assertEquals("genus", rank3);
 
 			// Test common taxID
-			int comTaxID1 = ncbiTax.getCommonTaxonomyID(269797, 79929);
-			int comTaxID2 = ncbiTax.getCommonTaxonomyID(1, 1);
+			int comTaxID1 = ncbiTax.getCommonTaxonomyId(269797, 79929);
+			int comTaxID2 = ncbiTax.getCommonTaxonomyId(1, 1);
 			assertEquals(28890, comTaxID1);
 			assertEquals(1, comTaxID2);
 			
 			// Test common taxon Node
-			TaxonomyNode comTaxNode1 = ncbiTax.getCommonTaxonNode(269797, 79929);
-			TaxonomyNode comTaxNode2 = ncbiTax.getCommonTaxonNode(1, 1);
+			TaxonomyNode comTaxNode1 = ncbiTax.createCommonTaxonomyNode(269797, 79929);
+			TaxonomyNode comTaxNode2 = ncbiTax.createCommonTaxonomyNode(1, 1);
 			assertEquals(28890, comTaxNode1.getId());
 			assertEquals("Euryarchaeota", comTaxNode1.getName());
 			assertEquals("phylum", comTaxNode1.getRank());
