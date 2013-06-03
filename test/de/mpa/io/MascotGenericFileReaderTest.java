@@ -17,7 +17,7 @@ public class MascotGenericFileReaderTest extends TestCase {
 
 	@Before
 	public void setUp() {
-		String filePath = "test/de/mpa/resources/TestOmssa.mgf";
+		String filePath = "test/de/mpa/resources/Test_100.mgf";
 		try {
 			reader = new MascotGenericFileReader(new File(filePath), LoadMode.NONE);
 		} catch (IOException e) {
@@ -30,14 +30,14 @@ public class MascotGenericFileReaderTest extends TestCase {
 		reader.survey();
 		List<Long> spectrumPositions = reader.getSpectrumPositions();
 		
-		assertEquals(17, spectrumPositions.size());
+		assertEquals(100, spectrumPositions.size());
 	}
 	
 	@Test
 	public void testLoadSpectra() throws IOException {
 		reader.load();
 		List<MascotGenericFile> spectrumFiles = reader.getSpectrumFiles();
-		assertEquals(17, spectrumFiles.size());
+		assertEquals(100, spectrumFiles.size());
 
 	}
 }
