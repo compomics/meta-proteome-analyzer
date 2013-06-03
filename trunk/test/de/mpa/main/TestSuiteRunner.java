@@ -18,11 +18,11 @@ import de.mpa.exporter.ExportTest;
 import de.mpa.exporter.ResultsDumpTest;
 import de.mpa.fastaLoader.FastaLoaderTest;
 import de.mpa.fragmentation.FragmentizerTest;
+import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.SixtyFourBitStringDecoderTest;
 import de.mpa.io.SixtyFourBitStringEncoderTest;
 import de.mpa.job.blast.BlastParserTest;
 import de.mpa.parser.mascot.xml.MascotXMLParserTest;
-import de.mpa.parser.mgf.MascotGenericFileReaderTest;
 import de.mpa.parser.pepnovo.QueryParserTest;
 import de.mpa.settings.SearchEngineParameterExportTest;
 import de.mpa.taxonomy.NcbiTaxonomyTest;
@@ -57,7 +57,7 @@ import de.mpa.webservice.ServerImplTest;
 					
 					MascotXMLParserTest.class,
 					
-					MascotGenericFileReaderTest.class,
+					MascotGenericFileReader.class,
 					
 					QueryParserTest.class,
 					
