@@ -306,8 +306,7 @@ public class MascotGenericFileReader {
     private int determineNewlineCharCount() {
     	int res = 0;
     	try {
-            @SuppressWarnings("resource")
-			BufferedReader br = new BufferedReader(new FileReader(raf.getFD()));
+            BufferedReader br = new BufferedReader(new FileReader(file));
             int character;
             boolean eol = false;
             while ((character = br.read()) != -1) {
@@ -318,7 +317,6 @@ public class MascotGenericFileReader {
             		break;
             	}
             }
-//    		raf.seek(0);	// reset file-pointer to start of file
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
