@@ -45,7 +45,7 @@ public class MascotParameters extends ParameterMap {
 		this.put("missClv", new Parameter(null, "0", "General", null));
 		
 		/* Visible parameters */
-		this.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15 }, { false, 0.05 } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
+		this.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15, true }, { false, 0.05, false } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
 		
 		this.put("settings", new Parameter("", panel, "Search Settings", "tooltip"));
 	}

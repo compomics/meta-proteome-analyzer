@@ -297,7 +297,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				Object[][] values = (Object[][]) param.getValue();
 				int k = 0;
 				for (int i = 0; i < values.length; i++) {
-					for (int j = 0; j < values[i].length; j++) {
+					for (int j = 0; j < 2; j++) {
 						Component subComp = comp.getComponent(k++);
 						if (subComp instanceof AbstractButton) {
 							values[i][j] = ((AbstractButton) subComp).isSelected();
@@ -467,12 +467,14 @@ public class AdvancedSettingsDialog extends JDialog {
 				for (int j = 0; j < values[0].length; j++) {
 					Object val = values[i][j];
 //					if (val instanceof Boolean) {
-					if (j == 0) {
+					switch (j) {
+					case 0:
 						radioButton = new JRadioButton(names[i], null, (Boolean) val);
 						radioButton.setIconTextGap(15);
 						radioButton.setToolTipText(tooltips[i]);
 						comp = radioButton;
-					} else {
+						break;
+					case 1:
 						if (val instanceof Number) {
 							comp = createParameterControl(new Parameter(param.getName(), val, param.getSection(), tooltips[i]));
 						}
@@ -485,6 +487,10 @@ public class AdvancedSettingsDialog extends JDialog {
 								temp.setEnabled(sel);
 							}
 						});
+						break;
+					case 2:
+						radioButton.setEnabled((Boolean) values[i][j]);
+						break;
 					}
 					builder.append(comp);
 				}

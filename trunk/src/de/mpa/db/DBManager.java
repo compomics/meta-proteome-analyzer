@@ -66,9 +66,6 @@ public class DBManager {
 		// The database configuration.
 		DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.LOCAL, new DbConnectionSettings());
 		conn = dbconfig.getConnection();
-		
-		// Set auto commit == FALSE --> Manual commit & rollback.
-		conn.setAutoCommit(false);
     }
 	
 	/**

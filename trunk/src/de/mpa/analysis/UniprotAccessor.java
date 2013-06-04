@@ -3,10 +3,13 @@ package de.mpa.analysis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -27,7 +30,10 @@ import de.mpa.taxonomy.TaxonomyNode;
  *
  */
 public class UniprotAccessor {
-
+	
+	// Max clause count == BATCH SIZE is set to 1024
+	private static final int BATCH_SIZE = 1024;
+	
 	/**
 	 * The shared UniProt query service instance. 
 	 */
@@ -63,36 +69,27 @@ public class UniprotAccessor {
 		Map<String, ProteinHit> resultHits = dbSearchResult.getProteinHits();
 		
 		Map<String, ProteinHit> proteinHits = new HashMap<String, ProteinHit>();
-		List<String> idList = new ArrayList<String>();
+		Set<String> giSet = new HashSet<String>();
 		for (Entry<String, ProteinHit> entry : dbSearchResult.getProteinHits().entrySet()) {
 			String acc = entry.getKey();
 			if (acc.matches("^\\d*$")) {
 				// accession contains only numbers, most likely a non-UniProt identifier
-				idList.add(acc);
+				giSet.add(acc);
 			} else {
 				proteinHits.put(acc, entry.getValue());
 			}
 		}
 		
 		// Check whether any identifiers are in need of re-mapping
-		if (!idList.isEmpty()) {
-			// TODO: add mapping support for other protein databases (when demanded)
-			// Retrieve GI number-to-UniProt mapping
-			int increment = 512;
-			for (int fromIndex = 0; fromIndex < idList.size(); fromIndex += increment) {
-				int toIndex = fromIndex + increment;
-				if (toIndex > idList.size()) {
-					toIndex = idList.size();
-				}
-				List<String> subList = idList.subList(fromIndex, toIndex);
-				Map<String, String> mapping = UniProtGiMapper.getMapping(subList);
-				if ((mapping != null) && !mapping.isEmpty()) {
-					for (String gi : idList) {
-						String acc = mapping.get(gi);
-						// store re-mapped protein hit 
-						if (acc != null) {
-							proteinHits.put(acc, resultHits.get(gi));
-						}
+		if (!giSet.isEmpty()) {
+			Map<String, String> mapping =
+					UniProtGiMapper.retrieveGiToUniProtMapping(new ArrayList<String>(giSet));
+			if ((mapping != null) && !mapping.isEmpty()) {
+				for (String gi : giSet) {
+					String acc = mapping.get(gi);
+					// store re-mapped protein hit 
+					if (acc != null) {
+						proteinHits.put(acc, resultHits.get(gi));
 					}
 				}
 			}
@@ -118,7 +115,36 @@ public class UniprotAccessor {
 		}
 		addUniProtEntries(accList, proteinHits);
 	}
-
+	
+	/**
+	 * Retrieves batch-wise a mapping of UniProt identifiers to UniProt entries.
+	 * @param identifierList {@link List} of UniProt identifiers.
+	 * @return {@link Map} of UniProt entries.
+	 */
+	public static Map<String, UniProtEntry> retrieveUniProtEntries(List<String> identifierList) {
+		Map<String, UniProtEntry> uniprotEntryMap = new TreeMap<String, UniProtEntry>();
+		
+		// Check whether UniProt query service has been established yet.
+		if (uniProtQueryService == null) {
+			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
+		}
+		int maxClauseCount = BATCH_SIZE;
+		int maxBatchCount = identifierList.size() / maxClauseCount;		
+		for (int i = 0; i < maxBatchCount; i++) {
+			int startIndex = i * maxClauseCount;
+			int endIndex = (i + 1) * maxClauseCount - 1;
+			List<String> shortList = new ArrayList<String>(identifierList.subList(startIndex, endIndex));
+			startIndex = endIndex + 1;
+			queryUniProtEntriesByIdentifiers(shortList, uniprotEntryMap);
+			shortList.clear();
+		}
+		queryUniProtEntriesByIdentifiers(
+				new ArrayList<String>(identifierList.subList(
+						maxBatchCount * maxClauseCount, identifierList.size())), uniprotEntryMap);
+		
+		return uniprotEntryMap;
+	}
+	
 	/**
 	 * Convenience method to query UniProt entries from a list of accession
 	 * strings and link them to their respective protein hits.
@@ -153,6 +179,21 @@ public class UniprotAccessor {
 				System.err.println("Unable to link UniProt entry " + accession + " to protein hit!");
 			}
 		}
+	}
+	
+	/**
+	 * Queries the UniProt entries by identifiers.
+	 * @param identifierList {@link List} of UniProt identifiers.
+	 * @param uniprotEntries {@link Map} of UniProt entries.
+	 */
+	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, UniProtEntry> uniprotEntries) {
+		Query query = UniProtQueryBuilder.buildIDListQuery(identifierList);
+		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
+		
+		// Iterate the entries and add them to the list. 
+		for (UniProtEntry entry : entryIterator) {
+			uniprotEntries.put(entry.getPrimaryUniProtAccession().getValue(), entry);
+		}	
 	}
 
 	/**

@@ -2,7 +2,9 @@ package de.mpa.analysis;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
@@ -15,34 +17,35 @@ import org.junit.Test;
  */
 public class GI2UniProtMappingTest extends TestCase {
 
-	ArrayList<String> testList;
+	List<String> giList;
 	
 	@Before
 	public void setUp(){
-		testList = new ArrayList<String>();
-		testList.add("500551516"); // Not in NCBI
-		testList.add(null);
-		testList.add("81941549");
-		testList.add("47060116");
-		testList.add("49237298");
-		testList.add("221726920");
-		testList.add("254801230");
-		testList.add("222082241");
-		
+		giList = new ArrayList<String>();
+		giList.add("500551516"); // Not in NCBI
+		giList.add("81941549");
+		giList.add("47060116");
+		giList.add("49237298");
+		giList.add("221726920");
+		giList.add("254801230");
+		giList.add("222082241");
 	}
 	
 	@Test
 	public void testMapping() throws IOException {
-		Map<String, String> mapping = UniProtGiMapper.getMapping(testList);
-
-		assertEquals(mapping.get("81941549"),"Q6GZX4");
-		assertEquals(mapping.get("47060116"),"Q6GZX4");
-		assertEquals(mapping.get("49237298"),"Q6GZX4");
-		// Last entries in TestFile
-		assertEquals(mapping.get("221726920"),"B9JJB7");
-		assertEquals(mapping.get("254801230"),"B9JJB7");
-		assertEquals(mapping.get("222082241"),"B9JJB7");
+		Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(giList);
 		
-		assertEquals(mapping.get("500551516"), null);
+		for (Entry<String, String> entry : gi2up.entrySet()) {
+			System.out.println("gi: " + entry.getKey() + " up: " + entry.getValue());
+		}
+
+		assertEquals("Q6GZX4", gi2up.get("81941549"));
+		assertEquals("Q6GZX4", gi2up.get("47060116"));
+		assertEquals("Q6GZX4", gi2up.get("49237298"));
+		// Last entries in TestFile
+		assertEquals("B9JJB7", gi2up.get("221726920"));
+		assertEquals("B9JJB7", gi2up.get("254801230"));
+		assertEquals("B9JJB7", gi2up.get("222082241"));
+		
 	}
 }

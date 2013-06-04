@@ -14,15 +14,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Vector;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
@@ -33,18 +28,6 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.uuw.services.remoting.AccessionIterator;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
-
-import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
-import com.compomics.mascotdatfile.util.mascot.Peak;
-import com.compomics.mascotdatfile.util.mascot.ProteinMap;
-import com.compomics.mascotdatfile.util.mascot.Query;
-import com.compomics.mascotdatfile.util.mascot.QueryToPeptideMap;
 
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
@@ -65,13 +48,11 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.Spec2pep;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.extractor.SearchHitExtractor;
@@ -81,7 +62,6 @@ import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
-import de.mpa.io.SixtyFourBitStringSupport;
 import de.mpa.webservice.WSPublisher;
 
 public class Client {
@@ -121,11 +101,6 @@ public class Client {
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
-
-	/**
-	 * Service to query UniProt.
-	 */
-	private UniProtQueryService uniProtQueryService;
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -269,462 +244,22 @@ public class Client {
 	 * @param settings Global search settings
 	 */
 	public void runSearches(List<String> filenames, SearchSettings settings) {
+		// Add mascot hits if chosen
+		if (settings.getDbss().isMascot()) {
+			firePropertyChange("new message", null, "Finish uploading Mascot dat.File");
+		}
+
 		if (filenames != null) {
 			for (int i = 0; i < filenames.size(); i++) {
 				settings.getFilenames().add(filenames.get(i));
 			}
 			try {
 				server.runSearches(settings);
-
-
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
-		// Add mascot hits if chosen
-		if (ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotChk().isSelected()) {
-			firePropertyChange("new message", null, "Uploading Mascot dat.File");
-			firePropertyChange("indeterminate", true, false);
-			addMascotResults2Db(settings);
-			firePropertyChange("new message", null, "Finish uploading Mascot dat.File");
-		}
-	}
-
-	/**
-	 * Method to include Mascot results to the database from Mascot-.dat files.
-	 * @param mascotDatFile
-	 */
-	private void addMascotResults2Db(SearchSettings settings) {
-
-		/* The Mascot-dat.file parser*/
-		MascotDatfile mDat = new MascotDatfile(ClientFrame.getInstance().getFilePanel().getSelFile().toString());
 		
-		if (mDat != null) {
-			
-			/* Parameters for mascot search*/
-			Object[][] mascotParams = (Object[][]) ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotParameterMap().get("filter").getValue();
-
-			QueryToPeptideMap queryToPeptideMap = mDat.getQueryToPeptideMap();
-			Vector<Query> queryList = mDat.getQueryList();
-	
-			/* Score threshold for Ions*/
-			double scoreThreshold = 0.0;
-			
-			// Check if peptide score (mascotParams[0][0]) or FDR (mascotParams[1][0]) is importing criteria
-			if ((Boolean) mascotParams[0][0]) {
-				scoreThreshold = (Integer) mascotParams[0][1];
-			} else {
-				/* Score list of identified queries */
-				List<Double> queryScores = new ArrayList<Double>();
-	
-				/* Score list of identified decoy queries */
-				List<Double> queryDecoyScores = new ArrayList<Double>();
-	
-				// Calculate query scores for decoy
-				/* The decoyquery2peptide map*/
-				QueryToPeptideMap decoyQueryToPeptideMap = mDat.getDecoyQueryToPeptideMap();
-				
-				for (Query query : queryList) {
-					Vector<com.compomics.mascotdatfile.util.mascot.PeptideHit> allPeptideHits = queryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
-					Vector<com.compomics.mascotdatfile.util.mascot.PeptideHit> allDecoyPeptideHits = decoyQueryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
-					if (allPeptideHits != null) {
-						for (com.compomics.mascotdatfile.util.mascot.PeptideHit peptideHit : allPeptideHits) {
-							queryScores.add(peptideHit.getIonsScore());
-						}
-					}
-					if (allDecoyPeptideHits != null) {
-						for (com.compomics.mascotdatfile.util.mascot.PeptideHit peptideHit : allDecoyPeptideHits) {
-							queryDecoyScores.add(peptideHit.getIonsScore());
-						}
-					}
-				}
-				Collections.sort(queryScores);
-				Collections.sort(queryDecoyScores);
-	
-				/* False discovery rate which should be reached */
-				double fdr_target = (Double) mascotParams[1][1];
-	
-				/* Actual false discovery rate*/
-				double fdr;
-				// Increase IonScore until FDR is reached
-				int ionThreshold;
-				for (ionThreshold = 0; ionThreshold < 1002; ionThreshold++) {
-					if (queryScores.size() != 0) {// Check for 0 as divisor
-						
-						// Remove query entries below ion score threshold
-						Iterator<Double> queryScoresIt = queryScores.iterator();
-						while (queryScoresIt.hasNext()) {
-							if (queryScoresIt.next() < ionThreshold) {
-								queryScoresIt.remove();
-							} else {
-								break;
-							}
-						}
-	
-						// Remove decoy query entries below ion score threshold
-						Iterator<Double> queryDecoyScoresIt = queryDecoyScores.iterator();
-						while (queryDecoyScoresIt.hasNext()) {
-							if (queryDecoyScoresIt.next() < ionThreshold) {
-								queryDecoyScoresIt.remove();
-							} else {
-								break;
-							}
-						}
-						
-						fdr = 1.0 * queryDecoyScores.size() / queryScores.size() ;
-						if (fdr <= fdr_target ) {
-							scoreThreshold = ionThreshold;
-							break;
-						}
-					}
-				}
-				if (ionThreshold > 1000) {
-					JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", "Not possible to calculate the FDR", null, null, null, ErrorLevel.SEVERE, null));
-				}
-			}
-			
-			// Get all queries, peptides, proteins above threshold and put them into db.
-			/* The experiment ID*/
-			long currentExperimentId = ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId();
-	
-			/* Mgf-list of all spectra from a certain experiment*/
-			List<MascotGenericFile> spectraByExperimentID = null;
-			try {
-				spectraByExperimentID = new SpectrumExtractor(conn).getSpectraByExperimentID(currentExperimentId, false, false, true);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-			// Put titles and spectrum Id's of mgf in list
-			Map<String,Long	> specTitleMap = new TreeMap<String,Long>();
-			for (int i = 0; i < spectraByExperimentID.size(); i++) {
-				specTitleMap.put(spectraByExperimentID.get(i).getTitle(), spectraByExperimentID.get(i).getSpectrumID());
-			}
-			
-			// Iterate over entries from mascot-dat file and fill them into the database
-			
-			/* The proteinAccession2Description Map */
-			ProteinMap proteinMap = mDat.getProteinMap();
-			// Get queries and iterate over them
-			int noQueries = 0;
-			// Set progress bar
-			firePropertyChange("resetall", 0L, queryList.size());
-			for (Query query : queryList) {
-				firePropertyChange("progress", 0L, ++noQueries);
-				Vector<com.compomics.mascotdatfile.util.mascot.PeptideHit> allPeptideHitsOfQuery =
-						queryToPeptideMap.getAllPeptideHits(query.getQueryNumber());	
-				if (allPeptideHitsOfQuery != null) {
-					 // Check whether spectrum is already in the database otherwise add
-					Long spectrumId = specTitleMap.get(query.getTitle());	
-					Long searchSpectrumId = null;
-					if (spectrumId != null) {
-						try {
-							searchSpectrumId = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumId, currentExperimentId, conn).getSearchspectrumid();
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-					} else {
-						spectrumId = addSpectrum(query);
-						// Fill search spectrum table and get searchspectrumID
-						searchSpectrumId = addSearchSpectrum(settings.getExpID(), spectrumId);
-						// Add new spectrum to map with title and spectrum IDs
-						specTitleMap.put(query.getTitle(),spectrumId);
-					}
-					
-					// Fill spectrum table and get spectrumID
-					for (com.compomics.mascotdatfile.util.mascot.PeptideHit datPeptideHit : allPeptideHitsOfQuery) {
-						
-						if (datPeptideHit.getIonsScore() >= scoreThreshold) {
-							// Fill the peptide table and get peptideID
-							long peptideID = addPeptide(datPeptideHit.getSequence());
-							// Fill the spec2peptide table
-							addSpec2peptide(spectrumId, peptideID);
-							// Get proteins and fill them into the table
-							ArrayList<com.compomics.mascotdatfile.util.mascot.ProteinHit> datProteinHits =
-									datPeptideHit.getProteinHits();
-							for (com.compomics.mascotdatfile.util.mascot.ProteinHit datProtHit : datProteinHits) {
-								long proteinID = addProtein(peptideID, datProtHit, proteinMap);
-								addMascotHit(searchSpectrumId, peptideID, proteinID, query, datPeptideHit);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * This method puts the spectra from a Mascot-dat. file into the database
-	 * @param query. Query from MascotDatFileParser
-	 * @param mDat. The MascotDatFileParser
-	 * @return spectrumID. The ID of the spectra in the databse
-	 */
-	private Long addSpectrum(Query query) {
-
-		/* The spectrum ID */
-		Long spectrumid = null;
-		// Check here whether spectra are already in DB
-
-		/* An entry for the database */
-		HashMap<Object, Object> data = new HashMap<Object, Object>(12);
-
-		// Add title
-		data.put(Spectrum.TITLE, query.getTitle().trim());
-		// Add precursor MZ
-		data.put(Spectrum.PRECURSOR_MZ, query.getPrecursorMZ());
-		// Add precursor intensity
-		data.put(Spectrum.PRECURSOR_INT, query.getPrecursorIntensity());
-		// Add charge
-		String chargeString = query.getChargeString();
-		chargeString = chargeString.replaceAll("[^\\d]", "");
-		data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(chargeString));
-		// Add peakList
-		Peak[] peakList = query.getPeakList();
-		Double[] mzArray = new Double[peakList.length];
-		Double[] intArray = new Double[peakList.length];
-		Double[] chargeArray = new Double[peakList.length];
-		double totalInt = 0.0;
-		if (peakList != null && peakList.length > 0) {
-			for (int j = 0; j < peakList.length; j++) {
-				Peak peak = peakList[j];
-				mzArray[j] = peak.getMZ();
-				intArray[j] = peak.getIntensity();
-				chargeArray[j] = 0.0;
-				totalInt += peak.getIntensity();
-			}
-		}
-		data.put(Spectrum.MZARRAY,SixtyFourBitStringSupport.encodeDoublesToBase64String(mzArray));
-		data.put(Spectrum.INTARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(intArray));
-		data.put(Spectrum.CHARGEARRAY,SixtyFourBitStringSupport.encodeDoublesToBase64String(chargeArray) );
-		// Add total intensity
-		data.put(Spectrum.TOTAL_INT, totalInt); // Add
-		// Add maximum intensity
-		data.put(Spectrum.MAXIMUM_INT, query.getMaxIntensity());
-		// Save spectrum in database
-		Spectrum spec = new Spectrum(data);
-		try {
-			spec.persist(conn);
-			// Get the spectrumID from the generated keys.
-			spectrumid = (Long) spec.getGeneratedKeys()[0];
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return spectrumid;
-	}
-
-	/**
-	 * This method puts the search spectra from a Mascot-dat. file into the database.
-	 * @param query. The query from the MascotDatFile parser.
-	 * @param mDat. The MascotDatFile parser.
-	 * @param spectrumid. The ID of the spectra in the database. 
-	 * @return search spectrum ID. The ID of the search spectrum ID.
-	 */
-	private Long addSearchSpectrum(Long expId, Long spectrumId) {
-
-		/* The search spectrum ID */
-		Long searchspectrumid = null;
-
-		/* Search spectrum storager */
-		HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
-
-		/* The spectrum ID*/
-		searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumId);
-
-		/* The experiment ID*/
-		searchData.put(Searchspectrum.FK_EXPERIMENTID, expId);
-
-		/* The new search specrum*/
-		Searchspectrum searchSpectrum = new Searchspectrum(searchData);
-		try {
-			searchSpectrum.persist(conn);
-			// Get the search spectrum id from the generated keys.
-			searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return searchspectrumid;
-	}
-
-	/**
-	 * This method puts the peptide from a Mascot-dat. file into the database
-	 * @return peptideID. The peptide ID in the database.
-	 */
-	private long addPeptide(String sequence) {
-
-		/* Peptide ID in database */
-		long peptideID;
-
-		/* Accessor to a peptide in the database */
-		PeptideAccessor peptide = null;
-
-		// Get the peptide from database, if it is already in it
-		try {
-			peptide = PeptideAccessor.findFromSequence(sequence, conn);
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		// Check whether peptide is new or not
-		if (peptide == null) {	// sequence not yet in database
-			/* Peptide storager */
-			HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-			// Add peptide sequence
-			dataPeptide.put(PeptideAccessor.SEQUENCE, sequence);
-			/* The new peptide */
-			peptide = new PeptideAccessor(dataPeptide);
-			try {
-				// Save peptide in the database
-				peptide.persist(conn);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			// Get the peptide id from the generated keys.
-			peptideID = (Long) peptide.getGeneratedKeys()[0];
-		} else {
-			peptideID = peptide.getPeptideid();
-		}
-		return peptideID;
-	}
-	/**
-	 * This method puts a spec2peptide entry into the database
-	 * @param spectrumID. The spectrumID in the database.
-	 * @param peptideID. The peptideID in the database.
-	 */
-	private void addSpec2peptide(long spectrumID, long peptideID) {
-
-		/* Accessor Spectrum2peptide */
-		Spec2pep s2p = null;
-
-		// Check whether connection between spectrum and peptide already exist.
-		try {
-			s2p = Spec2pep.findLink(spectrumID, peptideID, conn);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		if (s2p == null) {	// link doesn't exist yet
-			/* Spec2Peptide storager */
-			HashMap<Object, Object> dataSpecLib = new HashMap<Object, Object>(7);
-			// Add spectrum ID
-			dataSpecLib.put(Spec2pep.FK_SPECTRUMID, spectrumID);
-			// Add peptide ID
-			dataSpecLib.put(Spec2pep.FK_PEPTIDEID, peptideID);
-			// Save spec2peptide entry in the library
-			s2p = new Spec2pep(dataSpecLib);
-			try {
-				s2p.persist(conn);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
-	 * This method puts the proteins and pep2proteins entries in the database
-	 * @param peptideID. The ID of the peptide in the database
-	 * @param datProtHit. A proteinHit from the MascotDatFile parser.
-	 * @param proteinMap. The proteinMap from MascotDatFile parser, containing the link between accession and description 
-	 * @return proteinID. The proteinID in the database.
-	 */
-	private long addProtein(long peptideID, com.compomics.mascotdatfile.util.mascot.ProteinHit datProtHit, ProteinMap proteinMap) {
-
-		/* Protein accession */
-		String accession = datProtHit.getAccession();
-		String[] split;
-		// Create right format for accession
-		if (accession.startsWith("sp|")) {
-			split = accession.split("[|]");
-			accession = split[1];
-		}else if (accession.startsWith("gi|")) {
-			split = accession.split("[|]");
-			accession = split[1];
-		}
-		// Change UniProt identifier to uniProt accession
-		if (accession.contains("_")) {
-			// Check whether UniProt query service has been established yet.
-			if (uniProtQueryService == null) {
-				uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-			}
-			uk.ac.ebi.kraken.uuw.services.remoting.Query query = UniProtQueryBuilder.buildQuery(accession);
-			AccessionIterator<UniProtEntry> accessions = uniProtQueryService.getAccessions(query);
-			String newAccession = accessions.next();
-			if (newAccession != null) {
-				accession = newAccession;
-			}
-		}
-
-		/* The proteinID in the database*/
-		long proteinID = 0;
-
-		//Check whether entry already exists
-		ProteinAccessor protAccessor = null;
-		try {
-			protAccessor = ProteinAccessor.findFromAttributes(accession, conn);
-
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		if (protAccessor == null) {
-			// Accessor ProteinHit and Protein2Peptide
-			try {
-				protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, proteinMap.getProteinDescription(datProtHit.getAccession()),"", conn);
-				proteinID = (Long) protAccessor.getGeneratedKeys()[0];
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}else{
-			proteinID = protAccessor.getProteinid();
-		}
-		return proteinID;
-	}
-
-	/**
-	 * This method puts the mascothit entries in the database.
-	 * @param searchspectrumID. The spectrumID in the database.
-	 * @param peptideID. The peptideID in the database.
-	 * @param proteinID. The proteinID in the database. 
-	 * @param query. The MascotDatFile parser query.
-	 * @param datPeptideHit. The MascotDatFile peptide.
-	 * @return mascothitID. The ID of the MascotHit in the database.
-	 */
-	private long addMascotHit(long searchspectrumID, long peptideID, long proteinID, Query query, com.compomics.mascotdatfile.util.mascot.PeptideHit datPeptideHit) {
-
-		/* The ID of the MascotHit */
-		long mascotHitID = 0;
-		/* An entry for the database */
-		HashMap<Object, Object> data = new HashMap<Object, Object>(10);
-
-		// Add searchspectrumID
-		data.put(Mascothit.FK_SEARCHSPECTRUMID, searchspectrumID);
-
-		// Add peptideID
-		data.put(Mascothit.FK_PEPTIDEID, peptideID);
-
-		// Add proteinID
-		data.put(Mascothit.FK_PROTEINID, proteinID);
-
-		// Add charge
-		String chargeString = query.getChargeString();
-		chargeString = chargeString.replaceAll("[^\\d]", "");
-		data.put(Mascothit.CHARGE, Long.valueOf(chargeString));
-
-		// Add ion score
-		data.put(Mascothit.IONSCORE,datPeptideHit.getIonsScore());
-
-		// Add e-value
-		data.put(Mascothit.EVALUE,datPeptideHit.getExpectancy());
-
-		// Add delta
-		data.put(Mascothit.DELTA, datPeptideHit.getDeltaMass());
-
-		// Save spectrum in database
-		Mascothit mascotHit	 = new Mascothit(data);
-		try {
-			mascotHit.persist(conn);
-			// Get the spectrumID from the generated keys.
-			mascotHitID = (Long) mascotHit.getGeneratedKeys()[0];
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return mascotHitID;
 	}
 
 	/**
@@ -1057,7 +592,7 @@ public class Client {
 		try {
 			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
 			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
-			mgf = reader.loadNthSpectrum(0, startPos, endPos);
+			mgf = reader.loadSpectrum(0, startPos, endPos);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
