@@ -41,6 +41,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -378,6 +379,12 @@ public class DbSearchResultPanel extends JPanel {
 	 * Import file.
 	 */
 	protected File importFile;
+
+	private CardLayout protCardLyt;
+
+	private String[] cardLabels;
+
+	private JPanel protCardPnl;
 	
 
 	/**
@@ -425,11 +432,11 @@ public class DbSearchResultPanel extends JPanel {
 		psmTableScp.setPreferredSize(new Dimension(350, 100));
 		
 		// Hierarchical view options
-		final String[] cardLabels = new String[] {"Original", "Flat View",
+		cardLabels = new String[] {"Original", "Flat View",
 				"Taxonomic View", "E.C. View", "Pathway View"};
 		
-		final CardLayout protCardLyt = new CardLayout();
-		final JPanel protCardPnl = new JPanel(protCardLyt);
+		protCardLyt = new CardLayout();
+		protCardPnl = new JPanel(protCardLyt);
 		protCardPnl.add(proteinTableScp, cardLabels[0]);
 		
 		setupProteinTreeTables();
@@ -768,7 +775,7 @@ public class DbSearchResultPanel extends JPanel {
 					int x = mainDivider.getBounds().width - me.getX();
 					if ((x > 15) && (x < 26)) {
 						// hide nodes below main divider
-						msl.displayNode("plot", visible);
+						msl.displayNode("chart", visible);
 						msl.displayNode("psm", visible);
 						msl.displayNode("peptide", visible);
 						if (!visible) {
@@ -976,7 +983,8 @@ public class DbSearchResultPanel extends JPanel {
 									break;
 								}
 								Set<PeptideHit> colPS = colMP.getPeptideSet();
-								if (colPS.containsAll(rowPS) || rowPS.containsAll(colPS)) {
+//								if (colPS.containsAll(rowPS) || rowPS.containsAll(colPS)) {
+								if (!Collections.disjoint(colPS, rowPS)) {
 									colMP.addAll(rowMP.getProteinHits());
 									rowIter.remove();
 									Client.getInstance().firePropertyChange("progressmade", false, true);
@@ -1014,16 +1022,23 @@ public class DbSearchResultPanel extends JPanel {
 					
 					// Populate tables
 					refreshProteinTables();
+					
+					// Enable export functionality
+					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+					// Enable Save Project functionality
+					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
 				}
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				Client.getInstance().firePropertyChange("new message", null, "FAILED");
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
+
 			}
 			return 0;
 		}
 		
+
 		@Override
 		protected void done() {
 			// Stop appearing busy
@@ -2349,9 +2364,9 @@ public class DbSearchResultPanel extends JPanel {
 	 * Method to refresh protein table contents.
 	 * @throws Exception 
 	 */
-	protected void refreshProteinTables() throws Exception {
-		
+	protected void refreshProteinTables() throws Exception {		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
+			
 			// Display number of proteins in title area
 			int numProteins = dbSearchResult.getProteinHits().size();
 			protTtlPnl.setTitle("Proteins (" + numProteins + ")");
@@ -2361,14 +2376,7 @@ public class DbSearchResultPanel extends JPanel {
 			Client.getInstance().firePropertyChange("resetall", null, (long) numProteins);
 			Client.getInstance().firePropertyChange("resetcur", null, (long) numProteins);
 			
-			// Empty protein tables
-			TableConfig.clearTable(proteinTbl);
-			
-			// TODO: remove row filter
-			TableConfig.clearTable(protFlatTreeTbl);
-			TableConfig.clearTable(protTaxonTreeTbl);
-			TableConfig.clearTable(protEnzymeTreeTbl);
-			TableConfig.clearTable(protPathwayTreeTbl);
+			clearTables();
 			
 			// TODO: Prevent switching table view
 //			hierarchyCbx.setEnabled(false);
@@ -2437,7 +2445,7 @@ public class DbSearchResultPanel extends JPanel {
 					max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
 					min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
 					maxNSAF = Math.max(maxNSAF, nsaf);
-
+					
 					// Get common taxonomy for each protein Hit
 					if (!Client.getInstance().isViewer()) { // Check for viewer Mode
 						TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
@@ -2447,6 +2455,7 @@ public class DbSearchResultPanel extends JPanel {
 						}
 						proteinHit.setSpecies(commonAncestorNode.getName() + " (" + commonAncestorNode.getRank()+ ")" );
 						
+						// FIXME: Future identity calculation ?
 //						// Get minimal identity for the protein
 //						if (proteinHit.getSequence().length() > 0 && proteinHit.getSequence().length() <= 5000) {
 //							for (ProteinHit furtherproteinHit : metaProtein) {
@@ -2505,6 +2514,7 @@ public class DbSearchResultPanel extends JPanel {
 								target = "";
 							}
 						}
+						
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + target);
 						PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
 						flatNode.setURI(uri);
@@ -2519,7 +2529,7 @@ public class DbSearchResultPanel extends JPanel {
 						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
 						pathwayNode.setURI(uri);
 						insertPathwayNode(pathwayNode);
-
+						
 //						// Link nodes to each other
 //						linkNodes(flatPath, taxonPath, enzymePath);
 					} else {
@@ -2528,6 +2538,7 @@ public class DbSearchResultPanel extends JPanel {
 					
 					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
+				
 				if (metaNode.getChildCount() == 1) {
 					metaNode = (PhylogenyTreeTableNode) metaNode.getChildAt(0);
 //				} else {
@@ -2666,6 +2677,20 @@ public class DbSearchResultPanel extends JPanel {
 			protTaxonTreeTbl.expandAll();
 			protEnzymeTreeTbl.expandAll();
 			protPathwayTreeTbl.expandAll();
+		}
+	}
+
+	private void clearTables() {
+		// Empty protein tables
+		TableConfig.clearTable(proteinTbl);
+		
+		setupProteinTreeTables();
+		
+		int i = 1;
+		for (CheckBoxTreeTable cbtt : linkMap.values()) {
+			JScrollPane scrollPane = new JScrollPane(cbtt);
+			scrollPane.setPreferredSize(new Dimension(800, 150));
+			protCardPnl.add(scrollPane, cardLabels[i++]);
 		}
 	}
 

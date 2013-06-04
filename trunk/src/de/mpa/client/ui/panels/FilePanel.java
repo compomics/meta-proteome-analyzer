@@ -681,10 +681,10 @@ public class FilePanel extends JPanel {
 			reader.survey();
 		}
 		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
-		ArrayList<Long> positions = specPosMap.get(file.getAbsolutePath());
-		long pos1 = positions.get(spectrumIndex);
-//		long pos2 = (spectrumIndex == (positions.size() - 1)) ? file.length() : positions.get(spectrumIndex + 1);
-		long pos2 = positions.get(spectrumIndex + 1);
+//		ArrayList<Long> positions = specPosMap.get(file.getAbsolutePath());
+//		long pos1 = positions.get(spectrumIndex);
+////		long pos2 = (spectrumIndex == (positions.size() - 1)) ? file.length() : positions.get(spectrumIndex + 1);
+//		long pos2 = positions.get(spectrumIndex + 1);
 		
 		MascotGenericFile spectrum = reader.loadSpectrum(spectrumIndex);
 		Long spectrumID = spectrum.getSpectrumID();
@@ -769,7 +769,7 @@ public class FilePanel extends JPanel {
 				
 				ArrayList<Long> positions = new ArrayList<Long>();
 				try {
-//					reader = new MascotGenericFileReader(file, LoadMode.NONE);
+//						reader = new MascotGenericFileReader(file, LoadMode.NONE);
 
 					client.firePropertyChange("resetcur", -1L, file.length());
 					
@@ -782,8 +782,8 @@ public class FilePanel extends JPanel {
 						}
 					});
 					reader.survey();
-//					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-//					totalSpectraList.addAll(mgfList);
+//						List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
+//						totalSpectraList.addAll(mgfList);
 					
 					positions.addAll(reader.getSpectrumPositions(false));
 					specPosMap.put(file.getAbsolutePath(), positions);
@@ -818,8 +818,8 @@ public class FilePanel extends JPanel {
 					int index = 1;
 					List<TreePath> toBeAdded = new ArrayList<TreePath>();
 					for (int j = 0; j < positions.size(); j++) {
-						long startPos = positions.get(j);
-						long endPos = (j == (positions.size() - 1)) ? file.length() : positions.get(j + 1);
+//							long startPos = positions.get(j);
+//							long endPos = (j == (positions.size() - 1)) ? file.length() : positions.get(j + 1);
 						
 						MascotGenericFile mgf = reader.loadSpectrum(index - 1);
 						
@@ -828,7 +828,7 @@ public class FilePanel extends JPanel {
 							// this is just a dummy spectrum, fetch from database
 							mgf = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
 						}
-//						totalSpectraList.add(mgf);
+//							totalSpectraList.add(mgf);
 						ticList.add(mgf.getTotalIntensity());
 
 						// examine spectrum regarding filter criteria
@@ -846,23 +846,23 @@ public class FilePanel extends JPanel {
 								index, mgf.getTitle(), numPeaks, TIC, SNR) {
 							public String toString() {
 								return "Spectrum " + super.toString();
-//								return getParent().toString() + " " + super.toString();
+//									return getParent().toString() + " " + super.toString();
 							}
 						};
-//						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
+//							treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
 						fileNode.add(spectrumNode);
 
 						if ((numPeaks > filterSet.getMinPeaks()) &&
 								(TIC > filterSet.getMinTIC()) &&
 								(SNR > filterSet.getMinSNR())) {
-//							toBeAdded.add(spectrumNode.getPath());
+//								toBeAdded.add(spectrumNode.getPath());
 							toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 						}
 						index++;
 						
 						client.firePropertyChange("progressmade", false, true);
 					}
-//					client.firePropertyChange("progress", -1L, -positions.size());
+//						client.firePropertyChange("progress", -1L, -positions.size());
 
 					client.firePropertyChange("indeterminate", false, true);
 					client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
@@ -873,7 +873,7 @@ public class FilePanel extends JPanel {
 						selectionModel.removeSelectionPath(fileNode.getPath());
 						// reselect spectrum nodes that meet filter criteria
 						selectionModel.addSelectionPaths(toBeAdded);
-//						treeTbl.getRowSorter().allRowsChanged();
+//							treeTbl.getRowSorter().allRowsChanged();
 					}
 					
 					client.firePropertyChange("indeterminate", true, false);
