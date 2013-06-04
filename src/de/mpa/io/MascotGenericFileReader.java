@@ -16,17 +16,7 @@ import java.util.List;
  * @author Thilo Muth
  * @author Alexander Behne
  */
-public class MascotGenericFileReader {
-
-    /**
-     * This Vector will hold all the spectrum files in the mergefile.
-     */
-    protected List<MascotGenericFile> spectrumFiles = null;
-
-    /**
-     * The file descriptor of the mergefile.
-     */
-	private File file = null;
+public class MascotGenericFileReader extends InputFileReader {
 
     /**
      * This String holds the run identification for this mergefile.
@@ -39,20 +29,10 @@ public class MascotGenericFileReader {
     protected String comments = null;
     
     /**
-     * This Vector will hold all the line numbers of spectrum blocks in the mergefile.
-     */
-    protected List<Long> spectrumPositions = null;
-    
-    /**
      * This file stream will be used to read from the specified mergefile.
      */
     protected RandomAccessFile raf;
 
-    /**
-     * Amount of characters that indicate line breaks.
-     */
-	private int newlineCharCount = 0;
-	
 	// experimental!
 	/**
 	 * List of registered property change listeners.
@@ -74,66 +54,6 @@ public class MascotGenericFileReader {
 	}
     
 
-    /**
-     * This method reports on the spectrum files currently held in this mergefile and closes the reader.
-     *
-     * @return Vector with the currently held spectrumFiles.
-     */
-    public List<MascotGenericFile> getSpectrumFiles() {
-        return this.getSpectrumFiles(true);
-    }
-
-    /**
-     * This method reports on the spectrum files currently held in this mergefile and optionally closes the reader.
-     *
-     * @param doClose Boolean to determine whether file stream shall be closed.
-     * @return Vector with the currently held spectrumFiles.
-     */
-    public List<MascotGenericFile> getSpectrumFiles(boolean doClose) {
-		if (doClose) {
-			try {
-				this.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return this.spectrumFiles;
-	}
-
-    /**
-     * This method reports on the character offsets of spectrum blocks in this mergefile and closes the reader.
-     *
-     * @return Vector with the currently held spectrumPositions.
-     */
-    public List<Long> getSpectrumPositions() {
-		return getSpectrumPositions(true);
-	}
-
-    /**
-     * This method reports on the character offsets of spectrum blocks in this mergefile and optionally closes the reader.
-     *
-     * @return Vector with the currently held spectrumPositions.
-     */
-	public List<Long> getSpectrumPositions(boolean doClose) {
-		if (doClose) {
-			try {
-				this.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return this.spectrumPositions;
-	}
-
-	/**
-     * Simple getter for the filename of this mergefile.
-     *
-     * @return String with the filename.
-     */
-    public String getFilename() {
-        return file.getName();
-    }
-    
     /**
      * Enum to determine behavior on creation of reader.
      */
@@ -161,16 +81,12 @@ public class MascotGenericFileReader {
      * @throws java.io.IOException when the file could not be read.
      */
 	public MascotGenericFileReader(File file, LoadMode mode) throws IOException {
-    	if (!file.exists()) {
-            throw new IOException("Mergefile '" + file.getCanonicalPath() + "' could not be found!");
-        } else {
-            this.file = file;
-            this.raf = new RandomAccessFile(file, "r");
-            if (mode == LoadMode.LOAD) {
-            	this.load();
-            } else if (mode == LoadMode.SURVEY) {
-            	this.survey();
-            }
+		super(file);
+        this.raf = new RandomAccessFile(file, "r");
+        if (mode == LoadMode.LOAD) {
+        	this.load();
+        } else if (mode == LoadMode.SURVEY) {
+        	this.survey();
         }
 	}
 
@@ -323,43 +239,6 @@ public class MascotGenericFileReader {
 		return res;
 	}
 
-	/**
-     * This method loads a part of the specified file in this MergeFileReader.
-     *
-     * @param index number to append to the filename
-     * @param startPos position of the desired spectrum block inside the file
-     * @param startPos position of the next spectrum block inside the file
-     * @return desired SpectrumFile
-     * @throws java.io.IOException when the loading operation failed.
-     */
-    public MascotGenericFile loadNthSpectrum(int index, long startPos, long endPos) throws IOException {
-    	
-    	// Skip to specified line
-    	raf.seek(startPos);
-    	
-    	// Prepare byte buffer
-    	int len = (int) (endPos - startPos);
-    	byte[] bytes = new byte[len];
-    	
-    	// Store file contents into buffer
-    	int res = raf.read(bytes);
-    	
-    	// Throw exceptions when number of bytes read do not match
-    	if (res != len) {
-    		if (res < 0) {
-    			throw new IOException("End of file has been reached prematurely.");
-    		} else {
-        		throw new IOException("Less bytes were read than expected.");
-    		}
-    	}
-    	
-    	// Generate MGF from buffered bytes (interpreted as String)
-    	MascotGenericFile mgf = new MascotGenericFile(
-    			createSpectrumFilename(index), new String(bytes));
-    	
-		return mgf;
-    }
-    
     /**
      * This method browses the specified file and stores the positions of any spectrum blocks it encounters.
      * 
@@ -496,4 +375,47 @@ public class MascotGenericFileReader {
         int extensionStart = filename.lastIndexOf(".");
         return filename.substring(0, extensionStart) + "_" + number + filename.substring(extensionStart);
     }
+
+	@Override
+	public MascotGenericFile loadSpectrum(int index) throws IOException {
+		long pos1 = spectrumPositions.get(index);
+		long pos2;
+		index++;
+		if (index < spectrumPositions.size()) {
+			pos2 = spectrumPositions.get(index);
+		} else {
+			pos2 = file.length();
+		}
+		return loadSpectrum(index, pos1, pos2);
+	}
+
+	@Override
+	public MascotGenericFile loadSpectrum(int index, long pos1, long pos2)
+			throws IOException {
+
+    	// Skip to specified line
+    	raf.seek(pos1);
+    	
+    	// Prepare byte buffer
+    	int len = (int) (pos2 - pos1);
+    	byte[] bytes = new byte[len];
+    	
+    	// Store file contents into buffer
+    	int res = raf.read(bytes);
+    	
+    	// Throw exceptions when number of bytes read do not match
+    	if (res != len) {
+    		if (res < 0) {
+    			throw new IOException("End of file has been reached prematurely.");
+    		} else {
+        		throw new IOException("Less bytes were read than expected.");
+    		}
+    	}
+    	
+    	// Generate MGF from buffered bytes (interpreted as String)
+    	MascotGenericFile mgf = new MascotGenericFile(
+    			createSpectrumFilename(index), new String(bytes));
+    	
+		return mgf;
+	}
 }
