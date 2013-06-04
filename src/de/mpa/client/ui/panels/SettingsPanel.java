@@ -50,6 +50,7 @@ import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.storager.MascotStorager;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -248,8 +249,6 @@ public class SettingsPanel extends JPanel {
 							// iterate over all spectra
 //							for (Long pos : spectrumPositions) {
 							for (int j = 0; j < positions.size(); j++) {
-								long startPos = positions.get(j);
-								long endPos = (j == (positions.size() -1)) ? file.length() : positions.get(j + 1);
 								
 								if ((numSpectra % packageSize) == 0) {
 									if (fos != null) {
@@ -264,7 +263,7 @@ public class SettingsPanel extends JPanel {
 									firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 								}
 								
-								MascotGenericFile mgf = reader.loadNthSpectrum((int) numSpectra, startPos, endPos);
+								MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
 								mgf.writeToStream(fos);
 								fos.flush();
 								firePropertyChange("progressmade", 0L, ++numSpectra);
@@ -338,9 +337,7 @@ public class SettingsPanel extends JPanel {
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 					long packSize = (Long) packSpn.getValue();
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-					List<String> filenames = client.packAndSend(packSize, checkBoxTree,
-							projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
-					
+					List<String> filenames = null;
 					// collect search settings
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
@@ -348,6 +345,23 @@ public class SettingsPanel extends JPanel {
 					
 					SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
 					
+					// FIXME: Please change that and get files from file tree.
+					if (!ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles().toString().contains(".dat")) {
+						filenames = client.packAndSend(packSize, checkBoxTree,
+								projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
+					} else {
+						if (dbss.isMascot()) {
+							List<File> files = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();
+							client.firePropertyChange("resetall", 0, files.size());
+							int i = 0;
+							for (File file : files) {
+								client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + files.size());
+								MascotStorager storager = new MascotStorager(Client.getInstance().getConnection(), file, settings, databasePnl.getMascotParameterMap());
+								storager.run();
+								client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + files.size());
+							}
+						}
+					}
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 					// dispatch search request
 					client.runSearches(filenames, settings);
@@ -385,4 +399,5 @@ public class SettingsPanel extends JPanel {
 		return databasePnl;
 	}
 
+	
 }

@@ -47,11 +47,9 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 
 			// Calculates the emPAI
 			emPAI = Math.pow(10, pAI) - 1;
-		}else{
+		} else {
 			emPAI = 0.0;
 		}
-		
-		
 		
 	}
 

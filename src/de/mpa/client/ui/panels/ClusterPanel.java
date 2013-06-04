@@ -266,7 +266,7 @@ public class ClusterPanel extends JPanel {
 	
 	private MascotGenericFile normalizeMGF(MascotGenericFile mgf) {
 		double maxInt = mgf.getHighestIntensity()/100.0;
-		MascotGenericFile mgfNrmlzd = new MascotGenericFile(mgf.getFilename(), mgf.getTitle(), new HashMap<Double, Double>(mgf.getPeaks()), mgf.getPrecursorMZ(), mgf.getCharge());
+		MascotGenericFile mgfNrmlzd = new MascotGenericFile(mgf.getFilename(), mgf.getTitle(), new HashMap<Double, Double>(mgf.getPeaks()), mgf.getPrecursorMZ(), mgf.getIntensity(), mgf.getCharge());
 		for (Entry<Double, Double> peak : mgfNrmlzd.getPeaks().entrySet()) {
 			peak.setValue(peak.getValue()/maxInt); 
 		}
@@ -306,7 +306,7 @@ public class ClusterPanel extends JPanel {
 				}
 			}
 		}
-		return new MascotGenericFile(null, "test", rsltMap, 0.0, 0);
+		return new MascotGenericFile(null, "test", rsltMap, 0.0, 0.0, 0);
 	}
 
 	private class ClusterTableModel extends DefaultTableModel {

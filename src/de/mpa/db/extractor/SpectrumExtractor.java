@@ -194,7 +194,7 @@ public class SpectrumExtractor {
         	if (saveToFile) {
 				mgf = new MascotGenericFile(rs);
         	} else {
-        		mgf = new MascotGenericFile(null, null, new HashMap<Double, Double>(), 0.0, 0);
+        		mgf = new MascotGenericFile(null, null, new HashMap<Double, Double>(), 0.0, 0.0, 0);
         	}
 //        	mgf.setTitle(rs.getString("sequence") + " " + mgf.getTitle());	// prepend peptide sequence
         	mgf.setComments("#sid " + rs.getLong("spectrumid") + "\n");

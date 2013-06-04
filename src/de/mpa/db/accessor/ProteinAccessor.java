@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ProteinAccessor extends ProteinTableAccessor {
 
@@ -25,6 +27,25 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 */
 	public ProteinAccessor(ResultSet aResultSet) throws SQLException {
 		super(aResultSet);
+	}
+	   
+	/**
+	 * This method will find all proteins.
+	 *
+	 * @param aConn Connection to read the spectrum File from.
+	 * @return ProteinAccessor with the data.
+	 * @throws SQLException when the retrieval did not succeed.
+	 */
+	public static Map<String, Long> findAllProteins(Connection aConn) throws SQLException {
+		Map<String, Long> accession2IdMap = new TreeMap<String, Long>();
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			accession2IdMap.put(rs.getString("accession"), rs.getLong("proteinid"));
+		}
+		rs.close();
+		ps.close();
+		return accession2IdMap;
 	}
 	
 	/**

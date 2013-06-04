@@ -1,6 +1,7 @@
 package de.mpa.db.storager;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
@@ -18,18 +19,17 @@ public abstract class BasicStorager implements Storager {
 	 */
 	protected Logger log = Logger.getLogger(getClass());
 	
+	/**
+	 * Connection instance.
+	 */
+	protected Connection conn;
+	
 	@Override
 	public void run() {
 		// FIXME: Refactor run-methods in all subclasses!
 		this.load();
 		try {
 			this.store();
-		} catch (IOException ioe) {
-			log.error("Error message: " + ioe.getMessage());
-			ioe.printStackTrace();
-		} catch (SQLException e) {
-			log.error("Error message: " + e.getMessage() + " - Error code: " + e.getErrorCode());
-			e.printStackTrace();
 		} catch (Exception e) {
 			log.error("Error message: " + e.getMessage());
 			e.printStackTrace();
@@ -39,12 +39,10 @@ public abstract class BasicStorager implements Storager {
 
 	@Override
 	public void load() {		
-		
 	}
 
 	@Override
 	public void store() throws IOException, SQLException {
-		
 	}
 	
 }

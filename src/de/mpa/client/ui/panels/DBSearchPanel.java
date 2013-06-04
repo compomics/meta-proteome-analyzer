@@ -14,6 +14,8 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -292,6 +294,7 @@ public class DBSearchPanel extends JPanel {
 		
 		// Mascot
 		mascotChk = new JCheckBox("Mascot", false);
+		mascotChk.setEnabled(false);
 		mascotChk.setIconTextGap(10);
 		mascotSetBtn = new JButton("Advanced Settings");
 		mascotSetBtn.addActionListener(new ActionListener() {
@@ -300,11 +303,13 @@ public class DBSearchPanel extends JPanel {
 				new AdvancedSettingsDialog(ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
 			}
 		});
-		mascotChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
+		mascotChk.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
 				mascotSetBtn.setEnabled(mascotChk.isSelected());
 			}
 		});
+		
 		// Mascot functionality is initially disabled unless a .dat file is imported
 		mascotChk.setEnabled(false);
 		mascotSetBtn.setEnabled(false);
@@ -343,6 +348,7 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setOmssa(omssaChk.isSelected());
 		dbSettings.setCrux(cruxChk.isSelected());
 		dbSettings.setInspect(inspectChk.isSelected());
+		dbSettings.setMascot(mascotChk.isSelected());
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.

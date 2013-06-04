@@ -165,11 +165,12 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aPrecursorMz The precursor m/z.
      * @param aCharge The precursor charge.
      */
-    public MascotGenericFile(String aFileName, String aTitle, HashMap<Double, Double> aPeaks, double aPrecursorMz, int aCharge) {
+    public MascotGenericFile(String aFileName, String aTitle, HashMap<Double, Double> aPeaks, double aPrecursorMz, double aIntensity, int aCharge) {
     	this.iFilename = aFileName;
         this.iTitle = aTitle;
         this.iPeaks = aPeaks;
         this.iPrecursorMz = aPrecursorMz;
+        this.iIntensity = aIntensity;
         this.iCharge = aCharge;
     }
     

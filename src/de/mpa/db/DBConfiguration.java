@@ -59,6 +59,10 @@ public class DBConfiguration {
 			} else {
 				conn = DriverManager.getConnection(dbSettings.getUrlRemote()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
 			}
+			
+			// Set auto commit == FALSE --> Manual commit & rollback.
+			conn.setAutoCommit(false);
+			
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
 		}

@@ -103,9 +103,8 @@ import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.extractor.SpectrumExtractor;
+import de.mpa.io.InputFileReader;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.io.MascotGenericFileReader;
-import de.mpa.io.MascotGenericFileReader.LoadMode;
 
 /**
  * Panel for importing spectrum files to be used for searches.
@@ -127,13 +126,18 @@ public class FilePanel extends JPanel {
 	
 	// Selected past of the .mgf or .dat File
 	private String selPath = "test/de/mpa/resources/";
+	
 	// Selected file of the .mgf or .dat File
-	private File selFile = null;
+	private List<File> mascotSelFile = new ArrayList<File>();
+	
+//	
+//	// Selected path of .mgf Files
+//	private String mascotSelPath;
 	
 	private JButton nextBtn;
 	private JButton prevBtn;
 	
-	protected MascotGenericFileReader reader;
+	protected InputFileReader reader;
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
 	private boolean busy;
@@ -563,8 +567,11 @@ public class FilePanel extends JPanel {
 				FileChooserDecorationFactory.decorate(fc, DecorationType.TEXT_PREVIEW);
 				int result = fc.showOpenDialog(clientFrame);
 				if (result == JFileChooser.APPROVE_OPTION) {
+					ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotChk().setSelected(false);
+					ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotChk().setEnabled(false);
 					new AddFileWorker(fc.getSelectedFiles()).execute();
 				}
+				
 			}
 		});
 		
@@ -669,14 +676,17 @@ public class FilePanel extends JPanel {
 		File file = (File) fileNode.getValueAt(0);
 		if ((reader != null) && (!reader.getFilename().equals(file.getName()))) {
 			// TODO: process file switching using background worker linked to progress bar
-			reader = new MascotGenericFileReader(file);
+//			reader = new MascotGenericFileReader(file, LoadMode.SURVEY);
+			reader = InputFileReader.createInputFileReader(file);
+			reader.survey();
 		}
 		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
 		ArrayList<Long> positions = specPosMap.get(file.getAbsolutePath());
-		long startPos = positions.get(spectrumIndex);
-		long endPos = (spectrumIndex == (positions.size() -1)) ? file.length() : positions.get(spectrumIndex + 1);
+		long pos1 = positions.get(spectrumIndex);
+//		long pos2 = (spectrumIndex == (positions.size() - 1)) ? file.length() : positions.get(spectrumIndex + 1);
+		long pos2 = positions.get(spectrumIndex + 1);
 		
-		MascotGenericFile spectrum = reader.loadNthSpectrum(spectrumIndex, startPos, endPos);
+		MascotGenericFile spectrum = reader.loadSpectrum(spectrumIndex);
 		Long spectrumID = spectrum.getSpectrumID();
 		if (spectrumID != null) {
 			// this is just a dummy spectrum, fetch from database
@@ -727,125 +737,15 @@ public class FilePanel extends JPanel {
 			int i = 0;
 			for (File file : files) {
 				client.firePropertyChange("new message", null, "READING SPECTRUM FILE " + ++i + "/" + files.length);
+
+				reader = InputFileReader.createInputFileReader(file);
 				
 				if (file.getName().toLowerCase().endsWith(".mgf")) {
-					ArrayList<Long> positions = new ArrayList<Long>();
-					try {
-						reader = new MascotGenericFileReader(file, LoadMode.NONE);
-	
-						client.firePropertyChange("resetcur", -1L, file.length());
-						
-						reader.addPropertyChangeListener(new PropertyChangeListener() {
-							@Override
-							public void propertyChange(PropertyChangeEvent pce) {
-								if (pce.getPropertyName() == "progress") {
-									client.firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
-								}
-							}
-						});
-						reader.survey();
-	//					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-	//					totalSpectraList.addAll(mgfList);
-						
-						positions.addAll(reader.getSpectrumPositions(false));
-						specPosMap.put(file.getAbsolutePath(), positions);
-	
-						client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
-						
-						File parentFile = file.getParentFile();
-						if (parentFile == null) {
-							parentFile = file;
-						}
-						SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
-								file, parentFile.getPath(), null, null, null) {
-							public String toString() {
-								return ((File) userObject).getName();
-							};
-							@Override
-							public Object getValueAt(int column) {
-								if (column >= 2) {
-									double sum = 0.0;
-									for (int j = 0; j < getChildCount(); j++) {
-										sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
-									}
-									return sum;
-								} else {
-									return super.getValueAt(column);
-								}
-							}
-						};
-						
-						client.firePropertyChange("resetcur", -1L, positions.size());
-	
-						int index = 1;
-						List<TreePath> toBeAdded = new ArrayList<TreePath>();
-						for (int j = 0; j < positions.size(); j++) {
-							long startPos = positions.get(j);
-							long endPos = (j == (positions.size() -1)) ? file.length() : positions.get(j + 1);
-							
-							MascotGenericFile mgf = reader.loadNthSpectrum(index, startPos, endPos);
-							
-							Long spectrumID = mgf.getSpectrumID();
-							if (spectrumID != null) {
-								// this is just a dummy spectrum, fetch from database
-								mgf = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
-							}
-	//						totalSpectraList.add(mgf);
-							ticList.add(mgf.getTotalIntensity());
-	
-							// examine spectrum regarding filter criteria
-							int numPeaks = 0;
-							for (double intensity : mgf.getPeaks().values()) {
-								if (intensity > filterSet.getNoiseLvl()) {
-									numPeaks++;
-								}
-							}
-							double TIC = mgf.getTotalIntensity();
-							double SNR = mgf.getSNR(filterSet.getNoiseLvl());
-	
-							// append new spectrum node to file node
-							SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
-									index, mgf.getTitle(), numPeaks, TIC, SNR) {
-								public String toString() {
-									return "Spectrum " + super.toString();
-	//								return getParent().toString() + " " + super.toString();
-								}
-							};
-	//						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
-							fileNode.add(spectrumNode);
-	
-							if ((numPeaks > filterSet.getMinPeaks()) &&
-									(TIC > filterSet.getMinTIC()) &&
-									(SNR > filterSet.getMinSNR())) {
-	//							toBeAdded.add(spectrumNode.getPath());
-								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
-							}
-							index++;
-							
-							client.firePropertyChange("progressmade", false, true);
-						}
-	//					client.firePropertyChange("progress", -1L, -positions.size());
-	
-						client.firePropertyChange("indeterminate", false, true);
-						client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
-						
-						// append new file node to root and initially deselect it
-						if (fileNode.getChildCount() > 0) {
-							treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
-							selectionModel.removeSelectionPath(fileNode.getPath());
-							// reselect spectrum nodes that meet filter criteria
-							selectionModel.addSelectionPaths(toBeAdded);
-	//						treeTbl.getRowSorter().allRowsChanged();
-						}
-						
-						client.firePropertyChange("indeterminate", true, false);
-						
-					} catch (Exception e) {
-						JXErrorPane.showDialog(ClientFrame.getInstance(),
-								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-						return false;
-					}
+					// DO NOTHING.
 				} else if (file.getName().toLowerCase().endsWith(".dat")) {
+					
+					ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotChk().setEnabled(true);
+					ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel().getMascotChk().setSelected(true);
 					MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
 					Parameters parameters = mascotDatfile.getParametersSection();
 					ParameterMap mascotParams =
@@ -857,15 +757,131 @@ public class FilePanel extends JPanel {
 							new Parameter(null, parameters.getITOL(), "General", null));
 					mascotParams.put("missClv",
 							new Parameter(null, parameters.getPFA(), "General", null));
-					// TODO: getCleavage() does not return number of missed cleavages allowed, find proper parameter
-					//TODO allow to add several files
-					selFile = file;
-					if (selFile != null) {
-						selPath = selFile.getParent();
-					}
+					
+					boolean decoy = mascotDatfile.getDecoyQueryToPeptideMap() != null;
+					mascotParams.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15, true }, { false, 0.05, decoy } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
+					
+					mascotSelFile.add(file);
 				
 				} else {
 					System.out.println("If you got here something went horribly wrong!");
+				}
+				
+				ArrayList<Long> positions = new ArrayList<Long>();
+				try {
+//					reader = new MascotGenericFileReader(file, LoadMode.NONE);
+
+					client.firePropertyChange("resetcur", -1L, file.length());
+					
+					reader.addPropertyChangeListener(new PropertyChangeListener() {
+						@Override
+						public void propertyChange(PropertyChangeEvent pce) {
+							if (pce.getPropertyName() == "progress") {
+								client.firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
+							}
+						}
+					});
+					reader.survey();
+//					List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
+//					totalSpectraList.addAll(mgfList);
+					
+					positions.addAll(reader.getSpectrumPositions(false));
+					specPosMap.put(file.getAbsolutePath(), positions);
+
+					client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
+					
+					File parentFile = file.getParentFile();
+					if (parentFile == null) {
+						parentFile = file;
+					}
+					SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
+							file, parentFile.getPath(), null, null, null) {
+						public String toString() {
+							return ((File) userObject).getName();
+						};
+						@Override
+						public Object getValueAt(int column) {
+							if (column >= 2) {
+								double sum = 0.0;
+								for (int j = 0; j < getChildCount(); j++) {
+									sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+								}
+								return sum;
+							} else {
+								return super.getValueAt(column);
+							}
+						}
+					};
+					
+					client.firePropertyChange("resetcur", -1L, positions.size());
+
+					int index = 1;
+					List<TreePath> toBeAdded = new ArrayList<TreePath>();
+					for (int j = 0; j < positions.size(); j++) {
+						long startPos = positions.get(j);
+						long endPos = (j == (positions.size() - 1)) ? file.length() : positions.get(j + 1);
+						
+						MascotGenericFile mgf = reader.loadSpectrum(index - 1);
+						
+						Long spectrumID = mgf.getSpectrumID();
+						if (spectrumID != null) {
+							// this is just a dummy spectrum, fetch from database
+							mgf = new SpectrumExtractor(client.getConnection()).getSpectrumBySpectrumID(spectrumID);
+						}
+//						totalSpectraList.add(mgf);
+						ticList.add(mgf.getTotalIntensity());
+
+						// examine spectrum regarding filter criteria
+						int numPeaks = 0;
+						for (double intensity : mgf.getPeaks().values()) {
+							if (intensity > filterSet.getNoiseLvl()) {
+								numPeaks++;
+							}
+						}
+						double TIC = mgf.getTotalIntensity();
+						double SNR = mgf.getSNR(filterSet.getNoiseLvl());
+
+						// append new spectrum node to file node
+						SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
+								index, mgf.getTitle(), numPeaks, TIC, SNR) {
+							public String toString() {
+								return "Spectrum " + super.toString();
+//								return getParent().toString() + " " + super.toString();
+							}
+						};
+//						treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
+						fileNode.add(spectrumNode);
+
+						if ((numPeaks > filterSet.getMinPeaks()) &&
+								(TIC > filterSet.getMinTIC()) &&
+								(SNR > filterSet.getMinSNR())) {
+//							toBeAdded.add(spectrumNode.getPath());
+							toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
+						}
+						index++;
+						
+						client.firePropertyChange("progressmade", false, true);
+					}
+//					client.firePropertyChange("progress", -1L, -positions.size());
+
+					client.firePropertyChange("indeterminate", false, true);
+					client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
+					
+					// append new file node to root and initially deselect it
+					if (fileNode.getChildCount() > 0) {
+						treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
+						selectionModel.removeSelectionPath(fileNode.getPath());
+						// reselect spectrum nodes that meet filter criteria
+						selectionModel.addSelectionPaths(toBeAdded);
+//						treeTbl.getRowSorter().allRowsChanged();
+					}
+					
+					client.firePropertyChange("indeterminate", true, false);
+					
+				} catch (Exception e) {
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+					return false;
 				}
 				
 				treeTbl.expandRow(0);
@@ -1131,20 +1147,20 @@ public class FilePanel extends JPanel {
 		};
 	}
 
-	/**
-	 * Gets the selected path of the .mgf or .dat file
-	 * @return The selected path of the .mgf or .dat file
-	 */
-	public String getSelPath() {
-		return selPath;
-	}
+//	/**
+//	 * Gets the selected path of the .dat file
+//	 * @return The selected path of the .mgf or .dat file
+//	 */
+//	public String getMascotSelPath() {
+//		return mascotSelPath;
+//	}
 
 	/**
-	 * Gets the selected file of the .mgf or .dat file
-	 * @return The selected file of the .mgf or .dat file
+	 * Gets the selected MASCOT files.
+	 * @return The selected files of the .mgf or .dat file
 	 */
-	public File getSelFile() {
-		return selFile;
+	public List<File> getSelectedMascotFiles() {
+		return mascotSelFile;
 	}
 	
 	/**
