@@ -3,7 +3,6 @@ package de.mpa.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +17,10 @@ import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.Searchspectrum;
 
 /**
- * This class handles the project management by accessing project and experiments in the database.
+ * This class handles project management by accessing project and experiment
+ * tables in the remote database.
+ * 
  * @author T.Muth, A.Behne
- *
  */
 public class ProjectManager {
 	
@@ -38,200 +38,68 @@ public class ProjectManager {
 	}
 
 	/**
-	 * This method creates a new project.
-	 * @param title The project title.
+	 * Creates a new project with the specified title.
+	 * @param title the project title
 	 * @return Generated project ID.
-	 * @throws SQLException
+	 * @throws SQLException if a database error occurs
 	 */
 	public Long createNewProject(String title) throws SQLException {
 		HashMap<Object, Object> data = new HashMap<Object, Object>(4);
 		data.put(Project.TITLE, title);
 		Project project = new Project(data);
 		project.persist(conn);
+		conn.commit();
 		return (Long) project.getGeneratedKeys()[0];
 	}
 	
 	/**
-	 * This method creates a new experiment.
-	 * @param title The experiment title.
-	 * @return Generated experiment ID.
-	 * @throws SQLException
+	 * Changes the title of a project associated with the specified database
+	 * id to the specified string.
+	 * @param projectId the database id
+	 * @param projectName the new project title
+	 * @throws SQLException if a database error occurs
 	 */
-	public Long createNewExperiment(Long projectID, String title) throws SQLException {
-		HashMap<Object, Object> data = new HashMap<Object, Object>(5);
-		data.put(Experiment.FK_PROJECTID, projectID);
-		data.put(Experiment.TITLE, title);
-		Experiment experiment = new Experiment(data);
-		experiment.persist(conn);
-		return (Long) experiment.getGeneratedKeys()[0];
+	public void modifyProjectName(long projectId, String projectName) throws SQLException {
+		Project tempProject = Project.findFromProjectID(projectId, conn);
+		tempProject.setTitle(projectName);
+		tempProject.setModificationdate(new Timestamp((new Date()).getTime()));
+		tempProject.update(conn);
+		conn.commit();
 	}
-	
+
 	/**
-	 * This method adds specific properties to the project to the database..
-	 * @param projectID The project ID.
-	 * @param projectProperties Map containing the project properties.
-	 * @throws SQLException 
+	 * Adds the specified properties to the project associated with the
+	 * specified database id.
+	 * @param projectId the database id
+	 * @param projProperties the project properties
+	 * @throws SQLException if a database error occurs
 	 */
-	public void addProjectProperties(Long projectID, Map<String, String> projectProperties) throws SQLException{
+	public void addProjectProperties(Long projectId, Map<String, String> projProperties) throws SQLException{
 		// Iterate the given project properties and add them to the database.
-		for(Entry entry : projectProperties.entrySet()){
+		for(Entry entry : projProperties.entrySet()){
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
-			data.put(Property.FK_PROJECTID, projectID);
+			data.put(Property.FK_PROJECTID, projectId);
 			data.put(Property.NAME, entry.getKey());
 			data.put(Property.VALUE, entry.getValue());
 			Property projProperty = new Property(data);
 			projProperty.persist(conn);
 		}
-	}
-	
-	/**
-	 * This method adds specific properties to the experiment.
-	 * @param experimentID The experiment ID.
-	 * @param experimentProperties Map containing experiment properties.
-	 * @throws SQLException 
-	 */
-	public void addExperimentProperties(Long experimentID, Map<String, String> experimentProperties) throws SQLException{
-		// Iterate the given experiment properties and add them to the database.
-		for(Entry entry : experimentProperties.entrySet()){
-			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
-			data.put(ExpProperty.FK_EXPERIMENTID, experimentID);
-			data.put(ExpProperty.NAME, entry.getKey());
-			data.put(ExpProperty.VALUE, entry.getValue());
-			ExpProperty expProperty = new ExpProperty(data);
-			expProperty.persist(conn);
-		}
-	}
-	
-	
-	/**
-	 * This method modifies a project.
-	 * @param projectid The project id.
-	 * @param projectName The project name.
-	 * @throws SQLException
-	 */
-	public void modifyProject(long projectid, String projectName) throws SQLException {
-		Project tempProject = Project.findFromProjectID(projectid, conn);
-		tempProject.setTitle(projectName);
-		tempProject.setModificationdate(new Timestamp((new Date()).getTime()));
-		tempProject.update(conn);
-	}
-
-
-	/**
-	 * This method modifies the experiment name.
-	 * @param experimentid The experiment id.
-	 * @param experimentName The experiment name.
-	 * @throws SQLException
-	 */
-	public void modifyExperimentName(long experimentid, String experimentName)
-			throws SQLException {
-		Experiment tempExperiment = Experiment.findExperimentByID(experimentid, conn);
-		tempExperiment.setTitle(experimentName);
-		tempExperiment.setModificationdate(new Timestamp((new Date()).getTime()));
-		tempExperiment.update(conn);
+		conn.commit();
 	}
 
 	/**
-	 * This method modifies the experiment properties.
-	 * @param exppropertyid The experiment property id.
-	 * @param expProperty The experiment property.
-	 * @param expPropertyValue The experiment property value.
-	 * @throws SQLException
+	 * Modifies the properties of a specific project guided by a list of
+	 * operations (change, delete, add).
+	 * @param projectId the database id of the project
+	 * @param newProperties the map of properties to modify
+	 * @param operations the list of operations to apply
+	 * @throws SQLException if a database error occurs
 	 */
-	public void modifyExperimentProperties(long exppropertyid,	String expProperty, String expPropertyValue) throws SQLException {
-		ExpProperty tempExperimentProperty = ExpProperty.findExpPropertyFromID(exppropertyid, conn);
-		tempExperimentProperty.setName(expProperty);
-		tempExperimentProperty.setValue(expPropertyValue);
-		tempExperimentProperty.update(conn);
-	}
-
-
-	/**
-	 * This method removes the project for a specified project ID.
-	 * @param projectId The project ID.
-	 * @throws SQLException
-	 */
-	public void removeProject(Long projectId) throws SQLException {		
-		Project project = Project.findFromProjectID(projectId, conn);
-		project.delete(conn);
-	}
-	
-	/**
-	 * This method returns the project title for a specified projectID
-	 * @param projectId The project ID.
-	 * @return The project title.
-	 * @throws SQLException
-	 */
-	public String getProjectTitle(long projectId) throws SQLException{
-		return Project.findFromProjectID(projectId, conn).getTitle();
-	}
-
-	/**
-	 * This method returns all project properties for a specified projectID
-	 * @param projectId
-	 * @return ProjectProperties The project properties
-	 * @throws SQLException
-	 */
-	public List<Property> getProjectProperties(long projectId) throws SQLException {
-		return Property.findAllPropertiesOfProject(projectId, conn);
-	}
-
-	/**
-	 * Returns a list experiments from the database.
-	 * @return The list of experiments.
-	 */
-	public List<Experiment> getProjectExperiments(long fk_projectid) throws SQLException {
-		return Experiment.findAllExperimentsOfProject(fk_projectid, conn);
-	}
-	
-	/**
-	 * Return a specified experiment for a specific project.
-	 * @return The specified experiment.
-	 * @throws SQLException 
-	 */
-	public Experiment getProjectExperiment(long projectid, long experimentid) throws SQLException {
-		return Experiment.findExperimentByIDandProjectID(experimentid, projectid, conn);
-	}
-	
-	/**
-	 * Returns the experiment property from database.
-	 * @return The list of experimental properties.
-	 */
-	public List<ExpProperty> getExperimentProperties(long experimentid) throws SQLException {
-		return ExpProperty.findAllPropertiesOfExperiment(experimentid, conn);
-	}
-
-	/**
-	 * This method returns all projects from the database.
-	 */
-	public List<Project> getProjects() throws SQLException {
-		return Project.findAllProjects(conn);
-	}
-
-	/**
-	 * This method change the name of a project specified by the projectid
-	 * @param projectid
-	 * @param title
-	 * @throws SQLException
-	 */
-	public void modifyProjectName(Long projectid, String title) throws SQLException {
-		Project project = Project.findFromProjectID(projectid, conn);
-		project.setTitle(title);
-		project.update(conn);
-	}
-
-	/**
-	 * This method modify ( change/delete/update) the project properties
-	 * @param projectID
-	 * @param newProperties
-	 * @param operations
-	 * @throws SQLException
-	 */
-	public void modifyProjectProperties(Long projectID,
+	public void modifyProjectProperties(Long projectId,
 			Map<String, String> newProperties,
-			ArrayList<Operation> operations) throws SQLException {
+			List<Operation> operations) throws SQLException {
 		
-		ArrayList<Property> properties = new ArrayList<Property>(Property.findAllPropertiesOfProject(projectID, conn));
+		List<Property> properties = Property.findAllPropertiesOfProject(projectId, conn);
 		
 		int i = 0;
 		for (Entry<String, String> newProperty : newProperties.entrySet()) {
@@ -247,8 +115,8 @@ public class ProjectManager {
 				properties.get(i).delete(conn);
 				break;
 			case ADD:
-				Property property = new Property(projectID, newProperty.getKey(), newProperty.getValue());
-				property.setFk_projectid(projectID);
+				Property property = new Property(projectId, newProperty.getKey(), newProperty.getValue());
+				property.setFk_projectid(projectId);
 				property.persist(conn);
 				break;
 			}
@@ -259,91 +127,18 @@ public class ProjectManager {
 				properties.get(j).delete(conn);
 			}
 		}
-	}
-	
-	/**
-	 * This method changes the name of an experiment specified by the experiment ID.
-	 * @param experimentid
-	 * @param title
-	 * @throws SQLException
-	 */
-	public void modifyExperimentName(Long experimentid, String title) throws SQLException {
-		Experiment experiment = Experiment.findExperimentByID(experimentid, conn);
-		if (!title.equals(experiment.getTitle())) {
-			experiment.setTitle(title);
-			experiment.update(conn);
-		}
-	}	
-	
-	/**
-	 * This method modifies the properties of a specific experiment guided by a
-	 * list of singular operations.
-	 * @param experimentID
-	 * @param newProperties
-	 * @param operations
-	 * @throws SQLException
-	 */
-	public void modifyExperimentProperties(Long experimentID, Map<String, String> newProperties, List<Operation> operations) throws SQLException {
-		
-		List<ExpProperty> expProperties = new ArrayList<ExpProperty>(ExpProperty.findAllPropertiesOfExperiment(experimentID, conn));
-		
-		int i = 0;
-		for (Entry<String, String> newProperty : newProperties.entrySet()) {
-			switch (operations.get(i)) {
-			case NONE:
-				break;
-			case CHANGE:
-				expProperties.get(i).setName(newProperty.getKey());
-				expProperties.get(i).setValue(newProperty.getValue());
-				expProperties.get(i).update(conn);
-				break;
-			case DELETE:
-				expProperties.get(i).delete(conn);
-				break;
-			case ADD:
-				ExpProperty expProperty = new ExpProperty(experimentID, newProperty.getKey(), newProperty.getValue());
-				expProperty.setFk_experimentid(experimentID);
-				expProperty.persist(conn);
-				break;
-			}
-			i++;
-		}
-		for (int j = i; j < operations.size(); j++) {
-			if (operations.get(j) == Operation.DELETE) {
-				expProperties.get(j).delete(conn);
-			}
-		}
-	}
-	
-	/**
-	 * Deletes an experiment and all associated properties and spectra.
-	 * @param experimentId The primary identifier of the experiment.
-	 * @throws SQLException
-	 */
-	public void deleteExperiment(Long experimentId) throws SQLException {
-		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
-		
-		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
-		for (ExpProperty expProperty : expPropList) {
-			expProperty.delete(conn);
-		}
-		
-		List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(experimentId, conn);
-		for (Searchspectrum searchSpectrum : searchSpectra) {
-			searchSpectrum.delete(conn);
-		}
-		
-		experiment.delete(conn);
+		conn.commit();
 	}
 
 	/**
-	 * This method deletes the project with its properties, experiment and experiment properties by the project ID.
-	 * @param projectid The project id. 
-	 * @throws SQLException
+	 * Deletes a project associated with the specified database id as well
+	 * as all associated properties and experiments.
+	 * @param projectId the database id
+	 * @throws SQLException if a database error occurs
 	 */
-	public void deleteProject(Long projectid) throws SQLException {
-		Project project = Project.findFromProjectID(projectid, conn);
-		List<Experiment> experimentList =  Experiment.findAllExperimentsOfProject(projectid, conn);
+	public void deleteProject(Long projectId) throws SQLException {
+		Project project = Project.findFromProjectID(projectId, conn);
+		List<Experiment> experimentList =  Experiment.findAllExperimentsOfProject(projectId, conn);
 		
 		// Delete all experiment
 		for (int i = 0; i < experimentList.size(); i++) {
@@ -351,24 +146,223 @@ public class ProjectManager {
 		}
 		
 		// Delete all project properties
-		List<Property> projectPropertyList = Property.findAllPropertiesOfProject(projectid, conn);
+		List<Property> projectPropertyList = Property.findAllPropertiesOfProject(projectId, conn);
 		for (Property property : projectPropertyList) {
 			property.delete(conn);
 		}
 
 		// Delete project
 		project.delete(conn);
+		conn.commit();
+	}
+
+	/**
+	 * Creates a new experiment with the specified title and associates it with
+	 * the project associated with the specified database id.
+	 * @param projectId the database id of the parent project
+	 * @param title the experiment title
+	 * @return the database id of the stored experiment
+	 * @throws SQLException if a database error occurs
+	 */
+	public Long createNewExperiment(Long projectId, String title) throws SQLException {
+		HashMap<Object, Object> data = new HashMap<Object, Object>(5);
+		data.put(Experiment.FK_PROJECTID, projectId);
+		data.put(Experiment.TITLE, title);
+		Experiment experiment = new Experiment(data);
+		experiment.persist(conn);
+		conn.commit();
+		return (Long) experiment.getGeneratedKeys()[0];
 	}
 	
 	/**
-	 * This method checks whether the provided connection is consistent with the manager's own
-	 * and updates the latter if needed.
-	 * @param conn The database connection.
+	 * Changes the title of an experiment associated with the specified database
+	 * id to the specified string.
+	 * @param experimentId the database id
+	 * @param title the new experiment title
+	 * @throws SQLException if a database error occurs
 	 */
-	public void revalidate(Connection conn) {
-		if (this.conn != conn) {
+	public void modifyExperimentName(Long experimentId, String title) throws SQLException {
+		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
+		// only modify title if it actually differs from the provided string
+		if (!title.equals(experiment.getTitle())) {
+			experiment.setTitle(title);
+			experiment.update(conn);
+			conn.commit();
+		}
+	}
+
+	/**
+	 * Adds the specified properties to the experiment associated with the
+	 * specified database id.
+	 * @param experimentId the database id
+	 * @param expProperties the experiment properties
+	 * @throws SQLException if a database error occurs
+	 */
+	public void addExperimentProperties(Long experimentId, Map<String, String> expProperties) throws SQLException{
+		// iterate properties and store them
+		for (Entry entry : expProperties.entrySet()) {
+			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
+			data.put(ExpProperty.FK_EXPERIMENTID, experimentId);
+			data.put(ExpProperty.NAME, entry.getKey());
+			ExpProperty expProperty = new ExpProperty(data);
+			expProperty.persist(conn);
+		}
+		conn.commit();
+	}
+
+	/**
+	 * Modifies the properties of a specific experiment guided by a list of
+	 * operations (change, delete, add).
+	 * @param experimentId the database id of the experiment
+	 * @param newProperties the map of properties to modify
+	 * @param operations the list of operations to apply
+	 * @throws SQLException if a database error occurs
+	 */
+	public void modifyExperimentProperties(Long experimentId,
+			Map<String, String> newProperties,
+			List<Operation> operations) throws SQLException {
+		
+		List<ExpProperty> expProperties = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
+		
+		// iterate properties
+		int i = 0;
+		for (Entry<String, String> newProperty : newProperties.entrySet()) {
+			// determine operation
+			switch (operations.get(i)) {
+			case NONE:
+				// do nothing
+				break;
+			case CHANGE:
+				// modify property
+				expProperties.get(i).setName(newProperty.getKey());
+				expProperties.get(i).setValue(newProperty.getValue());
+				expProperties.get(i).update(conn);
+				break;
+			case DELETE:
+				// remove property
+				expProperties.get(i).delete(conn);
+				break;
+			case ADD:
+				// add new property
+				ExpProperty expProperty = new ExpProperty(experimentId, newProperty.getKey(), newProperty.getValue());
+				expProperty.setFk_experimentid(experimentId);
+				expProperty.persist(conn);
+				break;
+			}
+			i++;
+		}
+		// iterate remaining operations (usually deletes)
+		for (int j = i; j < operations.size(); j++) {
+			if (operations.get(j) == Operation.DELETE) {
+				expProperties.get(j).delete(conn);
+			}
+		}
+		conn.commit();
+	}
+	
+	/**
+	 * Deletes an experiment associated with the specified database id as well
+	 * as all associated properties and search spectra.
+	 * @param experimentId the database id
+	 * @throws SQLException if a database error occurs
+	 */
+	public void deleteExperiment(Long experimentId) throws SQLException {
+		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
+		
+		// delete all properties of the experiment
+		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
+		for (ExpProperty expProperty : expPropList) {
+			expProperty.delete(conn);
+		}
+		
+		// delete all search spectrum entries linked to the experiment
+		List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(experimentId, conn);
+		for (Searchspectrum searchSpectrum : searchSpectra) {
+			searchSpectrum.delete(conn);
+		}
+		
+		// delete the experiment itself
+		experiment.delete(conn);
+		conn.commit();
+	}
+	
+	/**
+	 * Checks whether the provided connection is consistent with the manager's 
+	 * own and updates the latter if needed.
+	 * @param conn the database connection to validate
+	 * @return <code>true</code> if the connection has been updated, 
+	 * 		   <code>false</code> otherwise
+	 */
+	public boolean revalidate(Connection conn) {
+		boolean res = (this.conn != conn);
+		if (res) {
 			this.conn = conn;
 		}
+		return res;
+	}
+	
+	/* convenience getters below this point */
+	
+	/**
+	 * Returns the list of all projects currently stored in the targeted database.
+	 * @return all stored projects
+	 * @throws SQLException if a database error occurs
+	 */
+	public List<Project> getProjects() throws SQLException {
+		return Project.findAllProjects(conn);
+	}
+
+	/**
+	 * Returns the title of the project associated with the specified database id.
+	 * @param projectId the database id
+	 * @return the desired project's title string
+	 * @throws SQLException if a database error occurs
+	 */
+	public String getProjectTitle(long projectId) throws SQLException {
+		return Project.findFromProjectID(projectId, conn).getTitle();
+	}
+
+	/**
+	 * Returns the list of properties belonging to the experiment associated
+	 * with the specified database id.
+	 * @param projectId the database id of the project
+	 * @return the desired project properties
+	 * @throws SQLException if a database error occurs
+	 */
+	public List<Property> getProjectProperties(long projectId) throws SQLException {
+		return Property.findAllPropertiesOfProject(projectId, conn);
+	}
+
+	/**
+	 * Returns the list of experiments belonging to the project associated with
+	 * the specified database id.
+	 * @param projectId the database id
+	 * @return the desired experiments
+	 * @throws SQLException if a database error occurs
+	 */
+	public List<Experiment> getProjectExperiments(long projectId) throws SQLException {
+		return Experiment.findAllExperimentsOfProject(projectId, conn);
+	}
+	
+	/**
+	 * Returns the experiment associated with the specified database id.
+	 * @param experimentId the database id
+	 * @return the desired experiment accessor
+	 * @throws SQLException if a database error occurs
+	 */
+	public Experiment getExperiment(long experimentId) throws SQLException {
+		return Experiment.findExperimentByID(experimentId, conn);
+	}
+	
+	/**
+	 * Returns the list of properties belonging to the experiment associated
+	 * with the specified database id.
+	 * @param experimentId the database id of the experiment
+	 * @return the desired experiment properties
+	 * @throws SQLException if a database error occurs
+	 */
+	public List<ExpProperty> getExperimentProperties(long experimentId) throws SQLException {
+		return ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
 	}
 	
 }

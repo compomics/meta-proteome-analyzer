@@ -83,7 +83,7 @@ public class SettingsPanel extends JPanel {
 
 		FormLayout layout = new FormLayout("5dlu, p, 10dlu, p, 10dlu, p, 5dlu, p:g, 5dlu",
 		  "5dlu, f:p, 8dlu, f:p, 8dlu, b:p:g, 5dlu");
-		layout.setColumnGroups(new int[][] {{2,4,6}});
+//		layout.setColumnGroups(new int[][] {{2,4,6}});
 
 		this.setLayout(layout);
 				

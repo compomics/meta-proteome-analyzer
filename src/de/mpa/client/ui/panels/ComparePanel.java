@@ -587,12 +587,10 @@ public class ComparePanel extends JPanel{
 		if (ret == JOptionPane.OK_OPTION) {
 			int selExpRow = expTbl.convertRowIndexToModel(expTbl.getSelectedRow());
 			if (selExpRow != -1) {
-				long experimentid = experiments.get(selExpRow).getExperimentid();
 				// Get choosen experiment from the db.
 				try {
-					int selRow = projTbl.getSelectedRow();
-					long projectID = projects.get(selRow).getProjectid();
-					experiment = projectManager.getProjectExperiment(projectID, experimentid);
+					long experimentid = experiments.get(selExpRow).getExperimentid();
+					experiment = projectManager.getExperiment(experimentid);
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}

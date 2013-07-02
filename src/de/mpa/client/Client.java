@@ -245,7 +245,8 @@ public class Client {
 	 */
 	public void runSearches(List<String> filenames, SearchSettings settings) {
 		// Add mascot hits if chosen
-		if (settings.getDbss().isMascot()) {
+		DbSearchSettings dbss = settings.getDbss();
+		if ((dbss != null) && dbss.isMascot()) {
 			firePropertyChange("new message", null, "Finish uploading Mascot dat.File");
 		}
 
