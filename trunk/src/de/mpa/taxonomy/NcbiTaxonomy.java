@@ -1,12 +1,12 @@
 package de.mpa.taxonomy;
 
+import gnu.trove.list.array.TCharArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
@@ -181,18 +181,20 @@ public class NcbiTaxonomy implements Serializable {
 	}
 
 	/**
+	 * TODO: move various instances of this method (e.g. in MascotGenericFileReader) to some utility class
+	 * <br>
 	 * Method to determine linebreak format.
 	 * @return amount of line-breaking characters per line
 	 */
-	private static int determineNewlineCharCount(File nodesFile) {
-		int res = 0;
+	private static char[] determineNewlineChars(File nodesFile) {
+		TCharArrayList res = new TCharArrayList();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(nodesFile));
 			int character;
 			boolean eol = false;
 			while ((character = br.read()) != -1) {
 				if ((character == 13) || (character == 10)) {	// 13 = carriage return '\r', 10 = newline '\n'
-					res++;
+					res.add((char) character);
 					eol = true;
 				} else if (eol) {
 					break;
@@ -202,7 +204,7 @@ public class NcbiTaxonomy implements Serializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return res;
+		return res.toArray();
 	}
 	
 	/**
@@ -222,6 +224,58 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	public void createIndexFile(String path) throws Exception {
 
+//		// Open stream on 'taxdmp.zip' resource file
+//		ZipInputStream zis = new ZipInputStream(this.getClass().getResourceAsStream(path + "taxdmp.zip"));
+//		
+//		ZipEntry ze;
+//		while ((ze = zis.getNextEntry()) != null) {
+//			// The number of newline chars (taxdmp.zip's contents are assumed to be unix files)
+//			int newline = 1;
+//	
+//			// The start byte position
+//			int pos = 0;
+//			
+//			// Get name of zipped file
+//			String name = ze.getName();
+//			if ("names.dmp".equals(name)) {
+//				// Map containing taxId-to-byte position pairs
+//				namesMap = new TIntIntHashMap();
+//				// Read zipped file line by line
+//				BufferedReader br = new BufferedReader(new InputStreamReader(zis));
+//				String line;
+//				while ((line = br.readLine()) != null) {
+//					// Check line for 'scientific name' type specifier, ignore other lines
+//					if (line.endsWith("c name\t|")) {
+//						// Extract taxId
+//						String id = line.substring(0, line.indexOf('\t'));
+//						// Map taxId to start-of-line byte position
+//						namesMap.put(Integer.valueOf(id), pos);
+//					}
+//					// Move position index to start of next line
+//					pos += line.getBytes().length + newline;
+//				}
+//			}
+//			if ("nodes.dmp".equals(name)) {
+//				// Map containing taxId-to-byte position pairs
+//				nodesMap = new TIntIntHashMap();
+//				// Read zipped file line by line
+//				BufferedReader br = new BufferedReader(new InputStreamReader(zis));
+//				String line;
+//				while ((line = br.readLine()) != null) {
+//					// Extract taxId
+//					String id = line.substring(0, line.indexOf('\t'));
+//					// Map taxId to start-of-line byte position
+//					nodesMap.put(Integer.valueOf(id), pos);
+//					// Move position index to start of next line
+//					pos += line.getBytes().length + newline;
+//				}
+//			}
+//		}
+//		zis.close();
+//		
+//		// Write maps out to index file
+//		this.writeIndexFile();
+
 		// NCBI names.dmp file
 		File namesFile = new File(this.getClass().getResource(path + "names.dmp").toURI());
 
@@ -235,43 +289,36 @@ public class NcbiTaxonomy implements Serializable {
 		nodesMap = new TIntIntHashMap();
 
 		// Gets the number of chars for a new line
-		int newline = determineNewlineCharCount(nodesFile);
+		int newline = determineNewlineChars(nodesFile).length;
 
-		// The start byt position
+		// The start byte position
 		int pos = 0;
+
+		BufferedReader br;
+		String line;
 		
 		// Read names file
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(namesFile));
-			// 1	|	root	|		|	scientific name	|
-			String line;
-			while ((line = br.readLine()) != null) {
-				if (line.endsWith("c name\t|")) {
-					String id = line.substring(0, line.indexOf('\t'));
-					namesMap.put(Integer.valueOf(id), pos);
-				}
-				pos += line.getBytes().length + newline;
+		br = new BufferedReader(new FileReader(namesFile));
+		//example format: "1	|	root	|		|	scientific name	|"
+		while ((line = br.readLine()) != null) {
+			if (line.endsWith("c name\t|")) {
+				String id = line.substring(0, line.indexOf('\t'));
+				namesMap.put(Integer.valueOf(id), pos);
 			}
-			br.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			pos += line.getBytes().length + newline;
 		}
+		br.close();
 
 		// Read node file and create index map
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(nodesFile));
-			// 2	|	131567	|	superkingdom	|		|	0	|	0	|	11	|	0	|	0	|	0	|	0	|	0	|		|
-			String line;
-			pos = 0;
-			while ((line = br.readLine()) != null) {
-				String id = line.substring(0, line.indexOf('\t'));
-				nodesMap.put(Integer.valueOf(id), pos);
-				pos += line.getBytes().length + newline;
-			}
-			br.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		br = new BufferedReader(new FileReader(nodesFile));
+		// example format: "2	|	131567	|	superkingdom	|		|	0	|	0	|	11	|	0	|	0	|	0	|	0	|	0	|		|"
+		pos = 0;
+		while ((line = br.readLine()) != null) {
+			String id = line.substring(0, line.indexOf('\t'));
+			nodesMap.put(Integer.valueOf(id), pos);
+			pos += line.getBytes().length + newline;
 		}
+		br.close();
 		
 		this.writeIndexFile();
 	}

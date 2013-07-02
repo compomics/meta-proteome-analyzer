@@ -347,7 +347,7 @@ public class GraphDatabaseHandler {
 			Vertex peptideVertex = null;
 			// Check if peptide is already contained in the graph.
 			Iterator<Vertex> peptideIterator =
-					peptideIndex.get(PeptideProperty.SEQUENCE.toString(), sequence).iterator();
+					peptideIndex.get(PeptideProperty.IDENTIFIER.toString(), sequence).iterator();
 			if (peptideIterator.hasNext()) {
 				peptideVertex = peptideIterator.next();
 			} else {
@@ -358,7 +358,7 @@ public class GraphDatabaseHandler {
 				peptideVertex.setProperty(PeptideProperty.LENGTH.toString(), sequence.length());
 				
 				// Index the proteins by their accession.
-				peptideIndex.put(PeptideProperty.SEQUENCE.toString(), sequence, peptideVertex);
+				peptideIndex.put(PeptideProperty.IDENTIFIER.toString(), sequence, peptideVertex);
 			}			
 			
 			// Add edge between peptide and protein.
@@ -501,6 +501,7 @@ public class GraphDatabaseHandler {
 	 * @throws Exception 
 	 */
 	public ExecutionResult executeCypherQuery(CypherQuery cypherQuery) throws Exception {
+		// Validate query
 		if (cypherQuery.isValid()) {
 			return engine.execute(cypherQuery.toString());
 		} else {

@@ -50,12 +50,31 @@ public class SpectrumExtractor {
 	}
 	
 	/**
+	 * Extracts a mascot generic file defined by its title.
+	 * @param title
+	 * @param conn
+	 * @return
+	 * @throws SQLException
+	 */
+	public static MascotGenericFile getMascotGenericFileFromTitle(String title, Connection conn) throws SQLException {
+		Spectrum spectrum = Spectrum.findFromTitle(title, conn);
+		Spectrum.getBasicSelect();
+		MascotGenericFile res = null;
+		
+		if (spectrum != null){
+			res = new MascotGenericFile(spectrum);
+		}
+		return res;
+	}
+	
+	/**
 	 * Returns the list of spectrum IDs belonging to spectral search candidates of a specific experiment.
 	 * @param experimentID The ID of the experiment to be queried.
+	 * @param conn Connection
 	 * @return ArrayList containing the spectrum IDs.
 	 * @throws SQLException
 	 */
-	public ArrayList<Long> getCandidateIDsFromExperiment(long experimentID) throws SQLException {
+	public static ArrayList<Long> getCandidateIDsFromExperiment(long experimentID, Connection conn) throws SQLException {
 		ArrayList<Long> res = new ArrayList<Long>();
 		
 		PreparedStatement ps = conn.prepareStatement("SELECT libspectrumid FROM libspectrum " +

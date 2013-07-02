@@ -47,7 +47,7 @@ public class CypherQuery {
 	 * The list of return values of the query as indices of the matches used.
 	 */
 	private List<Integer> returnIndices;
-	
+
 	/**
 	 * 
 	 * @param startNodes
@@ -85,7 +85,7 @@ public class CypherQuery {
 			first = false;
 		}
 		// Add matches, if any were defined
-		if (matches != null) {
+		if ((matches != null) && (matches.size() > 1)) {
 			statement += "\nMATCH ";
 			for (CypherMatch match : matches) {
 				statement += match;
@@ -103,7 +103,7 @@ public class CypherQuery {
 			if (!first) {
 				statement += ", ";
 			}
-			statement += matches.get(returnIndex).getTargetVariableName();
+			statement += matches.get(returnIndex).getNodeIdentifier();
 			first = false;
 		}
 		
@@ -117,6 +117,14 @@ public class CypherQuery {
 	public List<CypherStartNode> getStartNodes() {
 		return startNodes;
 	}
+	
+	/**
+	 * Sets the list of start nodes.
+	 * @param startNodes the list of start nodes to set
+	 */
+	public void setStartNodes(List<CypherStartNode> startNodes) {
+		this.startNodes = startNodes;
+	}
 
 	/**
 	 * Returns the list of matches.
@@ -124,6 +132,30 @@ public class CypherQuery {
 	 */
 	public List<CypherMatch> getMatches() {
 		return matches;
+	}
+
+	/**
+	 * Sets the list of matches.
+	 * @param the matches to set
+	 */
+	public void setMatches(List<CypherMatch> matches) {
+		this.matches = matches;
+	}
+	
+	/**
+	 * Returns the list of return indices.
+	 * @return the return indices
+	 */
+	public List<Integer> getReturnIndices() {
+		return returnIndices;
+	}
+
+	/**
+	 * Sets the list of return indices.
+	 * @param returnIndices the return indices to set
+	 */
+	public void setReturnIndices(List<Integer> returnIndices) {
+		this.returnIndices = returnIndices;
 	}
 	
 	

@@ -332,9 +332,9 @@ public class ResultsPanel extends JPanel {
 						"/de/mpa/resources/icons/spectral_search32.png")),
 				resTpn));
 		resTpn.setTabComponentAt(3, clientFrame.createTabButton(
-				"BLAST Search Results",
+				"GraphDB Results",
 				new ImageIcon(getClass().getResource(
-						"/de/mpa/resources/icons/blast32.png")), resTpn));
+						"/de/mpa/resources/icons/graph32.png")), resTpn));
 		Component tabComp = resTpn.getTabComponentAt(0);
 		tabComp.setPreferredSize(new Dimension(
 				tabComp.getPreferredSize().width, 40));
@@ -425,6 +425,7 @@ public class ResultsPanel extends JPanel {
 		JPanel fetchPnl = new JPanel(layout);
 		
 		JButton fetchRemoteBtn = new JButton("<html><center>Fetch Results<br>from DB</center></html>", IconConstants.GO_DB_ICON);
+		fetchRemoteBtn.setEnabled(!Client.getInstance().isViewer()); 
 		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
 		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);		
 		fetchRemoteBtn.setIconTextGap(7);

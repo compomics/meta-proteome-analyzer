@@ -14,7 +14,7 @@ public class CypherStartNode {
 	/**
 	 * The variable name for the (list of) node(s).
 	 */
-	private String varName;
+	private String identifier;
 
 	/**
 	 * The node type index.
@@ -33,28 +33,27 @@ public class CypherStartNode {
 	
 	/**
 	 * Constructs a (list of) starting node(s) for use in Cypher queries from
-	 * the specified variable name, index name, node property and property
-	 * value.
-	 * @param varName the variable name for the node(s)
+	 * the specified identifier, index name, node property and property value.
+	 * @param identifier the node identifier(s)
 	 * @param index the index name
 	 * @param property the property type
 	 * @param value the property value
 	 */
-	public CypherStartNode(String varName, NodeType index,
+	public CypherStartNode(String identifier, NodeType index,
 			ElementProperty property, Object value) {
 		super();
-		this.varName = varName;
+		this.identifier = identifier;
 		this.index = index;
 		this.property = property;
 		this.value = value;
 	}
 	
 	/**
-	 * Returns the variable name
-	 * @return the variable name
+	 * Returns the identifier.
+	 * @return the identifier
 	 */
-	public String getVariableName() {
-		return varName;
+	public String getIdentifier() {
+		return identifier;
 	}
 
 	/**
@@ -68,8 +67,8 @@ public class CypherStartNode {
 	@Override
 	public String toString() {
 		if (index != null) {
-			return varName + " = node:" + index + "(\"" + property + ":" + value + "\")";
+			return identifier + " = node:" + index + "(\"" + property + ":" + value + "\")";
 		}
-		return varName + " = node(*)";
+		return identifier + " = node(*)";
 	}
 }

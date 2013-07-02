@@ -287,7 +287,7 @@ public class ServerImpl implements Server {
 					File file = new File(JobConstants.TRANSFER_PATH + filename);
 					
 					// Repair spectra
-					repairSpectra(file, dbManager.getConnection());
+//					repairSpectra(file, dbManager.getConnection());
 					
 					SpectrumStorager storager = dbManager.storeSpectra(file, settings.getExpID());
 

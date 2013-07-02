@@ -1,6 +1,5 @@
 package de.mpa.graphdb.cypher;
 
-import de.mpa.graphdb.access.OperatorType;
 
 /**
  * Class representing (part of) a conditional statement for use in Cypher queries.
@@ -23,7 +22,7 @@ public class CypherCondition {
 	/**
 	 * The conditional operator.
 	 */
-	private OperatorType operator;
+	private CypherOperatorType operator;
 	
 	/**
 	 * Constructs a singular value for use in conditional statements of Cypher queries.
@@ -40,7 +39,7 @@ public class CypherCondition {
 	 * @param rightTerm the right-hand side of the conditional (can be <code>null</code> for singular values)
 	 * @param operator the conditional operator (can be <code>null</code> for singular values)
 	 */
-	public CypherCondition(Object leftTerm, Object rightTerm, OperatorType operator) {
+	public CypherCondition(Object leftTerm, Object rightTerm, CypherOperatorType operator) {
 		this.leftTerm = leftTerm;
 		this.rightTerm = rightTerm;
 		this.operator = operator;

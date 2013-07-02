@@ -1,6 +1,7 @@
 package de.mpa.client.ui.dialogs;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -8,8 +9,10 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -18,14 +21,19 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultButtonModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -36,10 +44,13 @@ import javax.swing.JToggleButton;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
@@ -57,6 +68,7 @@ import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import com.jgoodies.forms.factories.CC;
+import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
@@ -67,10 +79,14 @@ import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
+import de.mpa.graphdb.cypher.CypherFunctionType;
 import de.mpa.graphdb.cypher.CypherMatch;
+import de.mpa.graphdb.cypher.CypherOperatorType;
 import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.cypher.CypherQueryType;
 import de.mpa.graphdb.cypher.CypherStartNode;
+import de.mpa.graphdb.edges.DirectionType;
+import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.nodes.NodeType;
 import de.mpa.graphdb.properties.ElementProperty;
@@ -89,6 +105,11 @@ public class GraphQueryDialog extends JDialog {
 	 * The parent panel reference.
 	 */
 	private GraphDatabaseResultPanel parent;
+
+	/**
+	 * The Cypher query this dialog generates.
+	 */
+	protected CypherQuery query;
 	
 	/**
 	 * The list of predefined Cypher queries.
@@ -97,15 +118,26 @@ public class GraphQueryDialog extends JDialog {
 
 	/**
 	 * The panel inside the compound query pane containing controls for
-	 * specifying start nodes of Cypher queries.
+	 * specifying START statements of Cypher queries.
 	 */
 	private StartPanel startPnl;
 	
 	/**
 	 * The panel inside the compound query pane containing controls for
-	 * specifying match statements of Cypher queries.
+	 * specifying MATCH statements of Cypher queries.
 	 */
 	private MatchPanel matchPnl;
+
+	/**
+	 * The panel inside the compound query pane containing controls for
+	 * specifying RETURN statements of Cypher queries.
+	 */
+	private ReturnPanel returnPnl;
+
+	/**
+	 * The Cypher console text area.
+	 */
+	private JTextArea consoleTxt;
 	
 	/**
 	 * A rounded border for combo boxes.
@@ -116,6 +148,8 @@ public class GraphQueryDialog extends JDialog {
 	 * A rounded border for buttons.
 	 */
 	private Border roundedBtnBorder;
+
+	private boolean init;
 	
 	/**
 	 * Graph query dialog
@@ -127,6 +161,7 @@ public class GraphQueryDialog extends JDialog {
 		super(owner, title, modal);
 		this.parent = parent;
 		setupUI();
+		this.init = true;
 		initComponents();
 	}
 
@@ -142,13 +177,13 @@ public class GraphQueryDialog extends JDialog {
 		UIManager.put("TaskPane.borderColor", paint.getColor2());
 		UIDefaults plasticXPdefaults = new PlasticXPLookAndFeel().getDefaults();
 		roundedCbxBorder = BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(0, -2, 0, 0),
-				plasticXPdefaults.getBorder("ComboBox.arrowButtonBorder"));
-		roundedBtnBorder = BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(0, 0, 0, 1, plasticXPdefaults.getColor("controlShadow")),
+				BorderFactory.createMatteBorder(0, 1, 0, 0, plasticXPdefaults.getColor("controlShadow")),
 				BorderFactory.createCompoundBorder(
-						BorderFactory.createEmptyBorder(0, 0, 0, -2),
-						plasticXPdefaults.getBorder("ToggleButton.border")));
+					BorderFactory.createEmptyBorder(0, -2, 0, 0),
+					plasticXPdefaults.getBorder("ComboBox.arrowButtonBorder")));
+		roundedBtnBorder = BorderFactory.createCompoundBorder(
+					BorderFactory.createEmptyBorder(0, 0, 0, -2),
+					plasticXPdefaults.getBorder("ToggleButton.border"));
 	}
 
 	/**
@@ -173,6 +208,8 @@ public class GraphQueryDialog extends JDialog {
 		
 		// Console query section
 		JXTaskPane consoleQueryTaskPane = createConsoleQueryTaskPane();
+		
+		predefinedList.setSelectedIndex(0);
 
 		tpc.add(predefinedQueryTaskPane);
 		tpc.add(compoundQueryTaskPane);
@@ -215,6 +252,8 @@ public class GraphQueryDialog extends JDialog {
 		// Add final components to content pane
 		contentPane.add(tpc, CC.xy(2, 2));
 		contentPane.add(buttonPnl, CC.xy(2, 4));
+		
+		init = false;
 		
 		// Configure size and position
 		this.pack();
@@ -298,17 +337,23 @@ public class GraphQueryDialog extends JDialog {
 		columnLyt.setColumnGroups(new int[][] { { 1, 2, 3, 4 } });
 		JPanel columnPnl = new JPanel(columnLyt);
 		
+		int scrollInc = 16;
+		
+		/* START section */
 		startPnl = new StartPanel();
 
 		JScrollPane startScpn = new JScrollPane(startPnl);
 		startScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		startScpn.setBorder(null);
+		startScpn.getVerticalScrollBar().setUnitIncrement(scrollInc);
 		
+		/* MATCH section */
 		matchPnl = new MatchPanel(new Object[] { });
 		
 		JScrollPane matchScpn = new JScrollPane(matchPnl);
 		matchScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		matchScpn.setBorder(null);
+		matchScpn.getVerticalScrollBar().setUnitIncrement(scrollInc);
 		
 		/* WHERE section */
 		WherePanel wherePnl = new WherePanel(null);
@@ -316,13 +361,14 @@ public class GraphQueryDialog extends JDialog {
 		JScrollPane whereScpn = new JScrollPane(wherePnl);
 		whereScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		whereScpn.setBorder(null);
+		whereScpn.getVerticalScrollBar().setUnitIncrement(scrollInc);
 		
-		/* RETURN section */
-		JPanel returnPnl = new ReturnPanel(new Object[] { });
+		returnPnl = new ReturnPanel(new Object[] { });
 		
 		JScrollPane returnScpn = new JScrollPane(returnPnl);
 		returnScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		returnScpn.setBorder(null);
+		returnScpn.getVerticalScrollBar().setUnitIncrement(scrollInc);
 
 		// Add all sections to panel
 		columnPnl.add(startScpn, CC.xy(1, 1));
@@ -367,7 +413,7 @@ public class GraphQueryDialog extends JDialog {
 			}
 		});
 
-		final JTextArea consoleTxt = new JTextArea(4, 0);
+		consoleTxt = new JTextArea(4, 0);
 		consoleTxt.setFont(new Font("Courier", consoleTxt.getFont().getStyle(), 12));
 
 		JScrollPane consoleScpn = new JScrollPane(consoleTxt);
@@ -379,11 +425,15 @@ public class GraphQueryDialog extends JDialog {
 		predefinedList.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
-				if (predefinedList.getSelectedIndex() >= 0) {
-					CypherQuery query = ((CypherQueryType) predefinedList.getSelectedValue()).getQuery();
-					consoleTxt.setText(query.toString());
-					startPnl.setStartNodes(query.getStartNodes());
-					matchPnl.setMatches(query.getMatches());
+				int index = predefinedList.getSelectedIndex();
+				if (index >= 0) {
+					if (index < (predefinedList.getElementCount() - 1)) {
+						query = ((CypherQueryType) predefinedList.getSelectedValue()).getQuery();
+						consoleTxt.setText(query.toString());
+						startPnl.setStartNodes(query.getStartNodes());
+						matchPnl.setMatches(query.getMatches());
+						returnPnl.setReturnIndices(query.getReturnIndices());
+					}
 				}
 			}
 		});
@@ -392,190 +442,16 @@ public class GraphQueryDialog extends JDialog {
 	}
 
 	/**
-	 * Wrapper panel containing a combo box and a button which prompts to enter
-	 * a variable name.
-	 * 
-	 * @author A. Behne
-	 */
-	private class VariableComboBoxPanel extends JPanel {
-
-		/**
-		 * The button for toggling the popup's visibility.
-		 */
-		private JToggleButton varBtn;
-		
-		/**
-		 * The parameter combo box.
-		 */
-		private JComboBox varCbx;
-
-		/**
-		 * The variable name text field.
-		 */
-		private JTextField varTtf;
-
-		/**
-		 * Constructs a wrapper panel containing a combo box bearing the
-		 * specified items and a button prompting to enter a variable name.
-		 * @param items the items to be displayed inside the combo box
-		 */
-		public VariableComboBoxPanel(Object[] items) {
-			this(items, false);
-		}
-
-		/**
-		 * Constructs a wrapper panel containing a combo box bearing the
-		 * specified items and a button prompting to enter a variable name and
-		 * optionally applies a rounded corner border to both components
-		 * @param items the items to be displayed inside the combo box
-		 * @param rounded <code>true</code> if rounded corners shall be used,
-		 *  <code>false</code> otherwise
-		 */
-		public VariableComboBoxPanel(Object[] items, boolean rounded) {
-			super(new FormLayout("21px, p:g", "f:21px"));
-			initComponents(items, rounded);
-		}
-
-		/**
-		 * Creates and initializes the panel components.
-		 * @param items the items to be displayed inside the combo box
-		 * @param rounded <code>true</code> if rounded corners shall be used,
-		 *  <code>false</code> otherwise
-		 */
-		private void initComponents(Object[] items, boolean rounded) {
-			varBtn = new JToggleButton(IconConstants.TEXTFIELD_ICON);
-			varBtn.setRolloverIcon(IconConstants.TEXTFIELD_ROLLOVER_ICON);
-			varBtn.setPressedIcon(IconConstants.TEXTFIELD_PRESSED_ICON);
-			
-			final JPopupMenu varPop = new JPopupMenu("test");
-			
-			varTtf = new JTextField(items[0].toString().toLowerCase());
-			varTtf.setMargin(new Insets(0, 1, 0, 0));
-			varTtf.setBorder(null);
-			
-			varPop.add(varTtf);
-			
-			varBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent evt) {
-					if (varBtn.isSelected()) {
-						// synchronize popup size with panel size
-						varPop.setPreferredSize(getSize());
-						// show popup and transfer focus to text field inside
-						varPop.show(varBtn, 0, varBtn.getHeight());
-						varTtf.requestFocus();
-					} else {
-//						if (varPop.isVisible()) {
-							varPop.setVisible(false);
-//						}
-					}
-				}
-			});
-			
-			varPop.addPopupMenuListener(new PopupMenuListener() {
-				public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
-					if (varBtn.isSelected()) {
-//						SwingUtilities.invokeLater(new Runnable() {
-//							public void run() {
-//								varBtn.doClick(100);
-//							}
-//						});
-						varBtn.getModel().setSelected(false);
-					}
-				}
-				public void popupMenuWillBecomeVisible(PopupMenuEvent evt) { }
-				public void popupMenuCanceled(PopupMenuEvent evt) { }
-			});
-			
-			if (rounded) {
-				varBtn.setBorder(roundedBtnBorder);
-				varBtn.setMargin(new Insets(2, 4, 1, 4));
-				
-				Border oldBorder = UIManager.getBorder("ComboBox.arrowButtonBorder");
-				UIManager.put("ComboBox.arrowButtonBorder", roundedCbxBorder);
-				varCbx = new JComboBox(items);
-				UIManager.put("ComboBox.arrowButtonBorder", oldBorder);
-			} else {
-				varBtn.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createEmptyBorder(0, 0, 0, -2),
-						varBtn.getBorder()));
-				
-				varCbx = new JComboBox(items);
-			}
-			
-			varCbx.addItemListener(new ItemListener() {
-				public void itemStateChanged(ItemEvent evt) {
-					varTtf.setText(evt.getItem().toString().toLowerCase());
-				}
-			});
-			
-			// prevent button clicks dismissing popups
-	        varBtn.putClientProperty("doNotCancelPopup",
-	        		varCbx.getClientProperty("doNotCancelPopup"));
-			
-			this.add(varBtn, CC.xy(1, 1));
-			this.add(varCbx, CC.xy(2, 1));
-		}
-		
-		@Override
-		public void setBackground(Color bg) {
-			super.setBackground(bg);
-			if (varBtn != null) {
-				varBtn.setBackground(bg);
-			}
-			if (varCbx != null) {
-				varCbx.setBackground(bg);
-			}
-		}
-		
-		/**
-		 * Returns the variable name.
-		 * @return the variable name
-		 */
-		public String getVariableName() {
-			return varTtf.getText();
-		}
-		
-		/**
-		 * Sets the variable name.
-		 * @param var the variable name to set
-		 */
-		public void setVariableName(String var) {
-			varTtf.setText(var);
-		}
-		
-		/**
-		 * Sets the combo box' items.
-		 * @param items the items to set
-		 */
-		public void setItems(Object[] items) {
-			varCbx.setModel(new DefaultComboBoxModel(items));
-		}
-		
-		/**
-		 * Returns the combo box' selected item.
-		 * @return the selected item
-		 */
-		public Object getSelectedItem() {
-			return varCbx.getSelectedItem();
-		}
-		
-		/**
-		 * Sets the combo box' selected item.
-		 * @param item the item to select
-		 */
-		public void setSelectedItem(Object item) {
-			varCbx.setSelectedItem(item);
-		}
-		
-	}
-	
-	/**
 	 * Panel implementation for dynamic editing of Cypher query blocks.
 	 * 
 	 * @author A. Behne
 	 */
 	private abstract class CompoundQueryPanel extends JPanel {
+		
+		/**
+		 * Context menu item for adding building blocks.
+		 */
+		protected JMenuItem appendItem;
 		
 		/**
 		 * Context menu item for removing building blocks.
@@ -599,7 +475,7 @@ public class GraphQueryDialog extends JDialog {
 		 * @param items the items to be displayed in the in
 		 */
 		private void initComponents(String label, Object[] items) {
-			FormLayout layout = new FormLayout("3dlu, 21px, p:g, 21px, 3dlu", "3dlu, f:16px, 3dlu");
+			FormLayout layout = new FormLayout("3dlu, 21px, p:g, 21px, 3dlu", "3dlu, t:16px, 3dlu");
 			
 			this.setLayout(layout);
 			
@@ -611,7 +487,10 @@ public class GraphQueryDialog extends JDialog {
 				layout.appendRow(RowSpec.decode("f:21px"));
 				layout.appendRow(RowSpec.decode("3dlu"));
 				
-				this.add(new JComboBox(items), CC.xyw(2, 4, 2));
+				JComboBox comboBox = new JComboBox(items);
+				((JTextField) comboBox.getEditor().getEditorComponent()).setMargin(new Insets(1, 3, 2, 1));
+				
+				this.add(comboBox, CC.xyw(2, 4, 2));
 				
 				row += 2;
 			}
@@ -627,7 +506,7 @@ public class GraphQueryDialog extends JDialog {
 
 			final JPopupMenu blockPop = new JPopupMenu();
 			
-			JMenuItem appendItem = new JMenuItem("Append " + label + " Block", IconConstants.ADD_ICON);
+			appendItem = new JMenuItem("Append " + label + " Block", IconConstants.ADD_ICON);
 			appendItem.setRolloverIcon(IconConstants.ADD_ROLLOVER_ICON);
 			appendItem.setPressedIcon(IconConstants.ADD_PRESSED_ICON);
 			
@@ -654,18 +533,12 @@ public class GraphQueryDialog extends JDialog {
 			blockBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					blockPop.show(blockBtn, 0, blockBtn.getSize().height);
+					blockPop.show(blockBtn, -3, blockBtn.getSize().height / 2 + 11);
 				}
 			});
 			
 			this.add(blockBtn, CC.xy(4, row));
 		}
-		
-//		/**
-//		 * Returns the list of Cypher-related object values this panel represents.
-//		 * @return the values
-//		 */
-//		public abstract List<Object> getValues();
 		
 		/**
 		 * Appends a query building block to this panel.
@@ -693,12 +566,18 @@ public class GraphQueryDialog extends JDialog {
 	 * 
 	 * @author A. Behne
 	 */
-	private class StartPanel extends CompoundQueryPanel {
+	protected class StartPanel extends CompoundQueryPanel {
 		
 		/**
 		 * The list of parameter combo boxes.
 		 */
 		private List<VariableComboBoxPanel> varPnls;
+		
+		/**
+		 * Shared document listener instance notifying of changes made to the
+		 * variable text fields.
+		 */
+		private DocumentListener docListener;
 
 		/**
 		 * Constructs a panel containing controls for dynamic editing of Cypher
@@ -707,11 +586,33 @@ public class GraphQueryDialog extends JDialog {
 		public StartPanel() {
 			super("Start", NodeType.values());
 			
+			docListener = new DocumentListener() {
+				@Override
+				public void removeUpdate(DocumentEvent evt) {
+					updateStartNodes();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent evt) {
+					updateStartNodes();
+				}
+				@Override
+				public void changedUpdate(DocumentEvent evt) {
+//					updateStartNodes();
+				}
+				/** Refresh start nodes inside Match panel */
+				private void updateStartNodes() {
+					matchPnl.setStartNodes(getStartNodes(), true);
+				}
+			};
+			
 			AbstractButton blockBtn = (AbstractButton) this.getComponent(this.getComponentCount() - 1);
 			
 			// replace combo box
 			this.remove(1);
-			VariableComboBoxPanel varPnl = new VariableComboBoxPanel(NodeType.values());
+			NodeType[] nodeTypes = NodeType.values();
+			VariableComboBoxPanel varPnl = new VariableComboBoxPanel(nodeTypes, nodeTypes[0].toString());
+//			varPnl.addItemListener(listener);
+			varPnl.addDocumentListener(docListener);
 			varPnls = new ArrayList<VariableComboBoxPanel>();
 			varPnls.add(varPnl);
 			this.add(varPnl, CC.xyw(2, 4, 2));
@@ -730,7 +631,10 @@ public class GraphQueryDialog extends JDialog {
 			layout.appendRow(RowSpec.decode("f:21px"));
 			layout.appendRow(RowSpec.decode("3dlu"));
 
-			VariableComboBoxPanel varPnl = new VariableComboBoxPanel(NodeType.values());
+			NodeType[] nodeTypes = NodeType.values();
+			VariableComboBoxPanel varPnl = new VariableComboBoxPanel(nodeTypes, nodeTypes[0].toString());
+//			varPnl.addItemListener(listener);
+			varPnl.addDocumentListener(docListener);
 			varPnls.add(varPnl);
 			
 			this.add(varPnl, CC.xyw(2, row, 2));
@@ -744,6 +648,13 @@ public class GraphQueryDialog extends JDialog {
 			this.revalidate();
 			
 			this.scrollToBottom();
+
+			// propagate change to other components
+			predefinedList.setSelectedIndex(predefinedList.getElementCount() - 1);
+			
+			matchPnl.setStartNodes(getStartNodes(), true);
+			
+			updateQuery();
 		}
 
 		@Override
@@ -779,11 +690,15 @@ public class GraphQueryDialog extends JDialog {
 			// revalidate panel as layout has been modified
 			this.revalidate();
 			this.repaint();
+
+			// propagate change to other components
+			predefinedList.setSelectedIndex(predefinedList.getElementCount() - 1);
+			
+			updateQuery();
 		}
 
-		// TODO: propagate selected items to Match panel
 		/**
-		 * Returns the list of Cypher start nodes that are selected in this panel.
+		 * Returns the list of Cypher start nodes that are defined in this panel.
 		 * @see CypherStartNode
 		 * @return the list of Cypher start nodes
 		 */
@@ -824,10 +739,10 @@ public class GraphQueryDialog extends JDialog {
 				CypherStartNode startNode = startNodes.get(i);
 				VariableComboBoxPanel varPnl = varPnls.get(i);
 				varPnl.setSelectedItem(startNode.getIndex());
-				varPnl.setVariableName(startNode.getVariableName());
+				varPnl.setVariableName(startNode.getIdentifier());
 			}
 			// update list of start nodes in match panel
-			matchPnl.setStartNodes(startNodes);
+			matchPnl.setStartNodes(startNodes, false);
 		}
 
 	}
@@ -837,13 +752,18 @@ public class GraphQueryDialog extends JDialog {
 	 * 
 	 * @author A. Behne
 	 */
-	private class MatchPanel extends CompoundQueryPanel {
+	protected class MatchPanel extends CompoundQueryPanel {
 
 		/**
 		 * The combo box containing the list of possible start node options for
 		 * the Cypher match statement this panel represents.
 		 */
 		private JComboBox startCbx;
+		
+		/**
+		 * The list of pre-relation buttons.
+		 */
+		private List<DirectionButton> preBtns;
 		
 		/**
 		 * The list of relation combo box panels.
@@ -853,18 +773,58 @@ public class GraphQueryDialog extends JDialog {
 		/**
 		 * The list of target node combo box panels.
 		 */
-		private List<VariableComboBoxPanel> trgPnls;
+		private List<JTextField> trgTtfs;
+
+		/**
+		 * Document listener for relation variable text fields.
+		 */
+		private DocumentListener docListener;
+
+		/**
+		 * Item listener for relation combo boxes.
+		 */
+		private ItemListener itemListener;
 
 		/**
 		 * Constructs a panel containing controls for dynamic editing of Cypher
 		 * query MATCH blocks.
-		 * @param items
+		 * @param items the initial array of items to display in the primary combo box
 		 */
 		public MatchPanel(Object[] items) {
 			super("Match", items);
 			startCbx = (JComboBox) this.getComponent(1);
+			preBtns = new ArrayList<DirectionButton>();
 			relPnls = new ArrayList<VariableComboBoxPanel>();
-			trgPnls = new ArrayList<VariableComboBoxPanel>();
+			trgTtfs = new ArrayList<JTextField>();
+			
+			docListener = new DocumentListener() {
+				@Override
+				public void removeUpdate(DocumentEvent evt) {
+					updateVariables();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent evt) {
+					updateVariables();
+				}
+				@Override
+				public void changedUpdate(DocumentEvent evt) {
+//					updateVariables();
+				}
+				private void updateVariables() {
+					returnPnl.setIdentifiers(getNodeIdentifiers());
+					updateQuery();
+				}
+			};
+			itemListener = new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent evt) {
+					if (evt.getStateChange() == ItemEvent.SELECTED) {
+						updateQuery();
+					}
+				}
+			};
+			
+			((JComboBox) this.getComponent(1)).addItemListener(itemListener);
 			
 			appendBlock();
 		}
@@ -882,119 +842,36 @@ public class GraphQueryDialog extends JDialog {
 			layout.appendRow(RowSpec.decode("f:21px"));
 			layout.appendRow(RowSpec.decode("3dlu"));
 			
-			JButton preBtn = new JButton() {
-				{
-					addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							// cycle arrow state
-//							arrow = (arrow == null) ? true : (Boolean.TRUE.equals(arrow)) ? false : null;
-							if (arrow == null) {
-								arrow = true;
-							} else {
-								if (Boolean.TRUE.equals(arrow)) {
-									arrow = false;
-								} else {
-									arrow = null;
-								}
-							}
-						}
-					});
-					setBorder(null);
-					setOpaque(false);
-					setFocusPainted(false);
-				}
-				private Boolean arrow = null;		// true = up, false = down, null = neither
-				private Color shadow = UIManager.getColor("controlDkShadow").darker();
-				private Color highlight = UIManager.getColor("controlHighlight");
-				@Override
-				public void paint(Graphics g) {
-					super.paint(g);
-					int halfHeight = getHeight() / 2 - 1;
-					int halfWidth = getWidth() / 2;
-					g.setColor(highlight);
-					g.drawLine(0, halfHeight + 1, halfWidth, halfHeight + 1);
-					g.drawLine(halfWidth + 1, halfHeight, halfWidth + 1, getHeight());
-					if (Boolean.TRUE.equals(arrow)) {
-						g.fillPolygon(
-								new int[] { 0, 5, 5, 4 },
-								new int[] { halfHeight + 1, halfHeight - 4, halfHeight + 5, halfHeight + 5 },
-								4);
-					}
-					g.setColor(shadow);
-					g.drawLine(0, halfHeight, halfWidth, halfHeight);
-					g.drawLine(halfWidth, halfHeight, halfWidth, getHeight());
-					if (Boolean.TRUE.equals(arrow)) {
-						g.fillPolygon(
-								new int[] { 0, 4, 4 },
-								new int[] { halfHeight, halfHeight - 4, halfHeight + 4 },
-								3);
-					}
-				}
-			};
+			DirectionButtonModel model = new DirectionButtonModel();
 			
-			JButton postBtn = new JButton() {
-				{
-					addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							// cycle arrow state
-//							arrow = (arrow == null) ? true : (Boolean.TRUE.equals(arrow)) ? false : null;
-							if (arrow == null) {
-								arrow = true;
-							} else {
-								if (Boolean.TRUE.equals(arrow)) {
-									arrow = false;
-								} else {
-									arrow = null;
-								}
-							}
-						}
-					});
-					setBorder(null);
-					setOpaque(false);
-					setFocusPainted(false);
+			// pre-relation button
+			DirectionButton preBtn = new DirectionButton(true, model);
+			preBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					updateQuery();
 				}
-				private Boolean arrow = null;		// true = up, false = down, null = neither
-				private Color shadow = UIManager.getColor("controlDkShadow").darker();
-				private Color highlight = UIManager.getColor("controlHighlight");
-				@Override
-				public void paint(Graphics g) {
-					super.paint(g);
-					int halfHeight = getHeight() / 2 - 1;
-					int halfWidth = getWidth() / 2;
-					g.setColor(highlight);
-					g.drawLine(getWidth(), halfHeight + 1, halfWidth + 1, halfHeight + 1);
-					g.drawLine(halfWidth + 1, halfHeight + 1, halfWidth + 1, getHeight() - 1);
-					if (Boolean.FALSE.equals(arrow)) {
-						g.fillPolygon(
-								new int[] { halfWidth - 3, halfWidth + 5, halfWidth, halfWidth - 3 },
-								new int[] { getHeight() - 4, getHeight() - 4, getHeight() + 1, getHeight() - 3 },
-								4);
-					}
-					g.setColor(shadow);
-					g.drawLine(getWidth(), halfHeight, halfWidth, halfHeight);
-					g.drawLine(halfWidth, halfHeight, halfWidth, getHeight() - 1);
-					if (Boolean.FALSE.equals(arrow)) {
-						g.fillPolygon(
-								new int[] { halfWidth - 3, halfWidth + 4, halfWidth },
-								new int[] { getHeight() - 4, getHeight() - 4, getHeight() },
-								3);
-					}
-				}
-			};
+			});
+			preBtns.add(preBtn);
 			
-			postBtn.setModel(preBtn.getModel());
-			
-			VariableComboBoxPanel relPnl = new VariableComboBoxPanel(new Object[] { "BELONGS_TO_ENZYME" }, true);
+			// relation combo box panel
+			VariableComboBoxPanel relPnl = new VariableComboBoxPanel(RelationType.values(), "", true);
 			relPnl.setBackground(new Color(245, 245, 245));
+			relPnl.addDocumentListener(docListener);
+			relPnl.addItemListener(itemListener);
 			relPnls.add(relPnl);
 			
-			VariableComboBoxPanel trgPnl = new VariableComboBoxPanel(new Object[] { "" });
-			trgPnls.add(trgPnl);
+			// post-relation button
+			JButton postBtn = new DirectionButton(false, model);
+			
+			// target node text field
+			JTextField trgTtf = new JTextField();
+			trgTtf.getDocument().addDocumentListener(docListener);
+			trgTtfs.add(trgTtf);
 			
 			this.add(preBtn, CC.xywh(4, row - 1, 1, 3));
 			this.add(relPnl, CC.xyw(3, row + 2, 2));
 			this.add(postBtn, CC.xywh(2, row + 1, 1, 3));
-			this.add(trgPnl, CC.xyw(2, row + 4, 2));
+			this.add(trgTtf, CC.xyw(2, row + 4, 2));
 			this.add(blockBtn, CC.xy(4, row + 4));
 			
 			if (this.getComponentCount() >= 11) {
@@ -1006,6 +883,8 @@ public class GraphQueryDialog extends JDialog {
 			
 			// scroll to bottom
 			this.scrollToBottom();
+			
+			updateQuery();
 		}
 
 		@Override
@@ -1019,8 +898,9 @@ public class GraphQueryDialog extends JDialog {
 			int comps = this.getComponentCount();
 			
 			// remove combo boxes from cache
-			trgPnls.remove(this.getComponent(comps - 2));
+			trgTtfs.remove(this.getComponent(comps - 2));
 			relPnls.remove(this.getComponent(comps - 4));
+			preBtns.remove(this.getComponent(comps - 5));
 
 			// remove components from container
 			for (int i = 1; i < 6; i++) {
@@ -1042,11 +922,41 @@ public class GraphQueryDialog extends JDialog {
 			// revalidate panel as layout has been modified
 			this.revalidate();
 			this.repaint();
+			
+			// propagate change to other components
+			returnPnl.setIdentifiers(getNodeIdentifiers());
+			
+			updateQuery();
 		}
 		
 		/**
-		 * 
-		 * @param matches
+		 * Returns the list of Cypher match blocks that are defined in this panel.
+		 * @see CypherMatch
+		 * @return the list of Cypher match blocks
+		 */
+		public List<CypherMatch> getMatches() {
+			List<CypherMatch> matches = new ArrayList<CypherMatch>();
+			if (startCbx.getSelectedIndex() >= 0) {
+				String nodeVar = startCbx.getSelectedItem().toString();
+				for (int i = 0; i < relPnls.size(); i++) {
+					VariableComboBoxPanel relPnl = relPnls.get(i);
+					DirectionButton preBtn = preBtns.get(i);
+					matches.add(new CypherMatch(
+							nodeVar,
+							(RelationType) relPnl.getSelectedItem(),
+							relPnl.getVariableName(),
+							preBtn.getDirection()));
+					nodeVar = trgTtfs.get(i).getText();
+				}
+				matches.add(new CypherMatch(nodeVar, null, null, null));
+			}
+			return matches;
+		}
+
+		/**
+		 * Resets the panel's variable combo boxes to match the provided Cypher
+		 * match blocks.
+		 * @param matches the Cypher match blocks
 		 */
 		public void setMatches(List<CypherMatch> matches) {
 			int blocksSize = relPnls.size();
@@ -1054,37 +964,242 @@ public class GraphQueryDialog extends JDialog {
 			if (matchesSize > blocksSize) {
 				// append more blocks
 				for (int i = blocksSize; i < matchesSize; i++) {
-					appendBlock();
+					this.appendBlock();
 				}
 			} else if (matchesSize < blocksSize) {
 				// remove some blocks
 				for (int i = matchesSize; i < blocksSize; i++) {
-					removeBlock();
+					this.removeBlock();
 				}
 			}
+			// 
 			for (int i = 0; i < matchesSize; i++) {
 				CypherMatch match = matches.get(i);
 				
-				VariableComboBoxPanel relPnl = relPnls.get(i);
-				relPnl.setItems(new Object[] { match.getRelation() });
-				relPnl.setVariableName(match.getRelationVariableName());
+				startCbx.setSelectedItem(match.getNodeIdentifier());
 				
-				VariableComboBoxPanel trgPnl = trgPnls.get(i);
-//				trgPnl.setItems(new Object[] { });
-				trgPnl.setVariableName(match.getTargetVariableName());
+				DirectionButton preBtn = preBtns.get(i);
+				preBtn.setDirection(match.getDirection());
+				
+				VariableComboBoxPanel relPnl = relPnls.get(i);
+//				relPnl.setItems(new Object[] { match.getRelation() });
+				relPnl.setSelectedItem(match.getRelation());
+				relPnl.setVariableName(match.getRelationIdentifier());
+				
+				// target variable is stored in next match
+				match = matches.get(i + 1);
+				
+				JTextField trgTtf = trgTtfs.get(i);
+				trgTtf.setText(match.getNodeIdentifier());
 			}
+			
+			// update list of start nodes in match panel
+			returnPnl.setIdentifiers(this.getNodeIdentifiers());
+		}
+		
+		/**
+		 * Returns the vector of node identifiers that are defined in this panel.
+		 * @return the node identifiers
+		 */
+		public Vector<String> getNodeIdentifiers() {
+			Vector<String> identifiers = new Vector<String>(trgTtfs.size() + 1);
+			
+			identifiers.add(startCbx.getSelectedItem().toString());
+			for (JTextField trgTtf : trgTtfs) {
+				String var = trgTtf.getText();
+				if (!var.isEmpty()) {
+					identifiers.add(var);
+				}
+			}
+			
+			return identifiers;
 		}
 		
 		/**
 		 * Sets the start node combo box' options to the specified start nodes.
 		 * @param startNodes the start nodes
 		 */
-		public void setStartNodes(List<CypherStartNode> startNodes) {
+		public void setStartNodes(List<CypherStartNode> startNodes, boolean keepSelection) {
+			int selectedIndex = (keepSelection) ? startCbx.getSelectedIndex() : 0;
 			Object[] items = new Object[startNodes.size()];
 			for (int i = 0; i < items.length; i++) {
-				items[i] = startNodes.get(i).getVariableName();
+				items[i] = startNodes.get(i).getIdentifier();
 			}
 			startCbx.setModel(new DefaultComboBoxModel(items));
+			startCbx.setSelectedIndex(selectedIndex);
+		}
+
+		/**
+		 * Button implementation for directional connector elements in Cypher query
+		 * MATCH blocks.
+		 * 
+		 * @author A. Behne
+		 */
+		private class DirectionButton extends JButton {
+			
+			/**
+			 * Flag indicating whether this component is located before or after its respective relation control.
+			 */
+			private boolean pre;
+			
+			/**
+			 * The shadow color used in painting this component.
+			 */
+			private Color shadow = UIManager.getColor("controlDkShadow").darker();
+			
+			/**
+			 * The highlight color used in painting this component.
+			 */
+			private Color highlight = UIManager.getColor("controlHighlight");
+			
+			/**
+			 * Constructs a button containing a directional decoration for an
+			 * associated relationship control.
+			 * @param pre <code>true</code> if the button is located before its
+			 *  associated relation, <code>false</code> if it's placed after
+			 * @param model the button model to use
+			 */
+			public DirectionButton(boolean pre, DirectionButtonModel model) {
+				// Set the model
+		        this.setModel(model);
+		
+		        // initialize
+		        this.init(null, null);
+		        
+				this.pre = pre;
+				
+				// configure visuals
+				this.setBorder(null);
+				this.setOpaque(false);
+				this.setFocusPainted(false);
+				
+				// install listener to cycle direction type
+				this.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if (getDirection() == DirectionType.BOTH) {
+							setDirection(DirectionType.OUT);
+						} else {
+							if (getDirection() == DirectionType.OUT) {
+								setDirection(DirectionType.IN);
+							} else {
+								setDirection(DirectionType.BOTH);
+							}
+						}
+					}
+				});
+			}
+		
+			/**
+			 * Returns the direction of the relation associated with this component.
+			 * @return the direction
+			 */
+			public DirectionType getDirection() {
+				return ((DirectionButtonModel) getModel()).getDirection();
+			}
+			
+			/**
+			 * Sets the direction of the relation associated with this component.
+			 * @param direction the direction to set
+			 */
+			public void setDirection(DirectionType direction) {
+				((DirectionButtonModel) getModel()).setDirection(direction);
+			}
+			
+			@Override
+			public void paint(Graphics g) {
+				super.paint(g);
+				if (pre) {
+					paintPreArrow(g);
+				} else {
+					paintPostArrow(g);
+				}
+			}
+		
+			/**
+			 * Paint arrow decoration on pre-relation button.
+			 * @param g the Graphics context in which to paint
+			 */
+			private void paintPreArrow(Graphics g) {
+				int halfHeight = getHeight() / 2 - 1;
+				int halfWidth = getWidth() / 2;
+				g.setColor(highlight);
+				g.drawLine(0, halfHeight + 1, halfWidth, halfHeight + 1);
+				g.drawLine(halfWidth + 1, halfHeight, halfWidth + 1, getHeight());
+				if (getDirection() == DirectionType.IN) {
+					g.fillPolygon(
+							new int[] { 0, 5, 5, 4 },
+							new int[] { halfHeight + 1, halfHeight - 4, halfHeight + 5, halfHeight + 5 },
+							4);
+				}
+				g.setColor(shadow);
+				g.drawLine(0, halfHeight, halfWidth, halfHeight);
+				g.drawLine(halfWidth, halfHeight, halfWidth, getHeight());
+				if (getDirection() == DirectionType.IN) {
+					g.fillPolygon(
+							new int[] { 0, 4, 4 },
+							new int[] { halfHeight, halfHeight - 4, halfHeight + 4 },
+							3);
+				}
+			}
+			
+			/**
+			 * Paint arrow decoration on post-relation button.
+			 * @param g the Graphics context in which to paint
+			 */
+			private void paintPostArrow(Graphics g) {
+				int halfHeight = getHeight() / 2 - 1;
+				int halfWidth = getWidth() / 2;
+				g.setColor(highlight);
+				g.drawLine(getWidth(), halfHeight + 1, halfWidth + 1, halfHeight + 1);
+				g.drawLine(halfWidth + 1, halfHeight + 1, halfWidth + 1, getHeight() - 1);
+				if (getDirection() == DirectionType.OUT) {
+					g.fillPolygon(
+							new int[] { halfWidth - 3, halfWidth + 5, halfWidth, halfWidth - 3 },
+							new int[] { getHeight() - 4, getHeight() - 4, getHeight() + 1, getHeight() - 3 },
+							4);
+				}
+				g.setColor(shadow);
+				g.drawLine(getWidth(), halfHeight, halfWidth, halfHeight);
+				g.drawLine(halfWidth, halfHeight, halfWidth, getHeight() - 1);
+				if (getDirection() == DirectionType.OUT) {
+					g.fillPolygon(
+							new int[] { halfWidth - 3, halfWidth + 4, halfWidth },
+							new int[] { getHeight() - 4, getHeight() - 4, getHeight() },
+							3);
+				}
+			}
+			
+		}
+
+		/**
+		 * Custom button model containing directional information.
+		 * 
+		 * @author A. Behne
+		 */
+		private class DirectionButtonModel extends DefaultButtonModel {
+			
+			/**
+			 * The direction type.
+			 */
+			private DirectionType direction = DirectionType.BOTH;
+		
+			/**
+			 * Returns the direction of the relation associated with this component.
+			 * @return the direction
+			 */
+			public DirectionType getDirection() {
+				return direction;
+			}
+		
+			/**
+			 * Sets the direction of the relation associated with this component.
+			 * @param direction the direction to set
+			 */
+			public void setDirection(DirectionType direction) {
+				this.direction = direction;
+				fireStateChanged();
+			}
+			
 		}
 
 	}
@@ -1094,12 +1209,12 @@ public class GraphQueryDialog extends JDialog {
 	 * 
 	 * @author A. Behne
 	 */
-	private class WherePanel extends CompoundQueryPanel {
+	protected class WherePanel extends CompoundQueryPanel {
 		
 		/**
-		 * TODO: API
-		 * @param label
-		 * @param items
+		 * Constructs a panel containing controls for dynamic editing of Cypher
+		 * query WHERE blocks.
+		 * @param items the initial array of items to display in the primary combo box
 		 */
 		public WherePanel(Object[] items) {
 			super("Where", items);
@@ -1109,21 +1224,20 @@ public class GraphQueryDialog extends JDialog {
 		public void appendBlock() {
 			FormLayout layout = (FormLayout) this.getLayout();
 			
-			AbstractButton blockBtn = (AbstractButton) this.getComponent(this.getComponentCount() - 1);
-
 			int row = layout.getRowCount() + 1;
 			
-			layout.appendRow(RowSpec.decode("f:21px"));
+			layout.appendRow(RowSpec.decode("f:p"));
 			layout.appendRow(RowSpec.decode("3dlu"));
 			
-			VariableComboBoxPanel varPnl = new VariableComboBoxPanel(new Object[] { "" });
 			
-			this.add(varPnl, CC.xyw(2, row, 2));
-			this.add(blockBtn, CC.xy(4, row));
+			CellConstraints cc = CC.xyw(2, row, 3);
 			
-			if (this.getComponentCount() >= 3) {
-				removeItem.setEnabled(true);
-			}
+			OperationBlock block = new OperationBlock(cc);
+			
+			this.add(block, cc);
+
+			appendItem.setEnabled(false);
+			removeItem.setEnabled(true);
 			
 			// revalidate panel as layout has been modified
 			this.revalidate();
@@ -1135,45 +1249,385 @@ public class GraphQueryDialog extends JDialog {
 		public void removeBlock() {
 			FormLayout layout = (FormLayout) this.getLayout();
 			
-			AbstractButton blockBtn = (AbstractButton) this.getComponent(this.getComponentCount() - 1);
-
 			int row = layout.getRowCount();
 			int comps = this.getComponentCount();
 
-			for (int i = 1; i < 3; i++) {
+			for (int i = 1; i < 2; i++) {
 				this.remove(comps - i);
 			}
 			for (int i = 0; i < 2; i++) {
 				layout.removeRow(row - i);
 			}
-			
-			this.add(blockBtn, CC.xy(4, row - 3));
-			
-			if (this.getComponentCount() < 3) {
-				removeItem.setEnabled(false);
-			}
+
+			appendItem.setEnabled(true);
+			removeItem.setEnabled(false);
 			
 			// revalidate panel as layout has been modified
 			this.revalidate();
 			this.repaint();
 		}
+
+		/**
+		 * Panel containing controls for specifying parameter values for Cypher
+		 * WHERE blocks.
+		 * 
+		 * @author A. Behne
+		 */
+		private class ValueBlock extends JPanel {
+			
+			/**
+			 * This block's self-reference.
+			 */
+			private final ValueBlock block = this;
+
+			/**
+			 * Constructs a value block.
+			 * @param cc the block's position inside its parent container
+			 */
+			public ValueBlock(CellConstraints cc) {
+				initComponents(cc);
+			}
+			
+			/**
+			 * Initializes and configures this block's components.
+			 * @param cc the block's position inside its parent container
+			 */
+			private void initComponents(final CellConstraints cc) {
+	
+				this.setLayout(new FormLayout("35px, p:g", "f:21px"));
+				
+				final JComboBox typeCbx = new TermComboBox();
+
+				final JTextField valTtf = new JTextField();
+				valTtf.setPreferredSize(new Dimension(0, 21));
+
+				typeCbx.addItemListener(new ItemListener() {
+					@Override
+					public void itemStateChanged(ItemEvent evt) {
+						if (evt.getStateChange() == ItemEvent.SELECTED) {
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									int index = typeCbx.getSelectedIndex();
+									if (index > 0) {
+										Container parent = block.getParent();
+										parent.remove(block);
+										if (index == 2) {
+											parent.add(new OperationBlock(cc), cc);
+										} else {
+											parent.add(new FunctionBlock(cc), cc);
+										}
+										((JComponent) parent).revalidate();
+									}
+								}
+							});
+						}
+					}
+				});
+				
+				this.add(typeCbx, CC.xy(1, 1));
+				this.add(valTtf, CC.xy(2, 1));
+			}
+			
+			/**
+			 * ComboBox implementation for choosing term types (e.g. value,
+			 * function, condition) in conditional blocks.
+			 * 
+			 * @author A. Behne
+			 */
+			private class TermComboBox extends JComboBox {
+				
+				/**
+				 * Flag denoting whether this component is currently laying out its
+				 * sub-components.
+				 */
+				private boolean layingOut = false;
+				
+				/**
+				 * Constructs a conditional term combo box displaying choices
+				 * relating to sub-blocks of Cypher query MATCH blocks.
+				 */
+				public TermComboBox() {
+					super(new Object[] {
+							new JLabel("value", IconConstants.PLUGIN_BLUE_ICON, 2),
+							new JLabel("function", IconConstants.PLUGIN_PURPLE_ICON, 2),
+							new JLabel("condition", IconConstants.PLUGIN_ICON, 2) });
+
+					this.setRenderer(new DefaultListCellRenderer() {
+						private Border marginBorder = BorderFactory.createEmptyBorder(0, 2, 0, 0);
+						@Override
+						public Component getListCellRendererComponent(JList list,
+								Object value, int index, boolean isSelected,
+								boolean cellHasFocus) {
+							JComponent comp = (JComponent) value;
+							comp.setOpaque(true);
+							comp.setBackground((isSelected) ? getBackground().darker() : getBackground());
+							comp.setBorder((index >= 0) ? marginBorder : BorderFactory.createEmptyBorder(2, 0, 0, 0));
+							((JLabel) comp).setVerticalAlignment(SwingConstants.TOP);
+							return comp;
+						}
+					});
+				}
+				
+				@Override
+				public void doLayout() {
+					try {
+						layingOut = true;
+						super.doLayout();
+					} finally {
+						layingOut = false;
+					}
+				}
+				
+				@Override
+				public Dimension getSize() {
+					Dimension dim = super.getSize();
+					if (!layingOut) {
+						dim.width = Math.max(dim.width, getPreferredSize().width);
+					}
+					return dim;
+				}
+				
+			}
+			
+		}
+
+		/**
+		 * Panel containing controls for specifying functions with a single
+		 * parameter for Cypher WHERE blocks.
+		 * 
+		 * @author A. Behne
+		 */
+		private class FunctionBlock extends JPanel {
+			
+			/**
+			 * Self-reference.
+			 */
+			private FunctionBlock block = this;
+			
+			/**
+			 * Constructs a function block.
+			 * @param cc the block's position inside its parent container
+			 */
+			public FunctionBlock(CellConstraints cc) {
+				super();
+				initComponents(cc);
+			}
+			
+			/**
+			 * Initializes and configures this block's components.
+			 * @param cc the block's position inside its parent container
+			 */
+			private void initComponents(final CellConstraints cc) {
+				
+				this.setLayout(new FormLayout("11px, p:g", "f:21px, 3dlu, f:21px"));
 		
-	}
+				BracketButton bracketBtn = new BracketButton();
+				
+				bracketBtn.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						Container parent = getParent();
+						parent.remove(block);
+						parent.add(new ValueBlock(cc), cc);
+						((JComponent) parent).revalidate();
+					}
+				});
+				
+				this.add(bracketBtn, CC.xywh(1, 1, 1, 3));
+				this.add(new JComboBox(CypherFunctionType.values()), CC.xy(2, 1));
+				this.add(new JTextField("variable"), CC.xy(2, 3));
+			}
+			
+		}
+
+		/**
+		 * Panel containing controls for specifying parameter operations for
+		 * Cypher WHERE blocks.
+		 * 
+		 * @author A. Behne
+		 */
+		private class OperationBlock extends JPanel {
+
+			/**
+			 * This block's self-reference.
+			 */
+			private OperationBlock block = this;
+			
+			/**
+			 * Constructs an operation block.
+			 * @param cc the block's position inside its parent container
+			 */
+			public OperationBlock(CellConstraints cc) {
+				super();
+				initComponents(cc);
+			}
+			
+			/**
+			 * Initializes and configures this block's components.
+			 * @param cc the block's position inside its parent container
+			 */
+			private void initComponents(final CellConstraints cc) {
+	
+				this.setLayout(new FormLayout("11px, 35px, p:g, p, p:g", "f:p, 3dlu, f:p, 3dlu, f:p"));
+				
+				ValueBlock leftTerm = new ValueBlock(CC.xyw(2, 1, 4));
+				
+				JComboBox operatorCbx = new JComboBox(CypherOperatorType.values());
+				
+				ValueBlock rightTerm = new ValueBlock(CC.xyw(2, 5, 4));
+	
+				BracketButton bracketBtn = new BracketButton(true);
+				
+				bracketBtn.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						Container parent = getParent();
+						if (parent instanceof WherePanel) {
+							removeBlock();
+						} else {
+							parent.remove(block);
+							parent.add(new ValueBlock(cc), cc);
+							((JComponent) parent).revalidate();
+						}
+					}
+				});
+				
+				this.add(bracketBtn, CC.xywh(1, 1, 1, 5));
+				this.add(leftTerm, CC.xyw(2, 1, 4));
+				this.add(operatorCbx, CC.xy(4, 3));
+				this.add(rightTerm, CC.xyw(2, 5, 4));
+			}
+			
+		}
+
+		/**
+		 * Button implementation to display an enclosing bracket for conditional
+		 * blocks.
+		 * 
+		 * @author A. Behne
+		 */
+		private class BracketButton extends JButton {
+			
+			private boolean rounded;
+			
+			/**
+			 * The shadow color used in painting this component.
+			 */
+			private Color shadow = UIManager.getColor("controlDkShadow").darker();
+			
+			/**
+			 * The highlight color used in painting this component.
+			 */
+			private Color highlight = UIManager.getColor("controlHighlight");
+			
+			/**
+			 * Constructs a button looking like a bracket enclosing a conditional block.
+			 */
+			public BracketButton() {
+				this(false);
+			}
+			
+			/**
+			 * Constructs a button looking like a bracket enclosing a conditional block.
+			 * @param rounded <code>true</code> if the bracket's corner shall be rounded, 
+			 * <code>false</code> otherwise
+			 */
+			public BracketButton(boolean rounded) {
+				super(IconConstants.createEmptyIcon(9, 10));
+				
+				this.rounded = rounded;
+				
+				// initialize icons
+				this.setRolloverEnabled(true);
+				this.setRolloverIcon(IconConstants.CROSS_SMALL_ROLLOVER_ICON);
+				this.setPressedIcon(IconConstants.CROSS_SMALL_PRESSED_ICON);
+				// configure visuals
+				this.setBorder(null);
+				this.setContentAreaFilled(false);
+				this.setFocusPainted(false);
+				this.setMargin(new Insets(0, 0, 0, 0));
+				this.setHorizontalAlignment(SwingConstants.LEFT);
+			}
+			
+			@Override
+			public void paint(Graphics g) {
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setRenderingHint(
+				        RenderingHints.KEY_ANTIALIASING,
+				        RenderingHints.VALUE_ANTIALIAS_ON);
+				// draw highlights
+				g2d.setColor(highlight);
+				if (rounded) {
+					g2d.drawArc(5, 1, 7, 7, 90, 90);
+					g2d.drawLine(5, 5, 5, getHeight() - 5);
+					g2d.drawArc(4, getHeight() - 9, 8, 8, 180, 90);
+				} else {
+					g2d.drawLine(5, 1, 8, 1);
+					g2d.drawLine(5, 1, 5, getHeight() - 1);
+					g2d.drawLine(4, getHeight() - 1, 8, getHeight() - 1);
+				}
+				// draw shadows
+				g2d.setColor(shadow);
+				if (rounded) {
+					g2d.drawArc(4, 0, 7, 7, 90, 90);
+					g2d.drawLine(4, 4, 4, getHeight() - 6);
+					g2d.drawArc(4, getHeight() - 9, 7, 7, 180, 90);
+				} else {
+					g2d.drawLine(4, 0, 7, 0);
+					g2d.drawLine(4, 1, 4, getHeight() - 2);
+					g2d.drawLine(4, getHeight() - 2, 7, getHeight() - 2);
+				}
+				
+				super.paint(g2d);
+			}
+		}
+		}
 	
 	/**
 	 * Panel implementation for dynamic editing of Cypher query RETURN blocks.
 	 * 
 	 * @author A. Behne
 	 */
-	private class ReturnPanel extends CompoundQueryPanel {
+	protected class ReturnPanel extends CompoundQueryPanel {
 		
 		/**
-		 * TODO: API
-		 * @param label
-		 * @param items
+		 * The vector of available node identifiers.
+		 */
+		private Vector<String> identifiers;
+		
+		/**
+		 * The list of identifier combo boxes.
+		 */
+		private List<JComboBox> idCbxs;
+		
+		/**
+		 * The item listener instance shared among the identifier combo boxes.
+		 */
+		private ItemListener listener;
+		
+		/**
+		 * Constructs a panel containing controls for dynamic editing of Cypher
+		 * query RETURN blocks.
+		 * @param items the initial array of items to display in the primary combo box
 		 */
 		public ReturnPanel(Object[] items) {
 			super("Return", items);
+			
+			listener = new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent evt) {
+					if (evt.getStateChange() == ItemEvent.SELECTED) {
+						updateQuery();
+					}
+				}
+			};
+			
+			JComboBox varCbx = (JComboBox) this.getComponent(1);
+			varCbx.addItemListener(listener);
+			
+			idCbxs = new ArrayList<JComboBox>();
+			idCbxs.add(varCbx);
 		}
 
 		@Override
@@ -1187,9 +1641,11 @@ public class GraphQueryDialog extends JDialog {
 			layout.appendRow(RowSpec.decode("f:21px"));
 			layout.appendRow(RowSpec.decode("3dlu"));
 			
-			VariableComboBoxPanel varPnl = new VariableComboBoxPanel(new Object[] { "" });
+			JComboBox varCbx = new JComboBox(identifiers);
+			varCbx.addItemListener(listener);
+			idCbxs.add(varCbx);
 			
-			this.add(varPnl, CC.xyw(2, row, 2));
+			this.add(varCbx, CC.xyw(2, row, 2));
 			this.add(blockBtn, CC.xy(4, row));
 			
 			if (this.getComponentCount() >= 3) {
@@ -1200,6 +1656,8 @@ public class GraphQueryDialog extends JDialog {
 			this.revalidate();
 			
 			this.scrollToBottom();
+			
+			updateQuery();
 		}
 
 		@Override
@@ -1210,25 +1668,311 @@ public class GraphQueryDialog extends JDialog {
 
 			int row = layout.getRowCount();
 			int comps = this.getComponentCount();
-
-			for (int i = 1; i < 3; i++) {
-				this.remove(comps - i);
-			}
-			for (int i = 0; i < 2; i++) {
-				layout.removeRow(row - i);
-			}
 			
+			// remove combo box from cache
+			idCbxs.remove(this.getComponent(comps - 2));
+
+			// remove block button from container
+			this.remove(--comps);
+			// remove combo box from container
+			this.remove(--comps);
+			
+			// remove layout rows
+			layout.removeRow(row);
+			layout.removeRow(row - 1);
+			
+			// re-add block button to container
 			this.add(blockBtn, CC.xy(4, row - 3));
 			
-			if (this.getComponentCount() < 3) {
+			// disable remove option when minimum number of components was reached
+			if (this.getComponentCount() < 4) {
 				removeItem.setEnabled(false);
 			}
 			
 			// revalidate panel as layout has been modified
 			this.revalidate();
 			this.repaint();
+			
+			updateQuery();
 		}
 		
+		/**
+		 * Sets the stored identifiers to the specified vector.
+		 * @param identifiers the identifiers to set
+		 */
+		public void setIdentifiers(Vector<String> identifiers) {
+			this.identifiers = identifiers;
+			for (JComboBox idCbx : idCbxs) {
+				int index = idCbx.getSelectedIndex();
+				idCbx.setModel(new DefaultComboBoxModel(identifiers));
+				if (identifiers.size() > index) {
+					idCbx.setSelectedIndex(index);
+				}
+			}
+		}
+		
+		/**
+		 * Sets the stored indices to the specified list.
+		 * @param indices the indices to set
+		 */
+		public void setReturnIndices(List<Integer> indices) {
+			// add/remove blocks depending on number of existing blocks vs.
+			// number of start nodes
+			int blocksSize = idCbxs.size();
+			int indicesSize = indices.size();
+			if (indicesSize > blocksSize) {
+				// append more blocks
+				for (int i = blocksSize; i < indicesSize; i++) {
+					appendBlock();
+				}
+			} else if (indicesSize < blocksSize) {
+				// remove some blocks
+				for (int i = indicesSize; i < blocksSize; i++) {
+					removeBlock();
+				}
+			}
+			// set selected items and variable names
+			for (int i = 0; i < indicesSize; i++) {
+				idCbxs.get(i).setSelectedIndex(indices.get(i));
+			}
+		}
+		
+		/**
+		 * Returns the identifier indices
+		 * @return the indices
+		 */
+		public List<Integer> getReturnIndices() {
+			List<Integer> indices = new ArrayList<Integer>();
+			for (JComboBox idCbx : idCbxs) {
+				indices.add(idCbx.getSelectedIndex());
+			}
+			return indices;
+		}
+		
+	}
+	
+	/**
+		 * Wrapper panel containing a combo box and a button which prompts to enter
+		 * a variable name.
+		 * 
+		 * @author A. Behne
+		 */
+		private class VariableComboBoxPanel extends JPanel {
+	
+			/**
+			 * The button for toggling the popup's visibility.
+			 */
+			private JToggleButton varBtn;
+			
+			/**
+			 * The parameter combo box.
+			 */
+			private JComboBox varCbx;
+	
+			/**
+			 * The variable name text field.
+			 */
+			private JTextField varTtf;
+	
+			/**
+			 * Constructs a wrapper panel containing a combo box bearing the
+			 * specified items and a button prompting to enter a variable name.
+			 * @param items the items to be displayed inside the combo box
+			 */
+			public VariableComboBoxPanel(Object[] items, String var) {
+				this(items, var, false);
+			}
+	
+			/**
+			 * Constructs a wrapper panel containing a combo box bearing the
+			 * specified items and a button prompting to enter a variable name and
+			 * optionally applies a rounded corner border to both components
+			 * @param items the items to be displayed inside the combo box
+			 * @param rounded <code>true</code> if rounded corners shall be used,
+			 *  <code>false</code> otherwise
+			 */
+			public VariableComboBoxPanel(Object[] items, String var, boolean rounded) {
+				super(new FormLayout("21px, p:g", "f:21px"));
+				initComponents(items, var, rounded);
+			}
+	
+			/**
+			 * Creates and initializes the panel components.
+			 * @param items the items to be displayed inside the combo box
+			 * @param rounded <code>true</code> if rounded corners shall be used,
+			 *  <code>false</code> otherwise
+			 */
+			private void initComponents(Object[] items, String var, boolean rounded) {
+				varBtn = new JToggleButton(IconConstants.TEXTFIELD_ICON);
+				varBtn.setRolloverIcon(IconConstants.TEXTFIELD_ROLLOVER_ICON);
+				varBtn.setPressedIcon(IconConstants.TEXTFIELD_PRESSED_ICON);
+				
+				final JPopupMenu varPop = new JPopupMenu("test");
+				
+				varTtf = new JTextField(var);
+				varTtf.setMargin(new Insets(0, 1, 0, 0));
+				varTtf.setBorder(null);
+				
+				varTtf.getDocument().addDocumentListener(new DocumentListener() {
+					@Override
+					public void removeUpdate(DocumentEvent e) {
+						updateQuery();
+					}
+					@Override
+					public void insertUpdate(DocumentEvent e) {
+						updateQuery();
+					}
+					@Override
+					public void changedUpdate(DocumentEvent e) {
+	//					updateQuery();
+					}
+				});
+				
+				varPop.add(varTtf);
+				
+				varBtn.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						if (varBtn.isSelected()) {
+							// synchronize popup size with panel size
+							varPop.setPreferredSize(getSize());
+							// show popup and transfer focus to text field inside
+							varPop.show(varBtn, 0, varBtn.getHeight());
+							varTtf.requestFocus();
+						} else {
+							varPop.setVisible(false);
+						}
+					}
+				});
+				
+				varPop.addPopupMenuListener(new PopupMenuListener() {
+					public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
+						if (varBtn.isSelected()) {
+							varBtn.getModel().setSelected(false);
+						}
+					}
+					public void popupMenuWillBecomeVisible(PopupMenuEvent evt) { }
+					public void popupMenuCanceled(PopupMenuEvent evt) { }
+				});
+				
+				if (rounded) {
+					varBtn.setBorder(roundedBtnBorder);
+					varBtn.setMargin(new Insets(2, 4, 1, 4));
+					
+					Border oldBorder = UIManager.getBorder("ComboBox.arrowButtonBorder");
+					UIManager.put("ComboBox.arrowButtonBorder", roundedCbxBorder);
+					varCbx = new JComboBox(items);
+					UIManager.put("ComboBox.arrowButtonBorder", oldBorder);
+				} else {
+					varBtn.setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createEmptyBorder(0, 0, 0, -2),
+							varBtn.getBorder()));
+					
+					varCbx = new JComboBox(items);
+					
+					varCbx.addItemListener(new ItemListener() {
+						public void itemStateChanged(ItemEvent evt) {
+							varTtf.setText(evt.getItem().toString().toLowerCase());
+							updateQuery();
+						}
+					});
+				}
+				
+				// prevent button clicks dismissing popups
+		        varBtn.putClientProperty("doNotCancelPopup",
+		        		varCbx.getClientProperty("doNotCancelPopup"));
+				
+				this.add(varBtn, CC.xy(1, 1));
+				this.add(varCbx, CC.xy(2, 1));
+			}
+			
+			@Override
+			public void setBackground(Color bg) {
+				super.setBackground(bg);
+				if (varBtn != null) {
+					varBtn.setBackground(bg);
+				}
+				if (varCbx != null) {
+					varCbx.setBackground(bg);
+				}
+			}
+			
+			/**
+			 * Adds an item listener to this panel's combo box.
+			 * @param listener the listener to add
+			 */
+			public void addItemListener(ItemListener listener) {
+				varCbx.addItemListener(listener);
+			}
+			
+			/**
+			 * Adds a document listener to this panel's variable text field.
+			 * @param listener the listener to add
+			 */
+			public void addDocumentListener(DocumentListener listener) {
+				varTtf.getDocument().addDocumentListener(listener);
+			}
+			
+			/**
+			 * Returns the variable name.
+			 * @return the variable name
+			 */
+			public String getVariableName() {
+				return varTtf.getText();
+			}
+			
+			/**
+			 * Sets the variable name.
+			 * @param var the variable name to set
+			 */
+			public void setVariableName(String var) {
+				varTtf.setText(var);
+			}
+			
+	//		/**
+	//		 * Sets the combo box' items.
+	//		 * @param items the items to set
+	//		 */
+	//		public void setItems(Object[] items) {
+	//			varCbx.setModel(new DefaultComboBoxModel(items));
+	//		}
+			
+			/**
+			 * Returns the combo box' selected item.
+			 * @return the selected item
+			 */
+			public Object getSelectedItem() {
+				return varCbx.getSelectedItem();
+			}
+			
+			/**
+			 * Sets the combo box' selected item.
+			 * @param item the item to select
+			 */
+			public void setSelectedItem(Object item) {
+				varCbx.setSelectedItem(item);
+			}
+			
+		}
+
+	/**
+	 * Convenience method to gather all blocks of the compound Cypher query from
+	 * their respective components.
+	 */
+	private void updateQuery() {
+		if (!init) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					query.setStartNodes(startPnl.getStartNodes());
+					query.setMatches(matchPnl.getMatches());
+					// TODO: query.setConditions(wherePnl.getConditions());
+					query.setReturnIndices(returnPnl.getReturnIndices());
+
+					consoleTxt.setText(query.toString());
+				}
+			});
+		}
 	}
 	
 	/**
@@ -1246,22 +1990,12 @@ public class GraphQueryDialog extends JDialog {
 		@Override
 		protected Object doInBackground() {
 			try {
-				// Begin appearing busy
-				//TODO: setBusy(true);
-				
-				// Get Cypher query
-				CypherQueryType queryType = (CypherQueryType) predefinedList.getSelectedValue();
-				CypherQuery query = queryType.getQuery();
-				
 				// Execute query, store result
 				GraphDatabaseHandler handler = Client.getInstance().getGraphDatabaseHandler();
 				result = handler.executeCypherQuery(query);
-				
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				//Client.getInstance().firePropertyChange("new message", null, "FAILED");
-				//Client.getInstance().firePropertyChange("indeterminate", true, false);
 			}
 			return 0;
 		}		

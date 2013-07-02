@@ -1,5 +1,6 @@
 package de.mpa.taxonomy;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * 
  * @author R. Heyer and A. Behne
  */
-public class TaxonomyNode {
+public class TaxonomyNode implements Serializable {
 
 	/**
 	 * The taxonomy ID.

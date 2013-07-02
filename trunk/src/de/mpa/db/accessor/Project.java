@@ -87,4 +87,18 @@ public class Project extends ProjectTableAccessor {
 		ps.close();
 		return temp;
 	}
+	
+	@Override
+	public int persist(Connection aConn) throws SQLException {
+		int persist = super.persist(aConn);
+		aConn.commit();
+		return persist;
+	}
+	
+	@Override
+	public int update(Connection aConn) throws SQLException {
+		int update = super.update(aConn);
+		aConn.commit();
+		return update;
+	}
 }

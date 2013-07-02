@@ -374,10 +374,13 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 		} else {
 			lStat.setLong(3, iFk_experimentid);
 		}
+		
 		int result = lStat.executeUpdate();
-
+		
 		// Retrieving the generated keys (if any).
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
+		
+		
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
 		iKeys = new Object[colCount];
@@ -395,7 +398,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 			// generated column, and we can therefore initialize it here.
 			iSearchspectrumid = ((Number) iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+		this.iUpdated = false;		
 		return result;
 	}
 

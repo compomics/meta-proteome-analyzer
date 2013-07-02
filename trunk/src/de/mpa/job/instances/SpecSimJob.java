@@ -41,14 +41,16 @@ public class SpecSimJob extends Job {
 		// store list of results in HashMap (with spectrum title as key)
 		ssmList = new ArrayList<SpectrumSpectrumMatch>();
 		
-		List<Interval> intervals = buildMzIntervals();
+//		List<Interval> intervals = buildMzIntervals();
 
 		try {
 			// extract list of candidates
 			DBManager manager = DBManager.getInstance();
 			SpectrumExtractor specEx = new SpectrumExtractor(manager.getConnection());
+//			List<SpectralSearchCandidate> candidates = 
+//					specEx.getCandidatesFromExperiment(intervals, settings.getExperimentID());
 			List<SpectralSearchCandidate> candidates = 
-				specEx.getCandidatesFromExperiment(intervals, settings.getExperimentID());
+					specEx.getCandidatesFromExperiment(settings.getExperimentID());
 			
 			// iterate query spectra to determine similarity scores
 			for (MascotGenericFile mgfQuery : mgfList) {
@@ -63,7 +65,7 @@ public class SpecSimJob extends Job {
 				
 				// iterate candidates
 				for (SpectralSearchCandidate candidate : candidates) {
-					// re-check precursor tolerance criterion to determine proper candidates
+					// (re-)check precursor tolerance criterion to determine proper candidates
 					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < settings.getTolMz()) {
 						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
 						// Score query and library spectra
