@@ -9,16 +9,25 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * Auxiliary class for 64-bit related methods.
  * 
- * @author Alex Behne
+ * @author A. Behne
  */
 public class SixtyFourBitStringSupport {
+	
+	/**
+	 * Builds a peak HashMap from 64-bit-encoded m/z and intensity arrays.
+	 * @param mzArray the encoded array of m/z values
+	 * @param inArray the encoded array of intensity values
+	 * @return a peak map
+	 */
+	public static HashMap<Double, Double> buildPeakMap(String mzArray, String inArray) {
+		return buildPeakMap(decodeBase64StringToDoubles(mzArray), decodeBase64StringToDoubles(inArray));
+	}
 
 	/**
-	 * Method to build a peak HashMap from double arrays representing m/z and intensity pairs.
-	 * 
-	 * @param mzArray The array of m/z values.
-	 * @param inArray The array of intensity values.
-	 * @return
+	 * Builds a peak HashMap from double arrays representing m/z and intensity pairs.
+	 * @param mzArray the array of m/z values
+	 * @param inArray the array of intensity values
+	 * @return a peak map
 	 */
 	public static HashMap<Double, Double> buildPeakMap(double[] mzArray, double[] inArray) {
 		HashMap<Double, Double> peaks = new HashMap<Double, Double>(mzArray.length);
@@ -29,11 +38,10 @@ public class SixtyFourBitStringSupport {
 	}
 	
 	/**
-	 * Method to build a peak HashMap from double and int arrays representing m/z and charge pairs.
-	 * 
-	 * @param mzArray The array of m/z values.
-	 * @param chArray The array of charge values.
-	 * @return
+	 * Builds a peak HashMap from double and int arrays representing m/z and charge pairs.
+	 * @param mzArray the array of m/z values
+	 * @param chArray the array of charge values
+	 * @return a charge map
 	 */
 	public static HashMap<Double, Integer> buildChargeMap(double[] mzArray, int[] chArray) {
 		HashMap<Double, Integer> peaks = new HashMap<Double, Integer>(mzArray.length);
@@ -46,22 +54,20 @@ public class SixtyFourBitStringSupport {
 	}
 
 	/**
-	 * Method to decode a 64-bit String into an array of doubles.<br>
+	 * Decodes a 64-bit String into an array of doubles.<br>
 	 * Will use default byte order (big endian).
-	 * 
-	 * @param encodedString The encoded String.
-	 * @return
+	 * @param encodedString the encoded String
+	 * @return a double array
 	 */
 	public static double[] decodeBase64StringToDoubles(String encodedString) {
 		return decodeBase64StringToDoubles(encodedString, ByteOrder.BIG_ENDIAN);
 	}
 	
 	/**
-	 * Method to decode a 64-bit String into an array of doubles using a specified byte order.
-	 * 
-	 * @param encodedString The encoded string.
-	 * @param byteOrder The byte order.
-	 * @return double[]
+	 * Decodes a 64-bit String into an array of doubles using a specified byte order.
+	 * @param encodedString the encoded String
+	 * @param byteOrder the byte order
+	 * @return a double array
 	 */
 	public static double[] decodeBase64StringToDoubles(String encodedString, ByteOrder byteOrder) {
 		byte[] byteArray = Base64.decodeBase64(encodedString);
@@ -77,22 +83,20 @@ public class SixtyFourBitStringSupport {
 	}
 
 	/**
-	 * Method to decode a 64-bit String into an array of doubles.<br>
+	 * Decodes a 64-bit String into an array of integers.<br>
 	 * Will use default byte order (big endian).
-	 * 
-	 * @param encodedString The encoded String.
-	 * @return
+	 * @param encodedString the encoded String
+	 * @return an int array
 	 */
 	public static int[] decodeBase64StringToInts(String encodedString) {
 		return decodeBase64StringToInts(encodedString, ByteOrder.BIG_ENDIAN);
 	}
 	
 	/**
-	 * Method to decode a 64-bit String into an array of doubles using a specified byte order.
-	 * 
-	 * @param encodedString The encoded string.
-	 * @param byteOrder The byte order.
-	 * @return double[]
+	 * Decodes a 64-bit String into an array of integers using a specified byte order.
+	 * @param encodedString the encoded String
+	 * @param byteOrder the byte order
+	 * @return an int array
 	 */
 	public static int[] decodeBase64StringToInts(String encodedString, ByteOrder byteOrder) {
 		byte[] byteArray = Base64.decodeBase64(encodedString);
@@ -107,6 +111,11 @@ public class SixtyFourBitStringSupport {
 		return res;
 	}
 	
+	/**
+	 * Encodes an array of double values to a 64-bit String.
+	 * @param doubles the values to encode
+	 * @return a 64-bit String representation of the values
+	 */
 	public static String encodeDoublesToBase64String(Double[] doubles) {
 		byte[] bytes = new byte[doubles.length*8];
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
@@ -116,6 +125,11 @@ public class SixtyFourBitStringSupport {
 		return Base64.encodeBase64String(bytes);
 	}
 	
+	/**
+	 * Encodes an array of integer values to a 64-bit String.
+	 * @param ints the values to encode
+	 * @return a 64-bit String representation of the values
+	 */
 	public static String encodeIntsToBase64String(Integer[] ints) {
 		byte[] bytes = new byte[ints.length*4];
 		ByteBuffer bb = ByteBuffer.wrap(bytes);

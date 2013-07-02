@@ -165,8 +165,8 @@ public class ProjectPanel extends JPanel {
 	private void initComponents() {
 		
 		// Layout for the project panel
-		this.setLayout(new FormLayout("5dlu, p:g, 10dlu, p:g, 5dlu",
-				"5dlu, t:p, 10dlu, p, 10dlu, f:p:g, 5dlu"));
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu",
+				"5dlu, t:p, 5dlu, f:p:g, 5dlu, b:p, 5dlu"));
 				
 		Border ttlBorder = PanelConfig.getTitleBorder();
 		Painter ttlPainter = PanelConfig.getTitlePainter();
@@ -205,7 +205,7 @@ public class ProjectPanel extends JPanel {
 		// Setup the project management buttons.
 		JPanel projectBtnPnl = setupProjectButtonPanel();
 		
-		JPanel projectPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu, p, 5dlu"));
+		JPanel projectPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
 		projectPnl.add(projectTblScp, CC.xy(2, 2));
 		projectPnl.add(projectBtnPnl, CC.xy(2, 4));
 		
@@ -221,7 +221,7 @@ public class ProjectPanel extends JPanel {
 		// Setup the experiment management buttons.
 		JPanel experimentBtnPnl = setupExperimentButtonPanel();
 		
-		JPanel experimentPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p, 5dlu, p, 5dlu"));
+		JPanel experimentPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
 		experimentPnl.add(experimentTblScp, CC.xy(2, 2));
 		experimentPnl.add(experimentBtnPnl, CC.xy(2, 4));
 		
@@ -757,7 +757,7 @@ public class ProjectPanel extends JPanel {
 
 			projectManager.revalidate(Client.getInstance().getConnection());
 			
-			Experiment experiment = projectManager.getProjectExperiment(projectid, experimentid);
+			Experiment experiment = projectManager.getExperiment(experimentid);
 			List<ExpProperty> expProperties = projectManager.getExperimentProperties(experiment.getExperimentid());
 			expCont = new ExperimentContent(projectid, experiment.getExperimentid(), expProperties);
 			expCont.setExperimentTitle(experiment.getTitle());
