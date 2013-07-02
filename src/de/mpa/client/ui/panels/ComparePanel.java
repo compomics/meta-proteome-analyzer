@@ -379,7 +379,9 @@ public class ComparePanel extends JPanel{
 		parameterPnl.add(groupingLbl, 	CC.xy(2, 6));
 		parameterPnl.add(groupingCbx, 	CC.xy(4, 6));
 		settingsPnl.add(parameterPnl,	CC.xy(2, 2));
-		JButton createTableBtn = new JButton(" Create Table ", new ImageIcon(getClass().getResource("/de/mpa/resources/icons/scull16.png")));
+		JButton createTableBtn = new JButton(" Create Table ", IconConstants.BUG_ICON);
+		createTableBtn.setRolloverIcon(IconConstants.BUG_ROLLOVER_ICON);
+		createTableBtn.setPressedIcon(IconConstants.BUG_PRESSED_ICON);
 		final Font boldFont = new JLabel().getFont().deriveFont(Font.BOLD);
 		createTableBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -204,8 +204,9 @@ public class SpectrumStorager extends BasicStorager {
             title2SearchIdMap.put(query.getTitle(), searchspectrumid);
             fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
             
-            conn.commit();
+            conn.commit();			
         }
+        
         MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
         MapContainer.FileName2IdMap = fileName2IdMap;
         

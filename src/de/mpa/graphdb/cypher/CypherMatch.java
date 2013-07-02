@@ -12,9 +12,9 @@ import de.mpa.graphdb.edges.RelationType;
 public class CypherMatch {
 
 	/**
-	 * The targeted variable.
+	 * The node identifier.
 	 */
-	private String targetVar;
+	private String nodeId;
 	
 	/**
 	 * The relation type.
@@ -22,9 +22,9 @@ public class CypherMatch {
 	private RelationType relation;
 	
 	/**
-	 * Variable specifying the relation.
+	 * The relation identifier.
 	 */
-	private String relationVar;
+	private String relationId;
 	
 	/**
 	 * The direction of the relation.
@@ -33,33 +33,36 @@ public class CypherMatch {
 
 	/**
 	 * Constructs a Cypher match from the specified target node, relation and direction parameters.
-	 * @param targetVar the targeted variable
+	 * @param nodeId the node identifier
 	 * @param relation the relation type
+	 * @param relationId the relation identifier
 	 * @param direction the relation direction
 	 */
-	public CypherMatch(String targetVar, RelationType relation, String relationVar, DirectionType direction) {
-		this.targetVar = targetVar;
-		this.relationVar = (relationVar == null) ? "" : relationVar;
+	public CypherMatch(String nodeId, RelationType relation, String relationId, DirectionType direction) {
+		this.nodeId = nodeId;
+		this.relationId = (relationId == null) ? "" : relationId;
 		this.relation = relation;
 		this.direction = direction;
 	}
 
 	/**
-	 * Returns the targeted variable name.
-	 * @return the targeted variable name
+	 * Returns the node identifier.
+	 * @return the node identifier
 	 */
-	public String getTargetVariableName() {
-		return targetVar;
+	public String getNodeIdentifier() {
+		return nodeId;
 	}
 
 	/**
-	 * @return the relationVar
+	 * Returns the relation identifier.
+	 * @return the relation identifier
 	 */
-	public String getRelationVariableName() {
-		return relationVar;
+	public String getRelationIdentifier() {
+		return relationId;
 	}
 
 	/**
+	 * Returns the relation.
 	 * @return the relation
 	 */
 	public RelationType getRelation() {
@@ -67,6 +70,7 @@ public class CypherMatch {
 	}
 
 	/**
+	 * Returns the direction.
 	 * @return the direction
 	 */
 	public DirectionType getDirection() {
@@ -75,9 +79,9 @@ public class CypherMatch {
 
 	@Override
 	public String toString() {
-		String match = "(" + getTargetVariableName() + ")";
+		String match = "(" + getNodeIdentifier() + ")";
 		if (relation != null) {
-			match += direction.getLeft() + "[" + relationVar + ":" + relation + "]" + direction.getRight();
+			match += direction.getLeft() + "[" + relationId + ":" + relation + "]" + direction.getRight();
 		} else {
 			if (direction != null) {
 				match += direction.getLeft() + direction.getRight();

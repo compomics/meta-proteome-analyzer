@@ -116,79 +116,82 @@ public class OmssaStorager extends BasicStorager {
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
     	    	String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
     	    	
-    	    	spectrumTitle = spectrumTitle.replace("\\\\", "\\");
-    	    	spectrumTitle = spectrumTitle.replace("\\\"", "\"");
-    	    	
-      	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
-    	    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
-    	    	
-    	    	// Get the MSPepHit (for the accession)
-    	    	List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
-                Iterator<MSPepHit> pepHitIterator = pepHits.iterator();                
-                MSPepHit pepHit = pepHitIterator.next();               
-    	    	
-    	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
-    	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
-    	    	hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
-    	    	hitdata.put(OmssahitTableAccessor.CHARGE, Long.valueOf(msHit.MSHits_charge));
-    	    	hitdata.put(OmssahitTableAccessor.MASS, msHit.MSHits_mass);
-    	    	hitdata.put(OmssahitTableAccessor.THEOMASS, msHit.MSHits_theomass);    	    	
-    	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
-    	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
-    	    	
-    	    	qvalues = scoreQValueMap.get(Formatter.roundBigDecimalDouble(msHit.MSHits_evalue, 5));    	       
-    	        
-    	    	// If no q-value is found: Assign default values.
-                if(qvalues == null){
-                	hitdata.put(OmssahitTableAccessor.PEP, 1.0);
-                    hitdata.put(OmssahitTableAccessor.QVALUE, 1.0);                	
-                } else {
-                	hitdata.put(OmssahitTableAccessor.PEP, qvalues.get(0));
-                    hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
-                }
-                
-                // Create the database object.
-                if((Double)hitdata.get(OmssahitTableAccessor.QVALUE) < 0.1){
-                	
-                	// Get the peptide id
-                    long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
-                    hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
-                    
-                	 // Parse the FASTA header
-                    Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
-                    String accession = header.getAccession();
-                    
-                    Long proteinID;
-                    // The Protein DAO
-                    ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
-                    if (proteinDAO == null) {	// Protein not yet in database
-    						// Add new protein to the database
-                    	 	Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
-                    	 	String description = protein.getHeader().getDescription();
-    						proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
-    					} else {
-    						proteinID = proteinDAO.getProteinid();
-    						// check whether pep2prot link already exists, otherwise create new one
-    						Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-    						if (pep2prot == null) {	// link doesn't exist yet
-    							// Link peptide to protein.
-    							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-    						}
-    				}
-                    hitdata.put(OmssahitTableAccessor.FK_PROTEINID, proteinDAO.getProteinid());
-                    
-                	// Create the database object.
-        	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
-        	    	omssahit.persist(conn);		
+    	    	if(spectrumTitle.contains("\\\\")){
+    	    		spectrumTitle = spectrumTitle.replace("\\\\", "\\");
+    	    	} 
+    	    	if(spectrumTitle.contains("\\\"")){
+    	    		spectrumTitle = spectrumTitle.replace("\\\"", "\"");
+    	    	} 
+    	    	if(MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
+          	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+        	    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
         	    	
-        	    	// Get the omssahitid
-                    Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
-                    hitNumberMap.put(msHitSet.MSHitSet_number + "_" + hitnumber, omssahitid);
-                    hitnumber++;
-                    conn.commit();
-                }
-			}    
-    	   
+        	    	// Get the MSPepHit (for the accession)
+        	    	List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
+                    Iterator<MSPepHit> pepHitIterator = pepHits.iterator();                
+                    MSPepHit pepHit = pepHitIterator.next();               
+        	    	
+        	    	hitdata.put(OmssahitTableAccessor.HITSETNUMBER, Long.valueOf(msHitSet.MSHitSet_number));
+        	    	hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
+        	    	hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
+        	    	hitdata.put(OmssahitTableAccessor.CHARGE, Long.valueOf(msHit.MSHits_charge));
+        	    	hitdata.put(OmssahitTableAccessor.MASS, msHit.MSHits_mass);
+        	    	hitdata.put(OmssahitTableAccessor.THEOMASS, msHit.MSHits_theomass);    	    	
+        	    	hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
+        	    	hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
+        	    	qvalues = scoreQValueMap.get(Formatter.roundBigDecimalDouble(msHit.MSHits_evalue, 5));    	       
+        	        
+        	    	// If no q-value is found: Assign default values.
+                    if(qvalues == null){
+                    	hitdata.put(OmssahitTableAccessor.PEP, 1.0);
+                        hitdata.put(OmssahitTableAccessor.QVALUE, 1.0);                	
+                    } else {
+                    	hitdata.put(OmssahitTableAccessor.PEP, qvalues.get(0));
+                        hitdata.put(OmssahitTableAccessor.QVALUE, qvalues.get(1));
+                    }
+                    
+                    // Create the database object.
+                    if((Double)hitdata.get(OmssahitTableAccessor.QVALUE) < 0.1){
+                    	
+                    	// Get the peptide id
+                        long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
+                        hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID, peptideID);                
+                        
+                    	 // Parse the FASTA header
+                        Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
+                        String accession = header.getAccession();
+                        
+                        Long proteinID;
+                        // The Protein DAO
+                        ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
+                        if (proteinDAO == null) {	// Protein not yet in database
+        						// Add new protein to the database
+                        	 	Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+                        	 	String description = protein.getHeader().getDescription();
+        						proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+        					} else {
+        						proteinID = proteinDAO.getProteinid();
+        						// check whether pep2prot link already exists, otherwise create new one
+        						Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+        						if (pep2prot == null) {	// link doesn't exist yet
+        							// Link peptide to protein.
+        							pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+        						}
+        				}
+                        hitdata.put(OmssahitTableAccessor.FK_PROTEINID, proteinDAO.getProteinid());
+                        
+                    	// Create the database object.
+            	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
+            	    	omssahit.persist(conn);		
+            	    	
+            	    	// Get the omssahitid
+                        Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
+                        hitNumberMap.put(msHitSet.MSHitSet_number + "_" + hitnumber, omssahitid);
+                        hitnumber++;
+                        conn.commit();
+                    }
+    	    	}
+    	    }
         }
     }
     

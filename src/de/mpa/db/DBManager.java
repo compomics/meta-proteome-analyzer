@@ -66,6 +66,7 @@ public class DBManager {
 		// The database configuration.
 		DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.LOCAL, new DbConnectionSettings());
 		conn = dbconfig.getConnection();
+		System.out.println("auto-commit: " + conn.getAutoCommit());
     }
 	
 	/**

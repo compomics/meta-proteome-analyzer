@@ -8,10 +8,10 @@ package de.mpa.graphdb.cypher;
  */
 public enum CypherQueryType {
 	
-	PROTEINS_BY_ENZYMES("Get all Proteins grouped by Enzymes") {
+	PEPTIDES_BY_PROTEINS("Get all Peptides grouped by Proteins") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getProteinsByEnzymes();
+			return CypherQueryFactory.getPeptidesByProteins();
 		}
 	},
 	PROTEINS_BY_PEPTIDES("Get all Proteins grouped by Peptides") {
@@ -20,18 +20,30 @@ public enum CypherQueryType {
 			return CypherQueryFactory.getProteinsByPeptides();
 		}
 	},
-	PEPTIDES_BY_PROTEINS("Get all Peptides grouped by Proteins") {
+	PROTEINS_BY_ENZYMES("Get all Proteins grouped by Enzymes") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getPeptidesByProteins();
+			return CypherQueryFactory.getProteinsByEnzymes();
 		}
-	}/*,
-	CUSTOM {
+	},
+	PROTEINS_ONLY_KERATIN("Get all Proteins, only Keratin") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getProteinsByDescriptionPattern("keratin");
+		}
+	},
+	PROTEINS_EXCEPT_KERATIN("Get all Proteins, exclude Keratin") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getProteinsByDescriptionPattern("keratin", true);
+		}
+	},
+	CUSTOM("Custom Query") {
 		@Override
 		public CypherQuery getQuery() {
 			return null;
 		}
-	}*/;
+	};
 	
 	/**
 	 * A descriptive string for the query type.

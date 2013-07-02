@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * 
  * @author Thilo Muth
  */
-public interface Storager extends Runnable{
+public interface Storager extends Runnable {
 
     /**
      * Loads the file containing relevant data.

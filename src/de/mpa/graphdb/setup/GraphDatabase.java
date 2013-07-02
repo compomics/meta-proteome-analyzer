@@ -36,8 +36,8 @@ public class GraphDatabase {
 	 */
 	public GraphDatabase(String dbPath, boolean cleanStart) {
 		// Clear the database.
-		if (cleanStart)
-			clearDatabase(dbPath);
+//		if (cleanStart)
+//			clearDatabase(dbPath);
 
 		// Start the database.
 		startDatabase(dbPath);
@@ -86,7 +86,11 @@ public class GraphDatabase {
 	 */
 	private void clearDatabase(String dbPath) {
 		try {
-			FileUtils.deleteRecursively(new File(dbPath));
+			File file = new File(dbPath);
+			if (file.exists()) {
+				FileUtils.deleteRecursively(new File(dbPath));
+			}
+			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
