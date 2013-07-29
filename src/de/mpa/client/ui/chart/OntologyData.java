@@ -205,7 +205,7 @@ public class OntologyData implements ChartData {
 		Set<Entry<String, ProteinHitList>> entrySet = map.entrySet();
 
 		int sumValues = 0;
-		for (Entry<String, ProteinHitList> entry : entrySet) {
+		for (Entry<String, ProteinHitList> entry : entrySet) {			
 			sumValues += getSizeByHierarchy(entry.getValue(), hierarchyLevel);
 		}
 		

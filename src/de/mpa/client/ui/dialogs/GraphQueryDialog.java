@@ -2003,7 +2003,7 @@ public class GraphQueryDialog extends JDialog {
 		/**
 		 * Continues when the results retrieval has finished.
 		 */
-		public void done() {
+		public void done() {			
 			parent.updateResults(result);
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			dispose();

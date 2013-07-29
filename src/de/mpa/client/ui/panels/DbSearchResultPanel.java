@@ -840,6 +840,7 @@ public class DbSearchResultPanel extends JPanel {
 					newResult = client.getDbSearchResult(
 							clientFrame.getProjectPanel().getCurrentProjectContent(), 
 							clientFrame.getProjectPanel().getCurrentExperimentContent());
+					client.setDbSearchResult(newResult);					
 				} else {
 					client.firePropertyChange("new message", null, "READING RESULTS FILE");
 					client.firePropertyChange("resetall", 0L, 100L);
@@ -849,6 +850,7 @@ public class DbSearchResultPanel extends JPanel {
 					newResult = (DbSearchResult) ois.readObject();
 					ois.close();
 					client.setDbSearchResult(newResult);
+					clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
 					client.firePropertyChange("indeterminate", true, false);
 				}

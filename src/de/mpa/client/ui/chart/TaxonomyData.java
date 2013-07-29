@@ -194,7 +194,9 @@ public class TaxonomyData implements ChartData {
 			// trim redundant elements from protein hit lists
 			for (ProteinHitList phl : occMap.values()) {
 				Set<ProteinHit> proteinSet = phl.getProteinSet();
+				
 				phl.clear();
+				// FIXME: NullPointer Exception thrown
 				phl.addAll(proteinSet);
 			}
 		}

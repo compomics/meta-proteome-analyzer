@@ -338,7 +338,12 @@ public class ResultsPanel extends JPanel {
 		Component tabComp = resTpn.getTabComponentAt(0);
 		tabComp.setPreferredSize(new Dimension(
 				tabComp.getPreferredSize().width, 40));
-
+		
+		// Disable spectral similarity for viewer.
+		if(Client.getInstance().isViewer()) {
+			resTpn.setEnabledAt(2,  false);			
+		}
+		
 		// create navigation button panel
 		final JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p",
 				"b:p:g"));

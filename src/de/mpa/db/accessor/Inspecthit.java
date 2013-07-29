@@ -88,6 +88,11 @@ public class Inspecthit extends InspecthitTableAccessor implements SearchHit {
 	}
 	
 	@Override
+	public double getScore() {		
+		return iF_score.doubleValue();
+	}
+	
+	@Override
 	public SearchEngineType getType() {
 		return SearchEngineType.INSPECT;
 	}

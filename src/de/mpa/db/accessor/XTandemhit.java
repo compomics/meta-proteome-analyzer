@@ -110,4 +110,9 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 		}
 		return false;
 	}
+	
+	@Override
+	public double getScore() {		
+		return iHyperscore.doubleValue();
+	}
 }

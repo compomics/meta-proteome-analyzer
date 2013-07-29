@@ -90,7 +90,7 @@ public class GraphDatabaseHandler {
 	public GraphDatabaseHandler(GraphDatabase graphDb) {
 		this.graphDb = graphDb;
 		indexGraph = new Neo4jGraph(graphDb.getService());
-		graph = new Neo4jGraph(graphDb.getService());
+		graph = new Neo4jGraph(graphDb.getService());		
 		setupIndices();
 		
 	}

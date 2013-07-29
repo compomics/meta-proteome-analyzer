@@ -95,6 +95,11 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	}
 	
 	@Override
+	public double getScore() {		
+		return iXcorr_score.doubleValue();
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SearchHit) {
 			SearchHit hit = ((SearchHit) obj);
@@ -108,4 +113,6 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 		}
 		return false;
 	}
+
+
 }
