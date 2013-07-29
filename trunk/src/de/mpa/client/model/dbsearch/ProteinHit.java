@@ -25,6 +25,8 @@ import de.mpa.taxonomy.TaxonomyNode;
  */
 public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonomic {
 	
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 *  Flag denoting whether this protein is selected for export.
 	 */

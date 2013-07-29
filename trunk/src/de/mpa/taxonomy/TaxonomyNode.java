@@ -154,16 +154,14 @@ public class TaxonomyNode implements Serializable {
 			path.add(parent);
 			parent = parent.getParentNode();
 		}
-		
 		Collections.reverse(path);
-		
 		return path.toArray(new TaxonomyNode[path.size()]);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof TaxonomyNode) {
-			TaxonomyNode that = (TaxonomyNode) obj;
+			TaxonomyNode that = (TaxonomyNode) obj;			
 			return (this.getId() == that.getId());
 		}
 		return false;

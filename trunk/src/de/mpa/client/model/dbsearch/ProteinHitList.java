@@ -1,5 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +14,12 @@ import de.mpa.client.model.SpectrumMatch;
  * 
  * @author A. Behne
  */
-public class ProteinHitList extends ArrayList<ProteinHit> {
+public class ProteinHitList extends ArrayList<ProteinHit> implements Serializable {
+	
+	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
 	
 	/**
 	 * The set of protein hits with distinct accessions.

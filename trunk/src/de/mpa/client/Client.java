@@ -361,8 +361,7 @@ public class Client {
 	 * Returns the GraphDatabaseHandler object.
 	 * @return The GraphDatabaseHandler object.
 	 */
-	private void setupGraphDatabaseContent() {
-		
+	public void setupGraphDatabaseContent() {
 		// If graph database is already in use.
 		if (graphDatabaseHandler != null) {
 			// Shutdown old graph database.

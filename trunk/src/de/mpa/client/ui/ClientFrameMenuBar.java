@@ -1,11 +1,9 @@
 package de.mpa.client.ui;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,8 +31,8 @@ import com.jgoodies.looks.Options;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.settings.ServerConnectionSettings;
+import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.io.ResultExporter;
 
 public class ClientFrameMenuBar extends JMenuBar {
 	
@@ -50,7 +48,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JPasswordField dbPassTtf;
 	private JLabel dbConnTestLbl;
 	private JPanel dbPnl;
-	private String lastSelectedFolder = System.getProperty("user.home");
 	private JMenuItem exportProteinsItem;
 //	private JMenuItem keggItem;
 	private JMenuItem saveProjectItem;
@@ -189,12 +186,12 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportMenu.setText("Export");
 		// Export proteins
 		exportProteinsItem = new JMenuItem();
-		exportProteinsItem.setText("Protein Results");
-		exportProteinsItem.setEnabled(false);
+		exportProteinsItem.setText("Results");
+		exportProteinsItem.setEnabled(true);
 		exportProteinsItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportResults();
+				showExportDialog();
 			}
 		});
 		exportMenu.add(exportProteinsItem);
@@ -460,48 +457,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 	}
 	
 	/**
-	 * Exports the results.
+	 * This method opens the export dialog.
 	 */
-    private void exportResults() {
-        JFileChooser chooser = new ConfirmFileChooser(lastSelectedFolder);
-        chooser.setFileFilter(Constants.CSV_FILE_FILTER);
-		chooser.setAcceptAllFileFilterUsed(false);
-        chooser.setMultiSelectionEnabled(false);
-        chooser.setDialogTitle("Export Spectra File Details");
-        File selectedFile;
+    private void showExportDialog() {
+    	new ExportDialog(clientFrame, "Results Export");
 
-        int returnVal = chooser.showSaveDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-            selectedFile = chooser.getSelectedFile();
-
-            if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
-                selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
-            }
-
-            this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-
-            try {
-                if (selectedFile.exists()) {
-                    selectedFile.delete();
-                }
-                selectedFile.createNewFile();
-
-                ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult());
-
-                lastSelectedFolder = selectedFile.getPath();
-
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "An error occured when exporting the fragment ion matches.",
-                        "Error Exporting Fragment Ion Matches",
-                        JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            }
-            JOptionPane.showMessageDialog(this, "Successfully exported the fragment ion matches to the file " + selectedFile.getName() + ".", "Export successful!",
-    	            JOptionPane.INFORMATION_MESSAGE);
-            this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        }
     }
     
     /**

@@ -61,7 +61,11 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/frames-2.2.0.jar" sourcepath="C:/temp/src-jars/frames-2.2.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/lucene-core-3.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-3.5.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://lucene.apache.org/core/3_5_0/api/all/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/neo4j-cypher-1.8.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>

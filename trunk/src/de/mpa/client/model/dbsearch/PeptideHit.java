@@ -16,7 +16,9 @@ import de.mpa.taxonomy.TaxonomyNode;
  *
  */
 public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonomic {
-
+	
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * Flag denoting whether this peptide is selected for export.
 	 */

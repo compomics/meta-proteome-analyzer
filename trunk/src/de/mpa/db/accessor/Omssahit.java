@@ -96,4 +96,9 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
 		}
 		return false;
 	}
+	
+	@Override
+	public double getScore() {		
+		return iPvalue.doubleValue();
+	}
 }

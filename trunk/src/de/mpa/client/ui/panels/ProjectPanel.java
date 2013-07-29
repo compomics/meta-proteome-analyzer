@@ -687,7 +687,7 @@ public class ProjectPanel extends JPanel {
 		// Disable result view buttons
 		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(false);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
-		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(false);
+		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(false);
 		
 		// Disable input, setting and results tabs
 		for (int i = ClientFrame.INPUT_PANEL; i < ClientFrame.COMPARE_PANEL; i++) {
@@ -720,7 +720,7 @@ public class ProjectPanel extends JPanel {
 		// Enable result view buttons
 		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(true);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(true);
-		clientFrame.getDeNovoSearchResultPanel().setResultsButtonEnabled(true);
+		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 		
 		// Clear any fetched results
 		Client.getInstance().clearDbSearchResult();

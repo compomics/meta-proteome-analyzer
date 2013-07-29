@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -40,6 +41,7 @@ import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
 import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
+import de.mpa.io.ExportHeader;
 import de.mpa.main.Parameters;
 
 /**
@@ -119,6 +121,16 @@ public class ClientFrame extends JFrame {
 	 * Flag indicating whether a connection to a server instance is established.
 	 */
 	private boolean connectedToServer = false;
+	
+	/**
+	 * The last selected folder.
+	 */
+	private String lastSelectedFolder = System.getProperty("user.home");
+	
+	/**
+	 * The last selected export headers. Used for the export dialog.
+	 */
+	private List<ExportHeader> lastSelectedExportHeaders;
 	
 	/**
 	 * Returns the client frame's singleton instance.
@@ -265,8 +277,7 @@ public class ClientFrame extends JFrame {
 				}
 			}
 			// Enables Server Connections
-			menuBar.getSettingsMenu().setEnabled(false);
-
+			menuBar.getSettingsMenu().setEnabled(false);			
 			tabPane.setSelectedIndex(3);
 		}
 		
@@ -426,7 +437,7 @@ public class ClientFrame extends JFrame {
 	 * Returns the de novo search result panel.
 	 * @return The de novo similarity search result panel.
 	 */
-	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
+	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
 		return getResultsPanel().getDeNovoSearchResultPanel();
 	}
 	
@@ -497,5 +508,39 @@ public class ClientFrame extends JFrame {
 		});
 		return button;
 	}
+	
+	/**
+	 * Returns the last selected folder.
+	 * @return The last selected folder
+	 */
+	public String getLastSelectedFolder() {
+		return lastSelectedFolder;
+	}
+	
+	/**
+	 * Sets the last selected folder.
+	 * @param lastSelectedFolder The last selected folder
+	 */
+	public void setLastSelectedFolder(String lastSelectedFolder) {
+		this.lastSelectedFolder = lastSelectedFolder;
+	}
+	
+	/**
+	 * Returns the last selected export headers.
+	 * @return The last selected export headers.
+	 */
+	public List<ExportHeader> getLastSelectedExportHeaders() {
+		return lastSelectedExportHeaders;
+	}
+	
+	/**
+	 * Sets the last selected export headers.
+	 * @param lastSelectedExportHeaders The last selected export headers.
+	 */
+	public void setLastSelectedExportHeaders(List<ExportHeader> lastSelectedExportHeaders) {
+		this.lastSelectedExportHeaders = lastSelectedExportHeaders;
+	}
+	
+	
 	
 }
