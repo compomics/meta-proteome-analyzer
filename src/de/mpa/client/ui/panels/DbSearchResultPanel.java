@@ -1017,7 +1017,8 @@ public class DbSearchResultPanel extends JPanel {
 					}
 					// Update result object reference
 					dbSearchResult = newResult;
-
+					client.setDbSearchResult(newResult);
+					
 					// Update overview panel
 					parent.updateOverview();
 					
@@ -1031,7 +1032,8 @@ public class DbSearchResultPanel extends JPanel {
 				}
 				
 				// Setup graph database.
-				client.setDbSearchResult(newResult);	
+				client.setupGraphDatabaseContent();			
+				
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
