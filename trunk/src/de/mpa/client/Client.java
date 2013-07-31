@@ -398,7 +398,6 @@ public class Client {
 	 */
 	public void setDbSearchResult(DbSearchResult dbSearchResult) {
 		this.dbSearchResult = dbSearchResult;
-		setupGraphDatabaseContent();
 	}
 
 	/**

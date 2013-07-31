@@ -36,8 +36,8 @@ public class GraphDatabase {
 	 */
 	public GraphDatabase(String dbPath, boolean cleanStart) {
 		// Clear the database.
-//		if (cleanStart)
-//			clearDatabase(dbPath);
+		if (cleanStart)
+			clearDatabase(dbPath);
 
 		// Start the database.
 		startDatabase(dbPath);
