@@ -1,10 +1,10 @@
 package de.mpa.graphdb.properties;
 
-public enum KeggOrthologyProperty implements ElementProperty{
-	IDENTIFIER("identifier"),
-	DESCRIPTION("description");
+public enum KeggPathwayProperty implements ElementProperty{
+	IDENTIFIER("Identifier"),
+	DESCRIPTION("Description");
 	
-	KeggOrthologyProperty(final String propertyName){
+	KeggPathwayProperty(final String propertyName){
 		this.propertyName = propertyName;
 	}
 	

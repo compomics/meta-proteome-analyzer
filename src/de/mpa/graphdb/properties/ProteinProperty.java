@@ -1,11 +1,11 @@
 package de.mpa.graphdb.properties;
 
 public enum ProteinProperty implements ElementProperty {
-	IDENTIFIER("identifier"),
-	DESCRIPTION("description"),
-	LENGTH("length"),
-	SEQUENCE("sequence"),
-	COVERAGE("coverage");
+	IDENTIFIER("Identifier"),
+	DESCRIPTION("Description"),
+	SPECTRALCOUNT("Spectral Count"),
+	SPECIES("Species"),
+	COVERAGE("Seq Coverage");
 	
 	ProteinProperty(final String propertyName){
 		this.propertyName = propertyName;

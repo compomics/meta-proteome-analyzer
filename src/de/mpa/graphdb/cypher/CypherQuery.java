@@ -47,7 +47,20 @@ public class CypherQuery {
 	 * The list of return values of the query as indices of the matches used.
 	 */
 	private List<Integer> returnIndices;
-
+	
+	/**
+	 * Query statement.
+	 */
+	private String statement;
+	
+	/**
+	 * CypherQuery constructor for a query made from direct statement.
+	 * @param statement
+	 */
+	public CypherQuery(String statement) {
+		this.statement = statement;
+	}
+	
 	/**
 	 * 
 	 * @param startNodes
@@ -69,11 +82,19 @@ public class CypherQuery {
 	 * @return <code>true</code> if the query is valid, <code>false</code> otherwise
 	 */
 	public boolean isValid() {
+		// Assume that the provided statement is valid. 
+		// TODO: Check for validity ?
+		if(statement != null) return true;
+		
 		return (startNodes != null) && (returnIndices != null);
 	}
 	
 	@Override
 	public String toString() {
+		
+		// Returns direct statement
+		if(statement != null) return statement;
+		
 		// Begin with START line
 		String statement = "START ";
 		boolean first = true;
@@ -234,18 +255,6 @@ public class CypherQuery {
 	}
 	
 	/**
-	 * Returns all unique peptides of the dataset.
-	 * @return Peptide node(s) ExecutionResult
-	 */
-	public ExecutionResult getAllUniquePeptides() {
-		return engine.execute("START aPeptide=node:peptides(\"SEQUENCE:*\") " +
-				"MATCH (aPeptide)<-[rel:HAS_PEPTIDE]-(bProtein) " + 
-				"WITH aPeptide, count(rel) as cn " +
-				"WHERE cn = 1 " + 
-				"RETURN aPeptide");
-	}
-	
-	/**
 	 * Returns all proteins of the dataset.
 	 * @return
 	 */
@@ -323,95 +332,8 @@ public class CypherQuery {
 				"WITH peptide, count(rel) as cn " + 
 				"WHERE cn > 1 " + 
 				"RETURN peptide", map("accession", accession));
-	}
-	
-	/**
-	 * Returns all proteins for a peptide (specified by its sequence).	 * 
-	 * @param sequence Peptide sequence
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForPeptide(String sequence) {
-		return engine.execute("START peptide=node:peptides(SEQUENCE = {sequence}) " +
-                "MATCH (peptide)<-[:HAS_PEPTIDE]-(protein) " +
-                "RETURN protein", map("sequence", sequence));
-	}
-	
-	/**
-	 * Returns all proteins for species (specified by species name). 
-	 * @param species Species name
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForSpecies(String species) {
-		return engine.execute("START species=node:species(NAME = {species}) " +
-                "MATCH (species)<-[:BELONGS_TO]-(protein) " +
-                "RETURN protein", map("species", species));
-	}
-	
-	/**
-	 * Returns all proteins for an enzyme (specified by its E.C. number). 
-	 * @param ecNumber Enzyme E.C. number
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForEnzyme(String ecNumber) {
-		return engine.execute("START enzyme=node:enzymes(ECNUMBER = {ecnumber}) " +
-                "MATCH (enzyme)<-[:BELONGS_TO_ENZYME]-(protein) " +
-                "RETURN protein", map("ecnumber", ecNumber));
-	}
-	
-	/**
-	 * Returns all proteins for a pathway (specified by its KO number). 
-	 * @param koNumber Pathway KO number
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForPathway(String koNumber) {
-		return engine.execute("START pathway=node:pathways(KONUMBER = {konumber}) " +
-                "MATCH (pathway)<-[:BELONGS_TO_PATHWAY]-(protein) " +
-                "RETURN protein", map("konumber", koNumber));
-	}
-	
-	/**
-	 * Returns all proteins for biological process (specified by keyword). 
-	 * @param keyword Ontology keyword
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForBiologicalProcess(String keyword) {
-		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
-                "MATCH (ontology)<-[:INVOLVED_IN_BIOPROCESS]-(protein) " +
-                "RETURN protein", map("keyword", keyword));
-	}
-	
-	/**
-	 * Returns all proteins for molecular function (specified by keyword). 
-	 * @param keyword Ontology keyword
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForMolecularFunction(String keyword) {
-		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
-                "MATCH (ontology)<-[:HAS_MOLECULAR_FUNCTION]-(protein) " +
-                "RETURN protein", map("keyword", keyword));
-	}
-	
-	/**
-	 * Returns all proteins for cellular component (specified by keyword). 
-	 * @param keyword Ontology keyword
-	 * @return Protein node(s) ExecutionResult
-	 */
-	public ExecutionResult getProteinsForCellularComponent(String keyword) {
-		return engine.execute("START ontology=node:ontologies(KEYWORD = {keyword}) " +
-                "MATCH (ontology)<-[:BELONGS_TO_COMPONENT]-(protein) " +
-                "RETURN protein", map("keyword", keyword));
-	}
-	
-	/**
-	 * Returns all peptides for species (specified by species name). 
-	 * @param species Species name
-	 * @return Peptide node(s) ExecutionResult
-	 */
-	public ExecutionResult getPeptidesForSpecies(String species) {
-		return engine.execute("START species=node:species(NAME = {species}) " +
-                "MATCH (species)<-[:BELONGS_TO]-(protein)-[:HAS_PEPTIDE]->(peptide) " +
-                "RETURN peptide", map("species", species));
-	}
+	}	
+
 	
 	/**
 	 * Returns all peptides for an enzyme (specified by its E.C. number). 

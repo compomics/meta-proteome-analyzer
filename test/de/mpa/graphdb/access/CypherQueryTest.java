@@ -124,8 +124,8 @@ public class CypherQueryTest {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                if(n.hasProperty(PeptideProperty.SEQUENCE.name())){
-                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
+                if(n.hasProperty(PeptideProperty.IDENTIFIER.toString())){
+                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.IDENTIFIER.toString()));
                 }
             }
         }
@@ -140,14 +140,8 @@ public class CypherQueryTest {
 	}
 	
 	@Test
-	public void testGetAllUniquePeptides() {
-		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllUniquePeptides(), "aPeptide", PeptideProperty.SEQUENCE);
-		TestCase.assertEquals(9, nodeSet.size());
-	}
-	
-	@Test
 	public void testGetAllSharedPeptides() {
-		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "aPeptide", PeptideProperty.SEQUENCE);
+		Set<Node> nodeSet = CypherQuery.retrieveNodeSet(cypherQuery.getAllSharedPeptides(), "aPeptide", PeptideProperty.IDENTIFIER);
 		TestCase.assertEquals(4, nodeSet.size());
 	}
 	
@@ -159,8 +153,8 @@ public class CypherQueryTest {
             final Object value = columnAs.next();
             if (value instanceof Node) {
                 Node n = (Node)value;
-                if(n.hasProperty(PeptideProperty.SEQUENCE.name())){
-                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.SEQUENCE.name()));
+                if(n.hasProperty(PeptideProperty.IDENTIFIER.toString())){
+                	TestCase.assertEquals("LESLMTGPRK", n.getProperty(PeptideProperty.IDENTIFIER.toString()));
                 }
             }
         }

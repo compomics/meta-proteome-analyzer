@@ -840,7 +840,7 @@ public class DbSearchResultPanel extends JPanel {
 					newResult = client.getDbSearchResult(
 							clientFrame.getProjectPanel().getCurrentProjectContent(), 
 							clientFrame.getProjectPanel().getCurrentExperimentContent());
-					client.setDbSearchResult(newResult);					
+									
 				} else {
 					client.firePropertyChange("new message", null, "READING RESULTS FILE");
 					client.firePropertyChange("resetall", 0L, 100L);
@@ -849,7 +849,6 @@ public class DbSearchResultPanel extends JPanel {
 							new GZIPInputStream(new FileInputStream(file))));
 					newResult = (DbSearchResult) ois.readObject();
 					ois.close();
-					client.setDbSearchResult(newResult);
 					clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
 					client.firePropertyChange("indeterminate", true, false);
@@ -1030,6 +1029,9 @@ public class DbSearchResultPanel extends JPanel {
 					// Enable Save Project functionality
 					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
 				}
+				
+				// Setup graph database.
+				client.setDbSearchResult(newResult);	
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -2512,7 +2514,7 @@ public class DbSearchResultPanel extends JPanel {
 							if (uniprotEntry != null) {
 								PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
 								target = primaryUniProtAccession.getValue();
-							}else{
+							} else {
 								target = "";
 							}
 						}
@@ -2530,6 +2532,7 @@ public class DbSearchResultPanel extends JPanel {
 						insertEnzymeNode(enzymeNode);
 						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
 						pathwayNode.setURI(uri);
+						// TODO: Add pathway to protein hit directly
 						insertPathwayNode(pathwayNode);
 						
 //						// Link nodes to each other

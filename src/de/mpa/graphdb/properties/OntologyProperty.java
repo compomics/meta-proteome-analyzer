@@ -1,9 +1,8 @@
 package de.mpa.graphdb.properties;
 
 public enum OntologyProperty implements ElementProperty {
-	IDENTIFIER("identifier"),
-	KEYWORD("keyword"),
-	TYPE("type");
+	IDENTIFIER("Identifier"),
+	TYPE("Type");
 	
 	OntologyProperty(final String propertyName){
 		this.propertyName = propertyName;

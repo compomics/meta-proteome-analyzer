@@ -23,6 +23,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
+import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.Client;
@@ -35,6 +36,7 @@ import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.io.GraphMLHandler;
 import de.mpa.graphdb.nodes.NodeType;
+import de.mpa.graphdb.nodes.Protein;
 import de.mpa.graphdb.properties.EdgeProperty;
 import de.mpa.graphdb.properties.EnzymeProperty;
 import de.mpa.graphdb.properties.OntologyProperty;
@@ -154,18 +156,18 @@ public class GraphDatabaseHandler {
 		
 		proteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		proteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), protHit.getDescription());
-		proteinVertex.setProperty(ProteinProperty.SEQUENCE.toString(), protHit.getSequence());
-		proteinVertex.setProperty(ProteinProperty.LENGTH.toString(), protHit.getSequence().length());
+		proteinVertex.setProperty(ProteinProperty.SPECIES.toString(), protHit.getSpecies());
 		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), protHit.getCoverage());
+		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
 		// Index the proteins by their accession.
 		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, proteinVertex);
 		
-		// Add peptides.
-		addPeptides(protHit.getPeptideHitList(), proteinVertex);
-		
 		// Add species.
 		addSpecies(protHit.getSpecies(), proteinVertex);
+		
+		// Add peptides.
+		addPeptides(protHit.getPeptideHitList(), proteinVertex);
 		
 		// Add enzyme numbers.
 		UniProtEntry uniprotEntry = protHit.getUniprotEntry();
@@ -175,7 +177,7 @@ public class GraphDatabaseHandler {
 			List<String> ecNumbers = uniprotEntry.getProteinDescription().getEcNumbers();
 			addEnzymeNumbers(ecNumbers, proteinVertex);
 			
-			// Add pathways. 
+			// Add pathways.			
 			List<DatabaseCrossReference> xRefs = uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO);
 			addPathways(xRefs, proteinVertex);
 			
@@ -187,9 +189,9 @@ public class GraphDatabaseHandler {
 	/**
 	 * Adds a species to the graph as vertex.
 	 * @param species Species to be added.
-	 * @param proteinVertex Involved protein vertex (outgoing edge).
+	 * @param vertex Involved vertex (outgoing edge).
 	 */
-	private void addSpecies(String species, Vertex proteinVertex) {
+	private void addSpecies(String species, Vertex vertex) {
 		if (species == null) {
 			species = "Unknown";
 		}
@@ -202,10 +204,10 @@ public class GraphDatabaseHandler {
 				speciesVertex = graph.addVertex(null);
 				speciesVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
 				// Index the species by the species name.
-				speciesIndex.put(TaxonProperty.IDENTIFIER.toString(), species, speciesVertex);
+				speciesIndex.put(TaxonProperty.IDENTIFIER.toString(), species, speciesVertex);			
 			}
 			// Add edge between protein and species.
-			addEdge(proteinVertex, speciesVertex, RelationType.BELONGS_TO);
+			addEdge(vertex, speciesVertex, RelationType.BELONGS_TO);
 	}
 	
 	/**
@@ -277,7 +279,6 @@ public class GraphDatabaseHandler {
 				pathwayVertex = graph.addVertex(null);
 				pathwayVertex.setProperty(PathwayProperty.IDENTIFIER.toString(), koNumber);
 				//TODO: Add KEGG description + KEGG Number!
-
 				// Index the pathway by the ID.
 				pathwayIndex.put(PathwayProperty.IDENTIFIER.toString(), koNumber, pathwayVertex);
 			}
@@ -306,17 +307,17 @@ public class GraphDatabaseHandler {
 					
 					// Check if peptide is already contained in the graph.
 					Iterator<Vertex> ontologyIterator =
-							ontologyIndex.get(OntologyProperty.KEYWORD.toString(), keyword).iterator();
+							ontologyIndex.get(OntologyProperty.IDENTIFIER.toString(), keyword).iterator();
 					if (ontologyIterator.hasNext()) {
 						ontologyVertex = ontologyIterator.next();
 					} else {
 						// Create new vertex.
 						ontologyVertex = graph.addVertex(null);
-						ontologyVertex.setProperty(OntologyProperty.KEYWORD.toString(), keyword);
+						ontologyVertex.setProperty(OntologyProperty.IDENTIFIER.toString(), keyword);
 						ontologyVertex.setProperty(OntologyProperty.TYPE.toString(), type.toString());
 						
 						// Index the proteins by their accession.
-						ontologyIndex.put(OntologyProperty.KEYWORD.toString(), keyword, ontologyVertex);
+						ontologyIndex.put(OntologyProperty.IDENTIFIER.toString(), keyword, ontologyVertex);
 					}			
 					
 					// Add edge between protein and ontology.
@@ -325,7 +326,7 @@ public class GraphDatabaseHandler {
 						addEdge(proteinVertex, ontologyVertex, RelationType.INVOLVED_IN_BIOPROCESS);
 						break;
 					case CELLULAR_COMPONENT:
-						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_COMPONENT);
+						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_CELLULAR_COMPONENT);
 						break;
 					case MOLECULAR_FUNCTION:
 						addEdge(proteinVertex, ontologyVertex, RelationType.HAS_MOLECULAR_FUNCTION);
@@ -344,18 +345,19 @@ public class GraphDatabaseHandler {
 	private void addPeptides(List<PeptideHit> peptideHitList, Vertex proteinVertex) {
 		for (PeptideHit peptideHit : peptideHitList) {
 			String sequence = peptideHit.getSequence();
+			
 			Vertex peptideVertex = null;
 			// Check if peptide is already contained in the graph.
-			Iterator<Vertex> peptideIterator =
-					peptideIndex.get(PeptideProperty.IDENTIFIER.toString(), sequence).iterator();
+			Iterator<Vertex> peptideIterator = peptideIndex.get(PeptideProperty.IDENTIFIER.toString(), sequence).iterator();
 			if (peptideIterator.hasNext()) {
 				peptideVertex = peptideIterator.next();
 			} else {
 				// Create new vertex.
 				peptideVertex = graph.addVertex(null);
-				peptideVertex.setProperty(PeptideProperty.IDENTIFIER.toString(), peptideVertex.getId().toString());
-				peptideVertex.setProperty(PeptideProperty.SEQUENCE.toString(), sequence);
-				peptideVertex.setProperty(PeptideProperty.LENGTH.toString(), sequence.length());
+				peptideVertex.setProperty(PeptideProperty.IDENTIFIER.toString(), sequence);
+				peptideVertex.setProperty(PeptideProperty.SPECTRALCOUNT.toString(), peptideHit.getSpectralCount());
+				peptideVertex.setProperty(PeptideProperty.SPECIES.toString(), peptideHit.getTaxonomyNode().getName());
+				peptideVertex.setProperty(PeptideProperty.PROTEINCOUNT.toString(), peptideHit.getProteinCount());
 				
 				// Index the proteins by their accession.
 				peptideIndex.put(PeptideProperty.IDENTIFIER.toString(), sequence, peptideVertex);
@@ -363,7 +365,10 @@ public class GraphDatabaseHandler {
 			
 			// Add edge between peptide and protein.
 			addEdge(proteinVertex, peptideVertex, RelationType.HAS_PEPTIDE);
-		
+		    
+			// Connect peptide taxon node name to peptide vertex.
+//			addSpecies(peptideHit.getTaxonomyNode().getName(), peptideVertex);
+			
 			// Add PSMs.
 			addPeptideSpectrumMatches(peptideHit.getSpectrumMatches(), peptideVertex);
 		}

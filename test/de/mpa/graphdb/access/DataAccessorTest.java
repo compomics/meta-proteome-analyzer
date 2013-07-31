@@ -82,12 +82,12 @@ public class DataAccessorTest extends TestCase {
 		
 		// Test protein specification.
 		assertEquals("P64462", prot1.getIdentifier());
-		assertEquals("MHVTLVEINVHEDKVDEFIEVFRQNHLGSVQEEGNLRFDVLQDPEVNSRFYIYEAYKDEDAVAFHKTTPHYKTCVAKLESLMTGPRKKRLFNGLMP", prot1.getSequence());
+		assertEquals("MHVTLVEINVHEDKVDEFIEVFRQNHLGSVQEEGNLRFDVLQDPEVNSRFYIYEAYKDEDAVAFHKTTPHYKTCVAKLESLMTGPRKKRLFNGLMP", prot1.getSpecies());
 		assertEquals("LSRG_ECO57 Autoinducer 2-degrading protein lsrG", prot1.getDescription());
 		
 		// Test linked peptide(s)
 		for(Peptide peptide: prot1.getPeptides()) {
-			assertEquals("LESLMTGPRK", peptide.getSequence());
+			assertEquals("LESLMTGPRK", peptide.toString());
 		}
 	}
 	
@@ -110,8 +110,8 @@ public class DataAccessorTest extends TestCase {
 	
 	@Test
 	public void testPeptides() {
-		Peptide peptide = dataAccessor.getSinglePeptide(PeptideProperty.SEQUENCE, "LESLMTGPRK");
-		assertEquals("LESLMTGPRK", peptide.getSequence());
+		Peptide peptide = dataAccessor.getSinglePeptide(PeptideProperty.IDENTIFIER, "LESLMTGPRK");
+		assertEquals("LESLMTGPRK", peptide.toString());
 	}
 	
 	@Test
@@ -155,7 +155,7 @@ public class DataAccessorTest extends TestCase {
 	
 	@Test
 	public void testOntologies() {
-		Ontology ontology = dataAccessor.getSingleOntology(OntologyProperty.KEYWORD, "Protein biosynthesis");
+		Ontology ontology = dataAccessor.getSingleOntology(OntologyProperty.IDENTIFIER, "Protein biosynthesis");
 		assertEquals("Protein biosynthesis", ontology.getIdentifier());
 		
 		// Test connected proteins		

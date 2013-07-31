@@ -1,9 +1,10 @@
 package de.mpa.graphdb.properties;
 
 public enum TaxonProperty implements ElementProperty {
-	IDENTIFIER("identifier"),
-	TAXID("taxid"),
-	RANK("rank");	
+	IDENTIFIER("Identifier"),	
+	PROTEINCOUNT("Protein Count"),
+	TAXID("NCBI TaxId"),
+	RANK("Rank");	
 	
 	TaxonProperty(final String propertyName){
 		this.propertyName = propertyName;
