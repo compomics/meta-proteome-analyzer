@@ -7,12 +7,9 @@ import com.tinkerpop.frames.Property;
 import com.tinkerpop.frames.VertexFrame;
 
 public interface Peptide extends VertexFrame {
-
-	@Property("SEQUENCE")
-	public String getSequence();
 	
-	@Property("LENGTH")
-	public int getLength();
+	@Property("PROTEINCOUNT")
+	public int getProteinCount();
 	
 	@Adjacency(label="IS_PEPTIDE_IN")
 	public Iterable<Protein> getProteins();

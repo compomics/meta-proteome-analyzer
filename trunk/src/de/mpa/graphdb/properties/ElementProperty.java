@@ -14,7 +14,7 @@ public interface ElementProperty {
 	public static final ElementProperty IDENTIFIER = new ElementProperty() {
 		@Override
 		public String toString() {
-			return "identifier";
+			return "Identifier";
 		}
 	};
 	

@@ -10,11 +10,11 @@ public interface Protein extends VertexFrame {
 	@Property("IDENTIFIER")
 	public String getIdentifier();
 	
-	@Property("SEQUENCE")
-	public String getSequence();
+	@Property("SPECIES")
+	public String getSpecies();
 	
-	@Property("LENGTH")
-	public int getLength();
+	@Property("SPECTRALCOUNT")
+	public int getSpectralCount();
 	
 	@Property("DESCRIPTION")
 	public String getDescription();

@@ -14,7 +14,6 @@ import de.mpa.analysis.ProteinAnalysisTest;
 import de.mpa.analysis.UniprotAccessorTest;
 import de.mpa.db.accessor.SearchSpectrumAccessorTest;
 import de.mpa.db.extractor.SpectrumExtractorTest;
-import de.mpa.exporter.ExportTest;
 import de.mpa.exporter.ResultsDumpTest;
 import de.mpa.fastaLoader.FastaLoaderTest;
 import de.mpa.fragmentation.FragmentizerTest;
@@ -43,7 +42,6 @@ import de.mpa.webservice.ServerImplTest;
 					
 					SpectrumExtractorTest.class,
 					
-					ExportTest.class,
 					ResultsDumpTest.class,
 					
 					FastaLoaderTest.class,

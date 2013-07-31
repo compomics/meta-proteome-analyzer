@@ -109,7 +109,8 @@ public class GraphDatabaseResultPanel extends JPanel {
             	//TODO: refreshSpectrumPanel();
             }
         });
-
+        
+        
         // Single selection only
         treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         treeTable.setSelectionBackground(new Color(130, 207, 250));
@@ -171,10 +172,11 @@ public class GraphDatabaseResultPanel extends JPanel {
 			Object newChild = newPath.getPathComponent(0);
     		
 			// find node in existing tree to which (part of) the node chain shall be added
-    		MutableTreeTableNode insertionNode =
-    				(MutableTreeTableNode) findInsertionNode(root, (TreeTableNode) newChild);
+    		MutableTreeTableNode insertionNode = (MutableTreeTableNode) findInsertionNode(root, (TreeTableNode) newChild);
+    		
     		// determine insertion depth
     		int depth = ((CheckBoxTreeTableNode) insertionNode).getPath().getPathCount() - 1;
+    		
     		// insert sub-chain as child of insertion node
     		MutableTreeTableNode node2insert = (MutableTreeTableNode) newPath.getPathComponent(depth);
     		model.insertNodeInto(node2insert, insertionNode, insertionNode.getChildCount());
@@ -204,7 +206,8 @@ public class GraphDatabaseResultPanel extends JPanel {
     private TreeTableNode findInsertionNode(TreeTableNode parent, TreeTableNode child2find) {
     	for (int i = 0; i < parent.getChildCount(); i++) {
 			TreeTableNode treeChild = parent.getChildAt(i);
-			if (treeChild.equals(child2find)) {
+			// FIXME: exception is thrown, if child count == 0
+			if (treeChild.equals(child2find) && child2find.getChildCount() > 0) {
 				return findInsertionNode(treeChild, child2find.getChildAt(0));
 			}
 		}

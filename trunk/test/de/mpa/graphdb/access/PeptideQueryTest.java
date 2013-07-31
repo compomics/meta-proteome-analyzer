@@ -61,37 +61,8 @@ public class PeptideQueryTest {
 	public void setUp() {
 		cypherQuery = new CypherQuery(graphDbHandler.getGraphDatabaseService());
 		TestCase.assertNotNull(cypherQuery);
-	}
-	
-	@Test
-    public void testGetPeptidesForSpecies() {
-		// Retrieve all peptides for species.
-        Iterator<Object> columnAs = cypherQuery.getPeptidesForSpecies("Methanoculleus marisnigri JR1 (no rank)").columnAs("peptide");
-        List<Node> nodes = new ArrayList<Node>();
-        while (columnAs.hasNext()) {
-            final Object value = columnAs.next();
-            if (value instanceof Node) {
-                Node n = (Node)value;
-                nodes.add(n);
-            }
-        }
-        TestCase.assertEquals(10, nodes.size());
-    }
-	
-	@Test 
-	public void testGetAllUniquePeptides() {
-		// Retrieve all unique peptides from the dataset = 201 Unique peptides
-        Iterator<Object> columnAs = cypherQuery.getAllUniquePeptides().columnAs("peptide");
-        List<Node> nodes = new ArrayList<Node>();
-        while (columnAs.hasNext()) {
-            final Object value = columnAs.next();
-            if (value instanceof Node) {
-                Node n = (Node)value;
-                nodes.add(n);
-            }
-        }
-        TestCase.assertEquals(201, nodes.size());
-    }
+	}	
+
 	
 	@Test 
 	public void testGetAllSharedPeptides() {
@@ -111,21 +82,21 @@ public class PeptideQueryTest {
 	@Test
     public void testGetPeptidesForProtein() {
 		// Protein contains three peptides.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForProtein("P07955"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForProtein("P07955"), "peptide", PeptideProperty.IDENTIFIER);
 		TestCase.assertEquals(3, peptideNodes.size());
     }
 	
 	@Test
     public void testGetUniquePeptidesForProtein() {
 		// Protein contains two unique peptides.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getUniquePeptidesForProtein("P07955"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getUniquePeptidesForProtein("P07955"), "peptide", PeptideProperty.IDENTIFIER);
 		TestCase.assertEquals(2, peptideNodes.size());
     }
 	
 	@Test
     public void testGetSharedPeptidesForProtein() {
 		// Protein contains two unique peptides.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getSharedPeptidesForProtein("P07955"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getSharedPeptidesForProtein("P07955"), "peptide", PeptideProperty.IDENTIFIER);
 		TestCase.assertEquals(1, peptideNodes.size());
     }
 	
@@ -142,36 +113,36 @@ public class PeptideQueryTest {
             }
         }
         TestCase.assertEquals(3, nodes.size());
-        TestCase.assertEquals("LDGDQGNSGVGIPSSR", nodes.get(0).getProperty(PeptideProperty.SEQUENCE.name()));
-        TestCase.assertEquals("AVSVEQGMEVPVTHDIGTIR", nodes.get(1).getProperty(PeptideProperty.SEQUENCE.name()));
-        TestCase.assertEquals("AVSVEQGMEVPVTHDIGTLR", nodes.get(2).getProperty(PeptideProperty.SEQUENCE.name()));
+        TestCase.assertEquals("LDGDQGNSGVGIPSSR", nodes.get(0).getProperty(PeptideProperty.IDENTIFIER.name()));
+        TestCase.assertEquals("AVSVEQGMEVPVTHDIGTIR", nodes.get(1).getProperty(PeptideProperty.IDENTIFIER.name()));
+        TestCase.assertEquals("AVSVEQGMEVPVTHDIGTLR", nodes.get(2).getProperty(PeptideProperty.IDENTIFIER.name()));
     }
 	
 	@Test
     public void testGetPeptidesForMolecularFunction() {
 		// Get peptides for molecular function.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForMolecularFunction("Transferase"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForMolecularFunction("Transferase"), "peptide", PeptideProperty.IDENTIFIER);
         TestCase.assertEquals(62, peptideNodes.size());
     }
 	
 	@Test
     public void testGetPeptidesForBiologicalProcess() {
 		// Get peptides for molecular function.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForBiologicalProcess("Methanogenesis"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForBiologicalProcess("Methanogenesis"), "peptide", PeptideProperty.IDENTIFIER);
         TestCase.assertEquals(54, peptideNodes.size());
     }
 	
 	@Test
     public void testGetPeptidesForCellularComponent() {
 		// Get peptides for molecular function.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForCellularComponent("Cytoplasm"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForCellularComponent("Cytoplasm"), "peptide", PeptideProperty.IDENTIFIER);
         TestCase.assertEquals(12, peptideNodes.size());
     }
 	
 	@Test
     public void testGetProteinsForPathway() {
 		// Get all peptides for pathway.
-		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForPathway("K02117"), "peptide", PeptideProperty.SEQUENCE);
+		Set<Node> peptideNodes = CypherQuery.retrieveNodeSet(cypherQuery.getPeptidesForPathway("K02117"), "peptide", PeptideProperty.IDENTIFIER);
 		TestCase.assertEquals(8, peptideNodes.size());
     }
 

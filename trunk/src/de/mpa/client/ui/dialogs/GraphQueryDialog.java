@@ -19,6 +19,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -150,6 +152,8 @@ public class GraphQueryDialog extends JDialog {
 	private Border roundedBtnBorder;
 
 	private boolean init;
+
+	protected boolean consoleChanged;
 	
 	/**
 	 * Graph query dialog
@@ -415,6 +419,25 @@ public class GraphQueryDialog extends JDialog {
 
 		consoleTxt = new JTextArea(4, 0);
 		consoleTxt.setFont(new Font("Courier", consoleTxt.getFont().getStyle(), 12));
+		
+		// Key Listener to check whether the user has changed the console manually.
+		consoleTxt.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				consoleChanged = true;
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				consoleChanged = true;
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				consoleChanged = true;
+			}
+		});
 
 		JScrollPane consoleScpn = new JScrollPane(consoleTxt);
 		consoleScpn .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -1990,6 +2013,9 @@ public class GraphQueryDialog extends JDialog {
 		@Override
 		protected Object doInBackground() {
 			try {
+				// Retrieve the query from the console, if user has changed text there.
+				if (consoleChanged) query = new CypherQuery(consoleTxt.getText());
+				
 				// Execute query, store result
 				GraphDatabaseHandler handler = Client.getInstance().getGraphDatabaseHandler();
 				result = handler.executeCypherQuery(query);
@@ -2005,6 +2031,7 @@ public class GraphQueryDialog extends JDialog {
 		 */
 		public void done() {			
 			parent.updateResults(result);
+			consoleChanged = false;
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			dispose();
 		}

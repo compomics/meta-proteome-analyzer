@@ -1,5 +1,7 @@
 package de.mpa.graphdb.cypher;
 
+import de.mpa.graphdb.edges.RelationType;
+
 /**
  * Enumeration containing various (pre-defined) Cypher query types and
  * associated factory methods.
@@ -8,37 +10,73 @@ package de.mpa.graphdb.cypher;
  */
 public enum CypherQueryType {
 	
-	PEPTIDES_BY_PROTEINS("Get all Peptides grouped by Proteins") {
+	TAXA_BY_PROTEINS("Get Taxonomies grouped by Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getTaxaByProteins();
+		}
+	},	
+	TAXA_BY_PEPTIDES("Get Taxonomies grouped by Peptides") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getTaxaByPeptides();
+		}
+	},
+	BIOLOGICAL_PROCESSES_BY_PROTEINS("Get Biological Process Ontologies grouped by Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getOntologiesByProteins(RelationType.INVOLVED_IN_BIOPROCESS);
+		}
+	},	
+	MOLECULAR_FUNCTIONS_BY_PROTEINS("Get Molecular Function Ontologies grouped by Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getOntologiesByProteins(RelationType.HAS_MOLECULAR_FUNCTION);
+		}
+	},	
+	CELLULAR_COMPONENTS_BY_PROTEINS("Get Cellular Component Ontologies grouped by Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getOntologiesByProteins(RelationType.BELONGS_TO_CELLULAR_COMPONENT);
+		}
+	},	
+	PATHWAYS_BY_PROTEINS("Get Pathways grouped by Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getPathwaysByProteins();
+		}
+	},	
+	PEPTIDES_BY_PROTEINS("Get Peptides grouped by Proteins") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getPeptidesByProteins();
 		}
 	},
-	PROTEINS_BY_PEPTIDES("Get all Proteins grouped by Peptides") {
+	PROTEINS_BY_PEPTIDES("Get Proteins grouped by Peptides") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getProteinsByPeptides();
 		}
 	},
-	PROTEINS_BY_ENZYMES("Get all Proteins grouped by Enzymes") {
+	PROTEINS_BY_ENZYMES("Get Proteins grouped by Enzymes") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getProteinsByEnzymes();
 		}
 	},
-	PROTEINS_ONLY_KERATIN("Get all Proteins, only Keratin") {
+	PROTEINS_ONLY_KERATIN("Get Proteins, only Keratin") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getProteinsByDescriptionPattern("keratin");
 		}
 	},
-	PROTEINS_EXCEPT_KERATIN("Get all Proteins, exclude Keratin") {
+	PROTEINS_EXCEPT_KERATIN("Get Proteins, exclude Keratin") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getProteinsByDescriptionPattern("keratin", true);
 		}
 	},
-	CUSTOM("Custom Query") {
+	CUSTOM("Customized Query") {
 		@Override
 		public CypherQuery getQuery() {
 			return null;
