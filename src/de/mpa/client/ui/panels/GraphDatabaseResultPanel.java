@@ -36,14 +36,23 @@ import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GraphQueryDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.graphdb.cypher.CypherQuery;
 
 public class GraphDatabaseResultPanel extends JPanel {
-
+	
+	/**
+	 * Sortable checkbox treetable instance.
+	 */
 	private SortableCheckBoxTreeTable treeTable;
 	protected Object filePnl;
-	private JButton getResultsBtn;
+	private JButton graphDbDialogBtn;
 	private GraphDatabaseResultPanel panel;
 	private List<String> columnIdentifiers;
+	
+	/**
+	 * Last chosen CypherQuery.
+	 */
+	private CypherQuery lastCypherQuery = null;
 	
 	/**
 	 * The GraphDatabaseResultPanel.
@@ -70,20 +79,20 @@ public class GraphDatabaseResultPanel extends JPanel {
 		setupFirstDimTable();
 		//setupDenovoTableProperties();
 
-		getResultsBtn = new JButton("GraphDB Query", IconConstants.GO_DB_SMALL_ICON);
-		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
-		getResultsBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
-		getResultsBtn.setEnabled(false);
-		getResultsBtn.setPreferredSize(new Dimension(getResultsBtn.getPreferredSize().width, 20));
-		getResultsBtn.setFocusPainted(false);
-		getResultsBtn.addActionListener(new ActionListener() {			
+		graphDbDialogBtn = new JButton("GraphDB Query", IconConstants.GO_DB_SMALL_ICON);
+		graphDbDialogBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
+		graphDbDialogBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
+		graphDbDialogBtn.setEnabled(false);
+		graphDbDialogBtn.setPreferredSize(new Dimension(graphDbDialogBtn.getPreferredSize().width, 20));
+		graphDbDialogBtn.setFocusPainted(false);
+		graphDbDialogBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				new GraphQueryDialog(ClientFrame.getInstance(), panel, "Graph Database", true);
 			}
 		});
 		
-		graphDbTtlPnl.setRightDecoration(getResultsBtn);
+		graphDbTtlPnl.setRightDecoration(graphDbDialogBtn);
 		JScrollPane firstDimResultsTblScp = new JScrollPane(treeTable);
 		firstDimResultsTblScp.setPreferredSize(new Dimension(400, 210));
 		
@@ -242,7 +251,22 @@ public class GraphDatabaseResultPanel extends JPanel {
 	 * This method sets the enabled state of the get results button.
 	 */
 	public void setResultsButtonEnabled(boolean enabled) {
-		getResultsBtn.setEnabled(enabled);
+		graphDbDialogBtn.setEnabled(enabled);
 	}
-
+	
+	/**
+	 * Returns the last CypherQuery.
+	 * @return Last chosen CypherQuery
+	 */
+	public CypherQuery getLastCypherQuery() {
+		return lastCypherQuery;
+	}
+	
+	/**
+	 * Sets the last CypherQuery.
+	 * @param lastCypherQuery Last chosen CypherQuery
+	 */
+	public void setLastCypherQuery(CypherQuery lastCypherQuery) {
+		this.lastCypherQuery = lastCypherQuery;
+	}
 }
