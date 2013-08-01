@@ -11,7 +11,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,14 +35,12 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -154,6 +151,8 @@ public class GraphQueryDialog extends JDialog {
 	private boolean init;
 
 	protected boolean consoleChanged;
+
+	private JScrollPane predefinedListScp;
 	
 	/**
 	 * Graph query dialog
@@ -213,7 +212,16 @@ public class GraphQueryDialog extends JDialog {
 		// Console query section
 		JXTaskPane consoleQueryTaskPane = createConsoleQueryTaskPane();
 		
-		predefinedList.setSelectedIndex(0);
+		// Gets the last chosen Cypher Query (if any).
+		if (parent.getLastCypherQuery() != null) {
+			query = parent.getLastCypherQuery();
+			int index = predefinedList.getElementCount() - 1;
+			predefinedList.setSelectedIndex(index);
+			predefinedList.ensureIndexIsVisible(index);
+			consoleTxt.setText(query.toString());
+		} else {
+			predefinedList.setSelectedIndex(0);
+		}
 
 		tpc.add(predefinedQueryTaskPane);
 		tpc.add(compoundQueryTaskPane);
@@ -304,9 +312,10 @@ public class GraphQueryDialog extends JDialog {
 		JXList favouritesList = new JXList();
 		favouritesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		taskPane.add(new JLabel("Defaults"), CC.xy(1, 1));
-		taskPane.add(new JLabel("Favourites"), CC.xy(3, 1));
-		taskPane.add(new JScrollPane(predefinedList), CC.xy(1, 3));
+		taskPane.add(new JLabel("Default Queries"), CC.xy(1, 1));
+		taskPane.add(new JLabel("Saved Queries"), CC.xy(3, 1));
+		predefinedListScp = new JScrollPane(predefinedList);		
+		taskPane.add(predefinedListScp, CC.xy(1, 3));
 		taskPane.add(new JScrollPane(favouritesList), CC.xy(3, 3));
 		
 		return taskPane;
@@ -424,8 +433,11 @@ public class GraphQueryDialog extends JDialog {
 		consoleTxt.addKeyListener(new KeyListener() {
 			
 			@Override
-			public void keyTyped(KeyEvent e) {
+			public void keyTyped(KeyEvent e) {				
 				consoleChanged = true;
+				int index = predefinedList.getElementCount() - 1;
+				predefinedList.setSelectedIndex(index);
+				predefinedList.ensureIndexIsVisible(index);
 			}
 			
 			@Override
@@ -460,129 +472,11 @@ public class GraphQueryDialog extends JDialog {
 				}
 			}
 		});
-
+	
+		
 		return taskPane;
 	}
 
-	/**
-	 * Panel implementation for dynamic editing of Cypher query blocks.
-	 * 
-	 * @author A. Behne
-	 */
-	private abstract class CompoundQueryPanel extends JPanel {
-		
-		/**
-		 * Context menu item for adding building blocks.
-		 */
-		protected JMenuItem appendItem;
-		
-		/**
-		 * Context menu item for removing building blocks.
-		 */
-		protected JMenuItem removeItem;
-		
-		/**
-		 * Constructs a panel containing controls for dynamically editing parts
-		 * of a Cypher query.
-		 * @param label the label
-		 * @param items
-		 */
-		private CompoundQueryPanel(String label, Object[] items) {
-			super();
-			initComponents(label, items);
-		}
-		
-		/**
-		 * Creates and initializes the basic components of this compound query panel.
-		 * @param label the text label to be displayed atop the building blocks of this panel
-		 * @param items the items to be displayed in the in
-		 */
-		private void initComponents(String label, Object[] items) {
-			FormLayout layout = new FormLayout("3dlu, 21px, p:g, 21px, 3dlu", "3dlu, t:16px, 3dlu");
-			
-			this.setLayout(layout);
-			
-			this.add(new JLabel(label), CC.xyw(2, 2, 2));
-			
-			int row = 2;
-			
-			if (items != null) {
-				layout.appendRow(RowSpec.decode("f:21px"));
-				layout.appendRow(RowSpec.decode("3dlu"));
-				
-				JComboBox comboBox = new JComboBox(items);
-				((JTextField) comboBox.getEditor().getEditorComponent()).setMargin(new Insets(1, 3, 2, 1));
-				
-				this.add(comboBox, CC.xyw(2, 4, 2));
-				
-				row += 2;
-			}
-
-			final JToggleButton blockBtn = new JToggleButton(IconConstants.PLUGIN_ICON);
-			blockBtn.setRolloverIcon(IconConstants.PLUGIN_ROLLOVER_ICON);
-			blockBtn.setPressedIcon(IconConstants.PLUGIN_PRESSED_ICON);
-			blockBtn.setOpaque(false);
-			blockBtn.setContentAreaFilled(false);
-			blockBtn.setBorder(null);
-			blockBtn.setFocusPainted(false);
-			blockBtn.setToolTipText("Append/Remove " + label + " Block");
-
-			final JPopupMenu blockPop = new JPopupMenu();
-			
-			appendItem = new JMenuItem("Append " + label + " Block", IconConstants.ADD_ICON);
-			appendItem.setRolloverIcon(IconConstants.ADD_ROLLOVER_ICON);
-			appendItem.setPressedIcon(IconConstants.ADD_PRESSED_ICON);
-			
-			removeItem = new JMenuItem("Remove " + label + " Block", IconConstants.DELETE_ICON);
-			removeItem.setRolloverIcon(IconConstants.DELETE_ROLLOVER_ICON);
-			removeItem.setPressedIcon(IconConstants.DELETE_PRESSED_ICON);
-			removeItem.setEnabled(false);
-			
-			removeItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent evt) {
-					removeBlock();
-				}
-			});
-
-			appendItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent evt) {
-					appendBlock();
-				}
-			});
-
-			blockPop.add(appendItem);
-			blockPop.add(removeItem);
-			
-			blockBtn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					blockPop.show(blockBtn, -3, blockBtn.getSize().height / 2 + 11);
-				}
-			});
-			
-			this.add(blockBtn, CC.xy(4, row));
-		}
-		
-		/**
-		 * Appends a query building block to this panel.
-		 */
-		public abstract void appendBlock();
-		
-		/**
-		 * Removes a query building block from this panel.
-		 */
-		public abstract void removeBlock();
-		
-		/**
-		 * Scrolls this panel's parent viewport to the bottom.
-		 */
-		protected void scrollToBottom() {
-			Container parent = this.getParent();
-			if (parent instanceof JViewport) {
-				((JViewport) parent).setViewPosition(new Point(0, this.getHeight()));
-			}
-		}
-	}
 	
 	/**
 	 * Panel implementation for dynamic editing of Cypher query START blocks.
@@ -2014,7 +1908,10 @@ public class GraphQueryDialog extends JDialog {
 		protected Object doInBackground() {
 			try {
 				// Retrieve the query from the console, if user has changed text there.
-				if (consoleChanged) query = new CypherQuery(consoleTxt.getText());
+				if (consoleChanged) {
+					query = new CypherQuery(consoleTxt.getText());
+					parent.setLastCypherQuery(query);
+				}
 				
 				// Execute query, store result
 				GraphDatabaseHandler handler = Client.getInstance().getGraphDatabaseHandler();

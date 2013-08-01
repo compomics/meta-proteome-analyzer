@@ -54,23 +54,27 @@ public class CypherQuery {
 	private String statement;
 	
 	/**
-	 * CypherQuery constructor for a query made from direct statement.
+	 * Query state of being custom-built or not.
+	 */
+	private boolean custom;
+	
+	/**
+	 * CypherQuery constructor for a query made from direct statement, i.e. query is custom-built.
 	 * @param statement
 	 */
 	public CypherQuery(String statement) {
 		this.statement = statement;
+		this.custom = true;
 	}
 	
 	/**
-	 * 
-	 * @param startNodes
-	 * @param matches
-	 * @param conditions
-	 * @param returnIndices
+	 * CypherQuery constructor for query made from defined start nodes, matches, conditions and return indices. 
+	 * @param startNodes Cypher start nodes
+	 * @param matches Cypher matches
+	 * @param conditions Cypher matches
+	 * @param returnIndices Cypher return indices
 	 */
-	public CypherQuery(List<CypherStartNode> startNodes,
-			List<CypherMatch> matches, List<CypherCondition> conditions,
-			List<Integer> returnIndices) {
+	public CypherQuery(List<CypherStartNode> startNodes, List<CypherMatch> matches, List<CypherCondition> conditions, List<Integer> returnIndices) {
 		this.startNodes = startNodes;
 		this.matches = matches;
 		this.conditions = conditions;
@@ -83,9 +87,7 @@ public class CypherQuery {
 	 */
 	public boolean isValid() {
 		// Assume that the provided statement is valid. 
-		// TODO: Check for validity ?
-		if(statement != null) return true;
-		
+		if(statement != null) return true;		
 		return (startNodes != null) && (returnIndices != null);
 	}
 	
@@ -179,9 +181,19 @@ public class CypherQuery {
 		this.returnIndices = returnIndices;
 	}
 	
+	/**
+	 * Returns the state of the CypherQuery (being custom-built or not).
+	 * @return true if the CypherQuery is custom-built else false
+	 */
+	public boolean isCustom() {
+		return custom;
+	}
+	
 	
 	/* only legacy code below this line - TODO: remove/refactor */
+	
 
+	
 	/**
 	 * Execution engine.
 	 */
@@ -269,42 +281,6 @@ public class CypherQuery {
 				"MATCH (eProtein)-[:BELONGS_TO_ENZYME]->(dE4)<-[:IS_SUPERGROUP_OF]-(cE3)<-[:IS_SUPERGROUP_OF]-(bE2)<-[:IS_SUPERGROUP_OF]-(aE1) " +
 				"RETURN aE1, bE2, cE3, dE4, eProtein");
 	}
-	
-//	public ExecutionResult getAllEnzymes() {
-//		ExecutionResult res = null;
-//		List<String> perms = permutation("abcd");
-//		for (String perm : perms) {
-//			System.out.print(perm + ": ");
-//			String stmnt = "START eProtein=node:proteins(\"IDENTIFIER:*\") " +
-//					"MATCH (eProtein)-[:BELONGS_TO_ENZYME]->(" + perm.charAt(3) + "E4)<-[:IS_SUPERGROUP_OF]-(" + perm.charAt(2) + "E3)<-[:IS_SUPERGROUP_OF]-(" + perm.charAt(1) + "E2)<-[:IS_SUPERGROUP_OF]-(" + perm.charAt(0) + "E1) " +
-//					"RETURN " + perm.charAt(0) + "E1, " + perm.charAt(1) + "E2, " + perm.charAt(2) + "E3, " + perm.charAt(3) + "E4, eProtein";
-//			res = engine.execute(stmnt);
-//			Map<String, Object> map = res.iterator().next();
-//			for (Entry<String, Object> e : map.entrySet()) {
-//				System.out.print(e.getKey() + " ");
-//			}
-//			System.out.println();
-//		}
-//		
-//		return res;
-//	}
-//	
-//	public List<String> permutation(String str) {
-//		return permutation("", str);
-//	}
-//
-//	private List<String> permutation(String prefix, String str) {
-//		List<String> res = new ArrayList<String>();
-//		int n = str.length();
-//		if (n == 0) {
-//			res.add(prefix);
-//		} else {
-//			for (int i = 0; i < n; i++) {
-//				res.addAll(permutation(prefix + str.charAt(i), str.substring(0, i) + str.substring(i + 1, n)));
-//			}
-//		}
-//		return res;
-//	}
 	
 	/**
 	 * Returns the unique peptides for a protein (specified by its accession).
