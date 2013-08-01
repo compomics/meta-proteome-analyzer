@@ -43,14 +43,27 @@ public class UniprotAccessor {
 	 * Enumeration holding ontology keywords.
 	 */
 	public enum KeywordOntology {
-		BIOLOGICAL_PROCESS, CELLULAR_COMPONENT, MOLECULAR_FUNCTION
+		BIOLOGICAL_PROCESS("Biological Process"),
+		CELLULAR_COMPONENT("Cellular Component"), 
+		MOLECULAR_FUNCTION("Molecular Function");
+		
+		private String val;
+		
+		private KeywordOntology(String value) {
+			this.val = value;
+		}
+		
+		@Override
+		public String toString() {
+			return val;
+		}
 	}
 
 	/**
 	 * Enumeration holding taxonomic ranks.
 	 */
 	public enum TaxonomyRank {
-		SUPERKINGDOM, KINGDOM, PHYLUM, CLASS,	ORDER, FAMILY, GENUS, SPECIES, NO_RANK 
+		SUPERKINGDOM, KINGDOM, PHYLUM, CLASS, ORDER, FAMILY, GENUS, SPECIES, NO_RANK 
 	}
 
 	/**
@@ -74,7 +87,7 @@ public class UniprotAccessor {
 			String acc = entry.getKey();
 			if (acc.matches("^\\d*$")) {
 				// accession contains only numbers, most likely a non-UniProt identifier
-				giSet.add(acc);
+//				TODO: giSet.add(acc);
 			} else {
 				proteinHits.put(acc, entry.getValue());
 			}

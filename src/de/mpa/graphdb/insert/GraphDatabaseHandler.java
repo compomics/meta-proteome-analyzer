@@ -326,7 +326,7 @@ public class GraphDatabaseHandler {
 						addEdge(proteinVertex, ontologyVertex, RelationType.INVOLVED_IN_BIOPROCESS);
 						break;
 					case CELLULAR_COMPONENT:
-						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_CELLULAR_COMPONENT);
+						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_CELL_COMP);
 						break;
 					case MOLECULAR_FUNCTION:
 						addEdge(proteinVertex, ontologyVertex, RelationType.HAS_MOLECULAR_FUNCTION);

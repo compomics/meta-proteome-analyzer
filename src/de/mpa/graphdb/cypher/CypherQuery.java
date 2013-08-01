@@ -59,6 +59,11 @@ public class CypherQuery {
 	private boolean custom;
 	
 	/**
+	 * Title of the CypherQuery.
+	 */
+	private String title;
+	
+	/**
 	 * CypherQuery constructor for a query made from direct statement, i.e. query is custom-built.
 	 * @param statement
 	 */
@@ -189,11 +194,24 @@ public class CypherQuery {
 		return custom;
 	}
 	
+	/**
+	 * Returns the title of the query.
+	 * @return
+	 */
+	public String getTitle() {
+		return title;
+	}
+	
+	/**
+	 * Sets the title of the query.
+	 * @param title
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
 	
 	/* only legacy code below this line - TODO: remove/refactor */
-	
 
-	
 	/**
 	 * Execution engine.
 	 */

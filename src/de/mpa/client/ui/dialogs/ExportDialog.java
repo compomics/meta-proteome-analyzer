@@ -39,7 +39,7 @@ import de.mpa.io.ResultExporter.ExportHeaderType;
  */
 public class ExportDialog extends JDialog {
 	
-	private ClientFrame clientFrame;
+	private ClientFrame owner;
 	private JTabbedPane tabPane;
 	private JPanel proteinPanel;
 	private JCheckBox proteinNumberCbx;
@@ -102,9 +102,9 @@ public class ExportDialog extends JDialog {
 	private JCheckBox taxonomyUnspecificSpecCountCbx;
 	private JCheckBox taxonomyUnclassifiedCbx;
 	
-	public ExportDialog(ClientFrame parent, String title) {
-		this.clientFrame = parent;
-		setTitle(title);
+	public ExportDialog(ClientFrame owner, String title, boolean modal) {
+		super(owner, title, modal);
+		this.owner = owner;
 		initComponents();
 		showDialog();
 	}
@@ -414,7 +414,7 @@ public class ExportDialog extends JDialog {
 	 * Helper method to select the chosen exporter.
 	 */
 	private void chooseExporter() {
-		JFileChooser chooser = new ConfirmFileChooser(clientFrame.getLastSelectedFolder());
+		JFileChooser chooser = new ConfirmFileChooser(owner.getLastSelectedFolder());
 		chooser.setFileFilter(Constants.CSV_FILE_FILTER);
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setMultiSelectionEnabled(false);
@@ -456,7 +456,7 @@ public class ExportDialog extends JDialog {
 					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDbSearchResult(), exportHeaders);
 				}
 
-				clientFrame.setLastSelectedFolder(selectedFile.getPath());
+				owner.setLastSelectedFolder(selectedFile.getPath());
 
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(this,
