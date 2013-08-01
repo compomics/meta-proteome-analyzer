@@ -20,6 +20,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -29,6 +32,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultButtonModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -41,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -73,6 +78,7 @@ import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
@@ -87,6 +93,8 @@ import de.mpa.graphdb.cypher.CypherStartNode;
 import de.mpa.graphdb.edges.DirectionType;
 import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
+import de.mpa.graphdb.io.QueryHandler;
+import de.mpa.graphdb.io.UserQueries;
 import de.mpa.graphdb.nodes.NodeType;
 import de.mpa.graphdb.properties.ElementProperty;
 
@@ -108,12 +116,12 @@ public class GraphQueryDialog extends JDialog {
 	/**
 	 * The Cypher query this dialog generates.
 	 */
-	protected CypherQuery query;
+	protected CypherQuery selectedQuery;
 	
 	/**
 	 * The list of predefined Cypher queries.
 	 */
-	private JXList predefinedList;
+	private JXList defaultQueryList;
 
 	/**
 	 * The panel inside the compound query pane containing controls for
@@ -152,7 +160,16 @@ public class GraphQueryDialog extends JDialog {
 
 	protected boolean consoleChanged;
 
-	private JScrollPane predefinedListScp;
+	private JScrollPane defaultQueryListScp;
+	
+	private GraphQueryDialog graphQueryDialog;
+	
+	private UserQueries userQueries;
+
+	private JXList savedQueryList;
+
+	private JScrollPane savedQueryListScp;
+
 	
 	/**
 	 * Graph query dialog
@@ -163,9 +180,25 @@ public class GraphQueryDialog extends JDialog {
 	public GraphQueryDialog(Frame owner, GraphDatabaseResultPanel parent, String title, boolean modal) {
 		super(owner, title, modal);
 		this.parent = parent;
+		this.graphQueryDialog = this;
 		setupUI();
 		this.init = true;
+		loadUserQueries();
 		initComponents();
+	}
+	
+	/**
+	 * Loads the available user queries and adds them to the list view.
+	 */
+	private void loadUserQueries() {
+		try {
+			File queryFile = new File(this.getClass().getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
+			userQueries = QueryHandler.importUserQueries(queryFile);
+		} catch (Exception e) {
+			userQueries = new UserQueries();
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), "Unable to load the user queries", null, e, ErrorLevel.SEVERE, null));
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -212,15 +245,15 @@ public class GraphQueryDialog extends JDialog {
 		// Console query section
 		JXTaskPane consoleQueryTaskPane = createConsoleQueryTaskPane();
 		
-		// Gets the last chosen Cypher Query (if any).
+		// Gets the last chosen query (if any).
 		if (parent.getLastCypherQuery() != null) {
-			query = parent.getLastCypherQuery();
-			int index = predefinedList.getElementCount() - 1;
-			predefinedList.setSelectedIndex(index);
-			predefinedList.ensureIndexIsVisible(index);
-			consoleTxt.setText(query.toString());
+			selectedQuery = parent.getLastCypherQuery();
+			int index = defaultQueryList.getElementCount() - 1;
+			defaultQueryList.setSelectedIndex(index);
+			defaultQueryList.ensureIndexIsVisible(index);
+			consoleTxt.setText(selectedQuery.toString());
 		} else {
-			predefinedList.setSelectedIndex(0);
+			defaultQueryList.setSelectedIndex(0);
 		}
 
 		tpc.add(predefinedQueryTaskPane);
@@ -228,11 +261,11 @@ public class GraphQueryDialog extends JDialog {
 		tpc.add(consoleQueryTaskPane);
 		
 		// Configure button panel containing 'OK' and 'Cancel' options
-		FormLayout layout = new FormLayout("p, 5dlu:g, p", "p");
-
+		FormLayout layout = new FormLayout("p, 5dlu:g, p, 5dlu:g, p", "p");
 		JPanel buttonPnl = new JPanel(layout);
+		
 		// Configure 'OK' button
-		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
+		JButton okBtn = new JButton("Execute", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
 		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -241,7 +274,10 @@ public class GraphQueryDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				new ResultsTask().execute();
 			}
-		});
+		});		
+		okBtn.setPreferredSize(okBtn.getPreferredSize());
+		
+
 		
 		// Configure 'Cancel' button
 		JButton cancelBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
@@ -253,9 +289,8 @@ public class GraphQueryDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
-		});
-		
-		okBtn.setPreferredSize(cancelBtn.getPreferredSize());
+		});		
+		cancelBtn.setPreferredSize(cancelBtn.getPreferredSize());
 		
 		// Lay out button panel
 		buttonPnl.add(okBtn, CC.xy(1, 1));
@@ -304,19 +339,27 @@ public class GraphQueryDialog extends JDialog {
 			}
 		});
 		
-		Object[] data = CypherQueryType.values();
+		Object[] defaultQueryData = CypherQueryType.values();		
+		defaultQueryList = new JXList(defaultQueryData);
+		// Default queries
+		defaultQueryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		predefinedList = new JXList(data);
-		predefinedList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	
-		JXList favouritesList = new JXList();
-		favouritesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		// Saved queries		
+		savedQueryList = new JXList(new DefaultListModel());
+		DefaultListModel savedQueryListModel = (DefaultListModel) savedQueryList.getModel();
+		
+		Object[] savedQueryData = userQueries.getTitleObjects();
+		for (Object obj : savedQueryData) {
+			savedQueryListModel.addElement(obj);
+		}
+		savedQueryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		taskPane.add(new JLabel("Default Queries"), CC.xy(1, 1));
 		taskPane.add(new JLabel("Saved Queries"), CC.xy(3, 1));
-		predefinedListScp = new JScrollPane(predefinedList);		
-		taskPane.add(predefinedListScp, CC.xy(1, 3));
-		taskPane.add(new JScrollPane(favouritesList), CC.xy(3, 3));
+		defaultQueryListScp = new JScrollPane(defaultQueryList);		
+		savedQueryListScp = new JScrollPane(savedQueryList);
+		taskPane.add(defaultQueryListScp, CC.xy(1, 3));
+		taskPane.add(savedQueryListScp, CC.xy(3, 3));
 		
 		return taskPane;
 	}
@@ -406,7 +449,7 @@ public class GraphQueryDialog extends JDialog {
 	 */
 	private JXTaskPane createConsoleQueryTaskPane() {
 		JXTaskPane taskPane = new JXTaskPane("Cypher Console");
-		taskPane.setLayout(new FormLayout("p:g", "f:p:g"));
+		taskPane.setLayout(new FormLayout("p:g", "f:p:g, 5dlu, p"));
 		taskPane.setUI(new GlossyTaskPaneUI());
 
 		// Apply component listener to synchronize task pane size with dialog size
@@ -427,7 +470,7 @@ public class GraphQueryDialog extends JDialog {
 		});
 
 		consoleTxt = new JTextArea(4, 0);
-		consoleTxt.setFont(new Font("Courier", consoleTxt.getFont().getStyle(), 12));
+//		consoleTxt.setFont(new Font("Courier", consoleTxt.getFont().getStyle(), 12));
 		
 		// Key Listener to check whether the user has changed the console manually.
 		consoleTxt.addKeyListener(new KeyListener() {
@@ -435,9 +478,9 @@ public class GraphQueryDialog extends JDialog {
 			@Override
 			public void keyTyped(KeyEvent e) {				
 				consoleChanged = true;
-				int index = predefinedList.getElementCount() - 1;
-				predefinedList.setSelectedIndex(index);
-				predefinedList.ensureIndexIsVisible(index);
+				int index = defaultQueryList.getElementCount() - 1;
+				defaultQueryList.setSelectedIndex(index);
+				defaultQueryList.ensureIndexIsVisible(index);
 			}
 			
 			@Override
@@ -456,28 +499,93 @@ public class GraphQueryDialog extends JDialog {
 		consoleScpn .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		taskPane.add(consoleScpn, CC.xy(1, 1));
-
-		predefinedList.addListSelectionListener(new ListSelectionListener() {
+		
+		// Configure 'Save' button
+		JButton saveBtn = new JButton("Save...", IconConstants.SAVE_ICON);
+		saveBtn.setRolloverIcon(IconConstants.SAVE_ROLLOVER_ICON);
+		saveBtn.setPressedIcon(IconConstants.SAVE_PRESSED_ICON);
+		saveBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		saveBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new SaveQueryDialog(graphQueryDialog, "Save GraphDB Query", true);
+			}
+		});		
+		saveBtn.setPreferredSize(saveBtn.getPreferredSize());
+		
+		JPanel buttonPnl = new JPanel(new FormLayout("r:p:g", "p"));
+		buttonPnl.add(saveBtn, CC.xy(1, 1));
+		taskPane.add(buttonPnl, CC.xy(1, 3));
+		
+		defaultQueryList.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
-				int index = predefinedList.getSelectedIndex();
-				if (index >= 0) {
-					if (index < (predefinedList.getElementCount() - 1)) {
-						query = ((CypherQueryType) predefinedList.getSelectedValue()).getQuery();
-						consoleTxt.setText(query.toString());
-						startPnl.setStartNodes(query.getStartNodes());
-						matchPnl.setMatches(query.getMatches());
-						returnPnl.setReturnIndices(query.getReturnIndices());
+				int index = defaultQueryList.getSelectedIndex();
+				// Disable other lists selection (if any).
+				savedQueryList.clearSelection();
+				if (index >= 0 && !evt.getValueIsAdjusting()) {
+					if (index < (defaultQueryList.getElementCount() - 1)) {						
+						selectedQuery = ((CypherQueryType) defaultQueryList.getSelectedValue()).getQuery();
+						consoleTxt.setText(selectedQuery.toString());
+						// If the selected query is not custom-built, then look for compound query features 
+						if(!selectedQuery.isCustom()) {							
+							startPnl.setStartNodes(selectedQuery.getStartNodes());
+							matchPnl.setMatches(selectedQuery.getMatches());
+							returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
+						}
+						
 					}
 				}
 			}
 		});
-	
 		
+		savedQueryList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent evt) {
+				int index = savedQueryList.getSelectedIndex();
+				// Disable other lists selection (if any).
+				defaultQueryList.clearSelection();
+				if (index >= 0 && !evt.getValueIsAdjusting()) {					
+					selectedQuery = userQueries.getQuery(index);
+					consoleTxt.setText(selectedQuery.toString());
+					// TODO: Enable custom-build queries to be saved.
+					// if(!selectedQuery.isCustom()) {
+					// startPnl.setStartNodes(selectedQuery.getStartNodes());
+					// matchPnl.setMatches(selectedQuery.getMatches());
+					// returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
+					// }
+				}
+			}
+		});
 		return taskPane;
 	}
-
 	
+	/**
+	 * Returns the currently selected <code>CypherQuery</code> instance.
+	 * @return selected query
+	 * @see CypherQuery
+	 */
+	public CypherQuery getSelectedQuery() {
+		if(consoleChanged) selectedQuery = new CypherQuery(consoleTxt.getText());
+		return selectedQuery;
+	}
+	
+	/**
+	 * Returns the user queries.
+	 * @return user queries
+	 * @see UserQueries
+	 */
+	public UserQueries getUserQueries() {
+		return userQueries;
+	}
+	
+	
+	// TODO: Refactor / move to external classes!
+
+
+
+
+
 	/**
 	 * Panel implementation for dynamic editing of Cypher query START blocks.
 	 * 
@@ -567,7 +675,7 @@ public class GraphQueryDialog extends JDialog {
 			this.scrollToBottom();
 
 			// propagate change to other components
-			predefinedList.setSelectedIndex(predefinedList.getElementCount() - 1);
+			defaultQueryList.setSelectedIndex(defaultQueryList.getElementCount() - 1);
 			
 			matchPnl.setStartNodes(getStartNodes(), true);
 			
@@ -609,7 +717,7 @@ public class GraphQueryDialog extends JDialog {
 			this.repaint();
 
 			// propagate change to other components
-			predefinedList.setSelectedIndex(predefinedList.getElementCount() - 1);
+			defaultQueryList.setSelectedIndex(defaultQueryList.getElementCount() - 1);
 			
 			updateQuery();
 		}
@@ -1881,12 +1989,11 @@ public class GraphQueryDialog extends JDialog {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					query.setStartNodes(startPnl.getStartNodes());
-					query.setMatches(matchPnl.getMatches());
+					selectedQuery.setStartNodes(startPnl.getStartNodes());
+					selectedQuery.setMatches(matchPnl.getMatches());
 					// TODO: query.setConditions(wherePnl.getConditions());
-					query.setReturnIndices(returnPnl.getReturnIndices());
-
-					consoleTxt.setText(query.toString());
+					selectedQuery.setReturnIndices(returnPnl.getReturnIndices());
+					consoleTxt.setText(selectedQuery.toString());
 				}
 			});
 		}
@@ -1909,13 +2016,13 @@ public class GraphQueryDialog extends JDialog {
 			try {
 				// Retrieve the query from the console, if user has changed text there.
 				if (consoleChanged) {
-					query = new CypherQuery(consoleTxt.getText());
-					parent.setLastCypherQuery(query);
+					selectedQuery = new CypherQuery(consoleTxt.getText());
+					parent.setLastCypherQuery(selectedQuery);
 				}
 				
 				// Execute query, store result
 				GraphDatabaseHandler handler = Client.getInstance().getGraphDatabaseHandler();
-				result = handler.executeCypherQuery(query);
+				result = handler.executeCypherQuery(selectedQuery);
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -1931,6 +2038,19 @@ public class GraphQueryDialog extends JDialog {
 			consoleChanged = false;
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			dispose();
+		}
+	}
+	
+	/**
+	 * Updates the user queries for the 
+	 */
+	public void updateUserQueries() {
+		DefaultListModel model = (DefaultListModel) savedQueryList.getModel();
+		model.removeAllElements();
+		
+		Object[] savedQueryData = userQueries.getTitleObjects();
+		for (Object obj : savedQueryData) {
+			model.addElement(obj);
 		}
 	}
 }

@@ -37,7 +37,7 @@ public enum CypherQueryType {
 	CELLULAR_COMPONENTS_BY_PROTEINS("Get Cellular Component Ontologies grouped by Proteins") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getOntologiesByProteins(RelationType.BELONGS_TO_CELLULAR_COMPONENT);
+			return CypherQueryFactory.getOntologiesByProteins(RelationType.BELONGS_TO_CELL_COMP);
 		}
 	},	
 	PATHWAYS_BY_PROTEINS("Get Pathways grouped by Proteins") {

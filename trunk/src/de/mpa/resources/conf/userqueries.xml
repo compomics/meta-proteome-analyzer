@@ -1,0 +1,90 @@
+<de.mpa.graphdb.io.UserQueries>
+  <queries>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
+MATCH (ontologies)&lt;-[rel:BELONGS_TO_CELL_COMP]-(proteins)-[:BELONGS_TO]-&gt;(taxa)
+WHERE (taxa.Identifier =~ &apos;.*phylum.*&apos;)
+RETURN ontologies, taxa, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins by Cell Component and Phylum</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
+MATCH (ontologies)&lt;-[rel:HAS_MOLECULAR_FUNCTION]-(proteins)-[:BELONGS_TO]-&gt;(taxa)
+WHERE (taxa.Identifier =~ &apos;.*phylum.*&apos;)
+RETURN ontologies, taxa, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins by Molecular Function and Phylum</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
+MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO]-&gt;(taxa)
+WHERE (taxa.Identifier =~ &apos;.*phylum.*&apos;)
+RETURN ontologies, taxa, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins by Bio Process and Phylum</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <startNodes>
+        <de.mpa.graphdb.cypher.CypherStartNode>
+          <identifier>taxa</identifier>
+          <index>TAXA</index>
+          <property class="de.mpa.graphdb.properties.ElementProperty$1"/>
+          <value class="string">*</value>
+        </de.mpa.graphdb.cypher.CypherStartNode>
+      </startNodes>
+      <matches>
+        <de.mpa.graphdb.cypher.CypherMatch>
+          <nodeId>taxa</nodeId>
+          <relation>BELONGS_TO</relation>
+          <relationId>rel</relationId>
+          <direction>IN</direction>
+        </de.mpa.graphdb.cypher.CypherMatch>
+        <de.mpa.graphdb.cypher.CypherMatch>
+          <nodeId>proteins</nodeId>
+          <relation>HAS_PEPTIDE</relation>
+          <relationId></relationId>
+          <direction>BOTH</direction>
+        </de.mpa.graphdb.cypher.CypherMatch>
+        <de.mpa.graphdb.cypher.CypherMatch>
+          <nodeId></nodeId>
+          <relationId></relationId>
+        </de.mpa.graphdb.cypher.CypherMatch>
+      </matches>
+      <returnIndices>
+        <int>0</int>
+        <int>1</int>
+      </returnIndices>
+      <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
+MATCH (taxa)&lt;-[rel:BELONGS_TO]-(proteins)-[:HAS_PEPTIDE]-(peptides)
+RETURN taxa, peptides, proteins</statement>
+      <custom>true</custom>
+      <title>Get Taxa, Peptides and Proteins</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
+MATCH (ontologies)&lt;-[rel:HAS_MOLECULAR_FUNCTION]-(proteins)-[:BELONGS_TO]-&gt;(taxa)
+WHERE (taxa.Identifier =~ &apos;.*order.*&apos;)
+RETURN ontologies, taxa, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins by Molecular Function and Order </title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
+MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO]-&gt;(taxa)
+WHERE (taxa.Identifier =~ &apos;.*order.*&apos;)
+RETURN ontologies, taxa, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins by Bio Process and Order</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
+MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO]-&gt;(taxa)
+WHERE (taxa.Identifier =~ &apos;.*phylum.*&apos;)
+RETURN taxa, ontologies, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins by Phylum and Bio Process</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+  </queries>
+  <lastModified>2013-08-01 13:38:11.131 UTC</lastModified>
+</de.mpa.graphdb.io.UserQueries>

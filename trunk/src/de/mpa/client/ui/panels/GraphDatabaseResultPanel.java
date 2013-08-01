@@ -88,7 +88,7 @@ public class GraphDatabaseResultPanel extends JPanel {
 		graphDbDialogBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new GraphQueryDialog(ClientFrame.getInstance(), panel, "Graph Database", true);
+				new GraphQueryDialog(ClientFrame.getInstance(), panel, "GraphDB Query Dialog", true);
 			}
 		});
 		
