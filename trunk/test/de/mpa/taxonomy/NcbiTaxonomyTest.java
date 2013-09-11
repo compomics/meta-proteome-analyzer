@@ -38,15 +38,6 @@ public class NcbiTaxonomyTest extends TestCase {
 		try {
 			NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance();
 			
-//			int max = 1000;
-//			System.out.print("Fetching " + max + " Taxon Names... ");
-//			long startTime = System.currentTimeMillis();
-//			for (int i = 1; i <= max; i++) {
-//				ncbiTax.getTaxonName(i);
-//			}
-//			System.out.flush();
-//			System.out.println("done! (" + (System.currentTimeMillis() - startTime) + " ms)");
-			
 			// Get taxon name from name map
 			String name1 = ncbiTax.getTaxonName(1);
 			String name2 = ncbiTax.getTaxonName(2);
@@ -55,18 +46,6 @@ public class NcbiTaxonomyTest extends TestCase {
 			assertEquals("Bacteria", name2);
 			assertEquals("Leptospira borgpetersenii", name3);
 			
-//			max = 1000;
-//			int inc = 100;
-//			System.out.print("Fetching " + max + " Common Taxonomy IDs");
-//			startTime = System.currentTimeMillis();
-//			for (int i = 1; i <= max; i++) {
-//				if ((i % inc) == 0) {
-//					System.out.print(".");
-//				}
-//				ncbiTax.getCommonTaxonomyID(i, i + 1);
-//			}
-//			System.out.flush();
-//			System.out.println(" done! (" + (System.currentTimeMillis() - startTime) + " ms)");
 
 			// Get parent from node map
 			int parentTaxID1 = ncbiTax.getParentTaxId(1);

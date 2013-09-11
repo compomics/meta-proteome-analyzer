@@ -165,5 +165,31 @@ public class Constants {
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
 			"Raw Mascot Result File (*.dat)");
+
+	/**
+	 * Constants for the axis of the heatmap.
+	 */
+	public static final String[] HEATMAP_XAXIS = {	"PEPTIDE",
+													"PROTEINE",
+													"METAPROTEINE"};
+	public static final String[] HEATMAP_YAXIS = {	"TAX_SUPERKINGDOM",// Special case for metaproteins
+													"TAX_KINGDOM",
+													"TAX_PHYLUM",
+													"TAX_CLASS",
+													"TAX_ORDER",
+													"TAX_FAMILY",
+													"TAX_GENUS",
+													"TAX_SPECIES",
+													"EC_NUMBER",
+													"BIOLOGICAL_PROCESS",
+													"CELLULAR_COMPONENT",
+													"MOLECULAR_FUNCTION",
+													"PATHWAY",
+													"PEPTIDE",
+													"PROTEIN (METAPROT)"};
+	public static final String[] HEATMAP_ZAXIS = {	"No. METAPROTEIN",
+													"No. PROTEIN",
+													"No. PEPTIDE",
+													"No. SPECTRA"};
 	
 }
