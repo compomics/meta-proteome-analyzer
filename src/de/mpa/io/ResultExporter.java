@@ -53,7 +53,7 @@ public class ResultExporter {
 	public static void exportMetaProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[10];
+		boolean hasFeature[] = new boolean[11];
 		
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -78,6 +78,12 @@ public class ResultExporter {
 			if (hasFeature[7]) writer.append(metaProtein.getEmPAI() + SEP);
 			if (hasFeature[8]) writer.append(metaProtein.getSpectralCount() + SEP);
 			if (hasFeature[9]) writer.append(metaProtein.getPeptideCount() + SEP);
+			if (hasFeature[10]) {
+				for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
+					writer.append(peptideHit.getSequence() + ",");
+				}
+				writer.append(SEP);
+			}
 			writer.newLine();
 			writer.flush();
 			}
@@ -95,7 +101,7 @@ public class ResultExporter {
 	public static void exportProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException{
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[12];		
+		boolean hasFeature[] = new boolean[13];		
 
 		// Protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -127,6 +133,12 @@ public class ResultExporter {
 				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + SEP);
 				if (hasFeature[10]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + SEP);
 				if (hasFeature[11]) writer.append(proteinHit.getSequence());
+				if (hasFeature[12]) {
+					for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
+						writer.append(peptideHit.getSequence() + ",");
+					}
+					writer.append(SEP);
+				}
 				writer.newLine();
 				writer.flush();
 			}

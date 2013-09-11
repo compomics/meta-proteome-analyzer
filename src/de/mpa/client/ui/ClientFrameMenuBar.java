@@ -30,6 +30,7 @@ import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.ExportFields;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.db.DbConnectionSettings;
@@ -55,6 +56,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private ServerConnectionSettings srvSettings;
 	
 	/**
+	 * Class containing all values for the export checkboxes.
+	 */
+	private ExportFields exportFields;
+	
+	/**
 	 * Method to get the settingsMenu
 	 * @return The settings menu
 	 */
@@ -69,6 +75,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	public ClientFrameMenuBar() {
 		this.clientFrame = ClientFrame.getInstance();
 		this.client = Client.getInstance();
+		exportFields = ExportFields.getInstance();
 		initComponents();
 	}
 	
@@ -460,7 +467,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * This method opens the export dialog.
 	 */
     private void showExportDialog() {
-    	new ExportDialog(clientFrame, "Results Export", true);
+    	new ExportDialog(clientFrame, "Results Export", true, exportFields);
 
     }
     
@@ -479,5 +486,4 @@ public class ClientFrameMenuBar extends JMenuBar {
 	public void setSaveprojectFunctionalityEnabled(boolean enabled) {
     	saveProjectItem.setEnabled(enabled);
     }
-	
 }

@@ -36,6 +36,16 @@ public class IconConstants {
 	public static final ImageIcon BUG_ROLLOVER_ICON = createRescaledIcon(BUG_ICON, 1.1f);
 	public static final ImageIcon BUG_PRESSED_ICON = createRescaledIcon(BUG_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/bug16.png"> */
+	public static final ImageIcon BUG16_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bug16.png"));
+	public static final ImageIcon BUG16_ROLLOVER_ICON = createRescaledIcon(BUG16_ICON, 1.1f);
+	public static final ImageIcon BUG16_PRESSED_ICON = createRescaledIcon(BUG16_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/filter_add16.png"> */
+	public static final ImageIcon FILTERADD16_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/filter_add16.png"));
+	public static final ImageIcon FILTERADD16_ROLLOVER_ICON = createRescaledIcon(FILTERADD16_ICON, 1.1f);
+	public static final ImageIcon FILTERADD16_PRESSED_ICON = createRescaledIcon(FILTERADD16_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/check16.png"> */
 	public static final ImageIcon CHECK_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/check16.png"));
 	public static final ImageIcon CHECK_ROLLOVER_ICON = createRescaledIcon(CHECK_ICON, 1.1f);

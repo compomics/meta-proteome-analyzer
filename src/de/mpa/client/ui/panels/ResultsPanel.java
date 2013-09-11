@@ -76,9 +76,9 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
-import org.jfree.data.xy.MatrixSeries;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -89,6 +89,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.CreateHeatMap;
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -133,12 +134,12 @@ public class ResultsPanel extends JPanel {
 	 * The database search results panel.
 	 */
 	private DbSearchResultPanel dbPnl;
-	
+
 	/**
 	 * The spectral similarity results panel.
 	 */
 	private SpecSimResultPanel ssPnl;
-	
+
 	/**
 	 * The GraphDatabaseResultPanel. TODO: decide fate of de novo/BLAST results panel
 	 */
@@ -160,7 +161,7 @@ public class ResultsPanel extends JPanel {
 	 * Scrollbar for the top right chart pane.
 	 */
 	private JScrollBar chartBar = new JScrollBar(0, 0, 36, 0, 360);
-	
+
 	/**
 	 * Combobox for specifying the displayed hierarchy level of pie plots
 	 * (protein, peptide, spectrum level).
@@ -178,7 +179,7 @@ public class ResultsPanel extends JPanel {
 	 * threshold of 1% shall be merged into a category labeled 'Others'.
 	 */
 	private JCheckBox chartPieGroupChk;
-	
+
 	/**
 	 * The rotation angle of pie plots.
 	 */
@@ -188,22 +189,22 @@ public class ResultsPanel extends JPanel {
 	 * The type of chart to be displayed in the top right chart pane.
 	 */
 	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
-	
+
 	/**
 	 * Data container for ontological meta-information of the fetched results.
 	 */
 	private OntologyData ontologyData = new OntologyData();
-	
+
 	/**
 	 * Data container for taxonomic meta-information of the fetched results.
 	 */
 	private TaxonomyData taxonomyData;
-	
+
 	/**
 	 * Data container for 'Top 10 Proteins' chart.
 	 */
 	private TopData topData;
-	
+
 	/**
 	 * Data container for total ion current histogram chart.
 	 */
@@ -219,50 +220,76 @@ public class ResultsPanel extends JPanel {
 	 * Label displaying the total count of spectra used in the search.
 	 */
 	private JLabel totalSpecLbl;
-	
+
 	/**
 	 * Label displaying the number of spectra annotated by the search.
 	 */
 	private JLabel identSpecLbl;
-	
+
 	/**
 	 * Label displaying the total count of peptide associations in the result.
 	 */
 	private JLabel totalPepLbl;
-	
+
 	/**
 	 * Label displaying the number of peptides with unique sequences in the result.
 	 */
 	private JLabel distPepLbl;
-	
+
 	/**
 	 * Label displaying the total count of proteins identified by the search.
 	 */
 	private JLabel totalProtLbl;
-	
+
 	/**
 	 * Label displaying the number of proteins specific to unique species
 	 * identified in the search.
 	 */
 	private JLabel metaProtLbl;
-	
+
 	/**
 	 * Label displaying the number of unique species identified by protein
 	 * associations by the search.
 	 */
 	private JLabel speciesLbl;
-	
+
 	/**
 	 * Label displaying the number of unique enzymes identified by protein
 	 * associations by the search.
 	 */
 	private JLabel enzymesLbl;
-	
+
 	/**
 	 * Label displaying the number of unique pathways identified by protein
 	 * associations by the search.
 	 */
 	private JLabel pathwaysLbl;
+
+
+	/**
+	 * HeatMapPane of the heatmap.
+	 */
+	private HeatMapPane heatMapPn;
+
+	/**
+	 * Combobox for the types of the x-Axis
+	 */
+	private JComboBox xAxisCbx;
+
+	/**
+	 * Combobox for the types of the y-Axis
+	 */
+	private JComboBox yAxisCbx;
+
+	/**
+	 * Combobox for the types of the z-Axis
+	 */
+	private JComboBox zAxisCbx;
+
+	/**
+	 * The database search result object
+	 */
+	private DbSearchResult dbSearchResult;
 
 	/**
 	 * Constructs a results panel containing the detail views for database,
@@ -325,12 +352,12 @@ public class ResultsPanel extends JPanel {
 				"Database Search Results",
 				new ImageIcon(getClass().getResource(
 						"/de/mpa/resources/icons/database_search32.png")),
-				resTpn));
+						resTpn));
 		resTpn.setTabComponentAt(2, clientFrame.createTabButton(
 				"Spectral Similarity Results",
 				new ImageIcon(getClass().getResource(
 						"/de/mpa/resources/icons/spectral_search32.png")),
-				resTpn));
+						resTpn));
 		resTpn.setTabComponentAt(3, clientFrame.createTabButton(
 				"GraphDB Results",
 				new ImageIcon(getClass().getResource(
@@ -338,12 +365,12 @@ public class ResultsPanel extends JPanel {
 		Component tabComp = resTpn.getTabComponentAt(0);
 		tabComp.setPreferredSize(new Dimension(
 				tabComp.getPreferredSize().width, 40));
-		
+
 		// Disable spectral similarity for viewer.
 		if(Client.getInstance().isViewer()) {
 			resTpn.setEnabledAt(2,  false);			
 		}
-		
+
 		// create navigation button panel
 		final JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p",
 				"b:p:g"));
@@ -423,18 +450,18 @@ public class ResultsPanel extends JPanel {
 		generalPnl.add(enzymesLbl, CC.xy(4, 10));
 		generalPnl.add(new JLabel("Distinct pathways"), CC.xy(2, 12));
 		generalPnl.add(pathwaysLbl, CC.xy(4, 12));
-		
+
 		// panel containing buttons to fetch results
 		FormLayout layout = new FormLayout("p:g, 5dlu, p:g", "f:p:g");
 		layout.setColumnGroups(new int[][] { { 1, 3 } });
 		JPanel fetchPnl = new JPanel(layout);
-		
+
 		JButton fetchRemoteBtn = new JButton("<html><center>Fetch Results<br>from DB</center></html>", IconConstants.GO_DB_ICON);
 		fetchRemoteBtn.setEnabled(!Client.getInstance().isViewer()); 
 		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
 		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);		
 		fetchRemoteBtn.setIconTextGap(7);
-		
+
 		fetchRemoteBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -445,49 +472,90 @@ public class ResultsPanel extends JPanel {
 		fetchLocalBtn.setRolloverIcon(IconConstants.GO_FOLDER_ROLLOVER_ICON);
 		fetchLocalBtn.setPressedIcon(IconConstants.GO_FOLDER_PRESSED_ICON);
 		fetchLocalBtn.setIconTextGap(10);
-		
+
 		fetchLocalBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dbPnl.fetchResultsFromFile();
 			}
 		});
-		
+
 		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
 		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
 
 		fetchPnl.setPreferredSize(new Dimension());	
-		
+
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 
-		// Add experimental heat map chart
-		// TODO: make heat map display useful information
-		int height = 25, width = 27;
-		MatrixSeries series = new MatrixSeries("1", height, width);
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				double mij = Math.sin((j + 0.5) / width * Math.PI) *
-							 Math.cos((i + 0.5) / height * Math.PI - Math.PI / 2.0);
-				series.update(i, j, mij);
+		//TODO: Add experimental heat map chart
+
+		JPanel createHeatmapPnl = new JPanel();
+		createHeatmapPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
+
+		// Panel to define the axes
+		JPanel heatAxisPnl = new JPanel();
+		heatAxisPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
+		JLabel xAxisLbl 	= new JLabel("X-AXIS");
+		xAxisCbx 	= new JComboBox(Constants.HEATMAP_XAXIS);
+		JLabel yAxisLbl 	= new JLabel("Y-AXIS");
+		yAxisCbx 	= new JComboBox(Constants.HEATMAP_YAXIS);
+		xAxisCbx.addActionListener(new ActionListener() {
+			@Override // Proteins on y-axis just for metaproteins
+			public void actionPerformed(ActionEvent arg0) {
+				// Check for metaproteins
+				if (!xAxisCbx.getSelectedItem().equals("METAPROTEINE")) {
+					if (yAxisCbx.getSelectedItem().equals("PROTEIN (METAPROT)")) {
+						yAxisCbx.setSelectedIndex(0);
+					}
+				}
 			}
-		}
+		});
+		yAxisCbx.addActionListener(new ActionListener() {
+			@Override // Proteins on y-axis just for metaproteins
+			public void actionPerformed(ActionEvent arg0) {
+				if (!xAxisCbx.getSelectedItem().equals("METAPROTEINE")) {
+					if (yAxisCbx.getSelectedItem().equals("PROTEIN (METAPROT)")) {
+						yAxisCbx.setSelectedIndex(0);
+					}
+				}
+			}
+		});
+		JLabel zAxisLbl 	= new JLabel("Z-AXIS");
+		zAxisCbx 	= new JComboBox(Constants.HEATMAP_ZAXIS);
+		JButton updateHeatMapBtn = new JButton("UPDATE", IconConstants.UPDATE_ICON);
+		updateHeatMapBtn.setRolloverIcon(IconConstants.UPDATE_ROLLOVER_ICON);
+		updateHeatMapBtn.setPressedIcon(IconConstants.UPDATE_PRESSED_ICON);
+		updateHeatMapBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Update heatmap
+				CreateHeatMap createHeatMap = new CreateHeatMap(dbSearchResult, xAxisCbx.getSelectedItem().toString(), yAxisCbx.getSelectedItem().toString(), zAxisCbx.getSelectedItem().toString());
+				XYPlot plot = HeatMapPane.createPlot(createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries());
+//				heatMapPn.setViewportView(new HeatMapPane("Heat Map", createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries()));
+				heatMapPn.setPlot(plot);
+				heatMapPn.setVisibleColumnCount(14);
+				heatMapPn.setVisibleRowCount(13);
+			}
+		});
 
-		String[] xLabels = new String[width];
-		for (int i = 0; i < xLabels.length; i++) {
-			xLabels[i] = "" + (i + 1);
-		}
+		heatAxisPnl.add(xAxisLbl, CC.xy(2, 2));
+		heatAxisPnl.add(xAxisCbx, CC.xy(4, 2));
+		heatAxisPnl.add(yAxisLbl, CC.xy(6, 2));
+		heatAxisPnl.add(yAxisCbx, CC.xy(8, 2));
+		heatAxisPnl.add(zAxisLbl, CC.xy(12, 2));
+		heatAxisPnl.add(zAxisCbx, CC.xy(14, 2));
+		heatAxisPnl.add(updateHeatMapBtn, CC.xy(16, 2));
 
-		String[] yLabels = new String[height];
-		for (int i = 0; i < yLabels.length; i++) {
-			yLabels[i] = "" + (char) (i + 'A');
-		}
 
-		HeatMapPane heatMap = new HeatMapPane("Heat Map", xLabels, yLabels, series);
-		heatMap.setVisibleColumnCount(14);
-		heatMap.setVisibleRowCount(13);
+		CreateHeatMap createHeatMap = new CreateHeatMap();
+		heatMapPn = new HeatMapPane("Heat Map", createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries());
+		heatMapPn.setVisibleColumnCount(14);
+		heatMapPn.setVisibleRowCount(13);
 
-		summaryPnl.add(heatMap, CC.xy(2, 4));
+		createHeatmapPnl.add(heatMapPn, CC.xy(2, 2));
+		createHeatmapPnl.add(heatAxisPnl, CC.xy(2, 4));
+		summaryPnl.add(createHeatmapPnl, CC.xy(2, 4));
 
 		JXTitledPanel summaryTtlPnl = PanelConfig.createTitledPanel("Summary",
 				summaryPnl);
@@ -539,14 +607,14 @@ public class ResultsPanel extends JPanel {
 
 		// create chart type selection popup
 		final JPopupMenu chartTypePop = new JPopupMenu();
-		
+
 		JMenu ontologyMenu = new JMenu("Ontology");
 		ontologyMenu.setIcon(IconConstants.PIE_CHART_ICON);
 		chartTypePop.add(ontologyMenu);
 		JMenu taxonomyMenu = new JMenu("Taxonomy");
 		taxonomyMenu.setIcon(IconConstants.PIE_CHART_ICON);
 		chartTypePop.add(taxonomyMenu);
-		
+
 		ActionListener chartListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -562,7 +630,7 @@ public class ResultsPanel extends JPanel {
 					TableConfig.clearTable(detailsTbl);
 
 					updateChart(newChartType);
-					
+
 					if (newChartType instanceof TopBarChartType) {
 						updateDetailsTable(null);
 					}
@@ -634,27 +702,27 @@ public class ResultsPanel extends JPanel {
 						JFileChooser fc = new JFileChooser();
 						fc.setFileFilter(Constants.CSV_FILE_FILTER);
 						fc.setAcceptAllFileFilterUsed(false);
-//						fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+						//						fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 						fc.setMultiSelectionEnabled(false);
 						int option = fc.showSaveDialog(ClientFrame.getInstance());
 
 						if (option == JFileChooser.APPROVE_OPTION) {
 							File selectedFile = fc.getSelectedFile();
 
-				            if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
-				                selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
-				            }
+							if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
+								selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+							}
 
-				            setCursor(new Cursor(Cursor.WAIT_CURSOR));
+							setCursor(new Cursor(Cursor.WAIT_CURSOR));
 
-				            try {
-				                if (selectedFile.exists()) {
-				                    selectedFile.delete();
-				                }
-				                selectedFile.createNewFile();
-				                
-				                BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
-								
+							try {
+								if (selectedFile.exists()) {
+									selectedFile.delete();
+								}
+								selectedFile.createNewFile();
+
+								BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
+
 								PieDataset dataset = piePlot.getDataset();
 								for (int i = 0; i < dataset.getItemCount(); i++) {
 									Comparable key = dataset.getKey(i);
@@ -665,12 +733,12 @@ public class ResultsPanel extends JPanel {
 								writer.flush();
 								writer.close();
 
-				            } catch (IOException ex) {
-				            	JXErrorPane.showDialog(ClientFrame.getInstance(),
+							} catch (IOException ex) {
+								JXErrorPane.showDialog(ClientFrame.getInstance(),
 										new ErrorInfo("Severe Error", ex.getMessage(), null, null, ex, ErrorLevel.SEVERE, null));
-				            }
-				            
-				            setCursor(null);
+							}
+
+							setCursor(null);
 						}
 					}
 				}
@@ -737,7 +805,7 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 			}
-			
+
 			@Override
 			public void mousePressed(MouseEvent me) {
 				maybeShowPopup(me);
@@ -757,13 +825,13 @@ public class ResultsPanel extends JPanel {
 					PiePlot3DExt piePlot = getPiePlot();
 					if (piePlot != null) {
 						JPopupMenu popup = new JPopupMenu();
-						
+
 						JMenuItem item = new JMenuItem(saveAsAction);
 						item.setText("Save as CSV...");
 						item.setIcon(IconConstants.FILE_CSV);
-						
+
 						popup.add(item);
-						
+
 						popup.show(me.getComponent(), me.getX(), me.getY());
 					}
 				}
@@ -795,12 +863,12 @@ public class ResultsPanel extends JPanel {
 			public void itemStateChanged(ItemEvent evt) {
 				if (evt.getStateChange() == ItemEvent.SELECTED) {
 					HierarchyLevel hl = (HierarchyLevel) evt.getItem();
-					
+
 					ontologyData.setHierarchyLevel(hl);
 					taxonomyData.setHierarchyLevel(hl);
-					
+
 					updateChart(chartType);
-					
+
 					updateDetailsTable("");
 				}
 			}
@@ -808,7 +876,7 @@ public class ResultsPanel extends JPanel {
 		chartPieHierCbx.setVisible(false);
 
 		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
-		
+
 		chartPieHideChk = new JCheckBox("Hide Unknown", false);
 		chartPieHideChk.setOpaque(false);
 		chartPieHideChk.setVisible(false);
@@ -867,11 +935,11 @@ public class ResultsPanel extends JPanel {
 					protected void done() {
 						chartPieHideChk.setEnabled(true);
 					};
-					
+
 				}.execute();
 			}
 		});
-		
+
 		chartPieGroupChk = new JCheckBox("Group minor segments", true);
 		chartPieGroupChk.setOpaque(false);
 		chartPieGroupChk.setVisible(false);
@@ -893,7 +961,7 @@ public class ResultsPanel extends JPanel {
 				}
 			}
 		});
-		
+
 		chartPnl.add(chartPieHierCbx, CC.xy(1, 2));
 		chartPnl.add(chartPieHideChk, CC.xy(3, 2));
 		chartPnl.add(chartPieGroupChk, CC.xy(5, 2));
@@ -958,7 +1026,7 @@ public class ResultsPanel extends JPanel {
 		detailsTbl = new JXTable(new DefaultTableModel() {
 			{
 				setColumnIdentifiers(new Object[] { "#", "Accession",
-						"Description" });
+				"Description" });
 			}
 
 			public boolean isCellEditable(int row, int col) {
@@ -1025,7 +1093,7 @@ public class ResultsPanel extends JPanel {
 				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
 		detailsTbl.getColumnControl().setOpaque(false);
 		((ColumnControlButton) detailsTbl.getColumnControl())
-				.setAdditionalActionsVisible(false);
+		.setAdditionalActionsVisible(false);
 
 		// Add nice striping effect
 		detailsTbl.addHighlighter(TableConfig.getSimpleStriping());
@@ -1127,7 +1195,7 @@ public class ResultsPanel extends JPanel {
 	 */
 	private void updateChart(ChartType chartType) {
 		Chart chart = null;
-		
+
 		// create chart instance
 		if (chartType instanceof OntologyChartType) {
 			chart = ChartFactory.createOntologyPieChart(
@@ -1161,7 +1229,7 @@ public class ResultsPanel extends JPanel {
 			chartPieHierCbx.setVisible(isPie);
 			chartPieHideChk.setVisible(isPie);
 			chartPieGroupChk.setVisible(isPie);
-			
+
 			// insert chart into panel
 			chartPnl.setChart(chart.getChart());
 		} else {
@@ -1189,7 +1257,7 @@ public class ResultsPanel extends JPanel {
 
 		@Override
 		protected Object doInBackground() {
-			DbSearchResult dbSearchResult = null;
+			dbSearchResult = null;
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			// Fetch the database search result.
 			try {
@@ -1234,14 +1302,14 @@ public class ResultsPanel extends JPanel {
 				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
 				distPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-//				int metaCount = 0;
-//				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
-//				for (ProteinHit proteinHit : metaProteins) {
-//					MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
-//					if (metaProtein.getProteinHits().size() > 0) {
-//						metaCount++;
-//					}
-//				}
+				//				int metaCount = 0;
+				//				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+				//				for (ProteinHit proteinHit : metaProteins) {
+				//					MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
+				//					if (metaProtein.getProteinHits().size() > 0) {
+				//						metaCount++;
+				//					}
+				//				}
 				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 				speciesLbl.setText("" + speciesNames.size());
 				enzymesLbl.setText("" + ecNumbers.size());
@@ -1252,6 +1320,14 @@ public class ResultsPanel extends JPanel {
 				taxonomyData = new TaxonomyData(dbSearchResult, hl);
 				topData = new TopData(dbSearchResult);
 				histogramData = new HistogramData(dbSearchResult, 40);
+
+				// Update heatmap
+				CreateHeatMap createHeatMap = new CreateHeatMap(dbSearchResult, xAxisCbx.getSelectedItem().toString(), yAxisCbx.getSelectedItem().toString(), zAxisCbx.getSelectedItem().toString());
+				XYPlot plot = HeatMapPane.createPlot(createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries());
+//				heatMapPn.setViewportView(new HeatMapPane("Heat Map", createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries()));
+				heatMapPn.setPlot(plot);
+				heatMapPn.setVisibleColumnCount(14);
+				heatMapPn.setVisibleRowCount(13);
 
 				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 			} catch (Exception e) {
@@ -1264,7 +1340,7 @@ public class ResultsPanel extends JPanel {
 		protected void done() {
 			// Enable chart type button
 			chartTypeBtn.setEnabled(true);
-			
+
 			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -1301,12 +1377,12 @@ public class ResultsPanel extends JPanel {
 	 * @author A. Behne
 	 */
 	private class BarChartPanel extends JPanel {
-		
+
 		/**
 		 * Label for left-hand total value.
 		 */
 		private JLabel totalLbl;
-		
+
 		/**
 		 * Label for right-hand fractional value.
 		 */
@@ -1321,7 +1397,7 @@ public class ResultsPanel extends JPanel {
 			this.totalLbl = totalLbl;
 			this.fracLbl = fracLbl;
 		}
-		
+
 		@Override
 		public void paint(Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;

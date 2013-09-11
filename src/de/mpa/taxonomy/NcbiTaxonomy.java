@@ -12,17 +12,26 @@ import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import de.mpa.analysis.UniprotAccessor;
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 
 /**
  * This class holds the NCBI taxonomy maps.
  * Class to create the phylogenic tree from NCBI: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
- * @author heyer
+ * @author R. Heyer
  */
 public class NcbiTaxonomy implements Serializable {
 
@@ -30,12 +39,12 @@ public class NcbiTaxonomy implements Serializable {
 	 * Instance of the NCBI taxonomy.
 	 */
 	private static NcbiTaxonomy instance;
-	
+
 	/**
 	 * Map containing taxonomy id-to-byte position pairs w.r.t. 'names.dmp'
 	 */ 
 	private TIntIntHashMap namesMap;
-	
+
 	/**
 	 * Map containing taxonomy id-to-byte position pairs w.r.t. 'nodes.dmp'
 	 */
@@ -45,7 +54,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * Input reader instance for names.dmp file.
 	 */
 	private RandomAccessFile namesRaf;
-	
+
 	/**
 	 * Input reader instance for nodes.dmp file.
 	 */
@@ -55,12 +64,12 @@ public class NcbiTaxonomy implements Serializable {
 	 * Filename of the taxonomy index file.
 	 */
 	private static final String INDEX_FILENAME = "taxonomy.index";
-	
+
 	/**
 	 * Map containing known taxonomic ranks.
 	 */
 	private List<String> ranks = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
-	
+
 	/**
 	 * The root node constant.
 	 */
@@ -91,7 +100,7 @@ public class NcbiTaxonomy implements Serializable {
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Creates and returns the common taxonomy node above taxonomy nodes belonging to the
 	 * specified taxonomy IDs.
@@ -112,11 +121,11 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception 
 	 */
 	public TaxonomyNode getCommonTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) throws Exception {
-		
+
 		// Get root paths of both taxonomy nodes
 		TaxonomyNode[] path1 = taxonNode1.getPath();
 		TaxonomyNode[] path2 = taxonNode2.getPath();
-		
+
 		// Find last common element starting from the root
 		int len = Math.min(path1.length, path2.length);
 		TaxonomyNode ancestor = path1[0];	// initialize ancestor as root
@@ -126,10 +135,10 @@ public class NcbiTaxonomy implements Serializable {
 			}
 			ancestor = path1[i];
 		}
-		
+
 		return ancestor;
 	}
-	
+
 	/**
 	 * Finds the taxonomy level (taxID) were the 2 taxonomy levels intersect.
 	 * @param taxId1 NCBI taxonomy of the first entry
@@ -138,7 +147,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception 
 	 */
 	synchronized public int getCommonTaxonomyId(int taxId1, int taxId2) throws Exception {
-		
+
 		// List of taxonomy entries for the first taxonomy entry.
 		List<Integer> taxList1 = new ArrayList<Integer>();
 		taxList1.add(taxId1);
@@ -150,7 +159,7 @@ public class NcbiTaxonomy implements Serializable {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// List of taxonomy entries for the second taxonomy entry.
 		List<Integer> taxList2 = new ArrayList<Integer>();
 		taxList2.add(taxId2);
@@ -162,7 +171,7 @@ public class NcbiTaxonomy implements Serializable {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// Get common ancestor
 		Integer taxId = 0;
 		for (int i = 0; i < taxList1.size(); i++) {
@@ -171,12 +180,12 @@ public class NcbiTaxonomy implements Serializable {
 				break;
 			}
 		}
-		
+
 		// Find ancestor of closest known rank type
 		while (!ranks.contains(this.getRank(taxId)) && (taxId != 1)) {
 			taxId = this.getParentTaxId(taxId);
 		}
-		
+
 		return taxId;
 	}
 
@@ -206,7 +215,7 @@ public class NcbiTaxonomy implements Serializable {
 		}
 		return res.toArray();
 	}
-	
+
 	/**
 	 * Indexes NCBI taxonomy dump files and writes them to an index file in the
 	 * default folder.
@@ -224,64 +233,64 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	public void createIndexFile(String path) throws Exception {
 
-//		// Open stream on 'taxdmp.zip' resource file
-//		ZipInputStream zis = new ZipInputStream(this.getClass().getResourceAsStream(path + "taxdmp.zip"));
-//		
-//		ZipEntry ze;
-//		while ((ze = zis.getNextEntry()) != null) {
-//			// The number of newline chars (taxdmp.zip's contents are assumed to be unix files)
-//			int newline = 1;
-//	
-//			// The start byte position
-//			int pos = 0;
-//			
-//			// Get name of zipped file
-//			String name = ze.getName();
-//			if ("names.dmp".equals(name)) {
-//				// Map containing taxId-to-byte position pairs
-//				namesMap = new TIntIntHashMap();
-//				// Read zipped file line by line
-//				BufferedReader br = new BufferedReader(new InputStreamReader(zis));
-//				String line;
-//				while ((line = br.readLine()) != null) {
-//					// Check line for 'scientific name' type specifier, ignore other lines
-//					if (line.endsWith("c name\t|")) {
-//						// Extract taxId
-//						String id = line.substring(0, line.indexOf('\t'));
-//						// Map taxId to start-of-line byte position
-//						namesMap.put(Integer.valueOf(id), pos);
-//					}
-//					// Move position index to start of next line
-//					pos += line.getBytes().length + newline;
-//				}
-//			}
-//			if ("nodes.dmp".equals(name)) {
-//				// Map containing taxId-to-byte position pairs
-//				nodesMap = new TIntIntHashMap();
-//				// Read zipped file line by line
-//				BufferedReader br = new BufferedReader(new InputStreamReader(zis));
-//				String line;
-//				while ((line = br.readLine()) != null) {
-//					// Extract taxId
-//					String id = line.substring(0, line.indexOf('\t'));
-//					// Map taxId to start-of-line byte position
-//					nodesMap.put(Integer.valueOf(id), pos);
-//					// Move position index to start of next line
-//					pos += line.getBytes().length + newline;
-//				}
-//			}
-//		}
-//		zis.close();
-//		
-//		// Write maps out to index file
-//		this.writeIndexFile();
+		//		// Open stream on 'taxdmp.zip' resource file
+		//		ZipInputStream zis = new ZipInputStream(this.getClass().getResourceAsStream(path + "taxdmp.zip"));
+		//		
+		//		ZipEntry ze;
+		//		while ((ze = zis.getNextEntry()) != null) {
+		//			// The number of newline chars (taxdmp.zip's contents are assumed to be unix files)
+		//			int newline = 1;
+		//	
+		//			// The start byte position
+		//			int pos = 0;
+		//			
+		//			// Get name of zipped file
+		//			String name = ze.getName();
+		//			if ("names.dmp".equals(name)) {
+		//				// Map containing taxId-to-byte position pairs
+		//				namesMap = new TIntIntHashMap();
+		//				// Read zipped file line by line
+		//				BufferedReader br = new BufferedReader(new InputStreamReader(zis));
+		//				String line;
+		//				while ((line = br.readLine()) != null) {
+		//					// Check line for 'scientific name' type specifier, ignore other lines
+		//					if (line.endsWith("c name\t|")) {
+		//						// Extract taxId
+		//						String id = line.substring(0, line.indexOf('\t'));
+		//						// Map taxId to start-of-line byte position
+		//						namesMap.put(Integer.valueOf(id), pos);
+		//					}
+		//					// Move position index to start of next line
+		//					pos += line.getBytes().length + newline;
+		//				}
+		//			}
+		//			if ("nodes.dmp".equals(name)) {
+		//				// Map containing taxId-to-byte position pairs
+		//				nodesMap = new TIntIntHashMap();
+		//				// Read zipped file line by line
+		//				BufferedReader br = new BufferedReader(new InputStreamReader(zis));
+		//				String line;
+		//				while ((line = br.readLine()) != null) {
+		//					// Extract taxId
+		//					String id = line.substring(0, line.indexOf('\t'));
+		//					// Map taxId to start-of-line byte position
+		//					nodesMap.put(Integer.valueOf(id), pos);
+		//					// Move position index to start of next line
+		//					pos += line.getBytes().length + newline;
+		//				}
+		//			}
+		//		}
+		//		zis.close();
+		//		
+		//		// Write maps out to index file
+		//		this.writeIndexFile();
 
 		// NCBI names.dmp file
 		File namesFile = new File(this.getClass().getResource(path + "names.dmp").toURI());
 
 		// NCBI nodes.dmp file
 		File nodesFile = new File(this.getClass().getResource(path + "nodes.dmp").toURI());
-		
+
 		// Map for NCBI names file 
 		namesMap = new TIntIntHashMap();
 
@@ -296,7 +305,7 @@ public class NcbiTaxonomy implements Serializable {
 
 		BufferedReader br;
 		String line;
-		
+
 		// Read names file
 		br = new BufferedReader(new FileReader(namesFile));
 		//example format: "1	|	root	|		|	scientific name	|"
@@ -319,19 +328,19 @@ public class NcbiTaxonomy implements Serializable {
 			pos += line.getBytes().length + newline;
 		}
 		br.close();
-		
+
 		this.writeIndexFile();
 	}
-	
+
 	/**
 	 * Write the index files.
 	 * @throws Exception if an I/O error occurs
 	 */
 	private void writeIndexFile() throws Exception {
-		
+
 		File indexFile = new File(
 				this.getClass().getResource(Constants.CONFIGURATION_PATH + INDEX_FILENAME).toURI());
-		
+
 		ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(indexFile)));
 		oos.writeObject(namesMap);
 		oos.writeObject(nodesMap);
@@ -340,7 +349,7 @@ public class NcbiTaxonomy implements Serializable {
 		namesMap.clear();
 		nodesMap.clear();
 	}
-	
+
 	/**
 	 * Reads the index files.
 	 * @throws Exception if an I/O error occurs
@@ -360,7 +369,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception if an I/O error occurs
 	 */
 	synchronized public String getTaxonName(int taxID) throws Exception {
-		
+
 		// Get mapping
 		int pos = namesMap.get(taxID);
 
@@ -371,10 +380,10 @@ public class NcbiTaxonomy implements Serializable {
 		String line = namesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3);
 		line = line.substring(0, line.indexOf("\t"));
-		
+
 		return line;
 	}
-	
+
 	/**
 	 * Returns the parent taxonomy id of the taxonomy node belonging to the specified taxonomy id.
 	 * @param taxId the taxonomy id
@@ -382,21 +391,21 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception if an I/O error occurs
 	 */
 	synchronized public int getParentTaxId(int taxId) throws Exception {
-		
+
 		// Get mapping
 		int pos = nodesMap.get(taxId);
-		
+
 		// Skip to mapped byte position in nodes file
 		nodesRaf.seek(pos);
-		
+
 		// Read line and isolate second numeric value
 		String line = nodesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3);
 		line = line.substring(0, line.indexOf("\t"));
 		return Integer.valueOf(line).intValue();
-		
+
 	}
-	
+
 	/**
 	 * Returns a parent taxonomy node of the specified child taxonomy node.
 	 * @param childNode the child node
@@ -406,7 +415,7 @@ public class NcbiTaxonomy implements Serializable {
 	synchronized public TaxonomyNode getParentTaxonomyNode(TaxonomyNode childNode) throws Exception {
 		return this.getParentTaxonomyNode(childNode, true);
 	}
-	
+
 	/**
 	 * Returns a parent taxonomy node of the specified child taxonomy node. The
 	 * parent node's rank may be forced to conform to the list of known ranks.
@@ -417,11 +426,11 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception if an I/O error occurs
 	 */
 	synchronized public TaxonomyNode getParentTaxonomyNode(TaxonomyNode childNode, boolean knownRanksOnly) throws Exception {
-		
+
 		// Get parent data
 		int parentTaxId = this.getParentTaxId(childNode.getId());
 		String rank = this.getRank(parentTaxId);
-		
+
 		if (knownRanksOnly) {
 			// As long as parent rank is not inside list of known ranks move up in taxonomic tree
 			while ((parentTaxId != 1) && !ranks.contains(rank)) {
@@ -429,7 +438,7 @@ public class NcbiTaxonomy implements Serializable {
 				rank = this.getRank(parentTaxId);
 			}
 		}
-		
+
 		// Wrap parent data in taxonomy node
 		return new TaxonomyNode(parentTaxId, rank, this.getTaxonName(parentTaxId));
 	}
@@ -442,22 +451,22 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	synchronized public String getRank(int taxID) throws Exception {
 
-		
+
 		// Get mapping
 		int pos = nodesMap.get(taxID);
-		
+
 		// Skip to mapped byte position in nodes file
 		nodesRaf.seek(pos);
-		
+
 		// Read line and isolate third non-numeric value
 		String line = nodesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3);
 		line = line.substring(line.indexOf("\t|\t") + 3);
 		line = line.substring(0, line.indexOf("\t"));
-		
+
 		return line;
 	}
-	
+
 	/**
 	 * This method creates a TaxonNode for a certain taxID.
 	 * @param taxId the taxonomy id
@@ -471,5 +480,163 @@ public class NcbiTaxonomy implements Serializable {
 				this.getTaxonName(taxId));
 		return taxNode;
 	}
-	
+
+	/**
+	 * Gets the tax name by the rank from the NCBI taxonomy.
+	 * @param proteinHit. The proteinHit
+	 * @param taxRank. The taxonomic rank
+	 * @return The name of the taxonomy.
+	 */
+	public static String getTaxNameByRank(TaxonomyNode taxNode, TaxonomyRank taxRank) {
+
+		// Default value for unknown
+		String taxName = "unknown";
+
+		while (taxNode.getId() != 1) { // unequal to root
+			if (taxNode.getRank().equals(taxRank.toString().toLowerCase())) {
+				taxName = taxNode.getName();
+				break;
+			}
+			taxNode = taxNode.getParentNode();
+		}
+
+		return taxName; 
+	}
+
+
+	/**
+	 * Method to check whether a taxonomy belongs to a certain group determined by a certain NCBI taxonomy number.
+	 * @param taxNode. The taxon node.
+	 * @param filterTaxId. The NCBI taxonomy ID.
+	 * @return belongs to ? true / false
+	 */
+	public boolean belongsToGroup(TaxonomyNode taxNode, long filterTaxId) {
+
+		// Standard belongs not to group
+		boolean belongsToGroup = false;
+
+		if (filterTaxId == taxNode.getId()) { // To care for same taxID and especially for root as filter level
+			belongsToGroup = true;
+		}else{
+			// Get all parents of the taxonNode and check whether they are equal to the filter level
+			while (taxNode.getParentNode()!= null || (taxNode.getId() != 1)) { // Root node
+				// Get parent taxon node of protein entry
+				try {
+					taxNode = this.getParentTaxonomyNode(taxNode);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				// Check for filter ID
+				if (filterTaxId == taxNode.getId()) {
+					belongsToGroup = true;
+					break;
+				}
+			}
+		}
+		return belongsToGroup;
+	}
+
+	/**
+	 * Method to go through a peptide set and define for each peptide hit the common taxonomy of the subsequent proteins.
+	 * @param peptideSet. The peptide set.
+	 * @throws Exception
+	 */
+	public void getCommonTaxId4EachPeptide(Set<PeptideHit> peptideSet) throws Exception {
+		
+		// Map with taxonomy entries
+		Map<Integer, TaxonomyNode> nodeMap = new HashMap<Integer, TaxonomyNode>();
+		nodeMap.put(1, NcbiTaxonomy.ROOT_NODE);
+		
+		// Go through whole peptideSet and check for all proteineEntries the common taxonomy
+		for (PeptideHit peptideHit : peptideSet) {
+			
+			// Gather protein taxonomy nodes
+			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+			for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
+				taxonNodes.add(proteinHit.getTaxonomyNode());
+			}
+			
+			// Find common ancestor node
+			TaxonomyNode ancestor = taxonNodes.get(0);
+			for (int i = 0; i < taxonNodes.size(); i++) {
+					ancestor = this.createCommonTaxonomyNode(ancestor.getId(), taxonNodes.get(i).getId());
+			}
+
+			// Gets the parent node of the taxon node
+			TaxonomyNode child = ancestor;
+			TaxonomyNode parent = nodeMap.get(ancestor.getId());
+			// TODO Stimmt Funktion : Fills up all parents up to the root for the taxon node.
+			if (parent == null) {
+				//								newNode = ancestor;
+				//								while (!newNode.isRoot()) {
+				//									oldNode = newNode;
+				//									newNode = nodeMap.get(oldNode.getId());
+				//									if (newNode == null) {
+				//										nodeMap.put(oldNode.getId(), oldNode);
+				//										newNode = ncbiTaxonomy.getParentTaxonomyNode(oldNode);
+				//										TaxonomyNode temp = nodeMap.get(newNode.getId());
+				//										if (temp != null) {
+				//											newNode = temp;
+				//										}
+				//										oldNode.setParentNode(newNode);
+				//									} else {
+				//										oldNode.setParentNode(newNode);
+				//										break;
+				//									}
+				//								}
+
+				parent = this.getParentTaxonomyNode(child);
+				while (true) {
+					TaxonomyNode temp = nodeMap.get(parent.getId());
+				
+					if (temp == null) {
+						child.setParentNode(parent);
+						nodeMap.put(parent.getId(), parent);
+						child = parent;
+						parent = this.getParentTaxonomyNode(parent);
+					} else {
+						child.setParentNode(temp);
+						break;
+					}
+				}
+			} else {
+				ancestor = parent;
+			}
+
+			// set peptide hit taxon node to ancestor
+			peptideHit.setTaxonomyNode(ancestor);
+
+			// possible TODO: determine spectrum taxonomy instead of inheriting directly from peptide
+			for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+				match.setTaxonomyNode(ancestor);
+			}
+			// fire progress notification
+			Client.getInstance().firePropertyChange("progressmade", false, true);
+		}
+		
+	}
+
+	/**
+	 * Methode to set tax ID of a protein from common taxID of its Peptides
+	 * @param proteinList
+	 * @throws Exception
+	 */
+	public void getTaxonbyPeptideTaxons(ProteinHitList proteinList) throws Exception {
+		for (ProteinHit proteinHit : proteinList) {
+			// gather protein taxonomy nodes
+			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+			for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
+				taxonNodes.add(peptideHit.getTaxonomyNode());
+			}
+			// find common ancestor node
+			TaxonomyNode ancestor = taxonNodes.get(0);
+			for (int i = 1; i < taxonNodes.size(); i++) {
+				ancestor = this.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
+			}
+			// set peptide hit taxon node to ancestor
+			proteinHit.setTaxonomyNode(ancestor);
+			// fire progress notification
+			Client.getInstance().firePropertyChange("progressmade", false, true);
+		}
+	}
 }

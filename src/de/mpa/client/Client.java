@@ -58,7 +58,6 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.extractor.SearchHitExtractor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
-import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -362,18 +361,18 @@ public class Client {
 	 * @return The GraphDatabaseHandler object.
 	 */
 	public void setupGraphDatabaseContent() {
-		// If graph database is already in use.
-		if (graphDatabaseHandler != null) {
-			// Shutdown old graph database.
-			graphDatabaseHandler.shutDown();
-		}
-		
-		// Create a new graph database.
-		GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
-		
-		// Setup the graph database handler. 
-		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
-		graphDatabaseHandler.setData(dbSearchResult);
+//		// If graph database is already in use.
+//		if (graphDatabaseHandler != null) {
+//			// Shutdown old graph database.
+//			graphDatabaseHandler.shutDown();
+//		}
+//		
+//		// Create a new graph database.
+//		GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
+//		
+//		// Setup the graph database handler. 
+//		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
+//		graphDatabaseHandler.setData(dbSearchResult);
 	}
 
 	/**
