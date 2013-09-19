@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -21,8 +20,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -45,7 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -247,7 +243,16 @@ public class GraphQueryDialog extends JDialog {
 		
 		// Gets the last chosen query (if any).
 		if (parent.getLastCypherQuery() != null) {
+			
+			
 			selectedQuery = parent.getLastCypherQuery();
+			
+			// Compound query check.
+			if (!selectedQuery.isCustom()) {
+				startPnl.setStartNodes(selectedQuery.getStartNodes());
+				matchPnl.setMatches(selectedQuery.getMatches());
+				returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
+			}
 			int index = defaultQueryList.getElementCount() - 1;
 			defaultQueryList.setSelectedIndex(index);
 			defaultQueryList.ensureIndexIsVisible(index);
@@ -2016,16 +2021,17 @@ public class GraphQueryDialog extends JDialog {
 			try {
 				// Retrieve the query from the console, if user has changed text there.
 				if (consoleChanged) {
-					selectedQuery = new CypherQuery(consoleTxt.getText());
-					parent.setLastCypherQuery(selectedQuery);
+					selectedQuery = new CypherQuery(consoleTxt.getText());					
 				}
+				
+				// Set last cypher query
+				parent.setLastCypherQuery(selectedQuery);
 				
 				// Execute query, store result
 				GraphDatabaseHandler handler = Client.getInstance().getGraphDatabaseHandler();
 				result = handler.executeCypherQuery(selectedQuery);
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Cypher Query Syntax Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 			return 0;
 		}		
@@ -2034,10 +2040,14 @@ public class GraphQueryDialog extends JDialog {
 		 * Continues when the results retrieval has finished.
 		 */
 		public void done() {			
-			parent.updateResults(result);
-			consoleChanged = false;
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			dispose();
+			// Check for result != NULL
+			if (result != null) {
+				// Empty result set.
+				parent.updateResults(result);
+				consoleChanged = false;
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				dispose();
+			}
 		}
 	}
 	
