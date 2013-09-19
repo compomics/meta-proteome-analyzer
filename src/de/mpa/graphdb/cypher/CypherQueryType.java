@@ -10,13 +10,25 @@ import de.mpa.graphdb.edges.RelationType;
  */
 public enum CypherQueryType {
 	
-	TAXA_BY_PROTEINS("Get Taxonomies grouped by Proteins") {
+	PEPTIDES_BY_PROTEINS("Get Peptides grouped by Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getPeptidesByProteins();
+		}
+	},
+	PROTEINS_BY_PEPTIDES("Get Proteins grouped by Peptides") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getProteinsByPeptides();
+		}
+	},
+	PROTEINS_BY_TAXA("Get Proteins grouped by Taxonomies") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getTaxaByProteins();
 		}
 	},	
-	TAXA_BY_PEPTIDES("Get Taxonomies grouped by Peptides") {
+	PEPTIDES_BY_TAXA("Get Peptides grouped by Taxonomies") {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getTaxaByPeptides();
@@ -44,18 +56,6 @@ public enum CypherQueryType {
 		@Override
 		public CypherQuery getQuery() {
 			return CypherQueryFactory.getPathwaysByProteins();
-		}
-	},	
-	PEPTIDES_BY_PROTEINS("Get Peptides grouped by Proteins") {
-		@Override
-		public CypherQuery getQuery() {
-			return CypherQueryFactory.getPeptidesByProteins();
-		}
-	},
-	PROTEINS_BY_PEPTIDES("Get Proteins grouped by Peptides") {
-		@Override
-		public CypherQuery getQuery() {
-			return CypherQueryFactory.getProteinsByPeptides();
 		}
 	},
 	PROTEINS_BY_ENZYMES("Get Proteins grouped by Enzymes") {

@@ -1,9 +1,16 @@
 package de.mpa.main;
 
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
+
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.log4j.Logger;
+
+import com.ibm.wsdl.Constants;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
@@ -17,6 +24,10 @@ import de.mpa.client.ui.ClientFrame;
  *
  */
 public class Starter {
+	
+	private static boolean jarExport = false;
+	private static Logger log = Logger.getLogger(Starter.class);
+	private final static boolean LOCK_ACTIVE = true;
 	
 	/**
 	 * This method sets the look&feel for the application.
@@ -55,11 +66,68 @@ public class Starter {
 		// Set the look&feel
 		setLookAndFeel();
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				ClientFrame.getInstance(viewerMode);
-			}
-		});
+		boolean unlocked = true;
+		if (LOCK_ACTIVE) unlocked = lockInstance("filelock");
+		
+		if (unlocked) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					if (jarExport) ClientFrame.getInstance(viewerMode);
+					else ClientFrame.getInstance(viewerMode);
+				}
+			});
+		}
+		
+	}
+	
+	/**
+	 * Helper method to retrieve the jar file path.
+	 * @return full path to jar file.
+	 */
+	public static String getJarFilePath() {
+		String path = Starter.class.getResource("Starter.class").getPath();
+		// remove starting 'file:' tag if there
+		if (path.startsWith("file:")) {
+			path = path.substring("file:".length(), path.indexOf("mpa"));
+		} else {
+			path = path.substring(0, path.indexOf("mpa"));
+		}
+		path = path.replace("%20", " ");
+		path = path.replace("%5b", "[");
+		path = path.replace("%5d", "]");
+		return path;
+	}
+	/**
+	 * Checks whether the application is a jar export or not.
+	 * @return True if the application is being exported as jar else false.
+	 */
+	public static boolean isJarExport() {
+		return jarExport;
+	}
+	
+	private static boolean lockInstance(final String lockFile) {
+	    try {
+	        final File file = new File(lockFile);
+	        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+	        final FileLock fileLock = randomAccessFile.getChannel().tryLock();
+	        if (fileLock != null) {
+	            Runtime.getRuntime().addShutdownHook(new Thread() {
+	                public void run() {
+	                    try {
+	                        fileLock.release();
+	                        randomAccessFile.close();
+	                        file.delete();
+	                    } catch (Exception e) {
+	                        log.error("Unable to remove lock file: " + lockFile, e);
+	                    }
+	                }
+	            });
+	            return true;
+	        }
+	    } catch (Exception e) {
+	        log.error("Unable to create and/or lock file: " + lockFile, e);
+	    }
+	    return false;
 	}
 }

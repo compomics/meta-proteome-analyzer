@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -146,14 +147,15 @@ public class GraphDatabaseResultPanel extends JPanel {
 
         SortableCheckBoxTreeTableNode root = new SortableCheckBoxTreeTableNode();
 		SortableTreeTableModel model = new SortableTreeTableModel(root);
-    	
+
     	List<String> resultColumns = result.columns();
     	columnIdentifiers = new ArrayList<String>();
 
 		boolean first = true;
 		
+		boolean isEmpty = true;
 		for (Map<String, Object> map : result) {
-    		
+    		isEmpty = false;
 			// Fill column identifiers list
     		if (first) {
     			for (String col : resultColumns) {
@@ -198,6 +200,10 @@ public class GraphDatabaseResultPanel extends JPanel {
     		
     		first = false;
 		}
+		
+		if (isEmpty) {
+			JOptionPane.showMessageDialog(ClientFrame.getInstance(), "Found no results for query.");
+		}
 		model.setColumnIdentifiers(columnIdentifiers);
     	
     	treeTable.setTreeTableModel(model);
@@ -237,9 +243,12 @@ public class GraphDatabaseResultPanel extends JPanel {
 		SortableCheckBoxTreeTableNode tableNode = new SortableCheckBoxTreeTableNode(values) {
 			@Override
 			public boolean equals(Object obj) {
-				if (obj instanceof TreeTableNode) {
-					TreeTableNode that = (TreeTableNode) obj;
-					return this.getValueAt(0).equals(that.getValueAt(0));
+				if (obj instanceof TreeTableNode && obj != null) {
+					TreeTableNode that = (TreeTableNode) obj;	
+					//TODO: Check if this works correctly.
+					if (this.getValueAt(0) != null) {
+						return this.getValueAt(0).equals(that.getValueAt(0));
+					}
 				}
 				return false;
 			}

@@ -137,8 +137,6 @@ public class ExportDialog extends JDialog {
 	private JCheckBox taxonomySpeciesCbx;
 	private JCheckBox taxonomyUnclassifiedCbx;
 	private JCheckBox taxonomySpecificPeptidesCbx;
-	private JCheckBox taxonomyUnspecificSpecCountCbx;
-	private JCheckBox taxonomyUnspecificPeptidesCbx;
 	
 	/**
 	 * Headers for the export
