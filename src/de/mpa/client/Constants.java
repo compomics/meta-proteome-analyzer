@@ -1,7 +1,9 @@
 package de.mpa.client;
 
+import java.io.File;
 import java.util.Enumeration;
 
+import javax.swing.ToolTipManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -37,6 +39,11 @@ public class Constants {
 	 * The client frame minimum height in pixels.
 	 */
 	public static final int MAINFRAME_HEIGHT = 800;
+	
+	/**
+	 * The default tooltip initial delay.
+	 */
+	public static final int DEFAULT_TOOLTIP_DELAY = ToolTipManager.sharedInstance().getInitialDelay();
 	
 	/**
 	 * The names of FASTA database files available for searches.
@@ -99,9 +106,12 @@ public class Constants {
 	public static final int NUMERIC = 1;
 
 	/**
-	 * Path string of folder containing configuration resources.
+	 * Path string of folder containing configuration resources.<br>
+	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
+	public static final String CONFIGURATION_PATH = 
+			org.apache.commons.lang.StringUtils.join(
+					new String[] { "", "de", "mpa", "resources", "conf", "" }, File.separatorChar);
 
 	/**
 	 * Root node of a tree containing all pathways mapped in the KEGG database.

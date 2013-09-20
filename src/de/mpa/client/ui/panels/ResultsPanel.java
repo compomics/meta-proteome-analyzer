@@ -2,6 +2,7 @@ package de.mpa.client.ui.panels;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -10,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -76,7 +79,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
@@ -88,8 +90,8 @@ import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.looks.plastic.PlasticButtonUI;
 
-import de.mpa.analysis.CreateHeatMap;
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -103,7 +105,9 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HeatMapPane;
+import de.mpa.client.ui.chart.HeatMapPane.Axis;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
@@ -265,31 +269,20 @@ public class ResultsPanel extends JPanel {
 	 */
 	private JLabel pathwaysLbl;
 
-
-	/**
-	 * HeatMapPane of the heatmap.
-	 */
-	private HeatMapPane heatMapPn;
-
-	/**
-	 * Combobox for the types of the x-Axis
-	 */
-	private JComboBox xAxisCbx;
-
-	/**
-	 * Combobox for the types of the y-Axis
-	 */
-	private JComboBox yAxisCbx;
-
-	/**
-	 * Combobox for the types of the z-Axis
-	 */
-	private JComboBox zAxisCbx;
-
 	/**
 	 * The database search result object
 	 */
 	private DbSearchResult dbSearchResult;
+
+	/**
+	 * The heat map component.
+	 */
+	private HeatMapPane heatMapPn;
+
+	/**
+	 * Button to refresh the heat map.
+	 */
+	private JButton updateHeatMapBtn;
 
 	/**
 	 * Constructs a results panel containing the detail views for database,
@@ -456,18 +449,46 @@ public class ResultsPanel extends JPanel {
 		layout.setColumnGroups(new int[][] { { 1, 3 } });
 		JPanel fetchPnl = new JPanel(layout);
 
-		JButton fetchRemoteBtn = new JButton("<html><center>Fetch Results<br>from DB</center></html>", IconConstants.GO_DB_ICON);
+		JButton fetchRemoteBtn = new JButton(
+				"<html><center>Fetch Results<br>from DB</center></html>",
+				IconConstants.GO_DB_ICON);
 		fetchRemoteBtn.setEnabled(!Client.getInstance().isViewer()); 
 		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
 		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);		
 		fetchRemoteBtn.setIconTextGap(7);
-
 		fetchRemoteBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				dbPnl.fetchResultsFromDatabase();
 			}
 		});
+		fetchRemoteBtn.setUI(new PlasticButtonUI() {
+			@Override
+			protected void paintFocus(Graphics g, AbstractButton b,
+					Rectangle viewRect, Rectangle textRect, Rectangle iconRect) {
+				int topLeftInset = 3;
+		        int width = b.getWidth() - 1 - topLeftInset * 2;
+		        int height = b.getHeight() - 1 - topLeftInset * 2;
+				
+				g.setColor(this.getFocusColor());
+				g.drawLine(2, 2, 2, 2 + height + 1);
+				g.drawLine(2, 2 + height + 1, 2 + width - 20, 2 + height + 1);
+				g.drawLine(2 + width - 20, 2 + height + 1, 2 + width - 20, 2 + height - 20);
+				g.drawLine(2 + width - 20, 2 + height - 20, 2 + width + 1, 2 + height - 20);
+				g.drawLine(2 + width + 1, 2 + height - 20, 2 + width + 1, 2);
+				g.drawLine(2 + width + 1, 2, 2, 2);
+			}
+		});
+		
+		JButton testBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
+		testBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
+		testBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
+		testBtn.setPreferredSize(new Dimension(23, 23));
+		
+		fetchRemoteBtn.setLayout(new FormLayout("0px:g, p", "0px:g, p"));
+		fetchRemoteBtn.add(testBtn, CC.xy(2, 2));
+		fetchRemoteBtn.setMargin(new Insets(-3, -3, -3, -3));
+		
 		JButton fetchLocalBtn = new JButton("<html><center>Fetch Results<br>from File</center></html>", IconConstants.GO_FOLDER_ICON);
 		fetchLocalBtn.setRolloverIcon(IconConstants.GO_FOLDER_ROLLOVER_ICON);
 		fetchLocalBtn.setPressedIcon(IconConstants.GO_FOLDER_PRESSED_ICON);
@@ -482,83 +503,51 @@ public class ResultsPanel extends JPanel {
 
 		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
 		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
-
-		fetchPnl.setPreferredSize(new Dimension());	
+		
+//		fetchPnl.setPreferredSize(new Dimension());
 
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
-		summaryPnl.add(generalPnl, CC.xy(2, 2));
 
-		//TODO: Add experimental heat map chart
+		// Create panel for heat map
+		JPanel heatMapPnl = new JPanel();
+		heatMapPnl.setLayout(new FormLayout("2px, f:p:g, 1px", "f:p:g, 5dlu, p"));
 
-		JPanel createHeatmapPnl = new JPanel();
-		createHeatmapPnl.setLayout(new FormLayout("5dlu, f:p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
-
-		// Panel to define the axes
-		JPanel heatAxisPnl = new JPanel();
-		heatAxisPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
-		JLabel xAxisLbl 	= new JLabel("X-AXIS");
-		xAxisCbx 	= new JComboBox(Constants.HEATMAP_XAXIS);
-		JLabel yAxisLbl 	= new JLabel("Y-AXIS");
-		yAxisCbx 	= new JComboBox(Constants.HEATMAP_YAXIS);
-		xAxisCbx.addActionListener(new ActionListener() {
-			@Override // Proteins on y-axis just for metaproteins
-			public void actionPerformed(ActionEvent arg0) {
-				// Check for metaproteins
-				if (!xAxisCbx.getSelectedItem().equals("METAPROTEINE")) {
-					if (yAxisCbx.getSelectedItem().equals("PROTEIN (METAPROT)")) {
-						yAxisCbx.setSelectedIndex(0);
-					}
-				}
-			}
-		});
-		yAxisCbx.addActionListener(new ActionListener() {
-			@Override // Proteins on y-axis just for metaproteins
-			public void actionPerformed(ActionEvent arg0) {
-				if (!xAxisCbx.getSelectedItem().equals("METAPROTEINE")) {
-					if (yAxisCbx.getSelectedItem().equals("PROTEIN (METAPROT)")) {
-						yAxisCbx.setSelectedIndex(0);
-					}
-				}
-			}
-		});
-		JLabel zAxisLbl 	= new JLabel("Z-AXIS");
-		zAxisCbx 	= new JComboBox(Constants.HEATMAP_ZAXIS);
-		JButton updateHeatMapBtn = new JButton("UPDATE", IconConstants.UPDATE_ICON);
+		// heat map update button
+		updateHeatMapBtn = new JButton(IconConstants.UPDATE_ICON);
 		updateHeatMapBtn.setRolloverIcon(IconConstants.UPDATE_ROLLOVER_ICON);
 		updateHeatMapBtn.setPressedIcon(IconConstants.UPDATE_PRESSED_ICON);
 		updateHeatMapBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Update heatmap
-				CreateHeatMap createHeatMap = new CreateHeatMap(dbSearchResult, xAxisCbx.getSelectedItem().toString(), yAxisCbx.getSelectedItem().toString(), zAxisCbx.getSelectedItem().toString());
-				XYPlot plot = HeatMapPane.createPlot(createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries());
-//				heatMapPn.setViewportView(new HeatMapPane("Heat Map", createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries()));
-				heatMapPn.setPlot(plot);
-				heatMapPn.setVisibleColumnCount(14);
-				heatMapPn.setVisibleRowCount(13);
+				// Update heat map
+				if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
+					HeatMapData data = new HeatMapData(
+							dbSearchResult,
+							heatMapPn.getAxisButtonValue(Axis.X_AXIS),
+							heatMapPn.getAxisButtonValue(Axis.Y_AXIS),
+							heatMapPn.getAxisButtonValue(Axis.Z_AXIS));
+					heatMapPn.updateData(data);
+				}
 			}
 		});
+		updateHeatMapBtn.setMargin(new Insets(1, 0, 1, 2));
+		updateHeatMapBtn.setEnabled(false);
 
-		heatAxisPnl.add(xAxisLbl, CC.xy(2, 2));
-		heatAxisPnl.add(xAxisCbx, CC.xy(4, 2));
-		heatAxisPnl.add(yAxisLbl, CC.xy(6, 2));
-		heatAxisPnl.add(yAxisCbx, CC.xy(8, 2));
-		heatAxisPnl.add(zAxisLbl, CC.xy(12, 2));
-		heatAxisPnl.add(zAxisCbx, CC.xy(14, 2));
-		heatAxisPnl.add(updateHeatMapBtn, CC.xy(16, 2));
-
-
-		CreateHeatMap createHeatMap = new CreateHeatMap();
-		heatMapPn = new HeatMapPane("Heat Map", createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries());
+		// create default heat map
+		HeatMapData data = new HeatMapData();
+		heatMapPn = new HeatMapPane("Heat Map", "x axis", "y axis", "z axis", 
+				data.getXLabels(), data.getYLabels(), 0.0, 100.0, data.getMatrix());
 		heatMapPn.setVisibleColumnCount(14);
 		heatMapPn.setVisibleRowCount(13);
+		
+		((Container) heatMapPn.getViewport().getView()).add(updateHeatMapBtn, CC.xy(4, 3));
 
-		createHeatmapPnl.add(heatMapPn, CC.xy(2, 2));
-		createHeatmapPnl.add(heatAxisPnl, CC.xy(2, 4));
-		summaryPnl.add(createHeatmapPnl, CC.xy(2, 4));
+		// insert subcomponents into main panel
+		summaryPnl.add(generalPnl, CC.xy(2, 2));
+		summaryPnl.add(heatMapPn, CC.xy(2, 4));
 
-		JXTitledPanel summaryTtlPnl = PanelConfig.createTitledPanel("Summary",
-				summaryPnl);
+		JXTitledPanel summaryTtlPnl = 
+				PanelConfig.createTitledPanel("Summary", summaryPnl);
 		summaryTtlPnl.setRightDecoration(summaryBtnPnl);
 
 		return summaryTtlPnl;
@@ -1302,14 +1291,14 @@ public class ResultsPanel extends JPanel {
 				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
 				distPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-				//				int metaCount = 0;
-				//				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
-				//				for (ProteinHit proteinHit : metaProteins) {
-				//					MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
-				//					if (metaProtein.getProteinHits().size() > 0) {
-				//						metaCount++;
-				//					}
-				//				}
+//				int metaCount = 0;
+//				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+//				for (ProteinHit proteinHit : metaProteins) {
+//					MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
+//					if (metaProtein.getProteinHits().size() > 0) {
+//						metaCount++;
+//					}
+//				}
 				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 				speciesLbl.setText("" + speciesNames.size());
 				enzymesLbl.setText("" + ecNumbers.size());
@@ -1321,13 +1310,19 @@ public class ResultsPanel extends JPanel {
 				topData = new TopData(dbSearchResult);
 				histogramData = new HistogramData(dbSearchResult, 40);
 
-				// Update heatmap
-				CreateHeatMap createHeatMap = new CreateHeatMap(dbSearchResult, xAxisCbx.getSelectedItem().toString(), yAxisCbx.getSelectedItem().toString(), zAxisCbx.getSelectedItem().toString());
-				XYPlot plot = HeatMapPane.createPlot(createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries());
-//				heatMapPn.setViewportView(new HeatMapPane("Heat Map", createHeatMap.getxLabels(), createHeatMap.getyLabels(), createHeatMap.getSeries()));
-				heatMapPn.setPlot(plot);
-				heatMapPn.setVisibleColumnCount(14);
-				heatMapPn.setVisibleRowCount(13);
+				// Update heat map
+				Object xVal = heatMapPn.getAxisButtonValue(Axis.X_AXIS);
+				if (xVal instanceof String) {
+					heatMapPn.setAxisButtonValue(Axis.X_AXIS, HierarchyLevel.PROTEIN_LEVEL);
+				}
+				Object yVal = heatMapPn.getAxisButtonValue(Axis.Y_AXIS);
+				if (yVal instanceof String) {
+					heatMapPn.setAxisButtonValue(Axis.Y_AXIS, TaxonomyChartType.SPECIES);
+				}
+				Object zVal = heatMapPn.getAxisButtonValue(Axis.Z_AXIS);
+				if (zVal instanceof String) {
+					heatMapPn.setAxisButtonValue(Axis.Z_AXIS, HierarchyLevel.SPECTRUM_LEVEL);
+				}
 
 				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 			} catch (Exception e) {
@@ -1340,6 +1335,8 @@ public class ResultsPanel extends JPanel {
 		protected void done() {
 			// Enable chart type button
 			chartTypeBtn.setEnabled(true);
+			updateHeatMapBtn.setEnabled(true);
+			updateHeatMapBtn.doClick(0);
 
 			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

@@ -9,28 +9,36 @@ import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
+import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+
 public class OntologyPieChart extends Chart {
 	
 	private PieDataset pieDataset;
 	
 	public enum OntologyChartType implements ChartType {
-		MOLECULAR_FUNCTION("Molecular Function"),
-		BIOLOGICAL_PROCESS("Biological Process"),
-		CELLULAR_COMPONENT("Cellular Component");
+		MOLECULAR_FUNCTION("Molecular Function", KeywordOntology.MOLECULAR_FUNCTION),
+		BIOLOGICAL_PROCESS("Biological Process", KeywordOntology.BIOLOGICAL_PROCESS),
+		CELLULAR_COMPONENT("Cellular Component", KeywordOntology.CELLULAR_COMPONENT);
 		
 		private String title;
+		private KeywordOntology ontology;
 		
-		private OntologyChartType(String title) {
+		private OntologyChartType(String title, KeywordOntology ontology) {
 			this.title = title;
+			this.ontology = ontology;
 		}
 		@Override
 		public String toString() {
-			return title;
+			return this.title;
 		}
 		
 		@Override
 		public String getTitle() {
-			return title;
+			return this.title;
+		}
+		
+		public KeywordOntology getOntology() {
+			return this.ontology;
 		}
 	}
 		

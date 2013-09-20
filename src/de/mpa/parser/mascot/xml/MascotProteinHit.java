@@ -7,7 +7,7 @@ import java.util.List;
  * Description:			object representing xml protein hit
  */
 
-public class ProteinHit {
+public class MascotProteinHit {
 
 	// class variables
 	private int hitNumber;
@@ -16,7 +16,7 @@ public class ProteinHit {
 	private List<String> descriptions;
 	private List<Double> scores;
 	private List<Double> masses;
-	private List<PeptideHit> peptideHits;
+	private List<MascotPeptideHit> peptideHits;
 	
 	// methods
 	public int getHitNumber() {
@@ -54,10 +54,10 @@ public class ProteinHit {
 		this.masses = masses;
 	}
 	
-	public List<PeptideHit> getPeptideHits() {
+	public List<MascotPeptideHit> getPeptides() {
 		return peptideHits;
 	}
-	public void setPeptideHits(List<PeptideHit> peptideHits) {
+	public void setPeptides(List<MascotPeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;
 	}
 	

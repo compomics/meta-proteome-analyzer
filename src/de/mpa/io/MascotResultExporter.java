@@ -3,13 +3,12 @@ package de.mpa.io;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import de.mpa.parser.mascot.xml.MascotPeptideHit;
 import de.mpa.parser.mascot.xml.MascotRecord;
 import de.mpa.parser.mascot.xml.MascotXMLParser;
-import de.mpa.parser.mascot.xml.PeptideHit;
 
 public class MascotResultExporter {
 	
@@ -33,13 +32,13 @@ public class MascotResultExporter {
 		// MascotRecord
 		MascotRecord record = parser.parse();
 		
-		Map<String, ArrayList<PeptideHit>> pepMap = record.getPepMap();
+		Map<String, List<MascotPeptideHit>> pepMap = record.getPeptideMap();
 		// Iterate over all spectra.
 		for (MascotGenericFile mgf : mgfList) {
 			if (pepMap.containsKey(mgf.getTitle())) {
 				
-				ArrayList<PeptideHit> pepHits = pepMap.get(mgf.getTitle());
-				for (PeptideHit pepHit : pepHits) {
+				List<MascotPeptideHit> pepHits = pepMap.get(mgf.getTitle());
+				for (MascotPeptideHit pepHit : pepHits) {
 					
 					String sequence = pepHit.getSequence();
 					if (!sequence.isEmpty()) {	// we don't store empty sequences!
