@@ -43,10 +43,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -3809,7 +3807,8 @@ public class DbSearchResultPanel extends JPanel {
 
 	private ChartType spectrumType = new ChartType() {
 		public String getTitle() { return ""; }
-		public String toString() { return "Spectrum Viewer"; };
+		public String toString() { return "Spectrum Viewer"; }
+		public String getIdentifier() { return "Spectrum"; };
 	};
 
 	/**

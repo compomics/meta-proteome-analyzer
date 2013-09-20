@@ -7,10 +7,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -308,7 +310,7 @@ public class NcbiTaxonomy implements Serializable {
 
 		// Read names file
 		br = new BufferedReader(new FileReader(namesFile));
-		//example format: "1	|	root	|		|	scientific name	|"
+		// example format: "1	|	root	|		|	scientific name	|"
 		while ((line = br.readLine()) != null) {
 			if (line.endsWith("c name\t|")) {
 				String id = line.substring(0, line.indexOf('\t'));
@@ -338,9 +340,15 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	private void writeIndexFile() throws Exception {
 
-		File indexFile = new File(
-				this.getClass().getResource(Constants.CONFIGURATION_PATH + INDEX_FILENAME).toURI());
-
+		File indexFile;
+		String name = Constants.CONFIGURATION_PATH + INDEX_FILENAME;
+		URL url = this.getClass().getResource(name);
+		if (url == null) {
+			indexFile = new File("bin" + name);
+			indexFile.createNewFile();
+		} else {
+			indexFile = new File(url.toURI());
+		}
 		ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(indexFile)));
 		oos.writeObject(namesMap);
 		oos.writeObject(nodesMap);
@@ -355,11 +363,15 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception if an I/O error occurs
 	 */
 	public void readIndexFile() throws Exception {
-		ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(
-				this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + INDEX_FILENAME)));
-		namesMap = (TIntIntHashMap) ois.readObject();
-		nodesMap = (TIntIntHashMap) ois.readObject();
-		ois.close();
+		InputStream inStream = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + INDEX_FILENAME);
+		if (inStream != null) {
+			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(inStream));
+			namesMap = (TIntIntHashMap) ois.readObject();
+			nodesMap = (TIntIntHashMap) ois.readObject();
+			ois.close();
+		} else {
+			System.err.println("ERROR: \"" + Constants.CONFIGURATION_PATH + INDEX_FILENAME + "\" not found!");
+		}
 	}
 
 	/**

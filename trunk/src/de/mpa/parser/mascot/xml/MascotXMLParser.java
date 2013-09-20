@@ -16,8 +16,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 /**
  * This class parses the Mascot XML result file and generates a MascotRecord object.
- * @author heyer
- *
+ * 
+ * @author R. Heyer
  */
 public class MascotXMLParser {
 	
@@ -60,17 +60,29 @@ public class MascotXMLParser {
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					mascotRecord.setURI(getTagValue("URI", eElement));							
-					mascotRecord.setMascotFilename(getTagValue("FILENAME", eElement));
+					mascotRecord.setInputFilename(getTagValue("FILENAME", eElement));
 					mascotRecord.setNumQueries(Integer.parseInt(getTagValue("NumQueries", eElement)));
 				}
 			}
+			
+			// gather global list of modifications
+			List<MascotModification> globalMods = new ArrayList<MascotModification>();
+			NodeList varMods = doc.getElementsByTagName("variable_mods");
+			if (varMods.getLength() > 0) {
+				varMods = ((Element) varMods.item(0)).getElementsByTagName("modification");
+				for (int i = 0; i < varMods.getLength(); i++) {
+					Node varMod = varMods.item(i);
+					globalMods.add(new MascotModification(varMod, false));
+				}
+			}
+			
 			// generate list of protein hits		
-			List<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
+			List<MascotProteinHit> proteinHits = new ArrayList<MascotProteinHit>();
 			// grab all <hit> nodes
 			NodeList hitList = doc.getElementsByTagName("hit");
 			// iterate over hitList
 			for (int i = 0; i < hitList.getLength(); i++) {
-				ProteinHit proteinHit = new ProteinHit();
+				MascotProteinHit proteinHit = new MascotProteinHit();
 				Node hitNode = hitList.item(i);
 				
 				int num = Integer.parseInt(hitNode.getAttributes().item(0).getNodeValue());
@@ -130,13 +142,13 @@ public class MascotXMLParser {
 					proteinHit.setMasses(masses);
 					
 					// grab peptide hits
-					List<PeptideHit> peptideHits = new ArrayList<PeptideHit>();
+					List<MascotPeptideHit> peptideHits = new ArrayList<MascotPeptideHit>();
 					// peptide list is always the same for every protein child node in a hit,
 					// therefore simply grab from first child
 					NodeList peptideList = ((Element) protList.item(0)).getElementsByTagName("peptide");
 					// iterate over peptides in peptideList
 					for (int j = 0; j < peptideList.getLength(); j++) {
-						PeptideHit peptideHit = new PeptideHit(proteinHit);
+						MascotPeptideHit peptideHit = new MascotPeptideHit(proteinHit);
 						Node peptideNode = peptideList.item(j);
 						
 						NamedNodeMap pepAttributes = peptideNode.getAttributes();
@@ -149,9 +161,71 @@ public class MascotXMLParser {
 						
 						Element peptideElement = (Element) peptideNode;
 						// query rest
-						if (peptideNode.getNodeType() == Node.ELEMENT_NODE) {					
+						if (peptideNode.getNodeType() == Node.ELEMENT_NODE) {
 							
-							// get peptide title
+							// get peptide mass
+							try {
+								peptideHit.setMz(Double.parseDouble(getTagValue("pep_exp_mz", peptideElement)));
+							} 
+							catch (Exception e) {
+								if (verbose) {
+									System.out.println("WARNING: no pep_exp_mz found at protein hit " + num +
+											", peptide " + (j+1) + " in file " + xmlFile.getName());
+								}
+							}
+
+							// get peptide charge
+							try {
+								peptideHit.setCharge(Integer.parseInt(getTagValue("pep_exp_z", peptideElement)));
+							} 
+							catch (Exception e) {
+								if (verbose) {
+									System.out.println("WARNING: no pep_exp_z found at protein hit " + num +
+											", peptide " + (j+1) + " in file " + xmlFile.getName());
+								}
+							}
+
+							// get peptide sequence
+							try {
+								peptideHit.setSequence(getTagValue("pep_seq", peptideElement));
+							} catch (Exception e) {
+								if (verbose) {
+									System.out.println("WARNING: no pep_seq found at protein hit " + num +
+											", peptide " + (j+1) + " in file " + xmlFile.getName());
+								}
+							}
+
+							// get variable peptide modifications
+							try {
+								Map<Integer, MascotModification> pepMods = new HashMap<Integer, MascotModification>();
+								NodeList nodes = peptideElement.getElementsByTagName("pep_var_mod_pos");
+								if (nodes.getLength() > 0) {
+									nodes = nodes.item(0).getChildNodes();
+									if (nodes.getLength() > 0) {
+										// split residue index notation,
+										// first item corresponds to C-terminal mods
+										// middle item corresponds to residual mods
+										// last item corresponds to N-terminal mods
+										String[] indexes = nodes.item(0).getNodeValue().split("\\.");
+										for (int k = 0; k < indexes[1].length(); k++) {
+											char index = indexes[1].charAt(k);
+											if (index != '0') {
+												pepMods.put(k, globalMods.get(Integer.parseInt(String.valueOf(index)) - 1));
+											}
+										}
+									}
+								}
+								peptideHit.setModifications(pepMods);
+							} catch (Exception e) {
+								if (verbose) {
+									System.out.println("WARNING: no pep_var_mod found at protein hit " + num +
+											", peptide " + (j+1) + " in file " + xmlFile.getName());
+								}
+							}
+							
+							// TODO: parse fixed peptide modifications
+
+							// get peptide scan title
 							try {
 								// prune random number (introduced by Mascot) from end of string
 								String scanTitle = getTagValue("pep_scan_title", peptideElement);
@@ -176,55 +250,25 @@ public class MascotXMLParser {
 								}
 								// remove leading/trailing whitespaces
 								scanTitle = scanTitle.trim();
-								
+
 								peptideHit.setScanTitle(scanTitle);
 							} catch (Exception e) {
 								if (verbose) {
 									System.out.println("WARNING: no pep_scan_title found at protein hit " + num +
-										", peptide " + (j+1) + " in file " + xmlFile.getName());
-								}
-							}
-																					
-							// get peptide sequence
-							try {
-							peptideHit.setSequence(getTagValue("pep_seq", peptideElement));
-							} catch (Exception e) {
-								if (verbose) {
-									System.out.println("WARNING: no pep_seq found at protein hit " + num +
-										", peptide " + (j+1) + " in file " + xmlFile.getName());
-								}
-							}
-							// get peptide mass
-							try {
-								peptideHit.setMz(Double.parseDouble(getTagValue("pep_exp_mz", peptideElement)));
-							} 
-							catch (Exception e) {
-								if (verbose) {
-									System.out.println("WARNING: no pep_exp_mz found at protein hit " + num +
-										", peptide " + (j+1) + " in file " + xmlFile.getName());
-								}
-							}
-							// get peptide charge
-							try {
-								peptideHit.setCharge(Integer.parseInt(getTagValue("pep_exp_z", peptideElement)));
-							} 
-							catch (Exception e) {
-								if (verbose) {
-									System.out.println("WARNING: no pep_exp_z found at protein hit " + num +
-										", peptide " + (j+1) + " in file " + xmlFile.getName());
+											", peptide " + (j+1) + " in file " + xmlFile.getName());
 								}
 							}
 						}
 						// add peptideHit to list of hits
 						peptideHits.add(peptideHit);
-						mascotRecord.addPepMapEntry(peptideHit.getScanTitle(), peptideHit);
+						mascotRecord.addPeptide(peptideHit.getScanTitle(), peptideHit);
 					}
 					// add list of hits to proteinHit
-					proteinHit.setPeptideHits(peptideHits);
+					proteinHit.setPeptides(peptideHits);
 				}
 				proteinHits.add(proteinHit);
 			}
-			mascotRecord.setProteinHits(proteinHits);
+			mascotRecord.setProteins(proteinHits);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

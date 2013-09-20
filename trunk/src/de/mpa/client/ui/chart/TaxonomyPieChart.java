@@ -9,32 +9,41 @@ import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+
 public class TaxonomyPieChart extends Chart {
 	private PieDataset pieDataset;
 	
 	public enum TaxonomyChartType implements ChartType {
-		SUPERKINGDOM("Superkingdom"),
-		KINGDOM("Kingdom"),
-		PHYLUM("Phylum"),
-		CLASS("Class"),
-		ORDER("Order"),
-		FAMILY("Family"),
-		GENUS("Genus"),
-		SPECIES("Species");
+		SUPERKINGDOM("Superkingdom", TaxonomyRank.SUPERKINGDOM),
+		KINGDOM("Kingdom", TaxonomyRank.KINGDOM),
+		PHYLUM("Phylum", TaxonomyRank.PHYLUM),
+		CLASS("Class", TaxonomyRank.CLASS),
+		ORDER("Order", TaxonomyRank.ORDER),
+		FAMILY("Family", TaxonomyRank.FAMILY),
+		GENUS("Genus", TaxonomyRank.GENUS),
+		SPECIES("Species", TaxonomyRank.SPECIES);
 
 		private String title;
+		private TaxonomyRank rank;
 		
-		private TaxonomyChartType(String title) {
+		private TaxonomyChartType(String title, TaxonomyRank rank) {
 			this.title = title;
+			this.rank = rank;
 		}
+		
 		@Override
 		public String toString() {
-			return title + " Taxonomy";
+			return this.title;
 		}
-		@Override
 		
+		@Override
 		public String getTitle() {
-			return title;
+			return this.title;
+		}
+		
+		public TaxonomyRank getRank() {
+			return this.rank;
 		}
 	}
 		

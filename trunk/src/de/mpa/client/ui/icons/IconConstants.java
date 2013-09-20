@@ -23,13 +23,24 @@ public class IconConstants {
 	
 	public static final ImageIcon EMPTY_ICON = new ImageIcon();
 	
+	/** <img src="../../../resources/icons/project.png"> */
 	public static final ImageIcon PROJECT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project.png"));
+	/** <img src="../../../resources/icons/addspectra.png"> */
 	public static final ImageIcon INPUT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/addspectra.png"));
+	/** <img src="../../../resources/icons/settings.png"> */
 	public static final ImageIcon SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings.png"));
+	/** <img src="../../../resources/icons/results.png"> */
 	public static final ImageIcon RESULTS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/results.png"));
 //	public static final ImageIcon CLUSTERING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/clustering.png"));
+	/** <img src="../../../resources/icons/compare48.png"> */
 	public static final ImageIcon COMPARE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/compare48.png"));
+	/** <img src="../../../resources/icons/logging.png"> */
 	public static final ImageIcon LOGGING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/logging.png"));
+	
+	/** <img src="../../../resources/icons/settings16.png"> */
+	public static final ImageIcon SETTINGS_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings16.png"));
+	public static final ImageIcon SETTINGS_SMALL_ROLLOVER_ICON = createRescaledIcon(SETTINGS_SMALL_ICON, 1.1f);
+	public static final ImageIcon SETTINGS_SMALL_PRESSED_ICON = createRescaledIcon(SETTINGS_SMALL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/bug32.png"> */
 	public static final ImageIcon BUG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bug32.png"));
