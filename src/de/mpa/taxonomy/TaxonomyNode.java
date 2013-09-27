@@ -38,13 +38,24 @@ public class TaxonomyNode implements Serializable {
 	 * Constructs a NCBI taxonomy node.
 	 * @param taxId The taxonomy ID
 	 * @param rank The taxonomic rank
-	 * @param taxName The taxonomy name
+	 * @param description The taxonomy description
 	 */
-	public TaxonomyNode(int taxId, String rank, String taxName) {
+	public TaxonomyNode(int taxId, String rank, String description) {
+		this(taxId, rank, description, null);
+	}
+	
+	/**
+	 * Constructs a NCBI taxonomy node.
+	 * @param taxId The taxonomy ID
+	 * @param rank The taxonomic rank
+	 * @param description The taxonomy description
+	 * @param parentNode Parent node
+	 */
+	public TaxonomyNode(int taxId, String rank, String description, TaxonomyNode parentNode) {
 		this.taxId = taxId;
 		this.taxRank = rank;
-		this.taxName = taxName;
-		this.setParentNode(null);
+		this.taxName = description;
+		this.parentNode = parentNode;
 	}
 
 	/**
@@ -149,12 +160,13 @@ public class TaxonomyNode implements Serializable {
 		List<TaxonomyNode> path = new ArrayList<TaxonomyNode>();
 		
 		TaxonomyNode parent = this;
-		path.add(parent);
 		while (parent.getId() != 1) {
 			path.add(parent);
 			parent = parent.getParentNode();
 		}
+		
 		Collections.reverse(path);
+		
 		return path.toArray(new TaxonomyNode[path.size()]);
 	}
 	

@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -28,7 +27,6 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -66,9 +64,6 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.Painter;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
@@ -80,6 +75,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DefaultTableHeaderCellRenderer;
 import de.mpa.client.ui.PanelConfig;
@@ -772,16 +768,17 @@ public class ComparePanel extends JPanel{
 		if (!entryCbx.getSelectedItem().equals("Accessions")) {
 			for (ProteinHit proteinHit : proteinMap.values()) {
 				String accession = proteinHit.getAccession();
-				UniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
+				ReducedUniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
 				// Case that NCBI accession with UniProt Mapping
 				if (uniprotEntry != null) {
 					// Build list of UniProt accessions
 					List<String> uniProtAccs = new ArrayList<String>();
-					uniProtAccs.add(uniprotEntry.getPrimaryUniProtAccession().getValue());
-					ListIterator<SecondaryUniProtAccession> secondaryUniProtAccessions = uniprotEntry.getSecondaryUniProtAccessions().listIterator();
-					while (secondaryUniProtAccessions.hasNext()) {
-						uniProtAccs.add(secondaryUniProtAccessions.next().getValue());
-					}
+					uniProtAccs.add(accession);
+					// TODO: use secondary accessions?
+//					ListIterator<SecondaryUniProtAccession> secondaryUniProtAccessions = uniprotEntry.getSecondaryUniProtAccessions().listIterator();
+//					while (secondaryUniProtAccessions.hasNext()) {
+//						uniProtAccs.add(secondaryUniProtAccessions.next().getValue());
+//					}
 					if (!uniProtAccs.contains(accession)) { // Check for non UNIProt entries
 						removeList.add(proteinHit);
 						uniProt2NCBI.put(uniProtAccs.get(0), accession);

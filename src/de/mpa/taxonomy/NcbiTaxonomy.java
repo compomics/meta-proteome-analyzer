@@ -1,6 +1,5 @@
 package de.mpa.taxonomy;
 
-import gnu.trove.list.array.TCharArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.io.BufferedReader;
@@ -29,10 +28,12 @@ import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.util.Formatter;
 
 /**
  * This class holds the NCBI taxonomy maps.
  * Class to create the phylogenic tree from NCBI: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
+ * FIXME Refactoring required: Move helper methods (e.g. getCommonTaxId4EachPeptide()) to TaxonomyUtils
  * @author R. Heyer
  */
 public class NcbiTaxonomy implements Serializable {
@@ -123,19 +124,25 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception 
 	 */
 	public TaxonomyNode getCommonTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) throws Exception {
-
+		
 		// Get root paths of both taxonomy nodes
 		TaxonomyNode[] path1 = taxonNode1.getPath();
 		TaxonomyNode[] path2 = taxonNode2.getPath();
-
+		
+		TaxonomyNode ancestor;
+		
 		// Find last common element starting from the root
 		int len = Math.min(path1.length, path2.length);
-		TaxonomyNode ancestor = path1[0];	// initialize ancestor as root
-		for (int i = 1; i < len; i++) {
-			if (!path1[i].equals(path2[i])) {
-				break;
+		if (len > 1) {
+			ancestor = path1[0];	// initialize ancestor as root
+			for (int i = 1; i < len; i++) {
+				if (!path1[i].equals(path2[i])) {
+					break;
+				} 
+				ancestor = path1[i];
 			}
-			ancestor = path1[i];
+		} else {
+			ancestor = taxonNode1;
 		}
 
 		return ancestor;
@@ -189,33 +196,6 @@ public class NcbiTaxonomy implements Serializable {
 		}
 
 		return taxId;
-	}
-
-	/**
-	 * TODO: move various instances of this method (e.g. in MascotGenericFileReader) to some utility class
-	 * <br>
-	 * Method to determine linebreak format.
-	 * @return amount of line-breaking characters per line
-	 */
-	private static char[] determineNewlineChars(File nodesFile) {
-		TCharArrayList res = new TCharArrayList();
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(nodesFile));
-			int character;
-			boolean eol = false;
-			while ((character = br.read()) != -1) {
-				if ((character == 13) || (character == 10)) {	// 13 = carriage return '\r', 10 = newline '\n'
-					res.add((char) character);
-					eol = true;
-				} else if (eol) {
-					break;
-				}
-			}
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return res.toArray();
 	}
 
 	/**
@@ -300,7 +280,7 @@ public class NcbiTaxonomy implements Serializable {
 		nodesMap = new TIntIntHashMap();
 
 		// Gets the number of chars for a new line
-		int newline = determineNewlineChars(nodesFile).length;
+		int newline = Formatter.determineNewlineChars(nodesFile).length;
 
 		// The start byte position
 		int pos = 0;
@@ -354,6 +334,8 @@ public class NcbiTaxonomy implements Serializable {
 		oos.writeObject(nodesMap);
 		oos.flush();
 		oos.close();
+		System.out.println("done");
+		System.out.println(indexFile.getAbsolutePath());
 		namesMap.clear();
 		nodesMap.clear();
 	}
@@ -463,7 +445,6 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	synchronized public String getRank(int taxID) throws Exception {
 
-
 		// Get mapping
 		int pos = nodesMap.get(taxID);
 
@@ -564,6 +545,7 @@ public class NcbiTaxonomy implements Serializable {
 			
 			// Gather protein taxonomy nodes
 			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+			
 			for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
 				taxonNodes.add(proteinHit.getTaxonomyNode());
 			}
@@ -629,7 +611,7 @@ public class NcbiTaxonomy implements Serializable {
 	}
 
 	/**
-	 * Methode to set tax ID of a protein from common taxID of its Peptides
+	 * Method to set tax ID of a protein from common taxID of its peptides.
 	 * @param proteinList
 	 * @throws Exception
 	 */
@@ -651,4 +633,14 @@ public class NcbiTaxonomy implements Serializable {
 			Client.getInstance().firePropertyChange("progressmade", false, true);
 		}
 	}
+	
+	/**
+	 * Returns the nodes map for external use.
+	 * @return Map containing the taxonomy nodes.
+	 */
+	public TIntIntHashMap getNodesMap() {
+		return nodesMap;
+	}
+	
+	
 }

@@ -34,8 +34,8 @@ public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 			this.userObjects[NAME] = ((Organism) obj).getScientificName().getValue();
 		} else if (obj instanceof ProteinHit) {
 			ProteinHit ph = (ProteinHit) obj;
-			this.userObjects[NAME] = ph.getUniprotEntry().getPrimaryUniProtAccession().getValue();
-			this.userObjects[DESCRIPTION] = getProteinName(ph.getUniprotEntry().getProteinDescription());
+			this.userObjects[NAME] = ph.getAccession();
+			this.userObjects[DESCRIPTION] = ph.getDescription();
 		}
 	}
 	

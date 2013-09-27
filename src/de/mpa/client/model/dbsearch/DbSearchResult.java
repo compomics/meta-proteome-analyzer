@@ -95,8 +95,9 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * Adds a protein hit to the protein hit set.
 	 * @param proteinHit The {@link ProteinHit} to add
+	 * @throws Exception 
 	 */
-	public void addProtein(ProteinHit proteinHit) {
+	public void addProtein(ProteinHit proteinHit) throws Exception {
 		String accession = proteinHit.getAccession();
 
 		// Get the first - and only - peptide hit
@@ -316,7 +317,8 @@ public class DbSearchResult implements Serializable {
 	 * @return the total spectral count.
 	 */
 	public int getTotalSpectrumCount() {
-		return ticMap.size();
+		return 0;
+//		return ticMap.size();
 	}
 	
 	/**

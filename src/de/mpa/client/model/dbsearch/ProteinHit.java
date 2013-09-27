@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.model.SpectrumMatch;
@@ -93,14 +92,14 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	private double empai = -1.0;
 
 	/**
-	 * The UniProt entry object containing additional meta-data.
+	 * The UniProt entry hit object containing additional meta-data.
 	 */
-	private UniProtEntry uniprotEntry = null;
+	private ReducedUniProtEntry uniprotEntry = null;
 	
 	/**
 	 * The taxonomy node reference.
 	 */
-	private TaxonomyNode taxonNode = new TaxonomyNode(1, "no rank", "root");
+	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, "no rank", "root");
 
 	/**
 	 * Constructs a protein hit from the specified accession, description and
@@ -109,8 +108,10 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param description the protein description
 	 * @param sequence the protein sequence
 	 * @param peptideHit the peptide hit
+	 * @param uniprotEntry the UniProtEntry hit
+	 * @throws Exception 
 	 */
-	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit){
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, ReducedUniProtEntry uniprotEntry, TaxonomyNode taxonomyNode) throws Exception{
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
@@ -118,14 +119,31 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		if (peptideHit != null) {
 			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 		}
+		this.uniprotEntry = uniprotEntry;
+		this.taxonomyNode = taxonomyNode;
 	}
+	
+	/**
+	 * Constructs a protein hit from the specified accession, description and
+	 * sequence string as well as a single peptide hit.
+	 * @param accession the protein accession
+	 * @param description the protein description
+	 * @param sequence the protein sequence
+	 * @param peptideHit the peptide hit
+	 * @throws Exception 
+	 */
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit) throws Exception{
+		this(accession, description, sequence, peptideHit, null, null);
+	}
+	
 
 	/**
 	 * Constructor for a simple protein hit with accession only.
 	 * @param accession the protein accession
+	 * @throws Exception 
 	 */
-	public ProteinHit(String accession) {
-		this(accession, "", "", null);
+	public ProteinHit(String accession) throws Exception {
+		this(accession, "", "", null, null, null);
 	}
 	
 	/**
@@ -410,9 +428,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	
 	/**
 	 * Sets an UniProt entry.
-	 * @param uniprotEntry The UniProtEntry object
+	 * @param uniprotEntry The UniprotentryAccessor object
 	 */
-	public void setUniprotEntry(UniProtEntry uniprotEntry) {
+	public void setUniprotEntry(ReducedUniProtEntry uniprotEntry) {
 		this.uniprotEntry = uniprotEntry;
 	}
 	
@@ -420,7 +438,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Returns the UniProt entry.
 	 * @return The UniProtEntry object.
 	 */
-	public UniProtEntry getUniprotEntry() {
+	public ReducedUniProtEntry getUniprotEntry() {
 		return uniprotEntry;
 	}
 	
@@ -448,12 +466,12 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
-		return taxonNode;
+		return taxonomyNode;
 	}
 
 	@Override
 	public void setTaxonomyNode(TaxonomyNode taxonNode) {
-		this.taxonNode = taxonNode;
+		this.taxonomyNode = taxonNode;
 	}
 	
 	@Override

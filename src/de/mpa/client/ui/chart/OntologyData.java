@@ -9,14 +9,13 @@ import java.util.Set;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 
 /**
@@ -117,7 +116,7 @@ public class OntologyData implements ChartData {
 			for (ProteinHit proteinHit : metaProtein.getProteinHits()) {
 				if (proteinHit.isSelected()) {
 					// Get UniProt Entry
-					UniProtEntry entry = proteinHit.getUniprotEntry();
+					ReducedUniProtEntry entry = proteinHit.getUniprotEntry();
 					
 					// booleans for ontology types found
 					boolean procFound, compFound, funcFound;
@@ -125,9 +124,8 @@ public class OntologyData implements ChartData {
 					
 					// Entry must be provided
 					if (entry != null) {
-						List<Keyword> keywords = entry.getKeywords();
-						for (Keyword kw : keywords) {
-							String keyword = kw.getValue();
+						List<String> keywords = entry.getKeywords();
+						for (String keyword : keywords) {
 							if (ontologyMap.containsKey(keyword)) {
 								KeywordOntology kwOntology = ontologyMap.get(keyword);
 								switch (kwOntology) {

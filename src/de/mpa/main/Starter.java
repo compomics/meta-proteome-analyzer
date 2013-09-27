@@ -10,7 +10,6 @@ import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 
-import com.ibm.wsdl.Constants;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
@@ -55,17 +54,11 @@ public class Starter {
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		final boolean viewerMode;
-		if (args.length > 0) {
-			viewerMode = Boolean.parseBoolean(args[0]);
-		} else {
-			viewerMode = false;
-		}
-		
+	public static void main(final String[] args) {
 		// Set the look&feel
 		setLookAndFeel();
 		
+		// Lock file instance.
 		boolean unlocked = true;
 		if (LOCK_ACTIVE) unlocked = lockInstance("filelock");
 		
@@ -73,12 +66,22 @@ public class Starter {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					if (jarExport) ClientFrame.getInstance(viewerMode);
-					else ClientFrame.getInstance(viewerMode);
+					boolean viewerMode = false;
+					boolean debugMode = false;
+					if (args.length > 0) {
+						for(String arg : args) {
+							if(arg.equalsIgnoreCase("-debug")) {
+								debugMode = true;
+							} else if (arg.equalsIgnoreCase("-viewer")) {
+								viewerMode = true;
+							}
+						}
+					} 
+					if (jarExport) ClientFrame.getInstance(viewerMode, debugMode);
+					else ClientFrame.getInstance(viewerMode, debugMode);
 				}
 			});
 		}
-		
 	}
 	
 	/**
@@ -106,6 +109,11 @@ public class Starter {
 		return jarExport;
 	}
 	
+	/**
+	 * Locks an instance to a file by random access.
+	 * @param lockFile Lock file string.
+	 * @return True if the file has been locked.
+	 */
 	private static boolean lockInstance(final String lockFile) {
 	    try {
 	        final File file = new File(lockFile);

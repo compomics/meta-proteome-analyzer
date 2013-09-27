@@ -10,8 +10,6 @@ import java.util.TreeSet;
 
 import org.jfree.data.xy.MatrixSeries;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-
 import com.compomics.util.experiment.identification.matches.SpectrumMatch;
 
 import de.mpa.analysis.UniprotAccessor;
@@ -176,11 +174,10 @@ public class HeatMapData {
 			// Get the ontology map
 			Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
 			// Check all keywords for biological process
-			List<Keyword> keywords = protHit.getUniprotEntry().getKeywords();
+			List<String> keywords = protHit.getUniprotEntry().getKeywords();
 			if (keywords != null) {
 				// Check all keywords
-				for (Keyword kw : keywords) {
-					String keyword = kw.getValue();
+				for (String keyword : keywords) {
 					KeywordOntology mapOntology = ontologyMap.get(keyword);
 					if (mapOntology != null) {
 						if (mapOntology.equals(ontology)) {

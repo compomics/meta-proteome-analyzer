@@ -38,7 +38,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 */
 	public static Map<String, Long> findAllProteins(Connection aConn) throws SQLException {
 		Map<String, Long> accession2IdMap = new TreeMap<String, Long>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " LIMIT 180000, 30000");
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			accession2IdMap.put(rs.getString("accession"), rs.getLong("proteinid"));

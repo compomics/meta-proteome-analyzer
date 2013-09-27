@@ -9,12 +9,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.IndexableGraph;
@@ -31,6 +25,7 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.io.GraphMLHandler;
@@ -168,16 +163,16 @@ public class GraphDatabaseHandler {
 		addPeptides(protHit.getPeptideHitList(), proteinVertex);
 		
 		// Add enzyme numbers.
-		UniProtEntry uniprotEntry = protHit.getUniprotEntry();
+		ReducedUniProtEntry uniprotEntry = protHit.getUniprotEntry();
 		// TODO: Null check valid here ?
 		if (uniprotEntry != null) {
 			
-			List<String> ecNumbers = uniprotEntry.getProteinDescription().getEcNumbers();
+			List<String> ecNumbers = uniprotEntry.getEcNumbers();
 			addEnzymeNumbers(ecNumbers, proteinVertex);
 			
 			// Add pathways.			
-			List<DatabaseCrossReference> xRefs = uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO);
-			addPathways(xRefs, proteinVertex);
+			List<String> koNumbers = uniprotEntry.getKoNumbers();
+			addPathways(koNumbers, proteinVertex);
 			
 			// Add ontologies.
 			addOntologies(protHit, proteinVertex);
@@ -252,7 +247,6 @@ public class GraphDatabaseHandler {
 					
 					enzymeVertex = temp;
 				}
-				
 			}
 			// Add edge between protein and enzyme number.
 			addEdge(proteinVertex, enzymeVertex, RelationType.BELONGS_TO_ENZYME);
@@ -264,12 +258,10 @@ public class GraphDatabaseHandler {
 	 * @param xRefs List of database cross references.
 	 * @param proteinVertex Involved protein vertex (outgoing edge).
 	 */
-	private void addPathways(List<DatabaseCrossReference> xRefs, Vertex proteinVertex) {
+	private void addPathways(List<String> koNumbers, Vertex proteinVertex) {
 		Vertex pathwayVertex = null;
-		for (DatabaseCrossReference xRef : xRefs) {
-			String koNumber = ((KO) xRef).getKOIdentifier().getValue();
-			Iterator<Vertex> pathwayIterator =
-					pathwayIndex.get(PathwayProperty.IDENTIFIER.toString(), koNumber).iterator();
+		for (String koNumber : koNumbers) {
+			Iterator<Vertex> pathwayIterator = pathwayIndex.get(PathwayProperty.IDENTIFIER.toString(), koNumber).iterator();
 			if (pathwayIterator.hasNext()) {
 				pathwayVertex = pathwayIterator.next();
 			} else {
@@ -292,14 +284,13 @@ public class GraphDatabaseHandler {
 	 */
 	private void addOntologies(ProteinHit protHit, Vertex proteinVertex) {
 		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
-		UniProtEntry entry = protHit.getUniprotEntry();
+		ReducedUniProtEntry entry = protHit.getUniprotEntry();
 		Vertex ontologyVertex = null;
 		
 		// Entry must be provided
 		if (entry != null) {
-			List<Keyword> keywords = entry.getKeywords();
-			for (Keyword kw : keywords) {
-				String keyword = kw.getValue();
+			List<String> keywords = entry.getKeywords();			
+			for (String keyword : keywords) {
 				if (ontologyMap.containsKey(keyword)) {
 					KeywordOntology type = ontologyMap.get(keyword);
 					

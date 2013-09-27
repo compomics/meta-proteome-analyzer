@@ -427,25 +427,41 @@ public class DBSearchPanel extends JPanel {
 	}
 
 	/**
-	 * TODO: API
-	 * @return
+	 * Returns the X!Tandem paramter map.
+	 * @return ParameterMap for X!Tandem.
 	 */
 	public ParameterMap getXTandemParameterMap() {
 		return xTandemParams;
 	}
-
+	
+	/**
+	 * Returns the OMSSA parameter map.
+	 * @return ParameterMap for OMSSA.
+	 */
 	public ParameterMap getOmssaParameterMap() {
 		return omssaParams;
 	}
-
+	
+	/**
+	 * Returns the Crux parameter map.
+	 * @return ParameterMap for Crux.
+	 */
 	public ParameterMap getCruxParameterMap() {
 		return cruxParams;
 	}
-
+	
+	/**
+	 * Returns the MASCOT parameter map.
+	 * @return ParameterMap for MASCOT
+	 */
 	public ParameterMap getInspectParameterMap() {
 		return inspectParams;
 	}
-
+	
+	/**
+	 * Returns the X!Tandem paramter map.
+	 * @return ParameterMap for X!Tandem.
+	 */
 	public ParameterMap getMascotParameterMap() {
 		return mascotParams;
 	}

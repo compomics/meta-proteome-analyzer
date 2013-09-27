@@ -37,6 +37,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
@@ -55,6 +56,8 @@ import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.Taxonomy;
+import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.extractor.SearchHitExtractor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
@@ -62,6 +65,8 @@ import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
+import de.mpa.taxonomy.TaxonomyNode;
+import de.mpa.taxonomy.TaxonomyUtils;
 import de.mpa.webservice.WSPublisher;
 
 public class Client {
@@ -98,9 +103,24 @@ public class Client {
 	private boolean viewer = false;
 	
 	/**
+	 * Flag for debugging options.
+	 */
+	private boolean debug = false;
+	
+	/**
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
+	
+	/**
+	 * Taxonomy map containing all entries from taxonomy db table.
+	 */
+	private Map<Long, Taxonomy> taxonomyMap;
+	
+	/**
+	 * Uncategorized taxonomy node. Object should be created only once.
+	 */
+	private TaxonomyNode uncategorizedNode;
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -447,13 +467,13 @@ public class Client {
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 
-			dbSearchResult.setTotalIonCurrentMap(
-					Searchspectrum.getTICsByExperimentID(experimentID, conn));
-
+//			dbSearchResult.setTotalIonCurrentMap(Searchspectrum.getTICsByExperimentID(experimentID, conn));
+			
+			// TODO: Put this in a background thread at startup or change stategy.
+			if(taxonomyMap == null) taxonomyMap = Taxonomy.retrieveTaxIDtoTaxonomyMap(conn);
 			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
 			Set<String> peptideSequences = new TreeSet<String>();
 			int totalPeptides = 0;
-			//			int modifiedPeptides = 0;
 
 			long maxProgress = searchHits.size();
 			long curProgress = 0;
@@ -470,7 +490,6 @@ public class Client {
 //					modifiedPeptides++;
 //				}
 				peptideSequences.add(pepSeq);
-
 				firePropertyChange("progress", 0L, ++curProgress);
 			}
 			for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
@@ -489,6 +508,8 @@ public class Client {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -502,9 +523,9 @@ public class Client {
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
 	 * @param hit The search hit implementation.
-	 * @throws SQLException when the retrieval did not succeed.
+	 * @throws Exception 
 	 */
-	private void addProteinSearchHit(SearchHit hit) throws SQLException {
+	private void addProteinSearchHit(SearchHit hit) throws Exception {
 
 		// Create the PeptideSpectrumMatch
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
@@ -514,10 +535,29 @@ public class Client {
 		PeptideHit peptideHit = new PeptideHit(peptide.getSequence(), psm);
 
 		// Get the protein accessor.
-		ProteinAccessor protein = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
-
+		long proteinID = hit.getFk_proteinid();
+		ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
+		
+		// Get the uniprot entry meta-information.
+		Uniprotentry uniprotEntryAccessor = Uniprotentry.findFromProteinID(proteinID, conn);
+		ReducedUniProtEntry uniprotEntry = null;
+		TaxonomyNode taxonomyNode = null;
+		if (uniprotEntryAccessor != null) {
+			long taxID = uniprotEntryAccessor.getTaxid();
+			uniprotEntry = new ReducedUniProtEntry(taxID, uniprotEntryAccessor.getKeywords(), uniprotEntryAccessor.getEcnumber(), uniprotEntryAccessor.getKonumber());
+			
+			// Get taxonomy node.
+			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);
+		} else {
+			if(uncategorizedNode== null) {
+				TaxonomyNode rootNode = new TaxonomyNode(1, "no rank", "root"); 
+				uncategorizedNode = new TaxonomyNode(0, "no rank", "uncategorized", rootNode);
+			}
+			taxonomyNode = uncategorizedNode;
+		}
+		
 		// Add a new protein to the protein hit set.
-		dbSearchResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit));
+		dbSearchResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit, uniprotEntry, taxonomyNode));
 	}
 
 	/**
@@ -798,6 +838,14 @@ public class Client {
 	public boolean isViewer() {
 		return this.viewer;
 	}
+	
+	/**
+	 * Returns whether the client is in debug mode
+	 * @return <code>true</code> if in debug mode, <code>false</code> otherwise.
+	 */
+	public boolean isDebug() {
+		return this.debug;
+	}
 
 	/**
 	 * Sets the client's viewer mode property.
@@ -805,6 +853,14 @@ public class Client {
 	 */
 	public void setViewer(boolean viewer) {
 		this.viewer = viewer;
+	}
+	
+	/**
+	 * Sets the client's debug mode property.
+	 * @param debug <code>true</code> if in debug mode, <code>false</code> otherwise.
+	 */
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 
 	/**
