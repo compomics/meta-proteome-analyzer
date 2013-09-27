@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
 
@@ -152,13 +151,6 @@ import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.DefaultPieDataset;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
-import uk.ac.ebi.kraken.interfaces.uniprot.PrimaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
@@ -173,7 +165,6 @@ import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.MetaProteinFactory;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
@@ -183,6 +174,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -899,19 +891,6 @@ public class DbSearchResultPanel extends JPanel {
 				// Fetching UniProt entries and taxonomic information.
 				if (!newResult.equals(dbSearchResult)) {
 					if (!newResult.isEmpty() && !client.isViewer()) {
-						// Retrieve UniProt data
-						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-						client.firePropertyChange("indeterminate", false, true);
-						try {
-							UniprotAccessor.retrieveUniProtEntries(newResult);
-						} catch (Exception e) {
-							JXErrorPane.showDialog(clientFrame, new ErrorInfo("Error",
-									"UniProt access failed. Please try again later.",
-									e.getMessage(), null, e, Level.SEVERE, null));
-						}
-
-						client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
-						client.firePropertyChange("indeterminate", true, false);
 
 						// Get various hit lists from result object
 						ProteinHitList metaProteinList = newResult.getMetaProteins();
@@ -1196,10 +1175,10 @@ public class DbSearchResultPanel extends JPanel {
 				String target = value.toString();
 				if (target.matches("^\\d*$")) {
 					// target string contains only numeric characters -> probably GI number
-					UniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
+					ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
 					// change target to UniProt accession inside associated UniProtEntry
 					if (uniprotEntry != null) {
-						target = uniprotEntry.getPrimaryUniProtAccession().getValue();
+						target = dbSearchResult.getProteinHit(target).getAccession();
 					} else {
 						target = null;
 					}
@@ -1840,7 +1819,6 @@ public class DbSearchResultPanel extends JPanel {
 			//			@Override
 			//			public org.jdesktop.swingx.decorator.ComponentAdapter getComponentAdapter(
 			//					int row, int column) {
-			//				// TODO Auto-generated method stub
 			//				return super.getComponentAdapter(row, column);
 			//			}
 		};
@@ -2337,7 +2315,7 @@ public class DbSearchResultPanel extends JPanel {
 			// Gather models
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 
-			// FIXME: Coulde the following code be sourced out please ?!
+			// FIXME: Could the following code be sourced out please ?!
 			// Values for construction of highlighter
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
@@ -2475,10 +2453,9 @@ public class DbSearchResultPanel extends JPanel {
 						String target = proteinHit.getAccession();
 						//Use UniProt identifier also for NCBI entries
 						if (target.matches("^\\d*$")) { // if contains non-numerical character UniProt
-							UniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
+							ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
 							if (uniprotEntry != null) {
-								PrimaryUniProtAccession primaryUniProtAccession = uniprotEntry.getPrimaryUniProtAccession();
-								target = primaryUniProtAccession.getValue();
+								target = dbSearchResult.getProteinHit(target).getAccession();
 							} else {
 								target = "";
 							}
@@ -2503,7 +2480,9 @@ public class DbSearchResultPanel extends JPanel {
 //						// Link nodes to each other
 //						linkNodes(flatPath, taxonPath, enzymePath);
 					} else {
-						System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
+						if (Client.getInstance().isDebug()) {
+							System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
+						}
 					}
 					
 					Client.getInstance().firePropertyChange("progressmade", false, true);
@@ -2568,11 +2547,8 @@ public class DbSearchResultPanel extends JPanel {
 							PhylogenyTreeTableNode protNode = 
 									(PhylogenyTreeTableNode) children.nextElement();
 							ProteinHit protHit = (ProteinHit) protNode.getUserObject();
-							for (DatabaseCrossReference xref : 
-								protHit.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
-							}
-							ecNumbers.addAll(protHit.getUniprotEntry().getProteinDescription().getEcNumbers());
+							kNumbers.addAll(protHit.getUniprotEntry().getKoNumbers());
+							ecNumbers.addAll(protHit.getUniprotEntry().getEcNumbers());
 						}
 						// Append K and EC numbers to URL
 						for (String kNumber : kNumbers) {
@@ -2749,12 +2725,12 @@ public class DbSearchResultPanel extends JPanel {
 		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
 
 		ProteinHit ph = (ProteinHit) protNode.getUserObject();
-
+		
 		List<String> names = new ArrayList<String>();
-		for (NcbiTaxon ncbiTaxon : ph.getUniprotEntry().getTaxonomy()) {
-			names.add(ncbiTaxon.getValue());
+		TaxonomyNode[] path = ph.getTaxonomyNode().getPath();
+		for (TaxonomyNode taxNode : path) {
+			names.add(taxNode.getName());
 		}
-		names.add(ph.getUniprotEntry().getOrganism().getScientificName().getValue());
 
 		PhylogenyTreeTableNode parent = root;
 		for (String name : names) {
@@ -2783,7 +2759,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		ProteinHit ph = (ProteinHit) protNode.getUserObject();
 
-		List<String> ecNumbers = ph.getUniprotEntry().getProteinDescription().getEcNumbers();
+		List<String> ecNumbers = ph.getUniprotEntry().getEcNumbers();
 
 		if (ecNumbers.isEmpty()) {
 			ecNumbers.add("Unclassified");
@@ -2832,12 +2808,8 @@ public class DbSearchResultPanel extends JPanel {
 		ProteinHit ph = (ProteinHit) protNode.getUserObject();
 
 		// gather K and EC numbers for pathway lookup
-		List<String> kNumbers = new ArrayList<String>();
-		for (DatabaseCrossReference xref : 
-			ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-			kNumbers.add(((KO) xref).getKOIdentifier().getValue());
-		}
-		List<String> ecNumbers = ph.getUniprotEntry().getProteinDescription().getEcNumbers();
+		List<String> kNumbers = ph.getUniprotEntry().getKoNumbers();
+		List<String> ecNumbers = ph.getUniprotEntry().getEcNumbers();
 
 		// perform pathway lookup
 		Set<Short> pathways = new HashSet<Short>();

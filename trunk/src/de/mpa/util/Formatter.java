@@ -1,10 +1,14 @@
 package de.mpa.util;
 
+import gnu.trove.list.array.TCharArrayList;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -81,6 +85,15 @@ public class Formatter {
 		}
 		return tBack;
 	}
+	
+	/**
+	 * Removes the last character from a string.
+	 * @param str Input string
+	 * @return String with last character removed.
+	 */
+	public static String removeLastChar(String str) {
+        return str.substring(0,str.length()-1);
+    }
 
 	/**
 	 * appends c n times to buf, that may be newly created, if null
@@ -801,6 +814,31 @@ public class Formatter {
 	 */
 	public static void setDoubleInTextField(JTextField aTextField, double aValue) {
 		aTextField.setText(Double.toString(aValue));
+	}
+	
+	/**
+	 * Method to determine linebreak format.
+	 * @return amount of line-breaking characters per line
+	 */
+	public static char[] determineNewlineChars(File nodesFile) {
+		TCharArrayList res = new TCharArrayList();
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(nodesFile));
+			int character;
+			boolean eol = false;
+			while ((character = br.read()) != -1) {
+				if ((character == 13) || (character == 10)) {	// 13 = carriage return '\r', 10 = newline '\n'
+					res.add((char) character);
+					eol = true;
+				} else if (eol) {
+					break;
+				}
+			}
+			br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res.toArray();
 	}
 
 }

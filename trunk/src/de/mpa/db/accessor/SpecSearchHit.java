@@ -6,7 +6,6 @@ import java.beans.PropertyChangeSupport;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -33,9 +32,9 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 * @param experimentID The experiment ID.
 	 * @param conn The database connection.
 	 * @return Spectral similarity search results object.
-	 * @throws SQLException
+	 * @throws Exception 
 	 */
-	public static SpecSimResult getAnnotations(long experimentID, Connection conn) throws SQLException {
+	public static SpecSimResult getAnnotations(long experimentID, Connection conn) throws Exception {
 		return getAnnotations(experimentID, conn, new PropertyChangeSupport(null));
 	}
 
@@ -45,9 +44,9 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 * @param conn The database connection.
 	 * @param pSupport The client's property change support to listen for progress updates.
 	 * @return Spectral similarity search results object.
-	 * @throws SQLException
+	 * @throws Exception 
 	 */
-	public static SpecSimResult getAnnotations(long experimentID, Connection conn, PropertyChangeSupport pSupport) throws SQLException {
+	public static SpecSimResult getAnnotations(long experimentID, Connection conn, PropertyChangeSupport pSupport) throws Exception {
 		SpecSimResult res = new SpecSimResult();
 
 		pSupport.firePropertyChange("new message", null, "PREPARING TO FETCH RESULTS");
@@ -169,7 +168,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 			ProteinHit proteinHit = new ProteinHit(
 					rs.getString("pr.accession"),
 					rs.getString("pr.description"),
-					rs.getString("pr.sequence"), peptideHit);
+					rs.getString("pr.sequence"), peptideHit, null, null);
 			res.addProtein(proteinHit);
 			
 		// --- score matrix image part ---

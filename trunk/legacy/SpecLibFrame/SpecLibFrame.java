@@ -45,6 +45,8 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.SixtyFourBitStringSupport;
+import de.mpa.parser.mascot.xml.MascotPeptideHit;
+import de.mpa.parser.mascot.xml.MascotProteinHit;
 import de.mpa.parser.mascot.xml.MascotXMLParser;
 import de.mpa.parser.mascot.xml.PeptideHit;
 import de.mpa.parser.mascot.xml.ProteinHit;
@@ -226,7 +228,7 @@ public class SpecLibFrame extends JFrame {
         	// inefficiently determine maximum progress value
 //        	int max = getNumSpectra();
         	long maxProgress = 0L;
-        	for (File mgfFile : mgfFiles) {
+//        	for (File mgfFile : mgfFiles) {
 				maxProgress += mgfFile.length();
 			}
         	
@@ -240,7 +242,7 @@ public class SpecLibFrame extends JFrame {
     			
     			// this list will store identified protein hits to avoid redundant sql queries further down 
 //    			ArrayList<ProteinHit> proteinHits = new ArrayList<ProteinHit>();
-    			Map<ProteinHit, ArrayList<ProteinAccessor>> proteinMap = new HashMap<ProteinHit, ArrayList<ProteinAccessor>>(10);
+    			Map<MascotProteinHit, ArrayList<ProteinAccessor>> proteinMap = new HashMap<MascotProteinHit, ArrayList<ProteinAccessor>>(10);
 
     			// grab experiment id from GUI
     			long experimentID = (Long) idSpn.getValue();
@@ -262,7 +264,7 @@ public class SpecLibFrame extends JFrame {
 					uplBtn.setText("Reading XML " + (i+1) + "/" + numFiles  + "...");
 //    				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i], MascotXMLParser.SUPPRESS_WARNINGS);
     				MascotXMLParser readerXML = new MascotXMLParser(xmlFiles[i]);
-    				Map<String, ArrayList<PeptideHit>> pepMap = readerXML.parse().getPepMap();
+//    				Map<String, ArrayList<MascotPeptideHit>> pepMap = readerXML.parse().getPepMap();
 
     				// Iterate over all spectra.
     				uplBtn.setText("Processing " + (i+1) + "/" + numFiles  + "...");

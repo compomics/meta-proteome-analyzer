@@ -82,12 +82,6 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.PrimaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.plastic.PlasticButtonUI;
@@ -97,6 +91,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
@@ -1042,12 +1037,10 @@ public class ResultsPanel extends JPanel {
 					if (target.matches("^\\d*$")) {
 						// if target contains only numerical characters it's probably an NCBI accession,
 						// try to use accession of corresponding UniProt entry (if possible)
-						UniProtEntry uniprotEntry =
-								Client.getInstance().getDbSearchResult().getProteinHit(target).getUniprotEntry();
+						ProteinHit proteinHit = Client.getInstance().getDbSearchResult().getProteinHit(target);
+						ReducedUniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
 						if (uniprotEntry != null) {
-							PrimaryUniProtAccession primaryUniProtAccession =
-									uniprotEntry.getPrimaryUniProtAccession();
-							target = primaryUniProtAccession.getValue();
+							target = proteinHit.getAccession();
 						} else {
 							target = "";
 						}
@@ -1258,19 +1251,10 @@ public class ResultsPanel extends JPanel {
 				Set<Short> pathwayIDs = new HashSet<Short>();
 				for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 					speciesNames.add(ph.getSpecies());
-					UniProtEntry uniprotEntry = ph.getUniprotEntry();
+					ReducedUniProtEntry uniprotEntry = ph.getUniprotEntry();
 					if (uniprotEntry != null) {
-						ecNumbers.addAll(uniprotEntry.getProteinDescription().getEcNumbers());
-						for (DatabaseCrossReference xref : uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO)) {
-							kNumbers.add(((KO) xref).getKOIdentifier().getValue());
-						}
-						UniProtEntry uniProtEntry = ph.getUniprotEntry();
-						if (uniProtEntry != null) {
-							ecNumbers.addAll(uniProtEntry.getProteinDescription().getEcNumbers());
-							for (DatabaseCrossReference xref : ph.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO)) {
-								kNumbers.add(((KO) xref).getKOIdentifier().getValue());
-							}
-						}
+						ecNumbers.addAll(uniprotEntry.getEcNumbers());		
+						kNumbers.addAll(uniprotEntry.getKoNumbers());
 					}
 					for (String ec : ecNumbers) {
 						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
@@ -1308,7 +1292,8 @@ public class ResultsPanel extends JPanel {
 				ontologyData = new OntologyData(dbSearchResult, hl);
 				taxonomyData = new TaxonomyData(dbSearchResult, hl);
 				topData = new TopData(dbSearchResult);
-				histogramData = new HistogramData(dbSearchResult, 40);
+				// FIXME: Is this histogram really necessary?
+//				histogramData = new HistogramData(dbSearchResult, 40);
 
 				// Update heat map
 				Object xVal = heatMapPn.getAxisButtonValue(Axis.X_AXIS);

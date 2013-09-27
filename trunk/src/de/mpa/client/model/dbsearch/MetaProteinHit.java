@@ -21,8 +21,9 @@ public class MetaProteinHit extends ProteinHit {
 	/**
 	 * Constructs a meta-protein hit from the specified accession string.
 	 * @param accession the meta-protein accession
+	 * @throws Exception 
 	 */
-	public MetaProteinHit(String accession, ProteinHitList phl) {
+	public MetaProteinHit(String accession, ProteinHitList phl) throws Exception {
 		super(accession);
 		this.phl = phl;
 	}

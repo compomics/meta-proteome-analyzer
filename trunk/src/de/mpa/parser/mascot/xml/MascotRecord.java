@@ -47,7 +47,11 @@ public class MascotRecord {
 	 */
 	private List<MascotModification> modifications;
 
-	// TODO: API!
+	/**
+	 * Add peptide specified by spectrum scan title and peptide hit.
+	 * @param scanTitle Spectrum scan title.
+	 * @param peptideHit Mascot peptidehit
+	 */
 	public void addPeptide(String scanTitle, MascotPeptideHit peptideHit) {
 		List<MascotPeptideHit> hitList = pepMap.get(scanTitle);
 		if (hitList == null) {

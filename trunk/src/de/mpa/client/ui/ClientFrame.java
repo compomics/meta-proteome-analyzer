@@ -34,8 +34,8 @@ import de.mpa.client.Constants;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
-import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
+import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
@@ -138,7 +138,7 @@ public class ClientFrame extends JFrame {
 	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance() {
-		return getInstance(false);
+		return getInstance(false, false);
 	}
 	
 	/**
@@ -146,9 +146,9 @@ public class ClientFrame extends JFrame {
 	 * @param viewerMode flag indicating whether the client is running in viewer mode.
 	 * @return the client frame's singleton instance.
 	 */
-	public static ClientFrame getInstance(boolean viewerMode) {
+	public static ClientFrame getInstance(boolean viewerMode, boolean debug) {
 		if (frame == null) {
-			frame = new ClientFrame(viewerMode);
+			frame = new ClientFrame(viewerMode, debug);
 		}
 		return frame;
 	}
@@ -163,17 +163,19 @@ public class ClientFrame extends JFrame {
 	/**
 	 * Constructor for the ClientFrame
 	 */
-	private ClientFrame(boolean viewerMode) {
+	private ClientFrame(boolean viewerMode, boolean debug) {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
+		final Client client = Client.getInstance();
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				Client.getInstance().exit();
+				client.exit();
 			}
 		});
 		frame = this;
 		
-		Client.getInstance().setViewer(viewerMode);
+		client.setViewer(viewerMode);
+		client.setDebug(debug);
 
 		// Frame size
 		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
@@ -263,7 +265,7 @@ public class ClientFrame extends JFrame {
 		Parameters.getInstance();
 		
 		// Enables Functions for the Viewer
-		if (Client.getInstance().isViewer()) {
+		if (client.isViewer()) {
 			// Enables Parts 
 			String[] enabledItems = Parameters.getInstance().getEnabledItemsForViewer();
 			
