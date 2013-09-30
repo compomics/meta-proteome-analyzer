@@ -23,28 +23,16 @@ import de.mpa.parser.crux.CruxParser;
 
 /**
  * This class helps to store the results of the Crux algorithm to the DB.
- * User: Thilo Muth
- * Date: 15.10.2010
- * Time: 16:05:56
+ * @author T.Muth
  * 
  */
-public class CruxStorager implements Storager {
+public class CruxStorager extends BasicStorager {
 
     /**
      * Variable holding a crux file.
      */
     private CruxFile cruxFile;
-    
-    /**
-     * The file instance.
-     */
-    private File file;
-    
-    /**
-     * The Connection instance.
-     */
-    private Connection conn;
-    
+        
     private HashMap<Integer, Long> scanNumberMap;
     
     /**
@@ -133,12 +121,11 @@ public class CruxStorager implements Storager {
                       
                         String description = protein.getHeader().getDescription();
                         
-                       
-                        
                     	ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
                     	if (proteinDAO == null) { // protein not yet in database
                     		// Add new protein to the database
                     		proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+                    		MapContainer.ProteinMap.put(accession, proteinDAO.getProteinid());
                     	} else {
                     		// check whether pep2prot link already exists,
                     		// otherwise create new one
@@ -165,22 +152,7 @@ public class CruxStorager implements Storager {
         }
     }
     
-	@Override
-	public void run() {
-		this.load();
-		try {
-			this.store();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-	} 
+	
 }
 
 

@@ -66,7 +66,7 @@ public class HeatMapData {
 	 * @param zAxis the z axis identifier
 	 */
 	public HeatMapData(DbSearchResult result, Object xAxis, Object yAxis, Object zAxis) {
-
+		
 		// Create set of x axis items
 		this.createAxisSets(xAxis, yAxis, result);
 

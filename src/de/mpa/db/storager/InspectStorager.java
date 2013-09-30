@@ -20,11 +20,8 @@ import de.mpa.parser.inspect.InspectHit;
 import de.mpa.parser.inspect.InspectParser;
 
 /**
- * This class helps to store the results of the Inspect algorithm to the DB.
- * User: Thilo Muth
- * Date: 07.09.2010
- * Time: 16:05:56
- * 
+ * This class helps to store the results of the InsPect algorithm to the DB.
+ * @author T.Muth
  */
 public class InspectStorager extends BasicStorager {
 
@@ -32,16 +29,6 @@ public class InspectStorager extends BasicStorager {
      * Variable holding an InspectFile.
      */
     private InspectFile inspectFile;
-    
-    /**
-     * The file instance.
-     */
-    private File file;
-    
-    /**
-     * The Connection instance.
-     */
-    private Connection conn;
     
     private HashMap<Long, Long> scanNumberMap;
     
@@ -108,6 +95,7 @@ public class InspectStorager extends BasicStorager {
             if (proteinDAO == null) {	// protein not yet in database
 					// Add new protein to the database
 					proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+					MapContainer.ProteinMap.put(accession, proteinDAO.getProteinid());
 				} else {
 					proteinID = proteinDAO.getProteinid();
 					// check whether pep2prot link already exists, otherwise create new one

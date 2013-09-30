@@ -2,10 +2,11 @@ package de.mpa.client.model;
 
 import java.io.Serializable;
 
+import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 
-public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, Taxonomic {
+public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, Taxonomic, Hit {
 	
 	/**
 	 * Serialization ID set to default == 1L;
@@ -140,6 +141,18 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	public int compareTo(SpectrumMatch that) {
 		long delta = this.getSearchSpectrumID() - that.getSearchSpectrumID();
 		return (delta < 0L) ? -1 : (delta > 0L) ? 1 : 0;
+	}
+
+	@Override
+	public int getCount(Object x, Object y) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object getYForX(Object x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

@@ -56,11 +56,6 @@ public class MascotStorager extends BasicStorager {
 	 * Maximum ion threshold value.
 	 */
 	private static final int MAX_ION_THRESHOLD = 1000;
-
-	/**
-	 * File instance.
-	 */
-	private File file;
     
     /**
      * MascotDatfile instance.

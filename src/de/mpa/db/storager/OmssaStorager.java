@@ -30,9 +30,9 @@ import de.proteinms.omxparser.util.MSPepHit;
 import de.proteinms.omxparser.util.MSSpectrum;
 
 /**
- * Stores the omssa results to the DB.
- * @author Thilo Muth
- *
+ * This class stores OMSSA results to the DB.
+ * 
+ * @author T.Muth
  */
 public class OmssaStorager extends BasicStorager {
 
@@ -40,26 +40,12 @@ public class OmssaStorager extends BasicStorager {
      * Variable holding an OmssaOmxFile.
      */
 	private OmssaOmxFile omxFile; 
-    
-    /**
-     * The Omssa output filename without the absolute path!
-     */
-    
-    /**
-     * The file instance.
-     */
-    private File file;
-    
+
     /**
      * The file instance.
      */
     private File qValueFile = null;
     
-    
-    /**
-     * The Connection instance.
-     */
-    private Connection conn;
     
     private Map<Double, List<Double>> scoreQValueMap;
 
@@ -169,6 +155,7 @@ public class OmssaStorager extends BasicStorager {
                         	 	Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
                         	 	String description = protein.getHeader().getDescription();
         						proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+        						MapContainer.ProteinMap.put(accession, proteinDAO.getProteinid());
         					} else {
         						proteinID = proteinDAO.getProteinid();
         						// check whether pep2prot link already exists, otherwise create new one

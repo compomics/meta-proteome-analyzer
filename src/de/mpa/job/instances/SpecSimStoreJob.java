@@ -1,10 +1,9 @@
-package de.mpa.job.storing;
+package de.mpa.job.instances;
 
 import java.sql.SQLException;
 
 import de.mpa.db.DBManager;
 import de.mpa.job.Job;
-import de.mpa.job.instances.SpecSimJob;
 
 /**
  * Job class for storing Spectral Similarity search results to the database.

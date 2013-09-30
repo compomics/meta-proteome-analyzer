@@ -82,7 +82,7 @@ public class Client {
 
 	// Connection
 	private Connection conn;
-
+	
 	private DbConnectionSettings dbSettings;
 	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
 
