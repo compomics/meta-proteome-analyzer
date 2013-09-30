@@ -1,5 +1,6 @@
 package de.mpa.db.storager;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,6 +25,11 @@ public abstract class BasicStorager implements Storager {
 	 */
 	protected Connection conn;
 	
+    /**
+     * The file instance.
+     */
+    protected File file;
+    
 	@Override
 	public void run() {
 		// FIXME: Refactor run-methods in all subclasses!

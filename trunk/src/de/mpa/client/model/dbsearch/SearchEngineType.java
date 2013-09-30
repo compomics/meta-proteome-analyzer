@@ -7,7 +7,8 @@ public enum SearchEngineType implements Serializable {
 	OMSSA("OMSSA"), 
 	CRUX("Crux"), 
 	INSPECT("InsPect"), 
-	MASCOT("Mascot");
+	MASCOT("Mascot"),
+	SPECRALSIM("Spectral Similarity");
 	
 	SearchEngineType(final String searchEngineName){
 		this.searchEngineName = searchEngineName;

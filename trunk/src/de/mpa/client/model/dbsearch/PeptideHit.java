@@ -15,7 +15,7 @@ import de.mpa.taxonomy.TaxonomyNode;
  * @author T.Muth
  *
  */
-public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonomic {
+public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonomic, Hit {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -270,6 +270,18 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	public int compareTo(PeptideHit that) {
 		return this.getSequence().compareTo(that.getSequence());
+	}
+
+	@Override
+	public int getCount(Object x, Object y) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object getYForX(Object x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

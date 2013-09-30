@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import de.mpa.client.DbSearchSettings;
 import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.SpecSimSettings;
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -48,14 +50,12 @@ import de.mpa.job.instances.PercolatorJob;
 import de.mpa.job.instances.PostProcessorJob;
 import de.mpa.job.instances.RenameJob;
 import de.mpa.job.instances.SpecSimJob;
+import de.mpa.job.instances.SpecSimStoreJob;
+import de.mpa.job.instances.StoreJob;
+import de.mpa.job.instances.UniProtJob;
 import de.mpa.job.instances.XTandemJob;
 import de.mpa.job.scoring.OmssaScoreJob;
 import de.mpa.job.scoring.XTandemScoreJob;
-import de.mpa.job.storing.CruxStoreJob;
-import de.mpa.job.storing.InspectStoreJob;
-import de.mpa.job.storing.OmssaStoreJob;
-import de.mpa.job.storing.SpecSimStoreJob;
-import de.mpa.job.storing.XTandemStoreJob;
 
 
 //Service Implementation Bean
@@ -137,6 +137,9 @@ public class ServerImpl implements Server {
 		}
 		MapContainer.FastaLoader = fastaLoader;
 		
+		// Init protein map for UniProt entry retrieval.
+		MapContainer.ProteinMap = new HashMap<String, Long>();
+		
 		// X!Tandem job
 		if (dbSearchSettings.isXTandem()) {
 			Job xTandemJob = new XTandemJob(file, searchDB, fragIonTol, precIonTol, isPrecIonTolPpm, SearchType.TARGET);
@@ -152,10 +155,10 @@ public class ServerImpl implements Server {
 				jobManager.addJob(xTandemScoreJob);
 				
 				// Add store job
-				jobManager.addJob(new XTandemStoreJob(xTandemJob.getFilename(), xTandemScoreJob.getFilename()));
+				jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename(), xTandemScoreJob.getFilename()));
 			} else {
 				// Add store job
-				jobManager.addJob(new XTandemStoreJob(xTandemJob.getFilename(), null));
+				jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename()));
 			}
 		}
 		
@@ -175,10 +178,10 @@ public class ServerImpl implements Server {
 				jobManager.addJob(omssaScoreJob);
 				
 				// Add store job
-				jobManager.addJob(new OmssaStoreJob(omssaJob.getFilename(), omssaScoreJob.getFilename()));
+				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename(), omssaScoreJob.getFilename()));
 			} else {
 				// Add store job
-				jobManager.addJob(new OmssaStoreJob(omssaJob.getFilename(), null));
+				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename(), null));
 			}
 		}
 		
@@ -193,7 +196,7 @@ public class ServerImpl implements Server {
 			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
 			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.txt", percolatorfile);
 			jobManager.addJob(renameJob);
-			jobManager.addJob(new CruxStoreJob(cruxJob.getFilename()));
+			jobManager.addJob(new StoreJob(SearchEngineType.CRUX, cruxJob.getFilename()));
 		}
 		
 		// InsPecT job
@@ -202,8 +205,9 @@ public class ServerImpl implements Server {
 			jobManager.addJob(inspectJob);			
 			Job postProcessorJob = new PostProcessorJob(file, searchDB);			
 			jobManager.addJob(postProcessorJob);			
-			jobManager.addJob(new InspectStoreJob(postProcessorJob.getFilename()));
+			jobManager.addJob(new StoreJob(SearchEngineType.INSPECT, postProcessorJob.getFilename()));
 		}
+		jobManager.addJob(new UniProtJob());
 	}
 
 	private void addSpecSimSearchJob(List<MascotGenericFile> mgfList, SpecSimSettings sss) {

@@ -2,6 +2,7 @@ package de.mpa.db;
 
 
 import java.util.HashMap;
+import java.util.Map;
 
 import de.mpa.io.fasta.FastaLoader;
 
@@ -26,5 +27,11 @@ public class MapContainer {
 	  * Instance of the FastaLoader.
 	  */
 	 public static FastaLoader FastaLoader;
+	 
+    /**
+     * Accession to proteinID mapping used for the UniProt entry querying.
+     */
+    public static Map<String, Long> ProteinMap;
+	 
 }
 

@@ -33,11 +33,9 @@ import de.proteinms.xtandemparser.xtandem.Spectrum;
 import de.proteinms.xtandemparser.xtandem.XTandemFile;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Thilo Muth
- * Date: 03.09.2010
- * Time: 16:00:31
- * To change this template use File | Settings | File Templates.
+ * This class stores X!Tandem results to the DB.
+ * 
+ * @author T.Muth
  */
 public class XTandemStorager extends BasicStorager {
 
@@ -45,12 +43,6 @@ public class XTandemStorager extends BasicStorager {
      * Variable holding an xTandemFile.
      */
     private XTandemFile xTandemFile;
-    
-    
-    /**
-     * The file instance.
-     */
-    private final File file;
     
     /**
      * The q-value file.
@@ -67,7 +59,7 @@ public class XTandemStorager extends BasicStorager {
 	private Map<String, Long> domainMap;
 	
     /**
-     * Default Constructor.
+     * Constructor for having a target-only search with X!Tandem.
      */
     public XTandemStorager(final Connection conn, final File file){
     	this.conn = conn;
@@ -75,13 +67,13 @@ public class XTandemStorager extends BasicStorager {
     }
     
     /**
-     * Default Constructor.
+     * Constructor for having a target-decoy search with X!Tandem.
      */
-    public XTandemStorager(final Connection conn, final File file, File qValueFile){
-    	this.conn = conn;
-    	this.file = file;
-    	this.qValueFile = qValueFile;
-    }
+	public XTandemStorager(final Connection conn, final File file, File qValueFile) {
+		this.conn = conn;
+		this.file = file;
+		this.qValueFile = qValueFile;
+	}
 
     /**
      * Loads the XTandemFile.
@@ -187,6 +179,7 @@ public class XTandemStorager extends BasicStorager {
                                   if (proteinDAO == null) {	// protein not yet in database
             							// Add new protein to the database
                                 	  proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+                                	  MapContainer.ProteinMap.put(accession, proteinDAO.getProteinid());
             						} else {
             							proteinID = proteinDAO.getProteinid();
             							// check whether pep2prot link already exists, otherwise create new one

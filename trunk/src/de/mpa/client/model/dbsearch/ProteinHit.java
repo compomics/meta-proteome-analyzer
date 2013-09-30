@@ -22,7 +22,7 @@ import de.mpa.taxonomy.TaxonomyNode;
  * 
  * @author T. Muth, R. Heyer, A. Behne, F. Kohrs
  */
-public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonomic {
+public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonomic, Hit {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -491,6 +491,18 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	@Override
 	public int compareTo(ProteinHit that) {
 		return this.getAccession().compareTo(that.getAccession());
+	}
+
+	@Override
+	public int getCount(Object x, Object y) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object getYForX(Object x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
