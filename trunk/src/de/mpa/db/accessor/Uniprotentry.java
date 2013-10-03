@@ -72,14 +72,14 @@ public class Uniprotentry extends UniprotentryTableAccessor {
    
 	
 	/**
-	 * TODO: API!
-	 * @param aConn
-	 * @return
+	 * Retrieves a mapping of proteinIDs to UniProt entry accessor objects. 
+	 * @param conn Connection to query the database
+	 * @return Map of proteinIDs as keys and UniProt entry accessor objects as values. 
 	 * @throws SQLException
 	 */
-	public static Map<Long, Uniprotentry> retrieveProteinIdToEntryMap(Connection aConn) throws SQLException {
+	public static Map<Long, Uniprotentry> retrieveProteinIdToEntryMap(Connection conn) throws SQLException {
 		Map<Long, Uniprotentry>  uniprotEntries = new HashMap<Long, Uniprotentry>();
-		Statement stat = aConn.createStatement();
+		Statement stat = conn.createStatement();
 		ResultSet rs = stat.executeQuery(getBasicSelect());
 		while(rs.next()) {
 			uniprotEntries.put(rs.getLong("fk_proteinid"), new Uniprotentry(rs));

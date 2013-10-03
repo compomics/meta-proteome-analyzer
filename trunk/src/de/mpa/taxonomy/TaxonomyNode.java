@@ -13,7 +13,12 @@ import java.util.List;
  * @author R. Heyer and A. Behne
  */
 public class TaxonomyNode implements Serializable {
-
+	
+	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
+	
 	/**
 	 * The taxonomy ID.
 	 */

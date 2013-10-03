@@ -25,8 +25,6 @@ public class XTandemParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
-		// TODO: Idea: parse X!Tandem default_input.xml instead of hard-coding
-		
 		/* Non-configurable settings */
 		this.put("spectrum, parent monoisotopic mass isotope error", new Parameter(null, true, "General", null));
 		this.put("spectrum, parent monoisotopic mass error plus", new Parameter(null, 1.0, "General", null));	// precursor tolerance
@@ -79,7 +77,7 @@ public class XTandemParameters extends ParameterMap {
 	@Override
 	public File toFile(String path) throws IOException {
 		// Append extension if it's missing
-		// TODO: add check for whether path does point to a file (and not a directory)
+		
 		if (!path.endsWith(".xml")) {
 			path += ".xml";
 		}
@@ -87,6 +85,10 @@ public class XTandemParameters extends ParameterMap {
 		// Create new file at specified path
 		File file = new File(path);
 		
+		// Check for whether path does point to a file (and not a directory)
+		if (!file.isFile()) {
+			throw new IOException();
+		}
 		// Set up writer for BIOML structure
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 		bw.append("<bioml>");

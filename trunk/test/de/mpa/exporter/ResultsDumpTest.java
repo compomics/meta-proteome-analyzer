@@ -45,9 +45,10 @@ public class ResultsDumpTest extends TestCase {
 
 	/**
 	 * Establishes a connection to the database and fetches search result data from it.
+	 * @throws Exception 
 	 */
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		try {
 			// init database connection
 			DBConfiguration dbconfig = new DBConfiguration(

@@ -50,13 +50,18 @@ public class CruxParameters extends ParameterMap {
 	@Override
 	public File toFile(String path) throws IOException {
 		// Append extension if it's missing
-		// TODO: add check for whether path does point to a file (and not a directory)
+		
 		if (!path.endsWith(".params")) {
 			path += ".params";
 		}
 		
 		// Create new file at specified path
 		File file = new File(path);
+		
+		// Check for whether path does point to a file (and not a directory)
+		if(!file.isFile()) {
+			throw new IOException();
+		}
 		
 		// Set up writer for parameter file
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file));

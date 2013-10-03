@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.logging.Level;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -55,13 +54,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.Painter;
 
 import com.jgoodies.forms.factories.CC;
@@ -70,7 +67,6 @@ import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -100,7 +96,7 @@ public class ComparePanel extends JPanel{
 	/**
 	 * Level of comparison.
 	 */
-	private static final String[] ENTRIES = new String[] {"Accessions","Correct2UniProt"};//, "Metaproteins"};//TODO add Metaproteins
+	private static final String[] ENTRIES = new String[] {"Accessions","Correct2UniProt"};//, "Metaproteins"};
 
 	/**
 	 * Quantitative information for comparison for different runs.
@@ -721,21 +717,21 @@ public class ComparePanel extends JPanel{
 						Client.getInstance().retrieveDbSearchResult(groupEntry.getKey(),experiment.getTitle(),experiment.getExperimentid() );
 						DbSearchResult dbSearchResult = client.getDbSearchResult();
 
-						if (!dbSearchResult.isEmpty()) {
-							// Retrieve UniProt data
-							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-							client.firePropertyChange("indeterminate", false, true);
-							try {
-								UniprotAccessor.retrieveUniProtEntries(dbSearchResult);
-							} catch (Exception e) {
-								JXErrorPane.showDialog(clientFrame, new ErrorInfo("Error",
-										"UniProt access failed. Please try again later.",
-										e.getMessage(), null, e, Level.SEVERE, null));
-							}
-							
-							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
-							client.firePropertyChange("indeterminate", true, false);
-						}
+//						if (!dbSearchResult.isEmpty()) {
+//							// Retrieve UniProt data
+//							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
+//							client.firePropertyChange("indeterminate", false, true);
+//							try {
+//								UniprotAccessor.retrieveUniProtEntries(dbSearchResult);
+//							} catch (Exception e) {
+//								JXErrorPane.showDialog(clientFrame, new ErrorInfo("Error",
+//										"UniProt access failed. Please try again later.",
+//										e.getMessage(), null, e, Level.SEVERE, null));
+//							}
+//							
+//							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
+//							client.firePropertyChange("indeterminate", true, false);
+//						}
 						
 						//TODO remove double entries
 						for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {

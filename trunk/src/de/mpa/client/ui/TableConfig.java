@@ -2,6 +2,7 @@ package de.mpa.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
@@ -280,7 +281,7 @@ public class TableConfig {
 	 * @param padding The amount of pixel padding to either side.
 	 */
 	public static void setColumnMinWidths(JTable table, int padding) {
-		setColumnMinWidths(table, padding, padding);
+		setColumnMinWidths(table, padding, padding, new JLabel().getFont());
 	}
 	
 	/**
@@ -288,13 +289,13 @@ public class TableConfig {
 	 * @param table The table to be adjusted.
 	 * @param leftPadding The amount of left-hand side pixel padding.
 	 * @param rightPadding The amount of right-hand side pixel padding.
+	 * @param font The used font for FontMetrics object.
 	 */
-	public static void setColumnMinWidths(JTable table, int leftPadding, int rightPadding) {
+	public static void setColumnMinWidths(JTable table, int leftPadding, int rightPadding, Font font) {
 		TableColumnModel tcm = table.getColumnModel();
-		FontMetrics fm = table.getFontMetrics(new JLabel().getFont());
+		FontMetrics fm = table.getFontMetrics(font);
 		for (int col = 0; col < tcm.getColumnCount(); col++) {
 			TableColumn tc = tcm.getColumn(col);
-			// TODO: parametrize hard-coded font
 			tc.setMinWidth(leftPadding + fm.stringWidth(tc.getHeaderValue().toString()) + rightPadding);
 		}
 	}

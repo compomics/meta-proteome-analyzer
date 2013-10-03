@@ -1,7 +1,5 @@
 package de.mpa.db.storager;
 
-import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * This interface declares two main methods used for storing in the database:
@@ -21,6 +19,6 @@ public interface Storager extends Runnable {
     /**
      * Store all data persistently into the database.
      */
-    public void store() throws IOException, SQLException;
+    public void store() throws Exception;
 }
 

@@ -1,6 +1,5 @@
 package de.mpa.client;
 
-import java.io.File;
 import java.util.Enumeration;
 
 import javax.swing.ToolTipManager;
@@ -109,9 +108,7 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH = 
-			org.apache.commons.lang.StringUtils.join(
-					new String[] { "", "de", "mpa", "resources", "conf", "" }, File.separatorChar);
+	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
 
 	/**
 	 * Root node of a tree containing all pathways mapped in the KEGG database.
@@ -201,5 +198,19 @@ public class Constants {
 													"No. PROTEIN",
 													"No. PEPTIDE",
 													"No. SPECTRA"};
+
+	// Protein table column indices
+	public static final int PROT_SELECTION = 0;
+	public static final int PROT_INDEX = 1;
+	public static final int PROT_ACCESSION = 2;
+	public static final int PROT_DESCRIPTION = 3;
+	public static final int PROT_SPECIES = 4;
+	public static final int PROT_COVERAGE = 5;
+	public static final int PROT_MW = 6;
+	public static final int PROT_PI = 7;
+	public static final int PROT_PEPTIDECOUNT = 8;
+	public static final int PROT_SPECTRALCOUNT = 9;
+	public static final int PROT_EMPAI = 10;
+	public static final int PROT_NSAF = 11;
 	
 }

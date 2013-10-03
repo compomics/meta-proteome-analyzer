@@ -86,8 +86,8 @@ public class ExportFields {
 	public boolean taxonomySpecificPeptides;
 	public boolean taxonomySpecificSpecCount;
 	
-	public boolean taxonomyUnspecificPeptides;
-	public boolean taxonomyUnspecificSpecCount;
+//	public boolean taxonomyUnspecificPeptides;
+//	public boolean taxonomyUnspecificSpecCount;
 	
 	
 	/**
@@ -168,8 +168,8 @@ public class ExportFields {
 		taxonomySpecificPeptides	= true;
 		taxonomySpecificSpecCount	= true;
 		
-		taxonomyUnspecificPeptides	= true; // TODO:unused ??
-		taxonomyUnspecificSpecCount	= true; // TODO:Unused ??
+//		taxonomyUnspecificPeptides	= true; 
+//		taxonomyUnspecificSpecCount	= true; 
 	}
 
 
