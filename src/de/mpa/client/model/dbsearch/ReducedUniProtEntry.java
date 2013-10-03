@@ -1,5 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,12 @@ import java.util.List;
  * @author T. Muth
  *
  */
-public class ReducedUniProtEntry {
+public class ReducedUniProtEntry implements Serializable {
+	
+	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
 	
 	/**
 	 * Taxonomy (NCBI) ID.

@@ -38,7 +38,6 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
-import de.mpa.client.model.denovo.DenovoSearchResult;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.ServerConnectionSettings;
@@ -49,13 +48,10 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.Pepnovohit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.SpecSearchHit;
-import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.extractor.SearchHitExtractor;
@@ -92,8 +88,6 @@ public class Client {
 	private PropertyChangeSupport pSupport;
 
 	private DbSearchResult dbSearchResult;
-
-	private DenovoSearchResult denovoSearchResult;
 
 	private SpecSimResult specSimResult;
 
@@ -315,66 +309,6 @@ public class Client {
 	 */
 	public void clearSpecSimResult() {
 		specSimResult = null;
-	}
-
-	/**
-	 * Returns the result from the de-novo search.
-	 * @param file The query file.
-	 * @return DenovoSearchResult
-	 * @throws SQLException 
-	 */
-	public DenovoSearchResult getDenovoSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		if (denovoSearchResult == null) {
-			retrieveDeNovoSearchResult(projContent, expContent);
-		}
-		return denovoSearchResult;
-	}
-
-	/**
-	 * This method retrieves the de novo result from the database for a specific project and experiment.
-	 * @param projContent The project content.
-	 * @param expContent The experiment content.
-	 */
-	private void retrieveDeNovoSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		try {
-			// Initialize the connection.
-			initDBConnection();
-
-			// The protein hit set, containing all information about found proteins.
-			denovoSearchResult = new DenovoSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle());
-
-			// Set up progress monitoring
-			firePropertyChange("new message", null, "QUERYING DE NOVO SEARCH HITS");
-			firePropertyChange("resetall", 0L, 100L);
-			firePropertyChange("indeterminate", false, true);
-
-			// Iterate over query spectra and get the different identification result sets
-			List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(expContent.getExperimentID(), conn);
-
-			long maxProgress = searchSpectra.size();
-			long curProgress = 0;
-			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
-			firePropertyChange("indeterminate", true, false);
-			firePropertyChange("resetall", 0L, maxProgress);
-			firePropertyChange("resetcur", 0L, maxProgress);
-
-
-			// Iterate the search spectra.
-			for (Searchspectrum searchSpectrum : searchSpectra) {
-
-				long spectrumId = searchSpectrum.getSearchspectrumid();
-				// List for the Pepnovo hits.
-				List<Pepnovohit> hits = Pepnovohit.getHitsFromSpectrumID(spectrumId, conn);
-
-				Spectrum spectrum = Spectrum.findFromSpectrumID(searchSpectrum.getFk_spectrumid(), conn);
-				denovoSearchResult.addHitSet(spectrum.getTitle(), Long.valueOf(spectrumId), hits);
-				firePropertyChange("progress", 0L, ++curProgress);
-
-			}
-			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
-		} catch (SQLException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
 	}
 
 	/**
@@ -693,8 +627,7 @@ public class Client {
 				IOException e = new IOException("No files selected.");
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				//TODO changed IOexpection to error dialog
-				//			throw new IOException("ERROR: No files selected.");
+				throw e;
 			}	
 		}
 

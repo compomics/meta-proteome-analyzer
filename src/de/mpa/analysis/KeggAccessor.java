@@ -104,7 +104,7 @@ public class KeggAccessor {
 		if (ko.startsWith("K")) {
 			ko = ko.substring(1);
 		} else {
-			// TODO: ?
+			return null;
 		}
 		return getPathwaysByKO(Short.parseShort(ko));
 	}

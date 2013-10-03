@@ -1,9 +1,7 @@
 package de.mpa.db.storager;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
@@ -48,7 +46,7 @@ public abstract class BasicStorager implements Storager {
 	}
 
 	@Override
-	public void store() throws IOException, SQLException {
+	public void store() throws Exception {
 	}
 	
 }

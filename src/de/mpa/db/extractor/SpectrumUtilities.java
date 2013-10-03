@@ -161,7 +161,6 @@ public class SpectrumUtilities {
 			SpectrumUtilities.writeToFile(spectrumUtils.getIdentifiedSpectra(33, 160000, 10000), "/home/muth/PersonalFolder/Metaproteomics/Review/id");
 			SpectrumUtilities.writeToFile(spectrumUtils.getUnIdentifiedSpectra(33, 160000, 10000), "/home/muth/PersonalFolder/Metaproteomics/Review/nonid");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

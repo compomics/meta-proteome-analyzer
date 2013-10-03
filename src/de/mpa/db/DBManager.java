@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -16,7 +16,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;

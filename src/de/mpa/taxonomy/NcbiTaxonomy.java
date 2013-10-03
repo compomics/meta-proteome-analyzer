@@ -37,7 +37,12 @@ import de.mpa.util.Formatter;
  * @author R. Heyer
  */
 public class NcbiTaxonomy implements Serializable {
-
+	
+	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
+	
 	/**
 	 * Instance of the NCBI taxonomy.
 	 */

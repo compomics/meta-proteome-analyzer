@@ -164,7 +164,7 @@ public class GraphDatabaseHandler {
 		
 		// Add enzyme numbers.
 		ReducedUniProtEntry uniprotEntry = protHit.getUniprotEntry();
-		// TODO: Null check valid here ?
+		// Null check is needed, as if no (reduced) UniProt Entry is provided, enzymes, ontologies, pathways and taxonomies can be skipped.
 		if (uniprotEntry != null) {
 			
 			List<String> ecNumbers = uniprotEntry.getEcNumbers();
@@ -371,19 +371,18 @@ public class GraphDatabaseHandler {
 		for (SpectrumMatch sm : spectrumMatches) {
 			Vertex psmVertex =  null;
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
+			
 			long spectrumID = psm.getSearchSpectrumID();
 			
 			// Check if PSM is already contained in the graph.
-			Iterator<Vertex> psmIterator =
-					psmIndex.get(PsmProperty.SPECTRUMID.toString(), spectrumID).iterator();
+			Iterator<Vertex> psmIterator = psmIndex.get(PsmProperty.SPECTRUMID.toString(), spectrumID).iterator();
 			if (psmIterator.hasNext()) {
 				psmVertex = psmIterator.next();
 			} else {
 				// Create new vertex.
 				psmVertex = graph.addVertex(null);
-				//TODO: Use spectrum title as property too!
 				psmVertex.setProperty(PsmProperty.SPECTRUMID.toString(), spectrumID);
-				// TODO: psmVertex.setProperty(PsmProperty.VOTES.toString(), psm.getVotes());
+				psmVertex.setProperty(PsmProperty.VOTES.toString(), psm.getVotes());
 				
 				// Index the proteins by their accession.
 				psmIndex.put(PsmProperty.SPECTRUMID.toString(), spectrumID, psmVertex);

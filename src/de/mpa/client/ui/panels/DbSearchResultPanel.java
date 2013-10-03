@@ -973,21 +973,6 @@ public class DbSearchResultPanel extends JPanel {
 
 	}
 
-	// Protein table column indices
-	// FIXME: Find another (more elegant) solution for this here:
-	private final int PROT_SELECTION 		= 0;
-	private final int PROT_INDEX 			= 1;
-	private final int PROT_ACCESSION 		= 2;
-	private final int PROT_DESCRIPTION 		= 3;
-	private final int PROT_SPECIES 			= 4;
-	private final int PROT_COVERAGE 		= 5;
-	private final int PROT_MW 				= 6;
-	private final int PROT_PI 				= 7;
-	private final int PROT_PEPTIDECOUNT 	= 8;
-	private final int PROT_SPECTRALCOUNT 	= 9;
-	private final int PROT_EMPAI 			= 10;
-	private final int PROT_NSAF 			= 11;
-
 	/**
 	 * This method sets up the protein results table.
 	 */
@@ -1030,22 +1015,22 @@ public class DbSearchResultPanel extends JPanel {
 			}
 
 			public boolean isCellEditable(int row, int col) {
-				return (col == PROT_SELECTION);
+				return (col ==Constants.PROT_SELECTION);
 			}
 
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
-				case PROT_SELECTION: 
+				case Constants.PROT_SELECTION: 
 					return Boolean.class;
-				case PROT_INDEX:	
-				case PROT_PEPTIDECOUNT:
-				case PROT_SPECTRALCOUNT:
+				case Constants.PROT_INDEX:	
+				case Constants.PROT_PEPTIDECOUNT:
+				case Constants.PROT_SPECTRALCOUNT:
 					return Integer.class;
-				case PROT_COVERAGE:
-				case PROT_MW:
-				case PROT_PI:
-				case PROT_EMPAI:
-				case PROT_NSAF:
+				case Constants.PROT_COVERAGE:
+				case Constants.PROT_MW:
+				case Constants.PROT_PI:
+				case Constants.PROT_EMPAI:
+				case Constants.PROT_NSAF:
 					return Double.class;
 				default:
 					return String.class;
@@ -1066,10 +1051,10 @@ public class DbSearchResultPanel extends JPanel {
 			@Override
 			public void setValueAt(Object aValue, int row, int column) {
 				super.setValueAt(aValue, row, column);
-				if (column == PROT_SELECTION) {
+				if (column == Constants.PROT_SELECTION) {
 					boolean selected = (Boolean) aValue;
 					Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
-					String accession = (String) getValueAt(row, PROT_ACCESSION);
+					String accession = (String) getValueAt(row, Constants.PROT_ACCESSION);
 					ProteinHit hit = proteinHits.get(accession);
 					hit.setSelected(selected);
 					if (selected) {
@@ -1079,16 +1064,15 @@ public class DbSearchResultPanel extends JPanel {
 						}
 					}
 					selChk.setSelected(selected);
-					getTableHeader().repaint(getTableHeader().getHeaderRect(PROT_SELECTION));
+					getTableHeader().repaint(getTableHeader().getHeaderRect(Constants.PROT_SELECTION));
 				}
 			}
 		};
 
 		// Adjust column widths
 		TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
-		TableConfig.setColumnMinWidths(proteinTbl,
-				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
-				createFilterButton(0, null, 0).getPreferredSize().width + 8);
+		TableConfig.setColumnMinWidths(proteinTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
+				createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
 
 		// Get table column model
 		final TableColumnModel tcm = proteinTbl.getColumnModel();
@@ -1108,34 +1092,34 @@ public class DbSearchResultPanel extends JPanel {
 				"Exponentially Modified Protein Abundance Index",
 		"Normalized Spectral Abundance Factor"};
 		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
-		//		ch.setReorderingAllowed(false, PROT_SELECTION);
+		//		ch.setReorderingAllowed(false, Constants.Constants.PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
 
 		// Add filter button and checkbox widgets to column headers
-		for (int col = PROT_SELECTION; col < tcm.getColumnCount(); col++) {
+		for (int col = Constants.PROT_SELECTION; col < tcm.getColumnCount(); col++) {
 			switch (col) {
-			case PROT_SELECTION:
+			case Constants.PROT_SELECTION:
 				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
 				tcm.getColumn(col).setMinWidth(19);
 				tcm.getColumn(col).setMaxWidth(19);
 				break;
-			case PROT_INDEX:
-			case PROT_COVERAGE:
-			case PROT_MW:
-			case PROT_PI:
-			case PROT_PEPTIDECOUNT:
-			case PROT_SPECTRALCOUNT:
-			case PROT_EMPAI:
-			case PROT_NSAF:
+			case Constants.PROT_INDEX:
+			case Constants.PROT_COVERAGE:
+			case Constants.PROT_MW:
+			case Constants.PROT_PI:
+			case Constants.PROT_PEPTIDECOUNT:
+			case Constants.PROT_SPECTRALCOUNT:
+			case Constants.PROT_EMPAI:
+			case Constants.PROT_NSAF:
 				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERIC)) {
 					protected SortKey getSortKey(JTable table, int column) {
 						return table.getRowSorter().getSortKeys().get(1);
 					}
 				});
 				break;
-			case PROT_ACCESSION: 
-			case PROT_DESCRIPTION:
-			case PROT_SPECIES: 
+			case Constants.PROT_ACCESSION: 
+			case Constants.PROT_DESCRIPTION:
+			case Constants.PROT_SPECIES: 
 				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHANUMERIC)) {
 					protected SortKey getSortKey(JTable table, int column) {
 						return table.getRowSorter().getSortKeys().get(1);
@@ -1146,7 +1130,7 @@ public class DbSearchResultPanel extends JPanel {
 		}
 
 		// Apply custom cell renderers/highlighters to columns
-		tcm.getColumn(PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		tcm.getColumn(Constants.PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
 
 		// Hyperlink renderer for Accession column
 		final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
@@ -1190,7 +1174,7 @@ public class DbSearchResultPanel extends JPanel {
 				rendererComponent.setText(value.toString());
 			}
 		};
-		tcm.getColumn(PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(hlp) {
+		tcm.getColumn(Constants.PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(hlp) {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				JXRendererHyperlink comp = (JXRendererHyperlink) super.getTableCellRendererComponent(
 						table, value, isSelected, hasFocus, row, column);
@@ -1204,23 +1188,23 @@ public class DbSearchResultPanel extends JPanel {
 				return comp;
 			}
 		});
-		tcm.getColumn(PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		tcm.getColumn(PROT_SPECIES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		tcm.getColumn(Constants.PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		tcm.getColumn(Constants.PROT_SPECIES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
-		((TableColumnExt) tcm.getColumn(PROT_COVERAGE)).addHighlighter(new BarChartHighlighter(
+		((TableColumnExt) tcm.getColumn(Constants.PROT_COVERAGE)).addHighlighter(new BarChartHighlighter(
 				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
-		tcm.getColumn(PROT_MW).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
-		tcm.getColumn(PROT_PI).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
-		((TableColumnExt) tcm.getColumn(PROT_PEPTIDECOUNT)).addHighlighter(new BarChartHighlighter());
-		((TableColumnExt) tcm.getColumn(PROT_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
-		((TableColumnExt) tcm.getColumn(PROT_EMPAI)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumn(Constants.PROT_MW).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		tcm.getColumn(Constants.PROT_PI).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
+		((TableColumnExt) tcm.getColumn(Constants.PROT_PEPTIDECOUNT)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(Constants.PROT_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
+		((TableColumnExt) tcm.getColumn(Constants.PROT_EMPAI)).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
-		((TableColumnExt) tcm.getColumn(PROT_NSAF)).addHighlighter(new BarChartHighlighter(
+		((TableColumnExt) tcm.getColumn(Constants.PROT_NSAF)).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 
 		// Make table always sort primarily by selection state of selection column
-		final SortKey selKey = new SortKey(PROT_SELECTION, SortOrder.DESCENDING);
+		final SortKey selKey = new SortKey(Constants.PROT_SELECTION, SortOrder.DESCENDING);
 
 		final TableSortController<TableModel> tsc = new TableSortController<TableModel>(proteinTblMdl) {
 			@Override
@@ -1261,7 +1245,7 @@ public class DbSearchResultPanel extends JPanel {
 				// prevent auto-resorting while iterating rows for performance reasons
 				tsc.setSortsOnUpdates(false);
 				for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-					proteinTbl.setValueAt(selected, row, PROT_SELECTION);
+					proteinTbl.setValueAt(selected, row, Constants.PROT_SELECTION);
 				}
 				tsc.setSortsOnUpdates(true);
 				// re-sort rows after iteration finished
@@ -1271,12 +1255,12 @@ public class DbSearchResultPanel extends JPanel {
 
 		// Specify initial sort order
 		List<SortKey> sortKeys = new ArrayList<SortKey>(2);
-		sortKeys.add(0, new SortKey(PROT_SELECTION, SortOrder.DESCENDING));
-		sortKeys.add(1, new SortKey(PROT_SPECTRALCOUNT, SortOrder.DESCENDING));
+		sortKeys.add(0, new SortKey(Constants.PROT_SELECTION, SortOrder.DESCENDING));
+		sortKeys.add(1, new SortKey(Constants.PROT_SPECTRALCOUNT, SortOrder.DESCENDING));
 		tsc.setSortKeys(sortKeys);
 
 		// Prevent messing with sort order of selection column
-		tsc.setSortable(PROT_SELECTION, false);
+		tsc.setSortable(Constants.PROT_SELECTION, false);
 
 		// Register list selection listener
 		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -1394,7 +1378,7 @@ public class DbSearchResultPanel extends JPanel {
 				if (node.isProtein()) {
 					String accession = ((ProteinHit) node.getUserObject()).getAccession();
 					for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-						if (proteinTbl.getValueAt(row, PROT_ACCESSION).equals(accession)) {
+						if (proteinTbl.getValueAt(row, Constants.PROT_ACCESSION).equals(accession)) {
 							proteinTbl.getSelectionModel().setSelectionInterval(row, row);
 							return;
 						}
@@ -1695,9 +1679,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		// Configure column widths
 		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5 });
-		TableConfig.setColumnMinWidths(treeTbl,
-				UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
-				createFilterButton(0, null, 0).getPreferredSize().width + 8);
+		TableConfig.setColumnMinWidths(treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
 
 		// Enable column control widget
 		treeTbl.setColumnControlVisible(true);
@@ -1812,7 +1794,7 @@ public class DbSearchResultPanel extends JPanel {
 			public void setValueAt(Object aValue, int row, int column) {
 				super.setValueAt(aValue, row, column);
 				if (column == PEP_SELECTION) {
-					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION));
+					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinTbl.getValueAt(proteinTbl.getSelectedRow(), Constants.PROT_ACCESSION));
 					proteinHit.getPeptideHits().get(getValueAt(row, PEP_SEQUENCE)).setSelected((Boolean) aValue);
 				}
 			}
@@ -1924,7 +1906,7 @@ public class DbSearchResultPanel extends JPanel {
 				int selRow = peptideTbl.getSelectedRow();
 				if (selRow != -1) {
 					coverageSelectionModel.setValue(peptideTbl.convertRowIndexToModel(selRow));
-					PeptideHit peptideHit = dbSearchResult.getProteinHit((String) proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION)).getPeptideHit((String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE));
+					PeptideHit peptideHit = dbSearchResult.getProteinHit((String) proteinTbl.getValueAt(proteinTbl.getSelectedRow(), Constants.PROT_ACCESSION)).getPeptideHit((String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE));
 					protCHighlightPredicate.setProteinHits(peptideHit.getProteinHits());
 					proteinTbl.repaint();
 				}
@@ -2066,7 +2048,7 @@ public class DbSearchResultPanel extends JPanel {
 			public void setValueAt(Object aValue, int row, int column) {
 				super.setValueAt(aValue, row, column);
 				if (column == PSM_SELECTION) {
-					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinTbl.getValueAt(proteinTbl.getSelectedRow(), PROT_ACCESSION));
+					ProteinHit proteinHit = dbSearchResult.getProteinHits().get(proteinTbl.getValueAt(proteinTbl.getSelectedRow(), Constants.PROT_ACCESSION));
 
 					Map<String, PeptideHit> peptideHits = proteinHit.getPeptideHits();
 					int selectedPeptideRow = peptideTbl.getSelectedRow();
@@ -2315,26 +2297,10 @@ public class DbSearchResultPanel extends JPanel {
 			// Gather models
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 
-			// FIXME: Could the following code be sourced out please ?!
 			// Values for construction of highlighter
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 
-			// Iterate over metaproteins to fill the columns in the flatview
-			//			int metaIndex = 1;
-
-			//			// Get Matrix for the calculation of the identity
-			//			Matrix matrix = null;
-			//			if (!Client.getInstance().isViewer()) {
-			//				try {
-			//					Logger.getLogger(MatrixLoader.class.getName()).setLevel(Level.OFF);
-			//					matrix = MatrixLoader.load("BLOSUM62");
-			//				} catch (MatrixLoaderException e) {
-			//					e.printStackTrace();
-			//				}
-			//			}
-
-//			Logger.getLogger(SmithWatermanGotoh.class.getName()).setLevel(Level.OFF);
 			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
 
 			NcbiTaxonomy instNcbiTax = NcbiTaxonomy.getInstance();
@@ -2571,23 +2537,23 @@ public class DbSearchResultPanel extends JPanel {
 
 				BarChartHighlighter highlighter;
 
-				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_COVERAGE))).getHighlighters()[0];
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(Constants.PROT_COVERAGE))).getHighlighters()[0];
 				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
 				highlighter.setRange(0.0, maxCoverage);
 
-				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_PEPTIDECOUNT))).getHighlighters()[0];
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(Constants.PROT_PEPTIDECOUNT))).getHighlighters()[0];
 				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
 				highlighter.setRange(0.0, maxPeptideCount);
 
-				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_SPECTRALCOUNT))).getHighlighters()[0];
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(Constants.PROT_SPECTRALCOUNT))).getHighlighters()[0];
 				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
 				highlighter.setRange(0.0, maxSpecCount);
 
-				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_EMPAI))).getHighlighters()[0];
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(Constants.PROT_EMPAI))).getHighlighters()[0];
 				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
 				highlighter.setRange(min_emPAI, max_emPAI);
 
-				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(PROT_NSAF))).getHighlighters()[0];
+				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(proteinTbl.convertColumnIndexToView(Constants.PROT_NSAF))).getHighlighters()[0];
 				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
 				highlighter.setRange(0.0, maxNSAF);
 
@@ -2945,7 +2911,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		if (protRow != -1) {
 			// Get protein and peptide information 
-			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
+			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
 			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
 			String sequence = proteinHit.getSequence();
 			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
@@ -3104,7 +3070,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		int protRow = proteinTbl.getSelectedRow();
 		if (protRow != -1) {
-			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
+			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
 			int pepRow = peptideTbl.getSelectedRow();
 			if (pepRow != -1) {
 				String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
@@ -3176,7 +3142,7 @@ public class DbSearchResultPanel extends JPanel {
 					//		            }
 					specCont.removeAll();
 					// get the list of spectrum matches
-					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(PROT_ACCESSION));
+					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
 					String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
 					int index = psmTbl.convertRowIndexToModel(psmRow);
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
@@ -3582,11 +3548,11 @@ public class DbSearchResultPanel extends JPanel {
 			Interval interval = new Interval(left, right);
 			// iterate table rows and check intervals
 			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-				if (!(Boolean) proteinTbl.getValueAt(row, PROT_SELECTION)) {
+				if (!(Boolean) proteinTbl.getValueAt(row, Constants.PROT_SELECTION)) {
 					break;
 				}
 				proteinTbl.setValueAt(	interval.containsExclusive(((Number) proteinTbl.getValueAt(row, column)).doubleValue()),
-						row, proteinTbl.convertColumnIndexToView(PROT_SELECTION));
+						row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
 			}
 		} else {
 			List<String> restrictive = new ArrayList<String>();
@@ -3603,7 +3569,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 			// iterate table rows and check filter patterns
 			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-				if (!(Boolean) proteinTbl.getValueAt(row, PROT_SELECTION)) {
+				if (!(Boolean) proteinTbl.getValueAt(row, Constants.PROT_SELECTION)) {
 					break;
 				}
 				String value = proteinTbl.getValueAt(row, column).toString();
@@ -3622,7 +3588,7 @@ public class DbSearchResultPanel extends JPanel {
 						if (!selected) break;
 					}
 				}
-				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToView(PROT_SELECTION));
+				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
 			}
 		}
 		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
@@ -3739,7 +3705,7 @@ public class DbSearchResultPanel extends JPanel {
 		public boolean isHighlighted(Component renderer,
 				org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
 			for (ProteinHit protHit : getProteinHits()) {
-				if (protHit.getAccession().equals(adapter.getValue(PROT_ACCESSION))) {
+				if (protHit.getAccession().equals(adapter.getValue(Constants.PROT_ACCESSION))) {
 					return true;
 				}
 			}

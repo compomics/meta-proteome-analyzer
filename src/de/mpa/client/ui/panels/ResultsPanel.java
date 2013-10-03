@@ -140,9 +140,9 @@ public class ResultsPanel extends JPanel {
 	private SpecSimResultPanel ssPnl;
 
 	/**
-	 * The GraphDatabaseResultPanel. TODO: decide fate of de novo/BLAST results panel
+	 * The GraphDatabaseResultPanel.
 	 */
-	private GraphDatabaseResultPanel dnPnl;
+	private GraphDatabaseResultPanel graphDbPnl;
 
 	/**
 	 * Button for showing button to select the type of chart to be displayed
@@ -286,7 +286,7 @@ public class ResultsPanel extends JPanel {
 	public ResultsPanel() {
 		this.dbPnl = new DbSearchResultPanel(this);
 		this.ssPnl = new SpecSimResultPanel();
-		this.dnPnl = new GraphDatabaseResultPanel();
+		this.graphDbPnl = new GraphDatabaseResultPanel();
 		initComponents();
 	}
 
@@ -329,7 +329,7 @@ public class ResultsPanel extends JPanel {
 		resTpn.addTab(" ", ovPnl);
 		resTpn.addTab(" ", dbPnl);
 		resTpn.addTab(" ", ssPnl);
-		resTpn.addTab(" ", dnPnl);
+		resTpn.addTab(" ", graphDbPnl);
 
 		ClientFrame clientFrame = ClientFrame.getInstance();
 		resTpn.setTabComponentAt(0, clientFrame.createTabButton(
@@ -1350,7 +1350,7 @@ public class ResultsPanel extends JPanel {
 	 * @return the de novo search result panel
 	 */
 	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
-		return dnPnl;
+		return graphDbPnl;
 	}
 
 	/**

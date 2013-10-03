@@ -3,6 +3,7 @@ package de.mpa.client.model.dbsearch;
 import java.io.Serializable;
 
 public enum SearchEngineType implements Serializable {
+	
 	XTANDEM("X!Tandem"), 
 	OMSSA("OMSSA"), 
 	CRUX("Crux"), 

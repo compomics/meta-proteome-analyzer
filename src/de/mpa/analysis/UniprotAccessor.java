@@ -3,25 +3,17 @@ package de.mpa.analysis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryIterator;
 import uk.ac.ebi.kraken.uuw.services.remoting.Query;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
-import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.taxonomy.NcbiTaxonomy;
-import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * Class to access the EBI UniProt WebService.
@@ -67,69 +59,6 @@ public class UniprotAccessor {
 	}
 
 	/**
-	 * Queries UniProt entries from protein accessions stored in the specified
-	 * result object and appends them to the respective protein hits.
-	 * @param dbSearchResult The result object.
-	 * @throws Exception 
-	 */
-	public static void retrieveUniProtEntries(DbSearchResult dbSearchResult) throws Exception {
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-		}
-
-		// Get protein hits from the search result instance
-		Map<String, ProteinHit> resultHits = dbSearchResult.getProteinHits();
-		
-		Map<String, ProteinHit> proteinHits = new HashMap<String, ProteinHit>();
-		Set<String> giSet = new HashSet<String>();
-		for (Entry<String, ProteinHit> entry : dbSearchResult.getProteinHits().entrySet()) {
-			String acc = entry.getKey();
-			if (acc.matches("^\\d*$")) {
-				// accession contains only numbers, most likely a non-UniProt identifier
-//				TODO: giSet.add(acc);
-			} else {
-				proteinHits.put(acc, entry.getValue());
-			}
-		}
-		
-		// Check whether any identifiers are in need of re-mapping
-		if (!giSet.isEmpty()) {
-			Map<String, String> mapping =
-					UniProtGiMapper.retrieveGiToUniProtMapping(new ArrayList<String>(giSet));
-			if ((mapping != null) && !mapping.isEmpty()) {
-				for (String gi : giSet) {
-					String acc = mapping.get(gi);
-					// store re-mapped protein hit 
-					if (acc != null) {
-						proteinHits.put(acc, resultHits.get(gi));
-					}
-				}
-			}
-		}
-		
-		// Gather accessions
-		List<String> accList = new ArrayList<String>(proteinHits.keySet());
-		// maxClauseCount is set to 1024
-		int maxClauseCount = 1024;
-		if (accList.size() > maxClauseCount) {
-			List<String> shortList = new ArrayList<String>();
-			// Break list of accessions into batches of 1024
-			for (String acc : accList) {
-				shortList.add(acc);
-				if (shortList.size() % maxClauseCount == 0) {
-					// Query UniProt web service for meta data entries and
-					// append them to the respective proteins
-					addUniProtEntries(shortList, proteinHits);
-					shortList.clear();
-				}
-			}
-			accList = shortList;
-		}
-		addUniProtEntries(accList, proteinHits);
-	}
-	
-	/**
 	 * Retrieves batch-wise a mapping of UniProt identifiers to UniProt entries.
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @return {@link Map} of UniProt entries.
@@ -144,7 +73,6 @@ public class UniprotAccessor {
 		int maxClauseCount = BATCH_SIZE;
 		int maxBatchCount = identifierList.size() / maxClauseCount;		
 		for (int i = 0; i < maxBatchCount; i++) {
-			System.out.println(i + "/" +maxBatchCount);
 			int startIndex = i * maxClauseCount;
 			int endIndex = (i + 1) * maxClauseCount - 1;
 			List<String> shortList = new ArrayList<String>(identifierList.subList(startIndex, endIndex));
@@ -152,48 +80,9 @@ public class UniprotAccessor {
 			queryUniProtEntriesByIdentifiers(shortList, uniprotEntryMap);
 			shortList.clear();
 		}
-		queryUniProtEntriesByIdentifiers(
-				new ArrayList<String>(identifierList.subList(
-						maxBatchCount * maxClauseCount, identifierList.size())), uniprotEntryMap);
+		queryUniProtEntriesByIdentifiers(new ArrayList<String>(identifierList.subList(maxBatchCount * maxClauseCount, identifierList.size())), uniprotEntryMap);
 		
 		return uniprotEntryMap;
-	}
-	
-	/**
-	 * Convenience method to query UniProt entries from a list of accession
-	 * strings and link them to their respective protein hits.
-	 * @param accList The list of accession strings.
-	 * @param proteinHits The map of protein hits identified by their accession.
-	 * @throws Exception 
-	 */
-	private static void addUniProtEntries(List<String> accList, Map<String, ProteinHit> proteinHits) throws Exception {
-		Query query = UniProtQueryBuilder.buildIDListQuery(accList);
-		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-
-		// Iterate the entries and add them to the list. 
-		for (UniProtEntry entry : entryIterator) {
-			String accession = entry.getPrimaryUniProtAccession().getValue();
-			ProteinHit proteinHit = proteinHits.get(accession);
-			if (proteinHit != null) {
-//				proteinHit.setUniprotEntry(entry);
-//				addTaxonomy(entry, proteinHit);
-			} else {
-				// primary accession could not be found, try secondary accessions
-				// TODO: Use secondary accessions!
-				List<SecondaryUniProtAccession> secAccs = entry.getSecondaryUniProtAccessions();
-				for (SecondaryUniProtAccession secAcc : secAccs) {
-					accession = secAcc.getValue();
-					proteinHit = proteinHits.get(accession);
-					if (proteinHit != null) {
-//						proteinHit.setUniprotEntry(entry);
-//						addTaxonomy(entry, proteinHit);
-						break;
-					}
-				}
-				// none of the secondary accessions could be found, throw error
-				System.err.println("Unable to link UniProt entry " + accession + " to protein hit!");
-			}
-		}
 	}
 	
 	/**
@@ -211,21 +100,6 @@ public class UniprotAccessor {
 		}	
 	}
 
-	/**
-	 * FIXME: After refactoring - remove this method completely.
-	 * Inserts taxonomy node information stored inside the specified UniProt
-	 * entry into the specified protein hit.
-	 * @param entry the UniProt entry
-	 * @param proteinHit the protein hit
-	 * @throws Exception if something goes wrong
-	 */
-	private static void addTaxonomy(UniProtEntry entry, ProteinHit proteinHit) throws Exception {
-		Integer taxID = Integer.valueOf(entry.getNcbiTaxonomyIds().get(0).getValue());
-		String rank = NcbiTaxonomy.getInstance().getRank(taxID);
-		String taxName = NcbiTaxonomy.getInstance().getTaxonName(taxID);
-		proteinHit.setTaxonomyNode(new TaxonomyNode(taxID, rank, taxName));
-	}
-	
 	/**
 	 * The UniProt keyword taxonomy map.
 	 */

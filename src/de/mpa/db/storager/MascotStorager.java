@@ -1,7 +1,6 @@
 package de.mpa.db.storager;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -100,7 +99,7 @@ public class MascotStorager extends BasicStorager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void store() throws IOException, SQLException {
+	public void store() throws Exception {
 		
 		// Fetch the peptides for all queries.
 		QueryToPeptideMap queryToPeptideMap = mascotDatFile.getQueryToPeptideMap();
@@ -119,7 +118,6 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("resetcur", -1L, (long) queryList.size());
 		
 		for (Query query : queryList) {
-			//TODO: Find out which method to take for retrieving the peptide hits.
 			Vector<PeptideHit> peptideHitsFromQuery = queryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
 			if (peptideHitsFromQuery != null) {
 				for (PeptideHit peptideHit : peptideHitsFromQuery) {
@@ -444,8 +442,9 @@ public class MascotStorager extends BasicStorager {
 	 * Retrieves the score threshold based on local FDR or absolute limit.
 	 * @param mascotParams Mascot ParameterMap.
 	 * @return {@link Double} Score threshold
+	 * @throws Exception 
 	 */
-	private double getScoreThreshold(ParameterMap mascotParams, Vector<Query> queryList) {
+	private double getScoreThreshold(ParameterMap mascotParams, Vector<Query> queryList) throws Exception {
 		// Init FDR score threshold.
 		double scoreThreshold = 0.0;	
 		mascotParams.get("filter");
@@ -518,8 +517,8 @@ public class MascotStorager extends BasicStorager {
 				}
 			}
 			if (ionThreshold > 1000) {
-				// TODO: Throw exception.
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", "Not possible to calculate the FDR", null, null, null, ErrorLevel.SEVERE, null));
+				throw new Exception("Ion threshold above 1000.");
 			}
 		}
 		return scoreThreshold;
