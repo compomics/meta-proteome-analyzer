@@ -8,10 +8,7 @@ import de.mpa.job.SearchType;
 public class OmssaJob extends Job {
     
     // EValue of 10
-    private final static double E_VALUE_CUTOFF = 1000; 
-    
-    // Number of missed cleavage allowed
-    private final static int MISSED_CLEAVAGES = 2;
+    private final static double E_VALUE_CUTOFF = 1000;
     
     // Hit list length for each
     private final static int HITLIST_LENGTH = 25;
@@ -31,30 +28,39 @@ public class OmssaJob extends Job {
 	private File mgfFile;
 	private String searchDB;
 	
-	// Mass tolerance for fragement
+	// Mass tolerance for fragment ions
     private double fragmentTol;
     
-    // Mass tolerance for precursor
+    // Mass tolerance for precursor ions
     private double precursorTol;
     
+    // Maximum number of missed cleavages.
+    private int nMissedCleavages;
 
     private String filename;
     
     private SearchType searchType;
     
     // String of precursor ion tolerance unit ( ppm versus Da)
-    private boolean isPrecursorIonTolPpm;	
+    private boolean isPrecursorTolerancePpm;	
+    
 	/**
-	 * Constructor for the Ommsa retrieving the MGF file as the only parameter.
-	 * http://proteomicsresource.washington.edu/omssa.php
-	 * @param mgfFile
+	 * Constructor for starting the OMSSA search engine.
+	 * @param mgfFile Spectrum file
+	 * @param searchDB Search database
+	 * @param fragmentTol Fragment ion tolerance
+	 * @param precursorTol Precursor ion tolerance
+	 * @param nMissedCleavages Number of maximum missed cleavages
+	 * @param isPrecursorTolerancePpm Condition whether the precursor tolerance unit is PPM (true) or Dalton (false)
+	 * @param searchType Target or decoy search type
 	 */
-	public OmssaJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean isPrecursorIonTolPpm, SearchType searchType) {
+	public OmssaJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.fragmentTol = fragmentTol;
 		this.precursorTol = precursorTol;
-		this.isPrecursorIonTolPpm = isPrecursorIonTolPpm;
+		this.nMissedCleavages = nMissedCleavages;
+		this.isPrecursorTolerancePpm = isPrecursorTolerancePpm;
 		this.searchType = searchType;
 		
 		if(searchType == SearchType.DECOY){
@@ -65,6 +71,7 @@ public class OmssaJob extends Job {
 		this.omssaFile = new File(JobConstants.OMSSA_PATH);
 		initJob();
 	}
+	
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
@@ -86,7 +93,7 @@ public class OmssaJob extends Job {
         procCommands.add(Double.toString(precursorTol));
        
        // Add flag if unit of precursors is in PPM:
-       if(isPrecursorIonTolPpm){
+       if(isPrecursorTolerancePpm){
     	   procCommands.add("-teppm");        
        }
 
@@ -96,7 +103,7 @@ public class OmssaJob extends Job {
 
         // Missed cleavages
         procCommands.add("-v");
-       	procCommands.add(Integer.toString(MISSED_CLEAVAGES));
+       	procCommands.add(Integer.toString(nMissedCleavages));
 
        	// HitList number        
         procCommands.add("-hl");

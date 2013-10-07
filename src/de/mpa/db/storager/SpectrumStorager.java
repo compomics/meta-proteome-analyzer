@@ -228,5 +228,23 @@ public class SpectrumStorager extends BasicStorager {
 		}
 		return null;
 	}
+	
+	@Override
+	public void run() {
+		this.load();
+		try {
+			this.store();
+		} catch (Exception e) {
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				log.error("Could not perform rollback. Error message: " + e.getMessage());
+				e1.printStackTrace();
+			}
+			log.error("Spectrum storing error message: " + e.getMessage());
+			e.printStackTrace();
+		}
+		log.info("Spectra stored to the DB.");
+	}
 
 }

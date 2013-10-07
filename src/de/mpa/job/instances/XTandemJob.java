@@ -29,6 +29,7 @@ public class XTandemJob extends Job {
 	private String searchDB;
 	private double fragmentTol;
 	private double precursorTol;
+	private int nMissedCleavages;
 	// String of precursor ion tolerance unit ( ppm versus Da)
 	private String precursorUnit;	
 	private SearchType searchType;
@@ -40,11 +41,23 @@ public class XTandemJob extends Job {
 	 * @param precursorTol
 	 * @param precursorUnit
 	 */
-	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, boolean isPrecursorTolerancePpm, SearchType searchType) {
+	
+	/**
+	 * Constructor for starting the X!Tandem search engine.
+	 * @param mgfFile Spectrum file
+	 * @param searchDB Search database
+	 * @param fragmentTol Fragment ion tolerance
+	 * @param precursorTol Precursor ion tolerance
+	 * @param nMissedCleavages Number of maximum missed cleavages
+	 * @param isPrecursorTolerancePpm Condition whether the precursor tolerance unit is PPM (true) or Dalton (false)
+	 * @param searchType Target or decoy search type
+	 */
+	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.fragmentTol = fragmentTol;
 		this.precursorTol = precursorTol;
+		this.nMissedCleavages = nMissedCleavages;
 		// Add units for fragments and precursors
 		if(isPrecursorTolerancePpm){ 
 			this.precursorUnit = "ppm";
@@ -270,7 +283,7 @@ public class XTandemJob extends Job {
                             + "\n"
                             + "<note>scoring parameters</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, minimum ion count\">4</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, maximum missed cleavage sites\">2</note>\n"
+                            + "\t<note type=\"input\" label=\"scoring, maximum missed cleavage sites\">" + nMissedCleavages + "</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, x ions\">no</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, y ions\">yes</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, z ions\">no</note>\n"

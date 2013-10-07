@@ -34,7 +34,6 @@ public class CruxJob extends Job {
 		this.ms2File = JobConstants.TRANSFER_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + ".ms2";;
 		this.precIonTol = precIonTol;
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
-		
 		initJob();
 		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
 	}	
