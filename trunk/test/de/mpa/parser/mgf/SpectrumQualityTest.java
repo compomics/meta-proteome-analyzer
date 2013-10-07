@@ -15,8 +15,10 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 
+
 public class SpectrumQualityTest extends TestCase {
 	
+	//FIXME: Remove this class from the build!
 	private MascotGenericFileReader reader;
 
 	

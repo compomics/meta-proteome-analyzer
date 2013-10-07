@@ -26,6 +26,11 @@ import org.junit.Test;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.DBManager;
 
+/**
+ * TODO: Remove this class from the built!
+ * @author T.Muth
+ *
+ */
 public class XTandemHitAccessorTest {
 	
 	private Connection conn;

@@ -48,6 +48,7 @@ public class FastaLoaderTest extends TestCase {
 	@Test
 	public void testgetProteinFromFasta(){
 		try {
+			// TODO: IOException thrown for invalid handle!
 			Protein proteinFirst = fastaLoader.getProteinFromFasta("P05100");
 			Protein proteinMiddle = fastaLoader.getProteinFromFasta("B1XDP2");
 			Protein proteinLast = fastaLoader.getProteinFromFasta("A7ZLN7");

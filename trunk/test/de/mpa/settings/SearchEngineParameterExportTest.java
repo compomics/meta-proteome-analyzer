@@ -39,6 +39,7 @@ public class SearchEngineParameterExportTest extends TestCase {
 		params.put(key, parameter);
 		
 		// Create file representation of parameter map
+		// TODO: StringIndexOutOfBoundsException: String index out of range: 1
 		File file = params.toFile("test/de/mpa/resources/input.xml".replaceAll("/", File.separator));
 		
 		// Dig through file and try to recover inserted non-default values

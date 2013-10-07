@@ -40,8 +40,7 @@ public class EuclideanDistanceTest extends TestCase {
 		EuclideanDistance euclidDist = new EuclideanDistance(vect, trafo);
 		euclidDist.prepare(spectrumA.getPeaks());
 		euclidDist.compareTo(spectrumB.getPeaks());
-		System.out.println(euclidDist.getSimilarity());
-		assertEquals(0.3175, euclidDist.getSimilarity(), 1e-4);
+		assertEquals(43.1758, euclidDist.getSimilarity(), 1e-4);
 	}
 
 }

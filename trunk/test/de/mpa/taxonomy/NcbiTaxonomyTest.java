@@ -8,6 +8,7 @@ import org.junit.Test;
 
 /**
  * Tests for NCBI taxonomy-related classes and methods.
+ * TODO: Possibly remove this test?!
  * @author R. Heyer, A. Behne
  */
 public class NcbiTaxonomyTest extends TestCase {

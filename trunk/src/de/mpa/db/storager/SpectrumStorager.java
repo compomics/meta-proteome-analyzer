@@ -18,7 +18,7 @@ import de.mpa.io.SixtyFourBitStringSupport;
 /**
  * This class handles the storage of the spectrum files.
  * 
- * @author Thilo Muth
+ * @author T.Muth
  * 
  */
 public class SpectrumStorager extends BasicStorager {
@@ -27,16 +27,6 @@ public class SpectrumStorager extends BasicStorager {
      * The spectrum file reader instance.
      */
     private MascotGenericFileReader reader;
-    
-    /**
-     * The spectrum file instance.
-     */
-    private File file;
-    
-    /**
-     * The database connection instance.
-     */
-    private Connection conn;
 
     /**
      * Map to link spectrum titles to their database searchspectrum ID.
