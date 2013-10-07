@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
@@ -34,7 +35,6 @@ import de.proteinms.xtandemparser.xtandem.XTandemFile;
 
 /**
  * This class stores X!Tandem results to the DB.
- * 
  * @author T.Muth
  */
 public class XTandemStorager extends BasicStorager {
@@ -49,47 +49,44 @@ public class XTandemStorager extends BasicStorager {
      */
     private File qValueFile = null;
     
-    /**
-     * The Connection instance.
-     */
-    private final Connection conn;
-    
     private Map<Double, List<Double>> scoreQValueMap;
 
 	private Map<String, Long> domainMap;
 	
     /**
-     * Constructor for having a target-only search with X!Tandem.
+     * Constructor for storing results from a target-only search with X!Tandem.
      */
     public XTandemStorager(final Connection conn, final File file){
     	this.conn = conn;
     	this.file = file;
+    	this.searchEngineType = SearchEngineType.XTANDEM;
     }
     
     /**
-     * Constructor for having a target-decoy search with X!Tandem.
+     * Constructor for storing results from a target-decoy search with X!Tandem.
      */
 	public XTandemStorager(final Connection conn, final File file, File qValueFile) {
 		this.conn = conn;
 		this.file = file;
 		this.qValueFile = qValueFile;
+		this.searchEngineType = SearchEngineType.XTANDEM;
 	}
 
     /**
-     * Loads the XTandemFile.
-     * @param file
+     * Parses and loads the X!Tandem results file(s).
      */
     public void load() {
         try {
             xTandemFile = new XTandemFile(file.getAbsolutePath());
-        } catch (SAXException saxException) {
-            saxException.getMessage();
+        } catch (SAXException ex) {
+            log.error("Error while parsing X!Tandem file: " + ex.getMessage());
+            ex.printStackTrace();
         }
+        if(qValueFile != null) this.processQValues();
     }
     
     /**
-     * Stores XTandemfile and its contents to the database.
-     * @param conn
+     * Stores X!Tandem results file contents to the database.
      * @throws IOException
      * @throws SQLException
      */
@@ -240,25 +237,5 @@ public class XTandemStorager extends BasicStorager {
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		} 
-	}
-    
-
-    @Override
-	public void run() {
-		this.load();
-		if(qValueFile != null) this.processQValues();		
-		try {
-			this.store();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}		
-		log.info("XTandem results stored to the DB.");
 	}
 }

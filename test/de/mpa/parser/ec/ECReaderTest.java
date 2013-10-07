@@ -8,14 +8,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class EcParserTest extends TestCase {
+public class ECReaderTest extends TestCase {
 	private Map<String, ECEntry> ecMap;
 
 	@Before
 	public void setUp() {
-//		// Initialize the EC-number Map
-		ecMap = ECReader.readEC(
-				getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
+		// Initialize the EC-number Map
+		ecMap = ECReader.readEC(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
 	}
 
 	@Test
@@ -23,7 +22,6 @@ public class EcParserTest extends TestCase {
 		assertEquals("Oxidoreductases", ecMap.get("1.-.-.-").getName());
 		assertEquals("To this class belong all enzymes catalyzing oxido-reductions. The substrate oxidized is regarded as hydrogen or electron donor. The classification is based on 'donor:acceptor oxidoreductase'. The common name is 'dehydrogenase', wherever this is possible; as an alternative, 'acceptor reductase' can be used. 'Oxidase' is used only where O(2) is an acceptor. Classification is difficult in some cases, because of the lack of specificity toward the acceptor.", ecMap.get("1.-.-.-").getDescription());
 		
-		System.out.println(ecMap.get("1.1.-.-").getName());
 		assertEquals("Acting on the CH-OH Group of Donors", ecMap.get("1.1.-.-").getName());
 		assertEquals("This subclass contains all dehydrogenases acting on primary alcohols, secondary alcohols and hemi-acetals. They are further classified according to the acceptor which can be NAD(+) or NADP(+) (subclass EC 1.1.1), cytochrome (EC 1.1.2), oxygen (EC 1.1.3), a disulfide (EC 1.1.4), quinone (EC 1.1.5) or another acceptor (EC 1.1.99).", ecMap.get("1.1.-.-").getDescription());
 		

@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Cruxhit2protTableAccessor;
@@ -22,7 +23,7 @@ import de.mpa.parser.crux.CruxHit;
 import de.mpa.parser.crux.CruxParser;
 
 /**
- * This class helps to store the results of the Crux algorithm to the DB.
+ * This class stores Crux results to the DB.
  * @author T.Muth
  * 
  */
@@ -42,21 +43,20 @@ public class CruxStorager extends BasicStorager {
     public CruxStorager(Connection conn, File file) {
     	this.conn = conn;
     	this.file = file;
+    	this.searchEngineType = SearchEngineType.CRUX;
     }
 
     /**
-     * Loads the MsgfFile.
+     * Parses and loads the Crux results file.
      *
-     * @param file
+     * @param file Crux results file.
      */
     public void load() {
     	cruxFile = new CruxParser().read(file.getAbsolutePath());
     }
 
     /**
-     * Stores MsgfFile and its contents to the database.
-     *
-     * @param conn
+     * Stores Crux results to the database.
      * @throws java.io.IOException
      * @throws java.sql.SQLException
      */
@@ -151,8 +151,6 @@ public class CruxStorager extends BasicStorager {
         	}   
         }
     }
-    
-	
 }
 
 

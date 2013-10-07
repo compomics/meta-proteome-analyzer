@@ -19,7 +19,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
  * Based on mascot.dat-File 20407.dat
  * @author F. Kohrs and R. Heyer
  */
-public class TestMascotDatFileParser {
+public class MascotDatFileParserTest {
 
 	static DbSearchResult dbSearchResult;
 	 static List<ProteinHit> proteinHitList;

@@ -10,6 +10,7 @@ import java.util.List;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Pep2prot;
@@ -20,7 +21,7 @@ import de.mpa.parser.inspect.InspectHit;
 import de.mpa.parser.inspect.InspectParser;
 
 /**
- * This class helps to store the results of the InsPect algorithm to the DB.
+ * This class stores the results of the InsPect algorithm to the DB.
  * @author T.Muth
  */
 public class InspectStorager extends BasicStorager {
@@ -39,6 +40,7 @@ public class InspectStorager extends BasicStorager {
     public InspectStorager(Connection conn, File file) {
     	this.conn = conn;
     	this.file = file;
+    	this.searchEngineType = SearchEngineType.INSPECT;
     }
 
     /**
@@ -135,23 +137,5 @@ public class InspectStorager extends BasicStorager {
         }
         conn.commit();
     }
-	
-	@Override
-	public void run() {
-		this.load();
-		try {
-			this.store();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		log.info("Inspect results stored to the DB.");
-	} 
 }
 

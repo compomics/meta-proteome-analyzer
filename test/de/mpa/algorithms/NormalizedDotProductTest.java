@@ -38,8 +38,7 @@ public class NormalizedDotProductTest extends TestCase {
 	public void setUp() {
 		try {
 			// Parse .mgf file
-			File file = new File(getClass().getClassLoader().getResource(
-			"Test_BSA_10.mgf").getPath());
+			File file = new File(getClass().getClassLoader().getResource("Test_BSA_10.mgf").getPath());
 			MascotGenericFileReader mgfReader = new MascotGenericFileReader(file);
 
 			// Get source spectrum and candidate spectrum

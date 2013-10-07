@@ -43,7 +43,7 @@ public class JAlignerTest extends TestCase{
 	}
 	
 	@Test
-	public void test(){
+	public void testAlignment(){
 		assertEquals(248, seq1.length());
 		assertEquals(254, seq2.length());
 		assertEquals(822.5f, align.getScore());

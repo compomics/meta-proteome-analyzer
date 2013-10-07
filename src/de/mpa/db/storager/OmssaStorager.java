@@ -17,6 +17,7 @@ import java.util.StringTokenizer;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
@@ -51,29 +52,31 @@ public class OmssaStorager extends BasicStorager {
 
 	private HashMap<String, Long> hitNumberMap;    
    
-	/**
-     * Default Constructor.
+    /**
+     * Constructor for storing results from a target-only search with OMSSA.
      */
     public OmssaStorager(Connection conn, File file){
     	this.conn = conn;
     	this.file = file;
+    	this.searchEngineType = SearchEngineType.OMSSA;
     }
     
     /**
-     * Default Constructor.
+     * Constructor for storing results from a target-decoy search with OMSSA.
      */
     public OmssaStorager(Connection conn, File file, File qValueFile){
     	this.conn = conn;
     	this.file = file;
     	this.qValueFile = qValueFile;
+    	this.searchEngineType = SearchEngineType.OMSSA;
     }
 
     /**
-     * Loads the OmssaFile.
-     * @param file
+     * Parses and loads the OMSSA results file(s).
      */
     public void load() {
         omxFile = new OmssaOmxFile(file.getAbsolutePath());
+        if (qValueFile != null) this.processQValues();
     }
 
     /**
@@ -211,25 +214,5 @@ public class OmssaStorager extends BasicStorager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-   
-
-	@Override
-	public void run() {
-		this.load();
-		if (qValueFile != null) this.processQValues();
-		try {
-			this.store();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		log.info("Omssa results stored to the DB.");
-	}   
+	}	  
 }

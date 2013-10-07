@@ -40,7 +40,7 @@ public class CrossCorrelationTest extends TestCase {
 		CrossCorrelation method = new CrossCorrelation(vect, trafo, binWidth, 75);
 		method.prepare(spectrumA.getPeaks());
 		method.compareTo(spectrumB.getPeaks());
-		assertEquals(0.018876804386547614, method.getSimilarity(), 1e-6);
+		assertEquals(0.03726862316588398, method.getSimilarity(), 1e-6);
 	}
 
 }
