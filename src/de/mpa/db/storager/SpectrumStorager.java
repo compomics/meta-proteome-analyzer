@@ -198,6 +198,7 @@ public class SpectrumStorager extends BasicStorager {
         }
         
         MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
+        log.debug("No. of spectra: " + title2SearchIdMap.size());
         MapContainer.FileName2IdMap = fileName2IdMap;
         
         reader.close();

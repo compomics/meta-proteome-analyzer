@@ -108,6 +108,7 @@ public class XTandemStorager extends BasicStorager {
         // List for the q-values.
         List<Double> qvalues;
         
+        int counter = 0;
         while (iter.hasNext()) {
 
             // Get the next spectrum.
@@ -115,7 +116,7 @@ public class XTandemStorager extends BasicStorager {
             int spectrumNumber = spectrum.getSpectrumNumber();
             
             String spectrumTitle = xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
-           
+            spectrumTitle = formatSpectrumTitle(spectrumTitle);
             // Get all identifications from the spectrum
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
             List<String> peptides = new ArrayList<String>();
@@ -132,6 +133,7 @@ public class XTandemStorager extends BasicStorager {
                 	      // Only store if the search spectrum id is referenced.
                 	      if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	  long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+                	    	  log.debug("X!Tandem spectrum title: " + spectrumTitle);
                 	    	  hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
                   	    	  
                               // Set the domain id  
@@ -190,7 +192,7 @@ public class XTandemStorager extends BasicStorager {
                                   
                             	  XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
                                   xtandemhit.persist(conn);
-                                  
+                                  counter++;
                                   // Get the xtandemhitid
                                   Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
                                   domainMap.put(domainID, xtandemhitid);   
@@ -202,9 +204,22 @@ public class XTandemStorager extends BasicStorager {
 				}
             }      
         }
+        log.debug("No. of X!Tandem hits saved: " + counter);
     }
     
     /**
+     * Formatting X!Tandem spectrum titles (latest X!Tandem version).
+     * @param spectrumTitle Unformatted spectrum title
+     * @return Formatted spectrumTitle
+     */
+    private String formatSpectrumTitle(String spectrumTitle) {
+    	if (spectrumTitle.contains("RTINSECONDS")) {
+    		spectrumTitle = spectrumTitle.substring(0, spectrumTitle.indexOf("RTINSECONDS") - 1);
+    	}
+		return spectrumTitle;
+	}
+
+	/**
      * Stores the q-values (obtained from the hyperscore distribution) to the database.
      */
 	private void processQValues() {
