@@ -92,7 +92,7 @@ public class OmssaStorager extends BasicStorager {
     	List<Double> qvalues;
     	// HitIndex as key, xtandemID as value.
     	hitNumberMap = new HashMap<String, Long>();
-        
+    	int counter = 0;
     	while (iterator.hasNext()) {
     		// Get the next spectrum.
     	    MSSpectrum msSpectrum = iterator.next();   
@@ -105,14 +105,10 @@ public class OmssaStorager extends BasicStorager {
     	    	// Get the spectrum id for the given spectrumName for the OmssaFile    
     	    	String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
     	    	
-    	    	if(spectrumTitle.contains("\\\\")){
-    	    		spectrumTitle = spectrumTitle.replace("\\\\", "\\");
-    	    	} 
-    	    	if(spectrumTitle.contains("\\\"")){
-    	    		spectrumTitle = spectrumTitle.replace("\\\"", "\"");
-    	    	} 
+    	    	spectrumTitle = formatSpectrumTitle(spectrumTitle); 
     	    	if(MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
           	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+          	      	log.debug("OMSSA spectrum title: " + spectrumTitle);
         	    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
         	    	
         	    	// Get the MSPepHit (for the accession)
@@ -172,8 +168,8 @@ public class OmssaStorager extends BasicStorager {
                         
                     	// Create the database object.
             	    	OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
-            	    	omssahit.persist(conn);		
-            	    	
+            	    	omssahit.persist(conn);
+                        counter++;
             	    	// Get the omssahitid
                         Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
                         hitNumberMap.put(msHitSet.MSHitSet_number + "_" + hitnumber, omssahitid);
@@ -182,8 +178,24 @@ public class OmssaStorager extends BasicStorager {
                     }
     	    	}
     	    }
+    	    log.debug("No. of OMSSA hits saved: " + counter);
         }
     }
+    
+    /**
+     * Format OMSSA spectrum title.
+     * @param spectrumTitle Unformatted spectrum title
+     * @return Formatted spectrum title.
+     */
+	private String formatSpectrumTitle(String spectrumTitle) {
+		if(spectrumTitle.contains("\\\\")){
+			spectrumTitle = spectrumTitle.replace("\\\\", "\\");
+		} 
+		if(spectrumTitle.contains("\\\"")){
+			spectrumTitle = spectrumTitle.replace("\\\"", "\"");
+		}
+		return spectrumTitle;
+	}
     
     private void processQValues() {
 		BufferedReader reader;
