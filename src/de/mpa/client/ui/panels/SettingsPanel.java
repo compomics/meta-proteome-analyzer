@@ -347,8 +347,7 @@ public class SettingsPanel extends JPanel {
 					
 					// FIXME: Please change that and get files from file tree.
 					if (!ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles().toString().contains(".dat")) {
-						filenames = client.packAndSend(packSize, checkBoxTree,
-								projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
+						filenames = client.packAndSend(packSize, checkBoxTree, projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
 					} else {
 						if (dbss.isMascot()) {
 							List<File> files = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();

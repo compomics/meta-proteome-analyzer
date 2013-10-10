@@ -2,7 +2,6 @@ package de.mpa.client;
 
 import java.util.Enumeration;
 
-import javax.swing.ToolTipManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -42,7 +41,7 @@ public class Constants {
 	/**
 	 * The default tooltip initial delay.
 	 */
-	public static final int DEFAULT_TOOLTIP_DELAY = ToolTipManager.sharedInstance().getInitialDelay();
+	public static final int DEFAULT_TOOLTIP_DELAY = 750;
 	
 	/**
 	 * The names of FASTA database files available for searches.
@@ -204,7 +203,7 @@ public class Constants {
 	public static final int PROT_INDEX = 1;
 	public static final int PROT_ACCESSION = 2;
 	public static final int PROT_DESCRIPTION = 3;
-	public static final int PROT_SPECIES = 4;
+	public static final int PROT_TAXONOMY = 4;
 	public static final int PROT_COVERAGE = 5;
 	public static final int PROT_MW = 6;
 	public static final int PROT_PI = 7;

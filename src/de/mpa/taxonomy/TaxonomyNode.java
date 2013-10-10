@@ -133,7 +133,7 @@ public class TaxonomyNode implements Serializable {
 			if (parentNode.getId() == 1) {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
-				parentNode = new TaxonomyNode(0, rank, "Unclassified " + rank);
+				parentNode = new TaxonomyNode(0, rank, "Unclassified" + rank);
 				break;
 			}
 		}
@@ -169,7 +169,6 @@ public class TaxonomyNode implements Serializable {
 			path.add(parent);
 			parent = parent.getParentNode();
 		}
-		
 		Collections.reverse(path);
 		
 		return path.toArray(new TaxonomyNode[path.size()]);
@@ -186,7 +185,7 @@ public class TaxonomyNode implements Serializable {
 
 	@Override
 	public String toString() {
-		return "" + getName() + " (" + getId() + ") | " + getRank() ;
+		return getName() + " (" + getRank() + ")";
 	}
 	
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.mpa.algorithms.quantification.QuantMethod;
+import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.util.Formatter;
@@ -34,7 +35,8 @@ public class ProteinAnalysis {
 			if (aaWeight != null) {
 				molWeight += aaWeight;
 			} else {
-				System.out.println("unknown amino acid: " + letter);
+				// TODO: ADD some warning in the protein table that the calculated mass is not exact.
+				if (Client.getInstance().isDebug()) System.out.println("unknown amino acid: " + letter);
 			}
 		}
 
