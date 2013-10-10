@@ -20,7 +20,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
-import de.mpa.taxonomy.NcbiTaxonomy;
+import de.mpa.taxonomy.TaxonomyUtils;
 
 /**
  * Container class for heat map-related data.
@@ -167,7 +167,7 @@ public class HeatMapData {
 		ArrayList<String> yEntry = new ArrayList<String>();
 		
 		if (yAxis instanceof TaxonomyChartType) {
-			String taxName = NcbiTaxonomy.getTaxNameByRank(protHit.getTaxonomyNode(), ((TaxonomyChartType) yAxis).getRank());
+			String taxName = TaxonomyUtils.getTaxNameByRank(protHit.getTaxonomyNode(), ((TaxonomyChartType) yAxis).getRank());
 			yEntry.add(taxName);
 		} else if (yAxis instanceof OntologyChartType) {
 			KeywordOntology ontology = ((OntologyChartType) yAxis).getOntology();

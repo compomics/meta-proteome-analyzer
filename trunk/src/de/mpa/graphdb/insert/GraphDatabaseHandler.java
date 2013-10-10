@@ -39,6 +39,7 @@ import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
 import de.mpa.graphdb.properties.TaxonProperty;
 import de.mpa.graphdb.setup.GraphDatabase;
+import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * GraphDatabaseHandler provides possibilities to insert data into the graph database.
@@ -73,7 +74,7 @@ public class GraphDatabaseHandler {
 	private Index<Vertex> proteinIndex;
 	private Index<Vertex> peptideIndex;
 	private Index<Vertex> psmIndex;
-	private Index<Vertex> speciesIndex;
+	private Index<Vertex> taxonomyIndex;
 	private Index<Vertex> enzymeIndex;
 	private Index<Vertex> pathwayIndex;
 	private Index<Vertex> ontologyIndex;
@@ -156,8 +157,8 @@ public class GraphDatabaseHandler {
 		// Index the proteins by their accession.
 		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, proteinVertex);
 		
-		// Add species.
-		addSpecies(protHit.getSpecies(), proteinVertex);
+		// Add taxonomy.
+		addTaxonomy(protHit, proteinVertex);
 		
 		// Add peptides.
 		addPeptides(protHit.getPeptideHitList(), proteinVertex);
@@ -180,27 +181,50 @@ public class GraphDatabaseHandler {
 	}
 	
 	/**
-	 * Adds a species to the graph as vertex.
-	 * @param species Species to be added.
+	 * Adds the taxonomic information derived from the protein hit to the graph.
+	 * @param proteinHit ProteinHit object with taxonomic information.
 	 * @param vertex Involved vertex (outgoing edge).
 	 */
-	private void addSpecies(String species, Vertex vertex) {
-		if (species == null) {
-			species = "Unknown";
-		}
-		Vertex speciesVertex = null;
-		Iterator<Vertex> speciesIterator = speciesIndex.get(TaxonProperty.IDENTIFIER.toString(), species).iterator();
-			if (speciesIterator.hasNext()) {
-				speciesVertex = speciesIterator.next();
+	private void addTaxonomy(ProteinHit proteinHit, Vertex vertex) {
+		TaxonomyNode childNode = proteinHit.getTaxonomyNode();
+		String species = childNode.toString();
+		Vertex childVertex = null;
+		Iterator<Vertex> taxonomyIterator = taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), species).iterator();
+		if (taxonomyIterator.hasNext()) {
+			childVertex = taxonomyIterator.next();
+		} else {
+			// Create new vertex.
+			childVertex = graph.addVertex(null);
+			childVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
+			childVertex.setProperty(TaxonProperty.TAXID.toString(), childNode.getId());
+			childVertex.setProperty(TaxonProperty.RANK.toString(), childNode.getRank());
+			// Index the species by the species name.
+			taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), species, childVertex);
+		}		
+		// Add edge between protein and species.
+		addEdge(vertex, childVertex, RelationType.BELONGS_TO);
+		
+		Vertex parentVertex = null;	
+		// Add complete taxonomy path.
+		TaxonomyNode[] path = childNode.getPath();
+		for (TaxonomyNode pathNode : path) {
+			String taxon = pathNode.toString();
+			Iterator<Vertex> iterator = taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), taxon).iterator();
+			if (iterator.hasNext()) {
+				parentVertex = iterator.next();
 			} else {
 				// Create new vertex.
-				speciesVertex = graph.addVertex(null);
-				speciesVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
+				parentVertex = graph.addVertex(null);
+				parentVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), taxon);
+				parentVertex.setProperty(TaxonProperty.TAXID.toString(), pathNode.getId());
+				parentVertex.setProperty(TaxonProperty.RANK.toString(), pathNode.getRank());
 				// Index the species by the species name.
-				speciesIndex.put(TaxonProperty.IDENTIFIER.toString(), species, speciesVertex);			
-			}
-			// Add edge between protein and species.
-			addEdge(vertex, speciesVertex, RelationType.BELONGS_TO);
+				taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), taxon, parentVertex);
+			}		
+			// Add edge between parent and child vertex
+			addEdge(parentVertex, childVertex, RelationType.IS_ANCESTOR_OF);
+			childVertex = parentVertex;
+		}
 	}
 	
 	/**
@@ -439,10 +463,10 @@ public class GraphDatabaseHandler {
 		}
 		
 		// Species index
-		speciesIndex = indexGraph.getIndex(NodeType.TAXA.toString(), Vertex.class);
+		taxonomyIndex = indexGraph.getIndex(NodeType.TAXA.toString(), Vertex.class);
 		// If not existent, create a new index.
-		if (speciesIndex == null) {
-			speciesIndex = indexGraph.createIndex(NodeType.TAXA.toString(), Vertex.class);			
+		if (taxonomyIndex == null) {
+			taxonomyIndex = indexGraph.createIndex(NodeType.TAXA.toString(), Vertex.class);			
 			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
 		}
 		

@@ -133,7 +133,7 @@ public class TaxonomyData implements ChartData {
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		
 		// Add empty categories so they always show up first (to keep colors consistent)
-		String unknownKey = "Unknown";
+		String unknownKey = "Unclassified";
 		pieDataset.setValue(unknownKey, new Integer(0));
 		String othersKey = "Others";
 		pieDataset.setValue(othersKey, new Integer(0));

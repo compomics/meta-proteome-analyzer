@@ -85,6 +85,46 @@ RETURN taxa, ontologies, proteins</statement>
       <custom>true</custom>
       <title>Get Proteins by Phylum and Bio Process</title>
     </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+WHERE (parent.Identifier =~ &apos;.*superkingdom.*&apos;)
+RETURN parent, taxa, proteins</statement>
+      <custom>true</custom>
+      <title>Get Superkingdoms by Species and Protein</title>
+    </de.mpa.graphdb.cypher.CypherQuery>     
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+WHERE (parent.Rank = &apos;superkingdom&apos;)
+RETURN parent, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins grouped by Taxonomy (Superkingdom)</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+WHERE (parent.Rank = &apos;kingdom&apos;)
+RETURN parent, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins grouped by Taxonomy (Kingdom)</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+WHERE (parent.Rank = &apos;phylum&apos;)
+RETURN parent, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins grouped by Taxonomy (Phylum)</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
+    <de.mpa.graphdb.cypher.CypherQuery>
+      <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+WHERE (parent.Rank = &apos;class&apos;)
+RETURN parent, proteins</statement>
+      <custom>true</custom>
+      <title>Get Proteins grouped by Taxonomy (Class)</title>
+    </de.mpa.graphdb.cypher.CypherQuery>
   </queries>
   <lastModified>2013-08-01 13:38:11.131 UTC</lastModified>
 </de.mpa.graphdb.io.UserQueries>

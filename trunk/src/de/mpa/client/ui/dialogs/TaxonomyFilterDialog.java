@@ -44,7 +44,7 @@ public class TaxonomyFilterDialog extends JDialog{
 	 * @param taxModel. The model of the taxonomy tree.
 	 */
 	public TaxonomyFilterDialog(DefaultTreeModel 	taxModel, ClientFrame clientFrame){
-		super(clientFrame, "Dialogtest", true); // Connection to parent panel
+		super(clientFrame, "Choose taxonomic group to include.", true); // Connection to parent panel
 		this.taxModel = taxModel;
 		initComponents();
 	}

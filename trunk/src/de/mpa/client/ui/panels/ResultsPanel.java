@@ -586,8 +586,8 @@ public class ResultsPanel extends JPanel {
 		chartTypeBtn.setBorderPainted(false);
 		chartTypeBtn.setMargin(new Insets(1, 0, 0, 0));
 
-		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
-		chartTypeBtn.addMouseListener(ittml);
+//		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
+//		chartTypeBtn.addMouseListener(ittml);
 
 		// create chart type selection popup
 		final JPopupMenu chartTypePop = new JPopupMenu();
@@ -1142,7 +1142,7 @@ public class ResultsPanel extends JPanel {
 		resizeBtn.setBorderPainted(false);
 		resizeBtn.setMargin(new Insets(1, 0, 0, 0));
 
-		resizeBtn.addMouseListener(new InstantToolTipMouseListener());
+//		resizeBtn.addMouseListener(new InstantToolTipMouseListener());
 
 		resizeBtn.addActionListener(new ActionListener() {
 			boolean maximized = false;

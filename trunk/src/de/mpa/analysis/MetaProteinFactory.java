@@ -13,8 +13,8 @@ import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.taxonomy.NcbiTaxonomy;
 import de.mpa.taxonomy.TaxonomyNode;
+import de.mpa.taxonomy.TaxonomyUtils;
 
 /**
  * This class connects Proteinhits to metaproteins
@@ -30,8 +30,6 @@ public class MetaProteinFactory {
 	 */
 	public static void combineProteins2MetaProteins(ProteinHitList metaProteinList, boolean IdistL) throws Exception {
 		
-		NcbiTaxonomy ncbiTaxonomy = NcbiTaxonomy.getInstance();
-		
 		// Go through metaproteinlist by 2 iterators (only through diagonal matrix) and check for equal peptides
 		Iterator<ProteinHit> rowIter = metaProteinList.iterator();
 		while (rowIter.hasNext()) {
@@ -43,6 +41,7 @@ public class MetaProteinFactory {
 					String sequence = peptideHit.getSequence();
 					// Similarity of leucin and isoleucin
 					if (!IdistL) {
+						//FIXME: Replacing I or L by IL does not make sense... and this should be handled via the PeptideHit equals() method
 						sequence = sequence.replaceAll("[IL]", "IL");
 					}
 					rowPepSeq.add(sequence);
@@ -93,7 +92,7 @@ public class MetaProteinFactory {
 			// find common ancestor node
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			for (int i = 0; i < taxonNodes.size(); i++) {
-				ancestor = ncbiTaxonomy.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
+				ancestor = TaxonomyUtils.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
 			// set peptide hit taxon node to ancestor
 			metaProteinHit.setTaxonomyNode(ancestor);
