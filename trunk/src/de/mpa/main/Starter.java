@@ -3,6 +3,7 @@ package de.mpa.main;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.util.Locale;
 
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -37,6 +38,7 @@ public class Starter {
 		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
 		Options.setPopupDropShadowEnabled(true);
 		UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
+		Locale.setDefault(Locale.US);
 		try {
 			// Set Plastic3DLook&Feel as default for all OS.
 			SkyBlue skyBlue = new SkyBlue();

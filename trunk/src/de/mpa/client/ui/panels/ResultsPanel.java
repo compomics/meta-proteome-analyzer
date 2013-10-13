@@ -6,13 +6,9 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -21,7 +17,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -93,7 +88,6 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.RoundedHoverButtonUI;
 import de.mpa.client.ui.TableConfig;
@@ -114,7 +108,6 @@ import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.util.ColorUtils;
 
 /**
  * Panel providing overview information about fetched results in the form of
@@ -1351,86 +1344,6 @@ public class ResultsPanel extends JPanel {
 	 */
 	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
 		return graphDbPnl;
-	}
-
-	/**
-	 * Panel implementation for painting bar chart-like data
-	 * 
-	 * @author A. Behne
-	 */
-	private class BarChartPanel extends JPanel {
-
-		/**
-		 * Label for left-hand total value.
-		 */
-		private JLabel totalLbl;
-
-		/**
-		 * Label for right-hand fractional value.
-		 */
-		private JLabel fracLbl;
-
-		/**
-		 * Constructs a bar chart panel featuring the specified total and fractional labels.
-		 * @param totalLbl the left-hand total value label
-		 * @param fracLbl the right-hand fractional value label
-		 */
-		public BarChartPanel(JLabel totalLbl, JLabel fracLbl) {
-			this.totalLbl = totalLbl;
-			this.fracLbl = fracLbl;
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			Graphics2D g2 = (Graphics2D) g;
-			Point pt1 = new Point();
-			Point pt2 = new Point(getWidth(), 0);
-			g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_GREEN, pt2,
-					ColorUtils.LIGHT_GREEN));
-			g2.fillRect(0, 0, getWidth(), getHeight());
-
-			try {
-				double total = Double.parseDouble(totalLbl.getText());
-				if (total > 0.0) {
-					double rel = Double.parseDouble(fracLbl.getText()) / total;
-					int width = (int) (getWidth() * rel);
-					g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE,
-							pt2, ColorUtils.LIGHT_ORANGE));
-					g2.fillRect(getWidth() - width, 0, width, getHeight());
-					String str = String.format("%.1f", rel * 100.0) + "%";
-					Rectangle2D bounds = g2.getFontMetrics().getStringBounds(str, g2);
-
-					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-							RenderingHints.VALUE_ANTIALIAS_ON);
-					// g2.setPaint(ColorUtils.DARK_ORANGE);
-					float x = (float) (getWidth() - width - bounds.getWidth() - 2.0f);
-					if (x < 2.0f) {
-						x = getWidth() - width + 2.0f;
-					}
-					float y = (float) (getHeight() - bounds.getY()) / 2.0f - 1.0f;
-					g2.setPaint(Color.BLACK);
-					g2.drawString(str, x + 1.0f, y + 1.0f);
-					g2.setPaint(Color.GRAY);
-					g2.drawString(str, x + 1.0f, y + 1.0f);
-					g2.setPaint(Color.WHITE);
-					g2.drawString(str, x, y);
-					g2.drawString(str, x, y);
-				}
-			} catch (Exception e) {
-				// catch NPEs and failed parse attempts, draw error message
-				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-						RenderingHints.VALUE_ANTIALIAS_ON);
-				String str = e.toString();
-				Rectangle2D bounds = g2.getFontMetrics().getStringBounds(str, g2);
-				float y = (float) (getHeight() - bounds.getY()) / 2.0f - 2.0f;
-				g2.setPaint(ColorUtils.DARK_RED);
-				g2.drawString(str, 2.0f, y + 1.0f);
-				g2.setPaint(Color.RED);
-				g2.drawString(str, 2.0f, y + 1.0f);
-				g2.setPaint(Color.ORANGE);
-				g2.drawString(str, 1.0f, y);
-			}
-		};
 	}
 
 }
