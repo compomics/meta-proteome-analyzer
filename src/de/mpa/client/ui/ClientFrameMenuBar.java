@@ -32,6 +32,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
 import de.mpa.client.settings.ServerConnectionSettings;
+import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.db.DbConnectionSettings;
 
@@ -52,7 +53,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JMenuItem exportProteinsItem;
 //	private JMenuItem keggItem;
 	private JMenuItem saveProjectItem;
-	private JMenu settingsMenu;
 	private ServerConnectionSettings srvSettings;
 	
 	/**
@@ -60,14 +60,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 */
 	private ExportFields exportFields;
 	
-	/**
-	 * Method to get the settingsMenu
-	 * @return The settings menu
-	 */
-	public JMenu getSettingsMenu() {
-		return settingsMenu;
-	}
-
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
 	 * @param clientFrame The client frame. 
@@ -144,15 +136,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.add(fileMenu);
 
 		// Settings Menu
-		settingsMenu = new JMenu();
+		JMenu settingsMenu = new JMenu();
 
 		settingsMenu.setText("Settings");
+		
+		JMenuItem colorsItem = new JMenuItem("Color Settings");
+		colorsItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ColorsDialog.getInstance().setVisible(true);
+			}
+		});
 
-		JMenuItem databaseItem = new JMenuItem();
-		// databaseItem
-		databaseItem.setText("Database Connection");
-
-		databaseItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
+		JMenuItem databaseItem = new JMenuItem("Database Connection",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
 
 		// action listener for database settings
 		databaseItem.addActionListener(new ActionListener() {
@@ -161,14 +157,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 				showDatabaseSettings();
 			}
 		});
-
-		settingsMenu.add(databaseItem);
-		settingsMenu.addSeparator();
+		databaseItem.setEnabled(Client.getInstance().isViewer());
 
 		// serverItem
-		JMenuItem serverItem = new JMenuItem();
-		serverItem.setText("Server Configuration");
-		serverItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/server.png")));
+		JMenuItem serverItem = new JMenuItem("Server Configuration",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/server.png")));
 		final JPanel srvPnl = constructServerSettingsPanel();
 		serverItem.addActionListener(new ActionListener() {
 			@Override
@@ -184,8 +177,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 				}
 			}
 		});
+		serverItem.setEnabled(Client.getInstance().isViewer());
 
+		settingsMenu.add(colorsItem);
+		settingsMenu.addSeparator();
+		settingsMenu.add(databaseItem);
 		settingsMenu.add(serverItem);
+		
 		this.add(settingsMenu);
 
 		// Export menu

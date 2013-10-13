@@ -251,10 +251,9 @@ public class ClientFrame extends JFrame {
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 
-//		tabPane.setEnabledAt(4, false);
-		for (int i = INPUT_PANEL; i < COMPARE_PANEL; i++) {
-			tabPane.setEnabledAt(i, false);
-		}
+//		for (int i = INPUT_PANEL; i < COMPARE_PANEL; i++) {
+//			tabPane.setEnabledAt(i, false);
+//		}
 
 		// Add components to content pane
 		this.setJMenuBar(menuBar);
@@ -279,7 +278,6 @@ public class ClientFrame extends JFrame {
 				}
 			}
 			// Enables Server Connections
-			menuBar.getSettingsMenu().setEnabled(false);			
 			tabPane.setSelectedIndex(3);
 		}
 		

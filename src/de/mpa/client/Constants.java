@@ -1,7 +1,9 @@
 package de.mpa.client;
 
+import java.awt.Color;
 import java.util.Enumeration;
 
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -9,6 +11,7 @@ import javax.swing.tree.TreeNode;
 import de.mpa.analysis.KeggMaps;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.util.ColorUtils;
 
 /**
  * Class providing general constants and methods used throughout the whole
@@ -211,5 +214,82 @@ public class Constants {
 	public static final int PROT_SPECTRALCOUNT = 9;
 	public static final int PROT_EMPAI = 10;
 	public static final int PROT_NSAF = 11;
+	
+	/**
+	 * Enumeration holding UI-related colors.
+	 * @author A. Behne
+	 */
+	public enum UIColor {
+		
+		TITLED_PANEL_START_COLOR("titledPanel.startColor",
+				"Titled Panel Gradient Start", new Color(166, 202, 240)),
+		TITLED_PANEL_END_COLOR("titledPanel.endColor",
+				"Titled Panel Gradient End", new Color(107, 147, 193)),
+		TITLED_PANEL_FONT_COLOR("titledPanel.fontColor",
+				"Titled Panel Label Text", Color.WHITE),
+		BAR_CHART_PANEL_FOREGROUND_START_COLOR("barChartPanel.foregroundStartColor",
+				"Bar Chart Panel Foreground Gradient Start", ColorUtils.DARK_GREEN),
+		BAR_CHART_PANEL_FOREGROUND_END_COLOR("barChartPanel.foregroundEndColor",
+				"Bar Chart Panel Foreground Gradient End", ColorUtils.LIGHT_GREEN);
+		
+		/**
+		 * The <code>UIManager</code> key.
+		 */
+		private String key;
+		
+		/**
+		 * The descriptive string.
+		 */
+		private String description;
+
+		/**
+		 * The associated default color.
+		 */
+		private Color defaultColor;
+		
+		/**
+		 * Constructs an UI color enum member using the specifed 
+		 * <code>UIManager</code> key, a descriptive string and an associated color.
+		 * @param key the <code>UIManager</code> key
+		 * @param description the descriptive string
+		 * @param color the associated color
+		 */
+		private UIColor(String key, String description, Color color) {
+			this.key = key;
+			this.description = description;
+			this.defaultColor = color;
+			this.reset();
+		}
+
+		/**
+		 * Resets the associated color to its default value.
+		 */
+		public void reset() {
+			UIManager.put(this.getKey(), this.defaultColor);
+		}
+
+		/**
+		 * Returns the <code>UIManager</code> key.
+		 * @return the key
+		 */
+		public String getKey() {
+			return key;
+		}
+		
+		/**
+		 * Returns the associated color.
+		 * @return the color
+		 */
+		public Color getColor() {
+//			return color;
+			return UIManager.getColor(this.getKey());
+		}
+
+		@Override
+		public String toString() {
+			return description;
+		}
+		
+	}
 	
 }

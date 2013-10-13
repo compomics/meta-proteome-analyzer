@@ -22,6 +22,8 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 
+import de.mpa.client.Constants.UIColor;
+
 /**
  * Helper class for the panel configuration such as JXTitledPanel.
  * @author A. Behne, T. Muth
@@ -53,15 +55,49 @@ public class PanelConfig {
 	 * Initializes the titled panel and its corresponding variables.
 	 */
 	private static void init() {
-		// Titled panel variables
-		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
+		// Store initial values in UI manager
 		UIManager.put("JXTitledPanel.leftDecorationInsets", new Insets(0, 6, 0, 0));
 		
+		Color startColor = UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR.getColor();
+		Color endColor = UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR.getColor();
+		
+		// Titled panel variables
+		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
+		
 		ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
-		ttlPainter = new MattePainter(new GradientPaint(
-				0, 0, new Color(166, 202, 240), 0, 1, new Color(107, 147, 193)), true);
+		
+//		List<Comparable> keys = new ArrayList<Comparable>();
+//		for (Entry<Object, Object> entry : UIManager.getDefaults().entrySet()) {
+//			if (entry.getValue() instanceof Color) {
+////				System.out.println(entry.getKey());
+//				keys.add((Comparable) entry.getKey());
+//			}
+//		}
+//		Collections.sort(keys);
+//		for (Object key : keys) {
+//			System.out.println(key);
+//		}
+		
+		GradientPaint paint = new GradientPaint(0, 0, startColor, 0, 1, endColor) {
+			@Override
+			public Color getColor1() {
+				return UIManager.getColor("titledPanel.startColor");
+			}
+			@Override
+			public Color getColor2() {
+				return UIManager.getColor("titledPanel.endColor");
+			}
+		};
+		ttlPainter = new MattePainter(paint, true);
 		ttlBorder = UIManager.getBorder("TitledBorder.border");
-		ttlForeground = dummyPnl.getTitleForeground();
+//		ttlForeground = dummyPnl.getTitleForeground();
+		ttlForeground = new Color(0) {
+			@Override
+			public int getRGB() {
+				// fetch color from UI manager
+				return UIManager.getColor("titledPanel.fontColor").getRGB();
+			}
+		};
 	}
 
 	public static Font getTitleFont() {
@@ -104,13 +140,18 @@ public class PanelConfig {
 	 */
 	public static JXTitledPanel createTitledPanel(String title, Container content,
 			JComponent leftDecoration, JComponent rightDecoration) {
-		JXTitledPanel panel = new JXTitledPanel(title, content);
+		JXTitledPanel panel = new JXTitledPanel(title, content) {
+			@Override
+			public Color getTitleForeground() {
+				return PanelConfig.getTitleForeground();
+			}
+		};
 		panel.setLeftDecoration(leftDecoration);
 		panel.setRightDecoration(rightDecoration);
 		panel.setTitleFont(getTitleFont());
 		panel.setTitlePainter(getTitlePainter());
 		panel.setBorder(getTitleBorder());
-		panel.setTitleForeground(getTitleForeground());
+//		panel.setTitleForeground(getTitleForeground());
 		return panel;
 	}
 	
