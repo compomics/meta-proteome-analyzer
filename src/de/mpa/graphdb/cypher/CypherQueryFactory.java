@@ -134,7 +134,7 @@ public class CypherQueryFactory {
 	 * Returns taxa grouped by proteins.
 	 * @return CypherQuery for taxa grouped by proteins.
 	 */
-	public static CypherQuery getTaxaByProteins() {
+	public static CypherQuery getProteinsByTaxonomies() {
 		List<CypherStartNode> startNodes = new ArrayList<CypherStartNode>();
 		startNodes.add(new CypherStartNode("taxa", NodeType.TAXA, TaxonProperty.IDENTIFIER, "*"));
 		
@@ -155,7 +155,7 @@ public class CypherQueryFactory {
 	 * Returns taxa grouped by peptides.
 	 * @return CypherQuery for taxa grouped by peptides.
 	 */
-	public static CypherQuery getTaxaByPeptides() {
+	public static CypherQuery getPeptidesByTaxonomies() {
 		List<CypherStartNode> startNodes = new ArrayList<CypherStartNode>();
 		startNodes.add(new CypherStartNode("taxa", NodeType.TAXA, TaxonProperty.IDENTIFIER, "*"));
 		
@@ -177,7 +177,7 @@ public class CypherQueryFactory {
 	 * Returns pathways grouped by proteins.
 	 * @return CypherQuery for pathways grouped by proteins.
 	 */
-	public static CypherQuery getPathwaysByProteins() {
+	public static CypherQuery getProteinsByPathways() {
 		List<CypherStartNode> startNodes = new ArrayList<CypherStartNode>();
 		startNodes.add(new CypherStartNode("pathways", NodeType.PATHWAYS, TaxonProperty.IDENTIFIER, "*"));
 		
@@ -199,7 +199,7 @@ public class CypherQueryFactory {
 	 * @param type RelationType for specific ontology
 	 * @return CypherQuery for molecular function ontologies grouped by proteins.
 	 */
-	public static CypherQuery getOntologiesByProteins(RelationType type) {
+	public static CypherQuery getProteinsByOntologies(RelationType type) {
 		List<CypherStartNode> startNodes = new ArrayList<CypherStartNode>();
 		startNodes.add(new CypherStartNode("ontologies", NodeType.ONTOLOGIES, OntologyProperty.IDENTIFIER, "*"));
 		
