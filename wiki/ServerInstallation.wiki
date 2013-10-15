@@ -1,4 +1,5 @@
 #summary How to install the MetaProteomeAnalyzer on a linux server.
+#labels Featured,Phase-Deploy
 
 =MetaProteomeAnalyzer Server Installation=
 
