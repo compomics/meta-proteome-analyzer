@@ -1,4 +1,4 @@
-#summary How to install the MPA on a linux server.
+#summary How to install the MetaProteomeAnalyzer on a linux server.
 
 =MetaProteomeAnalyzer Server Installation=
 
