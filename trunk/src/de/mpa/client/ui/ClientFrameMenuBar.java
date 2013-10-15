@@ -157,7 +157,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				showDatabaseSettings();
 			}
 		});
-		databaseItem.setEnabled(Client.getInstance().isViewer());
+		databaseItem.setEnabled(!Client.getInstance().isViewer());
 
 		// serverItem
 		JMenuItem serverItem = new JMenuItem("Server Configuration",
@@ -177,7 +177,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				}
 			}
 		});
-		serverItem.setEnabled(Client.getInstance().isViewer());
+		serverItem.setEnabled(!Client.getInstance().isViewer());
 
 		settingsMenu.add(colorsItem);
 		settingsMenu.addSeparator();

@@ -25,37 +25,37 @@ public enum CypherQueryType {
 	PROTEINS_BY_TAXA("Get Proteins grouped by Taxonomies") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getTaxaByProteins();
+			return CypherQueryFactory.getProteinsByTaxonomies();
 		}
 	},	
 	PEPTIDES_BY_TAXA("Get Peptides grouped by Taxonomies") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getTaxaByPeptides();
+			return CypherQueryFactory.getPeptidesByTaxonomies();
 		}
 	},
-	BIOLOGICAL_PROCESSES_BY_PROTEINS("Get Biological Process Ontologies grouped by Proteins") {
+	PROTEINS_BY_BIOLOGICAL_PROCESSES("Get Proteins grouped by Biological Processes") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getOntologiesByProteins(RelationType.INVOLVED_IN_BIOPROCESS);
+			return CypherQueryFactory.getProteinsByOntologies(RelationType.INVOLVED_IN_BIOPROCESS);
 		}
 	},	
-	MOLECULAR_FUNCTIONS_BY_PROTEINS("Get Molecular Function Ontologies grouped by Proteins") {
+	PROTEINS_BY_MOLECULAR_FUNCTIONS("Get Proteins grouped by Molecular Functions") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getOntologiesByProteins(RelationType.HAS_MOLECULAR_FUNCTION);
+			return CypherQueryFactory.getProteinsByOntologies(RelationType.HAS_MOLECULAR_FUNCTION);
 		}
 	},	
-	CELLULAR_COMPONENTS_BY_PROTEINS("Get Cellular Component Ontologies grouped by Proteins") {
+	PROTEINS_BY_CELLULAR_COMPONENTS("Get Proteins grouped by Cellular Components") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getOntologiesByProteins(RelationType.BELONGS_TO_CELL_COMP);
+			return CypherQueryFactory.getProteinsByOntologies(RelationType.BELONGS_TO_CELL_COMP);
 		}
 	},	
-	PATHWAYS_BY_PROTEINS("Get Pathways grouped by Proteins") {
+	PROTEINS_BY_PATHWAYS("Get Proteins grouped by Pathways") {
 		@Override
 		public CypherQuery getQuery() {
-			return CypherQueryFactory.getPathwaysByProteins();
+			return CypherQueryFactory.getProteinsByPathways();
 		}
 	},
 	PROTEINS_BY_ENZYMES("Get Proteins grouped by Enzymes") {
