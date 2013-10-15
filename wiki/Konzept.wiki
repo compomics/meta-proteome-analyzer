@@ -1,9 +1,0 @@
-#summary Link
-
-= Introduction =
-
-[http://meta-proteome-analyzer.googlecode.com/svn/trunk/docu/Konzepte/UebersichtSpektrensuche.pptx]
-
-= End =
-
-[Meilensteine]
