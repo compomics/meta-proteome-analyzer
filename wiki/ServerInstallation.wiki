@@ -1,0 +1,21 @@
+#summary How to install the MPA on a linux server.
+
+=MetaProteomeAnalyzer Server Installation=
+
+The MPA server installation guide consists of three main parts:
+  # SQL Database Setup
+  # Algorithms Installation
+  # FASTA Database Formatting
+
+Finally, the server can be started via a startup script (startserver.sh).
+
+== System Requirements ==
+
+
+== SQL Database Setup ==
+
+
+== Algorithms Installation ==
+
+
+== FASTA Database Formatting ==
