@@ -214,6 +214,7 @@ public class Constants {
 	public static final int PROT_SPECTRALCOUNT = 9;
 	public static final int PROT_EMPAI = 10;
 	public static final int PROT_NSAF = 11;
+	public static final int PROT_WEBRESSOURCE = 12;
 	
 	/**
 	 * Enumeration holding UI-related colors.

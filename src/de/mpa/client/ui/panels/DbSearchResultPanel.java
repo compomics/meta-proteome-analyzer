@@ -176,6 +176,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.BarChartHighlighter;
+import de.mpa.client.ui.ButtonColumn;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
@@ -1009,11 +1010,11 @@ public class DbSearchResultPanel extends JPanel {
 			{
 				setColumnIdentifiers(new Object[] { "", "#", "Accession",
 						"Description", "Taxonomy", "SC", "MW", "pI", "PepC",
-						"SpC", "emPAI", "NSAF" });
+						"SpC", "emPAI", "NSAF", ""});
 			}
 
 			public boolean isCellEditable(int row, int col) {
-				return (col ==Constants.PROT_SELECTION);
+				return (col == Constants.PROT_SELECTION) || (col == Constants.PROT_WEBRESSOURCE);
 			}
 
 			public Class<?> getColumnClass(int columnIndex) {
@@ -1068,7 +1069,7 @@ public class DbSearchResultPanel extends JPanel {
 		};
 
 		// Adjust column widths
-		TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5, 1 });
 		TableConfig.setColumnMinWidths(proteinTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
 				createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
 
@@ -1079,7 +1080,7 @@ public class DbSearchResultPanel extends JPanel {
 		String[] columnToolTips = {
 				"Selection for Export",
 				"Result Index",
-				"Protein Accession",
+				"Protein Accession",				
 				"Protein Description",
 				"Taxonomy",
 				"Sequence Coverage in %",
@@ -1088,7 +1089,8 @@ public class DbSearchResultPanel extends JPanel {
 				"Peptide Count",
 				"Spectral Count",
 				"Exponentially Modified Protein Abundance Index",
-		"Normalized Spectral Abundance Factor"};
+				"Normalized Spectral Abundance Factor", 
+				"Link External Web Ressources"};
 		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 		//		ch.setReorderingAllowed(false, Constants.Constants.PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
@@ -1124,6 +1126,10 @@ public class DbSearchResultPanel extends JPanel {
 					}
 				});
 				break;
+
+			case Constants.PROT_WEBRESSOURCE:
+				tcm.getColumn(col).setMinWidth(19);
+				tcm.getColumn(col).setMaxWidth(19);
 			}
 		}
 
@@ -1172,20 +1178,99 @@ public class DbSearchResultPanel extends JPanel {
 				rendererComponent.setText(value.toString());
 			}
 		};
+		
 		tcm.getColumn(Constants.PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(hlp) {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				JXRendererHyperlink comp = (JXRendererHyperlink) super.getTableCellRendererComponent(
-						table, value, isSelected, hasFocus, row, column);
+				JXRendererHyperlink hyperlink = (JXRendererHyperlink) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				
 				// when no target is specified replace hyperlink with a simple label
 				if (linkAction.getTarget() == null) {
-					JLabel label = new JLabel(comp.getText(), SwingConstants.CENTER);
+					JLabel label = new JLabel(hyperlink.getText(), SwingConstants.CENTER);
 					label.setOpaque(true);
-					label.setBackground(comp.getBackground());
+					label.setBackground(hyperlink.getBackground());
 					return label;
+				} else {
+					hyperlink.setOpaque(true);
 				}
-				return comp;
+				return hyperlink;
 			}
 		});
+		
+		// Web resource action
+		Action webResourceAction = new AbstractAction() {			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				JPopupMenu webresourceMenu = new JPopupMenu();
+				JMenuItem uniProtMenuItem = new JMenuItem("UniProt");
+				uniProtMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://www.uniprot.org/uniprot/");
+					}
+				});
+				webresourceMenu.add(uniProtMenuItem);
+				
+				JMenuItem ncbiMenuItem = new JMenuItem("NCBI");
+				ncbiMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://www.ncbi.nlm.nih.gov/protein/");
+					}
+				});
+				webresourceMenu.add(ncbiMenuItem);
+				
+				JMenuItem pfamMenuItem = new JMenuItem("PFAM");
+				pfamMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://pfam.sanger.ac.uk/protein/");
+					}
+				});
+				webresourceMenu.add(pfamMenuItem);
+				
+				JMenuItem interproMenuItem = new JMenuItem("InterPro");
+				interproMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://www.ebi.ac.uk/interpro/protein/");
+					}
+				});
+				webresourceMenu.add(interproMenuItem);
+				
+				JMenuItem pdbMenuItem = new JMenuItem("PDB");
+				pdbMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://www.rcsb.org/pdb/protein/");
+					}
+				});
+				webresourceMenu.add(pdbMenuItem);
+				
+				JMenuItem prideMenuItem = new JMenuItem("PRIDE");
+				prideMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://www.ebi.ac.uk/pride/identification.do?proteinIdentifier=");
+					}
+				});
+				webresourceMenu.add(prideMenuItem);
+				
+				JMenuItem reactomeMenuItem = new JMenuItem("Reactome");
+				reactomeMenuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						openTargetInBrowser("http://www.reactome.org/cgi-bin/search2?DB=test_reactome_46&SPECIES=&OPERATOR=ALL&QUERY=");
+					}
+				});
+				webresourceMenu.add(reactomeMenuItem);
+				
+				Rectangle cellRect = proteinTbl.getCellRect(proteinTbl.getSelectedRow(), proteinTbl.getSelectedColumn(), true);
+				webresourceMenu.show(proteinTbl, cellRect.x, cellRect.y + cellRect.height);
+			}
+		};
+		
+		new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESSOURCE);
+		
 		tcm.getColumn(Constants.PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		tcm.getColumn(Constants.PROT_TAXONOMY).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
@@ -1307,7 +1392,7 @@ public class DbSearchResultPanel extends JPanel {
 	private void setupProteinTreeTables() {
 		protFlatTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Flat View"));
 		protTaxonTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Taxonomy View"));
-		TableConfig.setColumnWidths(protTaxonTreeTbl, new double[] { 20.25, 22, 0, 4, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnWidths(protTaxonTreeTbl, new double[] { 20.25, 22, 0, 4, 5, 4, 3, 4, 4, 4.5, 5, 0});
 		protTaxonTreeTbl.getColumnExt("Taxonomy").setVisible(false);
 		protEnzymeTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of E.C. View"));
 		protPathwayTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Pathway View"));
@@ -1330,7 +1415,7 @@ public class DbSearchResultPanel extends JPanel {
 			// Define column header strings
 			{ setColumnIdentifiers(Arrays.asList(
 					new String[] { "Accession", "Description", "Taxonomy", "AId", "SC",
-							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF" } ));
+							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", ""} ));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -1674,7 +1759,7 @@ public class DbSearchResultPanel extends JPanel {
 								notSel, notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
 
 		// Configure column widths
-		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5 });
+		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5, 0});
 		TableConfig.setColumnMinWidths(treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
 
 		// Enable column control widget
@@ -2381,7 +2466,9 @@ public class DbSearchResultPanel extends JPanel {
 								proteinHit.getIsoelectricPoint(),
 								proteinHit.getPeptideCount(),
 								proteinHit.getSpectralCount(),
-								proteinHit.getEmPAI(), nsaf });
+								proteinHit.getEmPAI(), 
+								nsaf,
+								IconConstants.WEB_RESOURCE_ICON});
 
 						// Update MetaproteinHit
 						metaDesc = proteinHit.getDescription();
@@ -3674,7 +3761,23 @@ public class DbSearchResultPanel extends JPanel {
 	public void fetchResultsFromDatabase() {
 		new ResultsTask(null).execute();
 	}
-
+	
+	/**
+	 * Opens a target in a browser window.
+	 * @param url Browser URL string.
+	 */
+	private void openTargetInBrowser(String url) {
+		String target = (String) proteinTbl.getValueAt(proteinTbl.getSelectedRow(), Constants.PROT_ACCESSION); 
+		try {
+			if (target != null) {
+				Desktop.getDesktop().browse(new URI(url + target));
+			}
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
+	}
+	
 	/**
 	 * Custom highlighter predicate for protein count visualization.
 	 * @author kohrs

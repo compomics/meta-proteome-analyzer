@@ -246,6 +246,9 @@ public class IconConstants {
 	public static final ImageIcon EXCEL_EXPORT_ROLLOVER_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 1.1f);
 	public static final ImageIcon EXCEL_EXPORT_PRESSED_ICON = createRescaledIcon(EXCEL_EXPORT_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/webresource16.png"> */
+	public static final ImageIcon WEB_RESOURCE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/webresource16.png"));
+	
 	
 	/**
 	 * Creates an empty item of the specified width and height.
