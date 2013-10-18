@@ -75,6 +75,7 @@ import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.ui.BoundsPopupMenuListener;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
@@ -156,15 +157,13 @@ public class GraphQueryDialog extends JDialog {
 
 	protected boolean consoleChanged;
 
-	private JScrollPane defaultQueryListScp;
-	
 	private GraphQueryDialog graphQueryDialog;
 	
 	private UserQueries userQueries;
 
 	private JXList savedQueryList;
 
-	private JScrollPane savedQueryListScp;
+	private ComponentAdapter resizeListener;
 
 	
 	/**
@@ -231,6 +230,15 @@ public class GraphQueryDialog extends JDialog {
 		final JXTaskPaneContainer tpc = new JXTaskPaneContainer();
 		((VerticalLayout) tpc.getLayout()).setGap(10);
 		tpc.setBackground(UIManager.getColor("ProgressBar.foreground"));
+		tpc.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		
+		// Init listener for dialog resizing
+		resizeListener = new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent evt) {
+				pack();
+			}
+		};
 		
 		// Predefined query section
 		JXTaskPane predefinedQueryTaskPane = createPredefinedQueryTaskPane();
@@ -243,7 +251,6 @@ public class GraphQueryDialog extends JDialog {
 		
 		// Gets the last chosen query (if any).
 		if (parent.getLastCypherQuery() != null) {
-			
 			
 			selectedQuery = parent.getLastCypherQuery();
 			
@@ -325,24 +332,12 @@ public class GraphQueryDialog extends JDialog {
 	 */
 	private JXTaskPane createPredefinedQueryTaskPane() {
 		JXTaskPane taskPane = new JXTaskPane("Predefined Queries");
-		taskPane.setLayout(new FormLayout("p:g, 5dlu, p:g", "p, 5dlu, f:140px:g"));
+		FormLayout layout = new FormLayout("p:g, 5dlu, p:g", "p, 5dlu, f:140px:g");
+		layout.setColumnGroups(new int[][] { { 1, 3 } });
+		taskPane.setLayout(layout);
 		taskPane.setUI(new GlossyTaskPaneUI());
 		
-		// Apply component listener to synchronize task pane size with dialog size
-		taskPane.addComponentListener(new ComponentAdapter() {
-			private Dimension size = null;
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Dimension newSize = e.getComponent().getSize();
-				if (size != null) {
-					int delta = newSize.height - size.height;
-					Dimension dialogSize = new Dimension(getSize());
-					dialogSize.height += delta;
-					setSize(dialogSize);
-				}
-				size = newSize;
-			}
-		});
+		taskPane.addComponentListener(resizeListener);
 		
 		Object[] defaultQueryData = CypherQueryType.values();		
 		defaultQueryList = new JXList(defaultQueryData);
@@ -361,10 +356,8 @@ public class GraphQueryDialog extends JDialog {
 		
 		taskPane.add(new JLabel("Default Queries"), CC.xy(1, 1));
 		taskPane.add(new JLabel("Saved Queries"), CC.xy(3, 1));
-		defaultQueryListScp = new JScrollPane(defaultQueryList);		
-		savedQueryListScp = new JScrollPane(savedQueryList);
-		taskPane.add(defaultQueryListScp, CC.xy(1, 3));
-		taskPane.add(savedQueryListScp, CC.xy(3, 3));
+		taskPane.add(new JScrollPane(defaultQueryList), CC.xy(1, 3));
+		taskPane.add(new JScrollPane(savedQueryList), CC.xy(3, 3));
 		
 		return taskPane;
 	}
@@ -379,20 +372,7 @@ public class GraphQueryDialog extends JDialog {
 		taskPane.setUI(new GlossyTaskPaneUI());
 		
 		// Apply component listener to synchronize task pane size with dialog size
-		taskPane.addComponentListener(new ComponentAdapter() {
-			private Dimension size = null;
-			@Override
-			public void componentResized(ComponentEvent evt) {
-				Dimension newSize = evt.getComponent().getSize();
-				if (size != null) {
-					int delta = newSize.height - size.height;
-					Dimension dialogSize = new Dimension(getSize());
-					dialogSize.height += delta;
-					setSize(dialogSize);
-				}
-				size = newSize;
-			}
-		});
+		taskPane.addComponentListener(resizeListener);
 
 		FormLayout columnLyt = new FormLayout("p:g, p:g, p:g, p:g", "f:180px:g");
 		columnLyt.setColumnGroups(new int[][] { { 1, 2, 3, 4 } });
@@ -458,21 +438,7 @@ public class GraphQueryDialog extends JDialog {
 		taskPane.setUI(new GlossyTaskPaneUI());
 
 		// Apply component listener to synchronize task pane size with dialog size
-		taskPane.addComponentListener(new ComponentAdapter() {
-			private Dimension size = null;
-
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Dimension newSize = e.getComponent().getSize();
-				if (size != null) {
-					int delta = newSize.height - size.height;
-					Dimension dialogSize = new Dimension(getSize());
-					dialogSize.height += delta;
-					setSize(dialogSize);
-				}
-				size = newSize;
-			}
-		});
+		taskPane.addComponentListener(resizeListener);
 
 		consoleTxt = new JTextArea(4, 0);
 //		consoleTxt.setFont(new Font("Courier", consoleTxt.getFont().getStyle(), 12));
@@ -1368,12 +1334,6 @@ public class GraphQueryDialog extends JDialog {
 			private class TermComboBox extends JComboBox {
 				
 				/**
-				 * Flag denoting whether this component is currently laying out its
-				 * sub-components.
-				 */
-				private boolean layingOut = false;
-				
-				/**
 				 * Constructs a conditional term combo box displaying choices
 				 * relating to sub-blocks of Cypher query MATCH blocks.
 				 */
@@ -1397,25 +1357,7 @@ public class GraphQueryDialog extends JDialog {
 							return comp;
 						}
 					});
-				}
-				
-				@Override
-				public void doLayout() {
-					try {
-						layingOut = true;
-						super.doLayout();
-					} finally {
-						layingOut = false;
-					}
-				}
-				
-				@Override
-				public Dimension getSize() {
-					Dimension dim = super.getSize();
-					if (!layingOut) {
-						dim.width = Math.max(dim.width, getPreferredSize().width);
-					}
-					return dim;
+					this.addPopupMenuListener(new BoundsPopupMenuListener(true, false));
 				}
 				
 			}
@@ -1907,6 +1849,8 @@ public class GraphQueryDialog extends JDialog {
 						}
 					});
 				}
+				varCbx.addPopupMenuListener(new BoundsPopupMenuListener(true, false));
+				varCbx.setPreferredSize(new Dimension(0, varCbx.getPreferredSize().height));
 				
 				// prevent button clicks dismissing popups
 		        varBtn.putClientProperty("doNotCancelPopup",

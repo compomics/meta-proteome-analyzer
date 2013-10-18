@@ -130,6 +130,7 @@ public class FileChooserDecorationFactory {
 							}
 							char[] cbuf = new char[(int) fileSize];
 							reader.read(cbuf);
+							reader.close();
 							String text = new String(cbuf);
 							if (oversized) {
 								text += " [...]\n(rest of file omitted)";

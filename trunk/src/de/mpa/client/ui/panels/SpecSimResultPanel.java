@@ -400,7 +400,7 @@ public class SpecSimResultPanel extends JPanel {
 		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		// Enables column control
-		proteinTbl.setColumnControlVisible(true);
+		TableConfig.configureColumnControl(proteinTbl);
 
 	}
 
@@ -494,7 +494,7 @@ public class SpecSimResultPanel extends JPanel {
 		peptideTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		// Enables column control
-		peptideTbl.setColumnControlVisible(true);
+		TableConfig.configureColumnControl(peptideTbl);
 	}
 
 	// PSM table column indices
@@ -583,7 +583,7 @@ public class SpecSimResultPanel extends JPanel {
 		// new DecimalFormat("0.000")));
 
 		// Enables column control
-		ssmTbl.setColumnControlVisible(true);
+		TableConfig.configureColumnControl(ssmTbl);
 	}
 	
 	private void setupViewerPanelProperties() {
@@ -766,7 +766,8 @@ public class SpecSimResultPanel extends JPanel {
 						zoomPnl.repaint();
 						// Get score value (stored in red color channel of pixel)
 						double red = ((specSimResult.getScoreMatrixImage().getRGB(
-								mouseX + 1, mouseY + 1) >> 16) & 0xFF) / 255.0;
+//								mouseX + 1, mouseY + 1) >> 16) & 0xFF) / 255.0;
+								mouseX, mouseY) >> 16) & 0xFF) / 255.0;
 						infoTtf.setText(formatter.format(red));
 					}
 				}
@@ -866,11 +867,7 @@ public class SpecSimResultPanel extends JPanel {
 	 * Method to refresh protein table contents.
 	 */
 	protected void refreshProteinTable() {
-		try {
-			
-		} finally {
-			
-		}
+		
 		specSimResult = Client.getInstance().getSpecSimResult(
 				ClientFrame.getInstance().getProjectPanel().getCurrentExperimentContent());
 
@@ -933,17 +930,11 @@ public class SpecSimResultPanel extends JPanel {
 				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
 
 				BufferedImage scoreMatrix = new BufferedImage(matrixColorModel,
-						specSimResult.getScoreMatrixImage().getRaster(), false,
-						null);
-				matLbl.setIcon(new ImageIcon(scoreMatrix
-						.getSubimage(1, 1, scoreMatrix.getWidth() - 1,
-								scoreMatrix.getHeight() - 1)));
-//				File outputfile = new File("saved.png");
-//				try {
-//					ImageIO.write(specSimResult.getScoreMatrixImage(), "png", outputfile);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
+						specSimResult.getScoreMatrixImage().getRaster(), false, null);
+//				matLbl.setIcon(new ImageIcon(scoreMatrix
+//						.getSubimage(1, 1, scoreMatrix.getWidth() - 1,
+//								scoreMatrix.getHeight() - 1)));
+				matLbl.setIcon(new ImageIcon(scoreMatrix));
 			}
 			
 			if (specSimResult.getScoreMatrixImage() != null) {

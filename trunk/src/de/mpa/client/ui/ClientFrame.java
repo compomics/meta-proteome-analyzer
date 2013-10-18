@@ -251,9 +251,9 @@ public class ClientFrame extends JFrame {
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 
-//		for (int i = INPUT_PANEL; i < COMPARE_PANEL; i++) {
-//			tabPane.setEnabledAt(i, false);
-//		}
+		for (int i = INPUT_PANEL; i < COMPARE_PANEL; i++) {
+			tabPane.setEnabledAt(i, false);
+		}
 
 		// Add components to content pane
 		this.setJMenuBar(menuBar);
@@ -261,6 +261,7 @@ public class ClientFrame extends JFrame {
 		cp.add(statusPnl, BorderLayout.SOUTH);
 		
 		// TODO: notify progress bar for loading parameters.
+		// TODO: move to Constants class?
 		Parameters.getInstance();
 		
 		// Enables Functions for the Viewer

@@ -3,11 +3,18 @@ package de.mpa.main;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
+import javax.swing.BorderFactory;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.plaf.ColorUIResource;
 
 import org.apache.log4j.Logger;
 
@@ -16,36 +23,118 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.SkyBlue;
 
+import de.mpa.client.Constants;
+import de.mpa.client.Constants.UIColor;
+import de.mpa.client.Constants.UITheme;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.DelegateColor;
+import de.mpa.client.ui.GradientColorAdapter;
+import de.mpa.client.ui.ThinBevelBorder;
 
 /**
  * Starter class for the main application.
+ * 
  * @author T. Muth
- *
  */
 public class Starter {
 	
+	/**
+	 * Flag denoting whether the application is in jar export mode.
+	 */
 	private static boolean jarExport = false;
+	
+	/**
+	 * The logger instance.
+	 */
 	private static Logger log = Logger.getLogger(Starter.class);
+	
+	/**
+	 * Flag denoting whether an application lock is in effect. 
+	 */
 	private final static boolean LOCK_ACTIVE = true;
 	
 	/**
 	 * This method sets the look&feel for the application.
 	 */
 	private static void setLookAndFeel() {
-		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
-		Options.setUseSystemFonts(true);
-		UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
-		Options.setPopupDropShadowEnabled(true);
-		UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
-		Locale.setDefault(Locale.US);
 		try {
-			// Set Plastic3DLook&Feel as default for all OS.
-			SkyBlue skyBlue = new SkyBlue();
-			Plastic3DLookAndFeel.setPlasticTheme(skyBlue);
+			// Read theme configuration files
+			File themesFolder = new File(Constants.THEME_FOLDER);
+			List<UITheme> themes = new ArrayList<UITheme>();
+			UITheme defaultTheme = null;
+			for (File themeFile : themesFolder.listFiles()) {
+				if (themeFile.getName().endsWith(".theme")) {
+					UITheme theme = new UITheme(themeFile);
+					if (Constants.DEFAULT_THEME_NAME.equals(theme.getTitle())) {
+						defaultTheme = theme;
+					}
+					themes.add(theme);
+				}
+			}
+			// Apply default theme
+			if (defaultTheme == null) {
+				defaultTheme = Constants.DEFAULT_THEME;
+				themes.add(0, defaultTheme);
+			}
+			defaultTheme.applyTheme();
+			// finalize list of themes
+			Constants.THEMES = Collections.unmodifiableList(themes);
+			
+			// Set Plastic3DLook&Feel as default for all operating systems
+			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue() {
+				// replace theme-based color defaults with dynamic delegate colors
+				@Override
+				public ColorUIResource getFocusColor() {
+					return UIColor.BUTTON_FOCUS_COLOR.getDelegateColor();
+				}
+			});
 			UIManager.setLookAndFeel(Plastic3DLookAndFeel.class.getName());
 			
+			Options.setUseSystemFonts(true);
 			Options.setPopupDropShadowEnabled(false);
+			
+			UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
+			UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
+			
+			// replace UI manager-based color defaults with dynamic delegate colors
+			UIManager.put("Focus.color", UIColor.BUTTON_FOCUS_COLOR.getDelegateColor());
+			
+			UIManager.put("ScrollBar.thumb", UIColor.SCROLLBAR_THUMB_COLOR.getDelegateColor());
+
+			DelegateColor textFontCol = UIColor.TEXT_SELECTION_FONT_COLOR.getDelegateColor();
+			UIManager.put("TextArea.selectionForeground", textFontCol);
+			UIManager.put("TextField.selectionForeground", textFontCol);
+			UIManager.put("PasswordField.selectionForeground", textFontCol);
+			UIManager.put("FormattedTextField.selectionForeground", textFontCol);
+			DelegateColor textBackCol = UIColor.TEXT_SELECTION_BACKGROUND_COLOR.getDelegateColor();
+			UIManager.put("TextArea.selectionBackground", textBackCol);
+			UIManager.put("TextField.selectionBackground", textBackCol);
+			UIManager.put("PasswordField.selectionBackground", textBackCol);
+			UIManager.put("FormattedTextField.selectionBackground", textBackCol);
+			
+			UIManager.put("Table.selectionBackground", UIColor.TABLE_SELECTION_COLOR.getDelegateColor());
+			UIManager.put("List.selectionBackground", UIColor.TABLE_SELECTION_COLOR.getDelegateColor());
+			Border fchb = BorderFactory.createLineBorder(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR.getDelegateColor());
+			UIManager.put("Table.focusCellHighlightBorder", fchb);
+			UIManager.put("List.focusCellHighlightBorder", fchb);
+			
+			UIManager.put("ProgressBar.foreground", new GradientColorAdapter(
+					UIColor.PROGRESS_BAR_START_COLOR.getDelegateColor(),
+					UIColor.PROGRESS_BAR_END_COLOR.getDelegateColor()));
+
+			UIManager.put("TaskPaneContainer.background",
+					UIColor.TASK_PANE_BACKGROUND_COLOR.getDelegateColor());
+			UIManager.put("TaskPaneContainer.border", BorderFactory.createCompoundBorder(
+					new ThinBevelBorder(BevelBorder.LOWERED),
+					BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+			UIManager.put("TaskPane.titleForeground", UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleBackgroundGradientStart", UIColor.TITLED_PANEL_START_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleBackgroundGradientEnd", UIColor.TITLED_PANEL_END_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleOver", UIColor.TITLED_PANEL_END_COLOR.getDelegateColor().darker().darker());
+			UIManager.put("TaskPane.borderColor", UIColor.TITLED_PANEL_END_COLOR.getDelegateColor());
+			
+			Locale.setDefault(Locale.US);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -57,17 +146,20 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		// Set the look&feel
-		setLookAndFeel();
-		
+
 		// Lock file instance.
 		boolean unlocked = true;
-		if (LOCK_ACTIVE) unlocked = lockInstance("filelock");
+		if (LOCK_ACTIVE) {
+			unlocked = lockInstance("filelock");
+		}
 		
 		if (unlocked) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					// Set the look&feel
+					setLookAndFeel();
+					
 					boolean viewerMode = false;
 					boolean debugMode = false;
 					if (args.length > 0) {
@@ -79,8 +171,11 @@ public class Starter {
 							}
 						}
 					} 
-					if (jarExport) ClientFrame.getInstance(viewerMode, debugMode);
-					else ClientFrame.getInstance(viewerMode, debugMode);
+					if (jarExport) {
+						ClientFrame.getInstance(viewerMode, debugMode);
+					} else {
+						ClientFrame.getInstance(viewerMode, debugMode);
+					}
 				}
 			});
 		}
@@ -105,7 +200,7 @@ public class Starter {
 	}
 	/**
 	 * Checks whether the application is a jar export or not.
-	 * @return True if the application is being exported as jar else false.
+	 * @return <code>true</code> if the application is being exported as jar, otherwise <code>false</code>.
 	 */
 	public static boolean isJarExport() {
 		return jarExport;
@@ -114,7 +209,7 @@ public class Starter {
 	/**
 	 * Locks an instance to a file by random access.
 	 * @param lockFile Lock file string.
-	 * @return True if the file has been locked.
+	 * @return <code>true</code> if the instance has been locked.
 	 */
 	private static boolean lockInstance(final String lockFile) {
 	    try {

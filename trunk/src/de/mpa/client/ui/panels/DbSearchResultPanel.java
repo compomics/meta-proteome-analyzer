@@ -141,7 +141,6 @@ import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jdesktop.swingx.renderer.TreeCellContext;
 import org.jdesktop.swingx.sort.SortUtils;
 import org.jdesktop.swingx.sort.TableSortController;
-import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
@@ -458,9 +457,9 @@ public class DbSearchResultPanel extends JPanel {
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 
 		// Add button for taxonomic filtering	
-		taxFilterBtn = new JButton(IconConstants.FILTERADD16_ICON);
-		taxFilterBtn.setRolloverIcon(IconConstants.FILTERADD16_ROLLOVER_ICON);
-		taxFilterBtn.setPressedIcon(IconConstants.FILTERADD16_PRESSED_ICON);
+		taxFilterBtn = new JButton(IconConstants.ADD_FILTER_ICON);
+		taxFilterBtn.setRolloverIcon(IconConstants.ADD_FILTER_ROLLOVER_ICON);
+		taxFilterBtn.setPressedIcon(IconConstants.ADD_FILTER_PRESSED_ICON);
 		taxFilterBtn.setToolTipText("Select Taxonomic Filtering");
 		taxFilterBtn.setUI(new RoundedHoverButtonUI());
 		taxFilterBtn.setOpaque(false);
@@ -688,7 +687,7 @@ public class DbSearchResultPanel extends JPanel {
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
 
-		JXTitledPanel chartTtlPnl = createChartPanel();
+		this.createChartPanel();
 
 		// Set up multi-split pane
 		String layoutDef =
@@ -980,21 +979,20 @@ public class DbSearchResultPanel extends JPanel {
 		final JCheckBox selChk = new TriStateCheckBox(2, -1) {
 			@Override
 			public boolean isPartiallySelected() {
-
-				//				if (dbSearchResult != null) {
-				//					List<ProteinHit> hitList = dbSearchResult.getProteinHitList();
-				//					boolean res = hitList.isEmpty();
-				//					if (!res) {
-				//						res = hitList.get(0).isSelected();
-				//						for (int i = 1; i < hitList.size(); i++) {
-				//							boolean sel = hitList.get(i).isSelected();
-				//							if (res != sel) {
-				//								return true;
-				//							}
-				//							res = sel;
-				//						}
-				//					}
-				//				}
+//				if (dbSearchResult != null) {
+//					List<ProteinHit> hitList = dbSearchResult.getProteinHitList();
+//					boolean res = hitList.isEmpty();
+//					if (!res) {
+//						res = hitList.get(0).isSelected();
+//						for (int i = 1; i < hitList.size(); i++) {
+//							boolean sel = hitList.get(i).isSelected();
+//							if (res != sel) {
+//								return true;
+//							}
+//							res = sel;
+//						}
+//					}
+//				}
 				return false;
 			}
 		};
@@ -1014,7 +1012,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 
 			public boolean isCellEditable(int row, int col) {
-				return (col == Constants.PROT_SELECTION) || (col == Constants.PROT_WEBRESSOURCE);
+				return (col == Constants.PROT_SELECTION) || (col == Constants.PROT_WEBRESOURCE);
 			}
 
 			public Class<?> getColumnClass(int columnIndex) {
@@ -1066,6 +1064,7 @@ public class DbSearchResultPanel extends JPanel {
 					getTableHeader().repaint(getTableHeader().getHeaderRect(Constants.PROT_SELECTION));
 				}
 			}
+			
 		};
 
 		// Adjust column widths
@@ -1127,7 +1126,7 @@ public class DbSearchResultPanel extends JPanel {
 				});
 				break;
 
-			case Constants.PROT_WEBRESSOURCE:
+			case Constants.PROT_WEBRESOURCE:
 				tcm.getColumn(col).setMinWidth(19);
 				tcm.getColumn(col).setMaxWidth(19);
 			}
@@ -1269,7 +1268,7 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		};
 		
-		new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESSOURCE);
+		new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESOURCE);
 		
 		tcm.getColumn(Constants.PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
 		tcm.getColumn(Constants.PROT_TAXONOMY).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
@@ -1350,17 +1349,17 @@ public class DbSearchResultPanel extends JPanel {
 			public void valueChanged(ListSelectionEvent evt) {
 				int protRow = proteinTbl.getSelectedRow();
 				refreshPeptideViews(protRow);
-				if (proteinTbl.getSelectedRow() > -1) {
-					int row = proteinTbl.convertRowIndexToModel(proteinTbl.getSelectedRow());
-					
-//					if (row >0) {
-//						//TODO Robbie care about synchronity
-//						System.out.println(proteinTbl.getModel().getValueAt(row, 0));
-//						System.out.println(proteinTbl.getModel().getValueAt(row, 1));
-//						System.out.println(proteinTbl.getModel().getValueAt(row, 2));
-//					}
-					//				refreshCoverageViewer();	
-				}
+//				if (proteinTbl.getSelectedRow() > -1) {
+//					int row = proteinTbl.convertRowIndexToModel(proteinTbl.getSelectedRow());
+//					
+////					if (row >0) {
+////						//TODO Robbie care about synchronity
+////						System.out.println(proteinTbl.getModel().getValueAt(row, 0));
+////						System.out.println(proteinTbl.getModel().getValueAt(row, 1));
+////						System.out.println(proteinTbl.getModel().getValueAt(row, 2));
+////					}
+//					//				refreshCoverageViewer();	
+//				}
 				
 			}
 		});
@@ -1378,12 +1377,7 @@ public class DbSearchResultPanel extends JPanel {
 		proteinTbl.addHighlighter(protCountHighlighter);
 
 		// Enables column control
-		proteinTbl.setColumnControlVisible(true);
-		proteinTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		proteinTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) proteinTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(proteinTbl);
 	}
 
 	/**
@@ -1763,12 +1757,7 @@ public class DbSearchResultPanel extends JPanel {
 		TableConfig.setColumnMinWidths(treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
 
 		// Enable column control widget
-		treeTbl.setColumnControlVisible(true);
-		treeTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		treeTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) treeTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(treeTbl);
 
 		// Add table to link map
 		linkMap.put(root.toString(), treeTbl);
@@ -2017,12 +2006,7 @@ public class DbSearchResultPanel extends JPanel {
 		}, chartFont.deriveFont(Font.BOLD)));
 
 		// Enables column control
-		peptideTbl.setColumnControlVisible(true);
-		peptideTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		peptideTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) peptideTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(peptideTbl);
 
 		JTextField editorTtf = new JTextField();
 		editorTtf.setEditable(false);
@@ -2268,12 +2252,7 @@ public class DbSearchResultPanel extends JPanel {
 		psmTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		// Enables column control
-		psmTbl.setColumnControlVisible(true);
-		psmTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		psmTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) psmTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(psmTbl);
 	}
 
 	/**
@@ -3835,7 +3814,6 @@ public class DbSearchResultPanel extends JPanel {
 	private ChartType spectrumType = new ChartType() {
 		public String getTitle() { return ""; }
 		public String toString() { return "Spectrum Viewer"; }
-		public String getIdentifier() { return "Spectrum"; };
 	};
 
 	/**

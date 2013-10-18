@@ -3,12 +3,14 @@ package de.mpa.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GradientPaint;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.decorator.ComponentAdapter;
@@ -16,7 +18,7 @@ import org.jdesktop.swingx.decorator.PainterHighlighter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
 
-import de.mpa.util.ColorUtils;
+import de.mpa.client.Constants.UIColor;
 
 /**
  * A simple highlighter for displaying numerical table cell values in a bar chart-like fashion.
@@ -50,7 +52,9 @@ public class BarChartHighlighter extends PainterHighlighter {
 	 * Convenience constructor for a bar chart highlighter using a default appearance.
 	 */
 	public BarChartHighlighter() {
-		this(0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN);
+		this(0, 100.0, 50, SwingConstants.HORIZONTAL,
+				UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR.getDelegateColor(),
+				UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR.getDelegateColor());
 	}
 	
 	/**
@@ -184,6 +188,20 @@ public class BarChartHighlighter extends PainterHighlighter {
 		this.maxValue = maxValue;
 	}
 	
+	/**
+	 * Sets the orientation of the bar.
+	 * @param orientation either <code>SwingConstants.HORIZONTAL</code> or <code>VERTICAL</code>
+	 */
+	public void setOrientation(int orientation) {
+		BarChartPainter painter = (BarChartPainter) this.getPainter();
+		GradientPaint paint = (GradientPaint) painter.getFillPaint();
+		painter.setFillPaint(new GradientPaint(
+				new Point(0, (orientation == SwingConstants.VERTICAL) ? 1 : 0),
+				paint.getColor1(),
+				new Point((orientation == SwingConstants.HORIZONTAL) ? 1 : 0, 0),
+				paint.getColor2()));
+	}
+	
 	@Override
 	protected Component doHighlight(Component component,
 			ComponentAdapter adapter) {
@@ -217,11 +235,17 @@ public class BarChartHighlighter extends PainterHighlighter {
 		protected void doPaint(Graphics2D g, Object component, int width, int height) {
 			JRendererLabel label = (JRendererLabel) component;
 			label.setHorizontalAlignment(SwingConstants.RIGHT);
+			label.setHorizontalTextPosition(SwingConstants.LEFT);
+			label.setIconTextGap(0);
 			// parse value and format label
 			double value;
 			if (this.value != null) {
 				value = this.value.doubleValue();
-				label.setText(formatter.format(value));
+				if (baseline > 0) {
+					label.setText(formatter.format(value));
+				} else {
+					label.setText(null);
+				}
 			} else {
 				value = 0;
 				label.setText(null);
@@ -231,7 +255,14 @@ public class BarChartHighlighter extends PainterHighlighter {
 			double range = maxValue - minValue;
 			int xOffset = (baseline > 0) ? baseline + 4 : 2;
 			// shrink label to make room for bar
-			label.setBounds(0, 0, xOffset, height);
+//			label.setBounds(0, 0, xOffset, height);
+			final int barWidth = width - baseline - 4;
+			label.setIcon(new Icon() {
+				public void paintIcon(Component c, Graphics g, int x, int y) { }
+				public int getIconWidth() { return barWidth; }
+				public int getIconHeight() { return 1; }
+			});
+			
 			width -= xOffset + 2;
 			// determine clip rectangle
 			int x = (int) ((GradientPaint) getFillPaint()).getPoint2().getX();

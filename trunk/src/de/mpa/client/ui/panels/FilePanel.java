@@ -39,7 +39,6 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -434,11 +433,7 @@ public class FilePanel extends JPanel {
 //		});
 		
 		// modify column control button appearance
-		JComponent columnControl = treeTbl.getColumnControl();
-		columnControl.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		treeTbl.getColumnControl().setOpaque(false);
+		TableConfig.configureColumnControl(treeTbl);
 		
 		// wrap tree table in scroll pane
 		JScrollPane treeScpn = new JScrollPane(treeTbl);

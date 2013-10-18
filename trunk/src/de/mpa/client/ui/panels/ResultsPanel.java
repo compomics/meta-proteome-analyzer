@@ -69,7 +69,6 @@ import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
-import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
@@ -379,15 +378,14 @@ public class ResultsPanel extends JPanel {
 		summaryBtnPnl.setOpaque(false);
 		summaryBtnPnl.add(resizeBtn, CC.xy(1, 1));
 
-		JPanel summaryPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+		JPanel summaryPnl = new JPanel(new FormLayout(
+				"5dlu, p:g, 5dlu",
 				"5dlu, f:p, 5dlu, f:p:g, 5dlu"));
 
-		JPanel generalPnl = new JPanel(
-				new FormLayout(
+		JPanel generalPnl = new JPanel(new FormLayout(
 						"5dlu, p, 5dlu, r:50px, 5dlu, 0px:g, 5dlu, r:25px, 5dlu, p, 5dlu",
 						"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
-		generalPnl.setBorder(BorderFactory
-				.createTitledBorder("General Statistics"));
+		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
 
 		// total vs. identified spectra
 		totalSpecLbl = new JLabel("0");
@@ -1062,13 +1060,7 @@ public class ResultsPanel extends JPanel {
 					}
 				});
 
-		detailsTbl.setColumnControlVisible(true);
-		detailsTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		detailsTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) detailsTbl.getColumnControl())
-		.setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(detailsTbl);
 
 		// Add nice striping effect
 		detailsTbl.addHighlighter(TableConfig.getSimpleStriping());

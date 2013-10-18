@@ -121,20 +121,18 @@ public class StatusPanel extends JPanel {
 		
 		// progress bars
 		JPanel progressPnl = new JPanel(new FormLayout("0dlu, p:g, 0dlu",
-				   "0dlu, f:p:g(0.66666), f:p:g(0.33333), 0dlu"));
+				   "0dlu, f:p:g(0.75), f:p:g(0.25), 0dlu"));
 		currentPrg = new JProgressBar();
 		currentPrg.setStringPainted(true);
 		currentPrg.setValue(100);
 		currentPrg.setBorder(null);
-		currentPrg.setPreferredSize(new Dimension(currentPrg.getPreferredSize().width,
-				(int) (currentPrg.getPreferredSize().height*0.66666)));
+		currentPrg.setPreferredSize(new Dimension());
 		
 		totalPrg = new JProgressBar();
 		totalPrg.setStringPainted(false);
 		totalPrg.setValue(100);
 		totalPrg.setBorder(null);
-		totalPrg.setPreferredSize(new Dimension(totalPrg.getPreferredSize().width,
-				(int) (totalPrg.getPreferredSize().height*0.33333)));
+		totalPrg.setPreferredSize(new Dimension());
 		
 		// remaining time display
 		JPanel timePnl = new JPanel(new FormLayout("2dlu, p, 2dlu", "2dlu, f:p:g, 2dlu"));

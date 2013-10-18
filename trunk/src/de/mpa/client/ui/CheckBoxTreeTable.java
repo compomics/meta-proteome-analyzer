@@ -194,7 +194,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		treeTable.setRowMargin(1);
 		treeTable.setShowGrid(true);
 		treeTable.getTableHeader().setReorderingAllowed(false);
-		treeTable.setColumnControlVisible(true);
 		treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		treeTable.setLargeModel(true);
