@@ -19,6 +19,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import de.mpa.client.ui.BoundsPopupMenuListener;
 import de.mpa.client.ui.icons.IconConstants;
 
 /**
@@ -68,6 +69,7 @@ public abstract class CompoundQueryPanel extends JPanel {
 			layout.appendRow(RowSpec.decode("3dlu"));
 			
 			JComboBox comboBox = new JComboBox(items);
+			comboBox.addPopupMenuListener(new BoundsPopupMenuListener(true, false));
 			((JTextField) comboBox.getEditor().getEditorComponent()).setMargin(new Insets(1, 3, 2, 1));
 			
 			this.add(comboBox, CC.xyw(2, 4, 2));

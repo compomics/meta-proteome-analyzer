@@ -7,16 +7,8 @@ import java.awt.GradientPaint;
 import java.awt.Insets;
 
 import javax.swing.JComponent;
-import javax.swing.SizeRequirements;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.text.EditorKit;
-import javax.swing.text.Element;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.InlineView;
-import javax.swing.text.html.ParagraphView;
 
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.painter.MattePainter;
@@ -58,46 +50,26 @@ public class PanelConfig {
 		// Store initial values in UI manager
 		UIManager.put("JXTitledPanel.leftDecorationInsets", new Insets(0, 6, 0, 0));
 		
-		Color startColor = UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR.getColor();
-		Color endColor = UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR.getColor();
-		
 		// Titled panel variables
 		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
 		
 		ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
 		
-//		List<Comparable> keys = new ArrayList<Comparable>();
-//		for (Entry<Object, Object> entry : UIManager.getDefaults().entrySet()) {
-//			if (entry.getValue() instanceof Color) {
-////				System.out.println(entry.getKey());
-//				keys.add((Comparable) entry.getKey());
-//			}
-//		}
-//		Collections.sort(keys);
-//		for (Object key : keys) {
-//			System.out.println(key);
-//		}
-		
-		GradientPaint paint = new GradientPaint(0, 0, startColor, 0, 1, endColor) {
+		Color dummyCol = new Color(0);
+		GradientPaint paint = new GradientPaint(0, 0, dummyCol, 0, 1, dummyCol) {
 			@Override
 			public Color getColor1() {
-				return UIManager.getColor("titledPanel.startColor");
+				return UIColor.TITLED_PANEL_START_COLOR.getColor();
 			}
 			@Override
 			public Color getColor2() {
-				return UIManager.getColor("titledPanel.endColor");
+				return UIColor.TITLED_PANEL_END_COLOR.getColor();
 			}
 		};
 		ttlPainter = new MattePainter(paint, true);
 		ttlBorder = UIManager.getBorder("TitledBorder.border");
 //		ttlForeground = dummyPnl.getTitleForeground();
-		ttlForeground = new Color(0) {
-			@Override
-			public int getRGB() {
-				// fetch color from UI manager
-				return UIManager.getColor("titledPanel.fontColor").getRGB();
-			}
-		};
+		ttlForeground = UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor();
 	}
 
 	public static Font getTitleFont() {
@@ -148,67 +120,18 @@ public class PanelConfig {
 		};
 		panel.setLeftDecoration(leftDecoration);
 		panel.setRightDecoration(rightDecoration);
-		panel.setTitleFont(getTitleFont());
-		panel.setTitlePainter(getTitlePainter());
-		panel.setBorder(getTitleBorder());
-//		panel.setTitleForeground(getTitleForeground());
+		decorate(panel);
 		return panel;
 	}
 	
-	public static EditorKit getLetterWrapEditorKit() {
-		return new HTMLEditorKit() {
-			@Override
-			public ViewFactory getViewFactory() {
-				return new HTMLFactory() {
-					public View create(Element e) {
-						View v = super.create(e);
-						if (v instanceof InlineView) {
-							return new InlineView(e) {
-								public int getBreakWeight(int axis, float pos,
-										float len) {
-									return GoodBreakWeight;
-								}
-								public View breakView(int axis, int p0,
-										float pos, float len) {
-									if (axis == View.X_AXIS) {
-										checkPainter();
-										int p1 = getGlyphPainter()
-												.getBoundedPosition(this, p0,
-														pos, len);
-										if (p0 == getStartOffset()
-												&& p1 == getEndOffset()) {
-											return this;
-										}
-										return createFragment(p0, p1);
-									}
-									return this;
-								}
-							};
-						} else if (v instanceof ParagraphView) {
-							return new ParagraphView(e) {
-								protected SizeRequirements calculateMinorAxisRequirements(
-										int axis, SizeRequirements r) {
-									if (r == null) {
-										r = new SizeRequirements();
-									}
-									float pref = layoutPool.getPreferredSpan(axis);
-									float min = layoutPool.getMinimumSpan(axis);
-									// Don't include insets, Box.getXXXSpan will
-									// include them.
-									r.minimum = (int) min;
-									r.preferred = Math.max(r.minimum,
-											(int) pref);
-									r.maximum = Integer.MAX_VALUE;
-									r.alignment = 0.5f;
-									return r;
-								}
-
-							};
-						}
-						return v;
-					}
-				};
-			}
-		};
+	/**
+	 * Convenience method to apply font, painter and border styles to the
+	 * provided titled panel.
+	 * @param panel the titled panel to decorate
+	 */
+	public static void decorate(JXTitledPanel panel) {
+		panel.setTitleFont(getTitleFont());
+		panel.setTitlePainter(getTitlePainter());
+		panel.setBorder(getTitleBorder());
 	}
 }

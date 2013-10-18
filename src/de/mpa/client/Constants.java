@@ -1,7 +1,18 @@
 package de.mpa.client;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
@@ -9,9 +20,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import de.mpa.analysis.KeggMaps;
+import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
-import de.mpa.util.ColorUtils;
 
 /**
  * Class providing general constants and methods used throughout the whole
@@ -175,32 +186,6 @@ public class Constants {
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
 			"Raw Mascot Result File (*.dat)");
 
-	/**
-	 * Constants for the axis of the heatmap.
-	 */
-	public static final String[] HEATMAP_XAXIS = {	"PEPTIDE",
-													"PROTEINE",
-													"METAPROTEINE"};
-	public static final String[] HEATMAP_YAXIS = {	"TAX_SUPERKINGDOM",// Special case for metaproteins
-													"TAX_KINGDOM",
-													"TAX_PHYLUM",
-													"TAX_CLASS",
-													"TAX_ORDER",
-													"TAX_FAMILY",
-													"TAX_GENUS",
-													"TAX_SPECIES",
-													"EC_NUMBER",
-													"BIOLOGICAL_PROCESS",
-													"CELLULAR_COMPONENT",
-													"MOLECULAR_FUNCTION",
-													"PATHWAY",
-													"PEPTIDE",
-													"PROTEIN (METAPROT)"};
-	public static final String[] HEATMAP_ZAXIS = {	"No. METAPROTEIN",
-													"No. PROTEIN",
-													"No. PEPTIDE",
-													"No. SPECTRA"};
-
 	// Protein table column indices
 	public static final int PROT_SELECTION = 0;
 	public static final int PROT_INDEX = 1;
@@ -214,24 +199,77 @@ public class Constants {
 	public static final int PROT_SPECTRALCOUNT = 9;
 	public static final int PROT_EMPAI = 10;
 	public static final int PROT_NSAF = 11;
-	public static final int PROT_WEBRESSOURCE = 12;
+	public static final int PROT_WEBRESOURCE = 12;
 	
 	/**
 	 * Enumeration holding UI-related colors.
 	 * @author A. Behne
 	 */
 	public enum UIColor {
-		
-		TITLED_PANEL_START_COLOR("titledPanel.startColor",
-				"Titled Panel Gradient Start", new Color(166, 202, 240)),
-		TITLED_PANEL_END_COLOR("titledPanel.endColor",
-				"Titled Panel Gradient End", new Color(107, 147, 193)),
-		TITLED_PANEL_FONT_COLOR("titledPanel.fontColor",
-				"Titled Panel Label Text", Color.WHITE),
+		/* Button colors */
+		BUTTON_FOCUS_COLOR("button.focusColor", "Button Focus"),
+		/* Text Selection colors */
+		TEXT_SELECTION_FONT_COLOR("textSelection.fontColor",
+				"Text Selection Font Color"),
+		TEXT_SELECTION_BACKGROUND_COLOR("textSelection.backgroundColor", 
+				"Text Selection Background Color"),
+		/* Titled Panel colors */
+		TITLED_PANEL_START_COLOR("titledPanel.startColor", "Titled Panel Gradient Start"),
+		TITLED_PANEL_END_COLOR("titledPanel.endColor", "Titled Panel Gradient End"),
+		TITLED_PANEL_FONT_COLOR("titledPanel.fontColor", "Titled Panel Label Text"),
+		/* Task Pane colors */
+		TASK_PANE_BACKGROUND_COLOR("taskPane.backgroundColor", "Task Pane Background Color"),
+		/* Bar Chart Panel colors */
 		BAR_CHART_PANEL_FOREGROUND_START_COLOR("barChartPanel.foregroundStartColor",
-				"Bar Chart Panel Foreground Gradient Start", ColorUtils.DARK_GREEN),
+				"Bar Chart Panel Foreground Gradient Start"),
 		BAR_CHART_PANEL_FOREGROUND_END_COLOR("barChartPanel.foregroundEndColor",
-				"Bar Chart Panel Foreground Gradient End", ColorUtils.LIGHT_GREEN);
+				"Bar Chart Panel Foreground Gradient End"),
+		BAR_CHART_PANEL_BACKGROUND_START_COLOR("barChartPanel.backgroundStartColor",
+				"Bar Chart Panel Background Gradient Start"),
+		BAR_CHART_PANEL_BACKGROUND_END_COLOR("barChartPanel.backgroundEndColor",
+				"Bar Chart Panel Background Gradient End"),
+		/* Scrollbar colors */
+		SCROLLBAR_THUMB_COLOR("scrollBar.thumbColor", "Scroll Bar Thumb Color"),
+		/* Table colors */
+		TABLE_SELECTION_COLOR("table.selColor", "Table Selection Background Color"),
+		TABLE_FOCUS_HIGHLIGHT_COLOR("table.hlColor", "Table Focus Highlight Color"),
+		/* Horizontal Bar Chart Highlighter colors */
+		HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR("horzBarChartHighlighterA.startColor",
+				"Table Horizontal Bar Chart A Gradient Start"),
+		HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR("horzBarChartHighlighterA.endColor",
+				"Table Horizontal Bar Chart A Gradient End"),
+		HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR("horzBarChartHighlighterB.startColor",
+				"Table Horizontal Bar Chart B Gradient Start"),
+		HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR("horzBarChartHighlighterB.endColor",
+				"Table Horizontal Bar Chart B Gradient End"),
+		HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR("horzBarChartHighlighterC.startColor",
+				"Table Horizontal Bar Chart C Gradient Start"),
+		HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR("horzBarChartHighlighterC.endColor",
+				"Table Horizontal Bar Chart C Gradient End"),
+		/* Vertical Bar Chart Highlighter colors */
+		VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR("horzBarChartHighlighterA.startColor",
+				"Table Vertical Bar Chart A Gradient Start"),
+		VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR("vertBarChartHighlighterA.endColor",
+				"Table Vertical Bar Chart A Gradient End"),
+		VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR("vertBarChartHighlighterB.startColor",
+				"Table Vertical Bar Chart B Gradient Start"),
+		VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR("vertBarChartHighlighterB.endColor",
+				"Table Vertical Bar Chart B Gradient End"),
+		VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR("vertBarChartHighlighterC.startColor",
+				"Table Vertical Bar Chart C Gradient Start"),
+		VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR("vertBarChartHighlighterC.endColor",
+				"Table Vertical Bar Chart C Gradient End"),
+		VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR("vertBarChartHighlighterD.startColor",
+				"Table Vertical Bar Chart D Gradient Start"),
+		VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR("vertBarChartHighlighterD.endColor",
+				"Table Vertical Bar Chart D Gradient End"),
+		VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR("vertBarChartHighlighterE.startColor",
+				"Table Vertical Bar Chart E Gradient Start"),
+		VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR("vertBarChartHighlighterE.endColor",
+				"Table Vertical Bar Chart E Gradient End"),
+		/* Progress Bar colors */
+		PROGRESS_BAR_START_COLOR("progressBar.startColor", "Progress Bar Gradient Start"),
+		PROGRESS_BAR_END_COLOR("progressBar.endColor", "Progress Bar Gradient End");
 		
 		/**
 		 * The <code>UIManager</code> key.
@@ -249,16 +287,19 @@ public class Constants {
 		private Color defaultColor;
 		
 		/**
-		 * Constructs an UI color enum member using the specifed 
-		 * <code>UIManager</code> key, a descriptive string and an associated color.
+		 * A delegate color usable to re-direct to this UI color.
+		 */
+		private DelegateColor delegate;
+		
+		/**
+		 * Constructs an UI color enum member using the specified 
+		 * <code>UIManager</code> key and a descriptive string.
 		 * @param key the <code>UIManager</code> key
 		 * @param description the descriptive string
-		 * @param color the associated color
 		 */
-		private UIColor(String key, String description, Color color) {
+		private UIColor(String key, String description) {
 			this.key = key;
 			this.description = description;
-			this.defaultColor = color;
 			this.reset();
 		}
 
@@ -266,7 +307,7 @@ public class Constants {
 		 * Resets the associated color to its default value.
 		 */
 		public void reset() {
-			UIManager.put(this.getKey(), this.defaultColor);
+			this.setColor(this.defaultColor);
 		}
 
 		/**
@@ -282,8 +323,34 @@ public class Constants {
 		 * @return the color
 		 */
 		public Color getColor() {
-//			return color;
 			return UIManager.getColor(this.getKey());
+		}
+		
+		/**
+		 * Returns the color delegating to this UI color.
+		 * @return the delegate color
+		 */
+		public DelegateColor getDelegateColor() {
+			if (delegate == null) {
+				delegate = new DelegateColor(this);
+			}
+			return delegate;
+		}
+
+		/**
+		 * Sets the associated color.
+		 * @param color the color to set
+		 */
+		public void setColor(Color color) {
+			UIManager.put(this.getKey(), color);
+		}
+		
+		/**
+		 * Sets the default color.
+		 * @param defaultColor the color to set as default.
+		 */
+		public void setDefaultColor(Color defaultColor) {
+			this.defaultColor = defaultColor;
 		}
 
 		@Override
@@ -293,4 +360,237 @@ public class Constants {
 		
 	}
 	
+	/**
+	 * The folder containing theme files.
+	 */
+	public static final String THEME_FOLDER = "themes/";
+	
+	/**
+	 * The name of the default theme.
+	 */
+	public static final String DEFAULT_THEME_NAME = "Sky Blue";
+	
+	/**
+	 * Hard-coded backup of the default theme, use when file-based default theme is missing.
+	 */
+	public static final UITheme DEFAULT_THEME = new UITheme(
+			DEFAULT_THEME_NAME,
+			new Color(195, 212, 232),
+			new HashMap<UIColor, Color>() {
+		{
+			put(UIColor.BUTTON_FOCUS_COLOR, new Color(195, 212, 232));
+			put(UIColor.TEXT_SELECTION_FONT_COLOR, new Color(0, 0, 0));
+			put(UIColor.TEXT_SELECTION_BACKGROUND_COLOR, new Color(195, 212, 232));
+			put(UIColor.TITLED_PANEL_START_COLOR, new Color(166, 202, 240));
+			put(UIColor.TITLED_PANEL_END_COLOR, new Color(107, 147, 193));
+			put(UIColor.TITLED_PANEL_FONT_COLOR, new Color(255, 255, 255));
+			put(UIColor.TASK_PANE_BACKGROUND_COLOR, new Color(195, 212, 232));
+			put(UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR, new Color(0, 127, 0));
+			put(UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR, new Color(127, 255, 127));
+			put(UIColor.BAR_CHART_PANEL_BACKGROUND_START_COLOR, new Color(64, 64, 64));
+			put(UIColor.BAR_CHART_PANEL_BACKGROUND_END_COLOR, new Color(192, 192, 192));
+			put(UIColor.SCROLLBAR_THUMB_COLOR, new Color(195, 212, 232));
+			put(UIColor.TABLE_SELECTION_COLOR, new Color(195, 212, 232));
+			put(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR, new Color(166, 202, 240));
+			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
+			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
+			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(127, 0, 0));
+			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(255, 127, 127));
+			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(127, 63, 0));
+			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(255, 191, 127));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(0, 127, 127));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(127, 255, 255));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(0, 0, 127));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(127, 127, 255));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR, new Color(127, 0, 127));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
+			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
+			put(UIColor.PROGRESS_BAR_START_COLOR, new Color(169, 191, 217));
+			put(UIColor.PROGRESS_BAR_END_COLOR, new Color(214, 233, 255));
+		}
+	});
+	
+	/**
+	 * The list of UI themes.
+	 */
+	public static List<UITheme> THEMES = new ArrayList<UITheme>();	// is finalized in starter class
+	
+	/**
+	 * Class for parsing and storing UI themes.
+	 * @author A. Behne
+	 */
+	public static class UITheme {
+
+		/**
+		 * The title of the theme.
+		 */
+		private String title;
+		
+		/**
+		 * The prototype color used in previewing the theme.
+		 */
+		private Color prototypeColor;
+		
+		/**
+		 * Map for storing colors and their respective UI enum.
+		 */
+		private Map<UIColor, Color> colorMap;
+		
+		/**
+		 * Constructs a theme using the specified color map.
+		 * @param colorMap the color map
+		 */
+		public UITheme(String title, Color prototypeColor,
+				Map<UIColor, Color> colorMap) {
+			this.title = title;
+			this.prototypeColor = prototypeColor;
+			this.colorMap = colorMap;
+		}
+		
+		/**
+		 * Constructs a theme by parsing the specified theme file.
+		 * @param path the theme file
+		 */
+		public UITheme(File file) {
+			colorMap = new HashMap<UIColor, Color>();
+			this.parse(file);
+		}
+		
+		/**
+		 * Convenience method to get a theme by its name;
+		 * @param title the theme title
+		 * @return the desired theme or <code>null</code>
+		 *  if no theme with the specified name exists
+		 */
+		public static UITheme valueOf(String title) {
+			if (title != null) {
+				for (UITheme theme : THEMES) {
+					if (title.equals(theme.getTitle())) {
+						return theme;
+					}
+				}
+			}
+			return null;
+		}
+		
+		/**
+		 * Parses the theme file located at the specified path and stores its
+		 * values.
+		 * @param path the path to the theme file
+		 */
+		private void parse(File file) {
+			
+			if (!file.exists()) {
+				System.err.println("File \'" + file + "\' not found!");
+				return;
+			}
+			
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				// Parse first line
+				String line = br.readLine();
+				String[] split = line.split(",");
+				// Extract title and prototype color from first line
+				this.title = split[0];
+				this.prototypeColor = new Color(
+						Integer.valueOf(split[1]),
+						Integer.valueOf(split[2]),
+						Integer.valueOf(split[3]));
+				// Parse remaining files
+				while ((line = br.readLine()) != null) {
+					split = line.split(",");
+					// Extract UI color reference and default color
+					UIColor uiColor = UIColor.valueOf(split[0]);
+					Color color = new Color(
+							Integer.valueOf(split[1]),
+							Integer.valueOf(split[2]),
+							Integer.valueOf(split[3]));
+					// Map UI color reference to default color
+					colorMap.put(uiColor, color);
+				}
+				br.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		/**
+		 * Applies the colors stored in this theme.
+		 */
+		public void applyTheme() {
+			for (Entry<UIColor, Color> entry : colorMap.entrySet()) {
+				UIColor uiColor = entry.getKey();
+				Color color = entry.getValue();
+				uiColor.setDefaultColor(color);
+				uiColor.reset();
+			}
+		}
+		
+		/**
+		 * Writes a theme configuration to the specified file.
+		 * @param file the theme file
+		 */
+		public void writeToFile(File file) {
+			try {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				Color protoCol = this.getPrototypeColor();
+				// write header info
+				bw.write(this.getTitle() + ","
+						+ protoCol.getRed() + ","
+						+ protoCol.getGreen() + ","
+						+ protoCol.getBlue());
+				bw.newLine();
+				// write color constants
+				for (Entry<UIColor, Color> entry : colorMap.entrySet()) {
+					Color col = entry.getValue();
+					bw.write(entry.getKey().name() + ","
+							+ col.getRed() + ","
+							+ col.getGreen() + ","
+							+ col.getBlue());
+					bw.newLine();
+				}
+				bw.flush();
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		/**
+		 * Returns the title of the theme.
+		 * @return the theme title.
+		 */
+		public String getTitle() {
+			return this.title;
+		}
+		
+		/**
+		 * Returns the prototype color of this theme.
+		 * @return the prototype color
+		 */
+		public Color getPrototypeColor() {
+			if (this.prototypeColor == null) {
+				return this.colorMap.get(UIColor.TEXT_SELECTION_BACKGROUND_COLOR);
+			}
+			return this.prototypeColor;
+		}
+		
+		/**
+		 * Returns the color mappings.
+		 * @return the color map
+		 */
+		public Map<UIColor, Color> getColorMap() {
+			return this.colorMap;
+		}
+		
+		@Override
+		public String toString() {
+			return this.getTitle();
+		}
+		
+	}
 }

@@ -34,6 +34,7 @@ import de.mpa.client.ExportFields;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
+import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.DbConnectionSettings;
 
 public class ClientFrameMenuBar extends JMenuBar {
@@ -128,40 +129,39 @@ public class ClientFrameMenuBar extends JMenuBar {
 				client.exit();
 			}
 		});
+		
 		fileMenu.add(newProjectItem);
 		fileMenu.add(openProjectItem);
 		fileMenu.add(saveProjectItem);
 		fileMenu.addSeparator();
 		fileMenu.add(exitItem);
-		this.add(fileMenu);
 
 		// Settings Menu
-		JMenu settingsMenu = new JMenu();
-
-		settingsMenu.setText("Settings");
+		JMenu settingsMenu = new JMenu("Settings");
 		
-		JMenuItem colorsItem = new JMenuItem("Color Settings");
+		// Color settings item
+		JMenuItem colorsItem = new JMenuItem("Color Settings", 
+				IconConstants.COLOR_SETTINGS_ICON);
 		colorsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ColorsDialog.getInstance().setVisible(true);
 			}
 		});
 
-		JMenuItem databaseItem = new JMenuItem("Database Connection",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database.png")));
-
-		// action listener for database settings
+		// Database settings item
+		JMenuItem databaseItem = new JMenuItem("Database Connection", 
+				IconConstants.DATABASE_SETTINGS_ICON);
 		databaseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				showDatabaseSettings();
 			}
 		});
-		databaseItem.setEnabled(!Client.getInstance().isViewer());
+		databaseItem.setEnabled(!client.isViewer());
 
-		// serverItem
+		// Server settings item
 		JMenuItem serverItem = new JMenuItem("Server Configuration",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/server.png")));
+				IconConstants.SERVER_SETTINGS_ICON);
 		final JPanel srvPnl = constructServerSettingsPanel();
 		serverItem.addActionListener(new ActionListener() {
 			@Override
@@ -177,14 +177,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 				}
 			}
 		});
-		serverItem.setEnabled(!Client.getInstance().isViewer());
+		serverItem.setEnabled(!client.isViewer());
 
 		settingsMenu.add(colorsItem);
 		settingsMenu.addSeparator();
 		settingsMenu.add(databaseItem);
 		settingsMenu.add(serverItem);
 		
-		this.add(settingsMenu);
 
 		// Export menu
 		JMenu exportMenu = new JMenu();
@@ -202,7 +201,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportMenu.add(exportProteinsItem);
 		
 		// Add export menu to menubar.
-		this.add(exportMenu);
 		
 //		// Pathway menu
 //		JMenu pathwayMenu = new JMenu();		
@@ -262,6 +260,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 		helpMenu.add(aboutItem);
+		
+		this.add(fileMenu);
+		this.add(settingsMenu);
+		this.add(exportMenu);
 		this.add(helpMenu);
 	}
 	
@@ -273,7 +275,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	}
 	
 	/**
-	 * Showt the database settings.
+	 * Shows the database settings.
 	 */
 	public void showDatabaseSettings() {
 		if (dbPnl == null) {

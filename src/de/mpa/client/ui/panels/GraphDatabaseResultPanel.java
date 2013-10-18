@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,7 +18,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.neo4j.cypher.javacompat.ExecutionResult;
@@ -131,12 +129,7 @@ public class GraphDatabaseResultPanel extends JPanel {
         treeTable.getTableHeader().setReorderingAllowed(true);
 
         // Enables column control
-        treeTable.setColumnControlVisible(true);
-        treeTable.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-        treeTable.getColumnControl().setOpaque(false);
-		((ColumnControlButton) treeTable.getColumnControl()).setAdditionalActionsVisible(false);
+        TableConfig.configureColumnControl(treeTable);
         
     }
 

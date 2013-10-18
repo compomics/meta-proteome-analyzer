@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.GradientPaint;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,13 +34,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
-import org.jdesktop.swingx.painter.MattePainter;
+import org.jdesktop.swingx.plaf.LookAndFeelAddons;
+import org.jdesktop.swingx.plaf.TaskPaneContainerUI;
 import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -51,7 +50,6 @@ import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 
@@ -83,15 +81,6 @@ public class AdvancedSettingsDialog extends JDialog {
 	public AdvancedSettingsDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
 		super(owner, title, modal);
 		this.parameterMap = parameterMap;
-		
-		// TODO: find better place to store these values (and do this only once preferably)
-		UIManager.put("TaskPane.titleForeground", PanelConfig.getTitleForeground());
-		GradientPaint paint = (GradientPaint) (((MattePainter) PanelConfig.getTitlePainter()).getFillPaint());
-		UIManager.put("TaskPane.titleBackgroundGradientStart", paint.getColor1());
-		UIManager.put("TaskPane.titleBackgroundGradientEnd", paint.getColor2());
-		UIManager.put("TaskPane.titleOver", paint.getColor2().darker());
-		UIManager.put("TaskPane.borderColor", paint.getColor2());
-		
 		initComponents();
 	}
 	
@@ -139,7 +128,9 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Init task pane container
 		final JXTaskPaneContainer tpc = new JXTaskPaneContainer();
 		((VerticalLayout) tpc.getLayout()).setGap(10);
-		tpc.setBackground(UIManager.getColor("ProgressBar.foreground"));
+		
+		System.out.println((TaskPaneContainerUI) LookAndFeelAddons.getUI(tpc,
+                TaskPaneContainerUI.class));
 		
 		// Group parameters by section identifiers
 		Map<String, List<Parameter>> sectionMap = getSectionMap(params);
@@ -155,17 +146,9 @@ public class AdvancedSettingsDialog extends JDialog {
 				
 				// Apply component listener to synchronize task pane size with dialog size
 				taskPane.addComponentListener(new ComponentAdapter() {
-					private Dimension size = null;
 					@Override
 					public void componentResized(ComponentEvent e) {
-						Dimension newSize = e.getComponent().getSize();
-						if (size != null) {
-							int delta = newSize.height - size.height;
-							Dimension dialogSize = new Dimension(getSize());
-							dialogSize.height += delta;
-							setSize(dialogSize);
-						}
-						size = newSize;
+						pack();
 					}
 				});
 				

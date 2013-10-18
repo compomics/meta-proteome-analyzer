@@ -61,11 +61,12 @@ public class BarChartPanel extends JPanel {
 				int width = (int) (getWidth() * rel);
 //				g2.setPaint(new GradientPaint(pt1, ColorUtils.DARK_ORANGE,
 //						pt2, ColorUtils.LIGHT_ORANGE));
-//				g2.setPaint(new GradientPaint(pt1, Color.DARK_GRAY,
+//				g2.setPaint(new GradientPaint(
+//						pt1, Color.DARK_GRAY,
 //						pt2, Color.LIGHT_GRAY));
 				g2.setPaint(new GradientPaint(
-						pt1, Color.DARK_GRAY,
-						pt2, Color.LIGHT_GRAY));
+						pt1, UIManager.getColor("barChartPanel.backgroundStartColor"),
+						pt2, UIManager.getColor("barChartPanel.backgroundEndColor")));
 				g2.fillRect(getWidth() - width, 0, width, getHeight());
 				String str = String.format("%.1f", rel * 100.0) + "%";
 				Rectangle2D bounds = g2.getFontMetrics().getStringBounds(str, g2);

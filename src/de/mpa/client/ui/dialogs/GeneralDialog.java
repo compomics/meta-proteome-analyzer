@@ -549,7 +549,7 @@ public class GeneralDialog extends JDialog {
 		
 		// Table for properties
 		propertyTbl = new JXTable(dtm);
-		propertyTbl.setColumnControlVisible(true);
+		TableConfig.configureColumnControl(propertyTbl);
 		
 		//  Shows property name and values of the selected table row and enables editing the entry
 		propertyTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

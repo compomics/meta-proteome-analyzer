@@ -17,7 +17,7 @@ public class RoundedHoverButtonUI extends BasicButtonUI {
 	@Override
 	public void update(Graphics g, JComponent c) {
         AbstractButton b = (AbstractButton) c;
-		if (b.getModel().isRollover() || b.isSelected()) {
+		if (b.getModel().isRollover() || b.getModel().isArmed() || b.isSelected()) {
 			g.setColor(new Color(255, 255, 255, 159));
 			g.fillRoundRect(0, 0, c.getWidth()-2, c.getHeight()-2, 5, 5);
 

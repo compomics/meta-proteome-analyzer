@@ -32,10 +32,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 
 import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.painter.Painter;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -87,10 +85,8 @@ public class SettingsPanel extends JPanel {
 
 		this.setLayout(layout);
 				
-		Border ttlBorder = PanelConfig.getTitleBorder();
-		Painter ttlPainter = PanelConfig.getTitlePainter();
-		Font ttlFont = PanelConfig.getTitleFont();
 		Color ttlForeground = PanelConfig.getTitleForeground();
+		Font ttlFont = PanelConfig.getTitleFont();
 		final Color bgCol = UIManager.getColor("Label.background");
 		
 		// database search settings panel
@@ -115,11 +111,7 @@ public class SettingsPanel extends JPanel {
 		databaseChk.setFocusPainted(false);
 		databaseChk.setOpaque(false);
 		
-		JXTitledPanel dbTtlPnl = new JXTitledPanel(" ", databasePnl);
-		dbTtlPnl.setLeftDecoration(databaseChk);
-		dbTtlPnl.setTitleFont(ttlFont);
-		dbTtlPnl.setTitlePainter(ttlPainter);
-		dbTtlPnl.setBorder(ttlBorder);
+		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel(" ", databasePnl, databaseChk, null);
 		
 		// spectral library search settings panel
 		specLibPnl = new SpecLibSearchPanel();
@@ -143,11 +135,7 @@ public class SettingsPanel extends JPanel {
 		specLibChk.setFocusPainted(false);
 		specLibChk.setOpaque(false);
 		
-		JXTitledPanel slTtlPnl = new JXTitledPanel(" ", specLibPnl);
-		slTtlPnl.setLeftDecoration(specLibChk);
-		slTtlPnl.setTitleFont(ttlFont);
-		slTtlPnl.setTitlePainter(ttlPainter);
-		slTtlPnl.setBorder(ttlBorder);
+		JXTitledPanel slTtlPnl = PanelConfig.createTitledPanel(" ", specLibPnl, specLibChk, null);
 		
 		// de novo search settings panel
 		deNovoPnl = new DeNovoSearchPanel();
@@ -171,11 +159,7 @@ public class SettingsPanel extends JPanel {
 		deNovoChk.setFocusPainted(false);
 		deNovoChk.setOpaque(false);
 		
-		JXTitledPanel dnTtlPnl = new JXTitledPanel(" ", deNovoPnl);
-		dnTtlPnl.setLeftDecoration(deNovoChk);
-		dnTtlPnl.setTitleFont(ttlFont);
-		dnTtlPnl.setTitlePainter(ttlPainter);
-		dnTtlPnl.setBorder(ttlBorder);
+		JXTitledPanel dnTtlPnl = PanelConfig.createTitledPanel(" ", deNovoPnl, deNovoChk, null);
 		
 		// general settings panel
 		JPanel processPnl = new JPanel();
@@ -212,9 +196,7 @@ public class SettingsPanel extends JPanel {
 		processPnl.add(processBtn, CC.xyw(2, 6, 5));
 
 		JXTitledPanel procTtlPnl = new JXTitledPanel("General", processPnl);
-		procTtlPnl.setTitleFont(ttlFont);
-		procTtlPnl.setTitlePainter(ttlPainter);
-		procTtlPnl.setBorder(ttlBorder);
+		PanelConfig.decorate(procTtlPnl);
 		
 		// XXX: just a placeholder, remove or relocate button/functionality
 		JButton quickBtn = new JButton("Quick Search File", IconConstants.LIGHTNING_ICON);

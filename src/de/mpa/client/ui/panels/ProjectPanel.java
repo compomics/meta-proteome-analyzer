@@ -1,8 +1,6 @@
 package de.mpa.client.ui.panels;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,7 +17,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -30,8 +26,6 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
-import org.jdesktop.swingx.painter.Painter;
-import org.jdesktop.swingx.table.ColumnControlButton;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -168,10 +162,10 @@ public class ProjectPanel extends JPanel {
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu",
 				"5dlu, t:p, 5dlu, f:p:g, 5dlu, b:p, 5dlu"));
 				
-		Border ttlBorder = PanelConfig.getTitleBorder();
-		Painter ttlPainter = PanelConfig.getTitlePainter();
-		Font ttlFont = PanelConfig.getTitleFont();
-		Color ttlForeground = PanelConfig.getTitleForeground();
+//		Border ttlBorder = PanelConfig.getTitleBorder();
+//		Painter ttlPainter = PanelConfig.getTitlePainter();
+//		Font ttlFont = PanelConfig.getTitleFont();
+//		Color ttlForeground = PanelConfig.getTitleForeground();
 		
 		// Current project panel
 		JPanel curProjectPnl = new JPanel();
@@ -193,11 +187,12 @@ public class ProjectPanel extends JPanel {
 		curProjectPnl.add(new JLabel("Selected Experiment:"), CC.xy(2,4));
 		curProjectPnl.add(selExperimentTtf, CC.xy(4,4));
 		
-		JXTitledPanel curProjTtlPnl = new JXTitledPanel("Current Project", curProjectPnl);
-		curProjTtlPnl.setBorder(ttlBorder);
-		curProjTtlPnl.setTitlePainter(ttlPainter);
-		curProjTtlPnl.setTitleFont(ttlFont);
-		curProjTtlPnl.setTitleForeground(ttlForeground);
+//		JXTitledPanel curProjTtlPnl = new JXTitledPanel("Current Project", curProjectPnl);
+//		curProjTtlPnl.setBorder(ttlBorder);
+//		curProjTtlPnl.setTitlePainter(ttlPainter);
+//		curProjTtlPnl.setTitleFont(ttlFont);
+//		curProjTtlPnl.setTitleForeground(ttlForeground);
+		JXTitledPanel curProjTtlPnl = PanelConfig.createTitledPanel("Current Project", curProjectPnl);
 		
 		// Setup the table
 		JScrollPane projectTblScp = setupProjectTable();
@@ -209,11 +204,12 @@ public class ProjectPanel extends JPanel {
 		projectPnl.add(projectTblScp, CC.xy(2, 2));
 		projectPnl.add(projectBtnPnl, CC.xy(2, 4));
 		
-		JXTitledPanel projTtlPnl = new JXTitledPanel("Project Viewer", projectPnl);
-		projTtlPnl.setBorder(ttlBorder);
-		projTtlPnl.setTitlePainter(ttlPainter);
-		projTtlPnl.setTitleFont(ttlFont);
-		projTtlPnl.setTitleForeground(ttlForeground);
+//		JXTitledPanel projTtlPnl = new JXTitledPanel("Project Viewer", projectPnl);
+//		projTtlPnl.setBorder(ttlBorder);
+//		projTtlPnl.setTitlePainter(ttlPainter);
+//		projTtlPnl.setTitleFont(ttlFont);
+//		projTtlPnl.setTitleForeground(ttlForeground);
+		JXTitledPanel projTtlPnl = PanelConfig.createTitledPanel("Projects", projectPnl);
 		
 		// Experiment table
 		JScrollPane experimentTblScp = setupExperimentTable();
@@ -225,11 +221,12 @@ public class ProjectPanel extends JPanel {
 		experimentPnl.add(experimentTblScp, CC.xy(2, 2));
 		experimentPnl.add(experimentBtnPnl, CC.xy(2, 4));
 		
-		JXTitledPanel expTtlPnl = new JXTitledPanel("Experiment Viewer", experimentPnl);
-		expTtlPnl.setBorder(ttlBorder);
-		expTtlPnl.setTitlePainter(ttlPainter);
-		expTtlPnl.setTitleFont(ttlFont);
-		expTtlPnl.setTitleForeground(ttlForeground);
+//		JXTitledPanel expTtlPnl = new JXTitledPanel("Experiment Viewer", experimentPnl);
+//		expTtlPnl.setBorder(ttlBorder);
+//		expTtlPnl.setTitlePainter(ttlPainter);
+//		expTtlPnl.setTitleFont(ttlFont);
+//		expTtlPnl.setTitleForeground(ttlForeground);
+		JXTitledPanel expTtlPnl = PanelConfig.createTitledPanel("Experiments", experimentPnl);
 		
 		// Next button
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p, 5dlu, r:p", "b:p:g"));
@@ -459,7 +456,6 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
-		projectTbl.setColumnControlVisible(true);
 		
 		// Selection model for the list: Select one entry of the table only
 		projectTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -485,11 +481,7 @@ public class ProjectPanel extends JPanel {
 		projectTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		// Modify column control widget
-		projectTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		projectTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) projectTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(projectTbl);
 		
 		// Add project table to scroll pane
 		JScrollPane projectTblScp = new JScrollPane(projectTbl);
@@ -527,7 +519,6 @@ public class ProjectPanel extends JPanel {
 						}
 					}
 				});
-		experimentTbl.setColumnControlVisible(true);
 		
 		// Selection model for the list: Select one entry of the table only
 		experimentTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -552,11 +543,7 @@ public class ProjectPanel extends JPanel {
 		experimentTbl.addHighlighter(TableConfig.getSimpleStriping());
 
 		// Modify column control widget
-		experimentTbl.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
-				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
-		experimentTbl.getColumnControl().setOpaque(false);
-		((ColumnControlButton) experimentTbl.getColumnControl()).setAdditionalActionsVisible(false);
+		TableConfig.configureColumnControl(experimentTbl);
 		
 		// Add experiment table to scroll pane
 		JScrollPane experimentTblScp = new JScrollPane(experimentTbl);

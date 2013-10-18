@@ -4,15 +4,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -21,7 +19,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
@@ -29,11 +27,7 @@ import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.decorator.PainterHighlighter;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
-import org.jdesktop.swingx.painter.MattePainter;
-import org.jdesktop.swingx.renderer.JRendererLabel;
+import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
@@ -156,93 +150,6 @@ public class TableConfig {
 	}
 	
 	/**
-	 * Convenience method to create a bar chart-like highlighter for a specific table column.
-	 * 
-	 * @param column The table column.
-	 * @param maxValue 
-	 * @param baseline
-	 * @param startColor The gradient's start color.
-	 * @param endColor The gradient's end color.
-	 * @return A painter highlighter drawing a gradient next to the cell contents.
-	 * @deprecated Replaced by {@link BarChartHighlighter BarChartHighlighter} class.
-	 */
-	@Deprecated
-	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, Color startColor, Color endColor) {
-		return createGradientHighlighter(column, maxValue, baseline, SwingConstants.HORIZONTAL, startColor, endColor, new DecimalFormat());
-	}
-	
-	/**
-	 * Convenience method to create a bar chart-like highlighter for a specific table column.
-	 * 
-	 * @param column
-	 * @param maxValue
-	 * @param baseline
-	 * @param orientation
-	 * @param startColor
-	 * @param endColor
-	 * @return A painter highlighter drawing a gradient next to the cell contents.
-	 * @deprecated Replaced by <code>BarChartHighlighter</code> class.
-	 */
-	@Deprecated
-	public static Highlighter createGradientHighlighter(int column, double maxValue, int baseline, int orientation, Color startColor, Color endColor) {
-		return createGradientHighlighter(column, maxValue, baseline, orientation, startColor, endColor, new DecimalFormat());
-	}
-	
-	/**
-	 * Convenience method to create a bar chart-like highlighter for a specific table column.
-	 * 
-	 * @param column The table column.
-	 * @param maxValue
-	 * @param baseline
-	 * @param orientation
-	 * @param startColor The gradient's start color.
-	 * @param endColor The gradient's end color.
-	 * @param formatter The number formatter for the column cells.
-	 * @return A painter highlighter drawing a gradient next to the cell contents.
-	 * @deprecated Replaced by <code>BarChartHighlighter</code> class.
-	 */
-	@Deprecated
-	public static Highlighter createGradientHighlighter(final int column, final double maxValue, final int baseline, int orientation, Color startColor, Color endColor, final NumberFormat formatter) {
-		HighlightPredicate predicate = new HighlightPredicate() {
-			public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-				return (adapter.column == adapter.convertColumnIndexToView(column));
-			}
-		};
-		// TODO: parametrize some settings, e.g. horizontal alignment, or create proper sub-class for better control
-		final int x = (orientation == SwingConstants.HORIZONTAL) ? 1 : 0;
-		final int y = (orientation == SwingConstants.VERTICAL) ? 1 : 0;
-		PainterHighlighter ph = new PainterHighlighter(predicate, new MattePainter(new GradientPaint(
-				0, y, startColor, x, 0, endColor), true) {
-			protected void doPaint(Graphics2D g, Object component, int width, int height) {
-				JRendererLabel label = (JRendererLabel) component;
-				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				
-				try {
-					NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-				    Number number = format.parse(label.getText());
-				    double value = number.doubleValue();
-
-					String text = formatter.format(value);
-					label.setText(text);
-					int xOffset = (baseline > 0) ? baseline + 4 : 2;
-					label.setBounds(0, 0, baseline, height);
-					width -= xOffset + 2;
-					int clipWidth = ((width < 0) ? 0 : (x == 0) ? width : (int) (value/maxValue * width));
-					int clipHeight = (y == 0) ? (height - 4) : (int) (value/maxValue * (height - 4));
-					int yOffset = height - clipHeight - 2;
-					g.translate(xOffset, 0);
-					g.clipRect(0, yOffset, clipWidth, clipHeight);
-					super.doPaint(g, component, width, height);
-				} catch (Exception e) {
-					JXErrorPane.showDialog(ClientFrame.getInstance(),
-							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				}
-			}
-		});
-		return ph;
-	}
-	
-	/**
 	 * Sets dynamically weighted column widths for a specified table.
 	 * @param table The JTable component.
 	 * @param weights The weight array.
@@ -299,6 +206,20 @@ public class TableConfig {
 			tc.setMinWidth(leftPadding + fm.stringWidth(tc.getHeaderValue().toString()) + rightPadding);
 		}
 	}
+
+	/**
+	 * Convenience method to make table column control border appear the same as
+	 * table header and to hide some popup elements.
+	 * @param table the table to configure
+	 */
+	public static void configureColumnControl(JXTable table) {
+		table.setColumnControlVisible(true);
+		table.getColumnControl().setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(1, 1, 0, 0, Color.WHITE),
+				BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY)));
+		table.getColumnControl().setOpaque(false);
+		((ColumnControlButton) table.getColumnControl()).setAdditionalActionsVisible(false);
+	}
 	
 	/**
 	 * Custom table cell renderer class providing horizontal alignment 
@@ -341,5 +262,53 @@ public class TableConfig {
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column );
 		}
 	}
+	
+	/**
+	 * A <code>HighlightPredicate</code> based on row index.<br>
+	 * Based on {@link HighlightPredicate#ColumnHighlightPredicate}.
+	 * 
+	 * @author A. Behne
+	 */
+	public static class RowHighlightPredicate implements HighlightPredicate {
+		
+		/**
+		 * The indices of the rows that are to be highlighted
+		 */
+        List<Integer> rowList;
+        
+        /**
+         * Instantiates a predicate which returns true for the
+         * given columns in model coordinates.
+         * 
+         * @param columns the columns to highlight in model coordinates.
+         */
+        public RowHighlightPredicate(int... rows) {
+            rowList = new ArrayList<Integer>();
+            for (int i = 0; i < rows.length; i++) {
+                rowList.add(rows[i]);
+            }
+        }
+        
+        /**
+         * {@inheritDoc}
+         * @return <code>true</code> if the adapter's row
+         * is contained in this predicate's list
+         */
+        @Override
+        public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+            int modelIndex = adapter.convertRowIndexToModel(adapter.row);
+            return rowList.contains(modelIndex);
+        }
+
+        /**
+         * Returns the row indices in model coordinates to highlight.
+         * @return the row indices
+         */
+        public Integer[] getColumns() {
+            if (rowList.isEmpty()) return EMPTY_INTEGER_ARRAY;
+            return rowList.toArray(new Integer[rowList.size()]);
+        }
+        
+    }
 	
 }
