@@ -52,10 +52,12 @@ public class ButtonColumn extends AbstractCellEditor
 		renderButton = new JButton();
 		renderButton.setUI(new MetalButtonUI());
 		renderButton.setOpaque(true);
+		renderButton.setBorder(null);
 		editButton = new JButton();
 		editButton.setOpaque(true);
 		editButton.setFocusPainted(false);
 		editButton.addActionListener(this);
+		editButton.setBorder(null);
 		originalBorder = editButton.getBorder();
 		setFocusBorder( new LineBorder(Color.BLUE) );
 

@@ -541,7 +541,4 @@ public class ClientFrame extends JFrame {
 	public void setLastSelectedExportHeaders(List<ExportHeader> lastSelectedExportHeaders) {
 		this.lastSelectedExportHeaders = lastSelectedExportHeaders;
 	}
-	
-	
-	
 }

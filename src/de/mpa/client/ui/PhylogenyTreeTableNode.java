@@ -8,7 +8,9 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.ui.icons.IconConstants;
 
 /**
  * Custom tree table node that supports multiple parents by index.
@@ -34,7 +36,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	@Override
 	public int getColumnCount() {
 		// TODO: parametrize column count?
-		return 11;
+		return 12;
 	}
 	
 	@Override
@@ -72,6 +74,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 				return ph.getEmPAI();
 			case 10:
 				return ph.getNSAF();
+			case 11:
+				return !(userObject instanceof MetaProteinHit) ? IconConstants.WEB_RESOURCE_ICON : null;
 			default:
 				return null;
 			}
@@ -100,6 +104,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	public boolean isProtein() {
 		return (userObject instanceof ProteinHit);
 	}
+	
+	
 	
 	/**
 	 * Returns a child identified by its string representation.<br>

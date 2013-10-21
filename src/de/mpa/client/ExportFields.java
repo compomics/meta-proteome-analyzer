@@ -28,7 +28,6 @@ public class ExportFields {
 	public boolean  proteinNSAF;
 	public boolean  proteinSequence;
 	public boolean  proteinPeptides;
-	//TODO Add Peptidesequences
 	
 	/**
 	 * Peptide export.
