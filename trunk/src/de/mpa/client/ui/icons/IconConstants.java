@@ -260,7 +260,22 @@ public class IconConstants {
 	
 	/** <img src="../../../resources/icons/webresource16.png"> */
 	public static final ImageIcon WEB_RESOURCE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/webresource16.png"));
-	
+	/** <img src="../../../resources/icons/ncbi16.png"> */
+	public static final ImageIcon WEB_NCBI_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/ncbi16.png"));
+	/** <img src="../../../resources/icons/uniprot16.png"> */
+	public static final ImageIcon WEB_UNIPROT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/uniprot16.png"));
+	/** <img src="../../../resources/icons/pfam16.png"> */
+	public static final ImageIcon WEB_PFAM_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/pfam16.png"));
+	/** <img src="../../../resources/icons/interpro16.png"> */
+	public static final ImageIcon WEB_INTERPRO_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/interpro16.png"));
+	/** <img src="../../../resources/icons/pdb16.png"> */
+	public static final ImageIcon WEB_PDB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/pdb16.png"));
+	/** <img src="../../../resources/icons/pride16.png"> */
+	public static final ImageIcon WEB_PRIDE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/pride16.png"));
+	/** <img src="../../../resources/icons/reactome16.png"> */
+	public static final ImageIcon WEB_REACTOME_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/reactome16.png"));
+	/** <img src="../../../resources/icons/kegg16.png"> */
+	public static final ImageIcon WEB_KEGG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/kegg16.png"));
 	
 	/**
 	 * Creates an empty item of the specified width and height.

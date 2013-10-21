@@ -468,7 +468,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 */
     private void showExportDialog() {
     	new ExportDialog(clientFrame, "Results Export", true, exportFields);
-
     }
     
     /**

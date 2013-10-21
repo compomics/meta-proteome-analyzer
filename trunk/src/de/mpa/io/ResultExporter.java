@@ -74,19 +74,25 @@ public class ResultExporter {
 			if (hasFeature[3]) writer.append(metaProtein.getSpecies() + SEP);
 			if (hasFeature[4]) writer.append(metaProtein.getCoverage() * 100 + SEP);
 			if (hasFeature[5]) writer.append(metaProtein.getIdentity() + SEP);
-			if (hasFeature[6]) writer.append((Math.round(metaProtein.getNSAF() * 100000.0) / 100000.0) + SEP);
+			if (hasFeature[6]) writer.append(metaProtein.getNSAF() + SEP);
+//			if (hasFeature[6]) writer.append((Math.round(metaProtein.getNSAF() * 100000.0) / 100000.0) + SEP);
 			if (hasFeature[7]) writer.append(metaProtein.getEmPAI() + SEP);
 			if (hasFeature[8]) writer.append(metaProtein.getSpectralCount() + SEP);
 			if (hasFeature[9]) writer.append(metaProtein.getPeptideCount() + SEP);
 			if (hasFeature[10]) {
-				for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
-					writer.append(peptideHit.getSequence() + ",");
+				List<PeptideHit> peptideHitList = metaProtein.getPeptideHitList();
+				for (int i = 0; i < peptideHitList.size(); i++) {
+					writer.append(peptideHitList.get(i).getSequence());
+					// Append separater, except the last entry
+					if ((i < peptideHitList.size() - 1)) {
+						writer.append(", ");
+					}
 				}
 				writer.append(SEP);
 			}
 			writer.newLine();
 			writer.flush();
-			}
+		}
 		writer.close();
 	}
 	
@@ -127,16 +133,25 @@ public class ResultExporter {
 				if (hasFeature[3]) writer.append(proteinHit.getSpecies() + SEP);
 				if (hasFeature[4]) writer.append(proteinHit.getCoverage() * 100 + SEP);
 				if (hasFeature[5]) writer.append(proteinHit.getPeptideCount() + SEP);
-				if (hasFeature[6]) writer.append((Math.round(proteinHit.getNSAF() * 100000.0) / 100000.0) + SEP);
+				if (hasFeature[6]) writer.append(proteinHit.getNSAF() + SEP);
+//				if (hasFeature[6]) writer.append((Math.round(proteinHit.getNSAF() * 100000.0) / 100000.0) + SEP);
 				if (hasFeature[7]) writer.append(proteinHit.getEmPAI() + SEP);
 				if (hasFeature[8]) writer.append(proteinHit.getSpectralCount() + SEP);
 				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + SEP);
 				if (hasFeature[10]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + SEP);
 				if (hasFeature[11]) writer.append(proteinHit.getSequence());
 				if (hasFeature[12]) {
-					for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-						writer.append(peptideHit.getSequence() + ",");
+					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
+					for (int i = 0; i < peptideHitList.size(); i++) {
+						writer.append(peptideHitList.get(i).getSequence());
+						// Append separater, except the last entry
+						if ((i < peptideHitList.size() - 1)) {
+							writer.append(", ");
+						}
 					}
+					
+					
+					
 					writer.append(SEP);
 				}
 				writer.newLine();
