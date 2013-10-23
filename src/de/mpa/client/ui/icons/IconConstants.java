@@ -43,6 +43,8 @@ public class IconConstants {
 	public static final ImageIcon DATABASE_SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_set16.png"));
 	/** <img src="../../../resources/icons/server16.png"> */
 	public static final ImageIcon SERVER_SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/server_set16.png"));
+	/** <img src="../../../resources/icons/graph16.png"> */
+	public static final ImageIcon GRAPH_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/graph16.png"));
 	
 	/** <img src="../../../resources/icons/settings16.png"> */
 	public static final ImageIcon SETTINGS_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings16.png"));

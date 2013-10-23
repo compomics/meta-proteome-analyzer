@@ -13,10 +13,11 @@ import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
 /**
- * Utility class that handles importing and exporting to and from GraphML format
+ * Utility class that handles importing and exporting to and from GraphML format.
+ * GraphML is an XML-based file format for graphs.
  * @author Miro Lehteva, Thilo Muth
- * @date 2013-01-09
- * @version 0.6.1
+ * @date 2013-10-23
+ * @version 0.8
  *
  */
 public class GraphMLHandler {
@@ -39,17 +40,13 @@ public class GraphMLHandler {
 	 * Writes graph into a GraphML file 
 	 * @param outputGraph the Graph that will be written to GraphML file
 	 * @param outputFile File to write the GraphML
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public static void exportGraphML(Graph outputGraph, File outputFile){
-		try {
-			GraphMLWriter writer = new GraphMLWriter(outputGraph);
-			writer.setNormalize(true);			
-			writer.outputGraph(new FileOutputStream(outputFile));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public static void exportGraphML(Graph outputGraph, File outputFile) throws FileNotFoundException, IOException {
+		GraphMLWriter writer = new GraphMLWriter(outputGraph);
+		writer.setNormalize(true);
+		writer.outputGraph(new FileOutputStream(outputFile));
 	}
 	
 	/**

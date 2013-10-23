@@ -67,28 +67,49 @@ import de.mpa.webservice.WSPublisher;
 
 public class Client {
 
-	// Client instance
+	/**
+	 * Client instance.
+	 */
 	private static Client client = null;
 
-	// Server service
+	/**
+	 * Server implementation service.
+	 */
 	private ServerImplService service;
 
-	// Server instance
+	/**
+	 * Webservice server instance.
+	 */
 	private Server server;
 
-	// Connection
+	/**
+	 * SQL database connection.
+	 */
 	private Connection conn;
 	
+	/**
+	 * SQL database connection settings.
+	 */
 	private DbConnectionSettings dbSettings;
+	
+	/**
+	 * Webservice/server connection settings.
+	 */
 	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
 
 	/**
-	 *  Property change support for notifying the gui about new messages.
+	 *  Property change support for notifying the GUI about new messages.
 	 */
 	private PropertyChangeSupport pSupport;
-
+	
+	/**
+	 * Database search result.
+	 */
 	private DbSearchResult dbSearchResult;
 
+	/**
+	 * Spectral similarity search result.
+	 */
 	private SpecSimResult specSimResult;
 
 	/**
@@ -118,8 +139,6 @@ public class Client {
 
 	/**
 	 * The constructor for the client (private for singleton object).
-	 * 
-	 * @param name
 	 */
 	private Client() {
 		pSupport = new PropertyChangeSupport(this);
@@ -138,9 +157,8 @@ public class Client {
 		return client;
 	}
 
-	// End SQL for protein Databases****************************************************
 	/**
-	 * Sets the database connection.
+	 * Initializes the SQL database connection.
 	 * @throws SQLException 
 	 */
 	public void initDBConnection() throws SQLException {
@@ -153,7 +171,7 @@ public class Client {
 	}
 
 	/**
-	 * Clears the database connection.
+	 * Closes the database connection.
 	 * @throws SQLException 
 	 */
 	public void closeDBConnection() throws SQLException {
@@ -204,8 +222,8 @@ public class Client {
 	}
 
 	/**
-	 * Send the message. 
-	 * @param msg
+	 * Receives a message from the server - forces the server to send a message.
+	 * @return String Received Message
 	 */
 	public String receiveMessage() {
 		return server.sendMessage();
@@ -213,8 +231,8 @@ public class Client {
 
 	/**
 	 * Returns the contents of the file in a byte array.
-	 * @param file
-	 * @return
+	 * @param file File object
+	 * @return Byte array for file
 	 * @throws IOException
 	 */
 	public byte[] getBytesFromFile(File file) throws IOException {
@@ -274,7 +292,6 @@ public class Client {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
-		
 	}
 
 	/**
@@ -630,7 +647,6 @@ public class Client {
 				throw e;
 			}	
 		}
-
 		return filenames;
 	}
 

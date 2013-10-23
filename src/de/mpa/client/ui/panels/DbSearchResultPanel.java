@@ -931,11 +931,15 @@ public class DbSearchResultPanel extends JPanel {
 
 					// Populate tables
 					refreshProteinTables();
-
-					// Enable export functionality
-					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
-					// Enable Save Project functionality
-					((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+					
+					// ClientFrameMenuBar controlling
+					ClientFrameMenuBar clientFrameMenuBar = (ClientFrameMenuBar) clientFrame.getJMenuBar();
+					// Enable CSV results export function
+					clientFrameMenuBar.setExportCSVResultsEnabled(true);
+					// Enable save project function
+					clientFrameMenuBar.setSaveProjectEnabled(true);
+					// Enable graphML function
+					clientFrameMenuBar.setExportGraphMLEnabled(true);
 				}
 				
 				// Setup graph database.
@@ -964,9 +968,9 @@ public class DbSearchResultPanel extends JPanel {
 			updateChart(chartType);
 			
 			// Enable export functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportResultsEnabled(true);
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportCSVResultsEnabled(true);
 			// Enable Save Project functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveprojectFunctionalityEnabled(true);
+			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveProjectEnabled(true);
 		}
 
 	}

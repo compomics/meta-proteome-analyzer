@@ -51,7 +51,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JPasswordField dbPassTtf;
 	private JLabel dbConnTestLbl;
 	private JPanel dbPnl;
-	private JMenuItem exportProteinsItem;
+	private JMenuItem exportCSVResultsItem;
 //	private JMenuItem keggItem;
 	private JMenuItem saveProjectItem;
 	private ServerConnectionSettings srvSettings;
@@ -60,6 +60,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * Class containing all values for the export checkboxes.
 	 */
 	private ExportFields exportFields;
+	private JMenuItem exportGraphMLItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -97,26 +98,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		saveProjectItem.setEnabled(false);
 		saveProjectItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						JFileChooser chooser = new ConfirmFileChooser();
-						chooser.setFileFilter(Constants.MPA_FILE_FILTER);
-						chooser.setAcceptAllFileFilterUsed(false);
-						int returnVal = chooser.showSaveDialog(clientFrame);
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							File selFile = chooser.getSelectedFile();
-							if (selFile != null) {
-								String filePath = selFile.getPath();
-								if (!filePath.toLowerCase().endsWith(".mpa")) {
-									filePath += ".mpa";
-								}
-								Client.getInstance().writeDbSearchResultToFile(filePath);
-							}
-						}
-						return null;
-					}
-				}.execute();
+				saveProjectButtonTriggered();
 			}
 		});
 
@@ -188,55 +170,40 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// Export menu
 		JMenu exportMenu = new JMenu();
 		exportMenu.setText("Export");
-		// Export proteins
-		exportProteinsItem = new JMenuItem();
-		exportProteinsItem.setText("Results");
-		exportProteinsItem.setEnabled(true);
-		exportProteinsItem.addActionListener(new ActionListener() {
+		// Export CSV results
+		exportCSVResultsItem = new JMenuItem();
+		exportCSVResultsItem.setText("CSV Results");
+		exportCSVResultsItem.setIcon(IconConstants.EXCEL_EXPORT_ICON);
+		exportCSVResultsItem.setEnabled(false);
+		exportCSVResultsItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				showExportDialog();
 			}
 		});
-		exportMenu.add(exportProteinsItem);
-		
-		// Add export menu to menubar.
-		
-//		// Pathway menu
-//		JMenu pathwayMenu = new JMenu();		
-//		pathwayMenu.setText("Pathways");
-//
-//		// Kegg item
-//		keggItem = new JMenuItem();
-//		keggItem.setText("Kegg");
-//		keggItem.setEnabled(false);
-//		keggItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/kegg.png")));
-//		keggItem.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-////				PathwayDialog pathwayDialogPdg = new PathwayDialog(PathwayType.KEGG,clientFrame);
-//				new SwingWorker<Void, Void>() {
-//					@Override
-//					protected Void doInBackground() throws Exception {
-//						clientFrame.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-//						PathwayDialog.showKeggDialog(clientFrame);
-//						return null;
-//					}
-//					protected void done() {
-//						clientFrame.setCursor(null);
-//					};
-//				}.execute();
-//			}
-//		});
-//		pathwayMenu.add(keggItem);
-//		// Add pathway to menubar
-//		this.add(pathwayMenu);
+		exportMenu.add(exportCSVResultsItem);	
+
+		exportMenu.addSeparator();
+
+		// Export graphML file
+		exportGraphMLItem = new JMenuItem();
+		exportGraphMLItem.setText("GraphML File");
+		exportGraphMLItem.setIcon(IconConstants.GRAPH_ICON);
+		exportGraphMLItem.setEnabled(false);
+		exportGraphMLItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				saveGraphMLItemTriggered();
+			}
+		});
+		exportMenu.add(exportGraphMLItem);	
 		
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
 		helpMenu.setText("Help");
 
-		// helpContentsItem
+		// Help Contents
 		JMenuItem helpContentsItem = new JMenuItem();
 		helpContentsItem.setText("Help Contents");
 
@@ -471,18 +438,78 @@ public class ClientFrameMenuBar extends JMenuBar {
     }
     
     /**
-     * Enables the export functionalities.
-     * @param enabled The state of the export menu items.
+     * Executed when the save project button is triggered. Via a file chooser the user can select the destination of the project (MPA) file.
      */
-	public void setExportResultsEnabled(boolean enabled) {
-    	exportProteinsItem.setEnabled(enabled);
+	private void saveProjectButtonTriggered() {
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				JFileChooser chooser = new ConfirmFileChooser();
+				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
+				int returnVal = chooser.showSaveDialog(clientFrame);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selFile = chooser.getSelectedFile();
+					if (selFile != null) {
+						String filePath = selFile.getPath();
+						if (!filePath.toLowerCase().endsWith(".mpa")) {
+							filePath += ".mpa";
+						}
+						Client.getInstance().writeDbSearchResultToFile(filePath);
+					}
+				}
+				return null;
+			}
+		}.execute();
+	}
+	
+    /**
+     * Executed when the graphML menu item is triggered. Via a file chooser the user can select the destination of the GraphML file.
+     */
+	private void saveGraphMLItemTriggered() {
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				JFileChooser chooser = new ConfirmFileChooser();
+				chooser.setFileFilter(Constants.GRAPHML_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
+				int returnVal = chooser.showSaveDialog(clientFrame);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selFile = chooser.getSelectedFile();
+					if (selFile != null) {
+						String filePath = selFile.getPath();
+						if (!filePath.toLowerCase().endsWith(".graphml")) {
+							filePath += ".graphml";
+						}
+						Client.getInstance().getGraphDatabaseHandler().exportGraph(new File(filePath));
+					}
+				}
+				return null;
+			}
+		}.execute();
+	}
+    
+    /**
+     * Enables the export CSV results function.
+     * @param enabled The state of the CSV result export menu item
+     */
+	public void setExportCSVResultsEnabled(boolean enabled) {
+    	exportCSVResultsItem.setEnabled(enabled);
+    }
+	
+    /**
+     * Enables the export GraphML function.
+     * @param enabled The state of the GraphML export menu item
+     */
+	public void setExportGraphMLEnabled(boolean enabled) {
+    	exportGraphMLItem.setEnabled(enabled);
     }
     
     /**
-     * Enables the pathway functionalities
-     * @param enabled The state of the pathway menu items.
+     * Enables the save project function.
+     * @param enabled The state of the save project menu item
      */
-	public void setSaveprojectFunctionalityEnabled(boolean enabled) {
+	public void setSaveProjectEnabled(boolean enabled) {
     	saveProjectItem.setEnabled(enabled);
     }
 }
