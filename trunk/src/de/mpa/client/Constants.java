@@ -40,7 +40,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.7.2";
+	public final static String VER_NUMBER = "0.7.3";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -178,13 +178,15 @@ public class Constants {
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format Files (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
-			"MetaProteomeAnalyzer Project Files (*.mpa)");
+			"MetaProteomeAnalyzer Project File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
-			"CSV (tab-separated) Files (*.csv)");
+			"CSV (tab-separated) File (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
 			"Raw Mascot Result File (*.dat)");
+	public static final FileFilter GRAPHML_FILE_FILTER = new ExtensionFileFilter(".graphml", false,
+			"GraphML File (*.graphml)");
 
 	// Protein table column indices
 	public static final int PROT_SELECTION = 0;

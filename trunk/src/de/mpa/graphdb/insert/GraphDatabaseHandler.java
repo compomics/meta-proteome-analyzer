@@ -1,10 +1,15 @@
 package de.mpa.graphdb.insert;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -26,6 +31,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.edges.RelationType;
 import de.mpa.graphdb.io.GraphMLHandler;
@@ -95,7 +101,19 @@ public class GraphDatabaseHandler {
 	 * Exports the graph to an GraphML output file.
 	 */
 	public void exportGraph(File outputFile) {
-		GraphMLHandler.exportGraphML(graph, outputFile);
+		Client client = Client.getInstance();
+		String status = "FINISHED";
+		client.firePropertyChange("new message", null, "EXPORTING GRAPHML FILE");
+		client.firePropertyChange("indeterminate", false, true);
+		try {
+			GraphMLHandler.exportGraphML(graph, outputFile);
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
+		} 
+		client.firePropertyChange("indeterminate", true, false);
+		client.firePropertyChange("new message", null, "EXPORTING GRAPHML FILE " + status);
 	}
 	
 	/**
