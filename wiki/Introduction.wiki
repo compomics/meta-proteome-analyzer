@@ -1,5 +1,6 @@
-#summary One-sentence summary of this page.
+#summary Introduction chapter to the MetaProteomeAnalyzer
 #labels Featured
+#sidebar TableOfContents
 
 == Introduction ==
 MetaProteomeAnalyzer (MPA) is a stand-alone platform-independent application written in Java and developed at [http://www.mpi-magdeburg.mpg.de Max Planck Institute for Dynamics of Complex Technical Systems Magdeburg/Germany].
