@@ -1,6 +1,6 @@
 #summary How to install the MetaProteomeAnalyzer on a linux server.
 #labels Featured,Phase-Deploy
-
+#sidebar TableOfContents
 =MetaProteomeAnalyzer Server Installation=
 
 The MPA server installation guide consists of three main parts:
