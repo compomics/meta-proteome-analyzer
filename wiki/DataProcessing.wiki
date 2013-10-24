@@ -1,11 +1,19 @@
 #summary The data processing workflow is explained in detail.
 #labels Featured
 #sidebar TableOfContents
+
+<table>
+  <tr>
+    <td width="70%">
  * [#MainView Main View]
  * [#ProjectSetup Project Setup]
  * [#InputSpectra Input Spectra]
  * [#SearchSettings Search Settings]
+    </td>
+  </tr>
+</table>
 
+----
 ==Main View==
 
 After starting the MPA client application the main window is displayed.
@@ -30,6 +38,7 @@ The MPA menu bar holds following functions:
 
 [#DataProcessing Go to top of page]
 
+----
 ==Project Setup==
 
 Main window directly shows the project setup panel. By using the process navigation panel a return to the project setup is possible at any time. 
@@ -42,6 +51,7 @@ After finishing project and experiment setup, the file input window can be reach
 
 [#DataProcessing Go to top of page]
 
+----
 ==Input Spectra==
 
 There are two ways for loading data files into the MPA within the file input panel. Files of MGF data format can directly be loaded via `Add from File…` button. Additionally, data sets that have been processed previously using MASCOT and were exported as DAT files can be put in here as well. A new window will open in which wanted files can be selected, multiple selections are allowed. If local access to a SQL database (DB) exists, it is possible to fetch results from it by using the `Add from DB…` button. Again a new window will open that allows fetching data sets by their experiment Identifier (ID). Additionally, it can further be specified, which spectra of an experiment should be fetched (e.g. annotated only).
@@ -52,7 +62,9 @@ After selecting the spectra the search settings panel can be reached using the `
 
 [#DataProcessing Go to top of page]
 
+----
 ==Search Settings==
+
 By means of database search experimental MS/MS spectra from sample peptides are compared with theoretical spectra derived by in-silico digestion and fragmentation of proteins from a database in order to identify sample proteins. 
 
 First the database for this matching has to be specified and parameters like ion tolerances, number of missed cleavages and the protease itself have to be set. 
