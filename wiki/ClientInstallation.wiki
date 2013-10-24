@@ -1,0 +1,26 @@
+#summary Client Installation of the MetaProteomeAnalyzer
+#labels Featured
+#sidebar TableOfContents
+
+== Client Installation ==
+
+Before installing MetaProteomeAnalyzer, please make sure that you have Java 1.6 installed. To check the currently installed java version, open a console/bash window and type:
+
+`java –version`
+
+If you haven't installed Java 1.6 or higher, go directly to
+[http://www.java.com/download/ Java.com] to download a proper version of Java.
+
+===System requirements:===
+ * *Operating system*: Platform-independent (tested on Windows XP, Windows Vista, Windows 7, various Linux/Ubuntu distributions)
+ * *Memory*: The bigger the better (preferably 1 GB at least)
+
+
+Please download the latest version of `mpa-client-X.Y.Z.zip` (where X, Y and Z represent the current version of the software). 
+
+After downloading the zip file, simply unzip the file and double-click on the `mpa-client-X.Y.Z.jar` file to open the client application.
+
+
+ 
+
+
