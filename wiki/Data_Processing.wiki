@@ -36,7 +36,7 @@ The MPA menu bar holds following functions:
    * _Help Contents_ Provides further documentation/help.
    * _About_ Lists the responsible persons (the software developers).
 
-[#Data_Processing Go to top of page]
+[#Main_View Go to top of page]
 
 ----
 ==Project Setup==
@@ -49,18 +49,18 @@ Specific properties, e.g. names and values, can be added for further customizati
 
 After finishing project and experiment setup, the file input window can be reached by using the process navigation panel or the `Next` button.
 
-[#Data_Processing Go to top of page]
+[#Main_View Go to top of page]
 
 ----
 ==Input Spectra==
 
-There are two ways for loading data files into the MPA within the file input panel. Files of MGF data format can directly be loaded via `Add from File…` button. Additionally, data sets that have been processed previously using MASCOT and were exported as DAT files can be put in here as well. A new window will open in which wanted files can be selected, multiple selections are allowed. If local access to a SQL database (DB) exists, it is possible to fetch results from it by using the `Add from DB…` button. Again a new window will open that allows fetching data sets by their experiment Identifier (ID). Additionally, it can further be specified, which spectra of an experiment should be fetched (e.g. annotated only).
+There are two ways for loading data files into the MPA within the file input panel. Files of MGF data format can directly be loaded via `Add from Fileâ€¦` button. Additionally, data sets that have been processed previously using MASCOT and were exported as DAT files can be put in here as well. A new window will open in which wanted files can be selected, multiple selections are allowed. If local access to a SQL database (DB) exists, it is possible to fetch results from it by using the `Add from DBâ€¦` button. Again a new window will open that allows fetching data sets by their experiment Identifier (ID). Additionally, it can further be specified, which spectra of an experiment should be fetched (e.g. annotated only).
 
 Chosen data will be shown as tree, adding further files containing data to this window is possible. Table including selected spectra offers several columns that contain specified quantitative information. 
 
 After selecting the spectra the search settings panel can be reached using the `Next` button.
 
-[#Data_Processing Go to top of page]
+[#Main_View Go to top of page]
 
 ----
 ==Search Settings==
@@ -69,7 +69,7 @@ By means of database search experimental MS/MS spectra from sample peptides are 
 
 First the database for this matching has to be specified and parameters like ion tolerances, number of missed cleavages and the protease itself have to be set. 
 
-MPA allows up to four search engines to identify peptides and proteins. All searches can be customized using the `Advanced Settings` button. Those parameters set in the general settings count for each search engine. Finally the search strategy has to be set at “Target Only” or `Target-Decoy`, the latter is implemented as a search in reversed database chosen ahead, which allows to calculate a false discovery rate for the identification.
+MPA allows up to four search engines to identify peptides and proteins. All searches can be customized using the `Advanced Settings` button. Those parameters set in the general settings count for each search engine. Finally the search strategy has to be set at â€œTarget Onlyâ€� or `Target-Decoy`, the latter is implemented as a search in reversed database chosen ahead, which allows to calculate a false discovery rate for the identification.
 If MASCOT DAT files have been set up for an experiment, `Mascot` has to be selected as an additional, or exclusive, search engine. Using this option does not repeat the MASCOT search. Actually, DAT files do contain more information than shown to the operator; thereby the `Advanced Settings` options allows specifying certain criteria to filter these information before storing them into the DB.
 
-[#Data_Processing Go to top of page]
+[#Main_View Go to top of page]
