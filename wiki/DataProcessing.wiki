@@ -5,10 +5,10 @@
 <table>
   <tr>
     <td width="70%">
- * [#MainView Main View]
- * [#ProjectSetup Project Setup]
- * [#InputSpectra Input Spectra]
- * [#SearchSettings Search Settings]
+ * [#Main_View Main View]
+ * [#Project_Setup Project Setup]
+ * [#Input_Spectra Input Spectra]
+ * [#Search_Settings Search Settings]
     </td>
   </tr>
 </table>
