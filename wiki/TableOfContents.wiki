@@ -1,4 +1,3 @@
-#labels Deprecated
   * [Home Home]
   * [Introduction Introduction]
   * [ClientInstallation Client Installation]
