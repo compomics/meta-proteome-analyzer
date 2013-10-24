@@ -1,3 +1,12 @@
-#summary Welcome to MetaProteomeAnalyzer software.
+#summary Welcome to *MetaProteomeAnalyzer* software suite.
 #labels Featured
 #sidebar TableOfContents
+
+The *MetaProteomeAnalyzer* wiki is structured as follows:
+  * [Introduction Introduction]
+  * [Client_Installation Client Installation]
+  * [Server_Installation Server Installation]
+  * [Data_Processing Data Processing]
+  * [Results_Visualization Results Visualization]
+  * [Data_Exploration Data Exploration]
+  * [Viewer_Mode Viewer Mode]
