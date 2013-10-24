@@ -36,7 +36,7 @@ The MPA menu bar holds following functions:
    * _Help Contents_ Provides further documentation/help.
    * _About_ Lists the responsible persons (the software developers).
 
-[#DataProcessing Go to top of page]
+[#Data_Processing Go to top of page]
 
 ----
 ==Project Setup==
@@ -49,7 +49,7 @@ Specific properties, e.g. names and values, can be added for further customizati
 
 After finishing project and experiment setup, the file input window can be reached by using the process navigation panel or the `Next` button.
 
-[#DataProcessing Go to top of page]
+[#Data_Processing Go to top of page]
 
 ----
 ==Input Spectra==
@@ -60,7 +60,7 @@ Chosen data will be shown as tree, adding further files containing data to this 
 
 After selecting the spectra the search settings panel can be reached using the `Next` button.
 
-[#DataProcessing Go to top of page]
+[#Data_Processing Go to top of page]
 
 ----
 ==Search Settings==
@@ -72,4 +72,4 @@ First the database for this matching has to be specified and parameters like ion
 MPA allows up to four search engines to identify peptides and proteins. All searches can be customized using the `Advanced Settings` button. Those parameters set in the general settings count for each search engine. Finally the search strategy has to be set at “Target Only” or `Target-Decoy`, the latter is implemented as a search in reversed database chosen ahead, which allows to calculate a false discovery rate for the identification.
 If MASCOT DAT files have been set up for an experiment, `Mascot` has to be selected as an additional, or exclusive, search engine. Using this option does not repeat the MASCOT search. Actually, DAT files do contain more information than shown to the operator; thereby the `Advanced Settings` options allows specifying certain criteria to filter these information before storing them into the DB.
 
-[#DataProcessing Go to top of page]
+[#Data_Processing Go to top of page]
