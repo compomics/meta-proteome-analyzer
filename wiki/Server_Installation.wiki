@@ -14,13 +14,6 @@
   </tr>
 </table>
 
-=MetaProteomeAnalyzer Server Installation=
-
-The MPA server installation guide consists of three main parts:
-  # SQL Database Setup
-  # Algorithms Installation
-  # FASTA Database Formatting
-
 ----
 ==System Requirements==
 
@@ -34,60 +27,57 @@ The MPA server installation guide consists of three main parts:
 ==Algorithms Installation==
 
  * X!Tandem
+{{{
 
 Installation:
-
-`wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-linux-10-12-01-1.tar.gz`
-`tar xvfz tandem-linux-10-12-01-1.tar.gz`
+wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-linux-10-12-01-1.tar.gz
+tar xvfz tandem-linux-10-12-01-1.tar.gz
 
 Folder:
-`/scratch/metaprot/software/xtandem`
+/scratch/metaprot/software/xtandem
 
 Example usage:
-`./xtandem.exe input.xml`
-
+./xtandem.exe input.xml
+}}}
 
  * OMSSA
-
+{{{
 Installation:
-
-`wget ftp://ftp.ncbi.nih.gov/pub/lewisg/omssa/CURRENT/omssa-linux.tar.gz`
-`tar xvfz omssa-linux.tar.gz`
+wget ftp://ftp.ncbi.nih.gov/pub/lewisg/omssa/CURRENT/omssa-linux.tar.gz`
+tar xvfz omssa-linux.tar.gz
 
 Folder:
-`/scratch/metaprot/software/omssa`
+/scratch/metaprot/software/omssa
 
 Installation BLAST:
-
-`wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.25+-x64-linux.tar.gz`
-`tar xvfz ncbi-blast-2.2.25+-x64-linux.tar.gz`
+wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.25+-x64-linux.tar.gz
+tar xvfz ncbi-blast-2.2.25+-x64-linux.tar.gz
 
 Folder:
-`/scratch/metaprot/software/blast`
-
+/scratch/metaprot/software/blast
+}}}
 
  * Crux
-
+{{{
 Installation:
-
-`wget http://noble.gs.washington.edu/proj/crux/download/crux_1.36-x86_64-Linux.zip`
-`unzip crux_1.36-x86_64-Linux.zip`
+wget http://noble.gs.washington.edu/proj/crux/download/crux_1.36-x86_64-Linux.zip
+unzip crux_1.36-x86_64-Linux.zip
 
 Folder:
-`/scratch/metaprot/software/crux`
-
+/scratch/metaprot/software/crux
+}}}
 
  * Inspect
-
+{{{
 Installation:
-
-`wget http://proteomics.ucsd.edu/Downloads/Inspect.20101012.zip`
-`unzip Inspect.20101012.zip`
+wget http://proteomics.ucsd.edu/Downloads/Inspect.20101012.zip`
+unzip Inspect.20101012.zip
 
 Dependencies: expat, python-numpy
 
 Folder:
-`/scratch/metaprot/software/inspect`
+/scratch/metaprot/software/inspect
+}}}
 
 ----
 ==FASTA Database Formatting==
