@@ -36,6 +36,7 @@ The MPA server installation guide consists of three main parts:
  * X!Tandem
 
 Installation:
+
 `wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-linux-10-12-01-1.tar.gz`
 `tar xvfz tandem-linux-10-12-01-1.tar.gz`
 
@@ -49,6 +50,7 @@ Example usage:
  * OMSSA
 
 Installation:
+
 `wget ftp://ftp.ncbi.nih.gov/pub/lewisg/omssa/CURRENT/omssa-linux.tar.gz`
 `tar xvfz omssa-linux.tar.gz`
 
@@ -56,6 +58,7 @@ Folder:
 `/scratch/metaprot/software/omssa`
 
 Installation BLAST:
+
 `wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.25+-x64-linux.tar.gz`
 `tar xvfz ncbi-blast-2.2.25+-x64-linux.tar.gz`
 
@@ -66,6 +69,7 @@ Folder:
  * Crux
 
 Installation:
+
 `wget http://noble.gs.washington.edu/proj/crux/download/crux_1.36-x86_64-Linux.zip`
 `unzip crux_1.36-x86_64-Linux.zip`
 
@@ -76,6 +80,7 @@ Folder:
  * Inspect
 
 Installation:
+
 `wget http://proteomics.ucsd.edu/Downloads/Inspect.20101012.zip`
 `unzip Inspect.20101012.zip`
 
@@ -89,5 +94,6 @@ Folder:
 
 ----
 ==Server Startup==
-Finally, the server can be started via a startup script `startserver.sh` or the following usage
+Finally, the server can be started via a startup script `startserver.sh` or the following usage:
+
 `nohup java -jar mpa-server-X.Y.Z.jar -XmxXXXXm` where XXXX stands for the megabytes of RAM
