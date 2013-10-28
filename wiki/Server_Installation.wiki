@@ -23,6 +23,7 @@ On this page you will find information how to setup the MetaProteomeAnalyzer ser
 
 *Important:* Please note that you may require some IT administration staff (and rights) in order to successfully install the MetaProteomeAnalyzer server pipeline.
 
+[#General_Information Go to top of page]
 ----
 ==System Requirements==
 
@@ -45,7 +46,7 @@ For the data exchange (received spectra from the client and identification resul
 
 However, it is possible to adjust these folders by the provided server properties file.
 
-
+[#General_Information Go to top of page]
 ----
 ==SQL Database Setup==
 Make sure you have a ready MySQL server running and create the table *metaprot*.
@@ -62,7 +63,7 @@ default password folder:
 
 Note: If you have any trouble with setting up the MySQL database, please contact your local system administrator.
 
-
+[#General_Information Go to top of page]
 ----
 ==Algorithms Installation==
 
@@ -142,6 +143,7 @@ Folder:
 /scratch/metaprot/software/inspect
 }}}
  
+[#General_Information Go to top of page]
 ----
 ==FASTA Database Formatting==
 The FASTA databases (e.g. uniprot_sprot.fasta) should be provided to the default FASTA database folder:
@@ -159,6 +161,7 @@ Important: Please note that the file ending *.fasta* has to be omitted here!
 
 Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms.
 
+[#General_Information Go to top of page]
 ----
 ==Server Startup==
 Move the scripts `clearfolders.sh` and `startserver.sh` from the folder *scripts* (from the mpa-server zipfile) to the default software folder (e.g. /scratch/metaprot/software).
@@ -167,3 +170,6 @@ Finally, in this folder the server can be started via a startup script `startser
 {{{
 nohup java -jar mpa-server-X.Y.Z.jar -XmxXXXXm where XXXX stands for maximum assigned memory (in megabytes of RAM)
 }}}
+
+[#General_Information Go to top of page]
+----
