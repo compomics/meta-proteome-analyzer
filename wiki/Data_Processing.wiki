@@ -54,7 +54,7 @@ After finishing project and experiment setup, the file input window can be reach
 ----
 ==Input Spectra==
 
-There are two ways for loading data files into the MPA within the file input panel. Files of MGF data format can directly be loaded via `Add from Fileâ€¦` button. Additionally, data sets that have been processed previously using MASCOT and were exported as DAT files can be put in here as well. A new window will open in which wanted files can be selected, multiple selections are allowed. If local access to a SQL database (DB) exists, it is possible to fetch results from it by using the `Add from DBâ€¦` button. Again a new window will open that allows fetching data sets by their experiment Identifier (ID). Additionally, it can further be specified, which spectra of an experiment should be fetched (e.g. annotated only).
+There are two ways for loading data files into the MPA within the file input panel. Files of MGF data format can directly be loaded via `Add from File` button. Additionally, data sets that have been processed previously using MASCOT and were exported as DAT files can be put in here as well. A new window will open in which wanted files can be selected, multiple selections are allowed. If local access to a SQL database (DB) exists, it is possible to fetch results from it by using the `Add from DB` button. Again a new window will open that allows fetching data sets by their experiment Identifier (ID). Additionally, it can further be specified, which spectra of an experiment should be fetched (e.g. annotated only).
 
 Chosen data will be shown as tree, adding further files containing data to this window is possible. Table including selected spectra offers several columns that contain specified quantitative information. 
 
