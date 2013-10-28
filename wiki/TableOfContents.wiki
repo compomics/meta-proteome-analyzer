@@ -2,6 +2,7 @@
   * [Introduction Introduction]
   * [Client_Installation Client Installation]
   * [Server_Installation Server Installation]
+     * [Server_Installation#General_Information General Information]
      * [Server_Installation#System_Requirements System Requirements]
      * [Server_Installation#SQL_Database_Setup SQL Database Setup]
      * [Server_Installation#Algorithms_Installation Algorithms Installation]
