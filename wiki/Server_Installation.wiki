@@ -50,9 +50,11 @@ However, it is possible to adjust these folders by the provided server propertie
 ----
 ==SQL Database Setup==
 Make sure you have a ready MySQL server running and create the table *metaprot*.
-Then execute the provided SQL structure script called `metaprot.sql` from the folder *SQL database* in the mpa-server zipfile.
+Then execute the provided SQL structure script called `metaprot.sql` from the folder *SQL database* (in the unzipped mpa-server folder structure).
 
 After execution 26 tables should have been created.
+
+The next step is to insert the taxonomy table to data into the database by executing the SQL data script called `taxonomy.sql` from the folder *SQL database*.
 
 Finally, you need to adjust your MySQL user name and password in the `DbConnectionSettings.txt` file and move this file to the 
 default password folder:
