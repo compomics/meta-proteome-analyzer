@@ -68,7 +68,7 @@ Note: If you have any trouble with setting up the MySQL database, please contact
 
 Please note that the installation instructions may not be up-to-date. Please visit the websites of the search engine algorithms to get the latest versions and further installation details.
 
- * X!Tandem [www.thegpm.org/tandem/ Link to website]
+ * X!Tandem [http://www.thegpm.org/tandem/ Link to website]
 {{{
 
 Installation:
@@ -124,7 +124,7 @@ Folder:
 /scratch/metaprot/software/crux
 }}}
 
- * Inspect
+ * Inspect [http://proteomics.ucsd.edu/Software/Inspect.html Link to website]
 {{{
 Installation:
 wget http://proteomics.ucsd.edu/Downloads/Inspect.20120109.zip
