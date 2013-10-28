@@ -69,7 +69,7 @@ By means of database search experimental MS/MS spectra from sample peptides are 
 
 First the database for this matching has to be specified and parameters like ion tolerances, number of missed cleavages and the protease itself have to be set. 
 
-MPA allows up to four search engines to identify peptides and proteins. All searches can be customized using the `Advanced Settings` button. Those parameters set in the general settings count for each search engine. Finally the search strategy has to be set at â€œTarget Onlyâ€� or `Target-Decoy`, the latter is implemented as a search in reversed database chosen ahead, which allows to calculate a false discovery rate for the identification.
+MPA allows up to four search engines to identify peptides and proteins. All searches can be customized using the `Advanced Settings` button. Those parameters set in the general settings count for each search engine. Finally the search strategy has to be set at `Target Only` or `Target-Decoy`, the latter is implemented as a search in reversed database chosen ahead, which allows to calculate a false discovery rate for the identification.
 If MASCOT DAT files have been set up for an experiment, `Mascot` has to be selected as an additional, or exclusive, search engine. Using this option does not repeat the MASCOT search. Actually, DAT files do contain more information than shown to the operator; thereby the `Advanced Settings` options allows specifying certain criteria to filter these information before storing them into the DB.
 
 [#Main_View Go to top of page]
