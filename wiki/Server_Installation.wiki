@@ -127,6 +127,11 @@ unzip crux-1.40.Linux.x86_64.zip
 Folder:
 /scratch/metaprot/software/crux
 }}}
+*Important:* Please make sure you use a parameters file for Crux and put it into the Crux bin-folder here:
+/scratch/metaprot/software/crux/bin
+
+An example of a default parameters file can be found [http://noble.gs.washington.edu/proj/crux/default.params here(default.params)].
+
 
  * Inspect [http://proteomics.ucsd.edu/Software/Inspect.html Link to website]
 {{{
