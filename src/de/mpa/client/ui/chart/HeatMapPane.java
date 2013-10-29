@@ -1,10 +1,14 @@
 package de.mpa.client.ui.chart;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
+import java.awt.Container;
+import java.awt.ContainerOrderFocusTraversalPolicy;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -18,21 +22,32 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractButton;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -41,13 +56,21 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.plaf.basic.BasicLabelUI;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
@@ -82,8 +105,12 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
+import de.mpa.client.ui.icons.IconConstants;
 
 /**
  * Scrollable heat map chart implementation.
@@ -92,11 +119,19 @@ import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
  */
 public class HeatMapPane extends JScrollPane {
 	
+	/**
+	 * Enum holding axis identifiers.
+	 */
 	public enum Axis {
 		X_AXIS,
 		Y_AXIS,
 		Z_AXIS
 	}
+
+	/**
+	 * The heat map data container object reference.
+	 */
+	private HeatMapData data;
 	
 	/**
 	 * The amount of data rows in the dataset.
@@ -119,58 +154,57 @@ public class HeatMapPane extends JScrollPane {
 	private int visColCount;
 
 	/**
-	 * The secondary vertical scroll bar.
-	 */
-	private JScrollBar secVertBar;
-
-	/**
 	 * The button for choosing the type of x axis.
 	 */
-	private AbstractButton xBtn;
+	private AxisPopupButton xBtn;
 
 	/**
 	 * The button for choosing the type of y axis.
 	 */
-	private AbstractButton yBtn;
+	private AxisPopupButton yBtn;
 
 	/**
 	 * The button for choosing the type of z axis.
 	 */
-	private AbstractButton zBtn;
+	private AxisPopupButton zBtn;
+
+	/**
+	 * The button widget for changing the number of visible rows/columns.
+	 */
+	private JToggleButton zoomBtn;
+
+	/**
+	 * The button widget providing export options.
+	 */
+	private JButton saveBtn;
 	
 	/**
 	 * Creates a scrollable heat map chart from the specified data container.
 	 * @param data the data container object
 	 */
 	public HeatMapPane(HeatMapData data) {
-		this("Heat Map", "x axis", "y axis", "z axis",
-				data.getXLabels(), data.getYLabels(), 
-				0.0, data.getMaximum(),
-				data.getMatrix());
-	}
-	
-	/**
-	 * Creates a scrollable heat map chart displaying the specified title, axis
-	 * tick labels and data values.
-	 * @param title the title to be displayed above the plot
-	 * @param xLabels the tick labels for the x axis 
-	 * @param yLabels the tick labels for the y axis
-	 * @param matrix the matrix of values to be displayed as colored blocks
-	 */
-	public HeatMapPane(String title, String xTitle, String yTitle, String zTitle, 
-			String[] xLabels, String[] yLabels, double lowerBound, double upperBound, MatrixSeries matrix) {
-		
-		// create plots and embed them in scroll pane
+		// Invoke super constructor to create basic scrollpane with 2 primary scrollbars
 		super(null, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		XYPlot plot = this.createPlot(xTitle, yTitle, xLabels, yLabels, lowerBound, upperBound, matrix);
 		
-		PaintScaleLegend psl = this.createLegend(zTitle, plot);
+		// Store heat map data container reference
+		this.data = data;
+
+		// Create plot
+		String[] xLabels = data.getXLabels();
+		String[] yLabels = data.getYLabels();
+		XYPlot plot = this.createPlot("x axis", "y axis",
+				xLabels, yLabels,
+				0.0, data.getMaximum(), data.getMatrix());
+		// Create z axis color bar legend
+		PaintScaleLegend psl = this.createLegend("z axis", plot);
+		// Create chart from plot and legend
+		ChartPanel chartPnl = this.createChart("Heat Map", psl, plot);
 		
-		ChartPanel chartPnl = this.createChart(title, psl, plot);
+		// Insert chart into pane
 		this.setViewportView(chartPnl);
 		
-		// cache data dimensions
+		// Cache data dimensions
 		this.rowCount = yLabels.length;
 		this.colCount = xLabels.length;
 		
@@ -179,9 +213,122 @@ public class HeatMapPane extends JScrollPane {
 		for (ChangeListener cl : this.getViewport().getChangeListeners()) {
 			this.getViewport().removeChangeListener(cl);
 		}
+		this.configureScrollBars();
 		
-		// modify vertical scroll bar behavior
-		JScrollBar vertBar = this.getVerticalScrollBar(true);
+	}
+	
+	/**
+	 * Refreshes the heat map data container and chart.
+	 */
+	public void updateData() {
+		this.updateData(null);
+	}
+
+	/**
+	 * Refreshes the heat map data container and chart using the specified result object.
+	 * @param result the result object
+	 */
+	public void updateData(DbSearchResult result) {
+		
+		// Refresh data container contents
+		if (result != null) {
+			this.data.setResult(result);
+		}
+		this.data.setAxisTypes(
+				(ChartType) this.getAxisButtonValue(Axis.X_AXIS),
+				(ChartType) this.getAxisButtonValue(Axis.Y_AXIS),
+				(HierarchyLevel) this.getAxisButtonValue(Axis.Z_AXIS));
+		
+		// Get existing chart instances
+		ChartPanel chartPnl = (ChartPanel) this.getViewport().getView();
+		JFreeChart oldChart = chartPnl.getChart();
+		
+		// Re-create plot
+		XYPlot newPlot = this.createPlot(
+				this.xBtn.getValue().toString(),
+				this.yBtn.getValue().toString(),
+				this.data.getXLabels(), this.data.getYLabels(),
+				0.0, this.data.getMaximum(), this.data.getMatrix());
+		
+		double max = data.getMaximum();
+		
+		// Re-create chart
+		JFreeChart newChart = new JFreeChart(oldChart.getTitle().getText(), newPlot);
+		newChart.removeLegend();
+		PaintScaleLegend psl = this.createLegend(
+				this.zBtn.getValue().toString(), newPlot);
+		psl.getAxis().setDefaultAutoRange(new Range(-0.5, max + 0.5));
+		psl.getAxis().setRange(-0.5, max + 0.5);
+		newChart.addSubtitle(psl);
+		newChart.setBackgroundPaint(Color.WHITE);
+		
+		// Apply new chart
+		chartPnl.setChart(newChart);
+		
+		// Adjust view
+		MatrixSeries series = data.getMatrix();
+		this.colCount = series.getColumnsCount();
+		firePropertyChange("colCount", -1, series.getColumnsCount());
+		this.rowCount = series.getRowCount();
+		firePropertyChange("rowCount", -1, series.getRowCount());
+
+		this.setVisibleColumnCount(this.visColCount);
+		this.setVisibleRowCount(this.visRowCount);
+		
+		// TODO: maybe add 'preferred visible row/column count' or 'preferred row/column size'
+		
+		JScrollBar vertBar = this.getPrimaryVerticalScrollbar();
+		vertBar.setValues(0, 1, 0, (int) max);
+		vertBar.setBlockIncrement((int) (max / 4.0));
+		vertBar.revalidate();
+
+		// Refresh chart controls
+		this.updateChartLayout(chartPnl);
+	}
+
+	/**
+	 * Convenience method to refresh the layout positions of the axis buttons
+	 * and color legend of the chart
+	 * @param chartPnl the chart panel
+	 * @param chart the chart
+	 */
+	private void updateChartLayout(ChartPanel chartPnl) {
+		JFreeChart chart = chartPnl.getChart();
+		
+		// Draw chart to image to get at rendering info object
+		BufferedImage img = new BufferedImage(chartPnl.getWidth(), chartPnl.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Rectangle bounds = chartPnl.getBounds();
+		chart.draw(img.createGraphics(), bounds, null, chartPnl.getChartRenderingInfo());
+		Rectangle2D dataBounds = chartPnl.getChartRenderingInfo().getPlotInfo().getDataArea().getBounds2D();
+	
+		// Adjust layout of chart panel
+		FormLayout layout = (FormLayout) chartPnl.getLayout();
+		layout.setColumnSpec(3, ColumnSpec.decode(
+				"l:" + ((int) dataBounds.getX() - 26) + "px"));
+		layout.setColumnSpec(5, ColumnSpec.decode(
+				"r:" + (int) (bounds.getWidth() - dataBounds.getWidth() - dataBounds.getX() - 25.0) + "px")); 
+		layout.setRowSpec(5, RowSpec.decode(
+				"b:" + (int) (bounds.getHeight() - dataBounds.getHeight() - dataBounds.getY() - 25.0) + "px"));
+		
+		// Adjust z axis color bar size
+		PaintScaleLegend legend = (PaintScaleLegend) chart.getSubtitle(0);
+		double btm = bounds.getHeight() - dataBounds.getHeight() - dataBounds.getY() - 1.0;
+		legend.setMargin(4.0, 8.0, btm, 9.0);
+		
+		// Re-paint panel
+		chartPnl.revalidate();
+		chartPnl.setRefreshBuffer(true);
+		chartPnl.repaint();
+		
+	}
+
+	/**
+	 * Convenience method to configure the existing two scrollbars and add a
+	 * third one.
+	 */
+	private void configureScrollBars() {
+		// Configure z axis scrollbar
+		JScrollBar vertBar = this.getPrimaryVerticalScrollbar();
 		vertBar.setValues(0, 1, 0, 100);
 		vertBar.setBlockIncrement(25);
 		DefaultBoundedRangeModel vertBarMdl = (DefaultBoundedRangeModel) vertBar.getModel();
@@ -196,12 +343,12 @@ public class HeatMapPane extends JScrollPane {
 				ChartPanel chartPnl = (ChartPanel) getViewport().getView();
 				PaintScaleLegend psl = (PaintScaleLegend) chartPnl.getChart().getSubtitle(0);
 				((RainbowPaintScale) psl.getScale()).setUpperBound(val);
-				psl.getAxis().setRange(0.0, val);
+				psl.getAxis().setRange(-0.5, val + 0.5);
 			}
 		});
 		vertBar.putClientProperty("JScrollBar.isFreeStanding", false);
 		
-		// modify horizontal scroll bar behavior
+		// Configure x axis scrollbar
 		final JScrollBar horzBar = this.getHorizontalScrollBar();
 		horzBar.setValues(0, colCount, 0, colCount);
 		horzBar.setBlockIncrement(colCount / 4);
@@ -212,19 +359,19 @@ public class HeatMapPane extends JScrollPane {
 		horzBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				int val = e.getValue();
-				ChartPanel chartPnl = (ChartPanel) getViewport().getView();
-				XYPlot plot = chartPnl.getChart().getXYPlot();
-				ValueAxis xAxis = plot.getDomainAxis();
-//				xAxis.setRange(range);
-				xAxis.setRange(val - 0.5, val + horzBar.getModel().getExtent() - 0.5);
-				xAxis.setLowerBound(val - 0.5);
-				xAxis.setUpperBound(val + horzBar.getModel().getExtent() - 0.5);
+				if (HeatMapPane.this.isEnabled()) {
+					int val = e.getValue();
+					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					XYPlot plot = chartPnl.getChart().getXYPlot();
+					ValueAxis xAxis = plot.getDomainAxis();
+					xAxis.setRange(val - 0.5, val + horzBar.getModel().getExtent() - 0.5);
+				}
 			}
 		});
 		horzBar.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, UIManager.getColor("ScrollBar.thumbDarkShadow")));
 		
-		secVertBar = new JScrollBar(JScrollBar.VERTICAL, 0, rowCount, 0, rowCount);
+		// Create y axis scrollbar
+		final JScrollBar secVertBar = new JScrollBar(JScrollBar.VERTICAL, 0, rowCount, 0, rowCount);
 		secVertBar.putClientProperty("JScrollBar.isFreeStanding", false);
 		secVertBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		secVertBar.getComponent(0).setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
@@ -240,100 +387,64 @@ public class HeatMapPane extends JScrollPane {
 		secVertBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				int val = e.getValue();
-				ChartPanel chartPnl = (ChartPanel) getViewport().getView();
-				XYPlot plot = chartPnl.getChart().getXYPlot();
-				ValueAxis yAxis = plot.getRangeAxis();
-				yAxis.setRange(val - 0.5, val + secVertBar.getModel().getExtent() - 0.5);
+				if (HeatMapPane.this.isEnabled()) {
+					int val = e.getValue();
+					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					XYPlot plot = chartPnl.getChart().getXYPlot();
+					ValueAxis yAxis = plot.getRangeAxis();
+					yAxis.setRange(val - 0.5, val + secVertBar.getModel().getExtent() - 0.5);
+				}
 			}
 		});
 		
+		// Install property change listener for when the visible column/row counts are modified
+		this.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				String propName = evt.getPropertyName();
+				// Determine property change type
+				if ("visRowCount".equals(propName)) {
+					// Get current row value, clamp to maximum if necessary
+					int row = secVertBar.getValue();
+					int rowCount = HeatMapPane.this.rowCount;
+					if (row > rowCount) {
+						row = rowCount;
+					}
+					// Get new new value from event, update scrollbar model
+					int visRowCount = (Integer) evt.getNewValue();
+					secVertBar.setValues(row, visRowCount, 0, rowCount);
+					secVertBar.setBlockIncrement(rowCount / 4);
+					// Update chart y axis value range
+					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					XYPlot plot = chartPnl.getChart().getXYPlot();
+					ValueAxis yAxis = plot.getRangeAxis();
+					yAxis.setRange(-0.5, visRowCount - 0.5);
+				} else if ("visColCount".equals(propName)) {
+					// Get current column value, clamp to maximum if necessary
+					int col = horzBar.getValue();
+					int colCount = HeatMapPane.this.colCount;
+					if (col > colCount) {
+						col = colCount;
+					}
+					// Get new value from event, update scrollbar model
+					int visColCount = (Integer) evt.getNewValue();
+					horzBar.setValues(col, visColCount, 0, colCount);
+					horzBar.setBlockIncrement(colCount / 4);
+					// Update chart x axis value range
+					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					XYPlot plot = chartPnl.getChart().getXYPlot();
+					ValueAxis xAxis = plot.getDomainAxis();
+					xAxis.setRange(-0.5, visColCount - 0.5);
+				}
+			}
+		});
+		
+		// Attach secondary vertical scroll bar to left-hand edge of pane
 		this.setRowHeaderView(secVertBar);
-		
+		this.putClientProperty("secVertBar", secVertBar);
 	}
 
-	/**
-	 * Sets the plot instance displayed inside the heat map view.
-	 * @param barTitle
-	 * @param plot
-	 */
-	public void updateData(HeatMapData data) {
-		
-		// get old chart and plot instances
-		ChartPanel chartPnl = (ChartPanel) this.getViewport().getView();
-		JFreeChart oldChart = chartPnl.getChart();
-		XYPlot oldPlot = (XYPlot) oldChart.getPlot();
-
-		// create new plot
-		XYPlot newPlot = this.createPlot(
-				oldPlot.getDomainAxis().getLabel(),
-				oldPlot.getRangeAxis().getLabel(),
-				data.getXLabels(), data.getYLabels(),
-				0.0, data.getMaximum(), data.getMatrix());
-		
-		// create new chart
-		JFreeChart newChart = new JFreeChart(oldChart.getTitle().getText(), newPlot);
-		newChart.removeLegend();
-		PaintScaleLegend psl = this.createLegend(
-				((PaintScaleLegend) oldChart.getSubtitle(0)).getAxis().getLabel(), newPlot);
-		newChart.addSubtitle(psl);
-		newChart.setBackgroundPaint(Color.WHITE);
-		
-		// apply new chart
-		chartPnl.setChart(newChart);
-		
-		// adjust view
-		MatrixSeries series = data.getMatrix();
-		this.colCount = series.getColumnsCount();
-		this.rowCount = series.getRowCount();
-
-		this.setVisibleColumnCount(this.visColCount);
-		this.setVisibleRowCount(this.visRowCount);
-		
-		JScrollBar vertBar = this.getVerticalScrollBar(true);
-		double max = data.getMaximum();
-		vertBar.setValues(0, 1, 0, (int) max);
-		vertBar.setBlockIncrement((int) (max / 4.0));
-		vertBar.revalidate();
-		psl.getAxis().setDefaultAutoRange(new Range(0.0, max));
-
-		this.updateChartLayout(chartPnl);
-	}
-	
-	/**
-	 * Convenience method to refresh the layout positions of the axis buttons
-	 * and color legend.
-	 * @param chartPnl the chart panel
-	 * @param chart the chart
-	 */
-	private void updateChartLayout(ChartPanel chartPnl) {
-		JFreeChart chart = chartPnl.getChart();
-		
-		// draw chart to image to get at rendering info object
-		BufferedImage img = new BufferedImage(chartPnl.getWidth(), chartPnl.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Rectangle bounds = chartPnl.getBounds();
-		chart.draw(img.createGraphics(), bounds, null, chartPnl.getChartRenderingInfo());
-		Rectangle2D dataBounds = chartPnl.getChartRenderingInfo().getPlotInfo().getDataArea().getBounds2D();
-
-		// adjust layout of chart panel
-		FormLayout layout = (FormLayout) chartPnl.getLayout();
-		layout.setColumnSpec(2, ColumnSpec.decode(
-				"l:" + ((int) dataBounds.getX() - 3) + "px"));
-		layout.setColumnSpec(4, ColumnSpec.decode(
-				"r:" + (int) (bounds.getWidth() - dataBounds.getWidth() - dataBounds.getX() - 2.0) + "px")); 
-		layout.setRowSpec(3, RowSpec.decode(
-				"b:" + (int) (bounds.getHeight() - dataBounds.getHeight() - dataBounds.getY() - 2.0) + "px"));
-		
-		PaintScaleLegend legend = (PaintScaleLegend) chart.getSubtitle(0);
-		double btm = bounds.getHeight() - dataBounds.getHeight() - dataBounds.getY() - 1.0;
-		legend.setMargin(4.0, 8.0, btm, 9.0);
-		
-		chartPnl.revalidate();
-		chartPnl.setRefreshBuffer(true);
-		chartPnl.repaint();
-
-	}
-	
 	/**
 	 * Creates a chart panel from the specified plot and title.
 	 * @param title the title to be displayed above the plot
@@ -395,33 +506,456 @@ public class HeatMapPane extends JScrollPane {
 				}
 				return null;
 			}
+			
+			@Override
+			protected void paintChildren(Graphics g) {
+				// Fade chart if disabled
+				if (!HeatMapPane.this.isEnabled()) {
+					g.setColor(new Color(255, 255, 255, 192));
+					g.fillRect(0, 0, this.getWidth(), this.getHeight());
+					
+					Graphics2D g2d = (Graphics2D) g;
+					String str = "no results loaded";
+					int strWidth = g2d.getFontMetrics().stringWidth(str);
+					int strHeight = g2d.getFontMetrics().getHeight();
+					float xOffset = this.getWidth() / 2.125f - strWidth / 2.0f;
+					float yOffset = this.getHeight() / 2.05f;
+					g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
+					
+					g2d.setColor(Color.BLACK);
+					g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+	                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					g2d.drawString(str, xOffset, yOffset);
+				}
+				super.paintChildren(g);
+			}
+			
 		};
 		chartPnl.setPreferredSize(new Dimension());
-		chartPnl.setMinimumDrawHeight(144);
+		chartPnl.setMinimumDrawHeight(0);
 		chartPnl.setMaximumDrawHeight(1440);
-		chartPnl.setMinimumDrawWidth(256);
+		chartPnl.setMinimumDrawWidth(0);
 		chartPnl.setMaximumDrawWidth(2560);
 		
 		// remove default context menu
 		chartPnl.removeMouseListener(chartPnl.getMouseListeners()[1]);
 		
-		// Setup defaul layout
-		FormLayout layout = new FormLayout("3px, l:43px, c:0px:g, r:74px, 2px", "27px, c:0px:g, b:47px, 2px");
+		// Set up default layout
+		FormLayout layout = new FormLayout(
+				"3px, 23px, 20px, c:0px:g, 51px, 23px, 2px",
+				"3px, t:23px, 1px, c:0px:g, 24px, f:23px, 2px");
 		chartPnl.setLayout(layout);
 		
-		Object[][] xyValues = new Object[][] { TaxonomyChartType.values(), OntologyChartType.values(), HierarchyLevel.values() };
+		Object[][] xyValues = new Object[][] { 
+				TaxonomyChartType.values(), 
+				OntologyChartType.values(), 
+				HierarchyLevel.values() };
 		Object[][] zValues = new Object[][] { HierarchyLevel.values() };
+
+		// Create axis buttons using default values
+		this.xBtn = new AxisPopupButton(Axis.X_AXIS, xyValues, HierarchyLevel.PROTEIN_LEVEL);
+		this.yBtn = new AxisPopupButton(Axis.Y_AXIS, xyValues, TaxonomyChartType.SPECIES);
+		this.zBtn = new AxisPopupButton(Axis.Z_AXIS, zValues, HierarchyLevel.SPECTRUM_LEVEL);
 		
-		xBtn = createPopupButton("Choose X Axis", 0.0, xyValues);
-		yBtn = createPopupButton("Choose Y Axis", -Math.PI / 2.0, xyValues);
-		zBtn = createPopupButton("Choose Z Axis", Math.PI / 2.0, zValues );
+		this.zoomBtn = this.createZoomButton();
+		this.saveBtn = this.createSaveButton();
 		
-		chartPnl.add(xBtn, CC.xy(3, 3));
-		chartPnl.add(yBtn, CC.xy(2, 2));
-		chartPnl.add(zBtn, CC.xy(4, 2));
+		chartPnl.add(xBtn, CC.xy(4, 6));
+		chartPnl.add(yBtn, CC.xy(2, 4));
+		chartPnl.add(zBtn, CC.xy(6, 4));
+		chartPnl.add(zoomBtn, CC.xy(2, 6));
+		chartPnl.add(saveBtn, CC.xy(6, 2));
 		
 		return chartPnl;
 	}
+
+	/**
+	 * Convenience method to create a zoom button widget for showing a popup
+	 * containing axis zoom controls.
+	 * @return a zoom button widget
+	 */
+	private JToggleButton createZoomButton() {
+		
+		final JToggleButton zoomBtn = new JToggleButton(IconConstants.ZOOM_ICON);
+		zoomBtn.setRolloverIcon(IconConstants.ZOOM_ROLLOVER_ICON);
+		zoomBtn.setPressedIcon(IconConstants.ZOOM_PRESSED_ICON);
+		zoomBtn.setMargin(new Insets(2, 1, 1, 1));
+		zoomBtn.setPreferredSize(new Dimension(23, 23));
+		
+		// Create popup menu containing zoom controls, remove its background and border
+		final JPopupMenu zoomPop = new JPopupMenu();
+		zoomPop.setBorderPainted(false);
+		zoomPop.setOpaque(false);
+		zoomPop.setBackground(new Color(0, true));
+		
+		final JPanel zoomPnl = new JPanel(new FormLayout("21px, 1px, p:g", "f:p:g, 1px, f:21px"));
+		zoomPnl.setOpaque(false);
+
+		// Create sub-panel containing vertical zoom slider and label
+		final JPanel zoomVertPnl = new JPanel(new FormLayout("p", "2dlu, p, 2dlu, p"));
+		zoomVertPnl.setBorder(zoomPop.getBorder());
+		
+		final JSlider zoomVertSld = new JSlider(JSlider.VERTICAL, 1, 26, 13);
+		
+		JLabel zoomVertLbl = new JLabel("" + zoomVertSld.getValue()) {
+			@Override
+			public Dimension getPreferredSize() {
+				String text = this.getText();
+				this.setText("" + ((JSlider) this.getClientProperty("slider")).getMaximum());
+				Dimension size = super.getPreferredSize();
+				this.setText(text);
+				return size;
+			}
+		};
+		zoomVertLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+		zoomVertLbl.setUI(new VerticalLabelUI(false));
+		zoomVertLbl.setFocusable(false);
+		
+		// Link label to slider via client property
+		zoomVertSld.putClientProperty("label", zoomVertLbl);
+		zoomVertLbl.putClientProperty("slider", zoomVertSld);
+		
+		zoomVertPnl.add(zoomVertSld, CC.xy(1, 4));
+		zoomVertPnl.add(zoomVertLbl, CC.xy(1, 2));
+		
+		// Create sub-panel containing horizontal zoom slider and label
+		JPanel zoomHorzPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu", "p"));
+		zoomHorzPnl.setBorder(zoomPop.getBorder());
+		
+		final JSlider zoomHorzSld = new JSlider(JSlider.HORIZONTAL, 1, 26, 13);
+		
+		JLabel zoomHorzLbl = new JLabel("" + zoomHorzSld.getValue()) {
+			@Override
+			public Dimension getPreferredSize() {
+				String text = this.getText();
+				this.setText("" + ((JSlider) this.getClientProperty("slider")).getMaximum());
+				Dimension size = super.getPreferredSize();
+				this.setText(text);
+				return size;
+			}
+		};
+		zoomHorzLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+		zoomHorzLbl.setFocusable(false);
+
+		// Link label to slider via client property
+		zoomHorzSld.putClientProperty("label", zoomHorzLbl);
+		zoomHorzLbl.putClientProperty("slider", zoomHorzSld);
+		
+		zoomHorzPnl.add(zoomHorzSld, CC.xy(1, 1));
+		zoomHorzPnl.add(zoomHorzLbl, CC.xy(3, 1));
+		
+		// Create change listener for slider
+		ChangeListener cl = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent evt) {
+				JSlider slider = (JSlider) evt.getSource();
+				int value = slider.getValue();
+				JLabel label = (JLabel) slider.getClientProperty("label");
+				label.setText("" + value);
+				if (slider.getOrientation() == JSlider.VERTICAL) {
+					HeatMapPane.this.setVisibleRowCount(value);
+				} else {
+					HeatMapPane.this.setVisibleColumnCount(value);
+				}
+			}
+		};
+		zoomVertSld.addChangeListener(cl);
+		zoomHorzSld.addChangeListener(cl);
+		
+		zoomPnl.add(zoomVertPnl, CC.xywh(1, 1, 2, 2));
+		zoomPnl.add(zoomHorzPnl, CC.xywh(2, 2, 2, 2));
+		
+		// Make focus cycle between both sliders
+		FocusTraversalPolicy policy = new ContainerOrderFocusTraversalPolicy() {
+			@Override
+			public Component getComponentAfter(Container aContainer,
+					Component aComponent) {
+				if (aComponent == zoomHorzSld) {
+					return zoomVertSld;
+				} else {
+					return zoomHorzSld;
+				}
+			}
+			@Override
+			public Component getComponentBefore(Container aContainer,
+					Component aComponent) {
+				if (aComponent == zoomVertSld) {
+					return zoomHorzSld;
+				} else {
+					return zoomVertSld;
+				}
+			}
+		};
+		zoomPnl.setFocusCycleRoot(true);
+		zoomPnl.setFocusTraversalPolicy(policy);
+		
+		// Add mouse listener to dismiss popup when clicking on invisible panel background
+		zoomPnl.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent evt) {
+				Component comp = zoomPnl.getComponentAt(evt.getPoint());
+				if (comp == zoomPnl) {
+					zoomPop.setVisible(false);
+				}
+			}
+		});
+		
+		zoomPop.add(zoomPnl);
+		
+		// Add popup listener to synchronize popup visibility with button selection state
+		zoomPop.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) { }
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+				zoomBtn.setSelected(false);
+			}
+		});
+		
+		// Add item listener to button to display popup above button on click
+		zoomBtn.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent evt) {
+				if (evt.getStateChange() == ItemEvent.SELECTED) {
+					Component src = (Component) evt.getSource();
+					zoomPop.show(src, -3, -2 - zoomVertPnl.getPreferredSize().height);
+					zoomVertSld.requestFocus();
+				}
+			}
+		});
+
+		// listen to vertical/horizontal row count changes and update sliders accordingly
+		this.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				String propName = evt.getPropertyName();
+				if ("visRowCount".equals(propName)) {
+					zoomVertSld.setValue((Integer) evt.getNewValue());
+				} else if ("rowCount".equals(propName)) {
+					zoomVertSld.setMaximum((Integer) evt.getNewValue());
+				} else if ("visColCount".equals(propName)) {
+					zoomHorzSld.setValue((Integer) evt.getNewValue());
+				} else if ("colCount".equals(propName)) {
+					zoomHorzSld.setMaximum((Integer) evt.getNewValue());
+				}
+			}
+		});
+		
+		return zoomBtn;
+	}
+
+	/**
+	 * Convenience method to create a button widget for showing options to
+	 * export heat map chart data.
+	 * @return a save button widget
+	 */
+	private JButton createSaveButton() {
+			// TODO: implement 'CSV File' and 'Excel XML' formats
+		
+			// Init button
+			JButton saveBtn = new JButton(IconConstants.SAVE_ICON);
+			saveBtn.setRolloverIcon(IconConstants.SAVE_ROLLOVER_ICON);
+			saveBtn.setPressedIcon(IconConstants.SAVE_PRESSED_ICON);
+			
+			// Add action listener showing a save dialog
+			saveBtn.addActionListener(new ActionListener() {
+				
+				/**
+				 * The inner margin of the chart panel around the central plot.
+				 */
+				private Insets margin = new Insets(27, 46, 48, 87);
+				
+				/**
+				 * The height of a data row in pixels.
+				 */
+				private int rowHeight = 30;
+				
+				/**
+				 * The width of a data column in pixels.
+				 */
+				private int colWidth = 30;
+	
+				@Override
+				public void actionPerformed(ActionEvent evt) {
+					HeatMapPane heatMap = HeatMapPane.this;
+					
+					// Calculate margins from plot area
+					ChartPanel chartPnl = (ChartPanel) heatMap.getViewport().getView();
+					XYPlot plot = (XYPlot) chartPnl.getChart().getPlot();
+					SymbolAxisExt xAxis = (SymbolAxisExt) plot.getDomainAxis();
+					SymbolAxisExt yAxis = (SymbolAxisExt) plot.getRangeAxis();
+					// Disable axis tick label truncation
+					int oldXLabelSize = xAxis.getMaximumTickLabelSize();
+					int oldYLabelSize = yAxis.getMaximumTickLabelSize();
+					xAxis.setMaximumTickLabelSize(-1);
+					yAxis.setMaximumTickLabelSize(-1);
+
+					// Paint chart into image to get access to rendering info object
+					BufferedImage bi = new BufferedImage(chartPnl.getWidth(), chartPnl.getHeight(), BufferedImage.TYPE_INT_ARGB);
+					Rectangle bounds = chartPnl.getBounds();
+					chartPnl.getChart().draw(bi.createGraphics(), bounds, null, chartPnl.getChartRenderingInfo());
+					Rectangle dataBounds = chartPnl.getChartRenderingInfo().getPlotInfo().getDataArea().getBounds();
+
+					this.margin.set(dataBounds.y, dataBounds.x,
+							bounds.height - dataBounds.y - dataBounds.height,
+							bounds.width - dataBounds.x - dataBounds.width);
+					
+					// Init file chooser
+					ConfirmFileChooser chooser = new ConfirmFileChooser();
+					// Create panel containing image size controls
+					JPanel accessoryPnl = new JPanel(new FormLayout("2dlu, p, 2dlu, 45px, 1dlu, p, 2dlu", "p, 2dlu, p, 5dlu, p, 2dlu, p"));
+					
+					// Init spinners for manipulating row/column pixel size
+					JSpinner rowSpn = new JSpinner(new SpinnerNumberModel(this.rowHeight, 15, null, 5));
+					JSpinner colSpn = new JSpinner(new SpinnerNumberModel(this.colWidth, 15, null, 5));
+	
+					// Init and Lay out labels for previewing component size
+					JPanel dimPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu, p", "p"));
+					JLabel rowLbl = new JLabel("" + this.calculateHeight((Integer) rowSpn.getValue()));
+					JLabel colLbl = new JLabel("" + this.calculateWidth((Integer) colSpn.getValue()));
+					dimPnl.add(rowLbl, CC.xy(1, 1));
+					dimPnl.add(new JLabel("x"), CC.xy(3, 1));
+					dimPnl.add(colLbl, CC.xy(5, 1));
+					
+					// Link labels to spinners
+					rowSpn.putClientProperty("label", rowLbl);
+					rowSpn.putClientProperty("dimension", "height");
+					colSpn.putClientProperty("label", colLbl);
+	
+					// Create change listener for updating spinner labels on value change
+					ChangeListener cl = new ChangeListener() {
+						@Override
+						public void stateChanged(ChangeEvent evt) {
+							// Get spinner reference and current value
+							JSpinner spinner = (JSpinner) evt.getSource();
+							Integer value = (Integer) spinner.getValue();
+							// Determine which spinner fired the event
+							if ("height".equals(spinner.getClientProperty("dimension"))) {
+								// Calculate total height
+								rowHeight = value.intValue();
+								value = calculateHeight(value);
+							} else {
+								// Calculate total width
+								colWidth = value.intValue();
+								value = calculateWidth(value);
+							}
+							// Update corresponding spinner label
+							((JLabel) spinner.getClientProperty("label")).setText(value.toString());
+						}
+					};
+					rowSpn.addChangeListener(cl);
+					colSpn.addChangeListener(cl);
+					
+					// Lay out accessory components
+					accessoryPnl.add(new JLabel("Row height"), CC.xy(2, 1));
+					accessoryPnl.add(rowSpn, CC.xy(4, 1));
+					accessoryPnl.add(new JLabel("px"), CC.xy(6, 1));
+					accessoryPnl.add(new JLabel("Col. height"), CC.xy(2, 3));
+					accessoryPnl.add(colSpn, CC.xy(4, 3));
+					accessoryPnl.add(new JLabel("px"), CC.xy(6, 3));
+					
+					accessoryPnl.add(new JLabel("Image dimensions:"), CC.xyw(2, 5, 5));
+					accessoryPnl.add(dimPnl, CC.xyw(2, 7, 5));
+					
+					// Attach accessory panel to file chooser
+					chooser.setAccessory(accessoryPnl);
+					
+					// Show dialog
+					int res = chooser.showSaveDialog(heatMap);
+					if (res == JFileChooser.APPROVE_OPTION) {
+						// Get single selected file
+						File file = chooser.getSelectedFile();
+	
+						// Get desired row/column pixel widths, calculate total component size
+						int rowHeight = (Integer) rowSpn.getValue();
+						int colWidth = (Integer) colSpn.getValue();
+						
+						int width = this.calculateWidth(colWidth);
+						int height = this.calculateHeight(rowHeight);
+						
+						// Modify chart panel size to fit all rows/columns, hide GUI controls
+						for (Component comp : chartPnl.getComponents()) {
+							comp.setVisible(false);
+						}
+						chartPnl.setSize(width, height);
+						// Modify draw size to prevent stretched text on up-scaling
+						chartPnl.setMaximumDrawHeight(height);
+						chartPnl.setMaximumDrawWidth(width);
+
+						// Make axis labels visible
+						xAxis.setLabelPaint(Color.BLACK);
+						yAxis.setLabelPaint(Color.BLACK);
+
+						// Adjust z axis color bar size, make label visible
+						PaintScaleLegend legend = (PaintScaleLegend) chartPnl.getChart().getSubtitle(0);
+						RectangleInsets oldMargin = legend.getMargin();
+						// FIXME: (low priority) bottom margin does not appear to be correct in some cases
+						legend.setMargin(4.0, 8.0, this.margin.bottom, 9.0);
+						legend.getAxis().setLabelPaint(Color.BLACK);
+						
+						// Cache old visible row/column counts, set to maximum row/column counts
+						int oldRowCount = heatMap.getVisibleRowCount();
+						int oldColCount = heatMap.getVisibleColumnCount();
+						heatMap.setVisibleRowCount(heatMap.rowCount);
+						heatMap.setVisibleColumnCount(heatMap.colCount);
+						
+						// Paint adjusted component into buffered image
+						bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+						chartPnl.paint(bi.createGraphics());
+						
+						// Write image to disk using loss-less PNG compression
+						try {
+							ImageIO.write(bi, "png", file);
+						} catch (IOException e) {
+							JXErrorPane.showDialog(ClientFrame.getInstance(),
+									new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+						}
+						
+						// Restore original state of chart panel
+						for (Component comp : chartPnl.getComponents()) {
+							comp.setVisible(true);
+						}
+						chartPnl.setMaximumDrawHeight(1440);
+						chartPnl.setMaximumDrawWidth(2560);
+						heatMap.setVisibleRowCount(oldRowCount);
+						heatMap.setVisibleColumnCount(oldColCount);
+						xAxis.setLabelPaint(Color.WHITE);
+						yAxis.setLabelPaint(Color.WHITE);
+						legend.getAxis().setLabelPaint(Color.WHITE);
+						legend.setMargin(oldMargin);
+					}
+					// Restore tick label truncation
+					xAxis.setMaximumTickLabelSize(oldXLabelSize);
+					yAxis.setMaximumTickLabelSize(oldYLabelSize);
+				}
+				
+				/**
+				 * Convenience method to calculate the total component width based
+				 * on the specified pixel width for individual data columns and the
+				 * chart margins.
+				 * @param colWidth the pixel width of a data column
+				 * @return the total component width
+				 */
+				private int calculateWidth(int colWidth) {
+					return margin.left + HeatMapPane.this.colCount * (colWidth + 2) + margin.right;
+				}
+	
+				/**
+				 * Convenience method to calculate the total component height based
+				 * on the specified pixel height for individual data rows and the
+				 * chart margins.
+				 * @param rowHeight the pixel height of a data row
+				 * @return the total component height
+				 */
+				private int calculateHeight(int rowHeight) {
+					return  margin.top + HeatMapPane.this.rowCount * (rowHeight + 1) + margin.bottom;
+				}
+			});
+			
+			return saveBtn;
+		}
 
 	/**
 	 * Creates a color bar legend for the specified plot and displaying the specified title string
@@ -454,7 +988,9 @@ public class HeatMapPane extends JScrollPane {
 			}
 		};
 		scaleAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		scaleAxis.setDefaultAutoRange(new Range(0.0, 100.0));
+		scaleAxis.setDefaultAutoRange(new Range(-0.5, 100.5));
+		scaleAxis.setRange(-0.5, 100.5);
+		scaleAxis.setLabelPaint(Color.WHITE);
 		
 		PaintScaleLegend psl = new PaintScaleLegend(scale, scaleAxis);
 		psl.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
@@ -477,7 +1013,7 @@ public class HeatMapPane extends JScrollPane {
 	 */
 	private XYPlot createPlot(String xTitle, String yTitle, String[] xLabels, String[] yLabels, 
 			double lowerBound, double upperBound, MatrixSeries data) {
-		return createPlot(xTitle, yTitle, xLabels, yLabels, data, createRenderer(lowerBound, upperBound));
+		return this.createPlot(xTitle, yTitle, xLabels, yLabels, data, this.createRenderer(lowerBound, upperBound));
 	}
 
 	/**
@@ -494,66 +1030,17 @@ public class HeatMapPane extends JScrollPane {
 	private XYPlot createPlot(String xTitle, String yTitle, String[] xLabels, String[] yLabels, 
 			MatrixSeries data, XYBlockRenderer renderer) {
 	
-		// TODO: parameterize maximum width variable
 		// create x axis
-		SymbolAxis xAxis = new SymbolAxis(xTitle, xLabels) {
-			/**
-			 * {@inheritDoc}<p>
-			 * Overriden to take into account for all tick labels, not only the
-			 * currently visible ones.
-			 */
-			@Override
-			protected double findMaximumTickLabelHeight(List ticks,
-					Graphics2D g2, Rectangle2D drawArea, boolean vertical) {
-				List<NumberTick> newTicks = new ArrayList<NumberTick>();
-				for (String str : this.getSymbols()) {
-					newTicks.add(new NumberTick(0.0, trimToSize(str, 60, getTickLabelFont()), 
-							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
-				}
-				return super.findMaximumTickLabelHeight(newTicks, g2, drawArea, vertical);
-			}
-
-			/**
-			 * {@inheritDoc}<p>
-			 * Overridden to shorten overly long tick labels. 
-			 */
-			@Override
-			public String valueToString(double value) {
-				return trimToSize(super.valueToString(value), 60, this.getTickLabelFont());
-			}
-		};
+		SymbolAxis xAxis = new SymbolAxisExt(xTitle, xLabels);
 		xAxis.setGridBandsVisible(false);
 		xAxis.setVerticalTickLabels(true);
 		xAxis.setTickLabelInsets(new RectangleInsets(4, 2, 4, 2));
+		xAxis.setLabelPaint(Color.WHITE);
 		
 		// create y axis
-		SymbolAxis yAxis = new SymbolAxis(yTitle, yLabels) {
-			/**
-			 * {@inheritDoc}<p>
-			 * Overridden to take into account for all tick labels, not only the
-			 * currently visible ones.
-			 */
-			@Override
-			protected double findMaximumTickLabelWidth(List ticks, Graphics2D g2,
-					Rectangle2D drawArea, boolean vertical) {
-				List<NumberTick> newTicks = new ArrayList<NumberTick>();
-				for (String str : this.getSymbols()) {
-					newTicks.add(new NumberTick(0.0, trimToSize(str, 60, getTickLabelFont()), 
-							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
-				}
-				return super.findMaximumTickLabelWidth(newTicks, g2, drawArea, vertical);
-			}
-
-			/**
-			 * {@inheritDoc}<p>
-			 * Overridden to shorten overly long tick labels. 
-			 */
-			@Override
-			public String valueToString(double value) {
-				return trimToSize(super.valueToString(value), 60, this.getTickLabelFont());
-			}
-		};
+		SymbolAxis yAxis = new SymbolAxisExt(yTitle, yLabels);
 		yAxis.setInverted(true);
+		yAxis.setLabelPaint(Color.WHITE);
 		
 		// create plot, hide grid lines
 		XYPlot plot = new XYPlot(new MatrixSeriesCollection(data),
@@ -571,27 +1058,6 @@ public class HeatMapPane extends JScrollPane {
 	    plot.setInsets(new RectangleInsets(4.0, 8.0, 8.0, 8.0));
 	    
 		return plot;
-	}
-	
-	/**
-	 * Convenience method to trim a specified string down to the specified size
-	 * by removing characters from its end and adding an ellipsis instead.
-	 * @param str the target string
-	 * @param size the desired pixel width
-	 * @param font the font
-	 * @return a trimmed string or the original string if it is smaller than the specified size
-	 */
-	private String trimToSize(String str, int size, Font font) {
-		FontMetrics fm = getFontMetrics(font);
-		if (fm.stringWidth(str) > size) {
-			// delete characters from end, add ellipsis (...) instead
-			StringBuilder sb = new StringBuilder(str.trim() + "\u2026");
-			while (fm.stringWidth(sb.toString()) > size) {
-				sb.deleteCharAt(sb.length() - 2);
-			}
-			return sb.toString().trim();
-		}
-		return str;
 	}
 
 	/**
@@ -661,80 +1127,6 @@ public class HeatMapPane extends JScrollPane {
 	}
 
 	/**
-	 * Convenience method to create a popup-toggling button for use as chart
-	 * axis labels.
-	 * @param label the initial button label
-	 * @param angle the angle of the button label (in radians)
-	 * @param values the values to be displayed in the popup, objects along the second 
-	 * 		  array dimension are grouped under items along the first array dimension
-	 * @return a popup button
-	 */
-	private AbstractButton createPopupButton(String label, double angle, Object[][] values) {
-		
-		AbstractButton btn = new JToggleButton();
-		btn.putClientProperty("value", label);
-		btn.setIcon(new RotatedTextIcon(btn, angle));
-		angle = Math.abs(angle);
-		btn.setMargin(new Insets(
-				1 + (int) (3 * Math.sin(angle)),
-				1 + (int) (3 * Math.cos(angle)),
-				1 + (int) (3 * Math.sin(angle)),
-				1 + (int) (3 * Math.cos(angle))));
-		btn.setBackground(new Color(245, 245, 245));
-		btn.setFont(btn.getFont().deriveFont(Font.BOLD));
-		
-		JPopupMenu pop = new JPopupMenu();
-		ButtonGroup grp = new ButtonGroup();
-		for (Object[] group : values) {
-			JComponent subMenu = pop;
-			// identify sub-menu type
-			if (values.length > 1) {
-				if (group[0] instanceof OntologyChartType) {
-					subMenu = new JMenu("Ontology");
-				} else if (group[0] instanceof TaxonomyChartType) {
-					subMenu = new JMenu("Taxonomy");
-				} else if (group[0] instanceof HierarchyLevel) {
-					subMenu = new JMenu("Hierarchy");
-				}
-			}
-			// generate sub-menu items
-			for (Object obj : group) {
-				JMenuItem item = new JRadioButtonMenuItem(obj.toString());
-				item.addActionListener(new ClientPropertyPopupActionListener("value", obj));
-				subMenu.add(item);
-				grp.add(item);
-			}
-			// add sub-menu to main menu
-			if (subMenu != pop) {
-				pop.add(subMenu);
-			}
-		}
-		pop.addPopupMenuListener(new PopupMenuListener() {
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent e) { }
-			
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				((AbstractButton) ((JPopupMenu) e.getSource()).getInvoker()).setSelected(false);
-			}
-		});
-		
-		btn.setComponentPopupMenu(pop);
-		
-		btn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JComponent src = (JComponent) e.getSource();
-				src.getComponentPopupMenu().show(src, 0, src.getHeight());
-			}
-		});
-		
-		return btn;
-	}
-
-	/**
 	 * {@inheritDoc}<p>
 	 * Overridden to return the secondary vertical scroll bar.
 	 */
@@ -758,11 +1150,19 @@ public class HeatMapPane extends JScrollPane {
 	}
 	
 	/**
-	 * Returns the secondary vertical scroll bar.
+	 * Returns the primary vertical scroll bar (associated with the z axis).
+	 * @return the primary vertical scroll bar
+	 */
+	public JScrollBar getPrimaryVerticalScrollbar() {
+		return getVerticalScrollBar(true);
+	}
+	
+	/**
+	 * Returns the secondary vertical scroll bar (associated with the y axis).
 	 * @return the secondary vertical scroll bar
 	 */
 	public JScrollBar getSecondaryVerticalScrollBar() {
-		return secVertBar;
+		return (JScrollBar) this.getClientProperty("secVertBar");
 	}
 
 	/**
@@ -778,18 +1178,14 @@ public class HeatMapPane extends JScrollPane {
 	 * @param visColCount the number of visible columns
 	 */
 	public void setVisibleColumnCount(int visColCount) {
-		this.visColCount = visColCount;
+		// Clamp value to upper boundary if necessary
 		if (visColCount > this.colCount) {
 			visColCount = this.colCount;
 		}
-		JScrollBar horzBar = getHorizontalScrollBar();
-		horzBar.setValues(horzBar.getValue(), visColCount, 0, this.colCount);
-		horzBar.setBlockIncrement(this.colCount / 4);
-
-		ChartPanel chartPnl = (ChartPanel) getViewport().getView();
-		XYPlot plot = chartPnl.getChart().getXYPlot();
-		ValueAxis xAxis = plot.getDomainAxis();
-		xAxis.setRange(-0.5, visColCount - 0.5);
+		// Propagate change event
+		this.firePropertyChange("visColCount", -1, visColCount);
+		
+		this.visColCount = visColCount;
 	}
 
 	/**
@@ -805,18 +1201,15 @@ public class HeatMapPane extends JScrollPane {
 	 * @param visRowCount the number of visible rows
 	 */
 	public void setVisibleRowCount(int visRowCount) {
-		this.visRowCount = visRowCount;
+		// Clamp value to upper boundary if necessary
 		if (visRowCount > this.rowCount) {
 			visRowCount = this.rowCount;
 		}
-		JScrollBar secVertBar = getSecondaryVerticalScrollBar();
-		secVertBar.setValues(secVertBar.getValue(), visRowCount, 0, this.rowCount);
-		secVertBar.setBlockIncrement(this.rowCount / 4);
-
-		ChartPanel chartPnl = (ChartPanel) getViewport().getView();
-		XYPlot plot = chartPnl.getChart().getXYPlot();
-		ValueAxis yAxis = plot.getRangeAxis();
-		yAxis.setRange(-0.5, visRowCount - 0.5);
+		// Propagate change event
+		this.firePropertyChange("visRowCount", -1, visRowCount);
+		
+		this.visRowCount = visRowCount;
+		
 	}
 	
 	/**
@@ -826,9 +1219,9 @@ public class HeatMapPane extends JScrollPane {
 	 * @return the axis button value property
 	 */
 	public Object getAxisButtonValue(Axis axis) {
-		AbstractButton axisBtn = this.getAxisButton(axis);
+		AxisPopupButton axisBtn = this.getAxisButton(axis);
 		if (axisBtn != null) {
-			return axisBtn.getClientProperty("value");
+			return axisBtn.getValue();
 		}
 		System.err.println("ERROR: unknown axis specified");
 		return null;
@@ -841,9 +1234,10 @@ public class HeatMapPane extends JScrollPane {
 	 * @param obj the balue object
 	 */
 	public void setAxisButtonValue(Axis axis, Object obj) {
-		AbstractButton axisBtn = this.getAxisButton(axis);
+		AxisPopupButton axisBtn = this.getAxisButton(axis);
 		if (axisBtn != null) {
-			axisBtn.putClientProperty("value", obj);
+			axisBtn.setValue(obj);
+			this.updateData();
 		} else {
 			System.err.println("ERROR: unknown axis specified");
 		}
@@ -854,7 +1248,7 @@ public class HeatMapPane extends JScrollPane {
 	 * @param axis the axis
 	 * @return the axis button
 	 */
-	public AbstractButton getAxisButton(Axis axis) {
+	public AxisPopupButton getAxisButton(Axis axis) {
 		switch (axis) {
 		case X_AXIS:
 			return this.xBtn;
@@ -868,12 +1262,162 @@ public class HeatMapPane extends JScrollPane {
 		}
 	}
 	
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		// Set enable state of button widgets
+		this.xBtn.setEnabled(enabled);
+		this.yBtn.setEnabled(enabled);
+		this.zBtn.setEnabled(enabled);
+		this.saveBtn.setEnabled(enabled);
+		this.zoomBtn.setEnabled(enabled);
+		// Set enable state of scrollbars
+//		this.getHorizontalScrollBar().setEnabled(enabled);
+//		this.getPrimaryVerticalScrollbar().setEnabled(enabled);
+//		this.getSecondaryVerticalScrollBar().setEnabled(enabled);
+		this.getHorizontalScrollBar().getModel().setExtent(
+				(enabled) ? this.visColCount : Integer.MAX_VALUE);
+		this.getPrimaryVerticalScrollbar().getModel().setExtent(
+				(enabled) ? this.visRowCount : Integer.MAX_VALUE);
+		this.getSecondaryVerticalScrollBar().getModel().setExtent(
+				(enabled) ? 1 : Integer.MAX_VALUE);
+	};
+	
+	/**
+	 * Convenience class for a popup button control for use in the heat map component.
+	 * 
+	 * @author A. Behne
+	 */
+	private class AxisPopupButton extends JToggleButton {
+		
+		/**
+		 * The currently selected value.
+		 */
+		private Object value;
+
+		/**
+		 * Creates an axis popup button with the specified default label,
+		 * rotation angle, popup item values and resolution flag.
+		 * @param label the default label
+		 * @param angle the rotation angle
+		 * @param values the values to use inside the associated popup
+		 */
+		public AxisPopupButton(final Axis axis, Object[][] values, Object initValue) {
+			super();
+			
+			// Cache initial value
+			this.value = initValue;
+			
+			// Configure button properties
+			this.setLayout(new BorderLayout());
+			this.setBackground(new Color(245, 245, 245));
+			
+			// Create text label to be placed on button
+			JLabel buttonLbl = new JLabel(initValue.toString());
+			buttonLbl.setHorizontalAlignment(SwingConstants.CENTER);
+			// Rotate and align text label depending on axis
+			// TODO: check insets on Windows machine
+			if (axis == Axis.Y_AXIS) {
+				buttonLbl.setUI(new VerticalLabelUI(false));
+				this.setMargin(new Insets(3, 1, 5, 1));
+			} else if (axis == Axis.Z_AXIS) {
+				buttonLbl.setUI(new VerticalLabelUI(true));
+				this.setMargin(new Insets(5, 1, 1, 1));
+			} else {
+				this.setMargin(new Insets(1, 4, 1, 4));
+			}
+			buttonLbl.setFont(this.getFont().deriveFont(Font.BOLD));
+			this.add(buttonLbl, BorderLayout.CENTER);
+			
+			// Create dynamic cascading popup adding items derived from the provided objects
+			final JPopupMenu pop = new JPopupMenu();
+			ButtonGroup grp = new ButtonGroup();
+			for (Object[] group : values) {
+				JComponent subMenu = pop;
+				// Identify sub-menu type
+				if (values.length > 1) {
+					if (group[0] instanceof OntologyChartType) {
+						subMenu = new JMenu("Ontology");
+					} else if (group[0] instanceof TaxonomyChartType) {
+						subMenu = new JMenu("Taxonomy");
+					} else if (group[0] instanceof HierarchyLevel) {
+						subMenu = new JMenu("Hierarchy");
+					}
+				}
+				// Generate sub-menu items
+				for (final Object obj : group) {
+					JMenuItem item = new JRadioButtonMenuItem(obj.toString());
+					item.setSelected(obj.equals(initValue));
+					item.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent evt) {
+							// Update button label and refresh heat map
+							HeatMapPane.this.setAxisButtonValue(axis, obj);
+						}
+					});
+					subMenu.add(item);
+					grp.add(item);
+				}
+				// Add sub-menu to main menu
+				if (subMenu != pop) {
+					pop.add(subMenu);
+				}
+			}
+			
+			// Synchronize popup visibility with button selection state
+			pop.addPopupMenuListener(new PopupMenuListener() {
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent e) { }
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+					AxisPopupButton.this.setSelected(false);
+				}
+			});
+			
+			// Install action listener to show popup on click
+			this.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JComponent src = (JComponent) e.getSource();
+					pop.show(src, 0, src.getHeight());
+				}
+			});
+			
+		}
+		
+		/**
+		 * Returns the currently selected value.
+		 * @return the selected value
+		 */
+		public Object getValue() {
+			return this.value;
+		}
+		
+		/**
+		 * Sets the currently selected value.
+		 * @param value the value to set
+		 */
+		public void setValue(Object value) {
+			this.value = value;
+			((JLabel) this.getComponent(0)).setText(value.toString());
+		}
+		
+		@Override
+		public void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+			this.getComponent(0).setEnabled(enabled);
+		}
+		
+	}
+	
 	/**
 	 * Custom paint scale implementation providing a continuous rainbow-like color gradient.
 	 * 
 	 * @author A. Behne
 	 */
-	public class RainbowPaintScale implements PaintScale {
+	protected class RainbowPaintScale implements PaintScale {
 		
 		/**
 		 * The lower value boundary of the scale.
@@ -959,13 +1503,13 @@ public class HeatMapPane extends JScrollPane {
 		@Override
 		public Paint getPaint(double value) {
 			// take lower/upper bounds into account
-			value = value / (upperBound - lowerBound) + lowerBound;
+			value = Math.round(value) / (upperBound - lowerBound) + lowerBound;
 			if (value > 1.0) {
 				value = 1.0;
 			}
 			float r = (float) (-Math.abs(value - 0.75) * 4.0 + 1.5);
 			float g = (float) (-Math.abs(value - 0.50) * 4.0 + 1.5);
-			float b = (float) (-Math.abs(value - 0.25) * 4.0f+ 1.5);
+			float b = (float) (-Math.abs(value - 0.25) * 4.0 + 1.5);
 			r = (r > 1.0f) ? 1.0f : (r < 0.0f) ? 0.0f : r;
 			g = (g > 1.0f) ? 1.0f : (g < 0.0f) ? 0.0f : g;
 			b = (b > 1.0f) ? 1.0f : (b < 0.0f) ? 0.0f : b;
@@ -981,116 +1525,365 @@ public class HeatMapPane extends JScrollPane {
 	}
 	
 	/**
-	 * Convenience action listener implementation for popup callbacks.
-	 * @author A. Behne
+	 * UI class for vertical labels.<br>
+	 * @see <a href="http://www.codeguru.com/java/articles/199.shtml">http://www.codeguru.com/java/articles/199.shtml</a>
 	 */
-	public class ClientPropertyPopupActionListener implements ActionListener {
+	public class VerticalLabelUI extends BasicLabelUI {
 
-		/**
-		 * The client property key.
-		 */
-		private Object key;
+		protected boolean clockwise;
+
+		private Rectangle paintIconR = new Rectangle();
+		private Rectangle paintTextR = new Rectangle();
+		private Rectangle paintViewR = new Rectangle();
+		private Insets paintViewInsets = new Insets(0, 0, 0, 0);
+
+		public VerticalLabelUI( boolean clockwise ){
+			super();
+			this.clockwise = clockwise;
+		}
+
+		public Dimension getPreferredSize(JComponent c){
+			Dimension dim = super.getPreferredSize(c);
+			return new Dimension( dim.height, dim.width );
+		}
+
+		public void paint(Graphics g, JComponent c) {
+			JLabel label = (JLabel) c;
+			String text = label.getText();
+			Icon icon = (label.isEnabled()) ? label.getIcon() : label
+					.getDisabledIcon();
+
+			if ((icon == null) && (text == null)) {
+				return;
+			}
+
+			FontMetrics fm = g.getFontMetrics();
+			paintViewInsets = c.getInsets(paintViewInsets);
+
+			paintViewR.x = paintViewInsets.left;
+			paintViewR.y = paintViewInsets.top;
+
+			// Use inverted height & width
+			paintViewR.height = c.getWidth() - (paintViewInsets.left + paintViewInsets.right);
+			paintViewR.width = c.getHeight() - (paintViewInsets.top + paintViewInsets.bottom);
+
+			paintIconR.x = paintIconR.y = paintIconR.width = paintIconR.height = 0;
+			paintTextR.x = paintTextR.y = paintTextR.width = paintTextR.height = 0;
+
+			String clippedText = layoutCL(label, fm, text, icon, paintViewR,
+					paintIconR, paintTextR);
+
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+			AffineTransform tr = g2.getTransform();
+			if (clockwise) {
+				g2.rotate(Math.PI / 2);
+				g2.translate(0, -c.getWidth());
+			} else {
+				g2.rotate(-Math.PI / 2);
+				g2.translate(-c.getHeight(), 0);
+			}
+
+			if (icon != null) {
+				icon.paintIcon(c, g, paintIconR.x, paintIconR.y);
+			}
+
+			if (text != null) {
+				int textX = paintTextR.x;
+				int textY = paintTextR.y + fm.getAscent();
+
+				if (label.isEnabled()) {
+					paintEnabledText(label, g, clippedText, textX, textY);
+				} else {
+					paintDisabledText(label, g, clippedText, textX, textY);
+				}
+			}
+
+			g2.setTransform(tr);
+		}
+	}
+	
+	/**
+	 * Convenience extension of the SymbolAxis class to allow dynamic truncation
+	 * of axis tick labels.
+	 */
+	private class SymbolAxisExt extends SymbolAxis {
 		
 		/**
-		 * The client property value.
+		 * Maximum pixel length of label strings.
 		 */
-		private Object value;
-	
+		private int maxLabelSize = 60;
+
 		/**
-		 * Constructs an action listener using the specified client property key/value pair.
-		 * @param key the client property key
-		 * @param value the client property value
+		 * Constructs a symbol axis, using default attribute values where necessary.
+		 * @param label the axis label (<code>null</code> permitted)
+		 * @param sv the list of symbols to display instead of the numeric values
 		 */
-		public ClientPropertyPopupActionListener(Object key, Object value) {
-			this.key = key;
-			this.value = value;
+		public SymbolAxisExt(String label, String[] sv) {
+			super(label, sv);
 		}
 		
 		/**
 		 * {@inheritDoc}<p>
-		 * Overridden to set a specific client property of the source popup's invoking component.
+		 * Overriden to take into account for all tick labels, not only the
+		 * currently visible ones.
 		 */
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			Object src = e.getSource();
-			while (!(src instanceof JPopupMenu)) {
-				src = ((Component) src).getParent();
+		protected double findMaximumTickLabelHeight(List ticks,
+				Graphics2D g2, Rectangle2D drawArea, boolean vertical) {
+			if (vertical && (this.maxLabelSize > 0)) {
+				List<NumberTick> newTicks = new ArrayList<NumberTick>();
+				for (String str : this.getSymbols()) {
+					newTicks.add(new NumberTick(0.0, trimToSize(str, 60, getTickLabelFont()), 
+							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
+				}
+				return super.findMaximumTickLabelHeight(newTicks, g2, drawArea, vertical);
 			}
-			JComponent invoker = (JComponent) ((JPopupMenu) src).getInvoker();
-			while (invoker instanceof JMenu) {
-				invoker = (JComponent) ((JPopupMenu) invoker.getParent()).getInvoker();
-			}
-			invoker.putClientProperty(key, value);
-			invoker.revalidate();
+			return super.findMaximumTickLabelHeight(ticks, g2, drawArea, vertical);
 		}
 		
-	}
-
-	/**
-	 * Class implementing rotated text in the form of an icon for use in UI components.
-	 * @author A. Behne
-	 */
-	public class RotatedTextIcon implements Icon {
 
 		/**
-		 * The target component.
+		 * {@inheritDoc}<p>
+		 * Overridden to take into account for all tick labels, not only the
+		 * currently visible ones.
 		 */
-		private JComponent comp;
-		
-		/**
-		 * The rotation angle in radians.
-		 */
-		private double angle;
-		
-		/**
-		 * Constructs an icon targeting the specified component and displaying
-		 * text rotated by the specified angle.
-		 * @param comp the target component
-		 * @param angle the rotation angle in radians
-		 */
-		public RotatedTextIcon(JComponent comp, double angle) {
-			this.comp = comp;
-			this.angle = angle;
-		}
-		
 		@Override
-		public void paintIcon(Component c, Graphics g, int x, int y) {
-			Graphics2D g2d = (Graphics2D) g;
-			g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-			
-			JLabel label = new JLabel(comp.getClientProperty("value").toString());
-			label.setFont(comp.getFont());
-			label.setEnabled(comp.isEnabled());
-			if (angle != 0.0) {
-				g2d.translate(0, (getIconHeight() - getIconWidth()) / 2.0);
-				g2d.rotate(angle, x + getIconWidth() / 2.0, y + getIconWidth() / 2.0);
-				g2d.translate(-(getIconHeight() - getIconWidth() - x) / 2.0 - 1.0, 0.0);
-				
-				SwingUtilities.paintComponent(g, label, new JPanel(), 
-						new Rectangle(x + ((comp.isEnabled()) ? 0 : 2), y, getIconHeight(), getIconWidth()));
+		protected double findMaximumTickLabelWidth(List ticks, Graphics2D g2,
+				Rectangle2D drawArea, boolean vertical) {
+			if (!vertical && (this.maxLabelSize > 0)) {
+				List<NumberTick> newTicks = new ArrayList<NumberTick>();
+				for (String str : this.getSymbols()) {
+					newTicks.add(new NumberTick(0.0, trimToSize(str, 60, getTickLabelFont()), 
+							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
+				}
+				return super.findMaximumTickLabelWidth(newTicks, g2, drawArea, vertical);
+			}
+			return super.findMaximumTickLabelWidth(ticks, g2, drawArea, vertical);
+		}
 
-				g2d.translate((getIconHeight() - getIconWidth() - x) / 2.0 + 1.0, 0.0);
-				g2d.rotate(-angle, x + getIconWidth() / 2.0, y + getIconWidth() / 2.0);
-				g2d.translate(0, -(getIconHeight() - getIconWidth()) / 2.0);
+		/**
+		 * {@inheritDoc}<p>
+		 * Overridden to shorten overly long tick labels. 
+		 */
+		@Override
+		public String valueToString(double value) {
+			if (this.maxLabelSize > 0) {
+				return trimToSize(super.valueToString(value), 60, this.getTickLabelFont());
 			} else {
-				SwingUtilities.paintComponent(g, label,
-						new JPanel(), new Rectangle(x, y, getIconWidth(), getIconHeight()));
+				return super.valueToString(value);
 			}
 		}
 
-		// TODO: parameterize client property key
-		@Override
-		public int getIconWidth() {
-			int width = comp.getFontMetrics(comp.getFont()).stringWidth(comp.getClientProperty("value").toString());
-			int height = comp.getFontMetrics(comp.getFont()).getHeight();
-			return (int) Math.round(Math.abs(width * Math.cos(angle) + height * Math.sin(angle)));
+		/**
+		 * Convenience method to trim a specified string down to the specified size
+		 * by removing characters from its end and adding an ellipsis instead.
+		 * @param str the target string
+		 * @param size the desired pixel width
+		 * @param font the font
+		 * @return a trimmed string or the original string if it is smaller than the specified size
+		 */
+		private String trimToSize(String str, int size, Font font) {
+			FontMetrics fm = getFontMetrics(font);
+			if (fm.stringWidth(str) > size) {
+				// delete characters from end, add ellipsis (...) instead
+				StringBuilder sb = new StringBuilder(str.trim() + "\u2026");
+				while (fm.stringWidth(sb.toString()) > size) {
+					sb.deleteCharAt(sb.length() - 2);
+				}
+				return sb.toString().trim();
+			}
+			return str;
 		}
-		
+
+		/**
+		 * {@inheritDoc}<p>
+		 * Overridden to ignore maximum tick count of 500.
+		 */
 		@Override
-		public int getIconHeight() {
-			int width = comp.getFontMetrics(comp.getFont()).stringWidth((String) comp.getClientProperty("value").toString());
-			int height = comp.getFontMetrics(comp.getFont()).getHeight();
-			return (int) Math.round(Math.abs(width * Math.sin(angle) + height * Math.cos(angle)));
+	    protected List refreshTicksHorizontal(Graphics2D g2,
+	                                          Rectangle2D dataArea,
+	                                          RectangleEdge edge) {
+
+	        List<Tick> ticks = new ArrayList<Tick>();
+
+	        Font tickLabelFont = getTickLabelFont();
+	        g2.setFont(tickLabelFont);
+
+	        double size = getTickUnit().getSize();
+	        int count = calculateVisibleTickCount();
+	        double lowestTickValue = calculateLowestVisibleTickValue();
+
+	        double previousDrawnTickLabelPos = 0.0;
+	        double previousDrawnTickLabelLength = 0.0;
+
+            for (int i = 0; i < count; i++) {
+                double currentTickValue = lowestTickValue + (i * size);
+                double xx = valueToJava2D(currentTickValue, dataArea, edge);
+                String tickLabel;
+                NumberFormat formatter = getNumberFormatOverride();
+                if (formatter != null) {
+                    tickLabel = formatter.format(currentTickValue);
+                }
+                else {
+                    tickLabel = valueToString(currentTickValue);
+                }
+
+                // avoid to draw overlapping tick labels
+                Rectangle2D bounds = TextUtilities.getTextBounds(tickLabel, g2,
+                        g2.getFontMetrics());
+                double tickLabelLength = isVerticalTickLabels()
+                        ? bounds.getHeight() : bounds.getWidth();
+                boolean tickLabelsOverlapping = false;
+                if (i > 0) {
+                    double avgTickLabelLength = (previousDrawnTickLabelLength
+                            + tickLabelLength) / 2.0;
+                    if (Math.abs(xx - previousDrawnTickLabelPos)
+                            < avgTickLabelLength) {
+                        tickLabelsOverlapping = true;
+                    }
+                }
+                if (tickLabelsOverlapping) {
+                    tickLabel = ""; // don't draw this tick label
+                }
+                else {
+                    // remember these values for next comparison
+                    previousDrawnTickLabelPos = xx;
+                    previousDrawnTickLabelLength = tickLabelLength;
+                }
+
+                TextAnchor anchor = null;
+                TextAnchor rotationAnchor = null;
+                double angle = 0.0;
+                if (isVerticalTickLabels()) {
+                    anchor = TextAnchor.CENTER_RIGHT;
+                    rotationAnchor = TextAnchor.CENTER_RIGHT;
+                    if (edge == RectangleEdge.TOP) {
+                        angle = Math.PI / 2.0;
+                    }
+                    else {
+                        angle = -Math.PI / 2.0;
+                    }
+                }
+                else {
+                    if (edge == RectangleEdge.TOP) {
+                        anchor = TextAnchor.BOTTOM_CENTER;
+                        rotationAnchor = TextAnchor.BOTTOM_CENTER;
+                    }
+                    else {
+                        anchor = TextAnchor.TOP_CENTER;
+                        rotationAnchor = TextAnchor.TOP_CENTER;
+                    }
+                }
+                Tick tick = new NumberTick(new Double(currentTickValue),
+                        tickLabel, anchor, rotationAnchor, angle);
+                ticks.add(tick);
+            }
+	        return ticks;
+
+	    }
+
+		/**
+		 * {@inheritDoc}<p>
+		 * Overridden to ignore maximum tick count of 500.
+		 */
+	    @Override
+	    protected List refreshTicksVertical(Graphics2D g2,
+	                                        Rectangle2D dataArea,
+	                                        RectangleEdge edge) {
+
+	        List<Tick> ticks = new ArrayList<Tick>();
+
+	        Font tickLabelFont = getTickLabelFont();
+	        g2.setFont(tickLabelFont);
+
+	        double size = getTickUnit().getSize();
+	        int count = calculateVisibleTickCount();
+	        double lowestTickValue = calculateLowestVisibleTickValue();
+
+	        double previousDrawnTickLabelPos = 0.0;
+	        double previousDrawnTickLabelLength = 0.0;
+
+	        for (int i = 0; i < count; i++) {
+	        	double currentTickValue = lowestTickValue + (i * size);
+	        	double yy = valueToJava2D(currentTickValue, dataArea, edge);
+	        	String tickLabel;
+	        	NumberFormat formatter = getNumberFormatOverride();
+	        	if (formatter != null) {
+	        		tickLabel = formatter.format(currentTickValue);
+	        	}
+	        	else {
+	        		tickLabel = valueToString(currentTickValue);
+	        	}
+
+	        	// avoid to draw overlapping tick labels
+	        	Rectangle2D bounds = TextUtilities.getTextBounds(tickLabel, g2,
+	        			g2.getFontMetrics());
+	        	double tickLabelLength = isVerticalTickLabels()
+	        			? bounds.getWidth() : bounds.getHeight();
+	        			boolean tickLabelsOverlapping = false;
+	        			if (i > 0) {
+	        				double avgTickLabelLength = (previousDrawnTickLabelLength
+	        						+ tickLabelLength) / 2.0;
+	        				if (Math.abs(yy - previousDrawnTickLabelPos)
+	        						< avgTickLabelLength) {
+	        					tickLabelsOverlapping = true;
+	        				}
+	        			}
+	        			if (tickLabelsOverlapping) {
+	        				tickLabel = ""; // don't draw this tick label
+	        			}
+	        			else {
+	        				// remember these values for next comparison
+	        				previousDrawnTickLabelPos = yy;
+	        				previousDrawnTickLabelLength = tickLabelLength;
+	        			}
+
+	        			TextAnchor anchor = null;
+	        			TextAnchor rotationAnchor = null;
+	        			double angle = 0.0;
+	        			if (isVerticalTickLabels()) {
+	                    anchor = TextAnchor.BOTTOM_CENTER;
+	                    rotationAnchor = TextAnchor.BOTTOM_CENTER;
+	                    if (edge == RectangleEdge.LEFT) {
+	                        angle = -Math.PI / 2.0;
+	                    }
+	                    else {
+	                        angle = Math.PI / 2.0;
+	                    }
+	                }
+	                else {
+	                    if (edge == RectangleEdge.LEFT) {
+	                        anchor = TextAnchor.CENTER_RIGHT;
+	                        rotationAnchor = TextAnchor.CENTER_RIGHT;
+	                    }
+	                    else {
+	                        anchor = TextAnchor.CENTER_LEFT;
+	                        rotationAnchor = TextAnchor.CENTER_LEFT;
+	                    }
+	                }
+	                Tick tick = new NumberTick(new Double(currentTickValue),
+	                        tickLabel, anchor, rotationAnchor, angle);
+	                ticks.add(tick);
+	            }
+	        return ticks;
+
+	    }
+
+		/**
+		 * Returns the maximum pixel length of this axis' tick labels.
+		 * @return the maximum tick label size
+		 */
+		public int getMaximumTickLabelSize() {
+			return maxLabelSize;
+		}
+
+		/**
+		 * Sets the maximum pixel length of this axis' tick labels.
+		 * @param maxLabelSize the tick label length to set
+		 */
+		public void setMaximumTickLabelSize(int maxLabelSize) {
+			this.maxLabelSize = maxLabelSize;
 		}
 		
 	}

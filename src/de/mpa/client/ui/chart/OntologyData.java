@@ -1,6 +1,5 @@
 package de.mpa.client.ui.chart;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,21 +27,6 @@ import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 public class OntologyData implements ChartData {
 	
 	/**
-	 * Molecular function occurrences map.
-	 */
-	private Map<String, ProteinHitList> molFunctionOccMap;
-	
-	/**
-	 * Biological process occurrences map.
-	 */
-	private Map<String, ProteinHitList> biolProcessOccMap;
-	
-	/**
-	 * Cellular component occurrences map.
-	 */
-	private Map<String, ProteinHitList> cellCompOccMap;
-	
-	/**
 	 * The database search result.
 	 */
 	private DbSearchResult dbSearchResult;
@@ -68,7 +52,6 @@ public class OntologyData implements ChartData {
 	 * displayed in any associated plots.
 	 */
 	private boolean hideUnknown;
-
 	
 	/**
 	 * Empty default constructor.
@@ -105,11 +88,6 @@ public class OntologyData implements ChartData {
 		// Get the ontology map
 		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
 		
-		// Maps to count the occurrences of each ontology
-		biolProcessOccMap = new HashMap<String, ProteinHitList>();
-		cellCompOccMap = new HashMap<String, ProteinHitList>();
-		molFunctionOccMap = new HashMap<String, ProteinHitList>();
-		
 		// Go through DB search result object and add taxonomy information to taxanomy maps
 		for (ProteinHit mp : dbSearchResult.getMetaProteins()) {
 			MetaProteinHit metaProtein = (MetaProteinHit) mp;
@@ -118,9 +96,9 @@ public class OntologyData implements ChartData {
 					// Get UniProt Entry
 					ReducedUniProtEntry entry = proteinHit.getUniprotEntry();
 					
+					OntologyChartType[] types = OntologyChartType.values();
 					// booleans for ontology types found
-					boolean procFound, compFound, funcFound;
-					procFound = compFound = funcFound = false;
+					boolean[] found = new boolean[types.length];
 					
 					// Entry must be provided
 					if (entry != null) {
@@ -128,31 +106,21 @@ public class OntologyData implements ChartData {
 						for (String keyword : keywords) {
 							if (ontologyMap.containsKey(keyword)) {
 								KeywordOntology kwOntology = ontologyMap.get(keyword);
-								switch (kwOntology) {
-								case BIOLOGICAL_PROCESS:
-									this.appendHit(keyword, biolProcessOccMap, metaProtein);
-									procFound = true;	// mark keyword type found
-									break;
-								case CELLULAR_COMPONENT:
-									this.appendHit(keyword, cellCompOccMap, metaProtein);
-									compFound = true;	// mark keyword type found
-									break;
-								case MOLECULAR_FUNCTION:
-									this.appendHit(keyword, molFunctionOccMap, metaProtein);
-									funcFound = true;	// mark keyword type found
-									break;
+								for (int i = 0; i < types.length; i++) {
+									OntologyChartType oct = types[i];
+									if (kwOntology.equals(oct.getOntology())) {
+										found[i] = true;
+										this.appendHit(keyword, oct.getOccurrenceMap(), metaProtein);
+									}
 								}
 							}
 						}
 					}
-					if (!procFound) {
-						this.appendHit("Unknown", biolProcessOccMap, metaProtein);
-					}
-					if (!compFound) {
-						this.appendHit("Unknown", cellCompOccMap, metaProtein);
-					}
-					if (!funcFound) {
-						this.appendHit("Unknown", molFunctionOccMap, metaProtein);
+					for (int i = 0; i < types.length; i++) {
+						OntologyChartType oct = types[i];
+						if (!found[i]) {
+							this.appendHit("Unknown", oct.getOccurrenceMap(), metaProtein);
+						}
 					}
 				}
 			}
@@ -188,18 +156,7 @@ public class OntologyData implements ChartData {
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		pieDataset.setValue("Unknown", new Integer(0));
 		
-		Map<String, ProteinHitList> map = null;
-		switch ((OntologyChartType) chartType) {
-		case BIOLOGICAL_PROCESS:
-			map = biolProcessOccMap;
-			break;
-		case CELLULAR_COMPONENT:
-			map = cellCompOccMap;
-			break;
-		case MOLECULAR_FUNCTION:
-			map = molFunctionOccMap;
-			break;
-		}
+		Map<String, ProteinHitList> map = ((OntologyChartType) this.chartType).getOccurrenceMap();
 		Set<Entry<String, ProteinHitList>> entrySet = map.entrySet();
 
 		int sumValues = 0;
@@ -268,25 +225,14 @@ public class OntologyData implements ChartData {
 	
 	@Override
 	public ProteinHitList getProteinHits(String key) {
-		// TODO: clever refactoring to avoid 'new ProteinHitList()' call
-		Map<String, ProteinHitList> occMap = null;
-		switch ((OntologyChartType) chartType) {
-		case BIOLOGICAL_PROCESS:
-			occMap = biolProcessOccMap;
-			break;
-		case CELLULAR_COMPONENT:
-			occMap = cellCompOccMap;
-			break;
-		case MOLECULAR_FUNCTION:
-			occMap = molFunctionOccMap;
-			break;
-		}
+		Map<String, ProteinHitList> occMap = ((OntologyChartType) this.chartType).getOccurrenceMap();
 		if (occMap != null) {
 			ProteinHitList phl = occMap.get(key);
 			if (phl != null) {
 				if (hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
 					return phl;
 				} else {
+					// TODO: devise clever refactoring to avoid 'new ProteinHitList()' call
 					return new ProteinHitList(phl.getProteinSet());
 				}
 			}
@@ -313,16 +259,6 @@ public class OntologyData implements ChartData {
 	}
 
 	/**
-	 * Sets up the default maps.
-	 * @param defaultMap
-	 */
-	public void setDefaultMapping(Map<String, ProteinHitList> defaultMap) {
-		this.biolProcessOccMap = defaultMap;
-		this.cellCompOccMap = defaultMap;
-		this.molFunctionOccMap = defaultMap;
-	}
-	
-	/**
 	 * Sets the relative size limit for pie segments.
 	 * @param limit the limit
 	 */
@@ -331,9 +267,9 @@ public class OntologyData implements ChartData {
 	}
 
 	/**
-	 * Excludes proteins grouped in 'Unknown' category from dataset creation.
+	 * Sets whether proteins grouped in 'Unknown' category shall be excluded from dataset creation.
 	 * @param hideUnknown <code>true</code> if 'Unknown' proteins shall be excluded, 
-	 * 					  <code>false</code> otherwise
+	 *  <code>false</code> otherwise
 	 */
 	public void setHideUnknown(boolean hideUnknown) {
 		this.hideUnknown = hideUnknown;

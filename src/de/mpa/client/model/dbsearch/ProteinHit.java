@@ -11,7 +11,14 @@ import java.util.Set;
 
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.analysis.UniprotAccessor;
+import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 
@@ -503,9 +510,76 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	}
 
 	@Override
-	public Object getYForX(Object x) {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<Object> getProperties(ChartType type) {
+		Set<Object> res = new HashSet<Object>();
+		if (type instanceof TaxonomyChartType) {
+			// Get node by taxonomy rank
+			TaxonomyChartType taxChartType = (TaxonomyChartType) type;
+			TaxonomyNode node = this.getTaxonomyNode().getParentNode(
+					taxChartType.getRank().toString().toLowerCase().replace('_', ' '));
+			// Return name of node
+			res.add(node.getName());
+		} else if (type instanceof OntologyChartType) {
+			OntologyChartType ontChartType = (OntologyChartType) type;
+			ReducedUniProtEntry redUniEntry = this.getUniprotEntry();
+			if (redUniEntry != null) {
+				List<String> keywords = redUniEntry.getKeywords();
+				for (String kw : keywords) {
+					KeywordOntology ontologyType = UniprotAccessor.ONTOLOGY_MAP.get(kw);
+					if (ontologyType != null) {
+						if (ontologyType.equals(ontChartType.getOntology())) {
+							res.add(kw);
+						}
+					} else {
+						// TODO: update ontology map, e.g. write parser for ontology file (http://www.uniprot.org/keywords/?query=*&format=*)
+						System.err.println(kw);
+					}
+				}
+			}
+		} else if (type instanceof HierarchyLevel) {
+			HierarchyLevel hl = (HierarchyLevel) type;
+			switch (hl) {
+			case META_PROTEIN_LEVEL:
+				// TODO: possibly implement getMetaProtein() for ProteinHit
+				DbSearchResult result = Client.getInstance().getDbSearchResult();
+				for (ProteinHit ph : result.getMetaProteins()) {
+					MetaProteinHit mph = (MetaProteinHit) ph;
+					for (ProteinHit that : mph.getProteinHits()) {
+						if (this.equals(that)) {
+							if (mph.getProteinHits().size() == 1) {
+								res.add(this.getAccession());
+							} else {
+								res.add(mph.getAccession());
+							}
+							break;
+						}
+					}
+				}
+				break;
+			case PROTEIN_LEVEL:
+				res.add(this.getAccession());
+				break;
+			case PEPTIDE_LEVEL:
+				res.addAll(this.getPeptideHits().keySet());
+				break;
+			case SPECTRUM_LEVEL:
+				for (PeptideHit ph : this.getPeptideHitList()) {
+					for (SpectrumMatch sm : ph.getSpectrumMatches()) {
+						// TODO: implement title caching for spectrum matches
+						res.add(sm.getSearchSpectrumID());
+					}
+				}
+				break;
+			default:
+				// If we got here something went wrong - investigate!
+				System.err.println("ERROR: Unknown hierarchy level!");
+				break;
+			}
+		} else {
+			// If we got here something went wrong - investigate!
+			System.err.println("Error: Unknown chart type!");
+		}
+		return res;
 	}
 	
 }

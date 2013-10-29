@@ -3,10 +3,13 @@ package de.mpa.client.model.dbsearch;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.ui.chart.ChartType;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 
@@ -279,9 +282,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	}
 
 	@Override
-	public Object getYForX(Object x) {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<Object> getProperties(ChartType type) {
+		Set<Object> res = new HashSet<Object>();
+		for (ProteinHit protHit : this.getProteinHits()) {
+			res.addAll(protHit.getProperties(type));
+		}
+		return res;
 	}
-
 }

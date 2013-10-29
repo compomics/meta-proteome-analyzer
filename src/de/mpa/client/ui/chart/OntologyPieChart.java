@@ -1,6 +1,8 @@
 package de.mpa.client.ui.chart;
 
 import java.text.AttributedString;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -10,22 +12,33 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 
 public class OntologyPieChart extends Chart {
 	
 	private PieDataset pieDataset;
 	
 	public enum OntologyChartType implements ChartType {
-		MOLECULAR_FUNCTION("Molecular Function", KeywordOntology.MOLECULAR_FUNCTION),
-		BIOLOGICAL_PROCESS("Biological Process", KeywordOntology.BIOLOGICAL_PROCESS),
-		CELLULAR_COMPONENT("Cellular Component", KeywordOntology.CELLULAR_COMPONENT);
+
+		BIOLOGICAL_PROCESS(KeywordOntology.BIOLOGICAL_PROCESS),
+		CELLULAR_COMPONENT(KeywordOntology.CELLULAR_COMPONENT),
+		CODING_SEQUNCE_DIVERSITY(KeywordOntology.CODING_SEQUNCE_DIVERSITY),
+		DEVELOPMENTAL_STAGE(KeywordOntology.DEVELOPMENTAL_STAGE),
+		DISEASE(KeywordOntology.DISEASE),
+		DOMAIN(KeywordOntology.DOMAIN),
+		LIGAND(KeywordOntology.LIGAND),
+		MOLECULAR_FUNCTION(KeywordOntology.MOLECULAR_FUNCTION),
+		PTM(KeywordOntology.PTM),
+		TECHNICAL_TERM(KeywordOntology.TECHNICAL_TERM);
 		
 		private String title;
 		private KeywordOntology ontology;
+		private Map<String, ProteinHitList> occMap;
 		
-		private OntologyChartType(String title, KeywordOntology ontology) {
-			this.title = title;
+		private OntologyChartType(KeywordOntology ontology) {
+			this.title = ontology.toString();
 			this.ontology = ontology;
+			this.occMap = new HashMap<String, ProteinHitList>();
 		}
 		@Override
 		public String toString() {
@@ -39,6 +52,10 @@ public class OntologyPieChart extends Chart {
 		
 		public KeywordOntology getOntology() {
 			return this.ontology;
+		}
+		
+		public Map<String, ProteinHitList> getOccurrenceMap() {
+			return this.occMap;
 		}
 	}
 		
