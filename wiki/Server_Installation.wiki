@@ -54,8 +54,16 @@ Then execute the provided SQL structure script called `metaprot.sql` from the fo
 
 After execution 26 tables should have been created.
 
-The next step is to insert data into the taxonomy table by using the script `inserttaxa.sh` from the *scripts* folder.
-*Important:* Please make sure that the table *taxonomy* in the SQL metaprot database has been successfully filled.
+The next step is to insert data into the taxonomy table by using the script `inserttaxa.sh` in the *SQL database* folder.
+
+In this folder the following files are also provided:
+ * `names.dmp`
+ * `nodes.dmp`
+ * `indextaxonomy.jar`
+
+*Important:* Please copy the `DbConnectionSettings.txt` into this folder.
+
+*Note:* Please make sure that the table *taxonomy* in the SQL metaprot database has been successfully filled.
 
 Finally, you need to adjust your MySQL user name and password in the `DbConnectionSettings.txt` file and move this file to the 
 default password folder:
