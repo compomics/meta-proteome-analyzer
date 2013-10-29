@@ -160,7 +160,7 @@ The FASTA databases (e.g. uniprot_sprot.fasta) should be provided to the default
 }}}
 
 *Important:*
-If you have your FASTA file(s) in place, copy the following files and directories from the folder *FASTA* (from the mpa-server zipfile) to the  FASTA database folder (see above);
+If you have your FASTA file(s) in place, copy the following files and directories from the folder *FASTA* (from the mpa-server zipfile) to the  FASTA database folder (see above):
  * `indexfasta.jar`
  * `fastaformat.sh`
  * `DBTools` (+ subdirectories)
