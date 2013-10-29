@@ -2,31 +2,40 @@ package de.mpa.client.ui.chart;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.jfree.data.xy.MatrixSeries;
 
-import com.compomics.util.experiment.identification.matches.SpectrumMatch;
-
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.MetaProteinHit;
-import de.mpa.client.model.dbsearch.PeptideHit;
-import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
-import de.mpa.taxonomy.TaxonomyUtils;
+import de.mpa.client.model.dbsearch.Hit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.ui.chart.HeatMapPane.Axis;
 
 /**
  * Container class for heat map-related data.
  * @author R. Heyer, A. Behne
  */
 public class HeatMapData {
+
+	/**
+	 * The database search result reference.
+	 */
+	private DbSearchResult result;
+
+	/**
+	 * The type of data to be displayed on the horizontal axis.
+	 */
+	private ChartType xAxisType;
+
+	/**
+	 * The type of data to be displayed on the vertical axis.
+	 */
+	private ChartType yAxisType;
+
+	/**
+	 * The type of data to be displayed on the color axis.
+	 */
+	private HierarchyLevel zAxisType;
 
 	/**
 	 * The x axis labels.
@@ -44,35 +53,9 @@ public class HeatMapData {
 	private MatrixSeries matrix;
 
 	/**
-	 * Map for xAxis objects and entries for the entries in the y axis.
-	 */
-	private Map<Object, List<String>> xAxisMap;
-
-	/**
-	 * Set for yAxis objects.
-	 */
-//	private Set<String> yAxisSet;
-
-	/**
 	 * The maximum value inside the value matrix.
 	 */
 	private double max;
-
-	/**
-	 * Creates a heat map data container from the specified result object and axis identifiers
-	 * @param result the search result object
-	 * @param xAxis the x axis identifier
-	 * @param yAxis the y axis identifier
-	 * @param zAxis the z axis identifier
-	 */
-	public HeatMapData(DbSearchResult result, Object xAxis, Object yAxis, Object zAxis) {
-		
-		// Create set of x axis items
-		this.createAxisSets(xAxis, yAxis, result);
-
-		// Create the value matrix
-		this.createMatrix(xAxis, zAxis);
-	}
 
 	/**
 	 * Constructor to create a default placeholder heat map data.
@@ -82,303 +65,206 @@ public class HeatMapData {
 	}
 
 	/**
+	 * Creates a heat map data container from the specified result object and axis identifiers
+	 * @param result the search result object
+	 * @param xAxisType the x axis identifier
+	 * @param yAxisType the y axis identifier
+	 * @param zAxisType the z axis identifier
+	 */
+	public HeatMapData(DbSearchResult result, ChartType xAxisType, ChartType yAxisType, HierarchyLevel zAxisType) {
+		this.result = result;
+		this.xAxisType = xAxisType;
+		this.yAxisType = yAxisType;
+		this.zAxisType = zAxisType;
+		
+		this.createMatrix();
+	}
+
+	/**
+	 * Generates matrix data and axis labels from a database search result reference.
+	 */
+	protected void createMatrix() {
+		// Initialize list of hit objects
+		List<Hit> hitList = new ArrayList<Hit>();
+		
+		// Determine type of hits to iterate, fill hit list accordingly
+		switch (this.zAxisType) {
+		case META_PROTEIN_LEVEL:
+			hitList.addAll(result.getMetaProteins());
+			break;
+		case PROTEIN_LEVEL:
+			hitList.addAll(result.getProteinHitList());
+			break;
+		case PEPTIDE_LEVEL:
+			hitList.addAll(((ProteinHitList) result.getProteinHitList()).getPeptideSet());
+			break;
+		case SPECTRUM_LEVEL:
+			hitList.addAll(((ProteinHitList) result.getProteinHitList()).getMatchSet());
+			break;
+		default:
+			// if we get here something went wrong - investigate!
+			System.err.println("ERROR: Unknown hierarchy level specified in " + 
+					Thread.currentThread().getStackTrace()[0]);
+			break;
+		}
+
+		// Initialize labels and matrix as local lists
+		List<String> xLabels = new ArrayList<String>(), yLabels = new ArrayList<String>();
+		List<List<Integer>> matrix = new ArrayList<List<Integer>>();
+		int max = 0;
+		// Iterate hit objects
+		for (Hit hit : hitList) {
+			int row = -1, col = -1;
+			// Get set of hit properties for horizontal axis type
+			Set<Object> xProps = hit.getProperties(xAxisType);
+			// Iterate properties
+			for (Object xProp : xProps) {
+				// Check whether property has been stored before, set matrix column index accordingly
+				int xIndex = xLabels.indexOf(xProp.toString());
+				if (xIndex != -1) {
+					// Property already exists, matrix column index equals label list index
+					col = xIndex;
+				} else {
+					// Property has not been stored yet, append it to label list
+					col = xLabels.size();
+					xLabels.add(xProp.toString());
+				}
+				
+				// Get set of hit properties for vertical axis type
+				Set<Object> yProps = hit.getProperties(this.yAxisType);
+				// Iterate properties
+				for (Object yProp : yProps) {
+					// Check whether property has been stored before, set matrix row index accordingly
+					int yIndex = yLabels.indexOf(yProp.toString());
+					if (yIndex != -1) {
+						// Property already exists, matrix row index equals label list index
+						row = yIndex;
+					} else {
+						// Property has not been stored yet, append it to label list
+						row = yLabels.size();
+						yLabels.add(yProp.toString());
+					}
+					
+					// Get matrix row or initialize a new one if row index exceeds matrix size
+					if (row >= matrix.size()) {
+						matrix.add(new ArrayList<Integer>());
+					}
+					List<Integer> matrixRow = matrix.get(row);
+					if (col >= matrixRow.size()) {
+						// Column index exceeds row length,
+						// pad matrix row with null elements ...
+						while (matrixRow.size() <= col) {
+							matrixRow.add(null);
+						}
+						// ... and initialize new element
+						matrixRow.set(col, 1);
+					} else {
+						// Fetch column element from matrix row
+						Integer val = matrixRow.get(col);
+						// Increment existing value or initialize new one
+						val = (val != null) ? val + 1 : 1;
+						matrixRow.set(col, val);
+					}
+					// Determine global upper value boundary
+					max = Math.max(max, matrixRow.get(col));
+				}
+			}
+		}
+
+
+		if (xLabels.isEmpty()) {
+			xLabels.add("No data");
+			max = 1;
+		}
+		if (yLabels.isEmpty()) {
+			yLabels.add("No data");
+			max = 1;
+		}
+		
+		// Cache list contents as arrays
+		this.xLabels = xLabels.toArray(new String[0]);
+		this.yLabels = yLabels.toArray(new String[0]);
+		// Create matrix series object
+		this.matrix = new MatrixSeries("matrix", yLabels.size(), xLabels.size());
+		for (int i = 0; i < matrix.size(); i++) {
+			List<Integer> matrixRow = matrix.get(i);
+			for (int j = 0; j < matrixRow.size(); j++) {
+				Integer val = matrixRow.get(j);
+				if (val != null) {
+					this.matrix.update(i, j, val);
+				}
+			}
+		}
+		// Cache maximum value
+		this.max = max;
+	}
+
+	/**
 	 * Create default placeholder heat map data.
 	 */
 	protected void createDefault() {
 		// Generate value matrix
-		int height = 25, width = 27;
-		matrix = new MatrixSeries("matrix", height, width);
+		int height = 26, width = 26;
+		this.matrix = new MatrixSeries("matrix", height, width);
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				double mij = Math.sin((j + 0.5) / width * Math.PI) *
 						Math.cos((i + 0.5) / height * Math.PI - Math.PI / 2.0);
-				matrix.update(i, j, Math.round(mij * 100.0));
+				this.matrix.update(i, j, Math.round(mij * 100.0));
 			}
 		}
 		// Generate x axis labels
-		xLabels = new String[width];
-		for (int i = 0; i < xLabels.length; i++) {
-			xLabels[i] = "" + (i + 1);
+		this.xLabels = new String[width];
+		for (int i = 0; i < this.xLabels.length; i++) {
+			this.xLabels[i] = "" + (i + 1);
 		}
 		// Generate y axis labels
-		yLabels = new String[height];
-		for (int i = 0; i < yLabels.length; i++) {
-			yLabels[i] = "" + (char) (i + 'A');
+		this.yLabels = new String[height];
+		for (int i = 0; i < this.yLabels.length; i++) {
+			this.yLabels[i] = "" + (char) (i + 'A');
 		}
+		this.max = 100.0;
 	}
 
 	/**
-	 * Creates x-to-y item mapping.
+	 * Sets the type of the specified axis to the specified value and refreshes
+	 * the matrix data.
+	 * @param type the type to set
+	 * @param axis the axis to change
 	 */
-	private void createAxisSets(Object xAxis, Object yAxis, DbSearchResult result) {
-		// List for values for the x
-		xAxisMap = new TreeMap<Object, List<String>>();
+	public void setAxisType(ChartType type, Axis axis) {
+		this.setAxisTypes(
+				(axis == Axis.X_AXIS) ? type : null,
+				(axis == Axis.Y_AXIS) ? type : null,
+				(axis == Axis.Z_AXIS) ? (HierarchyLevel) type : null);
+	}
 	
-		// Create map for the x-axis (X-Object and values for y-axis) and save y-values in set for y-axis
-		if (xAxis instanceof TaxonomyChartType) {
-			// TODO implement this
-			System.err.println("ERROR: not yet implemented!");
-		} else if (xAxis instanceof OntologyChartType) {
-			// TODO implement this
-			System.err.println("ERROR: not yet implemented!");
-		} else if (xAxis instanceof HierarchyLevel) {
-			switch ((HierarchyLevel) xAxis) {
-			case META_PROTEIN_LEVEL:
-				for (ProteinHit metaProtHit : result.getMetaProteins()) {
-					xAxisMap.put(metaProtHit, this.addYValues(yAxis, metaProtHit));
-				}
-				break;
-			case PROTEIN_LEVEL:
-				for (ProteinHit proteinHit : result.getProteinHitList()) {
-					xAxisMap.put(proteinHit, this.addYValues(yAxis, proteinHit));
-				}
-				break;
-			case PEPTIDE_LEVEL:
-				for (ProteinHit proteinHit : result.getProteinHitList()) {
-					for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-						ArrayList<String> yValues = this.addYValues(yAxis, proteinHit);
-						List<String> oldValues = xAxisMap.get(peptideHit);
-						if (oldValues != null) {
-							yValues.addAll(oldValues);
-						}
-						xAxisMap.put(peptideHit, yValues);
-					}
-				}
-				break;
-			case SPECTRUM_LEVEL:
-				// TODO implement this
-				System.err.println("ERROR: not yet implemented!");
-				break;
-			default:
-				System.err.println("ERROR: unknown hierarchy level specified!");
-				break;
-			}
-		} else {
-			System.err.println("ERROR: unknown identifier specified!");
+	/**
+	 * Sets the axis types to the specified values and refreshes the matrix data.
+	 * @param xAxisType the x axis type
+	 * @param yAxisType the y axis type
+	 * @param zAxisType the z axis type
+	 */
+	public void setAxisTypes(ChartType xAxisType, ChartType yAxisType, HierarchyLevel zAxisType) {
+		if (xAxisType != null) {
+			this.xAxisType = xAxisType;
 		}
+		if (yAxisType != null) {
+			this.yAxisType = yAxisType;
+		}
+		if (zAxisType != null) {
+			this.zAxisType = zAxisType;
+		}
+		// Rebuild data matrix
+		this.createMatrix();
 	}
 
 	/**
-	 * Method to create y-axis set.
-	 * @return y-axis set.
+	 * Sets the result object reference.
+	 * @param result the result object to set
 	 */
-	private ArrayList<String> addYValues(Object yAxis, ProteinHit protHit) {
-		// Collect non-redundant list of entries for y-Axis
-		ArrayList<String> yEntry = new ArrayList<String>();
-		
-		if (yAxis instanceof TaxonomyChartType) {
-			String taxName = TaxonomyUtils.getTaxNameByRank(protHit.getTaxonomyNode(), ((TaxonomyChartType) yAxis).getRank());
-			yEntry.add(taxName);
-		} else if (yAxis instanceof OntologyChartType) {
-			KeywordOntology ontology = ((OntologyChartType) yAxis).getOntology();
-			// Get the ontology map
-			Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
-			// Check all keywords for biological process
-			List<String> keywords = protHit.getUniprotEntry().getKeywords();
-			if (keywords != null) {
-				// Check all keywords
-				for (String keyword : keywords) {
-					KeywordOntology mapOntology = ontologyMap.get(keyword);
-					if (mapOntology != null) {
-						if (mapOntology.equals(ontology)) {
-							yEntry.add(keyword);
-						}
-					}
-				}
-			}
-		} else if (yAxis instanceof HierarchyLevel) {
-			switch ((HierarchyLevel) yAxis) {
-				case META_PROTEIN_LEVEL:
-					// TODO implement this
-					System.err.println("ERROR: not yet implemented!");
-					break;
-				case PROTEIN_LEVEL:
-					Set<ProteinHit> metaProtSet = ((MetaProteinHit) protHit)
-					.getProteinSet();
-					for (ProteinHit metaProts : metaProtSet) {
-						yEntry.add(metaProts.getAccession());
-					}
-					break;
-				case PEPTIDE_LEVEL:
-					List<PeptideHit> pepHitList = protHit.getPeptideHitList();
-					for (PeptideHit pepHit : pepHitList) {
-						yEntry.add(pepHit.getSequence());
-					}
-					break;
-				case SPECTRUM_LEVEL:
-					// TODO implement this
-					System.err.println("ERROR: not yet implemented!");
-					break;
-				default:
-					System.err.println("ERROR: unknown hierarchy level specified!");
-					break;	
-			}
-		} else {
-			System.err.println("ERROR: unknown identifier specified!");
-			// TODO implement E.C./pathway options
-			
-//			if (yAxis.equals("EC_NUMBER")) {
-//				List<String> ecNumbers = protHit.getUniprotEntry().getProteinDescription().getEcNumbers();
-//				for (String ecNum : ecNumbers) {
-//					yEntry.add(ecNum);
-//					yAxisSet.add(ecNum);
-//				}
-//			}
-//			if (yAxis.equals("PATHWAY")) {
-//				// Add pathways by KO
-//				List<DatabaseCrossReference> dcr = protHit.getUniprotEntry().getDatabaseCrossReferences(DatabaseType.KO);
-//				for (int i = 0; i < dcr.size(); i++) {
-//					// Get Ko number to match it to the pathways
-//					DatabaseCrossReference ref = dcr.get(i);
-//					String ko = ((KO) ref).getKOIdentifier().getValue();
-//					List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko.substring(1));
-//					if (pathwaysByKO != null) {
-//						for (Short pathway : pathwaysByKO) {
-//							Object[] keggPathwayPath = Constants.getKEGGPathwayPath(pathway);
-//							if (keggPathwayPath != null && keggPathwayPath.length > 0) {
-//								yEntry.add(keggPathwayPath[3].toString());
-//								yAxisSet.add(keggPathwayPath[3].toString());
-//							}
-//						}
-//					}
-//				}
-//				// Add pathways by EC
-//				List<String> ecNumbers = protHit.getUniprotEntry().getProteinDescription().getEcNumbers();
-//				for (String ecNumb : ecNumbers) {
-//					List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ecNumb);
-//					if (pathwaysByEC != null) {
-//						for (Short pathway : pathwaysByEC) {
-//							Object[] keggPathwayPath = Constants.getKEGGPathwayPath(pathway);
-//							if (keggPathwayPath != null && keggPathwayPath.length > 0) {
-//								yEntry.add(keggPathwayPath[3].toString());
-//								yAxisSet.add(keggPathwayPath[3].toString());
-//							}
-//						}
-//					}
-//				}
-//			}
-		}
-		
-		return yEntry;
-	}
-
-	/**
-	 * Creates the heat map value matrix.
-	 * @return the value matrix 
-	 */
-	private MatrixSeries createMatrix(Object xAxis, Object zAxis) {
-
-		// Gather x axis labels
-		this.collectXLabels();
-		
-		// Generate set of y axis labels
-		Set<String> yAxisSet = this.collectYLabels();
-		
-		// Create matrix
-		matrix = new MatrixSeries("matrix", yAxisSet.size(), xAxisMap.size());
-		max = 0;
-		// Go through matrix and save entries
-		int j = 0;
-		for (Entry<Object, List<String>> xEntry : xAxisMap.entrySet()) {
-			List<String> xAxisList = xEntry.getValue();
-			Object key = xEntry.getKey();
-			int i = 0;
-			for (String yEntry : yAxisSet) {
-				int value = 0;
-				if (xAxisList.contains(yEntry)) {
-					switch ((HierarchyLevel) zAxis) {
-						case META_PROTEIN_LEVEL:
-						case PROTEIN_LEVEL:
-							value = 1;
-							break;
-						case PEPTIDE_LEVEL:
-							if (xAxis instanceof HierarchyLevel) {
-								switch ((HierarchyLevel) xAxis) {
-									case META_PROTEIN_LEVEL:
-									case PROTEIN_LEVEL:
-										value = ((ProteinHit) key).getPeptideCount();
-										break;
-									case PEPTIDE_LEVEL:
-										value = 1;
-										break;
-									case SPECTRUM_LEVEL:
-										// TODO implement this
-										System.err.println("ERROR: not yet implemented!");
-										break;
-									default:
-										System.err.println("ERROR: unknown hierarchy level specified!");
-										break;
-								}
-							}
-							break;
-						case SPECTRUM_LEVEL:
-							if (xAxis instanceof HierarchyLevel) {
-								switch ((HierarchyLevel) xAxis) {
-									case META_PROTEIN_LEVEL:
-									case PROTEIN_LEVEL:
-										value = ((ProteinHit) key).getSpectralCount();
-										break;
-									case PEPTIDE_LEVEL:
-										value = ((PeptideHit) key).getSpectralCount();
-										break;
-									case SPECTRUM_LEVEL:
-										// TODO implement this
-										System.err.println("ERROR: not yet implemented!");
-										break;
-									default:
-										System.err.println("ERROR: unknown hierarchy level specified!");
-										break;
-								}
-							}
-							break;
-						default:
-							System.err.println("ERROR: unknown hierarchy level specified!");
-							break;
-					}
-				}
-				matrix.update(i, j, value);
-				max = Math.max(max, value);
-				i++;
-			}
-			j++;
-		}
-		return matrix;
-	}
-
-	/**
-	 * Method to collect x axis labels.
-	 */
-	private void collectXLabels() {
-		// Collect x axis labels
-		xLabels = new String[xAxisMap.size()];
-		int xIndex = 0;
-		for (Object obj : xAxisMap.keySet()) {
-			// TODO: implement taxonomies/ontologies/etc.
-			String label = null;
-			if (obj instanceof ProteinHit) {
-				label = ((ProteinHit) obj).getAccession();
-			} else if (obj instanceof PeptideHit) {
-				label = ((PeptideHit) obj).getSequence();
-			} else if (obj instanceof SpectrumMatch) {
-				// TODO implement this
-				System.err.println("ERROR: not yet implemented!");
-			} else {
-				System.err.println("ERROR: unknown x axis element type!");
-			}
-			xLabels[xIndex++] = label;
-		}
-	}
-
-	/**
-	 * Method to collect y axis labels.
-	 */
-	private Set<String> collectYLabels() {
-		Set<String> yAxisSet = new TreeSet<String>();
-		for (List<String> values : xAxisMap.values()) {
-			yAxisSet.addAll(values);
-		}
-		yLabels = yAxisSet.toArray(new String[0]);
-		return yAxisSet;
+	public void setResult(DbSearchResult result) {
+		this.result = result;
 	}
 
 	/**

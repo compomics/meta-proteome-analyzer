@@ -46,6 +46,11 @@ public class IconConstants {
 	/** <img src="../../../resources/icons/graph16.png"> */
 	public static final ImageIcon GRAPH_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/graph16.png"));
 	
+	/** <img src="../../../resources/icons/zoom16.png"> */
+	public static final ImageIcon ZOOM_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/zoom16.png"));
+	public static final ImageIcon ZOOM_ROLLOVER_ICON = createRescaledIcon(ZOOM_ICON, 1.1f);
+	public static final ImageIcon ZOOM_PRESSED_ICON = createRescaledIcon(ZOOM_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/settings16.png"> */
 	public static final ImageIcon SETTINGS_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings16.png"));
 	public static final ImageIcon SETTINGS_SMALL_ROLLOVER_ICON = createRescaledIcon(SETTINGS_SMALL_ICON, 1.1f);

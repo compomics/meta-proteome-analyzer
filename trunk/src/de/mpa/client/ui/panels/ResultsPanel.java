@@ -2,7 +2,6 @@ package de.mpa.client.ui.panels;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -22,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,7 +95,6 @@ import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HeatMapPane;
-import de.mpa.client.ui.chart.HeatMapPane.Axis;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
@@ -266,10 +265,10 @@ public class ResultsPanel extends JPanel {
 	 */
 	private HeatMapPane heatMapPn;
 
-	/**
-	 * Button to refresh the heat map.
-	 */
-	private JButton updateHeatMapBtn;
+//	/**
+//	 * Button to refresh the heat map.
+//	 */
+//	private JButton updateHeatMapBtn;
 
 	/**
 	 * Constructs a results panel containing the detail views for database,
@@ -494,39 +493,34 @@ public class ResultsPanel extends JPanel {
 
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
 
-		// Create panel for heat map
-		JPanel heatMapPnl = new JPanel();
-		heatMapPnl.setLayout(new FormLayout("2px, f:p:g, 1px", "f:p:g, 5dlu, p"));
-
-		// heat map update button
-		updateHeatMapBtn = new JButton(IconConstants.UPDATE_ICON);
-		updateHeatMapBtn.setRolloverIcon(IconConstants.UPDATE_ROLLOVER_ICON);
-		updateHeatMapBtn.setPressedIcon(IconConstants.UPDATE_PRESSED_ICON);
-		updateHeatMapBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Update heat map
-				if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
-					HeatMapData data = new HeatMapData(
-							dbSearchResult,
-							heatMapPn.getAxisButtonValue(Axis.X_AXIS),
-							heatMapPn.getAxisButtonValue(Axis.Y_AXIS),
-							heatMapPn.getAxisButtonValue(Axis.Z_AXIS));
-					heatMapPn.updateData(data);
-				}
-			}
-		});
-		updateHeatMapBtn.setMargin(new Insets(1, 0, 1, 2));
-		updateHeatMapBtn.setEnabled(false);
+//		// heat map update button
+//		updateHeatMapBtn = new JButton(IconConstants.UPDATE_ICON);
+//		updateHeatMapBtn.setRolloverIcon(IconConstants.UPDATE_ROLLOVER_ICON);
+//		updateHeatMapBtn.setPressedIcon(IconConstants.UPDATE_PRESSED_ICON);
+//		updateHeatMapBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				// Update heat map
+//				if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
+//					HeatMapData data = new HeatMapData(
+//							dbSearchResult,
+//							(ChartType) heatMapPn.getAxisButtonValue(Axis.X_AXIS),
+//							(ChartType) heatMapPn.getAxisButtonValue(Axis.Y_AXIS),
+//							(HierarchyLevel) heatMapPn.getAxisButtonValue(Axis.Z_AXIS));
+//					heatMapPn.updateData(data);
+//				}
+//			}
+//		});
+//		updateHeatMapBtn.setMargin(new Insets(1, 0, 1, 2));
+//		updateHeatMapBtn.setEnabled(false);
 
 		// create default heat map
-		HeatMapData data = new HeatMapData();
-		heatMapPn = new HeatMapPane("Heat Map", "x axis", "y axis", "z axis", 
-				data.getXLabels(), data.getYLabels(), 0.0, 100.0, data.getMatrix());
-		heatMapPn.setVisibleColumnCount(14);
+		heatMapPn = new HeatMapPane(new HeatMapData());
+		heatMapPn.setVisibleColumnCount(13);
 		heatMapPn.setVisibleRowCount(13);
+		heatMapPn.setEnabled(false);
 		
-		((Container) heatMapPn.getViewport().getView()).add(updateHeatMapBtn, CC.xy(4, 3));
+//		((Container) heatMapPn.getViewport().getView()).add(updateHeatMapBtn, CC.xy(6, 6));
 
 		// insert subcomponents into main panel
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
@@ -546,20 +540,16 @@ public class ResultsPanel extends JPanel {
 	private JPanel createChartPanel() {
 
 		// init chart types
-		final ChartType[] chartTypes = new ChartType[] {
-				OntologyChartType.BIOLOGICAL_PROCESS,
-				OntologyChartType.MOLECULAR_FUNCTION,
-				OntologyChartType.CELLULAR_COMPONENT,
-				TaxonomyChartType.SUPERKINGDOM,
-				TaxonomyChartType.KINGDOM,
-				TaxonomyChartType.PHYLUM,
-				TaxonomyChartType.CLASS,
-				TaxonomyChartType.ORDER,
-				TaxonomyChartType.FAMILY,
-				TaxonomyChartType.GENUS,
-				TaxonomyChartType.SPECIES,
-				TopBarChartType.PROTEINS,
-				HistogramChartType.TOTAL_ION_HIST };
+		List<ChartType> tmp = new ArrayList<ChartType>();
+		for (ChartType oct : OntologyChartType.values()) {
+			tmp.add(oct);
+		}
+		for (ChartType tct : TaxonomyChartType.values()) {
+			tmp.add(tct);
+		}
+		tmp.add(TopBarChartType.PROTEINS);
+		tmp.add(HistogramChartType.TOTAL_ION_HIST);
+		final ChartType[] chartTypes = tmp.toArray(new ChartType[0]);
 
 		// create and configure button for chart type selection
 		chartTypeBtn = new JToggleButton(
@@ -1280,20 +1270,6 @@ public class ResultsPanel extends JPanel {
 				// FIXME: Is this histogram really necessary?
 //				histogramData = new HistogramData(dbSearchResult, 40);
 
-				// Update heat map
-				Object xVal = heatMapPn.getAxisButtonValue(Axis.X_AXIS);
-				if (xVal instanceof String) {
-					heatMapPn.setAxisButtonValue(Axis.X_AXIS, HierarchyLevel.PROTEIN_LEVEL);
-				}
-				Object yVal = heatMapPn.getAxisButtonValue(Axis.Y_AXIS);
-				if (yVal instanceof String) {
-					heatMapPn.setAxisButtonValue(Axis.Y_AXIS, TaxonomyChartType.SPECIES);
-				}
-				Object zVal = heatMapPn.getAxisButtonValue(Axis.Z_AXIS);
-				if (zVal instanceof String) {
-					heatMapPn.setAxisButtonValue(Axis.Z_AXIS, HierarchyLevel.SPECTRUM_LEVEL);
-				}
-
 				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1305,8 +1281,9 @@ public class ResultsPanel extends JPanel {
 		protected void done() {
 			// Enable chart type button
 			chartTypeBtn.setEnabled(true);
-			updateHeatMapBtn.setEnabled(true);
-			updateHeatMapBtn.doClick(0);
+			// Enable and update heat map
+			heatMapPn.setEnabled(true);
+			heatMapPn.updateData(dbSearchResult);
 
 			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1337,5 +1314,5 @@ public class ResultsPanel extends JPanel {
 	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
 		return graphDbPnl;
 	}
-
+	
 }

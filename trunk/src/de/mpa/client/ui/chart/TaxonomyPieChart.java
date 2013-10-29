@@ -11,9 +11,19 @@ import org.jfree.ui.RectangleInsets;
 
 import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 
+/**
+ * The taxonomy pie chart.
+ * @author kohrs
+ *
+ */
 public class TaxonomyPieChart extends Chart {
 	private PieDataset pieDataset;
 	
+	/**
+	 * Chart types.
+	 * @author kohrs
+	 *
+	 */
 	public enum TaxonomyChartType implements ChartType {
 		SUPERKINGDOM("Superkingdom", TaxonomyRank.SUPERKINGDOM),
 		KINGDOM("Kingdom", TaxonomyRank.KINGDOM),

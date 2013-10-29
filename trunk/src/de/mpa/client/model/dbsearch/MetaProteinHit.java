@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HierarchyLevel;
 
 /**
  * Wrapper class for meta-proteins.
@@ -82,5 +84,17 @@ public class MetaProteinHit extends ProteinHit {
 	public boolean isEmpty() {
 		return phl.isEmpty();
 	}
-
+	
+	@Override
+	public Set<Object> getProperties(ChartType type) {
+//		if (type.equals(HierarchyLevel.META_PROTEIN_LEVEL)) {
+//			this.get
+//		} else {
+			Set<Object> res = new HashSet<Object>();
+			for (ProteinHit protHit : this.getProteinHits()) {
+				res.addAll(protHit.getProperties(type));
+			}
+//		}
+		return res;
+	}
 }

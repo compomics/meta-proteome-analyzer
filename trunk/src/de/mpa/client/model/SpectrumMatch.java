@@ -1,11 +1,22 @@
 package de.mpa.client.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import de.mpa.client.Client;
+import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.ui.chart.ChartType;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 
+/**
+ * TODO: API
+ */
 public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, Taxonomic, Hit {
 	
 	/**
@@ -22,6 +33,11 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * The search spectrum id;
 	 */
 	protected long searchSpectrumID;
+	
+	/**
+	 * The spectrum title.
+	 */
+	protected String title;
 	
 	/**
 	 * The start index byte position of the associated spectrum.
@@ -75,6 +91,23 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 */
 	public void setSearchSpectrumID(long searchSpectrumID) {
 		this.searchSpectrumID = searchSpectrumID;
+	}
+
+	
+	/**
+	 * Gets the spectrum title.
+	 * @return The spectrum title.
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * Sets the spectrum title.
+	 * @param The spectrum title.
+	 */
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	/**
@@ -150,9 +183,18 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	}
 
 	@Override
-	public Object getYForX(Object x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+	public Set<Object> getProperties(ChartType type) {
+			Set<Object> res = new HashSet<Object>();
+			DbSearchResult dbresObj = Client.getInstance().getDbSearchResult(); // TODO use back mapping
+			if (dbresObj != null) {
+				Set<PeptideHit> pepSet = ((ProteinHitList)dbresObj.getProteinHitList()).getPeptideSet();
+				for (PeptideHit pepHit : pepSet) {
+					if (pepHit.getSpectrumMatches().contains(this)) {
+						res.addAll(pepHit.getProperties(type));
+						break;
+					}
+				}
+			}
+			return res;
+		}
 }

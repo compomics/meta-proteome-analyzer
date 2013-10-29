@@ -6,7 +6,7 @@ package de.mpa.client.ui.chart;
  * 
  * @author A. Behne
  */
-public enum HierarchyLevel {
+public enum HierarchyLevel implements ChartType {
 	
 	META_PROTEIN_LEVEL("Meta-Proteins"),
 	PROTEIN_LEVEL("Proteins"),
@@ -29,6 +29,11 @@ public enum HierarchyLevel {
 	@Override
 	public String toString() {
 		return description;
+	}
+
+	@Override
+	public String getTitle() {
+		return this.toString();
 	}
 	
 }
