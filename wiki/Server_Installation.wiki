@@ -159,12 +159,16 @@ The FASTA databases (e.g. uniprot_sprot.fasta) should be provided to the default
 /scratch/metaprot/data/fasta
 }}}
 
-If you have your FASTA file(s) in place, move the `fastaformat.sh` script from the folder *scripts* (from the mpa-server zipfile) to the  FASTA database folder.
+*Important:*
+If you have your FASTA file(s) in place, copy the following files and directories from the folder *FASTA* (from the mpa-server zipfile) to the  FASTA database folder (see above);
+ * `indexfasta.jar`
+ * `fastaformat.sh`
+ * `DBTools` (+ subdirectories)
 
-The FASTA formatted in then executing by the following command
+The actual FASTA formatting in then executing by the following command
 {{{
 ./fastaformat.sh uniprot_sprot 
-Important: Please note that the file ending *.fasta* has to be omitted here!
+Important: Please note that the file ending *.fasta must be omitted here!
 }}}
 
 Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms.
