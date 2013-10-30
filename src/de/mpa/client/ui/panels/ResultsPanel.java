@@ -1270,7 +1270,12 @@ public class ResultsPanel extends JPanel {
 				// FIXME: Is this histogram really necessary?
 //				histogramData = new HistogramData(dbSearchResult, 40);
 
-				updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+				// Refresh chart panel showing default ontology pie chart
+				ResultsPanel.this.updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+				
+				// Enable and update heat map
+				heatMapPn.setEnabled(true);
+				heatMapPn.updateData(dbSearchResult);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -1281,9 +1286,6 @@ public class ResultsPanel extends JPanel {
 		protected void done() {
 			// Enable chart type button
 			chartTypeBtn.setEnabled(true);
-			// Enable and update heat map
-			heatMapPn.setEnabled(true);
-			heatMapPn.updateData(dbSearchResult);
 
 			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
