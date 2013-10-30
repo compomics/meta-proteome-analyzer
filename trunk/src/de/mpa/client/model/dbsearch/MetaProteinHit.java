@@ -6,7 +6,6 @@ import java.util.Set;
 
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.chart.HierarchyLevel;
 
 /**
  * Wrapper class for meta-proteins.
@@ -14,6 +13,11 @@ import de.mpa.client.ui.chart.HierarchyLevel;
  * @author A. Behne
  */
 public class MetaProteinHit extends ProteinHit {
+	
+	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
 	
 	/**
 	 * The protein hit list of this meta-protein.

@@ -9,6 +9,11 @@ import de.mpa.db.accessor.SearchHit;
 public class PeptideSpectrumMatch extends SpectrumMatch {
 	
 	/**
+	 * Serialization ID set to default == 1L;
+	 */
+	private static final long serialVersionUID = 1L; 
+	
+	/**
 	 * The ion charge.
 	 */
 	private int charge;
