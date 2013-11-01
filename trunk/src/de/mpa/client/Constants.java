@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -176,17 +177,19 @@ public class Constants {
 	}
 	
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
-			"Mascot Generic Format Files (*.mgf)");
+			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Project File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
-			"CSV (tab-separated) File (*.csv)");
+			"CSV File, tab-separated (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
 			"Raw Mascot Result File (*.dat)");
 	public static final FileFilter GRAPHML_FILE_FILTER = new ExtensionFileFilter(".graphml", false,
 			"GraphML File (*.graphml)");
+	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
+			"Microsoft Excel 2003 XML File (*.xml)");
 
 	// Protein table column indices
 	public static final int PROT_SELECTION = 0;
@@ -270,8 +273,9 @@ public class Constants {
 		VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR("vertBarChartHighlighterE.endColor",
 				"Table Vertical Bar Chart E Gradient End"),
 		/* Progress Bar colors */
-		PROGRESS_BAR_START_COLOR("progressBar.startColor", "Progress Bar Gradient Start"),
-		PROGRESS_BAR_END_COLOR("progressBar.endColor", "Progress Bar Gradient End");
+//		PROGRESS_BAR_START_COLOR("progressBar.startColor", "Progress Bar Gradient Start"),
+//		PROGRESS_BAR_END_COLOR("progressBar.endColor", "Progress Bar Gradient End");
+		PROGRESS_BAR_FOREGROUND_COLOR("progressBar.foregroundColor", "Progress Bar Foreground Color");
 		
 		/**
 		 * The <code>UIManager</code> key.
@@ -410,8 +414,9 @@ public class Constants {
 			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
 			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
 			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
-			put(UIColor.PROGRESS_BAR_START_COLOR, new Color(169, 191, 217));
-			put(UIColor.PROGRESS_BAR_END_COLOR, new Color(214, 233, 255));
+//			put(UIColor.PROGRESS_BAR_START_COLOR, new Color(169, 191, 217));
+//			put(UIColor.PROGRESS_BAR_END_COLOR, new Color(214, 233, 255));
+			put(UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
 		}
 	});
 	
@@ -457,7 +462,7 @@ public class Constants {
 		 * @param path the theme file
 		 */
 		public UITheme(File file) {
-			colorMap = new HashMap<UIColor, Color>();
+			colorMap = new LinkedHashMap<UIColor, Color>();
 			this.parse(file);
 		}
 		

@@ -1,15 +1,12 @@
 package de.mpa.client.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.mpa.client.Client;
-import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
-import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
@@ -50,6 +47,11 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	private long endIndex;
 	
 	/**
+	 * The list of peptide hits this spectrum is associated with.
+	 */
+	private Collection<PeptideHit> peptideHits;
+
+	/**
 	 * The taxonomy node reference.
 	 */
 	private TaxonomyNode taxonNode;
@@ -57,7 +59,10 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	/**
 	 * Default empty constructor.
 	 */
-	public SpectrumMatch() { }
+	public SpectrumMatch() {
+//		this.peptideHits = new ArrayList<PeptideHit>();
+		this.peptideHits = new HashSet<PeptideHit>();
+	}
 
 	/**
 	 * Returns whether this spectrum match is selected for exporting. 
@@ -145,6 +150,22 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	public void setEndIndex(long endIndex) {
 		this.endIndex = endIndex;
 	}
+	
+	/**
+	 * Returns the list of peptide hits associated with this match.
+	 * @return the peptide hits
+	 */
+	public Collection<PeptideHit> getPeptideHits() {
+		return peptideHits;
+	}
+	
+	/**
+	 * Adds a peptide hit to the list of peptides associated with this match.
+	 * @param peptideHit the peptide hit to add
+	 */
+	public void addPeptideHit(PeptideHit peptideHit) {
+		this.peptideHits.add(peptideHit);
+	}
 
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
@@ -185,15 +206,18 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	@Override
 	public Set<Object> getProperties(ChartType type) {
 			Set<Object> res = new HashSet<Object>();
-			DbSearchResult dbresObj = Client.getInstance().getDbSearchResult(); // TODO use back mapping
-			if (dbresObj != null) {
-				Set<PeptideHit> pepSet = ((ProteinHitList)dbresObj.getProteinHitList()).getPeptideSet();
-				for (PeptideHit pepHit : pepSet) {
-					if (pepHit.getSpectrumMatches().contains(this)) {
-						res.addAll(pepHit.getProperties(type));
-						break;
-					}
-				}
+//			DbSearchResult dbresObj = Client.getInstance().getDbSearchResult(); // TODO use back mapping
+//			if (dbresObj != null) {
+//				Set<PeptideHit> pepSet = ((ProteinHitList)dbresObj.getProteinHitList()).getPeptideSet();
+//				for (PeptideHit pepHit : pepSet) {
+//					if (pepHit.getSpectrumMatches().contains(this)) {
+//						res.addAll(pepHit.getProperties(type));
+//						break;
+//					}
+//				}
+//			}
+			for (PeptideHit pepHit : this.peptideHits) {
+				res.addAll(pepHit.getProperties(type));
 			}
 			return res;
 		}

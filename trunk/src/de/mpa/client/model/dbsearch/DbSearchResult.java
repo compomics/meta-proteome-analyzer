@@ -127,6 +127,9 @@ public class DbSearchResult implements Serializable {
 					currentMatch = match;
 				}
 				currentPeptideHit.replaceSpectrumMatch(currentMatch);
+				
+				// Link spectrum match to peptide hit
+				currentMatch.addPeptideHit(currentPeptideHit);
 			} else {
 				// No match found, peptide hit is new
 				currentPeptideHit = peptideHit;
@@ -138,8 +141,9 @@ public class DbSearchResult implements Serializable {
 
 			ProteinHitList phl = new ProteinHitList();
 			phl.add(currentProteinHit);
-			MetaProteinHit meta = new MetaProteinHit("Meta-Protein", phl);
-			metaProteins.add(meta);
+			MetaProteinHit mph = new MetaProteinHit("Meta-Protein", phl);
+			currentProteinHit.setMetaProteinHit(mph);
+			metaProteins.add(mph);
 			
 			// Check whether peptide hit match has been found
 			if (currentPeptideHit != null) {
@@ -162,6 +166,9 @@ public class DbSearchResult implements Serializable {
 				Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
 				currentProteinHit.setPeptideHits(newPeptideHits);
 				currentProteinHit.addPeptideHit(currentPeptideHit);
+
+				// Link spectrum match to peptide hit
+				currentMatch.addPeptideHit(currentPeptideHit);
 			} else {
 				// No match found, both protein and peptide hits are new
 				currentPeptideHit = peptideHit;

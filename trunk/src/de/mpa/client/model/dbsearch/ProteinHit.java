@@ -13,7 +13,6 @@ import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceInd
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
-import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
@@ -72,6 +71,11 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	private double pI = -1.0;
 	
 	/**
+	 * The meta-protein this protein hit is associated with.
+	 */
+	private MetaProteinHit metaProteinHit;
+
+	/**
 	 * Peptide hits for the protein.
 	 */
 	private Map<String, PeptideHit> peptideHits;
@@ -119,9 +123,8 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param sequence the protein sequence
 	 * @param peptideHit the peptide hit
 	 * @param uniprotEntry the UniProtEntry hit
-	 * @throws Exception 
 	 */
-	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, ReducedUniProtEntry uniprotEntry, TaxonomyNode taxonomyNode) throws Exception{
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, ReducedUniProtEntry uniprotEntry, TaxonomyNode taxonomyNode) {
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
@@ -140,9 +143,8 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param description the protein description
 	 * @param sequence the protein sequence
 	 * @param peptideHit the peptide hit
-	 * @throws Exception 
 	 */
-	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit) throws Exception{
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit) {
 		this(accession, description, sequence, peptideHit, null, null);
 	}
 	
@@ -150,9 +152,8 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * Constructor for a simple protein hit with accession only.
 	 * @param accession the protein accession
-	 * @throws Exception 
 	 */
-	public ProteinHit(String accession) throws Exception {
+	public ProteinHit(String accession) {
 		this(accession, "", "", null, null, null);
 	}
 	
@@ -367,6 +368,22 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	}
 	
 	/**
+	 * Returns the meta-protein this protein hit is associated with.
+	 * @return the associated meta-protein
+	 */
+	public MetaProteinHit getMetaProteinHit() {
+		return metaProteinHit;
+	}
+
+	/**
+	 * Associates this protein hit with the specified meta-protein.
+	 * @param metaProteinHit the meta-protein to be associated with
+	 */
+	public void setMetaProteinHit(MetaProteinHit metaProteinHit) {
+		this.metaProteinHit = metaProteinHit;
+	}
+	
+	/**
 	 * Convenience method to get a peptide hit by its sequence identifier.
 	 * @param sequence The identifier string.
 	 * @return the desired peptide hit or <code>null</code> if the retrieval failed.
@@ -540,20 +557,27 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			HierarchyLevel hl = (HierarchyLevel) type;
 			switch (hl) {
 			case META_PROTEIN_LEVEL:
-				// TODO: possibly implement getMetaProtein() for ProteinHit
-				DbSearchResult result = Client.getInstance().getDbSearchResult();
-				for (ProteinHit ph : result.getMetaProteins()) {
-					MetaProteinHit mph = (MetaProteinHit) ph;
-					for (ProteinHit that : mph.getProteinHits()) {
-						if (this.equals(that)) {
-							if (mph.getProteinHits().size() == 1) {
-								res.add(this.getAccession());
-							} else {
-								res.add(mph.getAccession());
-							}
-							break;
-						}
-					}
+//				// TODO: possibly implement getMetaProtein() for ProteinHit
+//				DbSearchResult result = Client.getInstance().getDbSearchResult();
+//				for (ProteinHit ph : result.getMetaProteins()) {
+//					MetaProteinHit mph = (MetaProteinHit) ph;
+//					for (ProteinHit that : mph.getProteinHits()) {
+//						if (this.equals(that)) {
+//							if (mph.getProteinHits().size() == 1) {
+//								res.add(this.getAccession());
+//							} else {
+//								res.add(mph.getAccession());
+//							}
+//							break;
+//						}
+//					}
+//				}
+				MetaProteinHit mph = this.getMetaProteinHit();
+				// Check whether the associated meta-protein contains only this single protein hit
+				if (mph.getProteinHits().size() == 1) {
+					res.add(this.getAccession());
+				} else {
+					res.add(mph.getAccession());
 				}
 				break;
 			case PROTEIN_LEVEL:

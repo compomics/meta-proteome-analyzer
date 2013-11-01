@@ -73,9 +73,8 @@ public class TaxonomyUtils {
 	 * @param taxonNode1 the first taxonomy node
 	 * @param taxonNode2 the second taxonomy node
 	 * @return the common taxonomy node
-	 * @throws Exception 
 	 */
-	public static TaxonomyNode getCommonTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) throws Exception {
+	public static TaxonomyNode getCommonTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) {
 		// Get root paths of both taxonomy nodes
 		TaxonomyNode[] path1 = taxonNode1.getPath();
 		TaxonomyNode[] path2 = taxonNode2.getPath();
@@ -163,7 +162,7 @@ public class TaxonomyUtils {
 	 * @param proteinList List of proteins hits.
 	 * @throws Exception
 	 */
-	public static void retrieveTaxonomyByPeptideTaxonomies(ProteinHitList proteinList) throws Exception {
+	public static void determineProteinTaxonomy(ProteinHitList proteinList) throws Exception {
 		for (ProteinHit proteinHit : proteinList) {
 			// gather protein taxonomy nodes
 			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();

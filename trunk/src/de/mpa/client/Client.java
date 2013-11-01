@@ -390,7 +390,7 @@ public class Client {
 	 * @return DbSearchResult
 	 */
 	private void retrieveDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		retrieveDbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
+		this.retrieveDbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
 	}
 
 	/**
@@ -404,24 +404,26 @@ public class Client {
 		// TODO Get here ALSO MascotHits
 		// Init the database connection.
 		try {
-			initDBConnection();
+			this.initDBConnection();
 
 			// The protein hit set, containing all information about found proteins.
 			// TODO: use fastaDB parameter properly
-			dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
+			this.dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
 
 			// Set up progress monitoring
-			firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
-			firePropertyChange("resetall", 0L, 100L);
-			firePropertyChange("indeterminate", false, true);
+			this.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
+			this.firePropertyChange("resetall", 0L, 100L);
+			this.firePropertyChange("indeterminate", false, true);
 
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 
 //			dbSearchResult.setTotalIonCurrentMap(Searchspectrum.getTICsByExperimentID(experimentID, conn));
 			
-			// TODO: Put this in a background thread at startup or change stategy.
-			if(taxonomyMap == null) taxonomyMap = Taxonomy.retrieveTaxIDtoTaxonomyMap(conn);
+			// TODO: Put this in a background thread at startup or change strategy.
+			if (taxonomyMap == null) {
+				taxonomyMap = Taxonomy.retrieveTaxIDtoTaxonomyMap(conn);
+			}
 			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
 			Set<String> peptideSequences = new TreeSet<String>();
 			int totalPeptides = 0;
@@ -489,7 +491,7 @@ public class Client {
 		long proteinID = hit.getFk_proteinid();
 		ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
 		
-		// Get the uniprot entry meta-information.
+		// Get the UniProt entry meta-information.
 		Uniprotentry uniprotEntryAccessor = Uniprotentry.findFromProteinID(proteinID, conn);
 		ReducedUniProtEntry uniprotEntry = null;
 		TaxonomyNode taxonomyNode = null;
@@ -500,7 +502,7 @@ public class Client {
 			// Get taxonomy node.
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);
 		} else {
-			if(uncategorizedNode== null) {
+			if (uncategorizedNode == null) {
 				TaxonomyNode rootNode = new TaxonomyNode(1, "no rank", "root"); 
 				uncategorizedNode = new TaxonomyNode(0, "no rank", "uncategorized", rootNode);
 			}

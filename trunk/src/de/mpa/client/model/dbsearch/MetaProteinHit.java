@@ -25,23 +25,28 @@ public class MetaProteinHit extends ProteinHit {
 	private ProteinHitList phl;
 
 	/**
-	 * Constructs a meta-protein hit from the specified accession string.
-	 * @param accession the meta-protein accession
-	 * @throws Exception 
+	 * Constructs a meta-protein from the specified identifier string and
+	 * protein hit list.
+	 * @param identifier the identifier string
+	 * @param phl the protein hit list
 	 */
-	public MetaProteinHit(String accession, ProteinHitList phl) throws Exception {
-		super(accession);
+	public MetaProteinHit(String identifier, ProteinHitList phl) {
+		super(identifier);
 		this.phl = phl;
 	}
 
 	/**
-	 * Returns the protein hit list.
-	 * @return the protein hits
+	 * Returns the list of proteins associated with this meta-protein.
+	 * @return the protein list
 	 */
 	public ProteinHitList getProteinHits() {
 		return phl;
 	}
 	
+	/**
+	 * Returns the set of proteins associated with this meta-protein.
+	 * @return the protein set
+	 */
 	public Set<ProteinHit> getProteinSet() {
 		return new HashSet<ProteinHit>(phl);
 	}
@@ -65,40 +70,32 @@ public class MetaProteinHit extends ProteinHit {
 	}
 
 	/**
-	 * 
+	 * Associates the specified list of protein hits with this meta-protein.
 	 * @param proteinHits
 	 */
 	public void addAll(List<ProteinHit> proteinHits) {
 		phl.addAll(proteinHits);
+		for (ProteinHit proteinHit : proteinHits) {
+			proteinHit.setMetaProteinHit(this);
+		}
 	}
 
 	/**
-	 * 
-	 * @param metaProtein
-	 * @return
+	 * Returns whether any proteins are associated with this meta-protein.
+	 * @return <code>true</code> if not empty, <code>false</code> otherwise
 	 */
-	public boolean contains(MetaProteinHit metaProtein) {
-		return phl.contains(metaProtein);
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
+	// TODO: unused method, remove?
 	public boolean isEmpty() {
 		return phl.isEmpty();
 	}
 	
 	@Override
 	public Set<Object> getProperties(ChartType type) {
-//		if (type.equals(HierarchyLevel.META_PROTEIN_LEVEL)) {
-//			this.get
-//		} else {
-			Set<Object> res = new HashSet<Object>();
-			for (ProteinHit protHit : this.getProteinHits()) {
-				res.addAll(protHit.getProperties(type));
-			}
-//		}
+		// Aggregate properties of associated proteins
+		Set<Object> res = new HashSet<Object>();
+		for (ProteinHit protHit : this.getProteinHits()) {
+			res.addAll(protHit.getProperties(type));
+		}
 		return res;
 	}
 }

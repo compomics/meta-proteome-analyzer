@@ -6,8 +6,10 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -57,6 +59,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
@@ -116,11 +119,6 @@ import de.mpa.client.ui.icons.IconConstants;
 public class ResultsPanel extends JPanel {
 
 	/**
-	 * The split pane layout for the panel.
-	 */
-	private MultiSplitLayout msl;
-
-	/**
 	 * The database search results panel.
 	 */
 	private DbSearchResultPanel dbPnl;
@@ -134,6 +132,11 @@ public class ResultsPanel extends JPanel {
 	 * The GraphDatabaseResultPanel.
 	 */
 	private GraphDatabaseResultPanel graphDbPnl;
+
+	/**
+	 * The split pane layout of the overview panel.
+	 */
+	private JXMultiSplitPane msp;
 
 	/**
 	 * Button for showing button to select the type of chart to be displayed
@@ -265,10 +268,10 @@ public class ResultsPanel extends JPanel {
 	 */
 	private HeatMapPane heatMapPn;
 
-//	/**
-//	 * Button to refresh the heat map.
-//	 */
-//	private JButton updateHeatMapBtn;
+	/**
+	 * Flag denoting whether this panel is currently busy.
+	 */
+	private boolean busy;
 
 	/**
 	 * Constructs a results panel containing the detail views for database,
@@ -303,9 +306,9 @@ public class ResultsPanel extends JPanel {
 		String layoutDef = "(ROW (LEAF weight=0.5 name=summary) (COLUMN weight=0.5 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
 		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 
-		msl = new MultiSplitLayout(modelRoot);
+		MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
 
-		final JXMultiSplitPane msp = new JXMultiSplitPane(msl);
+		msp = new JXMultiSplitPane(msl);
 		msp.setDividerSize(12);
 
 		msp.add(createSummaryPanel(), "summary");
@@ -382,7 +385,7 @@ public class ResultsPanel extends JPanel {
 				"5dlu, f:p, 5dlu, f:p:g, 5dlu"));
 
 		JPanel generalPnl = new JPanel(new FormLayout(
-						"5dlu, p, 5dlu, r:50px, 5dlu, 0px:g, 5dlu, r:25px, 5dlu, p, 5dlu",
+						"5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
 						"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
 		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
 
@@ -443,7 +446,8 @@ public class ResultsPanel extends JPanel {
 		fetchRemoteBtn.setIconTextGap(7);
 		fetchRemoteBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
+				setBusy(true);
 				dbPnl.fetchResultsFromDatabase();
 			}
 		});
@@ -481,7 +485,8 @@ public class ResultsPanel extends JPanel {
 
 		fetchLocalBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent evt) {
+				setBusy(true);
 				dbPnl.fetchResultsFromFile();
 			}
 		});
@@ -646,7 +651,44 @@ public class ResultsPanel extends JPanel {
 		chartBtnPnl.add(createResizeButton("summary", "details"), CC.xy(3, 1));
 
 		// create and configure chart panel for plots
-		chartPnl = new ChartPanel(null);
+		OntologyData dummyData = new OntologyData() {
+			@Override
+			public PieDataset getDataset() {
+				DefaultPieDataset pieDataset = new DefaultPieDataset();
+				pieDataset.setValue("RPM", 8);
+				pieDataset.setValue("DNRPM", 2);
+				return pieDataset;
+			}
+		};
+		chartPnl = new ChartPanel(ChartFactory.createOntologyPieChart(
+				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart()) {
+			@Override
+			protected void paintChildren(Graphics g) {
+				// Fade chart if disabled
+				if (!this.isEnabled()) {
+					g.setColor(new Color(255, 255, 255, 192));
+					g.fillRect(0, 0, this.getWidth(), this.getHeight());
+					
+					// Paint notification string if no data has been loaded yet
+					if (!ResultsPanel.this.isBusy()) {
+						Graphics2D g2d = (Graphics2D) g;
+						String str = "no results loaded";
+						int strWidth = g2d.getFontMetrics().stringWidth(str);
+						int strHeight = g2d.getFontMetrics().getHeight();
+						float xOffset = this.getWidth() / 2.0f - strWidth / 2.0f;
+						float yOffset = this.getHeight() / 1.95f;
+						g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
+						
+						g2d.setColor(Color.BLACK);
+						g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+		                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+						g2d.drawString(str, xOffset, yOffset);
+					}
+				}
+				super.paintChildren(g);
+			}
+		};
+		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
 		chartPnl.setMinimumDrawHeight(144);
 		chartPnl.setMaximumDrawHeight(1440);
 		chartPnl.setMinimumDrawWidth(256);
@@ -654,7 +696,8 @@ public class ResultsPanel extends JPanel {
 		chartPnl.setOpaque(false);
 		chartPnl.setPreferredSize(new Dimension(256, 144));
 		chartPnl.setMinimumSize(new Dimension(256, 144));
-
+		chartPnl.setEnabled(false);
+		
 		// create mouse adapter to interact with pie plot sections
 		MouseAdapter adapter = new MouseAdapter() {
 			private Comparable highlightedKey = null;
@@ -806,10 +849,12 @@ public class ResultsPanel extends JPanel {
 			 * Utility method to get valid pie plot.
 			 */
 			private PiePlot3DExt getPiePlot() {
-				JFreeChart chart = chartPnl.getChart();
-				if (chart != null) {
-					if (chart.getPlot() instanceof PiePlot3DExt) {
-						return (PiePlot3DExt) chart.getPlot();
+				if (chartPnl.isEnabled()) {
+					JFreeChart chart = chartPnl.getChart();
+					if (chart != null) {
+						if (chart.getPlot() instanceof PiePlot3DExt) {
+							return (PiePlot3DExt) chart.getPlot();
+						}
 					}
 				}
 				return null;
@@ -838,13 +883,11 @@ public class ResultsPanel extends JPanel {
 				}
 			}
 		});
-		chartPieHierCbx.setVisible(false);
-
-		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
+		chartPieHierCbx.setEnabled(false);
 
 		chartPieHideChk = new JCheckBox("Hide Unknown", false);
 		chartPieHideChk.setOpaque(false);
-		chartPieHideChk.setVisible(false);
+		chartPieHideChk.setEnabled(false);
 		chartPieHideChk.addItemListener(new ItemListener() {
 			private boolean doHide;
 			@Override
@@ -907,7 +950,7 @@ public class ResultsPanel extends JPanel {
 
 		chartPieGroupChk = new JCheckBox("Group minor segments", true);
 		chartPieGroupChk.setOpaque(false);
-		chartPieGroupChk.setVisible(false);
+		chartPieGroupChk.setEnabled(false);
 		chartPieGroupChk.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
@@ -927,6 +970,11 @@ public class ResultsPanel extends JPanel {
 			}
 		});
 
+		JXBusyLabel busyLbl = new JXBusyLabel(new Dimension(70, 70));
+		busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
+		busyLbl.setVisible(false);
+		
+		chartPnl.add(busyLbl, CC.xywh(1, 1, 5, 3));
 		chartPnl.add(chartPieHierCbx, CC.xy(1, 2));
 		chartPnl.add(chartPieHideChk, CC.xy(3, 2));
 		chartPnl.add(chartPieGroupChk, CC.xy(5, 2));
@@ -1136,7 +1184,7 @@ public class ResultsPanel extends JPanel {
 					btn.setToolTipText("Restore");
 				}
 				for (String node : nodes2hide) {
-					msl.displayNode(node, maximized);
+					msp.getMultiSplitLayout().displayNode(node, maximized);
 				}
 				maximized = !maximized;
 			}
@@ -1184,8 +1232,11 @@ public class ResultsPanel extends JPanel {
 			}
 			// hide/show pie chart-related controls
 			chartPieHierCbx.setVisible(isPie);
+			chartPieHierCbx.setEnabled(isPie);
 			chartPieHideChk.setVisible(isPie);
+			chartPieHideChk.setEnabled(isPie);
 			chartPieGroupChk.setVisible(isPie);
+			chartPieGroupChk.setEnabled(isPie);
 
 			// insert chart into panel
 			chartPnl.setChart(chart.getChart());
@@ -1203,6 +1254,59 @@ public class ResultsPanel extends JPanel {
 	protected void updateOverview() {
 		new UpdateTask().execute();
 	}
+	
+	public boolean isBusy() {
+		return this.busy;
+	}
+
+	/**
+	 * Sets the busy state of this panel.
+	 * @param busy <code>true</code> if busy, <code>false</code> otherwise
+	 */
+	public void setBusy(boolean busy) {
+		this.busy = busy;
+
+		// Hide/unhide busy label of chart panel
+		JXBusyLabel busyLbl = (JXBusyLabel) this.chartPnl.getComponent(0);
+		busyLbl.setBusy(busy);
+		busyLbl.setVisible(busy);
+		
+		// Only ever make heat map pane busy, it takes care of turning not busy on its own
+		heatMapPn.setBusy(busy || heatMapPn.isBusy());
+		
+		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
+		if (!dbPnl.isBusy()) {
+			ClientFrame.getInstance().setCursor(cursor);
+		}
+		msp.setCursor(cursor);
+		for (Component comp : msp.getComponents()) {
+			comp.setCursor(cursor);
+		}
+	}
+
+	/**
+	 * Returns the database search result panel.
+	 * @return the database search result panel
+	 */
+	public DbSearchResultPanel getDbSearchResultPanel() {
+		return dbPnl;
+	}
+
+	/**
+	 * Returns the spectral similarity search result panel.
+	 * @return the spectral similarity search result panel
+	 */
+	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
+		return ssPnl;
+	}
+
+	/**
+	 * Returns the de novo search result panel.
+	 * @return the de novo search result panel
+	 */
+	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
+		return graphDbPnl;
+	}
 
 	/**
 	 * Worker class to process search results and generate statistics from it in
@@ -1215,7 +1319,10 @@ public class ResultsPanel extends JPanel {
 		@Override
 		protected Object doInBackground() {
 			dbSearchResult = null;
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			
+			// Appear busy
+			setBusy(true);
+			
 			// Fetch the database search result.
 			try {
 				dbSearchResult = Client.getInstance().getDbSearchResult();
@@ -1272,10 +1379,6 @@ public class ResultsPanel extends JPanel {
 
 				// Refresh chart panel showing default ontology pie chart
 				ResultsPanel.this.updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
-				
-				// Enable and update heat map
-				heatMapPn.setEnabled(true);
-				heatMapPn.updateData(dbSearchResult);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -1287,34 +1390,16 @@ public class ResultsPanel extends JPanel {
 			// Enable chart type button
 			chartTypeBtn.setEnabled(true);
 
-			// TODO: delegate cursor setting to top-level containers so the whole frame is affected instead of only this panel
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			// Enable chart panel
+			chartPnl.setEnabled(true);
+			
+			// Enable and update heat map
+			heatMapPn.setEnabled(true);
+			heatMapPn.updateData(Client.getInstance().getDbSearchResult());
+
+			setBusy(false);
 		}
 
-	}
-
-	/**
-	 * Returns the database search result panel.
-	 * @return the database search result panel
-	 */
-	public DbSearchResultPanel getDbSearchResultPanel() {
-		return dbPnl;
-	}
-
-	/**
-	 * Returns the spectral similarity search result panel.
-	 * @return the spectral similarity search result panel
-	 */
-	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
-		return ssPnl;
-	}
-
-	/**
-	 * Returns the de novo search result panel.
-	 * @return the de novo search result panel
-	 */
-	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
-		return graphDbPnl;
 	}
 	
 }

@@ -691,7 +691,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		// Set up multi-split pane
 		String layoutDef =
-				"(COLUMN (LEAF weight=0.35 name=protein) (ROW weight=0.65 (COLUMN weight=0.35 (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) (LEAF weight=0.65 name=chart)))";
+				"(COLUMN (LEAF weight=0.35 name=protein) (ROW weight=0.65 (COLUMN weight=0.375 (LEAF weight=0.5 name=peptide) (LEAF weight=0.5 name=psm)) (LEAF weight=0.625 name=chart)))";
 		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 
 		MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
@@ -892,12 +892,12 @@ public class DbSearchResultPanel extends JPanel {
 					if (!newResult.isEmpty() && !client.isViewer()) {
 
 						// Get various hit lists from result object
-						ProteinHitList metaProteinList = newResult.getMetaProteins();
+						ProteinHitList metaProteins = newResult.getMetaProteins();
 						ProteinHitList proteinList = (ProteinHitList) newResult.getProteinHitList();
 						Set<PeptideHit> peptideSet = proteinList.getPeptideSet();	// all distinct peptides
 
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-						Client.getInstance().firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteinList.size()));
+						Client.getInstance().firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
 						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 
 						// Define common peptide taxonomy for each peptide
@@ -910,15 +910,24 @@ public class DbSearchResultPanel extends JPanel {
 						Client.getInstance().firePropertyChange("resetcur", -1L, (long) proteinList.size());
 
 						// Define protein taxonomy by common tax ID of peptides
-						TaxonomyUtils.retrieveTaxonomyByPeptideTaxonomies(proteinList);
+						TaxonomyUtils.determineProteinTaxonomy(proteinList);
 						
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
 
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteinList.size());
+						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
 
 						// Combine proteins to metaproteins
-						MetaProteinFactory.combineProteins2MetaProteins(metaProteinList, true);
+						// TODO: configure leucine/isoleucine merging parameter
+						MetaProteinFactory.condenseMetaProteins(metaProteins, false);
+
+						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+						
+						// Determine meta-protein taxonomy
+						MetaProteinFactory.determineMetaProteinTaxonomy(metaProteins);
 						
 						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
 					}
@@ -1093,7 +1102,7 @@ public class DbSearchResultPanel extends JPanel {
 				"Spectral Count",
 				"Exponentially Modified Protein Abundance Index",
 				"Normalized Spectral Abundance Factor", 
-				"Link External Web Ressources"};
+				"External Web Resource Links"};
 		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
 		//		ch.setReorderingAllowed(false, Constants.Constants.PROT_SELECTION);
 		proteinTbl.setTableHeader(ch);
@@ -2374,9 +2383,10 @@ public class DbSearchResultPanel extends JPanel {
 	protected void refreshProteinTables() throws Exception {		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 
+			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
 			 
 			// Display number of proteins in title area
-			int numProteins = dbSearchResult.getMetaProteins().size();
+			int numProteins = metaProteins.size();
 			protTtlPnl.setTitle("Proteins (" + numProteins + ")");
 
 			// Notify status bar
@@ -2400,8 +2410,6 @@ public class DbSearchResultPanel extends JPanel {
 			// Values for construction of highlighter
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
-
-			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
 
 			// Do filtering
 			for (ProteinHit metaProtein : metaProteins) {
@@ -2449,29 +2457,10 @@ public class DbSearchResultPanel extends JPanel {
 							for (PeptideHit peptideHit : proteinHit	.getPeptideHitList()) {
 								commonAncestorNode = TaxonomyUtils.getCommonTaxonomyNode(commonAncestorNode, peptideHit.getTaxonomyNode());
 							}
+							// TODO: do we really still need the species string? calculating common taxonomy here seems redundant
 							proteinHit.setSpecies(commonAncestorNode.toString());
 
-							// FIXME: Future identity calculation ?
-							// // Get minimal identity for the protein
-							// if (proteinHit.getSequence().length() > 0 &&
-							// proteinHit.getSequence().length() <= 5000) {
-							// for (ProteinHit furtherproteinHit : metaProtein)
-							// {
-							// if (furtherproteinHit.getSequence().length() <=
-							// 5000) {
-							// Alignment align = SmithWatermanGotoh.align(
-							// new Sequence(proteinHit.getSequence()),
-							// new Sequence(furtherproteinHit.getSequence()),
-							// matrix, 10.0f, 0.5f);
-							//
-							// double identity = align.getIdentity() * 100.0 /
-							// proteinHit.getSequence().length();
-							// if (proteinHit.getIdentity() > identity) {
-							// proteinHit.setIdentity(identity);
-							// }
-							// }
-							// }
-							// }
+							// FIXME: Calculate sequence alignment
 						}
 
 						// Insert protein data into table
@@ -2545,7 +2534,7 @@ public class DbSearchResultPanel extends JPanel {
 							}
 						}
 
-						Client.getInstance().firePropertyChange("progressmade",	false, true);
+//						Client.getInstance().firePropertyChange("progressmade",	false, true);
 					}
 
 					if (metaNode.getChildCount() == 1) {
@@ -2573,11 +2562,12 @@ public class DbSearchResultPanel extends JPanel {
 					metaProtein.setNSAF(metaNsaf);
 					metaProtein.setCoverage(metaSC);
 					insertFlatNode(metaNode);
-					Client.getInstance().firePropertyChange("progressmade", false, true);
-				} else{
-					Client.getInstance().firePropertyChange("progressmade", false, true);
+//					Client.getInstance().firePropertyChange("progressmade", false, true);
+//				} else{
+//					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
-					
+
+				Client.getInstance().firePropertyChange("progressmade", false, true);
 			}
 
 			// Iterate pathway nodes in respective hierarchical view and update URIs
@@ -2674,14 +2664,13 @@ public class DbSearchResultPanel extends JPanel {
 					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
 					highlighter.setRange(min_emPAI, max_emPAI);
 
-					//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(10))).getHighlighters()[0];
-					//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
-					//					highlighter.setRange(0.0, maxNSAF);
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(10))).getHighlighters()[0];
+//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
+//					highlighter.setRange(0.0, maxNSAF);
 				}
 			}
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
 
-			//			hierarchyCbx.setEnabled(true);
 			protTaxonTreeTbl.expandAll();
 			protEnzymeTreeTbl.expandAll();
 			protPathwayTreeTbl.expandAll();
@@ -3505,6 +3494,14 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 		return panel;
+	}
+	
+	/**
+	 * Returns the panel's busy state.
+	 * @return <code>true</code> if busy, <code>false</code> otherwise
+	 */
+	public boolean isBusy() {
+		return this.busy;
 	}
 
 	/**

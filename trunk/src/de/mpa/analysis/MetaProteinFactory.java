@@ -17,88 +17,116 @@ import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.taxonomy.TaxonomyUtils;
 
 /**
- * This class connects Proteinhits to metaproteins
- * @author R. Heyer
+ * Factory class providing methods to merge meta-proteins and to determine common properties (i.e. taxonomy).
+ * 
+ * @author R. Heyer, A. Behne
  */
 public class MetaProteinFactory {
 
 	/**
-	 * Combine protein hits to metaproteins if they share all proteins.
-	 * @param metaProteinList
-	 * @param IequalsL. Flag whether isoleucin or leucin are distinguishable
-	 * @throws Exception 
+	 * Combines meta-proteins contained in the specified list of single-protein 
+	 * meta-proteins on the basis of overlaps in their respective 
+	 * @param metaProteins the list of meta-proteins to condense
+	 * @param mergeIL <code>true</code> if isoleucine and leucine shall be considered
+	 *  indistinguishable, <code>false</code> otherwise
 	 */
-	public static void combineProteins2MetaProteins(ProteinHitList metaProteinList, boolean IdistL) throws Exception {
-		
-		// Go through metaproteinlist by 2 iterators (only through diagonal matrix) and check for equal peptides
-		Iterator<ProteinHit> rowIter = metaProteinList.iterator();
+	public static void condenseMetaProteins(ProteinHitList metaProteins, boolean mergeIL) {
+		// Iterate (initially single-protein) meta-proteins
+		Iterator<ProteinHit> rowIter = metaProteins.iterator();
 		while (rowIter.hasNext()) {
 			MetaProteinHit rowMP = (MetaProteinHit) rowIter.next();
-			Set<PeptideHit> rowPS = rowMP.getPeptideSet();
-			Set<String> rowPepSeq = new HashSet<String>() ;
-			// Get peptide set with accession to check for similarity	
-			for (PeptideHit peptideHit : rowPS) {
-					String sequence = peptideHit.getSequence();
-					// Similarity of leucin and isoleucin
-					if (!IdistL) {
-						//FIXME: Replacing I or L by IL does not make sense... and this should be handled via the PeptideHit equals() method
-						sequence = sequence.replaceAll("[IL]", "IL");
-					}
-					rowPepSeq.add(sequence);
+			
+			// Get set of peptide sequences
+			Set<PeptideHit> rowPeps = rowMP.getPeptideSet();
+			Set<String> rowPepSeqs = new HashSet<String>() ;
+			for (PeptideHit peptideHit : rowPeps) {
+				// Make copy of sequence string to avoid overwriting the original sequence
+				String sequence = new String(peptideHit.getSequence());
+				// Merge leucine and isoleucine into one if desired
+				if (mergeIL) {
+					// FIXME: Replacing I or L by IL does not make sense... this should be handled via the PeptideHit equals() method
+					sequence = sequence.replaceAll("[IL]", "L");
 				}
-			ListIterator<ProteinHit> colIter = metaProteinList.listIterator(metaProteinList.size());
-			// Start to iterate beginning from the end to improve cpu time.
-			//TODO Check for mistakes of Metaprotein generation
+				rowPepSeqs.add(sequence);
+			}
+			
+			// Nested iteration of the same meta-protein list, stop when outer and inner iteration element 
+			// are identical, iterate backwards from the end of the list
+			ListIterator<ProteinHit> colIter = metaProteins.listIterator(metaProteins.size());
+			// TODO: check for errors in meta-protein generation
 			while (colIter.hasPrevious()) {
 				MetaProteinHit colMP = (MetaProteinHit) colIter.previous();
-				// Check by accession of metaproteins
+				// Check termination condition
 				if (rowMP == colMP) {
 					break;
 				}
-				Set<PeptideHit> colPS = colMP.getPeptideSet();
-				//								if (colPS.containsAll(rowPS) || rowPS.containsAll(colPS)) {
 				
-				// Sets for comparison of both sets
-				Set<String> colPepSeq = new HashSet<String>() ;
-				// Get peptide set with accession to check for similarity	
-				for (PeptideHit peptideHit : colPS) {
-						String sequence = peptideHit.getSequence();
-						// Similarity of leucin and isoleucin
-						if (!IdistL) {
-							sequence = sequence.replaceAll("[IL]", "IL");
-						}
-						colPepSeq.add(sequence);
+				// Get set of peptide sequences (of inner iteration element)
+				Set<PeptideHit> colPeps = colMP.getPeptideSet();
+				Set<String> colPepSeqs = new HashSet<String>() ;
+				for (PeptideHit peptideHit : colPeps) {
+					// Make copy of sequence string to avoid overwriting the original sequence
+					String sequence = new String(peptideHit.getSequence());
+					// Merge leucine and isoleucine into one if desired
+					if (mergeIL) {
+						sequence = sequence.replaceAll("[IL]", "L");
 					}
+					colPepSeqs.add(sequence);
+				}
 				
-				if (!Collections.disjoint(colPepSeq, rowPepSeq)) {
+				// Merge meta-proteins if at least one overlapping element exists (weak similarity criterion)
+				if (!Collections.disjoint(colPepSeqs, rowPepSeqs)) {
+					// Add all proteins of outer meta-protein to inner meta-protein
 					colMP.addAll(rowMP.getProteinHits());
+					// Remove emptied outer meta-protein from list
 					rowIter.remove();
-					Client.getInstance().firePropertyChange("progressmade", false, true);
+					// Abort inner iteration as outer element has been removed and 
+					// therefore cannot be merged into another meta-protein again
 					break;
 				}
 			}
+			// Fire progress notification
+			Client.getInstance().firePropertyChange("progressmade", false, true);
 		}
 		
-		// Rename Metaproteins and define common taxID
+		// Re-number condensed meta-proteins
 		int metaIndex = 1;
-		for (ProteinHit metaProteinHit : metaProteinList) {
-			// rename meta-protein
-			metaProteinHit.setAccession("Meta-Protein " + metaIndex++);
-			// gather protein taxonomy nodes
+		for (ProteinHit mph : metaProteins) {
+			mph.setAccession("Meta-Protein " + metaIndex++);
+		}
+		
+	}
+	
+	/**
+	 * Sets the taxonomy of meta-proteins contained in the specified list to the
+	 * common taxonomy based on their child protein taxonomies.
+	 * @param metaProteins the list of meta-proteins for which common protein
+	 *  taxonomies shall be determined
+	 */
+	// TODO: this method is very similar to TaxonomyUtils#determineProteinTaxonomy, maybe merge somehow
+	public static void determineMetaProteinTaxonomy(ProteinHitList metaProteins) {
+		
+		// Iterate meta-proteins
+		for (ProteinHit ph : metaProteins) {
+			MetaProteinHit mph = (MetaProteinHit) ph;
+			
+			// Gather taxonomy nodes of child proteins
 			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
-			for (ProteinHit proteinHit : ((MetaProteinHit) metaProteinHit).getProteinHits()) {
+			for (ProteinHit proteinHit : mph.getProteinHits()) {
 				taxonNodes.add(proteinHit.getTaxonomyNode());
 			}
-			// find common ancestor node
+			// Find common ancestor node
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			for (int i = 0; i < taxonNodes.size(); i++) {
 				ancestor = TaxonomyUtils.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
-			// set peptide hit taxon node to ancestor
-			metaProteinHit.setTaxonomyNode(ancestor);
-			// fire progress notification
+			// Set common taxon node of meta-protein
+			mph.setTaxonomyNode(ancestor);
+			
+			// Fire progress notification
 			Client.getInstance().firePropertyChange("progressmade", false, true);
 		}
 		
 	}
+	
 }
