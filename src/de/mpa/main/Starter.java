@@ -28,7 +28,6 @@ import de.mpa.client.Constants.UIColor;
 import de.mpa.client.Constants.UITheme;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DelegateColor;
-import de.mpa.client.ui.GradientColorAdapter;
 import de.mpa.client.ui.ThinBevelBorder;
 
 /**
@@ -118,9 +117,10 @@ public class Starter {
 			UIManager.put("Table.focusCellHighlightBorder", fchb);
 			UIManager.put("List.focusCellHighlightBorder", fchb);
 			
-			UIManager.put("ProgressBar.foreground", new GradientColorAdapter(
-					UIColor.PROGRESS_BAR_START_COLOR.getDelegateColor(),
-					UIColor.PROGRESS_BAR_END_COLOR.getDelegateColor()));
+//			UIManager.put("ProgressBar.foreground", new GradientColorAdapter(
+//					UIColor.PROGRESS_BAR_START_COLOR.getDelegateColor(),
+//					UIColor.PROGRESS_BAR_END_COLOR.getDelegateColor()));
+			UIManager.put("ProgressBar.foreground", UIColor.PROGRESS_BAR_FOREGROUND_COLOR.getDelegateColor());
 
 			UIManager.put("TaskPaneContainer.background",
 					UIColor.TASK_PANE_BACKGROUND_COLOR.getDelegateColor());

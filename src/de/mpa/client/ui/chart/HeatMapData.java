@@ -113,6 +113,7 @@ public class HeatMapData {
 		List<List<Integer>> matrix = new ArrayList<List<Integer>>();
 		int max = 0;
 		// Iterate hit objects
+//		int counter = 0;
 		for (Hit hit : hitList) {
 			int row = -1, col = -1;
 			// Get set of hit properties for horizontal axis type
@@ -169,8 +170,8 @@ public class HeatMapData {
 					max = Math.max(max, matrixRow.get(col));
 				}
 			}
+//			System.out.println("" + (counter++) + "/" + hitList.size());
 		}
-
 
 		if (xLabels.isEmpty()) {
 			xLabels.add("No data");

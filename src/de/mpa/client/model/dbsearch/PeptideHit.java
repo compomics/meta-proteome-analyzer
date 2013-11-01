@@ -48,7 +48,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	private List<ProteinHit> proteinHits;
 
 	/**
-	 * The peptide spectrum match for this peptide hit.
+	 * The peptide spectrum match(es) for this peptide hit.
 	 */
 	private List<SpectrumMatch> spectrumMatches;
 

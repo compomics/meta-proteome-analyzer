@@ -32,7 +32,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -61,13 +63,16 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicLabelUI;
 
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
@@ -105,6 +110,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
@@ -179,6 +185,11 @@ public class HeatMapPane extends JScrollPane {
 	private JButton saveBtn;
 	
 	/**
+	 * Busy label for showing that updating the heat map is currently in process.
+	 */
+	private JXBusyLabel busyLbl;
+	
+	/**
 	 * Creates a scrollable heat map chart from the specified data container.
 	 * @param data the data container object
 	 */
@@ -228,62 +239,9 @@ public class HeatMapPane extends JScrollPane {
 	 * Refreshes the heat map data container and chart using the specified result object.
 	 * @param result the result object
 	 */
-	public void updateData(DbSearchResult result) {
-		
-		// Refresh data container contents
-		if (result != null) {
-			this.data.setResult(result);
-		}
-		this.data.setAxisTypes(
-				(ChartType) this.getAxisButtonValue(Axis.X_AXIS),
-				(ChartType) this.getAxisButtonValue(Axis.Y_AXIS),
-				(HierarchyLevel) this.getAxisButtonValue(Axis.Z_AXIS));
-		
-		// Get existing chart instances
-		ChartPanel chartPnl = (ChartPanel) this.getViewport().getView();
-		JFreeChart oldChart = chartPnl.getChart();
-		
-		// Re-create plot
-		XYPlot newPlot = this.createPlot(
-				this.xBtn.getValue().toString(),
-				this.yBtn.getValue().toString(),
-				this.data.getXLabels(), this.data.getYLabels(),
-				0.0, this.data.getMaximum(), this.data.getMatrix());
-		
-		double max = data.getMaximum();
-		
-		// Re-create chart
-		JFreeChart newChart = new JFreeChart(oldChart.getTitle().getText(), newPlot);
-		newChart.removeLegend();
-		PaintScaleLegend psl = this.createLegend(
-				this.zBtn.getValue().toString(), newPlot);
-		psl.getAxis().setDefaultAutoRange(new Range(-0.5, max + 0.5));
-		psl.getAxis().setRange(-0.5, max + 0.5);
-		newChart.addSubtitle(psl);
-		newChart.setBackgroundPaint(Color.WHITE);
-		
-		// Apply new chart
-		chartPnl.setChart(newChart);
-		
-		// Adjust view
-		MatrixSeries series = data.getMatrix();
-		this.colCount = series.getColumnsCount();
-		firePropertyChange("colCount", -1, series.getColumnsCount());
-		this.rowCount = series.getRowCount();
-		firePropertyChange("rowCount", -1, series.getRowCount());
-
-		this.setVisibleColumnCount(this.visColCount);
-		this.setVisibleRowCount(this.visRowCount);
-		
-		// TODO: maybe add 'preferred visible row/column count' or 'preferred row/column size'
-		
-		JScrollBar vertBar = this.getPrimaryVerticalScrollbar();
-		vertBar.setValues(0, 1, 0, (int) max);
-		vertBar.setBlockIncrement((int) (max / 4.0));
-		vertBar.revalidate();
-
-		// Refresh chart controls
-		this.updateChartLayout(chartPnl);
+	public void updateData(final DbSearchResult result) {
+		// Process refresh operation in separate worker thread
+		new UpdateWorker(result).execute();
 	}
 
 	/**
@@ -292,7 +250,8 @@ public class HeatMapPane extends JScrollPane {
 	 * @param chartPnl the chart panel
 	 * @param chart the chart
 	 */
-	private void updateChartLayout(ChartPanel chartPnl) {
+	private void updateChartLayout() {
+		ChartPanel chartPnl = (ChartPanel) this.getViewport().getView();
 		JFreeChart chart = chartPnl.getChart();
 		
 		// Draw chart to image to get at rendering info object
@@ -514,18 +473,21 @@ public class HeatMapPane extends JScrollPane {
 					g.setColor(new Color(255, 255, 255, 192));
 					g.fillRect(0, 0, this.getWidth(), this.getHeight());
 					
-					Graphics2D g2d = (Graphics2D) g;
-					String str = "no results loaded";
-					int strWidth = g2d.getFontMetrics().stringWidth(str);
-					int strHeight = g2d.getFontMetrics().getHeight();
-					float xOffset = this.getWidth() / 2.125f - strWidth / 2.0f;
-					float yOffset = this.getHeight() / 2.05f;
-					g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
-					
-					g2d.setColor(Color.BLACK);
-					g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-	                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-					g2d.drawString(str, xOffset, yOffset);
+					// Paint notification string if no data has been loaded yet
+					if (!HeatMapPane.this.isBusy()) {
+						Graphics2D g2d = (Graphics2D) g;
+						String str = "no results loaded";
+						int strWidth = g2d.getFontMetrics().stringWidth(str);
+						int strHeight = g2d.getFontMetrics().getHeight();
+						float xOffset = this.getWidth() / 2.125f - strWidth / 2.0f;
+						float yOffset = this.getHeight() / 2.05f;
+						g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
+						
+						g2d.setColor(Color.BLACK);
+						g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+		                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+						g2d.drawString(str, xOffset, yOffset);
+					}
 				}
 				super.paintChildren(g);
 			}
@@ -553,18 +515,24 @@ public class HeatMapPane extends JScrollPane {
 		Object[][] zValues = new Object[][] { HierarchyLevel.values() };
 
 		// Create axis buttons using default values
-		this.xBtn = new AxisPopupButton(Axis.X_AXIS, xyValues, HierarchyLevel.PROTEIN_LEVEL);
+		this.xBtn = new AxisPopupButton(Axis.X_AXIS, xyValues, OntologyChartType.BIOLOGICAL_PROCESS);
 		this.yBtn = new AxisPopupButton(Axis.Y_AXIS, xyValues, TaxonomyChartType.SPECIES);
-		this.zBtn = new AxisPopupButton(Axis.Z_AXIS, zValues, HierarchyLevel.SPECTRUM_LEVEL);
+		this.zBtn = new AxisPopupButton(Axis.Z_AXIS, zValues, HierarchyLevel.PROTEIN_LEVEL);
 		
 		this.zoomBtn = this.createZoomButton();
 		this.saveBtn = this.createSaveButton();
+		
+		// Create busy label to visualize heat map updating being in progress
+		busyLbl = new JXBusyLabel(new Dimension(100, 100));
+		busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
+		busyLbl.setVisible(false);
 		
 		chartPnl.add(xBtn, CC.xy(4, 6));
 		chartPnl.add(yBtn, CC.xy(2, 4));
 		chartPnl.add(zBtn, CC.xy(6, 4));
 		chartPnl.add(zoomBtn, CC.xy(2, 6));
 		chartPnl.add(saveBtn, CC.xy(6, 2));
+		chartPnl.add(busyLbl, CC.xy(4, 4));
 		
 		return chartPnl;
 	}
@@ -596,6 +564,7 @@ public class HeatMapPane extends JScrollPane {
 		zoomVertPnl.setBorder(zoomPop.getBorder());
 		
 		final JSlider zoomVertSld = new JSlider(JSlider.VERTICAL, 1, 26, 13);
+		zoomVertSld.setSnapToTicks(true);
 		
 		JLabel zoomVertLbl = new JLabel("" + zoomVertSld.getValue()) {
 			@Override
@@ -623,6 +592,7 @@ public class HeatMapPane extends JScrollPane {
 		zoomHorzPnl.setBorder(zoomPop.getBorder());
 		
 		final JSlider zoomHorzSld = new JSlider(JSlider.HORIZONTAL, 1, 26, 13);
+		zoomHorzSld.setSnapToTicks(true);
 		
 		JLabel zoomHorzLbl = new JLabel("" + zoomHorzSld.getValue()) {
 			@Override
@@ -644,7 +614,7 @@ public class HeatMapPane extends JScrollPane {
 		zoomHorzPnl.add(zoomHorzSld, CC.xy(1, 1));
 		zoomHorzPnl.add(zoomHorzLbl, CC.xy(3, 1));
 		
-		// Create change listener for slider
+		// Create change listener for sliders
 		ChangeListener cl = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent evt) {
@@ -731,14 +701,15 @@ public class HeatMapPane extends JScrollPane {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				String propName = evt.getPropertyName();
+				Object value = evt.getNewValue();
 				if ("visRowCount".equals(propName)) {
-					zoomVertSld.setValue((Integer) evt.getNewValue());
+					zoomVertSld.setValue((Integer) value);
 				} else if ("rowCount".equals(propName)) {
-					zoomVertSld.setMaximum((Integer) evt.getNewValue());
+					zoomVertSld.setMaximum((Integer) value);
 				} else if ("visColCount".equals(propName)) {
-					zoomHorzSld.setValue((Integer) evt.getNewValue());
+					zoomHorzSld.setValue((Integer) value);
 				} else if ("colCount".equals(propName)) {
-					zoomHorzSld.setMaximum((Integer) evt.getNewValue());
+					zoomHorzSld.setMaximum((Integer) value);
 				}
 			}
 		});
@@ -752,7 +723,6 @@ public class HeatMapPane extends JScrollPane {
 	 * @return a save button widget
 	 */
 	private JButton createSaveButton() {
-			// TODO: implement 'CSV File' and 'Excel XML' formats
 		
 			// Init button
 			JButton saveBtn = new JButton(IconConstants.SAVE_ICON);
@@ -801,28 +771,48 @@ public class HeatMapPane extends JScrollPane {
 					this.margin.set(dataBounds.y, dataBounds.x,
 							bounds.height - dataBounds.y - dataBounds.height,
 							bounds.width - dataBounds.x - dataBounds.width);
-					
+
+					// TODO: implement 'CSV File' and 'Excel XML' formats
 					// Init file chooser
 					ConfirmFileChooser chooser = new ConfirmFileChooser();
 					// Create panel containing image size controls
-					JPanel accessoryPnl = new JPanel(new FormLayout("2dlu, p, 2dlu, 45px, 1dlu, p, 2dlu", "p, 2dlu, p, 5dlu, p, 2dlu, p"));
+					final JPanel accessoryPnl = new JPanel(new FormLayout(
+							"5dlu, p, 2dlu, 45px, 1dlu, p, 0dlu",
+							"p, 2dlu, p, 5dlu, p, 2dlu, p, 5dlu, p, 2dlu, p"));
+
+					JPanel matDimPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu, p", "p"));
+					JLabel matRowLbl = new JLabel("" + heatMap.data.getYLabels().length);
+					JLabel matColLbl = new JLabel("" + heatMap.data.getXLabels().length);
+					matDimPnl.add(matRowLbl, CC.xy(1, 1));
+					matDimPnl.add(new JLabel("x"), CC.xy(3, 1));
+					matDimPnl.add(matColLbl, CC.xy(5, 1));
 					
 					// Init spinners for manipulating row/column pixel size
 					JSpinner rowSpn = new JSpinner(new SpinnerNumberModel(this.rowHeight, 15, null, 5));
 					JSpinner colSpn = new JSpinner(new SpinnerNumberModel(this.colWidth, 15, null, 5));
 	
 					// Init and Lay out labels for previewing component size
-					JPanel dimPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu, p", "p"));
-					JLabel rowLbl = new JLabel("" + this.calculateHeight((Integer) rowSpn.getValue()));
-					JLabel colLbl = new JLabel("" + this.calculateWidth((Integer) colSpn.getValue()));
-					dimPnl.add(rowLbl, CC.xy(1, 1));
-					dimPnl.add(new JLabel("x"), CC.xy(3, 1));
-					dimPnl.add(colLbl, CC.xy(5, 1));
+					JPanel imgDimPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu, p, 1dlu, p", "p")) {
+						@Override
+						public void setEnabled(boolean enabled) {
+							super.setEnabled(enabled);
+							// Propagate enable state to children
+							for (Component comp : this.getComponents()) {
+								comp.setEnabled(enabled);
+							}
+						}
+					};
+					JLabel imgRowLbl = new JLabel("" + this.calculateHeight((Integer) rowSpn.getValue()));
+					JLabel imgColLbl = new JLabel("" + this.calculateWidth((Integer) colSpn.getValue()));
+					imgDimPnl.add(imgRowLbl, CC.xy(1, 1));
+					imgDimPnl.add(new JLabel("x"), CC.xy(3, 1));
+					imgDimPnl.add(imgColLbl, CC.xy(5, 1));
+					imgDimPnl.add(new JLabel("px"), CC.xy(7, 1));
 					
 					// Link labels to spinners
-					rowSpn.putClientProperty("label", rowLbl);
+					rowSpn.putClientProperty("label", imgRowLbl);
 					rowSpn.putClientProperty("dimension", "height");
-					colSpn.putClientProperty("label", colLbl);
+					colSpn.putClientProperty("label", imgColLbl);
 	
 					// Create change listener for updating spinner labels on value change
 					ChangeListener cl = new ChangeListener() {
@@ -849,88 +839,184 @@ public class HeatMapPane extends JScrollPane {
 					colSpn.addChangeListener(cl);
 					
 					// Lay out accessory components
-					accessoryPnl.add(new JLabel("Row height"), CC.xy(2, 1));
-					accessoryPnl.add(rowSpn, CC.xy(4, 1));
-					accessoryPnl.add(new JLabel("px"), CC.xy(6, 1));
-					accessoryPnl.add(new JLabel("Col. height"), CC.xy(2, 3));
-					accessoryPnl.add(colSpn, CC.xy(4, 3));
-					accessoryPnl.add(new JLabel("px"), CC.xy(6, 3));
+					accessoryPnl.add(new JLabel("Matrix dimensions:"), CC.xyw(2, 1, 5));
+					accessoryPnl.add(matDimPnl, CC.xyw(2, 3, 5));
 					
-					accessoryPnl.add(new JLabel("Image dimensions:"), CC.xyw(2, 5, 5));
-					accessoryPnl.add(dimPnl, CC.xyw(2, 7, 5));
+					accessoryPnl.add(new JLabel("Row height"), CC.xy(2, 5));
+					accessoryPnl.add(rowSpn, CC.xy(4, 5));
+					accessoryPnl.add(new JLabel("px"), CC.xy(6, 5));
+					accessoryPnl.add(new JLabel("Col. height"), CC.xy(2, 7));
+					accessoryPnl.add(colSpn, CC.xy(4, 7));
+					accessoryPnl.add(new JLabel("px"), CC.xy(6, 7));
+					
+					accessoryPnl.add(new JLabel("Image dimensions:"), CC.xyw(2, 9, 5));
+					accessoryPnl.add(imgDimPnl, CC.xyw(2, 11, 5));
 					
 					// Attach accessory panel to file chooser
 					chooser.setAccessory(accessoryPnl);
+					chooser.addChoosableFileFilter(Constants.PNG_FILE_FILTER);
+					chooser.addChoosableFileFilter(Constants.CSV_FILE_FILTER);
+					chooser.addChoosableFileFilter(Constants.EXCEL_XML_FILE_FILTER);
+					chooser.setAcceptAllFileFilterUsed(false);
+					chooser.setFileFilter(Constants.PNG_FILE_FILTER);
+					
+					// Install listener to track file filter selection changes
+					chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY,
+							new PropertyChangeListener() {
+								@Override
+								public void propertyChange(PropertyChangeEvent evt) {
+									// Show image-related GUI elements only when PNG filter is selected
+									boolean showImageControls =
+											(evt.getNewValue() == Constants.PNG_FILE_FILTER);
+									for (int i = 2; i < accessoryPnl.getComponentCount(); i++) {
+										accessoryPnl.getComponent(i).setEnabled(showImageControls);
+									}
+								}
+							});
 					
 					// Show dialog
 					int res = chooser.showSaveDialog(heatMap);
 					if (res == JFileChooser.APPROVE_OPTION) {
 						// Get single selected file
 						File file = chooser.getSelectedFile();
-	
-						// Get desired row/column pixel widths, calculate total component size
-						int rowHeight = (Integer) rowSpn.getValue();
-						int colWidth = (Integer) colSpn.getValue();
 						
-						int width = this.calculateWidth(colWidth);
-						int height = this.calculateHeight(rowHeight);
+						// Determine file type
+						FileFilter filter = chooser.getFileFilter();
 						
-						// Modify chart panel size to fit all rows/columns, hide GUI controls
-						for (Component comp : chartPnl.getComponents()) {
-							comp.setVisible(false);
-						}
-						chartPnl.setSize(width, height);
-						// Modify draw size to prevent stretched text on up-scaling
-						chartPnl.setMaximumDrawHeight(height);
-						chartPnl.setMaximumDrawWidth(width);
-
-						// Make axis labels visible
-						xAxis.setLabelPaint(Color.BLACK);
-						yAxis.setLabelPaint(Color.BLACK);
-
-						// Adjust z axis color bar size, make label visible
-						PaintScaleLegend legend = (PaintScaleLegend) chartPnl.getChart().getSubtitle(0);
-						RectangleInsets oldMargin = legend.getMargin();
-						// FIXME: (low priority) bottom margin does not appear to be correct in some cases
-						legend.setMargin(4.0, 8.0, this.margin.bottom, 9.0);
-						legend.getAxis().setLabelPaint(Color.BLACK);
-						
-						// Cache old visible row/column counts, set to maximum row/column counts
-						int oldRowCount = heatMap.getVisibleRowCount();
-						int oldColCount = heatMap.getVisibleColumnCount();
-						heatMap.setVisibleRowCount(heatMap.rowCount);
-						heatMap.setVisibleColumnCount(heatMap.colCount);
-						
-						// Paint adjusted component into buffered image
-						bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-						chartPnl.paint(bi.createGraphics());
-						
-						// Write image to disk using loss-less PNG compression
-						try {
-							ImageIO.write(bi, "png", file);
-						} catch (IOException e) {
-							JXErrorPane.showDialog(ClientFrame.getInstance(),
-									new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+						if (filter == Constants.PNG_FILE_FILTER) {
+							this.exportPNG(file, bi);
+						} else if (filter == Constants.CSV_FILE_FILTER) {
+							// TODO: implement csv export
+							this.exportCSV(file);
+						} else if (filter == Constants.EXCEL_XML_FILE_FILTER) {
+							// TODO: implement xml export
 						}
 						
-						// Restore original state of chart panel
-						for (Component comp : chartPnl.getComponents()) {
-							comp.setVisible(true);
-						}
-						chartPnl.setMaximumDrawHeight(1440);
-						chartPnl.setMaximumDrawWidth(2560);
-						heatMap.setVisibleRowCount(oldRowCount);
-						heatMap.setVisibleColumnCount(oldColCount);
-						xAxis.setLabelPaint(Color.WHITE);
-						yAxis.setLabelPaint(Color.WHITE);
-						legend.getAxis().setLabelPaint(Color.WHITE);
-						legend.setMargin(oldMargin);
 					}
 					// Restore tick label truncation
 					xAxis.setMaximumTickLabelSize(oldXLabelSize);
 					yAxis.setMaximumTickLabelSize(oldYLabelSize);
 				}
 				
+				/**
+				 * Exports the heat map data as a tab-separated CSV file.
+				 * @param file the file to save
+				 */
+				private void exportCSV(File file) {
+					// Get data container
+					HeatMapData data = HeatMapPane.this.data;
+					
+					// Extract values and labels
+					MatrixSeries matrix = data.getMatrix();
+					String[] xLabels = data.getXLabels();
+					String[] yLabels = data.getYLabels();
+
+					try {
+						// Init writer
+						BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+						// Build CSV text rows
+						StringBuilder sb = new StringBuilder();
+						// Add x axis labels in header line
+						for (String xLabel : xLabels) {
+							sb.append("\t");
+							sb.append(xLabel);
+						}
+						// Write header to file
+						bw.write(sb.toString());
+						bw.newLine();
+						// Add matrix rows headed by y axis labels
+						for (int i = 0; i < matrix.getRowCount(); i++) {
+							// Clear string builder
+							sb.setLength(0);
+							// Add y axis label
+							sb.append(yLabels[i]);
+							// Add matrix values
+							for (int j = 0; j < matrix.getColumnsCount(); j++) {
+								sb.append("\t");
+								sb.append(matrix.get(i, j));
+							}
+							// Write line to file
+							bw.write(sb.toString());
+							bw.newLine();
+						}
+						// Clean up
+						bw.flush();
+						bw.close();
+					} catch (IOException e) {
+						JXErrorPane.showDialog(ClientFrame.getInstance(),
+								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+					}
+				}
+
+				/**
+				 * Exports the heat map chart as a PNG image.
+				 * @param file the file to save
+				 * @param bi the buffered image instance
+				 */
+				private void exportPNG(File file, BufferedImage bi) {
+					// Gather chart references
+					HeatMapPane heatMap = HeatMapPane.this;
+					ChartPanel chartPnl = (ChartPanel) heatMap.getViewport().getView();
+					XYPlot plot = (XYPlot) chartPnl.getChart().getPlot();
+					SymbolAxisExt xAxis = (SymbolAxisExt) plot.getDomainAxis();
+					SymbolAxisExt yAxis = (SymbolAxisExt) plot.getRangeAxis();
+					
+					int width = this.calculateWidth(this.colWidth);
+					int height = this.calculateHeight(this.rowHeight);
+					
+					// Modify chart panel size to fit all rows/columns, hide GUI controls
+					for (Component comp : chartPnl.getComponents()) {
+						comp.setVisible(false);
+					}
+					chartPnl.setSize(width, height);
+					// Modify draw size to prevent stretched text on up-scaling
+					chartPnl.setMaximumDrawHeight(height);
+					chartPnl.setMaximumDrawWidth(width);
+
+					// Make axis labels visible
+					xAxis.setLabelPaint(Color.BLACK);
+					yAxis.setLabelPaint(Color.BLACK);
+
+					// Adjust z axis color bar size, make label visible
+					PaintScaleLegend legend = (PaintScaleLegend) chartPnl.getChart().getSubtitle(0);
+					RectangleInsets oldMargin = legend.getMargin();
+					// FIXME: (low priority) bottom margin does not appear to be correct in some cases
+					legend.setMargin(4.0, 8.0, this.margin.bottom, 9.0);
+					legend.getAxis().setLabelPaint(Color.BLACK);
+					
+					// Cache old visible row/column counts, set to maximum row/column counts
+					int oldRowCount = heatMap.getVisibleRowCount();
+					int oldColCount = heatMap.getVisibleColumnCount();
+					heatMap.setVisibleRowCount(heatMap.rowCount);
+					heatMap.setVisibleColumnCount(heatMap.colCount);
+					
+					// Paint adjusted component into buffered image
+					bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+					chartPnl.paint(bi.createGraphics());
+					
+					// Write image to disk using loss-less PNG compression
+					try {
+						ImageIO.write(bi, "png", file);
+					} catch (IOException e) {
+						JXErrorPane.showDialog(ClientFrame.getInstance(),
+								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+					}
+					
+					// Restore original state of chart panel
+					for (Component comp : chartPnl.getComponents()) {
+						comp.setVisible(true);
+					}
+					chartPnl.setMaximumDrawHeight(1440);
+					chartPnl.setMaximumDrawWidth(2560);
+					heatMap.setVisibleRowCount(oldRowCount);
+					heatMap.setVisibleColumnCount(oldColCount);
+					xAxis.setLabelPaint(Color.WHITE);
+					yAxis.setLabelPaint(Color.WHITE);
+					legend.getAxis().setLabelPaint(Color.WHITE);
+					legend.setMargin(oldMargin);
+				}
+
 				/**
 				 * Convenience method to calculate the total component width based
 				 * on the specified pixel width for individual data columns and the
@@ -1262,6 +1348,24 @@ public class HeatMapPane extends JScrollPane {
 		}
 	}
 	
+	/**
+	 * Returns whether the heat map is currently in the process of being updated.
+	 * @return <code>true</code> if the heat map is updating, <code>false</code> otherwise
+	 */
+	public boolean isBusy() {
+		return this.busyLbl.isBusy();
+	}
+
+	/**
+	 * Sets the flag denoting whether the heat map is currently in the process of being updated.
+	 * @param updating the flag value to set
+	 */
+	public void setBusy(boolean busy) {
+		this.busyLbl.setBusy(busy);
+		this.busyLbl.setVisible(busy);
+		this.repaint();
+	}
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
@@ -1278,9 +1382,9 @@ public class HeatMapPane extends JScrollPane {
 		this.getHorizontalScrollBar().getModel().setExtent(
 				(enabled) ? this.visColCount : Integer.MAX_VALUE);
 		this.getPrimaryVerticalScrollbar().getModel().setExtent(
-				(enabled) ? this.visRowCount : Integer.MAX_VALUE);
-		this.getSecondaryVerticalScrollBar().getModel().setExtent(
 				(enabled) ? 1 : Integer.MAX_VALUE);
+		this.getSecondaryVerticalScrollBar().getModel().setExtent(
+				(enabled) ? this.visRowCount : Integer.MAX_VALUE);
 	};
 	
 	/**
@@ -1322,7 +1426,7 @@ public class HeatMapPane extends JScrollPane {
 				this.setMargin(new Insets(3, 1, 5, 1));
 			} else if (axis == Axis.Z_AXIS) {
 				buttonLbl.setUI(new VerticalLabelUI(true));
-				this.setMargin(new Insets(5, 1, 1, 1));
+				this.setMargin(new Insets(5, 1, 3, 1));
 			} else {
 				this.setMargin(new Insets(1, 4, 1, 4));
 			}
@@ -1884,6 +1988,100 @@ public class HeatMapPane extends JScrollPane {
 		 */
 		public void setMaximumTickLabelSize(int maxLabelSize) {
 			this.maxLabelSize = maxLabelSize;
+		}
+		
+	}
+	
+	/**
+	 * Worker implementation for updating heat map contents based on a search
+	 * result object.
+	 * 
+	 * @author A. Behne
+	 */
+	private class UpdateWorker extends SwingWorker<Object, Object> {
+		
+		/**
+		 * The result object reference.
+		 */
+		private DbSearchResult result;
+
+		/**
+		 * Constructs a SwingWorker for updating the heat map contents based on
+		 * the provided search result object.
+		 * @param result the search result container object.
+		 */
+		public UpdateWorker(DbSearchResult result) {
+			this.result = result;
+		}
+
+		@Override
+		protected Object doInBackground() {
+			HeatMapPane heatMap = HeatMapPane.this;
+			heatMap.setBusy(true);
+			heatMap.setEnabled(false);
+			
+			// Refresh data container contents
+			if (result != null) {
+				heatMap.data.setResult(result);
+			}
+			heatMap.data.setAxisTypes(
+					(ChartType) heatMap.getAxisButtonValue(Axis.X_AXIS),
+					(ChartType) heatMap.getAxisButtonValue(Axis.Y_AXIS),
+					(HierarchyLevel) heatMap.getAxisButtonValue(Axis.Z_AXIS));
+			
+			// Get existing chart instances
+			ChartPanel chartPnl = (ChartPanel) heatMap.getViewport().getView();
+			JFreeChart oldChart = chartPnl.getChart();
+			
+			// Re-create plot
+			XYPlot newPlot = heatMap.createPlot(
+					heatMap.xBtn.getValue().toString(),
+					heatMap.yBtn.getValue().toString(),
+					heatMap.data.getXLabels(), heatMap.data.getYLabels(),
+					0.0, heatMap.data.getMaximum(), heatMap.data.getMatrix());
+			
+			double max = data.getMaximum();
+			
+			// Re-create chart
+			JFreeChart newChart = new JFreeChart(oldChart.getTitle().getText(), newPlot);
+			newChart.removeLegend();
+			PaintScaleLegend psl = heatMap.createLegend(
+					heatMap.zBtn.getValue().toString(), newPlot);
+			psl.getAxis().setDefaultAutoRange(new Range(-0.5, max + 0.5));
+			psl.getAxis().setRange(-0.5, max + 0.5);
+			newChart.addSubtitle(psl);
+			newChart.setBackgroundPaint(Color.WHITE);
+			
+			// Apply new chart
+			chartPnl.setChart(newChart);
+			
+			// Adjust view
+			MatrixSeries series = data.getMatrix();
+			heatMap.colCount = series.getColumnsCount();
+			heatMap.firePropertyChange("colCount", -1, series.getColumnsCount());
+			heatMap.rowCount = series.getRowCount();
+			heatMap.firePropertyChange("rowCount", -1, series.getRowCount());
+
+			heatMap.setVisibleColumnCount(heatMap.visColCount);
+			heatMap.setVisibleRowCount(heatMap.visRowCount);
+			
+			// TODO: maybe add 'preferred visible row/column count' or 'preferred row/column size'
+			
+			JScrollBar vertBar = heatMap.getPrimaryVerticalScrollbar();
+			vertBar.setValues(0, 1, 0, (int) max);
+			vertBar.setBlockIncrement((int) (max / 4.0));
+			vertBar.revalidate();
+			
+			return null;
+		}
+		
+		@Override
+		protected void done() {
+			HeatMapPane.this.setEnabled(true);
+			// Refresh chart controls
+			HeatMapPane.this.updateChartLayout();
+			
+			HeatMapPane.this.setBusy(false);
 		}
 		
 	}

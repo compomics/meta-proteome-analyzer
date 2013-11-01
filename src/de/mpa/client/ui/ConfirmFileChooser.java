@@ -35,7 +35,16 @@ public class ConfirmFileChooser extends JFileChooser {
 	@Override
 	public void approveSelection() {
 		if (getDialogType() == SAVE_DIALOG) {
-			File selFile = getSelectedFile();
+			File selFile = this.getSelectedFile();
+			// check whether an extension is required
+			if (this.getFileFilter() instanceof ExtensionFileFilter) {
+				ExtensionFileFilter filter = (ExtensionFileFilter) this.getFileFilter();
+				if (!filter.accept(selFile)) {
+					// append extension
+					selFile = new File(selFile + filter.getExtension());
+					this.setSelectedFile(selFile);
+				}
+			}
 			// check whether selected file descriptor points to an existing file
 			if (selFile.exists()) {
 				// ask for confirmation to overwrite
