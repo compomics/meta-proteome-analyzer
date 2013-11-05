@@ -40,7 +40,6 @@ import de.mpa.job.SearchType;
 import de.mpa.job.blast.BlastJob;
 import de.mpa.job.instances.CommonJob;
 import de.mpa.job.instances.CruxJob;
-import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
 import de.mpa.job.instances.MS2FormatJob;
@@ -195,7 +194,7 @@ public class ServerImpl implements Server {
 			Job percolatorJob = new PercolatorJob(file, searchDB);
 			jobManager.addJob(percolatorJob);
 			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
-			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.txt", percolatorfile);
+			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.psms.txt", percolatorfile);
 			jobManager.addJob(renameJob);
 			jobManager.addJob(new StoreJob(SearchEngineType.CRUX, cruxJob.getFilename()));
 		}
@@ -315,7 +314,7 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
-				jobManager.addJob(new DeleteJob());
+//				jobManager.addJob(new DeleteJob());
 				jobManager.run();
 			}
 		} catch (Exception e) {

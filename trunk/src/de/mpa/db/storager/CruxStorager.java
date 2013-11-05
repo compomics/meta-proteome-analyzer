@@ -52,7 +52,7 @@ public class CruxStorager extends BasicStorager {
      * @param file Crux results file.
      */
     public void load() {
-    	cruxFile = new CruxParser().read(file.getAbsolutePath());
+    	cruxFile =CruxParser.read(file.getAbsolutePath());
     }
 
     /**
@@ -69,9 +69,10 @@ public class CruxStorager extends BasicStorager {
         
         // scan number as key, cruxhitid as value.
     	scanNumberMap = new HashMap<Integer, Long>();
+    	int counter = 0;
     	
         for (CruxHit hit : hitList) {
-        	if(hit.getxCorrRank() == 1 || hit.getPercolatorRank() == 1){
+        	if (hit.getPercolatorRank() == 1) {
                 HashMap<Object, Object> hitdata = new HashMap<Object, Object>(18);
                 String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
                 
@@ -92,8 +93,9 @@ public class CruxStorager extends BasicStorager {
                 hitdata.put(Cruxhit.CLEAVAGE_TYPE, hit.getCleavageType());
                 hitdata.put(Cruxhit.FLANK_AA, hit.getFlankingAA());
                 
+                
                 // Create the database object.
-                if((Double)hitdata.get(Cruxhit.QVALUE) < 0.1){
+                if((Double)hitdata.get(Cruxhit.QVALUE) < 0.1) {
                 	// Get the peptide id
                     long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getPeptide(), conn);
                     hitdata.put(Cruxhit.FK_PEPTIDEID, peptideID);
@@ -146,10 +148,12 @@ public class CruxStorager extends BasicStorager {
                         cruxhit2prot.persist(conn);
                     }
                     scanNumberMap.put(hit.getScanNumber(), cruxhitid);      
-                    conn.commit();
+                    counter++;
                 }
         	}   
         }
+        conn.commit();
+        log.debug("No. of Crux hits saved: " + counter);
     }
 }
 

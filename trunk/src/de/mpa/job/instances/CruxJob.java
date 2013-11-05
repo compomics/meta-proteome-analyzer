@@ -13,7 +13,7 @@ import de.mpa.job.Job;
 public class CruxJob extends Job {	
 	
 	private final File cruxFile;
-	private String ms2File;	
+	private final File mgfFile;	
 	private final String searchDB;
 	private final String filename;
 	private final double precIonTol;
@@ -30,8 +30,8 @@ public class CruxJob extends Job {
 	 */
 	public CruxJob(File mgfFile, final String searchDB, double precIonTol, boolean isPrecIonTolPpm ) {
 		this.searchDB = searchDB;
+		this.mgfFile = mgfFile;
 		this.cruxFile = new File(JobConstants.CRUX_PATH);	
-		this.ms2File = JobConstants.TRANSFER_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + ".ms2";;
 		this.precIonTol = precIonTol;
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
 		initJob();
@@ -48,7 +48,7 @@ public class CruxJob extends Job {
 		procCommands.add("search-for-matches");					
 		
 		// Link to spectrum file.
-		procCommands.add(ms2File);
+		procCommands.add(mgfFile.getAbsolutePath());
 		
 		// Link to database index directory
 		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");
@@ -57,12 +57,12 @@ public class CruxJob extends Job {
 		procCommands.add("--parameter-file");
 		procCommands.add(JobConstants.CRUX_PATH + "default.params");
 		// Add Precursor tolerance TODO Check this override of parameters
-		procCommands.add("precursor-window=" + precIonTol);
-		if (isPrecIonTolPpm) {
-			procCommands.add("precursor-window-type=ppm"); 
-		} else {
-			procCommands.add("precursor-window-type=mass");
-		}
+//		procCommands.add("precursor-window=" + precIonTol);
+//		if (isPrecIonTolPpm) {
+//			procCommands.add("precursor-window-type=ppm"); 
+//		} else {
+//			procCommands.add("precursor-window-type=mass");
+//		}
 		// Link to outputfolder path.
 		procCommands.add("--output-dir");
 		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
@@ -74,6 +74,7 @@ public class CruxJob extends Job {
 		procCommands.trimToSize();
 
 		procBuilder = new ProcessBuilder(procCommands);
+		System.out.println(procCommands);
 		setDescription("CRUX");
 		
 		procBuilder.directory(cruxFile);

@@ -36,10 +36,10 @@ public class PercolatorJob extends Job{
 		procCommands.add("percolator");
 		
 		// Database index directory
-		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");		
+//		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");		
 		
 		// Link to crux sourcefolder path.		
-		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
+		procCommands.add(JobConstants.CRUX_OUTPUT_PATH + "search.target.txt");
 		
 		// Link to outputfolder path.
 		procCommands.add("--output-dir");
