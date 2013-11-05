@@ -122,8 +122,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		JMenu settingsMenu = new JMenu("Settings");
 		
 		// Color settings item
-		JMenuItem colorsItem = new JMenuItem("Color Settings", 
-				IconConstants.COLOR_SETTINGS_ICON);
+		JMenuItem colorsItem = new JMenuItem("Color Settings", IconConstants.COLOR_SETTINGS_ICON);
 		colorsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ColorsDialog.getInstance().setVisible(true);

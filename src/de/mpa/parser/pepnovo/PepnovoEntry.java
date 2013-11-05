@@ -20,7 +20,6 @@ public class PepnovoEntry {
 	 */
 	private int spectrumNumber;
 	
-
 	/**
 	 * The list with all the predictions of the spectrum.
 	 */

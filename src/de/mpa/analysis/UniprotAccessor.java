@@ -158,9 +158,7 @@ public class UniprotAccessor {
 		
 		try {
 			// Initialize reader
-			BufferedReader br = new BufferedReader(new FileReader(
-					new File(UniprotAccessor.class.getClass().getResource(
-							Constants.CONFIGURATION_PATH + "keywords-all.obo").toURI())));
+			BufferedReader br = new BufferedReader(new FileReader(new File(Constants.CONFIGURATION_PATH_JAR, "keywords-all.obo")));
 			
 			String line;
 			String name = null;

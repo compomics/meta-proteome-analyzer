@@ -27,6 +27,7 @@ public class StoreJob extends Job {
 	 * The search engine result filename.
 	 */
 	private String resultFilename;
+
 	
 	/**
 	 * Constructs an results storing job (without q-value file).
@@ -40,8 +41,8 @@ public class StoreJob extends Job {
 	/**
 	 * Constructs an results storing job.
 	 * @param searchEngineType The search engine type.
-	 * @param xtandemFilename The results filename.
-	 * @param xtandemQValued The q-value results filename.
+	 * @param resultFilename The results filename.
+	 * @param qValueFilename The q-value results filename.
 	 */
 	public StoreJob(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) {
 		try {

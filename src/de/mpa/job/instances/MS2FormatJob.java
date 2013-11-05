@@ -11,6 +11,11 @@ import de.mpa.algorithms.Masses;
 import de.mpa.io.Peak;
 import de.mpa.job.Job;
 
+/**
+ * FIXME: By crux version 1.40 this class is not used anymore!
+ * @author T. Muth
+ *
+ */
 public class MS2FormatJob extends Job{
 	
 	private String outputfile;

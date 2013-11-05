@@ -2,6 +2,7 @@ package de.mpa.job.scoring;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,10 +51,14 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    MSSpectrum msSpectrum = targetIter.next();   
     	    MSHitSet msHitSet = targetResults.get(msSpectrum);
     	    List<MSHits> targetHits = msHitSet.MSHitSet_hits.MSHits;
-    	    for (MSHits msHit : targetHits) {
-    	    	targetScores.add(msHit.MSHits_evalue);
+    	    for (MSHits targetHit : targetHits) {
+    	    	targetScores.add(targetHit.MSHits_evalue);
     	    }
     	}
+    	
+    	// Sort the target scores ascending.
+    	Collections.sort(targetScores);
+    	
     	// Help the GC:
     	omxFileTarget = null;
     	targetResults = null;
@@ -69,10 +74,13 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    MSSpectrum msSpectrum = decoyIter.next();   
     	    MSHitSet msHitSet = decoyResults.get(msSpectrum);
     	    List<MSHits> decoyHits = msHitSet.MSHitSet_hits.MSHits;
-    	    for (MSHits msHit : decoyHits) {
-    	    	decoyScores.add(msHit.MSHits_evalue);
+    	    for (MSHits decoyHit : decoyHits) {
+				decoyScores.add(decoyHit.MSHits_evalue);
     	    }
     	}
+    	
+    	// Sort the decoy scores ascending.
+    	Collections.sort(decoyScores);
    	}	
 }
 

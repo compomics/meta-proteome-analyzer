@@ -20,7 +20,7 @@ public class OmssaScoreJob extends Job{
 	private String decoyFile;
 	
 	private String filename;
-	
+
 	/**
 	 * Constructs the Omssa score job.
 	 * @param targetFile Omssa target search result file.
@@ -48,4 +48,6 @@ public class OmssaScoreJob extends Job{
 		QvalityJob omssaQVality = new QvalityJob(omssaExtractor.getTargetOutput(), omssaExtractor.getDecoyOutput(), true);
 		omssaQVality.run();
 	}
+	
+
 }

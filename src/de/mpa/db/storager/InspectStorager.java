@@ -8,14 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.compomics.util.protein.Header;
-import com.compomics.util.protein.Protein;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Inspecthit;
-import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.parser.inspect.InspectFile;
 import de.mpa.parser.inspect.InspectHit;
 import de.mpa.parser.inspect.InspectParser;
@@ -71,6 +68,7 @@ public class InspectStorager extends BasicStorager {
         // Get the start of the spectrum's filename
         int firstIndex = filename.lastIndexOf("/") + 1;
         int lastIndex = filename.indexOf(".mgf");
+        int counter = 0;
         for (InspectHit hit : hitList) {
             HashMap<Object, Object> hitdata = new HashMap<Object, Object>(24);
             
@@ -86,29 +84,11 @@ public class InspectStorager extends BasicStorager {
             hitdata.put(Inspecthit.FK_PEPTIDEID, peptideID);
             hitdata.put(Inspecthit.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             
-        	Long proteinID;
         	// parse the header
             Header header = Header.parseFromFASTA(hit.getProtein());
             String accession = header.getAccession();
-            Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
-            String description = protein.getHeader().getDescription();
-        	
-            ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
-            if (proteinDAO == null) {	// protein not yet in database
-					// Add new protein to the database
-					proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
-					MapContainer.ProteinMap.put(accession, proteinDAO.getProteinid());
-				} else {
-					proteinID = proteinDAO.getProteinid();
-					// check whether pep2prot link already exists, otherwise create new one
-					Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-					if (pep2prot == null) {	// link doesn't exist yet
-						// Link peptide to protein.
-						pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-					}
-			}
-            
-            hitdata.put(Inspecthit.FK_PROTEINID, proteinDAO.getProteinid());
+            Long proteinID = storeProtein(peptideID, accession);
+            hitdata.put(Inspecthit.FK_PROTEINID, proteinID);
             hitdata.put(Inspecthit.CHARGE, Long.valueOf(hit.getCharge()));
             hitdata.put(Inspecthit.MQ_SCORE, hit.getMqScore());
             hitdata.put(Inspecthit.LENGTH, Long.valueOf(hit.getLength()));
@@ -130,12 +110,14 @@ public class InspectStorager extends BasicStorager {
             // Create the database object.
             Inspecthit inspecthit = new Inspecthit(hitdata);
             inspecthit.persist(conn);
+            counter++;
             
             // Get the cruxhitid
             Long inspecthitid = (Long) inspecthit.getGeneratedKeys()[0];
             scanNumberMap.put(hit.getScanNumber(), inspecthitid);   
         }
         conn.commit();
+        log.debug("No. of InsPect hits saved: " + counter);
     }
 }
 

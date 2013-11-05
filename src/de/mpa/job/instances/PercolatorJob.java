@@ -8,7 +8,6 @@ import de.mpa.job.Job;
 public class PercolatorJob extends Job{
 	
 	private final File cruxFile;
-	private final String searchDB;
 	private final String filename;
 	 
 	/**
@@ -17,8 +16,7 @@ public class PercolatorJob extends Job{
 	 * 
 	 * @param mgfFile
 	 */
-	public PercolatorJob(File mgfFile, final String searchDB) {
-		this.searchDB = searchDB;
+	public PercolatorJob(File mgfFile) {
 		this.cruxFile = new File(JobConstants.CRUX_PATH);
 		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
 		initJob();
@@ -35,8 +33,6 @@ public class PercolatorJob extends Job{
 		procCommands.add(JobConstants.CRUX_PATH + JobConstants.CRUX_EXE);
 		procCommands.add("percolator");
 		
-		// Database index directory
-//		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");		
 		
 		// Link to crux sourcefolder path.		
 		procCommands.add(JobConstants.CRUX_OUTPUT_PATH + "search.target.txt");
@@ -48,6 +44,14 @@ public class PercolatorJob extends Job{
 		// Overwrite existing files (if any searches before)
 		procCommands.add("--overwrite");
 		procCommands.add("T");
+		
+		// FDR < 5%
+		procCommands.add("--train-fdr");
+		procCommands.add("0.05");
+		
+		procCommands.add("--test-fdr");
+		procCommands.add("0.05");
+		
 		procCommands.trimToSize();
 		log.info("PERCOLATOR" + procCommands);
 		
