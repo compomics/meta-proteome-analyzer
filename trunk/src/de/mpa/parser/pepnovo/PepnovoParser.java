@@ -66,7 +66,6 @@ public class PepnovoParser {
 		            entry.setSpectrumNumber(specNumber);
 					predictionList = new ArrayList<Prediction>();
 					flag = true;
-					
 					specNumber++;
 				} else if (!nextLine.startsWith("#") && flag) {
 					

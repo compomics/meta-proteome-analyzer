@@ -2,6 +2,7 @@ package de.mpa.job.scoring;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.xml.sax.SAXException;
@@ -79,6 +80,10 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 				}
 			}
 		}
+		
+    	// Sort the target + decoy scores descending.
+    	Collections.sort(targetScores, Collections.reverseOrder());
+    	Collections.sort(decoyScores, Collections.reverseOrder());
 	}
 
 

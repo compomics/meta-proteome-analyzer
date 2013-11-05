@@ -11,7 +11,7 @@ import de.mpa.job.instances.QvalityJob;
  * @author Thilo Muth
  *
  */
-public class XTandemScoreJob extends Job{
+public class XTandemScoreJob extends Job {
 	
 	private String targetFile;
 	private String decoyFile;
@@ -43,5 +43,6 @@ public class XTandemScoreJob extends Job{
 		QvalityJob xTandemQVality = new QvalityJob(xTandemExtractor.getTargetOutput(), xTandemExtractor.getDecoyOutput(), false);
 		xTandemQVality.run();
 	}
+	
 
 }

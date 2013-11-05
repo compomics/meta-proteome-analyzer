@@ -1,12 +1,19 @@
 package de.mpa.db.storager;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.util.protein.Protein;
+
 import de.mpa.client.model.dbsearch.SearchEngineType;
+import de.mpa.db.MapContainer;
+import de.mpa.db.accessor.Pep2prot;
+import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * Basic storage functionality: Loading and storing of data.
@@ -61,5 +68,34 @@ public abstract class BasicStorager implements Storager {
 	@Override
 	public void store() throws Exception {
 	}
+	
+	protected Long storeProtein(long peptideID, String accession) throws SQLException, IOException {
+        Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
+        String description = protein.getHeader().getDescription();
+        
+		HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
+		Long proteinID = proteinIdMap.get(accession);
+		
+		if (proteinID == null) { // protein not yet in database
+			// Add new protein to the database
+			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+			proteinID = proteinAccessor.getProteinid();
+			MapContainer.UniprotQueryProteins.put(accession, proteinID);
+			proteinIdMap.put(accession, proteinID);
+			
+		} else {
+			// check whether pep2prot link already exists,
+			// otherwise create new one
+			Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+			// If no link from peptide to protein is given.
+			if (pep2prot == null) { 
+				// Link peptide to protein.
+				pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+			}
+		}
+		return proteinID;
+	}
+	
+	
 	
 }

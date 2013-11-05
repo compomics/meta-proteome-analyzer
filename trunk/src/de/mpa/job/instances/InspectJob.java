@@ -94,12 +94,12 @@ public class InspectJob extends Job {
 		procCommands.add(JobConstants.INSPECT_RAW_OUTPUT_PATH + mgfFile.getName() + ".out");
 		
 		// Set precursor and fragment tolerance
-		if (isPrecIonTolPpm) {
-			procCommands.add("PMTolerance,"+ precIonTol);
-		}else {
-			procCommands.add("ParentPPM," + precIonTol);
-		}
-		procCommands.add("IonTolerance," + fragIonTol );
+//		if (isPrecIonTolPpm) {
+//			procCommands.add("PMTolerance,"+ precIonTol);
+//		}else {
+//			procCommands.add("ParentPPM," + precIonTol);
+//		}
+//		procCommands.add("IonTolerance," + fragIonTol );
 		
 		procCommands.trimToSize();
 

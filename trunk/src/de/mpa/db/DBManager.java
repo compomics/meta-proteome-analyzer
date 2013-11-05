@@ -107,15 +107,21 @@ public class DBManager {
 	 * @param qValueFile q-value result file
 	 * @throws InterruptedException
 	 */
-	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFile) throws InterruptedException {
+	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) throws InterruptedException {
 		// Wait for spectra to be stored to the database.
 		spectraThread.join();
 		Storager storager = null;
-
-		if (searchEngineType == SearchEngineType.XTANDEM && qValueFile != null) storager = new XTandemStorager(conn, new File(resultFilename), new File(qValueFile));
-		else if (searchEngineType == SearchEngineType.XTANDEM && qValueFile == null) storager = new XTandemStorager(conn, new File(resultFilename));
-		else if (searchEngineType == SearchEngineType.OMSSA && qValueFile != null) storager = new OmssaStorager(conn, new File(resultFilename), new File(qValueFile));
-		else if (searchEngineType == SearchEngineType.OMSSA && qValueFile == null) storager = new XTandemStorager(conn, new File(resultFilename));
+		
+		if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename != null) {
+			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
+			storager = new XTandemStorager(conn, new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
+		}
+		else if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
+		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename != null) {
+			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
+			storager = new OmssaStorager(conn, new File(resultFilename), new File (targetScoreFilename), new File(qValueFilename));
+		}
+		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
 		else if (searchEngineType == SearchEngineType.CRUX ) storager = new CruxStorager(conn, new File(resultFilename));
 		else if (searchEngineType == SearchEngineType.INSPECT) storager = new InspectStorager(conn, new File(resultFilename));
 		storager.run();
@@ -142,7 +148,7 @@ public class DBManager {
 		Map<String, UniProtEntry> uniProtEntries = null;
 		
 		// Retrieve the UniProt entries.
-		Map<String, Long> proteinHits = MapContainer.ProteinMap;
+		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
 		Set<String> keySet = proteinHits.keySet();
 		List<String> accessions = new ArrayList<String>();
 		for (String string : keySet) {			
@@ -220,7 +226,7 @@ public class DBManager {
 			}
 			// Final commit and clearing of map.
 			conn.commit();
-			MapContainer.ProteinMap.clear();
+			MapContainer.UniprotQueryProteins.clear();
 		}
 	}
 	

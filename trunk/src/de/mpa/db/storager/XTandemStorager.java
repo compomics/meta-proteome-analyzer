@@ -18,14 +18,12 @@ import java.util.StringTokenizer;
 import org.xml.sax.SAXException;
 
 import com.compomics.util.protein.Header;
-import com.compomics.util.protein.Protein;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
-import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
+import de.mpa.job.scoring.ValidatedPSMScore;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;
@@ -49,7 +47,15 @@ public class XTandemStorager extends BasicStorager {
      */
     private File qValueFile = null;
     
-    private Map<Double, List<Double>> scoreQValueMap;
+	/**
+	 * File containing the original PSM scores.
+	 */
+	private File targetScoreFile;
+	
+	/**
+	 * Mapping for the original PSM scores to the validated ones.
+	 */
+	private HashMap<Double, ValidatedPSMScore> validatedPSMScores;    
 
 	private Map<String, Long> domainMap;
 	
@@ -64,10 +70,15 @@ public class XTandemStorager extends BasicStorager {
     
     /**
      * Constructor for storing results from a target-decoy search with X!Tandem.
+     * @param conn Database connection
+     * @param file OMSSA file
+     * @param targetScoreFile File containing the original PSM scores.
+     * @param qValueFile File containing the validated PSM scores.
      */
-	public XTandemStorager(final Connection conn, final File file, File qValueFile) {
+	public XTandemStorager(final Connection conn, final File file, File targetScoreFile, File qValueFile) {
 		this.conn = conn;
 		this.file = file;
+		this.targetScoreFile = targetScoreFile;
 		this.qValueFile = qValueFile;
 		this.searchEngineType = SearchEngineType.XTANDEM;
 	}
@@ -104,10 +115,7 @@ public class XTandemStorager extends BasicStorager {
         
         // DomainID as key, xtandemID as value.
         domainMap = new HashMap<String, Long>();
-        
-        // List for the q-values.
-        List<Double> qvalues;
-        
+
         int counter = 0;
         while (iter.hasNext()) {
 
@@ -127,83 +135,64 @@ public class XTandemStorager extends BasicStorager {
             	List<Domain> domains = peptide.getDomains();
             	for (Domain domain : domains) {
                    	String sequence = domain.getDomainSequence();
-                	if(!peptides.contains(sequence)){
-                	      HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
+					if (!peptides.contains(sequence)) {
+						
+                	    HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
                 	      
-                	      // Only store if the search spectrum id is referenced.
-                	      if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
-                	    	  long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
-                	    	  log.debug("X!Tandem spectrum title: " + spectrumTitle);
-                	    	  hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
-                  	    	  
-                              // Set the domain id  
-                              String domainID = domain.getDomainID();
-                              hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
-                              
-                              // parse the FASTA header
-                              Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
-                              String accession = header.getAccession();
-                              
-                              Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
-                              String description = protein.getHeader().getDescription();
-                              
-                              hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
-                              hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
-                              hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
-                              hitdata.put(XtandemhitTableAccessor.DELTA, domain.getDomainDeltaMh());
-                              hitdata.put(XtandemhitTableAccessor.HYPERSCORE, domain.getDomainHyperScore());                
-                              hitdata.put(XtandemhitTableAccessor.PRE, domain.getUpFlankSequence());
-                              hitdata.put(XtandemhitTableAccessor.POST, domain.getDownFlankSequence());                
-                              hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(domain.getMissedCleavages()));
-                              qvalues = scoreQValueMap.get(domain.getDomainHyperScore());
-                        	
-                              // Check if q-value is provided.
-                              if(qvalues == null){
-                                	hitdata.put(XtandemhitTableAccessor.PEP, 1.0);
-                                    hitdata.put(XtandemhitTableAccessor.QVALUE, 1.0);                	
-                                } else {
-                                	hitdata.put(XtandemhitTableAccessor.PEP, qvalues.get(0));
-                                    hitdata.put(XtandemhitTableAccessor.QVALUE, qvalues.get(1));
-                                }
-
-                              // Create the database object.
-                              if((Double)hitdata.get(XtandemhitTableAccessor.QVALUE) < 0.1){
-                                  // Get and store the peptide.
-                                  long peptideID = PeptideAccessor.findPeptideIDfromSequence(sequence, conn);
-                      	    	  hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
-                      	    	  
-                      	    	  // Get the protein(s).
-                                  Long proteinID;
-                                  ProteinAccessor proteinDAO = ProteinAccessor.findFromAttributes(accession, conn);
-                                  if (proteinDAO == null) {	// protein not yet in database
-            							// Add new protein to the database
-                                	  proteinDAO = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
-                                	  MapContainer.ProteinMap.put(accession, proteinDAO.getProteinid());
-            						} else {
-            							proteinID = proteinDAO.getProteinid();
-            							// check whether pep2prot link already exists, otherwise create new one
-            							Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-            							if (pep2prot == null) {	// link doesn't exist yet
-            								// Link peptide to protein.
-            								pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-            							}
-            						}
-                                  hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinDAO.getProteinid());
-                                  
-                            	  XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
-                                  xtandemhit.persist(conn);
-                                  counter++;
-                                  // Get the xtandemhitid
-                                  Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
-                                  domainMap.put(domainID, xtandemhitid);   
-                                  peptides.add(sequence);
-                                  conn.commit();
-                              }
+                	    // Only store if the search spectrum id is referenced.
+                	    if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
+                	    	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+                	    	
+                    	    ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
+            	            Double qValue = 1.0;
+            	    	    if(validatedPSMScore != null) {
+            	    	    	qValue = validatedPSMScore.getQvalue();
+            	    	    } else {
+            	    	    	log.error("not available: " + domain.getDomainHyperScore());
+            	    	    }
+            	    	    	
+            				if (qValue < 0.1) {
+        						hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
+                     	    	  
+                                // Set the domain id  
+                                String domainID = domain.getDomainID();
+                                hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
+                                 
+                                // parse the FASTA header
+                                Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
+                                String accession = header.getAccession();
+                                 
+                                hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
+                                hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
+                                hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
+                                hitdata.put(XtandemhitTableAccessor.DELTA, domain.getDomainDeltaMh());
+                                hitdata.put(XtandemhitTableAccessor.HYPERSCORE, domain.getDomainHyperScore());                
+                                hitdata.put(XtandemhitTableAccessor.PRE, domain.getUpFlankSequence());
+                                hitdata.put(XtandemhitTableAccessor.POST, domain.getDownFlankSequence());                
+                                hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(domain.getMissedCleavages()));
+                                hitdata.put(XtandemhitTableAccessor.PEP, validatedPSMScore.getPep());
+                                hitdata.put(XtandemhitTableAccessor.QVALUE, qValue);
+       						
+                                // Get and store the peptide.
+                                long peptideID = PeptideAccessor.findPeptideIDfromSequence(sequence, conn);
+                     	    	hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
+                         	    	  
+                     	        Long proteinID = storeProtein(peptideID, accession);
+                                hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinID);
+                           	    XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
+                                xtandemhit.persist(conn);
+                                counter++;
+                                // Get the xtandemhitid
+                                Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
+                                domainMap.put(domainID, xtandemhitid);   
+                                peptides.add(sequence);
+            					}
                 	      }
                 	}
 				}
             }      
         }
+        conn.commit();
         log.debug("No. of X!Tandem hits saved: " + counter);
     }
     
@@ -218,39 +207,39 @@ public class XTandemStorager extends BasicStorager {
     	}
 		return spectrumTitle;
 	}
-
-	/**
-     * Stores the q-values (obtained from the hyperscore distribution) to the database.
-     */
-	private void processQValues() {
-		BufferedReader reader;
+    
+    
+    private void processQValues() {
+		BufferedReader qValueFileReader;
+		BufferedReader targetFileReader;
 		try {
-			reader = new BufferedReader(new FileReader(qValueFile));
-			scoreQValueMap = new HashMap<Double, List<Double>>();
+			qValueFileReader = new BufferedReader(new FileReader(qValueFile));
+			targetFileReader = new BufferedReader(new FileReader(targetScoreFile));
+			validatedPSMScores = new HashMap<Double, ValidatedPSMScore>();
 			String nextLine;
 			// Skip the first line
-			reader.readLine();
-			List<Double> qvalityList;
+			qValueFileReader.readLine();
 			// Iterate over all the lines of the file.
-			while ((nextLine = reader.readLine()) != null) {
+			while ((nextLine = qValueFileReader.readLine()) != null) {
+				
 				StringTokenizer tokenizer = new StringTokenizer(nextLine, "\t");
 				List<String> tokenList = new ArrayList<String>();
-				qvalityList = new ArrayList<Double>();
-				
 				// Iterate over all the tokens
 				while (tokenizer.hasMoreTokens()) {
 					tokenList.add(tokenizer.nextToken());
 				}
-				double score = Double.valueOf(tokenList.get(0));				
-				qvalityList.add(Double.valueOf(tokenList.get(1)));
-				qvalityList.add(Double.valueOf(tokenList.get(2)));
-				scoreQValueMap.put(score, qvalityList);
+				ValidatedPSMScore validatedPSMScore = new ValidatedPSMScore(Double.valueOf(tokenList.get(0)), Double.valueOf(tokenList.get(1)), Double.valueOf(tokenList.get(2)));
+				
+				// Get original target score
+				double score = Double.valueOf(targetFileReader.readLine());
+				validatedPSMScores.put(score, validatedPSMScore);
 			}
-			reader.close();
+			qValueFileReader.close();
+			targetFileReader.close();
 		} catch (FileNotFoundException e) {
-			log.error(e.getMessage());
+			e.printStackTrace();
 		} catch (IOException e) {
-			log.error(e.getMessage());
-		} 
-	}
+			e.printStackTrace();
+		}
+	}	
 }

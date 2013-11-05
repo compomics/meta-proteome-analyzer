@@ -138,7 +138,7 @@ public class ServerImpl implements Server {
 		MapContainer.FastaLoader = fastaLoader;
 		
 		// Init protein map for UniProt entry retrieval.
-		MapContainer.ProteinMap = new HashMap<String, Long>();
+		MapContainer.UniprotQueryProteins = new HashMap<String, Long>();
 		
 		// X!Tandem job
 		if (dbSearchSettings.isXTandem()) {
@@ -181,17 +181,15 @@ public class ServerImpl implements Server {
 				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename(), omssaScoreJob.getFilename()));
 			} else {
 				// Add store job
-				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename(), null));
+				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename()));
 			}
 		}
 		
 		// Crux job
 		if (dbSearchSettings.isCrux()) {
-			Job ms2FormatJob = new MS2FormatJob(file);
-			jobManager.addJob(ms2FormatJob);
 			Job cruxJob = new CruxJob(file, searchDB, precIonTol, isPrecIonTolPpm);
 			jobManager.addJob(cruxJob);
-			Job percolatorJob = new PercolatorJob(file, searchDB);
+			Job percolatorJob = new PercolatorJob(file);
 			jobManager.addJob(percolatorJob);
 			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
 			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.psms.txt", percolatorfile);
@@ -373,6 +371,7 @@ public class ServerImpl implements Server {
 			spectra.addAll(newSpectra);
 			SpectrumUtilities.writeToFile(spectra, path);
 		}
+		reader.close();
 	}
 	
 }
