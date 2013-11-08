@@ -102,17 +102,14 @@ public class Uniprotentry extends UniprotentryTableAccessor {
     * @throws SQLException
     */
 	public static Uniprotentry addUniProtEntryWithProteinID(Long proteinID, Long taxID, String ecNumber, String koNumber, String keywords, Connection conn) throws SQLException {
-		Uniprotentry uniprotentryAccessor = Uniprotentry.findFromProteinID(proteinID, conn);
-		if (uniprotentryAccessor == null) {
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(Uniprotentry.FK_PROTEINID, proteinID);
 			data.put(Uniprotentry.TAXID, taxID);
 			data.put(Uniprotentry.ECNUMBER, ecNumber);
 			data.put(Uniprotentry.KONUMBER, koNumber);
 			data.put(Uniprotentry.KEYWORDS, keywords);
-			uniprotentryAccessor = new Uniprotentry(data);
+			Uniprotentry uniprotentryAccessor = new Uniprotentry(data);
 			uniprotentryAccessor.persist(conn);
-		}
 		return uniprotentryAccessor;
    }
 }

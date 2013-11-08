@@ -145,11 +145,9 @@ public class XTandemStorager extends BasicStorager {
                 	    	
                     	    ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
             	            Double qValue = 1.0;
-            	    	    if(validatedPSMScore != null) {
+            	    	    if (validatedPSMScore != null) {
             	    	    	qValue = validatedPSMScore.getQvalue();
-            	    	    } else {
-            	    	    	log.error("not available: " + domain.getDomainHyperScore());
-            	    	    }
+            	    	    } 
             	    	    	
             				if (qValue < 0.1) {
         						hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
