@@ -124,7 +124,7 @@ public class FilePanel extends JPanel {
 	private JXMultiSplitPane split;
 	
 	// Selected past of the .mgf or .dat File
-	private String selPath = "test/de/mpa/resources/";
+	private String selPath = Constants.DEFAULT_SPECTRA_PATH;
 	
 	// Selected file of the .mgf or .dat File
 	private List<File> mascotSelFile = new ArrayList<File>();

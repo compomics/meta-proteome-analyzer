@@ -13,6 +13,7 @@ import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.db.accessor.Taxonomy;
 
 /**
@@ -37,7 +38,18 @@ public class TaxonomyUtils {
 	public static TaxonomyNode createTaxonomyNode(long taxID, Map<Long, Taxonomy> taxonomyMap) {
 		boolean reachedRoot = false;
 		Taxonomy current = taxonomyMap.get(taxID);
-		TaxonomyNode currentNode = new TaxonomyNode((int) current.getTaxonomyid(), current.getRank(), current.getDescription());
+		TaxonomyRank taxonomyRank;
+		
+		String rank = current.getRank();
+		
+		// Check for rank being contained in the main categories (from superkingdom to species)
+		if (TaxonomyChartType.contains(rank)) {
+			taxonomyRank = UniprotAccessor.TAXONOMY_MAP.get(rank);
+		} else {
+			// TODO: Check whether the general category "species" holds true for all available ranks.
+			taxonomyRank = TaxonomyRank.SPECIES;
+		}
+		TaxonomyNode currentNode = new TaxonomyNode((int) current.getTaxonomyid(), taxonomyRank, current.getDescription());
 		TaxonomyNode leafNode = currentNode;
 		while (!reachedRoot) {
 			// Start
@@ -49,23 +61,13 @@ public class TaxonomyUtils {
 			}
 			// Check if ancestor is given and its rank is in our favored set. 
 			if (ancestor != null && UniprotAccessor.TAXONOMY_MAP.containsKey(ancestor.getRank())) {
-				TaxonomyNode parentNode = new TaxonomyNode(	(int) ancestor.getTaxonomyid(), ancestor.getRank(), ancestor.getDescription());
+				TaxonomyNode parentNode = new TaxonomyNode(	(int) ancestor.getTaxonomyid(), UniprotAccessor.TAXONOMY_MAP.get(ancestor.getRank()), ancestor.getDescription());
 				currentNode.setParentNode(parentNode);
 				currentNode = parentNode;
 			}  
 			taxID = parentID;
 		}
 		return leafNode;
-	}
-	
-	/**
-	 * This method created an uncategorized taxonomy node for protein with UniProt entries. 
-	 * @return Uncategorized taxonomy node.
-	 */
-	public static TaxonomyNode createUncatogorizedTaxonomyNode() {
-		TaxonomyNode rootNode = new TaxonomyNode(1, "root", "root");
-		TaxonomyNode uncategorizedNode = new TaxonomyNode(0, "superkingdom", "Uncategorized", rootNode);
-		return uncategorizedNode;
 	}
 	
 	/**
@@ -189,7 +191,7 @@ public class TaxonomyUtils {
 	 */
 	public static String getTaxNameByRank(TaxonomyNode taxNode, TaxonomyRank taxRank) {
 		// Default value for taxonomy name.
-		String taxName = "Unclassified";
+		String taxName = "Unknown";
 
 		while (taxNode.getId() != 1) { // unequal to root
 			if (taxNode.getRank().equals(taxRank.toString().toLowerCase())) {

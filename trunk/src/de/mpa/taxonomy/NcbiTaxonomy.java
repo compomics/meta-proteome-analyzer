@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.Constants;
 import de.mpa.util.Formatter;
 
@@ -63,7 +64,7 @@ public class NcbiTaxonomy implements Serializable {
 	/**
 	 * The root node constant.
 	 */
-	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, "no rank", "root");
+	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
 
 	/**
 	 * Empty constructor for NCBI tax maps

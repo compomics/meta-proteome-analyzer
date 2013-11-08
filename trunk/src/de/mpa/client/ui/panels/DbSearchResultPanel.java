@@ -164,6 +164,7 @@ import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.MetaProteinFactory;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
@@ -437,8 +438,7 @@ public class DbSearchResultPanel extends JPanel {
 		psmTableScp.setPreferredSize(new Dimension(350, 100));
 
 		// Hierarchical view options
-		cardLabels = new String[] {"Original", "Flat View",
-				"Taxonomic View", "E.C. View", "Pathway View"};
+		cardLabels = new String[] {"Basic View", "Meta-Protein View", "Taxonomy View", "Enzyme View", "Pathway View"};
 
 		protCardLyt = new CardLayout();
 		protCardPnl = new JPanel(protCardLyt);
@@ -2397,7 +2397,7 @@ public class DbSearchResultPanel extends JPanel {
 			clearTables();
 			
 			// Create taxonomy tree for filtering
-			TaxonomyNode rootNode = new TaxonomyNode(1, "no rank", "root");
+			TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
 			DefaultMutableTreeNode taxRoot = new DefaultMutableTreeNode(rootNode);
 			taxModel = new DefaultTreeModel(taxRoot);
 			
@@ -2458,7 +2458,7 @@ public class DbSearchResultPanel extends JPanel {
 								commonAncestorNode = TaxonomyUtils.getCommonTaxonomyNode(commonAncestorNode, peptideHit.getTaxonomyNode());
 							}
 							// TODO: do we really still need the species string? calculating common taxonomy here seems redundant
-							proteinHit.setSpecies(commonAncestorNode.toString());
+							proteinHit.setCommonTaxonomyNode(commonAncestorNode.toString());
 
 							// FIXME: Calculate sequence alignment
 						}
@@ -2492,8 +2492,6 @@ public class DbSearchResultPanel extends JPanel {
 						metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
 
 						if (proteinHit.getUniprotEntry() != null) {
-							// TODO generate Metaproteins UniProtEntry
-							// metaUniprotEntry = proteinHit.getUniprotEntry();
 							// Wrap protein data in table node clones and insert
 							// them into the relevant trees
 							// For case of NCBI accessions
@@ -2552,7 +2550,7 @@ public class DbSearchResultPanel extends JPanel {
 							TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
 							firstNode = TaxonomyUtils.getCommonTaxonomyNode(firstNode,taxonNode);
 						}
-						metaProtein.setSpecies(firstNode.getName() + " (" + firstNode.getRank() +")");
+						metaProtein.setCommonTaxonomyNode(firstNode.getName() + " (" + firstNode.getRank() +")");
 					}
 					metaProtein.setIdentity(metaIdentity);
 					metaProtein.setCoverage(metaSC);
@@ -2670,7 +2668,13 @@ public class DbSearchResultPanel extends JPanel {
 				}
 			}
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
-
+			
+			// Refresh treetable model.
+			for (CheckBoxTreeTable cbtt : linkMap.values()) {
+				DefaultTreeTableModel model = (DefaultTreeTableModel) cbtt.getTreeTableModel();
+				model.setRoot(model.getRoot());
+			}
+			
 			protTaxonTreeTbl.expandAll();
 			protEnzymeTreeTbl.expandAll();
 			protPathwayTreeTbl.expandAll();

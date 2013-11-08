@@ -13,6 +13,7 @@ import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceInd
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
@@ -113,7 +114,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * The taxonomy node reference.
 	 */
-	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, "no rank", "root");
+	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
 
 	/**
 	 * Constructs a protein hit from the specified accession, description and
@@ -224,7 +225,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Sets the species of the protein
 	 * @param species the species to set
 	 */
-	public void setSpecies(String species) {
+	public void setCommonTaxonomyNode(String species) {
 		this.species = species;
 	}
 	
@@ -532,8 +533,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		if (type instanceof TaxonomyChartType) {
 			// Get node by taxonomy rank
 			TaxonomyChartType taxChartType = (TaxonomyChartType) type;
-			TaxonomyNode node = this.getTaxonomyNode().getParentNode(
-					taxChartType.getRank().toString().toLowerCase().replace('_', ' '));
+			TaxonomyNode node = this.getTaxonomyNode().getParentNode(taxChartType.getRank());
 			// Return name of node
 			res.add(node.getName());
 		} else if (type instanceof OntologyChartType) {

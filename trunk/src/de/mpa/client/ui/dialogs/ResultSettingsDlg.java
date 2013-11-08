@@ -1,7 +1,6 @@
 package de.mpa.client.ui.dialogs;
 
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +12,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -39,7 +37,6 @@ public class ResultSettingsDlg extends JDialog {
 		initComponents();
 		showDialog();
 	}
-	
 
 	public void initComponents() {
 		JPanel resultSettingsPnl = new JPanel();
