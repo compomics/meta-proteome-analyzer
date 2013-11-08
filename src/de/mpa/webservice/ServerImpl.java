@@ -40,9 +40,9 @@ import de.mpa.job.SearchType;
 import de.mpa.job.blast.BlastJob;
 import de.mpa.job.instances.CommonJob;
 import de.mpa.job.instances.CruxJob;
+import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.InspectJob;
 import de.mpa.job.instances.JobConstants;
-import de.mpa.job.instances.MS2FormatJob;
 import de.mpa.job.instances.OmssaJob;
 import de.mpa.job.instances.PepnovoJob;
 import de.mpa.job.instances.PercolatorJob;
@@ -313,7 +313,7 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
-//				jobManager.addJob(new DeleteJob());
+				jobManager.addJob(new DeleteJob());
 				jobManager.run();
 			}
 		} catch (Exception e) {

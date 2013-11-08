@@ -134,6 +134,15 @@ public class OmssaJob extends Job {
         procCommands.add("-d");
         procCommands.add(JobConstants.FASTA_PATH + searchDB + ".fasta");
         
+        // Enzyme
+        procCommands.add("-e");
+        // 0 == Trypsin
+        /*  rypsin (0), argc (1), cnbr (2), chymotrypsin (3), formicacid (4), lysc (5), lysc-p (6), pepsin-a (7),
+        tryp-cnbr (8), tryp-chymo (9), trypsin-p (10), whole-protein (11), aspn (12), gluc (13), aspngluc (14),
+        top-down (15), semi-tryptic (16), no-enzyme (17), chymotrypsin-p (18), aspn-de (19), gluc-de (20),
+        lysn (21), thermolysin-p (22), semi-chymotrypsin (23), semi-gluc (24), max(25),*/
+        procCommands.add("16");
+        
         // Input MGF file
         procCommands.add("-fm");
         procCommands.add(mgfFile.getAbsolutePath());

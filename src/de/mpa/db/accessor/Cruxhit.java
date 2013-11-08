@@ -96,7 +96,7 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	
 	@Override
 	public double getScore() {		
-		return iXcorr_score.doubleValue();
+		return iPercolator_score.doubleValue();
 	}
 	
 	@Override

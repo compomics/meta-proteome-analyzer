@@ -66,7 +66,27 @@ public class UniprotAccessor {
 	 * Enumeration holding taxonomic ranks.
 	 */
 	public enum TaxonomyRank {
-		ROOT, SUPERKINGDOM, KINGDOM, PHYLUM, CLASS, ORDER, FAMILY, GENUS, SPECIES, NO_RANK 
+		ROOT("root"),
+		SUPERKINGDOM("superkingdom"),
+		KINGDOM("kingdom"),
+		PHYLUM("phylum"),
+		CLASS("class"),
+		ORDER("order"),
+		FAMILY("family"),
+		GENUS("genus"), 
+		SPECIES("species"), 
+		NO_RANK("no rank"); 
+		
+		private String val;
+		private TaxonomyRank(String value) {
+			this.val = value;
+		}
+		
+		@Override
+		public String toString() {
+			return val;
+		}
+		
 	}
 
 	/**

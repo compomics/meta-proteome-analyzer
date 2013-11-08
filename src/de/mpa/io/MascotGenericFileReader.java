@@ -233,9 +233,11 @@ public class MascotGenericFileReader extends InputFileReader {
             		break;
             	}
             }
+            br.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+    	
 		return res;
 	}
 
@@ -336,6 +338,7 @@ public class MascotGenericFileReader extends InputFileReader {
         	}
 		}
         
+        br.close();
         // Fire final progress event
         fireProgressMade(oldPos, newPos);
 	}

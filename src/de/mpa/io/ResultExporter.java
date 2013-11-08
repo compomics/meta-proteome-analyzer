@@ -523,7 +523,7 @@ public class ResultExporter {
 		int pathLength = path.size();
 		for (int i = 0; i < pathLength; i++) {
 			TaxonomyNode node = path.get(i);
-			taxRankMap.put(node.getRank(), node.getName());	
+			taxRankMap.put(node.getRank().toString().toLowerCase(), node.getName());	
 		}
 		
 		// Add parent taxnode names.

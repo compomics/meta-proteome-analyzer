@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+
 
 /**
  * This class represents a NCBI taxonomy entry, complete with taxonomy ID as
@@ -27,7 +29,7 @@ public class TaxonomyNode implements Serializable {
 	/**
 	 * The taxonomic rank.
 	 */
-	private String taxRank;
+	private TaxonomyRank taxRank;
 
 	/**
 	 * The taxonomy name.
@@ -45,7 +47,7 @@ public class TaxonomyNode implements Serializable {
 	 * @param rank The taxonomic rank
 	 * @param description The taxonomy description
 	 */
-	public TaxonomyNode(int taxId, String rank, String description) {
+	public TaxonomyNode(int taxId, TaxonomyRank rank, String description) {
 		this(taxId, rank, description, null);
 	}
 	
@@ -56,7 +58,7 @@ public class TaxonomyNode implements Serializable {
 	 * @param description The taxonomy description
 	 * @param parentNode Parent node
 	 */
-	public TaxonomyNode(int taxId, String rank, String description, TaxonomyNode parentNode) {
+	public TaxonomyNode(int taxId, TaxonomyRank rank, String description, TaxonomyNode parentNode) {
 		this.taxId = taxId;
 		this.taxRank = rank;
 		this.taxName = description;
@@ -83,7 +85,7 @@ public class TaxonomyNode implements Serializable {
 	 * Returns the taxonomic rank.
 	 * @return the taxonomic rank
 	 */
-	public String getRank() {
+	public TaxonomyRank getRank() {
 		return taxRank;
 	}
 
@@ -91,7 +93,7 @@ public class TaxonomyNode implements Serializable {
 	 * Sets the taxonomic rank.
 	 * @param rank The taxonomic rank to set
 	 */
-	public void setRank(String rank) {
+	public void setRank(TaxonomyRank rank) {
 		this.taxRank = rank;
 	}
 
@@ -124,16 +126,16 @@ public class TaxonomyNode implements Serializable {
 	 * @param rank the desired parent rank
 	 * @return the parent taxonomy node of the desired rank.
 	 */
-	public TaxonomyNode getParentNode(String rank) {
+	public TaxonomyNode getParentNode(TaxonomyRank rank) {
 		TaxonomyNode parentNode = this;
-		String parentRank = parentNode.getRank();
+		TaxonomyRank parentRank = parentNode.getRank();
 		while (!rank.equals(parentRank)) {
 			parentNode = parentNode.getParentNode();
 			parentRank = parentNode.getRank();
 			if (parentNode.getId() == 1) {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
-				parentNode = new TaxonomyNode(0, rank, "Unclassified " + rank);
+				parentNode = new TaxonomyNode(0, rank, "Unknown " + rank);
 				break;
 			}
 		}

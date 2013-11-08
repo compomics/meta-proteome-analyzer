@@ -18,8 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
 
+import javax.swing.SwingWorker;
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
@@ -28,7 +31,11 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.Plot;
+import org.jfree.data.general.DefaultPieDataset;
 
+import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.model.SpectrumMatch;
@@ -45,6 +52,7 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
@@ -63,7 +71,6 @@ import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.taxonomy.TaxonomyUtils;
-import de.mpa.webservice.WSPublisher;
 
 public class Client {
 
@@ -167,6 +174,26 @@ public class Client {
 			// connect to database
 			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, getDbSettings());
 			this.conn = dbconfig.getConnection();
+			retrieveTaxonomyMapping();
+		}
+	}
+	
+	/**
+	 * Retrieves the taxonomy mapping via a background thread.
+	 */
+	private void retrieveTaxonomyMapping() {
+		if (taxonomyMap == null) {
+			final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+			backgroundExecutor.execute(new Runnable() {
+				public void run() {
+					try {
+						taxonomyMap = Taxonomy.retrieveTaxIDtoTaxonomyMap(conn);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			backgroundExecutor.shutdown();
 		}
 	}
 
@@ -185,7 +212,8 @@ public class Client {
 	 * Connects the client to the web service.
 	 */
 	public void connect() {
-		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
+//		FIXME: This does not work for the main metaprot server!
+//		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
 
 		service = new ServerImplService();
 		server = service.getServerImplPort();
@@ -401,7 +429,6 @@ public class Client {
 	 * @return DbSearchResult
 	 */
 	public void retrieveDbSearchResult(String projectName, String experimentName, long experimentID) {
-		// TODO Get here ALSO MascotHits
 		// Init the database connection.
 		try {
 			this.initDBConnection();
@@ -420,10 +447,6 @@ public class Client {
 
 //			dbSearchResult.setTotalIonCurrentMap(Searchspectrum.getTICsByExperimentID(experimentID, conn));
 			
-			// TODO: Put this in a background thread at startup or change strategy.
-			if (taxonomyMap == null) {
-				taxonomyMap = Taxonomy.retrieveTaxIDtoTaxonomyMap(conn);
-			}
 			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
 			Set<String> peptideSequences = new TreeSet<String>();
 			int totalPeptides = 0;
@@ -503,8 +526,8 @@ public class Client {
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);
 		} else {
 			if (uncategorizedNode == null) {
-				TaxonomyNode rootNode = new TaxonomyNode(1, "no rank", "root"); 
-				uncategorizedNode = new TaxonomyNode(0, "no rank", "uncategorized", rootNode);
+				TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
+				uncategorizedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "uncategorized", rootNode);
 			}
 			taxonomyNode = uncategorizedNode;
 		}
@@ -649,6 +672,7 @@ public class Client {
 				throw e;
 			}	
 		}
+		file.delete();
 		return filenames;
 	}
 
@@ -739,7 +763,6 @@ public class Client {
 		try {
 			// Close SQL DB connection
 			closeDBConnection();
-
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));

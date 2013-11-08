@@ -1,8 +1,6 @@
 package de.mpa.graphdb.insert;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +213,7 @@ public class GraphDatabaseHandler {
 			childVertex = graph.addVertex(null);
 			childVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
 			childVertex.setProperty(TaxonProperty.TAXID.toString(), childNode.getId());
-			childVertex.setProperty(TaxonProperty.RANK.toString(), childNode.getRank());
+			childVertex.setProperty(TaxonProperty.RANK.toString(), childNode.getRank().toString());
 			// Index the species by the species name.
 			taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), species, childVertex);
 		}		
@@ -235,7 +233,7 @@ public class GraphDatabaseHandler {
 				parentVertex = graph.addVertex(null);
 				parentVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), taxon);
 				parentVertex.setProperty(TaxonProperty.TAXID.toString(), pathNode.getId());
-				parentVertex.setProperty(TaxonProperty.RANK.toString(), pathNode.getRank());
+				parentVertex.setProperty(TaxonProperty.RANK.toString(), pathNode.getRank().toString());
 				// Index the species by the species name.
 				taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), taxon, parentVertex);
 			}		

@@ -55,6 +55,14 @@ public class TaxonomyPieChart extends Chart {
 		public TaxonomyRank getRank() {
 			return this.rank;
 		}
+		
+		public static boolean contains(String s) {
+			for (TaxonomyChartType chartType : values()) {
+				if (chartType.name().toLowerCase().equals(s))
+					return true;
+			}
+			return false;
+		}
 	}
 		
 	/**

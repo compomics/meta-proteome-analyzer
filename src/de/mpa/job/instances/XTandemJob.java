@@ -30,6 +30,13 @@ public class XTandemJob extends Job {
 	private double fragmentTol;
 	private double precursorTol;
 	private int nMissedCleavages;
+	/*
+	 * ENZYMES argc - [R]|{P} aspn - [X]|[D] chymotrypsin - [FMWY]|{P} clostripain - [R]|[X] cnbr - [M]|{P} elastase - [AGILV]|{P}
+	formicacid - [D]|{P} gluc - [DE]|{P} gluc_bicarb - [E]|{P} iodosobenzoate - [W]|[X]	lysc - [K]|{P}
+	lysc-p - [K]|[X] lysn - [X]|[K] lysn_promisc - [X]|[AKRS] nonspecific - [X]|[X] pepsina - [FL]|[X]
+	protein_endopeptidase - [P]|[X] staph_protease - [E]|[X] tca - [FMWY]|{P},[KR]|{P},[X]|[D]
+	trypsin - [KR]|{P} trypsin/cnbr - [KR]|{P},[M]|{P} trypsin_gluc - [DEKR]|{P}
+	 */
 	// String of precursor ion tolerance unit ( ppm versus Da)
 	private String precursorUnit;	
 	private SearchType searchType;
@@ -239,7 +246,8 @@ public class XTandemJob extends Job {
                             + "<note>protein parameters</note>\n"
                             + "\t<note type=\"input\" label=\"protein, taxon\">all</note>\n"
                             + "\t\t<note>This value is interpreted using the information in taxonomy.xml.</note>\n"
-                            + "\t<note type=\"input\" label=\"protein, cleavage site\">[RK]|{P}</note>\n"
+                            + "\t<note type=\"input\" label=\"protein, cleavage site\">[RK]|{P}</note>\n" /* [FMWY]|{P}*/
+                            + "\t<note type=\"input\" label=\"protein,  cleavage semi\">yes</note>\n"
                             + "\t\t<note>this setting corresponds to the enzyme trypsin. The first characters\n"
                             + "\t\tin brackets represent residues N-terminal to the bond - the '|' pipe -\n"
                             + "\t\tand the second set of characters represent residues C-terminal to the\n"

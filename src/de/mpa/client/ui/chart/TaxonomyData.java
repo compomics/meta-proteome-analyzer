@@ -94,15 +94,12 @@ public class TaxonomyData implements ChartData {
 	 * @param dbSearchResult Database search result data.
 	 */
 	public void init() {
-		
 		hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Taxonomic>>();
-
 		ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
 		hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, metaProteins);
 		hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, metaProteins.getProteinSet());
 		hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, metaProteins.getPeptideSet());
 		hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, metaProteins.getMatchSet());
-		
 	}
 
 	/**
@@ -133,7 +130,7 @@ public class TaxonomyData implements ChartData {
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
 		
 		// Add empty categories so they always show up first (to keep colors consistent)
-		String unknownKey = "Unclassified";
+		String unknownKey = "Unknown";
 		pieDataset.setValue(unknownKey, new Integer(0));
 		String othersKey = "Others";
 		pieDataset.setValue(othersKey, new Integer(0));
@@ -145,7 +142,7 @@ public class TaxonomyData implements ChartData {
 		List<Taxonomic> unknownTaxa = new ArrayList<Taxonomic>();
 		for (Taxonomic taxonomic : coll) {
 			TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
-			String rank = taxonNode.getRank();
+			String rank = taxonNode.getRank().toString().toLowerCase();
 			if (targetRanks.contains(rank)) {
 				knownList.add(taxonomic);
 			} else {
@@ -157,7 +154,8 @@ public class TaxonomyData implements ChartData {
 		final Map<String, Integer> valMap = new HashMap<String, Integer>();
 		for (Taxonomic taxonomic : knownList) {
 			String topRank = chartType.getTitle().toLowerCase();
-			String key = taxonomic.getTaxonomyNode().getParentNode(topRank).getName();
+			
+			String key = taxonomic.getTaxonomyNode().getParentNode(UniprotAccessor.TAXONOMY_MAP.get(topRank)).getName();
 			
 			ProteinHitList hitList = occMap.get(key);
 			if (hitList == null) {
@@ -177,18 +175,6 @@ public class TaxonomyData implements ChartData {
 		occMap.put(unknownKey, unknownHits);
 		valMap.put(unknownKey, unknownTaxa.size());
 		
-//		Map<String, Integer> sortedValMap = new TreeMap<String, Integer>(new Comparator<String>() {
-//			@Override
-//			public int compare(String a, String b) {
-//				Integer x = valMap.get(a);
-//				Integer y = valMap.get(b);
-//				if (x.equals(y)) {
-//					return a.compareTo(b);
-//				}
-//				return x.compareTo(y);
-//			}
-//		});
-//		sortedValMap.putAll(valMap);
 		
 		if (hierarchyLevel != HierarchyLevel.META_PROTEIN_LEVEL) {
 			// trim redundant elements from protein hit lists
@@ -285,7 +271,6 @@ public class TaxonomyData implements ChartData {
 		List<String> targetRanks = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
 		String topRank = chartType.getTitle().toLowerCase();
 		targetRanks = targetRanks.subList(targetRanks.indexOf(topRank), targetRanks.size());
-		
 		return targetRanks;
 	}
 

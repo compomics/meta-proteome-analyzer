@@ -130,6 +130,11 @@ public class Constants {
 	public static final String CONFIGURATION_PATH_JAR = "conf";
 	
 	/**
+	 * Path string of folder containing spectrum resources.
+	 */
+	public static final String DEFAULT_SPECTRA_PATH = "test/de/mpa/resources/";
+	
+	/**
 	 * Root node of a tree containing all pathways mapped in the KEGG database.
 	 */
 	public static final TreeNode KEGG_PATHWAY_ROOT = KeggMaps.readKeggTree(
