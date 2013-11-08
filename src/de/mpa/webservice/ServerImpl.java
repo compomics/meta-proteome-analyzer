@@ -205,6 +205,7 @@ public class ServerImpl implements Server {
 			jobManager.addJob(postProcessorJob);			
 			jobManager.addJob(new StoreJob(SearchEngineType.INSPECT, postProcessorJob.getFilename()));
 		}
+		
 		jobManager.addJob(new UniProtJob());
 	}
 

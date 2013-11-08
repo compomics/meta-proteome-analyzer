@@ -80,7 +80,6 @@ public class DBManager {
 		// The database configuration.
 		DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.LOCAL, new DbConnectionSettings());
 		conn = dbconfig.getConnection();
-		System.out.println("auto-commit: " + conn.getAutoCommit());
     }
 	
 	/**
@@ -153,15 +152,16 @@ public class DBManager {
 		List<String> accessions = new ArrayList<String>();
 		for (String string : keySet) {			
 			// UniProt accession
-			if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
-				accessions.add(string);		
+			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(proteinHits.get(string), conn);
+			if(uniprotentry == null) {
+				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
+					accessions.add(string);		
+				}
 			}
 		}
-		
-		if (!accessions.isEmpty()) {
+		if (accessions.size() > 0) {
 			uniProtEntries = UniprotAccessor.retrieveUniProtEntries(accessions);
-			Set<Entry<String, UniProtEntry>> entrySet = uniProtEntries
-					.entrySet();
+			Set<Entry<String, UniProtEntry>> entrySet = uniProtEntries.entrySet();
 			int counter = 0;
 			for (Entry<String, UniProtEntry> e : entrySet) {
 				UniProtEntry uniprotEntry = e.getValue();
@@ -181,8 +181,7 @@ public class DBManager {
 						proteinid = proteinHits.get(e.getKey());
 					}
 					// Get taxonomy id
-					Long taxID = Long.valueOf(uniprotEntry.getNcbiTaxonomyIds()
-							.get(0).getValue());
+					Long taxID = Long.valueOf(uniprotEntry.getNcbiTaxonomyIds().get(0).getValue());
 
 					// Get EC Numbers.
 					String ecNumbers = "";
@@ -217,11 +216,11 @@ public class DBManager {
 						koNumbers = Formatter.removeLastChar(koNumbers);
 					}
 					Uniprotentry.addUniProtEntryWithProteinID((Long) proteinid, taxID, ecNumbers, koNumbers, keywords, conn);
-				}
-				counter++;
+					counter++;
 
-				if (counter % 500 == 0) {
-					conn.commit();
+					if (counter % 500 == 0) {
+						conn.commit();
+					}
 				}
 			}
 			// Final commit and clearing of map.

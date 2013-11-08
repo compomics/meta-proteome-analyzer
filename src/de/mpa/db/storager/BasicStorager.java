@@ -80,9 +80,7 @@ public abstract class BasicStorager implements Storager {
 			// Add new protein to the database
 			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
 			proteinID = proteinAccessor.getProteinid();
-			MapContainer.UniprotQueryProteins.put(accession, proteinID);
 			proteinIdMap.put(accession, proteinID);
-			
 		} else {
 			// check whether pep2prot link already exists,
 			// otherwise create new one
@@ -93,6 +91,8 @@ public abstract class BasicStorager implements Storager {
 				pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 			}
 		}
+		// Add protein for UniProt storing.
+		MapContainer.UniprotQueryProteins.put(accession, proteinID);
 		return proteinID;
 	}
 	

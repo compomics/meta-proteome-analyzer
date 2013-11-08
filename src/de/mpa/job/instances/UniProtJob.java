@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import de.mpa.db.DBManager;
 import de.mpa.job.Job;
+import de.mpa.job.JobStatus;
 
 public class UniProtJob extends Job {
 	
@@ -29,10 +30,11 @@ public class UniProtJob extends Job {
 	@Override
 	public void run() {
 		try {
+			setStatus(JobStatus.RUNNING);
 			dbManager.queryAndStoreUniprotEntries();
 		} catch (Exception e) {
 			setError(e);
 		}
+		setStatus(JobStatus.FINISHED);
 	}
-
 }

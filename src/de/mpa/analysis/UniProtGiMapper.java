@@ -90,7 +90,6 @@ public class UniProtGiMapper {
 		
 		int batchSize = 512;
 		int maxBatchCount = giList.size() / batchSize;
-		int counter = 0;
 		for (int i = 0; i < maxBatchCount; i++) {
 			int startIndex = i * batchSize;
 			int endIndex = (i + 1) * batchSize - 1;
@@ -99,9 +98,7 @@ public class UniProtGiMapper {
 			gi2acc.putAll(queryGiToUniProtMapping(shortList));
 			shortList.clear();
 		}
-		gi2acc.putAll(queryGiToUniProtMapping(
-				new ArrayList<String>(giList.subList(
-						maxBatchCount * batchSize, giList.size()))));
+		gi2acc.putAll(queryGiToUniProtMapping(new ArrayList<String>(giList.subList(maxBatchCount * batchSize, giList.size()))));
 		
 		return gi2acc;
 	}
