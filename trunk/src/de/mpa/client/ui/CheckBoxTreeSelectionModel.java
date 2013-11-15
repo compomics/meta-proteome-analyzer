@@ -83,11 +83,11 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @return <i>boolean</i> denoting whether the path is partially selected.
 	 */
 	public boolean isPartiallySelected(TreePath path) {
-		if (!isPathSelected(path, true)) {
+		if (!this.isPathSelected(path, true)) {
 			TreePath[] selectionPaths = this.getSelectionPaths();
 			if (selectionPaths != null) {
 				for (int i = 0; i < selectionPaths.length; i++) {
-					if (isDescendant(selectionPaths[i], path)) {
+					if (this.isDescendant(selectionPaths[i], path)) {
 						return true;
 					}
 				}            	
@@ -112,7 +112,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 			// if pathA descends from pathB, the latter's last path component 
 			// must also be part of the former at the same position in the path
 			return pathA.getPathComponent(pathB.getPathCount() - 1) ==
-				pathB.getLastPathComponent();
+					pathB.getLastPathComponent();
 		}
 	}
 	

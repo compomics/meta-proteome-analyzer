@@ -273,7 +273,7 @@ public class ResultExporter {
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 					// Get the spectrum id.
-					Connection conn = Client.getInstance().getConnection();
+					Connection conn = Client.getInstance().getDatabaseConnection();
 					long spectrumid = Searchspectrum.findFromSearchSpectrumID(psm.getSearchSpectrumID(), conn).getFk_spectrumid();
 					String spectrumTitle = Spectrum.findFromSpectrumID(spectrumid, conn).getTitle();
 					List<SearchHit> searchHits = psm.getSearchHits();

@@ -92,7 +92,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * Returns the KO number list.
 	 * @return KO number list.
 	 */
-	public List<String> getKoNumbers() {
+	public List<String> getKNumbers() {
 		return koNumbers;
 	}
 }

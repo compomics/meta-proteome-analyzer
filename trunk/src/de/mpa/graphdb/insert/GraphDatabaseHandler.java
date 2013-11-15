@@ -180,7 +180,7 @@ public class GraphDatabaseHandler {
 		addPeptides(protHit.getPeptideHitList(), proteinVertex);
 		
 		// Add enzyme numbers.
-		ReducedUniProtEntry uniprotEntry = protHit.getUniprotEntry();
+		ReducedUniProtEntry uniprotEntry = protHit.getUniProtEntry();
 		// Null check is needed, as if no (reduced) UniProt Entry is provided, enzymes, ontologies, pathways and taxonomies can be skipped.
 		if (uniprotEntry != null) {
 			
@@ -188,7 +188,7 @@ public class GraphDatabaseHandler {
 			addEnzymeNumbers(ecNumbers, proteinVertex);
 			
 			// Add pathways.			
-			List<String> koNumbers = uniprotEntry.getKoNumbers();
+			List<String> koNumbers = uniprotEntry.getKNumbers();
 			addPathways(koNumbers, proteinVertex);
 			
 			// Add ontologies.
@@ -324,7 +324,7 @@ public class GraphDatabaseHandler {
 	 */
 	private void addOntologies(ProteinHit protHit, Vertex proteinVertex) {
 		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
-		ReducedUniProtEntry entry = protHit.getUniprotEntry();
+		ReducedUniProtEntry entry = protHit.getUniProtEntry();
 		Vertex ontologyVertex = null;
 		
 		// Entry must be provided

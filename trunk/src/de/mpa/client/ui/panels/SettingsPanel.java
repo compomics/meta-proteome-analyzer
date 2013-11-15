@@ -337,7 +337,7 @@ public class SettingsPanel extends JPanel {
 							int i = 0;
 							for (File file : files) {
 								client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + files.size());
-								MascotStorager storager = new MascotStorager(Client.getInstance().getConnection(), file, settings, databasePnl.getMascotParameterMap());
+								MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), file, settings, databasePnl.getMascotParameterMap());
 								storager.run();
 								client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + files.size());
 							}

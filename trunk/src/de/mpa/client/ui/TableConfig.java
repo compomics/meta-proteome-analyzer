@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -19,8 +20,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
@@ -28,6 +31,7 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnControlButton;
+import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
@@ -100,19 +104,21 @@ public class TableConfig {
 			MutableTreeTableNode root = (MutableTreeTableNode) model.getRoot();
 			
 			// remove and destroy root children
-			int childCount = root.getChildCount();
-			for (int i = 0; i < childCount; i++) {
-				MutableTreeTableNode child = (MutableTreeTableNode) model.getChild(root, 0);
-				model.removeNodeFromParent(child);
-				child = null;
-			}
 			if (root instanceof CheckBoxTreeTableNode) {
 				((CheckBoxTreeTableNode) root).removeAllChildren();
 			} else {
-				for (int i = root.getChildCount() - 1; i >= 0; i--) {
-					root.remove(i);
+//				for (int i = root.getChildCount() - 1; i >= 0; i--) {
+//					root.remove(i);
+//				}
+				Enumeration<? extends MutableTreeTableNode> children = root.children();
+				while (children.hasMoreElements()) {
+					MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
+					model.removeNodeFromParent(child);
+					child = null;
 				}
 			}
+			// refresh model by re-setting root
+			model.setRoot(root);
 		} else {
 			// for simple JTables setRowCount(0) is sufficient
 			((DefaultTableModel) table.getModel()).setRowCount(0);
@@ -174,11 +180,20 @@ public class TableConfig {
 			weights[i] *= tableWidth/sum;
 		}
 		// iterate columns
-		TableColumnModel tcm = table.getColumnModel();
-		for (int i = 0; i < tcm.getColumnCount(); i++) {
-			TableColumn tc = tcm.getColumn(i);
-			tc.setPreferredWidth((int) (weights[i]));
-			tc.setMaxWidth(tc.getPreferredWidth()*20000);
+		if (table instanceof JXTable) {
+			JXTable xTable = (JXTable) table;
+			for (int i = 0; i < xTable.getColumnCount(); i++) {
+				TableColumnExt tc = xTable.getColumnExt(xTable.convertColumnIndexToView(i));
+				tc.setPreferredWidth((int) (weights[i]));
+				tc.setMaxWidth(tc.getPreferredWidth()*20000);
+			}
+		} else {
+			TableColumnModel tcm = table.getColumnModel();
+			for (int i = 0; i < tcm.getColumnCount(); i++) {
+				TableColumn tc = tcm.getColumn(i);
+				tc.setPreferredWidth((int) (weights[i]));
+				tc.setMaxWidth(tc.getPreferredWidth()*20000);
+			}
 		}
 	}
 	
@@ -206,7 +221,7 @@ public class TableConfig {
 			tc.setMinWidth(leftPadding + fm.stringWidth(tc.getHeaderValue().toString()) + rightPadding);
 		}
 	}
-
+	
 	/**
 	 * Convenience method to make table column control border appear the same as
 	 * table header and to hide some popup elements.
@@ -220,6 +235,51 @@ public class TableConfig {
 		table.getColumnControl().setOpaque(false);
 		((ColumnControlButton) table.getColumnControl()).setAdditionalActionsVisible(false);
 	}
+
+	/**
+	 * Custom table cell highlighter class providing horizontal alignment 
+	 * and decimal formatting capabilities.
+	 * 
+	 * @author A. Behne
+	 */
+	public static class FormatHighlighter extends AbstractHighlighter {
+
+		private int alignment;
+		private DecimalFormat formatter;
+		
+		/**
+		 * TODO: API
+		 * @param alignment
+		 */
+		public FormatHighlighter(int alignment) {
+			this(alignment, "0");
+		}
+		
+		public FormatHighlighter(int alignment, String decimalFormat) {
+			this(alignment, new DecimalFormat(decimalFormat));
+		}
+		
+		public FormatHighlighter(int alignment, DecimalFormat formatter) {
+			super();
+			this.alignment = alignment;
+			this.formatter = formatter;
+		}
+		
+		@Override
+		protected Component doHighlight(Component component,
+				ComponentAdapter adapter) {
+			if (component instanceof JLabel) {
+				JLabel label = (JLabel) component;
+				label.setHorizontalAlignment(this.alignment);
+				String text = label.getText();
+				if (StringUtils.isNotBlank(text) && StringUtils.isNumeric(text)) {
+					label.setText(this.formatter.format(Double.parseDouble(text)));
+				}
+			}
+			return component;
+		}
+		
+	}
 	
 	/**
 	 * Custom table cell renderer class providing horizontal alignment 
@@ -227,7 +287,7 @@ public class TableConfig {
 	 * 
 	 * @author A. Behne
 	 */
-	public static class CustomTableCellRenderer extends DefaultTableCellRenderer {
+	public static class FormattedTableCellRenderer extends DefaultTableCellRenderer {
 		
 		private final DecimalFormat formatter;
 		
@@ -237,7 +297,8 @@ public class TableConfig {
 		 * LEFT, CENTER (the default for image-only labels), RIGHT, 
 		 * LEADING (the default for text-only labels) or TRAILING.
 		 */
-		public CustomTableCellRenderer(int alignment) {
+		@Deprecated
+		public FormattedTableCellRenderer(int alignment) {
 			this(alignment, "0");
 		}
 		
@@ -248,7 +309,8 @@ public class TableConfig {
 		 * LEADING (the default for text-only labels) or TRAILING.
 		 * @param <code>decimalFormat</code> - A non-localized pattern string.
 		 */
-		public CustomTableCellRenderer(int alignment, String decimalFormat) {
+		@Deprecated
+		public FormattedTableCellRenderer(int alignment, String decimalFormat) {
 			formatter = new DecimalFormat(decimalFormat);
 			setHorizontalAlignment(alignment);
 		}

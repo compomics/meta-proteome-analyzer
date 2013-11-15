@@ -72,7 +72,7 @@ public class FilterBalloonTip extends CustomBalloonTip {
 				Orientation.LEFT_BELOW, AttachLocation.WEST, 125, 10, false);
 		this.filterType = filterType;
 		try {
-			setContents(createFilterPanel());
+			this.setContents(this.createFilterPanel());
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -123,7 +123,7 @@ public class FilterBalloonTip extends CustomBalloonTip {
 	 */	
 	private JComponent createFilterPanel() throws IOException {
 
-		JPanel panel = new JPanel(new FormLayout("2px, l:m, 4px, p:g, 2px, p, 2px, p, 2px", "2px, p, 2px"));
+		JPanel panel = new JPanel(new FormLayout("2px, l:m, 4px, p:g, 2px, 21px, 2px, 21px, 2px", "2px, f:21px, 2px"));
 		panel.setOpaque(false);
 		
 		JButton helpBtn = new JButton(IconConstants.HELP_ICON);
@@ -180,7 +180,7 @@ public class FilterBalloonTip extends CustomBalloonTip {
 		final JButton acceptBtn = new JButton(IconConstants.CHECK_ICON);
 		acceptBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		acceptBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
-		acceptBtn.setPreferredSize(new Dimension(20, 20));
+//		acceptBtn.setPreferredSize(new Dimension(20, 20));
 		acceptBtn.setOpaque(false);
 		acceptBtn.setMargin(new Insets(0, 0, 0, 1));
 		final DefaultButtonModel dbma = (DefaultButtonModel) acceptBtn.getModel();
@@ -188,9 +188,9 @@ public class FilterBalloonTip extends CustomBalloonTip {
 		JButton cancelBtn = new JButton(IconConstants.CROSS_ICON);
 		cancelBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
 		cancelBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
-		cancelBtn.setPreferredSize(new Dimension(20, 20));
+//		cancelBtn.setPreferredSize(new Dimension(20, 20));
 		cancelBtn.setOpaque(false);
-		cancelBtn.setMargin(new Insets(1, 0, 0, 1));
+		cancelBtn.setMargin(new Insets(0, 1, 0, 1));
 		final DefaultButtonModel dbmc = (DefaultButtonModel) cancelBtn.getModel();
 
 		panel.add(helpBtn, CC.xy(2, 2));

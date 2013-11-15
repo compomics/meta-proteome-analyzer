@@ -146,7 +146,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	private void initProjectManager() {
 		try {
-			projectManager = new ProjectManager(Client.getInstance().getConnection());
+			projectManager = new ProjectManager(Client.getInstance().getDatabaseConnection());
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -311,7 +311,7 @@ public class ProjectPanel extends JPanel {
 
 				if (choice == JOptionPane.OK_OPTION) {
 					try {
-						projectManager.revalidate(Client.getInstance().getConnection());
+						projectManager.revalidate(Client.getInstance().getDatabaseConnection());
 						projectManager.deleteProject(projCont.getProjectid());
 						refreshProjectTable();
 						TableConfig.clearTable(experimentTbl);
@@ -570,7 +570,7 @@ public class ProjectPanel extends JPanel {
 		try {
 			TableConfig.clearTable(projectTbl);
 			ArrayList<Project> projectList = new ArrayList<Project>(
-					Project.findAllProjects(Client.getInstance().getConnection()));
+					Project.findAllProjects(Client.getInstance().getDatabaseConnection()));
 			for (int i = 0; i < projectList.size(); i++) {
 				Project project = projectList.get(i);
 				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] {
@@ -610,7 +610,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	public void refreshExperimentTable(Long projectID, Long experimentID) {
 		try {
-			projectManager.revalidate(Client.getInstance().getConnection());
+			projectManager.revalidate(Client.getInstance().getDatabaseConnection());
 			
 			List<Experiment> experiments = projectManager.getProjectExperiments(projectID);
 			List<Property> properties = projectManager.getProjectProperties(projectID);
@@ -672,7 +672,8 @@ public class ProjectPanel extends JPanel {
 		addExperimentBtn.setEnabled(true);
 		
 		// Disable result view buttons
-		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(false);
+		// TODO: remove buttons, handle via results tab enable/busy state
+//		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(false);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
 		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(false);
 		
@@ -705,17 +706,18 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.setEnabled(true);
 		
 		// Enable result view buttons
-		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(true);
+		// TODO: remove buttons, handle via results tab enable/busy state
+//		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(true);
 		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(true);
 		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 		
 		// Clear any fetched results
-		Client.getInstance().clearDbSearchResult();
+		Client.getInstance().clearDatabaseSearchResult();
 		Client.getInstance().clearSpecSimResult();
 		
 		// Check whether the selected experiment has any search results associated with it
 		boolean hasResults = Searchspectrum.hasSearchSpectra(
-				expCont.getExperimentID(), Client.getInstance().getConnection());
+				expCont.getExperimentID(), Client.getInstance().getDatabaseConnection());
 		
 		// Enable input and results tabs
 		clientFrame.getTabPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
@@ -742,7 +744,7 @@ public class ProjectPanel extends JPanel {
 			long projectid = projCont.getProjectid();
 			long experimentid = (Long) experimentTbl.getValueAt(selRow, 0);
 
-			projectManager.revalidate(Client.getInstance().getConnection());
+			projectManager.revalidate(Client.getInstance().getDatabaseConnection());
 			
 			Experiment experiment = projectManager.getExperiment(experimentid);
 			List<ExpProperty> expProperties = projectManager.getExperimentProperties(experiment.getExperimentid());

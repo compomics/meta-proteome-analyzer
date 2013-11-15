@@ -9,13 +9,10 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -23,7 +20,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 
@@ -223,13 +219,7 @@ public class ClientFrame extends JFrame {
 		Insets contentBorderInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		UIManager.put("TabbedPane.tabInsets", new Insets(2, 6, 1, 7));
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, contentBorderInsets.left, 0, 0));
-		tabPane = new JTabbedPane(JTabbedPane.LEFT) {
-			@Override
-			public void setEnabledAt(int index, boolean enabled) {
-				super.setEnabledAt(index, enabled);
-				getTabComponentAt(index).setEnabled(enabled);
-			}
-		};
+		tabPane = new ButtonTabbedPane(JTabbedPane.LEFT);
 		UIManager.put("TabbedPane.tabInsets", tabInsets);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets); 
 		
@@ -237,9 +227,11 @@ public class ClientFrame extends JFrame {
 		int maxWidth = 0, maxHeight = 0;
 		for (int i = 0; i < panels.length; i++) {
 //			tabPane.addTab(titles[i], icons[i], panels[i]);
-			tabPane.addTab("", panels[i]);
-			JButton tabButton = createTabButton(titles[i], icons[i], tabPane);
-			tabPane.setTabComponentAt(i, tabButton);
+//			tabPane.addTab("", panels[i]);
+//			JButton tabButton = new TabPaneButton(tabPane, titles[i], icons[i]);
+//			tabPane.setTabComponentAt(i, tabButton);
+			tabPane.addTab(titles[i], icons[i], panels[i]);
+			Component tabButton = tabPane.getTabComponentAt(i);
 			maxWidth = Math.max(maxWidth, tabButton.getPreferredSize().width);
 			maxHeight = Math.max(maxHeight, tabButton.getPreferredSize().height);
 		}
@@ -476,37 +468,6 @@ public class ClientFrame extends JFrame {
 				Font.BOLD, button.getFont().getSize2D()*1.25f));
 		button.setHorizontalTextPosition(SwingConstants.LEFT);
 		
-		return button;
-	}
-	
-	/**
-	 * Creates a button to be used inside JTabbedPane tabs for rollover effects.	
-	 * @param title
-	 * @param icon
-	 * @return
-	 */
-	public JButton createTabButton(String title, ImageIcon icon, final JTabbedPane tabPane) {
-		JButton button = new JButton(title, icon);
-		button.setRolloverIcon(IconConstants.createRescaledIcon(icon, 1.1f));
-		button.setPressedIcon(IconConstants.createRescaledIcon(icon, 0.8f));
-		button.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 5));
-		button.setContentAreaFilled(false);
-		button.setFocusable(false);
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-		button.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent me) {
-				forwardEvent(me);
-			}
-			public void mouseReleased(MouseEvent me) {
-				forwardEvent(me);
-			}
-			public void mouseClicked(MouseEvent me) {
-				forwardEvent(me);
-			}
-			private void forwardEvent(MouseEvent me) {
-				tabPane.dispatchEvent(SwingUtilities.convertMouseEvent((Component) me.getSource(), me, tabPane));
-			}
-		});
 		return button;
 	}
 	

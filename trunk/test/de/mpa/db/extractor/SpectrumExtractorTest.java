@@ -15,6 +15,7 @@ import org.junit.Test;
 import de.mpa.algorithms.Interval;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.db.DBManager;
+import de.mpa.io.MascotGenericFile;
 
 public class SpectrumExtractorTest extends TestCase {
 
@@ -59,7 +60,46 @@ public class SpectrumExtractorTest extends TestCase {
 		// Test the intensity
 		assertEquals(902.0, peaks.firstEntry().getValue(), 0.0001);
 	}
-
+	
+	
+	@Test
+	public void testGetMascotGenericFile() throws SQLException, IOException {
+		MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(1001, conn);		
+		assertEquals("Cmpd 1, +MSn(732.2648), 11.7 min", mgf.getTitle());		
+		assertEquals(2, mgf.getCharge());
+		
+//		File outFile = new File("out.mgf");
+//		outFile.createNewFile();
+//		FileOutputStream fos = new FileOutputStream(outFile);
+//		
+//		mgf = SpectrumExtractor.getMascotGenericFile(157140, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(157170, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(157201, conn);
+//		mgf.writeToStream(fos);
+//		
+//		mgf = SpectrumExtractor.getMascotGenericFile(182583, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(182613, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(182708, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(204979, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(205009, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(227424, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(227467, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(250094, conn);
+//		mgf.writeToStream(fos);
+//		mgf = SpectrumExtractor.getMascotGenericFile(250123, conn);
+//		mgf.writeToStream(fos);
+//		
+//		fos.close();
+	}
 	
 	
 }

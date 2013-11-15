@@ -44,12 +44,13 @@ public class TaxonomyUtils {
 		
 		// Check for rank being contained in the main categories (from superkingdom to species)
 		if (TaxonomyChartType.contains(rank)) {
-			taxonomyRank = UniprotAccessor.TAXONOMY_MAP.get(rank);
+			taxonomyRank = UniprotAccessor.TAXONOMY_RANKS_MAP.get(rank);
 		} else {
 			// TODO: Check whether the general category "species" holds true for all available ranks.
 			taxonomyRank = TaxonomyRank.SPECIES;
 		}
-		TaxonomyNode currentNode = new TaxonomyNode((int) current.getTaxonomyid(), taxonomyRank, current.getDescription());
+		TaxonomyNode currentNode = new TaxonomyNode(
+				(int) current.getTaxonomyid(), taxonomyRank, current.getDescription());
 		TaxonomyNode leafNode = currentNode;
 		while (!reachedRoot) {
 			// Start
@@ -60,9 +61,15 @@ public class TaxonomyUtils {
 				reachedRoot = true;
 			}
 			// Check if ancestor is given and its rank is in our favored set. 
-			if (ancestor != null && UniprotAccessor.TAXONOMY_MAP.containsKey(ancestor.getRank())) {
-				TaxonomyNode parentNode = new TaxonomyNode(	(int) ancestor.getTaxonomyid(), UniprotAccessor.TAXONOMY_MAP.get(ancestor.getRank()), ancestor.getDescription());
+			if (ancestor != null && UniprotAccessor.TAXONOMY_RANKS_MAP.containsKey(ancestor.getRank())) {
+				TaxonomyRank ancestorRank = UniprotAccessor.TAXONOMY_RANKS_MAP.get(ancestor.getRank());
+				TaxonomyNode parentNode = new TaxonomyNode(
+						(int) ancestor.getTaxonomyid(), ancestorRank, ancestor.getDescription());
 				currentNode.setParentNode(parentNode);
+				// TODO: consider subspecies distinction in database, so far all subspecies are labeled species there (Nov. 2013)
+				if (ancestorRank == TaxonomyRank.SPECIES) {
+					currentNode.setRank(TaxonomyRank.SUBSPECIES);
+				}
 				currentNode = parentNode;
 			}  
 			taxID = parentID;
@@ -103,7 +110,7 @@ public class TaxonomyUtils {
 	 * @param peptideSet. The peptide set.
 	 * @throws Exception
 	 */
-	public static void getCommonTaxId4EachPeptide(Set<PeptideHit> peptideSet) throws Exception {
+	public static void determinePeptideTaxonomy(Set<PeptideHit> peptideSet) throws Exception {
 		
 		// Map with taxonomy entries
 		Map<Integer, TaxonomyNode> nodeMap = new HashMap<Integer, TaxonomyNode>();
@@ -189,7 +196,7 @@ public class TaxonomyUtils {
 	 * @param taxRank The taxonomic rank
 	 * @return The name of the taxonomy.
 	 */
-	public static String getTaxNameByRank(TaxonomyNode taxNode, TaxonomyRank taxRank) {
+	public static String getTaxonNameByRank(TaxonomyNode taxNode, TaxonomyRank taxRank) {
 		// Default value for taxonomy name.
 		String taxName = "Unknown";
 

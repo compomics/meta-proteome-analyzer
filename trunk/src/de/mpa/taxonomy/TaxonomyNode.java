@@ -55,13 +55,13 @@ public class TaxonomyNode implements Serializable {
 	 * Constructs a NCBI taxonomy node.
 	 * @param taxId The taxonomy ID
 	 * @param rank The taxonomic rank
-	 * @param description The taxonomy description
+	 * @param taxName The taxonomy name
 	 * @param parentNode Parent node
 	 */
-	public TaxonomyNode(int taxId, TaxonomyRank rank, String description, TaxonomyNode parentNode) {
+	public TaxonomyNode(int taxId, TaxonomyRank rank, String taxName, TaxonomyNode parentNode) {
 		this.taxId = taxId;
 		this.taxRank = rank;
-		this.taxName = description;
+		this.taxName = taxName;
 		this.parentNode = parentNode;
 	}
 

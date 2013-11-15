@@ -732,19 +732,19 @@ public class ExportDialog extends JDialog {
 
 				if (tabPane.getSelectedIndex() == 0) {
 					resultType = "Meta-Proteins";
-					ResultExporter.exportMetaProteins(selectedFile.getPath(), client.getDbSearchResult(), exportHeaders);
+					ResultExporter.exportMetaProteins(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 1) {
 					resultType = "Taxonomy";
-					ResultExporter.exportTaxonomy(selectedFile.getPath(), client.getDbSearchResult(), exportHeaders);
+					ResultExporter.exportTaxonomy(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 2) {
 					resultType = "Proteins";
-					ResultExporter.exportProteins(selectedFile.getPath(), client.getDbSearchResult(), exportHeaders);
+					ResultExporter.exportProteins(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 3) {
 					resultType = "Peptides";
-					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDbSearchResult(), exportHeaders);
+					ResultExporter.exportPeptides(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 4) {
 					resultType = "PSMs";
-					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDbSearchResult(), exportHeaders);
+					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				}
 
 				owner.setLastSelectedFolder(selectedFile.getPath());

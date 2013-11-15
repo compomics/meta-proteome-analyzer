@@ -22,7 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
 
-import javax.swing.SwingWorker;
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
@@ -31,9 +30,6 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.data.general.DefaultPieDataset;
 
 import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.model.ExperimentContent;
@@ -52,7 +48,6 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
@@ -140,9 +135,9 @@ public class Client {
 	private Map<Long, Taxonomy> taxonomyMap;
 	
 	/**
-	 * Uncategorized taxonomy node. Object should be created only once.
+	 * Unclassified taxonomy node. Object should be created only once.
 	 */
-	private TaxonomyNode uncategorizedNode;
+	private TaxonomyNode unclassifiedNode;
 
 	/**
 	 * The constructor for the client (private for singleton object).
@@ -172,7 +167,7 @@ public class Client {
 		// Connection conn
 		if (conn == null || !conn.isValid(0)) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, getDbSettings());
+			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, getDatabaseConnectionSettings());
 			this.conn = dbconfig.getConnection();
 			retrieveTaxonomyMapping();
 		}
@@ -187,7 +182,7 @@ public class Client {
 			backgroundExecutor.execute(new Runnable() {
 				public void run() {
 					try {
-						taxonomyMap = Taxonomy.retrieveTaxIDtoTaxonomyMap(conn);
+						taxonomyMap = Taxonomy.retrieveTaxonomyMap(conn);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -233,6 +228,21 @@ public class Client {
 		// Start requesting
 		RequestThread thread = new RequestThread();
 		thread.start();
+	}
+
+	// Thread polling the server each second.
+	private class RequestThread extends Thread {
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(1000);
+					request();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	/**
@@ -360,7 +370,7 @@ public class Client {
 	 * Returns the GraphDatabaseHandler object.
 	 * @return The GraphDatabaseHandler object.
 	 */
-	public void setupGraphDatabaseContent() {
+	synchronized public void setupGraphDatabaseContent() {
 		// If graph database is already in use.
 		if (graphDatabaseHandler != null) {
 			// Shutdown old graph database.
@@ -376,38 +386,14 @@ public class Client {
 	}
 
 	/**
-	 * Returns the {@link GraphDatabaseHandler} object.
-	 * @return {@link GraphDatabaseHandler}
-	 */
-	public GraphDatabaseHandler getGraphDatabaseHandler() {
-		return graphDatabaseHandler;
-	}
-
-	/**
-	 * Returns the current database search result.
-	 * @return dbSearchResult The current database search result.
-	 */
-	public DbSearchResult getDbSearchResult() {
-		return dbSearchResult;
-	}
-	
-	/**
-	 * Sets the current database search result
-	 * @param dbSearchResult
-	 */
-	public void setDbSearchResult(DbSearchResult dbSearchResult) {
-		this.dbSearchResult = dbSearchResult;
-	}
-
-	/**
 	 * Returns the current database search result.
 	 * @param projContent The project content.
 	 * @param expContent The experiment content.
 	 * @return The current database search result.
 	 */
-	public DbSearchResult getDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
+	public DbSearchResult getDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		if (dbSearchResult == null) {
-			retrieveDbSearchResult(projContent, expContent);
+			retrieveDatabaseSearchResult(projContent, expContent);
 		}
 		return dbSearchResult;
 	}
@@ -417,8 +403,8 @@ public class Client {
 	 * @param ProjectContent, ExperimentConten
 	 * @return DbSearchResult
 	 */
-	private void retrieveDbSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		this.retrieveDbSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
+	private void retrieveDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
+		this.retrieveDatabaseSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
 	}
 
 	/**
@@ -428,7 +414,7 @@ public class Client {
 	 * @param ProjectID, ExperimentID
 	 * @return DbSearchResult
 	 */
-	public void retrieveDbSearchResult(String projectName, String experimentName, long experimentID) {
+	public void retrieveDatabaseSearchResult(String projectName, String experimentName, long experimentID) {
 		// Init the database connection.
 		try {
 			this.initDBConnection();
@@ -492,7 +478,7 @@ public class Client {
 	/**
 	 * Resets the current database search result reference.
 	 */
-	public void clearDbSearchResult() {
+	public void clearDatabaseSearchResult() {
 		dbSearchResult = null;
 	}
 
@@ -525,11 +511,11 @@ public class Client {
 			// Get taxonomy node.
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);
 		} else {
-			if (uncategorizedNode == null) {
+			if (unclassifiedNode == null) {
 				TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
-				uncategorizedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "uncategorized", rootNode);
+				unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
 			}
-			taxonomyNode = uncategorizedNode;
+			taxonomyNode = unclassifiedNode;
 		}
 		
 		// Add a new protein to the protein hit set.
@@ -698,18 +684,59 @@ public class Client {
 		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotatedOnly, fromLibrary, saveToFile);
 	} 
 
-	// Thread polling the server each second.
-	class RequestThread extends Thread {		
-		public void run() {
-			while(true){
-				try {
-					Thread.sleep(1000);
-					request();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+	/**
+	 * Writes the current database search result object to a the specified file.
+	 * @param filename The String representing the desired file path and name.
+	 */
+	public void writeDbSearchResultToFile(String filename) {
+		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
+	
+		// Dump referenced spectra to separate MGF
+		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+		String status = "FINISHED";
+		try {
+			String prefix = filename.substring(0, filename.indexOf('.'));
+			File mgfFile = new File(prefix + ".mgf");
+			FileOutputStream fos = new FileOutputStream(mgfFile);
+			long index = 0L;
+			for (SpectrumMatch spectrumMatch : spectrumMatches) {
+				spectrumMatch.setStartIndex(index);
+				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(
+						spectrumMatch.getSearchSpectrumID());
+				mgf.writeToStream(fos);
+				index = mgfFile.length();
+				spectrumMatch.setEndIndex(index);
+				firePropertyChange("progressmade", false, true);
 			}
+			fos.flush();
+			fos.close();
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
 		}
+		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+	
+		// Dump results object to file
+		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+		status = "FINISHED";
+		try {
+			firePropertyChange("indeterminate", false, true);
+			// store as compressed binary object
+			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
+					new GZIPOutputStream(new FileOutputStream(new File(filename)))));
+			oos.writeObject(dbSearchResult);
+			oos.flush();
+			oos.close();
+		} catch (IOException e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
+		}
+		firePropertyChange("indeterminate", true, false);
+		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 
 	/**
@@ -740,26 +767,15 @@ public class Client {
 	}
 
 	/**
-	 * Returns the current connection to the database.
-	 * @return
-	 * @throws SQLException 
-	 */
-	public Connection getConnection() throws SQLException {
-		if (conn == null)
-			initDBConnection();
-		return conn;
-	}
-
-	/**
 	 * Shuts down the JVM.
 	 */
 	public void exit() {
-
+	
 		// Shutdown the graph database
 		if (graphDatabaseHandler != null) {
 			graphDatabaseHandler.shutDown();
 		}
-
+	
 		try {
 			// Close SQL DB connection
 			closeDBConnection();
@@ -771,10 +787,21 @@ public class Client {
 	}
 
 	/**
+	 * Returns the current connection to the database.
+	 * @return
+	 * @throws SQLException 
+	 */
+	public Connection getDatabaseConnection() throws SQLException {
+		if (conn == null)
+			initDBConnection();
+		return conn;
+	}
+
+	/**
 	 * Returns the DbConnectionSettings.
 	 * @return dbSettings The DBConnectionSettings object.
 	 */
-	public DbConnectionSettings getDbSettings() {
+	public DbConnectionSettings getDatabaseConnectionSettings() {
 		if (dbSettings == null) {
 			dbSettings = new DbConnectionSettings();
 		}
@@ -785,7 +812,7 @@ public class Client {
 	 * Sets the DbConnectionSettings.
 	 * @param dbSettings The DBConnectionSettings object.
 	 */
-	public void setDbSettings(DbConnectionSettings dbSettings) {
+	public void setDatabaseConnectionSettings(DbConnectionSettings dbSettings) {
 		this.dbSettings = dbSettings;
 	}
 
@@ -793,7 +820,7 @@ public class Client {
 	 * Returns the ServerConnectionSettings.
 	 * @return dbSettings The ServerConnectionSettings object.
 	 */
-	public ServerConnectionSettings getServerSettings() {
+	public ServerConnectionSettings getServerConnectionSettings() {
 		return srvSettings;
 	}
 
@@ -801,8 +828,40 @@ public class Client {
 	 * Sets the ServerConnectionSettings.
 	 * @param srvSettings The ServerConnectionSettings object.
 	 */
-	public void setServerSettings(ServerConnectionSettings srvSettings) {
+	public void setServerConnectionSettings(ServerConnectionSettings srvSettings) {
 		this.srvSettings = srvSettings;
+	}
+
+	/**
+	 * Returns the {@link GraphDatabaseHandler} object.
+	 * @return {@link GraphDatabaseHandler}
+	 */
+	public GraphDatabaseHandler getGraphDatabaseHandler() {
+		return graphDatabaseHandler;
+	}
+
+	/**
+	 * Returns the current database search result.
+	 * @return dbSearchResult The current database search result.
+	 */
+	public DbSearchResult getDatabaseSearchResult() {
+		return dbSearchResult;
+	}
+
+	/**
+	 * Sets the current database search result
+	 * @param dbSearchResult
+	 */
+	public void setDatabaseSearchResult(DbSearchResult dbSearchResult) {
+		this.dbSearchResult = dbSearchResult;
+	}
+	
+	/**
+	 * Returns the NCBI taxonomy ID-to-
+	 * @return the taxonomyMap
+	 */
+	public Map<Long, Taxonomy> getTaxonomyMap() {
+		return taxonomyMap;
 	}
 
 	/**
@@ -814,14 +873,6 @@ public class Client {
 	}
 	
 	/**
-	 * Returns whether the client is in debug mode
-	 * @return <code>true</code> if in debug mode, <code>false</code> otherwise.
-	 */
-	public boolean isDebug() {
-		return this.debug;
-	}
-
-	/**
 	 * Sets the client's viewer mode property.
 	 * @param viewer <code>true</code> if in viewer mode, <code>false</code> otherwise.
 	 */
@@ -830,66 +881,19 @@ public class Client {
 	}
 	
 	/**
+	 * Returns whether the client is in debug mode
+	 * @return <code>true</code> if in debug mode, <code>false</code> otherwise.
+	 */
+	public boolean isDebug() {
+		return this.debug;
+	}
+
+	/**
 	 * Sets the client's debug mode property.
 	 * @param debug <code>true</code> if in debug mode, <code>false</code> otherwise.
 	 */
 	public void setDebug(boolean debug) {
 		this.debug = debug;
-	}
-
-	/**
-	 * Writes the current database search result object to a the specified file.
-	 * @param filename The String representing the desired file path and name.
-	 */
-	public void writeDbSearchResultToFile(String filename) {
-		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
-
-		// Dump referenced spectra to separate MGF
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
-		String status = "FINISHED";
-		try {
-			String prefix = filename.substring(0, filename.indexOf('.'));
-			File mgfFile = new File(prefix + ".mgf");
-			FileOutputStream fos = new FileOutputStream(mgfFile);
-			long index = 0L;
-			for (SpectrumMatch spectrumMatch : spectrumMatches) {
-				spectrumMatch.setStartIndex(index);
-				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(
-						spectrumMatch.getSearchSpectrumID());
-				mgf.writeToStream(fos);
-				index = mgfFile.length();
-				spectrumMatch.setEndIndex(index);
-				firePropertyChange("progressmade", false, true);
-			}
-			fos.flush();
-			fos.close();
-		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			status = "FAILED";
-		}
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
-
-		// Dump results object to file
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
-		status = "FINISHED";
-		try {
-			firePropertyChange("indeterminate", false, true);
-			// store as compressed binary object
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
-					new GZIPOutputStream(new FileOutputStream(new File(filename)))));
-			oos.writeObject(dbSearchResult);
-			oos.flush();
-			oos.close();
-		} catch (IOException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			status = "FAILED";
-		}
-		firePropertyChange("indeterminate", true, false);
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 
 }

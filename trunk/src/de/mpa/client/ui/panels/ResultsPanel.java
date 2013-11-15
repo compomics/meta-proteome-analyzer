@@ -18,15 +18,19 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -84,14 +88,20 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.plastic.PlasticButtonUI;
 
 import de.mpa.analysis.KeggAccessor;
+import de.mpa.analysis.MetaProteinFactory;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.ui.Busyable;
+import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.PanelConfig;
-import de.mpa.client.ui.RoundedHoverButtonUI;
+import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
@@ -109,6 +119,7 @@ import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.taxonomy.TaxonomyUtils;
 
 /**
  * Panel providing overview information about fetched results in the form of
@@ -116,33 +127,33 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
-public class ResultsPanel extends JPanel {
+public class ResultsPanel extends JPanel implements Busyable {
 
 	/**
-	 * The database search results panel.
+	 * The tab pane containing the various results sub-panels.
+	 */
+	private ButtonTabbedPane resultsTpn;
+	
+	/**
+	 * The database search results sub-panel.
 	 */
 	private DbSearchResultPanel dbPnl;
 
 	/**
-	 * The spectral similarity results panel.
+	 * The spectral similarity results sub-panel.
 	 */
 	private SpecSimResultPanel ssPnl;
 
 	/**
-	 * The GraphDatabaseResultPanel.
+	 * The graph database sub-panel.
 	 */
-	private GraphDatabaseResultPanel graphDbPnl;
+	private GraphDatabaseResultPanel gdbPnl;
 
 	/**
 	 * The split pane layout of the overview panel.
 	 */
+	// TODO: make split pane references local
 	private JXMultiSplitPane msp;
-
-	/**
-	 * Button for showing button to select the type of chart to be displayed
-	 * inside the chart panel.
-	 */
-	private JToggleButton chartTypeBtn;
 
 	/**
 	 * Chart panel capable of displaying various charts (mainly ontology pie
@@ -278,9 +289,9 @@ public class ResultsPanel extends JPanel {
 	 * spectral similarity and de novo search results as bottom-aligned tabs.
 	 */
 	public ResultsPanel() {
-		this.dbPnl = new DbSearchResultPanel(this);
+		this.dbPnl = new DbSearchResultPanel();
 		this.ssPnl = new SpecSimResultPanel();
-		this.graphDbPnl = new GraphDatabaseResultPanel();
+		this.gdbPnl = new GraphDatabaseResultPanel();
 		initComponents();
 	}
 
@@ -297,7 +308,7 @@ public class ResultsPanel extends JPanel {
 				.getInsets("TabbedPane.contentBorderInsets");
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0,
 				contentBorderInsets.bottom, 0));
-		final JTabbedPane resTpn = new JTabbedPane(JTabbedPane.BOTTOM);
+		resultsTpn = new ButtonTabbedPane(JTabbedPane.BOTTOM);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets);
 
 		JPanel ovPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
@@ -314,43 +325,30 @@ public class ResultsPanel extends JPanel {
 		msp.add(createSummaryPanel(), "summary");
 		msp.add(createChartPanel(), "chart");
 		msp.add(createDetailsPanel(), "details");
-		// msp.add(PanelConfig.createTitledPanel("Placeholder",
-		// new JLabel("open to suggestions...", SwingConstants.CENTER)),
-		// "placeholder");
 
 		ovPnl.add(msp, CC.xy(2, 2));
 
-		resTpn.addTab(" ", ovPnl);
-		resTpn.addTab(" ", dbPnl);
-		resTpn.addTab(" ", ssPnl);
-		resTpn.addTab(" ", graphDbPnl);
-
-		ClientFrame clientFrame = ClientFrame.getInstance();
-		resTpn.setTabComponentAt(0, clientFrame.createTabButton(
-				"Overview",
-				new ImageIcon(getClass().getResource(
-						"/de/mpa/resources/icons/overview32.png")), resTpn));
-		resTpn.setTabComponentAt(1, clientFrame.createTabButton(
-				"Database Search Results",
-				new ImageIcon(getClass().getResource(
-						"/de/mpa/resources/icons/database_search32.png")),
-						resTpn));
-		resTpn.setTabComponentAt(2, clientFrame.createTabButton(
-				"Spectral Similarity Results",
-				new ImageIcon(getClass().getResource(
-						"/de/mpa/resources/icons/spectral_search32.png")),
-						resTpn));
-		resTpn.setTabComponentAt(3, clientFrame.createTabButton(
-				"GraphDB Results",
-				new ImageIcon(getClass().getResource(
-						"/de/mpa/resources/icons/graph32.png")), resTpn));
-		Component tabComp = resTpn.getTabComponentAt(0);
+		resultsTpn.addTab("Overview",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/overview32.png")),
+				ovPnl);
+		resultsTpn.addTab("Database Search Results",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_search32.png")),
+				dbPnl);
+		resultsTpn.addTab("Spectral Similarity Results",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/spectral_search32.png")),
+				ssPnl);
+		resultsTpn.addTab("Graph Database Results",
+				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/graph32.png")),
+				gdbPnl);
+		
+		// force tab heights by setting size of first tab component
+		Component tabComp = resultsTpn.getTabComponentAt(0);
 		tabComp.setPreferredSize(new Dimension(
 				tabComp.getPreferredSize().width, 40));
 
-		// Disable spectral similarity for viewer.
-		if(Client.getInstance().isViewer()) {
-			resTpn.setEnabledAt(2,  false);			
+		// initially disable all but the overview tab
+		for (int i = 1; i < 4; i++) {
+			resultsTpn.setEnabledAt(i, false);
 		}
 
 		// create navigation button panel
@@ -358,14 +356,14 @@ public class ResultsPanel extends JPanel {
 				"b:p:g"));
 		navPnl.setOpaque(false);
 
-		navPnl.add(clientFrame.createNavigationButton(false, !Client
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, !Client
 				.getInstance().isViewer()), CC.xy(1, 1));
-		navPnl.add(clientFrame.createNavigationButton(true, !Client
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, !Client
 				.getInstance().isViewer()), CC.xy(3, 1));
 
 		// add everything to main panel
 		this.add(navPnl, CC.xy(1, 3));
-		this.add(resTpn, CC.xyw(1, 1, 2));
+		this.add(resultsTpn, CC.xyw(1, 1, 2));
 	}
 
 	/**
@@ -376,16 +374,16 @@ public class ResultsPanel extends JPanel {
 
 		JButton resizeBtn = createResizeButton("chart", "details");
 
-		JPanel summaryBtnPnl = new JPanel(new FormLayout("p, 1px", "f:p:g"));
+		JPanel summaryBtnPnl = new JPanel(new FormLayout("22px, 1px", "20px"));
 		summaryBtnPnl.setOpaque(false);
 		summaryBtnPnl.add(resizeBtn, CC.xy(1, 1));
 
 		JPanel summaryPnl = new JPanel(new FormLayout(
-				"5dlu, p:g, 5dlu",
+				"5dlu, m:g, 5dlu",
 				"5dlu, f:p, 5dlu, f:p:g, 5dlu"));
 
 		JPanel generalPnl = new JPanel(new FormLayout(
-						"5dlu, p, 5dlu, r:p, 5dlu, 0px:g, 5dlu, r:p, 5dlu, p, 5dlu",
+						"5dlu, p, 5dlu, r:p, 5dlu, m:g, 5dlu, r:p, 5dlu, p, 5dlu",
 						"2dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu, f:p, 5dlu"));
 		generalPnl.setBorder(BorderFactory.createTitledBorder("General Statistics"));
 
@@ -448,7 +446,7 @@ public class ResultsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				setBusy(true);
-				dbPnl.fetchResultsFromDatabase();
+				new FetchResultsTask(null).execute();
 			}
 		});
 		fetchRemoteBtn.setUI(new PlasticButtonUI() {
@@ -487,37 +485,22 @@ public class ResultsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				setBusy(true);
-				dbPnl.fetchResultsFromFile();
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				int returnValue = chooser.showOpenDialog(ClientFrame.getInstance());
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File importFile = chooser.getSelectedFile();
+					new FetchResultsTask(importFile).execute();
+				}
 			}
 		});
 
 		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
 		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
-		
-//		fetchPnl.setPreferredSize(new Dimension());
 
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
-
-//		// heat map update button
-//		updateHeatMapBtn = new JButton(IconConstants.UPDATE_ICON);
-//		updateHeatMapBtn.setRolloverIcon(IconConstants.UPDATE_ROLLOVER_ICON);
-//		updateHeatMapBtn.setPressedIcon(IconConstants.UPDATE_PRESSED_ICON);
-//		updateHeatMapBtn.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				// Update heat map
-//				if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
-//					HeatMapData data = new HeatMapData(
-//							dbSearchResult,
-//							(ChartType) heatMapPn.getAxisButtonValue(Axis.X_AXIS),
-//							(ChartType) heatMapPn.getAxisButtonValue(Axis.Y_AXIS),
-//							(HierarchyLevel) heatMapPn.getAxisButtonValue(Axis.Z_AXIS));
-//					heatMapPn.updateData(data);
-//				}
-//			}
-//		});
-//		updateHeatMapBtn.setMargin(new Insets(1, 0, 1, 2));
-//		updateHeatMapBtn.setEnabled(false);
 
 		// create default heat map
 		heatMapPn = new HeatMapPane(new HeatMapData());
@@ -525,8 +508,6 @@ public class ResultsPanel extends JPanel {
 		heatMapPn.setVisibleRowCount(13);
 		heatMapPn.setEnabled(false);
 		
-//		((Container) heatMapPn.getViewport().getView()).add(updateHeatMapBtn, CC.xy(6, 6));
-
 		// insert subcomponents into main panel
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 		summaryPnl.add(heatMapPn, CC.xy(2, 4));
@@ -557,20 +538,15 @@ public class ResultsPanel extends JPanel {
 		final ChartType[] chartTypes = tmp.toArray(new ChartType[0]);
 
 		// create and configure button for chart type selection
-		chartTypeBtn = new JToggleButton(
+		final JToggleButton chartTypeBtn = new JToggleButton(
 				IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
 		chartTypeBtn.setRolloverIcon(IconConstants
 				.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
 		chartTypeBtn.setPressedIcon(IconConstants
 				.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
 		chartTypeBtn.setToolTipText("Select Chart Type");
-		chartTypeBtn.setEnabled(false);
 
-		chartTypeBtn.setUI(new RoundedHoverButtonUI());
-
-		chartTypeBtn.setOpaque(false);
-		chartTypeBtn.setBorderPainted(false);
-		chartTypeBtn.setMargin(new Insets(1, 0, 0, 0));
+		chartTypeBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(chartTypeBtn));
 
 //		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
 //		chartTypeBtn.addMouseListener(ittml);
@@ -596,7 +572,8 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 				if (newChartType != chartType) {
-					// clear details table TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
+					// clear details table
+					// TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
 
 					updateChart(newChartType);
@@ -626,12 +603,8 @@ public class ResultsPanel extends JPanel {
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 				chartTypeBtn.setSelected(false);
 			}
-
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-			}
-
-			public void popupMenuCanceled(PopupMenuEvent e) {
-			}
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
+			public void popupMenuCanceled(PopupMenuEvent e) { }
 		});
 
 		// link popup to button
@@ -643,8 +616,8 @@ public class ResultsPanel extends JPanel {
 		});
 
 		// arrange button in panel
-		JPanel chartBtnPnl = new JPanel(new FormLayout("p, c:5dlu, p, 1px",
-				"f:p:g"));
+		JPanel chartBtnPnl = new JPanel(new FormLayout("36px, c:5dlu, 22px, 1px",
+				"f:20px"));
 		chartBtnPnl.setOpaque(false);
 		chartBtnPnl.add(chartTypeBtn, CC.xy(1, 1));
 		chartBtnPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(2, 1));
@@ -686,6 +659,12 @@ public class ResultsPanel extends JPanel {
 					}
 				}
 				super.paintChildren(g);
+			}
+			
+			@Override
+			public void setEnabled(boolean enabled) {
+				super.setEnabled(enabled);
+				chartTypeBtn.setEnabled(enabled);
 			}
 		};
 		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
@@ -1029,7 +1008,7 @@ public class ResultsPanel extends JPanel {
 
 		JButton resizeBtn = createResizeButton("summary", "chart");
 
-		JPanel detailsBtnPnl = new JPanel(new FormLayout("p, 1px", "f:p:g"));
+		JPanel detailsBtnPnl = new JPanel(new FormLayout("22px, 1px", "20px"));
 		detailsBtnPnl.setOpaque(false);
 		detailsBtnPnl.add(resizeBtn, CC.xy(1, 1));
 
@@ -1066,8 +1045,8 @@ public class ResultsPanel extends JPanel {
 					if (target.matches("^\\d*$")) {
 						// if target contains only numerical characters it's probably an NCBI accession,
 						// try to use accession of corresponding UniProt entry (if possible)
-						ProteinHit proteinHit = Client.getInstance().getDbSearchResult().getProteinHit(target);
-						ReducedUniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
+						ProteinHit proteinHit = Client.getInstance().getDatabaseSearchResult().getProteinHit(target);
+						ReducedUniProtEntry uniprotEntry = proteinHit.getUniProtEntry();
 						if (uniprotEntry != null) {
 							target = proteinHit.getAccession();
 						} else {
@@ -1159,11 +1138,7 @@ public class ResultsPanel extends JPanel {
 		resizeBtn.setPressedIcon(IconConstants.FRAME_FULL_PRESSED_ICON);
 		resizeBtn.setToolTipText("Maximize");
 
-		resizeBtn.setUI(new RoundedHoverButtonUI());
-
-		resizeBtn.setOpaque(false);
-		resizeBtn.setBorderPainted(false);
-		resizeBtn.setMargin(new Insets(1, 0, 0, 0));
+		resizeBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(resizeBtn));
 
 //		resizeBtn.addMouseListener(new InstantToolTipMouseListener());
 
@@ -1252,7 +1227,7 @@ public class ResultsPanel extends JPanel {
 	 * containing the various experiment statistics.
 	 */
 	protected void updateOverview() {
-		new UpdateTask().execute();
+		new UpdateOverviewTask().execute();
 	}
 	
 	public boolean isBusy() {
@@ -1270,9 +1245,11 @@ public class ResultsPanel extends JPanel {
 		JXBusyLabel busyLbl = (JXBusyLabel) this.chartPnl.getComponent(0);
 		busyLbl.setBusy(busy);
 		busyLbl.setVisible(busy);
+		this.chartPnl.setEnabled(!busy);
 		
 		// Only ever make heat map pane busy, it takes care of turning not busy on its own
-		heatMapPn.setBusy(busy || heatMapPn.isBusy());
+		this.heatMapPn.setBusy(busy || heatMapPn.isBusy());
+		this.heatMapPn.setEnabled(!busy);
 		
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		if (!dbPnl.isBusy()) {
@@ -1283,6 +1260,16 @@ public class ResultsPanel extends JPanel {
 			comp.setCursor(cursor);
 		}
 	}
+
+//	/**
+//	 * Convenience method to allow sub-panels inside the tab pane to control the
+//	 * busy state of their corresponding tab button.
+//	 * @param panel the sub-panel
+//	 * @param busy <code>true</code> if the panel is busy, <code>false</code> otherwise
+//	 */
+//	public void setBusy(JPanel panel, boolean busy) {
+//		this.resultsTpn.setBusyAt(this.resultsTpn.indexOfComponent(panel), busy);
+//	}
 
 	/**
 	 * Returns the database search result panel.
@@ -1304,8 +1291,161 @@ public class ResultsPanel extends JPanel {
 	 * Returns the de novo search result panel.
 	 * @return the de novo search result panel
 	 */
+	// TODO: rename method
 	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
-		return graphDbPnl;
+		return gdbPnl;
+	}
+
+	/**
+	 * Class to fetch protein database search results in a background thread.
+	 * It's possible to fetch from the remote SQL database or from a local file instance.
+	 * 
+	 * @author A. Behne, R. Heyer
+	 */
+	private class FetchResultsTask extends SwingWorker<Integer, Object> {
+	
+		/**
+		 * The file object reference for when file-based results shall be read.
+		 */
+		private File file;
+	
+		/**
+		 * Constructs a task instance.
+		 * @param file
+		 *	the file instance from which results shall be fetched. If
+		 *	<code>null</code> the results will be fetched from the SQL
+		 *	database.
+		 */
+		public FetchResultsTask(File file) {
+			this.file = file;
+		}
+		
+		@Override
+		protected Integer doInBackground() {
+			try {
+				// Begin appearing busy
+				ResultsPanel.this.setBusy(true);
+				ResultsPanel.this.dbPnl.setBusy(true);
+				ResultsPanel.this.gdbPnl.setBusy(true);
+	
+				Client client = Client.getInstance();
+				ClientFrame clientFrame = ClientFrame.getInstance();
+				DbSearchResult newResult;
+
+				// Fetch the database search result object
+				if (this.file == null) {
+					newResult = client.getDatabaseSearchResult(
+							clientFrame.getProjectPanel().getCurrentProjectContent(), 
+							clientFrame.getProjectPanel().getCurrentExperimentContent());
+									
+				} else {
+					client.firePropertyChange("new message", null, "READING RESULTS FILE");
+					client.firePropertyChange("resetall", 0L, 100L);
+					client.firePropertyChange("indeterminate", false, true);
+					ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
+							new GZIPInputStream(new FileInputStream(file))));
+					newResult = (DbSearchResult) ois.readObject();
+					ois.close();
+					clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
+					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
+					client.firePropertyChange("indeterminate", true, false);
+				}
+	
+				// Fetching UniProt entries and taxonomic information.
+				if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
+					if (!newResult.isEmpty() && !client.isViewer()) {
+	
+						// Get various hit lists from result object
+						ProteinHitList metaProteins = newResult.getMetaProteins();
+						ProteinHitList proteinList = (ProteinHitList) newResult.getProteinHitList();
+						Set<PeptideHit> peptideSet = proteinList.getPeptideSet();	// all distinct peptides
+	
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
+						Client.getInstance().firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+	
+						// Define common peptide taxonomy for each peptide
+						TaxonomyUtils.determinePeptideTaxonomy(peptideSet);
+						
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
+	
+						// Determine protein taxonomy
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) proteinList.size());
+	
+						// Define protein taxonomy by common tax ID of peptides
+						TaxonomyUtils.determineProteinTaxonomy(proteinList);
+						
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+	
+						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+	
+						// Combine proteins to metaproteins
+						// TODO: configure leucine/isoleucine merging parameter
+						MetaProteinFactory.condenseMetaProteins(metaProteins, false);
+	
+						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+	
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
+						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+						
+						// Determine meta-protein taxonomy
+						MetaProteinFactory.determineMetaProteinTaxonomy(metaProteins);
+						
+						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
+					}
+					
+					// Update result object reference
+					ResultsPanel.this.dbSearchResult = newResult;
+					client.setDatabaseSearchResult(newResult);
+					
+					return 1;
+				} else {
+					// Stop appearing busy
+					ResultsPanel.this.setBusy(false);
+					ResultsPanel.this.dbPnl.setBusy(false);
+					ResultsPanel.this.gdbPnl.setBusy(false);
+					ResultsPanel.this.heatMapPn.setBusy(false);
+				}
+				
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				Client.getInstance().firePropertyChange("new message", null, "FAILED");
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+	
+			}
+			return 0;
+		}
+	
+	
+		@Override
+		protected void done() {
+			// Get worker result
+			int res = 0;
+			try {
+				res = this.get().intValue();
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+			
+			// If new results have been fetched...
+			if (res == 1) {
+				// Update overview panel
+				ResultsPanel.this.updateOverview();
+				// Populate tables in database search result panel
+				ResultsPanel.this.dbPnl.refreshTables();
+			}
+			
+			// Enable 'Export' and 'Save Project' functionalities of menu bar
+			ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
+			menuBar.setExportCSVResultsEnabled(true);
+			menuBar.setSaveProjectEnabled(true);
+			menuBar.setExportGraphMLEnabled(true);
+		}
+	
 	}
 
 	/**
@@ -1314,90 +1454,71 @@ public class ResultsPanel extends JPanel {
 	 * 
 	 * @author T. Muth, A. Behne
 	 */
-	private class UpdateTask extends SwingWorker {
+	private class UpdateOverviewTask extends SwingWorker {
 
 		@Override
 		protected Object doInBackground() {
-			dbSearchResult = null;
 			
-			// Appear busy
-			setBusy(true);
-			
-			// Fetch the database search result.
-			try {
-				dbSearchResult = Client.getInstance().getDbSearchResult();
-
-				Set<String> speciesNames = new HashSet<String>();
-				Set<String> ecNumbers = new HashSet<String>();
-				Set<String> kNumbers = new HashSet<String>();
-				Set<Short> pathwayIDs = new HashSet<Short>();
-				for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
-					speciesNames.add(ph.getSpecies());
-					ReducedUniProtEntry uniprotEntry = ph.getUniprotEntry();
-					if (uniprotEntry != null) {
-						ecNumbers.addAll(uniprotEntry.getEcNumbers());		
-						kNumbers.addAll(uniprotEntry.getKoNumbers());
-					}
-					for (String ec : ecNumbers) {
-						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-						if (pathwaysByEC != null) {
-							pathwayIDs.addAll(pathwaysByEC);
-						}
-					}
-					for (String ko : kNumbers) {
-						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
-						if (pathwaysByKO != null) {
-							pathwayIDs.addAll(pathwaysByKO);
-						}
+			Set<String> speciesNames = new HashSet<String>();
+			Set<String> ecNumbers = new HashSet<String>();
+			Set<String> kNumbers = new HashSet<String>();
+			Set<Short> pathwayIDs = new HashSet<Short>();
+			for (ProteinHit ph : ResultsPanel.this.dbSearchResult.getProteinHitList()) {
+				speciesNames.add(ph.getSpecies());
+				ReducedUniProtEntry uniprotEntry = ph.getUniProtEntry();
+				if (uniprotEntry != null) {
+					ecNumbers.addAll(uniprotEntry.getEcNumbers());		
+					kNumbers.addAll(uniprotEntry.getKNumbers());
+				}
+				for (String ec : ecNumbers) {
+					List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+					if (pathwaysByEC != null) {
+						pathwayIDs.addAll(pathwaysByEC);
 					}
 				}
+				for (String ko : kNumbers) {
+					List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+					if (pathwaysByKO != null) {
+						pathwayIDs.addAll(pathwaysByKO);
+					}
+				}
+			}
 
-				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-				totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-				distPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-//				int metaCount = 0;
-//				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
-//				for (ProteinHit proteinHit : metaProteins) {
-//					MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
-//					if (metaProtein.getProteinHits().size() > 0) {
-//						metaCount++;
-//					}
-//				}
-				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
-				speciesLbl.setText("" + speciesNames.size());
-				enzymesLbl.setText("" + ecNumbers.size());
-				pathwaysLbl.setText("" + pathwayIDs.size());
+			// Update statistics labels
+			totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+			identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+			totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
+			distPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+			totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+			metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
+			speciesLbl.setText("" + speciesNames.size());
+			enzymesLbl.setText("" + ecNumbers.size());
+			pathwaysLbl.setText("" + pathwayIDs.size());
 
-				HierarchyLevel hl = (HierarchyLevel) chartPieHierCbx.getSelectedItem();
-				ontologyData = new OntologyData(dbSearchResult, hl);
-				taxonomyData = new TaxonomyData(dbSearchResult, hl);
-				topData = new TopData(dbSearchResult);
-				// FIXME: Is this histogram really necessary?
+			// Generate chart data objects
+			HierarchyLevel hl = (HierarchyLevel) chartPieHierCbx.getSelectedItem();
+			ontologyData = new OntologyData(dbSearchResult, hl);
+			taxonomyData = new TaxonomyData(dbSearchResult, hl);
+			topData = new TopData(dbSearchResult);
+			// FIXME: Is this histogram really necessary?
 //				histogramData = new HistogramData(dbSearchResult, 40);
 
-				// Refresh chart panel showing default ontology pie chart
-				ResultsPanel.this.updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			// Refresh chart panel showing default ontology pie chart
+			updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+			// Refresh heat map
+			heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
+			
 			return 0;
 		}
 
 		@Override
 		protected void done() {
-			// Enable chart type button
-			chartTypeBtn.setEnabled(true);
-
-			// Enable chart panel
+			// Enable chart panel and heat map
 			chartPnl.setEnabled(true);
-			
-			// Enable and update heat map
 			heatMapPn.setEnabled(true);
-			heatMapPn.updateData(Client.getInstance().getDbSearchResult());
 
-			setBusy(false);
+			// Stop appearing busy
+			ResultsPanel.this.setBusy(false);
 		}
 
 	}

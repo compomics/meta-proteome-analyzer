@@ -94,7 +94,7 @@ public class OntologyData implements ChartData {
 			for (ProteinHit proteinHit : metaProtein.getProteinHits()) {
 				if (proteinHit.isSelected()) {
 					// Get UniProt Entry
-					ReducedUniProtEntry entry = proteinHit.getUniprotEntry();
+					ReducedUniProtEntry entry = proteinHit.getUniProtEntry();
 					
 					OntologyChartType[] types = OntologyChartType.values();
 					// booleans for ontology types found

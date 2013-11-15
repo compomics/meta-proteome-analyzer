@@ -155,7 +155,7 @@ public class TaxonomyData implements ChartData {
 		for (Taxonomic taxonomic : knownList) {
 			String topRank = chartType.getTitle().toLowerCase();
 			
-			String key = taxonomic.getTaxonomyNode().getParentNode(UniprotAccessor.TAXONOMY_MAP.get(topRank)).getName();
+			String key = taxonomic.getTaxonomyNode().getParentNode(UniprotAccessor.TAXONOMY_RANKS_MAP.get(topRank)).getName();
 			
 			ProteinHitList hitList = occMap.get(key);
 			if (hitList == null) {
@@ -268,7 +268,7 @@ public class TaxonomyData implements ChartData {
 	 * @return all target rank types
 	 */
 	private List<String> getTargetRanks() {
-		List<String> targetRanks = new ArrayList<String>(UniprotAccessor.TAXONOMY_MAP.keySet());
+		List<String> targetRanks = new ArrayList<String>(UniprotAccessor.TAXONOMY_RANKS_MAP.keySet());
 		String topRank = chartType.getTitle().toLowerCase();
 		targetRanks = targetRanks.subList(targetRanks.indexOf(topRank), targetRanks.size());
 		return targetRanks;

@@ -105,7 +105,7 @@ public class BarChartPanel extends JPanel {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(50,
+		return new Dimension(0,
 				Math.max(totalLbl.getPreferredSize().height, fracLbl.getPreferredSize().height));
 	}
 	

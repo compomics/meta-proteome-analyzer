@@ -56,6 +56,17 @@ public class ColorUtils {
 		return Color.getHSBColor(
 				hsbVals[0], hsbVals[1], factor * hsbVals[2]);
 	}
+
+	/**
+	 * Returns the specified color with its alpha intensity changed to the specified value.
+	 * @param color the color to change
+	 * @param alpha the alpha intensity to use
+	 * @return the color with a changed alpha value
+	 */
+	public static Color getTranslucentColor(Color color, int alpha) {
+        return new Color(color.getRed(), color.getGreen(),
+                          color.getBlue(), alpha);
+    }
 	
 	/**
      * Convenience method to return an array of <code>Paint</code> objects that

@@ -397,7 +397,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void storeProject() {
 		try {
-			ProjectManager manager = new ProjectManager(client.getConnection());
+			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
 
 			// Store the project name
 			id = manager.createNewProject(nameTtf.getText());
@@ -422,7 +422,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void modifyProject() {
 		try {
-			ProjectManager manager = new ProjectManager(client.getConnection());
+			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
 
 			// Modify the project name
 			manager.modifyProjectName(currentProjContent.getProjectid(), nameTtf.getText());
@@ -446,7 +446,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void storeExperiment() {
 		try {
-			ProjectManager manager = new ProjectManager(client.getConnection());
+			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
 
 			// Store the experiment name
 			id = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
@@ -471,7 +471,7 @@ public class GeneralDialog extends JDialog {
 	 */
 	protected void modifyExperiment() {
 		try {
-			ProjectManager manager = new ProjectManager(client.getConnection());
+			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
 
 			// Modify the experiment name
 			// TODO: some foreign key constraint regarding the 'settings' table breaks updating, need to investigate

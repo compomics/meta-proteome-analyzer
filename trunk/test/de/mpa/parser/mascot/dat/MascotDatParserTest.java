@@ -1,4 +1,4 @@
-package de.mpa.parser.mascot.xml;
+package de.mpa.parser.mascot.dat;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
  * Based on mascot.dat-File 20407.dat
  * @author F. Kohrs and R. Heyer
  */
-public class MascotDatFileParserTest {
+public class MascotDatParserTest {
 
 	static DbSearchResult dbSearchResult;
 	 static List<ProteinHit> proteinHitList;
@@ -58,6 +58,9 @@ public class MascotDatFileParserTest {
 		TestCase.assertEquals(377, dbSearchResult.getProteinHit("7331218").getPeptideHitList().get(0).getStart());
 		TestCase.assertEquals(386, dbSearchResult.getProteinHit("7331218").getPeptideHitList().get(0).getEnd());
 		TestCase.assertEquals(1, dbSearchResult.getProteinHit("345308743").getPeptideHitList().size());
+		//TODO wrong from parser
+//		TestCase.assertEquals(294, dbSearchResult.getProteinHit("345308743").getPeptideHitList().get(0).getStart());
+//		TestCase.assertEquals(303, dbSearchResult.getProteinHit("345308743").getPeptideHitList().get(0).getEnd());
 	}
 	
 	@Test

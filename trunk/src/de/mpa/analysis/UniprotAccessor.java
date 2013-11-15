@@ -75,6 +75,7 @@ public class UniprotAccessor {
 		FAMILY("family"),
 		GENUS("genus"), 
 		SPECIES("species"), 
+		SUBSPECIES("subspecies"),
 		NO_RANK("no rank"); 
 		
 		private String val;
@@ -134,7 +135,7 @@ public class UniprotAccessor {
 	/**
 	 * The UniProt keyword taxonomy map.
 	 */
-	public static final Map<String, TaxonomyRank> TAXONOMY_MAP;
+	public static final Map<String, TaxonomyRank> TAXONOMY_RANKS_MAP;
 	static {
 		Map<String, TaxonomyRank> map = new LinkedHashMap<String, TaxonomyRank>();
 		map.put("root", TaxonomyRank.ROOT);
@@ -146,7 +147,7 @@ public class UniprotAccessor {
 		map.put("family", TaxonomyRank.FAMILY);
 		map.put("genus", TaxonomyRank.GENUS);
 		map.put("species", TaxonomyRank.SPECIES);
-		TAXONOMY_MAP = Collections.unmodifiableMap(map);
+		TAXONOMY_RANKS_MAP = Collections.unmodifiableMap(map);
 	}
 
 	/**

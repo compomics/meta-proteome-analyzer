@@ -2,6 +2,7 @@ package de.mpa.client.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Insets;
 
 import javax.swing.JCheckBox;
 import javax.swing.UIManager;
@@ -15,55 +16,32 @@ import javax.swing.UIManager;
 public abstract class TriStateCheckBox extends JCheckBox {
 	
 	/**
-	 * The horizontal offset for painting the background and indeterminate mark
-	 */
-	private int hOffset;
-
-	/**
-	 * The horizontal offset for painting the background and indeterminate mark
-	 */
-	private int vOffset;
-	
-	/**
 	 * Constructs a default tri-state checkbox.
 	 */
 	public TriStateCheckBox() {
-		this(0);
-	}
-	
-	/**
-	 * Constructs a tri-state check box with a specified horizontal offset.
-	 * @param hOffset the horizontal pixel offset
-	 */
-	public TriStateCheckBox(int hOffset) {
-		this(hOffset, 0);
-	}
-
-	/**
-	 * Constructs a tri-state check box with specified horizontal and 
-	 * vertical offsets.
-	 * @param hOffset the horizontal pixel offset
-	 * @param vOffset the vertical pixel offset
-	 */
-	public TriStateCheckBox(int hOffset, int vOffset) {
 		super();
-		setBackground(UIManager.getColor("Table.background"));
-		this.hOffset = hOffset;
-		this.vOffset = vOffset;
+		this.setBackground(UIManager.getColor("Table.background"));
 	}
 	
 	@Override
 	public void paint(Graphics g) {
+		// get border margins
+		Insets insets = this.getInsets();
+		
 		// paint background rectangle
 		if (isEnabled()) {
-			g.setColor(getBackground());
-			g.fillRect(hOffset - 2, 2 + vOffset, 11, 11);
+			g.setColor(this.getBackground());
+			int x = insets.left;
+			int y = insets.top;
+			g.fillRect(x, y, 12, 12);
 		}
 		super.paint(g);
 		// paint black bar on top of deselected box to visualize indeterminate state
 		if (isPartiallySelected()) {
-			g.setColor(getForeground());
-			g.fillRect(hOffset, 7 + vOffset - getBorder().getBorderInsets(this).top, 8, 2);
+			g.setColor(this.getForeground());
+			int x = insets.left + 2;
+			int y = insets.top + 5;
+			g.fillRect(x, y, 8, 2);
 		}
 	}
 	

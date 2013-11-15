@@ -23,6 +23,7 @@ import de.mpa.util.Formatter;
  * ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
  * @author R. Heyer, T. Muth
  */
+@Deprecated
 public class NcbiTaxonomy implements Serializable {
 	
 	/**
@@ -38,11 +39,13 @@ public class NcbiTaxonomy implements Serializable {
 	/**
 	 * Map containing taxonomy id-to-byte position pairs w.r.t. 'names.dmp'
 	 */ 
+	@Deprecated
 	private TIntIntHashMap namesMap;
 
 	/**
 	 * Map containing taxonomy id-to-byte position pairs w.r.t. 'nodes.dmp'
 	 */
+	@Deprecated
 	private TIntIntHashMap nodesMap;
 
 //	/**
@@ -58,12 +61,14 @@ public class NcbiTaxonomy implements Serializable {
 	/**
 	 * Filename of the taxonomy index file.
 	 */
+	@Deprecated
 	private static final String INDEX_FILENAME = "taxonomy.index";
 
 
 	/**
 	 * The root node constant.
 	 */
+	@Deprecated
 	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
 
 	/**
@@ -85,6 +90,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * Get NCBI taxonomy maps instance.
 	 * @return the taxonomy maps instance.
 	 */
+	@Deprecated
 	public static NcbiTaxonomy getInstance() {
 		if (instance == null) {
 			instance = new NcbiTaxonomy();
@@ -97,6 +103,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * default folder.
 	 * @throws Exception if an I/O error occurs
 	 */
+	@Deprecated
 	public void createIndexFile() throws Exception {
 		this.createIndexFile(Constants.CONFIGURATION_PATH);
 	}
@@ -107,6 +114,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param path path string pointing to the target folder
 	 * @throws Exception 
 	 */
+	@Deprecated
 	public void createIndexFile(String path) throws Exception {
 
 		// NCBI names.dmp file
@@ -186,6 +194,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * Reads the index files.
 	 * @throws Exception if an I/O error occurs
 	 */
+	@Deprecated
 	public void readIndexFile() throws Exception {
 		InputStream inStream = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + INDEX_FILENAME);
 		if (inStream != null) {
@@ -202,6 +211,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * Returns the nodes map for external use.
 	 * @return Map containing the taxonomy nodes.
 	 */
+	@Deprecated
 	public TIntIntHashMap getNodesMap() {
 		return nodesMap;
 	}
