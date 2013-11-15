@@ -37,11 +37,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -800,7 +803,6 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 							bounds.height - dataBounds.y - dataBounds.height,
 							bounds.width - dataBounds.x - dataBounds.width);
 
-					// TODO: implement 'CSV File' and 'Excel XML' formats
 					// Init file chooser
 					ConfirmFileChooser chooser = new ConfirmFileChooser();
 					// Create panel containing image size controls
@@ -884,7 +886,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					chooser.setAccessory(accessoryPnl);
 					chooser.addChoosableFileFilter(Constants.PNG_FILE_FILTER);
 					chooser.addChoosableFileFilter(Constants.CSV_FILE_FILTER);
-//					chooser.addChoosableFileFilter(Constants.EXCEL_XML_FILE_FILTER);
+					chooser.addChoosableFileFilter(Constants.EXCEL_XML_FILE_FILTER);
 					chooser.setAcceptAllFileFilterUsed(false);
 					chooser.setFileFilter(Constants.PNG_FILE_FILTER);
 					
@@ -914,16 +916,143 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 						if (filter == Constants.PNG_FILE_FILTER) {
 							this.exportPNG(file, bi);
 						} else if (filter == Constants.CSV_FILE_FILTER) {
-							// TODO: implement csv export
 							this.exportCSV(file);
 						} else if (filter == Constants.EXCEL_XML_FILE_FILTER) {
-							// TODO: implement xml export
+							this.exportXML(file);
 						}
 						
 					}
 					// Restore tick label truncation
 					xAxis.setMaximumTickLabelSize(oldXLabelSize);
 					yAxis.setMaximumTickLabelSize(oldYLabelSize);
+				}
+				
+				private void exportXML(File file) {
+					// Get data container
+					HeatMapData data = HeatMapPane.this.data;
+					
+					// Extract values and labels
+					MatrixSeries matrix = data.getMatrix();
+					String[] xLabels = data.getXLabels();
+					String[] yLabels = data.getYLabels();
+
+					try {
+						// Init writer
+						BufferedWriter bw = new BufferedWriter(new FileWriter(file)) {
+							public Writer append(CharSequence csq) throws IOException {
+								Writer writer = super.append(csq);
+								// automatically append newline
+								this.newLine();
+								return writer;
+							};
+						};
+						
+						// write header
+						bw.append("<?xml version=\"1.0\"?>\n"
+								+ "<?mso-application progid=\"Excel.Sheet\"?>");
+						// write root tag
+						bw.append("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"");
+						bw.append(" xmlns:o=\"urn:schemas-microsoft-com:office:office\"");
+						bw.append(" xmlns:x=\"urn:schemas-microsoft-com:office:excel\"");
+						bw.append(" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"");
+						bw.append(" xmlns:html=\"http://www.w3.org/TR/REC-html40\">");
+						// write style tags
+						bw.append(" <Styles>");
+						// TODO: borders
+						// title style
+						bw.append("  <Style ss:ID=\"title\" ss:Name=\"title\">");
+						bw.append("   <Alignment ss:Horizontal=\"Center\"/>");
+						bw.append("   <Font ss:Bold=\"1\"/>");
+						bw.append("  </Style>");
+						// x label style
+						bw.append("  <Style ss:ID=\"xLabels\" ss:Name=\"xLabels\">");
+						bw.append("   <Alignment ss:Vertical=\"Top\" ss:Rotate=\"90\"/>");
+						bw.append("  </Style>");
+						// y label style
+						bw.append("  <Style ss:ID=\"yLabels\" ss:Name=\"yLabels\">");
+						bw.append("   <Alignment ss:Horizontal=\"Right\"/>");
+						bw.append("  </Style>");
+						// cell styles
+						// TODO: so far we only support integer values in heat maps, this needs adjusting if decimal values get supported
+						Set<Integer> matrixValues = new TreeSet<Integer>();
+						for (int i = 0; i < matrix.getRowCount(); i++) {
+							for (int j = 0; j < matrix.getColumnsCount(); j++) {
+								matrixValues.add((int) matrix.get(i, j));
+							}
+						}
+						// get paint scale
+						ChartPanel chartPnl = (ChartPanel) HeatMapPane.this.getViewport().getView();
+						XYPlot plot = (XYPlot) chartPnl.getChart().getPlot();
+						PaintScale paintScale = ((XYBlockRenderer) plot.getRenderer()).getPaintScale();
+						for (Integer val : matrixValues) {
+							// name styles like the values they represent
+							bw.append("  <Style ss:ID=\"" + val + "\" ss:Name=\"" + val + "\">");
+							bw.append("   <Alignment ss:Horizontal=\"Center\"/>");
+							// get color from paint scale
+							Color color = (Color) paintScale.getPaint(val);
+							// use inverted color for text
+							String hex = String.format("#%02x%02x%02x",
+									255 - color.getRed(), 255 - color.getGreen(), 255 - color.getBlue());
+							bw.append("   <Font ss:Color=\"" + hex + "\"/>");
+							hex = String.format("#%02x%02x%02x",
+									color.getRed(), color.getGreen(), color.getBlue());
+							bw.append("   <Interior ss:Color=\"" + hex + "\" ss:Pattern=\"Solid\"/>");
+							bw.append("  </Style>");
+						}
+						bw.append(" </Styles>");
+						// write worksheet tag
+						String title = "Heat Map";
+						bw.append(" <Worksheet ss:Name=\"" + title + "\">");
+						// write table tag
+						bw.append("  <Table>");
+						// write columns
+						bw.append("   <Column ss:AutoFitWidth=\"1\"/>");
+						bw.append("   <Column ss:AutoFitWidth=\"1\" ss:Span=\"" + (xLabels.length - 1) + "\"/>");
+						// write title row
+						bw.append("   <Row>");
+						bw.append("    <Cell ss:Index=\"2\" ss:MergeAcross=\"" + (xLabels.length - 2) + "\" ss:StyleID=\"title\">");
+						bw.append("     <Data ss:Type=\"String\">" + title + "</Data>");
+						bw.append("    </Cell>");
+						bw.append("   </Row>");
+						// write cell rows
+						for (int i = 0; i < yLabels.length; i++) {
+							bw.append("   <Row>");
+							// write y label
+							bw.append("    <Cell ss:StyleID=\"yLabels\">");
+							bw.append("     <Data ss:Type=\"String\">" + yLabels[i] + "</Data>");
+							bw.append("    </Cell>");
+							// write cells
+							for (int j = 0; j < xLabels.length; j++) {
+								int value = (int) matrix.get(i, j);
+								// use random style
+								bw.append("    <Cell ss:StyleID=\"" + value + "\">");
+								// use random value
+								bw.append("     <Data ss:Type=\"Number\">" + value + "</Data>");
+								bw.append("    </Cell>");
+							}
+							bw.append("   </Row>");
+						}
+						// write x label row
+						bw.append("   <Row ss:AutoFitHeight=\"1\">");
+						bw.append("    <Cell/>");	// empty cell
+						for (int i = 0; i < xLabels.length; i++) {
+							bw.append("    <Cell ss:StyleID=\"xLabels\">");
+							bw.append("     <Data ss:Type=\"String\">" + xLabels[i] + "</Data>");
+							bw.append("    </Cell>");
+						}
+						bw.append("   </Row>");
+						// close tags
+						bw.append("  </Table>");
+						bw.append(" </Worksheet>");
+						bw.append("</Workbook>");
+						
+						// Clean up
+						bw.flush();
+						bw.close();
+					} catch (IOException e) {
+						JXErrorPane.showDialog(ClientFrame.getInstance(),
+								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+					}
 				}
 				
 				/**
@@ -1549,7 +1678,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * 
 	 * @author A. Behne
 	 */
-	protected class RainbowPaintScale implements PaintScale {
+	private class RainbowPaintScale implements PaintScale {
 		
 		/**
 		 * The lower value boundary of the scale.
