@@ -6,11 +6,13 @@ import java.util.List;
 
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * Custom tree table node that supports multiple parents by index.
@@ -35,13 +37,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	
 	@Override
 	public int getColumnCount() {
-		// TODO: parametrize column count?
+		// TODO: parameterize column count, e.g. length of userObjects array?
 		return 12;
 	}
 	
 	@Override
 	public Object getValueAt(int column) {
-		if (isProtein()) {
+		if (this.isProtein()) {
 			ProteinHit ph = (ProteinHit) userObject;
 			switch (column) {
 			case 0:
@@ -79,6 +81,16 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			default:
 				return null;
 			}
+		} else if (this.isTaxonomy()) {
+			TaxonomyNode tn = (TaxonomyNode) userObject;
+			switch (column) {
+			case 0:
+				return tn.getName();
+			case 1:
+				return tn.getRank();
+			default:
+				return null;
+			}
 		}
 		// fall-back for when none of the above applies
 		return super.getValueAt(column);
@@ -98,17 +110,24 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	
 	/**
 	 * Returns whether this node stores protein hit data.
-	 * @return <code>true</code> if this node contains protein hit data, 
-	 * <code>false</code> otherwise
+	 * @return <code>true</code> if this node contains protein hit data,
+	 *  <code>false</code> otherwise
 	 */
 	public boolean isProtein() {
 		return (userObject instanceof ProteinHit);
 	}
 	
-	
+	/**
+	 * Returns whether this node stores taxonomy data.
+	 * @return <code>true</code> if this node contains taxonomy data,
+	 *  <code>false</code> otherwise
+	 */
+	public boolean isTaxonomy() {
+		return (this.userObject instanceof TaxonomyNode);
+	}
 	
 	/**
-	 * Returns a child identified by its string representation.<br>
+	 * Returns a child node identified by its string representation.<br>
 	 * Make sure to use unique names!
 	 * @param name The string identifier.
 	 * @return The child identified by the provided string or 
@@ -117,6 +136,22 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	public MutableTreeTableNode getChildByName(String name) {
 		for (MutableTreeTableNode child : children) {
 			if (child.toString().equals(name)) {
+				return child;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns a child identified by its user object.<br>
+	 * Make sure to always provide non-null user objects!
+	 * @param usrObj the userObject identifier
+	 * @return the child identified by the provided user object or
+	 *  <code>null</code> if no such child exists.
+	 */
+	public MutableTreeTableNode getChildByUserObject(Object usrObj) {
+		for (MutableTreeTableNode child : children) {
+			if (child.getUserObject().equals(usrObj)) {
 				return child;
 			}
 		}
@@ -161,5 +196,27 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		}
 		return super.toString();
 	};
+	
+	@Override
+	public boolean equals(Object obj) {
+		// check whether the other object inherits from CheckBoxTreeTableNode
+		boolean res = (obj instanceof CheckBoxTreeTableNode);
+		if (res) {
+			// check whether both objects have the same number of columns
+			CheckBoxTreeTableNode that = (CheckBoxTreeTableNode) obj;
+			res = (this.getColumnCount() == that.getColumnCount());
+			if (res) {
+				// check whether all column values match
+				for (int i = 0; i < this.getColumnCount(); i++) {
+					res &= ObjectUtils.equals(this.getValueAt(i), that.getValueAt(i));
+					if (!res) {
+						// abort
+						break;
+					}
+				}
+			}
+		}
+		return res;
+	}
 	
 }

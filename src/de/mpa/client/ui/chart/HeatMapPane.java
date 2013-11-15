@@ -26,6 +26,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -112,6 +113,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
@@ -123,7 +125,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
-public class HeatMapPane extends JScrollPane {
+public class HeatMapPane extends JScrollPane implements Busyable {
 	
 	/**
 	 * Enum holding axis identifiers.
@@ -566,7 +568,7 @@ public class HeatMapPane extends JScrollPane {
 		final JSlider zoomVertSld = new JSlider(JSlider.VERTICAL, 1, 26, 13);
 		zoomVertSld.setSnapToTicks(true);
 		
-		JLabel zoomVertLbl = new JLabel("" + zoomVertSld.getValue()) {
+		JLabel zoomVertLbl = new JLabel("" + zoomVertSld.getValue(), SwingConstants.RIGHT) {
 			@Override
 			public Dimension getPreferredSize() {
 				String text = this.getText();
@@ -576,16 +578,15 @@ public class HeatMapPane extends JScrollPane {
 				return size;
 			}
 		};
-		zoomVertLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		zoomVertLbl.setUI(new VerticalLabelUI(false));
 		zoomVertLbl.setFocusable(false);
 		
 		// Link label to slider via client property
 		zoomVertSld.putClientProperty("label", zoomVertLbl);
 		zoomVertLbl.putClientProperty("slider", zoomVertSld);
-		
-		zoomVertPnl.add(zoomVertSld, CC.xy(1, 4));
+
 		zoomVertPnl.add(zoomVertLbl, CC.xy(1, 2));
+		zoomVertPnl.add(zoomVertSld, CC.xy(1, 4));
 		
 		// Create sub-panel containing horizontal zoom slider and label
 		JPanel zoomHorzPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu", "p"));
@@ -594,7 +595,7 @@ public class HeatMapPane extends JScrollPane {
 		final JSlider zoomHorzSld = new JSlider(JSlider.HORIZONTAL, 1, 26, 13);
 		zoomHorzSld.setSnapToTicks(true);
 		
-		JLabel zoomHorzLbl = new JLabel("" + zoomHorzSld.getValue()) {
+		JLabel zoomHorzLbl = new JLabel("" + zoomHorzSld.getValue(), SwingConstants.RIGHT) {
 			@Override
 			public Dimension getPreferredSize() {
 				String text = this.getText();
@@ -604,7 +605,6 @@ public class HeatMapPane extends JScrollPane {
 				return size;
 			}
 		};
-		zoomHorzLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		zoomHorzLbl.setFocusable(false);
 
 		// Link label to slider via client property
@@ -631,6 +631,34 @@ public class HeatMapPane extends JScrollPane {
 		};
 		zoomVertSld.addChangeListener(cl);
 		zoomHorzSld.addChangeListener(cl);
+		
+		// create mouse listener for sliders
+		MouseAdapter ma;
+		ma = new MouseAdapter() {
+//				@Override
+//				public void mouseEntered(MouseEvent evt) {
+//					Component src = (Component) evt.getSource();
+//					src.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//				}
+//				@Override
+//				public void mouseExited(MouseEvent evt) {
+//					Component src = (Component) evt.getSource();
+//					src.setCursor(Cursor.getDefaultCursor());
+//				}
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent evt) {
+				JSlider src = (JSlider) evt.getSource();
+				if (src.getOrientation() == SwingConstants.HORIZONTAL) {
+					src.setValue(src.getValue() + evt.getWheelRotation());
+				} else {
+					src.setValue(src.getValue() - evt.getWheelRotation());
+				}
+			}
+		};
+		zoomVertSld.addMouseWheelListener(ma);
+//		zoomVertSld.addMouseListener(ma);
+		zoomHorzSld.addMouseWheelListener(ma);
+//		zoomHorzSld.addMouseListener(ma);
 		
 		zoomPnl.add(zoomVertPnl, CC.xywh(1, 1, 2, 2));
 		zoomPnl.add(zoomHorzPnl, CC.xywh(2, 2, 2, 2));
@@ -856,7 +884,7 @@ public class HeatMapPane extends JScrollPane {
 					chooser.setAccessory(accessoryPnl);
 					chooser.addChoosableFileFilter(Constants.PNG_FILE_FILTER);
 					chooser.addChoosableFileFilter(Constants.CSV_FILE_FILTER);
-					chooser.addChoosableFileFilter(Constants.EXCEL_XML_FILE_FILTER);
+//					chooser.addChoosableFileFilter(Constants.EXCEL_XML_FILE_FILTER);
 					chooser.setAcceptAllFileFilterUsed(false);
 					chooser.setFileFilter(Constants.PNG_FILE_FILTER);
 					

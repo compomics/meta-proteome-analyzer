@@ -76,7 +76,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DefaultTableHeaderCellRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.TableConfig.FormattedTableCellRenderer;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.Experiment;
@@ -523,7 +523,7 @@ public class ComparePanel extends JPanel{
 		projTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		// Initialize ProjectManager to access projects and experiments in the database
-		final ProjectManager projectManager = new ProjectManager(Client.getInstance().getConnection());
+		final ProjectManager projectManager = new ProjectManager(Client.getInstance().getDatabaseConnection());
 		// Get projects from database.
 		final List<Project> projects = projectManager.getProjects();
 
@@ -684,19 +684,19 @@ public class ComparePanel extends JPanel{
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		TableConfig.clearTable(table);
 
-		CustomTableCellRenderer renderer;
+		FormattedTableCellRenderer renderer;
 		switch (compareCbx.getSelectedIndex()) {
 		case 0: // Proteins
 		case 1: // Peptides
 		case 2: // SpectralCount
 		case 4: // emPai
-			renderer = new CustomTableCellRenderer(SwingConstants.RIGHT, "0.00");
+			renderer = new FormattedTableCellRenderer(SwingConstants.RIGHT, "0.00");
 			for (int col = 4; col < table.getColumnCount(); col++) {
 				compareTbl.getColumnModel().getColumn(col).setCellRenderer(renderer);
 			}
 			break;
 		case 3: // NSAF
-			renderer = new CustomTableCellRenderer(SwingConstants.RIGHT, "0.00E00");
+			renderer = new FormattedTableCellRenderer(SwingConstants.RIGHT, "0.00E00");
 			for (int col = 4; col < table.getColumnCount(); col++) {
 				compareTbl.getColumnModel().getColumn(col).setCellRenderer(renderer);
 			}
@@ -714,8 +714,8 @@ public class ComparePanel extends JPanel{
 				if (experimentList != null ) {
 					Client client = Client.getInstance();
 					for (Experiment experiment : experimentList) {
-						Client.getInstance().retrieveDbSearchResult(groupEntry.getKey(),experiment.getTitle(),experiment.getExperimentid() );
-						DbSearchResult dbSearchResult = client.getDbSearchResult();
+						Client.getInstance().retrieveDatabaseSearchResult(groupEntry.getKey(),experiment.getTitle(),experiment.getExperimentid() );
+						DbSearchResult dbSearchResult = client.getDatabaseSearchResult();
 
 //						if (!dbSearchResult.isEmpty()) {
 //							// Retrieve UniProt data
@@ -764,7 +764,7 @@ public class ComparePanel extends JPanel{
 		if (!entryCbx.getSelectedItem().equals("Accessions")) {
 			for (ProteinHit proteinHit : proteinMap.values()) {
 				String accession = proteinHit.getAccession();
-				ReducedUniProtEntry uniprotEntry = proteinHit.getUniprotEntry();
+				ReducedUniProtEntry uniprotEntry = proteinHit.getUniProtEntry();
 				// Case that NCBI accession with UniProt Mapping
 				if (uniprotEntry != null) {
 					// Build list of UniProt accessions

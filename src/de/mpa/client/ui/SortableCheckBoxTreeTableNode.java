@@ -94,10 +94,11 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 	public boolean isLeaf() {
 		return (children.size() == 0);
 	}
-
+	
 	@Override
 	public void sort(List<? extends SortKey> sortKeys,
-			RowFilter<? super TableModel, ? super Integer> filter) {
+			RowFilter<? super TableModel, ? super Integer> filter,
+			boolean hideEmpty) {
 
 		int childCount = children.size();
 		int excludedCount = 0;
@@ -123,13 +124,19 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 				}
 			} else {
 				// check whether the child node has any visible children of its
-				// own, if not treat as excluded
-				if (child.getChildCount() > 0) {
-					viewToModelList.add(row);
-				} else {
+				// own, treat as excluded if the corresponding flag is set
+				if ((child.getChildCount() == 0) && hideEmpty) {
 					excludedCount++;
+				} else {
+					viewToModelList.add(row);
 				}
 			}
+			
+//			if ((filter == null) || (filter.include(row))) {
+//				viewToModelList.add(row);
+//			} else {
+//				excludedCount++;
+//			}
 			
 			// initialize model-to-view mapping while we're at it
 			modelToView[i] = -1;
@@ -148,6 +155,7 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 		
 		sorted = true;
 	}
+
 
 	@Override
 	public TreeTableNode getChildAt(int childIndex) {
@@ -221,6 +229,11 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 
 		@Override
 		public Object getValue(int index) {
+			// special case to return underlying node
+			if (index == -1) {
+				return this.node;
+			}
+			// return column value
 			return children.get(modelIndex).getValueAt(index);
 		}
 
@@ -237,26 +250,35 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public int compareTo(Row row) {
+		public int compareTo(Row that) {
+			// trivial case
+			if (that == null) {
+				return 1;
+			}
 			// initialize result with fall-back value
-			int result = this.modelIndex - row.modelIndex;
+			int result = this.modelIndex - that.modelIndex;
 			for (SortKey sortKey : this.sortKeys) {
 				if (sortKey.getSortOrder() != SortOrder.UNSORTED) {
-					Object this_value = this.node.getValueAt(sortKey.getColumn());
-					Object that_value = row.node.getValueAt(sortKey.getColumn());
-					// define null as less than not-null
-					if (this_value == null) {
-						result = (that_value == null) ? 0 : -1;
-					} else if (that_value == null) {
-						result = 1;
+					// sort leaf nodes to always appear below non-leaves
+					if (this.node.isLeaf() != that.node.isLeaf()) {
+						// either one node might be a leaf
+						result = that.node.getChildCount() - this.node.getChildCount();
 					} else {
-						// both value objects are not null, invoke compareTo()
-						result = ((Comparable<Object>) this_value)
-								.compareTo(that_value);
-					}
-					// correct result w.r.t. sort order
-					if (sortKey.getSortOrder() == SortOrder.DESCENDING) {
-						result *= -1;
+						Object this_value = this.node.getValueAt(sortKey.getColumn());
+						Object that_value = that.node.getValueAt(sortKey.getColumn());
+						// define null as less than not-null
+						if (this_value == null) {
+							result = (that_value == null) ? 0 : -1;
+						} else if (that_value == null) {
+							result = 1;
+						} else {
+							// both value objects are not null, invoke compareTo()
+							result = ((Comparable<Object>) this_value).compareTo(that_value);
+						}
+						// correct result w.r.t. sort order
+						if (sortKey.getSortOrder() == SortOrder.DESCENDING) {
+							result *= -1;
+						}
 					}
 				}
 				if (result != 0) {

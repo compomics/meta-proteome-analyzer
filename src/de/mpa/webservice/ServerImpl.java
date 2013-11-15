@@ -13,8 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.activation.DataHandler;
+import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.MTOM;
 
@@ -86,6 +88,13 @@ public class ServerImpl implements Server {
 	 * The RunOptions instance.
 	 */
 	private RunOptions runOptions;
+	
+	/**
+	 * The webservice context.
+	 */
+	@Resource
+    WebServiceContext wsctx;
+
     
 	@Override
 	public void receiveMessage(String msg) {
@@ -209,6 +218,11 @@ public class ServerImpl implements Server {
 		jobManager.addJob(new UniProtJob());
 	}
 
+	/**
+	 * Adds spectral similarity searching and storing jobs to the job queue.
+	 * @param mgfList the list of spectrum files to search
+	 * @param sss the spectral similarity search settings
+	 */
 	private void addSpecSimSearchJob(List<MascotGenericFile> mgfList, SpecSimSettings sss) {
 		SpecSimJob specSimJob = new SpecSimJob(mgfList, sss);
 		jobManager.addJob(specSimJob);

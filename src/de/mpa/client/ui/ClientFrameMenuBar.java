@@ -147,14 +147,14 @@ public class ClientFrameMenuBar extends JMenuBar {
 		serverItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ServerConnectionSettings oldSrvSettings = client.getServerSettings();
+				ServerConnectionSettings oldSrvSettings = client.getServerConnectionSettings();
 				int res = JOptionPane.showConfirmDialog(clientFrame, srvPnl, "Server Configuration",
 						  JOptionPane.OK_CANCEL_OPTION,
 						  JOptionPane.PLAIN_MESSAGE);
 				if (res == JOptionPane.OK_OPTION) {
-					client.setServerSettings(gatherServerSettings());
+					client.setServerConnectionSettings(gatherServerSettings());
 				} else {
-					client.setServerSettings(oldSrvSettings);
+					client.setServerConnectionSettings(oldSrvSettings);
 				}
 			}
 		});
@@ -248,14 +248,14 @@ public class ClientFrameMenuBar extends JMenuBar {
 			dbPnl = constructDbSettingsPanel();
 		}
 		
-		DbConnectionSettings oldDbSettings = client.getDbSettings();
+		DbConnectionSettings oldDbSettings = client.getDatabaseConnectionSettings();
 		int res = JOptionPane.showConfirmDialog(clientFrame, dbPnl, "Database Settings", 
 				  JOptionPane.OK_CANCEL_OPTION,
 				  JOptionPane.PLAIN_MESSAGE);
 		if (res == JOptionPane.OK_OPTION) {
-			client.setDbSettings(gatherDbSettings());	// update settings
+			client.setDatabaseConnectionSettings(gatherDbSettings());	// update settings
 		} else {	// cancel option or window close option
-			client.setDbSettings(oldDbSettings);	// revert to old settings
+			client.setDatabaseConnectionSettings(oldDbSettings);	// revert to old settings
 		}
 	}
 
@@ -322,7 +322,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		dbPnl.add(new JLabel("Username"), cc.xy(2,10));
 		dbPnl.add(new JLabel("Password"), cc.xy(2,12));
 
-		final DbConnectionSettings dbSettings = client.getDbSettings();
+		final DbConnectionSettings dbSettings = client.getDatabaseConnectionSettings();
 
 		dbDriverTtf = new JTextField(dbSettings.getJdbcDriver());
 		dbPnl.add(dbDriverTtf,cc.xy(4, 2));
@@ -344,7 +344,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				DbConnectionSettings dbSettings = gatherDbSettings();
-				client.setDbSettings(dbSettings);
+				client.setDatabaseConnectionSettings(dbSettings);
 
 				// method closes old connection
 				try {
@@ -396,7 +396,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 										"p, 3dlu, p, 3dlu, p, 5dlu"));
 		srvPnl.setBorder(new TitledBorder("Server Address"));
 
-		srvSettings = client.getServerSettings();
+		srvSettings = client.getServerConnectionSettings();
 		srvHostTtf = new JTextField(8);
 		srvHostTtf.setText(srvSettings.getHost());
 

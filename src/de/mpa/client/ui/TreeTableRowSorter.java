@@ -23,12 +23,12 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 	/**
 	 * The {@link JXTreeTable} instance to which the sorter is applied.
 	 */
-	private JXTreeTable treeTable;
+	protected JXTreeTable treeTable;
 	
 	/**
 	 * The tree table model instance with which the sorter communicates to request sorting.
 	 */
-	private SortableTreeTableModel treeModel;
+	protected SortableTreeTableModel treeModel;
 
 	/**
 	 * Constructs a {@link RowSorter} for the provided {@link JXTreeTable}.
@@ -72,25 +72,36 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 
 	@Override
 	public void toggleSortOrder(int column) {
-		List<SortKey> sortKeys = new ArrayList<SortKey>(getSortKeys());
+		// abort if column is not sortable
+		if (!treeTable.getColumnExt(treeTable.convertColumnIndexToView(column)).isSortable()) {
+			return;
+		}
+		// configure sort keys
+		List<SortKey> sortKeys = new ArrayList<SortKey>(this.getSortKeys());
 		if (sortKeys.isEmpty()) {
+			// add new sort key
 			sortKeys.add(new SortKey(column, SortOrder.ASCENDING));
 		} else {
+			// configure sort order
 			SortOrder sortOrder = SortOrder.ASCENDING;
-			if (sortKeys.get(0).getColumn() == column) {
-				if (sortKeys.get(0).getSortOrder() == SortOrder.ASCENDING) {
+			SortKey primarySortKey = sortKeys.get(0);
+			if (primarySortKey.getColumn() == column) {
+				// cycle sort key if same column has been targeted
+				if (primarySortKey.getSortOrder() == SortOrder.ASCENDING) {
 					sortOrder = SortOrder.DESCENDING;
-				} else if (sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
+				} else if (primarySortKey.getSortOrder() == SortOrder.DESCENDING) {
 					sortOrder = SortOrder.UNSORTED;
 				}
 			}
 			sortKeys.add(0, new SortKey(column, sortOrder));
-			// TODO: possibly parametrize maximum sort key count
+			// trim off excess sort keys down to a maximum of three
+			// TODO: parametrize maximum sort key count?
 			if (sortKeys.size() > 3) {
 				sortKeys.remove(3);
 			}
 		}
-		setSortKeys(sortKeys);
+		// apply sort keys
+		this.setSortKeys(sortKeys);
 	}
 
 	@Override
@@ -101,10 +112,15 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 	@Override
 	public void setSortKeys(List<? extends SortKey> sortKeys) {
 		if (!sortKeys.equals(getSortKeys())) {
-			fireSortOrderChanged();
+			// collapse tree, cache expanded paths
 			preCollapse();
 			treeModel.setSortKeys(sortKeys);
+//			// refresh model
+//			treeModel.setRoot(treeModel.getRoot());
+			// re-expand cached paths
 			reExpand();
+			// notify listeners
+			fireSortOrderChanged();
 		}
 	}
 
@@ -115,11 +131,12 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 	@SuppressWarnings("unchecked")
 	public void setRowFilter(RowFilter<? super M,? super Integer> rowFilter) {
 		// force re-sort
-		fireSortOrderChanged();
 		preCollapse();
 		treeModel.setRowFilter(
 				(RowFilter<? super TableModel, ? super Integer>) rowFilter);
 		reExpand();
+		// notify listeners
+		fireSortOrderChanged();
 	}
 	
 	/**

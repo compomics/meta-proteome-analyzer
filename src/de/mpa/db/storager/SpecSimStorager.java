@@ -38,17 +38,17 @@ public class SpecSimStorager extends BasicStorager {
 	
 	@Override
 	public void store() throws IOException, SQLException {
-		int i = 0;
-		int packageSize = 10000;
-		for (SpectrumSpectrumMatch ssm : results) {
-			SpecSearchHit ssh = new SpecSearchHit(ssm);
-			ssh.persist(conn);
-			// commit in batches of defined size
-			if ((++i % packageSize) == 0) {
-				conn.commit();
-			}
-		}
-		conn.commit();
+//		int i = 0;
+//		int packageSize = 10000;
+//		for (SpectrumSpectrumMatch ssm : results) {
+//			SpecSearchHit ssh = new SpecSearchHit(ssm);
+//			ssh.persist(conn);
+//			// commit in batches of defined size
+//			if ((++i % packageSize) == 0) {
+//				conn.commit();
+//			}
+//		}
+		SpecSearchHit.batchPersist(results, 10000, conn);
 	}
 
 }

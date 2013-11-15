@@ -11,7 +11,7 @@ import org.jdesktop.swingx.JXTableHeader;
  * Class to enable tables to display and interact with components in their headers.<br>
  * To be used in tandem with {@link ComponentHeaderRenderer}.
  * 
- * @author behne
+ * @author A. Behne
  * 
  * @see ComponentHeaderRenderer
  */
@@ -60,7 +60,6 @@ public class ComponentHeader extends JXTableHeader {
 				me.getID() == MouseEvent.MOUSE_CLICKED) {
 			int col = columnModel.getColumnIndexAtX(me.getX());
 			if (col != -1) {
-//				reorderingAllowed = reorderingAllowedColumns[col];
 				if (columnModel.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
 					chr = (ComponentHeaderRenderer) columnModel.getColumn(col).getHeaderRenderer();
 					Rectangle headerRect = this.getHeaderRect(col);
@@ -73,7 +72,6 @@ public class ComponentHeader extends JXTableHeader {
 								me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
 								me.getClickCount(), me.isPopupTrigger(), me.getButton()));
 						this.repaint(headerRect);
-//						reorderingAllowed &= (me.getID() != MouseEvent.MOUSE_PRESSED);
 						// fool other listeners by changing click-type events into release-type ones
 						if (me.getID() == MouseEvent.MOUSE_CLICKED) {
 							me = new MouseEvent(
@@ -87,11 +85,8 @@ public class ComponentHeader extends JXTableHeader {
 		} else if (me.getID() == MouseEvent.MOUSE_RELEASED) {
 			if (chr != null) {
 				chr.dispatchEvent(me);
-//				chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-//				chr.getPanel().setOpaque(false);
 				chr = null;
 				this.repaint();
-//				reorderingAllowed = true;
 			}
 		}
 		super.processMouseEvent(me);

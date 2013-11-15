@@ -13,33 +13,22 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,8 +38,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-import java.util.regex.PatternSyntaxException;
-import java.util.zip.GZIPInputStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -58,23 +45,16 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
@@ -82,6 +62,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
@@ -89,25 +70,20 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -142,13 +118,11 @@ import org.jdesktop.swingx.renderer.TreeCellContext;
 import org.jdesktop.swingx.sort.SortUtils;
 import org.jdesktop.swingx.sort.TableSortController;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.data.general.DefaultPieDataset;
+
+import scala.actors.threadpool.Arrays;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
@@ -162,9 +136,7 @@ import de.mpa.algorithms.Interval;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.Masses;
-import de.mpa.analysis.MetaProteinFactory;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
@@ -176,34 +148,26 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.BarChartHighlighter;
+import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonColumn;
+import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
-import de.mpa.client.ui.InstantToolTipMouseListener;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.PhylogenyTreeTableNode;
-import de.mpa.client.ui.RoundedHoverButtonUI;
+import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.TableConfig.FormatHighlighter;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
-import de.mpa.client.ui.chart.Chart;
-import de.mpa.client.ui.chart.ChartFactory;
-import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyData;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
-import de.mpa.client.ui.dialogs.TaxonomyFilterDialog;
+import de.mpa.client.ui.dialogs.TaxonomySelectionDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.fragmentation.FragmentIon;
@@ -211,6 +175,7 @@ import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
+import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.taxonomy.TaxonomyUtils;
 import de.mpa.util.ColorUtils;
@@ -220,7 +185,7 @@ import de.mpa.util.ColorUtils;
  * 
  * @author A. Behne, T. Muth, R. Heyer, F. Kohrs
  */
-public class DbSearchResultPanel extends JPanel {
+public class DbSearchResultPanel extends JPanel implements Busyable {
 
 	/**
 	 * The client frame instance.
@@ -266,11 +231,6 @@ public class DbSearchResultPanel extends JPanel {
 	 * Multi split pane containing all sub-panels.
 	 */
 	private JXMultiSplitPane split;
-
-	/**
-	 * Flag denoting whether the application shall currently appear busy.
-	 */
-	private boolean busy;
 
 	/*
 	 * Toggle buttons for ion annotations in spectrum plot 
@@ -343,29 +303,9 @@ public class DbSearchResultPanel extends JPanel {
 	private boolean synching = false;
 
 	/**
-	 * The button to show a context menu for selecting which hierarchical protein view to display.
-	 */
-	private JToggleButton hierarchyBtn;
-
-	/**
-	 * The button to query search results from the remote database and refresh detail views.
-	 */
-	private JButton getResultsFromDbBtn;
-
-	/**
-	 * The button to query search results from a specified file and refresh detail views.
-	 */
-	private JButton getResultsFromFileBtn;
-
-	/**
-	 * The parent results panel.
-	 */
-	private ResultsPanel parent;
-
-	/**
 	 * Highlighter predicate.
 	 */
-	private ProtCHighlighterPredicate protCHighlightPredicate;
+	private ProteinCountHighlightPredicate protCHighlightPredicate;
 
 	/**
 	 * Import file.
@@ -378,28 +318,22 @@ public class DbSearchResultPanel extends JPanel {
 
 	private JPanel protCardPnl;
 
-	/**
-	 * The taxonomy model for the taxonomy filtering tree.
-	 */
-	private DefaultTreeModel taxModel;
-
-	/**
-	 * The taxonomy filtering button
-	 */
-	private JButton taxFilterBtn;
-
-	/**
-	 * Taxonomy ID for the filter, standard is 1 for root.
-	 */
-	private long filterTaxId = 1;
+//	/**
+//	 * The taxonomy model for the taxonomy filtering tree.
+//	 */
+//	private DefaultTreeModel taxModel;
+//
+//	/**
+//	 * Taxonomy ID for the filter, standard is 1 for root.
+//	 */
+//	private long filterTaxId = 1;
 
 	/**
 	 * Constructor for a database results panel.
 	 * @param clientFrame The parent frame.
 	 */
-	public DbSearchResultPanel(ResultsPanel parent) {
+	public DbSearchResultPanel() {
 		this.clientFrame = ClientFrame.getInstance();
-		this.parent = parent;
 		initComponents();
 	}
 
@@ -456,43 +390,65 @@ public class DbSearchResultPanel extends JPanel {
 
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 
-		// Add button for taxonomic filtering	
-		taxFilterBtn = new JButton(IconConstants.ADD_FILTER_ICON);
-		taxFilterBtn.setRolloverIcon(IconConstants.ADD_FILTER_ROLLOVER_ICON);
-		taxFilterBtn.setPressedIcon(IconConstants.ADD_FILTER_PRESSED_ICON);
+		// Button for taxonomic filtering	
+		JButton taxFilterBtn = new JButton(IconConstants.FILTER_ICON);
+		taxFilterBtn.setRolloverIcon(IconConstants.FILTER_ROLLOVER_ICON);
+		taxFilterBtn.setPressedIcon(IconConstants.FILTER_PRESSED_ICON);
 		taxFilterBtn.setToolTipText("Select Taxonomic Filtering");
-		taxFilterBtn.setUI(new RoundedHoverButtonUI());
-		taxFilterBtn.setOpaque(false);
-		taxFilterBtn.setBorderPainted(false);
-		taxFilterBtn.setMargin(new Insets(1, 0, 0, 0));
+		
+		taxFilterBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(taxFilterBtn));
+		
 		taxFilterBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				TaxonomyFilterDialog taxDlg = new TaxonomyFilterDialog(taxModel, clientFrame);
-				filterTaxId = taxDlg.showDialog();
-				// Refresh protein table with new filter
-				try {
-						refreshProteinTables();
-						for (Component comp : protCardPnl.getComponents()) {
-							if (comp.isVisible()) {
-								protCardLyt.show(protCardPnl, comp.getName());
-								break;
-							}
+				TaxonomySelectionDialog taxDlg = TaxonomySelectionDialog.getInstance();
+				taxDlg.setVisible(true);
+				
+				TreePath[] selPaths = taxDlg.getSelectionPaths();
+				final CheckBoxTreeSelectionModel cbtsm = new CheckBoxTreeSelectionModel(null);
+				cbtsm.setSelectionPaths(selPaths);
+				
+				RowFilter<Object, Object> taxFilter = new RowFilter<Object, Object>() {
+					@Override
+					public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+						// extract tree table node from row entry
+						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) entry.getValue(-1);
+						// extract taxonomy node from tree table node
+						TaxonomyNode taxNode = null;
+						if (node.isProtein()) {
+							taxNode = ((Taxonomic) node.getUserObject()).getTaxonomyNode();
+						} else if (node.isTaxonomy()) {
+							taxNode = (TaxonomyNode) node.getUserObject();
 						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
+						if (taxNode != null) {
+							// since we hijacked the taxonomic tree view we need to prepend its root user object
+							Object[] path = Constants.concat(new Object[] { "Root of Taxonomic View" }, taxNode.getPath());
+							TreePath taxPath = new TreePath(path);
+							// return whether the constructed path is (partially) selected
+							return (cbtsm.isPathSelected(taxPath, true) || cbtsm.isPartiallySelected(taxPath));
+						}
+						// fall-back for non-taxonomic nodes (e.g. pathway nodes, E.C. nodes)
+						return true;
 					}
+				};
+				// TODO: implement taxonomy filtering for 'classic' view
+				protFlatTreeTbl.setRowFilter(taxFilter);
+				protTaxonTreeTbl.setRowFilter(taxFilter);
+				protEnzymeTreeTbl.setRowFilter(taxFilter);
+				protPathwayTreeTbl.setRowFilter(taxFilter);
 			}
 		});
 		
-		hierarchyBtn = new JToggleButton(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
-		hierarchyBtn.setRolloverIcon(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ROLLOVER_ICON));
-		hierarchyBtn.setPressedIcon(IconConstants.createArrowedIcon(IconConstants.HIERARCHY_PRESSED_ICON));
+		final JToggleButton hierarchyBtn = new JToggleButton(
+				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
+		hierarchyBtn.setRolloverIcon(
+				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ROLLOVER_ICON));
+		hierarchyBtn.setPressedIcon(
+				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_PRESSED_ICON));
 		hierarchyBtn.setToolTipText("Select Hierarchical View");
-		hierarchyBtn.setUI(new RoundedHoverButtonUI());
-		hierarchyBtn.setOpaque(false);
-		hierarchyBtn.setBorderPainted(false);
-		hierarchyBtn.setMargin(new Insets(1, 0, 0, 0));
+		
+		hierarchyBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(taxFilterBtn));
+		
 //		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
 //		hierarchyBtn.addMouseListener(ittml);
 
@@ -525,95 +481,16 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 
-		getResultsFromDbBtn = new JButton(IconConstants.GO_DB_SMALL_ICON);
-		getResultsFromDbBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
-		getResultsFromDbBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
-		getResultsFromDbBtn.setToolTipText("Get Results from DB");
-
-		getResultsFromDbBtn.setUI(new RoundedHoverButtonUI());
-
-		getResultsFromDbBtn.setOpaque(false);
-		getResultsFromDbBtn.setBorderPainted(false);
-		getResultsFromDbBtn.setMargin(new Insets(1, 0, 0, 0));
-
-//		getResultsFromDbBtn.addMouseListener(ittml);
-		getResultsFromDbBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				fetchResultsFromDatabase();
-			}
-		});
-		getResultsFromDbBtn.setEnabled(false);
-
-		getResultsFromFileBtn = new JButton(IconConstants.GO_PAGE_ICON);
-		getResultsFromFileBtn.setRolloverIcon(IconConstants.GO_PAGE_ROLLOVER_ICON);
-		getResultsFromFileBtn.setPressedIcon(IconConstants.GO_PAGE_PRESSED_ICON);
-		getResultsFromFileBtn.setToolTipText("Get Results from File");
-
-		getResultsFromFileBtn.setUI(new RoundedHoverButtonUI());
-
-		getResultsFromFileBtn.setOpaque(false);
-		getResultsFromFileBtn.setBorderPainted(false);
-		getResultsFromFileBtn.setMargin(new Insets(1, 0, 0, 0));
-
-//		getResultsFromFileBtn.addMouseListener(ittml);
-
-		getResultsFromFileBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				fetchResultsFromFile();
-			}
-		});
-
-		JPanel protBtnPnl = new JPanel(new FormLayout("p, 2dlu, 36px, 2dlu, 36px, c:5dlu, p, 2dlu, p, 1px", "0px, f:p:g, 0px"));
+		JPanel protBtnPnl = new JPanel(new FormLayout(
+//				"p, 2dlu, 36px, 2dlu, 36px, c:5dlu, p, 2dlu, p, 1px",
+				"22px, 2dlu, 36px, 1px",
+				"20px"));
 		protBtnPnl.setOpaque(false);
-
-		protBtnPnl.add(taxFilterBtn, CC.xy(3, 2));
-		protBtnPnl.add(hierarchyBtn, CC.xy(5, 2));
-		//		protBtnPnl.add(hierarchyCbx, CC.xy(3, 2));
-		protBtnPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(6, 2));
-		protBtnPnl.add(getResultsFromDbBtn, CC.xy(7, 2));
-		protBtnPnl.add(getResultsFromFileBtn, CC.xy(9, 2));
-
-		// XXX: only for testing purposes, please remove when appropriate
-		final JTextField testTtf = new JTextField(20);
-		testTtf.getDocument().addDocumentListener(new DocumentListener() {
-			public void removeUpdate(DocumentEvent e) { filter(e); }
-			public void insertUpdate(DocumentEvent e) { filter(e); }
-			public void changedUpdate(DocumentEvent e) { filter(e); }
-			private void filter(DocumentEvent e) {
-				RowFilter<Object, Object> rowFilter = null;
-				String pattern = testTtf.getText();
-				if (!pattern.isEmpty()) {
-					try {
-						rowFilter = RowFilter.regexFilter(pattern, 1);
-						testTtf.setForeground(Color.BLACK);
-					} catch (PatternSyntaxException pse) {
-						testTtf.setForeground(Color.RED);
-					}
-				}
-				protFlatTreeTbl.setRowFilter(rowFilter);
-				protTaxonTreeTbl.setRowFilter(rowFilter);
-				protEnzymeTreeTbl.setRowFilter(rowFilter);
-				//				protPathwayTreeTbl.setRowFilter(rowFilter);
-			}
-		});
-		testTtf.setBorder(BorderFactory.createCompoundBorder(testTtf.getBorder(),
-				BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 16, 0, 0,
-						new ImageIcon(getClass().getResource("/de/mpa/resources/icons/filter16.png"))),
-						BorderFactory.createEmptyBorder(0, 3, 0, 0))));
-
-		//		protBtnPnl.add(testTtf, CC.xy(1, 2));
-
-		//		JButton testBtn = new JButton("test");
-		//		testBtn.addActionListener(new ActionListener() {
-		//			@Override
-		//			public void actionPerformed(ActionEvent e) {
-		//				System.out.println(protFlatTreeTbl.getCellRect(1, 0, false));
-		//			}
-		//		});
-		//		protBtnPnl.add(testBtn, CC.xy(5, 1));
+		
+		protBtnPnl.add(taxFilterBtn, CC.xy(1, 1));
+		protBtnPnl.add(hierarchyBtn, CC.xy(3, 1));
 
 		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
-		//		protTtlPnl.setRightDecoration(getResultsBtn);
 		protTtlPnl.setRightDecoration(protBtnPnl);
 		protTtlPnl.setTitleFont(ttlFont);
 		protTtlPnl.setTitlePainter(ttlPainter);
@@ -679,15 +556,12 @@ public class DbSearchResultPanel extends JPanel {
 		specCont.setMinimumSize(new Dimension(200, 200));
 
 		spectrumOverviewPnl.add(specCont, BorderLayout.CENTER);
-		spectrumOverviewPnl.add(constructSpectrumFilterPanel(), BorderLayout.EAST);
-		// FIXME: put spectrum panel in chart panel
+		spectrumOverviewPnl.add(this.constructSpectrumFilterPanel(), BorderLayout.EAST);
 
 		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
 		specTtlPnl.setTitleFont(ttlFont);
 		specTtlPnl.setTitlePainter(ttlPainter);
 		specTtlPnl.setBorder(ttlBorder);
-
-		this.createChartPanel();
 
 		// Set up multi-split pane
 		String layoutDef =
@@ -698,15 +572,15 @@ public class DbSearchResultPanel extends JPanel {
 		msl.setLayoutByWeight(true);
 
 		split = new JXMultiSplitPane(msl) {
-			@Override
-			public void setCursor(Cursor cursor) {
-				if (busy) {
-					if ((cursor == null) || (cursor.getType() == Cursor.DEFAULT_CURSOR)) {
-						cursor = clientFrame.getCursor();
-					}
-				}
-				super.setCursor(cursor);
-			}
+//			@Override
+//			public void setCursor(Cursor cursor) {
+//				if (busy) {
+//					if ((cursor == null) || (cursor.getType() == Cursor.DEFAULT_CURSOR)) {
+//						cursor = clientFrame.getCursor();
+//					}
+//				}
+//				super.setCursor(cursor);
+//			}
 		};
 		split.setDividerSize(12);
 
@@ -838,514 +712,465 @@ public class DbSearchResultPanel extends JPanel {
 	}
 
 	/**
-	 * Class to fetch protein database search results in a background thread.
-	 * It's possible to fetch from the remote SQL database or from a local file instance.
-	 * 
-	 * @author A. Behne, R. Heyer
-	 */
-	private class ResultsTask extends SwingWorker {
-
-		/**
-		 * The file object reference for when file-based results shall be read.
-		 */
-		private File file;
-
-		/**
-		 * Constructs a task instance.
-		 * @param file
-		 *	the file instance from which results shall be fetched. If
-		 *	<code>null</code> the results will be fetched from the SQL
-		 *	database.
-		 */
-		public ResultsTask(File file) {
-			this.file = file;
-		}
-		@Override
-		protected Object doInBackground() {
-			try {
-				// Begin appearing busy
-				setBusy(true);
-
-				// Fetch the database search result object
-				Client client = Client.getInstance();
-				DbSearchResult newResult;
-				if (file == null) {
-					newResult = client.getDbSearchResult(
-							clientFrame.getProjectPanel().getCurrentProjectContent(), 
-							clientFrame.getProjectPanel().getCurrentExperimentContent());
-									
-				} else {
-					client.firePropertyChange("new message", null, "READING RESULTS FILE");
-					client.firePropertyChange("resetall", 0L, 100L);
-					client.firePropertyChange("indeterminate", false, true);
-					ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
-							new GZIPInputStream(new FileInputStream(file))));
-					newResult = (DbSearchResult) ois.readObject();
-					ois.close();
-					clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
-					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
-					client.firePropertyChange("indeterminate", true, false);
-				}
-
-				// Fetching UniProt entries and taxonomic information.
-				if (!newResult.equals(dbSearchResult)) {
-					if (!newResult.isEmpty() && !client.isViewer()) {
-
-						// Get various hit lists from result object
-						ProteinHitList metaProteins = newResult.getMetaProteins();
-						ProteinHitList proteinList = (ProteinHitList) newResult.getProteinHitList();
-						Set<PeptideHit> peptideSet = proteinList.getPeptideSet();	// all distinct peptides
-
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-						Client.getInstance().firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
-
-						// Define common peptide taxonomy for each peptide
-						TaxonomyUtils.getCommonTaxId4EachPeptide(peptideSet);
-						
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
-
-						// Determine protein taxonomy
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) proteinList.size());
-
-						// Define protein taxonomy by common tax ID of peptides
-						TaxonomyUtils.determineProteinTaxonomy(proteinList);
-						
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
-
-						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-
-						// Combine proteins to metaproteins
-						// TODO: configure leucine/isoleucine merging parameter
-						MetaProteinFactory.condenseMetaProteins(metaProteins, false);
-
-						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
-
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-						
-						// Determine meta-protein taxonomy
-						MetaProteinFactory.determineMetaProteinTaxonomy(metaProteins);
-						
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
-					}
-					// Update result object reference
-					dbSearchResult = newResult;
-					client.setDbSearchResult(newResult);
-					
-					// Update overview panel
-					parent.updateOverview();
-
-					// Populate tables
-					refreshProteinTables();
-					
-					// ClientFrameMenuBar controlling
-					ClientFrameMenuBar clientFrameMenuBar = (ClientFrameMenuBar) clientFrame.getJMenuBar();
-					// Enable CSV results export function
-					clientFrameMenuBar.setExportCSVResultsEnabled(true);
-					// Enable save project function
-					clientFrameMenuBar.setSaveProjectEnabled(true);
-					// Enable graphML function
-					clientFrameMenuBar.setExportGraphMLEnabled(true);
-				}
-				
-				// Setup graph database.
-				client.setupGraphDatabaseContent();			
-				
-			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				Client.getInstance().firePropertyChange("new message", null, "FAILED");
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
-
-			}
-			return 0;
-		}
-
-
-		@Override
-		protected void done() {
-			// Stop appearing busy
-			setBusy(false);
-
-			chartTypeBtn.setEnabled(true);
-			ontologyData = new OntologyData(dbSearchResult);
-			taxonomyData = new TaxonomyData(dbSearchResult);
-		
-			updateChart(chartType);
-			
-			// Enable export functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setExportCSVResultsEnabled(true);
-			// Enable Save Project functionality
-			((ClientFrameMenuBar) clientFrame.getJMenuBar()).setSaveProjectEnabled(true);
-		}
-
-	}
-
-	/**
 	 * This method sets up the protein results table.
 	 */
 	private void setupProteinTableProperties() {
-		// Init column selection checkbox header widget
-		final JCheckBox selChk = new TriStateCheckBox(2, -1) {
-			@Override
-			public boolean isPartiallySelected() {
-//				if (dbSearchResult != null) {
-//					List<ProteinHit> hitList = dbSearchResult.getProteinHitList();
-//					boolean res = hitList.isEmpty();
-//					if (!res) {
-//						res = hitList.get(0).isSelected();
-//						for (int i = 1; i < hitList.size(); i++) {
-//							boolean sel = hitList.get(i).isSelected();
-//							if (res != sel) {
-//								return true;
-//							}
-//							res = sel;
-//						}
-//					}
-//				}
-				return false;
-			}
-		};
+		
+	// Create protein table model
+	final TableModel proteinTblMdl = new DefaultTableModel() {
+		// instance initializer block
+		{
+			setColumnIdentifiers(new Object[] { "", "#", "Accession",
+					"Description", "Taxonomy", "SC", "MW", "pI", "PepC",
+					"SpC", "emPAI", "NSAF", ""});
+		}
 
-		selChk.setPreferredSize(new Dimension(15, 15));
-		selChk.setSelected(true);
-		selChk.setOpaque(false);
-		selChk.setBackground(new Color(0, 0, 0, 0));
+		public boolean isCellEditable(int row, int col) {
+			return (col == Constants.PROT_SELECTION) || (col == Constants.PROT_WEBRESOURCE);
+		}
 
-		// Create protein table model
-		final TableModel proteinTblMdl = new DefaultTableModel() {
-			// instance initializer block
-			{
-				setColumnIdentifiers(new Object[] { "", "#", "Accession",
-						"Description", "Taxonomy", "SC", "MW", "pI", "PepC",
-						"SpC", "emPAI", "NSAF", ""});
-			}
-
-			public boolean isCellEditable(int row, int col) {
-				return (col == Constants.PROT_SELECTION) || (col == Constants.PROT_WEBRESOURCE);
-			}
-
-			public Class<?> getColumnClass(int columnIndex) {
-				switch (columnIndex) {
-				case Constants.PROT_SELECTION: 
-					return Boolean.class;
-				case Constants.PROT_INDEX:	
-				case Constants.PROT_PEPTIDECOUNT:
-				case Constants.PROT_SPECTRALCOUNT:
-					return Integer.class;
-				case Constants.PROT_COVERAGE:
-				case Constants.PROT_MW:
-				case Constants.PROT_PI:
-				case Constants.PROT_EMPAI:
-				case Constants.PROT_NSAF:
-					return Double.class;
-				default:
-					return String.class;
-				}
-			}
-		};
-		proteinTbl = new JXTable(proteinTblMdl) {
-			public Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
-			@Override
-			public Component prepareRenderer(TableCellRenderer renderer,
-					int row, int column) {
-				Component comp = super.prepareRenderer(renderer, row, column);
-				if (comp instanceof JComponent) {
-					((JComponent) comp).setBorder(padding);
-				}
-				return comp;
-			}
-			@Override
-			public void setValueAt(Object aValue, int row, int column) {
-				super.setValueAt(aValue, row, column);
-				if (column == Constants.PROT_SELECTION) {
-					boolean selected = (Boolean) aValue;
-					Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
-					String accession = (String) getValueAt(row, Constants.PROT_ACCESSION);
-					ProteinHit hit = proteinHits.get(accession);
-					hit.setSelected(selected);
-					if (selected) {
-						for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
-							selected &= ph.isSelected();
-							if (!selected) break;
-						}
-					}
-					selChk.setSelected(selected);
-					getTableHeader().repaint(getTableHeader().getHeaderRect(Constants.PROT_SELECTION));
-				}
-			}
-			
-		};
-
-		// Adjust column widths
-		TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5, 1 });
-		TableConfig.setColumnMinWidths(proteinTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
-				createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
-
-		// Get table column model
-		final TableColumnModel tcm = proteinTbl.getColumnModel();
-
-		// Apply component header capabilities as well as column header tooltips
-		String[] columnToolTips = {
-				"Selection for Export",
-				"Result Index",
-				"Protein Accession",				
-				"Protein Description",
-				"Taxonomy",
-				"Sequence Coverage in %",
-				"Molecular Weight in kDa",
-				"Isoelectric Point",
-				"Peptide Count",
-				"Spectral Count",
-				"Exponentially Modified Protein Abundance Index",
-				"Normalized Spectral Abundance Factor", 
-				"External Web Resource Links"};
-		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
-		//		ch.setReorderingAllowed(false, Constants.Constants.PROT_SELECTION);
-		proteinTbl.setTableHeader(ch);
-
-		// Add filter button and checkbox widgets to column headers
-		for (int col = Constants.PROT_SELECTION; col < tcm.getColumnCount(); col++) {
-			switch (col) {
-			case Constants.PROT_SELECTION:
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
-				tcm.getColumn(col).setMinWidth(19);
-				tcm.getColumn(col).setMaxWidth(19);
-				break;
-			case Constants.PROT_INDEX:
+		public Class<?> getColumnClass(int columnIndex) {
+			switch (columnIndex) {
+			case Constants.PROT_SELECTION: 
+				return Boolean.class;
+			case Constants.PROT_INDEX:	
+			case Constants.PROT_PEPTIDECOUNT:
+			case Constants.PROT_SPECTRALCOUNT:
+				return Integer.class;
 			case Constants.PROT_COVERAGE:
 			case Constants.PROT_MW:
 			case Constants.PROT_PI:
-			case Constants.PROT_PEPTIDECOUNT:
-			case Constants.PROT_SPECTRALCOUNT:
 			case Constants.PROT_EMPAI:
 			case Constants.PROT_NSAF:
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERIC)) {
-					protected SortKey getSortKey(JTable table, int column) {
-						return table.getRowSorter().getSortKeys().get(1);
-					}
-				});
-				break;
-			case Constants.PROT_ACCESSION: 
-			case Constants.PROT_DESCRIPTION:
-			case Constants.PROT_TAXONOMY: 
-				tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHANUMERIC)) {
-					protected SortKey getSortKey(JTable table, int column) {
-						return table.getRowSorter().getSortKeys().get(1);
-					}
-				});
-				break;
+				return Double.class;
+			default:
+				return String.class;
+			}
+		}
+	};
 
-			case Constants.PROT_WEBRESOURCE:
-				tcm.getColumn(col).setMinWidth(19);
-				tcm.getColumn(col).setMaxWidth(19);
+	// Init column selection checkbox header widget
+	final JCheckBox selChk = new TriStateCheckBox() {
+		@Override
+		public boolean isPartiallySelected() {
+			// selected state needs to be false to be partially selected
+			if (!this.isSelected()) {
+				// check all values in selection column, if at least one was found we have a partial selection
+				for (int i = 0; i < proteinTblMdl.getRowCount(); i++) {
+					if ((Boolean) proteinTblMdl.getValueAt(i, Constants.PROT_SELECTION)) {
+						return true;
+					}
+					// typically this loop terminates after the first element due to the table being sorted
+				}
+			}
+			return false;
+		}
+	};
+	selChk.setBorder(BorderFactory.createEmptyBorder(1, 0, 0, 0));
+	selChk.setSelected(true);
+	selChk.setOpaque(false);
+	selChk.setBackground(new Color(0, 0, 0, 0));
+	
+	this.proteinTbl = new JXTable(proteinTblMdl) {
+		public Border padding = BorderFactory.createEmptyBorder(0, 2, 0, 2);
+		@Override
+		public Component prepareRenderer(TableCellRenderer renderer,
+				int row, int column) {
+			Component comp = super.prepareRenderer(renderer, row, column);
+			if (comp instanceof JComponent) {
+				((JComponent) comp).setBorder(padding);
+			}
+			return comp;
+		}
+		@Override
+		public void setValueAt(Object aValue, int row, int column) {
+			super.setValueAt(aValue, row, column);
+			if (column == Constants.PROT_SELECTION) {
+				boolean selected = (Boolean) aValue;
+				Map<String, ProteinHit> proteinHits = dbSearchResult.getProteinHits();
+				String accession = (String) getValueAt(row, Constants.PROT_ACCESSION);
+				ProteinHit hit = proteinHits.get(accession);
+				hit.setSelected(selected);
+				if (selected) {
+					for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+						selected &= ph.isSelected();
+						if (!selected) break;
+					}
+				}
+				selChk.setSelected(selected);
+				getTableHeader().repaint(getTableHeader().getHeaderRect(Constants.PROT_SELECTION));
+			}
+		}
+	};
+
+	// Adjust column widths
+	TableConfig.setColumnWidths(proteinTbl, new double[] { 0, 2.5, 5.5, 15, 14, 5, 4, 3, 4, 4, 4.5, 5, 1 });
+	TableConfig.setColumnMinWidths(proteinTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(),
+			createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
+
+	// Get table column model
+	final TableColumnModelExt tcm = (TableColumnModelExt) proteinTbl.getColumnModel();
+
+	// Apply component header capabilities as well as column header tooltips
+	String[] columnToolTips = {
+			"Selection for Export",
+			"Result Index",
+			"Protein Accession",				
+			"Protein Description",
+			"Taxonomy",
+			"Sequence Coverage in %",
+			"Molecular Weight in kDa",
+			"Isoelectric Point",
+			"Peptide Count",
+			"Spectral Count",
+			"Exponentially Modified Protein Abundance Index",
+			"Normalized Spectral Abundance Factor", 
+			"External Web Resource Links"};
+	ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
+	//		ch.setReorderingAllowed(false, Constants.Constants.PROT_SELECTION);
+	proteinTbl.setTableHeader(ch);
+
+	// Add filter button and checkbox widgets to column headers
+	for (int col = Constants.PROT_SELECTION; col < tcm.getColumnCount(); col++) {
+		switch (col) {
+		case Constants.PROT_SELECTION:
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
+			tcm.getColumn(col).setMinWidth(19);
+			tcm.getColumn(col).setMaxWidth(19);
+			break;
+		case Constants.PROT_INDEX:
+		case Constants.PROT_COVERAGE:
+		case Constants.PROT_MW:
+		case Constants.PROT_PI:
+		case Constants.PROT_PEPTIDECOUNT:
+		case Constants.PROT_SPECTRALCOUNT:
+		case Constants.PROT_EMPAI:
+		case Constants.PROT_NSAF:
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.NUMERIC)) {
+				protected SortKey getSortKey(JTable table, int column) {
+					RowSorter<? extends TableModel> rowSorter = table.getRowSorter();
+					if (rowSorter != null) {
+						return rowSorter.getSortKeys().get(1);
+					} else {
+						return super.getSortKey(table, column);
+					}
+				}
+			});
+			break;
+		case Constants.PROT_ACCESSION: 
+		case Constants.PROT_DESCRIPTION:
+		case Constants.PROT_TAXONOMY: 
+			tcm.getColumn(col).setHeaderRenderer(new ComponentHeaderRenderer(createFilterButton(col, proteinTbl, Constants.ALPHANUMERIC)) {
+				protected SortKey getSortKey(JTable table, int column) {
+					RowSorter<? extends TableModel> rowSorter = table.getRowSorter();
+					if (rowSorter != null) {
+						return rowSorter.getSortKeys().get(1);
+					} else {
+						return super.getSortKey(table, column);
+					}
+				}
+			});
+			break;
+
+		case Constants.PROT_WEBRESOURCE:
+			tcm.getColumn(col).setMinWidth(19);
+			tcm.getColumn(col).setMaxWidth(19);
+		}
+	}
+
+	// Apply custom cell renderers/highlighters to columns
+	tcm.getColumnExt(Constants.PROT_INDEX).addHighlighter(new FormatHighlighter(SwingConstants.RIGHT));
+
+	// Hyperlink renderer for Accession column
+	final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
+		public void actionPerformed(ActionEvent ev) {
+			try {
+				if (target != null) {
+					Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
+				}
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+		}
+	};		
+	HyperlinkProvider hlp = new HyperlinkProvider(linkAction) {
+		@Override
+		protected JXHyperlink createRendererComponent() {
+			JXHyperlink comp = super.createRendererComponent();
+			comp.setHorizontalAlignment(SwingConstants.CENTER);
+			return comp;
+		}
+		@Override
+		protected void format(CellContext context) {
+			super.format(context);
+			Object value = context.getValue();
+			String target = value.toString();
+			if (target.matches("^\\d*$")) {
+				// target string contains only numeric characters -> probably GI number
+				ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniProtEntry();
+				// change target to UniProt accession inside associated UniProtEntry
+				if (uniprotEntry != null) {
+					target = dbSearchResult.getProteinHit(target).getAccession();
+				} else {
+					target = null;
+				}
+			} else {
+				// target string contains non-numeric characters -> probably UniProt accession
+				// do nothing
+			}
+			linkAction.setTarget(target);
+			rendererComponent.setText(value.toString());
+		}
+	};
+	
+	tcm.getColumn(Constants.PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(hlp) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			JXRendererHyperlink hyperlink = (JXRendererHyperlink) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			
+			// when no target is specified replace hyperlink with a simple label
+			if (linkAction.getTarget() == null) {
+				JLabel label = new JLabel(hyperlink.getText(), SwingConstants.CENTER);
+				label.setOpaque(true);
+				label.setBackground(hyperlink.getBackground());
+				return label;
+			} else {
+				hyperlink.setOpaque(true);
+			}
+			return hyperlink;
+		}
+	});
+	
+	// Web resource action
+	Action webResourceAction = new AbstractAction() {			
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			setupWebresourceMenu(proteinTbl);
+		}
+	};
+	new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESOURCE);
+
+	tcm.getColumnExt(Constants.PROT_DESCRIPTION).addHighlighter(new FormatHighlighter(SwingConstants.LEFT));
+	tcm.getColumnExt(Constants.PROT_TAXONOMY).addHighlighter(new FormatHighlighter(SwingConstants.LEFT));
+	DecimalFormat x100formatter = new DecimalFormat("0.00");
+	x100formatter.setMultiplier(100);
+	tcm.getColumnExt(Constants.PROT_COVERAGE).addHighlighter(new BarChartHighlighter(
+			0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
+//	tcm.getColumnExt(Constants.PROT_MW).addHighlighter(new FormatHighlighter(SwingConstants.CENTER, "0.000"));
+//	tcm.getColumnExt(Constants.PROT_PI).addHighlighter(new FormatHighlighter(SwingConstants.CENTER, "0.00"));
+	tcm.getColumnExt(Constants.PROT_PEPTIDECOUNT).addHighlighter(new BarChartHighlighter());
+	tcm.getColumnExt(Constants.PROT_SPECTRALCOUNT).addHighlighter(new BarChartHighlighter());
+	tcm.getColumnExt(Constants.PROT_EMPAI).addHighlighter(new BarChartHighlighter(
+			ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
+	tcm.getColumnExt(Constants.PROT_NSAF).addHighlighter(new BarChartHighlighter(
+			ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
+
+	// Make table always sort primarily by selection state of selection column
+	final SortKey selKey = new SortKey(Constants.PROT_SELECTION, SortOrder.DESCENDING);
+
+	final TableSortController<TableModel> tsc = new TableSortController<TableModel>(proteinTblMdl) {
+		@Override
+		public void toggleSortOrder(int column) {
+			List<SortKey> keys = new ArrayList<SortKey>(getSortKeys());
+			SortKey sortKey = SortUtils.getFirstSortKeyForColumn(keys, column);
+			if (keys.indexOf(sortKey) == 1)  {
+				// primary key: cycle sort order
+				SortOrder so = (sortKey.getSortOrder() == SortOrder.ASCENDING) ?
+						SortOrder.DESCENDING : SortOrder.ASCENDING;
+				keys.set(1, new SortKey(column, so));
+			} else {
+				// all others: insert new 
+				keys.remove(sortKey);
+				keys.add(1, new SortKey(column, SortOrder.DESCENDING));
+			}
+			if (keys.size() > getMaxSortKeys()) {
+				keys = keys.subList(0, getMaxSortKeys());
+			}
+			setSortKeys(keys);
+		}
+		@Override
+		public void setSortKeys(
+				List<? extends SortKey> sortKeys) {
+			List<SortKey> newKeys = new ArrayList<SortKey>(sortKeys);
+			// make sure selection column sorting always occurs before other columns
+			newKeys.remove(selKey);
+			newKeys.add(0, selKey);
+			super.setSortKeys(newKeys);
+		}
+	};
+	proteinTbl.setRowSorter(tsc);
+
+	// register action listener on selection column header checkbox
+	selChk.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			boolean selected = selChk.isSelected();
+			// prevent auto-resorting while iterating rows for performance reasons
+			tsc.setSortsOnUpdates(false);
+			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+				proteinTbl.setValueAt(selected, row, Constants.PROT_SELECTION);
+			}
+			tsc.setSortsOnUpdates(true);
+			// re-sort rows after iteration finished
+			tsc.sort();
+		}
+	});
+
+	// Specify initial sort order
+	List<SortKey> sortKeys = new ArrayList<SortKey>(2);
+	sortKeys.add(0, new SortKey(Constants.PROT_SELECTION, SortOrder.DESCENDING));
+	sortKeys.add(1, new SortKey(Constants.PROT_SPECTRALCOUNT, SortOrder.DESCENDING));
+	tsc.setSortKeys(sortKeys);
+
+	// Prevent messing with sort order of selection column
+	tsc.setSortable(Constants.PROT_SELECTION, false);
+
+	// Register list selection listener
+	proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+		public void valueChanged(ListSelectionEvent evt) {
+			int protRow = proteinTbl.getSelectedRow();
+			refreshPeptideViews(protRow);
+		}
+	});
+
+	// Only one row is selectable
+	proteinTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+	// Add nice striping effect
+	proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
+
+	protCHighlightPredicate = new ProteinCountHighlightPredicate();
+	Color selCol = UIManager.getColor("Table.selectionBackground");
+	selCol = new Color(232, 122, 0, 41);
+	Highlighter protCountHighlighter = new ColorHighlighter(protCHighlightPredicate, selCol, null);
+	proteinTbl.addHighlighter(protCountHighlighter);
+
+	// Enables column control
+	TableConfig.configureColumnControl(proteinTbl);
+}
+
+//	/**
+//	 * This method sets the enabled state of the get results button.
+//	 */
+//	public void setResultsFromDbButtonEnabled(boolean enabled) {
+//		getResultsFromDbBtn.setEnabled(enabled);
+//	}
+
+	/**
+	 * Creates a filter button widget and installs it in the specified column header 
+	 * of the specified table.
+	 * 
+	 * @param column The column index.
+	 * @param table The table reference.
+	 * @param filterType Either <code>Constants.NUMERICAL</code> or 
+	 * <code>Constants.ALPHA_NUMERICAL</code>.
+	 * @return The filter button widget reference.
+	 */
+	protected JPanel createFilterButton(int column, JTable table, int filterType) {
+		// button widget with little black triangle
+		final FilterButton button = new FilterButton(column, table, filterType);
+//		button.setPreferredSize(new Dimension(11, 11));
+
+		// wrap button in panel to apply padding
+		final JPanel panel = new JPanel(new FormLayout("0px, 11px, 3px", "2px, f:11px, 2px"));
+		panel.setOpaque(false);
+		panel.add(button, CC.xy(2, 2));
+
+		// forward mouse events on panel to button
+		panel.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent me) {
+				forwardEvent(me);
+			}
+			public void mouseReleased(MouseEvent me) {
+				forwardEvent(me);
+			}
+			public void mouseClicked(MouseEvent me) {
+				forwardEvent(me);
+			}
+			private void forwardEvent(MouseEvent me) {
+				button.dispatchEvent(SwingUtilities.convertMouseEvent(panel, me, button));
+			}
+		});
+		return panel;
+	}
+
+	/**
+	 * Filter button widget for table headers.
+	 * 
+	 * @author A. Behne
+	 */
+	protected class FilterButton extends JToggleButton {
+
+		private FilterBalloonTip filterTip;
+		private FilterButton button;
+
+		/**
+		 * Constructs a filter toggle button widget which shows its own balloon
+		 * tip pop-up containing filtering-related components for the specified
+		 * <code>column</code>.
+		 * 
+		 * @param column
+		 */
+		public FilterButton(final int column, final JTable table, final int filterType) {
+			super();
+			this.button = this;
+			this.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					if (button != lastSelectedFilterBtn) {
+//						lastSelectedFilterBtn.setSelected(false);
+						lastSelectedFilterBtn.setFilterTipVisible(false);
+						lastSelectedFilterBtn = button;
+					}
+					if (button.isSelected()) {
+						JTableHeader th = table.getTableHeader();
+						String filterString = (filterTip != null) ? filterTip.getFilterString() : "";	
+
+						Rectangle rect = th.getHeaderRect(table.convertColumnIndexToView(column));
+						rect.x += rect.width - 9;
+						rect.y += 1;
+						filterTip = new FilterBalloonTip(th, rect, filterType);
+
+						filterTip.addComponentListener(new ComponentAdapter() {
+							public void componentHidden(ComponentEvent ce) {
+								button.setSelected(false);
+								table.getTableHeader().repaint();
+								// TODO: maybe store and restore original focus instead of shifting it always onto the table?
+								table.requestFocus();
+								if (filterTip.isConfirmed()) {
+									updateSelections(column, filterTip.getFilterString());
+								}
+							};
+						});
+						filterTip.setFilterString(filterString);
+						filterTip.requestFocus();
+					} else {
+						filterTip.setVisible(false);
+					}
+				}
+			});
+		}
+
+		/**
+		 * Method to remotely hide/show the filter balloon tip.
+		 * @param visible
+		 */
+		protected void setFilterTipVisible(boolean visible) {
+			if (filterTip != null) {
+				filterTip.setVisible(visible);
 			}
 		}
 
-		// Apply custom cell renderers/highlighters to columns
-		tcm.getColumn(Constants.PROT_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			// paint black triangle in bottom right corner
+			g.setColor(Color.BLACK);
+			g.fillPolygon(new int[] { 3, 8, 8 }, new int[] { 8, 8, 3 }, 3);
+		}
 
-		// Hyperlink renderer for Accession column
-		final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
-			public void actionPerformed(ActionEvent ev) {
-				try {
-					if (target != null) {
-						Desktop.getDesktop().browse(new URI("http://www.uniprot.org/uniprot/" + target));
-					}
-				} catch (Exception e) {
-					JXErrorPane.showDialog(ClientFrame.getInstance(),
-							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				}
-			}
-		};		
-		HyperlinkProvider hlp = new HyperlinkProvider(linkAction) {
-			@Override
-			protected JXHyperlink createRendererComponent() {
-				JXHyperlink comp = super.createRendererComponent();
-				comp.setHorizontalAlignment(SwingConstants.CENTER);
-				return comp;
-			}
-			@Override
-			protected void format(CellContext context) {
-				super.format(context);
-				Object value = context.getValue();
-				String target = value.toString();
-				if (target.matches("^\\d*$")) {
-					// target string contains only numeric characters -> probably GI number
-					ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
-					// change target to UniProt accession inside associated UniProtEntry
-					if (uniprotEntry != null) {
-						target = dbSearchResult.getProteinHit(target).getAccession();
-					} else {
-						target = null;
-					}
-				} else {
-					// target string contains non-numeric characters -> probably UniProt accession
-					// do nothing
-				}
-				linkAction.setTarget(target);
-				rendererComponent.setText(value.toString());
-			}
-		};
-		
-		tcm.getColumn(Constants.PROT_ACCESSION).setCellRenderer(new DefaultTableRenderer(hlp) {
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				JXRendererHyperlink hyperlink = (JXRendererHyperlink) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				
-				// when no target is specified replace hyperlink with a simple label
-				if (linkAction.getTarget() == null) {
-					JLabel label = new JLabel(hyperlink.getText(), SwingConstants.CENTER);
-					label.setOpaque(true);
-					label.setBackground(hyperlink.getBackground());
-					return label;
-				} else {
-					hyperlink.setOpaque(true);
-				}
-				return hyperlink;
-			}
-		});
-		
-		// Web resource action
-		Action webResourceAction = new AbstractAction() {			
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				setupWebresourceMenu(proteinTbl);
-			}
-		};
-		new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESOURCE);
-		
-		tcm.getColumn(Constants.PROT_DESCRIPTION).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		tcm.getColumn(Constants.PROT_TAXONOMY).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		DecimalFormat x100formatter = new DecimalFormat("0.00");
-		x100formatter.setMultiplier(100);
-		((TableColumnExt) tcm.getColumn(Constants.PROT_COVERAGE)).addHighlighter(new BarChartHighlighter(
-				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
-		tcm.getColumn(Constants.PROT_MW).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
-		tcm.getColumn(Constants.PROT_PI).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
-		((TableColumnExt) tcm.getColumn(Constants.PROT_PEPTIDECOUNT)).addHighlighter(new BarChartHighlighter());
-		((TableColumnExt) tcm.getColumn(Constants.PROT_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
-		((TableColumnExt) tcm.getColumn(Constants.PROT_EMPAI)).addHighlighter(new BarChartHighlighter(
-				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
-		((TableColumnExt) tcm.getColumn(Constants.PROT_NSAF)).addHighlighter(new BarChartHighlighter(
-				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
-
-		// Make table always sort primarily by selection state of selection column
-		final SortKey selKey = new SortKey(Constants.PROT_SELECTION, SortOrder.DESCENDING);
-
-		final TableSortController<TableModel> tsc = new TableSortController<TableModel>(proteinTblMdl) {
-			@Override
-			public void toggleSortOrder(int column) {
-				List<SortKey> keys = new ArrayList<SortKey>(getSortKeys());
-				SortKey sortKey = SortUtils.getFirstSortKeyForColumn(keys, column);
-				if (keys.indexOf(sortKey) == 1)  {
-					// primary key: cycle sort order
-					SortOrder so = (sortKey.getSortOrder() == SortOrder.ASCENDING) ?
-							SortOrder.DESCENDING : SortOrder.ASCENDING;
-					keys.set(1, new SortKey(column, so));
-				} else {
-					// all others: insert new 
-					keys.remove(sortKey);
-					keys.add(1, new SortKey(column, SortOrder.DESCENDING));
-				}
-				if (keys.size() > getMaxSortKeys()) {
-					keys = keys.subList(0, getMaxSortKeys());
-				}
-				setSortKeys(keys);
-			}
-			@Override
-			public void setSortKeys(
-					List<? extends SortKey> sortKeys) {
-				List<SortKey> newKeys = new ArrayList<SortKey>(sortKeys);
-				// make sure selection column sorting always occurs before other columns
-				newKeys.remove(selKey);
-				newKeys.add(0, selKey);
-				super.setSortKeys(newKeys);
-			}
-		};
-		proteinTbl.setRowSorter(tsc);
-
-		// register action listener on selection column header checkbox
-		selChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				boolean selected = selChk.isSelected();
-				// prevent auto-resorting while iterating rows for performance reasons
-				tsc.setSortsOnUpdates(false);
-				for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-					proteinTbl.setValueAt(selected, row, Constants.PROT_SELECTION);
-				}
-				tsc.setSortsOnUpdates(true);
-				// re-sort rows after iteration finished
-				tsc.sort();
-			}
-		});
-
-		// Specify initial sort order
-		List<SortKey> sortKeys = new ArrayList<SortKey>(2);
-		sortKeys.add(0, new SortKey(Constants.PROT_SELECTION, SortOrder.DESCENDING));
-		sortKeys.add(1, new SortKey(Constants.PROT_SPECTRALCOUNT, SortOrder.DESCENDING));
-		tsc.setSortKeys(sortKeys);
-
-		// Prevent messing with sort order of selection column
-		tsc.setSortable(Constants.PROT_SELECTION, false);
-
-		// Register list selection listener
-		proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent evt) {
-				int protRow = proteinTbl.getSelectedRow();
-				refreshPeptideViews(protRow);
-//				if (proteinTbl.getSelectedRow() > -1) {
-//					int row = proteinTbl.convertRowIndexToModel(proteinTbl.getSelectedRow());
-//					
-////					if (row >0) {
-////						//TODO Robbie care about synchronity
-////						System.out.println(proteinTbl.getModel().getValueAt(row, 0));
-////						System.out.println(proteinTbl.getModel().getValueAt(row, 1));
-////						System.out.println(proteinTbl.getModel().getValueAt(row, 2));
-////					}
-//					//				refreshCoverageViewer();	
-//				}
-				
-			}
-		});
-
-		// Only one row is selectable
-		proteinTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		// Add nice striping effect
-		proteinTbl.addHighlighter(TableConfig.getSimpleStriping());
-
-		protCHighlightPredicate = new ProtCHighlighterPredicate();
-		Color selCol = UIManager.getColor("Table.selectionBackground");
-		selCol = new Color(232, 122, 0, 41);
-		Highlighter protCountHighlighter = new ColorHighlighter(protCHighlightPredicate, selCol, null);
-		proteinTbl.addHighlighter(protCountHighlighter);
-
-		// Enables column control
-		TableConfig.configureColumnControl(proteinTbl);
 	}
-	
-	/**
-	 * Initializes all hierarchical protein tree table views
-	 */
-	private void setupProteinTreeTables() {
-		protFlatTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Flat View"));
-		protTaxonTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Taxonomy View"));
-		TableConfig.setColumnWidths(protTaxonTreeTbl, new double[] { 20.25, 22, 0, 4, 5, 4, 3, 4, 4, 4.5, 5, 0});
-		protTaxonTreeTbl.getColumnExt("Taxonomy").setVisible(false);
-		protEnzymeTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of E.C. View"));
-		protPathwayTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Pathway View"));
 
-		linkNodes(new TreePath(protFlatTreeTbl.getTreeTableModel().getRoot()),
-				new TreePath(protTaxonTreeTbl.getTreeTableModel().getRoot()),
-				new TreePath(protEnzymeTreeTbl.getTreeTableModel().getRoot()),
-				new TreePath(protPathwayTreeTbl.getTreeTableModel().getRoot()));
-	}
-	
-
-	private JPopupMenu setupWebresourceMenu(JXTable table) {
+	protected JPopupMenu setupWebresourceMenu(JXTable table) {
 		JPopupMenu webresourceMenu = new JPopupMenu();		
 		ActionListener popupMenuItemEventListener = new ActionListener() {
 			@Override
@@ -1356,7 +1181,7 @@ public class DbSearchResultPanel extends JPanel {
 		};
 		JMenuItem uniProtMenuItem = new JMenuItem("UniProt", IconConstants.WEB_UNIPROT_ICON);
 		int col = Constants.PROT_ACCESSION;
-		if(table instanceof JXTreeTable) {
+		if (table instanceof JXTreeTable) {
 			col = 0;
 		}
 		String accession = (String) table.getValueAt(table.getSelectedRow(), col);
@@ -1370,21 +1195,27 @@ public class DbSearchResultPanel extends JPanel {
 		webresourceMenu.add(ncbiMenuItem);
 		
 		JMenuItem keggMenuItem = new JMenuItem("KEGG", IconConstants.WEB_KEGG_ICON);
-		ProteinHit proteinHit = dbSearchResult.getProteinHit(accession);
-		List<String> kNumbers = proteinHit.getUniprotEntry().getKoNumbers();
 		String keggURL = "";
-		int size = kNumbers.size();
-
-		for (int i = 0; i < size; i++) {
-			keggURL  = "http://www.genome.jp/dbget-bin/www_bget?ko:" + kNumbers.get(i);
-			if(i < size - 1) keggURL += "+";
+		ProteinHit proteinHit = dbSearchResult.getProteinHit(accession);
+		if (proteinHit != null) {
+			ReducedUniProtEntry uniprotEntry = proteinHit.getUniProtEntry();
+			if (uniprotEntry != null) {
+				List<String> kNumbers = uniprotEntry.getKNumbers();
+				int size = kNumbers.size();
+	
+				for (int i = 0; i < size; i++) {
+					keggURL  = "http://www.genome.jp/dbget-bin/www_bget?ko:" + kNumbers.get(i);
+					if(i < size - 1) keggURL += "+";
+				}
+			}
 		}
-		
 		keggMenuItem.putClientProperty("url", keggURL);
 		keggMenuItem.addActionListener(popupMenuItemEventListener);
+		// disable KEGG item if no UniProt entry is present or it contains no K numbers
+		keggMenuItem.setEnabled(!keggURL.isEmpty());
 		webresourceMenu.add(keggMenuItem);
 		
-		JMenuItem blastMenuItem = new JMenuItem("BLAST");//, IconConstants.WEB_BLAST_ICON);
+		JMenuItem blastMenuItem = new JMenuItem("BLAST", IconConstants.WEB_BLAST_ICON);
 		String sequence = proteinHit.getSequence();
 		String blastURL = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastp&BLAST_PROGRAMS=blastp&PAGE_TYPE=BlastSearch&SHOW_DEFAULTS=on&LINK_LOC=blasthome&QUERY=" + sequence;
 		blastMenuItem.putClientProperty("url", blastURL);
@@ -1416,12 +1247,12 @@ public class DbSearchResultPanel extends JPanel {
 		reactomeMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(reactomeMenuItem);
 		
-		JMenuItem quickGoMenuItem = new JMenuItem("QuickGO");//, IconConstants.WEB_QUICKGO_ICON);
+		JMenuItem quickGoMenuItem = new JMenuItem("QuickGO", IconConstants.WEB_QUICKGO_ICON);
 		quickGoMenuItem.putClientProperty("url", "http://www.ebi.ac.uk/QuickGO/GProtein?ac=" + accession);
 		quickGoMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(quickGoMenuItem);
 		
-		JMenuItem eggNogMenuItem = new JMenuItem("eggNOG");//, IconConstants.WEB_EGGNOG_ICON);
+		JMenuItem eggNogMenuItem = new JMenuItem("eggNOG", IconConstants.WEB_EGGNOG_ICON);
 		eggNogMenuItem.putClientProperty("url", "http://eggnog.embl.de/uniprot=" + accession);
 		eggNogMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(eggNogMenuItem);
@@ -1430,6 +1261,165 @@ public class DbSearchResultPanel extends JPanel {
 		webresourceMenu.show(table, cellRect.x, cellRect.y + cellRect.height);
 		return webresourceMenu;
 	}
+
+	/**
+	 * Opens a target in a browser window.
+	 * @param url Browser URL string.
+	 */
+	protected void openTargetInBrowser(String url) {
+		try {
+			if (url != null) {
+				Desktop.getDesktop().browse(new URI(url));
+			}
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
+	}
+
+	/**
+	 * Method to update the checkbox column values depending on pattern 
+	 * matching in the specified column using the specified pattern string.
+	 * @param column The column to check.
+	 * @param filterString Comma-separated string patterns.
+	 */
+	protected void updateSelections(int column, String filterString) {
+		column = proteinTbl.convertColumnIndexToView(column);
+		// prevent auto-resorting while iterating rows for performance reasons
+		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(false);
+		// Check whether we're dealing with numerical values or with text
+		if (Number.class.isAssignableFrom(proteinTbl.getColumnClass(column))) {
+			//			List<Number> greater = new ArrayList<Number>();
+			//			List<Number> less = new ArrayList<Number>();
+			// parse filter strings
+			String[] filterStrings = filterString.split(",");
+			double left = Double.MIN_VALUE, right = Double.MAX_VALUE;
+			for (int i = 0; i < filterStrings.length; i++) {
+				String s = filterStrings[i].trim();
+				if (s.startsWith(">")) {
+					double val = Double.parseDouble(s.substring(1));
+					if (left == Double.MIN_VALUE) {
+						left = val;
+					} else {
+						left = Math.min(left, val);
+					}
+					// greater.add(val);
+				} else if (s.startsWith("<")) {
+					double val = Double.parseDouble(s.substring(1));
+					if (right == Double.MAX_VALUE) {
+						right = val;
+					} else {
+						right = Math.max(right, val);
+					}
+				}
+			}
+			Interval interval = new Interval(left, right);
+			// iterate table rows and check intervals
+			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+				if (!(Boolean) proteinTbl.getValueAt(row, Constants.PROT_SELECTION)) {
+					break;
+				}
+				proteinTbl.setValueAt(	interval.containsExclusive(((Number) proteinTbl.getValueAt(row, column)).doubleValue()),
+						row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
+			}
+		} else {
+			List<String> restrictive = new ArrayList<String>();
+			List<String> permissive = new ArrayList<String>();
+			// parse filter strings
+			String[] filterStrings = filterString.split(",");
+			for (int i = 0; i < filterStrings.length; i++) {
+				String s = filterStrings[i].trim();
+				if (s.startsWith("-")) {
+					restrictive.add(s.substring(1));
+				} else {
+					permissive.add(s);
+				}
+			}
+			// iterate table rows and check filter patterns
+			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+				if (!(Boolean) proteinTbl.getValueAt(row, Constants.PROT_SELECTION)) {
+					break;
+				}
+				String value = proteinTbl.getValueAt(row, column).toString();
+				boolean selected;
+				// check includes
+				if (!permissive.isEmpty()) {
+					selected = false;
+					for (String s : permissive) {
+						selected |= value.contains(s);
+					}
+				} else {
+					// check excludes
+					selected = true;
+					for (String s : restrictive) {
+						selected &= !value.contains(s);
+						if (!selected) break;
+					}
+				}
+				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
+			}
+		}
+		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
+		// re-sort rows after iteration finished
+		((TableSortController) proteinTbl.getRowSorter()).sort();
+	}
+
+	/**
+	 * Custom highlighter predicate for protein count visualization.
+	 * @author kohrs
+	 *
+	 */
+	private class ProteinCountHighlightPredicate implements HighlightPredicate {
+	
+		/**
+		 * The list of proteins to be highlighted.
+		 */
+		private List<ProteinHit> protHits = new ArrayList<ProteinHit>();
+	
+		@Override
+		public boolean isHighlighted(Component renderer,
+				org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
+			for (ProteinHit protHit : getProteinHits()) {
+				if (protHit.getAccession().equals(adapter.getValue(Constants.PROT_ACCESSION))) {
+					return true;
+				}
+			}
+			return false;
+		}
+	
+		/**
+		 * Returns the list of protein hits.
+		 * @return the list of protein hits.
+		 */
+		public List<ProteinHit> getProteinHits() {
+			return protHits;
+		}
+	
+		/**
+		 * Sets the list of protein hits.
+		 * @param protHits the list of protein hits to set.
+		 */
+		public void setProteinHits(List<ProteinHit> protHits) {
+			this.protHits = protHits;
+		}
+	}
+
+	/**
+	 * Initializes all hierarchical protein tree table views
+	 */
+	private void setupProteinTreeTables() {
+		protFlatTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Flat View"));
+		protTaxonTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Taxonomic View"));
+		TableConfig.setColumnWidths(protTaxonTreeTbl, new double[] { 20.25, 22, 0, 4, 5, 4, 3, 4, 4, 4.5, 5, 0 });
+		protTaxonTreeTbl.getColumnExt("Taxonomy").setVisible(false);
+		protEnzymeTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Enzyme View"));
+		protPathwayTreeTbl = createTreeTable(new PhylogenyTreeTableNode("Root of Pathway View"));
+
+		linkNodes(new TreePath(protFlatTreeTbl.getTreeTableModel().getRoot()),
+				new TreePath(protTaxonTreeTbl.getTreeTableModel().getRoot()),
+				new TreePath(protEnzymeTreeTbl.getTreeTableModel().getRoot()),
+				new TreePath(protPathwayTreeTbl.getTreeTableModel().getRoot()));
+	}
 	
 
 	/**
@@ -1437,14 +1427,17 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param root the root node of the tree table
 	 * @return he generated tree table
 	 */
-	private SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
+	protected SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
 
+		final SortableCheckBoxTreeTable treeTbl;
+		
 		// Set up table model
 		SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
-			// Define column header strings
-			{ setColumnIdentifiers(Arrays.asList(
-					new String[] { "Accession", "Description", "Taxonomy", "AId", "SC",
-							"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", ""} ));
+			// Install column names
+			{
+				setColumnIdentifiers(Arrays.asList(new String[] {
+						"Accession", "Description", "Taxonomy", "AId", "SC",
+						"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", " " }));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -1456,26 +1449,63 @@ public class DbSearchResultPanel extends JPanel {
 					throw new IllegalArgumentException("This tree table requires Phylogeny nodes!");
 				}
 			}
+			
 		};
 
-		// Create table from model; make only hierarchical column editable (for checkboxes)
-		// TODO: make this default behavior of class?
-		// TODO: handle editability via column model
-		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return (column == getHierarchicalColumn() || column == convertColumnIndexToView(11));
-			}
+		// Create table from model, redirect tooltip text generation
+		treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			@Override
 			public String getToolTipText(MouseEvent me) {
-				return getTableToolTipText(me);
+				return DbSearchResultPanel.this.getTableToolTipText(me);
 			}
 		};
-
+		
+		// Install component header
+		TableColumnModel tcm = treeTbl.getColumnModel();
+		String[] columnToolTips = {
+				"Protein Accession",
+				"Protein Description",
+				"Taxonomy",
+				"Alignment Identity",
+				"Sequence Coverage in %",
+				"Molecular Weight in kDa",
+				"Isoelectric Point",
+				"Peptide Count",
+				"Spectral Count",
+				"Exponentially Modified Protein Abundance Index",
+				"Normalized Spectral Abundance Factor",
+				"External Web Resources"
+		};
+		treeTbl.setTableHeader(new ComponentHeader(tcm, columnToolTips));
+		
+		// Force column factory to generate columns to properly cache widths
+		((AbstractTableModel) treeTbl.getModel()).fireTableStructureChanged();
+		
+		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5, 1 });
+		TableConfig.setColumnMinWidths(
+				treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), 22, getFont());
+		TableColumnExt webColumn = (TableColumnExt) tcm.getColumn(11);
+		webColumn.setMinWidth(19);
+		webColumn.setMaxWidth(19);
+		webColumn.setResizable(false);
+		webColumn.setSortable(false);
+		
+		// Web resource action
+		Action webResourceAction = new AbstractAction() {			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				setupWebresourceMenu(treeTbl);
+			}
+		};
+		ButtonColumn bc = new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESOURCE);
+		
+		webColumn.setCellRenderer(bc);
+		webColumn.setCellEditor(bc);
+		treeTbl.addMouseListener(bc);
+		
 		// Pre-select root node
-		final TreePath rootPath = new TreePath(root);
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
-		cbtsm.setSelectionPath(rootPath);
+		cbtsm.setSelectionPath(new TreePath(root));
 
 		// Toggle default sort order (spectral count, descending)
 		treeTbl.getRowSorter().toggleSortOrder(7);
@@ -1563,170 +1593,107 @@ public class DbSearchResultPanel extends JPanel {
 			}
 		});
 
-		// Install component header
-		TableColumnModel tcm = treeTbl.getColumnModel();
-		String[] columnToolTips = {
-				"Protein Accession",
-				"Protein Description",
-				"Taxonomy",
-				"Alignment Identity",
-				"Sequence Coverage in %",
-				"Molecular Weight in kDa",
-				"Isoelectric Point",
-				"Peptide Count",
-				"Spectral Count",
-				"Exponentially Modified Protein Abundance Index",
-				"Normalized Spectral Abundance Factor"
-		};
-		final ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
-		treeTbl.setTableHeader(ch);
+//		// Install mouse listeners in header for right-click popup capabilities
+//		MouseAdapter ma = new MouseAdapter() {
+//			private int col = -1;
+//
+//			private JPopupMenu testPopup = new JPopupMenu() {
+//				@Override
+//				public void setVisible(boolean b) {
+//					if (!b) {
+//						raise();
+//					}
+//					super.setVisible(b);
+//				}
+//			};
+//
+//			{
+//				JMenu sortMenu = new JMenu("Sort... (NYI)");
+//				JCheckBoxMenuItem ascChk = new JCheckBoxMenuItem("Ascending");
+//				JCheckBoxMenuItem desChk = new JCheckBoxMenuItem("Descending");
+//				JCheckBoxMenuItem unsChk = new JCheckBoxMenuItem("Unsorted", true);
+//				ButtonGroup sortBg = new ButtonGroup();
+//				sortBg.add(ascChk);
+//				sortBg.add(desChk);
+//				sortBg.add(unsChk);
+//				sortMenu.add(ascChk);
+//				sortMenu.add(desChk);
+//				sortMenu.add(unsChk);
+//
+//				testPopup.add(sortMenu);
+//				testPopup.add(new JMenuItem("Coming soon..."));
+//			}
+//
+//			@Override
+//			public void mousePressed(MouseEvent me) {
+//				int col = ch.columnAtPoint(me.getPoint());
+//				if ((col != -1) && (me.getButton() == MouseEvent.BUTTON3)) {
+//					this.col = col;
+//					lower();
+//				}
+//			}
+//			@Override
+//			public void mouseReleased(MouseEvent me) {
+//				if ((me.getButton() == MouseEvent.BUTTON3) && 
+//						(ch.getBounds().contains(me.getPoint()))) {
+//					testPopup.show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
+//				}
+//			}
+//			@Override
+//			public void mouseDragged(MouseEvent me) {
+//				TableColumn draggedColumn = ch.getDraggedColumn();
+//				if (draggedColumn != null) {
+//					int col = treeTbl.convertColumnIndexToView(draggedColumn.getModelIndex());
+//					if ((col != -1) && (col != this.col)) {
+//						this.col = col;
+//					}
+//				}
+//			}
+//			@Override
+//			public void mouseExited(MouseEvent me) {
+//				if ((this.col != -1) && 
+//						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+//					raise();
+//				}
+//			}
+//			@Override
+//			public void mouseEntered(MouseEvent me) {
+//				if ((this.col != -1) && 
+//						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+//					lower();
+//				}
+//			}
+//			private void lower() {
+//				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
+//				if (hr instanceof ComponentHeaderRenderer) {
+//					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
+//					chr.getPanel().setBorder(BorderFactory.createCompoundBorder(
+//							BorderFactory.createLineBorder(Color.GRAY),
+//							BorderFactory.createEmptyBorder(1, 1, 0, -1)));
+//					chr.getPanel().setOpaque(true);
+//					ch.repaint(ch.getHeaderRect(this.col));
+//				}
+//			}
+//			private void raise() {
+//				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
+//				if (hr instanceof ComponentHeaderRenderer) {
+//					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
+//					chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+//					chr.getPanel().setOpaque(false);
+//					ch.repaint(ch.getHeaderRect(this.col));
+//				}
+//			}
+//		};
+//		ch.addMouseListener(mouseAdapter);
+//		ch.addMouseMotionListener(mouseAdapter);
 
-		// Install mouse listeners in header for right-click popup capabilities
-		MouseAdapter mouseAdapter = new MouseAdapter() {
-			private int col = -1;
-
-			private JPopupMenu testPopup = new JPopupMenu() {
-				@Override
-				public void setVisible(boolean b) {
-					if (!b) {
-						raise();
-					}
-					super.setVisible(b);
-				}
-			};
-
-			{
-				JMenu sortMenu = new JMenu("Sort... (NYI)");
-				JCheckBoxMenuItem ascChk = new JCheckBoxMenuItem("Ascending");
-				JCheckBoxMenuItem desChk = new JCheckBoxMenuItem("Descending");
-				JCheckBoxMenuItem unsChk = new JCheckBoxMenuItem("Unsorted", true);
-				ButtonGroup sortBg = new ButtonGroup();
-				sortBg.add(ascChk);
-				sortBg.add(desChk);
-				sortBg.add(unsChk);
-				sortMenu.add(ascChk);
-				sortMenu.add(desChk);
-				sortMenu.add(unsChk);
-
-				testPopup.add(sortMenu);
-				testPopup.add(new JMenuItem("Coming soon..."));
-			}
-
-			@Override
-			public void mousePressed(MouseEvent me) {
-				int col = ch.columnAtPoint(me.getPoint());
-				if ((col != -1) && (me.getButton() == MouseEvent.BUTTON3)) {
-					this.col = col;
-					lower();
-				}
-			}
-			@Override
-			public void mouseReleased(MouseEvent me) {
-				if ((me.getButton() == MouseEvent.BUTTON3) && 
-						(ch.getBounds().contains(me.getPoint()))) {
-					testPopup.show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
-				}
-			}
-			@Override
-			public void mouseDragged(MouseEvent me) {
-				TableColumn draggedColumn = ch.getDraggedColumn();
-				if (draggedColumn != null) {
-					int col = treeTbl.convertColumnIndexToView(draggedColumn.getModelIndex());
-					if ((col != -1) && (col != this.col)) {
-						this.col = col;
-					}
-				}
-			}
-			@Override
-			public void mouseExited(MouseEvent me) {
-				if ((this.col != -1) && 
-						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
-					raise();
-				}
-			}
-			@Override
-			public void mouseEntered(MouseEvent me) {
-				if ((this.col != -1) && 
-						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
-					lower();
-				}
-			}
-			private void lower() {
-				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
-				if (hr instanceof ComponentHeaderRenderer) {
-					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
-					chr.getPanel().setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(Color.GRAY),
-							BorderFactory.createEmptyBorder(1, 1, 0, -1)));
-					chr.getPanel().setOpaque(true);
-					ch.repaint(ch.getHeaderRect(this.col));
-				}
-			}
-			private void raise() {
-				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
-				if (hr instanceof ComponentHeaderRenderer) {
-					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
-					chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-					chr.getPanel().setOpaque(false);
-					ch.repaint(ch.getHeaderRect(this.col));
-				}
-			}
-		};
-		ch.addMouseListener(mouseAdapter);
-		ch.addMouseMotionListener(mouseAdapter);
-
-		// Add widgets to column headers
-		for (int i = 1; i < tcm.getColumnCount(); i++) {
-			JPanel panel = new JPanel();
-			panel.setOpaque(false);
-			panel.setPreferredSize(new Dimension(13, 13));
-			tcm.getColumn(i).setHeaderRenderer(
-					new ComponentHeaderRenderer(panel, null, SwingConstants.TRAILING));
-		}
-
-		// Create checkbox widget for hierarchical column header
-		JCheckBox selChk = new TriStateCheckBox(2, -1) {
-			{
-				/* Hook into tree table checkbox selection model to synchronize 
-				 * root node selection state with checkbox selection state */ 
-				this.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if (isSelected()) {
-							cbtsm.addSelectionPath(rootPath);
-						} else {
-							cbtsm.removeSelectionPath(rootPath);
-						}
-					}
-				});
-				cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
-					public void valueChanged(TreeSelectionEvent tse) {
-						if (tse.getPath().equals(rootPath)) {
-							setSelected(cbtsm.isPathSelected(rootPath));
-						}
-						// TODO: use column index constants
-						ch.repaint(ch.getHeaderRect(0));
-					}
-				});
-			}
-			@Override
-			public boolean isPartiallySelected() {
-				return cbtsm.isPartiallySelected(rootPath);
-			}
-		};
-		selChk.setPreferredSize(new Dimension(15, 15));
-		selChk.setSelected(true);
-		selChk.setOpaque(false);
-		selChk.setBackground(new Color(0, 0, 0, 0));
-
-		tcm.getColumn(0).setHeaderRenderer(
-				new ComponentHeaderRenderer(selChk, null, SwingConstants.TRAILING));
-
-		// Reduce node indents to make visuals more compact
+		// Reduce node indents to make tree more compact horizontally
 		treeTbl.setIndents(6, 4, 2);
+		// Hide root node
 		treeTbl.setRootVisible(false);
 
 		// Set up node icons
-		// TODO: add icons for non-leaves
+		// TODO: add icons for non-leaves, e.g. for different taxonomic levels
 		IconValue iv = new IconValue() {
 			@Override
 			public Icon getIcon(Object value) {
@@ -1739,6 +1706,8 @@ public class DbSearchResultPanel extends JPanel {
 					if (ph.getAccession().startsWith("Meta-Protein")) {
 						return IconConstants.METAPROTEIN_TREE_ICON;
 					}
+//					} else if ("Unclassified".equals(context.getValue().toString())) {
+//						
 				}
 				// fall back to defaults
 				return context.getIcon();
@@ -1746,23 +1715,13 @@ public class DbSearchResultPanel extends JPanel {
 		};
 		treeTbl.setIconValue(iv);
 		
-		// Add web resource action
-		Action webResourceAction = new AbstractAction() {			
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				setupWebresourceMenu(treeTbl);
-			}
-		};
-		new ButtonColumn(treeTbl, webResourceAction, treeTbl.convertColumnIndexToModel(11));
-		
-
-		
 		// Install renderers and highlighters
 		// TODO: use proper column index variables
 		FontMetrics fm = getFontMetrics(chartFont);
 
-		tcm.getColumn(1).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
-		tcm.getColumn(2).setCellRenderer(new CustomTableCellRenderer(SwingConstants.LEFT));
+		FormatHighlighter leftHL = new FormatHighlighter(SwingConstants.LEFT);
+		((TableColumnExt) tcm.getColumn(1)).addHighlighter(leftHL);
+		((TableColumnExt) tcm.getColumn(2)).addHighlighter(leftHL);
 
 		BarChartHighlighter bch = new BarChartHighlighter(ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.0"));
 		bch.setBaseline(1 + fm.stringWidth(bch.getFormatter().format(100.0)));
@@ -1773,9 +1732,9 @@ public class DbSearchResultPanel extends JPanel {
 		((TableColumnExt) tcm.getColumn(4)).addHighlighter(new BarChartHighlighter(
 				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
 
-		tcm.getColumn(5).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+		((TableColumnExt) tcm.getColumn(5)).addHighlighter(new FormatHighlighter(SwingConstants.CENTER, "0.000"));
 
-		tcm.getColumn(6).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "0.00"));
+		((TableColumnExt) tcm.getColumn(6)).addHighlighter(new FormatHighlighter(SwingConstants.CENTER, "0.00"));
 
 		((TableColumnExt) tcm.getColumn(7)).addHighlighter(new BarChartHighlighter());
 
@@ -1786,10 +1745,10 @@ public class DbSearchResultPanel extends JPanel {
 
 		((TableColumnExt) tcm.getColumn(10)).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
-
-		// Add non-leaf highlighter
+		
+		// Install non-leaf highlighter
 		Color hlCol = new Color(237, 246, 255);	// light blue
-		//		Color hlCol = new Color(255, 255, 237);	// light yellow
+//		Color hlCol = new Color(255, 255, 237);	// light yellow
 		HighlightPredicate notLeaf = new NotHighlightPredicate(HighlightPredicate.IS_LEAF);
 		HighlightPredicate notSel = new NotHighlightPredicate(HighlightPredicate.IS_SELECTED);
 		treeTbl.addHighlighter(new CompoundHighlighter(
@@ -1798,13 +1757,6 @@ public class DbSearchResultPanel extends JPanel {
 						new ColorHighlighter(new AndHighlightPredicate(
 								notSel, notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
 
-		// Configure column widths
-		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5, 1});
-		TableConfig.setColumnMinWidths(treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), createFilterButton(0, null, 0).getPreferredSize().width + 8, new JLabel().getFont());
-		
-		tcm.getColumn(11).setMinWidth(19);
-		tcm.getColumn(11).setMaxWidth(19);
-		
 		// Enable column control widget
 		TableConfig.configureColumnControl(treeTbl);
 		
@@ -1815,11 +1767,281 @@ public class DbSearchResultPanel extends JPanel {
 	}
 
 	/**
+	 * Inserts a protein tree node into the 'Flat View' tree table and returns 
+	 * the tree path to where it was inserted.
+	 * @param protNode The protein tree node to insert
+	 * @return The tree path pointing to the insertion location
+	 */
+	protected TreePath insertFlatNode(PhylogenyTreeTableNode protNode) {
+		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protFlatTreeTbl.getTreeTableModel();
+
+//		treeTblMdl.insertNodeInto(protNode,
+//				(MutableTreeTableNode) treeTblMdl.getRoot(),
+//				treeTblMdl.getRoot().getChildCount());
+		((PhylogenyTreeTableNode) treeTblMdl.getRoot()).add(protNode);
+
+		return new TreePath(treeTblMdl.getPathToRoot(protNode));
+	}
+
+	/**
+	 * Inserts a protein tree node into the 'Taxonomy View' tree table and returns 
+	 * the tree path to where it was inserted.
+	 * @param protNode The protein tree node to insert
+	 * @return The tree path pointing to the insertion location
+	 */
+	protected TreePath insertTaxonomicNode(PhylogenyTreeTableNode protNode) {
+		// get taxonomic tree table root
+		DefaultTreeTableModel treeTblMdl =
+				(DefaultTreeTableModel) protTaxonTreeTbl.getTreeTableModel();
+		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
+
+		// extract protein hit from provided node
+		ProteinHit ph = (ProteinHit) protNode.getUserObject();
+		
+//		List<String> names = new ArrayList<String>();
+//		TaxonomyNode[] path = ph.getTaxonomyNode().getPath();
+//		for (TaxonomyNode taxNode : path) {
+//			names.add(taxNode.getName());
+//		}
+
+//		PhylogenyTreeTableNode parent = root;
+//		for (String name : names) {
+//			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
+//			if (child == null) {
+//				child = new PhylogenyTreeTableNode(name);
+////				treeTblMdl.insertNodeInto(child, parent, 0);
+//				parent.insert(child, 0);
+//			}
+//			parent = child;
+//		}
+////		treeTblMdl.insertNodeInto(protNode, parent, parent.getChildCount());
+//		parent.add(protNode);
+
+//		return new TreePath(treeTblMdl.getPathToRoot(protNode));
+		
+		// go from the root of the tree along the taxonomy path
+		TaxonomyNode[] taxPath = ph.getTaxonomyNode().getPath();
+		PhylogenyTreeTableNode parent = root;
+		for (TaxonomyNode taxNode : taxPath) {
+			// get child node associated with current taxonomy node
+			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByUserObject(taxNode);
+			if (child == null) {
+				// no child with this taxonomy node exists currently, create a new one
+				child = new PhylogenyTreeTableNode(taxNode);
+				// add new child to parent
+				parent.add(child);
+			}
+			// the child node becomes the parent in the next iteration
+			parent = child;
+		}
+		// insert protein node as leaf
+		parent.add(protNode);
+		
+		return new TreePath(treeTblMdl.getPathToRoot(protNode));
+	}
+
+	/**
+	 * Inserts a protein tree node into the 'E.C. View' tree table and returns 
+	 * the tree path to where it was inserted.
+	 * @param protNode The protein tree node to insert
+	 * @return The tree path pointing to the insertion location
+	 */
+	protected TreePath insertEnzymeNode(PhylogenyTreeTableNode protNode) {
+		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protEnzymeTreeTbl.getTreeTableModel();
+
+		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
+
+		ProteinHit ph = (ProteinHit) protNode.getUserObject();
+
+		List<String> ecNumbers = ph.getUniProtEntry().getEcNumbers();
+
+		if (ecNumbers.isEmpty()) {
+			ecNumbers.add("Unclassified");
+		}
+
+		// Split primary E.C. number string into multiple tokens (typically 4)
+		// TODO: what to do when more than one E.C. number exists for the protein hit?
+		String[] ecTokens = ecNumbers.get(0).split("[.]");
+
+		PhylogenyTreeTableNode parent = root;
+		for (int i = 0; i < ecTokens.length; i++) {
+			String name = "";
+			for (int j = 0; j < ecTokens.length; j++) {
+				if (j > 0) name += ".";
+				name += (j <= i) ? ecTokens[j] : "-";
+			}
+			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
+			if (child == null) {
+				ECEntry entry = Parameters.getInstance().getEcMap().get(name);
+				child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
+				if (!name.equals("Unclassified")) {
+					URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
+					child.setURI(uri);	
+				}
+//				treeTblMdl.insertNodeInto(child, parent, 0);
+//				parent.insert(child, 0);
+				parent.add(child);
+			}
+			parent = child;
+		}
+//		treeTblMdl.insertNodeInto(protNode, parent, parent.getChildCount());
+		parent.add(protNode);
+
+		return new TreePath(treeTblMdl.getPathToRoot(protNode));
+	}
+
+	/**
+	 * Inserts a protein tree node into the 'Pathway View' tree table and
+	 * returns the tree paths to where its instances were inserted (in case the
+	 * protein is part of multiple pathways).
+	 * @param protNode The protein tree node to insert
+	 * @return The tree paths pointing to the insertion locations
+	 */
+	protected TreePath[] insertPathwayNode(PhylogenyTreeTableNode protNode) {
+		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protPathwayTreeTbl.getTreeTableModel();
+
+		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
+
+		ProteinHit ph = (ProteinHit) protNode.getUserObject();
+
+		// gather K and EC numbers for pathway lookup
+		List<String> kNumbers = ph.getUniProtEntry().getKNumbers();
+		List<String> ecNumbers = ph.getUniProtEntry().getEcNumbers();
+
+		// perform pathway lookup
+		Set<Short> pathways = new HashSet<Short>();
+		for (String ko : kNumbers) {
+			List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko.substring(1));
+			if (pathwaysByKO != null) {
+				pathways.addAll(pathwaysByKO);
+			}
+		}
+		for (String ec : ecNumbers) {
+			List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+			if (pathwaysByEC != null) {
+				pathways.addAll(pathwaysByEC);
+			}
+		}
+
+		List<TreePath> treePaths = new ArrayList<TreePath>();
+		PhylogenyTreeTableNode parent = root;
+
+		// iterate found pathways
+		if (!pathways.isEmpty()) {
+			// iterate pathway IDs
+			for (Short pw : pathways) {
+				// look for pathway in existing tree
+				parent = findPathway(pw);
+
+				// check whether pathway retrieval succeeded
+				if (parent == null) {
+					// look for pathway in global pathway tree
+					Object[] nodeNames = Constants.getKEGGPathwayPath(pw);
+
+					parent = root;
+					for (int i = 1; i < 4; i++) {
+						String nodeName = (String) nodeNames[i];
+						String[] splitName = nodeName.split("  ");
+						PhylogenyTreeTableNode child = 
+								(PhylogenyTreeTableNode) parent.getChildByName(splitName[0]);
+						if (child == null) {
+							for (int j = i; j < 4; j++) {
+								child = new PhylogenyTreeTableNode(
+										(Object[]) ((String) nodeNames[j]).split("  "));
+//								treeTblMdl.insertNodeInto(child, parent, parent.getChildCount());
+								parent.add(child);
+								parent = child;
+							}
+							break;
+						} else {
+							parent = child;
+						}
+					}						
+				}
+
+				// add clone of protein node to each pathway
+				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+				cloneNode.setURI(protNode.getURI());
+//				treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
+				parent.add(cloneNode);
+				treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
+			}
+		} else {
+			// no pathways were found, therefore look for 'Unclassified' node in tree
+			Enumeration<? extends MutableTreeTableNode> children = root.children();
+			while (children.hasMoreElements()) {
+				MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
+				if (child.getUserObject().equals("Unclassified")) {
+					parent = (PhylogenyTreeTableNode) child;
+					break;
+				}
+			}
+			if (parent == root) {
+				// 'Unclassified' node does not exist yet, therefore create it
+				parent = new PhylogenyTreeTableNode("Unclassified");
+//				treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
+				root.add(parent);
+			}
+			// add clone of protein node to 'Unclassified' branch
+			PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+			cloneNode.setURI(protNode.getURI());
+//			treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
+			parent.add(cloneNode);
+			treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
+		}
+		// TODO: add redundancy check in case a protein has multiple KOs pointing to the same pathway
+
+		return treePaths.toArray(new TreePath[0]);
+	}
+
+	/**
+	 * Auxiliary method to find the pathway node which is identified by the
+	 * provided pathway ID in the pathway tree.
+	 * @param pw The pathway ID
+	 * @return The desired pathway node or <code>null</code> if it could not be found
+	 */
+	protected PhylogenyTreeTableNode findPathway(Short pw) {
+		Enumeration<? extends MutableTreeTableNode> childrenA = 
+				((MutableTreeTableNode) protPathwayTreeTbl.getTreeTableModel().getRoot()).children();
+		while (childrenA.hasMoreElements()) {
+			MutableTreeTableNode childA = (MutableTreeTableNode) childrenA.nextElement();
+			Enumeration<? extends MutableTreeTableNode> childrenB = childA.children();
+			while (childrenB.hasMoreElements()) {
+				MutableTreeTableNode childB = (MutableTreeTableNode) childrenB.nextElement();
+				Enumeration<? extends MutableTreeTableNode> childrenC = childB.children();
+				while (childrenC.hasMoreElements()) {
+					MutableTreeTableNode childC = (MutableTreeTableNode) childrenC.nextElement();
+					if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
+						return (PhylogenyTreeTableNode) childC;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Links phylogeny nodes to each other. Used for communicating state changes 
+	 * between different tree tables.
+	 * @param treePaths The tree paths pointing to the nodes that are to be linked
+	 */
+	protected void linkNodes(TreePath... treePaths) {
+		for (int i = 0; i < treePaths.length; i++) {
+			PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) treePaths[i].getLastPathComponent();
+			for (int j = 0; j < treePaths.length; j++) {
+				if (j != i) {
+					node.addLink(treePaths[j]);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Delegate method to display table-specific tooltips.
 	 * @param me The MouseEvent triggering the tooltip.
 	 * @return The tooltip's text or <code>null</code>.
 	 */
-	private String getTableToolTipText(MouseEvent me) {
+	protected String getTableToolTipText(MouseEvent me) {
 		JXTreeTable table = (JXTreeTable) me.getSource();
 		if (table == protEnzymeTreeTbl) {
 			String ecDesc = null;
@@ -1926,7 +2148,7 @@ public class DbSearchResultPanel extends JPanel {
 
 		TableConfig.setColumnWidths(peptideTbl, new double[] {0, 0.9, 3.7, 1.7, 1.7,1.7});
 
-		TableColumnModel tcm = peptideTbl.getColumnModel();
+		TableColumnModelExt tcm = (TableColumnModelExt) peptideTbl.getColumnModel();
 
 		String[] columnToolTips = {
 				"Selection for Export",
@@ -1957,12 +2179,12 @@ public class DbSearchResultPanel extends JPanel {
 			});
 		}
 
-		tcm.getColumn(PEP_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		((TableColumnExt) tcm.getColumn(PEP_PROTEINCOUNT)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PEP_INDEX).addHighlighter(new FormatHighlighter(SwingConstants.RIGHT));
+		tcm.getColumnExt(PEP_PROTEINCOUNT).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
-		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT)).addHighlighter(new BarChartHighlighter());
+		tcm.getColumnExt(PEP_SPECTRALCOUNT).addHighlighter(new BarChartHighlighter());
 
-		((TableColumnExt) tcm.getColumn(PEP_TAXONOMY)).setVisible(false);
+		tcm.getColumnExt(PEP_TAXONOMY).setVisible(false);
 
 		// Make table always sort primarily by selection state of selection column
 		final SortKey selKey = new SortKey(PEP_SELECTION, SortOrder.DESCENDING);
@@ -2097,6 +2319,77 @@ public class DbSearchResultPanel extends JPanel {
 
 
 	/**
+	 * A clickable label with rollover effect.
+	 * 
+	 * @author A. Behne
+	 */
+	private class HoverLabel extends JToggleButton {
+	
+		private Color selected;
+		private List<HoverLabel> siblings;
+	
+		public HoverLabel(String text) {
+			this(text, Color.RED);
+		}
+	
+		public HoverLabel(String text, Color foreground) {
+			this(text, foreground, new Color(foreground.getRed(), foreground.getGreen(),
+					foreground.getBlue(), (foreground.getAlpha() + 1) / 8));
+		}
+	
+		public HoverLabel(String text, Color foreground, Color selected) {
+			super(text);
+			this.selected = selected;
+			this.siblings = new ArrayList<HoverLabel>();
+			setForeground(foreground);
+			setFocusPainted(false);
+			setContentAreaFilled(false);
+			setBorder(null);
+			setFont(new Font("Monospaced", Font.PLAIN, 12));
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			addMouseListener(new MouseAdapter() {
+				private Font originalFont, underlineFont;
+				{
+					originalFont = getFont();
+					Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
+					attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+					underlineFont = originalFont.deriveFont(attributes);
+				}
+				public void mouseEntered(MouseEvent me) {
+					for (HoverLabel sibling : siblings) {
+						sibling.setFont(underlineFont);
+					}
+				}
+				public void mouseExited(MouseEvent me) {
+					for (HoverLabel sibling : siblings) {
+						sibling.setFont(originalFont);
+					}
+				}
+			});
+			// TODO: synchronize selection state with table
+			addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int index = peptideTbl.convertRowIndexToView((Integer) coverageSelectionModel.getValue());
+					peptideTbl.getSelectionModel().setSelectionInterval(index, index);
+				}
+			});
+		}
+	
+		public void setSiblings(List<HoverLabel> siblings) {
+			this.siblings = siblings;
+		}
+	
+		@Override
+		protected void paintComponent(Graphics g) {
+			if (isSelected()) {
+				g.setColor(selected);
+				g.fillRect(0, 0, getWidth(), getHeight());
+			}
+			super.paintComponent(g);
+		}
+	}
+
+	/**
 	 * This method sets up the PSM results table.
 	 */
 	private void setupPsmTableProperties() {
@@ -2177,7 +2470,7 @@ public class DbSearchResultPanel extends JPanel {
 		TableConfig.setColumnWidths(psmTbl, new double[] { 0, 1, 1, 2, 1, 1, 1, 1 ,1 });
 
 		// Get table column model
-		final TableColumnModel tcm = psmTbl.getColumnModel();
+		final TableColumnModelExt tcm = (TableColumnModelExt) psmTbl.getColumnModel();
 
 		// Apply component header capabilities as well as column header tooltips
 		String[] columnToolTips = {
@@ -2212,20 +2505,20 @@ public class DbSearchResultPanel extends JPanel {
 		}
 
 		// Apply custom cell renderers/highlighters to columns 
-		tcm.getColumn(PSM_INDEX).setCellRenderer(new CustomTableCellRenderer(SwingConstants.RIGHT));
-		tcm.getColumn(PSM_CHARGE).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER, "+0"));
-		//		tcm.getColumn(PSM_VOTES).setCellRenderer(new CustomTableCellRenderer(SwingConstants.CENTER));
-		((TableColumnExt) tcm.getColumn(PSM_VOTES)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PSM_INDEX).addHighlighter(new FormatHighlighter(SwingConstants.RIGHT));
+		tcm.getColumnExt(PSM_CHARGE).addHighlighter(new FormatHighlighter(SwingConstants.CENTER, "+0"));
+//		tcm.getColumnExt(PSM_VOTES).addHighlighter(new FormatHighlighter(SwingConstants.CENTER));
+		tcm.getColumnExt(PSM_VOTES).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED));
-		((TableColumnExt) tcm.getColumn(PSM_XTANDEM)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PSM_XTANDEM).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN));
-		((TableColumnExt) tcm.getColumn(PSM_OMSSA)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PSM_OMSSA).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_CYAN, ColorUtils.LIGHT_CYAN));
-		((TableColumnExt) tcm.getColumn(PSM_CRUX)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PSM_CRUX).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_BLUE, ColorUtils.LIGHT_BLUE));
-		((TableColumnExt) tcm.getColumn(PSM_INSPECT)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PSM_INSPECT).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
-		((TableColumnExt) tcm.getColumn(PSM_MASCOT)).addHighlighter(new BarChartHighlighter(
+		tcm.getColumnExt(PSM_MASCOT).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
 
 		// Make table always sort primarily by selection state of selection column
@@ -2364,7 +2657,7 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param action
 	 * @return A JCheckBox with the defined parameters.
 	 */
-	private JToggleButton createIonToggleButton(String title, boolean selected,
+	protected JToggleButton createIonToggleButton(String title, boolean selected,
 			String toolTip, Dimension size, Action action) {
 		JToggleButton toggleButton = new JToggleButton(action);
 		toggleButton.setText(title);
@@ -2375,12 +2668,71 @@ public class DbSearchResultPanel extends JPanel {
 		toggleButton.setPreferredSize(size);
 		return toggleButton;
 	}
+	
+	/**
+	 * Loads a search result object and refreshes all detail view tables with it.
+	 */
+	public void refreshTables() {
+		new RefreshTablesTask().execute();
+	}
+	
+	/**
+	 * Worker implementation to refresh all detail view tables.
+	 * 
+	 * @author A. Behne
+	 */
+	private class RefreshTablesTask extends SwingWorker {
+		
+		@Override
+		protected Object doInBackground() throws Exception {
+			
+			// Begin by clearing all tables
+			DbSearchResultPanel.this.clearTables();
+			
+			// Fetch search result object
+			DbSearchResultPanel.this.dbSearchResult =
+					Client.getInstance().getDatabaseSearchResult();
+			
+			// Insert new result data into tables
+			try {
+				DbSearchResultPanel.this.refreshProteinTables();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void done() {
+			// Stop appearing busy
+			DbSearchResultPanel.this.setBusy(false);
+			
+			// Set up graph database contents
+			ResultsPanel resPnl =
+					(ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
+			resPnl.getDeNovoSearchResultPanel().buildGraphDatabase();
+		}
+		
+	}
+
+	/**
+	 * Convenience method to empty the various protein tables.
+	 */
+	protected void clearTables() {
+		// Empty 'classic' protein table
+		TableConfig.clearTable(proteinTbl);
+		// Empty protein tree tables
+		for (CheckBoxTreeTable cbtt : linkMap.values()) {
+			TableConfig.clearTable(cbtt);
+		}
+	}
 
 	/**
 	 * Method to refresh protein table contents.
 	 * @throws Exception 
 	 */
-	protected void refreshProteinTables() throws Exception {		
+	protected void refreshProteinTables() {		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 
 			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
@@ -2393,17 +2745,12 @@ public class DbSearchResultPanel extends JPanel {
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES");
 			Client.getInstance().firePropertyChange("resetall", null, (long) numProteins);
 			Client.getInstance().firePropertyChange("resetcur", null, (long) numProteins);
-			// Clear old tables
-			clearTables();
 			
-			// Create taxonomy tree for filtering
-			TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
-			DefaultMutableTreeNode taxRoot = new DefaultMutableTreeNode(rootNode);
-			taxModel = new DefaultTreeModel(taxRoot);
+//			// Create taxonomy tree for filtering
+//			TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+//			DefaultMutableTreeNode taxRoot = new DefaultMutableTreeNode(rootNode);
+//			taxModel = new DefaultTreeModel(taxRoot);
 			
-			// TODO: Prevent switching table view
-			//			hierarchyCbx.setEnabled(false);
-
 			// Gather models
 			DefaultTableModel proteinTblMdl = (DefaultTableModel) proteinTbl.getModel();
 
@@ -2411,14 +2758,17 @@ public class DbSearchResultPanel extends JPanel {
 			int protIndex = 1, maxPeptideCount = 0, maxSpecCount = 0;
 			double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 
-			// Do filtering
+			// Iterate meta-proteins
 			for (ProteinHit metaProtein : metaProteins) {
 				
-				// Insert entry into the taxonomy filtering tree of the filtering dialog
-				insertTaxNode(metaProtein);
-				// Filter to investigate only proteins which belongs to the defined taxonomic group, based on the UniProt TaxID
-				TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
-				boolean doInclude = TaxonomyUtils.belongsToGroup(taxNode,filterTaxId);
+//				// Insert entry into the taxonomy filtering tree of the filtering dialog
+//				this.insertTaxNode(metaProtein);
+//				
+//				// Filter to investigate only proteins which belongs to the defined taxonomic group, based on the UniProt TaxID
+//				TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
+//				boolean doInclude = TaxonomyUtils.belongsToGroup(taxNode,filterTaxId);
+				// TODO: replace filtering via applying RowFilter to table(s), see TaxonomySelectionDialog class
+				boolean doInclude = true;
 				
 				// If filtering was ok, add to files
 				if (doInclude) {
@@ -2433,7 +2783,7 @@ public class DbSearchResultPanel extends JPanel {
 
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
 					for (ProteinHit proteinHit : ((MetaProteinHit) metaProtein)	.getProteinHits()) {
-						metaProtein.setUniprotEntry(proteinHit.getUniprotEntry());
+						metaProtein.setUniprotEntry(proteinHit.getUniProtEntry());
 
 						// Calculate NSAF
 						double nsaf = proteinHit.getNSAF();
@@ -2491,7 +2841,7 @@ public class DbSearchResultPanel extends JPanel {
 						metaEmPai = Math.max(metaEmPai, proteinHit.getEmPAI());
 						metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
 
-						if (proteinHit.getUniprotEntry() != null) {
+						if (proteinHit.getUniProtEntry() != null) {
 							// Wrap protein data in table node clones and insert
 							// them into the relevant trees
 							// For case of NCBI accessions
@@ -2500,7 +2850,7 @@ public class DbSearchResultPanel extends JPanel {
 							if (target.matches("^\\d*$")) { // if contains
 															// non-numerical
 															// character UniProt
-								ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniprotEntry();
+								ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniProtEntry();
 								if (uniprotEntry != null) {
 									target = dbSearchResult.getProteinHit(target).getAccession();
 								} else {
@@ -2508,21 +2858,21 @@ public class DbSearchResultPanel extends JPanel {
 								}
 							}
 
+							// Wrap protein data in table node clones and insert them into the relevant trees
 							URI uri = URI.create("http://www.uniprot.org/uniprot/"+ target);
 							PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
 							flatNode.setURI(uri);
 							metaNode.add(flatNode);
 							// TreePath flatPath = insertFlatNode(flatNode);
-							PhylogenyTreeTableNode taxonNode = new PhylogenyTreeTableNode(proteinHit);
-							taxonNode.setURI(uri);
-							insertTaxonomicNode(taxonNode);
-							PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(	proteinHit);
+							PhylogenyTreeTableNode taxonomicNode = new PhylogenyTreeTableNode(proteinHit);
+							taxonomicNode.setURI(uri);
+							DbSearchResultPanel.this.insertTaxonomicNode(taxonomicNode);
+							PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
 							enzymeNode.setURI(uri);
-							insertEnzymeNode(enzymeNode);
+							DbSearchResultPanel.this.insertEnzymeNode(enzymeNode);
 							PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
 							pathwayNode.setURI(uri);
-							// TODO: Add pathway to protein hit directly
-							insertPathwayNode(pathwayNode);
+							DbSearchResultPanel.this.insertPathwayNode(pathwayNode);
 
 							// // Link nodes to each other
 							// linkNodes(flatPath, taxonPath, enzymePath);
@@ -2531,14 +2881,10 @@ public class DbSearchResultPanel extends JPanel {
 								System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 							}
 						}
-
-//						Client.getInstance().firePropertyChange("progressmade",	false, true);
 					}
 
 					if (metaNode.getChildCount() == 1) {
 						metaNode = (PhylogenyTreeTableNode) metaNode.getChildAt(0);
-						//					} else {
-						//						metaProtein.setAccession("Meta-Protein " + metaIndex++);
 					}
 
 					// Set values for the metaprotein
@@ -2559,13 +2905,16 @@ public class DbSearchResultPanel extends JPanel {
 					metaProtein.setEmPAI(metaEmPai);
 					metaProtein.setNSAF(metaNsaf);
 					metaProtein.setCoverage(metaSC);
-					insertFlatNode(metaNode);
-//					Client.getInstance().firePropertyChange("progressmade", false, true);
-//				} else{
-//					Client.getInstance().firePropertyChange("progressmade", false, true);
+					DbSearchResultPanel.this.insertFlatNode(metaNode);
 				}
 
 				Client.getInstance().firePropertyChange("progressmade", false, true);
+			}
+			
+			// Refresh tree tables by re-setting root node
+			for (CheckBoxTreeTable cbtt : linkMap.values()) {
+				DefaultTreeTableModel dttm = (DefaultTreeTableModel) cbtt.getTreeTableModel();
+				dttm.setRoot(dttm.getRoot());
 			}
 
 			// Iterate pathway nodes in respective hierarchical view and update URIs
@@ -2593,8 +2942,8 @@ public class DbSearchResultPanel extends JPanel {
 							PhylogenyTreeTableNode protNode = 
 									(PhylogenyTreeTableNode) children.nextElement();
 							ProteinHit protHit = (ProteinHit) protNode.getUserObject();
-							kNumbers.addAll(protHit.getUniprotEntry().getKoNumbers());
-							ecNumbers.addAll(protHit.getUniprotEntry().getEcNumbers());
+							kNumbers.addAll(protHit.getUniProtEntry().getKNumbers());
+							ecNumbers.addAll(protHit.getUniProtEntry().getEcNumbers());
 						}
 						// Append K and EC numbers to URL
 						for (String kNumber : kNumbers) {
@@ -2639,7 +2988,8 @@ public class DbSearchResultPanel extends JPanel {
 
 				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
 
-				// XXX: repeat for tree tables
+				// repeat for tree tables
+				// TODO: move to tree table column factory, maybe cache baselines and ranges
 				for (CheckBoxTreeTable table : linkMap.values()) {
 					tcm = table.getColumnModel();
 
@@ -2667,13 +3017,25 @@ public class DbSearchResultPanel extends JPanel {
 //					highlighter.setRange(0.0, maxNSAF);
 				}
 			}
+
+			// Update taxonomy selection dialog
+			TaxonomySelectionDialog.getInstance().setRoot(
+					(SortableCheckBoxTreeTableNode) protTaxonTreeTbl.getTreeTableModel().getRoot());
+			
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
 			
-			// Refresh treetable model.
-			for (CheckBoxTreeTable cbtt : linkMap.values()) {
-				DefaultTreeTableModel model = (DefaultTreeTableModel) cbtt.getTreeTableModel();
-				model.setRoot(model.getRoot());
-			}
+//			protFlatTreeTbl.setRowFilter(new RowFilter<Object, Object>() {
+//				@Override
+//				public boolean include(
+//						RowFilter.Entry<? extends Object, ? extends Object> entry) {
+//					ProteinHit ph = (ProteinHit) entry.getValue(-1);
+//					if ("species".equals(ph.getTaxonomyNode().getRank())) {
+//						return true;
+//					}
+//					return false;
+//				}
+//			});
+//			protFlatTreeTbl.setRowSorter(sorter);
 			
 			protTaxonTreeTbl.expandAll();
 			protEnzymeTreeTbl.expandAll();
@@ -2681,309 +3043,6 @@ public class DbSearchResultPanel extends JPanel {
 			protFlatTreeTbl.expandAll();
 		}
 
-	}
-
-	/**
-	 * Method to add taxon nodes into taxon tree for filtering.
-	 */
-	private void insertTaxNode(ProteinHit protHit) {
-
-		TaxonomyNode taxNode = protHit.getTaxonomyNode();
-
-		if (taxNode != null) {
-			// Collect a list of all taxons for a protein entry
-			List<TaxonomyNode> taxList = new ArrayList<TaxonomyNode>();
-			taxList.add(protHit.getTaxonomyNode());
-			while (taxNode.getId() != 1) {
-				taxNode = taxNode.getParentNode();
-				taxList.add(taxNode);
-			}
-			Collections.reverse(taxList); // List starts wth the root
-
-			// Add notes to the tree model (contains already the root)
-			DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) taxModel.getRoot();
-			for (int i = 1; i < taxList.size(); i++) {// start at second index because it is the root
-				// Get all childs from the tree and check wheter they are in taxList
-				Enumeration children = treeNode.children();
-				boolean inTree = false; // Flag for already in tree or not
-				while (children.hasMoreElements()) {
-					DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) children.nextElement();
-					TaxonomyNode childTaxon = (TaxonomyNode) childNode.getUserObject();
-					// Check whether tree contains
-					if (taxList.get(i).getId() == childTaxon.getId()) {
-						inTree = true;
-						// Go down into the taxTree
-						treeNode = childNode; 
-						break;
-					}
-				}
-
-				// If in tree one level deeper when not add whole taxonomic path
-				if (!inTree) {
-					// not in tree, add all entries, beginning from the actual position in the list
-					for (int j = i; j < taxList.size(); j++) {
-						DefaultMutableTreeNode addNode = new DefaultMutableTreeNode(taxList.get(j));
-						taxModel.insertNodeInto(addNode, treeNode, 0);
-						treeNode = addNode;
-					}
-					// jump out from the list
-					break;
-				}
-			}
-		}
-	}
-
-	private void clearTables() {
-		// Empty protein tables
-		TableConfig.clearTable(proteinTbl);
-
-		setupProteinTreeTables();
-		
-		int i = 1;
-		for (CheckBoxTreeTable cbtt : linkMap.values()) {
-			JScrollPane scrollPane = new JScrollPane(cbtt);
-			scrollPane.setPreferredSize(new Dimension(800, 150));
-			scrollPane.setName(cardLabels[i]);
-			protCardPnl.add(scrollPane, cardLabels[i++]);
-		}
-	}
-
-	/**
-	 * Inserts a protein tree node into the 'Flat View' tree table and returns 
-	 * the tree path to where it was inserted.
-	 * @param protNode The protein tree node to insert
-	 * @return The tree path pointing to the insertion location
-	 */
-	private TreePath insertFlatNode(PhylogenyTreeTableNode protNode) {
-		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protFlatTreeTbl.getTreeTableModel();
-
-		treeTblMdl.insertNodeInto(protNode,
-				(MutableTreeTableNode) treeTblMdl.getRoot(),
-				treeTblMdl.getRoot().getChildCount());
-
-		return new TreePath(treeTblMdl.getPathToRoot(protNode));
-	}
-
-	/**
-	 * Inserts a protein tree node into the 'Taxonomy View' tree table and returns 
-	 * the tree path to where it was inserted.
-	 * @param protNode The protein tree node to insert
-	 * @return The tree path pointing to the insertion location
-	 */
-	private TreePath insertTaxonomicNode(PhylogenyTreeTableNode protNode) {
-		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protTaxonTreeTbl.getTreeTableModel();
-
-		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
-
-		ProteinHit ph = (ProteinHit) protNode.getUserObject();
-		
-		List<String> names = new ArrayList<String>();
-		TaxonomyNode[] path = ph.getTaxonomyNode().getPath();
-		for (TaxonomyNode taxNode : path) {
-			names.add(taxNode.getName());
-		}
-
-		PhylogenyTreeTableNode parent = root;
-		for (String name : names) {
-			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
-			if (child == null) {
-				child = new PhylogenyTreeTableNode(name);
-				treeTblMdl.insertNodeInto(child, parent, 0);
-			}
-			parent = child;
-		}
-		treeTblMdl.insertNodeInto(protNode, parent, parent.getChildCount());
-
-		return new TreePath(treeTblMdl.getPathToRoot(protNode));
-	}
-
-	/**
-	 * Inserts a protein tree node into the 'E.C. View' tree table and returns 
-	 * the tree path to where it was inserted.
-	 * @param protNode The protein tree node to insert
-	 * @return The tree path pointing to the insertion location
-	 */
-	private TreePath insertEnzymeNode(PhylogenyTreeTableNode protNode) {
-		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protEnzymeTreeTbl.getTreeTableModel();
-
-		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
-
-		ProteinHit ph = (ProteinHit) protNode.getUserObject();
-
-		List<String> ecNumbers = ph.getUniprotEntry().getEcNumbers();
-
-		if (ecNumbers.isEmpty()) {
-			ecNumbers.add("Unclassified");
-		}
-
-		// Split primary E.C. number string into multiple tokens (typically 4)
-		// TODO: what to do when more than one E.C. number exists for the protein hit?
-		String[] ecTokens = ecNumbers.get(0).split("[.]");
-
-		PhylogenyTreeTableNode parent = root;
-		for (int i = 0; i < ecTokens.length; i++) {
-			String name = "";
-			for (int j = 0; j < ecTokens.length; j++) {
-				if (j > 0) name += ".";
-				name += (j <= i) ? ecTokens[j] : "-";
-			}
-			PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
-			if (child == null) {
-				ECEntry entry = Parameters.getInstance().getEcMap().get(name);
-				child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
-				if (!name.equals("Unclassified")) {
-					URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
-					child.setURI(uri);	
-				}
-				treeTblMdl.insertNodeInto(child, parent, 0);
-			}
-			parent = child;
-		}
-		treeTblMdl.insertNodeInto(protNode, parent, parent.getChildCount());
-
-		return new TreePath(treeTblMdl.getPathToRoot(protNode));
-	}
-
-	/**
-	 * Inserts a protein tree node into the 'Pathway View' tree table and
-	 * returns the tree paths to where its instances were inserted (in case the
-	 * protein is part of multiple pathways).
-	 * @param protNode The protein tree node to insert
-	 * @return The tree paths pointing to the insertion locations
-	 */
-	private TreePath[] insertPathwayNode(PhylogenyTreeTableNode protNode) {
-		DefaultTreeTableModel treeTblMdl = (DefaultTreeTableModel) protPathwayTreeTbl.getTreeTableModel();
-
-		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
-
-		ProteinHit ph = (ProteinHit) protNode.getUserObject();
-
-		// gather K and EC numbers for pathway lookup
-		List<String> kNumbers = ph.getUniprotEntry().getKoNumbers();
-		List<String> ecNumbers = ph.getUniprotEntry().getEcNumbers();
-
-		// perform pathway lookup
-		Set<Short> pathways = new HashSet<Short>();
-		for (String ko : kNumbers) {
-			List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko.substring(1));
-			if (pathwaysByKO != null) {
-				pathways.addAll(pathwaysByKO);
-			}
-		}
-		for (String ec : ecNumbers) {
-			List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-			if (pathwaysByEC != null) {
-				pathways.addAll(pathwaysByEC);
-			}
-		}
-
-		List<TreePath> treePaths = new ArrayList<TreePath>();
-		PhylogenyTreeTableNode parent = root;
-
-		// iterate found pathways
-		if (!pathways.isEmpty()) {
-			// iterate pathway IDs
-			for (Short pw : pathways) {
-				// look for pathway in existing tree
-				parent = findPathway(pw);
-
-				// check whether pathway retrieval succeeded
-				if (parent == null) {
-					// look for pathway in global pathway tree
-					Object[] nodeNames = Constants.getKEGGPathwayPath(pw);
-
-					parent = root;
-					for (int i = 1; i < 4; i++) {
-						String nodeName = (String) nodeNames[i];
-						String[] splitName = nodeName.split("  ");
-						PhylogenyTreeTableNode child = 
-								(PhylogenyTreeTableNode) parent.getChildByName(splitName[0]);
-						if (child == null) {
-							for (int j = i; j < 4; j++) {
-								child = new PhylogenyTreeTableNode(
-										(Object[]) ((String) nodeNames[j]).split("  "));
-								treeTblMdl.insertNodeInto(child, parent, parent.getChildCount());
-								parent = child;
-							}
-							break;
-						} else {
-							parent = child;
-						}
-					}						
-				}
-
-				// add clone of protein node to each pathway
-				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-				cloneNode.setURI(protNode.getURI());
-				treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
-				treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
-			}
-		} else {
-			// no pathways were found, therefore look for 'Unclassified' node in tree
-			Enumeration<? extends MutableTreeTableNode> children = root.children();
-			while (children.hasMoreElements()) {
-				MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
-				if (child.getUserObject().equals("Unclassified")) {
-					parent = (PhylogenyTreeTableNode) child;
-					break;
-				}
-			}
-			if (parent == root) {
-				// 'Unclassified' node does not exist yet, therefore create it
-				parent = new PhylogenyTreeTableNode("Unclassified");
-				treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
-			}
-			// add clone of protein node to 'Unclassified' branch
-			PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-			cloneNode.setURI(protNode.getURI());
-			treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
-			treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
-		}
-		// TODO: add redundancy check in case a protein has multiple KOs pointing to the same pathway
-
-		return treePaths.toArray(new TreePath[0]);
-	}
-
-	/**
-	 * Auxiliary method to find the pathway node which is identified by the
-	 * provided pathway ID in the pathway tree.
-	 * @param pw The pathway ID
-	 * @return The desired pathway node or <code>null</code> if it could not be found
-	 */
-	private PhylogenyTreeTableNode findPathway(Short pw) {
-		Enumeration<? extends MutableTreeTableNode> childrenA = 
-				((MutableTreeTableNode) protPathwayTreeTbl.getTreeTableModel().getRoot()).children();
-		while (childrenA.hasMoreElements()) {
-			MutableTreeTableNode childA = (MutableTreeTableNode) childrenA.nextElement();
-			Enumeration<? extends MutableTreeTableNode> childrenB = childA.children();
-			while (childrenB.hasMoreElements()) {
-				MutableTreeTableNode childB = (MutableTreeTableNode) childrenB.nextElement();
-				Enumeration<? extends MutableTreeTableNode> childrenC = childB.children();
-				while (childrenC.hasMoreElements()) {
-					MutableTreeTableNode childC = (MutableTreeTableNode) childrenC.nextElement();
-					if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
-						return (PhylogenyTreeTableNode) childC;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Links phylogeny nodes to each other. Used for communicating state changes 
-	 * between different tree tables.
-	 * @param treePaths The tree paths pointing to the nodes that are to be linked
-	 */
-	private void linkNodes(TreePath... treePaths) {
-		for (int i = 0; i < treePaths.length; i++) {
-			PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) treePaths[i].getLastPathComponent();
-			for (int j = 0; j < treePaths.length; j++) {
-				if (j != i) {
-					node.addLink(treePaths[j]);
-				}
-			}
-		}
 	}
 
 	/**
@@ -3233,8 +3292,6 @@ public class DbSearchResultPanel extends JPanel {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) dbSearchResult.getProteinHits().get(actualAccession).getPeptideHits().get(sequence).getSpectrumMatches().get(index);
 
 					MascotGenericFile mgf = null;
-					// TODO: Note: loading spectra from database is faster than parsing from file, optimization required?
-					//					if (conn != null) {
 					if (!Client.getInstance().isViewer()) {
 						// Get spectrum file from database when connected
 						try {
@@ -3353,7 +3410,7 @@ public class DbSearchResultPanel extends JPanel {
 	 * Method to add annotations to spectrum plot.
 	 * @param fragmentIons
 	 */
-	private void addSpectrumAnnotations(Map<String, FragmentIon[]> fragmentIons) {
+	protected void addSpectrumAnnotations(Map<String, FragmentIon[]> fragmentIons) {
 
 		currentAnnotations = new Vector<SpectrumAnnotation>();
 		Set<Entry<String, FragmentIon[]>> entrySet = fragmentIons.entrySet();
@@ -3399,7 +3456,7 @@ public class DbSearchResultPanel extends JPanel {
 	/**
 	 * This method updates the filtered annotations due to the respective selected checkboxes.
 	 */
-	private void updateFilteredAnnotations() {
+	protected void updateFilteredAnnotations() {
 		if (currentAnnotations != null) {
 			specPnl.setAnnotations(filterAnnotations(currentAnnotations));
 			specPnl.validate();
@@ -3413,7 +3470,7 @@ public class DbSearchResultPanel extends JPanel {
 	 * @param annotations the annotations to be filtered
 	 * @return the filtered annotations
 	 */
-	private Vector<SpectrumAnnotation> filterAnnotations(Vector<SpectrumAnnotation> annotations) {
+	protected Vector<SpectrumAnnotation> filterAnnotations(Vector<SpectrumAnnotation> annotations) {
 
 		Vector<SpectrumAnnotation> filteredAnnotations = new Vector<SpectrumAnnotation>();
 
@@ -3455,722 +3512,30 @@ public class DbSearchResultPanel extends JPanel {
 		return filteredAnnotations;
 	}
 
-	/**
-	 * This method sets the enabled state of the get results button.
-	 */
-	public void setResultsFromDbButtonEnabled(boolean enabled) {
-		getResultsFromDbBtn.setEnabled(enabled);
-	}
+//	/**
+//	 * This method sets the enabled state of the get results button.
+//	 */
+//	public void setResultsFromDbButtonEnabled(boolean enabled) {
+//		getResultsFromDbBtn.setEnabled(enabled);
+//	}
 
-	/**
-	 * Creates a filter button widget and installs it in the specified column header 
-	 * of the specified table.
-	 * 
-	 * @param column The column index.
-	 * @param table The table reference.
-	 * @param filterType Either <code>Constants.NUMERICAL</code> or 
-	 * <code>Constants.ALPHA_NUMERICAL</code>.
-	 * @return The filter button widget reference.
-	 */
-	public JPanel createFilterButton(int column, JTable table, int filterType) {
-		// button widget with little black triangle
-		final FilterButton button = new FilterButton(column, table, filterType);
-		button.setPreferredSize(new Dimension(11, 11));
-
-		// wrap button in panel to apply padding
-		final JPanel panel = new JPanel(new FormLayout("0px, p, 3px", "2px, p, 2px"));
-		panel.setOpaque(false);
-		panel.add(button, CC.xy(2, 2));
-
-		// forward mouse events on panel to button
-		panel.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent me) {
-				forwardEvent(me);
-			}
-			public void mouseReleased(MouseEvent me) {
-				forwardEvent(me);
-			}
-			public void mouseClicked(MouseEvent me) {
-				forwardEvent(me);
-			}
-			private void forwardEvent(MouseEvent me) {
-				button.dispatchEvent(SwingUtilities.convertMouseEvent(panel, me, button));
-			}
-		});
-		return panel;
-	}
-	
-	/**
-	 * Returns the panel's busy state.
-	 * @return <code>true</code> if busy, <code>false</code> otherwise
-	 */
+	@Override
 	public boolean isBusy() {
-		return this.busy;
+		// we don't need this (yet)
+		return false;
 	}
 
-	/**
-	 * Makes the frame and this panel appear busy.
-	 * @param busy <code>true</code> if busy, <code>false</code> otherwise.
-	 */
+	@Override
 	public void setBusy(boolean busy) {
-		this.busy = busy;
+//		this.busy = busy;
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		clientFrame.setCursor(cursor);
 		split.setCursor(cursor);
-
-		hierarchyBtn.setEnabled(!busy);
-		setResultsFromDbButtonEnabled(!busy);
-		getResultsFromFileBtn.setEnabled(!busy);
-	}
-
-	/**
-	 * Filter button widget for table headers.
-	 * 
-	 * @author A. Behne
-	 */
-	private class FilterButton extends JToggleButton {
-
-		private FilterBalloonTip filterTip;
-		private FilterButton button;
-
-		/**
-		 * Constructs a filter toggle button widget which shows its own balloon
-		 * tip pop-up containing filtering-related components for the specified
-		 * <code>column</code>.
-		 * 
-		 * @param column
-		 */
-		public FilterButton(final int column, final JTable table, final int filterType) {
-			super();
-			this.button = this;
-			this.addActionListener(new ActionListener() {
-
-				public void actionPerformed(ActionEvent e) {
-					if (button != lastSelectedFilterBtn) {
-						//						lastSelectedFilterBtn.setSelected(false);
-						lastSelectedFilterBtn.setFilterTipVisible(false);
-						lastSelectedFilterBtn = button;
-					}
-					if (button.isSelected()) {
-						JTableHeader th = table.getTableHeader();
-						String filterString = (filterTip != null) ? filterTip.getFilterString() : "";	
-
-						Rectangle rect = th.getHeaderRect(table.convertColumnIndexToView(column));
-						rect.x += rect.width - 9;
-						rect.y += 1;
-						filterTip = new FilterBalloonTip(th, rect, filterType);
-
-
-
-						filterTip.addComponentListener(new ComponentAdapter() {
-							public void componentHidden(ComponentEvent ce) {
-								button.setSelected(false);
-								table.getTableHeader().repaint();
-								// TODO: maybe store and restore original focus instead of shifting it always onto the table?
-								table.requestFocus();
-								if (filterTip.isConfirmed()) {
-									updateSelections(column, filterTip.getFilterString());
-								}
-							};
-						});
-						filterTip.setFilterString(filterString);
-						filterTip.requestFocus();
-					} else {
-						filterTip.setVisible(false);
-					}
-				}
-			});
-		}
-
-		/**
-		 * Method to remotely hide/show the filter balloon tip.
-		 * @param visible
-		 */
-		protected void setFilterTipVisible(boolean visible) {
-			if (filterTip != null) {
-				filterTip.setVisible(visible);
-			}
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			g.setColor(Color.BLACK);
-			g.fillPolygon(new int[] { 3, 8, 8 }, new int[] { 8, 8, 3 }, 3);
-		}
-
-	}
-
-
-	/**
-	 * Method to update the checkbox column values depending on pattern 
-	 * matching in the specified column using the specified pattern string.
-	 * @param column The column to check.
-	 * @param filterString Comma-separated string patterns.
-	 */
-	private void updateSelections(int column, String filterString) {
-		column = proteinTbl.convertColumnIndexToView(column);
-		// prevent auto-resorting while iterating rows for performance reasons
-		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(false);
-		// Check whether we're dealing with numerical values or with text
-		if (Number.class.isAssignableFrom(proteinTbl.getColumnClass(column))) {
-			//			List<Number> greater = new ArrayList<Number>();
-			//			List<Number> less = new ArrayList<Number>();
-			// parse filter strings
-			String[] filterStrings = filterString.split(",");
-			double left = Double.MIN_VALUE, right = Double.MAX_VALUE;
-			for (int i = 0; i < filterStrings.length; i++) {
-				String s = filterStrings[i].trim();
-				if (s.startsWith(">")) {
-					double val = Double.parseDouble(s.substring(1));
-					if (left == Double.MIN_VALUE) {
-						left = val;
-					} else {
-						left = Math.min(left, val);
-					}
-					// greater.add(val);
-				} else if (s.startsWith("<")) {
-					double val = Double.parseDouble(s.substring(1));
-					if (right == Double.MAX_VALUE) {
-						right = val;
-					} else {
-						right = Math.max(right, val);
-					}
-				}
-			}
-			Interval interval = new Interval(left, right);
-			// iterate table rows and check intervals
-			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-				if (!(Boolean) proteinTbl.getValueAt(row, Constants.PROT_SELECTION)) {
-					break;
-				}
-				proteinTbl.setValueAt(	interval.containsExclusive(((Number) proteinTbl.getValueAt(row, column)).doubleValue()),
-						row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
-			}
-		} else {
-			List<String> restrictive = new ArrayList<String>();
-			List<String> permissive = new ArrayList<String>();
-			// parse filter strings
-			String[] filterStrings = filterString.split(",");
-			for (int i = 0; i < filterStrings.length; i++) {
-				String s = filterStrings[i].trim();
-				if (s.startsWith("-")) {
-					restrictive.add(s.substring(1));
-				} else {
-					permissive.add(s);
-				}
-			}
-			// iterate table rows and check filter patterns
-			for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-				if (!(Boolean) proteinTbl.getValueAt(row, Constants.PROT_SELECTION)) {
-					break;
-				}
-				String value = proteinTbl.getValueAt(row, column).toString();
-				boolean selected;
-				// check includes
-				if (!permissive.isEmpty()) {
-					selected = false;
-					for (String s : permissive) {
-						selected |= value.contains(s);
-					}
-				} else {
-					// check excludes
-					selected = true;
-					for (String s : restrictive) {
-						selected &= !value.contains(s);
-						if (!selected) break;
-					}
-				}
-				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
-			}
-		}
-		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
-		// re-sort rows after iteration finished
-		((TableSortController) proteinTbl.getRowSorter()).sort();
-	}
-
-	/**
-	 * A clickable label with rollover effect.
-	 * 
-	 * @author A. Behne
-	 */
-	private class HoverLabel extends JToggleButton {
-
-		private Color selected;
-		private List<HoverLabel> siblings;
-
-		public HoverLabel(String text) {
-			this(text, Color.RED);
-		}
-
-		public HoverLabel(String text, Color foreground) {
-			this(text, foreground, new Color(foreground.getRed(), foreground.getGreen(),
-					foreground.getBlue(), (foreground.getAlpha() + 1) / 8));
-		}
-
-		public HoverLabel(String text, Color foreground, Color selected) {
-			super(text);
-			this.selected = selected;
-			this.siblings = new ArrayList<HoverLabel>();
-			setForeground(foreground);
-			setFocusPainted(false);
-			setContentAreaFilled(false);
-			setBorder(null);
-			setFont(new Font("Monospaced", Font.PLAIN, 12));
-			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			addMouseListener(new MouseAdapter() {
-				private Font originalFont, underlineFont;
-				{
-					originalFont = getFont();
-					Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
-					attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-					underlineFont = originalFont.deriveFont(attributes);
-				}
-				public void mouseEntered(MouseEvent me) {
-					for (HoverLabel sibling : siblings) {
-						sibling.setFont(underlineFont);
-					}
-				}
-				public void mouseExited(MouseEvent me) {
-					for (HoverLabel sibling : siblings) {
-						sibling.setFont(originalFont);
-					}
-				}
-			});
-			// TODO: use binding to synchronize selection state with table
-			addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					int index = peptideTbl.convertRowIndexToView((Integer) coverageSelectionModel.getValue());
-					peptideTbl.getSelectionModel().setSelectionInterval(index, index);
-				}
-			});
-		}
-
-		public void setSiblings(List<HoverLabel> siblings) {
-			this.siblings = siblings;
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			if (isSelected()) {
-				g.setColor(selected);
-				g.fillRect(0, 0, getWidth(), getHeight());
-			}
-			super.paintComponent(g);
-		}
-	}
-
-	/**
-	 * Method to fetch the processed results from file.
-	 */
-	public void fetchResultsFromFile() {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(Constants.MPA_FILE_FILTER);
-		chooser.setAcceptAllFileFilterUsed(false);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		int returnValue = chooser.showOpenDialog(clientFrame);
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			importFile = chooser.getSelectedFile();
-			new ResultsTask(importFile).execute();
-		}
-	}
-
-	/**
-	 * Method to fetch the processed results from the database.
-	 */
-	public void fetchResultsFromDatabase() {
-		new ResultsTask(null).execute();
-	}
-	
-	/**
-	 * Opens a target in a browser window.
-	 * @param url Browser URL string.
-	 */
-	private void openTargetInBrowser(String url) {
-		try {
-			if (url != null) {
-				Desktop.getDesktop().browse(new URI(url));
-			}
-		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
-	}
-	
-	/**
-	 * Custom highlighter predicate for protein count visualization.
-	 * @author kohrs
-	 *
-	 */
-	private class ProtCHighlighterPredicate implements HighlightPredicate {
-
-		/**
-		 * The list of proteins to be highlighted.
-		 */
-		private List<ProteinHit> protHits = new ArrayList<ProteinHit>();
-
-		@Override
-		public boolean isHighlighted(Component renderer,
-				org.jdesktop.swingx.decorator.ComponentAdapter adapter) {
-			for (ProteinHit protHit : getProteinHits()) {
-				if (protHit.getAccession().equals(adapter.getValue(Constants.PROT_ACCESSION))) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/**
-		 * Returns the list of protein hits.
-		 * @return the list of protein hits.
-		 */
-		public List<ProteinHit> getProteinHits() {
-			return protHits;
-		}
-
-		/**
-		 * Sets the list of protein hits.
-		 * @param protHits the list of protein hits to set.
-		 */
-		public void setProteinHits(List<ProteinHit> protHits) {
-			this.protHits = protHits;
-		}
-	}
-
-
-	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;;
-
-	private ChartPanel chartPnl;
-	private JToggleButton chartTypeBtn;
-	private JComboBox chartPieHierCbx;
-	private JCheckBox chartPieHideChk;
-	private JCheckBox chartPieGroupChk;
-	private JScrollBar chartBar;
-	protected double chartPieAngle;
-
-	protected OntologyData ontologyData;
-	protected TaxonomyData taxonomyData;
-
-	private ChartType spectrumType = new ChartType() {
-		public String getTitle() { return ""; }
-		public String toString() { return "Spectrum Viewer"; }
-	};
-
-	/**
-	 * Creates and returns the top-right chart panel (wrapped in a
-	 * JXTitledPanel)
-	 */
-	private JXTitledPanel createChartPanel() {
-
-		// init chart types
-		final ChartType[] chartTypes = new ChartType[] {
-				OntologyChartType.BIOLOGICAL_PROCESS,
-				OntologyChartType.MOLECULAR_FUNCTION,
-				OntologyChartType.CELLULAR_COMPONENT,
-				TaxonomyChartType.KINGDOM,
-				TaxonomyChartType.PHYLUM,
-				TaxonomyChartType.CLASS,
-				TaxonomyChartType.ORDER,
-				TaxonomyChartType.FAMILY,
-				TaxonomyChartType.GENUS,
-				TaxonomyChartType.SPECIES,
-				spectrumType
-		};
-
-		chartTypeBtn = new JToggleButton(
-				IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
-		chartTypeBtn.setRolloverIcon(IconConstants
-				.createArrowedIcon(IconConstants.PIE_CHART_ROLLOVER_ICON));
-		chartTypeBtn.setPressedIcon(IconConstants
-				.createArrowedIcon(IconConstants.PIE_CHART_PRESSED_ICON));
-		chartTypeBtn.setToolTipText("Select Chart Type");
-		chartTypeBtn.setEnabled(false);
-
-		chartTypeBtn.setUI(new RoundedHoverButtonUI());
-
-		chartTypeBtn.setOpaque(false);
-		chartTypeBtn.setBorderPainted(false);
-		chartTypeBtn.setMargin(new Insets(1, 0, 0, 0));
-
-		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
-		chartTypeBtn.addMouseListener(ittml);
-
-		// create chart type selection popup
-		final JPopupMenu chartTypePop = new JPopupMenu();
-
-		JMenu ontologyMenu = new JMenu("Ontology");
-		ontologyMenu.setIcon(IconConstants.PIE_CHART_ICON);
-		chartTypePop.add(ontologyMenu);
-		JMenu taxonomyMenu = new JMenu("Taxonomy");
-		taxonomyMenu.setIcon(IconConstants.PIE_CHART_ICON);
-		chartTypePop.add(taxonomyMenu);
-
-		ActionListener chartListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				String title = ((JMenuItem) evt.getSource()).getText();
-				ChartType newChartType = null;
-				for (ChartType chartType : chartTypes) {
-					if (title.equals(chartType.toString())) {
-						newChartType = chartType;
-					}
-				}
-				if (newChartType != chartType) {
-					updateChart(newChartType);
-				}
-			}
-		};
-		ButtonGroup chartBtnGrp = new ButtonGroup();
-		int j = 0;
-		for (ChartType chartType : chartTypes) {
-			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
-			item.addActionListener(chartListener);
-			chartBtnGrp.add(item);
-			if (chartType instanceof OntologyChartType) {
-				ontologyMenu.add(item);
-			} else if (chartType instanceof TaxonomyChartType) {
-				taxonomyMenu.add(item);
-			} else {
-				item.setIcon(IconConstants.BAR_CHART_ICON);
-				chartTypePop.add(item);
-			}
-		}
-		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				chartTypeBtn.setSelected(false);
-			}
-
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-			}
-
-			public void popupMenuCanceled(PopupMenuEvent e) {
-			}
-		});
-
-		// link popup to button
-		chartTypeBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				chartTypePop.show(chartTypeBtn, 0, chartTypeBtn.getHeight());
-			}
-		});
-
-		// arrange button in panel
-		JPanel chartBtnPnl = new JPanel(new FormLayout("p, 1px", "f:p:g"));
-		chartBtnPnl.setOpaque(false);
-		chartBtnPnl.add(chartTypeBtn, CC.xy(1, 1));
-
-		// create and configure chart panel for plots
-		chartPnl = new ChartPanel(null);
-		chartPnl.setMinimumDrawHeight(144);
-		chartPnl.setMaximumDrawHeight(1440);
-		chartPnl.setMinimumDrawWidth(256);
-		chartPnl.setMaximumDrawWidth(2560);
-		chartPnl.setOpaque(false);
-		chartPnl.setPreferredSize(new Dimension(256, 144));
-		chartPnl.setMinimumSize(new Dimension(256, 144));
-
-		// create combobox to control what counts to display in the plots
-		// (protein/peptide/spectrum count)
-		chartPieHierCbx = new JComboBox(HierarchyLevel.values());
-		chartPieHierCbx.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent evt) {
-				if (evt.getStateChange() == ItemEvent.SELECTED) {
-					HierarchyLevel hl = (HierarchyLevel) evt.getItem();
-
-					ontologyData.setHierarchyLevel(hl);
-					taxonomyData.setHierarchyLevel(hl);
-
-					updateChart(chartType);
-				}
-			}
-		});
-		chartPieHierCbx.setVisible(false);
-
-		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
-
-		chartPieHideChk = new JCheckBox("Hide Unknown", false);
-		chartPieHideChk.setOpaque(false);
-		chartPieHideChk.setVisible(false);
-		chartPieHideChk.addItemListener(new ItemListener() {
-			private boolean doHide;
-			@Override
-			public void itemStateChanged(ItemEvent evt) {
-				doHide = (evt.getStateChange() == ItemEvent.SELECTED);
-				ontologyData.setHideUnknown(doHide);
-				taxonomyData.setHideUnknown(doHide);
-				new SwingWorker<Object, Object>() {
-					@Override
-					protected Object doInBackground() throws Exception {
-						chartPieHideChk.setEnabled(false);
-						Plot plot = chartPnl.getChart().getPlot();
-						if (plot instanceof PiePlot) {
-							DefaultPieDataset dataset =
-									(DefaultPieDataset) ((PiePlot) plot).getDataset();
-							if (doHide) {
-								double val = dataset.getValue("Unknown").doubleValue();
-								for (int i = 0; i < 11; i++) {
-									double tmp = 1.0 - i / 10.0;
-									double newVal = val * tmp * tmp;
-									dataset.setValue("Unknown", newVal);
-									if (newVal > 0.0) {
-										Thread.sleep(33);
-									} else {
-										break;
-									}
-								}
-							} else {
-								double val;
-								if (chartType instanceof OntologyChartType) {
-									val = ontologyData.getDataset().getValue("Unknown").doubleValue();
-								} else {
-									val = taxonomyData.getDataset().getValue("Unknown").doubleValue();
-								}
-								for (int i = 0; i < 11; i++) {
-									double tmp = i / 10.0;
-									double newVal = val * tmp * tmp;
-									if (newVal <= 0.0) {
-										continue;
-									}
-									dataset.setValue("Unknown", newVal);
-									if (newVal < val) {
-										Thread.sleep(33);
-									} else {
-										break;
-									}
-								}
-							}
-						}
-						return null;
-					}
-					@Override
-					protected void done() {
-						chartPieHideChk.setEnabled(true);
-					};
-
-				}.execute();
-			}
-		});
-
-		chartPieGroupChk = new JCheckBox("Group minor segments", true);
-		chartPieGroupChk.setOpaque(false);
-		chartPieGroupChk.setVisible(false);
-		chartPieGroupChk.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent evt) {
-				if (evt.getStateChange() == ItemEvent.SELECTED) {
-					ontologyData.setLimit(0.01);
-					taxonomyData.setLimit(0.01);
-				} else {
-					ontologyData.setLimit(0.0);
-					taxonomyData.setLimit(0.0);
-				}
-				Plot plot = chartPnl.getChart().getPlot();
-				if ((chartType instanceof OntologyChartType)) {
-					((PiePlot) plot).setDataset(ontologyData.getDataset());
-				} else if (chartType instanceof TaxonomyChartType) {
-					((PiePlot) plot).setDataset(taxonomyData.getDataset());
-				}
-			}
-		});
-
-		chartPnl.add(chartPieHierCbx, CC.xy(1, 2));
-		chartPnl.add(chartPieHideChk, CC.xy(3, 2));
-		chartPnl.add(chartPieGroupChk, CC.xy(5, 2));
-
-		JScrollPane chartScp = new JScrollPane(chartPnl,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		for (ChangeListener cl : chartScp.getViewport().getChangeListeners()) {
-			chartScp.getViewport().removeChangeListener(cl);
-		}
-		chartScp.getViewport().setBackground(Color.WHITE);
-
-		chartBar = chartScp.getVerticalScrollBar();
-		chartBar.setValues(0, 0, 0, 0);
-		chartBar.setBlockIncrement(36);
-		DefaultBoundedRangeModel chartBarMdl =
-				(DefaultBoundedRangeModel) chartBar.getModel();
-		ChangeListener[] cbcl = chartBarMdl.getChangeListeners();
-		chartBarMdl.removeChangeListener(cbcl[0]);
-
-		chartBar.addAdjustmentListener(new AdjustmentListener() {
-			public void adjustmentValueChanged(AdjustmentEvent ae) {
-				JFreeChart chart = chartPnl.getChart();
-				if (chart != null) {
-					if (chart.getPlot() instanceof PiePlot) {
-						chartPieAngle = ae.getValue();
-						((PiePlot) chart.getPlot()).setStartAngle(chartPieAngle);
-					}
-				}
-			}
-		});
-
-		// wrap scroll pane in panel with 5dlu margin around it
-		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
-				"5dlu, f:p:g, 5dlu"));
-		chartMarginPnl.add(chartScp, CC.xy(2, 2));
-
-		// wrap everything in titled panel containing button panel in the top
-		// right corner
-		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel(
-				"Chart View", chartMarginPnl);
-		chartTtlPnl.setRightDecoration(chartBtnPnl);
-
-		return chartTtlPnl;
-	}
-
-	/**
-	 * Refreshes the chart updating its content reflecting the specified chart
-	 * type.
-	 * @param chartType the type of chart to be displayed.
-	 */
-	private void updateChart(ChartType chartType) {
-		Chart chart = null;
-
-		// create chart instance
-		if (chartType instanceof OntologyChartType) {
-			ontologyData.init();
-			chart = ChartFactory.createOntologyPieChart(
-					ontologyData, chartType);
-		} else if (chartType instanceof TaxonomyChartType) {
-			taxonomyData.init();
-			chart = ChartFactory.createTaxonomyPieChart(
-					taxonomyData, chartType);
-		} else if (chartType == spectrumType) {
-			// TODO: integrate spectrum panels into chart structure
-			refreshPlot();
-			this.chartType = spectrumType;
-			return;
-		}
-
-		if (chart != null) {
-			Plot plot = chart.getChart().getPlot();
-			boolean isPie = plot instanceof PiePlot;
-			if (isPie) {
-				// enable chart scroll bar
-				chartBar.setMaximum(360);
-				chartBar.setValue((int) chartPieAngle);
-				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartPieAngle);
-			} else {
-				// disable chart scroll bar
-				double temp = chartPieAngle;
-				chartBar.setMaximum(0);
-				chartPieAngle = temp;
-			}
-			// hide/show pie chart-related controls
-			chartPieHierCbx.setVisible(isPie);
-			chartPieHideChk.setVisible(isPie);
-			chartPieGroupChk.setVisible(isPie);
-
-			// insert chart into panel
-			chartPnl.setChart(chart.getChart());
-		} else {
-			System.err.println("Chart type could not be determined!");
-		}
-
-		this.chartType = chartType;
+		
+		ButtonTabbedPane tabPane = (ButtonTabbedPane) this.getParent();
+		int index = tabPane.indexOfComponent(this);
+		tabPane.setBusyAt(index, busy);
+		tabPane.setEnabledAt(index, !busy);
 	}
 
 }

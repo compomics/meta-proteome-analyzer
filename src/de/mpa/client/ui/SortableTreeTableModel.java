@@ -7,7 +7,6 @@ import java.util.List;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
-import javax.swing.event.TreeModelEvent;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
 
@@ -38,6 +37,11 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	private RowFilter<? super TableModel,? super Integer> rowFilter;
 
 	/**
+	 * Flag denoting whether non-leaf nodes with no visible children shall be hidden.
+	 */
+	private boolean hideEmpty = true;
+
+	/**
 	 * Constructs a sortable tree table model using the specified root node.
 	 * @param root The tree table node to be used as root.
 	 */
@@ -61,7 +65,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	public void setSortKeys(List<? extends SortKey> sortKeys) {
 		if (!sortKeys.equals(this.sortKeys)) {
 			this.sortKeys = new ArrayList<SortKey>(sortKeys);
-			sort();
+			this.sort();
 		}
 	}
 	
@@ -82,8 +86,18 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	public void setRowFilter(RowFilter<? super TableModel,? super Integer> rowFilter) {
 		if (rowFilter != this.rowFilter) {
 			this.rowFilter = rowFilter;
-			sort();
+			this.sort();
 		}
+	}
+	
+	/**
+	 * Sets the flag denoting whether non-leaf nodes with no visible children
+	 * shall be hidden.
+	 * @param hideEmpty <code>true</code> if empty non-leaves shall be hidden,
+	 *  <code>false</code> otherwise
+	 */
+	public void setHideEmpty(boolean hideEmpty) {
+		this.hideEmpty = hideEmpty;
 	}
 	
 	/**
@@ -122,7 +136,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * Sorts the whole model w.r.t. the stored sort keys.
 	 */
 	public void sort() {
-		sort(getRoot());
+		this.sort(this.getRoot());
 	}
 	
 	/**
@@ -130,19 +144,19 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * @param parent The node below which the model will be sorted.
 	 */
 	private void sort(TreeTableNode parent) {
-		doSort(parent, shouldReset());
+		this.doSort(parent, shouldReset());
 		
-//		modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));
+		this.modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));
 		
-		// hackily notify select listeners that the tree structure changed -
-		// certain listeners will cause the whole table to be reset (including
-		// highlighters and column widths)
-		// TODO: find a safe and proper way to notify all model listeners without resetting the whole table
-		int[] indices = { 0, 2 };
-		TreeModelEvent tme = new TreeModelEvent(this, new TreePath(getPathToRoot(parent)), null, null);
-		for (int i = 0; i < indices.length; i++) {
-			modelSupport.getTreeModelListeners()[0].treeStructureChanged(tme);
-		}
+//		// hackily notify select listeners that the tree structure changed -
+//		// certain listeners will cause the whole table to be reset (including
+//		// highlighters and column widths)
+//		// TODO: find a safe and proper way to notify all model listeners without resetting the whole table
+//		int[] indices = { 0, 2 };
+//		TreeModelEvent tme = new TreeModelEvent(this, new TreePath(getPathToRoot(parent)), null, null);
+//		for (int i = 0; i < indices.length; i++) {
+//			modelSupport.getTreeModelListeners()[0].treeStructureChanged(tme);
+//		}
 		
 	}
 
@@ -160,7 +174,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 			Enumeration<? extends TreeTableNode> childEnum = parent.children();
 			while (childEnum.hasMoreElements()) {
 				TreeTableNode child = (TreeTableNode) childEnum.nextElement();
-				doSort(child, reset);
+				this.doSort(child, reset);
 			}
 			
 			// sort node itself, if possible
@@ -171,8 +185,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 						node.reset();
 					}
 				} else {
-					if (node.canSort(getSortKeys())) {
-						node.sort(getSortKeys(), getRowFilter());
+					if (node.canSort(this.getSortKeys())) {
+						node.sort(this.getSortKeys(), this.getRowFilter(), this.hideEmpty);
 					}
 				}
 			}

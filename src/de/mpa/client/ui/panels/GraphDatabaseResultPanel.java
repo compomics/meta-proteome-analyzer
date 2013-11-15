@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
@@ -26,6 +27,9 @@ import org.neo4j.graphdb.Node;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
+import de.mpa.client.ui.Busyable;
+import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
@@ -37,7 +41,7 @@ import de.mpa.client.ui.dialogs.GraphQueryDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.graphdb.cypher.CypherQuery;
 
-public class GraphDatabaseResultPanel extends JPanel {
+public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	
 	/**
 	 * Sortable checkbox treetable instance.
@@ -271,4 +275,47 @@ public class GraphDatabaseResultPanel extends JPanel {
 	public void setLastCypherQuery(CypherQuery lastCypherQuery) {
 		this.lastCypherQuery = lastCypherQuery;
 	}
+
+	@Override
+	public boolean isBusy() {
+		// we don't need this (yet)
+		return false;
+	}
+
+	@Override
+	public void setBusy(boolean busy) {
+		ButtonTabbedPane tabPane = (ButtonTabbedPane) this.getParent();
+		int index = tabPane.indexOfComponent(this);
+		tabPane.setBusyAt(index, busy);
+		tabPane.setEnabledAt(index, !busy);
+	}
+	
+	/**
+	 * Initializes the graph database.
+	 */
+	public void buildGraphDatabase() {
+		new BuildGraphDatabaseTask().execute();
+	}
+	
+	/**
+	 * Worker implementation for building the graph database.
+	 * @author A. Behne
+	 */
+	// TODO: re-locate worker to Client class?
+	private class BuildGraphDatabaseTask extends SwingWorker {
+
+		@Override
+		protected Object doInBackground() throws Exception {
+			Client.getInstance().setupGraphDatabaseContent();
+			return null;
+		}
+		
+		@Override
+		protected void done() {
+			// stop appearing busy
+			GraphDatabaseResultPanel.this.setBusy(false);
+		}
+		
+	}
+	
 }

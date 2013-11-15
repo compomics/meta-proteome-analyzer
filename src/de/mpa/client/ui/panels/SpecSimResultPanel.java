@@ -90,7 +90,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.CustomTableCellRenderer;
+import de.mpa.client.ui.TableConfig.FormattedTableCellRenderer;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
@@ -340,7 +340,7 @@ public class SpecSimResultPanel extends JPanel {
 		TableColumnModel tcm = proteinTbl.getColumnModel();
 
 		tcm.getColumn(PROT_INDEX).setCellRenderer(
-				new CustomTableCellRenderer(SwingConstants.RIGHT));
+				new FormattedTableCellRenderer(SwingConstants.RIGHT));
 
 		AbstractHyperlinkAction<URI> linkAction = new AbstractHyperlinkAction<URI>() {
 			public void actionPerformed(ActionEvent ev) {
@@ -368,7 +368,7 @@ public class SpecSimResultPanel extends JPanel {
 					}
 				});
 		tcm.getColumn(PROT_DESCRIPTION).setCellRenderer(
-				new CustomTableCellRenderer(SwingConstants.LEFT));
+				new FormattedTableCellRenderer(SwingConstants.LEFT));
 		DecimalFormat percentFormatter = new DecimalFormat("0.00");
 		percentFormatter.setMultiplier(100);
 		((TableColumnExt) tcm.getColumn(PROT_COVERAGE))
@@ -376,7 +376,7 @@ public class SpecSimResultPanel extends JPanel {
 						SwingConstants.HORIZONTAL, Color.GREEN.darker()
 								.darker(), Color.GREEN, percentFormatter));
 		tcm.getColumn(PROT_MW).setCellRenderer(
-				new CustomTableCellRenderer(SwingConstants.CENTER, "0.000"));
+				new FormattedTableCellRenderer(SwingConstants.CENTER, "0.000"));
 		((TableColumnExt) tcm.getColumn(PROT_PEPTIDECOUNT))
 				.addHighlighter(new BarChartHighlighter());
 		((TableColumnExt) tcm.getColumn(PROT_SPECTRALCOUNT))
@@ -458,7 +458,7 @@ public class SpecSimResultPanel extends JPanel {
 		TableColumnModel tcm = peptideTbl.getColumnModel();
 
 		tcm.getColumn(PEP_INDEX).setCellRenderer(
-				new CustomTableCellRenderer(SwingConstants.RIGHT));
+				new FormattedTableCellRenderer(SwingConstants.RIGHT));
 		((TableColumnExt) tcm.getColumn(PEP_SPECTRALCOUNT))
 				.addHighlighter(new BarChartHighlighter());
 
@@ -551,7 +551,7 @@ public class SpecSimResultPanel extends JPanel {
 
 		TableColumnModel tcm = ssmTbl.getColumnModel();
 		tcm.getColumn(SSM_INDEX).setCellRenderer(
-				new CustomTableCellRenderer(SwingConstants.RIGHT));
+				new FormattedTableCellRenderer(SwingConstants.RIGHT));
 		((TableColumnExt) tcm.getColumn(SSM_SCORE))
 				.addHighlighter(new BarChartHighlighter(0.0, 1.0,
 						getFontMetrics(chartFont).stringWidth("0.000"),

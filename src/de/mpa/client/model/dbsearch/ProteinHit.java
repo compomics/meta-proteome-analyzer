@@ -109,7 +109,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * The UniProt entry hit object containing additional meta-data.
 	 */
-	private ReducedUniProtEntry uniprotEntry = null;
+	private ReducedUniProtEntry uniProtEntry = null;
 	
 	/**
 	 * The taxonomy node reference.
@@ -133,7 +133,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		if (peptideHit != null) {
 			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 		}
-		this.uniprotEntry = uniprotEntry;
+		this.uniProtEntry = uniprotEntry;
 		this.taxonomyNode = taxonomyNode;
 	}
 	
@@ -459,15 +459,15 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param uniprotEntry The UniprotentryAccessor object
 	 */
 	public void setUniprotEntry(ReducedUniProtEntry uniprotEntry) {
-		this.uniprotEntry = uniprotEntry;
+		this.uniProtEntry = uniprotEntry;
 	}
 	
 	/**
 	 * Returns the UniProt entry.
 	 * @return The UniProtEntry object.
 	 */
-	public ReducedUniProtEntry getUniprotEntry() {
-		return uniprotEntry;
+	public ReducedUniProtEntry getUniProtEntry() {
+		return uniProtEntry;
 	}
 	
 	/**
@@ -538,7 +538,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			res.add(node.getName());
 		} else if (type instanceof OntologyChartType) {
 			OntologyChartType ontChartType = (OntologyChartType) type;
-			ReducedUniProtEntry redUniEntry = this.getUniprotEntry();
+			ReducedUniProtEntry redUniEntry = this.getUniProtEntry();
 			if (redUniEntry != null) {
 				List<String> keywords = redUniEntry.getKeywords();
 				for (String kw : keywords) {

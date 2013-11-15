@@ -17,7 +17,7 @@ import javax.swing.SwingConstants;
 /**
  * Class holding icons and icon manipulation-related methods.
  * 
- * @author Behne
+ * @author A. Behne
  */
 public class IconConstants {
 	
@@ -66,15 +66,10 @@ public class IconConstants {
 	public static final ImageIcon BUG_SMALL_ROLLOVER_ICON = createRescaledIcon(BUG_SMALL_ICON, 1.1f);
 	public static final ImageIcon BUG_SMALL_PRESSED_ICON = createRescaledIcon(BUG_SMALL_ICON, 0.8f);
 	
-	/** <img src="../../../resources/icons/paintcan16.png"> */
-	public static final ImageIcon PAINT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/paintcan16.png"));
-	public static final ImageIcon PAINT_ROLLOVER_ICON = createRescaledIcon(PAINT_ICON, 1.1f);
-	public static final ImageIcon PAINT_PRESSED_ICON = createRescaledIcon(PAINT_ICON, 0.8f);
-	
-	/** <img src="../../../resources/icons/filter_add16.png"> */
-	public static final ImageIcon ADD_FILTER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/filter_add16.png"));
-	public static final ImageIcon ADD_FILTER_ROLLOVER_ICON = createRescaledIcon(ADD_FILTER_ICON, 1.1f);
-	public static final ImageIcon ADD_FILTER_PRESSED_ICON = createRescaledIcon(ADD_FILTER_ICON, 0.8f);
+	/** <img src="../../../resources/icons/filter16.png"> */
+	public static final ImageIcon FILTER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/filter16.png"));
+	public static final ImageIcon FILTER_ROLLOVER_ICON = createRescaledIcon(FILTER_ICON, 1.1f);
+	public static final ImageIcon FILTER_PRESSED_ICON = createRescaledIcon(FILTER_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/check16.png"> */
 	public static final ImageIcon CHECK_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/check16.png"));
@@ -283,6 +278,12 @@ public class IconConstants {
 	public static final ImageIcon WEB_REACTOME_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/reactome16.png"));
 	/** <img src="../../../resources/icons/kegg16.png"> */
 	public static final ImageIcon WEB_KEGG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/kegg16.png"));
+	/** <img src="../../../resources/icons/blast16.png"> */
+	public static final Icon WEB_BLAST_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/blast16.png"));;
+	/** <img src="../../../resources/icons/quickgo16.png"> */
+	public static final Icon WEB_QUICKGO_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/quickgo16.png"));;
+	/** <img src="../../../resources/icons/eggnog16.png"> */
+	public static final Icon WEB_EGGNOG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/eggnog16.png"));;
 	
 	/**
 	 * Creates an empty item of the specified width and height.
@@ -314,7 +315,7 @@ public class IconConstants {
 	 * @param scale the scale factor to be used. Below 1.0 will darken, above 1.0 will brighten the image.
 	 * @return the icon with rescaled color space
 	 */
-	public static ImageIcon createRescaledIcon(ImageIcon icon, float scale) {
+	public static ImageIcon createRescaledIcon(Icon icon, float scale) {
 		
 		// transfer image data to buffered image
 		BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
