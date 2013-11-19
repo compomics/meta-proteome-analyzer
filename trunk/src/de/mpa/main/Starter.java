@@ -163,8 +163,8 @@ public class Starter {
 					boolean viewerMode = false;
 					boolean debugMode = false;
 					if (args.length > 0) {
-						for(String arg : args) {
-							if(arg.equalsIgnoreCase("-debug")) {
+						for (String arg : args) {
+							if (arg.equalsIgnoreCase("-debug")) {
 								debugMode = true;
 							} else if (arg.equalsIgnoreCase("-viewer")) {
 								viewerMode = true;

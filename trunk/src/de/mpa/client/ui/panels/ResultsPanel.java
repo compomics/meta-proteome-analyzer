@@ -445,7 +445,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		fetchRemoteBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				setBusy(true);
 				new FetchResultsTask(null).execute();
 			}
 		});
@@ -484,7 +483,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		fetchLocalBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				setBusy(true);
 				JFileChooser chooser = new JFileChooser();
 				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
 				chooser.setAcceptAllFileFilterUsed(false);
@@ -1436,7 +1434,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Update overview panel
 				ResultsPanel.this.updateOverview();
 				// Populate tables in database search result panel
-				ResultsPanel.this.dbPnl.refreshTables();
+				ResultsPanel.this.dbPnl.refreshTables(this.file);
 			}
 			
 			// Enable 'Export' and 'Save Project' functionalities of menu bar

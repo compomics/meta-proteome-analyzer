@@ -2396,8 +2396,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// PSM table
 		final TableModel psmTblMdl = new DefaultTableModel() {
 			{
-				setColumnIdentifiers(new Object[] { "", "#", "z", "Votes", "X",
-						"O", "C", "I", "M" });
+				setColumnIdentifiers(new Object[] {
+						"", "#", "z", "Votes", "X", "O", "C", "I", "M" });
 			}
 
 			public boolean isCellEditable(int row, int col) {
@@ -2418,7 +2418,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				case PSM_INSPECT:
 				case PSM_MASCOT:
 					return Double.class;
-					//				case PSM_SEQUENCE:
+//				case PSM_SEQUENCE:
 				default: 
 					return String.class;
 				}
@@ -2520,6 +2520,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
 		tcm.getColumnExt(PSM_MASCOT).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
+		// Hide Mascot column
+		// TODO: retrieve search settings when fetching database search result and unhide Mascot column if Mascot results are contained within
+		tcm.getColumnExt(PSM_MASCOT).setVisible(false);
 
 		// Make table always sort primarily by selection state of selection column
 		final SortKey selKey = new SortKey(PSM_SELECTION, SortOrder.DESCENDING);
@@ -2672,7 +2675,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * Loads a search result object and refreshes all detail view tables with it.
 	 */
-	public void refreshTables() {
+	public void refreshTables(File importFile) {
+		this.importFile = importFile;
 		new RefreshTablesTask().execute();
 	}
 	
@@ -3281,9 +3285,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (psmRow != -1) {
 					// clear the spectrum panel
 					Container specCont = specPnl.getParent();
-					//					while (specCont.getComponents().length > 0) {
-					//						specCont.remove(0);
-					//		            }
+//					while (specCont.getComponents().length > 0) {
+//						specCont.remove(0);
+//		            }
 					specCont.removeAll();
 					// get the list of spectrum matches
 					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
