@@ -75,7 +75,7 @@ public class Parameters {
 			try {
 				InputStream fis = getClass().getResourceAsStream("/de/mpa/resources/conf/NcbiTaxonomy");
 				ObjectInputStream ois  = new ObjectInputStream(fis);
-				ncbiTaxonomy = (NcbiTaxonomy)ois.readObject();
+				ncbiTaxonomy = (NcbiTaxonomy) ois.readObject();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -132,7 +132,7 @@ public class Parameters {
 			try {
 				InputStream fosP = getClass().getResourceAsStream("/de/mpa/resources/conf/UniProtMapOfAllPeptide");
 				ObjectInputStream oosP = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(fosP)));
-				uniProtPeptideMap = (TreeMap<String, String[]>)oosP.readObject();
+				uniProtPeptideMap = (TreeMap<String, String[]>) oosP.readObject();
 				oosP.close();
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
@@ -170,7 +170,7 @@ public class Parameters {
 	 * @return Array of enabled panels
 	 */
 	public String[] getEnabledItemsForViewer() {
-		return new String[] { "View Results" };
+		return new String[] { "View Results", "Logging" };
 	}
 	
 	/**
