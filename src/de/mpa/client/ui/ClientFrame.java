@@ -302,11 +302,11 @@ public class ClientFrame extends JFrame {
 			settingsPnl = new SettingsPanel();
 			// Compare panel
 			comparePnl = new ComparePanel();
-			// Logging panel		
-			loggingPnl = new LoggingPanel();
 		}
 		// Results Panel
 		resultPnl = new ResultsPanel();
+		// Logging panel		
+		loggingPnl = new LoggingPanel();
 		
 	}
 
