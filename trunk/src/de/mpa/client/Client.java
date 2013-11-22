@@ -66,6 +66,7 @@ import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.taxonomy.TaxonomyUtils;
+import de.mpa.webservice.WSPublisher;
 
 public class Client {
 
@@ -208,8 +209,8 @@ public class Client {
 	 */
 	public void connect() {
 //		FIXME: This does not work for the main metaprot server!
-//		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
-
+		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
+		System.out.println(srvSettings.getHost());
 		service = new ServerImplService();
 		server = service.getServerImplPort();
 

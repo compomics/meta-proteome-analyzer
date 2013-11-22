@@ -1,6 +1,9 @@
 package de.mpa.job.instances;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import de.mpa.job.Job;
 
@@ -18,6 +21,15 @@ public class CruxJob extends Job {
 	private final String filename;
 	private final double precIonTol;
 	private final boolean isPrecIonTolPpm;
+	private final static String PARAMETER_FILE = "default.params"; 
+	
+	/**
+	 * Crux parameters.
+	 */
+	private String params;
+	private int nMissedCleavages;
+	private File parameterFile;
+	private double fragmentTol;
 	 
 	/**
 	 * Constructor for the CruxJob retrieving the MGF file as the only
@@ -26,18 +38,71 @@ public class CruxJob extends Job {
 	 * 
 	 * @param mgfFile
 	 * @param isPrecIonTolPpm 
+	 * @param nMissedCleavages
 	 * @param precIonTol 
+	 * @param nMissedCleavages 
 	 */
-	public CruxJob(File mgfFile, final String searchDB, double precIonTol, boolean isPrecIonTolPpm ) {
-		this.searchDB = searchDB;
+	public CruxJob(File mgfFile, final String searchDB, String params, double fragmentTol, double precIonTol, int nMissedCleavages, boolean isPrecIonTolPpm ) {
 		this.mgfFile = mgfFile;
+		this.searchDB = searchDB;
+		this.params = params;
 		this.cruxFile = new File(JobConstants.CRUX_PATH);	
+		this.fragmentTol = fragmentTol;
 		this.precIonTol = precIonTol;
+		this.nMissedCleavages = nMissedCleavages;
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
+		buildParameterFile();
 		initJob();
 		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
 	}	
 	
+    /**
+     * Constructs the parameters file.
+     */
+    private void buildParameterFile() {
+
+        parameterFile = new File(cruxFile, PARAMETER_FILE);
+        
+        String precursorTolType = "mass";
+        if(isPrecIonTolPpm) precursorTolType = "ppm";
+        		
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(parameterFile));
+            bw.write(params);
+            
+            bw.write("stats=false\n" +
+            		"comparison=eq\n" + 
+            		"min-weibull-points=4000" + 
+            		"isotope=0\n" + 
+            		"primary-ions=by\n" + 
+            		"isotopic-mass=average\n" + 
+            		"missed-cleavages=" + nMissedCleavages + "\n" +
+            		"precursor-window-type=" + precursorTolType + "\n" + 
+            		"precursor-window=" + precIonTol + "\n" +
+            		"mz-bin-width=" + fragmentTol + "\n" + 
+            		"C=57.021464\n" + 
+            		"version=false\n" +
+            		"digestion=full-digest\n" + 
+            		"spectrum-parser=pwiz\n" + 
+            		"parameter-file=__NULL_STR\n" + 
+            		"max-rank-preliminary=500\n" + 
+            		"max-mods=255\n" + 
+            		"spectrum-charge=all\n" + 
+            		"train-fdr=0.050000\n" + 
+            		"pi-zero=1.000000\n" + 
+            		"mz-bin-offset=0.680000\n" + 
+            		"spectrum-min-mass=0.000000\n" + 
+            		"spectrum-min-mass=0.000000\n" + 
+            		"nmod=NO MODS\n" + 
+            		"cmod=NO MODS\n"
+            		);
+            bw.flush();
+            bw.close();
+        } catch (IOException ioe) {
+           ioe.printStackTrace();
+        }
+    }
+    
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
@@ -55,14 +120,8 @@ public class CruxJob extends Job {
 		
 		// Parameter-file
 		procCommands.add("--parameter-file");
-		procCommands.add(JobConstants.CRUX_PATH + "default.params");
-		// Add Precursor tolerance TODO Check this override of parameters
-//		procCommands.add("precursor-window=" + precIonTol);
-//		if (isPrecIonTolPpm) {
-//			procCommands.add("precursor-window-type=ppm"); 
-//		} else {
-//			procCommands.add("precursor-window-type=mass");
-//		}
+		procCommands.add(parameterFile.getAbsolutePath());
+
 		// Link to outputfolder path.
 		procCommands.add("--output-dir");
 		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
@@ -74,7 +133,6 @@ public class CruxJob extends Job {
 		procCommands.trimToSize();
 
 		procBuilder = new ProcessBuilder(procCommands);
-		System.out.println(procCommands);
 		setDescription("CRUX");
 		
 		procBuilder.directory(cruxFile);

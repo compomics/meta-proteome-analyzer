@@ -23,19 +23,15 @@ public class OmssaParameters extends ParameterMap {
 	@Override
 	public void initDefaults() {
 		/* Non-configurable settings */
-		this.put("te", new Parameter(null, 1.0, "General", null));	// precursor tolerance
-		this.put("to", new Parameter(null, 0.5, "General", null));	// fragment tolerance
-		this.put("v", new Parameter(null, 2, "General", null));		// missed cleavages
-		this.put("e", new Parameter(null, 0, "General", null));		// protease
-		
+		this.put("e", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"}), "Spectrum", "Cleavage enzyme to used by the OMSSA search engine."));
+        
 		/* Configurable settings */
 		// Spectrum section
-//		this.put(null, new Parameter("<html>Fragment Mass<br>Error Unit</html>", new Object[] { "Daltons", "ppm" }, "Spectrum", "Fragment monoisotopic mass error units: Daltons|ppm"));
 		this.put("tom", new Parameter("Fragment mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
 		this.put("tem", new Parameter("Precursor mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
-		this.put("zt", new Parameter("Scale precursor tolerance to charge", false, "Spectrum", "Precursor mass tolerance scales according to charge state.")); // TODO: maybe use Integer value here to be closer to what the commandline parameter actually expects
+		this.put("zt", new Parameter("Scale precursor tolerance to charge", 3, "Spectrum", "Precursor mass tolerance scales according to charge state.")); 
 		this.put("ht", new Parameter("Most intense peaks", 6, "Spectrum", "Number of m/z values corresponding to the most intense peaks."));
-		this.put("nt", new Parameter("Worker threads", 0, "Spectrum", "The number of threads OMSSA is using for processing."));
+		this.put("nt", new Parameter("Worker threads", 4, "Spectrum", "The number of threads OMSSA is using for processing."));
 		// Scoring section
 		this.put("hm", new Parameter("<html>Required number of m/z<br>matches per spectrum</html>", 2, "Scoring", "The number of m/z matches a sequence library peptide must have for the hit to the peptide to be recorded."));
 		this.put("hl", new Parameter("Maximum number of hits", 30, "Scoring", "Maximum number of hits retained per precursor charge state per spectrum."));
@@ -87,7 +83,7 @@ public class OmssaParameters extends ParameterMap {
 						k++;
 					}
 				}
-			} else if (!value.equals(defaultValue)) {
+			} else {
 				if (value instanceof Boolean) {
 					// turn true/false into yes/no
 					value = (((Boolean) value).booleanValue()) ? 1 : 0;
@@ -96,7 +92,7 @@ public class OmssaParameters extends ParameterMap {
 				sb.append("-" + key + " " + value + " ");
 			}
 		}
-		return sb.toString();
+		return sb.toString().trim();
 	}
 
 	@Override

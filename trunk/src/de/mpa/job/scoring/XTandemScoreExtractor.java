@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.xml.sax.SAXException;
 
 import de.proteinms.xtandemparser.xtandem.Domain;
@@ -34,6 +36,8 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 			xTandemFileDecoy = new XTandemFile(decoyFile.getAbsolutePath());
 		} catch (SAXException saxException) {
 			saxException.getMessage();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
 		}		
 	}
 	

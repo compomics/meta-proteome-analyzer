@@ -9,8 +9,8 @@ import de.mpa.job.Job;
 import de.mpa.job.SearchType;
 
 /**
- * Executes an XTandem job.
- * @author Thilo Muth
+ * Executes the X!Tandem search process.
+ * @author T. Muth
  *
  */
 public class XTandemJob extends Job {	
@@ -30,38 +30,27 @@ public class XTandemJob extends Job {
 	private double fragmentTol;
 	private double precursorTol;
 	private int nMissedCleavages;
-	/*
-	 * ENZYMES argc - [R]|{P} aspn - [X]|[D] chymotrypsin - [FMWY]|{P} clostripain - [R]|[X] cnbr - [M]|{P} elastase - [AGILV]|{P}
-	formicacid - [D]|{P} gluc - [DE]|{P} gluc_bicarb - [E]|{P} iodosobenzoate - [W]|[X]	lysc - [K]|{P}
-	lysc-p - [K]|[X] lysn - [X]|[K] lysn_promisc - [X]|[AKRS] nonspecific - [X]|[X] pepsina - [FL]|[X]
-	protein_endopeptidase - [P]|[X] staph_protease - [E]|[X] tca - [FMWY]|{P},[KR]|{P},[X]|[D]
-	trypsin - [KR]|{P} trypsin/cnbr - [KR]|{P},[M]|{P} trypsin_gluc - [DEKR]|{P}
-	 */
 	// String of precursor ion tolerance unit ( ppm versus Da)
 	private String precursorUnit;	
 	private SearchType searchType;
+	private String params;
 
-	/**
-	 * Constructor for the XTandemJob..
-	 * @param mgfFile
-	 * @param fragmentTol
-	 * @param precursorTol
-	 * @param precursorUnit
-	 */
 	
 	/**
 	 * Constructor for starting the X!Tandem search engine.
 	 * @param mgfFile Spectrum file
 	 * @param searchDB Search database
+	 * @param params Search parameters string
 	 * @param fragmentTol Fragment ion tolerance
 	 * @param precursorTol Precursor ion tolerance
 	 * @param nMissedCleavages Number of maximum missed cleavages
 	 * @param isPrecursorTolerancePpm Condition whether the precursor tolerance unit is PPM (true) or Dalton (false)
 	 * @param searchType Target or decoy search type
 	 */
-	public XTandemJob(File mgfFile, String searchDB, double fragmentTol, double precursorTol, int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
+	public XTandemJob(File mgfFile, String searchDB, String params, double fragmentTol, double precursorTol, int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
+		this.params = params;
 		this.fragmentTol = fragmentTol;
 		this.precursorTol = precursorTol;
 		this.nMissedCleavages = nMissedCleavages;
@@ -182,7 +171,8 @@ public class XTandemJob extends Job {
     private void buildParameterFile() {
 
         parameterFile = new File(xTandemFile, PARAMETER_FILE);
-
+        String[] parameters = params.split(";");
+        
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(parameterFile));
             bw.write(
@@ -204,7 +194,7 @@ public class XTandemJob extends Job {
                             + "\t<note>The value for this parameter may be 'Daltons' or 'ppm': all other values are ignored</note>\n"
                             + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error units\">" + precursorUnit + "</note>\n"
                             + "\t\t<note>The value for this parameter may be 'Daltons' or 'ppm': all other values are ignored</note>\n"
-                            + "\t<note type=\"input\" label=\"spectrum, fragment mass type\">monoisotopic</note>\n"
+                            + parameters[2] // "\t<note type=\"input\" label=\"spectrum, fragment mass type\">monoisotopic</note>\n"
                             + "\t\t<note>values are monoisotopic|average </note>\n"
                             + "\n"
                             + "<note>spectrum conditioning parameters</note>\n"
@@ -213,18 +203,18 @@ public class XTandemJob extends Job {
                             + "\t\tis set to the dynamic range value. All peaks with values of less that\n"
                             + "\t\t1, using this normalization, are not used. This normalization has the\n"
                             + "\t\toverall effect of setting a threshold value for peak intensities.</note>\n"
-                            + "\t<note type=\"input\" label=\"spectrum, total peaks\">50</note> \n"
+                            + parameters[3] // "\t<note type=\"input\" label=\"spectrum, total peaks\">50</note> \n"
                             + "\t\t<note>If this value is 0, it is ignored. If it is greater than zero (lets say 50),\n"
                             + "\t\tthen the number of peaks in the spectrum with be limited to the 50 most intense\n"
                             + "\t\tpeaks in the spectrum. X! tandem does not do any peak finding: it only\n"
                             + "\t\tlimits the peaks used by this parameter, and the dynamic range parameter.</note>\n"
                             + "\t<note type=\"input\" label=\"spectrum, maximum parent charge\">4</note>\n"
                             + "\t<note type=\"input\" label=\"spectrum, use noise suppression\">yes</note>\n"
-                            + "\t<note type=\"input\" label=\"spectrum, minimum parent m+h\">500.0</note>\n"
-                            + "\t<note type=\"input\" label=\"spectrum, minimum fragment mz\">150.0</note>\n"
-                            + "\t<note type=\"input\" label=\"spectrum, minimum peaks\">15</note> \n"
-                            + "\t<note type=\"input\" label=\"spectrum, threads\">4</note>\n"
-                            + "\t<note type=\"input\" label=\"spectrum, sequence batch size\">1000</note>\n"
+                            + parameters[5] //"\t<note type=\"input\" label=\"spectrum, minimum parent m+h\">500.0</note>\n"
+                            + parameters[6] // "\t<note type=\"input\" label=\"spectrum, minimum fragment mz\">150.0</note>\n"
+                            + parameters[4] //"\t<note type=\"input\" label=\"spectrum, minimum peaks\">15</note> \n"
+                            + parameters[7] // "\t<note type=\"input\" label=\"spectrum, threads\">4</note>\n"
+                            + parameters[8] // "\t<note type=\"input\" label=\"spectrum, sequence batch size\">1000</note>\n"
                             + "\t\n"
                             + "<note>residue modification parameters</note>\n"
                             + "\t<note type=\"input\" label=\"residue, modification mass\">57.021464@C</note>\n"
@@ -246,8 +236,8 @@ public class XTandemJob extends Job {
                             + "<note>protein parameters</note>\n"
                             + "\t<note type=\"input\" label=\"protein, taxon\">all</note>\n"
                             + "\t\t<note>This value is interpreted using the information in taxonomy.xml.</note>\n"
-                            + "\t<note type=\"input\" label=\"protein, cleavage site\">[RK]|{P}</note>\n" /* [FMWY]|{P}*/
-                            + "\t<note type=\"input\" label=\"protein,  cleavage semi\">yes</note>\n"
+                            + parameters[0] // "\t<note type=\"input\" label=\"protein, cleavage site\">[RK]|{P}</note>\n"
+                            + parameters[1] // "\t<note type=\"input\" label=\"protein,  cleavage semi\">yes</note>\n"
                             + "\t\t<note>this setting corresponds to the enzyme trypsin. The first characters\n"
                             + "\t\tin brackets represent residues N-terminal to the bond - the '|' pipe -\n"
                             + "\t\tand the second set of characters represent residues C-terminal to the\n"
@@ -266,19 +256,18 @@ public class XTandemJob extends Job {
                             + "\t\t<note>if yes, an upper limit is set on the number of homologues kept for a particular spectrum</note>\n"
                             + "\n"
                             + "<note>model refinement parameters</note>\n"
-                            + "\t<note type=\"input\" label=\"refine\">yes</note>\n"
+                            + parameters[9] // "\t<note type=\"input\" label=\"refine\">yes</note>\n"
                             + "\t<note type=\"input\" label=\"refine, modification mass\"></note>\n"
                             + "\t<note type=\"input\" label=\"refine, sequence path\"></note>\n"
                             + "\t<note type=\"input\" label=\"refine, tic percent\">20</note>\n"
-                            + "\t<note type=\"input\" label=\"refine, spectrum synthesis\">yes</note>\n"
-                            + "\t<note type=\"input\" label=\"refine, maximum valid expectation value\">0.1</note>\n"
+                            + parameters[10] // "\t<note type=\"input\" label=\"refine, spectrum synthesis\">yes</note>\n"
+                            + parameters[11] //"\t<note type=\"input\" label=\"refine, maximum valid expectation value\">0.1</note>\n"
                             + "\t<note type=\"input\" label=\"refine, potential N-terminus modifications\">+42.010565@[</note>\n"
                             + "\t<note type=\"input\" label=\"refine, potential C-terminus modifications\"></note>\n"
                             + "\t<note type=\"input\" label=\"refine, unanticipated cleavage\">yes</note>\n"
                             + "\t<note type=\"input\" label=\"refine, potential modification mass\"></note>\n"
-                            + "\t<note type=\"input\" label=\"refine, point mutations\">no</note>\n"
+                            + parameters[12] //"\t<note type=\"input\" label=\"refine, point mutations\">no</note>\n"
                             + "\t<note type=\"input\" label=\"refine, use potential modifications for full refinement\">no</note>\n"
-                            + "\t<note type=\"input\" label=\"refine, point mutations\">no</note>\n"
                             + "\t<note type=\"input\" label=\"refine, potential modification motif\"></note>\n"
                             + "\t<note>The format of this parameter is similar to residue, modification mass,\n"
                             + "\t\twith the addition of a modified PROSITE notation sequence motif specification.\n"
@@ -290,20 +279,18 @@ public class XTandemJob extends Job {
                             + "\t\t</note>\n"
                             + "\n"
                             + "<note>scoring parameters</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, minimum ion count\">4</note>\n"
+                            + parameters[13] //"\t<note type=\"input\" label=\"scoring, minimum ion count\">4</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, maximum missed cleavage sites\">" + nMissedCleavages + "</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, x ions\">no</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, y ions\">yes</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, z ions\">no</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, a ions\">no</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, b ions\">yes</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, c ions\">no</note>\n"
+                            + parameters[14] // "\t<note type=\"input\" label=\"scoring, x ions\">no</note>\n"
+                            + parameters[15] // "\t<note type=\"input\" label=\"scoring, y ions\">yes</note>\n"
+                            + parameters[16] // "\t<note type=\"input\" label=\"scoring, z ions\">no</note>\n"
+                            + parameters[17] // "\t<note type=\"input\" label=\"scoring, a ions\">no</note>\n"
+                            + parameters[18] // "\t<note type=\"input\" label=\"scoring, b ions\">yes</note>\n"
+                            + parameters[19] // "\t<note type=\"input\" label=\"scoring, c ions\">no</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, cyclic permutation\">no</note>\n"
                             + "\t\t<note>if yes, cyclic peptide sequence permutation is used to pad the scoring histograms</note>\n"
                             + "\t<note type=\"input\" label=\"scoring, include reverse\">no</note>\n"
                             + "\t\t<note>if yes, then reversed sequences are searched at the same time as forward sequences</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, cyclic permutation\">no</note>\n"
-                            + "\t<note type=\"input\" label=\"scoring, include reverse\">no</note>\n"
                             + "\n"
                             + "<note>output parameters</note>\n"
                             + "\t<note type=\"input\" label=\"output, log path\"></note>\n"

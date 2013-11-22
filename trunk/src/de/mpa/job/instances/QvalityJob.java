@@ -43,7 +43,7 @@ public class QvalityJob extends Job {
 		setDescription("QVALITY JOB");
 		
 		// full path to executable
-		procCommands.add("qvality");
+		procCommands.add("/scratch/local/bin/qvality");
 		
 		// Reverse scoring mechanism: Low score are better than high scores
 		if(reverseScoring){
