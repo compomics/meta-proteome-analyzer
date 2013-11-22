@@ -26,7 +26,7 @@ public class CruxParameters extends ParameterMap {
 	@Override
 	public void initDefaults() {
 		/* Non-configurable settings */
-		this.put("enzyme", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] {"trypsin", "elastase", "chymotrypsin", "cyanogen-bromide", "iodosobenzoate", "aspn", "proline-endopeptidase"}), "General", "Cleavage enzyme to used by the Crux search engine."));		// protease
+		this.put("enzyme", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] {"trypsin", "elastase", "chymotrypsin", "cyanogen-bromide", "iodosobenzoate", "aspn", "proline-endopeptidase"}), "Spectrum", "Cleavage enzyme to used by the Crux search engine."));		// protease
 		
 		/* Configurable settings */
 		// Spectrum section
