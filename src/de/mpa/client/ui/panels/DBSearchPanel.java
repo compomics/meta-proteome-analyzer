@@ -60,10 +60,6 @@ public class DBSearchPanel extends JPanel {
 	private JSpinner missClvSpn;
 	
 	/**
-	 * TODO: Enzyme combo box is missing here, maybe remove it altogether?
-	 */
-	
-	/**
 	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
 	 */
 	private JComboBox searchTypeCbx;
@@ -182,7 +178,7 @@ public class DBSearchPanel extends JPanel {
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
@@ -199,10 +195,6 @@ public class DBSearchPanel extends JPanel {
 		// Missed cleavages Spinner
 		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, null, 1));
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
-
-		// Enzyme ComboBox
-		// TODO: unused control, maybe remove altogether?
-		JComboBox enzymeCbx = new JComboBox(Constants.DB_ENZYMES);
 		
 		// Search strategy ComboBox
 		searchTypeCbx = new JComboBox(new String[] { "Target-Decoy", "Target Only" });
@@ -216,11 +208,8 @@ public class DBSearchPanel extends JPanel {
 		paramsPnl.add(new JLabel("Missed Cleavages (max):"), cc.xyw(2, 6, 3));
 		paramsPnl.add(missClvSpn, cc.xy(6, 6));
 		paramsPnl.add(new JSeparator(), cc.xyw(2, 8, 7));
-		paramsPnl.add(new JLabel("Enzyme (Protease):"), cc.xy(2, 10));
-		paramsPnl.add(enzymeCbx, cc.xyw(4, 10, 5));
-//		paramsPnl.add(new JSeparator(), cc.xyw(2, 12, 7));
-		paramsPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 12));
-		paramsPnl.add(searchTypeCbx, cc.xyw(4, 12, 5));
+		paramsPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 10));
+		paramsPnl.add(searchTypeCbx, cc.xyw(4, 10, 5));
 		
 		// Search Engine Settings Panel
 		final JPanel searchEngPnl = new JPanel();
@@ -343,11 +332,27 @@ public class DBSearchPanel extends JPanel {
 		dbSettings.setPrecursorIonTol((Double) precTolSpn.getValue());
 		dbSettings.setPrecursorIonUnitPpm(precTolCbx.getSelectedIndex()==1);
 		dbSettings.setNumMissedCleavages((Integer) missClvSpn.getValue());
-		// TODO: Unused parameter: Enzyme (settings.setEnzyme(value))
-		dbSettings.setXTandem(xTandemChk.isSelected());
-		dbSettings.setOmssa(omssaChk.isSelected());
-		dbSettings.setCrux(cruxChk.isSelected());
-		dbSettings.setInspect(inspectChk.isSelected());
+		
+		if (xTandemChk.isSelected()) {
+			dbSettings.setXTandem(true);
+			dbSettings.setXtandemParams(xTandemParams.toString());
+		}
+		
+		if (omssaChk.isSelected()) {
+			dbSettings.setOmssa(true);
+			dbSettings.setOmssaParams(omssaParams.toString());
+		}
+		
+		if (cruxChk.isSelected()) {
+			dbSettings.setCrux(true);
+			dbSettings.setCruxParams(cruxParams.toString());
+		}
+		
+		if (inspectChk.isSelected()) {
+			dbSettings.setInspect(true);
+			dbSettings.setInspectParams(inspectParams.toString());
+		}
+		
 		dbSettings.setMascot(mascotChk.isSelected());
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		

@@ -18,15 +18,18 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="Crux" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *         &lt;element name="enzyme" type="{http://webservice.mpa.de/}protease" minOccurs="0"/>
+ *         &lt;element name="cruxParams" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="fastaFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="fragmentIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *         &lt;element name="Inspect" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="inspectParams" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="numMissedCleavages" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="Omssa" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="omssaParams" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="precursorIonTol" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *         &lt;element name="precursorIonUnit" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="XTandem" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="xtandemParams" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="decoy" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="Mascot" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="experimentid" type="{http://www.w3.org/2001/XMLSchema}long"/>
@@ -41,15 +44,18 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dbSearchSettings", propOrder = {
     "crux",
-    "enzyme",
+    "cruxParams",
     "fastaFile",
     "fragmentIonTol",
     "inspect",
+    "inspectParams",
     "numMissedCleavages",
     "omssa",
+    "omssaParams",
     "precursorIonTol",
     "precursorIonUnit",
     "xTandem",
+    "xtandemParams",
     "decoy",
     "mascot",
     "experimentid"
@@ -58,18 +64,21 @@ public class DbSearchSettings {
 
     @XmlElement(name = "Crux")
     protected boolean crux;
-    protected Protease enzyme;
+    protected String cruxParams;
     protected String fastaFile;
     protected double fragmentIonTol;
     @XmlElement(name = "Inspect")
     protected boolean inspect;
+    protected String inspectParams;
     protected int numMissedCleavages;
     @XmlElement(name = "Omssa")
     protected boolean omssa;
+    protected String omssaParams;
     protected double precursorIonTol;
     protected boolean precursorIonUnit;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
+    protected String xtandemParams;
     protected boolean decoy;
     @XmlElement(name = "Mascot")
     protected boolean mascot;
@@ -87,32 +96,32 @@ public class DbSearchSettings {
      * Sets the value of the crux property.
      * 
      */
-    public void setCrux(boolean value) {
-        this.crux = value;
+    public void setCrux(boolean crux) {
+        this.crux = crux;
     }
 
     /**
-     * Gets the value of the enzyme property.
+     * Gets the value of the cruxParams property.
      * 
      * @return
      *     possible object is
-     *     {@link Protease }
+     *     {@link String }
      *     
      */
-    public Protease getEnzyme() {
-        return enzyme;
+    public String getCruxParams() {
+        return cruxParams;
     }
 
     /**
-     * Sets the value of the enzyme property.
+     * Sets the value of the cruxParams property.
      * 
      * @param value
      *     allowed object is
-     *     {@link Protease }
+     *     {@link String }
      *     
      */
-    public void setEnzyme(Protease value) {
-        this.enzyme = value;
+    public void setCruxParams(String cruxParams) {
+        this.cruxParams = cruxParams;
     }
 
     /**
@@ -135,8 +144,8 @@ public class DbSearchSettings {
      *     {@link String }
      *     
      */
-    public void setFastaFile(String value) {
-        this.fastaFile = value;
+    public void setFastaFile(String fastaFile) {
+        this.fastaFile = fastaFile;
     }
 
     /**
@@ -151,11 +160,11 @@ public class DbSearchSettings {
      * Sets the value of the fragmentIonTol property.
      * 
      */
-    public void setFragmentIonTol(double value) {
-        this.fragmentIonTol = value;
+    public void setFragmentIonTol(double fragmentIonTol) {
+        this.fragmentIonTol = fragmentIonTol;
     }
 
-	/**
+    /**
      * Gets the value of the inspect property.
      * 
      */
@@ -167,8 +176,32 @@ public class DbSearchSettings {
      * Sets the value of the inspect property.
      * 
      */
-    public void setInspect(boolean value) {
-        this.inspect = value;
+    public void setInspect(boolean inspect) {
+        this.inspect = inspect;
+    }
+
+    /**
+     * Gets the value of the inspectParams property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getInspectParams() {
+        return inspectParams;
+    }
+
+    /**
+     * Sets the value of the inspectParams property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setInspectParams(String inspectParams) {
+        this.inspectParams = inspectParams;
     }
 
     /**
@@ -183,8 +216,8 @@ public class DbSearchSettings {
      * Sets the value of the numMissedCleavages property.
      * 
      */
-    public void setNumMissedCleavages(int value) {
-        this.numMissedCleavages = value;
+    public void setNumMissedCleavages(int numMissedCleavages) {
+        this.numMissedCleavages = numMissedCleavages;
     }
 
     /**
@@ -199,8 +232,32 @@ public class DbSearchSettings {
      * Sets the value of the omssa property.
      * 
      */
-    public void setOmssa(boolean value) {
-        this.omssa = value;
+    public void setOmssa(boolean omssa) {
+        this.omssa = omssa;
+    }
+
+    /**
+     * Gets the value of the omssaParams property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getOmssaParams() {
+        return omssaParams;
+    }
+
+    /**
+     * Sets the value of the omssaParams property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setOmssaParams(String omssaParams) {
+        this.omssaParams = omssaParams;
     }
 
     /**
@@ -215,27 +272,27 @@ public class DbSearchSettings {
      * Sets the value of the precursorIonTol property.
      * 
      */
-    public void setPrecursorIonTol(double value) {
-        this.precursorIonTol = value;
+    public void setPrecursorIonTol(double precursorIonTol) {
+        this.precursorIonTol = precursorIonTol;
     }
 
     /**
-     * Gets the precursor ion unit
-     * @return True for ppm and false for Da.
+     * Gets the value of the precursorIonUnit property.
+     * 
      */
     public boolean isPrecursorIonUnitPpm() {
-		return precursorIonUnit;
-	}
+        return precursorIonUnit;
+    }
 
     /**
-     * Sets the precursor ion unit
-     * @param precursorIonUnit. True for ppm and false for Da.
+     * Sets the value of the precursorIonUnit property.
+     * 
      */
-	public void setPrecursorIonUnitPpm(boolean precursorIonUnit) {
-		this.precursorIonUnit = precursorIonUnit;
-	}
+    public void setPrecursorIonUnitPpm(boolean precursorIonUnit) {
+        this.precursorIonUnit = precursorIonUnit;
+    }
 
-	/**
+    /**
      * Gets the value of the xTandem property.
      * 
      */
@@ -247,11 +304,35 @@ public class DbSearchSettings {
      * Sets the value of the xTandem property.
      * 
      */
-    public void setXTandem(boolean value) {
-        this.xTandem = value;
+    public void setXTandem(boolean xTandem) {
+        this.xTandem = xTandem;
     }
 
-	/**
+    /**
+     * Gets the value of the xtandemParams property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getXtandemParams() {
+        return xtandemParams;
+    }
+
+    /**
+     * Sets the value of the xtandemParams property.
+     * 
+     * @param xtandemParams
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setXtandemParams(String xtandemParams) {
+        this.xtandemParams = xtandemParams;
+    }
+
+    /**
      * Gets the value of the decoy property.
      * 
      */
@@ -263,12 +344,12 @@ public class DbSearchSettings {
      * Sets the value of the decoy property.
      * 
      */
-    public void setDecoy(boolean value) {
-        this.decoy = value;
+    public void setDecoy(boolean decoy) {
+        this.decoy = decoy;
     }
-    
+
     /**
-     * Gets the value of the Mascot property.
+     * Gets the value of the mascot property.
      * 
      */
     public boolean isMascot() {
@@ -276,13 +357,13 @@ public class DbSearchSettings {
     }
 
     /**
-     * Sets the value of the Mascot property.
+     * Sets the value of the mascot property.
      * 
      */
-    public void setMascot(boolean value) {
-        this.mascot = value;
+    public void setMascot(boolean mascot) {
+        this.mascot = mascot;
     }
-    
+
     /**
      * Gets the value of the experimentid property.
      * 
@@ -295,9 +376,8 @@ public class DbSearchSettings {
      * Sets the value of the experimentid property.
      * 
      */
-    public void setExperimentid(long value) {
-        this.experimentid = value;
+    public void setExperimentid(long experimentid) {
+        this.experimentid = experimentid;
     }
 
-    
 }

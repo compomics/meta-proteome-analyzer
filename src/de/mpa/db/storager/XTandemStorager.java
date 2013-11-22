@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.xml.sax.SAXException;
 
 import com.compomics.util.protein.Header;
@@ -92,7 +94,9 @@ public class XTandemStorager extends BasicStorager {
         } catch (SAXException ex) {
             log.error("Error while parsing X!Tandem file: " + ex.getMessage());
             ex.printStackTrace();
-        }
+        } catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
         if(qValueFile != null) this.processQValues();
     }
     
@@ -155,9 +159,9 @@ public class XTandemStorager extends BasicStorager {
                                 // Set the domain id  
                                 String domainID = domain.getDomainID();
                                 hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
-                                 
+                                domain.getProteinKey();
                                 // parse the FASTA header
-                                Header header = Header.parseFromFASTA(protMap.getProteinWithPeptideID(domainID).getLabel());
+                                Header header = Header.parseFromFASTA(protMap.getProtein(domain.getProteinKey()).getLabel());
                                 String accession = header.getAccession();
                                  
                                 hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
