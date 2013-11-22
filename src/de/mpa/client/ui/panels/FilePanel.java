@@ -91,6 +91,7 @@ import de.mpa.client.model.ProjectContent;
 import de.mpa.client.settings.FilterSettings;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTable.IconCheckBox;
@@ -117,7 +118,7 @@ import de.mpa.io.MascotGenericFile;
  * 
  * @author A. Behne
  */
-public class FilePanel extends JPanel {
+public class FilePanel extends JPanel implements Busyable {
 	
 	private FileTextField filesTtf;
 	private JButton filterBtn;
@@ -622,7 +623,7 @@ public class FilePanel extends JPanel {
 				
 				// reset navigation button and search settings tab
 				nextBtn.setEnabled(false);
-				ClientFrame.getInstance().getTabPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, false);
+				ClientFrame.getInstance().getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, false);
 			}
 		});
 	}
@@ -697,10 +698,7 @@ public class FilePanel extends JPanel {
 	 */
 	private boolean[] tabEnabled;
 	
-	/**
-	 * Makes the frame and this panel appear busy.
-	 * @param busy <code>true</code> if busy, <code>false</code> otherwise.
-	 */
+	@Override
 	public void setBusy(boolean busy) {
 		this.busy = busy;
 		ClientFrame clientFrame = ClientFrame.getInstance();
@@ -708,7 +706,7 @@ public class FilePanel extends JPanel {
 		clientFrame.setCursor(cursor);
 		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
 		
-		JTabbedPane pane = clientFrame.getTabPane();
+		JTabbedPane pane = clientFrame.getTabbedPane();
 		if (tabEnabled == null) {
 			tabEnabled = new boolean[pane.getComponentCount()];
 			tabEnabled[pane.indexOfComponent(this)] = true;
@@ -736,6 +734,11 @@ public class FilePanel extends JPanel {
 		prevBtn.setEnabled(!busy);
 		nextBtn.setEnabled(!busy);
 		
+	}
+
+	@Override
+	public boolean isBusy() {
+		return this.busy;
 	}
 
 	/**
@@ -912,7 +915,7 @@ public class FilePanel extends JPanel {
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				// appear busy
-				setBusy(true);
+				FilePanel.this.setBusy(true);
 				
 				final Client client = Client.getInstance();
 				
@@ -1085,6 +1088,7 @@ public class FilePanel extends JPanel {
 			@Override
 			protected void done() {
 				try {
+					
 					// check result value
 					if (this.get().booleanValue()) {
 						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");
@@ -1101,7 +1105,8 @@ public class FilePanel extends JPanel {
 						
 						// enable navigation buttons and search settings tab
 						nextBtn.setEnabled(true);
-						ClientFrame.getInstance().getTabPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, true);
+//						ClientFrame.getInstance().getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, true);
+						tabEnabled[ClientFrame.SETTINGS_PANEL] = true;
 					} else {
 						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) ABORTED");
 					}
