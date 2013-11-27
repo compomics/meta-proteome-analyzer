@@ -16,7 +16,6 @@ import de.mpa.job.Job;
  *
  */
 public class QvalityJob extends Job {		
-    public final static String OUTPUT_PATH = "/scratch/metaprot/data/output/xtandem/";    	    
 	private File targetFile;
 	private File decoyFile;
 	private String qvaluedOutput;
@@ -43,7 +42,7 @@ public class QvalityJob extends Job {
 		setDescription("QVALITY JOB");
 		
 		// full path to executable
-		procCommands.add("/scratch/local/bin/qvality");
+		procCommands.add(JobConstants.QVALITY_EXE);
 		
 		// Reverse scoring mechanism: Low score are better than high scores
 		if(reverseScoring){
