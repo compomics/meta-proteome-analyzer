@@ -20,7 +20,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
@@ -272,7 +272,7 @@ public class TableConfig {
 				JLabel label = (JLabel) component;
 				label.setHorizontalAlignment(this.alignment);
 				String text = label.getText();
-				if (StringUtils.isNotBlank(text) && StringUtils.isNumeric(text)) {
+				if (NumberUtils.isNumber(text)) {
 					label.setText(this.formatter.format(Double.parseDouble(text)));
 				}
 			}

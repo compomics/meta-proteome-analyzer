@@ -170,5 +170,13 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	public JComponent getComponent() {
 		return this.comp;
 	}
+	
+	/**
+	 * Returns the panel containing the renderer components.
+	 * @return the header panel
+	 */
+	public JPanel getPanel() {
+		return this.panel;
+	}
 
 }

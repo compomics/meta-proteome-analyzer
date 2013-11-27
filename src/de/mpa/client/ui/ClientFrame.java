@@ -350,7 +350,7 @@ public class ClientFrame extends JFrame {
 	 * Returns the tabbed pane.
 	 * @return
 	 */
-	public JTabbedPane getTabPane() {
+	public JTabbedPane getTabbedPane() {
 		return tabPane;
 	}
 	

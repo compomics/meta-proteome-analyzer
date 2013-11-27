@@ -21,6 +21,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
@@ -28,6 +29,8 @@ import java.io.File;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -51,6 +54,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -81,12 +85,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXMultiSplitPane;
@@ -121,6 +127,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import scala.actors.threadpool.Arrays;
 
@@ -147,6 +154,7 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.ui.AggregateFunction;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonColumn;
@@ -154,16 +162,18 @@ import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.ComponentHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
+import de.mpa.client.ui.ComponentTableHeader;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.PhylogenyTreeTableNode;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
+import de.mpa.client.ui.SortableCheckBoxTreeTable.TableColumnExt2;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.FormatHighlighter;
+import de.mpa.client.ui.TreeTableRowSorter;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
@@ -353,7 +363,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 
 		// Setup tables
-		chartFont = UIManager.getFont("Label.font");
+		chartFont = UIManager.getFont("Label.font");	// TODO: @AB maybe simple getFont() calls suffice, no need for caching the label font
 		setupProteinTableProperties();
 		setupPeptideTableProperties();
 		setupCoverageViewer();
@@ -826,7 +836,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			"Exponentially Modified Protein Abundance Index",
 			"Normalized Spectral Abundance Factor", 
 			"External Web Resource Links"};
-	ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
+	ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 	//		ch.setReorderingAllowed(false, Constants.Constants.PROT_SELECTION);
 	proteinTbl.setTableHeader(ch);
 
@@ -1184,7 +1194,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		if (table instanceof JXTreeTable) {
 			col = 0;
 		}
-		String accession = (String) table.getValueAt(table.getSelectedRow(), col);
+		String accession = (String) table.getValueAt(table.getSelectedRow(), table.convertColumnIndexToView(col));
 		uniProtMenuItem.putClientProperty("url", "http://www.uniprot.org/uniprot/" + accession);
 		uniProtMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(uniProtMenuItem);
@@ -1458,6 +1468,52 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			public String getToolTipText(MouseEvent me) {
 				return DbSearchResultPanel.this.getTableToolTipText(me);
 			}
+			@Override
+			public void updateHighlighters(int column, Object... params) {
+				TableColumnExt columnExt = this.getColumnExt(this.convertColumnIndexToView(column));
+				Highlighter[] highlighters = columnExt.getHighlighters();
+				if (highlighters.length > 0) {
+					if (highlighters.length > 1) {
+						// typically there should be only a single highlighter per column
+						System.err.println("WARNING: multiple highlighters specified for column " + column
+								+ " of tree table " + this.getTreeTableModel().getRoot().toString());
+					}
+					Highlighter hl = highlighters[0];
+					if (hl instanceof BarChartHighlighter) {
+						// we may need to update the highlighter's baseline width to accommodate for aggregate values
+						BarChartHighlighter bchl = (BarChartHighlighter) hl;
+						FontMetrics fm = this.getFontMetrics(DbSearchResultPanel.this.chartFont);
+						NumberFormat formatter = bchl.getFormatter();
+						// iterate all nodes to get elements in desired column
+//						// TODO: this is probably slow for large tables, maybe perform only once on largest value or root aggregate value or cached set of values
+						int maxWidth = this.getMaximumStringWidth(
+								(TreeTableNode) this.getTreeTableModel().getRoot(), column, formatter, fm);
+						bchl.setBaseline(maxWidth + 1);
+						if (params.length > 1) {
+							bchl.setRange(((Number) params[0]).doubleValue(), ((Number) params[1]).doubleValue());
+						}
+					}
+				}
+				// repaint column
+				Rectangle rect = this.getTableHeader().getHeaderRect(this.convertColumnIndexToView(column));
+				rect.height = this.getHeight();
+				this.repaint(rect);
+			}
+			/** Convenience method to recursively traverse the tree in
+			 *  search of the widest string inside the specified column. */
+			private int getMaximumStringWidth(TreeTableNode node, int column, Format formatter, FontMetrics fm) {
+				int strWidth = 0;
+				Object value = node.getValueAt(column);
+				if (value != null) {
+					strWidth = fm.stringWidth(formatter.format(value));
+				}
+				Enumeration<? extends TreeTableNode> children = node.children();
+				while (children.hasMoreElements()) {
+					TreeTableNode child = (TreeTableNode) children.nextElement();
+					strWidth = Math.max(strWidth, this.getMaximumStringWidth(child, column, formatter, fm));
+				}
+				return strWidth;
+			}
 		};
 		
 		// Install component header
@@ -1476,10 +1532,24 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Normalized Spectral Abundance Factor",
 				"External Web Resources"
 		};
-		treeTbl.setTableHeader(new ComponentHeader(tcm, columnToolTips));
+		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
+		treeTbl.setTableHeader(ch);
+
+		// Install mouse listeners in header for right-click popup capabilities
+		MouseAdapter ma = this.createHeaderMouseAdapter(treeTbl);
+		ch.addMouseListener(ma);
+		ch.addMouseMotionListener(ma);
 		
 		// Force column factory to generate columns to properly cache widths
 		((AbstractTableModel) treeTbl.getModel()).fireTableStructureChanged();
+		
+		// Initialize table column aggregate functions (all NONE except for accession, description 
+		// and web resource columns, which are not aggregatable)
+		for (int i = 2; i < 11; i++) {
+			((TableColumnExt2) tcm.getColumn(i)).setAggregateFunction(AggregateFunction.NONE);
+		}
+		((TableColumnExt2) tcm.getColumn(7)).setAggregateFunction(AggregateFunction.DISTINCT);
+		((TableColumnExt2) tcm.getColumn(8)).setAggregateFunction(AggregateFunction.DISTINCT);
 		
 		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5, 1 });
 		TableConfig.setColumnMinWidths(
@@ -1497,7 +1567,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				setupWebresourceMenu(treeTbl);
 			}
 		};
-		ButtonColumn bc = new ButtonColumn(proteinTbl, webResourceAction, Constants.PROT_WEBRESOURCE);
+		ButtonColumn bc = new ButtonColumn(treeTbl, webResourceAction, 11);
 		
 		webColumn.setCellRenderer(bc);
 		webColumn.setCellEditor(bc);
@@ -1507,9 +1577,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(new TreePath(root));
 
-		// Toggle default sort order (spectral count, descending)
-		treeTbl.getRowSorter().toggleSortOrder(7);
-		treeTbl.getRowSorter().toggleSortOrder(7);
+		// Set default sort order (spectral count, descending)
+		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(7, SortOrder.DESCENDING);
 
 		// Synchronize selection with original view table
 		// TODO: find proper way to synchronize selections when original view will be removed in the future 
@@ -1593,100 +1662,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 
-//		// Install mouse listeners in header for right-click popup capabilities
-//		MouseAdapter ma = new MouseAdapter() {
-//			private int col = -1;
-//
-//			private JPopupMenu testPopup = new JPopupMenu() {
-//				@Override
-//				public void setVisible(boolean b) {
-//					if (!b) {
-//						raise();
-//					}
-//					super.setVisible(b);
-//				}
-//			};
-//
-//			{
-//				JMenu sortMenu = new JMenu("Sort... (NYI)");
-//				JCheckBoxMenuItem ascChk = new JCheckBoxMenuItem("Ascending");
-//				JCheckBoxMenuItem desChk = new JCheckBoxMenuItem("Descending");
-//				JCheckBoxMenuItem unsChk = new JCheckBoxMenuItem("Unsorted", true);
-//				ButtonGroup sortBg = new ButtonGroup();
-//				sortBg.add(ascChk);
-//				sortBg.add(desChk);
-//				sortBg.add(unsChk);
-//				sortMenu.add(ascChk);
-//				sortMenu.add(desChk);
-//				sortMenu.add(unsChk);
-//
-//				testPopup.add(sortMenu);
-//				testPopup.add(new JMenuItem("Coming soon..."));
-//			}
-//
-//			@Override
-//			public void mousePressed(MouseEvent me) {
-//				int col = ch.columnAtPoint(me.getPoint());
-//				if ((col != -1) && (me.getButton() == MouseEvent.BUTTON3)) {
-//					this.col = col;
-//					lower();
-//				}
-//			}
-//			@Override
-//			public void mouseReleased(MouseEvent me) {
-//				if ((me.getButton() == MouseEvent.BUTTON3) && 
-//						(ch.getBounds().contains(me.getPoint()))) {
-//					testPopup.show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
-//				}
-//			}
-//			@Override
-//			public void mouseDragged(MouseEvent me) {
-//				TableColumn draggedColumn = ch.getDraggedColumn();
-//				if (draggedColumn != null) {
-//					int col = treeTbl.convertColumnIndexToView(draggedColumn.getModelIndex());
-//					if ((col != -1) && (col != this.col)) {
-//						this.col = col;
-//					}
-//				}
-//			}
-//			@Override
-//			public void mouseExited(MouseEvent me) {
-//				if ((this.col != -1) && 
-//						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
-//					raise();
-//				}
-//			}
-//			@Override
-//			public void mouseEntered(MouseEvent me) {
-//				if ((this.col != -1) && 
-//						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
-//					lower();
-//				}
-//			}
-//			private void lower() {
-//				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
-//				if (hr instanceof ComponentHeaderRenderer) {
-//					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
-//					chr.getPanel().setBorder(BorderFactory.createCompoundBorder(
-//							BorderFactory.createLineBorder(Color.GRAY),
-//							BorderFactory.createEmptyBorder(1, 1, 0, -1)));
-//					chr.getPanel().setOpaque(true);
-//					ch.repaint(ch.getHeaderRect(this.col));
-//				}
-//			}
-//			private void raise() {
-//				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
-//				if (hr instanceof ComponentHeaderRenderer) {
-//					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
-//					chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-//					chr.getPanel().setOpaque(false);
-//					ch.repaint(ch.getHeaderRect(this.col));
-//				}
-//			}
-//		};
-//		ch.addMouseListener(mouseAdapter);
-//		ch.addMouseMotionListener(mouseAdapter);
-
 		// Reduce node indents to make tree more compact horizontally
 		treeTbl.setIndents(6, 4, 2);
 		// Hide root node
@@ -1764,6 +1739,169 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		linkMap.put(root.toString(), treeTbl);
 
 		return treeTbl;
+	}
+	
+	/**
+	 * Creates and configures a mouse adapter for tree table headers to display a context menu.
+	 * @return the header mouse adapter
+	 */
+	private MouseAdapter createHeaderMouseAdapter(final JXTreeTable treeTbl) {
+		// TODO: maybe integrate functionality into tree table class
+		final ComponentTableHeader ch = (ComponentTableHeader) treeTbl.getTableHeader();
+		MouseAdapter ma = new MouseAdapter() {
+			/**
+			 * The column index of the last pressed column header.<br>
+			 */
+			private int col = -1;
+
+			/**
+			 * Creates and configures the current column header's context menu.
+			 * @return the context menu
+			 */
+			private JPopupMenu createPopup() {
+				JPopupMenu popup = new JPopupMenu() {
+					@Override
+					public void setVisible(boolean b) {
+						// automatically raise the column header when popup is dismissed
+						if (!b) {
+							raise();
+						}
+						super.setVisible(b);
+					}
+				};
+
+				// Create sub-menu containing sorting-related items
+				JMenu sortMenu = new JMenu("Sort");
+				
+				SortOrder order = ((TreeTableRowSorter) treeTbl.getRowSorter()).getSortOrder(this.col);
+				JMenuItem ascChk = new JRadioButtonMenuItem("Ascending", order == SortOrder.ASCENDING);
+				JMenuItem desChk = new JRadioButtonMenuItem("Descending", order == SortOrder.DESCENDING);
+				JMenuItem unsChk = new JRadioButtonMenuItem("Unsorted", order == SortOrder.UNSORTED);
+				
+				ActionListener sortListener = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						SortOrder order = SortOrder.valueOf(
+								((AbstractButton) evt.getSource()).getText().toUpperCase());
+						((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(col, order);
+					}
+				};
+				ascChk.addActionListener(sortListener);
+				desChk.addActionListener(sortListener);
+				unsChk.addActionListener(sortListener);
+				
+				sortMenu.add(ascChk);
+				sortMenu.add(desChk);
+				sortMenu.add(unsChk);
+				
+				// Create sub-menu containing non-leaf value aggregation functions
+				JMenu aggrMenu = new JMenu("Aggregate Function");
+
+				ActionListener aggrListener = new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						TableColumnExt2 column = (TableColumnExt2) treeTbl.getColumnExt(col);
+						AggregateFunction aggFcn =
+								(AggregateFunction) ((JComponent) evt.getSource()).getClientProperty("aggFcn");
+						column.setAggregateFunction(aggFcn);
+					}
+				};
+				TableColumnExt2 column = (TableColumnExt2) treeTbl.getColumnExt(col);
+				if (column.canAggregate()) {
+					AggregateFunction colFcn = column.getAggregateFunction();
+					for (AggregateFunction aggFcn : AggregateFunction.values()) {
+						String text = StringUtils.capitalize(aggFcn.name().toLowerCase());
+						JMenuItem aggrItem = new JRadioButtonMenuItem(text, aggFcn == colFcn);
+						aggrItem.putClientProperty("aggFcn", aggFcn);
+						aggrItem.addActionListener(aggrListener);
+						aggrMenu.add(aggrItem);
+					}
+				} else {
+					aggrMenu.add(new JMenuItem());
+					aggrMenu.setEnabled(false);
+				}
+
+				popup.add(sortMenu);
+				popup.add(aggrMenu);
+				return popup;
+			}
+
+			@Override
+			public void mousePressed(MouseEvent me) {
+				int col = ch.columnAtPoint(me.getPoint());
+				// Check whether right mouse button has been pressed
+				if ((col != -1) && (me.getButton() == MouseEvent.BUTTON3)) {
+					this.col = col;
+					lower();
+				}
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent me) {
+				if ((me.getButton() == MouseEvent.BUTTON3) && 
+						(ch.getBounds().contains(me.getPoint()))) {
+//					popup.show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
+					this.createPopup().show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
+				}
+			}
+			
+			@Override
+			public void mouseDragged(MouseEvent me) {
+				TableColumn draggedColumn = ch.getDraggedColumn();
+				if (draggedColumn != null) {
+					int col = treeTbl.convertColumnIndexToView(draggedColumn.getModelIndex());
+					if ((col != -1) && (col != this.col)) {
+						this.col = col;
+					}
+				}
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent me) {
+				if ((this.col != -1) && 
+						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+					raise();
+				}
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent me) {
+				if ((this.col != -1) && 
+						((me.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+					lower();
+				}
+			}
+			
+			/**
+			 * Convenience method to configure the column header to appear pressed.
+			 */
+			private void lower() {
+				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
+				if (hr instanceof ComponentHeaderRenderer) {
+					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
+					chr.getPanel().setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(Color.GRAY),
+							BorderFactory.createEmptyBorder(1, 1, 0, -1)));
+					chr.getPanel().setOpaque(true);
+					ch.repaint(ch.getHeaderRect(this.col));
+				}
+			}
+			
+			/**
+			 * Convenience method to configure the column header to not appear pressed.
+			 */
+			private void raise() {
+				TableCellRenderer hr = ch.getColumnModel().getColumn(this.col).getHeaderRenderer();
+				if (hr instanceof ComponentHeaderRenderer) {
+					ComponentHeaderRenderer chr = (ComponentHeaderRenderer) hr;
+					chr.getPanel().setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+					chr.getPanel().setOpaque(false);
+					ch.repaint(ch.getHeaderRect(this.col));
+				}
+			}
+		};
+		
+		return ma;
 	}
 
 	/**
@@ -1853,7 +1991,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		ProteinHit ph = (ProteinHit) protNode.getUserObject();
 
-		List<String> ecNumbers = ph.getUniProtEntry().getEcNumbers();
+		List<String> ecNumbers;
+		ReducedUniProtEntry upe = ph.getUniProtEntry();
+		if (upe != null) {
+			ecNumbers = upe.getEcNumbers();
+		} else {
+			ecNumbers = new ArrayList<String>();
+		}
 
 		if (ecNumbers.isEmpty()) {
 			ecNumbers.add("Unclassified");
@@ -1905,8 +2049,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		ProteinHit ph = (ProteinHit) protNode.getUserObject();
 
 		// gather K and EC numbers for pathway lookup
-		List<String> kNumbers = ph.getUniProtEntry().getKNumbers();
-		List<String> ecNumbers = ph.getUniProtEntry().getEcNumbers();
+		List<String> kNumbers;
+		List<String> ecNumbers;
+		ReducedUniProtEntry upe = ph.getUniProtEntry();
+		if (upe != null) {
+			kNumbers = upe.getKNumbers();
+			ecNumbers = upe.getEcNumbers();
+		} else {
+			kNumbers = new ArrayList<String>();
+			ecNumbers = new ArrayList<String>();
+		}
 
 		// perform pathway lookup
 		Set<Short> pathways = new HashSet<Short>();
@@ -2158,7 +2310,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Spectral Count",
 				"Peptide Taxonomy"
 		};
-		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
+		ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 		peptideTbl.setTableHeader(ch);
 
 		final JCheckBox selChk = new JCheckBox();
@@ -2483,7 +2635,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Crux Confidence",
 				"InsPecT Confidence",
 		"Mascot Confidence"};
-		ComponentHeader ch = new ComponentHeader(tcm, columnToolTips);
+		ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 		psmTbl.setTableHeader(ch);
 
 		final JCheckBox selChk = new JCheckBox();
@@ -2778,12 +2930,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (doInclude) {
 					// Create default values for meta-ProteinHit;
 					String metaDesc 	= "";
-					double metaSC		= 0.0;
-					double metaIdentity = 100.0;
-					double metaMW		= 0.0;
-					double metaPI		= 0.0;
-					double metaEmPai	= 0.0;
-					double metaNsaf     = 0.0;
+//					double metaSC		= 0.0;
+//					double metaIdentity = 100.0;
+//					double metaMW		= 0.0;
+//					double metaPI		= 0.0;
+//					double metaEmPai	= 0.0;
+//					double metaNsaf     = 0.0;
 
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
 					for (ProteinHit proteinHit : ((MetaProteinHit) metaProtein)	.getProteinHits()) {
@@ -2834,53 +2986,40 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 						// Update MetaproteinHit
 						metaDesc = proteinHit.getDescription();
-						metaSC = Math.max(metaSC, proteinHit.getCoverage());
-						metaIdentity = Math.min(metaIdentity,
-								proteinHit.getIdentity());
-						metaMW = metaMW + proteinHit.getMolecularWeight()
-								/ metaProteins.size();
-						metaPI = metaPI + proteinHit.getIsoelectricPoint()
-								/ metaProteins.size();
-						metaProtein.addPeptideHits(proteinHit.getPeptideHits());
-						metaEmPai = Math.max(metaEmPai, proteinHit.getEmPAI());
-						metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
+//						metaSC = Math.max(metaSC, proteinHit.getCoverage());
+//						metaIdentity = Math.min(metaIdentity,
+//								proteinHit.getIdentity());
+//						metaMW = metaMW + proteinHit.getMolecularWeight()
+//								/ metaProteins.size();
+//						metaPI = metaPI + proteinHit.getIsoelectricPoint()
+//								/ metaProteins.size();
+//						metaEmPai = Math.max(metaEmPai, proteinHit.getEmPAI());
+//						metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
+						
+						metaProtein.addPeptideHits(proteinHit.getPeptideHits());	// this should probably happen elsewhere, e.g. in condenseMetaProteins()
 
-						if (proteinHit.getUniProtEntry() != null) {
-							// Wrap protein data in table node clones and insert
-							// them into the relevant trees
-							// For case of NCBI accessions
-							String target = proteinHit.getAccession();
-							// Use UniProt identifier also for NCBI entries
-							if (target.matches("^\\d*$")) { // if contains
-															// non-numerical
-															// character UniProt
-								ReducedUniProtEntry uniprotEntry = dbSearchResult.getProteinHit(target).getUniProtEntry();
-								if (uniprotEntry != null) {
-									target = dbSearchResult.getProteinHit(target).getAccession();
-								} else {
-									target = "";
-								}
-							}
+						// Wrap protein data in table node clones and insert them into the relevant trees
+						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
+						
+						PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
+						metaNode.add(flatNode);
+						// TreePath flatPath = insertFlatNode(flatNode);
+						PhylogenyTreeTableNode taxonomicNode = new PhylogenyTreeTableNode(proteinHit);
+						DbSearchResultPanel.this.insertTaxonomicNode(taxonomicNode);
+						PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
+						DbSearchResultPanel.this.insertEnzymeNode(enzymeNode);
+						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
+						DbSearchResultPanel.this.insertPathwayNode(pathwayNode);
+						
+						flatNode.setURI(uri);
+						taxonomicNode.setURI(uri);
+						enzymeNode.setURI(uri);
+						pathwayNode.setURI(uri);
 
-							// Wrap protein data in table node clones and insert them into the relevant trees
-							URI uri = URI.create("http://www.uniprot.org/uniprot/"+ target);
-							PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
-							flatNode.setURI(uri);
-							metaNode.add(flatNode);
-							// TreePath flatPath = insertFlatNode(flatNode);
-							PhylogenyTreeTableNode taxonomicNode = new PhylogenyTreeTableNode(proteinHit);
-							taxonomicNode.setURI(uri);
-							DbSearchResultPanel.this.insertTaxonomicNode(taxonomicNode);
-							PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
-							enzymeNode.setURI(uri);
-							DbSearchResultPanel.this.insertEnzymeNode(enzymeNode);
-							PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
-							pathwayNode.setURI(uri);
-							DbSearchResultPanel.this.insertPathwayNode(pathwayNode);
-
-							// // Link nodes to each other
-							// linkNodes(flatPath, taxonPath, enzymePath);
-						} else {
+						// // Link nodes to each other
+						// linkNodes(flatPath, taxonPath, enzymePath);
+						
+						if (proteinHit.getUniProtEntry() == null) {
 							if (Client.getInstance().isDebug()) {
 								System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 							}
@@ -2891,7 +3030,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						metaNode = (PhylogenyTreeTableNode) metaNode.getChildAt(0);
 					}
 
-					// Set values for the metaprotein
+					// Set values for the meta-protein
 					metaProtein.setDescription(metaDesc);
 					if (!Client.getInstance().isViewer()) {
 						// Get highest common Taxonomy
@@ -2902,13 +3041,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 						metaProtein.setCommonTaxonomyNode(firstNode.getName() + " (" + firstNode.getRank() +")");
 					}
-					metaProtein.setIdentity(metaIdentity);
-					metaProtein.setCoverage(metaSC);
-					metaProtein.setMolecularWeight(metaMW);
-					metaProtein.setIsoelectricPoint(metaPI);
-					metaProtein.setEmPAI(metaEmPai);
-					metaProtein.setNSAF(metaNsaf);
-					metaProtein.setCoverage(metaSC);
+//					metaProtein.setIdentity(metaIdentity);
+//					metaProtein.setCoverage(metaSC);
+//					metaProtein.setMolecularWeight(metaMW);
+//					metaProtein.setIsoelectricPoint(metaPI);
+//					metaProtein.setEmPAI(metaEmPai);
+//					metaProtein.setNSAF(metaNsaf);
+//					metaProtein.setCoverage(metaSC);
 					DbSearchResultPanel.this.insertFlatNode(metaNode);
 				}
 
@@ -2993,53 +3132,43 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				proteinTbl.getSelectionModel().setSelectionInterval(0, 0);
 
 				// repeat for tree tables
-				// TODO: move to tree table column factory, maybe cache baselines and ranges
 				for (CheckBoxTreeTable table : linkMap.values()) {
-					tcm = table.getColumnModel();
-
 					// TODO: use proper column index variables
-					// TODO: make use of non-leaf nodes in hierarchical column to determine maxima
+					// let table method determine baseline automatically, provide ranges
+					table.updateHighlighters(4, 0, maxCoverage);
+					table.updateHighlighters(7, 0, maxPeptideCount);
+					table.updateHighlighters(8, 0, maxSpecCount);
+					table.updateHighlighters(9, min_emPAI, max_emPAI);
+					table.updateHighlighters(10, 0, maxNSAF);
+					
+					tcm = table.getColumnModel();
+					for (int i = 3; i < 11; i++) {
+						((TableColumnExt2) tcm.getColumn(i)).aggregate();
+					}
 
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(4))).getHighlighters()[0];
-					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
-					highlighter.setRange(0.0, maxCoverage);
-
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(7))).getHighlighters()[0];
-					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
-					highlighter.setRange(0.0, maxPeptideCount);
-
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(8))).getHighlighters()[0];
-					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
-					highlighter.setRange(0.0, maxSpecCount);
-
-					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
-					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
-					highlighter.setRange(min_emPAI, max_emPAI);
-
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(4))).getHighlighters()[0];
+//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
+//					highlighter.setRange(0.0, maxCoverage);
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(7))).getHighlighters()[0];
+//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
+//					highlighter.setRange(0.0, maxPeptideCount);
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(8))).getHighlighters()[0];
+//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
+//					highlighter.setRange(0.0, maxSpecCount);
+//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
+//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
+//					highlighter.setRange(min_emPAI, max_emPAI);
 //					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(10))).getHighlighters()[0];
 //					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
 //					highlighter.setRange(0.0, maxNSAF);
 				}
 			}
 
-			// Update taxonomy selection dialog
+			// Update taxonomy filter selection dialog
 			TaxonomySelectionDialog.getInstance().setRoot(
 					(SortableCheckBoxTreeTableNode) protTaxonTreeTbl.getTreeTableModel().getRoot());
 			
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
-			
-//			protFlatTreeTbl.setRowFilter(new RowFilter<Object, Object>() {
-//				@Override
-//				public boolean include(
-//						RowFilter.Entry<? extends Object, ? extends Object> entry) {
-//					ProteinHit ph = (ProteinHit) entry.getValue(-1);
-//					if ("species".equals(ph.getTaxonomyNode().getRank())) {
-//						return true;
-//					}
-//					return false;
-//				}
-//			});
-//			protFlatTreeTbl.setRowSorter(sorter);
 			
 			protTaxonTreeTbl.expandAll();
 			protEnzymeTreeTbl.expandAll();

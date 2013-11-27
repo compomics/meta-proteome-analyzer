@@ -2,6 +2,7 @@ package de.mpa.client.ui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.tree.TreePath;
@@ -45,41 +46,57 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	public Object getValueAt(int column) {
 		if (this.isProtein()) {
 			ProteinHit ph = (ProteinHit) userObject;
-			switch (column) {
-			case 0:
-				return this.toString();
-			case 1:
-				String description = ph.getDescription();
-				int underscore = description.indexOf("_");
-				if (underscore > 0) {
-					int whitespace = description.indexOf(" ");
-					if (whitespace > underscore) {
-						return description.substring(whitespace + 1);
-					}
+			if (ph instanceof MetaProteinHit) {
+				switch (column) {
+				case 0:
+					return this.toString();
+				case 1:
+					return ph.getDescription();
+				case 2:
+					return ph.getSpecies();
+				case 11:
+					// web resource column
+					return null;
+				default:
+					return super.getValueAt(column);
 				}
-				return description;
-			case 2:
-				return ph.getSpecies();
-			case 3:
-				return ph.getIdentity();	
-			case 4:
-				return ph.getCoverage();
-			case 5:
-				return ph.getMolecularWeight();
-			case 6:
-				return ph.getIsoelectricPoint();
-			case 7:
-				return ph.getPeptideCount();
-			case 8:
-				return ph.getSpectralCount();
-			case 9:
-				return ph.getEmPAI();
-			case 10:
-				return ph.getNSAF();
-			case 11:
-				return !(userObject instanceof MetaProteinHit) ? IconConstants.WEB_RESOURCE_ICON : null;
-			default:
-				return null;
+			} else {
+				switch (column) {
+				case 0:
+					return this.toString();
+				case 1:
+					String description = ph.getDescription();
+					int underscore = description.indexOf("_");
+					if (underscore > 0) {
+						int whitespace = description.indexOf(" ");
+						if (whitespace > underscore) {
+							return description.substring(whitespace + 1);
+						}
+					}
+					return description;
+				case 2:
+					return ph.getSpecies();
+				case 3:
+					return ph.getIdentity();	
+				case 4:
+					return ph.getCoverage();
+				case 5:
+					return ph.getMolecularWeight();
+				case 6:
+					return ph.getIsoelectricPoint();
+				case 7:
+					return ph.getPeptideCount();
+				case 8:
+					return ph.getSpectralCount();
+				case 9:
+					return ph.getEmPAI();
+				case 10:
+					return ph.getNSAF();
+				case 11:
+					return IconConstants.WEB_RESOURCE_ICON;
+				default:
+					return super.getValueAt(column);
+				}
 			}
 		} else if (this.isTaxonomy()) {
 			TaxonomyNode tn = (TaxonomyNode) userObject;
@@ -89,11 +106,25 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			case 1:
 				return tn.getRank();
 			default:
-				return null;
+				return super.getValueAt(column);
 			}
 		}
 		// fall-back for when none of the above applies
 		return super.getValueAt(column);
+	}
+	
+	@Override
+	public Collection<?> getValuesAt(int column) {
+		if (this.isProtein()) {
+			ProteinHit ph = (ProteinHit) userObject;
+			switch (column) {
+			case 7:
+				return ph.getPeptideHitList();
+			case 8:
+				return ph.getSpectrumIDs();
+			}
+		}
+		return super.getValuesAt(column);
 	}
 	
 	@Override

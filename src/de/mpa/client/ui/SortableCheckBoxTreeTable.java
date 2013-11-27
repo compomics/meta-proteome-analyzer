@@ -5,8 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -36,6 +39,7 @@ import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.DefaultTableColumnModelExt;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.TreeTableModel;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
 /**
  * Extension of CheckBoxTreeTable to allow column sorting. To be used in 
@@ -118,13 +122,83 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		if (factory instanceof SortableColumnFactory) {
 			((SortableColumnFactory) factory).reorderColumns();
 		}
-//		TableCellRenderer tree = this.getCellRenderer(0, this.getHierarchicalColumn());
-//		if (tree != null) {
-//			this.collapseAll();
-//		}
-//		expandAll();
 	}
 	
+	/**
+	 * Calculates aggregate values of non-leaf nodes for the specified column
+	 * index and aggregation function.
+	 * @param column the column model index to aggregate
+	 * @param aggFcn the aggregation function
+	 */
+	protected void aggregate(int column, AggregateFunction aggFcn) {
+		if (aggFcn != null) {
+			// start recursion at the tree root
+			this.aggregate((TreeTableNode) getTreeTableModel().getRoot(), column, aggFcn);
+			// update highlighters on column
+			this.updateHighlighters(column);
+		}
+	}
+	
+	/**
+	 * Recursively aggregates the specified node's children values of the
+	 * specified column using the specified aggregation function.
+	 * @param node the parent node
+	 * @param column the column model index to aggregate
+	 * @param aggFcn the aggregation function
+	 * @return the aggregated value
+	 */
+	protected Object aggregate(TreeTableNode node, int column, AggregateFunction aggFcn) {
+		if (aggFcn != AggregateFunction.DISTINCT) {
+			// check whether parent node is a leaf
+			if (node.isLeaf()) {
+				// leaf nodes return their column values
+				return node.getValueAt(column);
+			} else {
+				// iterate child nodes
+				int childCount = node.getChildCount();
+				Object[] values = new Object[childCount];
+				for (int i = 0; i < childCount; i++) {
+					// recurse
+					TreeTableNode child = node.getChildAt(i);
+					Object aggVal = this.aggregate(child, column, aggFcn);
+					values[i] = aggVal;
+				}
+				// apply aggregation function
+				Object aggVal = aggFcn.aggregate(values);
+				// store result in node
+				node.setValueAt(aggVal, column);
+				// return result to parent recursion call
+				return aggVal;
+			}
+		} else {
+			// special case for distinct count aggregation
+			if (node instanceof SortableCheckBoxTreeTableNode) {
+				SortableCheckBoxTreeTableNode sortableNode = (SortableCheckBoxTreeTableNode) node;
+				// check whether parent node is a leaf
+				if (sortableNode.isLeaf()) {
+					// leaf nodes return their column values
+					return sortableNode.getValuesAt(column);
+				} else {
+					// iterate child nodes
+					int childCount = node.getChildCount();
+					Set<Object> values = new HashSet<Object>();
+					for (int i = 0; i < childCount; i++) {
+						// recurse
+						TreeTableNode child = node.getChildAt(i);
+						Object aggVal = this.aggregate(child, column, aggFcn);
+						values.addAll((Collection<?>) aggVal);
+					}
+					// apply aggregation function and store result in node
+					// TODO: at this point simply calling size() would suffice, the implementation of the DISTINCT AggregateFunction member could use some improvement
+					node.setValueAt(aggFcn.aggregate(values), column);
+					// return value collection to parent recursion call
+					return values;
+				}
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Custom row sorter implementation.
 	 * @author A. Behne
@@ -161,7 +235,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 	}
 	
 	/**
-	 * Column factory extension to automatically cache and restore renderers and column widths.
+	 * Column factory extension to automatically cache and restore column properties.
 	 * @author A. Behne
 	 */
 	private class SortableColumnFactory extends ColumnFactory {
@@ -196,7 +270,6 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 				this.viewToModel[i] = i;
 			}
 			
-			// TODO: investigate tree expansion state caching
 			treeTbl.getColumnModel().addColumnModelListener(new TableColumnModelExtListener() {
 				@Override
 				public void columnMoved(TableColumnModelEvent evt) {
@@ -212,7 +285,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 								int modelIndex = treeTbl.convertColumnIndexToModel(i);
 								factory.viewToModel[i] = modelIndex;
 							}
-							// FIXME: reordering while columns are hidden messes up coordinates
+							// FIXME: reordering while columns are hidden messes up coordinates (low priority)
 						}
 					}
 				}
@@ -221,8 +294,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 					TableColumnExt column = (TableColumnExt) evt.getSource();
 					int modelIndex = column.getModelIndex();
 					// update prototype cache
-					SortableColumnFactory.this.prototypes[modelIndex] = new TableColumnExt(column);
-					// TODO: column visibility is reverted to visible on delete, find workaround to cache visibility state
+					SortableColumnFactory.this.prototypes[modelIndex] = new TableColumnExt2(column);
 				}
 				/* we don't need these */
 				public void columnSelectionChanged(ListSelectionEvent evt) { }
@@ -291,7 +363,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		protected TableCellRenderer getHeaderRenderer(final JXTable table,
 				TableColumnExt columnExt) {
 			// Check whether we have a ComponentHeader installed in the table
-			if (table.getTableHeader() instanceof ComponentHeader) {
+			if (table.getTableHeader() instanceof ComponentTableHeader) {
 				TableCellRenderer renderer = columnExt.getHeaderRenderer();
 				if (renderer == null) {
 					// Create checkbox widget for hierarchical column header
@@ -396,7 +468,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 					this.prototypes[modelIndex] = prototype;
 				}
 				// create column using prototype properties
-				TableColumnExt column = new TableColumnExt(prototype);
+				TableColumnExt column = new TableColumnExt2(prototype);
 				
 				// configure header renderer
 				column.setHeaderRenderer(this.getHeaderRenderer(this.treeTbl, column));
@@ -407,4 +479,65 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		}
 		
 	}
+	
+	/**
+	 * Extension to table column allowing to specify additional properties (e.g. aggregate functions).
+	 * @author A. Behne
+	 */
+	public class TableColumnExt2 extends TableColumnExt {
+		
+		/**
+		 * The aggregate function of this column.
+		 */
+		private AggregateFunction aggFcn = null;
+		
+		/**
+		 * Instantiates a new table view column with all properties copied from the given original.
+		 * @param columnExt the column to copy properties from
+		 */
+		public TableColumnExt2(TableColumnExt columnExt) {
+			super(columnExt);
+			if (columnExt instanceof TableColumnExt2) {
+				this.aggFcn = ((TableColumnExt2) columnExt).getAggregateFunction();
+			}
+		}
+		
+		/**
+		 * Calculates and sets aggregate values of non-leaf nodes for this column.
+		 */
+		public void aggregate() {
+			SortableCheckBoxTreeTable.this.aggregate(this.getModelIndex(), this.getAggregateFunction());
+		}
+
+		/**
+		 * Returns whether this column can aggregate values for non-leaf nodes, 
+		 * i.e. whether an aggregation function has been defined for this column.
+		 * @return <code>true</code> if this column can aggregate, <code>false</code> otherwise
+		 */
+		public boolean canAggregate() {
+			return (this.aggFcn != null);
+		}
+
+		/**
+		 * Returns the aggregate function of this column.
+		 * @return the aggregate function
+		 */
+		public AggregateFunction getAggregateFunction() {
+			return this.aggFcn;
+		}
+
+		/**
+		 * Sets the aggregate function of this column.<br>
+		 * If <code>null</code> is provided <code>canAggregate()</code> will return <code>false</code>.
+		 * @param aggFcn the aggregate function to set
+		 */
+		public void setAggregateFunction(AggregateFunction aggFcn) {
+			AggregateFunction oldValue = this.getAggregateFunction();
+			this.aggFcn = aggFcn;
+			this.firePropertyChange("aggregate", oldValue, aggFcn);
+			this.aggregate();
+		}
+		
+	}
+	
 }

@@ -120,7 +120,7 @@ public class Constants {
 	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
 	
 	/**
-	 * Path string of folder containing configuration resources for the jar built.
+	 * Path string of folder containing configuration resources for the jar build.
 	 */
 	public static final String CONFIGURATION_PATH_JAR = "conf";
 	
@@ -374,7 +374,7 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER = "themes/";
+	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + "/themes/";
 	
 	/**
 	 * The name of the default theme.

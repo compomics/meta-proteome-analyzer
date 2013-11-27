@@ -2,6 +2,7 @@ package de.mpa.main;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.net.URL;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +59,8 @@ public class Starter {
 	private static void setLookAndFeel() {
 		try {
 			// Read theme configuration files
-			File themesFolder = new File(Constants.THEME_FOLDER);
+			URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
+			File themesFolder = new File(url.toURI());
 			List<UITheme> themes = new ArrayList<UITheme>();
 			UITheme defaultTheme = null;
 			for (File themeFile : themesFolder.listFiles()) {
@@ -170,12 +172,13 @@ public class Starter {
 								viewerMode = true;
 							}
 						}
-					} 
-					if (jarExport) {
-						ClientFrame.getInstance(viewerMode, debugMode);
-					} else {
-						ClientFrame.getInstance(viewerMode, debugMode);
 					}
+//					if (jarExport) {
+//						ClientFrame.getInstance(viewerMode, debugMode);
+//					} else {
+//						ClientFrame.getInstance(viewerMode, debugMode);
+//					}
+					ClientFrame.getInstance(viewerMode, debugMode);
 				}
 			});
 		}

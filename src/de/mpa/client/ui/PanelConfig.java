@@ -67,7 +67,9 @@ public class PanelConfig {
 			}
 		};
 		ttlPainter = new MattePainter(paint, true);
+		
 		ttlBorder = UIManager.getBorder("TitledBorder.border");
+		
 //		ttlForeground = dummyPnl.getTitleForeground();
 		ttlForeground = UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor();
 	}

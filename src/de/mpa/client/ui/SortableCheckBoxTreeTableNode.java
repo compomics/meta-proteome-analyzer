@@ -2,6 +2,7 @@ package de.mpa.client.ui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.RowFilter;
@@ -13,6 +14,13 @@ import javax.swing.tree.TreeNode;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import de.mpa.util.AlphanumComparator;
+
+/**
+ * TODO: API
+ * 
+ * @author behne
+ */
 public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 		implements SortableTreeNode {
 
@@ -30,6 +38,25 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 
 	public SortableCheckBoxTreeTableNode(Object userObject, boolean fixed) {
 		super(userObject, fixed);
+	}
+	
+	@Override
+	public Object getValueAt(int column) {
+		// TODO Auto-generated method stub
+		return super.getValueAt(column);
+	}
+	
+	/**
+	 * Gets the underlying values for this node that correspond to a particular tabular column.<br><br>
+	 * Sub-classes need to override this method if more than the singular column value returned by 
+	 * <code>getValueAt()</code> wrapped in a list is to be returned.
+	 * @param column the column index
+	 * @return a collection of underlying values
+	 */
+	public Collection<?> getValuesAt(int column) {
+		List<Object> res = new ArrayList<Object>();
+		res.add(this.getValueAt(column));
+		return res;
 	}
 
 	@Override
@@ -183,20 +210,20 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 	/**
 	 * Provides a child node with the ability to be sorted and/or filtered.
 	 */
-	private class Row<M, I> extends RowFilter.Entry<M, I> implements Comparable<Row> {
+	protected class Row<M, I> extends RowFilter.Entry<M, I> implements Comparable<Row> {
 		/**
 		 * The tree table node containing the row's cell values.
 		 */
-		private TreeTableNode node;
+		protected TreeTableNode node;
 		/**
 		 * The row's model index.
 		 */
-		private int modelIndex;
+		protected int modelIndex;
 		/**
 		 * The row's list of column indices to be sorted and their respective
 		 * sort orders.
 		 */
-		private List<? extends SortKey> sortKeys;
+		protected List<? extends SortKey> sortKeys;
 
 		/**
 		 * Constructs a row object.
@@ -248,8 +275,8 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 			return null; // we don't need this
 		}
 
-		@Override
 		@SuppressWarnings("unchecked")
+		@Override
 		public int compareTo(Row that) {
 			// trivial case
 			if (that == null) {
@@ -264,16 +291,22 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 						// either one node might be a leaf
 						result = that.node.getChildCount() - this.node.getChildCount();
 					} else {
-						Object this_value = this.node.getValueAt(sortKey.getColumn());
-						Object that_value = that.node.getValueAt(sortKey.getColumn());
+						int column = sortKey.getColumn();
+						Object this_value = this.node.getValueAt(column);
+						Object that_value = that.node.getValueAt(column);
 						// define null as less than not-null
 						if (this_value == null) {
 							result = (that_value == null) ? 0 : -1;
 						} else if (that_value == null) {
 							result = 1;
 						} else {
-							// both value objects are not null, invoke compareTo()
-							result = ((Comparable<Object>) this_value).compareTo(that_value);
+							// both value objects are not null, invoke comparison
+							if (this_value instanceof String) {
+								// special case for strings to get a more natural sorting
+								result = AlphanumComparator.getInstance().compare(this_value, that_value);
+							} else {
+								result = ((Comparable<Object>) this_value).compareTo(that_value);
+							}
 						}
 						// correct result w.r.t. sort order
 						if (sortKey.getSortOrder() == SortOrder.DESCENDING) {

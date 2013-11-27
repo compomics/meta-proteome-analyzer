@@ -92,7 +92,9 @@ public class MetaProteinFactory {
 		// Re-number condensed meta-proteins
 		int metaIndex = 1;
 		for (ProteinHit mph : metaProteins) {
-			mph.setAccession("Meta-Protein " + metaIndex++);
+			if (((MetaProteinHit) mph).getProteinHits().size() > 1) {
+				mph.setAccession("Meta-Protein " + metaIndex++);
+			}
 		}
 		
 	}
