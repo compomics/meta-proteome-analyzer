@@ -201,7 +201,7 @@ public class ServerImpl implements Server {
 			Job percolatorJob = new PercolatorJob(file);
 			jobManager.addJob(percolatorJob);
 			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
-			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.psms.txt", percolatorfile);
+			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.psms.txt", percolatorfile);
 			jobManager.addJob(renameJob);
 			jobManager.addJob(new StoreJob(SearchEngineType.CRUX, cruxJob.getFilename()));
 		}
@@ -264,7 +264,6 @@ public class ServerImpl implements Server {
 			    io.read(b);
 			    
 			    // The file will be put on the transfer file path
-			    System.out.println("blah");
 			    File file = new File(ServerSettings.TRANSFER_PATH + filename);
 				FileOutputStream fos = new FileOutputStream(file);
 				
@@ -328,8 +327,8 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
-				jobManager.addJob(new DeleteJob());
-				jobManager.run();
+//				jobManager.addJob(new DeleteJob());
+//				jobManager.run();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
