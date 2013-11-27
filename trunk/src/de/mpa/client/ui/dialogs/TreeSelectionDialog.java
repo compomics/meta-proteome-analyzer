@@ -31,7 +31,7 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.ComponentHeader;
+import de.mpa.client.ui.ComponentTableHeader;
 import de.mpa.client.ui.ComponentHeaderRenderer;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
@@ -133,7 +133,7 @@ public class TreeSelectionDialog extends JDialog {
 			}
 		});
 
-		treeTbl.setTableHeader(new ComponentHeader(treeTbl.getColumnModel()));
+		treeTbl.setTableHeader(new ComponentTableHeader(treeTbl.getColumnModel()));
 		
 		JScrollPane treeScpn = new JScrollPane(treeTbl);
 		treeScpn.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

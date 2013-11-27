@@ -637,4 +637,13 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		
 	}
 	
+	/**
+	 * Updates the highlighters of the column corresponding to the specified model index.
+	 * @param column the column model index
+	 * @param params the parameters for configuring the highlighters
+	 */
+	public void updateHighlighters(int column, Object... params) {
+		// do nothing by default, let overrides handle behavior
+	}
+	
 }

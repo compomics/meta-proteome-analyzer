@@ -1083,7 +1083,7 @@ public class SpecSimResultPanel extends JPanel {
 		clientFrame.setCursor(cursor);
 		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
 		
-		JTabbedPane pane = clientFrame.getTabPane();
+		JTabbedPane pane = clientFrame.getTabbedPane();
 		if (tabEnabled == null) {
 			tabEnabled = new boolean[pane.getTabCount()];
 			tabEnabled[pane.indexOfComponent(clientFrame.getResultsPanel())] = true;

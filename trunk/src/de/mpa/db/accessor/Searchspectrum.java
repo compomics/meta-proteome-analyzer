@@ -7,8 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import de.mpa.algorithms.Interval;
 
 public class Searchspectrum extends SearchspectrumTableAccessor {
     /**
@@ -148,19 +151,79 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
 	 */
     public static TLongDoubleHashMap getTICsByExperimentID(long experimentID, Connection conn) throws SQLException {
     	TLongDoubleHashMap res = new TLongDoubleHashMap();
+//    	PreparedStatement ps = conn.prepareStatement(
+//    			"SELECT ss.searchspectrumid, s.total_int FROM searchspectrum ss " +
+//    			"INNER JOIN spectrum s ON ss.fk_spectrumid = s.spectrumid " +
+////    			"WHERE ss.fk_experimentid = ?",
+////				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+//				"WHERE ss.fk_experimentid = ?");
+//    	ps.setLong(1, experimentID);
+////		ps.setFetchSize(Integer.MIN_VALUE);
+    	
     	PreparedStatement ps = conn.prepareStatement(
-    			"SELECT ss.searchspectrumid, s.total_int FROM searchspectrum ss " +
-    			"INNER JOIN spectrum s ON ss.fk_spectrumid = s.spectrumid " +
-    			"WHERE ss.fk_experimentid = ?",
-				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+    			"SELECT ss.fk_spectrumid FROM searchspectrum ss " +
+    			"WHERE ss.fk_experimentid = ?");
     	ps.setLong(1, experimentID);
-		ps.setFetchSize(Integer.MIN_VALUE);
+    	
+    	List<Long> ids = new ArrayList<Long>();
 		
+		long startTime = System.currentTimeMillis();
     	ResultSet rs = ps.executeQuery();
+    	System.out.println(System.currentTimeMillis() - startTime);
     	while (rs.next()) {
-			res.put(rs.getLong(1), rs.getDouble(2));
+//			res.put(rs.getLong(1), rs.getDouble(2));
+    		ids.add(rs.getLong(1));
 		}
+    	System.out.println(System.currentTimeMillis() - startTime);
     	rs.close();
+
+    	// build id intervals
+    	Collections.sort(ids);
+    	List<Interval> intervals = new ArrayList<Interval>();
+    	Long oldId = ids.get(0);
+    	Interval interval = new Interval(oldId, oldId);
+    	int i;
+    	for (i = 1; i < ids.size(); i++) {
+			Long newId = ids.get(i);
+			if (!newId.equals(oldId + 1)) {
+				interval.setRightBorder(oldId);
+				intervals.add(interval);
+				interval = new Interval(newId, newId);
+			}
+			oldId = newId;
+		}
+    	interval.setRightBorder(ids.get(i - 1));
+    	intervals.add(interval);
+    	
+    	System.out.println("# intervals:" + intervals.size());
+    	
+//    	System.out.println(StringUtils.join(ids, ','));
+    	
+    	String stmt = "SELECT s.total_int FROM spectrum s WHERE s.spectrumid ";
+    	boolean first = true;
+    	for (Interval iv : intervals) {
+    		if (first) {
+    			first = false;
+    		} else {
+    			stmt += " OR s.spectrumid ";
+    		}
+    		stmt += "BETWEEN " + (long) iv.getLeftBorder() + " AND " + (long) iv.getRightBorder();
+		}
+    	System.out.println(stmt);
+    	
+    	ps = conn.prepareStatement(stmt);
+    	System.out.println("executing secondary query...");
+    	startTime = System.currentTimeMillis();
+    	rs = ps.executeQuery();
+    	System.out.println(System.currentTimeMillis() - startTime);
+    	int size = 0;
+    	while (rs.next()) {
+//			res.put(rs.getLong(1), rs.getDouble(2));
+    		size++;
+		}
+    	System.out.println(System.currentTimeMillis() - startTime);
+    	System.out.println("# ids: " + ids.size() + " # res: " + size);
+    	
     	ps.close();
     	return res;
     }

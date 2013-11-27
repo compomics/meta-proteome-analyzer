@@ -225,6 +225,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Sets the species of the protein
 	 * @param species the species to set
 	 */
+	// TODO: misleading method name, either cache a taxonomy node or rename method, e.g. to setCommonTaxonomyName()
 	public void setCommonTaxonomyNode(String species) {
 		this.species = species;
 	}

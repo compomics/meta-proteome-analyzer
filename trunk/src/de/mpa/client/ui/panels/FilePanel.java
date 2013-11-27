@@ -623,7 +623,7 @@ public class FilePanel extends JPanel implements Busyable {
 				
 				// reset navigation button and search settings tab
 				nextBtn.setEnabled(false);
-				ClientFrame.getInstance().getTabPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, false);
+				ClientFrame.getInstance().getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, false);
 			}
 		});
 	}
@@ -706,7 +706,7 @@ public class FilePanel extends JPanel implements Busyable {
 		clientFrame.setCursor(cursor);
 		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
 		
-		JTabbedPane pane = clientFrame.getTabPane();
+		JTabbedPane pane = clientFrame.getTabbedPane();
 		if (tabEnabled == null) {
 			tabEnabled = new boolean[pane.getComponentCount()];
 			tabEnabled[pane.indexOfComponent(this)] = true;

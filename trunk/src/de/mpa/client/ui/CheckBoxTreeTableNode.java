@@ -45,7 +45,9 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 */
 	public CheckBoxTreeTableNode(Object... userObjects) {
 		super(userObjects[0]);
-		this.userObjects = userObjects;
+		int length = userObjects.length;
+		this.userObjects = new Object[length];
+		System.arraycopy(userObjects, 0, this.userObjects, 0, length);
 	}
 
 	/**
@@ -94,7 +96,11 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	
 	@Override
 	public void setValueAt(Object aValue, int column) {
-		this.userObjects[column] = aValue;
+		try {
+			this.userObjects[column] = aValue;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**

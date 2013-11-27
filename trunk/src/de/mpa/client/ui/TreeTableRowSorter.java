@@ -10,6 +10,7 @@ import javax.swing.SortOrder;
 import javax.swing.table.TableModel;
 
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Custom {@link RowSorter} for use with {@link JXTreeTables}. 
@@ -73,17 +74,14 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 	@Override
 	public void toggleSortOrder(int column) {
 		// abort if column is not sortable
-		if (!treeTable.getColumnExt(treeTable.convertColumnIndexToView(column)).isSortable()) {
+		if (!this.getColumn(column).isSortable()) {
 			return;
 		}
 		// configure sort keys
 		List<SortKey> sortKeys = new ArrayList<SortKey>(this.getSortKeys());
-		if (sortKeys.isEmpty()) {
-			// add new sort key
-			sortKeys.add(new SortKey(column, SortOrder.ASCENDING));
-		} else {
-			// configure sort order
-			SortOrder sortOrder = SortOrder.ASCENDING;
+		// configure sort order
+		SortOrder sortOrder = SortOrder.ASCENDING;
+		if (!sortKeys.isEmpty()) {
 			SortKey primarySortKey = sortKeys.get(0);
 			if (primarySortKey.getColumn() == column) {
 				// cycle sort key if same column has been targeted
@@ -93,15 +91,76 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 					sortOrder = SortOrder.UNSORTED;
 				}
 			}
-			sortKeys.add(0, new SortKey(column, sortOrder));
+		}
+		// add new sort key
+		this.addSortKey(new SortKey(column, sortOrder));
+	}
+	
+	/**
+	 * Sets the sort order of the specified column to the specified order.
+	 * @param column the column model index
+	 * @param sortOrder the sort order
+	 */
+	public void setSortOrder(int column, SortOrder sortOrder) {
+		if (this.getColumn(column).isSortable()) {
+			this.addSortKey(new SortKey(column, sortOrder));
+		}
+	}
+	
+	/**
+	 * Returns the sort order of the specified column.<br>
+	 * Defaults to <code>SortOrder.UNSORTED</code> if no sort key for this column is stored.
+	 * @param column the column's model index
+	 * @return the column's sort order
+	 */
+	public SortOrder getSortOrder(int column) {
+		for (SortKey sortKey : this.getSortKeys()) {
+			if (sortKey.getColumn() == column) {
+				return sortKey.getSortOrder();
+			}
+		}
+		return SortOrder.UNSORTED;
+	}
+	
+	/**
+	 * Convenience method to insert the specified sort key at the beginning of
+	 * the list of sort keys and to trim that list down to contain at maximum
+	 * three elements.
+	 * @param newKey the sort key to insert
+	 */
+	private void addSortKey(SortKey newKey) {
+		List<SortKey> sortKeys = new ArrayList<SortKey>(this.getSortKeys());
+		// only add key if list of keys is empty or primary key differs from the specified one
+		if (sortKeys.isEmpty() || !sortKeys.get(0).equals(newKey)) {
+			// check list of sort keys for any old keys targeting the same column as the new key
+			for (SortKey oldKey : sortKeys) {
+				if (oldKey.getColumn() == newKey.getColumn()) {
+					// remove old key
+					sortKeys.remove(oldKey);
+					break;
+				}
+			}
+			// insert new key at the front
+			sortKeys.add(0, newKey);
+			
 			// trim off excess sort keys down to a maximum of three
 			// TODO: parametrize maximum sort key count?
 			if (sortKeys.size() > 3) {
 				sortKeys.remove(3);
 			}
+			
+			// apply sort keys
+			this.setSortKeys(sortKeys);
 		}
-		// apply sort keys
-		this.setSortKeys(sortKeys);
+	}
+	
+	/**
+	 * Convenience method to retrieve the column object corresponding to the specified column model index.
+	 * @param column the model index
+	 * @return the column object
+	 */
+	private TableColumnExt getColumn(int column) {
+		return this.treeTable.getColumnExt(this.treeTable.convertColumnIndexToView(column));
 	}
 
 	@Override
@@ -111,7 +170,7 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 
 	@Override
 	public void setSortKeys(List<? extends SortKey> sortKeys) {
-		if (!sortKeys.equals(getSortKeys())) {
+		if (!sortKeys.equals(this.getSortKeys())) {
 			// collapse tree, cache expanded paths
 			preCollapse();
 			treeModel.setSortKeys(sortKeys);

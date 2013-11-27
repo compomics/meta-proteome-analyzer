@@ -15,7 +15,7 @@ import org.jdesktop.swingx.JXTableHeader;
  * 
  * @see ComponentHeaderRenderer
  */
-public class ComponentHeader extends JXTableHeader {
+public class ComponentTableHeader extends JXTableHeader {
 
 	private ComponentHeaderRenderer chr;
 	private String[] columnToolTips;
@@ -27,7 +27,7 @@ public class ComponentHeader extends JXTableHeader {
      * 
      * @param columnModel the column model for the table
      */
-	public ComponentHeader(TableColumnModel columnModel) {
+	public ComponentTableHeader(TableColumnModel columnModel) {
 		this(columnModel, null);
 	}
 	
@@ -38,7 +38,7 @@ public class ComponentHeader extends JXTableHeader {
 	 * 
 	 * @param columnModel the column model for the table
 	 */
-	public ComponentHeader(TableColumnModel columnModel, String[] columnToolTips) {
+	public ComponentTableHeader(TableColumnModel columnModel, String[] columnToolTips) {
 		super(columnModel);
 		this.columnToolTips = columnToolTips;
 		reorderingAllowedColumns = new boolean[columnModel.getColumnCount()];

@@ -241,7 +241,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ClientFrame clientFrame = ClientFrame.getInstance();
-				JTabbedPane tabPane = clientFrame.getTabPane();
+				JTabbedPane tabPane = clientFrame.getTabbedPane();
 				tabPane.setSelectedIndex(ClientFrame.RESULTS_PANEL);
 			}
 		});
@@ -679,7 +679,7 @@ public class ProjectPanel extends JPanel {
 		
 		// Disable input, setting and results tabs
 		for (int i = ClientFrame.INPUT_PANEL; i < ClientFrame.COMPARE_PANEL; i++) {
-			clientFrame.getTabPane().setEnabledAt(i, false);
+			clientFrame.getTabbedPane().setEnabledAt(i, false);
 		}
 		
 		// Disable navigation buttons
@@ -720,9 +720,9 @@ public class ProjectPanel extends JPanel {
 				expCont.getExperimentID(), Client.getInstance().getDatabaseConnection());
 		
 		// Enable input and results tabs
-		clientFrame.getTabPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
-		clientFrame.getTabPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, clientFrame.getFilePanel().hasFiles());
-		clientFrame.getTabPane().setEnabledAt(ClientFrame.RESULTS_PANEL, hasResults);
+		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
+		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, clientFrame.getFilePanel().hasFiles());
+		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.RESULTS_PANEL, hasResults);
 		
 		// Enable navigation buttons
 		skipBtn.setEnabled(hasResults);
