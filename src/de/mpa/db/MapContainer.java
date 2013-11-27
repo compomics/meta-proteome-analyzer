@@ -50,7 +50,6 @@ public class MapContainer {
 	    		for (ProteinTableAccessor protein : retrieveAllEntries) {
 					proteinIdMap.put(protein.getAccession(), protein.getProteinid());
 				}
-	    		System.out.println(proteinIdMap.size());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
