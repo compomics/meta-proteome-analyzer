@@ -327,8 +327,8 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
-//				jobManager.addJob(new DeleteJob());
-//				jobManager.run();
+				jobManager.addJob(new DeleteJob());
+				jobManager.run();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

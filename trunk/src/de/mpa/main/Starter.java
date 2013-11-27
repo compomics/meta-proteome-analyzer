@@ -59,8 +59,8 @@ public class Starter {
 	private static void setLookAndFeel() {
 		try {
 			// Read theme configuration files
-			URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
-			File themesFolder = new File(url.toURI());
+//			URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
+			File themesFolder = new File(Constants.THEME_FOLDER);
 			List<UITheme> themes = new ArrayList<UITheme>();
 			UITheme defaultTheme = null;
 			for (File themeFile : themesFolder.listFiles()) {
