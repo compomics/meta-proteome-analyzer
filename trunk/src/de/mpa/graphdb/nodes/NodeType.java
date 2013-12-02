@@ -6,10 +6,10 @@ package de.mpa.graphdb.nodes;
  * @author T. Muth, A. Behne
  */
 public enum NodeType {
-	
 	PROTEINS("Proteins"),
 	PEPTIDES("Peptides"),
 	PSMS("PSMs"),
+	METAPROTEINS("Metaproteins"),
 	ENZYMES("Enzymes"),
 	PATHWAYS("Pathways"),
 	ONTOLOGIES("Ontologies"),
