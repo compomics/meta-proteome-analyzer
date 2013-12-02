@@ -25,9 +25,11 @@ import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.cypher.CypherQuery;
@@ -143,8 +145,16 @@ public class GraphDatabaseHandler {
 			client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE");
 			client.firePropertyChange("resetall", -1L, Long.valueOf(proteinHits.size()));
 			
+			// Add proteinhits
 			for (ProteinHit proteinHit : proteinHits) {
 				addProtein(proteinHit);
+				client.firePropertyChange("progressmade", -1L, 0L);
+			}
+			
+			// Add Meta-Proteins.
+			for (ProteinHit proteinHit : dbSearchResult.getMetaProteins()) {
+				MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
+				addMetaprotein(metaProtein);
 				client.firePropertyChange("progressmade", -1L, 0L);
 			}
 			
@@ -163,10 +173,9 @@ public class GraphDatabaseHandler {
 		Vertex proteinVertex =  graph.addVertex(null);
 		
 		String accession = protHit.getAccession();
-		
 		proteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		proteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), protHit.getDescription());
-		proteinVertex.setProperty(ProteinProperty.SPECIES.toString(), protHit.getSpecies());
+		proteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), protHit.getSpecies());
 		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), protHit.getCoverage());
 		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
@@ -193,6 +202,35 @@ public class GraphDatabaseHandler {
 			
 			// Add ontologies.
 			addOntologies(protHit, proteinVertex);
+		}
+	}
+	
+	/**
+	 * Adds a meta-protein to the graph as vertex.
+	 * @param metaProteinHit
+	 */
+	private void addMetaprotein(MetaProteinHit metaProteinHit) {
+		Vertex metaProteinVertex =  graph.addVertex(null);
+		String accession = metaProteinHit.getAccession();
+		metaProteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
+		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
+		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getSpecies());
+		metaProteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), metaProteinHit.getCoverage());
+		metaProteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), metaProteinHit.getSpectralCount());		
+		
+		// Index the proteins by their accession.
+		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, metaProteinVertex);
+		
+		Vertex proteinVertex = null;
+		ProteinHitList proteinHits = metaProteinHit.getProteinHits();
+		
+		for (ProteinHit proteinHit : proteinHits) {
+			Iterator<Vertex> proteinIterator = proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();
+			if (proteinIterator.hasNext()) {
+				proteinVertex = proteinIterator.next();
+			}
+			// Add edge between peptide and protein.
+			addEdge(metaProteinVertex, proteinVertex, RelationType.IS_METAPROTEIN_OF);
 		}
 	}
 	

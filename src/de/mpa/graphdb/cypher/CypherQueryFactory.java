@@ -91,9 +91,33 @@ public class CypherQueryFactory {
 		
 		return new CypherQuery(startNodes, matches, conditions, returnIndices);
 	}
+	
+	/**
+	 * Returns proteins grouped by meta-proteins
+	 * @return CypherQuery for proteins grouped by meta-proteins
+	 */
+	public static CypherQuery getProteinsByMetaproteins() {
+		
+		List<CypherStartNode> startNodes = new ArrayList<CypherStartNode>();
+		startNodes.add(new CypherStartNode("metaproteins", NodeType.PROTEINS, ProteinProperty.IDENTIFIER, "*"));
+		
+		List<CypherMatch> matches = new ArrayList<CypherMatch>();
+		matches.add(new CypherMatch("metaproteins", RelationType.IS_METAPROTEIN_OF, null, DirectionType.OUT));
+		matches.add(new CypherMatch("proteins", RelationType.HAS_PEPTIDE, null, DirectionType.OUT));
+		matches.add(new CypherMatch("peptides", null, null, null));
+		
+		List<CypherCondition> conditions = null;
+		
+		List<Integer> returnIndices = new ArrayList<Integer>();
+		returnIndices.add(0);
+		returnIndices.add(1);
+		returnIndices.add(2);
+		
+		return new CypherQuery(startNodes, matches, conditions, returnIndices);
+	}
 
 	/**
-	 * 
+	 * Returns the proteins by a certain description pattern.
 	 * @param pattern
 	 * @return
 	 */

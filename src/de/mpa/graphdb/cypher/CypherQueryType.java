@@ -10,6 +10,12 @@ import de.mpa.graphdb.edges.RelationType;
  */
 public enum CypherQueryType {
 	
+	PROTEINS_BY_METAPROTEINS("Get Proteins grouped by Meta-Proteins") {
+		@Override
+		public CypherQuery getQuery() {
+			return CypherQueryFactory.getProteinsByMetaproteins();
+		}
+	},
 	PEPTIDES_BY_PROTEINS("Get Peptides grouped by Proteins") {
 		@Override
 		public CypherQuery getQuery() {
