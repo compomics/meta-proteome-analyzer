@@ -61,7 +61,7 @@ public class HistogramChart extends Chart {
     }
 
     @Override
-    protected void setChart() {
+    protected void setChart(ChartData data) {
     	HistogramChartType hct = (HistogramChartType) chartType;
         chart = ChartFactory.createHistogram(getChartTitle(),
                 hct.getXLabel(),

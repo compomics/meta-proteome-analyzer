@@ -5,8 +5,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jfree.data.general.DatasetGroup;
+import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
+import org.jfree.util.SortOrder;
 
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
@@ -15,14 +18,13 @@ import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 
 /**
- * This class structure is used to describe the ontology data set.
+ * Container class for protein keyword ontology data.
  *  
- * @author T.Muth
+ * @author T. Muth, A. Behne
  * @date 25-07-2012
- *
  */
 public class OntologyData implements ChartData {
 	
@@ -54,6 +56,11 @@ public class OntologyData implements ChartData {
 	private boolean hideUnknown;
 	
 	/**
+	 * Flag determining whether the underlying data shall be displayed in a pie chart or in a bar chart.
+	 */
+	private boolean showAsPie = true;
+	
+	/**
 	 * Empty default constructor.
 	 */
 	public OntologyData() {
@@ -62,7 +69,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Constructs ontology data from a database search result object using the
 	 * default protein hierarchy level.
-	 * @param dbSearchResult The database search result object.
+	 * @param dbSearchResult the database search result object
 	 */
 	public OntologyData(DbSearchResult dbSearchResult) {
 		this(dbSearchResult, HierarchyLevel.META_PROTEIN_LEVEL);
@@ -71,14 +78,23 @@ public class OntologyData implements ChartData {
 	/**
 	 * Constructs ontology data from a database search result object and the 
 	 * specified hierarchy level.
-	 * @param dbSearchResult The database search result object.
-	 * @param hierarchyLevel The hierarchy level, one of <code>PROTEIN_LEVEL</code>, 
-	 * <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>.
+	 * @param dbSearchResult the database search result object
+	 * @param hierarchyLevel the hierarchy level, one of <code>PROTEIN_LEVEL</code>, 
+	 * <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>
 	 */
 	public OntologyData(DbSearchResult dbSearchResult, HierarchyLevel hierarchyLevel) {
-		this.dbSearchResult = dbSearchResult;
 		this.hierarchyLevel = hierarchyLevel;
-		init();
+		this.setResult(dbSearchResult);
+	}
+	
+	/**
+	 * Sets the database search result reference to the specified result and
+	 * refreshes the underlying dataset.
+	 * @param dbSearchResult the database search result object
+	 */
+	public void setResult(DbSearchResult dbSearchResult) {
+		this.dbSearchResult = dbSearchResult;
+		this.init();
 	}
 
 	/**
@@ -132,18 +148,18 @@ public class OntologyData implements ChartData {
 	 * Utility method to append a protein hit list (a.k.a. a meta-protein) to
 	 * the specified occurrence map.
 	 * @param keyword the occurrence map key
-	 * @param map the occurrence map
+	 * @param occMap the occurrence map
 	 * @param metaProtein the protein hit list to append
 	 */
-	protected void appendHit(String keyword, Map<String, ProteinHitList> map, MetaProteinHit metaProtein) {
-		ProteinHitList metaProteins = map.get(keyword);
+	protected void appendHit(String keyword, Map<String, ProteinHitList> occMap, MetaProteinHit metaProtein) {
+		ProteinHitList metaProteins = occMap.get(keyword);
 		if (metaProteins == null) {
 			metaProteins = new ProteinHitList();
 		}
 		if (!metaProteins.contains(metaProtein)) {
 			metaProteins.add(metaProtein);
 		}
-		map.put(keyword, metaProteins);
+		occMap.put(keyword, metaProteins);
 	}
 	
 	/**
@@ -152,48 +168,104 @@ public class OntologyData implements ChartData {
 	 */
 	@Override
 	public PieDataset getDataset() {
-		// TODO: pre-process dataset generation and return only cached variables
-		DefaultPieDataset pieDataset = new DefaultPieDataset();
-		pieDataset.setValue("Unknown", new Integer(0));
-		
-		Map<String, ProteinHitList> map = ((OntologyChartType) this.chartType).getOccurrenceMap();
-		Set<Entry<String, ProteinHitList>> entrySet = map.entrySet();
+		try {
+			// TODO: pre-process dataset generation and return only cached variables
+			DefaultPieDataset pieDataset = new DefaultPieDataset();
+			pieDataset.setGroup(new DatasetGroup(hierarchyLevel.getTitle()));
 
-		int sumValues = 0;
-		for (Entry<String, ProteinHitList> entry : entrySet) {			
-			sumValues += getSizeByHierarchy(entry.getValue(), hierarchyLevel);
-		}
-		
-		ProteinHitList others = new ProteinHitList();	// formerly 'MetaProteinHitList'
-		String othersKey = "Others";
-		for (Entry<String, ProteinHitList> entry : entrySet) {
-			ProteinHitList mphl = entry.getValue();	// actually 'MetaProteinHitList', phl contains MetaProteinHits
-			Integer absVal = getSizeByHierarchy(mphl, hierarchyLevel);
-			double relVal = absVal * 1.0 / sumValues * 1.0;
-			Comparable key;
-			if (relVal >= this.limit) {
-				key = entry.getKey();
-			} else {
-				key = othersKey;
-				// add grouped hits to list and store it in map they originate from
-				// TODO: do this in pre-processing step, e.g. inside init()
-				others.addAll(mphl);
-				
-				absVal = getSizeByHierarchy(others, hierarchyLevel);
+			String unknownKey = "Unknown";
+			int unknownVal = 0;
+			String othersKey = "Others";
+			int othersVal = 0;
+
+			// Add empty "Unknown" category so it always shows up first (to keep colors consistent)
+			pieDataset.setValue(unknownKey, unknownVal);
+			
+			Map<String, ProteinHitList> occMap = ((OntologyChartType) this.chartType).getOccurrenceMap();
+			// remove cached 'Others' category
+			occMap.remove(othersKey);
+			Set<Entry<String, ProteinHitList>> entrySet = occMap.entrySet();
+
+//			double total = 0.0;
+//			for (Entry<String, ProteinHitList> entry : entrySet) {			
+//				total += this.getSizeByHierarchy(entry.getValue(), hierarchyLevel);
+//			}
+			
+			for (Entry<String, ProteinHitList> entry : entrySet) {
+				ProteinHitList metaProteins = entry.getValue();
+				Integer absVal = this.getSizeByHierarchy(metaProteins, hierarchyLevel);
+//				double relVal = absVal / total;
+//				Comparable key;
+//				if (relVal >= this.limit) {
+//					key = entry.getKey();
+//				} else {
+//					key = othersKey;
+//					// add grouped hits to list and store it in map they originate from
+//					// TODO: do this in pre-processing step, e.g. inside init()
+//					others.addAll(metaProteins);
+//					
+//					absVal = getSizeByHierarchy(others, hierarchyLevel);
+//				}
+				Comparable key = entry.getKey();
+				pieDataset.setValue(key, absVal);
 			}
-			pieDataset.setValue(key, absVal);
+			
+
+			ProteinHitList others = new ProteinHitList();
+			// Add empty 'Others' category so it always shows up last (to keep colors consistent)
+			pieDataset.setValue(othersKey, othersVal);
+			
+			double total = DatasetUtilities.calculatePieDatasetTotal(pieDataset);
+			for (Object obj : pieDataset.getKeys()) {
+				Comparable key = (Comparable) obj;
+				if (othersKey.equals(key) || unknownKey.equals(key)) {
+					continue;
+				}
+				int absVal = pieDataset.getValue(key).intValue();
+				double relVal = absVal / total;
+				if (relVal < this.limit) {
+					pieDataset.remove(key);
+					othersVal += absVal;
+					ProteinHitList metaProteins = occMap.get(key);
+					others.addAll(metaProteins);
+				}
+			}
+			
+			// sort dataset w.r.t. remaining values
+			pieDataset.sortByValues(SortOrder.DESCENDING);
+			
+			unknownVal = pieDataset.getValue(unknownKey).intValue();
+			if ((unknownVal > 0) && !this.hideUnknown) {
+				// move 'Unknown' category to front
+				pieDataset.insertValue(0, unknownKey, unknownVal);
+			} else {
+				pieDataset.remove(unknownKey);
+			}
+			if (othersVal > 0) {
+				// move 'Others' category to end
+				pieDataset.insertValue(pieDataset.getItemCount() - 1, othersKey, othersVal);
+				occMap.put(othersKey, others);
+			} else {
+				pieDataset.remove(othersKey);
+			}
+
+//			if (!others.isEmpty()) {
+//				occMap.put(othersKey, others);
+//			} else {
+//				occMap.remove(othersKey);
+////				pieDataset.remove(othersKey);
+//			}
+//			
+//			if (hideUnknown) {
+//				pieDataset.setValue(unknownKey, 0);
+////				pieDataset.remove(unknownKey);
+//			}
+			
+			return pieDataset;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		if (!others.isEmpty()) {
-			map.put(othersKey, others);
-		} else {
-			map.remove(othersKey);
-		}
-		
-		if (hideUnknown) {
-			pieDataset.setValue("Unknown", new Integer(0));
-		}
-		
-		return pieDataset;
+		return null;
 	}
 
 	/**
@@ -232,7 +304,6 @@ public class OntologyData implements ChartData {
 				if (hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
 					return phl;
 				} else {
-					// TODO: devise clever refactoring to avoid 'new ProteinHitList()' call
 					return new ProteinHitList(phl.getProteinSet());
 				}
 			}
@@ -262,7 +333,7 @@ public class OntologyData implements ChartData {
 	 * Sets the relative size limit for pie segments.
 	 * @param limit the limit
 	 */
-	public void setLimit(double limit) {
+	public void setMinorGroupingLimit(double limit) {
 		this.limit = limit;
 	}
 
@@ -273,6 +344,15 @@ public class OntologyData implements ChartData {
 	 */
 	public void setHideUnknown(boolean hideUnknown) {
 		this.hideUnknown = hideUnknown;
+	}
+	
+	// TODO: maybe re-factor to allow other types of charts, e.g. getChartType() returning enum members like PIE_CHART and BAR_CHART
+	public void setShowAsPie(boolean showAsPie) {
+		this.showAsPie = showAsPie;
+	}
+	
+	public boolean getShowAsPie() {
+		return this.showAsPie;
 	}
 	
 }

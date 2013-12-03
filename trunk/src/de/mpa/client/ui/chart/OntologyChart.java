@@ -1,23 +1,35 @@
 package de.mpa.client.ui.chart;
 
-import java.text.AttributedString;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.labels.PieSectionLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 
-public class OntologyPieChart extends Chart {
+/**
+ * Chart implementation to create pie or bar charts of protein ontology data.
+ * 
+ * @author A. Behne
+ */
+public class OntologyChart extends Chart {
 	
+	/**
+	 * The primary dataset. For non-pie charts adapter classes are used to convert between dataset types.
+	 */
 	private PieDataset pieDataset;
 	
+	/**
+	 * Enumeration holding chart sub-types pertaining to keyword ontologies.
+	 */
 	public enum OntologyChartType implements ChartType {
 
 		BIOLOGICAL_PROCESS(KeywordOntology.BIOLOGICAL_PROCESS),
@@ -60,12 +72,11 @@ public class OntologyPieChart extends Chart {
 	}
 		
 	/**
-     * Constructs an OntologyPieChart.
-     *
-     * @param data Input data.
-     * @param chartType Chart type.
+     * Constructs an ontology chart from the specified data container and chart sub-type identifier.
+     * @param data the chart data container
+     * @param chartType the chart sub-type identifier
      */
-    public OntologyPieChart(ChartData data, ChartType chartType) {
+    public OntologyChart(ChartData data, ChartType chartType) {
         super(data, chartType);
     }
 
@@ -79,43 +90,34 @@ public class OntologyPieChart extends Chart {
 	}
 
 	@Override
-	protected void setChart() {
+	protected void setChart(ChartData data) {
 		OntologyChartType pieChartType = (OntologyChartType) chartType;
 		chartTitle = pieChartType.toString() + " Ontology";
 		
-		PiePlot3D plot = new PiePlot3DExt(pieDataset, 0.2);
-        plot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));
-        plot.setStartAngle(324);
-        plot.setCircular(true);
-        plot.setForegroundAlpha(0.75f);
-        plot.setBackgroundPaint(null);
-        plot.setOutlineVisible(false);
-        
-		plot.setLabelGenerator(new PieSectionLabelGenerator() {
-			@Override
-			public String generateSectionLabel(PieDataset dataset, Comparable key) {
-				double value = Math.round(dataset.getValue(key).doubleValue());
-				if (value <= 0.0) {
-					return null;
-				}
-				double total = 0.0;
-				for (int i = 0; i < dataset.getItemCount(); i++) {
-					total += dataset.getValue(i).doubleValue();
-				}
-				double relVal = value / total;
-				return key.toString() + "\n" + ((int) value) +
-						" (" + (Math.round(relVal * 1000.0) / 10.0) + "%)";
-			}
-			@Override
-			public AttributedString generateAttributedSectionLabel(PieDataset dataset, Comparable key) {
-				return null;	// unused
-			}
-		});
+		final PiePlot3D piePlot = new PiePlot3DExt(pieDataset, 0.2);
+        piePlot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));
+        piePlot.setStartAngle(324);
+        piePlot.setCircular(true);
+        piePlot.setForegroundAlpha(0.75f);
+        piePlot.setBackgroundPaint(null);
+        piePlot.setOutlineVisible(false);
+		piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator(
+				"{0}\n{1}\n({2})", new DecimalFormat("0"), new DecimalFormat("0.00%")));
 		
+		Plot plot = piePlot;
+		if (!((OntologyData) data).getShowAsPie()) {
+			PieToCategoryPlot categoryPlot = new PieToCategoryPlot(piePlot);
+			categoryPlot.setForegroundAlpha(0.75f);
+			categoryPlot.getRangeAxis().setLabel(pieDataset.getGroup().getID());
+			
+			plot = categoryPlot;
+		}
+
+        // create and configure chart
         chart = new JFreeChart(chartTitle, JFreeChart.DEFAULT_TITLE_FONT,
                 plot, false);
         ChartFactory.getChartTheme().apply(chart);
-		
 		chart.setBackgroundPaint(null);
 	}
+	
 }

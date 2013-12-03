@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
@@ -21,7 +22,11 @@ import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 
-// TODO: merge with OntologyData since both classes share the same methods but differ in the type of occurrence maps they use
+/**
+ * Container class for protein taxonomy data.
+ * 
+ * @author A. Behne
+ */
 public class TaxonomyData implements ChartData {
 	
 	/**
@@ -60,6 +65,11 @@ public class TaxonomyData implements ChartData {
 	 * displayed in any associated plots.
 	 */
 	private boolean hideUnknown;
+	
+	/**
+	 * Flag determining whether the underlying data shall be displayed in a pie chart or in a bar chart.
+	 */
+	private boolean showAsPie = true;
 
 	/**
 	 * Empty default constructor.
@@ -84,9 +94,18 @@ public class TaxonomyData implements ChartData {
 	 * <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>.
 	 */
 	public TaxonomyData(DbSearchResult dbSearchResult, HierarchyLevel hierarchyLevel) {
-		this.dbSearchResult = dbSearchResult;
 		this.hierarchyLevel = hierarchyLevel;
-		init();
+		this.setResult(dbSearchResult);
+	}
+	
+	/**
+	 * Sets the database search result reference to the specified result and
+	 * refreshes the underlying dataset.
+	 * @param dbSearchResult the database search result object
+	 */
+	public void setResult(DbSearchResult dbSearchResult) {
+		this.dbSearchResult = dbSearchResult;
+		this.init();
 	}
 
 	/**
@@ -128,6 +147,7 @@ public class TaxonomyData implements ChartData {
 	public PieDataset getDataset() {
 		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
+		pieDataset.setGroup(new DatasetGroup(hierarchyLevel.getTitle()));
 		
 		// Add empty categories so they always show up first (to keep colors consistent)
 		String unknownKey = "Unknown";
@@ -211,10 +231,12 @@ public class TaxonomyData implements ChartData {
 			occMap.put(othersKey, others);
 		} else {
 			occMap.remove(othersKey);
+			pieDataset.remove(othersKey);
 		}
 		
 		if (hideUnknown) {
-			pieDataset.setValue(unknownKey, 0);
+//			pieDataset.setValue(unknownKey, 0);
+			pieDataset.remove(unknownKey);
 		}
 		
 		return pieDataset;
@@ -310,7 +332,7 @@ public class TaxonomyData implements ChartData {
 	 * Sets the relative size limit for pie segments.
 	 * @param limit the limit
 	 */
-	public void setLimit(double limit) {
+	public void setMinorGroupingLimit(double limit) {
 		this.limit = limit;
 	}
 
@@ -321,6 +343,14 @@ public class TaxonomyData implements ChartData {
 	 */
 	public void setHideUnknown(boolean hideUnknown) {
 		this.hideUnknown = hideUnknown;
+	}
+
+	public void setShowAsPie(boolean showAsPie) {
+		this.showAsPie = showAsPie;
+	}
+	
+	public boolean getShowAsPie() {
+		return this.showAsPie;
 	}
 	
 }

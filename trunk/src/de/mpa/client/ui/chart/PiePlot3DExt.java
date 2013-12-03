@@ -35,13 +35,38 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.data.xy.Vector;
 import org.jfree.ui.RectangleInsets;
 
+/**
+ * 3D pie plot with explodable pieces.
+ * 
+ * @author A. Behne
+ */
 public class PiePlot3DExt extends PiePlot3D {
 
+	/**
+	 * The renderer state.
+	 */
 	private PiePlotState state;
+	
+	/**
+	 * The list of pie section arc faces.
+	 */
 	private List<Arc2D> arcList;
-	private double maximumExplodePercent = 0.0;
+	
+	/**
+	 * The list of inner pie section faces.
+	 */
 	private List<IndexedFace> faceList;
+	
+	/**
+	 * The maximum relative amount a pie section can extend from the pie center.
+	 */
+	private double maximumExplodePercent = 0.0;
 
+	/**
+	 * Constructs an extend 3D pie plot using the specified dataset and maximum explode ratio.
+	 * @param dataset the pie dataset
+	 * @param maximumExplodePercent the maximum relative amount a pie section can extend from the pie center
+	 */
 	public PiePlot3DExt(PieDataset dataset, double maximumExplodePercent) {
 		super(dataset);
 		setMaximumExplodePercent(maximumExplodePercent);
@@ -52,6 +77,10 @@ public class PiePlot3DExt extends PiePlot3D {
 		return maximumExplodePercent;
 	}
 	
+	/**
+	 * Sets the maximum relative amount a pie section can extend from the pie center.
+	 * @param maximumExplodePercent the maximum explode ratio
+	 */
 	public void setMaximumExplodePercent(double maximumExplodePercent) {
 		this.maximumExplodePercent = maximumExplodePercent;
 	}
@@ -454,7 +483,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		Area extArc = new Area(arc);
 		
 		// insert quadrilaterals masking gaps between top and bottom arcs
-		double angleStart = fixAngle(arc.getAngleStart());
+		double angleStart = clampAngle(arc.getAngleStart());
 		double angleEnd = angleStart + arc.getAngleExtent();
 		double centerY = arc.getCenterY();
 		if (angleStart <= 0.0) {
@@ -490,7 +519,7 @@ public class PiePlot3DExt extends PiePlot3D {
 				extArc.add(new Area(path));
 			}
 		}
-		double fixAngleEnd = fixAngle(angleEnd);
+		double fixAngleEnd = clampAngle(angleEnd);
 		if (fixAngleEnd < 0.0) {
 			if ((fixAngleEnd - arc.getAngleExtent()) > 0.0) {
 				// end point is in lower half while start point is in upper half
@@ -577,9 +606,9 @@ public class PiePlot3DExt extends PiePlot3D {
 		Area extArc = new Area(topArc);
 		
 		// insert quadrilaterals masking gaps between top and bottom arcs
-		double angleStart = fixAngle(arc.getAngleStart());
+		double angleStart = clampAngle(arc.getAngleStart());
 		double angleEnd = angleStart + arc.getAngleExtent();
-		double fixAngleEnd = fixAngle(angleEnd);
+		double fixAngleEnd = clampAngle(angleEnd);
 		if (angleStart >= 0.0) {
 			Point2D startPoint = arc.getStartPoint();
 			Path2D path = new Path2D.Double();
@@ -670,11 +699,21 @@ public class PiePlot3DExt extends PiePlot3D {
 		return extArc;
 	}
 
-	private double fixAngle(double angle) {
-		return (angle > 180.0) ? fixAngle(angle - 360.0) :
-					(angle < -180.0) ? fixAngle(angle + 360.0) : angle;
+	/**
+	 * Convenience method to clamp angle values.
+	 * @param angle the angle to clamp
+	 * @return the angle value clamped to a range between -180.0 and +180.0
+	 */
+	private double clampAngle(double angle) {
+		return (angle > 180.0) ? clampAngle(angle - 360.0) :
+					(angle < -180.0) ? clampAngle(angle + 360.0) : angle;
 	}
 	
+	/**
+	 * Returns the key of the pie section at the specified point.
+	 * @param point the point
+	 * @return the key of the section or <code>null</code> if the point is outside the pie's bounds
+	 */
 	public Comparable getSectionKeyForPoint(Point2D point) {
 		if (state == null) {
 			return null;
@@ -719,6 +758,13 @@ public class PiePlot3DExt extends PiePlot3D {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public void clearSectionPaints(boolean notify) {
+		super.clearSectionPaints(notify);
+		this.setSectionPaint("Unknown", Color.DARK_GRAY);
+		this.setSectionPaint("Others", Color.GRAY);
 	}
 	
 	/**

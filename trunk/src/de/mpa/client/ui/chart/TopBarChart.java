@@ -58,23 +58,30 @@ public class TopBarChart extends Chart {
 	}
 
 	@Override
-	protected void setChart() {
+	protected void setChart(ChartData data) {
 		TopBarChartType topBarChartType = (TopBarChartType) chartType;
 		chartTitle = topBarChartType.toString();
 		String xLabel = chartTitle.trim().substring(chartTitle.lastIndexOf(' ') + 1);
 		chart = ChartFactory.createBarChart3D(chartTitle, xLabel, "No. Spectra", categoryDataset, PlotOrientation.VERTICAL, false, true, false);
 		
-    	chart.setTextAntiAlias(true);
-    	
-		// set background color
-		chart.getPlot().setBackgroundPaint(Color.WHITE);
-		chart.setBackgroundPaint(Color.WHITE);
-		CustomBarRenderer3D barRenderer3d = new CustomBarRenderer3D();
-		barRenderer3d.setDrawBarOutline(false);    
-		barRenderer3d.setShadowVisible(false);
+//    	chart.setTextAntiAlias(true);
+//    	
+//		// set background color
+//		chart.getPlot().setBackgroundPaint(Color.WHITE);
+//		chart.setBackgroundPaint(Color.WHITE);
+		
+		BarRenderer3D barRenderer3d = new BarRenderer3D() {
+			public Paint getItemPaint(int row, int column) {
+				Color[] colors = ColorUtils.getRainbowGradient(10);
+				return colors[column];
+	        }
+		};
+//		barRenderer3d.setDrawBarOutline(false);
+//		barRenderer3d.setShadowVisible(false);
         
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setRenderer(0, barRenderer3d);
+		plot.setForegroundAlpha(0.75f);
         
         // Rotate the label axis up 45 degrees
         CategoryAxis labelAxis = (CategoryAxis)plot.getDomainAxis();
@@ -83,16 +90,7 @@ public class TopBarChart extends Chart {
         // Set the range axis to display integers only...
         NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        
 	}
 	
-	private class CustomBarRenderer3D extends BarRenderer3D {
-
-        public CustomBarRenderer3D() {
-        }
-
-		public Paint getItemPaint(int row, int column) {
-			Color[] colors = ColorUtils.getRainbowGradient(10);
-			return colors[column];
-        }
-    }
 }

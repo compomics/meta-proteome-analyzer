@@ -13,7 +13,7 @@ import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.db.accessor.Taxonomy;
 
 /**

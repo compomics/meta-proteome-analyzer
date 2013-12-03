@@ -23,7 +23,7 @@ public class ChartFactory {
 	 * @return ChartFactory instance.
 	 */
 	public static ChartFactory getInstance() {
-		if(instance == null) {
+		if (instance == null) {
 			instance = new ChartFactory();
 		}
 		return instance;
@@ -35,8 +35,8 @@ public class ChartFactory {
 	 * @param chartType Chart type
 	 * @return an ontology pie chart
 	 */
-	public static OntologyPieChart createOntologyPieChart(ChartData data, ChartType chartType) {
-		return new OntologyPieChart(data, chartType);
+	public static OntologyChart createOntologyChart(ChartData data, ChartType chartType) {
+		return new OntologyChart(data, chartType);
 	}
 	
 	/**
@@ -45,8 +45,8 @@ public class ChartFactory {
 	 * @param chartType Chart type
 	 * @return a taxonomy pie chart
 	 */
-	public static TaxonomyPieChart createTaxonomyPieChart(ChartData data, ChartType chartType) {
-		return new TaxonomyPieChart(data, chartType);
+	public static TaxonomyChart createTaxonomyChart(ChartData data, ChartType chartType) {
+		return new TaxonomyChart(data, chartType);
 	}
 	
 	/**

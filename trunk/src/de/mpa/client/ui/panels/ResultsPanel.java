@@ -42,6 +42,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -52,12 +53,15 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -78,6 +82,9 @@ import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.JXRendererHyperlink;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.entity.CategoryItemEntity;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.DefaultPieDataset;
@@ -111,11 +118,13 @@ import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
 import de.mpa.client.ui.chart.PiePlot3DExt;
+import de.mpa.client.ui.chart.PieToCategoryDataset;
+import de.mpa.client.ui.chart.PieToCategoryPlot;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.icons.IconConstants;
@@ -170,19 +179,20 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Combobox for specifying the displayed hierarchy level of pie plots
 	 * (protein, peptide, spectrum level).
 	 */
-	private JComboBox chartPieHierCbx;
+	private JComboBox chartHierarchyCbx;
 
 	/**
 	 * Checkbox for flagging whether proteins grouped as 'Unknown' in pie charts
 	 * shall be hidden.
 	 */
-	private JCheckBox chartPieHideChk;
+	private JCheckBox chartHideUnknownChk;
 
 	/**
-	 * Checkbox for flagging whether pie segments of a relative size below a
-	 * threshold of 1% shall be merged into a category labeled 'Others'.
+	 * Panel containing a checkbox and a spinner for flagging whether pie
+	 * segments of a relative size below a certain value threshold shall be
+	 * merged into a category labeled 'Others'.
 	 */
-	private JCheckBox chartPieGroupChk;
+	private JPanel chartGroupMinorPnl;
 
 	/**
 	 * The rotation angle of pie plots.
@@ -202,12 +212,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Data container for taxonomic meta-information of the fetched results.
 	 */
-	private TaxonomyData taxonomyData;
+	private TaxonomyData taxonomyData = new TaxonomyData();
 
 	/**
 	 * Data container for 'Top 10 Proteins' chart.
 	 */
-	private TopData topData;
+	private TopData topData = new TopData();
 
 	/**
 	 * Data container for total ion current histogram chart.
@@ -270,6 +280,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 	private JLabel pathwaysLbl;
 
 	/**
+	 * Button for fetching search results from a remote database.
+	 */
+	private JButton fetchRemoteBtn;
+
+	/**
+	 * Button for fetching search results from a file.
+	 */
+	private JButton fetchLocalBtn;
+
+	/**
 	 * The database search result object
 	 */
 	private DbSearchResult dbSearchResult;
@@ -314,7 +334,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		JPanel ovPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
 				"5dlu, f:p:g, 5dlu"));
 
-		String layoutDef = "(ROW (LEAF weight=0.5 name=summary) (COLUMN weight=0.5 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
+		String layoutDef = "(ROW (LEAF weight=0.4 name=summary) (COLUMN weight=0.6 (LEAF weight=0.5 name=chart) (LEAF weight=0.5 name=details)";
 		Node modelRoot = MultiSplitLayout.parseModel(layoutDef);
 
 		MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
@@ -434,10 +454,22 @@ public class ResultsPanel extends JPanel implements Busyable {
 		FormLayout layout = new FormLayout("p:g, 5dlu, p:g", "f:p:g");
 		layout.setColumnGroups(new int[][] { { 1, 3 } });
 		JPanel fetchPnl = new JPanel(layout);
+		
+		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
+		settingsBtn.setEnabled(!Client.getInstance().isViewer()); 
+		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
+		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
+		settingsBtn.setPreferredSize(new Dimension(23, 23));
 
-		JButton fetchRemoteBtn = new JButton(
+		fetchRemoteBtn = new JButton(
 				"<html><center>Fetch Results<br>from DB</center></html>",
-				IconConstants.GO_DB_ICON);
+				IconConstants.GO_DB_ICON) {
+			@Override
+			public void setEnabled(boolean b) {
+				super.setEnabled(b);
+				settingsBtn.setEnabled(b);
+			}
+		};
 		fetchRemoteBtn.setEnabled(!Client.getInstance().isViewer()); 
 		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
 		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);		
@@ -466,16 +498,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 			}
 		});
 		
-		JButton testBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
-		testBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
-		testBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
-		testBtn.setPreferredSize(new Dimension(23, 23));
-		
 		fetchRemoteBtn.setLayout(new FormLayout("0px:g, p", "0px:g, p"));
-		fetchRemoteBtn.add(testBtn, CC.xy(2, 2));
+		fetchRemoteBtn.add(settingsBtn, CC.xy(2, 2));
 		fetchRemoteBtn.setMargin(new Insets(-3, -3, -3, -3));
 		
-		JButton fetchLocalBtn = new JButton("<html><center>Fetch Results<br>from File</center></html>", IconConstants.GO_FOLDER_ICON);
+		fetchLocalBtn = new JButton("<html><center>Fetch Results<br>from File</center></html>", IconConstants.GO_FOLDER_ICON);
 		fetchLocalBtn.setRolloverIcon(IconConstants.GO_FOLDER_ROLLOVER_ICON);
 		fetchLocalBtn.setPressedIcon(IconConstants.GO_FOLDER_PRESSED_ICON);
 		fetchLocalBtn.setIconTextGap(10);
@@ -552,10 +579,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 		// create chart type selection popup
 		final JPopupMenu chartTypePop = new JPopupMenu();
 
-		JMenu ontologyMenu = new JMenu("Ontology");
+		final JMenu ontologyMenu = new JMenu("Ontology");
 		ontologyMenu.setIcon(IconConstants.PIE_CHART_ICON);
 		chartTypePop.add(ontologyMenu);
-		JMenu taxonomyMenu = new JMenu("Taxonomy");
+		final JMenu taxonomyMenu = new JMenu("Taxonomy");
 		taxonomyMenu.setIcon(IconConstants.PIE_CHART_ICON);
 		chartTypePop.add(taxonomyMenu);
 
@@ -582,6 +609,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				}
 			}
 		};
+		
 		ButtonGroup chartBtnGrp = new ButtonGroup();
 		int j = 0;
 		for (ChartType chartType : chartTypes) {
@@ -595,8 +623,69 @@ public class ResultsPanel extends JPanel implements Busyable {
 			} else {
 				item.setIcon(IconConstants.BAR_CHART_ICON);
 				chartTypePop.add(item);
+				// TODO: re-implement chart or remove altogether
+				if (chartType == HistogramChartType.TOTAL_ION_HIST) {
+					item.setEnabled(false);
+				}
 			}
 		}
+
+		ButtonGroup ontoPieOrBarGroup = new ButtonGroup();
+		JMenuItem ontoAsPieItem = new JRadioButtonMenuItem("Show As Pie Chart", IconConstants.PIE_CHART_ICON, true);
+		ontoAsPieItem.putClientProperty("pie", true);
+		ontoAsPieItem.putClientProperty("data", "onto");
+		ontoPieOrBarGroup.add(ontoAsPieItem);
+		
+		JMenuItem ontoAsBarItem = new JRadioButtonMenuItem("Show As Bar Chart", IconConstants.BAR_CHART_ICON);
+		ontoAsBarItem.putClientProperty("pie", false);
+		ontoAsBarItem.putClientProperty("data", "onto");
+		ontoPieOrBarGroup.add(ontoAsBarItem);
+		
+		ontologyMenu.addSeparator();
+		ontologyMenu.add(ontoAsPieItem);
+		ontologyMenu.add(ontoAsBarItem);
+
+		ButtonGroup taxPieOrBarGroup = new ButtonGroup();
+		JMenuItem taxAsPieItem = new JRadioButtonMenuItem("Show As Pie Chart", IconConstants.PIE_CHART_ICON, true);
+		taxAsPieItem.putClientProperty("pie", true);
+		taxAsPieItem.putClientProperty("data", "tax");
+		taxPieOrBarGroup.add(taxAsPieItem);
+		
+		JMenuItem taxAsBarItem = new JRadioButtonMenuItem("Show As Bar Chart", IconConstants.BAR_CHART_ICON);
+		taxAsBarItem.putClientProperty("pie", false);
+		taxAsBarItem.putClientProperty("data", "tax");
+		taxPieOrBarGroup.add(taxAsBarItem);
+		
+		taxonomyMenu.addSeparator();
+		taxonomyMenu.add(taxAsPieItem);
+		taxonomyMenu.add(taxAsBarItem);
+		
+		ActionListener pieOrBarListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				JComponent source = (JComponent) evt.getSource();
+				Object data = source.getClientProperty("data");
+				Boolean showAsPie = (Boolean) source.getClientProperty("pie");
+				if ("onto".equals(data)) {
+					ontologyData.setShowAsPie(showAsPie);
+					ontologyMenu.setIcon(showAsPie ? IconConstants.PIE_CHART_ICON : IconConstants.BAR_CHART_ICON);
+				} else if ("tax".equals(data)) {
+					taxonomyData.setShowAsPie(showAsPie);
+					taxonomyMenu.setIcon(showAsPie ? IconConstants.PIE_CHART_ICON : IconConstants.BAR_CHART_ICON);
+				} else {
+					// abort (shouldn't happen, actually)
+					return;
+				}
+				ResultsPanel.this.updateChart(chartType);
+			}
+		};
+
+		ontoAsPieItem.addActionListener(pieOrBarListener);
+		ontoAsBarItem.addActionListener(pieOrBarListener);
+		taxAsPieItem.addActionListener(pieOrBarListener);
+		taxAsBarItem.addActionListener(pieOrBarListener);
+		// TODO: implement bar charts for taxonomy chart view
+		
 		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 				chartTypeBtn.setSelected(false);
@@ -631,7 +720,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				return pieDataset;
 			}
 		};
-		chartPnl = new ChartPanel(ChartFactory.createOntologyPieChart(
+		chartPnl = new ChartPanel(ChartFactory.createOntologyChart(
 				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart()) {
 			@Override
 			protected void paintChildren(Graphics g) {
@@ -663,9 +752,17 @@ public class ResultsPanel extends JPanel implements Busyable {
 			public void setEnabled(boolean enabled) {
 				super.setEnabled(enabled);
 				chartTypeBtn.setEnabled(enabled);
+				if ((chartType instanceof OntologyChartType) || (chartType instanceof TaxonomyChartType)) {
+					chartHierarchyCbx.setEnabled(enabled);
+					chartHideUnknownChk.setEnabled(enabled);
+					chartGroupMinorPnl.setEnabled(enabled);
+				}
+				
 			}
 		};
-		chartPnl.setLayout(new FormLayout("r:p:g, 2dlu, p, 2dlu, l:p:g", "0px:g, p, 2dlu"));
+		chartPnl.setLayout(new FormLayout(
+				"r:p:g, 2dlu, p, 2dlu, l:p:g",
+				"0px:g, p, 2dlu"));
 		chartPnl.setMinimumDrawHeight(144);
 		chartPnl.setMaximumDrawHeight(1440);
 		chartPnl.setMinimumDrawWidth(256);
@@ -673,17 +770,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 		chartPnl.setOpaque(false);
 		chartPnl.setPreferredSize(new Dimension(256, 144));
 		chartPnl.setMinimumSize(new Dimension(256, 144));
-		chartPnl.setEnabled(false);
 		
-		// create mouse adapter to interact with pie plot sections
-		MouseAdapter adapter = new MouseAdapter() {
+		// create mouse adapter to interact with plot sections
+		MouseAdapter ma = new MouseAdapter() {
 			private Comparable highlightedKey = null;
 			private Comparable selectedKey = null;
 			private Action saveAsAction = new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent evt) {
-					PiePlot3DExt piePlot = getPiePlot();
-					if (piePlot != null) {
+					Plot plot = getPlot();
+					if (plot != null) {
 						JFileChooser fc = new JFileChooser();
 						fc.setFileFilter(Constants.CSV_FILE_FILTER);
 						fc.setAcceptAllFileFilterUsed(false);
@@ -708,12 +804,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 								BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
 
-								PieDataset dataset = piePlot.getDataset();
-								for (int i = 0; i < dataset.getItemCount(); i++) {
-									Comparable key = dataset.getKey(i);
-									Number value = dataset.getValue(key);
-									writer.append("\"" + key + "\"\t" + value);
-									writer.newLine();
+								if (plot instanceof PiePlot) {
+									PieDataset dataset = ((PiePlot) plot).getDataset();
+									for (int i = 0; i < dataset.getItemCount(); i++) {
+										Comparable key = dataset.getKey(i);
+										Number value = dataset.getValue(key);
+										writer.append("\"" + key + "\"\t" + value);
+										writer.newLine();
+									}
+								} else {
+									// TODO: implement bar chart export
 								}
 								writer.flush();
 								writer.close();
@@ -731,8 +831,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 			@Override
 			public void mouseMoved(MouseEvent me) {
-				PiePlot3DExt piePlot = getPiePlot();
-				if (piePlot != null) {
+				Plot plot = getPlot();
+				if (plot instanceof PiePlot3DExt) {
+					PiePlot3DExt piePlot = (PiePlot3DExt) plot;
 					Comparable key = piePlot.getSectionKeyForPoint(me.getPoint());
 					if (key != highlightedKey) {
 						for (Object dataKey : piePlot.getDataset().getKeys()) {
@@ -746,6 +847,26 @@ public class ResultsPanel extends JPanel implements Busyable {
 						}
 						highlightedKey = key;
 					}
+				} else if (plot instanceof PieToCategoryPlot) {
+					PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
+					EntityCollection entities = chartPnl.getChartRenderingInfo().getEntityCollection();
+					if (entities != null) {
+		                Insets insets = chartPnl.getInsets();
+		                ChartEntity entity = entities.getEntity(
+		                        (int) ((me.getX() - insets.left) / chartPnl.getScaleX()),
+		                        (int) ((me.getY() - insets.top) / chartPnl.getScaleY()));
+		                if ((entity != null) && (entity instanceof CategoryItemEntity)) {
+		                	CategoryItemEntity catEntity = (CategoryItemEntity) entity;
+		                	Comparable key = catEntity.getColumnKey();
+		                	if (key != highlightedKey) {
+		                		catPlot.setHighlightedKey(key);
+								highlightedKey = key;
+		                	}
+		                } else {
+		                	catPlot.setHighlightedKey(null);
+							highlightedKey = null;
+		                }
+		            }
 				}
 			}
 
@@ -754,8 +875,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 				if (me.isPopupTrigger()) {
 					maybeShowPopup(me);
 				} else {
-					PiePlot3DExt piePlot = getPiePlot();
-					if (piePlot != null) {
+					Plot plot = getPlot();
+					if (plot instanceof PiePlot3DExt) {
+						PiePlot3DExt piePlot = (PiePlot3DExt) plot;
 						if (selectedKey != null) {
 							// clear old selection
 							piePlot.setExplodePercent(selectedKey, 0.0);
@@ -770,6 +892,18 @@ public class ResultsPanel extends JPanel implements Busyable {
 							TableConfig.clearTable(detailsTbl);
 						}
 						selectedKey = highlightedKey;
+					} else if (plot instanceof PieToCategoryPlot) {
+						PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
+						if (highlightedKey != null) {
+							if (highlightedKey != selectedKey) {
+								// update table if new section got clicked
+								updateDetailsTable(highlightedKey);
+							}
+						} else {
+							TableConfig.clearTable(detailsTbl);
+						}
+						catPlot.setSelectedKey(highlightedKey);
+						selectedKey = highlightedKey;
 					}
 				}
 			}
@@ -779,8 +913,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// re-validate fields in case chart type has been changed
 				highlightedKey = null;
 				selectedKey = null;
-				PiePlot3DExt piePlot = getPiePlot();
-				if (piePlot != null) {
+				Plot plot = getPlot();
+				if (plot instanceof PiePlot3DExt) {
+					PiePlot3DExt piePlot = (PiePlot3DExt) plot;
 					for (Object dataKey : piePlot.getDataset().getKeys()) {
 						Comparable key = (Comparable) dataKey;
 						double explodePercent = piePlot.getExplodePercent(key);
@@ -807,8 +942,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 			 */
 			private void maybeShowPopup(MouseEvent me) {
 				if (me.isPopupTrigger()) {
-					PiePlot3DExt piePlot = getPiePlot();
-					if (piePlot != null) {
+					Plot plot = getPlot();
+					if (plot != null) {
 						JPopupMenu popup = new JPopupMenu();
 
 						JMenuItem item = new JMenuItem(saveAsAction);
@@ -825,13 +960,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 			/** 
 			 * Utility method to get valid pie plot.
 			 */
-			private PiePlot3DExt getPiePlot() {
+			private Plot getPlot() {
 				if (chartPnl.isEnabled()) {
 					JFreeChart chart = chartPnl.getChart();
 					if (chart != null) {
-						if (chart.getPlot() instanceof PiePlot3DExt) {
-							return (PiePlot3DExt) chart.getPlot();
-						}
+//						if (chart.getPlot() instanceof PiePlot3DExt) {
+//							return (PiePlot3DExt) chart.getPlot();
+//						}
+						return chart.getPlot();
 					}
 				}
 				return null;
@@ -839,13 +975,13 @@ public class ResultsPanel extends JPanel implements Busyable {
 		};
 		chartPnl.removeMouseListener(chartPnl.getMouseListeners()[1]);
 		chartPnl.removeMouseMotionListener(chartPnl.getMouseMotionListeners()[1]);
-		chartPnl.addMouseListener(adapter);
-		chartPnl.addMouseMotionListener(adapter);
+		chartPnl.addMouseListener(ma);
+		chartPnl.addMouseMotionListener(ma);
 
 		// create combobox to control what counts to display in the plots
 		// (protein/peptide/spectrum count)
-		chartPieHierCbx = new JComboBox(HierarchyLevel.values());
-		chartPieHierCbx.addItemListener(new ItemListener() {
+		chartHierarchyCbx = new JComboBox(HierarchyLevel.values());
+		chartHierarchyCbx.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
 				if (evt.getStateChange() == ItemEvent.SELECTED) {
@@ -860,12 +996,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 				}
 			}
 		});
-		chartPieHierCbx.setEnabled(false);
+		chartHierarchyCbx.setEnabled(false);
 
-		chartPieHideChk = new JCheckBox("Hide Unknown", false);
-		chartPieHideChk.setOpaque(false);
-		chartPieHideChk.setEnabled(false);
-		chartPieHideChk.addItemListener(new ItemListener() {
+		chartHideUnknownChk = new JCheckBox("Hide Unknown", false);
+		chartHideUnknownChk.setOpaque(false);
+		chartHideUnknownChk.setEnabled(false);
+		chartHideUnknownChk.addItemListener(new ItemListener() {
 			private boolean doHide;
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
@@ -875,42 +1011,50 @@ public class ResultsPanel extends JPanel implements Busyable {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws Exception {
-						chartPieHideChk.setEnabled(false);
+						chartHideUnknownChk.setEnabled(false);
 						Plot plot = chartPnl.getChart().getPlot();
+						DefaultPieDataset dataset;
 						if (plot instanceof PiePlot) {
-							DefaultPieDataset dataset =
-									(DefaultPieDataset) ((PiePlot) plot).getDataset();
-							if (doHide) {
-								double val = dataset.getValue("Unknown").doubleValue();
-								for (int i = 0; i < 11; i++) {
-									double tmp = 1.0 - i / 10.0;
-									double newVal = val * tmp * tmp;
-									dataset.setValue("Unknown", newVal);
-									if (newVal > 0.0) {
-										Thread.sleep(33);
-									} else {
-										break;
-									}
-								}
-							} else {
-								double val;
-								if (chartType instanceof OntologyChartType) {
-									val = ontologyData.getDataset().getValue("Unknown").doubleValue();
+							dataset = (DefaultPieDataset) ((PiePlot) plot).getDataset();
+						} else if (plot instanceof PieToCategoryPlot) {
+							dataset = (DefaultPieDataset) ((PieToCategoryDataset) ((PieToCategoryPlot) plot).getDataset()).getPieDataset();
+						} else {
+							// abort
+							return null;
+						}
+						String unknownKey = "Unknown";
+						if (doHide) {
+							double val = dataset.getValue(unknownKey).doubleValue();
+							for (int i = 0; i < 11; i++) {
+								double tmp = 1.0 - i / 10.0;
+								double newVal = val * tmp * tmp;
+								dataset.setValue(unknownKey, newVal);
+								if (newVal > 0.0) {
+									Thread.sleep(33);
 								} else {
-									val = taxonomyData.getDataset().getValue("Unknown").doubleValue();
+									break;
 								}
-								for (int i = 0; i < 11; i++) {
-									double tmp = i / 10.0;
-									double newVal = val * tmp * tmp;
-									if (newVal <= 0.0) {
-										continue;
-									}
-									dataset.setValue("Unknown", newVal);
-									if (newVal < val) {
-										Thread.sleep(33);
-									} else {
-										break;
-									}
+							}
+							dataset.remove(unknownKey);
+						} else {
+							double val;
+							if (chartType instanceof OntologyChartType) {
+								val = ontologyData.getDataset().getValue(unknownKey).doubleValue();
+							} else {
+								val = taxonomyData.getDataset().getValue(unknownKey).doubleValue();
+							}
+							dataset.insertValue(0, unknownKey, 0);
+							for (int i = 0; i < 11; i++) {
+								double tmp = i / 10.0;
+								double newVal = val * tmp * tmp;
+								if (newVal <= 0.0) {
+									continue;
+								}
+								dataset.setValue(unknownKey, newVal);
+								if (newVal < val) {
+									Thread.sleep(33);
+								} else {
+									break;
 								}
 							}
 						}
@@ -918,43 +1062,97 @@ public class ResultsPanel extends JPanel implements Busyable {
 					}
 					@Override
 					protected void done() {
-						chartPieHideChk.setEnabled(true);
+						chartHideUnknownChk.setEnabled(true);
 					};
 
 				}.execute();
 			}
 		});
 
-		chartPieGroupChk = new JCheckBox("Group minor segments", true);
-		chartPieGroupChk.setOpaque(false);
-		chartPieGroupChk.setEnabled(false);
-		chartPieGroupChk.addItemListener(new ItemListener() {
+		final JCheckBox chartGroupMinorChk = new JCheckBox("Group segments <", true);
+		chartGroupMinorChk.setOpaque(false);
+		chartGroupMinorChk.setEnabled(false);
+		
+		final JSpinner chartGroupMinorSpn = new JSpinner(new SpinnerNumberModel(0.01, 0.0, 1.0, 0.001));
+		chartGroupMinorSpn.setEditor(new JSpinner.NumberEditor(chartGroupMinorSpn, "0.0%"));
+		final ChangeListener groupListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent evt) {
+				if (chartGroupMinorSpn.isEnabled()) {
+					// update grouping limit of data containers
+					Double value = (Double) chartGroupMinorSpn.getValue();
+					ontologyData.setMinorGroupingLimit(value);
+					taxonomyData.setMinorGroupingLimit(value);
+				}
+				// refresh datasets and repaint chart
+				Plot plot = chartPnl.getChart().getPlot();
+				if ((chartType instanceof OntologyChartType)) {
+					PieDataset dataset = ontologyData.getDataset();
+					if (ontologyData.getShowAsPie()) {
+						PiePlot piePlot = (PiePlot) plot;
+//						// hack to reset colors
+//						piePlot.clearSectionPaints(false);
+//						piePlot.setDrawingSupplier(new DefaultDrawingSupplier(), false);
+						piePlot.setDataset(dataset);
+					} else {
+						PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
+						catPlot.setDataset(dataset);
+					}
+				} else if (chartType instanceof TaxonomyChartType) {
+					PieDataset dataset = taxonomyData.getDataset();
+					if (taxonomyData.getShowAsPie()) {
+						PiePlot piePlot = (PiePlot) plot;
+//						// hack to reset colors
+//						piePlot.clearSectionPaints(false);
+//						piePlot.setDrawingSupplier(new DefaultDrawingSupplier(), false);
+						piePlot.setDataset(dataset);
+					} else {
+						PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
+						catPlot.setDataset(dataset);
+					}
+				}
+			}
+		};
+		chartGroupMinorSpn.addChangeListener(groupListener);
+
+		chartGroupMinorChk.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
 				if (evt.getStateChange() == ItemEvent.SELECTED) {
-					ontologyData.setLimit(0.01);
-					taxonomyData.setLimit(0.01);
+					Double value = (Double) chartGroupMinorSpn.getValue();
+					ontologyData.setMinorGroupingLimit(value);
+					taxonomyData.setMinorGroupingLimit(value);
+					chartGroupMinorSpn.setEnabled(true);
 				} else {
-					ontologyData.setLimit(0.0);
-					taxonomyData.setLimit(0.0);
+					ontologyData.setMinorGroupingLimit(0.0);
+					taxonomyData.setMinorGroupingLimit(0.0);
+					chartGroupMinorSpn.setEnabled(false);
 				}
-				Plot plot = chartPnl.getChart().getPlot();
-				if ((chartType instanceof OntologyChartType)) {
-					((PiePlot) plot).setDataset(ontologyData.getDataset());
-				} else if (chartType instanceof TaxonomyChartType) {
-					((PiePlot) plot).setDataset(taxonomyData.getDataset());
-				}
+				groupListener.stateChanged(new ChangeEvent(chartGroupMinorChk));
 			}
 		});
 
+		chartGroupMinorPnl = new JPanel(new FormLayout("p, 2dlu, 50px", "p")) {
+			@Override
+			public void setEnabled(boolean enabled) {
+				super.setEnabled(enabled);
+				chartGroupMinorChk.setEnabled(enabled);
+				chartGroupMinorSpn.setEnabled(enabled);
+			}
+		};
+		chartGroupMinorPnl.setOpaque(false);
+		chartGroupMinorPnl.add(chartGroupMinorChk, CC.xy(1, 1));
+		chartGroupMinorPnl.add(chartGroupMinorSpn, CC.xy(3, 1));
+		
 		JXBusyLabel busyLbl = new JXBusyLabel(new Dimension(70, 70));
 		busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
 		busyLbl.setVisible(false);
+		chartPnl.setEnabled(false);
 		
 		chartPnl.add(busyLbl, CC.xywh(1, 1, 5, 3));
-		chartPnl.add(chartPieHierCbx, CC.xy(1, 2));
-		chartPnl.add(chartPieHideChk, CC.xy(3, 2));
-		chartPnl.add(chartPieGroupChk, CC.xy(5, 2));
+		chartPnl.add(chartHierarchyCbx, CC.xy(1, 2));
+		chartPnl.add(chartHideUnknownChk, CC.xy(3, 2));
+		chartPnl.add(chartGroupMinorPnl, CC.xy(5, 2));
 
 		JScrollPane chartScp = new JScrollPane(chartPnl,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -1175,12 +1373,15 @@ public class ResultsPanel extends JPanel implements Busyable {
 		Chart chart = null;
 
 		// create chart instance
+		boolean showAdditionalControls = false;
 		if (chartType instanceof OntologyChartType) {
-			chart = ChartFactory.createOntologyPieChart(
+			chart = ChartFactory.createOntologyChart(
 					ontologyData, chartType);
+			showAdditionalControls = true;
 		} else if (chartType instanceof TaxonomyChartType) {
-			chart = ChartFactory.createTaxonomyPieChart(
+			chart = ChartFactory.createTaxonomyChart(
 					taxonomyData, chartType);
+			showAdditionalControls = true;
 		} else if (chartType instanceof TopBarChartType) {
 			chart = ChartFactory.createTopBarChart(
 					topData, chartType);
@@ -1188,31 +1389,33 @@ public class ResultsPanel extends JPanel implements Busyable {
 			chart = ChartFactory.createHistogramChart(
 					histogramData, chartType);
 		}
-
+		
 		if (chart != null) {
-			Plot plot = chart.getChart().getPlot();
+			JFreeChart jChart = chart.getChart();
+			final Plot plot = jChart.getPlot();
 			boolean isPie = plot instanceof PiePlot;
 			if (isPie) {
 				// enable chart scroll bar
 				chartBar.setMaximum(360);
 				chartBar.setValue((int) chartPieAngle);
-				((PiePlot) chart.getChart().getPlot()).setStartAngle(chartPieAngle);
+				((PiePlot) plot).setStartAngle(chartPieAngle);
 			} else {
 				// disable chart scroll bar
 				double temp = chartPieAngle;
 				chartBar.setMaximum(0);
 				chartPieAngle = temp;
 			}
-			// hide/show pie chart-related controls
-			chartPieHierCbx.setVisible(isPie);
-			chartPieHierCbx.setEnabled(isPie);
-			chartPieHideChk.setVisible(isPie);
-			chartPieHideChk.setEnabled(isPie);
-			chartPieGroupChk.setVisible(isPie);
-			chartPieGroupChk.setEnabled(isPie);
+			// hide/show additional controls
+			// TODO: show controls for ontology/taxonomy bar charts (and make sure they work)
+			chartHierarchyCbx.setVisible(showAdditionalControls);
+			chartHierarchyCbx.setEnabled(showAdditionalControls);
+			chartHideUnknownChk.setVisible(showAdditionalControls);
+			chartHideUnknownChk.setEnabled(showAdditionalControls);
+			chartGroupMinorPnl.setVisible(showAdditionalControls);
+			chartGroupMinorPnl.setEnabled(showAdditionalControls);
 
 			// insert chart into panel
-			chartPnl.setChart(chart.getChart());
+			chartPnl.setChart(jChart);
 		} else {
 			System.err.println("Chart type could not be determined!");
 		}
@@ -1238,6 +1441,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 */
 	public void setBusy(boolean busy) {
 		this.busy = busy;
+		
+		// Set enable state of fetch buttons
+		// TODO: probably unsafe as GraphDB is still in the progress of being created
+		this.fetchRemoteBtn.setEnabled(!busy && !Client.getInstance().isViewer());
+		this.fetchLocalBtn.setEnabled(!busy);
 
 		// Hide/unhide busy label of chart panel
 		JXBusyLabel busyLbl = (JXBusyLabel) this.chartPnl.getComponent(0);
@@ -1456,7 +1664,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		@Override
 		protected Object doInBackground() {
-			
 			Set<String> speciesNames = new HashSet<String>();
 			Set<String> ecNumbers = new HashSet<String>();
 			Set<String> kNumbers = new HashSet<String>();
@@ -1494,12 +1701,17 @@ public class ResultsPanel extends JPanel implements Busyable {
 			pathwaysLbl.setText("" + pathwayIDs.size());
 
 			// Generate chart data objects
-			HierarchyLevel hl = (HierarchyLevel) chartPieHierCbx.getSelectedItem();
-			ontologyData = new OntologyData(dbSearchResult, hl);
-			taxonomyData = new TaxonomyData(dbSearchResult, hl);
-			topData = new TopData(dbSearchResult);
+			HierarchyLevel hl = (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
+			
+			ontologyData.setHierarchyLevel(hl);
+			ontologyData.setResult(dbSearchResult);
+			
+			taxonomyData.setHierarchyLevel(hl);
+			taxonomyData.setResult(dbSearchResult);
+			
+			topData.setResult(dbSearchResult);
 			// FIXME: Is this histogram really necessary?
-//				histogramData = new HistogramData(dbSearchResult, 40);
+//			histogramData = new HistogramData(dbSearchResult, 40);
 
 			// Refresh chart panel showing default ontology pie chart
 			updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
