@@ -4,8 +4,8 @@ import java.util.Set;
 
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 
 /**
  * TODO: API

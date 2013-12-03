@@ -119,8 +119,8 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.icons.IconConstants;
 
 /**
@@ -1274,14 +1274,15 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			MatrixSeries data, XYBlockRenderer renderer) {
 	
 		// create x axis
-		SymbolAxis xAxis = new SymbolAxisExt(xTitle, xLabels);
+		FontMetrics fm = this.getFontMetrics(org.jfree.chart.axis.Axis.DEFAULT_TICK_LABEL_FONT);
+		SymbolAxis xAxis = new SymbolAxisExt(xTitle, xLabels, fm);
 		xAxis.setGridBandsVisible(false);
 		xAxis.setVerticalTickLabels(true);
 		xAxis.setTickLabelInsets(new RectangleInsets(4, 2, 4, 2));
 		xAxis.setLabelPaint(Color.WHITE);
 		
 		// create y axis
-		SymbolAxis yAxis = new SymbolAxisExt(yTitle, yLabels);
+		SymbolAxis yAxis = new SymbolAxisExt(yTitle, yLabels, fm);
 		yAxis.setInverted(true);
 		yAxis.setLabelPaint(Color.WHITE);
 		
@@ -1292,7 +1293,8 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			public void draw(Graphics2D g2, Rectangle2D area,
 					Point2D anchor, PlotState parentState,
 					PlotRenderingInfo info) {
-				g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+				g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
+						RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 				super.draw(g2, area, anchor, parentState, info);
 			}
 		};
@@ -1868,20 +1870,27 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * Convenience extension of the SymbolAxis class to allow dynamic truncation
 	 * of axis tick labels.
 	 */
-	private class SymbolAxisExt extends SymbolAxis {
+	public static class SymbolAxisExt extends SymbolAxis {
 		
 		/**
 		 * Maximum pixel length of label strings.
 		 */
 		private int maxLabelSize = 60;
+		
+		/**
+		 * The font metrics used for measuring axis label sizes.
+		 */
+		private FontMetrics fm;
 
 		/**
 		 * Constructs a symbol axis, using default attribute values where necessary.
 		 * @param label the axis label (<code>null</code> permitted)
 		 * @param sv the list of symbols to display instead of the numeric values
+		 * @param fm the font metrics used for measuring axis label sizes
 		 */
-		public SymbolAxisExt(String label, String[] sv) {
+		public SymbolAxisExt(String label, String[] sv, FontMetrics fm) {
 			super(label, sv);
+			this.fm = fm;
 		}
 		
 		/**
@@ -1895,7 +1904,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			if (vertical && (this.maxLabelSize > 0)) {
 				List<NumberTick> newTicks = new ArrayList<NumberTick>();
 				for (String str : this.getSymbols()) {
-					newTicks.add(new NumberTick(0.0, trimToSize(str, 60, getTickLabelFont()), 
+					newTicks.add(new NumberTick(0.0, trimToSize(str, 60), 
 							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
 				}
 				return super.findMaximumTickLabelHeight(newTicks, g2, drawArea, vertical);
@@ -1915,7 +1924,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			if (!vertical && (this.maxLabelSize > 0)) {
 				List<NumberTick> newTicks = new ArrayList<NumberTick>();
 				for (String str : this.getSymbols()) {
-					newTicks.add(new NumberTick(0.0, trimToSize(str, 60, getTickLabelFont()), 
+					newTicks.add(new NumberTick(0.0, trimToSize(str, 60), 
 							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
 				}
 				return super.findMaximumTickLabelWidth(newTicks, g2, drawArea, vertical);
@@ -1930,7 +1939,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		@Override
 		public String valueToString(double value) {
 			if (this.maxLabelSize > 0) {
-				return trimToSize(super.valueToString(value), 60, this.getTickLabelFont());
+				return trimToSize(super.valueToString(value), 60);
 			} else {
 				return super.valueToString(value);
 			}
@@ -1941,15 +1950,13 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * by removing characters from its end and adding an ellipsis instead.
 		 * @param str the target string
 		 * @param size the desired pixel width
-		 * @param font the font
 		 * @return a trimmed string or the original string if it is smaller than the specified size
 		 */
-		private String trimToSize(String str, int size, Font font) {
-			FontMetrics fm = getFontMetrics(font);
-			if (fm.stringWidth(str) > size) {
+		private String trimToSize(String str, int size) {
+			if (this.fm.stringWidth(str) > size) {
 				// delete characters from end, add ellipsis (...) instead
 				StringBuilder sb = new StringBuilder(str.trim() + "\u2026");
-				while (fm.stringWidth(sb.toString()) > size) {
+				while (this.fm.stringWidth(sb.toString()) > size) {
 					sb.deleteCharAt(sb.length() - 2);
 				}
 				return sb.toString().trim();

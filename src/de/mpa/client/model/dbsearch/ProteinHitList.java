@@ -90,6 +90,9 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	
 	@Override
 	public boolean addAll(Collection<? extends ProteinHit> c) {
+		if (c == null) {
+			return false;
+		}
 		this.hasChanged = super.addAll(c);
 		return this.hasChanged;
 	}

@@ -14,7 +14,7 @@ import org.jfree.chart.JFreeChart;
 public abstract class Chart {
 
     /**
-     * Histogram chart object.
+     * The chart instance.
      */
     protected JFreeChart chart = null;
     
@@ -39,7 +39,7 @@ public abstract class Chart {
     	
         if (data != null) {
             process(data);
-            setChart();
+            setChart(data);
         }
     }
 
@@ -53,7 +53,7 @@ public abstract class Chart {
     /**
      * Sets the chart object.
      */
-    protected abstract void setChart();
+    protected abstract void setChart(ChartData data);
 
     /**
      * Returns the chart title.

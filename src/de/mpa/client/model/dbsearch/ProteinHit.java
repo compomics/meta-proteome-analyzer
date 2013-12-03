@@ -17,8 +17,8 @@ import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyPieChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyPieChart.TaxonomyChartType;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 

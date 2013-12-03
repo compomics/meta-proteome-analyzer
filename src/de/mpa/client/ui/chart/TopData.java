@@ -36,12 +36,27 @@ public class TopData implements ChartData {
 	 * The top proteins map.
 	 */
 	private HashMap<ProteinHit, Integer> topProteinsMap;
+	
+	/**
+	 * Empty default constructor.
+	 */
+	public TopData() {
+	}
 
 	/**
 	 * TopData constructor
 	 * @param dbSearchResult The database search result.
 	 */
 	public TopData(DbSearchResult dbSearchResult) {
+		this.setResult(dbSearchResult);
+	}
+	
+	/**
+	 * Sets the database search result reference to the specified result and
+	 * refreshes the underlying dataset.
+	 * @param dbSearchResult the database search result object
+	 */
+	public void setResult(DbSearchResult dbSearchResult) {
 		this.dbSearchResult = dbSearchResult;
 		init();
 	}

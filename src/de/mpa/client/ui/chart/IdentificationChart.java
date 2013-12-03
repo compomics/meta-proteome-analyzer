@@ -48,7 +48,7 @@ public class IdentificationChart extends Chart {
 	}
 
 	@Override
-	protected void setChart() {
+	protected void setChart(ChartData data) {
 		BarChartType barPlotType = (BarChartType) chartType;
 		String title = barPlotType.toString();
 		chartTitle = title + " Bar Chart";
