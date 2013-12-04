@@ -4,8 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.ComboBoxModel;
@@ -19,9 +17,64 @@ import javax.swing.DefaultComboBoxModel;
 public class XTandemParameters extends ParameterMap {
 	
 	/**
-	 * Mapping from enzyme name to cleavage rule.
+	 * Enumeration holding cleavage rules.
+	 * 
+	 * @author behne
 	 */
-	private Map<String, String> cleavageRules;
+	private enum CleavageRule {
+		TRYPSIN("Trypsin", "[KR]|{P}"),
+		ARG_C("Arg-C", "[R]|{P}"),
+		CNBR("CNBr", "[M]|{P}"),
+		CHYMOTRYPSIN("Chymotrypsin", "[FMWY]|{P}"),
+		FORMIC_ACID("Formic Acid", "[D]|{P}"),
+		LYS_C("Lys-C", "[K]|{P}"),
+		LYS_C_NO_P("Lys-C, no P rule", "[K]|[X]"),
+		PEPSIN_A("Pepsin A", "[FL]|[X]"),
+		TRYPSIN_CNBR("Trypsin + CNBr", "[KR]|{P},[M]|{P}"),
+		TRYPSIN_CHYMOTRYPSIN("Trypsin + Chymotrypsin", "[KR]|{P},[FMWY]|{P}"),
+		TRYPSIN_NO_P("Trypsin, no P rule", "[KR]|[X]"),
+		ELASTASE("Elastase", "[AGILV]|{P}"),
+		CLOSTRIPAIN("Clostripain", "[R]|[X]"),
+		ASP_N("Asp-N", "[X]|[D]"),
+		GLU_C("Glu-C", "[DE]|{P}"),
+		ASP_N_GLU_C("Asp-N + Glu-C", "[X]|[D],[DE]|{P}"),
+		TRYPSIN_GLUC("Trypsin Gluc", "[DEKR]|{P}"),
+		GLUC_BICARB("Gluc Bicarb", "[E]|{P}"),
+		NON_SPECIFIC("Non-Specific", "[X]|[X]");
+		
+		/**
+		 * The name of the rule.
+		 */
+		private String name;
+		
+		/**
+		 * The rule string.
+		 */
+		private String rule;
+
+		/**
+		 * Constructs a cleavage rule from the specified name and rule strings.
+		 * @param name the name of the rule
+		 * @param rule the rule string
+		 */
+		private CleavageRule(String name, String rule) {
+			this.name = name;
+			this.rule = rule;
+		}
+		
+		/**
+		 * Returns the rule string.
+		 * @return the rule string
+		 */
+		public String getRule() {
+			return this.rule;
+		}
+		
+		@Override
+		public String toString() {
+			return this.name;
+		}
+	}
 
 	/**
 	 * Constructs a parameter map initialized with default values.
@@ -32,38 +85,16 @@ public class XTandemParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
-		// Mapping from enzyme name to cleavage rule.
-		cleavageRules = new HashMap<String, String>();
-		cleavageRules.put("Trypsin", "[KR]|{P}");
-		cleavageRules.put("Arg-C", "[R]|{P}");
-		cleavageRules.put("CNBr", "[M]|{P}");
-		cleavageRules.put("Chymotrypsin", "[FMWY]|{P}");
-		cleavageRules.put("Formic Acid", "[D]|{P}");
-		cleavageRules.put("Lys-C", "[K]|{P}");
-		cleavageRules.put("Lys-C, no P rule", "[K]|[X]");
-		cleavageRules.put("Pepsin A", "[FL]|[X]");
-		cleavageRules.put("Trypsin + CNBr", "[KR]|{P},[M]|{P}");
-		cleavageRules.put("Trypsin + Chymotrypsin", "[KR]|{P},[FMWY]|{P}");
-		cleavageRules.put("Trypsin, no P rule", "[KR]|[X]");
-		cleavageRules.put("Elastase", "[AGILV]|{P}");
-		cleavageRules.put("Clostripain", "[R]|[X]");
-		cleavageRules.put("Asp-N", "[X]|[D]");
-		cleavageRules.put("Glu-C", "[DE]|{P}");
-		cleavageRules.put("Asp-N + Glu-C", "[X]|[D],[DE]|{P}");
-		cleavageRules.put("Trypsin Gluc", "[DEKR]|{P}");
-		cleavageRules.put("Gluc Bicarb", "[E]|{P}");
-		cleavageRules.put("Non-Specific", "[X]|[X]");
-		
 		/* Configurable settings */
-		this.put("protein, cleavage site", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Elastase", "Clostripian", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Trypsin Gluc", "Gluc Bicarb", "Non-Specific"}), "Spectrum", "Cleavage enzyme to used by the X!Tandem search engine."));
-		this.put("protein, cleavage semi", new Parameter("Semi-tryptic cleavage", false, "Spectrum", "Use semi-tryptic cleavage as enzyme parameter"));
+		this.put("protein, cleavage site", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(CleavageRule.values()), "Spectrum", "Cleavage enzyme to use by the X!Tandem search engine."));
+		this.put("protein, cleavage semi", new Parameter("Semi-tryptic cleavage", false, "Spectrum", "Use semi-tryptic cleavage as enzyme parameter."));
 
 		// Spectrum section
 		this.put("spectrum, fragment mass type", new Parameter("Fragment Mass Type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average" }), "Spectrum", "Use chemical average or monoisotopic mass for fragment ions."));
 		this.put("spectrum, total peaks", new Parameter("Total Peaks", 50, "Spectrum", "Maximum number of peaks to be used from a spectrum."));
 		this.put("spectrum, minimum peaks", new Parameter("Minimum Peaks", 15, "Spectrum", "The minimum number of peaks required for a spectrum to be considered."));
 		this.put("spectrum, minimum parent m+h", new Parameter("Minimum precursor mass", 500.0, "Spectrum", "The minimum parent mass required for a spectrum to be considered."));
-		this.put("spectrum, minimum fragment mz", new Parameter("Minimum fragment m/z", 150.0, "Spectrum", "The minimum fragment m/z to be considered.."));
+		this.put("spectrum, minimum fragment mz", new Parameter("Minimum fragment m/z", 150.0, "Spectrum", "The minimum fragment m/z to be considered."));
 		this.put("spectrum, threads", new Parameter("Worker threads", 4, "Spectrum", "The number of worker threads to be used for calculation."));
 		this.put("spectrum, sequence batch size", new Parameter("<html>Fasta sequence<br>batch size</html>", 1000, "Spectrum", "The number of FASTA sequences X!Tandem is processing per batch."));
 		// Refinement section
@@ -120,9 +151,9 @@ public class XTandemParameters extends ParameterMap {
 					value = (((Boolean) value).booleanValue()) ? "yes" : "no";
 				}
 				// Write BIOML <note> tag containing non-default value
-				
 				if (key.equals("protein, cleavage site")) {
-					value = cleavageRules.get(value.toString());
+//					value = cleavageRules.get(value.toString());
+					value = ((CleavageRule) value).getRule();
 				}
 				sb.append("\t<note type=\"input\" label=\"" + key + "\">" + value.toString() + "</note>\n;");
 			}
