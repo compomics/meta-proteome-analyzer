@@ -23,10 +23,10 @@ public class OmssaParameters extends ParameterMap {
 	@Override
 	public void initDefaults() {
 		/* Non-configurable settings */
-		this.put("e", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"}), "Spectrum", "Cleavage enzyme to used by the OMSSA search engine."));
         
 		/* Configurable settings */
 		// Spectrum section
+		this.put("e", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"}), "Spectrum", "Cleavage enzyme to used by the OMSSA search engine."));
 		this.put("tom", new Parameter("Fragment mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
 		this.put("tem", new Parameter("Precursor mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
 		this.put("zt", new Parameter("Scale precursor tolerance to charge", 3, "Spectrum", "Precursor mass tolerance scales according to charge state.")); 

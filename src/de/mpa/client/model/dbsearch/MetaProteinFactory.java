@@ -1,4 +1,4 @@
-package de.mpa.analysis;
+package de.mpa.client.model.dbsearch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,10 +9,6 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import de.mpa.client.Client;
-import de.mpa.client.model.dbsearch.MetaProteinHit;
-import de.mpa.client.model.dbsearch.PeptideHit;
-import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.taxonomy.TaxonomyUtils;
 
@@ -22,6 +18,32 @@ import de.mpa.taxonomy.TaxonomyUtils;
  * @author R. Heyer, A. Behne
  */
 public class MetaProteinFactory {
+	
+	/**
+	 * Enumeration holding rules for generating meta-proteins.
+	 * @author A. Behne
+	 */
+	// TODO: implement different rules
+	public enum MetaProteinRule {
+		SHARED_PEPTIDE("have at least one peptide in common"),
+		PEPTIDE_SUBSET("have all peptides in common"),
+		BY_TAXONOMY("by peptide taxonomy");
+		
+		private String name;
+
+		/**
+		 * Constructs a meta-protein generation rule using the specified name string.
+		 * @param name the name of the rule
+		 */
+		private MetaProteinRule(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public String toString() {
+			return this.name;
+		}
+	}
 
 	/**
 	 * Combines meta-proteins contained in the specified list of single-protein 

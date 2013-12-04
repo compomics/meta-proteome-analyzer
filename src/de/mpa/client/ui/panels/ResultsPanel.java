@@ -95,14 +95,16 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.plastic.PlasticButtonUI;
 
 import de.mpa.analysis.KeggAccessor;
-import de.mpa.analysis.MetaProteinFactory;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
@@ -127,6 +129,7 @@ import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
+import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.taxonomy.TaxonomyUtils;
 
@@ -460,6 +463,15 @@ public class ResultsPanel extends JPanel implements Busyable {
 		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
 		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
 		settingsBtn.setPreferredSize(new Dimension(23, 23));
+		
+		settingsBtn.addActionListener(new ActionListener() {
+			private ParameterMap resultParams = new ResultParameters();
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				// TODO: move parameter map elsewhere and make use of its settings
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Result Fetching settings", true, this.resultParams);
+			}
+		});
 
 		fetchRemoteBtn = new JButton(
 				"<html><center>Fetch Results<br>from DB</center></html>",
