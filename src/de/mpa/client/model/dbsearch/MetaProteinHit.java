@@ -6,6 +6,7 @@ import java.util.Set;
 
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.taxonomy.Taxonomic;
 
 /**
  * Wrapper class for meta-proteins.
@@ -87,6 +88,11 @@ public class MetaProteinHit extends ProteinHit {
 	// TODO: unused method, remove?
 	public boolean isEmpty() {
 		return phl.isEmpty();
+	}
+	
+	@Override
+	public List<? extends Taxonomic> getTaxonomicChildren() {
+		return this.getProteinHits();
 	}
 	
 	@Override

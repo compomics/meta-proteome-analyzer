@@ -227,16 +227,6 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		return proteinHits;
 	}
 
-	@Override
-	public TaxonomyNode getTaxonomyNode() {
-		return taxonNode;
-	}
-
-	@Override
-	public void setTaxonomyNode(TaxonomyNode taxonNode) {
-		this.taxonNode = taxonNode;
-	}
-
 	/**
 	 * Returns whether this peptide hit is selected for exporting. 
 	 * @return <code>true</code> if peptide is selected for export, 
@@ -253,6 +243,21 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+	}
+
+	@Override
+	public TaxonomyNode getTaxonomyNode() {
+		return taxonNode;
+	}
+
+	@Override
+	public void setTaxonomyNode(TaxonomyNode taxonNode) {
+		this.taxonNode = taxonNode;
+	}
+
+	@Override
+	public List<? extends Taxonomic> getTaxonomicChildren() {
+		return this.getSpectrumMatches();
 	}
 
 	@Override
@@ -289,4 +294,5 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		}
 		return res;
 	}
+	
 }

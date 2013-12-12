@@ -456,16 +456,16 @@ public class DBSearchPanel extends JPanel {
 	}
 	
 	/**
-	 * Returns the MASCOT parameter map.
-	 * @return ParameterMap for MASCOT
+	 * Returns the Inspect parameter map.
+	 * @return ParameterMap for Inspect
 	 */
 	public ParameterMap getInspectParameterMap() {
 		return inspectParams;
 	}
 	
 	/**
-	 * Returns the X!Tandem paramter map.
-	 * @return ParameterMap for X!Tandem.
+	 * Returns the MASCOT parameter map.
+	 * @return ParameterMap for MASCOT.
 	 */
 	public ParameterMap getMascotParameterMap() {
 		return mascotParams;

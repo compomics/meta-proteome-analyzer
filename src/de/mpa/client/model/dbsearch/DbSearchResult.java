@@ -47,14 +47,14 @@ public class DbSearchResult implements Serializable {
 	private List<String> searchEngines;
 
 	/**
-	 * The number of retrieved protein hits from the searches.
-	 */
-	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
-	
-	/**
 	 * The list of meta-proteins.
 	 */
 	private ProteinHitList metaProteins = new ProteinHitList();
+	
+	/**
+	 * The number of retrieved protein hits from the searches.
+	 */
+	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 
 	/**
 	 * Map containing search spectrum id-to-TIC pairs
@@ -74,7 +74,7 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * No of unique peptides
 	 */
-	private int uniquePeptides;
+	private int distinctPeptides = 0;
 
 	/**
 	 * Constructs a result object from the specified project title, experiment
@@ -107,7 +107,7 @@ public class DbSearchResult implements Serializable {
 		ProteinHit currentProteinHit = proteinHits.get(accession);
 		// Find current peptide hit, ideally inside current protein hit
 		PeptideHit currentPeptideHit = 
-			findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
+			this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
 
 		// Check if protein hit is already in the protein hit set.
 		if (currentProteinHit != null) {
@@ -234,6 +234,14 @@ public class DbSearchResult implements Serializable {
 	 */
 	public boolean isEmpty() {
 		return proteinHits.isEmpty();
+	}
+
+	/**
+	 * Returns the list of metaproteins containing grouped protein hits.
+	 * @return the list of metaproteins.
+	 */
+	public ProteinHitList getMetaProteins() {
+		return metaProteins;
 	}
 
 	/**
@@ -377,15 +385,18 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * @return the uniquePeptides
 	 */
-	public int getUniquePeptideCount() {
-		return uniquePeptides;
+	public int getDistinctPeptideCount() {
+		if (this.distinctPeptides == 0) {
+			this.setDistinctPeptideCount(this.getMetaProteins().getPeptideSet().size());
+		}
+		return this.distinctPeptides;
 	}
 
 	/**
 	 * @param uniquePeptides the uniquePeptides to set
 	 */
 	public void setDistinctPeptideCount(int uniquePeptides) {
-		this.uniquePeptides = uniquePeptides;
+		this.distinctPeptides = uniquePeptides;
 	}
 
 	@Override
@@ -395,16 +406,9 @@ public class DbSearchResult implements Serializable {
 			DbSearchResult that = (DbSearchResult) obj;
 			result = this.getProjectTitle().equals(that.getProjectTitle())
 					&& this.getExperimentTitle().equals(that.getExperimentTitle());
+			// TODO: maybe move MetaProteinParams to DbSearchResult class and use them in equals comparison
 		}
 		return result;
-	}
-
-	/**
-	 * Returns the list of metaproteins containing grouped protein hits.
-	 * @return the list of metaproteins.
-	 */
-	public ProteinHitList getMetaProteins() {
-		return metaProteins;
 	}
 	
 }

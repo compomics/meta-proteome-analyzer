@@ -75,8 +75,6 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
-import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
@@ -405,11 +403,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 		settingsBtn.setPreferredSize(new Dimension(23, 23));
 		
 		settingsBtn.addActionListener(new ActionListener() {
-			private ParameterMap resultParams = new ResultParameters();
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				// TODO: move parameter map elsewhere and make use of its settings
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Result Fetching settings", true, this.resultParams);
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Result Fetching settings", true, Client.getInstance().getMetaProteinParameters());
 			}
 		});
 
@@ -1049,13 +1045,13 @@ public class ResultsPanel extends JPanel implements Busyable {
 		
 		@Override
 		protected Integer doInBackground() {
+			Client client = Client.getInstance();
 			try {
 				// Begin appearing busy
 				ResultsPanel.this.setBusy(true);
 				ResultsPanel.this.dbPnl.setBusy(true);
 				ResultsPanel.this.gdbPnl.setBusy(true);
 	
-				Client client = Client.getInstance();
 				ClientFrame clientFrame = ClientFrame.getInstance();
 				DbSearchResult newResult;
 
@@ -1064,7 +1060,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 					newResult = client.getDatabaseSearchResult(
 							clientFrame.getProjectPanel().getCurrentProjectContent(), 
 							clientFrame.getProjectPanel().getCurrentExperimentContent());
-									
 				} else {
 					client.firePropertyChange("new message", null, "READING RESULTS FILE");
 					client.firePropertyChange("resetall", 0L, 100L);
@@ -1084,43 +1079,42 @@ public class ResultsPanel extends JPanel implements Busyable {
 	
 						// Get various hit lists from result object
 						ProteinHitList metaProteins = newResult.getMetaProteins();
-						ProteinHitList proteinList = (ProteinHitList) newResult.getProteinHitList();
-						Set<PeptideHit> peptideSet = proteinList.getPeptideSet();	// all distinct peptides
+						List<ProteinHit> proteinList = newResult.getProteinHitList();
+						Set<PeptideHit> peptideSet = ((ProteinHitList) proteinList).getPeptideSet();	// all distinct peptides
 	
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-						Client.getInstance().firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+						client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
+						client.firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
+						client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 	
 						// Define common peptide taxonomy for each peptide
 						TaxonomyUtils.determinePeptideTaxonomy(peptideSet);
 						
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
+						client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 	
 						// Determine protein taxonomy
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) proteinList.size());
+						client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
+						client.firePropertyChange("resetcur", -1L, (long) proteinList.size());
 	
 						// Define protein taxonomy by common tax ID of peptides
-						TaxonomyUtils.determineProteinTaxonomy(proteinList);
+						TaxonomyUtils.determineProteinTaxonomy(proteinList, client.getMetaProteinParameters());
 						
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+						client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
 	
-						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+						client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+						client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
 	
 						// Combine proteins to metaproteins
-						// TODO: configure leucine/isoleucine merging parameter
-						MetaProteinFactory.condenseMetaProteins(metaProteins, false);
+						MetaProteinFactory.condenseMetaProteins(metaProteins, client.getMetaProteinParameters());
 	
-						Client.getInstance().firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+						client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
 	
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
-						Client.getInstance().firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+						client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
+						client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
 						
 						// Determine meta-protein taxonomy
-						MetaProteinFactory.determineMetaProteinTaxonomy(metaProteins);
+						TaxonomyUtils.determineMetaProteinTaxonomy(metaProteins, client.getMetaProteinParameters());
 						
-						Client.getInstance().firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
+						client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
 					}
 					
 					// Update result object reference
@@ -1139,8 +1133,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				Client.getInstance().firePropertyChange("new message", null, "FAILED");
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
+				client.firePropertyChange("new message", null, "FAILED");
+				client.firePropertyChange("indeterminate", true, false);
 	
 			}
 			return 0;
@@ -1214,7 +1208,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
 			identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
 			totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
-			distPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+			distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
 			totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
 			metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 			speciesLbl.setText("" + speciesNames.size());

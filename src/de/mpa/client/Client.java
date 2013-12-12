@@ -43,6 +43,8 @@ import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
+import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.MetaProteinParameters;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -99,9 +101,14 @@ public class Client {
 	 * Webservice/server connection settings.
 	 */
 	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
+	
+	/**
+	 * Parameter map containing result fetching-related settings.
+	 */
+	private ParameterMap metaProtParams = new MetaProteinParameters();
 
 	/**
-	 *  Property change support for notifying the GUI about new messages.
+	 * Property change support for notifying the GUI about new messages.
 	 */
 	private PropertyChangeSupport pSupport;
 	
@@ -394,7 +401,7 @@ public class Client {
 	 */
 	public DbSearchResult getDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		if (dbSearchResult == null) {
-			retrieveDatabaseSearchResult(projContent, expContent);
+			this.retrieveDatabaseSearchResult(projContent, expContent);
 		}
 		return dbSearchResult;
 	}
@@ -435,7 +442,6 @@ public class Client {
 //			dbSearchResult.setTotalIonCurrentMap(Searchspectrum.getTICsByExperimentID(experimentID, conn));
 			
 			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
-			Set<String> peptideSequences = new TreeSet<String>();
 			int totalPeptides = 0;
 
 			long maxProgress = searchHits.size();
@@ -448,11 +454,9 @@ public class Client {
 				this.addProteinSearchHit(searchHit);
 
 				searchSpectrumIDs.add(searchHit.getFk_searchspectrumid());
-				String pepSeq = searchHit.getSequence();
 //				if (!pepSeq.matches("^[A-Z]*$")) {
 //					modifiedPeptides++;
 //				}
-				peptideSequences.add(pepSeq);
 				firePropertyChange("progress", 0L, ++curProgress);
 			}
 			for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
@@ -461,7 +465,6 @@ public class Client {
 
 			dbSearchResult.setIdentifiedSpectrumCount(searchSpectrumIDs.size());
 			dbSearchResult.setTotalPeptideCount(totalPeptides);
-			dbSearchResult.setDistinctPeptideCount(peptideSequences.size());
 			
 			// TODO: ADD search engine from runtable
 			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] { "Crux", "Inspect", "Xtandem","OMSSA" }));
@@ -507,7 +510,10 @@ public class Client {
 		TaxonomyNode taxonomyNode = null;
 		if (uniprotEntryAccessor != null) {
 			long taxID = uniprotEntryAccessor.getTaxid();
-			uniprotEntry = new ReducedUniProtEntry(taxID, uniprotEntryAccessor.getKeywords(), uniprotEntryAccessor.getEcnumber(), uniprotEntryAccessor.getKonumber());
+			uniprotEntry = new ReducedUniProtEntry(taxID,
+					uniprotEntryAccessor.getKeywords(),
+					uniprotEntryAccessor.getEcnumber(),
+					uniprotEntryAccessor.getKonumber());
 			
 			// Get taxonomy node.
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);
@@ -520,7 +526,9 @@ public class Client {
 		}
 		
 		// Add a new protein to the protein hit set.
-		dbSearchResult.addProtein(new ProteinHit(protein.getAccession(), protein.getDescription(), protein.getSequence(), peptideHit, uniprotEntry, taxonomyNode));
+		dbSearchResult.addProtein(new ProteinHit(
+				protein.getAccession(), protein.getDescription(), protein.getSequence(),
+				peptideHit, uniprotEntry, taxonomyNode));
 	}
 
 	/**
@@ -831,6 +839,14 @@ public class Client {
 	 */
 	public void setServerConnectionSettings(ServerConnectionSettings srvSettings) {
 		this.srvSettings = srvSettings;
+	}
+	
+	/**
+	 * Returns the parameter map containing result fetching-related settings.
+	 * @return the result parameters
+	 */
+	public ParameterMap getMetaProteinParameters() {
+		return this.metaProtParams;
 	}
 
 	/**

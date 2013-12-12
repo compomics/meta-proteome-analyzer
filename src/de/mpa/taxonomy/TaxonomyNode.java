@@ -184,6 +184,11 @@ public class TaxonomyNode implements Serializable {
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.getId();
+	}
 
 	@Override
 	public String toString() {

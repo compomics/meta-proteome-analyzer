@@ -1,5 +1,7 @@
 package de.mpa.taxonomy;
 
+import java.util.List;
+
 /**
  * Interface to enforce taxonomic getter and setter methods.
  * 
@@ -18,5 +20,11 @@ public interface Taxonomic {
 	 * @param taxNode the taxonomy node to set
 	 */
 	public void setTaxonomyNode(TaxonomyNode taxonNode);
+	
+	/**
+	 * Returns the list of child taxonomic instances.
+	 * @return the children
+	 */
+	public List<? extends Taxonomic> getTaxonomicChildren();
 	
 }
