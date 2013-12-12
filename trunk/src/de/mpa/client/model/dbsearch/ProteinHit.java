@@ -502,6 +502,11 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	public void setTaxonomyNode(TaxonomyNode taxonNode) {
 		this.taxonomyNode = taxonNode;
 	}
+
+	@Override
+	public List<? extends Taxonomic> getTaxonomicChildren() {
+		return this.getPeptideHitList();
+	}
 	
 	@Override
 	public String toString() {

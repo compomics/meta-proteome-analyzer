@@ -3,6 +3,7 @@ package de.mpa.client.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import de.mpa.client.model.dbsearch.Hit;
@@ -156,7 +157,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return the peptide hits
 	 */
 	public Collection<PeptideHit> getPeptideHits() {
-		return peptideHits;
+		return this.peptideHits;
 	}
 	
 	/**
@@ -169,7 +170,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
-		return taxonNode;
+		return this.taxonNode;
 	}
 
 	@Override
@@ -178,8 +179,13 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	}
 	
 	@Override
+	public List<? extends Taxonomic> getTaxonomicChildren() {
+		return null;
+	}
+
+	@Override
 	public String toString() {
-		return "[ssID = " + searchSpectrumID + "]"; 
+		return "[ssID = " + this.searchSpectrumID + "]"; 
 	}
 	
 	@Override

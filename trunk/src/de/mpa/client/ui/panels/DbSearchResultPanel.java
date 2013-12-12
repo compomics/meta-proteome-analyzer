@@ -2930,15 +2930,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (doInclude) {
 					// Create default values for meta-ProteinHit;
 					String metaDesc 	= "";
-//					double metaSC		= 0.0;
-//					double metaIdentity = 100.0;
-//					double metaMW		= 0.0;
-//					double metaPI		= 0.0;
-//					double metaEmPai	= 0.0;
-//					double metaNsaf     = 0.0;
 
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
-					for (ProteinHit proteinHit : ((MetaProteinHit) metaProtein)	.getProteinHits()) {
+					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHits();
+					for (ProteinHit proteinHit : proteinHits) {
 						metaProtein.setUniprotEntry(proteinHit.getUniProtEntry());
 
 						// Calculate NSAF
@@ -2961,7 +2956,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						if (!Client.getInstance().isViewer()) { 
 							TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
 							for (PeptideHit peptideHit : proteinHit	.getPeptideHitList()) {
-								commonAncestorNode = TaxonomyUtils.getCommonTaxonomyNode(commonAncestorNode, peptideHit.getTaxonomyNode());
+								commonAncestorNode = TaxonomyUtils.getCombinedTaxonomyNode(commonAncestorNode, peptideHit.getTaxonomyNode(),(Boolean) Client.getInstance().getMetaProteinParameters().get("ProteinTaxonomy").getValue());
 							}
 							// TODO: do we really still need the species string? calculating common taxonomy here seems redundant
 							proteinHit.setCommonTaxonomyNode(commonAncestorNode.toString());
@@ -2986,15 +2981,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 						// Update MetaproteinHit
 						metaDesc = proteinHit.getDescription();
-//						metaSC = Math.max(metaSC, proteinHit.getCoverage());
-//						metaIdentity = Math.min(metaIdentity,
-//								proteinHit.getIdentity());
-//						metaMW = metaMW + proteinHit.getMolecularWeight()
-//								/ metaProteins.size();
-//						metaPI = metaPI + proteinHit.getIsoelectricPoint()
-//								/ metaProteins.size();
-//						metaEmPai = Math.max(metaEmPai, proteinHit.getEmPAI());
-//						metaNsaf = Math.max(metaNsaf, proteinHit.getNSAF());
 						
 						metaProtein.addPeptideHits(proteinHit.getPeptideHits());	// this should probably happen elsewhere, e.g. in condenseMetaProteins()
 
@@ -3037,7 +3023,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						TaxonomyNode firstNode = metaProtein.getPeptideHitList().get(0).getTaxonomyNode();
 						for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
 							TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
-							firstNode = TaxonomyUtils.getCommonTaxonomyNode(firstNode,taxonNode);
+							
+							firstNode = TaxonomyUtils.getCombinedTaxonomyNode(firstNode, taxonNode, ((Boolean) Client.getInstance().getMetaProteinParameters().get("MetaproteinTaxonomy").getValue()));
 						}
 						metaProtein.setCommonTaxonomyNode(firstNode.getName() + " (" + firstNode.getRank() +")");
 					}
@@ -3146,21 +3133,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						((TableColumnExt2) tcm.getColumn(i)).aggregate();
 					}
 
-//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(4))).getHighlighters()[0];
-//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxCoverage)));
-//					highlighter.setRange(0.0, maxCoverage);
-//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(7))).getHighlighters()[0];
-//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxPeptideCount)));
-//					highlighter.setRange(0.0, maxPeptideCount);
-//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(8))).getHighlighters()[0];
-//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
-//					highlighter.setRange(0.0, maxSpecCount);
-//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(9))).getHighlighters()[0];
-//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(max_emPAI)));
-//					highlighter.setRange(min_emPAI, max_emPAI);
-//					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(table.convertColumnIndexToView(10))).getHighlighters()[0];
-//					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxNSAF)));
-//					highlighter.setRange(0.0, maxNSAF);
 				}
 			}
 

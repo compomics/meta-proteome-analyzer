@@ -216,14 +216,14 @@ public class GeneralDialog extends JDialog {
 		propNameTtf.getDocument().addDocumentListener(new DocumentListener() {
 			public void removeUpdate(DocumentEvent evt) { updateModifyButtons(); }
 			public void insertUpdate(DocumentEvent evt) { updateModifyButtons(); }
-			public void changedUpdate(DocumentEvent evt) { System.out.println(evt); }
+			public void changedUpdate(DocumentEvent evt) { }
 		});
 		
 		propValueTtf = new JTextField();
 		propValueTtf.getDocument().addDocumentListener(new DocumentListener() {
 			public void removeUpdate(DocumentEvent evt) { updateModifyButtons(); }
 			public void insertUpdate(DocumentEvent evt) { updateModifyButtons(); }
-			public void changedUpdate(DocumentEvent evt) { System.out.println(evt); }
+			public void changedUpdate(DocumentEvent evt) { }
 		});
 		
 		// Button to add property 
