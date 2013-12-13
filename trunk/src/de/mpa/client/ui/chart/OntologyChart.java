@@ -1,8 +1,6 @@
 package de.mpa.client.ui.chart;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -13,7 +11,6 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 
 /**
  * Chart implementation to create pie or bar charts of protein ontology data.
@@ -45,12 +42,12 @@ public class OntologyChart extends Chart {
 		
 		private String title;
 		private KeywordOntology ontology;
-		private Map<String, ProteinHitList> occMap;
+//		private Map<String, ProteinHitList> occMap;
 		
 		private OntologyChartType(KeywordOntology ontology) {
 			this.title = ontology.toString();
 			this.ontology = ontology;
-			this.occMap = new HashMap<String, ProteinHitList>();
+//			this.occMap = new HashMap<String, ProteinHitList>();
 		}
 		@Override
 		public String toString() {
@@ -66,9 +63,9 @@ public class OntologyChart extends Chart {
 			return this.ontology;
 		}
 		
-		public Map<String, ProteinHitList> getOccurrenceMap() {
-			return this.occMap;
-		}
+//		public Map<String, ProteinHitList> getOccurrenceMap() {
+//			return this.occMap;
+//		}
 	}
 		
 	/**
@@ -102,7 +99,7 @@ public class OntologyChart extends Chart {
         piePlot.setBackgroundPaint(null);
         piePlot.setOutlineVisible(false);
 		piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator(
-				"{0}\n{1}\n({2})", new DecimalFormat("0"), new DecimalFormat("0.00%")));
+				"{0}\n{1} ({2})", new DecimalFormat("0"), new DecimalFormat("0.00%")));
 		
 		Plot plot = piePlot;
 		if (!((OntologyData) data).getShowAsPie()) {

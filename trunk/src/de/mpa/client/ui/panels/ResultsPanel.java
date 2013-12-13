@@ -71,6 +71,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
@@ -405,7 +406,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 		settingsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Result Fetching settings", true, Client.getInstance().getMetaProteinParameters());
+				AdvancedSettingsDialog.showDialog(
+						ClientFrame.getInstance(),
+						"Result Fetching settings",
+						true, Client.getInstance().getMetaProteinParameters());
 			}
 		});
 
@@ -622,7 +626,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					// abort (shouldn't happen, actually)
 					return;
 				}
-				ResultsPanel.this.updateChart(chartType);
+				ResultsPanel.this.updateChart();
 			}
 		};
 
@@ -681,7 +685,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					ontologyData.setHierarchyLevel(hl);
 					taxonomyData.setHierarchyLevel(hl);
 
-					updateChart(chartType);
+					updateChart();
 					updateDetailsTable("");
 				} else if ("hideUnknown".equals(property)) {
 					boolean doHide = (Boolean) value;
@@ -713,7 +717,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 //							catPlot.setDataset(dataset);
 //						}
 //					}
-					updateChart(chartType);
+					updateChart();
 					updateDetailsTable("");
 				} else if ("selection".equals(property)) {
 					updateDetailsTable((Comparable) value);
@@ -835,24 +839,32 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * collection and which is identified by the specified key.
 	 * @param key the key by which the proteins are identified
 	 */
-	protected void updateDetailsTable(Comparable key) {
+	private void updateDetailsTable(Comparable key) {
 		if ("".equals(key)) {
 			TableConfig.clearTable(detailsTbl);
 		} else {
 			DefaultTableModel detailsTblMdl = 
 					(DefaultTableModel) detailsTbl.getModel();
+			// clear details table
 			detailsTblMdl.setRowCount(0);
 			List<ProteinHit> proteinHits = null;
-			if (chartType instanceof OntologyChartType) {
+			if (this.chartType instanceof OntologyChartType) {
 				proteinHits = ontologyData.getProteinHits((String) key);
-			} else if (chartType instanceof TaxonomyChartType) {
+			} else if (this.chartType instanceof TaxonomyChartType) {
 				proteinHits = taxonomyData.getProteinHits((String) key);
-			} else if (chartType instanceof TopBarChartType) {
+			} else if (this.chartType instanceof TopBarChartType) {
 				proteinHits = topData.getProteinHits(null);
 			}
 			if (proteinHits != null) {
 				int i = 1;
 				for (ProteinHit proteinHit : proteinHits) {
+					if (proteinHit instanceof MetaProteinHit) {
+						MetaProteinHit metaProteinHit = (MetaProteinHit) proteinHit;
+						ProteinHitList proteinHitList = metaProteinHit.getProteinHits();
+						if (proteinHitList.size() == 1) {
+							proteinHit = proteinHitList.get(0);
+						}
+					}
 					detailsTblMdl.addRow(new Object[] {
 							i++, proteinHit.getAccession(),
 							proteinHit.getDescription() });
@@ -906,6 +918,13 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		return resizeBtn;
 	}
+	
+	/**
+	 * Refreshes the chart using the current chart type.
+	 */
+	private void updateChart() {
+		this.updateChart(this.chartType);
+	}
 
 	/**
 	 * Refreshes the chart updating its content reflecting the specified chart
@@ -947,7 +966,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Refreshes the overview panel by updating the charts, tables and labels
 	 * containing the various experiment statistics.
 	 */
-	protected void updateOverview() {
+	private void updateOverview() {
 		new UpdateOverviewTask().execute();
 	}
 	
@@ -1087,7 +1106,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 						client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 	
 						// Define common peptide taxonomy for each peptide
-						TaxonomyUtils.determinePeptideTaxonomy(peptideSet);
+						TaxonomyUtils.determinePeptideTaxonomy(peptideSet, client.getMetaProteinParameters());
 						
 						client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 	
@@ -1229,8 +1248,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// FIXME: Is this histogram really necessary?
 //			histogramData = new HistogramData(dbSearchResult, 40);
 
-			// Refresh chart panel showing default ontology pie chart
-			updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+//			// Refresh chart panel showing default ontology pie chart
+//			updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
+			// Refresh chart panel
+			updateChart(chartType);
 			// Refresh heat map
 			heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
 			

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -121,55 +122,35 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @param paths The new paths to add to the current selection
 	 */
 	public void addSelectionPaths(List<TreePath> paths) {
-		addSelectionPaths((TreePath[]) paths.toArray(new TreePath[0]));
+		this.addSelectionPaths((TreePath[]) paths.toArray(new TreePath[0]));
 	}
-
-	// TODO: make path addition honor fixed state
+	
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * <i>Can cause lots of events to be fired when adjusting selections. Fires
+	 * an additional dummy event with a <code>null</code> path to notify of
+	 * top-level processing being finished.
+	 */
 	@Override
     public void addSelectionPaths(TreePath[] paths) {
         // deselect all descendants of added paths
         for (int i = 0; i < paths.length; i++) {
             TreePath path = paths[i];
-            TreePath[] selectionPaths = getSelectionPaths();
+            TreePath[] selectionPaths = this.getSelectionPaths();
             if (selectionPaths == null) {
                 break;
             }
             ArrayList<TreePath> toBeRemoved = new ArrayList<TreePath>();
             for (int j = 0; j < selectionPaths.length; j++) {
-                if (isDescendant(selectionPaths[j], path)) {
-                	if (!isPathFixed(path)) {
+                if (this.isDescendant(selectionPaths[j], path)) {
+                	if (!this.isPathFixed(path)) {
                         toBeRemoved.add(selectionPaths[j]);
                 	}
                 }
             }
             super.removeSelectionPaths((TreePath[]) toBeRemoved.toArray(new TreePath[0]));
         }
-
-//        // if all siblings are selected then deselect them and select parent recursively
-//        // otherwise just select that path.
-//        for (int i = 0; i < paths.length; i++) {
-//            TreePath path = paths[i];
-//            TreePath temp = null;
-//            while (areSiblingsSelected(path)) {
-//                temp = path;
-//                if (path.getParentPath() == null) {
-//                    break;
-//                }
-//                path = path.getParentPath();
-//            }
-//            if (temp != null) {
-//            	// some parent has been determined
-//                if (temp.getParentPath() != null) {
-//                    super.addSelectionPath(temp.getParentPath());
-//                } else {
-//                	// root is about to be added, clear whole selection first
-//                	clearSelection();
-//					super.addSelectionPaths(new TreePath[] { temp });
-//                }
-//            } else {
-//				super.addSelectionPaths(new TreePath[] { path });
-//            }
-//        }
 
         // add each path
         TreePath path = null;
@@ -193,12 +174,16 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
                 super.addSelectionPath(temp.getParentPath());
             } else {
             	// root is about to be added, clear whole selection first
-            	clearSelection();
+            	this.clearSelection();
 				super.addSelectionPaths(new TreePath[] { temp });
             }
 //        } else {
 //			super.addSelectionPaths(new TreePath[] { path });
         }
+        
+		// super calls can create a lot of event spam, therefore fire a final
+		// dummy event to notify that top-level processing is done
+        this.fireValueChanged(new TreeSelectionEvent(this, null, true, null, null));
     }
 
     /**
@@ -228,16 +213,29 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * <i>Can cause lots of events to be fired when adjusting selections. Fires
+	 * an additional dummy event with a <code>null</code> path to notify of
+	 * top-level processing being finished.
+	 */
     @Override
 	public void removeSelectionPaths(TreePath[] paths) {
 		for (int i = 0; i < paths.length; i++) {
 			TreePath path = paths[i];
-			if ((path.getPathCount() == 1) && !isPathFixed(path)) {
+			if ((path.getPathCount() == 1) && !this.isPathFixed(path)) {
+				// remove single non-fixed sub-path
 				super.removeSelectionPaths(new TreePath[] { path });
 			} else {
-				toggleRemoveSelection(path);
+				// remove target selection while adding all siblings
+				this.toggleRemoveSelection(path);
 			}
 		}
+		
+		// super calls can create a lot of event spam, therefore fire a final
+		// dummy event to notify that top-level processing is done
+        this.fireValueChanged(new TreeSelectionEvent(this, null, true, null, null));
 	}
     
     /**
@@ -250,18 +248,18 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
         // otherwise just deselect the given path 
 		Stack<TreePath> stack = new Stack<TreePath>();
 		TreePath parent = path.getParentPath();
-		while ((parent != null) && (!isPathSelected(parent))) {
+		while ((parent != null) && (!this.isPathSelected(parent))) {
 			stack.push(parent);
 			parent = parent.getParentPath();
 		}
 		if (parent != null)
 			stack.push(parent);
 		else {
-			if (!isPathFixed(path, true)) {
+			if (!this.isPathFixed(path, true)) {
 				super.removeSelectionPaths(new TreePath[] { path });
 			} else {
 				// iterate descendants and remove only non-fixed ones
-				ArrayList<TreePath> toBeKept = getFixedDescendants(path);
+				List<TreePath> toBeKept = this.getFixedDescendants(path);
 				super.removeSelectionPaths(new TreePath[] { path });
 				super.addSelectionPaths((TreePath[]) toBeKept.toArray(new TreePath[0]));
 			}
@@ -329,8 +327,8 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @param path The path to be examined.
 	 * @return ArrayList of fixed TreePaths
 	 */
-	private ArrayList<TreePath> getFixedDescendants(TreePath path) {
-		ArrayList<TreePath> fixedDesc = new ArrayList<TreePath>();
+	private List<TreePath> getFixedDescendants(TreePath path) {
+		List<TreePath> fixedDesc = new ArrayList<TreePath>();
 		Object node = path.getLastPathComponent();
 		if (!((CheckBoxTreeTableNode) node).isFixed()) {
 			int childCount = model.getChildCount(node);
@@ -343,4 +341,5 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		}
 		return fixedDesc;
 	}
+	
 }

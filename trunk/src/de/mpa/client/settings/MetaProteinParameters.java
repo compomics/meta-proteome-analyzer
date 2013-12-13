@@ -8,6 +8,7 @@ import javax.swing.DefaultComboBoxModel;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
+import de.mpa.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 
 /**
  * Class for storing search result fetching-specific parameters.
@@ -25,12 +26,29 @@ public class MetaProteinParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
-		this.put("distinguishIL", new Parameter("Consider Leucine and Isoleucine Distinct", true, "Meta-Protein Generation", "Consider peptides that differ only in Leucine/Isoleucine residues as distinct."));
-		this.put("proteinClusterRule", new Parameter("Protein Cluster Rule", new DefaultComboBoxModel(ClusterRule.values()), "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins to the protein cluster."));
-		this.put("peptideRule", new Parameter("Peptide Rule", new DefaultComboBoxModel(PeptideRule.values()), "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to shared peptides."));
-		this.put("taxonomyRule", new Parameter("Taxonomy Rule", new DefaultComboBoxModel(TaxonomyRule.values()), "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to common taxonomy."));
-		this.put("ProteinTaxonomy", new Parameter("Protein taxonomy based on most specific peptide taxonomy", true, "Taxonomy Definition", "TRUE: Protein taxonomy is the taxonomy of the most specific peptide. FALSE:Protein taxonomy of the common ancestor taxonomy of all peptides."));
-		this.put("MetaproteinTaxonomy", new Parameter("Metaprotein taxonomy based on most specific protein taxonomy", true, "Taxonomy Definition", "TRUE: Metaprotein taxonomy is the taxonomy of the most specific protein. FALSE:Metaprotein taxonomy of the common ancestor taxonomy of all proteins."));
+		// taxonomy definition rules
+		DefaultComboBoxModel pepToProtTaxMdl = new DefaultComboBoxModel(TaxonomyDefinition.values());
+		pepToProtTaxMdl.setSelectedItem(TaxonomyDefinition.COMMON_ANCESTOR);
+		this.put("proteinTaxonomy", new Parameter("Peptide-to-Protein Taxonomy", pepToProtTaxMdl, "Taxonomy Definition", "Choose the rule by which proteins receive their common taxonomy from their peptides"));
+
+		DefaultComboBoxModel protToMetaTaxMdl = new DefaultComboBoxModel(TaxonomyDefinition.values());
+		protToMetaTaxMdl.setSelectedItem(TaxonomyDefinition.COMMON_ANCESTOR);
+		this.put("metaProteinTaxonomy", new Parameter("Protein-to-Meta-Protein Taxonomy", protToMetaTaxMdl, "Taxonomy Definition", "Choose the rule by which meta-proteins receive their common taxonomy from their proteins"));
+		
+		// meta-protein generation rules
+		this.put("distinguishIL", new Parameter("Consider Leucine and Isoleucine Distinct", true, "Meta-Protein Generation", "Consider peptides that differ only in Leucine/Isoleucine residues as distinct"));
+		
+		DefaultComboBoxModel clusterMdl = new DefaultComboBoxModel(ClusterRule.values());
+		clusterMdl.setSelectedItem(ClusterRule.ALWAYS);
+		this.put("proteinClusterRule", new Parameter("Protein Cluster Rule", clusterMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins to the protein cluster"));
+		
+		DefaultComboBoxModel peptideMdl = new DefaultComboBoxModel(PeptideRule.values());
+		peptideMdl.setSelectedItem(PeptideRule.PEPTIDE_SUBSET);
+		this.put("peptideRule", new Parameter("Peptide Rule", peptideMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to shared peptides"));
+		
+		DefaultComboBoxModel taxonomyMdl = new DefaultComboBoxModel(TaxonomyRule.values());
+		taxonomyMdl.setSelectedItem(TaxonomyRule.ALWAYS);
+		this.put("taxonomyRule", new Parameter("Taxonomy Rule", taxonomyMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to common taxonomy"));
 	}
 
 	@Override

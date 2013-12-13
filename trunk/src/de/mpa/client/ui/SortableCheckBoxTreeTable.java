@@ -369,6 +369,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 					// Create checkbox widget for hierarchical column header
 					JComponent comp = null;
 					if (columnExt.getModelIndex() == 0) {
+						
 						JCheckBox selChk = new TriStateCheckBox() {
 							/** The tree table reference. */
 							private JXTreeTable treeTbl = (JXTreeTable) table;
@@ -396,7 +397,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 												treeTbl.getTreeTableModel().getRoot());
 										TreeSelectionModel cbtsm =
 												((CheckBoxTreeTable) treeTbl).getCheckBoxTreeSelectionModel();
-										if (evt.getPath().equals(rootPath)) {
+										if (rootPath.equals(evt.getPath())) {
 											setSelected(cbtsm.isPathSelected(rootPath));
 										}
 										// repaint hierarchical column header

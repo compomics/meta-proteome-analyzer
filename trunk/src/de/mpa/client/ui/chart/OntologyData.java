@@ -1,5 +1,8 @@
 package de.mpa.client.ui.chart;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,8 +16,10 @@ import org.jfree.util.SortOrder;
 
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
+import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
@@ -29,9 +34,14 @@ import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 public class OntologyData implements ChartData {
 	
 	/**
-	 * The database search result.
+	 * The protein hit list backing this data object.
 	 */
-	private DbSearchResult dbSearchResult;
+	private ProteinHitList data;
+
+	/**
+	 * The collection of keyword-specific occurrence maps.
+	 */
+	private Map<KeywordOntology, Map<String, ProteinHitList>> occMaps;
 	
 	/**
 	 * The chart type.
@@ -88,12 +98,21 @@ public class OntologyData implements ChartData {
 	}
 	
 	/**
-	 * Sets the database search result reference to the specified result and
-	 * refreshes the underlying dataset.
+	 * Sets the data link to the meta-protein list of the specified search
+	 * result object and refreshes the underlying dataset.
 	 * @param dbSearchResult the database search result object
 	 */
 	public void setResult(DbSearchResult dbSearchResult) {
-		this.dbSearchResult = dbSearchResult;
+		this.setData(dbSearchResult.getMetaProteins());
+	}
+	
+	/**
+	 * Sets the data link to the provided protein hit list and refreshes the
+	 * underlying dataset.
+	 * @param data the protein hit list that will back this data object
+	 */
+	public void setData(ProteinHitList data) {
+		this.data = data;
 		this.init();
 	}
 
@@ -104,38 +123,41 @@ public class OntologyData implements ChartData {
 		// Get the ontology map
 		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
 		
+		this.occMaps = new HashMap<KeywordOntology, Map<String, ProteinHitList>>();
+		OntologyChartType[] chartTypes = OntologyChartType.values();
+		List<KeywordOntology> ontologyTypes = new ArrayList<KeywordOntology>();
+		for (OntologyChartType chartType : chartTypes) {
+			ontologyTypes.add(chartType.getOntology());
+		}
+		for (OntologyChartType type : chartTypes) {
+			this.occMaps.put(type.getOntology(), new HashMap<String, ProteinHitList>());
+		}
+		
 		// Go through DB search result object and add taxonomy information to taxanomy maps
-		for (ProteinHit mp : dbSearchResult.getMetaProteins()) {
+		for (ProteinHit mp : this.data) {
 			MetaProteinHit metaProtein = (MetaProteinHit) mp;
 			for (ProteinHit proteinHit : metaProtein.getProteinHits()) {
 				if (proteinHit.isSelected()) {
 					// Get UniProt Entry
-					ReducedUniProtEntry entry = proteinHit.getUniProtEntry();
-					
-					OntologyChartType[] types = OntologyChartType.values();
+					ReducedUniProtEntry rupe = proteinHit.getUniProtEntry();
 					// booleans for ontology types found
-					boolean[] found = new boolean[types.length];
+					boolean[] found = new boolean[ontologyTypes.size()];
 					
 					// Entry must be provided
-					if (entry != null) {
-						List<String> keywords = entry.getKeywords();
+					if (rupe != null) {
+						List<String> keywords = rupe.getKeywords();
 						for (String keyword : keywords) {
 							if (ontologyMap.containsKey(keyword)) {
-								KeywordOntology kwOntology = ontologyMap.get(keyword);
-								for (int i = 0; i < types.length; i++) {
-									OntologyChartType oct = types[i];
-									if (kwOntology.equals(oct.getOntology())) {
-										found[i] = true;
-										this.appendHit(keyword, oct.getOccurrenceMap(), metaProtein);
-									}
-								}
+								KeywordOntology ontology = ontologyMap.get(keyword);
+								found[ontologyTypes.indexOf(ontology)] = true;
+								this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
 							}
 						}
 					}
-					for (int i = 0; i < types.length; i++) {
-						OntologyChartType oct = types[i];
+					for (int i = 0; i < ontologyTypes.size(); i++) {
+						KeywordOntology ontology = ontologyTypes.get(i);
 						if (!found[i]) {
-							this.appendHit("Unknown", oct.getOccurrenceMap(), metaProtein);
+							this.appendHit("Unknown", this.occMaps.get(ontology), metaProtein);
 						}
 					}
 				}
@@ -178,41 +200,27 @@ public class OntologyData implements ChartData {
 			String othersKey = "Others";
 			int othersVal = 0;
 
-			// Add empty "Unknown" category so it always shows up first (to keep colors consistent)
+			// add empty "Unknown" category so it always shows up first (to keep colors consistent)
 			pieDataset.setValue(unknownKey, unknownVal);
 			
-			Map<String, ProteinHitList> occMap = ((OntologyChartType) this.chartType).getOccurrenceMap();
+			// retrieve occurrence map
+			Map<String, ProteinHitList> occMap =
+					this.occMaps.get(((OntologyChartType) this.chartType).getOntology());
+			
 			// remove cached 'Others' category
 			occMap.remove(othersKey);
 			Set<Entry<String, ProteinHitList>> entrySet = occMap.entrySet();
 
-//			double total = 0.0;
-//			for (Entry<String, ProteinHitList> entry : entrySet) {			
-//				total += this.getSizeByHierarchy(entry.getValue(), hierarchyLevel);
-//			}
-			
 			for (Entry<String, ProteinHitList> entry : entrySet) {
 				ProteinHitList metaProteins = entry.getValue();
 				Integer absVal = this.getSizeByHierarchy(metaProteins, hierarchyLevel);
-//				double relVal = absVal / total;
-//				Comparable key;
-//				if (relVal >= this.limit) {
-//					key = entry.getKey();
-//				} else {
-//					key = othersKey;
-//					// add grouped hits to list and store it in map they originate from
-//					// TODO: do this in pre-processing step, e.g. inside init()
-//					others.addAll(metaProteins);
-//					
-//					absVal = getSizeByHierarchy(others, hierarchyLevel);
-//				}
 				Comparable key = entry.getKey();
 				pieDataset.setValue(key, absVal);
 			}
 			
 
 			ProteinHitList others = new ProteinHitList();
-			// Add empty 'Others' category so it always shows up last (to keep colors consistent)
+			// add empty 'Others' category so it always shows up last (to keep colors consistent)
 			pieDataset.setValue(othersKey, othersVal);
 			
 			double total = DatasetUtilities.calculatePieDatasetTotal(pieDataset);
@@ -249,18 +257,6 @@ public class OntologyData implements ChartData {
 				pieDataset.remove(othersKey);
 			}
 
-//			if (!others.isEmpty()) {
-//				occMap.put(othersKey, others);
-//			} else {
-//				occMap.remove(othersKey);
-////				pieDataset.remove(othersKey);
-//			}
-//			
-//			if (hideUnknown) {
-//				pieDataset.setValue(unknownKey, 0);
-////				pieDataset.remove(unknownKey);
-//			}
-			
 			return pieDataset;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -283,13 +279,39 @@ public class OntologyData implements ChartData {
 		switch (hl) {
 		case META_PROTEIN_LEVEL:
 			return mphl.size();
-		case PROTEIN_LEVEL:
+		case PROTEIN_LEVEL: {
 			Set<ProteinHit> proteinSet = mphl.getProteinSet();
-			return proteinSet.size();
-		case PEPTIDE_LEVEL:
-			return mphl.getPeptideSet().size();
-		case SPECTRUM_LEVEL:
-			return mphl.getMatchSet().size();
+			int count = 0;
+			for (ProteinHit prot : proteinSet) {
+				if (prot.isSelected()) {
+					count++;
+				}
+			}
+			return count;
+//			return proteinSet.size();
+		}
+		case PEPTIDE_LEVEL: {
+			Set<ProteinHit> proteinSet = mphl.getProteinSet();
+			Set<PeptideHit> peptideSet = new HashSet<PeptideHit>();
+			for (ProteinHit prot : proteinSet) {
+				if (prot.isSelected()) {
+					peptideSet.addAll(prot.getPeptideHitList());
+				}
+			}
+			return peptideSet.size();
+		}
+		case SPECTRUM_LEVEL: {
+			Set<ProteinHit> proteinSet = mphl.getProteinSet();
+			Set<SpectrumMatch> matchSet = new HashSet<SpectrumMatch>();
+			for (ProteinHit prot : proteinSet) {
+				if (prot.isSelected()) {
+					for (PeptideHit pep : prot.getPeptideHitList()) {
+						matchSet.addAll(pep.getSpectrumMatches());
+					}
+				}
+			}
+			return matchSet.size();
+		}
 		default:
 			return 0;
 		}
@@ -297,7 +319,8 @@ public class OntologyData implements ChartData {
 	
 	@Override
 	public ProteinHitList getProteinHits(String key) {
-		Map<String, ProteinHitList> occMap = ((OntologyChartType) this.chartType).getOccurrenceMap();
+		Map<String, ProteinHitList> occMap =
+				this.occMaps.get(((OntologyChartType) this.chartType).getOntology());
 		if (occMap != null) {
 			ProteinHitList phl = occMap.get(key);
 			if (phl != null) {

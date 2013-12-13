@@ -102,7 +102,7 @@ public class RolloverButtonUI extends PlasticButtonUI {
 	protected void paintButtonPressed(Graphics g, AbstractButton b) {
 		if (b.isContentAreaFilled()) {
 			Dimension size = b.getSize();
-			g.setColor(getSelectColor());
+			g.setColor(this.getSelectColor());
 			g.fillRoundRect(0, 0, size.width, size.height, 5, 5);
 		}
 	}
@@ -156,11 +156,11 @@ public class RolloverButtonUI extends PlasticButtonUI {
 				} else {
 					// inner edges
 					g.setColor(new Color(255, 255, 255, 191));
-					g.fillRect(x + 2, y + 1, w - 4, 1);
-					g.fillRect(x + 1, y + 2, 1, h - 4);
+					g.fillRect(x + 2, y + 1, w - 4, 1); // top
+					g.fillRect(x + 1, y + 2, 1, h - 4); // left
 					g.setColor(new Color(255, 255, 255, 63));
-					g.fillRect(x + 2, y + h - 2, w - 4, 1);
-					g.fillRect(x + w - 2, y + 2, 1, h - 4);
+					g.fillRect(x + 2, y + h - 2, w - 4, 1); // bottom
+					g.fillRect(x + w - 2, y + 2, 1, h - 4); // right
 				}
 			}
 			

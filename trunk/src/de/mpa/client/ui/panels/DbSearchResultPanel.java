@@ -25,6 +25,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URI;
 import java.sql.SQLException;
@@ -32,6 +34,7 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +51,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -127,7 +131,10 @@ import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.PieDataset;
 
 import scala.actors.threadpool.Arrays;
 
@@ -176,6 +183,16 @@ import de.mpa.client.ui.TableConfig.FormatHighlighter;
 import de.mpa.client.ui.TreeTableRowSorter;
 import de.mpa.client.ui.TriStateCheckBox;
 import de.mpa.client.ui.WrapLayout;
+import de.mpa.client.ui.chart.Chart;
+import de.mpa.client.ui.chart.ChartFactory;
+import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
+import de.mpa.client.ui.chart.OntologyData;
+import de.mpa.client.ui.chart.ScrollableChartPanel;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
+import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.TaxonomySelectionDialog;
 import de.mpa.client.ui.icons.IconConstants;
@@ -187,7 +204,6 @@ import de.mpa.main.Parameters;
 import de.mpa.parser.ec.ECEntry;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
-import de.mpa.taxonomy.TaxonomyUtils;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -201,12 +217,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * The client frame instance.
 	 */
 	private ClientFrame clientFrame;
-
+	
 	/**
 	 * The database search result object.
 	 */
 	private DbSearchResult dbSearchResult;
-
+	
 	/**
 	 * Protein table.
 	 */
@@ -238,36 +254,20 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	private double maxX;
 
 	/**
-	 * Multi split pane containing all sub-panels.
+	 * Multi-split pane containing all sub-panels.
 	 */
 	private JXMultiSplitPane split;
 
-	/*
-	 * Toggle buttons for ion annotations in spectrum plot 
+	/**
+	 * Panel containing buttons to select which annotations to display in the
+	 * spectrum viewer.
 	 */
-	private JToggleButton aIonsTgl;
-	private JToggleButton bIonsTgl;
-	private JToggleButton cIonsTgl;
-	private JToggleButton yIonsTgl;
-	private JToggleButton xIonsTgl;
-	private JToggleButton zIonsTgl;
-	private JToggleButton waterLossTgl;
-	private JToggleButton ammoniumLossTgl;
-	private JToggleButton chargeOneTgl;
-	private JToggleButton chargeTwoTgl;
-	private JToggleButton chargeMoreTgl;
-	private JToggleButton precursorTgl;
+	private JPanel specFiltPnl;
 
 	/**
 	 * The currently displayable spectrum annotations.
 	 */
 	private Vector<SpectrumAnnotation> currentAnnotations;
-
-	/*
-	 * Table widget-related variables
-	 */
-	FilterBalloonTip filterTip;
-	protected FilterButton lastSelectedFilterBtn = new FilterButton(0, null,0);
 
 	/**
 	 * The font to be used in table highlighters.
@@ -305,12 +305,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Map linking root node names to their respective tree table
 	 */
 	private Map<String, CheckBoxTreeTable> linkMap = new LinkedHashMap<String, CheckBoxTreeTable>();
-
-	/**
-	 * Flag indicating whether checkbox selections inside tree tables are currently 
-	 * in the middle of being synched programmatically.
-	 */
-	private boolean synching = false;
 
 	/**
 	 * Highlighter predicate.
@@ -421,6 +415,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				RowFilter<Object, Object> taxFilter = new RowFilter<Object, Object>() {
 					@Override
 					public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+						boolean res = true;
 						// extract tree table node from row entry
 						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) entry.getValue(-1);
 						// extract taxonomy node from tree table node
@@ -435,10 +430,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							Object[] path = Constants.concat(new Object[] { "Root of Taxonomic View" }, taxNode.getPath());
 							TreePath taxPath = new TreePath(path);
 							// return whether the constructed path is (partially) selected
-							return (cbtsm.isPathSelected(taxPath, true) || cbtsm.isPartiallySelected(taxPath));
+							res = cbtsm.isPathSelected(taxPath, true) || cbtsm.isPartiallySelected(taxPath);
 						}
-						// fall-back for non-taxonomic nodes (e.g. pathway nodes, E.C. nodes)
-						return true;
+						if (!res) {
+							((ProteinHit) node.getUserObject()).setSelected(false);
+						}
+						return res;
 					}
 				};
 				// TODO: implement taxonomy filtering for 'classic' view
@@ -446,6 +443,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				protTaxonTreeTbl.setRowFilter(taxFilter);
 				protEnzymeTreeTbl.setRowFilter(taxFilter);
 				protPathwayTreeTbl.setRowFilter(taxFilter);
+				
+				synchSelection();
+				updateChartData();
 			}
 		});
 		
@@ -507,8 +507,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		protTtlPnl.setBorder(ttlBorder);
 
 		// Peptide panel
-		final CardLayout cl = new CardLayout();
-		final JPanel peptidePnl = new JPanel(cl);
+		final CardLayout pepCl = new CardLayout();
+		final JPanel peptidePnl = new JPanel(pepCl);
 
 		final JPanel pepTblScpnPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		pepTblScpnPnl.add(peptideTableScpn, CC.xy(2, 2));
@@ -532,7 +532,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		nextBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cl.previous(peptidePnl);
+				pepCl.previous(peptidePnl);
 				Component[] components = peptidePnl.getComponents();
 				for (Component component : components) {
 					if (component.isVisible()) {
@@ -556,8 +556,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		psmTtlPnl.setTitlePainter(ttlPainter);
 		psmTtlPnl.setBorder(ttlBorder);
 
-		// Build the spectrum overview panel
-		JPanel spectrumOverviewPnl = new JPanel(new BorderLayout());
+		// Build the spectrum panel containing annotation filter buttons
+		JPanel spectrumPnl = new JPanel(new BorderLayout());
 
 		JPanel specCont = new JPanel();
 		specCont.setLayout(new BoxLayout(specCont, BoxLayout.LINE_AXIS));
@@ -565,13 +565,98 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		specCont.add(specPnl = FilePanel.createDefaultSpectrumPanel());
 		specCont.setMinimumSize(new Dimension(200, 200));
 
-		spectrumOverviewPnl.add(specCont, BorderLayout.CENTER);
-		spectrumOverviewPnl.add(this.constructSpectrumFilterPanel(), BorderLayout.EAST);
+		spectrumPnl.add(specCont, BorderLayout.CENTER);
+		specFiltPnl = this.constructSpectrumFilterPanel();
+		spectrumPnl.add(specFiltPnl, BorderLayout.EAST);
+		
+		// Build the chart panel containing pie/bar charts
+		JPanel chartPnl = this.createChartPanel();
+		
+		// Add chart/spectrum panels to card layout
+		final CardLayout chartCl = new CardLayout();
+		final JPanel chartCardPnl = new JPanel(chartCl);
 
-		JXTitledPanel specTtlPnl = new JXTitledPanel("Spectrum Viewer", spectrumOverviewPnl); 
-		specTtlPnl.setTitleFont(ttlFont);
-		specTtlPnl.setTitlePainter(ttlPainter);
-		specTtlPnl.setBorder(ttlBorder);
+		// Add cards
+		chartCardPnl.add(spectrumPnl, "Spectrum");
+		chartCardPnl.add(chartPnl, "Charts");
+
+		// Wrap chart/spectrum panels in titled panel
+		final JXTitledPanel chartTtlPnl = new JXTitledPanel("Spectrum Viewer", chartCardPnl); 
+		chartTtlPnl.setTitleFont(ttlFont);
+		chartTtlPnl.setTitlePainter(ttlPainter);
+		chartTtlPnl.setBorder(ttlBorder);
+		
+		// Create button panel for chart/spectrum titled panel
+		JPanel specBtnPnl = new JPanel(new FormLayout("21px, 1px, 11px, 2dlu, 22px, 1px", "20px"));
+		specBtnPnl.setOpaque(false);
+		
+		ButtonGroup specBg = new ButtonGroup();
+
+		// Create chart selection button
+		final JToggleButton chartTgl = new JToggleButton(IconConstants.PIE_CHART_ICON);
+		chartTgl.setRolloverIcon(IconConstants.PIE_CHART_ROLLOVER_ICON);
+		chartTgl.setPressedIcon(IconConstants.PIE_CHART_PRESSED_ICON);
+		chartTgl.setToolTipText("Show Detail Charts");
+		chartTgl.setUI((RolloverButtonUI) RolloverButtonUI.createUI(chartTgl));
+		chartTgl.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				chartCl.show(chartCardPnl, "Charts");
+				chartTtlPnl.setTitle("Detail Charts");
+			}
+		});
+
+		// Create chart type selection button
+		final JToggleButton chartTypeTgl = this.createChartTypeButton();
+		chartTypeTgl.setBorder(BorderFactory.createCompoundBorder(
+				chartTypeTgl.getBorder(), BorderFactory.createEmptyBorder(0, -2, 0, 0)));
+//		chartTypeTgl.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent evt) {
+//				chartTgl.setSelected(true);
+//			}
+//		});
+		chartTypeTgl.setModel(new JToggleButton.ToggleButtonModel() {
+			private ButtonModel delegate = chartTgl.getModel();
+			@Override
+			public void setRollover(boolean b) {
+				super.setRollover(b);
+				delegate.setRollover(b);
+			}
+			@Override
+			public void setArmed(boolean b) {
+				super.setArmed(b);
+				delegate.setArmed(b);
+			}
+			@Override
+			public void setPressed(boolean b) {
+				super.setPressed(b);
+				delegate.setPressed(b);
+			}
+		});
+		
+		// Create spectrum viewer button
+		JToggleButton specTgl = new JToggleButton(null, IconConstants.SPECTRUM_ICON, true);
+		specTgl.setRolloverIcon(IconConstants.SPECTRUM_ROLLOVER_ICON);
+		specTgl.setPressedIcon(IconConstants.SPECTRUM_PRESSED_ICON);
+		specTgl.setToolTipText("Show Spectrum Viewer");
+		specTgl.setUI((RolloverButtonUI) RolloverButtonUI.createUI(specTgl));
+		specTgl.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				chartCl.show(chartCardPnl, "Spectrum");
+				chartTtlPnl.setTitle("Spectrum Viewer");
+			}
+		});
+
+		specBg.add(chartTgl);
+		specBg.add(specTgl);
+
+		specBtnPnl.add(chartTgl, CC.xyw(1, 1, 2));
+		specBtnPnl.add(chartTypeTgl, CC.xyw(2, 1, 2));
+		specBtnPnl.add(specTgl, CC.xy(5, 1));
+		
+		chartTtlPnl.setRightDecoration(specBtnPnl);
 
 		// Set up multi-split pane
 		String layoutDef =
@@ -598,7 +683,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		split.add(pepTtlPnl, "peptide");
 		split.add(psmTtlPnl, "psm");
 		//		split.add(specTtlPnl, "plot");
-		split.add(specTtlPnl, "chart");
+		split.add(chartTtlPnl, "chart");
 
 		this.add(split, CC.xy(2, 2));
 
@@ -1108,10 +1193,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * 
 	 * @author A. Behne
 	 */
-	protected class FilterButton extends JToggleButton {
+	private class FilterButton extends JToggleButton {
 
 		private FilterBalloonTip filterTip;
-		private FilterButton button;
 
 		/**
 		 * Constructs a filter toggle button widget which shows its own balloon
@@ -1122,14 +1206,19 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		 */
 		public FilterButton(final int column, final JTable table, final int filterType) {
 			super();
-			this.button = this;
 			this.addActionListener(new ActionListener() {
 
-				public void actionPerformed(ActionEvent e) {
-					if (button != lastSelectedFilterBtn) {
-//						lastSelectedFilterBtn.setSelected(false);
-						lastSelectedFilterBtn.setFilterTipVisible(false);
-						lastSelectedFilterBtn = button;
+				/** The reference to the last selected filter button. */
+				protected FilterButton lastSelected;
+				
+				@Override
+				public void actionPerformed(ActionEvent evt) {
+					final FilterButton button = (FilterButton) evt.getSource();
+					if (button != this.lastSelected) {
+						if (this.lastSelected != null) {
+							this.lastSelected.setFilterTipVisible(false);
+						}
+						this.lastSelected = button;
 					}
 					if (button.isSelected()) {
 						JTableHeader th = table.getTableHeader();
@@ -1147,7 +1236,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								// TODO: maybe store and restore original focus instead of shifting it always onto the table?
 								table.requestFocus();
 								if (filterTip.isConfirmed()) {
-									updateSelections(column, filterTip.getFilterString());
+									filterFlatSelections(column, filterTip.getFilterString());
 								}
 							};
 						});
@@ -1165,8 +1254,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		 * @param visible
 		 */
 		protected void setFilterTipVisible(boolean visible) {
-			if (filterTip != null) {
-				filterTip.setVisible(visible);
+			if (this.filterTip != null) {
+				this.filterTip.setVisible(visible);
 			}
 		}
 
@@ -1293,7 +1382,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @param column The column to check.
 	 * @param filterString Comma-separated string patterns.
 	 */
-	protected void updateSelections(int column, String filterString) {
+	protected void filterFlatSelections(int column, String filterString) {
 		column = proteinTbl.convertColumnIndexToView(column);
 		// prevent auto-resorting while iterating rows for performance reasons
 		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(false);
@@ -1430,7 +1519,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				new TreePath(protEnzymeTreeTbl.getTreeTableModel().getRoot()),
 				new TreePath(protPathwayTreeTbl.getTreeTableModel().getRoot()));
 	}
-	
+
+	/**
+	 * Flag indicating whether checkbox selections inside tree tables are currently 
+	 * in the middle of being synched programmatically.
+	 */
+	private boolean synching = false;
 
 	/**
 	 * Creates and returns a protein tree table anchored to the specified root node.
@@ -1603,63 +1697,48 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		// Add listener to synchronize selection state of nodes throughout multiple trees
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
+			
 			@Override
 			public void valueChanged(TreeSelectionEvent tse) {
 				if (!synching) {
-					TreePath[] paths = tse.getPaths();
-					for (int i = 0; i < paths.length; i++) {
-						PhylogenyTreeTableNode node =
-								(PhylogenyTreeTableNode) paths[i].getLastPathComponent();
-						if (node.hasLinks()) {
-							// leaf or root node was selected/deselected -> invoke synch directly
-							synching = true;
-							synchLinks(node, tse.isAddedPath());
-							synching = false;
-						} else {
-							// intermediate node was selected/deselected -> traverse subtree, synch leaves
-							Enumeration<TreeNode> below = node.depthFirstEnumeration();
-							while (below.hasMoreElements()) {
-								PhylogenyTreeTableNode belowNode =
-										(PhylogenyTreeTableNode) below.nextElement();
-								if (belowNode.isLeaf()) {
-									synching = true;
-									synchLinks(belowNode, tse.isAddedPath());
-									synching = false;
-								}
+					if (tse.getPath() == null) {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								synching = true;
+								synchSelection(treeTbl);
+								synching = false;
+								updateChartData();
 							}
-						}
-						if (node.isProtein()) {
-							ProteinHit proteinHit = (ProteinHit) node.getUserObject();
-							proteinHit.setSelected(cbtsm.isPathSelected(paths[i], true));
-						}
+						});
 					}
 				}
 			}
-			/**
-			 * Traverses list of links and updates the corresponding selection models of 
-			 * the trees identified by the links' first path elements (i.e. the roots).
-			 * @param node The node whose links shall be updated
-			 * @param added <code>true</code> if the selection was added, <code>false
-			 * </code> otherwise
-			 */
-			private void synchLinks(PhylogenyTreeTableNode node, boolean added) {
-				List<TreePath> links = node.getLinks();
-				if (links != null) {
-					// Iterate leaf links
-					for (TreePath link : links) {
-						// Get the appropriate selection model identified by the root name
-						String rootName = link.getPathComponent(0).toString();
-						CheckBoxTreeSelectionModel tsm =
-								linkMap.get(rootName).getCheckBoxTreeSelectionModel();
-						// Change foreign selection accordingly
-						if (added) {
-							tsm.addSelectionPath(link);
-						} else {
-							tsm.removeSelectionPath(link);
-						}
-					}
-				}
-			}
+//			/**
+//			 * Traverses list of links and updates the corresponding selection models of 
+//			 * the trees identified by the links' first path elements (i.e. the roots).
+//			 * @param node The node whose links shall be updated
+//			 * @param added <code>true</code> if the selection was added, <code>false
+//			 * </code> otherwise
+//			 */
+//			private void synchLinks(PhylogenyTreeTableNode node, boolean added) {
+//				List<TreePath> links = node.getLinks();
+//				if (links != null) {
+//					// Iterate leaf links
+//					for (TreePath link : links) {
+//						// Get the appropriate selection model identified by the root name
+//						String rootName = link.getPathComponent(0).toString();
+//						CheckBoxTreeSelectionModel tsm =
+//								linkMap.get(rootName).getCheckBoxTreeSelectionModel();
+//						// Change foreign selection accordingly
+//						if (added) {
+//							tsm.addSelectionPath(link);
+//						} else {
+//							tsm.removeSelectionPath(link);
+//						}
+//					}
+//				}
+//			}
 		});
 
 		// Reduce node indents to make tree more compact horizontally
@@ -1772,6 +1851,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 				// Create sub-menu containing sorting-related items
 				JMenu sortMenu = new JMenu("Sort");
+				sortMenu.setIcon(IconConstants.SORT_ICON);
 				
 				SortOrder order = ((TreeTableRowSorter) treeTbl.getRowSorter()).getSortOrder(this.col);
 				JMenuItem ascChk = new JRadioButtonMenuItem("Ascending", order == SortOrder.ASCENDING);
@@ -1794,8 +1874,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				sortMenu.add(desChk);
 				sortMenu.add(unsChk);
 				
+				// Create item for selecting column filter dialog
+				// TODO: create a column filter dialog :)
+				JMenuItem filterItem = new JMenuItem("Filter... (not implem.)", IconConstants.FILTER_ICON);
+				
 				// Create sub-menu containing non-leaf value aggregation functions
 				JMenu aggrMenu = new JMenu("Aggregate Function");
+				aggrMenu.setIcon(IconConstants.CALCULATOR_ICON);
 
 				ActionListener aggrListener = new ActionListener() {
 					@Override
@@ -1822,6 +1907,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 
 				popup.add(sortMenu);
+				popup.add(filterItem);
 				popup.add(aggrMenu);
 				return popup;
 			}
@@ -1840,8 +1926,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			public void mouseReleased(MouseEvent me) {
 				if ((me.getButton() == MouseEvent.BUTTON3) && 
 						(ch.getBounds().contains(me.getPoint()))) {
-//					popup.show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
-					this.createPopup().show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
+					// don't show popup for web resources column
+					if (!" ".equals(treeTbl.getColumn(this.col).getIdentifier())) {
+						this.createPopup().show(ch, ch.getHeaderRect(this.col).x - 1, ch.getHeight() - 1);
+					} else {
+						this.raise();
+					}
 				}
 			}
 			
@@ -2183,6 +2273,67 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			for (int j = 0; j < treePaths.length; j++) {
 				if (j != i) {
 					node.addLink(treePaths[j]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Synchronizes checkbox selections of all tree tables.
+	 */
+	private void synchSelection() {
+		this.synchSelection(null);
+	}
+	
+	/**
+	 * Synchronizes checkbox selections of all tree tables based on the
+	 * selection in the specified table.
+	 * @param source the source checkbox tree table
+	 */
+	private void synchSelection(CheckBoxTreeTable source) {
+		// propagate selection state to protein hits in search result object
+		if (source != null) {
+			CheckBoxTreeSelectionModel cbtsm = source.getCheckBoxTreeSelectionModel();
+			DefaultTreeTableModel model = (DefaultTreeTableModel) source.getTreeTableModel();
+			PhylogenyTreeTableNode root =
+					(PhylogenyTreeTableNode) model.getRoot();
+			Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+			while (dfe.hasMoreElements()) {
+				TreeNode treeNode = (TreeNode) dfe.nextElement();
+				if (treeNode.isLeaf()) {
+					Object userObject = ((TreeTableNode) treeNode).getUserObject();
+					if (userObject instanceof ProteinHit) {	// sanity check
+						TreePath path = new TreePath(model.getPathToRoot((TreeTableNode) treeNode));
+						boolean selected = cbtsm.isPathSelected(path, true);
+						((ProteinHit) userObject).setSelected(selected);
+					}
+				}
+			}
+		}
+		// iterate other tables and apply selection based on protein hit selection state
+		Collection<CheckBoxTreeTable> allTables = linkMap.values();
+		for (CheckBoxTreeTable table : allTables) {
+			if (table != source) {
+				CheckBoxTreeSelectionModel cbtsm = table.getCheckBoxTreeSelectionModel();
+				DefaultTreeTableModel model = (DefaultTreeTableModel) table.getTreeTableModel();
+				PhylogenyTreeTableNode root =
+						(PhylogenyTreeTableNode) model.getRoot();
+				Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+				while (dfe.hasMoreElements()) {
+					TreeNode treeNode = dfe.nextElement();
+					if (treeNode.isLeaf()) {
+						Object userObject = ((TreeTableNode) treeNode).getUserObject();
+						if (userObject instanceof ProteinHit) {	// sanity check
+							boolean selected = ((ProteinHit) userObject).isSelected();
+							TreePath path = new TreePath(model.getPathToRoot((TreeTableNode) treeNode));
+//							System.out.println("" + selected + " " + path.getLastPathComponent());
+							if (selected) {
+								cbtsm.addSelectionPath(path);
+							} else {
+								cbtsm.removeSelectionPath(path);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -2766,39 +2917,22 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		};
 
-		aIonsTgl = createIonToggleButton("a", false, "Show a ions", size, action);
-		bIonsTgl = createIonToggleButton("b", true, "Show b ions", size, action);
-		cIonsTgl = createIonToggleButton("c", false, "Show c ions", size, action);
-
-		xIonsTgl = createIonToggleButton("x", false, "Show x ions", size, action);
-		yIonsTgl = createIonToggleButton("y", true, "Show y ions", size, action);
-		zIonsTgl = createIonToggleButton("z", false, "Show z ions", size, action);
-
-		waterLossTgl = createIonToggleButton("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", size, action);
-		ammoniumLossTgl = createIonToggleButton("*", false, "<html>Show NH<sub>3</sub> losses</html>", size, action);
-
-		chargeOneTgl = createIonToggleButton("+", true, "Show ions with charge 1", size, action);
-		chargeTwoTgl = createIonToggleButton("++", false, "Show ions with charge 2", size, action);
-		chargeMoreTgl = createIonToggleButton(">2", false, "Show ions with charge >2", size, action);
-
-		precursorTgl = createIonToggleButton("MH", true, "Show precursor ion", size, action);
-
-		spectrumFilterPanel.add(aIonsTgl, CC.xy(2, 2));
-		spectrumFilterPanel.add(bIonsTgl, CC.xy(2, 4));
-		spectrumFilterPanel.add(cIonsTgl, CC.xy(2, 6));
+		spectrumFilterPanel.add(createIonToggleButton("a", false, "Show a ions", size, action), CC.xy(2, 2));
+		spectrumFilterPanel.add(createIonToggleButton("b", true, "Show b ions", size, action), CC.xy(2, 4));
+		spectrumFilterPanel.add(createIonToggleButton("c", false, "Show c ions", size, action), CC.xy(2, 6));
 		spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 8));
-		spectrumFilterPanel.add(xIonsTgl, CC.xy(2, 10));
-		spectrumFilterPanel.add(yIonsTgl, CC.xy(2, 12));
-		spectrumFilterPanel.add(zIonsTgl, CC.xy(2, 14));
+		spectrumFilterPanel.add(createIonToggleButton("x", false, "Show x ions", size, action), CC.xy(2, 10));
+		spectrumFilterPanel.add(createIonToggleButton("y", true, "Show y ions", size, action), CC.xy(2, 12));
+		spectrumFilterPanel.add(createIonToggleButton("z", false, "Show z ions", size, action), CC.xy(2, 14));
 		spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 16));
-		spectrumFilterPanel.add(waterLossTgl, CC.xy(2, 18));
-		spectrumFilterPanel.add(ammoniumLossTgl, CC.xy(2, 20));
+		spectrumFilterPanel.add(createIonToggleButton("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", size, action), CC.xy(2, 18));
+		spectrumFilterPanel.add(createIonToggleButton("*", false, "<html>Show NH<sub>3</sub> losses</html>", size, action), CC.xy(2, 20));
 		spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 22));
-		spectrumFilterPanel.add(chargeOneTgl, CC.xy(2, 24));
-		spectrumFilterPanel.add(chargeTwoTgl, CC.xy(2, 26));
-		spectrumFilterPanel.add(chargeMoreTgl, CC.xy(2, 28));
+		spectrumFilterPanel.add(createIonToggleButton("+", true, "Show ions with charge 1", size, action), CC.xy(2, 24));
+		spectrumFilterPanel.add(createIonToggleButton("++", false, "Show ions with charge 2", size, action), CC.xy(2, 26));
+		spectrumFilterPanel.add(createIonToggleButton(">2", false, "Show ions with charge >2", size, action), CC.xy(2, 28));
 		spectrumFilterPanel.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(2, 30));
-		spectrumFilterPanel.add(precursorTgl, CC.xy(2, 32));
+		spectrumFilterPanel.add(createIonToggleButton("MH", true, "Show precursor ion", size, action), CC.xy(2, 32));
 
 		return spectrumFilterPanel;
 	}
@@ -2823,6 +2957,291 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		toggleButton.setPreferredSize(size);
 		return toggleButton;
 	}
+
+	/**
+	 * Chart panel capable of displaying various charts (mainly ontology/taxonomy pie charts).
+	 */
+	private ScrollableChartPanel chartPnl;
+	
+	/**
+	 * The current type of chart to be displayed in the bottom right figure panel.
+	 */
+	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
+
+	/**
+	 * Data container for ontological meta-information of the fetched results.
+	 */
+	private OntologyData ontologyData = new OntologyData();
+
+	/**
+	 * Data container for taxonomic meta-information of the fetched results.
+	 */
+	private TaxonomyData taxonomyData = new TaxonomyData();
+
+	/**
+	 * Creates and returns the bottom-left chart panel.
+	 */
+	private JPanel createChartPanel() {
+		// create and configure chart panel for plots
+		OntologyData dummyData = new OntologyData() {
+			@Override
+			public PieDataset getDataset() {
+				DefaultPieDataset pieDataset = new DefaultPieDataset();
+				pieDataset.setValue("RPM", 8);
+				pieDataset.setValue("DNRPM", 2);
+				return pieDataset;
+			}
+		};
+		
+		this.chartPnl = new ScrollableChartPanel(ChartFactory.createOntologyChart(
+				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart());
+		
+		this.chartPnl.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				String property = evt.getPropertyName();
+				Object value = evt.getNewValue();
+				if ("hierarchy".equals(property)) {
+					HierarchyLevel hl = (HierarchyLevel) value;
+					ontologyData.setHierarchyLevel(hl);
+					taxonomyData.setHierarchyLevel(hl);
+
+					updateChart();
+				} else if ("hideUnknown".equals(property)) {
+					boolean doHide = (Boolean) value;
+					ontologyData.setHideUnknown(doHide);
+					taxonomyData.setHideUnknown(doHide);
+				} else if ("groupingLimit".equals(property)) {
+					double limit = (Double) value;
+					ontologyData.setMinorGroupingLimit(limit);
+					taxonomyData.setMinorGroupingLimit(limit);
+					
+					updateChart();
+				} else if ("selection".equals(property)) {
+					// TODO: find some use for selecting items here or remove functionality altogether
+				}
+			}
+		});
+
+		// wrap scroll pane in panel with 5dlu margin around it
+		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
+				"5dlu, f:p:g, 5dlu"));
+		chartMarginPnl.add(chartPnl, CC.xy(2, 2));
+
+		return chartMarginPnl;
+	}
+	
+	/**
+	 * Creates and returns a button prompting to select a chart type.
+	 */
+	private JToggleButton createChartTypeButton() {
+		// init chart types
+		List<ChartType> tmp = new ArrayList<ChartType>();
+		for (ChartType oct : OntologyChartType.values()) {
+			tmp.add(oct);
+		}
+		for (ChartType tct : TaxonomyChartType.values()) {
+			tmp.add(tct);
+		}
+		final ChartType[] chartTypes = tmp.toArray(new ChartType[0]);
+		
+		// create and configure button for chart type selection
+		// TODO: link enable state to busy/enable state of chart panel
+		Icon emptyIcon = IconConstants.createEmptyIcon(0, 16);
+		final JToggleButton chartTypeBtn = new JToggleButton(
+				IconConstants.createArrowedIcon(emptyIcon));
+		chartTypeBtn.setRolloverIcon(
+				IconConstants.createArrowedIcon(emptyIcon));
+		chartTypeBtn.setPressedIcon(
+				IconConstants.createArrowedIcon(emptyIcon));
+		chartTypeBtn.setToolTipText("Select Chart Type");
+
+		chartTypeBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(chartTypeBtn));
+
+		// create chart type selection popup
+		final JPopupMenu chartTypePop = new JPopupMenu();
+
+		final JMenu ontologyMenu = new JMenu("Ontology");
+		ontologyMenu.setIcon(IconConstants.PIE_CHART_ICON);
+		chartTypePop.add(ontologyMenu);
+		final JMenu taxonomyMenu = new JMenu("Taxonomy");
+		taxonomyMenu.setIcon(IconConstants.PIE_CHART_ICON);
+		chartTypePop.add(taxonomyMenu);
+
+		ActionListener chartListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				String title = ((JMenuItem) evt.getSource()).getText();
+				ChartType newChartType = null;
+				for (ChartType chartType : chartTypes) {
+					if (title.equals(chartType.toString())) {
+						newChartType = chartType;
+					}
+				}
+				if (newChartType != chartType) {
+					updateChart(newChartType);
+				}
+			}
+		};
+
+		ButtonGroup chartBtnGrp = new ButtonGroup();
+		int j = 0;
+		for (ChartType chartType : chartTypes) {
+			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
+			item.addActionListener(chartListener);
+			chartBtnGrp.add(item);
+			if (chartType instanceof OntologyChartType) {
+				ontologyMenu.add(item);
+			} else if (chartType instanceof TaxonomyChartType) {
+				taxonomyMenu.add(item);
+			} else {
+				item.setIcon(IconConstants.BAR_CHART_ICON);
+				chartTypePop.add(item);
+				// TODO: re-implement chart or remove altogether
+				if (chartType == HistogramChartType.TOTAL_ION_HIST) {
+					item.setEnabled(false);
+				}
+			}
+		}
+
+		ButtonGroup ontoPieOrBarGroup = new ButtonGroup();
+		JMenuItem ontoAsPieItem = new JRadioButtonMenuItem("Show As Pie Chart", IconConstants.PIE_CHART_ICON, true);
+		ontoAsPieItem.putClientProperty("pie", true);
+		ontoAsPieItem.putClientProperty("data", "onto");
+		ontoPieOrBarGroup.add(ontoAsPieItem);
+
+		JMenuItem ontoAsBarItem = new JRadioButtonMenuItem("Show As Bar Chart", IconConstants.BAR_CHART_ICON);
+		ontoAsBarItem.putClientProperty("pie", false);
+		ontoAsBarItem.putClientProperty("data", "onto");
+		ontoPieOrBarGroup.add(ontoAsBarItem);
+
+		ontologyMenu.addSeparator();
+		ontologyMenu.add(ontoAsPieItem);
+		ontologyMenu.add(ontoAsBarItem);
+
+		ButtonGroup taxPieOrBarGroup = new ButtonGroup();
+		JMenuItem taxAsPieItem = new JRadioButtonMenuItem("Show As Pie Chart", IconConstants.PIE_CHART_ICON, true);
+		taxAsPieItem.putClientProperty("pie", true);
+		taxAsPieItem.putClientProperty("data", "tax");
+		taxPieOrBarGroup.add(taxAsPieItem);
+
+		JMenuItem taxAsBarItem = new JRadioButtonMenuItem("Show As Bar Chart", IconConstants.BAR_CHART_ICON);
+		taxAsBarItem.putClientProperty("pie", false);
+		taxAsBarItem.putClientProperty("data", "tax");
+		taxPieOrBarGroup.add(taxAsBarItem);
+
+		taxonomyMenu.addSeparator();
+		taxonomyMenu.add(taxAsPieItem);
+		taxonomyMenu.add(taxAsBarItem);
+
+		ActionListener pieOrBarListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				JComponent source = (JComponent) evt.getSource();
+				Object data = source.getClientProperty("data");
+				Boolean showAsPie = (Boolean) source.getClientProperty("pie");
+				if ("onto".equals(data)) {
+					ontologyData.setShowAsPie(showAsPie);
+					ontologyMenu.setIcon(showAsPie ? IconConstants.PIE_CHART_ICON : IconConstants.BAR_CHART_ICON);
+				} else if ("tax".equals(data)) {
+					taxonomyData.setShowAsPie(showAsPie);
+					taxonomyMenu.setIcon(showAsPie ? IconConstants.PIE_CHART_ICON : IconConstants.BAR_CHART_ICON);
+				} else {
+					// abort (shouldn't happen, actually)
+					return;
+				}
+				updateChart();
+			}
+		};
+
+		ontoAsPieItem.addActionListener(pieOrBarListener);
+		ontoAsBarItem.addActionListener(pieOrBarListener);
+		taxAsPieItem.addActionListener(pieOrBarListener);
+		taxAsBarItem.addActionListener(pieOrBarListener);
+		// TODO: implement bar charts for taxonomy chart view
+
+		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+				chartTypeBtn.setSelected(false);
+			}
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
+			public void popupMenuCanceled(PopupMenuEvent e) { }
+		});
+
+		// link popup to button
+		chartTypeBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				chartTypePop.show(chartTypeBtn, 0, chartTypeBtn.getHeight());
+			}
+		});
+		return chartTypeBtn;
+	}
+	
+	/**
+	 * Refreshes the chart's data containers using the currently visible
+	 * meta-proteins in the Meta-Protein View
+	 */
+	private void updateChartData() {
+		ProteinHitList metaProteins = new ProteinHitList();
+		
+		TreeTableModel model = protFlatTreeTbl.getTreeTableModel();
+		TreeTableNode root = (TreeTableNode) model.getRoot();
+		
+		int childCount = model.getChildCount(root);
+		for (int i = 0; i < childCount; i++) {
+			Object child = model.getChild(root, i);
+			Object userObject = ((TreeTableNode) child).getUserObject();
+			if (userObject instanceof MetaProteinHit) {
+				metaProteins.add((MetaProteinHit) userObject);
+			} else if (userObject instanceof ProteinHit) {
+				metaProteins.add(((ProteinHit) userObject).getMetaProteinHit());
+			} else {
+				// technically we should never get here
+				System.out.println("UH OH");
+			}
+		}
+		
+		this.ontologyData.setData(metaProteins);
+		this.taxonomyData.setData(metaProteins);
+		
+		// TODO: maybe cache colors to make them consistent when manipulating the selection (cf. PaintMap)
+		this.updateChart();
+	}
+	
+	/**
+	 * Refreshes the chart using the current chart type.
+	 */
+	private void updateChart() {
+		this.updateChart(this.chartType);
+	}
+	
+	/**
+	 * Refreshes the chart updating its content reflecting the specified chart
+	 * type.
+	 * @param chartType the type of chart to be displayed.
+	 */
+	private void updateChart(ChartType chartType) {
+		Chart chart = null;
+
+		// create chart instance
+		if (chartType instanceof OntologyChartType) {
+			chart = ChartFactory.createOntologyChart(
+					this.ontologyData, chartType);
+		} else if (chartType instanceof TaxonomyChartType) {
+			chart = ChartFactory.createTaxonomyChart(
+					this.taxonomyData, chartType);
+		}
+		
+		if (chart != null) {
+			// insert chart into panel
+			this.chartPnl.setChart(chart.getChart(), true);
+		} else {
+			System.err.println("Chart type could not be determined!");
+		}
+
+		this.chartType = chartType;
+	}
 	
 	/**
 	 * Loads a search result object and refreshes all detail view tables with it.
@@ -2841,20 +3260,30 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		
 		@Override
 		protected Object doInBackground() throws Exception {
+			DbSearchResultPanel parent = DbSearchResultPanel.this;
 			
 			// Begin by clearing all tables
-			DbSearchResultPanel.this.clearTables();
+			parent.clearTables();
 			
 			// Fetch search result object
-			DbSearchResultPanel.this.dbSearchResult =
-					Client.getInstance().getDatabaseSearchResult();
+			parent.dbSearchResult = Client.getInstance().getDatabaseSearchResult();
+			
+			// Build local chart data objects
+			HierarchyLevel hl = parent.chartPnl.getHierarchyLevel();
+			parent.ontologyData = new OntologyData(
+					parent.dbSearchResult, hl);
+			parent.taxonomyData = new TaxonomyData(
+					parent.dbSearchResult, hl);
 			
 			// Insert new result data into tables
 			try {
-				DbSearchResultPanel.this.refreshProteinTables();
+				parent.refreshProteinTables();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			// Refresh chart
+			parent.updateChart();
 			
 			return null;
 		}
@@ -2952,24 +3381,28 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
 						maxNSAF = Math.max(maxNSAF, nsaf);
 
-						// Get common taxonomy for each protein hit
-						if (!Client.getInstance().isViewer()) { 
-							TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
-							for (PeptideHit peptideHit : proteinHit	.getPeptideHitList()) {
-								commonAncestorNode = TaxonomyUtils.getCombinedTaxonomyNode(commonAncestorNode, peptideHit.getTaxonomyNode(),(Boolean) Client.getInstance().getMetaProteinParameters().get("ProteinTaxonomy").getValue());
-							}
-							// TODO: do we really still need the species string? calculating common taxonomy here seems redundant
-							proteinHit.setCommonTaxonomyNode(commonAncestorNode.toString());
-
-							// FIXME: Calculate sequence alignment
-						}
+//						// Get common taxonomy for each protein hit
+//						if (!Client.getInstance().isViewer()) { 
+//							TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
+//							for (PeptideHit peptideHit : proteinHit	.getPeptideHitList()) {
+//								commonAncestorNode = TaxonomyUtils.getCombinedTaxonomyNode(
+//										commonAncestorNode, 
+//										peptideHit.getTaxonomyNode(),
+//										(Boolean) Client.getInstance().getMetaProteinParameters().get("proteinTaxonomy").getValue());
+//							}
+//							// TODO: do we really still need the species string? calculating common taxonomy here seems redundant
+//							proteinHit.setCommonTaxonomyNode(commonAncestorNode.toString());
+//
+//							// FIXME: Calculate sequence alignment
+//						}
 
 						// Insert protein data into table
 						proteinTblMdl.addRow(new Object[] {
 								proteinHit.isSelected(), protIndex++,
 								proteinHit.getAccession(),
 								proteinHit.getDescription(),
-								proteinHit.getSpecies(),
+//								proteinHit.getSpecies(),
+								proteinHit.getTaxonomyNode().getName(),
 								proteinHit.getCoverage(),
 								proteinHit.getMolecularWeight(),
 								proteinHit.getIsoelectricPoint(),
@@ -3018,16 +3451,20 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 					// Set values for the meta-protein
 					metaProtein.setDescription(metaDesc);
-					if (!Client.getInstance().isViewer()) {
-						// Get highest common Taxonomy
-						TaxonomyNode firstNode = metaProtein.getPeptideHitList().get(0).getTaxonomyNode();
-						for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
-							TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
-							
-							firstNode = TaxonomyUtils.getCombinedTaxonomyNode(firstNode, taxonNode, ((Boolean) Client.getInstance().getMetaProteinParameters().get("MetaproteinTaxonomy").getValue()));
-						}
-						metaProtein.setCommonTaxonomyNode(firstNode.getName() + " (" + firstNode.getRank() +")");
-					}
+					
+//					if (!Client.getInstance().isViewer()) {
+//						// Get highest common Taxonomy
+//						TaxonomyNode firstNode = metaProtein.getPeptideHitList().get(0).getTaxonomyNode();
+//						for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
+//							TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
+//							
+//							firstNode = TaxonomyUtils.getCombinedTaxonomyNode(
+//									firstNode,
+//									taxonNode,
+//									((Boolean) Client.getInstance().getMetaProteinParameters().get("metaProteinTaxonomy").getValue()));
+//						}
+//						metaProtein.setCommonTaxonomyNode(firstNode.getName() + " (" + firstNode.getRank() +")");
+//					}
 //					metaProtein.setIdentity(metaIdentity);
 //					metaProtein.setCoverage(metaSC);
 //					metaProtein.setMolecularWeight(metaMW);
@@ -3035,6 +3472,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 //					metaProtein.setEmPAI(metaEmPai);
 //					metaProtein.setNSAF(metaNsaf);
 //					metaProtein.setCoverage(metaSC);
+					
 					DbSearchResultPanel.this.insertFlatNode(metaNode);
 				}
 
@@ -3578,14 +4016,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	protected Vector<SpectrumAnnotation> filterAnnotations(Vector<SpectrumAnnotation> annotations) {
 
 		Vector<SpectrumAnnotation> filteredAnnotations = new Vector<SpectrumAnnotation>();
-
-		JToggleButton[] ionToggles = new JToggleButton[] { aIonsTgl, bIonsTgl,
-				cIonsTgl, xIonsTgl, yIonsTgl, zIonsTgl, precursorTgl };
+		
+		// gather component indexes of toggle buttons in spectrum filter button
+		// panel and associated token identifiers
+		int[] ionToggles = new int[] { 0, 1, 2, 4, 5, 6, 15 };
 		String ionTokens = "abcxyzM";
-
-		JToggleButton[] miscToggles = new JToggleButton[] { chargeOneTgl,
-				chargeMoreTgl, chargeTwoTgl, ammoniumLossTgl, waterLossTgl };
-		String[] miscTokens = new String[]  { "+", "+++", "++", "*", "\u00B0" };
+		int[] miscToggles = new int[] { 8, 9, 11, 12, 13 };
+		String[] miscTokens = new String[]  { "\u00B0", "*", "+", "++", "+++" };
 
 		for (SpectrumAnnotation annotation : annotations) {
 			String currentLabel = annotation.getLabel();
@@ -3593,7 +4030,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// check ion type
 			for (int i = 0; i < ionToggles.length; i++) {
 				if (currentLabel.lastIndexOf(ionTokens.charAt(i)) != -1) {
-					useAnnotation &= ionToggles[i].isSelected();
+					useAnnotation &= ((AbstractButton) specFiltPnl.getComponent(ionToggles[i])).isSelected();
 				}
 				if (!useAnnotation) break;
 			}
@@ -3602,7 +4039,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			if (useAnnotation) {
 				for (int i = 0; i < miscToggles.length; i++) {
 					if (currentLabel.lastIndexOf(miscTokens[i]) != -1) {
-						useAnnotation &= miscToggles[i].isSelected();
+						useAnnotation &= ((AbstractButton) specFiltPnl.getComponent(miscToggles[i])).isSelected();
 					}
 					if (!useAnnotation) break;
 				}
