@@ -1,6 +1,5 @@
 package de.mpa.analysis;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -148,6 +147,7 @@ public class UniprotAccessor {
 		map.put("family", TaxonomyRank.FAMILY);
 		map.put("genus", TaxonomyRank.GENUS);
 		map.put("species", TaxonomyRank.SPECIES);
+		map.put("subspecies", TaxonomyRank.SUBSPECIES);
 		TAXONOMY_RANKS_MAP = Collections.unmodifiableMap(map);
 	}
 

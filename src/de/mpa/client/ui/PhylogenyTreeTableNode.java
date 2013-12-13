@@ -53,7 +53,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 				case 1:
 					return ph.getDescription();
 				case 2:
-					return ph.getSpecies();
+//					return ph.getSpecies();
+					return ph.getTaxonomyNode().getName();
 				case 11:
 					// web resource column
 					return null;
@@ -75,7 +76,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 					}
 					return description;
 				case 2:
-					return ph.getSpecies();
+//					return ph.getSpecies();
+					return ph.getTaxonomyNode().getName();
 				case 3:
 					return ph.getIdentity();	
 				case 4:

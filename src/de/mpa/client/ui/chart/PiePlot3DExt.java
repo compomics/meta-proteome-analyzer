@@ -30,6 +30,7 @@ import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.chart.plot.PiePlotState;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
+import org.jfree.data.KeyedValues;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.general.PieDataset;
 import org.jfree.data.xy.Vector;
@@ -765,6 +766,29 @@ public class PiePlot3DExt extends PiePlot3D {
 		super.clearSectionPaints(notify);
 		this.setSectionPaint("Unknown", Color.DARK_GRAY);
 		this.setSectionPaint("Others", Color.GRAY);
+	}
+	
+	/**
+	 * {@inheritDoc}<p>
+	 * Overridden to prevent line wrapping.
+	 */
+	@Override
+	protected void drawLeftLabels(KeyedValues leftKeys, Graphics2D g2,
+			Rectangle2D plotArea, Rectangle2D linkArea, float maxLabelWidth,
+			PiePlotState state) {
+		super.drawLeftLabels(leftKeys, g2, plotArea, linkArea, Float.MAX_VALUE, state);
+	}
+	
+	/**
+	 * {@inheritDoc}<p>
+	 * Overridden to prevent line wrapping.
+	 */
+	@Override
+	protected void drawRightLabels(KeyedValues keys, Graphics2D g2,
+			Rectangle2D plotArea, Rectangle2D linkArea, float maxLabelWidth,
+			PiePlotState state) {
+		// TODO Auto-generated method stub
+		super.drawRightLabels(keys, g2, plotArea, linkArea, Float.MAX_VALUE, state);
 	}
 	
 	/**

@@ -188,8 +188,9 @@ public class TreeSelectionDialog extends JDialog {
 	public void setRoot(SortableCheckBoxTreeTableNode root) {
 		// insert root
 		((DefaultTreeTableModel) this.treeTbl.getTreeTableModel()).setRoot(root);
-		// select whole tree
-		this.treeTbl.getCheckBoxTreeSelectionModel().setSelectionPath(root.getPath());
+		// FIXME: java.lang.ArrayIndexOutOfBoundsException: 0 >= 0
+//		// select whole tree
+//		this.treeTbl.getCheckBoxTreeSelectionModel().setSelectionPath(root.getPath());
 	}
 	
 	@Override

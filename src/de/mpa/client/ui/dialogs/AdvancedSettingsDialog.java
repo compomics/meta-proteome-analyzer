@@ -39,8 +39,6 @@ import javax.swing.text.JTextComponent;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
-import org.jdesktop.swingx.plaf.LookAndFeelAddons;
-import org.jdesktop.swingx.plaf.TaskPaneContainerUI;
 import org.jdesktop.swingx.plaf.misc.GlossyTaskPaneUI;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -128,9 +126,6 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Init task pane container
 		final JXTaskPaneContainer tpc = new JXTaskPaneContainer();
 		((VerticalLayout) tpc.getLayout()).setGap(10);
-		
-		System.out.println((TaskPaneContainerUI) LookAndFeelAddons.getUI(tpc,
-                TaskPaneContainerUI.class));
 		
 		// Group parameters by section identifiers
 		Map<String, List<Parameter>> sectionMap = getSectionMap(params);

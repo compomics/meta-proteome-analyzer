@@ -343,16 +343,17 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
      * @return	returns the next leaf past this node
      */
 	public CheckBoxTreeTableNode getNextLeaf() {
-		CheckBoxTreeTableNode nextSibling;
-		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) getParent();
-
-		if (myParent == null)
+		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) this.getParent();
+		
+		if (myParent == null) {
 			return null;
+		}
 
-		nextSibling = getNextSibling();	// linear search
+		CheckBoxTreeTableNode nextSibling = this.getNextSibling();	// linear search
 
-		if (nextSibling != null)
+		if (nextSibling != null) {
 			return nextSibling.getFirstLeaf();
+		}
 
 		return myParent.getNextLeaf();	// tail recursion
 	}

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.ComboBoxModel;
+
 import de.mpa.analysis.UniprotAccessor;
 import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
 import de.mpa.client.Client;
@@ -19,10 +21,84 @@ import de.mpa.db.accessor.Taxonomy;
 /**
  * This class serves as utility class for various methods handling taxonomic issues.
  * 
- * @author T. Muth
+ * @author T. Muth, A. Behne
  *
  */
 public class TaxonomyUtils {
+	
+	/**
+	 * Enumeration holding taxonomy definition-related constants.
+	 * @author A. Behne
+	 */
+	public enum TaxonomyDefinition {
+		COMMON_ANCESTOR("by common ancestor") {
+			@Override
+			public TaxonomyNode getCommonTaxonomyNode(
+					TaxonomyNode nodeA, TaxonomyNode nodeB) {
+				// Get root paths of both taxonomy nodes
+				TaxonomyNode[] path1 = nodeA.getPath();
+				TaxonomyNode[] path2 = nodeB.getPath();
+				TaxonomyNode ancestor;
+			
+				// Find last common element starting from the root
+				int len = Math.min(path1.length, path2.length);
+				if (len > 1) {
+					ancestor = path1[0];	// initialize ancestor as root
+					for (int i = 1; i < len; i++) {
+						if (!path1[i].equals(path2[i])) {
+							break;
+						} 
+						ancestor = path1[i];
+					}
+				} else {
+					ancestor = nodeA;
+				}
+				return ancestor;
+			}
+		},
+		MOST_SPECIFIC("by most specific member") {
+			@Override
+			public TaxonomyNode getCommonTaxonomyNode(
+					TaxonomyNode nodeA, TaxonomyNode nodeB) {
+				// Get root paths of both taxonomy nodes
+				TaxonomyNode[] path1 = nodeA.getPath();
+				TaxonomyNode[] path2 = nodeB.getPath();
+				// return node at the end of the longer one of either paths
+				if (path1.length >= path2.length) {
+					return nodeA;
+				} else {
+					return nodeB;
+				}
+			}
+		};
+		
+		/**
+		 * The name string.
+		 */
+		private String name;
+
+		/**
+		 * Constructs a meta-protein generation rule using the specified name string.
+		 * @param name the name of the rule
+		 */
+		private TaxonomyDefinition(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return this.name;
+		}
+
+		/**
+		 * Returns the common taxonomy node of the specified pair of taxonomy nodes.
+		 * @param nodeA the first taxonomy node
+		 * @param nodeB the second taxonomy node
+		 * @return the common taxonomy node
+		 */
+		public abstract TaxonomyNode getCommonTaxonomyNode(
+				TaxonomyNode nodeA, TaxonomyNode nodeB);
+	}
 
 	/**
 	 * Private constructor as class contains only static helper methods.
@@ -80,16 +156,22 @@ public class TaxonomyUtils {
 		}
 		return leafNode;
 	}
+	
+	public static void determinePeptideTaxonomy(Set<PeptideHit> peptideSet, ParameterMap params) {
+		determinePeptideTaxonomy(peptideSet, TaxonomyDefinition.COMMON_ANCESTOR);
+	}
 
 	/**
 	 * Method to go through a peptide set and define for each peptide hit the
 	 * common taxonomy of the subsequent proteins.
 	 * @param peptideSet the peptide set
 	 */
-	public static void determinePeptideTaxonomy(Set<PeptideHit> peptideSet) {
+	public static void determinePeptideTaxonomy(Set<PeptideHit> peptideSet, TaxonomyDefinition definition) {
 
 		// Map with taxonomy entries used to merge redundant nodes
 		Map<Integer, TaxonomyNode> nodeMap = new HashMap<Integer, TaxonomyNode>();
+		// Insert root node
+		nodeMap.put(1, new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"));
 
 		// Iterate peptides and gather common taxonomy
 		for (PeptideHit peptideHit : peptideSet) {
@@ -104,7 +186,7 @@ public class TaxonomyUtils {
 			// Find common ancestor node
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			for (int i = 0; i < taxonNodes.size(); i++) {
-				ancestor = getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
+				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
 
 			// Gets the parent node of the taxon node
@@ -112,15 +194,19 @@ public class TaxonomyUtils {
 			TaxonomyNode parent = nodeMap.get(ancestor.getId());
 			if (parent == null) {
 				parent = child.getParentNode();
+				// iterate up the taxonomy hierarchy until a mapped node is found (which may be the root)
 				while (true) {
+					// retrieve parent node from map
 					TaxonomyNode temp = nodeMap.get(parent.getId());
 
 					if (temp == null) {
+						// add child's parent node to map
 						child.setParentNode(parent);
 						nodeMap.put(parent.getId(), parent);
 						child = parent;
 						parent = parent.getParentNode();
 					} else {
+						// replace child's parent node with mapped parent and break out of loop
 						child.setParentNode(temp);
 						break;
 					}
@@ -143,28 +229,28 @@ public class TaxonomyUtils {
 	}
 
 	/**
-	 * Method to set taxonomy of a protein from common taxonomies of its peptides.
-	 * @param proteinList List of proteins hits.
-	 * @param mostSpecific. Common taxonomy based on the most specific taxonomy or if false of the common ancestor
-	 * @throws Exception
-	 */
-	public static void determineProteinTaxonomy(
-			List<ProteinHit> proteinList, ParameterMap metaProtParams) {
-		TaxonomyUtils.determineTaxonomy(proteinList,
-				(Boolean) metaProtParams.get("proteinTaxonomy").getValue());
-	}
-
-	/**
 	 * Sets the taxonomy of meta-proteins contained in the specified list to the
 	 * common taxonomy based on their child protein taxonomies.
 	 * @param metaProteins the list of meta-proteins for which common protein
 	 *  taxonomies shall be determined
-	 * @param metaProtParams the meta-protein generation parameters
+	 * @param params the parameter map containing taxonomy definition rules
 	 */
 	public static void determineMetaProteinTaxonomy(
-			ProteinHitList metaProteins, ParameterMap metaProtParams) {
-		TaxonomyUtils.determineTaxonomy(metaProteins,
-				(Boolean) metaProtParams.get("metaProteinTaxonomy").getValue());
+			ProteinHitList metaProteins, ParameterMap params) {
+		TaxonomyUtils.determineProteinTaxonomy(metaProteins, params);
+	}
+
+	/**
+	 * Sets the taxonomy of proteins contained in the specified list to the
+	 * common taxonomy based on their peptide taxonomies.
+	 * @param proteinList List of proteins hits.
+	 * @param params the parameter map containing taxonomy definition rules
+	 */
+	public static void determineProteinTaxonomy(
+			List<ProteinHit> proteinList, ParameterMap params) {
+		ComboBoxModel model = (ComboBoxModel) params.get("proteinTaxonomy").getValue();
+		TaxonomyUtils.determineTaxonomy(proteinList,
+				(TaxonomyDefinition) model.getSelectedItem());
 	}
 
 	/**
@@ -172,11 +258,9 @@ public class TaxonomyUtils {
 	 * common taxonomy based on their child taxonomies.
 	 * 
 	 * @param taxList the list of taxonomic instances
-	 * @param mostSpecific <code>true</code> if the most specific taxonomy shall be
-	 *  used as common taxonomy, <code>false</code> if the common ancestor in the
-	 *  taxonomic hierarchy shall be used
+	 * @param definition the taxonomy definition
 	 */
-	public static void determineTaxonomy(List<? extends Taxonomic> taxList, boolean mostSpecific) {
+	public static void determineTaxonomy(List<? extends Taxonomic> taxList, TaxonomyDefinition definition) {
 		// iterate taxonomic list
 		for (Taxonomic taxonomic : taxList) {
 			// extract child taxonomy nodes
@@ -188,8 +272,7 @@ public class TaxonomyUtils {
 			// find common taxonomy node
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			for (int i = 1; i < taxonNodes.size(); i++) {
-				TaxonomyUtils.getCombinedTaxonomyNode(
-						ancestor, taxonNodes.get(i), mostSpecific);
+				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
 			
 			// set common taxonomy node
@@ -197,69 +280,6 @@ public class TaxonomyUtils {
 			
 			// fire progress notification
 			Client.getInstance().firePropertyChange("progressmade", false, true);
-		}
-	}
-
-	/**
-	 * This method returns the taxonomy node of two taxonomy nodes. If mostSpecific is choosen, 
-	 * it is the most specific taxonomy node, else the common taxonomy node.
-	 * @param taxonNode1. The first taxon node.
-	 * @param taxonNode2. The second taxon node.
-	 * @param mostSpecific. TRUE: return most specific taxon node, ELSE: return common taxon node.
-	 * @return taxon Node
-	 */
-	// TODO: refactor
-	public static TaxonomyNode getCombinedTaxonomyNode(
-			TaxonomyNode nodeA, TaxonomyNode nodeB, boolean mostSpecific){
-		if (mostSpecific) {
-			return TaxonomyUtils.getMostSpecificTaxonomyNode(nodeA, nodeB);
-		} else {
-			return TaxonomyUtils.getCommonTaxonomyNode(nodeA, nodeB);
-		}
-	}
-
-	/**
-	 * Returns the common taxonomy node above the two specified taxonomy nodes.
-	 * @param taxonNode1 the first taxonomy node
-	 * @param taxonNode2 the second taxonomy node
-	 * @return the common taxonomy node
-	 */
-	public static TaxonomyNode getCommonTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) {
-		// Get root paths of both taxonomy nodes
-		TaxonomyNode[] path1 = taxonNode1.getPath();
-		TaxonomyNode[] path2 = taxonNode2.getPath();
-		TaxonomyNode ancestor;
-	
-		// Find last common element starting from the root
-		int len = Math.min(path1.length, path2.length);
-		if (len > 1) {
-			ancestor = path1[0];	// initialize ancestor as root
-			for (int i = 1; i < len; i++) {
-				if (!path1[i].equals(path2[i])) {
-					break;
-				} 
-				ancestor = path1[i];
-			}
-		} else {
-			ancestor = taxonNode1;
-		}
-		return ancestor;
-	}
-
-	/**
-	 * Returns the most specific taxonomy node of the two specified taxonomy nodes.
-	 * @param taxonNode1 the first taxonomy node
-	 * @param taxonNode2 the second taxonomy node
-	 * @return the most specific taxonomy node
-	 */
-	public static TaxonomyNode getMostSpecificTaxonomyNode(TaxonomyNode taxonNode1, TaxonomyNode taxonNode2) {
-		// Get root paths of both taxonomy nodes
-		TaxonomyNode[] path1 = taxonNode1.getPath();
-		TaxonomyNode[] path2 = taxonNode2.getPath();
-		if (path1.length >= path2.length) {
-			return taxonNode1;
-		} else {
-			return taxonNode2;
 		}
 	}
 

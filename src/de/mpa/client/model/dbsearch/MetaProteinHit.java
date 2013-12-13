@@ -96,6 +96,26 @@ public class MetaProteinHit extends ProteinHit {
 	}
 	
 	@Override
+	public boolean isSelected() {
+		boolean res = true;
+		for (ProteinHit ph : phl) {
+			res &= ph.isSelected();
+			if (!res) {
+				break;
+			}
+		}
+		return res;
+	}
+	
+	@Override
+	public void setSelected(boolean selected) {
+		super.setSelected(selected);
+		for (ProteinHit ph : phl) {
+			ph.setSelected(selected);
+		}
+	}
+	
+	@Override
 	public Set<Object> getProperties(ChartType type) {
 		// Aggregate properties of associated proteins
 		Set<Object> res = new HashSet<Object>();
