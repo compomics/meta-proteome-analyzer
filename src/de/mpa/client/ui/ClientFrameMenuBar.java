@@ -444,6 +444,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 			@Override
 			protected Void doInBackground() throws Exception {
 				JFileChooser chooser = new ConfirmFileChooser();
+				chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
 				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
 				chooser.setAcceptAllFileFilterUsed(false);
 				int returnVal = chooser.showSaveDialog(clientFrame);
@@ -451,6 +452,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 					File selFile = chooser.getSelectedFile();
 					if (selFile != null) {
 						String filePath = selFile.getPath();
+						clientFrame.setLastSelectedFolder(selFile.getParent());
 						if (!filePath.toLowerCase().endsWith(".mpa")) {
 							filePath += ".mpa";
 						}
