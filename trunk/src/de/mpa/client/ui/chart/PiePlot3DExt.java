@@ -10,8 +10,8 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
-import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.PieSectionEntity;
@@ -47,16 +45,6 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * The renderer state.
 	 */
 	private PiePlotState state;
-	
-	/**
-	 * The list of pie section arc faces.
-	 */
-	private List<Arc2D> arcList;
-	
-	/**
-	 * The list of inner pie section faces.
-	 */
-	private List<IndexedFace> faceList;
 	
 	/**
 	 * The maximum relative amount a pie section can extend from the pie center.
@@ -121,7 +109,7 @@ public class PiePlot3DExt extends PiePlot3D {
 
 		Graphics2D savedG2 = g2;
 		BufferedImage dataImage = null;
-		if (getShadowGenerator() != null) {
+		if (this.getShadowGenerator() != null) {
 			dataImage = new BufferedImage((int) plotArea.getWidth(),
 					(int) plotArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			g2 = dataImage.createGraphics();
@@ -130,13 +118,12 @@ public class PiePlot3DExt extends PiePlot3D {
 			originalPlotArea = (Rectangle2D) plotArea.clone();
 		}
 		// adjust the plot area by the interior spacing value
-		double gapPercent = getInteriorGap();
+		double gapPercent = this.getInteriorGap();
 		double labelPercent = 0.0;
 		if (getLabelGenerator() != null) {
-			labelPercent = getLabelGap() + getMaximumLabelWidth();
+			labelPercent = this.getLabelGap() + this.getMaximumLabelWidth();
 		}
-		double gapHorizontal = plotArea.getWidth() * (gapPercent
-				+ labelPercent) * 2.0;
+		double gapHorizontal = plotArea.getWidth() * (gapPercent + labelPercent) * 2.0;
 		double gapVertical = plotArea.getHeight() * gapPercent * 2.0;
 
 		double linkX = plotArea.getX() + gapHorizontal / 2;
@@ -153,12 +140,12 @@ public class PiePlot3DExt extends PiePlot3D {
 			linkH = 2 * min;
 		}
 
-		state = initialise(g2, plotArea, this, null, info);
+		state = this.initialise(g2, plotArea, this, null, info);
 
 		// the link area defines the dog leg points for the linking lines to
 		// the labels
-		Rectangle2D linkAreaXX = new Rectangle2D.Double(linkX, linkY, linkW,
-				linkH * (1 - getDepthFactor()));
+		Rectangle2D linkAreaXX = new Rectangle2D.Double(
+				linkX, linkY, linkW, linkH * (1 - getDepthFactor()));
 		state.setLinkArea(linkAreaXX);
 
 		// the explode area defines the max circle/ellipse for the exploded pie
@@ -166,28 +153,28 @@ public class PiePlot3DExt extends PiePlot3D {
 		// it is defined by shrinking the linkArea by the linkMargin factor.
 		double hh = linkW * getLabelLinkMargin();
 		double vv = linkH * getLabelLinkMargin();
-		Rectangle2D explodeArea = new Rectangle2D.Double(linkX + hh / 2.0,
-				linkY + vv / 2.0, linkW - hh, linkH - vv);
+		Rectangle2D explodedArea = new Rectangle2D.Double(
+				linkX + hh / 2.0, linkY + vv / 2.0, linkW - hh, linkH - vv);
 
-		state.setExplodedPieArea(explodeArea);
+		state.setExplodedPieArea(explodedArea);
 
 		// the pie area defines the circle/ellipse for regular pie sections.
 		// it is defined by shrinking the explodeArea by the explodeMargin
 		// factor.
-		double maximumExplodePercent = getMaximumExplodePercent();
+		double maximumExplodePercent = this.getMaximumExplodePercent();
 		double percent = maximumExplodePercent / (1.0 + maximumExplodePercent);
 
-		double h1 = explodeArea.getWidth() * percent;
-		double v1 = explodeArea.getHeight() * percent;
-		Rectangle2D pieArea = new Rectangle2D.Double(explodeArea.getX()
-				+ h1 / 2.0, explodeArea.getY() + v1 / 2.0,
-				explodeArea.getWidth() - h1, explodeArea.getHeight() - v1);
+		double h1 = explodedArea.getWidth() * percent;
+		double v1 = explodedArea.getHeight() * percent;
+		Rectangle2D pieArea = new Rectangle2D.Double(
+				explodedArea.getX() + h1 / 2.0, explodedArea.getY() + v1 / 2.0,
+				explodedArea.getWidth() - h1, explodedArea.getHeight() - v1);
 
 		// the link area defines the dog-leg point for the linking lines to
 		// the labels
 		int depth = (int) (pieArea.getHeight() * getDepthFactor());
-		Rectangle2D linkArea = new Rectangle2D.Double(linkX, linkY, linkW,
-				linkH - depth);
+		Rectangle2D linkArea = new Rectangle2D.Double(
+				linkX, linkY, linkW, linkH - depth);
 		state.setLinkArea(linkArea);
 
 		state.setPieArea(pieArea);
@@ -197,11 +184,11 @@ public class PiePlot3DExt extends PiePlot3D {
 		state.setPieHRadius((pieArea.getHeight() - depth) / 2.0);
 
 		// get the data source - return if null;
-		PieDataset dataset = getDataset();
-		if (DatasetUtilities.isEmptyOrNull(getDataset())) {
-			drawNoDataMessage(g2, plotArea);
+		PieDataset dataset = this.getDataset();
+		if (DatasetUtilities.isEmptyOrNull(dataset)) {
+			this.drawNoDataMessage(g2, plotArea);
 			g2.setClip(savedClip);
-			drawOutline(g2, plotArea);
+			this.drawOutline(g2, plotArea);
 			return;
 		}
 
@@ -213,19 +200,18 @@ public class PiePlot3DExt extends PiePlot3D {
 			FontMetrics fm = g2.getFontMetrics(sfont);
 			int stringWidth = fm.stringWidth(text);
 
-			g2.drawString(text, (int) (plotArea.getX() + (plotArea.getWidth()
-					- stringWidth) / 2), (int) (plotArea.getY()
-							+ (plotArea.getHeight() / 2)));
+			g2.drawString(text,
+					(int) (plotArea.getX() + (plotArea.getWidth() - stringWidth) / 2),
+					(int) (plotArea.getY() + (plotArea.getHeight() / 2)));
 			return;
 		}
 		// if we are drawing a perfect circle, we need to readjust the top left
 		// coordinates of the drawing area for the arcs to arrive at this
 		// effect.
 		if (isCircular()) {
-			double min = Math.min(plotArea.getWidth(),
-					plotArea.getHeight()) / 2;
-			plotArea = new Rectangle2D.Double(plotArea.getCenterX() - min,
-					plotArea.getCenterY() - min, 2 * min, 2 * min);
+			double min = Math.min(plotArea.getWidth(), plotArea.getHeight()) / 2;
+			plotArea = new Rectangle2D.Double(
+					plotArea.getCenterX() - min, plotArea.getCenterY() - min, 2 * min, 2 * min);
 		}
 		// get a list of keys...
 		List sectionKeys = dataset.getKeys();
@@ -240,8 +226,8 @@ public class PiePlot3DExt extends PiePlot3D {
 
 		//g2.clip(clipArea);
 		Composite originalComposite = g2.getComposite();
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-				getForegroundAlpha()));
+		g2.setComposite(AlphaComposite.getInstance(
+				AlphaComposite.SRC_OVER, this.getForegroundAlpha()));
 
 		double totalValue = DatasetUtilities.calculatePieDatasetTotal(dataset);
 		double runningTotal = 0;
@@ -249,57 +235,43 @@ public class PiePlot3DExt extends PiePlot3D {
 			return;  // if depth is negative don't draw anything
 		}
 
-		arcList = new ArrayList<Arc2D>(sectionKeys.size());
-		faceList = new ArrayList<IndexedFace>(sectionKeys.size());
-		Arc2D.Double arc;
-		Paint paint;
-		Paint outlinePaint;
-		Stroke outlineStroke;
-
-		int cat = 0;
+		List<Arc2D> arcList = new ArrayList<Arc2D>(sectionKeys.size());
 		Iterator iterator = sectionKeys.iterator();
 		while (iterator.hasNext()) {
 
 			Comparable currentKey = (Comparable) iterator.next();
 			
-			lookupSectionPaint(currentKey);
+			this.lookupSectionPaint(currentKey);
 			
 			Number dataValue = dataset.getValue(currentKey);
 			if (dataValue == null) {
 				arcList.add(null);
-				cat++;
 				continue;
 			}
 			double value = dataValue.doubleValue();
 			if (value <= 0.0) {
 				arcList.add(null);
-				cat++;
 				continue;
 			}
-			double startAngle = getStartAngle();
-			double direction = getDirection().getFactor();
+			double startAngle = this.getStartAngle();
+			double direction = this.getDirection().getFactor();
 			double arcStartAngle = startAngle + (direction * (runningTotal * 360))
 					/ totalValue;
 			double arcAngleExtent = direction * value / totalValue * 360.0;
-			if (Math.abs(arcAngleExtent) > getMinimumArcAngleToDraw()) {
-
-				double expPercent = getExplodePercent(currentKey);
+			if (Math.abs(arcAngleExtent) > this.getMinimumArcAngleToDraw()) {
+				double expPercent = this.getExplodePercent(currentKey);
 				double centerAngle = Math.toRadians(arcStartAngle + arcAngleExtent / 2.0);
 				double xOffset = expPercent * state.getPieWRadius() * Math.cos(centerAngle);
 				double yOffset = expPercent * state.getPieHRadius() * Math.sin(centerAngle);
 
-				arc = new Arc2D.Double(arcX + xOffset, arcY - yOffset + depth,
+				Arc2D arc = new Arc2D.Double(arcX + xOffset, arcY - yOffset + depth,
 						pieArea.getWidth(), pieArea.getHeight() - depth,
 						arcStartAngle, arcAngleExtent, Arc2D.PIE);
 				arcList.add(arc);
-
-				faceList.add(new IndexedFace(cat, true, arc.getStartPoint().getX() > state.getPieCenterX()));
-				faceList.add(new IndexedFace(cat, false, arc.getEndPoint().getX() < state.getPieCenterX()));
 			} else {
 				arcList.add(null);
 			}
 			runningTotal += value;
-			cat++;
 		}
 		
 		Shape oldClip = g2.getClip();
@@ -307,98 +279,85 @@ public class PiePlot3DExt extends PiePlot3D {
 		// draw the bottom segments
 		int categoryCount = arcList.size();
 		for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-			arc = (Arc2D.Double) arcList.get(categoryIndex);
+			Arc2D arc = arcList.get(categoryIndex);
 			if (arc == null) {
 				continue;
 			}
-			Comparable key = getSectionKey(categoryIndex);
-			paint = lookupSectionPaint(key);
-			outlinePaint = lookupSectionOutlinePaint(key);
-			outlineStroke = lookupSectionOutlineStroke(key);
-			g2.setPaint(paint);
+			Comparable key = this.getSectionKey(categoryIndex);
+			Paint sectionPaint = this.lookupSectionPaint(key);
+			Paint outlinePaint = this.lookupSectionOutlinePaint(key);
+			Stroke outlineStroke = this.lookupSectionOutlineStroke(key);
+			
+			g2.setPaint(sectionPaint);
+			
 			g2.fill(arc);
 			g2.setPaint(outlinePaint);
 			g2.setStroke(outlineStroke);
 			g2.draw(arc);
 		}
-
-		// sort segment side point list to be in back-to-front order
-		Collections.sort(faceList);
 		
-		// paint faces
-		Set<Integer> visitedIndices = new TreeSet<Integer>();	// paint mantle faces only once
-		for (IndexedFace indexedFace : faceList) {
-			int index = indexedFace.index;
-			Arc2D segment = arcList.get(index);
-			if (segment == null) {
+		// paint mantle back faces
+		for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
+			Arc2D arc = arcList.get(categoryIndex);
+			if (arc == null) {
 				continue;
 			}
-			Comparable key = getSectionKey(index);
-			paint = lookupSectionPaint(key);
-			outlinePaint = lookupSectionOutlinePaint(key);
-			outlineStroke = lookupSectionOutlineStroke(key);
-			boolean visited = visitedIndices.contains(index);
+			Comparable key = this.getSectionKey(categoryIndex);
+			Paint outlinePaint = this.lookupSectionOutlinePaint(key);
+			Stroke outlineStroke = this.lookupSectionOutlineStroke(key);
 			
-			// shade and paint mantle back face
-			if (!visited) {
-				Area backMantle = getArcMantleBackArea(segment, depth);
-				
-				g2.setPaint(Color.GRAY);
-				g2.fill(backMantle);
-
-				g2.setPaint(paint);
-				g2.fill(backMantle);
-				g2.setStroke(outlineStroke);
-				g2.setPaint(outlinePaint);
-				g2.draw(backMantle);
-			}
-
-			// shade and paint inner face
-			double centerX = segment.getCenterX();
-			double centerY = segment.getCenterY();
-
-			Path2D path = new Path2D.Double();
-
-			path.moveTo(centerX, centerY);
-			path.lineTo(centerX, centerY - depth);
-
-			Point2D point = (indexedFace.startFace) ? segment.getStartPoint() : segment.getEndPoint();
-
-			path.lineTo(point.getX(), point.getY() - depth);
-			path.lineTo(point.getX(), point.getY());
-			path.closePath();
-
+			// shade mantle back face
+			Shape backMantle = this.getArcMantleBackArea(arc, depth);
+			
 			g2.setPaint(Color.GRAY);
-			g2.fill(path);
+			g2.fill(backMantle);
 			
-			g2.setPaint(paint);
-			g2.fill(path);
 			g2.setStroke(outlineStroke);
 			g2.setPaint(outlinePaint);
-			g2.draw(path);
-			
-			// shade and paint mantle front face
-			if (visited) {
-				Area frontMantle = getArcMantleFrontArea(segment, depth);
-				
-				g2.setPaint(Color.GRAY);
-				g2.fill(frontMantle);
-
-				g2.setPaint(paint);
-				g2.fill(frontMantle);
-				g2.setStroke(outlineStroke);
-				g2.setPaint(outlinePaint);
-				g2.draw(frontMantle);
-			}
-			
-			visitedIndices.add(index);
+			g2.draw(backMantle);
 		}
+		
+		// build lists of faces
+		List<IndexedFace> faces = new ArrayList<IndexedFace>();
+		for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
+			Arc2D arc = arcList.get(categoryIndex);
+			if (arc == null) {
+				continue;
+			}
+			faces.addAll(this.getArcInnerBackFaces(categoryIndex, arc, depth));
+			faces.addAll(this.getArcInnerFrontFaces(categoryIndex, arc, depth));
+			faces.addAll(this.getArcMantleFrontFaces(categoryIndex, arc, depth));
+		}
+		// sort faces
+		Collections.sort(faces);
+		
+		// paint faces
+		for (IndexedFace face : faces) {
+			int categoryIndex = face.getIndex();
+			Shape shape = face.getShape();
 
+			Comparable key = this.getSectionKey(categoryIndex);
+			Paint sectionPaint = (face.isBackFace()) ? Color.GRAY : this.lookupSectionPaint(key);
+			Paint outlinePaint = this.lookupSectionOutlinePaint(key);
+			Stroke outlineStroke = this.lookupSectionOutlineStroke(key);
+			
+			if (face.isMantleFace()) {
+				g2.setPaint(Color.GRAY);
+				g2.fill(shape);
+			}
+
+			g2.setPaint(sectionPaint);
+			g2.fill(shape);
+			g2.setStroke(outlineStroke);
+			g2.setPaint(outlinePaint);
+			g2.draw(shape);
+		}
+		
 		g2.setClip(oldClip);
 
 		// draw the sections at the top of the pie (and set up tooltips)...
 		for (int sectionIndex = 0; sectionIndex < categoryCount; sectionIndex++) {
-			arc = (Arc2D.Double) arcList.get(sectionIndex);
+			Arc2D arc = arcList.get(sectionIndex);
 			if (arc == null) {
 				continue;
 			}
@@ -407,10 +366,10 @@ public class PiePlot3DExt extends PiePlot3D {
 					arc.getAngleStart(), arc.getAngleExtent(), Arc2D.PIE);
 
 			Comparable currentKey = (Comparable) sectionKeys.get(sectionIndex);
-			paint = lookupSectionPaint(currentKey, true);
-			outlinePaint = lookupSectionOutlinePaint(currentKey);
-			outlineStroke = lookupSectionOutlineStroke(currentKey);
-			g2.setPaint(paint);
+			Paint sectionPaint = this.lookupSectionPaint(currentKey, true);
+			Paint outlinePaint = this.lookupSectionOutlinePaint(currentKey);
+			Stroke outlineStroke = this.lookupSectionOutlineStroke(currentKey);
+			g2.setPaint(sectionPaint);
 			g2.fill(upperArc);
 			g2.setStroke(outlineStroke);
 			g2.setPaint(outlinePaint);
@@ -418,22 +377,21 @@ public class PiePlot3DExt extends PiePlot3D {
 
 			// add a tooltip for the section...
 			if (info != null) {
-				EntityCollection entities
-				= info.getOwner().getEntityCollection();
+				EntityCollection entities = info.getOwner().getEntityCollection();
 				if (entities != null) {
 					String tip = null;
-					PieToolTipGenerator tipster = getToolTipGenerator();
+					PieToolTipGenerator tipster = this.getToolTipGenerator();
 					if (tipster != null) {
 						// @mgs: using the method's return value was missing
 						tip = tipster.generateToolTip(dataset, currentKey);
 					}
 					String url = null;
 					if (getURLGenerator() != null) {
-						url = getURLGenerator().generateURL(dataset, currentKey,
-								getPieIndex());
+						url = this.getURLGenerator().generateURL(
+								dataset, currentKey, this.getPieIndex());
 					}
 					PieSectionEntity entity = new PieSectionEntity(
-							upperArc, dataset, getPieIndex(), sectionIndex,
+							upperArc, dataset, this.getPieIndex(), sectionIndex,
 							currentKey, tip, url);
 					entities.add(entity);
 				}
@@ -446,11 +404,11 @@ public class PiePlot3DExt extends PiePlot3D {
                 originalPlotArea.getWidth(), originalPlotArea.getHeight()
                 - getShadowYOffset() - 8.0);
 //		setInteriorGap(0.0);
-		if (getSimpleLabels()) {
-			drawSimpleLabels(g2, keys, totalValue, adjustedPlotArea,
+		if (this.getSimpleLabels()) {
+			this.drawSimpleLabels(g2, keys, totalValue, adjustedPlotArea,
 					linkArea, state);
 		} else {
-			drawLabels(g2, keys, totalValue, adjustedPlotArea, linkArea,
+			this.drawLabels(g2, keys, totalValue, adjustedPlotArea, linkArea,
 					state);
 		}
 //		setInteriorGap(gapPercent);
@@ -469,8 +427,278 @@ public class PiePlot3DExt extends PiePlot3D {
 
 		g2.setClip(savedClip);
 		g2.setComposite(originalComposite);
-		drawOutline(g2, originalPlotArea);
+		this.drawOutline(g2, originalPlotArea);
 
+	}
+
+	/**
+	 * Utility method to return back-facing mantle area of a pie segment.
+	 * @param arc The pie segment's bottom arc shape.
+	 * @param depth The pie's extrusion height.
+	 * @return The back-facing mantle area.
+	 */
+	protected Shape getArcMantleBackArea(Arc2D arc, float depth) {
+		
+		Point2D startPoint = arc.getStartPoint();
+		Point2D endPoint = arc.getEndPoint();
+	
+		float startX = (float) startPoint.getX();
+		float startY = (float) startPoint.getY();
+		float endX = (float) endPoint.getX();
+		float endY = (float) (endPoint.getY());
+		
+		double start = arc.getAngleStart();
+		double extent = Math.abs(arc.getAngleExtent());
+	
+		float cx = (float) arc.getCenterX();
+		float cy = (float) arc.getCenterY();
+		float rx = (float) state.getPieWRadius();
+		float ry = (float) state.getPieHRadius();
+		
+		GeneralPathExt path = new GeneralPathExt();
+		path.moveTo(startX, startY - depth);
+		if (start > 180.0) {
+			if (extent > (start - 180.0)) {
+				// crossing left boundary from the front
+				path.moveTo(cx - rx, cy - depth);
+				if (extent > start) {
+					// also crossing right boundary from the back
+					path.arcTo(rx, ry, 0, false, true, cx + rx, cy - depth);
+					path.lineTo(cx + rx, cy);
+				} else {
+					// arc ends before right boundary
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+				}
+				path.arcTo(rx, ry, 0, false, false, cx - rx, cy);
+				path.closePath();
+			}
+		} else if (start > 0.0) {
+			if (extent > start) {
+				// crossing right boundary from the back
+				path.arcTo(rx, ry, 0, false, true, cx + rx, cy - depth);
+				path.lineTo(cx + rx, cy);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
+				path.closePath();
+				if (extent > (start + 180.0)) {
+					// also crossing left boundary from the front
+					path.moveTo(cx - rx, cy - depth);
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+					path.arcTo(rx, ry, 0, false, false, cx - rx, cy);
+					path.closePath();
+				}
+			} else {
+				// arc ends before right boundary
+				path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+				path.lineTo(endX, endY);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
+				path.closePath();
+			}
+		} else if (start > -180.0) {
+			if (extent > (start + 180.0)) {
+				// crossing left boundary from the front
+				path.moveTo(cx - rx, cy - depth);
+				if (extent > (start + 360.0)) {
+					// also crossing right boundary from the back
+					path.arcTo(rx, ry, 0, false, true, cx + rx, cy - depth);
+					path.lineTo(cx + rx, cy);
+				} else {
+					// arc ends before right boundary
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+				}
+				path.arcTo(rx, ry, 0, false, false, cx - rx, cy);
+				path.closePath();
+			}
+		} else {
+			if (extent > (start + 360)) {
+				// crossing right boundary from the back
+				path.arcTo(rx, ry, 0, false, true, cx + rx, cy - depth);
+				path.lineTo(cx + rx, cy);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
+				path.closePath();
+				if (extent > (start + 540.0)) {
+					// also crossing left boundary from the front
+					path.moveTo(cx - rx, cy - depth);
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+					path.arcTo(rx, ry, 0, false, false, cx - rx, cy);
+					path.closePath();
+				}
+			} else {
+				// arc ends before right boundary
+				path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+				path.lineTo(endX, endY);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
+				path.closePath();
+			}
+		}
+		
+		return path;
+	}
+
+	/**
+	 * TODO: API
+	 * @param segment
+	 * @param depth
+	 * @return
+	 */
+	protected List<IndexedFace> getArcInnerBackFaces(int index, Arc2D arc, float depth) {
+		// TODO: add a few comments
+		Point2D startPoint = arc.getStartPoint();
+		Point2D endPoint = arc.getEndPoint();
+	
+		float startX = (float) startPoint.getX();
+		float startY = (float) startPoint.getY();
+		float endX = (float) endPoint.getX();
+		float endY = (float) (endPoint.getY());
+		
+		double start = arc.getAngleStart();
+		double extent = Math.abs(arc.getAngleExtent());
+		double end = start + arc.getAngleExtent();
+	
+		float cx = (float) arc.getCenterX();
+		float cy = (float) arc.getCenterY();
+		
+		List<IndexedFace> faces = new ArrayList<IndexedFace>();
+		
+		// TODO: simplify structure
+		if (start < -270.0) {
+			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
+			double delta = Math.abs(-270.0 - start);
+			faces.add(new IndexedFace(index, face, delta, true));
+		} else if (start < -90.0) {
+			if (extent < (start + 270.0)) {
+				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
+				double delta = Math.abs(-270.0 - end);
+				faces.add(new IndexedFace(index, face, delta, true));
+			}
+		} else if (start < 90.0) {
+			// start face in right half
+			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
+			double delta = Math.abs(90.0 - start);
+			faces.add(new IndexedFace(index, face, delta, true));
+			if ((end < -90.0) && (end > -270.0)) {
+				// end face in left half
+				face = this.createInnerFace(depth, endX, endY, cx, cy);
+				delta = Math.abs(-270.0 - end);
+				faces.add(new IndexedFace(index, face, delta, true));
+			}
+		} else if (start < 270.0) {
+			// start face in left half
+			if ((end > 90.0) || (end < -90.0)) {
+				// end face also in left half
+				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
+				double delta = (end > 90.0) ? Math.abs(90.0 - end) : Math.abs(-270.0 - end);
+				faces.add(new IndexedFace(index, face, delta, true));
+			}
+		} else {
+			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
+			double delta = Math.abs(-270.0 - start);
+			faces.add(new IndexedFace(index, face, delta, true));
+			if (extent < (start - 90.0)) {
+				face = this.createInnerFace(depth, endX, endY, cx, cy);
+				delta = Math.abs(-270.0 - end);
+				faces.add(new IndexedFace(index, face, delta, true));
+			}
+		}
+		
+		return faces;
+	}
+
+	/**
+	 * TODO: API
+	 * @param arc
+	 * @param depth
+	 * @return
+	 */
+	protected List<IndexedFace> getArcInnerFrontFaces(int index, Arc2D arc, float depth) {
+		// TODO: add a few comments
+		Point2D startPoint = arc.getStartPoint();
+		Point2D endPoint = arc.getEndPoint();
+	
+		float startX = (float) startPoint.getX();
+		float startY = (float) startPoint.getY();
+		float endX = (float) endPoint.getX();
+		float endY = (float) (endPoint.getY());
+		
+		double start = arc.getAngleStart();
+		double end = start + arc.getAngleExtent();
+	
+		float cx = (float) arc.getCenterX();
+		float cy = (float) arc.getCenterY();
+		
+		List<IndexedFace> faces = new ArrayList<IndexedFace>();
+		
+		// TODO: simplify cases
+		if (start > 270.0) {
+			// start face in right half
+			if (end < 90.0) {
+				// end face also in right half
+				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
+				double delta = Math.abs(90.0 - end);
+				faces.add(new IndexedFace(index, face, delta, false));
+			}
+		} else if (start > 90.0) {
+			// start face in left half
+			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
+			double delta = Math.abs(90.0 - start);
+			faces.add(new IndexedFace(index, face, delta, false));
+			if ((end < 90.0) && (end > -90.0)) {
+				// end face in right half
+				face = this.createInnerFace(depth, endX, endY, cx, cy);
+				delta = Math.abs(90.0 - end);
+				faces.add(new IndexedFace(index, face, delta, false));
+			}
+		} else if (start > -90.0) {
+			// start face in right half
+			if ((end < -270.0) || (end > -90.0)) {
+				// end face in top right quadrant
+				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
+				double delta = (end < -270.0) ? Math.abs(-270.0 - end) : Math.abs(90.0 - end);
+				faces.add(new IndexedFace(index, face, delta, false));
+			}
+		} else if (start > -270.0) {
+			// start face in left half
+			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
+			double delta = Math.abs(-270.0 - start);
+			faces.add(new IndexedFace(index, face, delta, false));
+			if (end < -270.0) {
+				// end face in right half
+				face = this.createInnerFace(depth, endX, endY, cx, cy);
+				delta = Math.abs(-270.0 - end);
+				faces.add(new IndexedFace(index, face, delta, false));
+			}
+		} else {
+			// ??
+			Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
+			double delta = Math.abs(-270.0 - end);
+			faces.add(new IndexedFace(index, face, delta, false));
+		}
+		
+		return faces;
+	}
+
+	/**
+	 * Creates an inner face shape of a pie segment using the provided center
+	 * and target coordinates and extrusion height.
+	 * @param depth the extrusion height
+	 * @param x the target x coordinate
+	 * @param y the target y coordinate
+	 * @param cx the pie center x coordinate
+	 * @param cy the pie center y coordinate
+	 * @return an inner face
+	 */
+	private Shape createInnerFace(float depth, float x, float y, float cx, float cy) {
+		GeneralPath path = new GeneralPath();
+		path.moveTo(cx, cy - depth);
+		path.lineTo(x, y - depth);
+		path.lineTo(x, y);
+		path.lineTo(cx, cy);
+		path.closePath();
+		
+		return path;
 	}
 
 	/**
@@ -479,235 +707,122 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * @param depth The pie's extrusion height.
 	 * @return The front-facing mantle area.
 	 */
-	private Area getArcMantleFrontArea(Arc2D arc, double depth) {
+	protected List<IndexedFace> getArcMantleFrontFaces(int index, Arc2D arc, float depth) {
 		
-		Area extArc = new Area(arc);
-		
-		// insert quadrilaterals masking gaps between top and bottom arcs
-		double angleStart = clampAngle(arc.getAngleStart());
-		double angleEnd = angleStart + arc.getAngleExtent();
-		double centerY = arc.getCenterY();
-		if (angleStart <= 0.0) {
-			// start point is in lower half
-			Point2D startPoint = arc.getStartPoint();
-			Path2D path = new Path2D.Double();
-			path.moveTo(startPoint.getX(), startPoint.getY());
-			path.lineTo(startPoint.getX(), startPoint.getY() - depth);
-			if (angleEnd < -180.0) {
-				// end point reaches into upper half (and possibly beyond)
-				path.lineTo(arc.getX(), centerY - depth);
-				path.lineTo(arc.getX(), centerY);
-			} else {
-				// end point is also in lower half
-				Point2D endPoint = arc.getEndPoint();
-				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
-				path.lineTo(endPoint.getX(), endPoint.getY());
-			}
-			path.closePath();
+		Point2D startPoint = arc.getStartPoint();
+		Point2D endPoint = arc.getEndPoint();
 
-			extArc.add(new Area(path));
-		} else {
-			// special case for concave segments
-			// TODO: investigate ghosty stroke traces around +90deg
-			if (angleEnd <= -180.0) {
-				Path2D path = new Path2D.Double();
-				path.moveTo(arc.getCenterX(), centerY);
-				path.lineTo(arc.getCenterX(), centerY - depth);
-				path.lineTo(arc.getMaxX(), centerY - depth);
-				path.lineTo(arc.getMaxX(), centerY);
+		float startX = (float) startPoint.getX();
+		float startY = (float) startPoint.getY();
+		float endX = (float) endPoint.getX();
+		float endY = (float) (endPoint.getY());
+		
+		double start = arc.getAngleStart();
+		double extent = Math.abs(arc.getAngleExtent());
+		double end = start + arc.getAngleExtent();
+
+		float cx = (float) arc.getCenterX();
+		float cy = (float) arc.getCenterY();
+		float rx = (float) state.getPieWRadius();
+		float ry = (float) state.getPieHRadius();
+		
+		List<IndexedFace> faces = new ArrayList<IndexedFace>();
+		
+		// TODO: simplify pathing by using path.append() instead of path.arcTo()
+		if (start > 180.0) {
+			// start face in bottom half
+			if (extent > (start - 180.0)) {
+				// crossing left boundary from the front
+				GeneralPathExt path = new GeneralPathExt();
+				path.moveTo(startX, startY - depth);
+				path.arcTo(rx, ry, 0, false, true, cx - rx, cy - depth);
+				path.lineTo(cx - rx, cy);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
 				path.closePath();
-
-				extArc.add(new Area(path));
-			}
-		}
-		double fixAngleEnd = clampAngle(angleEnd);
-		if (fixAngleEnd < 0.0) {
-			if ((fixAngleEnd - arc.getAngleExtent()) > 0.0) {
-				// end point is in lower half while start point is in upper half
-				Point2D startPoint = new Point2D.Double(arc.getMaxX(), centerY);
-				Path2D path = new Path2D.Double();
-				path.moveTo(startPoint.getX(), startPoint.getY());
-				path.lineTo(startPoint.getX(), startPoint.getY() - depth);
-				if (angleEnd < -180.0) {
-					// end point reaches into upper half (and possibly beyond)
-					path.lineTo(arc.getX(), centerY - depth);
-					path.lineTo(arc.getX(), centerY);
-				} else {
-					// end point is also in lower half
-					Point2D endPoint = arc.getEndPoint();
-					path.lineTo(endPoint.getX(), endPoint.getY() - depth);
-					path.lineTo(endPoint.getX(), endPoint.getY());
+				double delta = (start > 270.0) ? 180.0 : 90.0 + (start - 180.0) / 2.0;
+				faces.add(new IndexedFace(index, path, delta, false, true));
+				if (extent > start) {
+					// also crossing right boundary from the back
+					path = new GeneralPathExt();
+					path.moveTo(cx + rx, cy - depth);
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+					path.arcTo(rx, ry, 0, false, false, cx + rx, cy);
+					path.closePath();
+					delta = (end < -90.0) ? 180.0 : 90.0 - (end / 2.0);
+					faces.add(new IndexedFace(index, path, delta, false, true));
 				}
-				path.closePath();
-
-				extArc.add(new Area(path));
-			}
-		} else {
-			// special case for concave segments
-			if ((fixAngleEnd - arc.getAngleExtent()) > 360.0) {
-				Path2D path = new Path2D.Double();
-				path.moveTo(arc.getX(), centerY);
-				path.lineTo(arc.getX(), centerY - depth);
-				path.lineTo(arc.getCenterX(), centerY - depth);
-				path.lineTo(arc.getCenterX(), centerY);
-				path.closePath();
-
-				extArc.add(new Area(path));
-			}
-		}
-		
-		// subtract exposed inner sides
-		angleEnd = fixAngleEnd;
-		if ((angleEnd >= -90.0) && (angleEnd <= 90.0)) {
-			double w = arc.getEndPoint().getX() - arc.getCenterX();
-			double h;
-			if (angleEnd > 0.0) {
-				h = centerY - arc.getY();
 			} else {
-				h = arc.getHeight();
-			}
-			Rectangle2D rect = new Rectangle2D.Double(
-					arc.getCenterX(), arc.getY(), w, h);
-			extArc.subtract(new Area(rect));
-		}
-		double absAngleStart = Math.abs(angleStart);
-		if ((absAngleStart >= 90.0) && (absAngleStart <= 180.0)) {
-			double w = arc.getCenterX() - arc.getStartPoint().getX();
-			double h;
-			if (angleStart > 0.0) {
-				h = centerY - arc.getY();
-			} else {
-				h = arc.getHeight();
-			}
-			Rectangle2D rect = new Rectangle2D.Double(
-					arc.getStartPoint().getX(), arc.getY(), w, h);
-			extArc.subtract(new Area(rect));
-		}
-		
-		// subtract top arc
-		Arc2D topArc = new Arc2D.Double(arc.getX(), arc.getY() - depth,
-				arc.getWidth(), arc.getHeight(), arc.getAngleStart(),
-				arc.getAngleExtent(), Arc2D.PIE);
-		extArc.subtract(new Area(topArc));
-		
-		return extArc;
-	}
-	
-	/**
-	 * Utility method to return back-facing mantle area of a pie segment.
-	 * @param arc The pie segment's bottom arc shape.
-	 * @param depth The pie's extrusion height.
-	 * @return The back-facing mantle area.
-	 */
-	private Area getArcMantleBackArea(Arc2D arc, double depth) {
-
-		Arc2D topArc = new Arc2D.Double(arc.getX(), arc.getY() - depth,
-				arc.getWidth(), arc.getHeight(), arc.getAngleStart(),
-				arc.getAngleExtent(), Arc2D.PIE);
-		Area extArc = new Area(topArc);
-		
-		// insert quadrilaterals masking gaps between top and bottom arcs
-		double angleStart = clampAngle(arc.getAngleStart());
-		double angleEnd = angleStart + arc.getAngleExtent();
-		double fixAngleEnd = clampAngle(angleEnd);
-		if (angleStart >= 0.0) {
-			Point2D startPoint = arc.getStartPoint();
-			Path2D path = new Path2D.Double();
-			path.moveTo(startPoint.getX(), startPoint.getY());
-			path.lineTo(startPoint.getX(), startPoint.getY() - depth);
-			if (angleEnd < 0.0) {
-				path.lineTo(arc.getMaxX(), arc.getCenterY() - depth);
-				path.lineTo(arc.getMaxX(), arc.getCenterY());
-			} else {
-				Point2D endPoint = arc.getEndPoint();
-				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
-				path.lineTo(endPoint.getX(), endPoint.getY());
-			}
-			path.closePath();
-
-			extArc.add(new Area(path));
-		} else {
-			// special case for concave segments
-			if (angleEnd <= -360.0) {
-				Point2D startPoint = arc.getStartPoint();
-				Path2D path = new Path2D.Double();
-				path.moveTo(startPoint.getX(), startPoint.getY());
-				path.lineTo(startPoint.getX(), startPoint.getY() - depth);
-				path.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
-				path.lineTo(arc.getCenterX(), arc.getCenterY());
+				// arc ends before left boundary
+				GeneralPathExt path = new GeneralPathExt();
+				path.moveTo(startX, startY - depth);
+				path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+				path.lineTo(endX, endY);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
 				path.closePath();
-
-				extArc.add(new Area(path));
+				double delta = (end < 270.0) ? 180.0 : Math.abs(90.0 - (start + arc.getAngleExtent() / 2.0));
+				faces.add(new IndexedFace(index, path, delta, false, true));
 			}
-		}
-		if (fixAngleEnd > 0.0) {
-			if (angleStart < 0.0) {
-				Point2D endPoint = arc.getEndPoint();
-				Path2D path = new Path2D.Double();
-				path.moveTo(endPoint.getX(), endPoint.getY());
-				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
-				path.lineTo(arc.getX(), arc.getCenterY() - depth);
-				path.lineTo(arc.getX(), arc.getCenterY());
+		} else if (start > 0.0) {
+			// start face in top half
+			if (extent > start) {
+				// crossing right boundary from the back
+				GeneralPathExt path = new GeneralPathExt();
+				path.moveTo(cx + rx, cy - depth);
+				double delta;
+				if (extent > (start + 180.0)) {
+					// also crossing left boundary from the front
+					path.arcTo(rx, ry, 0, false, true, cx - rx, cy - depth);
+					path.lineTo(cx - rx, cy);
+					delta = 180.0;
+				} else {
+					// arc ends before left boundary
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+					delta = (end < -90.0) ? 180.0 : 90.0 - (end / 2.0);
+				}
+				path.arcTo(rx, ry, 0, false, false, cx + rx, cy);
 				path.closePath();
-
-				extArc.add(new Area(path));
+				faces.add(new IndexedFace(index, path, delta, false, true));
 			}
-		} else {
-			if (angleStart < 0.0) {
-				Point2D endPoint = arc.getEndPoint();
-				Path2D path = new Path2D.Double();
-				path.moveTo(endPoint.getX(), endPoint.getY());
-				path.lineTo(endPoint.getX(), endPoint.getY() - depth);
-				path.lineTo(arc.getCenterX(), arc.getCenterY() - depth);
-				path.lineTo(arc.getCenterX(), arc.getCenterY());
+		} else if (start > -180.0) {
+			// start face in bottom half
+			if (end < -180.0) {
+				// crossing left boundary from the front
+				GeneralPathExt path = new GeneralPathExt();
+				path.moveTo(startX, startY - depth);
+				path.arcTo(rx, ry, 0, false, true, cx - rx, cy - depth);
+				path.lineTo(cx - rx, cy);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
 				path.closePath();
-
-				extArc.add(new Area(path));
-			}
-		}
-		
-		// subtract exposed inner sides
-		angleEnd = fixAngleEnd;
-		double absAngleEnd = Math.abs(angleEnd);
-		if ((absAngleEnd >= 90.0) && (absAngleEnd <= 180.0)) {
-			double w = arc.getCenterX() - arc.getEndPoint().getX();
-			double y;
-			if (angleEnd > 0.0) {
-				y = arc.getY() - depth;
+				double delta = (start > -90) ? 180.0 : 90.0 + (start + 180.0) / 2.0;
+				faces.add(new IndexedFace(index, path, delta, false, true));
+				if (end < -360.0) {
+					// also crossing right boundary from the back
+					path = new GeneralPathExt();
+					path.moveTo(cx + rx, cy - depth);
+					path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+					path.lineTo(endX, endY);
+					path.arcTo(rx, ry, 0, false, false, cx + rx, cy);
+					path.closePath();
+					delta = 90.0 - ((end + 360.0) / 2.0);
+					faces.add(new IndexedFace(index, path, delta, false, true));
+				}
 			} else {
-				y = arc.getCenterY() - depth;
+				// arc ends before left boundary
+				GeneralPathExt path = new GeneralPathExt();
+				path.moveTo(startX, startY - depth);
+				path.arcTo(rx, ry, 0, false, true, endX, endY - depth);
+				path.lineTo(endX, endY);
+				path.arcTo(rx, ry, 0, false, false, startX, startY);
+				path.closePath();
+				double delta = ((start > -90.0) && (end < -90.0)) ? 180.0 :
+					180.0 - Math.abs(-90.0 - (start + arc.getAngleExtent() / 2.0));
+				faces.add(new IndexedFace(index, path, delta, false, true));
 			}
-			Rectangle2D rect = new Rectangle2D.Double(
-					arc.getEndPoint().getX(), y, w, arc.getHeight());;
-			extArc.subtract(new Area(rect));
-		}
-		if ((angleStart >= -90.0) && (angleStart <= 90.0)) {
-			double w = arc.getStartPoint().getX() - arc.getCenterX();
-			double y;
-			if (angleStart > 0.0) {
-				y = arc.getY() - depth;
-			} else {
-				y = arc.getCenterY() - depth;
-			}
-			Rectangle2D rect = new Rectangle2D.Double(
-					arc.getCenterX(), y, w, arc.getHeight());
-			extArc.subtract(new Area(rect));
 		}
 		
-		// subtract bottom arc
-		extArc.subtract(new Area(arc));
-		
-		return extArc;
-	}
-
-	/**
-	 * Convenience method to clamp angle values.
-	 * @param angle the angle to clamp
-	 * @return the angle value clamped to a range between -180.0 and +180.0
-	 */
-	private double clampAngle(double angle) {
-		return (angle > 180.0) ? clampAngle(angle - 360.0) :
-					(angle < -180.0) ? clampAngle(angle + 360.0) : angle;
+		return faces;
 	}
 	
 	/**
@@ -765,6 +880,7 @@ public class PiePlot3DExt extends PiePlot3D {
 	public void clearSectionPaints(boolean notify) {
 		super.clearSectionPaints(notify);
 		this.setSectionPaint("Unknown", Color.DARK_GRAY);
+//		this.setSectionPaint("Unknown", Color.CYAN);
 		this.setSectionPaint("Others", Color.GRAY);
 	}
 	
@@ -787,67 +903,236 @@ public class PiePlot3DExt extends PiePlot3D {
 	protected void drawRightLabels(KeyedValues keys, Graphics2D g2,
 			Rectangle2D plotArea, Rectangle2D linkArea, float maxLabelWidth,
 			PiePlotState state) {
-		// TODO Auto-generated method stub
 		super.drawRightLabels(keys, g2, plotArea, linkArea, Float.MAX_VALUE, state);
 	}
 	
 	/**
-	 * Utility class containing all necessary information to create an inner
-	 * face of a pie segment.
+	 * Convenience wrapper class for a face shape associated with a category index.
+	 * @author A. Behne
 	 */
 	private class IndexedFace implements Comparable<IndexedFace> {
-		/** The pie section index */
+		
+		/**
+		 * The category index.
+		 */
 		private int index;
-		/** Flag denoting whether this is a polygon at the start edge of the indexed arc. */
-		private boolean startFace;
-		/** Flag denoting whether this is a back-facing polygon. */
-		private boolean backFace;
+		
+		/**
+		 * The wrapped face shape.
+		 */
+		private Shape shape;
+		
+		/**
+		 * The angle delta of the face to the top of the pie.
+		 */
+		private double delta;
 
 		/**
-		 * Constructs an IndexedFace object.
-		 * @param index the pie section index.
-		 * @param startFace <code>true</code> if this face is at the start edge of the
-		 *            indexed pie section, <code>false</code> otherwise.
-		 * @param backFace <code>true</code> if this face is pointing backwards,
-		 *            <code>false</code> otherwise.
+		 * Flag indicating whether the wrapped face is back-facing.
 		 */
-		public IndexedFace(int index, boolean startFace, boolean backFace) {
+		private boolean backFace;
+		
+		/**
+		 * Flag indicating whether the wrapped face is a mantle face.
+		 */
+		private boolean mantle;
+		
+		/**
+		 * Constructs a face wrapper using the specified category index, face shape, angle delta and back-facing flag.
+		 * @param index the category index
+		 * @param shape the face shape
+		 * @param delta the delta to the angle signifying the top of the pie in degrees
+		 * @param backFace <code>true</code> if the face is back-facing, <code>false</code> otherwise
+		 */
+		private IndexedFace(int index, Shape shape, double delta, boolean backFace) {
+			this(index, shape, delta, backFace, false);
+		}
+
+		/**
+		 * Constructs a face wrapper using the specified category index, face shape, angle delta, back-facing flag and mantle flag.
+		 * @param index the category index
+		 * @param shape the face shape
+		 * @param delta the delta to the angle signifying the top of the pie in degrees
+		 * @param backFace <code>true</code> if the face is back-facing, <code>false</code> otherwise
+		 * @param mantle <code>true</code> if the face is a mantle face, <code>false</code> otherwise
+		 */
+		public IndexedFace(int index, Shape shape, double delta,
+				boolean backFace, boolean mantle) {
 			this.index = index;
-			this.startFace = startFace;
+			this.shape = shape;
+			this.delta = delta;
 			this.backFace = backFace;
+			this.mantle = mantle;
+		}
+
+		/**
+		 * Returns the category index.
+		 * @return the category index
+		 */
+		public int getIndex() {
+			return index;
+		}
+
+		/**
+		 * Returns the face shape.
+		 * @return the face shape
+		 */
+		public Shape getShape() {
+			return shape;
+		}
+
+		/**
+		 * Returns the back-facing flag.
+		 * @return <code>true</code> if the face is back-facing, <code>false</code> otherwise
+		 */
+		public boolean isBackFace() {
+			return backFace;
+		}
+		
+		/**
+		 * Returns the mantle flag.
+		 * @return <code>true</code> if the face is a mantle face, <code>false</code> otherwise
+		 */
+		public boolean isMantleFace() {
+			return this.mantle;
 		}
 
 		@Override
 		public int compareTo(IndexedFace that) {
-			Point2D thisPoint = getNonExplodedPoint(this);
-			Point2D thatPoint = getNonExplodedPoint(that);
-			int delta = (int) thisPoint.getY() - (int) thatPoint.getY();
-			// consider back-faces as greater than front-faces (will be drawn on top) 
-			return (delta < 0) ? -1 : (delta > 0) ? 1 : (this.backFace) ? 1 : -1;
+			// backfaces always after frontfaces
+			if (this.backFace != that.backFace) {
+				return (this.backFace) ? -1 : 1;
+			}
+			// faces closer to the top before lower ones
+			return Double.compare(this.delta, that.delta);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof IndexedFace) {
+				IndexedFace that = (IndexedFace) obj;
+				if (this.backFace != that.backFace) {
+					return false;
+				}
+				return (this.delta == that.delta);
+			}
+			return false;
 		}
 
+	}
+	
+	/**
+	 * Convenience extension to allow for pathing along elliptical arcs.
+	 * @author A. Behne
+	 */
+	private class GeneralPathExt extends Path2D.Float {
+
 		/**
-		 * Utility method to extract the point on the pie's non-exploded
-		 * circumference that corresponds with the specified IndexedFace.
-		 * @param face the indexedFace
-		 * @return the desired point
+		 * Adds an elliptical arc, defined by two radii, an angle from the
+		 * x-axis, a flag to choose the large arc or not, a flag to indicate if
+		 * we increase or decrease the angles and the final point of the arc.
+		 * @param rx the x radius of the ellipse
+		 * @param ry the y radius of the ellipse
+		 * @param theta the angle from the x-axis of the current coordinate system
+		 *  to the x-axis of the ellipse in degrees
+		 * @param largeArcFlag the large arc flag. If true the arc spanning less than or
+		 *  equal to 180 degrees is chosen, otherwise the arc spanning
+		 *  greater than 180 degrees is chosen
+		 * @param sweepFlag the sweep flag. If true the line joining center to arc
+		 *  sweeps through decreasing angles otherwise it sweeps
+		 *  through increasing angles
+		 * @param x the absolute x coordinate of the final point of the arc
+		 * @param y the absolute y coordinate of the final point of the arc
 		 */
-		public Point2D getNonExplodedPoint(IndexedFace face) {
-			Arc2D arc = arcList.get(face.index);
-			
-			double expPercent = getExplodePercent(getSectionKey(face.index));
-			if (expPercent > 0.0) {
-				Rectangle2D pieArea = state.getPieArea();
-				int depth = (int) (pieArea.getHeight() * getDepthFactor());
-				arc = new Arc2D.Double(pieArea.getX(), pieArea.getY() + depth,
-						pieArea.getWidth(), pieArea.getHeight() - depth,
-						arc.getAngleStart(), arc.getAngleExtent(), Arc2D.PIE);
+		public void arcTo(float rx, float ry, float theta, boolean largeArcFlag, boolean sweepFlag, float x, float y) {
+			// Ensure radii are valid
+			if (rx == 0 || ry == 0) {
+				this.lineTo(x, y);
+				return;
 			}
-			
-			Point2D point = (face.startFace) ? arc.getStartPoint() : arc.getEndPoint();
-			
-			return point;
+		
+			// Get the current (x, y) coordinates of the path
+			Point2D p2d = this.getCurrentPoint();
+			float x0 = (float) p2d.getX();
+			float y0 = (float) p2d.getY();
+			// Compute the half distance between the current and the final point
+			float dx2 = (x0 - x) / 2.0f;
+			float dy2 = (y0 - y) / 2.0f;
+			// Convert theta from degrees to radians
+			theta = (float) Math.toRadians(theta % 360f);
+		
+			/* Step 1 : Compute (x1, y1) */
+			float x1 = (float) (Math.cos(theta) * (double) dx2 + Math.sin(theta)
+					* (double) dy2);
+			float y1 = (float) (-Math.sin(theta) * (double) dx2 + Math.cos(theta)
+					* (double) dy2);
+			// Ensure radii are large enough
+			rx = Math.abs(rx);
+			ry = Math.abs(ry);
+			float Prx = rx * rx;
+			float Pry = ry * ry;
+			float Px1 = x1 * x1;
+			float Py1 = y1 * y1;
+			double d = Px1 / Prx + Py1 / Pry;
+			if (d > 1) {
+				rx = Math.abs((float) (Math.sqrt(d) * (double) rx));
+				ry = Math.abs((float) (Math.sqrt(d) * (double) ry));
+				Prx = rx * rx;
+				Pry = ry * ry;
+			}
+		
+			/* Step 2 : Compute (cx1, cy1) */
+			double sign = (largeArcFlag == sweepFlag) ? -1d : 1d;
+			float coef = (float) (sign * Math.sqrt(
+					((Prx * Pry) - (Prx * Py1) - (Pry * Px1))
+					/ ((Prx * Py1) + (Pry * Px1))));
+			float cx1 = coef * ((rx * y1) / ry);
+			float cy1 = coef * -((ry * x1) / rx);
+		
+			/* Step 3 : Compute (cx, cy) from (cx1, cy1) */
+			float sx2 = (x0 + x) / 2.0f;
+			float sy2 = (y0 + y) / 2.0f;
+			float cx = sx2
+					+ (float) (Math.cos(theta) * (double) cx1 - Math.sin(theta)
+							* (double) cy1);
+			float cy = sy2
+					+ (float) (Math.sin(theta) * (double) cx1 + Math.cos(theta)
+							* (double) cy1);
+		
+			/* Step 4 : Compute the angleStart (theta1) and the angleExtent (dtheta) */
+			float ux = (x1 - cx1) / rx;
+			float uy = (y1 - cy1) / ry;
+			float vx = (-x1 - cx1) / rx;
+			float vy = (-y1 - cy1) / ry;
+			float p, n;
+			// Compute the angle start
+		    n = (float) Math.sqrt((ux * ux) + (uy * uy));
+			p = ux; // (1 * ux) + (0 * uy)
+			sign = (uy < 0) ? -1d : 1d;
+			float angleStart = (float) Math.toDegrees(sign * Math.acos(p / n));
+			// Compute the angle extent
+			n = (float) Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
+			p = ux * vx + uy * vy;
+			sign = (ux * vy - uy * vx < 0) ? -1d : 1d;
+			float angleExtent = (float) Math.toDegrees(sign * Math.acos(p / n));
+			if (!sweepFlag && angleExtent > 0) {
+				angleExtent -= 360f;
+			} else if (sweepFlag && angleExtent < 0) {
+				angleExtent += 360f;
+			}
+			angleExtent %= 360f;
+			angleStart %= 360f;
+		
+			Arc2D.Float arc = new Arc2D.Float();
+			arc.x = cx - rx;
+			arc.y = cy - ry;
+			arc.width = rx * 2.0f;
+			arc.height = ry * 2.0f;
+			arc.start = -angleStart;
+			arc.extent = -angleExtent;
+			this.append(arc, true);
 		}
+		
 	}
 	
 }

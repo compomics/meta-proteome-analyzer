@@ -94,7 +94,6 @@ public class TaxonomyChart extends Chart {
 		
 		PiePlot3D piePlot = new PiePlot3DExt(pieDataset, 0.2);
         piePlot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));
-        piePlot.setStartAngle(324);
         piePlot.setCircular(true);
         piePlot.setForegroundAlpha(0.75f);
         piePlot.setBackgroundPaint(null);

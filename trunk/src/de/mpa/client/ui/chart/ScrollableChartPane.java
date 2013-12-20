@@ -62,7 +62,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
-public class ScrollableChartPanel extends JScrollPane implements Busyable {
+public class ScrollableChartPane extends JScrollPane implements Busyable {
 
 	/**
 	 * The chart panel instance.
@@ -91,7 +91,7 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 	/**
 	 * Cached value for rotation angle of pie charts.
 	 */
-	private double chartPieAngle;
+	private double chartPieAngle = 36.0;
 	
 	/**
 	 * Flag denoting whether this component is currently loading/manipulating its contents.
@@ -102,10 +102,12 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 	 * Constructs a scrollable chart panel view from the specified chart.
 	 * @param chart
 	 */
-	public ScrollableChartPanel(JFreeChart chart) {
+	public ScrollableChartPane(JFreeChart chart) {
 		super();
 		
-		this.initComponents(chart);
+		this.initComponents();
+		
+		this.setChart(chart, true);
 		
 		this.setViewportView(this.chartPnl);
 	}
@@ -113,9 +115,9 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 	/**
 	 * 
 	 */
-	private void initComponents(JFreeChart chart) {
+	private void initComponents() {
 		
-		chartPnl = new ChartPanel(chart) {
+		chartPnl = new ChartPanel(null) {
 			@Override
 			protected void paintChildren(Graphics g) {
 				// Fade chart if disabled
@@ -199,7 +201,7 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws Exception {
-						ScrollableChartPanel.this.chartHideUnknownChk.setEnabled(false);
+						ScrollableChartPane.this.chartHideUnknownChk.setEnabled(false);
 						Plot plot = chartPnl.getChart().getPlot();
 						DefaultPieDataset dataset;
 						if (plot instanceof PiePlot) {
@@ -313,11 +315,11 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 		chartBarMdl.removeChangeListener(cbcl[0]);
 
 		chartBar.addAdjustmentListener(new AdjustmentListener() {
-			public void adjustmentValueChanged(AdjustmentEvent ae) {
+			public void adjustmentValueChanged(AdjustmentEvent evt) {
 				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
 					if (chart.getPlot() instanceof PiePlot) {
-						int chartPieAngle = ae.getValue();
+						chartPieAngle = evt.getValue();
 						((PiePlot) chart.getPlot()).setStartAngle(chartPieAngle);
 					}
 				}
@@ -350,8 +352,7 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 		boolean isPie = plot instanceof PiePlot;
 		if (isPie) {
 			// enable chart scroll bar
-			chartBar.setMaximum(360);
-			chartBar.setValue((int) chartPieAngle);
+			chartBar.getModel().setRangeProperties((int) chartPieAngle, 1, 0, 360, true);
 			((PiePlot) plot).setStartAngle(chartPieAngle);
 		} else {
 			// disable chart scroll bar
@@ -381,6 +382,7 @@ public class ScrollableChartPanel extends JScrollPane implements Busyable {
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
+		this.getVerticalScrollBar().setEnabled(enabled);
 		this.chartPnl.setEnabled(enabled);
 	}
 	

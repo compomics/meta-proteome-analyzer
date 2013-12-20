@@ -93,7 +93,7 @@ import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.ScrollableChartPanel;
+import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
@@ -139,7 +139,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Chart panel capable of displaying various charts (mainly ontology pie charts).
 	 */
-	private ScrollableChartPanel chartPnl;
+	private ScrollableChartPane chartPane;
 
 	/**
 	 * The type of chart to be displayed in the top right chart pane.
@@ -668,17 +668,24 @@ public class ResultsPanel extends JPanel implements Busyable {
 			@Override
 			public PieDataset getDataset() {
 				DefaultPieDataset pieDataset = new DefaultPieDataset();
-				pieDataset.setValue("RPM", 8);
 				pieDataset.setValue("DNRPM", 2);
+				pieDataset.setValue("RPM", 8);
 				return pieDataset;
 			}
 		};
 		
-		chartPnl = new ScrollableChartPanel(ChartFactory.createOntologyChart(
-				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart());
-		chartPnl.setEnabled(false);
+		chartPane = new ScrollableChartPane(ChartFactory.createOntologyChart(
+				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart()) {
+			@Override
+			public void setEnabled(boolean enabled) {
+				super.setEnabled(enabled);
+				// synchronize type button enable state
+				chartTypeBtn.setEnabled(enabled);
+			}
+		};
+		chartPane.setEnabled(false);
 		
-		chartPnl.addPropertyChangeListener(new PropertyChangeListener() {
+		chartPane.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				String property = evt.getPropertyName();
@@ -699,27 +706,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 					ontologyData.setMinorGroupingLimit(limit);
 					taxonomyData.setMinorGroupingLimit(limit);
 					
-//					// refresh datasets and repaint chart
-//					Plot plot = chartPnl.getChart().getPlot();
-//					if ((chartType instanceof OntologyChartType)) {
-//						PieDataset dataset = ontologyData.getDataset();
-//						if (ontologyData.getShowAsPie()) {
-//							PiePlot piePlot = (PiePlot) plot;
-//							piePlot.setDataset(dataset);
-//						} else {
-//							PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
-//							catPlot.setDataset(dataset);
-//						}
-//					} else if (chartType instanceof TaxonomyChartType) {
-//						PieDataset dataset = taxonomyData.getDataset();
-//						if (taxonomyData.getShowAsPie()) {
-//							PiePlot piePlot = (PiePlot) plot;
-//							piePlot.setDataset(dataset);
-//						} else {
-//							PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
-//							catPlot.setDataset(dataset);
-//						}
-//					}
 					updateChart();
 					updateDetailsTable("");
 				} else if ("selection".equals(property)) {
@@ -731,7 +717,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		// wrap scroll pane in panel with 5dlu margin around it
 		JPanel chartMarginPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu",
 				"5dlu, f:p:g, 5dlu"));
-		chartMarginPnl.add(chartPnl, CC.xy(2, 2));
+		chartMarginPnl.add(chartPane, CC.xy(2, 2));
 
 		// wrap everything in titled panel containing button panel in the top
 		// right corner
@@ -957,7 +943,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		
 		if (chart != null) {
 			// insert chart into panel
-			chartPnl.setChart(chart.getChart(), showAdditionalControls);
+			chartPane.setChart(chart.getChart(), showAdditionalControls);
 		} else {
 			System.err.println("Chart type could not be determined!");
 		}
@@ -990,7 +976,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		this.fetchLocalBtn.setEnabled(!busy);
 
 		// Propagate busy state to chart panel
-		this.chartPnl.setBusy(busy);
+		this.chartPane.setBusy(busy);
 		
 		// Only ever make heat map pane busy, it takes care of turning not busy on its own
 		this.heatMapPn.setBusy(busy || heatMapPn.isBusy());
@@ -1239,7 +1225,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 			// Generate chart data objects
 //			HierarchyLevel hl = (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
-			HierarchyLevel hl = chartPnl.getHierarchyLevel();
+			HierarchyLevel hl = chartPane.getHierarchyLevel();
 			
 			ontologyData.setHierarchyLevel(hl);
 			ontologyData.setResult(dbSearchResult);
@@ -1264,7 +1250,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// Enable chart panel and heat map
-			chartPnl.setEnabled(true);
+			chartPane.setEnabled(true);
 			heatMapPn.setEnabled(true);
 
 			// Stop appearing busy

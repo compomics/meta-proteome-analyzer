@@ -216,7 +216,7 @@ public class GraphDatabaseHandler {
 		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
 		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getTaxonomyNode().getName());
 		metaProteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), metaProteinHit.getCoverage());
-		metaProteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), metaProteinHit.getSpectralCount());		
+		metaProteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), metaProteinHit.getSpectralCount());
 		
 		// Index the proteins by their accession.
 		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, metaProteinVertex);

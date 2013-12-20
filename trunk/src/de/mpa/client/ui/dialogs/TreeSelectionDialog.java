@@ -118,7 +118,8 @@ public class TreeSelectionDialog extends JDialog {
 			@Override
 			public void valueChanged(TreeSelectionEvent evt) {
 				// check whether root selection has been affected
-				if (evt.getPath().getPathCount() == 1) {
+				TreePath path = evt.getPath();
+				if ((path != null) && (path.getPathCount() == 1)) {
 					// update header checkbox selection via model to bypass action listener
 					TableColumnExt column = treeTbl.getColumnExt(treeTbl.convertColumnIndexToView(0));
 					ComponentHeaderRenderer renderer = (ComponentHeaderRenderer) column.getHeaderRenderer();

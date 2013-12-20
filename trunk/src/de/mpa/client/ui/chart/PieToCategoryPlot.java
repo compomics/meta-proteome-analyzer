@@ -180,6 +180,14 @@ public class PieToCategoryPlot extends CategoryPlot {
 	}
 	
 	/**
+	 * Sets the starting angle of the underlying pie plot.
+	 * @param angle the angle in degrees
+	 */
+	public void setStartAngle(double angle) {
+		this.piePlot.setStartAngle(angle);
+	}
+	
+	/**
 	 * Extended 3D bar renderer for displaying offset bars for
 	 * highlighting/selecting purposes.
 	 * 

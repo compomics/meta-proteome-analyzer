@@ -190,7 +190,7 @@ import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
-import de.mpa.client.ui.chart.ScrollableChartPanel;
+import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
@@ -1564,34 +1564,37 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 			@Override
 			public void updateHighlighters(int column, Object... params) {
-				TableColumnExt columnExt = this.getColumnExt(this.convertColumnIndexToView(column));
-				Highlighter[] highlighters = columnExt.getHighlighters();
-				if (highlighters.length > 0) {
-					if (highlighters.length > 1) {
-						// typically there should be only a single highlighter per column
-						System.err.println("WARNING: multiple highlighters specified for column " + column
-								+ " of tree table " + this.getTreeTableModel().getRoot().toString());
-					}
-					Highlighter hl = highlighters[0];
-					if (hl instanceof BarChartHighlighter) {
-						// we may need to update the highlighter's baseline width to accommodate for aggregate values
-						BarChartHighlighter bchl = (BarChartHighlighter) hl;
-						FontMetrics fm = this.getFontMetrics(DbSearchResultPanel.this.chartFont);
-						NumberFormat formatter = bchl.getFormatter();
-						// iterate all nodes to get elements in desired column
-//						// TODO: this is probably slow for large tables, maybe perform only once on largest value or root aggregate value or cached set of values
-						int maxWidth = this.getMaximumStringWidth(
-								(TreeTableNode) this.getTreeTableModel().getRoot(), column, formatter, fm);
-						bchl.setBaseline(maxWidth + 1);
-						if (params.length > 1) {
-							bchl.setRange(((Number) params[0]).doubleValue(), ((Number) params[1]).doubleValue());
+				int viewIndex = this.convertColumnIndexToView(column);
+				if (viewIndex != -1) {
+					TableColumnExt columnExt = this.getColumnExt(viewIndex);
+					Highlighter[] highlighters = columnExt.getHighlighters();
+					if (highlighters.length > 0) {
+						if (highlighters.length > 1) {
+							// typically there should be only a single highlighter per column
+							System.err.println("WARNING: multiple highlighters specified for column " + column
+									+ " of tree table " + this.getTreeTableModel().getRoot().toString());
+						}
+						Highlighter hl = highlighters[0];
+						if (hl instanceof BarChartHighlighter) {
+							// we may need to update the highlighter's baseline width to accommodate for aggregate values
+							BarChartHighlighter bchl = (BarChartHighlighter) hl;
+							FontMetrics fm = this.getFontMetrics(DbSearchResultPanel.this.chartFont);
+							NumberFormat formatter = bchl.getFormatter();
+							// iterate all nodes to get elements in desired column
+//							// TODO: this is probably slow for large tables, maybe perform only once on largest value or root aggregate value or cached set of values
+							int maxWidth = this.getMaximumStringWidth(
+									(TreeTableNode) this.getTreeTableModel().getRoot(), column, formatter, fm);
+							bchl.setBaseline(maxWidth + 1);
+							if (params.length > 1) {
+								bchl.setRange(((Number) params[0]).doubleValue(), ((Number) params[1]).doubleValue());
+							}
 						}
 					}
+					// repaint column
+					Rectangle rect = this.getTableHeader().getHeaderRect(this.convertColumnIndexToView(column));
+					rect.height = this.getHeight();
+					this.repaint(rect);
 				}
-				// repaint column
-				Rectangle rect = this.getTableHeader().getHeaderRect(this.convertColumnIndexToView(column));
-				rect.height = this.getHeight();
-				this.repaint(rect);
 			}
 			/** Convenience method to recursively traverse the tree in
 			 *  search of the widest string inside the specified column. */
@@ -2961,7 +2964,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * Chart panel capable of displaying various charts (mainly ontology/taxonomy pie charts).
 	 */
-	private ScrollableChartPanel chartPnl;
+	private ScrollableChartPane chartPnl;
 	
 	/**
 	 * The current type of chart to be displayed in the bottom right figure panel.
@@ -2993,7 +2996,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		};
 		
-		this.chartPnl = new ScrollableChartPanel(ChartFactory.createOntologyChart(
+		this.chartPnl = new ScrollableChartPane(ChartFactory.createOntologyChart(
 				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart());
 		
 		this.chartPnl.addPropertyChangeListener(new PropertyChangeListener() {
