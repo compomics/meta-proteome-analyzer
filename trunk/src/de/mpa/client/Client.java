@@ -31,7 +31,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.model.SpectrumMatch;
@@ -513,7 +513,10 @@ public class Client {
 			uniprotEntry = new ReducedUniProtEntry(taxID,
 					uniprotEntryAccessor.getKeywords(),
 					uniprotEntryAccessor.getEcnumber(),
-					uniprotEntryAccessor.getKonumber());
+					uniprotEntryAccessor.getKonumber(),
+					uniprotEntryAccessor.getUniref100(),
+					uniprotEntryAccessor.getUniref90(),
+					uniprotEntryAccessor.getUniref50());
 			
 			// Get taxonomy node.
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);

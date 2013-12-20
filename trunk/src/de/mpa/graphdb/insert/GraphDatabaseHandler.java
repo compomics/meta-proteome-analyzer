@@ -20,8 +20,8 @@ import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -175,7 +175,7 @@ public class GraphDatabaseHandler {
 		String accession = protHit.getAccession();
 		proteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		proteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), protHit.getDescription());
-		proteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), protHit.getSpecies());
+		proteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), protHit.getTaxonomyNode().getName());
 		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), protHit.getCoverage());
 		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
@@ -214,7 +214,7 @@ public class GraphDatabaseHandler {
 		String accession = metaProteinHit.getAccession();
 		metaProteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
-		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getSpecies());
+		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getTaxonomyNode().getName());
 		metaProteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), metaProteinHit.getCoverage());
 		metaProteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), metaProteinHit.getSpectralCount());		
 		
@@ -361,7 +361,7 @@ public class GraphDatabaseHandler {
 	 * @param proteinVertex
 	 */
 	private void addOntologies(ProteinHit protHit, Vertex proteinVertex) {
-		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
+		Map<String, KeywordOntology> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		ReducedUniProtEntry entry = protHit.getUniProtEntry();
 		Vertex ontologyVertex = null;
 		

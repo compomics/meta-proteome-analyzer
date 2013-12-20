@@ -11,9 +11,9 @@ import java.util.Set;
 
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
@@ -548,7 +548,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			if (redUniEntry != null) {
 				List<String> keywords = redUniEntry.getKeywords();
 				for (String kw : keywords) {
-					KeywordOntology ontologyType = UniprotAccessor.ONTOLOGY_MAP.get(kw);
+					KeywordOntology ontologyType = UniProtUtilities.ONTOLOGY_MAP.get(kw);
 					if (ontologyType != null) {
 						if (ontologyType.equals(ontChartType.getOntology())) {
 							res.add(kw);

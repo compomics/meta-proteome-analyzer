@@ -37,17 +37,38 @@ public class ReducedUniProtEntry implements Serializable {
 	private List<String> koNumbers;
 	
 	/**
+	 * UniRef100 Cluster ID.
+	 */
+	private String uniRef100id;
+	
+	/**
+	 * UniRef90 Cluster ID.
+	 */
+	private String uniRef90id;
+	
+	/**
+	 * UniRef50 Cluster ID.
+	 */
+	private String uniRef50id;
+	
+	/**
 	 * Default constructor for an UniprotEntry hit.
 	 * @param taxID Taxonomy ID.
 	 * @param keywords List of ontology keywords.
 	 * @param ecNumbers List of E.C. numbers.
 	 * @param koNumbers List of KEGG ontology numbers.
+	 * @param uniRef100id UniRef100 cluster ID.
+	 * @param uniRef90id UniRef900 cluster ID.
+	 * @param uniRef50id UniRef50 cluster ID.
 	 */
-	public ReducedUniProtEntry(long taxID, String keywords, String ecNumbers, String koNumbers) {
+	public ReducedUniProtEntry(long taxID, String keywords, String ecNumbers, String koNumbers, String uniRef100id, String uniRef90id, String uniRef50id) {
 		this.taxID = taxID;
 		this.keywords = formatToList(keywords);
 		this.ecNumbers = formatToList(ecNumbers);
 		this.koNumbers = formatToList(koNumbers);
+		this.uniRef100id = uniRef100id;
+		this.uniRef90id = uniRef90id;
+		this.uniRef50id = uniRef50id;
 	}
 	
 	/**
@@ -94,5 +115,29 @@ public class ReducedUniProtEntry implements Serializable {
 	 */
 	public List<String> getKNumbers() {
 		return koNumbers;
+	}
+	
+	/**
+	 * Returns the UniRef100 cluster ID.
+	 * @return UniRef100 cluster ID.
+	 */
+	public String getUniRef100id() {
+		return uniRef100id;
+	}
+	
+	/**
+	 * Returns the UniRef90 cluster ID.
+	 * @return UniRef90 cluster ID.
+	 */
+	public String getUniRef90id() {
+		return uniRef90id;
+	}
+	
+	/**
+	 * Returns the UniRef50 cluster ID.
+	 * @return UniRef50 cluster ID.
+	 */
+	public String getUniRef50id() {
+		return uniRef50id;
 	}
 }

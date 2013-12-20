@@ -12,8 +12,8 @@ import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
@@ -287,7 +287,7 @@ public class TaxonomyData implements ChartData {
 	 */
 	private List<TaxonomyRank> getTargetRanks(TaxonomyRank topRank) {
 		List<TaxonomyRank> targetRanks =
-				new ArrayList<TaxonomyRank>(UniprotAccessor.TAXONOMY_RANKS_MAP.values());
+				new ArrayList<TaxonomyRank>(UniProtUtilities.TAXONOMY_RANKS_MAP.values());
 		targetRanks = targetRanks.subList(targetRanks.indexOf(topRank), targetRanks.size());
 		return targetRanks;
 	}

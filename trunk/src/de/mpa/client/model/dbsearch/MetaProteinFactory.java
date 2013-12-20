@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.taxonomy.TaxonomyUtils;
@@ -53,7 +53,7 @@ public class MetaProteinFactory {
 				return true; 
 			}
 		},
-		UNIREF70("in UniRef70 or higher") {
+		UNIREF90("in UniRef90 or higher") {
 			public boolean shouldCondense(
 					MetaProteinHit rowMP,
 					MetaProteinHit colMP) {

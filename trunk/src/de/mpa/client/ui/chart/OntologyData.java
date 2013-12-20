@@ -14,8 +14,8 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 import org.jfree.util.SortOrder;
 
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -121,7 +121,7 @@ public class OntologyData implements ChartData {
 	 */
 	public void init() {
 		// Get the ontology map
-		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
+		Map<String, KeywordOntology> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		
 		this.occMaps = new HashMap<KeywordOntology, Map<String, ProteinHitList>>();
 		OntologyChartType[] chartTypes = OntologyChartType.values();

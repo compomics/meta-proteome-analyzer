@@ -34,8 +34,9 @@ import com.compomics.mascotdatfile.util.mascot.Query;
 import com.compomics.mascotdatfile.util.mascot.QueryToPeptideMap;
 import com.compomics.util.protein.Header;
 
+import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtGiMapper;
-import de.mpa.analysis.UniprotAccessor;
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.settings.ParameterMap;
@@ -196,10 +197,10 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
-		Map<String, UniProtEntry> uniProtEntries = null;			
+		Map<String, ReducedProteinData> proteinDataMap = null;			
 		if (!identifierList.isEmpty()) {
 			//TODO: Progress bars.
-			uniProtEntries = UniprotAccessor.retrieveUniProtEntries(identifierList);
+			proteinDataMap = UniProtUtilities.retrieveProteinData(identifierList);
 		}
 		
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
@@ -268,7 +269,7 @@ public class MascotStorager extends BasicStorager {
 							// Get proteins and fill them into the table
 							ArrayList<ProteinHit> proteinHits = peptideHit.getProteinHits();
 							for (ProteinHit datProtHit : proteinHits) {
-								long proteinID = storeProtein(peptideID, datProtHit, proteinMap, proteinsDbMap, uniProtEntries, uniProtAccessions);
+								long proteinID = storeProtein(peptideID, datProtHit, proteinMap, proteinsDbMap, proteinDataMap, uniProtAccessions);
 								storeMascotHit(searchSpectrumId, peptideID, proteinID, query, peptideHit);
 							}
 						}
@@ -354,7 +355,7 @@ public class MascotStorager extends BasicStorager {
 	 * @return proteinID. The proteinID in the database.
 	 * @throws SQLException 
 	 */
-	private long storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap, Map<String, Long> proteinsDbMap, Map<String, UniProtEntry> uniProtEntries, Map<String, String> uniProtAccessions) throws SQLException {
+	private long storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap, Map<String, Long> proteinsDbMap, Map<String, ReducedProteinData> proteinDataMap, Map<String, String> uniProtAccessions) throws SQLException {
 		String accession = proteinHit.getAccession();
 		
 		Header header;
@@ -377,14 +378,15 @@ public class MascotStorager extends BasicStorager {
 			}
 		}
 		
-		if (uniProtEntries != null) {
-			UniProtEntry entry = uniProtEntries.get(accession);
+		if (proteinDataMap != null) {
+			ReducedProteinData proteinData = proteinDataMap.get(accession);
 			
 			// UniProt entry must be available.
-			if(entry != null){
-				accession = entry.getPrimaryUniProtAccession().getValue();
-				description = getProteinName(entry.getProteinDescription());
-				sequence = entry.getSequence().getValue();
+			if(proteinData != null && proteinData.getUniProtEntry() != null) {
+				UniProtEntry uniProtEntry = proteinData.getUniProtEntry();
+				accession = uniProtEntry.getPrimaryUniProtAccession().getValue();
+				description = getProteinName(uniProtEntry.getProteinDescription());
+				sequence = uniProtEntry.getSequence().getValue();
 			} 
 		}
 		

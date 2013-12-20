@@ -78,9 +78,21 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * This variable represents the contents for the 'keywords' column.
 	 */
 	protected String iKeywords = null;
-
-
-
+	
+	/**
+	 * This variable represents the contents for the 'uniref50' column.
+	 */
+	protected String iUniref50 = null;
+	
+	/**
+	 * This variable represents the contents for the 'uniref90' column.
+	 */
+	protected String iUniref90 = null;
+	
+	/**
+	 * This variable represents the contents for the 'uniref100' column.
+	 */
+	protected String iUniref100 = null;
 
 	/**
 	 * This variable represents the key for the 'uniprotentryid' column.
@@ -111,6 +123,21 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * This variable represents the key for the 'keywords' column.
 	 */
 	public static final String KEYWORDS = "KEYWORDS";
+	
+	/**
+	 * This variable represents the key for the 'uniref50' column.
+	 */
+	public static final String UNIREF50 = "UNIREF50";
+	
+	/**
+	 * This variable represents the key for the 'uniref90' column.
+	 */
+	public static final String UNIREF90 = "UNIREF90";
+	
+	/**
+	 * This variable represents the key for the 'uniref100' column.
+	 */
+	public static final String UNIREF100 = "UNIREF100";
 
 	/**
 	 * Default constructor.
@@ -143,6 +170,15 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(aParams.containsKey(KEYWORDS)) {
 			this.iKeywords = (String)aParams.get(KEYWORDS);
 		}
+		if(aParams.containsKey(UNIREF50)) {
+			this.iUniref50 = (String)aParams.get(UNIREF50);
+		}
+		if(aParams.containsKey(UNIREF90)) {
+			this.iUniref90 = (String)aParams.get(UNIREF90);
+		}
+		if(aParams.containsKey(UNIREF100)) {
+			this.iUniref100 = (String)aParams.get(UNIREF100);
+		}
 		this.iUpdated = true;
 	}
 
@@ -161,9 +197,11 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		this.iEcnumber = (String)aResultSet.getObject("ecnumber");
 		this.iKonumber = (String)aResultSet.getObject("konumber");
 		this.iKeywords = (String)aResultSet.getObject("keywords");
+		this.iUniref50 = (String)aResultSet.getObject("uniref50");
+		this.iUniref90 = (String)aResultSet.getObject("uniref90");
+		this.iUniref100 = (String)aResultSet.getObject("uniref100");
 		this.iUpdated = true;
 	}
-
 
 	/**
 	 * This method returns the value for the 'Uniprotentryid' column
@@ -217,6 +255,33 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public String getKeywords() {
 		return this.iKeywords;
+	}
+	
+	/**
+	 * This method returns the value for the 'Uniref100' column
+	 * 
+	 * @return	String	with the value for the Uniref100 column.
+	 */
+	public String getUniref100() {
+		return iUniref100;
+	}
+	
+	/**
+	 * This method returns the value for the 'Uniref90' column
+	 * 
+	 * @return	String	with the value for the Uniref90 column.
+	 */
+	public String getUniref90() {
+		return iUniref90;
+	}
+
+	/**
+	 * This method returns the value for the 'Uniref50' column
+	 * 
+	 * @return	String	with the value for the Uniref50 column.
+	 */
+	public String getUniref50() {
+		return iUniref50;
 	}
 
 	/**
@@ -278,6 +343,31 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		this.iKeywords = aKeywords;
 		this.iUpdated = true;
 	}
+	
+	/**
+	 * This method sets the value for the 'Uniref50' column
+	 * 
+	 * @param	aUniref50	String with the value for the Uniref50 column.
+	 */
+	public void setUniref50(String aUniref50) {
+		this.iUniref50 = aUniref50;
+		this.iUpdated = true;
+	}
+	
+	/**
+	 * This method sets the value for the 'Uniref90' column
+	 * 
+	 * @param	aUniref90	String with the value for the Uniref90 column.
+	 */
+	public void setUniref90(String aUniref90) {
+		this.iUniref90 = aUniref90;
+		this.iUpdated = true;
+	}
+	
+	public void setUniref100(String aUniref100) {
+		this.iUniref100 = aUniref100;
+		this.iUpdated = true;
+	}
 
 	/**
 	 * This method allows the caller to delete the data represented by this
@@ -320,6 +410,9 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 			iEcnumber = (String)lRS.getObject("ecnumber");
 			iKonumber = (String)lRS.getObject("konumber");
 			iKeywords = (String)lRS.getObject("keywords");
+			iUniref100 = (String)lRS.getObject("uniref100");
+			iUniref90 = (String)lRS.getObject("uniref90");
+			iUniref50 = (String)lRS.getObject("uniref50");
 		}
 		lRS.close();
 		lStat.close();
@@ -356,7 +449,70 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		stat.close();
 		return entities;
 	}
-
+	
+	/**
+	 * This method allows the caller to obtain all rows for this
+	 * table from a persistent store.
+	 *
+	 * @param   aConn Connection to the persitent store.
+	 * @return   ArrayList<UniprotentryTableAccessor>   with all entries for this table.
+	 */
+	public static ArrayList<UniprotentryTableAccessor> retrieveAllEntriesWithNoUniRefAnnotation(Connection aConn, Long increase) throws SQLException {
+		ArrayList<UniprotentryTableAccessor> entities = new ArrayList<UniprotentryTableAccessor>();
+		String statement;
+		if(increase == null) {
+			statement = " WHERE uniref100 IS NULL";
+		} else {
+			statement = " WHERE uniref100 IS NULL LIMIT ?, ?";
+		}
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +  statement);
+		
+		if(increase != null) {
+			ps.setLong(1, increase);
+			ps.setLong(2, 100);
+		}
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			entities.add(new UniprotentryTableAccessor(rs));
+		}
+		rs.close();
+		ps.close();
+		return entities;
+	}
+	
+	/**
+	 * This method allows the caller to obtain all rows for this
+	 * table from a persistent store.
+	 *
+	 * @param   aConn Connection to the persitent store.
+	 * @return   ArrayList<UniprotentryTableAccessor>   with all entries for this table.
+	 */
+	public static ArrayList<UniprotentryTableAccessor> retrieveAllEntriesWithEmptyUniRefAnnotation(Connection aConn, Long increase) throws SQLException {
+		ArrayList<UniprotentryTableAccessor> entities = new ArrayList<UniprotentryTableAccessor>();
+		String statement;
+		if(increase == null) {
+			statement = " WHERE uniref100 LIKE ''";
+		} else {
+			statement = " WHERE uniref100 LIKE '' LIMIT ?, ?";
+		}
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +  statement);
+		
+		if(increase != null) {
+			ps.setLong(1, increase);
+			ps.setLong(2, 100);
+		}
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			entities.add(new UniprotentryTableAccessor(rs));
+		}
+		rs.close();
+		ps.close();
+		return entities;
+	}
+	
 	/**
 	 * This method allows the caller to update the data represented by this
 	 * object in a persistent store.
@@ -367,14 +523,17 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE uniprotentry SET uniprotentryid = ?, fk_proteinid = ?, taxid = ?, ecnumber = ?, konumber = ?, keywords = ? WHERE uniprotentryid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE uniprotentry SET uniprotentryid = ?, fk_proteinid = ?, taxid = ?, ecnumber = ?, konumber = ?, keywords = ?, uniref100 = ?, uniref90 = ?, uniref50 = ? WHERE uniprotentryid = ?");
 		lStat.setLong(1, iUniprotentryid);
 		lStat.setLong(2, iFk_proteinid);
 		lStat.setLong(3, iTaxid);
 		lStat.setObject(4, iEcnumber);
 		lStat.setObject(5, iKonumber);
 		lStat.setObject(6, iKeywords);
-		lStat.setLong(7, iUniprotentryid);
+		lStat.setObject(7, iUniref100);
+		lStat.setObject(8, iUniref90);
+		lStat.setObject(9, iUniref50);
+		lStat.setLong(10, iUniprotentryid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		this.iUpdated = false;
@@ -389,7 +548,7 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO uniprotentry (uniprotentryid, fk_proteinid, taxid, ecnumber, konumber, keywords) values(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO uniprotentry (uniprotentryid, fk_proteinid, taxid, ecnumber, konumber, keywords, uniref100, uniref90, uniref50) values(?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iUniprotentryid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -419,6 +578,21 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 			lStat.setNull(6, -1);
 		} else {
 			lStat.setObject(6, iKeywords);
+		}
+		if(iUniref100 == null) {
+			lStat.setNull(7, -1);
+		} else {
+			lStat.setObject(7, iUniref100);
+		}
+		if(iUniref90 == null) {
+			lStat.setNull(8, -1);
+		} else {
+			lStat.setObject(8, iUniref90);
+		}
+		if(iUniref50 == null) {
+			lStat.setNull(9, -1);
+		} else {
+			lStat.setObject(9, iUniref50);
 		}
 		int result = lStat.executeUpdate();
 

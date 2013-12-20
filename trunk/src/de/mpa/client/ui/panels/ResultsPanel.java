@@ -463,12 +463,15 @@ public class ResultsPanel extends JPanel implements Busyable {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				JFileChooser chooser = new JFileChooser();
+				ClientFrame clientFrame = ClientFrame.getInstance();
+				chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
 				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
 				chooser.setAcceptAllFileFilterUsed(false);
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				int returnValue = chooser.showOpenDialog(ClientFrame.getInstance());
+				int returnValue = chooser.showOpenDialog(clientFrame);
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File importFile = chooser.getSelectedFile();
+					clientFrame.setLastSelectedFolder(importFile.getParent());
 					new FetchResultsTask(importFile).execute();
 				}
 			}
