@@ -8,8 +8,8 @@ import java.util.Set;
 
 import javax.swing.ComboBoxModel;
 
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
@@ -114,7 +114,7 @@ public class TaxonomyUtils {
 	public static TaxonomyNode createTaxonomyNode(long currentID, Map<Long, Taxonomy> taxonomyMap) {
 		
 		Taxonomy current = taxonomyMap.get(currentID);
-		Map<String, TaxonomyRank> targetRanks = UniprotAccessor.TAXONOMY_RANKS_MAP;
+		Map<String, TaxonomyRank> targetRanks = UniProtUtilities.TAXONOMY_RANKS_MAP;
 
 		// Check for rank being contained in the main categories (from superkingdom to species)
 		TaxonomyRank taxonomyRank = targetRanks.get(current.getRank());

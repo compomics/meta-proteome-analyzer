@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Constants;
 import de.mpa.util.Formatter;
 

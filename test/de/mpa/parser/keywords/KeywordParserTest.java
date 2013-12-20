@@ -6,8 +6,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import de.mpa.analysis.UniprotAccessor;
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 
 /**
  * Test class for UniProt keyword parsing.
@@ -19,7 +19,7 @@ public class KeywordParserTest extends TestCase {
 	public void testKeywordParsing() throws Exception {
 		
 		// Gets the ontolgy map.
-		Map<String, KeywordOntology> ontologyMap = UniprotAccessor.ONTOLOGY_MAP;
+		Map<String, KeywordOntology> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		
 		// Test
 		assertEquals(KeywordOntology.LIGAND, ontologyMap.get("2Fe-2S"));

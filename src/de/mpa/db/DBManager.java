@@ -16,7 +16,8 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-import de.mpa.analysis.UniprotAccessor;
+import de.mpa.analysis.ReducedProteinData;
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.accessor.Uniprotentry;
@@ -144,7 +145,7 @@ public class DBManager {
 	 * @throws SQLException
 	 */
 	public void queryAndStoreUniprotEntries() throws SQLException {
-		Map<String, UniProtEntry> uniProtEntries = null;
+		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.
 		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
@@ -160,18 +161,19 @@ public class DBManager {
 			}
 		}
 		if (accessions.size() > 0) {
-			uniProtEntries = UniprotAccessor.retrieveUniProtEntries(accessions);
-			Set<Entry<String, UniProtEntry>> entrySet = uniProtEntries.entrySet();
+			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions);
+			Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
 			int counter = 0;
-			for (Entry<String, UniProtEntry> e : entrySet) {
-				UniProtEntry uniprotEntry = e.getValue();
-				if (uniprotEntry != null) {
+			for (Entry<String, ReducedProteinData> e : entrySet) {
+				ReducedProteinData proteinData = e.getValue();
+				if (proteinData != null && proteinData.getUniProtEntry() != null) {
+					UniProtEntry uniProtEntry = proteinData.getUniProtEntry();
 					// Get the corresponding protein accessor.
 					long proteinid = 0L;
 
 					// Check for secondary protein accessions.
 					if (proteinHits.get(e.getKey()) == null) {
-						List<SecondaryUniProtAccession> secondaryUniProtAccessions = e.getValue().getSecondaryUniProtAccessions();
+						List<SecondaryUniProtAccession> secondaryUniProtAccessions = uniProtEntry.getSecondaryUniProtAccessions();
 						for (SecondaryUniProtAccession acc : secondaryUniProtAccessions) {
 							if (proteinHits.get(acc.getValue()) != null) {
 								proteinid = proteinHits.get(acc.getValue());
@@ -181,12 +183,11 @@ public class DBManager {
 						proteinid = proteinHits.get(e.getKey());
 					}
 					// Get taxonomy id
-					Long taxID = Long.valueOf(uniprotEntry.getNcbiTaxonomyIds().get(0).getValue());
+					Long taxID = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
 
 					// Get EC Numbers.
 					String ecNumbers = "";
-					List<String> ecNumberList = uniprotEntry
-							.getProteinDescription().getEcNumbers();
+					List<String> ecNumberList = uniProtEntry.getProteinDescription().getEcNumbers();
 					if (ecNumberList.size() > 0) {
 						for (String ecNumber : ecNumberList) {
 							ecNumbers += ecNumber + ";";
@@ -196,7 +197,7 @@ public class DBManager {
 
 					// Get ontology keywords.
 					String keywords = "";
-					List<Keyword> keywordsList = uniprotEntry.getKeywords();
+					List<Keyword> keywordsList = uniProtEntry.getKeywords();
 
 					if (keywordsList.size() > 0) {
 						for (Keyword kw : keywordsList) {
@@ -207,15 +208,25 @@ public class DBManager {
 
 					// Get KO numbers.
 					String koNumbers = "";
-					List<DatabaseCrossReference> xRefs = uniprotEntry
-							.getDatabaseCrossReferences(DatabaseType.KO);
+					List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
 					if (xRefs.size() > 0) {
 						for (DatabaseCrossReference xRef : xRefs) {
 							koNumbers += (((KO) xRef).getKOIdentifier().getValue()) + ";";
 						}
 						koNumbers = Formatter.removeLastChar(koNumbers);
 					}
-					Uniprotentry.addUniProtEntryWithProteinID((Long) proteinid, taxID, ecNumbers, koNumbers, keywords, conn);
+					
+					String uniref100 = "", uniref90 ="", uniref50 = "";
+					if (proteinData.getUniRef100EntryId() != null) {
+						uniref100 = proteinData.getUniRef100EntryId();
+					}
+					if (proteinData.getUniRef90EntryId() != null) {
+						uniref90 = proteinData.getUniRef90EntryId();
+					}
+					if (proteinData.getUniRef50EntryId() != null) {
+						uniref50 = proteinData.getUniRef50EntryId();
+					}
+					Uniprotentry.addUniProtEntryWithProteinID((Long) proteinid, taxID, ecNumbers, koNumbers, keywords, uniref100, uniref90, uniref50, conn);
 					counter++;
 
 					if (counter % 500 == 0) {

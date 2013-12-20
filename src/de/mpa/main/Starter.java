@@ -59,8 +59,15 @@ public class Starter {
 	private static void setLookAndFeel() {
 		try {
 			// Read theme configuration files
-//			URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
-			File themesFolder = new File(Constants.THEME_FOLDER);
+
+			File themesFolder;
+			if(isJarExport()){
+				themesFolder = new File(Constants.THEME_FOLDER);
+			} else {
+				URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
+				themesFolder = new File(url.getFile());
+			}
+			
 			List<UITheme> themes = new ArrayList<UITheme>();
 			UITheme defaultTheme = null;
 			for (File themeFile : themesFolder.listFiles()) {
@@ -151,6 +158,7 @@ public class Starter {
 
 		// Lock file instance.
 		boolean unlocked = true;
+		jarExport = false;
 		if (LOCK_ACTIVE) {
 			unlocked = lockInstance("filelock");
 		}
@@ -173,11 +181,6 @@ public class Starter {
 							}
 						}
 					}
-//					if (jarExport) {
-//						ClientFrame.getInstance(viewerMode, debugMode);
-//					} else {
-//						ClientFrame.getInstance(viewerMode, debugMode);
-//					}
 					ClientFrame.getInstance(viewerMode, debugMode);
 				}
 			});

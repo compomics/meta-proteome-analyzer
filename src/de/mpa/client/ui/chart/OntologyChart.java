@@ -10,7 +10,7 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
-import de.mpa.analysis.UniprotAccessor.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 
 /**
  * Chart implementation to create pie or bar charts of protein ontology data.

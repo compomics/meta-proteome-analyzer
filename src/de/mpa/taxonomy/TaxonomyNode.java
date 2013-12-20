@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.mpa.analysis.UniprotAccessor.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 
 
 /**

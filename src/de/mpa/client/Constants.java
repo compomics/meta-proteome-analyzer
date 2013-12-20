@@ -374,7 +374,7 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + "/themes/";
+	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + File.separator + "themes/";
 	
 	/**
 	 * The name of the default theme.
