@@ -100,9 +100,12 @@ public class GraphDatabase {
 	 * Shuts down the graph database.
 	 */
 	public void shutDown() {
-		System.out.println("\nShutting down database ...");
-		// Shutdown the server.
+		System.out.print("Shutting down database... ");
+		
+		// Shut down the graph database service
 		graphDbService.shutdown();
+		
+		System.out.print("done.");
 	}
 
 	public static void main(String[] args) {
