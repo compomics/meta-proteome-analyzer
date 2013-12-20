@@ -139,6 +139,12 @@ public class Constants {
 	 * Units for precurcor and MS/MS tolerance
 	 */
 	public static final String[] TOLERANCE_UNITS = {"Da", "ppm"};
+	
+	/**
+	 * Path to the database connection settings.
+	 */
+	public static final String DB_CONNECTION_SETTINGS_FILEPATH = "password/DbConnectionSettings.txt";
+	
 
 //	public static final TreeNode KEGG_TAXONOMY_ROOT = KeggMaps.readKeggTree(new File("conf/keggTaxonomyMap.txt"));
 
@@ -368,13 +374,12 @@ public class Constants {
 		public String toString() {
 			return description;
 		}
-		
 	}
 	
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + File.separator + "themes/";
+	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + "/themes/";
 	
 	/**
 	 * The name of the default theme.
