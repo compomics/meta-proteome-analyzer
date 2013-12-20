@@ -75,6 +75,11 @@ public class DbSearchResult implements Serializable {
 	 * No of unique peptides
 	 */
 	private int distinctPeptides = 0;
+	
+	/**
+	 * The total amount of spectra.
+	 */
+	private int totalSpectra;
 
 	/**
 	 * Constructs a result object from the specified project title, experiment
@@ -329,13 +334,20 @@ public class DbSearchResult implements Serializable {
 
 	/**
 	 * Returns the total amount of queried spectra.
-	 * @return the total spectral count.
+	 * @return The total spectral count.
 	 */
 	public int getTotalSpectrumCount() {
-		return 0;
-//		return ticMap.size();
+		return totalSpectra;
 	}
 	
+	/**
+	  Sets the total amount of queried spectra.
+	 * @param totalSpectra The total spectral count.
+	 */
+	public void setTotalSpectrumCount(int totalSpectra) {
+		this.totalSpectra = totalSpectra;
+	}
+
 	/**
 	 * Returns the total ion current map.
 	 * @return the total ion current map

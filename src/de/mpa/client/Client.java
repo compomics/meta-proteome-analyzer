@@ -43,8 +43,8 @@ import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
-import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.MetaProteinParameters;
+import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -56,6 +56,7 @@ import de.mpa.db.DbConnectionSettings;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
+import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.Uniprotentry;
@@ -439,8 +440,6 @@ public class Client {
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 
-//			dbSearchResult.setTotalIonCurrentMap(Searchspectrum.getTICsByExperimentID(experimentID, conn));
-			
 			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
 			int totalPeptides = 0;
 
@@ -462,7 +461,9 @@ public class Client {
 			for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
 				totalPeptides += ph.getPeptideCount();
 			}
-
+			
+			int totalSpectrumCount = Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn);
+			dbSearchResult.setTotalSpectrumCount(totalSpectrumCount);
 			dbSearchResult.setIdentifiedSpectrumCount(searchSpectrumIDs.size());
 			dbSearchResult.setTotalPeptideCount(totalPeptides);
 			
