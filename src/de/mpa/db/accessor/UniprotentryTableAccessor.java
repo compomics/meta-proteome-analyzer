@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.compomics.util.db.interfaces.Deleteable;
 import com.compomics.util.db.interfaces.Persistable;
@@ -481,31 +482,29 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		return entities;
 	}
 	
+	public static List<UniprotentryTableAccessor> retrieveAllEntriesWithEmptyUniRefAnnotation(
+			Connection aConn) throws SQLException {
+		return retrieveAllEntriesWithEmptyUniRefAnnotation(aConn, 0, Long.MAX_VALUE);
+	}
+	
 	/**
-	 * This method allows the caller to obtain all rows for this
-	 * table from a persistent store.
-	 *
-	 * @param   aConn Connection to the persitent store.
-	 * @return   ArrayList<UniprotentryTableAccessor>   with all entries for this table.
+	 * TODO: API
+	 * @param aConn
+	 * @param increase
+	 * @return
+	 * @throws SQLException
 	 */
-	public static ArrayList<UniprotentryTableAccessor> retrieveAllEntriesWithEmptyUniRefAnnotation(Connection aConn, Long increase) throws SQLException {
-		ArrayList<UniprotentryTableAccessor> entities = new ArrayList<UniprotentryTableAccessor>();
-		String statement;
-		if(increase == null) {
-			statement = " WHERE uniref100 LIKE ''";
-		} else {
-			statement = " WHERE uniref100 LIKE '' LIMIT ?, ?";
-		}
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +  statement);
+	public static List<UniprotentryTableAccessor> retrieveAllEntriesWithEmptyUniRefAnnotation(
+			Connection aConn, long start, long length) throws SQLException {
+		List<UniprotentryTableAccessor> entities = new ArrayList<UniprotentryTableAccessor>();
 		
-		if(increase != null) {
-			ps.setLong(1, increase);
-			ps.setLong(2, 100);
-		}
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE uniref100 LIKE '' LIMIT ?, ?");
+		ps.setLong(1, start);
+		ps.setLong(2, length);
 		
 		ResultSet rs = ps.executeQuery();
 		
-		while(rs.next()) {
+		while (rs.next()) {
 			entities.add(new UniprotentryTableAccessor(rs));
 		}
 		rs.close();
