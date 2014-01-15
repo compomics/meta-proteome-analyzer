@@ -40,15 +40,22 @@ public class LinkUniProtToProteinTest {
 	public void testUpdateUniProtEntries() throws SQLException {
 
 		// Get all uniprotEntries.
-		long range = 0;
+		long begin = 0L;
+		long increment = 100L;
 		
 		int counter = 0;
-		List<UniprotentryTableAccessor> entries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn, null);
+		List<UniprotentryTableAccessor> entries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn);
 		long upperLimit = entries.size();
+		
 		System.out.println(upperLimit + " unreferenced UniProt entries found");
-		while (range < upperLimit) {
+		
+		upperLimit = 100L;
+		while (begin < upperLimit) {
+//			if (true) {
+//				break;
+//			}
 			Map<String, UniprotentryTableAccessor> uniprotEntries = new HashMap<String, UniprotentryTableAccessor>();
-			List<UniprotentryTableAccessor> allEntries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn, range);
+			List<UniprotentryTableAccessor> allEntries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn, begin, increment);
 			List<String> accessions = new ArrayList<String>();
 			
 			for (int i = 0; i < allEntries.size(); i++) {
@@ -104,7 +111,7 @@ public class LinkUniProtToProteinTest {
 							koNumbers = Formatter.removeLastChar(koNumbers);
 						}
 						
-						String uniref100 = "", uniref90 ="", uniref50 = "";
+						String uniref100 = null, uniref90 = null, uniref50 = null;
 						if (proteinData.getUniRef100EntryId() != null) {
 							uniref100 = proteinData.getUniRef100EntryId();
 						}
@@ -115,11 +122,13 @@ public class LinkUniProtToProteinTest {
 							uniref50 = proteinData.getUniRef50EntryId();
 						}
 						if (oldUniProtEntry != null) {
-							Uniprotentry.updateUniProtEntryWithProteinID(oldUniProtEntry.getUniprotentryid(), oldUniProtEntry.getFk_proteinid(), taxID, ecNumbers, koNumbers, keywords, uniref100, uniref90, uniref50, conn);
+							Uniprotentry.updateUniProtEntryWithProteinID(
+									oldUniProtEntry.getUniprotentryid(), oldUniProtEntry.getFk_proteinid(),
+									taxID, ecNumbers, koNumbers, keywords, uniref100, uniref90, uniref50, conn);
 						}
 					}
 					counter++;
-					if (counter % 100 == 0) {
+					if (counter % increment == 0) {
 						System.out.println(counter + "/" + upperLimit + " UniProt entries have been updated.");
 						conn.commit();
 					}
@@ -128,7 +137,7 @@ public class LinkUniProtToProteinTest {
 				System.out.println("All UniProt entries have been updated.");
 				conn.commit();
 			}
-			range += 100;
+			begin += increment;
 		}
 	}
 	
