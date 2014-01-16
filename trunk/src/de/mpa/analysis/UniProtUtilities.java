@@ -2,6 +2,7 @@ package de.mpa.analysis;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import de.mpa.client.Constants;
+import de.mpa.main.Starter;
 
 /**
  * Class to access the EBI UniProt WebService.
@@ -216,10 +218,13 @@ public class UniProtUtilities {
 		
 		try {
 			// Initialize reader
-//			URL url = ClassLoader.getSystemResource(Constants.CONFIGURATION_PATH_JAR + "/keywords-all.obo");
-//			BufferedReader br = new BufferedReader(new FileReader(new File(url.toURI())));
-			InputStream is = ClassLoader.getSystemResourceAsStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo");
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			BufferedReader br = null;
+			if (Starter.isJarExport()) {
+				br = new BufferedReader(new FileReader(new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo")));
+			} else {
+				InputStream is = ClassLoader.getSystemResourceAsStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo");
+				br = new BufferedReader(new InputStreamReader(is));
+			}
 			
 			String line;
 			String name = null;
