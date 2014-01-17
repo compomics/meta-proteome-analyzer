@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.algorithms.similarity.CrossCorrelation;
 import de.mpa.algorithms.similarity.Transformation;
 import de.mpa.algorithms.similarity.Vectorization;
 import de.mpa.algorithms.similarity.VectorizationFactory;

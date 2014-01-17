@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.mpa.io.MascotGenericFileReader.LoadMode;
-import de.mpa.parser.mascot.dat.MascotDatFileReader;
+import de.mpa.io.parser.mascot.dat.MascotDatFileReader;
 
 /**
  * 

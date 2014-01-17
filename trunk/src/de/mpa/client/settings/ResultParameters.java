@@ -5,10 +5,10 @@ import java.io.IOException;
 
 import javax.swing.DefaultComboBoxModel;
 
+import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
-import de.mpa.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 
 /**
  * Class for storing search result fetching-specific parameters.

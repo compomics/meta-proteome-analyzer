@@ -18,6 +18,7 @@ import javax.swing.JComponent;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;

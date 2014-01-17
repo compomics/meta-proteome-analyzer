@@ -15,6 +15,10 @@ import junit.framework.TestCase;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.Spec2pep;
+import de.mpa.io.parser.mascot.xml.MascotPeptideHit;
+import de.mpa.io.parser.mascot.xml.MascotProteinHit;
+import de.mpa.io.parser.mascot.xml.MascotRecord;
+import de.mpa.io.parser.mascot.xml.MascotXMLParser;
 
 public class MascotXMLParserTest extends TestCase {
 	

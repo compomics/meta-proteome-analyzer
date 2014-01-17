@@ -10,10 +10,10 @@ import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 
 import de.mpa.analysis.KeggMaps;
+import de.mpa.analysis.taxonomy.NcbiTaxonomy;
 import de.mpa.client.ui.SortableTreeNode;
-import de.mpa.parser.ec.ECEntry;
-import de.mpa.parser.ec.ECReader;
-import de.mpa.taxonomy.NcbiTaxonomy;
+import de.mpa.io.parser.ec.ECEntry;
+import de.mpa.io.parser.ec.ECReader;
 
 /**
  * This class initialize the parameters

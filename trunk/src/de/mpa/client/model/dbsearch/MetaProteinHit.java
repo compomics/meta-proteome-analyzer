@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.taxonomy.Taxonomic;
 
 /**
  * Wrapper class for meta-proteins.

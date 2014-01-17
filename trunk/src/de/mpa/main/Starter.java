@@ -59,13 +59,12 @@ public class Starter {
 	private static void setLookAndFeel() {
 		try {
 			// Read theme configuration files
-
 			File themesFolder;
-			if(isJarExport()){
+			if (isJarExport()) {
 				themesFolder = new File(Constants.THEME_FOLDER);
 			} else {
 				URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
-				themesFolder = new File(url.getFile());
+				themesFolder = new File(url.toURI());
 			}
 			
 			List<UITheme> themes = new ArrayList<UITheme>();

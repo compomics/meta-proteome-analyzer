@@ -14,14 +14,14 @@ import org.jfree.data.general.PieDataset;
 
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
-import de.mpa.taxonomy.Taxonomic;
-import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * Container class for protein taxonomy data.

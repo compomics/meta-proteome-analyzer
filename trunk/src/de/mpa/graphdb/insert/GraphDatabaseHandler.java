@@ -22,6 +22,7 @@ import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -45,7 +46,6 @@ import de.mpa.graphdb.properties.ProteinProperty;
 import de.mpa.graphdb.properties.PsmProperty;
 import de.mpa.graphdb.properties.TaxonProperty;
 import de.mpa.graphdb.setup.GraphDatabase;
-import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * GraphDatabaseHandler provides possibilities to insert data into the graph database.

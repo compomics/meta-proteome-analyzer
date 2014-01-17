@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.taxonomy.Taxonomic;
-import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * This class represents a peptide hit.

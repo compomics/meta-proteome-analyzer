@@ -14,9 +14,9 @@ import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Cruxhit2protTableAccessor;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.parser.crux.CruxFile;
-import de.mpa.parser.crux.CruxHit;
-import de.mpa.parser.crux.CruxParser;
+import de.mpa.io.parser.crux.CruxFile;
+import de.mpa.io.parser.crux.CruxHit;
+import de.mpa.io.parser.crux.CruxParser;
 
 /**
  * This class stores Crux results to the DB.

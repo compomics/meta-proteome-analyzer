@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 
 import org.junit.Before;
 
+import de.mpa.analysis.taxonomy.NcbiTaxonomy;
+
 
 /**
  * Tests for NCBI taxonomy-related classes and methods.

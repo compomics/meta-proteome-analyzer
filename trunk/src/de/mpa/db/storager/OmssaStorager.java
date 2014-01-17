@@ -19,7 +19,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.job.scoring.ValidatedPSMScore;
+import de.mpa.db.job.scoring.ValidatedPSMScore;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
 import de.proteinms.omxparser.util.MSHits;

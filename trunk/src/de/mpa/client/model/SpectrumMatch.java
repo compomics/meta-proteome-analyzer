@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.taxonomy.Taxonomic;
-import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * TODO: API

@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import de.mpa.parser.mascot.xml.MascotPeptideHit;
-import de.mpa.parser.mascot.xml.MascotRecord;
-import de.mpa.parser.mascot.xml.MascotXMLParser;
+import de.mpa.io.parser.mascot.xml.MascotPeptideHit;
+import de.mpa.io.parser.mascot.xml.MascotRecord;
+import de.mpa.io.parser.mascot.xml.MascotXMLParser;
 
 public class MascotResultExporter {
 	

@@ -1,10 +1,11 @@
 package de.mpa.client.ui.panels;
-import java.awt.CardLayout;
-import java.awt.Color;
+
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -15,922 +16,881 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.Vector;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.decorator.BorderHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.decorator.HighlightPredicate.ColumnHighlightPredicate;
+import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
+import org.jdesktop.swingx.sort.TableSortController;
+import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.RowSpec;
+import com.jgoodies.looks.plastic.PlasticButtonUI;
 
-import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
-import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.Hit;
+import de.mpa.client.model.dbsearch.MetaProteinFactory;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DefaultTableHeaderCellRenderer;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.TableConfig.FormattedTableCellRenderer;
+import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HeatMapData;
+import de.mpa.client.ui.chart.HeatMapData.MatrixSeriesExt;
+import de.mpa.client.ui.chart.HeatMapPane.Axis;
+import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
+import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
+import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.Experiment;
 import de.mpa.db.accessor.Project;
 
 /**
- * Prototyp for comparison of different samples.
- * @author R. Heyer, F. Kohrs, A. Behne
+ * This class holds the comparison of certain experiments.
+ * @author A. Behne and R. Heyer
  */
-public class ComparePanel extends JPanel{
-
-	/**
-	 * Parent class clientFrame.
-	 */
-	private ClientFrame clientFrame;
-
-	/**
-	 * Level of comparison.
-	 */
-	private static final String[] ENTRIES = new String[] {"Accessions","Correct2UniProt"};//, "Metaproteins"};
-
-	/**
-	 * Quantitative information for comparison for different runs.
-	 */
-	private static final String[] COMPARE = new String[] {"Proteins", "Peptides", "Spectra", "NSAF", "emPAI"};
-
-	/**
-	 * Rule how to fuse the measurements to a group.
-	 */
-	private static final String[] Pooling = new String[] {"Average", "Max", "Min", "Sum"};
-
-	/**
-	 * The map with the compared Objects
-	 */
-	private Map<String, List<Experiment>> groupMap =  new LinkedHashMap<String, List<Experiment>>();
+public class ComparePanel extends JPanel {
 	
-	private boolean experimentsHaveChanged = false;
-
 	/**
-	 * The key of the selected group.
+	 * Dummy key for meta-result in result map.
 	 */
-	private String selGroup;
+	private static final Experiment META_EXPERIMENT = new Experiment();
 
 	/**
-	 * The compare tab
+	 * The cache of re-usable result objects.
 	 */
-	private JXTable compareTbl;
-
+	private Map<Experiment, DbSearchResult> resultMap;
+	
 	/**
-	 * ComboBox for the quantification spectralCount and so
+	 * The local map of meta-protein generation-related parameters
 	 */
-	private JComboBox compareCbx;
+	private ParameterMap metaParams;
 
 	/**
-	 * ComboBox for the rule of averaging a group
+	 * The scroll pane containing the comparison table.
 	 */
-	private JComboBox groupingCbx;
+	private JScrollPane comparePane;
 
 	/**
-	 * List of all groups and their database search result objects
-	 */
-	private List<List<DbSearchResult>> groupResultList;
-
-	/**
-	 * JComboBox for the things you want to compare
-	 */
-	private JComboBox entryCbx;
-
-	/**
-	 * Constructor for compare panel.
+	 * Constructs an experiment compare panel.
 	 */
 	public ComparePanel() {
-		this.clientFrame = ClientFrame.getInstance();
-
-		// Build the panel
+		super();
+		
+		// init map of database search results
+		this.resultMap = new HashMap<Experiment, DbSearchResult>();
+		// initially add dummy entry pointing to non-existent meta-result
+		this.resultMap.put(META_EXPERIMENT, null);
+		
+		// init local instance of result fetching parameters
+		this.metaParams = new ResultParameters();
+		
 		initComponents();
 	}
 
 	/**
-	 * Init components of the compare panel.
+	 * Configures and lays out the panel's components.
 	 */
 	private void initComponents() {
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p, 5dlu", "5dlu, f:p, 5dlu, f:p:g, 5dlu")); // Column, Row
-		// Get settings for colored title border PanelConig class.
-		Border ttlBorder 	= PanelConfig.getTitleBorder();
-		Painter ttlPainter 	= PanelConfig.getTitlePainter();
-		Font ttlFont 		= PanelConfig.getTitleFont();
-		Color ttlForeground = PanelConfig.getTitleForeground();
+		this.setLayout(new FormLayout("5dlu, 0px:g, 5dlu", "5dlu, f:p:g(0.3), 5dlu, f:p:g(0.7), 5dlu"));
+		
+		// create panel containing experiment/display settings/controls
+		JPanel settingsPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, m, 5dlu", "5dlu, f:p:g, 5dlu"));
+		
+		// create panel containing experiment selection list table
+		JPanel experimentPnl = new JPanel();
+		experimentPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		experimentPnl.setBorder(BorderFactory.createTitledBorder("Experiments"));
+		
+		final JXTable experimentTbl = new ListTable("Click to Add Experiment...");
+		experimentTbl.setHorizontalScrollEnabled(true);
+		
+		experimentTbl.getSelectionModel().addListSelectionListener(
+				new ExperimentTableHandler(experimentTbl));
 
-		// 1. Create samples panel
-		JPanel samplesPnl = new JPanel();
-		// Equals size of the panels for groups and measurements
-		FormLayout samplesLyt = new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu");
-		samplesLyt.setColumnGroups(new int[][] { {2, 4} });
-		samplesPnl.setLayout(samplesLyt); // Column, Row
-		// Create titled border
-		JXTitledPanel samplesTtlPnl = new JXTitledPanel("Samples", samplesPnl);
-		samplesTtlPnl.setBorder(ttlBorder);
-		samplesTtlPnl.setTitlePainter(ttlPainter);
-		samplesTtlPnl.setTitleFont(ttlFont);
-		samplesTtlPnl.setTitleForeground(ttlForeground);
-		//1a.) Group panel
-		JPanel groupPnl  = new JPanel();
-		groupPnl.setLayout(new FormLayout(" 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu")); // Column, Row
-		groupPnl.setBorder(BorderFactory.createTitledBorder("Group"));
-		// Create list-like table
-		final JXTable groupTbl = new ListTable("Click to Add New Group...") {
+		JScrollPane experimentScp = new JScrollPane(experimentTbl);
+		experimentScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		experimentScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		experimentScp.setPreferredSize(new Dimension(0, 0));
+		
+		experimentPnl.add(experimentScp, CC.xy(2, 2));
+		
+		// create panel containing controls to manipulate experiment/display settings
+		JPanel controlPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
+				"2dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, f:45px:g, 5dlu"));
+		controlPnl.setBorder(BorderFactory.createTitledBorder("Comparison Settings"));
+		controlPnl.setPreferredSize(new Dimension(200, 50));
+
+		// create radio buttons for various display attributes
+		ButtonGroup bg = new ButtonGroup();
+		JRadioButton ontoRbtn = new JRadioButton("Ontology", false);
+		bg.add(ontoRbtn);
+		final JComboBox<OntologyChartType> ontoCbx = new JComboBox<OntologyChartType>(OntologyChartType.values());
+		ontoCbx.setEnabled(false);
+		JRadioButton taxoRbtn = new JRadioButton("Taxonomy", false);
+		bg.add(taxoRbtn);
+		final JComboBox<TaxonomyChartType> taxoCbx = new JComboBox<TaxonomyChartType>(TaxonomyChartType.values());
+		taxoCbx.setEnabled(false);
+		JRadioButton hieroRbtn = new JRadioButton("Hierarchy", true);
+		bg.add(hieroRbtn);
+		final JComboBox<HierarchyLevel> hieroCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
+		
+		final JComboBox<HierarchyLevel> countCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
+		
+		// listen for radio button selection changes and enable/disable combo boxes accordingly
+		ontoRbtn.addChangeListener(new ChangeListener() {
 			@Override
-			public void editingStopped(ChangeEvent e) {
-				if (editingColumn == 1) {
-					groupMap.remove(this.getValueAt(this.getSelectedRow(), 0));
-					selGroup = null;
-					experimentsHaveChanged = true;
+			public void stateChanged(ChangeEvent evt) {
+				ontoCbx.setEnabled(((AbstractButton) evt.getSource()).isSelected());
+			}
+		});
+		taxoRbtn.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent evt) {
+				taxoCbx.setEnabled(((AbstractButton) evt.getSource()).isSelected());
+			}
+		});
+		hieroRbtn.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent evt) {
+				hieroCbx.setEnabled(((AbstractButton) evt.getSource()).isSelected());
+			}
+		});
+
+		// create button-in-button component for advanced result fetching settings
+		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
+		settingsBtn.setEnabled(!Client.getInstance().isViewer()); 
+		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
+		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
+		settingsBtn.setPreferredSize(new Dimension(23, 23));
+		settingsBtn.setToolTipText("Advanced Settings");
+		settingsBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				if (AdvancedSettingsDialog.showDialog(
+						ClientFrame.getInstance(),
+						"Result Fetching settings",
+						true, metaParams)) {
+					// invalidate meta result if parameters were changed
+					resultMap.put(META_EXPERIMENT, null);
+				}
+			}
+		});
+
+		JButton compareBtn = new JButton("Compare", IconConstants.COMPARE_ICON) {
+			@Override
+			public void setEnabled(boolean b) {
+				super.setEnabled(b);
+				settingsBtn.setEnabled(b);
+			}
+		};
+		compareBtn.setEnabled(!Client.getInstance().isViewer()); 
+		compareBtn.setRolloverIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
+		compareBtn.setPressedIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
+		compareBtn.setIconTextGap(7);
+		compareBtn.setUI(new PlasticButtonUI() {
+			@Override
+			protected void paintFocus(Graphics g, AbstractButton b,
+					Rectangle viewRect, Rectangle textRect, Rectangle iconRect) {
+				int topLeftInset = 3;
+		        int width = b.getWidth() - 1 - topLeftInset * 2;
+		        int height = b.getHeight() - 1 - topLeftInset * 2;
+				
+				g.setColor(this.getFocusColor());
+				g.drawLine(2, 2, 2, 2 + height + 1);
+				g.drawLine(2, 2 + height + 1, 2 + width + 1, 2 + height + 1);
+				g.drawLine(2 + width + 1, 2 + height + 1, 2 + width + 1, 24);
+				g.drawLine(2 + width + 1, 24, 2 + width - 20, 24);
+				g.drawLine(2 + width - 20, 24, 2 + width - 20, 2);
+				g.drawLine(2 + width -20, 2, 2, 2);
+			}
+		});
+		
+		compareBtn.setLayout(new FormLayout("0px:g, p", "p, 0px:g"));
+		compareBtn.add(settingsBtn, CC.xy(2, 1));
+		compareBtn.setMargin(new Insets(-2, -3, -3, -3));
+
+		// install action on compare button to set up comparison background task
+		compareBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				// fetch experiments from list table
+				TableModel model = experimentTbl.getModel();
+				List<Experiment> experiments = new ArrayList<Experiment>();
+				for (int i = 0; i < model.getRowCount() - 1; i++) {
+					experiments.add((Experiment) model.getValueAt(i, 0));
+				}
+				// fetch comparison attributes
+				ChartType yAxisType;
+				if (ontoCbx.isEnabled()) {
+					yAxisType = (ChartType) ontoCbx.getSelectedItem();
+				} else if (taxoCbx.isEnabled()) {
+					yAxisType = (ChartType) taxoCbx.getSelectedItem();
 				} else {
-					groupMap.put(getCellEditor().getCellEditorValue().toString(), new ArrayList<Experiment>());
+					yAxisType = (ChartType) hieroCbx.getSelectedItem();
 				}
-				super.editingStopped(e);
-			}
-		};
-
-		// Create text field editor for first column
-		JTextField editorTtf = new JTextField();
-		editorTtf.setBackground(groupTbl.getSelectionBackground());
-		editorTtf.setSelectionColor(groupTbl.getBackground());
-		editorTtf.setBorder(null);
-		editorTtf.addFocusListener(new FocusAdapter() {
-			public void focusGained(FocusEvent e) {
-				JTextField src = (JTextField) e.getSource();
-				src.selectAll();
+				HierarchyLevel zAxisType = (HierarchyLevel) countCbx.getSelectedItem();
+				
+				// execute comparison task
+				new CompareTask(experiments, yAxisType, zAxisType).execute();
 			}
 		});
 
-		DefaultCellEditor textEditor = new DefaultCellEditor(editorTtf) {
+		controlPnl.add(ontoRbtn, CC.xy(2, 2));
+		controlPnl.add(ontoCbx, CC.xy(4, 2));
+		controlPnl.add(taxoRbtn, CC.xy(2, 4));
+		controlPnl.add(taxoCbx, CC.xy(4, 4));
+		controlPnl.add(hieroRbtn, CC.xy(2, 6));
+		controlPnl.add(hieroCbx, CC.xy(4, 6));
+		controlPnl.add(new JLabel("Count", SwingConstants.CENTER), CC.xy(2, 8));
+		controlPnl.add(countCbx, CC.xy(4, 8));
+		controlPnl.add(compareBtn, CC.xyw(2, 10, 3));
+		
+		settingsPnl.add(experimentPnl, CC.xy(2, 2));
+		settingsPnl.add(controlPnl, CC.xy(4, 2));
+		
+		JXTitledPanel settingsTtlPnl = PanelConfig.createTitledPanel("Settings", settingsPnl);
+		
+		// Create panel containing the comparison results table
+		JPanel compareTblPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
+		
+		final JXTable compareTbl = new JXTable(new DefaultTableModel(new String[] { "header", "empty" }, 0)) {
 			@Override
-			public boolean stopCellEditing() {
-				// Check whether editor contents were changed
-				String val = (String) delegate.getCellEditorValue();
-				if (!val.equals("Click to Add New Group...") && !groupMap.containsKey(val)) {
-					// Changed row becomes non-editable, re-add editor row
-					boolean res = super.stopCellEditing();
-					((DefaultTableModel) groupTbl.getModel()).addRow(new Object[] { "Click to Add New Group..." });
-					return res;
-				}
-				cancelCellEditing();
-				groupTbl.clearSelection();
-				return false;
+			public Dimension getPreferredSize() {
+				Dimension size = super.getPreferredSize();
+				// remove 1px from bottom
+				size.height--;
+				return size;
 			}
 		};
-		groupTbl.getColumn(0).setCellEditor(textEditor);
+		compareTbl.setHorizontalScrollEnabled(true);
+		compareTbl.addHighlighter(TableConfig.getSimpleStriping());
+		
+		final JXTable headerTbl = new JXTable(compareTbl.getModel()) {
+			@Override
+			public Dimension getPreferredSize() {
+				Dimension size = super.getPreferredSize();
+				// remove 1px from bottom
+				size.height--;
+				return size;
+			}
+		};
+		JTableHeader header = headerTbl.getTableHeader();
+		header.setReorderingAllowed(false);
+		
+		headerTbl.setIntercellSpacing(new Dimension());
+		headerTbl.addHighlighter(new CompoundHighlighter(
+				new NotHighlightPredicate(new ColumnHighlightPredicate(0)),
+				TableConfig.getSimpleStriping(), new BorderHighlighter(
+						BorderFactory.createMatteBorder(0, 0, 1, 1, UIManager.getColor("Table.gridColor")))));
+		
+		// adjust row header view size on column resize
+		headerTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		headerTbl.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
+			@Override
+			public void columnMarginChanged(ChangeEvent evt) {
+				JViewport rowHeader = comparePane.getRowHeader();
+				Dimension prefSize = rowHeader.getPreferredSize();
+				prefSize.width = headerTbl.getPreferredSize().width;
+				rowHeader.setPreferredSize(prefSize);
+			}
+			
+			public void columnSelectionChanged(ListSelectionEvent evt) { }
+			public void columnRemoved(TableColumnModelEvent evt) { }
+			public void columnMoved(TableColumnModelEvent evt) { }
+			public void columnAdded(TableColumnModelEvent evt) { }
+		});
+		
+		comparePane = new JScrollPane(compareTbl);
+		comparePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		comparePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		comparePane.setPreferredSize(new Dimension());
+		
+		comparePane.setRowHeaderView(headerTbl);
+		comparePane.setCorner(JScrollPane.UPPER_LEFT_CORNER, header);
+		
+		JPanel dummyPnl = new JPanel();
+		dummyPnl.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIManager.getColor("controlDkShadow")));
+		comparePane.setCorner(JScrollPane.LOWER_LEFT_CORNER, dummyPnl);
+		
+		compareTblPnl.add(comparePane, CC.xy(2, 2));
+		
+		// Create button panel
+		JPanel buttonPnl = new JPanel(new FormLayout("22px, 2px, 22px, 1px", "f:20px"));
+		buttonPnl.setOpaque(false);
+		
+		final JToggleButton numberTgl = new JToggleButton(IconConstants.TEXTFIELD_ICON);
+		numberTgl.setRolloverIcon(IconConstants.TEXTFIELD_ROLLOVER_ICON);
+		numberTgl.setPressedIcon(IconConstants.TEXTFIELD_PRESSED_ICON);
+		numberTgl.setUI((RolloverButtonUI) RolloverButtonUI.createUI(numberTgl));
+		numberTgl.setToolTipText("Toggle displaying values as numbers or text");
+		numberTgl.setSelected(true);
+		
+		numberTgl.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				compareTbl.repaint();
+			}
+		});
+		
+		JButton exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
+		exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
+		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
+		exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(exportBtn));
+		exportBtn.setToolTipText("Export Table to CSV");
+		
+		exportBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				this.export2Csv();
+			}
 
-		final JXTable measurementTbl = new ListTable(null){
-			@Override
-			public void editingStopped(ChangeEvent e) {
-				if (editingColumn == 1) {
-					List<Experiment> list = groupMap.get(selGroup);
-					if (list != null) {
-						list.remove(editingRow);
-						groupMap.put(selGroup, list);
-						experimentsHaveChanged = true;
+			/**
+			 * Method to export compare table as CSV format, but tab separated
+			 */
+			@SuppressWarnings("unchecked")
+			private void export2Csv() {	
+				/**
+				 * TSV format separator.
+				 */
+				final String SEP = "\t";
+		
+				// Add Filechooser
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(Constants.CSV_FILE_FILTER);
+				int returnVal = chooser.showSaveDialog(ClientFrame.getInstance());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = chooser.getSelectedFile();
+					if(!selectedFile.getName().endsWith(".csv")){
+						selectedFile = new File(selectedFile.getPath()+ ".csv");
 					}
-				}
-				super.editingStopped(e);
-			}
-		};
-		// Remove table header to appear like a list
-		groupTbl.setTableHeader(null);
-		groupTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
-					int row = groupTbl.getSelectedRow();
-					if (row == (groupTbl.getRowCount() - 1)) {
-						TableConfig.clearTable(measurementTbl);
-						groupTbl.editCellAt(row, 0);
-						((DefaultCellEditor) groupTbl.getCellEditor()).getComponent().requestFocus();
-					} else {
-						if (row > -1) {
-							selGroup = (String) groupTbl.getValueAt(row, 0);
-							if (selGroup != null) {
-								refreshMeasurementTable(measurementTbl);
+		
+					BufferedWriter bw = null;
+					try {
+						bw = new BufferedWriter(new FileWriter(selectedFile));
+						
+						// Get model
+						TableModel model = ((JTable) comparePane.getViewport().getView()).getModel();
+						
+						// Add header line
+						for (int col = 0; col < model.getColumnCount(); col++) {
+							if (col > 0) {
+								bw.append(SEP);
 							}
-						} else {
-							TableConfig.clearTable(measurementTbl);
-							selGroup = null;
+							bw.append(model.getColumnName(col));
 						}
-					}
-				}
-			}
-		});
-
-		groupTbl.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				selGroup = (String) groupTbl.getValueAt(groupTbl.getSelectedRow(), 0);
-				refreshMeasurementTable(measurementTbl);
-			}
-		});
-
-		// Wrap table in scroll pane, always display vertical scroll bar
-		JScrollPane groupScp = new JScrollPane(groupTbl);
-		groupScp.setPreferredSize(new Dimension(0,0));
-		groupScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-		// Add elements to superior panel
-		groupPnl.add(groupScp, CC.xy(2, 2));
-		samplesPnl.add(groupPnl, CC.xy(2, 2));
-
-		// 1b.) Measurement panel
-		JPanel measurementPnl  = new JPanel();
-		measurementPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu")); // Column, Row
-		measurementPnl.setBorder(BorderFactory.createTitledBorder("Measurement"));
-		measurementTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
-					int row = measurementTbl.getSelectedRow();
-					if (row == (measurementTbl.getRowCount() - 1)) {
-						Experiment experiment;
-						try {
-							experiment = showExperimentSelectionDialog(measurementTbl);
-							// Add the experiment to the chosen group
-							measurementTbl.clearSelection();
-							if (experiment != null) {
-								List<Experiment> list = groupMap.get(selGroup);
-								if (list == null) {
-									list = new ArrayList<Experiment>();
+						bw.newLine();
+						
+						// Add cells to table
+						boolean exportNumbers = numberTgl.isSelected();
+						for (int row = 0; row < model.getRowCount(); row++) {
+							// add first column element (a.k.a. row header)
+							Object rowHeaderVal = model.getValueAt(row, 0);
+							bw.append(rowHeaderVal.toString());
+							for (int col = 1; col < model.getColumnCount(); col++) {
+								bw.append(SEP);
+								// get value from model
+								Object value = model.getValueAt(row, col);
+								if (value != null) {
+									if (value instanceof String) {
+										bw.append(value.toString());
+									} else {
+										List<Hit> hitList = (List<Hit>) value;
+										if (exportNumbers) {
+											bw.append("" + hitList.size());
+										} else {
+											bw.append(hitList.toString());
+										}
+									}
+								} else {
+									if (exportNumbers) {
+										bw.append("" + 0);
+									}
 								}
-								list.add(experiment);
-								groupMap.put(selGroup, list);
-								experimentsHaveChanged = true;
-								int lastRow = measurementTbl.getRowCount() - 1;
-								((DefaultTableModel) measurementTbl.getModel()).insertRow(
-										lastRow, new Object[] { experiment.getTitle() });
-								measurementTbl.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 							}
-						} catch (SQLException e1) {
-							e1.printStackTrace();
+							bw.newLine();
 						}
+						bw.flush();
+						bw.close();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
 			}
 		});
 
-		JScrollPane measurementScp = new JScrollPane(measurementTbl);
-		measurementScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		measurementScp.setPreferredSize(new Dimension(0,0));
-		measurementPnl.add(measurementScp, CC.xy(2, 2));
-
-		samplesPnl.add(measurementPnl, CC.xy(4, 2));
-
-		// 2. Create settings panel
-		JPanel settingsPnl = new JPanel();
-		settingsPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu")); // Columns, Rows
-		JXTitledPanel settingsTtlPnl = new JXTitledPanel("Settings", settingsPnl);
-		settingsTtlPnl.setBorder(ttlBorder);
-		settingsTtlPnl.setTitlePainter(ttlPainter);
-		settingsTtlPnl.setTitleFont(ttlFont);
-		settingsTtlPnl.setTitleForeground(ttlForeground);
-
-		// 2b. Parameter 
-		JPanel parameterPnl = new JPanel();
-		parameterPnl.setBorder(BorderFactory.createTitledBorder("Parameters"));
-		parameterPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p ,5dlu")); // Column, Rows
-		JLabel entryLbl 		= new JLabel("Entry");
-		entryCbx 		= new JComboBox(ENTRIES); 
-		entryCbx.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				experimentsHaveChanged = true;
-			}
-		});
-		entryCbx.setToolTipText("Select the criterion to compare the experiments.");
-		JLabel compareLbl 		= new JLabel("Compare");
-		compareCbx	= new JComboBox(COMPARE); 
-		compareCbx.setToolTipText("<html>Quantitative criterion to compare:" +
-				"<ol><li>Proteins: non-redundant identified proteins</li>" +
-				"<li>Peptides: peptide count/PepC (non-redundant peptides)</li>" +
-				"<li>Spectra: spectral count/SpC (non-redundant spectra)</li>" +
-				"<li>NSAF: normalized spectrum abundance factor</li>" +
-				"<li>emPAI: exponentially modified protein abundance index</li></ol></html>");
-
-		JLabel groupingLbl = new JLabel("Pooling");
-		groupingCbx = new JComboBox(Pooling); 
-		groupingCbx.setToolTipText("<html>Pool expermiments by:" +
-				"<ol><li>Average: arithmetic mean</li>" +
-				"<li>Max: take maximum value of selected group</li>" +
-				"<li>Min: take minimum value of selected group</li>" +
-				"<li>Sum: sum up all values of selected group (redundant list)</li></ol></html>");
-		parameterPnl.add(entryLbl, 		CC.xy(2, 2));
-		parameterPnl.add(entryCbx, 		CC.xy(4, 2));
-		parameterPnl.add(compareLbl, 	CC.xy(2, 4));
-		parameterPnl.add(compareCbx, 	CC.xy(4, 4));
-		parameterPnl.add(groupingLbl, 	CC.xy(2, 6));
-		parameterPnl.add(groupingCbx, 	CC.xy(4, 6));
-		settingsPnl.add(parameterPnl,	CC.xy(2, 2));
-		JButton createTableBtn = new JButton(" Create Table ", IconConstants.BUG_ICON);
-		createTableBtn.setRolloverIcon(IconConstants.BUG_ROLLOVER_ICON);
-		createTableBtn.setPressedIcon(IconConstants.BUG_PRESSED_ICON);
-		final Font boldFont = new JLabel().getFont().deriveFont(Font.BOLD);
-		createTableBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				compareTbl.setModel(createCompareTableModel());
-				refreshCompareTable(compareTbl);
-				experimentsHaveChanged = false;
-				int colIndex = 4;
-				for (Entry<String, List<Experiment>> groupEntry : groupMap.entrySet()) {
-					colIndex += groupEntry.getValue().size();
-					compareTbl.getColumnExt(colIndex++).addHighlighter(new FontHighlighter(boldFont));
-				}
-				compareTbl.packAll(); // Resize the table
-				compareTbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Necessary for srollBar
-			}
-		});
-		settingsPnl.add(createTableBtn, CC.xy(2, 4));
-
-		// 3. Create table
-		JPanel comparePnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		JXTitledPanel compareTtlPnl = new JXTitledPanel("Compare Table", comparePnl);
-		compareTtlPnl.setBorder(ttlBorder);
-		compareTtlPnl.setTitlePainter(ttlPainter);
-		compareTtlPnl.setTitleFont(ttlFont);
-		compareTtlPnl.setTitleForeground(ttlForeground);
-
-		compareTbl = new JXTable(createCompareTableModel()) {
-			// Overright table column
-			public Class<?> getColumnClass(int column) {
-				if (convertColumnIndexToModel(column) == 0) {
-					return Boolean.class; // Checkbox in table
-				}
-				return super.getColumnClass(column);
-			}
-		};
-		// Allows header with line breaks
-		compareTbl.getTableHeader().setDefaultRenderer(new DefaultTableHeaderCellRenderer(){
+		buttonPnl.add(numberTgl, CC.xy(1, 1));
+		buttonPnl.add(exportBtn, CC.xy(3, 1));
+		
+		// install custom renderer on compare table
+		compareTbl.setDefaultRenderer(List.class, new DefaultTableCellRenderer() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public Component getTableCellRendererComponent(JTable table,
 					Object value, boolean isSelected, boolean hasFocus,
 					int row, int column) {
-				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				FormLayout layout = new FormLayout("12px:g, p, 2dlu, 12px:g");
-				JPanel panel = new JPanel(layout);
-				String title = value.toString();
-				int rows = 1;
-				if (title.contains("\n")) {
-					String[] lines = title.split("\n");
-					for (String line : lines) {
-						layout.appendRow(RowSpec.decode("f:p:g"));
-						JLabel label = new JLabel(line, SwingConstants.CENTER);
-						label.setVerticalAlignment(SwingConstants.CENTER);
-						panel.add(label, CC.xy(2, rows++));
-					}
-					rows--;
+				List<Hit> hitList = (List<Hit>) value;
+				boolean showNumbers = numberTgl.isSelected();
+				if (hitList == null) {
+					value = (showNumbers) ? 0 : null;
 				} else {
-					layout.appendRow(RowSpec.decode("f:p:g"));
-					JLabel label = new JLabel(title, SwingConstants.CENTER);
-					panel.add(label, CC.xy(2, 1));
+					value = (showNumbers) ? hitList.size() : hitList.toString();
 				}
-				panel.setBorder(((JComponent) comp).getBorder());
-				panel.add(new JLabel(((JLabel) comp).getIcon()), CC.xywh(4, 1, 1, rows));
-				return panel;
+				JLabel rendererLbl = (JLabel) super.getTableCellRendererComponent(
+						table, value, isSelected, hasFocus, row, column);
+				rendererLbl.setHorizontalAlignment(SwingConstants.CENTER);
+				return rendererLbl;
 			}
 		});
-		JScrollPane compareScp = new JScrollPane(compareTbl);
-		compareScp.setPreferredSize(new Dimension());
-		compareScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		compareScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-
-		// Add buttons for data analysis and export
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		buttonPanel.setOpaque(false);
-
-		final String[] cardLabels = new String[] {"Original", "Flat View"};
-		final CardLayout cardLyt = new CardLayout();
-		final JPanel cardPnl = new JPanel(cardLyt);
-		cardPnl.add(compareScp, cardLabels[0]);
-		cardPnl.add(new JButton(), cardLabels[1]);
-
-		final JButton viewBtn = new JButton(IconConstants.HIERARCHY_ICON);
-
-		final JPopupMenu hierarchyPop = new JPopupMenu();
-		ActionListener hierarchyListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLyt.show(cardPnl, ((AbstractButton) e.getSource()).getText());
-			}
-		};
-		ButtonGroup bg = new ButtonGroup();
-		for (int j = 0; j < cardLabels.length; j++) {
-			JMenuItem item = new JRadioButtonMenuItem(cardLabels[j], (j == 0));
-			item.addActionListener(hierarchyListener);
-			bg.add(item);
-			hierarchyPop.add(item);
-		}
-		hierarchyPop.addPopupMenuListener(new PopupMenuListener() {
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				viewBtn.setSelected(false);
-			}
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
-			public void popupMenuCanceled(PopupMenuEvent e) {}
-		});
-
-		viewBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				hierarchyPop.show(viewBtn, 0, viewBtn.getHeight());
-			}
-		});
-
-		// Export button
-		JButton exportBtn = new JButton("",IconConstants.EXCEL_EXPORT_ICON);
-		exportBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				export2Csv(); 
-			}
-		});
-		exportBtn.setToolTipText("<html>Export table as <b>tab separated values</b> .csv file</html>");
-
-		buttonPanel.add(viewBtn);
-		buttonPanel.add(exportBtn);
-		compareTtlPnl.setRightDecoration(buttonPanel);
-
-		comparePnl.add(cardPnl, CC.xy(2, 2));
-
-		// add all subPanels
-		this.add(samplesTtlPnl, CC.xy(2, 2));
-		this.add(settingsTtlPnl, CC.xy(4, 2));
-		this.add(compareTtlPnl, CC.xyw(2, 4, 3));
-	}
-
-	/**
-	 * Create dialog to fetch Experiments from the database
-	 * @param table the measurement table instance
-	 * @throws SQLException 
-	 */
-	private Experiment showExperimentSelectionDialog(JTable table) throws SQLException {
-		JPanel dialogPnl = new JPanel();
-		dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
-
-		final JTable projTbl = new JTable(new DefaultTableModel(new Object[] {"Projects"}, 0)){
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
-		projTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		// Initialize ProjectManager to access projects and experiments in the database
-		final ProjectManager projectManager = new ProjectManager(Client.getInstance().getDatabaseConnection());
-		// Get projects from database.
-		final List<Project> projects = projectManager.getProjects();
-
-		List<String> titles = new ArrayList<String>();
-		for (Project project : projects) {
-			titles.add(project.getTitle());
-		}
-		fillTable(projTbl, titles);
-
-		final JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)){
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
-		expTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		final List<Experiment> experiments = new ArrayList<Experiment>();
-
-		projTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				int selRow = projTbl.getSelectedRow();
-				long projectID = projects.get(selRow).getProjectid();
-				try {
-					experiments.clear();
-					experiments.addAll(projectManager.getProjectExperiments(projectID));
-					if (!experiments.isEmpty()) {
-						List<String> titles = new ArrayList<String>();
-						for (Experiment experiment : experiments) {
-							titles.add(experiment.getTitle());
-						}
-						//						refreshExperimentTable(experimentTable);
-						fillTable(expTbl, titles);
-					}
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-
-		JScrollPane projScp = new JScrollPane(projTbl);
-		projScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		projScp.setPreferredSize(new Dimension(200, 250));
-
-		JScrollPane expScp = new JScrollPane(expTbl);
-		expScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		expScp.setPreferredSize(new Dimension(200, 250));
-
-		dialogPnl.add(projScp, CC.xy(2, 2));
-		dialogPnl.add(expScp, CC.xy(4, 2));
-
-		// Second get associated experiments
-		Experiment experiment = null;
-		int ret = JOptionPane.showConfirmDialog(clientFrame, dialogPnl, "Choose an Experiment", JOptionPane.OK_CANCEL_OPTION);
-		if (ret == JOptionPane.OK_OPTION) {
-			int selExpRow = expTbl.convertRowIndexToModel(expTbl.getSelectedRow());
-			if (selExpRow != -1) {
-				// Get choosen experiment from the db.
-				try {
-					long experimentid = experiments.get(selExpRow).getExperimentid();
-					experiment = projectManager.getExperiment(experimentid);
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
-		return experiment;
-	}
-
-	/**
-	 * Convenience method to fill a list table with rows containing the provided data.
-	 * @param table the table to fill
-	 * @param data the list of data to be distributed among rows
-	 */
-	private void fillTable(JTable table, List<String> data) {
-		TableConfig.clearTable(table);
-		for (String str : data) {
-			((DefaultTableModel) table.getModel()).addRow(new Object [] { str });
-		}
-	}
-
-	/**
-	 * Refresh the measurement table.
-	 * @param measurementTbl
-	 */
-	private void refreshMeasurementTable(JXTable table) {
-		TableConfig.clearTable(table);
-		List<Experiment> expList = groupMap.get(selGroup);
-		table = new ListTable((DefaultTableModel) table.getModel(), "Click to Add Measurement...");
-
-		if (expList != null) {
-			for (int i = 0; i < expList.size(); i++) {
-				Experiment experiment = expList.get(i);
-				String title = experiment.getTitle();
-				((DefaultTableModel) table.getModel()).insertRow(table.getRowCount() - 1, new Object[] { title });
-			}
-		}
-	}
-
-	/**
-	 * Method to create the table model for the compare table.
-	 * @return The default table model.
-	 */
-	private DefaultTableModel createCompareTableModel() {
-		DefaultTableModel compareTableMdl = new DefaultTableModel(){
-			{
-				// Create List of table Objects
-				Vector<Object> tableHeaderVector = new Vector<Object>();
-				tableHeaderVector.add("");
-				tableHeaderVector.add("#");
-				tableHeaderVector.add("Accession");
-				tableHeaderVector.add("Description");
-
-				// Go through groups and add their experiments columns for groups
-				if (groupMap != null) {
-					for (Entry entry : groupMap.entrySet()) {
-						// Iterate through experiments
-						@SuppressWarnings("unchecked")
-						List<Experiment> expList = ((List<Experiment>) entry.getValue());
-						if (expList != null) {
-							for (int i = 0; i < expList.size(); i++) {
-								tableHeaderVector.add(entry.getKey() + "\n" + expList.get(i).getTitle());
-							}
-							tableHeaderVector.add(entry.getKey());
-						}
-					}
-				}
-				// Set header to table model
-				setColumnIdentifiers(tableHeaderVector);
-			}
-			// Set variable types of columns for row sorting
-			public Class<?> getColumnClass(int columnIndex) {
-				switch (columnIndex) {
-				case 0: 
-					return Boolean.class;
-				case 1:
-					return Double.class;
-				case 2: 
-				case 3:
-					return String.class;
-				default:
-					return Long.class;
-				}
-			}
-		};
 		
+		JXTitledPanel compareTblTtlPnl = PanelConfig.createTitledPanel(
+				"Comparison Table", compareTblPnl, null, buttonPnl);
 		
-		return compareTableMdl;
+		this.add(settingsTtlPnl, CC.xy(2, 2));
+		this.add(compareTblTtlPnl, CC.xy(2, 4));
 	}
-
+	
 	/**
-	 * Method to refresh the compare table.
-	 * @param compareTable
+	 * Class to handle the choosen experiments and the experiment table.
+	 * @author A. Behne und R. Heyer
 	 */
-	private void refreshCompareTable(JXTable table) {
+	private class ExperimentTableHandler implements ListSelectionListener {
 
-		// Get model and clear table
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		TableConfig.clearTable(table);
-
-		FormattedTableCellRenderer renderer;
-		switch (compareCbx.getSelectedIndex()) {
-		case 0: // Proteins
-		case 1: // Peptides
-		case 2: // SpectralCount
-		case 4: // emPai
-			renderer = new FormattedTableCellRenderer(SwingConstants.RIGHT, "0.00");
-			for (int col = 4; col < table.getColumnCount(); col++) {
-				compareTbl.getColumnModel().getColumn(col).setCellRenderer(renderer);
-			}
-			break;
-		case 3: // NSAF
-			renderer = new FormattedTableCellRenderer(SwingConstants.RIGHT, "0.00E00");
-			for (int col = 4; col < table.getColumnCount(); col++) {
-				compareTbl.getColumnModel().getColumn(col).setCellRenderer(renderer);
-			}
-			break;
-		}
-
-		// 1. Create proteinHitSet
-		Map<String,ProteinHit> proteinMap = new TreeMap<String,ProteinHit>();
-		if (experimentsHaveChanged) {
-			groupResultList = new ArrayList<List<DbSearchResult>>();
-			for (Entry<String, List<Experiment>> groupEntry: groupMap.entrySet()) {
-				ArrayList<DbSearchResult> resultList = new ArrayList<DbSearchResult>();
-				// Get Experiment
-				List<Experiment> experimentList = groupEntry.getValue();
-				if (experimentList != null ) {
-					Client client = Client.getInstance();
-					for (Experiment experiment : experimentList) {
-						Client.getInstance().retrieveDatabaseSearchResult(groupEntry.getKey(),experiment.getTitle(),experiment.getExperimentid() );
-						DbSearchResult dbSearchResult = client.getDatabaseSearchResult();
-
-//						if (!dbSearchResult.isEmpty()) {
-//							// Retrieve UniProt data
-//							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-//							client.firePropertyChange("indeterminate", false, true);
-//							try {
-//								UniprotAccessor.retrieveUniProtEntries(dbSearchResult);
-//							} catch (Exception e) {
-//								JXErrorPane.showDialog(clientFrame, new ErrorInfo("Error",
-//										"UniProt access failed. Please try again later.",
-//										e.getMessage(), null, e, Level.SEVERE, null));
-//							}
-//							
-//							client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
-//							client.firePropertyChange("indeterminate", true, false);
-//						}
-						
-						//TODO remove double entries
-						for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
-							if (!proteinMap.containsKey(protHit.getAccession())) {
-								proteinMap.put(protHit.getAccession(), protHit);
-							}
-						}
-						resultList.add(dbSearchResult);
-					}
-				}
-				groupResultList.add(resultList);
-			}
-		} else {
-			if (groupResultList != null) {
-				for (List<DbSearchResult> resultList : groupResultList) {
-					for (DbSearchResult dbSearchResult : resultList) {
-						for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
-							if (!proteinMap.containsKey(protHit.getAccession())) {
-								proteinMap.put(protHit.getAccession(), protHit);
-							}
-						}
-					}
-				}
-			}
-		}
-		List<ProteinHit> removeList = new ArrayList<ProteinHit>();
-		// List for mapping back from UniProt2NCBI
-		Map<String,String> uniProt2NCBI = new TreeMap<String, String>(); 
-		// For NCBI2UniProt correction
-		if (!entryCbx.getSelectedItem().equals("Accessions")) {
-			for (ProteinHit proteinHit : proteinMap.values()) {
-				String accession = proteinHit.getAccession();
-				ReducedUniProtEntry uniprotEntry = proteinHit.getUniProtEntry();
-				// Case that NCBI accession with UniProt Mapping
-				if (uniprotEntry != null) {
-					// Build list of UniProt accessions
-					List<String> uniProtAccs = new ArrayList<String>();
-					uniProtAccs.add(accession);
-					// TODO: use secondary accessions?
-//					ListIterator<SecondaryUniProtAccession> secondaryUniProtAccessions = uniprotEntry.getSecondaryUniProtAccessions().listIterator();
-//					while (secondaryUniProtAccessions.hasNext()) {
-//						uniProtAccs.add(secondaryUniProtAccessions.next().getValue());
-//					}
-					if (!uniProtAccs.contains(accession)) { // Check for non UNIProt entries
-						removeList.add(proteinHit);
-						uniProt2NCBI.put(uniProtAccs.get(0), accession);
-					}
-				}
-			}
-			// Remove redundant entries
-			for (ProteinHit proteinHit : removeList) {
-				proteinMap.remove(proteinHit.getAccession());
-			}
-		}
-		
-		// 2. Create table
-		int rowIndex = 1;
-		for (ProteinHit proteinEntry : proteinMap.values()) {
-			Vector<Object> row = new Vector<Object>();
-			row.add(true);
-			row.add(rowIndex++);
-			row.add(proteinEntry.getAccession());
-			row.add(proteinEntry.getDescription());
-
-			for (List<DbSearchResult> resultList : groupResultList) {
-				List<Double> groupValues = new ArrayList<Double>(); 			// For grouping
-				for (DbSearchResult dbSearchResult : resultList) {
-					ProteinHit proteinHit = null;
-					if (!entryCbx.getSelectedItem().equals("Accessions")) { 	// Try to correct to UniProt
-					String accSet = proteinEntry.getAccession();
-						proteinHit = dbSearchResult.getProteinHits().get(accSet);
-						if (proteinHit == null) { 								// No UniProt identifier
-							String ncbiAcc = uniProt2NCBI.get(accSet);
-							if (ncbiAcc == null) {								// UniProt
-								proteinHit = dbSearchResult.getProteinHits().get(proteinEntry.getAccession());
-							} else {
-								proteinHit = dbSearchResult.getProteinHits().get(ncbiAcc);
-							}
-						}
-					}
-					else{ // Use original identifier
-						proteinHit = dbSearchResult.getProteinHits().get(proteinEntry.getAccession());
-					}
-					
-					if (proteinHit == null) {
-						row.add(0); // If protein is not included in the experiment
-					} else {
-						switch (compareCbx.getSelectedIndex()) {
-						case 0: // Proteins
-							row.add(1);
-							break;
-						case 1: // Peptides
-							row.add(proteinHit.getPeptideCount());
-							break;
-						case 2: // SpectralCount
-							row.add(proteinHit.getSpectralCount());
-							break;
-						case 3: // NSAF
-							double nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(), proteinHit);
-							row.add(nsaf);
-							break;
-						case 4: // emPai
-							row.add(proteinHit.getEmPAI());
-							break;
-						}
-					}
-					groupValues.add(((Number)row.lastElement()).doubleValue());
-				}
-
-				// Group Level
-				switch (groupingCbx.getSelectedIndex()) {
-				case 0: // Average
-					double average = 0.0;
-					for (Double val : groupValues) {
-						average += val;
-					}
-					row.add(average/ groupValues.size());
-					break;
-				case 1: // Max
-					double max = -Double.MAX_VALUE;
-					for (Double val : groupValues) {
-						max = (max < val) ? val : max;
-					}
-					row.add(max);
-					break;
-				case 2: // Min
-					double min = Double.MAX_VALUE;
-					for (Double val : groupValues) {
-						min = Math.min(min, val);
-					}
-					row.add(min);
-					break;
-				case 3: // Sum
-					double sum = 0.0;
-					for (Double val : groupValues) {
-						sum = sum + val;
-					}
-					row.add(sum);
-					break;
-				}
-			}
-			// Add row to table model
-			model.addRow(row);
-		}
-	}
-
-	/**
-	 * Method to export compare table as csv. format, but tab separated
-	 */
-	private void export2Csv() {	
 		/**
-		 * TSV format separator.
+		 * The table of choosen experiments
 		 */
-		final String SEP = "\t";
-
-		JFileChooser chooser = new JFileChooser();
-		int returnVal = chooser.showOpenDialog(clientFrame);
-		chooser.setFileFilter(Constants.CSV_FILE_FILTER);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = chooser.getSelectedFile();
-			if(!selectedFile.getName().endsWith(".csv")){
-				selectedFile = new File(selectedFile.getPath()+ ".csv");
-			}
-
-			BufferedWriter bw = null;
-			try {
-				bw = new BufferedWriter(new FileWriter(selectedFile));
-				// Add table header
-				for (int col = 0; col < compareTbl.getColumnCount(); col++) {
-					if (compareTbl.convertColumnIndexToModel(col) == 0) {
-						continue;
-					}
-					// Remove html tags
-					String columnName = compareTbl.getColumnName(col);
-					columnName.replaceAll("<.>", "");
-					bw.append(compareTbl.getColumnName(col));
-					bw.append(SEP);
-				}
-				bw.append("\n");
-
-				// Add table
-				for (int row = 0; row < compareTbl.getRowCount(); row++) {
-					if ((Boolean) compareTbl.getValueAt(row, compareTbl.convertColumnIndexToView(0))) {
-						for (int col = 0; col < compareTbl.getColumnCount(); col++) {
-							if (compareTbl.convertColumnIndexToModel(col) == 0) {
-								continue;
+		private JTable table;
+		
+		/**
+		 * Creates a selection handler for the specified table.
+		 * @param table. The experiment table.
+		 */
+		public ExperimentTableHandler(JTable table) {
+			this.table = table;
+		}
+		
+		@Override
+		public void valueChanged(ListSelectionEvent evt) {
+			if (!evt.getValueIsAdjusting()) {
+				int row = this.table.getSelectedRow();
+				if (row == (this.table.getRowCount() - 1)) {
+					Experiment experiment;
+					try {
+						// create dialog for experiment selection from the database
+						experiment = this.showExperimentSelectionDialog();
+						this.table.clearSelection();
+						if (experiment != null) {
+							TableModel model = this.table.getModel();
+							// check whether experiment already exists
+							for (int i = 0; i < model.getRowCount() - 1; i++) {
+								if (experiment.equals(model.getValueAt(i, 0))) {
+									this.table.getSelectionModel().setSelectionInterval(i, i);
+									return;
+								}
 							}
-							bw.append(compareTbl.getStringAt(row, col));
-							bw.append(SEP);
+							int lastRow = this.table.getRowCount() - 1;
+							((DefaultTableModel) model).insertRow(
+									lastRow, new Object[] { experiment });
+							this.table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 						}
-						bw.append("\n");
+					} catch (SQLException e) {
+						e.printStackTrace();
 					}
 				}
-				bw.flush();
-				bw.close();
-			} catch (IOException e) {
+			}
+		}
+
+		/**
+		 * Creates and shows a dialog for selecting an experiment from the database.
+		 * @return the selected experiment or <code>null</code>
+		 * @throws SQLException if a database error occurs
+		 */
+		private Experiment showExperimentSelectionDialog() throws SQLException {
+			JPanel dialogPnl = new JPanel();
+			dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
+		
+			final JTable projTbl = new JTable(new DefaultTableModel(
+					new Object[] { "Projects" }, 0)) {
+				@Override
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				}
+			};
+			projTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+			// Initialize ProjectManager to access projects and experiments in the database
+			final ProjectManager projectManager = new ProjectManager(Client.getInstance().getDatabaseConnection());
+			// Get projects from database.
+			final List<Project> projects = projectManager.getProjects();
+		
+			List<String> titles = new ArrayList<String>();
+			for (Project project : projects) {
+				titles.add(project.getTitle());
+			}
+			this.fillTable(projTbl, titles);
+		
+			final JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)){
+				@Override
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				}
+			};
+			expTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+			final List<Experiment> experiments = new ArrayList<Experiment>();
+		
+			projTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+				public void valueChanged(ListSelectionEvent e) {
+					int selRow = projTbl.getSelectedRow();
+					long projectID = projects.get(selRow).getProjectid();
+					try {
+						experiments.clear();
+						experiments.addAll(projectManager.getProjectExperiments(projectID));
+						if (!experiments.isEmpty()) {
+							List<String> titles = new ArrayList<String>();
+							for (Experiment experiment : experiments) {
+								titles.add(experiment.getTitle());
+							}
+							ExperimentTableHandler.this.fillTable(expTbl, titles);
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+		
+			JScrollPane projScp = new JScrollPane(projTbl);
+			projScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			projScp.setPreferredSize(new Dimension(200, 250));
+		
+			JScrollPane expScp = new JScrollPane(expTbl);
+			expScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			expScp.setPreferredSize(new Dimension(200, 250));
+		
+			dialogPnl.add(projScp, CC.xy(2, 2));
+			dialogPnl.add(expScp, CC.xy(4, 2));
+		
+			// Second get associated experiments
+			Experiment experiment = null;
+			int ret = JOptionPane.showConfirmDialog(
+					ClientFrame.getInstance(), dialogPnl, "Choose an Experiment", JOptionPane.OK_CANCEL_OPTION);
+			if (ret == JOptionPane.OK_OPTION) {
+				int selExpRow = expTbl.convertRowIndexToModel(expTbl.getSelectedRow());
+				if (selExpRow != -1) {
+					// Get choosen experiment from the database.
+					try {
+						long experimentid = experiments.get(selExpRow).getExperimentid();
+						experiment = projectManager.getExperiment(experimentid);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+			return experiment;
+		}
+
+		/**
+		 * Convenience method to fill a list table with rows containing the provided data.
+		 * @param table the table to fill
+		 * @param data the list of data to be distributed among rows
+		 */
+		private void fillTable(JTable table, List<String> data) {
+			TableConfig.clearTable(table);
+			for (String str : data) {
+				((DefaultTableModel) table.getModel()).addRow(new Object [] { str });
+			}
+		}
+		
+	}
+
+	/**
+	 * Worker to create compare data in a background threat
+	 * @author R. Heyer
+	 */
+	private class CompareTask extends SwingWorker {
+		
+		/**
+		 * The list of experiments to compare.
+		 */
+		private List<Experiment> experiments;
+		
+		/**
+		 * The comparison attribute type.
+		 */
+		private ChartType yAxisType;
+		
+		/**
+		 * The comparison count type.
+		 */
+		private HierarchyLevel zAxisType;
+
+		/**
+		 * Constructs a compare worker from the specified list of experiments to
+		 * compare.
+		 * @param experiments the experimeents to compare
+		 */
+		public CompareTask(List<Experiment> experiments, ChartType yAxisType, HierarchyLevel zAxisType) {
+			this.experiments = experiments;
+			
+			List<Experiment> tempList = new ArrayList<Experiment>(experiments);
+			tempList.add(META_EXPERIMENT);
+			resultMap.keySet().retainAll(tempList);
+			
+			this.yAxisType = yAxisType;
+			this.zAxisType = zAxisType;
+		}
+
+		@Override
+		protected Object doInBackground() throws Exception {
+			try {
+				Client client = Client.getInstance();
+				
+				// Flag for update of 
+				// fetch experiment results
+				for (Experiment experiment : experiments) {
+					DbSearchResult result = resultMap.get(experiment);
+					if (result == null) {
+						result = client.retrieveDatabaseSearchResult(null, null, experiment.getExperimentid());
+						// invalidate meta-result
+						resultMap.put(META_EXPERIMENT, null);
+					}
+					resultMap.put(experiment, result);
+				}
+				
+				// Create metaResult object, containing all result objects
+				DbSearchResult metaResult = resultMap.get(META_EXPERIMENT);
+				if (metaResult == null) {
+					// create new meta-result
+					metaResult = new DbSearchResult(null, null, null);
+					for (DbSearchResult result : resultMap.values()) {
+						if (result != null) {
+							for (ProteinHit proteinHit : result.getProteinHitList()) {
+								metaResult.addProtein(proteinHit);
+							}
+						}
+					}
+					// Fuse to meta-proteins
+					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(metaResult, metaParams);
+					resultMap.put(META_EXPERIMENT, metaResult);
+				}
+				
+				// Create compare table
+				final CompareData data = new CompareData(metaResult, this.yAxisType, this.zAxisType);
+
+				// Refresh compare table
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						refreshCompareTable(data, experiments);
+					}
+				});
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			return null;
 		}
+		
+		@Override
+		protected void done() {
+//			compareTbl.getTableHeader().repaint();
+		}
+
+		/**
+		 * Method to refresh the compare table.
+		 * @param data. The data matrix for the comparison 
+		 */
+		private void refreshCompareTable(CompareData data, List<Experiment> experiments) {
+			// Re-associate experiment titles with their IDs, use as column headers
+			String[] xLabels = data.getXLabels();
+			// Use attribute type as first column header
+			ChartType axisType = data.getAxisType(Axis.Y_AXIS);
+			final boolean isProtein = ((axisType == HierarchyLevel.META_PROTEIN_LEVEL) || 
+					(axisType == HierarchyLevel.PROTEIN_LEVEL));
+			String[] columnNames;
+			final int offset = (isProtein) ? 2 : 1;
+			columnNames = new String[xLabels.length + offset];
+			columnNames[0] = axisType.toString();
+			columnNames[1] = "Description";		// will be replaced if offset == 1
+			
+			for (int i = offset; i < columnNames.length; i++) {
+				long l = Long.parseLong(xLabels[i - offset]);
+				for (Experiment experiment : experiments) {
+					if (l == experiment.getExperimentid()) {
+						columnNames[i] = experiment.getTitle() + " (" + l + ")";
+						break;
+					}
+				}
+			}
+			
+			final String[] yLabels = data.getYLabels();
+			final MatrixSeriesExt series = (MatrixSeriesExt) data.getMatrix();
+			final DbSearchResult metaResult = data.getResult();
+			DefaultTableModel model = new DefaultTableModel(columnNames, yLabels.length) {
+				@Override
+				public Class<?> getColumnClass(int columnIndex) {
+					if (columnIndex >= offset) {
+						return List.class;
+					}
+					return super.getColumnClass(columnIndex);
+				}
+				
+				@Override
+				public Object getValueAt(int row, int column) {
+					if (column == 0) {
+						return yLabels[row];
+					} else if ((column == 1) && isProtein) {
+						ProteinHit ph = metaResult.getProteinHit(yLabels[row]);
+						if (ph != null) {
+							return ph.getDescription();
+						} else {
+							for (ProteinHit mph : metaResult.getMetaProteins()) {
+								if (mph.getAccession() == yLabels[row]) {
+									return ((MetaProteinHit) mph).getProteinHitList().get(0).getDescription();
+								}
+							}
+							// we shouldn't get here
+							return null;
+						}
+					} else {
+						column -= offset;
+						List<List<List<Hit>>> matrix = series.getMatrix();
+						List<List<Hit>> matrixRow = matrix.get(row);
+						if (column < matrixRow.size()) {
+							return matrixRow.get(column);
+						} else {
+							return null;
+						}
+					}
+				}
+			};
+			
+			final JXTable headerTbl = (JXTable) comparePane.getRowHeader().getView();
+			headerTbl.setModel(model);
+			List<TableColumn> headColumns = headerTbl.getColumns();
+			for (int i = 1; i < headColumns.size(); i++) {
+				((TableColumnExt) headColumns.get(i)).setVisible(false);
+			}
+			headerTbl.getColumn(0).setCellRenderer(new DefaultTableHeaderCellRenderer() {
+				@Override
+				public Icon getIcon() {
+					return null;
+				}
+			});
+			
+			final JXTable compareTbl = (JXTable) comparePane.getViewport().getView();
+			compareTbl.setModel(model);
+			List<TableColumn> compColumns = compareTbl.getColumns();
+			for (int i = 0; i < 1; i++) {
+				((TableColumnExt) compColumns.get(i)).setVisible(false);
+			}
+			
+			// TODO: synchronize sorting
+//			headerTbl.setRowSorter(compareTbl.getRowSorter());
+			
+			TableSortController<TableModel> sorter = new TableSortController<TableModel>(model) {
+				RowSorter<? extends TableModel> delegate = compareTbl.getRowSorter();
+				
+				@Override
+				public int convertRowIndexToModel(int viewIndex) {
+					return delegate.convertRowIndexToModel(viewIndex);
+				}
+				
+				@Override
+				public int convertRowIndexToView(int modelIndex) {
+					return delegate.convertRowIndexToView(modelIndex);
+				}
+			};
+			headerTbl.setRowSorter(sorter);
+			
+			headerTbl.packColumn(0, 6);
+			compareTbl.packAll();
+		}
+		
+	}
+	
+	/**
+	 * Class to compare experiments.
+	 * @author A. Behne und R. Heyer
+	 */
+	public static class CompareData extends HeatMapData {
+		
+		/**
+		 * ChartType for experiments
+		 */
+		public static final ChartType EXPERIMENT = new ChartType() {
+			@Override
+			public String getTitle() {
+				return "Experiment";
+			}
+		};
+
+		/**
+		 * Default constructor for the compare data.
+		 * @param result. The result object.
+		 * @param yAxisType. The type of the y-axis for the comparison.
+		 * @param zAxisType. The type of the z-axis for the comparison.
+		 */
+		public CompareData(DbSearchResult result,
+				ChartType yAxisType, HierarchyLevel zAxisType) {
+			super(result, EXPERIMENT, yAxisType, zAxisType);
+		}
+		
 	}
 
 	/**
@@ -1063,4 +1023,5 @@ public class ComparePanel extends JPanel{
 					((column == 1) && (row < (getRowCount() - 1)));
 		}
 	}
+
 }

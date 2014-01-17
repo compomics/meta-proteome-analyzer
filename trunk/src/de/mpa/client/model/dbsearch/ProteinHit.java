@@ -14,14 +14,14 @@ import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
-import de.mpa.client.ui.panels.ComparePanel2.CompareData;
-import de.mpa.taxonomy.Taxonomic;
-import de.mpa.taxonomy.TaxonomyNode;
+import de.mpa.client.ui.panels.ComparePanel.CompareData;
 
 
 /**

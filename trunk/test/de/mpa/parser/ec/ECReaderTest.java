@@ -7,6 +7,9 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.io.parser.ec.ECEntry;
+import de.mpa.io.parser.ec.ECReader;
+
 
 public class ECReaderTest extends TestCase {
 	private Map<String, ECEntry> ecMap;
