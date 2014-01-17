@@ -65,7 +65,7 @@ public class HeatMapData {
 	}
 
 	/**
-	 * Creates a heat map data container from the specified result object and axis identifiers
+	 * Creates a heat map data container from the specified result object and axis identifiers. Used for Heatmap
 	 * @param result the search result object
 	 * @param xAxisType the x axis identifier
 	 * @param yAxisType the y axis identifier
@@ -79,7 +79,7 @@ public class HeatMapData {
 		
 		this.createMatrix();
 	}
-
+	
 	/**
 	 * Generates matrix data and axis labels from a database search result reference.
 	 */
@@ -110,7 +110,7 @@ public class HeatMapData {
 
 		// Initialize labels and matrix as local lists
 		List<String> xLabels = new ArrayList<String>(), yLabels = new ArrayList<String>();
-		List<List<Integer>> matrix = new ArrayList<List<Integer>>();
+		List<List<List<Hit>>> matrix = new ArrayList<List<List<Hit>>>();
 		int max = 0;
 		// Iterate hit objects
 //		int counter = 0;
@@ -148,9 +148,10 @@ public class HeatMapData {
 					
 					// Get matrix row or initialize a new one if row index exceeds matrix size
 					if (row >= matrix.size()) {
-						matrix.add(new ArrayList<Integer>());
+						matrix.add(new ArrayList<List<Hit>>());
 					}
-					List<Integer> matrixRow = matrix.get(row);
+					List<List<Hit>> matrixRow = matrix.get(row);
+					List<Hit> val;
 					if (col >= matrixRow.size()) {
 						// Column index exceeds row length,
 						// pad matrix row with null elements ...
@@ -158,16 +159,19 @@ public class HeatMapData {
 							matrixRow.add(null);
 						}
 						// ... and initialize new element
-						matrixRow.set(col, 1);
+						val = new ArrayList<Hit>();
 					} else {
 						// Fetch column element from matrix row
-						Integer val = matrixRow.get(col);
-						// Increment existing value or initialize new one
-						val = (val != null) ? val + 1 : 1;
-						matrixRow.set(col, val);
+						val = matrixRow.get(col);
+						// initialize new list if not existent
+						if (val == null) {
+							val = new ArrayList<Hit>();
+						}
 					}
+					val.add(hit);
+					matrixRow.set(col, val);
 					// Determine global upper value boundary
-					max = Math.max(max, matrixRow.get(col));
+					max = Math.max(max, val.size());
 				}
 			}
 //			System.out.println("" + (counter++) + "/" + hitList.size());
@@ -186,16 +190,18 @@ public class HeatMapData {
 		this.xLabels = xLabels.toArray(new String[0]);
 		this.yLabels = yLabels.toArray(new String[0]);
 		// Create matrix series object
-		this.matrix = new MatrixSeries("matrix", yLabels.size(), xLabels.size());
-		for (int i = 0; i < matrix.size(); i++) {
-			List<Integer> matrixRow = matrix.get(i);
-			for (int j = 0; j < matrixRow.size(); j++) {
-				Integer val = matrixRow.get(j);
-				if (val != null) {
-					this.matrix.update(i, j, val);
-				}
-			}
-		}
+//		this.matrix = new MatrixSeriesExt("matrix", yLabels.size(), xLabels.size());
+//		for (int i = 0; i < matrix.size(); i++) {
+//			List<Integer> matrixRow = matrix.get(i);
+//			for (int j = 0; j < matrixRow.size(); j++) {
+//				Integer val = matrixRow.get(j);
+//				if (val != null) {
+//					this.matrix.update(i, j, val);
+//				}
+//			}
+//		}
+		this.matrix = new MatrixSeriesExt(matrix, yLabels.size(), xLabels.size());
+		
 		// Cache maximum value
 		this.max = max;
 	}
@@ -225,6 +231,19 @@ public class HeatMapData {
 			this.yLabels[i] = "" + (char) (i + 'A');
 		}
 		this.max = 100.0;
+	}
+	
+	public ChartType getAxisType(Axis axis) {
+		switch (axis) {
+		case X_AXIS:
+			return this.xAxisType;
+		case Y_AXIS:
+			return this.yAxisType;
+		case Z_AXIS:
+			return this.zAxisType;
+		default:
+			return null;
+		}
 	}
 
 	/**
@@ -258,6 +277,14 @@ public class HeatMapData {
 		}
 		// Rebuild data matrix
 		this.createMatrix();
+	}
+	
+	/**
+	 * Returns the result object reference.
+	 * @return the result object
+	 */
+	public DbSearchResult getResult() {
+		return result;
 	}
 
 	/**
@@ -299,5 +326,51 @@ public class HeatMapData {
 	public String[] getYLabels() {
 		return yLabels;
 	}
+	
+	/**
+	 * TODO: API
+	 * @author heyer
+	 */
+	public static class MatrixSeriesExt extends MatrixSeries {
+		
+		/**
+		 * The hit matrix.
+		 */
+		private List<List<List<Hit>>> matrix;
 
+		/**
+		 * Creates an extended matrix series wrapping the provided hit matrix.
+		 * @param matrix the hit matrix
+		 * @param rows the number of rows
+		 * @param columns the number of columns
+		 */
+		public MatrixSeriesExt(List<List<List<Hit>>> matrix, int rows, int columns) {
+			super("matrix", rows, columns);
+			this.matrix = matrix;
+		}
+		
+		/**
+		 * Returns the hit matrix.
+		 * @return the hit matrix
+		 */
+		public List<List<List<Hit>>> getMatrix() {
+			return matrix;
+		}
+
+		@Override
+		public double get(int i, int j) {
+			List<List<Hit>> row = this.matrix.get(i);
+			if (j < row.size()) {
+				List<Hit> val = row.get(j);
+				if (val == null) {
+					return 0.0;
+				}
+				return val.size();
+			} else {
+				return 0.0;
+			}
+		}
+		
+	}
+	
 }

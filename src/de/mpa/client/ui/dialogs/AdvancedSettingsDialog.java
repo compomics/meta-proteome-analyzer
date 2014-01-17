@@ -13,6 +13,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,7 +55,7 @@ import de.mpa.client.ui.icons.IconConstants;
 /**
  * Dialog displaying advanced search settings dynamically generated from a set of parameters.
  * 
- * @author T. Muth
+ * @author T. Muth, A. Behne
  */
 public class AdvancedSettingsDialog extends JDialog {
 	
@@ -67,6 +68,11 @@ public class AdvancedSettingsDialog extends JDialog {
 	 * Map linking parameters to their respective control component.
 	 */
 	Map<String, JComponent> param2comp = new HashMap<String, JComponent>();
+	
+	/**
+	 * Flag indicating whether parameters were changed.
+	 */
+	private boolean changed = false;
 
 	/**
 	 * Constructs and displays a dialog dynamically generated from the specified
@@ -76,10 +82,20 @@ public class AdvancedSettingsDialog extends JDialog {
 	 * @param modal specifies whether dialog blocks user input to other top-level windows when shown.
 	 * @param parameterMap the collection of parameters upon which the dialog shall be built
 	 */
-	public AdvancedSettingsDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
+	private AdvancedSettingsDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
 		super(owner, title, modal);
 		this.parameterMap = parameterMap;
 		initComponents();
+		
+		// Configure size and position
+		this.pack();
+		Dimension size = this.getSize();
+		this.setSize(new Dimension(size.width, size.height + 7));
+		this.setResizable(false);
+		ScreenConfig.centerInScreen(this);
+		
+		// Show dialog
+		this.setVisible(true);
 	}
 	
 	/**
@@ -89,17 +105,26 @@ public class AdvancedSettingsDialog extends JDialog {
 	 * @param title the <code>String</code> to display in the dialog's title bar
 	 * @param modal specifies whether dialog blocks user input to other top-level windows when shown.
 	 * @param parameterMap the collection of parameters upon which the dialog shall be built
+	 * @return TODO: API
 	 */
-	public static void showDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
-		new AdvancedSettingsDialog(owner, title, modal, parameterMap);
+	public static boolean showDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
+		return new AdvancedSettingsDialog(owner, title, modal, parameterMap).hasChanged();
 	}
 	
+	/**
+	 * Returns the flag indicating whether the parameters were changed in some way.
+	 * @return <code>true</code> if parameters were changed, <code>false</code> otherwise
+	 */
+	private boolean hasChanged() {
+		return changed;
+	}
+
 	/**
 	 * Groups parameters by their section.
 	 * @return a map containing lists of parameters mapped to their section key.
 	 */
 	private Map<String, List<Parameter>> getSectionMap(List<Parameter> params) {
-		HashMap<String, List<Parameter>> sectionMap = new HashMap<String, List<Parameter>>();
+		Map<String, List<Parameter>> sectionMap = new LinkedHashMap<String, List<Parameter>>();
 		for (Parameter p : params) {
 			List<Parameter> sectionParams = sectionMap.get(p.getSection());
 			if (sectionParams == null) {
@@ -128,7 +153,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		((VerticalLayout) tpc.getLayout()).setGap(10);
 		
 		// Group parameters by section identifiers
-		Map<String, List<Parameter>> sectionMap = getSectionMap(params);
+		Map<String, List<Parameter>> sectionMap = this.getSectionMap(params);
 		
 		// Iterate sections
 		for (Entry<String, List<Parameter>> entry : sectionMap.entrySet()) {
@@ -244,16 +269,6 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Add final components to content pane
 		contentPane.add(tpc, CC.xy(2, 2));
 		contentPane.add(buttonPnl, CC.xy(2, 4));
-		
-		// Configure size and position
-		this.pack();
-		Dimension size = this.getSize();
-		this.setSize(new Dimension(size.width, size.height + 7));
-		this.setResizable(false);
-		ScreenConfig.centerInScreen(this);
-		
-		// Show dialog
-		this.setVisible(true);
 	}
 
 	/**
@@ -269,7 +284,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				continue;
 			}
 			if (comp instanceof JCheckBox) {
-				param.setValue(((JCheckBox) comp).isSelected());
+				this.changed |= param.setValue(((JCheckBox) comp).isSelected());
 			} else if (comp instanceof JPanel) {
 				// assume we are dealing with a matrix of checkboxes
 				Object[][] values = (Object[][]) param.getValue();
@@ -284,7 +299,7 @@ public class AdvancedSettingsDialog extends JDialog {
 						}
 					}
 				}
-				param.setValue(values);
+				this.changed |= param.setValue(values);
 				
 				Object[][] rows = (Object[][]) param.getValue();
 				int counter = 0;
@@ -306,18 +321,20 @@ public class AdvancedSettingsDialog extends JDialog {
 					}
 				}
 			} else if (comp instanceof JComboBox) {
-				param.setValue(((JComboBox) comp).getModel());
+				ComboBoxModel model = ((JComboBox) comp).getModel();
+//				param.setValue(model);
+				this.changed |= !model.getSelectedItem().equals(comp.getClientProperty("initialValue"));
 			} else if (comp instanceof JSpinner) {
-				JSpinner spinner = (JSpinner) comp;
+				Object newValue = ((JSpinner) comp).getValue();
 				if (param.getValue() instanceof Number[]) {
 					Number[] value = (Number[]) param.getValue();
-					value[0] = (Number) spinner.getValue();
-					param.setValue(value);
+					this.changed |= !value[0].equals(newValue);
+					value[0] = (Number) newValue;
 				} else {
-					param.setValue(spinner.getValue());
+					this.changed |= param.setValue(newValue);
 				}
 			} else if (comp instanceof JScrollPane) {
-				param.setValue(((JTextComponent) ((JScrollPane) comp).getViewport().getView()).getText());
+				this.changed |= param.setValue(((JTextComponent) ((JScrollPane) comp).getViewport().getView()).getText());
 			} else {
 				// When we get here something went wrong - investigate!
 				System.out.println("UH OH " + comp.getClass());
@@ -331,7 +348,8 @@ public class AdvancedSettingsDialog extends JDialog {
 	 */
 	protected void restoreDefaults() {
 		// Reset parameters
-		parameterMap.initDefaults();
+		this.parameterMap.initDefaults();
+		this.changed = true;
 		// Update controls
 		for (Parameter param : parameterMap.values()) {
 			JComponent comp = param2comp.get(param.getName());
@@ -362,8 +380,8 @@ public class AdvancedSettingsDialog extends JDialog {
 					}
 				}
 			} else if (comp instanceof JComboBox) {
-				// assuming first item in list is default
-				((JComboBox) comp).setSelectedIndex(0);
+				JComboBox comboBox = (JComboBox) comp;
+				comboBox.setSelectedItem(comboBox.getClientProperty("initialValue"));
 			} else if (comp instanceof JSpinner) {
 				if (param.getValue() instanceof Number[]) {
 					((JSpinner) comp).setValue(((Number[]) param.getValue())[0]);
@@ -478,6 +496,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		} else if (value instanceof ComboBoxModel) {
 			// Combobox
 			JComboBox comboBox = new JComboBox((ComboBoxModel) value);
+			comboBox.putClientProperty("initialValue", comboBox.getSelectedItem());
 			comboBox.setToolTipText(param.getDescription());
 			comp = comboBox;
 		} else if (value instanceof Double) {
@@ -496,6 +515,13 @@ public class AdvancedSettingsDialog extends JDialog {
 			Integer[] values = (Integer[]) value;
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(
 					values[0].intValue(), values[1].intValue(), values[2].intValue(), 1));
+			spinner.setToolTipText(param.getDescription());
+			comp = spinner;
+		} else if (value instanceof Double[]) {
+			// Spinner without decimal places with defined min and max
+			Double[] values = (Double[]) value;
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(
+					values[0].doubleValue(), values[1].doubleValue(), values[2].doubleValue(), 0.01));
 			spinner.setToolTipText(param.getDescription());
 			comp = spinner;
 		} else if (value instanceof String) {

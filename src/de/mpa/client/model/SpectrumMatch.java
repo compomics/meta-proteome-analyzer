@@ -167,6 +167,16 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	public void addPeptideHit(PeptideHit peptideHit) {
 		this.peptideHits.add(peptideHit);
 	}
+	
+	@Override
+	public void setFDR(double fdr) {
+		// do nothing
+	}
+
+	@Override
+	public boolean isVisible() {
+		return true;
+	}
 
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
@@ -185,7 +195,8 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 
 	@Override
 	public String toString() {
-		return "[ssID = " + this.searchSpectrumID + "]"; 
+//		return "[ssID = " + this.searchSpectrumID + "]";
+		return "" + this.searchSpectrumID;
 	}
 	
 	@Override
@@ -201,12 +212,6 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	public int compareTo(SpectrumMatch that) {
 		long delta = this.getSearchSpectrumID() - that.getSearchSpectrumID();
 		return (delta < 0L) ? -1 : (delta > 0L) ? 1 : 0;
-	}
-
-	@Override
-	public int getCount(Object x, Object y) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override

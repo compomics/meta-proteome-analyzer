@@ -240,7 +240,7 @@ public class DBSearchPanel extends JPanel {
 		omssaSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(ClientFrame.getInstance(), "OMSSA Advanced Parameters", true, omssaParams);
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "OMSSA Advanced Parameters", true, omssaParams);
 			}
 		});
 		omssaChk.addActionListener(new ActionListener() {
@@ -256,7 +256,7 @@ public class DBSearchPanel extends JPanel {
 		cruxSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
 			}
 		});
 		cruxChk.addActionListener(new ActionListener() {
@@ -272,7 +272,7 @@ public class DBSearchPanel extends JPanel {
 		inspectSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
 			}
 		});
 		inspectChk.addActionListener(new ActionListener() {
@@ -289,7 +289,7 @@ public class DBSearchPanel extends JPanel {
 		mascotSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new AdvancedSettingsDialog(ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
 			}
 		});
 		mascotChk.addChangeListener(new ChangeListener() {

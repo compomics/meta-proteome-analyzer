@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
 import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
@@ -93,10 +92,10 @@ public class ClientFrame extends JFrame {
 //	 */
 //	private JPanel clusterPnl = new JPanel();
 	
-	/**
-	 * The panel containing search results comparison functionalities.
-	 */
-	private JPanel comparePnl = new JPanel();
+//	/**
+//	 * The panel containing search results comparison functionalities.
+//	 */
+//	private JPanel comparePnl = new JPanel();
 	
 	/**
 	 * The panel containing general logging functionalities.
@@ -192,7 +191,7 @@ public class ClientFrame extends JFrame {
 				IconConstants.SETTINGS_ICON,
 				IconConstants.RESULTS_ICON, 
 //				IconConstants.CLUSTERING_ICON,
-				IconConstants.COMPARE_ICON,
+//				IconConstants.COMPARE_ICON,
 				IconConstants.LOGGING_ICON
 		};
 		String[] titles = new String[] {
@@ -201,7 +200,7 @@ public class ClientFrame extends JFrame {
 				"Search Settings",
 				"View Results",
 //				"Clustering",
-				"Compare Results",
+//				"Compare Results",
 				"Logging"
 		};
 		Component[] panels = new Component[] {
@@ -210,7 +209,7 @@ public class ClientFrame extends JFrame {
 				settingsPnl,
 				resultPnl, 
 //				clusterPnl,
-				comparePnl,
+//				comparePnl,
 				loggingPnl
 		};
 
@@ -300,8 +299,8 @@ public class ClientFrame extends JFrame {
 			filePnl = new FilePanel();
 			// Settings Panel
 			settingsPnl = new SettingsPanel();
-			// Compare panel
-			comparePnl = new ComparePanel();
+//			// Compare panel
+//			comparePnl = new ComparePanel2();
 		}
 		// Results Panel
 		resultPnl = new ResultsPanel();

@@ -188,9 +188,9 @@ public class XTandemStorager extends BasicStorager {
                                 Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
                                 domainMap.put(domainID, xtandemhitid);   
                                 peptides.add(sequence);
-            					}
-                	      }
-                	}
+            				}
+                	    }
+					}
 				}
             }      
         }

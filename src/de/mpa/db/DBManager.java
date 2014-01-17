@@ -154,7 +154,7 @@ public class DBManager {
 		for (String string : keySet) {			
 			// UniProt accession
 			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(proteinHits.get(string), conn);
-			if(uniprotentry == null) {
+			if (uniprotentry == null) {
 				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
 					accessions.add(string);		
 				}
@@ -216,7 +216,7 @@ public class DBManager {
 						koNumbers = Formatter.removeLastChar(koNumbers);
 					}
 					
-					String uniref100 = "", uniref90 ="", uniref50 = "";
+					String uniref100 = null, uniref90 = null, uniref50 = null;
 					if (proteinData.getUniRef100EntryId() != null) {
 						uniref100 = proteinData.getUniRef100EntryId();
 					}

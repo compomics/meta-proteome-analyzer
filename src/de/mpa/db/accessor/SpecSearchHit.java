@@ -171,7 +171,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 			ProteinHit proteinHit = new ProteinHit(
 					rs.getString("pr.accession"),
 					rs.getString("pr.description"),
-					rs.getString("pr.sequence"), peptideHit, null, null);
+					rs.getString("pr.sequence"), peptideHit, null, null, experimentId);
 			res.addProtein(proteinHit);
 			
 			/* score matrix image part */

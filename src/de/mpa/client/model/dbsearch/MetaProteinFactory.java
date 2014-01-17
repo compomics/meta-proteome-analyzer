@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
@@ -44,31 +45,9 @@ public class MetaProteinFactory {
 				return true;
 			}
 		},
-		UNIREF100("in UniRef100") {
-			@Override
-			public boolean shouldCondense(
-					MetaProteinHit rowMP,
-					MetaProteinHit colMP) {
-				// TODO: implement UniRef lookup
-				return true; 
-			}
-		},
-		UNIREF90("in UniRef90 or higher") {
-			public boolean shouldCondense(
-					MetaProteinHit rowMP,
-					MetaProteinHit colMP) {
-				// TODO: implement UniRef lookup
-				return true;
-			}
-		},
-		UNIREF50("in UniRef50 or higher") {
-			public boolean shouldCondense(
-					MetaProteinHit rowMP,
-					MetaProteinHit colMP) {
-				// TODO: implement UniRef lookup
-				return true;
-			}
-		};
+		UNIREF100("in UniRef100"),
+		UNIREF90("in UniRef90 or higher"),
+		UNIREF50("in UniRef50 or higher");
 		
 		/**
 		 * The name string.
@@ -94,7 +73,31 @@ public class MetaProteinFactory {
 		 * @param mphB meta-protein B
 		 * @return <code>true</code> if the meta-proteins should be merged, <code>false</code> otherwise
 		 */
-		public abstract boolean shouldCondense(MetaProteinHit mphA, MetaProteinHit mphB);
+		public boolean shouldCondense(MetaProteinHit mphA, MetaProteinHit mphB) {
+			ReducedUniProtEntry upeA = mphA.getProteinHitList().get(0).getUniProtEntry();
+			ReducedUniProtEntry upeB = mphB.getProteinHitList().get(0).getUniProtEntry();
+			if ((upeA == null) || (upeB == null)) {
+				return false;
+			}
+			String refA = null;
+			String refB = null;
+			switch (this) {
+				case UNIREF100:
+					refA = upeA.getUniRef100id();
+					refB = upeB.getUniRef100id();
+					break;
+				case UNIREF90:
+					refA = upeA.getUniRef90id();
+					refB = upeB.getUniRef90id();
+					System.out.println("" + refA + " " + refB + " " + ((refA != null) && refA.equals(refB)));
+					break;
+				case UNIREF50:
+					refA = upeA.getUniRef50id();
+					refB = upeB.getUniRef50id();
+					break;
+			}
+			return (refA != null) && refA.equals(refB);
+		}
 		
 	}
 
@@ -238,8 +241,8 @@ public class MetaProteinFactory {
 		 */
 		public boolean shouldCondense(MetaProteinHit mphA, MetaProteinHit mphB) {
 			// extract first protein from meta-proteins
-			ProteinHit phA = mphA.getProteinHits().get(0);
-			ProteinHit phB = mphB.getProteinHits().get(0);
+			ProteinHit phA = mphA.getProteinHitList().get(0);
+			ProteinHit phB = mphB.getProteinHitList().get(0);
 			// get taxonomy name for target rank
 			String taxNameA = TaxonomyUtils.getTaxonNameByRank(phA.getTaxonomyNode(), this.rank);
 			String taxNameB = TaxonomyUtils.getTaxonNameByRank(phB.getTaxonomyNode(), this.rank);
@@ -310,7 +313,7 @@ public class MetaProteinFactory {
 						&& peptideRule.shouldCondense(rowPepSeqs, colPepSeqs)
 						&& taxonomyRule.shouldCondense(rowMP, colMP)) {
 					// Add all proteins of outer meta-protein to inner meta-protein
-					colMP.addAll(rowMP.getProteinHits());
+					colMP.addAll(rowMP.getProteinHitList());
 					// Remove emptied outer meta-protein from list
 					rowIter.remove();
 					// Abort inner iteration as outer element has been removed and 
@@ -325,15 +328,130 @@ public class MetaProteinFactory {
 		// Re-number condensed meta-proteins
 		int metaIndex = 1;
 		for (ProteinHit mph : metaProteins) {
-			if (((MetaProteinHit) mph).getProteinHits().size() > 1) {
+			if (((MetaProteinHit) mph).getProteinHitList().size() > 1) {
 				mph.setAccession("Meta-Protein " + metaIndex++);
 			}
 		}
 		for (ProteinHit mph : metaProteins) {
-			if (((MetaProteinHit) mph).getProteinHits().size() == 1) {
+			if (((MetaProteinHit) mph).getProteinHitList().size() == 1) {
 				mph.setAccession("Meta-Protein " + metaIndex++);
 			}
 		}
+	}
+
+	/**
+	 * Creates meta-proteins from the specified database search result and
+	 * creates the peptide, protein and meta-protein taxonomies.
+	 * @param result the database search result
+	 * @param params the result parameter settings
+	 */
+	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, ParameterMap params) {
+		// Create metaproteins for the new result object.
+		Client client = Client.getInstance();
+		
+		// Get various hit lists from result object
+		ProteinHitList metaProteins = result.getMetaProteins();
+		List<ProteinHit> proteinList = result.getProteinHitList();
+		Set<PeptideHit> peptideSet = ((ProteinHitList) proteinList).getPeptideSet();	// all distinct peptides
+
+		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
+		client.firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
+		client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+
+		// Define common peptide taxonomy for each peptide
+		TaxonomyUtils.determinePeptideTaxonomy(result.getMetaProteins().getPeptideSet(), params);
+		
+		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
+		
+		// Apply FDR cut-off
+		result.setFDR(((Double[]) params.get("FDR").getValue())[0]);
+
+		// Determine protein taxonomy
+		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
+		client.firePropertyChange("resetcur", -1L, (long) result.getProteinHitList().size());
+
+		// Define protein taxonomy by common tax ID of peptides
+		TaxonomyUtils.determineProteinTaxonomy(result.getProteinHitList(), params);
+		
+		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+
+		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
+
+		// Combine proteins to metaproteins
+		MetaProteinFactory.condenseMetaProteins(result.getMetaProteins(), params);
+
+		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+
+		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
+		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
+		
+		// Determine meta-protein taxonomy
+		TaxonomyUtils.determineMetaProteinTaxonomy(result.getMetaProteins(), params);
+		
+		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
+	}
+	
+	/**
+	 * Recreates meta-proteins from the specified database search result and
+	 * recreates the protein and meta-protein taxonomies.
+	 * @param result the database search result
+	 * @param params the result parameter settings
+	 */
+	public static void redetermineTaxonomyAndRecreateMetaProteins(DbSearchResult result, ParameterMap params) {
+		// Create metaproteins for the new result object.
+		Client client = Client.getInstance();
+
+		// Undo FDR filtering
+		result.setFDR(1.0);
+		
+		List<ProteinHit> proteins = result.getProteinHitList();
+
+		// Determine protein taxonomy
+		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
+		client.firePropertyChange("resetcur", -1L, (long) proteins.size());
+
+		// Define protein taxonomy by common tax ID of peptides
+		TaxonomyUtils.determineProteinTaxonomy(proteins, params);
+
+		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+
+		// Reset meta-proteins
+		result.clearVisibleMetaProteins();
+		ProteinHitList metaProteins = result.getMetaProteins();
+		metaProteins.clear();
+		int i = 0;
+		for (ProteinHit protein : proteins) {
+			// create new meta-protein containing single protein
+			MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + (++i), protein);
+			// link protein to meta-protein
+			protein.setMetaProteinHit(mph);
+			// add meta-protein to list
+			metaProteins.add(mph);
+		}
+
+		// Apply FDR cut-off
+		Double fdr = ((Double[]) params.get("FDR").getValue())[0];
+		result.setFDR(fdr);
+		
+		// Re-retrieve filtered meta-protein list
+		metaProteins = result.getMetaProteins();
+		
+		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+		
+		// Combine proteins to meta-proteins
+		MetaProteinFactory.condenseMetaProteins(metaProteins, params);
+
+		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+
+		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
+		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+
+		// Determine meta-protein taxonomy
+		TaxonomyUtils.determineMetaProteinTaxonomy(metaProteins, params);
+
+		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
 	}
 	
 }

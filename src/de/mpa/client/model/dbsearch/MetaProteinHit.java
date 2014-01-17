@@ -1,7 +1,10 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import de.mpa.client.model.SpectrumMatch;
@@ -23,7 +26,12 @@ public class MetaProteinHit extends ProteinHit {
 	/**
 	 * The protein hit list of this meta-protein.
 	 */
-	private ProteinHitList phl;
+	private Map<String, ProteinHit> proteinHits;
+	
+	/**
+	 * TODO: API
+	 */
+	private Map<String, ProteinHit> visProteinHits;
 
 	/**
 	 * Constructs a meta-protein from the specified identifier string and
@@ -31,17 +39,40 @@ public class MetaProteinHit extends ProteinHit {
 	 * @param identifier the identifier string
 	 * @param phl the protein hit list
 	 */
-	public MetaProteinHit(String identifier, ProteinHitList phl) {
+	public MetaProteinHit(String identifier, ProteinHit ph) {
 		super(identifier);
-		this.phl = phl;
+		this.proteinHits = new LinkedHashMap<String, ProteinHit>();
+		this.proteinHits.put(ph.getAccession(), ph);
 	}
 
 	/**
 	 * Returns the list of proteins associated with this meta-protein.
 	 * @return the protein list
 	 */
-	public ProteinHitList getProteinHits() {
-		return phl;
+	public ProteinHitList getProteinHitList() {
+		if (visProteinHits == null) {
+			return new ProteinHitList(proteinHits.values());
+		}
+		return new ProteinHitList(visProteinHits.values());
+	}
+	
+	public Map<String, ProteinHit> getProteinHits() {
+		if (visProteinHits == null) {
+			return this.proteinHits;
+		}
+		return visProteinHits;
+	}
+	
+	/**
+	 * TODO: API
+	 * @param accession
+	 * @return
+	 */
+	public ProteinHit getProteinHit(String accession) {
+		if (visProteinHits == null) {
+			return proteinHits.get(accession);
+		}
+		return visProteinHits.get(accession);
 	}
 	
 	/**
@@ -49,7 +80,10 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein set
 	 */
 	public Set<ProteinHit> getProteinSet() {
-		return new HashSet<ProteinHit>(phl);
+		if (visProteinHits == null) {
+			return new HashSet<ProteinHit>(proteinHits.values());
+		}
+		return new HashSet<ProteinHit>(visProteinHits.values());
 	}
 
 	/**
@@ -58,7 +92,7 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the peptide hit set
 	 */
 	public Set<PeptideHit> getPeptideSet() {
-		return phl.getPeptideSet();
+		return getProteinHitList().getPeptideSet();
 	}
 
 	/**
@@ -67,7 +101,7 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the spectrum match set
 	 */
 	public Set<SpectrumMatch> getMatchSet() {
-		return phl.getMatchSet();
+		return getProteinHitList().getMatchSet();
 	}
 
 	/**
@@ -75,9 +109,9 @@ public class MetaProteinHit extends ProteinHit {
 	 * @param proteinHits
 	 */
 	public void addAll(List<ProteinHit> proteinHits) {
-		phl.addAll(proteinHits);
-		for (ProteinHit proteinHit : proteinHits) {
-			proteinHit.setMetaProteinHit(this);
+		for (ProteinHit ph : proteinHits) {
+			this.visProteinHits.put(ph.getAccession(), ph);
+			ph.setMetaProteinHit(this);
 		}
 	}
 
@@ -87,18 +121,39 @@ public class MetaProteinHit extends ProteinHit {
 	 */
 	// TODO: unused method, remove?
 	public boolean isEmpty() {
-		return phl.isEmpty();
+		return proteinHits.isEmpty();
+	}
+	
+	/**
+	 * TODO: API
+	 * @param fdr
+	 */
+	@Override
+	public void setFDR(double fdr) {
+		this.visProteinHits = new LinkedHashMap<String, ProteinHit>();
+		for (Entry<String, ProteinHit> entry : this.proteinHits.entrySet()) {
+			ProteinHit hit = entry.getValue();
+			hit.setFDR(fdr);
+			if (hit.isVisible()) {
+				this.visProteinHits.put(entry.getKey(), hit);
+			}
+		}
+	}
+
+	@Override
+	public boolean isVisible() {
+		return !this.visProteinHits.isEmpty();
 	}
 	
 	@Override
 	public List<? extends Taxonomic> getTaxonomicChildren() {
-		return this.getProteinHits();
+		return this.getProteinHitList();
 	}
 	
 	@Override
 	public boolean isSelected() {
 		boolean res = true;
-		for (ProteinHit ph : phl) {
+		for (ProteinHit ph : proteinHits.values()) {
 			res &= ph.isSelected();
 			if (!res) {
 				break;
@@ -110,7 +165,7 @@ public class MetaProteinHit extends ProteinHit {
 	@Override
 	public void setSelected(boolean selected) {
 		super.setSelected(selected);
-		for (ProteinHit ph : phl) {
+		for (ProteinHit ph : proteinHits.values()) {
 			ph.setSelected(selected);
 		}
 	}
@@ -119,7 +174,7 @@ public class MetaProteinHit extends ProteinHit {
 	public Set<Object> getProperties(ChartType type) {
 		// Aggregate properties of associated proteins
 		Set<Object> res = new HashSet<Object>();
-		for (ProteinHit protHit : this.getProteinHits()) {
+		for (ProteinHit protHit : this.getProteinHitList()) {
 			res.addAll(protHit.getProperties(type));
 		}
 		return res;

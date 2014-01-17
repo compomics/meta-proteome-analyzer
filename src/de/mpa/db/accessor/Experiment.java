@@ -99,4 +99,19 @@ public class Experiment extends ExperimentTableAccessor {
 		aConn.commit();
 		return update;
 	}
+	
+	@Override
+	public String toString() {
+		return this.iTitle;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Experiment) {
+			Experiment that = (Experiment) obj;
+			return (that.iExperimentid == this.iExperimentid);
+		}
+		return false;
+	}
+	
 }
