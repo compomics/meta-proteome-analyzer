@@ -23,6 +23,8 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	private List<SearchHit> searchHits;
 	
+	private List<SearchHit> visSearchHits;
+	
 	/**
 	 * Default empty constructor.
 	 */
@@ -54,7 +56,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return The list of search hits.
 	 */
 	public List<SearchHit> getSearchHits() {
-		return searchHits;
+		return visSearchHits;
 	}
 	
 	/**
@@ -83,6 +85,25 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 		return searchHits.size();
 	}
 	
+	/**
+	 * TODO: API
+	 * @param fdr
+	 */
+	@Override
+	public void setFDR(double fdr) {
+		this.visSearchHits = new ArrayList<SearchHit>();
+		for (SearchHit hit : this.searchHits) {
+			if (hit.getQvalue().doubleValue() <= fdr) {
+				this.visSearchHits.add(hit);
+			}
+		}
+	}
+	
+	@Override
+	public boolean isVisible() {
+		return !this.visSearchHits.isEmpty();
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof PeptideSpectrumMatch) {

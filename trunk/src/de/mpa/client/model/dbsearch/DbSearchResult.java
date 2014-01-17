@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class represents the set of proteins which may hold multiple peptides
@@ -42,39 +43,19 @@ public class DbSearchResult implements Serializable {
 	private Date searchDate;
 
 	/**
-	 * The list of search engines.
-	 */
-	private List<String> searchEngines;
-
-	/**
 	 * The list of meta-proteins.
 	 */
 	private ProteinHitList metaProteins = new ProteinHitList();
-	
-	/**
-	 * The number of retrieved protein hits from the searches.
-	 */
-	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 
+	/**
+	 * TODO: API
+	 */
+	private ProteinHitList visMetaProteins;
+	
 	/**
 	 * Map containing search spectrum id-to-TIC pairs
 	 */
 	private TLongDoubleHashMap ticMap;
-	
-	/**
-	 * The amount of spectra with peptide associations.
-	 */
-	private int identifiedSpectra;
-	
-	/**
-	 * Number of total peptides.
-	 */
-	private int totalPeptides;
-
-	/**
-	 * No of unique peptides
-	 */
-	private int distinctPeptides = 0;
 	
 	/**
 	 * The total amount of spectra.
@@ -109,7 +90,8 @@ public class DbSearchResult implements Serializable {
 		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
 
 		// Find current protein hit, will be null if it's a new protein
-		ProteinHit currentProteinHit = proteinHits.get(accession);
+//		ProteinHit currentProteinHit = proteinHits.get(accession);
+		ProteinHit currentProteinHit = this.getProteinHit(accession);
 		// Find current peptide hit, ideally inside current protein hit
 		PeptideHit currentPeptideHit = 
 			this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
@@ -140,15 +122,14 @@ public class DbSearchResult implements Serializable {
 				currentPeptideHit = peptideHit;
 			}
 			currentProteinHit.addPeptideHit(currentPeptideHit);
+			currentProteinHit.addExperimentIDs(proteinHit.getExperimentIDs());
 		} else {
 			// A new protein is to be added
 			currentProteinHit = proteinHit;
 
-			ProteinHitList phl = new ProteinHitList();
-			phl.add(currentProteinHit);
-			MetaProteinHit mph = new MetaProteinHit("Meta-Protein", phl);
+			MetaProteinHit mph = new MetaProteinHit("Meta-Protein", currentProteinHit);
 			currentProteinHit.setMetaProteinHit(mph);
-			metaProteins.add(mph);
+			this.metaProteins.add(mph);
 			
 			// Check whether peptide hit match has been found
 			if (currentPeptideHit != null) {
@@ -182,7 +163,7 @@ public class DbSearchResult implements Serializable {
 		// Link parent protein hit to peptide hit
 		currentPeptideHit.addProteinHit(currentProteinHit);
 
-		proteinHits.put(accession, currentProteinHit);
+//		proteinHits.put(accession, currentProteinHit);
 	}
 
 	/**
@@ -208,7 +189,7 @@ public class DbSearchResult implements Serializable {
 			}
 		}
 		// Iterate already stored peptide hits and look for possible matches
-		for (ProteinHit proteinHit : proteinHits.values()) {
+		for (ProteinHit proteinHit : this.getProteinHitList()) {
 			// TODO: is skipping necessary given the total number of peptides exceeds the number of peptides associated with a single protein by far? In that case the number of comparisons for skipping might be much larger than the number of extra peptide reference comparisons...
 			if (proteinHit == first) {
 				continue;
@@ -226,19 +207,31 @@ public class DbSearchResult implements Serializable {
 	 * Returns the protein hit for a particular accession.
 	 * 
 	 * @param accession
-	 * @return
+	 * @return TODO: API
 	 */
 	public ProteinHit getProteinHit(String accession) {
-		return proteinHits.get(accession);
+		ProteinHitList metaProteins =
+				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+		for (ProteinHit mph : metaProteins) {
+			ProteinHit ph = ((MetaProteinHit) mph).getProteinHit(accession);
+			if (ph != null) {
+				return ph;
+			}
+		}
+		return null;
+//		return proteinHits.get(accession);
 	}
 
 	/**
-	 * Returns <code>true</code> if this result object contains no protein hits.
-	 * 
-	 * @return <code>true</code> if this result object contains no protein hits.
+	 * Returns whether this result object contains no protein hits.
+	 * @return <code>true</code> if empty, <code>false</code> otherwise.
 	 */
 	public boolean isEmpty() {
-		return proteinHits.isEmpty();
+		if (visMetaProteins == null) {
+			return this.metaProteins.isEmpty();
+		} else {
+			return this.visMetaProteins.isEmpty();
+		}
 	}
 
 	/**
@@ -246,7 +239,11 @@ public class DbSearchResult implements Serializable {
 	 * @return the list of metaproteins.
 	 */
 	public ProteinHitList getMetaProteins() {
-		return metaProteins;
+		return (visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+	}
+	
+	public void clearVisibleMetaProteins() {
+		this.visMetaProteins = null;
 	}
 
 	/**
@@ -255,7 +252,13 @@ public class DbSearchResult implements Serializable {
 	 * @return the list of protein hits.
 	 */
 	public List<ProteinHit> getProteinHitList() {
-		return new ProteinHitList(proteinHits.values());
+		ProteinHitList metaProteins =
+				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+		ProteinHitList proteinHits = new ProteinHitList();
+		for (ProteinHit mph : metaProteins) {
+			proteinHits.addAll(((MetaProteinHit) mph).getProteinHitList());
+		}
+		return proteinHits;
 	}
 
 	/**
@@ -264,7 +267,13 @@ public class DbSearchResult implements Serializable {
 	 * @return The map of protein hits.
 	 */
 	public Map<String, ProteinHit> getProteinHits() {
-		return proteinHits;
+		ProteinHitList metaProteins =
+				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+		Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
+		for (ProteinHit mph : metaProteins) {
+			proteinHits.putAll(((MetaProteinHit) mph).getProteinHits());
+		}
+		return proteinHits ;
 	}
 
 	/**
@@ -314,25 +323,6 @@ public class DbSearchResult implements Serializable {
 	}
 
 	/**
-	 * The list of search engines.
-	 * 
-	 * @return The list of search engines.
-	 */
-	public List<String> getSearchEngines() {
-		return searchEngines;
-	}
-
-	/**
-	 * Sets the list of search engines
-	 * 
-	 * @param searchEngines
-	 *            The list of search engines.
-	 */
-	public void setSearchEngines(List<String> searchEngines) {
-		this.searchEngines = searchEngines;
-	}
-
-	/**
 	 * Returns the total amount of queried spectra.
 	 * @return The total spectral count.
 	 */
@@ -369,48 +359,45 @@ public class DbSearchResult implements Serializable {
 	 * @return the amount of identified spectra.
 	 */
 	public int getIdentifiedSpectrumCount() {
-		return identifiedSpectra;
-	}
-	
-	/**
-	 * Sets the amount of identified spectrum queries.
-	 * @param identifiedSpectra
-	 */
-	public void setIdentifiedSpectrumCount(int identifiedSpectra) {
-		this.identifiedSpectra = identifiedSpectra;
+		return this.getMetaProteins().getMatchSet().size();
 	}
 	
 	/**
 	 * @return the totalPeptides
 	 */
-	public int getTotalPeptideCount() {
-		return totalPeptides;
-	}
-
-	/**
-	 * @param totalPeptides the totalPeptides to set
-	 */
-	public void setTotalPeptideCount(int totalPeptides) {
-		this.totalPeptides = totalPeptides;
-	}
-
-	/**
-	 * @return the uniquePeptides
-	 */
 	public int getDistinctPeptideCount() {
-		if (this.distinctPeptides == 0) {
-			this.setDistinctPeptideCount(this.getMetaProteins().getPeptideSet().size());
-		}
-		return this.distinctPeptides;
+		return this.getMetaProteins().getPeptideSet().size();
 	}
 
 	/**
-	 * @param uniquePeptides the uniquePeptides to set
+	 * Returns the number of peptides with PTMs.
+	 * @return the number of modified peptides
 	 */
-	public void setDistinctPeptideCount(int uniquePeptides) {
-		this.distinctPeptides = uniquePeptides;
+	public int getModifiedPeptideCount() {
+		int modifiedPeptides = 0;
+		Set<PeptideHit> peptideSet = this.getMetaProteins().getPeptideSet();
+		for (PeptideHit peptideHit : peptideSet) {
+			if (!peptideHit.getSequence().matches("^[A-Z]*$")) {
+				modifiedPeptides++;
+			}
+		}
+		return modifiedPeptides;
 	}
-
+	
+	/**
+	 * TODO: API
+	 * @param fdr
+	 */
+	public void setFDR(double fdr) {
+		this.visMetaProteins = new ProteinHitList();
+		for (ProteinHit mph : metaProteins) {
+			mph.setFDR(fdr);
+			if (mph.isVisible()) {
+				this.visMetaProteins.add(mph);
+			}
+		}
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		boolean result = (obj instanceof DbSearchResult);

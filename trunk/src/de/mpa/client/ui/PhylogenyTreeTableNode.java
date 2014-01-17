@@ -5,13 +5,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import javax.swing.ComboBoxModel;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+import de.mpa.client.Client;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.settings.Parameter;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.taxonomy.TaxonomyNode;
 
@@ -42,6 +46,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		return 12;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getValueAt(int column) {
 		if (this.isProtein()) {
@@ -79,7 +84,21 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 //					return ph.getSpecies();
 					return ph.getTaxonomyNode().getName();
 				case 3:
-					return ph.getIdentity();	
+//					return ph.getIdentity();
+					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
+					ComboBoxModel<ClusterRule> model = (ComboBoxModel<ClusterRule>) parameter.getValue();
+					ClusterRule rule = (ClusterRule) model.getSelectedItem();
+					switch (rule) {
+					case UNIREF100:
+						return ph.getUniProtEntry().getUniRef100id();
+					case UNIREF90:
+						return ph.getUniProtEntry().getUniRef90id();
+					case UNIREF50:
+						return ph.getUniProtEntry().getUniRef50id();
+					default:
+//						return null;
+						return ph.getUniProtEntry().getUniRef100id();
+					}
 				case 4:
 					return ph.getCoverage();
 				case 5:

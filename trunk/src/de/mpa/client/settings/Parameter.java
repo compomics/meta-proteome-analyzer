@@ -61,9 +61,14 @@ public class Parameter {
 	/**
 	 * Sets the value of the parameter.
 	 * @param value the value to set
+	 * @return <code>true</code> if the value was changed, <code>false</code> otherwise
 	 */
-	public void setValue(Object value) {
+	public boolean setValue(Object value) {
+		if (this.value.equals(value)) {
+			return false;
+		}
 		this.value = value;
+		return true;
 	}
 
 	/**
@@ -80,6 +85,15 @@ public class Parameter {
 	 */
 	public String getDescription() {
 		return description;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Parameter) {
+			Parameter that = (Parameter) obj;
+			return (this.getValue().equals(that.getValue()));
+		}
+		return false;
 	}
 
 }

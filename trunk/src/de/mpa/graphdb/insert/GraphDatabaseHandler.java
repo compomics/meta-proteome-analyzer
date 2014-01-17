@@ -222,7 +222,7 @@ public class GraphDatabaseHandler {
 		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, metaProteinVertex);
 		
 		Vertex proteinVertex = null;
-		ProteinHitList proteinHits = metaProteinHit.getProteinHits();
+		ProteinHitList proteinHits = metaProteinHit.getProteinHitList();
 		
 		for (ProteinHit proteinHit : proteinHits) {
 			Iterator<Vertex> proteinIterator = proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();

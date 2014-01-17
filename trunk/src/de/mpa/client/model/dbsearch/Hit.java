@@ -8,17 +8,9 @@ import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 
 /**
- * TODO: API
+ * Interface for a certain entry of a spectrum, peptide, protein and metaprotein.
  */
 public interface Hit {
-	
-	/**
-	 * 
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public int getCount(Object x, Object y);
 	
 	/**
 	 * This gets the property of the entry, supporting taxonomy, hierachies (protein, peptide..) and ontologies
@@ -26,5 +18,16 @@ public interface Hit {
 	 * @return
 	 */
 	public Set<Object> getProperties(ChartType type);
+	
+	/**
+	 * TODO: API
+	 */
+	public void setFDR(double fdr);
+	
+	/**
+	 * TODO: API
+	 * @return
+	 */
+	public boolean isVisible();
 	
 }

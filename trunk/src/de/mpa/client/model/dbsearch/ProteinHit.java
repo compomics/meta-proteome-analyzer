@@ -19,6 +19,7 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
+import de.mpa.client.ui.panels.ComparePanel2.CompareData;
 import de.mpa.taxonomy.Taxonomic;
 import de.mpa.taxonomy.TaxonomyNode;
 
@@ -80,6 +81,11 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Peptide hits for the protein.
 	 */
 	private Map<String, PeptideHit> peptideHits;
+
+	/**
+	 * TODO: API
+	 */
+	private Map<String, PeptideHit> visPeptideHits;
 	
 	/**
 	 * The spectral count, i.e. the number of spectra which relate to the protein.
@@ -115,6 +121,11 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * The taxonomy node reference.
 	 */
 	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+	
+	/**
+	 * The database IDs of the experiments which contain the protein hit.
+	 */
+	private List<Long> experimentIDs;
 
 	/**
 	 * Constructs a protein hit from the specified accession, description and
@@ -125,7 +136,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param peptideHit the peptide hit
 	 * @param uniprotEntry the UniProtEntry hit
 	 */
-	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, ReducedUniProtEntry uniprotEntry, TaxonomyNode taxonomyNode) {
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, ReducedUniProtEntry uniprotEntry, TaxonomyNode taxonomyNode, long experimentID) {
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
@@ -135,6 +146,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		}
 		this.uniProtEntry = uniprotEntry;
 		this.taxonomyNode = taxonomyNode;
+		
+		this.experimentIDs = new ArrayList<Long>();
+		this.experimentIDs.add(experimentID);
 	}
 	
 	/**
@@ -146,7 +160,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param peptideHit the peptide hit
 	 */
 	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit) {
-		this(accession, description, sequence, peptideHit, null, null);
+		this(accession, description, sequence, peptideHit, null, null, 0L);
 	}
 	
 
@@ -155,7 +169,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param accession the protein accession
 	 */
 	public ProteinHit(String accession) {
-		this(accession, "", "", null, null, null);
+		this(accession, "", "", null, null, null, 0L);
 	}
 	
 	/**
@@ -399,7 +413,10 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return The peptide hits as list.
 	 */
 	public List<PeptideHit> getPeptideHitList() {
-		return new ArrayList<PeptideHit>(peptideHits.values());
+		if (visPeptideHits == null) {
+			return new ArrayList<PeptideHit>(peptideHits.values());
+		}
+		return new ArrayList<PeptideHit>(visPeptideHits.values());
 	}
 	
 	/**
@@ -407,7 +424,10 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the map of peptide hits
 	 */
 	public Map<String, PeptideHit> getPeptideHits() {
-		return peptideHits;
+		if (visPeptideHits == null) {
+			return peptideHits;
+		}
+		return visPeptideHits;
 	}
 	
 	/**
@@ -493,6 +513,43 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 //		}
 	}
 	
+	/**
+	 * TODO: API
+	 * @return
+	 */
+	public List<Long> getExperimentIDs() {
+		return this.experimentIDs;
+	}
+	
+	/**
+	 * TODO: API
+	 * @param experimentID
+	 */
+	public void addExperimentIDs(List<Long> experimentIDs) {
+		this.experimentIDs.addAll(experimentIDs);
+	}
+	
+	/**
+	 * TODO: API
+	 * @param fdr
+	 */
+	@Override
+	public void setFDR(double fdr) {
+		this.visPeptideHits = new LinkedHashMap<String, PeptideHit>();
+		for (Entry<String, PeptideHit> entry : this.peptideHits.entrySet()) {
+			PeptideHit hit = entry.getValue();
+			hit.setFDR(fdr);
+			if (hit.isVisible()) {
+				this.visPeptideHits.put(entry.getKey(), hit);
+			}
+		}
+	}
+
+	@Override
+	public boolean isVisible() {
+		return !this.visPeptideHits.isEmpty();
+	}
+	
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
 		return taxonomyNode;
@@ -528,12 +585,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	}
 
 	@Override
-	public int getCount(Object x, Object y) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public Set<Object> getProperties(ChartType type) {
 		Set<Object> res = new HashSet<Object>();
 		if (type instanceof TaxonomyChartType) {
@@ -563,24 +614,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			HierarchyLevel hl = (HierarchyLevel) type;
 			switch (hl) {
 			case META_PROTEIN_LEVEL:
-//				// TODO: possibly implement getMetaProtein() for ProteinHit
-//				DbSearchResult result = Client.getInstance().getDbSearchResult();
-//				for (ProteinHit ph : result.getMetaProteins()) {
-//					MetaProteinHit mph = (MetaProteinHit) ph;
-//					for (ProteinHit that : mph.getProteinHits()) {
-//						if (this.equals(that)) {
-//							if (mph.getProteinHits().size() == 1) {
-//								res.add(this.getAccession());
-//							} else {
-//								res.add(mph.getAccession());
-//							}
-//							break;
-//						}
-//					}
-//				}
 				MetaProteinHit mph = this.getMetaProteinHit();
 				// Check whether the associated meta-protein contains only this single protein hit
-				if (mph.getProteinHits().size() == 1) {
+				if (mph.getProteinHitList().size() == 1) {
 					res.add(this.getAccession());
 				} else {
 					res.add(mph.getAccession());
@@ -605,6 +641,8 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 				System.err.println("ERROR: Unknown hierarchy level!");
 				break;
 			}
+		} else if (type == CompareData.EXPERIMENT) {
+			res.addAll(this.getExperimentIDs());
 		} else {
 			// If we got here something went wrong - investigate!
 			System.err.println("Error: Unknown chart type!");

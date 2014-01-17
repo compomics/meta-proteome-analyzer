@@ -72,10 +72,10 @@ import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
-import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
@@ -100,7 +100,6 @@ import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
 import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.taxonomy.TaxonomyUtils;
 
 /**
  * Panel providing overview information about fetched results in the form of
@@ -129,6 +128,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * The graph database sub-panel.
 	 */
 	private GraphDatabaseResultPanel gdbPnl;
+
+	/**
+	 * The result comparison sub-panel.
+	 */
+	private ComparePanel2 compPnl;
 
 	/**
 	 * The split pane layout of the overview panel.
@@ -185,12 +189,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Label displaying the total count of peptide associations in the result.
 	 */
-	private JLabel totalPepLbl;
+	private JLabel distPepLbl;
 
 	/**
 	 * Label displaying the number of peptides with unique sequences in the result.
 	 */
-	private JLabel distPepLbl;
+	private JLabel modPepLbl;
 
 	/**
 	 * Label displaying the total count of proteins identified by the search.
@@ -245,15 +249,21 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Flag denoting whether this panel is currently busy.
 	 */
 	private boolean busy;
+	
+	/**
+	 * Flag indicating whether result fetching parameters have changed.
+	 */
+	private boolean paramsHaveChanged;
 
 	/**
-	 * Constructs a results panel containing the detail views for database,
-	 * spectral similarity and de novo search results as bottom-aligned tabs.
+	 * Constructs a results panel containing overview and detail views for
+	 * search results.
 	 */
 	public ResultsPanel() {
 		this.dbPnl = new DbSearchResultPanel();
 		this.ssPnl = new SpecSimResultPanel();
 		this.gdbPnl = new GraphDatabaseResultPanel();
+		this.compPnl = new ComparePanel2();
 		initComponents();
 	}
 
@@ -302,6 +312,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		resultsTpn.addTab("Graph Database Results",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/graph32.png")),
 				gdbPnl);
+		resultsTpn.addTab("Compare Results", IconConstants.COMPARE_ICON, compPnl);
 		
 		// force tab heights by setting size of first tab component
 		Component tabComp = resultsTpn.getTabComponentAt(0);
@@ -361,15 +372,15 @@ public class ResultsPanel extends JPanel implements Busyable {
 		generalPnl.add(new JLabel("identified spectra"), CC.xy(10, 2));
 
 		// total vs. unique peptides
-		totalPepLbl = new JLabel("0");
 		distPepLbl = new JLabel("0");
-		JPanel pepBarPnl = new BarChartPanel(totalPepLbl, distPepLbl);
+		modPepLbl = new JLabel("0");
+		JPanel pepBarPnl = new BarChartPanel(distPepLbl, modPepLbl);
 
-		generalPnl.add(new JLabel("Total peptides"), CC.xy(2, 4));
-		generalPnl.add(totalPepLbl, CC.xy(4, 4));
+		generalPnl.add(new JLabel("Distinct peptides"), CC.xy(2, 4));
+		generalPnl.add(distPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
-		generalPnl.add(distPepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("distinct peptides"), CC.xy(10, 4));
+		generalPnl.add(modPepLbl, CC.xy(8, 4));
+		generalPnl.add(new JLabel("modified peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
@@ -404,12 +415,13 @@ public class ResultsPanel extends JPanel implements Busyable {
 		settingsBtn.setPreferredSize(new Dimension(23, 23));
 		
 		settingsBtn.addActionListener(new ActionListener() {
+
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(
+				paramsHaveChanged = AdvancedSettingsDialog.showDialog(
 						ClientFrame.getInstance(),
 						"Result Fetching settings",
-						true, Client.getInstance().getMetaProteinParameters());
+						true, Client.getInstance().getResultParameters());
 			}
 		});
 
@@ -849,7 +861,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				for (ProteinHit proteinHit : proteinHits) {
 					if (proteinHit instanceof MetaProteinHit) {
 						MetaProteinHit metaProteinHit = (MetaProteinHit) proteinHit;
-						ProteinHitList proteinHitList = metaProteinHit.getProteinHits();
+						ProteinHitList proteinHitList = metaProteinHit.getProteinHitList();
 						if (proteinHitList.size() == 1) {
 							proteinHit = proteinHitList.get(0);
 						}
@@ -1080,64 +1092,28 @@ public class ResultsPanel extends JPanel implements Busyable {
 					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
 					client.firePropertyChange("indeterminate", true, false);
 				}
-	
+				
 				// Fetching UniProt entries and taxonomic information.
+				ParameterMap resultParams = client.getResultParameters();
 				if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
-					if (!newResult.isEmpty() && !client.isViewer()) {
-	
-						// Get various hit lists from result object
-						ProteinHitList metaProteins = newResult.getMetaProteins();
-						List<ProteinHit> proteinList = newResult.getProteinHitList();
-						Set<PeptideHit> peptideSet = ((ProteinHitList) proteinList).getPeptideSet();	// all distinct peptides
-	
-						client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-						client.firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
-						client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
-	
-						// Define common peptide taxonomy for each peptide
-						TaxonomyUtils.determinePeptideTaxonomy(peptideSet, client.getMetaProteinParameters());
-						
-						client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
-	
-						// Determine protein taxonomy
-						client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
-						client.firePropertyChange("resetcur", -1L, (long) proteinList.size());
-	
-						// Define protein taxonomy by common tax ID of peptides
-						TaxonomyUtils.determineProteinTaxonomy(proteinList, client.getMetaProteinParameters());
-						
-						client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
-	
-						client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
-						client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-	
-						// Combine proteins to metaproteins
-						MetaProteinFactory.condenseMetaProteins(metaProteins, client.getMetaProteinParameters());
-	
-						client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
-	
-						client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
-						client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-						
-						// Determine meta-protein taxonomy
-						TaxonomyUtils.determineMetaProteinTaxonomy(metaProteins, client.getMetaProteinParameters());
-						
-						client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
-					}
-					
+					// Create meta-proteins and taxonomies
+					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
+							newResult, resultParams);
 					// Update result object reference
 					ResultsPanel.this.dbSearchResult = newResult;
 					client.setDatabaseSearchResult(newResult);
-					
-					return 1;
 				} else {
-					// Stop appearing busy
-					ResultsPanel.this.setBusy(false);
-					ResultsPanel.this.dbPnl.setBusy(false);
-					ResultsPanel.this.gdbPnl.setBusy(false);
-					ResultsPanel.this.heatMapPn.setBusy(false);
+					if (paramsHaveChanged) {						
+						// Recreate meta-proteins and taxonomies
+						MetaProteinFactory.redetermineTaxonomyAndRecreateMetaProteins(
+								newResult, resultParams);
+						paramsHaveChanged = false;
+					} else {
+						return 0;
+					}
 				}
 				
+				return 1;
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -1166,6 +1142,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 				ResultsPanel.this.updateOverview();
 				// Populate tables in database search result panel
 				ResultsPanel.this.dbPnl.refreshTables(this.file);
+			} else {
+				// Stop appearing busy
+				ResultsPanel.this.setBusy(false);
+				ResultsPanel.this.dbPnl.setBusy(false);
+				ResultsPanel.this.gdbPnl.setBusy(false);
+				ResultsPanel.this.heatMapPn.setBusy(false);
 			}
 			
 			// Enable 'Export' and 'Save Project' functionalities of menu bar
@@ -1215,8 +1197,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// Update statistics labels
 			totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
 			identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-			totalPepLbl.setText("" + dbSearchResult.getTotalPeptideCount());
 			distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
+			modPepLbl.setText("" + dbSearchResult.getModifiedPeptideCount());
 			totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
 			metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 			speciesLbl.setText("" + speciesNames.size());

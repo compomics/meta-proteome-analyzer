@@ -13,11 +13,9 @@ import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
@@ -43,8 +41,8 @@ import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
-import de.mpa.client.settings.MetaProteinParameters;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -106,7 +104,7 @@ public class Client {
 	/**
 	 * Parameter map containing result fetching-related settings.
 	 */
-	private ParameterMap metaProtParams = new MetaProteinParameters();
+	private ParameterMap metaProtParams = new ResultParameters();
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -402,7 +400,7 @@ public class Client {
 	 */
 	public DbSearchResult getDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
 		if (dbSearchResult == null) {
-			this.retrieveDatabaseSearchResult(projContent, expContent);
+			dbSearchResult = this.retrieveDatabaseSearchResult(projContent, expContent);
 		}
 		return dbSearchResult;
 	}
@@ -412,8 +410,9 @@ public class Client {
 	 * @param ProjectContent, ExperimentConten
 	 * @return DbSearchResult
 	 */
-	private void retrieveDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		this.retrieveDatabaseSearchResult(projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
+	private DbSearchResult retrieveDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
+		return this.retrieveDatabaseSearchResult(
+				projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
 	}
 
 	/**
@@ -423,14 +422,14 @@ public class Client {
 	 * @param ProjectID, ExperimentID
 	 * @return DbSearchResult
 	 */
-	public void retrieveDatabaseSearchResult(String projectName, String experimentName, long experimentID) {
+	public DbSearchResult retrieveDatabaseSearchResult(String projectName, String experimentName, long experimentID) {
 		// Init the database connection.
 		try {
 			this.initDBConnection();
 
 			// The protein hit set, containing all information about found proteins.
 			// TODO: use fastaDB parameter properly
-			this.dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
+			DbSearchResult dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
 
 			// Set up progress monitoring
 			this.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
@@ -440,9 +439,6 @@ public class Client {
 			// Query database search hits and them to result object
 			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
 
-			Set<Long> searchSpectrumIDs = new TreeSet<Long>();
-			int totalPeptides = 0;
-
 			long maxProgress = searchHits.size();
 			long curProgress = 0;
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
@@ -450,34 +446,23 @@ public class Client {
 			firePropertyChange("resetall", 0L, maxProgress);
 			firePropertyChange("resetcur", 0L, maxProgress);
 			for (SearchHit searchHit : searchHits) {
-				this.addProteinSearchHit(searchHit);
+				this.addProteinSearchHit(dbSearchResult, searchHit, experimentID);
 
-				searchSpectrumIDs.add(searchHit.getFk_searchspectrumid());
-//				if (!pepSeq.matches("^[A-Z]*$")) {
-//					modifiedPeptides++;
-//				}
 				firePropertyChange("progress", 0L, ++curProgress);
-			}
-			for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
-				totalPeptides += ph.getPeptideCount();
 			}
 			
 			int totalSpectrumCount = Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn);
 			dbSearchResult.setTotalSpectrumCount(totalSpectrumCount);
-			dbSearchResult.setIdentifiedSpectrumCount(searchSpectrumIDs.size());
-			dbSearchResult.setTotalPeptideCount(totalPeptides);
-			
-			// TODO: ADD search engine from runtable
-			List<String> searchEngines = new ArrayList<String>(Arrays.asList(new String [] { "Crux", "Inspect", "Xtandem","OMSSA" }));
-			dbSearchResult.setSearchEngines(searchEngines);
 
 			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 
+			return dbSearchResult;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 	/**
@@ -489,10 +474,11 @@ public class Client {
 
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
+	 * @param result TODO: API
 	 * @param hit The search hit implementation.
-	 * @throws Exception 
+	 * @param experimentID the experiment ID
 	 */
-	private void addProteinSearchHit(SearchHit hit) throws Exception {
+	private void addProteinSearchHit(DbSearchResult result, SearchHit hit, long experimentID) throws Exception {
 
 		// Create the PeptideSpectrumMatch
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
@@ -530,9 +516,9 @@ public class Client {
 		}
 		
 		// Add a new protein to the protein hit set.
-		dbSearchResult.addProtein(new ProteinHit(
+		result.addProtein(new ProteinHit(
 				protein.getAccession(), protein.getDescription(), protein.getSequence(),
-				peptideHit, uniprotEntry, taxonomyNode));
+				peptideHit, uniprotEntry, taxonomyNode, experimentID));
 	}
 
 	/**
@@ -849,7 +835,7 @@ public class Client {
 	 * Returns the parameter map containing result fetching-related settings.
 	 * @return the result parameters
 	 */
-	public ParameterMap getMetaProteinParameters() {
+	public ParameterMap getResultParameters() {
 		return this.metaProtParams;
 	}
 

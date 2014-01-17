@@ -53,6 +53,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	private List<SpectrumMatch> spectrumMatches;
 
 	/**
+	 * TODO: API
+	 */
+	private List<SpectrumMatch> visSpectrumMatches;
+
+	/**
 	 * Map linking search spectrum IDs of matches to their position in this 
 	 * peptide hit's list of matches.
 	 */
@@ -116,15 +121,10 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @return the list of spectrum matches.
 	 */
 	public List<SpectrumMatch> getSpectrumMatches() {
-		return spectrumMatches;
-	}
-
-	/**
-	 * Sets the list of spectrum matches.
-	 * @param spectrumMatches the list of spectrum matches to set.
-	 */
-	public void setSpectrumMatches(List<SpectrumMatch> spectrumMatches) {
-		this.spectrumMatches = spectrumMatches;
+		if (visSpectrumMatches == null) {
+			return spectrumMatches;
+		}
+		return visSpectrumMatches;
 	}
 
 	/**
@@ -244,6 +244,26 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+	
+	/**
+	 * TODO: API
+	 * @param fdr
+	 */
+	@Override
+	public void setFDR(double fdr) {
+		this.visSpectrumMatches = new ArrayList<SpectrumMatch>();
+		for (SpectrumMatch match : this.spectrumMatches) {
+			match.setFDR(fdr);
+			if (match.isVisible()) {
+				this.visSpectrumMatches.add(match);
+			}
+		}
+	}
+
+	@Override
+	public boolean isVisible() {
+		return !this.visSpectrumMatches.isEmpty();
+	}
 
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
@@ -278,12 +298,6 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	public int compareTo(PeptideHit that) {
 		return this.getSequence().compareTo(that.getSequence());
-	}
-
-	@Override
-	public int getCount(Object x, Object y) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override

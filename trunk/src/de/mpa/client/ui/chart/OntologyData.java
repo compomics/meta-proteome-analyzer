@@ -136,7 +136,7 @@ public class OntologyData implements ChartData {
 		// Go through DB search result object and add taxonomy information to taxanomy maps
 		for (ProteinHit mp : this.data) {
 			MetaProteinHit metaProtein = (MetaProteinHit) mp;
-			for (ProteinHit proteinHit : metaProtein.getProteinHits()) {
+			for (ProteinHit proteinHit : metaProtein.getProteinHitList()) {
 				if (proteinHit.isSelected()) {
 					// Get UniProt Entry
 					ReducedUniProtEntry rupe = proteinHit.getUniProtEntry();

@@ -35,17 +35,17 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 		setHorizontalAlignment(CENTER);
 		setHorizontalTextPosition(LEFT);
 		setVerticalAlignment(BOTTOM);
-		setOpaque(false);
+		setOpaque(true);
 	}
 
 	/**
 	 * Returns the default table header cell renderer.
 	 * <P>
-	 * If the column is sorted, the approapriate icon is retrieved from the
+	 * If the column is sorted, the appropriate icon is retrieved from the
 	 * current Look and Feel, and a border appropriate to a table header cell
 	 * is applied.
 	 * <P>
-	 * Subclasses may overide this method to provide custom content or
+	 * Subclasses may override this method to provide custom content or
 	 * formatting.
 	 *
 	 * @param table the <code>JTable</code>.
@@ -64,6 +64,7 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 		JTableHeader tableHeader = table.getTableHeader();
 		if (tableHeader != null) {
 			setForeground(tableHeader.getForeground());
+			setBackground(tableHeader.getBackground());
 		}
 		setIcon(getIcon(table, column));
 		setBorder(UIManager.getBorder("TableHeader.cellBorder"));

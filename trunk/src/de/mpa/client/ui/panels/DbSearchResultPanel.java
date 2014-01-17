@@ -13,6 +13,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -133,6 +134,7 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
+import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
@@ -1123,7 +1125,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	proteinTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 		public void valueChanged(ListSelectionEvent evt) {
 			int protRow = proteinTbl.getSelectedRow();
-			refreshPeptideViews(protRow);
+			if (protRow >= 0) {
+				String accession = (String) proteinTbl.getValueAt(
+						protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
+				refreshPeptideViews(dbSearchResult.getProteinHit(accession));
+			}
 		}
 	});
 
@@ -1540,7 +1546,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
-						"Accession", "Description", "Taxonomy", "AId", "SC",
+						"Accession", "Description", "Taxonomy", "UniRef", "SC",
 						"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", " " }));
 			}
 			// Fool-proof table by allowing only one type of node
@@ -1619,7 +1625,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Protein Accession",
 				"Protein Description",
 				"Taxonomy",
-				"Alignment Identity",
+				"UniRef Cluster ID",
 				"Sequence Coverage in %",
 				"Molecular Weight in kDa",
 				"Isoelectric Point",
@@ -1648,7 +1654,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		((TableColumnExt2) tcm.getColumn(7)).setAggregateFunction(AggregateFunction.DISTINCT);
 		((TableColumnExt2) tcm.getColumn(8)).setAggregateFunction(AggregateFunction.DISTINCT);
 		
-		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 14, 4, 5, 4, 3, 4, 4, 4.5, 5, 1 });
+		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 10, 8, 5, 4, 3, 4, 4, 4.5, 5, 1 });
 		TableConfig.setColumnMinWidths(
 				treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), 22, getFont());
 		TableColumnExt webColumn = (TableColumnExt) tcm.getColumn(11);
@@ -1684,16 +1690,21 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			public void valueChanged(TreeSelectionEvent tse) {
 				PhylogenyTreeTableNode node = ((PhylogenyTreeTableNode) tse.getPath().getLastPathComponent());
 				if (node.isProtein()) {
-					String accession = ((ProteinHit) node.getUserObject()).getAccession();
-					for (int row = 0; row < proteinTbl.getRowCount(); row++) {
-						if (proteinTbl.getValueAt(row, Constants.PROT_ACCESSION).equals(accession)) {
-							proteinTbl.getSelectionModel().setSelectionInterval(row, row);
-							return;
+					ProteinHit proteinHit = (ProteinHit) node.getUserObject();
+					if (proteinHit instanceof MetaProteinHit) {
+						refreshPeptideViews(proteinHit);
+					} else {
+						String accession = proteinHit.getAccession();
+						for (int row = 0; row < proteinTbl.getRowCount(); row++) {
+							if (proteinTbl.getValueAt(row, Constants.PROT_ACCESSION).equals(accession)) {
+								proteinTbl.getSelectionModel().setSelectionInterval(row, row);
+								return;
+							}
 						}
 					}
 				} else {
 					proteinTbl.clearSelection();
-					refreshPeptideViews(-1);
+					refreshPeptideViews(null);
 				}
 			}
 		});
@@ -1779,10 +1790,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		FormatHighlighter leftHL = new FormatHighlighter(SwingConstants.LEFT);
 		((TableColumnExt) tcm.getColumn(1)).addHighlighter(leftHL);
 		((TableColumnExt) tcm.getColumn(2)).addHighlighter(leftHL);
+		((TableColumnExt) tcm.getColumn(3)).addHighlighter(leftHL);
 
 		BarChartHighlighter bch = new BarChartHighlighter(ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.0"));
 		bch.setBaseline(1 + fm.stringWidth(bch.getFormatter().format(100.0)));
-		((TableColumnExt) tcm.getColumn(3)).addHighlighter(bch);
 
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
@@ -2553,8 +2564,19 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				int selRow = peptideTbl.getSelectedRow();
 				if (selRow != -1) {
 					coverageSelectionModel.setValue(peptideTbl.convertRowIndexToModel(selRow));
-					PeptideHit peptideHit = dbSearchResult.getProteinHit((String) proteinTbl.getValueAt(proteinTbl.getSelectedRow(), Constants.PROT_ACCESSION)).getPeptideHit((String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE));
-					protCHighlightPredicate.setProteinHits(peptideHit.getProteinHits());
+//					PeptideHit peptideHit = dbSearchResult.getProteinHit(
+//							(String) proteinTbl.getValueAt(
+//									proteinTbl.getSelectedRow(), Constants.PROT_ACCESSION)).getPeptideHit(
+//											(String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE));
+					String pepSeq = (String) peptideTbl.getValueAt(peptideTbl.getSelectedRow(), PEP_SEQUENCE);
+					PeptideHit peptideHit = null;
+					for (ProteinHit proteinHit : dbSearchResult.getProteinHitList()) {
+						peptideHit = proteinHit.getPeptideHit(pepSeq);
+						if (peptideHit != null) {
+							protCHighlightPredicate.setProteinHits(peptideHit.getProteinHits());
+							break;
+						}
+					}
 					proteinTbl.repaint();
 				}
 				refreshPsmTable();
@@ -2603,7 +2625,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	private void setupCoverageViewer() {
 
-		coveragePnl = new JPanel(new WrapLayout(FlowLayout.LEFT));
+		coveragePnl = new JPanel(new BorderLayout());
 		coveragePnl.setBackground(Color.WHITE);
 
 	}
@@ -2674,8 +2696,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			});
 			// TODO: synchronize selection state with table
 			addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent evt) {
 					int index = peptideTbl.convertRowIndexToView((Integer) coverageSelectionModel.getValue());
+					System.out.println(index);
 					peptideTbl.getSelectionModel().setSelectionInterval(index, index);
 				}
 			});
@@ -2891,7 +2914,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Register list selection listener
 		psmTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
-			public void valueChanged(ListSelectionEvent e) {
+			public void valueChanged(ListSelectionEvent evt) {
 				refreshPlot();
 			}
 		});
@@ -3277,9 +3300,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					parent.dbSearchResult, hl);
 			parent.taxonomyData = new TaxonomyData(
 					parent.dbSearchResult, hl);
-			
-			// Insert new result data into tables
+
 			try {
+				// Insert new result data into tables
 				parent.refreshProteinTables();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -3287,7 +3310,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			
 			// Refresh chart
 			parent.updateChart();
-			
 			return null;
 		}
 		
@@ -3349,22 +3371,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Iterate meta-proteins
 			for (ProteinHit metaProtein : metaProteins) {
 				
-//				// Insert entry into the taxonomy filtering tree of the filtering dialog
-//				this.insertTaxNode(metaProtein);
-//				
-//				// Filter to investigate only proteins which belongs to the defined taxonomic group, based on the UniProt TaxID
-//				TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
-//				boolean doInclude = TaxonomyUtils.belongsToGroup(taxNode,filterTaxId);
 				// TODO: replace filtering via applying RowFilter to table(s), see TaxonomySelectionDialog class
 				boolean doInclude = true;
 				
 				// If filtering was ok, add to files
 				if (doInclude) {
 					// Create default values for meta-ProteinHit;
-					String metaDesc 	= "";
+					String metaDesc = "";
 
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
-					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHits();
+					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHitList();
 					for (ProteinHit proteinHit : proteinHits) {
 						metaProtein.setUniprotEntry(proteinHit.getUniProtEntry());
 
@@ -3383,21 +3399,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
 						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
 						maxNSAF = Math.max(maxNSAF, nsaf);
-
-//						// Get common taxonomy for each protein hit
-//						if (!Client.getInstance().isViewer()) { 
-//							TaxonomyNode commonAncestorNode = proteinHit.getTaxonomyNode();
-//							for (PeptideHit peptideHit : proteinHit	.getPeptideHitList()) {
-//								commonAncestorNode = TaxonomyUtils.getCombinedTaxonomyNode(
-//										commonAncestorNode, 
-//										peptideHit.getTaxonomyNode(),
-//										(Boolean) Client.getInstance().getMetaProteinParameters().get("proteinTaxonomy").getValue());
-//							}
-//							// TODO: do we really still need the species string? calculating common taxonomy here seems redundant
-//							proteinHit.setCommonTaxonomyNode(commonAncestorNode.toString());
-//
-//							// FIXME: Calculate sequence alignment
-//						}
 
 						// Insert protein data into table
 						proteinTblMdl.addRow(new Object[] {
@@ -3454,27 +3455,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 					// Set values for the meta-protein
 					metaProtein.setDescription(metaDesc);
-					
-//					if (!Client.getInstance().isViewer()) {
-//						// Get highest common Taxonomy
-//						TaxonomyNode firstNode = metaProtein.getPeptideHitList().get(0).getTaxonomyNode();
-//						for (PeptideHit peptideHit : metaProtein.getPeptideHitList()) {
-//							TaxonomyNode taxonNode = peptideHit.getTaxonomyNode();
-//							
-//							firstNode = TaxonomyUtils.getCombinedTaxonomyNode(
-//									firstNode,
-//									taxonNode,
-//									((Boolean) Client.getInstance().getMetaProteinParameters().get("metaProteinTaxonomy").getValue()));
-//						}
-//						metaProtein.setCommonTaxonomyNode(firstNode.getName() + " (" + firstNode.getRank() +")");
-//					}
-//					metaProtein.setIdentity(metaIdentity);
-//					metaProtein.setCoverage(metaSC);
-//					metaProtein.setMolecularWeight(metaMW);
-//					metaProtein.setIsoelectricPoint(metaPI);
-//					metaProtein.setEmPAI(metaEmPai);
-//					metaProtein.setNSAF(metaNsaf);
-//					metaProtein.setCoverage(metaSC);
 					
 					DbSearchResultPanel.this.insertFlatNode(metaNode);
 				}
@@ -3569,10 +3549,15 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					table.updateHighlighters(9, min_emPAI, max_emPAI);
 					table.updateHighlighters(10, 0, maxNSAF);
 					
-					tcm = table.getColumnModel();
-					for (int i = 3; i < 11; i++) {
-						((TableColumnExt2) tcm.getColumn(i)).aggregate();
-					}
+					final TableColumnModel tcm2 = table.getColumnModel();
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							for (int i = 3; i < 11; i++) {
+								((TableColumnExt2) tcm2.getColumn(i)).aggregate();
+							}
+						}
+					});
 
 				}
 			}
@@ -3594,34 +3579,36 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * Method to refresh peptide table contents and sequence coverage viewer.
 	 */
-	protected void refreshPeptideViews(int protRow) {
+	protected void refreshPeptideViews(ProteinHit proteinHit) {
 		// Clear existing contents
 		TableConfig.clearTable(peptideTbl);
 		coveragePnl.removeAll();
 
-		if (protRow != -1) {
+		if (proteinHit != null) {
+			Collection<PeptideHit> peptideHits;
+			Map<ProteinHit, List<Interval>> coverageMap = new HashMap<ProteinHit, List<Interval>>();
+			if (proteinHit instanceof MetaProteinHit) {
+				MetaProteinHit mph = (MetaProteinHit) proteinHit;
+				
+				ProteinHitList proteins = mph.getProteinHitList();
+				peptideHits = proteins.getPeptideSet();
+				
+				for (ProteinHit protein : proteins) {
+					coverageMap.put(protein, this.determinePeptideIntervals(protein, peptideHits));
+				}
+			} else {
+				peptideHits = proteinHit.getPeptideHitList();
+				coverageMap.put(proteinHit, this.determinePeptideIntervals(proteinHit, peptideHits));
+			}
+			
 			// Get protein and peptide information 
-			String accession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
-			ProteinHit proteinHit = dbSearchResult.getProteinHits().get(accession);
-			String sequence = proteinHit.getSequence();
-			List<PeptideHit> peptideHits = proteinHit.getPeptideHitList();
 			pepTtlPnl.setTitle("Peptides (" + peptideHits.size() + ")");
 
-			// Iterate peptide hit list to fill table and build coverage view
-			List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
+			// Iterate peptide hit list to fill table
 			DefaultTableModel peptideTblMdl = (DefaultTableModel) peptideTbl.getModel();
 			int row = 0, maxProtCount = 0, maxSpecCount = 0;
 			for (PeptideHit peptideHit : peptideHits) {
-				// Find occurences of peptide sequences in protein sequence
-				String pepSeq = peptideHit.getSequence();
-				int index = -1;
-				while (true) {
-					index = sequence.indexOf(pepSeq, index + 1);
-					if (index == -1) break;
-					// Store position of peptide sequence match in interval object
-					Interval interval = new Interval(index, index + pepSeq.length(), row++);
-					peptideIntervals.add(interval);
-				}
+				
 				// Determine maximum spectral count
 				int protCount = peptideHit.getProteinCount();
 				int specCount = peptideHit.getSpectralCount();
@@ -3656,99 +3643,212 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(peptideTbl.convertColumnIndexToView(PEP_SPECTRALCOUNT))).getHighlighters()[0];
 			highlighter.setBaseline(fm.stringWidth(highlighter.getFormatter().format(maxSpecCount)));
 			highlighter.setRange(0.0, maxSpecCount);
-
-			// Build coverage view
-			RadioButtonAdapter rba = null;
-			List<HoverLabel> hovers = null;
-
-			// Iterate protein sequence blocks
-			int blockSize = 10, length = sequence.length(), openIntervals = 0;
-			for (int start = 0; start < length; start += blockSize) {
-				int end = start + blockSize;
-				end = (end > length) ? length : end;
-				// Create upper label containing position index on light green background
-				StringBuilder indexRow = new StringBuilder("<html><code>");
-				int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
-				for (int i = 0; i < spaces; i++) {
-					indexRow.append("&nbsp");
-				}
-				indexRow.append(" " + (start + blockSize));
-				indexRow.append("</html></code>");
-
-				JPanel blockPnl = new JPanel(new BorderLayout());
-				blockPnl.setOpaque(false);
-				JLabel indexLbl = new JLabel(indexRow.toString());
-				indexLbl.setBackground(new Color(0, 255, 0, 32));
-				indexLbl.setOpaque(true);
-				blockPnl.add(indexLbl, BorderLayout.NORTH);
-
-				// Create lower panel containing label-like buttons and plain labels
-				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-				subBlockPnl.setOpaque(false);
-
-				JComponent label = null;
-
-				// Iterate characters inside block to find upper/lower interval boundaries
-				String blockSeq = sequence.substring(start, end);
-				int blockLength = blockSeq.length(), subIndex = 0;
-				for (int i = 0; i < blockLength; i++) {
-					int pos = start + i;
-					boolean isBorder = false;
-					// Compare all intervals' bounds with current absolute character position
-					for (Interval interval : peptideIntervals) {
-						if ((pos == (int) interval.getLeftBorder())) {
-							// Highlightable part begins here, store contents up to this point in label
-							label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
-
-							// Init data binding adapter to synchronize selection state of hover labels
-							rba = new RadioButtonAdapter(coverageSelectionModel,
-									((Integer) interval.getUserObject()).intValue());
-							hovers = new ArrayList<HoverLabel>();
-
-							isBorder = true;
-							openIntervals++;
-						}
-						if ((pos == (int) interval.getRightBorder())) {
-							// Highlightable part ends here, store contents in hover label
-							label = new HoverLabel(blockSeq.substring(subIndex, i));
-							((HoverLabel) label).setModel(rba);
-							hovers.add((HoverLabel) label);
-							// Make hover label aware of its surrounding siblings for synchronized rollover effects
-							for (HoverLabel hl : hovers) {
-								hl.setSiblings(hovers);
-							}
-
-							isBorder = true;
-							openIntervals--;
-						}
-						if (isBorder) {
-							// Add new label to panel, move index pointer forward
-							subBlockPnl.add(label);
-							subIndex = i;
-						}
-					}
-				}
-				// Store any remaining subsequences in (hover) label
-				if (openIntervals > 0) {
-					label = new HoverLabel(blockSeq.substring(subIndex));
-					((HoverLabel) label).setModel(rba);
-					hovers.add((HoverLabel) label);
-				} else {
-					label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
-				}
-				subBlockPnl.add(label);
-
-				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
-
-				coveragePnl.add(blockPnl);
-			}
+			
+			List<JPanel> panels = this.createCoveragePanels(coverageMap);
+			this.refreshCoverageViewer(panels, coverageMap);
+//			refreshCoverageViewer(sequence, peptideIntervals);
 
 			// Select first row in table
 			peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
 		} else {
 			pepTtlPnl.setTitle("Peptides");
 		}
+	}
+	
+	/**
+	 * TODO: API
+	 * @param panels
+	 * @param coverageMap 
+	 */
+	private void refreshCoverageViewer(List<JPanel> panels, Map<ProteinHit, List<Interval>> coverageMap) {
+		JScrollPane coveragePane = (JScrollPane) coveragePnl.getParent().getParent();
+		if (panels.size() == 1) {
+			JPanel panel = panels.get(0);
+			panel.setLayout(new WrapLayout(FlowLayout.LEFT));
+			coveragePane.setRowHeaderView(null);
+			coveragePnl.add(panel, BorderLayout.CENTER);
+		} else {
+			JPanel covPnl = new JPanel(new WrapLayout(FlowLayout.LEFT, 0, 0));
+			
+			JPanel headerPnl = new JPanel();
+			BoxLayout layout = new BoxLayout(headerPnl, BoxLayout.Y_AXIS);
+			headerPnl.setLayout(layout);
+			
+			covPnl.setOpaque(false);
+			Border headerBorder = UIManager.getBorder("TableHeader.cellBorder");
+			int i = 0;
+			for (ProteinHit proteinHit : coverageMap.keySet()) {
+				JPanel panel = panels.get(i++);
+				JLabel headerLbl = new JLabel(proteinHit.getAccession());
+				Insets insets = headerBorder.getBorderInsets(headerLbl);
+				headerLbl.setBorder(BorderFactory.createCompoundBorder(headerBorder, BorderFactory.createEmptyBorder(
+						panel.getPreferredSize().height - headerLbl.getPreferredSize().height - 6 - insets.top,
+						5, 6 - insets.bottom, 5)));
+				headerPnl.add(headerLbl);
+				
+				covPnl.add(panel);
+			}
+			
+			coveragePane.setRowHeaderView(headerPnl);
+			coveragePnl.add(covPnl, BorderLayout.CENTER);
+		}
 		coveragePnl.revalidate();
+	}
+
+	/**
+	 * TODO: API
+	 * @param proteinHit
+	 * @param peptideHits
+	 */
+	private List<Interval> determinePeptideIntervals(ProteinHit proteinHit, Collection<PeptideHit> peptideHits) {
+	
+		List<Interval> peptideIntervals = new ArrayList<Interval>(peptideHits.size());
+		
+		String protSeq = proteinHit.getSequence();
+		int row = 0;
+		for (PeptideHit peptideHit : peptideHits) {
+			// Find all occurences of peptide sequences in protein sequence
+			String pepSeq = peptideHit.getSequence();
+			int index = -1;
+			while (true) {
+				index = protSeq.indexOf(pepSeq, index + 1);
+				if (index == -1) break;
+				// Store position of peptide sequence match in interval object
+				Interval interval = new Interval(index, index + pepSeq.length(), row++);
+				peptideIntervals.add(interval);
+			}
+		}
+		return peptideIntervals;
+		
+	}
+
+	/**
+	 * TODO: API
+	 * @param coverageMap
+	 * @return
+	 */
+	private List<JPanel> createCoveragePanels(Map<ProteinHit, List<Interval>> coverageMap) {
+		List<JPanel> panels = new ArrayList<JPanel>();
+		
+		for (Entry<ProteinHit, List<Interval>> entry : coverageMap.entrySet()) {
+			JPanel panel = this.createCoveragePanel(entry.getKey(), entry.getValue());
+			panels.add(panel);
+		}
+		
+		return panels;
+	}
+
+	/**
+	 * TODO: API
+	 * @param protSeq
+	 * @param peptideIntervals
+	 */
+	private JPanel createCoveragePanel(ProteinHit proteinHit, List<Interval> peptideIntervals) {
+		
+		// Init return value
+		JPanel covPnl = new JPanel();
+		covPnl.setOpaque(false);
+		
+		// Init list of colors
+		DefaultDrawingSupplier ds = new DefaultDrawingSupplier();
+		List<Color> colors = new ArrayList<Color>();
+		for (int i = 0; i < peptideIntervals.size(); i++) {
+			colors.add((Color) ds.getNextPaint());
+		}
+		
+		// Build coverage view
+		RadioButtonAdapter rba = null;
+		List<HoverLabel> hovers = null;
+
+		String protSeq = proteinHit.getSequence();
+		// Iterate protein sequence blocks
+		int blockSize = 10, length = protSeq.length(), openIntervals = 0;
+		for (int start = 0; start < length; start += blockSize) {
+			int end = start + blockSize;
+			end = (end > length) ? length : end;
+			// Create upper label containing position index on light green background
+			StringBuilder indexRow = new StringBuilder("<html><code>");
+			int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
+			for (int i = 0; i < spaces; i++) {
+				indexRow.append("&nbsp");
+			}
+			indexRow.append(" " + (start + blockSize));
+			indexRow.append("</html></code>");
+
+			JPanel blockPnl = new JPanel(new BorderLayout());
+			blockPnl.setOpaque(false);
+			JLabel indexLbl = new JLabel(indexRow.toString());
+			indexLbl.setBackground(new Color(0, 255, 0, 32));
+			indexLbl.setOpaque(true);
+			blockPnl.add(indexLbl, BorderLayout.NORTH);
+
+			// Create lower panel containing label-like buttons and plain labels
+			JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+			subBlockPnl.setOpaque(false);
+
+			JComponent label = null;
+
+			// Iterate characters inside block to find upper/lower interval boundaries
+			String blockSeq = protSeq.substring(start, end);
+			int blockLength = blockSeq.length(), subIndex = 0;
+			for (int i = 0; i < blockLength; i++) {
+				int pos = start + i;
+				boolean isBorder = false;
+				// Compare all intervals' bounds with current absolute character position
+				for (int j = 0; j < peptideIntervals.size(); j++) {
+					Interval interval = peptideIntervals.get(j);
+					
+					if ((pos == (int) interval.getLeftBorder())) {
+						// Highlightable part begins here, store contents up to this point in label
+						label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
+
+						// Init data binding adapter to synchronize selection state of hover labels
+						int rowIndex = -1;
+						Object userObject = interval.getUserObject();
+						if (userObject != null) {
+							rowIndex = ((Integer) userObject).intValue();
+						}
+						rba = new RadioButtonAdapter(coverageSelectionModel, rowIndex);
+						hovers = new ArrayList<HoverLabel>();
+
+						isBorder = true;
+						openIntervals++;
+					}
+					if ((pos == (int) interval.getRightBorder())) {
+						// Highlightable part ends here, store contents in hover label
+						label = new HoverLabel(blockSeq.substring(subIndex, i), colors.get(j));
+						((HoverLabel) label).setModel(rba);
+						hovers.add((HoverLabel) label);
+						// Make hover label aware of its surrounding siblings for synchronized rollover effects
+						for (HoverLabel hl : hovers) {
+							hl.setSiblings(hovers);
+						}
+
+						isBorder = true;
+						openIntervals--;
+					}
+					if (isBorder) {
+						// Add new label to panel, move index pointer forward
+						subBlockPnl.add(label);
+						subIndex = i;
+					}
+				}
+			}
+			// Store any remaining subsequences in (hover) label
+			if (openIntervals > 0) {
+				label = new HoverLabel(blockSeq.substring(subIndex));
+				((HoverLabel) label).setModel(rba);
+				hovers.add((HoverLabel) label);
+			} else {
+				label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
+			}
+			subBlockPnl.add(label);
+
+			blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
+
+			covPnl.add(blockPnl);
+		}
+		return covPnl;
 	}
 
 	/**
