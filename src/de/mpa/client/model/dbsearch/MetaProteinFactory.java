@@ -11,9 +11,9 @@ import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.taxonomy.TaxonomyUtils;
 
 /**
  * Factory class providing methods to merge meta-proteins and to determine common properties (i.e. taxonomy).

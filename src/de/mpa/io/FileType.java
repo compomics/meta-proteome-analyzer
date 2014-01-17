@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import de.mpa.io.MascotGenericFileReader.LoadMode;
-import de.mpa.parser.mascot.dat.MascotDatFileReader;
+import de.mpa.io.parser.mascot.dat.MascotDatFileReader;
 
 public enum FileType {
 	

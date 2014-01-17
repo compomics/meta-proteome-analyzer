@@ -132,7 +132,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The result comparison sub-panel.
 	 */
-	private ComparePanel2 compPnl;
+	private ComparePanel compPnl;
 
 	/**
 	 * The split pane layout of the overview panel.
@@ -263,7 +263,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		this.dbPnl = new DbSearchResultPanel();
 		this.ssPnl = new SpecSimResultPanel();
 		this.gdbPnl = new GraphDatabaseResultPanel();
-		this.compPnl = new ComparePanel2();
+		this.compPnl = new ComparePanel();
 		initComponents();
 	}
 

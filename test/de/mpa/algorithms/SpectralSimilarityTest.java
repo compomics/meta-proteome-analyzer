@@ -8,11 +8,12 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import de.mpa.algorithms.similarity.NormalizedDotProduct;
+import de.mpa.algorithms.similarity.SpectrumComparator;
 import de.mpa.algorithms.similarity.Transformation;
 import de.mpa.algorithms.similarity.VectorizationFactory;
 import de.mpa.db.DBManager;
 import de.mpa.db.extractor.SpectrumExtractor;
-import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.MascotGenericFile;
 
 /**

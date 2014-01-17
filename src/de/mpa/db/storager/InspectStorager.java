@@ -13,9 +13,9 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.parser.inspect.InspectFile;
-import de.mpa.parser.inspect.InspectHit;
-import de.mpa.parser.inspect.InspectParser;
+import de.mpa.io.parser.inspect.InspectFile;
+import de.mpa.io.parser.inspect.InspectHit;
+import de.mpa.io.parser.inspect.InspectParser;
 
 /**
  * This class stores the results of the InsPect algorithm to the DB.

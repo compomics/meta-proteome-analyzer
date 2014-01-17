@@ -8,6 +8,10 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.db.job.blast.BlastHit;
+import de.mpa.db.job.blast.BlastParser;
+import de.mpa.db.job.blast.BlastQuery;
+
 public class BlastParserTest extends TestCase {
 	private BlastParser parser;
 

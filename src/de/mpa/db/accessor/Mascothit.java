@@ -139,8 +139,9 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
 
 	@Override
 	public Number getQvalue() {
-		//FIXME: This must not be NULL.
-		return null;
+		// FIXME: This must not be NULL.
+		// FIXME: Neither should this be zero.
+		return 0.0;
 	}
 	
 	@Override

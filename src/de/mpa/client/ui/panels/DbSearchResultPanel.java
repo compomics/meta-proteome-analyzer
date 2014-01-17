@@ -149,10 +149,14 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.Interval;
+import de.mpa.algorithms.fragmentation.FragmentIon;
+import de.mpa.algorithms.fragmentation.Fragmentizer;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
@@ -199,13 +203,9 @@ import de.mpa.client.ui.dialogs.FilterBalloonTip;
 import de.mpa.client.ui.dialogs.TaxonomySelectionDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
-import de.mpa.fragmentation.FragmentIon;
-import de.mpa.fragmentation.Fragmentizer;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.parser.ec.ECEntry;
 import de.mpa.main.Parameters;
-import de.mpa.parser.ec.ECEntry;
-import de.mpa.taxonomy.Taxonomic;
-import de.mpa.taxonomy.TaxonomyNode;
 import de.mpa.util.ColorUtils;
 
 /**

@@ -25,7 +25,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
-import de.mpa.job.scoring.ValidatedPSMScore;
+import de.mpa.db.job.scoring.ValidatedPSMScore;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;

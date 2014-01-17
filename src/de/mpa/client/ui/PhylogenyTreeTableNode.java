@@ -11,13 +11,13 @@ import javax.swing.tree.TreePath;
 import org.apache.commons.lang.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.taxonomy.TaxonomyNode;
 
 /**
  * Custom tree table node that supports multiple parents by index.

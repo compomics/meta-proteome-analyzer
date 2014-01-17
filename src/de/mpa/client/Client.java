@@ -30,6 +30,8 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.model.ExperimentContent;
 import de.mpa.client.model.ProjectContent;
 import de.mpa.client.model.SpectrumMatch;
@@ -65,8 +67,6 @@ import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
-import de.mpa.taxonomy.TaxonomyNode;
-import de.mpa.taxonomy.TaxonomyUtils;
 import de.mpa.webservice.WSPublisher;
 
 public class Client {

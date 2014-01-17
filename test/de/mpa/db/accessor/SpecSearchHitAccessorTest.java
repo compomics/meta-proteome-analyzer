@@ -22,17 +22,17 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import de.mpa.algorithms.CrossCorrelation;
-import de.mpa.algorithms.NormalizedDotProduct;
-import de.mpa.algorithms.PearsonCorrelation;
+import de.mpa.algorithms.similarity.CrossCorrelation;
+import de.mpa.algorithms.similarity.NormalizedDotProduct;
+import de.mpa.algorithms.similarity.PearsonCorrelation;
+import de.mpa.algorithms.similarity.SpectrumComparator;
 import de.mpa.algorithms.similarity.Transformation;
 import de.mpa.algorithms.similarity.Vectorization;
 import de.mpa.algorithms.similarity.VectorizationFactory;
 import de.mpa.db.DBManager;
-import de.mpa.interfaces.SpectrumComparator;
 import de.mpa.io.SixtyFourBitStringSupport;
-import de.mpa.parser.mascot.xml.MascotPeptideHit;
-import de.mpa.parser.mascot.xml.MascotXMLParser;
+import de.mpa.io.parser.mascot.xml.MascotPeptideHit;
+import de.mpa.io.parser.mascot.xml.MascotXMLParser;
 
 /**
  * Test methods for running spectral similarity searches locally or retrieving

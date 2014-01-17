@@ -7,6 +7,8 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.algorithms.fragmentation.FragmentIon;
+import de.mpa.algorithms.fragmentation.Fragmentizer;
 import de.mpa.analysis.Masses;
 
 public class FragmentizerTest extends TestCase{

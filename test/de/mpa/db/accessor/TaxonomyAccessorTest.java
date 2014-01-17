@@ -7,8 +7,8 @@ import junit.framework.TestCase;
 
 import org.junit.Before;
 
+import de.mpa.analysis.taxonomy.NcbiTaxonomy;
 import de.mpa.db.DBManager;
-import de.mpa.taxonomy.NcbiTaxonomy;
 
 
 /**
