@@ -20,7 +20,45 @@ import java.util.Map;
 public class UniProtGiMapper {
 	
 	/**
-	 * 
+	 * Method to retrieve a mapping of the provided GI number to UniProt accessions via HTTP query.
+	 * @param giNumber the GI number
+	 * @return Map containing GI number-to-UniProtKB accession pairs
+	 * @throws IOException if the retrieval process failed during execution
+	 */
+	public static Map<String, String> retrieveGiToUniProtMapping(String giNumber) throws IOException {
+		List<String> giList = new ArrayList<String>();
+		giList.add(giNumber);
+		return retrieveGiToUniProtMapping(giList);
+	}
+	
+	/**
+	 * Method to retrieve a mapping of the provided GI numbers to UniProt accessions via HTTP query.
+	 * @param giList the GI numbers
+	 * @return Map containing GI number-to-UniProtKB accession pairs
+	 * @throws IOException if the retrieval process failed during execution
+	 */
+	public static Map<String, String> retrieveGiToUniProtMapping(List<String> giList) throws IOException {
+
+		// Init result map
+		Map<String, String> gi2acc = new HashMap<String, String>();
+		
+		int batchSize = 512;
+		int maxBatchCount = giList.size() / batchSize;
+		for (int i = 0; i < maxBatchCount; i++) {
+			int startIndex = i * batchSize;
+			int endIndex = (i + 1) * batchSize - 1;
+			List<String> shortList = new ArrayList<String>(giList.subList(startIndex, endIndex));
+			startIndex = endIndex + 1;
+			gi2acc.putAll(queryGiToUniProtMapping(shortList));
+			shortList.clear();
+		}
+		gi2acc.putAll(queryGiToUniProtMapping(new ArrayList<String>(giList.subList(maxBatchCount * batchSize, giList.size()))));
+		
+		return gi2acc;
+	}
+
+	/**
+	 * TODO: API
 	 * @param shortList
 	 * @return
 	 * @throws IOException
@@ -29,7 +67,7 @@ public class UniProtGiMapper {
 		
 		// Init result map
 		Map<String, String> gi2acc = new HashMap<String, String>();
-
+	
 		// Abort prematurely when an empty list was provided
 		if (!shortList.isEmpty()) {
 			
@@ -74,32 +112,6 @@ public class UniProtGiMapper {
 				conn.disconnect();
 			}
 		}
-		return gi2acc;
-	}
-
-	/**
-	 * Method to retrieve a mapping of the provided GI numbers to UniProt accessions via HTTP query.
-	 * @param giList Set of GI numbers
-	 * @return Map containing GI number-to-UniProtKB accession pairs
-	 * @throws IOException if the retrieval process failed during execution
-	 */
-	public static Map<String, String> retrieveGiToUniProtMapping(List<String> giList) throws IOException {
-
-		// Init result map
-		Map<String, String> gi2acc = new HashMap<String, String>();
-		
-		int batchSize = 512;
-		int maxBatchCount = giList.size() / batchSize;
-		for (int i = 0; i < maxBatchCount; i++) {
-			int startIndex = i * batchSize;
-			int endIndex = (i + 1) * batchSize - 1;
-			List<String> shortList = new ArrayList<String>(giList.subList(startIndex, endIndex));
-			startIndex = endIndex + 1;
-			gi2acc.putAll(queryGiToUniProtMapping(shortList));
-			shortList.clear();
-		}
-		gi2acc.putAll(queryGiToUniProtMapping(new ArrayList<String>(giList.subList(maxBatchCount * batchSize, giList.size()))));
-		
 		return gi2acc;
 	}
 }
