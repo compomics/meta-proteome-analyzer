@@ -34,8 +34,8 @@ import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
-import de.mpa.client.ui.panels.SettingsPanel;
 import de.mpa.client.ui.panels.SpecSimResultPanel;
+import de.mpa.client.ui.panels.SpectrumResultPanel;
 import de.mpa.io.ExportHeader;
 import de.mpa.main.Parameters;
 
@@ -76,16 +76,22 @@ public class ClientFrame extends JFrame {
 	 */
 	private JPanel filePnl = new JPanel();
 
-	/**
-	 * The panel containing controls for editing search engine settings and for
-	 * launching searches.
-	 */
-	private JPanel settingsPnl = new JPanel();
+//	/**
+//	 * The panel containing controls for editing search engine settings and for
+//	 * launching searches.
+//	 */
+//	private JPanel settingsPnl = new JPanel();
 	
 	/**
 	 * The panel containing search result views.
 	 */
 	private JPanel resultPnl = new JPanel();
+	
+	//TODO ROBERT MAKE THIS WORKING
+	/**
+	 * Panel containing the spectrum result view.
+	 */
+	private JPanel spectrumResultPnl = new JPanel();
 	
 //	/**
 //	 * The panel containing spectrum clustering functionalities.
@@ -150,10 +156,12 @@ public class ClientFrame extends JFrame {
 
 	public static final int PROJECT_PANEL = 0;
 	public static final int INPUT_PANEL = 1;
-	public static final int SETTINGS_PANEL = 2;
-	public static final int RESULTS_PANEL = 3;
-	public static final int COMPARE_PANEL = 4;
-	public static final int LOGGING_PANEL = 5;
+//	public static final int SETTINGS_PANEL = 2;
+	public static final int RESULTS_PANEL = 2;
+//	public static final int COMPARE_PANEL = 5;
+	public static final int SPECTRUM_RESULT_PANEL = 3;
+	public static final int LOGGING_PANEL = 4;
+
 	
 	/**
 	 * Constructor for the ClientFrame
@@ -188,28 +196,32 @@ public class ClientFrame extends JFrame {
 		ImageIcon[] icons = new ImageIcon[] {
 				IconConstants.PROJECT_ICON,
 				IconConstants.INPUT_ICON,
-				IconConstants.SETTINGS_ICON,
+//				IconConstants.SETTINGS_ICON,
 				IconConstants.RESULTS_ICON, 
 //				IconConstants.CLUSTERING_ICON,
 //				IconConstants.COMPARE_ICON,
+				IconConstants.RESULTS_ICON,
 				IconConstants.LOGGING_ICON
 		};
 		String[] titles = new String[] {
 				"Project",
 				"Input Spectra",
-				"Search Settings",
+//				"Search Settings",
 				"View Results",
 //				"Clustering",
 //				"Compare Results",
+				"Spectrum Results",
 				"Logging"
 		};
 		Component[] panels = new Component[] {
 				projectPnl,
 				filePnl,
-				settingsPnl,
+//				settingsPnl,
 				resultPnl, 
 //				clusterPnl,
 //				comparePnl,
+				//TODO ROBERT MAKE THIS WORKING
+				spectrumResultPnl,
 				loggingPnl
 		};
 
@@ -242,7 +254,7 @@ public class ClientFrame extends JFrame {
 		// Add discreet little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 
-		for (int i = INPUT_PANEL; i < COMPARE_PANEL; i++) {
+		for (int i = INPUT_PANEL; i < LOGGING_PANEL; i++) {
 			tabPane.setEnabledAt(i, false);
 		}
 
@@ -297,8 +309,8 @@ public class ClientFrame extends JFrame {
 			projectPnl = new ProjectPanel();
 			// File panel
 			filePnl = new FilePanel();
-			// Settings Panel
-			settingsPnl = new SettingsPanel();
+//			// Settings Panel
+//			settingsPnl = new SettingsPanel();
 //			// Compare panel
 //			comparePnl = new ComparePanel2();
 		}
@@ -306,6 +318,10 @@ public class ClientFrame extends JFrame {
 		resultPnl = new ResultsPanel();
 		// Logging panel		
 		loggingPnl = new LoggingPanel();
+		
+		//TODO ROBERT MAKE THIS WORKING
+		// Spectrum result panel();
+		spectrumResultPnl = new SpectrumResultPanel();
 		
 	}
 
@@ -333,9 +349,9 @@ public class ClientFrame extends JFrame {
 		this.connectedToServer = connectedToServer;
 	}
 
-	public SettingsPanel getSettingsPanel() {
-		return (SettingsPanel) settingsPnl;
-	}
+//	public SettingsPanel getSettingsPanel() {
+//		return (SettingsPanel) settingsPnl;
+//	}
 	
 	/**
 	 * Returns the project panel.
