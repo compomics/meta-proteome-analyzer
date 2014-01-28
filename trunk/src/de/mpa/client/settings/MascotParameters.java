@@ -15,7 +15,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.panels.DBSearchPanel;
+import de.mpa.client.ui.panels.DatabaseSearchSettingsPanel;
 
 /**
  * Class for storing Mascot search engine-specific settings.
@@ -91,8 +91,8 @@ public class MascotParameters extends ParameterMap {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				DBSearchPanel dbSearchPanel =
-						ClientFrame.getInstance().getSettingsPanel().getDatabaseSearchSettingsPanel();
+				DatabaseSearchSettingsPanel dbSearchPanel =
+						ClientFrame.getInstance().getFilePanel().getSettingsPanel().getDatabaseSearchSettingsPanel();
 				
 				dbSearchPanel.getPrecursorToleranceSpinner().setValue(Double.parseDouble(precTolTtf.getText()));
 				dbSearchPanel.getFragmentToleranceSpinner().setValue(Double.parseDouble(fragTolTtf.getText()));

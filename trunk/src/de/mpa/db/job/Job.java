@@ -112,7 +112,7 @@ public abstract class Job implements Executable {
 	/**
 	 * Finalizes the job and sets the status to finished.
 	 */
-	private void done() {
+	protected void done() {
 		// Set the job status to FINISHED and put the message in the queue
 		setStatus(JobStatus.FINISHED);
 	}

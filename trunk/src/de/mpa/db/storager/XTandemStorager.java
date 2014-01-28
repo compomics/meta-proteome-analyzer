@@ -23,7 +23,6 @@ import com.compomics.util.protein.Header;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
-import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
 import de.proteinms.xtandemparser.xtandem.Domain;
@@ -145,7 +144,7 @@ public class XTandemStorager extends BasicStorager {
                 	      
                 	    // Only store if the search spectrum id is referenced.
                 	    if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
-                	    	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+                	    	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
                 	    	
                     	    ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
             	            Double qValue = 1.0;
@@ -154,7 +153,7 @@ public class XTandemStorager extends BasicStorager {
             	    	    } 
             	    	    	
             				if (qValue < 0.1) {
-        						hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);  
+        						hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);  
                      	    	  
                                 // Set the domain id  
                                 String domainID = domain.getDomainID();
@@ -176,8 +175,11 @@ public class XTandemStorager extends BasicStorager {
                                 hitdata.put(XtandemhitTableAccessor.QVALUE, qValue);
        						
                                 // Get and store the peptide.
-                                long peptideID = PeptideAccessor.findPeptideIDfromSequence(sequence, conn);
+                                long peptideID = this.storePeptide(sequence);
                      	    	hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
+        						
+        						// Store peptide-spectrum association
+        						this.storeSpec2Pep(searchspectrumID, peptideID);
                          	    	  
                      	        Long proteinID = storeProtein(peptideID, accession);
                                 hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinID);

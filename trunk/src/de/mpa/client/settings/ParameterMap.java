@@ -14,6 +14,13 @@ import java.util.List;
 public abstract class ParameterMap extends LinkedHashMap<String, Parameter> {
 	
 	/**
+	 * Constructs a parameter map initialized with default values.
+	 */
+	public ParameterMap() {
+		this.initDefaults();
+	}
+	
+	/**
 	 * Returns a list of the stored parameters.
 	 * @return a list of parameters
 	 */

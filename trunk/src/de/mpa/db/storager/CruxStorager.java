@@ -13,7 +13,6 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Cruxhit;
 import de.mpa.db.accessor.Cruxhit2protTableAccessor;
-import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.io.parser.crux.CruxFile;
 import de.mpa.io.parser.crux.CruxHit;
 import de.mpa.io.parser.crux.CruxParser;
@@ -72,8 +71,8 @@ public class CruxStorager extends BasicStorager {
             String name = filename.substring(firstIndex, lastIndex)+ "_" + hit.getScanNumber() + ".mgf";
             
             // Get the spectrum id
-            long searchspectrumid = MapContainer.FileName2IdMap.get(name);
-	    	hitdata.put(Cruxhit.FK_SEARCHSPECTRUMID, searchspectrumid);
+            long searchspectrumID = MapContainer.FileName2IdMap.get(name);
+	    	hitdata.put(Cruxhit.FK_SEARCHSPECTRUMID, searchspectrumID);
             hitdata.put(Cruxhit.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
             hitdata.put(Cruxhit.CHARGE, Long.valueOf(hit.getCharge()));
             hitdata.put(Cruxhit.NEUTRAL_MASS, hit.getNeutralMass());
@@ -91,8 +90,11 @@ public class CruxStorager extends BasicStorager {
             // Create the database object.
             if((Double)hitdata.get(Cruxhit.QVALUE) < 0.1) {
             	// Get the peptide id
-                long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getPeptide(), conn);
+                long peptideID = this.storePeptide(hit.getPeptide());
                 hitdata.put(Cruxhit.FK_PEPTIDEID, peptideID);
+
+				// Store peptide-spectrum association
+				this.storeSpec2Pep(searchspectrumID, peptideID);
             	
                 // Create the database object.
                 Cruxhit cruxhit = new Cruxhit(hitdata);

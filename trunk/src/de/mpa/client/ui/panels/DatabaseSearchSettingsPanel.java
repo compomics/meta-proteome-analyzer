@@ -1,6 +1,7 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -17,7 +18,7 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Constants;
@@ -27,17 +28,20 @@ import de.mpa.client.settings.InspectParameters;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.SpectralLibraryParameters;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
+import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
+import de.mpa.client.ui.icons.IconConstants;
 
 /**
  * Panel containing control components for database search-related settings.
  * 
  * @author T. Muth, A. Behne
  */
-public class DBSearchPanel extends JPanel {
+public class DatabaseSearchSettingsPanel extends JPanel {
 
 	/**
 	 * Combo box referencing FASTA files available for database searching.
@@ -63,31 +67,21 @@ public class DBSearchPanel extends JPanel {
 	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
 	 */
 	private JComboBox searchTypeCbx;
-	
+
 	/**
-	 * Checkbox for controlling whether the X!Tandem search engine shall be used.
+	 * Checkbox for the units of the precursor tolerance.
 	 */
-	private JCheckBox xTandemChk;
-	
+	private JComboBox precTolCbx;
+
 	/**
-	 * Button to show advanced settings for the X!Tandem search engine.
+	 * The package size spinner.
 	 */
-	private JButton xTandemSetBtn;
+	private JSpinner packSpn;
 	
 	/**
 	 * Parameter map containing advanced settings for the X!Tandem search engine.
 	 */
 	private ParameterMap xTandemParams = new XTandemParameters();
-
-	/**
-	 * Checkbox for controlling whether the OMSSA search engine shall be used.
-	 */
-	private JCheckBox omssaChk;
-	
-	/**
-	 * Button to show advanced settings for the OMSSA search engine.
-	 */
-	private JButton omssaSetBtn;
 	
 	/**
 	 * Parameter map containing advanced settings for the OMSSA search engine.
@@ -95,60 +89,42 @@ public class DBSearchPanel extends JPanel {
 	private ParameterMap omssaParams = new OmssaParameters();
 
 	/**
-	 * Checkbox for controlling whether the Crux search engine shall be used.
-	 */
-	private JCheckBox cruxChk;
-
-	/**
-	 * Button to show advanced settings for the Crux search engine.
-	 */
-	private JButton cruxSetBtn;
-	
-	/**
 	 * Parameter map containing advanced settings for the Crux search engine.
 	 */
 	private ParameterMap cruxParams = new CruxParameters();
 
-	/**
-	 * Checkbox for controlling whether the InsPecT search engine shall be used.
-	 */
-	private JCheckBox inspectChk;
-
-	/**
-	 * Button to show advanced settings for the InsPecT search engine.
-	 */
-	private JButton inspectSetBtn;
-	
 	/**
 	 * Parameter map containing advanced settings for the InsPecT search engine.
 	 */
 	private ParameterMap inspectParams = new InspectParameters();
 
 	/**
-	 * Checkbox for controlling whether imported Mascot search engine results shall be uploaded.
-	 */
-	private JCheckBox mascotChk;
-	
-	/**
-	 * Button to show advanced settings for imported Mascot search engine results.
-	 */
-	private JButton mascotSetBtn;
-	
-	/**
 	 * Parameter map containing advanced settings for uploading imported Mascot search engine results.
 	 */
 	private ParameterMap mascotParams = new MascotParameters();
-
 	
 	/**
-	 * Checkbox for the units of the precursor tolerance
+	 * Parameter map containing advanced settings for spectral library searching.
 	 */
-	private JComboBox precTolCbx;
+	private ParameterMap specLibParams = new SpectralLibraryParameters();
+
+	/**
+	 * TODO: API
+	 */
+	private JCheckBox xTandemChk;
+
+	private JCheckBox omssaChk;
+
+	private JCheckBox cruxChk;
+
+	private JCheckBox inspectChk;
+
+	private JCheckBox mascotChk;
 
 	/**
 	 * The default database search panel constructor.
 	 */
-	public DBSearchPanel() {
+	public DatabaseSearchSettingsPanel() {
 		initComponents();
 	}
 
@@ -157,10 +133,8 @@ public class DBSearchPanel extends JPanel {
 	 */
 	private void initComponents() {
 		
-		CellConstraints cc = new CellConstraints();
-
-		this.setLayout(new FormLayout("7dlu, p:g, 7dlu",
-									  "5dlu, p, 5dlu, f:p:g, 5dlu, f:p, 7dlu"));
+		this.setLayout(new FormLayout("7dlu, p:g, 5dlu, p, 7dlu",
+									  "5dlu, p, 5dlu, f:p:g, 0dlu"));
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
@@ -169,23 +143,23 @@ public class DBSearchPanel extends JPanel {
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox(Constants.FASTA_DB);
+		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
 		
-		protDatabasePnl.add(new JLabel("FASTA File:"), cc.xy(2, 2));
-		protDatabasePnl.add(fastaFileCbx, cc.xy(4, 2));
+		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
+		protDatabasePnl.add(fastaFileCbx, CC.xy(4, 2));
 		
 		// General Settings Panel
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.00"));
 		precTolSpn.setToolTipText("The precursor mass tolerance.");
-		precTolCbx = new JComboBox(Constants.TOLERANCE_UNITS);
+		precTolCbx = new JComboBox<String>(Constants.TOLERANCE_UNITS);
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));
@@ -197,30 +171,42 @@ public class DBSearchPanel extends JPanel {
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 		
 		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox(new String[] { "Target-Decoy", "Target Only" });
+		searchTypeCbx = new JComboBox<String>(new String[] { "Target-Decoy", "Target Only" });
 		
-		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), cc.xyw(2, 2, 3));
-		paramsPnl.add(precTolSpn, cc.xy(6, 2));
-		paramsPnl.add(precTolCbx, cc.xy(8, 2));
-		paramsPnl.add(new JLabel("Fragment Ion Tolerance:"), cc.xyw(2, 4, 3));
-		paramsPnl.add(fragTolSpn, cc.xy(6, 4));
-		paramsPnl.add(new JLabel("Da"), cc.xy(8, 4));
-		paramsPnl.add(new JLabel("Missed Cleavages (max):"), cc.xyw(2, 6, 3));
-		paramsPnl.add(missClvSpn, cc.xy(6, 6));
-		paramsPnl.add(new JSeparator(), cc.xyw(2, 8, 7));
-		paramsPnl.add(new JLabel("Search Strategy:"), cc.xy(2, 10));
-		paramsPnl.add(searchTypeCbx, cc.xyw(4, 10, 5));
+		JPanel packPnl = new JPanel(new FormLayout("p, 2dlu, p:g, 2dlu, p", "p"));
+
+		packSpn = new JSpinner(new SpinnerNumberModel(1000L, 1L, null, 100L));
+		packSpn.setToolTipText("Number of spectra per transfer package"); 
+		packSpn.setPreferredSize(new Dimension(packSpn.getPreferredSize().width*2,
+											   packSpn.getPreferredSize().height));
+		
+		packPnl.add(new JLabel("Transfer"), CC.xy(1, 1));
+		packPnl.add(packSpn, CC.xy(3, 1));
+		packPnl.add(new JLabel("spectra per package"), CC.xy(5, 1));
+		
+		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), CC.xyw(2, 2, 3));
+		paramsPnl.add(precTolSpn, CC.xy(6, 2));
+		paramsPnl.add(precTolCbx, CC.xy(8, 2));
+		paramsPnl.add(new JLabel("Fragment Ion Tolerance:"), CC.xyw(2, 4, 3));
+		paramsPnl.add(fragTolSpn, CC.xy(6, 4));
+		paramsPnl.add(new JLabel("Da"), CC.xy(8, 4));
+		paramsPnl.add(new JLabel("Missed Cleavages (max):"), CC.xyw(2, 6, 3));
+		paramsPnl.add(missClvSpn, CC.xy(6, 6));
+		paramsPnl.add(new JSeparator(), CC.xyw(2, 8, 7));
+		paramsPnl.add(new JLabel("Search Strategy:"), CC.xy(2, 10));
+		paramsPnl.add(searchTypeCbx, CC.xyw(4, 10, 5));
+		paramsPnl.add(new JSeparator(), CC.xyw(2, 12, 7));
+		paramsPnl.add(packPnl, CC.xyw(2, 14, 7));
 		
 		// Search Engine Settings Panel
 		final JPanel searchEngPnl = new JPanel();
-		searchEngPnl.setLayout(new FormLayout("5dlu, p, 10dlu, p:g, 5dlu",
-				"0dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu"));
-		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engine Settings"), searchEngPnl));
+		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
+				"0dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu"));
+		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
-		// X!Tandem
 		xTandemChk = new JCheckBox("X!Tandem", true);
 		xTandemChk.setIconTextGap(10);
-		xTandemSetBtn = new JButton("Advanced Settings");
+		final JButton xTandemSetBtn = this.createSettingsButton();
 		xTandemSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -233,10 +219,9 @@ public class DBSearchPanel extends JPanel {
 			}
 		});
 		
-		// OMSSA
 		omssaChk = new JCheckBox("OMSSA", true);
 		omssaChk.setIconTextGap(10);
-		omssaSetBtn = new JButton("Advanced Settings");
+		final JButton omssaSetBtn = this.createSettingsButton();
 		omssaSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -249,10 +234,9 @@ public class DBSearchPanel extends JPanel {
 			}
 		});
 		
-		// Crux
 		cruxChk = new JCheckBox("Crux", true);
 		cruxChk.setIconTextGap(10);
-		cruxSetBtn = new JButton("Advanced Settings");
+		final JButton cruxSetBtn = this.createSettingsButton();
 		cruxSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -265,10 +249,9 @@ public class DBSearchPanel extends JPanel {
 			}
 		});
 		
-		// InsPecT
 		inspectChk = new JCheckBox("InsPecT", true);
 		inspectChk.setIconTextGap(10);
-		inspectSetBtn = new JButton("Advanced Settings");
+		final JButton inspectSetBtn = this.createSettingsButton();
 		inspectSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -281,15 +264,14 @@ public class DBSearchPanel extends JPanel {
 			}
 		});
 		
-		// Mascot
 		mascotChk = new JCheckBox("Mascot", false);
-		mascotChk.setEnabled(false);
 		mascotChk.setIconTextGap(10);
-		mascotSetBtn = new JButton("Advanced Settings");
+		final JButton mascotSetBtn = this.createSettingsButton();
 		mascotSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
+				AdvancedSettingsDialog.showDialog(
+						ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
 			}
 		});
 		mascotChk.addChangeListener(new ChangeListener() {
@@ -302,23 +284,58 @@ public class DBSearchPanel extends JPanel {
 		// Mascot functionality is initially disabled unless a .dat file is imported
 		mascotChk.setEnabled(false);
 		mascotSetBtn.setEnabled(false);
-
-		searchEngPnl.add(xTandemChk, cc.xy(2, 2));
-		searchEngPnl.add(xTandemSetBtn, cc.xy(4, 2));
-		searchEngPnl.add(omssaChk, cc.xy(2, 4));
-		searchEngPnl.add(omssaSetBtn, cc.xy(4, 4));
-		searchEngPnl.add(cruxChk, cc.xy(2, 6));
-		searchEngPnl.add(cruxSetBtn, cc.xy(4, 6));
-		searchEngPnl.add(inspectChk, cc.xy(2, 8));
-		searchEngPnl.add(inspectSetBtn, cc.xy(4, 8));
-		searchEngPnl.add(mascotChk, cc.xy(2, 10));
-		searchEngPnl.add(mascotSetBtn, cc.xy(4, 10));
+		
+		// Spectral Library
+		final JCheckBox specLibChk = new JCheckBox("SpecLib", false);
+		specLibChk.setIconTextGap(10);
+		final JButton specLibSetBtn = this.createSettingsButton();
+		specLibSetBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				AdvancedSettingsDialog.showDialog(
+						ClientFrame.getInstance(), "Spectral Library Advanced Parameters", true, specLibParams);
+			}
+		});
+		specLibSetBtn.setEnabled(false);
+		specLibChk.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				boolean selected = specLibChk.isSelected();
+				specLibSetBtn.setEnabled(selected);
+				((Component) specLibParams.get("settings").getValue()).setEnabled(selected);
+			}
+		});
+		
+		searchEngPnl.add(xTandemChk, CC.xy(2, 2));
+		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
+		searchEngPnl.add(omssaChk, CC.xy(2, 4));
+		searchEngPnl.add(omssaSetBtn, CC.xy(4, 4));
+		searchEngPnl.add(cruxChk, CC.xy(2, 6));
+		searchEngPnl.add(cruxSetBtn, CC.xy(4, 6));
+		searchEngPnl.add(inspectChk, CC.xy(2, 8));
+		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
+		searchEngPnl.add(mascotChk, CC.xy(2, 10));
+		searchEngPnl.add(mascotSetBtn, CC.xy(4, 10));
+		searchEngPnl.add(specLibChk, CC.xy(2, 12));
+		searchEngPnl.add(specLibSetBtn, CC.xy(4, 12));
 
 		// add everything to main panel
-		this.add(protDatabasePnl, cc.xy(2, 2));
-		this.add(paramsPnl, cc.xy(2, 4));
-		this.add(searchEngPnl, cc.xy(2, 6));
+		this.add(protDatabasePnl, CC.xy(2, 2));
+		this.add(paramsPnl, CC.xy(2, 4));
+		this.add(searchEngPnl, CC.xywh(4, 2, 1, 3));
 
+	}
+	
+	/**
+	 * Convenience method to return a settings button.
+	 * @return a settings button
+	 */
+	private JButton createSettingsButton() {
+		JButton button = new JButton(IconConstants.SETTINGS_SMALL_ICON);
+		button.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
+		button.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);
+		button.setUI((RolloverButtonUI) RolloverButtonUI.createUI(button));
+		return button;
 	}
 	
 	/**
@@ -354,6 +371,7 @@ public class DBSearchPanel extends JPanel {
 		}
 		
 		dbSettings.setMascot(mascotChk.isSelected());
+		
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.
@@ -372,22 +390,6 @@ public class DBSearchPanel extends JPanel {
 	}
 
 	/**
-	 * Method to toggle the enabled state of the whole panel.
-	 * Honors separate enabled state of specific sub-components on restore.
-	 */
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		setChildrenEnabled(this, enabled);
-		if (enabled) {
-			xTandemSetBtn.setEnabled(xTandemChk.isSelected());
-			omssaSetBtn.setEnabled(omssaChk.isSelected());
-			cruxSetBtn.setEnabled(cruxChk.isSelected());
-			inspectSetBtn.setEnabled(inspectChk.isSelected());
-			mascotSetBtn.setEnabled(mascotChk.isSelected());
-		}
-	}
-
-	/**
 	 * Method to recursively iterate a component's children and set their enabled state.
 	 * @param parent
 	 * @param enabled
@@ -398,7 +400,7 @@ public class DBSearchPanel extends JPanel {
 				setChildrenEnabled((JComponent) child, enabled);
 			}
 		}
-		if (!(parent instanceof DBSearchPanel)) { // don't mess with DBSearchPanels
+		if (!(parent instanceof DatabaseSearchSettingsPanel)) { // don't mess with DBSearchPanels
 			parent.setEnabled(enabled);
 			Border border = parent.getBorder();
 			if (border instanceof ComponentTitledBorder) {
@@ -472,11 +474,28 @@ public class DBSearchPanel extends JPanel {
 	}
 	
 	/**
-	 * Gets the status of the mascot check box.
-	 * @return the mascot checkbox.
+	 * Sets the enable state of the Mascot search engine selector.
+	 * @param enabled
 	 */
-	public JCheckBox getMascotChk() {
-		return mascotChk;
+	public void setMascotEnabled(boolean enabled) {
+		mascotChk.setEnabled(enabled);
+		mascotChk.setSelected(enabled);
+	}
+	
+	/**
+	 * Returns the package size.
+	 * @return the package size
+	 */
+	public long getPackageSize() {
+		return ((Number) packSpn.getValue()).longValue();
+	}
+	
+	/**
+	 * Returns the spectral library settings panel.
+	 * @return the spectral library settings panel
+	 */
+	public SpectralLibrarySettingsPanel getSpectralLibrarySettingsPanel() {
+		return (SpectralLibrarySettingsPanel) this.specLibParams.get("settings").getValue();
 	}
 
 }

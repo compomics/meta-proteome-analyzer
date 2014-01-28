@@ -15,7 +15,7 @@ import javax.swing.UIManager;
  * 
  * @author behne
  */
-public class DisableComboBox extends JComboBox {
+public class DisableComboBox extends JComboBox<Object> {
 	
 	List<Boolean> enableStates = new ArrayList<Boolean>();
 	
@@ -24,7 +24,7 @@ public class DisableComboBox extends JComboBox {
 		for (int i = 0; i < objects.length; i++) {
 			enableStates.add(true);
 		}
-		setRenderer(new ListCellRenderer() {
+		setRenderer(new ListCellRenderer<Object>() {
 			public Component getListCellRendererComponent(JList list,
 					Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {

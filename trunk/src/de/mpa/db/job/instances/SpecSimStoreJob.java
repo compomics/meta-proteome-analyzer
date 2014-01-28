@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import de.mpa.db.DBManager;
 import de.mpa.db.job.Job;
+import de.mpa.db.job.JobStatus;
 
 /**
  * Job class for storing Spectral Similarity search results to the database.
@@ -40,7 +41,9 @@ public class SpecSimStoreJob extends Job {
 	@Override
 	public void run() {
 		try {
+			setStatus(JobStatus.RUNNING);
 			dbManager.storeSpecSimResults(specSimJob.getResults());
+			done();
 		} catch (Exception e) {
 			setError(e);
 		}

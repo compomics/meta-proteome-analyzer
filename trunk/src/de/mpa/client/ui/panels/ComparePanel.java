@@ -225,7 +225,7 @@ public class ComparePanel extends JPanel {
 				if (AdvancedSettingsDialog.showDialog(
 						ClientFrame.getInstance(),
 						"Result Fetching settings",
-						true, metaParams)) {
+						true, metaParams) == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
 					// invalidate meta result if parameters were changed
 					resultMap.put(META_EXPERIMENT, null);
 				}

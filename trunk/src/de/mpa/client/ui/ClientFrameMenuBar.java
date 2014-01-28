@@ -415,7 +415,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				try {
 					client.connect();
 					clientFrame.setConnectedToServer(true);
-					clientFrame.getSettingsPanel().getProcessButton().setEnabled(true);
+					clientFrame.getFilePanel().getSettingsPanel().getProcessButton().setEnabled(true);
 					JOptionPane.showMessageDialog(clientFrame, "Web Service @" + srvHostTtf.getText() + ":" + srvPortTtf.getText() + " established.");
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),

@@ -59,6 +59,14 @@ import de.mpa.client.ui.icons.IconConstants;
  */
 public class AdvancedSettingsDialog extends JDialog {
 	
+	public static final int DIALOG_CANCELLED = 0;
+	
+	public static final int DIALOG_ACCEPTED = 1;
+	
+	public static final int DIALOG_CHANGED = 2;
+	
+	public static final int DIALOG_CHANGED_ACCEPTED = 3;
+	
 	/**
 	 * The collection of parameters this dialog shall provide interaction with.
 	 */
@@ -70,9 +78,9 @@ public class AdvancedSettingsDialog extends JDialog {
 	Map<String, JComponent> param2comp = new HashMap<String, JComponent>();
 	
 	/**
-	 * Flag indicating whether parameters were changed.
+	 * The status of the dialog indicating for instance whether parameters got changed or if the dialog was cancelled.
 	 */
-	private boolean changed = false;
+	private int status = 0;
 
 	/**
 	 * Constructs and displays a dialog dynamically generated from the specified
@@ -105,18 +113,18 @@ public class AdvancedSettingsDialog extends JDialog {
 	 * @param title the <code>String</code> to display in the dialog's title bar
 	 * @param modal specifies whether dialog blocks user input to other top-level windows when shown.
 	 * @param parameterMap the collection of parameters upon which the dialog shall be built
-	 * @return TODO: API
+	 * @return the dialog status
 	 */
-	public static boolean showDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
-		return new AdvancedSettingsDialog(owner, title, modal, parameterMap).hasChanged();
+	public static int showDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
+		return new AdvancedSettingsDialog(owner, title, modal, parameterMap).getStatus();
 	}
 	
 	/**
 	 * Returns the flag indicating whether the parameters were changed in some way.
-	 * @return <code>true</code> if parameters were changed, <code>false</code> otherwise
+	 * @return the dialog status
 	 */
-	private boolean hasChanged() {
-		return changed;
+	private int getStatus() {
+		return status;
 	}
 
 	/**
@@ -238,6 +246,7 @@ public class AdvancedSettingsDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				applyChanges();
+				status |= DIALOG_ACCEPTED;
 				dispose();
 			}
 		});
@@ -251,6 +260,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				status = DIALOG_CANCELLED;
 				dispose();
 			}
 		});
@@ -284,7 +294,9 @@ public class AdvancedSettingsDialog extends JDialog {
 				continue;
 			}
 			if (comp instanceof JCheckBox) {
-				this.changed |= param.setValue(((JCheckBox) comp).isSelected());
+				if (param.setValue(((JCheckBox) comp).isSelected())) {
+					this.status |= DIALOG_CHANGED;
+				}
 			} else if (comp instanceof JPanel) {
 				// assume we are dealing with a matrix of checkboxes
 				Object[][] values = (Object[][]) param.getValue();
@@ -299,7 +311,9 @@ public class AdvancedSettingsDialog extends JDialog {
 						}
 					}
 				}
-				this.changed |= param.setValue(values);
+				if (param.setValue(values)) {
+					this.status |= DIALOG_CHANGED;
+				}
 				
 				Object[][] rows = (Object[][]) param.getValue();
 				int counter = 0;
@@ -323,18 +337,26 @@ public class AdvancedSettingsDialog extends JDialog {
 			} else if (comp instanceof JComboBox) {
 				ComboBoxModel model = ((JComboBox) comp).getModel();
 //				param.setValue(model);
-				this.changed |= !model.getSelectedItem().equals(comp.getClientProperty("initialValue"));
+				if (!model.getSelectedItem().equals(comp.getClientProperty("initialValue"))) {
+					this.status |= DIALOG_CHANGED;
+				}
 			} else if (comp instanceof JSpinner) {
 				Object newValue = ((JSpinner) comp).getValue();
 				if (param.getValue() instanceof Number[]) {
 					Number[] value = (Number[]) param.getValue();
-					this.changed |= !value[0].equals(newValue);
+					if (!value[0].equals(newValue)) {
+						this.status |= DIALOG_CHANGED;
+					}
 					value[0] = (Number) newValue;
 				} else {
-					this.changed |= param.setValue(newValue);
+					if (param.setValue(newValue)) {
+						this.status |= DIALOG_CHANGED;
+					}
 				}
 			} else if (comp instanceof JScrollPane) {
-				this.changed |= param.setValue(((JTextComponent) ((JScrollPane) comp).getViewport().getView()).getText());
+				if (param.setValue(((JTextComponent) ((JScrollPane) comp).getViewport().getView()).getText())) {
+					this.status |= DIALOG_CHANGED;
+				}
 			} else {
 				// When we get here something went wrong - investigate!
 				System.out.println("UH OH " + comp.getClass());
@@ -349,7 +371,7 @@ public class AdvancedSettingsDialog extends JDialog {
 	protected void restoreDefaults() {
 		// Reset parameters
 		this.parameterMap.initDefaults();
-		this.changed = true;
+		this.status = DIALOG_CHANGED;
 		// Update controls
 		for (Parameter param : parameterMap.values()) {
 			JComponent comp = param2comp.get(param.getName());
