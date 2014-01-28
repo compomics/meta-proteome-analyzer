@@ -1088,6 +1088,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 					ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
 							new GZIPInputStream(new FileInputStream(file))));
 					newResult = (DbSearchResult) ois.readObject();
+					// Insert project and experimental title from the database search result.
+					clientFrame.getStatusBar().getExperimentTextField().setText(newResult.getExperimentTitle());
+					clientFrame.getStatusBar().getProjectTextField().setText(newResult.getProjectTitle());
 					ois.close();
 					clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
