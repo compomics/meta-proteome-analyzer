@@ -1,11 +1,9 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.AWTKeyStroke;
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -22,16 +20,11 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
-import javax.swing.UIManager;
 
 import org.jdesktop.swingx.JXTitledPanel;
 
@@ -53,23 +46,29 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 
+// TODO: maybe merge with DatabaseSearchSettingsPanel
 public class SettingsPanel extends JPanel {
 
 	/**
-	 * The spinner to define the amount of spectra to be consolidated into a transfer package.
+	 * TODO: API
 	 */
-	private JSpinner packSpn;
-
-	private DBSearchPanel databasePnl;
-	private SpecLibSearchPanel specLibPnl;
-	private DeNovoSearchPanel deNovoPnl;
+	private DatabaseSearchSettingsPanel databasePnl;
+	private SpectralLibrarySettingsPanel specLibPnl;
+	private DeNovoSearchSettingsPanel deNovoPnl;
 
 	private JButton processBtn;
 	
 	public SettingsPanel() {
 		initComponents();
+		
+		// init dummy de novo panel
+		deNovoPnl = new DeNovoSearchSettingsPanel();
+		deNovoPnl.setEnabled(false);
 	}
 
+	/**
+	 * TODO: API
+	 */
 	private void initComponents() {
 		
 		Set<AWTKeyStroke> forwardKeys = getFocusTraversalKeys(
@@ -79,124 +78,19 @@ public class SettingsPanel extends JPanel {
 		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
 				newForwardKeys);
 
-		FormLayout layout = new FormLayout("5dlu, p, 10dlu, p, 10dlu, p, 5dlu, p:g, 5dlu",
-		  "5dlu, f:p, 8dlu, f:p, 8dlu, b:p:g, 5dlu");
-//		layout.setColumnGroups(new int[][] {{2,4,6}});
-
-		this.setLayout(layout);
+		this.setLayout(new BorderLayout());
 				
-		Color ttlForeground = PanelConfig.getTitleForeground();
-		Font ttlFont = PanelConfig.getTitleFont();
-		final Color bgCol = UIManager.getColor("Label.background");
-		
 		// database search settings panel
-		databasePnl = new DBSearchPanel();
-		databasePnl.setEnabled(true);
+		JPanel settingsPnl = new JPanel(new FormLayout("p", "f:p:g, 5dlu, p"));
 		
-		final JCheckBox databaseChk = new JCheckBox("Database Search", true) {
-			public void paint(Graphics g) {
-				g.setColor(bgCol);
-				g.fillRect(0, 3, 12, 12);
-				super.paint(g);
-			}
-		};
-		databaseChk.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				databasePnl.setEnabled(((JCheckBox) evt.getSource()).isSelected());
-			}
-		});
-		databaseChk.setFont(ttlFont);
-		databaseChk.setForeground(ttlForeground);
-		databaseChk.setFocusPainted(false);
-		databaseChk.setOpaque(false);
-		
-		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel(" ", databasePnl, databaseChk, null);
-		
-		// spectral library search settings panel
-		specLibPnl = new SpecLibSearchPanel();
-		specLibPnl.setEnabled(false);
-		
-		JCheckBox specLibChk = new JCheckBox("Spectral Library Search", false) {
-			public void paint(Graphics g) {
-				g.setColor(bgCol);
-				g.fillRect(0, 3, 12, 12);
-				super.paint(g);
-			}
-		};
-		specLibChk.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				specLibPnl.setEnabled(((JCheckBox) evt.getSource()).isSelected());
-			}
-		});
-		specLibChk.setFont(ttlFont);
-		specLibChk.setForeground(ttlForeground);
-		specLibChk.setFocusPainted(false);
-		specLibChk.setOpaque(false);
-		
-		JXTitledPanel slTtlPnl = PanelConfig.createTitledPanel(" ", specLibPnl, specLibChk, null);
-		
-		// de novo search settings panel
-		deNovoPnl = new DeNovoSearchPanel();
-		deNovoPnl.setEnabled(false);
-		
-		JCheckBox deNovoChk = new JCheckBox("De-novo Search", false) {
-			public void paint(Graphics g) {
-				g.setColor(bgCol);
-				g.fillRect(0, 3, 12, 12);
-				super.paint(g);
-			}
-		};
-		deNovoChk.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				deNovoPnl.setEnabled(((JCheckBox) evt.getSource()).isSelected());
-			}
-		});
-		deNovoChk.setFont(ttlFont);
-		deNovoChk.setForeground(ttlForeground);
-		deNovoChk.setFocusPainted(false);
-		deNovoChk.setOpaque(false);
-		
-		JXTitledPanel dnTtlPnl = PanelConfig.createTitledPanel(" ", deNovoPnl, deNovoChk, null);
-		
-		// general settings panel
-		JPanel processPnl = new JPanel();
-		processPnl.setLayout(new FormLayout("5dlu, p, 2dlu, p:g, 2dlu, p, 5dlu",
-											"5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
-		
-		packSpn = new JSpinner(new SpinnerNumberModel(1000L, 1L, null, 100L));
-		packSpn.setToolTipText("Number of spectra per transfer package"); 
-		packSpn.setPreferredSize(new Dimension(packSpn.getPreferredSize().width*2,
-											   packSpn.getPreferredSize().height));
-		
-		JCheckBox integrateChk = new JCheckBox("Add processed spectra to spectral library");
+		databasePnl = new DatabaseSearchSettingsPanel();
+		this.specLibPnl = databasePnl.getSpectralLibrarySettingsPanel();
 		
 		ImageIcon processIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/search.png"));
 		processIcon = new ImageIcon(processIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
 
-		processBtn = new JButton("Start searching", processIcon);
-		processBtn.setEnabled(false);
-		
-//		processBtn.setHorizontalAlignment(SwingConstants.LEFT);
-		processBtn.setFont(processBtn.getFont().deriveFont(
-				Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
-
-		processBtn.addActionListener(new ActionListener() {			
-			public void actionPerformed(ActionEvent e) {
-				new ProcessWorker().execute();
-			}
-		});
-		
-		processPnl.add(new JLabel("Transfer"), CC.xy(2, 2));
-		processPnl.add(packSpn, CC.xy(4, 2));
-		processPnl.add(new JLabel("spectra per package"), CC.xy(6, 2));
-		processPnl.add(integrateChk, CC.xyw(2, 4, 5));
-		processPnl.add(processBtn, CC.xyw(2, 6, 5));
-
-		JXTitledPanel procTtlPnl = new JXTitledPanel("General", processPnl);
-		PanelConfig.decorate(procTtlPnl);
+		FormLayout buttonLyt = new FormLayout("8dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu");
+		JPanel buttonPnl = new JPanel(buttonLyt);
 		
 		// XXX: just a placeholder, remove or relocate button/functionality
 		JButton quickBtn = new JButton("Quick Search File", IconConstants.LIGHTNING_ICON);
@@ -211,93 +105,39 @@ public class SettingsPanel extends JPanel {
 				fc.setMultiSelectionEnabled(false);
 				int result = fc.showOpenDialog(ClientFrame.getInstance());
 				if (result == JFileChooser.APPROVE_OPTION) {
-					new SwingWorker() {
-						protected Object doInBackground() throws Exception {
-							File file = null;
-							List<String> filenames = new ArrayList<String>();
-							FileOutputStream fos = null;
-							Client client = Client.getInstance();
-							client.firePropertyChange("indeterminate", false, true);
-							client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
-							MascotGenericFileReader reader = new MascotGenericFileReader(fc.getSelectedFile(), LoadMode.SURVEY);
-							client.firePropertyChange("indeterminate", true, false);
-							client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
-							List<Long> positions = reader.getSpectrumPositions(false);
-							long numSpectra = 0L;
-							long maxSpectra = (long) positions.size();
-							long packageSize = (Long) packSpn.getValue();
-							client.firePropertyChange("resetall", 0L, maxSpectra);
-							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-							// iterate over all spectra
-//							for (Long pos : spectrumPositions) {
-							for (int j = 0; j < positions.size(); j++) {
-								
-								if ((numSpectra % packageSize) == 0) {
-									if (fos != null) {
-										fos.close();
-										client.uploadFile(file.getName(), client.getBytesFromFile(file));
-										file.delete();
-									}
-									file = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
-									filenames.add(file.getName());
-									fos = new FileOutputStream(file);
-									long remaining = maxSpectra - numSpectra;
-									firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
-								}
-								
-								MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
-								mgf.writeToStream(fos);
-								fos.flush();
-								firePropertyChange("progressmade", 0L, ++numSpectra);
-							}
-							fos.close();
-							client.uploadFile(file.getName(), client.getBytesFromFile(file));
-							file.delete();
-							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
-							
-							// collect search settings
-							DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-							SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-							DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
-							
-							SearchSettings settings = new SearchSettings(dbss, sss, dnss, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
-							
-							client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-							// dispatch search request
-							client.runSearches(filenames, settings);
-							
-							return null;
-						}
-					}.execute();
+					new QuickSearchWorker(fc.getSelectedFile()).execute();
 				}
 			}
 		});
-		JPanel quickPnl = new JPanel(new FormLayout("r:p:g, 5dlu", "b:p:g, 5dlu"));
-		quickPnl.add(quickBtn, CC.xy(1, 1));
-		this.add(quickPnl, CC.xy(4, 4));
 		
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
+		processBtn = new JButton("Start searching", processIcon);
+		processBtn.setEnabled(false);
 		
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, true), CC.xy(1, 1));
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, true), CC.xy(3, 1));
+//		processBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		processBtn.setFont(processBtn.getFont().deriveFont(
+				Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
+
+		processBtn.addActionListener(new ActionListener() {			
+			public void actionPerformed(ActionEvent e) {
+				new ProcessWorker().execute();
+			}
+		});
+
+		buttonPnl.add(quickBtn, CC.xy(2, 2));
+		buttonPnl.add(processBtn, CC.xy(4, 2));
 		
-//		addExperimentBtn = new JButton("Add Experiment   ", IconConstants.ADD_PAGE_ICON);
-//		addExperimentBtn.setRolloverIcon(IconConstants.ADD_PAGE_ROLLOVER_ICON);
-//		addExperimentBtn.setPressedIcon(IconConstants.ADD_PAGE_PRESSED_ICON);
+		settingsPnl.add(databasePnl, CC.xy(1, 1));
+		settingsPnl.add(buttonPnl, CC.xy(1, 3));
 		
-		// add sub-panels to main settings panel
-		this.add(dbTtlPnl, CC.xy(2, 2));
-		this.add(slTtlPnl, CC.xy(4, 2));
-		this.add(dnTtlPnl, CC.xy(6, 2));
-		this.add(procTtlPnl, CC.xy(6, 4));
-		this.add(navPnl, CC.xyw(6, 6, 3));
+		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel("Search Settings", settingsPnl);
+		
+		this.add(dbTtlPnl, BorderLayout.CENTER);
 	}
 
 	/**
 	 * Worker class for packing/sending input files and dispatching search requests to the server instance.
 	 * 
-	 * @author Thilo Muth
-	 * @author Alex Behne
+	 * @author Thilo Muth, Alex Behne
 	 */
 	private class ProcessWorker extends SwingWorker {
 
@@ -317,7 +157,7 @@ public class SettingsPanel extends JPanel {
 				try {
 					// pack and send files
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-					long packSize = (Long) packSpn.getValue();
+					long packSize = databasePnl.getPackageSize();
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 					List<String> filenames = null;
 					// collect search settings
@@ -363,6 +203,84 @@ public class SettingsPanel extends JPanel {
 			processBtn.setEnabled(true);
 		}
 	}
+	
+	/**
+	 * Convenience worker to process a file without loading its contents into the tree table first.
+	 * @author A. Behne
+	 */
+	private class QuickSearchWorker extends SwingWorker<Object, Object> {
+		
+		/**
+		 * The spectrum file.
+		 */
+		private File file;
+		
+		/**
+		 * Constructs a quick search worker using the specified file.
+		 * @param file the spectrum file
+		 */
+		public QuickSearchWorker(File file) {
+			this.file = file;
+		}
+		
+		@Override
+		protected Object doInBackground() throws Exception {
+			List<String> filenames = new ArrayList<String>();
+			FileOutputStream fos = null;
+			Client client = Client.getInstance();
+			client.firePropertyChange("indeterminate", false, true);
+			client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
+			MascotGenericFileReader reader = new MascotGenericFileReader(this.file, LoadMode.SURVEY);
+			client.firePropertyChange("indeterminate", true, false);
+			client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
+			List<Long> positions = reader.getSpectrumPositions(false);
+			long numSpectra = 0L;
+			long maxSpectra = (long) positions.size();
+			long packageSize = databasePnl.getPackageSize();
+			client.firePropertyChange("resetall", 0L, maxSpectra);
+			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
+			// iterate over all spectra
+			File batchFile = null;
+			for (int j = 0; j < positions.size(); j++) {
+				
+				if ((numSpectra % packageSize) == 0) {
+					if (fos != null) {
+						fos.close();
+						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+						batchFile.delete();
+					}
+					batchFile = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
+					filenames.add(batchFile.getName());
+					fos = new FileOutputStream(batchFile);
+					long remaining = maxSpectra - numSpectra;
+					firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+				}
+				
+				MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
+				mgf.writeToStream(fos);
+				fos.flush();
+				firePropertyChange("progressmade", 0L, ++numSpectra);
+			}
+			fos.close();
+			client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+			batchFile.delete();
+			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
+			
+			// collect search settings
+			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
+			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+			DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
+			
+			SearchSettings settings = new SearchSettings(dbss, sss, dnss, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
+			
+			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
+			// dispatch search request
+			client.runSearches(filenames, settings);
+			
+			return null;
+		}
+		
+	}
 
 	/**
 	 * Returns the process button reference.
@@ -376,7 +294,7 @@ public class SettingsPanel extends JPanel {
 	 * Returns the database search settings panel.
 	 * @return the database search settings panel
 	 */
-	public DBSearchPanel getDatabaseSearchSettingsPanel() {
+	public DatabaseSearchSettingsPanel getDatabaseSearchSettingsPanel() {
 		return databasePnl;
 	}
 

@@ -12,7 +12,6 @@ import com.compomics.util.protein.Header;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Inspecthit;
-import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.io.parser.inspect.InspectFile;
 import de.mpa.io.parser.inspect.InspectHit;
 import de.mpa.io.parser.inspect.InspectParser;
@@ -76,13 +75,16 @@ public class InspectStorager extends BasicStorager {
             String name = filename.substring(firstIndex, lastIndex)+ "_" + scannumber  + ".mgf";
             
             // Get the spectrum id
-            long searchspectrumid = MapContainer.FileName2IdMap.get(name);
-	    	hitdata.put(Inspecthit.FK_SEARCHSPECTRUMID, searchspectrumid);
+            long searchspectrumID = MapContainer.FileName2IdMap.get(name);
+	    	hitdata.put(Inspecthit.FK_SEARCHSPECTRUMID, searchspectrumID);
             
             // Get the peptide id
-            long peptideID = PeptideAccessor.findPeptideIDfromSequence(hit.getAnnotation(), conn);            
+            long peptideID = this.storePeptide(hit.getAnnotation());
             hitdata.put(Inspecthit.FK_PEPTIDEID, peptideID);
             hitdata.put(Inspecthit.SCANNUMBER, Long.valueOf(hit.getScanNumber()));
+			
+			// Store peptide-spectrum association
+			this.storeSpec2Pep(searchspectrumID, peptideID);
             
         	// parse the header
             Header header = Header.parseFromFASTA(hit.getProtein());

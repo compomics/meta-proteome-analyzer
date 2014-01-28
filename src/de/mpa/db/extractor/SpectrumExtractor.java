@@ -13,6 +13,7 @@ import java.util.Map;
 import de.mpa.algorithms.Interval;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
+import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.io.MascotGenericFile;
 
@@ -181,18 +182,22 @@ public class SpectrumExtractor {
 	/**
 	 * Method to extract spectra belonging to a specific experiment.
 	 * @param experimentID the experiment ID.
+	 * @param annotType the annotation-related fetch setting, either one of <code>AnnotationType.WITH_ANNOTATIONS</code>,
+	 * 					 <code>WITHOUT_ANNOTATIONS</code> or <code>IGNORE_ANNOTATIONS</code>
 	 * @param fromLibrary <code>true</code> if the spectra shall be pulled from the spectral library, 
 	 * 					  <code>false</code> when they shall be pulled from previous searches. 
 	 * @param saveToFile if <code>false</code> the resulting spectra will contain no data apart from their ID
 	 * @return List of MGF objects.
-	 * @throws SQLException
+	 * @throws SQLException if a database error occurs
 	 */
-	public List<MascotGenericFile> getSpectraByExperimentID(long experimentID, boolean annotatedOnly, boolean fromLibrary, boolean saveToFile) throws SQLException {
+	public List<MascotGenericFile> getSpectraByExperimentID(long experimentID, AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws SQLException {
 		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 
 		String statement = "SELECT s.* FROM spectrum s ";
-		if (annotatedOnly) {
+		if (annotType == AnnotationType.WITH_ANNOTATIONS) {
 			statement += "INNER JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid ";
+		} else if (annotType == AnnotationType.WITHOUT_ANNOTATIONS) {
+			statement += "LEFT JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid ";
 		}
 		if (fromLibrary) {
 			statement += "INNER JOIN libspectrum ls ON s.spectrumid = ls.fk_spectrumid " +
@@ -200,6 +205,9 @@ public class SpectrumExtractor {
 		} else {
 			statement += "INNER JOIN searchspectrum ss ON s.spectrumid = ss.fk_spectrumid " +
 				"WHERE ss.fk_experimentid = ? ";
+		}
+		if (annotType == AnnotationType.WITHOUT_ANNOTATIONS) {
+			statement += "AND s2p.fk_spectrumid IS NULL ";
 		}
 		statement += "GROUP BY s.spectrumid";
 		

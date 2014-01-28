@@ -9,7 +9,7 @@ public enum SearchEngineType implements Serializable {
 	CRUX("Crux"), 
 	INSPECT("InsPect"), 
 	MASCOT("Mascot"),
-	SPECRALSIM("Spectral Similarity");
+	SPECLIB("Spectral Library");
 	
 	SearchEngineType(final String searchEngineName){
 		this.searchEngineName = searchEngineName;

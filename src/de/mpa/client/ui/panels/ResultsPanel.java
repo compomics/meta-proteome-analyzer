@@ -418,10 +418,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				paramsHaveChanged = AdvancedSettingsDialog.showDialog(
+				int res = AdvancedSettingsDialog.showDialog(
 						ClientFrame.getInstance(),
 						"Result Fetching settings",
 						true, Client.getInstance().getResultParameters());
+				paramsHaveChanged = (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED);
 			}
 		});
 

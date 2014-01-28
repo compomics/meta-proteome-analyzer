@@ -46,6 +46,7 @@ import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.settings.ServerConnectionSettings;
+import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
@@ -673,14 +674,17 @@ public class Client {
 
 	/**
 	 * Queries the database to retrieve a list of spectrum files belonging to a specified experiment.
-//	 * @deprecated For spectral similarity tuning use only. Will be deleted at some point in the future. 
 	 * @param experimentID The primary key of the experiment.
+	 * @param annotType the annotation-related fetch setting, either one of <code>AnnotationType.WITH_ANNOTATIONS</code>,
+	 * 					 <code>WITHOUT_ANNOTATIONS</code> or <code>IGNORE_ANNOTATIONS</code>
+	 * @param fromLibrary <code>true</code> if the spectra shall be pulled from the spectral library, 
+	 * 					  <code>false</code> when they shall be pulled from previous searches. 
 	 * @param saveToFile <code>true</code> if the spectra are to be written to a file, <code>false</code> otherwise
 	 * @return A list of spectrum files.
-	 * @throws Exception
+	 * @throws Exception if an error occurs
 	 */
-	public List<MascotGenericFile> downloadSpectra(long experimentID, boolean annotatedOnly, boolean fromLibrary, boolean saveToFile) throws Exception {
-		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotatedOnly, fromLibrary, saveToFile);
+	public List<MascotGenericFile> downloadSpectra(long experimentID, AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws Exception {
+		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotType, fromLibrary, saveToFile);
 	} 
 
 	/**

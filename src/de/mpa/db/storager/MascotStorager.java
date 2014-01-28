@@ -45,9 +45,9 @@ import de.mpa.client.Client;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.accessor.Mascothit;
-import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
@@ -135,15 +135,14 @@ public class MascotStorager extends BasicStorager {
 		long experimentId = ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId();
 
 		// MGF list of all spectra from a certain experiment.
-		List<MascotGenericFile> dbSpectra =
-				new SpectrumExtractor(conn).getSpectraByExperimentID(experimentId, false, false, true);
+		List<MascotGenericFile> dbSpectra = new SpectrumExtractor(conn).getSpectraByExperimentID(
+				experimentId, AnnotationType.IGNORE_ANNOTATIONS, false, true);
 		
 		// Put titles and spectrum Id's of mgf in list
 		Map<String,Long> specTitleMap = new TreeMap<String,Long>();
 		for (int i = 0; i < dbSpectra.size(); i++) {
 			specTitleMap.put(dbSpectra.get(i).getTitle(), dbSpectra.get(i).getSpectrumID());
 		}
-		
 
 		client.firePropertyChange("new message", null, "PARSING MASCOT FILE FINISHED");
 		client.firePropertyChange("indeterminate", true, false);
@@ -171,9 +170,9 @@ public class MascotStorager extends BasicStorager {
 					idCounter++;
 					 // Check whether spectrum is already in the database, otherwise add it.
 					Long spectrumId = specTitleMap.get(query.getTitle());	
-					Long searchSpectrumId = null;
+					Long searchspectrumID = null;
 					if (spectrumId != null) {
-							searchSpectrumId = Searchspectrum.findFromSpectrumIDAndExperimentID(
+							searchspectrumID = Searchspectrum.findFromSpectrumIDAndExperimentID(
 									spectrumId, experimentId, conn).getSearchspectrumid();
 					} else {
 						spectrumId = this.storeSpectrum(query);
@@ -184,7 +183,7 @@ public class MascotStorager extends BasicStorager {
 						data.put(Searchspectrum.FK_EXPERIMENTID, searchSettings.getExpID());
 						Searchspectrum searchSpectrum = new Searchspectrum(data);
 						searchSpectrum.persist(conn);
-						searchSpectrumId = (Long) searchSpectrum.getGeneratedKeys()[0];
+						searchspectrumID = (Long) searchSpectrum.getGeneratedKeys()[0];
 						// Add new spectrum to map with title and spectrum IDs
 						specTitleMap.put(query.getTitle(),spectrumId);
 					}
@@ -194,13 +193,16 @@ public class MascotStorager extends BasicStorager {
 							// Fill the peptide table and get peptideID
 							long peptideID = this.storePeptide(peptideHit.getSequence());
 							
+							// Store peptide-spectrum association
+							this.storeSpec2Pep(searchspectrumID, peptideID);
+							
 							// Get proteins and fill them into the table
 							List<ProteinHit> proteinHits = peptideHit.getProteinHits();
 							for (ProteinHit datProtHit : proteinHits) {
 								long proteinID = this.storeProtein(
 										peptideID, datProtHit, proteinMap);
 								this.storeMascotHit(
-										searchSpectrumId, peptideID, proteinID, query, peptideHit);
+										searchspectrumID, peptideID, proteinID, query, peptideHit);
 							}
 						}
 					}
@@ -354,27 +356,6 @@ public class MascotStorager extends BasicStorager {
 		return spectrumid;
 	}
 	
-	/**
-	 * This method puts the peptide from a Mascot-dat. file into the database
-	 * @return peptideID. The peptide ID in the database.
-	 * @throws SQLException 
-	 */
-	private long storePeptide(String sequence) throws SQLException {
-		long peptideID;
-		PeptideAccessor peptide = null;
-		peptide = PeptideAccessor.findFromSequence(sequence, conn);
-		if (peptide == null) {	// sequence not yet in database
-			HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-			dataPeptide.put(PeptideAccessor.SEQUENCE, sequence);
-			peptide = new PeptideAccessor(dataPeptide);
-			peptide.persist(conn);
-			peptideID = (Long) peptide.getGeneratedKeys()[0];
-		} else {
-			peptideID = peptide.getPeptideid();
-		}
-		return peptideID;
-	}
-
 	/**
 	 * This method puts the proteins and pep2proteins entries in the database
 	 * @param peptideID. The ID of the peptide in the database

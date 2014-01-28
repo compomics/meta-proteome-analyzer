@@ -56,34 +56,6 @@ public class PeptideAccessor extends PeptideTableAccessor {
         return temp;
     }
     
-	/**
-     * This method return the peptide id the current connection, based on the sequence.
-     * If no peptide entry is available in the database, a new entry is provided.
-     *
-     * @param sequence String with the sequence of the peptide to find.
-     * @param aConn Connection to read the spectrum file from.
-     * @return long peptide id.
-     * @throws SQLException when the retrieval did not succeed.
-     */
-    
-    public static long findPeptideIDfromSequence(String sequence, Connection aConn) throws SQLException {
-    	PeptideAccessor peptideHit = findFromSequence(sequence, aConn);
-    	long peptideid;
-    	
-    	// peptideHit != null
-		if (peptideHit == null) { // sequence not yet in database
-			HashMap<Object, Object> dataPeptide = new HashMap<Object, Object>(2);
-			dataPeptide.put(PeptideAccessor.SEQUENCE, sequence);
-			peptideHit = new PeptideAccessor(dataPeptide);
-			peptideHit.persist(aConn);					
-			// Get the peptide id from the generated keys.
-			peptideid = (Long) peptideHit.getGeneratedKeys()[0];
-		} else {
-			peptideid = peptideHit.getPeptideid();
-		}		
-		return peptideid;
-    }
-    
     /**
      * Finds a particular peptide database object for a given peptide id.
      * @param peptideID The peptide id.

@@ -23,7 +23,7 @@ import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 
-public class DeNovoSearchPanel extends JPanel {
+public class DeNovoSearchSettingsPanel extends JPanel {
 
 	private JComboBox dnEnzymesCbx;
 	private JComboBox dnModelCbx;
@@ -38,7 +38,7 @@ public class DeNovoSearchPanel extends JPanel {
 	/**
 	 * Constructs a panel containing controls for de novo search settings.
 	 */
-	public DeNovoSearchPanel() {
+	public DeNovoSearchSettingsPanel() {
 		initComponents();
 	}
 

@@ -13,7 +13,10 @@ import com.compomics.util.protein.Protein;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Pep2prot;
+import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spec2pep;
 
 /**
  * Basic storage functionality: Loading and storing of data.
@@ -21,7 +24,7 @@ import de.mpa.db.accessor.ProteinAccessor;
  * @author Thilo Muth
  *
  */
-public abstract class BasicStorager implements Storager {
+public class BasicStorager implements Storager {
 	
 	/**
 	 * Logger object for the storage classes.
@@ -62,13 +65,77 @@ public abstract class BasicStorager implements Storager {
 	}
 
 	@Override
-	public void load() {		
-	}
+	public void load() { }
 
 	@Override
-	public void store() throws Exception {
+	public void store() throws Exception { }
+	
+	/**
+	 * Retrieves the database identifier for the peptide with the specified
+	 * sequence. If no such peptide exists yet it will be stored in the database
+	 * and the generated identifier will be returned.
+	 * @param sequence the peptide sequence
+	 * @return the database identifier
+	 * @throws SQLException if a database error occurs
+	 */
+	protected long storePeptide(String sequence) throws SQLException {
+		// retrieve peptide from database
+		PeptideAccessor peptide = PeptideAccessor.findFromSequence(sequence, conn);
+		if (peptide == null) {
+			// peptide does not yet exist, store a new one
+			HashMap<Object, Object> data = new HashMap<Object, Object>(2);
+			data.put(PeptideAccessor.SEQUENCE, sequence);
+			peptide = new PeptideAccessor(data);
+			peptide.persist(conn);
+			// return generated peptide identifier
+			return (Long) peptide.getGeneratedKeys()[0];
+		} else {
+			return peptide.getPeptideid();
+		}
 	}
 	
+	/**
+	 * Attempts to store a spectrum-to-peptide association in the database if it doesn't already exist.<br>
+	 * The actual spectrum id is inferred from the specified searchspecrum id.
+	 * @param searchspectrumID the searchspectrum id
+	 * @param peptideID the peptide id
+	 * @return the spec2pep id
+	 * @throws SQLException if a database error occurs
+	 */
+	protected long storeSpec2Pep(long searchspectrumID, long peptideID) throws SQLException {
+		// check for errors
+		if ((searchspectrumID <= 0) || (peptideID <= 0)) {
+			// abort prematurely
+			return -1L;
+		}
+		// retrieve searchspectrum from id, guaranteed to always work if searchspectrumID > 0
+		Searchspectrum searchspectrum =
+				Searchspectrum.findFromSearchSpectrumID(searchspectrumID, conn);
+		// extract spectrum id
+		long spectrumID = searchspectrum.getFk_spectrumid();
+		
+		// check whether spec2pep link already exists in database
+		Spec2pep spec2pep = Spec2pep.findLink(spectrumID, peptideID, conn);
+		if (spec2pep == null) {
+			// link does not yet exist, therefore store a new one
+			HashMap<Object, Object> data = new HashMap<Object, Object>();
+			data.put(Spec2pep.FK_SPECTRUMID, spectrumID);
+			data.put(Spec2pep.FK_PEPTIDEID, peptideID);
+			spec2pep = new Spec2pep(data);
+			spec2pep.persist(conn);
+			return (Long) spec2pep.getGeneratedKeys()[0];
+		}
+		return spec2pep.getSpec2pepid();
+	}
+	
+	/**
+	 * TODO: API
+	 * @param peptideID
+	 * @param accession
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	protected Long storeProtein(long peptideID, String accession) throws SQLException, IOException {
         Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
         String description = protein.getHeader().getDescription();
@@ -78,7 +145,8 @@ public abstract class BasicStorager implements Storager {
 		
 		if (proteinID == null) { // protein not yet in database
 			// Add new protein to the database
-			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(
+					peptideID, accession, description, protein.getSequence().getSequence(), conn);
 			proteinID = proteinAccessor.getProteinid();
 			proteinIdMap.put(accession, proteinID);
 		} else {
@@ -95,7 +163,5 @@ public abstract class BasicStorager implements Storager {
 		MapContainer.UniprotQueryProteins.put(accession, proteinID);
 		return proteinID;
 	}
-	
-	
 	
 }

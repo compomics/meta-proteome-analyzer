@@ -20,15 +20,38 @@ import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.extractor.SpectrumExtractor;
-import de.mpa.db.job.Job;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.db.job.Job;
+import de.mpa.db.job.JobStatus;
 
+/**
+ * Job implementation for spectral similarity searching.
+ * 
+ * @author A. Behne
+ */
 public class SpecSimJob extends Job {
 
+	/**
+	 * The list of spectrum files.
+	 */
 	private List<MascotGenericFile> mgfList;
+	
+	/**
+	 * The spectral similarity search settings reference.
+	 */
 	private SpecSimSettings settings;
+	
+	/**
+	 * The list of spectrum-spectrum matches.
+	 */
 	private List<SpectrumSpectrumMatch> ssmList;
 
+	/**
+	 * Constructs a spectral similarity search job from the specified list of
+	 * spetrum files and search settings.
+	 * @param mgfList the list of spectrum files
+	 * @param settings the spectral similarity search settings
+	 */
 	public SpecSimJob(List<MascotGenericFile> mgfList, SpecSimSettings settings) {
 		this.mgfList = mgfList;
 		this.settings = settings;
@@ -37,20 +60,28 @@ public class SpecSimJob extends Job {
 
 	@Override
 	public void run() {
+		setStatus(JobStatus.RUNNING);
 		
 		// store list of results in HashMap (with spectrum title as key)
 		ssmList = new ArrayList<SpectrumSpectrumMatch>();
 		
-//		List<Interval> intervals = buildMzIntervals();
+		List<Interval> intervals = this.buildMzIntervals();
 
 		try {
 			// extract list of candidates
 			DBManager manager = DBManager.getInstance();
 			SpectrumExtractor specEx = new SpectrumExtractor(manager.getConnection());
-//			List<SpectralSearchCandidate> candidates = 
-//					specEx.getCandidatesFromExperiment(intervals, settings.getExperimentID());
 			List<SpectralSearchCandidate> candidates = 
-					specEx.getCandidatesFromExperiment(settings.getExperimentID());
+					specEx.getCandidatesFromExperiment(intervals, settings.getExperimentID());
+//			System.out.flush();
+//			System.out.print("Fetching candidates... ");
+//			List<SpectralSearchCandidate> candidates = 
+//					specEx.getCandidatesFromExperiment(settings.getExperimentID());
+//			System.out.flush();
+//			System.out.println("done.\nIterating query spectra... ");
+//			
+//			int total = mgfList.size();
+//			int i = 0;
 			
 			// iterate query spectra to determine similarity scores
 			for (MascotGenericFile mgfQuery : mgfList) {
@@ -80,9 +111,16 @@ public class SpecSimJob extends Job {
 				}
 				specComp.getVectorization().cleanup();
 				
+//				if ((i%100) == 0) {
+//					System.out.println("" + i + " / " + total);
+//				}
+//				i++;
+				
 				// TODO: re-implement progress event handling
 //				pSupport.firePropertyChange("progressmade", 0, 1);
 			}
+			System.out.println("... done.");
+			done();
 		} catch (SQLException e) {
 			setError(e);
 		}

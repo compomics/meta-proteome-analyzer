@@ -18,7 +18,6 @@ import com.compomics.util.protein.Header;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
-import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -117,7 +116,7 @@ public class OmssaStorager extends BasicStorager {
     	    	
     	    	spectrumTitle = formatSpectrumTitle(spectrumTitle); 
     	    	if(MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
-          	      	long searchspectrumid = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
+          	      	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
           		  	
           	        ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(msHit.MSHits_evalue);
 	              	Double qValue = 1.0;
@@ -126,7 +125,7 @@ public class OmssaStorager extends BasicStorager {
 	    	    	} 
 	    	    	
 					if (qValue < 0.1) {
-						hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumid);
+						hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);
 
 						// Get the MSPepHit (for the accession)
 						List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
@@ -142,13 +141,16 @@ public class OmssaStorager extends BasicStorager {
 						hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
 
 						// Get the peptide id
-						long peptideID = PeptideAccessor.findPeptideIDfromSequence(msHit.MSHits_pepstring, conn);
+						long peptideID = this.storePeptide(msHit.MSHits_pepstring);
 						hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID,	peptideID);
+						
+						// Store peptide-spectrum association
+						this.storeSpec2Pep(searchspectrumID, peptideID);
 
 						// Parse the FASTA header
 						Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
 						String accession = header.getAccession();
-						Long proteinID = storeProtein(peptideID, accession);
+						Long proteinID = this.storeProtein(peptideID, accession);
 						hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
 						hitdata.put(OmssahitTableAccessor.PEP, validatedPSMScore.getPep());
 						hitdata.put(OmssahitTableAccessor.QVALUE, qValue);

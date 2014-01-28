@@ -28,7 +28,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
 
-public class SpecLibSearchPanel extends JPanel {
+public class SpectralLibrarySettingsPanel extends JPanel {
 
 	/**
 	 * The spinner to define the precursor ion mass tolerance window.
@@ -116,7 +116,7 @@ public class SpecLibSearchPanel extends JPanel {
 	/**
 	 * Constructs a panel containing controls for spectral library search settings.
 	 */
-	public SpecLibSearchPanel() {
+	public SpectralLibrarySettingsPanel() {
 		initComponents();
 	}
 
@@ -218,8 +218,8 @@ public class SpecLibSearchPanel extends JPanel {
 		JPanel vectMethodPnl = new JPanel();
 		vectMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		vectMethodCbx = new JComboBox(
-				new Object[] { "Peak matching", "Direct binning", "Profiling" });
+		vectMethodCbx = new JComboBox<String>(
+				new String[] { "Peak matching", "Direct binning", "Profiling" });
 		vectMethodCbx.setSelectedIndex(1);
 
 		vectMethodPnl.add(new JLabel("Vectorization:"), cc.xy(1, 1));
@@ -248,7 +248,7 @@ public class SpecLibSearchPanel extends JPanel {
 		// sub-sub-panels for profiling settings
 		profilingPnl = new JPanel(new FormLayout("p, 5dlu, 0px:g, 5dlu, p, 2dlu, p", "p, 5dlu, p"));
 
-		proMethodCbx = new JComboBox(new Object[] { "Piecewise linear", "Gaussian function" });
+		proMethodCbx = new JComboBox<String>(new String[] { "Piecewise linear", "Gaussian function" });
 
 		profilingPnl.add(new JLabel("Profile Shape:"), cc.xy(1, 1));
 		profilingPnl.add(proMethodCbx, cc.xyw(3, 1, 5));
@@ -331,7 +331,7 @@ public class SpecLibSearchPanel extends JPanel {
 		JPanel trafoPnl = new JPanel();
 		trafoPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		trafoCbx = new JComboBox(new Object[] { "None", "Square root",
+		trafoCbx = new JComboBox<String>(new String[] { "None", "Square root",
 				"Logarithmic" });
 		trafoCbx.setSelectedIndex(1);
 
@@ -463,7 +463,7 @@ public class SpecLibSearchPanel extends JPanel {
 				setChildrenEnabled((JComponent) child, enabled);
 			}
 		}
-		if (!(parent instanceof SpecLibSearchPanel)) { // don't mess with SpecLibSearchPanels
+		if (!(parent instanceof SpectralLibrarySettingsPanel)) { // don't mess with SpecLibSearchPanels
 			parent.setEnabled(enabled);
 			Border border = parent.getBorder();
 			if (border instanceof ComponentTitledBorder) {

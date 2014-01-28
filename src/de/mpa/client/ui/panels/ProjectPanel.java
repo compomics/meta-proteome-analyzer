@@ -678,7 +678,7 @@ public class ProjectPanel extends JPanel {
 		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(false);
 		
 		// Disable input, setting and results tabs
-		for (int i = ClientFrame.INPUT_PANEL; i < ClientFrame.COMPARE_PANEL; i++) {
+		for (int i = ClientFrame.INPUT_PANEL; i < ClientFrame.LOGGING_PANEL; i++) {
 			clientFrame.getTabbedPane().setEnabledAt(i, false);
 		}
 		
@@ -721,8 +721,9 @@ public class ProjectPanel extends JPanel {
 		
 		// Enable input and results tabs
 		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
-		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, clientFrame.getFilePanel().hasFiles());
+//		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, clientFrame.getFilePanel().hasFiles());
 		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.RESULTS_PANEL, hasResults);
+		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.SPECTRUM_RESULT_PANEL, hasResults);
 		
 		// Enable navigation buttons
 		skipBtn.setEnabled(hasResults);
