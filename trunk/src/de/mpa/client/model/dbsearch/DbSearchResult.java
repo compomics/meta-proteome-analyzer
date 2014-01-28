@@ -69,8 +69,7 @@ public class DbSearchResult implements Serializable {
 	 * @param experimentTitle The experiment title.
 	 * @param fastaDB The FASTA database.
 	 */
-	public DbSearchResult(String projectTitle, String experimentTitle,
-			String fastaDB) {
+	public DbSearchResult(String projectTitle, String experimentTitle,	String fastaDB) {
 		this.projectTitle = projectTitle;
 		this.experimentTitle = experimentTitle;
 		this.fastaDB = fastaDB;

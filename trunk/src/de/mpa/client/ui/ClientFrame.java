@@ -282,7 +282,7 @@ public class ClientFrame extends JFrame {
 				}
 			}
 			// Enables Server Connections
-			tabPane.setSelectedIndex(3);
+			tabPane.setSelectedIndex(2);
 		}
 		
 		// Set application icon
