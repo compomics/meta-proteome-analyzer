@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="distro-binary" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
 	  <!-- Default property values, if not overridden elsewhere: -->
-	  <property name='build' location="${user.home}/mpa-viewer" />	  <property name='app.version' value='0.8'/>
+	  <property name='build' location="${user.home}/mpa-viewer" />	  <property name='app.version' value='0.9'/>
 	  <property name='app.name' value='MPA Viewer'/>
 	  <property name='distro-name' value='mpa-viewer-${app.version}'/>
     <target name='clean' description="Delete all build artifacts." >
@@ -62,7 +62,7 @@
             <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xstream-1.4.4.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/ColorPicker.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/jgoodies-binding-2.6.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.5.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/omssa-parser-1.6.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/utilities-3.17.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xpp3-1.1.4c.jar"/>
