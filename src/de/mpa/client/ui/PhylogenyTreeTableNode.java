@@ -85,9 +85,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 					return ph.getTaxonomyNode().getName();
 				case 3:
 //					return ph.getIdentity();
+					if (ph.getUniProtEntry() == null) return null;
 					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
 					ComboBoxModel<ClusterRule> model = (ComboBoxModel<ClusterRule>) parameter.getValue();
 					ClusterRule rule = (ClusterRule) model.getSelectedItem();
+					
 					switch (rule) {
 					case UNIREF100:
 						return ph.getUniProtEntry().getUniRef100id();
@@ -96,7 +98,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 					case UNIREF50:
 						return ph.getUniProtEntry().getUniRef50id();
 					default:
-//						return null;
 						return ph.getUniProtEntry().getUniRef100id();
 					}
 				case 4:
