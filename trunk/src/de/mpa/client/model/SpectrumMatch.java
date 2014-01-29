@@ -11,9 +11,10 @@ import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.panels.ComparePanel.CompareData;
 
 /**
- * TODO: API
+ * Class holding the spetrum matches
  */
 public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, Taxonomic, Hit {
 	
@@ -58,11 +59,17 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	private TaxonomyNode taxonNode;
 
 	/**
+	 * The database IDs of the experiments which contain the protein hit.
+	 */
+	private Set<Long> experimentIDs;
+	
+	/**
 	 * Default empty constructor.
 	 */
 	public SpectrumMatch() {
 //		this.peptideHits = new ArrayList<PeptideHit>();
 		this.peptideHits = new HashSet<PeptideHit>();
+		this.experimentIDs = new HashSet<Long>();
 	}
 
 	/**
@@ -165,7 +172,24 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @param peptideHit the peptide hit to add
 	 */
 	public void addPeptideHit(PeptideHit peptideHit) {
+		// to replace a peptide hit we need to remove it first, does nothing if provided hit is new anyway
+		this.peptideHits.remove(peptideHit);
 		this.peptideHits.add(peptideHit);
+	}
+	
+	/**
+	 * Gets the experiments IDs in which the spectrum was identified
+	 * @return experiment IDs.
+	 */
+	public Set<Long> getExperimentIDs() {
+		return experimentIDs;
+	}
+	
+	/**
+	 * Adds the IDs of the experiments which contain this spectrum.
+	 */
+	public void addExperimentIDs(Set<Long> experimentIDs) {
+		this.experimentIDs.addAll(experimentIDs);
 	}
 	
 	@Override
@@ -217,19 +241,19 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	@Override
 	public Set<Object> getProperties(ChartType type) {
 			Set<Object> res = new HashSet<Object>();
-//			DbSearchResult dbresObj = Client.getInstance().getDbSearchResult(); // TODO use back mapping
-//			if (dbresObj != null) {
-//				Set<PeptideHit> pepSet = ((ProteinHitList)dbresObj.getProteinHitList()).getPeptideSet();
-//				for (PeptideHit pepHit : pepSet) {
-//					if (pepHit.getSpectrumMatches().contains(this)) {
-//						res.addAll(pepHit.getProperties(type));
-//						break;
-//					}
-//				}
-//			}
-			for (PeptideHit pepHit : this.peptideHits) {
-				res.addAll(pepHit.getProperties(type));
+			
+			
+			// Only for experiments takes the experimentIDs of the spectrum
+			if (type != CompareData.EXPERIMENT) {
+				// Gets properties from the protein hit.
+				for (PeptideHit pepHit : this.peptideHits) {
+					res.addAll(pepHit.getProperties(type));
+				}
+			}else {
+				// Gets experimentIDs from itself
+				res.addAll(this.getExperimentIDs());
 			}
+			
 			return res;
 		}
 }

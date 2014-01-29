@@ -607,11 +607,14 @@ public class FilePanel extends JPanel implements Busyable {
 							libVal, s2fVal);
 					
 					File file = new File("experiment_" + expIDval + ".mgf");
-					try (FileOutputStream fos = new FileOutputStream(file)) {
+					FileOutputStream fos = new FileOutputStream(file);
+					try {
 						for (MascotGenericFile mgf : dlSpec) {
 							mgf.writeToStream(fos);
 						}
-					};
+					} finally {
+						fos.close();
+					}
 					
 					return file;
 				}
@@ -659,6 +662,8 @@ public class FilePanel extends JPanel implements Busyable {
 //				totalSpectraList.clear();
 				ticList.clear();
 				specPosMap.clear();
+				
+				mascotSelFile.clear();
 				
 				// reset navigation button and search settings tab
 				nextBtn.setEnabled(false);
@@ -964,7 +969,7 @@ public class FilePanel extends JPanel implements Busyable {
 					
 					if (file.getName().toLowerCase().endsWith(".mgf")) {
 						// do nothing
-					} else if (file.getName().toLowerCase().endsWith(".dat")) {
+					} else if (Constants.DAT_FILE_FILTER.accept(file)) {
 						
 						DatabaseSearchSettingsPanel dbSettingsPnl =
 								ClientFrame.getInstance().getFilePanel().getSettingsPanel().getDatabaseSearchSettingsPanel();

@@ -56,6 +56,9 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return The list of search hits.
 	 */
 	public List<SearchHit> getSearchHits() {
+		if (visSearchHits == null) {
+			return searchHits;
+		}
 		return visSearchHits;
 	}
 	
@@ -86,7 +89,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	}
 	
 	/**
-	 * TODO: API
+	 * Sets the false discovery rate
 	 * @param fdr
 	 */
 	@Override

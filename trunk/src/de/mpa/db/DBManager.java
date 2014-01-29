@@ -216,17 +216,13 @@ public class DBManager {
 						koNumbers = Formatter.removeLastChar(koNumbers);
 					}
 					
-					String uniref100 = null, uniref90 = null, uniref50 = null;
-					if (proteinData.getUniRef100EntryId() != null) {
-						uniref100 = proteinData.getUniRef100EntryId();
-					}
-					if (proteinData.getUniRef90EntryId() != null) {
-						uniref90 = proteinData.getUniRef90EntryId();
-					}
-					if (proteinData.getUniRef50EntryId() != null) {
-						uniref50 = proteinData.getUniRef50EntryId();
-					}
-					Uniprotentry.addUniProtEntryWithProteinID((Long) proteinid, taxID, ecNumbers, koNumbers, keywords, uniref100, uniref90, uniref50, conn);
+					String uniref100 = proteinData.getUniRef100EntryId();
+					String uniref90 = proteinData.getUniRef90EntryId();
+					String uniref50 = proteinData.getUniRef50EntryId();
+					Uniprotentry.addUniProtEntryWithProteinID(
+							(Long) proteinid, taxID, ecNumbers, koNumbers, keywords,
+							uniref100, uniref90, uniref50, conn);
+					
 					counter++;
 
 					if (counter % 500 == 0) {

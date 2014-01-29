@@ -168,21 +168,22 @@ public class SettingsPanel extends JPanel {
 					SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
 					
 					// FIXME: Please change that and get files from file tree.
-					if (!ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles().toString().contains(".dat")) {
-						filenames = client.packAndSend(packSize, checkBoxTree, projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
-					} else {
-						if (dbss.isMascot()) {
-							List<File> files = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();
-							client.firePropertyChange("resetall", 0, files.size());
-							int i = 0;
-							for (File file : files) {
-								client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + files.size());
-								MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), file, settings, databasePnl.getMascotParameterMap());
-								storager.run();
-								client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + files.size());
-							}
+
+					if (dbss.isMascot()) {
+						List<File> datFiles = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();
+						client.firePropertyChange("resetall", 0, datFiles.size());
+						int i = 0;
+						for (File datFile : datFiles) {
+							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + datFiles.size());
+							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap());
+							storager.run();
+							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + datFiles.size());
 						}
 					}
+					if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
+						filenames = client.packAndSend(packSize, checkBoxTree, projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
+					}
+					
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 					// dispatch search request
 					client.runSearches(filenames, settings);

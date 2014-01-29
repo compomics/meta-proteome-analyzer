@@ -16,9 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -106,18 +104,28 @@ import de.mpa.db.accessor.Project;
  */
 public class ComparePanel extends JPanel {
 	
-	/**
-	 * Dummy key for meta-result in result map.
-	 */
-	private static final Experiment META_EXPERIMENT = new Experiment();
-
-	/**
-	 * The cache of re-usable result objects.
-	 */
-	private Map<Experiment, DbSearchResult> resultMap;
+//	/**
+//	 * Dummy key for meta-result in result map.
+//	 */
+//	private static final Experiment META_EXPERIMENT = new Experiment();
+//
+//	/**
+//	 * The cache of re-usable result objects.
+//	 */
+//	private Map<Experiment, DbSearchResult> resultMap;
 	
 	/**
-	 * The local map of meta-protein generation-related parameters
+	 * The list of experiments to compare.
+	 */
+	private List<Experiment> experiments;
+	
+	/**
+	 * The meta-result object.
+	 */
+	private DbSearchResult metaResult;
+	
+	/**
+	 * The local map of meta-protein generation-related parameters.
 	 */
 	private ParameterMap metaParams;
 
@@ -132,10 +140,13 @@ public class ComparePanel extends JPanel {
 	public ComparePanel() {
 		super();
 		
-		// init map of database search results
-		this.resultMap = new HashMap<Experiment, DbSearchResult>();
-		// initially add dummy entry pointing to non-existent meta-result
-		this.resultMap.put(META_EXPERIMENT, null);
+//		// init map of database search results
+//		this.resultMap = new HashMap<Experiment, DbSearchResult>();
+//		// initially add dummy entry pointing to non-existent meta-result
+//		this.resultMap.put(META_EXPERIMENT, null);
+		
+		// init meta-result
+		this.metaResult = null;
 		
 		// init local instance of result fetching parameters
 		this.metaParams = new ResultParameters();
@@ -226,8 +237,9 @@ public class ComparePanel extends JPanel {
 						ClientFrame.getInstance(),
 						"Result Fetching settings",
 						true, metaParams) == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
-					// invalidate meta result if parameters were changed
-					resultMap.put(META_EXPERIMENT, null);
+					// invalidate meta-result if parameters were changed
+//					resultMap.put(META_EXPERIMENT, null);
+					metaResult = null;
 				}
 			}
 		});
@@ -287,7 +299,14 @@ public class ComparePanel extends JPanel {
 				HierarchyLevel zAxisType = (HierarchyLevel) countCbx.getSelectedItem();
 				
 				// execute comparison task
-				new CompareTask(experiments, yAxisType, zAxisType).execute();
+				
+				boolean recreateMetaResult =
+						(metaResult == null) ||
+						(experiments.size() != ComparePanel.this.experiments.size()) ||
+						(!ComparePanel.this.experiments.containsAll(experiments));
+				ComparePanel.this.experiments = experiments;
+				
+				new CompareTask(yAxisType, zAxisType, recreateMetaResult).execute();
 			}
 		});
 
@@ -529,24 +548,25 @@ public class ComparePanel extends JPanel {
 			if (!evt.getValueIsAdjusting()) {
 				int row = this.table.getSelectedRow();
 				if (row == (this.table.getRowCount() - 1)) {
-					Experiment experiment;
 					try {
 						// create dialog for experiment selection from the database
-						experiment = this.showExperimentSelectionDialog();
+						List<Experiment> experiments = this.showExperimentSelectionDialog();
 						this.table.clearSelection();
-						if (experiment != null) {
-							TableModel model = this.table.getModel();
-							// check whether experiment already exists
-							for (int i = 0; i < model.getRowCount() - 1; i++) {
-								if (experiment.equals(model.getValueAt(i, 0))) {
-									this.table.getSelectionModel().setSelectionInterval(i, i);
-									return;
+						if (!experiments.isEmpty()) {
+							for (Experiment experiment : experiments) {
+								TableModel model = this.table.getModel();
+								// check whether experiment already exists
+								for (int i = 0; i < model.getRowCount() - 1; i++) {
+									if (experiment.equals(model.getValueAt(i, 0))) {
+										this.table.getSelectionModel().setSelectionInterval(i, i);
+										return;
+									}
 								}
+								int lastRow = this.table.getRowCount() - 1;
+								((DefaultTableModel) model).insertRow(
+										lastRow, new Object[] { experiment });
+								this.table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 							}
-							int lastRow = this.table.getRowCount() - 1;
-							((DefaultTableModel) model).insertRow(
-									lastRow, new Object[] { experiment });
-							this.table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 						}
 					} catch (SQLException e) {
 						e.printStackTrace();
@@ -560,7 +580,7 @@ public class ComparePanel extends JPanel {
 		 * @return the selected experiment or <code>null</code>
 		 * @throws SQLException if a database error occurs
 		 */
-		private Experiment showExperimentSelectionDialog() throws SQLException {
+		private List<Experiment> showExperimentSelectionDialog() throws SQLException {
 			JPanel dialogPnl = new JPanel();
 			dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
 		
@@ -590,7 +610,7 @@ public class ComparePanel extends JPanel {
 					return false;
 				}
 			};
-			expTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//			expTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 			final List<Experiment> experiments = new ArrayList<Experiment>();
 		
@@ -625,23 +645,27 @@ public class ComparePanel extends JPanel {
 			dialogPnl.add(projScp, CC.xy(2, 2));
 			dialogPnl.add(expScp, CC.xy(4, 2));
 		
-			// Second get associated experiments
-			Experiment experiment = null;
+			// Get selected experiments
+			List<Experiment> res = new ArrayList<Experiment>();
 			int ret = JOptionPane.showConfirmDialog(
 					ClientFrame.getInstance(), dialogPnl, "Choose an Experiment", JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.OK_OPTION) {
-				int selExpRow = expTbl.convertRowIndexToModel(expTbl.getSelectedRow());
-				if (selExpRow != -1) {
-					// Get choosen experiment from the database.
-					try {
-						long experimentid = experiments.get(selExpRow).getExperimentid();
-						experiment = projectManager.getExperiment(experimentid);
-					} catch (SQLException e1) {
-						e1.printStackTrace();
+				int[] rows = expTbl.getSelectedRows();
+				for (int selRow : rows) {
+					int row = expTbl.convertRowIndexToModel(selRow);
+					if (row != -1) {
+						// Fetch experiment from database
+						try {
+							long experimentID = experiments.get(row).getExperimentid();
+							Experiment experiment = projectManager.getExperiment(experimentID);
+							res.add(experiment);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
 					}
 				}
 			}
-			return experiment;
+			return res;
 		}
 
 		/**
@@ -665,9 +689,9 @@ public class ComparePanel extends JPanel {
 	private class CompareTask extends SwingWorker {
 		
 		/**
-		 * The list of experiments to compare.
+		 * Flag indicating whether the meta-result needs to be re-created.
 		 */
-		private List<Experiment> experiments;
+		private boolean recreateMetaResult;
 		
 		/**
 		 * The comparison attribute type.
@@ -682,17 +706,12 @@ public class ComparePanel extends JPanel {
 		/**
 		 * Constructs a compare worker from the specified list of experiments to
 		 * compare.
-		 * @param experiments the experimeents to compare
+		 * @param experiments the experiments to compare
 		 */
-		public CompareTask(List<Experiment> experiments, ChartType yAxisType, HierarchyLevel zAxisType) {
-			this.experiments = experiments;
-			
-			List<Experiment> tempList = new ArrayList<Experiment>(experiments);
-			tempList.add(META_EXPERIMENT);
-			resultMap.keySet().retainAll(tempList);
-			
+		public CompareTask(ChartType yAxisType, HierarchyLevel zAxisType, boolean recreateMetaResult) {
 			this.yAxisType = yAxisType;
 			this.zAxisType = zAxisType;
+			this.recreateMetaResult = recreateMetaResult;
 		}
 
 		@Override
@@ -700,24 +719,18 @@ public class ComparePanel extends JPanel {
 			try {
 				Client client = Client.getInstance();
 				
-				// Flag for update of 
-				// fetch experiment results
-				for (Experiment experiment : experiments) {
-					DbSearchResult result = resultMap.get(experiment);
-					if (result == null) {
-						result = client.retrieveDatabaseSearchResult(null, null, experiment.getExperimentid());
-						// invalidate meta-result
-						resultMap.put(META_EXPERIMENT, null);
+				if (this.recreateMetaResult) {
+					// fetch results
+					List<DbSearchResult> results = new ArrayList<DbSearchResult>();
+					for (Experiment experiment : experiments) {
+						DbSearchResult result =
+								client.retrieveDatabaseSearchResult(null, null, experiment.getExperimentid());
+						results.add(result);
 					}
-					resultMap.put(experiment, result);
-				}
-				
-				// Create metaResult object, containing all result objects
-				DbSearchResult metaResult = resultMap.get(META_EXPERIMENT);
-				if (metaResult == null) {
-					// create new meta-result
+					
+					// Create metaResult object, containing all result objects
 					metaResult = new DbSearchResult(null, null, null);
-					for (DbSearchResult result : resultMap.values()) {
+					for (DbSearchResult result : results) {
 						if (result != null) {
 							for (ProteinHit proteinHit : result.getProteinHitList()) {
 								metaResult.addProtein(proteinHit);
@@ -726,7 +739,6 @@ public class ComparePanel extends JPanel {
 					}
 					// Fuse to meta-proteins
 					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(metaResult, metaParams);
-					resultMap.put(META_EXPERIMENT, metaResult);
 				}
 				
 				// Create compare table

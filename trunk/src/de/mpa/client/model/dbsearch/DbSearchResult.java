@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.mpa.client.model.SpectrumMatch;
+import de.mpa.db.accessor.SearchHit;
+
 /**
  * This class represents the set of proteins which may hold multiple peptides
  * for each protein hit (identified by its accession number).
@@ -83,84 +86,141 @@ public class DbSearchResult implements Serializable {
 	 * @throws Exception 
 	 */
 	public void addProtein(ProteinHit proteinHit) throws Exception {
-		String accession = proteinHit.getAccession();
-
-		// Get the first - and only - peptide hit
-		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
+//		// Get the first - and only - peptide hit
+//		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
 
 		// Find current protein hit, will be null if it's a new protein
-//		ProteinHit currentProteinHit = proteinHits.get(accession);
-		ProteinHit currentProteinHit = this.getProteinHit(accession);
-		// Find current peptide hit, ideally inside current protein hit
-		PeptideHit currentPeptideHit = 
-			this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
+		ProteinHit currentProteinHit = this.getProteinHit(proteinHit.getAccession());
+		
+//		// Find current peptide hit, ideally inside current protein hit
+//		PeptideHit currentPeptideHit = 
+//			this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
 
 		// Check if protein hit is already in the protein hit set.
 		if (currentProteinHit != null) {
-			// Check whether peptide hit match has been found
-			if (currentPeptideHit != null) {
-				// Peptide hit is already stored somewhere in the result object,
-				// therefore inspect new PSM
-				PeptideSpectrumMatch match = 
-					(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+			
+			// Iterate peptide hits of protein hit
+			for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 				
-				PeptideSpectrumMatch currentMatch = 
-					(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
-							match.getSearchSpectrumID());
-				if (currentMatch != null) {
-					currentMatch.addSearchEngineHit(match.getFirstSearchHit());
+				// Find current peptide hit, ideally inside current protein hit
+				PeptideHit currentPeptideHit = 
+					this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
+				
+				// Check whether peptide hit match has been found
+				if (currentPeptideHit != null) {
+//					// Peptide hit is already stored somewhere in the result object,
+//					// therefore inspect new PSM
+//					PeptideSpectrumMatch match = 
+//						(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+					
+					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+						
+						PeptideSpectrumMatch currentMatch = 
+							(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
+									match.getSearchSpectrumID());
+						if (currentMatch != null) {
+//							currentMatch.addSearchEngineHit(match.getFirstSearchHit());
+							for (SearchHit hit : ((PeptideSpectrumMatch) match).getSearchHits()) {
+								currentMatch.addSearchEngineHit(hit);
+							}
+						} else {
+							currentMatch = (PeptideSpectrumMatch) match;
+							currentPeptideHit.addSpectrumMatch(currentMatch);
+						}
+						// Link spectrum to experiment
+						currentMatch.addExperimentIDs(proteinHit.getExperimentIDs());
+						
+//						currentPeptideHit.replaceSpectrumMatch(currentMatch);
+						
+						// Link spectrum match to peptide hit
+						currentMatch.addPeptideHit(currentPeptideHit);
+					}
 				} else {
-					currentMatch = match;
+					// No match found, peptide hit is new
+					currentPeptideHit = peptideHit;
+//					PeptideSpectrumMatch match = 
+//							(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+						match.addExperimentIDs(proteinHit.getExperimentIDs());
+						match.addPeptideHit(currentPeptideHit);
+					}
 				}
-				currentPeptideHit.replaceSpectrumMatch(currentMatch);
 				
-				// Link spectrum match to peptide hit
-				currentMatch.addPeptideHit(currentPeptideHit);
-			} else {
-				// No match found, peptide hit is new
-				currentPeptideHit = peptideHit;
+				currentProteinHit.addPeptideHit(currentPeptideHit);
+				currentPeptideHit.addExperimentIDs(proteinHit.getExperimentIDs());
+				currentProteinHit.addExperimentIDs(proteinHit.getExperimentIDs());
+				
+				// Link parent protein hit to peptide hit
+				currentPeptideHit.addProteinHit(currentProteinHit);
 			}
-			currentProteinHit.addPeptideHit(currentPeptideHit);
-			currentProteinHit.addExperimentIDs(proteinHit.getExperimentIDs());
 		} else {
 			// A new protein is to be added
 			currentProteinHit = proteinHit;
+			
+			// Iterate peptide hits of protein hit
+			for (PeptideHit peptideHit : currentProteinHit.getPeptideHitList()) {
+				// Find current peptide hit, ideally inside current protein hit
+				PeptideHit currentPeptideHit = 
+					this.findExistingPeptide(peptideHit.getSequence(), null);
+				
+				// Check whether peptide hit match has been found
+				if (currentPeptideHit != null) {
+//					// Peptide hit is already stored somewhere in the result object,
+//					// therefore inspect new PSM
+//					PeptideSpectrumMatch match = 
+//						(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+					
+					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+						
+						PeptideSpectrumMatch currentMatch = 
+							(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
+									match.getSearchSpectrumID());
+						if (currentMatch != null) {
+//							currentMatch.addSearchEngineHit(match.getFirstSearchHit());
+							for (SearchHit hit : ((PeptideSpectrumMatch) match).getSearchHits()) {
+								currentMatch.addSearchEngineHit(hit);
+							}
+						} else {
+							currentMatch = (PeptideSpectrumMatch) match;
+							currentPeptideHit.addSpectrumMatch(currentMatch);
+						}
+						// Link spectrum to experiment
+						currentMatch.addExperimentIDs(proteinHit.getExperimentIDs());
+						
+//						currentPeptideHit.replaceSpectrumMatch(currentMatch);
 
+						// Link spectrum match to peptide hit
+						currentMatch.addPeptideHit(currentPeptideHit);
+					}
+					
+					// Link found peptide to new Protein by replacing hit map
+					Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
+					currentProteinHit.setPeptideHits(newPeptideHits);
+					currentProteinHit.addPeptideHit(currentPeptideHit);
+				} else {
+					// No match found, both protein and peptide hits are new
+					currentPeptideHit = peptideHit;
+//					PeptideSpectrumMatch match = 
+//					(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
+					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
+						match.addExperimentIDs(proteinHit.getExperimentIDs());
+						match.addPeptideHit(currentPeptideHit);
+					}
+				}
+				currentPeptideHit.addExperimentIDs(proteinHit.getExperimentIDs());
+				currentProteinHit.addExperimentIDs(proteinHit.getExperimentIDs());
+				
+				// Link parent protein hit to peptide hit
+				currentPeptideHit.addProteinHit(currentProteinHit);
+			}
+
+			// Wrap new protein in meta-protein
 			MetaProteinHit mph = new MetaProteinHit("Meta-Protein", currentProteinHit);
 			currentProteinHit.setMetaProteinHit(mph);
 			this.metaProteins.add(mph);
-			
-			// Check whether peptide hit match has been found
-			if (currentPeptideHit != null) {
-				// Peptide hit is already stored somewhere in the result object,
-				// therefore inspect new PSM
-				PeptideSpectrumMatch match = 
-					(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-				
-				PeptideSpectrumMatch currentMatch = 
-					(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
-							match.getSearchSpectrumID());
-				if (currentMatch != null) {
-					currentMatch.addSearchEngineHit(match.getFirstSearchHit());
-				} else {
-					currentMatch = match;
-				}
-				currentPeptideHit.replaceSpectrumMatch(currentMatch);
-				
-				// Link found peptide to new Protein by replacing hit map
-				Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
-				currentProteinHit.setPeptideHits(newPeptideHits);
-				currentProteinHit.addPeptideHit(currentPeptideHit);
-
-				// Link spectrum match to peptide hit
-				currentMatch.addPeptideHit(currentPeptideHit);
-			} else {
-				// No match found, both protein and peptide hits are new
-				currentPeptideHit = peptideHit;
-			}
 		}
-		// Link parent protein hit to peptide hit
-		currentPeptideHit.addProteinHit(currentProteinHit);
+//		// Link parent protein hit to peptide hit
+//		currentPeptideHit.addProteinHit(currentProteinHit);
 
 //		proteinHits.put(accession, currentProteinHit);
 	}
