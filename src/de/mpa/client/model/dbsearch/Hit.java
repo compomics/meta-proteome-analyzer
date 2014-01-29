@@ -20,7 +20,7 @@ public interface Hit {
 	public Set<Object> getProperties(ChartType type);
 	
 	/**
-	 * TODO: API
+	 * Sets the false discovery rate.
 	 */
 	public void setFDR(double fdr);
 	

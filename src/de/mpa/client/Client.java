@@ -322,12 +322,6 @@ public class Client {
 	 * @param settings Global search settings
 	 */
 	public void runSearches(List<String> filenames, SearchSettings settings) {
-		// Add mascot hits if chosen
-		DbSearchSettings dbss = settings.getDbss();
-		if ((dbss != null) && dbss.isMascot()) {
-			firePropertyChange("new message", null, "Finish uploading Mascot dat.File");
-		}
-
 		if (filenames != null) {
 			for (int i = 0; i < filenames.size(); i++) {
 				settings.getFilenames().add(filenames.get(i));
@@ -514,6 +508,7 @@ public class Client {
 				unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
 			}
 			taxonomyNode = unclassifiedNode;
+			uniprotEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);
 		}
 		
 		// Add a new protein to the protein hit set.

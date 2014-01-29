@@ -265,7 +265,8 @@ public class TaxonomyUtils {
 		for (Taxonomic taxonomic : taxList) {
 			// extract child taxonomy nodes
 			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
-			for (Taxonomic childTax : taxonomic.getTaxonomicChildren()) {
+			List<? extends Taxonomic> children = taxonomic.getTaxonomicChildren();
+			for (Taxonomic childTax : children) {
 				TaxonomyNode taxNode = childTax.getTaxonomyNode();
 				if (taxNode == null) {
 					System.out.println("asdfsdds");

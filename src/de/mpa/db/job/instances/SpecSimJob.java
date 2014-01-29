@@ -20,9 +20,9 @@ import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.db.DBManager;
 import de.mpa.db.MapContainer;
 import de.mpa.db.extractor.SpectrumExtractor;
-import de.mpa.io.MascotGenericFile;
 import de.mpa.db.job.Job;
 import de.mpa.db.job.JobStatus;
+import de.mpa.io.MascotGenericFile;
 
 /**
  * Job implementation for spectral similarity searching.

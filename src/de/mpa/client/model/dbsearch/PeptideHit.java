@@ -12,6 +12,7 @@ import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.panels.ComparePanel.CompareData;
 
 /**
  * This class represents a peptide hit.
@@ -69,6 +70,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	private TaxonomyNode taxonNode;
 	
 	/**
+	 * The database IDs of the experiments which contain the protein hit.
+	 */
+	private Set<Long> experimentIDs;
+	
+	/**
 	 * PeptideHit constructor, taking the sequence as only parameter.
 	 * @param sequence The String sequence.
 	 * @param spectrumMatches The list of peptide spectrum matches.
@@ -77,6 +83,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.sequence = sequence;
 		this.proteinHits = new ArrayList<ProteinHit>();
 		this.spectrumMatches = new ArrayList<SpectrumMatch>();
+		this.experimentIDs = new HashSet<Long>();
 		addSpectrumMatch(spectrumMatch);
 	}
 
@@ -90,6 +97,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.sequence = sequence;
 		this.start = start;
 		this.end = end;
+		this.experimentIDs = new HashSet<Long>();
 	}
 
 	/**
@@ -177,7 +185,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	public void replaceSpectrumMatch(SpectrumMatch sm) {
 		Integer index = id2index.get(sm.getSearchSpectrumID());
 		if (index == null) {
-			addSpectrumMatch(sm);
+			this.addSpectrumMatch(sm);
 		} else {
 			spectrumMatches.set(index, sm);
 		}
@@ -206,9 +214,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @param proteinHit The hit to add.
 	 */
 	public void addProteinHit(ProteinHit proteinHit) {
-		if (!proteinHits.contains(proteinHit)) {
-			proteinHits.add(proteinHit);
+		if (proteinHits.contains(proteinHit)) {
+			// remove existing protein hit to replace it with provided hit
+			proteinHits.remove(proteinHit);
 		}
+		proteinHits.add(proteinHit);
 	}
 
 	/**
@@ -227,6 +237,21 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		return proteinHits;
 	}
 
+	/**
+	 * Gets the experiments IDs in which the peptide was identified
+	 * @return experiment IDs.
+	 */
+	public Set<Long> getExperimentIDs() {
+		return experimentIDs;
+	}
+	
+	/**
+	 * Adds the IDs of the experiments which contain this peptide.
+	 */
+	public void addExperimentIDs(Set<Long> experimentIDs) {
+		this.experimentIDs.addAll(experimentIDs);
+	}
+	
 	/**
 	 * Returns whether this peptide hit is selected for exporting. 
 	 * @return <code>true</code> if peptide is selected for export, 
@@ -280,6 +305,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		return this.getSpectrumMatches();
 	}
 
+	
 	@Override
 	public String toString() {
 		return getSequence();
@@ -292,6 +318,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.getSequence().hashCode();
+	}
 
 	/**
 	 * Function to use as TreeSet
@@ -303,9 +334,18 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	@Override
 	public Set<Object> getProperties(ChartType type) {
 		Set<Object> res = new HashSet<Object>();
-		for (ProteinHit protHit : this.getProteinHits()) {
-			res.addAll(protHit.getProperties(type));
+		
+		// Only for experiments takes the experimentIDs of the peptide
+		if (type != CompareData.EXPERIMENT) {
+			// Gets properties from the protein hit.
+			for (ProteinHit protHit : this.getProteinHits()) {
+				res.addAll(protHit.getProperties(type));
+			}
+		}else {
+			// Gets experiemtIDs from itself
+			res.addAll(this.getExperimentIDs());
 		}
+		
 		return res;
 	}
 	

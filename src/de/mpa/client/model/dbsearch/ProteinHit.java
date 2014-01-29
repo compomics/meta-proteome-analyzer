@@ -125,7 +125,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * The database IDs of the experiments which contain the protein hit.
 	 */
-	private List<Long> experimentIDs;
+	private Set<Long> experimentIDs;
 
 	/**
 	 * Constructs a protein hit from the specified accession, description and
@@ -147,7 +147,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		this.uniProtEntry = uniprotEntry;
 		this.taxonomyNode = taxonomyNode;
 		
-		this.experimentIDs = new ArrayList<Long>();
+		this.experimentIDs = new HashSet<Long>();
 		this.experimentIDs.add(experimentID);
 	}
 	
@@ -514,24 +514,23 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	}
 	
 	/**
-	 * TODO: API
-	 * @return
+	 * Gets the experiments IDs in which the protein was identified
+	 * @return experiment IDs.
 	 */
-	public List<Long> getExperimentIDs() {
+	public Set<Long> getExperimentIDs() {
 		return this.experimentIDs;
 	}
 	
 	/**
-	 * TODO: API
-	 * @param experimentID
+	 * Adds the IDs of the experiments which contain this protein.
 	 */
-	public void addExperimentIDs(List<Long> experimentIDs) {
+	public void addExperimentIDs(Set<Long> experimentIDs) {
 		this.experimentIDs.addAll(experimentIDs);
 	}
 	
 	/**
-	 * TODO: API
-	 * @param fdr
+	 * Sets the false discovery rate
+	 * @param fdr. The false discovery rate.
 	 */
 	@Override
 	public void setFDR(double fdr) {
@@ -631,6 +630,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			case SPECTRUM_LEVEL:
 				for (PeptideHit ph : this.getPeptideHitList()) {
 					for (SpectrumMatch sm : ph.getSpectrumMatches()) {
+						System.out.println(sm.getSearchSpectrumID());
 						// TODO: implement title caching for spectrum matches
 						res.add(sm.getSearchSpectrumID());
 					}
