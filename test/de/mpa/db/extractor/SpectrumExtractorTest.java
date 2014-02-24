@@ -1,5 +1,7 @@
 package de.mpa.db.extractor;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,14 +12,18 @@ import java.util.TreeMap;
 import junit.framework.TestCase;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.mpa.algorithms.Interval;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.db.DBManager;
+import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.XTandemhit;
 import de.mpa.io.MascotGenericFile;
 
-public class SpectrumExtractorTest extends TestCase {
+public class SpectrumExtractorTest {
 
 	private Connection conn;
 	private SpectrumExtractor specEx;
@@ -38,6 +44,7 @@ public class SpectrumExtractorTest extends TestCase {
 	 * Tests the extraction of spectral search candidates from the database.
 	 */
 	@Test
+	@Ignore
 	public void testGetCandidates() throws SQLException, IOException {
 		
 		List<Interval> intervals = new ArrayList<Interval>(1);
@@ -48,57 +55,44 @@ public class SpectrumExtractorTest extends TestCase {
 		SpectralSearchCandidate candidate = candidates.get(0);
 		
 		// Test library spectrum
-		assertEquals("VTAVDAK", candidate.getSequence());
-		assertEquals(352.2322, candidate.getPrecursorMz());
+		TestCase.assertEquals("VTAVDAK", candidate.getSequence());
+		TestCase.assertEquals(352.2322, candidate.getPrecursorMz());
 		
 		// Test spectrum file extraction
 		TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(candidate.getPeaks());
 		
 		// Test the m/z value
-		assertEquals(114.92747, peaks.firstEntry().getKey(), 0.0001);
+		TestCase.assertEquals(114.92747, peaks.firstEntry().getKey(), 0.0001);
 		
 		// Test the intensity
-		assertEquals(902.0, peaks.firstEntry().getValue(), 0.0001);
+		TestCase.assertEquals(902.0, peaks.firstEntry().getValue(), 0.0001);
 	}
 	
 	
 	@Test
 	public void testGetMascotGenericFile() throws SQLException, IOException {
-		MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(1001, conn);		
-		assertEquals("Cmpd 1, +MSn(732.2648), 11.7 min", mgf.getTitle());		
-		assertEquals(2, mgf.getCharge());
-		
-//		File outFile = new File("out.mgf");
-//		outFile.createNewFile();
-//		FileOutputStream fos = new FileOutputStream(outFile);
-//		
-//		mgf = SpectrumExtractor.getMascotGenericFile(157140, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(157170, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(157201, conn);
-//		mgf.writeToStream(fos);
-//		
-//		mgf = SpectrumExtractor.getMascotGenericFile(182583, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(182613, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(182708, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(204979, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(205009, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(227424, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(227467, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(250094, conn);
-//		mgf.writeToStream(fos);
-//		mgf = SpectrumExtractor.getMascotGenericFile(250123, conn);
-//		mgf.writeToStream(fos);
-//		
-//		fos.close();
+		List<Searchspectrum> searchspectra = Searchspectrum.findFromExperimentID(203, conn);
+		System.out.println("No. Spectra: " + searchspectra.size());
+		for (Searchspectrum s : searchspectra) {
+			boolean identified = false;
+//			List<XTandemhit> hits1 = XTandemhit.getHitsFromSpectrumID(s.getSearchspectrumid(), conn);
+//			List<Omssahit> hits2 = Omssahit.getHitsFromSpectrumID(s.getSearchspectrumid(), conn);
+//			
+//			// Check for available identifications.
+//			if (hits1.size() > 0 || hits2.size() > 0) identified = true;
+			
+			MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(s.getFk_spectrumid(), conn);
+			File outFile = null;
+			if (identified) {
+				outFile = new File("C:/temp/SpectrumQuality/P1/ids/Spectrum" + s.getFk_spectrumid() + ".mgf");
+			} else {
+				outFile = new File("C:/temp/SpectrumQuality/P23/all/Spectrum" + s.getFk_spectrumid() + ".mgf");
+			}
+			outFile.createNewFile();
+			FileOutputStream fos = new FileOutputStream(outFile);
+			mgf.writeToStream(fos);
+			fos.close();
+		}
 	}
 	
 	
