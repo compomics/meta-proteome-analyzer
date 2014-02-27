@@ -70,7 +70,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
@@ -155,7 +154,6 @@ import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -193,14 +191,12 @@ import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.FilterBalloonTip;
-import de.mpa.client.ui.dialogs.TaxonomySelectionDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.io.MascotGenericFile;
@@ -396,61 +392,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
 
-		// Button for taxonomic filtering	
-		JButton taxFilterBtn = new JButton(IconConstants.FILTER_ICON);
-		taxFilterBtn.setRolloverIcon(IconConstants.FILTER_ROLLOVER_ICON);
-		taxFilterBtn.setPressedIcon(IconConstants.FILTER_PRESSED_ICON);
-		taxFilterBtn.setToolTipText("Select Taxonomic Filtering");
-		
-		taxFilterBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(taxFilterBtn));
-		
-		taxFilterBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				TaxonomySelectionDialog taxDlg = TaxonomySelectionDialog.getInstance();
-				taxDlg.setVisible(true);
-				
-				TreePath[] selPaths = taxDlg.getSelectionPaths();
-				final CheckBoxTreeSelectionModel cbtsm = new CheckBoxTreeSelectionModel(null);
-				cbtsm.setSelectionPaths(selPaths);
-				
-				RowFilter<Object, Object> taxFilter = new RowFilter<Object, Object>() {
-					@Override
-					public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
-						boolean res = true;
-						// extract tree table node from row entry
-						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) entry.getValue(-1);
-						// extract taxonomy node from tree table node
-						TaxonomyNode taxNode = null;
-						if (node.isProtein()) {
-							taxNode = ((Taxonomic) node.getUserObject()).getTaxonomyNode();
-						} else if (node.isTaxonomy()) {
-							taxNode = (TaxonomyNode) node.getUserObject();
-						}
-						if (taxNode != null) {
-							// since we hijacked the taxonomic tree view we need to prepend its root user object
-							Object[] path = Constants.concat(new Object[] { "Root of Taxonomic View" }, taxNode.getPath());
-							TreePath taxPath = new TreePath(path);
-							// return whether the constructed path is (partially) selected
-							res = cbtsm.isPathSelected(taxPath, true) || cbtsm.isPartiallySelected(taxPath);
-						}
-						if (!res) {
-							((ProteinHit) node.getUserObject()).setSelected(false);
-						}
-						return res;
-					}
-				};
-				// TODO: implement taxonomy filtering for 'classic' view
-				protFlatTreeTbl.setRowFilter(taxFilter);
-				protTaxonTreeTbl.setRowFilter(taxFilter);
-				protEnzymeTreeTbl.setRowFilter(taxFilter);
-				protPathwayTreeTbl.setRowFilter(taxFilter);
-				
-				synchSelection();
-				updateChartData();
-			}
-		});
-		
 		final JToggleButton hierarchyBtn = new JToggleButton(
 				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
 		hierarchyBtn.setRolloverIcon(
@@ -459,11 +400,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_PRESSED_ICON));
 		hierarchyBtn.setToolTipText("Select Hierarchical View");
 		
-		hierarchyBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(taxFilterBtn));
-		
-//		InstantToolTipMouseListener ittml = new InstantToolTipMouseListener();
-//		hierarchyBtn.addMouseListener(ittml);
-
 		final JPopupMenu hierarchyPop = new JPopupMenu();
 		ActionListener hierarchyListener = new ActionListener() {
 			@Override
@@ -493,14 +429,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 
-		JPanel protBtnPnl = new JPanel(new FormLayout(
-//				"p, 2dlu, 36px, 2dlu, 36px, c:5dlu, p, 2dlu, p, 1px",
-				"22px, 2dlu, 36px, 1px",
-				"20px"));
+		JPanel protBtnPnl = new JPanel(new FormLayout("36px, 1px", "20px"));
 		protBtnPnl.setOpaque(false);
 		
-		protBtnPnl.add(taxFilterBtn, CC.xy(1, 1));
-		protBtnPnl.add(hierarchyBtn, CC.xy(3, 1));
+		protBtnPnl.add(hierarchyBtn, CC.xy(1, 1));
 
 		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
 		protTtlPnl.setRightDecoration(protBtnPnl);
@@ -1342,10 +1274,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		pdbMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(pdbMenuItem);
 		
-		JMenuItem prideMenuItem = new JMenuItem("PRIDE", IconConstants.WEB_PRIDE_ICON);
-		prideMenuItem.putClientProperty("url", "http://www.ebi.ac.uk/pride/identification.do?proteinIdentifier=" + accession);
-		prideMenuItem.addActionListener(popupMenuItemEventListener);
-		webresourceMenu.add(prideMenuItem);
+		// TODO: Searching by protein accession does not work anymore in Pride: is there any other existing solution for PRIDE?
+//		JMenuItem prideMenuItem = new JMenuItem("PRIDE", IconConstants.WEB_PRIDE_ICON);
+//		prideMenuItem.putClientProperty("url", "http://www.ebi.ac.uk/pride/identification.do?proteinIdentifier=" + accession);
+//		prideMenuItem.addActionListener(popupMenuItemEventListener);
+//		webresourceMenu.add(prideMenuItem);
 		
 		JMenuItem reactomeMenuItem = new JMenuItem("Reactome", IconConstants.WEB_REACTOME_ICON);
 		reactomeMenuItem.putClientProperty("url", "http://www.reactome.org/cgi-bin/search2?DB=test_reactome_46&SPECIES=&OPERATOR=ALL&QUERY=" + accession);
@@ -3123,10 +3056,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			} else {
 				item.setIcon(IconConstants.BAR_CHART_ICON);
 				chartTypePop.add(item);
-				// TODO: re-implement chart or remove altogether
-				if (chartType == HistogramChartType.TOTAL_ION_HIST) {
-					item.setEnabled(false);
-				}
 			}
 		}
 
@@ -3321,7 +3250,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Set up graph database contents
 			ResultsPanel resPnl =
 					(ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
-			resPnl.getDeNovoSearchResultPanel().buildGraphDatabase();
+			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();
 		}
 		
 	}
@@ -3562,10 +3491,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			}
 
-			// Update taxonomy filter selection dialog
-			TaxonomySelectionDialog.getInstance().setRoot(
-					(SortableCheckBoxTreeTableNode) protTaxonTreeTbl.getTreeTableModel().getRoot());
-			
 			Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
 			
 			protTaxonTreeTbl.expandAll();

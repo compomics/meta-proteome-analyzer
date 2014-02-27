@@ -72,6 +72,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 					return this.toString();
 				case 1:
 					String description = ph.getDescription();
+					if (description == null) description = "";
+					
 					int underscore = description.indexOf("_");
 					if (underscore > 0) {
 						int whitespace = description.indexOf(" ");

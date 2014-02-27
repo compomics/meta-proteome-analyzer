@@ -50,10 +50,15 @@ import de.mpa.io.MascotGenericFileReader.LoadMode;
 public class SettingsPanel extends JPanel {
 
 	/**
-	 * TODO: API
+	 * Database search settings panel.
 	 */
 	private DatabaseSearchSettingsPanel databasePnl;
+	
+	/**
+	 * Spectral library settings panel.
+	 */
 	private SpectralLibrarySettingsPanel specLibPnl;
+	
 	private DeNovoSearchSettingsPanel deNovoPnl;
 
 	private JButton processBtn;
@@ -67,7 +72,7 @@ public class SettingsPanel extends JPanel {
 	}
 
 	/**
-	 * TODO: API
+	 * Initialize the UI components.
 	 */
 	private void initComponents() {
 		
@@ -92,8 +97,8 @@ public class SettingsPanel extends JPanel {
 		FormLayout buttonLyt = new FormLayout("8dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu");
 		JPanel buttonPnl = new JPanel(buttonLyt);
 		
-		// XXX: just a placeholder, remove or relocate button/functionality
-		JButton quickBtn = new JButton("Quick Search File", IconConstants.LIGHTNING_ICON);
+		// Quick search button.
+		JButton quickBtn = new JButton("Quick Search File...", IconConstants.LIGHTNING_ICON);
 		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
 		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
 		quickBtn.addActionListener(new ActionListener() {

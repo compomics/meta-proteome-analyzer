@@ -89,15 +89,11 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
-import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
-import de.mpa.client.ui.chart.TopBarChart.TopBarChartType;
-import de.mpa.client.ui.chart.TopData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 
@@ -137,7 +133,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The split pane layout of the overview panel.
 	 */
-	// TODO: make split pane references local
 	private JXMultiSplitPane msp;
 
 	/**
@@ -159,16 +154,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Data container for taxonomic meta-information of the fetched results.
 	 */
 	private TaxonomyData taxonomyData = new TaxonomyData();
-
-	/**
-	 * Data container for 'Top 10 Proteins' chart.
-	 */
-	private TopData topData = new TopData();
-
-	/**
-	 * Data container for total ion current histogram chart.
-	 */
-	private HistogramData histogramData;
 
 	/**
 	 * Table containing expanded details for proteins selected/displayed in the
@@ -526,8 +511,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		for (ChartType tct : TaxonomyChartType.values()) {
 			tmp.add(tct);
 		}
-		tmp.add(TopBarChartType.PROTEINS);
-		tmp.add(HistogramChartType.TOTAL_ION_HIST);
 		final ChartType[] chartTypes = tmp.toArray(new ChartType[0]);
 
 		// create and configure button for chart type selection
@@ -566,12 +549,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					// clear details table
 					// TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
-
 					updateChart(newChartType);
-
-					if (newChartType instanceof TopBarChartType) {
-						updateDetailsTable("");
-					}
 				}
 			}
 		};
@@ -589,10 +567,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 			} else {
 				item.setIcon(IconConstants.BAR_CHART_ICON);
 				chartTypePop.add(item);
-				// TODO: re-implement chart or remove altogether
-				if (chartType == HistogramChartType.TOTAL_ION_HIST) {
-					item.setEnabled(false);
-				}
 			}
 		}
 
@@ -650,7 +624,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		ontoAsBarItem.addActionListener(pieOrBarListener);
 		taxAsPieItem.addActionListener(pieOrBarListener);
 		taxAsBarItem.addActionListener(pieOrBarListener);
-		// TODO: implement bar charts for taxonomy chart view
 		
 		chartTypePop.addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
@@ -854,9 +827,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 				proteinHits = ontologyData.getProteinHits((String) key);
 			} else if (this.chartType instanceof TaxonomyChartType) {
 				proteinHits = taxonomyData.getProteinHits((String) key);
-			} else if (this.chartType instanceof TopBarChartType) {
-				proteinHits = topData.getProteinHits(null);
-			}
+			} 
+			
 			if (proteinHits != null) {
 				int i = 1;
 				for (ProteinHit proteinHit : proteinHits) {
@@ -946,13 +918,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			chart = ChartFactory.createTaxonomyChart(
 					taxonomyData, chartType);
 			showAdditionalControls = true;
-		} else if (chartType instanceof TopBarChartType) {
-			chart = ChartFactory.createTopBarChart(
-					topData, chartType);
-		} else if (chartType instanceof HistogramChartType) {
-			chart = ChartFactory.createHistogramChart(
-					histogramData, chartType);
-		}
+		} 
 		
 		if (chart != null) {
 			// insert chart into panel
@@ -1032,11 +998,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * Returns the de novo search result panel.
-	 * @return the de novo search result panel
+	 * Returns the graph database result panel.
+	 * @return the graph database result panel
 	 */
-	// TODO: rename method
-	public GraphDatabaseResultPanel getDeNovoSearchResultPanel() {
+	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
 		return gdbPnl;
 	}
 
@@ -1218,15 +1183,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 			
 			taxonomyData.setHierarchyLevel(hl);
 			taxonomyData.setResult(dbSearchResult);
-			
-			topData.setResult(dbSearchResult);
-			// FIXME: Is this histogram really necessary?
-//			histogramData = new HistogramData(dbSearchResult, 40);
-
-//			// Refresh chart panel showing default ontology pie chart
-//			updateChart(OntologyChartType.BIOLOGICAL_PROCESS);
 			// Refresh chart panel
 			updateChart(chartType);
+			
 			// Refresh heat map
 			heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
 			
