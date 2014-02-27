@@ -128,37 +128,103 @@ import de.mpa.io.MascotGenericFile;
 public class FilePanel extends JPanel implements Busyable {
 	
 	/**
-	 * TODO: API
+	 * File text field.
 	 */
 	private FileTextField filesTtf;
+	
+	/**
+	 * Filter button.
+	 */
 	private JButton filterBtn;
+	
+	/**
+	 * Add from file button.
+	 */
 	private JButton addFromFileBtn;
+	
+	/**
+	 * Add from database button.
+	 */
 	private JButton addFromDbBtn;
+	
+	/**
+	 * Clear spectra from table button.
+	 */
 	private JButton clearBtn;	
-	private CheckBoxTreeTable treeTbl;
-	private JPanel specPnl;	
+	
+	/**
+	 * Tree table for the spectra.
+	 */
+	private CheckBoxTreeTable spectrumTreeTable;
+	
+	/**
+	 * Spectrum panel.
+	 */
+	private JPanel specPnl;
+	
+	/**
+	 * Spectrum histogram panel.
+	 */
 	private ChartPanel histPnl;
+	
+	/**
+	 * Spectrum histogram scroll bar.
+	 */
 	private JScrollBar histBar;
-	private JSplitPane split;
+	
+	/**
+	 * Splitpane instance.
+	 */
+	private JSplitPane splitPane;
 	
 	/**
 	 * The panel containing controls for manipulating search settings.
 	 */
 	private SettingsPanel settingsPnl;
 	
-	// Selected past of the .mgf or .dat File
+	/**
+	 * Selected past of the .mgf or .dat File.
+	 */
 	private String selPath = Constants.DEFAULT_SPECTRA_PATH;
 	
-	// Selected file of the .mgf or .dat File
+	/**
+	 *  Selected file of the .mgf or .dat File
+	 */
 	private List<File> mascotSelFile = new ArrayList<File>();
 	
+	/**
+	 * Button for the user to go to the next tab.
+	 */
 	private JButton nextBtn;
+	
+	/**
+	 * Button for the user to go to the previous tab.
+	 */
 	private JButton prevBtn;
 	
+	/**
+	 * Input file reader instance.
+	 */
 	protected InputFileReader reader;
+	
+	/**
+	 * Mapping from the spectrum to the byte positions.
+	 */
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
+	
+	/**
+	 * Default filter settings. FIXME: Do advanced settings dialog for the filter settings.
+	 */
 	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
+	
+	/**
+	 * Busy booelan.
+	 */
 	private boolean busy;
+	
+	/**
+	 * List of spectrum TIC values.
+	 */
 	private ArrayList<Double> ticList = new ArrayList<Double>();
 
 	/**
@@ -172,7 +238,10 @@ public class FilePanel extends JPanel implements Busyable {
 	public FilePanel() {
 		this.initComponents();
 	}
-
+	
+	/**
+	 * Initializes the UI components.
+	 */
 	private void initComponents() {
 		final ClientFrame clientFrame = ClientFrame.getInstance();
 		
@@ -293,24 +362,24 @@ public class FilePanel extends JPanel implements Busyable {
 			}
 		};
 		
-		treeTbl = new SortableCheckBoxTreeTable(treeModel) {
+		spectrumTreeTable = new SortableCheckBoxTreeTable(treeModel) {
 			@Override
 			protected void initializeColumnWidths() {
 				TableConfig.setColumnWidths(this, new double[] { 2.5, 6.5, 1, 1, 1 });
 			}
 		};
-		treeTbl.setRootVisible(true);
-		treeTbl.getTableHeader().setReorderingAllowed(true);
-		treeTbl.setPreferredScrollableViewportSize(new Dimension(320, 200));
+		spectrumTreeTable.setRootVisible(true);
+		spectrumTreeTable.getTableHeader().setReorderingAllowed(true);
+		spectrumTreeTable.setPreferredScrollableViewportSize(new Dimension(320, 200));
 		
-		treeTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+		spectrumTreeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
 				refreshSpectrumPanel();
 			}
 		});
 		
-		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+		final CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent evt) {
@@ -344,10 +413,10 @@ public class FilePanel extends JPanel implements Busyable {
 		removePnl.add(removeBtn, BorderLayout.EAST);
 		
 		// install new tree cell editor, overlay remove button on top when highlighting file node
-		IconCheckBox editorBox = (IconCheckBox) treeTbl.getCellEditor(0, 0).getTableCellEditorComponent(
-				treeTbl, null, true, 0, 0);
+		IconCheckBox editorBox = (IconCheckBox) spectrumTreeTable.getCellEditor(0, 0).getTableCellEditorComponent(
+				spectrumTreeTable, null, true, 0, 0);
 		editorBox.add(removePnl, BorderLayout.CENTER);
-		treeTbl.setTreeCellEditor(treeTbl.new CheckBoxTreeCellEditor(editorBox) {
+		spectrumTreeTable.setTreeCellEditor(spectrumTreeTable.new CheckBoxTreeCellEditor(editorBox) {
 			@Override
 			public Component getTableCellEditorComponent(JTable table,
 					Object value, boolean isSelected, int row, int column) {
@@ -367,27 +436,27 @@ public class FilePanel extends JPanel implements Busyable {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// check whether the clicked file node is the last remaining one
-				if (((TreeNode) treeTbl.getTreeTableModel().getRoot()).getChildCount() == 1) {
+				if (((TreeNode) spectrumTreeTable.getTreeTableModel().getRoot()).getChildCount() == 1) {
 					// let clear button action handle the rest
 					clearBtn.doClick();
 				} else {
 					// get coordinates of button and convert them to table coordinates
 					Point point = SwingUtilities.convertPoint(
-							(Component) evt.getSource(), new Point(), treeTbl);
+							(Component) evt.getSource(), new Point(), spectrumTreeTable);
 					// determine tree path of cell containing the button
-					TreePath path = treeTbl.getPathForLocation(point.x, point.y);
+					TreePath path = spectrumTreeTable.getPathForLocation(point.x, point.y);
 
-					treeTbl.collapsePath(path);
+					spectrumTreeTable.collapsePath(path);
 
 					// determine table row of cell containing the button
-					int row = treeTbl.getRowForPath(path);
-					if (row == treeTbl.getSelectedRow()) {
+					int row = spectrumTreeTable.getRowForPath(path);
+					if (row == spectrumTreeTable.getSelectedRow()) {
 						// select next row if clicked row was selected
-						treeTbl.getSelectionModel().setSelectionInterval(row + 1, row + 1);
+						spectrumTreeTable.getSelectionModel().setSelectionInterval(row + 1, row + 1);
 					}
 					MutableTreeTableNode node = (MutableTreeTableNode) path.getLastPathComponent();
 
-					CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+					CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
 
 					// remove TICs from cache, count selected children
 					int childCount = node.getChildCount();
@@ -419,7 +488,7 @@ public class FilePanel extends JPanel implements Busyable {
 					}
 
 					// forcibly end editing mode
-					TableCellEditor editor = treeTbl.getCellEditor();
+					TableCellEditor editor = spectrumTreeTable.getCellEditor();
 					if (editor != null) {
 						editor.cancelCellEditing();
 					}
@@ -428,10 +497,10 @@ public class FilePanel extends JPanel implements Busyable {
 		});
 		
 		// modify column control button appearance
-		TableConfig.configureColumnControl(treeTbl);
+		TableConfig.configureColumnControl(spectrumTreeTable);
 		
 		// wrap tree table in scroll pane
-		JScrollPane treeScpn = new JScrollPane(treeTbl);
+		JScrollPane treeScpn = new JScrollPane(spectrumTreeTable);
 		
 		// add components to top panel
 		topPnl.add(buttonPnl, CC.xy(2, 2));
@@ -529,10 +598,10 @@ public class FilePanel extends JPanel implements Busyable {
 		settingsPnl = new SettingsPanel();
 		btmPnl.add(settingsPnl, CC.xy(3, 1));
 		
-		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, topTtlPnl, btmPnl);
-		split.setBorder(null);
-		split.setDividerSize(10);
-		((BasicSplitPaneUI) split.getUI()).getDivider().setBorder(null);
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, topTtlPnl, btmPnl);
+		splitPane.setBorder(null);
+		splitPane.setDividerSize(10);
+		((BasicSplitPaneUI) splitPane.getUI()).getDivider().setBorder(null);
 		
 		// create panel containing navigation buttons
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
@@ -544,7 +613,7 @@ public class FilePanel extends JPanel implements Busyable {
 		navPnl.add(nextBtn, CC.xy(3, 1));
 		
 		// add everything to main panel
-		this.add(split, CC.xy(2, 2));
+		this.add(splitPane, CC.xy(2, 2));
 		this.add(navPnl, CC.xy(2, 4));
 		
 		// register listeners
@@ -637,9 +706,9 @@ public class FilePanel extends JPanel implements Busyable {
 		clearBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				TableConfig.clearTable(treeTbl);
-				treeTbl.getRowSorter().allRowsChanged();
-				treeTbl.getCheckBoxTreeSelectionModel().clearSelection();
+				TableConfig.clearTable(spectrumTreeTable);
+				spectrumTreeTable.getRowSorter().allRowsChanged();
+				spectrumTreeTable.getCheckBoxTreeSelectionModel().clearSelection();
 				
 				// reset text field
 				filesTtf.clear();
@@ -703,7 +772,7 @@ public class FilePanel extends JPanel implements Busyable {
 	 */
 	protected void refreshSpectrumPanel() {
 		try {
-			TreePath path = treeTbl.getPathForRow(treeTbl.getSelectedRow());
+			TreePath path = spectrumTreeTable.getPathForRow(spectrumTreeTable.getSelectedRow());
 			if (path != null) {
 				CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) path.getLastPathComponent();
 				SpectrumPanel specPnl = null;
@@ -855,8 +924,8 @@ public class FilePanel extends JPanel implements Busyable {
 	 * @return
 	 */
 	public boolean hasFiles() {
-		if (treeTbl != null) {
-			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
+		if (spectrumTreeTable != null) {
+			TreeTableNode root = (TreeTableNode) spectrumTreeTable.getTreeTableModel().getRoot();
 			return (root.getChildCount() > 0);
 		}
 		return false;
@@ -867,7 +936,7 @@ public class FilePanel extends JPanel implements Busyable {
 	 * @return The panel's SpectrumTree.
 	 */
 	public CheckBoxTreeTable getCheckBoxTree() {
-		return treeTbl;
+		return spectrumTreeTable;
 	}
 	
 	public SettingsPanel getSettingsPanel() {
@@ -880,7 +949,7 @@ public class FilePanel extends JPanel implements Busyable {
 		ClientFrame clientFrame = ClientFrame.getInstance();
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		clientFrame.setCursor(cursor);
-		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
+		if (splitPane.getCursor().getType() == Cursor.WAIT_CURSOR) splitPane.setCursor(null);
 		
 		JTabbedPane pane = clientFrame.getTabbedPane();
 		if (tabEnabled == null) {
@@ -904,7 +973,7 @@ public class FilePanel extends JPanel implements Busyable {
 		if (busy) {
 			clearBtn.setEnabled(false);
 		} else {
-			CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) ((DefaultTreeTableModel) treeTbl.getTreeTableModel()).getRoot();
+			CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) ((DefaultTreeTableModel) spectrumTreeTable.getTreeTableModel()).getRoot();
 			clearBtn.setEnabled(treeRoot.getChildCount() > 0);
 		}
 		prevBtn.setEnabled(!busy);
@@ -951,9 +1020,9 @@ public class FilePanel extends JPanel implements Busyable {
 				
 				final Client client = Client.getInstance();
 				
-				DefaultTreeTableModel treeModel = (DefaultTreeTableModel) treeTbl.getTreeTableModel();
+				DefaultTreeTableModel treeModel = (DefaultTreeTableModel) spectrumTreeTable.getTreeTableModel();
 				CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) treeModel.getRoot();
-				CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+				CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
 	
 				long totalSize = 0L;
 				for (File file : files) {
@@ -1144,7 +1213,7 @@ public class FilePanel extends JPanel implements Busyable {
 					}
 					
 					// expand tree table root
-					treeTbl.expandRow(0);
+					spectrumTreeTable.expandRow(0);
 					
 					// stop appearing busy
 					FilePanel.this.setBusy(false);

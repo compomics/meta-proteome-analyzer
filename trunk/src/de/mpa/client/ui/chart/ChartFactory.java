@@ -48,24 +48,4 @@ public class ChartFactory {
 	public static TaxonomyChart createTaxonomyChart(ChartData data, ChartType chartType) {
 		return new TaxonomyChart(data, chartType);
 	}
-	
-	/**
-	 * Returns a bar chart displaying the top number of proteins.
-	 * @param data Chart data
-	 * @param chartType Chart type
-	 * @return a top bar chart
-	 */
-	public static TopBarChart createTopBarChart(ChartData data, ChartType chartType) {
-		return new TopBarChart(data, chartType);
-	}
-
-	/**
-	 * Returns a total ion current histogram of identified and non-identified spectra.
-	 * @param data Chart data
-	 * @param chartType Chart type
-	 * @return a histogram chart
-	 */
-	public static Chart createHistogramChart(ChartData data, ChartType chartType) {
-		return new HistogramChart(data, chartType);
-	}
 }

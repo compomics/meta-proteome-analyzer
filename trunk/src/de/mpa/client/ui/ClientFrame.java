@@ -446,7 +446,7 @@ public class ClientFrame extends JFrame {
 	 * @return The de novo similarity search result panel.
 	 */
 	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
-		return getResultsPanel().getDeNovoSearchResultPanel();
+		return getResultsPanel().getGraphDatabaseResultPanel();
 	}
 	
 	/**
