@@ -348,6 +348,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the emPAI
 	 */
 	public double getEmPAI() {
+//		empai = 0.0;
 		if (empai < 0.0) {
 			empai = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
 		}
