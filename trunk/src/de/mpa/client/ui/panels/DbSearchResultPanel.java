@@ -3606,7 +3606,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 			// Iterate peptide hit list to fill table
 			DefaultTableModel peptideTblMdl = (DefaultTableModel) peptideTbl.getModel();
-			int row = 0, maxProtCount = 0, maxSpecCount = 0;
+			int row = 1, maxProtCount = 0, maxSpecCount = 0;
 			for (PeptideHit peptideHit : peptideHits) {
 				
 				// Determine maximum spectral count
@@ -3629,6 +3629,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						specCount,
 						taxonName
 				});
+				row++;
 			}
 
 			// Update table highlighters
