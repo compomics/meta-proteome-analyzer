@@ -14,6 +14,8 @@ import java.util.List;
 import de.mpa.algorithms.Interval;
 
 public class Searchspectrum extends SearchspectrumTableAccessor {
+	
+	
     /**
      * Calls the super class.
      * @param params
@@ -42,7 +44,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
     public static Searchspectrum findFromSearchSpectrumID(long searchspectrumid, Connection conn) throws SQLException {
     	 Searchspectrum temp = null;
          PreparedStatement ps = conn.prepareStatement(Searchspectrum.getBasicSelect() +
-         		" WHERE searchspectrumid = ? ORDER BY creationdate");
+         		" WHERE searchspectrumid = ?");
          ps.setLong(1, searchspectrumid);
          ResultSet rs = ps.executeQuery();
          while (rs.next()) {

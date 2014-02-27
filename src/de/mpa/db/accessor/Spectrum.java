@@ -92,7 +92,7 @@ public class Spectrum extends SpectrumTableAccessor {
     public static Spectrum findFromSpectrumID(long spectrumid, Connection conn) throws SQLException{
     	Spectrum temp = null;
          PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
-         		" WHERE spectrumid = ? ORDER BY creationdate");
+         		" WHERE spectrumid = ?");
          ps.setLong(1, spectrumid);
          ResultSet rs = ps.executeQuery();
          while (rs.next()) {

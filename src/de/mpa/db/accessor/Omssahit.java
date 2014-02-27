@@ -11,6 +11,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 
 public class Omssahit extends OmssahitTableAccessor implements SearchHit{
 	
+	private static final long serialVersionUID = 1L;
 	private String sequence;
 	private String accession;
 	
@@ -99,6 +100,6 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
 	
 	@Override
 	public double getScore() {		
-		return iPvalue.doubleValue();
+		return iEvalue.doubleValue();
 	}
 }
