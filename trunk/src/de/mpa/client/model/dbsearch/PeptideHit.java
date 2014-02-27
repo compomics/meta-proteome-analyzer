@@ -318,11 +318,6 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		}
 		return false;
 	}
-	
-	@Override
-	public int hashCode() {
-		return this.getSequence().hashCode();
-	}
 
 	/**
 	 * Function to use as TreeSet
