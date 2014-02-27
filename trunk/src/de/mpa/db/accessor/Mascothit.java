@@ -15,7 +15,9 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
  * @author F. Kohrs and R. Heyer
  */
 public class Mascothit extends MascothitTableAccessor implements SearchHit {
-
+	
+	private static final long serialVersionUID = 1L;
+	
 	// The AS sequence of the search hit
 	private String sequence;
 	
@@ -139,8 +141,7 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
 
 	@Override
 	public Number getQvalue() {
-		// FIXME: This must not be NULL.
-		// FIXME: Neither should this be zero.
+		// Mascot has not q-value calculation => Default q-value is set to 0.
 		return 0.0;
 	}
 	

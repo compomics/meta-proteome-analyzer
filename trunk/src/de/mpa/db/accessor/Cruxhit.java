@@ -12,6 +12,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 
 public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 	
+	private static final long serialVersionUID = 1L;
 	private String sequence;
 	private String accession;
 	private long proteinid;
@@ -113,6 +114,5 @@ public class Cruxhit extends CruxhitTableAccessor implements SearchHit {
 		}
 		return false;
 	}
-
 
 }

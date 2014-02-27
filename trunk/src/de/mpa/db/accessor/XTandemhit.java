@@ -10,6 +10,8 @@ import java.util.List;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 
 public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
+	
+	private static final long serialVersionUID = 1L;
 	private String sequence = null;
 	private String accession = null;
 	
