@@ -44,16 +44,13 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -91,11 +88,11 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.ProjectContent;
-import de.mpa.client.settings.FilterSettings;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
+import de.mpa.client.settings.SpectrumFilterParameters;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -213,11 +210,6 @@ public class FilePanel extends JPanel implements Busyable {
 	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
 	
 	/**
-	 * Default filter settings. FIXME: Do advanced settings dialog for the filter settings.
-	 */
-	private FilterSettings filterSet = new FilterSettings(5, 100.0, 1.0, 2.5);
-	
-	/**
 	 * Busy booelan.
 	 */
 	private boolean busy;
@@ -231,6 +223,11 @@ public class FilePanel extends JPanel implements Busyable {
 	 * Holds the previous enable states of the client frame's tabs.
 	 */
 	private boolean[] tabEnabled;
+	
+	/**
+	 * Spectrum filter parameters.
+	 */
+	private ParameterMap filterParams = new SpectrumFilterParameters(); 
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
@@ -256,52 +253,14 @@ public class FilePanel extends JPanel implements Busyable {
 		// Textfield displaying amount of selected files
 		filesTtf = new FileTextField();
 		
-		// panel containing filter settings
-		final JPanel filterPnl = new JPanel(new FormLayout("p, 5dlu, p:g, 5dlu, p", "p, 5dlu, p, 5dlu, p, 5dlu, p"));
-		
-		// init filter popup panel components
-		final JSpinner minPeaksSpn = new JSpinner(new SpinnerNumberModel(filterSet.getMinPeaks(), 0, null, 1));
-		final JSpinner minTICspn = new JSpinner(new SpinnerNumberModel(filterSet.getMinTIC(), 0.0, null, 1.0));
-		minTICspn.setEditor(new JSpinner.NumberEditor(minTICspn, "0.0"));
-		final JSpinner minSNRspn = new JSpinner(new SpinnerNumberModel(filterSet.getMinSNR(), 0.0, null, 0.1));
-		minSNRspn.setEditor(new JSpinner.NumberEditor(minSNRspn, "0.0"));
-		final JSpinner noiseLvlSpn = new JSpinner(new SpinnerNumberModel(filterSet.getNoiseLvl(), 0.0, null, 0.1));
-		noiseLvlSpn.setEditor(new JSpinner.NumberEditor(noiseLvlSpn, "0.0"));
-		JButton noiseEstBtn = new JButton("Estimate...");
-		noiseEstBtn.setToolTipText("Not yet implemented");
-		noiseEstBtn.setEnabled(false);
-
-		// add filter panel components
-		filterPnl.add(new JLabel("min. significant peaks"), CC.xyw(1, 1, 3));
-		filterPnl.add(minPeaksSpn, CC.xy(5, 1));
-		filterPnl.add(new JLabel("min. total ion current"), CC.xyw(1, 3, 3));
-		filterPnl.add(minTICspn, CC.xy(5, 3));
-		filterPnl.add(new JLabel("min. signal/noise ratio"), CC.xyw(1, 5, 3));
-		filterPnl.add(minSNRspn, CC.xy(5, 5));
-		filterPnl.add(new JLabel("noise level"), CC.xy(1, 7));
-		filterPnl.add(noiseLvlSpn, CC.xy(3, 7));
-		filterPnl.add(noiseEstBtn, CC.xy(5, 7));
-		
 		// button to display filter settings panel
 		filterBtn = new JButton("Filter settings...");
 		filterBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				int res = JOptionPane.showConfirmDialog(clientFrame, filterPnl, "Filter Settings", 
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.PLAIN_MESSAGE);
-				if (res == JOptionPane.OK_OPTION) {
-					// update settings
-					filterSet = new FilterSettings((Integer) minPeaksSpn.getValue(),
-							(Double) minTICspn.getValue(),
-							(Double) minSNRspn.getValue(),
-							(Double) noiseLvlSpn.getValue());
-				} else {	// cancel option or window close option
-					// revert to old settings
-					minPeaksSpn.setValue(filterSet.getMinPeaks());
-					minTICspn.setValue(filterSet.getMinTIC());
-					minSNRspn.setValue(filterSet.getMinSNR());
-					noiseLvlSpn.setValue(filterSet.getNoiseLvl());
+			public void actionPerformed(ActionEvent evt) {
+				int res = AdvancedSettingsDialog.showDialog(clientFrame, "Filter Settings", true, filterParams);
+				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
+
 				}
 			}
 		});
@@ -715,6 +674,7 @@ public class FilePanel extends JPanel implements Busyable {
 				
 				// reset plots
 				Container specCont = specPnl.getParent();
+				// FIXME: NPE thrown here!
 				specCont.removeAll();
 				specCont.add(createDefaultSpectrumPanel(), CC.xy(2, 2));
 				specCont.validate();
@@ -727,8 +687,6 @@ public class FilePanel extends JPanel implements Busyable {
 				cont.add(histPnl, CC.xy(2, 2));
 				cont.validate();
 				
-				// clear caches
-//				totalSpectraList.clear();
 				ticList.clear();
 				specPosMap.clear();
 				
@@ -736,7 +694,6 @@ public class FilePanel extends JPanel implements Busyable {
 				
 				// reset navigation button and search settings tab
 				nextBtn.setEnabled(false);
-//				ClientFrame.getInstance().getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, false);
 			}
 		});
 	}
@@ -1116,9 +1073,6 @@ public class FilePanel extends JPanel implements Busyable {
 						int index = 1;
 						List<TreePath> toBeAdded = new ArrayList<TreePath>();
 						for (int j = 0; j < positions.size(); j++) {
-	//							long startPos = positions.get(j);
-	//							long endPos = (j == (positions.size() - 1)) ? file.length() : positions.get(j + 1);
-							
 							MascotGenericFile mgf = reader.loadSpectrum(index - 1);
 							
 							Long spectrumID = mgf.getSpectrumID();
@@ -1131,29 +1085,30 @@ public class FilePanel extends JPanel implements Busyable {
 	
 							// examine spectrum regarding filter criteria
 							int numPeaks = 0;
+							double noiseLvl = (Double) filterParams.get("noiselvl").getValue();
 							for (double intensity : mgf.getPeaks().values()) {
-								if (intensity > filterSet.getNoiseLvl()) {
+								if (intensity > noiseLvl) {
 									numPeaks++;
 								}
 							}
 							double TIC = mgf.getTotalIntensity();
-							double SNR = mgf.getSNR(filterSet.getNoiseLvl());
+							double SNR = mgf.getSNR(noiseLvl);
 	
 							// append new spectrum node to file node
 							SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
 									index, mgf.getTitle(), numPeaks, TIC, SNR) {
 								public String toString() {
 									return "Spectrum " + super.toString();
-	//									return getParent().toString() + " " + super.toString();
 								}
 							};
-	//							treeModel.insertNodeInto(spectrumNode, fileNode, fileNode.getChildCount());
 							fileNode.add(spectrumNode);
+							
+							// Get the minimum of signifikant peaks from the filter parameters.
+							Integer[] minPeaks = (Integer[]) filterParams.get("minpeaks").getValue(); 
+							Integer[] minTIC = (Integer[]) filterParams.get("mintic").getValue();
+							double minSNR = (Double) filterParams.get("minsnr").getValue();
 	
-							if ((numPeaks > filterSet.getMinPeaks()) &&
-									(TIC > filterSet.getMinTIC()) &&
-									(SNR > filterSet.getMinSNR())) {
-	//								toBeAdded.add(spectrumNode.getPath());
+							if ((numPeaks >= minPeaks[0]) && (TIC >= minTIC[0]) && (SNR >= minSNR)) {
 								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 							}
 							index++;
@@ -1170,11 +1125,8 @@ public class FilePanel extends JPanel implements Busyable {
 							cbtsm.removeSelectionPath(fileNode.getPath());
 							// reselect spectrum nodes that meet filter criteria
 							cbtsm.addSelectionPaths(toBeAdded);
-	//							treeTbl.getRowSorter().allRowsChanged();
 						}
-						
 						client.firePropertyChange("indeterminate", true, false);
-						
 					} catch (Exception e) {
 						JXErrorPane.showDialog(ClientFrame.getInstance(),
 								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));

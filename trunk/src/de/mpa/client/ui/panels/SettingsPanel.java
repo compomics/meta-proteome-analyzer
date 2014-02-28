@@ -34,7 +34,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
-import de.mpa.client.DenovoSearchSettings;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -46,9 +45,7 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 
-// TODO: maybe merge with DatabaseSearchSettingsPanel
 public class SettingsPanel extends JPanel {
-
 	/**
 	 * Database search settings panel.
 	 */
@@ -59,16 +56,13 @@ public class SettingsPanel extends JPanel {
 	 */
 	private SpectralLibrarySettingsPanel specLibPnl;
 	
-	private DeNovoSearchSettingsPanel deNovoPnl;
-
+	/**
+	 * Processing button.
+	 */
 	private JButton processBtn;
 	
 	public SettingsPanel() {
 		initComponents();
-		
-		// init dummy de novo panel
-		deNovoPnl = new DeNovoSearchSettingsPanel();
-		deNovoPnl.setEnabled(false);
 	}
 
 	/**
@@ -76,13 +70,10 @@ public class SettingsPanel extends JPanel {
 	 */
 	private void initComponents() {
 		
-		Set<AWTKeyStroke> forwardKeys = getFocusTraversalKeys(
-				KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
+		Set<AWTKeyStroke> forwardKeys = getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
 		Set<AWTKeyStroke> newForwardKeys = new HashSet<AWTKeyStroke>(forwardKeys);
 		newForwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
-		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
-				newForwardKeys);
-
+		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
 		this.setLayout(new BorderLayout());
 				
 		// database search settings panel
@@ -118,24 +109,18 @@ public class SettingsPanel extends JPanel {
 		processBtn = new JButton("Start searching", processIcon);
 		processBtn.setEnabled(false);
 		
-//		processBtn.setHorizontalAlignment(SwingConstants.LEFT);
-		processBtn.setFont(processBtn.getFont().deriveFont(
-				Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
+		processBtn.setFont(processBtn.getFont().deriveFont(Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
 
 		processBtn.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {
 				new ProcessWorker().execute();
 			}
 		});
-
 		buttonPnl.add(quickBtn, CC.xy(2, 2));
 		buttonPnl.add(processBtn, CC.xy(4, 2));
-		
 		settingsPnl.add(databasePnl, CC.xy(1, 1));
 		settingsPnl.add(buttonPnl, CC.xy(1, 3));
-		
 		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel("Search Settings", settingsPnl);
-		
 		this.add(dbTtlPnl, BorderLayout.CENTER);
 	}
 
@@ -160,20 +145,17 @@ public class SettingsPanel extends JPanel {
 				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				
 				try {
-					// pack and send files
+					// Pack and send files.
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 					long packSize = databasePnl.getPackageSize();
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 					List<String> filenames = null;
-					// collect search settings
+					// Collect search settings.
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-					DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
-					
-					SearchSettings settings = new SearchSettings(dbss, sss, dnss, experimentID);
+					SearchSettings settings = new SearchSettings(dbss, sss, null, experimentID);
 					
 					// FIXME: Please change that and get files from file tree.
-
 					if (dbss.isMascot()) {
 						List<File> datFiles = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();
 						client.firePropertyChange("resetall", 0, datFiles.size());
@@ -195,7 +177,6 @@ public class SettingsPanel extends JPanel {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 				return 0;
 			} else {
 				JOptionPane.showMessageDialog(ClientFrame.getInstance(), "No experiment selected.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -275,17 +256,12 @@ public class SettingsPanel extends JPanel {
 			// collect search settings
 			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-			DenovoSearchSettings dnss = (deNovoPnl.isEnabled()) ? deNovoPnl.collectDenovoSettings() : null;
-			
-			SearchSettings settings = new SearchSettings(dbss, sss, dnss, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
-			
+			SearchSettings settings = new SearchSettings(dbss, sss, null, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 			// dispatch search request
 			client.runSearches(filenames, settings);
-			
 			return null;
 		}
-		
 	}
 
 	/**
@@ -303,6 +279,4 @@ public class SettingsPanel extends JPanel {
 	public DatabaseSearchSettingsPanel getDatabaseSearchSettingsPanel() {
 		return databasePnl;
 	}
-
-	
 }

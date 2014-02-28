@@ -1274,12 +1274,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		pdbMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(pdbMenuItem);
 		
-		// TODO: Searching by protein accession does not work anymore in Pride: is there any other existing solution for PRIDE?
-//		JMenuItem prideMenuItem = new JMenuItem("PRIDE", IconConstants.WEB_PRIDE_ICON);
-//		prideMenuItem.putClientProperty("url", "http://www.ebi.ac.uk/pride/identification.do?proteinIdentifier=" + accession);
-//		prideMenuItem.addActionListener(popupMenuItemEventListener);
-//		webresourceMenu.add(prideMenuItem);
-		
 		JMenuItem reactomeMenuItem = new JMenuItem("Reactome", IconConstants.WEB_REACTOME_ICON);
 		reactomeMenuItem.putClientProperty("url", "http://www.reactome.org/cgi-bin/search2?DB=test_reactome_46&SPECIES=&OPERATOR=ALL&QUERY=" + accession);
 		reactomeMenuItem.addActionListener(popupMenuItemEventListener);
@@ -2224,13 +2218,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		}
 	}
-
-	/**
-	 * Synchronizes checkbox selections of all tree tables.
-	 */
-	private void synchSelection() {
-		this.synchSelection(null);
-	}
 	
 	/**
 	 * Synchronizes checkbox selections of all tree tables based on the
@@ -2974,7 +2961,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					double limit = (Double) value;
 					ontologyData.setMinorGroupingLimit(limit);
 					taxonomyData.setMinorGroupingLimit(limit);
-					
 					updateChart();
 				} else if ("selection".equals(property)) {
 					// TODO: find some use for selecting items here or remove functionality altogether
@@ -3649,9 +3635,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * TODO: API
-	 * @param coverageMap
-	 * @return
+	 * This method creates the protein coverage panels.
+	 * @param coverageMap protein coverage map
+	 * @param List of coverage intervals
+	 * @return list of coverage panels
 	 */
 	private List<JPanel> createCoveragePanels(Map<ProteinHit, List<Interval>> coverageMap) {
 		List<JPanel> panels = new ArrayList<JPanel>();
@@ -3665,9 +3652,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * TODO: API
-	 * @param protSeq
-	 * @param peptideIntervals
+	 * Creates a protein coverage panel for each protein hit.
+	 * @param proteinHit Protein hit
+	 * @param peptideIntervals List of peptide intervals
+	 * @return the protein coverage panel
 	 */
 	private JPanel createCoveragePanel(ProteinHit proteinHit, List<Interval> peptideIntervals) {
 		
@@ -3812,7 +3800,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						case INSPECT:
 							qValues[3] = 1.0 - searchHit.getQvalue().doubleValue(); break;
 						case MASCOT:
-							qValues[4] = 0.95; break; // TODO Robbie Find Qvalue for MASCOT
+							qValues[4] = 0.95; break; // q-value does not exist for mascot - hard-coding as FDR calculation is done when loading the MASCOT results into the application.
 						}
 					}
 					maxVotes = Math.max(maxVotes, psm.getVotes());
@@ -3853,9 +3841,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (psmRow != -1) {
 					// clear the spectrum panel
 					Container specCont = specPnl.getParent();
-//					while (specCont.getComponents().length > 0) {
-//						specCont.remove(0);
-//		            }
 					specCont.removeAll();
 					// get the list of spectrum matches
 					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
@@ -4083,13 +4068,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		return filteredAnnotations;
 	}
 
-//	/**
-//	 * This method sets the enabled state of the get results button.
-//	 */
-//	public void setResultsFromDbButtonEnabled(boolean enabled) {
-//		getResultsFromDbBtn.setEnabled(enabled);
-//	}
-
 	@Override
 	public boolean isBusy() {
 		// we don't need this (yet)
@@ -4098,7 +4076,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 	@Override
 	public void setBusy(boolean busy) {
-//		this.busy = busy;
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		clientFrame.setCursor(cursor);
 		split.setCursor(cursor);

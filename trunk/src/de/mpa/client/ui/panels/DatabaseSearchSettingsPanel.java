@@ -297,6 +297,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		specLibSetBtn.setEnabled(false);
+		specLibChk.setEnabled(false);
 		specLibChk.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -316,8 +317,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
 		searchEngPnl.add(mascotChk, CC.xy(2, 10));
 		searchEngPnl.add(mascotSetBtn, CC.xy(4, 10));
-		searchEngPnl.add(specLibChk, CC.xy(2, 12));
-		searchEngPnl.add(specLibSetBtn, CC.xy(4, 12));
+//		searchEngPnl.add(specLibChk, CC.xy(2, 12));
+//		searchEngPnl.add(specLibSetBtn, CC.xy(4, 12));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, CC.xy(2, 2));

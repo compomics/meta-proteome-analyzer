@@ -242,7 +242,7 @@ public class ProjectPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				ClientFrame clientFrame = ClientFrame.getInstance();
 				JTabbedPane tabPane = clientFrame.getTabbedPane();
-				tabPane.setSelectedIndex(ClientFrame.RESULTS_PANEL);
+				tabPane.setSelectedIndex(ClientFrame.INDEX_RESULTS_PANEL);
 			}
 		});
 
@@ -674,11 +674,11 @@ public class ProjectPanel extends JPanel {
 		// Disable result view buttons
 		// TODO: remove buttons, handle via results tab enable/busy state
 //		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(false);
-		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
+//		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(false);
 		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(false);
 		
 		// Disable input, setting and results tabs
-		for (int i = ClientFrame.INPUT_PANEL; i < ClientFrame.LOGGING_PANEL; i++) {
+		for (int i = ClientFrame.INDEX_INPUT_PANEL; i < ClientFrame.INDEX_LOGGING_PANEL; i++) {
 			clientFrame.getTabbedPane().setEnabledAt(i, false);
 		}
 		
@@ -708,7 +708,7 @@ public class ProjectPanel extends JPanel {
 		// Enable result view buttons
 		// TODO: remove buttons, handle via results tab enable/busy state
 //		clientFrame.getDbSearchResultPanel().setResultsFromDbButtonEnabled(true);
-		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(true);
+//		clientFrame.getSpectralSimilarityResultPanel().setResultsButtonEnabled(true);
 		clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 		
 		// Clear any fetched results
@@ -720,10 +720,8 @@ public class ProjectPanel extends JPanel {
 				expCont.getExperimentID(), Client.getInstance().getDatabaseConnection());
 		
 		// Enable input and results tabs
-		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.INPUT_PANEL, true);
-//		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, clientFrame.getFilePanel().hasFiles());
-		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.RESULTS_PANEL, hasResults);
-		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.SPECTRUM_RESULT_PANEL, hasResults);
+		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.INDEX_INPUT_PANEL, true);
+		clientFrame.getTabbedPane().setEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, hasResults);
 		
 		// Enable navigation buttons
 		skipBtn.setEnabled(hasResults);

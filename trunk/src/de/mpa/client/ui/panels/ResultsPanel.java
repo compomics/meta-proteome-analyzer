@@ -118,7 +118,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The spectral similarity results sub-panel.
 	 */
-	private SpecSimResultPanel ssPnl;
+//	private SpecSimResultPanel ssPnl;
 
 	/**
 	 * The graph database sub-panel.
@@ -128,7 +128,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The result comparison sub-panel.
 	 */
-	private ComparePanel compPnl;
+//	private ComparePanel compPnl;
 
 	/**
 	 * The split pane layout of the overview panel.
@@ -246,9 +246,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 */
 	public ResultsPanel() {
 		this.dbPnl = new DbSearchResultPanel();
-		this.ssPnl = new SpecSimResultPanel();
+//		this.ssPnl = new SpecSimResultPanel();
 		this.gdbPnl = new GraphDatabaseResultPanel();
-		this.compPnl = new ComparePanel();
+//		this.compPnl = new ComparePanel();
 		initComponents();
 	}
 
@@ -291,13 +291,13 @@ public class ResultsPanel extends JPanel implements Busyable {
 		resultsTpn.addTab("Database Search Results",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_search32.png")),
 				dbPnl);
-		resultsTpn.addTab("Spectral Similarity Results",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/spectral_search32.png")),
-				ssPnl);
+//		resultsTpn.addTab("Spectral Similarity Results",
+//				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/spectral_search32.png")),
+//				ssPnl);
 		resultsTpn.addTab("Graph Database Results",
 				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/graph32.png")),
 				gdbPnl);
-		resultsTpn.addTab("Compare Results", IconConstants.COMPARE_ICON, compPnl);
+//		resultsTpn.addTab("Compare Results", IconConstants.COMPARE_ICON, compPnl);
 		
 		// force tab heights by setting size of first tab component
 		Component tabComp = resultsTpn.getTabComponentAt(0);
@@ -305,7 +305,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				tabComp.getPreferredSize().width, 40));
 
 		// initially disable all but the overview tab
-		for (int i = 1; i < 4; i++) {
+		for (int i = 1; i < 3; i++) {
 			resultsTpn.setEnabledAt(i, false);
 		}
 
@@ -993,9 +993,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Returns the spectral similarity search result panel.
 	 * @return the spectral similarity search result panel
 	 */
-	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
-		return ssPnl;
-	}
+//	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
+//		return ssPnl;
+//	}
 
 	/**
 	 * Returns the graph database result panel.
