@@ -38,8 +38,14 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.DbConnectionSettings;
 
 public class ClientFrameMenuBar extends JMenuBar {
-	
+	/**
+	 * Client frame instance.
+	 */
 	private ClientFrame clientFrame;
+	
+	/**
+	 * Client instance.
+	 */
 	private Client client;
 	private JTextField srvHostTtf;
 	private JTextField srvPortTtf;
@@ -52,15 +58,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JLabel dbConnTestLbl;
 	private JPanel dbPnl;
 	private JMenuItem exportCSVResultsItem;
-//	private JMenuItem keggItem;
 	private JMenuItem saveProjectItem;
+	private JMenuItem exportGraphMLItem;
+	
+	/**
+	 * Server connection settings.
+	 */
 	private ServerConnectionSettings srvSettings;
 	
 	/**
 	 * Class containing all values for the export checkboxes.
 	 */
 	private ExportFields exportFields;
-	private JMenuItem exportGraphMLItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -164,7 +173,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		settingsMenu.addSeparator();
 		settingsMenu.add(databaseItem);
 		settingsMenu.add(serverItem);
-		
 
 		// Export menu
 		JMenu exportMenu = new JMenu();
@@ -414,7 +422,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent evt) {
 				try {
 					client.connect();
-					clientFrame.setConnectedToServer(true);
+					clientFrame.setServerConnection(true);
 					clientFrame.getFilePanel().getSettingsPanel().getProcessButton().setEnabled(true);
 					JOptionPane.showMessageDialog(clientFrame, "Web Service @" + srvHostTtf.getText() + ":" + srvPortTtf.getText() + " established.");
 				} catch (Exception e) {

@@ -41,7 +41,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.9";
+	public final static String VER_NUMBER = "0.9.1";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -61,12 +61,7 @@ public class Constants {
 	/**
 	 * The names of FASTA database files available for searches.
 	 */
-	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "P1_target"};
-	
-	/**
-	 * The names of cleaving enzymes available for de novo searches.
-	 */
-	public static final String[] DN_ENZYMES = { "Trypsin", "Unspecific" };
+	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "P23_target"};
 	
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter after GET).
@@ -85,15 +80,6 @@ public class Constants {
 														"Biological Process", 
 														"Molecular Function", 
 														"Cellullar Component"};
-	
-	/**
-	 * The names of fragmentation models available to the PepNovo+ algorithm.
-	 */
-	public static final String[] DN_MODELS = { "CID_IT_TRYP",
-			"CID_IT_TRYP_CSP", "CID_IT_TRYP_DB", "CID_IT_TRYP_DNVPART",
-			"CID_IT_TRYP_SCORE", "CID_IT_TRYP_TAG3", "CID_IT_TRYP_TAG4",
-			"CID_IT_TRYP_TAG5", "CID_IT_TRYP_TAG6", "DBC4_PEAK", "ITDNV_PEAK",
-			"LTQ_COMP" };
 
 	/**
 	 * An MGF file that is empty save for two peaks which serve to auto-generate
@@ -145,9 +131,6 @@ public class Constants {
 	 */
 	public static final String DB_CONNECTION_SETTINGS_FILEPATH = "password/DbConnectionSettings.txt";
 	
-
-//	public static final TreeNode KEGG_TAXONOMY_ROOT = KeggMaps.readKeggTree(new File("conf/keggTaxonomyMap.txt"));
-
 	/**
 	 * Returns the names of the nodes contained in the path from the KEGG
 	 * pathway root to the leaf identified by the provided pathway ID.

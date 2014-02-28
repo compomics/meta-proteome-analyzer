@@ -21,6 +21,9 @@ import de.mpa.client.ui.panels.ComparePanel.CompareData;
  */
 public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonomic, Hit {
 	
+	/**
+	 * Serialization ID.
+	 */
 	private static final long serialVersionUID = 1L;
 	
 	/**
@@ -54,7 +57,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	private List<SpectrumMatch> spectrumMatches;
 
 	/**
-	 * TODO: API
+	 * Visible spectrum matches for this peptide hit.
 	 */
 	private List<SpectrumMatch> visSpectrumMatches;
 
@@ -271,8 +274,8 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	}
 	
 	/**
-	 * TODO: API
-	 * @param fdr
+	 * Sets the false discovery rate. 
+	 * @param fdr talse discovery rate
 	 */
 	@Override
 	public void setFDR(double fdr) {
@@ -317,6 +320,12 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 			return getSequence().equals(((PeptideHit) obj).getSequence());
 		}
 		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		if (this.getSequence() == null) return super.hashCode();
+		else return this.getSequence().hashCode();
 	}
 
 	/**

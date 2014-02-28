@@ -10,24 +10,23 @@ import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 
 import de.mpa.analysis.KeggMaps;
-import de.mpa.analysis.taxonomy.NcbiTaxonomy;
 import de.mpa.client.ui.SortableTreeNode;
 import de.mpa.io.parser.ec.ECEntry;
 import de.mpa.io.parser.ec.ECReader;
 
 /**
- * This class initialize the parameters
+ * This class initializes the parameters.
  * @author heyer
  */
 public class Parameters {
 
 	/**
-	 * Instance
+	 * Parameters instance.
 	 */
 	public static Parameters instance;
 	
 	/**
-	 *  Map of all EC.-numbers and descriptions
+	 *  Map of all EC.-numbers and descriptions.
 	 */
 	private Map<String, ECEntry> ecMap;
 	
@@ -60,34 +59,12 @@ public class Parameters {
 	 *  Map of all Uniprot accessions and the associated peptides
 	 */
 	private Map<String, String[]> uniProtAccMap = null;
-	
-	/**
-	 * NcbiTaxonomy object. 
-	 */
-	private NcbiTaxonomy ncbiTaxonomy = null;
-	
-	/**
-	 * Method gets the NCBI taxonomy maps.
-	 * @return Ncbi tax maps.
-	 */
-	public NcbiTaxonomy getNcbiMaps() {
-		if (ncbiTaxonomy == null) {
-			try {
-				InputStream fis = getClass().getResourceAsStream("/de/mpa/resources/conf/NcbiTaxonomy");
-				ObjectInputStream ois  = new ObjectInputStream(fis);
-				ncbiTaxonomy = (NcbiTaxonomy) ois.readObject();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
-		return ncbiTaxonomy;
-	}
+
 
 	/**
 	 * Private constructor for the parameters.
 	 */
 	private Parameters() {
-		// TODO: Loading parameter dialog.
 		try {
 			initializeParameters();
 		} catch (URISyntaxException e) {
@@ -107,7 +84,7 @@ public class Parameters {
 	}
 	
 	/**
-	 * This method initialize the parameters
+	 * This method initialize the parameters,
 	 * @throws URISyntaxException 
 	 */
 	private void initializeParameters() throws URISyntaxException {
@@ -122,7 +99,7 @@ public class Parameters {
 	}
 	
 	/**
-	 * Returns the UniProt peptide map with the associated accessions
+	 * Returns the UniProt peptide map with the associated accessions.
 	 * @return Treemap of all UniProt peptides
 	 */
 	@SuppressWarnings("unchecked")

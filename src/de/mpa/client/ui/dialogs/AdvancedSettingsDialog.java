@@ -359,7 +359,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				}
 			} else {
 				// When we get here something went wrong - investigate!
-				System.out.println("UH OH " + comp.getClass());
+				System.err.println("AdvancedSettingsDialog error:" + comp.getClass());
 			}
 		}
 	}
