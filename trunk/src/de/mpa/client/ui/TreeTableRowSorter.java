@@ -187,6 +187,11 @@ public class TreeTableRowSorter<M extends TableModel> extends RowSorter<TableMod
 		return treeModel.getRowFilter();
 	}
 	
+	/**
+	 * Sets the row filter. Causes the model to re-sort if the provided filter
+	 * differs from the stored state.
+	 * @param rowFilter the new row filter to set
+	 */
 	@SuppressWarnings("unchecked")
 	public void setRowFilter(RowFilter<? super M,? super Integer> rowFilter) {
 		// force re-sort

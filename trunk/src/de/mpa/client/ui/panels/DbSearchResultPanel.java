@@ -70,6 +70,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
@@ -320,6 +321,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 	private JPanel protCardPnl;
 
+	/**
+	 * Flag indicating whether unselected checkbox tree elements shall be hidden
+	 * from view.
+	 */
+	protected boolean hideUnselected = true;
+
 //	/**
 //	 * The taxonomy model for the taxonomy filtering tree.
 //	 */
@@ -355,7 +362,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		proteinPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 
 		// Setup tables
-		chartFont = UIManager.getFont("Label.font");	// TODO: @AB maybe simple getFont() calls suffice, no need for caching the label font
+		chartFont = UIManager.getFont("Label.font");
 		setupProteinTableProperties();
 		setupPeptideTableProperties();
 		setupCoverageViewer();
@@ -391,6 +398,70 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		}
 
 		proteinPnl.add(protCardPnl, CC.xy(2, 2));
+		
+		// configure button panel of protein table titled panel header
+		JButton expandAllBtn = new JButton(IconConstants.EXPAND_ALL_ICON);
+		expandAllBtn.setRolloverIcon(IconConstants.EXPAND_ALL_ROLLOVER_ICON);
+		expandAllBtn.setPressedIcon(IconConstants.EXPAND_ALL_PRESSED_ICON);
+		expandAllBtn.setToolTipText("Expand All");
+		expandAllBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(expandAllBtn));
+		
+		expandAllBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				for (Component comp : protCardPnl.getComponents() ) {
+			        if (comp.isVisible() == true) {
+			            Component view = ((JScrollPane) comp).getViewport().getView();
+			            if (view instanceof CheckBoxTreeTable) {
+			            	((CheckBoxTreeTable) view).expandAll();
+			            }
+			            break;
+			        }
+			    }
+			}
+		});
+		
+		JButton collapseAllBtn = new JButton(IconConstants.COLLAPSE_ALL_ICON);
+		collapseAllBtn.setRolloverIcon(IconConstants.COLLAPSE_ALL_ROLLOVER_ICON);
+		collapseAllBtn.setPressedIcon(IconConstants.COLLAPSE_ALL_PRESSED_ICON);
+		collapseAllBtn.setToolTipText("Collapse All");
+		collapseAllBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(collapseAllBtn));
+		
+		collapseAllBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				for (Component comp : protCardPnl.getComponents() ) {
+			        if (comp.isVisible() == true) {
+			            Component view = ((JScrollPane) comp).getViewport().getView();
+			            if (view instanceof CheckBoxTreeTable) {
+			            	((CheckBoxTreeTable) view).collapseAll();
+			            }
+			            break;
+			        }
+			    }
+			}
+		});
+		
+		JCheckBox hideUnselChk = new JCheckBox("Hide Unselected", hideUnselected) {
+			@Override
+			protected void paintComponent(Graphics g) {
+				g.setColor(this.getBackground());
+				g.fillRect(2, 5, 9, 9);
+				super.paintComponent(g);
+			}
+		};
+		hideUnselChk.setOpaque(false);
+		hideUnselChk.setForeground(Color.WHITE);
+		hideUnselChk.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean sel = ((AbstractButton) e.getSource()).isSelected();
+				hideUnselected = sel;
+				for (CheckBoxTreeTable treeTable : linkMap.values()) {
+					treeTable.setRowFilter((sel) ? new SelectionRowFilter(treeTable) : null);
+				}
+			}
+		});
 
 		final JToggleButton hierarchyBtn = new JToggleButton(
 				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_ICON));
@@ -399,6 +470,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		hierarchyBtn.setPressedIcon(
 				IconConstants.createArrowedIcon(IconConstants.HIERARCHY_PRESSED_ICON));
 		hierarchyBtn.setToolTipText("Select Hierarchical View");
+		hierarchyBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(hierarchyBtn));
 		
 		final JPopupMenu hierarchyPop = new JPopupMenu();
 		ActionListener hierarchyListener = new ActionListener() {
@@ -429,16 +501,22 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 
-		JPanel protBtnPnl = new JPanel(new FormLayout("36px, 1px", "20px"));
-		protBtnPnl.setOpaque(false);
-		
-		protBtnPnl.add(hierarchyBtn, CC.xy(1, 1));
+		JPanel protLeftBtnPnl = new JPanel(new FormLayout(
+				"19px, 19px", "20px"));
+		protLeftBtnPnl.setOpaque(false);
 
-		protTtlPnl = new JXTitledPanel("Proteins", proteinPnl);
-		protTtlPnl.setRightDecoration(protBtnPnl);
-		protTtlPnl.setTitleFont(ttlFont);
-		protTtlPnl.setTitlePainter(ttlPainter);
-		protTtlPnl.setBorder(ttlBorder);
+		protLeftBtnPnl.add(expandAllBtn, CC.xy(1, 1));
+		protLeftBtnPnl.add(collapseAllBtn, CC.xy(2, 1));
+
+		JPanel protRightBtnPnl = new JPanel(new FormLayout(
+				"p:g, 8dlu, 36px, 1px", "20px"));
+		protRightBtnPnl.setOpaque(false);
+
+		protRightBtnPnl.add(hideUnselChk, CC.xy(1, 1));
+		protRightBtnPnl.add(hierarchyBtn, CC.xy(3, 1));
+
+		protTtlPnl = PanelConfig.createTitledPanel(
+				"Proteins", proteinPnl, protLeftBtnPnl, protRightBtnPnl);
 
 		// Peptide panel
 		final CardLayout pepCl = new CardLayout();
@@ -1318,7 +1396,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	protected void filterFlatSelections(int column, String filterString) {
 		column = proteinTbl.convertColumnIndexToView(column);
 		// prevent auto-resorting while iterating rows for performance reasons
-		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(false);
+		TableSortController tsc = (TableSortController) proteinTbl.getRowSorter();
+		tsc.setSortsOnUpdates(false);
 		// Check whether we're dealing with numerical values or with text
 		if (Number.class.isAssignableFrom(proteinTbl.getColumnClass(column))) {
 			//			List<Number> greater = new ArrayList<Number>();
@@ -1391,9 +1470,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				proteinTbl.setValueAt(selected, row, proteinTbl.convertColumnIndexToView(Constants.PROT_SELECTION));
 			}
 		}
-		((TableSortController) proteinTbl.getRowSorter()).setSortsOnUpdates(true);
+		tsc.setSortsOnUpdates(true);
 		// re-sort rows after iteration finished
-		((TableSortController) proteinTbl.getRowSorter()).sort();
+		tsc.sort();
 	}
 
 	/**
@@ -1514,7 +1593,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							FontMetrics fm = this.getFontMetrics(DbSearchResultPanel.this.chartFont);
 							NumberFormat formatter = bchl.getFormatter();
 							// iterate all nodes to get elements in desired column
-//							// TODO: this is probably slow for large tables, maybe perform only once on largest value or root aggregate value or cached set of values
+							// TODO: this is probably slow for large tables, maybe perform only once on largest value or root aggregate value or cached set of values
 							int maxWidth = this.getMaximumStringWidth(
 									(TreeTableNode) this.getTreeTableModel().getRoot(), column, formatter, fm);
 							bchl.setBaseline(maxWidth + 1);
@@ -1650,6 +1729,18 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								synchSelection(treeTbl);
 								synching = false;
 								updateChartData();
+								// force re-filtering
+								// FIXME: sorting resets tree expansion state
+								for (CheckBoxTreeTable treeTable : linkMap.values()) {
+									RowFilter<Object, Object> filter =
+											(RowFilter<Object, Object>) treeTable.getRowFilter();
+									if (filter == null) {
+										break;
+									}
+									// re-apply filter
+									treeTable.setRowFilter(null);
+									treeTable.setRowFilter(filter);
+								}
 							}
 						});
 					}
@@ -1702,7 +1793,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						return IconConstants.METAPROTEIN_TREE_ICON;
 					}
 //					} else if ("Unclassified".equals(context.getValue().toString())) {
-//						
+//					}
 				}
 				// fall back to defaults
 				return context.getIcon();
@@ -2224,6 +2315,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * selection in the specified table.
 	 * @param source the source checkbox tree table
 	 */
+	@SuppressWarnings("unchecked")
 	private void synchSelection(CheckBoxTreeTable source) {
 		// propagate selection state to protein hits in search result object
 		if (source != null) {
@@ -3257,6 +3349,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Method to refresh protein table contents.
 	 * @throws Exception 
 	 */
+	@SuppressWarnings("unchecked")
 	protected void refreshProteinTables() {		
 		if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
 
@@ -3379,8 +3472,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			
 			// Refresh tree tables by re-setting root node
 			for (CheckBoxTreeTable cbtt : linkMap.values()) {
-				DefaultTreeTableModel dttm = (DefaultTreeTableModel) cbtt.getTreeTableModel();
-				dttm.setRoot(dttm.getRoot());
+				SortableTreeTableModel sttm = (SortableTreeTableModel) cbtt.getTreeTableModel();
+				sttm.setRoot(sttm.getRoot());
 			}
 
 			// Iterate pathway nodes in respective hierarchical view and update URIs
@@ -3473,7 +3566,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							}
 						}
 					});
-
 				}
 			}
 
@@ -3485,6 +3577,27 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			protFlatTreeTbl.expandAll();
 		}
 
+	}
+
+	/**
+	 * Convenience filter implementation based on checkbox tree selection.
+	 * @author A. Behne
+	 */
+	private class SelectionRowFilter extends RowFilter<Object, Object> {
+		private CheckBoxTreeTable treeTable;
+		private SelectionRowFilter(CheckBoxTreeTable treeTable) {
+			this.treeTable = treeTable;
+		}
+		@Override
+		public boolean include(
+				RowFilter.Entry<? extends Object, ? extends Object> entry) {
+			PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) entry.getValue(-1);
+			TreePath path = node.getPath();
+			CheckBoxTreeSelectionModel cbtsm = treeTable.getCheckBoxTreeSelectionModel();
+			boolean selected = cbtsm.isPathSelected(path, true)
+					|| cbtsm.isPartiallySelected(path);
+			return selected;
+		}
 	}
 
 	/**
@@ -3779,53 +3892,54 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			if (pepRow != -1) {
 				String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
 				PeptideHit peptideHit = dbSearchResult.getProteinHits().get(accession).getPeptideHits().get(sequence);
+				if (peptideHit != null) {
+					DefaultTableModel psmTblMdl = (DefaultTableModel) psmTbl.getModel();
+					int i = 1, maxVotes = 0;
+					List<SpectrumMatch> spectrumMatches = peptideHit.getSpectrumMatches();
+					psmTtlPnl.setTitle("Peptide-Spectrum-Matches (" + spectrumMatches.size() + ")");
 
-				DefaultTableModel psmTblMdl = (DefaultTableModel) psmTbl.getModel();
-				int i = 1, maxVotes = 0;
-				List<SpectrumMatch> spectrumMatches = peptideHit.getSpectrumMatches();
-				psmTtlPnl.setTitle("Peptide-Spectrum-Matches (" + spectrumMatches.size() + ")");
-
-				for (SpectrumMatch sm : spectrumMatches) {
-					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
-					List<SearchHit> searchHits = psm.getSearchHits();
-					double[] qValues = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-					for (SearchHit searchHit : searchHits) {
-						switch (searchHit.getType()) {
-						case XTANDEM:
-							qValues[0] = 1.0 - searchHit.getQvalue().doubleValue(); break;
-						case OMSSA:
-							qValues[1] = 1.0 - searchHit.getQvalue().doubleValue(); break;
-						case CRUX:
-							qValues[2] = 1.0 - searchHit.getQvalue().doubleValue(); break;
-						case INSPECT:
-							qValues[3] = 1.0 - searchHit.getQvalue().doubleValue(); break;
-						case MASCOT:
-							qValues[4] = 0.95; break; // q-value does not exist for mascot - hard-coding as FDR calculation is done when loading the MASCOT results into the application.
+					for (SpectrumMatch sm : spectrumMatches) {
+						PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
+						List<SearchHit> searchHits = psm.getSearchHits();
+						double[] qValues = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+						for (SearchHit searchHit : searchHits) {
+							switch (searchHit.getType()) {
+							case XTANDEM:
+								qValues[0] = 1.0 - searchHit.getQvalue().doubleValue(); break;
+							case OMSSA:
+								qValues[1] = 1.0 - searchHit.getQvalue().doubleValue(); break;
+							case CRUX:
+								qValues[2] = 1.0 - searchHit.getQvalue().doubleValue(); break;
+							case INSPECT:
+								qValues[3] = 1.0 - searchHit.getQvalue().doubleValue(); break;
+							case MASCOT:
+								qValues[4] = 0.95; break; // TODO Robbie Find Qvalue for MASCOT
+							}
 						}
+						maxVotes = Math.max(maxVotes, psm.getVotes());
+						psmTblMdl.addRow(new Object[] {
+								sm.isSelected(),
+								i++,
+								psm.getCharge(),
+								psm.getVotes(),
+								qValues[0],
+								qValues[1],
+								qValues[2],
+								qValues[3],
+								qValues[4]});
 					}
-					maxVotes = Math.max(maxVotes, psm.getVotes());
-					psmTblMdl.addRow(new Object[] {
-							sm.isSelected(),
-							i++,
-							psm.getCharge(),
-							psm.getVotes(),
-							qValues[0],
-							qValues[1],
-							qValues[2],
-							qValues[3],
-							qValues[4]});
+
+					FontMetrics fm = getFontMetrics(chartFont);
+					TableColumnModel tcm = psmTbl.getColumnModel();
+
+					BarChartHighlighter highlighter;
+
+					highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(psmTbl.convertColumnIndexToView(PSM_VOTES))).getHighlighters()[0];
+					highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxVotes)));
+					highlighter.setRange(0.0, maxVotes);
+
+					psmTbl.getSelectionModel().setSelectionInterval(0, 0);
 				}
-
-				FontMetrics fm = getFontMetrics(chartFont);
-				TableColumnModel tcm = psmTbl.getColumnModel();
-
-				BarChartHighlighter highlighter;
-
-				highlighter = (BarChartHighlighter) ((TableColumnExt) tcm.getColumn(psmTbl.convertColumnIndexToView(PSM_VOTES))).getHighlighters()[0];
-				highlighter.setBaseline(1 + fm.stringWidth(highlighter.getFormatter().format(maxVotes)));
-				highlighter.setRange(0.0, maxVotes);
-
-				psmTbl.getSelectionModel().setSelectionInterval(0, 0);
 			}
 		} else {
 			psmTtlPnl.setTitle("Peptide-Spectrum-Matches");

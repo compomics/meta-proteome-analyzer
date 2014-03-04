@@ -81,6 +81,16 @@ public class IconConstants {
 //	public static final ImageIcon CALCULATOR_ROLLOVER_ICON = createRescaledIcon(CALCULATOR_ICON, 1.1f);
 //	public static final ImageIcon CALCULATOR_PRESSED_ICON = createRescaledIcon(CALCULATOR_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/expand_all16.png"> */
+	public static final ImageIcon EXPAND_ALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/expand_all16.png"));
+	public static final ImageIcon EXPAND_ALL_ROLLOVER_ICON = createRescaledIcon(EXPAND_ALL_ICON, 1.1f);
+	public static final ImageIcon EXPAND_ALL_PRESSED_ICON = createRescaledIcon(EXPAND_ALL_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/collapse_all16.png"> */
+	public static final ImageIcon COLLAPSE_ALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/collapse_all16.png"));
+	public static final ImageIcon COLLAPSE_ALL_ROLLOVER_ICON = createRescaledIcon(COLLAPSE_ALL_ICON, 1.1f);
+	public static final ImageIcon COLLAPSE_ALL_PRESSED_ICON = createRescaledIcon(COLLAPSE_ALL_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/spectrum16.png"> */
 	public static final ImageIcon SPECTRUM_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/spectrum16.png"));
 	public static final ImageIcon SPECTRUM_ROLLOVER_ICON = createRescaledIcon(SPECTRUM_ICON, 1.1f);
