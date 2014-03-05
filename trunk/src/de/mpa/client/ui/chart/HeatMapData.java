@@ -328,8 +328,8 @@ public class HeatMapData {
 	}
 	
 	/**
-	 * TODO: API
-	 * @author heyer
+	 * Extended matrix series for the hits.
+	 * @author R.Heyer
 	 */
 	public static class MatrixSeriesExt extends MatrixSeries {
 		

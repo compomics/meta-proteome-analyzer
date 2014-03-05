@@ -488,7 +488,7 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	}
 	
 	/**
-	 * TODO: API
+	 * Retrieve all entries with empty UniRef annotation.
 	 * @param aConn
 	 * @param increase
 	 * @return

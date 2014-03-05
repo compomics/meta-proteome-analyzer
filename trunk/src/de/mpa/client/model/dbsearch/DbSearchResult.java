@@ -51,7 +51,7 @@ public class DbSearchResult implements Serializable {
 	private ProteinHitList metaProteins = new ProteinHitList();
 
 	/**
-	 * TODO: API
+	 * The list of visible meta-proteins.
 	 */
 	private ProteinHitList visMetaProteins;
 	
@@ -265,8 +265,8 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * Returns the protein hit for a particular accession.
 	 * 
-	 * @param accession
-	 * @return TODO: API
+	 * @param accession the protein accession
+	 * @return the protein hit
 	 */
 	public ProteinHit getProteinHit(String accession) {
 		ProteinHitList metaProteins =
@@ -278,7 +278,6 @@ public class DbSearchResult implements Serializable {
 			}
 		}
 		return null;
-//		return proteinHits.get(accession);
 	}
 
 	/**
@@ -444,8 +443,8 @@ public class DbSearchResult implements Serializable {
 	}
 	
 	/**
-	 * TODO: API
-	 * @param fdr
+	 * Sets the FDR threshold for the visible metaproteins.
+	 * @param fdr the FDR threshold.
 	 */
 	public void setFDR(double fdr) {
 		this.visMetaProteins = new ProteinHitList();
