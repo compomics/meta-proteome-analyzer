@@ -154,18 +154,21 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-
+		
+		// Display splash screen
+		SplashScreen.display();
+		
 		// Lock file instance.
 		boolean unlocked = true;
 		jarExport = false;
 		if (LOCK_ACTIVE) {
 			unlocked = lockInstance("filelock");
 		}
-		
 		if (unlocked) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					
 					// Set the look&feel
 					setLookAndFeel();
 					
@@ -181,6 +184,9 @@ public class Starter {
 						}
 					}
 					ClientFrame.getInstance(viewerMode, debugMode);
+					
+					// Close the splash screen.
+					SplashScreen.close();
 				}
 			});
 		}

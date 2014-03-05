@@ -31,7 +31,6 @@ public class IconConstants {
 	public static final ImageIcon SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings.png"));
 	/** <img src="../../../resources/icons/results.png"> */
 	public static final ImageIcon RESULTS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/results.png"));
-//	public static final ImageIcon CLUSTERING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/clustering.png"));
 	/** <img src="../../../resources/icons/compare48.png"> */
 	public static final ImageIcon COMPARE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/compare32.png"));
 	/** <img src="../../../resources/icons/logging.png"> */
