@@ -580,8 +580,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		}
 		
 		/**
-		 * TODO: API
-		 * @return
+		 * Returns <code>true</code> whether checkbox is selected else <code>false</code>.
+		 * @return the checkbox selection state
 		 */
 		public boolean isCheckBoxSelected() {
 			return checkBox.isSelected();

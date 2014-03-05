@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -248,8 +249,8 @@ public class TableConfig {
 		private DecimalFormat formatter;
 		
 		/**
-		 * TODO: API
-		 * @param alignment
+		 * FormatHighlighter constructor
+		 * @param alignment the alignment/orientation value defined by SwingConstants class, e.g. SwingConstants.LEFT == 2.
 		 */
 		public FormatHighlighter(int alignment) {
 			this(alignment, "0");

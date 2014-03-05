@@ -109,16 +109,28 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private ParameterMap specLibParams = new SpectralLibraryParameters();
 
 	/**
-	 * TODO: API
+	 * Checkbox for using X!Tandem search engine.
 	 */
 	private JCheckBox xTandemChk;
 
+	/**
+	 * Checkbox for using OMSSA search engine.
+	 */
 	private JCheckBox omssaChk;
-
+	
+	/**
+	 * Checkbox for using Crux search engine.
+	 */
 	private JCheckBox cruxChk;
-
+	
+	/**
+	 * Checkbox for using InsPect search engine.
+	 */
 	private JCheckBox inspectChk;
-
+	
+	/**
+	 * Checkbox for using Mascot search engine.
+	 */
 	private JCheckBox mascotChk;
 
 	/**

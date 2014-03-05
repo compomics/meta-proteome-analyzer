@@ -58,9 +58,6 @@ public class MascotDatParserTest {
 		TestCase.assertEquals(377, dbSearchResult.getProteinHit("7331218").getPeptideHitList().get(0).getStart());
 		TestCase.assertEquals(386, dbSearchResult.getProteinHit("7331218").getPeptideHitList().get(0).getEnd());
 		TestCase.assertEquals(1, dbSearchResult.getProteinHit("345308743").getPeptideHitList().size());
-		//TODO wrong from parser
-//		TestCase.assertEquals(294, dbSearchResult.getProteinHit("345308743").getPeptideHitList().get(0).getStart());
-//		TestCase.assertEquals(303, dbSearchResult.getProteinHit("345308743").getPeptideHitList().get(0).getEnd());
 	}
 	
 	@Test

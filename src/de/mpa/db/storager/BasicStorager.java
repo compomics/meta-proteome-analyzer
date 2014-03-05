@@ -129,10 +129,10 @@ public class BasicStorager implements Storager {
 	}
 	
 	/**
-	 * TODO: API
-	 * @param peptideID
-	 * @param accession
-	 * @return
+	 * This method stores a protein to the database.
+	 * @param peptideID Peptide ID
+	 * @param accession Protein accession
+	 * @return Protein ID
 	 * @throws SQLException
 	 * @throws IOException
 	 */

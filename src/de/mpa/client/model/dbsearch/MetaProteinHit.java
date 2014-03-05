@@ -29,7 +29,7 @@ public class MetaProteinHit extends ProteinHit {
 	private Map<String, ProteinHit> proteinHits;
 	
 	/**
-	 * TODO: API
+	 * The visible protein hit list of this meta-protein.
 	 */
 	private Map<String, ProteinHit> visProteinHits;
 
@@ -64,9 +64,9 @@ public class MetaProteinHit extends ProteinHit {
 	}
 	
 	/**
-	 * TODO: API
-	 * @param accession
-	 * @return
+	 * Returns a protein hit by its accession.
+	 * @param accession the protein accession
+	 * @return the protein hit
 	 */
 	public ProteinHit getProteinHit(String accession) {
 		if (visProteinHits == null) {
@@ -125,8 +125,8 @@ public class MetaProteinHit extends ProteinHit {
 	}
 	
 	/**
-	 * TODO: API
-	 * @param fdr
+	 * This method filter by FDR threshold for all visible protein hits.
+	 * @param fdr the FDR threshold
 	 */
 	@Override
 	public void setFDR(double fdr) {

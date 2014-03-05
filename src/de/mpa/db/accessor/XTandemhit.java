@@ -10,9 +10,19 @@ import java.util.List;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 
 public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
-	
+	/**
+	 * The serialization id.
+	 */
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * The peptide sequence.
+	 */
 	private String sequence = null;
+	
+	/**
+	 * The protein accession.
+	 */
 	private String accession = null;
 	
     /**
@@ -75,19 +85,35 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
         ps.close();
         return temp;
     }
-
+    
+    /**
+     * Returns the peptide sequence.
+     * @return the peptide sequence
+     */
 	public String getSequence() {
 		return sequence;
 	}
-
+	
+	/**
+	 * Returns the protein accession.
+	 * @return the protein accession
+	 */
 	public String getAccession() {
 		return accession;
 	}
-
+	
+	/**
+	 * Returns the search spectrum id.
+	 * @return the search spectrum id
+	 */
 	public long getFk_searchspectrumid() {
 		return iFk_searchspectrumid;
 	}
 	
+	/**
+	 * Returns the search hit charge.
+	 * @return the search hit charge
+	 */
 	public long getCharge(){
 		//TODO: Include the appropriate charge in the DB.
 		return 2;

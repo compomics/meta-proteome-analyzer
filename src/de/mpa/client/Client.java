@@ -469,8 +469,8 @@ public class Client {
 
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
-	 * @param result TODO: API
-	 * @param hit The search hit implementation.
+	 * @param result the database search result
+	 * @param hit the search hit implementation
 	 * @param experimentID the experiment ID
 	 */
 	private void addProteinSearchHit(DbSearchResult result, SearchHit hit, long experimentID) throws Exception {

@@ -25,7 +25,7 @@ public interface Hit {
 	public void setFDR(double fdr);
 	
 	/**
-	 * TODO: API
+	 * Returns true if hit should be visible else false.
 	 * @return
 	 */
 	public boolean isVisible();

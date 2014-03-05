@@ -83,7 +83,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	private Map<String, PeptideHit> peptideHits;
 
 	/**
-	 * TODO: API
+	 * Visible peptide hits.
 	 */
 	private Map<String, PeptideHit> visPeptideHits;
 	

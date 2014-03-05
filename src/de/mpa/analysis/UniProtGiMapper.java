@@ -58,9 +58,9 @@ public class UniProtGiMapper {
 	}
 
 	/**
-	 * TODO: API
-	 * @param shortList
-	 * @return
+	 * This method retrieves the mapping from NCBI GI identifiers to UniProt accessions.
+	 * @param shortList List of GI numbers.
+	 * @return Mapping from NCBI GI identifiers to UniProt accessions.
 	 * @throws IOException
 	 */
 	private static Map<String, String> queryGiToUniProtMapping(List<String> shortList) throws IOException {

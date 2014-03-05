@@ -3681,9 +3681,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	}
 	
 	/**
-	 * TODO: API
-	 * @param panels
-	 * @param coverageMap 
+	 * Refreshs the coverage viewer when the protein coverage panel needs to be revalidated.
+	 * @param panels the list of panels
+	 * @param coverageMap the coverage map for protein hits to the corresponding intervals
 	 */
 	private void refreshCoverageViewer(List<JPanel> panels, Map<ProteinHit, List<Interval>> coverageMap) {
 		JScrollPane coveragePane = (JScrollPane) coveragePnl.getParent().getParent();
@@ -3721,9 +3721,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * TODO: API
-	 * @param proteinHit
-	 * @param peptideHits
+	 * Returns the peptide intervals for a protein hit.
+	 * @param proteinHit the protein hit
+	 * @param peptideHits the peptide hit collection
 	 */
 	private List<Interval> determinePeptideIntervals(ProteinHit proteinHit, Collection<PeptideHit> peptideHits) {
 	
@@ -3945,7 +3945,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			psmTtlPnl.setTitle("Peptide-Spectrum-Matches");
 		}
 	}
-
+	
+	/**
+	 * Method to refresh the spectrum plot.
+	 */
 	protected void refreshPlot() {
 		int protRow = proteinTbl.getSelectedRow();
 		if (protRow != -1) {
@@ -3956,6 +3959,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					// clear the spectrum panel
 					Container specCont = specPnl.getParent();
 					specCont.removeAll();
+					
 					// get the list of spectrum matches
 					String actualAccession = (String) proteinTbl.getValueAt(protRow, proteinTbl.convertColumnIndexToView(Constants.PROT_ACCESSION));
 					String sequence = (String) peptideTbl.getValueAt(pepRow, peptideTbl.convertColumnIndexToView(PEP_SEQUENCE));
@@ -4008,6 +4012,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 	//	/**
 	//	 * Method to generate and show a popup containing PSM-specific details.
+	//   * FIXME: Will we use this popup? 
 	//	 * @param psm
 	//	 */
 	//	private void showPopup(PeptideSpectrumMatch psm) {
