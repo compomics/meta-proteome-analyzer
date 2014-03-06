@@ -626,13 +626,12 @@ public class FilePanel extends JPanel implements Busyable {
 					Integer expIDval = ((Integer[]) fetchParams.get("expID").getValue())[0];
 					DefaultComboBoxModel<AnnotationType> annotMdl =
 							(DefaultComboBoxModel<AnnotationType>) fetchParams.get("annotated").getValue();
-					Boolean libVal = (Boolean) fetchParams.get("library").getValue();
 					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
 					client.initDBConnection();
 					
 					List<MascotGenericFile> dlSpec = client.downloadSpectra(
 							expIDval.longValue(), (AnnotationType) annotMdl.getSelectedItem(),
-							libVal, s2fVal);
+							false, s2fVal);
 					
 					File file = new File("experiment_" + expIDval + ".mgf");
 					FileOutputStream fos = new FileOutputStream(file);
