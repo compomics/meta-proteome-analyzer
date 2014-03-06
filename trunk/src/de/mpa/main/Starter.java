@@ -154,9 +154,7 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		
-		// Display splash screen
-		SplashScreen.display();
+
 		
 		// Lock file instance.
 		boolean unlocked = true;
@@ -164,7 +162,10 @@ public class Starter {
 		if (LOCK_ACTIVE) {
 			unlocked = lockInstance("filelock");
 		}
-		if (unlocked) {
+		if (unlocked) {			
+			// Display splash screen
+			SplashScreen.display();
+			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
