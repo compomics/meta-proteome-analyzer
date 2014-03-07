@@ -96,8 +96,8 @@ public class DbSearchSettings {
      * Sets the value of the crux property.
      * 
      */
-    public void setCrux(boolean crux) {
-        this.crux = crux;
+    public void setCrux(boolean value) {
+        this.crux = value;
     }
 
     /**
@@ -120,8 +120,8 @@ public class DbSearchSettings {
      *     {@link String }
      *     
      */
-    public void setCruxParams(String cruxParams) {
-        this.cruxParams = cruxParams;
+    public void setCruxParams(String value) {
+        this.cruxParams = value;
     }
 
     /**
@@ -144,8 +144,8 @@ public class DbSearchSettings {
      *     {@link String }
      *     
      */
-    public void setFastaFile(String fastaFile) {
-        this.fastaFile = fastaFile;
+    public void setFastaFile(String value) {
+        this.fastaFile = value;
     }
 
     /**
@@ -160,8 +160,8 @@ public class DbSearchSettings {
      * Sets the value of the fragmentIonTol property.
      * 
      */
-    public void setFragmentIonTol(double fragmentIonTol) {
-        this.fragmentIonTol = fragmentIonTol;
+    public void setFragmentIonTol(double value) {
+        this.fragmentIonTol = value;
     }
 
     /**
@@ -176,8 +176,8 @@ public class DbSearchSettings {
      * Sets the value of the inspect property.
      * 
      */
-    public void setInspect(boolean inspect) {
-        this.inspect = inspect;
+    public void setInspect(boolean value) {
+        this.inspect = value;
     }
 
     /**
@@ -200,8 +200,8 @@ public class DbSearchSettings {
      *     {@link String }
      *     
      */
-    public void setInspectParams(String inspectParams) {
-        this.inspectParams = inspectParams;
+    public void setInspectParams(String value) {
+        this.inspectParams = value;
     }
 
     /**
@@ -216,8 +216,8 @@ public class DbSearchSettings {
      * Sets the value of the numMissedCleavages property.
      * 
      */
-    public void setNumMissedCleavages(int numMissedCleavages) {
-        this.numMissedCleavages = numMissedCleavages;
+    public void setNumMissedCleavages(int value) {
+        this.numMissedCleavages = value;
     }
 
     /**
@@ -232,8 +232,8 @@ public class DbSearchSettings {
      * Sets the value of the omssa property.
      * 
      */
-    public void setOmssa(boolean omssa) {
-        this.omssa = omssa;
+    public void setOmssa(boolean value) {
+        this.omssa = value;
     }
 
     /**
@@ -256,8 +256,8 @@ public class DbSearchSettings {
      *     {@link String }
      *     
      */
-    public void setOmssaParams(String omssaParams) {
-        this.omssaParams = omssaParams;
+    public void setOmssaParams(String value) {
+        this.omssaParams = value;
     }
 
     /**
@@ -272,15 +272,15 @@ public class DbSearchSettings {
      * Sets the value of the precursorIonTol property.
      * 
      */
-    public void setPrecursorIonTol(double precursorIonTol) {
-        this.precursorIonTol = precursorIonTol;
+    public void setPrecursorIonTol(double value) {
+        this.precursorIonTol = value;
     }
 
     /**
      * Gets the value of the precursorIonUnit property.
      * 
      */
-    public boolean isPrecursorIonUnitPpm() {
+    public boolean isPrecursorIonUnit() {
         return precursorIonUnit;
     }
 
@@ -288,8 +288,8 @@ public class DbSearchSettings {
      * Sets the value of the precursorIonUnit property.
      * 
      */
-    public void setPrecursorIonUnitPpm(boolean precursorIonUnit) {
-        this.precursorIonUnit = precursorIonUnit;
+    public void setPrecursorIonUnit(boolean value) {
+        this.precursorIonUnit = value;
     }
 
     /**
@@ -304,8 +304,8 @@ public class DbSearchSettings {
      * Sets the value of the xTandem property.
      * 
      */
-    public void setXTandem(boolean xTandem) {
-        this.xTandem = xTandem;
+    public void setXTandem(boolean value) {
+        this.xTandem = value;
     }
 
     /**
@@ -323,13 +323,13 @@ public class DbSearchSettings {
     /**
      * Sets the value of the xtandemParams property.
      * 
-     * @param xtandemParams
+     * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setXtandemParams(String xtandemParams) {
-        this.xtandemParams = xtandemParams;
+    public void setXtandemParams(String value) {
+        this.xtandemParams = value;
     }
 
     /**
@@ -344,8 +344,8 @@ public class DbSearchSettings {
      * Sets the value of the decoy property.
      * 
      */
-    public void setDecoy(boolean decoy) {
-        this.decoy = decoy;
+    public void setDecoy(boolean value) {
+        this.decoy = value;
     }
 
     /**
@@ -360,8 +360,8 @@ public class DbSearchSettings {
      * Sets the value of the mascot property.
      * 
      */
-    public void setMascot(boolean mascot) {
-        this.mascot = mascot;
+    public void setMascot(boolean value) {
+        this.mascot = value;
     }
 
     /**
@@ -376,8 +376,9 @@ public class DbSearchSettings {
      * Sets the value of the experimentid property.
      * 
      */
-    public void setExperimentid(long experimentid) {
-        this.experimentid = experimentid;
+    public void setExperimentid(long value) {
+        this.experimentid = value;
     }
 
+    
 }
