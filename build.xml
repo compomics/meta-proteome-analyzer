@@ -2,9 +2,9 @@
 
   <target name="wsimport">
     	
-  	<exec executable="/usr/lib/jvm/java-6-openjdk/bin/wsimport">
+  	<exec executable="/usr/local/java/jdk1.7.0_21/bin/wsimport">
   	    		
-  	      <arg line="-keep -s ./src -p de.mpa.client -XadditionalHeaders -d ./bin http://metaprot:8080/WS/Server?wsdl"/>
+  	      <arg line="-keep -s ./src -p de.mpa.client -XadditionalHeaders -d ./bin http://localhost:8080/WS/Server?wsdl"/>
   	    		
   	    </exec>
     	
