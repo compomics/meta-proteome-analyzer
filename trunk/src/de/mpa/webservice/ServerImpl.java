@@ -128,7 +128,7 @@ public class ServerImpl implements Server {
 		double fragIonTol = dbSearchSettings.getFragmentIonTol();
 		double precIonTol = dbSearchSettings.getPrecursorIonTol();
 		int nMissedCleavages = dbSearchSettings.getNumMissedCleavages();
-		boolean isPrecIonTolPpm = dbSearchSettings.isPrecursorIonUnitPpm();
+		boolean isPrecIonTolPpm = dbSearchSettings.isPrecursorIonUnit();
 		
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
