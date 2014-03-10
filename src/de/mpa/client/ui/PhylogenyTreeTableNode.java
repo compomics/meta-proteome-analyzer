@@ -89,7 +89,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 //					return ph.getIdentity();
 					if (ph.getUniProtEntry() == null) return null;
 					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
-					ComboBoxModel<ClusterRule> model = (ComboBoxModel<ClusterRule>) parameter.getValue();
+					ComboBoxModel model = (ComboBoxModel) parameter.getValue();
 					ClusterRule rule = (ClusterRule) model.getSelectedItem();
 					
 					switch (rule) {

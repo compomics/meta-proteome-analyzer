@@ -100,7 +100,7 @@ public class Client {
 	/**
 	 * Webservice/server connection settings.
 	 */
-	private ServerConnectionSettings srvSettings = new ServerConnectionSettings();
+	private ServerConnectionSettings srvSettings; // = new ServerConnectionSettings();
 	
 	/**
 	 * Parameter map containing result fetching-related settings.
@@ -215,9 +215,10 @@ public class Client {
 	 * Connects the client to the web service.
 	 */
 	public void connect() {
-//		FIXME: This does not work for the main metaprot server!
+		srvSettings = new ServerConnectionSettings();
+		
 		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
-		System.out.println(srvSettings.getHost());
+		
 		service = new ServerImplService();
 		server = service.getServerImplPort();
 
