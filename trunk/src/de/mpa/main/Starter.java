@@ -154,7 +154,6 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-
 		
 		// Lock file instance.
 		boolean unlocked = true;
@@ -162,6 +161,7 @@ public class Starter {
 		if (LOCK_ACTIVE) {
 			unlocked = lockInstance("filelock");
 		}
+		
 		if (unlocked) {			
 			// Display splash screen
 			SplashScreen.display();

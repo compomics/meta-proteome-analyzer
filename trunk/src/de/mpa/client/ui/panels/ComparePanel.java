@@ -191,17 +191,17 @@ public class ComparePanel extends JPanel {
 		ButtonGroup bg = new ButtonGroup();
 		JRadioButton ontoRbtn = new JRadioButton("Ontology", false);
 		bg.add(ontoRbtn);
-		final JComboBox<OntologyChartType> ontoCbx = new JComboBox<OntologyChartType>(OntologyChartType.values());
+		final JComboBox ontoCbx = new JComboBox(OntologyChartType.values());
 		ontoCbx.setEnabled(false);
 		JRadioButton taxoRbtn = new JRadioButton("Taxonomy", false);
 		bg.add(taxoRbtn);
-		final JComboBox<TaxonomyChartType> taxoCbx = new JComboBox<TaxonomyChartType>(TaxonomyChartType.values());
+		final JComboBox taxoCbx = new JComboBox(TaxonomyChartType.values());
 		taxoCbx.setEnabled(false);
 		JRadioButton hieroRbtn = new JRadioButton("Hierarchy", true);
 		bg.add(hieroRbtn);
-		final JComboBox<HierarchyLevel> hieroCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
+		final JComboBox hieroCbx = new JComboBox(HierarchyLevel.values());
 		
-		final JComboBox<HierarchyLevel> countCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
+		final JComboBox countCbx = new JComboBox(HierarchyLevel.values());
 		
 		// listen for radio button selection changes and enable/disable combo boxes accordingly
 		ontoRbtn.addChangeListener(new ChangeListener() {

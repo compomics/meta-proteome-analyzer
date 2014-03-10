@@ -624,8 +624,7 @@ public class FilePanel extends JPanel implements Busyable {
 					
 					// extract settings from parameter map
 					Integer expIDval = ((Integer[]) fetchParams.get("expID").getValue())[0];
-					DefaultComboBoxModel<AnnotationType> annotMdl =
-							(DefaultComboBoxModel<AnnotationType>) fetchParams.get("annotated").getValue();
+					DefaultComboBoxModel annotMdl =	(DefaultComboBoxModel) fetchParams.get("annotated").getValue();
 					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
 					client.initDBConnection();
 					

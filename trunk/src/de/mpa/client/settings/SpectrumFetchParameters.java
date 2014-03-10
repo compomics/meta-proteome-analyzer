@@ -41,7 +41,7 @@ public class SpectrumFetchParameters extends ParameterMap {
 	@Override
 	public void initDefaults() {
 		this.put("expID", new Parameter("Experiment ID", new Integer[] { 1, 1, Integer.MAX_VALUE, 1 }, "Database Fetching", "The database ID of the experiment to fetch spectra from."));
-		this.put("annotated", new Parameter("Fetch Spectra", new DefaultComboBoxModel<AnnotationType>(AnnotationType.values()), "Database Fetching", "Choose whether fetched spectra shall have annotations."));
+		this.put("annotated", new Parameter("Fetch Spectra", new DefaultComboBoxModel(AnnotationType.values()), "Database Fetching", "Choose whether fetched spectra shall have annotations."));
 //		this.put("library", new Parameter("Fetch from Spectral Library", false, "Database Fetching", "Choose whether spectra shall be fetched from the spectral library."));
 		this.put("saveToFile", new Parameter("Save Peak Lists to Spectrum File", false, "Database Fetching", "Choose whether fetched spectrum file should contain peak lists."));
 	}

@@ -406,10 +406,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		srvSettings = client.getServerConnectionSettings();
 		srvHostTtf = new JTextField(8);
-		srvHostTtf.setText(srvSettings.getHost());
+		srvHostTtf.setText(ServerConnectionSettings.DEFAULT_HOST);
 
 		srvPortTtf = new JTextField(8);
-		srvPortTtf.setText(srvSettings.getPort());
+		srvPortTtf.setText(ServerConnectionSettings.DEFAULT_PORT);
 
 		srvPnl.add(new JLabel("Hostname:"), cc.xy(2,1));
 		srvPnl.add(srvHostTtf, cc.xy(4,1));

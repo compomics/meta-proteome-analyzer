@@ -7,6 +7,16 @@ package de.mpa.client.settings;
 public class ServerConnectionSettings {
 	
 	/**
+	 * Default host URL.
+	 */
+	public static final String DEFAULT_HOST = "0.0.0.0";
+	
+	/**
+	 * Default port.
+	 */
+	public static final String DEFAULT_PORT = "8080";
+
+	/**
 	 * String containing server URL.
 	 */
 	private String host;
@@ -20,9 +30,8 @@ public class ServerConnectionSettings {
 	 * Default class constructor using default values.
 	 */
 	public ServerConnectionSettings() {
-		// TODO: Remove hard-coded values.
-		this.host = "0.0.0.0";
-		this.port = "8080";
+		this.host = DEFAULT_HOST;
+		this.port = DEFAULT_PORT;
 	}
 	
 	/**
