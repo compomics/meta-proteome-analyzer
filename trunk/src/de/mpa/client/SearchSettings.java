@@ -3,6 +3,7 @@ package de.mpa.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,7 +21,6 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="dbss" type="{http://webservice.mpa.de/}dbSearchSettings" minOccurs="0"/>
- *         &lt;element name="dnss" type="{http://webservice.mpa.de/}denovoSearchSettings" minOccurs="0"/>
  *         &lt;element name="expID" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="sss" type="{http://webservice.mpa.de/}specSimSettings" minOccurs="0"/>
  *         &lt;element name="filenames" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "searchSettings", propOrder = {
     "dbss",
-    "dnss",
     "expID",
     "sss",
     "filenames"
@@ -43,12 +42,11 @@ import javax.xml.bind.annotation.XmlType;
 public class SearchSettings {
 
     protected DbSearchSettings dbss;
-    protected DenovoSearchSettings dnss;
     protected long expID;
     protected SpecSimSettings sss;
     @XmlElement(nillable = true)
     protected List<String> filenames;
-
+    
     /**
      * Class constructor to shut up web service!
      */
@@ -60,13 +58,11 @@ public class SearchSettings {
      * @param sss
      * @param dnss
      */
-    public SearchSettings(DbSearchSettings dbss, SpecSimSettings sss, DenovoSearchSettings dnss, long expID) {
+    public SearchSettings(DbSearchSettings dbss, SpecSimSettings sss, long expID) {
             this.dbss = dbss;
             this.sss = sss;
-            this.dnss = dnss;
             this.expID = expID;
     }
-    
     /**
      * Gets the value of the dbss property.
      * 
@@ -89,30 +85,6 @@ public class SearchSettings {
      */
     public void setDbss(DbSearchSettings value) {
         this.dbss = value;
-    }
-
-    /**
-     * Gets the value of the dnss property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DenovoSearchSettings }
-     *     
-     */
-    public DenovoSearchSettings getDnss() {
-        return dnss;
-    }
-
-    /**
-     * Sets the value of the dnss property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DenovoSearchSettings }
-     *     
-     */
-    public void setDnss(DenovoSearchSettings value) {
-        this.dnss = value;
     }
 
     /**
@@ -169,14 +141,6 @@ public class SearchSettings {
      */
     public boolean isSpecSim() {
             return (sss != null);
-    }
-
-    /**
-     * Returns whether de novo search shall be performed.
-     * @return
-     */
-    public boolean isDeNovo() {
-            return (dnss != null);
     }
 
     /**

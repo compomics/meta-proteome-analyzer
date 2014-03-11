@@ -22,6 +22,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.soap.MTOMFeature;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.jdesktop.swingx.JXErrorPane;
@@ -220,19 +221,20 @@ public class Client {
 		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
 		
 		service = new ServerImplService();
-		server = service.getServerImplPort();
+		// Enable MTOM
+		server = service.getServerImplPort(new MTOMFeature());
+		
+//		// enable MTOM in client
+//		BindingProvider bp = (BindingProvider) server;
+//
+//		// Connection timeout: 12 hours
+//		bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
+//
+//		// Request timeout: 24 hours
+//		bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
 
-		// enable MTOM in client
-		BindingProvider bp = (BindingProvider) server;
-
-		// Connection timeout: 12 hours
-		bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
-
-		// Request timeout: 24 hours
-		bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
-
-		SOAPBinding binding = (SOAPBinding) bp.getBinding();
-		binding.setMTOMEnabled(true);
+//		SOAPBinding binding = (SOAPBinding) bp.getBinding();
+//		binding.setMTOMEnabled(true);
 
 		// Start requesting
 		RequestThread thread = new RequestThread();

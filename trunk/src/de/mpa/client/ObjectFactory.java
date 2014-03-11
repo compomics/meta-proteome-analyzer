@@ -30,14 +30,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DenovoSearchSettings }
-     * 
-     */
-    public DenovoSearchSettings createDenovoSearchSettings() {
-        return new DenovoSearchSettings();
-    }
-
-    /**
      * Create an instance of {@link SpecSimSettings }
      * 
      */

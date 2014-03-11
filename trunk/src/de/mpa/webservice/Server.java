@@ -2,12 +2,10 @@ package de.mpa.webservice;
 
 import java.io.File;
 
-import javax.activation.DataHandler;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
-import javax.xml.bind.annotation.XmlMimeType;
 
 import de.mpa.client.SearchSettings;
 
@@ -47,6 +45,6 @@ public interface Server {
 	  * @param data The file's byte data.
 	  * @return The file's absolute path on the server.
 	  */
-	 @WebMethod String uploadFile(String filename,  @XmlMimeType("application/octet-stream") DataHandler data);
+	 @WebMethod String uploadFile(String filename,  byte[] bytes);
 
 }
