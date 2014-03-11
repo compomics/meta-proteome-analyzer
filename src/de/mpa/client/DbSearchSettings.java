@@ -280,7 +280,7 @@ public class DbSearchSettings {
      * Gets the value of the precursorIonUnit property.
      * 
      */
-    public boolean isPrecursorIonUnit() {
+    public boolean isPrecursorIonUnitPpm() {
         return precursorIonUnit;
     }
 
