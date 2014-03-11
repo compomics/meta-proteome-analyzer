@@ -153,7 +153,7 @@ public class SettingsPanel extends JPanel {
 					// Collect search settings.
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-					SearchSettings settings = new SearchSettings(dbss, sss, null, experimentID);
+					SearchSettings settings = new SearchSettings(dbss, sss, experimentID);
 					
 					// FIXME: Please change that and get files from file tree.
 					if (dbss.isMascot()) {
@@ -256,7 +256,7 @@ public class SettingsPanel extends JPanel {
 			// collect search settings
 			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-			SearchSettings settings = new SearchSettings(dbss, sss, null, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
+			SearchSettings settings = new SearchSettings(dbss, sss, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 			// dispatch search request
 			client.runSearches(filenames, settings);
