@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	/**
 	 * Sortable checkbox treetable instance.
 	 */
-	private SortableCheckBoxTreeTable treeTable;
+	private SortableCheckBoxTreeTable queryResultsTreeTbl;
 	protected Object filePnl;
 	private JButton graphDbDialogBtn;
 	private GraphDatabaseResultPanel panel;
@@ -76,11 +77,10 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
         // Build the spectrum overview panel
         JPanel graphDbPanel = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 
-		JXTitledPanel graphDbTtlPnl = PanelConfig.createTitledPanel("GraphDB Content", graphDbPanel);
+		JXTitledPanel graphDbTtlPnl = PanelConfig.createTitledPanel("GraphDB Query Results", graphDbPanel);
 		
-		// Setup the tables
-		setupFirstDimTable();
-		//setupDenovoTableProperties();
+		// Setup the table
+		setupQueryResultsTable();
 
 		graphDbDialogBtn = new JButton("GraphDB Query", IconConstants.GO_DB_SMALL_ICON);
 		graphDbDialogBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
@@ -96,60 +96,51 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		});
 		
 		graphDbTtlPnl.setRightDecoration(graphDbDialogBtn);
-		JScrollPane firstDimResultsTblScp = new JScrollPane(treeTable);
+		JScrollPane firstDimResultsTblScp = new JScrollPane(queryResultsTreeTbl);
 		firstDimResultsTblScp.setPreferredSize(new Dimension(400, 210));
 		
 		firstDimResultsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		graphDbPanel.add(firstDimResultsTblScp,cc.xy(2, 2));
 		
 	    this.add(graphDbTtlPnl, cc.xyw(2, 2, 3));
-	    //this.add(specHitsTtlPnl, cc.xy(2, 4));
-	    //this.add(solutionsTtlPnl, cc.xy(4, 4));
 	}
   
     /**
      * This method sets the spectra table up.
      */
-    private void setupFirstDimTable() {
-        // Query table
-        treeTable = new SortableCheckBoxTreeTable(
-        		new SortableTreeTableModel(new SortableCheckBoxTreeTableNode()));
-		
-        // register list selection listener
-        treeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-            	//TODO: refreshSpectrumPanel();
-            }
-        });
-        
+    private void setupQueryResultsTable() {
+        // Initialize query results tree table.
+		queryResultsTreeTbl = new SortableCheckBoxTreeTable(
+				new SortableTreeTableModel(new SortableCheckBoxTreeTableNode()) {
+					{
+						setColumnIdentifiers(Arrays
+								.asList(new String[] { " " }));
+					}
+				});
         
         // Single selection only
-        treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        treeTable.setSelectionBackground(new Color(130, 207, 250));
+        queryResultsTreeTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        queryResultsTreeTbl.setSelectionBackground(new Color(130, 207, 250));
 
         // Add nice striping effect
-        treeTable.addHighlighter(TableConfig.getSimpleStriping());
+        queryResultsTreeTbl.addHighlighter(TableConfig.getSimpleStriping());
+        queryResultsTreeTbl.getTableHeader().setReorderingAllowed(true);
         
-        treeTable.getTableHeader().setReorderingAllowed(true);
-
         // Enables column control
-        TableConfig.configureColumnControl(treeTable);
-        
+        TableConfig.configureColumnControl(queryResultsTreeTbl);
     }
 
     /**
      * Method invoked when the Get Results button is pressed.
      */
     public void updateResults(ExecutionResult result) {
-
+    	
         SortableCheckBoxTreeTableNode root = new SortableCheckBoxTreeTableNode();
-		SortableTreeTableModel model = new SortableTreeTableModel(root);
 
     	List<String> resultColumns = result.columns();
     	columnIdentifiers = new ArrayList<String>();
-
+    	
 		boolean first = true;
-		
 		boolean isEmpty = true;
 		for (Map<String, Object> map : result) {
     		isEmpty = false;
@@ -169,7 +160,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
     		SortableCheckBoxTreeTableNode parentNode = null;
     		for (String col : resultColumns) {
 				Node graphNode = (Node) map.get(col);
-    			SortableCheckBoxTreeTableNode childNode = convertGraphToTreeNode(graphNode);
+    			SortableCheckBoxTreeTableNode childNode = this.convertGraphToTreeNode(graphNode);
     			if (parentNode != null) {
     				parentNode.add(childNode);
     			}
@@ -180,30 +171,32 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 			Object newChild = newPath.getPathComponent(0);
     		
 			// find node in existing tree to which (part of) the node chain shall be added
-    		MutableTreeTableNode insertionNode = (MutableTreeTableNode) findInsertionNode(root, (TreeTableNode) newChild);
+			CheckBoxTreeTableNode insertionNode =
+					(CheckBoxTreeTableNode) this.findInsertionNode(root, (TreeTableNode) newChild);
     		
     		// determine insertion depth
-    		int depth = ((CheckBoxTreeTableNode) insertionNode).getPath().getPathCount() - 1;
+    		int depth = insertionNode.getPath().getPathCount() - 1;
     		
     		// insert sub-chain as child of insertion node
-    		MutableTreeTableNode node2insert = (MutableTreeTableNode) newPath.getPathComponent(depth);
-    		model.insertNodeInto(node2insert, insertionNode, insertionNode.getChildCount());
-//    		while (!node2insert.isLeaf()) {
-//    			MutableTreeTableNode child = (MutableTreeTableNode) node2insert.getChildAt(0);
-//    			child.removeFromParent();
-//    			model.insertNodeInto(child, node2insert, insertionNode.getChildCount());
-//    			node2insert = child;
-//    		}
-    		
+    		insertionNode.add((MutableTreeTableNode) newPath.getPathComponent(depth));
     		first = false;
 		}
 		
-		if (isEmpty) {
+		if (!isEmpty) {
+			// force root to have a column count equal to the number of column identifiers
+			root.setUserObjects(columnIdentifiers.toArray());
+			
+			// create new model using collected column identifiers
+			SortableTreeTableModel model = new SortableTreeTableModel(root);
+			model.setColumnIdentifiers(columnIdentifiers);
+			
+			// insert model into table
+	    	queryResultsTreeTbl.setTreeTableModel(model);
+	        
+		} else {
+			// display notification
 			JOptionPane.showMessageDialog(ClientFrame.getInstance(), "Found no results for query.");
 		}
-		model.setColumnIdentifiers(columnIdentifiers);
-    	
-    	treeTable.setTreeTableModel(model);
 	}
     
     /**

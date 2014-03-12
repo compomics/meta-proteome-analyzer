@@ -75,6 +75,15 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		
 	}
 	
+	@Override
+	public void setTreeTableModel(TreeTableModel treeModel) {
+		// forward model change to column factory
+		((SortableColumnFactory) this.getColumnFactory()).setColumnCount(
+				treeModel.getColumnCount());
+		
+		super.setTreeTableModel(treeModel);
+	}
+	
 	/* Overrides of sorting-related methods forwarding to JXTreeTable's hooks. */
 	@Override
 	public void setSortable(boolean sortable) {
@@ -262,13 +271,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		public SortableColumnFactory(JXTreeTable treeTbl) {
 			super();
 			this.treeTbl = treeTbl;
-			int columnCount = treeTbl.getColumnCount();
-			this.prototypes = new TableColumnExt[columnCount];
-			this.viewToModel = new int[columnCount];
-			// init view coordinates
-			for (int i = 0; i < this.viewToModel.length; i++) {
-				this.viewToModel[i] = i;
-			}
+			this.setColumnCount(treeTbl.getColumnCount());
 			
 			treeTbl.getColumnModel().addColumnModelListener(new TableColumnModelExtListener() {
 				@Override
@@ -291,6 +294,9 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 				}
 				@Override
 				public void columnPropertyChange(PropertyChangeEvent evt) {
+					if (evt.getNewValue().equals(evt.getOldValue())) {
+						return;
+					}
 					TableColumnExt column = (TableColumnExt) evt.getSource();
 					int modelIndex = column.getModelIndex();
 					// update prototype cache
@@ -302,6 +308,20 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 				public void columnAdded(TableColumnModelEvent evt) { }
 				public void columnRemoved(TableColumnModelEvent evt) { }
 			});
+		}
+		
+		/**
+		 * Sets the number of columns to the specified value.
+		 * @param columnCount the number of columns
+		 */
+		public void setColumnCount(int columnCount) {
+			this.prototypes = new TableColumnExt[columnCount];
+			this.viewToModel = new int[columnCount];
+			
+			// init view coordinates
+			for (int i = 0; i < this.viewToModel.length; i++) {
+				this.viewToModel[i] = i;
+			}
 		}
 		
 		/**
