@@ -288,7 +288,7 @@ public class DbSearchSettings {
      * Sets the value of the precursorIonUnit property.
      * 
      */
-    public void setPrecursorIonUnit(boolean value) {
+    public void setPrecursorIonUnitPpm(boolean value) {
         this.precursorIonUnit = value;
     }
 
