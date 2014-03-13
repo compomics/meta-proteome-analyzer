@@ -27,7 +27,6 @@ public class CruxJob extends Job {
 	 * Crux parameters.
 	 */
 	private String params;
-	private int nMissedCleavages;
 	private File parameterFile;
 	private double fragmentTol;
 	 
@@ -49,7 +48,6 @@ public class CruxJob extends Job {
 		this.cruxFile = new File(JobConstants.CRUX_PATH);	
 		this.fragmentTol = fragmentTol;
 		this.precIonTol = precIonTol;
-		this.nMissedCleavages = nMissedCleavages;
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
 		buildParameterFile();
 		initJob();
@@ -76,7 +74,7 @@ public class CruxJob extends Job {
             		"isotope=0\n" + 
             		"primary-ions=by\n" + 
             		"isotopic-mass=average\n" + 
-            		"missed-cleavages=" + nMissedCleavages + "\n" +
+            		"missed-cleavages=0" + "\n" +
             		"precursor-window-type=" + precursorTolType + "\n" + 
             		"precursor-window=" + precIonTol + "\n" +
             		"mz-bin-width=" + fragmentTol + "\n" + 
