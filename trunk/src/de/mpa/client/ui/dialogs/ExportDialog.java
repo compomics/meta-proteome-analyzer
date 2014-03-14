@@ -706,7 +706,7 @@ public class ExportDialog extends JDialog {
 	 */
 	private void chooseExporter(String exportTyp) {
 		JFileChooser chooser = new ConfirmFileChooser(owner.getLastSelectedFolder());
-		chooser.setFileFilter(Constants.CSV_FILE_FILTER);
+		chooser.setFileFilter(Constants.TSV_FILE_FILTER);
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setDialogTitle(exportTyp);
@@ -717,8 +717,8 @@ public class ExportDialog extends JDialog {
 
 			selectedFile = chooser.getSelectedFile();
 
-			if (!selectedFile.getName().toLowerCase().endsWith(".csv")) {
-				selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+			if (!selectedFile.getName().toLowerCase().endsWith(".tsv")) {
+				selectedFile = new File(selectedFile.getAbsolutePath() + ".tsv");
 			}
 
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));

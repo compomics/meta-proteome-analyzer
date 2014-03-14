@@ -2,8 +2,10 @@ package de.mpa.graphdb.properties;
 
 public enum PeptideProperty implements ElementProperty {
 	IDENTIFIER("Identifier"),	
+	DESCRIPTION("Description"),
 	SPECTRALCOUNT("Spectral Count"),
-	SPECIES("Species"),
+	TAXONOMY("Taxonomy"),
+	MOLECULARWEIGHT("Molecular Weight (kDa)"),
 	PROTEINCOUNT("Protein Count");	
 	
 	PeptideProperty(final String propertyName){

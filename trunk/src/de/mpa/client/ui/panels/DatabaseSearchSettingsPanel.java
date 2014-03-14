@@ -155,7 +155,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox(Constants.FASTA_DB);
+		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, CC.xy(4, 2));
@@ -171,7 +171,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.00"));
 		precTolSpn.setToolTipText("The precursor mass tolerance.");
-		precTolCbx = new JComboBox(Constants.TOLERANCE_UNITS);
+		precTolCbx = new JComboBox<String>(Constants.TOLERANCE_UNITS);
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));
@@ -183,7 +183,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 		
 		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox(new String[] { "Target-Decoy", "Target Only" });
+		searchTypeCbx = new JComboBox<String>(new String[] { "Target-Decoy", "Target Only" });
 		
 		JPanel packPnl = new JPanel(new FormLayout("p, 2dlu, p:g, 2dlu, p", "p"));
 

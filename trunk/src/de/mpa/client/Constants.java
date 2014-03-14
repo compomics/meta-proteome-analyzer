@@ -66,7 +66,7 @@ public class Constants {
 	/**
 	 * The names of FASTA database files available for searches.
 	 */
-	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "yeast", "gut_yeast"};
+	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "yeast", "gut_yeast", "pyro_target"};
 	
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter after GET).
@@ -180,7 +180,11 @@ public class Constants {
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Project File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
-			"CSV File, tab-separated (*.csv)");
+			"CSV File, comma-separated (*.csv)");
+	public static final String TSV_FILE_SEPARATOR = "\t";
+	public static final String CSV_FILE_SEPARATOR = ";";
+	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,
+			"TSV File, tab-separated (*.tsv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,

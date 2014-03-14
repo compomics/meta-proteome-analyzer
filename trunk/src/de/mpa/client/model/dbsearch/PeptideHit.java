@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.mpa.analysis.Masses;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.panels.ComparePanel.CompareData;
+import de.mpa.util.Formatter;
 
 /**
  * This class represents a peptide hit.
@@ -45,7 +47,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 *  The end of the peptide sequence in the protein.
 	 */
 	private int end;
-
+	
 	/**
 	 *  The list of protein hits associated with this peptide hit.
 	 */
@@ -351,6 +353,34 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		}
 		
 		return res;
+	}
+	
+	/**
+	 * Returns the molecular weight in kDa for the peptide.
+	 * @return Molecular peptide weight.
+	 */
+	public double getMolecularWeight() {
+		// Get the masses with the amino acid masses.
+		Map<String, Double> masses = Masses.getInstance();
+
+		// Start with the N-terminal mass
+		double molWeight = Masses.N_term;
+
+		// Get the protein sequence.
+
+		// Iterate the protein sequence and add the molecular masses.
+		for (char letter : sequence.toCharArray()) {
+			Double aaWeight = masses.get(String.valueOf(letter));
+			if (aaWeight != null) {
+				molWeight += aaWeight;
+			}
+		}
+
+		// Add the C-terminal mass.
+		molWeight += Masses.C_term;
+
+		// Get the weight in kDa
+		return Formatter.roundDouble((molWeight / 1000.0), 3);
 	}
 	
 }

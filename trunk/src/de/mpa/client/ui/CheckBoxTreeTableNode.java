@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Stack;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -374,6 +375,16 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
     public Enumeration<TreeNode> depthFirstEnumeration() {
         return new PostorderEnumeration(this);
     }
+    
+    /** 
+     * Provides an enumeration of a tree traversing it preordered.
+     *
+     * @see	#preOrderEnumeration
+     * @return an enumeration for preordered traversal.
+    */
+    public Enumeration<TreeNode> preOrderEnumeration() {
+    	return new PreorderEnumeration(this);
+    }
 
 	final class PostorderEnumeration implements Enumeration<TreeNode> {
         protected TreeNode root;
@@ -408,7 +419,50 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 
             return retval;
         }
-
     }  // End of class PostorderEnumeration
 	
+	/**
+	 * PreorderEnumeration class - taken from original DefaultMutableTreeNode class - slightly modified with generic code.
+	 */
+	final class PreorderEnumeration implements Enumeration<TreeNode> {
+		TreeNode next;
+
+		Stack<Enumeration<TreeNode>> childrenEnums = new Stack<Enumeration<TreeNode>>();
+
+		@SuppressWarnings("unchecked")
+		public PreorderEnumeration(TreeNode node) {
+			next = node;
+			childrenEnums.push(node.children());
+		}
+
+		public boolean hasMoreElements() {
+			return next != null;
+		}
+
+		public TreeNode nextElement() {
+			if (next == null)
+				throw new NoSuchElementException("No more elements left.");
+			TreeNode current = next;
+			Enumeration children = (Enumeration) childrenEnums.peek();
+
+			next = traverse(children);
+			return current;
+		}
+
+		@SuppressWarnings("unchecked")
+		private TreeNode traverse(Enumeration children) {
+			if (children.hasMoreElements()) {
+				TreeNode child = (TreeNode) children.nextElement();
+				childrenEnums.push(child.children());
+				return child;
+			}
+			childrenEnums.pop();
+
+			if (childrenEnums.isEmpty())
+				return null;
+			else {
+				return traverse((Enumeration) childrenEnums.peek());
+			}
+		}
+	}
 }
