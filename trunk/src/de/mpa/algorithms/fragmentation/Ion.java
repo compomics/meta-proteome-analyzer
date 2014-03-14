@@ -11,6 +11,46 @@ import java.util.List;
  * @author Thilo Muth
  */
 public interface Ion {
+	
+	/**
+	 * Enumeration holding ion types and their corresponding symbols.
+	 * @author A. Behne
+	 */
+	public enum IonType {
+		A_ION("a"),
+		ANH3_ION("a*"),
+		AH2O_ION("a\u00B0"),
+		B_ION("b"),
+		BNH3_ION("b*"),
+		BH2O_ION("b\u00B0"),
+		C_ION("c"),
+		X_ION("x"),
+		Y_ION("y"),
+		YNH3_ION("y*"),
+		YH2O_ION("y\u00B0"),
+		Z_ION("z"),
+		MH_ION("MH"),
+		MHNH3_ION("MH*"),
+		MHH2O_ION("MH\u00B0");
+		
+		/**
+		 * The ion symbol string.
+		 */
+		private String symbol;
+		
+		/**
+		 * Constructs an ion type enum member from the specified symbol string.
+		 * @param symbol the symbol string
+		 */
+		private IonType(String symbol) {
+			this.symbol = symbol;
+		}
+		
+		@Override
+		public String toString() {
+			return symbol;
+		}
+	}
 
     /**
      * This int is the identifier for an a ion.
@@ -101,7 +141,7 @@ public interface Ion {
      *
      * @return int
      */
-    public int getType();
+    public IonType getType();
 
     /**
      * Returns the ion number.

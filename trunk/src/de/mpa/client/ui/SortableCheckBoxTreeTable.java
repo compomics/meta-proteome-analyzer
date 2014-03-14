@@ -1,6 +1,7 @@
 package de.mpa.client.ui;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -18,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -433,6 +435,12 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 								CheckBoxTreeSelectionModel cbtsm =
 										((CheckBoxTreeTable) treeTbl).getCheckBoxTreeSelectionModel();
 								return cbtsm.isPartiallySelected(rootPath);
+							}
+							@Override
+							protected void paintComponent(Graphics g) {
+								g.setColor(UIManager.getColor("TableHeader.background"));
+								g.fillRect(2, 3, 9, 9);
+								super.paintComponent(g);
 							}
 						};
 						selChk.setBorder(BorderFactory.createEmptyBorder(1, 0, 0, 0));

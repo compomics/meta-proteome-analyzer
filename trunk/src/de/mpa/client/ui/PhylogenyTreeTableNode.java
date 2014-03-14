@@ -15,9 +15,13 @@ import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.accessor.SearchHit;
 
 /**
  * Custom tree table node that supports multiple parents by index.
@@ -46,7 +50,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		return 12;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object getValueAt(int column) {
 		if (this.isProtein()) {
@@ -132,6 +135,47 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			default:
 				return super.getValueAt(column);
 			}
+		} else if (this.isPeptide()) {
+			PeptideHit ph = (PeptideHit) userObject;
+			switch (column) {
+			case 0:
+				return this.toString();
+			case 1:
+				return ph.getProteinHits().size();
+			case 2:
+				return ph.getSpectrumMatches().size();
+			case 3:
+				TaxonomyNode tn = ph.getTaxonomyNode();
+				return tn.getName() + "(" + tn.getRank() + ")";
+			default:
+				return super.getValueAt(column);
+			}
+		} else if (this.isPSM()) {
+			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) userObject;
+			SearchHit searchHit;
+			switch (column) {
+			case 0:
+				return psm.getSearchSpectrumID();
+			case 1:
+				return psm.getCharge();
+			case 2:
+				searchHit = psm.getSearchHit(SearchEngineType.XTANDEM);
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+			case 3:
+				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+			case 4:
+				searchHit = psm.getSearchHit(SearchEngineType.CRUX);
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+			case 5:
+				searchHit = psm.getSearchHit(SearchEngineType.INSPECT);
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+			case 6:
+				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+			default:
+				return super.getValueAt(column);
+			}
 		}
 		// fall-back for when none of the above applies
 		return super.getValueAt(column);
@@ -162,7 +206,16 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			super.setValueAt(aValue, column);
 		}
 	}
-	
+
+	/**
+	 * Returns whether this node stores meta-protein data.
+	 * @return <code>true</code> if this node contains meta-protein data,
+	 *  <code>false</code> otherwise
+	 */
+	public boolean isMetaProtein() {
+		return (userObject instanceof MetaProteinHit);
+	}
+
 	/**
 	 * Returns whether this node stores protein hit data.
 	 * @return <code>true</code> if this node contains protein hit data,
@@ -170,6 +223,24 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	 */
 	public boolean isProtein() {
 		return (userObject instanceof ProteinHit);
+	}
+	
+	/**
+	 * Returns whether this node stores peptide hit data.
+	 * @return <code>true</code> if this node contains peptide hit data,
+	 *  <code>false</code> otherwise
+	 */
+	public boolean isPeptide() {
+		return (userObject instanceof PeptideHit);
+	}
+	
+	/**
+	 * Returns whether this node stores PSM data.
+	 * @return <code>true</code> if this node contains PSM data,
+	 *  <code>false</code> otherwise
+	 */
+	public boolean isPSM() {
+		return (userObject instanceof PeptideSpectrumMatch);
 	}
 	
 	/**

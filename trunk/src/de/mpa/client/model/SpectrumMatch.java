@@ -14,7 +14,7 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.panels.ComparePanel.CompareData;
 
 /**
- * Class holding the spetrum matches
+ * Class holding spetrum match data.
  */
 public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, Taxonomic, Hit {
 	

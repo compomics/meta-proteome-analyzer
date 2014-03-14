@@ -63,10 +63,10 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * @param sortKeys The new sort keys to set.
 	 */
 	public void setSortKeys(List<? extends SortKey> sortKeys) {
-		if (!sortKeys.equals(this.sortKeys)) {
+//		if (!sortKeys.equals(this.sortKeys)) {
 			this.sortKeys = new ArrayList<SortKey>(sortKeys);
 			this.sort();
-		}
+//		}
 	}
 	
 	/**
@@ -84,10 +84,10 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * @param rowFilter The new row filter to set.
 	 */
 	public void setRowFilter(RowFilter<? super TableModel,? super Integer> rowFilter) {
-		if (rowFilter != this.rowFilter) {
+//		if (rowFilter != this.rowFilter) {
 			this.rowFilter = rowFilter;
 			this.sort();
-		}
+//		}
 	}
 	
 	/**
@@ -143,7 +143,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * Sorts the part of the model below the specified parent node.
 	 * @param parent The node below which the model will be sorted.
 	 */
-	private void sort(TreeTableNode parent) {
+	public void sort(TreeTableNode parent) {
 		this.doSort(parent, shouldReset());
 		
 		this.modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));

@@ -79,6 +79,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 		// invoke super constructor, configure default label
 		super();
 		this.setHorizontalTextPosition(SwingConstants.RIGHT);
+		this.setOpaque(false);
 		
 		// initialize delegate label and component
 		this.label = new JLabel("", SwingConstants.CENTER);

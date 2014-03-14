@@ -368,15 +368,25 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Custom tree cell editor for checkbox trees.
-	 * 
 	 * @author A. Behne
 	 */
 	public class CheckBoxTreeCellEditor extends AbstractCellEditor implements
 			TableCellEditor {
 
+		/**
+		 * The renderer component.
+		 */
 		private IconCheckBox checkBox;
+		
+		/**
+		 * The highlight border.
+		 */
 		private Border highlightBorder = UIManager.getBorder("Table.focusCellHighlightBorder");
 		
+		/**
+		 * Creates a tree cell editor for checkbox tree tables.
+		 * @param checkBox
+		 */
 		public CheckBoxTreeCellEditor(IconCheckBox checkBox) {
 			this.checkBox = checkBox;
 		}
@@ -397,36 +407,45 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			IconCheckBox rendererChk = (IconCheckBox) tree.getCellRenderer().getTreeCellRendererComponent(
 					tree, node, isSelected, tree.isExpanded(row), node.isLeaf(), row, true);
 
-			this.checkBox.setURI(node.getURI());
-			this.checkBox.setIcon(rendererChk.getIcon());
-			this.checkBox.setText(rendererChk.getText());
-			this.checkBox.setSelected(rendererChk.isSelected());
-			this.checkBox.setEnabled(rendererChk.isEnabled());
-			this.checkBox.setFixed(rendererChk.isFixed());
-			
-			// inherit visuals from respective table row
+			checkBox.setURI(node.getURI());
+			checkBox.setIcon(rendererChk.getIcon());
+			checkBox.setText(rendererChk.getText());
+			checkBox.setSelected(rendererChk.isSelected());
+			checkBox.setEnabled(rendererChk.isEnabled());
+			checkBox.setFixed(rendererChk.isFixed());
+
+			// inherit visuals from respective table row by applying them first
+			// to an intermediate component then afterwards transferring the
+			// result to the renderer component
+			JPanel tmpPnl = new JPanel();
 			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
-					this.checkBox, getComponentAdapter(row, column));
+					tmpPnl, getComponentAdapter(row, column));
+			checkBox.setBackground(tmpPnl.getBackground());
 			
 			Rectangle cellRect = table.getCellRect(0, column, false);
 			Rectangle nodeRect = tree.getRowBounds(row);
-			int nodeStart = 1 + indent + cellRect.x + nodeRect.x;
+//			int nodeStart = 1 + indent + cellRect.x + nodeRect.x;
+			int nodeStart = indent + 1;
+			nodeStart += cellRect.x;
+			if (nodeRect != null) {
+				nodeStart += nodeRect.x;
+			}
 			
 			Border border;
 			if (table.isColumnSelected(column) && table.isRowSelected(row)) {
-				border = BorderFactory.createCompoundBorder(this.highlightBorder,
+				border = BorderFactory.createCompoundBorder(highlightBorder,
 						BorderFactory.createEmptyBorder(0, nodeStart - 1, -1, 0));
 			} else {
 				border = BorderFactory.createEmptyBorder(1, nodeStart, 0, 1);
 			}
-			this.checkBox.setBorder(border);
+			checkBox.setBorder(border);
 			
-			return this.checkBox;
+			return checkBox;
 		}
 
 		@Override
 		public Object getCellEditorValue() {
-			return this.checkBox.isSelected();
+			return checkBox.isSelected();
 		}
 		
 	}
@@ -475,7 +494,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		public IconCheckBox(int vOffset) {
 
 		    this.setLayout(new BorderLayout());
-//		    this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 			this.setOpaque(false);
 
 			// top checkbox with tri-state visuals
@@ -497,7 +515,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			hyperlink.setVerticalTextPosition(SwingConstants.TOP);
 
 			hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
-
+			
 			// lay out components
 			this.add(checkBox, BorderLayout.WEST);
 			this.add(hyperlink, BorderLayout.CENTER);
@@ -547,14 +565,9 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		
 		@Override
 		public void setBackground(Color bg) {
-			for (Component comp : getComponents()) {
-				if (comp != checkBox) {
-					comp.setBackground(bg);
-				}
+			if (hyperlink != null) {
+				hyperlink.setBackground(bg);
 			}
-//			if (hyperlink != null) {
-//				hyperlink.setBackground(bg);
-//			}
 		}
 		
 		/**

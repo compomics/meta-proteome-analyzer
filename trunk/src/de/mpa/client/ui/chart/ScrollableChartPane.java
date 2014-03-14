@@ -58,7 +58,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.icons.IconConstants;
 
 /**
- * TODO: API
+ * Scrollable pane wrapping chart views.
  * 
  * @author A. Behne
  */
@@ -100,7 +100,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 
 	/**
 	 * Constructs a scrollable chart panel view from the specified chart.
-	 * @param chart
+	 * @param chart the chart
 	 */
 	public ScrollableChartPane(JFreeChart chart) {
 		super();
@@ -113,7 +113,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	}
 
 	/**
-	 * 
+	 * Creates and lays out the pane's components.
 	 */
 	private void initComponents() {
 		
@@ -172,7 +172,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		chartPnl.addMouseMotionListener(ma);
 		
 		// create combobox to control what counts to display in the plots (protein/peptide/spectrum count)
-		chartHierarchyCbx = new JComboBox(HierarchyLevel.values());
+		chartHierarchyCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
 		chartHierarchyCbx.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
@@ -361,7 +361,6 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 			chartPieAngle = temp;
 		}
 		// hide/show additional controls
-		// TODO: show controls for ontology/taxonomy bar charts (and make sure they work)
 		chartHierarchyCbx.setVisible(showAdditionalControls);
 		chartHierarchyCbx.setEnabled(showAdditionalControls);
 		chartHideUnknownChk.setVisible(showAdditionalControls);
@@ -401,29 +400,28 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	}
 
 	/**
-	 * TODO: API
-	 * 
+	 * Mouse handler for interacting with the chart view.
 	 * @author A. Behne
 	 */
 	private class InteractionMouseAdapter extends MouseAdapter {
 		
 		/**
-		 * 
+		 * The parent chart panel to interact with.
 		 */
 		private ChartPanel chartPnl;
 		
 		/**
-		 * 
+		 * The currently highlighted section's identifier.
 		 */
 		private Comparable highlightedKey = null;
 		
 		/**
-		 * 
+		 * The currently selected section's identifier.
 		 */
 		private Comparable selectedKey = null;
 		
 		/**
-		 * 
+		 * The re-usable 'Save As...' action instance.
 		 */
 		private Action saveAsAction;
 		
@@ -577,22 +575,21 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * TODO: API
-	 * 
+	 * Action implementation for dumping a chart view to a *.csv file.
 	 * @author A. Behne
 	 */
 	private class SaveAsAction extends AbstractAction {
 		
 		/**
-		 * 
+		 * The parent chart panel.
 		 */
 		private ChartPanel chartPnl;
 
 		/**
-		 * 
-		 * @param chartPnl
+		 * Creates a 'Save As...' action for use with the provided parent chart panel.
+		 * @param chartPnl the parent chart panel
 		 */
 		public SaveAsAction(ChartPanel chartPnl) {
 			this.chartPnl = chartPnl;
