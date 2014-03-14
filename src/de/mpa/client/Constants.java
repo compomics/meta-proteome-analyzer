@@ -193,21 +193,6 @@ public class Constants {
 			"GraphML File (*.graphml)");
 	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
 			"Microsoft Excel 2003 XML File (*.xml)");
-
-	// Protein table column indices
-	public static final int PROT_SELECTION = 0;
-	public static final int PROT_INDEX = 1;
-	public static final int PROT_ACCESSION = 2;
-	public static final int PROT_DESCRIPTION = 3;
-	public static final int PROT_TAXONOMY = 4;
-	public static final int PROT_COVERAGE = 5;
-	public static final int PROT_MW = 6;
-	public static final int PROT_PI = 7;
-	public static final int PROT_PEPTIDECOUNT = 8;
-	public static final int PROT_SPECTRALCOUNT = 9;
-	public static final int PROT_EMPAI = 10;
-	public static final int PROT_NSAF = 11;
-	public static final int PROT_WEBRESOURCE = 12;
 	
 	/**
 	 * Enumeration holding UI-related colors.

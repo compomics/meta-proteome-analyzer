@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.mpa.algorithms.fragmentation.Ion.IonType;
 import de.mpa.analysis.Masses;
 
 /**
@@ -93,7 +94,7 @@ public class Fragmentizer {
 
 	private double mh;
 	
-	private Map<String, FragmentIon[]> fragIonsMap = new HashMap<String, FragmentIon[]>();
+	private Map<IonType, FragmentIon[]> fragIonsMap = new HashMap<IonType, FragmentIon[]>();
 	
 
 
@@ -174,9 +175,9 @@ public class Fragmentizer {
         int cptb = 0;
         int cpty = 0;
         for (int charge = 1; charge <= iPeptideCharge; charge++) {
-            iMH[charge - 1] = new FragmentIon((mh + (charge - 1) * hydrogenMass) / charge, FragmentIon.MH_ION, 0, charge);
-            iMHH2O[charge - 1] = new FragmentIon((mh - oxygenMass - 2 * hydrogenMass + (charge - 1) * hydrogenMass) / charge, FragmentIon.MHH2O_ION, 0, charge);
-            iMHNH3[charge - 1] = new FragmentIon((mh - nitrogenMass - 3 * hydrogenMass + (charge - 1) * hydrogenMass) / charge, FragmentIon.MHNH3_ION, 0, charge);
+            iMH[charge - 1] = new FragmentIon((mh + (charge - 1) * hydrogenMass) / charge, IonType.MH_ION, 0, charge);
+            iMHH2O[charge - 1] = new FragmentIon((mh - oxygenMass - 2 * hydrogenMass + (charge - 1) * hydrogenMass) / charge, IonType.MHH2O_ION, 0, charge);
+            iMHNH3[charge - 1] = new FragmentIon((mh - nitrogenMass - 3 * hydrogenMass + (charge - 1) * hydrogenMass) / charge, IonType.MHNH3_ION, 0, charge);
 
             for (int i = 0; i < length; i++) {
                 double bMass = 0.0;
@@ -188,13 +189,13 @@ public class Fragmentizer {
                 }
                 // Create an instance for each fragment ion
                 if (charge <= iPeptideCharge) {
-                    iAIons[cptb] = new FragmentIon((bMass - oxygenMass - carbonMass + charge * hydrogenMass) / charge, FragmentIon.A_ION, i + 1, charge);
-                    iANH3Ions[cptb] = new FragmentIon((bMass - oxygenMass - carbonMass - nitrogenMass - 3 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.ANH3_ION, i + 1, charge);
-                    iAH2OIons[cptb] = new FragmentIon((bMass - 2 * oxygenMass - carbonMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.AH2O_ION, i + 1, charge);
-                    iBIons[cptb] = new FragmentIon((bMass + charge * hydrogenMass) / charge, FragmentIon.B_ION, i + 1, charge);      
-                    iBNH3Ions[cptb] = new FragmentIon((bMass - nitrogenMass - 3 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.BNH3_ION, i + 1, charge);
-                    iBH2OIons[cptb] = new FragmentIon((bMass - oxygenMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.BH2O_ION, i + 1, charge);
-                    iCIons[cptb] = new FragmentIon((bMass + nitrogenMass + 3 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.C_ION, i + 1, charge);
+                    iAIons[cptb] = new FragmentIon((bMass - oxygenMass - carbonMass + charge * hydrogenMass) / charge, IonType.A_ION, i + 1, charge);
+                    iANH3Ions[cptb] = new FragmentIon((bMass - oxygenMass - carbonMass - nitrogenMass - 3 * hydrogenMass + charge * hydrogenMass) / charge, IonType.ANH3_ION, i + 1, charge);
+                    iAH2OIons[cptb] = new FragmentIon((bMass - 2 * oxygenMass - carbonMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, IonType.AH2O_ION, i + 1, charge);
+                    iBIons[cptb] = new FragmentIon((bMass + charge * hydrogenMass) / charge, IonType.B_ION, i + 1, charge);      
+                    iBNH3Ions[cptb] = new FragmentIon((bMass - nitrogenMass - 3 * hydrogenMass + charge * hydrogenMass) / charge, IonType.BNH3_ION, i + 1, charge);
+                    iBH2OIons[cptb] = new FragmentIon((bMass - oxygenMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, IonType.BH2O_ION, i + 1, charge);
+                    iCIons[cptb] = new FragmentIon((bMass + nitrogenMass + 3 * hydrogenMass + charge * hydrogenMass) / charge, IonType.C_ION, i + 1, charge);
                     cptb++;
                 }
 
@@ -206,11 +207,11 @@ public class Fragmentizer {
                 yMass = yMass + c_termMass + hydrogenMass;
 
                 // Create an instance of the fragment y ion
-                iXIons[cpty] = new FragmentIon((yMass + carbonMass + oxygenMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.X_ION, i + 1, charge);
-                iYIons[cpty] = new FragmentIon((yMass + charge * hydrogenMass) / charge, FragmentIon.Y_ION, i + 1, charge);
-                iYNH3Ions[cpty] = new FragmentIon((yMass - nitrogenMass - 3 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.YNH3_ION, i + 1, charge);
-                iYH2OIons[cpty] = new FragmentIon((yMass - 2 * hydrogenMass - oxygenMass + charge * hydrogenMass) / charge, FragmentIon.YH2O_ION, i + 1, charge);
-                iZIons[cpty] = new FragmentIon((yMass - nitrogenMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, FragmentIon.Z_ION, i + 1, charge);
+                iXIons[cpty] = new FragmentIon((yMass + carbonMass + oxygenMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, IonType.X_ION, i + 1, charge);
+                iYIons[cpty] = new FragmentIon((yMass + charge * hydrogenMass) / charge, IonType.Y_ION, i + 1, charge);
+                iYNH3Ions[cpty] = new FragmentIon((yMass - nitrogenMass - 3 * hydrogenMass + charge * hydrogenMass) / charge, IonType.YNH3_ION, i + 1, charge);
+                iYH2OIons[cpty] = new FragmentIon((yMass - 2 * hydrogenMass - oxygenMass + charge * hydrogenMass) / charge, IonType.YH2O_ION, i + 1, charge);
+                iZIons[cpty] = new FragmentIon((yMass - nitrogenMass - 2 * hydrogenMass + charge * hydrogenMass) / charge, IonType.Z_ION, i + 1, charge);
                 cpty++;
             }
         }
@@ -226,85 +227,54 @@ public class Fragmentizer {
      */
     public List<FragmentIon> getMatchedIons(List<SpectrumPeak> aPeaks, double fragMassTol, double threshold) {
     	List<FragmentIon> matchedIons = new ArrayList<FragmentIon>();
-    	for(int i = 0; i < 15; i++){
-    		FragmentIon[] theoreticIons = getTheoreticIons(i);
-            for (FragmentIon fragIon : theoreticIons) {
+    	for (IonType type : IonType.values()) {
+    		FragmentIon[] theoreticalIons = this.getTheoreticalIons(type);
+            for (FragmentIon fragIon : theoreticalIons) {
                 if (fragIon != null) {
                     if (fragIon.isMatch(aPeaks, fragMassTol, threshold)) {
                         matchedIons.add(fragIon);
                     }
                 }
             }
-    	}
+		}
         return matchedIons;
     }
     
     /**
      * Fill the fragment ion map.
      */
-    private void fillFragmentIonMap(){
-    	fragIonsMap.put("a", getTheoreticIons(FragmentIon.A_ION));
-    	fragIonsMap.put("a_H2O", getTheoreticIons(FragmentIon.AH2O_ION));
-    	fragIonsMap.put("a_NH3", getTheoreticIons(FragmentIon.ANH3_ION));
-    	fragIonsMap.put("b", getTheoreticIons(FragmentIon.B_ION));
-    	fragIonsMap.put("b_H2O", getTheoreticIons(FragmentIon.BH2O_ION));
-    	fragIonsMap.put("b_NH3", getTheoreticIons(FragmentIon.BNH3_ION));
-    	fragIonsMap.put("c", getTheoreticIons(FragmentIon.C_ION));
-    	fragIonsMap.put("x", getTheoreticIons(FragmentIon.X_ION));
-    	fragIonsMap.put("y", getTheoreticIons(FragmentIon.Y_ION));
-    	fragIonsMap.put("y_H2O", getTheoreticIons(FragmentIon.YH2O_ION));
-    	fragIonsMap.put("y_NH3", getTheoreticIons(FragmentIon.YNH3_ION));
-    	fragIonsMap.put("z", getTheoreticIons(FragmentIon.Z_ION));
-    	fragIonsMap.put("mh", getTheoreticIons(FragmentIon.MH_ION));
-    	fragIonsMap.put("mh_H2O", getTheoreticIons(FragmentIon.MHH2O_ION));
-    	fragIonsMap.put("mh_NH3", getTheoreticIons(FragmentIon.MHNH3_ION));
+    private void fillFragmentIonMap() {
+    	fragIonsMap.put(IonType.A_ION, iAIons);
+    	fragIonsMap.put(IonType.AH2O_ION, iAH2OIons);
+    	fragIonsMap.put(IonType.ANH3_ION, iANH3Ions);
+    	fragIonsMap.put(IonType.B_ION, iBIons);
+    	fragIonsMap.put(IonType.BH2O_ION, iBH2OIons);
+    	fragIonsMap.put(IonType.BNH3_ION, iBNH3Ions);
+    	fragIonsMap.put(IonType.C_ION, iCIons);
+    	fragIonsMap.put(IonType.X_ION, iXIons);
+    	fragIonsMap.put(IonType.Y_ION, iYIons);
+    	fragIonsMap.put(IonType.YH2O_ION, iYH2OIons);
+    	fragIonsMap.put(IonType.YNH3_ION, iYNH3Ions);
+    	fragIonsMap.put(IonType.Z_ION, iZIons);
+    	fragIonsMap.put(IonType.MH_ION, iMH);
+    	fragIonsMap.put(IonType.MHH2O_ION, iMHH2O);
+    	fragIonsMap.put(IonType.MHNH3_ION, iMHNH3);
     }
     
     /**
      * Returns the fragment ions map.
-     * @return fragIonsMap Map<String, FragmentIon[]>
+     * @return the fragment ions map
      */
-    public Map<String, FragmentIon[]> getFragmentIons(){
+	public Map<IonType, FragmentIon[]> getFragmentIons() {
     	return fragIonsMap;
     	
     }
+	
     /**
      * Returns the corresponding array of theoretic ions.
      */
-    public FragmentIon[] getTheoreticIons(int type) {
-        switch (type) {
-            case FragmentIon.A_ION:
-                return iAIons;
-            case FragmentIon.AH2O_ION:
-                return iAH2OIons;
-            case FragmentIon.ANH3_ION:
-                return iANH3Ions;
-            case FragmentIon.B_ION:
-                return iBIons;
-            case FragmentIon.BH2O_ION:
-                return iBH2OIons;
-            case FragmentIon.BNH3_ION:
-                return iBNH3Ions;
-            case FragmentIon.C_ION:
-                return iCIons;
-            case FragmentIon.X_ION:
-                return iXIons;
-            case FragmentIon.Y_ION:
-                return iYIons;
-            case FragmentIon.YH2O_ION:
-                return iYH2OIons;
-            case FragmentIon.YNH3_ION:
-                return iYNH3Ions;
-            case FragmentIon.Z_ION:
-                return iZIons;
-            case FragmentIon.MH_ION:
-                return iMH;
-            case FragmentIon.MHNH3_ION:
-                return iMHNH3;
-            case FragmentIon.MHH2O_ION:
-                return iMHH2O;
-        }
-        return null;
+    public FragmentIon[] getTheoreticalIons(IonType type) {
+    	return (type != null) ? fragIonsMap.get(type) : null;
     }
 }
 

@@ -1110,7 +1110,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Update overview panel
 				ResultsPanel.this.updateOverview();
 				// Populate tables in database search result panel
-				ResultsPanel.this.dbPnl.refreshTables(this.file);
+				ResultsPanel.this.dbPnl.refreshProteinViews(this.file);
 			} else {
 				// Stop appearing busy
 				ResultsPanel.this.setBusy(false);

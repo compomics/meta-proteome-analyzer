@@ -1,8 +1,11 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.db.accessor.SearchHit;
 
@@ -21,8 +24,11 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	/**
 	 * The search engine hits.
 	 */
-	private List<SearchHit> searchHits;
+	private Map<SearchEngineType, SearchHit> searchHits;
 	
+	/**
+	 * The visible search engine hits.
+	 */
 	private List<SearchHit> visSearchHits;
 	
 	/**
@@ -39,16 +45,30 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit) {
 		this.searchSpectrumID = spectrumid;
 		this.charge = (int) searchHit.getCharge();
-		this.searchHits = new ArrayList<SearchHit>();
-		this.searchHits.add(searchHit);
+		this.searchHits = new HashMap<SearchEngineType, SearchHit>();
+		this.searchHits.put(searchHit.getType(), searchHit);
 	}
 	
 	/**
-	 * Returns the search hit.
-	 * @return The search hit.
+	 * Returns the single search hit.
+	 * @return The single search hit.
 	 */
-	public SearchHit getFirstSearchHit() {
-		return searchHits.get(0);
+	public SearchHit getSingleSearchHit() {
+		if (searchHits.size() > 1) {
+			if (Client.getInstance().isDebug()) {
+				System.err.println("PSM " + this + " already contains multiple search hits.");
+			}
+		}
+		return searchHits.values().iterator().next();
+	}
+	
+	/**
+	 * Returns the search hit associated with the specified search engine type.
+	 * @param type the search engine type
+	 * @return the search hit or <code>null</code> if no such hit exists
+	 */
+	public SearchHit getSearchHit(SearchEngineType type) {
+		return searchHits.get(type);
 	}
 	
 	/**
@@ -57,7 +77,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	public List<SearchHit> getSearchHits() {
 		if (visSearchHits == null) {
-			return searchHits;
+			return new ArrayList<SearchHit>(searchHits.values());
 		}
 		return visSearchHits;
 	}
@@ -67,8 +87,12 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @param hit Another search engine hit to be added.
 	 */
 	public void addSearchEngineHit(SearchHit hit) {
-		if (!searchHits.contains(hit)) {
-			this.searchHits.add(hit);
+		if (!searchHits.containsValue(hit)) {
+			this.searchHits.put(hit.getType(), hit);
+		} else {
+			if (Client.getInstance().isDebug()) {
+				System.err.println("Search hit " + hit + " already contained in PSM " + this);
+			}
 		}
 	}
 
@@ -95,7 +119,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	@Override
 	public void setFDR(double fdr) {
 		this.visSearchHits = new ArrayList<SearchHit>();
-		for (SearchHit hit : this.searchHits) {
+		for (SearchHit hit : this.searchHits.values()) {
 			if (hit.getQvalue().doubleValue() <= fdr) {
 				this.visSearchHits.add(hit);
 			}

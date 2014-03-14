@@ -13,42 +13,52 @@ public class FragmentIon implements Ion {
     /**
      * The m/z of the frament ion.
      */
-    private double iMz = 0.0;
+    private double iMz;
+    
     /**
      * The intensity of the fragment ion.
      */
-    private double iIntensity = 0.0;
+    private double iIntensity;
+    
     /**
      * The number of the fragment ion. For example: b1 ion has the number 1, b4 has number 4 etc.
      */
-    private int iNumber = 0;
+    private int iNumber;
+    
     /**
      * The score of the fragment ion.
      */
-    private int iScore = 0;
+    private int iScore;
+    
     /**
      * The type of this ion as defined int the Ion interface.
      */
-    private int iType;
+    private IonType iType;
+    
     /**
      * The error margin of the fragment ion. Is needed later for the spectrum panel.
      */
-    private double iErrorMargin = 0.0;
+    private double iErrorMargin;
+    
     /**
      * This variable holds the calculated theoretical vs. experimental error.
      */
     private double iTheoreticalExperimentalMassError;
-    /*
+    
+    /**
      * The charge of the ion
      */
     private int iCharge;
 
-    
-    public FragmentIon(double aMz, int aType, int aNumber, int aCharge) {
-        iMz = aMz;
-        iType = aType;
-        iNumber = aNumber;
-        iCharge = aCharge;
+    /**
+     * TODO: API
+     * @param aMz
+     * @param aType
+     * @param aNumber
+     * @param aCharge
+     */
+    public FragmentIon(double aMz, IonType aType, int aNumber, int aCharge) {
+    	this(aMz, aType, aNumber, aCharge, 0.0);
     }
 
     /**
@@ -60,12 +70,8 @@ public class FragmentIon implements Ion {
      * @param aCharge      The charge of the fragment ion.
      * @param aErrorMargin The error margin of the fragment ion.
      */
-    public FragmentIon(double aMz, int aType, int aNumber, int aCharge, double aErrorMargin) {
-        iMz = aMz;
-        iType = aType;
-        iNumber = aNumber;
-        iCharge = aCharge;
-        iErrorMargin = aErrorMargin;
+    public FragmentIon(double aMz, IonType aType, int aNumber, int aCharge, double aErrorMargin) {
+    	this(aMz, 0.0, aType, aNumber, aCharge, aErrorMargin);
     }
 
     /**
@@ -78,13 +84,12 @@ public class FragmentIon implements Ion {
      * @param aCharge      The charge of the fragment ion.
      * @param aErrorMargin The error margin of the fragment ion.
      */
-    public FragmentIon(double aMz, double aIntensity, int aType, int aNumber, int aCharge, double aErrorMargin) {
+    public FragmentIon(double aMz, double aIntensity, IonType aType, int aNumber, int aCharge, double aErrorMargin) {
         iMz = aMz;
         iIntensity = aIntensity;
         iType = aType;
         iNumber = aNumber;
         iCharge = aCharge;
-        iType = aType;
         iErrorMargin = aErrorMargin;
     }
 
@@ -153,7 +158,7 @@ public class FragmentIon implements Ion {
      *
      * @return iType
      */
-    public int getType() {
+    public IonType getType() {
         return iType;
     }
 
@@ -190,40 +195,21 @@ public class FragmentIon implements Ion {
      * @return letter string
      */
     public String getLetter() {
-        switch (iType) {
-            case FragmentIon.A_ION:
-                return "a";
-            case FragmentIon.AH2O_ION:
-                return "a\u00B0";
-            case FragmentIon.ANH3_ION:
-                return "a*";
-            case FragmentIon.B_ION:
-                return "b";
-            case FragmentIon.BH2O_ION:
-                return "b\u00B0";
-            case FragmentIon.BNH3_ION:
-                return "b*";
-            case FragmentIon.C_ION:
-                return "c";
-            case FragmentIon.X_ION:
-                return "x";
-            case FragmentIon.Y_ION:
-                return "y";
-            case FragmentIon.YH2O_ION:
-                return "y\u00B0";
-            case FragmentIon.YNH3_ION:
-                return "y*";
-            case FragmentIon.Z_ION:
-                return "z";
-            case FragmentIon.MH_ION:
-                return "MH";
-            case FragmentIon.MHNH3_ION:
-                return "MH*";
-            case FragmentIon.MHH2O_ION:
-                return "MH\u00B0";
-        }
-        return null;
-
+    	return (iType != null) ? iType.toString() : null;
+    }
+    
+    @Override
+    public String toString() {
+    	String str = this.getLetter();
+		if (iNumber > 0) {
+			str += iNumber;
+		}
+		if (iCharge > 1) {
+			for (int i = 0; i < iCharge; i++) {
+				str += "+";
+			}
+		}
+    	return str;
     }
 
 }
