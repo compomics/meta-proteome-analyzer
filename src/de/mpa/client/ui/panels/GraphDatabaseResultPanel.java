@@ -4,35 +4,44 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 
+import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
@@ -41,6 +50,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GraphQueryDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.graphdb.cypher.CypherQuery;
+import de.mpa.graphdb.io.QueryResultExporter;
 
 public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	
@@ -48,9 +58,20 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * Sortable checkbox treetable instance.
 	 */
 	private SortableCheckBoxTreeTable queryResultsTreeTbl;
-	protected Object filePnl;
-	private JButton graphDbDialogBtn;
-	private GraphDatabaseResultPanel panel;
+	
+	/**
+	 * Graph database query dialog button.
+	 */
+	private JButton queryDialogBtn;
+	
+	/**
+	 * GraphDatabaseResultPanel instance.
+	 */
+	private GraphDatabaseResultPanel resultDatabaseResultPnl;
+	
+	/**
+	 * Column identifiers.
+	 */
 	private List<String> columnIdentifiers;
 	
 	/**
@@ -59,11 +80,16 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	private CypherQuery lastCypherQuery = null;
 	
 	/**
+	 * Export query results button.
+	 */
+	private JButton exportQueryResultsBtn;
+	
+	/**
 	 * The GraphDatabaseResultPanel.
 	 * @param clientFrame The client frame.
 	 */
 	public GraphDatabaseResultPanel() {
-		this.panel = this;
+		this.resultDatabaseResultPnl = this;
 		initComponents();
 	}
 	
@@ -81,21 +107,41 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		
 		// Setup the table
 		setupQueryResultsTable();
+		
+		JPanel buttonPnl = new JPanel(new FormLayout("90px, c:5dlu, 90px, 3dlu", "f:22px"));
+		buttonPnl.setOpaque(false);
 
-		graphDbDialogBtn = new JButton("GraphDB Query", IconConstants.GO_DB_SMALL_ICON);
-		graphDbDialogBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
-		graphDbDialogBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
-		graphDbDialogBtn.setEnabled(false);
-		graphDbDialogBtn.setPreferredSize(new Dimension(graphDbDialogBtn.getPreferredSize().width, 20));
-		graphDbDialogBtn.setFocusPainted(false);
-		graphDbDialogBtn.addActionListener(new ActionListener() {			
+		exportQueryResultsBtn = new JButton("Export", IconConstants.EXCEL_EXPORT_ICON);
+		exportQueryResultsBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
+		exportQueryResultsBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
+		exportQueryResultsBtn.setEnabled(false);
+		exportQueryResultsBtn.setPreferredSize(new Dimension(exportQueryResultsBtn.getPreferredSize().width, 20));
+		exportQueryResultsBtn.setFocusPainted(false);
+		exportQueryResultsBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new GraphQueryDialog(ClientFrame.getInstance(), panel, "GraphDB Query Dialog", true);
+				exportQueryResultsButtonTriggered();
 			}
 		});
 		
-		graphDbTtlPnl.setRightDecoration(graphDbDialogBtn);
+		queryDialogBtn = new JButton("Query", IconConstants.GO_DB_SMALL_ICON);
+		queryDialogBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
+		queryDialogBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
+		queryDialogBtn.setEnabled(false);
+		queryDialogBtn.setPreferredSize(new Dimension(queryDialogBtn.getPreferredSize().width, 20));
+		queryDialogBtn.setFocusPainted(false);
+		queryDialogBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				new GraphQueryDialog(ClientFrame.getInstance(), resultDatabaseResultPnl, "GraphDB Query Dialog", true);
+			}
+		});
+		
+		buttonPnl.add(exportQueryResultsBtn, CC.xy(1, 1));
+		buttonPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(2, 1));
+		buttonPnl.add(queryDialogBtn, CC.xy(3, 1));
+		
+		graphDbTtlPnl.setRightDecoration(buttonPnl);
 		JScrollPane firstDimResultsTblScp = new JScrollPane(queryResultsTreeTbl);
 		firstDimResultsTblScp.setPreferredSize(new Dimension(400, 210));
 		
@@ -104,8 +150,55 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		
 	    this.add(graphDbTtlPnl, cc.xyw(2, 2, 3));
 	}
-  
+	
     /**
+     * Executed when the graphDb results export button is triggered. Via a file chooser the user can select the destination of the CSV file.
+     */
+	protected void exportQueryResultsButtonTriggered() {
+
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				JFileChooser chooser = new ConfirmFileChooser();
+				chooser.setFileFilter(Constants.TSV_FILE_FILTER);
+				chooser.setAcceptAllFileFilterUsed(false);
+				int returnVal = chooser.showSaveDialog(ClientFrame.getInstance());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selFile = chooser.getSelectedFile();
+					if (selFile != null) {
+						String filePath = selFile.getPath();
+						if (!filePath.toLowerCase().endsWith(".tsv")) {
+							filePath += ".tsv";
+						}
+						exportQueryResults(filePath);
+					}
+				}
+				return null;
+			}
+		}.execute();
+	}
+	
+	/**
+	 * Methods for exporting the query result.
+	 * @param filePath Path to export TSV file.
+	 * @throws IOException
+	 */
+	private void exportQueryResults(String filePath) throws IOException {
+		Client client = Client.getInstance();
+		String status = "FINISHED";
+		client.firePropertyChange("new message", null, "EXPORTING QUERY RESULTS FILE");
+		client.firePropertyChange("indeterminate", false, true);
+		try {
+			QueryResultExporter.exportResults(filePath,	queryResultsTreeTbl);
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
+		} 
+		client.firePropertyChange("indeterminate", true, false);
+		client.firePropertyChange("new message", null, "EXPORTING QUERY RESULTS FILE " + status);
+	}
+	
+	/**
      * This method sets the spectra table up.
      */
     private void setupQueryResultsTable() {
@@ -168,6 +261,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
     		}
     		// get first element of node chain
     		TreePath newPath = parentNode.getPath();
+    		
 			Object newChild = newPath.getPathComponent(0);
     		
 			// find node in existing tree to which (part of) the node chain shall be added
@@ -182,7 +276,9 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
     		first = false;
 		}
 		
+		// Results are available.
 		if (!isEmpty) {
+			
 			// force root to have a column count equal to the number of column identifiers
 			root.setUserObjects(columnIdentifiers.toArray());
 			
@@ -192,10 +288,16 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 			
 			// insert model into table
 	    	queryResultsTreeTbl.setTreeTableModel(model);
+	    	
+	    	// Enable results export
+	    	exportQueryResultsBtn.setEnabled(true);
 	        
 		} else {
-			// display notification
+			// Display notification that no results have been found
 			JOptionPane.showMessageDialog(ClientFrame.getInstance(), "Found no results for query.");
+			
+			// Disable results export.
+			exportQueryResultsBtn.setEnabled(true);
 		}
 	}
     
@@ -250,7 +352,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * This method sets the enabled state of the get results button.
 	 */
 	public void setResultsButtonEnabled(boolean enabled) {
-		graphDbDialogBtn.setEnabled(enabled);
+		queryDialogBtn.setEnabled(enabled);
 	}
 	
 	/**

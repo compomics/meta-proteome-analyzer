@@ -60,11 +60,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JMenuItem exportCSVResultsItem;
 	private JMenuItem saveProjectItem;
 	private JMenuItem exportGraphMLItem;
-	
-	/**
-	 * Server connection settings.
-	 */
-	private ServerConnectionSettings srvSettings;
+
 	
 	/**
 	 * Class containing all values for the export checkboxes.
@@ -221,7 +217,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 				helpTriggered();
 			}
 		});
-
 		helpMenu.addSeparator();
 
 		// aboutItem
@@ -294,19 +289,16 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 	/**
 	 * Method to gather database settings from GUI elements.
-	 * @return
+	 * @return Database connections settings
 	 */
 	private DbConnectionSettings gatherDbSettings() {
-
 		DbConnectionSettings dbSettings = new DbConnectionSettings();
-		
 		dbSettings.setJdbcDriver(dbDriverTtf.getText());
 		dbSettings.setUrlLocale(dbLocalUrlTtf.getText());
 		dbSettings.setUrlRemote(dbRemoteUrlTtf.getText());
 		dbSettings.setPort(dbPortTtf.getText());
 		dbSettings.setUsername(dbUserTtf.getText());
 		dbSettings.setPassword(new String(dbPassTtf.getPassword()));
-		
 		return dbSettings;
 	}
 
@@ -395,19 +387,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * @return
 	 */
 	private JPanel constructServerSettingsPanel() {
-
 		JPanel srvPnl = new JPanel();
-		
 		CellConstraints cc = new CellConstraints();
-
-		srvPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-										"p, 3dlu, p, 3dlu, p, 5dlu"));
+		srvPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu", "p, 3dlu, p, 3dlu, p, 5dlu"));
 		srvPnl.setBorder(new TitledBorder("Server Address"));
 
-		srvSettings = client.getServerConnectionSettings();
 		srvHostTtf = new JTextField(8);
 		srvHostTtf.setText(ServerConnectionSettings.DEFAULT_HOST);
-
 		srvPortTtf = new JTextField(8);
 		srvPortTtf.setText(ServerConnectionSettings.DEFAULT_PORT);
 
@@ -431,9 +417,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				}
 			}
 		});
-
 		srvPnl.add(connectBtn, cc.xyw(2,5,3));
-		
 		return srvPnl;
 	}
 	

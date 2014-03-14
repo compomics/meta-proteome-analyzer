@@ -17,6 +17,7 @@ import java.util.TreeMap;
 
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -34,10 +35,7 @@ import de.mpa.db.accessor.Spectrum;
  */
 public class ResultExporter {
 
-	/**
-	 * TSV format separator.
-	 */
-	private static final String SEP = "\t";
+
 	
 	public enum ExportHeaderType {
 		METAPROTEINS, TAXONOMY, PROTEINS, PEPTIDES, PSMS
@@ -59,7 +57,7 @@ public class ResultExporter {
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.METAPROTEINS) {
 				hasFeature[exportHeader.getId() - 1] = true;
-				writer.append(exportHeader.getName() + SEP);
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
@@ -68,17 +66,17 @@ public class ResultExporter {
 		int metaProtCount = 0;
 		for (ProteinHit proteinHit : result.getMetaProteins()) {
 			MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
-			if (hasFeature[0]) writer.append(++metaProtCount + SEP);
-			if (hasFeature[1]) writer.append(metaProtein.getAccession() + SEP);
-			if (hasFeature[2]) writer.append(metaProtein.getDescription() + SEP);
-			if (hasFeature[3]) writer.append(metaProtein.getSpecies() + SEP);
-			if (hasFeature[4]) writer.append(metaProtein.getCoverage() * 100 + SEP);
-			if (hasFeature[5]) writer.append(metaProtein.getIdentity() + SEP);
-			if (hasFeature[6]) writer.append(metaProtein.getNSAF() + SEP);
+			if (hasFeature[0]) writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[1]) writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[2]) writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[3]) writer.append(metaProtein.getSpecies() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[4]) writer.append(metaProtein.getCoverage() * 100 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[5]) writer.append(metaProtein.getIdentity() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[6]) writer.append(metaProtein.getNSAF() + Constants.TSV_FILE_SEPARATOR);
 //			if (hasFeature[6]) writer.append((Math.round(metaProtein.getNSAF() * 100000.0) / 100000.0) + SEP);
-			if (hasFeature[7]) writer.append(metaProtein.getEmPAI() + SEP);
-			if (hasFeature[8]) writer.append(metaProtein.getSpectralCount() + SEP);
-			if (hasFeature[9]) writer.append(metaProtein.getPeptideCount() + SEP);
+			if (hasFeature[7]) writer.append(metaProtein.getEmPAI() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[8]) writer.append(metaProtein.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[9]) writer.append(metaProtein.getPeptideCount() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[10]) {
 				List<PeptideHit> peptideHitList = metaProtein.getPeptideHitList();
 				for (int i = 0; i < peptideHitList.size(); i++) {
@@ -88,7 +86,7 @@ public class ResultExporter {
 						writer.append(", ");
 					}
 				}
-				writer.append(SEP);
+				writer.append(Constants.TSV_FILE_SEPARATOR);
 			}
 			writer.newLine();
 			writer.flush();
@@ -113,7 +111,7 @@ public class ResultExporter {
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.PROTEINS) {
 				hasFeature[exportHeader.getId() - 1] = true;
-				writer.append(exportHeader.getName() + SEP);
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
@@ -127,18 +125,18 @@ public class ResultExporter {
 				// Export not metagenomic hits
 				// if(!proteinHit.getAccession().matches("^\\d*$")) {
 				
-				if (hasFeature[0]) writer.append(++protCount + SEP);
-				if (hasFeature[1]) writer.append(proteinHit.getAccession() + SEP);
-				if (hasFeature[2]) writer.append(proteinHit.getDescription() + SEP);
-				if (hasFeature[3]) writer.append(proteinHit.getSpecies() + SEP);
-				if (hasFeature[4]) writer.append(proteinHit.getCoverage() * 100 + SEP);
-				if (hasFeature[5]) writer.append(proteinHit.getPeptideCount() + SEP);
-				if (hasFeature[6]) writer.append(proteinHit.getNSAF() + SEP);
-//				if (hasFeature[6]) writer.append((Math.round(proteinHit.getNSAF() * 100000.0) / 100000.0) + SEP);
-				if (hasFeature[7]) writer.append(proteinHit.getEmPAI() + SEP);
-				if (hasFeature[8]) writer.append(proteinHit.getSpectralCount() + SEP);
-				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + SEP);
-				if (hasFeature[10]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + SEP);
+				if (hasFeature[0]) writer.append(++protCount + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[1]) writer.append(proteinHit.getAccession() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[2]) writer.append(proteinHit.getDescription() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[3]) writer.append(proteinHit.getSpecies() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[4]) writer.append(proteinHit.getCoverage() * 100 + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[5]) writer.append(proteinHit.getPeptideCount() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[6]) writer.append(proteinHit.getNSAF() + Constants.TSV_FILE_SEPARATOR);
+//				if (hasFeature[6]) writer.append((Math.round(proteinHit.getNSAF() * 100000.0) / 100000.0) + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[7]) writer.append(proteinHit.getEmPAI() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[8]) writer.append(proteinHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[10]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[11]) writer.append(proteinHit.getSequence());
 				if (hasFeature[12]) {
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
@@ -152,7 +150,7 @@ public class ResultExporter {
 					
 					
 					
-					writer.append(SEP);
+					writer.append(Constants.TSV_FILE_SEPARATOR);
 				}
 				writer.newLine();
 				writer.flush();
@@ -178,7 +176,7 @@ public class ResultExporter {
 			if(exportHeader.getType() == ExportHeaderType.PEPTIDES) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				if (exportHeader.getId() < 4 || exportHeader.getId() > 5){
-					writer.append(exportHeader.getName() + SEP);
+					writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 				}
 			}
 		}
@@ -206,30 +204,30 @@ public class ResultExporter {
 						}
 					}
 						
-					if (hasFeature[0]) writer.append(++pepCount + SEP);
+					if (hasFeature[0]) writer.append(++pepCount + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[1]) {
 						List<ProteinHit> proteinHits = peptideHit.getProteinHits();
 						for (int i = 0; i < proteinHits.size(); i++) {
 							ProteinHit proteinHit2 = proteinHits.get(i);
 							if (i == proteinHits.size() - 1) {
-								writer.append(proteinHit2.getAccession() + SEP);
+								writer.append(proteinHit2.getAccession() + Constants.TSV_FILE_SEPARATOR);
 							} else {
 								writer.append(proteinHit2.getAccession() + ";");
 							}
 						}
 					}
-					if (hasFeature[2]) writer.append(peptideHit.getSequence() + SEP);
-					if (hasFeature[5]) writer.append(peptideHit.getProteinCount() + SEP);
-					if (hasFeature[6]) writer.append(peptideHit.getSpectralCount() + SEP);
+					if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
+					if (hasFeature[5]) writer.append(peptideHit.getProteinCount() + Constants.TSV_FILE_SEPARATOR);
+					if (hasFeature[6]) writer.append(peptideHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[7]) {
 						String name = peptideHit.getTaxonomyNode().getName();
 						if (name.equals("root")) {
 							name = "Unclassified";
 						}
-						writer.append(name + SEP);
+						writer.append(name + Constants.TSV_FILE_SEPARATOR);
 					}
-					if (hasFeature[8]) writer.append(peptideHit.getTaxonomyNode().getRank() + SEP);
-					if (hasFeature[9]) writer.append(peptideHit.getTaxonomyNode().getId()+ SEP);
+					if (hasFeature[8]) writer.append(peptideHit.getTaxonomyNode().getRank() + Constants.TSV_FILE_SEPARATOR);
+					if (hasFeature[9]) writer.append(peptideHit.getTaxonomyNode().getId()+ Constants.TSV_FILE_SEPARATOR);
 					writer.newLine();
 					
 					// Add peptide to set.
@@ -258,7 +256,7 @@ public class ResultExporter {
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.PSMS) {
 				hasFeature[exportHeader.getId() - 1] = true;
-				writer.append(exportHeader.getName() + SEP);
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
@@ -278,14 +276,14 @@ public class ResultExporter {
 					String spectrumTitle = Spectrum.findFromSpectrumID(spectrumid, conn).getTitle();
 					List<SearchHit> searchHits = psm.getSearchHits();
 					for (SearchHit searchHit : searchHits) {
-						if (hasFeature[0]) writer.append(++smCount + SEP);
-						if (hasFeature[1]) writer.append(ph.getAccession() + SEP);
-						if (hasFeature[2]) writer.append(peptideHit.getSequence() + SEP);
-						if (hasFeature[3]) writer.append(spectrumTitle + SEP);
-						if (hasFeature[4]) writer.append(psm.getCharge() + SEP);
-						if (hasFeature[5]) writer.append(searchHit.getType().toString() + SEP);
-						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + SEP);
-						if (hasFeature[7]) writer.append(searchHit.getScore() + SEP);
+						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[3]) writer.append(spectrumTitle + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
 						writer.newLine();
 					}			
 					
@@ -311,7 +309,7 @@ public class ResultExporter {
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.TAXONOMY) {
 				hasFeature[exportHeader.getId() - 1] = true;
-				writer.append(exportHeader.getName() + SEP);
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
@@ -427,9 +425,9 @@ public class ResultExporter {
 				List<PeptideHit> peptideHits = entry.getValue();
 				String seps = "";
 				for(int i = 1; i <= 8; i++){
-					if(hasFeature[i]) seps += SEP;
+					if(hasFeature[i]) seps += Constants.TSV_FILE_SEPARATOR;
 				}
-				writer.append(entry.getKey() + seps + SEP + peptideHits.size() + SEP + getSpectralCount(hasFeature[10], peptideHits));		
+				writer.append(entry.getKey() + seps + Constants.TSV_FILE_SEPARATOR + peptideHits.size() + Constants.TSV_FILE_SEPARATOR + getSpectralCount(hasFeature[10], peptideHits));		
 				writer.newLine();
 			}
 		}
@@ -486,7 +484,7 @@ public class ResultExporter {
 	private static void writeTaxonomyResult(BufferedWriter writer, boolean[] hasFeature,	Set<Entry<String, List<PeptideHit>>> entrySet) throws IOException {
 		for (Entry<String, List<PeptideHit>> entry : entrySet) {
 			List<PeptideHit> peptideHits = entry.getValue();				
-			writer.append(SEP + formatTaxonomyPath(peptideHits.get(0).getTaxonomyNode(), hasFeature) + peptideHits.size() + SEP + getSpectralCount(hasFeature[10], peptideHits));				
+			writer.append(Constants.TSV_FILE_SEPARATOR + formatTaxonomyPath(peptideHits.get(0).getTaxonomyNode(), hasFeature) + peptideHits.size() + Constants.TSV_FILE_SEPARATOR + getSpectralCount(hasFeature[10], peptideHits));				
 			writer.newLine();
 		}
 	}
@@ -531,15 +529,15 @@ public class ResultExporter {
 			if(hasFeature[i+1]) {
 				String rank = ranks[i];
 				if(taxRankMap.get(rank) != null) {
-					formattedTaxonomy += taxRankMap.get(rank) + SEP;
+					formattedTaxonomy += taxRankMap.get(rank) + Constants.TSV_FILE_SEPARATOR;
 				} else {
-					formattedTaxonomy += "" + SEP;
+					formattedTaxonomy += "" + Constants.TSV_FILE_SEPARATOR;
 				}
 			}
 		}	
 		
 		// Add the taxnode name itself.
-		formattedTaxonomy += taxNode.getName() + SEP;
+		formattedTaxonomy += taxNode.getName() + Constants.TSV_FILE_SEPARATOR;
 		
 		return formattedTaxonomy;
 	}

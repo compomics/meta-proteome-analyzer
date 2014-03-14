@@ -218,7 +218,7 @@ public class Client {
 	public void connect() {
 		srvSettings = new ServerConnectionSettings();
 		
-		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
+//		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
 		
 		service = new ServerImplService();
 		// Enable MTOM

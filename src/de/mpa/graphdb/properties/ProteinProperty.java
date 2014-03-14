@@ -3,9 +3,12 @@ package de.mpa.graphdb.properties;
 public enum ProteinProperty implements ElementProperty {
 	IDENTIFIER("Identifier"),
 	DESCRIPTION("Description"),
-	SPECTRALCOUNT("Spectral Count"),
 	TAXONOMY("Taxonomy"),
-	COVERAGE("Seq Coverage");
+	MOLECULARWEIGHT("Molecular Weight (kDa)"),
+	COVERAGE("Sequence Coverage"),
+	PROTEINCOUNT("Protein Count"),
+	SPECTRALCOUNT("Spectral Count");	
+	
 	
 	ProteinProperty(final String propertyName){
 		this.propertyName = propertyName;

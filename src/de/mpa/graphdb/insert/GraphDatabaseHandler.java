@@ -176,7 +176,8 @@ public class GraphDatabaseHandler {
 		proteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		proteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), protHit.getDescription());
 		proteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), protHit.getTaxonomyNode().getName());
-		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), protHit.getCoverage());
+		proteinVertex.setProperty(ProteinProperty.MOLECULARWEIGHT.toString(), (Math.round(protHit.getMolecularWeight() * 100.0) / 100.0));
+		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), protHit.getCoverage() * 100.0);
 		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
 		// Index the proteins by their accession.
@@ -215,7 +216,7 @@ public class GraphDatabaseHandler {
 		metaProteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
 		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getTaxonomyNode().getName());
-		metaProteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), metaProteinHit.getCoverage());
+		metaProteinVertex.setProperty(ProteinProperty.PROTEINCOUNT.toString(), metaProteinHit.getProteinSet().size());
 		metaProteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), metaProteinHit.getSpectralCount());
 		
 		// Index the proteins by their accession.
@@ -422,8 +423,11 @@ public class GraphDatabaseHandler {
 				// Create new vertex.
 				peptideVertex = graph.addVertex(null);
 				peptideVertex.setProperty(PeptideProperty.IDENTIFIER.toString(), sequence);
+				String description = "Start: " + peptideHit.getStart() + " End: " + peptideHit.getEnd();
+				peptideVertex.setProperty(PeptideProperty.DESCRIPTION.toString(), description);
 				peptideVertex.setProperty(PeptideProperty.SPECTRALCOUNT.toString(), peptideHit.getSpectralCount());
-				peptideVertex.setProperty(PeptideProperty.SPECIES.toString(), peptideHit.getTaxonomyNode().getName());
+				peptideVertex.setProperty(PeptideProperty.TAXONOMY.toString(), peptideHit.getTaxonomyNode().getName());
+				peptideVertex.setProperty(PeptideProperty.MOLECULARWEIGHT.toString(), (Math.round(peptideHit.getMolecularWeight() * 100.0) / 100.0));
 				peptideVertex.setProperty(PeptideProperty.PROTEINCOUNT.toString(), peptideHit.getProteinCount());
 				
 				// Index the proteins by their accession.
