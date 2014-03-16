@@ -164,7 +164,14 @@ public class Starter {
 		
 		if (unlocked) {			
 			// Display splash screen
-			SplashScreen.display();
+			final SplashScreen splashScreen = new SplashScreen();
+			Thread splash = new Thread(splashScreen);
+			splash.start();
+			try {
+				splash.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -185,9 +192,7 @@ public class Starter {
 						}
 					}
 					ClientFrame.getInstance(viewerMode, debugMode);
-					
-					// Close the splash screen.
-					SplashScreen.close();
+					splashScreen.close();
 				}
 			});
 		}
