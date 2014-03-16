@@ -2,7 +2,6 @@ package de.mpa.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -15,18 +14,13 @@ import javax.swing.JPanel;
 
 import de.mpa.client.Constants;
 
-public class SplashScreen extends JFrame {
+public class SplashScreen extends JFrame implements Runnable {
 	
 	/**
 	 * Serialization ID.
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * SplashScreen instance.
-	 */
-	private static SplashScreen instance;
-	
 	/**
 	 * Helper boolean variable.
 	 */
@@ -38,9 +32,9 @@ public class SplashScreen extends JFrame {
 	private Image image;
 	
 	/**
-	 * Private SplashScreen contructor.
+	 * SplashScreen constructor.
 	 */
-	private SplashScreen() {
+	public SplashScreen() {
 		super();
 		initComponents();
 	}
@@ -77,31 +71,11 @@ public class SplashScreen extends JFrame {
 	}
 	
 	/**
-	 * This method displays the splash screen.
-	 */
-	public static void display() {
-		if (instance == null) {
-			instance = new SplashScreen();		  
-			instance.setVisible(true);
-			if (!EventQueue.isDispatchThread() && Runtime.getRuntime().availableProcessors() == 1) {
-				synchronized (instance) {
-					while (!instance.paintCalled) {
-						try {
-							instance.wait();
-						} catch (InterruptedException e) {
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
 	 * This method closes the splash screen.
 	 */
-	public static void close() {
-		instance.setVisible(false);
-		instance.dispose();
+	public void close() {
+		setVisible(false);
+		dispose();
 	}
 	
 	
@@ -119,5 +93,14 @@ public class SplashScreen extends JFrame {
 				notifyAll();
 			}
 		}
+	}
+
+	/**
+	 * Run-method overwritten.
+	 */
+	@Override
+	public void run() {
+		initComponents();
+		setVisible(true);
 	}
 }
