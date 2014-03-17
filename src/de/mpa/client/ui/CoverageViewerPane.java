@@ -9,7 +9,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.TextAttribute;
@@ -77,6 +79,11 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * The button group linking together peptide sequence labels.
 	 */
 	private ButtonGroup hoverGroup;
+
+	/**
+	 * The sequence string of the currently selected peptide.
+	 */
+	private String selSequence;
 	
 	/**
 	 * Creates a sequence coverage viewer panel.
@@ -107,10 +114,26 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		final JViewport viewport = new JViewport() {
 			/** Dummy container for painting purposes */
 			private JPanel dummyPnl = new JPanel();
+			/** The text to display on top of the table when it's empty */
+			private final String emptyStr = "no protein(s) selected";
+			/** The cached width of the empty table text */
+			private int emptyStrW = 0;
 			
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
+				// paint 
+				if (getRowCount() == 0) {
+					if (emptyStrW == 0) {
+						// cache string width
+						emptyStrW = g.getFontMetrics().stringWidth(emptyStr);
+					}
+					// enable text anti-aliasing
+					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+							RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					// draw string on top of empty table
+					g.drawString(emptyStr, (this.getWidth() - emptyStrW) / 2, this.getHeight() / 2);
+				}
 				// paint busy label on top
 				if (isBusy()) {
 					SwingUtilities.paintComponent(g, busyLbl, dummyPnl, this.getVisibleRect());
@@ -196,6 +219,10 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						headerLbl.setBorder(BorderFactory.createCompoundBorder(headerBorder, BorderFactory.createEmptyBorder(
 								covPnl.getPreferredSize().height - headerLbl.getPreferredSize().height - 5 - insets.top,
 								5, 5 - insets.bottom, 5)));
+
+						if (this.isCancelled()) {
+							return null;
+						}
 						
 						headerBuilder.appendRow("p");
 						headerBuilder.add(headerLbl, CC.xy(1, i));
@@ -204,23 +231,20 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						coverageBuilder.add(covPnl, CC.xy(1, i));
 						
 						coverageBuilder.getPanel().revalidate();
-						
-						if (this.isCancelled()) {
-							return null;
-						}
 						if (i == 1) {
 							setRowHeaderView(headerBuilder.getPanel());
 							backgroundPnl.add(coverageBuilder.getPanel(), BorderLayout.CENTER);
 						}
 						i++;
 					}
-					// add final filler objects
-					headerBuilder.appendRow("f:0px:g");
-					headerBuilder.add(headerFillerLbl, CC.xy(1, i));
-
 					if (this.isCancelled()) {
 						return null;
 					}
+					
+					// add final filler objects
+					headerBuilder.appendRow("f:0px:g");
+					headerBuilder.add(headerFillerLbl, CC.xy(1, i));
+					
 					backgroundPnl.revalidate();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -280,7 +304,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 //		DefaultDrawingSupplier drawingSupplier = new DefaultDrawingSupplier();
 		Map<String, Color> colorMap = new HashMap<String, Color>();
 		for (PeptideHit peptide : peptides) {
-//			colorMap.put(peptide.getSequence(), (Color) drawingSupplier.getNextPaint());
+//			colorMap.put(peptide.getSequence(), ((Color) drawingSupplier.getNextPaint()).darker());
 			colorMap.put(peptide.getSequence(), Color.RED);
 		}
 		return colorMap;
@@ -303,6 +327,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		int blockSize = 10;
 		int length = protSeq.length();
 		int openIntervals = 0;
+		String lastOpened = null;
 		for (int start = 0; start < length; start += blockSize) {
 			int end = start + blockSize;
 			end = (end > length) ? length : end;
@@ -332,7 +357,6 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 			String blockSeq = protSeq.substring(start, end);
 			int blockLength = blockSeq.length();
 			int subIndex = 0;
-			String lastOpened = null;
 			for (int i = 0; i < blockLength; i++) {
 				int pos = start + i;
 				boolean isBorder = false;
@@ -370,6 +394,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 								}
 							});
 						}
+						((AbstractButton) label).setSelected(sequence == selSequence);
 	
 						isBorder = true;
 						openIntervals--;
@@ -403,7 +428,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						}
 					});
 				}
-				
+				((AbstractButton) label).setSelected(sequence == selSequence);
 			} else {
 				label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
 			}
@@ -420,12 +445,15 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * Clears the coverage viewer pane's contents.
 	 */
 	public void clear() {
+		if (updateWorker != null) {
+			updateWorker.cancel(true);
+		}
 		backgroundPnl.removeAll();
 		this.setBusy(false);
 		
 		Border headerBorder = UIManager.getBorder("TableHeader.cellBorder");
 		JLabel headerLbl = new JLabel();
-		headerLbl.setPreferredSize(new Dimension(60, 0));
+		headerLbl.setPreferredSize(new Dimension(63, 0));
 		headerLbl.setBorder(headerBorder);
 		
 		this.setRowHeaderView(headerLbl);
@@ -438,6 +466,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * @param selected the selection value to set
 	 */
 	public void setSelected(String sequence, boolean selected) {
+		selSequence = sequence;
 		HoverLabel label = hoverLabels.get(sequence);
 		if (label != null) {
 			label.setSelected(selected);
@@ -452,12 +481,18 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * @return the currently selected peptide sequence
 	 */
 	public String getSelectedSequence() {
-		for (Entry<String, HoverLabel> entry : hoverLabels.entrySet()) {
-			if (entry.getValue().isSelected()) {
-				return entry.getKey();
-			}
+		return selSequence;
+	}
+	
+	/**
+	 * Returns the number of protein rows currently being displayed.
+	 * @return the number of protein rows
+	 */
+	public int getRowCount() {
+		if (backgroundPnl.getComponentCount() > 0) {
+			return ((Container) backgroundPnl.getComponent(0)).getComponentCount();
 		}
-		return null;
+		return 0;
 	}
 
 	@Override

@@ -1138,57 +1138,64 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		@Override
 		protected Object doInBackground() {
-			Set<String> speciesNames = new HashSet<String>();
-			Set<String> ecNumbers = new HashSet<String>();
-			Set<String> kNumbers = new HashSet<String>();
-			Set<Short> pathwayIDs = new HashSet<Short>();
-			for (ProteinHit ph : ResultsPanel.this.dbSearchResult.getProteinHitList()) {
-				speciesNames.add(ph.getSpecies());
-				ReducedUniProtEntry uniprotEntry = ph.getUniProtEntry();
-				if (uniprotEntry != null) {
-					ecNumbers.addAll(uniprotEntry.getEcNumbers());		
-					kNumbers.addAll(uniprotEntry.getKNumbers());
-				}
-				for (String ec : ecNumbers) {
-					List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-					if (pathwaysByEC != null) {
-						pathwayIDs.addAll(pathwaysByEC);
+			try {
+				Set<String> speciesNames = new HashSet<String>();
+				Set<String> ecNumbers = new HashSet<String>();
+				Set<String> kNumbers = new HashSet<String>();
+				Set<Short> pathwayIDs = new HashSet<Short>();
+				for (ProteinHit ph : ResultsPanel.this.dbSearchResult.getProteinHitList()) {
+					speciesNames.add(ph.getSpecies());
+					ReducedUniProtEntry uniprotEntry = ph.getUniProtEntry();
+					if (uniprotEntry != null) {
+						ecNumbers.addAll(uniprotEntry.getEcNumbers());		
+						kNumbers.addAll(uniprotEntry.getKNumbers());
+					}
+					for (String ec : ecNumbers) {
+						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+						if (pathwaysByEC != null) {
+							pathwayIDs.addAll(pathwaysByEC);
+						}
+					}
+					for (String ko : kNumbers) {
+						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+						if (pathwaysByKO != null) {
+							pathwayIDs.addAll(pathwaysByKO);
+						}
 					}
 				}
-				for (String ko : kNumbers) {
-					List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
-					if (pathwaysByKO != null) {
-						pathwayIDs.addAll(pathwaysByKO);
-					}
-				}
+
+				// Update statistics labels
+				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+				distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
+				modPepLbl.setText("" + dbSearchResult.getModifiedPeptideCount());
+				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
+				speciesLbl.setText("" + speciesNames.size());
+				enzymesLbl.setText("" + ecNumbers.size());
+				pathwaysLbl.setText("" + pathwayIDs.size());
+
+				// Generate chart data objects
+//				HierarchyLevel hl = (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
+				HierarchyLevel hl = chartPane.getHierarchyLevel();
+				
+				ontologyData.setHierarchyLevel(hl);
+				ontologyData.setResult(dbSearchResult);
+				
+				taxonomyData.setHierarchyLevel(hl);
+				taxonomyData.setResult(dbSearchResult);
+				// Refresh chart panel
+				updateChart(chartType);
+				
+				// Refresh heat map
+				heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
+				
+				return 1;
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+	
 			}
-
-			// Update statistics labels
-			totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-			identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-			distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
-			modPepLbl.setText("" + dbSearchResult.getModifiedPeptideCount());
-			totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-			metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
-			speciesLbl.setText("" + speciesNames.size());
-			enzymesLbl.setText("" + ecNumbers.size());
-			pathwaysLbl.setText("" + pathwayIDs.size());
-
-			// Generate chart data objects
-//			HierarchyLevel hl = (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
-			HierarchyLevel hl = chartPane.getHierarchyLevel();
-			
-			ontologyData.setHierarchyLevel(hl);
-			ontologyData.setResult(dbSearchResult);
-			
-			taxonomyData.setHierarchyLevel(hl);
-			taxonomyData.setResult(dbSearchResult);
-			// Refresh chart panel
-			updateChart(chartType);
-			
-			// Refresh heat map
-			heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
-			
 			return 0;
 		}
 

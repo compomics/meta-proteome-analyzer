@@ -1522,6 +1522,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	public void setBusy(boolean busy) {
 		this.busyLbl.setBusy(busy);
 		this.busyLbl.setVisible(busy);
+		this.setEnabled(!busy);
 		this.repaint();
 	}
 
@@ -1534,16 +1535,16 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		this.zBtn.setEnabled(enabled);
 		this.saveBtn.setEnabled(enabled);
 		this.zoomBtn.setEnabled(enabled);
-		// Set enable state of scrollbars
-//		this.getHorizontalScrollBar().setEnabled(enabled);
-//		this.getPrimaryVerticalScrollbar().setEnabled(enabled);
-//		this.getSecondaryVerticalScrollBar().setEnabled(enabled);
+		// Set state of scrollbars
 		this.getHorizontalScrollBar().getModel().setExtent(
 				(enabled) ? this.visColCount : Integer.MAX_VALUE);
 		this.getPrimaryVerticalScrollbar().getModel().setExtent(
 				(enabled) ? 1 : Integer.MAX_VALUE);
 		this.getSecondaryVerticalScrollBar().getModel().setExtent(
 				(enabled) ? this.visRowCount : Integer.MAX_VALUE);
+		this.getHorizontalScrollBar().revalidate();
+		this.getPrimaryVerticalScrollbar().revalidate();
+		this.getSecondaryVerticalScrollBar().revalidate();
 	};
 	
 	/**
@@ -1701,14 +1702,6 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * The background color of the scale.
 		 */
 		private Color background;
-		
-		/**
-		 * Creates a rainbow paint scale with the default value range of [0.0
-		 * 1.0] and 50% opacity blended into a white background.
-		 */
-		public RainbowPaintScale() {
-			this(0.0, 1.0);
-		}
 		
 		/**
 		 * Creates a rainbow paint scale with the specified upper and lower
@@ -2182,7 +2175,6 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		protected Object doInBackground() {
 			HeatMapPane heatMap = HeatMapPane.this;
 			heatMap.setBusy(true);
-			heatMap.setEnabled(false);
 			
 			// Refresh data container contents
 			if (result != null) {
@@ -2241,7 +2233,6 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		
 		@Override
 		protected void done() {
-			HeatMapPane.this.setEnabled(true);
 			// Refresh chart controls
 			HeatMapPane.this.updateChartLayout();
 			

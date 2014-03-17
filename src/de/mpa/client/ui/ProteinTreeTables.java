@@ -1030,7 +1030,7 @@ public enum ProteinTreeTables {
 	 * tree table to what's stored separately in its nodes.
 	 */
 	@SuppressWarnings("unchecked")
-	public void updateSelection() {
+	public void updateCheckSelection() {
 		// prevent selection listener from capturing events fired during synchronization
 		this.synching = true;
 		

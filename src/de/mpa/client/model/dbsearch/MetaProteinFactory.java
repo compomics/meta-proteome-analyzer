@@ -12,6 +12,7 @@ import javax.swing.DefaultComboBoxModel;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
+import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;
 
@@ -359,7 +360,8 @@ public class MetaProteinFactory {
 		client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 
 		// Define common peptide taxonomy for each peptide
-		TaxonomyUtils.determinePeptideTaxonomy(result.getMetaProteins().getPeptideSet(), params);
+		TaxonomyUtils.determinePeptideTaxonomy(
+				result.getMetaProteins().getPeptideSet(), TaxonomyDefinition.COMMON_ANCESTOR);
 		
 		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 		
