@@ -21,9 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.MTOMFeature;
-import javax.xml.ws.soap.SOAPBinding;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -69,7 +67,6 @@ import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
-import de.mpa.webservice.WSPublisher;
 
 public class Client {
 

@@ -881,7 +881,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		super.clearSectionPaints(notify);
 		this.setSectionPaint("Unknown", Color.DARK_GRAY);
 //		this.setSectionPaint("Unknown", Color.CYAN);
-		this.setSectionPaint("Others", Color.GRAY);
+		this.setSectionPaint("Others", Color.LIGHT_GRAY);
 	}
 	
 	/**

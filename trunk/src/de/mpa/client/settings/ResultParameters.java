@@ -30,26 +30,26 @@ public class ResultParameters extends ParameterMap {
 		this.put("FDR", new Parameter("Maximum peptide-spectrum match false discovery rate", new Double[] { 0.05, 0.0, 0.1 }, "Scoring", "Specify maximum false discovery rate for peptide-spectrum matches (i.e. the maximum q-value)"));
 		
 		// taxonomy definition rules
-		DefaultComboBoxModel pepToProtTaxMdl = new DefaultComboBoxModel(TaxonomyDefinition.values());
+		DefaultComboBoxModel<TaxonomyDefinition> pepToProtTaxMdl = new DefaultComboBoxModel<>(TaxonomyDefinition.values());
 		pepToProtTaxMdl.setSelectedItem(TaxonomyDefinition.COMMON_ANCESTOR);
 		this.put("proteinTaxonomy", new Parameter("Peptide-to-Protein Taxonomy", pepToProtTaxMdl, "Taxonomy Definition", "Choose the rule by which proteins receive their common taxonomy from their peptides"));
 
-		DefaultComboBoxModel protToMetaTaxMdl = new DefaultComboBoxModel(TaxonomyDefinition.values());
+		DefaultComboBoxModel<TaxonomyDefinition> protToMetaTaxMdl = new DefaultComboBoxModel<>(TaxonomyDefinition.values());
 		protToMetaTaxMdl.setSelectedItem(TaxonomyDefinition.COMMON_ANCESTOR);
 		this.put("metaProteinTaxonomy", new Parameter("Protein-to-Meta-Protein Taxonomy", protToMetaTaxMdl, "Taxonomy Definition", "Choose the rule by which meta-proteins receive their common taxonomy from their proteins"));
 		
 		// meta-protein generation rules
 		this.put("distinguishIL", new Parameter("Consider Leucine and Isoleucine Distinct", true, "Meta-Protein Generation", "Consider peptides that differ only in Leucine/Isoleucine residues as distinct"));
 		
-		DefaultComboBoxModel clusterMdl = new DefaultComboBoxModel(ClusterRule.values());
+		DefaultComboBoxModel<ClusterRule> clusterMdl = new DefaultComboBoxModel<>(ClusterRule.values());
 		clusterMdl.setSelectedItem(ClusterRule.ALWAYS);
 		this.put("proteinClusterRule", new Parameter("Protein Cluster Rule", clusterMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins to the protein cluster"));
 		
-		DefaultComboBoxModel peptideMdl = new DefaultComboBoxModel(PeptideRule.values());
+		DefaultComboBoxModel<PeptideRule> peptideMdl = new DefaultComboBoxModel<>(PeptideRule.values());
 		peptideMdl.setSelectedItem(PeptideRule.PEPTIDE_SUBSET);
 		this.put("peptideRule", new Parameter("Peptide Rule", peptideMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to shared peptides"));
 		
-		DefaultComboBoxModel taxonomyMdl = new DefaultComboBoxModel(TaxonomyRule.values());
+		DefaultComboBoxModel<TaxonomyRule> taxonomyMdl = new DefaultComboBoxModel<>(TaxonomyRule.values());
 		taxonomyMdl.setSelectedItem(TaxonomyRule.ALWAYS);
 		this.put("taxonomyRule", new Parameter("Taxonomy Rule", taxonomyMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to common taxonomy"));
 	}

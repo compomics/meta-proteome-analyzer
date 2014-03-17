@@ -53,11 +53,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	private String description;
 	
 	/**
-	 * The species of the protein
-	 */
-	private String species;
-	
-	/**
 	 * The amino acid identity between protein in percent
 	 */
 	private double identity = 100.0;
@@ -118,9 +113,14 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	private ReducedUniProtEntry uniProtEntry = null;
 	
 	/**
-	 * The taxonomy node reference.
+	 * The common taxonomy node.
 	 */
 	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+	
+	/**
+	 * The species taxonomy node.
+	 */
+	private TaxonomyNode speciesNode;
 	
 	/**
 	 * The database IDs of the experiments which contain the protein hit.
@@ -146,6 +146,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		}
 		this.uniProtEntry = uniprotEntry;
 		this.taxonomyNode = taxonomyNode;
+		this.speciesNode = taxonomyNode;
 		
 		this.experimentIDs = new HashSet<Long>();
 		this.experimentIDs.add(experimentID);
@@ -225,23 +226,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return species the species
 	 */
 	public String getSpecies() {
-		// Extract species string from description
-		String[] split = description.split(" OS=");
-		if (split.length > 1) {
-			description = split[0];
-			species = (split[1].contains(" GN=")) ?
-					split[1].substring(0, split[1].indexOf(" GN=")) : split[1];
-		}
-		return species;
-	}
-	
-	/**
-	 * Sets the species of the protein
-	 * @param species the species to set
-	 */
-	// TODO: misleading method name, either cache a taxonomy node or rename method, e.g. to setCommonTaxonomyName()
-	public void setCommonTaxonomyNode(String species) {
-		this.species = species;
+		return speciesNode.getName();
 	}
 	
 	/**

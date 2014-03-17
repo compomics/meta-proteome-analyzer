@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -258,7 +259,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		psmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		psmPanel.add(psmTableScp, CC.xy(2, 2));
 
-		psmTtlPnl = PanelConfig.createTitledPanel("Matches", psmPanel);
+		psmTtlPnl = PanelConfig.createTitledPanel("Spectrum Matches", psmPanel);
 
 		// Build the spectrum panel containing annotation filter buttons
 		JPanel spectrumPnl = this.createSpectrumPanel();
@@ -621,6 +622,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					this.repaint(rect);
 				}
 			}
+			
 			/** Convenience method to recursively traverse the tree in
 			 *  search of the widest string inside the specified column. */
 			private int getMaximumStringWidth(TreeTableNode node, int column, Format formatter, FontMetrics fm) {
@@ -635,6 +637,27 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					strWidth = Math.max(strWidth, this.getMaximumStringWidth(child, column, formatter, fm));
 				}
 				return strWidth;
+			}
+			
+			/** The text to display on top of the table when it's empty */
+			private final String emptyStr = "no protein(s) selected";
+			/** The cached width of the empty table text */
+			private int emptyStrW = 0;
+			
+			@Override
+			public void paint(Graphics g) {
+				super.paint(g);
+				if (this.getRowCount() == 0) {
+					if (emptyStrW == 0) {
+						// Cache string width
+						emptyStrW = g.getFontMetrics().stringWidth(emptyStr);
+					}
+					// Enable text anti-aliasing
+					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+							RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					// Draw string on top of empty table
+					g.drawString(emptyStr, (this.getWidth() - emptyStrW) / 2, this.getVisibleRect().height / 2);
+				}
 			}
 		};
 		
@@ -831,6 +854,27 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					strWidth = Math.max(strWidth, this.getMaximumStringWidth(child, column, formatter, fm));
 				}
 				return strWidth;
+			}
+			
+			/** The text to display on top of the table when it's empty */
+			private final String emptyStr = "no peptide selected";
+			/** The cached width of the empty table text */
+			private int emptyStrW = 0;
+			
+			@Override
+			public void paint(Graphics g) {
+				super.paint(g);
+				if (this.getRowCount() == 0) {
+					if (emptyStrW == 0) {
+						// Cache string width
+						emptyStrW = g.getFontMetrics().stringWidth(emptyStr);
+					}
+					// Enable text anti-aliasing
+					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+							RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					// Draw string on top of empty table
+					g.drawString(emptyStr, (this.getWidth() - emptyStrW) / 2, this.getVisibleRect().height / 2);
+				}
 			}
 		};
 		
@@ -1109,7 +1153,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				ProteinTreeTables ptt = ProteinTreeTables.valueOfLabel(label);
 				
 				// Update checkbox selections, also re-sorts/filters the tree table
-				ptt.updateSelection();
+				ptt.updateCheckSelection();
 				
 				// Show card
 				protCardLyt.show(protCardPnl, label);
@@ -1423,12 +1467,22 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Update coverage viewer
 			coveragePane.setData(proteins, peptides);
 			
+			// Select first row
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					peptideTbl.getSelectionModel().setSelectionInterval(0, 0);
+				}
+			});
+			
 			// Update panel title
 			if (!coveragePane.isVisible()) {
 				pepTtlPnl.setTitle("Peptides (" + numPeptides + ")");
 			}
 		} else {
-			pepTtlPnl.setTitle("Peptides");
+			if (!coveragePane.isVisible()) {
+				pepTtlPnl.setTitle("Peptides");
+			}
 		}
 	}
 	
@@ -1440,6 +1494,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	protected void refreshPSMView(List<SpectrumMatch> matches) {
 		// Clear table
 		TableConfig.clearTable(psmTbl);
+		spectrumPnl.clearSpectrum();
 		
 		// Insert PSM nodes
 		SortableTreeTableModel treeTblMdl =
@@ -1455,10 +1510,18 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			treeTblMdl.sort();
 			treeTblMdl.setRoot(treeTblMdl.getRoot());
 			
+			// Select first row
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					psmTbl.getSelectionModel().setSelectionInterval(0, 0);
+				}
+			});
+			
 			// Update panel title
-			psmTtlPnl.setTitle("Matches (" + matches.size() + ")");
+			psmTtlPnl.setTitle("Spectrum Matches (" + matches.size() + ")");
 		} else {
-			psmTtlPnl.setTitle("Matches)");
+			psmTtlPnl.setTitle("Spectrum Matches)");
 		}
 	}
 	
@@ -1498,6 +1561,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		spectrumPnl.refreshSpectrum(mgf, sequence);
 	}
 	
+	/**
+	 * Updates the chart view component and optionally the underlying data container.
+	 * @param refreshData <code>true</code> if the underlying data shall be updated, too,
+	 *  <code>false</code> otherwise
+	 */
 	protected void refreshChart(boolean refreshData) {
 		if (refreshData) {
 			// build list of visible meta-proteins from result object

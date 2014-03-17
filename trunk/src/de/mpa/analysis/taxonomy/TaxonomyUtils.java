@@ -157,10 +157,6 @@ public class TaxonomyUtils {
 		return leafNode;
 	}
 	
-	public static void determinePeptideTaxonomy(Set<PeptideHit> peptideSet, ParameterMap params) {
-		determinePeptideTaxonomy(peptideSet, TaxonomyDefinition.COMMON_ANCESTOR);
-	}
-
 	/**
 	 * Method to go through a peptide set and define for each peptide hit the
 	 * common taxonomy of the subsequent proteins.
@@ -237,19 +233,21 @@ public class TaxonomyUtils {
 	 */
 	public static void determineMetaProteinTaxonomy(
 			ProteinHitList metaProteins, ParameterMap params) {
-		TaxonomyUtils.determineProteinTaxonomy(metaProteins, params);
+		ComboBoxModel model = (ComboBoxModel) params.get("metaProteinTaxonomy").getValue();
+		TaxonomyUtils.determineTaxonomy(metaProteins,
+				(TaxonomyDefinition) model.getSelectedItem());
 	}
 
 	/**
 	 * Sets the taxonomy of proteins contained in the specified list to the
 	 * common taxonomy based on their peptide taxonomies.
-	 * @param proteinList List of proteins hits.
+	 * @param proteins List of proteins hits.
 	 * @param params the parameter map containing taxonomy definition rules
 	 */
 	public static void determineProteinTaxonomy(
-			List<ProteinHit> proteinList, ParameterMap params) {
+			List<ProteinHit> proteins, ParameterMap params) {
 		ComboBoxModel model = (ComboBoxModel) params.get("proteinTaxonomy").getValue();
-		TaxonomyUtils.determineTaxonomy(proteinList,
+		TaxonomyUtils.determineTaxonomy(proteins,
 				(TaxonomyDefinition) model.getSelectedItem());
 	}
 
@@ -269,7 +267,7 @@ public class TaxonomyUtils {
 			for (Taxonomic childTax : children) {
 				TaxonomyNode taxNode = childTax.getTaxonomyNode();
 				if (taxNode == null) {
-					System.out.println("asdfsdds");
+					System.err.println("ERROR: no taxonomic children found for " + childTax);
 				}
 				taxonNodes.add(taxNode);
 			}
@@ -277,7 +275,7 @@ public class TaxonomyUtils {
 			// find common taxonomy node
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			if (ancestor == null) {
-				System.out.println("asfds");
+				System.err.println("ERROR: no taxonomic ancestor found for " + taxonomic);
 			}
 			for (int i = 1; i < taxonNodes.size(); i++) {
 				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
@@ -343,189 +341,5 @@ public class TaxonomyUtils {
 		return belongsToGroup;
 	}
 
-	// TODO: Probably most of the legacy code from NcbiTaxonomy class can be removed (see below)...  
-
-	//	/**
-	//	 * Returns a parent taxonomy node of the specified child taxonomy node.
-	//	 * @param childNode the child node
-	//	 * @return a parent node
-	//	 * @throws Exception if an I/O error occurs
-	//	 */
-	//	synchronized public TaxonomyNode getParentTaxonomyNode(TaxonomyNode childNode) throws Exception {
-	//		return this.getParentTaxonomyNode(childNode, true);
-	//	}
-
-	//	/**
-	//	 * Returns a parent taxonomy node of the specified child taxonomy node. The
-	//	 * parent node's rank may be forced to conform to the list of known ranks.
-	//	 * @param childNode the child node
-	//	 * @param knownRanksOnly <code>true</code> if the parent node's rank shall be
-	//	 *  one of those specified in the list of known ranks, <code>false</code> otherwise
-	//	 * @return a parent node
-	//	 * @throws Exception if an I/O error occurs
-	//	 */
-	//	synchronized public TaxonomyNode getParentTaxonomyNode(TaxonomyNode childNode, boolean knownRanksOnly) throws Exception {
-	//
-	//		// Get parent data
-	//		int parentTaxId = this.getParentTaxId(childNode.getId());
-	//		String rank = this.getRank(parentTaxId);
-	//
-	//		if (knownRanksOnly) {
-	//			// As long as parent rank is not inside list of known ranks move up in taxonomic tree
-	//			while ((parentTaxId != 1) && !ranks.contains(rank)) {
-	//				parentTaxId = this.getParentTaxId(parentTaxId);
-	//				rank = this.getRank(parentTaxId);
-	//			}
-	//		}
-	//
-	//		// Wrap parent data in taxonomy node
-	//		return new TaxonomyNode(parentTaxId, rank, this.getTaxonName(parentTaxId));
-	//	}
-	//	/**
-	//	 * Returns the name of the taxonomy node belonging to the specified taxonomy id.
-	//	 * @param taxID the taxonomy id
-	//	 * @return the taxonomy node name
-	//	 * @throws Exception if an I/O error occurs
-	//	 */
-	//	synchronized public String getTaxonName(int taxID) throws Exception {
-	//
-	//		// Get mapping
-	//		int pos = namesMap.get(taxID);
-	//
-	//		// Skip to mapped byte position in names file
-	//		namesRaf.seek(pos);
-	//
-	//		// Read line and isolate second non-numeric value
-	//		String line = namesRaf.readLine();
-	//		line = line.substring(line.indexOf("\t|\t") + 3);
-	//		line = line.substring(0, line.indexOf("\t"));
-	//
-	//		return line;
-	//	}
-	//
-	//	/**
-	//	 * Returns the parent taxonomy id of the taxonomy node belonging to the specified taxonomy id.
-	//	 * @param taxId the taxonomy id
-	//	 * @return the parent taxonomy id
-	//	 * @throws Exception if an I/O error occurs
-	//	 */
-	//	synchronized public int getParentTaxId(int taxId) throws Exception {
-	//
-	//		// Get mapping
-	//		int pos = nodesMap.get(taxId);
-	//
-	//		// Skip to mapped byte position in nodes file
-	//		nodesRaf.seek(pos);
-	//
-	//		// Read line and isolate second numeric value
-	//		String line = nodesRaf.readLine();
-	//		line = line.substring(line.indexOf("\t|\t") + 3);
-	//		line = line.substring(0, line.indexOf("\t"));
-	//		return Integer.valueOf(line).intValue();
-	//
-	//	}
-	//
-	//
-	//
-	//	/**
-	//	 * Returns the taxonomic rank identifier of the taxonomy node belonging to the specified taxonomy id.
-	//	 * @param taxID the taxonomy id
-	//	 * @return the taxonomic rank
-	//	 * @throws Exception if an I/O error occurs
-	//	 */
-	//	synchronized public String getRank(int taxID) throws Exception {
-	//
-	//		// Get mapping
-	//		int pos = nodesMap.get(taxID);
-	//
-	//		// Skip to mapped byte position in nodes file
-	//		nodesRaf.seek(pos);
-	//
-	//		// Read line and isolate third non-numeric value
-	//		String line = nodesRaf.readLine();
-	//		line = line.substring(line.indexOf("\t|\t") + 3);
-	//		line = line.substring(line.indexOf("\t|\t") + 3);
-	//		line = line.substring(0, line.indexOf("\t"));
-	//
-	//		return line;
-	//	}
-	//
-	//	/**
-	//	 * This method creates a TaxonNode for a certain taxID.
-	//	 * @param taxId the taxonomy id
-	//	 * @return The taxonNode containing the taxID, rank, taxName
-	//	 * @throws Exception if an I/O error occurs
-	//	 */
-	//	public TaxonomyNode createTaxonNode(int taxId) throws Exception {
-	//		TaxonomyNode taxNode = null;
-	//		taxNode = new TaxonomyNode(taxId,
-	//				this.getRank(taxId),
-	//				this.getTaxonName(taxId));
-	//		return taxNode;
-	//	}
-	//	
-	//	/**
-	//	 * Creates and returns the common taxonomy node above taxonomy nodes belonging to the
-	//	 * specified taxonomy IDs.
-	//	 * @param taxId1 the first taxonomy ID
-	//	 * @param taxId2 the second taxonomy ID
-	//	 * @return the common taxonomy node
-	//	 * @throws Exception 
-	//	 */
-	//	synchronized public TaxonomyNode createCommonTaxonomyNode(TaxonomyNode node1, Taxonomy node2) throws Exception {
-	//		return this.createTaxonNode(this.getCommonTaxonomyId(taxId1, taxId2));
-	//	}
-	//
-	//
-	//
-	//	/**
-	//	 * Finds the taxonomy level (taxID) were the 2 taxonomy levels intersect.
-	//	 * @param taxId1 NCBI taxonomy of the first entry
-	//	 * @param taxId2 NCBI taxonomy of the second entry
-	//	 * @return the NCBI taxonomy ID where both entries intersect (or 0 when something went wrong)
-	//	 * @throws Exception 
-	//	 */
-	//	public static Taxonomy getCommonTaxonomy(int taxId1, int taxId2) throws Exception {
-	//
-	//		// List of taxonomy entries for the first taxonomy entry.
-	//		List<Integer> taxList1 = new ArrayList<Integer>();
-	//		taxList1.add(taxId1);
-	//		while (taxId1 != 1) {	// 1 is the root node
-	//			try {
-	//				taxId1 = this.getParentTaxId(taxId1);
-	//				taxList1.add(taxId1);
-	//			} catch (Exception e) {
-	//				e.printStackTrace();
-	//			}
-	//		}
-	//
-	//		// List of taxonomy entries for the second taxonomy entry.
-	//		List<Integer> taxList2 = new ArrayList<Integer>();
-	//		taxList2.add(taxId2);
-	//		while (taxId2 != 1) {	// 1 is the root node
-	//			try {
-	//				taxId2 = this.getParentTaxId(taxId2);
-	//				taxList2.add(taxId2);
-	//			} catch (Exception e) {
-	//				e.printStackTrace();
-	//			}
-	//		}
-	//
-	//		// Get common ancestor
-	//		Integer taxId = 0;
-	//		for (int i = 0; i < taxList1.size(); i++) {
-	//			taxId = taxList1.get(i);
-	//			if (taxList2.contains(taxId)) {
-	//				break;
-	//			}
-	//		}
-	//
-	//		// Find ancestor of closest known rank type
-	//		while (!ranks.contains(this.getRank(taxId)) && (taxId != 1)) {
-	//			taxId = this.getParentTaxId(taxId);
-	//		}
-	//
-	//		return taxId;
-	//	}
 }	
 
