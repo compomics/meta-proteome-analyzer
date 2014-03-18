@@ -251,7 +251,7 @@ public class GraphQueryDialog extends JDialog {
 		JXTaskPane predefinedQueryTaskPane = createPredefinedQueryTaskPane();
 		
 		// Compound query section
-		JXTaskPane compoundQueryTaskPane = createCompoundQueryTaskPane();
+//		JXTaskPane compoundQueryTaskPane = createCompoundQueryTaskPane();
 		
 		// Console query section
 		JXTaskPane consoleQueryTaskPane = createConsoleQueryTaskPane();
@@ -262,11 +262,11 @@ public class GraphQueryDialog extends JDialog {
 			selectedQuery = parent.getLastCypherQuery();
 			
 			// Compound query check.
-			if (!selectedQuery.isCustom()) {
-				startPnl.setStartNodes(selectedQuery.getStartNodes());
-				matchPnl.setMatches(selectedQuery.getMatches());
-				returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
-			}
+//			if (!selectedQuery.isCustom()) {
+//				startPnl.setStartNodes(selectedQuery.getStartNodes());
+//				matchPnl.setMatches(selectedQuery.getMatches());
+//				returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
+//			}
 			int index = defaultQueryList.getElementCount() - 1;
 			defaultQueryList.setSelectedIndex(index);
 			defaultQueryList.ensureIndexIsVisible(index);
@@ -276,7 +276,7 @@ public class GraphQueryDialog extends JDialog {
 		}
 
 		tpc.add(predefinedQueryTaskPane);
-		tpc.add(compoundQueryTaskPane);
+//		tpc.add(compoundQueryTaskPane);
 		tpc.add(consoleQueryTaskPane);
 		
 		// Configure button panel containing 'OK' and 'Cancel' options
@@ -506,11 +506,11 @@ public class GraphQueryDialog extends JDialog {
 						selectedQuery = ((CypherQueryType) defaultQueryList.getSelectedValue()).getQuery();
 						consoleTxt.setText(selectedQuery.toString());
 						// If the selected query is not custom-built, then look for compound query features 
-						if(!selectedQuery.isCustom()) {							
-							startPnl.setStartNodes(selectedQuery.getStartNodes());
-							matchPnl.setMatches(selectedQuery.getMatches());
-							returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
-						}
+//						if(!selectedQuery.isCustom()) {							
+//							startPnl.setStartNodes(selectedQuery.getStartNodes());
+//							matchPnl.setMatches(selectedQuery.getMatches());
+//							returnPnl.setReturnIndices(selectedQuery.getReturnIndices());
+//						}
 						
 					}
 				}

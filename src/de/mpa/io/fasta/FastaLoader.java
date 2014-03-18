@@ -34,7 +34,7 @@ public class FastaLoader {
 	/**
 	 * The accession-to-position map.
 	 */
-	// TODO: Take hashcode values instead of strings 
+	// Hashcodes will not work with strings... LUCENE would be an alternative for indexing of fasta files in the long run.
 	private TObjectLongMap<String> acc2pos;
 	
 	/**
@@ -164,7 +164,8 @@ public class FastaLoader {
 			}
 		}
 		Long pos = acc2pos.get(id);
-		if (pos == null) {
+		if (pos == 0) return null;
+		if (pos == null || pos == 0) {
 				throw new IOException("Provided string does not match any protein entry: " + id);
 				
 		}
