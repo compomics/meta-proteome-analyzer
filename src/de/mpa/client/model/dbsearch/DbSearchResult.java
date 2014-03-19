@@ -1,7 +1,5 @@
 package de.mpa.client.model.dbsearch;
 
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -56,11 +54,6 @@ public class DbSearchResult implements Serializable {
 	private ProteinHitList visMetaProteins;
 	
 	/**
-	 * Map containing search spectrum id-to-TIC pairs
-	 */
-	private TLongDoubleHashMap ticMap;
-	
-	/**
 	 * The total amount of spectra.
 	 */
 	private int totalSpectra;
@@ -81,203 +74,48 @@ public class DbSearchResult implements Serializable {
 	}
 
 	/**
-	 * Adds a protein hit to the protein hit set.
-	 * @param proteinHit The {@link ProteinHit} to add
-	 * @throws Exception 
+	 * Adds a protein hit to the result object.
+	 * @param proteinHit the {@link ProteinHit} to add
 	 */
-	public void addProtein(ProteinHit proteinHit) throws Exception {
-//		// Get the first - and only - peptide hit
-//		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
+	public void addProtein(ProteinHit proteinHit) {
+		// extract elements
+		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
+		SpectrumMatch spectrumMatch = peptideHit.getSingleSpectrumMatch();
+		SearchHit searchHit = spectrumMatch.getSearchHits().get(0);
+		Set<Long> experimentIDs = proteinHit.getExperimentIDs();
 
-		// Find current protein hit, will be null if it's a new protein
-		ProteinHit currentProteinHit = this.getProteinHit(proteinHit.getAccession());
+		// check for existing elements
+		SpectrumMatch currentSpectrumMatch =
+				this.getSpectrumMatch(spectrumMatch.getSearchSpectrumID());
+		if (currentSpectrumMatch != null) {
+			currentSpectrumMatch.addExperimentIDs(experimentIDs);
+			spectrumMatch = currentSpectrumMatch;
+		}
 		
-//		// Find current peptide hit, ideally inside current protein hit
-//		PeptideHit currentPeptideHit = 
-//			this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
-
-		// Check if protein hit is already in the protein hit set.
+		PeptideHit currentPeptideHit =
+				this.getPeptideHit(peptideHit.getSequence());
+		if (currentPeptideHit != null) {
+			currentPeptideHit.addExperimentIDs(experimentIDs);
+			peptideHit = currentPeptideHit;
+		}
+		
+		ProteinHit currentProteinHit =
+				this.getProteinHit(proteinHit.getAccession());
 		if (currentProteinHit != null) {
-			
-			// Iterate peptide hits of protein hit
-			for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-				
-				// Find current peptide hit, ideally inside current protein hit
-				PeptideHit currentPeptideHit = 
-					this.findExistingPeptide(peptideHit.getSequence(), currentProteinHit);
-				
-				// Check whether peptide hit match has been found
-				if (currentPeptideHit != null) {
-//					// Peptide hit is already stored somewhere in the result object,
-//					// therefore inspect new PSM
-//					PeptideSpectrumMatch match = 
-//						(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-					
-					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
-						
-						PeptideSpectrumMatch currentMatch = 
-							(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
-									match.getSearchSpectrumID());
-						if (currentMatch != null) {
-//							currentMatch.addSearchEngineHit(match.getFirstSearchHit());
-							for (SearchHit hit : ((PeptideSpectrumMatch) match).getSearchHits()) {
-								currentMatch.addSearchEngineHit(hit);
-							}
-						} else {
-							currentMatch = (PeptideSpectrumMatch) match;
-							currentPeptideHit.addSpectrumMatch(currentMatch);
-						}
-						// Link spectrum to experiment
-						currentMatch.addExperimentIDs(proteinHit.getExperimentIDs());
-						
-//						currentPeptideHit.replaceSpectrumMatch(currentMatch);
-						
-						// Link spectrum match to peptide hit
-						currentMatch.addPeptideHit(currentPeptideHit);
-					}
-				} else {
-					// No match found, peptide hit is new
-					currentPeptideHit = peptideHit;
-//					PeptideSpectrumMatch match = 
-//							(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
-						match.addExperimentIDs(proteinHit.getExperimentIDs());
-						match.addPeptideHit(currentPeptideHit);
-					}
-				}
-				
-				currentProteinHit.addPeptideHit(currentPeptideHit);
-				currentPeptideHit.addExperimentIDs(proteinHit.getExperimentIDs());
-				currentProteinHit.addExperimentIDs(proteinHit.getExperimentIDs());
-				
-				// Link parent protein hit to peptide hit
-				currentPeptideHit.addProteinHit(currentProteinHit);
-			}
+			currentProteinHit.addExperimentIDs(experimentIDs);
+			proteinHit = currentProteinHit;
 		} else {
-			// A new protein is to be added
-			currentProteinHit = proteinHit;
-			
-			// Iterate peptide hits of protein hit
-			for (PeptideHit peptideHit : currentProteinHit.getPeptideHitList()) {
-				// Find current peptide hit, ideally inside current protein hit
-				PeptideHit currentPeptideHit = 
-					this.findExistingPeptide(peptideHit.getSequence(), null);
-				
-				// Check whether peptide hit match has been found
-				if (currentPeptideHit != null) {
-//					// Peptide hit is already stored somewhere in the result object,
-//					// therefore inspect new PSM
-//					PeptideSpectrumMatch match = 
-//						(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-					
-					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
-						
-						PeptideSpectrumMatch currentMatch = 
-							(PeptideSpectrumMatch) currentPeptideHit.getSpectrumMatch(
-									match.getSearchSpectrumID());
-						if (currentMatch != null) {
-//							currentMatch.addSearchEngineHit(match.getFirstSearchHit());
-							for (SearchHit hit : ((PeptideSpectrumMatch) match).getSearchHits()) {
-								currentMatch.addSearchEngineHit(hit);
-							}
-						} else {
-							currentMatch = (PeptideSpectrumMatch) match;
-							currentPeptideHit.addSpectrumMatch(currentMatch);
-						}
-						// Link spectrum to experiment
-						currentMatch.addExperimentIDs(proteinHit.getExperimentIDs());
-						
-//						currentPeptideHit.replaceSpectrumMatch(currentMatch);
-
-						// Link spectrum match to peptide hit
-						currentMatch.addPeptideHit(currentPeptideHit);
-					}
-					
-					// Link found peptide to new Protein by replacing hit map
-					Map<String, PeptideHit> newPeptideHits = new LinkedHashMap<String, PeptideHit>();
-					currentProteinHit.setPeptideHits(newPeptideHits);
-					currentProteinHit.addPeptideHit(currentPeptideHit);
-				} else {
-					// No match found, both protein and peptide hits are new
-					currentPeptideHit = peptideHit;
-//					PeptideSpectrumMatch match = 
-//					(PeptideSpectrumMatch) peptideHit.getSingleSpectrumMatch();
-					for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
-						match.addExperimentIDs(proteinHit.getExperimentIDs());
-						match.addPeptideHit(currentPeptideHit);
-					}
-				}
-				currentPeptideHit.addExperimentIDs(proteinHit.getExperimentIDs());
-				currentProteinHit.addExperimentIDs(proteinHit.getExperimentIDs());
-				
-				// Link parent protein hit to peptide hit
-				currentPeptideHit.addProteinHit(currentProteinHit);
-			}
-
-			// Wrap new protein in meta-protein
-			MetaProteinHit mph = new MetaProteinHit("Meta-Protein", currentProteinHit);
-			currentProteinHit.setMetaProteinHit(mph);
+			// wrap new protein in meta-protein
+			MetaProteinHit mph = new MetaProteinHit(
+					"Meta-Protein " + proteinHit.getAccession(), proteinHit);
+			proteinHit.setMetaProteinHit(mph);
 			this.metaProteins.add(mph);
 		}
-//		// Link parent protein hit to peptide hit
-//		currentPeptideHit.addProteinHit(currentProteinHit);
-
-//		proteinHits.put(accession, currentProteinHit);
-	}
-
-	/**
-	 * Searches all lists of peptide hits and returns the first matching
-	 * occurrence of a peptide hit identified by the provided sequence.
-	 * 
-	 * @param sequence
-	 *            the peptide sequence identifier
-	 * @param first
-	 *            a protein hit reference which will be searched first and
-	 *            skipped later on when iterating the list of other stored
-	 *            protein hits
-	 * @return the first matching occurrence of the desired peptide hit or
-	 *         <code>null</code> if the hit is not stored yet
-	 */
-	private PeptideHit findExistingPeptide(String sequence, ProteinHit first) {
-		PeptideHit peptideHit = null;
-		// Check provided protein hit (most likely candidate), if applicable
-		if (first != null) {
-			peptideHit = first.getPeptideHits().get(sequence);
-			if (peptideHit != null) {
-				return peptideHit;
-			}
-		}
-		// Iterate already stored peptide hits and look for possible matches
-		for (ProteinHit proteinHit : this.getProteinHitList()) {
-			// TODO: is skipping necessary given the total number of peptides exceeds the number of peptides associated with a single protein by far? In that case the number of comparisons for skipping might be much larger than the number of extra peptide reference comparisons...
-			if (proteinHit == first) {
-				continue;
-			}
-			peptideHit = proteinHit.getPeptideHits().get(sequence);
-			if (peptideHit != null) {
-				// A match has been found, abort loop
-				return peptideHit;
-			}
-		}
-		return peptideHit;
-	}
-
-	/**
-	 * Returns the protein hit for a particular accession.
-	 * 
-	 * @param accession the protein accession
-	 * @return the protein hit
-	 */
-	public ProteinHit getProteinHit(String accession) {
-		ProteinHitList metaProteins =
-				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
-		for (ProteinHit mph : metaProteins) {
-			ProteinHit ph = ((MetaProteinHit) mph).getProteinHit(accession);
-			if (ph != null) {
-				return ph;
-			}
-		}
-		return null;
+		
+		// add elements, possibly replacing them with existing ones
+		proteinHit.addPeptideHit(peptideHit);
+		peptideHit.addSpectrumMatch(spectrumMatch);
+		spectrumMatch.addSearchHit(searchHit);
 	}
 
 	/**
@@ -300,6 +138,9 @@ public class DbSearchResult implements Serializable {
 		return (visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
 	}
 	
+	/**
+	 * Resets the mapping of visible meta-proteins.
+	 */
 	public void clearVisibleMetaProteins() {
 		this.visMetaProteins = null;
 	}
@@ -321,8 +162,7 @@ public class DbSearchResult implements Serializable {
 
 	/**
 	 * Returns the map of protein hits.
-	 * 
-	 * @return The map of protein hits.
+	 * @return the map of protein hits
 	 */
 	public Map<String, ProteinHit> getProteinHits() {
 		ProteinHitList metaProteins =
@@ -335,36 +175,81 @@ public class DbSearchResult implements Serializable {
 	}
 
 	/**
+	 * Returns the protein hit for a particular accession.
+	 * @param accession the protein accession
+	 * @return the protein hit or <code>null</code> if no such hit exists
+	 */
+	public ProteinHit getProteinHit(String accession) {
+		ProteinHitList metaProteins =
+				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+		for (ProteinHit mph : metaProteins) {
+			ProteinHit ph = ((MetaProteinHit) mph).getProteinHit(accession);
+			if (ph != null) {
+				return ph;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the peptide hit for a particular sequence.
+	 * @param sequence the peptide sequence
+	 * @return the peptide hit or <code>null</code> if no such hit exists
+	 */
+	public PeptideHit getPeptideHit(String sequence) {
+		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+			PeptideHit peptideHit = proteinHit.getPeptideHit(sequence);
+			if (peptideHit != null) {
+				return peptideHit;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the spectrum match for a particular search spectrum ID.
+	 * @param id the search spectrum database ID
+	 * @return the spectrum match or <code>null</code> if no such match exists
+	 */
+	public SpectrumMatch getSpectrumMatch(long id) {
+		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
+				SpectrumMatch spectrumMatch = peptideHit.getSpectrumMatch(id);
+				if (spectrumMatch != null) {
+					return spectrumMatch;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the project title.
-	 * 
-	 * @return The project title.
+	 * @return the project title
 	 */
 	public String getProjectTitle() {
 		return projectTitle;
 	}
 
 	/**
-	 * Returns the experiment title;
-	 * 
-	 * @return The experiment title.
+	 * Returns the experiment title.
+	 * @return the experiment title
 	 */
 	public String getExperimentTitle() {
 		return experimentTitle;
 	}
 
 	/**
-	 * The FASTA database.
-	 * 
-	 * @return The FASTA database.
+	 * Returns the FASTA database identifier.
+	 * @return the FASTA database identifier.
 	 */
 	public String getFastaDB() {
 		return fastaDB;
 	}
 
 	/**
-	 * The search date.
-	 * 
-	 * @return The search date.
+	 * Returns the search date.
+	 * @return the search date
 	 */
 	public Date getSearchDate() {
 		return searchDate;
@@ -372,9 +257,7 @@ public class DbSearchResult implements Serializable {
 
 	/**
 	 * Sets the search date
-	 * 
-	 * @param searchDate
-	 *            The search date.
+	 * @param searchDate the search date to set
 	 */
 	public void setSearchDate(Date searchDate) {
 		this.searchDate = searchDate;
@@ -389,27 +272,11 @@ public class DbSearchResult implements Serializable {
 	}
 	
 	/**
-	  Sets the total amount of queried spectra.
+	 * Sets the total amount of queried spectra.
 	 * @param totalSpectra The total spectral count.
 	 */
 	public void setTotalSpectrumCount(int totalSpectra) {
 		this.totalSpectra = totalSpectra;
-	}
-
-	/**
-	 * Returns the total ion current map.
-	 * @return the total ion current map
-	 */
-	public TLongDoubleHashMap getTotalIonCurrentMap() {
-		return ticMap;
-	}
-	
-	/**
-	 * Sets the total ion current map.
-	 * @param ticMap the total ion current map to set.
-	 */
-	public void setTotalIonCurrentMap(TLongDoubleHashMap ticMap) {
-		this.ticMap = ticMap;
 	}
 	
 	/**
@@ -463,7 +330,7 @@ public class DbSearchResult implements Serializable {
 			DbSearchResult that = (DbSearchResult) obj;
 			result = this.getProjectTitle().equals(that.getProjectTitle())
 					&& this.getExperimentTitle().equals(that.getExperimentTitle());
-			// TODO: maybe move MetaProteinParams to DbSearchResult class and use them in equals comparison
+			// TODO: maybe compare (meta-)proteins?
 		}
 		return result;
 	}

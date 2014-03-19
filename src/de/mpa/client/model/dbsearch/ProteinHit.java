@@ -420,6 +420,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Sets the map of peptide hits.
 	 * @param peptideHits The map of peptide hits to set.
 	 */
+	@Deprecated
 	public void setPeptideHits(Map<String, PeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;
 	}
@@ -430,15 +431,16 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 */
 	public void addPeptideHit(PeptideHit peptidehit) {
 		peptideHits.put(peptidehit.getSequence(), peptidehit);
+		peptidehit.addProteinHit(this);
 	}
 	
-	/**
-	 * Add all peptides to the protein hit.
-	 * @param peptidehit
-	 */
-	public void addPeptideHits(Map<String, PeptideHit> peptidehits) {
-		peptideHits.putAll(peptidehits);
-	}
+//	/**
+//	 * Add all peptides to the protein hit.
+//	 * @param peptidehit
+//	 */
+//	public void addPeptideHits(Map<String, PeptideHit> peptidehits) {
+//		peptideHits.putAll(peptidehits);
+//	}
 	
 	/**
 	 * Convenience method to retrieve a unique peptide hit.

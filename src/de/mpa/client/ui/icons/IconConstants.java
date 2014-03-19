@@ -90,6 +90,16 @@ public class IconConstants {
 	public static final ImageIcon COLLAPSE_ALL_ROLLOVER_ICON = createRescaledIcon(COLLAPSE_ALL_ICON, 1.1f);
 	public static final ImageIcon COLLAPSE_ALL_PRESSED_ICON = createRescaledIcon(COLLAPSE_ALL_ICON, 0.8f);
 	
+	/** <img src="../../../resources/icons/checkbox_table16.png"> */
+	public static final ImageIcon CHECKBOX_TABLE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/checkbox_table16.png"));
+	public static final ImageIcon CHECKBOX_TABLE_ROLLOVER_ICON = createRescaledIcon(CHECKBOX_TABLE_ICON, 1.1f);
+	public static final ImageIcon CHECKBOX_TABLE_PRESSED_ICON = createRescaledIcon(CHECKBOX_TABLE_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/coverage16.png"> */
+	public static final ImageIcon COVERAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/coverage16.png"));
+	public static final ImageIcon COVERAGE_ROLLOVER_ICON = createRescaledIcon(COVERAGE_ICON, 1.1f);
+	public static final ImageIcon COVERAGE_PRESSED_ICON = createRescaledIcon(COVERAGE_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/spectrum16.png"> */
 	public static final ImageIcon SPECTRUM_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/spectrum16.png"));
 	public static final ImageIcon SPECTRUM_ROLLOVER_ICON = createRescaledIcon(SPECTRUM_ICON, 1.1f);

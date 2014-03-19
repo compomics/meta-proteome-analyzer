@@ -56,18 +56,12 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	/**
 	 * The peptide spectrum match(es) for this peptide hit.
 	 */
-	private List<SpectrumMatch> spectrumMatches;
+	private Map<Long, SpectrumMatch> spectrumMatches;
 
 	/**
 	 * Visible spectrum matches for this peptide hit.
 	 */
-	private List<SpectrumMatch> visSpectrumMatches;
-
-	/**
-	 * Map linking search spectrum IDs of matches to their position in this 
-	 * peptide hit's list of matches.
-	 */
-	private Map<Long, Integer> id2index = new HashMap<Long, Integer>();
+	private Map<Long, SpectrumMatch> visSpectrumMatches;
 
 	/**
 	 * The NCBI taxonomy node of the peptide.
@@ -87,7 +81,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	public PeptideHit(String sequence, SpectrumMatch spectrumMatch) {
 		this.sequence = sequence;
 		this.proteinHits = new ArrayList<ProteinHit>();
-		this.spectrumMatches = new ArrayList<SpectrumMatch>();
+		this.spectrumMatches = new HashMap<Long, SpectrumMatch>();
 		this.experimentIDs = new HashSet<Long>();
 		addSpectrumMatch(spectrumMatch);
 	}
@@ -126,7 +120,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @return The list of PSMs.
 	 */
 	public SpectrumMatch getSingleSpectrumMatch() {
-		return spectrumMatches.get(0);
+		return spectrumMatches.values().iterator().next();
 	}
 
 	/**
@@ -135,9 +129,9 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	public List<SpectrumMatch> getSpectrumMatches() {
 		if (visSpectrumMatches == null) {
-			return spectrumMatches;
+			return new ArrayList<>(spectrumMatches.values());
 		}
-		return visSpectrumMatches;
+		return new ArrayList<>(visSpectrumMatches.values());
 	}
 
 	/**
@@ -177,23 +171,8 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @param sm The spectrum match.
 	 */
 	public void addSpectrumMatch(SpectrumMatch sm) {
-		id2index.put(sm.getSearchSpectrumID(), spectrumMatches.size());
-		spectrumMatches.add(sm);
-	}
-
-	/**
-	 * Replaces an existing spectrum match which contains the same search
-	 * spectrum ID with the specified spectrum match or appends it if no such ID
-	 * exists yet.
-	 * @param sm The spectrum match to be inserted.
-	 */
-	public void replaceSpectrumMatch(SpectrumMatch sm) {
-		Integer index = id2index.get(sm.getSearchSpectrumID());
-		if (index == null) {
-			this.addSpectrumMatch(sm);
-		} else {
-			spectrumMatches.set(index, sm);
-		}
+		spectrumMatches.put(sm.getSearchSpectrumID(), sm);
+		sm.addPeptideHit(this);
 	}
 
 	/**
@@ -202,8 +181,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @return The mapped spectrum match.
 	 */
 	public SpectrumMatch getSpectrumMatch(long id) {
-		Integer index = id2index.get(id);
-		return (index != null) ? spectrumMatches.get(id2index.get(id)) : null;
+		if (visSpectrumMatches != null) {
+			return visSpectrumMatches.get(id);
+		} else {
+			return spectrumMatches.get(id);
+		}
 	}
 
 	/**
@@ -215,14 +197,14 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	}
 
 	/**
-	 * Adds the specified ProteinHit to the list of proteins associated with this peptide.  
-	 * @param proteinHit The hit to add.
+	 * Adds the specified protein hit to the list of proteins associated with
+	 * this peptide.
+	 * @param proteinHit the protein to add
 	 */
 	public void addProteinHit(ProteinHit proteinHit) {
-		if (proteinHits.contains(proteinHit)) {
-			// remove existing protein hit to replace it with provided hit
-			proteinHits.remove(proteinHit);
-		}
+		// to replace a protein hit we need to remove it first,
+		// does nothing if provided hit is new anyway
+		proteinHits.remove(proteinHit);
 		proteinHits.add(proteinHit);
 	}
 
@@ -281,18 +263,18 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		this.visSpectrumMatches = new ArrayList<SpectrumMatch>();
-		for (SpectrumMatch match : this.spectrumMatches) {
+		this.visSpectrumMatches = new HashMap<Long, SpectrumMatch>();
+		for (SpectrumMatch match : spectrumMatches.values()) {
 			match.setFDR(fdr);
 			if (match.isVisible()) {
-				this.visSpectrumMatches.add(match);
+				visSpectrumMatches.put(match.getSearchSpectrumID(), match);
 			}
 		}
 	}
 
 	@Override
 	public boolean isVisible() {
-		return !this.visSpectrumMatches.isEmpty();
+		return !visSpectrumMatches.isEmpty();
 	}
 
 	@Override

@@ -280,7 +280,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		PanelConfig.decorate(chartTtlPnl);
 		
 		// Create button panel for chart/spectrum titled panel
-		JPanel specBtnPnl = new JPanel(new FormLayout("21px, 1px, 11px, 2dlu, 22px, 1px", "20px"));
+		JPanel specBtnPnl = new JPanel(new FormLayout("21px, 1px, 11px, 1dlu, 22px, 1px", "20px"));
 		specBtnPnl.setOpaque(false);
 		
 		ButtonGroup specBg = new ButtonGroup();
@@ -1215,29 +1215,46 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		peptidePnl.add(pepCardPnl, CC.xy(2, 2));
 	
-		// build control button panel for card layout
-		JButton nextBtn = new JButton("\u203A");
-		nextBtn.setPreferredSize(new Dimension(19, 18));
-	
-		nextBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pepCardLyt.previous(pepCardPnl);
-				Component[] components = pepCardPnl.getComponents();
-				for (Component component : components) {
-					if (component.isVisible()) {
-						if (component == peptideTableScpn) {
-							int numPeptides = peptideTbl.getRowCount();
-							pepTtlPnl.setTitle("Peptides (" + numPeptides + ")");
-						} else {
-							pepTtlPnl.setTitle("Sequence Coverage Viewer");
-						}
-					}
-				}
+		// Create control buttons for card layout
+		JToggleButton tableBtn = new JToggleButton(IconConstants.CHECKBOX_TABLE_ICON, true);
+		tableBtn.setRolloverIcon(IconConstants.CHECKBOX_TABLE_ROLLOVER_ICON);
+		tableBtn.setPressedIcon(IconConstants.CHECKBOX_TABLE_PRESSED_ICON);
+		tableBtn.setToolTipText("Table View");
+		tableBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(tableBtn));
+		
+		tableBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				pepCardLyt.show(pepCardPnl, "Table");
+				pepTtlPnl.setTitle("Peptides (" + peptideTbl.getRowCount() + ")");
 			}
 		});
+
+		JToggleButton coverageBtn = new JToggleButton(IconConstants.COVERAGE_ICON);
+		coverageBtn.setRolloverIcon(IconConstants.COVERAGE_ROLLOVER_ICON);
+		coverageBtn.setPressedIcon(IconConstants.COVERAGE_PRESSED_ICON);
+		coverageBtn.setToolTipText("Coverage View");
+		coverageBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(coverageBtn));
+		
+		coverageBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				pepCardLyt.show(pepCardPnl, "Coverage");
+				pepTtlPnl.setTitle("Sequence Coverage");
+			}
+		});
+		
+		ButtonGroup viewGrp = new ButtonGroup();
+		viewGrp.add(tableBtn);
+		viewGrp.add(coverageBtn);
+		
+		JPanel buttonPnl = new JPanel(new FormLayout("20px, 1dlu, 20px, 1px", "20px"));
+		buttonPnl.setOpaque(false);
+		buttonPnl.add(tableBtn, CC.xy(1, 1));
+		buttonPnl.add(coverageBtn, CC.xy(3, 1));
 	
 		// Wrap peptide panel in titled panel with control buttons in title
-		return PanelConfig.createTitledPanel("Peptides", peptidePnl, null, nextBtn);
+		return PanelConfig.createTitledPanel("Peptides", peptidePnl, null, buttonPnl);
 	}
 	
 	/**

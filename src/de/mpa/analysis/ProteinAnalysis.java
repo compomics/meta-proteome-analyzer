@@ -95,7 +95,7 @@ public class ProteinAnalysis {
 					break;
 				}
 			}
-			proteinHit.addPeptideHit(peptideHit);
+//			proteinHit.addPeptideHit(peptideHit);
 		}
 
 		// Number of covered amino acids.
