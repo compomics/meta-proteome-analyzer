@@ -4,11 +4,11 @@
 
 == Client Installation ==
 
-Before installing MetaProteomeAnalyzer, please make sure that you have Java 1.6 installed. To check the currently installed java version, open a console/bash window and type:
+Before installing MetaProteomeAnalyzer, please make sure that you have Java 1.7 installed. To check the currently installed java version, open a console/bash window and type:
 
 `java –version`
 
-If you haven't installed Java 1.6 or higher, go directly to
+If you haven't installed Java 1.7, go directly to
 [http://www.java.com/download/ Java.com] to download a proper version of Java.
 
 ===System requirements:===
@@ -22,5 +22,3 @@ After downloading the zip file, simply unzip the file and double-click on the `m
 
 
  
-
-
