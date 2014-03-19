@@ -472,7 +472,9 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 			label.setSelected(selected);
 			// scroll to the selected label
 			Container cont = label.getParent();
-			((JComponent) cont).scrollRectToVisible(cont.getBounds());	// far from perfect, but close enough
+			if (cont != null) {
+				((JComponent) cont).scrollRectToVisible(cont.getBounds());	// far from perfect, but close enough
+			}
 		}
 	}
 	

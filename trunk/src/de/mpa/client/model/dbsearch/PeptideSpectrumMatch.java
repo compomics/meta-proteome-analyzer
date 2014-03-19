@@ -75,6 +75,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * Returns the list of search hits.
 	 * @return The list of search hits.
 	 */
+	@Override
 	public List<SearchHit> getSearchHits() {
 		if (visSearchHits == null) {
 			return new ArrayList<SearchHit>(searchHits.values());
@@ -86,7 +87,8 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * Adds a search engine hit to the PSM. Checks for redundancy.
 	 * @param hit Another search engine hit to be added.
 	 */
-	public void addSearchEngineHit(SearchHit hit) {
+	@Override
+	public void addSearchHit(SearchHit hit) {
 		if (!searchHits.containsValue(hit)) {
 			this.searchHits.put(hit.getType(), hit);
 		} else {

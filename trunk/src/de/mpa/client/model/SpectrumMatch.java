@@ -12,6 +12,7 @@ import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.panels.ComparePanel.CompareData;
+import de.mpa.db.accessor.SearchHit;
 
 /**
  * Class holding spetrum match data.
@@ -160,6 +161,23 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	}
 	
 	/**
+	 * Adds a search engine hit to this match.
+	 * @param hit the hit to add
+	 */
+	public void addSearchHit(SearchHit hit) {
+		// do nothing, just a stub
+	}
+	
+	/**
+	 * Returns the list of search engine hits of this match.
+	 * @return the list of hits
+	 */
+	public List<SearchHit> getSearchHits() {
+		// do nothing, just a stub
+		return null;
+	}
+
+	/**
 	 * Returns the list of peptide hits associated with this match.
 	 * @return the peptide hits
 	 */
@@ -172,7 +190,8 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @param peptideHit the peptide hit to add
 	 */
 	public void addPeptideHit(PeptideHit peptideHit) {
-		// to replace a peptide hit we need to remove it first, does nothing if provided hit is new anyway
+		// to replace a peptide hit we need to remove it first,
+		// does nothing if provided hit is new anyway
 		this.peptideHits.remove(peptideHit);
 		this.peptideHits.add(peptideHit);
 	}

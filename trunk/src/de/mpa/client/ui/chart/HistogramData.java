@@ -8,7 +8,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.statistics.HistogramDataset;
 
-import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHit;
 
 /**
@@ -43,16 +42,16 @@ public class HistogramData implements ChartData {
 	 */
 	private int toIndex;
 
-	/**
-	 * Creates a histogram data object from the total ion currents stored in the
-	 * specified database search result object and bin count parameters.
-	 * 
-	 * @param dbSearchResult the database search result object
-	 * @param binCount the number of bins
-	 */
-	public HistogramData(DbSearchResult dbSearchResult, int binCount) {
-		this(dbSearchResult.getTotalIonCurrentMap().values(), binCount);
-	}
+//	/**
+//	 * Creates a histogram data object from the total ion currents stored in the
+//	 * specified database search result object and bin count parameters.
+//	 * 
+//	 * @param dbSearchResult the database search result object
+//	 * @param binCount the number of bins
+//	 */
+//	public HistogramData(DbSearchResult dbSearchResult, int binCount) {
+//		this(dbSearchResult.getTotalIonCurrentMap().values(), binCount);
+//	}
 
 	/**
 	 * Creates a histogram data object from the specified values and bin count
