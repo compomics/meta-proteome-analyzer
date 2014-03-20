@@ -89,17 +89,17 @@ public class ClientFrameMenuBar extends JMenuBar {
 		fileMenu.setText("File");
 		JMenuItem newProjectItem = new JMenuItem();
 		newProjectItem.setText("New Project");
-		newProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/new_project.gif")));
+		newProjectItem.setIcon(IconConstants.ADD_FOLDER_ICON);
 		newProjectItem.setEnabled(false);
 
 		JMenuItem openProjectItem = new JMenuItem();
 		openProjectItem.setText("Open Project");
-		openProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/open_project.gif")));
+		openProjectItem.setIcon(IconConstants.VIEW_FOLDER_ICON);
 		openProjectItem.setEnabled(false);
 		
 		saveProjectItem = new JMenuItem();
 		saveProjectItem.setText("Save Project");
-		saveProjectItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/save16.png")));
+		saveProjectItem.setIcon(IconConstants.SAVE_ICON);
 		saveProjectItem.setEnabled(false);
 		saveProjectItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
@@ -110,7 +110,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// exitItem
 		JMenuItem exitItem = new JMenuItem();
 		exitItem.setText("Exit");
-		exitItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/exit.gif")));
+		exitItem.setIcon(IconConstants.EXIT_ICON);
 		exitItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				client.exit();

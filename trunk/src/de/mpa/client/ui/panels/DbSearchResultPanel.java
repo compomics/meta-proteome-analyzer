@@ -57,6 +57,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -1146,14 +1147,34 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Create the table type selection popup menu
 		final JPopupMenu tableTypePop = new JPopupMenu();
 		ActionListener hierarchyListener = new ActionListener() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Determine tree table to be made visible
 				String label = ((AbstractButton) e.getSource()).getText();
 				ProteinTreeTables ptt = ProteinTreeTables.valueOfLabel(label);
 				
-				// Update checkbox selections, also re-sorts/filters the tree table
-				ptt.updateCheckSelection();
+				// Determine currently visible tree table
+				for (ProteinTreeTables curPtt : ProteinTreeTables.values()) {
+					if (curPtt.getTreeTable().getParent().getParent().isVisible()) {
+						if (curPtt.hasCheckSelectionChanged()) {
+							curPtt.cacheCheckSelection();
+							
+							// mark all tree tables for updating the next time they're displayed
+							for (ProteinTreeTables ptt2 : ProteinTreeTables.values()) {
+								ptt2.setCheckSelectionNeedsUpdating(true);
+							}
+							
+							// Update checkbox selections, also re-sorts/filters the tree table
+							ptt.updateCheckSelection();
+						} else {
+							// at least re-sort/filter
+							CheckBoxTreeTable treeTable = ptt.getTreeTable();
+							treeTable.setRowFilter((RowFilter<TreeModel, Integer>) treeTable.getRowFilter());
+						}
+						break;
+					}
+				}
 				
 				// Show card
 				protCardLyt.show(protCardPnl, label);

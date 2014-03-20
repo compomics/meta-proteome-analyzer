@@ -37,6 +37,8 @@ public class IconConstants {
 	public static final ImageIcon LOGGING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/logging.png"));
 
 	/** <img src="../../../resources/icons/color_wheel16.png"> */
+	public static final ImageIcon EXIT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/exit16.png"));
+	/** <img src="../../../resources/icons/color_wheel16.png"> */
 	public static final ImageIcon COLOR_SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/color_wheel16.png"));
 	/** <img src="../../../resources/icons/database16.png"> */
 	public static final ImageIcon DATABASE_SETTINGS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_set16.png"));
@@ -185,7 +187,6 @@ public class IconConstants {
 	public static final ImageIcon DELETE_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_delete.png"));
 	public static final ImageIcon DELETE_DB_ROLLOVER_ICON = createRescaledIcon(DELETE_DB_ICON, 1.1f);
 	public static final ImageIcon DELETE_DB_PRESSED_ICON = createRescaledIcon(DELETE_DB_ICON, 0.8f);
-	
 	/** <img src="../../../resources/icons/folder_go32.png"> */
 	public static final ImageIcon GO_FOLDER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/folder_go32.png"));
 	public static final ImageIcon GO_FOLDER_ROLLOVER_ICON = createRescaledIcon(GO_FOLDER_ICON, 1.1f);
