@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -65,6 +66,8 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import scala.actors.threadpool.Arrays;
 import de.mpa.analysis.KeggAccessor;
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -103,7 +106,95 @@ public enum ProteinTreeTables {
 			((PhylogenyTreeTableNode) treeTblMdl.getRoot()).add(metaNode);
 		}
 	},
-	TAXONOMY("Taxonomic View") {
+	ONTOLOGY("Ontology View") {
+		@Override
+		public void insertNode(PhylogenyTreeTableNode protNode) {
+			// get taxonomic tree table root
+			DefaultTreeTableModel treeTblMdl =
+					(DefaultTreeTableModel) this.getTreeTable().getTreeTableModel();
+			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
+
+			// extract protein hit from provided node
+			ProteinHit ph = (ProteinHit) protNode.getUserObject();
+			
+			// init insertion node as root
+			PhylogenyTreeTableNode parent = root;
+			
+			ReducedUniProtEntry upe = ph.getUniProtEntry();
+			if (upe != null) {
+				Map<String, KeywordOntology> ontologies = UniProtUtilities.ONTOLOGY_MAP;
+				// iterate keywords, insert a cloned instance of the protein node into the tree for each keyword
+				for (String keyword : upe.getKeywords()) {
+					KeywordOntology ontology = ontologies.get(keyword);
+					if (ontology != null) {
+						// look for ontology category node
+						parent = this.getChildByUserObject(root, ontology);
+						PhylogenyTreeTableNode child;
+						if (parent != null) {
+							// look for keyword node
+							child = this.getChildByUserObject(parent, keyword);
+							if (child == null) {
+								// keyword node does not exist yet, therefore create it
+								child = new PhylogenyTreeTableNode(keyword);
+								parent.add(child);
+							}
+						} else {
+							// ontology category node does not exist yet, therefore create it
+							parent = new PhylogenyTreeTableNode(ontology);
+							root.add(parent);
+							// keyword node cannot exist yet either, therefore also create it
+							child = new PhylogenyTreeTableNode(keyword);
+							parent.add(child);
+						}
+						// add clone of protein node to keyword node
+						PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+						cloneNode.setURI(protNode.getURI());
+						child.add(cloneNode);
+					} else {
+						// unknown keyword, put node under 'Unknown'
+						parent = this.getChildByUserObject(root, "Unknown");
+						if (parent == null) {
+							// 'Unknown' node does not exist yet, therefore create it
+							parent = new PhylogenyTreeTableNode("Unknown");
+							root.add(parent);
+						}
+						// add clone of protein node to parent
+						PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+						cloneNode.setURI(protNode.getURI());
+						parent.add(cloneNode);
+					}
+				}
+			} else {
+				// no keywords available, put node under 'Unclassified'
+				parent = this.getChildByUserObject(root, "Unclassified");
+				if (parent == null) {
+					// 'Unclassified' node does not exist yet, therefore create it
+					parent = new PhylogenyTreeTableNode("Unclassified");
+					root.add(parent);
+				}
+				parent.add(protNode);
+			}
+		}
+		
+		/**
+		 * Searches the child nodes of the provided parent node for one featuring a
+		 * user object matching the provided one.
+		 * @param parent the parent node
+		 * @param userObject the user object to identify the desired node by
+		 * @return the desired child node or <code>null</code> if no such node exists
+		 */
+		private PhylogenyTreeTableNode getChildByUserObject(PhylogenyTreeTableNode parent, Object userObject) {
+			Enumeration<? extends MutableTreeTableNode> children = parent.children();
+			while (children.hasMoreElements()) {
+				MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
+				if (userObject.equals(child.getUserObject())) {
+					return (PhylogenyTreeTableNode) child;
+				}
+			}
+			return null;
+		}
+	},
+	TAXONOMY("Taxonomy View") {
 		@Override
 		public void insertNode(PhylogenyTreeTableNode protNode) {
 			// get taxonomic tree table root
@@ -218,7 +309,6 @@ public enum ProteinTreeTables {
 				}
 			}
 
-			List<TreePath> treePaths = new ArrayList<TreePath>();
 			PhylogenyTreeTableNode parent = root;
 
 			// iterate found pathways
@@ -257,9 +347,7 @@ public enum ProteinTreeTables {
 					// add clone of protein node to each pathway
 					PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
 					cloneNode.setURI(protNode.getURI());
-//					treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
 					parent.add(cloneNode);
-					treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
 				}
 			} else {
 				// no pathways were found, therefore look for 'Unclassified' node in tree
@@ -280,9 +368,7 @@ public enum ProteinTreeTables {
 				// add clone of protein node to 'Unclassified' branch
 				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
 				cloneNode.setURI(protNode.getURI());
-//				treeTblMdl.insertNodeInto(cloneNode, parent, parent.getChildCount());
 				parent.add(cloneNode);
-				treePaths.add(new TreePath(treeTblMdl.getPathToRoot(cloneNode)));
 			}
 			// TODO: add redundancy check in case a protein has multiple KOs pointing to the same pathway
 		}
@@ -808,10 +894,6 @@ public enum ProteinTreeTables {
 				sortMenu.add(desChk);
 				sortMenu.add(unsChk);
 				
-				// Create item for selecting column filter dialog
-				// TODO: create a column filter dialog :)
-				JMenuItem filterItem = new JMenuItem("Filter... (not implem.)", IconConstants.FILTER_ICON);
-				
 				// Create sub-menu containing non-leaf value aggregation functions
 				JMenu aggrMenu = new JMenu("Aggregate Function");
 				aggrMenu.setIcon(IconConstants.CALCULATOR_ICON);
@@ -839,10 +921,21 @@ public enum ProteinTreeTables {
 					aggrMenu.add(new JMenuItem());
 					aggrMenu.setEnabled(false);
 				}
+				
+				// Create item for hiding column
+				JMenuItem hideItem = new JMenuItem("Hide Column", IconConstants.CROSS_ICON);
+				hideItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						TableColumnExt2 column = (TableColumnExt2) treeTbl.getColumnExt(col);
+						column.setVisible(false);
+					}
+				});
+				hideItem.setEnabled(col != treeTbl.getHierarchicalColumn());
 	
 				popup.add(sortMenu);
-				popup.add(filterItem);
 				popup.add(aggrMenu);
+				popup.add(hideItem);
 				return popup;
 			}
 	

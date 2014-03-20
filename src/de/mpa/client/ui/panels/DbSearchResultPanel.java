@@ -1714,18 +1714,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						// Wrap protein data in table node clones and insert them into the relevant trees
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
 						
-						PhylogenyTreeTableNode flatNode = new PhylogenyTreeTableNode(proteinHit);
-						flatNode.setURI(uri);
-						ProteinTreeTables.FLAT.insertNode(flatNode);
-						PhylogenyTreeTableNode taxonomicNode = new PhylogenyTreeTableNode(proteinHit);
-						taxonomicNode.setURI(uri);
-						ProteinTreeTables.TAXONOMY.insertNode(taxonomicNode);
-						PhylogenyTreeTableNode enzymeNode = new PhylogenyTreeTableNode(proteinHit);
-						enzymeNode.setURI(uri);
-						ProteinTreeTables.ENZYME.insertNode(enzymeNode);
-						PhylogenyTreeTableNode pathwayNode = new PhylogenyTreeTableNode(proteinHit);
-						pathwayNode.setURI(uri);
-						ProteinTreeTables.PATHWAY.insertNode(pathwayNode);
+						for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+							if (ptt == ProteinTreeTables.META) {
+								continue;
+							}
+							PhylogenyTreeTableNode node = new PhylogenyTreeTableNode(proteinHit);
+							node.setURI(uri);
+							ptt.insertNode(node);
+						}
 		
 						// // Link nodes to each other
 						// linkNodes(flatPath, taxonPath, enzymePath);
