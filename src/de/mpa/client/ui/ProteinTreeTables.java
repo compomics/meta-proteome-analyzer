@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +65,6 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
-import scala.actors.threadpool.Arrays;
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.KeywordOntology;
@@ -246,30 +246,42 @@ public enum ProteinTreeTables {
 				ecNumbers.add("Unclassified");
 			}
 
-			// Split primary E.C. number string into multiple tokens (typically 4)
-			// TODO: what to do when more than one E.C. number exists for the protein hit?
-			String[] ecTokens = ecNumbers.get(0).split("[.]");
+			// iterate E.C. numbers, insert cloned instance of protein node for each number
+			for (String ecNumber : ecNumbers) {
+				// split primary E.C. number string into multiple tokens (typically 4)
+				String[] ecTokens = ecNumber.split("[.]");
 
-			PhylogenyTreeTableNode parent = root;
-			for (int i = 0; i < ecTokens.length; i++) {
-				String name = "";
-				for (int j = 0; j < ecTokens.length; j++) {
-					if (j > 0) name += ".";
-					name += (j <= i) ? ecTokens[j] : "-";
-				}
-				PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
-				if (child == null) {
-					ECEntry entry = Parameters.getInstance().getEcMap().get(name);
-					child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
-					if (!name.equals("Unclassified")) {
-						URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
-						child.setURI(uri);
+				// init insertion node using tree root
+				PhylogenyTreeTableNode parent = root;
+				
+				// iterate number tokens
+				for (int i = 0; i < ecTokens.length; i++) {
+					// build name substituting some tokens using dashes
+					String name = "";
+					for (int j = 0; j < ecTokens.length; j++) {
+						if (j > 0) name += ".";
+						name += (j <= i) ? ecTokens[j] : "-";
 					}
-					parent.add(child);
+					// find child node corresponding to generated name
+					PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
+					if (child == null) {
+						// child node does not exist yet, therefore create it
+						ECEntry entry = Parameters.getInstance().getEcMap().get(name);
+						child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
+						if (!name.equals("Unclassified")) {
+							// create URL to link to ExPASy website
+							URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
+							child.setURI(uri);
+						}
+						parent.add(child);
+					}
+					parent = child;
 				}
-				parent = child;
+				// add clone of protein node to parent
+				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
+				cloneNode.setURI(protNode.getURI());
+				parent.add(cloneNode);
 			}
-			parent.add(protNode);
 		}
 	},
 	PATHWAY("Pathway View") {
@@ -470,11 +482,22 @@ public enum ProteinTreeTables {
 	private CheckBoxTreeTable treeTable;
 	
 	/**
-	 * Flag indicating whether checkbox selections inside tree tables are currently 
-	 * in the middle of being synched programmatically.
+	 * Flag indicating whether checkbox selections inside the tree table are
+	 * currently in the middle of being synched programmatically.
 	 */
 	private boolean synching = false;
-
+	
+	/**
+	 * The cached list of checkbox selection paths of the tree table.
+	 */
+	private Set<TreePath> checkSelection;
+	
+	/**
+	 * Flag indicating whether checkbox selections inside the tree table are in
+	 * need of updating.
+	 */
+	private boolean checkSelectionNeedsUpdating = false;
+	
 	/**
 	 * Creates an enum member using the provided label string.
 	 * @param label the label
@@ -663,10 +686,11 @@ public enum ProteinTreeTables {
 		// Pre-select root node
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(new TreePath(root));
+		checkSelection = new HashSet<>(Arrays.asList(cbtsm.getSelectionPaths()));
 
 		// Set default sort order (spectral count, descending)
 		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(7, SortOrder.DESCENDING);
-
+		
 		// Add listener to synchronize selection state of nodes throughout multiple trees
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
 			
@@ -1119,50 +1143,79 @@ public enum ProteinTreeTables {
 	}
 
 	/**
+	 * Returns whether the checkbox selection paths of the tree table have changed.
+	 * @return <code>true</code> if the selection has changed, <code>false</code> otherwise
+	 */
+	public boolean hasCheckSelectionChanged() {
+		Set<TreePath> currentPaths = new HashSet<>(Arrays.asList(
+				this.getTreeTable().getCheckBoxTreeSelectionModel().getSelectionPaths()));
+		return !currentPaths.equals(checkSelection);
+	}
+
+	/**
+	 * Caches the current checkbox selection paths.
+	 */
+	public void cacheCheckSelection() {
+		checkSelection = new HashSet<>(Arrays.asList(
+				this.getTreeTable().getCheckBoxTreeSelectionModel().getSelectionPaths()));
+		checkSelectionNeedsUpdating = false;
+	}
+	
+	/**
+	 * Sets whether the checkbox selection needs to be updated.
+	 * @param needsUpdating <code>true</code> if the selection is in need of updating
+	 */
+	public void setCheckSelectionNeedsUpdating(boolean needsUpdating) {
+		checkSelectionNeedsUpdating |= needsUpdating;
+	}
+	
+	/**
 	 * Convenience method to update the checkbox selection state of the
 	 * tree table to what's stored separately in its nodes.
 	 */
 	@SuppressWarnings("unchecked")
 	public void updateCheckSelection() {
-		// prevent selection listener from capturing events fired during synchronization
-		this.synching = true;
-		
-		CheckBoxTreeTable treeTbl = this.getTreeTable();
-		CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
-		SortableTreeTableModel model = (SortableTreeTableModel) treeTbl.getTreeTableModel();
-		PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) model.getRoot();
-		
-		// temporarily disable row filter
-		RowFilter<TreeModel, Integer> filter = (RowFilter<TreeModel, Integer>) treeTbl.getRowFilter();
-		treeTbl.setRowFilter(null);
-		
-		// iterate nodes
-		Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
-		while (dfe.hasMoreElements()) {
-			TreeNode treeNode = dfe.nextElement();
-			// only leaf nodes contain relevant data
-			if (treeNode.isLeaf()) {
-				Object userObject = ((TreeTableNode) treeNode).getUserObject();
-				// just one more sanity check
-				if (userObject instanceof ProteinHit) {
-					TreePath path = new TreePath(model.getPathToRoot((TreeTableNode) treeNode));
-//					boolean pathSel = cbtsm.isPathSelected(path, true);
-					boolean nodeSel = ((ProteinHit) userObject).isSelected();
-//					if (pathSel != nodeSel) {
+		if (checkSelectionNeedsUpdating) {
+			// prevent selection listener from capturing events fired during synchronization
+			synching = true;
+			
+			CheckBoxTreeTable treeTbl = this.getTreeTable();
+			CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+			SortableTreeTableModel model = (SortableTreeTableModel) treeTbl.getTreeTableModel();
+			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) model.getRoot();
+			
+			// temporarily disable row filter
+			RowFilter<TreeModel, Integer> filter = (RowFilter<TreeModel, Integer>) treeTbl.getRowFilter();
+			treeTbl.setRowFilter(null);
+			
+			// iterate nodes
+			Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+			while (dfe.hasMoreElements()) {
+				TreeNode treeNode = dfe.nextElement();
+				// only leaf nodes contain relevant data
+				if (treeNode.isLeaf()) {
+					Object userObject = ((TreeTableNode) treeNode).getUserObject();
+					// just one more sanity check
+					if (userObject instanceof ProteinHit) {
+						TreePath path = new TreePath(model.getPathToRoot((TreeTableNode) treeNode));
+						boolean nodeSel = ((ProteinHit) userObject).isSelected();
 						if (nodeSel) {
 							cbtsm.addSelectionPath(path);
 						} else {
 							cbtsm.removeSelectionPath(path);
 						}
-//					}
+					}
 				}
 			}
+			
+			// cache selection
+			this.cacheCheckSelection();
+			
+			// re-apply row filter
+			treeTbl.setRowFilter(filter);
+			
+			synching = false;
 		}
-		
-		// re-apply row filter
-		treeTbl.setRowFilter(filter);
-		
-		this.synching = false;
 	}
 
 }
