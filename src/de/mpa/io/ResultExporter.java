@@ -30,13 +30,11 @@ import de.mpa.db.accessor.Spectrum;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and taxonomy results.
- * @author T.Muth
+ * @author T.Muth, R.Heyer
  *
  */
 public class ResultExporter {
 
-
-	
 	public enum ExportHeaderType {
 		METAPROTEINS, TAXONOMY, PROTEINS, PEPTIDES, PSMS
 	}
@@ -51,7 +49,7 @@ public class ResultExporter {
 	public static void exportMetaProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[11];
+		boolean hasFeature[] = new boolean[10];
 		
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -69,15 +67,13 @@ public class ResultExporter {
 			if (hasFeature[0]) writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[1]) writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[2]) writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[3]) writer.append(metaProtein.getSpecies() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[3]) writer.append(metaProtein.getTaxonomyNode().getName() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[4]) writer.append(metaProtein.getCoverage() * 100 + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[5]) writer.append(metaProtein.getIdentity() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[6]) writer.append(metaProtein.getNSAF() + Constants.TSV_FILE_SEPARATOR);
-//			if (hasFeature[6]) writer.append((Math.round(metaProtein.getNSAF() * 100000.0) / 100000.0) + SEP);
 			if (hasFeature[7]) writer.append(metaProtein.getEmPAI() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[8]) writer.append(metaProtein.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[9]) writer.append(metaProtein.getPeptideCount() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[10]) {
+			if (hasFeature[9]) {
 				List<PeptideHit> peptideHitList = metaProtein.getPeptideHitList();
 				for (int i = 0; i < peptideHitList.size(); i++) {
 					writer.append(peptideHitList.get(i).getSequence());
@@ -132,7 +128,6 @@ public class ResultExporter {
 				if (hasFeature[4]) writer.append(proteinHit.getCoverage() * 100 + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[5]) writer.append(proteinHit.getPeptideCount() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[6]) writer.append(proteinHit.getNSAF() + Constants.TSV_FILE_SEPARATOR);
-//				if (hasFeature[6]) writer.append((Math.round(proteinHit.getNSAF() * 100000.0) / 100000.0) + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[7]) writer.append(proteinHit.getEmPAI() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[8]) writer.append(proteinHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);

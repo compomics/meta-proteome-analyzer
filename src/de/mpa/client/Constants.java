@@ -181,7 +181,7 @@ public class Constants {
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Project File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
-			"CSV File, comma-separated (*.csv)");
+			"CSV File, tab-separated (*.csv)");
 	public static final String TSV_FILE_SEPARATOR = "\t";
 	public static final String CSV_FILE_SEPARATOR = ";";
 	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,

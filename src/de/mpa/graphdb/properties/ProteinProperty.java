@@ -5,7 +5,7 @@ public enum ProteinProperty implements ElementProperty {
 	DESCRIPTION("Description"),
 	TAXONOMY("Taxonomy"),
 	MOLECULARWEIGHT("Molecular Weight (kDa)"),
-	COVERAGE("Sequence Coverage"),
+	COVERAGE("Sequence Coverage (%)"),
 	PROTEINCOUNT("Protein Count"),
 	SPECTRALCOUNT("Spectral Count");	
 	

@@ -1122,7 +1122,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// Enable 'Export' and 'Save Project' functionalities of menu bar
 			ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
 			menuBar.setExportCSVResultsEnabled(true);
-			menuBar.setSaveProjectEnabled(true);
+			if (!Client.getInstance().isViewer()) menuBar.setSaveProjectEnabled(true);
 			menuBar.setExportGraphMLEnabled(true);
 		}
 	

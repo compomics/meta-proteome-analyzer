@@ -18,7 +18,7 @@ public class ExportFields {
 	public boolean  proteinNumber; 
 	public boolean  proteinAccession;
 	public boolean  proteinDescription;
-	public boolean  proteinSpecies;
+	public boolean  proteinTaxonomy;
 	public boolean  proteinSeqCoverage;
 	public boolean  proteinMolWeight;
 	public boolean  proteinPi;
@@ -32,16 +32,16 @@ public class ExportFields {
 	/**
 	 * Peptide export.
 	 */
-	public boolean	peptideTaxGroup;
-	public boolean 	peptideProteinAccessions;
-	public boolean	peptideSequence;
-	public boolean	peptideProtCount;
-	public boolean	peptideSpecCount;
-	public boolean	peptideNumber;
-	public boolean	sharedPeptidesOnly;
-	public boolean	uniquePeptidesOnly;
-	public boolean	peptideTaxId;
-	public boolean	peptideTaxRank;
+	public boolean	 peptideTaxGroup;
+	public boolean peptideProteinAccessions;
+	public boolean peptideSequence;
+	public boolean	 peptideProtCount;
+	public boolean	 peptideSpecCount;
+	public boolean	 peptideNumber;
+	public boolean	 sharedPeptidesOnly;
+	public boolean	 uniquePeptidesOnly;
+	public boolean	 peptideTaxId;
+	public boolean	 peptideTaxRank;
 	
 	/**
 	 * PSM export
@@ -100,7 +100,7 @@ public class ExportFields {
 		proteinNumber 			=   true;
 		proteinAccession 		=	true;
 		proteinDescription 		= 	true;
-		proteinSpecies 			=	true;
+		proteinTaxonomy 			=	true;
 		proteinSeqCoverage		= 	true;
 		proteinPepCount			= 	true;
 		proteinNSAF				= 	true;

@@ -12,6 +12,7 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 
+import com.compomics.util.Util;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.IndexableGraph;
@@ -177,7 +178,7 @@ public class GraphDatabaseHandler {
 		proteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), protHit.getDescription());
 		proteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), protHit.getTaxonomyNode().getName());
 		proteinVertex.setProperty(ProteinProperty.MOLECULARWEIGHT.toString(), (Math.round(protHit.getMolecularWeight() * 100.0) / 100.0));
-		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), protHit.getCoverage() * 100.0);
+		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), Util.roundDouble(protHit.getCoverage() * 100.0, 2));
 		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
 		// Index the proteins by their accession.
@@ -217,7 +218,6 @@ public class GraphDatabaseHandler {
 		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
 		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getTaxonomyNode().getName());
 		metaProteinVertex.setProperty(ProteinProperty.PROTEINCOUNT.toString(), metaProteinHit.getProteinSet().size());
-		metaProteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), metaProteinHit.getSpectralCount());
 		
 		// Index the proteins by their accession.
 		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, metaProteinVertex);

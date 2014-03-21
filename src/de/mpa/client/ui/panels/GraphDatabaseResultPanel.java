@@ -160,7 +160,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 			@Override
 			protected Void doInBackground() throws Exception {
 				JFileChooser chooser = new ConfirmFileChooser();
-				chooser.setFileFilter(Constants.TSV_FILE_FILTER);
+				chooser.setFileFilter(Constants.CSV_FILE_FILTER);
 				chooser.setAcceptAllFileFilterUsed(false);
 				int returnVal = chooser.showSaveDialog(ClientFrame.getInstance());
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
