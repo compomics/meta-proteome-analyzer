@@ -145,8 +145,7 @@ public class BasicStorager implements Storager {
 		
 		if (proteinID == null) { // protein not yet in database
 			// Add new protein to the database
-			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(
-					peptideID, accession, description, protein.getSequence().getSequence(), conn);
+			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
 			proteinID = proteinAccessor.getProteinid();
 			proteinIdMap.put(accession, proteinID);
 		} else {

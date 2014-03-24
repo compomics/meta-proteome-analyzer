@@ -121,13 +121,9 @@ public class ProteinAccessor extends ProteinTableAccessor {
             ps = aConn.prepareStatement(getBasicSelect() + " WHERE accession = ?");
             ps.setString(1, accession);
             ResultSet rs = ps.executeQuery();
-//            while (rs.next()) {
-//                temp = new ProteinAccessor(rs);
-//            }
-            if (rs.next()) {
+            while (rs.next()) {
                 temp = new ProteinAccessor(rs);
             }
-            temp = new ProteinAccessor(rs);
             rs.close();
             ps.close();
         }

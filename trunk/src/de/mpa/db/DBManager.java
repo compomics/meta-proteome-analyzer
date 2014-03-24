@@ -144,7 +144,7 @@ public class DBManager {
 	 * Retrieval is based on the UniProt JAPI.
 	 * @throws SQLException
 	 */
-	public void queryAndStoreUniprotEntries() throws SQLException {
+	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.
@@ -161,7 +161,7 @@ public class DBManager {
 			}
 		}
 		if (accessions.size() > 0) {
-			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions);
+			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, doUniRefRetrieval);
 			Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
 			int counter = 0;
 			for (Entry<String, ReducedProteinData> e : entrySet) {

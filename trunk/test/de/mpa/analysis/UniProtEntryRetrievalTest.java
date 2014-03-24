@@ -32,7 +32,7 @@ public class UniProtEntryRetrievalTest {
 	
 	@Test
 	public void testUpdateSingleUniprotEntry() throws SQLException {
-	    ProteinAccessor proteinAccessor = ProteinAccessor.findFromAttributes("A0AJX1", conn);
+	    ProteinAccessor proteinAccessor = ProteinAccessor.findFromAttributes("P0AAI8", conn);
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.
@@ -43,7 +43,7 @@ public class UniProtEntryRetrievalTest {
 			accessions.add(accession);		
 		}
 		if (!accessions.isEmpty()) {
-			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions);			
+			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, true);			
 		}
 		
 		Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();

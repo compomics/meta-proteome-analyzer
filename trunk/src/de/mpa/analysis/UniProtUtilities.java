@@ -109,7 +109,7 @@ public class UniProtUtilities {
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @return {@link Map} of ReducedProteinData objects.
 	 */
-	public static Map<String, ReducedProteinData> retrieveProteinData(List<String> identifierList) {
+	public static Map<String, ReducedProteinData> retrieveProteinData(List<String> identifierList, boolean doUniRefRetrieval) {
 		Map<String, ReducedProteinData> proteinData = new TreeMap<String, ReducedProteinData>();
 		
 		// Check whether UniProt query service has been established yet.
@@ -129,10 +129,10 @@ public class UniProtUtilities {
 			int endIndex = (i + 1) * maxClauseCount - 1;
 			List<String> shortList = new ArrayList<String>(identifierList.subList(startIndex, endIndex));
 			startIndex = endIndex + 1;
-			queryUniProtEntriesByIdentifiers(shortList, proteinData);
+			queryUniProtEntriesByIdentifiers(shortList, proteinData, doUniRefRetrieval);
 			shortList.clear();
 		}
-		queryUniProtEntriesByIdentifiers(new ArrayList<String>(identifierList.subList(maxBatchCount * maxClauseCount, identifierList.size())), proteinData);
+		queryUniProtEntriesByIdentifiers(new ArrayList<String>(identifierList.subList(maxBatchCount * maxClauseCount, identifierList.size())), proteinData, doUniRefRetrieval);
 		
 		return proteinData;
 	}
@@ -142,7 +142,11 @@ public class UniProtUtilities {
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @param uniprotEntries {@link Map} of UniProt entries.
 	 */
-	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, ReducedProteinData> uniprotEntries) {
+	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, ReducedProteinData> uniprotEntries, boolean doUniRefRetrieval) {
+		
+		// Create entry retrival service
+		EntryRetrievalService entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
+				
 		Query query = UniProtQueryBuilder.buildIDListQuery(identifierList);
 		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
 		
@@ -151,20 +155,23 @@ public class UniProtUtilities {
 			
 			ReducedProteinData proteinData;			
 			String accession = entry.getPrimaryUniProtAccession().getValue();
-			
-			// Get the UniRefEntry
-			String uniRef100Identifier = "UniRef100_" + accession;
-			UniRefEntry uniRefEntry = entryRetrievalService.getUniRefEntry(uniRef100Identifier);
-			
-			if (uniRefEntry != null) {
-				UniRefRepresentativeMember member = uniRefEntry.getRepresentativeMember();
-				proteinData = new ReducedProteinData(entry, uniRefEntry.getUniRefEntryId().getValue(), member.getUniRef90EntryId().getValue(), member.getUniRef50EntryId().getValue());
+			if (doUniRefRetrieval) {
+				// Get the UniRefEntry
+				String uniRef100Identifier = "UniRef100_" + accession;
+				UniRefEntry uniRefEntry = entryRetrievalService.getUniRefEntry(uniRef100Identifier);
+				
+				if (uniRefEntry != null) {
+					UniRefRepresentativeMember member = uniRefEntry.getRepresentativeMember();
+					proteinData = new ReducedProteinData(entry, uniRefEntry.getUniRefEntryId().getValue(), member.getUniRef90EntryId().getValue(), member.getUniRef50EntryId().getValue());
+				} else {
+					ProteinData proteinData2 = entryRetrievalService.getProteinData(accession);
+					UniRefEntry uniref100 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef100);
+					UniRefEntry uniref90 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef90);
+					UniRefEntry uniref50 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef50);
+					proteinData = new ReducedProteinData(entry, uniref100.getUniRefEntryId().getValue(), uniref90.getUniRefEntryId().getValue(), uniref50.getUniRefEntryId().getValue());
+				}
 			} else {
-				ProteinData proteinData2 = entryRetrievalService.getProteinData(accession);
-				UniRefEntry uniref100 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef100);
-				UniRefEntry uniref90 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef90);
-				UniRefEntry uniref50 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef50);
-				proteinData = new ReducedProteinData(entry, uniref100.getUniRefEntryId().getValue(), uniref90.getUniRefEntryId().getValue(), uniref50.getUniRefEntryId().getValue());
+				proteinData = new ReducedProteinData(entry);
 			}
 			uniprotEntries.put(accession, proteinData);
 		}	
