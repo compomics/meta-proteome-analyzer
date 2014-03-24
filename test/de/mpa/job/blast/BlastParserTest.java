@@ -17,7 +17,7 @@ public class BlastParserTest extends TestCase {
 
 	@Before
 	public void setUp() {
-		File file = new File(getClass().getClassLoader().getResource("Blast_BSA_10.out").getPath());
+		File file = new File("test/de/mpa/resources/Blast_BSA_10.out");
 		parser = new BlastParser(file);
 	}
 	

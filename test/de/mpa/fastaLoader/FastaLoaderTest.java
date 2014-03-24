@@ -22,7 +22,7 @@ public class FastaLoaderTest extends TestCase {
 	
 	@Before
 	public void setUp(){
-		file = new File(getClass().getClassLoader().getResource("test.fasta").getPath());
+		file = new File("test/de/mpa/resources/test.fasta");
 		fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(file);
 		try {
@@ -49,12 +49,12 @@ public class FastaLoaderTest extends TestCase {
 	public void testgetProteinFromFasta(){
 		try {
 			// TODO: IOException thrown for invalid handle!
-			Protein proteinFirst = fastaLoader.getProteinFromFasta("P05100");
+			Protein proteinFirst = fastaLoader.getProteinFromFasta("Q6GZX4");
 			Protein proteinMiddle = fastaLoader.getProteinFromFasta("B1XDP2");
 			Protein proteinLast = fastaLoader.getProteinFromFasta("A7ZLN7");
 	
 			// ProteinFirst
-			assertEquals("3MG1_ECOLI DNA-3-methyladenine glycosylase 1 OS=Escherichia coli (strain K12) GN=tag PE=1 SV=1", proteinFirst.getHeader().getDescription());
+			assertEquals("001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) GN=FV3-001R PE=4 SV=1", proteinFirst.getHeader().getDescription());
 			assertEquals("MERCGWVSQDPLYIAYHDNEWGVPETDSKKLFEMICLEGQQAGLSWITVLKKRENYRACFHQFDPVKVAAMQEEDVERLVQDAGIIRHRGKIQAIIGNARAYLQMEQNGEPFVDFVWSFVNHQPQVTQATTLSEIPTSTSASDALSKALKKRGFKFVGTTICYSFMQACGLVNDHVVGCCCYPGNKP", proteinFirst.getSequence().getSequence());
 			
 			// ProteinMiddle
