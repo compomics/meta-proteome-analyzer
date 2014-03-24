@@ -329,10 +329,15 @@ public class MetaProteinFactory {
 		// Re-number condensed meta-proteins
 		int metaIndex = 1;
 		for (ProteinHit mph : metaProteins) {
+			
 			if (((MetaProteinHit) mph).getProteinHitList().size() > 1) {
 				mph.setAccession("Meta-Protein " + metaIndex++);
 			}
+			
+			// Set description by taking the description of the first protein hit.
+			mph.setDescription(((MetaProteinHit) mph).getProteinHitList().get(0).getDescription());
 		}
+		
 		for (ProteinHit mph : metaProteins) {
 			if (((MetaProteinHit) mph).getProteinHitList().size() == 1) {
 				mph.setAccession("Meta-Protein " + metaIndex++);

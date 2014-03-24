@@ -180,7 +180,6 @@ public class XTandemStorager extends BasicStorager {
         						
         						// Store peptide-spectrum association
         						this.storeSpec2Pep(searchspectrumID, peptideID);
-                         	    	  
                      	        Long proteinID = storeProtein(peptideID, accession);
                                 hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinID);
                            	    XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     

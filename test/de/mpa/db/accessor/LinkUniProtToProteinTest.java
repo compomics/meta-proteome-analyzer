@@ -49,7 +49,7 @@ public class LinkUniProtToProteinTest {
 		
 		System.out.println(upperLimit + " unreferenced UniProt entries found");
 		
-		upperLimit = 100L;
+		upperLimit = 26000L;
 		while (begin < upperLimit) {
 //			if (true) {
 //				break;
@@ -67,7 +67,7 @@ public class LinkUniProtToProteinTest {
 			System.out.println("Found " + allEntries.size() + " unreferenced UniProt entries.");
 			
 			if (!accessions.isEmpty()) {
-				proteinDataMap = UniProtUtilities.retrieveProteinData(accessions);
+				proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, true);
 				Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
 				
 				for (Entry<String, ReducedProteinData> e : entrySet) {

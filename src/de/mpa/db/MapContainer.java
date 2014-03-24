@@ -38,6 +38,9 @@ public class MapContainer {
      */
     public static Map<String, Long> UniprotQueryProteins;
     
+    /**
+     * Mapping from protein accession to protein ID.
+     */
     private static HashMap<String, Long> proteinIdMap;
     
     public static HashMap<String, Long> getProteinIdMap() {

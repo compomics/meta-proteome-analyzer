@@ -47,6 +47,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
@@ -153,9 +154,9 @@ public class MascotStorager extends BasicStorager {
 		
 		int idCounter = 0;
 //		int queryCounter = 0;
+		// Iterate the queries.
 		for (Query query : queryList) {
-			Vector<PeptideHit> peptideHitsFromQuery =
-					queryToPeptideMap.getPeptideHitsAboveIdentityThreshold(query.getQueryNumber(), 0.05);
+			Vector<PeptideHit> peptideHitsFromQuery = queryToPeptideMap.getPeptideHitsAboveIdentityThreshold(query.getQueryNumber(), 0.05);
 			if (peptideHitsFromQuery != null) {
 				
 				boolean identificationFound = false;
@@ -172,8 +173,7 @@ public class MascotStorager extends BasicStorager {
 					Long spectrumId = specTitleMap.get(query.getTitle());	
 					Long searchspectrumID = null;
 					if (spectrumId != null) {
-							searchspectrumID = Searchspectrum.findFromSpectrumIDAndExperimentID(
-									spectrumId, experimentId, conn).getSearchspectrumid();
+							searchspectrumID = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumId, experimentId, conn).getSearchspectrumid();
 					} else {
 						spectrumId = this.storeSpectrum(query);
 
@@ -199,10 +199,8 @@ public class MascotStorager extends BasicStorager {
 							// Get proteins and fill them into the table
 							List<ProteinHit> proteinHits = peptideHit.getProteinHits();
 							for (ProteinHit datProtHit : proteinHits) {
-								long proteinID = this.storeProtein(
-										peptideID, datProtHit, proteinMap);
-								this.storeMascotHit(
-										searchspectrumID, peptideID, proteinID, query, peptideHit);
+								long proteinID = this.storeProtein(peptideID, datProtHit, proteinMap);
+								this.storeMascotHit(searchspectrumID, peptideID, proteinID, query, peptideHit);
 							}
 						}
 					}
@@ -222,11 +220,12 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
 		Map<String, ReducedProteinData> proteinData =
-				UniProtUtilities.retrieveProteinData(new ArrayList<String>(this.uniProtCandidates));
+				UniProtUtilities.retrieveProteinData(new ArrayList<String>(this.uniProtCandidates), false);
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 		client.firePropertyChange("indeterminate", true, false);
 		
 		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
+		
 		// iterate entries
 		for (String accession : this.uniProtCandidates) {
 			// retrieve protein data from local cache
@@ -391,26 +390,22 @@ public class MascotStorager extends BasicStorager {
 				accession = header.getAccession();
 			}
 		}
-		String description = header.getDescription();
 		
-		// Change UniProt identifier to uniProt accession
-		long proteinID = 0;
-		ProteinAccessor protAcc = ProteinAccessor.findFromAttributes(accession, conn);
-		// check whether protein is already in database
-		// TODO: querying single accessions may be slow, find proper work-around (e.g. querying a list of accessions)
-		if (protAcc == null) {
-			// protein is not in database, create new one
-			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(
-					peptideID, accession, description, "", conn);
+		// Check whether protein is already in database
+		HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
+		Long proteinID = proteinIdMap.get(accession);		
+		
+		// Protein is not in database, create new one
+		if (proteinID == null) {
+			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, header.getDescription(), "", conn);
 			proteinID = (Long) protAccessor.getGeneratedKeys()[0];
-			// mark protein for UniProt lookup
+			// Mark protein for UniProt lookup
 			uniProtCandidates.add(accession);
 		} else {
-			// protein is already stored in database, re-use existing ID
-			proteinID = protAcc.getProteinid();
+			// Protein is already stored in database, re-use existing ID
 			Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
-			// if protein is missing a sequence or a UniProt entry mark it for UniProt lookup later on
-			if (protAcc.getSequence().isEmpty() || (upe == null)) {
+			// If protein is missing a sequence or a UniProt entry mark it for UniProt lookup later on
+			if (upe == null) {
 				uniProtCandidates.add(accession);
 			}
 		}
