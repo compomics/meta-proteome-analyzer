@@ -32,16 +32,16 @@ public class ExportFields {
 	/**
 	 * Peptide export.
 	 */
-	public boolean	 peptideTaxGroup;
+	public boolean peptideTaxGroup;
 	public boolean peptideProteinAccessions;
 	public boolean peptideSequence;
-	public boolean	 peptideProtCount;
-	public boolean	 peptideSpecCount;
-	public boolean	 peptideNumber;
-	public boolean	 sharedPeptidesOnly;
-	public boolean	 uniquePeptidesOnly;
-	public boolean	 peptideTaxId;
-	public boolean	 peptideTaxRank;
+	public boolean peptideProtCount;
+	public boolean peptideSpecCount;
+	public boolean peptideNumber;
+	public boolean sharedPeptidesOnly;
+	public boolean uniquePeptidesOnly;
+	public boolean peptideTaxId;
+	public boolean peptideTaxRank;
 	
 	/**
 	 * PSM export
@@ -68,6 +68,7 @@ public class ExportFields {
 	public boolean metaproteinEmPAI;
 	public boolean metaproteinSpecCount;
 	public boolean metaproteinPepCount;
+	public boolean metaproteinProteins;
 	public boolean metaproteinPeptides;
 	
 	/**
@@ -97,75 +98,71 @@ public class ExportFields {
 		/**
 		 * Protein export
 		 */
-		proteinNumber 			=   true;
-		proteinAccession 		=	true;
-		proteinDescription 		= 	true;
-		proteinTaxonomy 			=	true;
-		proteinSeqCoverage		= 	true;
-		proteinPepCount			= 	true;
-		proteinNSAF				= 	true;
-		proteinEmPAI 			= 	false;
-		proteinPi				= 	true;
-		proteinMolWeight 		= 	true;
-		proteinSequence			=  	false;
-		proteinPeptides			= 	true;
+		proteinNumber = true;
+		proteinAccession = true;
+		proteinDescription = true;
+		proteinTaxonomy = true;
+		proteinSeqCoverage = true;
+		proteinPepCount = true;
+		proteinNSAF = true;
+		proteinEmPAI = false;
+		proteinPi = true;
+		proteinMolWeight = true;
+		proteinSequence = false;
+		proteinPeptides = true;
 		
 		/**
 		 * Peptide export.
 		 */
-		peptideNumber			= true;
-		peptideProteinAccessions= true;
-		peptideSequence			= true;
-		peptideTaxGroup			= true;
-		uniquePeptidesOnly		= true;
-		sharedPeptidesOnly		= true;
-		peptideProtCount		= false;
-		peptideSpecCount		= true;
-		peptideTaxRank			= true;
-		peptideTaxId			= true;
+		peptideNumber = true;
+		peptideProteinAccessions = true;
+		peptideSequence = true;
+		peptideTaxGroup = true;
+		uniquePeptidesOnly = true;
+		sharedPeptidesOnly = true;
+		peptideProtCount = false;
+		peptideSpecCount = true;
+		peptideTaxRank = true;
+		peptideTaxId = true;
 		
 		/**
 		 * PSM export
 		 */
-		psmNumber				= true;
-		psmProteinAccession		= true;
-		psmPeptideSequence		= true;
-		psmSpectrumTitle		= true;
-		psmCharge				= true;
-		psmSearchEngine			= true;
-		psmQValue				= true;
-		psmScore				= true;
+		psmNumber = true;
+		psmProteinAccession = true;
+		psmPeptideSequence = true;
+		psmSpectrumTitle = true;
+		psmCharge = true;
+		psmSearchEngine = true;
+		psmQValue = true;
+		psmScore = true;
 		
 		/**
 		 * MetaProteinExport
 		 */
-		metaproteinNumber		= true;
-		metaproteinAccessions	= true;
-		metaproteinDescription	= true;
-		metaproteinTaxonomy		= true;
-		metaproteinSeqCoverage	= true;
-		metaproteinAId			= false;
-		metaproteinNSAF			= true;
-		metaproteinEmPAI		= true;
-		metaproteinSpecCount	= true;
-		metaproteinPepCount		= true;
-		metaproteinPeptides		= true;
-		
+		metaproteinNumber = true;
+		metaproteinAccessions = true;
+		metaproteinDescription = true;
+		metaproteinTaxonomy = true;
+		metaproteinSpecCount = true;
+		metaproteinPepCount = true;
+		metaproteinProteins = true;
+		metaproteinPeptides = true;
 
 		/**
 		 * Taxonomy Export.
 		 */
-		taxonomyUnclassified	= true;
-		taxonomySuperKingdom	= true;
-		taxonomyKingdom			= true;
-		taxonomyPhylum			= true;
-		taxonomyOrder			= true;
-		taxonomyClass			= true;
-		taxonomyFamily			= true;
-		taxonomyGenus			= true;
-		taxonomySpecies			= true;
-		taxonomySpecificPeptides	= true;
-		taxonomySpecificSpecCount	= true;
+		taxonomyUnclassified = true;
+		taxonomySuperKingdom = true;
+		taxonomyKingdom = true;
+		taxonomyPhylum = true;
+		taxonomyOrder = true;
+		taxonomyClass = true;
+		taxonomyFamily = true;
+		taxonomyGenus = true;
+		taxonomySpecies = true;
+		taxonomySpecificPeptides = true;
+		taxonomySpecificSpecCount = true;
 		
 //		taxonomyUnspecificPeptides	= true; 
 //		taxonomyUnspecificSpecCount	= true; 
