@@ -16,6 +16,7 @@ import de.mpa.analysis.UniProtUtilities.KeywordOntology;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
@@ -593,7 +594,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 						}
 					} else {
 						// TODO: update ontology map, e.g. write parser for ontology file (http://www.uniprot.org/keywords/?query=*&format=*)
-						System.err.println(kw);
+						if (Client.getInstance().isDebug()) {
+							System.err.println(kw);
+						}
 					}
 				}
 			}
