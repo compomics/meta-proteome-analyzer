@@ -14,7 +14,7 @@ import de.mpa.io.InputFileReader;
 import de.mpa.io.MascotGenericFile;
 
 /**
- * This class reads mascot dat-files and stores them into the database
+ * This class reads Mascot DAT-files and stores them into the database
  * @author F. Kohrs and R. Heyer
  *
  */
@@ -31,8 +31,8 @@ public class MascotDatFileReader extends InputFileReader {
 	private List<Long> queryPositions;
 
 	/**
-	 * 
-	 * @param file
+	 * RandomAccessFile based Mascot DAT-File reader.
+	 * @param file Mascot DAT file.
 	 * @throws IOException
 	 */
 	public MascotDatFileReader(File file) throws IOException {
@@ -41,7 +41,7 @@ public class MascotDatFileReader extends InputFileReader {
 	}
 
 	/**
-	 * 
+	 * Loads the spectrum at a specified index.
 	 */
 	@Override
 	public MascotGenericFile loadSpectrum(int index) throws IOException {

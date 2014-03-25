@@ -21,7 +21,7 @@ import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.util.Formatter;
 
-public class UniProtEntryRetrievalTest {
+public class ProteinDataRetrievalTest {
 	
 	private Connection conn;
 
@@ -32,7 +32,7 @@ public class UniProtEntryRetrievalTest {
 	
 	@Test
 	public void testUpdateSingleUniprotEntry() throws SQLException {
-	    ProteinAccessor proteinAccessor = ProteinAccessor.findFromAttributes("P0AAI8", conn);
+	    ProteinAccessor proteinAccessor = ProteinAccessor.findFromAttributes("A0AJX1", conn);
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.
@@ -101,7 +101,7 @@ public class UniProtEntryRetrievalTest {
 					uniref50 = proteinData.getUniRef50EntryId();
 				}
 				Uniprotentry.updateUniProtEntryWithProteinID(uniProtEntryAccessor.getUniprotentryid(), (Long) proteinid, taxID, ecNumbers, koNumbers, keywords, uniref100, uniref90, uniref50, conn);
-			}	 
+			}	
 		}
 		conn.commit();
 	}

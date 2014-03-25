@@ -55,6 +55,28 @@ public class Pep2prot extends Pep2protTableAccessor {
         return temp;
     }
     
+	/**
+     * This method will find  pep2prot entries from the current connection, based on foreign protein ID.
+     *
+     * @param proteinID long with the protein ID of the link to find.
+     * @param conn  The database connection.
+     * @return List<Pep2prot> with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static List<Pep2prot> findLinkByProteinID(Long proteinID, Connection conn) throws SQLException {
+    	List<Pep2prot> temp = new ArrayList<Pep2prot>();
+        PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + FK_PROTEINID + " = ?");
+        ps.setLong(1, proteinID);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            temp.add(new Pep2prot(rs));
+        }
+        rs.close();
+        ps.close();
+
+        return temp;
+    }
+    
      /**
      * Links peptide to protein: Creates a new pep2prot entry, based on peptideID and proteinID.
      * @param peptideID long with the peptide ID of the link to find.
