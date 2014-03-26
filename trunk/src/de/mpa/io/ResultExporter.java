@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -322,7 +323,6 @@ public class ResultExporter {
 		}
 		writer.newLine();
 		
-		
 		// The set is used to ensure that the same peptides are exported only once. 
 		Set<PeptideHit> peptideSet = new HashSet<PeptideHit>();
 		
@@ -339,11 +339,10 @@ public class ResultExporter {
 		// Get the peptide hits and assign them to the taxonomy.
 		List<ProteinHit> proteinHitList = result.getProteinHitList();
 		for (ProteinHit proteinHit : proteinHitList) {
-			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {				
+			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {		
 				if (peptideHit.isSelected() && !peptideSet.contains(peptideHit)) {
-					TaxonomyNode taxNode = peptideHit.getTaxonomyNode();					
+					TaxonomyNode taxNode = peptideHit.getTaxonomyNode();
 					List<PeptideHit> peptideHits = null;
-					
 					if(taxNode.isRoot()) {
 						if(unclassifiedSpecificPeptideHits.get("Unclassified") == null) {
 							peptideHits = new ArrayList<PeptideHit>();
@@ -354,7 +353,8 @@ public class ResultExporter {
 						unclassifiedSpecificPeptideHits.put("Unclassified", peptideHits);
 					} else {
 						String taxonGroup = taxNode.getName();
-						if (taxNode.getRank().equals("superkingdom")) {						
+						String rank = taxNode.getRank().toString().trim();;
+						if (rank.equals("superkingdom")) {						
 							if(superkingdomSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -362,7 +362,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							superkingdomSpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("kingdom")) {						
+						} else if (rank.equals("kingdom")) {						
 							if(kingdomSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -370,7 +370,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							kingdomSpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("phylum")) {						
+						} else if (rank.equals("phylum")) {						
 							if(phylumSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -378,7 +378,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							phylumSpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("order")) {						
+						} else if (rank.equals("order")) {						
 							if(orderSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -386,7 +386,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							orderSpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("class")) {						
+						} else if (rank.equals("class")) {						
 							if(classSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -394,7 +394,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							classSpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("family")) {						
+						} else if (rank.equals("family")) {						
 							if(familySpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -402,7 +402,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							familySpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("genus")) {						
+						} else if (rank.equals("genus")) {						
 							if(genusSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -410,7 +410,7 @@ public class ResultExporter {
 							}
 							peptideHits.add(peptideHit);
 							genusSpecificPeptideHits.put(taxonGroup, peptideHits);
-						} else if (taxNode.getRank().equals("species")) {						
+						} else if (rank.equals("species")) {						
 							if(speciesSpecificPeptideHits.get(taxonGroup) == null) {
 								peptideHits = new ArrayList<PeptideHit>();
 							} else {
@@ -419,10 +419,9 @@ public class ResultExporter {
 							peptideHits.add(peptideHit);
 							speciesSpecificPeptideHits.put(taxonGroup, peptideHits);
 						}
-					}
 					peptideSet.add(peptideHit);
+					}
 				}
-			
 			}	
 		}
 		
