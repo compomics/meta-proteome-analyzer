@@ -179,7 +179,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Label displaying the number of peptides with unique sequences in the result.
 	 */
-	private JLabel modPepLbl;
+	private JLabel uniquePepLbl;
 
 	/**
 	 * Label displaying the total count of proteins identified by the search.
@@ -350,42 +350,42 @@ public class ResultsPanel extends JPanel implements Busyable {
 		identSpecLbl = new JLabel("0");
 		JPanel specBarPnl = new BarChartPanel(totalSpecLbl, identSpecLbl);
 
-		generalPnl.add(new JLabel("Total spectra"), CC.xy(2, 2));
+		generalPnl.add(new JLabel("Total Spectra"), CC.xy(2, 2));
 		generalPnl.add(totalSpecLbl, CC.xy(4, 2));
 		generalPnl.add(specBarPnl, CC.xy(6, 2));
 		generalPnl.add(identSpecLbl, CC.xy(8, 2));
-		generalPnl.add(new JLabel("identified spectra"), CC.xy(10, 2));
+		generalPnl.add(new JLabel("Identified Spectra"), CC.xy(10, 2));
 
 		// total vs. unique peptides
 		distPepLbl = new JLabel("0");
-		modPepLbl = new JLabel("0");
-		JPanel pepBarPnl = new BarChartPanel(distPepLbl, modPepLbl);
+		uniquePepLbl = new JLabel("0");
+		JPanel pepBarPnl = new BarChartPanel(distPepLbl, uniquePepLbl);
 
-		generalPnl.add(new JLabel("Distinct peptides"), CC.xy(2, 4));
+		generalPnl.add(new JLabel("Distinct Peptides"), CC.xy(2, 4));
 		generalPnl.add(distPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
-		generalPnl.add(modPepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("modified peptides"), CC.xy(10, 4));
+		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
+		generalPnl.add(new JLabel("Unique Peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
 		metaProtLbl = new JLabel("0");
 		JPanel protBarPnl = new BarChartPanel(totalProtLbl, metaProtLbl);
 
-		generalPnl.add(new JLabel("Total proteins"), CC.xy(2, 6));
+		generalPnl.add(new JLabel("Total Proteins"), CC.xy(2, 6));
 		generalPnl.add(totalProtLbl, CC.xy(4, 6));
 		generalPnl.add(protBarPnl, CC.xy(6, 6));
 		generalPnl.add(metaProtLbl, CC.xy(8, 6));
-		generalPnl.add(new JLabel("meta-proteins"), CC.xy(10, 6));
+		generalPnl.add(new JLabel("Meta-proteins"), CC.xy(10, 6));
 
 		speciesLbl = new JLabel("0");
 		enzymesLbl = new JLabel("0");
 		pathwaysLbl = new JLabel("0");
-		generalPnl.add(new JLabel("Distinct species"), CC.xy(2, 8));
+		generalPnl.add(new JLabel("Distinct Species"), CC.xy(2, 8));
 		generalPnl.add(speciesLbl, CC.xy(4, 8));
-		generalPnl.add(new JLabel("Distinct enzymes"), CC.xy(2, 10));
+		generalPnl.add(new JLabel("Distinct Enzymes"), CC.xy(2, 10));
 		generalPnl.add(enzymesLbl, CC.xy(4, 10));
-		generalPnl.add(new JLabel("Distinct pathways"), CC.xy(2, 12));
+		generalPnl.add(new JLabel("Distinct Pathways"), CC.xy(2, 12));
 		generalPnl.add(pathwaysLbl, CC.xy(4, 12));
 
 		// panel containing buttons to fetch results
@@ -1168,7 +1168,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
 				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
 				distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
-				modPepLbl.setText("" + dbSearchResult.getModifiedPeptideCount());
+				uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
 				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 				speciesLbl.setText("" + speciesNames.size());
