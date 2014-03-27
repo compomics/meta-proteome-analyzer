@@ -3,15 +3,15 @@ package de.mpa.client.ui.dialogs;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
@@ -35,113 +35,214 @@ import javax.swing.event.TableModelListener;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
 
-import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.client.Client;
-import de.mpa.client.model.ExperimentContent;
-import de.mpa.client.model.ProjectContent;
+import de.mpa.client.model.ProjectExperiment;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.ProjectManager;
-import de.mpa.db.accessor.ExpProperty;
-import de.mpa.db.accessor.Property;
 
+/**
+ * Dialog implementation for manipulating projects and experiments.
+ * 
+ * @author A. Behne, R. Heyer
+ */
 public class GeneralDialog extends JDialog {
 	
-	private long id = 0L;
-			
-	// Parent client frame.
-	private ClientFrame clientFrame;
-			
-	// Parent client.
-	private Client client;
-	
-	// Property table
-	private JXTable propertyTbl;
-	
-	// Textfield with the name of the property 
-	private JTextField propNameTtf;
-	
-	// Textfield with the value of the property
-	private JTextField propValueTtf;
-
-	// Button to add property
-	private JButton appendPropertyBtn;
-
-	// Button to change a property
-	private JButton changePropertyBtn;
-	
-	// Button to delete property
-	private JButton deletePropertyBtn;
-	
-	// Button to save and leave property table
-	private JButton saveBtn;
-
-	private JTextField nameTtf;
-
-	private DialogType type;
-	
-	// List for all properties.
-	private Map<String, String> properties = new LinkedHashMap<String, String>();
-	
-	private ProjectContent currentProjContent;
-	
-	private ExperimentContent currentExpContent;
-	
-	private ArrayList<Operation> operations = new ArrayList<Operation>();
-	
 	/**
-	 * Declares the Dialog as child of the JDialog, being a component of
-	 * the ClientFrame
-	 * 
-	 * @param title
-	 * @param parent
+	 * Enumeration holding dialog types.
+	 * @author A. Behne
 	 */
-	public GeneralDialog(String title, Frame owner, DialogType type) {
-		this(title, owner, type, null);
+	public enum DialogType {
+		
+		NEW_PROJECT(IconConstants.ADD_FOLDER_ICON.getImage(), "Project", "New") {
+			@Override
+			public void processContent(GeneralDialog dialog) {
+				// store project
+				dialog.getContent().persist(
+						dialog.getContentName(), dialog.getProperties());
+			}
+		},
+		MODIFY_PROJECT(IconConstants.VIEW_FOLDER_ICON.getImage(), "Project", "Modify") {
+			@Override
+			public void processContent(GeneralDialog dialog) {
+				// modify project
+				dialog.getContent().update(
+						dialog.getContentName(), dialog.getProperties(), dialog.getOperations());
+			}
+		},
+		NEW_EXPERIMENT(IconConstants.ADD_PAGE_ICON.getImage(), "Experiment", "New") {
+			@Override
+			public void processContent(GeneralDialog dialog) {
+				// store experiment
+				dialog.getContent().persist(
+						dialog.getContentName(), dialog.getProperties());
+			}
+		},
+		MODIFY_EXPERIMENT(IconConstants.VIEW_PAGE_ICON.getImage(), "Experiment", "Modify") {
+			@Override
+			public void processContent(GeneralDialog dialog) {
+				// modify experiment
+				dialog.getContent().update(
+						dialog.getContentName(), dialog.getProperties(), dialog.getOperations());
+			}
+		};
+		
+		/**
+		 * The icon image to use on the dialog
+		 */
+		private Image iconImage;
+		
+		/**
+		 * The name of the content object.
+		 */
+		private String name;
+		
+		/**
+		 * The prefix string.
+		 */
+		private String prefix;
+		
+		/**
+		 * 
+		 * @param iconImage
+		 * @param name
+		 */
+		private DialogType(Image iconImage, String name, String prefix) {
+			this.iconImage = iconImage;
+			this.name = name;
+			this.prefix = prefix;
+		}
+		
+		/**
+		 * Returns the dialog icon image.
+		 * @return the dialog icon image
+		 */
+		public Image getIconImage() {
+			return iconImage;
+		}
+		
+		/**
+		 * Returns the name.
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+		
+		/**
+		 * Returns the title string.
+		 * @return the title
+		 */
+		public String getTitle() {
+			return prefix + " " + name;
+		}
+
+		/**
+		 * Processes the content wrapped by the specified dialog.
+		 * @param dialog the dialog whose contents shall be processed
+		 */
+		public abstract void processContent(GeneralDialog dialog);
+
 	}
 	
 	/**
-	 * Calling the main constructor adding property contents.
-	 * @param title
-	 * @param parent
-	 * @param type
-	 * @param content
+	 * Enumeration holding modification operation-related elements. 
+	 * @author A. Behne, R. Heyer
 	 */
-	public GeneralDialog(String title, Frame owner, DialogType type, Object content) {
-		super(owner, title, true);
-		this.clientFrame = ClientFrame.getInstance();
-		this.client = Client.getInstance();
+	public enum Operation {
+		NONE, ADD, DELETE, CHANGE
+	}
+
+	/**
+	 * The dialog type.
+	 */
+	private DialogType type;
+
+	/**
+	 * The object to be manipulated by this dialog.
+	 */
+	private ProjectExperiment content = null;
+
+	/**
+	 * The content name text field.
+	 */
+	private JTextField nameTtf;
+			
+	/**
+	 * The table containing property name/value pairs.
+	 */
+	private JXTable propertyTbl;
+	
+	/**
+	 * The property name text field
+	 */
+	private JTextField propNameTtf;
+	
+	/**
+	 * The property value text field
+	 */
+	private JTextField propValueTtf;
+
+	/**
+	 * The button for appending a property.
+	 */
+	private JButton appendPropertyBtn;
+
+	/**
+	 * The button for changing a property.
+	 */
+	private JButton changePropertyBtn;
+	
+	/**
+	 * The button for deleting a property.
+	 */
+	private JButton deletePropertyBtn;
+	
+	/**
+	 * The button for saving and closing the dialog.
+	 */
+	private JButton saveBtn;
+	
+	/**
+	 * The list of atomic operations to modify the content properties. 
+	 */
+	private List<Operation> operations = new ArrayList<Operation>();
+
+	/**
+	 * The result code for when the dialog is closed by pressing the 'Save' button.
+	 */
+	public static final int RESULT_SAVED = 1;
+
+	/**
+	 * The result code for when the dialog is closed by pressing the 'Cancel' or 'X' button.
+	 */
+	public static final int RESULT_CANCELED = 0;
+	
+	/**
+	 * The result code returned upon closing the dialog.
+	 */
+	private int result = RESULT_CANCELED;
+	
+	/**
+	 * Creates a project/experiment manipulation dialog using the specified
+	 * dialog type and content object.
+	 * @param type the type of dialog
+	 * @param content the content object
+	 */
+	public GeneralDialog(DialogType type, ProjectExperiment content) {
+		super(ClientFrame.getInstance(), type.getTitle(), true);
 		this.type = type;
-		if (content instanceof ProjectContent) {
-			this.currentProjContent = (ProjectContent) content;
-		} else if (content instanceof ExperimentContent) {
-			this.currentExpContent = (ExperimentContent) content;
-		}
-		initComponents();
+		this.content = content;
+		
+		this.initComponents();
+		
 		// set frame icon
-		switch (type) {
-		case NEW_PROJECT:
-			this.setIconImage(IconConstants.ADD_FOLDER_ICON.getImage());
-			break;
-		case MODIFY_PROJECT:
-			this.setIconImage(IconConstants.VIEW_FOLDER_ICON.getImage());
-			break;
-		case NEW_EXPERIMENT:
-			this.setIconImage(IconConstants.ADD_PAGE_ICON.getImage());
-			break;
-		case MODIFY_EXPERIMENT:
-			this.setIconImage(IconConstants.VIEW_PAGE_ICON.getImage());
-			break;
-		}
+		this.setIconImage(type.getIconImage());
 	}
 	
 	/**
@@ -152,28 +253,21 @@ public class GeneralDialog extends JDialog {
 		// Description panel
 		JPanel descriptionPnl = new JPanel();
 		descriptionPnl.setBorder(BorderFactory.createTitledBorder("Description"));
-		descriptionPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-				"0dlu, p, 5dlu"));
+		descriptionPnl.setLayout(new FormLayout(
+				"5dlu, p, 5dlu, p:g, 5dlu", "2dlu, p, 5dlu"));
 
 		// Selected project/experiment textfield label
-		String name = ((type == DialogType.NEW_PROJECT) || (type == DialogType.MODIFY_PROJECT)) ?
-				"Project Name:" : "Experiment Name:";
+		String name = type.getName() + " Name:";
 		
-		nameTtf = new JTextField();
+		nameTtf = new JTextField(content.getTitle());
 		nameTtf.setEditable(true);
-		
-		if (type == DialogType.MODIFY_PROJECT) {
-			nameTtf.setText(currentProjContent.getProjectTitle());
-		} else if (type == DialogType.MODIFY_EXPERIMENT) {
-			nameTtf.setText(currentExpContent.getExperimentTitle());
-		}
 		
 		// ActionListener to enable/disable the 'save' button
 		// depending on whether text has been entered
 		nameTtf.getDocument().addDocumentListener(new DocumentListener() {
-			public void removeUpdate(DocumentEvent evt) { updateSaveButton(); }
-			public void insertUpdate(DocumentEvent evt) { updateSaveButton(); }
-			public void changedUpdate(DocumentEvent evt) { updateSaveButton(); }
+			public void removeUpdate(DocumentEvent evt) { this.updateSaveButton(); }
+			public void insertUpdate(DocumentEvent evt) { this.updateSaveButton(); }
+			public void changedUpdate(DocumentEvent evt) { this.updateSaveButton(); }
 			private void updateSaveButton() { saveBtn.setEnabled(!nameTtf.getText().isEmpty()); }
 		});
 		
@@ -181,21 +275,15 @@ public class GeneralDialog extends JDialog {
 		descriptionPnl.add(nameTtf, CC.xy(4, 2));
 		
 		// Properties panel
-		JPanel propertyPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "f:p:g, 5dlu"));
+		JPanel propertyPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "2dlu, f:p:g, 5dlu"));
 		
-		if (type == DialogType.NEW_PROJECT || type == DialogType.MODIFY_PROJECT) {
-			propertyPnl.setBorder(BorderFactory.createTitledBorder("Project Properties"));
-		} else {
-			propertyPnl.setBorder(BorderFactory.createTitledBorder("Experiment Properties"));
-		}
+		propertyPnl.setBorder(BorderFactory.createTitledBorder(type.getName() + " Properties"));
 		
 		//Creates property table
-		setupPropertiesTable();
+		this.setupPropertiesTable();
 		
-		// Fill property table,in the case of modify
-		if ((type == DialogType.MODIFY_PROJECT) || (type == DialogType.MODIFY_EXPERIMENT)) {
-			fillPropertyTable();
-		}
+		// Fill property table
+		this.populatePropertyTable();
 
 		// Add table to scroll pane
 		JScrollPane tableScp = new JScrollPane(propertyTbl);
@@ -234,7 +322,7 @@ public class GeneralDialog extends JDialog {
 		appendPropertyBtn.setEnabled(false);
 		appendPropertyBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent evt) {
 				appendPropertyToTable();
 			}
 		});
@@ -247,7 +335,7 @@ public class GeneralDialog extends JDialog {
 		changePropertyBtn.setEnabled(false);
 		changePropertyBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				changeSelectedProperty();
 			}
 		});
@@ -260,7 +348,7 @@ public class GeneralDialog extends JDialog {
 		// Delete the selected property
 		deletePropertyBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent evt) {
 				deleteSelectedProperty();
 			}
 		});
@@ -281,7 +369,7 @@ public class GeneralDialog extends JDialog {
 		((BasicSplitPaneUI) propertySpp.getUI()).getDivider().setBorder(null);
 		
 		// Add split pane to property panel
-		propertyPnl.add(propertySpp, CC.xy(2,1));
+		propertyPnl.add(propertySpp, CC.xy(2, 2));
 		
 		// Save button functionality -> store values in DB
 		saveBtn = new JButton("Save", IconConstants.SAVE_DB_ICON);
@@ -291,27 +379,15 @@ public class GeneralDialog extends JDialog {
 		saveBtn.setIconTextGap(10);
 		saveBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		saveBtn.setFont(saveBtn.getFont().deriveFont(Font.BOLD,
-				saveBtn.getFont().getSize2D()*1.25f));
+				saveBtn.getFont().getSize2D() * 1.25f));
 		
-		saveBtn.setEnabled(type == DialogType.MODIFY_PROJECT || type == DialogType.MODIFY_EXPERIMENT);
+		saveBtn.setEnabled((nameTtf.getText() != null) && !nameTtf.getText().isEmpty());
 		
 		saveBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				switch (type) {
-				case NEW_PROJECT:
-					storeProject();
-					break;
-				case MODIFY_PROJECT:
-					modifyProject();
-					break;
-				case NEW_EXPERIMENT:
-					storeExperiment();
-					break;
-				case MODIFY_EXPERIMENT:
-					modifyExperiment();
-					break;
-				}
+			public void actionPerformed(ActionEvent evt) {
+				type.processContent(GeneralDialog.this);
+				result = RESULT_SAVED;
 				dispose();	
 			}
 		});
@@ -326,7 +402,8 @@ public class GeneralDialog extends JDialog {
 		
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent evt) {
+				result = RESULT_CANCELED;
 				dispose();
 			}
 		});
@@ -367,130 +444,6 @@ public class GeneralDialog extends JDialog {
 		changePropertyBtn.setEnabled(changed && selected);
 	}
 
-	/**
-	 * This method fills the property table
-	 */
-	private void fillPropertyTable() {
-		if (type == DialogType.MODIFY_PROJECT) {
-			List<Property> projectProperties = currentProjContent.getProjectProperties();
-			for (Property property : projectProperties) {
-				// Fills vector for database operations
-				int row = propertyTbl.getRowCount();
-				((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] { row + 1, property.getName(), property.getValue() });
-			}
-			// reset operations vector
-			for (int i = 0; i < operations.size(); i++) { operations.set(i, Operation.NONE); }
-		} else if (type == DialogType.MODIFY_EXPERIMENT) {
-			List<ExpProperty> experimentProperties = currentExpContent.getExperimentProperties();
-			for (ExpProperty expProperty : experimentProperties) {
-				// Fills vector for database operations
-				int row = propertyTbl.getRowCount();
-				((DefaultTableModel) propertyTbl.getModel()).addRow(new Object[] { row + 1, expProperty.getName(), expProperty.getValue() });
-			}
-			// reset operations vector
-			for (int i = 0; i < operations.size(); i++) { operations.set(i, Operation.NONE); }
-		}			
-	}
-
-	/**
-	 * Stores the project.
-	 */
-	protected void storeProject() {
-		try {
-			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
-
-			// Store the project name
-			id = manager.createNewProject(nameTtf.getText());
-			
-			// Collect properties
-			collectProperties();
-			
-			// Store the project properties
-			manager.addProjectProperties(id, properties);
-			
-			// Update the project table in the project panel.
-			clientFrame.getProjectPanel().refreshProjectTable();
-
-		} catch (SQLException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
-	}
-	
-	/**
-	 * Modifies an existing project.
-	 */
-	protected void modifyProject() {
-		try {
-			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
-
-			// Modify the project name
-			manager.modifyProjectName(currentProjContent.getProjectid(), nameTtf.getText());
-			
-			// Collect properties
-			collectProperties();
-			
-			// Modify the project properties
-			manager.modifyProjectProperties(currentProjContent.getProjectid(), properties, operations);
-			
-			// Update the project table in the project panel.
-			clientFrame.getProjectPanel().refreshProjectTable();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Stores the experiment
-	 */
-	protected void storeExperiment() {
-		try {
-			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
-
-			// Store the experiment name
-			id = manager.createNewExperiment(currentProjContent.getProjectid(), nameTtf.getText());
-			
-			// Collect properties
-			collectProperties();
-			
-			// Store the experiment properties
-			manager.addExperimentProperties(id, properties);
-			
-			// Update the experiment table in the panel.
-			clientFrame.getProjectPanel().refreshExperimentTable(currentProjContent.getProjectid());
-			
-		} catch (SQLException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
-	}
-
-	/**
-	 * Modifies or deletes experiment properties.
-	 */
-	protected void modifyExperiment() {
-		try {
-			ProjectManager manager = new ProjectManager(client.getDatabaseConnection());
-
-			// Modify the experiment name
-			// TODO: some foreign key constraint regarding the 'settings' table breaks updating, need to investigate
-			manager.modifyExperimentName(currentExpContent.getExperimentID(), nameTtf.getText());
-
-			// Collect properties
-			collectProperties();
-
-			// Modify the experiment properties
-			manager.modifyExperimentProperties(currentExpContent.getExperimentID(), properties, operations);
-
-			// Update the experiment table in the panel.
-			clientFrame.getProjectPanel().refreshExperimentTable(currentExpContent.getProjectID());
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * Method creating the properties table
 	 */
@@ -556,8 +509,25 @@ public class GeneralDialog extends JDialog {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
 				if (!evt.getValueIsAdjusting()) {
-					// Shows the entries of the table in the text fields
-					queryPropertyTableSelected(evt);
+					// Get the selected row
+					int projPropsRow = propertyTbl.getSelectedRow();
+					// Condition if one row is selected.
+					if (projPropsRow != -1) {
+						String propertyName = propertyTbl.getValueAt(projPropsRow, 1).toString();
+						String propertyValue = propertyTbl.getValueAt(projPropsRow, 2).toString();
+						// Store property name and value for detection of changes
+						propNameTtf.setName(propertyName);
+						propValueTtf.setName(propertyValue);
+						// Display name and value in components
+						propNameTtf.setText(propertyName);
+						propValueTtf.setText(propertyValue);
+						// Update delete button state
+						deletePropertyBtn.setEnabled(true);
+					} else {
+						appendPropertyBtn.setEnabled(false);
+						changePropertyBtn.setEnabled(false);
+						deletePropertyBtn.setEnabled(false);
+					}
 				}
 			}
 		});
@@ -585,17 +555,38 @@ public class GeneralDialog extends JDialog {
 				propValueTtf.setText(propValueTtf.getName());
 			}
 		});
-
+	
 		propertyTbl.getTableHeader().setReorderingAllowed(false);
-
+	
 		// Selection model for the list: Select one entry of the table only
 		propertyTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
+	
 		// Justify column size
 		TableConfig.packColumn(propertyTbl, 0, 12);
 		propertyTbl.getColumnModel().getColumn(0).setMaxWidth(
 				propertyTbl.getColumnModel().getColumn(0).getPreferredWidth());
 		propertyTbl.getColumnModel().getColumn(0).setResizable(false);
+	}
+
+	/**
+	 * Populates the property table using the content properties.
+	 */
+	private void populatePropertyTable() {
+		TableConfig.clearTable(propertyTbl);
+		
+		Map<String, String> properties = content.getProperties();
+		if (properties != null) {
+			int row = 1;
+			for (Entry<String, String> entry : properties.entrySet()) {
+				((DefaultTableModel) propertyTbl.getModel()).addRow(
+						new Object[] { row++, entry.getKey(), entry.getValue() });
+			}
+		}
+		
+		// reset operations vector
+		for (int i = 0; i < operations.size(); i++) {
+			operations.set(i, Operation.NONE); 
+		}
 	}
 
 	/**
@@ -611,35 +602,7 @@ public class GeneralDialog extends JDialog {
 		// disable append button to prevent adding multiple times by accident
 		appendPropertyBtn.setEnabled(false);
 	}
-	
 			
-	/**
-	 *  This method fills the text fields for property name and property value 
-	 *  with the values in the selected table row
-	 */
-	private void queryPropertyTableSelected(ListSelectionEvent evt) {
-		// Get the selected row
-		int projPropsRow = propertyTbl.getSelectedRow();
-		// Condition if one row is selected.
-		if (projPropsRow != -1) {
-			String propertyName = propertyTbl.getValueAt(projPropsRow, 1).toString();
-			String propertyValue = propertyTbl.getValueAt(projPropsRow, 2).toString();
-			// Store property name and value for detection of changes
-			propNameTtf.setName(propertyName);
-			propValueTtf.setName(propertyValue);
-			// Display name and value in components
-			propNameTtf.setText(propertyName);
-			propValueTtf.setText(propertyValue);
-			// Update delete button state
-			deletePropertyBtn.setEnabled(true);
-		} else {
-			appendPropertyBtn.setEnabled(false);
-			changePropertyBtn.setEnabled(false);
-			deletePropertyBtn.setEnabled(false);
-		}
-	}
-	
-				
 	/**
 	 * This method changes the entry in the table to the one in the text fields.
 	 */
@@ -672,32 +635,57 @@ public class GeneralDialog extends JDialog {
 		appendPropertyBtn.setEnabled(false);
 		changePropertyBtn.setEnabled(false);
 		
-		int numProps = 0;	// number of properties before modification
-		if (type == DialogType.MODIFY_PROJECT) {
-			numProps = currentProjContent.getProjectProperties().size();
-		} else if (type == DialogType.MODIFY_EXPERIMENT) {
-			numProps = currentExpContent.getExperimentProperties().size();
-		}
+		int numProps = content.getProperties().size();	// number of properties before modification
 		if (operations.size() < numProps) {
 			operations.add(Operation.DELETE);
 		}
 	}	
 	
 	/**
-	 * This method collects the properties from the table and fills the properties map.
+	 * Displays the dialog.
+	 * @return the result code
 	 */
-	private void collectProperties(){
-		// read from property table
-		for (int i = 0; i < propertyTbl.getModel().getRowCount(); i++){
-			properties.put(propertyTbl.getValueAt(i, 1).toString(), propertyTbl.getValueAt(i, 2).toString());
-		}
-	}
-
-	public Long start() {
+	public int showDialog() {
 		ScreenConfig.centerInScreen(this);
 		this.setVisible(true);
-		return id;
+		return result;
 	}
 	
+	/**
+	 * Returns the content object wrapped by this dialog.
+	 * @return the content object
+	 */
+	public ProjectExperiment getContent() {
+		return content;
+	}
+	
+	/**
+	 * Returns the content name.
+	 * @return the content name
+	 */
+	public String getContentName() {
+		return nameTtf.getText();
+	}
+
+	/**
+	 * Collects the properties from the table and fills the properties map.
+	 * @return the map of properties
+	 */
+	public Map<String, String> getProperties(){
+		Map<String, String> properties = new LinkedHashMap<>();
+		// read data from property table
+		for (int i = 0; i < propertyTbl.getModel().getRowCount(); i++){
+			properties .put(propertyTbl.getValueAt(i, 1).toString(), propertyTbl.getValueAt(i, 2).toString());
+		}
+		return properties;
+	}
+	
+	/**
+	 * Returns the list of modification operations.
+	 * @return the list of operations
+	 */
+	public List<Operation> getOperations() {
+		return operations;
+	}
 
 }

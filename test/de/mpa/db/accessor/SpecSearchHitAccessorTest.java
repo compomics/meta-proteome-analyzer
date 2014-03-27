@@ -882,7 +882,7 @@ public class SpecSearchHitAccessorTest extends TestCase {
 	 */
 	public void retrieveResults(long libExp, long resultExp, Connection conn) throws SQLException, IOException {
 		
-		String resultTitle = Experiment.findExperimentByID(resultExp, conn).getTitle();
+		String resultTitle = ExperimentAccessor.findExperimentByID(resultExp, conn).getTitle();
 		
 		PreparedStatement ps;
 		ResultSet rs;

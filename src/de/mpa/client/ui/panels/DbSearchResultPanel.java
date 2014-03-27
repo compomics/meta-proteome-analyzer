@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,7 +18,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.Format;
@@ -57,7 +57,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -69,6 +68,7 @@ import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
+import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
@@ -92,8 +92,10 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.Client;
+import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
@@ -177,11 +179,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * The titled panel containing spectrum match views.
 	 */
 	private JXTitledPanel psmTtlPnl;
-
-	/**
-	 * Import file.
-	 */
-	protected File importFile;
 
 	/**
 	 * Flag indicating whether unselected checkbox tree elements shall be hidden
@@ -566,10 +563,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @return the peptide tree table
 	 */
 	private CheckBoxTreeTable setupPeptideTable() {
-		PhylogenyTreeTableNode root = new PhylogenyTreeTableNode("Peptide View");
+		final PhylogenyTreeTableNode root = new PhylogenyTreeTableNode("Peptide View");
 		
 		// Set up table model
-		SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
+		final SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
@@ -693,7 +690,23 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Pre-select root node
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(new TreePath(root));
-
+		
+		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent tse) {
+				// process only the final selection event
+				if (tse.getPath() == null) {
+					Enumeration<? extends MutableTreeTableNode> children = root.children();
+					while (children.hasMoreElements()) {
+						MutableTreeTableNode child = children.nextElement();
+						((Hit) child.getUserObject()).setSelected(
+								cbtsm.isPathSelected(new TreePath(treeTblMdl.getPathToRoot(child)), true));
+					}
+					refreshChart(true);
+				}
+			}
+		});
+		
 		// Set default sort order (spectral count, descending)
 		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(2, SortOrder.DESCENDING);
 
@@ -723,7 +736,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			}
 		});
-
+		
 		// Reduce node indents to make tree more compact horizontally
 		treeTbl.setIndents(0, 0, 2);
 		// Hide root node
@@ -739,11 +752,28 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		};
 		treeTbl.setIconValue(iv);
 		
-		// Install renderers and highlighters
+		/* Install highlighters */
+		// sequence
+		tcm.getColumnExt(0).addHighlighter(new AbstractHighlighter() {
+			private Font normalFont = getFont();
+			private Font boldFont = normalFont.deriveFont(Font.BOLD);
+			@Override
+			protected Component doHighlight(Component component,
+					ComponentAdapter adapter) {
+				if (adapter.getValue(1).equals(1)) {
+					component.setFont(boldFont);
+				} else {
+					component.setFont(normalFont);
+				}
+				return component;
+			}
+		});
+		// protein count
 		tcm.getColumnExt(1).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
+		// spectral count
 		tcm.getColumnExt(2).addHighlighter(new BarChartHighlighter());
-
+		
 		tcm.getColumnExt(3).setVisible(false);	// initially hide taxonomy column
 
 		// Enable column control widget
@@ -784,10 +814,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @return the spectrum matches tree table
 	 */
 	private CheckBoxTreeTable setupPSMTable() {
-		PhylogenyTreeTableNode root = new PhylogenyTreeTableNode("PSM View");
+		final PhylogenyTreeTableNode root = new PhylogenyTreeTableNode("PSM View");
 		
 		// Set up table model
-		SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
+		final SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
@@ -913,6 +943,22 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Pre-select root node
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(new TreePath(root));
+		
+		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent tse) {
+				// process only the final selection event
+				if (tse.getPath() == null) {
+					Enumeration<? extends MutableTreeTableNode> children = root.children();
+					while (children.hasMoreElements()) {
+						MutableTreeTableNode child = children.nextElement();
+						((Hit) child.getUserObject()).setSelected(
+								cbtsm.isPathSelected(new TreePath(treeTblMdl.getPathToRoot(child)), true));
+					}
+					refreshChart(true);
+				}
+			}
+		});
 
 		// Set default sort order (PSM ID, ascending)
 		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(0, SortOrder.ASCENDING);
@@ -1147,7 +1193,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Create the table type selection popup menu
 		final JPopupMenu tableTypePop = new JPopupMenu();
 		ActionListener hierarchyListener = new ActionListener() {
-			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Determine tree table to be made visible
@@ -1157,21 +1202,19 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				// Determine currently visible tree table
 				for (ProteinTreeTables curPtt : ProteinTreeTables.values()) {
 					if (curPtt.getTreeTable().getParent().getParent().isVisible()) {
+						// check whether checkbox selection has changed
 						if (curPtt.hasCheckSelectionChanged()) {
 							curPtt.cacheCheckSelection();
-							
-							// mark all tree tables for updating the next time they're displayed
+							// mark other tree tables for updating the next time they're displayed
 							for (ProteinTreeTables ptt2 : ProteinTreeTables.values()) {
-								ptt2.setCheckSelectionNeedsUpdating(true);
+								if (ptt2 != curPtt) {
+									ptt2.setCheckSelectionNeedsUpdating(true);
+								}
 							}
-							
-							// Update checkbox selections, also re-sorts/filters the tree table
-							ptt.updateCheckSelection();
-						} else {
-							// at least re-sort/filter
-							CheckBoxTreeTable treeTable = ptt.getTreeTable();
-							treeTable.setRowFilter((RowFilter<TreeModel, Integer>) treeTable.getRowFilter());
 						}
+						// Update checkbox selection of targeted tree table, also re-sorts/filters
+						ptt.updateCheckSelection();
+						
 						break;
 					}
 				}
@@ -1448,13 +1491,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * Updates the protein view contents from the client's search result object
-	 * which may be obtained from the specified import file.
-	 * @param importFile the imported result object file or
-	 *  <code>null</code> if the result was fetched from the database
+	 * Updates the protein view contents from the client's search result object.
 	 */
-	public void refreshProteinViews(File importFile) {
-		this.importFile = importFile;
+	public void refreshProteinViews() {
 		new RefreshTablesTask().execute();
 	}
 
@@ -1496,7 +1535,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		if (numPeptides > 0) {
 			// Refresh tree table by resetting root node
 			treeTblMdl.sort();
-			treeTblMdl.setRoot(treeTblMdl.getRoot());
+			treeTblMdl.setRoot(root);
 	
 			// Adjust highlighters
 			peptideTbl.updateHighlighters(1, 0, maxProtCount);
@@ -1504,6 +1543,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			
 			// Update coverage viewer
 			coveragePane.setData(proteins, peptides);
+
+			// Update checkbox selections
+			CheckBoxTreeSelectionModel cbtsm = peptideTbl.getCheckBoxTreeSelectionModel();
+			Enumeration<? extends MutableTreeTableNode> children = root.children();
+			while (children.hasMoreElements()) {
+				MutableTreeTableNode child = children.nextElement();
+				if (!((PeptideHit) child.getUserObject()).isSelected()) {
+					cbtsm.removeSelectionPath(new TreePath(treeTblMdl.getPathToRoot(child)));
+				}
+			}
 			
 			// Select first row
 			SwingUtilities.invokeLater(new Runnable() {
@@ -1578,8 +1627,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
 
 			// Extract spectrum file
-//			if (!Client.getInstance().isViewer()) {
-			if (importFile == null) {
+			if (!Client.isViewer()) {
 				// Get spectrum file from database when connected
 				try {
 					mgf = Client.getInstance().getSpectrumBySearchSpectrumID(psm.getSearchSpectrumID());
@@ -1589,10 +1637,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			} else {
 				// Read spectrum from MGF file accompanying imported result object, if possible
-				String mgfPath = importFile.getPath();
-				mgfPath = mgfPath.substring(0, mgfPath.lastIndexOf('.')) + ".mgf";
+				FileExperiment experiment = 
+						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
 				mgf = Client.getInstance().readSpectrumFromFile(
-						mgfPath, psm.getStartIndex(), psm.getEndIndex());
+						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
 			}
 		}
 		
@@ -1607,15 +1655,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	protected void refreshChart(boolean refreshData) {
 		if (refreshData) {
 			// build list of visible meta-proteins from result object
-			ProteinHitList metaProteins = new ProteinHitList();
-			for (ProteinHit mph : dbSearchResult.getMetaProteins()) {
-				for (ProteinHit ph : ((MetaProteinHit) mph).getProteinHitList()) {
-					if (ph.isVisible()) {
-						metaProteins.add(mph);
-						break;
-					}
-				}
-			}
+//			ProteinHitList metaProteins = new ProteinHitList();
+//			for (ProteinHit mph : dbSearchResult.getMetaProteins()) {
+//				for (ProteinHit ph : ((MetaProteinHit) mph).getProteinHitList()) {
+//					if (ph.isSelected()) {
+//						metaProteins.add(mph);
+//						break;
+//					}
+//				}
+//			}
+			ProteinHitList metaProteins = new ProteinHitList(dbSearchResult.getMetaProteins());
 			// update chart data containers
 			ontologyData.setData(metaProteins);
 			taxonomyData.setData(metaProteins);
@@ -1752,7 +1801,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						metaNode.add(metaChildNode);
 						
 						if (proteinHit.getUniProtEntry() == null) {
-							if (Client.getInstance().isDebug()) {
+							if (Client.isDebug()) {
 								System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 							}
 						}

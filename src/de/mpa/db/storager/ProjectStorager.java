@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import de.mpa.db.accessor.Project;
+import de.mpa.db.accessor.ProjectAccessor;
 
 
 /**
@@ -29,7 +29,7 @@ public class ProjectStorager extends BasicStorager {
     /**
      * The Project instance.
      */
-	private Project project;
+	private ProjectAccessor project;
 
 	/**
 	 * This variable contains the projectid;
@@ -59,7 +59,7 @@ public class ProjectStorager extends BasicStorager {
      */
     public void load() {
         try {
-            project = Project.findFromTitle(title, conn);
+            project = ProjectAccessor.findFromTitle(title, conn);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -78,9 +78,9 @@ public class ProjectStorager extends BasicStorager {
             
             if(project == null){
             	// The title              
-                projectdata.put(Project.TITLE, title);
+                projectdata.put(ProjectAccessor.TITLE, title);
                 // Create the project database object.
-                final Project newProject = new Project(projectdata);
+                final ProjectAccessor newProject = new ProjectAccessor(projectdata);
                 newProject.persist(conn);
                 projectid = (Long) newProject.getGeneratedKeys()[0];
             } else {

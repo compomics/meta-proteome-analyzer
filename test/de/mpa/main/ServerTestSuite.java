@@ -15,15 +15,15 @@ import de.mpa.webservice.ServerImplTest;
 
 @RunWith(Suite.class)
 @SuiteClasses( {	
-				UniprotAccessorTest.class,
-				SearchSpectrumAccessorTest.class,
-				SpectrumExtractorTest.class,
-				ResultsDumpTest.class,
-				FastaLoaderTest.class,
-				SearchEngineParameterExportTest.class,
-				NcbiTaxonomyTest.class,
-				ServerImplTest.class,
-				SpectrumExtractorTest.class
+	UniprotAccessorTest.class,
+	SearchSpectrumAccessorTest.class,
+	SpectrumExtractorTest.class,
+	ResultsDumpTest.class,
+	FastaLoaderTest.class,
+	SearchEngineParameterExportTest.class,
+	NcbiTaxonomyTest.class,
+	ServerImplTest.class,
+	SpectrumExtractorTest.class
 	})
 
 /**

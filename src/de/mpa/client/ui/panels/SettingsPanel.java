@@ -133,7 +133,7 @@ public class SettingsPanel extends JPanel {
 
 		protected Object doInBackground() {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
-			long experimentID = projectPanel.getCurrentExperimentId();
+			long experimentID = projectPanel.getSelectedExperiment().getID();
 			if (experimentID != 0L) {
 				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
 				// reset progress
@@ -168,7 +168,7 @@ public class SettingsPanel extends JPanel {
 						}
 					}
 					if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
-						filenames = client.packAndSend(packSize, checkBoxTree, projectPanel.getCurrentExperimentContent().getExperimentTitle() + "_" + sdf.format(new Date()) + "_");
+						filenames = client.packAndSend(packSize, checkBoxTree, projectPanel.getSelectedExperiment().getTitle() + "_" + sdf.format(new Date()) + "_");
 					}
 					
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
@@ -256,7 +256,8 @@ public class SettingsPanel extends JPanel {
 			// collect search settings
 			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-			SearchSettings settings = new SearchSettings(dbss, sss, ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
+			SearchSettings settings = new SearchSettings(dbss, sss,
+					ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 			// dispatch search request
 			client.runSearches(filenames, settings);

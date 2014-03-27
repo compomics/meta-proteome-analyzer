@@ -1175,17 +1175,18 @@ public enum ProteinTreeTables {
 	 */
 	@SuppressWarnings("unchecked")
 	public void updateCheckSelection() {
+		CheckBoxTreeTable treeTbl = this.getTreeTable();
+		RowFilter<TreeModel, Integer> filter = (RowFilter<TreeModel, Integer>) treeTbl.getRowFilter();
+		
 		if (checkSelectionNeedsUpdating) {
 			// prevent selection listener from capturing events fired during synchronization
 			synching = true;
 			
-			CheckBoxTreeTable treeTbl = this.getTreeTable();
 			CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 			SortableTreeTableModel model = (SortableTreeTableModel) treeTbl.getTreeTableModel();
 			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) model.getRoot();
 			
 			// temporarily disable row filter
-			RowFilter<TreeModel, Integer> filter = (RowFilter<TreeModel, Integer>) treeTbl.getRowFilter();
 			treeTbl.setRowFilter(null);
 			
 			// iterate nodes
@@ -1211,11 +1212,11 @@ public enum ProteinTreeTables {
 			// cache selection
 			this.cacheCheckSelection();
 			
-			// re-apply row filter
-			treeTbl.setRowFilter(filter);
-			
 			synching = false;
 		}
+		
+		// re-apply row filter
+		treeTbl.setRowFilter(filter);
 	}
 
 }

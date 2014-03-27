@@ -3,6 +3,7 @@ package de.mpa.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -347,9 +348,9 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				}
 				checkBox.setEnabled(treeTable.isEnabled());
 
-//				// inherit visuals from respective table row
-//				CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
-//						checkBox, getComponentAdapter(context.getRow(), context.getColumn()));
+				// inherit visuals from respective table row
+				CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
+						checkBox, getComponentAdapter(context.getRow(), context.getColumn()));
 				
 			}
 		}
@@ -403,10 +404,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			JXTree tree = (JXTree) table.getCellRenderer(-1, ((JXTreeTable) table).getHierarchicalColumn());
 			
 			CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) tree.getPathForRow(row).getLastPathComponent();
-		
+			
 			IconCheckBox rendererChk = (IconCheckBox) tree.getCellRenderer().getTreeCellRendererComponent(
 					tree, node, isSelected, tree.isExpanded(row), node.isLeaf(), row, true);
-
+			
 			checkBox.setURI(node.getURI());
 			checkBox.setIcon(rendererChk.getIcon());
 			checkBox.setText(rendererChk.getText());
@@ -414,13 +415,19 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			checkBox.setEnabled(rendererChk.isEnabled());
 			checkBox.setFixed(rendererChk.isFixed());
 
-			// inherit visuals from respective table row by applying them first
-			// to an intermediate component then afterwards transferring the
-			// result to the renderer component
-			JPanel tmpPnl = new JPanel();
+//			// inherit visuals from respective table row by applying them first
+//			// to an intermediate component then afterwards transferring the
+//			// result to the renderer component
+//			JLabel tmpLbl = new JLabel();
+//			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
+//					tmpLbl, getComponentAdapter(row, column));
+//			checkBox.setBackground(tmpLbl.getBackground());
+//			checkBox.setFont(tmpLbl.getFont());
+
 			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
-					tmpPnl, getComponentAdapter(row, column));
-			checkBox.setBackground(tmpPnl.getBackground());
+					checkBox, getComponentAdapter(row, column));
+			
+			checkBox.setBackground(rendererChk.getBackground());
 			
 			Rectangle cellRect = table.getCellRect(0, column, false);
 			Rectangle nodeRect = tree.getRowBounds(row);
@@ -509,6 +516,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			
 			// icon-bearing hyperlink label, uninstall button UI to make it look like a plain label
 			hyperlink = new JXHyperlink();
+			hyperlink.setBackground(Color.WHITE);
 			hyperlink.getUI().uninstallUI(hyperlink);
 			hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
 			hyperlink.setOpaque(true);
@@ -564,9 +572,40 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		}
 		
 		@Override
-		public void setBackground(Color bg) {
+		public Color getBackground() {
+			Color background = null;
 			if (hyperlink != null) {
+				background = hyperlink.getBackground();
+			}
+			if (background == null) {
+				background = super.getBackground();
+			}
+			return background;
+		}
+		
+		@Override
+		public void setBackground(Color bg) {
+			if ((hyperlink != null) && (bg != null)) {
 				hyperlink.setBackground(bg);
+			}
+		}
+		
+		@Override
+		public Font getFont() {
+			Font font = null;
+			if (hyperlink != null) {
+				hyperlink.getFont();
+			}
+			if (font == null) {
+				font = super.getFont();
+			}
+			return font;
+		}
+		
+		@Override
+		public void setFont(Font font) {
+			if ((hyperlink != null) && (font != null)) {
+				hyperlink.setFont(font);
 			}
 		}
 		

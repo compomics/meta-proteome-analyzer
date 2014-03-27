@@ -1,12 +1,16 @@
 package de.mpa.client;
 
 import java.awt.Color;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -20,10 +24,14 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import com.thoughtworks.xstream.XStream;
+
 import de.mpa.analysis.KeggMaps;
+import de.mpa.client.model.AbstractProject;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.main.Starter;
 
 /**
  * Class providing general constants and methods used throughout the whole
@@ -137,6 +145,63 @@ public class Constants {
 	 */
 	public static final String DB_CONNECTION_SETTINGS_FILEPATH = "password/DbConnectionSettings.txt";
 	
+	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
+			"Mascot Generic Format File (*.mgf)");
+	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
+			"MetaProteomeAnalyzer Project File (*.mpa)");
+	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
+			"CSV File, comma-separated (*.csv)");
+	public static final String TSV_FILE_SEPARATOR = "\t";
+	public static final String CSV_FILE_SEPARATOR = ";";
+	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,
+			"TSV File, tab-separated (*.tsv)");
+	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
+			"Portable Network Graphics (*.png)");
+	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
+			"Raw Mascot Result File (*.dat)");
+	public static final FileFilter GRAPHML_FILE_FILTER = new ExtensionFileFilter(".graphml", false,
+			"GraphML File (*.graphml)");
+	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
+			"Microsoft Excel 2003 XML File (*.xml)");
+
+	/**
+	 * Returns the graph database user queries file.
+	 * @return the user queries file
+	 * @throws URISyntaxException if the file could not be found
+	 */
+	public static File getUserQueriesFile() throws URISyntaxException {
+		if (Starter.isJarExport()) {
+			return new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "userqueries.xml");
+		} else {
+			return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
+		}
+	}
+	
+	/**
+	 * Returns the projects file.
+	 * @return the projects file
+	 * @throws Exception if the file could not be found or created
+	 */
+	public static File getProjectsFile() throws Exception {
+		File projectsFile;
+		if (Starter.isJarExport()) {
+			projectsFile = new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "projects.xml");
+		} else {
+			URL resource = Constants.class.getResource(Constants.CONFIGURATION_PATH + "projects.xml");
+			if (resource != null) {
+				projectsFile = new File(resource.toURI());
+			} else {
+				File confFolder = new File(Constants.class.getResource(Constants.CONFIGURATION_PATH).toURI());
+				projectsFile = new File(confFolder, "projects.xml");
+			}
+		}
+		if (!projectsFile.exists()) {
+			// create new projects file
+			new XStream().toXML(new ArrayList<AbstractProject>(), new BufferedOutputStream(new FileOutputStream(projectsFile)));
+		}
+		return projectsFile;
+	}
+	
 	/**
 	 * Returns the names of the nodes contained in the path from the KEGG
 	 * pathway root to the leaf identified by the provided pathway ID.
@@ -175,25 +240,6 @@ public class Constants {
 		System.arraycopy(B, 0, C, A.length, B.length);
 		return C;
 	}
-	
-	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
-			"Mascot Generic Format File (*.mgf)");
-	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
-			"MetaProteomeAnalyzer Project File (*.mpa)");
-	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
-			"CSV File, tab-separated (*.csv)");
-	public static final String TSV_FILE_SEPARATOR = "\t";
-	public static final String CSV_FILE_SEPARATOR = ";";
-	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,
-			"TSV File, tab-separated (*.tsv)");
-	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
-			"Portable Network Graphics (*.png)");
-	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
-			"Raw Mascot Result File (*.dat)");
-	public static final FileFilter GRAPHML_FILE_FILTER = new ExtensionFileFilter(".graphml", false,
-			"GraphML File (*.graphml)");
-	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
-			"Microsoft Excel 2003 XML File (*.xml)");
 	
 	/**
 	 * Enumeration holding UI-related colors.
@@ -477,7 +523,7 @@ public class Constants {
 		 * @param path the path to the theme file
 		 */
 		private void parse(File file) {
-			
+			// TODO: simplify using XStream
 			if (!file.exists()) {
 				System.err.println("File \'" + file + "\' not found!");
 				return;

@@ -1,5 +1,7 @@
 package de.mpa.analysis.taxonomy;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -155,6 +157,82 @@ public class TaxonomyUtils {
 			}
 		}
 		return leafNode;
+	}
+	
+	/**
+	 * Creates a taxonomy node which contains all ancestor taxonomy nodes up to
+	 * the root node. Looks up unmapped IDs in the remote database and stores
+	 * them in the provided map.
+	 * @param currentID the taxonomy ID of the start element
+	 * @param taxonomyMap map containing taxonomy ID-to-taxonomy node mappings
+	 * @param conn the database connection
+	 * @return the desired taxonomy node
+	 * @throws SQLException if a database error occurs
+	 */
+	public static TaxonomyNode createTaxonomyNode(
+			long currentID, Map<Long, Taxonomy> taxonomyMap, Connection conn) {
+		
+		try {
+			
+			Taxonomy current = taxonomyMap.get(currentID);
+			Map<String, TaxonomyRank> targetRanks = UniProtUtilities.TAXONOMY_RANKS_MAP;
+			
+			if (current == null) {
+				current = Taxonomy.findFromTaxID(currentID, conn);
+				taxonomyMap.put(currentID, current);
+			}
+
+			// Check for rank being contained in the main categories (from superkingdom to species)
+			TaxonomyRank taxonomyRank = targetRanks.get(current.getRank());
+			if (taxonomyRank == null) {
+				// TODO: Check whether the general category "species" holds true for all available ranks.
+				taxonomyRank = TaxonomyRank.SPECIES;
+			}
+			
+			// Create leaf node
+			TaxonomyNode leafNode = new TaxonomyNode(
+					(int) current.getTaxonomyid(), taxonomyRank, current.getDescription());
+			
+			// Iterate up taxonomic hierarchy and create parent nodes
+			TaxonomyNode currentNode = leafNode;
+			boolean reachedRoot = false;
+			while (!reachedRoot) {
+				long parentID = current.getParentid();
+				// look up taxonomy in map
+				current = taxonomyMap.get(parentID);
+				// if no mapping exists...
+				if (current == null) {
+					// look up taxonomy in database
+					current = Taxonomy.findFromTaxID(parentID, conn);
+					// if still no taxonomy could be retrieved...
+					if (current == null) {
+						// abort with error message
+						throw new SQLException("Unknown parent ID: " + parentID);
+					}
+					taxonomyMap.put(parentID, current);
+				}
+				
+				// Check whether we have reached the root already
+				reachedRoot = (current.getParentid() == 0L);
+				// Check whether parent rank is in targeted ranks
+				TaxonomyRank parentRank = targetRanks.get(current.getRank());
+				if (parentRank != null) {
+					// Create and configure parent node
+					TaxonomyNode parentNode = new TaxonomyNode(
+							(int) current.getTaxonomyid(), parentRank, current.getDescription());
+					currentNode.setParentNode(parentNode);
+					// TODO: consider subspecies distinction in database, so far all subspecies are labeled species there (Nov. 2013)
+					if (parentRank == TaxonomyRank.SPECIES) {
+						currentNode.setRank(TaxonomyRank.SUBSPECIES);
+					}
+					currentNode = parentNode;
+				}
+			}
+			return leafNode;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**

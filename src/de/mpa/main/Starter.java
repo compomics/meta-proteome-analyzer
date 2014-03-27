@@ -1,5 +1,10 @@
 package de.mpa.main;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.URL;
@@ -8,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 
 import javax.swing.BorderFactory;
 import javax.swing.SwingConstants;
@@ -18,6 +24,8 @@ import javax.swing.border.Border;
 import javax.swing.plaf.ColorUIResource;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
@@ -162,37 +170,41 @@ public class Starter {
 			unlocked = lockInstance("filelock");
 		}
 		
-		if (unlocked) {			
-			// Display splash screen
-			final SplashScreen splashScreen = new SplashScreen();
-			Thread splash = new Thread(splashScreen);
-			splash.start();
-			try {
-				splash.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		if (unlocked) {
+//			// Display splash screen
+			new Thread(new SplashRunnable()).start();
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					
-					// Set the look&feel
-					setLookAndFeel();
-					
-					boolean viewerMode = false;
-					boolean debugMode = false;
-					if (args.length > 0) {
-						for (String arg : args) {
-							if (arg.equalsIgnoreCase("-debug")) {
-								debugMode = true;
-							} else if (arg.equalsIgnoreCase("-viewer")) {
-								viewerMode = true;
+					try {
+						// Set the look&feel
+						setLookAndFeel();
+						
+						boolean viewerMode = false;
+						boolean debugMode = false;
+						if (args.length > 0) {
+							for (String arg : args) {
+								if (arg.equalsIgnoreCase("-debug")) {
+									debugMode = true;
+								} else if (arg.equalsIgnoreCase("-viewer")) {
+									viewerMode = true;
+								}
 							}
 						}
+						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode);
+						clientFrame.toFront();
+						
+					} catch (Exception e) {
+						JXErrorPane.showDialog(null, new ErrorInfo(
+								"Error", "The application could not be launched due to an error.",
+								e.getMessage(), null, e, Level.SEVERE, null));
 					}
-					ClientFrame.getInstance(viewerMode, debugMode);
-					splashScreen.close();
+					
+					SplashScreen splashScreen = SplashScreen.getSplashScreen();
+					if (splashScreen != null) {
+						splashScreen.close();
+					}
 				}
 			});
 		}
@@ -252,4 +264,49 @@ public class Starter {
 	    }
 	    return false;
 	}
+	
+	/**
+	 * Custom runnable for painting onto a splash screen image.
+	 * @author A. Behne
+	 */
+	private static class SplashRunnable implements Runnable {
+
+		@Override
+		public void run() {
+			SplashScreen splashScreen = SplashScreen.getSplashScreen();
+			if (splashScreen != null) {
+				Graphics2D g2d = splashScreen.createGraphics();
+				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				g2d.setColor(new Color(0, 0, 0, 20));
+				
+				FontMetrics fm = g2d.getFontMetrics();
+				int textH = fm.getHeight();
+				
+				String versionStr = "Version: " + Constants.VER_NUMBER;
+				int versionW = fm.stringWidth(versionStr);
+				int versionX = splashScreen.getBounds().width - versionW - 5;
+				int versionY = textH;
+				
+				String copyrightStr = "\u00a92014 - Max Planck Institute Magdeburg, Germany";
+				int copyrightW = fm.stringWidth(copyrightStr);
+				int copyrightX = (splashScreen.getBounds().width - copyrightW) / 2;
+				int copyrightY = splashScreen.getBounds().height - 8;
+				
+				int time = 960;
+				int inc = 60;
+				for (int i = 0; i < time; i += inc) {
+					g2d.drawString(versionStr, versionX, versionY);
+					g2d.drawString(copyrightStr, copyrightX, copyrightY);
+					splashScreen.update();
+					try {
+						Thread.sleep(inc);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+	}
+	
 }

@@ -45,7 +45,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -154,9 +153,9 @@ public class SpecSimResultPanel extends JPanel {
 		JScrollPane ssmTableScp = new JScrollPane(ssmTbl);
 		ssmTableScp.setPreferredSize(new Dimension(350, 130));
 		
-		getResultsBtn = new JButton("Get Results   ", IconConstants.GO_DB_SMALL_ICON);
-		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
-		getResultsBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
+		getResultsBtn = new JButton("Get Results   ", IconConstants.GO_DB_ICON);
+		getResultsBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		getResultsBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
 		
 		getResultsBtn.setEnabled(false);
 
@@ -869,7 +868,7 @@ public class SpecSimResultPanel extends JPanel {
 	protected void refreshProteinTable() {
 		
 		specSimResult = Client.getInstance().getSpecSimResult(
-				ClientFrame.getInstance().getProjectPanel().getCurrentExperimentContent());
+				ClientFrame.getInstance().getProjectPanel().getSelectedExperiment());
 
 		if (specSimResult != null && !specSimResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
@@ -1083,15 +1082,14 @@ public class SpecSimResultPanel extends JPanel {
 		clientFrame.setCursor(cursor);
 		if (split.getCursor().getType() == Cursor.WAIT_CURSOR) split.setCursor(null);
 		
-		JTabbedPane pane = clientFrame.getTabbedPane();
 		if (tabEnabled == null) {
-			tabEnabled = new boolean[pane.getTabCount()];
-			tabEnabled[pane.indexOfComponent(clientFrame.getResultsPanel())] = true;
+			tabEnabled = new boolean[4];
+			tabEnabled[ClientFrame.INDEX_RESULTS_PANEL] = true;
 		}
 		// Enable/disable tabs
 		for (int i = 0; i < tabEnabled.length - 1; i++) {
-			boolean temp = pane.isEnabledAt(i);
-			pane.setEnabledAt(i, tabEnabled[i]);
+			boolean temp = clientFrame.isTabEnabledAt(i);
+			clientFrame.setTabEnabledAt(i, tabEnabled[i]);
 			tabEnabled[i] = temp;
 		}
 		// Enable/disable menu bar

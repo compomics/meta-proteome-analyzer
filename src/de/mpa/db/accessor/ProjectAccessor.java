@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Project extends ProjectTableAccessor {
+public class ProjectAccessor extends ProjectTableAccessor {
 	/**
 	 * Calls the super class.
 	 */
-	public Project(){
+	public ProjectAccessor(){
 		super();
 	}
 
@@ -20,7 +20,7 @@ public class Project extends ProjectTableAccessor {
 	 * Calls the super class.
 	 * @param params
 	 */
-	public Project(HashMap params){
+	public ProjectAccessor(HashMap params){
 		super(params);
 	}
 
@@ -31,7 +31,7 @@ public class Project extends ProjectTableAccessor {
 	 * @param aRS ResultSet to read the data from.
 	 * @throws SQLException when reading the ResultSet failed.
 	 */
-	public Project(ResultSet aRS) throws SQLException {
+	public ProjectAccessor(ResultSet aRS) throws SQLException {
 		super(aRS);
 	}
 
@@ -43,13 +43,13 @@ public class Project extends ProjectTableAccessor {
 	 * @return Spectrumfile with the data.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	public static Project findFromTitle(String title, Connection aConn) throws SQLException {
-		Project temp = null;
+	public static ProjectAccessor findFromTitle(String title, Connection aConn) throws SQLException {
+		ProjectAccessor temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
 		ps.setString(1, title);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			temp = new Project(rs);
+			temp = new ProjectAccessor(rs);
 		}
 		rs.close();
 		ps.close();
@@ -63,25 +63,25 @@ public class Project extends ProjectTableAccessor {
 	 * @return List of retrieved projects.
 	 * @throws SQLException
 	 */
-	public static List<Project> findAllProjects(Connection conn) throws SQLException {
-		List<Project> projects = new ArrayList<Project>();
+	public static List<ProjectAccessor> findAllProjects(Connection conn) throws SQLException {
+		List<ProjectAccessor> projects = new ArrayList<ProjectAccessor>();
 		PreparedStatement ps = conn.prepareStatement(getBasicSelect());
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			projects.add(new Project(rs));
+			projects.add(new ProjectAccessor(rs));
 		}
 		rs.close();
 		ps.close();
 		return projects;
 	}
 
-	public static Project findFromProjectID(long projectid, Connection aConn) throws SQLException {
-		Project temp = null;
+	public static ProjectAccessor findFromProjectID(long projectid, Connection aConn) throws SQLException {
+		ProjectAccessor temp = null;
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where projectid = ?");
 		ps.setLong(1, projectid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			temp = new Project(rs);
+			temp = new ProjectAccessor(rs);
 		}
 		rs.close();
 		ps.close();

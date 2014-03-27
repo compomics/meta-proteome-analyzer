@@ -19,7 +19,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
-import uk.ac.ebi.kraken.interfaces.uniref.UniRefDatabaseType;
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.db.DBManager;
@@ -56,7 +55,7 @@ public class LinkUniProtToProteinTest {
 		upperLimit = 26000L;
 		while (begin < upperLimit) {
 			Map<String, UniprotentryTableAccessor> uniprotEntries = new HashMap<String, UniprotentryTableAccessor>();
-			List<UniprotentryTableAccessor> allEntries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn, begin, increment);
+			List<UniprotentryTableAccessor> allEntries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn, 0, increment);
 			List<String> accessions = new ArrayList<String>();
 			
 			for (int i = 0; i < allEntries.size(); i++) {
@@ -135,11 +134,11 @@ public class LinkUniProtToProteinTest {
 					}
 				}
 				// Final commit and clearing of map.
-				System.out.println("All UniProt entries have been updated.");
 				conn.commit();
 			}
 			begin += increment;
 		}
+		System.out.println("All UniProt entries have been updated.");
 	}
 	
 	@Test

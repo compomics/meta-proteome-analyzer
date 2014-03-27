@@ -121,7 +121,7 @@ public class ColorsDialog extends JDialog {
 		
 		// Init combo box for selecting UI colors
 		JPanel compPnl = new JPanel(new BorderLayout(8, 0));
-		final JComboBox compCbx = new JComboBox(UIColor.values());
+		final JComboBox<UIColor> compCbx = new JComboBox<>(UIColor.values());
 		compCbx.setRenderer(new ColorIconComboBoxRenderer() {
 			@Override
 			protected Color getColor(Object value) {
@@ -138,7 +138,7 @@ public class ColorsDialog extends JDialog {
 		JPanel themePnl = new JPanel(new BorderLayout(8, 0));
 		Vector<Object> items = new Vector<Object>(Constants.THEMES);
 		items.add("<html><i>Add New Theme...</i></html>");
-		final JComboBox themeCbx = new JComboBox(items);
+		final JComboBox<Object> themeCbx = new JComboBox<>(items);
 		themeCbx.setRenderer(new ColorIconComboBoxRenderer() {
 			@Override
 			protected Color getColor(Object value) {
@@ -456,7 +456,7 @@ public class ColorsDialog extends JDialog {
 								@Override
 								public void actionPerformed(ActionEvent e) {
 									if ("comboBoxEdited".equals(e.getActionCommand())) {
-										JComboBox comboBox = (JComboBox) e.getSource();
+										JComboBox<UITheme> comboBox = (JComboBox<UITheme>) e.getSource();
 
 										String title = (String) comboBox.getSelectedItem();
 										// create deep copy of last selected theme's color map
@@ -471,7 +471,7 @@ public class ColorsDialog extends JDialog {
 										UITheme newTheme = new UITheme(title, null,
 												newColorMap);
 										// insert new theme into list
-										((DefaultComboBoxModel) comboBox.getModel()).insertElementAt(
+										((DefaultComboBoxModel<UITheme>) comboBox.getModel()).insertElementAt(
 												newTheme, comboBox.getItemCount() - 1);
 										comboBox.setSelectedItem(newTheme);
 

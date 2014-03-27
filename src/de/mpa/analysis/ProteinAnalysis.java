@@ -36,7 +36,7 @@ public class ProteinAnalysis {
 				molWeight += aaWeight;
 			} else {
 				// TODO: ADD some warning in the protein table that the calculated mass is not exact.
-				if (Client.getInstance().isDebug()) System.out.println("unknown amino acid: " + letter);
+				if (Client.isDebug()) System.out.println("unknown amino acid: " + letter);
 			}
 		}
 

@@ -74,24 +74,6 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	}
 
 	/**
-	 * Returns whether this spectrum match is selected for exporting. 
-	 * @return <code>true</code> if match is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
-	public boolean isSelected() {
-		return selected;
-	}
-	
-	/**
-	 * Sets whether this spectrum match is selected for exporting. 
-	 * @param selected <code>true</code> if match is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
-
-	/**
 	 * Returns the search spectrum ID.
 	 * @return the search spectrum ID
 	 */
@@ -209,6 +191,17 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 */
 	public void addExperimentIDs(Set<Long> experimentIDs) {
 		this.experimentIDs.addAll(experimentIDs);
+	}
+
+	@Override
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	@Override
+	public void setSelected(boolean selected) {
+		// TODO: propagate selection change to parent peptide(s)
+		this.selected = selected;
 	}
 	
 	@Override

@@ -94,7 +94,6 @@ import de.mpa.graphdb.io.QueryHandler;
 import de.mpa.graphdb.io.UserQueries;
 import de.mpa.graphdb.nodes.NodeType;
 import de.mpa.graphdb.properties.ElementProperty;
-import de.mpa.main.Starter;
 
 /**
  * The graph query dialog allows three modes:
@@ -188,13 +187,7 @@ public class GraphQueryDialog extends JDialog {
 	 */
 	private void loadUserQueries() {
 		try {
-			File queryFile = null; 
-			
-			if(Starter.isJarExport()) {
-				queryFile = new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "userqueries.xml");
-			} else {
-				queryFile = new File(this.getClass().getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
-			}
+			File queryFile = Constants.getUserQueriesFile();
 			userQueries = QueryHandler.importUserQueries(queryFile);
 		} catch (Exception e) {
 			userQueries = new UserQueries();

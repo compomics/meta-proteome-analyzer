@@ -124,9 +124,9 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 			}
 		});
 		
-		queryDialogBtn = new JButton("Query", IconConstants.GO_DB_SMALL_ICON);
-		queryDialogBtn.setRolloverIcon(IconConstants.GO_DB_SMALL_ROLLOVER_ICON);
-		queryDialogBtn.setPressedIcon(IconConstants.GO_DB_SMALL_PRESSED_ICON);
+		queryDialogBtn = new JButton("Query", IconConstants.GO_DB_ICON);
+		queryDialogBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		queryDialogBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
 		queryDialogBtn.setEnabled(false);
 		queryDialogBtn.setPreferredSize(new Dimension(queryDialogBtn.getPreferredSize().width, 20));
 		queryDialogBtn.setFocusPainted(false);

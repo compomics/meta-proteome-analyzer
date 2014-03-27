@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Experiment extends ExperimentTableAccessor {
+public class ExperimentAccessor extends ExperimentTableAccessor {
 	
 	/**
 	 * Default constructor.
 	 */
-	public Experiment() {
+	public ExperimentAccessor() {
 		super();
 	}
 	
@@ -21,11 +21,11 @@ public class Experiment extends ExperimentTableAccessor {
 	 * Calls the super class.
 	 * @param params
 	 */
-	public Experiment(HashMap params){
+	public ExperimentAccessor(HashMap params){
 		super(params);
 	}
 	
-	public Experiment(ResultSet aRS) throws SQLException {
+	public ExperimentAccessor(ResultSet aRS) throws SQLException {
 		super(aRS);
 	}
 
@@ -36,13 +36,13 @@ public class Experiment extends ExperimentTableAccessor {
 	 * @return
 	 * @throws SQLException
 	 */
-	public static List<Experiment> findAllExperimentsOfProject(long fk_projectid, Connection aConn) throws SQLException {
-		List<Experiment> temp = new ArrayList<Experiment>();
+	public static List<ExperimentAccessor> findAllExperimentsOfProject(long fk_projectid, Connection aConn) throws SQLException {
+		List<ExperimentAccessor> temp = new ArrayList<ExperimentAccessor>();
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where fk_projectid = ?");
 		ps.setLong(1, fk_projectid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			temp.add(new Experiment(rs));
+			temp.add(new ExperimentAccessor(rs));
 		}
 		rs.close();
 		ps.close();
@@ -50,13 +50,13 @@ public class Experiment extends ExperimentTableAccessor {
 	}
 
 	
-	public static Experiment findExperimentByID(long experimentid, Connection aConn) throws SQLException {
-		Experiment temp = new Experiment();
+	public static ExperimentAccessor findExperimentByID(long experimentid, Connection aConn) throws SQLException {
+		ExperimentAccessor temp = new ExperimentAccessor();
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where experimentid = ?");
 		ps.setLong(1, experimentid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			temp= new Experiment(rs);
+			temp= new ExperimentAccessor(rs);
 		}
 		rs.close();
 		ps.close();
@@ -71,14 +71,14 @@ public class Experiment extends ExperimentTableAccessor {
 	 * @return The selected experiment.
 	 * @throws SQLException
 	 */
-	public static Experiment findExperimentByIDandProjectID(long experimentid, long projectid, Connection aConn) throws SQLException {
-		Experiment temp = new Experiment();
+	public static ExperimentAccessor findExperimentByIDandProjectID(long experimentid, long projectid, Connection aConn) throws SQLException {
+		ExperimentAccessor temp = new ExperimentAccessor();
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where experimentid = ? and fk_projectid = ?");
 		ps.setLong(1, experimentid);
 		ps.setLong(2, projectid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			temp= new Experiment(rs);
+			temp= new ExperimentAccessor(rs);
 		}
 		rs.close();
 		ps.close();
@@ -107,8 +107,8 @@ public class Experiment extends ExperimentTableAccessor {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Experiment) {
-			Experiment that = (Experiment) obj;
+		if (obj instanceof ExperimentAccessor) {
+			ExperimentAccessor that = (ExperimentAccessor) obj;
 			return (that.iExperimentid == this.iExperimentid);
 		}
 		return false;
