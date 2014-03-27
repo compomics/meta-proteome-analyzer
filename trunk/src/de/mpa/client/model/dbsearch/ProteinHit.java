@@ -481,28 +481,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	}
 	
 	/**
-	 * Returns whether this protein hit is selected for exporting. 
-	 * @return <code>true</code> if protein is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
-	public boolean isSelected() {
-		return selected;
-	}
-	
-	/**
-	 * Sets whether this protein hit is selected for exporting. 
-	 * @param selected <code>true</code> if protein is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-		// make child peptides inherit selection state
-//		for (PeptideHit ph : peptideHits.values()) {
-//			ph.setSelected(selected);
-//		}
-	}
-	
-	/**
 	 * Gets the experiments IDs in which the protein was identified
 	 * @return experiment IDs.
 	 */
@@ -515,6 +493,16 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 */
 	public void addExperimentIDs(Set<Long> experimentIDs) {
 		this.experimentIDs.addAll(experimentIDs);
+	}
+	
+	@Override
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	@Override
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 	
 	/**

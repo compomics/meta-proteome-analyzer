@@ -388,7 +388,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.
-		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId());
+		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 		return dbSettings;
 	}
 	

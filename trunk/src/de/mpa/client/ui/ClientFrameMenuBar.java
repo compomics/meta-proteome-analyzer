@@ -113,7 +113,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exitItem.setIcon(IconConstants.EXIT_ICON);
 		exitItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				client.exit();
+				Client.exit();
 			}
 		});
 		
@@ -143,7 +143,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				showDatabaseSettings();
 			}
 		});
-		databaseItem.setEnabled(!client.isViewer());
+		databaseItem.setEnabled(!Client.isViewer());
 
 		// Server settings item
 		JMenuItem serverItem = new JMenuItem("Server Configuration",
@@ -163,7 +163,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				}
 			}
 		});
-		serverItem.setEnabled(!client.isViewer());
+		serverItem.setEnabled(!Client.isViewer());
 
 		settingsMenu.add(colorsItem);
 		settingsMenu.addSeparator();
@@ -354,7 +354,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				}
 				// try new connection				
 				try {
-					client.initDBConnection();
+					client.getConnection();
 					dbConnTestLbl.setText("Connection OK");
 					dbConnTestLbl.setForeground(Color.GREEN);
 				} catch (Exception e) {

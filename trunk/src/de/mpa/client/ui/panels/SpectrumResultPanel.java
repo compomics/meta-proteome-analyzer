@@ -27,7 +27,6 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
@@ -86,7 +85,7 @@ public class SpectrumResultPanel extends JPanel {
 		specTblPnl.add(spectrumScp, CC.xy(2, 2));
 		
 		// Create results fetch button
-		JButton fetchBtn = new JButton(IconConstants.GO_DB_SMALL_ICON);
+		JButton fetchBtn = new JButton(IconConstants.GO_DB_ICON);
 		fetchBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -164,9 +163,10 @@ public class SpectrumResultPanel extends JPanel {
 	protected void refreshSpectrumTable() {
 
 		// Gets the result object.
-		ClientFrame clientFrame = ClientFrame.getInstance();
-		DbSearchResult result = Client.getInstance().retrieveDatabaseSearchResult(null, null, 
-				clientFrame.getProjectPanel().getCurrentExperimentContent().getExperimentID());
+//		ClientFrame clientFrame = ClientFrame.getInstance();
+//		DbSearchResult result = Client.getInstance().retrieveDatabaseSearchResult(null, null, 
+//				clientFrame.getProjectPanel().getCurrentExperimentContent().getID());
+		DbSearchResult result = Client.getInstance().getDatabaseSearchResult();
 
 		if (result != null && !result.isEmpty()) {
 			// Get spectrum List

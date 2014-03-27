@@ -300,8 +300,7 @@ public class DbSearchResult implements Serializable {
 	 */
 	public int getModifiedPeptideCount() {
 		int modifiedPeptides = 0;
-		Set<PeptideHit> peptideSet = this.getMetaProteins().getPeptideSet();
-		for (PeptideHit peptideHit : peptideSet) {
+		for (PeptideHit peptideHit : this.getMetaProteins().getPeptideSet()) {
 			if (!peptideHit.getSequence().matches("^[A-Z]*$")) {
 				modifiedPeptides++;
 			}
@@ -310,13 +309,12 @@ public class DbSearchResult implements Serializable {
 	}
 	
 	/**
-	 * Returns the number of unique peptides.
+	 * Returns the number of peptides with exactly one parent protein.
 	 * @return the number of unique peptides
 	 */
 	public int getUniquePeptideCount() {
 		int uniquePeptides = 0;
-		Set<PeptideHit> peptideSet = this.getMetaProteins().getPeptideSet();
-		for (PeptideHit peptideHit : peptideSet) {
+		for (PeptideHit peptideHit : this.getMetaProteins().getPeptideSet()) {
 			if (peptideHit.getProteinCount() == 1) {
 				uniquePeptides++;
 			}

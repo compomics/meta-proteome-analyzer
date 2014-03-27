@@ -1,18 +1,28 @@
 package de.mpa.db;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.mpa.client.ui.dialogs.Operation;
+import com.thoughtworks.xstream.XStream;
+
+import de.mpa.client.Client;
+import de.mpa.client.Constants;
+import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.AbstractProject;
+import de.mpa.client.model.DatabaseExperiment;
+import de.mpa.client.model.DatabaseProject;
+import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
 import de.mpa.db.accessor.ExpProperty;
-import de.mpa.db.accessor.Experiment;
-import de.mpa.db.accessor.Project;
+import de.mpa.db.accessor.ExperimentAccessor;
+import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.Searchspectrum;
 
@@ -25,6 +35,11 @@ import de.mpa.db.accessor.Searchspectrum;
 public class ProjectManager {
 	
 	/**
+	 * The singleton instance of the project manager.
+	 */
+	private static ProjectManager instance;
+	
+	/**
 	 * Database connection.
 	 */
 	private Connection conn;
@@ -33,8 +48,64 @@ public class ProjectManager {
 	 * Sets up the project manager with an existing database connection.
 	 * @param conn Database connection.
 	 */
-	public ProjectManager(Connection conn) {
-		this.conn = conn;
+	private ProjectManager(Connection conn) {
+		this.updateConnection(conn);
+	}
+	
+	/**
+	 * Returns the singleton instance of the project manager.
+	 * @return
+	 */
+	public static ProjectManager getInstance() {
+		Connection conn = null;
+		try {
+			// try getting database connection, may be null
+			conn = Client.getInstance().getDatabaseConnection();
+		} catch (SQLException e) {
+			// do nothing
+		}
+		return getInstance(conn);
+	}
+
+	/**
+	 * Returns the singleton instance of the project manager and validates the
+	 * provided database connection.
+	 * 
+	 * @param conn
+	 * @return
+	 */
+	public static ProjectManager getInstance(Connection conn) {
+		if (instance == null) {
+			instance = new ProjectManager(conn);
+		} else {
+			instance.updateConnection(conn);
+		}
+		return instance;
+	}
+	
+	/**
+	 * Returns whether the project manager is currently connected to a remote
+	 * database.
+	 * @return <code>true</code> if connected, <code>false</code> otherwise
+	 * @throws SQLException if a database error occurs
+	 */
+	public boolean isConnected() throws SQLException {
+		return (conn != null) && conn.isValid(0);
+	}
+
+	/**
+	 * Checks whether the provided connection is consistent with the manager's 
+	 * own and updates the latter if needed.
+	 * @param conn the database connection to validate
+	 * @return <code>true</code> if the connection has been updated, 
+	 * 	<code>false</code> otherwise
+	 */
+	public boolean updateConnection(Connection conn) {
+		boolean res = (this.conn != conn);
+		if (res) {
+			this.conn = conn;
+		}
+		return res;
 	}
 
 	/**
@@ -43,13 +114,13 @@ public class ProjectManager {
 	 * @return Generated project ID.
 	 * @throws SQLException if a database error occurs
 	 */
-	public Long createNewProject(String title) throws SQLException {
+	public ProjectAccessor createNewProject(String title) throws SQLException {
 		HashMap<Object, Object> data = new HashMap<Object, Object>(4);
-		data.put(Project.TITLE, title);
-		Project project = new Project(data);
-		project.persist(conn);
+		data.put(ProjectAccessor.TITLE, title);
+		ProjectAccessor projectAcc = new ProjectAccessor(data);
+		projectAcc.persist(conn);
 		conn.commit();
-		return (Long) project.getGeneratedKeys()[0];
+		return projectAcc;
 	}
 	
 	/**
@@ -60,7 +131,7 @@ public class ProjectManager {
 	 * @throws SQLException if a database error occurs
 	 */
 	public void modifyProjectName(long projectId, String projectName) throws SQLException {
-		Project tempProject = Project.findFromProjectID(projectId, conn);
+		ProjectAccessor tempProject = ProjectAccessor.findFromProjectID(projectId, conn);
 		tempProject.setTitle(projectName);
 		tempProject.setModificationdate(new Timestamp((new Date()).getTime()));
 		tempProject.update(conn);
@@ -71,12 +142,12 @@ public class ProjectManager {
 	 * Adds the specified properties to the project associated with the
 	 * specified database id.
 	 * @param projectId the database id
-	 * @param projProperties the project properties
+	 * @param properties the project properties
 	 * @throws SQLException if a database error occurs
 	 */
-	public void addProjectProperties(Long projectId, Map<String, String> projProperties) throws SQLException{
+	public void addProjectProperties(Long projectId, Map<String, String> properties) throws SQLException {
 		// Iterate the given project properties and add them to the database.
-		for(Entry entry : projProperties.entrySet()){
+		for(Entry<String, String> entry : properties.entrySet()){
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(Property.FK_PROJECTID, projectId);
 			data.put(Property.NAME, entry.getKey());
@@ -137,12 +208,12 @@ public class ProjectManager {
 	 * @throws SQLException if a database error occurs
 	 */
 	public void deleteProject(Long projectId) throws SQLException {
-		Project project = Project.findFromProjectID(projectId, conn);
-		List<Experiment> experimentList =  Experiment.findAllExperimentsOfProject(projectId, conn);
+		ProjectAccessor project = ProjectAccessor.findFromProjectID(projectId, conn);
+		List<ExperimentAccessor> experimentList =  ExperimentAccessor.findAllExperimentsOfProject(projectId, conn);
 		
 		// Delete all experiment
 		for (int i = 0; i < experimentList.size(); i++) {
-			deleteExperiment(experimentList.get(i).getExperimentid());
+			this.deleteExperiment(experimentList.get(i).getExperimentid());
 		}
 		
 		// Delete all project properties
@@ -164,14 +235,14 @@ public class ProjectManager {
 	 * @return the database id of the stored experiment
 	 * @throws SQLException if a database error occurs
 	 */
-	public Long createNewExperiment(Long projectId, String title) throws SQLException {
+	public ExperimentAccessor createNewExperiment(Long projectId, String title) throws SQLException {
 		HashMap<Object, Object> data = new HashMap<Object, Object>(5);
-		data.put(Experiment.FK_PROJECTID, projectId);
-		data.put(Experiment.TITLE, title);
-		Experiment experiment = new Experiment(data);
-		experiment.persist(conn);
+		data.put(ExperimentAccessor.FK_PROJECTID, projectId);
+		data.put(ExperimentAccessor.TITLE, title);
+		ExperimentAccessor experimentAcc = new ExperimentAccessor(data);
+		experimentAcc.persist(conn);
 		conn.commit();
-		return (Long) experiment.getGeneratedKeys()[0];
+		return experimentAcc;
 	}
 	
 	/**
@@ -182,7 +253,7 @@ public class ProjectManager {
 	 * @throws SQLException if a database error occurs
 	 */
 	public void modifyExperimentName(Long experimentId, String title) throws SQLException {
-		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
+		ExperimentAccessor experiment = ExperimentAccessor.findExperimentByID(experimentId, conn);
 		// only modify title if it actually differs from the provided string
 		if (!title.equals(experiment.getTitle())) {
 			experiment.setTitle(title);
@@ -198,7 +269,7 @@ public class ProjectManager {
 	 * @param expProperties the experiment properties
 	 * @throws SQLException if a database error occurs
 	 */
-	public void addExperimentProperties(Long experimentId, Map<String, String> expProperties) throws SQLException{
+	public void addExperimentProperties(Long experimentId, Map<String, String> expProperties) throws SQLException {
 		// iterate properties and store them
 		for (Entry entry : expProperties.entrySet()) {
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
@@ -267,7 +338,7 @@ public class ProjectManager {
 	 * @throws SQLException if a database error occurs
 	 */
 	public void deleteExperiment(Long experimentId) throws SQLException {
-		Experiment experiment = Experiment.findExperimentByID(experimentId, conn);
+		ExperimentAccessor experiment = ExperimentAccessor.findExperimentByID(experimentId, conn);
 		
 		// delete all properties of the experiment
 		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
@@ -286,83 +357,43 @@ public class ProjectManager {
 		conn.commit();
 	}
 	
-	/**
-	 * Checks whether the provided connection is consistent with the manager's 
-	 * own and updates the latter if needed.
-	 * @param conn the database connection to validate
-	 * @return <code>true</code> if the connection has been updated, 
-	 * 		   <code>false</code> otherwise
-	 */
-	public boolean revalidate(Connection conn) {
-		boolean res = (this.conn != conn);
-		if (res) {
-			this.conn = conn;
-		}
-		return res;
-	}
+	
 	
 	/* convenience getters below this point */
 	
 	/**
 	 * Returns the list of all projects currently stored in the targeted database.
 	 * @return all stored projects
-	 * @throws SQLException if a database error occurs
+	 * @throws SQLException if a database error or I/O error occurs
 	 */
-	public List<Project> getProjects() throws SQLException {
-		return Project.findAllProjects(conn);
+	@SuppressWarnings("unchecked")
+	public List<AbstractProject> getProjects() throws Exception {
+		List<AbstractProject> projects = new ArrayList<>();
+		
+		if (Client.isViewer()) {
+			File projectsFile = Constants.getProjectsFile();
+			projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
+		} else {
+			List<ProjectAccessor> projectAccs = ProjectAccessor.findAllProjects(conn);
+			for (ProjectAccessor projectAcc : projectAccs) {
+				List<Property> projProps = Property.findAllPropertiesOfProject(projectAcc.getProjectid(), conn);
+				
+				List<AbstractExperiment> experiments = new ArrayList<>();
+
+				AbstractProject project = new DatabaseProject(projectAcc, projProps, experiments);
+				
+				List<ExperimentAccessor> experimentAccs =
+						ExperimentAccessor.findAllExperimentsOfProject(projectAcc.getProjectid(), conn);
+				for (ExperimentAccessor experimentAcc : experimentAccs) {
+					List<ExpProperty> expProps =
+							ExpProperty.findAllPropertiesOfExperiment(experimentAcc.getExperimentid(), conn);
+					experiments.add(new DatabaseExperiment(experimentAcc, expProps, project));
+				}
+				
+				projects.add(project);
+			}
+		}
+		return projects;
 	}
 
-	/**
-	 * Returns the title of the project associated with the specified database id.
-	 * @param projectId the database id
-	 * @return the desired project's title string
-	 * @throws SQLException if a database error occurs
-	 */
-	public String getProjectTitle(long projectId) throws SQLException {
-		return Project.findFromProjectID(projectId, conn).getTitle();
-	}
-
-	/**
-	 * Returns the list of properties belonging to the experiment associated
-	 * with the specified database id.
-	 * @param projectId the database id of the project
-	 * @return the desired project properties
-	 * @throws SQLException if a database error occurs
-	 */
-	public List<Property> getProjectProperties(long projectId) throws SQLException {
-		return Property.findAllPropertiesOfProject(projectId, conn);
-	}
-
-	/**
-	 * Returns the list of experiments belonging to the project associated with
-	 * the specified database id.
-	 * @param projectId the database id
-	 * @return the desired experiments
-	 * @throws SQLException if a database error occurs
-	 */
-	public List<Experiment> getProjectExperiments(long projectId) throws SQLException {
-		return Experiment.findAllExperimentsOfProject(projectId, conn);
-	}
-	
-	/**
-	 * Returns the experiment associated with the specified database id.
-	 * @param experimentId the database id
-	 * @return the desired experiment accessor
-	 * @throws SQLException if a database error occurs
-	 */
-	public Experiment getExperiment(long experimentId) throws SQLException {
-		return Experiment.findExperimentByID(experimentId, conn);
-	}
-	
-	/**
-	 * Returns the list of properties belonging to the experiment associated
-	 * with the specified database id.
-	 * @param experimentId the database id of the experiment
-	 * @return the desired experiment properties
-	 * @throws SQLException if a database error occurs
-	 */
-	public List<ExpProperty> getExperimentProperties(long experimentId) throws SQLException {
-		return ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
-	}
-	
 }

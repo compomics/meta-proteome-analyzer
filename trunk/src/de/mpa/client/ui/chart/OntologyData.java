@@ -295,7 +295,11 @@ public class OntologyData implements ChartData {
 			Set<PeptideHit> peptideSet = new HashSet<PeptideHit>();
 			for (ProteinHit prot : proteinSet) {
 				if (prot.isSelected()) {
-					peptideSet.addAll(prot.getPeptideHitList());
+					for (PeptideHit pep : prot.getPeptideHitList()) {
+						if (pep.isSelected()) {
+							peptideSet.add(pep);
+						}
+					}
 				}
 			}
 			return peptideSet.size();
@@ -306,7 +310,13 @@ public class OntologyData implements ChartData {
 			for (ProteinHit prot : proteinSet) {
 				if (prot.isSelected()) {
 					for (PeptideHit pep : prot.getPeptideHitList()) {
-						matchSet.addAll(pep.getSpectrumMatches());
+						if (pep.isSelected()) {
+							for (SpectrumMatch match : pep.getSpectrumMatches()) {
+								if (match.isSelected()) {
+									matchSet.add(match);
+								}
+							}
+						}
 					}
 				}
 			}

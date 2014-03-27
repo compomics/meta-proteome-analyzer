@@ -109,29 +109,17 @@ public class ClientFrame extends JFrame {
 	 */
 	private List<ExportHeader> lastSelectedExportHeaders;
 	
-	/**
-	 * Index for the project panel.
-	 */
+	/** Index for the project panel. */
 	public static final int INDEX_PROJECT_PANEL = 0;
-	
-	/**
-	 * Index for the input panel
-	 */
+	/** Index for the input panel */
 	public static final int INDEX_INPUT_PANEL = 1;
-	
-	/**
-	 * Index for the results panel.
-	 */
+	/** Index for the results panel. */
 	public static final int INDEX_RESULTS_PANEL = 2;
-	
-	/**
-	 * Index for the logging panel
-	 */
+	/** Index for the logging panel */
 	public static final int INDEX_LOGGING_PANEL = 3;
 	
 	/**
 	 * Returns the client frame's singleton instance.
-	 * 
 	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance() {
@@ -151,22 +139,21 @@ public class ClientFrame extends JFrame {
 	}
 	
 	/**
-	 * Constructor for the ClientFrame
+	 * Creates the main application frame using the specified viewer and debug flags.
+	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
+	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private ClientFrame(boolean viewerMode, boolean debug) {
+	private ClientFrame(boolean viewer, boolean debug) {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
-		final Client client = Client.getInstance();
+		Client.init(viewer, debug);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				client.exit();
+				Client.exit();
 			}
 		});
 		frame = this;
 		
-		client.setViewer(viewerMode);
-		client.setDebug(debug);
-
 		// Frame size
 		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
 		this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));	
@@ -214,10 +201,6 @@ public class ClientFrame extends JFrame {
 		// Add tabs with rollover-capable tab components
 		int maxWidth = 0, maxHeight = 0;
 		for (int i = 0; i < panels.length; i++) {
-//			tabPane.addTab(titles[i], icons[i], panels[i]);
-//			tabPane.addTab("", panels[i]);
-//			JButton tabButton = new TabPaneButton(tabPane, titles[i], icons[i]);
-//			tabPane.setTabComponentAt(i, tabButton);
 			tabPane.addTab(titles[i], icons[i], panels[i]);
 			Component tabButton = tabPane.getTabComponentAt(i);
 			maxWidth = Math.max(maxWidth, tabButton.getPreferredSize().width);
@@ -243,24 +226,6 @@ public class ClientFrame extends JFrame {
 		// TODO: notify progress bar for loading parameters.
 		Parameters.getInstance();
 		
-		// Enables Functions for the Viewer
-		if (client.isViewer()) {
-			// Enables Parts 
-			String[] enabledItems = Parameters.getInstance().getEnabledItemsForViewer();
-			
-			for (int i = 0; i < panels.length; i++) {
-				tabPane.setEnabledAt(i, false);
-				for (int j = 0; j < enabledItems.length; j++) {
-					if (((JButton) tabPane.getTabComponentAt(i)).getText().equals(enabledItems[j])) {
-						tabPane.setEnabledAt(i, true);
-						break;
-					}
-				}
-			}
-			// Enables Server Connections
-			tabPane.setSelectedIndex(2);
-		}
-		
 		// Set application icon
 		this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/de/mpa/resources/icons/mpa01.png")));
 
@@ -280,9 +245,10 @@ public class ClientFrame extends JFrame {
 		// Status Bar
 		statusPnl = new StatusPanel();
 		
-		if (!Client.getInstance().isViewer()) {
-			// Project panel
-			projectPnl = new ProjectPanel();
+		// Project panel
+		projectPnl = new ProjectPanel();
+		
+		if (!Client.isViewer()) {
 			// File panel
 			filePnl = new FilePanel();
 //			// Settings Panel
@@ -339,11 +305,29 @@ public class ClientFrame extends JFrame {
 	}
 
 	/**
-	 * Returns the tabbed pane.
-	 * @return
+	 * Sets the enable state of the tab at the specified index.
+	 * @param index the tab index
+	 * @param enabled the enable state to set
 	 */
-	public JTabbedPane getTabbedPane() {
-		return tabPane;
+	public void setTabEnabledAt(int index, boolean enabled) {
+		tabPane.setEnabledAt(index, enabled);
+	}
+	
+	/**
+	 * Returns the enable state of the tab at the specified index.
+	 * @param index the tab index
+	 * @return <code>true</code> if the tab is enabled, <code>false</code> otherwise
+	 */
+	public boolean isTabEnabledAt(int index) {
+		return tabPane.isEnabledAt(index);
+	}
+	
+	/**
+	 * Selects the tab at the specified index.
+	 * @param index the index of the tab to select
+	 */
+	public void setTabSelectedIndex(int index) {
+		tabPane.setSelectedIndex(index);
 	}
 	
 	/**
@@ -494,4 +478,13 @@ public class ClientFrame extends JFrame {
 	public void setLastSelectedExportHeaders(List<ExportHeader> lastSelectedExportHeaders) {
 		this.lastSelectedExportHeaders = lastSelectedExportHeaders;
 	}
+	
+	/**
+	 * Returns whether the client application is in viewer mode.
+	 * @return <code>true</code> if the client is in viewer mode, <code>false</code> otherwise
+	 */
+	public boolean isViewer() {
+		return Client.isViewer();
+	}
+	
 }

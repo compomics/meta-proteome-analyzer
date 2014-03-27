@@ -48,7 +48,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -87,7 +86,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.model.ProjectContent;
+import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters;
@@ -284,10 +283,13 @@ public class FilePanel extends JPanel implements Busyable {
 		
 		// tree table containing spectrum details
 		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
-				"no project selected", null, null, null, null) {
+				"no experiment selected", null, null, null, null) {
 			public String toString() {
-				ProjectContent pj =  clientFrame.getProjectPanel().getCurrentProjectContent();
-				return (pj != null) ? pj.getProjectTitle() : "no project selected";
+				AbstractExperiment experiment = clientFrame.getProjectPanel().getSelectedExperiment();
+				if (experiment != null) {
+					return experiment.getTitle();
+				}
+				return "no experiment selected";
 			}
 			@Override
 			public Object getValueAt(int column) {
@@ -614,7 +616,6 @@ public class FilePanel extends JPanel implements Busyable {
 			}
 			/** Convenience worker for fetching spectra from the database */
 			class FetchWorker extends SwingWorker<File, Object> {
-				@SuppressWarnings("unchecked")
 				@Override
 				protected File doInBackground() throws Exception {
 					FilePanel.this.setBusy(true);
@@ -626,7 +627,7 @@ public class FilePanel extends JPanel implements Busyable {
 					Integer expIDval = ((Integer[]) fetchParams.get("expID").getValue())[0];
 					DefaultComboBoxModel annotMdl =	(DefaultComboBoxModel) fetchParams.get("annotated").getValue();
 					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
-					client.initDBConnection();
+					client.getConnection();
 					
 					List<MascotGenericFile> dlSpec = client.downloadSpectra(
 							expIDval.longValue(), (AnnotationType) annotMdl.getSelectedItem(),
@@ -894,6 +895,10 @@ public class FilePanel extends JPanel implements Busyable {
 		return spectrumTreeTable;
 	}
 	
+	/**
+	 * Returns the settings panel.
+	 * @return the settings panel
+	 */
 	public SettingsPanel getSettingsPanel() {
 		return settingsPnl;
 	}
@@ -906,15 +911,14 @@ public class FilePanel extends JPanel implements Busyable {
 		clientFrame.setCursor(cursor);
 		if (splitPane.getCursor().getType() == Cursor.WAIT_CURSOR) splitPane.setCursor(null);
 		
-		JTabbedPane pane = clientFrame.getTabbedPane();
 		if (tabEnabled == null) {
-			tabEnabled = new boolean[pane.getComponentCount()];
-			tabEnabled[pane.indexOfComponent(this)] = true;
+			tabEnabled = new boolean[4];
+			tabEnabled[ClientFrame.INDEX_INPUT_PANEL] = true;
 		}
 		// Enable/disable tabs
 		for (int i = 0; i < tabEnabled.length - 1; i++) {
-			boolean temp = pane.isEnabledAt(i);
-			pane.setEnabledAt(i, tabEnabled[i]);
+			boolean temp = clientFrame.isTabEnabledAt(i);
+			clientFrame.setTabEnabledAt(i, tabEnabled[i]);
 			tabEnabled[i] = temp;
 		}
 		// Enable/disable menu bar

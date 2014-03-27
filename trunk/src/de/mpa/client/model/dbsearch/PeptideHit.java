@@ -239,21 +239,14 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.experimentIDs.addAll(experimentIDs);
 	}
 	
-	/**
-	 * Returns whether this peptide hit is selected for exporting. 
-	 * @return <code>true</code> if peptide is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
+	@Override
 	public boolean isSelected() {
 		return selected;
 	}
 
-	/**
-	 * Sets whether this peptide hit is selected for exporting. 
-	 * @param selected <code>true</code> if peptide is selected for export, 
-	 * <code>false</code> otherwise.
-	 */
+	@Override
 	public void setSelected(boolean selected) {
+		// TODO: propagate selection change to parent protein(s)
 		this.selected = selected;
 	}
 	

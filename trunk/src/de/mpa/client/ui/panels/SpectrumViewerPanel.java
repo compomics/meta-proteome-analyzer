@@ -1,9 +1,15 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +20,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 
 import com.compomics.util.gui.interfaces.SpectrumAnnotation;
 import com.compomics.util.gui.spectrum.DefaultSpectrumAnnotation;
@@ -99,9 +107,33 @@ public class SpectrumViewerPanel extends JPanel {
 		
 		// add spectrum
 		if (mgf != null) {
-			specPnl = new SpectrumPanel(mgf);
+			specPnl = new SpectrumPanel(mgf) {
+				@Override
+				public void paint(Graphics g) {
+					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					super.paint(g);
+				}
+			};
 			specPnl.showAnnotatedPeaksOnly(true);
 			specPnl.setShowResolution(false);
+			
+			specPnl.setLayout(new FormLayout("0px:g, 0px:g, 15px", "b:p:g, 1px"));
+			
+			JTextField titleTtf = new JTextField(mgf.getTitle());
+			titleTtf.setEditable(false);
+			titleTtf.setBorder(null);
+			titleTtf.setOpaque(false);
+			titleTtf.setHorizontalAlignment(SwingConstants.RIGHT);
+			titleTtf.setCaretPosition(0);
+			
+//			titleTtf.addComponentListener(new ComponentAdapter() {
+//				@Override
+//				public void componentResized(ComponentEvent evt) {
+//					System.out.println(((Component) evt.getSource()).getSize());
+//				}
+//			});
+			
+			specPnl.add(titleTtf, CC.xy(2, 1));
 
 			maxX = Math.max(maxX, specPnl.getMaxXAxisValue());
 			specPnl.rescale(0.0, maxX);

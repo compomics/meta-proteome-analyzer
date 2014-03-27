@@ -14,7 +14,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +72,9 @@ import com.jgoodies.looks.plastic.PlasticButtonUI;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.AbstractProject;
+import de.mpa.client.model.ProjectExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
@@ -95,8 +97,6 @@ import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
-import de.mpa.db.accessor.Experiment;
-import de.mpa.db.accessor.Project;
 
 /**
  * This class holds the comparison of certain experiments.
@@ -117,7 +117,7 @@ public class ComparePanel extends JPanel {
 	/**
 	 * The list of experiments to compare.
 	 */
-	private List<Experiment> experiments;
+	private List<AbstractExperiment> experiments;
 	
 	/**
 	 * The meta-result object.
@@ -191,17 +191,17 @@ public class ComparePanel extends JPanel {
 		ButtonGroup bg = new ButtonGroup();
 		JRadioButton ontoRbtn = new JRadioButton("Ontology", false);
 		bg.add(ontoRbtn);
-		final JComboBox ontoCbx = new JComboBox(OntologyChartType.values());
+		final JComboBox<OntologyChartType> ontoCbx = new JComboBox<>(OntologyChartType.values());
 		ontoCbx.setEnabled(false);
 		JRadioButton taxoRbtn = new JRadioButton("Taxonomy", false);
 		bg.add(taxoRbtn);
-		final JComboBox taxoCbx = new JComboBox(TaxonomyChartType.values());
+		final JComboBox<TaxonomyChartType> taxoCbx = new JComboBox<>(TaxonomyChartType.values());
 		taxoCbx.setEnabled(false);
 		JRadioButton hieroRbtn = new JRadioButton("Hierarchy", true);
 		bg.add(hieroRbtn);
-		final JComboBox hieroCbx = new JComboBox(HierarchyLevel.values());
+		final JComboBox<HierarchyLevel> hieroCbx = new JComboBox<>(HierarchyLevel.values());
 		
-		final JComboBox countCbx = new JComboBox(HierarchyLevel.values());
+		final JComboBox<HierarchyLevel> countCbx = new JComboBox<>(HierarchyLevel.values());
 		
 		// listen for radio button selection changes and enable/disable combo boxes accordingly
 		ontoRbtn.addChangeListener(new ChangeListener() {
@@ -225,7 +225,7 @@ public class ComparePanel extends JPanel {
 
 		// create button-in-button component for advanced result fetching settings
 		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
-		settingsBtn.setEnabled(!Client.getInstance().isViewer()); 
+		settingsBtn.setEnabled(!Client.isViewer()); 
 		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
 		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
 		settingsBtn.setPreferredSize(new Dimension(23, 23));
@@ -251,7 +251,7 @@ public class ComparePanel extends JPanel {
 				settingsBtn.setEnabled(b);
 			}
 		};
-		compareBtn.setEnabled(!Client.getInstance().isViewer()); 
+		compareBtn.setEnabled(!Client.isViewer()); 
 		compareBtn.setRolloverIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
 		compareBtn.setPressedIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
 		compareBtn.setIconTextGap(7);
@@ -283,9 +283,9 @@ public class ComparePanel extends JPanel {
 			public void actionPerformed(ActionEvent evt) {
 				// fetch experiments from list table
 				TableModel model = experimentTbl.getModel();
-				List<Experiment> experiments = new ArrayList<Experiment>();
+				List<AbstractExperiment> experiments = new ArrayList<>();
 				for (int i = 0; i < model.getRowCount() - 1; i++) {
-					experiments.add((Experiment) model.getValueAt(i, 0));
+					experiments.add((AbstractExperiment) model.getValueAt(i, 0));
 				}
 				// fetch comparison attributes
 				ChartType yAxisType;
@@ -550,10 +550,10 @@ public class ComparePanel extends JPanel {
 				if (row == (this.table.getRowCount() - 1)) {
 					try {
 						// create dialog for experiment selection from the database
-						List<Experiment> experiments = this.showExperimentSelectionDialog();
+						List<ProjectExperiment> experiments = this.showExperimentSelectionDialog();
 						this.table.clearSelection();
 						if (!experiments.isEmpty()) {
-							for (Experiment experiment : experiments) {
+							for (ProjectExperiment experiment : experiments) {
 								TableModel model = this.table.getModel();
 								// check whether experiment already exists
 								for (int i = 0; i < model.getRowCount() - 1; i++) {
@@ -568,7 +568,7 @@ public class ComparePanel extends JPanel {
 								this.table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 							}
 						}
-					} catch (SQLException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
@@ -578,9 +578,9 @@ public class ComparePanel extends JPanel {
 		/**
 		 * Creates and shows a dialog for selecting an experiment from the database.
 		 * @return the selected experiment or <code>null</code>
-		 * @throws SQLException if a database error occurs
+		 * @throws Exception if an error occurs
 		 */
-		private List<Experiment> showExperimentSelectionDialog() throws SQLException {
+		private List<ProjectExperiment> showExperimentSelectionDialog() throws Exception {
 			JPanel dialogPnl = new JPanel();
 			dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
 		
@@ -594,12 +594,11 @@ public class ComparePanel extends JPanel {
 			projTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 			// Initialize ProjectManager to access projects and experiments in the database
-			final ProjectManager projectManager = new ProjectManager(Client.getInstance().getDatabaseConnection());
 			// Get projects from database.
-			final List<Project> projects = projectManager.getProjects();
+			final List<AbstractProject> projects = ProjectManager.getInstance().getProjects();
 		
 			List<String> titles = new ArrayList<String>();
-			for (Project project : projects) {
+			for (AbstractProject project : projects) {
 				titles.add(project.getTitle());
 			}
 			this.fillTable(projTbl, titles);
@@ -612,24 +611,21 @@ public class ComparePanel extends JPanel {
 			};
 //			expTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-			final List<Experiment> experiments = new ArrayList<Experiment>();
+			final List<ProjectExperiment> experiments = new ArrayList<ProjectExperiment>();
 		
 			projTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				public void valueChanged(ListSelectionEvent e) {
 					int selRow = projTbl.getSelectedRow();
-					long projectID = projects.get(selRow).getProjectid();
-					try {
-						experiments.clear();
-						experiments.addAll(projectManager.getProjectExperiments(projectID));
-						if (!experiments.isEmpty()) {
-							List<String> titles = new ArrayList<String>();
-							for (Experiment experiment : experiments) {
-								titles.add(experiment.getTitle());
-							}
-							ExperimentTableHandler.this.fillTable(expTbl, titles);
+					AbstractProject project = projects.get(selRow);
+					experiments.clear();
+					experiments.addAll(project.getExperiments());
+					
+					if (!experiments.isEmpty()) {
+						List<String> titles = new ArrayList<String>();
+						for (ProjectExperiment experiment : experiments) {
+							titles.add(experiment.getTitle());
 						}
-					} catch (SQLException e1) {
-						e1.printStackTrace();
+						ExperimentTableHandler.this.fillTable(expTbl, titles);
 					}
 				}
 			});
@@ -646,7 +642,7 @@ public class ComparePanel extends JPanel {
 			dialogPnl.add(expScp, CC.xy(4, 2));
 		
 			// Get selected experiments
-			List<Experiment> res = new ArrayList<Experiment>();
+			List<ProjectExperiment> res = new ArrayList<ProjectExperiment>();
 			int ret = JOptionPane.showConfirmDialog(
 					ClientFrame.getInstance(), dialogPnl, "Choose an Experiment", JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.OK_OPTION) {
@@ -655,13 +651,14 @@ public class ComparePanel extends JPanel {
 					int row = expTbl.convertRowIndexToModel(selRow);
 					if (row != -1) {
 						// Fetch experiment from database
-						try {
-							long experimentID = experiments.get(row).getExperimentid();
-							Experiment experiment = projectManager.getExperiment(experimentID);
-							res.add(experiment);
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
+//						try {
+//							long experimentID = experiments.get(row).getID();
+//							Experiment experiment = projectManager.getExperiment(experimentID);
+//							res.add(experiment);
+//						} catch (SQLException e1) {
+//							e1.printStackTrace();
+//						}
+						res.add(experiments.get(row));
 					}
 				}
 			}
@@ -717,14 +714,14 @@ public class ComparePanel extends JPanel {
 		@Override
 		protected Object doInBackground() throws Exception {
 			try {
-				Client client = Client.getInstance();
+//				Client client = Client.getInstance();
 				
 				if (this.recreateMetaResult) {
 					// fetch results
 					List<DbSearchResult> results = new ArrayList<DbSearchResult>();
-					for (Experiment experiment : experiments) {
-						DbSearchResult result =
-								client.retrieveDatabaseSearchResult(null, null, experiment.getExperimentid());
+					for (AbstractExperiment experiment : experiments) {
+						DbSearchResult result = experiment.getSearchResult();
+//								client.retrieveDatabaseSearchResult(null, null, experiment.getExperimentid());
 						results.add(result);
 					}
 					
@@ -767,7 +764,7 @@ public class ComparePanel extends JPanel {
 		 * Method to refresh the compare table.
 		 * @param data. The data matrix for the comparison 
 		 */
-		private void refreshCompareTable(CompareData data, List<Experiment> experiments) {
+		private void refreshCompareTable(CompareData data, List<AbstractExperiment> experiments) {
 			// Re-associate experiment titles with their IDs, use as column headers
 			String[] xLabels = data.getXLabels();
 			// Use attribute type as first column header
@@ -782,8 +779,8 @@ public class ComparePanel extends JPanel {
 			
 			for (int i = offset; i < columnNames.length; i++) {
 				long l = Long.parseLong(xLabels[i - offset]);
-				for (Experiment experiment : experiments) {
-					if (l == experiment.getExperimentid()) {
+				for (ProjectExperiment experiment : experiments) {
+					if (l == experiment.getID()) {
 						columnNames[i] = experiment.getTitle() + " (" + l + ")";
 						break;
 					}

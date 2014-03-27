@@ -18,6 +18,7 @@ import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
@@ -38,7 +39,7 @@ public class TaxonomyData implements ChartData {
 	/**
 	 * The hierarchy-level map reference.
 	 */
-	private Map<HierarchyLevel, Collection<? extends Taxonomic>> hierarchyMap;
+	private Map<HierarchyLevel, Collection<? extends Hit>> hierarchyMap;
 
 	/**
 	 * Occurrence map reference.
@@ -122,11 +123,32 @@ public class TaxonomyData implements ChartData {
 	 * Sets up the taxonomies.
 	 */
 	public void init() {
-		this.hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Taxonomic>>();
+		this.hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Hit>>();
+		
 		this.hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, this.data);
 		this.hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, this.data.getProteinSet());
 		this.hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, this.data.getPeptideSet());
 		this.hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, this.data.getMatchSet());
+		
+//		List<Collection<? extends Hit>> hitLists = new ArrayList<>();
+//		hitLists.add(this.data);
+//		hitLists.add(this.data.getProteinSet());
+//		hitLists.add(this.data.getPeptideSet());
+//		hitLists.add(this.data.getMatchSet());
+//		
+//		for (Collection<? extends Hit> hitList : hitLists) {
+//			Iterator<? extends Hit> iter = hitList.iterator();
+//			while (iter.hasNext()) {
+//				Hit hit = iter.next();
+//				if (!hit.isSelected()) {
+//					iter.remove();
+//				}
+//			}
+//		}
+//		this.hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, hitLists.get(0));
+//		this.hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, hitLists.get(1));
+//		this.hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, hitLists.get(2));
+//		this.hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, hitLists.get(3));
 	}
 
 	/**
@@ -148,16 +170,19 @@ public class TaxonomyData implements ChartData {
 		TaxonomyRank topRank = ((TaxonomyChartType) this.chartType).getRank();
 		List<TaxonomyRank> targetRanks = this.getTargetRanks(topRank);
 
-		Collection<? extends Taxonomic> coll = this.hierarchyMap.get(this.hierarchyLevel);
+		Collection<? extends Hit> hits = this.hierarchyMap.get(this.hierarchyLevel);
 		List<Taxonomic> knownList = new ArrayList<Taxonomic>();
 		List<Taxonomic> unknownTaxa = new ArrayList<Taxonomic>();
-		for (Taxonomic taxonomic : coll) {
-			TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
-			TaxonomyRank rank = taxonNode.getRank();
-			if (targetRanks.contains(rank)) {
-				knownList.add(taxonomic);
-			} else {
-				unknownTaxa.add(taxonomic);
+		for (Hit hit : hits) {
+			if (hit.isSelected()) {
+				Taxonomic taxonomic = (Taxonomic) hit;
+				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
+				TaxonomyRank rank = taxonNode.getRank();
+				if (targetRanks.contains(rank)) {
+					knownList.add(taxonomic);
+				} else {
+					unknownTaxa.add(taxonomic);
+				}
 			}
 		}
 		
@@ -230,7 +255,7 @@ public class TaxonomyData implements ChartData {
 			pieDataset.remove(othersKey);
 		}
 		
-		if (this.hideUnknown) {
+		if (this.hideUnknown || (pieDataset.getValue(unknownKey).intValue() == 0)) {
 //			pieDataset.setValue(unknownKey, 0);
 			pieDataset.remove(unknownKey);
 		}
@@ -263,11 +288,11 @@ public class TaxonomyData implements ChartData {
 //			res.addAll(peptideHit.getProteinHits());
 		} else if (taxonomic instanceof SpectrumMatch) {
 			// find match inside all peptides, add corresponding parent proteins
-			Collection<? extends Taxonomic> coll = this.hierarchyMap.get(HierarchyLevel.PEPTIDE_LEVEL);
-			for (Taxonomic tax : coll) {
-				PeptideHit peptideHit = (PeptideHit) tax;
+			Collection<? extends Hit> hits = this.hierarchyMap.get(HierarchyLevel.PEPTIDE_LEVEL);
+			for (Hit hit : hits) {
+				PeptideHit peptideHit = (PeptideHit) hit;
 				for (SpectrumMatch match : peptideHit.getSpectrumMatches()) {
-					if (match.equals(taxonomic)) {
+					if (match.equals(hit)) {
 						res.addAll(getProteinHits(peptideHit));
 						break;
 					}

@@ -4,31 +4,22 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -64,11 +55,9 @@ import org.jfree.data.general.PieDataset;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.looks.plastic.PlasticButtonUI;
 
 import de.mpa.analysis.KeggAccessor;
 import de.mpa.client.Client;
-import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -179,7 +168,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Label displaying the number of peptides with unique sequences in the result.
 	 */
-	private JLabel uniquePepLbl;
+	private JLabel uniqPepLbl;
 
 	/**
 	 * Label displaying the total count of proteins identified by the search.
@@ -213,12 +202,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Button for fetching search results from a remote database.
 	 */
-	private JButton fetchRemoteBtn;
+	private JButton fetchResultsBtn;
 
 	/**
 	 * Button for fetching search results from a file.
 	 */
-	private JButton fetchLocalBtn;
+	private JButton processResultsBtn;
 
 	/**
 	 * The database search result object
@@ -314,10 +303,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 				"b:p:g"));
 		navPnl.setOpaque(false);
 
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, !Client
-				.getInstance().isViewer()), CC.xy(1, 1));
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, !Client
-				.getInstance().isViewer()), CC.xy(3, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, !Client.isViewer()), CC.xy(1, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, !Client.isViewer()), CC.xy(3, 1));
 
 		// add everything to main panel
 		this.add(navPnl, CC.xy(1, 3));
@@ -358,14 +345,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		// total vs. unique peptides
 		distPepLbl = new JLabel("0");
-		uniquePepLbl = new JLabel("0");
-		JPanel pepBarPnl = new BarChartPanel(distPepLbl, uniquePepLbl);
+		uniqPepLbl = new JLabel("0");
+		JPanel pepBarPnl = new BarChartPanel(distPepLbl, uniqPepLbl);
 
 		generalPnl.add(new JLabel("Distinct Peptides"), CC.xy(2, 4));
 		generalPnl.add(distPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
-		generalPnl.add(uniquePepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("Unique Peptides"), CC.xy(10, 4));
+		generalPnl.add(uniqPepLbl, CC.xy(8, 4));
+		generalPnl.add(new JLabel("unique peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
@@ -393,90 +380,82 @@ public class ResultsPanel extends JPanel implements Busyable {
 		layout.setColumnGroups(new int[][] { { 1, 3 } });
 		JPanel fetchPnl = new JPanel(layout);
 		
-		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
-		settingsBtn.setEnabled(!Client.getInstance().isViewer()); 
-		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
-		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
-		settingsBtn.setPreferredSize(new Dimension(23, 23));
+//		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
+//		settingsBtn.setEnabled(!Client.isViewer()); 
+//		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
+//		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
+//		settingsBtn.setPreferredSize(new Dimension(23, 23));
 		
-		settingsBtn.addActionListener(new ActionListener() {
-
+		fetchResultsBtn = new JButton("Fetch Results", IconConstants.RESULTS_FETCH_ICON);
+		fetchResultsBtn.setRolloverIcon(IconConstants.RESULTS_FETCH_ROLLOVER_ICON);
+		fetchResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);		
+		fetchResultsBtn.setIconTextGap(7);
+		fetchResultsBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				new FetchResultsTask().execute();
+			}
+		});
+//		fetchResultsBtn.setUI(new PlasticButtonUI() {
+//			@Override
+//			protected void paintFocus(Graphics g, AbstractButton b,
+//					Rectangle viewRect, Rectangle textRect, Rectangle iconRect) {
+//				int topLeftInset = 3;
+//		        int width = b.getWidth() - 1 - topLeftInset * 2;
+//		        int height = b.getHeight() - 1 - topLeftInset * 2;
+//				
+//				g.setColor(this.getFocusColor());
+//				g.drawLine(2, 2, 2, 2 + height + 1);
+//				g.drawLine(2, 2 + height + 1, 2 + width - 20, 2 + height + 1);
+//				g.drawLine(2 + width - 20, 2 + height + 1, 2 + width - 20, 2 + height - 20);
+//				g.drawLine(2 + width - 20, 2 + height - 20, 2 + width + 1, 2 + height - 20);
+//				g.drawLine(2 + width + 1, 2 + height - 20, 2 + width + 1, 2);
+//				g.drawLine(2 + width + 1, 2, 2, 2);
+//			}
+//		});
+		
+//		fetchRemoteBtn.setLayout(new FormLayout("0px:g, p", "0px:g, p"));
+//		fetchRemoteBtn.add(settingsBtn, CC.xy(2, 2));
+//		fetchRemoteBtn.setMargin(new Insets(-3, -3, -3, -3));
+		
+		processResultsBtn = new JButton("Process Results", IconConstants.RESULTS_PROCESS_ICON);
+		processResultsBtn.setRolloverIcon(IconConstants.RESULTS_PROCESS_ROLLOVER_ICON);
+		processResultsBtn.setPressedIcon(IconConstants.RESULTS_PROCESS_PRESSED_ICON);
+		processResultsBtn.setIconTextGap(10);
+		
+		processResultsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				int res = AdvancedSettingsDialog.showDialog(
 						ClientFrame.getInstance(),
-						"Result Fetching settings",
+						"Result Processing Settings",
 						true, Client.getInstance().getResultParameters());
 				paramsHaveChanged = (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED);
 			}
 		});
-
-		fetchRemoteBtn = new JButton(
-				"<html><center>Fetch Results<br>from DB</center></html>",
-				IconConstants.GO_DB_ICON) {
-			@Override
-			public void setEnabled(boolean b) {
-				super.setEnabled(b);
-				settingsBtn.setEnabled(b);
-			}
-		};
-		fetchRemoteBtn.setEnabled(!Client.getInstance().isViewer()); 
-		fetchRemoteBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		fetchRemoteBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);		
-		fetchRemoteBtn.setIconTextGap(7);
-		fetchRemoteBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				new FetchResultsTask(null).execute();
-			}
-		});
-		fetchRemoteBtn.setUI(new PlasticButtonUI() {
-			@Override
-			protected void paintFocus(Graphics g, AbstractButton b,
-					Rectangle viewRect, Rectangle textRect, Rectangle iconRect) {
-				int topLeftInset = 3;
-		        int width = b.getWidth() - 1 - topLeftInset * 2;
-		        int height = b.getHeight() - 1 - topLeftInset * 2;
-				
-				g.setColor(this.getFocusColor());
-				g.drawLine(2, 2, 2, 2 + height + 1);
-				g.drawLine(2, 2 + height + 1, 2 + width - 20, 2 + height + 1);
-				g.drawLine(2 + width - 20, 2 + height + 1, 2 + width - 20, 2 + height - 20);
-				g.drawLine(2 + width - 20, 2 + height - 20, 2 + width + 1, 2 + height - 20);
-				g.drawLine(2 + width + 1, 2 + height - 20, 2 + width + 1, 2);
-				g.drawLine(2 + width + 1, 2, 2, 2);
-			}
-		});
 		
-		fetchRemoteBtn.setLayout(new FormLayout("0px:g, p", "0px:g, p"));
-		fetchRemoteBtn.add(settingsBtn, CC.xy(2, 2));
-		fetchRemoteBtn.setMargin(new Insets(-3, -3, -3, -3));
-		
-		fetchLocalBtn = new JButton("<html><center>Fetch Results<br>from File</center></html>", IconConstants.GO_FOLDER_ICON);
-		fetchLocalBtn.setRolloverIcon(IconConstants.GO_FOLDER_ROLLOVER_ICON);
-		fetchLocalBtn.setPressedIcon(IconConstants.GO_FOLDER_PRESSED_ICON);
-		fetchLocalBtn.setIconTextGap(10);
+		processResultsBtn.setEnabled(false);
 
-		fetchLocalBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				JFileChooser chooser = new JFileChooser();
-				ClientFrame clientFrame = ClientFrame.getInstance();
-				chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
-				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
-				chooser.setAcceptAllFileFilterUsed(false);
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				int returnValue = chooser.showOpenDialog(clientFrame);
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					File importFile = chooser.getSelectedFile();
-					clientFrame.setLastSelectedFolder(importFile.getParent());
-					new FetchResultsTask(importFile).execute();
-				}
-			}
-		});
+//		fetchLocalBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent evt) {
+//				JFileChooser chooser = new JFileChooser();
+//				ClientFrame clientFrame = ClientFrame.getInstance();
+//				chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+//				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+//				chooser.setAcceptAllFileFilterUsed(false);
+//				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//				int returnValue = chooser.showOpenDialog(clientFrame);
+//				if (returnValue == JFileChooser.APPROVE_OPTION) {
+//					File importFile = chooser.getSelectedFile();
+//					clientFrame.setLastSelectedFolder(importFile.getParent());
+//					new FetchResultsTask(importFile).execute();
+//				}
+//			}
+//		});
 
-		fetchPnl.add(fetchRemoteBtn, CC.xy(1, 1));
-		fetchPnl.add(fetchLocalBtn, CC.xy(3, 1));
+		fetchPnl.add(fetchResultsBtn, CC.xy(1, 1));
+		fetchPnl.add(processResultsBtn, CC.xy(3, 1));
 
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
 
@@ -951,8 +930,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 		
 		// Set enable state of fetch buttons
 		// TODO: probably unsafe as GraphDB is still in the progress of being created
-		this.fetchRemoteBtn.setEnabled(!busy && !Client.getInstance().isViewer());
-		this.fetchLocalBtn.setEnabled(!busy);
+		this.fetchResultsBtn.setEnabled(!busy);
+		this.processResultsBtn.setEnabled(false);
 
 		// Propagate busy state to chart panel
 		this.chartPane.setBusy(busy);
@@ -1012,22 +991,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * @author A. Behne, R. Heyer
 	 */
 	private class FetchResultsTask extends SwingWorker<Integer, Object> {
-	
-		/**
-		 * The file object reference for when file-based results shall be read.
-		 */
-		private File file;
-	
-		/**
-		 * Constructs a task instance.
-		 * @param file
-		 *	the file instance from which results shall be fetched. If
-		 *	<code>null</code> the results will be fetched from the SQL
-		 *	database.
-		 */
-		public FetchResultsTask(File file) {
-			this.file = file;
-		}
 		
 		@Override
 		protected Integer doInBackground() {
@@ -1037,48 +1000,28 @@ public class ResultsPanel extends JPanel implements Busyable {
 				ResultsPanel.this.setBusy(true);
 				ResultsPanel.this.dbPnl.setBusy(true);
 				ResultsPanel.this.gdbPnl.setBusy(true);
-	
-				ClientFrame clientFrame = ClientFrame.getInstance();
-				DbSearchResult newResult;
 
-				// Fetch the database search result object
-				if (this.file == null) {
-					newResult = client.getDatabaseSearchResult(
-							clientFrame.getProjectPanel().getCurrentProjectContent(), 
-							clientFrame.getProjectPanel().getCurrentExperimentContent());
-				} else {
-					client.firePropertyChange("new message", null, "READING RESULTS FILE");
-					client.firePropertyChange("resetall", 0L, 100L);
-					client.firePropertyChange("indeterminate", false, true);
-					ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
-							new GZIPInputStream(new FileInputStream(file))));
-					newResult = (DbSearchResult) ois.readObject();
-					// Insert project and experimental title from the database search result.
-					clientFrame.getStatusBar().getExperimentTextField().setText(newResult.getExperimentTitle());
-					clientFrame.getStatusBar().getProjectTextField().setText(newResult.getProjectTitle());
-					ois.close();
-					clientFrame.getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
-					client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
-					client.firePropertyChange("indeterminate", true, false);
-				}
-				
-				// Fetching UniProt entries and taxonomic information.
-				ParameterMap resultParams = client.getResultParameters();
-				if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
-					// Create meta-proteins and taxonomies
-					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
-							newResult, resultParams);
-					// Update result object reference
-					ResultsPanel.this.dbSearchResult = newResult;
-					client.setDatabaseSearchResult(newResult);
-				} else {
-					if (paramsHaveChanged) {						
-						// Recreate meta-proteins and taxonomies
-						MetaProteinFactory.redetermineTaxonomyAndRecreateMetaProteins(
+				// Fetch the search result object
+				DbSearchResult newResult = client.getDatabaseSearchResult();
+				if (newResult != null) {
+					// Fetch UniProt entries and taxonomic information
+					ParameterMap resultParams = client.getResultParameters();
+					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
+						// Create meta-proteins and taxonomies
+						MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
 								newResult, resultParams);
-						paramsHaveChanged = false;
+						// Update result object reference
+						ResultsPanel.this.dbSearchResult = newResult;
+						client.setDatabaseSearchResult(newResult);
 					} else {
-						return 0;
+						if (paramsHaveChanged) {						
+							// Recreate meta-proteins and taxonomies
+							MetaProteinFactory.redetermineTaxonomyAndRecreateMetaProteins(
+									newResult, resultParams);
+							paramsHaveChanged = false;
+						} else {
+							return 0;
+						}
 					}
 				}
 				
@@ -1110,7 +1053,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Update overview panel
 				ResultsPanel.this.updateOverview();
 				// Populate tables in database search result panel
-				ResultsPanel.this.dbPnl.refreshProteinViews(this.file);
+				ResultsPanel.this.dbPnl.refreshProteinViews();
 			} else {
 				// Stop appearing busy
 				ResultsPanel.this.setBusy(false);
@@ -1122,7 +1065,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// Enable 'Export' and 'Save Project' functionalities of menu bar
 			ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
 			menuBar.setExportCSVResultsEnabled(true);
-			if (!Client.getInstance().isViewer()) menuBar.setSaveProjectEnabled(true);
+			if (!Client.isViewer()) menuBar.setSaveProjectEnabled(true);
 			menuBar.setExportGraphMLEnabled(true);
 		}
 	
@@ -1134,76 +1077,90 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * 
 	 * @author T. Muth, A. Behne
 	 */
-	private class UpdateOverviewTask extends SwingWorker {
+	private class UpdateOverviewTask extends SwingWorker<Integer, Object> {
 
 		@Override
-		protected Object doInBackground() {
-			try {
-				Set<String> speciesNames = new HashSet<String>();
-				Set<String> ecNumbers = new HashSet<String>();
-				Set<String> kNumbers = new HashSet<String>();
-				Set<Short> pathwayIDs = new HashSet<Short>();
-				for (ProteinHit ph : ResultsPanel.this.dbSearchResult.getProteinHitList()) {
-					speciesNames.add(ph.getSpecies());
-					ReducedUniProtEntry uniprotEntry = ph.getUniProtEntry();
-					if (uniprotEntry != null) {
-						ecNumbers.addAll(uniprotEntry.getEcNumbers());		
-						kNumbers.addAll(uniprotEntry.getKNumbers());
-					}
-					for (String ec : ecNumbers) {
-						List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-						if (pathwaysByEC != null) {
-							pathwayIDs.addAll(pathwaysByEC);
+		protected Integer doInBackground() {
+			if (dbSearchResult != null) {
+				try {
+					Set<String> speciesNames = new HashSet<String>();
+					Set<String> ecNumbers = new HashSet<String>();
+					Set<String> kNumbers = new HashSet<String>();
+					Set<Short> pathwayIDs = new HashSet<Short>();
+					for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+						speciesNames.add(ph.getSpecies());
+						ReducedUniProtEntry uniprotEntry = ph.getUniProtEntry();
+						if (uniprotEntry != null) {
+							ecNumbers.addAll(uniprotEntry.getEcNumbers());		
+							kNumbers.addAll(uniprotEntry.getKNumbers());
+						}
+						for (String ec : ecNumbers) {
+							List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
+							if (pathwaysByEC != null) {
+								pathwayIDs.addAll(pathwaysByEC);
+							}
+						}
+						for (String ko : kNumbers) {
+							List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
+							if (pathwaysByKO != null) {
+								pathwayIDs.addAll(pathwaysByKO);
+							}
 						}
 					}
-					for (String ko : kNumbers) {
-						List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko);
-						if (pathwaysByKO != null) {
-							pathwayIDs.addAll(pathwaysByKO);
-						}
-					}
+
+					// Update statistics labels
+					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
+					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
+					distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
+					uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
+					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+					metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
+					speciesLbl.setText("" + speciesNames.size());
+					enzymesLbl.setText("" + ecNumbers.size());
+					pathwaysLbl.setText("" + pathwayIDs.size());
+
+					// Generate chart data objects
+//					HierarchyLevel hl = (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
+					HierarchyLevel hl = chartPane.getHierarchyLevel();
+					
+					ontologyData.setHierarchyLevel(hl);
+					ontologyData.setResult(dbSearchResult);
+					
+					taxonomyData.setHierarchyLevel(hl);
+					taxonomyData.setResult(dbSearchResult);
+					// Refresh chart panel
+					updateChart(chartType);
+					
+					// Refresh heat map
+					heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
+					
+					return 1;
+				} catch (Exception e) {
+					JXErrorPane.showDialog(ClientFrame.getInstance(),
+							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+		
 				}
-
-				// Update statistics labels
-				totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-				identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-				distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
-				uniquePepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-				totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-				metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
-				speciesLbl.setText("" + speciesNames.size());
-				enzymesLbl.setText("" + ecNumbers.size());
-				pathwaysLbl.setText("" + pathwayIDs.size());
-
-				// Generate chart data objects
-//				HierarchyLevel hl = (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
-				HierarchyLevel hl = chartPane.getHierarchyLevel();
-				
-				ontologyData.setHierarchyLevel(hl);
-				ontologyData.setResult(dbSearchResult);
-				
-				taxonomyData.setHierarchyLevel(hl);
-				taxonomyData.setResult(dbSearchResult);
-				// Refresh chart panel
-				updateChart(chartType);
-				
-				// Refresh heat map
-				heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
-				
-				return 1;
-			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
-	
 			}
 			return 0;
 		}
 
 		@Override
 		protected void done() {
-			// Enable chart panel and heat map
-			chartPane.setEnabled(true);
-			heatMapPn.setEnabled(true);
+			// Get worker result
+			int res = 0;
+			try {
+				res = this.get().intValue();
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+			
+			// If new results have been fetched...
+			if (res == 1) {
+				// Enable chart panel and heat map
+				chartPane.setEnabled(true);
+				heatMapPn.setEnabled(true);
+			}
 
 			// Stop appearing busy
 			ResultsPanel.this.setBusy(false);

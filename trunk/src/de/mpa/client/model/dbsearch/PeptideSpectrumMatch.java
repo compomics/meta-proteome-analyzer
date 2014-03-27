@@ -55,7 +55,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	public SearchHit getSingleSearchHit() {
 		if (searchHits.size() > 1) {
-			if (Client.getInstance().isDebug()) {
+			if (Client.isDebug()) {
 				System.err.println("PSM " + this + " already contains multiple search hits.");
 			}
 		}
@@ -92,7 +92,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 		if (!searchHits.containsValue(hit)) {
 			this.searchHits.put(hit.getType(), hit);
 		} else {
-			if (Client.getInstance().isDebug()) {
+			if (Client.isDebug()) {
 				System.err.println("Search hit " + hit + " already contained in PSM " + this);
 			}
 		}

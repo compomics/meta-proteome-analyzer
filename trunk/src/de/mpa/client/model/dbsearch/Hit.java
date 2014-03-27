@@ -8,9 +8,23 @@ import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 
 /**
- * Interface for a certain entry of a spectrum, peptide, protein and metaprotein.
+ * Interface for entries of spectrum, peptide, protein and metaprotein hits.
  */
 public interface Hit {
+	
+	/**
+	 * Returns whether this hit is selected for exporting. 
+	 * @return <code>true</code> if hit is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isSelected();
+	
+	/**
+	 * Sets whether this hit is selected for exporting. 
+	 * @param selected <code>true</code> if hit is selected for export, 
+	 * <code>false</code> otherwise.
+	 */
+	public void setSelected(boolean selected);
 	
 	/**
 	 * This gets the property of the entry, supporting taxonomy, hierachies (protein, peptide..) and ontologies

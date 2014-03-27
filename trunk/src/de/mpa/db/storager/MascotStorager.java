@@ -133,7 +133,7 @@ public class MascotStorager extends BasicStorager {
 		double scoreThreshold = this.getScoreThreshold(mascotParams, queryList);
 		
 		// Get experiment id.
-		long experimentId = ClientFrame.getInstance().getProjectPanel().getCurrentExperimentId();
+		long experimentId = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID();
 
 		// MGF list of all spectra from a certain experiment.
 		List<MascotGenericFile> dbSpectra = new SpectrumExtractor(conn).getSpectraByExperimentID(

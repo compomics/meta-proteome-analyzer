@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
@@ -28,18 +26,10 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
-import de.mpa.analysis.taxonomy.TaxonomyNode;
-import de.mpa.analysis.taxonomy.TaxonomyUtils;
-import de.mpa.client.model.ExperimentContent;
-import de.mpa.client.model.ProjectContent;
+import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.PeptideHit;
-import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
-import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.ParameterMap;
@@ -53,14 +43,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.SpecSearchHit;
-import de.mpa.db.accessor.Taxonomy;
-import de.mpa.db.accessor.Uniprotentry;
-import de.mpa.db.extractor.SearchHitExtractor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
@@ -73,7 +56,7 @@ public class Client {
 	/**
 	 * Client instance.
 	 */
-	private static Client client = null;
+	private static Client instance = null;
 
 	/**
 	 * Server implementation service.
@@ -123,79 +106,69 @@ public class Client {
 	/**
 	 * Flag denoting whether client is in viewer mode.
 	 */
-	private boolean viewer = false;
+	private boolean viewer;
 	
 	/**
 	 * Flag for debugging options.
 	 */
-	private boolean debug = false;
+	private boolean debug;
 	
 	/**
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
-	
-	/**
-	 * Taxonomy map containing all entries from taxonomy db table.
-	 */
-	private Map<Long, Taxonomy> taxonomyMap;
-	
-	/**
-	 * Unclassified taxonomy node. Object should be created only once.
-	 */
-	private TaxonomyNode unclassifiedNode;
 
 	/**
-	 * The constructor for the client (private for singleton object).
+	 * Creates the singleton client instance in non-viewer, non-debug mode.
 	 */
 	private Client() {
-		pSupport = new PropertyChangeSupport(this);
-	}
-
-	/**
-	 * Returns a client singleton object.
-	 * 
-	 * @return client Client singleton object
-	 */
-	public static Client getInstance() {
-		if (client == null) {
-			client = new Client();
-		}
-
-		return client;
-	}
-
-	/**
-	 * Initializes the SQL database connection.
-	 * @throws SQLException 
-	 */
-	public void initDBConnection() throws SQLException {
-		// Connection conn
-		if (conn == null || !conn.isValid(0)) {
-			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.REMOTE, getDatabaseConnectionSettings());
-			this.conn = dbconfig.getConnection();
-			retrieveTaxonomyMapping();
-		}
+		this(false, false);
 	}
 	
 	/**
-	 * Retrieves the taxonomy mapping via a background thread.
+	 * Creates the singleton client instance using the specified viewer and debug mode flags.
+	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
+	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private void retrieveTaxonomyMapping() {
-		if (taxonomyMap == null) {
-			final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
-			backgroundExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						taxonomyMap = Taxonomy.retrieveTaxonomyMap(conn);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			backgroundExecutor.shutdown();
+	private Client(boolean viewer, boolean debug) {
+		this.viewer = viewer;
+		this.debug = debug;
+		this.pSupport = new PropertyChangeSupport(this);
+	}
+	
+	/**
+	 * Returns the client singleton instance.
+	 * @return the client singleton instance
+	 */
+	public static Client getInstance() {
+		return instance;
+	}
+	
+	/**
+	 * Returns the client singleton instance using the specified viewer and debug mode flags.
+	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
+	 * @param debug <code>true</code> if the application is to be launched in debug mode
+	 */
+	public static void init(boolean viewer, boolean debug) {
+		if (instance == null) {
+			instance = new Client(viewer, debug);
 		}
+	}
+
+	/**
+	 * Returns the connection to the remote SQL database.
+	 * @return the database connection
+	 * @throws SQLException if a connection error occurs
+	 */
+	public Connection getConnection() throws SQLException {
+		// check whether connection is valid
+		if (conn == null || !conn.isValid(0)) {
+			// connect to database
+			DBConfiguration dbconfig = new DBConfiguration(
+					"metaprot", ConnectionType.REMOTE, getDatabaseConnectionSettings());
+			this.conn = dbconfig.getConnection();
+		}
+		return conn;
 	}
 
 	/**
@@ -339,9 +312,9 @@ public class Client {
 	 * @param expContent The experiment content.
 	 * @return The current spectral similarity search result.
 	 */
-	public SpecSimResult getSpecSimResult(ExperimentContent expContent) {
+	public SpecSimResult getSpecSimResult(AbstractExperiment expContent) {
 		if (specSimResult == null) {
-			retrieveSpecSimResult(expContent.getExperimentID());
+			retrieveSpecSimResult(expContent.getID());
 		}
 		return specSimResult;
 	}
@@ -352,7 +325,7 @@ public class Client {
 	 */
 	private void retrieveSpecSimResult(Long experimentID) {
 		try {
-			initDBConnection();
+			getConnection();
 			specSimResult = SpecSearchHit.getAnnotations(experimentID, conn, pSupport);
 		} catch (Exception e) {
 			pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED");
@@ -386,137 +359,7 @@ public class Client {
 		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
 		graphDatabaseHandler.setData(dbSearchResult);
 	}
-
-	/**
-	 * Returns the current database search result.
-	 * @param projContent The project content.
-	 * @param expContent The experiment content.
-	 * @return The current database search result.
-	 */
-	public DbSearchResult getDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		if (dbSearchResult == null) {
-			dbSearchResult = this.retrieveDatabaseSearchResult(projContent, expContent);
-		}
-		return dbSearchResult;
-	}
-
-	/**
-	 * Returns the result(s) from the database search for a particular experiment.
-	 * @param ProjectContent, ExperimentConten
-	 * @return DbSearchResult
-	 */
-	private DbSearchResult retrieveDatabaseSearchResult(ProjectContent projContent, ExperimentContent expContent) {
-		return this.retrieveDatabaseSearchResult(
-				projContent.getProjectTitle(), expContent.getExperimentTitle(), expContent.getExperimentID());
-	}
-
-	/**
-	 * Returns the result(s) from the database search for a particular experiment.
-	 * @param experimentName 
-	 * @param projectname 
-	 * @param ProjectID, ExperimentID
-	 * @return DbSearchResult
-	 */
-	public DbSearchResult retrieveDatabaseSearchResult(String projectName, String experimentName, long experimentID) {
-		// Init the database connection.
-		try {
-			this.initDBConnection();
-
-			// The protein hit set, containing all information about found proteins.
-			// TODO: use fastaDB parameter properly
-			DbSearchResult dbSearchResult = new DbSearchResult(projectName, experimentName, "TODO");
-
-			// Set up progress monitoring
-			this.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
-			this.firePropertyChange("resetall", 0L, 100L);
-			this.firePropertyChange("indeterminate", false, true);
-
-			// Query database search hits and them to result object
-			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
-
-			long maxProgress = searchHits.size();
-			long curProgress = 0;
-			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
-			firePropertyChange("indeterminate", true, false);
-			firePropertyChange("resetall", 0L, maxProgress);
-			firePropertyChange("resetcur", 0L, maxProgress);
-			for (SearchHit searchHit : searchHits) {
-				this.addProteinSearchHit(dbSearchResult, searchHit, experimentID);
-
-				firePropertyChange("progress", 0L, ++curProgress);
-			}
-			
-			int totalSpectrumCount = Searchspectrum.getSpectralCountFromExperimentID(experimentID, conn);
-			dbSearchResult.setTotalSpectrumCount(totalSpectrumCount);
-
-			firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
-
-			return dbSearchResult;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
-	 * Resets the current database search result reference.
-	 */
-	public void clearDatabaseSearchResult() {
-		dbSearchResult = null;
-	}
-
-	/**
-	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
-	 * @param result the database search result
-	 * @param hit the search hit implementation
-	 * @param experimentID the experiment ID
-	 */
-	private void addProteinSearchHit(DbSearchResult result, SearchHit hit, long experimentID) throws Exception {
-
-		// Create the PeptideSpectrumMatch
-		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
-
-		// Get the peptide hit.
-		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
-		PeptideHit peptideHit = new PeptideHit(peptide.getSequence(), psm);
-
-		// Get the protein accessor.
-		long proteinID = hit.getFk_proteinid();
-		ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
-		
-		// Get the UniProt entry meta-information.
-		Uniprotentry uniprotEntryAccessor = Uniprotentry.findFromProteinID(proteinID, conn);
-		ReducedUniProtEntry uniprotEntry = null;
-		TaxonomyNode taxonomyNode = null;
-		if (uniprotEntryAccessor != null) {
-			long taxID = uniprotEntryAccessor.getTaxid();
-			uniprotEntry = new ReducedUniProtEntry(taxID,
-					uniprotEntryAccessor.getKeywords(),
-					uniprotEntryAccessor.getEcnumber(),
-					uniprotEntryAccessor.getKonumber(),
-					uniprotEntryAccessor.getUniref100(),
-					uniprotEntryAccessor.getUniref90(),
-					uniprotEntryAccessor.getUniref50());
-			
-			// Get taxonomy node.
-			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap);
-		} else {
-			if (unclassifiedNode == null) {
-				TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
-				unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
-			}
-			taxonomyNode = unclassifiedNode;
-			uniprotEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);
-		}
-		
-		// Add a new protein to the protein hit set.
-		result.addProtein(new ProteinHit(
-				protein.getAccession(), protein.getDescription(), protein.getSequence(),
-				peptideHit, uniprotEntry, taxonomyNode, experimentID));
-	}
-
+	
 	/**
 	 * Queries the database to retrieve a list of all possible candidates for 
 	 * spectral comparison belonging to a specified experiment ID.
@@ -527,7 +370,7 @@ public class Client {
 	 */
 	@Deprecated
 	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
-		initDBConnection();
+		getConnection();
 		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
 	}
 
@@ -539,7 +382,7 @@ public class Client {
 	 * @throws SQLException
 	 */
 	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
-		initDBConnection();
+		getConnection();
 		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
 	}
 
@@ -550,7 +393,7 @@ public class Client {
 	 * @throws SQLException
 	 */
 	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
-		initDBConnection();
+		getConnection();
 		return new SpectrumExtractor(conn).getSpectrumBySearchSpectrumID(searchspectrumID);
 	}
 
@@ -561,7 +404,7 @@ public class Client {
 	 * @throws SQLException
 	 */
 	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
-		initDBConnection();
+		getConnection();
 		return new SpectrumExtractor(conn).getSpectrumBySpectrumID(spectrumID);
 	}
 
@@ -572,16 +415,17 @@ public class Client {
 	 * @throws SQLException
 	 */
 	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
-		initDBConnection();
+		getConnection();
 		return new SpectrumExtractor(conn).getSpectrumByLibSpectrumID(libspectrumID);
 	}
 
 	/**
 	 * Convenience method to read a spectrum from the MGF file in the specified
-	 * path at the specified byte position.
+	 * path between the specified start and end byte positions.
 	 * @param pathname The pathname string pointing to the desired file.
-	 * @param indexPos The byte position of the spectrum in the desired file.
-	 * @return the desired spectrum
+	 * @param startPos The start byte position of the spectrum in the desired file.
+	 * @param endPos The end byte position of the spectrum in the desired file.
+	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
 	 */
 	public MascotGenericFile readSpectrumFromFile(String pathname, long startPos, long endPos) {
 		MascotGenericFile mgf = null;
@@ -765,33 +609,14 @@ public class Client {
 	}
 
 	/**
-	 * Shuts down the JVM.
-	 */
-	public void exit() {
-	
-		// Shutdown the graph database
-		if (graphDatabaseHandler != null) {
-			graphDatabaseHandler.shutDown();
-		}
-	
-		try {
-			// Close SQL DB connection
-			closeDBConnection();
-		} catch (SQLException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
-		System.exit(0);
-	}
-
-	/**
 	 * Returns the current connection to the database.
 	 * @return
 	 * @throws SQLException 
 	 */
 	public Connection getDatabaseConnection() throws SQLException {
-		if (conn == null)
-			initDBConnection();
+		if ((conn == null) && !isViewer()) {
+			this.getConnection();
+		}
 		return conn;
 	}
 
@@ -848,10 +673,22 @@ public class Client {
 
 	/**
 	 * Returns the current database search result.
+	 * @param experiment The experiment content.
+	 * @return The current database search result.
+	 */
+	public DbSearchResult getDatabaseSearchResult(AbstractExperiment experiment) {
+		if (dbSearchResult == null) {
+			dbSearchResult = experiment.getSearchResult();
+		}
+		return dbSearchResult;
+	}
+
+	/**
+	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
 	 */
 	public DbSearchResult getDatabaseSearchResult() {
-		return dbSearchResult;
+		return this.getDatabaseSearchResult(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment());
 	}
 
 	/**
@@ -863,43 +700,38 @@ public class Client {
 	}
 	
 	/**
-	 * Returns the NCBI taxonomy ID-to-
-	 * @return the taxonomyMap
-	 */
-	public Map<Long, Taxonomy> getTaxonomyMap() {
-		return taxonomyMap;
-	}
-
-	/**
 	 * Returns whether the client is in viewer mode.
 	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
 	 */
-	public boolean isViewer() {
-		return this.viewer;
-	}
-	
-	/**
-	 * Sets the client's viewer mode property.
-	 * @param viewer <code>true</code> if in viewer mode, <code>false</code> otherwise.
-	 */
-	public void setViewer(boolean viewer) {
-		this.viewer = viewer;
+	public static boolean isViewer() {
+		return instance.viewer;
 	}
 	
 	/**
 	 * Returns whether the client is in debug mode
 	 * @return <code>true</code> if in debug mode, <code>false</code> otherwise.
 	 */
-	public boolean isDebug() {
-		return this.debug;
+	public static boolean isDebug() {
+		return instance.debug;
 	}
 
 	/**
-	 * Sets the client's debug mode property.
-	 * @param debug <code>true</code> if in debug mode, <code>false</code> otherwise.
+	 * Shuts down the JVM.
 	 */
-	public void setDebug(boolean debug) {
-		this.debug = debug;
+	public static void exit() {
+		// Shutdown the graph database
+		if (instance.graphDatabaseHandler != null) {
+			instance.graphDatabaseHandler.shutDown();
+		}
+	
+		try {
+			// Close SQL DB connection
+			instance.closeDBConnection();
+		} catch (SQLException e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
+		System.exit(0);
 	}
 
 }

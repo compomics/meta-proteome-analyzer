@@ -26,7 +26,7 @@ public class SplashScreen extends JFrame implements Runnable {
 	 * Creates the splash screen.
 	 */
 	public SplashScreen() {
-		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
+		super(Constants.APPTITLE + " " + Constants.VER_NUMBER + " ");
 		this.setIconImage(Toolkit.getDefaultToolkit().getImage(
 				this.getClass().getResource("/de/mpa/resources/icons/mpa01.png")));
 	}
