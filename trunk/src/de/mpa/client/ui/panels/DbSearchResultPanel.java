@@ -1840,7 +1840,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							}
 						});
 						
-						treeTbl.expandAll();
+//						treeTbl.expandAll();
 					}
 				}
 				Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
