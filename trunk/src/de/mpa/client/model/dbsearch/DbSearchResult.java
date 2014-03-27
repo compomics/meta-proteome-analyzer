@@ -310,6 +310,21 @@ public class DbSearchResult implements Serializable {
 	}
 	
 	/**
+	 * Returns the number of unique peptides.
+	 * @return the number of unique peptides
+	 */
+	public int getUniquePeptideCount() {
+		int uniquePeptides = 0;
+		Set<PeptideHit> peptideSet = this.getMetaProteins().getPeptideSet();
+		for (PeptideHit peptideHit : peptideSet) {
+			if (peptideHit.getProteinCount() == 1) {
+				uniquePeptides++;
+			}
+		}
+		return uniquePeptides;
+	}
+	
+	/**
 	 * Sets the FDR threshold for the visible metaproteins.
 	 * @param fdr the FDR threshold.
 	 */
