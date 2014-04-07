@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="${user.home}/mpa-server-0.8.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="de.mpa.webservice.WSPublisher"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="/scratch/workspace2/MetaProteomeAnalyzer/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/junit-4.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/commons-codec-1.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/jcommon-1.0.16.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/mysql-connector-java-5.1.20-bin.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/aopalliance.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/commons-httpclient.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/commons-logging.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/spring.aop.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/spring.beans.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/spring.context.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/spring.core.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/spring.web.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/uniprotjapi.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/log4j-1.2.17.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/swing-layout-1.0.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/keggapi.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/jaxrpc.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/axis.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/commons-discovery-0.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/wsdl4j-1.5.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/trove-3.0.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/mascotdatfile-3.4.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xstream-1.4.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/omssa-parser-1.6.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/utilities-3.17.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/xpp3-1.1.4c.jar"/>
+        </jar>
+    </target>
+</project>
