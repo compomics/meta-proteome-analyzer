@@ -44,12 +44,12 @@ public class Constants {
 	/**
 	 * The application title.
 	 */
-	public final static String APPTITLE = "MetaProteomeAnalyzer";
+	public final static String APPTITLE = "MetaProteomeAnalyzer Portable";
 
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.9.3";
+	public final static String VER_NUMBER = "0.1";
 	
 	/**
 	 * The client frame minimum width in pixels.
