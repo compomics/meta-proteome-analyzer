@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="lib/junit-4.9.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-forms-1.5.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/MetaProteomeAnalyzer/javadoc/forms-javadoc.zip!/api"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jgoodies-common-1.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar" sourcepath="/scratch/javadoc/swingx-all-1.6.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar" sourcepath="/scratch/javadoc/jcommon-1.0.21.zip"/>
+	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar" sourcepath="javadoc/balloontip-src.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/spring.aop.jar"/>
+	<classpathentry kind="lib" path="lib/spring.beans.jar"/>
+	<classpathentry kind="lib" path="lib/spring.context.jar"/>
+	<classpathentry kind="lib" path="lib/spring.core.jar"/>
+	<classpathentry kind="lib" path="lib/spring.web.jar"/>
+	<classpathentry kind="lib" path="lib/uniprotjapi.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-lang/javadocs/api-2.6/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/swing-layout-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/keggapi.jar"/>
+	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
+	<classpathentry kind="lib" path="lib/axis.jar"/>
+	<classpathentry kind="lib" path="lib/commons-discovery-0.2.jar"/>
+	<classpathentry kind="lib" path="lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="/scratch/javadoc/jfreechart-1.0.14.zip"/>
+	<classpathentry kind="lib" path="lib/jaligner.jar"/>
+	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/blueprints-core-2.2.0.jar" sourcepath="C:/temp/src-jars/blueprints-core-2.2.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.tinkerpop.com/docs/javadocs/blueprints/2.2.0/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/blueprints-neo4j-graph-2.2.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.tinkerpop.com/docs/javadocs/blueprints/2.2.0/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/frames-2.2.0.jar" sourcepath="C:/temp/src-jars/frames-2.2.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-3.5.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://lucene.apache.org/core/3_5_0/api/all/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-cypher-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-graph-algo-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-graph-matching-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-jmx-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-kernel-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-lucene-index-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-shell-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/neo4j-udc-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://api.neo4j.org/1.8.2/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/scala-library-2.9.1-1.jar"/>
+	<classpathentry kind="lib" path="lib/server-api-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar" sourcepath="/scratch/javadoc/jgoodies-looks-2.5.3-sources"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/ColorPicker.jar"/>
+	<classpathentry kind="lib" path="lib/omssa-parser-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/utilities-3.17.7.jar"/>
+	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
