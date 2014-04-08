@@ -18,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 import java.text.Format;
@@ -38,8 +39,10 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -64,6 +67,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
@@ -92,6 +96,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -657,6 +662,28 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					g.drawString(emptyStr, (this.getWidth() - emptyStrW) / 2, this.getVisibleRect().height / 2);
 				}
 			}
+			
+			@Override
+			public String getToolTipText(MouseEvent me) {
+				JXTreeTable table = (JXTreeTable) me.getSource();
+				int col = table.columnAtPoint(me.getPoint());
+				if (col != -1) {
+					int row = table.rowAtPoint(me.getPoint());
+					if (row != -1) {
+						TreePath pathForRow = table.getPathForRow(row);
+						if (pathForRow != null) {
+							PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
+							if (node != null) {
+								Object value = node.getValueAt(table.convertColumnIndexToModel(col));
+								if (value != null) {
+									return value.toString();
+								}
+							}
+						}
+					}
+				}
+				return null;
+			}
 		};
 		
 		// Install component header
@@ -907,6 +934,28 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					g.drawString(emptyStr, (this.getWidth() - emptyStrW) / 2, this.getVisibleRect().height / 2);
 				}
 			}
+			
+			@Override
+			public String getToolTipText(MouseEvent me) {
+				JXTreeTable table = (JXTreeTable) me.getSource();
+				int col = table.columnAtPoint(me.getPoint());
+				if (col != -1) {
+					int row = table.rowAtPoint(me.getPoint());
+					if (row != -1) {
+						TreePath pathForRow = table.getPathForRow(row);
+						if (pathForRow != null) {
+							PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
+							if (node != null) {
+								Object value = node.getValueAt(table.convertColumnIndexToModel(col));
+								if (value != null) {
+									return value.toString();
+								}
+							}
+						}
+					}
+				}
+				return null;
+			}
 		};
 		
 		// Install component header
@@ -1155,7 +1204,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		// Create right-hand button panel
 		JPanel protRightBtnPnl = new JPanel(new FormLayout(
-				"p:g, 8dlu, 36px, 1px", "20px"));
+				"p:g, 4dlu, 22px, 1dlu, 36px, 1px", "20px"));
 		protRightBtnPnl.setOpaque(false);
 		
 		// Create 'Hide Unselected" checkbox
@@ -1179,6 +1228,56 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			}
 		});
+		
+		JButton exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
+		exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
+		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
+		exportBtn.setToolTipText("Export Table Contents");
+		exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(exportBtn));
+		
+		exportBtn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				// Determine currently visible tree table
+				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+					CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+					if (treeTbl.getParent().getParent().isVisible()) {
+						JFileChooser chooser = new JFileChooser();
+						chooser.setDialogTitle("Select Export Destination");
+						chooser.setFileFilter(Constants.TSV_FILE_FILTER);
+						chooser.setAcceptAllFileFilterUsed(false);
+						chooser.setMultiSelectionEnabled(false);
+						int res = chooser.showSaveDialog(ClientFrame.getInstance());
+						if (res == JFileChooser.APPROVE_OPTION) {
+							try {
+								// hide web resources column, we don't want to 'export' that
+								int wrColInd = treeTbl.convertColumnIndexToView(ProteinTreeTables.WEB_RESOURCES_COLUMN);
+								boolean wrVisible = (wrColInd != -1);
+								if (wrVisible) {
+									treeTbl.getColumnExt(wrColInd).setVisible(false);
+								}
+								// dump table contents to selected file
+								TableConfig.dumpTableToCSV(treeTbl, chooser.getSelectedFile());
+								// unhide web resources column if it was visible before dumping
+								if (wrVisible) {
+									treeTbl.getColumnExt(wrColInd).setVisible(true);
+								}
+								// show success message
+								JOptionPane.showMessageDialog(
+										ClientFrame.getInstance(), "Successfully dumped table data to file.",
+										"Export Success", JOptionPane.INFORMATION_MESSAGE);
+							} catch (IOException e) {
+								// show error message
+								JXErrorPane.showDialog(ClientFrame.getInstance(),
+										new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(),
+												"I/O Error", e, ErrorLevel.SEVERE, null));
+							}
+						}
+						break;
+					}
+				}
+			}
+		});
 
 		// Create button for showing table the type selection popup menu
 		final JToggleButton tableTypeBtn = new JToggleButton(
@@ -1194,9 +1293,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final JPopupMenu tableTypePop = new JPopupMenu();
 		ActionListener hierarchyListener = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				// Determine tree table to be made visible
-				String label = ((AbstractButton) e.getSource()).getText();
+				String label = ((AbstractButton) evt.getSource()).getText();
 				ProteinTreeTables ptt = ProteinTreeTables.valueOfLabel(label);
 				
 				// Determine currently visible tree table
@@ -1253,7 +1352,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		});
 
 		protRightBtnPnl.add(hideUnselChk, CC.xy(1, 1));
-		protRightBtnPnl.add(tableTypeBtn, CC.xy(3, 1));
+		protRightBtnPnl.add(exportBtn, CC.xy(3, 1));
+		protRightBtnPnl.add(tableTypeBtn, CC.xy(5, 1));
 
 		// Create titled panel around protein table
 		return PanelConfig.createTitledPanel(
@@ -1638,7 +1738,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			} else {
 				// Read spectrum from MGF file accompanying imported result object, if possible
 				FileExperiment experiment = 
-						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
 				mgf = Client.getInstance().readSpectrumFromFile(
 						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
 			}

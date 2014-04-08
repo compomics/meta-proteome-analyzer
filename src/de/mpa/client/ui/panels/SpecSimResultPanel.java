@@ -597,7 +597,7 @@ public class SpecSimResultPanel extends JPanel {
 		final JToggleButton normBtn = new JToggleButton(IconConstants.SIZE_VERT_ICON);
 		normBtn.setRolloverIcon(IconConstants.SIZE_VERT_ROLLOVER_ICON);
 		normBtn.setPressedIcon(IconConstants.SIZE_VERT_PRESSED_ICON);
-		normBtn.setSelectedIcon(IconConstants.createRescaledIcon(IconConstants.SIZE_VERT_ICON, 0.9f));
+		normBtn.setSelectedIcon(IconConstants.createColorRescaledIcon(IconConstants.SIZE_VERT_ICON, 0.9f));
 		normBtn.setRolloverSelectedIcon(IconConstants.SIZE_VERT_ICON);
 		normBtn.setMargin(new Insets(3, 4, 1, 4));
 		normBtn.setToolTipText("Fit to height");
@@ -868,7 +868,7 @@ public class SpecSimResultPanel extends JPanel {
 	protected void refreshProteinTable() {
 		
 		specSimResult = Client.getInstance().getSpecSimResult(
-				ClientFrame.getInstance().getProjectPanel().getSelectedExperiment());
+				ClientFrame.getInstance().getProjectPanel().getCurrentExperiment());
 
 		if (specSimResult != null && !specSimResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);

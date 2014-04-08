@@ -93,7 +93,7 @@ public class AdvancedSettingsDialog extends JDialog {
 	private AdvancedSettingsDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
 		super(owner, title, modal);
 		this.parameterMap = parameterMap;
-		initComponents();
+		this.initComponents();
 		
 		// Configure size and position
 		this.pack();
@@ -187,7 +187,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				
 				// Iterate parameters to build section components
 				for (Parameter p : entry.getValue()) {
-					JComponent comp = createParameterControl(p);
+					JComponent comp = this.createParameterControl(p);
 					if (comp instanceof JCheckBox) {
 						// Special case for checkboxes which come with labels of their own
 						builder.append(comp, 3);
@@ -206,12 +206,18 @@ public class AdvancedSettingsDialog extends JDialog {
 						builder.append(comp, 3);
 					} else {
 						// Add component, generate label to go with it
-						JLabel label = new JLabel(p.getName());
-						if (comp instanceof JScrollPane) {
-							label.setVerticalAlignment(SwingConstants.TOP);
+						String name = p.getName();
+						if ((name != null) && !name.isEmpty()) {
+							// parameters with non-null and non-empty names get a label
+							JLabel label = new JLabel(name);
+							if (comp instanceof JScrollPane) {
+								label.setVerticalAlignment(SwingConstants.TOP);
+							}
+							label.setToolTipText(p.getDescription());
+							builder.append(label, comp);
+						} else {
+							builder.append(comp, 3);
 						}
-						label.setToolTipText(p.getDescription());
-						builder.append(label, comp);
 					}
 					builder.nextLine();
 				}
@@ -231,7 +237,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		restoreBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		restoreBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent ae) {
+			public void actionPerformed(ActionEvent evt) {
 				restoreDefaults();
 			}
 		});
@@ -515,9 +521,9 @@ public class AdvancedSettingsDialog extends JDialog {
 				builder.nextLine();
 			}
 			comp = builder.getPanel();
-		} else if (value instanceof ComboBoxModel) {
+		} else if (value instanceof ComboBoxModel<?>) {
 			// Combobox
-			JComboBox comboBox = new JComboBox((ComboBoxModel) value);
+			JComboBox<Object> comboBox = new JComboBox<>((ComboBoxModel<Object>) value);
 			comboBox.putClientProperty("initialValue", comboBox.getSelectedItem());
 			comboBox.setToolTipText(param.getDescription());
 			comp = comboBox;

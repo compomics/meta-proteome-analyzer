@@ -31,7 +31,6 @@ import de.mpa.main.Starter;
  * Class to access the EBI UniProt WebService.
  * @author T.Muth, A. Behne, R. Heyer
  * @date 19-12-2013
- *
  */
 public class UniProtUtilities {
 	
@@ -48,32 +47,143 @@ public class UniProtUtilities {
 	 */
 	private static EntryRetrievalService entryRetrievalService;
 
-
 	/**
 	 * Enumeration holding ontology keywords.
 	 */
-	public enum KeywordOntology {
-		BIOLOGICAL_PROCESS("Biological Process"),
-		CELLULAR_COMPONENT("Cellular Component"),
-		CODING_SEQUNCE_DIVERSITY("Coding sequence diversity"),
-		DEVELOPMENTAL_STAGE("Developmental stage"),
-		DISEASE("Disease"),
-		DOMAIN("Domain"),
-		LIGAND("Ligand"),
-		MOLECULAR_FUNCTION("Molecular Function"),
-		PTM("PTM"),
-		TECHNICAL_TERM("Technical term");
-
-		private String val;
+	public enum KeywordCategory {
+		BIOLOGICAL_PROCESS(new Keyword("Biological Process", null, null)),
+		CELLULAR_COMPONENT(new Keyword("Cellular Component", null, null)),
+		CODING_SEQUNCE_DIVERSITY(new Keyword("Coding sequence diversity", null, null)),
+		DEVELOPMENTAL_STAGE(new Keyword("Developmental stage", null, null)),
+		DISEASE(new Keyword("Disease", null, null)),
+		DOMAIN(new Keyword("Domain", null, null)),
+		LIGAND(new Keyword("Ligand", null, null)),
+		MOLECULAR_FUNCTION(new Keyword("Molecular Function", null, null)),
+		PTM(new Keyword("PTM", null, null)),
+		TECHNICAL_TERM(new Keyword("Technical term", null, null));
 		
-		private KeywordOntology(String value) {
-			this.val = value;
+		/**
+		 * The ontology keyword backing this category.
+		 */
+		private Keyword keyword;
+		
+		/**
+		 * Creates a keyword category from the specified keyword.
+		 * @param keyword the keyword wrapping the category data
+		 */
+		private KeywordCategory(Keyword keyword) {
+			this.keyword = keyword;
+		}
+		
+		/**
+		 * Returns the keyword backing the category entry.
+		 * @return the keyword
+		 */
+		public Keyword getKeyword() {
+			return keyword;
 		}
 		
 		@Override
 		public String toString() {
-			return val;
+			return keyword.getName();
 		}
+
+		/**
+		 * Returns the category entry pertaining to the specified keyword.
+		 * @param keyword the keyword
+		 * @return the category wrapping the keyword or <code>null</code> if no such category exists
+		 */
+		public static KeywordCategory valueOf(Keyword keyword) {
+			for (KeywordCategory category : KeywordCategory.values()) {
+				if (category.keyword.equals(keyword)) {
+					return category;
+				}
+			}
+			return null;
+		}
+	}
+	
+	/**
+	 * Helper class for wrapping UniProt keyword-based ontology entries.
+	 * @author A. Behne
+	 */
+	public static class Keyword {
+		
+		/**
+		 * The name.
+		 */
+		private String name;
+		
+		/**
+		 * The description.
+		 */
+		private String description;
+		
+		/**
+		 * The parent keyword category.
+		 */
+		private Keyword category;
+
+		/**
+		 * Creates a keyword entry from the specified name, description and
+		 * parent category.
+		 * @param name the name
+		 * @param description the description
+		 * @param category the parent category
+		 */
+		private Keyword(String name, String description,
+				Keyword category) {
+			this.name = name;
+			this.description = description;
+			this.category = category;
+		}
+
+		/**
+		 * Returns the name.
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * Returns the description.
+		 * @return the description
+		 */
+		public String getDescription() {
+			return description;
+		}
+		
+		/**
+		 * Sets the description.
+		 * @param description the description to set
+		 */
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		/**
+		 * Returns the category.
+		 * @return the category
+		 */
+		public Keyword getCategory() {
+			return category;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Keyword) {
+				Keyword that = (Keyword) obj;
+				return this.getName().equals(that.getName());
+			}
+			return false;
+		}
+		
 	}
 
 	/**
@@ -199,29 +309,29 @@ public class UniProtUtilities {
 	/**
 	 * The UniProt keyword ontology map.
 	 */
-	public static final Map<String, KeywordOntology> ONTOLOGY_MAP = createOntologyMap();
+	public static final Map<String, Keyword> ONTOLOGY_MAP = createOntologyMap();
 
 	/**
 	 * Parses a text file containing keyword data and stores it into a map.<br>
 	 * @see <a href="http://www.uniprot.org/keywords/?format=obo">http://www.uniprot.org/keywords/?format=obo</a>
 	 * @return the ontology map
 	 */
-	public static Map<String, KeywordOntology> createOntologyMap() {
+	public static Map<String, Keyword> createOntologyMap() {
 		// Initialize category keywords, link them to KeyWordOntology enums
-		Map<String, KeywordOntology> categoryMap = new HashMap<String, UniProtUtilities.KeywordOntology>();
-		categoryMap.put("KW-9990", KeywordOntology.TECHNICAL_TERM);
-		categoryMap.put("KW-9991", KeywordOntology.PTM);
-		categoryMap.put("KW-9992", KeywordOntology.MOLECULAR_FUNCTION);
-		categoryMap.put("KW-9993", KeywordOntology.LIGAND);
-		categoryMap.put("KW-9994", KeywordOntology.DOMAIN);
-		categoryMap.put("KW-9995", KeywordOntology.DISEASE);
-		categoryMap.put("KW-9996", KeywordOntology.DEVELOPMENTAL_STAGE);
-		categoryMap.put("KW-9997", KeywordOntology.CODING_SEQUNCE_DIVERSITY);
-		categoryMap.put("KW-9998", KeywordOntology.CELLULAR_COMPONENT);
-		categoryMap.put("KW-9999", KeywordOntology.BIOLOGICAL_PROCESS);
+		Map<String, KeywordCategory> categoryMap = new HashMap<String, KeywordCategory>();
+		categoryMap.put("KW-9990", KeywordCategory.TECHNICAL_TERM);
+		categoryMap.put("KW-9991", KeywordCategory.PTM);
+		categoryMap.put("KW-9992", KeywordCategory.MOLECULAR_FUNCTION);
+		categoryMap.put("KW-9993", KeywordCategory.LIGAND);
+		categoryMap.put("KW-9994", KeywordCategory.DOMAIN);
+		categoryMap.put("KW-9995", KeywordCategory.DISEASE);
+		categoryMap.put("KW-9996", KeywordCategory.DEVELOPMENTAL_STAGE);
+		categoryMap.put("KW-9997", KeywordCategory.CODING_SEQUNCE_DIVERSITY);
+		categoryMap.put("KW-9998", KeywordCategory.CELLULAR_COMPONENT);
+		categoryMap.put("KW-9999", KeywordCategory.BIOLOGICAL_PROCESS);
 		
 		// Initialize ontology map
-		HashMap<String, KeywordOntology> ontologyMap = new HashMap<String, KeywordOntology>();
+		HashMap<String, Keyword> ontologyMap = new HashMap<String, Keyword>();
 		
 		try {
 			// Initialize reader
@@ -234,15 +344,33 @@ public class UniProtUtilities {
 			}
 			
 			String line;
+			String id = null;
 			String name = null;
+			String description = null;
 			while ((line = br.readLine()) != null) {
+				if (line.startsWith("id: ")) {
+					id = line.substring(4);
+					continue;
+				}
 				if (line.startsWith("name: ")) {
 					name = line.substring(6);
 					continue;
 				}
+				if (line.startsWith("def: ")) {
+					description = line.substring(6, line.lastIndexOf('\"'));
+					
+					// if we reach a category's entry use it to fill out the
+					// uninitialized description string now
+					KeywordCategory category = categoryMap.get(id);
+					if (category != null) {
+						category.getKeyword().setDescription(description);
+					}
+					continue;
+				}
 				if (line.startsWith("relationship: ")) {
 					String category = line.substring(23);
-					ontologyMap.put(name, categoryMap.get(category));
+					KeywordCategory kwCategory = categoryMap.get(category);
+					ontologyMap.put(name, new Keyword(name, description, kwCategory.getKeyword()));
 				}
 			}
 			br.close();

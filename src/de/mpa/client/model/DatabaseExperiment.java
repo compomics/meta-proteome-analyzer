@@ -111,45 +111,47 @@ public class DatabaseExperiment extends AbstractExperiment {
 	
 	@Override
 	public DbSearchResult getSearchResult() {
-		Client client = Client.getInstance();
-		try {
-			// initialize the result object
-			DbSearchResult searchResult = new DbSearchResult(project.getTitle(), title, null);
+		if (searchResult == null) {
+			Client client = Client.getInstance();
+			try {
+				// initialize the result object
+				DbSearchResult searchResult = new DbSearchResult(project.getTitle(), title, null);
 
-			// set up progress monitoring
-			client.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
-			client.firePropertyChange("resetall", 0L, 100L);
-			client.firePropertyChange("indeterminate", false, true);
-			
-			// initialize database connection
-			Connection conn = client.getConnection();
+				// set up progress monitoring
+				client.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
+				client.firePropertyChange("resetall", 0L, 100L);
+				client.firePropertyChange("indeterminate", false, true);
+				
+				// initialize database connection
+				Connection conn = client.getConnection();
 
-			// gather search hits from remote database
-			List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(id, conn);
+				// gather search hits from remote database
+				List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(id, conn);
 
-			long maxProgress = searchHits.size();
-			client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
-			client.firePropertyChange("indeterminate", true, false);
-			client.firePropertyChange("resetall", 0L, maxProgress);
-			client.firePropertyChange("resetcur", 0L, maxProgress);
-			
-			
-			// add search hits to result object
-			for (SearchHit searchHit : searchHits) {
-				this.addProteinSearchHit(searchResult, searchHit, id, conn);
+				long maxProgress = searchHits.size();
+				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
+				client.firePropertyChange("indeterminate", true, false);
+				client.firePropertyChange("resetall", 0L, maxProgress);
+				client.firePropertyChange("resetcur", 0L, maxProgress);
+				
+				
+				// add search hits to result object
+				for (SearchHit searchHit : searchHits) {
+					this.addProteinSearchHit(searchResult, searchHit, id, conn);
 
-				client.firePropertyChange("progressmade", true, false);
+					client.firePropertyChange("progressmade", true, false);
+				}
+				
+				// determine total spectral count
+				searchResult.setTotalSpectrumCount(Searchspectrum.getSpectralCountFromExperimentID(id, conn));
+
+				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
+
+				this.searchResult = searchResult;
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
-			
-			// determine total spectral count
-			searchResult.setTotalSpectrumCount(Searchspectrum.getSpectralCountFromExperimentID(id, conn));
-
-			client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
-
-			this.searchResult = searchResult;
-		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 		return searchResult;
 	}

@@ -35,6 +35,8 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.renderer.CellContext;
 import org.jdesktop.swingx.renderer.ComponentProvider;
@@ -351,7 +353,6 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				// inherit visuals from respective table row
 				CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
 						checkBox, getComponentAdapter(context.getRow(), context.getColumn()));
-				
 			}
 		}
 
@@ -415,19 +416,11 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			checkBox.setEnabled(rendererChk.isEnabled());
 			checkBox.setFixed(rendererChk.isFixed());
 
-//			// inherit visuals from respective table row by applying them first
-//			// to an intermediate component then afterwards transferring the
-//			// result to the renderer component
-//			JLabel tmpLbl = new JLabel();
-//			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
-//					tmpLbl, getComponentAdapter(row, column));
-//			checkBox.setBackground(tmpLbl.getBackground());
-//			checkBox.setFont(tmpLbl.getFont());
-
-			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
-					checkBox, getComponentAdapter(row, column));
-			
-			checkBox.setBackground(rendererChk.getBackground());
+//			// inherit visuals from respective table row by applying highlighters
+			ComponentAdapter adapter = getComponentAdapter(row, column);
+			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(checkBox, adapter);
+			Highlighter[] highlighters = CheckBoxTreeTable.this.getColumnExt(column).getHighlighters();
+			new CompoundHighlighter(highlighters).highlight(checkBox, adapter);
 			
 			Rectangle cellRect = table.getCellRect(0, column, false);
 			Rectangle nodeRect = tree.getRowBounds(row);
@@ -569,6 +562,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		 */
 		public void setText(String text) {
 			hyperlink.setText(text);
+			hyperlink.setToolTipText(text);
+			checkBox.setToolTipText(text);
 		}
 		
 		@Override

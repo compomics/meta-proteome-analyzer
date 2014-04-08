@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.RowFilter;
@@ -456,7 +457,13 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 						comp = selChk;
 					}
 					// wrap component in special header renderer
-					renderer = new ComponentHeaderRenderer(comp, null, SwingConstants.TRAILING);
+					Icon icon = null;
+					int orientation = SwingConstants.TRAILING;
+					if (columnExt.getHeaderValue() instanceof Icon) {
+						icon = (Icon) columnExt.getHeaderValue();
+						orientation = SwingConstants.LEADING;
+					}
+					renderer = new ComponentHeaderRenderer(comp, icon, orientation);
 				}
 				return renderer;
 			}

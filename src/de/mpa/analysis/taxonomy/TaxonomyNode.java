@@ -69,7 +69,7 @@ public class TaxonomyNode implements Serializable {
 	 * Returns the taxonomy ID.
 	 * @return the taxonomy ID
 	 */
-	public int getId() {
+	public int getID() {
 		return taxId;
 	}
 
@@ -132,7 +132,7 @@ public class TaxonomyNode implements Serializable {
 		while (!rank.equals(parentRank)) {
 			parentNode = parentNode.getParentNode();
 			parentRank = parentNode.getRank();
-			if (parentNode.getId() == 1) {
+			if (parentNode.getID() == 1) {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
 				parentNode = new TaxonomyNode(0, rank, "Unknown");
@@ -167,7 +167,7 @@ public class TaxonomyNode implements Serializable {
 		List<TaxonomyNode> path = new ArrayList<TaxonomyNode>();
 		
 		TaxonomyNode parent = this;
-		while (parent.getId() != 1) {
+		while (parent.getID() != 1) {
 			path.add(parent);
 			parent = parent.getParentNode();
 		}
@@ -180,19 +180,19 @@ public class TaxonomyNode implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj instanceof TaxonomyNode) {
 			TaxonomyNode that = (TaxonomyNode) obj;			
-			return (this.getId() == that.getId());
+			return (this.getID() == that.getID());
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return this.getId();
+		return this.getID();
 	}
 
 	@Override
 	public String toString() {
-		return getName() + " (" + getRank() + ")";
+		return this.getName() + " (" + this.getRank() + ") [" + this.getID() + "]";
 	}
 	
 }

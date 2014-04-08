@@ -673,32 +673,13 @@ public class Client {
 
 	/**
 	 * Returns the current database search result.
-	 * @param experiment The experiment content.
-	 * @return The current database search result.
-	 */
-	public DbSearchResult getDatabaseSearchResult(AbstractExperiment experiment) {
-		if (dbSearchResult == null) {
-			dbSearchResult = experiment.getSearchResult();
-		}
-		return dbSearchResult;
-	}
-
-	/**
-	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
 	 */
 	public DbSearchResult getDatabaseSearchResult() {
-		return this.getDatabaseSearchResult(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment());
+		dbSearchResult = ClientFrame.getInstance().getProjectPanel().getSearchResult();
+		return dbSearchResult;
 	}
 
-	/**
-	 * Sets the current database search result
-	 * @param dbSearchResult
-	 */
-	public void setDatabaseSearchResult(DbSearchResult dbSearchResult) {
-		this.dbSearchResult = dbSearchResult;
-	}
-	
 	/**
 	 * Returns whether the client is in viewer mode.
 	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
