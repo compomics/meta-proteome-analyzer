@@ -1012,7 +1012,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 								newResult, resultParams);
 						// Update result object reference
 						ResultsPanel.this.dbSearchResult = newResult;
-						client.setDatabaseSearchResult(newResult);
 					} else {
 						if (paramsHaveChanged) {						
 							// Recreate meta-proteins and taxonomies
@@ -1062,11 +1061,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 				ResultsPanel.this.heatMapPn.setBusy(false);
 			}
 			
-			// Enable 'Export' and 'Save Project' functionalities of menu bar
-			ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
-			menuBar.setExportCSVResultsEnabled(true);
-			if (!Client.isViewer()) menuBar.setSaveProjectEnabled(true);
-			menuBar.setExportGraphMLEnabled(true);
+			// Enable 'Export' menu
+			ClientFrameMenuBar menuBar =
+					(ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
+			menuBar.setExportMenuEnabled(true);
 		}
 	
 	}

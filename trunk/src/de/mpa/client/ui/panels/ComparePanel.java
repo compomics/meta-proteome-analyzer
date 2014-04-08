@@ -252,8 +252,8 @@ public class ComparePanel extends JPanel {
 			}
 		};
 		compareBtn.setEnabled(!Client.isViewer()); 
-		compareBtn.setRolloverIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
-		compareBtn.setPressedIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
+		compareBtn.setRolloverIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
+		compareBtn.setPressedIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
 		compareBtn.setIconTextGap(7);
 		compareBtn.setUI(new PlasticButtonUI() {
 			@Override

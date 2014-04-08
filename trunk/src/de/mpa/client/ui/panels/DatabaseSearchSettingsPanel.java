@@ -137,7 +137,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * The default database search panel constructor.
 	 */
 	public DatabaseSearchSettingsPanel() {
-		initComponents();
+		this.initComponents();
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px, 5dlu, p, 5dlu, 2px, 5dlu, p, 5dlu"));
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
@@ -213,7 +213,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		// Search Engine Settings Panel
 		final JPanel searchEngPnl = new JPanel();
 		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-				"0dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		xTandemChk = new JCheckBox("X!Tandem", true);
@@ -348,6 +348,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		button.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
 		button.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);
 		button.setUI((RolloverButtonUI) RolloverButtonUI.createUI(button));
+		button.setPreferredSize(new Dimension(22, 22));
 		return button;
 	}
 	

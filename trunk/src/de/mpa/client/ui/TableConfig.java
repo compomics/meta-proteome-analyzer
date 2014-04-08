@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -19,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.jdesktop.swingx.JXTable;
@@ -34,7 +38,9 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import de.mpa.client.Constants;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -123,6 +129,90 @@ public class TableConfig {
 			// for simple JTables setRowCount(0) is sufficient
 			((DefaultTableModel) table.getModel()).setRowCount(0);
 		}
+	}
+	
+	/**
+	 * Dumps the contents of the specified tree table to the specified file in a tab-separated CSV format.
+	 * @param treeTbl the tree table to dump
+	 * @param file the file to dump to
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static void dumpTableToCSV(JXTreeTable treeTbl, File file) throws IOException {
+		try (FileWriter fw = new FileWriter(file)) {
+			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
+			int maxDepth = getMaximumDepth(0, root);
+			String rowSep = System.getProperty("line.separator");
+			String colSep = Constants.TSV_FILE_SEPARATOR;
+			
+			// store expansion state and expand whole tree, restore state after dumping
+			Enumeration<?> expanded = treeTbl.getExpandedDescendants(new TreePath(root));
+			treeTbl.expandAll();
+			
+			int rowCount = treeTbl.getRowCount();
+			int colCount = treeTbl.getColumnCount();
+			
+			// write header line
+			for (int i = 1; i < maxDepth; i++) {
+				fw.write("Level " + i);
+				fw.write(colSep);
+			}
+			for (int i = 0; i < colCount; i++) {
+				fw.write(treeTbl.getColumn(i).getIdentifier().toString());
+				fw.write(colSep);
+			}
+			fw.write(rowSep);
+			
+			// write table contents
+			for (int row = 0; row < rowCount; row++) {
+				TreePath path = treeTbl.getPathForRow(row);
+				TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
+				if (node.isLeaf()) {
+					int len = path.getPathCount() - 1;
+					// write hierarchical elements
+					for (int i = 1; i < len; i++) {
+						fw.write(path.getPathComponent(i).toString());
+						fw.write(colSep);
+					}
+					// if path is shorter than max depth pad with empty columns
+					// TODO: maybe pad using 'Uncharacterized' or something to that effect
+					for (int i = len; i < maxDepth; i++) {
+						fw.write(colSep);
+					}
+					// write other column elements
+					for (int col = 0; col < colCount; col++) {
+						Object value = treeTbl.getValueAt(row, col);
+						if (value != null) {
+							fw.write(value.toString());
+						}
+						fw.write(colSep);
+					}
+					fw.write(rowSep);
+				}
+			}
+			
+			// restore original expansion state
+			treeTbl.collapseAll();
+			while (expanded.hasMoreElements()) {
+				treeTbl.expandPath((TreePath) expanded.nextElement());
+			}
+		}
+	}
+	
+	/**
+	 * Recursively determines the maximum nesting depth of nodes below the
+	 * specified parent node from a given starting depth.
+	 * @param depth the starting depth
+	 * @param parent the parent node
+	 * @return the maximum depth
+	 */
+	private static int getMaximumDepth(int depth, TreeTableNode parent) {
+		int maxDepth = depth;
+		Enumeration<? extends TreeTableNode> children = parent.children();
+		while (children.hasMoreElements()) {
+			TreeTableNode child = children.nextElement();
+			maxDepth = Math.max(depth, getMaximumDepth(depth + 1, child));
+		}
+		return maxDepth;
 	}
 	
 	/**

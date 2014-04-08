@@ -14,7 +14,7 @@ public class ServerConnectionSettings {
 	/**
 	 * Default port.
 	 */
-	public static final String DEFAULT_PORT = "8080";
+	public static final int DEFAULT_PORT = 8080;
 
 	/**
 	 * String containing server URL.
@@ -24,7 +24,7 @@ public class ServerConnectionSettings {
 	/**
 	 * String containing server port.
 	 */
-	private String port;
+	private int port;
 	
 	/**
 	 * Default class constructor using default values.
@@ -54,7 +54,7 @@ public class ServerConnectionSettings {
 	 * Returns server port.
 	 * @return
 	 */
-	public String getPort() {
+	public int getPort() {
 		return port;
 	}
 	
@@ -62,7 +62,7 @@ public class ServerConnectionSettings {
 	 * Sets server port.
 	 * @param port
 	 */
-	public void setPort(String port) {
+	public void setPort(int port) {
 		this.port = port;
 	}
 

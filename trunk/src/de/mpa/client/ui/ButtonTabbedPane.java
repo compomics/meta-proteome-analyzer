@@ -94,8 +94,8 @@ public class ButtonTabbedPane extends JTabbedPane {
 		public TabPaneButton(final JTabbedPane tabPane, String text, Icon icon) {
 			super(text, icon);
 
-			this.setRolloverIcon(IconConstants.createRescaledIcon(icon, 1.1f));
-			this.setPressedIcon(IconConstants.createRescaledIcon(icon, 0.8f));
+			this.setRolloverIcon(IconConstants.createColorRescaledIcon(icon, 1.1f));
+			this.setPressedIcon(IconConstants.createColorRescaledIcon(icon, 0.8f));
 			this.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 5));
 			this.setContentAreaFilled(false);
 			this.setFocusable(false);

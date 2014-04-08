@@ -1,18 +1,16 @@
 package de.mpa.client.ui;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import javax.swing.ComboBoxModel;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
@@ -28,12 +26,7 @@ import de.mpa.db.accessor.SearchHit;
  * 
  * @author A. Behne
  */
-public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
-	
-	/**
-	 * List of tree paths of other nodes which are part of different trees. 
-	 */
-	private List<TreePath> linkPaths;
+public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implements Cloneable {
 	
 	/**
 	 * Constructs a phylogenetic tree table node from an array of arbitrary Objects.<br>
@@ -46,7 +39,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	
 	@Override
 	public int getColumnCount() {
-		// TODO: parameterize column count, e.g. length of userObjects array?
 		return 12;
 	}
 	
@@ -61,8 +53,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 				case 1:
 					return ph.getDescription();
 				case 2:
-//					return ph.getSpecies();
-					return ph.getTaxonomyNode().getName();
+					return ph.getTaxonomyNode();
 				case 11:
 					// web resource column
 					return null;
@@ -86,10 +77,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 					}
 					return description;
 				case 2:
-//					return ph.getSpecies();
-					return ph.getTaxonomyNode().getName();
+					return ph.getTaxonomyNode();
 				case 3:
-//					return ph.getIdentity();
 					if (ph.getUniProtEntry() == null) return null;
 					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
 					ComboBoxModel model = (ComboBoxModel) parameter.getValue();
@@ -145,12 +134,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			case 2:
 				return ph.getSpectrumMatches().size();
 			case 3:
-				TaxonomyNode tn = ph.getTaxonomyNode();
-				return tn.getName() + "(" + tn.getRank() + ")";
+				return ph.getTaxonomyNode();
 			default:
 				return super.getValueAt(column);
 			}
-		} else if (this.isPSM()) {
+		} else if (this.isSpectrumMatch()) {
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) userObject;
 			SearchHit searchHit;
 			switch (column) {
@@ -235,12 +223,12 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	}
 	
 	/**
-	 * Returns whether this node stores PSM data.
-	 * @return <code>true</code> if this node contains PSM data,
+	 * Returns whether this node stores spectrum match data.
+	 * @return <code>true</code> if this node contains match data,
 	 *  <code>false</code> otherwise
 	 */
-	public boolean isPSM() {
-		return (userObject instanceof PeptideSpectrumMatch);
+	public boolean isSpectrumMatch() {
+		return (userObject instanceof SpectrumMatch);
 	}
 	
 	/**
@@ -284,35 +272,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		return null;
 	}
 	
-	/**
-	 * Adds a tree path of another node belonging to a different tree to 
-	 * this node's list of such links. 
-	 * @param treePath The foreign tree path.
-	 */
-	public void addLink(TreePath treePath) {
-		if (linkPaths == null) {
-			linkPaths = new ArrayList<TreePath>();
-		}
-		linkPaths.add(treePath);
-	}
-
-	/**
-	 * Returns the list of links to other nodes belonging to different 
-	 * trees.
-	 * @return List of tree paths.
-	 */
-	public List<TreePath> getLinks() {
-		return linkPaths;
-	}
-	
-	/**
-	 * Returns whether this node was linked to any other node via 
-	 * <code>addLink()</code>.
-	 * @return <code>true</code> if one or more links exist, 
-	 * <code>false</code> otherwise.
-	 */
-	public boolean hasLinks() {
-		return ((linkPaths != null) && !linkPaths.isEmpty());
+	@Override
+	public PhylogenyTreeTableNode clone() {
+		PhylogenyTreeTableNode clone = new PhylogenyTreeTableNode(userObjects);
+		clone.setURI(this.getURI());
+		return clone;
 	}
 	
 	@Override

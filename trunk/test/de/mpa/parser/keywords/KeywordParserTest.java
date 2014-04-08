@@ -7,7 +7,8 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.Keyword;
+import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 
 /**
  * Test class for UniProt keyword parsing.
@@ -19,12 +20,12 @@ public class KeywordParserTest extends TestCase {
 	public void testKeywordParsing() throws Exception {
 		
 		// Gets the ontolgy map.
-		Map<String, KeywordOntology> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
+		Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		
 		// Test
-		assertEquals(KeywordOntology.LIGAND, ontologyMap.get("2Fe-2S"));
-		assertEquals(KeywordOntology.PTM, ontologyMap.get("Zymogen"));
-		assertEquals(KeywordOntology.BIOLOGICAL_PROCESS, ontologyMap.get("Xylose metabolism"));
+		assertEquals(KeywordCategory.LIGAND.getKeyword(), ontologyMap.get("2Fe-2S"));
+		assertEquals(KeywordCategory.PTM.getKeyword(), ontologyMap.get("Zymogen"));
+		assertEquals(KeywordCategory.BIOLOGICAL_PROCESS.getKeyword(), ontologyMap.get("Xylose metabolism"));
 		
 		assertEquals(1135, ontologyMap.size()); // 1145 - 10 main categories
 	}

@@ -12,7 +12,7 @@ import java.util.Set;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
@@ -575,15 +575,16 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			if (redUniEntry != null) {
 				List<String> keywords = redUniEntry.getKeywords();
 				for (String kw : keywords) {
-					KeywordOntology ontologyType = UniProtUtilities.ONTOLOGY_MAP.get(kw);
+					KeywordCategory ontologyType = KeywordCategory.valueOf(
+							UniProtUtilities.ONTOLOGY_MAP.get(kw).getCategory());
 					if (ontologyType != null) {
 						if (ontologyType.equals(ontChartType.getOntology())) {
 							res.add(kw);
 						}
 					} else {
 						// TODO: update ontology map, e.g. write parser for ontology file (http://www.uniprot.org/keywords/?query=*&format=*)
-						if (Client.getInstance().isDebug()) {
-							System.err.println(kw);
+						if (Client.isDebug()) {
+							System.err.println("Warning: unknown ontology \'" + kw + "\'");
 						}
 					}
 				}

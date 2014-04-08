@@ -148,13 +148,11 @@ public class Constants {
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
-			"MetaProteomeAnalyzer Project File (*.mpa)");
+			"MetaProteomeAnalyzer Experiment File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV File, comma-separated (*.csv)");
-	public static final String TSV_FILE_SEPARATOR = "\t";
-	public static final String CSV_FILE_SEPARATOR = ";";
-	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,
-			"TSV File, tab-separated (*.tsv)");
+	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
+			"CSV File, tab-separated (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
@@ -164,6 +162,9 @@ public class Constants {
 	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
 			"Microsoft Excel 2003 XML File (*.xml)");
 
+	public static final String CSV_FILE_SEPARATOR = ",";
+	public static final String TSV_FILE_SEPARATOR = "\t";
+	
 	/**
 	 * Returns the graph database user queries file.
 	 * @return the user queries file
