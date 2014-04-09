@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.NumberEditor;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -299,6 +300,12 @@ public class AdvancedSettingsDialog extends JDialog {
 				// skip default values
 				continue;
 			}
+			
+			// extract component if it's wrapped in a scroll pane
+			if (comp instanceof JScrollPane) {
+				comp = (JComponent) ((JScrollPane) comp).getViewport().getView();
+			}
+			
 			if (comp instanceof JCheckBox) {
 				if (param.setValue(((JCheckBox) comp).isSelected())) {
 					this.status |= DIALOG_CHANGED;
@@ -359,13 +366,13 @@ public class AdvancedSettingsDialog extends JDialog {
 						this.status |= DIALOG_CHANGED;
 					}
 				}
-			} else if (comp instanceof JScrollPane) {
-				if (param.setValue(((JTextComponent) ((JScrollPane) comp).getViewport().getView()).getText())) {
+			} else if (comp instanceof JTextComponent) {
+				if (param.setValue(((JTextComponent) comp).getText())) {
 					this.status |= DIALOG_CHANGED;
 				}
 			} else {
 				// When we get here something went wrong - investigate!
-				System.err.println("AdvancedSettingsDialog error:" + comp.getClass());
+				System.err.println("Unrecognized component type: " + comp);
 			}
 		}
 	}
@@ -385,6 +392,12 @@ public class AdvancedSettingsDialog extends JDialog {
 				// skip default values
 				continue;
 			}
+			
+			// extract component if it's wrapped in a scroll pane
+			if (comp instanceof JScrollPane) {
+				comp = (JComponent) ((JScrollPane) comp).getViewport().getView();
+			}
+			
 			if (comp instanceof JCheckBox) {
 				((JCheckBox) comp).setSelected((Boolean) param.getValue());
 			} else if (comp instanceof JPanel) {
@@ -394,15 +407,21 @@ public class AdvancedSettingsDialog extends JDialog {
 					// matrix of checkboxes
 					for (Boolean[] row : (Boolean[][]) rows) {
 						for (Boolean sel : row) {
-							((AbstractButton) comp.getComponent(counter++)).setSelected(sel);
+							if (counter < comp.getComponentCount()) {
+								((AbstractButton) comp.getComponent(counter)).setSelected(sel);
+							}
+							counter++;
 						}
 					}
 				} else {
 					// stack of radio button-and-other component pairs
 					for (Object[] row : rows) {
-						Component rightComp = comp.getComponent(++counter);
-						if (rightComp instanceof JSpinner) {
-							((JSpinner) rightComp).setValue(row[1]);
+						counter++;
+						if (counter < comp.getComponentCount()) {
+							Component rightComp = comp.getComponent(counter);
+							if (rightComp instanceof JSpinner) {
+								((JSpinner) rightComp).setValue(row[1]);
+							}
 						}
 						counter++;
 					}
@@ -416,11 +435,11 @@ public class AdvancedSettingsDialog extends JDialog {
 				} else {
 					((JSpinner) comp).setValue(param.getValue());
 				}
-			} else if (comp instanceof JScrollPane) {
-				((JTextComponent) ((JScrollPane) comp).getViewport().getView()).setText(param.getValue().toString());
+			} else if (comp instanceof JTextComponent) {
+				((JTextComponent) comp).setText(param.getValue().toString());
 			} else {
 				// When we get here something went wrong - investigate!
-				System.out.println("UH OH " + comp);
+				System.out.println("Unrecognized component type: " + comp);
 			}
 		}
 	}
@@ -543,7 +562,9 @@ public class AdvancedSettingsDialog extends JDialog {
 			Integer[] values = (Integer[]) value;
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(
 					values[0].intValue(), values[1].intValue(), values[2].intValue(), 1));
+//			((NumberEditor) spinner.getEditor()).getFormat().setGroupingUsed(false);
 			spinner.setToolTipText(param.getDescription());
+			spinner.setEditor(new NumberEditor(spinner, "#"));
 			comp = spinner;
 		} else if (value instanceof Double[]) {
 			// Spinner without decimal places with defined min and max
@@ -563,7 +584,7 @@ public class AdvancedSettingsDialog extends JDialog {
 			}
 		} else {
 			// When we get here something went wrong - investigate!
-			System.out.println("UH OH " + value.getClass());
+			System.out.println("Unrecognized value type: " + value.getClass());
 		}
 		param2comp.put(param.getName(), comp);
 		return comp;
