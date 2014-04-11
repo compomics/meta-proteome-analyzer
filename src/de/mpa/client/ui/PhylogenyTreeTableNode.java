@@ -2,6 +2,7 @@ package de.mpa.client.ui;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.swing.ComboBoxModel;
 
@@ -132,8 +133,24 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			case 1:
 				return ph.getProteinHits().size();
 			case 2:
-				return ph.getSpectrumMatches().size();
+				Object value = super.getValueAt(2);
+				if (value == null) {
+					String accessions = "";
+					Iterator<ProteinHit> iter = ph.getProteinHits().iterator();
+					while (iter.hasNext()) {
+						ProteinHit protein = iter.next();
+						accessions += protein.getAccession();
+						if (iter.hasNext()) {
+							accessions += ", ";
+						}
+					}
+					this.setValueAt(accessions, 2);
+					value = accessions;
+				}
+				return value;
 			case 3:
+				return ph.getSpectrumMatches().size();
+			case 4:
 				return ph.getTaxonomyNode();
 			default:
 				return super.getValueAt(column);
@@ -147,18 +164,34 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			case 1:
 				return psm.getCharge();
 			case 2:
+				Object value = super.getValueAt(2);
+				if (value == null) {
+					String sequences = "";
+					Iterator<PeptideHit> iter = psm.getPeptideHits().iterator();
+					while (iter.hasNext()) {
+						PeptideHit peptide = iter.next();
+						sequences += peptide.getSequence();
+						if (iter.hasNext()) {
+							sequences += ", ";
+						}
+					}
+					this.setValueAt(sequences, 2);
+					value = sequences;
+				}
+				return value;
+			case 3:
 				searchHit = psm.getSearchHit(SearchEngineType.XTANDEM);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 3:
+			case 4:
 				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 4:
+			case 5:
 				searchHit = psm.getSearchHit(SearchEngineType.CRUX);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 5:
+			case 6:
 				searchHit = psm.getSearchHit(SearchEngineType.INSPECT);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 6:
+			case 7:
 				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
 			default:

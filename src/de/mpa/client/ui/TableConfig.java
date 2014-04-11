@@ -137,7 +137,7 @@ public class TableConfig {
 	 * @param file the file to dump to
 	 * @throws IOException if an I/O error occurs
 	 */
-	public static void dumpTableToCSV(JXTreeTable treeTbl, File file) throws IOException {
+	public static void dumpTableToCSV(CheckBoxTreeTable treeTbl, File file) throws IOException {
 		try (FileWriter fw = new FileWriter(file)) {
 			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
 			int maxDepth = getMaximumDepth(0, root);
@@ -162,31 +162,34 @@ public class TableConfig {
 			}
 			fw.write(rowSep);
 			
+			CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 			// write table contents
 			for (int row = 0; row < rowCount; row++) {
 				TreePath path = treeTbl.getPathForRow(row);
 				TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
 				if (node.isLeaf()) {
-					int len = path.getPathCount() - 1;
-					// write hierarchical elements
-					for (int i = 1; i < len; i++) {
-						fw.write(path.getPathComponent(i).toString());
-						fw.write(colSep);
-					}
-					// if path is shorter than max depth pad with empty columns
-					// TODO: maybe pad using 'Uncharacterized' or something to that effect
-					for (int i = len; i < maxDepth; i++) {
-						fw.write(colSep);
-					}
-					// write other column elements
-					for (int col = 0; col < colCount; col++) {
-						Object value = treeTbl.getValueAt(row, col);
-						if (value != null) {
-							fw.write(value.toString());
+					if (cbtsm.isPathSelected(path, true)) {
+						int len = path.getPathCount() - 1;
+						// write hierarchical elements
+						for (int i = 1; i < len; i++) {
+							fw.write(path.getPathComponent(i).toString());
+							fw.write(colSep);
 						}
-						fw.write(colSep);
+						// if path is shorter than max depth pad with empty columns
+						// TODO: maybe pad using 'Uncharacterized' or something to that effect
+						for (int i = len; i < maxDepth; i++) {
+							fw.write(colSep);
+						}
+						// write other column elements
+						for (int col = 0; col < colCount; col++) {
+							Object value = treeTbl.getValueAt(row, col);
+							if (value != null) {
+								fw.write(value.toString());
+							}
+							fw.write(colSep);
+						}
+						fw.write(rowSep);
 					}
-					fw.write(rowSep);
 				}
 			}
 			
@@ -221,12 +224,13 @@ public class TableConfig {
 	 */
 	public static Highlighter getSimpleStriping() {
 		if (simpleStriping == null) {
-			Color backCol = UIManager.getColor("Table.background");
-			Color altCol = ColorUtils.getRescaledColor(backCol, 0.95f);
-			Color selCol = UIManager.getColor("Table.selectionBackground");
+			Color evenCol = UIManager.getColor("Table.background");
+			Color oddCol = ColorUtils.getRescaledColor(evenCol, 0.95f);
+			Color selOddCol = UIManager.getColor("Table.selectionBackground");
+			Color selEvenCol = ColorUtils.getRescaledColor(selOddCol, 1.05f);
 			
-			ColorHighlighter base = new ColorHighlighter(HighlightPredicate.EVEN, backCol, null, selCol, null);
-	        ColorHighlighter alternate = new ColorHighlighter(HighlightPredicate.ODD, altCol, null, selCol, null);
+			ColorHighlighter base = new ColorHighlighter(HighlightPredicate.EVEN, evenCol, null, selEvenCol, null);
+	        ColorHighlighter alternate = new ColorHighlighter(HighlightPredicate.ODD, oddCol, null, selOddCol, null);
 	        simpleStriping = new CompoundHighlighter(base, alternate);
 		}
 		return simpleStriping;

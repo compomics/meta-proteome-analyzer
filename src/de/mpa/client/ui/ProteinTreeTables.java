@@ -543,15 +543,13 @@ public enum ProteinTreeTables {
 	 */
 	private SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
 
-		final SortableCheckBoxTreeTable treeTbl;
-		
 		// Set up table model
 		SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
 						"Accession", "Description", "Taxonomy", "UniRef", "SC",
-						"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", " " }));
+						"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", null }));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -563,11 +561,14 @@ public enum ProteinTreeTables {
 					throw new IllegalArgumentException("This tree table requires Phylogeny nodes!");
 				}
 			}
-			
+			@Override
+			public boolean isCellEditable(Object node, int column) {
+				return (column == 0);
+			}
 		};
 
 		// Create table from model, redirect tooltip text generation
-		treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
+		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			@Override
 			public String getToolTipText(MouseEvent me) {
 				String text = null;
@@ -662,18 +663,23 @@ public enum ProteinTreeTables {
 				"Protein Description",
 				"Taxonomy",
 				"UniRef Cluster ID",
-				"Sequence Coverage in %",
-				"Molecular Weight in kDa",
+				"Sequence Coverage",
+				"Molecular Weight",
 				"Isoelectric Point",
 				"Peptide Count",
 				"Spectral Count",
-				"Exponentially Modified Protein Abundance Index",
-				"Normalized Spectral Abundance Factor",
+//				"Exponentially Modified Protein Abundance Index",
+				"emPAI",
+//				"Normalized Spectral Abundance Factor",
+				"NSAF",
 				"External Web Resources"
 		};
 		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 		treeTbl.setTableHeader(ch);
 		treeTbl.getColumn(WEB_RESOURCES_COLUMN).setHeaderValue(IconConstants.WWW_ICON);
+		for (int i = 0; i < columnToolTips.length; i++) {
+			treeTbl.getColumnExt(i).setToolTipText(columnToolTips[i]);
+		}
 
 		// Install mouse listeners in header for right-click popup capabilities
 		MouseAdapter ma = createHeaderMouseAdapter(treeTbl);

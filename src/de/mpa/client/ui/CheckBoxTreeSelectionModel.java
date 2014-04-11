@@ -125,7 +125,9 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @param paths the new paths to add to the current selection
 	 */
 	public void addSelectionPaths(List<TreePath> paths) {
-		this.addSelectionPaths(paths.toArray(new TreePath[0]));
+		if (!paths.isEmpty()) {
+			this.addSelectionPaths(paths.toArray(new TreePath[0]));
+		}
 	}
 	
 	/**
@@ -196,6 +198,9 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
      * <code>false</code> otherwise
      */
 	public boolean areSiblingsSelected(TreePath path) {
+//		if (path == null) {
+//			return false;
+//		}
 		TreePath parent = path.getParentPath();
 		if (parent == null) {
 			return true;

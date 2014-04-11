@@ -449,6 +449,7 @@ public class Client {
 	 * @throws SQLException if fetching spectrum data from the database fails
 	 */
 	public List<String> packAndSend(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException, SQLException {
+		// TODO: offload tree table selection-based packing logic to file panel, there is currently too much mixing of UI code and non-UI code in this method
 		File file = null;
 		List<String> filenames = new ArrayList<String>();
 		FileOutputStream fos = null;

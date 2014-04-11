@@ -352,7 +352,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		generalPnl.add(distPepLbl, CC.xy(4, 4));
 		generalPnl.add(pepBarPnl, CC.xy(6, 4));
 		generalPnl.add(uniqPepLbl, CC.xy(8, 4));
-		generalPnl.add(new JLabel("unique peptides"), CC.xy(10, 4));
+		generalPnl.add(new JLabel("Unique Peptides"), CC.xy(10, 4));
 
 		// total vs. species-specific proteins
 		totalProtLbl = new JLabel("0");
@@ -363,7 +363,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		generalPnl.add(totalProtLbl, CC.xy(4, 6));
 		generalPnl.add(protBarPnl, CC.xy(6, 6));
 		generalPnl.add(metaProtLbl, CC.xy(8, 6));
-		generalPnl.add(new JLabel("Meta-proteins"), CC.xy(10, 6));
+		generalPnl.add(new JLabel("Meta-Proteins"), CC.xy(10, 6));
 
 		speciesLbl = new JLabel("0");
 		enzymesLbl = new JLabel("0");
@@ -434,7 +434,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			}
 		});
 		
-		processResultsBtn.setEnabled(false);
+//		processResultsBtn.setEnabled(false);
 
 //		fetchLocalBtn.addActionListener(new ActionListener() {
 //			@Override
@@ -931,7 +931,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		// Set enable state of fetch buttons
 		// TODO: probably unsafe as GraphDB is still in the progress of being created
 		this.fetchResultsBtn.setEnabled(!busy);
-		this.processResultsBtn.setEnabled(false);
+		this.processResultsBtn.setEnabled(!busy);
 
 		// Propagate busy state to chart panel
 		this.chartPane.setBusy(busy);

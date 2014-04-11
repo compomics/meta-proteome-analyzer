@@ -7,10 +7,14 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
@@ -22,7 +26,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -125,11 +128,71 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				}
 				editorBox.setSelected(selected);
 				firePropertyChange("checkBoxSelectionChanged", false, true);
-				// TODO: can repaint() be avoided?
 				treeTable.repaint();
 			}
 		});
+		
+		// Install mouse adapter on editor component to capture selection dragging
+		MouseAdapter ma = new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent evt) {
+				this.forwardEvent(evt);
+			}
+			@Override
+			public void mouseReleased(MouseEvent evt) {
+				this.forwardEvent(evt);
+			}
+			@Override
+			public void mouseDragged(MouseEvent evt) {
+				this.forwardEvent(evt);
+			}
+			
+			/** Forwards mouse events to the parent tree table. */
+			private void forwardEvent(MouseEvent evt) {
+				CheckBoxTreeTable treeTbl = CheckBoxTreeTable.this;
+				if (evt.getSource() != treeTbl) {
+					Rectangle bounds = editorComp.getBounds();
+					treeTbl.dispatchEvent(new MouseEvent(treeTbl,
+							evt.getID(), evt.getWhen(), evt.getModifiers(), bounds.x, bounds.y + evt.getY(),
+							evt.getClickCount(), evt.isPopupTrigger(), evt.getButton()));
+				}
+			}
+		};
+		editorBox.addMouseListener(ma);
+		editorBox.addMouseMotionListener(ma);
+		
+		// Install mouse adapter on tree table to properly process editor-based
+		// selection dragging
+		this.addMouseMotionListener(new MouseAdapter() {
+			/**
+			 * {@inheritDoc}
+			 * <p>
+			 * Adapted from <code>BasicTableUI.Handler</code>
+			 */
+			@Override
+			public void mouseDragged(MouseEvent evt) {
+				CheckBoxTreeTable treeTbl = CheckBoxTreeTable.this;
+				if (treeTbl.isEditing()) {
+		            Point p = evt.getPoint();
+		            int row = treeTbl.rowAtPoint(p);
+		            int column = treeTbl.columnAtPoint(p);
+		            if ((column == -1) || (row == -1)) {
+		                return;
+		            }
+		            treeTbl.changeSelection(row, column,
+		                    this.isMenuShortcutKeyDown(evt), true);
 
+		            Rectangle bounds = editorComp.getBounds();
+					prepareEditor(cellEditor,
+							treeTbl.rowAtPoint(new Point(bounds.x, bounds.y)), column);
+	            }
+			}
+			private boolean isMenuShortcutKeyDown(InputEvent event) {
+		        return (event.getModifiers() &
+		                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+		    }
+		});
+		
 		// Install checkbox selection model
 		cbtsm = new CheckBoxTreeSelectionModel(treeModel);
 		
@@ -137,13 +200,11 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		cbtce = new CheckBoxTreeCellEditor(editorBox);
 		
 		// Install tree cell renderer
-//		tree.setCellRenderer(new DefaultTreeRenderer(new CheckBoxTreeCellRenderer()));
 		this.setTreeCellRenderer(new DefaultTreeRenderer(new CheckBoxTreeCellRenderer()));
 		
 		tree.setUI(new FillToEdgeTreeUI());
 		
 		// Install rollover functionality
-		// TODO: rollover seems to become unresponsive when clicking expand/collapse controls - investigate!
 		treeTable.addPropertyChangeListener(RolloverProducer.ROLLOVER_KEY, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
@@ -185,8 +246,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		treeTable.setRowMargin(1);
 		treeTable.setShowGrid(true);
 		treeTable.getTableHeader().setReorderingAllowed(false);
-		treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+//		treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		treeTable.setLargeModel(true);
 	}
 	
@@ -415,8 +475,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			checkBox.setSelected(rendererChk.isSelected());
 			checkBox.setEnabled(rendererChk.isEnabled());
 			checkBox.setFixed(rendererChk.isFixed());
-
-//			// inherit visuals from respective table row by applying highlighters
+			
+			// inherit visuals from respective table row by applying highlighters
 			ComponentAdapter adapter = getComponentAdapter(row, column);
 			CheckBoxTreeTable.this.getCompoundHighlighter().highlight(checkBox, adapter);
 			Highlighter[] highlighters = CheckBoxTreeTable.this.getColumnExt(column).getHighlighters();
@@ -434,7 +494,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			Border border;
 			if (table.isColumnSelected(column) && table.isRowSelected(row)) {
 				border = BorderFactory.createCompoundBorder(highlightBorder,
-						BorderFactory.createEmptyBorder(0, nodeStart - 1, -1, 0));
+						BorderFactory.createEmptyBorder(0, nodeStart - 1, 0, 0));
 			} else {
 				border = BorderFactory.createEmptyBorder(1, nodeStart, 0, 1);
 			}
@@ -680,6 +740,26 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		public void setFixed(boolean fixed) {
 			this.fixed = fixed;
 			checkBox.setEnabled(this.isEnabled() && !fixed);
+		}
+		
+		@Override
+		public synchronized void addMouseListener(MouseListener l) {
+			hyperlink.addMouseListener(l);
+		}
+		
+		@Override
+		public synchronized void removeMouseListener(MouseListener l) {
+			hyperlink.removeMouseListener(l);
+		}
+		
+		@Override
+		public synchronized void addMouseMotionListener(MouseMotionListener l) {
+			hyperlink.addMouseMotionListener(l);
+		}
+		
+		@Override
+		public synchronized void removeMouseMotionListener(MouseMotionListener l) {
+			hyperlink.removeMouseMotionListener(l);
 		}
 		
 	}

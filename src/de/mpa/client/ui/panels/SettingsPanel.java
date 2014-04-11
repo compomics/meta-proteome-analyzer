@@ -180,7 +180,7 @@ public class SettingsPanel extends JPanel {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
 			long experimentID = projectPanel.getSelectedExperiment().getID();
 			if (experimentID != 0L) {
-				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
+				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getSpectrumTable();
 				// reset progress
 				Client client = Client.getInstance();
 				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
