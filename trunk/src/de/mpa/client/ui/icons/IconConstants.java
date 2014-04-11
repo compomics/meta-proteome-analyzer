@@ -345,10 +345,14 @@ public class IconConstants {
 	/** <img src="../../../resources/icons/file_csv16.png"> */
 	public static final ImageIcon FILE_CSV = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/file_csv16.png"));
 
-	/** <img src="../../../resources/icons/protein.png"> */
-	public static final ImageIcon PROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/protein.png"));
 	/** <img src="../../../resources/icons/metaprotein.png"> */
 	public static final ImageIcon METAPROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/metaprotein.png"));
+	/** <img src="../../../resources/icons/protein.png"> */
+	public static final ImageIcon PROTEIN_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/protein.png"));
+	/** <img src="../../../resources/icons/molecule16.png"> */
+	public static final ImageIcon PEPTIDE_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/molecule16.png"));
+	/** <img src="../../../resources/icons/spectrum16_2.png"> */
+	public static final ImageIcon SPECTRUM_TREE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/spectrum16_2.png"));
 
 	/** <img src="../../../resources/icons/excel_export16.png"> */
 	public static final ImageIcon EXCEL_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/excel_export16.png"));

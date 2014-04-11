@@ -316,12 +316,15 @@ public class AdvancedSettingsDialog extends JDialog {
 				int k = 0;
 				for (int i = 0; i < values.length; i++) {
 					for (int j = 0; j < 2; j++) {
-						Component subComp = comp.getComponent(k++);
-						if (subComp instanceof AbstractButton) {
-							values[i][j] = ((AbstractButton) subComp).isSelected();
-						} else if (subComp instanceof JSpinner) {
-							values[i][j] = ((JSpinner) subComp).getValue();
+						if (k < comp.getComponentCount()) {
+							Component subComp = comp.getComponent(k);
+							if (subComp instanceof AbstractButton) {
+								values[i][j] = ((AbstractButton) subComp).isSelected();
+							} else if (subComp instanceof JSpinner) {
+								values[i][j] = ((JSpinner) subComp).getValue();
+							}
 						}
+						k++;
 					}
 				}
 				if (param.setValue(values)) {
@@ -334,7 +337,10 @@ public class AdvancedSettingsDialog extends JDialog {
 					// matrix of checkboxes
 					for (Boolean[] row : (Boolean[][]) rows) {
 						for (Boolean sel : row) {
-							((AbstractButton) comp.getComponent(counter++)).setSelected(sel);
+							if (counter < comp.getComponentCount()) {
+								((AbstractButton) comp.getComponent(counter)).setSelected(sel);
+							}
+							counter++;
 						}
 					}
 				} else {
