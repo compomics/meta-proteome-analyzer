@@ -33,7 +33,6 @@ import de.mpa.db.job.JobStatus;
 import de.mpa.db.job.SearchType;
 import de.mpa.db.job.instances.CommonJob;
 import de.mpa.db.job.instances.CruxJob;
-import de.mpa.db.job.instances.DeleteJob;
 import de.mpa.db.job.instances.InspectJob;
 import de.mpa.db.job.instances.JobConstants;
 import de.mpa.db.job.instances.OmssaJob;
@@ -279,7 +278,7 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
-				jobManager.addJob(new DeleteJob());
+//				jobManager.addJob(new DeleteJob());
 				jobManager.run();
 			}
 		} catch (Exception e) {

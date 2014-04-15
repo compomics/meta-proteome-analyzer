@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javax.swing.JPasswordField;
+
+import de.mpa.client.settings.ParameterMap;
+
 /**
  * This class manages the configuration for the database.
  * @author T.Muth
@@ -17,28 +21,22 @@ public class DBConfiguration {
     private Connection conn;
     
     /**
-     * Database name.
-     */
-    private String dbName;
-    
-    /**
      * Database connection type.
      */
 	private ConnectionType connType;
 	
 	/**
-	 * Database connection settings.
+	 * Connection settings.
 	 */
-	private DbConnectionSettings dbSettings;
+	private ParameterMap connectionParams;
 	
     /**
      * Constructor of the DatabaseStarter.
-     * @param awsCredentials
+     * @param dbName Database name
      * @throws SQLException 
      */
-    public DBConfiguration(String dbName, ConnectionType connType, DbConnectionSettings dbSettings) throws SQLException{
-    	this.dbSettings = dbSettings;
-    	this.dbName = dbName;
+    public DBConfiguration(ConnectionType connType, ParameterMap connectionParams) throws SQLException{
+    	this.connectionParams = connectionParams;
     	this.connType = connType;
         initConnection();
     }
@@ -51,13 +49,16 @@ public class DBConfiguration {
 		// Get a connection to the database
 		try {
 			// Register the JDBC driver for MySQL
-			Class.forName(dbSettings.getJdbcDriver());
+			Class.forName("com.mysql.jdbc.Driver");
 
+			// Get the password from the JPasswordField
+			String pwText = new String(((JPasswordField) connectionParams.get("dbPass").getValue()).getPassword());
+			
 			// Do the connection to the DB
 			if (connType == ConnectionType.LOCAL) {
-				conn = DriverManager.getConnection(dbSettings.getUrlLocale()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
+				conn = DriverManager.getConnection("jdbc:mysql://localhost"+  ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue(), connectionParams.get("dbUsername").getValue().toString(), pwText);
 			} else {
-				conn = DriverManager.getConnection(dbSettings.getUrlRemote()+ dbSettings.getPort() + dbName, dbSettings.getUsername(), dbSettings.getPassword());
+				conn = DriverManager.getConnection("jdbc:mysql://" + connectionParams.get("dbAddress").getValue() + ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue(), connectionParams.get("dbUsername").getValue().toString(), pwText);
 			}
 			
 			// Set auto commit == FALSE --> Manual commit & rollback.

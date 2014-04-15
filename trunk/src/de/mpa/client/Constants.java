@@ -49,7 +49,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.9.3";
+	public final static String VER_NUMBER = "0.9.4";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -75,7 +75,7 @@ public class Constants {
 	/**
 	 * The names of FASTA database files available for searches.
 	 */
-	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "yeast", "gut_yeast", "yeast_target"};
+	public static final String[] FASTA_DB = {"uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "yeast", "gut_yeast", "human_gut_pyro", "pyro_target"};
 	
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter after GET).
