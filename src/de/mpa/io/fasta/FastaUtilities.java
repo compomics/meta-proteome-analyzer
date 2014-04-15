@@ -193,6 +193,56 @@ public class FastaUtilities {
 		return ids;
 	}
 	
+	/**
+	 * This method counts the database Ids.
+	 * @param fastaFile FASTA file.
+	 */
+	public static void countDatabaseIds(String fastaFile) {
+		try {
+			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
+			int bact594 = 0, qin2010 = 0, kurokawa2007 = 0, human2010 = 0, human2010_alt = 0, food = 0;
+			String nextLine;
+			int counter = 0;
+			while ((nextLine = reader.readLine()) != null) { 
+				if (nextLine.trim().length() > 0) {
+					if (nextLine.charAt(0) == '>') {
+						String string = nextLine.substring(nextLine.indexOf("FWD_") +9);
+						Header header = Header.parseFromFASTA(nextLine);
+						String key = header.getAccession();
+						int id = Integer.parseInt(string);
+						
+						if (id <= 1850744) {
+							bact594++;
+						} else if (id >= 1850745 && id <= 5118348) {
+							qin2010++;
+						} else if (id >= 5118349 && id <= 5719100) {
+							kurokawa2007++;
+						} else if (id >= 5719101 && id <= 5788979) {
+							human2010++;
+						} else if (id >= 5788980 && id <= 5905697) {
+							human2010_alt++; 
+						} else if (id >= 5905698 && id <= 6153068) {
+							food++;
+						} else {
+							System.out.println("else: " + id + "!!!");
+						}
+						counter++;
+					} 
+				}
+			}
+			System.out.println("no. sequences: " + counter);
+			System.out.println("bact 594: " + bact594);
+			System.out.println("qin2010: " + qin2010);
+			System.out.println("kurokawa2007: " + kurokawa2007);
+			System.out.println("human2010: " + human2010);
+			System.out.println("human2010_alt: " + human2010_alt);
+			System.out.println("food: " + food);
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 		Database readDB = FastaUtilities.read("metadb_potsdam.fasta");
 		FastaUtilities.writeDatabase(readDB, "metadb_potsdam_formatted.fasta");

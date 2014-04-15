@@ -73,20 +73,22 @@ public class SpectrumExtractorTest {
 	public void testGetMascotGenericFile() throws SQLException, IOException {
 		List<Searchspectrum> searchspectra = Searchspectrum.findFromExperimentID(203, conn);
 		System.out.println("No. Spectra: " + searchspectra.size());
-		for (Searchspectrum s : searchspectra) {
+		
+		for (int i = 10000; i < 20000; i++) {
+			Searchspectrum s = searchspectra.get(i);
 			boolean identified = false;
-//			List<XTandemhit> hits1 = XTandemhit.getHitsFromSpectrumID(s.getSearchspectrumid(), conn);
-//			List<Omssahit> hits2 = Omssahit.getHitsFromSpectrumID(s.getSearchspectrumid(), conn);
-//			
-//			// Check for available identifications.
-//			if (hits1.size() > 0 || hits2.size() > 0) identified = true;
+			List<XTandemhit> hits1 = XTandemhit.getHitsFromSpectrumID(s.getSearchspectrumid(), conn);
+			List<Omssahit> hits2 = Omssahit.getHitsFromSpectrumID(s.getSearchspectrumid(), conn);
+			
+			// Check for available identifications.
+			if (hits1.size() > 0 || hits2.size() > 0) identified = true;
 			
 			MascotGenericFile mgf = SpectrumExtractor.getMascotGenericFile(s.getFk_spectrumid(), conn);
 			File outFile = null;
 			if (identified) {
-				outFile = new File("C:/temp/SpectrumQuality/P1/ids/Spectrum" + s.getFk_spectrumid() + ".mgf");
+				outFile = new File("/scratch/SpectrumQuality/P23/id2/Spectrum" + s.getFk_spectrumid() + ".mgf");
 			} else {
-				outFile = new File("C:/temp/SpectrumQuality/P23/all/Spectrum" + s.getFk_spectrumid() + ".mgf");
+				outFile = new File("/scratch/SpectrumQuality/P23/nonid2/Spectrum" + s.getFk_spectrumid() + ".mgf");
 			}
 			outFile.createNewFile();
 			FileOutputStream fos = new FileOutputStream(outFile);

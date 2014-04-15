@@ -102,6 +102,7 @@ public class SettingsPanel extends JPanel {
 		connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
 		connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
 		connectBtn.setToolTipText("Connect to Server");
+		final Client client = Client.getInstance();
 		
 		connectBtn.addActionListener(new ActionListener() {
 			/** The flag denoting whether a connection has been established. */
@@ -109,22 +110,25 @@ public class SettingsPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				// TODO: determine connection state by querying client or something
 				if (connected) {
 					connectBtn.setIcon(IconConstants.DISCONNECT_ICON);
 					connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
 					connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
 					connectBtn.setToolTipText("Connect to Server");
+					client.disconnectFromServer();
+					connected = false;
 				} else {
-					connectBtn.setIcon(IconConstants.CONNECT_ICON);
-					connectBtn.setRolloverIcon(IconConstants.CONNECT_ROLLOVER_ICON);
-					connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
-					connectBtn.setToolTipText("Disconnect from Server");
+					connected = client.connectToServer();
+					if(connected) {
+						connectBtn.setIcon(IconConstants.CONNECT_ICON);
+						connectBtn.setRolloverIcon(IconConstants.CONNECT_ROLLOVER_ICON);
+						connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+						connectBtn.setToolTipText("Disconnect from Server");
+					}
 				}
-				connected = !connected;
 				quickBtn.setEnabled(connected);
 				searchBtn.setEnabled(connected);
-				// TODO: actually connect to/disconnect from server
+				
 			}
 		});
 		

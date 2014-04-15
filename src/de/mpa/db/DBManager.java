@@ -20,6 +20,7 @@ import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
+import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.storager.CruxStorager;
 import de.mpa.db.storager.InspectStorager;
@@ -79,7 +80,7 @@ public class DBManager {
      */
 	private void init() throws SQLException {	
 		// The database configuration.
-		DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.LOCAL, new DbConnectionSettings());
+		DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, new ConnectionParameters());
 		conn = dbconfig.getConnection();
     }
 	

@@ -11,9 +11,9 @@ import java.util.Date;
 
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.Client;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
-import de.mpa.db.DbConnectionSettings;
 import de.mpa.db.accessor.ProteinAccessor;
 
 /**
@@ -54,8 +54,7 @@ public class DatabaseRepairer {
 
 		try {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration("metaprot",
-					ConnectionType.REMOTE, new DbConnectionSettings());
+			DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, Client.getInstance().getConnectionParameters());
 			Connection conn = dbconfig.getConnection();
 
 			// generate SQL statement

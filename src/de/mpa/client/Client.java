@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.MTOMFeature;
 
 import org.jdesktop.swingx.JXErrorPane;
@@ -32,9 +34,9 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
+import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.client.settings.ServerConnectionSettings;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
@@ -42,7 +44,6 @@ import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
-import de.mpa.db.DbConnectionSettings;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
@@ -72,21 +73,16 @@ public class Client {
 	 * SQL database connection.
 	 */
 	private Connection conn;
-	
-	/**
-	 * SQL database connection settings.
-	 */
-	private DbConnectionSettings dbSettings;
-	
-	/**
-	 * Webservice/server connection settings.
-	 */
-	private ServerConnectionSettings srvSettings; // = new ServerConnectionSettings();
-	
+		
 	/**
 	 * Parameter map containing result fetching-related settings.
 	 */
 	private ParameterMap metaProtParams = new ResultParameters();
+	
+	/**
+	 * Parameter map containing connection settings.
+	 */
+	private ParameterMap connectionParams = new ConnectionParameters();
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -117,6 +113,8 @@ public class Client {
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
+
+	private RequestThread requestThread;
 
 	/**
 	 * Creates the singleton client instance in non-viewer, non-debug mode.
@@ -164,8 +162,7 @@ public class Client {
 		// check whether connection is valid
 		if (conn == null || !conn.isValid(0)) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration(
-					"metaprot", ConnectionType.REMOTE, getDatabaseConnectionSettings());
+			DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, connectionParams);
 			this.conn = dbconfig.getConnection();
 		}
 		return conn;
@@ -185,40 +182,82 @@ public class Client {
 	/**
 	 * Connects the client to the web service.
 	 */
-	public void connect() {
-		srvSettings = new ServerConnectionSettings();
-		
-//		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
-		
-		service = new ServerImplService();
-		// Enable MTOM
-		server = service.getServerImplPort(new MTOMFeature());
-		
-//		// enable MTOM in client
-//		BindingProvider bp = (BindingProvider) server;
-//
-//		// Connection timeout: 12 hours
-//		bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
-//
-//		// Request timeout: 24 hours
-//		bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
+	public boolean connectToServer() {
+		if (!hasConnectionToServer()){
+			try {
+				service = new ServerImplService();
+				// Enable MTOM
+				server = service.getServerImplPort(new MTOMFeature());
+				
+				// Try to send client to server.
+				sendMessage("Client connected.");
+				
+				// enable MTOM in client
+				BindingProvider bp = (BindingProvider) server;
 
-//		SOAPBinding binding = (SOAPBinding) bp.getBinding();
-//		binding.setMTOMEnabled(true);
+				// Connection timeout: 12 hours
+				bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
 
-		// Start requesting
-		RequestThread thread = new RequestThread();
-		thread.start();
+				// Request timeout: 24 hours
+				bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
+
+			} catch (WebServiceException ex) {
+				return false;
+			}
+			
+			// Start new request thread.
+			requestThread = new RequestThread();
+			requestThread.start();
+			return true;
+		}
+		return false;
 	}
+	
+	/**
+	 * Disconnects manually from the server.
+	 */
+	public void disconnectFromServer() {
+		service = null;
+		server = null;
+		
+		if (requestThread != null){
+			try {
+				requestThread.join();
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		requestThread = null;
 
+	}
+	
+	/**
+	 * Checks whether the client is connected to the server - binding provider is working.
+	 * @return true if client is connected to the server otherwise false.
+	 */
+	public boolean hasConnectionToServer() {
+		// enable MTOM in client
+		if (server == null) {
+			return false;
+		}
+		else {
+			BindingProvider bp = (BindingProvider) server;
+			if (bp != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	// Thread polling the server each second.
 	private class RequestThread extends Thread {
 		@Override
 		public void run() {
-			while (true) {
+			while (hasConnectionToServer()) {
 				try {
-					Thread.sleep(1000);
 					request();
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -246,6 +285,14 @@ public class Client {
 	 */
 	public String receiveMessage() {
 		return server.sendMessage();
+	}
+	
+	/**
+	 * Sends a message to the server.
+	 * @param message Server message
+	 */
+	public void sendMessage(String message) {
+		server.receiveMessage(message);
 	}
 
 	/**
@@ -622,38 +669,19 @@ public class Client {
 	}
 
 	/**
-	 * Returns the DbConnectionSettings.
-	 * @return dbSettings The DBConnectionSettings object.
+	 * Returns the parameter map containing connection settings.
+	 * @return the connection settings
 	 */
-	public DbConnectionSettings getDatabaseConnectionSettings() {
-		if (dbSettings == null) {
-			dbSettings = new DbConnectionSettings();
-		}
-		return dbSettings;
+	public ParameterMap getConnectionParameters() {
+		return this.connectionParams;
 	}
-
+	
 	/**
-	 * Sets the DbConnectionSettings.
-	 * @param dbSettings The DBConnectionSettings object.
+	 * Sets the parameter map containing connection settings.
+	 * @param connectionParams
 	 */
-	public void setDatabaseConnectionSettings(DbConnectionSettings dbSettings) {
-		this.dbSettings = dbSettings;
-	}
-
-	/**
-	 * Returns the ServerConnectionSettings.
-	 * @return dbSettings The ServerConnectionSettings object.
-	 */
-	public ServerConnectionSettings getServerConnectionSettings() {
-		return srvSettings;
-	}
-
-	/**
-	 * Sets the ServerConnectionSettings.
-	 * @param srvSettings The ServerConnectionSettings object.
-	 */
-	public void setServerConnectionSettings(ServerConnectionSettings srvSettings) {
-		this.srvSettings = srvSettings;
+	public void setConnectionParams(ParameterMap connectionParams) {
+		this.connectionParams = connectionParams;
 	}
 	
 	/**
