@@ -11,11 +11,9 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -75,16 +73,6 @@ public class ProjectPanel extends JPanel {
 	 */
 	private AbstractExperiment currentExperiment;
 	
-	/**
-	 * Text field displaying the currently selected project's title
-	 */
-	private JTextField selProjectTtf;
-
-	/**
-	 * Text field displaying the currently selected experiment's title
-	 */
-	private JTextField selExperimentTtf;
-
 	/**
 	 * Table view of all projects stored in the remote database.
 	 */
@@ -156,30 +144,7 @@ public class ProjectPanel extends JPanel {
 	private void initComponents() {
 		
 		// Layout for the project panel
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu",
-				"5dlu, t:p, 5dlu, f:p:g, 5dlu, b:p, 5dlu"));
-		
-		// Current project panel
-		JPanel curProjectPnl = new JPanel();
-		curProjectPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
-		
-		// Selected project
-		selProjectTtf = new JTextField(15);
-		selProjectTtf.setEditable(false);
-		selProjectTtf.setText("None");
-		
-		// Selected experiment
-		selExperimentTtf = new JTextField(15);
-		selExperimentTtf.setEditable(false);
-		selExperimentTtf.setText("None");
-		
-		curProjectPnl.add(new JLabel("Selected Project:"), CC.xy(2,2));
-		curProjectPnl.add(selProjectTtf, CC.xy(4,2));
-		
-		curProjectPnl.add(new JLabel("Selected Experiment:"), CC.xy(2,4));
-		curProjectPnl.add(selExperimentTtf, CC.xy(4,4));
-		
-		JXTitledPanel curProjTtlPnl = PanelConfig.createTitledPanel("Current Project", curProjectPnl);
+		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, b:p, 5dlu"));
 		
 		// Setup the project table
 		JScrollPane projectTblScp = this.setupProjectTable();
@@ -187,7 +152,7 @@ public class ProjectPanel extends JPanel {
 		// Setup the project management buttons.
 		JPanel projectBtnPnl = this.setupProjectButtonPanel();
 		
-		JPanel projectPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
+		JPanel projectPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, b:p, 5dlu"));
 		projectPnl.add(projectTblScp, CC.xy(2, 2));
 		projectPnl.add(projectBtnPnl, CC.xy(2, 4));
 		
@@ -228,10 +193,9 @@ public class ProjectPanel extends JPanel {
 		navPnl.add(skipBtn, CC.xy(3, 1));
 		navPnl.add(nextBtn, CC.xy(5, 1));
 
-		this.add(curProjTtlPnl, CC.xy(2, 2));
-		this.add(projTtlPnl, CC.xy(2, 4));
-		this.add(expTtlPnl, CC.xy(4, 4));
-		this.add(navPnl, CC.xy(4, 6));
+		this.add(projTtlPnl, CC.xy(2, 2));
+		this.add(expTtlPnl, CC.xy(4, 2));
+		this.add(navPnl, CC.xy(4, 4));
 	}
 
 	/**
@@ -310,9 +274,7 @@ public class ProjectPanel extends JPanel {
 				
 				// update text fields
 				String title = (selectedProject != null) ? selectedProject.getTitle() : "None";
-				selProjectTtf.setText(title);
 				clientFrame.getStatusBar().getProjectTextField().setText(title);
-				selExperimentTtf.setText("None");
 				clientFrame.getStatusBar().getExperimentTextField().setText("None");
 				
 				// enable buttons
@@ -360,11 +322,14 @@ public class ProjectPanel extends JPanel {
 		layout.setColumnGroups(new int[][] { { 1, 3, 5 } });
 		JPanel projectBtnPnl = new JPanel(layout);
 		
+		Insets buttonInsets = new Insets(5, 4, 5, 4);
+		
 		// create 'Add Project' button
 		addProjectBtn = new JButton("Add Project", IconConstants.PROJECT_ADD_ICON);
 		addProjectBtn.setRolloverIcon(IconConstants.PROJECT_ADD_ROLLOVER_ICON);
 		addProjectBtn.setPressedIcon(IconConstants.PROJECT_ADD_PRESSED_ICON);
-		addProjectBtn.setMargin(new Insets(5, 4, 5, 4));
+		addProjectBtn.setMargin(buttonInsets);
+		
 		addProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -382,13 +347,15 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
+		
 
 		// create 'View/Edit Details' button
 		modifyProjectBtn = new JButton("View/Edit Details", IconConstants.PROJECT_VIEW_ICON);
 		modifyProjectBtn.setRolloverIcon(IconConstants.PROJECT_VIEW_ROLLOVER_ICON);
 		modifyProjectBtn.setPressedIcon(IconConstants.PROJECT_VIEW_PRESSED_ICON);
-		modifyProjectBtn.setMargin(new Insets(5, 4, 5, 4));
+		modifyProjectBtn.setMargin(buttonInsets);
 		modifyProjectBtn.setEnabled(false);
+		
 		modifyProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -410,8 +377,9 @@ public class ProjectPanel extends JPanel {
 		deleteProjectBtn = new JButton("Delete Project", IconConstants.PROJECT_DELETE_ICON);
 		deleteProjectBtn.setRolloverIcon(IconConstants.PROJECT_DELETE_ROLLOVER_ICON);
 		deleteProjectBtn.setPressedIcon(IconConstants.PROJECT_DELETE_PRESSED_ICON);
-		deleteProjectBtn.setMargin(new Insets(5, 4, 5, 4));
+		deleteProjectBtn.setMargin(buttonInsets);
 		deleteProjectBtn.setEnabled(false);
+		
 		deleteProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -432,8 +400,6 @@ public class ProjectPanel extends JPanel {
 						deleteExperimentBtn.setEnabled(false);
 
 						// Reset textfields
-						selProjectTtf.setText("None");
-						selExperimentTtf.setText("None");
 						clientFrame.getStatusBar().getProjectTextField().setText("None");
 						clientFrame.getStatusBar().getExperimentTextField().setText("None");
 
@@ -530,12 +496,13 @@ public class ProjectPanel extends JPanel {
 				
 				// update text fields
 				String title = (selectedExperiment != null) ? selectedExperiment.getTitle() : "None";
-				selExperimentTtf.setText(title);
 				clientFrame.getStatusBar().getExperimentTextField().setText(title);
 				
 				// enable buttons
 				modifyExperimentBtn.setEnabled(true);
 				deleteExperimentBtn.setEnabled(true);
+				
+				clientFrame.getResultsPanel().setProcessingEnabled(false);
 				
 				// check whether the selected experiment has any search results associated with it
 				boolean hasResult = (selectedExperiment != null) ? selectedExperiment.hasSearchResult() : false;
@@ -582,12 +549,15 @@ public class ProjectPanel extends JPanel {
 		layout.setColumnGroups(new int[][] { { 1, 3, 5 } });
 		JPanel experimentBtnPnl = new JPanel(layout);
 		
+		Insets buttonInsets = new Insets(5, 4, 5, 4);
+		
 		// create 'Add Experiment' button
 		addExperimentBtn = new JButton("Add Experiment", IconConstants.EXPERIMENT_ADD_ICON);
 		addExperimentBtn.setRolloverIcon(IconConstants.EXPERIMENT_ADD_ROLLOVER_ICON);
 		addExperimentBtn.setPressedIcon(IconConstants.EXPERIMENT_ADD_PRESSED_ICON);
-		addExperimentBtn.setMargin(new Insets(5, 4, 5, 4));
+		addExperimentBtn.setMargin(buttonInsets);
 		addExperimentBtn.setEnabled(false);
+		
 		addExperimentBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -653,8 +623,9 @@ public class ProjectPanel extends JPanel {
 		modifyExperimentBtn = new JButton("View/Edit Details", IconConstants.EXPERIMENT_VIEW_ICON);
 		modifyExperimentBtn.setRolloverIcon(IconConstants.EXPERIMENT_VIEW_ROLLOVER_ICON);
 		modifyExperimentBtn.setPressedIcon(IconConstants.EXPERIMENT_VIEW_PRESSED_ICON);
-		modifyExperimentBtn.setMargin(new Insets(5, 4, 5, 4));
+		modifyExperimentBtn.setMargin(buttonInsets);
 		modifyExperimentBtn.setEnabled(false);
+		
 		modifyExperimentBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -671,8 +642,9 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn = new JButton("Delete Experiment", IconConstants.EXPERIMENT_DELETE_ICON);
 		deleteExperimentBtn.setRolloverIcon(IconConstants.EXPERIMENT_DELETE_ROLLOVER_ICON);
 		deleteExperimentBtn.setPressedIcon(IconConstants.EXPERIMENT_DELETE_PRESSED_ICON);
-		deleteExperimentBtn.setMargin(new Insets(5, 4, 5, 4));
+		deleteExperimentBtn.setMargin(buttonInsets);
 		deleteExperimentBtn.setEnabled(false);
+		
 		deleteExperimentBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -689,7 +661,6 @@ public class ProjectPanel extends JPanel {
 						deleteExperimentBtn.setEnabled(false);
 
 						// Reset textfields
-						selExperimentTtf.setText("None");
 						clientFrame.getStatusBar().getExperimentTextField().setText("None");
 						
 					} catch (Exception e) {

@@ -130,11 +130,19 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	 * @return the search result object
 	 */
 	public abstract DbSearchResult getSearchResult();
+	
+	/**
+	 * Sets the search result object.
+	 * @param result the result object to set
+	 */
+	public abstract void setSearchResult(DbSearchResult result);
 
 	/**
 	 * Clears the search result object.
 	 */
-	public abstract void clearSearchResult();
+	public void clearSearchResult() {
+		this.setSearchResult(null);
+	}
 	
 	@Override
 	public boolean equals(Object obj) {

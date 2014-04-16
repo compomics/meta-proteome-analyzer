@@ -402,8 +402,12 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	private class BuildGraphDatabaseTask extends SwingWorker {
 
 		@Override
-		protected Object doInBackground() throws Exception {
-			Client.getInstance().setupGraphDatabaseContent();
+		protected Object doInBackground() {
+			try {
+				Client.getInstance().setupGraphDatabaseContent();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return null;
 		}
 		

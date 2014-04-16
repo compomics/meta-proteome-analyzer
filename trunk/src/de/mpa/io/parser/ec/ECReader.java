@@ -12,20 +12,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.mpa.io.parser.kegg.KEGGReader;
+
 /**
  * 
- * @author heyer
- *
+ * 
+ * @author A. Behne
  */
 public class ECReader {
 
 	/**
-	 * Maps E.C. numbers to their descriptions read from a specified flat file stream. 
-	 * 
-	 * @param is the file input stream of the description flat file
-	 * @return Map containing E.C.-to-Description pairs
+	 * Maps E.C. numbers to their descriptions read from the specified IntEnz XML file stream. 
+	 * @param is the file input stream of the IntEnz XML file
+	 * @return map containing E.C. number-to-E.C. entry object pairs
 	 */
-	public static Map<String, ECEntry> readEC(InputStream is) {
+	public static Map<String, ECEntry> readXML(InputStream is) {
 
 		// File of reduced xml File
 		// File xmlFile = new File(filePath);
@@ -234,4 +235,6 @@ public class ECReader {
 		}
 		return ecMap;
 	}
+	
+	
 }

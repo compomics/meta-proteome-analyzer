@@ -9,8 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 
-import de.mpa.analysis.KeggMaps;
-import de.mpa.client.ui.SortableTreeNode;
+import de.mpa.client.Constants;
 import de.mpa.io.parser.ec.ECEntry;
 import de.mpa.io.parser.ec.ECReader;
 
@@ -31,26 +30,6 @@ public class Parameters {
 	private Map<String, ECEntry> ecMap;
 	
 	/**
-	 * KEGG taxonomy map.
-	 */
-	private Map<String, Character> keggTaxonomyMap;
-	
-	/**
-	 * KEGG pathway map.
-	 */
-	private Map<String, Character> keggPathwayMap;
-	
-	/**
-	 * KEGG organism tree root node.
-	 */
-	private SortableTreeNode keggOrganismTreeRoot;
-	
-	/**
-	 * KEGG pathway tree root node.
-	 */
-	private SortableTreeNode keggPathwayTreeRoot;
-
-	/**
 	 *  Map of all Uniprot peptides and the according accessions
 	 */
 	private Map<String, String[]> uniProtPeptideMap = null;
@@ -66,7 +45,7 @@ public class Parameters {
 	 */
 	private Parameters() {
 		try {
-			initializeParameters();
+			this.initializeParameters();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -89,13 +68,8 @@ public class Parameters {
 	 */
 	private void initializeParameters() throws URISyntaxException {
 		// Initialize the EC-number map
-		ecMap = ECReader.readEC(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
-		
-		// Initialize the KEGG pathway map
-		keggPathwayMap = KeggMaps.readKeggPathways(getClass().getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
-		
-		// Initialize the KEGG taxonomy map
-		keggTaxonomyMap = KeggMaps.readKeggOrganisms(getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
+		ecMap = ECReader.readXML(getClass().getResourceAsStream(
+				Constants.CONFIGURATION_PATH + "ecReduced.xml"));
 	}
 	
 	/**
@@ -158,36 +132,4 @@ public class Parameters {
 		return ecMap;
 	}
 
-	/**
-	 * This method returns the map of all KeggPathways
-	 * @return keggPathwayMap. The map of all KeggPathways
-	 */
-	public Map<String, Character> getKeggPathwayMap() {
-		return keggPathwayMap;
-	}
-
-	/**
-	 * This method returns the map of all KeggTaxons
-	 * @return keggTaxonomyMap
-	 */
-	public Map<String, Character> getKeggTaxonomyMap() {
-		return keggTaxonomyMap;
-	}
-	
-	/**
-	 * Returns the KEGG organism tree root.
-	 * @return the KEGG organism tree root.
-	 */
-	public SortableTreeNode getKeggOrganismTreeRoot() {
-		return keggOrganismTreeRoot;
-	}
-	
-	/**
-	 * Returns the KEGG pathway tree root.
-	 * @return the KEGG pathway tree root.
-	 */
-	public SortableTreeNode getKeggPathwayTreeRoot() {
-		return keggPathwayTreeRoot;
-	}
-	
 }
