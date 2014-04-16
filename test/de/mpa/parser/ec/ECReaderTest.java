@@ -17,7 +17,7 @@ public class ECReaderTest extends TestCase {
 	@Before
 	public void setUp() {
 		// Initialize the EC-number Map
-		ecMap = ECReader.readEC(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
+		ecMap = ECReader.readXML(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
 	}
 
 	@Test

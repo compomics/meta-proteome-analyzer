@@ -176,7 +176,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				// Apply component listener to synchronize task pane size with dialog size
 				taskPane.addComponentListener(new ComponentAdapter() {
 					@Override
-					public void componentResized(ComponentEvent e) {
+					public void componentResized(ComponentEvent evt) {
 						pack();
 					}
 				});
@@ -251,7 +251,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		okBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				applyChanges();
 				status |= DIALOG_ACCEPTED;
 				dispose();
@@ -266,7 +266,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		cancelBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				status = DIALOG_CANCELLED;
 				dispose();
 			}

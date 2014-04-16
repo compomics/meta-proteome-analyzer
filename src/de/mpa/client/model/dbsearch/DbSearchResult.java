@@ -24,6 +24,12 @@ public class DbSearchResult implements Serializable {
 	private static final long serialVersionUID = 1L; 
 	
 	/**
+	 * Flag indicating whether this result object has not been subject to
+	 * further processing.
+	 */
+	private boolean raw = true;
+	
+	/**
 	 * The project title.
 	 */
 	private String projectTitle;
@@ -116,6 +122,23 @@ public class DbSearchResult implements Serializable {
 		proteinHit.addPeptideHit(peptideHit);
 		peptideHit.addSpectrumMatch(spectrumMatch);
 		spectrumMatch.addSearchHit(searchHit);
+	}
+
+	/**
+	 * Returns whether this result object has not been processed yet.
+	 * @return <code>true</code> if this is an unprocessed result, <code>false</code> otherwise
+	 */
+	public boolean isRaw() {
+		return raw;
+	}
+
+	/**
+	 * Sets the state flag denoting whether this result object has been
+	 * processed to the specified value.
+	 * @param raw <code>true</code> if this result has not been processed, <code>false</code> otherwise
+	 */
+	public void setRaw(boolean raw) {
+		this.raw = raw;
 	}
 
 	/**

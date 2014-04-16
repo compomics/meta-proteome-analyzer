@@ -40,7 +40,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	
 	@Override
 	public int getColumnCount() {
-		return 12;
+		return 13;
 	}
 	
 	@Override
@@ -49,13 +49,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			ProteinHit ph = (ProteinHit) userObject;
 			if (ph instanceof MetaProteinHit) {
 				switch (column) {
-				case 0:
+				case ProteinTreeTables.ACCESSION_COLUMN:
 					return this.toString();
-				case 1:
+				case ProteinTreeTables.DESCRIPTION_COLUMN:
 					return ph.getDescription();
-				case 2:
+				case ProteinTreeTables.TAXONOMY_COLUMN:
 					return ph.getTaxonomyNode();
-				case 11:
+				case ProteinTreeTables.WEB_RESOURCES_COLUMN:
 					// web resource column
 					return null;
 				default:
@@ -63,12 +63,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 				}
 			} else {
 				switch (column) {
-				case 0:
+				case ProteinTreeTables.ACCESSION_COLUMN:
 					return this.toString();
-				case 1:
+				case ProteinTreeTables.DESCRIPTION_COLUMN:
 					String description = ph.getDescription();
-					if (description == null) description = "";
-					
+					if (description == null) {
+						description = "";
+					}
 					int underscore = description.indexOf("_");
 					if (underscore > 0) {
 						int whitespace = description.indexOf(" ");
@@ -77,39 +78,42 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 						}
 					}
 					return description;
-				case 2:
+				case ProteinTreeTables.TAXONOMY_COLUMN:
 					return ph.getTaxonomyNode();
-				case 3:
-					if (ph.getUniProtEntry() == null) return null;
+				case ProteinTreeTables.SEQUENCE_COLUMN:
+					return ph.getSequence();
+				case ProteinTreeTables.UNIREF_COLUMN:
+					if (ph.getUniProtEntry() == null) {
+						return null;
+					}
 					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
 					ComboBoxModel model = (ComboBoxModel) parameter.getValue();
 					ClusterRule rule = (ClusterRule) model.getSelectedItem();
-					
 					switch (rule) {
-					case UNIREF100:
-						return ph.getUniProtEntry().getUniRef100id();
-					case UNIREF90:
-						return ph.getUniProtEntry().getUniRef90id();
-					case UNIREF50:
-						return ph.getUniProtEntry().getUniRef50id();
-					default:
-						return ph.getUniProtEntry().getUniRef100id();
+						case UNIREF100:
+							return ph.getUniProtEntry().getUniRef100id();
+						case UNIREF90:
+							return ph.getUniProtEntry().getUniRef90id();
+						case UNIREF50:
+							return ph.getUniProtEntry().getUniRef50id();
+						default:
+							return ph.getUniProtEntry().getUniRef100id();
 					}
-				case 4:
+				case ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN:
 					return ph.getCoverage();
-				case 5:
+				case ProteinTreeTables.MOLECULAR_WEIGHT_COLUMN:
 					return ph.getMolecularWeight();
-				case 6:
+				case ProteinTreeTables.ISOELECTRIC_POINT_COLUMN:
 					return ph.getIsoelectricPoint();
-				case 7:
+				case ProteinTreeTables.PEPTIDE_COUNT_COLUMN:
 					return ph.getPeptideCount();
-				case 8:
+				case ProteinTreeTables.SPECTRAL_COUNT_COLUMN:
 					return ph.getSpectralCount();
-				case 9:
+				case ProteinTreeTables.EMPAI_COLUMN:
 					return ph.getEmPAI();
-				case 10:
+				case ProteinTreeTables.NSAF_COLUMN:
 					return ph.getNSAF();
-				case 11:
+				case ProteinTreeTables.WEB_RESOURCES_COLUMN:
 					return IconConstants.WEB_RESOURCE_ICON;
 				default:
 					return super.getValueAt(column);

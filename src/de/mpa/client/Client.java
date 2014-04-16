@@ -3,19 +3,24 @@ package de.mpa.client;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
@@ -33,7 +38,6 @@ import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.specsim.SpecSimResult;
-import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
@@ -395,7 +399,7 @@ public class Client {
 	synchronized public void setupGraphDatabaseContent() {
 		// If graph database is already in use.
 		if (graphDatabaseHandler != null) {
-			// Shutdown old graph database.
+			// Shut down old graph database.
 			graphDatabaseHandler.shutDown();
 		}
 		
@@ -408,62 +412,15 @@ public class Client {
 	}
 	
 	/**
-	 * Queries the database to retrieve a list of all possible candidates for 
-	 * spectral comparison belonging to a specified experiment ID.
-	 * @deprecated Not used anymore, server handles spectral comparison now. Feel free to delete.
-	 * @param experimentID The experiment's ID.
-	 * @return A list of candidates for spectral comparison.
-	 * @throws SQLException
-	 */
-	@Deprecated
-	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
-	}
-
-	/**
-	 * Queries the database to retrieve a mapping of search spectrum IDs 
-	 * to their respective spectrum file titles.
-	 * @param matches A list of SpectrumMatch objects
-	 * @return A map containing containing ID-title pairs.
-	 * @throws SQLException
-	 */
-	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
-	}
-
-	/**
 	 * Queries the database to retrieve a spectrum file belonging to a specific searchspectrum entry.
 	 * @param searchspectrumID The primary key of the searchspectrum entry.
 	 * @return The corresponding spectrum file object.
 	 * @throws SQLException
 	 */
 	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
+		// TODO: delegate to experiment implementation
 		getConnection();
 		return new SpectrumExtractor(conn).getSpectrumBySearchSpectrumID(searchspectrumID);
-	}
-
-	/**
-	 * Queries the database to retrieve a spectrum file belonging to a specific spectrum entry.
-	 * @param spectrumID The primary key of the spectrum entry.
-	 * @return The corresponding spectrum file object.
-	 * @throws SQLException
-	 */
-	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumBySpectrumID(spectrumID);
-	}
-
-	/**
-	 * Queries the database to retrieve a spectrum file belonging to a specific libspectrum entry.
-	 * @param libspectrumID The primary key of the libspectrum entry.
-	 * @return The corresponding spectrum file object.
-	 * @throws SQLException
-	 */
-	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumByLibSpectrumID(libspectrumID);
 	}
 
 	/**
@@ -475,6 +432,7 @@ public class Client {
 	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
 	 */
 	public MascotGenericFile readSpectrumFromFile(String pathname, long startPos, long endPos) {
+		// TODO: delegate to experiment implementation
 		MascotGenericFile mgf = null;
 		try {
 			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
@@ -575,19 +533,22 @@ public class Client {
 	} 
 
 	/**
-	 * Writes the current database search result object to a the specified file.
-	 * @param filename The String representing the desired file path and name.
+	 * Copies the backup raw database search result dump to the specified file
+	 * path, fetches the spectra referenced by the result object and stores them
+	 * alongside the raw result.
+	 * @param pathname the string representing the desired file path and name for the result object
 	 */
-	public void writeDbSearchResultToFile(String filename) {
+	public void exportDatabaseSearchResult(String pathname) {
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
 	
 		// Dump referenced spectra to separate MGF
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+		this.firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+		this.firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
 		String status = "FINISHED";
+		// TODO: clean up mix of Java IO and NIO APIs
 		try {
-			String prefix = filename.substring(0, filename.indexOf('.'));
+			String prefix = pathname.substring(0, pathname.indexOf('.'));
 			File mgfFile = new File(prefix + ".mgf");
 			FileOutputStream fos = new FileOutputStream(mgfFile);
 			long index = 0L;
@@ -598,7 +559,7 @@ public class Client {
 				mgf.writeToStream(fos);
 				index = mgfFile.length();
 				spectrumMatch.setEndIndex(index);
-				firePropertyChange("progressmade", false, true);
+				this.firePropertyChange("progressmade", false, true);
 			}
 			fos.flush();
 			fos.close();
@@ -607,31 +568,79 @@ public class Client {
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
 	
 		// Dump results object to file
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
 		status = "FINISHED";
+		this.firePropertyChange("indeterminate", false, true);
 		try {
-			firePropertyChange("indeterminate", false, true);
-			// store as compressed binary object
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
-					new GZIPOutputStream(new FileOutputStream(new File(filename)))));
-			oos.writeObject(dbSearchResult);
-			oos.flush();
-			oos.close();
+			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
+			if (!backupFile.exists()) {
+				// technically this should never happen
+				System.err.println("No result file backup detected, creating new one...");
+				this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+			}
+			// Copy backup file to target location
+			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		firePropertyChange("indeterminate", true, false);
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
+		this.firePropertyChange("indeterminate", true, false);
+		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
+	}
+	
+	/**
+	 * Dumps the specified search result object as a binary file identified by the specified path name.
+	 * @param result the result object to dump
+	 * @param pathname the path name string
+	 * @throws IOException if an I/O error occurs
+	 */
+	private void dumpDatabaseSearchResult(DbSearchResult result, String pathname) throws IOException {
+		// store as compressed binary object
+		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
+				new GZIPOutputStream(new FileOutputStream(new File(pathname)))));
+		oos.writeObject(result);
+		oos.flush();
+		oos.close();
+	}
+	
+	/**
+	 * Dumps the current database search result object to a temporary file for
+	 * result restoration/export purposes.
+	 */
+	public void dumpBackupDatabaseSearchResult() {
+		try {
+			this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+		} catch (IOException e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+		}
+	}
+	
+	/**
+	 * Restores the current database search result object from the dumped temporary file.
+	 * @return the restored result object or <code>null</code> if an error occurred
+	 */
+	public DbSearchResult restoreBackupDatabaseSearchResult() {
+		AbstractExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
+				new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))))) {
+			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
+			currentExperiment.setSearchResult(dbSearchResult);
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			currentExperiment.clearSearchResult();
+		}
+		return currentExperiment.getSearchResult();
 	}
 
 	/**
 	 * Adds a property change listener.
-	 * @param pcl
+	 * @param pcl the property change listener to add
 	 */
 	public void addPropertyChangeListener(PropertyChangeListener pcl) { 
 		pSupport.addPropertyChangeListener(pcl); 
@@ -639,7 +648,7 @@ public class Client {
 
 	/**
 	 * Removes a property change listener.
-	 * @param pcl
+	 * @param pcl the property change listener to remove
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener pcl) { 
 		pSupport.removePropertyChangeListener(pcl);
@@ -699,16 +708,17 @@ public class Client {
 	public GraphDatabaseHandler getGraphDatabaseHandler() {
 		return graphDatabaseHandler;
 	}
-
+	
 	/**
 	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
 	 */
 	public DbSearchResult getDatabaseSearchResult() {
+		// TODO: (re-)create project manager class to avoid mixing UI and non-UI code
 		dbSearchResult = ClientFrame.getInstance().getProjectPanel().getSearchResult();
 		return dbSearchResult;
 	}
-
+	
 	/**
 	 * Returns whether the client is in viewer mode.
 	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
@@ -726,7 +736,7 @@ public class Client {
 	}
 
 	/**
-	 * Shuts down the JVM.
+	 * Shuts down the application.
 	 */
 	public static void exit() {
 		// Shutdown the graph database
@@ -737,11 +747,14 @@ public class Client {
 		try {
 			// Close SQL DB connection
 			instance.closeDBConnection();
-		} catch (SQLException e) {
+			// Delete backup result object
+			Files.deleteIfExists(Paths.get(Constants.BACKUP_RESULT_PATH));
+		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		} finally {
+			System.exit(0);
 		}
-		System.exit(0);
 	}
 
 }

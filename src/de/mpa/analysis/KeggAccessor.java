@@ -31,6 +31,7 @@ import de.mpa.client.Constants;
  * 
  * @author A. Behne
  */
+@Deprecated
 public class KeggAccessor {
 	
 	/**
@@ -216,7 +217,7 @@ public class KeggAccessor {
 		List<Short> pathwayIDs = new ArrayList<Short>();
 		
 		// get pathway tree structure
-		TreeNode pathwayRoot = Constants.KEGG_PATHWAY_ROOT;
+		TreeNode pathwayRoot = Constants.KEGG_ORTHOLOGY_MAP.getRoot();
 		Enumeration<TreeNode> dfEnum = ((DefaultMutableTreeNode) pathwayRoot).depthFirstEnumeration();
 		// iterate nodes of pathway
 		while (dfEnum.hasMoreElements()) {

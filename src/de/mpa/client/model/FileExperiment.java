@@ -120,10 +120,10 @@ public class FileExperiment extends AbstractExperiment {
 		}
 		return searchResult;
 	}
-
+	
 	@Override
-	public void clearSearchResult() {
-		searchResult = null;
+	public void setSearchResult(DbSearchResult searchResult) {
+		this.searchResult = searchResult;
 	}
 
 	@Override

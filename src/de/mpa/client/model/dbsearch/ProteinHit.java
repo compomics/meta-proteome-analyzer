@@ -306,7 +306,10 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Returns the peptide count for the protein hit.
 	 * @return the number of peptides found in the protein hit
 	 */
-	public int getPeptideCount(){
+	public int getPeptideCount() {
+		if (visPeptideHits == null) {
+			return peptideHits.size();
+		}
 		return visPeptideHits.size();
 	}
 	

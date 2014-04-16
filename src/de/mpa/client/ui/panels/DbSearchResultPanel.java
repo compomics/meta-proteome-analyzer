@@ -62,7 +62,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -806,13 +805,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					throw new IllegalArgumentException("This tree table requires Phylogeny nodes!");
 				}
 			}
-			
 		};
 
 		// Create table from model
 		SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			/** The text to display on top of the table when it's empty */
-			private final String emptyStr = "no peptide selected";
+			private final String emptyStr = "no peptide(s) selected";
 			/** The cached width of the empty table text */
 			private int emptyStrW = 0;
 			
@@ -1142,8 +1140,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					CheckBoxTreeTable treeTbl = ptt.getTreeTable();
 					if (treeTbl.getParent().getParent().isVisible()) {
 						// dump table contents
+						TableColumnExt wrCol = treeTbl.getColumnExt(
+								treeTbl.convertColumnIndexToView(ProteinTreeTables.WEB_RESOURCES_COLUMN));
+						boolean visible = wrCol.isVisible();
+						wrCol.setVisible(false);
 						dumpTableContents(treeTbl);
-						break;
+						wrCol.setVisible(visible);
+						return;
 					}
 				}
 			}
@@ -1611,6 +1614,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			@Override
 			public void initDefaults() {
 				List<TableColumn> columns = treeTbl.getColumns(true);
+				// store column visibility in boolean matrix with 2 columns
 				Boolean[][] values = new Boolean[(columns.size() + 1) / 2][2];
 				String labels = "";
 				for (int i = 0; i < columns.size(); i++) {
@@ -1895,32 +1899,36 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		
 		@Override
 		protected Object doInBackground() throws Exception {
-			DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
-			
-			// Begin by clearing all views
-			for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-				TableConfig.clearTable(ptt.getTreeTable());
-			}
-			TableConfig.clearTable(peptideTbl);
-			coveragePane.clear();
-			TableConfig.clearTable(psmTbl);
-			spectrumPnl.clearSpectrum();
-			
-			// Fetch search result object
-			resultPnl.dbSearchResult = Client.getInstance().getDatabaseSearchResult();
-			
-			// Build local chart data objects
-			HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
-			resultPnl.ontologyData = new OntologyData(
-					resultPnl.dbSearchResult, hl);
-			resultPnl.taxonomyData = new TaxonomyData(
-					resultPnl.dbSearchResult, hl);
+			try {
+				DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
+				
+				// Begin by clearing all views
+				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+					TableConfig.clearTable(ptt.getTreeTable());
+				}
+				TableConfig.clearTable(peptideTbl);
+				coveragePane.clear();
+				TableConfig.clearTable(psmTbl);
+				spectrumPnl.clearSpectrum();
+				
+				// Fetch search result object
+				resultPnl.dbSearchResult = Client.getInstance().getDatabaseSearchResult();
+				
+				// Build local chart data objects
+				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
+				resultPnl.ontologyData = new OntologyData(
+						resultPnl.dbSearchResult, hl);
+				resultPnl.taxonomyData = new TaxonomyData(
+						resultPnl.dbSearchResult, hl);
 
-			// Insert new result data into tables
-			this.refreshProteinTables();
-			
-			// Refresh chart
-			resultPnl.refreshChart(false);
+				// Insert new result data into tables
+				this.refreshProteinTables();
+				
+				// Refresh chart
+				resultPnl.refreshChart(false);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			return null;
 		}
@@ -2057,21 +2065,24 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		
 					// Adjust highlighters
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+						final CheckBoxTreeTable treeTbl = ptt.getTreeTable();
 						
 						// let table method determine baseline automatically, provide ranges
-						treeTbl.updateHighlighters(4, 0, maxCoverage);
-						treeTbl.updateHighlighters(7, 0, maxPeptideCount);
-						treeTbl.updateHighlighters(8, 0, maxSpecCount);
-						treeTbl.updateHighlighters(9, min_emPAI, max_emPAI);
-						treeTbl.updateHighlighters(10, 0, maxNSAF);
+						treeTbl.updateHighlighters(ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN, 0, maxCoverage);
+						treeTbl.updateHighlighters(ProteinTreeTables.PEPTIDE_COUNT_COLUMN, 0, maxPeptideCount);
+						treeTbl.updateHighlighters(ProteinTreeTables.SPECTRAL_COUNT_COLUMN, 0, maxSpecCount);
+						treeTbl.updateHighlighters(ProteinTreeTables.EMPAI_COLUMN, min_emPAI, max_emPAI);
+						treeTbl.updateHighlighters(ProteinTreeTables.NSAF_COLUMN, 0, maxNSAF);
 						
-						final TableColumnModel tcm2 = treeTbl.getColumnModel();
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								for (int i = 3; i < 11; i++) {
-									((TableColumnExt2) tcm2.getColumn(i)).aggregate();
+								for (int i = ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN;
+										i < ProteinTreeTables.WEB_RESOURCES_COLUMN; i++) {
+									int index = treeTbl.convertColumnIndexToView(i);
+									if (index != -1) {
+										((TableColumnExt2) treeTbl.getColumn(index)).aggregate();
+									}
 								}
 							}
 						});
@@ -2092,6 +2103,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Set up graph database contents
 			ResultsPanel resPnl =
 					(ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
+			resPnl.setProcessingEnabled(true);
+			
 			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();
 		}
 		

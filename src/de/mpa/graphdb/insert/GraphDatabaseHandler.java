@@ -60,11 +60,6 @@ import de.mpa.graphdb.setup.GraphDatabase;
 public class GraphDatabaseHandler {
 	
 	/**
-	 *  Data to be inserted in the graph.
-	 */
-	private Object data;
-	
-	/**
 	 * By default, the first operation on a TransactionalGraph will start a transaction automatically.
 	 */
 	private TransactionalGraph graph;
@@ -93,10 +88,11 @@ public class GraphDatabaseHandler {
 	
 	public GraphDatabaseHandler(GraphDatabase graphDb) {
 		this.graphDb = graphDb;
-		indexGraph = new Neo4jGraph(graphDb.getService());
-		graph = new Neo4jGraph(graphDb.getService());		
-		setupIndices();
-		
+		GraphDatabaseService service = graphDb.getService();
+		engine = new ExecutionEngine(service);
+		indexGraph = new Neo4jGraph(service);
+		graph = new Neo4jGraph(service);		
+		this.setupIndices();
 	}
 	
 	/**
@@ -120,51 +116,36 @@ public class GraphDatabaseHandler {
 	
 	/**
 	 * Sets the data object.
+	 * @param data the data object to set.
 	 */
-	public void setData(Object data) {
-		this.data = data;
-		insert();
-		setupExecutionEngine();
-	}
-	
-	/**
-	 * Initializes the execution engine instance.
-	 */
-	private void setupExecutionEngine() {
-		engine = new ExecutionEngine(graphDb.getService());
+	public void setData(DbSearchResult data) {
+		List<ProteinHit> proteinHits = data.getProteinHitList();
 		
-	}
-
-	/**
-	 * This method inserts the data into the graph database and stops the transaction afterwards.
-	 */
-	private void insert() {
-		if (data instanceof DbSearchResult) {
-			DbSearchResult dbSearchResult = (DbSearchResult) data;
-			List<ProteinHit> proteinHits = dbSearchResult.getProteinHitList();
-			
-			Client client = Client.getInstance();
-			client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE");
-			client.firePropertyChange("resetall", -1L, Long.valueOf(proteinHits.size()));
-			
-			// Add proteinhits
-			for (ProteinHit proteinHit : proteinHits) {
-				addProtein(proteinHit);
-				client.firePropertyChange("progressmade", -1L, 0L);
-			}
-			
-			// Add Meta-Proteins.
-			for (ProteinHit proteinHit : dbSearchResult.getMetaProteins()) {
-				MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
-				addMetaprotein(metaProtein);
-				client.firePropertyChange("progressmade", -1L, 0L);
-			}
-			
-			client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE FINISHED");
+		Client client = Client.getInstance();
+		client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE");
+		client.firePropertyChange("resetall", -1L, Long.valueOf(proteinHits.size()));
+		
+		// Add protein hits
+		for (ProteinHit proteinHit : proteinHits) {
+			this.addProtein(proteinHit);
+			client.firePropertyChange("progressmade", -1L, 0L);
 		}
 		
+		// Add meta-proteins for processed results
+		if (!data.isRaw()) {
+			ProteinHitList metaProteins = data.getMetaProteins();
+			client.firePropertyChange("resetall", -1L, Long.valueOf(metaProteins.size()));
+			for (ProteinHit proteinHit : metaProteins) {
+				MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
+				this.addMetaprotein(metaProtein);
+				client.firePropertyChange("progressmade", -1L, 0L);
+			}
+		}
+		
+		client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE FINISHED");
+		
 		// Stop the transaction
-		stopTransaction();
+		this.stopTransaction();
 	}
 	
 	/**
@@ -172,7 +153,7 @@ public class GraphDatabaseHandler {
 	 * @param protHit Protein hit.
 	 */
 	private void addProtein(ProteinHit protHit) {
-		Vertex proteinVertex =  graph.addVertex(null);
+		Vertex proteinVertex = graph.addVertex(null);
 		
 		String accession = protHit.getAccession();
 		proteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
@@ -182,29 +163,29 @@ public class GraphDatabaseHandler {
 		proteinVertex.setProperty(ProteinProperty.COVERAGE.toString(), Util.roundDouble(protHit.getCoverage() * 100.0, 2));
 		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
-		// Index the proteins by their accession.
+		// Index the proteins by their accession
 		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, proteinVertex);
 		
-		// Add taxonomy.
-		addTaxonomy(protHit, proteinVertex);
+		// Add taxonomy
+		this.addTaxonomy(protHit, proteinVertex);
 		
-		// Add peptides.
-		addPeptides(protHit.getPeptideHitList(), proteinVertex);
+		// Add peptides
+		this.addPeptides(protHit.getPeptideHitList(), proteinVertex);
 		
-		// Add enzyme numbers.
+		// Add enzyme numbers
 		ReducedUniProtEntry uniprotEntry = protHit.getUniProtEntry();
-		// Null check is needed, as if no (reduced) UniProt Entry is provided, enzymes, ontologies, pathways and taxonomies can be skipped.
+		// Null check is needed, as if no (reduced) UniProt Entry is provided, enzymes, ontologies, pathways and taxonomies can be skipped
 		if (uniprotEntry != null) {
 			
 			List<String> ecNumbers = uniprotEntry.getEcNumbers();
-			addEnzymeNumbers(ecNumbers, proteinVertex);
+			this.addEnzymeNumbers(ecNumbers, proteinVertex);
 			
-			// Add pathways.			
+			// Add pathways.		
 			List<String> koNumbers = uniprotEntry.getKNumbers();
-			addPathways(koNumbers, proteinVertex);
+			this.addPathways(koNumbers, proteinVertex);
 			
-			// Add ontologies.
-			addOntologies(protHit, proteinVertex);
+			// Add ontologies
+			this.addOntologies(protHit, proteinVertex);
 		}
 	}
 	
@@ -217,7 +198,10 @@ public class GraphDatabaseHandler {
 		String accession = metaProteinHit.getAccession();
 		metaProteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
-		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getTaxonomyNode().getName());
+		TaxonomyNode taxonomyNode = metaProteinHit.getTaxonomyNode();
+		if (taxonomyNode != null) {
+			metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), taxonomyNode.getName());
+		}
 		metaProteinVertex.setProperty(ProteinProperty.PROTEINCOUNT.toString(), metaProteinHit.getProteinSet().size());
 		
 		// Index the proteins by their accession.
@@ -427,7 +411,10 @@ public class GraphDatabaseHandler {
 				String description = "Start: " + peptideHit.getStart() + " End: " + peptideHit.getEnd();
 				peptideVertex.setProperty(PeptideProperty.DESCRIPTION.toString(), description);
 				peptideVertex.setProperty(PeptideProperty.SPECTRALCOUNT.toString(), peptideHit.getSpectralCount());
-				peptideVertex.setProperty(PeptideProperty.TAXONOMY.toString(), peptideHit.getTaxonomyNode().getName());
+				TaxonomyNode taxonomyNode = peptideHit.getTaxonomyNode();
+				if (taxonomyNode != null) {
+					peptideVertex.setProperty(PeptideProperty.TAXONOMY.toString(), taxonomyNode.getName());
+				}
 				peptideVertex.setProperty(PeptideProperty.MOLECULARWEIGHT.toString(), (Math.round(peptideHit.getMolecularWeight() * 100.0) / 100.0));
 				peptideVertex.setProperty(PeptideProperty.PROTEINCOUNT.toString(), peptideHit.getProteinCount());
 				

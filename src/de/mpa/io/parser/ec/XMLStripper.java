@@ -24,7 +24,7 @@ import com.compomics.util.io.filefilters.XmlFileFilter;
 
 /**
  * Utility class to parse an XML file and strip off unwanted nodes resulting in
- * a reduced output file. This file parse the xml of all EC numbers and creates
+ * a reduced output file. Used to parse the xml of all EC numbers and create
  * a reduced file.<p>
  * Used on <a href="ftp://ftp.ebi.ac.uk/pub/databases/intenz/xml/">
  * IntEnz XML dumps</a>

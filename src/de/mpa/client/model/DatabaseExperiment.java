@@ -157,10 +157,10 @@ public class DatabaseExperiment extends AbstractExperiment {
 	}
 	
 	@Override
-	public void clearSearchResult() {
-		searchResult = null;
+	public void setSearchResult(DbSearchResult searchResult) {
+		this.searchResult = searchResult;
 	}
-
+	
 	/**
 	 * This method converts a search hit into a protein hit and adds it to the current protein hit set.
 	 * @param result the database search result

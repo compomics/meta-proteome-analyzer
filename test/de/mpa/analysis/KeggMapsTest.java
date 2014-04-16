@@ -1,41 +1,33 @@
 package de.mpa.analysis;
 
-import java.util.Map;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import de.mpa.main.Parameters;
+import de.mpa.io.parser.kegg.KEGGMap;
+import de.mpa.io.parser.kegg.KEGGNode;
+import de.mpa.io.parser.kegg.KEGGOrthologyNode;
+import de.mpa.io.parser.kegg.KEGGReader;
 
-public class KeggMapsTest extends TestCase{
+/**
+ * Test class for validating parsed KEGG pathway mappings.
+ * 
+ * @author A. Behne
+ */
+public class KeggMapsTest extends TestCase {
 
-	private Map<String, Character> keggPathwayMap;
-	private Map<String, Character> keggTaxonomyMap;
-
-	@Override
-	public void setUp() throws Exception {
-		// Pathways
-		keggPathwayMap = Parameters.getInstance().getKeggPathwayMap();
-		
-		// Taxonomy
-		keggTaxonomyMap = Parameters.getInstance().getKeggTaxonomyMap();
-	}
-	
-	
-	@Test
-	public void testKeggPathwayMap() {
-		assertEquals('A', keggTaxonomyMap.get("Eukaryotes (155)").charValue());
-		assertEquals('B', keggTaxonomyMap.get("Animals (52)").charValue());
-		assertEquals('C', keggTaxonomyMap.get("Vertebrates (20)").charValue());
-		assertEquals('D', keggTaxonomyMap.get("Reptiles (1)").charValue());
-		assertEquals('E', keggTaxonomyMap.get("rno  Rattus norvegicus (rat)").charValue());
-	}
-	
 	@Test 
-	public void testKeggTaxonmyMap() {
-		assertEquals('A', keggPathwayMap.get("Metabolism").charValue());
-		assertEquals('B', keggPathwayMap.get("Carbohydrate Metabolism").charValue());
-		assertEquals('C', keggPathwayMap.get("04060  Cytokine-cytokine receptor interaction").charValue());
+	public void testKeggPathwayMap() {
+		KEGGMap koMap = new KEGGMap(
+				KEGGReader.readKEGGTree(new KEGGOrthologyNode("root"), "src/conf/ko00001.keg"));
+		
+		List<KEGGNode> nodes = koMap.get("K00844");
+		
+		assertEquals(12, nodes.size());
+		assertEquals("Glycolysis / Gluconeogenesis",
+				((KEGGOrthologyNode) nodes.get(1).getParent()).getDescription());
 	}
+	
 }
