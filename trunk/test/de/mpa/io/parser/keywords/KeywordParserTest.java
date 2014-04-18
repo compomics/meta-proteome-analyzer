@@ -1,4 +1,4 @@
-package de.mpa.parser.keywords;
+package de.mpa.io.parser.keywords;
 
 import java.util.Map;
 

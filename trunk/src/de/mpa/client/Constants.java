@@ -27,8 +27,9 @@ import de.mpa.client.model.AbstractProject;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.parser.ec.ECNode;
+import de.mpa.io.parser.ec.ECReader;
 import de.mpa.io.parser.kegg.KEGGMap;
-import de.mpa.io.parser.kegg.KEGGOrthologyNode;
 import de.mpa.io.parser.kegg.KEGGReader;
 import de.mpa.main.Starter;
 
@@ -138,8 +139,9 @@ public class Constants {
 	 * Map of KEGG Orthology tree leaves.
 	 */
 	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(
-			KEGGReader.readKEGGTree(new KEGGOrthologyNode("root"),
-					CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
+			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
+	
+	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
 	
 	/**
 	 * Units for precurcor and MS/MS tolerance
@@ -171,6 +173,16 @@ public class Constants {
 	public static final String CSV_FILE_SEPARATOR = ",";
 	public static final String TSV_FILE_SEPARATOR = "\t";
 	
+	/**
+	 * Convenience method to initialize the enzyme definition tree.
+	 * @return the root of the en
+	 */
+	private static ECNode createEnzymeTree() {
+		ECNode root = ECReader.readEnzymeClasses(CONFIGURATION_PATH_JAR + File.separator + "enzclass.txt");
+		ECReader.readEnzymes(root, CONFIGURATION_PATH_JAR + File.separator + "enzyme.dat");
+		return root;
+	}
+
 	/**
 	 * Returns the graph database user queries file.
 	 * @return the user queries file

@@ -28,7 +28,8 @@ public class KEGGReader {
 	 * @param path
 	 * @return
 	 */
-	public static KEGGNode readKEGGTree(KEGGNode root, String path) {
+	public static KEGGNode readKEGGTree(String path) {
+		KEGGNode root = new KEGGOrthologyNode("root");
 		KEGGNode parent = root;
 		KEGGNode child = null;
 		

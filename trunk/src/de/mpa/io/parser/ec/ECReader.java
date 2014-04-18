@@ -1,18 +1,29 @@
 package de.mpa.io.parser.ec;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.tree.TreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.mpa.io.parser.kegg.KEGGReader;
+import de.mpa.main.Starter;
 
 /**
  * 
@@ -236,5 +247,247 @@ public class ECReader {
 		return ecMap;
 	}
 	
+	/**
+	 * Reads the enzyme classes stored in the file at the specified path
+	 * location into a tree structure.
+	 * @param path the path to the ENZYME classes definition file
+	 * @return the root node of the enzyme classes tree
+	 */
+	public static ECNode readEnzymeClasses(String path) {
+		ECNode root = new ECNode("root");
+		ECNode parent = root;
+		ECNode child = null;
+		
+		Reader in;
+		if (Starter.isJarExport()) {
+			try {
+				in = new FileReader(new File(path));
+			} catch (FileNotFoundException e) {
+				System.err.println(e.getMessage());
+				return null;
+			}
+		} else {
+			in = new InputStreamReader(ClassLoader.getSystemResourceAsStream(path));
+		}
+		
+		try (BufferedReader br = new BufferedReader(in)) {
+			int currentDepth = 0;
+			String line;
+			while ((line = br.readLine()) != null) {
+				// check whether line starts with number
+				if (line.matches("^[0-9].*")) {
+					// create new child node
+					ECNode newChild = root.createNode(line);
+					if (newChild != null) {
+						// determine depth
+						int depth = 3 - StringUtils.countMatches(newChild.getIdentifier(), "-");
+						// check whether depth changed
+						if (depth < currentDepth) {
+							// move up in hierarchy
+							int delta = currentDepth - depth;
+							for (int i = 0; i < delta; i++) {
+								parent = (ECNode) parent.getParent();
+							}
+						} else if (depth > currentDepth) {
+							// last created node becomes new parent
+							parent = child;
+						}
+						currentDepth = depth;
+						// insert child into tree hierarchy
+						parent.add(newChild);
+						child = newChild;
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return root;
+	}
+
+	/**
+	 * Reads the enzyme data stored in the definition file stored at the
+	 * specified path location and inserts them in the tree structure below the
+	 * specified root node.
+	 * @param root the root node of the enzyme classes tree
+	 * @param path the path to the ENZYME definition file
+	 */
+	public static void readEnzymes(ECNode root, String path) {
+		Reader in;
+		if (Starter.isJarExport()) {
+			try {
+				in = new FileReader(new File(path));
+			} catch (FileNotFoundException e) {
+				System.err.println(e.getMessage());
+				return;
+			}
+		} else {
+			in = new InputStreamReader(ClassLoader.getSystemResourceAsStream(path));
+		}
+		
+		try (BufferedReader br = new BufferedReader(in)) {
+			String id = null;
+			String desc = null;
+			String comments = null;
+			String line;
+			while ((line = br.readLine()) != null) {
+				if (line.length() > 5) {
+					// extract line value
+					String value = line.substring(5);
+					// check whether line starts with specific key tokens
+					if (line.startsWith("ID")) {
+						// insert node using previously stored data, if it exists
+						ECReader.insertNode(root, new ECNode(id, desc, comments));
+						
+						// assign identifier
+						id = value;
+						// reset comments string
+						comments = ""; 
+					} else if (line.startsWith("DE")) {
+						// assign description
+						desc = value;
+					} else if (line.startsWith("CC")) {	// comments token
+						if (value.startsWith("-!-")) {
+							if (!comments.isEmpty()) {
+								comments += "<p>";
+							}
+						}
+						value = value.substring(4);
+						comments += value + " ";
+					}
+				}
+			}
+			// insert final node
+			ECReader.insertNode(root, new ECNode(id, desc, comments));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Convenience method to insert the specified child node into the tree
+	 * structure rooted at the specified root node.
+	 * @param root the root node
+	 * @param newChild the child to insert
+	 */
+	private static void insertNode(ECNode root, ECNode newChild) {
+		String id = newChild.getIdentifier();
+		if (id != null) {
+			// identify parent node
+			ECNode parent = getNode(root, id);
+			if (parent != null) {
+				// insert child node into tree structure
+				parent.add(newChild);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param parent
+	 * @param identifier
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private static ECNode getNode(ECNode parent, String identifier) {
+		short[] ecNums = ECReader.toArray(identifier);
+		int depth = parent.getLevel() + 1;
+		for (int i = depth; i < 5; i++) {
+			// set out-of-depth levels to zero
+			short[] ecTmp = Arrays.copyOf(Arrays.copyOf(ecNums, i), 4);
+			String idTmp = ECReader.toString(ecTmp);
+			Enumeration<ECNode> children = parent.children();
+			while (children.hasMoreElements()) {
+				ECNode child = children.nextElement();
+				if (child.getIdentifier().equals(idTmp)) {
+					parent = child;
+					break;
+				}
+			}
+		}
+		return parent;
+	}
+	
+//	/**
+//	 * Returns the enzyme node with the specified identifier below the specified
+//	 * parent node.
+//	 * @param parent the parent node
+//	 * @param identifier the identifier
+//	 * @return the path of tree nodes from the root to the desired node or
+//	 *  <code>null</code> if no such path exists
+//	 */
+//	@SuppressWarnings("unchecked")
+//	public static ECNode getNode(ECNode parent, String identifier) {
+//		if (identifier != null) {
+//			Enumeration<ECNode> dfe = parent.depthFirstEnumeration();
+//			while (dfe.hasMoreElements()) {
+//				ECNode node = dfe.nextElement();
+//				if (identifier.equals(node.getIdentifier())) {
+//					return node;
+//				}
+//			}
+//		}
+//		return null;
+//	}
+	
+	/**
+	 * Returns the path of enzyme nodes from the root of the enzyme tree to the
+	 * node with the specified identifier string below the specified parent
+	 * node.
+	 * 
+	 * @param parent the parent node
+	 * @param identifier the identifier
+	 * @return the path of tree nodes from the root to the desired node or
+	 *  <code>null</code> if no such path exists
+	 */
+	public static ECNode[] getPath(ECNode parent, String identifier) {
+		ECNode node = ECReader.getNode(parent, identifier);
+		if (node != null) {
+			TreeNode[] path = node.getPath();
+			ECNode[] res = new ECNode[path.length];
+			System.arraycopy(path, 0, res, 0, res.length);
+			return res;
+		}
+		return null;
+	}
+	
+	/**
+	 * Converts an E.C. number string of the format <code>#.#.#.#</code> into an
+	 * array of shorts.
+	 * @param ecString the E.C. number string
+	 * @return an array containing numerical representations of the E.C. number
+	 *  levels or 0 if the string contains unparseable sections
+	 */
+	public static short[] toArray(String ecString) {
+		short[] ec = new short[4];
+		String[] ecTokens = ecString.split("[.]");
+		for (int i = 0; i < ec.length; i++) {
+			try {
+				ec[i] = Short.parseShort(ecTokens[i]);
+			} catch (Exception e) {
+				ec[i] = 0;
+			}
+		}
+		return ec;
+	}
+	
+	/**
+	 * Converts an array of E.C. numbers to a string representation in the
+	 * format <code>#.#.#.#</code>.
+	 * @param ec the E.C. number array
+	 * @return an E.C. number string
+	 */
+	public static String toString(short[] ec) {
+		if (ec.length != 4) {
+			return null;
+		}
+		String ecString = "" + ec[0];
+		for (int i = 1; i < 4; i++) {
+			short num = ec[i];
+			ecString += "." + ((num == 0) ? "-" : num);
+		}
+		return ecString;
+	}
 	
 }

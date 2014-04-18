@@ -1,4 +1,4 @@
-package de.mpa.parser.mascot.dat;
+package de.mpa.io.parser.mascot.dat;
 
 import java.io.File;
 import java.io.FileInputStream;

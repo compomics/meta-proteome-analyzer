@@ -211,10 +211,10 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 		if (this.isProtein()) {
 			ProteinHit ph = (ProteinHit) userObject;
 			switch (column) {
-			case 7:
-				return ph.getPeptideHitList();
-			case 8:
-				return ph.getSpectrumIDs();
+				case ProteinTreeTables.PEPTIDE_COUNT_COLUMN:
+					return ph.getPeptideHitList();
+				case ProteinTreeTables.SPECTRAL_COUNT_COLUMN:
+					return ph.getSpectrumIDs();
 			}
 		}
 		return super.getValuesAt(column);

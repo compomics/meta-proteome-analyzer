@@ -191,16 +191,16 @@ public class UniProtUtilities {
 	 */
 	public enum TaxonomyRank {
 		ROOT("root"),
-		SUPERKINGDOM("superkingdom"),
-		KINGDOM("kingdom"),
-		PHYLUM("phylum"),
-		CLASS("class"),
-		ORDER("order"),
-		FAMILY("family"),
-		GENUS("genus"), 
-		SPECIES("species"), 
-		SUBSPECIES("subspecies"),
-		NO_RANK("no rank"); 
+		SUPERKINGDOM("Superkingdom"),
+		KINGDOM("Kingdom"),
+		PHYLUM("Phylum"),
+		CLASS("Class"),
+		ORDER("Order"),
+		FAMILY("Family"),
+		GENUS("Genus"), 
+		SPECIES("Species"), 
+		SUBSPECIES("Subspecies"),
+		NO_RANK("No rank"); 
 		
 		private String val;
 		private TaxonomyRank(String value) {

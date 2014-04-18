@@ -34,7 +34,6 @@ import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
 import de.mpa.io.ExportHeader;
-import de.mpa.main.Parameters;
 
 /**
  * <b> ClientFrame </b>
@@ -221,9 +220,6 @@ public class ClientFrame extends JFrame {
 		this.setJMenuBar(menuBar);
 		cp.add(tabPane);
 		cp.add(statusPnl, BorderLayout.SOUTH);
-		
-		// TODO: notify progress bar for loading parameters.
-		Parameters.getInstance();
 		
 		// Set application icon
 		this.setIconImage(IconConstants.MPA_ICON.getImage());

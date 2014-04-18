@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 24:10:2013 10:54
+date: 18:04:2014 16:29
 default-namespace: uniprot:keywords
 
 
@@ -49,6 +49,13 @@ is_a: KW-0479
 relationship: category KW-9993
 
 [Term]
+id: KW-1259
+name: Abi system evasion by virus
+def: "Viral protein that counteracts a host abortive infection system (Abi). Bacterial Abi systems are diverse and act as an antiviral defense that targets a crucial step of virus multiplication such as replication, transcription or translation. Activation of Abi systems in the bacterial host leads to viral infection abortion, but can also lead to bacterial cell death (cellular \"suicide\"). For example, some E.coli strains infected by bacteriophage T4 activate an anticodon nuclease which causes depletion of tRNA(Lys) and, consequently, abolition of T4 protein synthesis. However, this effect is counteracted by the repair of tRNA(Lys) in consecutive reactions catalyzed by the viral enzymes polynucleotide kinase and RNA ligase." []
+is_a: KW-0945
+relationship: category KW-9999
+
+[Term]
 id: KW-0937
 name: Abscisic acid biosynthesis
 synonym: "ABA anabolism" [UniProt]
@@ -71,7 +78,7 @@ synonym: "ABA mediated signaling" [UniProt]
 synonym: "ABA signaling pathway" [UniProt]
 synonym: "Abscisic acid mediated signaling" [UniProt]
 def: "Protein involved in the abscisic acid (ABA) (5-(1-hydroxy-2,6,6,trimethyl-4-oxocyclohex-2-en-1-y1)-3-methylpenta-2,4-dienoic acid) signaling pathway (e.g. transport and signal transduction) that regulates many aspects of plant growth, development and cellular signaling (e.g. seed dormancy, seed maturation, vegetative growth and responses to various environmental stimuli such as stomatal closure during drought). This phytohormone can be synthesized from farnesyl diphosphate (direct C15 pathway) or from 9-cis-violaxanthine (indirect C40 pathway)." []
-xref: GO:0009738 "abscisic acid mediated signaling pathway"
+xref: GO:0009738 "abscisic acid-activated signaling pathway"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -149,6 +156,7 @@ relationship: category KW-9993
 id: KW-1178
 name: Actin-dependent inwards viral transport
 def: "Viral protein that allows the active transport of viral material along actin filaments toward the intracellular replication sites during virus entry. This transport probably involves motor proteins like myosins or polymerization/depolymerization reactions as a driving force. Viruses such as poliovirus may utilize this type of intracellular transport." []
+xref: GO:0039680 "actin-dependent intracellular transport of virus towards nucleus"
 is_a: KW-1176
 relationship: category KW-9999
 
@@ -156,6 +164,7 @@ relationship: category KW-9999
 id: KW-1072
 name: Activation of host autophagy by virus
 def: "Viral protein involved in the activation of host autophagy. Autophagy is a major intracellular pathway in the delivery of cytoplasmic material to lysosomes for degradation. It is also essential for the removal of pathogenic protein aggregates from the cell during infection. Although autophagy is clearly important for antiviral immune response, it can also be activated by viruses and serves as platform for viral replication. Some viruses such as poliovirus, use the autophagic pathway as a nonlytic mechanism for viral release." []
+xref: GO:0039520 "induction by virus of host autophagy"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -163,6 +172,7 @@ relationship: category KW-9999
 id: KW-1073
 name: Activation of host caspases by virus
 def: "Viral protein involved in the activation of host cell apoptosis by acting on host caspases. While many viruses encode protein that inhibit apoptosis, viruses can also use apoptosis to their advantage to suppress immune response or to disseminate. Therefore, some viral proteins are able to cleave or activate caspases in order to promote apoptosis." []
+xref: GO:0039651 "induction by virus of host cysteine-type endopeptidase activity involved in apoptotic process"
 is_a: KW-1119
 relationship: category KW-9999
 
@@ -170,6 +180,7 @@ relationship: category KW-9999
 id: KW-1074
 name: Activation of host NF-kappa-B by virus
 def: "Viral protein involved in the activation of host NF-kappa-B. This protein is a pleiotropic transcription factor which is present in almost all cell types and is involved in many biological processed such as inflammation, immunity, differentiation, cell growth, tumorigenesis and apoptosis. Several viruses have developed strategies to activate the NF-kappa-B pathway in order to promote viral replication and prevent virus-induced apoptosis." []
+xref: GO:0039652 "activation by virus of host NF-kappaB transcription factor activity"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -578,7 +589,7 @@ relationship: category KW-9999
 id: KW-0051
 name: Antiviral defense
 def: "Protein synthesized or activated in the cell in response to viral infection, or protein with specific antiviral activity within the cell. Eukaryotic cells have an innate immune mechanism to fight viral infection, which is activated through the interferon signaling pathway or through dsRNA detection in the cytoplasm. It leads to the establishment of an antiviral cell state, which prevents virus replication or induces apoptosis. Most viruses have developed specific proteins to prevent the establishment of an antiviral state. About half of all bacteria and most archaea have a CRISPR (clustered regularly interspersed short plaindromic repeats) system of adaptive immunity to exogenous DNA. CRISPRs clusters are tandem arrays of alternating repeats and spacers, where the spacers in some cases are homologous to sequences from virus and plasmid genomes. The CRISPR arrays are transcribed, processed and in some way aid in detection and resistance to foreign DNA. In at least a few bacteria (E.coli, S.epidermidis) it seems DNA is the target, whereas in Pyrococcus furiosis it seems the CRISPR system targets RNA." []
-xref: GO:0009615 "response to virus"
+xref: GO:0051607 "defense response to virus"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -859,8 +870,8 @@ relationship: category KW-9995
 id: KW-0070
 name: Autoimmune uveitis
 def: "Protein which, if defective, causes autoimmune inflammation of the uvea, which is the vascular middle coat of the eye, comprising the iris, ciliary body and choroid." []
-is_a: KW-9995
 is_a: KW-0844
+is_a: KW-9995
 relationship: category KW-9995
 
 [Term]
@@ -899,7 +910,7 @@ id: KW-0927
 name: Auxin signaling pathway
 synonym: "Auxin mediated signaling pathway" [UniProt]
 def: "Protein involved in the auxin signaling pathway (e.g. transport and signal transduction) that regulates many aspects of plant growth and development (e.g. caulogenesis, rhizogenesis, tropisms, nodulation). The major form of this phytohormone is indole-3-acetic acid (IAA) that can be synthesized both from tryptophan (Trp) using Trp-dependent pathways and from an indolic Trp precursor via Trp-independent pathways. Plants can also obtain IAA by b-oxidation of indole-3-butyric acid (IBA), a second endogenous auxin, or by hydrolysing IAA conjugates, in which IAA is linked to amino acids, sugars or peptides." []
-xref: GO:0009734 "auxin mediated signaling pathway"
+xref: GO:0009734 "auxin-activated signaling pathway"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -1004,8 +1015,8 @@ relationship: category KW-9992
 id: KW-0082
 name: Bait region
 def: "Protein having a peptide stretch which contains specific cleavage sites for different proteinases, and which enables inhibition of all four classes of proteinases." []
-xref: GO:0030414 "peptidase inhibitor activity"
 xref: GO:0010466 "negative regulation of peptidase activity"
+xref: GO:0030414 "peptidase inhibitor activity"
 is_a: KW-9994
 relationship: category KW-9994
 
@@ -1075,8 +1086,8 @@ synonym: "Bile salt catabolism" [UniProt]
 synonym: "Bile salt degradation" [UniProt]
 def: "Protein involved in degradation of bile acids. Bile acids, which exist mainly as bile salts, are a family of carboxylic acid derivatives of cholesterol which play an important role in the digestion and absorption of fat. They are made in the liver, stored in the gallblader, and secreted as needed into the intestines." []
 xref: GO:0030573 "bile acid catabolic process"
-is_a: KW-0753
 is_a: KW-0442
+is_a: KW-0753
 relationship: category KW-9999
 
 [Term]
@@ -1187,6 +1198,13 @@ is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
+id: KW-1222
+name: Bradykinin receptor impairing toxin
+def: "Toxin which interferes with the function of the bradykinin receptor (BDKR). BDKRs are G-protein coupled receptors whose principal ligand is the 9-amino acid peptide bradykinin." []
+is_a: KW-1213
+relationship: category KW-9992
+
+[Term]
 id: KW-1136
 name: Bradyzoite
 def: "Protein expressed in the bradyzoite stage, a latent, slowly growing and cyst-forming stage in the life cycle of coccidians (e.g. Toxoplasmy). Encysted bradyzoites promote chronic infection and widespread dissemination of the parasite." []
@@ -1201,7 +1219,7 @@ synonym: "Branched-chain amino acid biosynthetic process" [UniProt]
 synonym: "Branched-chain amino acid formation" [UniProt]
 synonym: "Branched-chain amino acid synthesis" [UniProt]
 def: "Protein involved in the synthesis of the essential aliphatic branched-chain amino acids leucine (Leu), isoleucine (Ile) and valine (Val)." []
-xref: GO:0009082 "branched chain family amino acid biosynthetic process"
+xref: GO:0009082 "branched-chain amino acid biosynthetic process"
 is_a: KW-0028
 relationship: category KW-9999
 
@@ -1212,7 +1230,7 @@ synonym: "Branched-chain amino acid breakdown" [UniProt]
 synonym: "Branched-chain amino acid catabolic process" [UniProt]
 synonym: "Branched-chain amino acid degradation" [UniProt]
 def: "Protein involved in the degradation of the branched-chain amino acids leucine (Leu), isoleucine (Ile) and valine (Val)." []
-xref: GO:0009083 "branched chain family amino acid catabolic process"
+xref: GO:0009083 "branched-chain amino acid catabolic process"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -1303,9 +1321,9 @@ synonym: "Calcium ion channel" [UniProt]
 def: "Cell membrane glycoprotein forming a channel in a biological membrane selectively permeable to calcium ions. Calcium is essential for a variety of bodily functions, such as neurotransmission, muscle contraction and proper heart function." []
 xref: GO:0005262 "calcium channel activity"
 xref: GO:0070588 "calcium ion transmembrane transport"
-is_a: KW-0407
-is_a: KW-0109
 is_a: KW-0106
+is_a: KW-0109
+is_a: KW-0407
 relationship: category KW-9992
 
 [Term]
@@ -1325,8 +1343,8 @@ synonym: "Ca transport" [UniProt]
 synonym: "Calcium ion transport" [UniProt]
 def: "Protein involved in the transport of calcium ions. Calcium is essential for a variety of bodily functions, such as neurotransmission, muscle contraction and proper heart function." []
 xref: GO:0006816 "calcium ion transport"
-is_a: KW-0406
 is_a: KW-0106
+is_a: KW-0406
 relationship: category KW-9999
 
 [Term]
@@ -1422,35 +1440,41 @@ synonym: "Cyclic adenylic acid-binding" [UniProt]
 synonym: "Cyclic AMP-binding" [UniProt]
 def: "Protein which binds at least one cAMP. cAMP is the abbreviation for cyclic AMP, adenosine 3',5'-cyclic monophosphate." []
 xref: GO:0030552 "cAMP binding"
-is_a: KW-0547
 is_a: KW-0114
+is_a: KW-0547
 relationship: category KW-9993
 
 [Term]
 id: KW-1157
 name: Cap snatching
 def: "Protein involved in cap snatching, a process in which a cellular mRNA is cleaved few nucleotides after the 5'cap. The resulting 10- to 13-nucleotides long capped fragment serve as primer for the initiation of viral mRNA synthesis. Cap snatching is used by negative stranded RNA virus which do not encode a guanylyl transferase, like influenza or hantaviruses." []
+xref: GO:0075526 "cap snatching"
 is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
-id: KW-0917
-name: Capsid maturation
-synonym: "Viral procapsid maturation" [UniProt]
-def: "Viral protein involved in the maturation of the procapsid into the mature capsid. Maturation usually involves proteolysis events and changes in the folding of the capsid proteins." []
-xref: GO:0046797 "viral procapsid maturation"
-is_a: KW-9999
-relationship: category KW-9999
+id: KW-1232
+name: Capsid decoration protein
+def: "Viral decoration protein attached to the capsid of some prokaryotic viruses. Decoration proteins are located on the outermost surface of the capsid and are involved in stabilizing the head structure." []
+is_a: KW-0167
+relationship: category KW-9998
+
+[Term]
+id: KW-1231
+name: Capsid inner membrane protein
+def: "Viral protein part of the inner membrane of the capsid, a lipid bilayer contained inside the virion capsid." []
+is_a: KW-0946
+relationship: category KW-9998
 
 [Term]
 id: KW-0167
 name: Capsid protein
 synonym: "Coat protein" [UniProt]
-def: "Structural protein of the virion that protects the nucleic acids of the virus." []
+synonym: "Head protein" [UniProt]
+def: "Structural protein of the virion that protects the nucleic acids of the virus. In prokaryotic viruses, this closed shell is also referred to as the head." []
 xref: GO:0019028 "viral capsid"
-is_a: KW-9992
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-0875
@@ -1580,6 +1604,7 @@ id: KW-1166
 name: Caveolin-mediated endocytosis of virus by host
 synonym: "Virion endocytosis by caveolin-coated vesicle" [UniProt]
 def: "Viral protein involved in virus internalization by the host cell via caveolae, which are specialized lipid rafts that form 50-70 nm flask-shaped invaginations of the cell membrane. Caveolins form the structural backbone of caveolae. Internalization via caveolae is not a constitutive process but only occurs upon cell stimulation.Endocytic caveolae deliver their viral content to early endosomes. Caveolae represent a low capacity but highly regulated pathway. This pathway is used by viruses including HPV-31, BK virus, NDV, RSV, Coxsackie B virus, SV40, murine polyomavirus, and Echovirus 1." []
+xref: GO:0075513 "caveolin-mediated endocytosis of virus by host cell"
 is_a: KW-1164
 relationship: category KW-9999
 
@@ -1706,7 +1731,6 @@ relationship: category KW-9998
 id: KW-0961
 name: Cell wall biogenesis/degradation
 def: "Protein which is involved in the formation, organization, maintenance or degradation of the cell wall. The cell wall is an extracellular layer outside the cell membrane which protects the cell against mechanical damage, osmotic strength and which determines the cell shape. It is prominent in most plants, algae, bacteria and fungi." []
-xref: GO:0007047 "cellular cell wall organization"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -1754,8 +1778,8 @@ synonym: "ATPase membrane proton channel" [UniProt]
 synonym: "Proton-transporting ATP synthase complex coupling factor F(0)" [UniProt]
 def: "Protein component of the F-type ATP synthase complex CF(0) or protein involved in its assembly. F-type ATPases consist of the two complex components CF(0), the membrane proton channel, and CF(1), the catalytic core." []
 xref: GO:0045263 "proton-transporting ATP synthase complex, coupling factor F(o)"
-is_a: KW-9998
 is_a: KW-0375
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -1765,8 +1789,8 @@ synonym: "ATPase catalytic core" [UniProt]
 synonym: "Proton-transporting ATP synthase complex catalytic core F(1)" [UniProt]
 def: "Protein component of the F-type ATP synthase complex CF(1) or protein involved in its assembly. F-type ATPases consist of the two complex components CF(0), the membrane proton channel, and CF(1), the catalytic core." []
 xref: GO:0045261 "proton-transporting ATP synthase complex, catalytic core F(1)"
-is_a: KW-9998
 is_a: KW-0066
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -1828,8 +1852,8 @@ synonym: "Guanosine 3',5'-cyclic monophosphate-binding" [UniProt]
 synonym: "Guanosine 3',5'-phosphate-binding" [UniProt]
 def: "Protein which binds at least one cGMP. cGMP is the abbreviation for cyclic GMP, guanosine 3',5'-cyclic monophosphate." []
 xref: GO:0030553 "cGMP binding"
-is_a: KW-0547
 is_a: KW-0140
+is_a: KW-0547
 relationship: category KW-9993
 
 [Term]
@@ -1894,8 +1918,8 @@ def: "Protein which is part of an anion channel found in the plasma lemma and in
 xref: GO:0005254 "chloride channel activity"
 xref: GO:0006821 "chloride transport"
 xref: GO:0034707 "chloride channel complex"
-is_a: KW-0407
 is_a: KW-0406
+is_a: KW-0407
 is_a: KW-0868
 relationship: category KW-9992
 
@@ -1954,8 +1978,8 @@ id: KW-0151
 name: Chlorosome
 def: "Photosynthetic light-harvesting complexes found in green bacteria. Chlorosomes are sac-like organelles appressed to the cytoplasmic membrane of the cell membrane." []
 xref: GO:0046858 "chlorosome"
-is_a: KW-9998
 is_a: KW-0602
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -1967,8 +1991,8 @@ synonym: "Cholesterol formation" [UniProt]
 synonym: "Cholesterol synthesis" [UniProt]
 def: "Protein involved in the synthesis of cholesterol, the major sterol of higher animals. It is a component of cell membranes, especially of the plasma membrane." []
 xref: GO:0006695 "cholesterol biosynthetic process"
-is_a: KW-0756
 is_a: KW-0153
+is_a: KW-0756
 relationship: category KW-9999
 
 [Term]
@@ -2114,6 +2138,7 @@ id: KW-1167
 name: Clathrin- and caveolin-independent endocytosis of virus by host
 synonym: "Non-clathrin/non caveolin-mediated endocytosis by host" [UniProt]
 def: "Viral protein involved in virus internalization into the host cell via endocytic pathways that involve neither clathrin nor caveolins. These pathways can be further defined by their dependency on various molecules such as cholesterol, DNM2/Dynamin-2, small GTPases or tyrosine kinase and possibly involve non-caveolar lipid rafts. Clathrin- and caveolin-independent pathways are used by viruses including poliovirus, human rhinovirus 14, lymphocytic choriomeningitis virus, murine norovirus-1 and SV40." []
+xref: GO:0019065 "receptor-mediated endocytosis of virus by host cell"
 is_a: KW-1164
 relationship: category KW-9999
 
@@ -2122,6 +2147,7 @@ id: KW-1165
 name: Clathrin-mediated endocytosis of virus by host
 synonym: "Virion endocytosis by clathrin-coated vesicle" [UniProt]
 def: "Viral protein involved in virus internalization by the host cell via clathrin-mediated endocytosis. In response to an internalization signal, clathrin is assembled on the inside face of the cell membrane to form characteristic invaginations or clathrin coated pits that pinch off through the action of DNM1/Dynamin-1 or DNM2/Dynamin-2. The virus bound to its host cell receptor is internalized into clathrin-coated vesicles (CCV). Endocytic CCV deliver their viral content to early endosomes. The endosomal acidic pH and/or receptor binding usually induces structural modifications of the virus surface proteins that lead to penetration of the endosomal membrane via fusion or permeabilization mechanisms." []
+xref: GO:0075512 "clathrin-mediated endocytosis of virus by host cell"
 is_a: KW-1164
 relationship: category KW-9999
 
@@ -2189,8 +2215,8 @@ synonym: "Cobalt cation transport" [UniProt]
 synonym: "Cobalt ion transport" [UniProt]
 def: "Protein involved in the transport of the trace element cobalt, which is a component of vitamin B12." []
 xref: GO:0006824 "cobalt ion transport"
-is_a: KW-0406
 is_a: KW-0170
+is_a: KW-0406
 relationship: category KW-9999
 
 [Term]
@@ -2327,7 +2353,7 @@ relationship: category KW-9992
 [Term]
 id: KW-0181
 name: Complete proteome
-def: "A complete proteome is the set of protein sequences that can be derived by translation of all protein coding genes of a completely sequenced genome, including alternative products such as splice variants for those species in which these may occur. Complete proteomes may include protein sequences from both the reviewed (UniProtKB /Swiss-Prot) and unreviewed (UniProtKB/TrEMBL) sections of the UniProt Knowledgebase. Note that some proportion of the predicted protein sequences of a given complete proteome may require further review or correction. The precise proportion depends on the relative distributions of protein sequences between the two sections of UniProtKB, and the quality of the underlying genome sequence and gene predictions. See FAQs 'What are Complete Proteome Sets?' and 'How to retrieve a complete set of protein sequences?'" []
+def: "A complete proteome is the set of protein sequences that can be derived by translation of all protein coding genes of a completely sequenced genome, including alternative products such as splice variants for those species in which these may occur. Complete proteomes may include protein sequences from both the reviewed (UniProtKB /Swiss-Prot) and unreviewed (UniProtKB/TrEMBL) sections of the UniProt Knowledgebase. Note that some proportion of the predicted protein sequences of a given complete proteome may require further review or correction. The precise proportion depends on the relative distributions of protein sequences between the two sections of UniProtKB, and the quality of the underlying genome sequence and gene predictions. See FAQs 'What are Complete Proteome Sets?' and 'How to retrieve a complete set of protein sequences?'." []
 xref: http://www.uniprot.org/faq/15
 xref: http://www.uniprot.org/faq/38
 is_a: KW-9990
@@ -2451,8 +2477,8 @@ synonym: "Copper ion transport" [UniProt]
 synonym: "Cu transport" [UniProt]
 def: "Protein involved in the transport of ions of the trace element copper." []
 xref: GO:0006825 "copper ion transport"
-is_a: KW-0406
 is_a: KW-0186
+is_a: KW-0406
 relationship: category KW-9999
 
 [Term]
@@ -2494,6 +2520,13 @@ synonym: "Craniostosis" [UniProt]
 def: "Protein which, if defective, causes craniosynostosis, the premature closure of one or more cranial sutures which results in an abnormal head shape. Different types of craniosynostosis are known. All are characterized by skull deformities, with face and often limb involvement in the syndromic forms." []
 is_a: KW-9995
 relationship: category KW-9995
+
+[Term]
+id: KW-1257
+name: CRISPR-cas system evasion by virus
+def: "Viral protein that inhibits host defense CRISPR-cas system (Clustered Regularly Interspaced Short Palindromic Repeats). The CRISPR-cas system is composed of genomic sensors that allow prokaryotes to acquire DNA fragments from invading viruses and plasmids into the CRISPR locus. These stored fragments (called spacers) are transcribed and processed into small crRNA which are used to destroy matching DNA in future viral and plasmid invasion. Some prokaryotic viruses express specific genes that allow them to evade CRISPR-cas system." []
+is_a: KW-0945
+relationship: category KW-9999
 
 [Term]
 id: KW-0192
@@ -2627,7 +2660,7 @@ id: KW-0932
 name: Cytokinin signaling pathway
 synonym: "Cytokinin mediated signaling" [UniProt]
 def: "Protein involved in the cytokinin signaling pathway (i.e. transport or signal transduction). Cytokinins (i.e. kinetin and zeatin) are defined more by their biological activity (e.g. inducing cell division in tissue culture) rather than by structure. These phytohormones are synthesized in the root apical meristem and transported through the plant in the xylem sap. Cytokinins are involved in several physiological processes such as promoting cell division and chloroplast maturation, regulating cell growth and differentiation, and monitoring nutrient uptake and senescence. Together with auxin, they also regulate the cell cycle and tissue morphogenesis." []
-xref: GO:0009736 "cytokinin mediated signaling pathway"
+xref: GO:0009736 "cytokinin-activated signaling pathway"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -2652,6 +2685,7 @@ relationship: category KW-9998
 id: KW-1176
 name: Cytoplasmic inwards viral transport
 def: "Viral protein that allows the active transport of viral components along cytoskeletal filaments toward the intracellular replication sites during virus entry. Viruses such as adenoviruses, adeno-associated virus, vaccinia virus, poliovirus, canine parvovirus, African swine fever virus, rabies virus, human herpes virus 1, foamy virus are thought to use active intracellular transport of viral components." []
+xref: GO:0075606 "transport of viral material towards nucleus"
 is_a: KW-1160
 relationship: category KW-9999
 
@@ -2706,6 +2740,7 @@ relationship: category KW-9992
 id: KW-1132
 name: Decay of host mRNAs by virus
 def: "Viral protein involved in the degradation of host mRNAs. Viruses have evolved ways of degrading host mRNAs to inhibit cellular translation. This global inhibition of cellular protein synthesis serves to ensure maximal viral gene expression and to evade host immune response. Decay of host mRNAs can be achieved by endonucleotic RNA cleavage or associated with PABPC1 nuclear relocalization." []
+xref: GO:0039595 "induction by virus of catabolism of host mRNA"
 is_a: KW-1192
 relationship: category KW-9999
 
@@ -2716,6 +2751,48 @@ def: "Families of microbicidal and cytotoxic peptides. Defensins have antibacter
 xref: GO:0006952 "defense response"
 is_a: KW-0929
 relationship: category KW-9992
+
+[Term]
+id: KW-1238
+name: Degradation of host capsule during virus entry
+def: "Virion protein involved in breaking down host cell capsule to reach the host cell wall, and finally the host cytoplasmic membrane. Many prokaryotic viruses carry for example glycanase, polysaccharide lyase or deacetylase activities to specifically digest host capsule." []
+is_a: KW-0378
+is_a: KW-0946
+is_a: KW-0972
+is_a: KW-1235
+relationship: category KW-9999
+
+[Term]
+id: KW-1235
+name: Degradation of host cell envelope components during virus entry
+def: "Virion protein involved in breaking down host cell surface components to reach the host cytoplasmic membrane. Many prokaryotic viruses for example carry enzymatic activities to degrade the host cell lipopolysaccharide layer, cell wall, or capsule." []
+is_a: KW-0946
+is_a: KW-1160
+relationship: category KW-9999
+
+[Term]
+id: KW-1247
+name: Degradation of host chromosome by virus
+def: "Viral protein that rapidly degrades the host DNA at the onset of infection. The breakdown products can be reused to synthesize viral DNA or can be excreted from the host cell. Degrading host chromosome provides an advantage during the virus life cycle by reducing or eliminating competing host macromolecular synthesis. Bacteriophages such as T4 or T5 for example are known to induce degradation of the host chromosome and excretion of the host DNA degradation products." []
+is_a: KW-1190
+relationship: category KW-9999
+
+[Term]
+id: KW-1237
+name: Degradation of host lipopolysaccharides during virus entry
+def: "Virion protein involved in breaking down host cell lipopolysaccharides (LPS) to reach the cytoplasmic membrane of prokaryotes with 2 membranes. Many prokaryotic viruses carry glycanase or deacetylase activities to digest host LPS." []
+is_a: KW-0378
+is_a: KW-1235
+relationship: category KW-9999
+
+[Term]
+id: KW-1236
+name: Degradation of host peptidoglycans during virus entry
+def: "Virion exolysin involved in breaking down host cell peptidoglycans (e.g. murein, pseudomurein) to reach the host cytoplasmic membrane during virus entry. Exolysins are usually part of the tail or the base plate of prokaryotic viruses. Exolysins can display various enzymatic activities such as lysozyme, transglycosylase, muramidase or even protease activity. Murein hydrolases for example are widespread in bacteriophages infecting Gram-positive or Gram-negative bacteria." []
+is_a: KW-0378
+is_a: KW-0946
+is_a: KW-1235
+relationship: category KW-9999
 
 [Term]
 id: KW-0213
@@ -2762,7 +2839,7 @@ relationship: category KW-9995
 id: KW-0216
 name: Detoxification
 def: "Protein involved in degrading toxic compounds. Detoxification generally takes place in the liver or kidney and inactivates toxins, either by degradation or by conjugation of residues to a hydrophilic moiety in order to promote excretion." []
-xref: GO:0009636 "response to toxin"
+xref: GO:0009636 "response to toxic substance"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -2844,7 +2921,7 @@ relationship: category KW-9999
 id: KW-0223
 name: Dioxygenase
 def: "Enzyme that reduces molecular oxygen by incorporating both atoms into its substrate(s)." []
-xref: GO:0016702 "oxidoreductase activity, acting on single donors with incorporation of molecular oxygen, incorporation of two atoms of oxygen"
+xref: GO:0051213 "dioxygenase activity"
 is_a: KW-0560
 relationship: category KW-9992
 
@@ -2896,8 +2973,15 @@ name: DNA damage
 synonym: "DNA damage response" [UniProt]
 synonym: "Response to DNA damage stimulus" [UniProt]
 def: "Protein induced by DNA damage or protein involved in the response to DNA damage. Drug- or radiation-induced injuries in DNA introduce deviations from its normal double-helical conformation. These changes include structural distortions which interfere with replication and transcription, as well as point mutations which disrupt base pairs and exert damaging effects on future generations through changes in DNA sequence. Response to DNA damage results in either repair or tolerance." []
-xref: GO:0006974 "response to DNA damage stimulus"
+xref: GO:0006974 "cellular response to DNA damage stimulus"
 is_a: KW-9999
+relationship: category KW-9999
+
+[Term]
+id: KW-1256
+name: DNA end degradation evasion by virus
+def: "Viral protein that inhibits or counteracts prokaryotic host helicase/nuclease proteins in order to escape the antiviral activity of the latter. When functioning in their exonuclease mode, helicase/nuclease proteins such as bacterial RecBCD or AddAB degrade any free DNA end as well as the linear dsDNA products resulting from restriction Type II cleavage. Any prokaryotic virus that exposes free dsDNA ends as part of its life cycle must find the means to evade destruction by these host enzymes. Prokaryotic viruses escape this host defense by expressing inhibitors or by protecting the ends of their linear genomes from digestion." []
+is_a: KW-0945
 relationship: category KW-9999
 
 [Term]
@@ -2923,9 +3007,9 @@ def: "Specific recombinases which catalyze the inversion of a DNA segment within
 xref: GO:0000150 "recombinase activity"
 xref: GO:0003677 "DNA binding"
 xref: GO:0006310 "DNA recombination"
-is_a: KW-9992
 is_a: KW-0233
 is_a: KW-0238
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -2992,9 +3076,8 @@ id: KW-0240
 name: DNA-directed RNA polymerase
 def: "Protein of the DNA-directed RNA polymerase complexes, which catalyze RNA synthesis the by addition of ribonucleotide units to a RNA chain using DNA as a template. They can initiate a chain de novo. Prokaryotes have a single enzyme for the three RNA types that is subject to stringent regulatory mechanisms. Eukaryotes have type I that synthesizes all rRNA except the 5S component, type II that synthesizes mRNA and hnRNA and type III that synthesizes tRNA and the 5S component of rRNA." []
 xref: GO:0003899 "DNA-directed RNA polymerase activity"
-xref: GO:0006351 "transcription, DNA-dependent"
-is_a: KW-9998
 is_a: KW-0804
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -3082,7 +3165,7 @@ relationship: category KW-9995
 id: KW-0249
 name: Electron transport
 def: "Protein involved in the transport of electrons, a process by which electrons are transported through a series of reactions from the reductant, or electron donor, to the oxidant, or electron acceptor, with concomitant energy conversion. Necessary for both photosynthesis and aerobic respiration." []
-xref: GO:0022900 "electron transport chain"
+xref: GO:0055114 "oxidation-reduction process"
 is_a: KW-0813
 relationship: category KW-9999
 
@@ -3100,8 +3183,8 @@ synonym: "Translation elongation factor activity" [UniProt]
 def: "Protein that associates with ribosomes cyclically during the elongation phase of protein synthesis, and catalyze formation of the acyl bond between the incoming amino-acid residue and the peptide chain." []
 xref: GO:0003746 "translation elongation factor activity"
 xref: GO:0006414 "translational elongation"
-is_a: KW-9992
 is_a: KW-0648
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -3239,7 +3322,7 @@ id: KW-0936
 name: Ethylene signaling pathway
 synonym: "Ethylene mediated signaling pathway" [UniProt]
 def: "Protein involved in the ethylene signaling pathway (e.g. transport and signal transduction) that regulates many aspects of plant growth and development (e.g. seed germination, root and shoot growth, flower development, plant defense, senescence, abscission and ripening). This phytohormone can be synthesized from methionin." []
-xref: GO:0009873 "ethylene mediated signaling pathway"
+xref: GO:0009873 "ethylene-activated signaling pathway"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -3247,6 +3330,7 @@ relationship: category KW-9999
 id: KW-1125
 name: Evasion of host immunity by viral interleukin-like protein
 def: "Viral protein sharing sequence homology with host interleukins. Interleukins are produced by immune system cells such as lymphocytes, macrophages and monocytes, and modulate inflammation and immunity by regulating growth, mobility and differentiation of lymphoid and other cells. Several viruses encode interleukin-like proteins playing a role in immune evasion. Additionally, viral interleukins have been shown to activate cellular signaling cascades that enhance virus replication." []
+xref: GO:0030683 "evasion or tolerance by virus of host immune response"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -3255,8 +3339,8 @@ id: KW-0267
 name: Excision nuclease
 def: "Enzyme which excises abnormal or mismatched nucleotides from a DNA strand." []
 xref: GO:0004518 "nuclease activity"
-is_a: KW-9992
 is_a: KW-0234
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -3329,7 +3413,7 @@ id: KW-0274
 name: FAD
 synonym: "Flavin adenine dinucleotide" [UniProt]
 def: "Protein involved in flavin adenine dinucleotide synthesis or protein which contains at least one FAD as prosthetic group/cofactor (flavoprotein) such as many oxidation-reduction enzymes. FAD is an electron carrier molecule that functions as a hydrogen acceptor. The generic term \"flavin\" derives from the Latin word flavius (\"yellow\") because of the brilliant yellow color they exhibit as solids and in neutral aqueous solutions." []
-is_a: KW-9993
+is_a: KW-0285
 relationship: category KW-9993
 
 [Term]
@@ -3359,8 +3443,8 @@ synonym: "Fatty acid formation" [UniProt]
 synonym: "Fatty acid synthesis" [UniProt]
 def: "Protein involved in the synthesis of fatty acids, long chain organic acids of the general formula CH3(CnHx)COOH. They are constituents of lipids and can be saturated or unsaturated. The esterified forms are important both as energy storage molecules and structural molecules." []
 xref: GO:0006633 "fatty acid biosynthetic process"
-is_a: KW-0444
 is_a: KW-0276
+is_a: KW-0444
 relationship: category KW-9999
 
 [Term]
@@ -3432,7 +3516,7 @@ synonym: "Flagellar motility" [UniProt]
 synonym: "Flagellum motility" [UniProt]
 synonym: "Flagellum rotation" [UniProt]
 def: "Protein involved in the movement of the flagella." []
-xref: GO:0001539 "ciliary or flagellar motility"
+xref: GO:0001539 "ciliary or bacterial-type flagellar motility"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -3493,7 +3577,7 @@ synonym: "Flavin adenine mononucleotide" [UniProt]
 synonym: "Flavin mononucleotide" [UniProt]
 synonym: "Riboflavin 5'-phosphate" [UniProt]
 def: "Protein involved in flavin adenine mononucleotide synthesis or protein which contains at least one FMN as prosthetic group/cofactor (flavoproteins), such as many oxidation-reduction enzymes. FMN is an electron carrier molecule that functions as a hydrogen acceptor. The generic term \"flavin\" derives from the Latin word flavius (\"yellow\") because of the brilliant yellow color they exhibit as solids and in neutral aqueous solutions." []
-is_a: KW-9993
+is_a: KW-0285
 relationship: category KW-9993
 
 [Term]
@@ -3546,7 +3630,7 @@ relationship: category KW-9991
 id: KW-0292
 name: Fruit ripening
 def: "Protein involved in fruit ripening. The fruit is the matured ovary of a plant, enclosing the seed(s). The plant hormone ethylene stimulates fruit ripening." []
-xref: GO:0009835 "ripening"
+xref: GO:0009835 "fruit ripening"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -3580,7 +3664,8 @@ relationship: category KW-9992
 id: KW-1169
 name: Fusion of virus membrane with host cell membrane
 synonym: "Viral entry into host cell via plasma membrane fusion" [UniProt]
-def: "Viral protein involved in the merging of the virus envelope with host plasma membrane during viral penetration into host cell. Virus fusion proteins drive this fusion reaction by undergoing a major conformational change that is triggered by interactions with the target cell. This pathway is used by viruses whose fusion protein is usually pH independent such as most paramyxoviruses, herpesviruses and retroviruses. MHV-JHM coronavirus has been shown to fuse directly with the host plasma membrane." []
+def: "Viral protein involved in the merging of the virus envelope with host cytoplasmic membrane during viral penetration into host cell. Virus fusion proteins drive this fusion reaction by undergoing a major conformational change that is triggered by interactions with the target cell. This pathway is used by viruses whose fusion protein is usually pH independent such as most paramyxoviruses, herpesviruses and retroviruses. MHV-JHM coronavirus has been shown to fuse directly with the host cytoplasmic membrane. Prokaryotic viruses such as Tectiviridae fuse their inner membrane with the host cytoplasmic membrane whereas Cystoviridae fuse their outer membrane with the host cytoplasmic membrane." []
+xref: GO:0019064 "fusion of virus membrane with host plasma membrane"
 is_a: KW-1168
 relationship: category KW-9999
 
@@ -3589,6 +3674,7 @@ id: KW-1170
 name: Fusion of virus membrane with host endosomal membrane
 synonym: "Viral entry into host cell via plasma membrane fusion" [UniProt]
 def: "Viral protein involved in the merging of the virus envelope with host endosomal membrane during viral penetration into host cell. Viral fusion proteins drive this fusion reaction by undergoing a major conformational change that is triggered by interactions with the target cell. The specific trigger is mainly endosome acidification which induce activation of the fusion protein by conformational change. This pathway is used by enveloped viruses which are endocytosed and whose fusion protein is usually pH-dependent like influenza A virus, rhabdoviruses, bornaviruses, filoviruses, asfarviridae, flaviviridae, alphaviruses, HIV-1, avian leukosis virus, SARS, 229E, and MHV-2 coronaviruses." []
+xref: GO:0039654 "fusion of virus membrane with host endosome membrane"
 is_a: KW-1168
 relationship: category KW-9999
 
@@ -3597,13 +3683,24 @@ id: KW-1168
 name: Fusion of virus membrane with host membrane
 synonym: "Viral entry into host cell via membrane fusion" [UniProt]
 def: "Viral protein involved in the merging of the virion membrane with a host membrane during viral penetration into host cell. Viral fusion proteins drive this fusion reaction by undergoing a major conformational change that is triggered by interactions with the target cell. The specific trigger depends on the virus and can be exposure to low pH in the endocytic pathway or interaction of the virion with the host receptor(s). In prokaryotic viruses, host-virus membrane fusion can occur either at the host outer membrane or plasma membrane. Bacteriophages such as cystoviridae fuse their external envelope with the host outer membrane, whereas others like tectiviridae fuse their inner envelope with the host plasma membrane." []
+xref: GO:0039663 "membrane fusion involved in viral entry into host cell"
 is_a: KW-1162
+relationship: category KW-9999
+
+[Term]
+id: KW-1239
+name: Fusion of virus membrane with host outer membrane
+synonym: "Viral entry into host cell via outer membrane fusion" [UniProt]
+def: "Viral protein involved in the merging of the virion external lipidic membrane (envelope) with the prokaryotic host outer membrane during viral penetration into host cell. Bacteriophages such as Cystoviridae for example fuse their membrane with the host outer membrane." []
+is_a: KW-0946
+is_a: KW-1168
 relationship: category KW-9999
 
 [Term]
 id: KW-1077
 name: G0/G1 host cell cycle checkpoint dysregulation by virus
 def: "Viral protein involved in the modulation of host cell cycle progression by dysregulating the G0/G1 transition. Some viruses benefit from keeping cells in resting state (G0), while others favor entry through G1 and subsequent cell division to replicate more efficiently." []
+xref: GO:0039646 "modulation by virus of host G0/G1 transition checkpoint"
 is_a: KW-1121
 relationship: category KW-9999
 
@@ -3611,6 +3708,7 @@ relationship: category KW-9999
 id: KW-1078
 name: G1/S host cell cycle checkpoint dysregulation by virus
 def: "Viral protein involved in the modulation of host cell cycle progression by dysregulating the G1/S transition. Some viruses benefit from an arrest in G1 to S phase transition, while others force through S phase to favor their own replication." []
+xref: GO:0039645 "modulation by virus of host G1/S transition checkpoint"
 is_a: KW-1121
 relationship: category KW-9999
 
@@ -3686,8 +3784,8 @@ id: KW-0306
 name: Gastrulation
 def: "Protein involved in gastrulation, a stage in early embryogenesis in which cell movements result in a massive reorganization of the embryo from an initially unstructured group of cells, the blastula, into a multi-layered organism. During gastrulation, the primary germ layers (endoderm, mesoderm, and ectoderm) are formed and organized in their proper locations for further development." []
 xref: GO:0007369 "gastrulation"
-is_a: KW-9999
 is_a: KW-0217
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
@@ -3888,8 +3986,8 @@ relationship: category KW-9991
 id: KW-0326
 name: Glycosidase
 def: "Hydrolases which attack glycosidic bonds in carbohydrates, glycoproteins and glycolipids. The glycosidases are not highly specific. Usually they distinguish only the type of bond, e.g. O- or N-glycosidic, and its configuration (alpha or beta)." []
-xref: GO:0016798 "hydrolase activity, acting on glycosyl bonds"
 xref: GO:0008152 "metabolic process"
+xref: GO:0016798 "hydrolase activity, acting on glycosyl bonds"
 is_a: KW-0378
 relationship: category KW-9992
 
@@ -3977,9 +4075,9 @@ name: GPI-anchor
 synonym: "Glycosylphosphatidylinositol anchor" [UniProt]
 synonym: "Glycosylsphingolipidinositol anchor" [UniProt]
 def: "Protein bound to the lipid bilayer of a membrane through either a GPI-anchor (glycosylphosphatidylinositol anchor), a complex oligoglycan linked to a phosphatidylinositol group, or a GPI-like-anchor, a similar complex oligoglycan linked to a sphingolipidinositol group, resulting in the attachment of the C-terminus of the protein to the membrane." []
-xref: GO:0031225 "anchored to membrane"
-is_a: KW-0449
+xref: GO:0031225 "anchored component of membrane"
 is_a: KW-0325
+is_a: KW-0449
 is_a: KW-0472
 relationship: category KW-9991
 
@@ -4110,17 +4208,18 @@ relationship: category KW-9999
 id: KW-1139
 name: Helical capsid protein
 def: "Viral protein that forms a helical capsid to protect the viral genome. Viral helical capsids are about 7-30 nm in diameter and 200-2000 nm long." []
+xref: GO:0019029 "helical viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-0347
 name: Helicase
 def: "Protein with an helicase activity. Helicases are ATPases that catalyze the unwinding of double-stranded nucleic acids. They are tightly integrated (or coupled) components of various macromolecular complexes which are involved in processes such as DNA replication, recombination, and nucleotide excision repair, as well as RNA transcription and splicing." []
 xref: GO:0004386 "helicase activity"
-is_a: KW-0378
 is_a: KW-0067
+is_a: KW-0378
 relationship: category KW-9992
 
 [Term]
@@ -4198,8 +4297,8 @@ id: KW-0355
 name: Hemophilia
 synonym: "Haemophilia" [UniProt]
 def: "Protein which, if defective, causes hemophilia, a genetic disease characterized by uncontrollable bleeding due to a sex-linked recessive deficiency of blood-clotting factor (usually of Factor VIII)." []
-is_a: KW-9995
 is_a: KW-0094
+is_a: KW-9995
 relationship: category KW-9995
 
 [Term]
@@ -4387,6 +4486,15 @@ is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
+id: KW-0578
+name: Host cell lysis by virus
+def: "Viral protein involved in the lysis of the host cell allowing the release of mature, newly formed virions. Viruses use different way to lyse their host cell. They can express viroporins as Adenoviridae or Picornaviridae do in the late phase of infection. Phycodnaviridae for their part seem to express lytic phospholipids. In dsDNA prokaryotic viruses, lysis-specific proteins are expressed: a holin, which permeabilizes the inner membrane and an endolysin which then gains access to and degrades the host peptidoglycans. Some bacterioviruses express a signal-containing endolysin and thus do not need the holin function." []
+xref: GO:0044659 "cytolysis by virus of host cell"
+is_a: KW-0204
+is_a: KW-1188
+relationship: category KW-9999
+
+[Term]
 id: KW-1032
 name: Host cell membrane
 synonym: "Host cytoplasmic membrane" [UniProt]
@@ -4419,7 +4527,8 @@ relationship: category KW-9998
 id: KW-1183
 name: Host cell receptor for virus entry
 synonym: "Viral receptor activity" [UniProt]
-def: "Cell surface protein used by a virus as an attachment and entry receptor. In some cases, binding to a cellular receptor is not sufficient for infection: an additional cell surface molecule, or coreceptor, is required for entry. Some viruses are able to use different receptors depending on the target cell type." []
+def: "Cell surface protein used by a virus as an attachment and entry receptor. In some cases, binding to a cellular receptor is not sufficient for infection: an additional cell surface molecule, or coreceptor, is required for entry. Some viruses are able to use different receptors depending on the target cell type. In prokaryotic viruses, cell receptor for virus entry can also be localized on host outer membrane, pilus or flagellum." []
+xref: GO:0001618 "virus receptor activity"
 is_a: KW-0675
 relationship: category KW-9992
 
@@ -4467,6 +4576,7 @@ relationship: category KW-9998
 id: KW-1079
 name: Host G2/M cell cycle arrest by virus
 def: "Viral protein involved in the modulation of host cell cycle by inhibiting the G2/M transition. A variety of viruses have been associated with G2/M arrest, including some DNA viruses, some RNA viruses and retroviruses but the mechanisms by which arrest is achieved greatly differs between those viruses." []
+xref: GO:0039592 "suppression by virus of G2/M transition of host mitotic cell cycle"
 is_a: KW-1121
 relationship: category KW-9999
 
@@ -4474,6 +4584,7 @@ relationship: category KW-9999
 id: KW-1190
 name: Host gene expression shutoff by virus
 def: "Viral protein which prevents host gene expression by blocking host transcription, mRNA export or translation. This gives virus transcripts a competitive edge to use the hijacked translation machinery. Preventing the expression of host proteins is also a strategy to counteract the antiviral response." []
+xref: GO:0039657 "suppression by virus of host gene expression"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -4526,7 +4637,7 @@ relationship: category KW-9998
 id: KW-1044
 name: Host microsome
 def: "Protein found in host microsomes, which are a heterogenous set of vesicles 20-200 nm in diameter and formed from the host endoplasmic reticulum when host cells are disrupted." []
-xref: GO:0044189 "host cell microsome"
+xref: GO:0033648 "host intracellular membrane-bounded organelle"
 is_a: KW-1038
 relationship: category KW-9998
 
@@ -4603,7 +4714,8 @@ relationship: category KW-9998
 [Term]
 id: KW-1191
 name: Host transcription shutoff by virus
-def: "Viral protein involved in inhibiting host transcription to ensure the shutoff of cellular proteins expression and give virus transcripts a competitive edge for access to the cellular translation machinery. Preventing the expression of host proteins is also a strategy to counteract the antiviral response. Inhibition of transcription can be performed by interfering with host RNA pol-II function or interfering with general transcription factors." []
+def: "Viral protein involved in inhibiting host transcription to ensure the shutoff of cellular proteins expression and give virus transcripts a competitive edge for access to the cellular translation machinery. Preventing the expression of host proteins is also a strategy to counteract the antiviral response. In eukaryotic hosts, inhibition of transcription can be performed by interfering with host RNA pol-II function or interfering with general transcription factors. Some prokaryotic viruses inhibit the host RNAP. Bacteriophage SPO1 for example is known to shut off host RNA synthesis." []
+xref: GO:0039653 "suppression by virus of host transcription"
 is_a: KW-1190
 relationship: category KW-9999
 
@@ -4611,14 +4723,15 @@ relationship: category KW-9999
 id: KW-1193
 name: Host translation shutoff by virus
 def: "Viral protein involved in inhibiting the host translational machinery to shutoff cellular gene expression. This gives virus transcripts a competitive edge to use the hijacked translation machinery. Preventing the expression of host proteins is also a strategy to counteract the antiviral response. Several virus are known to inhibit host translation mostly by inactivating translation factors." []
+xref: GO:0039604 "suppression by virus of host translation"
 is_a: KW-1190
 relationship: category KW-9999
 
 [Term]
 id: KW-0945
 name: Host-virus interaction
-def: "Viral protein involved in a direct and specific interaction with a host macromolecule. Viruses interact with many cellular pathways to achieve their replication cycle. Entry into the host cell, transport to the viral replication sites or viral budding are all steps that require interaction between the host and the virus. Additionally, the evasion from the host immune response requires a lot of viral proteins to associate with and inhibit cellular proteins with antiviral functions." []
-xref: GO:0044419 "interspecies interaction between organisms"
+def: "Viral protein involved in a direct and specific interaction with a host macromolecule or host protein involved in a direct and specific interaction with a viral protein. Viruses interact with many cellular pathways to achieve their replication cycle. Entry into the host cell, transport to the viral replication sites or viral exit from the host cell are all steps that require specific interactions between the virus and its host. Additionally, the evasion from the host immune response requires a lot of viral proteins to associate with and inhibit cellular proteins with antiviral functions." []
+xref: GO:0016032 "viral process"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -4652,8 +4765,8 @@ id: KW-0376
 name: Hydrogen peroxide
 def: "Protein involved in hydrogen peroxide (H(2)O(2)) decomposition, e.g., catalase. H(2)O(2) is generated by the body as a byproduct of aerobic cellular respiration." []
 xref: GO:0042744 "hydrogen peroxide catabolic process"
-is_a: KW-9999
 is_a: KW-0575
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
@@ -4769,6 +4882,7 @@ relationship: category KW-9995
 id: KW-1196
 name: IFIT mRNA restriction evasion by virus
 def: "Viral protein allowing host innate defense evasion by methylating the first and second ribonucleotide of viral mRNAs (cap1 and cap2). These methylations allow viral RNA to escape cellular antiviral process mediated by host IFIT proteins which degrade non cap1-methylated mRNAs. Also prevents IFIH1/MDA5 sensor activation by cap0 mRNAs, which would trigger interferon beta synthesis." []
+xref: GO:0039699 "viral mRNA cap methylation"
 is_a: KW-1195
 relationship: category KW-9999
 
@@ -4801,6 +4915,7 @@ id: KW-0391
 name: Immunity
 synonym: "Immune response" [UniProt]
 def: "Protein involved in immunity, any immune system process that functions in the response of an organism to a potential internal or invasive threat. The vertebrate immune system is formed by the innate immune system (composed of phagocytes, complement, antimicrobial peptides, etc) and by the adaptive immune system which consists of T- and B-lymphocytes." []
+xref: GO:0002376 "immune system process"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -4841,6 +4956,7 @@ relationship: category KW-9999
 id: KW-1080
 name: Inhibition of host adaptive immune response by virus
 def: "Viral protein involved in the evasion of host adaptive immune response. Upon infection, the innate immune system provides mechanisms for the rapid sensing and elimination of viruses. Adaptive immunity has evolved to provide a broader and more finely tuned repertoire of recognition for both self- and nonself-antigens. A lot of viruses escape the adaptive immune response by different mechanisms including interference with the presentation of antigenic peptides at the surface of infected cells." []
+xref: GO:0039504 "suppression by virus of host adaptive immune response"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -4848,6 +4964,7 @@ relationship: category KW-9999
 id: KW-1081
 name: Inhibition of host apoptosis by viral BCL2-like protein
 def: "Viral protein sharing sequence similarity with host BCL2 protein. Cellular BCL2 family members are divided in two groups, some having anti-apoptotic activity (such as BCL2 itself) while others have pro-apoptotic function (such as BAX). If the level of proapoptotic members are higher than inhibitors, then the cell undergoes apoptosis. So far, all viral homologues display anti-apoptotic activity." []
+xref: GO:0019050 "suppression by virus of host apoptotic process"
 is_a: KW-1119
 relationship: category KW-9999
 
@@ -4855,6 +4972,7 @@ relationship: category KW-9999
 id: KW-1082
 name: Inhibition of host apoptosis by viral FLIP-like protein
 def: "Viral protein sharing sequence similarity with host FLIPs (FLICE-inhibitory proteins). Cellular FLIPs play an essential role in apoptosis functioning as a link between cell survival and cell death pathways . Viral FLIPs inhibit apoptosis by interfering with death receptor signaling." []
+xref: GO:0019050 "suppression by virus of host apoptotic process"
 is_a: KW-1119
 relationship: category KW-9999
 
@@ -4862,6 +4980,7 @@ relationship: category KW-9999
 id: KW-1083
 name: Inhibition of host autophagy by virus
 def: "Viral protein involved in the inhibition of host autophagy. Autophagy is a major intracellular pathway in the delivery of cytoplasmic material to lysosomes for degradation. It is also essential for the removal of pathogenic protein aggregates from the cell during infection. Several viruses including influenza and HIV-1 block autophagosome maturation by interacting with and inhibiting host Beclin-1, an essential protein playing a central role in autophagy." []
+xref: GO:0039521 "suppression by virus of host autophagy"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -4869,6 +4988,7 @@ relationship: category KW-9999
 id: KW-1085
 name: Inhibition of host caspases by virus
 def: "Viral protein involved in the evasion of host cell apoptosis by inhibiting host caspases. Many viruses from diverse families have evolved mechanisms to evade or delay cell death by suppressing the activity of cytoplasmic proteases termed caspases which have a central role in apoptosis induction." []
+xref: GO:0039650 "suppression by virus of host cysteine-type endopeptidase activity involved in apoptotic process"
 is_a: KW-1119
 relationship: category KW-9999
 
@@ -4876,6 +4996,7 @@ relationship: category KW-9999
 id: KW-1086
 name: Inhibition of host chemokines by virus
 def: "Viral protein involved in the evasion of host immune response by inhibiting chemokines. Chemokines have several roles including Th1/Th2 differentiation, T_cell costimulation, or promotion of leukocyte migration. Due to the importance of chemokines in immunity, viruses have evolved mechanisms to counter the chemokine network. They encode chemokine-like proteins, chemokine receptors, or chemokine-binding proteins to inhibit cellular chemokines." []
+xref: GO:0039553 "suppression by virus of host chemokine activity"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -4883,20 +5004,30 @@ relationship: category KW-9999
 id: KW-1087
 name: Inhibition of host complement factors by virus
 def: "Viral protein involved in the evasion of host humoral response by inhibiting the complement factors. The activation of complement involves the sequential proteolyis of proteins to generate enzymes with catalytic activities. The biological functions of the complement include opsonization, inflammation, lysis of immune complexes, or enhancement of the humoral immune response. Some herpesviruses, poxviruses and retroviruses mimic or interact with complement regulatory proteins to block complement activation and neutralization of virus particles." []
+xref: GO:0039573 "suppression by virus of host complement activation"
 is_a: KW-0899
 relationship: category KW-9999
 
 [Term]
-id: KW-1113
-name: Inhibition of host IFN-mediated response initiation by virus
-def: "Viral protein involved in the evasion of host innate defense by inhibiting the pathway leading to the triggering of interferon-mediated response. This pathway usually starts with the recognition of viral RNA or DNA by host proteins including DDX58 or IFIH1. Then, the signal is transmitted through MAVS and TRAFs leading to the activation and nuclear localization of transcription factors IRF3 and IRF7 to induce IFNalpha/beta transcription and protein production. Many viruses interact with components of this pathway to inhibit production of interferons and establishment of the antiviral state." []
-is_a: KW-1090
+id: KW-1248
+name: Inhibition of host DNA replication by virus
+def: "Viral protein that blocks host DNA replication without inhibiting host transcription or translation. Inhibiting host replication provides an advantage during the virus life cycle by reducing or eliminating competing host macromolecular synthesis. Bacteriophage N4 for example is known to shut off the host DNA replication while the host genome remains structurally intact. Bacteriophage lambda prevents host DNA replication initiation and Staphylococcus bacteriophages target the replicative DNA polymerase processivity clamp and the helicase." []
+is_a: KW-1121
+relationship: category KW-9999
+
+[Term]
+id: KW-1224
+name: Inhibition of host IKBKE by virus
+def: "Viral protein involved in the evasion of host innate defenses by inhibiting the IKBKE/IKK-epsilon kinase. Upon viral infection, the DDX58/RIG-I or IFIH1/MDA5 receptors recognize foreign material and transmit the signal to downstream components MAVS and IKBKE. In turn, the IKBKE kinase phosphorylates and activates IRF3 and/or IRF7. Once phosphorylated, IRF3 and IRF7 translocate into the nucleus to drive transcription of interferons. Several viruses including arenaviruses or ebola virus interact directly with and inhibit IKBKE/IKK-epsilon to prevent IRFs activation." []
+xref: GO:0039724 "suppression by virus of host IKBKE activity"
+is_a: KW-1113
 relationship: category KW-9999
 
 [Term]
 id: KW-1090
 name: Inhibition of host innate immune response by virus
 def: "Viral protein involved in the evasion of host innate immune response. Upon viral infection, the innate immune system initially defends the host in a non-specific manner. Many viral proteins interact with and inhibit components the host innate system to replicate more efficiently." []
+xref: GO:0039503 "suppression by virus of host innate immune response"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -4904,6 +5035,7 @@ relationship: category KW-9999
 id: KW-1091
 name: Inhibition of host interferon receptors by virus
 def: "Viral protein involved in the evasion of the interferon pathway by inhibiting interferon receptors. Interferon signaling exerts antiviral effects through cell surface receptors termed interferon receptors. In response to binding of extracellular interferons, they activate the JAK/STAT pathway causing transcriptional activation of IFN-regulated genes. To avoid this antiviral response, several viruses target the interferon receptors and send them to degradation via the proteasome." []
+xref: GO:0039511 "suppression by virus of host interferon receptor activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -4911,6 +5043,7 @@ relationship: category KW-9999
 id: KW-1114
 name: Inhibition of host interferon signaling pathway by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting the interferon signaling pathway leading to the production of interferon-induced genes. Interferons bind to the IFN receptors (IFNAR) on the cell surface and activate Jak/Tyk kinases. These kinases phosphorylate STAT1 and STAT2 that translocate to the nucleus and induce the expression of interferon stimulated genes (ISGs). Many viruses interact with components of this pathway to prevent expression of ISGs and inhibit the host immune response." []
+xref: GO:0039502 "suppression by virus of host type I interferon-mediated signaling pathway"
 is_a: KW-1090
 relationship: category KW-9999
 
@@ -4918,6 +5051,7 @@ relationship: category KW-9999
 id: KW-1092
 name: Inhibition of host IRF3 by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting the interferon regulatory factor-3 (IRF3) protein. Viral infection triggers the phosphorylation and activation of IRF3. The activated IRF3 migrates to the nucleus, where it complexes with the transcription coactivator CREBBP/EP300, leading to the transcriptional activation of the IFN-alpha and IFN-beta genes. Several viral proteins directly bind to IRF3 and inhibit its transcriptional activity while others target it to the proteasome for degradation." []
+xref: GO:0039548 "suppression by virus of host IRF3 activity"
 is_a: KW-1113
 relationship: category KW-9999
 
@@ -4925,6 +5059,7 @@ relationship: category KW-9999
 id: KW-1093
 name: Inhibition of host IRF7 by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting the interferon regulatory factor-7 (IRF7) protein. Viral infection triggers the phosphorylation and activation of IRF7. The activated IRF7 migrates to the nucleus leading to the transcriptional activation of the IFN-alpha and IFN-beta genes. Some viral proteins prevent IRF7 phosphorylation and nuclear activation. Ebola virus VP35 interacts with IRF7 and hijacks the cellular SUMOylation machinery for its advantage to increase IRF7 SUMOylation thereby disabling its activity." []
+xref: GO:0039557 "suppression by virus of host IRF7 activity"
 is_a: KW-1113
 relationship: category KW-9999
 
@@ -4932,6 +5067,7 @@ relationship: category KW-9999
 id: KW-1094
 name: Inhibition of host IRF9 by virus
 def: "Viral protein involved in the evasion of the type I and III interferon pathway by inhibiting the interferon regulatory factor-9 (IRF9) protein. Viral infection triggers the phosphorylation and activation of IRF9. The activated IRF9 migrates to the nucleus leading to the transcriptional activation of several hundred IFN-responsive genes. Some viral proteins inhibit IRF9 activation by preventing its nuclear localization upon infection or by sending it to the nucleus in an inactive state." []
+xref: GO:0039560 "suppression by virus of host IRF9 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -4939,6 +5075,7 @@ relationship: category KW-9999
 id: KW-1095
 name: Inhibition of host ISG15 by virus
 def: "Viral protein involved in the evasion of host immune defense by inhibiting the ISG15 protein, an ubiquitin-like modifier playing important roles in the innate immune response. Like ubiquitin, ISG15 is conjugated to lysines on numerous target proteins through its conserved C-terminal region. Viruses escape from the antiviral activity of ISG15 by direct interaction or by cleavage of ISG15 derivatives." []
+xref: GO:0039579 "suppression by virus of host ISG15 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -4946,6 +5083,7 @@ relationship: category KW-9999
 id: KW-1096
 name: Inhibition of host JAK1 by virus
 def: "Viral protein involved in the evasion of the type I, II and III interferon pathways by inhibiting the JAK1 protein. Upon viral infection, JAK1 is activated by the interferon-alpha/beta, -gamma, and -lambda signal transduction pathways. Several viral proteins can directly interact with JAK1 to prevent its ability to phosphorylate the downstream partners STAT1 or STAT2." []
+xref: GO:0039576 "suppression by virus of host JAK1 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -4953,6 +5091,7 @@ relationship: category KW-9999
 id: KW-1097
 name: Inhibition of host MAVS by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting the MAVS protein. During viral replication, dsRNA is produced and detected by DDX58/RIG-I or IFIH1/MDA5 that will activate MAVS to coordinate pathways leading to induction of antiviral cytokines. Several viral proteins including NS3/4A from Hepatitis C, or protease 3C from hepatitis A virus, cleave MAVS to abrogate its activity." []
+xref: GO:0039545 "suppression by virus of host MAVS activity"
 is_a: KW-1113
 relationship: category KW-9999
 
@@ -4960,6 +5099,7 @@ relationship: category KW-9999
 id: KW-1089
 name: Inhibition of host MDA5 by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting the IFIH1/MDA5 protein. Upon recognition of long viral dsRNAs, IFIH1/MDA5 initiates an antiviral signaling cascade by interacting with downstream partners. Some viral proteins including paramyxovirus V proteins interact with IFIH1/MDA5 and blocks its binding with its downstream partner MAVS." []
+xref: GO:0039554 "suppression by virus of host MDA-5 activity"
 is_a: KW-1113
 relationship: category KW-9999
 
@@ -4967,6 +5107,7 @@ relationship: category KW-9999
 id: KW-1115
 name: Inhibition of host MHC class I molecule presentation by virus
 def: "Viral protein involved in the evasion of host adaptive immune response by inhibiting the presentation of loaded MHC class I molecules at the cell surface. Many viruses 'intercept' the loaded MHC class I molecules and retain them in the endoplasmic reticulum or target them to degradation in order to prevent presentation of the peptides at the cell surface." []
+xref: GO:0046776 "suppression by virus of host antigen processing and presentation of peptide antigen via MHC class I"
 is_a: KW-1080
 relationship: category KW-9999
 
@@ -4974,6 +5115,7 @@ relationship: category KW-9999
 id: KW-1116
 name: Inhibition of host MHC class II molecule presentation by virus
 def: "Viral protein involved in the evasion of host adaptive immune response by inhibiting the presentation of loaded MHC class II molecules at the cell surface. MHC class II molecules are found only on a few specialized cells termed professional antigen-presenting cells (APCs). This group includes macrophages, dendritic cells and B-cells. Many viruses 'intercept' the loaded MHC class II molecules and retain them in the endoplasmic reticulum or target them to degradation in order to prevent presentation of the peptides at the cell surface." []
+xref: GO:0039505 "suppression by virus of host antigen processing and presentation of peptide antigen via MHC class II"
 is_a: KW-1080
 relationship: category KW-9999
 
@@ -4981,6 +5123,7 @@ relationship: category KW-9999
 id: KW-1098
 name: Inhibition of host mitotic exit by virus
 def: "Viral protein involved in the inhibition of host cell cycle progression by preventing cells to exit mitosis." []
+xref: GO:0039593 "suppression by virus of host exit from mitosis"
 is_a: KW-1121
 relationship: category KW-9999
 
@@ -4988,6 +5131,7 @@ relationship: category KW-9999
 id: KW-1099
 name: Inhibition of host mRNA nuclear export by virus
 def: "Viral protein involved in the disruption of the mRNA nuclear export machinery. Viruses have evolved ways of interacting with the nuclear export machinery to inhibit cellular translation and maximize the expression of their own mRNAs. This global inhibition of cellular protein synthesis serves to ensure maximal viral gene expression and to evade host immune response." []
+xref: GO:0039522 "suppression by virus of host mRNA export from nucleus"
 is_a: KW-1192
 relationship: category KW-9999
 
@@ -4995,6 +5139,7 @@ relationship: category KW-9999
 id: KW-1100
 name: Inhibition of host NF-kappa-B by virus
 def: "Viral protein involved in the inhibition of host NF-kappa-B. This protein is a pleiotropic transcription factor which is present in almost all cell types and is involved in many biological processes such as inflammation, immunity, differentiation, cell growth, tumorigenesis and apoptosis. Many viruses have developed strategies to inhibit the NF-kappa-B pathway in order to evade host immunity and inhibit production of proinflammatory cytokines." []
+xref: GO:0039644 "suppression by virus of host NF-kappaB transcription factor activity"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -5002,6 +5147,7 @@ relationship: category KW-9999
 id: KW-1102
 name: Inhibition of host PKR by virus
 def: "Viral protein involved in the evasion of the interferon pathway by inhibiting the interferon induced PKR/EIF2AK2 protein. During viral replication of RNA viruses, dsRNA is produced leading to the activation of the PKR/EIF2AK2 kinase. Once activated, PKR/EIF2AK2 autophosphorylates and catalyzes the phosphorylation of many substrates including the translation initiation factor EIF2S1, leading to the inhibition of the initiation of protein synthesis. Several viral proteins prevent PKR/EIF2AK2 activation by direct interaction while others target PKR/EIF2AK2 to degradation." []
+xref: GO:0039580 "suppression by virus of host PKR activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -5009,6 +5155,7 @@ relationship: category KW-9999
 id: KW-1101
 name: Inhibition of host poly(A)-binding protein by virus
 def: "Viral protein involved in the inhibition of host translation by inhibiting the poly(A)-binding protein PABPC1. Viruses have evolved ways of interacting with the host translational machinery to shutoff host gene expression. This global inhibition of cellular protein synthesis serves to ensure maximal viral gene expression and to evade host immune response. One common target is the translation initiation factor PABPC1. Some viruses proteolytically cleave PABPC1, while others displace PABPC1 from EIF4G1." []
+xref: GO:0039647 "suppression by virus of host poly(A)-binding protein activity"
 is_a: KW-1193
 relationship: category KW-9999
 
@@ -5016,6 +5163,7 @@ relationship: category KW-9999
 id: KW-1103
 name: Inhibition of host pre-mRNA processing by virus
 def: "Viral protein involved in the disruption of host pre-mRNA processing. Viruses have evolved ways of interacting with the cellular RNA splicing machinery and regulate splicing of cellular pre-mRNAs as a part of the mechanism for shutting down the synthesis of host proteins. This global inhibition of cellular protein synthesis serves to ensure maximal viral gene expression and to evade host immune response." []
+xref: GO:0039524 "suppression by virus of host mRNA processing"
 is_a: KW-1192
 relationship: category KW-9999
 
@@ -5023,6 +5171,7 @@ relationship: category KW-9999
 id: KW-1117
 name: Inhibition of host proteasome antigen processing by virus
 def: "Viral protein involved in the evasion of host adaptive immune response by inhibiting MHC class I peptide antigen generation by the proteasome. The processing of foreign proteins leads to the presentation of viral peptides by MHC class I molecules to cytotoxic T lymphocytes and triggers immune response. Several viral proteins have evolved mechanisms to avoid synthesis of antigenic peptide by the proteasome. Epstein-Barr virus EBNA-1 for example contains an internal repeat exclusively composed of glycines and alanines that inhibits its proteasomal degradation." []
+xref: GO:0039588 "suppression by virus of host antigen processing and presentation"
 is_a: KW-1080
 relationship: category KW-9999
 
@@ -5030,13 +5179,23 @@ relationship: category KW-9999
 id: KW-1088
 name: Inhibition of host RIG-I by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting the DDX58/RIG-I protein. Upon recognition of viral RNA, the cytosolic receptor DDX58/RIG-I initiates an antiviral signaling cascade by interacting with downstream partners. Several viral proteins inhibit DDX58/RIG-I via direct interaction while others via proteolytic cleavage." []
+xref: GO:0039540 "suppression by virus of host RIG-I activity"
 is_a: KW-1113
+relationship: category KW-9999
+
+[Term]
+id: KW-1113
+name: Inhibition of host RLR pathway by virus
+def: "Viral protein involved in the evasion of host innate defense by inhibiting the DDX58/RIG-I-like receptor (RLR) pathway leading to the triggering of interferon-mediated response. This pathway starts with the recognition of viral RNA by host proteins including DDX58/RIG-I or IFIH1. Then, the signal is transmitted through MAVS and TRAFs leading to the activation and nuclear localization of transcription factors IRF3 and IRF7 to induce IFNalpha/beta transcription and protein production. Many viruses interact with components of this pathway to inhibit production of interferons and establishment of the antiviral state." []
+xref: GO:0039532 "negative regulation of viral-induced cytoplasmic pattern recognition receptor signaling pathway"
+is_a: KW-1090
 relationship: category KW-9999
 
 [Term]
 id: KW-1104
 name: Inhibition of host RNA polymerase II by virus
 def: "Viral protein involved in the disruption of the host RNA polymerase II. Many viruses induce alterations in the cellular gene expression. Among these, shutoff of host transcription by targeting RNA polymerase II is commonly used. Indeed, many viruses are able to modify RNAP II CTD including Herpes virus, HIV, Epstein-Barr virus or Bunyamwera virus." []
+xref: GO:0039523 "suppression by virus of host RNA polymerase II activity"
 is_a: KW-1191
 relationship: category KW-9999
 
@@ -5044,6 +5203,7 @@ relationship: category KW-9999
 id: KW-1105
 name: Inhibition of host STAT1 by virus
 def: "Viral protein involved in the evasion of the type I, II and III interferon pathways by inhibiting the STAT1 protein. Upon viral infection, STAT1 is activated by IFN-gamma, IFN-alpha/beta, or IFN-lambda that bind to specific cell surface receptors. While IFN-gamma induces STAT1 homodimerization, IFN-alpha/beta and IFN-lambda stimulate heterodimerization of STAT1 and STAT2, both leading to STAT1 nuclear localization and subsequent induction of IFN-stimulated genes. Many viruses interfere with STAT1 activation, often by preventing STAT1 phosphorylation and nuclear localization." []
+xref: GO:0039563 "suppression by virus of host STAT1 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -5051,6 +5211,7 @@ relationship: category KW-9999
 id: KW-1106
 name: Inhibition of host STAT2 by virus
 def: "Viral protein involved in the evasion of type I and III interferon pathways by inhibiting STAT2 protein. Upon viral infection, STAT2 is activated by IFN-alpha/beta or IFN-lambda that bind to specific cell surface receptors. In turn, IFN-alpha/beta (or IFN-lambda) induces heterodimerization of STAT1 and STAT2 by phosphorylation, leading to STAT2 nuclear localization and subsequent induction of IFN-stimulated genes. Many viruses interfere with STAT2 activation, often by preventing STAT2 phosphorylation and nuclear localization." []
+xref: GO:0039564 "suppression by virus of host STAT2 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -5058,6 +5219,7 @@ relationship: category KW-9999
 id: KW-1107
 name: Inhibition of host TAP by virus
 def: "Viral protein involved in the evasion of host adaptive immune response by inhibiting the TAP complex. Transporter associated with antigen (TAP), composed of two subunits TAP1 and TAP2, is required for the translocation of peptides into the ER, where they are loaded onto MHC class I. Thereafter, the viral peptides are presented to cytotoxic T lymphocytes at the cell surface and trigger immune response. The loading of peptide on MHC by TAP is targeted by several viruses including herpesviruses and retroviruses." []
+xref: GO:0039589 "suppression by virus of host TAP complex"
 is_a: KW-1080
 relationship: category KW-9999
 
@@ -5065,27 +5227,39 @@ relationship: category KW-9999
 id: KW-1108
 name: Inhibition of host tapasin by virus
 def: "Viral protein involved in the evasion of host adaptive immune response by inhibiting the tapasin/TAPBP protein. tapasin/TAPBP is a type I transmembrane protein essential for the optimal expression of stable MHC class I molecules on host cell surface. Its helps the MHC class I molecules to remain in a peptide receptive state, avoiding irreversible denaturation. Several retroviruses and DNA viruses encode proteins interacting with tapasin/TAPBP and inhibiting its activity." []
+xref: GO:0039591 "suppression by virus of host tapasin activity"
 is_a: KW-1080
 relationship: category KW-9999
 
 [Term]
-id: KW-1109
-name: Inhibition of host TBK1-IKBKE-DDX3 complex by virus
-def: "Viral protein involved in the evasion of host innate defenses by inhibiting the TBK1-IKBKE-DDX3 complex. Upon infection, the virus is recognized and the signal is transmitted to TBK1 and IKBKE that in turn phosphorylate and activate IRF3 and IRF7. Once phosphorylated, IRF3 and IRF7 homodimerize and translocate into the nucleus to drive transcription of interferons. Several viruses including Ebolavirus and Bornavirus interact directly with and inhibit TBK1 to prevent IRFs activation. Other viruses such as vaccinia virus inhibit host DDX3 to block the signaling pathway." []
-is_a: KW-1113
+id: KW-1223
+name: Inhibition of host TBK1 by virus
+def: "Viral protein involved in the evasion of host innate defenses by inhibiting the TBK1 kinase. Upon viral infection, Toll-like receptors (TLRs) or DNA recognition receptors recognize foreign material and transmit the signal to TBK1 that in turn phosphorylates and activates IRF3 and IRF7. Once phosphorylated, IRF3 and/or IRF7 translocate into the nucleus to drive transcription of interferons. Several viruses including herpes simplex virus 1 or vaccinia virus interact directly with and inhibit TBK1 to prevent IRFs activation." []
+xref: GO:0039723 "suppression by virus of host TBK1 activity"
+is_a: KW-1225
 relationship: category KW-9999
 
 [Term]
 id: KW-1084
 name: Inhibition of host tetherin by virus
 def: "Viral protein involved in the evasion of host immune defense by inhibiting the BST2/tetherin protein. BST2/tetherin is an alpha interferon-inducible cellular factor that impairs the release of many enveloped viruses, including human immunodeficiency virus type 1 (HIV-1), HIV-2, as well as other retroviruses. Several viruses manage to circumvent the antiviral activity of BST2/tetherin either by sending BST2/tetherin to degradation (HIV-1) or by lowering the presence of BST2 on cell surfaces (HIV-2)." []
+xref: GO:0039587 "suppression by virus of host tetherin activity"
 is_a: KW-1114
+relationship: category KW-9999
+
+[Term]
+id: KW-1225
+name: Inhibition of host TLR pathway by virus
+def: "Viral protein involved in the evasion of host innate defenses by inhibiting the Toll-like recognition receptor (TLR) pathway. This pathway usually starts with the recognition of viruses by host TLRs including TLR3 or TLR4. Then, the signal is transmitted through MYD88 (or TRIF) and then to TBK1 leading to the activation and nuclear localization of transcription factors IRF3 and/or IRF7 to induce IFNalpha/beta transcription and production of proinflammatory cytokines through activation of the NF-kappaB signaling pathway. Many viruses interact with components of this pathway to inhibit production of interferons and establishment of the antiviral state." []
+xref: GO:0039722 "suppression by virus of host toll-like receptor signaling pathway"
+is_a: KW-1090
 relationship: category KW-9999
 
 [Term]
 id: KW-1110
 name: Inhibition of host TRAFs by virus
 def: "Viral protein involved in the evasion of host innate defense by inhibiting TRAF proteins. After viral infection, the cellular signaling pathway leading to production of interferons is activated and several TRAF family members including TRAF2, TRAF3, and TRAF5 participate in this cascade. Many viruses encode protein able to interact with TRAF members to inhibit their antiviral activity." []
+xref: GO:0039547 "suppression by virus of host TRAF activity"
 is_a: KW-1113
 relationship: category KW-9999
 
@@ -5093,6 +5267,7 @@ relationship: category KW-9999
 id: KW-1111
 name: Inhibition of host transcription initiation by virus
 def: "Viral protein involved in the disruption of the host transcriptional machinery. Viruses have evolved ways of interacting with the cellular preinitiation complex (PIC) to shutoff host transcription initiation. For example, the TATA binding protein and TFIIH are targeted by some viral proteins and thus cannot assemble properly to form a functional PIC." []
+xref: GO:0039602 "suppression by virus of host transcription initiation from RNA polymerase II promoter"
 is_a: KW-1191
 relationship: category KW-9999
 
@@ -5100,6 +5275,7 @@ relationship: category KW-9999
 id: KW-1075
 name: Inhibition of host translation factors by virus
 def: "Viral protein that inhibits or degrades host translation initiation factor(s). Viruses have evolved ways of interacting with the cellular translational machinery to shutoff host gene expression. This global inhibition of cellular protein synthesis serves to ensure maximal viral gene expression and to evade host immune response. Some viruses are known to cleave host translation initiation factors like EIF3 or EIF4G, while others achieve translation inhibition by promoting dephosphorylation of some host translation initiation factors or their binding partners." []
+xref: GO:0039611 "suppression by virus of host translation initiation factor activity"
 is_a: KW-1193
 relationship: category KW-9999
 
@@ -5107,6 +5283,7 @@ relationship: category KW-9999
 id: KW-1112
 name: Inhibition of host TYK2 by virus
 def: "Viral protein involved in the evasion of the type I and III interferon pathways by inhibiting the host TYK2 protein. Upon viral infection, the TYK2 protein is activated by IFNalpha/beta or IFN-lambda stimulation leading to a series of phosphorylation events that induce transcription of several hundred IFN-responsive genes. Several viruses have evolved mechanisms to inhibit TYK2 activity thereby preventing the subsequent activation of downstream partners STAT1 and STAT2." []
+xref: GO:0039574 "suppression by virus of host TYK2 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -5117,8 +5294,8 @@ synonym: "Translation initiation factor" [UniProt]
 def: "Protein which plays an important role in initiating the translation of a mRNA molecule into a polypeptide. Initiation factors help to form the complex between the mRNA and a ribosome." []
 xref: GO:0003743 "translation initiation factor activity"
 xref: GO:0006413 "translational initiation"
-is_a: KW-9992
 is_a: KW-0648
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -5135,8 +5312,9 @@ relationship: category KW-9999
 id: KW-1153
 name: Inner capsid protein
 def: "Viral protein that is a component of the inner layer of a double or triple concentric icosahedral capsid. Inner capsids are part of reoviridae and cystoviridae virions." []
+xref: GO:0039625 "viral inner capsid"
 is_a: KW-0167
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-0398
@@ -5172,7 +5350,7 @@ name: Interferon antiviral system evasion
 synonym: "Antiviral state evasion" [UniProt]
 synonym: "Interferon response evasion" [UniProt]
 def: "Viral protein which prevents the activation of the antiviral state induced by interferon (IFN) in the host cell, thereby allowing the virus to replicate optimally. The antiviral state is the result of a signaling pathway induced by IFN-alpha or IFN-beta following viral infection. It leads to the transcription of various cellular antiviral genes coding for host defense proteins." []
-xref: GO:0030683 "evasion by virus of host immune response"
+xref: GO:0030683 "evasion or tolerance by virus of host immune response"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -5180,8 +5358,9 @@ relationship: category KW-9999
 id: KW-1154
 name: Intermediate capsid protein
 def: "Viral protein that is a component of the intermediate layer of a triple concentric icosahedral capsid. Intermediate capsids are part of reoviridae virions." []
+xref: GO:0039626 "viral intermediate capsid"
 is_a: KW-0167
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-0403
@@ -5204,8 +5383,8 @@ name: Intron homing
 synonym: "Intron transposition" [UniProt]
 def: "Endonucleases involved in intron homing, a genetic event leading to the transfer of an intron DNA sequence. This type of intron mobility depends on site-specific restriction endonucleases encoded by the mobile introns." []
 xref: GO:0006314 "intron homing"
-is_a: KW-9999
 is_a: KW-0255
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
@@ -5221,8 +5400,8 @@ id: KW-0407
 name: Ion channel
 def: "Protein which is part of a transmembrane protein complex that forms a hydrophilic channel across the lipid bilayer through which specific inorganic ions can diffuse down their electrochemical gradients. The channels are usually gated and only open in response to a specific stimulus, such as a change in membrane potential (voltage-gated) or the binding of a ligand (ligand-gated channel)." []
 xref: GO:0005216 "ion channel activity"
-is_a: KW-9992
 is_a: KW-0406
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -5267,8 +5446,8 @@ id: KW-0409
 name: Iron storage
 def: "Protein involved in the storage of iron." []
 xref: GO:0006879 "cellular iron ion homeostasis"
-is_a: KW-9999
 is_a: KW-0408
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
@@ -5289,8 +5468,8 @@ name: Iron-sulfur
 synonym: "Iron-sulfur cluster" [UniProt]
 def: "Protein which binds at least one iron-sulfur cluster, e.g. 2Fe-2S, 3Fe-4S, 4Fe-4S." []
 xref: GO:0051536 "iron-sulfur cluster binding"
-is_a: KW-0479
 is_a: KW-0408
+is_a: KW-0479
 relationship: category KW-9993
 
 [Term]
@@ -5517,6 +5696,13 @@ is_a: KW-9996
 relationship: category KW-9996
 
 [Term]
+id: KW-1252
+name: Latency-replication switch
+def: "Viral protein part of a genetic switch that takes part in the decision of the outcome of the infection: latency or replication. Expression of genetic switch proteins control the expression of viral genes that act as effectors in establishment and maintenance of latency. Interactions between proteins involved in switch regulatory processes and host proteins often influence the decision." []
+is_a: KW-9999
+relationship: category KW-9999
+
+[Term]
 id: KW-0427
 name: LDL
 def: "Protein constituent of the low-density lipoproteins or protein which binds LDLs. LDLs are plasma lipoproteins rich in cholesterol esters, synthesized from the very low-density lipoprotein (VLDL), and which transport cholesterol to peripheral tissue and regulate de novo cholesterol synthesis." []
@@ -5562,7 +5748,6 @@ relationship: category KW-9995
 id: KW-0430
 name: Lectin
 def: "Protein which specifically binds carbohydrates. Lectins are obtained particularly from seeds of leguminous plants but also from other plant and animal sources. They contain binding sites for specific mono-and oligosaccharides. They agglutinate cells by binding to specific sugar residues in membrane glycoproteins." []
-xref: GO:0005529 "sugar binding"
 is_a: KW-9993
 relationship: category KW-9993
 
@@ -5633,8 +5818,8 @@ name: Ligand-gated ion channel
 synonym: "LGIC" [UniProt]
 synonym: "Ligand-gated channel" [UniProt]
 def: "Protein which forms or is a component of a ligand-gated channel. Ligand-gated channels are transmembrane ion channels whose permeability is increased by the binding of a specific ligand, such as neurotransmitters, ionositol triphosphates, and cyclic nucleotides." []
-is_a: KW-0407
 is_a: KW-0406
+is_a: KW-0407
 relationship: category KW-9992
 
 [Term]
@@ -5681,9 +5866,9 @@ id: KW-0440
 name: LIM domain
 synonym: "LIM motif" [UniProt]
 def: "Protein which contains at least one LIM domain, a conserved cysteine-rich domain of approximately 60 amino acids with seven conserved cysteines and a histidine. The LIM domain binds two zinc ions and seems to be involved in protein-protein interactions." []
-is_a: KW-9994
 is_a: KW-0479
 is_a: KW-0862
+is_a: KW-9994
 relationship: category KW-9994
 
 [Term]
@@ -5711,7 +5896,6 @@ relationship: category KW-9999
 id: KW-0444
 name: Lipid biosynthesis
 synonym: "Lipid anabolism" [UniProt]
-synonym: "Lipid biosynthesis" [UniProt]
 synonym: "Lipid biosynthetic process" [UniProt]
 synonym: "Lipid formation" [UniProt]
 def: "Protein involved in the synthesis of lipids, a diverse class of compounds which are insoluble in water but soluble in organic solvents. They include fats, oils, triacylglycerols, fatty acids, glycolipids, phospholipids and steroids." []
@@ -6009,9 +6193,9 @@ id: KW-0473
 name: Membrane attack complex
 def: "Component of the membrane attack complex which groups the complement plasma glycoproteins C5b, C6, C7, C8 and polymeric C9 on biological membranes. The complex forms transmembrane channels which displace lipid molecules and other constituents, thus disrupting the phospholipid bilayer of target cells leading to cell lysis by osmotic leakage. The formation of the membrane attack complex is the terminal step in the complement cascade." []
 xref: GO:0005579 "membrane attack complex"
-is_a: KW-9998
 is_a: KW-0180
 is_a: KW-0204
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -6185,8 +6369,8 @@ name: MHC I
 def: "Protein of the major histocompatibility complex (MHC) class I which is involved in the induction of strong immune reaction. MHC I is involved in immune responses against virus-infected cells and rejection of transplanted tissue." []
 xref: GO:0002474 "antigen processing and presentation of peptide antigen via MHC class I"
 xref: GO:0042612 "MHC class I protein complex"
-is_a: KW-9998
 is_a: KW-0391
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -6195,8 +6379,8 @@ name: MHC II
 def: "Protein of the major histocompatibility complex (MHC) class II which is involved in the induction of strong immune reaction. MHC II is involved in the control the expression of surface structures on lymphocytes and macrophages." []
 xref: GO:0002504 "antigen processing and presentation of peptide or polysaccharide antigen via MHC class II"
 xref: GO:0042613 "MHC class II protein complex"
-is_a: KW-9998
 is_a: KW-0391
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -6211,6 +6395,7 @@ relationship: category KW-9995
 id: KW-0492
 name: Microsome
 def: "Protein found in microsomes, a heterogenous set of vesicles 20-200 nm in diameter and formed from the endoplasmic reticulum when cells are disrupted. The vesicles are isolated by differential centrifugation and are composed of three structural features: rough vesicles, smooth vesicles and ribosomes. Numerous enzyme activities are associated with the microsomal fraction." []
+xref: GO:0043231 "intracellular membrane-bounded organelle"
 is_a: KW-0256
 relationship: category KW-9998
 
@@ -6218,16 +6403,18 @@ relationship: category KW-9998
 id: KW-1177
 name: Microtubular inwards viral transport
 def: "Viral protein that allows the active transport of complete particles and viral components along microtubules toward the intracellular replication sites during virus entry. This transport, which usually involves motor proteins like dynein or polymerization/depolymerization reactions as a driving force, is mostly used by viruses that replicate their genome near or in the nucleus. Neurotropic viruses for example, often enter neurons at the terminal axon and their viral genome must be moved retrogradely to cell bodies. Viruses such as adenovirus, Adeno-associated virus, rabies virus, canine parvovirus, vaccinia, foamy virus, human papillomavirus 16 and herpes virus utilize this type of intracellular transport." []
-is_a: KW-1176
+xref: GO:0075521 "microtubule-dependent intracellular transport of viral material towards nucleus"
 is_a: KW-0945
+is_a: KW-1176
 relationship: category KW-9999
 
 [Term]
 id: KW-1189
 name: Microtubular outwards viral transport
 def: "Viral protein that allows the active transport of viral components and assembled, complete particles along microtubules toward the cell periphery during virus egress. This transport, which usually involves interaction with motor proteins like kinesin or polymerization/depolymerization reactions as a driving force, is mostly used by viruses that replicate their genome near or in the nucleus and allows newly assembled viral progeny to reach the plasma membrane. Herpes simplex virus for example is transported anterogradely along the axon." []
-is_a: KW-1188
+xref: GO:0039701 "microtubule-dependent intracellular transport of viral material towards cell periphery"
 is_a: KW-0945
+is_a: KW-1188
 relationship: category KW-9999
 
 [Term]
@@ -6322,14 +6509,15 @@ relationship: category KW-9998
 id: KW-0499
 name: Mobility protein
 def: "Protein involved in the conjugative transfer of plasmid DNA. These proteins provide the function of nicking the DNA at a certain point, guiding the 5' end of the nicked strand into the recipient cell, recircularization, and perhaps the priming of complementary strand synthesis in the recipient." []
-is_a: KW-9992
 is_a: KW-0184
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
 id: KW-1119
 name: Modulation of host cell apoptosis by virus
 def: "Viral protein involved in the modulation of host cell apoptosis by acting different steps of the process. Several viruses encode proteins that inhibit apoptosis while other viruses use apoptosis to their advantage to suppress immune response or to disseminate." []
+xref: GO:0039526 "modulation by virus of host apoptotic process"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -6337,6 +6525,7 @@ relationship: category KW-9999
 id: KW-1120
 name: Modulation of host cell cycle by viral cyclin-like protein
 def: "Viral protein sharing sequence homology with cellular cyclins. Most viral cyclin homologues are closely related in sequence to the cellular D-type cyclins, which are implicated in regulating the transit of cells from G1 into S and are thought to operate via the inactivation of the retinoblastoma tumour suppressor protein." []
+xref: GO:0060153 "modulation by virus of host cell cycle"
 is_a: KW-1121
 relationship: category KW-9999
 
@@ -6344,6 +6533,7 @@ relationship: category KW-9999
 id: KW-1121
 name: Modulation of host cell cycle by virus
 def: "Viral protein involved in the modulation of host cell cycle. The cell cycle can be divided into four stages: G1, S, G2 and mitosis, while cells resting are termed quiescent cells (G0). Viruses have evolved strategies to modulate cell cycle progression including stimulation of S phase entry from G1 or G0 or cell cycle arrest at G2/M for example. This regulation allows viruses to maximize their own replication." []
+xref: GO:0060153 "modulation by virus of host cell cycle"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -6351,6 +6541,7 @@ relationship: category KW-9999
 id: KW-1122
 name: Modulation of host chromatin by virus
 def: "Viral protein involved in the regulation of host chromatin structure. Chromatin has a major role in life cycle of many viruses, and a lot of them have evolved mechanisms to modulate chromatin-related processes. For example, histone acetyltransferases, histone deacetylases or histones are common targets of viruses." []
+xref: GO:0039525 "modulation by virus of host chromatin organization"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -6358,6 +6549,7 @@ relationship: category KW-9999
 id: KW-1118
 name: Modulation of host dendritic cell activity by virus
 def: "Viral protein involved in the modulation of host dendritic cell activity. Dendritic cells operate at the interface between the innate and adaptive immune response by their ability to sample their environment for pathogenic products, to process them, and to present viral antigens to T-cells. This results in T cell proliferation and the induction of virus-specific adaptive immune responses. Therefore impairing dendritic cell function by viruses is an effective strategy to disrupt the host immune response." []
+xref: GO:0039673 "evasion by virus of host dendritic cell activity"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -6365,6 +6557,7 @@ relationship: category KW-9999
 id: KW-1123
 name: Modulation of host E3 ubiquitin ligases by virus
 def: "Viral protein involved in the modulation of cellular E3 ubiquitin ligases. In general, viral proteins redirect cellular E3 ubiquitin ligases to select specific host proteins for proteasomal degradation. The aim of this subversion is the creation of a favorable environment for virus replication and dissemination." []
+xref: GO:0039649 "modulation by virus of host ubiquitin-protein ligase activity"
 is_a: KW-1130
 relationship: category KW-9999
 
@@ -6372,6 +6565,7 @@ relationship: category KW-9999
 id: KW-1124
 name: Modulation of host immunity by viral IgG Fc receptor-like protein
 def: "Viral protein acting as an IgG Fc receptors, able to bind IgG and inhibit host Fc-dependent immune activation. Fc receptors are proteins found at the surface of certain cells of the immune system including macrophages, monocytes, natural killer cells or B-cells. They allow these cells to bind to antibodies that are attached to the surface of infected cells or pathogens, helping these cells to identify and eliminate pathogens." []
+xref: GO:0075528 "modulation by virus of host immune response"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -6379,6 +6573,7 @@ relationship: category KW-9999
 id: KW-1131
 name: Modulation of host NK-cell activity by virus
 def: "Viral protein involved in the modulation of host NK-cell activity. Natural killer (NK) cells are critical in defense against viral infections, since they provide host protection by releasing cytokines such as IFN-gamma or by direct lysis of infected targets. Therefore, during viral infections, viruses and NK cells are in a constant battle and many viruses have developed a variety of strategies to modulate NK cell activity." []
+xref: GO:0039671 "evasion by virus of host natural killer cell activity"
 is_a: KW-0899
 relationship: category KW-9999
 
@@ -6386,6 +6581,7 @@ relationship: category KW-9999
 id: KW-1126
 name: Modulation of host PP1 activity by virus
 def: "Protein phosphatase-1 (PP1) is a member of the Serine/Threonine phosphatases. The enzyme regulates many important physiological processes, including gene transcription, translation, metabolism, cell growth and division. Different viruses including asfivirus, herpes simplex virus or papillomavirus interact with and modulate PPP1 phosphatase activity to dephosphorylate specific cellular substrates including EIF2S1. Upon viral infection, the host PKR/EIF2AK2 triggers the phosphorylation of EIF2S1 leading to a complete translational shut-off. By dephosphroylating EIF2S1 with PPP1CA, viruses manage to circumvent this antiviral response and prevent translational shut-off." []
+xref: GO:0039586 "modulation by virus of host PP1 activity"
 is_a: KW-1114
 relationship: category KW-9999
 
@@ -6393,6 +6589,7 @@ relationship: category KW-9999
 id: KW-1127
 name: Modulation of host ubiquitin pathway by viral deubiquitinase
 def: "Viral protein possessing deubiquitinating activity. Hijacking the ubiquitin system plays an essential role during viral replication. Therefore, several viruses including EBV or HCMV encode for proteins able to remove ubiquitin or ubiquitin-like proteins from their substrate." []
+xref: GO:0039648 "modulation by virus of host protein ubiquitination"
 is_a: KW-1130
 relationship: category KW-9999
 
@@ -6400,6 +6597,7 @@ relationship: category KW-9999
 id: KW-1128
 name: Modulation of host ubiquitin pathway by viral E3 ligase
 def: "Viral protein functioning as a cellular E3 ubiquitin ligase. These viral proteins usually target several host proteins for proteasomal degradation." []
+xref: GO:0039648 "modulation by virus of host protein ubiquitination"
 is_a: KW-1130
 relationship: category KW-9999
 
@@ -6407,6 +6605,7 @@ relationship: category KW-9999
 id: KW-1129
 name: Modulation of host ubiquitin pathway by viral ubl
 def: "Viral protein sharing sequence similarity with host ubiquitin. Several of these homologues are present in large DNA viruses such as entomopoxvirus or canarypoxvirus and are thought to modulate host ubiquitin pathway." []
+xref: GO:0039648 "modulation by virus of host protein ubiquitination"
 is_a: KW-1130
 relationship: category KW-9999
 
@@ -6414,7 +6613,15 @@ relationship: category KW-9999
 id: KW-1130
 name: Modulation of host ubiquitin pathway by virus
 def: "Viral protein involved in the modulation of the host ubiquitin pathway. The ubiquitination pathway comprises E1, E2, and E3 ligases that conjugate ubiquitin to protein substrate. Usually, the host E3 ligase determines the substrate specificity. Some viruses encode E3 ligases that modulate the substrate specificity of host E3 ligases. Alternatively, some viruses encode deubiquitinases able to remove ubiquitin or ubiquitin-like proteins from their substrate." []
+xref: GO:0039648 "modulation by virus of host protein ubiquitination"
 is_a: KW-0945
+relationship: category KW-9999
+
+[Term]
+id: KW-1254
+name: Modulation of host virulence by virus
+def: "Viral factor that modulates its bacterial host's virulence against a third organism. These virulence factors are mostly expressed from integrated viral genomes and have diverse functions. Bacterial host, and populations, and the encoding (pro)virus probably benefit from the expression of such factors. For example, Bor and Lom outer membrane proteins encoded by bacteriophage lambda modify the virulence of the host bacteria against a eukaryotic target. Some enteric bacterioviruses direct alterations in lipopolysaccharide biosynthesis, resulting in bacterial immune evasion of its eukaryotic target. Other prokaryotic viruses encode exotoxins changing their host bacteria into serious pathogens. A well-known bacterial exotoxin encoded by a provirus is the diphtheria toxin." []
+is_a: KW-0843
 relationship: category KW-9999
 
 [Term]
@@ -6477,8 +6684,8 @@ relationship: category KW-9992
 id: KW-0504
 name: Morphogen
 def: "Diffusible protein that influence morphogenesis or embryonic development. These proteins carry information relating, for example, to a position in the embryo, and thus, determine the differentiation that cells perceiving this information will undergo. They are thought to act as a function of a threshold of their concentration." []
-xref: GO:0016015 "morphogen activity"
 xref: GO:0009653 "anatomical structure morphogenesis"
+xref: GO:0016015 "morphogen activity"
 is_a: KW-9992
 relationship: category KW-9992
 
@@ -6494,7 +6701,7 @@ id: KW-0506
 name: mRNA capping
 synonym: "Messenger RNA capping" [UniProt]
 def: "Protein involved in the modification (capping) of the 5' end of eukaryotic mRNAs. This modification occurs after the beginning of transcription in the nucleus, and consists of adding a guanosine nucleotide to the 5'-end of mRNAs and then, methylating the guanosine. Capping protects mRNAs at their termini against attack by phosphatases and other nucleases and promotes mRNA function at the level of initiation of translation." []
-xref: GO:0006370 "mRNA capping"
+xref: GO:0006370 "7-methylguanosine mRNA capping"
 is_a: KW-0507
 relationship: category KW-9999
 
@@ -6628,6 +6835,7 @@ synonym: "Necroptosis" [UniProt]
 synonym: "Necrotic cell death" [UniProt]
 synonym: "Necrotic programmed cell death" [UniProt]
 def: "Protein involved in necrotic programmed cell death. Necrosis is a form of traumatic cell death that results from acute cellular injury due infection, toxins, trauma, etc. Necrosis is characterized by blebbing, mitochondrial fission, loss of cell membrane integrity and an uncontrolled release of products of cell death into the intracellular space. This initiates an inflammatory response in the surrounding tissue often resulting is a build-up of dead tissue and cell debris at, or near, the site of the cell death." []
+xref: GO:0012501 "programmed cell death"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -6854,9 +7062,9 @@ synonym: "Nuclear pore" [UniProt]
 def: "Protein associated predominantly with the nuclear pore complex (NPC). NPCs constitute the exclusive means of nucleocytoplasmic transport in eukaryotes during interphase. NPCs allow the passive diffusion of ions and small molecules (up to about 20 kDa or 5 nm) and the active, nuclear transport receptor (karyopherin: importin and exportin)-mediated bidirectional transport of macromolecules such as proteins, RNAs, ribonucleoprotein (RNPs), and ribosomal subunits (up to about 10 MDa) across the double-membrane nuclear envelope. NPC components, collectively referred to as nucleoporins (NUPs), can play the role of both NPC structural components and of docking or interaction partners for transiently associated nuclear transport factors. The NPC is composed of at least 30 distinct subunits, shows 8-fold rotational symmetry with specialized structures on the cyto- and nucleoplasmic side and in the nuclear envelope embedded core. The MW varies from about 44-60 MDa in S. cerevisiae to 60-120 MDa in vertebrates, yet the overall architecture is conserved." []
 xref: GO:0005643 "nuclear pore"
 xref: http://npd.hgu.mrc.ac.uk/user/compartment?page=nuc_pore
+is_a: KW-0509
 is_a: KW-0539
 is_a: KW-0811
-is_a: KW-0509
 relationship: category KW-9998
 
 [Term]
@@ -7036,8 +7244,9 @@ relationship: category KW-9995
 id: KW-1152
 name: Outer capsid protein
 def: "Viral protein that is a component of the outer layer of a double or triple concentric icosahedral capsid. Outer capsids are part of reoviridae and cystoviridae virions." []
+xref: GO:0039624 "viral outer capsid"
 is_a: KW-0167
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-0558
@@ -7148,8 +7357,8 @@ name: Pathogenesis-related protein
 synonym: "PR protein" [UniProt]
 def: "Protein induced in several plant species when they are infected by viruses, viroids, fungi or bacteria. The occurrence of these proteins is not pathogen-specific, but determined by the type of reaction of the host plant. They form a protective barrier against pathogens by collecting at infection sites and act to decrease susceptibility of plants. They may have anti-fungal or anti-bacterial activity." []
 xref: GO:0009607 "response to biotic stimulus"
-is_a: KW-9992
 is_a: KW-0611
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -7190,8 +7399,8 @@ synonym: "Pseudomurein formation" [UniProt]
 synonym: "Pseudomurein synthesis" [UniProt]
 def: "Protein involved in the synthesis of peptidoglycan which consists of a glycosaminoglycan formed by alternating residues of D-glucosamine and either muramic acid {2-amino-3-O-[(R)-1-carboxyethyl]-2-deoxy-D-glucose} or L-talosaminuronic acid (2-amino-2-deoxy-L-taluronic acid), which are usually N-acetylated or N-glycoloylated. The carboxyl group of the muramic acid is commonly substituted by a peptide containing residues of both L- and D-amino acids, whereas that of L-talosaminuronic acid is substituted by a peptide consisting of L-amino acids only. These peptide units may be cross-linked by a peptide bond, thereby giving rise to a giant macromolecule that forms the rigid cell wall (sacculus or murein sacculus). This macromolecule is known to occur as a monomolecular layer between the inner and outer membrane in Gram-negative bacteria and as a multimolecular layer, often associated covalently or non-covalently with various additional compounds (teichoic acids, neutral polysaccharides. etc.) in Gram-positive bacteria. In the archaebacteria, several organisms contain a peptidoglycan, also called pseudomurein, which differs in certain respects from those of the eubacteria." []
 xref: GO:0009252 "peptidoglycan biosynthetic process"
-is_a: KW-9999
 is_a: KW-0133
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
@@ -7265,23 +7474,6 @@ synonym: "Poly(3-hydroxyalkanoate) formation" [UniProt]
 synonym: "Poly(3-hydroxyalkanoate) synthesis" [UniProt]
 def: "Protein involved in the synthesis of poly(3-hydroxyalkanoates) (PHA). In Pseudomonas oleovorans large amounts of this polyester are synthesized when cells are grown under nitrogen-limiting conditions. When nitrogen is further supplied in the medium, the accumulated PHA is degraded." []
 xref: GO:0042621 "poly(3-hydroxyalkanoate) biosynthetic process"
-is_a: KW-9999
-relationship: category KW-9999
-
-[Term]
-id: KW-0578
-name: Phage lysis protein
-def: "Phage protein involved in the lysis of the bacterial cell wall allowing the release of mature, newly formed phages." []
-xref: GO:0016998 "cell wall macromolecule catabolic process"
-xref: GO:0019835 "cytolysis"
-is_a: KW-9992
-relationship: category KW-9992
-
-[Term]
-id: KW-0579
-name: Phage maturation
-def: "Protein involved in phage maturation, the formation of complete phage viruses ready for release." []
-xref: GO:0019067 "viral assembly, maturation, egress, and release"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -7429,8 +7621,8 @@ synonym: "Phospholipid catabolic process" [UniProt]
 synonym: "Phospholipid catabolism" [UniProt]
 def: "Protein involved in the breakdown of phospholipids, the major lipid component of most cellular membranes. Phospholipids are usually composed of two fatty acid chains esterified to two of the carbons of glycerol phosphate, the phosphate being esterified to a hydroxyl group of another hydrophilic compound, such as choline, ethanolamine or serine." []
 xref: GO:0009395 "phospholipid catabolic process"
-is_a: KW-1208
 is_a: KW-0442
+is_a: KW-1208
 relationship: category KW-9999
 
 [Term]
@@ -7454,8 +7646,8 @@ id: KW-0596
 name: Phosphopantetheine
 synonym: "Pantetheine 4'phosphate" [UniProt]
 def: "Protein which contains at least one phosphopantetheine as the prosthetic group. In acyl carrier proteins (ACP) for example, it serves as a 'swinging arm' for the attachment of activated fatty acid and amino-acid groups." []
-is_a: KW-9993
-relationship: category KW-9993
+is_a: KW-9991
+relationship: category KW-9991
 
 [Term]
 id: KW-0597
@@ -7481,8 +7673,8 @@ id: KW-0599
 name: Photoprotein
 def: "Luminescent proteins, which are involved in the phenomenon of light emission in certain living organisms. E.g., green fluorescent protein which is unique among fluorescent proteins in that its chromophore is not a separately synthesized prostethic group but is composed of modified amino acid residues within its polypeptide chain." []
 xref: GO:0008218 "bioluminescence"
-is_a: KW-9992
 is_a: KW-0455
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -7492,8 +7684,8 @@ synonym: "Light-sensing protein" [UniProt]
 synonym: "Photosensor protein" [UniProt]
 def: "Protein involved in the convertion of light directly into a signal. These proteins are classified in a limited number of families based on the chemical structure of the light-absorbing chromophores involved, and also on protein sequence similarities to discriminate the many photoreceptor proteins that bind a flavin derivative. Accordingly, the most important families are the rhodopsins, the phytochromes, the xanthopsins, the cryptochromes, the phototropins and the BLUF proteins." []
 xref: GO:0009881 "photoreceptor activity"
-is_a: KW-0675
 is_a: KW-0157
+is_a: KW-0675
 is_a: KW-0716
 relationship: category KW-9992
 
@@ -7520,8 +7712,8 @@ synonym: "P700" [UniProt]
 synonym: "PSI" [UniProt]
 def: "Protein involved in photosystem I (PSI), a complex that uses light energy to mediate electron flow in the chloroplast thylakoid membrane of plants and in cyanobacteria. In linear electron flow, PSII is coupled to PSI and produces a pH gradient, ATP and NADPH. In cyclic electron flow, PSI generates a pH gradient and ATP. PSI is excited best by light at about 700 nm, and is thus sometimes called P700. PSI is an iron-sulfur type reaction center (RC), sharing a common ancestor with the RCs of Heliobacteriaceae, green sulfur and green non-sulfur bacteria." []
 xref: GO:0009522 "photosystem I"
-is_a: KW-9998
 is_a: KW-0602
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -7531,8 +7723,8 @@ synonym: "P680" [UniProt]
 synonym: "PSII" [UniProt]
 def: "Protein involved in photosystem II (PSII), a complex that uses light energy to mediate electron flows in the chloroplast thylakoid membrane of plants and in cyanobacteria. PSII splits water, releasing hydrogen ions and molecular oxygen. PSII cannot use photons of a wavelength greater than 680 nm, and is thus sometimes called P680. PSII is a quinone type rection center (RC), sharing a common ancestor with the RCs of purple bacteria." []
 xref: GO:0009523 "photosystem II"
-is_a: KW-9998
 is_a: KW-0602
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -7559,13 +7751,6 @@ def: "Protein which binds or transport pigments, any coloring matter in animals,
 xref: GO:0031409 "pigment binding"
 is_a: KW-9993
 relationship: category KW-9993
-
-[Term]
-id: KW-1175
-name: Pilus-mediated viral adsorption onto host cell
-def: "Viral protein involved in interaction with bacterial conjugative F-pili, which are retractile filaments that protrude from gram-negative bacteria and normally mediate horizontal gene transfer. Binding to the pilus is followed by retraction of the pilus, which brings the bacteriophage in contact with the host cell membrane. Examples of bacteriophages which utilize the host-cell pilus as an attachment structure are bacteriophages M13, f1, fd, R17, Qbeta, Pf1, Pf3, phiKMV or phi6." []
-is_a: KW-1161
-relationship: category KW-9999
 
 [Term]
 id: KW-0611
@@ -7702,7 +7887,8 @@ relationship: category KW-9995
 id: KW-1172
 name: Pore-mediated penetration of viral genome into host cell
 synonym: "Membrane puncture-mediated penetration of viral genome into host cell" [UniProt]
-def: "Viral pore-forming protein, associated with the viral capsid, that induces the formation of a transmembrane pore in the host membrane to allow the viral genome to enter the cytoplasm. This mechanism is used by non-enveloped viruses such as human rhinovirus 2, poliovirus, and some bacteriophages." []
+def: "Virion-associated pore-forming protein that induces the formation of a transmembrane pore or channel in the host membrane(s) to allow the viral genome to enter the host cytoplasm. This mechanism is used by non-enveloped viruses such as human rhinovirus 2 or poliovirus. Many tailed bacteriophages carry specialized proteins which open a pore or a channel in the host membrane(s) to allow penetration of the virion tail into host envelope and genome delivery into host cytoplasm." []
+xref: GO:0044694 "pore-mediated entry of viral genome into host cell"
 is_a: KW-1162
 relationship: category KW-9999
 
@@ -7712,9 +7898,9 @@ name: Porin
 def: "Membrane protein which in a multimeric form constitutes a water-filled transmembrane channel (a pore). This pore allows the passage of ions and numerous other, non-specific molecules through the membrane. Found in the mitochondrial and plastid outer membrane of eukaryotes, in many Gram-negative bacteria, at least some Corynebacterineae, archaea and in sea anemones." []
 xref: GO:0015288 "porin activity"
 xref: GO:0046930 "pore complex"
-is_a: KW-9992
 is_a: KW-0406
 is_a: KW-0812
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -7731,8 +7917,8 @@ name: Postsynaptic cell membrane
 synonym: "Postsynaptic membrane" [UniProt]
 def: "Protein characteristic of the postsynaptic membrane. In a chemical synapse, the postsynaptic membrane is the membrane that receives a signal (binds neurotransmitter) from the presynaptic cell and responds via depolarisation or hyperpolarisation. The postsynaptic membrane is separated from the presynaptic membrane by the synaptic cleft." []
 xref: GO:0045211 "postsynaptic membrane"
-is_a: KW-0770
 is_a: KW-0472
+is_a: KW-0770
 relationship: category KW-9998
 
 [Term]
@@ -7758,8 +7944,8 @@ def: "Protein which is part of a transmembrane protein complex that forms a hydr
 xref: GO:0005267 "potassium channel activity"
 xref: GO:0071805 "potassium ion transmembrane transport"
 is_a: KW-0407
-is_a: KW-0633
 is_a: KW-0630
+is_a: KW-0633
 relationship: category KW-9992
 
 [Term]
@@ -7866,7 +8052,7 @@ id: KW-0639
 name: Primosome
 def: "Component of the complex involved in the synthesis of RNA primer sequences used in DNA replication. Main components are primases and replicative DNA helicases that move as a unit along the replication fork." []
 xref: GO:0006269 "DNA replication, synthesis of RNA primer"
-xref: GO:0005658 "alpha DNA polymerase:primase complex"
+xref: GO:1990077 "primosome complex"
 is_a: KW-9998
 relationship: category KW-9998
 
@@ -7874,8 +8060,8 @@ relationship: category KW-9998
 id: KW-0640
 name: Prion
 def: "Protein which is able to form a prion, a self-propagating protein conformation (infectious protein). Formation of prions involves conversion of the native proteins into an infectious, amyloid form. This class of proteins includes the members of the prion family which can form proteinaceous infectious particles responsible for transmissible spongiform encephalopathies (TSE) in many animals, such as Kuru and Creutzfeldt-Jakob syndrome in humans, scrapies in sheep and BSE in cattle. These prion diseases represent special cases of neurodegenerative amyloidoses, because they result from the transmissibility and infectivity of the amyloid." []
-is_a: KW-9992
 is_a: KW-0034
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -7925,8 +8111,8 @@ synonym: "Peptidase" [UniProt]
 synonym: "Peptide hydrolase" [UniProt]
 synonym: "Proteinase" [UniProt]
 def: "Enzyme which hydrolyzes peptide bonds." []
-xref: GO:0008233 "peptidase activity"
 xref: GO:0006508 "proteolysis"
+xref: GO:0008233 "peptidase activity"
 is_a: KW-0378
 relationship: category KW-9992
 
@@ -7934,8 +8120,8 @@ relationship: category KW-9992
 id: KW-0646
 name: Protease inhibitor
 def: "Protein which inhibits or antagonizes the biosynthesis of proteases or their activity." []
-xref: GO:0030414 "peptidase inhibitor activity"
 xref: GO:0010466 "negative regulation of peptidase activity"
+xref: GO:0030414 "peptidase inhibitor activity"
 is_a: KW-9992
 relationship: category KW-9992
 
@@ -8017,8 +8203,8 @@ relationship: category KW-9991
 id: KW-0655
 name: Prothrombin activator
 def: "Protein which activates prothrombin, the inactive precursor of thrombin. For example, staphylocoagulase, an extracellular protein produced by Staphylococcus aureus, forms a complex with prothrombin which can clot fibrinogen without any proteolytic cleavage of prothrombin." []
-xref: GO:0016504 "peptidase activator activity"
 xref: GO:0010952 "positive regulation of peptidase activity"
+xref: GO:0016504 "peptidase activator activity"
 is_a: KW-9992
 relationship: category KW-9992
 
@@ -8053,7 +8239,7 @@ relationship: category KW-9999
 id: KW-0659
 name: Purine metabolism
 def: "Protein involved in a biochemical reaction with purines. Purines are nitrogenous heterocyclic bases, e.g. adenine, guanine, hypoxanthine and xanthine. The degradation of purines leads to uric acid, which is excreted in primates, birds and some other animals. In many other vertebrates uric acid is degraded further to the excretory product allantoin." []
-xref: GO:0006144 "purine base metabolic process"
+xref: GO:0006144 "purine nucleobase metabolic process"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -8113,8 +8299,8 @@ id: KW-0666
 name: Pyrogen
 def: "Protein producing fever. The major endogenous pyrogen in mammals is probably interleukin-1, which is produced by activated macrophages and acts on the hypothalamic thermoregulatory centre." []
 xref: GO:0001660 "fever generation"
-is_a: KW-9992
 is_a: KW-0395
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -8185,15 +8371,14 @@ relationship: category KW-9999
 id: KW-0674
 name: Reaction center
 def: "Protein which is a component of the reaction center, a system consisting of proteins and cofactors which facilitate light energy and electron transfer in plants. The system also acts as a light-driven electron pump across the photosynthetic membrane of photosynthetic bacteria." []
-is_a: KW-9998
 is_a: KW-0602
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
 id: KW-0675
 name: Receptor
 def: "Protein which binds to, or responds to, a ligand with high specificity." []
-xref: GO:0004872 "receptor activity"
 is_a: KW-9992
 relationship: category KW-9992
 
@@ -8245,12 +8430,19 @@ is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
+id: KW-1258
+name: Restriction-modification system evasion by virus
+def: "Viral anti-restriction protein that counteracts the host restriction-modification (R-M) system. R-M system is a host defense system of bacteria and archea that recognizes incoming unmethylated viral DNA and rapidly degrades it. Many prokaryotic viruses have evolved antirestriction strategies such as expressing their own methylase, stimulating the host methylase so that it confers protection to the virus genome or shutting down host restriction endonuclease." []
+is_a: KW-0945
+relationship: category KW-9999
+
+[Term]
 id: KW-0681
 name: Retinal protein
 def: "Protein found in the retina or, in the case of bacteriorhodopsin, in the purple membrane of halobacteria, and which acts as a photoreceptor and which binds a retinal chromophore." []
 xref: GO:0007602 "phototransduction"
-is_a: KW-0600
 is_a: KW-0157
+is_a: KW-0600
 relationship: category KW-9992
 
 [Term]
@@ -8581,7 +8773,6 @@ relationship: category KW-9999
 id: KW-0719
 name: Serine esterase
 def: "Enzyme which catalyzes the hydrolysis of esters and is characterized by a catalytically active serine residue in its active site." []
-xref: GO:0004091 "carboxylesterase activity"
 is_a: KW-0378
 relationship: category KW-9992
 
@@ -8674,18 +8865,18 @@ relationship: category KW-9995
 id: KW-0730
 name: Sialic acid
 def: "Protein with at least one sialic acid. The term \"sialic acid\" refers to the group of sugars including neuraminic acid and its derivatives, not to a specific sugar. They are widely distributed in bacteria and animal tissue as components of polysaccharides, glycoproteins and glycolipids. They are typically the terminal residues on cell surface oligosaccharides." []
-is_a: KW-9993
 is_a: KW-0325
+is_a: KW-9993
 relationship: category KW-9993
 
 [Term]
 id: KW-0731
 name: Sigma factor
 def: "Initiation factors that bind to bacterial DNA-dependent RNA polymerases and promote attachment to specific initiation sites on DNA. Following attachment, the sigma factor is released." []
+xref: GO:0006355 "regulation of transcription, DNA-templated"
 xref: GO:0016987 "sigma factor activity"
-xref: GO:0006355 "regulation of transcription, DNA-dependent"
-is_a: KW-9992
 is_a: KW-0805
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -8702,8 +8893,8 @@ id: KW-0733
 name: Signal recognition particle
 def: "Protein of the signal recognition particle (SRP) which is a cytosolic ribonucleoprotein complex that induces elongation arrest of nascent presecretory and membrane proteins until the ribosome becomes associated with the rough endoplasmic reticulum or the prokaryotic cytoplasmic membrane." []
 xref: GO:0005786 "signal recognition particle, endoplasmic reticulum targeting"
-is_a: KW-9998
 is_a: KW-0687
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -8729,7 +8920,7 @@ synonym: "COP9 signalosome" [UniProt]
 synonym: "COP9 signalosome complex" [UniProt]
 synonym: "CSN" [UniProt]
 def: "Protein of the signalosome complex, a multifunctional protein complex essential for development and possibly involved in the regulation of protein degradation." []
-xref: GO:0008180 "signalosome"
+xref: GO:0008180 "COP9 signalosome"
 is_a: KW-9998
 relationship: category KW-9998
 
@@ -8788,10 +8979,10 @@ name: Sodium/potassium transport
 def: "Protein involved in the active transport system which simultaneously moves two potassium ions into the cell and three sodium ions out of the cell." []
 xref: GO:0006813 "potassium ion transport"
 xref: GO:0006814 "sodium ion transport"
+is_a: KW-0630
 is_a: KW-0633
 is_a: KW-0739
 is_a: KW-0915
-is_a: KW-0630
 relationship: category KW-9999
 
 [Term]
@@ -8857,8 +9048,8 @@ id: KW-0747
 name: Spliceosome
 def: "Protein of the spliceosome, a very large complex of small nuclear RNA/protein particles (snRNPs) which assemble with pre-mRNA to achieve RNA splicing." []
 xref: GO:0005681 "spliceosomal complex"
-is_a: KW-9998
 is_a: KW-0508
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -9014,6 +9205,13 @@ is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
+id: KW-1260
+name: Superinfection exclusion
+def: "Viral protein that is expressed by a prokaryotic virus, integrated or not, to help protect the host cell from superinfection, a process by which a cell that has previously been infected by one virus subsequently gets coinfected with a different strain of the virus, or another virus. Superinfection exclusion can be achieved for example by expressing viral enzymes that alter a portion of a surface receptor thereby blocking entry of incoming viruses with this receptor specificity. Exclusion protein can also target and block the ejection and/or DNA delivery by new incoming phages." []
+is_a: KW-0945
+relationship: category KW-9999
+
+[Term]
 id: KW-0941
 name: Suppressor of RNA silencing
 synonym: "Suppressor of RNA interference" [UniProt]
@@ -9027,8 +9225,8 @@ id: KW-0767
 name: Surface film
 def: "Protein found in the film of pulmonary surfactants which cover the alveolar surface of the mammalian lung. These surfactants are composed of 90% phospholipids and 10% proteins." []
 xref: GO:0005576 "extracellular region"
-is_a: KW-0964
 is_a: KW-0305
+is_a: KW-0964
 relationship: category KW-9998
 
 [Term]
@@ -9058,7 +9256,7 @@ relationship: category KW-9998
 id: KW-0771
 name: Synaptosome
 def: "Protein found in synaptosomes, the pinched-off nerve endings and their contents of vesicles and cytoplasm together with the attached subsynaptic area of the membrane of the postsynaptic cell. They are largely artificial structures produced by fractionation after selective centrifugation of nervous tissue homogenates." []
-xref: GO:0019717 "synaptosome"
+xref: GO:0043005 "neuron projection"
 is_a: KW-0770
 relationship: category KW-9998
 
@@ -9068,6 +9266,7 @@ name: Syncytium formation induced by viral infection
 synonym: "Induction by virus of host cell-cell fusion" [UniProt]
 synonym: "Polykaryons formation in virally infected cells" [UniProt]
 def: "Viral protein that mediates fusion of an infected cell with neighboring cells leading to the formation of multi-nucleate enlarged cells called syncytia. Usually these syncytia are the result of expression of a viral fusion protein at the host cell membrane during viral replication. Viruses such as herpesviruses are known to induce the formation of syncytia." []
+xref: GO:0060141 "positive regulation of syncytium formation by virus"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -9083,89 +9282,100 @@ relationship: category KW-9995
 id: KW-1140
 name: T=1 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=1 symmetry to protect the viral genome. The T=1 capsid is composed of 60 subunits, each subunit occupying a quasi-equivalent position. The capsid diameter ranges from 18 to 35 nm." []
+xref: GO:0039615 "T=1 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1146
 name: T=13 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=13 symmetry to protect the viral genome. The T=13 capsid is composed of 780 subunits, each subunit occupying a quasi-equivalent position. Its diameter ranges from 70 to 80 nm." []
+xref: GO:0039621 "T=13 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1149
 name: T=147 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=147 symmetry to protect the viral genome. The T=147 capsid is composed of 8820 subunits. Its diameter is about 185 nm." []
+xref: GO:0039627 "T=147 icosahedral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1147
 name: T=16 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=16 symmetry to protect the viral genome. The T=16 capsid is composed of 960 subunits, each subunit occupying a quasi-equivalent position. Its diameter is about 100 nm." []
+xref: GO:0039622 "T=16 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1150
 name: T=169 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=169 symmetry to protect the viral genome. The T=169 capsid is composed of 10140 subunits. Its diameter is about 165-190 nm." []
+xref: GO:0039628 "T=169 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1141
 name: T=2 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=2* symmetry to protect the viral genome. The T=2* capsid is composed of 120 subunits. The T=2* symmetry does not exist under the rules described by Caspar and Klug, strictly speaking the capsid has a T=1 symmetry composed of 60 dimeric subunits. The capsid diameter is about 40 nm." []
+xref: GO:0039616 "T=2 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1151
 name: T=219 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=219 symmetry to protect the viral genome. The T=219 capsid is composed of 13140 subunits. Its diameter is about 130-160 nm." []
+xref: GO:0039629 "T=219 icosahedral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1148
 name: T=25 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=25 symmetry to protect the viral genome. The T=25 capsid is composed of 1500 subunits, each subunit occupying a quasi-equivalent position. Its diameter is about 90 nm." []
+xref: GO:0039623 "T=25 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1142
 name: T=3 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=3 symmetry to protect the viral genome. The T=3 capsid is composed of 180 subunits, each subunit occupying a quasi-equivalent position. The capsid diameter ranges from 26 to 40 nm." []
+xref: GO:0039617 "T=3 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1144
 name: T=4 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=4 symmetry to protect the viral genome. The T=4 capsid is composed of 240 subunits, each subunit occupying a quasi-equivalent position. The capsid diameter ranges from 30 to 40 nm." []
+xref: GO:0039619 "T=4 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1145
 name: T=7 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a T=7 symmetry to protect the viral genome. The T=7 capsid is composed of 420 subunits, each subunit occupying a quasi-equivalent position. Papillomavirus and Polyomavirus T=7 capsids are composed of pentameric capsomeres for a total of 360 capsid proteins. Its diameter ranges from 45 to 60 nm." []
+xref: GO:0039620 "T=7 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-1137
@@ -9258,8 +9468,8 @@ name: Terminal addition
 def: "Protein involved in the random addition of deoxynucleoside 5'-triphosphate to the 3'end of a DNA initiator." []
 xref: GO:0003912 "DNA nucleotidylexotransferase activity"
 xref: GO:0006304 "DNA modification"
-is_a: KW-9999
 is_a: KW-0548
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
@@ -9308,8 +9518,8 @@ id: KW-0787
 name: Thick filament
 def: "Protein found in, or associated with, the thick filaments which are formed by bipolar myosin-II filaments (12-14 nm in diameter, 1.6 mm long) found striated muscle. Myosin filaments elsewhere are often referred to as 'thick filaments', although their length may be considerably less. The myosin heads project from the thick filament in a regular fashion." []
 xref: GO:0032982 "myosin filament"
-is_a: KW-9998
 is_a: KW-0514
+is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
@@ -9369,8 +9579,8 @@ id: KW-0792
 name: Thrombophilia
 synonym: "Recurrent venous thrombosis" [UniProt]
 def: "Protein which, if defective, causes thrombophilia, a disorder of hemostasis in which the individuals are prone to serious spontaneous thrombosis." []
-is_a: KW-9995
 is_a: KW-0094
+is_a: KW-9995
 relationship: category KW-9995
 
 [Term]
@@ -9454,15 +9664,16 @@ relationship: category KW-9994
 id: KW-1143
 name: T=pseudo3 icosahedral capsid protein
 def: "Viral protein that forms an icosahedral capsid with a pseudo T=3 symmetry to protect the viral genome. The pseudo T=pseudo3 capsid is composed of 180 subunits. Each subunit does not occupy a quasi-equivalent position, therefore the structure is called pseudo. The capsid diameter ranges from 26 to 40 nm." []
+xref: GO:0039618 "T=pseudo3 icosahedral viral capsid"
 is_a: KW-0167
 is_a: KW-0946
-relationship: category KW-9992
+relationship: category KW-9998
 
 [Term]
 id: KW-0804
 name: Transcription
 def: "Protein involved in the transfer of genetic information from DNA to messenger RNA (mRNA) by DNA-directed RNA polymerase. In the case of some RNA viruses, protein involved in the transfer of genetic information from RNA to messenger RNA (mRNA) by RNA-directed RNA polymerase." []
-xref: GO:0006351 "transcription, DNA-dependent"
+xref: GO:0006351 "transcription, DNA-templated"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -9478,7 +9689,7 @@ relationship: category KW-9999
 id: KW-0805
 name: Transcription regulation
 def: "Protein involved in the regulation of the transcription process." []
-xref: GO:0006355 "regulation of transcription, DNA-dependent"
+xref: GO:0006355 "regulation of transcription, DNA-templated"
 is_a: KW-0804
 relationship: category KW-9999
 
@@ -9486,7 +9697,7 @@ relationship: category KW-9999
 id: KW-0806
 name: Transcription termination
 def: "Protein involved in transcription termination." []
-xref: GO:0006353 "transcription termination, DNA-dependent"
+xref: GO:0006353 "DNA-templated transcription, termination"
 is_a: KW-0805
 relationship: category KW-9999
 
@@ -9544,17 +9755,17 @@ relationship: category KW-9999
 id: KW-0812
 name: Transmembrane
 def: "Protein with at least one transmembrane domain, a membrane-spanning helical or beta-stranded domain embedded in a membrane." []
-xref: GO:0016021 "integral to membrane"
-is_a: KW-9994
+xref: GO:0016021 "integral component of membrane"
 is_a: KW-0472
+is_a: KW-9994
 relationship: category KW-9994
 
 [Term]
 id: KW-1134
 name: Transmembrane beta strand
 def: "Protein with at least one transmembrane beta stranded domain, a membrane-spanning stretch, typically 5-10 amino acids long, whose peptide backbones are almost fully extended with the sidechains of two neighboring residues projected in the opposite direction from the backbone. Two or more hydrogen bonded (parallel or anti-parallel) beta strands form a beta sheet. A beta barrel is formed by a closed beta sheet around a central pore. Beta barrels consist usually of an even number of beta strands (between 8 and 24), they are found only in bacterial outer membranes, mitochondria and plastids." []
-is_a: KW-0812
 is_a: KW-0472
+is_a: KW-0812
 relationship: category KW-9994
 
 [Term]
@@ -9563,8 +9774,8 @@ name: Transmembrane helix
 synonym: "Alpha-helical transmembrane" [UniProt]
 synonym: "Pauling-Corey-Branson alpha helix" [UniProt]
 def: "Protein with at least one transmembrane helical domain, a membrane-spanning domain with an hydrogen-bonded helical configuration, including alpha-, 3-10-, and pi-helices. The transmembrane alpha-helix is very common, while the 3-10-helix is found at the ends of alpha-helices and the pi-helix, is more rare." []
-is_a: KW-0812
 is_a: KW-0472
+is_a: KW-0812
 relationship: category KW-9994
 
 [Term]
@@ -9708,7 +9919,7 @@ synonym: "Two-component sensory transduction system" [UniProt]
 synonym: "Two-component signal transduction system" [UniProt]
 synonym: "Two-component system" [UniProt]
 def: "Protein involved in a system responding to environmental changes characterized usually by a sensor kinase in the cell membrane that phosphorylates itself in response to a signal and a response regulator to which the phosphoryl group is transferred. The responder is typically a DNA-binding protein that regulates transcription. Several of these systems are quite complex, involving many proteins in a signaling cascade or contributing to several responses simultaneously. They are involved in a variety processes such as chemotaxis, osmoregulation, magnesium transport, pH tolerance, sporulation, or response of virulent species to host cell's environments." []
-xref: GO:0000160 "two-component signal transduction system (phosphorelay)"
+xref: GO:0000160 "phosphorelay signal transduction system"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -9850,14 +10061,48 @@ id: KW-1161
 name: Viral attachment to host cell
 synonym: "Virion attachment to host cell surface" [UniProt]
 def: "Viral surface protein implicated in the binding to specific host surface molecule(s). This binding can lead to virion entry into the host cell, it can trigger signaling pathways, or it can allow the virion to be carried by the host cell to a specific organ." []
-is_a: KW-1160
+xref: GO:0019062 "virion attachment to host cell"
 is_a: KW-0945
+is_a: KW-1160
 relationship: category KW-9999
+
+[Term]
+id: KW-1240
+name: Viral attachment to host cell flagellum
+def: "Virion protein involved in the primary attachment to host flagellar receptor. This attachment allows the prokaryotic virus to move along the host flagellum to find its entry receptor for viral genome penetration. Some prokaryotic viruses such as bacteriophages Chi or PV22 specifically interact with their host's flagellum, move toward the base of the flagellum to come in contact with the host cytoplasmic membrane and deliver the viral genome into the host cytoplasm." []
+is_a: KW-0946
+is_a: KW-1161
+relationship: category KW-9999
+
+[Term]
+id: KW-1175
+name: Viral attachment to host cell pilus
+def: "Virion protein involved in the interaction with bacterial pili, which are retractile filaments that protrude from gram-negative bacteria. Binding to the pilus is followed by retraction of the pilus, which translocates the bound virion to the bacterial surface and allows subsequent viral genome penetration into host cytoplasm. Bacteriophages M13, f1, fd, R17, Qbeta, Pf1, Pf3, phiKMV or phi6 for example utilize the host cell pilus as an attachment structure." []
+xref: GO:0039666 "virion attachment to host cell pilus"
+is_a: KW-0946
+is_a: KW-1161
+relationship: category KW-9999
+
+[Term]
+id: KW-1234
+name: Viral attachment to host entry receptor
+def: "Virion surface protein implicated in the binding to a secondary specific host surface molecule(s), which triggers the internalization of viral genome and possibly other viral components into the host cell. In prokaryotic viruses, the attachment to a host entry receptor is called irreversible adsorption." []
+is_a: KW-0946
+is_a: KW-1161
+relationship: category KW-9999
+
+[Term]
+id: KW-1226
+name: Viral base plate protein
+def: "Viral protein part of the virion base plate of tailed prokaryotic viruses such as Caudovirales. The base plate is a multiprotein component at the end of the tail and to which fibers of tailed phages may be attached. Sometimes referred to as the tail tip or tip structure in Siphoviridae." []
+is_a: KW-1227
+relationship: category KW-9998
 
 [Term]
 id: KW-1198
 name: Viral budding
 def: "Viral protein involved in the budding of a viral particle through a cellular membrane into the extracellular space or into a cellular compartment." []
+xref: GO:0046755 "viral budding"
 is_a: KW-1188
 relationship: category KW-9999
 
@@ -9865,16 +10110,27 @@ relationship: category KW-9999
 id: KW-1187
 name: Viral budding via the host ESCRT complexes
 def: "Viral protein which recruits the cellular ESCRT (Endosomal Sorting Complex Required for Transport) to mediate host-assisted viral budding. Specific motifs in enveloped viruses' proteins called late assembly domains (L-domains) are responsible for recruiting the ESCRT machinery directly or via ESCRT-associated proteins like PDCD6IP." []
-is_a: KW-1198
+xref: GO:0039702 "viral budding via host ESCRT complex"
 is_a: KW-0945
+is_a: KW-1198
 relationship: category KW-9999
 
 [Term]
 id: KW-0118
-name: Viral capsid scaffolding protein
-synonym: "Viral capsid scaffold protein" [UniProt]
-def: "Viral protein that plays an active role in the assembly of a capsid shell but is not part of the mature virion. Capsid assembly assisted by scaffolding proteins occurs for example in Adenoviruses, Herpesviruses and tailed bacteriophages." []
+name: Viral capsid assembly
+synonym: "Viral procapsid assembly" [UniProt]
+def: "Viral protein involved in the assembly of the capsid. In most cases virion assembly is spontaneous, but viruses like adenoviruses, herpesviruses, microviruses and tailed bacteriophages need the help of scaffolding proteins to assemble their capsid. Maturation steps that remove the scaffolding proteins and induce structural changes in the assembled capsid are also often part of the assembly process." []
 xref: GO:0019069 "viral capsid assembly"
+is_a: KW-1188
+relationship: category KW-9999
+
+[Term]
+id: KW-1242
+name: Viral contractile tail ejection system
+synonym: "Viral genome injection via long contractile tail" [UniProt]
+def: "Viral protein that constitutes the contractile ejection system carried by some tailed prokaryotic viruses such as the Myoviridae. This structure is able to penetrate the host cell envelope, to deliver the viral genome, and possibly some specific proteins, into the cell cytoplasm. A contractile ejection system is composed at least of the contractile sheath, the internal noncontractile tube, the baseplate and the terminator complex. Sheath contraction drives the rigid internal tube through the host cell envelope. Proteins of the ejection apparatus can play an active or a structural role in ejection." []
+is_a: KW-0946
+is_a: KW-1171
 is_a: KW-9992
 relationship: category KW-9992
 
@@ -9882,6 +10138,7 @@ relationship: category KW-9992
 id: KW-1194
 name: Viral DNA replication
 def: "Viral protein involved in the synthesis of multiple copies of the viral DNA genome. The replicated genomes provide support for further viral transcription or are assembled into progeny virions." []
+xref: GO:0039693 "viral DNA genome replication"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -9889,31 +10146,63 @@ relationship: category KW-9999
 id: KW-0261
 name: Viral envelope protein
 def: "Protein of the viral envelope, a lipoprotein membrane which forms the outermost layer of the virion in certain viruses." []
+xref: GO:0019031 "viral envelope"
 is_a: KW-0946
 relationship: category KW-9998
 
 [Term]
+id: KW-1255
+name: Viral exotoxin
+def: "Virally encoded toxin that acts as a host virulence factor against another organism. Viral exotoxins are mostly expressed from integrated viral genomes. Bacterium host, bacterial populations, and the encoding virus/provirus probably benefit from the expression of such exotoxins. Although prokaryotic viruses can kill their host if they switch to the lytic cycle, provirus encoding exotoxins (e.g. shiga toxin, diphtheria toxin) are often retained for the sake of bacterial utility." []
+is_a: KW-0800
+is_a: KW-1254
+relationship: category KW-9992
+
+[Term]
+id: KW-1249
+name: Viral extrusion
+def: "Viral protein involved in the extrusion of viral particles from the host prokaryotic cell. Extrusion is a concerted mechanism of assembly and secretion used by filamentous phages to release mature viral particles without inducing host cell lysis." []
+is_a: KW-1188
+relationship: category KW-9999
+
+[Term]
+id: KW-1253
+name: Viral genome circularization
+def: "Viral protein that is involved in or facilitates the conversion of a linear double stranded DNA viral genome into a circular form, either by homologous recombination between redundant ends or by association of complementary single stranded ends (sticky ends). Circular genomes can support rolling circle replication and, for many viruses, genome circularization is also necessary for latency." []
+is_a: KW-1160
+relationship: category KW-9999
+
+[Term]
 id: KW-1171
-name: Viral genome injection through bacterial membranes
+name: Viral genome ejection through host cell envelope
 synonym: "Viral genome ejection through host membranes" [UniProt]
-def: "This process is mediated by the viral capsid which remains outside the cell, and involves local degradation of cell wall by viral lysozymes. Viruses belonging to the caudovirales (bacteriophages) have been shown to inject their genome through the host membranes." []
+def: "Viral protein that constitutes the ejection system carried by some prokaryotic viruses. These structures are able to penetrate the host cell envelope in order to deliver the viral genome, and possibly also some specific proteins, into the cell cytoplasm." []
+xref: GO:0039678 "viral genome ejection through host cell envelope"
 is_a: KW-1162
+relationship: category KW-9999
+
+[Term]
+id: KW-1250
+name: Viral genome excision
+def: "Viral protein involved in latent provirus DNA excision from the host genome following induction. Excision is usually needed for DNA replication to occur. Bacteriophage lambda for example expresses an excisionase that manages excision of the viral genome from the host genome." []
+is_a: KW-9999
 relationship: category KW-9999
 
 [Term]
 id: KW-1179
 name: Viral genome integration
 def: "Viral protein involved in the integration of a virus genome into the host DNA. Integrated viral DNA is referred to as a provirus in the case of retroviruses or prophage in the case of prokaryotic viruses. The integrated viral genome does not necessarily make new DNA copies of itself while integrated into a host genome. Instead, it can remain latent and be passively replicated along with the host genome and passed on to the original cell's offspring; all descendants of the infected cell will also bear it in their genomes. The host's environmental conditions changes can however reactivate the virus leading to viral transcription and production of new infectious viruses (productive infection). Integration is a crucial step in replication of retroviruses, as well as some phages. Integration is not part of the viral replication cycle of phycodnaviruses, adeno-associated virus type 2, and human herpesvirus 6A genome, but can occasionally occur." []
-is_a: KW-1160
+xref: GO:0075713 "establishment of integrated proviral latency"
 is_a: KW-0229
+is_a: KW-1160
 relationship: category KW-9999
 
 [Term]
 id: KW-0231
 name: Viral genome packaging
-def: "Protein involved in actively packaging the replicated viral genome into a protective shell or envelope. Such packaging proteins are present for example in Adenoviruses, Herpesviruses and tailed bacteriophages. In those viruses they bind the viral genome and insert it into a pre-assembled empty procapsid." []
-xref: GO:0006323 "DNA packaging"
-is_a: KW-9999
+def: "Protein involved in actively packaging the replicated viral genome into a protective shell or envelope. Such packaging proteins are present for example in adenoviruses, herpesviruses and tailed bacteriophages. In bacteriophages, the packaging proteins complex is involved in recognizing and selecting a neo-synthesized viral genome in order to translocate it into a pre-assembled empty procapsid. DNA cleavage is sometimes coupled to genome packaging as well as maturation steps that induce structural changes in the assembled capsid." []
+xref: GO:0019072 "viral genome packaging"
+is_a: KW-1188
 relationship: category KW-9999
 
 [Term]
@@ -9923,7 +10212,7 @@ synonym: "Immunoevasin" [UniProt]
 synonym: "Viral host defense evasion" [UniProt]
 synonym: "Viral immune evasion" [UniProt]
 def: "Viral protein involved in host immune evasion thereby optimizing viral growth and dissemination. Viral immune evasion strategies are typical of viruses which persist in their host throughout life. For example: Herpesviridae, Adenoviridae, Poxviridae and Retroviridae have developed subversions of the MHC class I antigen-presentation pathway. In order to reduce the effectiveness of cytotoxic T-lymphocytes immunity, they express proteins that either down-modulate MHC class I expression (degradation or mislocalization) or interfere with the antigen binding/presentation process (down-regulation of the expression of the transporter associated with antigen processing TAP). Some proteins of these virus families also down-regulate other molecules involved in immune recognition." []
-xref: GO:0030683 "evasion by virus of host immune response"
+xref: GO:0030683 "evasion or tolerance by virus of host immune response"
 is_a: KW-0945
 relationship: category KW-9999
 
@@ -9932,14 +10221,37 @@ id: KW-1182
 name: Viral ion channel
 synonym: "Viroporin" [UniProt]
 def: "Small transmembrane protein that homo-oligomerizes to form a viral ion channel usually expressed in the viral envelope and host cell membranes. These channels affect membrane permeability to ions and play an important role in facilitating virus entry, assembly and release, as well as modulating the ion homeostasis of host cells. Viral ion channels are not necessarily required for the production of infectious virions, although their expression usually significantly increases growth. During influenza A virus entry for example, the M2 proton channel allows protons from the acidic endosome to enter the enveloped virion, initiating pH-dependent uncoating of the genome. In certain influenza A subtypes, M2 also equilibrates the intraluminal pH of the trans-Golgi network with the cytoplasm, preventing premature conformational changes in the viral fusion protein during budding." []
-is_a: KW-0407
+xref: GO:0005216 "ion channel activity"
+xref: GO:0039707 "pore formation by virus in membrane of host cell"
+xref: GO:0044385 "integral to membrane of host cell"
+xref: GO:0051259 "protein oligomerization"
 is_a: KW-0406
+is_a: KW-0407
+relationship: category KW-9992
+
+[Term]
+id: KW-1251
+name: Viral latency
+synonym: "Viral lysogeny" [UniProt]
+def: "Viral protein expressed primarily to establish and maintain latency, the part of the viral life cycle during which a virus lies dormant (latent) within a cell. This part of the virus life cycle is called the lysogenic part in prokaryotic viruses. During latency, the viral genome can either exist as a provirus integrated in the host genome (proviral latency) or as a linear or circular plasmid in the host cell (episomal latency). The virus does not replicate, but is passively duplicated when the host divides. In eukaryotes for example, HHV-1 and HHV-3 establish episomal latency in neurons. HIV is integrated as a provirus in the genome of resting CD4-positive T cells, allowing the virus to persist for years." []
+is_a: KW-0945
+relationship: category KW-9999
+
+[Term]
+id: KW-1243
+name: Viral long flexible tail ejection system
+synonym: "Viral genome injection via long noncontractile tail" [UniProt]
+def: "Viral protein that constitutes the noncontractile ejection system carried by some long-tailed prokaryotic viruses such as the Siphoviridae. This ejection system is composed at least of a noncontractile tube and a tail tip which is able to penetrate the host cell envelope to deliver the viral genome, and possibly some specific proteins, into the cell cytoplasm. Proteins of the ejection apparatus can play an active or a structural role in ejection." []
+is_a: KW-0946
+is_a: KW-1171
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
 id: KW-0468
 name: Viral matrix protein
 def: "Protein that organises and maintains virion structure. It usually interacts directly with cellular membranes and is involved in the budding process. In some enveloped RNA viruses, it acts as a bridge between virion membrane and nucleocapsid." []
+xref: GO:0039660 "structural constituent of virion"
 is_a: KW-0946
 relationship: category KW-9998
 
@@ -9947,9 +10259,9 @@ relationship: category KW-9998
 id: KW-0916
 name: Viral movement protein
 def: "Plant viral protein that enables the viral nucleic acid to move between adjacent plant cells via the plasmodesmata." []
-xref: GO:0046740 "spread of virus in host, cell to cell"
-is_a: KW-9992
+xref: GO:0046740 "transport of virus in host, cell to cell"
 is_a: KW-0813
+is_a: KW-9992
 relationship: category KW-9992
 
 [Term]
@@ -9957,15 +10269,16 @@ id: KW-0543
 name: Viral nucleoprotein
 synonym: "Viral nucleocapsid protein" [UniProt]
 def: "Viral protein conjugated with nucleic acid (DNA or RNA)." []
-xref: GO:0003676 "nucleic acid binding"
-is_a: KW-9993
+xref: GO:0019013 "viral nucleocapsid"
 is_a: KW-0946
+is_a: KW-9993
 relationship: category KW-9993
 
 [Term]
 id: KW-0842
 name: Viral occlusion body
 def: "Protein component of the viral occlusion body, a crystalline protein matrix which surrounds the nucleocapsids of some insect viruses (baculoviridae, entomopoxvirinae, cypovirus). Viral occlusion bodies are produced either in the nucleus (baculoviridae) or in the cytoplasm (poxvirinae and cypovirus) of the infected cells and confer resistance to adverse environmental conditions on viruses. They are made from polyhedrin (nucleopolyhedrovirus, cypovirus), granulin (granulovirus), spheroidin and spherulin (entomopox-virinae) and are dissolved by the alkaline pH of the insect gut, thus resulting in the release of infectious virus particles." []
+xref: GO:0039679 "viral occlusion body"
 is_a: KW-9998
 relationship: category KW-9998
 
@@ -9974,8 +10287,17 @@ id: KW-1162
 name: Viral penetration into host cytoplasm
 synonym: "Translocation of virus into host cell" [UniProt]
 synonym: "Virion penetration into host cell" [UniProt]
-def: "Viral protein involved in the entry of the entire virion or its genetic material into the host cell cytoplasm. Entry is achieved through pore formation, membrane fusion and/or endocytosis mechanisms. Penetration reactions occur mainly in five locations: the cell membrane, early and late endosomes, caveosomes, and the ER." []
+def: "Viral protein involved in the entry of the entire virion, some of its contents or at least its genetic material into the host cell cytoplasm. Entry is achieved through pore formation, membrane fusion, pilus retraction, ejection, permeabilization and/or endocytosis mechanisms. Penetration reactions occur mainly in five locations: the cell membrane, early and late endosomes, caveosomes, and the ER. In prokaryotes, membrane fusion, pore formation through a puncturing device, ejection, pilus retraction or permeabilization occur at the plasma membrane, as well as at the outer membrane in prokaryotes with 2 membranes." []
+xref: GO:0046718 "viral entry into host cell"
 is_a: KW-1160
+relationship: category KW-9999
+
+[Term]
+id: KW-1241
+name: Viral penetration into host cytoplasm via pilus retraction
+def: "Viral protein involved in the entry of the virion into the host cytoplasm via the host pili, which are retractile filaments that protrude from gram-negative bacteria. Entry of bound prokaryotic viruses such as filamentous viruses is achieved through the retraction of host pilus and translocation of the virion through the basis of the pilus to reach the host cytoplasm. Examples of bacteriophages which utilize the host cell pilus to penetrate into host cytoplasm are bacteriophages M13, f1, fd, R17." []
+is_a: KW-0946
+is_a: KW-1162
 relationship: category KW-9999
 
 [Term]
@@ -9985,6 +10307,7 @@ synonym: "Entry of virus into host nucleus" [UniProt]
 synonym: "Virion entry into host nucleus" [UniProt]
 synonym: "Virion penetration into host nucleus" [UniProt]
 def: "Viral protein necessary for the penetration of the viral genome into the host cell nucleus either via active nuclear transport through nuclear pore complexes (NPCs) or DNA injection through the nuclear membrane. Nuclear membrane permeabilization might also be possible. Viruses can also enter the nucleus during mitosis when the nuclear membrane temporarily disintegrates (e.g. most retroviruses). All these strategies to cross the nuclear envelope barrier are associated with various levels of capsid disassembly, since virus can pass intact (e.g. papovaviruses) or, in the case of injection, only the viral genome enters the nucleus (e.g. herpesviruses)." []
+xref: GO:0075732 "viral penetration into host nucleus"
 is_a: KW-1160
 relationship: category KW-9999
 
@@ -9992,37 +10315,101 @@ relationship: category KW-9999
 id: KW-1174
 name: Viral penetration via lysis of host organellar membrane
 def: "Viral membrane-lytic protein, usually associated with the viral capsid or released through partial programmed disassembly of the capsid, that induces major rupture of the bilayer integrity of host endosomal, lysosomal, or caveosomal membrane to allow viral escape and penetration into the cytoplasm. These viral lytic proteins may need to be activated, mostly through endosomal acidic pH or receptor binding to display membrane lytic activity. Viruses such as human adenoviruses group C and D lyse the host endosomal membrane to penetrate into the host cytoplasm." []
+xref: GO:0039664 "lysis of host organelle involved in viral entry into host cell"
 is_a: KW-1162
 relationship: category KW-9999
 
 [Term]
 id: KW-1173
-name: Viral penetration via permeabilization of host organellar membrane
-synonym: "Viral penetration via host endosomal membrane disruption by virus" [UniProt]
-synonym: "Viral penetration via perforation of host organellar membrane by virus" [UniProt]
-def: "Viral membrane-penetration protein, usually associated with the viral capsid or released through partial programmed disassembly of the capsid, that locally permeabilizes the bilayer of a host organellar membrane to allow viral escape and penetration into the cytoplasm. Viral membrane-penetration proteins often need to be activated, mostly through endosomal acidic pH or receptor binding to display their membrane penetrating activity. Non-enveloped viruses such as parvovirus, human reovirus, BDV, BTV, rotavirus, papillomavirus, Flock house virus permeabilize the host endosomal membrane to penetrate the host cytoplasm." []
+name: Viral penetration via permeabilization of host membrane
+synonym: "Viral penetration via host membrane disruption by virus" [UniProt]
+synonym: "Viral penetration via perforation of host membrane by virus" [UniProt]
+def: "Viral membrane-penetration protein, usually associated with the viral capsid or released through partial programmed disassembly of the capsid, that locally permeabilizes the bilayer of a host membrane to allow virion penetration into the cytoplasm. Viral membrane-penetration proteins often need to be activated, mostly through endosomal acidic pH or receptor binding to display their membrane penetrating activity. Non-enveloped viruses such as parvovirus, human reovirus, BDV, BTV, rotavirus, papillomavirus, Flock house virus permeabilize the host endosomal membrane to penetrate the host cytoplasm. Prokaryotic viruses may also use this mechanism to enter the host cell. Cystoviruses capsid, once in the periplasmic space after fusion with host outer membrane, probably exposes a membrane-penetration peptide that permeabilizes host plasma membrane to allow entry of the inner capsid into host cytoplasm." []
+xref: GO:0039665 "permeabilization of host organelle membrane involved in viral entry into host cell"
 is_a: KW-1162
+relationship: category KW-9999
+
+[Term]
+id: KW-1233
+name: Viral primary attachment to host cell
+def: "Virion surface protein implicated in the initial binding to a primary specific host surface molecule. Primary attachment receptors can be for example proteoglycans, sialic acids or a protein receptor. This primary attachment is not sufficient for triggering virus entry into host cell. In prokaryotic viruses, the primary attachment is called reversible adsorption." []
+is_a: KW-0946
+is_a: KW-1161
 relationship: category KW-9999
 
 [Term]
 id: KW-1181
 name: Viral primary envelope fusion with host outer nuclear membrane
 def: "Viral protein implicated in fusion of the herpesviruses' primary envelope with the host outer nuclear membrane during egress. During egress, herpesviruses acquire a transitory, primary envelope as they bud at the inner nuclear membrane and gain access to the perinuclear space. This membrane is lost by fusing with the outer nuclear membrane during nuclear exit." []
+xref: GO:0039700 "fusion of viral membrane with host outer nuclear membrane"
 is_a: KW-1188
 relationship: category KW-9999
 
 [Term]
 id: KW-0693
 name: Viral RNA replication
-def: "Viral protein involved in the synthesis of multiple copies of the viral RNA genome. The replicated genomes provide support for further viral transcription or are assembled into progeny virions." []
-xref: GO:0032774 "RNA biosynthetic process"
+def: "Viral protein involved in the SYnthesis of multiple copies of the viral RNA genome. The replicated genomes provide support for further viral transcription or are assembled into progeny virions." []
+xref: GO:0039694 "viral RNA genome replication"
 is_a: KW-9999
 relationship: category KW-9999
+
+[Term]
+id: KW-1244
+name: Viral short tail ejection system
+synonym: "Viral genome injection via short noncontractile tail" [UniProt]
+def: "Virion protein that constitutes the noncontractile ejection system carried by some short-tailed prokaryotic viruses such as some Podoviridae. This ejection system is composed at least of the tail tube and ejection proteins. Upon receptor binding, proteins located inside the capsid (head) rearrange to extend the tail tube, creating a channel spanning the periplasmic space. This hydrophilic channel directs the viral genome, and possibly some specific proteins, into the cytoplasm and protects it from periplasmic nucleases. Once the viral genome is in the host cytoplasm, the channel collapses and seals. Bacteriophage T7 for example expresses ejection proteins that partition into the host outer and cytoplasmic membranes and allow transport of viral DNA across the host envelope. Proteins of the ejection apparatus can play an active or a structural role in ejection." []
+is_a: KW-0946
+is_a: KW-1171
+is_a: KW-9992
+relationship: category KW-9992
+
+[Term]
+id: KW-1245
+name: Viral tail assembly
+def: "Viral protein involved in tail assembly. Some tailed bacteriophages need chaperones that help with the assembly of their tail." []
+is_a: KW-1188
+relationship: category KW-9999
+
+[Term]
+id: KW-1246
+name: Viral tail fiber assembly
+def: "Viral protein involved in tail fibers or spike assembly. Some tailed bacteriophages need chaperones that help with the assembly of their fibers or spikes. T4 for example encodes a general tail fiber chaperone that is needed for the correct assembly of the short and long tail fiber proteins." []
+is_a: KW-1245
+relationship: category KW-9999
+
+[Term]
+id: KW-1230
+name: Viral tail fiber protein
+def: "Viral fibrous protein part of the virion fiber, which is a thin long rod like structure, unique or multiple, appended to the tail of prokaryotic viruses and used for attachment to the host cell. Shorter appendages are called tail spikes (e.g. Podoviridae) or whiskers." []
+is_a: KW-1227
+relationship: category KW-9998
+
+[Term]
+id: KW-1227
+name: Viral tail protein
+def: "Viral protein part of the virion tail of prokaryotic viruses such as Caudovirales. The tail is usually composed of a tube, a tail sheath when contractile, a base plate or tip and tail long or short fibers." []
+is_a: KW-0946
+relationship: category KW-9998
+
+[Term]
+id: KW-1229
+name: Viral tail sheath protein
+def: "Viral protein part of the virion tail sheath of prokaryotic viruses. The tail sheath is an external contractile envelope wrapping the internal tail tube in some viruses (e.g. Myoviridae)." []
+is_a: KW-1227
+relationship: category KW-9998
+
+[Term]
+id: KW-1228
+name: Viral tail tube protein
+def: "Viral protein part of the virion tail tube of prokaryotic viruses such as Caudovirales. The tail tube is the channel for DNA ejection into the host cytoplasm and can be wrapped in an external contractile envelope in some viruses (e.g. Myoviridae). Also called tail shaft in some Siphoviridae." []
+is_a: KW-1227
+relationship: category KW-9998
 
 [Term]
 id: KW-1195
 name: Viral transcription
 def: "Viral Protein involved in the synthesis of messenger RNAs. The process can occur in the host cell nucleus or cytoplasm, and the genomic template can be viral DNA or RNA, single- or double-stranded." []
+xref: GO:0019083 "viral transcription"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -10035,16 +10422,26 @@ is_a: KW-9998
 relationship: category KW-9998
 
 [Term]
+id: KW-0917
+name: Virion maturation
+synonym: "Viral procapsid maturation" [UniProt]
+def: "Viral protein involved in the maturation of the immature virion into the mature virion, once the virion has been released from the host cell. Maturation usually involves proteolysis events and changes in the folding of the virion proteins." []
+xref: GO:0019075 "virus maturation"
+is_a: KW-1188
+relationship: category KW-9999
+
+[Term]
 id: KW-0920
 name: Virion tegument
 def: "Viral structural protein of the tegument, a protein structure that resides between the capsid and envelope of herpesviruses and which appears amorphous in electron micrographs." []
+xref: GO:0019033 "viral tegument"
 is_a: KW-0946
 relationship: category KW-9998
 
 [Term]
 id: KW-0843
 name: Virulence
-def: "Protein involved in virulence, the degree of pathogenicity within a group or species of microorganisms or viruses, as indicated by case fatality rates and/or the ability of the organism to invade the tissues of the host." []
+def: "Protein involved in virulence, the degree of pathogenicity within a group or species of microorganisms or viruses, as indicated by case fatality rates and/or the ability of the organism to invade the tissues of the host. In some cases, the virulence factor can be borne by another organism in symbiosis with the one whose virulence is increased. Some prokaryotic viruses/proviruses for example bear exotoxins that increase the virulence of their host. A well-known bacterial exotoxin encoded by a provirus is the diphtheria toxin." []
 xref: GO:0009405 "pathogenesis"
 is_a: KW-9999
 relationship: category KW-9999
@@ -10053,6 +10450,7 @@ relationship: category KW-9999
 id: KW-1164
 name: Virus endocytosis by host
 def: "Viral protein involved in virus internalization by the host cell via endocytosis. Endocytosis can occur via: clathrin-mediated endocytosis, caveolin-mediated endocytosis or clathrin- and caveolae-independent endocytosis." []
+xref: GO:0075509 "endocytosis involved in viral entry into host cell"
 is_a: KW-1162
 relationship: category KW-9999
 
@@ -10060,6 +10458,7 @@ relationship: category KW-9999
 id: KW-1160
 name: Virus entry into host cell
 def: "Viral protein involved in the virion entry into a host cell. Entry is a multistep process that mostly requires binding to the target cell, penetration into the host cell cytoplasm, intracellular transport of viral components and genome release to the replication site of the virus." []
+xref: GO:0046718 "viral entry into host cell"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -10067,6 +10466,7 @@ relationship: category KW-9999
 id: KW-1188
 name: Virus exit from host cell
 def: "Viral protein involved in the release of virions from an infected cell to allow cell-to-cell spread of virus. Once assembled at the replication site, viral particles can be released by budding, exocytosis, or host cell lysis. Some viruses also mediate direct transport of their viral genome to adjacent cells thanks to movement proteins." []
+xref: GO:0019076 "viral release from host cell"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -10128,8 +10528,8 @@ synonym: "Voltage-gated ion channel" [UniProt]
 def: "Protein which is a component of a voltage-gated channel. Voltage-gated ion channels are responsible for the electrical activity in a variety of cell types. They probably exist in all life forms." []
 xref: GO:0005244 "voltage-gated ion channel activity"
 xref: GO:0034765 "regulation of ion transmembrane transport"
-is_a: KW-0407
 is_a: KW-0406
+is_a: KW-0407
 relationship: category KW-9992
 
 [Term]
@@ -10151,8 +10551,8 @@ relationship: category KW-9992
 id: KW-0852
 name: von Willebrand disease
 def: "Protein which, if defective, causes von Willebrand disease, a hemorrhagic disorder in which the von Willebrand factor is either quantitatively or qualitatively abnormal. Usually inherited as an autosomal dominant trait though rare kindreds are autosomal recessive. Symptoms vary depending on severity and disease type but may include prolonged bleeding time, deficiency of factor VIII and impaired platelet adhesion." []
-is_a: KW-9995
 is_a: KW-0094
+is_a: KW-9995
 relationship: category KW-9995
 
 [Term]
@@ -10194,7 +10594,7 @@ synonym: "Wnt signal transduction pathway" [UniProt]
 synonym: "Wnt signaling cascade" [UniProt]
 synonym: "Wnt signalling pathway" [UniProt]
 def: "Protein involved in the Wnt signaling pathway. Wnts are a large family of cysteine-rich secreted glycoproteins that control development in organisms ranging from nematodes to mammals. Wnt genes are defined by sequence homology to the original members of the family, Wnt1 in the mouse and wingless (wg) in Drosophila. Wnt signaling is a very complex pathway which includes numerous ligands, receptors and transcriptional effectors. There is a well-characterized canonical pathway as well as diverse, less-characterized noncanonical pathways. Several components of Wnt signaling are implicated in the genesis of human cancer." []
-xref: GO:0016055 "Wnt receptor signaling pathway"
+xref: GO:0016055 "Wnt signaling pathway"
 is_a: KW-9999
 relationship: category KW-9999
 
@@ -10211,7 +10611,7 @@ name: Xylan degradation
 synonym: "Xylan hydrolysis" [UniProt]
 def: "Protein involved in the hydrolysis of xylan to xylose and other sugars. Xylan is a major component of hemicellulose, which is the second most common plant material in nature. The structures of xylans are complex, and several enzymes are involved in their breakdown. Xylan degrading enzymes are produced by a variety of microorganisms." []
 xref: GO:0045493 "xylan catabolic process"
-is_a: KW-9999
+is_a: KW-0624
 relationship: category KW-9999
 
 [Term]
@@ -10254,9 +10654,9 @@ relationship: category KW-9999
 id: KW-0863
 name: Zinc-finger
 def: "Protein which contains at least one zinc finger. A small, functional, independently folded domain that requires coordination of one or more zinc ions to stabilize its structure. Zinc fingers vary widely in structure, as well as in function, which ranges from DNA or RNA binding to protein-protein interactions and membrane association." []
-is_a: KW-9994
-is_a: KW-0862
 is_a: KW-0479
+is_a: KW-0862
+is_a: KW-9994
 relationship: category KW-9994
 
 [Term]
