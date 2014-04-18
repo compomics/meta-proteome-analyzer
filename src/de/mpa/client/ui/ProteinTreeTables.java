@@ -76,10 +76,10 @@ import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.SortableCheckBoxTreeTable.TableColumnExt2;
 import de.mpa.client.ui.TableConfig.FormatHighlighter;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.io.parser.ec.ECEntry;
+import de.mpa.io.parser.ec.ECNode;
+import de.mpa.io.parser.ec.ECReader;
 import de.mpa.io.parser.kegg.KEGGNode;
 import de.mpa.io.parser.kegg.KEGGOrthologyNode;
-import de.mpa.main.Parameters;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -243,41 +243,53 @@ public enum ProteinTreeTables {
 				ecNumbers = new ArrayList<String>();
 			}
 
+			String unclassifiedStr = "Unclassified";
 			if (ecNumbers.isEmpty()) {
-				ecNumbers.add("Unclassified");
+				ecNumbers.add(unclassifiedStr);
 			}
+			
+			PhylogenyTreeTableNode unclassifiedNode = null;
 
 			// iterate E.C. numbers, insert cloned instance of protein node for each number
+			ECNode ecRoot = Constants.ENZYME_ROOT;
 			for (String ecNumber : ecNumbers) {
-				// split primary E.C. number string into multiple tokens (typically 4)
-				String[] ecTokens = ecNumber.split("[.]");
-
 				// init insertion node using tree root
 				PhylogenyTreeTableNode parent = root;
 				
-				// iterate number tokens
-				for (int i = 0; i < ecTokens.length; i++) {
-					// build name substituting some tokens using dashes
-					String name = "";
-					for (int j = 0; j < ecTokens.length; j++) {
-						if (j > 0) name += ".";
-						name += (j <= i) ? ecTokens[j] : "-";
+				// check for 'Unclassified'
+				if (unclassifiedStr.equals(ecNumber)) {
+					if (unclassifiedNode == null) {
+						// create 'Unclassified' node
+						unclassifiedNode = new PhylogenyTreeTableNode(unclassifiedStr);
+						root.add(unclassifiedNode);
 					}
-					// find child node corresponding to generated name
-					PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
-					if (child == null) {
-						// child node does not exist yet, therefore create it
-						ECEntry entry = Parameters.getInstance().getEcMap().get(name);
-						child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
-						if (!name.equals("Unclassified")) {
-							// create URL to link to ExPASy website
-							URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
-							child.setURI(uri);
+					parent = unclassifiedNode;
+				} else {
+					// get path to root in enzyme tree
+					ECNode[] path = ECReader.getPath(ecRoot, ecNumber);
+					
+					if (path != null) {
+						// determine insertion point
+						for (int i = 1; i < path.length; i++) {
+							// find child node corresponding to enzyme node identifier
+							PhylogenyTreeTableNode child =
+									(PhylogenyTreeTableNode) parent.getChildByName(path[i].getIdentifier());
+							if (child == null) {
+								// child node does not exist yet, therefore create it
+								child = new PhylogenyTreeTableNode(path[i], path[i].getDescription());
+								// create link to ExPASy website
+								URI uri = URI.create("http://enzyme.expasy.org/EC/" + path[i]);
+								child.setURI(uri);
+								
+								parent.add(child);
+							}
+							parent = child;
 						}
-						parent.add(child);
+					} else {
+						System.err.println("ERROR: unrecognized E.C. number: " + ecNumber);
 					}
-					parent = child;
 				}
+				
 				// add clone of protein node to parent
 				PhylogenyTreeTableNode cloneNode = protNode.clone();
 				parent.add(cloneNode);
@@ -586,9 +598,16 @@ public enum ProteinTreeTables {
 						if (pathForRow != null) {
 							PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
 							if ((table == ENZYME.getTreeTable()) && (col == DESCRIPTION_COLUMN)) {
-								ECEntry ecEntry = Parameters.getInstance().getEcMap().get(node.getValueAt(0));
-								String ecDesc = (ecEntry != null) ? ecEntry.getDescription() : null;
-								text = ecDesc;
+								Object userObject = node.getUserObject();
+								if (userObject instanceof ECNode) {
+									text = ((ECNode) userObject).getComments();
+									if (text == null) {
+										Object value = node.getValueAt(col);
+										if (value != null) {
+											text = value.toString();
+										}
+									}
+								}
 							} else {
 								Object value = node.getValueAt(col);
 								if (value != null) {

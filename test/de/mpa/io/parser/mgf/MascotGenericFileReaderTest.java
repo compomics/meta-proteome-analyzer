@@ -1,4 +1,4 @@
-package de.mpa.parser.mgf;
+package de.mpa.io.parser.mgf;
 
 import java.io.File;
 import java.io.IOException;

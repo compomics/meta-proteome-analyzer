@@ -8,14 +8,14 @@ import de.mpa.algorithms.CrossCorrelationTest;
 import de.mpa.algorithms.EuclideanDistanceTest;
 import de.mpa.algorithms.NormalizedDotProductTest;
 import de.mpa.analysis.JAlignerTest;
-import de.mpa.analysis.KeggMapsTest;
 import de.mpa.analysis.ProteinAnalysisTest;
 import de.mpa.fragmentation.FragmentizerTest;
 import de.mpa.io.SixtyFourBitStringDecoderTest;
 import de.mpa.io.SixtyFourBitStringEncoderTest;
+import de.mpa.io.parser.ECReaderTest;
+import de.mpa.io.parser.KEGGReaderTest;
+import de.mpa.io.parser.mgf.MascotGenericFileReaderTest;
 import de.mpa.job.blast.BlastParserTest;
-import de.mpa.parser.ec.ECReaderTest;
-import de.mpa.parser.mgf.MascotGenericFileReaderTest;
 
 @RunWith(Suite.class)
 @SuiteClasses( {
@@ -25,7 +25,7 @@ import de.mpa.parser.mgf.MascotGenericFileReaderTest;
 				ECReaderTest.class,
 				MascotGenericFileReaderTest.class,
 				ProteinAnalysisTest.class,
-				KeggMapsTest.class,
+				KEGGReaderTest.class,
 				JAlignerTest.class,
 				FragmentizerTest.class,
 				SixtyFourBitStringDecoderTest.class, 

@@ -1110,7 +1110,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					updateChart(chartType);
 					
 					// Refresh heat map
-					heatMapPn.updateData(Client.getInstance().getDatabaseSearchResult());
+					heatMapPn.updateData(dbSearchResult);
 					
 					return 1;
 				} catch (Exception e) {

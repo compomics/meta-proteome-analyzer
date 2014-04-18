@@ -1,4 +1,4 @@
-package de.mpa.analysis;
+package de.mpa.io.parser;
 
 import java.util.List;
 
@@ -16,12 +16,12 @@ import de.mpa.io.parser.kegg.KEGGReader;
  * 
  * @author A. Behne
  */
-public class KeggMapsTest extends TestCase {
+public class KEGGReaderTest extends TestCase {
 
 	@Test 
 	public void testKeggPathwayMap() {
 		KEGGMap koMap = new KEGGMap(
-				KEGGReader.readKEGGTree(new KEGGOrthologyNode("root"), "src/conf/ko00001.keg"));
+				KEGGReader.readKEGGTree("src/conf/ko00001.keg"));
 		
 		List<KEGGNode> nodes = koMap.get("K00844");
 		
