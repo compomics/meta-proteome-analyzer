@@ -259,7 +259,7 @@ public class MetaProteinFactory {
 					while (iterB.hasNext()) {
 						String seqB = (String) iterB.next();
 						if (seqA.equals(seqB) || ((maxDistance > 0) 
-								&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) > maxDistance))) {
+								&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= maxDistance))) {
 							// match found, remove from lists
 							iterA.remove();
 							iterB.remove();
@@ -280,7 +280,7 @@ public class MetaProteinFactory {
 						while (iterA.hasNext()) {
 							String seqA = (String) iterA.next();
 							if (seqA.equals(seqB) || ((maxDistance > 0) 
-									&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) > maxDistance))) {
+									&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= maxDistance))) {
 								// match found, remove from lists
 								iterA.remove();
 								iterB.remove();
