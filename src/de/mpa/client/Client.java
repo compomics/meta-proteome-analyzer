@@ -79,14 +79,14 @@ public class Client {
 	private Connection conn;
 		
 	/**
-	 * Parameter map containing result fetching-related settings.
+	 * Parameter map containing result processing-related settings.
 	 */
-	private ParameterMap metaProtParams = new ResultParameters();
+	private ResultParameters resultParams = new ResultParameters();
 	
 	/**
 	 * Parameter map containing connection settings.
 	 */
-	private ParameterMap connectionParams = new ConnectionParameters();
+	private ConnectionParameters connectionParams = new ConnectionParameters();
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -539,6 +539,8 @@ public class Client {
 	 * @param pathname the string representing the desired file path and name for the result object
 	 */
 	public void exportDatabaseSearchResult(String pathname) {
+		DbSearchResult dbSearchResult = restoreBackupDatabaseSearchResult();
+		
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
 	
 		// Dump referenced spectra to separate MGF
@@ -559,6 +561,7 @@ public class Client {
 				mgf.writeToStream(fos);
 				index = mgfFile.length();
 				spectrumMatch.setEndIndex(index);
+				spectrumMatch.setTitle(mgf.getTitle());
 				this.firePropertyChange("progressmade", false, true);
 			}
 			fos.flush();
@@ -575,12 +578,12 @@ public class Client {
 		status = "FINISHED";
 		this.firePropertyChange("indeterminate", false, true);
 		try {
-			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
-			if (!backupFile.exists()) {
-				// technically this should never happen
-				System.err.println("No result file backup detected, creating new one...");
+//			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
+//			if (!backupFile.exists()) {
+//				// technically this should never happen
+//				System.err.println("No result file backup detected, creating new one...");
 				this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
-			}
+//			}
 			// Copy backup file to target location
 			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
@@ -642,7 +645,7 @@ public class Client {
 	 * Adds a property change listener.
 	 * @param pcl the property change listener to add
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener pcl) { 
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
 		pSupport.addPropertyChangeListener(pcl); 
 	}
 
@@ -689,7 +692,7 @@ public class Client {
 	 * Sets the parameter map containing connection settings.
 	 * @param connectionParams
 	 */
-	public void setConnectionParams(ParameterMap connectionParams) {
+	public void setConnectionParams(ConnectionParameters connectionParams) {
 		this.connectionParams = connectionParams;
 	}
 	
@@ -697,8 +700,8 @@ public class Client {
 	 * Returns the parameter map containing result fetching-related settings.
 	 * @return the result parameters
 	 */
-	public ParameterMap getResultParameters() {
-		return this.metaProtParams;
+	public ResultParameters getResultParameters() {
+		return this.resultParams;
 	}
 
 	/**
