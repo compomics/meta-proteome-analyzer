@@ -43,7 +43,7 @@ public class MetaProteinParameters extends ParameterMap {
 		this.put("proteinClusterRule", new Parameter("Protein Cluster Rule", clusterMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins to the protein cluster"));
 		
 		DefaultComboBoxModel peptideMdl = new DefaultComboBoxModel(PeptideRule.values());
-		peptideMdl.setSelectedItem(PeptideRule.PEPTIDE_SUBSET);
+		peptideMdl.setSelectedItem(PeptideRule.SHARED_SUBSET);
 		this.put("peptideRule", new Parameter("Peptide Rule", peptideMdl, "Meta-Protein Generation", "Choose the rule by which proteins are grouped into meta-proteins according to shared peptides"));
 		
 		DefaultComboBoxModel taxonomyMdl = new DefaultComboBoxModel(TaxonomyRule.values());

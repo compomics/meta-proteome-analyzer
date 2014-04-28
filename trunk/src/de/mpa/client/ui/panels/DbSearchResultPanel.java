@@ -1652,7 +1652,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					Boolean[][] values = (Boolean[][]) params.get("columns").getValue();
 					int i = 0;
 					for (TableColumn column : columns) {
-						((TableColumnExt) column).setVisible(values[i / 2][i % 2]);
+						Boolean b = values[i / 2][i % 2];
+						if (b != null) {
+							((TableColumnExt) column).setVisible(b);
+						}
 						i++;
 					}
 					

@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.swing.ComboBoxModel;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
@@ -18,7 +16,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.client.settings.Parameter;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
 
@@ -86,9 +84,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 					if (ph.getUniProtEntry() == null) {
 						return null;
 					}
-					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
-					ComboBoxModel model = (ComboBoxModel) parameter.getValue();
-					ClusterRule rule = (ClusterRule) model.getSelectedItem();
+					ClusterRule rule =
+							((ResultParameters) Client.getInstance().getResultParameters()).getClusterRule();
 					switch (rule) {
 						case UNIREF100:
 							return ph.getUniProtEntry().getUniRef100id();

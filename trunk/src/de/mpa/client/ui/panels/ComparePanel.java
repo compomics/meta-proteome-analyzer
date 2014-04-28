@@ -80,7 +80,6 @@ import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DefaultTableHeaderCellRenderer;
@@ -127,7 +126,7 @@ public class ComparePanel extends JPanel {
 	/**
 	 * The local map of meta-protein generation-related parameters.
 	 */
-	private ParameterMap metaParams;
+	private ResultParameters metaParams;
 
 	/**
 	 * The scroll pane containing the comparison table.

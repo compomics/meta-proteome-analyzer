@@ -1,21 +1,19 @@
 package de.mpa.client.model.dbsearch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import javax.swing.DefaultComboBoxModel;
-
-import de.mpa.analysis.StringSimilarity;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
-import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.ResultParameters;
 
 /**
  * Factory class providing methods to merge meta-proteins and to determine common properties (i.e. taxonomy).
@@ -24,71 +22,67 @@ import de.mpa.client.settings.ParameterMap;
  */
 public class MetaProteinFactory {
 	
-	/**
-	 * Enumeration holding rules for generating meta-proteins based on protein clusters.
-	 * @author R. Heyer
-	 */
-	/**
-	 * Enumeration holding rules for generating meta-proteins based on peptide sharing.
-	 * @author A. Behne
-	 */
-	public enum DistPepRule {
-		NEVER("ignore, never merge") {
-			@Override
-			public boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB, int levThreshold) {
-				// trivial case, do not condense meta-proteins
-				return false;
-			}
-		},
-		ALWAYS("ignore, always merge") {
-			@Override
-			public boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB,int levThreshold) {
-				// trivial case, always condense meta-proteins
-				return true;
-			}
-		},
-			THRESHOLD("Do not merge, if they have similar peptides") {
-			@Override
-			public boolean shouldCondense(
-					Collection<String> pepSeqsA,
-					Collection<String> pepSeqsB, int levThreshold) {
-				// Merge meta-proteins if at least one overlapping peptide
-				// element exists (weak similarity criterion)
-				return !StringSimilarity.similarPeptides(pepSeqsA, pepSeqsB, levThreshold);
-			}
-		};
-
-		/**
-		 * The name string.
-		 */
-		private String name;
-
-		/**
-		 * Constructs a meta-protein generation rule using the specified name string.
-		 * @param name the name of the rule
-		 */
-		private DistPepRule(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String toString() {
-			return this.name;
-		}
-
-		/**
-		 * Returns whether meta-proteins represented by the two provided peptide
-		 * sequence collections should be merged.
-		 * @param pepSeqsA the peptide sequences of meta-protein A
-		 * @param pepSeqsB the peptide sequences of meta-protein B
-		 * @return <code>true</code> if the meta-proteins should be merged, <code>false</code> otherwise
-		 */
-		public abstract boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB, int levThreshold);
-	}
+//	/**
+//	 * Enumeration holding rules for generating meta-proteins based on peptide sharing.
+//	 * @author A. Behne
+//	 */
+//	public enum DistPepRule {
+//		NEVER("ignore, never merge") {
+//			@Override
+//			public boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB, int levThreshold) {
+//				// trivial case, do not condense meta-proteins
+//				return false;
+//			}
+//		},
+//		ALWAYS("ignore, always merge") {
+//			@Override
+//			public boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB,int levThreshold) {
+//				// trivial case, always condense meta-proteins
+//				return true;
+//			}
+//		},
+//			THRESHOLD("Do not merge, if they have similar peptides") {
+//			@Override
+//			public boolean shouldCondense(
+//					Collection<String> pepSeqsA,
+//					Collection<String> pepSeqsB, int levThreshold) {
+//				// Merge meta-proteins if at least one overlapping peptide
+//				// element exists (weak similarity criterion)
+//				return !StringSimilarity.similarPeptides(pepSeqsA, pepSeqsB, levThreshold);
+//			}
+//		};
+//
+//		/**
+//		 * The name string.
+//		 */
+//		private String name;
+//
+//		/**
+//		 * Constructs a meta-protein generation rule using the specified name string.
+//		 * @param name the name of the rule
+//		 */
+//		private DistPepRule(String name) {
+//			this.name = name;
+//		}
+//
+//		@Override
+//		public String toString() {
+//			return this.name;
+//		}
+//
+//		/**
+//		 * Returns whether meta-proteins represented by the two provided peptide
+//		 * sequence collections should be merged.
+//		 * @param pepSeqsA the peptide sequences of meta-protein A
+//		 * @param pepSeqsB the peptide sequences of meta-protein B
+//		 * @return <code>true</code> if the meta-proteins should be merged, <code>false</code> otherwise
+//		 */
+//		public abstract boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB, int levThreshold);
+//	}
 	
 	/**
 	 * Enumeration holding rules for generating meta-proteins based on protein clusters.
-	 * @author R. Heyer
+	 * @author A. Behne, R. Heyer
 	 */
 	public enum ClusterRule {
 		NEVER("ignore, never merge") {
@@ -109,21 +103,21 @@ public class MetaProteinFactory {
 				return true;
 			}
 		},
-		KO("KEGG orthology (KO)"){
-			@Override
-			public boolean shouldCondense(
-					MetaProteinHit rowMP,
-					MetaProteinHit colMP) {
-				List<String> koRow  = rowMP.getProteinHitList().get(0).getUniProtEntry().getKNumbers();
-				List<String> kocol  = colMP.getProteinHitList().get(0).getUniProtEntry().getKNumbers();
-				if (koRow != null && koRow.size() > 0 && kocol != null && kocol.size() > 0) {
-					if (koRow.get(0).equals(kocol.get(0))) {
-						return true;
-					}
-				}
-				return false;
-			}
-		},
+//		KO("KEGG orthology (KO)"){
+//			@Override
+//			public boolean shouldCondense(
+//					MetaProteinHit rowMP,
+//					MetaProteinHit colMP) {
+//				List<String> koRow  = rowMP.getProteinHitList().get(0).getUniProtEntry().getKNumbers();
+//				List<String> kocol  = colMP.getProteinHitList().get(0).getUniProtEntry().getKNumbers();
+//				if (koRow != null && koRow.size() > 0 && kocol != null && kocol.size() > 0) {
+//					if (koRow.get(0).equals(kocol.get(0))) {
+//						return true;
+//					}
+//				}
+//				return false;
+//			}
+//		},
 //		eggNOG("evolutionary genealogy of genes"){
 //			@Override
 //			public boolean shouldCondense(
@@ -148,6 +142,15 @@ public class MetaProteinFactory {
 		 */
 		private ClusterRule(String name) {
 			this.name = name;
+		}
+
+		/**
+		 * Returns the non-trivial cluster rules.
+		 * @return the non-trivial cluster rules.
+		 */
+		public static ClusterRule[] getValues() {
+			ClusterRule[] values = values();
+			return Arrays.copyOfRange(values, 2, values.length);
 		}
 
 		@Override
@@ -219,17 +222,78 @@ public class MetaProteinFactory {
 					Collection<String> pepSeqsB) {
 				// Merge meta-proteins if at least one overlapping peptide
 				// element exists (weak similarity criterion)
-				return !Collections.disjoint(pepSeqsA, pepSeqsB);
+				for (String seqA : pepSeqsA) {
+					for (String seqB : pepSeqsB) {
+						if (seqA.equals(seqB)) {
+							return true;
+						} else {
+							if (maxDistance > 0) {
+								if (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= maxDistance) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+				return false;
+//				return !Collections.disjoint(pepSeqsA, pepSeqsB);
 			}
 		},
-		PEPTIDE_SUBSET("have all peptides in common") {
+		SHARED_SUBSET("have all peptides in common") {
 			@Override
 			public boolean shouldCondense(
 					Collection<String> pepSeqsA,
 					Collection<String> pepSeqsB) {
-				// // Merge meta-proteins if one peptide set is a subset of the
+				// merge meta-proteins if one peptide set is a subset of the
 				// other meta-protein or vice versa (strict similarity criterion)
-				return (pepSeqsA.containsAll(pepSeqsB) || pepSeqsB.containsAll(pepSeqsA));
+				List<String> seqsA = new ArrayList<>(pepSeqsA);
+				List<String> seqsB = new ArrayList<>(pepSeqsB);
+				boolean notInB = false;
+				// check whether peptides in first list have corresponding
+				// elements in second list, stop at first mismatch
+				Iterator<String> iterA = seqsA.iterator();
+				outer:
+				while (iterA.hasNext()) {
+					String seqA = (String) iterA.next();
+					Iterator<String> iterB = seqsB.iterator();
+					while (iterB.hasNext()) {
+						String seqB = (String) iterB.next();
+						if (seqA.equals(seqB) || ((maxDistance > 0) 
+								&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) > maxDistance))) {
+							// match found, remove from lists
+							iterA.remove();
+							iterB.remove();
+							break;
+						} else {
+							// mismatch found, abort
+							notInB = true;
+							break outer;
+						}
+					}
+				}
+				if (notInB) {
+					// check remaining peptides
+					Iterator<String> iterB = seqsB.iterator();
+					while (iterB.hasNext()) {
+						String seqB = (String) iterB.next();
+						iterA = seqsA.iterator();
+						while (iterA.hasNext()) {
+							String seqA = (String) iterA.next();
+							if (seqA.equals(seqB) || ((maxDistance > 0) 
+									&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) > maxDistance))) {
+								// match found, remove from lists
+								iterA.remove();
+								iterB.remove();
+								break;
+							} else {
+								// mismatch found, both peptide sets contain distinct peptides
+								return false;
+							}
+						}
+					}
+				}
+				return true;
+//				return (pepSeqsA.containsAll(pepSeqsB) || pepSeqsB.containsAll(pepSeqsA));
 			}
 		};
 
@@ -237,6 +301,19 @@ public class MetaProteinFactory {
 		 * The name string.
 		 */
 		private String name;
+		
+		/**
+		 * The maximum allowed pairwise peptide sequence distance.
+		 */
+		// TODO: maybe implement Levenshtein distance evaluation in PeptideHit#equals()
+		// TODO: maybe encapsulate globals
+		public static int maxDistance;
+		
+		/**
+		 * The flag denoting whether amino acids leucine and isoleucine shall be
+		 * considered distinct.
+		 */
+		public static boolean distinctIL;
 
 		/**
 		 * Constructs a meta-protein generation rule using the specified name string.
@@ -244,6 +321,15 @@ public class MetaProteinFactory {
 		 */
 		private PeptideRule(String name) {
 			this.name = name;
+		}
+
+		/**
+		 * Returns the non-trivial peptide rules.
+		 * @return the non-trivial peptide rules.
+		 */
+		public static PeptideRule[] getValues() {
+			PeptideRule[] values = values();
+			return Arrays.copyOfRange(values, 2, values.length);
 		}
 
 		@Override
@@ -259,6 +345,7 @@ public class MetaProteinFactory {
 		 * @return <code>true</code> if the meta-proteins should be merged, <code>false</code> otherwise
 		 */
 		public abstract boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB);
+		
 	}
 
 	/**
@@ -280,14 +367,14 @@ public class MetaProteinFactory {
 				return true;
 			}
 		},
-		SUPERKINGDOM("on superkingdom level or deeper", TaxonomyRank.SUPERKINGDOM),
-		KINGDOM("on kingdom level or deeper", TaxonomyRank.KINGDOM),
-		PHYLUM("on phylum level or deeper", TaxonomyRank.PHYLUM),
-		CLASS("on class level or deeper", TaxonomyRank.CLASS),
-		ORDER("on order level or deeper", TaxonomyRank.ORDER),
-		FAMILY("on family level or deeper", TaxonomyRank.FAMILY),
-		GENUS("on genus level or deeper", TaxonomyRank.GENUS), 
-		SPECIES("on species level or deeper", TaxonomyRank.SPECIES), 
+		SUPERKINGDOM("on superkingdom level or lower", TaxonomyRank.SUPERKINGDOM),
+		KINGDOM("on kingdom level or lower", TaxonomyRank.KINGDOM),
+		PHYLUM("on phylum level or lower", TaxonomyRank.PHYLUM),
+		CLASS("on class level or lower", TaxonomyRank.CLASS),
+		ORDER("on order level or lower", TaxonomyRank.ORDER),
+		FAMILY("on family level or lower", TaxonomyRank.FAMILY),
+		GENUS("on genus level or lower", TaxonomyRank.GENUS), 
+		SPECIES("on species level or lower", TaxonomyRank.SPECIES), 
 		SUBSPECIES("on subspecies level", TaxonomyRank.SUBSPECIES);
 
 		/**
@@ -310,6 +397,15 @@ public class MetaProteinFactory {
 		private TaxonomyRule(String name, TaxonomyRank rank) {
 			this.name = name;
 			this.rank = rank;
+		}
+
+		/**
+		 * Returns the non-trivial taxonomy rules.
+		 * @return the non-trivial taxonomy rules.
+		 */
+		public static TaxonomyRule[] getValues() {
+			TaxonomyRule[] values = values();
+			return Arrays.copyOfRange(values, 2, values.length);
 		}
 
 		@Override
@@ -339,104 +435,61 @@ public class MetaProteinFactory {
 	}
 	
 	/**
-	 * Combines meta-proteins contained in the specified list of single-protein 
-	 * meta-proteins on the basis of overlaps in their respective 
-	 * @param metaProteins the list of meta-proteins to condense
-	 * @param metaProtParams the meta-protein generation parameters
+	 * Computes the Levenshtein distance between the provided strings.
+	 * <p>
+	 * Code adapted from <a href=
+	 * "http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Java"
+	 * >http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/
+	 * Levenshtein_distance#Java</a>
+	 * 
+	 * @param s0 the first string
+	 * @param s1 the second string
+	 * @return the Levenshtein distance
 	 */
-	public static void condenseMetaProteins(
-			ProteinHitList metaProteins, ParameterMap metaProtParams) {
-		// Extract parameters
-		boolean distinguishIL = (Boolean) metaProtParams.get("distinguishIL").getValue();
-		ClusterRule protClusterRule = (ClusterRule)((DefaultComboBoxModel) metaProtParams.get(
-				"proteinClusterRule").getValue()).getSelectedItem();
-		PeptideRule peptideRule = (PeptideRule) ((DefaultComboBoxModel) metaProtParams.get(
-				"peptideRule").getValue()).getSelectedItem();
-		TaxonomyRule taxonomyRule = (TaxonomyRule) ((DefaultComboBoxModel) metaProtParams.get(
-				"taxonomyRule").getValue()).getSelectedItem();
-		
-		DistPepRule levRule = (DistPepRule) ((DefaultComboBoxModel) metaProtParams.get(
-				"distPepRule").getValue()).getSelectedItem();
-		int levThreshold = ((Integer[]) metaProtParams.get("levenstheinDistance").getValue())[0];
-		
-		
-		// Iterate (initially single-protein) meta-proteins
-		Iterator<ProteinHit> rowIter = metaProteins.iterator();
-		while (rowIter.hasNext()) {
-			MetaProteinHit rowMP = (MetaProteinHit) rowIter.next();
-
-			// Get set of peptide sequences
-			Set<PeptideHit> rowPeps = rowMP.getPeptideSet();
-			Set<String> rowPepSeqs = new HashSet<String>() ;
-			for (PeptideHit peptideHit : rowPeps) {
-				// Make copy of sequence string to avoid overwriting the original sequence
-				String sequence = new String(peptideHit.getSequence());
-				// Merge leucine and isoleucine into one if desired
-				if (!distinguishIL) {
-					sequence = sequence.replaceAll("[IL]", "L");
-				}
-				rowPepSeqs.add(sequence);
-			}
-
-			// Nested iteration of the same meta-protein list, stop when outer and inner iteration element 
-			// are identical, iterate backwards from the end of the list
-			ListIterator<ProteinHit> colIter = metaProteins.listIterator(metaProteins.size());
-			while (colIter.hasPrevious()) {
-				MetaProteinHit colMP = (MetaProteinHit) colIter.previous();
-				// Check termination condition
-				if (rowMP == colMP) {
-					break;
-				}
-
-				// Get set of peptide sequences (of inner iteration element)
-				Set<PeptideHit> colPeps = colMP.getPeptideSet();
-				Set<String> colPepSeqs = new HashSet<String>() ;
-				for (PeptideHit peptideHit : colPeps) {
-					// Make copy of sequence string to avoid overwriting the original sequence
-					String sequence = new String(peptideHit.getSequence());
-					// Merge leucine and isoleucine into one if desired
-					if (!distinguishIL) {
-						sequence = sequence.replaceAll("[IL]", "L");
-					}
-					colPepSeqs.add(sequence);
-				}
-
-				// Merge meta-proteins if rules apply
-				if (protClusterRule.shouldCondense(rowMP, colMP)
-						&& peptideRule.shouldCondense(rowPepSeqs, colPepSeqs)
-						&& levRule.shouldCondense(rowPepSeqs, colPepSeqs, levThreshold)
-						&& taxonomyRule.shouldCondense(rowMP, colMP))
-						{
-					// Add all proteins of outer meta-protein to inner meta-protein
-					colMP.addAll(rowMP.getProteinHitList());
-					// Remove emptied outer meta-protein from list
-					rowIter.remove();
-					// Abort inner iteration as outer element has been removed and 
-					// therefore cannot be merged into another meta-protein again
-					break;
-				}
-			}
-			// Fire progress notification
-			Client.getInstance().firePropertyChange("progressmade", false, true);
+	public static int computeLevenshteinDistance(String s0, String s1) {
+		int len0 = s0.length() + 1;
+		int len1 = s1.length() + 1;
+	
+		// the array of distances
+		int[] cost = new int[len0];
+		int[] newcost = new int[len0];
+	
+		// initial cost of skipping prefix in String s0
+		for (int i = 0; i < len0; i++) {
+			cost[i] = i;
 		}
-
-		// Re-number condensed meta-proteins
-		int metaIndex = 1;
-		for (ProteinHit mph : metaProteins) {
-			
-			if (((MetaProteinHit) mph).getProteinHitList().size() > 1) {
-				mph.setAccession("Meta-Protein " + metaIndex++);
+	
+		/* dynamically compute the array of distances */
+	
+		// transformation cost for each letter in s1
+		for (int j = 1; j < len1; j++) {
+	
+			// initial cost of skipping prefix in String s1
+			newcost[0] = j - 1;
+	
+			// transformation cost for each letter in s0
+			for (int i = 1; i < len0; i++) {
+	
+				// matching current letters in both strings
+				int match = (s0.charAt(i - 1) == s1.charAt(j - 1)) ? 0 : 1;
+	
+				// computing cost for each transformation
+				int cost_replace = cost[i - 1] + match;
+				int cost_insert = cost[i] + 1;
+				int cost_delete = newcost[i - 1] + 1;
+	
+				// keep minimum cost
+				newcost[i] = Math.min(Math.min(cost_insert, cost_delete), cost_replace);
 			}
-			
-			// Set description by taking the description of the first protein hit.
-			mph.setDescription(((MetaProteinHit) mph).getProteinHitList().get(0).getDescription());
+	
+			// swap cost/newcost arrays
+			int[] tmp = cost;
+			cost = newcost;
+			newcost = tmp;
 		}
-		
-		for (ProteinHit mph : metaProteins) {
-			if (((MetaProteinHit) mph).getProteinHitList().size() == 1) {
-				mph.setAccession("Meta-Protein " + metaIndex++);
-			}
-		}
+	
+		// the distance is the cost for transforming all letters in both strings
+		return cost[len0 - 1];
 	}
 
 	/**
@@ -445,7 +498,7 @@ public class MetaProteinFactory {
 	 * @param result the database search result
 	 * @param params the result parameter settings
 	 */
-	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, ParameterMap params) {
+	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, ResultParameters params) {
 		// Create metaproteins for the new result object.
 		Client client = Client.getInstance();
 		
@@ -494,65 +547,96 @@ public class MetaProteinFactory {
 	}
 	
 	/**
-	 * Recreates meta-proteins from the specified database search result and
-	 * recreates the protein and meta-protein taxonomies.
-	 * @param result the database search result
-	 * @param params the result parameter settings
-	 */
-	public static void redetermineTaxonomyAndRecreateMetaProteins(DbSearchResult result, ParameterMap params) {
-		// Create metaproteins for the new result object.
-		Client client = Client.getInstance();
-
-		// Undo FDR filtering
-		result.setFDR(1.0);
-		
-		List<ProteinHit> proteins = result.getProteinHitList();
-
-		// Determine protein taxonomy
-		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
-		client.firePropertyChange("resetcur", -1L, (long) proteins.size());
-
-		// Define protein taxonomy by common tax ID of peptides
-		TaxonomyUtils.determineProteinTaxonomy(proteins, params);
-
-		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
-
-		// Reset meta-proteins
-		result.clearVisibleMetaProteins();
-		ProteinHitList metaProteins = result.getMetaProteins();
-		metaProteins.clear();
-		int i = 0;
-		for (ProteinHit protein : proteins) {
-			// create new meta-protein containing single protein
-			MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + (++i), protein);
-			// link protein to meta-protein
-			protein.setMetaProteinHit(mph);
-			// add meta-protein to list
-			metaProteins.add(mph);
+		 * Combines meta-proteins contained in the specified list of single-protein 
+		 * meta-proteins on the basis of overlaps in their respective 
+		 * @param metaProteins the list of meta-proteins to condense
+		 * @param params the result processing parameters
+		 */
+		private static void condenseMetaProteins(
+				ProteinHitList metaProteins, ResultParameters params) {
+			// Extract parameters
+			ClusterRule protClusterRule = params.getClusterRule();
+			PeptideRule peptideRule = params.getPeptideRule();
+			TaxonomyRule taxonomyRule = params.getTaxonomyRule();
+			
+			boolean distinctIL = PeptideRule.distinctIL;
+			
+			// Iterate (initially single-protein) meta-proteins
+			Iterator<ProteinHit> rowIter = metaProteins.iterator();
+			while (rowIter.hasNext()) {
+				MetaProteinHit rowMP = (MetaProteinHit) rowIter.next();
+	
+				// Get set of peptide sequences
+				Set<PeptideHit> rowPeps = rowMP.getPeptideSet();
+				Set<String> rowPepSeqs = new HashSet<String>() ;
+				for (PeptideHit peptideHit : rowPeps) {
+					// Make copy of sequence string to avoid overwriting the original sequence
+					String sequence = new String(peptideHit.getSequence());
+					// Merge leucine and isoleucine if not considered distinct
+					if (!distinctIL) {
+						sequence = sequence.replaceAll("[IL]", "L");
+					}
+					rowPepSeqs.add(sequence);
+				}
+	
+				// Nested iteration of the same meta-protein list, stop when outer and inner iteration element 
+				// are identical, iterate backwards from the end of the list
+				ListIterator<ProteinHit> colIter = metaProteins.listIterator(metaProteins.size());
+				while (colIter.hasPrevious()) {
+					MetaProteinHit colMP = (MetaProteinHit) colIter.previous();
+					// Check termination condition
+					if (rowMP == colMP) {
+						break;
+					}
+	
+					// Get set of peptide sequences (of inner iteration element)
+					Set<PeptideHit> colPeps = colMP.getPeptideSet();
+					Set<String> colPepSeqs = new HashSet<String>() ;
+					for (PeptideHit peptideHit : colPeps) {
+						// Make copy of sequence string to avoid overwriting the original sequence
+						String sequence = new String(peptideHit.getSequence());
+						// Merge leucine and isoleucine into one if desired
+						if (!distinctIL) {
+							sequence = sequence.replaceAll("[IL]", "L");
+						}
+						colPepSeqs.add(sequence);
+					}
+	
+					// Merge meta-proteins if rules apply
+					if (protClusterRule.shouldCondense(rowMP, colMP)
+							&& peptideRule.shouldCondense(rowPepSeqs, colPepSeqs)
+	//						&& levRule.shouldCondense(rowPepSeqs, colPepSeqs, levThreshold)
+							&& taxonomyRule.shouldCondense(rowMP, colMP)) {
+						// Add all proteins of outer meta-protein to inner meta-protein
+						colMP.addAll(rowMP.getProteinHitList());
+						// Remove emptied outer meta-protein from list
+						rowIter.remove();
+						// Abort inner iteration as outer element has been removed and 
+						// therefore cannot be merged into another meta-protein again
+						break;
+					}
+				}
+				// Fire progress notification
+				Client.getInstance().firePropertyChange("progressmade", false, true);
+			}
+	
+			// Re-number condensed meta-proteins
+			int metaIndex = 1;
+			for (ProteinHit mph : metaProteins) {
+				
+				if (((MetaProteinHit) mph).getProteinHitList().size() > 1) {
+					mph.setAccession("Meta-Protein " + metaIndex++);
+				}
+				
+				// Set description by taking the description of the first protein hit.
+				mph.setDescription(((MetaProteinHit) mph).getProteinHitList().get(0).getDescription());
+			}
+			
+			for (ProteinHit mph : metaProteins) {
+				if (((MetaProteinHit) mph).getProteinHitList().size() == 1) {
+					mph.setAccession("Meta-Protein " + metaIndex++);
+				}
+			}
 		}
-
-		// Apply FDR cut-off
-		Double fdr = ((Double[]) params.get("FDR").getValue())[0];
-		result.setFDR(fdr);
-		
-		// Re-retrieve filtered meta-protein list
-		metaProteins = result.getMetaProteins();
-		
-		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
-		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-		
-		// Combine proteins to meta-proteins
-		MetaProteinFactory.condenseMetaProteins(metaProteins, params);
-
-		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
-
-		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
-		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-
-		// Determine meta-protein taxonomy
-		TaxonomyUtils.determineMetaProteinTaxonomy(metaProteins, params);
-
-		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
-	}
 	
 }
