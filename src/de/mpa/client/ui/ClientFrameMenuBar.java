@@ -98,8 +98,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		connItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(
-						clientFrame, "Connection Settings", true, new ConnectionParameters());
+				AdvancedSettingsDialog.showDialog(clientFrame, "Connection Settings", true, new ConnectionParameters());
 			}
 		});
 

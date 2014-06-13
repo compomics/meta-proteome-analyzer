@@ -23,6 +23,8 @@ import javax.swing.filechooser.FileFilter;
 
 import com.thoughtworks.xstream.XStream;
 
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.AbstractProject;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
@@ -49,7 +51,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.9.5";
+	public final static String VER_NUMBER = "1.0";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -172,6 +174,8 @@ public class Constants {
 
 	public static final String CSV_FILE_SEPARATOR = ",";
 	public static final String TSV_FILE_SEPARATOR = "\t";
+	
+	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "none");
 	
 	/**
 	 * Convenience method to initialize the enzyme definition tree.

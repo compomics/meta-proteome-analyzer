@@ -86,7 +86,7 @@ public class Client {
 	/**
 	 * Parameter map containing connection settings.
 	 */
-	private ConnectionParameters connectionParams = null;
+	private ConnectionParameters connectionParams = new ConnectionParameters();
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -165,7 +165,6 @@ public class Client {
 	public Connection getConnection() throws SQLException {
 		// check whether connection is valid
 		if (conn == null || !conn.isValid(0)) {
-			connectionParams = new ConnectionParameters();
 			// connect to database
 			DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, connectionParams);
 			this.conn = dbconfig.getConnection();
@@ -187,28 +186,24 @@ public class Client {
 	/**
 	 * Connects the client to the web service.
 	 */
-	public boolean connectToServer() {
+	public boolean connectToServer() throws WebServiceException {
 		if (!hasConnectionToServer()){
-			try {
-				service = new ServerImplService();
-				// Enable MTOM
-				server = service.getServerImplPort(new MTOMFeature());
-				
-				// Try to send client to server.
-				sendMessage("Client connected.");
-				
-				// enable MTOM in client
-				BindingProvider bp = (BindingProvider) server;
+			service = new ServerImplService();
+			// Enable MTOM
+			server = service.getServerImplPort(new MTOMFeature());
+			
+			// Try to send client to server.
+			sendMessage("Client connected.");
+			
+			// enable MTOM in client
+			BindingProvider bp = (BindingProvider) server;
 
-				// Connection timeout: 12 hours
-				bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
+			// Connection timeout: 12 hours
+			bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
 
-				// Request timeout: 24 hours
-				bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
+			// Request timeout: 24 hours
+			bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
 
-			} catch (WebServiceException ex) {
-				return false;
-			}
 			
 			// Start new request thread.
 			requestThread = new RequestThread();
