@@ -334,6 +334,11 @@ public class HeatMapData {
 	public static class MatrixSeriesExt extends MatrixSeries {
 		
 		/**
+		 * The serialization ID.
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		/**
 		 * The hit matrix.
 		 */
 		private List<List<List<Hit>>> matrix;
@@ -359,16 +364,16 @@ public class HeatMapData {
 
 		@Override
 		public double get(int i, int j) {
-			List<List<Hit>> row = this.matrix.get(i);
-			if (j < row.size()) {
-				List<Hit> val = row.get(j);
-				if (val == null) {
-					return 0.0;
+			if (i < matrix.size()) {
+				List<List<Hit>> row = matrix.get(i);
+				if (j < row.size()) {
+					List<Hit> val = row.get(j);
+					if (val != null) {
+						return val.size();
+					}
 				}
-				return val.size();
-			} else {
-				return 0.0;
 			}
+			return 0.0;
 		}
 		
 	}
