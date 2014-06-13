@@ -11,6 +11,7 @@ import java.util.Set;
 import de.mpa.analysis.Masses;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.panels.ComparePanel.CompareData;
@@ -66,7 +67,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	/**
 	 * The NCBI taxonomy node of the peptide.
 	 */
-	private TaxonomyNode taxonNode;
+	private TaxonomyNode taxonNode = Constants.TAXONOMY_NONE;
 	
 	/**
 	 * The database IDs of the experiments which contain the protein hit.

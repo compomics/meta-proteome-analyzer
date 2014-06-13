@@ -67,7 +67,7 @@ public class AdvancedSettingsDialog extends JDialog {
 	public static final int DIALOG_CHANGED = 2;
 	
 	public static final int DIALOG_CHANGED_ACCEPTED = 3;
-	
+
 	/**
 	 * The collection of parameters this dialog shall provide interaction with.
 	 */
@@ -106,7 +106,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		// Show dialog
 		this.setVisible(true);
 	}
-	
+
 	/**
 	 * Displays a dialog dynamically generated from the specified collection of
 	 * parameters and provides controls to interact with them.
@@ -189,6 +189,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				// Iterate parameters to build section components
 				for (Parameter p : entry.getValue()) {
 					JComponent comp = this.createParameterControl(p);
+					
 					if (comp instanceof JCheckBox) {
 						// Special case for checkboxes which come with labels of their own
 						builder.append(comp, 3);
@@ -205,8 +206,20 @@ public class AdvancedSettingsDialog extends JDialog {
 						}
 						// add panel to task pane layout
 						builder.append(comp, 3);
-					} else {
+					}  else {
 						// Add component, generate label to go with it
+						if (comp instanceof JButton) {
+							JButton button = (JButton) comp;
+							if (button.getText().equals("Test Connection")) {
+								button.addActionListener(new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent e) {
+										applyChanges();
+									}
+								});
+							}
+						}
+						
 						String name = p.getName();
 						if ((name != null) && !name.isEmpty()) {
 							// parameters with non-null and non-empty names get a label
@@ -292,7 +305,7 @@ public class AdvancedSettingsDialog extends JDialog {
 	 * Applies changes made via control components to the underlying parameter
 	 * collection.
 	 */
-	protected void applyChanges() {
+	private void applyChanges() {
 		// Update parameters
 		for (Parameter param : parameterMap.values()) {
 			JComponent comp = param2comp.get(param.getName());

@@ -23,7 +23,7 @@ public class WSPublisher {
 	 */
 	public static void main(String[] args) {
 		ConnectionParameters connectionParams = new ConnectionParameters();
-		Endpoint.publish("http://" + "0.0.0.0" + ":" + connectionParams.get("srvPort").toString() + "/WS/Server", new ServerImpl());
+		Endpoint.publish("http://localhost" + ":" + ((Integer[]) connectionParams.get("srvPort").getValue())[0] + "/WS/Server", new ServerImpl());
 	}
 	
 	

@@ -34,16 +34,17 @@ public class ServerImplService
         URL url = null;
         WebServiceException e = null;
         try {
-            ParameterMap connectionParams = Client.getInstance().getConnectionParameters();
+            ParameterMap connectionParams = Client.getInstance().getConnectionParameters();  
+            
 			url = new URL("http://" + connectionParams.get("srvAddress").getValue() +":" + ((Integer[]) connectionParams.get("srvPort").getValue())[0] + "/WS/Server?wsdl");
         } catch (MalformedURLException ex) {
-            e = new WebServiceException(ex);
+            throw new WebServiceException(ex);
         }
         SERVERIMPLSERVICE_WSDL_LOCATION = url;
         SERVERIMPLSERVICE_EXCEPTION = e;
     }
 
-    public ServerImplService() {
+    public ServerImplService() throws WebServiceException {
         super(__getWsdlLocation(), SERVERIMPLSERVICE_QNAME);
     }
 

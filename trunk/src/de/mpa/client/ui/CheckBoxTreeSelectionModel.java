@@ -207,16 +207,20 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		}
 		Object node = path.getLastPathComponent();
 		Object parentNode = parent.getLastPathComponent();
-
-		int childCount = model.getChildCount(parentNode);
-		for (int i = 0; i < childCount; i++) {
-			Object childNode = model.getChild(parentNode, i);
-			if (childNode == node) {
-				continue;
+		
+		try {
+			int childCount = model.getChildCount((TreeTableNode) parentNode);
+			for (int i = 0; i < childCount; i++) {
+				Object childNode = model.getChild(parentNode, i);
+				if (childNode == node) {
+					continue;
+				}
+				if (!isPathSelected(parent.pathByAddingChild(childNode), true)) {
+					return false;
+				}
 			}
-			if (!isPathSelected(parent.pathByAddingChild(childNode), true)) {
-				return false;
-			}
+		} catch (IllegalArgumentException e) {
+			// TODO: Do nothing?
 		}
 		return true;
 	}
