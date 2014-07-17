@@ -285,16 +285,12 @@ public class ResultExporter {
 			for (PeptideHit peptideHit : peptideHits) {
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
-					// Get the spectrum id.
-					Connection conn = Client.getInstance().getDatabaseConnection();
-					long spectrumid = Searchspectrum.findFromSearchSpectrumID(psm.getSearchSpectrumID(), conn).getFk_spectrumid();
-					String spectrumTitle = Spectrum.findFromSpectrumID(spectrumid, conn).getTitle();
 					List<SearchHit> searchHits = psm.getSearchHits();
 					for (SearchHit searchHit : searchHits) {
 						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[3]) writer.append(spectrumTitle + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[3]) writer.append(psm.getTitle() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
@@ -386,7 +382,6 @@ public class ResultExporter {
 										String[] array = new String[10];
 										
 										while (stepUp) {
-											System.out.println(parent.getUserObject().toString());
 											Object parentValue = parent.getValueAt(col);
 											if (rankMap.get(parentValue.toString()) != null) {
 												int realPos = rankMap.get(parentValue.toString());

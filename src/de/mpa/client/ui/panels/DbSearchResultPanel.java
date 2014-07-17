@@ -440,7 +440,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								(PhylogenyTreeTableNode) path.getLastPathComponent();
 						if (node.getUserObject() instanceof TaxonomyNode) {
 							TaxonomyNode taxNode = (TaxonomyNode) node.getUserObject();
-							System.out.println(taxNode.getName());
 						}
 						if (node.isLeaf()) {
 							proteins.add((ProteinHit) node.getUserObject());
