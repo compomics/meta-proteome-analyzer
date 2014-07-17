@@ -436,25 +436,15 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					int[] rows = treeTbl.getSelectedRows();
 					for (int row : rows) {
 						TreePath path = treeTbl.getPathForRow(row);
-						PhylogenyTreeTableNode node =
-								(PhylogenyTreeTableNode) path.getLastPathComponent();
-						if (node.getUserObject() instanceof TaxonomyNode) {
-							TaxonomyNode taxNode = (TaxonomyNode) node.getUserObject();
-						}
+						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) path.getLastPathComponent();
+				
 						if (node.isLeaf()) {
 							proteins.add((ProteinHit) node.getUserObject());
 						} else {
 							proteins.addAll(this.getProteins(node));
 						}
 					}
-					refreshPeptideViews(proteins);
-					
-					
-//					PhylogenyTreeTableNode node =
-//							((PhylogenyTreeTableNode) evt.getPath().getLastPathComponent());
-//					refreshPeptideViews(node);
-					
-
+					refreshPeptideViews(proteins);				
 				}
 				
 				/**
