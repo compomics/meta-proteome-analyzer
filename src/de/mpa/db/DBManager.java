@@ -80,7 +80,7 @@ public class DBManager {
      */
 	private void init() throws SQLException {	
 		// The database configuration.
-		DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, new ConnectionParameters());
+		DBConfiguration dbconfig = new DBConfiguration(new ConnectionParameters());
 		conn = dbconfig.getConnection();
     }
 	

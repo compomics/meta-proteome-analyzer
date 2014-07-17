@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.mpa.client.Client;
-import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.io.MascotGenericFile;
 
@@ -35,7 +34,7 @@ public class SpectrumUtilities {
 		// Connection conn
 		if (conn == null || !conn.isValid(0)) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, Client.getInstance().getConnectionParameters());
+			DBConfiguration dbconfig = new DBConfiguration(Client.getInstance().getConnectionParameters());
 			this.conn = dbconfig.getConnection();
 		}
 	}

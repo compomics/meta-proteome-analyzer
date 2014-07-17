@@ -208,7 +208,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 */
     private void exportCSV() {
     	new ExportDialog(clientFrame, "Results Export", true, exportFields);
-    	AdvancedSettingsDialog.showDialog(clientFrame, "Export Results to CSV", true, new ResultExportParameters());
+//    	AdvancedSettingsDialog.showDialog(clientFrame, "Export Results to CSV", true, new ResultExportParameters());
     }
     
     /**

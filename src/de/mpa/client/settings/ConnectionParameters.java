@@ -16,14 +16,11 @@ import java.util.Map.Entry;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
-import javax.swing.JSpinner;
-import javax.swing.text.JTextComponent;
 import javax.xml.ws.WebServiceException;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.main.Starter;
 
