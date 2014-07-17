@@ -20,11 +20,6 @@ public class DBConfiguration {
 	 */
     private Connection conn;
     
-    /**
-     * Database connection type.
-     */
-	private ConnectionType connType;
-	
 	/**
 	 * Connection settings.
 	 */
@@ -35,9 +30,8 @@ public class DBConfiguration {
      * @param dbName Database name
      * @throws SQLException 
      */
-    public DBConfiguration(ConnectionType connType, ParameterMap connectionParams) throws SQLException{
+    public DBConfiguration(ParameterMap connectionParams) throws SQLException{
     	this.connectionParams = connectionParams;
-    	this.connType = connType;
         initConnection();
     }
     
@@ -55,12 +49,8 @@ public class DBConfiguration {
 			String pwText = new String(((JPasswordField) connectionParams.get("dbPass").getValue()).getPassword());
 			
 			// Do the connection to the DB
-			if (connType == ConnectionType.LOCAL) {
-				conn = DriverManager.getConnection("jdbc:mysql://localhost"+  ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue(), connectionParams.get("dbUsername").getValue().toString(), pwText);
-			} else {
-				conn = DriverManager.getConnection("jdbc:mysql://" + connectionParams.get("dbAddress").getValue() + ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue(), connectionParams.get("dbUsername").getValue().toString(), pwText);
-			}
-			
+			conn = DriverManager.getConnection("jdbc:mysql://" + connectionParams.get("dbAddress").getValue() + ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue(), connectionParams.get("dbUsername").getValue().toString(), pwText);
+//			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/metaprot", "metaroot", "meta2");
 			// Set auto commit == FALSE --> Manual commit & rollback.
 			conn.setAutoCommit(false);
 			

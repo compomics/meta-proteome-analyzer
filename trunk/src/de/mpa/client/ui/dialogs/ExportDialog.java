@@ -127,6 +127,7 @@ public class ExportDialog extends JDialog {
 	private JCheckBox taxonomyFamilyCbx;
 	private JCheckBox taxonomyGenusCbx;
 	private JCheckBox taxonomySpeciesCbx;
+	private JCheckBox taxonomySubspeciesCbx;
 	private JCheckBox taxonomyUnclassifiedCbx;
 	private JCheckBox taxonomySpecificPeptidesCbx;
 
@@ -137,8 +138,7 @@ public class ExportDialog extends JDialog {
 
 	private JCheckBox metaproteinsProteinsCbx;
 
-	
-
+	private JCheckBox taxonomyKronaSpecCountCbx;
 
 
 	public ExportDialog(ClientFrame owner, String title, boolean modal, ExportFields exportFields) {
@@ -580,32 +580,35 @@ public class ExportDialog extends JDialog {
 		taxonomyGenusCbx.setText("Genus");
 		taxonomyGenusCbx.setSelected(exportFields.taxonomyGenus);
 		taxonomySpeciesCbx = new JCheckBox();
-		taxonomySpeciesCbx.setText("Species / LCA");
+		taxonomySpeciesCbx.setText("Species");
 		taxonomySpeciesCbx.setSelected(exportFields.taxonomySpecies);
+		taxonomySubspeciesCbx = new JCheckBox();
+		taxonomySubspeciesCbx.setText("Subspecies");
+		taxonomySubspeciesCbx.setSelected(exportFields.taxonomySubspecies);
 		taxonomySpecificPeptidesCbx = new JCheckBox();
-		taxonomySpecificPeptidesCbx.setText("No. Specific Peptides");
+		taxonomySpecificPeptidesCbx.setText("No. Peptides");
 		taxonomySpecificPeptidesCbx.setSelected(exportFields.taxonomySpecificPeptides);
-		//		taxonomyUnspecificPeptidesCbx = new JCheckBox();
-		//		taxonomyUnspecificPeptidesCbx.setText("No. Unspecific Peptides");
-		//		taxonomyUnspecificPeptidesCbx.setSelected(true);
 		taxonomySpecificSpecCountCbx = new JCheckBox();
-		taxonomySpecificSpecCountCbx.setText("Specific Spectral Counts");
+		taxonomySpecificSpecCountCbx.setText("Spectral Count");
 		taxonomySpecificSpecCountCbx.setSelected(exportFields.taxonomySpecificSpecCount);
-		//		taxonomyUnspecificSpecCountCbx = new JCheckBox();
-		//		taxonomyUnspecificSpecCountCbx.setText("Unspecific Spectral Counts");
-		//		taxonomyUnspecificSpecCountCbx.setSelected(true);
+		taxonomyKronaSpecCountCbx = new JCheckBox();
+		taxonomyKronaSpecCountCbx.setText("Spectral Count (Krona)");
+		taxonomyKronaSpecCountCbx.setSelected(exportFields.taxonomyKronaSpecCount);
+
 		// Add to taxonomyFeaturesPnl
 		taxonomyFeaturesPanel.add(taxonomyUnclassifiedCbx, CC.xy(2,  2));		
 		taxonomyFeaturesPanel.add(taxonomySuperKingdomCbx, CC.xy(2,  4));
 		taxonomyFeaturesPanel.add(taxonomyKingdomCbx, CC.xy(2,  6));
 		taxonomyFeaturesPanel.add(taxonomyPhylumCbx, CC.xy(2,  8));
-		taxonomyFeaturesPanel.add(taxonomyOrderCbx, CC.xy(2,  10));
-		taxonomyFeaturesPanel.add(taxonomyClassCbx, CC.xy(2,  12));
-		taxonomyFeaturesPanel.add(taxonomyFamilyCbx, CC.xy(4,  2));
-		taxonomyFeaturesPanel.add(taxonomyGenusCbx, CC.xy(4,  4));
-		taxonomyFeaturesPanel.add(taxonomySpeciesCbx, CC.xy(4,  6));
+		taxonomyFeaturesPanel.add(taxonomyClassCbx, CC.xy(2,  10));
+		taxonomyFeaturesPanel.add(taxonomyOrderCbx, CC.xy(2,  12));
+		taxonomyFeaturesPanel.add(taxonomyFamilyCbx, CC.xy(2,  14));
+		taxonomyFeaturesPanel.add(taxonomyGenusCbx, CC.xy(4,  2));
+		taxonomyFeaturesPanel.add(taxonomySpeciesCbx, CC.xy(4,  4));
+		taxonomyFeaturesPanel.add(taxonomySubspeciesCbx, CC.xy(4,  6));
 		taxonomyFeaturesPanel.add(taxonomySpecificPeptidesCbx, CC.xy(4,  8));
 		taxonomyFeaturesPanel.add(taxonomySpecificSpecCountCbx, CC.xy(4,  10));
+		taxonomyFeaturesPanel.add(taxonomyKronaSpecCountCbx, CC.xy(4,  12));
 
 		// Taxonomy button panel
 		JPanel taxButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
@@ -727,7 +730,7 @@ public class ExportDialog extends JDialog {
 					ResultExporter.exportMetaProteins(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 1) {
 					resultType = "Taxonomy";
-					ResultExporter.exportTaxonomy(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
+					new ResultExporter().exportTaxonomy(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 2) {
 					resultType = "Proteins";
 					ResultExporter.exportProteins(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
@@ -779,15 +782,15 @@ public class ExportDialog extends JDialog {
 		if(taxonomySuperKingdomCbx.isSelected()) exportHeaders.add(new ExportHeader(2, taxonomySuperKingdomCbx.getText(), ExportHeaderType.TAXONOMY));
 		if(taxonomyKingdomCbx.isSelected()) exportHeaders.add(new ExportHeader(3, taxonomyKingdomCbx.getText(), ExportHeaderType.TAXONOMY));
 		if(taxonomyPhylumCbx.isSelected()) exportHeaders.add(new ExportHeader(4, taxonomyPhylumCbx.getText(), ExportHeaderType.TAXONOMY));
-		if(taxonomyOrderCbx.isSelected()) exportHeaders.add(new ExportHeader(5, taxonomyOrderCbx.getText(), ExportHeaderType.TAXONOMY));
-		if(taxonomyClassCbx.isSelected()) exportHeaders.add(new ExportHeader(6, taxonomyClassCbx.getText(), ExportHeaderType.TAXONOMY));
+		if(taxonomyClassCbx.isSelected()) exportHeaders.add(new ExportHeader(5, taxonomyClassCbx.getText(), ExportHeaderType.TAXONOMY));
+		if(taxonomyOrderCbx.isSelected()) exportHeaders.add(new ExportHeader(6, taxonomyOrderCbx.getText(), ExportHeaderType.TAXONOMY));
 		if(taxonomyFamilyCbx.isSelected()) exportHeaders.add(new ExportHeader(7, taxonomyFamilyCbx.getText(), ExportHeaderType.TAXONOMY));
 		if(taxonomyGenusCbx.isSelected()) exportHeaders.add(new ExportHeader(8, taxonomyGenusCbx.getText(), ExportHeaderType.TAXONOMY));
 		if(taxonomySpeciesCbx.isSelected()) exportHeaders.add(new ExportHeader(9, taxonomySpeciesCbx.getText(), ExportHeaderType.TAXONOMY));
-		if(taxonomySpecificPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(10, taxonomySpecificPeptidesCbx.getText(), ExportHeaderType.TAXONOMY));
-		//		if(taxonomyUnspecificPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(11, taxonomyUnspecificPeptidesCbx.getText(), ExportHeaderType.TAXONOMY));
-		if(taxonomySpecificSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(11, taxonomySpecificSpecCountCbx.getText(), ExportHeaderType.TAXONOMY));
-		//		if(taxonomyUnspecificSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(13, taxonomyUnspecificSpecCountCbx.getText(), ExportHeaderType.TAXONOMY));
+		if(taxonomySubspeciesCbx.isSelected()) exportHeaders.add(new ExportHeader(10, taxonomySubspeciesCbx.getText(), ExportHeaderType.TAXONOMY));
+		if(taxonomySpecificPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(11, taxonomySpecificPeptidesCbx.getText(), ExportHeaderType.TAXONOMY));
+		if(taxonomySpecificSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(12, taxonomySpecificSpecCountCbx.getText(), ExportHeaderType.TAXONOMY));
+		if(taxonomyKronaSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(13, taxonomyKronaSpecCountCbx.getText(), ExportHeaderType.TAXONOMY));
 
 		// Proteins
 		if(proteinNumberCbx.isSelected()) exportHeaders.add(new ExportHeader(1, proteinNumberCbx.getText(), ExportHeaderType.PROTEINS));
@@ -883,11 +886,12 @@ public class ExportDialog extends JDialog {
 		exportFields.taxonomySuperKingdom		= taxonomySuperKingdomCbx.isSelected();
 		exportFields.taxonomyKingdom			= taxonomyKingdomCbx.isSelected();
 		exportFields.taxonomyPhylum				= taxonomyPhylumCbx.isSelected();
-		exportFields.taxonomyOrder				= taxonomyOrderCbx.isSelected();
 		exportFields.taxonomyClass				= taxonomyClassCbx.isSelected();
+		exportFields.taxonomyOrder				= taxonomyOrderCbx.isSelected();
 		exportFields.taxonomyFamily				= taxonomyFamilyCbx.isSelected();
 		exportFields.taxonomyGenus				= taxonomyGenusCbx.isSelected();
 		exportFields.taxonomySpecies			= taxonomySpeciesCbx.isSelected();
+		exportFields.taxonomySubspecies			= taxonomySubspeciesCbx.isSelected();
 		exportFields.taxonomySpecificPeptides	= taxonomySpecificPeptidesCbx.isSelected();
 		exportFields.taxonomySpecificSpecCount	= taxonomySpecificSpecCountCbx.isSelected();
 	}

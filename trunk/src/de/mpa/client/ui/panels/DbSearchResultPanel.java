@@ -97,6 +97,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.FileExperiment;
@@ -409,8 +410,23 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Configures the protein tree table views.
 	 */
 	private void setupProteinTables() {
+		
 		for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+			
 			final CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+			
+			// checkbox tree selection accounting for changes on pathway string building
+			final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+			
+			cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
+				
+				@Override
+				public void valueChanged(TreeSelectionEvent tse) {
+					if (tse.getPath() == null) {
+						refreshPathwayStrings();
+					}
+				}
+			});
 			
 			// install selection listener to populate peptide table on selection
 			treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
@@ -422,6 +438,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						TreePath path = treeTbl.getPathForRow(row);
 						PhylogenyTreeTableNode node =
 								(PhylogenyTreeTableNode) path.getLastPathComponent();
+						if (node.getUserObject() instanceof TaxonomyNode) {
+							TaxonomyNode taxNode = (TaxonomyNode) node.getUserObject();
+							System.out.println(taxNode.getName());
+						}
 						if (node.isLeaf()) {
 							proteins.add((ProteinHit) node.getUserObject());
 						} else {
@@ -430,11 +450,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 					refreshPeptideViews(proteins);
 					
+					
 //					PhylogenyTreeTableNode node =
 //							((PhylogenyTreeTableNode) evt.getPath().getLastPathComponent());
 //					refreshPeptideViews(node);
-				}
+					
 
+				}
+				
 				/**
 				 * Helper method to recursively gather all protein hits (i.e. leaf nodes)
 				 * below the specified protein tree table node.
@@ -457,7 +480,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 					return proteins;
 				}
-			});
+			});		
 			
 			treeTbl.addPropertyChangeListener("checkboxSelectionDone", new PropertyChangeListener() {
 				@Override
@@ -1919,10 +1942,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				
 				// Build local chart data objects
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
-				resultPnl.ontologyData = new OntologyData(
-						resultPnl.dbSearchResult, hl);
-				resultPnl.taxonomyData = new TaxonomyData(
-						resultPnl.dbSearchResult, hl);
+				resultPnl.ontologyData = new OntologyData(resultPnl.dbSearchResult, hl);
+				resultPnl.taxonomyData = new TaxonomyData(resultPnl.dbSearchResult, hl);
 
 				// Insert new result data into tables
 				this.refreshProteinTables();
@@ -2023,48 +2044,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						sttm.setRoot(sttm.getRoot());
 					}
 		
-					// Iterate pathway nodes in respective hierarchical view and update URIs
-					Enumeration childrenA = ((TreeNode) ProteinTreeTables.PATHWAY
-							.getTreeTable().getTreeTableModel().getRoot()).children();
-					while (childrenA.hasMoreElements()) {
-						// Level A: pathway supergroups
-						TreeNode childA = (TreeNode) childrenA.nextElement();
-						Enumeration childrenB = childA.children();
-						while (childrenB.hasMoreElements()) {
-							// Level B: pathway groups
-							TreeNode childB = (TreeNode) childrenB.nextElement();
-							Enumeration childrenC = childB.children();
-							while (childrenC.hasMoreElements()) {
-								// Level C: pathways
-								PhylogenyTreeTableNode childC = (PhylogenyTreeTableNode) childrenC.nextElement();
-								StringBuilder sb = new StringBuilder("http://www.kegg.jp/kegg-bin/show_pathway?map");
-								// Append pathway ID to URL
-								sb.append(childC.getUserObject());
-								// Gather K and EC numbers
-								// TODO: maybe gather only numbers that are in some way connected to the pathway in question
-								Set<String> kNumbers = new HashSet<String>();
-								Set<String> ecNumbers = new HashSet<String>();
-								Enumeration<? extends MutableTreeTableNode> children = childC.children();
-								while (children.hasMoreElements()) {
-									PhylogenyTreeTableNode protNode = 
-											(PhylogenyTreeTableNode) children.nextElement();
-									ProteinHit protHit = (ProteinHit) protNode.getUserObject();
-									kNumbers.addAll(protHit.getUniProtEntry().getKNumbers());
-									ecNumbers.addAll(protHit.getUniProtEntry().getEcNumbers());
-								}
-								// Append K and EC numbers to URL
-								for (String kNumber : kNumbers) {
-									sb.append("+");
-									sb.append(kNumber);
-								}
-								for (String ecNumber : ecNumbers) {
-									sb.append("+");
-									sb.append(ecNumber);
-								}
-								childC.setURI(URI.create(sb.toString()));
-							}
-						}
-					}
+					refreshPathwayStrings();
 		
 					// Adjust highlighters
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
@@ -2098,6 +2078,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		
 		}
 
+	
+
 		@Override
 		protected void done() {
 			// Stop appearing busy
@@ -2112,7 +2094,53 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		}
 		
 	}
-
+	
+	private void refreshPathwayStrings() {
+		// Iterate pathway nodes in respective hierarchical view and update URIs
+		Enumeration childrenA = ((TreeNode) ProteinTreeTables.PATHWAY
+				.getTreeTable().getTreeTableModel().getRoot()).children();
+		while (childrenA.hasMoreElements()) {
+			// Level A: pathway supergroups
+			TreeNode childA = (TreeNode) childrenA.nextElement();
+			Enumeration childrenB = childA.children();
+			while (childrenB.hasMoreElements()) {
+				// Level B: pathway groups
+				TreeNode childB = (TreeNode) childrenB.nextElement();
+				Enumeration childrenC = childB.children();
+				while (childrenC.hasMoreElements()) {
+					// Level C: pathways
+					PhylogenyTreeTableNode childC = (PhylogenyTreeTableNode) childrenC.nextElement();
+					StringBuilder sb = new StringBuilder("http://www.kegg.jp/kegg-bin/show_pathway?map");
+					// Append pathway ID to URL
+					sb.append(childC.getUserObject());
+					// Gather K and EC numbers
+					// TODO: maybe gather only numbers that are in some way connected to the pathway in question
+					Set<String> kNumbers = new HashSet<String>();
+					Set<String> ecNumbers = new HashSet<String>();
+					Enumeration<? extends MutableTreeTableNode> children = childC.children();
+					while (children.hasMoreElements()) {
+						PhylogenyTreeTableNode protNode = (PhylogenyTreeTableNode) children.nextElement();
+						ProteinHit protHit = (ProteinHit) protNode.getUserObject();
+						if(((Hit) protNode.getUserObject()).isSelected()) {
+							kNumbers.addAll(protHit.getUniProtEntry().getKNumbers());
+							ecNumbers.addAll(protHit.getUniProtEntry().getEcNumbers());
+						}
+					}
+					// Append K and EC numbers to URL
+					for (String kNumber : kNumbers) {
+						sb.append("+");
+						sb.append(kNumber);
+					}
+					for (String ecNumber : ecNumbers) {
+						sb.append("+");
+						sb.append(ecNumber);
+					}
+					childC.setURI(URI.create(sb.toString()));
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Convenience filter implementation based on checkbox tree selection.
 	 * @author A. Behne

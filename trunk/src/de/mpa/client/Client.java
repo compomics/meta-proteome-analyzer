@@ -46,7 +46,6 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.db.ConnectionType;
 import de.mpa.db.DBConfiguration;
 import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -166,7 +165,7 @@ public class Client {
 		// check whether connection is valid
 		if (conn == null || !conn.isValid(0)) {
 			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration(ConnectionType.REMOTE, connectionParams);
+			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
 			this.conn = dbconfig.getConnection();
 		}
 		return conn;

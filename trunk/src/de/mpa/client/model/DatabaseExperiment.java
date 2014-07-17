@@ -167,7 +167,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 	 * @param hit the search hit implementation
 	 * @param experimentID the experiment ID
 	 */
-	private void addProteinSearchHit(DbSearchResult result, SearchHit hit,
+	public void addProteinSearchHit(DbSearchResult result, SearchHit hit,
 			long experimentID, Connection conn) throws Exception {
 
 		// wrap the search hit in a new PSM

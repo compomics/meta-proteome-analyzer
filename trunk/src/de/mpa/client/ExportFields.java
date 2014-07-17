@@ -83,11 +83,10 @@ public class ExportFields {
 	public boolean taxonomyFamily;
 	public boolean taxonomyGenus;
 	public boolean taxonomySpecies;
+	public boolean taxonomySubspecies;
 	public boolean taxonomySpecificPeptides;
 	public boolean taxonomySpecificSpecCount;
-	
-//	public boolean taxonomyUnspecificPeptides;
-//	public boolean taxonomyUnspecificSpecCount;
+	public boolean taxonomyKronaSpecCount;
 	
 	
 	/**
@@ -161,11 +160,10 @@ public class ExportFields {
 		taxonomyFamily = true;
 		taxonomyGenus = true;
 		taxonomySpecies = true;
+		taxonomySubspecies = true;
 		taxonomySpecificPeptides = true;
 		taxonomySpecificSpecCount = true;
-		
-//		taxonomyUnspecificPeptides	= true; 
-//		taxonomyUnspecificSpecCount	= true; 
+		taxonomyKronaSpecCount= true;
 	}
 
 

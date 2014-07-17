@@ -93,9 +93,6 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 			this.searchHits.put(hit.getType(), hit);
 			this.charge = (int) hit.getCharge();
 		} else {
-			if (Client.isDebug()) {
-				System.err.println("Search hit " + hit + " already contained in PSM " + this);
-			}
 		}
 	}
 
