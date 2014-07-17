@@ -85,7 +85,7 @@ public class Client {
 	/**
 	 * Parameter map containing connection settings.
 	 */
-	private ConnectionParameters connectionParams = new ConnectionParameters();
+	private ConnectionParameters connectionParams;
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -165,6 +165,9 @@ public class Client {
 		// check whether connection is valid
 		if (conn == null || !conn.isValid(0)) {
 			// connect to database
+			if (connectionParams == null) {
+				connectionParams = new ConnectionParameters();
+			}
 			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
 			this.conn = dbconfig.getConnection();
 		}
