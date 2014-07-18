@@ -63,6 +63,7 @@ public class ProjectManager {
 			conn = Client.getInstance().getDatabaseConnection();
 		} catch (SQLException e) {
 			// do nothing
+			e.printStackTrace();
 		}
 		return getInstance(conn);
 	}

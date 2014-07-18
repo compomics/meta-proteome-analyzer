@@ -168,6 +168,7 @@ public class Client {
 			if (connectionParams == null) {
 				connectionParams = new ConnectionParameters();
 			}
+			
 			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
 			this.conn = dbconfig.getConnection();
 		}
