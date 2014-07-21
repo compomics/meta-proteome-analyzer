@@ -13,8 +13,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.Go;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.kegg.Kegg;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
@@ -63,11 +61,11 @@ public class UniprotAccessorTest extends TestCase {
 			
 			// UniprotKO
 			List<DatabaseCrossReference> dcrKO = entry.getDatabaseCrossReferences(DatabaseType.KO);
-			uniprotKO = ((KO) dcrKO.get(0)).getKOIdentifier().getValue();
+			uniprotKO = dcrKO.get(0).getPrimaryId().getValue() + ";";
 			
 			// UniprotKEGG
 			List<DatabaseCrossReference> dcrKegg = entry.getDatabaseCrossReferences(DatabaseType.KEGG);
-			uniprotKegg = ((Kegg) dcrKegg.get(0)).getKeggAccessionNumber().getValue();
+			uniprotKegg = dcrKegg.get(0).getPrimaryId().getValue();
 			
 			// UniprotEC
 			ecNumbers = entry.getProteinDescription().getEcNumbers();

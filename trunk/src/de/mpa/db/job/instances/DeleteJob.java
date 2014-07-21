@@ -23,7 +23,7 @@ public class DeleteJob extends Job {
 	 */
 	private void initJob() {		
 		// Java commands
-		procCommands.add(JobConstants.MAIN_PATH + "clearfolders.sh");
+		procCommands.add(jobProperties.getProperty("path.app") + jobProperties.getProperty("app.clear"));
 		procCommands.trimToSize();		
 		procBuilder = new ProcessBuilder(procCommands);
 		setDescription("CLEAR FOLDERS");

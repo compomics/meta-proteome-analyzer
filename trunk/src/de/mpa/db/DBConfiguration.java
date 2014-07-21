@@ -47,9 +47,9 @@ public class DBConfiguration {
 
 			// Get the password from the JPasswordField
 			String pwText = new String(((JPasswordField) connectionParams.get("dbPass").getValue()).getPassword());
-			
+
 			// Do the connection to the DB
-			conn = DriverManager.getConnection("jdbc:mysql://" + connectionParams.get("dbAddress").getValue().toString().trim() + ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue(), connectionParams.get("dbUsername").getValue().toString(), pwText);
+			conn = DriverManager.getConnection("jdbc:mysql://" + connectionParams.get("dbAddress").getValue().toString().trim() + ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue().toString(), connectionParams.get("dbUsername").getValue().toString(), pwText);
 			
 			// Set auto commit == FALSE --> Manual commit & rollback.
 			conn.setAutoCommit(false);

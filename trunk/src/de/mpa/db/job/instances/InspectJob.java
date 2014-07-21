@@ -17,8 +17,6 @@ public class InspectJob extends Job {
 
 	
 	/* Protease - nonstandard digests are penalized:Options are trypsin, chymotrypsin, lysc, aspn, gluc */
-
-	
 	private File inspectFile;
 	private File inputFile;
 	private File mgfFile;
@@ -42,7 +40,7 @@ public class InspectJob extends Job {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB + ".RS.trie";
 		this.params = params;
-		this.inspectFile = new File(JobConstants.INSPECT_PATH);
+		this.inspectFile = new File(jobProperties.getProperty("path.inspect"));
 		this.precIonTol = precIonTol;
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
 		this.fragIonTol = fragIonTol;
@@ -54,7 +52,7 @@ public class InspectJob extends Job {
 	 * Constructs the input.xml file needed for the Inspect process. 
 	 */
 	private void buildInputFile(){		
-	        inputFile = new File(inspectFile, JobConstants.INSPECT_INPUT_FILE);
+	        inputFile = new File(inspectFile, jobProperties.getProperty("file.input.inspect"));
 	        try {
 	            BufferedWriter bw = new BufferedWriter(new FileWriter(inputFile));
 	            
@@ -65,8 +63,7 @@ public class InspectJob extends Job {
 	        	}else {
 	        		precursorIonTol = "ParentPPM," + Integer.toString((int) precIonTol);
 	        	}
-	            bw.write("spectra," + mgfFile.getAbsolutePath() + "\n"
-		                    + "db," + JobConstants.FASTA_PATH + searchDB + "\n" + 
+	            bw.write("spectra," + mgfFile.getAbsolutePath() + "\n" + "db," + jobProperties.getProperty("path.fasta") + searchDB + "\n" +
 		                    precursorIonTol + "\n" + 
 		                    "IonTolerance," + Double.toString(fragIonTol) + "\n" + 
 		                    params); 
@@ -82,7 +79,7 @@ public class InspectJob extends Job {
 	 */
 	private void initJob() {
 		// Full path to executable.
-		procCommands.add(inspectFile.getAbsolutePath() + "/" + JobConstants.INSPECT_EXE);
+		procCommands.add(inspectFile.getAbsolutePath() + "/" + jobProperties.getProperty("app.inspect"));
 		
 		// Link to the input file.
 		procCommands.add("-i");
@@ -90,8 +87,7 @@ public class InspectJob extends Job {
 			
 		// Link to the output file.
 		procCommands.add("-o");
-		procCommands.add(JobConstants.INSPECT_RAW_OUTPUT_PATH + mgfFile.getName() + ".out");
-		
+		procCommands.add(jobProperties.getProperty("path.inspect.output.raw") + mgfFile.getName() + ".out");
 		procCommands.trimToSize();
 
 		setDescription("INSPECT");
