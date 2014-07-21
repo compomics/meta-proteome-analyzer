@@ -8,6 +8,7 @@ import org.junit.Test;
 
 public class SettingsTest extends TestCase {
 	
+	
 	@Test
 	public void testXTandemParameters() throws IOException {
 		XTandemParameters parameters = new XTandemParameters();
