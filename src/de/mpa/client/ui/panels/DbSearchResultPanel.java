@@ -97,7 +97,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
-import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.FileExperiment;

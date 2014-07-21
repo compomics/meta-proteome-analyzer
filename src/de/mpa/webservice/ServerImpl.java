@@ -33,11 +33,12 @@ import de.mpa.db.job.JobStatus;
 import de.mpa.db.job.SearchType;
 import de.mpa.db.job.instances.CommonJob;
 import de.mpa.db.job.instances.CruxJob;
+import de.mpa.db.job.instances.DeleteJob;
 import de.mpa.db.job.instances.InspectJob;
-import de.mpa.db.job.instances.JobConstants;
+import de.mpa.db.job.instances.InspectProcessingJob;
+import de.mpa.db.job.instances.JobProperties;
 import de.mpa.db.job.instances.OmssaJob;
 import de.mpa.db.job.instances.PercolatorJob;
-import de.mpa.db.job.instances.PostProcessorJob;
 import de.mpa.db.job.instances.RenameJob;
 import de.mpa.db.job.instances.StoreJob;
 import de.mpa.db.job.instances.UniProtJob;
@@ -53,7 +54,6 @@ import de.mpa.io.fasta.FastaLoader;
 @MTOM(enabled = true)
 @WebService(endpointInterface = "de.mpa.webservice.Server")
 public class ServerImpl implements Server {	
-		
 	/**
      * Init the job logger.
      */
@@ -91,7 +91,6 @@ public class ServerImpl implements Server {
 		log.info("Received message: " + msg);
 	}
 
-    // TODO: rewrite message system using listeners or somesuch
 	@Override
 	public String sendMessage() {
 		String msg = msgQueue.poll();
@@ -113,7 +112,8 @@ public class ServerImpl implements Server {
 	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
 		File file = new File(ServerSettings.TRANSFER_PATH + filename);
 		
-		// Get general parameters .
+		// Get general parameters.
+		JobProperties jobProperties = JobProperties.getInstance();
 		String searchDB = dbSearchSettings.getFastaFile();
 		double fragIonTol = dbSearchSettings.getFragmentIonTol();
 		double precIonTol = dbSearchSettings.getPrecursorIonTol();
@@ -122,10 +122,10 @@ public class ServerImpl implements Server {
 		
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
-		fastaLoader.setFastaFile(new File(JobConstants.FASTA_PATH + searchDB  + ".fasta"));
+		fastaLoader.setFastaFile(new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta"));
 
 		try {
-			File indexFile = new File(JobConstants.FASTA_PATH + searchDB  + ".fasta.fb");
+			File indexFile = new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta.fb");
 			if(indexFile.exists()) {
 				fastaLoader.setIndexFile(indexFile);
 				fastaLoader.readIndexFile();
@@ -169,7 +169,7 @@ public class ServerImpl implements Server {
 			// Condition if decoy search is done here
 			if (dbSearchSettings.isDecoy()) {
 				// The Omssa decoy search is added here.
-				Job omssaDecoyJob = new OmssaJob(file, searchDB + JobConstants.SUFFIX_DECOY, dbSearchSettings.getOmssaParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm, SearchType.DECOY);
+				Job omssaDecoyJob = new OmssaJob(file, searchDB + "_decoy", dbSearchSettings.getOmssaParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm, SearchType.DECOY);
 				jobManager.addJob(omssaDecoyJob);
 				
 				// The score job evaluates Omssa target + decoy results.
@@ -190,8 +190,8 @@ public class ServerImpl implements Server {
 			jobManager.addJob(cruxJob);
 			Job percolatorJob = new PercolatorJob(file);
 			jobManager.addJob(percolatorJob);
-			String percolatorfile = JobConstants.CRUX_OUTPUT_PATH + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
-			Job renameJob = new RenameJob(JobConstants.CRUX_OUTPUT_PATH + "percolator.target.psms.txt", percolatorfile);
+			String percolatorfile = jobProperties.getProperty("path.crux.output") + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
+			Job renameJob = new RenameJob(jobProperties.getProperty("path.crux.output") + "percolator.target.psms.txt", percolatorfile);
 			jobManager.addJob(renameJob);
 			jobManager.addJob(new StoreJob(SearchEngineType.CRUX, cruxJob.getFilename()));
 		}
@@ -200,7 +200,7 @@ public class ServerImpl implements Server {
 		if (dbSearchSettings.isInspect()) {
 			Job inspectJob = new InspectJob(file, searchDB, dbSearchSettings.getInspectParams(), precIonTol, isPrecIonTolPpm, fragIonTol);			
 			jobManager.addJob(inspectJob);			
-			Job postProcessorJob = new PostProcessorJob(file, searchDB);			
+			Job postProcessorJob = new InspectProcessingJob(file);			
 			jobManager.addJob(postProcessorJob);			
 			jobManager.addJob(new StoreJob(SearchEngineType.INSPECT, postProcessorJob.getFilename()));
 		}		
@@ -255,7 +255,7 @@ public class ServerImpl implements Server {
 				int i = 1;
 				for (String filename : filenames) {
 					// Store uploaded spectrum files to DB
-					File file = new File(JobConstants.TRANSFER_PATH + filename);
+					File file = new File(JobProperties.getInstance().getProperty("path.transfer") + filename);
 					
 					// Repair spectra
 //					repairSpectra(file, dbManager.getConnection());
@@ -278,7 +278,7 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				// Clear the folders
-//				jobManager.addJob(new DeleteJob());
+				jobManager.addJob(new DeleteJob());
 				jobManager.run();
 			}
 		} catch (Exception e) {

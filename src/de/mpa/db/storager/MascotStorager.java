@@ -25,7 +25,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
 
@@ -294,7 +293,7 @@ public class MascotStorager extends BasicStorager {
 				List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
 				if (xRefs.size() > 0) {
 					for (DatabaseCrossReference xRef : xRefs) {
-						koNumbers += (((KO) xRef).getKOIdentifier().getValue()) + ";";
+						koNumbers += xRef.getPrimaryId().getValue() + ";";
 					}
 					koNumbers = Formatter.removeLastChar(koNumbers);
 				}

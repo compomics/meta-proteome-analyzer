@@ -2,10 +2,10 @@ package de.mpa.analysis;
 
 import java.util.HashSet;
 
+import junit.framework.TestCase;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import junit.framework.TestCase;
 
 /**
  * Test the calculation of string similarity.

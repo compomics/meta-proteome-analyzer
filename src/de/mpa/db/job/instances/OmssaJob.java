@@ -69,11 +69,11 @@ public class OmssaJob extends Job {
 		this.searchType = searchType;
 		
 		if(searchType == SearchType.DECOY){
-			this.filename = JobConstants.OMSSA_OUTPUT_PATH + mgfFile.getName() + "_decoy.omx";
+			this.filename = jobProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_decoy.omx";
 		} else {
-			this.filename = JobConstants.OMSSA_OUTPUT_PATH + mgfFile.getName() + "_target.omx";
+			this.filename = jobProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
 		}
-		this.omssaFile = new File(JobConstants.OMSSA_PATH);
+		this.omssaFile = new File(jobProperties.getProperty("path.omssa"));
 		initJob();
 	}
 	
@@ -83,7 +83,7 @@ public class OmssaJob extends Job {
 	private void initJob(){
 
         // Full path to executable
-        procCommands.add(omssaFile.getAbsolutePath() + "/" + JobConstants.OMSSA_EXE);
+        procCommands.add(omssaFile.getAbsolutePath() + "/" + jobProperties.getProperty("app.omssa"));
         
         // Always ask for spectra included in results file
         procCommands.add("-w");
@@ -121,7 +121,7 @@ public class OmssaJob extends Job {
         
         // Database
         procCommands.add("-d");
-        procCommands.add(JobConstants.FASTA_PATH + searchDB + ".fasta");
+        procCommands.add(jobProperties.getProperty("path.fasta") + searchDB + ".fasta");
         
         // Input MGF file
         procCommands.add("-fm");

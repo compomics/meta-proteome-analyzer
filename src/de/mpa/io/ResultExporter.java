@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -21,7 +20,6 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -33,8 +31,6 @@ import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ProteinTreeTables;
 import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.Spectrum;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and taxonomy results.

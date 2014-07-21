@@ -150,11 +150,6 @@ public class Constants {
 	 */
 	public static final String[] TOLERANCE_UNITS = {"Da", "ppm"};
 	
-	/**
-	 * Path to the database connection settings.
-	 */
-	public static final String DB_CONNECTION_SETTINGS_FILEPATH = "password/DbConnectionSettings.txt";
-	
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
@@ -436,6 +431,7 @@ public class Constants {
 	/**
 	 * Hard-coded backup of the default theme, use when file-based default theme is missing.
 	 */
+	@SuppressWarnings("serial")
 	public static final UITheme DEFAULT_THEME = new UITheme(
 			DEFAULT_THEME_NAME,
 			new Color(195, 212, 232),

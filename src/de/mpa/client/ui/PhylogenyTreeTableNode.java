@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import de.mpa.analysis.taxonomy.TaxonomyNode;

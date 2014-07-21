@@ -18,7 +18,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.db.DBManager;
@@ -106,7 +105,7 @@ public class LinkUniProtToProteinTest {
 						List<DatabaseCrossReference> xRefs = uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO);
 						if (xRefs.size() > 0) {
 							for (DatabaseCrossReference xRef : xRefs) {
-								koNumbers += (((KO) xRef).getKOIdentifier().getValue()) + ";";
+								koNumbers += xRef.getPrimaryId().getValue() + ";";
 							}
 							koNumbers = Formatter.removeLastChar(koNumbers);
 						}
@@ -214,7 +213,7 @@ public class LinkUniProtToProteinTest {
 							.getDatabaseCrossReferences(DatabaseType.KO);
 					if (xRefs.size() > 0) {
 						for (DatabaseCrossReference xRef : xRefs) {
-							koNumbers += (((KO) xRef).getKOIdentifier().getValue()) + ";";
+							koNumbers += xRef.getPrimaryId().getValue() + ";";
 						}
 						koNumbers = Formatter.removeLastChar(koNumbers);
 					}

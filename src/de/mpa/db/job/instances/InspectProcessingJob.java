@@ -5,21 +5,20 @@ import java.util.ArrayList;
 
 import de.mpa.db.job.Job;
 
-public class PostProcessorJob extends Job {
+public class InspectProcessingJob extends Job {
 	
 	private File inspectFile;
 	private String filename;
-
+	
 	/**
-	 * Constructor for the InspectJob.
+	 * Constructor for the InspectProcessingJob.
 	 * 
-	 * @param mgfFile
+	 * @param mgfFile Spectrum file
 	 * @param searchDB
-	 * @param decoy
 	 */
-	public PostProcessorJob(File mgfFile, String searchDB) {
-		this.inspectFile = new File(JobConstants.INSPECT_PATH);
-		filename = JobConstants.INSPECT_PVALUED_OUTPUT_PATH + mgfFile.getName() + ".out";
+	public InspectProcessingJob(File mgfFile) {
+		this.inspectFile = new File(jobProperties.getProperty("path.inspect"));
+		filename = jobProperties.getProperty("path.inspect.output.pvalued") + mgfFile.getName() + ".out";
 		initJob();
 	}
 	
@@ -31,13 +30,12 @@ public class PostProcessorJob extends Job {
 		setDescription("POST-PROCESSING JOB");
 		procCommands = new ArrayList<String>();
 		// Link to the output file.
-		//procCommands.add("sudo");
 		procCommands.add("python");
-		procCommands.add(JobConstants.INSPECT_PATH + "PValue.py");
+		procCommands.add(jobProperties.getProperty("path.inspect") + "PValue.py");
 		procCommands.add("-r");
-		procCommands.add(JobConstants.INSPECT_RAW_OUTPUT_PATH);
+		procCommands.add(jobProperties.getProperty("path.inspect.output.raw"));
 		procCommands.add("-w");
-		procCommands.add(JobConstants.INSPECT_PVALUED_OUTPUT_PATH);
+		procCommands.add(jobProperties.getProperty("path.inspect.output.pvalued"));
 		procCommands.add("-S");
 		procCommands.add("0.5");
 		procCommands.trimToSize();

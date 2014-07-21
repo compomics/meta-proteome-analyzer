@@ -118,11 +118,15 @@ public class OmssaStorager extends BasicStorager {
     	    	if(MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
           	      	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
           		  	
-          	        ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(msHit.MSHits_evalue);
-	              	Double qValue = 1.0;
-	    	    	if (validatedPSMScore != null) {
-	    	    		qValue = validatedPSMScore.getQvalue();
-	    	    	} 
+          	        Double qValue = 1.0;
+    	            Double pep = 1.0;
+        	    	if (validatedPSMScores != null) {
+        	    		 ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(msHit.MSHits_evalue);
+        	    		if (validatedPSMScore != null) {
+        	    	    	qValue = validatedPSMScore.getQvalue();
+        	    	    	pep = validatedPSMScore.getPep();
+        	    	    } 
+        	    	}
 	    	    	
 					if (qValue < 0.1) {
 						hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);
@@ -152,7 +156,7 @@ public class OmssaStorager extends BasicStorager {
 						String accession = header.getAccession();
 						Long proteinID = this.storeProtein(peptideID, accession);
 						hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
-						hitdata.put(OmssahitTableAccessor.PEP, validatedPSMScore.getPep());
+						hitdata.put(OmssahitTableAccessor.PEP, pep);
 						hitdata.put(OmssahitTableAccessor.QVALUE, qValue);
 
 						// Create the database object.
