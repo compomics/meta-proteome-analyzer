@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,6 +74,7 @@ public class SettingsPanel extends JPanel {
 	/**
 	 * Creates the settings panel containing controls for configuring and
 	 * starting database searches.
+	 * @throws IOException 
 	 */
 	public SettingsPanel() {
 		this.initComponents();
@@ -80,6 +82,7 @@ public class SettingsPanel extends JPanel {
 
 	/**
 	 * Initialize the UI components.
+	 * @throws IOException 
 	 */
 	private void initComponents() {
 		

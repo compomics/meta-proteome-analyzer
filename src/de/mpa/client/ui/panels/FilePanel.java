@@ -226,6 +226,7 @@ public class FilePanel extends JPanel implements Busyable {
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
+	 * @throws IOException 
 	 */
 	public FilePanel() {
 		this.initComponents();
@@ -233,6 +234,7 @@ public class FilePanel extends JPanel implements Busyable {
 	
 	/**
 	 * Initializes the UI components.
+	 * @throws IOException 
 	 */
 	private void initComponents() {
 		final ClientFrame clientFrame = ClientFrame.getInstance();
