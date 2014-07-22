@@ -16,7 +16,6 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	
 	private OmssaOmxFile omxFileTarget; 
 	private OmssaOmxFile omxFileDecoy;
-	public List<CustomSearchHit> searchHits;
 	
 	/**
 	 * Accessing the super constructor.
@@ -49,7 +48,6 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 		targetScores = new ArrayList<Double>();
 		decoyScores = new ArrayList<Double>();		
 		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
-		searchHits = new ArrayList<CustomSearchHit>();
 		 // Initialize the spectrum iterators
         HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
@@ -69,8 +67,8 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    }
     	    if (lowestEValue < Double.POSITIVE_INFINITY) {
     	    	targetScores.add(lowestEValue);
-    	     	String spectrumTitle = formatSpectrumTitle(msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString());
-    	    	searchHits.add(new CustomSearchHit(lowestEValue, peptideSequence, spectrumTitle));
+//    	     	String spectrumTitle = formatSpectrumTitle(msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString());
+//    	    	searchHits.add(new CustomSearchHit(lowestEValue, peptideSequence, spectrumTitle));
     	    }
     	    
     	}

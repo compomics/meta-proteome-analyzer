@@ -19,7 +19,6 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 	
 	protected XTandemFile xTandemFileTarget;
 	protected XTandemFile xTandemFileDecoy;
-	public List<CustomSearchHit> searchHits;
 	
 	/**
 	 * Accessing the super constructor.
@@ -60,7 +59,6 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 		// Initialize the score lists
 		targetScores = new ArrayList<Double>();
 		decoyScores = new ArrayList<Double>();
-		searchHits = new ArrayList<CustomSearchHit>();
 		
 		// Prepare everything for the peptides.		
 		PeptideMap targetPepMap = xTandemFileTarget.getPeptideMap();
@@ -88,7 +86,7 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 			}
 			if (bestScore > 0.0) {
 				targetScores.add(bestScore);
-				searchHits.add(new CustomSearchHit(bestScore, peptideSequence, spectrumTitle));
+//				searchHits.add(new CustomSearchHit(bestScore, peptideSequence, spectrumTitle));
 			}
 		}
 		
