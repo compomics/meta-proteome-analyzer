@@ -148,7 +148,7 @@ public class ResultExporter {
 				if (hasFeature[8]) writer.append(proteinHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[10]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[11]) writer.append(proteinHit.getSequence());
+				if (hasFeature[11]) writer.append(proteinHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[12]) {
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
 					for (int i = 0; i < peptideHitList.size(); i++) {
@@ -156,11 +156,9 @@ public class ResultExporter {
 						// Append separater, except the last entry
 						if ((i < peptideHitList.size() - 1)) {
 							writer.append(", ");
+							
 						}
 					}
-					
-					
-					
 					writer.append(Constants.TSV_FILE_SEPARATOR);
 				}
 				writer.newLine();
