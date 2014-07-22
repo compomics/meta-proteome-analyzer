@@ -246,6 +246,7 @@ public class ClientFrame extends JFrame {
 		if (!Client.isViewer()) {
 			// File panel
 			filePnl = new FilePanel();
+			
 //			// Settings Panel
 //			settingsPnl = new SettingsPanel();
 		}

@@ -1,6 +1,6 @@
 
    =============================
-    MetaProteomeAnalyzer Viewer
+    MetaProteomeAnalyzer Client
    =============================
 	
    In order start the application, please make sure that you have Java 1.7 installed.
@@ -8,18 +8,18 @@
    java -version
    
    To start the MetaProteomeAnalyzer Viewer application simply double-click:
-   - mpa-viewer.bat (Windows)
-   - mpa-viewer.sh (Linux)
+   - mpa-client.bat (Windows)
+   - mpa-client.sh (Linux)
    
    For the linux version please make sure to grant executable permission rights:
-   chmod +x mpa-viewer.sh
+   chmod +x mpa-client.sh
 
-   From the command line use 'java -jar mpa-viewer-X.Y.Z.jar'. 
-   (Replace X.Y.Z with the MetaProteomeAnalyzer Viewer version number.)
+   From the command line use 'java -jar mpa-client-X.Y.Z.jar'. 
+   (Replace X.Y.Z with the MetaProteomeAnalyzer Client version number.)
 
    Please make sure to have enough memory on your machine. 2 GB should be enough for the application.
-   The memory can be changed by the -Xmx argument in the mpa-viewer.bat and mpa-viewer.sh file,
-   The default value it set to -Xmx1500m (for 1500 MB RAM) in this case.
+   The memory can be changed by the -Xmx argument in the mpa-client.bat and mpa-client.sh file,
+   The default value is set to -Xmx1500m (for 1500 MB RAM) in this case.
 
    ===============================
     MetaProteomeAnalyzer Web Page

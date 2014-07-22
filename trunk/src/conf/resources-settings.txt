@@ -9,6 +9,7 @@ app.clear=clearfolders.sh
 
 # Path to the FASTA database folder
 path.fasta=/scratch/metaprot/data/fasta/
+files.fasta=uniprot_sprot,uniprot_human,uniprot_trembl,uniprot_archaea,uniprot_sprot_bacteria,human_gut,pyrococcus,qin2010,bact594,human_gut_pyro
 
 # X!Tandem
 path.xtandem=/scratch/metaprot/software/xtandem/bin/

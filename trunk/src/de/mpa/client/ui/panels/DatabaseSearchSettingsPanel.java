@@ -4,6 +4,18 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -35,6 +47,7 @@ import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.main.Starter;
 
 /**
  * Panel containing control components for database search-related settings.
@@ -135,6 +148,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 
 	/**
 	 * The default database search panel constructor.
+	 * @throws IOException 
 	 */
 	public DatabaseSearchSettingsPanel() {
 		this.initComponents();
@@ -142,6 +156,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 
 	/**
 	 * Method to initialize the panel's components.
+	 * @throws IOException 
 	 */
 	private void initComponents() {
 		
@@ -154,8 +169,25 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 												 "0dlu, p, 5dlu"));
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
+		// Load the resources settings via input stream.
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			if (Starter.isJarExport()) {
+				input = new FileInputStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "client-settings.txt");
+			} else {
+				input = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + "client-settings.txt");
+			}
+			prop.load(input);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		String[] items = prop.getProperty("files.fasta").split(",");
+		
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
+		fastaFileCbx = new JComboBox<String>(items);
+		
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, CC.xy(4, 2));
