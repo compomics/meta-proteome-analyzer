@@ -887,7 +887,8 @@ public class FilePanel extends JPanel implements Busyable {
 		Enumeration<? extends TreeTableNode> fileNodes = root.children();
 		while (fileNodes.hasMoreElements()) {
 			TreeTableNode fileNode = fileNodes.nextElement();
-			if (cbtsm.isPathSelected(new TreePath(new Object[] { root, fileNode }), true)) {
+			TreePath path = new TreePath(new Object[] { root, fileNode });
+			if (cbtsm.isPathSelected(path, true) || cbtsm.isPartiallySelected(path)) {
 				Object userObject = fileNode.getUserObject();
 				if (userObject instanceof File) {
 					File spectrumFile = (File) userObject;
