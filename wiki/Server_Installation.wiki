@@ -112,12 +112,12 @@ Note: You need to install a version of BLAST for formatting of the FASTA databas
 
 Installation BLAST:
 _32-bit:_
-wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.28+-ia32-linux.tar.gz 
-tar xvfz ncbi-blast-2.2.28+-ia32-linux.tar.gz
+wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.29+-ia32-linux.tar.gz 
+tar xvfz ncbi-blast-2.2.29+-ia32-linux.tar.gz
 
 _64-bit:_
-wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.28+-x64-linux.tar.gz 
-tar xvfz ncbi-blast-2.2.28+-x64-linux.tar.gz
+wget ftp://ftp.ncbi.nih.gov/blast/executables/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz 
+tar xvfz ncbi-blast-2.2.29+-x64-linux.tar.gz
 
 Folder:
 /scratch/metaprot/software/blast
