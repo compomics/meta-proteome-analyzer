@@ -89,12 +89,14 @@ wget ftp://ftp.thegpm.org/projects/tandem/source/tandem-linux-13-09-01-1.tar.gz
 tar xvfz tandem-linux-13-09-01-1.tar.gz
 
 Note: There are 32-bit and 64-bit versions of X!Tandem available. Please choose the version which is suitable for your system.
+For example, there is a 64-bit folder with static and dynamic builds:
+The best is to pick one of the tandem.exe files and move the file to the main bin folder (e.g. /scratch/metaprot/software/xtandem/bin).
 
 Folder:
 /scratch/metaprot/software/xtandem
 
 Example usage:
-./xtandem.exe input.xml
+./tandem.exe input.xml
 }}}
 
  * OMSSA [ftp://ftp.ncbi.nih.gov/pub/lewisg/omssa/CURRENT/ Link FTP Server]
