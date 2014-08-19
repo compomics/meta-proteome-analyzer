@@ -44,7 +44,7 @@ For the data exchange (received spectra from the client and identification resul
 /scratch/metaprot/data
 }}}
 
-However, it is possible to adjust these folders by the provided server properties file.
+However, it is possible to adjust these folders (and also the file locations) by a provided properties file, see `resources-settings.txt` in the *software/conf* folder.
 
 [#General_Information Go to top of page]
 ----
