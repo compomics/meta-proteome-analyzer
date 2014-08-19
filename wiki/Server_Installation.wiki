@@ -37,8 +37,11 @@ On this page you will find information how to setup the MetaProteomeAnalyzer ser
 
 The default folder structure we used for our *metaprot* server was the following:
 {{{
-/scratch/metaprot/software (The main folder for the bash script *clearfolders.sh* and the main executable *mpa-server-X.Y.Z.jar*)
+/scratch/metaprot/software 
 }}}
+
+This presents the main folder for the bash script *clearfolders.sh* and the main executable *mpa-server-X.Y.Z.jar*. 
+See [#Server_Startup below] for executing the server.
 
 For the data exchange (received spectra from the client and identification result files) we recommend to also use a default like this:
 {{{
