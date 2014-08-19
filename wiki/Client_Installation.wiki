@@ -53,7 +53,7 @@ The client settings are for used only for the selection of the chosen FASTA data
 {{{
 files.fasta=uniprot_sprot
 }}}
-*Important:* For using FASTA databases, the names of the FASTA files should be provided as comma separated list, e.g. uniprot_sprot, uniprot_trembl.
+*Important:* For using multiple FASTA databases, the names of the FASTA files should be provided as comma separated list, e.g. uniprot_sprot, uniprot_trembl.
 
 The names of the FASTA databases will be shown in the client application for selection. Please make sure that the server does contain exactly these FASTA databases and their formatted version (target-decoy and indexed versions).
 
