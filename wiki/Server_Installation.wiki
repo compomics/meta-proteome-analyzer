@@ -1,5 +1,5 @@
+#summary How to install the MetaProteomeAnalyzer on a linux server.
 #labels Featured
- #summary How to install the MetaProteomeAnalyzer on a linux server.
 #sidebar TableOfContents
 
 <table>
