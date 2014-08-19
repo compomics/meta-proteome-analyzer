@@ -64,11 +64,12 @@ The next step is to insert data into the taxonomy table by using the `taxonomy.s
 ----
 ==Connection Settings==
 The file `connection-settings.txt` in the folder *conf* contains the following parameters:
+{{{
 *dbAddress* => The URL of the SQL database, e.g. localhost or an IP address
 *dbName* => The name of the database, the chosen default is *metaprot*
 *dbUsername* => The username for the SQL database access
 *dbPass* => The password for the SQL database access
-
+}}}
 
 *Important:* Please make sure that this file is located in the folder *conf* relaive to the mpa-server-X.Y.Z.jar.
 
