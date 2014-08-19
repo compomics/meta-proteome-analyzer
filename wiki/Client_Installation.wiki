@@ -51,7 +51,7 @@ After downloading the zip file, simply unzip the file and use the provided scrip
 
 Another possiblity is to use the commandline directly:
 {{{
-java -jar mpa-client-X.Y.Z.jar -XmxXXXXm where XXXX stands for maximum assigned memory (in megabytes of RAM)
+java -jar mpa-client-X.Y.Z.jar -XmxXXXXm 
 }}}
-
+-Xmx*XXXX*m stands for maximum assigned memory (in megabytes of RAM)
  
