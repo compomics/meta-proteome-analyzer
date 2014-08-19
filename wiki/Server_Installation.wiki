@@ -63,9 +63,11 @@ After execution 26 tables should have been created.
 
 The next step is to insert data into the taxonomy table by using the `taxonomy.sql` in the *SQL database* folder.
 
-*Note:* Please make sure that the table *taxonomy* in the SQL metaprot database has been successfully filled. You may also need to insert the taxonomy.sql directly via the commandline (instead of PhyMyAdmin), by using the following command within mysql:
+*Note:* Please make sure that the table *taxonomy* in the SQL metaprot database has been successfully filled. 
+*Important:* You may also need to insert the taxonomy.sql directly via the commandline (instead of PhyMyAdmin) due to upload limitations. 
+This taxonomy insert then can be done by using the following command within mysql:
 {{{
-source PATH/taxonomy.sql.
+source PATH/taxonomy.sql
 }}}
 
 [#General_Information Go to top of page]
