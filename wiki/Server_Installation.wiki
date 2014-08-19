@@ -44,7 +44,12 @@ For the data exchange (received spectra from the client and identification resul
 /scratch/metaprot/data
 }}}
 
-However, it is possible to adjust these folders (and also the file locations) by a provided properties file, see `resources-settings.txt` in the *software/conf* folder.
+In more details the transfered spectra from the client are directed to the following folder:
+{{{
+/scratch/metaprot/data/transfer
+}}}
+
+*Important: It is possible to adjust these default folders specifications (and also the file locations) by a provided properties file, see `resources-settings.txt` in the *software/conf* folder.
 
 [#General_Information Go to top of page]
 ----
