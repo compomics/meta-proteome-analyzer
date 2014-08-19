@@ -49,7 +49,7 @@ In more details the transfered spectra from the client are directed to the follo
 /scratch/metaprot/data/transfer
 }}}
 
-*Important:* It is possible to adjust these default folders specifications (and also the file locations) by a provided properties file, see `resources-settings.txt` in the *software/conf* folder.
+*Important:* It is possible to adjust these default folders specifications (and also the file locations) by a provided properties file, see `server-settings.txt` in the *software/conf* folder.
 
 [#General_Information Go to top of page]
 ----
