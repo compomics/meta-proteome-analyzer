@@ -45,6 +45,12 @@ For the data exchange (received spectra from the client and identification resul
 /scratch/metaprot/data
 }}}
 
+For each of the algorithms (see below), there should be an output folder created, such as:
+{{{
+/scratch/metaprot/data/output/xtandem (For X!Tandem)
+/scratch/metaprot/data/output/omssa (For OMSSA)
+}}}
+
 In more details the transfered spectra from the client are directed to the following folder:
 {{{
 /scratch/metaprot/data/transfer
