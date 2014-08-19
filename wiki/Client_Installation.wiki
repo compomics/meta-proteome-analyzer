@@ -8,6 +8,7 @@
  * [#General_Information General Information]
  * [#System_Requirements System Requirements]
  * [#Connection_Settings Connection Settings]
+ * [#Client_Settings Client Settings]
  * [#Client_Startup Client Startup]
     </td>
   </tr>
@@ -44,6 +45,17 @@ The file `connection-settings.txt` in the folder *conf* contains the following p
 }}}
 
 *Important:* Please make sure that this file is located in the folder *conf* relative to the mpa-client-X.Y.Z.jar.
+
+[#General_Information Go to top of page]
+----
+==Client Settings==
+The client settings are for used only for the selection of the chosen FASTA database(s). For example, when using a the SwissProt database, the following should be inserted here:
+{{{
+files.fasta=uniprot_sprot
+}}}
+*Important:* For using FASTA databases, the names of the FASTA files should be provided as comma separated list, e.g. uniprot_sprot, uniprot_trembl.
+
+The names of the FASTA databases will be shown in the client application for selection. Please make sure that the server does contain exactly these FASTA databases and their formatted version (target-decoy and indexed versions).
 
 [#General_Information Go to top of page]
 ----
