@@ -37,7 +37,7 @@ On this page you will find information how to setup the MetaProteomeAnalyzer ser
 
 The default folder structure we used for our *metaprot* server was the following:
 {{{
-/scratch/metaprot/software (The main folder for the bash scripts and the mpa-server-X.Y.Z.jar)
+/scratch/metaprot/software (The main folder for the bash script *clearfolders.sh* and the main executable *mpa-server-X.Y.Z.jar*)
 }}}
 
 For the data exchange (received spectra from the client and identification result files) we recommend to also use a default like this:
@@ -45,7 +45,7 @@ For the data exchange (received spectra from the client and identification resul
 /scratch/metaprot/data
 }}}
 
-For each of the algorithms (see below), there should be an output folder created, such as:
+For each of the algorithms (see below), there should be an output folder created, as follows:
 {{{
 /scratch/metaprot/data/output/xtandem (For X!Tandem)
 /scratch/metaprot/data/output/omssa (For OMSSA)
