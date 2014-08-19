@@ -9,6 +9,7 @@
  * [#System_Requirements System Requirements]
  * [#SQL_Database_Setup SQL Database Setup]
  * [#Algorithms_Installation Algorithms Installation]
+ * [#FDR_Estimation FDR Estimation]
  * [#FASTA_Database_Formatting FASTA Database Formatting]
  * [#Server_Startup Server Startup]
     </td>
@@ -176,7 +177,7 @@ Folder:
 
 [#General_Information Go to top of page]
 ----
-==FDR Estimation (Qvality Installation) == 
+==FDR Estimation== 
 
 In order to the perform a reliable FDR estimation via the target-decoy approach, the software QVality (Kaell et al.) is used in the MPA pipeline. Therefore, the Percolator needs to be whole Percolator package needs to be installed.
 
@@ -216,9 +217,9 @@ Note: Please edit the script to your demands, e.g. by omitting certain search en
 [#General_Information Go to top of page]
 ----
 ==Server Startup==
-Move the scripts `clearfolders.sh` and `startserver.sh` from the folder *scripts* (from the mpa-server zipfile) to the default software folder (e.g. /scratch/metaprot/software).
+Make sure that the script `clearfolders.sh` from the folder (from the mpa-server zipfile) is also located the default software folder (e.g. /scratch/metaprot/software) next to the mpa-server application.
 
-Finally, in this folder the server can be started via a startup script `startserver.sh` or the following command:
+The server application can be started within the software folder using the following command:
 {{{
 nohup java -jar mpa-server-X.Y.Z.jar -XmxXXXXm where XXXX stands for maximum assigned memory (in megabytes of RAM)
 }}}
