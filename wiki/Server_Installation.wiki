@@ -125,7 +125,7 @@ Folder:
 /scratch/metaprot/software/blast
 }}}
 
- * Crux (Not recommended) [http://noble.gs.washington.edu/proj/crux/ Link to website]
+ * Crux (Installation not recommended) [http://noble.gs.washington.edu/proj/crux/ Link to website]
 {{{
 Installation:
 _32-bit:_
@@ -145,7 +145,7 @@ Folder:
 An example of a default parameters file can be found [http://noble.gs.washington.edu/proj/crux/default.params here (default.params)].
 
 
- * Inspect (Not recommended) [http://proteomics.ucsd.edu/Software/Inspect.html Link to website]
+ * Inspect (Installation not recommended) [http://proteomics.ucsd.edu/Software/Inspect.html Link to website]
 {{{
 Installation:
 wget http://proteomics.ucsd.edu/Downloads/Inspect.20120109.zip
