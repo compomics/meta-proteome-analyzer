@@ -2,8 +2,20 @@
 #labels Featured
 #sidebar TableOfContents
 
-== Client Installation ==
+<table>
+  <tr>
+    <td width="70%">
+ * [#General_Information General Information]
+ * [#System_Requirements System Requirements]
+ * [#SQL_Database_Setup SQL Database Setup]
+ * [#Algorithms_Installation Algorithms Installation]
+ * [#FASTA_Database_Formatting FASTA Database Formatting]
+ * [#Server_Startup Server Startup]
+    </td>
+  </tr>
+</table>
 
+== General Information ==
 Before installing MetaProteomeAnalyzer, please make sure that you have Java 1.7 installed. To check the currently installed java version, open a console/bash window and type:
 
 `java –version`
