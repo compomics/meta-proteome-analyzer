@@ -80,6 +80,7 @@ Note: If you have any trouble with setting up the MySQL database, please contact
 ==Algorithms Installation==
 
 Please note that the installation instructions may not be up-to-date. Please visit the websites of the search engine algorithms to get the latest versions and further installation details.
+*Important: We recommend using only X!Tandem and OMSSA for the searches. Crux may not produce reliable results and InSpect may run for a long time. Therefore, the installation of Crux and InSpect can be omitted.
 
  * X!Tandem [http://www.thegpm.org/tandem/ Link to website]
 {{{
@@ -124,7 +125,7 @@ Folder:
 /scratch/metaprot/software/blast
 }}}
 
- * Crux [http://noble.gs.washington.edu/proj/crux/ Link to website]
+ * Crux (Not recommended) [http://noble.gs.washington.edu/proj/crux/ Link to website]
 {{{
 Installation:
 _32-bit:_
@@ -144,7 +145,7 @@ Folder:
 An example of a default parameters file can be found [http://noble.gs.washington.edu/proj/crux/default.params here (default.params)].
 
 
- * Inspect [http://proteomics.ucsd.edu/Software/Inspect.html Link to website]
+ * Inspect (Not recommended) [http://proteomics.ucsd.edu/Software/Inspect.html Link to website]
 {{{
 Installation:
 wget http://proteomics.ucsd.edu/Downloads/Inspect.20120109.zip
@@ -171,7 +172,7 @@ The FASTA databases (e.g. uniprot_sprot.fasta) should be provided to the default
 }}}
 
 *Important:*
-If you have your FASTA file(s) in place, copy the following files and directories from the folder *FASTA* (from the mpa-server zipfile) to the  FASTA database folder (see above):
+When you have your FASTA file(s) in place, copy the following files and directories from the folder *fasta* (from the mpa-server zipfile) to the FASTA database folder (see above):
  * `indexfasta.jar`
  * `fastaformat.sh`
  * `DBTools` (+ subdirectories)
@@ -182,7 +183,7 @@ The actual FASTA formatting in then executing by the following command
 Important: Please note that the file ending *.fasta must be omitted here!
 }}}
 
-Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms.
+Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms, e.g. Crux and InSpect are omitted by default.
 
 [#General_Information Go to top of page]
 ----
