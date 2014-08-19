@@ -223,7 +223,8 @@ Note: Please edit the script to your demands, e.g. by omitting certain search en
 [#General_Information Go to top of page]
 ----
 ==Server Startup==
-Make sure that the script `clearfolders.sh` from the folder (from the mpa-server zipfile) is also located the default software folder (e.g. /scratch/metaprot/software) next to the mpa-server application.
+Make sure that the script `clearfolders.sh` from the folder (from the mpa-server zipfile) is also located in the default software folder (e.g. /scratch/metaprot/software) next to the mpa-server application.
+*Important:* This script needs to have execution rights and should contain the correct locations of the output folders.
 
 The server application can be started within the software folder using the following command:
 {{{
