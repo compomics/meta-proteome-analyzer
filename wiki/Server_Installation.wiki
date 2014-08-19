@@ -167,7 +167,23 @@ apt-get install python-numpy (Ubuntu)
 Folder:
 /scratch/metaprot/software/inspect
 }}}
- 
+
+[#General_Information Go to top of page]
+----
+==FDR Estimation (Qvality Installation) == 
+
+In order to the perform a reliable FDR estimation via the target-decoy approach, the software QVality (Kaell et al.) is used in the MPA pipeline. Therefore, the Percolator needs to be whole Percolator package needs to be installed.
+
+{{{
+Installation:
+wget http://sourceforge.net/projects/percolator/files/v2-08-01/percolator-v2-08-01-linux-amd64.deb
+
+sudo dkgp -i percolator-v2-08-01-linux-amd64.deb
+
+Default folder:
+/usr/bin/qvality (installed globally)
+}}}
+
 [#General_Information Go to top of page]
 ----
 ==FASTA Database Formatting==
