@@ -1,5 +1,5 @@
-#summary How to install the MetaProteomeAnalyzer on a linux server.
 #labels Featured
+ #summary How to install the MetaProteomeAnalyzer on a linux server.
 #sidebar TableOfContents
 
 <table>
@@ -49,7 +49,7 @@ In more details the transfered spectra from the client are directed to the follo
 /scratch/metaprot/data/transfer
 }}}
 
-*Important: It is possible to adjust these default folders specifications (and also the file locations) by a provided properties file, see `resources-settings.txt` in the *software/conf* folder.
+*Important:* It is possible to adjust these default folders specifications (and also the file locations) by a provided properties file, see `resources-settings.txt` in the *software/conf* folder.
 
 [#General_Information Go to top of page]
 ----
@@ -64,6 +64,7 @@ After execution 26 tables should have been created.
 The next step is to insert data into the taxonomy table by using the `taxonomy.sql` in the *SQL database* folder.
 
 *Note:* Please make sure that the table *taxonomy* in the SQL metaprot database has been successfully filled. 
+
 *Important:* You may also need to insert the taxonomy.sql directly via the commandline (instead of PhyMyAdmin) due to upload limitations. 
 This taxonomy insert then can be done by using the following command within mysql:
 {{{
@@ -206,7 +207,8 @@ The actual FASTA formatting in then executing by the following command
 {{{
 ./fastaformat.sh uniprot_sprot (Execution rights needed)
 }}}
-*Important:* Please note that the file ending *.fasta must be omitted here!
+*Important:* Please note that the file ending *.fasta* must be omitted here!
+
 *Note:* The fastaformat.sh script contains the default locations of the algorithms, please adjust them accordingly. Otherwise the FASTA database formatting will not work.
 
 Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms, e.g. Crux and InSpect are omitted by default.
