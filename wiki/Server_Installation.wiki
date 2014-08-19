@@ -199,9 +199,9 @@ The FASTA databases (e.g. uniprot_sprot.fasta) should be provided to the default
 }}}
 
 When you have your FASTA file(s) in place, copy the following files and directories from the folder *fasta* (from the mpa-server zipfile) to the FASTA database folder (see above):
- * `indexfasta.jar`
- * `fastaformat.sh`
- * `DBTools` (+ subdirectories)
+ * `indexfasta.jar` => MPA Indexing of the FASTA file
+ * `DBTools` (+ subdirectories) => Decoy generation of the FASTA file
+ * `fastaformat.sh` => Script used to execute the whole formatting process
 
 The actual FASTA formatting in then executing by the following command
 {{{
