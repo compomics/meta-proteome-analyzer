@@ -28,9 +28,9 @@ On this page you will find information how to setup the MetaProteomeAnalyzer ser
 ==System Requirements==
 
  * Linux/Ubuntu system (preferably)
- * MySQL database 
+ * MySQL database (InnoDB preferably)
  * Minimum 2 GB RAM
- * Fast 64-bit machine (though 32-bit is working as well)
+ * Fast 64-bit machine (though 32-bit works as well)
 
 *System folders:*
 
@@ -49,28 +49,28 @@ However, it is possible to adjust these folders by the provided server propertie
 [#General_Information Go to top of page]
 ----
 ==SQL Database Setup==
-Make sure you have a ready MySQL server running and create the table *metaprot*.
-Then execute the provided SQL structure script called `metaprot.sql` from the folder *SQL database* (in the unzipped mpa-server folder structure).
+Make sure you have a ready MySQL server running. We recommend the tool *PhpMyAdmin* in order to interact with the MySQL via the browser.
+
+The first step is to create the database *metaprot*.
+Then please execute the provided SQL structure script called `metaprot.sql` from the folder *sql database* (in the unzipped mpa-server folder structure).
 
 After execution 26 tables should have been created.
 
-The next step is to insert data into the taxonomy table by using the script `inserttaxa.sh` in the *SQL database* folder.
-
-In this folder the following files are also provided:
- * `names.dmp`
- * `nodes.dmp`
- * `indextaxonomy.jar`
-
-*Important:* Please copy the `DbConnectionSettings.txt` into this folder.
+The next step is to insert data into the taxonomy table by using the `taxonomy.sql` in the *SQL database* folder.
 
 *Note:* Please make sure that the table *taxonomy* in the SQL metaprot database has been successfully filled.
 
-Finally, you need to adjust your MySQL user name and password in the `DbConnectionSettings.txt` file and move this file to the 
-default password folder:
-{{{
-/scratch/metaprot/software/password 
-}}}
-*Important:* The password folder should be located in the software folder where mpa-server-X.Y.Z.jar is being executed.
+[#General_Information Go to top of page]
+----
+==Connection Settings==
+The file `connection-settings.txt` in the folder *conf* contains the following parameters:
+*dbAddress* => The URL of the SQL database, e.g. localhost or an IP address
+*dbName* => The name of the database, the chosen default is *metaprot*
+*dbUsername* => The username for the SQL database access
+*dbPass* => The password for the SQL database access
+
+
+*Important:* Please make sure that this file is located in the folder *conf* relaive to the mpa-server-X.Y.Z.jar.
 
 Note: If you have any trouble with setting up the MySQL database, please contact your local system administrator.
 
