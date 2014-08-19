@@ -15,8 +15,9 @@
 
 == General Information ==
 Before installing MetaProteomeAnalyzer, please make sure that you have Java 1.7 installed. To check the currently installed java version, open a console/bash window and type:
-
-`java –version`
+{{{
+java –version
+}}}
 
 If you haven't installed Java 1.7, go directly to
 [http://www.java.com/download/ Java.com] to download a proper version of Java.
@@ -53,5 +54,5 @@ Another possiblity is to use the commandline directly:
 {{{
 java -jar mpa-client-X.Y.Z.jar -XmxXXXXm 
 }}}
--Xmx*XXXX*m stands for maximum assigned memory (in megabytes of RAM)
+*Note:* -Xmx*XXXX*m stands for maximum assigned memory (in megabytes of RAM)
  
