@@ -206,7 +206,8 @@ When you have your FASTA file(s) in place, copy the following files and director
 The actual FASTA formatting in then executing by the following command
 {{{
 ./fastaformat.sh uniprot_sprot 
-Important: Please note that the file ending *.fasta must be omitted here!
+*Important:* Please note that the file ending *.fasta must be omitted here!
+*Note:* The fastaformat.sh script contains the default locations of the algorithms, please adjust them accordingly. Otherwise the FASTA database formatting will not work.
 }}}
 
 Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms, e.g. Crux and InSpect are omitted by default.
