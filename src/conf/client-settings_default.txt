@@ -1,0 +1,2 @@
+# FASTA Databases
+files.fasta=uniprot_sprot

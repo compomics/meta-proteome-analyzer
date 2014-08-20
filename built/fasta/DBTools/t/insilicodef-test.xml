@@ -1,0 +1,1587 @@
+<inSilicoDefinitions>
+  <elements>
+    <oneElement symbol="H" name="Hydrogen" atomicNumber="1">
+      <mass monoisotopic="1.007825" average="1.00797594155"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="1.007825" abundance="99.985"/>
+        <oneIsotope plus="1" mass="2.014102" abundance="0.015"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="He" name="Helium" atomicNumber="3">
+      <mass monoisotopic="3.016029" average="4.0026016187964"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="3.016029" abundance=".00014"/>
+        <oneIsotope plus="1" mass="4.002603" abundance="99.99986"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Li" name="Lithium" atomicNumber="6">
+      <mass monoisotopic="6.015123" average="6.9417395556"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="6.015123" abundance="7.42"/>
+        <oneIsotope plus="1" mass="7.016005" abundance="92.58"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Be" name="Beryllium" atomicNumber="9">
+      <mass monoisotopic="9.012183" average="9.012183"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="9.012183" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="B" name="Boron" atomicNumber="10">
+      <mass monoisotopic="10.012938" average="10.812024334"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="10.012938" abundance="19.80"/>
+        <oneIsotope plus="1" mass="11.009305" abundance="80.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="C" name="Carbon" atomicNumber="12">
+      <mass monoisotopic="12.000000" average="12.011036905"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="12.000000" abundance="98.90"/>
+        <oneIsotope plus="1" mass="13.003355" abundance="1.10"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="N" name="Nitrogen" atomicNumber="14">
+      <mass monoisotopic="14.003074" average="14.0067630295"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="14.003074" abundance="99.63"/>
+        <oneIsotope plus="1" mass="15.000109" abundance="0.37"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="O" name="Oxygen" atomicNumber="16">
+      <mass monoisotopic="15.994915" average="15.99930509008"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="15.994915" abundance="99.762"/>
+        <oneIsotope plus="1" mass="16.999131" abundance="0.038"/>
+        <oneIsotope plus="2" mass="17.999159" abundance="0.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="F" name="Fluorine" atomicNumber="19">
+      <mass monoisotopic="18.998403" average="18.998403"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="18.998403" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ne" name="Neon" atomicNumber="20">
+      <mass monoisotopic="19.992439" average="20.1789455956"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="19.992439" abundance="90.54"/>
+        <oneIsotope plus="1" mass="20.993845" abundance="0.26"/>
+        <oneIsotope plus="2" mass="21.991384" abundance="9.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Na" name="Sodium" atomicNumber="23">
+      <mass monoisotopic="22.989770" average="22.98977"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="22.989770" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Mg" name="Magnesium" atomicNumber="24">
+      <mass monoisotopic="23.985045" average="24.30685245"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="23.985045" abundance="78.90"/>
+        <oneIsotope plus="1" mass="24.985839" abundance="10.00"/>
+        <oneIsotope plus="2" mass="25.982595" abundance="11.10"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Al" name="Aluminum" atomicNumber="27">
+      <mass monoisotopic="26.981541" average="26.981541"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="26.981541" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Si" name="Silicon" atomicNumber="28">
+      <mass monoisotopic="27.976928" average="28.0855099896"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="27.976928" abundance="92.23"/>
+        <oneIsotope plus="1" mass="28.976496" abundance="4.67"/>
+        <oneIsotope plus="2" mass="29.973772" abundance="3.10"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="P" name="Phosphorus" atomicNumber="31">
+      <mass monoisotopic="30.973763" average="30.973763"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="30.973763" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="S" name="Sulfur" atomicNumber="32">
+      <mass monoisotopic="31.972072" average="32.0643894155"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="31.972072" abundance="95.02"/>
+        <oneIsotope plus="1" mass="32.971459" abundance="0.75"/>
+        <oneIsotope plus="2" mass="33.967868" abundance="4.21"/>
+        <oneIsotope plus="4" mass="35.967079" abundance="0.020"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Cl" name="Chlorine" atomicNumber="35">
+      <mass monoisotopic="34.968853" average="35.452738215"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="34.968853" abundance="75.77"/>
+        <oneIsotope plus="2" mass="36.965903" abundance="24.23"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ar" name="Argon" atomicNumber="36">
+      <mass monoisotopic="35.967546" average="39.94754077407"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="35.967546" abundance="0.34"/>
+        <oneIsotope plus="2" mass="37.962732" abundance="0.063"/>
+        <oneIsotope plus="4" mass="39.962383" abundance="99.597"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="K" name="Potassium" atomicNumber="39">
+      <mass monoisotopic="38.963708" average="39.09830130902"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="38.963708" abundance="93.258"/>
+        <oneIsotope plus="1" mass="39.963999" abundance="0.012"/>
+        <oneIsotope plus="2" mass="40.961825" abundance="6.73"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ca" name="Calcium" atomicNumber="40">
+      <mass monoisotopic="39.962591" average="40.07847215276"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="39.962591" abundance="96.93"/>
+        <oneIsotope plus="2" mass="41.958622" abundance="0.65"/>
+        <oneIsotope plus="3" mass="42.958770" abundance="0.14"/>
+        <oneIsotope plus="4" mass="43.955485" abundance="2.086"/>
+        <oneIsotope plus="6" mass="45.953689" abundance="0.004"/>
+        <oneIsotope plus="8" mass="47.952532" abundance="0.19"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Sc" name="Scandium" atomicNumber="45">
+      <mass monoisotopic="44.955914" average="44.955914"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="44.955914" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ti" name="Titanium" atomicNumber="46">
+      <mass monoisotopic="45.952633" average="47.87842572"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="45.952633" abundance="8.00"/>
+        <oneIsotope plus="1" mass="46.951765" abundance="7.30"/>
+        <oneIsotope plus="2" mass="47.947947" abundance="73.80"/>
+        <oneIsotope plus="3" mass="48.947871" abundance="5.50"/>
+        <oneIsotope plus="4" mass="49.944786" abundance="5.40"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="V" name="Vanadium" atomicNumber="50">
+      <mass monoisotopic="49.947161" average="50.941470995"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="49.947161" abundance="0.25"/>
+        <oneIsotope plus="1" mass="50.943963" abundance="99.75"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Cr" name="Chromium" atomicNumber="50">
+      <mass monoisotopic="49.946046" average="51.9959257902"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="49.946046" abundance="4.35"/>
+        <oneIsotope plus="2" mass="51.940510" abundance="83.79"/>
+        <oneIsotope plus="3" mass="52.940651" abundance="9.50"/>
+        <oneIsotope plus="4" mass="53.938882" abundance="2.36Manganese"/>
+        <oneIsotope plus="5" mass="54.938046" abundance="0"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Fe" name="Iron" atomicNumber="54">
+      <mass monoisotopic="53.939612" average="55.8468154372"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="53.939612" abundance="5.80"/>
+        <oneIsotope plus="2" mass="55.934939" abundance="91.72"/>
+        <oneIsotope plus="3" mass="56.935396" abundance="2.20"/>
+        <oneIsotope plus="4" mass="57.933278" abundance="0.28"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Co" name="Cobalt" atomicNumber="59">
+      <mass monoisotopic="58.933198" average="58.933198"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="58.933198" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ni" name="Nickel" atomicNumber="58">
+      <mass monoisotopic="57.935347" average="58.6878904228"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="57.935347" abundance="68.27"/>
+        <oneIsotope plus="2" mass="59.930789" abundance="26.10"/>
+        <oneIsotope plus="3" mass="60.931059" abundance="1.13"/>
+        <oneIsotope plus="4" mass="61.928346" abundance="3.59"/>
+        <oneIsotope plus="6" mass="63.927968" abundance="0.91"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Cu" name="Copper" atomicNumber="63">
+      <mass monoisotopic="62.929599" average="63.5456419019"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="62.929599" abundance="69.17"/>
+        <oneIsotope plus="2" mass="64.927792" abundance="30.83"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Zn" name="Zinc" atomicNumber="64">
+      <mass monoisotopic="63.929145" average="65.396363522"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="63.929145" abundance="48.6"/>
+        <oneIsotope plus="2" mass="65.926035" abundance="27.90"/>
+        <oneIsotope plus="3" mass="66.927129" abundance="4.10"/>
+        <oneIsotope plus="4" mass="67.924846" abundance="18.80"/>
+        <oneIsotope plus="6" mass="69.925325" abundance="0.60"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ga" name="Gallium" atomicNumber="69">
+      <mass monoisotopic="68.925581" average="69.72322988"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="68.925581" abundance="60.10"/>
+        <oneIsotope plus="2" mass="70.924701" abundance="39.90"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ge" name="Germanium" atomicNumber="70">
+      <mass monoisotopic="69.924250" average="72.632251131"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="69.924250" abundance="20.50"/>
+        <oneIsotope plus="2" mass="71.922080" abundance="27.40"/>
+        <oneIsotope plus="3" mass="72.923464" abundance="7.80"/>
+        <oneIsotope plus="4" mass="73.921179" abundance="36.5"/>
+        <oneIsotope plus="6" mass="75.921403" abundance="7.80"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="As" name="Arsenic" atomicNumber="75">
+      <mass monoisotopic="74.921596" average="74.921596"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="74.921596" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Se" name="Selenium" atomicNumber="74">
+      <mass monoisotopic="73.922477" average="78.993275433"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="73.922477" abundance="0.90"/>
+        <oneIsotope plus="2" mass="75.919207" abundance="9.00"/>
+        <oneIsotope plus="3" mass="76.919908" abundance="7.60"/>
+        <oneIsotope plus="4" mass="77.917304" abundance="23.50"/>
+        <oneIsotope plus="6" mass="79.916521" abundance="49.60"/>
+        <oneIsotope plus="8" mass="81.916709" abundance="9.40"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Br" name="Bromine" atomicNumber="79">
+      <mass monoisotopic="78.918336" average="79.9035271174"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="78.918336" abundance="50.69"/>
+        <oneIsotope plus="2" mass="80.916290" abundance="49.31"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Kr" name="Krypton" atomicNumber="78">
+      <mass monoisotopic="77.920397" average="83.800023907"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="77.920397" abundance="0.35"/>
+        <oneIsotope plus="2" mass="79.916375" abundance="2.25"/>
+        <oneIsotope plus="4" mass="81.913483" abundance="11.60"/>
+        <oneIsotope plus="5" mass="82.914134" abundance="11.50"/>
+        <oneIsotope plus="6" mass="83.911506" abundance="57.00"/>
+        <oneIsotope plus="8" mass="85.910614" abundance="17.30"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Rb" name="Rubidium" atomicNumber="85">
+      <mass monoisotopic="84.911800" average="85.4678717056"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="84.911800" abundance="72.16"/>
+        <oneIsotope plus="2" mass="86.909184" abundance="27.84"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Sr" name="Strontium" atomicNumber="84">
+      <mass monoisotopic="83.913428" average="87.6166577796"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="83.913428" abundance="0.56"/>
+        <oneIsotope plus="2" mass="85.909273" abundance="9.86"/>
+        <oneIsotope plus="3" mass="86.908902" abundance="7.00"/>
+        <oneIsotope plus="4" mass="87.905625" abundance="82.58"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Y" name="Yttrium" atomicNumber="89">
+      <mass monoisotopic="88.905856" average="88.905856"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="88.905856" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Zr" name="Zirconium" atomicNumber="90">
+      <mass monoisotopic="89.904708" average="91.2213485854"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="89.904708" abundance="51.45"/>
+        <oneIsotope plus="1" mass="90.905644" abundance="11.27"/>
+        <oneIsotope plus="2" mass="91.905039" abundance="17.17"/>
+        <oneIsotope plus="4" mass="93.906319" abundance="17.33"/>
+        <oneIsotope plus="6" mass="95.908272" abundance="2.78"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Nb" name="Niobium" atomicNumber="93">
+      <mass monoisotopic="92.906378" average="92.906378"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="92.906378" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Mo" name="Molybdenum" atomicNumber="92">
+      <mass monoisotopic="91.906809" average="95.9312888724"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="91.906809" abundance="14.84"/>
+        <oneIsotope plus="2" mass="93.905086" abundance="9.25"/>
+        <oneIsotope plus="3" mass="94.905838" abundance="15.92"/>
+        <oneIsotope plus="4" mass="95.904676" abundance="16.68"/>
+        <oneIsotope plus="5" mass="96.906018" abundance="9.55"/>
+        <oneIsotope plus="6" mass="97.905405" abundance="24.13"/>
+        <oneIsotope plus="8" mass="99.907473" abundance="9.63"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ru" name="Ruthenium" atomicNumber="96">
+      <mass monoisotopic="95.907596" average="101.0697382858"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="95.907596" abundance="5.52"/>
+        <oneIsotope plus="2" mass="97.905287" abundance="1.88"/>
+        <oneIsotope plus="3" mass="98.905937" abundance="12.70"/>
+        <oneIsotope plus="4" mass="99.904218" abundance="12.60"/>
+        <oneIsotope plus="5" mass="100.905581" abundance="17.00"/>
+        <oneIsotope plus="6" mass="101.90434" abundance="31.60"/>
+        <oneIsotope plus="8" mass="103.905422" abundance="18.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Rh" name="Rhodium" atomicNumber="103">
+      <mass monoisotopic="102.905503" average="102.905503"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="102.905503" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Pd" name="Palladium" atomicNumber="102">
+      <mass monoisotopic="101.905609" average="106.4153248324"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="101.905609" abundance="1.02"/>
+        <oneIsotope plus="2" mass="103.904026" abundance="11.14"/>
+        <oneIsotope plus="3" mass="104.905075" abundance="22.33"/>
+        <oneIsotope plus="4" mass="105.903475" abundance="27.33"/>
+        <oneIsotope plus="6" mass="107.903894" abundance="26.46"/>
+        <oneIsotope plus="8" mass="109.905169" abundance="11.72"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ag" name="Silver" atomicNumber="107">
+      <mass monoisotopic="106.905095" average="107.8681307744"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="106.905095" abundance="51.84"/>
+        <oneIsotope plus="2" mass="108.904754" abundance="48.16"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Cd" name="Cadmium" atomicNumber="106">
+      <mass monoisotopic="105.906461" average="112.4649475667"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="105.906461" abundance="1.25"/>
+        <oneIsotope plus="4" mass="109.903007" abundance="12.49"/>
+        <oneIsotope plus="5" mass="110.904182" abundance="12.80"/>
+        <oneIsotope plus="6" mass="111.902761" abundance="24.13"/>
+        <oneIsotope plus="7" mass="112.904401" abundance="12.22"/>
+        <oneIsotope plus="8" mass="113.903361" abundance="29.62"/>
+        <oneIsotope plus="10" mass="115.904758" abundance="7.49"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="In" name="Indium" atomicNumber="113">
+      <mass monoisotopic="112.904056" average="114.817882783"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="112.904056" abundance="4.30"/>
+        <oneIsotope plus="2" mass="114.903875" abundance="95.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Sn" name="Tin" atomicNumber="112">
+      <mass monoisotopic="111.904826" average="118.6928044788"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="111.904826" abundance="0.97"/>
+        <oneIsotope plus="2" mass="113.902784" abundance="0.65"/>
+        <oneIsotope plus="3" mass="114.903348" abundance="0.36"/>
+        <oneIsotope plus="4" mass="115.901744" abundance="14.70"/>
+        <oneIsotope plus="5" mass="116.902954" abundance="7.70"/>
+        <oneIsotope plus="6" mass="117.901607" abundance="24.30"/>
+        <oneIsotope plus="7" mass="118.903310" abundance="8.60"/>
+        <oneIsotope plus="8" mass="119.902199" abundance="32.52"/>
+        <oneIsotope plus="10" mass="121.903440" abundance="4.60"/>
+        <oneIsotope plus="12" mass="123.905271" abundance="5.60"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Sb" name="Antimony" atomicNumber="121">
+      <mass monoisotopic="120.903824" average="121.757993946"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="120.903824" abundance="57.30"/>
+        <oneIsotope plus="2" mass="122.904222" abundance="42.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Te" name="Tellurium" atomicNumber="122">
+      <mass monoisotopic="121.903055" average="127.5950240785"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="121.903055" abundance="2.60"/>
+        <oneIsotope plus="1" mass="122.904278" abundance="0.91"/>
+        <oneIsotope plus="2" mass="123.902825" abundance="4.82"/>
+        <oneIsotope plus="3" mass="124.904435" abundance="7.14"/>
+        <oneIsotope plus="4" mass="125.903310" abundance="18.95"/>
+        <oneIsotope plus="6" mass="127.904464" abundance="31.69"/>
+        <oneIsotope plus="8" mass="129.906229" abundance="33.89"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="I" name="Iodine" atomicNumber="127">
+      <mass monoisotopic="126.904477" average="126.904477"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="126.904477" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Xe" name="Xenon" atomicNumber="124">
+      <mass monoisotopic="123.905894" average="131.293078514"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="123.905894" abundance="0.10"/>
+        <oneIsotope plus="2" mass="125.904281" abundance="0.09"/>
+        <oneIsotope plus="4" mass="127.903531" abundance="1.91"/>
+        <oneIsotope plus="5" mass="128.904780" abundance="26.40"/>
+        <oneIsotope plus="6" mass="129.903510" abundance="4.10"/>
+        <oneIsotope plus="7" mass="130.905076" abundance="21.20"/>
+        <oneIsotope plus="8" mass="131.904148" abundance="26.90"/>
+        <oneIsotope plus="10" mass="133.905395" abundance="10.40"/>
+        <oneIsotope plus="12" mass="135.907219" abundance="8.90"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Cs" name="Cesium" atomicNumber="133">
+      <mass monoisotopic="132.905433" average="132.905433"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="132.905433" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ba" name="Barium" atomicNumber="130">
+      <mass monoisotopic="129.906277" average="137.3266591207"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="129.906277" abundance="0.11"/>
+        <oneIsotope plus="2" mass="131.905042" abundance="0.10"/>
+        <oneIsotope plus="4" mass="133.904490" abundance="2.42"/>
+        <oneIsotope plus="5" mass="134.905668" abundance="6.59"/>
+        <oneIsotope plus="6" mass="135.904556" abundance="7.85"/>
+        <oneIsotope plus="7" mass="136.905816" abundance="11.23"/>
+        <oneIsotope plus="8" mass="137.905236" abundance="71.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="La" name="Lanthanum" atomicNumber="138">
+      <mass monoisotopic="137.907114" average="138.9054556831"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="137.907114" abundance="0.09"/>
+        <oneIsotope plus="1" mass="138.906355" abundance="99.91"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ce" name="Cerium" atomicNumber="136">
+      <mass monoisotopic="135.907140" average="140.1148684268"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="135.907140" abundance="0.19"/>
+        <oneIsotope plus="2" mass="137.905996" abundance="0.25"/>
+        <oneIsotope plus="4" mass="139.905442" abundance="88.48"/>
+        <oneIsotope plus="6" mass="141.909249" abundance="11.08"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Pr" name="Praseodymium" atomicNumber="141">
+      <mass monoisotopic="140.907657" average="140.907657"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="140.907657" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Nd" name="Neodymium" atomicNumber="142">
+      <mass monoisotopic="141.907731" average="144.2423496327"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="141.907731" abundance="27.13"/>
+        <oneIsotope plus="1" mass="142.909823" abundance="12.18"/>
+        <oneIsotope plus="2" mass="143.910096" abundance="23.80"/>
+        <oneIsotope plus="3" mass="144.912582" abundance="8.30"/>
+        <oneIsotope plus="4" mass="145.913126" abundance="17.19"/>
+        <oneIsotope plus="6" mass="147.916901" abundance="5.76"/>
+        <oneIsotope plus="8" mass="149.920900" abundance="5.64"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Sm" name="Samarium" atomicNumber="144">
+      <mass monoisotopic="143.912009" average="150.360250402"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="143.912009" abundance="3.10"/>
+        <oneIsotope plus="3" mass="146.914907" abundance="15.00"/>
+        <oneIsotope plus="4" mass="147.914832" abundance="11.30"/>
+        <oneIsotope plus="5" mass="148.917193" abundance="13.80"/>
+        <oneIsotope plus="6" mass="149.917285" abundance="7.40"/>
+        <oneIsotope plus="8" mass="151.919741" abundance="26.70"/>
+        <oneIsotope plus="10" mass="153.922218" abundance="22.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Eu" name="Europium" atomicNumber="151">
+      <mass monoisotopic="150.919860" average="151.964581926"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="150.919860" abundance="47.80"/>
+        <oneIsotope plus="2" mass="152.921243" abundance="52.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Gd" name="Gadolinium" atomicNumber="152">
+      <mass monoisotopic="151.919803" average="157.2373293483"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="151.919803" abundance="0.200"/>
+        <oneIsotope plus="2" mass="153.920876" abundance="2.18"/>
+        <oneIsotope plus="3" mass="154.822629" abundance="14.80"/>
+        <oneIsotope plus="4" mass="155.922130" abundance="20.47"/>
+        <oneIsotope plus="5" mass="156.923967" abundance="15.65"/>
+        <oneIsotope plus="6" mass="157.924111" abundance="24.84"/>
+        <oneIsotope plus="8" mass="159.927061" abundance="21.86"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Tb" name="Terbium" atomicNumber="159">
+      <mass monoisotopic="158.925350" average="158.92535"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="158.925350" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Dy" name="Dysprosium" atomicNumber="156">
+      <mass monoisotopic="155.924287" average="162.4975405994"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="155.924287" abundance="0.060"/>
+        <oneIsotope plus="2" mass="157.924412" abundance="0.10"/>
+        <oneIsotope plus="4" mass="159.925203" abundance="2.34"/>
+        <oneIsotope plus="5" mass="160.926939" abundance="18.90"/>
+        <oneIsotope plus="6" mass="161.926805" abundance="25.50"/>
+        <oneIsotope plus="7" mass="162.928737" abundance="24.90"/>
+        <oneIsotope plus="8" mass="163.929183" abundance="28.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ho" name="Holmium" atomicNumber="165">
+      <mass monoisotopic="164.930332" average="164.930332"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="164.930332" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Er" name="Erbium" atomicNumber="162">
+      <mass monoisotopic="161.928787" average="167.2557156464"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="161.928787" abundance="0.14"/>
+        <oneIsotope plus="2" mass="163.929211" abundance="1.61"/>
+        <oneIsotope plus="4" mass="165.930305" abundance="33.60"/>
+        <oneIsotope plus="5" mass="166.932061" abundance="22.95"/>
+        <oneIsotope plus="6" mass="167.932383" abundance="26.80"/>
+        <oneIsotope plus="8" mass="169.935476" abundance="14.90"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Tm" name="Thulium" atomicNumber="169">
+      <mass monoisotopic="168.934225" average="168.934225"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="168.934225" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Yb" name="Ytterbium" atomicNumber="168">
+      <mass monoisotopic="167.933908" average="173.0342012408"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="167.933908" abundance="0.13"/>
+        <oneIsotope plus="2" mass="169.934774" abundance="3.05"/>
+        <oneIsotope plus="3" mass="170.936338" abundance="14.30"/>
+        <oneIsotope plus="4" mass="171.936393" abundance="21.90"/>
+        <oneIsotope plus="5" mass="172.938222" abundance="16.12"/>
+        <oneIsotope plus="6" mass="173.938873" abundance="31.80"/>
+        <oneIsotope plus="8" mass="175.942576" abundance="12.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Lu" name="Lutetium" atomicNumber="175">
+      <mass monoisotopic="174.940785" average="174.966834634"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="174.940785" abundance="97.40"/>
+        <oneIsotope plus="1" mass="175.942694" abundance="2.60"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Hf" name="Hafnium" atomicNumber="174">
+      <mass monoisotopic="173.940065" average="178.4897907938"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="173.940065" abundance="0.16"/>
+        <oneIsotope plus="2" mass="175.941420" abundance="5.20"/>
+        <oneIsotope plus="3" mass="176.943233" abundance="18.60"/>
+        <oneIsotope plus="4" mass="177.943710" abundance="27.10"/>
+        <oneIsotope plus="5" mass="178.945827" abundance="13.74"/>
+        <oneIsotope plus="6" mass="179.946561" abundance="35.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ta" name="Tantalum" atomicNumber="180">
+      <mass monoisotopic="179.947489" average="180.947893937"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="179.947489" abundance="0.012"/>
+        <oneIsotope plus="1" mass="180.948014" abundance="99.988"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="W" name="Tungsten" atomicNumber="180">
+      <mass monoisotopic="179.946727" average="183.8489080622"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="179.946727" abundance="0.13"/>
+        <oneIsotope plus="2" mass="181.948225" abundance="26.30"/>
+        <oneIsotope plus="3" mass="182.950245" abundance="14.30"/>
+        <oneIsotope plus="4" mass="183.950953" abundance="30.67"/>
+        <oneIsotope plus="6" mass="185.954377" abundance="28.60"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Re" name="Rhenium" atomicNumber="185">
+      <mass monoisotopic="184.952977" average="186.206722288"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="184.952977" abundance="37.40"/>
+        <oneIsotope plus="2" mass="186.955765" abundance="62.60"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Os" name="Osmium" atomicNumber="184">
+      <mass monoisotopic="183.952514" average="190.2397865124"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="183.952514" abundance="0.02"/>
+        <oneIsotope plus="2" mass="185.953852" abundance="1.58"/>
+        <oneIsotope plus="3" mass="186.955762" abundance="1.60"/>
+        <oneIsotope plus="4" mass="187.955850" abundance="13.30"/>
+        <oneIsotope plus="5" mass="188.958156" abundance="16.10"/>
+        <oneIsotope plus="6" mass="189.958455" abundance="26.40"/>
+        <oneIsotope plus="8" mass="191.961487" abundance="41.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Ir" name="Iridium" atomicNumber="191">
+      <mass monoisotopic="190.960603" average="192.216069553"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="190.960603" abundance="37.30"/>
+        <oneIsotope plus="2" mass="192.962942" abundance="62.70"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Pt" name="Platinum" atomicNumber="190">
+      <mass monoisotopic="189.959937" average="195.0801258808"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="189.959937" abundance="0.010"/>
+        <oneIsotope plus="2" mass="191.961049" abundance="0.79"/>
+        <oneIsotope plus="4" mass="193.962679" abundance="32.90"/>
+        <oneIsotope plus="5" mass="194.964785" abundance="33.80"/>
+        <oneIsotope plus="6" mass="195.964947" abundance="25.30"/>
+        <oneIsotope plus="8" mass="197.967879" abundance="7.20"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Au" name="Gold" atomicNumber="197">
+      <mass monoisotopic="196.966560" average="196.96656"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="196.966560" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Hg" name="Mercury" atomicNumber="196">
+      <mass monoisotopic="195.965812" average="200.588445976"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="195.965812" abundance="0.15"/>
+        <oneIsotope plus="2" mass="197.966760" abundance="10.10"/>
+        <oneIsotope plus="3" mass="198.968269" abundance="17.00"/>
+        <oneIsotope plus="4" mass="199.968316" abundance="23.10"/>
+        <oneIsotope plus="5" mass="200.970293" abundance="13.20"/>
+        <oneIsotope plus="6" mass="201.970632" abundance="29.65"/>
+        <oneIsotope plus="8" mass="203.973481" abundance="6.80"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Tl" name="Thallium" atomicNumber="203">
+      <mass monoisotopic="202.972336" average="204.3833977552"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="202.972336" abundance="29.52"/>
+        <oneIsotope plus="2" mass="204.974410" abundance="70.48"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Pb" name="Lead" atomicNumber="204">
+      <mass monoisotopic="203.973037" average="207.216896642"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="203.973037" abundance="1.40"/>
+        <oneIsotope plus="2" mass="205.974455" abundance="24.10"/>
+        <oneIsotope plus="3" mass="206.975885" abundance="22.10"/>
+        <oneIsotope plus="4" mass="207.976641" abundance="52.40"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Bi" name="Bismuth" atomicNumber="209">
+      <mass monoisotopic="208.980388" average="208.980388"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="208.980388" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="Th" name="Thorium" atomicNumber="232">
+      <mass monoisotopic="232.038054" average="232.038054"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="232.038054" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="U" name="Uranium" atomicNumber="234">
+      <mass monoisotopic="234.040947" average="238.02889601046"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="234.040947" abundance="0.006"/>
+        <oneIsotope plus="1" mass="235.043925" abundance="0.72"/>
+        <oneIsotope plus="4" mass="238.050786" abundance="99.274"/>
+      </isotopes>
+    </oneElement>
+    <oneElement symbol="H+" name="Hydrogen ion" atomicNumber="1">
+      <mass monoisotopic="1.00728" average="1.00739"/>
+      <isotopes>
+        <oneIsotope plus="0" mass="1.00728" abundance="100.00"/>
+      </isotopes>
+    </oneElement>
+  </elements>
+
+  <molecules>
+    <oneMolecule symbol="H2O" name="Water">
+      <formula>H2O1</formula>
+      <mass monoisotopic="18.01056" average="18.01524"/>
+    </oneMolecule>
+    <oneMolecule symbol="NH3" name="Amine">
+      <formula>N1H3</formula>
+      <mass monoisotopic="17.03712" average="17.03052"/>
+    </oneMolecule>
+  </molecules>
+
+  <codons>
+    <oneCodon name="Adenine" code1="A"/>
+    <oneCodon name="Cytosine" code1="C"/>
+    <oneCodon name="Guanine" code1="G"/>
+    <oneCodon name="Uracil" code1="U"/>
+  </codons>
+
+  <aminoAcids>
+    <oneAminoAcid name="Alanine" code3="Ala" code1="A">
+      <formula>C3H5ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>GCA</oneMRNACodon> 
+        <oneMRNACodon>GCC</oneMRNACodon> 
+        <oneMRNACodon>GCG</oneMRNACodon> 
+        <oneMRNACodon>GCU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="71.03711" average="71.0788"/>
+      <PK internal="0.0" nterm="7.59" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Arginine" code3="Arg" code1="R">
+      <formula>C6H12ON4</formula>
+      <mRNACodons>
+        <oneMRNACodon>AGA</oneMRNACodon> 
+        <oneMRNACodon>AGG</oneMRNACodon> 
+        <oneMRNACodon>CGA</oneMRNACodon> 
+        <oneMRNACodon>CGC</oneMRNACodon> 
+        <oneMRNACodon>CGG</oneMRNACodon> 
+        <oneMRNACodon>CGU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="156.10111" average="156.1875"/>
+      <PK internal="12.0" nterm="7.50" cterm="3.55" sgnres="+1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Asparagine" code3="Asn" code1="N">
+      <formula>C4H6O2N2</formula>
+      <mRNACodons>
+        <oneMRNACodon>AAC</oneMRNACodon> 
+        <oneMRNACodon>AAU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="114.04293" average="114.1038"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Aspartic_acid" code3="Asp" code1="D">
+      <formula>C4H5O3N</formula>
+      <mRNACodons>
+        <oneMRNACodon>GAC</oneMRNACodon> 
+        <oneMRNACodon>GAU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="115.02694" average="115.0886"/>
+      <PK internal="4.05" nterm="7.50" cterm="4.55" sgnres="-1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Cysteine" code3="Cys" code1="C">
+      <formula>C3H5ONS</formula>
+      <mRNACodons>
+        <oneMRNACodon>UGC</oneMRNACodon> 
+        <oneMRNACodon>UGU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="103.00919" average="103.1388"/>
+      <PK internal="9.0" nterm="7.50" cterm="3.55" sgnres="-1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Glutamic_acid" code3="Glu" code1="E">
+      <formula>C5H7O3N</formula>
+      <mRNACodons>
+        <oneMRNACodon>GAA</oneMRNACodon> 
+        <oneMRNACodon>GAG</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="129.04259" average="129.1155"/>
+      <PK internal="4.45" nterm="7.70" cterm="4.75" sgnres="-1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Glutamine" code3="Gln" code1="Q">
+      <formula>C5H8O2N2</formula>
+      <mRNACodons>
+        <oneMRNACodon>CAA</oneMRNACodon> 
+        <oneMRNACodon>CAG</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="128.05858" average="128.1307"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Glycine" code3="Gly" code1="G">
+      <formula>C2H3ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>GGA</oneMRNACodon> 
+        <oneMRNACodon>GGC</oneMRNACodon> 
+        <oneMRNACodon>GGG</oneMRNACodon> 
+        <oneMRNACodon>GGU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="57.02146" average="57.0519"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Histidine" code3="His" code1="H">
+      <formula>C6H7ON3</formula>
+      <mRNACodons>
+        <oneMRNACodon>CAC</oneMRNACodon> 
+        <oneMRNACodon>CAU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="137.05891" average="137.1411"/>
+      <PK internal="5.98" nterm="7.50" cterm="3.55" sgnres="+1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Isoleucine" code3="Ile" code1="I">
+      <formula>C6H11ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>AUA</oneMRNACodon> 
+        <oneMRNACodon>AUC</oneMRNACodon> 
+        <oneMRNACodon>AUU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="113.08406" average="113.1594"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Leucine" code3="Leu" code1="L">
+      <formula>C6H11ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>CUA</oneMRNACodon> 
+        <oneMRNACodon>CUC</oneMRNACodon> 
+        <oneMRNACodon>CUG</oneMRNACodon> 
+        <oneMRNACodon>CUU</oneMRNACodon> 
+        <oneMRNACodon>UUA</oneMRNACodon> 
+        <oneMRNACodon>UUG</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="113.08406" average="113.1594"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Lysine" code3="Lys" code1="K">
+      <formula>C6H12ON2</formula>
+      <mRNACodons>
+        <oneMRNACodon>AAA</oneMRNACodon> 
+        <oneMRNACodon>AAG</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="128.09496" average="128.1741"/>
+      <PK internal="10.0" nterm="7.50" cterm="3.55" sgnres="+1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Methionine" code3="Met" code1="M">
+      <formula>C5H9ONS</formula>
+      <mRNACodons>
+        <oneMRNACodon>AUG</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="131.04049" average="131.1926"/>
+      <PK internal="0.0" nterm="7.00" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Phenylalanine" code3="Phe" code1="F">
+      <formula>C9H9ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>UUC</oneMRNACodon> 
+        <oneMRNACodon>UUU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="147.06841" average="147.1766"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Proline" code3="Pro" code1="P">
+      <formula>C5H7ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>CCA</oneMRNACodon> 
+        <oneMRNACodon>CCC</oneMRNACodon> 
+        <oneMRNACodon>CCG</oneMRNACodon> 
+        <oneMRNACodon>CCU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="97.05276" average="97.1167"/>
+      <PK internal="0.0" nterm="8.36" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Serine" code3="Ser" code1="S">
+      <formula>C3H5O2N</formula>
+      <mRNACodons>
+        <oneMRNACodon>AGC</oneMRNACodon> 
+        <oneMRNACodon>AGU</oneMRNACodon> 
+        <oneMRNACodon>UCA</oneMRNACodon> 
+        <oneMRNACodon>UCC</oneMRNACodon> 
+        <oneMRNACodon>UCG</oneMRNACodon> 
+        <oneMRNACodon>UCU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="87.03203" average="87.0782"/>
+      <PK internal="0.0" nterm="6.93" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Threonine" code3="Thr" code1="T">
+      <formula>C4H7O2N</formula>
+      <mRNACodons>
+        <oneMRNACodon>ACA</oneMRNACodon> 
+        <oneMRNACodon>ACC</oneMRNACodon> 
+        <oneMRNACodon>ACG</oneMRNACodon> 
+        <oneMRNACodon>ACU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="101.04768" average="101.1051"/>
+      <PK internal="0.0" nterm="6.82" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Tryptophan" code3="Trp" code1="W">
+      <formula>C11H10ON2</formula>
+      <mRNACodons>
+        <oneMRNACodon>UGG</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="186.07931" average="186.2132"/>
+      <PK internal="0.0" nterm="7.50" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Tyrosine" code3="Tyr" code1="Y">
+      <formula>C9H9O2N</formula>
+      <mRNACodons>
+        <oneMRNACodon>UAC</oneMRNACodon> 
+        <oneMRNACodon>UAU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="163.06333" average="163.1760"/>
+      <PK internal="10.0" nterm="7.50" cterm="3.55" sgnres="-1.0"/>
+    </oneAminoAcid>
+    <oneAminoAcid name="Valine" code3="Val" code1="V">
+      <formula>C5H9ON</formula>
+      <mRNACodons>
+        <oneMRNACodon>GUA</oneMRNACodon> 
+        <oneMRNACodon>GUC</oneMRNACodon> 
+        <oneMRNACodon>GUG</oneMRNACodon> 
+        <oneMRNACodon>GUU</oneMRNACodon>
+      </mRNACodons>
+      <mass monoisotopic="99.06841" average="99.1326"/>
+      <PK internal="0.0" nterm="7.44" cterm="3.55" sgnres="0.0"/>
+    </oneAminoAcid>
+  </aminoAcids>
+
+  <cleavEnzymes>
+   <oneCleavEnzyme name="Trypsin/P">
+      <siteRegexp><![CDATA[(?<=[KR])|(?=[P])]]></siteRegexp>
+      <terminus>C</terminus>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+     <oneCleavEnzyme name="Trypsin">
+      <site>
+        <cleavSite>KR</cleavSite>
+        <adjacentSite>^P</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="Trypsin_regexp">
+      <siteRegexp><![CDATA[(?<=[KR])(?=[^P])]]></siteRegexp>
+      <terminus>C</terminus>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="Trypsin_O18atom">
+      <site>
+        <cleavSite>KR</cleavSite>
+        <adjacentSite>^P</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OHH+4</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="Trypsin_O18modif">
+      <site>
+        <cleavSite>KR</cleavSite>
+        <adjacentSite>^P</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+      <CTermModif>O18</CTermModif>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="ChymoTrypsin (KYLW)">
+      <site>
+        <cleavSite>FYLW</cleavSite>
+        <adjacentSite>^P</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="ChymoTrypsin (FYL)">
+      <site>
+        <cleavSite>FYL</cleavSite>
+        <adjacentSite>^P</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="Lys C">
+      <site>
+        <cleavSite>K</cleavSite>
+        <adjacentSite>.</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="Arg C">
+      <siteRegexp><![CDATA[(?<=[R])(?=[^P])]]></siteRegexp>
+      <terminus>C</terminus>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+   <oneCleavEnzyme name="Glu C (bicarbonate)">
+      <site>
+        <cleavSite>E</cleavSite>
+        <adjacentSite>^PE</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+   <oneCleavEnzyme name="Glu C (phosphate)">
+      <site>
+        <cleavSite>DE</cleavSite>
+        <adjacentSite>^PE</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+   <oneCleavEnzyme name="Pepsin (pH 1.3)">
+      <site>
+        <cleavSite>FL</cleavSite>
+        <adjacentSite>.</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme> 
+   <oneCleavEnzyme name="Pepsin (pH > 2)">
+      <site>
+        <cleavSite>FLWYAEQ</cleavSite>
+        <adjacentSite>.</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+   <oneCleavEnzyme name="Proteinase K">
+      <site>
+        <cleavSite>ACGMFSYW</cleavSite>
+        <adjacentSite>.</adjacentSite>
+        <terminus>C</terminus>
+      </site>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+    <oneCleavEnzyme name="DoNotCleave">
+      <siteRegexp><![CDATA[(?<=.)]]></siteRegexp>
+      <terminus>C</terminus>
+      <CTermGain>OH</CTermGain>
+      <NTermGain>H</NTermGain>
+    </oneCleavEnzyme>
+  </cleavEnzymes>
+
+<fragTypeDescriptions>
+ <fragTypeDefSet readonly="1">
+
+  <series>
+    <oneSeries name="a">
+      <terminus>N</terminus>
+      <deltaMass monoisotopic="-27.99491" average="-28.0104"/>
+      <firstFragment>2</firstFragment>
+      <lastFragment>2</lastFragment>
+      <formula>O-1C-1</formula>
+    </oneSeries>
+    <oneSeries name="b">
+      <terminus>N</terminus>
+      <firstFragment>2</firstFragment>
+      <lastFragment>2</lastFragment>
+      <deltaMass monoisotopic="0" average="0"/>
+      <formula></formula>
+    </oneSeries>
+    <oneSeries name="c">
+      <terminus>N</terminus>
+      <firstFragment>2</firstFragment>
+      <lastFragment>2</lastFragment>
+      <deltaMass monoisotopic="17.02656" average="17.03052"/>
+      <formula>NH3</formula>
+    </oneSeries>
+    <oneSeries name="x">
+      <terminus>C</terminus>
+      <firstFragment>1</firstFragment>
+      <lastFragment>2</lastFragment>
+      <formula>COH-1</formula>
+      <deltaMass monoisotopic="43.98982" average="44.0098"/>
+    </oneSeries>
+    <oneSeries name="y">
+      <terminus>C</terminus>
+      <firstFragment>1</firstFragment>
+      <lastFragment>2</lastFragment>
+      <deltaMass monoisotopic="18.0105746" average="18.01418"/>
+      <formula>H</formula>
+    </oneSeries>
+    <oneSeries name="z">
+      <terminus>C</terminus>
+      <firstFragment>1</firstFragment>
+      <lastFragment>2</lastFragment>
+      <deltaMass monoisotopic="1.9912946" average="1.99108"/>
+      <formula>N-1H-1</formula>
+    </oneSeries>
+  </series>
+
+  <losses>
+    <oneLoss name="NH3">
+      <residues aa="NQR"/>
+      <deltaMass monoisotopic="17.03712" average="17.03052"/>
+      <formula>N-1H-3</formula>
+    </oneLoss>
+    <oneLoss name="H2O">
+      <residues aa="ST"/>
+      <deltaMass monoisotopic="18.01056" average="18.01524"/>
+      <formula>H-2O-1</formula>
+    </oneLoss>
+  </losses>
+
+  <fragTypes>
+    <oneFragType name="a" series="a" charge="1"/>
+     <oneFragType name="a++" series="a" charge="2"/>
+     <oneFragType name="a+++" series="a" charge="3"/>
+    <oneFragType name="a-NH3" series="a" charge="1">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="a-NH3*" series="a" charge="1">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="a-H2O" series="a" charge="1">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="a-H2O*" series="a" charge="1">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="a++-NH3" series="a" charge="2">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="a++-NH3*" series="a" charge="2">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="a++-H2O" series="a" charge="2">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="a++-H2O*" series="a" charge="2">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="b" series="b" charge="1"/>
+    <oneFragType name="b++" series="b" charge="2"/>
+    <oneFragType name="b+++" series="b" charge="3"/>
+    <oneFragType name="b-NH3" series="b" charge="1">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="b-NH3*" series="b" charge="1">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="b-H2O" series="b" charge="1">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="b-H2O*" series="b" charge="1">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="b-H2O-NH3" series="b" charge="1">
+      <loss name="H2O" repeat="1"/>
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="b-H2O*-NH3*" series="b" charge="1">
+      <loss name="H2O" repeat="-1"/>
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="b++-NH3" series="b" charge="2">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="b++-NH3*" series="b" charge="2">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="b++-H2O" series="b" charge="2">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="b++-H2O*" series="b" charge="2">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="c" series="c" charge="1"/>
+    <oneFragType name="c-NH3" series="c" charge="1">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="c-NH3*" series="c" charge="1">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="c-H2O" series="c" charge="1">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="c-H2O*" series="c" charge="1">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="c++" series="c" charge="2"/>
+    <oneFragType name="c++-NH3" series="c" charge="2">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="c++-NH3*" series="c" charge="2">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="c++-H2O" series="c" charge="2">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="c++-H2O*" series="c" charge="2">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="x" series="x" charge="1"/>
+    <oneFragType name="x-NH3" series="x" charge="1">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="x-NH3*" series="x" charge="1">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="x-H2O" series="x" charge="1">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="x-H2O*" series="x" charge="1">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="x++" series="x" charge="2"/>
+    <oneFragType name="x++-NH3" series="x" charge="2">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="x++-NH3*" series="x" charge="2">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="x++-H2O" series="x" charge="2">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="x++-H2O*" series="x" charge="2">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="y" series="y" charge="1"/>
+    <oneFragType name="y++" series="y" charge="2"/>
+    <oneFragType name="y+++" series="y" charge="3"/>
+    <oneFragType name="y-NH3" series="y" charge="1">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="y-NH3*" series="y" charge="1">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="y-H2O" series="y" charge="1">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="y-H2O*" series="y" charge="1">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="y-H2O*-NH3*" series="y" charge="1">
+      <loss name="H2O" repeat="-1"/>
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="y++-NH3" series="y" charge="2">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="y++-NH3*" series="y" charge="2">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="y++-H2O" series="y" charge="2">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="y++-H2O*" series="y" charge="2">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="z" series="z" charge="1"/>
+    <oneFragType name="z-NH3" series="z" charge="1">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="z-NH3*" series="z" charge="1">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="z-H2O" series="z" charge="1">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="z-H2O*" series="z" charge="1">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="z++" series="z" charge="2"/>
+    <oneFragType name="z++-NH3" series="z" charge="2">
+      <loss name="NH3" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="z++-NH3*" series="z" charge="2">
+      <loss name="NH3" repeat="-1"/>
+    </oneFragType>
+    <oneFragType name="z++-H2O" series="z" charge="2">
+      <loss name="H2O" repeat="1"/>
+    </oneFragType>
+    <oneFragType name="z++-H2O*" series="z" charge="2">
+      <loss name="H2O" repeat="-1"/>
+    </oneFragType>
+  </fragTypes>
+
+  <internalFragType>
+    <oneInternFragType name="immo">
+      <residues>HFILYPV</residues>
+      <delta monoisotopic="-26.9871" average="-26.9871"/>
+    </oneInternFragType>
+  </internalFragType>
+
+ </fragTypeDefSet>
+</fragTypeDescriptions>
+
+<modRes>
+  <oneModRes type="ptm" name="ACET_nterm">
+    <description>Acetylation_nterm</description>
+    <site>
+      <residue>^NKHFW</residue>
+      <nterm/>
+    </site>
+    <residues aa="^NKHFW" nterm="yes"/>
+    <delta monoisotopic="42.0106" average="42.0373"/>
+    <sprotFT><![CDATA[(N-acetylalanine|N-acetylaspartate|N-acetylcysteine|N-acetylglutamate|N-acetylglycine|N-acetylmethionine|N-acetylproline|N-acetylserine|N-acetylthreonine|N-acetyltyrosine|N-acetylvaline).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="ACET_core">
+    <description>Acetylation_core</description>
+    <site>
+      <residue>KR</residue>
+    </site>
+    <residues aa="KR"/>
+    <delta monoisotopic="42.0106" average="42.0373"/>
+    <sprotFT><![CDATA[(N2-acetylarginine|N6-acetyllysine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="PHOS">
+    <description>Phosphorylation</description>
+    <site>
+      <residue>STYHD</residue>
+    </site>
+    <residues aa="STYHD"/>
+    <delta monoisotopic="79.9663" average="79.9799" />
+    <sprotFT><![CDATA[(4-aspartylphosphate|Phosphoarginine|Phosphocysteine|Phosphohistidine|Phosphoserine|Phosphothreonine|Phosphotyrosine|Pros-phosphohistidine|Tele-phosphohistidine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="AMID">
+    <description>Amidation</description>
+    <siteRegexp cterm="yes">.(?=G)</siteRegexp>
+    <residues aa="." aaAfter="G" cterm="yes"/>
+    <delta monoisotopic="-0.9840" average="-0.9847"/>
+    <sprotFT><![CDATA[(Alanine amide|Arginine amide|Aspartic acid 1-amide|Asparagine amide|Cysteine amide|Glutamic acid 1-amide|Glutamine amide|Glycine amide|Histidine amide|Isoleucine amide|Leucine amide|Lysine amide|Methionine amide|Phenylalanine amide|Proline amide|Serine amide|Threonine amide|Tryptophan amide|Tyrosine amide|Valine amide).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="DEAMID" description="Deamidation">
+    <description></description>
+    <site>
+      <residue>NQ</residue>
+    </site>
+    <residues aa="NQ"/>
+    <delta monoisotopic="0.9840" average="0.9847"/>
+    <sprotFT><![CDATA[(Deamidated asparagine|Deamidated glutamine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="DEAM_N">
+    <description>Deamidation_N</description>
+    <siteRegexp>N(?=G)</siteRegexp>
+    <residues aa="N" aaAfter="G"/>
+    <delta monoisotopic="0.9840" average="0.9847"/>
+    <sprotFT><![CDATA[(Deamidated asparagine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="DEAM_Q">
+    <description>Deamidation_Q</description>
+    <site>
+      <residue>Q</residue>
+    </site>
+    <residues aa="Q"/>
+    <delta monoisotopic="0.9840" average="0.9847"/>
+    <sprotFT><![CDATA[(Deamidated glutamine).*]]></sprotFT>
+  </oneModRes>
+   <oneModRes type="ptm" name="BIOT">
+    <description>Biotin</description>
+    <site>
+      <residue>K</residue>
+      <cterm/>
+    </site>
+    <residues aa="K" cterm="yes" prositeRule="PDOC00167"/>
+    <prositeRule>PDOC00167</prositeRule>
+    <delta monoisotopic="226.0776" average="226.2934"/>
+  </oneModRes>
+  <oneModRes type="ptm" name="CAM_nterm">
+    <description>Carbamylation_nterm</description>
+    <site>
+      <residue>.</residue>
+      <nterm/>
+    </site>
+    <residues aa="." nterm="yes"/>
+    <delta monoisotopic="43.00581" average="43.02504"/>
+    <sprotFT><![CDATA[CARBOXYLATION.*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="CAM_core">
+    <description>Carbamylation_core</description>
+    <site>
+      <residue>K</residue>
+    </site>
+    <residues aa="K"/>
+    <delta monoisotopic="43.00581" average="43.02504"/>
+    <sprotFT><![CDATA[CARBOXYLATION.*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="CARB">
+    <description>Carboxylation</description>
+    <site>
+      <residue>EN</residue>
+    </site>
+    <residues aa="EN"/>
+    <delta monoisotopic="43.9898" average="44.0098"/>
+  </oneModRes>
+  <oneModRes type="ptm" name="PYRR">
+    <description>Pyrrolidone_carboxylic_acid</description>
+    <site>
+      <residue>Q</residue>
+      <nterm/>
+    </site>
+    <residues aa="Q" nterm="yes"/>
+    <delta monoisotopic="-17.0266" average="-17.0306"/>
+    <sprotFT><![CDATA[PYRROLIDONE.*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="HYDR">
+    <description>Hydroxylation</description>
+    <site>
+      <residue>PKDNWR</residue>
+    </site>
+    <residues aa="PKDNWR"/>
+    <delta monoisotopic="15.9949" average="15.9994"/>
+    <sprotFT><![CDATA[(3-hydroxyasparagine|3-hydroxyaspartate|3-hydroxyproline|3-hydroxytryptophan|4-hydroxyarginine|4-hydroxyproline|5-hydroxylysine|Hydroxyproline).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="DIHYDR">
+    <description>Di-hydroxylation"</description>
+    <site>
+      <residue>PKDNWR</residue>
+    </site>
+    <residues aa="PKDNWR"/>
+    <delta monoisotopic="31.9898" average="31.9988"/>
+    <sprotFT><![CDATA[(3',4'-dihydroxyphenylalanine|3,4-dihydroxyarginine|3,4-dihydroxyproline|4,5-dihydroxylysine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="GGLU">	
+    <description>Gamma-carboxyglutamic_acid"</description>
+    <site>
+      <residue>E</residue>
+    </site>
+    <residues aa="E"/>
+    <delta monoisotopic="43.98983" average="44.0098"/>
+    <sprotFT><![CDATA[(Pyrrolidone carboxylic acid|Pyrrolidone carboxylic acid (Glu)).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="METH_nterm">
+    <description>Methylation_nterm</description>
+    <site>
+      <residue>PA</residue>
+      <nterm/>
+    </site>
+    <residues aa="PA" nterm="yes"/>
+    <delta monoisotopic="14.0157" average="14.0269"/>
+    <sprotFT><![CDATA[(N-methylalanine|N-methylisoleucine|N-methylleucine|N-methylmethionine|N-methylphenylalanine|N-methyltyrosine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="METH_cterm">
+    <description>Methylation_cterm</description>
+    <site>
+      <residue>PA</residue>
+      <cterm/>
+    </site>
+    <residues aa="PA" cterm="yes"/>
+    <delta monoisotopic="14.0157" average="14.0269"/>
+    <sprotFT><![CDATA[(Leucine methyl ester|Lysine methyl ester).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="METH_core">
+    <description>Methylation_core</description>
+    <siteRegexp>[KR](?=.)</siteRegexp>
+    <residues aa="KR" aaAfter="."/>
+    <delta monoisotopic="14.0157" average="14.0269"/>
+    <sprotFT><![CDATA[(2-methylglutamine|5-methylarginine|Cysteine methyl ester|Glutamate methyl ester (Gln)|Glutamate methyl ester (Glu)|Methylhistidine|N-methylalanine|N-methylisoleucine|N-methylleucine|N-methylmethionine|N-methylphenylalanine|N-methyltyrosine|N4-methylasparagine|N5-methylarginine|N5-methylglutamine|N6-methylated lysine|N6-methyllysine|Omega-N-methylarginine|Omega-N-methylated arginine|S-methylcysteine|Tele-methylhistidine).*]]></sprotFT>
+  </oneModRes>
+  <!--<oneModRes type="ptm" name="GGLU" 
+description="Gamma-carboxyglutamic_acid">
+    <residue aa="E"/>
+    <delta monoisotopic="" average=""/>
+  </oneModRes>-->
+
+  <oneModRes type="ptm" name="SULF_nterm">
+    <description>Sulfation_nterm</description>
+    <site>
+      <residue>.</residue>
+      <nterm/>
+    </site>
+    <residues aa="." nterm="yes"/>
+    <delta monoisotopic="79.9568" average="80.0642"/>
+    <sprotFT><![CDATA[SULFATION.*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="SULF_core">
+    <description>"Sulfation_core</description>
+    <site>
+      <residue>Y</residue>
+      <prositeRule>PDOC00003</prositeRule>
+    </site>
+    <residues aa="Y" prositeRule="PDOC00003"/>
+    <delta monoisotopic="79.9568" average="80.0642"/>
+    <sprotFT><![CDATA[(Sulfotyrosine|Sulfoserine|Sulfothreonine).*]]></sprotFT>
+  </oneModRes>
+  <oneModRes type="ptm" name="FORM">
+    <description>Formylation</description>
+    <site>
+      <residue>.</residue>
+      <nterm/>
+    </site>
+    <residues aa="." nterm="yes"/>
+    <delta monoisotopic="27.9949" average="28.0104"/>
+    <sprotFT><![CDATA[(N-formylmethionine|N-formylglycine|N6-formyllysine).*]]></sprotFT>
+  </oneModRes>
+ 
+  <oneModRes type="aaModif" name="Oxidation">
+    <description>Oxidation</description>
+    <site>
+      <residue>MHW</residue>
+    </site>
+    <residues aa="MHW"/>
+    <delta monoisotopic="15.9949" average="15.999"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Oxidation_M">
+    <description>Oxidation</description>
+    <site>
+      <residue>M</residue>
+    </site>
+    <residues aa="M"/>
+    <delta monoisotopic="15.9949" average="15.999"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Cys_CM">
+    <description>Carboxymethyl_cysteine</description>
+    <site>
+      <residue>C</residue>
+    </site>
+    <residues aa="M"/>
+    <delta monoisotopic="58.00547" average="58.0367"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Cys_CAM">
+    <description>Carboxyamidomethyl_cysteine</description>
+    <site>
+      <residue>C</residue>
+    </site>
+    <residues aa="C"/>
+    <delta monoisotopic="57.02146" average="57.052"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Cys_CAM_old">
+    <description>Carboxyamidomethyl_cysteine</description>
+    <residue aa="C"/>
+    <residues aa="C"/>
+    <delta monoisotopic="57.02146" average="57.052"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Cys_CAM_regexp">
+    <description>Carboxyamidomethyl_cysteine</description>
+    <siteRegexp>[C]</siteRegexp>
+    <residues aa="C"/>
+    <delta monoisotopic="57.02146" average="57.052"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Cys_PE">
+    <description>Pyridyl-ethyl_cysteine</description>
+    <site>
+      <residue>C</residue>
+    </site>
+    <residues aa="C"/>
+    <delta monoisotopic="105.057849" average="105.1452"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="Cys_PAM">
+    <description>Propionamide_cysteine</description>
+    <site>
+      <residue>C</residue>
+    </site>
+    <residues aa="C"/>
+    <delta monoisotopic="71.03712" average="71.0788"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="MSO">
+    <description>Methionine_sulfoxide</description>
+    <site>
+      <residue>M</residue>
+    </site>
+    <residues aa="M"/>
+    <delta monoisotopic="15.99491" average="15.9994"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="HSL">
+    <description>Homoserine_Lactone</description>
+    <site>
+      <residue>S</residue>
+    </site>
+    <residues aa="S"/>
+    <delta monoisotopic="12.96165" average="13.01894"/>
+  </oneModRes>
+  <oneModRes type="aaModif" name="O18">
+    <description>O18 label</description>
+    <site>
+      <residue>KR</residue>
+      <cterm/>
+    </site>
+    <residues aa="KR" cterm="yes"/>
+    <delta monoisotopic="4.02912" average="4.02956"/>
+  </oneModRes>
+
+ </modRes>
+
+</inSilicoDefinitions>

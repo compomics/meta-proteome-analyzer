@@ -1,0 +1,39 @@
+# Main path where the application is running
+path.app=/scratch/metaprot/software/
+
+# Transfer path for the spectra
+path.transfer=/scratch/metaprot/data/transfer/
+
+# Clear folders app
+app.clear=clearfolders.sh
+
+# Path to the FASTA database folder
+path.fasta=/scratch/metaprot/data/fasta/
+
+# X!Tandem
+path.xtandem=/scratch/metaprot/software/xtandem/bin/
+path.xtandem.output=/scratch/metaprot/data/output/xtandem/
+app.xtandem=tandem.exe
+
+# OMSSA
+path.omssa=/scratch/metaprot/software/omssa/
+path.omssa.output=/scratch/metaprot/data/output/omssa/
+app.omssa=omssacl
+
+# Crux
+path.crux=/scratch/metaprot/software/crux/bin/
+path.crux.output=/scratch/metaprot/data/output/crux/
+app.crux=crux
+
+# Inspect
+path.inspect=/scratch/metaprot/software/inspect/
+app.inspect=inspect
+file.input.inspect=input.txt	
+path.inspect.output.raw=/scratch/metaprot/data/output/inspect/raw/
+path.inspect.output.pvalued=/scratch/metaprot/data/output/inspect/pvalued/
+
+# QVality
+path.qvality=/usr/bin/
+app.qvality=qvality
+
+
