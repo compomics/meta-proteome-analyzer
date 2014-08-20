@@ -1,0 +1,34 @@
+NAME
+    InSilicoSpectro::Databanks - parsing protein/nucleotides sequence
+    databanks (fasta, uniprot...)
+
+SYNOPSIS
+    $/="//\n"; while (<FDIN>){ my
+    $dbu=InSilicoSpectro::Databanks::DBEntryUniprot->new; $dbu->readDat($_);
+    my @tmp=$dbu->generateDerivedForms(); unless ( && @tmp){
+    $dbu->printFasta; $origSeq = $dbu->sequence; } foreach (@tmp){ if
+    ($_->sequence ne $origSeq){ $_->printFasta; } } }
+
+EXPORT
+    A list of functions that can be exported. You can delete this section if
+    you don't export anything, such as for a purely object-oriented module.
+
+FUNCTIONS
+AUTHOR
+    Alexandre Masselot, "<alexandre.masselot@genebio.com>"
+
+BUGS
+    Please report any bugs or feature requests to
+    "bug-insilicospectro-databanks@rt.cpan.org", or through the web
+    interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=InSilicoSpectro-Databank
+    s>. I will be notified, and then you'll automatically be notified of
+    progress on your bug as I make changes.
+
+ACKNOWLEDGEMENTS
+COPYRIGHT & LICENSE
+    Copyright 2006 Alexandre Masselot, all rights reserved.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+

@@ -70,11 +70,11 @@
 	</target>
     <target name="distro-binary" description="Create zip file with executable jar, docs." depends="clean, jar">
     	<zip destfile="${build}/${distro-name}.zip" duplicate="preserve">
-    	<zipfileset dir="${build}/" includes="${distro-name}.jar"/>
-    	<zipfileset dir="src/conf" prefix="conf/"/>
-    	<zipfileset file="built/README_Viewer.txt"/>
-    	<zipfileset file="built/mpa-viewer.bat"/>
-    	<zipfileset file="built/mpa-viewer.sh"/>
+    	<zipfileset dir="${build}/" includes="${distro-name}.jar" prefix="${distro-name}/"/>    	
+    	<zipfileset dir="src/conf" excludes="server-settings.txt, connection-settings.txt, connection-settings_default.txt, client-settings.txt, client-settings_default.txt" prefix="${distro-name}/conf/"/>
+		<zipfileset file="built/README_Viewer.txt" fullpath="${distro-name}/README_Viewer.txt"/>
+    	<zipfileset file="built/mpa-viewer.bat" fullpath="${distro-name}/mpa-viewer.bat"/>
+    	<zipfileset file="built/mpa-viewer.sh" fullpath="${distro-name}/mpa-viewer.sh"/>
    	 	</zip>
     	 <delete file='${build}/${distro-name}.jar'/>
  	 </target>

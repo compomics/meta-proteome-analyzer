@@ -19,12 +19,11 @@
    The default value is set to -Xmx2048m (for 2 GB RAM) in this case.
 
    ===============================
-    MetaProteomeAnalyzer Web Page
+    MPA Server Installation
    ===============================
 
-   For updated information and documentation (including wiki) about the MetaProteomeAnalyzer project please visit:
-
-   http://meta-proteome-analyzer.googlecode.com
+   For more information and documentation about the MPA Server Installation please visit:
+   https://code.google.com/p/meta-proteome-analyzer/wiki/Server_Installation
 
 
    =========

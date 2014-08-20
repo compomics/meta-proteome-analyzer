@@ -61,11 +61,13 @@
     </target>
 	<target name="distro-binary" description="Create zip file with executable jar, docs." depends="clean, jar">
 	    	<zip destfile="${build}/${distro-name}.zip" duplicate="preserve">
-	    	<zipfileset dir="${build}/" includes="${distro-name}.jar"/>
-	    	<zipfileset dir="src/conf" prefix="conf/"/>
-	    	<zipfileset file="built/README_Server.txt"/>
-	    	<zipfileset file="built/clearfolders.sh"/>
-	    	<zipfileset file="built/fastaformat.sh"/>
+	    	<zipfileset dir="${build}/" includes="${distro-name}.jar" prefix="${distro-name}/software/"/>
+	    	<zipfileset dir="src/conf" excludes="themes/**, userqueries.xml, client-settings.txt, client-settings_default.txt, connection-settings_default.txt, connection-settings.txt" prefix="${distro-name}/software/conf/"/>
+	    	<zipfileset file="src/conf/connection-settings_default.txt" fullpath="${distro-name}/software/conf/connection-settings.txt"/>
+	    	<zipfileset dir="built/fasta" prefix="${distro-name}/fasta/"/>
+	    	<zipfileset dir="built/sql" prefix="${distro-name}/sql database/"/>
+	    	<zipfileset file="built/README_Server.txt" fullpath="${distro-name}/software/README_Server.txt"/>
+	    	<zipfileset file="built/clearfolders.sh" fullpath="${distro-name}/software/clearfolders.sh"/>	    	
 	   	 	</zip>
 	    	 <delete file='${build}/${distro-name}.jar'/>
 	 	 </target>
