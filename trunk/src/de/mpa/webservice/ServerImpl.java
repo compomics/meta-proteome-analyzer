@@ -110,7 +110,7 @@ public class ServerImpl implements Server {
 	 * @throws Exception
 	 */
 	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
-		File file = new File(ServerSettings.TRANSFER_PATH + filename);
+		File file = new File(JobProperties.getInstance().getProperty("path.transfer") + filename);
 		
 		// Get general parameters.
 		JobProperties jobProperties = JobProperties.getInstance();
@@ -224,7 +224,7 @@ public class ServerImpl implements Server {
 	 */
 	@Override
 	public synchronized String uploadFile(String filename,  byte[] bytes) {		
-	       String filePath = ServerSettings.TRANSFER_PATH + filename;
+	       String filePath = JobProperties.getInstance().getProperty("path.transfer") + filename;
 	        try {
 	            FileOutputStream fos = new FileOutputStream(filePath);
 	            BufferedOutputStream outputStream = new BufferedOutputStream(fos);

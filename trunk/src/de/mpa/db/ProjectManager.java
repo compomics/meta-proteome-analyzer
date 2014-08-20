@@ -60,7 +60,9 @@ public class ProjectManager {
 		Connection conn = null;
 		try {
 			// try getting database connection, may be null
-			conn = Client.getInstance().getDatabaseConnection();
+			if (!Client.isViewer()) {
+				conn = Client.getInstance().getDatabaseConnection();
+			}
 		} catch (SQLException e) {
 			// do nothing
 			e.printStackTrace();
