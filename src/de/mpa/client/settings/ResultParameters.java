@@ -2,6 +2,8 @@ package de.mpa.client.settings;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -55,7 +57,7 @@ public class ResultParameters extends ParameterMap {
 		// meta-protein generation rules
 		JPanel metaPnl = new MetaProteinRulesPanel();
 		
-		this.put("metaProteinGeneration", new Parameter(null, metaPnl, "Meta-Protein Generation", null));
+		this.put("metaProteinGeneration", new Parameter("Meta-Protein Generation", metaPnl, "Meta-Protein Generation", null));
 	}
 
 	@Override
@@ -93,7 +95,7 @@ public class ResultParameters extends ParameterMap {
 	 * and for providing controls to manipulate them.
 	 * @author A. Behne
 	 */
-	private class MetaProteinRulesPanel extends JPanel {
+	public class MetaProteinRulesPanel extends JPanel {
 
 		/**
 		 * The checkbox governing whether the peptide rule shall be applied.
@@ -136,6 +138,16 @@ public class ResultParameters extends ParameterMap {
 		 * The combo box containing protein taxonomy rules.
 		 */
 		private JComboBox<TaxonomyRule> taxonomyCbx;
+		
+		/**
+		 * The check box for checking whether meta-proteins should be generated.
+		 */
+		private JCheckBox metaChk;
+		
+		/**
+		 * This flag determines whether changes have been made by the user.
+		 */
+		private boolean changed;
 
 		/**
 		 * Constructs a meta-protein rule selection panel.
@@ -153,7 +165,7 @@ public class ResultParameters extends ParameterMap {
 			this.setLayout(new FormLayout("p, 5dlu, p:g, 1px", "p, 5dlu, f:p:g"));
 			
 			// create checkbox governing whether meta-proteins shall be created at all
-			final JCheckBox metaChk = new JCheckBox("Generate Meta-Proteins", true);
+			metaChk = new JCheckBox("Generate Meta-Proteins", true);
 			
 			// create panel containing detailed rule controls
 			final JPanel rulesPnl = new JPanel(new FormLayout("p, 5dlu, p:g", "p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p"));
@@ -171,9 +183,10 @@ public class ResultParameters extends ParameterMap {
 			
 			clusterChk = new JCheckBox("Cluster Rule", true);
 			clusterCbx = new JComboBox<>(ClusterRule.getValues());
-			
+			clusterCbx.setEnabled(false);
 			taxonomyChk = new JCheckBox("Taxonomy Rule", true);
 			taxonomyCbx = new JComboBox<>(TaxonomyRule.getValues());
+			taxonomyCbx.setEnabled(false);
 			
 			rulesPnl.add(peptideChk, CC.xy(1, 1));
 			rulesPnl.add(peptideCbx, CC.xy(3, 1));
@@ -188,11 +201,17 @@ public class ResultParameters extends ParameterMap {
 			this.add(new JSeparator(), CC.xy(3, 1));
 			this.add(rulesPnl, CC.xyw(1, 3, 4));
 			
+			// initially disable rules
+			clusterChk.doClick();
+			taxonomyChk.doClick();
+			changed = false;
+			
 			// register listeners
 			metaChk.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent evt) {
 					rulesPnl.setEnabled(metaChk.isSelected());
+					changed = true;
 				}
 			});
 			
@@ -203,8 +222,13 @@ public class ResultParameters extends ParameterMap {
 					peptideChk.setEnabled(enabled);
 					clusterChk.setEnabled(enabled);
 					taxonomyChk.setEnabled(enabled);
+					changed = true;
 				}
 			});
+			
+			peptideCbx.addItemListener(new ComboBoxItemListener());
+			clusterCbx.addItemListener(new ComboBoxItemListener());
+			taxonomyCbx.addItemListener(new ComboBoxItemListener());
 			
 			peptideChk.addPropertyChangeListener("enabled", new PropertyChangeListener() {
 				@Override
@@ -217,6 +241,7 @@ public class ResultParameters extends ParameterMap {
 					leucineChk.setEnabled(enabled);
 					distLbl.setEnabled(enabled);
 					distSpn.setEnabled(enabled);
+					changed = true;
 				}
 			});
 			
@@ -228,6 +253,7 @@ public class ResultParameters extends ParameterMap {
 					leucineChk.setEnabled(selected);
 					distLbl.setEnabled(selected);
 					distSpn.setEnabled(selected);
+					changed = true;
 				}
 			});
 			
@@ -239,6 +265,7 @@ public class ResultParameters extends ParameterMap {
 						enabled = clusterChk.isSelected();
 					}
 					clusterCbx.setEnabled(enabled);
+					changed = true;
 				}
 			});
 			
@@ -247,6 +274,7 @@ public class ResultParameters extends ParameterMap {
 				public void actionPerformed(ActionEvent evt) {
 					boolean selected = clusterChk.isSelected();
 					clusterCbx.setEnabled(selected);
+					changed = true;
 				}
 			});
 			
@@ -258,6 +286,7 @@ public class ResultParameters extends ParameterMap {
 						enabled = taxonomyChk.isSelected();
 					}
 					taxonomyCbx.setEnabled(enabled);
+					changed = true;
 				}
 			});
 			
@@ -266,12 +295,17 @@ public class ResultParameters extends ParameterMap {
 				public void actionPerformed(ActionEvent evt) {
 					boolean selected = taxonomyChk.isSelected();
 					taxonomyCbx.setEnabled(selected);
+					changed = true;
 				}
 			});
 			
-			// initially disable rules
-			clusterChk.doClick();
-			taxonomyChk.doClick();
+			leucineChk.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					changed = true;
+				}
+			});
+
 		}
 		
 		/**
@@ -321,5 +355,28 @@ public class ResultParameters extends ParameterMap {
 			return TaxonomyRule.NEVER;
 		}
 		
+		/**
+		 * Method to check whether meta-proteins should be generated at all. 
+		 * @return the flag for generating meta-proteins
+		 */
+		public boolean hasChanged() {
+			return changed;
+		}
+		
+		/**
+		 * Method to set the changed flag externally. 
+		 */
+		public void setChanged(boolean changed) {
+			this.changed = changed;
+		}
+
+		class ComboBoxItemListener implements ItemListener {
+			// This method is called only if a new item has been selected.
+			public void itemStateChanged(ItemEvent evt) {
+				changed = true;
+			}
+		}
 	}
+	
+
 }

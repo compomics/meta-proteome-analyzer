@@ -50,6 +50,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.client.settings.ResultParameters.MetaProteinRulesPanel;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 
@@ -189,7 +190,6 @@ public class AdvancedSettingsDialog extends JDialog {
 				// Iterate parameters to build section components
 				for (Parameter p : entry.getValue()) {
 					JComponent comp = this.createParameterControl(p);
-					
 					if (comp instanceof JCheckBox) {
 						// Special case for checkboxes which come with labels of their own
 						builder.append(comp, 3);
@@ -322,6 +322,12 @@ public class AdvancedSettingsDialog extends JDialog {
 			if (comp instanceof JCheckBox) {
 				if (param.setValue(((JCheckBox) comp).isSelected())) {
 					this.status |= DIALOG_CHANGED;
+				}
+			} else if (comp instanceof MetaProteinRulesPanel) {
+				MetaProteinRulesPanel metaProteinRulesPanel = (MetaProteinRulesPanel) comp;
+				if (metaProteinRulesPanel.hasChanged()) {
+					this.status |= DIALOG_CHANGED;
+					metaProteinRulesPanel.setChanged(false);
 				}
 			} else if (comp instanceof JPanel) {
 				// assume we are dealing with a matrix of checkboxes
@@ -477,7 +483,9 @@ public class AdvancedSettingsDialog extends JDialog {
 		Object value = param.getValue();
 		// Determine type of value and generate appropriate control component
 		if (value instanceof JComponent) {
-			return (JComponent) value;
+			comp = (JComponent) value;
+			param2comp.put(param.getName(), comp);
+			return comp;
 		} else if (value instanceof Boolean) {
 			// Checkbox
 			JCheckBox checkBox = new JCheckBox(param.getName(), null, (Boolean) param.getValue());
