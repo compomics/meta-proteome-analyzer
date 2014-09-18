@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -20,6 +21,8 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -40,7 +43,7 @@ import de.mpa.db.accessor.SearchHit;
 public class ResultExporter {
 
 	public enum ExportHeaderType {
-		METAPROTEINS, TAXONOMY, PROTEINS, PEPTIDES, PSMS
+		METAPROTEINS, METAPROTEINTAXONOMY, PROTEINTAXONOMY, PROTEINS, PEPTIDES, PSMS
 	}
 	
 	/**
@@ -103,6 +106,98 @@ public class ResultExporter {
 			writer.newLine();
 			writer.flush();
 		}
+		writer.close();
+	}
+	
+	/**
+	 * This method exports the meta-protein results.
+	 * @param filePath The path string pointing to the target file.
+	 * @param result The database search result object.
+	 * @param exportHeaders The exported headers.
+	 * @throws IOException
+	 */
+	public static void exportMetaProteinTaxonomy(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
+		// Init the buffered writer.
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
+		boolean hasFeature[] = new boolean[2];
+		
+		// Taxonomy header information: Always write fixed header.
+		int counter = 0;
+		for (ExportHeader exportHeader : exportHeaders) {
+			if(exportHeader.getType() == ExportHeaderType.PROTEINTAXONOMY && counter < 10) {
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
+				counter++;
+			}
+		}
+		// Meta-protein header
+		for (ExportHeader exportHeader : exportHeaders) {
+			if(exportHeader.getType() == ExportHeaderType.METAPROTEINTAXONOMY) {
+				hasFeature[exportHeader.getId() - 1] = true;
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
+			}
+		}
+		writer.newLine();
+		
+		Map<TaxonomyNode, Set<SpectrumMatch>> taxonomySpectra = new HashMap<TaxonomyNode, Set<SpectrumMatch>>();
+		Map<TaxonomyNode, Set<PeptideHit>> taxonomyPeptides = new HashMap<TaxonomyNode, Set<PeptideHit>>();
+		
+		// Collect peptides and spectra from taxonomy hits.
+		for (ProteinHit metaProteinHit : result.getMetaProteins()) {
+			MetaProteinHit metaProtein = (MetaProteinHit) metaProteinHit;
+			Set<SpectrumMatch> spectrumIDs = metaProtein.getMatchSet();
+			Set<PeptideHit> peptideSet = metaProtein.getPeptideSet();
+			if (taxonomySpectra.get(metaProtein.getTaxonomyNode()) != null ) {
+				Set<SpectrumMatch> spectraSet = taxonomySpectra.get(metaProtein.getTaxonomyNode());
+				spectrumIDs.addAll(spectraSet);
+			} 
+			if (taxonomyPeptides.get(metaProtein.getTaxonomyNode()) != null ) {
+				Set<PeptideHit> peptideSet2 = taxonomyPeptides.get(metaProtein.getTaxonomyNode());
+				peptideSet.addAll(peptideSet2);
+			} 
+			taxonomySpectra.put(metaProtein.getTaxonomyNode(), spectrumIDs);
+			taxonomyPeptides.put(metaProtein.getTaxonomyNode(), peptideSet);
+		}
+		
+		Map<TaxonomyRank, Integer> rankMap = new LinkedHashMap<TaxonomyRank, Integer>();
+		rankMap.put(TaxonomyRank.ROOT, 0);
+		rankMap.put(TaxonomyRank.SUPERKINGDOM, 1);
+		rankMap.put(TaxonomyRank.KINGDOM, 2);
+		rankMap.put(TaxonomyRank.PHYLUM, 3);
+		rankMap.put(TaxonomyRank.CLASS, 4);
+		rankMap.put(TaxonomyRank.ORDER, 5);
+		rankMap.put(TaxonomyRank.FAMILY, 6);
+		rankMap.put(TaxonomyRank.GENUS, 7);
+		rankMap.put(TaxonomyRank.SPECIES, 8);
+		rankMap.put(TaxonomyRank.SUBSPECIES, 9);
+		List<TaxonomyRank> ranks = new ArrayList<TaxonomyRank>(rankMap.keySet());
+		ranks.remove(0);
+		
+		Set<Entry<TaxonomyNode, Set<SpectrumMatch>>> entrySet = taxonomySpectra.entrySet();
+		for (Entry<TaxonomyNode, Set<SpectrumMatch>> entry : entrySet) {
+			String[] taxArray = new String[10];
+			Set<PeptideHit> peptides = taxonomyPeptides.get(entry.getKey());
+			TaxonomyNode[] path = entry.getKey().getPath();
+			
+			// Get the real position of the taxonomic rank.
+			for (TaxonomyNode taxonomyNode : path) {
+				if (rankMap.get(taxonomyNode.getRank()) != null) {
+					int realPos = rankMap.get(taxonomyNode.getRank());
+					taxArray[realPos] = taxonomyNode.getName();
+				}
+			}
+			for (int i = 0; i < taxArray.length; i++) {
+				String taxon = taxArray[i];
+				if (taxon == null) {
+					if (i == 0) taxon = ""; 
+					else taxon = "Unknown " + ranks.get(i - 1).toString();
+				}
+				writer.append(taxon + Constants.TSV_FILE_SEPARATOR);
+			}
+			if (hasFeature[0]) writer.append(peptides.size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[1]) writer.append(entry.getValue().size() + Constants.TSV_FILE_SEPARATOR);
+			writer.newLine();
+		}
+		writer.flush();
 		writer.close();
 	}
 	
@@ -305,21 +400,21 @@ public class ResultExporter {
 	 * @param exportHeaders The exported headers.
 	 * @throws IOException
 	 */
-	public void exportTaxonomy(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
+	public static void exportProteinTaxonomy(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 		boolean hasFeature[] = new boolean[13];		
 
 		// Peptide header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.TAXONOMY) {
+			if(exportHeader.getType() == ExportHeaderType.PROTEINTAXONOMY) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
 		
-		this.writeTaxonomyResult(writer, hasFeature);
+		writeProteinTaxonomy(writer, hasFeature);
 		writer.flush();
 		writer.close();
 	}
@@ -330,7 +425,7 @@ public class ResultExporter {
 	 * @param hasFeature
 	 * @throws IOException
 	 */
-	private void writeTaxonomyResult(BufferedWriter writer, boolean[] hasFeature) throws IOException {
+	private static void writeProteinTaxonomy(BufferedWriter writer, boolean[] hasFeature) throws IOException {
 		Map<String, Integer> rankMap = new LinkedHashMap<String, Integer>();
 		rankMap.put("No rank", 0);
 		rankMap.put("Superkingdom", 1);
@@ -450,7 +545,7 @@ public class ResultExporter {
 	 * @param tableNode the tree table node
 	 * @return the set of spectrum IDs
 	 */
-	private Set<Long> getSpectrumIDsRecursively(TreeTableNode tableNode) {
+	private static Set<Long> getSpectrumIDsRecursively(TreeTableNode tableNode) {
 		Set<Long> spectrumIDs = new LinkedHashSet<Long>();
 		
 		if (tableNode != null) {
@@ -461,7 +556,7 @@ public class ResultExporter {
 				Enumeration<? extends TreeTableNode> children = tableNode.children();
 				while (children.hasMoreElements()) {
 					TreeTableNode child = children.nextElement();
-					spectrumIDs.addAll(this.getSpectrumIDsRecursively((TreeTableNode) child));
+					spectrumIDs.addAll(getSpectrumIDsRecursively((TreeTableNode) child));
 				}
 			}
 		}

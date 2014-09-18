@@ -15,19 +15,19 @@ public class ExportFields {
 	/**
 	 * Protein export.
 	 */
-	public boolean  proteinNumber; 
-	public boolean  proteinAccession;
-	public boolean  proteinDescription;
-	public boolean  proteinTaxonomy;
-	public boolean  proteinSeqCoverage;
-	public boolean  proteinMolWeight;
-	public boolean  proteinPi;
-	public boolean  proteinPepCount;
-	public boolean  proteinSpecCount;
-	public boolean  proteinEmPAI;
-	public boolean  proteinNSAF;
-	public boolean  proteinSequence;
-	public boolean  proteinPeptides;
+	public boolean proteinNumber = true;
+	public boolean proteinAccession = true;
+	public boolean proteinDescription = true;
+	public boolean proteinTaxonomy = true;
+	public boolean proteinSeqCoverage = true;
+	public boolean proteinMolWeight = true;
+	public boolean proteinPi = true;
+	public boolean proteinPepCount = true;
+	public boolean proteinSpecCount = true;
+	public boolean proteinEmPAI = false;
+	public boolean proteinNSAF = true;
+	public boolean proteinSequence = false;
+	public boolean proteinPeptides = true;
 	
 	/**
 	 * Peptide export.
@@ -72,7 +72,7 @@ public class ExportFields {
 	public boolean metaproteinPeptides;
 	
 	/**
-	 * Taxonomy Export.
+	 * Protein Taxonomy Export.
 	 */
 	public boolean taxonomyUnclassified;
 	public boolean taxonomySuperKingdom;
@@ -88,31 +88,16 @@ public class ExportFields {
 	public boolean taxonomySpecificSpecCount;
 	public boolean taxonomyKronaSpecCount;
 	
+	/**
+	 * Meta-protein taxonomy export.
+	 */
+	public boolean metaproteinTaxonomySpecificPeptides = true;
+	public boolean metaproteinTaxonomyKronaSpecCount = true;
 	
 	/**
 	 * Constructor to create default export fields.
 	 */
 	private ExportFields(){
-		
-		/**
-		 * Protein export
-		 */
-		proteinNumber = true;
-		proteinAccession = true;
-		proteinDescription = true;
-		proteinTaxonomy = true;
-		proteinSeqCoverage = true;
-		proteinPepCount = true;
-		proteinNSAF = true;
-		proteinEmPAI = false;
-		proteinPi = true;
-		proteinMolWeight = true;
-		proteinSequence = false;
-		proteinPeptides = true;
-		
-		/**
-		 * Peptide export.
-		 */
 		peptideNumber = true;
 		peptideProteinAccessions = true;
 		peptideSequence = true;
@@ -124,9 +109,6 @@ public class ExportFields {
 		peptideTaxRank = true;
 		peptideTaxId = true;
 		
-		/**
-		 * PSM export
-		 */
 		psmNumber = true;
 		psmProteinAccession = true;
 		psmPeptideSequence = true;
@@ -136,9 +118,6 @@ public class ExportFields {
 		psmQValue = true;
 		psmScore = true;
 		
-		/**
-		 * MetaProteinExport
-		 */
 		metaproteinNumber = true;
 		metaproteinAccessions = true;
 		metaproteinDescription = true;
@@ -148,9 +127,6 @@ public class ExportFields {
 		metaproteinProteins = true;
 		metaproteinPeptides = true;
 
-		/**
-		 * Taxonomy Export.
-		 */
 		taxonomyUnclassified = true;
 		taxonomySuperKingdom = true;
 		taxonomyKingdom = true;

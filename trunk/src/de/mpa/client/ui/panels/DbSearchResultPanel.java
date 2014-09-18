@@ -1916,6 +1916,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			try {
 				DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
 				
+				
 				// Begin by clearing all views
 				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 					TableConfig.clearTable(ptt.getTreeTable());
@@ -1966,7 +1967,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				/* Build tree table trees from (meta-)proteins */
 				// Iterate meta-proteins
 				for (ProteinHit metaProtein : metaProteins) {
-		
+					
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
 					
 					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHitList();
