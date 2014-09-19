@@ -28,7 +28,7 @@ On this page you will find information how to setup the MetaProteomeAnalyzer ser
 ----
 ==System Requirements==
 
- * Linux/Ubuntu system (preferably)
+ * Linux machine (Ubuntu or Debian preferably)
  * MySQL database (InnoDB preferably)
  * Minimum 2 GB RAM
  * Fast 64-bit machine (though 32-bit works as well)
