@@ -8,6 +8,7 @@
  * [#General_Information General Information]
  * [#System_Requirements System Requirements]
  * [#SQL_Database_Setup SQL Database Setup]
+ * [#Connection_Settings Connection Settings]
  * [#Algorithms_Installation Algorithms Installation]
  * [#FDR_Estimation FDR Estimation]
  * [#FASTA_Database_Formatting FASTA Database Formatting]
