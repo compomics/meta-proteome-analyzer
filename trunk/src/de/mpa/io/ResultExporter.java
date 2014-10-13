@@ -23,6 +23,7 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -373,13 +374,17 @@ public class ResultExporter {
 			List<PeptideHit> peptideHits = ph.getPeptideHitList();
 			for (PeptideHit peptideHit : peptideHits) {
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
+					if (!Client.isViewer()) {
+						MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(sm.getSearchSpectrumID());
+						sm.setTitle(mgf.getTitle());
+					}
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 					List<SearchHit> searchHits = psm.getSearchHits();
 					for (SearchHit searchHit : searchHits) {
 						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[3]) writer.append(psm.getTitle() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[3]) writer.append(sm.getTitle() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
