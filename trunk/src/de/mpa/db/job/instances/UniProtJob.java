@@ -31,7 +31,7 @@ public class UniProtJob extends Job {
 	public void run() {
 		try {
 			setStatus(JobStatus.RUNNING);
-			dbManager.queryAndStoreUniprotEntries(true);
+			dbManager.queryAndStoreUniprotEntries(false);
 		} catch (Exception e) {
 			setError(e);
 		}
