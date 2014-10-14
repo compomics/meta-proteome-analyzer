@@ -102,6 +102,15 @@ public class ExportDialog extends JDialog {
 	private JCheckBox psmSearchEngineCbx;
 	private JCheckBox psmQValueCbx;
 	private JCheckBox psmChargeCbx;
+	
+	/**
+	 * The identified spectra export panel.
+	 */
+	private JCheckBox spectrumNumberCbx;
+	private JCheckBox spectrumIDCbx;
+	private JCheckBox spectrumTitleCbx;
+	private JCheckBox spectrumPeptidesCbx;
+	private JCheckBox spectrumAccessionsCbx;
 
 	/**
 	 * The metaproteins export panel
@@ -114,6 +123,7 @@ public class ExportDialog extends JDialog {
 	private JCheckBox metaproteinPepCountCbx;
 	private JCheckBox metaproteinSpecCountCbx;
 	private JCheckBox metaproteinsPeptidesCbx;
+	private JCheckBox metaproteinsProteinsCbx;
 
 	/**
 	 * The taxonomy export panel
@@ -130,6 +140,7 @@ public class ExportDialog extends JDialog {
 	private JCheckBox taxonomySubspeciesCbx;
 	private JCheckBox taxonomyUnclassifiedCbx;
 	private JCheckBox taxonomySpecificPeptidesCbx;
+	private JCheckBox taxonomyKronaSpecCountCbx;
 	
 	/**
 	 * The meta-protein taxonomy export panel
@@ -141,11 +152,6 @@ public class ExportDialog extends JDialog {
 	 * Headers for the export
 	 */
 	private List<ExportHeader> exportHeaders;
-
-	private JCheckBox metaproteinsProteinsCbx;
-
-	private JCheckBox taxonomyKronaSpecCountCbx;
-
 
 	public ExportDialog(ClientFrame owner, String title, boolean modal, ExportFields exportFields) {
 		super(owner, title, modal);
@@ -266,8 +272,6 @@ public class ExportDialog extends JDialog {
 		// Add all to the proteinpanel
 		proteinPanel.add(proteinFeaturePnl, CC.xy(2, 2));
 		proteinPanel.add(proteinButtonPnl, CC.xy(2, 4));
-
-
 
 		// PEPTIDES section 
 		JPanel peptidePnl = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
@@ -407,9 +411,8 @@ public class ExportDialog extends JDialog {
 		psmScoreCbx = new JCheckBox();
 		psmScoreCbx.setText("Score");
 		psmScoreCbx.setSelected(exportFields.psmScore);
-		// Add to psm features panel
-		peptidePnl.add(peptideFeaturesPnl, CC.xy(2, 2));
-		peptidePnl.add(peptideButtonPnl, CC.xy(2, 4));
+		
+		// Add to PSM features panel.
 		psmFeaturesPanel.add(psmNumberCbx, CC.xy(2,  2));
 		psmFeaturesPanel.add(psmProteinAccessionCbx, CC.xy(2,  4));
 		psmFeaturesPanel.add(psmPeptideSequenceCbx, CC.xy(2,  6));		
@@ -418,7 +421,7 @@ public class ExportDialog extends JDialog {
 		psmFeaturesPanel.add(psmSearchEngineCbx, CC.xy(4,  4));
 		psmFeaturesPanel.add(psmQValueCbx, CC.xy(4,  6));		
 		psmFeaturesPanel.add(psmScoreCbx, CC.xy(4,  8));
-		// Psm button bar
+		// PSM button bar
 		JPanel psmButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
 		// PSM export button
 		JButton psmExportBtn = new JButton("Export PSMs", IconConstants.CHECK_ICON);
@@ -434,7 +437,7 @@ public class ExportDialog extends JDialog {
 				storeEntries();
 			}
 		});
-		// Configure 'Close' button
+		// Configure PSM 'Close' button
 		JButton psmCancelBtn = new JButton("Close", IconConstants.SAVE_ICON);
 		psmCancelBtn.setRolloverIcon(IconConstants.SAVE_ROLLOVER_ICON);
 		psmCancelBtn.setPressedIcon(IconConstants.SAVE_PRESSED_ICON);
@@ -448,7 +451,7 @@ public class ExportDialog extends JDialog {
 				close();
 			}
 		});
-		// Peptide 'Cancel' button
+		// Configure PSM 'Cancel' button
 		JButton psmRefuseBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
 		psmRefuseBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
 		psmRefuseBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
@@ -460,14 +463,91 @@ public class ExportDialog extends JDialog {
 				close();
 			}
 		});
-		// Add to psm button bar
+		// Add to PSM button bar
 		psmButtonPnl.add(psmExportBtn, CC.xy(2, 2));
 		psmButtonPnl.add(psmCancelBtn, CC.xy(4, 2));
 		psmButtonPnl.add(psmRefuseBtn, CC.xy(6, 2));
-		// Add to psm panel
+		// Add to PSM panel
 		psmPanel.add(psmFeaturesPanel, CC.xy(2, 2));
 		psmPanel.add(psmButtonPnl, CC.xy(2, 4));
-
+		
+		// Identified SPECTRA section
+		JPanel spectrumPanel = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
+		JPanel spectrumFeaturesPanel = new JPanel(new FormLayout("5dlu, p, 30dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
+		spectrumNumberCbx = new JCheckBox();
+		spectrumNumberCbx.setText("Spectrum Number");
+		spectrumNumberCbx.setSelected(exportFields.spectrumID);
+		spectrumIDCbx = new JCheckBox();
+		spectrumIDCbx.setText("Spectrum ID");
+		spectrumIDCbx.setSelected(exportFields.spectrumID);
+		spectrumTitleCbx = new JCheckBox();
+		spectrumTitleCbx.setText("Spectrum Title");
+		spectrumTitleCbx.setSelected(exportFields.spectrumTitle);
+		spectrumPeptidesCbx = new JCheckBox();
+		spectrumPeptidesCbx.setText("Peptide(s)");
+		spectrumPeptidesCbx.setSelected(exportFields.spectrumPeptides);
+		spectrumAccessionsCbx = new JCheckBox();
+		spectrumAccessionsCbx.setText("Protein Accession(s)");
+		spectrumAccessionsCbx.setSelected(exportFields.spectrumAccessions);
+		
+		// Add to spectrum features panel.
+		spectrumFeaturesPanel.add(spectrumNumberCbx, CC.xy(2,  2));
+		spectrumFeaturesPanel.add(spectrumIDCbx, CC.xy(4,  2));
+		spectrumFeaturesPanel.add(spectrumTitleCbx, CC.xy(2,  4));
+		spectrumFeaturesPanel.add(spectrumPeptidesCbx, CC.xy(4,  4));		
+		spectrumFeaturesPanel.add(spectrumAccessionsCbx, CC.xy(2,  6));
+		
+		// Spectrum button bar
+		JPanel spectrumButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
+		
+		// Spectrum export button
+		JButton spectrumExportBtn = new JButton("Export PSMs", IconConstants.CHECK_ICON);
+		spectrumExportBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
+		spectrumExportBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
+		spectrumExportBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		spectrumExportBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Start export
+				chooseExporter("Export Identified Spectra");
+				// Store entries from the PSM checkboxes.
+				storeEntries();
+			}
+		});
+		// Configure 'Close' button
+		JButton spectrumCancelBtn = new JButton("Close", IconConstants.SAVE_ICON);
+		spectrumCancelBtn.setRolloverIcon(IconConstants.SAVE_ROLLOVER_ICON);
+		spectrumCancelBtn.setPressedIcon(IconConstants.SAVE_PRESSED_ICON);
+		spectrumCancelBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		spectrumCancelBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Store entries from the PSM checkboxes
+				storeEntries();
+				// Close
+				close();
+			}
+		});
+		// Spectrum 'Cancel' button
+		JButton spectrumRefuseBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
+		spectrumRefuseBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
+		spectrumRefuseBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
+		spectrumRefuseBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		spectrumRefuseBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Close
+				close();
+			}
+		});
+		// Add to spectrum button bar.
+		spectrumButtonPnl.add(psmExportBtn, CC.xy(2, 2));
+		spectrumButtonPnl.add(psmCancelBtn, CC.xy(4, 2));
+		spectrumButtonPnl.add(psmRefuseBtn, CC.xy(6, 2));
+		
+		// Add to spectrum panel.
+		spectrumPanel.add(spectrumFeaturesPanel, CC.xy(2, 2));
+		spectrumPanel.add(spectrumButtonPnl, CC.xy(2, 4));
 
 		// META-PROTEINS section
 		JPanel metaProteinPnl = new JPanel(new FormLayout("5dlu, p, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
@@ -734,6 +814,7 @@ public class ExportDialog extends JDialog {
 		tabPane.addTab("Proteins", proteinPanel);
 		tabPane.addTab("Peptides", peptidePnl);
 		tabPane.addTab("PSMs", psmPanel);
+		tabPane.addTab("Identified Spectra", spectrumPanel);
 		tabPane.addTab("Meta-Protein Taxonomy", metaProteinTaxonomyPnl);
 		tabPane.addTab("Protein Taxonomy", taxonomyPnl);
 
@@ -807,9 +888,12 @@ public class ExportDialog extends JDialog {
 					resultType = "PSMs";
 					ResultExporter.exportPSMs(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} else if (tabPane.getSelectedIndex() == 4) {
+					resultType = "Identified Spectra";
+					ResultExporter.exportIdentifiedSpectra(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
+				} else if (tabPane.getSelectedIndex() == 5) {
 					resultType = "Meta-Protein Taxonomy";
 					ResultExporter.exportMetaProteinTaxonomy(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
-				} else if (tabPane.getSelectedIndex() == 5) {
+				} else if (tabPane.getSelectedIndex() == 6) {
 					resultType = "Protein Taxonomy";
 					ResultExporter.exportProteinTaxonomy(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
 				} 
@@ -903,6 +987,13 @@ public class ExportDialog extends JDialog {
 		if(psmSearchEngineCbx.isSelected()) exportHeaders.add(new ExportHeader(6, psmSearchEngineCbx.getText(), ExportHeaderType.PSMS));
 		if(psmQValueCbx.isSelected()) exportHeaders.add(new ExportHeader(7, psmQValueCbx.getText(), ExportHeaderType.PSMS));
 		if(psmScoreCbx.isSelected()) exportHeaders.add(new ExportHeader(8, psmScoreCbx.getText(), ExportHeaderType.PSMS));
+		
+		// Identified Spectra
+		if(spectrumNumberCbx.isSelected()) exportHeaders.add(new ExportHeader(1, spectrumNumberCbx.getText(), ExportHeaderType.SPECTRA));
+		if(spectrumIDCbx.isSelected()) exportHeaders.add(new ExportHeader(2, spectrumIDCbx.getText(), ExportHeaderType.SPECTRA));
+		if(spectrumTitleCbx.isSelected()) exportHeaders.add(new ExportHeader(3, spectrumTitleCbx.getText(), ExportHeaderType.SPECTRA));
+		if(spectrumPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(4, spectrumPeptidesCbx.getText(), ExportHeaderType.SPECTRA));
+		if(spectrumAccessionsCbx.isSelected()) exportHeaders.add(new ExportHeader(5, spectrumAccessionsCbx.getText(), ExportHeaderType.SPECTRA));
 	}
 
 	/**

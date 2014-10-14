@@ -2,8 +2,6 @@ package de.mpa.webservice;
 
 import javax.xml.ws.Endpoint;
 
-import de.mpa.client.settings.ConnectionParameters;
-
 public class WSPublisher {
 	
 	
@@ -22,8 +20,8 @@ public class WSPublisher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ConnectionParameters connectionParams = new ConnectionParameters();
-		Endpoint.publish("http://0.0.0.0" + ":" + ((Integer[]) connectionParams.get("srvPort").getValue())[0] + "/WS/Server", new ServerImpl());
+		// Default hard-coded endpoint - do not change!
+		Endpoint.publish("http://0.0.0.0:8080/WS/Server", new ServerImpl());
 	}
 	
 	

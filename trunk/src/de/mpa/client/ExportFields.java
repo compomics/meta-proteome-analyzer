@@ -54,7 +54,16 @@ public class ExportFields {
 	public boolean psmSearchEngine;
 	public boolean psmQValue;
 	public boolean psmScore;
-
+	
+	/**
+	 * Identified spectra export
+	 */
+	public boolean spectrumNumber = true;
+	public boolean spectrumID = true;
+	public boolean spectrumTitle = true;
+	public boolean spectrumPeptides = true;
+	public boolean spectrumAccessions = true;
+	
 	/**
 	 * MetaProteinExport.
 	 */
