@@ -31,7 +31,7 @@ public class OmssaParameters extends ParameterMap {
 		this.put("tem", new Parameter("Precursor mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
 		this.put("zt", new Parameter("Scale precursor tol.", 3, "Spectrum", "Precursor mass tolerance scales according to charge state.")); 
 		this.put("ht", new Parameter("Most intense peaks", 6, "Spectrum", "Number of m/z values corresponding to the most intense peaks."));
-		this.put("nt", new Parameter("Worker threads", 4, "Spectrum", "The number of threads OMSSA is using for processing."));
+		this.put("nt", new Parameter("Worker threads", 8, "Spectrum", "The number of threads OMSSA is using for processing."));
 		// Scoring section
 		this.put("hm", new Parameter("<html>Required number of m/z<br>matches per spectrum</html>", 2, "Scoring", "The number of m/z matches a sequence library peptide must have for the hit to the peptide to be recorded."));
 		this.put("hl", new Parameter("Maximum number of hits", 30, "Scoring", "Maximum number of hits retained per precursor charge state per spectrum."));
