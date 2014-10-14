@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +35,10 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ProteinTreeTables;
+import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
+import de.mpa.db.accessor.XTandemhit;
+import de.mpa.graphdb.properties.PsmProperty;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and taxonomy results.
@@ -44,7 +48,7 @@ import de.mpa.db.accessor.SearchHit;
 public class ResultExporter {
 
 	public enum ExportHeaderType {
-		METAPROTEINS, METAPROTEINTAXONOMY, PROTEINTAXONOMY, PROTEINS, PEPTIDES, PSMS
+		METAPROTEINS, METAPROTEINTAXONOMY, PROTEINTAXONOMY, PROTEINS, PEPTIDES, PSMS, SPECTRA
 	}
 	
 	/**
@@ -339,6 +343,7 @@ public class ResultExporter {
 					peptideSet.add(peptideHit);
 				}
 			}
+			writer.flush();
 		}
 		writer.close();
 	}
@@ -393,7 +398,105 @@ public class ResultExporter {
 					}			
 					
 				}
+			}
+			writer.flush();
+		}
+		writer.close();
+	}
+	
+	/**
+	 * This method exports the identified spectra.
+	 * @param filePath The path string pointing to the target file.
+	 * @param result The database search result object.
+	 * @param exportHeaders The exported headers.
+	 * @throws IOException
+	 * @throws SQLException 
+	 */
+	public static void exportIdentifiedSpectra(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException, SQLException {
+		// Init the buffered writer.
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
+		
+		boolean hasFeature[] = new boolean[5];		
+
+		// Protein header
+		for (ExportHeader exportHeader : exportHeaders) {
+			if(exportHeader.getType() == ExportHeaderType.SPECTRA) {
+				hasFeature[exportHeader.getId() - 1] = true;
+				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
+			}
+		}
+		writer.newLine();
+		
+		// Number of identified spectra
+		int nIdentifiedSpectra = 0;
+		
+		Map<String, List<SpectrumMatch>> spectraToPSMs = new HashMap<String, List<SpectrumMatch>>();
+		
+		for (ProteinHit ph : result.getProteinHitList()) {
+			List<PeptideHit> peptideHits = ph.getPeptideHitList();
+			for (PeptideHit peptideHit : peptideHits) {
+				
+				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
+					if (!Client.isViewer()) {
+						MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(sm.getSearchSpectrumID());
+						sm.setTitle(mgf.getTitle());						
+					}
+					List<SpectrumMatch> currentPSMs = null;
+					if (spectraToPSMs.get(sm.getTitle()) != null) {
+						currentPSMs = spectraToPSMs.get(sm.getTitle());
+					} else {
+						currentPSMs = new ArrayList<SpectrumMatch>();
+					}
+					currentPSMs.add(sm);
+					spectraToPSMs.put(sm.getTitle(), currentPSMs);
+				}
 			}		
+		}
+		
+		Set<Entry<String, List<SpectrumMatch>>> entrySet = spectraToPSMs.entrySet();
+		for (Entry<String, List<SpectrumMatch>> entry : entrySet) {
+			if (hasFeature[0]) writer.append(++nIdentifiedSpectra + Constants.TSV_FILE_SEPARATOR);
+			List<SpectrumMatch> psms = entry.getValue();
+			if (hasFeature[1]) writer.append(psms.get(0).getSearchSpectrumID() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[2]) writer.append(psms.get(0).getTitle() + Constants.TSV_FILE_SEPARATOR);
+			
+			Set<PeptideHit> allPeptides = new HashSet<PeptideHit>();
+			
+			Set<ProteinHit> allProteins = new HashSet<ProteinHit>();
+			for (SpectrumMatch sm : psms) {
+				Collection<PeptideHit> peptideHits = sm.getPeptideHits();
+				allPeptides.addAll(peptideHits);
+				for (PeptideHit peptideHit : peptideHits) {
+					allProteins.addAll(peptideHit.getProteinHits());
+				}
+			}
+			
+			List<PeptideHit> peptideHits = new ArrayList<PeptideHit>(allPeptides);
+			List<ProteinHit> proteinHits = new ArrayList<ProteinHit>(allProteins);
+			if (hasFeature[3]) {
+				for (int i = 0; i < peptideHits.size(); i++) {
+					PeptideHit peptideHit = peptideHits.get(i);
+					if (i == peptideHits.size() - 1) {
+						writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
+					} else {
+						writer.append(peptideHit.getSequence() + ";");
+					}
+				}
+			}
+			
+			if (hasFeature[4]) {
+				for (int i = 0; i < proteinHits.size(); i++) {
+					ProteinHit proteinHit = proteinHits.get(i);
+					if (i == proteinHits.size() - 1) {
+						writer.append(proteinHit.getAccession() + Constants.TSV_FILE_SEPARATOR);
+					} else {
+						writer.append(proteinHit.getAccession() + ";");
+					}
+				}
+						
+			}
+			writer.newLine();
+			writer.flush();
 		}
 		writer.close();
 	}
@@ -567,5 +670,7 @@ public class ResultExporter {
 		}
 		return spectrumIDs;
 	}
+	
+	
 
 }
