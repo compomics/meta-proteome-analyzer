@@ -35,8 +35,7 @@ public class SpecSimResult {
 				currentPeptideHit = newProteinHit.getSinglePeptideHit();
 			} else {
 				// append SSM to existing peptide hit
-				currentPeptideHit.addSpectrumMatch(
-						newProteinHit.getSinglePeptideHit().getSingleSpectrumMatch());
+				currentPeptideHit.addSpectrumMatch(currentPeptideHit.getSequence(),	newProteinHit.getSinglePeptideHit().getSingleSpectrumMatch());
 			}
 			currentProteinHit.addPeptideHit(currentPeptideHit);
 		}

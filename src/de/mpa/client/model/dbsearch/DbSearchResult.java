@@ -91,8 +91,8 @@ public class DbSearchResult implements Serializable {
 		Set<Long> experimentIDs = proteinHit.getExperimentIDs();
 
 		// check for existing elements
-		SpectrumMatch currentSpectrumMatch =
-				this.getSpectrumMatch(spectrumMatch.getSearchSpectrumID());
+		
+		SpectrumMatch currentSpectrumMatch = this.getSpectrumMatch(peptideHit.getSequence() + spectrumMatch.getSearchSpectrumID());
 		if (currentSpectrumMatch != null) {
 			currentSpectrumMatch.addExperimentIDs(experimentIDs);
 			spectrumMatch = currentSpectrumMatch;
@@ -120,7 +120,7 @@ public class DbSearchResult implements Serializable {
 		
 		// add elements, possibly replacing them with existing ones
 		proteinHit.addPeptideHit(peptideHit);
-		peptideHit.addSpectrumMatch(spectrumMatch);
+		peptideHit.addSpectrumMatch(peptideHit.getSequence(), spectrumMatch);
 		spectrumMatch.addSearchHit(searchHit);
 	}
 
@@ -231,13 +231,13 @@ public class DbSearchResult implements Serializable {
 	
 	/**
 	 * Returns the spectrum match for a particular search spectrum ID.
-	 * @param id the search spectrum database ID
+	 * @param key the search spectrum database key
 	 * @return the spectrum match or <code>null</code> if no such match exists
 	 */
-	public SpectrumMatch getSpectrumMatch(long id) {
+	public SpectrumMatch getSpectrumMatch(String key) {
 		for (ProteinHit proteinHit : this.getProteinHits().values()) {
 			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
-				SpectrumMatch spectrumMatch = peptideHit.getSpectrumMatch(id);
+				SpectrumMatch spectrumMatch = peptideHit.getSpectrumMatch(key);
 				if (spectrumMatch != null) {
 					return spectrumMatch;
 				}

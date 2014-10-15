@@ -138,7 +138,6 @@ public class DatabaseExperiment extends AbstractExperiment {
 				// add search hits to result object
 				for (SearchHit searchHit : searchHits) {
 					this.addProteinSearchHit(searchResult, searchHit, id, conn);
-
 					client.firePropertyChange("progressmade", true, false);
 				}
 				
@@ -172,11 +171,11 @@ public class DatabaseExperiment extends AbstractExperiment {
 
 		// wrap the search hit in a new PSM
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
-
+		
 		// wrap the PSM in a new peptide
 		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);
 		PeptideHit peptideHit = new PeptideHit(peptide.getSequence(), psm);
-
+		
 		// retrieve the protein database entry
 		long proteinID = hit.getFk_proteinid();
 		ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
