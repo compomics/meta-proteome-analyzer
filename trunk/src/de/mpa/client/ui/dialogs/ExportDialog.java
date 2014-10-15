@@ -501,7 +501,7 @@ public class ExportDialog extends JDialog {
 		JPanel spectrumButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
 		
 		// Spectrum export button
-		JButton spectrumExportBtn = new JButton("Export PSMs", IconConstants.CHECK_ICON);
+		JButton spectrumExportBtn = new JButton("Export Spectra", IconConstants.CHECK_ICON);
 		spectrumExportBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		spectrumExportBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
 		spectrumExportBtn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -541,9 +541,9 @@ public class ExportDialog extends JDialog {
 			}
 		});
 		// Add to spectrum button bar.
-		spectrumButtonPnl.add(psmExportBtn, CC.xy(2, 2));
-		spectrumButtonPnl.add(psmCancelBtn, CC.xy(4, 2));
-		spectrumButtonPnl.add(psmRefuseBtn, CC.xy(6, 2));
+		spectrumButtonPnl.add(spectrumExportBtn, CC.xy(2, 2));
+		spectrumButtonPnl.add(spectrumCancelBtn, CC.xy(4, 2));
+		spectrumButtonPnl.add(spectrumRefuseBtn, CC.xy(6, 2));
 		
 		// Add to spectrum panel.
 		spectrumPanel.add(spectrumFeaturesPanel, CC.xy(2, 2));

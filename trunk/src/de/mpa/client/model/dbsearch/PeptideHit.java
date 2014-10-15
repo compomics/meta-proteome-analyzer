@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import de.mpa.analysis.Masses;
@@ -57,12 +58,12 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	/**
 	 * The peptide spectrum match(es) for this peptide hit.
 	 */
-	private Map<Long, SpectrumMatch> spectrumMatches;
+	private Map<String, SpectrumMatch> spectrumMatches;
 
 	/**
 	 * Visible spectrum matches for this peptide hit.
 	 */
-	private Map<Long, SpectrumMatch> visSpectrumMatches;
+	private Map<String, SpectrumMatch> visSpectrumMatches;
 
 	/**
 	 * The NCBI taxonomy node of the peptide.
@@ -82,9 +83,9 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	public PeptideHit(String sequence, SpectrumMatch spectrumMatch) {
 		this.sequence = sequence;
 		this.proteinHits = new ArrayList<ProteinHit>();
-		this.spectrumMatches = new HashMap<Long, SpectrumMatch>();
+		this.spectrumMatches = new HashMap<String, SpectrumMatch>();
 		this.experimentIDs = new HashSet<Long>();
-		addSpectrumMatch(spectrumMatch);
+		addSpectrumMatch(sequence, spectrumMatch);
 	}
 
 	/**
@@ -171,8 +172,8 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * Adds a spectrum match to the PeptideHit. 
 	 * @param sm The spectrum match.
 	 */
-	public void addSpectrumMatch(SpectrumMatch sm) {
-		spectrumMatches.put(sm.getSearchSpectrumID(), sm);
+	public void addSpectrumMatch(String peptideSequence, SpectrumMatch sm) {
+		spectrumMatches.put(peptideSequence + sm.getSearchSpectrumID(), sm);
 		sm.addPeptideHit(this);
 	}
 
@@ -181,11 +182,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @param id The search spectrum ID.
 	 * @return The mapped spectrum match.
 	 */
-	public SpectrumMatch getSpectrumMatch(long id) {
+	public SpectrumMatch getSpectrumMatch(String key) {
 		if (visSpectrumMatches != null) {
-			return visSpectrumMatches.get(id);
+			return visSpectrumMatches.get(key);
 		} else {
-			return spectrumMatches.get(id);
+			return spectrumMatches.get(key);
 		}
 	}
 
@@ -257,11 +258,13 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		this.visSpectrumMatches = new HashMap<Long, SpectrumMatch>();
-		for (SpectrumMatch match : spectrumMatches.values()) {
+		this.visSpectrumMatches = new HashMap<String, SpectrumMatch>();
+		Set<Entry<String, SpectrumMatch>> entrySet = spectrumMatches.entrySet();
+		for (Entry<String, SpectrumMatch> entry : entrySet) {
+			SpectrumMatch match = entry.getValue();
 			match.setFDR(fdr);
 			if (match.isVisible()) {
-				visSpectrumMatches.put(match.getSearchSpectrumID(), match);
+				visSpectrumMatches.put(entry.getKey(), match);
 			}
 		}
 	}
