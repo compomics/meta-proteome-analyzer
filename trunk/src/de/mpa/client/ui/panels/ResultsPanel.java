@@ -949,6 +949,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 		
 		@Override
 		protected Integer doInBackground() {
+			Thread.currentThread().setName("FetchResultsThread");
+			
 			Client client = Client.getInstance();
 			try {
 				// Begin appearing busy
@@ -1019,23 +1021,31 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		@Override
 		protected Object doInBackground() {
-			// begin appearing busy
-			ResultsPanel.this.setBusy(true);
-			dbPnl.setBusy(true);
-			gdbPnl.setBusy(true);
+			try {
+				Thread.currentThread().setName("ProcessResultsThread");
 			
-			// restore result object from backup file if it was processed before
-			Client client = Client.getInstance();
-			if (!dbSearchResult.isRaw()) {
-				dbSearchResult = client.restoreBackupDatabaseSearchResult();
+				// begin appearing busy
+				ResultsPanel.this.setBusy(true);
+				dbPnl.setBusy(true);
+				gdbPnl.setBusy(true);
+				
+				// restore result object from backup file if it was processed before
+				Client client = Client.getInstance();
+				if (!dbSearchResult.isRaw()) {
+					dbSearchResult = client.restoreBackupDatabaseSearchResult();
+				}
+				
+				// process results
+				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
+						dbSearchResult, client.getResultParameters());
+				dbSearchResult.setRaw(false);
+
+				return 1;
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
 			}
-			
-			// process results
-			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
-					dbSearchResult, client.getResultParameters());
-			dbSearchResult.setRaw(false);
-			
-			return null;
+			return 0;
 		}
 
 		@Override
@@ -1058,6 +1068,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		@Override
 		protected Integer doInBackground() {
+			Thread.currentThread().setName("UpdateOverviewThread");
+			
 			if (dbSearchResult != null) {
 				try {
 					Set<String> speciesNames = new HashSet<>();
@@ -1116,7 +1128,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
 							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
-		
 				}
 			}
 			return 0;

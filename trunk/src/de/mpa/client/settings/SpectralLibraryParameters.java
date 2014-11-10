@@ -3,6 +3,8 @@ package de.mpa.client.settings;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JComponent;
+
 import de.mpa.client.ui.panels.SpectralLibrarySettingsPanel;
 
 /**
@@ -13,8 +15,18 @@ public class SpectralLibraryParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
-		SpectralLibrarySettingsPanel specLibSetPnl = new SpectralLibrarySettingsPanel();
-		this.put("settings", new Parameter("", specLibSetPnl, "Settings", "Spectral Library Settings"));
+		this.put("settings", new Parameter(new SpectralLibrarySettingsPanel(), null, null, "Settings") {
+			@Override
+			public JComponent createLeftComponent() {
+				return (JComponent) this.getValue();
+			}
+			
+			@Override
+			public boolean applyChanges() {
+				return false;
+			}
+			
+		});
 	}
 
 	@Override

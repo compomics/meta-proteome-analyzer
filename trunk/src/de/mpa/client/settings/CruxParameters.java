@@ -6,8 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
+import de.mpa.client.settings.Parameter.BooleanParameter;
+import de.mpa.client.settings.Parameter.NumberParameter;
+import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Class for storing Crux search engine-specific settings.
@@ -25,20 +26,20 @@ public class CruxParameters extends ParameterMap {
 	
 	@Override
 	public void initDefaults() {
-		/* Non-configurable settings */
-		this.put("enzyme", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] {"trypsin", "elastase", "chymotrypsin", "cyanogen-bromide", "iodosobenzoate", "aspn", "proline-endopeptidase"}), "Spectrum", "Cleavage enzyme to used by the Crux search engine."));		// protease
-		
 		/* Configurable settings */
 		// Spectrum section
-		this.put("fragment-mass", new Parameter("Fragment Mass Type", new DefaultComboBoxModel(new Object[] { "mono", "average" }), "Spectrum", "Which isotopes to use in calculating fragment ion mass."));
-		this.put("min-peaks", new Parameter("Minimum Peaks", 20, "Spectrum", "Minimum number of peaks a spectrum must have for it to be searched."));
-		this.put("use-flanking-peaks", new Parameter("Use Flanking Peaks", false, "Spectrum", "Turn on or off the peaks flanking the b/y ions."));
-		this.put("top-match", new Parameter("Top Match PSMs", 5, "Spectrum", "The number of psms per spectrum writen to the output files."));
+		this.put("enzyme", new OptionParameter(new Object[] {"trypsin", "elastase", "chymotrypsin", "cyanogen-bromide", "iodosobenzoate", "aspn", "proline-endopeptidase"},
+				0, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Spectrum"));
+		this.put("fragment-mass", new OptionParameter(new Object[] { "mono", "average" },
+				0, "Fragment mass type", "Which isotopes to use in calculating fragment ion mass.", "Spectrum"));
+		this.put("min-peaks", new NumberParameter(20, 1, null, "Minimum peaks", "Minimum number of peaks a spectrum must have for it to be searched.", "Spectrum"));
+		this.put("use-flanking-peaks", new BooleanParameter(false, "Use flanking peaks", "Turn on or off the peaks flanking the b/y ions.", "Spectrum"));
+		this.put("top-match", new NumberParameter(5, 1, null, "Top matching PSMs", "The number of PSMs per spectrum written to the output files.", "Spectrum"));
 		// Scoring section
-		this.put("min-length", new Parameter("Minimum peptide length", 7, "Scoring parameters", "The minimum length of peptides to consider."));
-		this.put("max-length", new Parameter("Maximum peptide length", 50, "Scoring parameters", "The maximum length of peptides to consider."));
-		this.put("min-mass", new Parameter("Minimum peptide mass", 200.0, "Scoring parameters", "The minimum neutral mass of the peptides to place in the index."));
-		this.put("max-mass", new Parameter("Maximum peptide mass", 7200.0, "Scoring parameters", "The maximum neutral mass of the peptides to place in index."));
+		this.put("min-length", new NumberParameter(7, 1, null, "Minimum peptide length", "The minimum length of peptides to consider.", "Scoring parameters"));
+		this.put("max-length", new NumberParameter(50, 1, null, "Maximum peptide length", "The maximum length of peptides to consider.", "Scoring parameters"));
+		this.put("min-mass", new NumberParameter(200.0, 0.0, null, "Minimum peptide mass", "The minimum neutral mass of the peptides to index.", "Scoring parameters"));
+		this.put("max-mass", new NumberParameter(7200.0, 0.0, null, "Maximum peptide mass", "The maximum neutral mass of the peptides to index.", "Scoring parameters")); 
 	}
 
 	@Override
@@ -53,15 +54,11 @@ public class CruxParameters extends ParameterMap {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
 			Object defaultValue = defaults.get(key).getValue();
-			if (value instanceof ComboBoxModel) {
-				// special case for combobox models, compare selected items
-				value = ((ComboBoxModel) value).getSelectedItem();
-				defaultValue = ((ComboBoxModel) defaultValue).getSelectedItem();
-			}
 			// Compare values, if they differ add a line to the configuration file
-		
-			// Write line containing non-default value
-			sb.append(key + "=" + value + "\n");
+			if (!value.equals(defaultValue)) {
+				// Write line containing non-default value
+				sb.append(key + "=" + value + "\n");
+			}
 		}
 		return sb.toString();
 	}
@@ -92,11 +89,6 @@ public class CruxParameters extends ParameterMap {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
 			Object defaultValue = defaults.get(key).getValue();
-			if (value instanceof ComboBoxModel) {
-				// special case for combobox models, compare selected items
-				value = ((ComboBoxModel) value).getSelectedItem();
-				defaultValue = ((ComboBoxModel) defaultValue).getSelectedItem();
-			}
 			// Compare values, if they differ add a line to the configuration file
 			if (!value.equals(defaultValue)) {
 				// Write line containing non-default value

@@ -21,7 +21,7 @@ import de.mpa.client.settings.ParameterMap;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ServerImplService", targetNamespace = "http://webservice.mpa.de/", wsdlLocation = "http://metaprot:" + ConnectionParameters.DEFAULT_PORT + "/WS/Server?wsdl")
+@WebServiceClient(name = "ServerImplService", targetNamespace = "http://webservice.mpa.de/", wsdlLocation = "http://metaprot:" + ConnectionParameters.DEFAULT_SRV_PORT + "/WS/Server?wsdl")
 public class ServerImplService
     extends Service
 {
@@ -34,9 +34,11 @@ public class ServerImplService
         URL url = null;
         WebServiceException e = null;
         try {
-            ParameterMap connectionParams = Client.getInstance().getConnectionParameters();  
+            ParameterMap params = Client.getInstance().getConnectionParameters();  
             
-			url = new URL("http://" + connectionParams.get("srvAddress").getValue() +":" + ((Integer[]) connectionParams.get("srvPort").getValue())[0] + "/WS/Server?wsdl");
+			Object address = params.get("srvAddress").getValue();
+            Object srvPort = params.get("srvPort").getValue();
+			url = new URL("http://" + address +":" + srvPort + "/WS/Server?wsdl");
         } catch (MalformedURLException ex) {
             throw new WebServiceException(ex);
         }

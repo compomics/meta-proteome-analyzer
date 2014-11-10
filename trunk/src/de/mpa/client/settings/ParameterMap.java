@@ -2,9 +2,7 @@ package de.mpa.client.settings;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Interface defining parameter storage capabilities.
@@ -21,11 +19,15 @@ public abstract class ParameterMap extends LinkedHashMap<String, Parameter> {
 	}
 	
 	/**
-	 * Returns a list of the stored parameters.
-	 * @return a list of parameters
+	 * Sets the value of the parameter associated with the specified key.
+	 * @param key the parameter key
+	 * @param value the value to set
 	 */
-	public List<Parameter> getParameters() {
-		return new ArrayList<Parameter>(values());
+	public void setValue(String key, Object value) {
+		Parameter parameter = this.get(key);
+		if (parameter != null) {
+			parameter.setValue(value);
+		}
 	}
 	
 	/**

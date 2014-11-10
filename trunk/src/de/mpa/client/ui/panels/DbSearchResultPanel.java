@@ -108,7 +108,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.settings.Parameter;
+import de.mpa.client.settings.Parameter.BooleanMatrixParameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.ui.BarChartHighlighter;
 import de.mpa.client.ui.Busyable;
@@ -1151,12 +1151,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					CheckBoxTreeTable treeTbl = ptt.getTreeTable();
 					if (treeTbl.getParent().getParent().isVisible()) {
 						// dump table contents
-						TableColumnExt wrCol = treeTbl.getColumnExt(
-								treeTbl.convertColumnIndexToView(ProteinTreeTables.WEB_RESOURCES_COLUMN));
-						boolean visible = wrCol.isVisible();
-						wrCol.setVisible(false);
-						dumpTableContents(treeTbl);
-						wrCol.setVisible(visible);
+//						TableColumnExt wrCol = treeTbl.getColumnExt(
+//								treeTbl.convertColumnIndexToView(ProteinTreeTables.WEB_RESOURCES_COLUMN));
+//						boolean visible = wrCol.isVisible();
+//						wrCol.setVisible(false);
+						DbSearchResultPanel.this.dumpTableContents(treeTbl);
+//						wrCol.setVisible(visible);
 						return;
 					}
 				}
@@ -1625,22 +1625,30 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			@Override
 			public void initDefaults() {
 				List<TableColumn> columns = treeTbl.getColumns(true);
-				// store column visibility in boolean matrix with 2 columns
-				Boolean[][] values = new Boolean[(columns.size() + 1) / 2][2];
-				String labels = "";
+				List<Integer> indexes = new ArrayList<>();
 				for (int i = 0; i < columns.size(); i++) {
-					TableColumnExt column = (TableColumnExt) columns.get(i);
-					Object id = column.getIdentifier();
+					Object id = columns.get(i).getIdentifier();
 					if (id instanceof String) {
-						labels += column.getToolTipText() + "|";
-						if ((i % 2) == 1) {
-							labels += "|";
-						}
-						values[i / 2][i % 2] = column.isVisible();
+						indexes.add(i);
 					}
 				}
-				this.put("columns", new Parameter(
-						labels, values, "Columns", labels));
+//				int size = columns.size();
+				int size = indexes.size();
+				int width = 2;
+				int height = (size + 1) / 2;
+				Boolean[] selected = new Boolean[size];
+				String[] names = new String[size];
+//				for (int i = 0; i < size; i++) {
+				for (Integer index : indexes) {
+					TableColumnExt column = (TableColumnExt) columns.get(index);
+					Object id = column.getIdentifier();
+					if (id instanceof String) {
+						
+					}
+					selected[index] = column.isVisible();
+					names[index] = column.getToolTipText();
+				}
+				this.put("columns", new BooleanMatrixParameter(width, height, selected, names, names, "Columns"));
 			}
 			@Override
 			public File toFile(String path) throws IOException {
@@ -1660,14 +1668,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			if (res == JFileChooser.APPROVE_OPTION) {
 				try {
 					// set visibility state of columns to reflect parameter dialog selection
-					Boolean[][] values = (Boolean[][]) params.get("columns").getValue();
-					int i = 0;
-					for (TableColumn column : columns) {
-						Boolean b = values[i / 2][i % 2];
-						if (b != null) {
-							((TableColumnExt) column).setVisible(b);
-						}
-						i++;
+					Boolean[] selections = (Boolean[]) params.get("columns").getValue();
+					for (int i = 0; i < selections.length; i++) {
+						((TableColumnExt) columns.get(i)).setVisible(selections[i]);
 					}
 					
 					// dump table contents to selected file
@@ -1677,6 +1680,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					JOptionPane.showMessageDialog(
 							ClientFrame.getInstance(), "Successfully dumped table data to file.",
 							"Export Success", JOptionPane.INFORMATION_MESSAGE);
+//					res = JOptionPane.showOptionDialog(ClientFrame.getInstance(),
+//							"Successfully dumped table data to file.",
+//							"Export Success", JOptionPane.OK_CANCEL_OPTION,
+//							JOptionPane.INFORMATION_MESSAGE, null,
+//							new String[] { "OK", "Go to File" }, "OK");
+//					if (res == 1) {
+//						File parent = chooser.getSelectedFile().getParentFile();
+////						Desktop.getDesktop().open(parent);
+//						Desktop.getDesktop().browse(parent.toURI());
+//					}
 				} catch (IOException e) {
 					// show error message
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -1913,6 +1926,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		
 		@Override
 		protected Object doInBackground() throws Exception {
+			Thread.currentThread().setName("RefreshTablesThread");
+			
 			try {
 				DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
 				

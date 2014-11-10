@@ -1,7 +1,6 @@
 package de.mpa.client.settings;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,13 +12,18 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Map.Entry;
 
-import javax.swing.JButton;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.xml.ws.WebServiceException;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.settings.Parameter.ButtonParameter;
+import de.mpa.client.settings.Parameter.NumberParameter;
+import de.mpa.client.settings.Parameter.PasswordParameter;
+import de.mpa.client.settings.Parameter.TextParameter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.main.Starter;
@@ -34,28 +38,35 @@ public class ConnectionParameters extends ParameterMap {
 	 * Default serialization ID.
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	public static final String DEFAULT_PORT = "8080";
 
+	/**
+	 * The default database connection port.
+	 */
+	public static final int DEFAULT_DB_PORT = 3306;
 	
+	/**
+	 * The default server connection port.
+	 */
+	public static final int DEFAULT_SRV_PORT = 8080;
+
+	/**
+	 * Initializes connection parameters from default values.
+	 */
 	public ConnectionParameters() {
-		initDefaults();
+		this.initDefaults();
 	}
 
 	@Override
 	public void initDefaults() {
-		// database connection settings
-		try {
-			readUserParamsFromFile();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 		
-		this.put("dbPort", new Parameter("Database Port", new Integer[] { 3306, 0, 65535 }, "Database Connection", "The network port number for communicating with the database."));
+		// database settings
+		this.put("dbAddress", new TextParameter("", "Database Address", "The network address of the database. May be an URL or IP address.", "Database Connection"));
+		this.put("dbName", new TextParameter("", "Database Name", "The database name.", "Database Connection"));
+		this.put("dbUsername", new TextParameter("", "Username", "The username for connecting to the database.", "Database Connection"));
+		this.put("dbPass", new PasswordParameter("", "Password", "The password for connecting to the database.", "Database Connection"));
+		this.put("dbPort", new NumberParameter(DEFAULT_DB_PORT, 0, 65535, "Database Port", "The network port number for communicating with the database.", "Database Connection"));
 		
-		
-		JButton dbTestButton = new JButton("Test Connection", IconConstants.DATABASE_CONNECT_ICON);
-		dbTestButton.addActionListener(new ActionListener() {
+		Action testDbAction = new AbstractAction("Test Connection", IconConstants.DATABASE_CONNECT_ICON) {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				Client client = Client.getInstance();
@@ -81,14 +92,15 @@ public class ConnectionParameters extends ParameterMap {
 							"Database Connection", JOptionPane.ERROR_MESSAGE);
 				}
 			}
-		});
-		this.put("dbTest", new Parameter(null, dbTestButton, "Database Connection", "Test the validity of the database connection settings."));
+		};
+		testDbAction.putValue(Action.SHORT_DESCRIPTION, "Test the validity of the database connection settings.");
+		this.put("dbTest", new ButtonParameter(testDbAction, "Database Connection"));
 
-		// Webservice server settings.
-		this.put("srvPort", new Parameter("Server Port", new Integer[] {8080, 0, 65535 }, "Server Connection", "The network port number for communicating with the server application."));
+		// web service settings
+		this.put("srvAddress", new TextParameter("", "Server Address", "The network address of the server application. May be an URL or IP address.", "Server Connection"));
+		this.put("srvPort", new NumberParameter(DEFAULT_SRV_PORT, 0, 65535, "Server Port", "The network port number for communicating with the server application.", "Server Connection"));
 		
-		JButton srvTestButton = new JButton("Test Connection", IconConstants.SERVER_CONNECT_ICON);
-		srvTestButton.addActionListener(new ActionListener() {
+		Action testSrvAction = new AbstractAction("Test Connection", IconConstants.SERVER_CONNECT_ICON) {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// Try to connect to server.		
@@ -104,14 +116,21 @@ public class ConnectionParameters extends ParameterMap {
 							"Server Connection", JOptionPane.ERROR_MESSAGE);
 				}
 			}
-		});
-		this.put("srvTest", new Parameter(null, srvTestButton, "Server Connection", "Test the validity of the server connection settings."));
+		};
+		this.put("srvTest", new ButtonParameter(testSrvAction, "Server Connection"));
+		
+		// parse settings file
+		try {
+			this.readUserParamsFromFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
 	 * This method updates the parameters within the client.
 	 */
-	public void updateParams() {
+	private void updateParams() {
 		Client.getInstance().setConnectionParams(this);
 	}
 	
@@ -130,22 +149,14 @@ public class ConnectionParameters extends ParameterMap {
 		}
 		
 		String line;
-		
 		while ((line = br.readLine()) != null) {
 			String[] split = line.split("=");
-			if (split[0].equals("dbAddress")) {
-				this.put("dbAddress", new Parameter("Database Address", split[1], "Database Connection", "The network address of the database. May be an URL or IP address."));
-			} else if (split[0].equals("dbName")) {
-				this.put("dbName", new Parameter("Database Name", split[1], "Database Connection", "The database name."));
-			} else if (split[0].equals("dbUsername")) {
-				this.put("dbUsername", new Parameter("Username", split[1], "Database Connection", "The username for connecting to the database."));
-			} else if (split[0].equals("dbPass")) {
-				this.put("dbPass", new Parameter("Password", new JPasswordField(split[1]), "Database Connection", "The password for connecting to the database."));
-			} else if (split[0].equals("srvAddress")) {
-				// server connection settings
-				this.put("srvAddress", new Parameter("Server Address", split[1], "Server Connection", "The network address of the server application. May be an URL or IP address."));
+			if (split.length > 1) {
+				this.setValue(split[0], split[1]);
 			}
+			
 		}
+		br.close();
 	}
 	
 	

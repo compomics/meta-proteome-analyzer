@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.ComboBoxModel;
-
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Client;
@@ -311,9 +309,8 @@ public class TaxonomyUtils {
 	 */
 	public static void determineMetaProteinTaxonomy(
 			ProteinHitList metaProteins, ParameterMap params) {
-		ComboBoxModel model = (ComboBoxModel) params.get("metaProteinTaxonomy").getValue();
 		TaxonomyUtils.determineTaxonomy(metaProteins,
-				(TaxonomyDefinition) model.getSelectedItem());
+				(TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
 	}
 
 	/**
@@ -324,9 +321,8 @@ public class TaxonomyUtils {
 	 */
 	public static void determineProteinTaxonomy(
 			List<ProteinHit> proteins, ParameterMap params) {
-		ComboBoxModel model = (ComboBoxModel) params.get("proteinTaxonomy").getValue();
 		TaxonomyUtils.determineTaxonomy(proteins,
-				(TaxonomyDefinition) model.getSelectedItem());
+				(TaxonomyDefinition) params.get("proteinTaxonomy").getValue());
 	}
 
 	/**
