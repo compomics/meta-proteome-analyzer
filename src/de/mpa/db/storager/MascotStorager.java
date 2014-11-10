@@ -15,18 +15,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
+import javax.swing.JOptionPane;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
 
 import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
 import com.compomics.mascotdatfile.util.mascot.Peak;
@@ -43,6 +38,7 @@ import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.model.dbsearch.SearchEngineType;
+import de.mpa.client.settings.MascotParameters.FilteringParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.ClientFrame;
@@ -129,7 +125,7 @@ public class MascotStorager extends BasicStorager {
 		
 		/* The proteinAccession2Description Map */
 		ProteinMap proteinMap = mascotDatFile.getProteinMap();		
-		double scoreThreshold = this.getScoreThreshold(mascotParams, queryList);
+		double scoreThreshold = this.getScoreThreshold(queryList);
 		
 		// Get experiment id.
 		long experimentId = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID();
@@ -313,6 +309,87 @@ public class MascotStorager extends BasicStorager {
 	}
 	
 	/**
+		 * Retrieves the score threshold based on local FDR or absolute limit.
+		 * @return {@link Double} Score threshold
+		 * @throws Exception 
+		 */
+		private double getScoreThreshold(Vector<Query> queries) throws Exception {
+			boolean filterType = ((Boolean) mascotParams.get("filterType").getValue()).booleanValue();
+			if (filterType == FilteringParameters.ION_SCORE) {
+				return (Integer) mascotParams.get("ionScore").getValue();
+			} else {
+				// Init score lists of identified target and decoy queries
+				List<Double> queryScores = new ArrayList<Double>();
+				List<Double> queryDecoyScores = new ArrayList<Double>();
+				// Extract query maps
+				QueryToPeptideMap queryToPeptideMap = mascotDatFile.getQueryToPeptideMap();
+				QueryToPeptideMap decoyQueryToPeptideMap = mascotDatFile.getDecoyQueryToPeptideMap();
+	
+				for (Query query : queries) {
+					// extract peptide hits from query maps
+					@SuppressWarnings("unchecked")
+					Vector<PeptideHit> peptideHits = queryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
+					if (peptideHits != null) {
+						for (PeptideHit peptideHit : peptideHits) {
+							queryScores.add(peptideHit.getIonsScore());
+						}
+					}
+					@SuppressWarnings("unchecked")
+					Vector<PeptideHit> decoyPeptideHits = decoyQueryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
+					if (decoyPeptideHits != null) {
+						for (PeptideHit peptideHit : decoyPeptideHits) {
+							queryDecoyScores.add(peptideHit.getIonsScore());
+						}
+					}
+				}
+				// Abort on empty query score list
+				if (queryScores.isEmpty()) {
+					return 0.0;
+				}
+				
+				Collections.sort(queryScores);
+				Collections.sort(queryDecoyScores);
+	
+				// Extract maximum false discovery rate threshold from parameters
+				double fdrThreshold = (Double) mascotParams.get("fdrScore").getValue();
+	
+				// Calculate FDR by increasing ion score until threshold is reached
+				for (int ionThreshold = 0; ionThreshold <= MAX_ION_THRESHOLD + 1; ionThreshold++) {
+					// Remove query entries below ion score threshold
+					Iterator<Double> queryScoresIt = queryScores.iterator();
+					while (queryScoresIt.hasNext()) {
+						if (queryScoresIt.next() < ionThreshold) {
+							queryScoresIt.remove();
+						} else {
+							break;
+						}
+					}
+					// Remove decoy query entries below ion score threshold
+					Iterator<Double> queryDecoyScoresIt = queryDecoyScores.iterator();
+					while (queryDecoyScoresIt.hasNext()) {
+						if (queryDecoyScoresIt.next() < ionThreshold) {
+							queryDecoyScoresIt.remove();
+						} else {
+							break;
+						}
+					}
+					double fdr = 1.0 * queryDecoyScores.size() / queryScores.size() ;
+					if (fdr <= fdrThreshold ) {
+						return ionThreshold;
+					}
+				}
+	//			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error",
+	//					"Unable to calculate FDR (ion score threshold of " + MAX_ION_THRESHOLD + " exceeded).", null, null, null, ErrorLevel.SEVERE, null));
+				JOptionPane.showMessageDialog(ClientFrame.getInstance(),
+						"Unable to calculate FDR (ion score threshold of " + MAX_ION_THRESHOLD + " reached).",
+						"Warning", JOptionPane.WARNING_MESSAGE);
+				
+				return MAX_ION_THRESHOLD;
+			}
+		}
+
+
+	/**
 	 * This method puts a spectrum from a Mascot .dat file into the database,
 	 * @param  query from MascotDatFileParser
 	 * @param mDat The MascotDatFileParser
@@ -440,107 +517,4 @@ public class MascotStorager extends BasicStorager {
 		return mascotHitID;
 	}
 	
-	/**
-	 * Retrieves the score threshold based on local FDR or absolute limit.
-	 * @param mascotParams Mascot ParameterMap.
-	 * @return {@link Double} Score threshold
-	 * @throws Exception 
-	 */
-	private double getScoreThreshold(ParameterMap mascotParams, Vector<Query> queryList) throws Exception {
-		// Init FDR score threshold.
-		double scoreThreshold = 0.0;	
-		mascotParams.get("filter");
-		Object[][] values = (Object[][]) mascotParams.get("filter").getValue();
-		if ((Boolean) values[0][0]) {
-			scoreThreshold = (Integer) values[0][1];
-		} else {
-			/* Score list of identified queries */
-			List<Double> queryScores = new ArrayList<Double>();
-
-			/* Score list of identified decoy queries */
-			List<Double> queryDecoyScores = new ArrayList<Double>();
-			
-			QueryToPeptideMap queryToPeptideMap = mascotDatFile.getQueryToPeptideMap();
-			// Calculate query scores for decoy
-			QueryToPeptideMap decoyQueryToPeptideMap = mascotDatFile.getDecoyQueryToPeptideMap();
-
-			for (Query query : queryList) {
-				@SuppressWarnings("unchecked")
-				Vector<PeptideHit> allPeptideHits = queryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
-				@SuppressWarnings("unchecked")
-				Vector<PeptideHit> allDecoyPeptideHits = decoyQueryToPeptideMap.getAllPeptideHits(query.getQueryNumber());
-				if (allPeptideHits != null) {
-					for (PeptideHit peptideHit : allPeptideHits) {
-						queryScores.add(peptideHit.getIonsScore());
-					}
-				}
-				if (allDecoyPeptideHits != null) {
-					for (PeptideHit peptideHit : allDecoyPeptideHits) {
-						queryDecoyScores.add(peptideHit.getIonsScore());
-					}
-				}
-			}
-			Collections.sort(queryScores);
-			Collections.sort(queryDecoyScores);
-
-			/* False discovery rate which should be reached */
-			double targetFDR = (Double) values[1][1];
-
-			/* Actual false discovery rate*/
-			double fdr;
-			// Increase IonScore until FDR is reached
-			int ionThreshold;
-			for (ionThreshold = 0; ionThreshold <= MAX_ION_THRESHOLD + 1; ionThreshold++) {
-				if (queryScores.size() != 0) {// Check for 0 as divisor
-
-					// Remove query entries below ion score threshold
-					Iterator<Double> queryScoresIt = queryScores.iterator();
-					while (queryScoresIt.hasNext()) {
-						if (queryScoresIt.next() < ionThreshold) {
-							queryScoresIt.remove();
-						} else {
-							break;
-						}
-					}
-					// Remove decoy query entries below ion score threshold
-					Iterator<Double> queryDecoyScoresIt = queryDecoyScores.iterator();
-					while (queryDecoyScoresIt.hasNext()) {
-						if (queryDecoyScoresIt.next() < ionThreshold) {
-							queryDecoyScoresIt.remove();
-						} else {
-							break;
-						}
-					}
-					fdr = 1.0 * queryDecoyScores.size() / queryScores.size() ;
-					if (fdr <= targetFDR ) {
-						scoreThreshold = ionThreshold;
-						break;
-					}
-				}
-			}
-			if (ionThreshold > 1000) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", "Not possible to calculate the FDR", null, null, null, ErrorLevel.SEVERE, null));
-				throw new Exception("Ion threshold above 1000.");
-			}
-		}
-		return scoreThreshold;
-	}
-	
-	/**
-	 * Returns the protein name(s) as formatted string
-	 * @param desc ProteinDescription object.
-	 * @return Protein name(s) as formatted string.
-	 */
-	public String getProteinName(ProteinDescription desc) {
-		Name name = null;
-		
-		if (desc.hasRecommendedName()) {
-			name = desc.getRecommendedName();
-		} else if (desc.hasAlternativeNames()) {
-			name = desc.getAlternativeNames().get(0);
-		} else if (desc.hasSubNames()) {
-			name = desc.getSubNames().get(0);
-		}
-		return (name == null) ? "unknown" : name.getFieldsByType(FieldType.FULL).get(0).getValue();
-	}
 }

@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import javax.swing.JPasswordField;
-
 import de.mpa.client.settings.ParameterMap;
 
 /**
@@ -30,9 +28,9 @@ public class DBConfiguration {
      * @param dbName Database name
      * @throws SQLException 
      */
-    public DBConfiguration(ParameterMap connectionParams) throws SQLException{
+    public DBConfiguration(ParameterMap connectionParams) throws SQLException {
     	this.connectionParams = connectionParams;
-        initConnection();
+        this.initConnection();
     }
     
 	/**
@@ -40,16 +38,19 @@ public class DBConfiguration {
 	 * @throws SQLException 
 	 */
 	private void initConnection() throws SQLException {
-		// Get a connection to the database
 		try {
 			// Register the JDBC driver for MySQL
 			Class.forName("com.mysql.jdbc.Driver");
 
-			// Get the password from the JPasswordField
-			String pwText = new String(((JPasswordField) connectionParams.get("dbPass").getValue()).getPassword());
-
-			// Do the connection to the DB
-			conn = DriverManager.getConnection("jdbc:mysql://" + connectionParams.get("dbAddress").getValue().toString().trim() + ":" + ((Integer[]) connectionParams.get("dbPort").getValue())[0] + "/" + connectionParams.get("dbName").getValue().toString(), connectionParams.get("dbUsername").getValue().toString(), pwText);
+			// Extract connection parameters
+			String dbAddress = (String) connectionParams.get("dbAddress").getValue();
+			Integer dbPort = (Integer) connectionParams.get("dbPort").getValue();
+			String dbName = (String) connectionParams.get("dbName").getValue();
+			String dbUser = (String) connectionParams.get("dbUsername").getValue();
+			String dbPass = (String) connectionParams.get("dbPass").getValue();
+			
+			// Establish connection to the DB
+			conn = DriverManager.getConnection("jdbc:mysql://" + dbAddress + ":" + dbPort + "/" + dbName, dbUser, dbPass);
 			
 			// Set auto commit == FALSE --> Manual commit & rollback.
 			conn.setAutoCommit(false);

@@ -227,8 +227,8 @@ public class MetaProteinFactory {
 						if (seqA.equals(seqB)) {
 							return true;
 						} else {
-							if (maxDistance > 0) {
-								if (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= maxDistance) {
+							if (this.getMaximumDistance() > 0) {
+								if (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= this.getMaximumDistance()) {
 									return true;
 								}
 							}
@@ -258,8 +258,8 @@ public class MetaProteinFactory {
 					Iterator<String> iterB = seqsB.iterator();
 					while (iterB.hasNext()) {
 						String seqB = (String) iterB.next();
-						if (seqA.equals(seqB) || ((maxDistance > 0) 
-								&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= maxDistance))) {
+						if (seqA.equals(seqB) || ((this.getMaximumDistance() > 0) 
+								&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= this.getMaximumDistance()))) {
 							// match found, remove from lists
 							iterA.remove();
 							iterB.remove();
@@ -279,8 +279,8 @@ public class MetaProteinFactory {
 						iterA = seqsA.iterator();
 						while (iterA.hasNext()) {
 							String seqA = (String) iterA.next();
-							if (seqA.equals(seqB) || ((maxDistance > 0) 
-									&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= maxDistance))) {
+							if (seqA.equals(seqB) || ((this.getMaximumDistance() > 0) 
+									&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= this.getMaximumDistance()))) {
 								// match found, remove from lists
 								iterA.remove();
 								iterB.remove();
@@ -303,17 +303,17 @@ public class MetaProteinFactory {
 		private String name;
 		
 		/**
-		 * The maximum allowed pairwise peptide sequence distance.
+		 * The maximum allowed pairwise peptide sequence Levenshtein distance.
 		 */
 		// TODO: maybe implement Levenshtein distance evaluation in PeptideHit#equals()
 		// TODO: maybe encapsulate globals
-		public static int maxDistance;
+		private int maxDistance;
 		
 		/**
 		 * The flag denoting whether amino acids leucine and isoleucine shall be
 		 * considered distinct.
 		 */
-		public static boolean distinctIL;
+		private boolean distinctIL;
 
 		/**
 		 * Constructs a meta-protein generation rule using the specified name string.
@@ -345,6 +345,42 @@ public class MetaProteinFactory {
 		 * @return <code>true</code> if the meta-proteins should be merged, <code>false</code> otherwise
 		 */
 		public abstract boolean shouldCondense(Collection<String> pepSeqsA, Collection<String> pepSeqsB);
+
+		/**
+		 * Returns the maximum allowed pairwise peptide sequence Levenshtein distance.
+		 * @return the distance
+		 */
+		public int getMaximumDistance() {
+			return maxDistance;
+		}
+
+		/**
+		 * Sets the maximum allowed pairwise peptide sequence Levenshtein distance.
+		 * @param maxDistance the distance to set
+		 */
+		public void setMaximumDistance(int maxDistance) {
+			this.maxDistance = maxDistance;
+		}
+
+		/**
+		 * Returns the flag denoting whether amino acids leucine and isoleucine
+		 * shall be considered distinct.
+		 * @return <code>true</code> if L and I are considered distinct,
+		 *  <code>false</code> otherwise
+		 */
+		public boolean isDistinctIL() {
+			return distinctIL;
+		}
+
+		/**
+		 * Sets the flag denoting whether amino acids leucine and isoleucine
+		 * shall be considered distinct.
+		 * @param distinctIL <code>true</code> if L and I are considered distinct,
+		 *  <code>false</code> otherwise
+		 */
+		public void setDistinctIL(boolean distinctIL) {
+			this.distinctIL = distinctIL;
+		}
 		
 	}
 
@@ -518,7 +554,7 @@ public class MetaProteinFactory {
 		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 		
 		// Apply FDR cut-off
-		result.setFDR(((Double[]) params.get("FDR").getValue())[0]);
+		result.setFDR((Double) params.get("FDR").getValue());
 
 		// Determine protein taxonomy
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
@@ -555,11 +591,11 @@ public class MetaProteinFactory {
 		private static void condenseMetaProteins(
 				ProteinHitList metaProteins, ResultParameters params) {
 			// Extract parameters
-			ClusterRule protClusterRule = params.getClusterRule();
-			PeptideRule peptideRule = params.getPeptideRule();
-			TaxonomyRule taxonomyRule = params.getTaxonomyRule();
+			ClusterRule clusterRule = (ClusterRule) params.get("clusterRule").getValue();
+			PeptideRule peptideRule = (PeptideRule) params.get("peptideRule").getValue();
+			TaxonomyRule taxonomyRule = (TaxonomyRule) params.get("taxonomyRule").getValue();
 			
-			boolean distinctIL = PeptideRule.distinctIL;
+			boolean distinctIL = peptideRule.isDistinctIL();
 			
 			// Iterate (initially single-protein) meta-proteins
 			Iterator<ProteinHit> rowIter = metaProteins.iterator();
@@ -603,7 +639,7 @@ public class MetaProteinFactory {
 					}
 	
 					// Merge meta-proteins if rules apply
-					if (protClusterRule.shouldCondense(rowMP, colMP)
+					if (clusterRule.shouldCondense(rowMP, colMP)
 							&& peptideRule.shouldCondense(rowPepSeqs, colPepSeqs)
 	//						&& levRule.shouldCondense(rowPepSeqs, colPepSeqs, levThreshold)
 							&& taxonomyRule.shouldCondense(rowMP, colMP)) {

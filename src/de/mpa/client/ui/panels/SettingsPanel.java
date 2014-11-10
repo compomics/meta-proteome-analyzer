@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTitledPanel;
 
 import com.jgoodies.forms.factories.CC;
@@ -45,7 +46,7 @@ import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 
 /**
- * TODO: API
+ * Panel containing search engine settings and processing controls.
  * 
  * @author A. Behne
  */
@@ -121,12 +122,20 @@ public class SettingsPanel extends JPanel {
 					client.disconnectFromServer();
 					connected = false;
 				} else {
-					connected = client.connectToServer();
-					if(connected) {
+					try {
+						connected = client.connectToServer();
+					} catch (Exception e) {
+						JXErrorPane.showDialog(e);
+					}
+					if (connected) {
 						connectBtn.setIcon(IconConstants.CONNECT_ICON);
 						connectBtn.setRolloverIcon(IconConstants.CONNECT_ROLLOVER_ICON);
 						connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
 						connectBtn.setToolTipText("Disconnect from Server");
+					} else {
+						JOptionPane.showMessageDialog(ClientFrame.getInstance(),
+								"Could not connect to server, please check connection settings and try again.",
+								"Connection Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				quickBtn.setEnabled(connected);

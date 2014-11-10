@@ -115,7 +115,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 			Client client = Client.getInstance();
 			try {
 				// initialize the result object
-				DbSearchResult searchResult = new DbSearchResult(project.getTitle(), title, null);
+				DbSearchResult searchResult = new DbSearchResult(this.getProject().getTitle(), this.getTitle(), null);
 
 				// set up progress monitoring
 				client.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
@@ -126,7 +126,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 				Connection conn = client.getConnection();
 
 				// gather search hits from remote database
-				List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(id, conn);
+				List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(this.getID(), conn);
 
 				long maxProgress = searchHits.size();
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
@@ -137,12 +137,12 @@ public class DatabaseExperiment extends AbstractExperiment {
 				
 				// add search hits to result object
 				for (SearchHit searchHit : searchHits) {
-					this.addProteinSearchHit(searchResult, searchHit, id, conn);
+					this.addProteinSearchHit(searchResult, searchHit, this.getID(), conn);
 					client.firePropertyChange("progressmade", true, false);
 				}
 				
 				// determine total spectral count
-				searchResult.setTotalSpectrumCount(Searchspectrum.getSpectralCountFromExperimentID(id, conn));
+				searchResult.setTotalSpectrumCount(Searchspectrum.getSpectralCountFromExperimentID(this.getID(), conn));
 
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 
@@ -219,18 +219,18 @@ public class DatabaseExperiment extends AbstractExperiment {
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.properties.putAll(properties);
+			this.setTitle(title);
+			this.getProperties().putAll(properties);
 			
 			ProjectManager manager = ProjectManager.getInstance();
 	
 			// create new experiment in the remote database
-			ExperimentAccessor experimentAcc = manager.createNewExperiment(this.project.id, this.title);
-			this.id = experimentAcc.getExperimentid();
-			this.creationDate = experimentAcc.getCreationdate();
+			ExperimentAccessor experimentAcc = manager.createNewExperiment(this.getProject().getID(), this.getTitle());
+			this.setId(experimentAcc.getExperimentid());
+			this.setCreationDate(experimentAcc.getCreationdate());
 			
 			// store experiment properties in the remote database
-			manager.addExperimentProperties(this.id, this.properties);
+			manager.addExperimentProperties(this.getID(), this.getProperties());
 			
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -242,17 +242,17 @@ public class DatabaseExperiment extends AbstractExperiment {
 	@SuppressWarnings("unchecked")
 	public void update(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.properties.clear();
-			this.properties.putAll(properties);
+			this.setTitle(title);
+			this.getProperties().clear();
+			this.getProperties().putAll(properties);
 
 			ProjectManager manager = ProjectManager.getInstance();
 
 			// modify the experiment name
-			manager.modifyExperimentName(this.id, this.title);
+			manager.modifyExperimentName(this.getID(), this.getTitle());
 
 			// modify the experiment properties
-			manager.modifyExperimentProperties(this.id, this.properties, (List<Operation>) params[0]);
+			manager.modifyExperimentProperties(this.getID(), this.getProperties(), (List<Operation>) params[0]);
 
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -266,7 +266,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 			ProjectManager manager = ProjectManager.getInstance();
 			
 			// remove experiment and all its properties
-			manager.deleteExperiment(this.id);
+			manager.deleteExperiment(this.getID());
 			
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),

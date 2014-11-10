@@ -84,9 +84,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 					if (ph.getUniProtEntry() == null) {
 						return null;
 					}
-					ClusterRule rule =
-							((ResultParameters) Client.getInstance().getResultParameters()).getClusterRule();
-					switch (rule) {
+					ResultParameters parameters =
+							(ResultParameters) Client.getInstance().getResultParameters();
+					ClusterRule clusterRule =
+							(ClusterRule) parameters.get("clusterRule").getValue();
+					switch (clusterRule) {
 						case UNIREF100:
 							return ph.getUniProtEntry().getUniRef100id();
 						case UNIREF90:

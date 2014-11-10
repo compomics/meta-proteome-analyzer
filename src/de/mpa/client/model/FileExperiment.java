@@ -68,9 +68,9 @@ public class FileExperiment extends AbstractExperiment {
 	 */
 	public void setResultFile(File resultFile) {
 		this.resultFile = resultFile;
-		if ((title == null) && (resultFile != null)) {
+		if ((this.getTitle() == null) && (resultFile != null)) {
 			String filename = resultFile.getName();
-			title = filename.substring(0, filename.lastIndexOf('.'));
+			this.setTitle(filename.substring(0, filename.lastIndexOf('.')));
 		}
 	}
 	
@@ -129,10 +129,13 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.creationDate = new Date();
-			this.properties.putAll(properties);
-			this.project.getExperiments().add(this);
+			this.setTitle(title);
+			this.setCreationDate(new Date());
+			this.getProperties().putAll(properties);
+			
+			AbstractProject project = this.getProject();
+			List<AbstractExperiment> experiments = project.getExperiments();
+			experiments.add(this);
 		
 			this.serialize();
 		} catch (Exception e) {
@@ -144,9 +147,9 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void update(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.properties.clear();
-			this.properties.putAll(properties);
+			this.setTitle(title);
+			this.getProperties().clear();
+			this.getProperties().putAll(properties);
 		
 			this.serialize();
 		} catch (Exception e) {
@@ -158,7 +161,9 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void delete() {
 		try {
-			this.project.getExperiments().remove(this);
+			AbstractProject project = this.getProject();
+			List<AbstractExperiment> experiments = project.getExperiments();
+			experiments.remove(this);
 			
 			this.serialize();
 		} catch (Exception e) {

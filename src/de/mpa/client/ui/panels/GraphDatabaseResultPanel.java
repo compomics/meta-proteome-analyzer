@@ -403,6 +403,8 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 
 		@Override
 		protected Object doInBackground() {
+			Thread.currentThread().setName("BuildGraphDBThread");
+			
 			try {
 				Client.getInstance().setupGraphDatabaseContent();
 			} catch (Exception e) {

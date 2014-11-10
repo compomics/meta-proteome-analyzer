@@ -88,7 +88,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
-import de.mpa.client.settings.Parameter;
+import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
@@ -1000,6 +1000,7 @@ public class FilePanel extends JPanel implements Busyable {
 	
 			@Override
 			protected Boolean doInBackground() throws Exception {
+				try {
 				// appear busy
 				FilePanel.this.setBusy(true);
 				
@@ -1027,18 +1028,14 @@ public class FilePanel extends JPanel implements Busyable {
 						dbSettingsPnl.setMascotEnabled(true);
 						MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
 						Parameters parameters = mascotDatfile.getParametersSection();
-						ParameterMap mascotParams =
-								dbSettingsPnl.getMascotParameterMap();
+						MascotParameters mascotParams = (MascotParameters) dbSettingsPnl.getMascotParameterMap();
+
+						mascotParams.setValue("precTol", Double.valueOf(parameters.getTOL()));
+						mascotParams.setValue("fragTol", Double.valueOf(parameters.getITOL()));
+						mascotParams.setValue("missClv", Integer.valueOf(parameters.getPFA()));
 						
-						mascotParams.put("precTol",
-								new Parameter(null, parameters.getTOL(), "General", null));
-						mascotParams.put("fragTol",
-								new Parameter(null, parameters.getITOL(), "General", null));
-						mascotParams.put("missClv",
-								new Parameter(null, parameters.getPFA(), "General", null));
-						
-						boolean decoy = mascotDatfile.getDecoyQueryToPeptideMap() != null;
-						mascotParams.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15, true }, { false, 0.05, decoy } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
+						boolean decoy = (mascotDatfile.getDecoyQueryToPeptideMap() != null);
+						mascotParams.setDecoy(decoy);
 					}
 					
 					List<Long> positions = new ArrayList<Long>();
@@ -1123,10 +1120,10 @@ public class FilePanel extends JPanel implements Busyable {
 							fileNode.add(spectrumNode);
 							
 							// check filter criteria
-							Integer[] minPeaks = (Integer[]) filterParams.get("minpeaks").getValue(); 
-							Integer[] minTIC = (Integer[]) filterParams.get("mintic").getValue();
+							int minPeaks = (Integer) filterParams.get("minpeaks").getValue(); 
+							int minTIC = (Integer) filterParams.get("mintic").getValue();
 							double minSNR = (Double) filterParams.get("minsnr").getValue();
-							if ((numPeaks >= minPeaks[0]) && (TIC >= minTIC[0]) && (SNR >= minSNR)) {
+							if ((numPeaks >= minPeaks) && (TIC >= minTIC) && (SNR >= minSNR)) {
 								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 							}
 							index++;
@@ -1152,14 +1149,17 @@ public class FilePanel extends JPanel implements Busyable {
 					}
 					
 				}
-	
+
+				
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 			
 			@Override
 			protected void done() {
 				try {
-					
 					// check result value
 					if (this.get().booleanValue()) {
 						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");

@@ -1,7 +1,5 @@
 package de.mpa.client.settings;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -9,9 +7,9 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -25,6 +23,8 @@ import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
+import de.mpa.client.settings.Parameter.NumberParameter;
+import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Class for storing search result fetching-specific parameters.
@@ -42,22 +42,21 @@ public class ResultParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
+		
 		// FDR cutoff
-		this.put("FDR", new Parameter("Maximum peptide-spectrum match FDR", new Double[] { 0.05, 0.0, 0.1 }, "Scoring", "Specify maximum false discovery rate for peptide-spectrum matches (i.e. the maximum q-value)"));
+		this.put("FDR", new NumberParameter(0.05, 0.0, 0.1, "Maximum peptide-spectrum match FDR", "Specify maximum false discovery rate for peptide-spectrum matches (i.e. the maximum q-value).", "Scoring"));
 		
 		// taxonomy definition rules
-		DefaultComboBoxModel<TaxonomyDefinition> pepToProtTaxMdl = new DefaultComboBoxModel<>(TaxonomyDefinition.values());
-		pepToProtTaxMdl.setSelectedItem(TaxonomyDefinition.COMMON_ANCESTOR);
-		this.put("proteinTaxonomy", new Parameter("Peptide-to-Protein Taxonomy", pepToProtTaxMdl, "Taxonomy Definition", "Choose the rule by which proteins receive their common taxonomy from their peptides"));
-
-		DefaultComboBoxModel<TaxonomyDefinition> protToMetaTaxMdl = new DefaultComboBoxModel<>(TaxonomyDefinition.values());
-		protToMetaTaxMdl.setSelectedItem(TaxonomyDefinition.COMMON_ANCESTOR);
-		this.put("metaProteinTaxonomy", new Parameter("Protein-to-Meta-Protein Taxonomy", protToMetaTaxMdl, "Taxonomy Definition", "Choose the rule by which meta-proteins receive their common taxonomy from their proteins"));
+		this.put("proteinTaxonomy", new OptionParameter(TaxonomyDefinition.values(), 0, "Peptide-to-Protein Taxonomy", "Choose the rule by which proteins receive their common taxonomy from their peptides", "Taxonomy Definition"));
+		this.put("metaProteinTaxonomy", new OptionParameter(TaxonomyDefinition.values(), 0, "Protein-to-Meta-Protein Taxonomy", "Choose the rule by which meta-proteins receive their common taxonomy from their proteins", "Taxonomy Definition"));
 		
-		// meta-protein generation rules
-		JPanel metaPnl = new MetaProteinRulesPanel();
-		
-		this.put("metaProteinGeneration", new Parameter("Meta-Protein Generation", metaPnl, "Meta-Protein Generation", null));
+		/* meta-protein generation rules */
+		// hidden parameters
+		this.put("peptideRule", new OptionParameter(PeptideRule.getValues(), 0, null, null, "General"));
+		this.put("clusterRule", new OptionParameter(ClusterRule.getValues(), 0, null, null, "General"));
+		this.put("taxonomyRule", new OptionParameter(TaxonomyRule.getValues(), 0, null, null, "General"));
+		// visible component
+		this.put("metaProteinGeneration", new MetaProteinParameters("Meta-Protein Generation"));
 	}
 
 	@Override
@@ -67,35 +66,15 @@ public class ResultParameters extends ParameterMap {
 	}
 	
 	/**
-	 * Returns the peptide rule.
-	 * @return the peptide rule
-	 */
-	public PeptideRule getPeptideRule() {
-		return(((MetaProteinRulesPanel) this.get("metaProteinGeneration").getValue()).getPeptideRule());
-	}
-
-	/**
-	 * Returns the protein cluster rule.
-	 * @return the protein cluster rule
-	 */
-	public ClusterRule getClusterRule() {
-		return(((MetaProteinRulesPanel) this.get("metaProteinGeneration").getValue()).getClusterRule());
-	}
-
-	/**
-	 * Returns the protein taxonomy rule.
-	 * @return the protein taxonomy rule
-	 */
-	public TaxonomyRule getTaxonomyRule() {
-		return(((MetaProteinRulesPanel) this.get("metaProteinGeneration").getValue()).getTaxonomyRule());
-	}
-
-	/**
-	 * Convenience class for storing meta-protein generation-related parameters
-	 * and for providing controls to manipulate them.
+	 * Parameter implementation holding meta-protein generation-related options.
 	 * @author A. Behne
 	 */
-	public class MetaProteinRulesPanel extends JPanel {
+	public class MetaProteinParameters extends Parameter {
+		
+		/**
+		 * The main panel.
+		 */
+		private JPanel panel;
 
 		/**
 		 * The checkbox governing whether the peptide rule shall be applied.
@@ -145,24 +124,30 @@ public class ResultParameters extends ParameterMap {
 		private JCheckBox metaChk;
 		
 		/**
-		 * This flag determines whether changes have been made by the user.
+		 * Creates a Meta-Protein generation parameter instance using the
+		 * specified section identifier.
+		 * @param section the section identifier
 		 */
-		private boolean changed;
-
-		/**
-		 * Constructs a meta-protein rule selection panel.
-		 */
-		public MetaProteinRulesPanel() {
-			super();
-			this.initComponents();
+		// TODO: rewrite using nested parameter components (i.e. BooleanParameter and OptionParameter instances)
+		public MetaProteinParameters(String section) {
+			super(null, null, null, section);
 		}
 
+		@Override
+		public JComponent createLeftComponent() {
+			if (panel == null) {
+				// lazily instantiate control panel
+				panel = this.createPanel();
+			}
+			return panel;
+		}
+		
 		/**
-		 * Creates and lays out the panel's components.
+		 * Creates and initializes the main panel.
+		 * @return the created panel
 		 */
-		private void initComponents() {
-			// define top-level layout
-			this.setLayout(new FormLayout("p, 5dlu, p:g, 1px", "p, 5dlu, f:p:g"));
+		private JPanel createPanel() {
+			JPanel panel = new JPanel(new FormLayout("p, 5dlu, p:g, 1px", "p, 5dlu, f:p:g"));
 			
 			// create checkbox governing whether meta-proteins shall be created at all
 			metaChk = new JCheckBox("Generate Meta-Proteins", true);
@@ -172,11 +157,17 @@ public class ResultParameters extends ParameterMap {
 			
 			peptideChk = new JCheckBox("Peptide Rule", true);
 			peptideCbx = new JComboBox<>(PeptideRule.getValues());
+			
 			leucineChk = new JCheckBox("Consider Leucine and Isoleucine Distinct", false);
+			leucineChk.setToolTipText("If checked amino acids Leucine and Isoleucine"
+					+ " are considered distinct in peptide sequences.");
 			
 			JPanel distPnl = new JPanel(new FormLayout("p, 5dlu, 0px:g", "p"));
 			final JLabel distLbl = new JLabel("Max. Peptide Sequence Distance");
+			String distToolTip = "The maximum allowed pairwise Levenshtein distance between peptide sequences.";
+			distLbl.setToolTipText(distToolTip);
 			distSpn = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+			distSpn.setToolTipText(distToolTip);
 			
 			distPnl.add(distLbl, CC.xy(1, 1));
 			distPnl.add(distSpn, CC.xy(3, 1));
@@ -197,21 +188,19 @@ public class ResultParameters extends ParameterMap {
 			rulesPnl.add(taxonomyChk, CC.xy(1, 9));
 			rulesPnl.add(taxonomyCbx, CC.xy(3, 9));
 			
-			this.add(metaChk, CC.xy(1, 1));
-			this.add(new JSeparator(), CC.xy(3, 1));
-			this.add(rulesPnl, CC.xyw(1, 3, 4));
+			panel.add(metaChk, CC.xy(1, 1));
+			panel.add(new JSeparator(), CC.xy(3, 1));
+			panel.add(rulesPnl, CC.xyw(1, 3, 4));
 			
 			// initially disable rules
 			clusterChk.doClick();
 			taxonomyChk.doClick();
-			changed = false;
 			
 			// register listeners
-			metaChk.addActionListener(new ActionListener() {
+			metaChk.addItemListener(new ItemListener() {
 				@Override
-				public void actionPerformed(ActionEvent evt) {
+				public void itemStateChanged(ItemEvent evt) {
 					rulesPnl.setEnabled(metaChk.isSelected());
-					changed = true;
 				}
 			});
 			
@@ -222,13 +211,8 @@ public class ResultParameters extends ParameterMap {
 					peptideChk.setEnabled(enabled);
 					clusterChk.setEnabled(enabled);
 					taxonomyChk.setEnabled(enabled);
-					changed = true;
 				}
 			});
-			
-			peptideCbx.addItemListener(new ComboBoxItemListener());
-			clusterCbx.addItemListener(new ComboBoxItemListener());
-			taxonomyCbx.addItemListener(new ComboBoxItemListener());
 			
 			peptideChk.addPropertyChangeListener("enabled", new PropertyChangeListener() {
 				@Override
@@ -241,19 +225,17 @@ public class ResultParameters extends ParameterMap {
 					leucineChk.setEnabled(enabled);
 					distLbl.setEnabled(enabled);
 					distSpn.setEnabled(enabled);
-					changed = true;
 				}
 			});
 			
-			peptideChk.addActionListener(new ActionListener() {
+			peptideChk.addItemListener(new ItemListener() {
 				@Override
-				public void actionPerformed(ActionEvent evt) {
+				public void itemStateChanged(ItemEvent evt) {
 					boolean selected = peptideChk.isSelected();
 					peptideCbx.setEnabled(selected);
 					leucineChk.setEnabled(selected);
 					distLbl.setEnabled(selected);
 					distSpn.setEnabled(selected);
-					changed = true;
 				}
 			});
 			
@@ -265,16 +247,14 @@ public class ResultParameters extends ParameterMap {
 						enabled = clusterChk.isSelected();
 					}
 					clusterCbx.setEnabled(enabled);
-					changed = true;
 				}
 			});
 			
-			clusterChk.addActionListener(new ActionListener() {
+			clusterChk.addItemListener(new ItemListener() {
 				@Override
-				public void actionPerformed(ActionEvent evt) {
+				public void itemStateChanged(ItemEvent evt) {
 					boolean selected = clusterChk.isSelected();
 					clusterCbx.setEnabled(selected);
-					changed = true;
 				}
 			});
 			
@@ -286,97 +266,83 @@ public class ResultParameters extends ParameterMap {
 						enabled = taxonomyChk.isSelected();
 					}
 					taxonomyCbx.setEnabled(enabled);
-					changed = true;
 				}
 			});
 			
-			taxonomyChk.addActionListener(new ActionListener() {
+			taxonomyChk.addItemListener(new ItemListener() {
 				@Override
-				public void actionPerformed(ActionEvent evt) {
+				public void itemStateChanged(ItemEvent evt) {
 					boolean selected = taxonomyChk.isSelected();
 					taxonomyCbx.setEnabled(selected);
-					changed = true;
 				}
 			});
 			
-			leucineChk.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					changed = true;
-				}
-			});
-
+			return panel;
 		}
-		
-		/**
-		 * Returns the currently selected peptide rule.
-		 * @return the peptide rule
-		 */
-		public PeptideRule getPeptideRule() {
+
+		@Override
+		public boolean applyChanges() {
+			boolean changed = false;
+
+			Object oldRule = ResultParameters.this.get("peptideRule").getValue();
+			PeptideRule peptideRule = PeptideRule.NEVER;
 			if (peptideChk.isEnabled()) {
 				if (peptideChk.isSelected()) {
-					PeptideRule.maxDistance = (Integer) distSpn.getValue();
-					PeptideRule.distinctIL = leucineChk.isSelected();
-					return (PeptideRule) peptideCbx.getSelectedItem();
+					peptideRule = (PeptideRule) peptideCbx.getSelectedItem();
+					peptideRule.setMaximumDistance((Integer) distSpn.getValue());
+					peptideRule.setDistinctIL(leucineChk.isSelected());
 				} else {
-					return PeptideRule.ALWAYS;
+					peptideRule = PeptideRule.ALWAYS;
 				}
 			}
-			return PeptideRule.NEVER;
-		}
-		
-		/**
-		 * Returns the currently selected protein cluster rule.
-		 * @return the protein cluster rule
-		 */
-		public ClusterRule getClusterRule() {
+			ResultParameters.this.setValue("peptideRule", peptideRule);
+			changed |= !peptideRule.equals(oldRule);
+
+			oldRule = ResultParameters.this.get("clusterRule").getValue();
+			ClusterRule clusterRule = ClusterRule.NEVER;
 			if (clusterChk.isEnabled()) {
 				if (clusterChk.isSelected()) {
-					return (ClusterRule) clusterCbx.getSelectedItem();
+					clusterRule = (ClusterRule) clusterCbx.getSelectedItem();
 				} else {
-					return ClusterRule.ALWAYS;
+					clusterRule = ClusterRule.ALWAYS;
 				}
 			}
-			return ClusterRule.NEVER;
-		}
-		
-		/**
-		 * Returns the currently selected protein taxonomy rule.
-		 * @return the protein taxonomy rule
-		 */
-		public TaxonomyRule getTaxonomyRule() {
+			ResultParameters.this.setValue("clusterRule", clusterRule);
+			changed |= !clusterRule.equals(oldRule);
+
+			oldRule = ResultParameters.this.get("taxonomyRule").getValue();
+			TaxonomyRule taxonomyRule = TaxonomyRule.NEVER;
 			if (taxonomyChk.isEnabled()) {
 				if (taxonomyChk.isSelected()) {
-					return (TaxonomyRule) taxonomyCbx.getSelectedItem();
+					taxonomyRule = (TaxonomyRule) taxonomyCbx.getSelectedItem();
 				} else {
-					return TaxonomyRule.ALWAYS;
+					taxonomyRule = TaxonomyRule.ALWAYS;
 				}
 			}
-			return TaxonomyRule.NEVER;
-		}
-		
-		/**
-		 * Method to check whether meta-proteins should be generated at all. 
-		 * @return the flag for generating meta-proteins
-		 */
-		public boolean hasChanged() {
+			ResultParameters.this.setValue("taxonomyRule", taxonomyRule);
+			changed |= !taxonomyRule.equals(oldRule);
+			
 			return changed;
 		}
 		
-		/**
-		 * Method to set the changed flag externally. 
-		 */
-		public void setChanged(boolean changed) {
-			this.changed = changed;
+		@Override
+		public void restoreDefaults() {
+			metaChk.setSelected(true);
+			
+			peptideChk.setSelected(true);
+			peptideCbx.setSelectedIndex(0);
+			leucineChk.setSelected(false);
+			distSpn.setValue(0);
+			
+			clusterChk.setSelected(false);
+			clusterCbx.setSelectedIndex(0);
+			
+			taxonomyChk.setSelected(false);
+			taxonomyCbx.setSelectedIndex(0);
+			
+			this.applyChanges();
 		}
-
-		class ComboBoxItemListener implements ItemListener {
-			// This method is called only if a new item has been selected.
-			public void itemStateChanged(ItemEvent evt) {
-				changed = true;
-			}
-		}
+		
 	}
-	
 
 }

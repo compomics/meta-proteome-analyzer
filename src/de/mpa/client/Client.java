@@ -190,7 +190,7 @@ public class Client {
 	 * Connects the client to the web service.
 	 */
 	public boolean connectToServer() throws WebServiceException {
-		if (!hasConnectionToServer()){
+		if (!this.hasConnectionToServer()) {
 			service = new ServerImplService();
 			// Enable MTOM
 			server = service.getServerImplPort(new MTOMFeature());
@@ -207,7 +207,6 @@ public class Client {
 			// Request timeout: 24 hours
 			bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
 
-			
 			// Start new request thread.
 			requestThread = new RequestThread();
 			requestThread.start();

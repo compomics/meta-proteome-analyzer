@@ -6,8 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
+import de.mpa.client.settings.Parameter.BooleanMatrixParameter;
+import de.mpa.client.settings.Parameter.BooleanParameter;
+import de.mpa.client.settings.Parameter.NumberParameter;
+import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Class for storing X!Tandem search engine-specific settings.
@@ -86,69 +88,59 @@ public class XTandemParameters extends ParameterMap {
 	@Override
 	public void initDefaults() {
 		/* Configurable settings */
-		this.put("protein, cleavage site", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(CleavageRule.values()), "Spectrum", "Cleavage enzyme to use by the X!Tandem search engine."));
-		this.put("protein, cleavage semi", new Parameter("Semi-tryptic cleavage", false, "Spectrum", "Use semi-tryptic cleavage as enzyme parameter."));
+		// Protein section
+		this.put("protein, cleavage site", new OptionParameter(CleavageRule.values(), 0, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Protein"));
+		this.put("protein, cleavage semi", new BooleanParameter(false, "Semi-tryptic cleavage", "Use semi-tryptic cleavage as enzyme parameter.", "Protein"));
 
 		// Spectrum section
-		this.put("spectrum, fragment mass type", new Parameter("Fragment Mass Type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average" }), "Spectrum", "Use chemical average or monoisotopic mass for fragment ions."));
-		this.put("spectrum, total peaks", new Parameter("Total Peaks", 50, "Spectrum", "Maximum number of peaks to be used from a spectrum."));
-		this.put("spectrum, minimum peaks", new Parameter("Minimum Peaks", 15, "Spectrum", "The minimum number of peaks required for a spectrum to be considered."));
-		this.put("spectrum, minimum parent m+h", new Parameter("Minimum precursor mass", 500.0, "Spectrum", "The minimum parent mass required for a spectrum to be considered."));
-		this.put("spectrum, minimum fragment mz", new Parameter("Minimum fragment m/z", 150.0, "Spectrum", "The minimum fragment m/z to be considered."));
-		this.put("spectrum, threads", new Parameter("Worker threads", 8, "Spectrum", "The number of worker threads to be used for calculation."));
-		this.put("spectrum, sequence batch size", new Parameter("<html>Fasta sequence<br>batch size</html>", 1000, "Spectrum", "The number of FASTA sequences X!Tandem is processing per batch."));
+		this.put("spectrum, fragment mass type", new OptionParameter(new Object[] { "monoisotopic", "average" }, 0, "Fragment mass type", "Use chemical average or monoisotopic mass for fragment ions.", "Spectrum"));
+		this.put("spectrum, total peaks", new NumberParameter(50, 1, null, "Total peaks", "Maximum number of peaks to be used from a spectrum.", "Spectrum"));
+		this.put("spectrum, minimum peaks", new NumberParameter(15, 1, null, "Minimum peaks", "The minimum number of peaks required for a spectrum to be considered.", "Spectrum"));
+		this.put("spectrum, minimum parent m+h", new NumberParameter(500.0, 0.0, null, "Minimum precursor mass", "The minimum parent mass required for a spectrum to be considered.", "Spectrum"));
+		this.put("spectrum, minimum fragment mz", new NumberParameter(150.0, 0.0, null, "Minimum fragment m/z", "The minimum fragment m/z to be considered.", "Spectrum"));
+		this.put("spectrum, threads", new NumberParameter(8, 1, null, "Worker threads", "The number of worker threads to be used for calculation.", "Spectrum"));
+		this.put("spectrum, sequence batch size", new NumberParameter(1000, 1, null, "<html>Fasta sequence<br>batch size</html>", "The number of FASTA sequences that are processed per batch.", "Spectrum"));
 		// Refinement section
-		this.put("refine", new Parameter("Use first-pass search (refinement)", true, "Refinement", "Enable first-pass search (refinement)"));
-		this.put("refine, spectrum synthesis", new Parameter("Use spectrum synthesis scoring", true, "Refinement", "Predict a synthetic spectrum and reward ions that agree with the predicted spectrum"));
-		this.put("refine, maximum valid expectation value", new Parameter("E-value cut-off for refinement", 0.1, "Refinement", "Only hits below this threshold are considered for a second-pass search."));
-		this.put("refine, point mutations", new Parameter("Allow point mutations", false, "Refinement", "Enables the use of amino acid single point mutations (using PAM matrix)."));
+		this.put("refine", new BooleanParameter(true, "Use first-pass search (refinement)", "Enable first-pass search (refinement)", "Refinement"));
+		this.put("refine, spectrum synthesis", new BooleanParameter(true, "Use spectrum synthesis scoring", "Predict a synthetic spectrum and reward ions that agree with the prediction.", "Refinement"));
+		this.put("refine, maximum valid expectation value", new NumberParameter(0.1, 0.0, null, "E-value cut-off for refinement", "Only hits below this threshold are considered for a second-pass search.", "Refinement"));
+		this.put("refine, point mutations", new BooleanParameter(false, "Allow point mutations", "Enables the use of amino acid single point mutations (using PAM matrix).", "Refinement"));
 		// Scoring section
-		this.put("scoring, minimum ion count", new Parameter("Minimum number of ions required", 4, "Scoring", "The minimum number of ions required for a peptide to be scored."));
-		this.put("scoring, ions", new Parameter("use x ions|use y ions|use z ions||use a ions|use b ions|use c ions", new Boolean[][] { { false, true, false }, { false, true, false }}, "Scoring",
-				"Allows the use of a-ions in scoring.|Allows the use of b-ions in scoring.|Allows the use of c-ions in scoring.||Allows the use of x-ions in scoring.|Allows the use of y-ions in scoring.|Allows the use of z-ions in scoring."));
+		this.put("scoring, minimum ion count", new NumberParameter(4, 1, null, "Minimum number of ions required", "The minimum number of ions required for a peptide to be scored.", "Scoring"));
+		this.put("scoring, ions", new BooleanMatrixParameter(3, 2, new Boolean[] { false, true, false, false, true, false },
+				new String[] { "use a ions", "use b ions", "use c ions", "use x ions", "use y ions", "use z ions" },
+				new String[] { "Allows the use of a ions in scoring.", "Allows the use of b ions in scoring.", "Allows the use of c ions in scoring.",
+							   "Allows the use of x ions in scoring.", "Allows the use of y ions in scoring.", "Allows the use of z ions in scoring." }, "Scoring"));
 	}
 
-	/**
-	 * Returns <code>null</code> as X!Tandem does not use command-line
-	 * parameters to specify single settings. Refer to the
-	 * {@link #toFile(String path) toFile()} method.
-	 */
+//	/**
+//	 * Returns <code>null</code> as X!Tandem does not use command-line
+//	 * parameters to specify single settings. Refer to the
+//	 * {@link #toFile(String path) toFile()} method.
+//	 */
 	@Override
 	public String toString() {
 		// Set up string buffer for BIOML structure
 		StringBuffer sb = new StringBuffer();
 
-		// Grab a set of default parameters for comparison purposes
-		XTandemParameters defaults = new XTandemParameters();
 		// Iterate stored parameter values and compare them to the defaults
 		for (Entry<String, Parameter> entry : this.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
-			Object defaultValue = defaults.get(key).getValue();
-			if (value instanceof ComboBoxModel) {
-				// special case for combobox models, compare selected items
-				value = ((ComboBoxModel) value).getSelectedItem();
-				defaultValue = ((ComboBoxModel) defaultValue).getSelectedItem();
-			}
 			// Compare values, if they differ add a line to the configuration file
-			if (value instanceof Boolean[][]) {
-				// special case for matrix of checkboxes
-				Boolean[][] values = (Boolean[][]) value;
-				String ions = "xyzabc";
-				int k = 0;
-				for (int i = 0; i < values.length; i++) {
-					for (int j = 0; j < values[i].length; j++) {
-						value = (values[i][j].booleanValue()) ? "yes" : "no";
-						// Write BIOML <note> tag containing non-default value
-						String label = "scoring, " + ions.charAt(k)	+ " ions";
-						sb.append("\t<note type=\"input\" label=\"" + label	+ "\">" + value + "</note>\n;");
-						k++;
-					}
+			if (value instanceof Boolean[]) {
+				Boolean[] selections = (Boolean[]) value;
+				char[] ionOptions = { 'a', 'b', 'c', 'x', 'y', 'z' };
+				for (int i = 0; i < selections.length; i++) {
+					String label = "scoring, " + ionOptions[i]	+ " ions";
+					// Turn true/false into yes/no
+					value = (selections[i]) ? "yes" : "no";
+					sb.append("\t<note type=\"input\" label=\"" + label	+ "\">" + value.toString() + "</note>\n;");
 				}
 			} else {
 				if (value instanceof Boolean) {
 					// turn true/false into yes/no
-					value = (((Boolean) value).booleanValue()) ? "yes" : "no";
+					value = ((Boolean) value) ? "yes" : "no";
 				}
 				// Write BIOML <note> tag containing non-default value
 				if (key.equals("protein, cleavage site")) {
@@ -195,38 +187,31 @@ public class XTandemParameters extends ParameterMap {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
 			Object defaultValue = defaults.get(key).getValue();
-			if (value instanceof ComboBoxModel) {
-				// special case for combobox models, compare selected items
-				value = ((ComboBoxModel) value).getSelectedItem();
-				defaultValue = ((ComboBoxModel) defaultValue).getSelectedItem();
-			}
 			// Compare values, if they differ add a line to the configuration file
-			if (value instanceof Boolean[][]) {
-				// special case for matrix of checkboxes
-				Boolean[][] values = (Boolean[][]) value;
-				Boolean[][] defaultvalues = (Boolean[][]) defaultValue;
-				String ions = "xyzabc";
-				int k = 0;
-				for (int i = 0; i < values.length; i++) {
-					for (int j = 0; j < values[i].length; j++) {
-						if (!values[i][j].equals(defaultvalues[i][j])) {
-							value = (values[i][j].booleanValue()) ? "yes" : "no";
-							// Write BIOML <note> tag containing non-default value
-							String label = "scoring, " + ions.charAt(k) + " ions";
-							bw.append("\t<note type=\"input\" label=\"" + label + "\">" + value + "</note>");
-							bw.newLine();
-						}
-						k++;
+			if (value instanceof Boolean[]) {
+				Boolean[] selections = (Boolean[]) value;
+				Boolean[] defaultSelections = (Boolean[]) defaultValue;
+				char[] ionOptions = { 'a', 'b', 'c', 'x', 'y', 'z' };
+				for (int i = 0; i < selections.length; i++) {
+					if (!selections[i].equals(defaultSelections[i])) {
+						String label = "scoring, " + ionOptions[i]	+ " ions";
+						// Turn true/false into yes/no
+						value = (selections[i]) ? "yes" : "no";
+						bw.append("\t<note type=\"input\" label=\"" + label + "\">" + value.toString() + "</note>");
+						bw.newLine();
 					}
 				}
 			} else if (!value.equals(defaultValue)) {
 				if (value instanceof Boolean) {
-					// turn true/false into yes/no
-					value = (((Boolean) value).booleanValue()) ? "yes" : "no";
+					// Turn true/false into yes/no
+					value = ((Boolean) value) ? "yes" : "no";
+					defaultValue = ((Boolean) defaultValue) ? "yes" : "no";
 				}
-				// Write BIOML <note> tag containing non-default value
-				bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value.toString() + "</note>");
-				bw.newLine();
+				if (!value.equals(defaultValue)) {
+					// Write BIOML <note> tag containing non-default value
+					bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value.toString() + "</note>");
+					bw.newLine();
+				}
 			}
 		}
 		

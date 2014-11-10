@@ -1,5 +1,0 @@
-dbAddress=
-dbName=
-dbUsername=
-dbPass=
-srvAddress=

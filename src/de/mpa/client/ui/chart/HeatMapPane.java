@@ -2173,6 +2173,8 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 
 		@Override
 		protected Object doInBackground() {
+			Thread.currentThread().setName("UpdateHeatMapThread");
+			
 			HeatMapPane heatMap = HeatMapPane.this;
 			heatMap.setBusy(true);
 			
