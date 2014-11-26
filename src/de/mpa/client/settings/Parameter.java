@@ -239,7 +239,7 @@ public abstract class Parameter {
 			} else {
 				if (value instanceof String) {
 					try {
-						number = Double.valueOf((String) value);
+						number = Integer.valueOf((String) value);
 					} catch (Exception e) {
 						// do nothing, silently fail
 					}

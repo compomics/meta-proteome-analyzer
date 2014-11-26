@@ -35,7 +35,6 @@ public class ServerImplService
         WebServiceException e = null;
         try {
             ParameterMap params = Client.getInstance().getConnectionParameters();  
-            
 			Object address = params.get("srvAddress").getValue();
             Object srvPort = params.get("srvPort").getValue();
 			url = new URL("http://" + address +":" + srvPort + "/WS/Server?wsdl");
