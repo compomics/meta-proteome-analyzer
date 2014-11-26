@@ -1,4 +1,4 @@
-package de.mpa.db.job.instances;
+package de.mpa.db.job;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import de.mpa.client.Constants;
 
-public class JobProperties {
+public class ServerProperties {
 	
 	/**
 	 * Properties instance.
@@ -18,13 +18,13 @@ public class JobProperties {
 	/**
 	 * JobProperties instance.
 	 */
-	private static JobProperties instance;
+	private static ServerProperties instance;
     
 	/**
 	 * Constructor for the database manager.
 	 * @throws IOException 
 	 */
-    private JobProperties() throws IOException  {
+    private ServerProperties() throws IOException  {
     	loadResourcesSettings();
 	}
     
@@ -33,10 +33,10 @@ public class JobProperties {
      * @return JobProperties instance.
      * @throws IOException 
      */
-    public static JobProperties getInstance() {
+    public static ServerProperties getInstance() {
     	if (instance == null) {
     		try {
-				instance = new JobProperties();
+				instance = new ServerProperties();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
