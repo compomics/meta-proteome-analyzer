@@ -11,6 +11,7 @@
  * [#Connection_Settings Connection Settings]
  * [#Algorithms_Installation Algorithms Installation]
  * [#FDR_Estimation FDR Estimation]
+ * [#Server_Settings Server Settings]
  * [#FASTA_Database_Formatting FASTA Database Formatting]
  * [#Server_Startup Server Startup]
     </td>
@@ -200,6 +201,29 @@ sudo dpkg -i percolator-v2-08-01-linux-amd64.deb
 Default folder:
 /usr/bin/qvality (installed globally)
 }}}
+
+[#General_Information Go to top of page]
+----
+==Server Settings==
+Within the file `server-settings.txt` in the folder *conf* you can specify parameters and path specifications for the algorithms. Changing this file is necessary whenever you intend to use non-default settings. 
+The file is structured as follows:
+{{{
+# Port of the server webservice 
+app.port=8080
+
+# Main path where the application is running
+path.app=/scratch/metaprot/software/
+
+# Transfer path for the spectra
+path.transfer=/scratch/metaprot/data/transfer/
+
+# Clear folders app
+app.clear=clearfolders.sh
+
+...
+}}}
+
+*Important:* Please make sure that the server-settings.txt file is located in the folder *conf* relaive to the mpa-server-X.Y.Z.jar.
 
 [#General_Information Go to top of page]
 ----
