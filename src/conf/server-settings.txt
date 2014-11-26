@@ -1,3 +1,6 @@
+# Port of the server webservice 
+app.port=8080
+
 # Main path where the application is running
 path.app=/scratch/metaprot/software/
 

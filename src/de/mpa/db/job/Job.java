@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.db.job.instances.JobProperties;
 import de.mpa.webservice.Message;
 import de.mpa.webservice.MessageQueue;
 
@@ -67,7 +66,7 @@ public abstract class Job implements Executable {
     /**
      * The job properties.
      */
-	protected JobProperties jobProperties = JobProperties.getInstance();
+	protected ServerProperties jobProperties = ServerProperties.getInstance();
     
 	/**
 	 * Executes the job.

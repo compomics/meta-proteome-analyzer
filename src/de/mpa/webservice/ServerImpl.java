@@ -29,6 +29,7 @@ import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.db.extractor.SpectrumUtilities;
 import de.mpa.db.job.Job;
 import de.mpa.db.job.JobManager;
+import de.mpa.db.job.ServerProperties;
 import de.mpa.db.job.JobStatus;
 import de.mpa.db.job.SearchType;
 import de.mpa.db.job.instances.CommonJob;
@@ -36,7 +37,6 @@ import de.mpa.db.job.instances.CruxJob;
 import de.mpa.db.job.instances.DeleteJob;
 import de.mpa.db.job.instances.InspectJob;
 import de.mpa.db.job.instances.InspectProcessingJob;
-import de.mpa.db.job.instances.JobProperties;
 import de.mpa.db.job.instances.OmssaJob;
 import de.mpa.db.job.instances.PercolatorJob;
 import de.mpa.db.job.instances.RenameJob;
@@ -110,10 +110,10 @@ public class ServerImpl implements Server {
 	 * @throws Exception
 	 */
 	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
-		File file = new File(JobProperties.getInstance().getProperty("path.transfer") + filename);
+		File file = new File(ServerProperties.getInstance().getProperty("path.transfer") + filename);
 		
 		// Get general parameters.
-		JobProperties jobProperties = JobProperties.getInstance();
+		ServerProperties jobProperties = ServerProperties.getInstance();
 		String searchDB = dbSearchSettings.getFastaFile();
 		double fragIonTol = dbSearchSettings.getFragmentIonTol();
 		double precIonTol = dbSearchSettings.getPrecursorIonTol();
@@ -224,7 +224,7 @@ public class ServerImpl implements Server {
 	 */
 	@Override
 	public synchronized String uploadFile(String filename,  byte[] bytes) {		
-	       String filePath = JobProperties.getInstance().getProperty("path.transfer") + filename;
+	       String filePath = ServerProperties.getInstance().getProperty("path.transfer") + filename;
 	        try {
 	            FileOutputStream fos = new FileOutputStream(filePath);
 	            BufferedOutputStream outputStream = new BufferedOutputStream(fos);
@@ -255,7 +255,7 @@ public class ServerImpl implements Server {
 				int i = 1;
 				for (String filename : filenames) {
 					// Store uploaded spectrum files to DB
-					File file = new File(JobProperties.getInstance().getProperty("path.transfer") + filename);
+					File file = new File(ServerProperties.getInstance().getProperty("path.transfer") + filename);
 					
 					// Repair spectra
 //					repairSpectra(file, dbManager.getConnection());
