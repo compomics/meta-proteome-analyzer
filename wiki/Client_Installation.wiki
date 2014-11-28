@@ -41,7 +41,8 @@ The file `connection-settings.txt` in the folder *conf* contains the following p
 *dbUsername* => The username for the SQL database access
 *dbPass* => The password for the SQL database access
 *dbPass* => The password for the SQL database access
-*srvAddress* => The IP address of the server (running mpa-server.jar).
+*srvAddress* => The IP address of the server (running mpa-server.jar)
+*srvPort* => The port of the server (default: 8080)
 }}}
 
 *Important:* Please make sure that this file is located in the folder *conf* relative to the mpa-client-X.Y.Z.jar.
