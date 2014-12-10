@@ -77,6 +77,7 @@ public class BlastDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 					BlastWorker blastWorker = new BlastWorker();
 					blastWorker.execute();
+					close();
 			}
 		});
 		
@@ -133,7 +134,5 @@ public class BlastDialog extends JDialog {
 		protected void finished() {
 			System.out.println("Do stuff when blast worker has finished.");
 		}
-		
 	}
-	
 }

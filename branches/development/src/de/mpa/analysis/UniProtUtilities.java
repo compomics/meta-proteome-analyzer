@@ -468,7 +468,7 @@ public class UniProtUtilities {
 						}
 
 						// Get UniRef Ids
-						ReducedProteinData uniRefs = getUniRefByUniProtAcc(proteinData.getUniProtEntry().getUniProtId().getValue());
+						ReducedProteinData uniRefs = getUniRefByUniProtAcc(proteinData.getUniProtEntry().getPrimaryUniProtAccession().toString());
 						
 						if (oldUniProtEntry != null) {
 							Uniprotentry.updateUniProtEntryWithProteinID(
@@ -552,7 +552,7 @@ public class UniProtUtilities {
 					if (bestBlastHit != null ) {
 						// Get best BLAST hit
 						accessionsMap.put(acc, blastRes.getBestBitScoreBlastHit().getAccession()); 
-						String newDescription = "MG: " + blastRes.getBestBitScoreBlastHit().getAccession() + " " +blastRes.getBestBitScoreBlastHit().getName();
+						String newDescription = "MG: " + blastRes.getBestBitScoreBlastHit().getAccession() + " " +blastRes.getBestBitScoreBlastHit().getName() + " Bitscore: " + blastRes.getBestBitScoreBlastHit().getScore();
 						System.out.println("BLAST" + acc + " blasted to: " + blastRes.getBestBitScoreBlastHit().getAccession());
 						ProteinAccessor.upDateProteinEntry(prot.getProteinid(), prot.getAccession(), newDescription, prot.getSequence(), prot.getCreationdate(),  conn);
 					}

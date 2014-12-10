@@ -143,6 +143,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.setExportMenuEnabled(false);
 		
 		
+
 		// Update Menu
 		JMenu updateMenu = new JMenu();		
 		updateMenu.setText("Update");
@@ -219,7 +220,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.add(fileMenu);
 		this.add(settingsMenu);
 		this.add(exportMenu);
-		this.add(updateMenu);
+		// Add only for the client and not for the viewer
+		if (!Client.isViewer()) {
+			this.add(updateMenu);
+		}
 		this.add(helpMenu);
 	}
 	

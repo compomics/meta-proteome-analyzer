@@ -153,7 +153,6 @@ public class OmssaStorager extends BasicStorager {
 
 						// Parse the FASTA header
 						Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
-						System.out.println("OMMSA SToragingProblems: " + header.getAccession());
 						String accession = header.getAccession();
 						Long proteinID = this.storeProtein(peptideID, accession);
 						hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
