@@ -224,10 +224,10 @@ public class MascotParameters extends ParameterMap {
 			}
 
 			oldValue = MascotParameters.this.get("fdrScore").getValue();
-			value = (Integer) fdrScoreSpn.getValue();
-			MascotParameters.this.setValue("fdrScore", value);
+			Double value2 = (Double) fdrScoreSpn.getValue();
+			MascotParameters.this.setValue("fdrScore", value2);
 			if (type == FDR_SCORE) {
-				changed |= !oldValue.equals(value);
+				changed |= !oldValue.equals(value2);
 			}
 			
 			return changed;
