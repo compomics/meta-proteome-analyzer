@@ -2,6 +2,11 @@ package de.mpa.analysis;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
+/**
+ * Object containing reduced protein entry.
+ * @author Irgendwer + Robert Heyer
+ *
+ */
 public class ReducedProteinData {
 
 	private UniProtEntry uniProtEntry;
@@ -16,23 +21,67 @@ public class ReducedProteinData {
 		this.uniRef50EntryId = uniRef50EntryId;
 	}
 	
+	/**
+	 * Constructor for a reduced protein entry
+	 * @param uniProtEntry
+	 */
 	public ReducedProteinData(UniProtEntry uniProtEntry) {
 		this(uniProtEntry, null, null, null);
 	}
 	
+	/**
+	 * Get UniProt entry.
+	 * @return. The UniProt entry
+	 */
 	public UniProtEntry getUniProtEntry() {
 		return uniProtEntry;
 	}
 	
+	/**
+	 * Gets the UniRef 100 ID
+	 * @return. The UniRef 100ID
+	 */
 	public String getUniRef100EntryId() {
 		return uniRef100EntryId;
 	}
 	
+	/**
+	 * Gets the UniRef90 ID
+	 * @return. The UniRef 90 ID
+	 */
 	public String getUniRef90EntryId() {
 		return uniRef90EntryId;
 	}
 	
+	/**
+	 * Gets the UniRef50 ID
+	 * @return. The UniRef 50 ID
+	 */
 	public String getUniRef50EntryId() {
 		return uniRef50EntryId;
+	}
+
+	/**
+	 * Sets the UniRef100 cluster ID.
+	 * @param uniRef100EntryId
+	 */
+	public void setUniRef100EntryId(String uniRef100EntryId) {
+		this.uniRef100EntryId = uniRef100EntryId;
+	}
+
+	/**
+	 * Sets the UniRef 90 cluster ID
+	 * @param uniRef90EntryId
+	 */
+	public void setUniRef90EntryId(String uniRef90EntryId) {
+		this.uniRef90EntryId = uniRef90EntryId;
+	}
+
+	/**
+	 * Sets the UniRef 50 cluster ID.
+	 * @param uniRef50EntryId
+	 */
+	public void setUniRef50EntryId(String uniRef50EntryId) {
+		this.uniRef50EntryId = uniRef50EntryId;
 	}
 }

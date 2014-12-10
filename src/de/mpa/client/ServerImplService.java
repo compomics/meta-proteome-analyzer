@@ -3,6 +3,7 @@ package de.mpa.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
@@ -10,7 +11,8 @@ import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceFeature;
 
-import de.mpa.client.settings.ServerConnectionSettings;
+import de.mpa.client.settings.ConnectionParameters;
+import de.mpa.client.settings.ParameterMap;
 
 
 /**
@@ -19,7 +21,7 @@ import de.mpa.client.settings.ServerConnectionSettings;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ServerImplService", targetNamespace = "http://webservice.mpa.de/", wsdlLocation = "http://metaprot:" + ServerConnectionSettings.DEFAULT_PORT + "/WS/Server?wsdl")
+@WebServiceClient(name = "ServerImplService", targetNamespace = "http://webservice.mpa.de/", wsdlLocation = "http://metaprot:" + ConnectionParameters.DEFAULT_SRV_PORT + "/WS/Server?wsdl")
 public class ServerImplService
     extends Service
 {
@@ -32,15 +34,18 @@ public class ServerImplService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("http://metaprot" +":" + ServerConnectionSettings.DEFAULT_PORT + "/WS/Server?wsdl");
+            ParameterMap params = Client.getInstance().getConnectionParameters();  
+			Object address = params.get("srvAddress").getValue();
+            Object srvPort = params.get("srvPort").getValue();
+			url = new URL("http://" + address +":" + srvPort + "/WS/Server?wsdl");
         } catch (MalformedURLException ex) {
-            e = new WebServiceException(ex);
+            throw new WebServiceException(ex);
         }
         SERVERIMPLSERVICE_WSDL_LOCATION = url;
         SERVERIMPLSERVICE_EXCEPTION = e;
     }
 
-    public ServerImplService() {
+    public ServerImplService() throws WebServiceException {
         super(__getWsdlLocation(), SERVERIMPLSERVICE_QNAME);
     }
 

@@ -43,6 +43,7 @@ import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
 import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
@@ -57,12 +58,12 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	/**
 	 * Sortable checkbox treetable instance.
 	 */
-	private SortableCheckBoxTreeTable queryResultsTreeTbl;
+	private SortableCheckBoxTreeTable resultsTreeTbl;
 	
 	/**
 	 * Graph database query dialog button.
 	 */
-	private JButton queryDialogBtn;
+	private JButton queryBtn;
 	
 	/**
 	 * GraphDatabaseResultPanel instance.
@@ -82,7 +83,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	/**
 	 * Export query results button.
 	 */
-	private JButton exportQueryResultsBtn;
+	private JButton exportBtn;
 	
 	/**
 	 * The GraphDatabaseResultPanel.
@@ -108,41 +109,42 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		// Setup the table
 		setupQueryResultsTable();
 		
-		JPanel buttonPnl = new JPanel(new FormLayout("90px, c:5dlu, 90px, 3dlu", "f:22px"));
+		JPanel buttonPnl = new JPanel(new FormLayout("p, c:5dlu, p, 3dlu", "f:20px"));
 		buttonPnl.setOpaque(false);
-
-		exportQueryResultsBtn = new JButton("Export", IconConstants.EXCEL_EXPORT_ICON);
-		exportQueryResultsBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
-		exportQueryResultsBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
-		exportQueryResultsBtn.setEnabled(false);
-		exportQueryResultsBtn.setPreferredSize(new Dimension(exportQueryResultsBtn.getPreferredSize().width, 20));
-		exportQueryResultsBtn.setFocusPainted(false);
-		exportQueryResultsBtn.addActionListener(new ActionListener() {			
+		
+		exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
+		exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
+		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
+		exportBtn.setToolTipText("Export Table Contents");
+		exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(exportBtn));
+		
+		exportBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				exportQueryResultsButtonTriggered();
 			}
 		});
+		exportBtn.setEnabled(false);
 		
-		queryDialogBtn = new JButton("Query", IconConstants.GO_DB_ICON);
-		queryDialogBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		queryDialogBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
-		queryDialogBtn.setEnabled(false);
-		queryDialogBtn.setPreferredSize(new Dimension(queryDialogBtn.getPreferredSize().width, 20));
-		queryDialogBtn.setFocusPainted(false);
-		queryDialogBtn.addActionListener(new ActionListener() {			
+		queryBtn = new JButton(IconConstants.GO_DB_ICON);
+		queryBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+		queryBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+		queryBtn.setToolTipText("Perform Graph Database Query");
+		queryBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(queryBtn));
+		
+		queryBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				new GraphQueryDialog(ClientFrame.getInstance(), resultDatabaseResultPnl, "GraphDB Query Dialog", true);
 			}
 		});
 		
-		buttonPnl.add(exportQueryResultsBtn, CC.xy(1, 1));
+		buttonPnl.add(exportBtn, CC.xy(1, 1));
 		buttonPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(2, 1));
-		buttonPnl.add(queryDialogBtn, CC.xy(3, 1));
+		buttonPnl.add(queryBtn, CC.xy(3, 1));
 		
 		graphDbTtlPnl.setRightDecoration(buttonPnl);
-		JScrollPane firstDimResultsTblScp = new JScrollPane(queryResultsTreeTbl);
+		JScrollPane firstDimResultsTblScp = new JScrollPane(resultsTreeTbl);
 		firstDimResultsTblScp.setPreferredSize(new Dimension(400, 210));
 		
 		firstDimResultsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -189,7 +191,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		client.firePropertyChange("new message", null, "EXPORTING QUERY RESULTS FILE");
 		client.firePropertyChange("indeterminate", false, true);
 		try {
-			QueryResultExporter.exportResults(filePath,	queryResultsTreeTbl);
+			QueryResultExporter.exportResults(filePath,	resultsTreeTbl);
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
@@ -203,7 +205,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
      */
     private void setupQueryResultsTable() {
         // Initialize query results tree table.
-		queryResultsTreeTbl = new SortableCheckBoxTreeTable(
+		resultsTreeTbl = new SortableCheckBoxTreeTable(
 				new SortableTreeTableModel(new SortableCheckBoxTreeTableNode()) {
 					{
 						setColumnIdentifiers(Arrays
@@ -212,15 +214,15 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 				});
         
         // Single selection only
-        queryResultsTreeTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        queryResultsTreeTbl.setSelectionBackground(new Color(130, 207, 250));
+        resultsTreeTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        resultsTreeTbl.setSelectionBackground(new Color(130, 207, 250));
 
         // Add nice striping effect
-        queryResultsTreeTbl.addHighlighter(TableConfig.getSimpleStriping());
-        queryResultsTreeTbl.getTableHeader().setReorderingAllowed(true);
+        resultsTreeTbl.addHighlighter(TableConfig.getSimpleStriping());
+        resultsTreeTbl.getTableHeader().setReorderingAllowed(true);
         
         // Enables column control
-        TableConfig.configureColumnControl(queryResultsTreeTbl);
+        TableConfig.configureColumnControl(resultsTreeTbl);
     }
 
     /**
@@ -287,17 +289,17 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 			model.setColumnIdentifiers(columnIdentifiers);
 			
 			// insert model into table
-	    	queryResultsTreeTbl.setTreeTableModel(model);
+	    	resultsTreeTbl.setTreeTableModel(model);
 	    	
 	    	// Enable results export
-	    	exportQueryResultsBtn.setEnabled(true);
+	    	exportBtn.setEnabled(true);
 	        
 		} else {
 			// Display notification that no results have been found
 			JOptionPane.showMessageDialog(ClientFrame.getInstance(), "Found no results for query.");
 			
 			// Disable results export.
-			exportQueryResultsBtn.setEnabled(true);
+			exportBtn.setEnabled(false);
 		}
 	}
     
@@ -352,7 +354,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * This method sets the enabled state of the get results button.
 	 */
 	public void setResultsButtonEnabled(boolean enabled) {
-		queryDialogBtn.setEnabled(enabled);
+		queryBtn.setEnabled(enabled);
 	}
 	
 	/**
@@ -400,8 +402,14 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	private class BuildGraphDatabaseTask extends SwingWorker {
 
 		@Override
-		protected Object doInBackground() throws Exception {
-			Client.getInstance().setupGraphDatabaseContent();
+		protected Object doInBackground() {
+			Thread.currentThread().setName("BuildGraphDBThread");
+			
+			try {
+				Client.getInstance().setupGraphDatabaseContent();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return null;
 		}
 		

@@ -15,27 +15,27 @@ public abstract class AbstractProject implements ProjectExperiment {
 	/**
 	 * The project ID.
 	 */
-	protected Long id;
+	private Long id;
 	
 	/**
 	 * The project title.
 	 */
-	protected String title;
+	private String title;
 	
 	/**
 	 * The project's creation date.
 	 */
-	protected Date creationDate;
+	private Date creationDate;
 	
 	/**
 	 * The experiment properties.
 	 */
-	protected Map<String, String> properties;
+	private Map<String, String> properties;
 	
 	/**
 	 * The project's list of child experiments.
 	 */
-	protected List<AbstractExperiment> experiments;
+	private List<AbstractExperiment> experiments;
 	
 	/**
 	 * Creates a project from the specified ID, title, creation date, properties

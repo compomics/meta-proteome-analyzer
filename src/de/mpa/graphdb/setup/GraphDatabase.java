@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.neo4j.kernel.impl.util.FileUtils;
 
 /**
@@ -16,31 +17,35 @@ import org.neo4j.kernel.impl.util.FileUtils;
  * 
  */
 public class GraphDatabase {
-
-	private GraphDatabaseService graphDbService;
+	
+	/**
+	 * The graph database instance access point.
+	 */
+	private EmbeddedGraphDatabase graphDatabase;
 
 	/**
-	 * Starts an existing database.
-	 * 
-	 * @param dbPath Database path
+	 * Launches the database instance stored in the specified location.
+	 * @param dbPath the database location path
 	 */
 	public GraphDatabase(String dbPath) {
 		this(dbPath, false);
 	}
 
 	/**
-	 * Constructor for starting a new graph database.
-	 * 
-	 * @param dbPath Database path.
-	 * @param cleanStart Condition whether to clear the database previously.
+	 * Launches the database instance stored in the specified location.
+	 * Optionally removes any pre-existing instances and creates a new one.
+	 * @param dbPath the database location path
+	 * @param cleanStart <code>true</code> if pre-existing instances shall be
+	 *  deleted and a new one to be created instead, <code>false</code> otherwise
 	 */
 	public GraphDatabase(String dbPath, boolean cleanStart) {
-		// Clear the database.
-		if (cleanStart)
-			clearDatabase(dbPath);
+		if (cleanStart) {
+			// clear pre-existing database instance
+			this.clearDatabase(dbPath);
+		}
 
-		// Start the database.
-		startDatabase(dbPath);
+		// launch new database instance
+		this.startDatabase(dbPath);
 	}
 
 	/**
@@ -49,28 +54,24 @@ public class GraphDatabase {
 	 * @param dbPath Database path
 	 */
 	public void startDatabase(String dbPath) {
-		graphDbService = new GraphDatabaseFactory().newEmbeddedDatabase(dbPath);
-		// graphDb = new RestGraphDatabase("http://localhost:7474/db/data");
-		registerShutdownHook(graphDbService);
+		graphDatabase = (EmbeddedGraphDatabase) new GraphDatabaseFactory().newEmbeddedDatabase(dbPath);
+		this.registerShutdownHook(graphDatabase);
 	}
 
 	/**
 	 * Returns the graph database service.
-	 * 
 	 * @return graphDb
 	 */
 	public GraphDatabaseService getService() {
-		return graphDbService;
+		return graphDatabase;
 	}
 
 	/**
 	 * Registers a shutdown hook for the Neo4j instance so that it shuts down
 	 * nicely when the VM exits.
-	 * 
 	 * @param graphDb GraphDatabaseService
 	 */
-	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
-		//
+	private void registerShutdownHook(final GraphDatabaseService graphDb) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -81,18 +82,19 @@ public class GraphDatabase {
 
 	/**
 	 * Clears the database.
-	 * 
 	 * @param dbPath Database path.
 	 */
 	private void clearDatabase(String dbPath) {
 		try {
 			File file = new File(dbPath);
 			if (file.exists()) {
-				FileUtils.deleteRecursively(new File(dbPath));
+				FileUtils.deleteRecursively(file);
 			}
 			
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			// try again
+			this.clearDatabase(dbPath);
+			// TODO: it's possible this causes endless recursion, add safety precautions
 		}
 	}
 
@@ -102,12 +104,20 @@ public class GraphDatabase {
 	public void shutDown() {
 		System.out.print("Shutting down database... ");
 		
-		// Shut down the graph database service
-		graphDbService.shutdown();
+		// shut down the graph database service
+		graphDatabase.shutdown();
+		// clear file-based database contents
+		this.clearDatabase(graphDatabase.getStoreDir());
+		// clear service instance
+		graphDatabase = null;
 		
-		System.out.print("done.");
+		System.out.println("done.");
 	}
 
+	/**
+	 * Entry point for testing purposes.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		// Starts the graph database.
 		GraphDatabase graphDatabase = new GraphDatabase("target/graphdb", true);
@@ -115,4 +125,5 @@ public class GraphDatabase {
 		// Shutdown the database.
 		graphDatabase.shutDown();
 	}
+	
 }

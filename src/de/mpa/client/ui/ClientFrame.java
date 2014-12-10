@@ -6,7 +6,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -35,7 +34,6 @@ import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
 import de.mpa.io.ExportHeader;
-import de.mpa.main.Parameters;
 
 /**
  * <b> ClientFrame </b>
@@ -223,11 +221,8 @@ public class ClientFrame extends JFrame {
 		cp.add(tabPane);
 		cp.add(statusPnl, BorderLayout.SOUTH);
 		
-		// TODO: notify progress bar for loading parameters.
-		Parameters.getInstance();
-		
 		// Set application icon
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/de/mpa/resources/icons/mpa01.png")));
+		this.setIconImage(IconConstants.MPA_ICON.getImage());
 
 		// Move frame to center of the screen
 		this.pack();
@@ -251,6 +246,7 @@ public class ClientFrame extends JFrame {
 		if (!Client.isViewer()) {
 			// File panel
 			filePnl = new FilePanel();
+			
 //			// Settings Panel
 //			settingsPnl = new SettingsPanel();
 		}

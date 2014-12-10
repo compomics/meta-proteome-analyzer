@@ -40,12 +40,6 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 		super(userObject, fixed);
 	}
 	
-	@Override
-	public Object getValueAt(int column) {
-		// TODO Auto-generated method stub
-		return super.getValueAt(column);
-	}
-	
 	/**
 	 * Gets the underlying values for this node that correspond to a particular tabular column.<br><br>
 	 * Sub-classes need to override this method if more than the singular column value returned by 

@@ -462,9 +462,9 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		ArrayList<UniprotentryTableAccessor> entities = new ArrayList<UniprotentryTableAccessor>();
 		String statement;
 		if(increase == null) {
-			statement = " WHERE uniref100 IS NULL";
+			statement = " WHERE uniref50 IS NULL";
 		} else {
-			statement = " WHERE uniref100 IS NULL LIMIT ?, ?";
+			statement = " WHERE uniref50 IS NULL LIMIT ?, ?";
 		}
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +  statement);
 		
@@ -498,7 +498,9 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 			Connection aConn, long start, long length) throws SQLException {
 		List<UniprotentryTableAccessor> entities = new ArrayList<UniprotentryTableAccessor>();
 		
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE uniref100 LIKE '' LIMIT ?, ?");
+//		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE uniref100 LIKE '' LIMIT ?, ?");
+		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE uniref50 IS NULL LIMIT ?, ?");
+		
 		ps.setLong(1, start);
 		ps.setLong(2, length);
 		

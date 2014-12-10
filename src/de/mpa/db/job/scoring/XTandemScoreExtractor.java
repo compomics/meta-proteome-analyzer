@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import de.proteinms.xtandemparser.xtandem.Domain;
+import de.proteinms.xtandemparser.xtandem.Peptide;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;
 import de.proteinms.xtandemparser.xtandem.Spectrum;
 import de.proteinms.xtandemparser.xtandem.XTandemFile;
@@ -18,6 +19,16 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 	
 	protected XTandemFile xTandemFileTarget;
 	protected XTandemFile xTandemFileDecoy;
+	
+	/**
+	 * Accessing the super constructor.
+	 * @param targetFile
+	 * @param decoyFile
+	 */
+	public XTandemScoreExtractor(File targetFile) {
+		super(targetFile, null);		
+	}
+	
 	/**
 	 * Accessing the super constructor.
 	 * @param targetFile
@@ -33,7 +44,7 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 	protected void load() {
 		try {
 			xTandemFileTarget = new XTandemFile(targetFile.getAbsolutePath());
-			xTandemFileDecoy = new XTandemFile(decoyFile.getAbsolutePath());
+			if (decoyFile != null) xTandemFileDecoy = new XTandemFile(decoyFile.getAbsolutePath());
 		} catch (SAXException saxException) {
 			saxException.getMessage();
 		} catch (ParserConfigurationException e) {
@@ -52,44 +63,92 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 		// Prepare everything for the peptides.		
 		PeptideMap targetPepMap = xTandemFileTarget.getPeptideMap();
 		PeptideMap decoyPepMap = xTandemFileDecoy.getPeptideMap();
-		ArrayList<Spectrum> targetList = xTandemFileTarget.getSpectraList();
-		ArrayList<Spectrum> decoyList = xTandemFileDecoy.getSpectraList();
-		ArrayList<de.proteinms.xtandemparser.xtandem.Peptide> targetPepList = new ArrayList<de.proteinms.xtandemparser.xtandem.Peptide>();
-		ArrayList<de.proteinms.xtandemparser.xtandem.Peptide> decoyPepList = new ArrayList<de.proteinms.xtandemparser.xtandem.Peptide>();
 		
 		// Get the peptide hits for the spectra
-		for (Spectrum targetSpectrum : targetList) {
+		String spectrumTitle = "";
+		for (Spectrum targetSpectrum : xTandemFileTarget.getSpectraList()) {
 			int targetSpectrumNumber = targetSpectrum.getSpectrumNumber();
-			targetPepList.addAll(targetPepMap.getAllPeptides(targetSpectrumNumber));
-		}
-		for (Spectrum decoySpectrum : decoyList) {				
-			int decoySpectrumNumber = decoySpectrum.getSpectrumNumber();
-			decoyPepList.addAll(decoyPepMap.getAllPeptides(decoySpectrumNumber));
-		}
-		
-		// Iterate over all peptide identifications aka. domains
-		for (int i = 0; i < targetPepList.size(); i++) {
-			for (int j = 0; j < decoyPepList.size(); j++) {
-				de.proteinms.xtandemparser.xtandem.Peptide hit = targetPepList.get(i);
-				de.proteinms.xtandemparser.xtandem.Peptide decoyhit = decoyPepList.get(j);
-				List<Domain> targetDomains = hit.getDomains();
-				List<Domain> decoyDomains = decoyhit.getDomains();
-				for (Domain targetDom : targetDomains) {
-					for (Domain decoyDom : decoyDomains) {
-						if (targetDom.getDomainID().equals(decoyDom.getDomainID())) {
-							targetScores.add(targetDom.getDomainHyperScore());					
-							decoyScores.add(decoyDom.getDomainHyperScore());
-						}
+			ArrayList<Peptide> allPeptides = targetPepMap.getAllPeptides(targetSpectrumNumber);
+			double bestScore = 0.0;
+			String peptideSequence = "";
+			
+			for (Peptide peptide : allPeptides) {				
+				List<Domain> domains = peptide.getDomains();
+				for (Domain psm : domains) {
+					
+					if (psm.getDomainHyperScore() > bestScore) {
+						bestScore = psm.getDomainHyperScore();
+						spectrumTitle = xTandemFileTarget.getSupportData(targetSpectrumNumber).getFragIonSpectrumDescription();
+			            spectrumTitle = formatSpectrumTitle(spectrumTitle);
+			            peptideSequence = psm.getDomainSequence();
 					}
 				}
 			}
+			if (bestScore > 0.0) {
+				targetScores.add(bestScore);
+//				searchHits.add(new CustomSearchHit(bestScore, peptideSequence, spectrumTitle));
+			}
 		}
 		
-    	// Sort the target + decoy scores descending.
+		for (Spectrum decoySpectrum : xTandemFileDecoy.getSpectraList()) {				
+			int decoySpectrumNumber = decoySpectrum.getSpectrumNumber();
+			ArrayList<Peptide> allPeptides = decoyPepMap.getAllPeptides(decoySpectrumNumber);
+			double bestScore = 0.0;
+			for (Peptide peptide : allPeptides) {				
+				List<Domain> domains = peptide.getDomains();
+				for (Domain psm : domains) {
+					if (psm.getDomainHyperScore() > bestScore) {
+						bestScore = psm.getDomainHyperScore();
+					}
+				}
+			}
+			if (bestScore > 0.0) decoyScores.add(bestScore);
+		}
+		
+    	// Sort the targets descending.
     	Collections.sort(targetScores, Collections.reverseOrder());
+    	// Sort the decoys descending.
     	Collections.sort(decoyScores, Collections.reverseOrder());
 	}
 
-
+	@Override
+	protected void extractTargetOnly() {
+		// Initialize the score lists
+		targetScores = new ArrayList<Double>();
+		
+		// Prepare everything for the peptides.		
+		PeptideMap targetPepMap = xTandemFileTarget.getPeptideMap();
+		
+		// Get the peptide hits for the spectra
+		for (Spectrum targetSpectrum : xTandemFileTarget.getSpectraList()) {
+			int targetSpectrumNumber = targetSpectrum.getSpectrumNumber();
+			ArrayList<Peptide> allPeptides = targetPepMap.getAllPeptides(targetSpectrumNumber);
+			double bestScore = 0.0;
+			for (Peptide peptide : allPeptides) {				
+				List<Domain> domains = peptide.getDomains();
+				for (Domain psm : domains) {
+					
+					if (psm.getDomainHyperScore() > bestScore) {
+						bestScore = psm.getDomainHyperScore();
+					}
+				}
+			}
+			targetScores.add(bestScore);
+		}
+    	// Sort the targets descending.
+    	Collections.sort(targetScores, Collections.reverseOrder());
+	}
+	
+    /**
+     * Formatting X!Tandem spectrum titles (latest X!Tandem version).
+     * @param spectrumTitle Unformatted spectrum title
+     * @return Formatted spectrumTitle
+     */
+    private String formatSpectrumTitle(String spectrumTitle) {
+    	if (spectrumTitle.contains("RTINSECONDS")) {
+    		spectrumTitle = spectrumTitle.substring(0, spectrumTitle.indexOf("RTINSECONDS") - 1);
+    	}
+		return spectrumTitle;
+	}
 }
 

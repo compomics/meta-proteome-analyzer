@@ -3,16 +3,17 @@ package de.mpa.db.job.scoring;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
+// FIXME Refactor this class!
 public abstract class ScoreExtractor {
 
 	protected File targetFile;
 	protected File decoyFile;
 	protected String targetOutput;
 	protected String decoyOutput;	
-	protected ArrayList<Double> targetScores;
-	protected ArrayList<Double> decoyScores;
+	protected List<Double> targetScores;
+	protected List<Double> decoyScores;
 	
 	/**
 	 * The constructor for the score extractor.
@@ -23,27 +24,35 @@ public abstract class ScoreExtractor {
 		this.targetFile = targetFile;
 		this.decoyFile = decoyFile;
 		load();
-		extract();
-		this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
-		this.decoyOutput = decoyFile.getAbsolutePath().substring(0, decoyFile.getAbsolutePath().lastIndexOf("_decoy")) + "_decoy.out";
-		write(targetOutput, decoyOutput);
+		if (decoyFile != null) {
+			extract();
+			this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
+			this.decoyOutput = decoyFile.getAbsolutePath().substring(0, decoyFile.getAbsolutePath().lastIndexOf("_decoy")) + "_decoy.out";
+			write(targetOutput, decoyOutput);
+		} else {
+			extractTargetOnly();
+			this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
+			writeTargetOnly(targetOutput);
+		}
 	}	
 		
 	abstract void load();
 	
 	abstract void extract();
 	
+	abstract void extractTargetOnly();
+	
 	/**
-	 * This method does the writing of the files.
+	 * This method writes the target and decoy score files.
 	 * 
-	 * @param targetOutput
-	 * @param decoyOutput
+	 * @param targetOutputPath Target output file path
+	 * @param decoyOutputPath Decoy output file path
 	 */
-	public void write(String targetOutput, String decoyOutput) {
+	public void write(String targetOutputPath, String decoyOutputPath) {
 		FileWriter targetWriter, decoyWriter;
 		try {
-			targetWriter = new FileWriter(targetOutput);
-			decoyWriter = new FileWriter(decoyOutput);
+			targetWriter = new FileWriter(targetOutputPath);
+			decoyWriter = new FileWriter(decoyOutputPath);
 			
 			for (double target : targetScores) {
 				targetWriter.write(Double.toString(target));
@@ -59,14 +68,47 @@ public abstract class ScoreExtractor {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * This method does the writing of the files.
+	 * 
+	 * @param targetOutput
+	 */
+	public void writeTargetOnly(String targetOutput) {
+		FileWriter targetWriter;
+		try {
+			targetWriter = new FileWriter(targetOutput);
+			for (double target : targetScores) {
+				targetWriter.write(Double.toString(target));
+				targetWriter.write("\n");
+			}
+			targetWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public String getTargetOutput() {
 		return targetOutput;
 	}
-
+	
 	public String getDecoyOutput() {
 		return decoyOutput;
 	}
 	
+	/**
+	 * Returns the target scores.
+	 * @return List of target score values.
+	 */
+	public List<Double> getTargetScores() {
+		return targetScores;
+	}
 	
+	/**
+	 * Returns the decoy scores.
+	 * @return List of decoy score values.
+	 */
+	public List<Double> getDecoyScores() {
+		return decoyScores;
+	}
 }

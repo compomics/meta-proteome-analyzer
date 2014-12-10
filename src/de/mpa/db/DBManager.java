@@ -15,11 +15,12 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
+import de.mpa.client.settings.ConnectionParameters;
+import de.mpa.client.settings.ParameterMap;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.storager.CruxStorager;
 import de.mpa.db.storager.InspectStorager;
@@ -49,6 +50,11 @@ public class DBManager {
 	private Thread spectraThread;
 	
 	/**
+	 * Parameter map containing connection settings.
+	 */
+	private ParameterMap connectionParams;
+	
+	/**
 	 * DBManager instance.
 	 */
 	private static DBManager instance;
@@ -67,7 +73,7 @@ public class DBManager {
      * @throws SQLException
      */
     public static DBManager getInstance() throws SQLException {
-    	if (instance == null || !instance.getConnection().isValid(1)) {
+    	if (instance == null) {
     		instance = new DBManager();
     	}
 		return instance;
@@ -79,8 +85,15 @@ public class DBManager {
      */
 	private void init() throws SQLException {	
 		// The database configuration.
-		DBConfiguration dbconfig = new DBConfiguration("metaprot", ConnectionType.LOCAL, new DbConnectionSettings());
-		conn = dbconfig.getConnection();
+		if (conn == null || !conn.isValid(0)) {
+			// connect to database
+			if (connectionParams == null) {
+				connectionParams = new ConnectionParameters();
+			}
+
+			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
+			this.conn = dbconfig.getConnection();
+		}
     }
 	
 	/**
@@ -92,7 +105,6 @@ public class DBManager {
 	 */
 	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException, InterruptedException {
 		// Store the spectra from the spectrum file for a given experiment.	
-		// TODO: No redundancy check uses for the spectrum storing... add flag option to client ?
 		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid, false);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
@@ -109,6 +121,7 @@ public class DBManager {
 	 */
 	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) throws InterruptedException {
 		// Wait for spectra to be stored to the database.
+		System.out.println("resultFilename");
 		spectraThread.join();
 		Storager storager = null;
 		
@@ -211,10 +224,12 @@ public class DBManager {
 					List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
 					if (xRefs.size() > 0) {
 						for (DatabaseCrossReference xRef : xRefs) {
-							koNumbers += (((KO) xRef).getKOIdentifier().getValue()) + ";";
+							koNumbers += xRef.getPrimaryId().getValue() + ";";
 						}
 						koNumbers = Formatter.removeLastChar(koNumbers);
 					}
+					
+					
 					
 					String uniref100 = proteinData.getUniRef100EntryId();
 					String uniref90 = proteinData.getUniRef90EntryId();

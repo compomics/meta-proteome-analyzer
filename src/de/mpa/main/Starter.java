@@ -55,7 +55,7 @@ public class Starter {
 	 * The logger instance.
 	 */
 	private static Logger log = Logger.getLogger(Starter.class);
-	
+																										
 	/**
 	 * Flag denoting whether an application lock is in effect. 
 	 */
@@ -164,8 +164,7 @@ public class Starter {
 	public static void main(final String[] args) {
 		
 		// Lock file instance.
-		boolean unlocked = true;
-		jarExport = false;
+		boolean unlocked = false;
 		if (LOCK_ACTIVE) {
 			unlocked = lockInstance("filelock");
 		}
@@ -189,7 +188,7 @@ public class Starter {
 									debugMode = true;
 								} else if (arg.equalsIgnoreCase("-viewer")) {
 									viewerMode = true;
-								}
+								}  
 							}
 						}
 						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode);

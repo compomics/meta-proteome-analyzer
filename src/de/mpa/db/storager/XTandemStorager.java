@@ -146,11 +146,15 @@ public class XTandemStorager extends BasicStorager {
                 	    if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
                 	    	
-                    	    ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
-            	            Double qValue = 1.0;
-            	    	    if (validatedPSMScore != null) {
-            	    	    	qValue = validatedPSMScore.getQvalue();
-            	    	    } 
+                	        Double qValue = 1.0;
+            	            Double pep = 1.0;
+                	    	if (validatedPSMScores != null) {
+                	    		ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
+                	    		if (validatedPSMScore != null) {
+                	    	    	qValue = validatedPSMScore.getQvalue();
+                	    	    	pep = validatedPSMScore.getPep();
+                	    	    } 
+                	    	}
             	    	    	
             				if (qValue < 0.1) {
         						hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);  
@@ -171,7 +175,7 @@ public class XTandemStorager extends BasicStorager {
                                 hitdata.put(XtandemhitTableAccessor.PRE, domain.getUpFlankSequence());
                                 hitdata.put(XtandemhitTableAccessor.POST, domain.getDownFlankSequence());                
                                 hitdata.put(XtandemhitTableAccessor.MISSCLEAVAGES, Long.valueOf(domain.getMissedCleavages()));
-                                hitdata.put(XtandemhitTableAccessor.PEP, validatedPSMScore.getPep());
+                                hitdata.put(XtandemhitTableAccessor.PEP, pep);
                                 hitdata.put(XtandemhitTableAccessor.QVALUE, qValue);
        						
                                 // Get and store the peptide.

@@ -3,7 +3,9 @@ package de.mpa.client.settings;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.DefaultComboBoxModel;
+import de.mpa.client.settings.Parameter.BooleanParameter;
+import de.mpa.client.settings.Parameter.NumberParameter;
+import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Parameter settings for spectrum database retrieval in File Panel.
@@ -40,10 +42,11 @@ public class SpectrumFetchParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
-		this.put("expID", new Parameter("Experiment ID", new Integer[] { 1, 1, Integer.MAX_VALUE, 1 }, "Database Fetching", "The database ID of the experiment to fetch spectra from."));
-		this.put("annotated", new Parameter("Fetch Spectra", new DefaultComboBoxModel(AnnotationType.values()), "Database Fetching", "Choose whether fetched spectra shall have annotations."));
 //		this.put("library", new Parameter("Fetch from Spectral Library", false, "Database Fetching", "Choose whether spectra shall be fetched from the spectral library."));
-		this.put("saveToFile", new Parameter("Save Peak Lists to Spectrum File", false, "Database Fetching", "Choose whether fetched spectrum file should contain peak lists."));
+		
+		this.put("expID", new NumberParameter(1, 1, null, "Experiment ID", "The database ID of the experiment to fetch spectra from.", "Database Fetching"));
+		this.put("annotated", new OptionParameter(AnnotationType.values(), 0, "Fetch Spectra", "Choose whether fetched spectra shall have annotations.", "Database Fetching"));
+		this.put("saveToFile", new BooleanParameter(false, "Save Peak Lists to Spectrum File", "Choose whether fetched spectrum file should contain peak lists.", "Database Fetching"));
 	}
 
 	@Override

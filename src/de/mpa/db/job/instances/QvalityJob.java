@@ -38,14 +38,15 @@ public class QvalityJob extends Job {
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
-	private void initJob(){
+	private void initJob() {
+		// set the description
 		setDescription("QVALITY JOB");
 		
 		// full path to executable
-		procCommands.add(JobConstants.QVALITY_EXE);
+		procCommands.add(jobProperties.getProperty("path.qvality") + jobProperties.getProperty("app.qvality"));
 		
 		// Reverse scoring mechanism: Low score are better than high scores
-		if(reverseScoring){
+		if (reverseScoring) {
 			procCommands.add("-r");
 		}
 		

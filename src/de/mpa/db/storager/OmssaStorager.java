@@ -118,11 +118,15 @@ public class OmssaStorager extends BasicStorager {
     	    	if(MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
           	      	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
           		  	
-          	        ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(msHit.MSHits_evalue);
-	              	Double qValue = 1.0;
-	    	    	if (validatedPSMScore != null) {
-	    	    		qValue = validatedPSMScore.getQvalue();
-	    	    	} 
+          	        Double qValue = 1.0;
+    	            Double pep = 1.0;
+        	    	if (validatedPSMScores != null) {
+        	    		 ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(msHit.MSHits_evalue);
+        	    		if (validatedPSMScore != null) {
+        	    	    	qValue = validatedPSMScore.getQvalue();
+        	    	    	pep = validatedPSMScore.getPep();
+        	    	    } 
+        	    	}
 	    	    	
 					if (qValue < 0.1) {
 						hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);
@@ -149,10 +153,11 @@ public class OmssaStorager extends BasicStorager {
 
 						// Parse the FASTA header
 						Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
+						System.out.println("OMMSA SToragingProblems: " + header.getAccession());
 						String accession = header.getAccession();
 						Long proteinID = this.storeProtein(peptideID, accession);
 						hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
-						hitdata.put(OmssahitTableAccessor.PEP, validatedPSMScore.getPep());
+						hitdata.put(OmssahitTableAccessor.PEP, pep);
 						hitdata.put(OmssahitTableAccessor.QVALUE, qValue);
 
 						// Create the database object.
@@ -196,9 +201,9 @@ public class OmssaStorager extends BasicStorager {
 			String nextLine;
 			// Skip the first line
 			qValueFileReader.readLine();
+			
 			// Iterate over all the lines of the file.
 			while ((nextLine = qValueFileReader.readLine()) != null) {
-				
 				StringTokenizer tokenizer = new StringTokenizer(nextLine, "\t");
 				List<String> tokenList = new ArrayList<String>();
 				// Iterate over all the tokens

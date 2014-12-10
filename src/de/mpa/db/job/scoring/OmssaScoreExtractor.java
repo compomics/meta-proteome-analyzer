@@ -16,6 +16,15 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	
 	private OmssaOmxFile omxFileTarget; 
 	private OmssaOmxFile omxFileDecoy;
+	
+	/**
+	 * Accessing the super constructor.
+	 * @param targetFile
+	 */
+	public OmssaScoreExtractor(File targetFile) {
+		super(targetFile, null);		
+	}
+	
 	/**
 	 * Constructor the omssa score extractor.
 	 * @param targetFile
@@ -29,8 +38,6 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	 * Loads the Omssa output OMX files, both target and decoy.
 	 */
 	protected void load() {
-		//omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
-		//omxFileDecoy = new OmssaOmxFile(decoyFile.getAbsolutePath());		
 	}
 	
 	/**
@@ -41,7 +48,6 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 		targetScores = new ArrayList<Double>();
 		decoyScores = new ArrayList<Double>();		
 		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
-		
 		 // Initialize the spectrum iterators
         HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
@@ -51,9 +57,20 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    MSSpectrum msSpectrum = targetIter.next();   
     	    MSHitSet msHitSet = targetResults.get(msSpectrum);
     	    List<MSHits> targetHits = msHitSet.MSHitSet_hits.MSHits;
+    	    double lowestEValue = Double.POSITIVE_INFINITY;
+    	    String peptideSequence = "";
     	    for (MSHits targetHit : targetHits) {
-    	    	targetScores.add(targetHit.MSHits_evalue);
+    	    	if (targetHit.MSHits_evalue < lowestEValue) {
+    	    		lowestEValue = targetHit.MSHits_evalue;
+    	    		peptideSequence = targetHit.MSHits_pepstring;
+    	    	}
     	    }
+    	    if (lowestEValue < Double.POSITIVE_INFINITY) {
+    	    	targetScores.add(lowestEValue);
+//    	     	String spectrumTitle = formatSpectrumTitle(msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString());
+//    	    	searchHits.add(new CustomSearchHit(lowestEValue, peptideSequence, spectrumTitle));
+    	    }
+    	    
     	}
     	
     	// Sort the target scores ascending.
@@ -74,13 +91,59 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    MSSpectrum msSpectrum = decoyIter.next();   
     	    MSHitSet msHitSet = decoyResults.get(msSpectrum);
     	    List<MSHits> decoyHits = msHitSet.MSHitSet_hits.MSHits;
+    	    double lowestEValue = Double.POSITIVE_INFINITY;
     	    for (MSHits decoyHit : decoyHits) {
-				decoyScores.add(decoyHit.MSHits_evalue);
+    	    	if (decoyHit.MSHits_evalue < lowestEValue) {
+    	    		lowestEValue = decoyHit.MSHits_evalue;
+    	    	}
+    	    }
+    	    if (lowestEValue < Double.POSITIVE_INFINITY) {
+    	    	decoyScores.add(lowestEValue);
+    	    }
+    	}    	
+   	}
+
+	 /**
+     * Format OMSSA spectrum title.
+     * @param spectrumTitle Unformatted spectrum title
+     * @return Formatted spectrum title.
+     */
+	private String formatSpectrumTitle(String spectrumTitle) {
+		if(spectrumTitle.contains("\\\\")){
+			spectrumTitle = spectrumTitle.replace("\\\\", "\\");
+		} 
+		if(spectrumTitle.contains("\\\"")){
+			spectrumTitle = spectrumTitle.replace("\\\"", "\"");
+		}
+		return spectrumTitle;
+	}
+	
+	@Override
+	void extractTargetOnly() {
+		// Initialize the score lists
+		targetScores = new ArrayList<Double>();
+		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
+		
+		 // Initialize the spectrum iterators
+        HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
+    	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
+    	
+    	// Target hits
+    	while (targetIter.hasNext()) {
+    	    MSSpectrum msSpectrum = targetIter.next();   
+    	    MSHitSet msHitSet = targetResults.get(msSpectrum);
+    	    List<MSHits> targetHits = msHitSet.MSHitSet_hits.MSHits;
+    	    double lowestEValue = Double.POSITIVE_INFINITY;
+    	    for (MSHits targetHit : targetHits) {
+    	    	if (targetHit.MSHits_evalue < lowestEValue) {
+    	    		lowestEValue = targetHit.MSHits_evalue;
+    	    	}
+    	    }
+    	    if (lowestEValue < Double.POSITIVE_INFINITY) {
+    	    	targetScores.add(lowestEValue);
     	    }
     	}
-    	
-    	// Sort the decoy scores ascending.
-    	Collections.sort(decoyScores);
-   	}	
+
+	}	
 }
 

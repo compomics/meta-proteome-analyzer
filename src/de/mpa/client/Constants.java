@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,16 +20,19 @@ import java.util.Map.Entry;
 
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import com.thoughtworks.xstream.XStream;
 
-import de.mpa.analysis.KeggMaps;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.AbstractProject;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.parser.ec.ECNode;
+import de.mpa.io.parser.ec.ECReader;
+import de.mpa.io.parser.kegg.KEGGMap;
+import de.mpa.io.parser.kegg.KEGGReader;
 import de.mpa.main.Starter;
 
 /**
@@ -44,12 +46,12 @@ public class Constants {
 	/**
 	 * The application title.
 	 */
-	public final static String APPTITLE = "MetaProteomeAnalyzer";
+	public final static String APPTITLE = "MetaProteomeAnalyzer (Development)";
 
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.9.3";
+	public final static String VER_NUMBER = "1.0.3";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -71,11 +73,6 @@ public class Constants {
 	 * <img src="../resources/images/mpa.png">
 	 */
 	public static final String SPLASHSCREEN_IMAGE_LOCATION = "/de/mpa/resources/images/mpa.png";
-	
-	/**
-	 * The names of FASTA database files available for searches.
-	 */
-	public static final String[] FASTA_DB = { "uniprot_sprot", "uniprot_human", "uniprot_trembl", "uniprot_canis", "ncbi_canis", "uniprot_archaea", "ncbi_archaea", "uniprot_sprot_bacteria", "uniprot_sprot_archaea", "human_gut", "metadb_potsdam", "uniprot_methylcoenzyme", "uniprot_arch_bact_rat", "uniprot_methanobrevibacter", "uniprot_lactobacillus", "pyrococcus", "qin2010", "bact594", "yeast", "gut_yeast", "yeast_target"};
 	
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter after GET).
@@ -120,7 +117,8 @@ public class Constants {
 	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
 	
 	/**
-	 * Path string of folder containing configuration resources for the jar build.
+	 * Path string of folder containing configuration resources for the jar build.<br>
+	 * <i>conf</i>
 	 */
 	public static final String CONFIGURATION_PATH_JAR = "conf";
 	
@@ -128,33 +126,33 @@ public class Constants {
 	 * Path string of folder containing spectrum resources.
 	 */
 	public static final String DEFAULT_SPECTRA_PATH = "test/de/mpa/resources/";
+
+	/**
+	 * Path string of the temporary backup database search result object.
+	 */
+	public static final String BACKUP_RESULT_PATH = "tmp.mpa";
 	
 	/**
-	 * Root node of a tree containing all pathways mapped in the KEGG database.
+	 * Map of KEGG Orthology tree leaves.
 	 */
-	public static final TreeNode KEGG_PATHWAY_ROOT = KeggMaps.readKeggTree(
-			Constants.class.getResourceAsStream(CONFIGURATION_PATH + "keggPathways.txt"));
+	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(
+			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
+	
+	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
 	
 	/**
 	 * Units for precurcor and MS/MS tolerance
 	 */
 	public static final String[] TOLERANCE_UNITS = {"Da", "ppm"};
 	
-	/**
-	 * Path to the database connection settings.
-	 */
-	public static final String DB_CONNECTION_SETTINGS_FILEPATH = "password/DbConnectionSettings.txt";
-	
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
-			"MetaProteomeAnalyzer Project File (*.mpa)");
+			"MetaProteomeAnalyzer Experiment File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV File, comma-separated (*.csv)");
-	public static final String TSV_FILE_SEPARATOR = "\t";
-	public static final String CSV_FILE_SEPARATOR = ";";
-	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,
-			"TSV File, tab-separated (*.tsv)");
+	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
+			"CSV File, tab-separated (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
@@ -163,6 +161,48 @@ public class Constants {
 			"GraphML File (*.graphml)");
 	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
 			"Microsoft Excel 2003 XML File (*.xml)");
+
+	public static final String CSV_FILE_SEPARATOR = ",";
+	public static final String TSV_FILE_SEPARATOR = "\t";
+	
+	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "none");
+	
+	
+	//  Get constants for BLAST
+	/**
+	 * Database for BLAST queries
+	 */
+	public static final String BLAST_UNIPROT_DB =  System.getProperty("file.separator") + "scratch" + System.getProperty("file.separator") + "BlastDb" + System.getProperty("file.separator") + "uniprot_sprot.fasta";
+
+	/**
+	 * File of the BLAST algorithm
+	 */
+	public static final String BLAST_FILE = System.getProperty("file.separator") + "usr" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "blastp" ;
+
+	/**
+	 * File for a dummy fasta for each BLAST query
+	 */
+	public static final String BLAST_DUMMY_FASTA_FILE = System.getProperty("user.dir")  + System.getProperty("file.separator") + "out" + System.getProperty("file.separator") + "dummy.fasta";
+
+	/**
+	 * Output file for the results of each BLAST query
+	 */
+	public static final String BLAST_OUTPUT_XML = System.getProperty("user.dir")  + System.getProperty("file.separator") + "out" + System.getProperty("file.separator") + "output.xml";
+
+	/**
+	 * Evalue for the BLAST query
+	 */
+	public static final double BLAST_EVALUE = 0.0001;
+	
+	/**
+	 * Convenience method to initialize the enzyme definition tree.
+	 * @return the root of the en
+	 */
+	private static ECNode createEnzymeTree() {
+		ECNode root = ECReader.readEnzymeClasses(CONFIGURATION_PATH_JAR + File.separator + "enzclass.txt");
+		ECReader.readEnzymes(root, CONFIGURATION_PATH_JAR + File.separator + "enzyme.dat");
+		return root;
+	}
 
 	/**
 	 * Returns the graph database user queries file.
@@ -202,28 +242,28 @@ public class Constants {
 		return projectsFile;
 	}
 	
-	/**
-	 * Returns the names of the nodes contained in the path from the KEGG
-	 * pathway root to the leaf identified by the provided pathway ID.
-	 * 
-	 * @param pw The pathway ID.
-	 * @return The array of node names leading to the leaf identified by 
-	 * the specified ID or <code>null</code> if the ID could not be found.
-	 */
-	public static Object[] getKEGGPathwayPath(Short pw) {
-		String pwString = String.format("%05d", pw);
-		// iterate tree leaves to find pathway identified by id
-		Enumeration dfEnum = ((DefaultMutableTreeNode) KEGG_PATHWAY_ROOT).depthFirstEnumeration();
-		while (dfEnum.hasMoreElements()) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) dfEnum.nextElement();
-			if (node.isLeaf()) {
-				if (((String) node.getUserObject()).startsWith(pwString)) {
-					return node.getUserObjectPath();
-				}
-			}
-		}
-		return null;
-	}
+//	/**
+//	 * Returns the names of the nodes contained in the path from the KEGG
+//	 * pathway root to the leaf identified by the provided pathway ID.
+//	 * 
+//	 * @param pw The pathway ID.
+//	 * @return The array of node names leading to the leaf identified by 
+//	 * the specified ID or <code>null</code> if the ID could not be found.
+//	 */
+//	public static Object[] getKEGGPathwayPath(Short pw) {
+//		String pwString = String.format("%05d", pw);
+//		// iterate tree leaves to find pathway identified by id
+//		Enumeration dfEnum = ((DefaultMutableTreeNode) KEGG_ORTHOLOGY_ROOT).depthFirstEnumeration();
+//		while (dfEnum.hasMoreElements()) {
+//			DefaultMutableTreeNode node = (DefaultMutableTreeNode) dfEnum.nextElement();
+//			if (node.isLeaf()) {
+//				if (((String) node.getUserObject()).startsWith(pwString)) {
+//					return node.getUserObjectPath();
+//				}
+//			}
+//		}
+//		return null;
+//	}
 	
 	/**
 	 * Concatenates two one-dimensional object arrays.
@@ -413,6 +453,7 @@ public class Constants {
 	/**
 	 * Hard-coded backup of the default theme, use when file-based default theme is missing.
 	 */
+	@SuppressWarnings("serial")
 	public static final UITheme DEFAULT_THEME = new UITheme(
 			DEFAULT_THEME_NAME,
 			new Color(195, 212, 232),
