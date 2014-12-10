@@ -7,17 +7,19 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.ebi.kraken.interfaces.ProteinData;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.Go;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.kegg.Kegg;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ko.KO;
+import uk.ac.ebi.kraken.interfaces.uniref.UniRefDatabaseType;
+import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
+import uk.ac.ebi.kraken.uuw.services.remoting.UniRefQueryService;
 
 /**
  * Method to test the UniprotAPi
@@ -63,11 +65,11 @@ public class UniprotAccessorTest extends TestCase {
 			
 			// UniprotKO
 			List<DatabaseCrossReference> dcrKO = entry.getDatabaseCrossReferences(DatabaseType.KO);
-			uniprotKO = ((KO) dcrKO.get(0)).getKOIdentifier().getValue();
+			uniprotKO = dcrKO.get(0).getPrimaryId().getValue() + ";";
 			
 			// UniprotKEGG
 			List<DatabaseCrossReference> dcrKegg = entry.getDatabaseCrossReferences(DatabaseType.KEGG);
-			uniprotKegg = ((Kegg) dcrKegg.get(0)).getKeggAccessionNumber().getValue();
+			uniprotKegg = dcrKegg.get(0).getPrimaryId().getValue();
 			
 			// UniprotEC
 			ecNumbers = entry.getProteinDescription().getEcNumbers();
@@ -81,7 +83,16 @@ public class UniprotAccessorTest extends TestCase {
 
 			// Uniprot GO annotation
 			goTerms = entry.getGoTerms();
-
+			
+			//TODo Robbie tested
+			// Create entry retrival service
+			EntryRetrievalService service = UniProtJAPI.factory.getEntryRetrievalService();
+			ProteinData proteinData = service.getProteinData("a4ip67");
+			UniRefEntry u100 = proteinData.getUniRefEntry(UniRefDatabaseType.UniRef100);
+			UniRefEntry u90 = proteinData.getUniRefEntry(UniRefDatabaseType.UniRef90);
+			UniRefEntry u50 = proteinData.getUniRefEntry(UniRefDatabaseType.UniRef50);
+			System.out.println(	"UNIREF: " + u100.getUniRefEntryId().getValue() + "  90 " + u90.getUniRefEntryId().getValue() + "  50 " + u50.getUniRefEntryId().getValue());
+			System.out.println("Rep " + u90.getName());
 		}
 	}
 	

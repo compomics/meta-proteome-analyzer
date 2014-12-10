@@ -4,13 +4,13 @@ import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -26,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTitledPanel;
 
 import com.jgoodies.forms.factories.CC;
@@ -45,7 +45,13 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 
+/**
+ * Panel containing search engine settings and processing controls.
+ * 
+ * @author A. Behne
+ */
 public class SettingsPanel extends JPanel {
+	
 	/**
 	 * Database search settings panel.
 	 */
@@ -57,16 +63,27 @@ public class SettingsPanel extends JPanel {
 	private SpectralLibrarySettingsPanel specLibPnl;
 	
 	/**
-	 * Processing button.
+	 * The search button.
 	 */
-	private JButton processBtn;
+	private JButton searchBtn;
+
+	/**
+	 * The quick search button.
+	 */
+	private JButton quickBtn;
 	
+	/**
+	 * Creates the settings panel containing controls for configuring and
+	 * starting database searches.
+	 * @throws IOException 
+	 */
 	public SettingsPanel() {
-		initComponents();
+		this.initComponents();
 	}
 
 	/**
 	 * Initialize the UI components.
+	 * @throws IOException 
 	 */
 	private void initComponents() {
 		
@@ -82,14 +99,52 @@ public class SettingsPanel extends JPanel {
 		databasePnl = new DatabaseSearchSettingsPanel();
 		this.specLibPnl = databasePnl.getSpectralLibrarySettingsPanel();
 		
-		ImageIcon processIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/search.png"));
-		processIcon = new ImageIcon(processIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
-
-		FormLayout buttonLyt = new FormLayout("8dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu");
-		JPanel buttonPnl = new JPanel(buttonLyt);
+		JPanel buttonPnl = new JPanel(new FormLayout("8dlu, p, 7dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu"));
 		
-		// Quick search button.
-		JButton quickBtn = new JButton("Quick Search File...", IconConstants.LIGHTNING_ICON);
+		// create connect button
+		final JButton connectBtn = new JButton(IconConstants.DISCONNECT_ICON);
+		connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
+		connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+		connectBtn.setToolTipText("Connect to Server");
+		final Client client = Client.getInstance();
+		
+		connectBtn.addActionListener(new ActionListener() {
+			/** The flag denoting whether a connection has been established. */
+			private boolean connected;
+			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				if (connected) {
+					connectBtn.setIcon(IconConstants.DISCONNECT_ICON);
+					connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
+					connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+					connectBtn.setToolTipText("Connect to Server");
+					client.disconnectFromServer();
+					connected = false;
+				} else {
+					try {
+						connected = client.connectToServer();
+					} catch (Exception e) {
+						JXErrorPane.showDialog(e);
+					}
+					if (connected) {
+						connectBtn.setIcon(IconConstants.CONNECT_ICON);
+						connectBtn.setRolloverIcon(IconConstants.CONNECT_ROLLOVER_ICON);
+						connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+						connectBtn.setToolTipText("Disconnect from Server");
+					} else {
+						JOptionPane.showMessageDialog(ClientFrame.getInstance(),
+								"Could not connect to server, please check connection settings and try again.",
+								"Connection Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				quickBtn.setEnabled(connected);
+				searchBtn.setEnabled(connected);
+				
+			}
+		});
+		
+		quickBtn = new JButton("Quick Search File...", IconConstants.LIGHTNING_ICON);
 		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
 		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
 		quickBtn.addActionListener(new ActionListener() {
@@ -105,21 +160,27 @@ public class SettingsPanel extends JPanel {
 				}
 			}
 		});
+		quickBtn.setEnabled(false);
 		
-		processBtn = new JButton("Start searching", processIcon);
-		processBtn.setEnabled(false);
-		
-		processBtn.setFont(processBtn.getFont().deriveFont(Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
-
-		processBtn.addActionListener(new ActionListener() {			
-			public void actionPerformed(ActionEvent e) {
+		// create process button
+		searchBtn = new JButton("Start searching", IconConstants.SEARCH_ICON);
+		searchBtn.setRolloverIcon(IconConstants.SEARCH_ROLLOVER_ICON);
+		searchBtn.setPressedIcon(IconConstants.SEARCH_PRESSED_ICON);
+		searchBtn.setFont(searchBtn.getFont().deriveFont(Font.BOLD, searchBtn.getFont().getSize2D()*1.25f));
+		searchBtn.addActionListener(new ActionListener() {			
+			public void actionPerformed(ActionEvent evt) {
 				new ProcessWorker().execute();
 			}
 		});
-		buttonPnl.add(quickBtn, CC.xy(2, 2));
-		buttonPnl.add(processBtn, CC.xy(4, 2));
+		searchBtn.setEnabled(false);
+
+		buttonPnl.add(connectBtn, CC.xy(2, 2));
+		buttonPnl.add(quickBtn, CC.xy(4, 2));
+		buttonPnl.add(searchBtn, CC.xy(6, 2));
+		
 		settingsPnl.add(databasePnl, CC.xy(1, 1));
 		settingsPnl.add(buttonPnl, CC.xy(1, 3));
+		
 		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel("Search Settings", settingsPnl);
 		this.add(dbTtlPnl, BorderLayout.CENTER);
 	}
@@ -135,13 +196,13 @@ public class SettingsPanel extends JPanel {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
 			long experimentID = projectPanel.getSelectedExperiment().getID();
 			if (experimentID != 0L) {
-				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
+				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getSpectrumTable();
 				// reset progress
 				Client client = Client.getInstance();
 				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
 				// appear busy
 				firePropertyChange("progress", null, 0);
-				processBtn.setEnabled(false);
+				searchBtn.setEnabled(false);
 				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				
 				try {
@@ -187,7 +248,7 @@ public class SettingsPanel extends JPanel {
 		@Override
 		public void done() {
 			ClientFrame.getInstance().setCursor(null);
-			processBtn.setEnabled(true);
+			searchBtn.setEnabled(true);
 		}
 	}
 	
@@ -266,18 +327,11 @@ public class SettingsPanel extends JPanel {
 	}
 
 	/**
-	 * Returns the process button reference.
-	 * @return The process button reference.
-	 */
-	public JButton getProcessButton() {
-		return processBtn;
-	}
-
-	/**
 	 * Returns the database search settings panel.
 	 * @return the database search settings panel
 	 */
 	public DatabaseSearchSettingsPanel getDatabaseSearchSettingsPanel() {
 		return databasePnl;
 	}
+	
 }

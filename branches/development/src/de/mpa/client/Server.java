@@ -7,6 +7,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.ws.Action;
 
 
 /**
@@ -28,6 +29,7 @@ public interface Server {
      * @param arg0
      */
     @WebMethod
+    @Action(input = "http://webservice.mpa.de/Server/receiveMessageRequest", output = "http://webservice.mpa.de/Server/receiveMessageResponse")
     public void receiveMessage(
         @WebParam(name = "arg0", partName = "arg0")
         String arg0);
@@ -39,6 +41,7 @@ public interface Server {
      */
     @WebMethod
     @WebResult(partName = "return")
+    @Action(input = "http://webservice.mpa.de/Server/sendMessageRequest", output = "http://webservice.mpa.de/Server/sendMessageResponse")
     public String sendMessage();
 
     /**
@@ -49,6 +52,7 @@ public interface Server {
      */
     @WebMethod
     @WebResult(partName = "return")
+    @Action(input = "http://webservice.mpa.de/Server/downloadFileRequest", output = "http://webservice.mpa.de/Server/downloadFileResponse")
     public String downloadFile(
         @WebParam(name = "arg0", partName = "arg0")
         String arg0);
@@ -62,6 +66,7 @@ public interface Server {
      */
     @WebMethod
     @WebResult(partName = "return")
+    @Action(input = "http://webservice.mpa.de/Server/uploadFileRequest", output = "http://webservice.mpa.de/Server/uploadFileResponse")
     public String uploadFile(
         @WebParam(name = "arg0", partName = "arg0")
         String arg0,
@@ -73,6 +78,7 @@ public interface Server {
      * @param arg0
      */
     @WebMethod
+    @Action(input = "http://webservice.mpa.de/Server/runSearchesRequest", output = "http://webservice.mpa.de/Server/runSearchesResponse")
     public void runSearches(
         @WebParam(name = "arg0", partName = "arg0")
         SearchSettings arg0);

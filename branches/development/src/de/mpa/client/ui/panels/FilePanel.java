@@ -39,6 +39,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -87,7 +88,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
-import de.mpa.client.settings.Parameter;
+import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
@@ -184,11 +185,6 @@ public class FilePanel extends JPanel implements Busyable {
 	private String selPath = Constants.DEFAULT_SPECTRA_PATH;
 	
 	/**
-	 *  Selected file of the .mgf or .dat File
-	 */
-	private List<File> mascotSelFile = new ArrayList<File>();
-	
-	/**
 	 * Button for the user to go to the next tab.
 	 */
 	private JButton nextBtn;
@@ -201,15 +197,15 @@ public class FilePanel extends JPanel implements Busyable {
 	/**
 	 * Input file reader instance.
 	 */
-	protected InputFileReader reader;
+	private InputFileReader reader;
 	
 	/**
-	 * Mapping from the spectrum to the byte positions.
+	 * Mapping from spectrum file path to spectrum byte positions contained within the mapped file.
 	 */
-	protected static Map<String, ArrayList<Long>> specPosMap = new HashMap<String, ArrayList<Long>>();
+	private Map<String, List<Long>> specPosMap = new HashMap<String, List<Long>>();
 	
 	/**
-	 * Busy booelan.
+	 * Flag denoting the busy state of the panel.
 	 */
 	private boolean busy;
 	
@@ -230,6 +226,7 @@ public class FilePanel extends JPanel implements Busyable {
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
+	 * @throws IOException 
 	 */
 	public FilePanel() {
 		this.initComponents();
@@ -237,6 +234,7 @@ public class FilePanel extends JPanel implements Busyable {
 	
 	/**
 	 * Initializes the UI components.
+	 * @throws IOException 
 	 */
 	private void initComponents() {
 		final ClientFrame clientFrame = ClientFrame.getInstance();
@@ -259,7 +257,7 @@ public class FilePanel extends JPanel implements Busyable {
 			public void actionPerformed(ActionEvent evt) {
 				int res = AdvancedSettingsDialog.showDialog(clientFrame, "Filter Settings", true, filterParams);
 				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
-
+					// TODO: re-filter table
 				}
 			}
 		});
@@ -284,16 +282,15 @@ public class FilePanel extends JPanel implements Busyable {
 		// tree table containing spectrum details
 		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
 				"no experiment selected", null, null, null, null) {
-			public String toString() {
-				AbstractExperiment experiment = clientFrame.getProjectPanel().getSelectedExperiment();
-				if (experiment != null) {
-					return experiment.getTitle();
-				}
-				return "no experiment selected";
-			}
 			@Override
 			public Object getValueAt(int column) {
-				if (column >= 2) {
+				if (column == 0) {
+					AbstractExperiment experiment = clientFrame.getProjectPanel().getSelectedExperiment();
+					if (experiment != null) {
+						return experiment.getTitle();
+					}
+					return "no experiment selected";
+				} else if (column >= 2) {
 					double sum = 0.0;
 					for (int j = 0; j < getChildCount(); j++) {
 						sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
@@ -320,6 +317,10 @@ public class FilePanel extends JPanel implements Busyable {
 				default:
 					return String.class;
 				}
+			}
+			@Override
+			public void setValueAt(Object value, Object node, int column) {
+				// do nothing
 			}
 		};
 		
@@ -392,6 +393,14 @@ public class FilePanel extends JPanel implements Busyable {
 				return editorComp;
 			}
 		});
+		
+		JTextField editorTtf = new JTextField();
+		editorTtf.setEditable(false);
+		editorTtf.setOpaque(false);
+		editorTtf.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		spectrumTreeTable.setDefaultEditor(String.class, new DefaultCellEditor(editorTtf));
+		spectrumTreeTable.setDefaultEditor(Number.class, new DefaultCellEditor(editorTtf));
+		
 		// install action listener to remove file node on press
 		removeBtn.addActionListener(new ActionListener() {
 			@Override
@@ -689,8 +698,6 @@ public class FilePanel extends JPanel implements Busyable {
 				ticList.clear();
 				specPosMap.clear();
 				
-				mascotSelFile.clear();
-				
 				// reset navigation button and search settings tab
 				nextBtn.setEnabled(false);
 			}
@@ -706,13 +713,13 @@ public class FilePanel extends JPanel implements Busyable {
 	 */
 	public MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException, SQLException {
 		CheckBoxTreeTableNode fileNode = (CheckBoxTreeTableNode) spectrumNode.getParent();
-		File file = (File) fileNode.getValueAt(0);
+		File file = (File) fileNode.getUserObject();
 		if ((reader != null) && (!reader.getFilename().equals(file.getName()))) {
 			// TODO: process file switching using background worker linked to progress bar
 			reader = InputFileReader.createInputFileReader(file);
 			reader.survey();
 		}
-		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
+		int spectrumIndex = (Integer) spectrumNode.getUserObject() - 1;
 		
 		MascotGenericFile spectrum = reader.loadSpectrum(spectrumIndex);
 		Long spectrumID = spectrum.getSpectrumID();
@@ -733,7 +740,7 @@ public class FilePanel extends JPanel implements Busyable {
 				CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) path.getLastPathComponent();
 				SpectrumPanel specPnl = null;
 				if (node.isLeaf() && (node.getParent() != null)) {
-						MascotGenericFile mgf = getSpectrumForNode(node);
+						MascotGenericFile mgf = this.getSpectrumForNode(node);
 						specPnl = new SpectrumPanel(mgf, false);
 						specPnl.setBorder(UIManager.getBorder("ScrollPane.border"));
 						specPnl.setShowResolution(false);
@@ -868,11 +875,30 @@ public class FilePanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * Gets the selected MASCOT files.
-	 * @return The selected files of the .mgf or .dat file
+	 * Returns the Mascot .dat files currently selected in the tree table view.
+	 * @return the selected Mascot .dat files.
 	 */
 	public List<File> getSelectedMascotFiles() {
-		return mascotSelFile;
+		List<File> mascotFiles = new ArrayList<>();
+		
+		CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
+		
+		TreeTableNode root = (TreeTableNode) spectrumTreeTable.getTreeTableModel().getRoot();
+		Enumeration<? extends TreeTableNode> fileNodes = root.children();
+		while (fileNodes.hasMoreElements()) {
+			TreeTableNode fileNode = fileNodes.nextElement();
+			TreePath path = new TreePath(new Object[] { root, fileNode });
+			if (cbtsm.isPathSelected(path, true) || cbtsm.isPartiallySelected(path)) {
+				Object userObject = fileNode.getUserObject();
+				if (userObject instanceof File) {
+					File spectrumFile = (File) userObject;
+					if (Constants.DAT_FILE_FILTER.accept(spectrumFile)) {
+						mascotFiles.add(spectrumFile);
+					}
+				}
+			}
+		}
+		return mascotFiles;
 	}
 	
 	/**
@@ -888,10 +914,10 @@ public class FilePanel extends JPanel implements Busyable {
 	}
 
 	/**
-	 * Method to return the file panel's tree component.
-	 * @return The panel's SpectrumTree.
+	 * Returns the table view containing spectrum file info.
+	 * @return the spectrum table
 	 */
-	public CheckBoxTreeTable getCheckBoxTree() {
+	public CheckBoxTreeTable getSpectrumTable() {
 		return spectrumTreeTable;
 	}
 	
@@ -974,6 +1000,7 @@ public class FilePanel extends JPanel implements Busyable {
 	
 			@Override
 			protected Boolean doInBackground() throws Exception {
+				try {
 				// appear busy
 				FilePanel.this.setBusy(true);
 				
@@ -995,38 +1022,24 @@ public class FilePanel extends JPanel implements Busyable {
 	
 					reader = InputFileReader.createInputFileReader(file);
 					
-					if (file.getName().toLowerCase().endsWith(".mgf")) {
-						// do nothing
-					} else if (Constants.DAT_FILE_FILTER.accept(file)) {
-						
+					if (Constants.DAT_FILE_FILTER.accept(file)) {
 						DatabaseSearchSettingsPanel dbSettingsPnl =
 								ClientFrame.getInstance().getFilePanel().getSettingsPanel().getDatabaseSearchSettingsPanel();
 						dbSettingsPnl.setMascotEnabled(true);
 						MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
 						Parameters parameters = mascotDatfile.getParametersSection();
-						ParameterMap mascotParams =
-								dbSettingsPnl.getMascotParameterMap();
+						MascotParameters mascotParams = (MascotParameters) dbSettingsPnl.getMascotParameterMap();
+
+						mascotParams.setValue("precTol", Double.valueOf(parameters.getTOL()));
+						mascotParams.setValue("fragTol", Double.valueOf(parameters.getITOL()));
+						mascotParams.setValue("missClv", Integer.valueOf(parameters.getPFA()));
 						
-						mascotParams.put("precTol",
-								new Parameter(null, parameters.getTOL(), "General", null));
-						mascotParams.put("fragTol",
-								new Parameter(null, parameters.getITOL(), "General", null));
-						mascotParams.put("missClv",
-								new Parameter(null, parameters.getPFA(), "General", null));
-						
-						boolean decoy = mascotDatfile.getDecoyQueryToPeptideMap() != null;
-						mascotParams.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15, true }, { false, 0.05, decoy } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
-						
-						mascotSelFile.add(file);
-					
-					} else {
-						System.out.println("If you got here something went horribly wrong!");
+						boolean decoy = (mascotDatfile.getDecoyQueryToPeptideMap() != null);
+						mascotParams.setDecoy(decoy);
 					}
 					
-					ArrayList<Long> positions = new ArrayList<Long>();
+					List<Long> positions = new ArrayList<Long>();
 					try {
-	//						reader = new MascotGenericFileReader(file, LoadMode.NONE);
-	
 						client.firePropertyChange("resetcur", -1L, file.length());
 						
 						reader.addPropertyChangeListener(new PropertyChangeListener() {
@@ -1038,8 +1051,6 @@ public class FilePanel extends JPanel implements Busyable {
 							}
 						});
 						reader.survey();
-	//						List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-	//						totalSpectraList.addAll(mgfList);
 						
 						positions.addAll(reader.getSpectrumPositions(false));
 						specPosMap.put(file.getAbsolutePath(), positions);
@@ -1053,12 +1064,11 @@ public class FilePanel extends JPanel implements Busyable {
 						}
 						SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
 								file, parentFile.getPath(), null, null, null) {
-							public String toString() {
-								return ((File) userObject).getName();
-							};
 							@Override
 							public Object getValueAt(int column) {
-								if (column >= 2) {
+								if (column == 0) {
+									return ((File) userObject).getName();
+								} else if (column >= 2) {
 									double sum = 0.0;
 									for (int j = 0; j < getChildCount(); j++) {
 										sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
@@ -1099,18 +1109,21 @@ public class FilePanel extends JPanel implements Busyable {
 							// append new spectrum node to file node
 							SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
 									index, mgf.getTitle(), numPeaks, TIC, SNR) {
-								public String toString() {
-									return "Spectrum " + super.toString();
+								@Override
+								public Object getValueAt(int column) {
+									if (column == 0) {
+										return "Spectrum " + this.userObject;
+									}
+									return super.getValueAt(column);
 								}
 							};
 							fileNode.add(spectrumNode);
 							
-							// Get the minimum of signifikant peaks from the filter parameters.
-							Integer[] minPeaks = (Integer[]) filterParams.get("minpeaks").getValue(); 
-							Integer[] minTIC = (Integer[]) filterParams.get("mintic").getValue();
+							// check filter criteria
+							int minPeaks = (Integer) filterParams.get("minpeaks").getValue(); 
+							int minTIC = (Integer) filterParams.get("mintic").getValue();
 							double minSNR = (Double) filterParams.get("minsnr").getValue();
-	
-							if ((numPeaks >= minPeaks[0]) && (TIC >= minTIC[0]) && (SNR >= minSNR)) {
+							if ((numPeaks >= minPeaks) && (TIC >= minTIC) && (SNR >= minSNR)) {
 								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 							}
 							index++;
@@ -1136,14 +1149,17 @@ public class FilePanel extends JPanel implements Busyable {
 					}
 					
 				}
-	
+
+				
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 			
 			@Override
 			protected void done() {
 				try {
-					
 					// check result value
 					if (this.get().booleanValue()) {
 						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");

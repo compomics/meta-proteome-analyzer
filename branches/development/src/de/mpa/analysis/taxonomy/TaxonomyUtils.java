@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.ComboBoxModel;
-
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Client;
@@ -265,18 +263,18 @@ public class TaxonomyUtils {
 
 			// Gets the parent node of the taxon node
 			TaxonomyNode child = ancestor;
-			TaxonomyNode parent = nodeMap.get(ancestor.getId());
+			TaxonomyNode parent = nodeMap.get(ancestor.getID());
 			if (parent == null) {
 				parent = child.getParentNode();
 				// iterate up the taxonomy hierarchy until a mapped node is found (which may be the root)
 				while (true) {
 					// retrieve parent node from map
-					TaxonomyNode temp = nodeMap.get(parent.getId());
+					TaxonomyNode temp = nodeMap.get(parent.getID());
 
 					if (temp == null) {
 						// add child's parent node to map
 						child.setParentNode(parent);
-						nodeMap.put(parent.getId(), parent);
+						nodeMap.put(parent.getID(), parent);
 						child = parent;
 						parent = parent.getParentNode();
 					} else {
@@ -311,9 +309,8 @@ public class TaxonomyUtils {
 	 */
 	public static void determineMetaProteinTaxonomy(
 			ProteinHitList metaProteins, ParameterMap params) {
-		ComboBoxModel model = (ComboBoxModel) params.get("metaProteinTaxonomy").getValue();
 		TaxonomyUtils.determineTaxonomy(metaProteins,
-				(TaxonomyDefinition) model.getSelectedItem());
+				(TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
 	}
 
 	/**
@@ -324,9 +321,8 @@ public class TaxonomyUtils {
 	 */
 	public static void determineProteinTaxonomy(
 			List<ProteinHit> proteins, ParameterMap params) {
-		ComboBoxModel model = (ComboBoxModel) params.get("proteinTaxonomy").getValue();
 		TaxonomyUtils.determineTaxonomy(proteins,
-				(TaxonomyDefinition) model.getSelectedItem());
+				(TaxonomyDefinition) params.get("proteinTaxonomy").getValue());
 	}
 
 	/**
@@ -377,7 +373,7 @@ public class TaxonomyUtils {
 		// Default value for taxonomy name.
 		String taxName = "root";
 
-		while (taxNode.getId() != 1) { // unequal to root
+		while (taxNode.getID() != 1) { // unequal to root
 			if (taxNode.getRank() == taxRank) {
 				taxName = taxNode.getName();
 				break;
@@ -398,11 +394,11 @@ public class TaxonomyUtils {
 		boolean belongsToGroup = false;
 
 		// To care for same taxID and especially for root as filtering level.
-		if (filterTaxId == taxNode.getId()) { 
+		if (filterTaxId == taxNode.getID()) { 
 			belongsToGroup = true;
 		} else {
 			// Get all parents of the taxonNode and check whether they are equal to the filter level.
-			while (taxNode.getParentNode() != null || (taxNode.getId() != 1)) {
+			while (taxNode.getParentNode() != null || (taxNode.getID() != 1)) {
 				// Get parent taxon node of protein entry.
 				try {
 					taxNode = taxNode.getParentNode();
@@ -410,7 +406,7 @@ public class TaxonomyUtils {
 					e.printStackTrace();
 				}
 				// Check for filter ID
-				if (filterTaxId == taxNode.getId()) {
+				if (filterTaxId == taxNode.getID()) {
 					belongsToGroup = true;
 					break;
 				}

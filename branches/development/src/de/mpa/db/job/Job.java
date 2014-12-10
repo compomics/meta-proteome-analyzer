@@ -59,9 +59,14 @@ public abstract class Job implements Executable {
     protected ArrayList<String> procCommands = new ArrayList<String>();
     
     /**
-     * Init the job logger.
+     * Initialize the job logger.
      */
     protected static Logger log = Logger.getLogger(Job.class);
+    
+    /**
+     * The job properties.
+     */
+	protected ServerProperties jobProperties = ServerProperties.getInstance();
     
 	/**
 	 * Executes the job.

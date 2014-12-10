@@ -17,8 +17,8 @@ public class PercolatorJob extends Job{
 	 * @param mgfFile
 	 */
 	public PercolatorJob(File mgfFile) {
-		this.cruxFile = new File(JobConstants.CRUX_PATH);
-		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
+		this.cruxFile = new File(jobProperties.getProperty("path.crux"));
+		filename = jobProperties.getProperty("path.crux.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
 		initJob();
 	}	
 	
@@ -30,16 +30,15 @@ public class PercolatorJob extends Job{
 		
 		procCommands = new ArrayList<String>();
 		// Link to the output file.
-		procCommands.add(JobConstants.CRUX_PATH + JobConstants.CRUX_EXE);
+		procCommands.add(jobProperties.getProperty("path.crux") + jobProperties.getProperty("app.crux"));
 		procCommands.add("percolator");
 		
-		
 		// Link to crux sourcefolder path.		
-		procCommands.add(JobConstants.CRUX_OUTPUT_PATH + "search.target.txt");
+		procCommands.add(jobProperties.getProperty("path.crux.output") + "search.target.txt");
 		
 		// Link to outputfolder path.
 		procCommands.add("--output-dir");
-		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
+		procCommands.add(jobProperties.getProperty("path.crux.output"));
 		
 		// Overwrite existing files (if any searches before)
 		procCommands.add("--overwrite");

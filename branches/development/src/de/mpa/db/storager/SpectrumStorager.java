@@ -140,11 +140,13 @@ public class SpectrumStorager extends BasicStorager {
 				Integer[] chInts = chargeMap.values().toArray(new Integer[0]);
 				data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
                 
+				// TODO changed these database inputs purely for cluster file compatibility
+				
                 // The total intensity.
-                data.put(Spectrum.TOTAL_INT, mgf.getTotalIntensity());
+                data.put(Spectrum.TOTAL_INT, 0.0); //mgf.getTotalIntensity());
                 
                 // The highest intensity.
-                data.put(Spectrum.MAXIMUM_INT, mgf.getHighestIntensity());
+                data.put(Spectrum.MAXIMUM_INT, 0.0); //mgf.getHighestIntensity());
 
                 // Create the database object.
                 query = new Spectrum(data);

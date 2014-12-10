@@ -3,8 +3,9 @@ package de.mpa.client.settings;
 import java.io.File;
 import java.util.Map.Entry;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
+import de.mpa.client.settings.Parameter.BooleanMatrixParameter;
+import de.mpa.client.settings.Parameter.NumberParameter;
+import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Class for storing OMSSA search engine-specific settings.
@@ -22,22 +23,27 @@ public class OmssaParameters extends ParameterMap {
 	
 	@Override
 	public void initDefaults() {
-		/* Non-configurable settings */
-        
 		/* Configurable settings */
+		// Protein section
+		this.put("e", new OptionParameter(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"},
+				0, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Protein"));
 		// Spectrum section
-		this.put("e", new Parameter("Cleavage enzyme", new DefaultComboBoxModel(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"}), "Spectrum", "Cleavage enzyme to used by the OMSSA search engine."));
-		this.put("tom", new Parameter("Fragment mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
-		this.put("tem", new Parameter("Precursor mass type", new DefaultComboBoxModel(new Object[] { "monoisotopic", "average", "mono N15", "exact" }), "Spectrum", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>"));
-		this.put("zt", new Parameter("Scale precursor tol.", 3, "Spectrum", "Precursor mass tolerance scales according to charge state.")); 
-		this.put("ht", new Parameter("Most intense peaks", 6, "Spectrum", "Number of m/z values corresponding to the most intense peaks."));
-		this.put("nt", new Parameter("Worker threads", 4, "Spectrum", "The number of threads OMSSA is using for processing."));
+		this.put("tom", new OptionParameter(new Object[] { "monoisotopic", "average", "mono N15", "exact" },
+				0, "Fragment mass type", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>", "Spectrum"));
+		this.put("tem", new OptionParameter(new Object[] { "monoisotopic", "average", "mono N15", "exact" },
+				0, "Precursor mass type", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>", "Spectrum"));
+		this.put("zt", new NumberParameter(3, 0, null, "Charge threshold", "Minimum precursor charge to start considering multiply charged products.", "Spectrum")); 
+		this.put("ht", new NumberParameter(6, 1, null, "Most intense peaks", "The number of m/z values corresponding to the most intense peaks that must include one match to the theoretical peptide.", "Spectrum"));
+		this.put("nt", new NumberParameter(8, 0, null, "Search threads", "The number of search threads to use, 0=autodetect.", "Spectrum"));
 		// Scoring section
-		this.put("hm", new Parameter("<html>Required number of m/z<br>matches per spectrum</html>", 2, "Scoring", "The number of m/z matches a sequence library peptide must have for the hit to the peptide to be recorded."));
-		this.put("hl", new Parameter("Maximum number of hits", 30, "Scoring", "Maximum number of hits retained per precursor charge state per spectrum."));
-		this.put("he", new Parameter("Maximum e-value allowed", 1000.00, "Scoring", "Maximum e-value allowed in the hit list."));
-		this.put("i", new Parameter("use x ions|use y ions|use z ions||use a ions|use b ions|use c ions", new Boolean[][] { { false, true, false }, { false, true, false }}, "Scoring",
-				"Allows the use of x-ions in scoring.|Allows the use of y-ions in scoring.|Allows the use of z-ions in scoring.||Allows the use of a-ions in scoring.|Allows the use of b-ions in scoring.|Allows the use of c-ions in scoring."));
+		this.put("hm", new NumberParameter(2, 1, null, "m/z matches per spectrum", "The number of m/z matches a sequence library peptide must have for the hit to the peptide to be recorded.", "Scoring"));
+		this.put("hl", new NumberParameter(30, 1, null, "Maximum number of hits", "The maximum number of hits retained per precursor charge state per spectrum.", "Scoring"));
+		this.put("he", new NumberParameter(1000.0, 0.0, null, "Maximum e-value allowed", "Maximum e-value allowed in the hit list.", "Scoring"));
+		this.put("i", new BooleanMatrixParameter(3, 3, new Boolean[] { false, true, false, false, true, false, false, false, false },
+				new String[] { "use a ions", "use b ions", "use c ions", "use x ions", "use y ions", "use z° ions", "use a° ions", "<html>use x-CO<sub>2</sub> ions</html>", "<html>use a°-CO<sub>2</sub> ions</html>" },
+				new String[] { "Allows the use of a ions in scoring.", "Allows the use of b ions in scoring.", "Allows the use of c ions in scoring.",
+							   "Allows the use of x ions in scoring.", "Allows the use of y ions in scoring.", "Allows the use of z° ions in scoring.",
+							   "Allows the use of a° ions in scoring.", "<html>Allows the use of x-CO<sub>2</sub> ions in scoring.</html>", "<html>Allows the use of a°-CO<sub>2</sub> ions in scoring.</html>" }, "Scoring"));
 	}
 
 	@Override
@@ -45,48 +51,34 @@ public class OmssaParameters extends ParameterMap {
 		// Set up builder for command line argument structure
 		StringBuilder sb = new StringBuilder();
 
-		// Grab a set of default parameters for comparison purposes
-		OmssaParameters defaults = new OmssaParameters();
 		// Iterate stored parameter values and compare them to the defaults
 		for (Entry<String, Parameter> entry : this.entrySet()) {
 			String key = entry.getKey();
-			Object value = entry.getValue().getValue();
-			Object defaultValue = defaults.get(key).getValue();
-			if (value instanceof ComboBoxModel) {
-				// special case for combobox models, compare selected items
-				DefaultComboBoxModel model = (DefaultComboBoxModel) value;
-				value = model.getIndexOf(model.getSelectedItem());
-				model = (DefaultComboBoxModel) defaultValue;
-				defaultValue = model.getIndexOf(model.getSelectedItem());
+			Parameter param = entry.getValue();
+			Object value = param.getValue();
+			if (param instanceof OptionParameter) {
+				value = ((OptionParameter) param).getIndex();
 			}
-			// Compare values, if they differ add a line to the configuration file
-			if (value instanceof Boolean[][]) {
-				// special case for matrix of checkboxes
-				Boolean[][] values = (Boolean[][]) value;
-				Boolean[][] defaultvalues = (Boolean[][]) defaultValue;
-				String ions = "345012";
-				int k = 0;
+			if (value instanceof Boolean[]) {
+				Boolean[] selections = (Boolean[]) value;
+				int[] ionOptions = { 0, 1, 2, 3, 4, 5, 10, 11, 12 };
 				boolean first = true;
-				for (int i = 0; i < values.length; i++) {
-					for (int j = 0; j < values[i].length; j++) {
-						if (!values[i][j].equals(defaultvalues[i][j])) {
-							if (first) {
-								// Write commandline parameter
-								sb.append("-" + key + " ");
-								first = false;
-							} else {
-								sb.append(",");
-							}
-							// Write non-default value
-							sb.append(ions.charAt(k));
+				for (int i = 0; i < selections.length; i++) {
+					if (selections[i]) {
+						if (first) {
+							sb.append("-" + key + " ");
+							first = false;
+						} else {
+							sb.append(",");
 						}
-						k++;
+						sb.append(ionOptions[i]);
 					}
 				}
+				sb.append(" ");
 			} else {
 				if (value instanceof Boolean) {
-					// turn true/false into yes/no
-					value = (((Boolean) value).booleanValue()) ? 1 : 0;
+					// turn true/false into 1/0
+					value = ((Boolean) value) ? 1 : 0;
 				}
 				// Write commandline parameter containing non-default value
 				sb.append("-" + key + " " + value + " ");

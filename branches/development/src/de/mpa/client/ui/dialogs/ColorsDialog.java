@@ -378,7 +378,7 @@ public class ColorsDialog extends JDialog {
 		});
 		
 		// Create button to accept changes and close the dialog
-		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
+		JButton okBtn = new JButton(" OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
 		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -561,6 +561,7 @@ public class ColorsDialog extends JDialog {
 	 * @author A. Behne
 	 */
 	protected abstract class ColorIconComboBoxRenderer extends BasicComboBoxRenderer {
+		
 		/** Color swatch icon */
 		private ColorIcon icon = new ColorIcon();
 		

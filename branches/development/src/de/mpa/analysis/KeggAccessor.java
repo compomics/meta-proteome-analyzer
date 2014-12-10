@@ -25,12 +25,14 @@ import javax.xml.rpc.ServiceException;
 import keggapi.KEGGLocator;
 import keggapi.KEGGPortType;
 import de.mpa.client.Constants;
+import de.mpa.io.parser.ec.ECReader;
 
 /**
  * Class providing access to KEGG remote service and local dumps of database contents.
  * 
  * @author A. Behne
  */
+@Deprecated
 public class KeggAccessor {
 	
 	/**
@@ -140,7 +142,7 @@ public class KeggAccessor {
 	 * @return A list of pathways mapped to the specified EC number.
 	 */
 	public List<Short> getPathwaysByEC(String ec) {
-		return getPathwaysByEC(tokenizeEC(ec));
+		return getPathwaysByEC(ECReader.toArray(ec));
 	}
 
 	/**
@@ -216,7 +218,7 @@ public class KeggAccessor {
 		List<Short> pathwayIDs = new ArrayList<Short>();
 		
 		// get pathway tree structure
-		TreeNode pathwayRoot = Constants.KEGG_PATHWAY_ROOT;
+		TreeNode pathwayRoot = Constants.KEGG_ORTHOLOGY_MAP.getRoot();
 		Enumeration<TreeNode> dfEnum = ((DefaultMutableTreeNode) pathwayRoot).depthFirstEnumeration();
 		// iterate nodes of pathway
 		while (dfEnum.hasMoreElements()) {
@@ -261,7 +263,7 @@ public class KeggAccessor {
 			String[] ecStrings = serv.get_enzymes_by_pathway(pathway);
 			List<short[]> ecList = new ArrayList<short[]>();
 			for (String ecString : ecStrings) {
-				short[] ec = tokenizeEC(ecString.substring(3));
+				short[] ec = ECReader.toArray(ecString.substring(3));
 				List<Short> pathwayList = ec2pathway.get(ec);
 				if (pathwayList == null) {
 					pathwayList = new ArrayList<Short>();
@@ -290,23 +292,4 @@ public class KeggAccessor {
 		oos.close();
 	}
 
-	/**
-	 * Converts an EC number String of the format "A.B.C.D" into an array of shorts.
-	 * @param ecString The EC number in String representation.
-	 * @return An array of shorts containing the 
-	 */
-	protected short[] tokenizeEC(String ecString) {
-		short[] ec = new short[4];
-		// TODO: handle non-numerical first token, e.g. when dealing with Strings of the pattern "ec:A.B.C.D"
-		String[] ecTokens = ecString.split("[.]");
-		for (int j = 0; j < ec.length; j++) {
-			try {
-				ec[j] = Short.parseShort(ecTokens[j]);
-			} catch (Exception e) {
-				ec[j] = 0;
-			}
-		}
-		return ec;
-	}
-	
 }

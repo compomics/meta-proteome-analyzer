@@ -1,25 +1,22 @@
 package de.mpa.client.ui;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.tree.TreePath;
-
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
+import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.client.settings.Parameter;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.SearchHit;
 
@@ -28,12 +25,7 @@ import de.mpa.db.accessor.SearchHit;
  * 
  * @author A. Behne
  */
-public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
-	
-	/**
-	 * List of tree paths of other nodes which are part of different trees. 
-	 */
-	private List<TreePath> linkPaths;
+public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implements Cloneable {
 	
 	/**
 	 * Constructs a phylogenetic tree table node from an array of arbitrary Objects.<br>
@@ -46,8 +38,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	
 	@Override
 	public int getColumnCount() {
-		// TODO: parameterize column count, e.g. length of userObjects array?
-		return 12;
+		return 13;
 	}
 	
 	@Override
@@ -56,14 +47,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			ProteinHit ph = (ProteinHit) userObject;
 			if (ph instanceof MetaProteinHit) {
 				switch (column) {
-				case 0:
+				case ProteinTreeTables.ACCESSION_COLUMN:
 					return this.toString();
-				case 1:
+				case ProteinTreeTables.DESCRIPTION_COLUMN:
 					return ph.getDescription();
-				case 2:
-//					return ph.getSpecies();
-					return ph.getTaxonomyNode().getName();
-				case 11:
+				case ProteinTreeTables.TAXONOMY_COLUMN:
+					return ph.getTaxonomyNode();
+				case ProteinTreeTables.WEB_RESOURCES_COLUMN:
 					// web resource column
 					return null;
 				default:
@@ -71,12 +61,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 				}
 			} else {
 				switch (column) {
-				case 0:
+				case ProteinTreeTables.ACCESSION_COLUMN:
 					return this.toString();
-				case 1:
+				case ProteinTreeTables.DESCRIPTION_COLUMN:
 					String description = ph.getDescription();
-					if (description == null) description = "";
-					
+					if (description == null) {
+						description = "";
+					}
 					int underscore = description.indexOf("_");
 					if (underscore > 0) {
 						int whitespace = description.indexOf(" ");
@@ -85,41 +76,43 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 						}
 					}
 					return description;
-				case 2:
-//					return ph.getSpecies();
-					return ph.getTaxonomyNode().getName();
-				case 3:
-//					return ph.getIdentity();
-					if (ph.getUniProtEntry() == null) return null;
-					Parameter parameter = Client.getInstance().getResultParameters().get("proteinClusterRule");
-					ComboBoxModel model = (ComboBoxModel) parameter.getValue();
-					ClusterRule rule = (ClusterRule) model.getSelectedItem();
-					
-					switch (rule) {
-					case UNIREF100:
-						return ph.getUniProtEntry().getUniRef100id();
-					case UNIREF90:
-						return ph.getUniProtEntry().getUniRef90id();
-					case UNIREF50:
-						return ph.getUniProtEntry().getUniRef50id();
-					default:
-						return ph.getUniProtEntry().getUniRef100id();
+				case ProteinTreeTables.TAXONOMY_COLUMN:
+					return ph.getTaxonomyNode();
+				case ProteinTreeTables.SEQUENCE_COLUMN:
+					return ph.getSequence();
+				case ProteinTreeTables.UNIREF_COLUMN:
+					if (ph.getUniProtEntry() == null) {
+						return null;
 					}
-				case 4:
+					ResultParameters parameters =
+							(ResultParameters) Client.getInstance().getResultParameters();
+					ClusterRule clusterRule =
+							(ClusterRule) parameters.get("clusterRule").getValue();
+					switch (clusterRule) {
+						case UNIREF100:
+							return ph.getUniProtEntry().getUniRef100id();
+						case UNIREF90:
+							return ph.getUniProtEntry().getUniRef90id();
+						case UNIREF50:
+							return ph.getUniProtEntry().getUniRef50id();
+						default:
+							return ph.getUniProtEntry().getUniRef100id();
+					}
+				case ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN:
 					return ph.getCoverage();
-				case 5:
+				case ProteinTreeTables.MOLECULAR_WEIGHT_COLUMN:
 					return ph.getMolecularWeight();
-				case 6:
+				case ProteinTreeTables.ISOELECTRIC_POINT_COLUMN:
 					return ph.getIsoelectricPoint();
-				case 7:
+				case ProteinTreeTables.PEPTIDE_COUNT_COLUMN:
 					return ph.getPeptideCount();
-				case 8:
+				case ProteinTreeTables.SPECTRAL_COUNT_COLUMN:
 					return ph.getSpectralCount();
-				case 9:
+				case ProteinTreeTables.EMPAI_COLUMN:
 					return ph.getEmPAI();
-				case 10:
+				case ProteinTreeTables.NSAF_COLUMN:
 					return ph.getNSAF();
-				case 11:
+				case ProteinTreeTables.WEB_RESOURCES_COLUMN:
 					return IconConstants.WEB_RESOURCE_ICON;
 				default:
 					return super.getValueAt(column);
@@ -143,14 +136,29 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			case 1:
 				return ph.getProteinHits().size();
 			case 2:
-				return ph.getSpectrumMatches().size();
+				Object value = super.getValueAt(2);
+				if (value == null) {
+					String accessions = "";
+					Iterator<ProteinHit> iter = ph.getProteinHits().iterator();
+					while (iter.hasNext()) {
+						ProteinHit protein = iter.next();
+						accessions += protein.getAccession();
+						if (iter.hasNext()) {
+							accessions += ", ";
+						}
+					}
+					this.setValueAt(accessions, 2);
+					value = accessions;
+				}
+				return value;
 			case 3:
-				TaxonomyNode tn = ph.getTaxonomyNode();
-				return tn.getName() + "(" + tn.getRank() + ")";
+				return ph.getSpectrumMatches().size();
+			case 4:
+				return ph.getTaxonomyNode();
 			default:
 				return super.getValueAt(column);
 			}
-		} else if (this.isPSM()) {
+		} else if (this.isSpectrumMatch()) {
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) userObject;
 			SearchHit searchHit;
 			switch (column) {
@@ -159,18 +167,34 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			case 1:
 				return psm.getCharge();
 			case 2:
+				Object value = super.getValueAt(2);
+				if (value == null) {
+					String sequences = "";
+					Iterator<PeptideHit> iter = psm.getPeptideHits().iterator();
+					while (iter.hasNext()) {
+						PeptideHit peptide = iter.next();
+						sequences += peptide.getSequence();
+						if (iter.hasNext()) {
+							sequences += ", ";
+						}
+					}
+					this.setValueAt(sequences, 2);
+					value = sequences;
+				}
+				return value;
+			case 3:
 				searchHit = psm.getSearchHit(SearchEngineType.XTANDEM);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 3:
+			case 4:
 				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 4:
+			case 5:
 				searchHit = psm.getSearchHit(SearchEngineType.CRUX);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 5:
+			case 6:
 				searchHit = psm.getSearchHit(SearchEngineType.INSPECT);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 6:
+			case 7:
 				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
 			default:
@@ -186,10 +210,10 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		if (this.isProtein()) {
 			ProteinHit ph = (ProteinHit) userObject;
 			switch (column) {
-			case 7:
-				return ph.getPeptideHitList();
-			case 8:
-				return ph.getSpectrumIDs();
+				case ProteinTreeTables.PEPTIDE_COUNT_COLUMN:
+					return ph.getPeptideHitList();
+				case ProteinTreeTables.SPECTRAL_COUNT_COLUMN:
+					return ph.getSpectrumIDs();
 			}
 		}
 		return super.getValuesAt(column);
@@ -235,12 +259,12 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	}
 	
 	/**
-	 * Returns whether this node stores PSM data.
-	 * @return <code>true</code> if this node contains PSM data,
+	 * Returns whether this node stores spectrum match data.
+	 * @return <code>true</code> if this node contains match data,
 	 *  <code>false</code> otherwise
 	 */
-	public boolean isPSM() {
-		return (userObject instanceof PeptideSpectrumMatch);
+	public boolean isSpectrumMatch() {
+		return (userObject instanceof SpectrumMatch);
 	}
 	
 	/**
@@ -284,35 +308,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 		return null;
 	}
 	
-	/**
-	 * Adds a tree path of another node belonging to a different tree to 
-	 * this node's list of such links. 
-	 * @param treePath The foreign tree path.
-	 */
-	public void addLink(TreePath treePath) {
-		if (linkPaths == null) {
-			linkPaths = new ArrayList<TreePath>();
-		}
-		linkPaths.add(treePath);
-	}
-
-	/**
-	 * Returns the list of links to other nodes belonging to different 
-	 * trees.
-	 * @return List of tree paths.
-	 */
-	public List<TreePath> getLinks() {
-		return linkPaths;
-	}
-	
-	/**
-	 * Returns whether this node was linked to any other node via 
-	 * <code>addLink()</code>.
-	 * @return <code>true</code> if one or more links exist, 
-	 * <code>false</code> otherwise.
-	 */
-	public boolean hasLinks() {
-		return ((linkPaths != null) && !linkPaths.isEmpty());
+	@Override
+	public PhylogenyTreeTableNode clone() {
+		PhylogenyTreeTableNode clone = new PhylogenyTreeTableNode(userObjects);
+		clone.setURI(this.getURI());
+		return clone;
 	}
 	
 	@Override

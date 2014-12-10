@@ -80,7 +80,6 @@ import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DefaultTableHeaderCellRenderer;
@@ -127,7 +126,7 @@ public class ComparePanel extends JPanel {
 	/**
 	 * The local map of meta-protein generation-related parameters.
 	 */
-	private ParameterMap metaParams;
+	private ResultParameters metaParams;
 
 	/**
 	 * The scroll pane containing the comparison table.
@@ -252,8 +251,8 @@ public class ComparePanel extends JPanel {
 			}
 		};
 		compareBtn.setEnabled(!Client.isViewer()); 
-		compareBtn.setRolloverIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
-		compareBtn.setPressedIcon(IconConstants.createRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
+		compareBtn.setRolloverIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
+		compareBtn.setPressedIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
 		compareBtn.setIconTextGap(7);
 		compareBtn.setUI(new PlasticButtonUI() {
 			@Override

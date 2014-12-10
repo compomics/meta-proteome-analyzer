@@ -4,6 +4,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -35,6 +40,7 @@ import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.main.Starter;
 
 /**
  * Panel containing control components for database search-related settings.
@@ -135,13 +141,15 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 
 	/**
 	 * The default database search panel constructor.
+	 * @throws IOException 
 	 */
 	public DatabaseSearchSettingsPanel() {
-		initComponents();
+		this.initComponents();
 	}
 
 	/**
 	 * Method to initialize the panel's components.
+	 * @throws IOException 
 	 */
 	private void initComponents() {
 		
@@ -154,8 +162,25 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 												 "0dlu, p, 5dlu"));
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
+		// Load the resources settings via input stream.
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			if (Starter.isJarExport()) {
+				input = new FileInputStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "client-settings.txt");
+			} else {
+				input = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + "client-settings.txt");
+			}
+			prop.load(input);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		String[] items = prop.getProperty("files.fasta").split(",");
+		
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
+		fastaFileCbx = new JComboBox<String>(items);
+		
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, CC.xy(4, 2));
@@ -164,7 +189,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px, 5dlu, p, 5dlu, 2px, 5dlu, p, 5dlu"));
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
@@ -213,7 +238,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		// Search Engine Settings Panel
 		final JPanel searchEngPnl = new JPanel();
 		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-				"0dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		xTandemChk = new JCheckBox("X!Tandem", true);
@@ -348,6 +373,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		button.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
 		button.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);
 		button.setUI((RolloverButtonUI) RolloverButtonUI.createUI(button));
+		button.setPreferredSize(new Dimension(22, 22));
 		return button;
 	}
 	

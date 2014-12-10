@@ -61,16 +61,16 @@ public class XTandemJob extends Job {
 			this.precursorUnit = "Daltons";
 		}
 		this.searchType = searchType;
-		this.xTandemFile = new File(JobConstants.XTANDEM_PATH);
+		this.xTandemFile = new File(jobProperties.getProperty("path.xtandem"));
 		if(searchType == SearchType.TARGET){
 			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
-			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			this.filename = jobProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 			buildTaxonomyFile();
 			buildInputFile();
 			
 		} else if (searchType == SearchType.DECOY){
 			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
-			this.filename = JobConstants.XTANDEM_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			this.filename = jobProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
 			buildTaxonomyDecoyFile();
 			buildInputDecoyFile();
 		}
@@ -134,7 +134,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + JobConstants.FASTA_PATH + searchDB + ".fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + jobProperties.getProperty("path.fasta") + searchDB + ".fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -155,7 +155,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "_decoy" + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + JobConstants.FASTA_PATH + searchDB + "_decoy.fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + jobProperties.getProperty("path.fasta") + searchDB + "_decoy.fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -364,7 +364,7 @@ public class XTandemJob extends Job {
 		setDescription("X!TANDEM " + searchType.name() + " SEARCH");
 		
 		// full path to executable
-		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + JobConstants.XTANDEM_EXE);
+		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + jobProperties.getProperty("app.xtandem"));
 
 		// Link to the input file
 		procCommands.add(inputFile.getAbsolutePath());

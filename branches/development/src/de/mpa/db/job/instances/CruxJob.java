@@ -13,8 +13,7 @@ import de.mpa.db.job.Job;
  * @author Thilo Muth
  *
  */
-public class CruxJob extends Job {	
-	
+public class CruxJob extends Job {		
 	private final File cruxFile;
 	private final File mgfFile;	
 	private final String searchDB;
@@ -45,13 +44,13 @@ public class CruxJob extends Job {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.params = params;
-		this.cruxFile = new File(JobConstants.CRUX_PATH);	
+		this.cruxFile = new File(jobProperties.getProperty("path.crux"));	
 		this.fragmentTol = fragmentTol;
 		this.precIonTol = precIonTol;
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
 		buildParameterFile();
 		initJob();
-		filename = JobConstants.CRUX_OUTPUT_PATH + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
+		filename = jobProperties.getProperty("path.crux.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
 	}	
 	
     /**
@@ -107,14 +106,14 @@ public class CruxJob extends Job {
 	private void initJob() {
 		
 		// Java commands
-		procCommands.add(JobConstants.CRUX_PATH + JobConstants.CRUX_EXE);
+		procCommands.add(jobProperties.getProperty("path.crux") + jobProperties.getProperty("app.crux"));
 		procCommands.add("search-for-matches");					
 		
 		// Link to spectrum file.
 		procCommands.add(mgfFile.getAbsolutePath());
 		
 		// Link to database index directory
-		procCommands.add(JobConstants.FASTA_PATH  + searchDB + "-index");
+		procCommands.add(jobProperties.getProperty("path.fasta")  + searchDB + "-index");
 		
 		// Parameter-file
 		procCommands.add("--parameter-file");
@@ -122,7 +121,7 @@ public class CruxJob extends Job {
 
 		// Link to outputfolder path.
 		procCommands.add("--output-dir");
-		procCommands.add(JobConstants.CRUX_OUTPUT_PATH);
+		procCommands.add(jobProperties.getProperty("path.crux.output"));
 		
 		// Overwrite existing files (if any searches before)
 		procCommands.add("--overwrite");

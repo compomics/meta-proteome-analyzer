@@ -23,6 +23,7 @@ import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -91,6 +92,7 @@ import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.FormattedTableCellRenderer;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
 
@@ -597,7 +599,7 @@ public class SpecSimResultPanel extends JPanel {
 		final JToggleButton normBtn = new JToggleButton(IconConstants.SIZE_VERT_ICON);
 		normBtn.setRolloverIcon(IconConstants.SIZE_VERT_ROLLOVER_ICON);
 		normBtn.setPressedIcon(IconConstants.SIZE_VERT_PRESSED_ICON);
-		normBtn.setSelectedIcon(IconConstants.createRescaledIcon(IconConstants.SIZE_VERT_ICON, 0.9f));
+		normBtn.setSelectedIcon(IconConstants.createColorRescaledIcon(IconConstants.SIZE_VERT_ICON, 0.9f));
 		normBtn.setRolloverSelectedIcon(IconConstants.SIZE_VERT_ICON);
 		normBtn.setMargin(new Insets(3, 4, 1, 4));
 		normBtn.setToolTipText("Fit to height");
@@ -868,7 +870,7 @@ public class SpecSimResultPanel extends JPanel {
 	protected void refreshProteinTable() {
 		
 		specSimResult = Client.getInstance().getSpecSimResult(
-				ClientFrame.getInstance().getProjectPanel().getSelectedExperiment());
+				ClientFrame.getInstance().getProjectPanel().getCurrentExperiment());
 
 		if (specSimResult != null && !specSimResult.isEmpty()) {
 			TableConfig.clearTable(proteinTbl);
@@ -999,7 +1001,7 @@ public class SpecSimResultPanel extends JPanel {
 				List<SpectrumMatch> matches = peptideHit.getSpectrumMatches();
 				try {
 					Map<Long, String> titles =
-						Client.getInstance().getSpectrumTitlesFromMatches(matches);
+						this.getSpectrumTitlesFromMatches(matches);
 
 					int i = 1;
 					for (SpectrumMatch sm : matches) {
@@ -1045,8 +1047,7 @@ public class SpecSimResultPanel extends JPanel {
 							Client.getInstance().getSpectrumBySearchSpectrumID(
 									ssm.getSearchSpectrumID());
 						MascotGenericFile mgfLib = 
-							Client.getInstance().getSpectrumByLibSpectrumID(
-									ssm.getLibSpectrumID());
+							this.getSpectrumByLibSpectrumID(ssm.getLibSpectrumID());
 						plotPnl.setFirstSpectrum(mgfQuery);
 						plotPnl.setSecondSpectrum(mgfLib);
 						plotPnl.repaint();
@@ -1098,6 +1099,29 @@ public class SpecSimResultPanel extends JPanel {
 		}
 		getResultsBtn.setEnabled(!busy);
 		saveImgBtn.setEnabled(!busy);
+	}
+	
+	/**
+	 * Queries the database to retrieve a mapping of search spectrum IDs 
+	 * to their respective spectrum file titles.
+	 * @param matches A list of SpectrumMatch objects
+	 * @return A map containing containing ID-title pairs.
+	 * @throws SQLException
+	 */
+	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
+		Connection conn = Client.getInstance().getConnection();
+		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
+	}
+
+	/**
+	 * Queries the database to retrieve a spectrum file belonging to a specific libspectrum entry.
+	 * @param libspectrumID The primary key of the libspectrum entry.
+	 * @return The corresponding spectrum file object.
+	 * @throws SQLException
+	 */
+	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
+		Connection conn = Client.getInstance().getConnection();
+		return new SpectrumExtractor(conn).getSpectrumByLibSpectrumID(libspectrumID);
 	}
 	
 }

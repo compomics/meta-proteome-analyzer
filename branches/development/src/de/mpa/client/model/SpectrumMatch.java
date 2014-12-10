@@ -8,6 +8,7 @@ import java.util.Set;
 
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.ui.chart.ChartType;
@@ -57,7 +58,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	/**
 	 * The taxonomy node reference.
 	 */
-	private TaxonomyNode taxonNode;
+	private TaxonomyNode taxonNode = Constants.TAXONOMY_NONE;
 
 	/**
 	 * The database IDs of the experiments which contain the protein hit.

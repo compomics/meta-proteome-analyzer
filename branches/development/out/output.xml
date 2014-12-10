@@ -1,0 +1,350 @@
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "http://www.ncbi.nlm.nih.gov/dtd/NCBI_BlastOutput.dtd">
+<BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>BLASTP 2.2.28+</BlastOutput_version>
+  <BlastOutput_reference>Stephen F. Altschul, Thomas L. Madden, Alejandro A. Sch&amp;auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), &quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search programs&quot;, Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/scratch/BlastDb/uniprot_sprot.fasta</BlastOutput_db>
+  <BlastOutput_query-ID>Query_1</BlastOutput_query-ID>
+  <BlastOutput_query-def>sp|contig1068000023_29</BlastOutput_query-def>
+  <BlastOutput_query-len>249</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>0.0001</Parameters_expect>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+<BlastOutput_iterations>
+<Iteration>
+  <Iteration_iter-num>1</Iteration_iter-num>
+  <Iteration_query-ID>Query_1</Iteration_query-ID>
+  <Iteration_query-def>sp|contig1068000023_29</Iteration_query-def>
+  <Iteration_query-len>249</Iteration_query-len>
+<Iteration_hits>
+<Hit>
+  <Hit_num>1</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224251</Hit_id>
+  <Hit_def>sp|P07964|MCRG_METBF Methyl-coenzyme M reductase subunit gamma OS=Methanosarcina barkeri (strain Fusaro / DSM 804) GN=mcrG PE=1 SV=3</Hit_def>
+  <Hit_accession>224251</Hit_accession>
+  <Hit_len>248</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>483.797</Hsp_bit-score>
+      <Hsp_score>1244</Hsp_score>
+      <Hsp_evalue>7.0102e-173</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>248</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>248</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>230</Hsp_identity>
+      <Hsp_positive>237</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>248</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSGKLEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRLEGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQPK</Hsp_qseq>
+      <Hsp_hseq>MAYERQYYPGATSVAANRRKHMSGKLEKLREISDEDLTAVLGHRAPGSDYPSTHPPLAEMGEPACSTRENVAATPGAAAGDRVRYIQFADSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDHALAGVRGATVHGHSVRLQEDGVMFDMLDRRRLENGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVAFRDDAEVVEWVHRIFDQRTKFGFQPK</Hsp_hseq>
+      <Hsp_midline>MAYERQ+YPGATSVA NRRKHMSGKLEKLREISDEDLTA+LGHRAPGSDYPSTHPPLAEMGEPACS RENV  TPGA AGDRVRY+QF DSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITD AL+G+RGATVHGHSVRLQEDGVMFDMLDRRRLE GTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNV FRDDAEV+EWV RIFD RTK+GFQPK</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>2</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224252</Hit_id>
+  <Hit_def>sp|P12973|MCRG_METFE Methyl-coenzyme M reductase subunit gamma OS=Methanothermus fervidus GN=mcrG PE=4 SV=1</Hit_def>
+  <Hit_accession>224252</Hit_accession>
+  <Hit_len>249</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>297.745</Hsp_bit-score>
+      <Hsp_score>761</Hsp_score>
+      <Hsp_evalue>1.12824e-99</Hsp_evalue>
+      <Hsp_query-from>6</Hsp_query-from>
+      <Hsp_query-to>248</Hsp_query-to>
+      <Hsp_hit-from>3</Hsp_hit-from>
+      <Hsp_hit-to>249</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>146</Hsp_identity>
+      <Hsp_positive>186</Hsp_positive>
+      <Hsp_gaps>4</Hsp_gaps>
+      <Hsp_align-len>247</Hsp_align-len>
+      <Hsp_qseq>QFYPGATSVAENRRKHMS--GKLEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRL--EGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQPK</Hsp_qseq>
+      <Hsp_hseq>QFYPGSTKIAENRRKFMNPDAELEKLREISDEDVVRILGHRAPGEEYPSVHPPLEELDEPEDPIKDIVEPTEGAKAGDRVRYVQFTDSVYFAPAQPYIRSRAYLWRYRGADAGTLSGRQIIEARERDVEKIAKELIETEFFDPARTGIRGKSVHGHSLRLDENGMMFDMLRRQVYDEETGRVKMVKNQIGDEFDEPIDLGEPLDEETLKEKTTIYRIDNIPYREDKDLLEIVQRIHQLRSEAGFSPE</Hsp_hseq>
+      <Hsp_midline>QFYPG+T +AENRRK M+   +LEKLREISDED+  ILGHRAPG +YPS HPPL E+ EP   I++ VEPT GAKAGDRVRYVQFTDS+Y APA PY RS      +RG D GTLSGRQI+EARERD+E+ AK  +ETE  DPA +G+RG +VHGHS+RL E+G+MFDML R+    E G + M K+Q+    D  +DLG+P+  E   ++TTIYR+DN+P+R+D +++E VQRI  LR++ GF P+</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>3</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224256</Hit_id>
+  <Hit_def>sp|P11562|MCRG_METTM Methyl-coenzyme M reductase I subunit gamma OS=Methanothermobacter marburgensis (strain DSM 2133 / 14651 / NBRC 100331 / OCM 82 / Marburg) GN=mcrG PE=1 SV=3</Hit_def>
+  <Hit_accession>224256</Hit_accession>
+  <Hit_len>249</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>286.189</Hsp_bit-score>
+      <Hsp_score>731</Hsp_score>
+      <Hsp_evalue>4.52592e-95</Hsp_evalue>
+      <Hsp_query-from>6</Hsp_query-from>
+      <Hsp_query-to>246</Hsp_query-to>
+      <Hsp_hit-from>3</Hsp_hit-from>
+      <Hsp_hit-to>247</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>145</Hsp_identity>
+      <Hsp_positive>177</Hsp_positive>
+      <Hsp_gaps>4</Hsp_gaps>
+      <Hsp_align-len>245</Hsp_align-len>
+      <Hsp_qseq>QFYPGATSVAENRRKHMSGK--LEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRR--RLEGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQ</Hsp_qseq>
+      <Hsp_hseq>QYYPGTTKVAQNRRNFCNPEYELEKLREISDEDVVKILGHRAPGEEYPSVHPPLEEMDEPEDAIREMVEPIDGAKAGDRVRYIQFTDSMYFAPAQPYVRSRAYLCRYRGADAGTLSGRQIIETRERDLEKISKELLETEFFDPARSGVRGKSVHGHSLRLDEDGMMFDMLRRQIYNKDTGRVEMVKNQIGDELDEPVDLGEPLDEETLMEKTTIYRVDGEAYRDDVEAVEIMQRIHVLRSQGGFN</Hsp_hseq>
+      <Hsp_midline>Q+YPG T VA+NRR   + +  LEKLREISDED+  ILGHRAPG +YPS HPPL EM EP  +IRE VEP  GAKAGDRVRY+QFTDSMY APA PY RS      +RG D GTLSGRQI+E RERD+E+ +K  +ETE  DPA SG+RG +VHGHS+RL EDG+MFDML R+    + G + M K+Q+   LD  VDLG+P+  E   ++TTIYRVD   +RDD E +E +QRI  LR++ GF </Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>4</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224255</Hit_id>
+  <Hit_def>sp|O27233|MCRG_METTH Methyl-coenzyme M reductase I subunit gamma OS=Methanothermobacter thermautotrophicus (strain ATCC 29096 / DSM 1053 / JCM 10044 / NBRC 100330 / Delta H) GN=mcrG PE=1 SV=3</Hit_def>
+  <Hit_accession>224255</Hit_accession>
+  <Hit_len>249</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>285.034</Hsp_bit-score>
+      <Hsp_score>728</Hsp_score>
+      <Hsp_evalue>1.32714e-94</Hsp_evalue>
+      <Hsp_query-from>6</Hsp_query-from>
+      <Hsp_query-to>248</Hsp_query-to>
+      <Hsp_hit-from>3</Hsp_hit-from>
+      <Hsp_hit-to>249</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>143</Hsp_identity>
+      <Hsp_positive>178</Hsp_positive>
+      <Hsp_gaps>4</Hsp_gaps>
+      <Hsp_align-len>247</Hsp_align-len>
+      <Hsp_qseq>QFYPGATSVAENRRKHMSGK--LEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRR--RLEGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQPK</Hsp_qseq>
+      <Hsp_hseq>QYYPGTSKVAQNRRNFCNPEYELEKLREISDEDVVKILGHRAPGEEYPSVHPPLEEMDEPEDAIREMVEPIDGAKAGDRVRYIQFTDSMYFAPAQPYVRSRAYLCRYRGADAGTLSGRQIIETRERDLEKISKELLETEFFDPARSGVRGKSVHGHSLRLDEDGMMFDMLRRQIYNKDTGRVEMVKNQIGDELDEPVDLGEPLDEETLMNKTTIYRVDGEAYRDDTDAVEIMQRIHVLRSQGGYNPE</Hsp_hseq>
+      <Hsp_midline>Q+YPG + VA+NRR   + +  LEKLREISDED+  ILGHRAPG +YPS HPPL EM EP  +IRE VEP  GAKAGDRVRY+QFTDSMY APA PY RS      +RG D GTLSGRQI+E RERD+E+ +K  +ETE  DPA SG+RG +VHGHS+RL EDG+MFDML R+    + G + M K+Q+   LD  VDLG+P+  E    +TTIYRVD   +RDD + +E +QRI  LR++ G+ P+</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>5</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224257</Hit_id>
+  <Hit_def>sp|P07963|MCRG_METVA Methyl-coenzyme M reductase subunit gamma OS=Methanococcus vannielii GN=mcrG PE=4 SV=1</Hit_def>
+  <Hit_accession>224257</Hit_accession>
+  <Hit_len>260</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>275.018</Hsp_bit-score>
+      <Hsp_score>702</Hsp_score>
+      <Hsp_evalue>1.68251e-90</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>247</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>252</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>145</Hsp_identity>
+      <Hsp_positive>177</Hsp_positive>
+      <Hsp_gaps>5</Hsp_gaps>
+      <Hsp_align-len>252</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSG--KLEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAK-VQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRLE--GGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQP</Hsp_qseq>
+      <Hsp_hseq>MAYKPQFYPGATKVAENRRNHLNPNYELEKLREIPDEDVVKIMGHRQPGEDYKTVHPPLEEMDMPADYVRDLVEPLNGAKEGHRVRYIQFADSMYFAPAQPYDRSRLYMIRLRGVDAGTLSGRQVVECRESDLEEFSKNLLMDTELFDPATSGVRGATVHGHSLRLDENGMMFDALQRCVFDEKTGHVMYVKDQVGKPLDQPVDVGEPMPEAKLREITTIYRKDGIAMRTDPEVIEVVKRIHRARTLGGYIP</Hsp_hseq>
+      <Hsp_midline>MAY+ QFYPGAT VAENRR H++   +LEKLREI DED+  I+GHR PG DY + HPPL EM  PA  +R+ VEP  GAK G RVRY+QF DSMY APA PY RS    I  RGVD GTLSGRQ+VE RE D+E+ +K + M+TE+ DPA SG+RGATVHGHS+RL E+G+MFD L R   +   G ++  KDQV  PLD+ VD+G+PM   +  + TTIYR D +  R D EVIE V+RI   RT  G+ P</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>6</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224271</Hit_id>
+  <Hit_def>sp|Q49173|MCRZ_METFV Methyl-coenzyme M reductase II subunit gamma OS=Methanothermus fervidus (strain ATCC 43054 / DSM 2088 / JCM 10308 / V24 S) GN=mrtG PE=3 SV=1</Hit_def>
+  <Hit_accession>224271</Hit_accession>
+  <Hit_len>267</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>269.24</Hsp_bit-score>
+      <Hsp_score>687</Hsp_score>
+      <Hsp_evalue>2.96641e-88</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>245</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>249</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>134</Hsp_identity>
+      <Hsp_positive>176</Hsp_positive>
+      <Hsp_gaps>4</Hsp_gaps>
+      <Hsp_align-len>249</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSG--KLEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRL--EGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGF</Hsp_qseq>
+      <Hsp_hseq>MAYEPQFNPGETKIAENRRKHMNPNYELKKLREIADEDIVRVLGHRSPGESFKTVHPPLEEMDFEEDPMKDIVEPIEGAKQGTRIRYIQFADSMYNAPAQPYDRARTYMWRFRGVDTGTLSGRQVIEMRELDLEKVSKILLETEIFDPARCGIRGATVHGHSLRFDENGLMFDALQRYIYDEDSGHVVYVKDQVGRPLDQPVDMGEPLPEDELKEITTIYRKDNIGMREDEELLEVVNKIHEARTIGGF</Hsp_hseq>
+      <Hsp_midline>MAYE QF PG T +AENRRKHM+   +L+KLREI+DED+  +LGHR+PG  + + HPPL EM      +++ VEP  GAK G R+RY+QF DSMYNAPA PY R+      FRGVD GTLSGRQ++E RE D+E+ +K+ +ETEI DPA  G+RGATVHGHS+R  E+G+MFD L R     + G ++  KDQV  PLD+ VD+G+P+  +E  + TTIYR DN+  R+D E++E V +I + RT  GF</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>7</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224274</Hit_id>
+  <Hit_def>sp|P58816|MCRZ_METTM Methyl-coenzyme M reductase II subunit gamma OS=Methanothermobacter marburgensis (strain DSM 2133 / 14651 / NBRC 100331 / OCM 82 / Marburg) GN=mrtG PE=1 SV=3</Hit_def>
+  <Hit_accession>224274</Hit_accession>
+  <Hit_len>265</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>269.24</Hsp_bit-score>
+      <Hsp_score>687</Hsp_score>
+      <Hsp_evalue>3.03507e-88</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>245</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>249</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>139</Hsp_identity>
+      <Hsp_positive>169</Hsp_positive>
+      <Hsp_gaps>4</Hsp_gaps>
+      <Hsp_align-len>249</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSGKLE--KLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRL--EGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGF</Hsp_qseq>
+      <Hsp_hseq>MSYKAQYTPGETQIAENRRKHMDPDYEFRKLREVSDEDLVKVLGHRNPGESYKSVHPPLDEMDFEEDIVRDMVEPIQGAKEGVRVRYIQFADSMYNAPAQPYDRARTYMWRYRGVDTGTLSGRQVIEMRELDLEGVSKELVETELFDPATTGIRGATVHGHSLRLDENGLMFDALQRYVFDEEKGHVVYVKDQVGRPLDEPVDMGQPLGEDELKKITTIYRKDNIAMRDDKEAIEVVENIHTGRTLGGF</Hsp_hseq>
+      <Hsp_midline>M+Y+ Q+ PG T +AENRRKHM    E  KLRE+SDEDL  +LGHR PG  Y S HPPL EM      +R+ VEP  GAK G RVRY+QF DSMYNAPA PY R+      +RGVD GTLSGRQ++E RE D+E  +K  +ETE+ DPA +G+RGATVHGHS+RL E+G+MFD L R     E G ++  KDQV  PLD  VD+G+P+  +E  K TTIYR DN+  RDD E IE V+ I   RT  GF</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>8</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224273</Hit_id>
+  <Hit_def>sp|P21112|MCRZ_METTH Methyl-coenzyme M reductase II subunit gamma OS=Methanothermobacter thermautotrophicus (strain ATCC 29096 / DSM 1053 / JCM 10044 / NBRC 100330 / Delta H) GN=mrtG PE=1 SV=5</Hit_def>
+  <Hit_accession>224273</Hit_accession>
+  <Hit_len>265</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>268.855</Hsp_bit-score>
+      <Hsp_score>686</Hsp_score>
+      <Hsp_evalue>3.85303e-88</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>245</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>249</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>139</Hsp_identity>
+      <Hsp_positive>168</Hsp_positive>
+      <Hsp_gaps>4</Hsp_gaps>
+      <Hsp_align-len>249</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSGKLE--KLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRL--EGGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGF</Hsp_qseq>
+      <Hsp_hseq>MTYKAQYTPGETQIAENRRKHMDPDYEFRKLREVSDEDLVKVLGHRNPGESYKSVHPPLDEMDFEEDIVRDMVEPIQGAKEGVRVRYIQFADSMYNAPAQPYDRARTYMWRYRGVDTGTLSGRQVIEMRELDLEGVSKELVETELFDPATTGIRGATVHGHSLRLDENGLMFDALQRYVFDEEKGHVVYVKDQVGRPLDEPVDMGQPLGEDELKKITTIYRKDNIAMRDDKEAIEVVENIHTGRTMGGF</Hsp_hseq>
+      <Hsp_midline>M Y+ Q+ PG T +AENRRKHM    E  KLRE+SDEDL  +LGHR PG  Y S HPPL EM      +R+ VEP  GAK G RVRY+QF DSMYNAPA PY R+      +RGVD GTLSGRQ++E RE D+E  +K  +ETE+ DPA +G+RGATVHGHS+RL E+G+MFD L R     E G ++  KDQV  PLD  VD+G+P+  +E  K TTIYR DN+  RDD E IE V+ I   RT  GF</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>9</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224253</Hit_id>
+  <Hit_def>sp|Q58255|MCRG_METJA Methyl-coenzyme M reductase I subunit gamma OS=Methanocaldococcus jannaschii (strain ATCC 43067 / DSM 2661 / JAL-1 / JCM 10045 / NBRC 100440) GN=mcrG PE=3 SV=1</Hit_def>
+  <Hit_accession>224253</Hit_accession>
+  <Hit_len>260</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>261.922</Hsp_bit-score>
+      <Hsp_score>668</Hsp_score>
+      <Hsp_evalue>2.06077e-85</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>247</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>252</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>135</Hsp_identity>
+      <Hsp_positive>173</Hsp_positive>
+      <Hsp_gaps>5</Hsp_gaps>
+      <Hsp_align-len>252</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSG--KLEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAK-VQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRLE--GGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQP</Hsp_qseq>
+      <Hsp_hseq>MAYKPQFYPGQTKIAQNRRDHMNPDVQLEKLRDIPDDDVVKIMGHRQPGEDYKTVHPPLEEMDLPEDYVRDLVEPLNGAKEGHRIRYIQFTDSMYFAPAQPYDRARTYMWRFRGVDTGTLSGRQVIEMRESDLEALSKNFLIDTAFFDPARIGIRGATVHGHSLRLDENGLMFDALQRYVYDEKTGHVLYVKDQVGRPLDEPVDVGEPLPEEKLKEITTIYRIDGVPMREDEELLTVVKRIHRARTLGGFLP</Hsp_hseq>
+      <Hsp_midline>MAY+ QFYPG T +A+NRR HM+   +LEKLR+I D+D+  I+GHR PG DY + HPPL EM  P   +R+ VEP  GAK G R+RY+QFTDSMY APA PY R+      FRGVD GTLSGRQ++E RE D+E  +K   ++T   DPA  G+RGATVHGHS+RL E+G+MFD L R   +   G ++  KDQV  PLD  VD+G+P+  E+  + TTIYR+D VP R+D E++  V+RI   RT  GF P</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>10</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224272</Hit_id>
+  <Hit_def>sp|Q60387|MCRZ_METJA Methyl-coenzyme M reductase II subunit gamma OS=Methanocaldococcus jannaschii (strain ATCC 43067 / DSM 2661 / JAL-1 / JCM 10045 / NBRC 100440) GN=mrtG PE=3 SV=1</Hit_def>
+  <Hit_accession>224272</Hit_accession>
+  <Hit_len>266</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>259.61</Hsp_bit-score>
+      <Hsp_score>662</Hsp_score>
+      <Hsp_evalue>1.57367e-84</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>245</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>250</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>136</Hsp_identity>
+      <Hsp_positive>173</Hsp_positive>
+      <Hsp_gaps>5</Hsp_gaps>
+      <Hsp_align-len>250</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHMSGKLE--KLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAK-VQMETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRLE--GGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGF</Hsp_qseq>
+      <Hsp_hseq>MAYKPQFYPGNTLIAENRRKHMNPEVELKKLRDIPDDEIVKILGHRNPGESYKTVHPPLEEMDFEEDPIKDIVEPIQGAKEGVRVRYIQFADSMYNAPAQPYDRARTYMWRFRGIDTGTLSGRQVIEMRELDLEKISKNFLIDTEFFDPATCGIRGATVHGHSLRLDENGLMFDGLQRYIYDEKTGHVLYVKDQVGRPLDEPVDVGEPLPHDYLAKITTIYRKDNIGMREDKEALEVVQIIHEARTKGGF</Hsp_hseq>
+      <Hsp_midline>MAY+ QFYPG T +AENRRKHM+ ++E  KLR+I D+++  ILGHR PG  Y + HPPL EM      I++ VEP  GAK G RVRY+QF DSMYNAPA PY R+      FRG+D GTLSGRQ++E RE D+E+ +K   ++TE  DPA  G+RGATVHGHS+RL E+G+MFD L R   +   G ++  KDQV  PLD  VD+G+P+  +  AK TTIYR DN+  R+D E +E VQ I + RTK GF</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>11</Hit_num>
+  <Hit_id>gnl|BL_ORD_ID|224258</Hit_id>
+  <Hit_def>sp|P11563|MCRG_METVO Methyl-coenzyme M reductase subunit gamma OS=Methanococcus voltae GN=mcrG PE=4 SV=1</Hit_def>
+  <Hit_accession>224258</Hit_accession>
+  <Hit_len>261</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>259.225</Hsp_bit-score>
+      <Hsp_score>661</Hsp_score>
+      <Hsp_evalue>2.4916e-84</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>247</Hsp_query-to>
+      <Hsp_hit-from>1</Hsp_hit-from>
+      <Hsp_hit-to>252</Hsp_hit-to>
+      <Hsp_query-frame>0</Hsp_query-frame>
+      <Hsp_hit-frame>0</Hsp_hit-frame>
+      <Hsp_identity>138</Hsp_identity>
+      <Hsp_positive>170</Hsp_positive>
+      <Hsp_gaps>5</Hsp_gaps>
+      <Hsp_align-len>252</Hsp_align-len>
+      <Hsp_qseq>MAYERQFYPGATSVAENRRKHM--SGKLEKLREISDEDLTAILGHRAPGSDYPSTHPPLAEMGEPACSIRENVEPTPGAKAGDRVRYVQFTDSMYNAPATPYFRSYFAAINFRGVDPGTLSGRQIVEARERDMEQCAKVQM-ETEITDPALSGMRGATVHGHSVRLQEDGVMFDMLDRRRLE--GGTIIMDKDQVAIPLDRKVDLGKPMSSEEAAKRTTIYRVDNVPFRDDAEVIEWVQRIFDLRTKYGFQP</Hsp_qseq>
+      <Hsp_hseq>MAYKPQFYPSATKVAENRRNHINPAFELEKLREIPDEDVVKIMGHRQPSEDYKTVHPPLEEMDLAEDYVRDLVGPINGAKEGHRIRYIQFADSMYFAPSQPYDRSRLYMSRFRGVDCGTLSGRQVVELRESNLEDISKNYLVDTELFDPATTGMRGATVHGHSLRLDENGVMFDALQRYEFDEATGHILYVKDQVGRPWDEPVDVGEPVPQEKLKEITTIYRKDGVAMRDDMEVVEVVKRIHRARTLGGYCP</Hsp_hseq>
+      <Hsp_midline>MAY+ QFYP AT VAENRR H+  + +LEKLREI DED+  I+GHR P  DY + HPPL EM      +R+ V P  GAK G R+RY+QF DSMY AP+ PY RS      FRGVD GTLSGRQ+VE RE ++E  +K  + +TE+ DPA +GMRGATVHGHS+RL E+GVMFD L R   +   G I+  KDQV  P D  VD+G+P+  E+  + TTIYR D V  RDD EV+E V+RI   RT  G+ P</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+</Iteration_hits>
+  <Iteration_stat>
+    <Statistics>
+      <Statistics_db-num>546238</Statistics_db-num>
+      <Statistics_db-len>194363168</Statistics_db-len>
+      <Statistics_hsp-len>115</Statistics_hsp-len>
+      <Statistics_eff-space>17627136932</Statistics_eff-space>
+      <Statistics_kappa>0.041</Statistics_kappa>
+      <Statistics_lambda>0.267</Statistics_lambda>
+      <Statistics_entropy>0.14</Statistics_entropy>
+    </Statistics>
+  </Iteration_stat>
+</Iteration>
+</BlastOutput_iterations>
+</BlastOutput>
+

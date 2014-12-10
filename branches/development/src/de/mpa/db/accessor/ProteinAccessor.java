@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -130,6 +131,30 @@ public class ProteinAccessor extends ProteinTableAccessor {
         
         return temp;
 	}
+    
+    /**
+     * Adds a new protein with a specific peptide id, accession and description to the database..
+     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
+     * @param accession String with the accession of the protein to find.
+     * @param description String with the description of the protein to find.
+     * @param conn The database connection object.
+     * @return protein The newly created Protein object.
+     * @throws SQLException when the persistence did not succeed.
+     */
+    public static ProteinAccessor upDateProteinEntry(Long protID, String accession, String description, String sequence,  Timestamp creationDate, Connection conn) throws SQLException{
+    	//TODO UPDATE PROTEIn DESCRIPTIOn
+    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
+    	dataProtein.put(ProteinAccessor.PROTEINID, protID);
+		dataProtein.put(ProteinAccessor.ACCESSION, accession);
+		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
+		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
+		dataProtein.put(ProteinAccessor.CREATIONDATE, creationDate);
+		ProteinAccessor protein = new ProteinAccessor(dataProtein);
+		protein.update(conn);
+
+		return protein;
+    }
+    
     
 	/**
      * Adds a new protein with a specific peptide id, accession and description to the database..

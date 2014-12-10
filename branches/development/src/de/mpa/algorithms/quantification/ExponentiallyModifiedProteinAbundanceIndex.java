@@ -37,7 +37,10 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 		//TODO: missed cleavages has to be taken from search parameters to avoid misscalculations 
 		//		or remove misscleaved peptides from calculation.
 		if (proteinHit.getSequence() != null && proteinHit.getSequence().length() >0) {
-			insilicoPeptides= trypsin.digest(proteinHit.getSequence(), 0, 4, 1000);
+			// remove "*" for translation stop
+			String sequence = proteinHit.getSequence();
+			sequence = sequence.replaceAll("[*]", "");
+			insilicoPeptides= trypsin.digest(sequence, 0, 4, 1000);
 			double pAI;
 			double peptideObserved = proteinHit.getPeptideCount();
 			//TODO Control PeptideCount to misscleavages

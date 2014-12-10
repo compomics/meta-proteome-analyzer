@@ -114,6 +114,7 @@ public class MascotDatFileReader extends InputFileReader {
         String line = null;
         long oldPos = 0L;
         long newPos = 0L;
+		long queryPos = -1L;
         boolean summary = true;
         
         boolean first = false;
@@ -137,9 +138,11 @@ public class MascotDatFileReader extends InputFileReader {
             		
             	}
     		} else {
-    			
     			if (line.startsWith("title")) {
-    				queryPositions.add(oldPos);
+    				queryPos = oldPos;
+    			}
+    			if (line.startsWith("Ions1")) {
+    				queryPositions.add(queryPos);
     			}
     			if (line.startsWith("parameters")) {
     				break;
@@ -158,4 +161,17 @@ public class MascotDatFileReader extends InputFileReader {
 	public void close() throws IOException {
 		raf.close();
 	}
+	
+	@Override
+	public List<Long> getSpectrumPositions(boolean doClose) {
+		if (doClose) {
+			try {
+				this.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return this.queryPositions;
+	}
+	
 }

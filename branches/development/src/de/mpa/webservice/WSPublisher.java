@@ -2,7 +2,7 @@ package de.mpa.webservice;
 
 import javax.xml.ws.Endpoint;
 
-import de.mpa.client.settings.ServerConnectionSettings;
+import de.mpa.db.job.ServerProperties;
 
 public class WSPublisher {
 	
@@ -22,8 +22,11 @@ public class WSPublisher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ServerConnectionSettings srvSettings = new ServerConnectionSettings();
-		Endpoint.publish("http://" + srvSettings.getHost() + ":" + srvSettings.getPort() + "/WS/Server", new ServerImpl());
+		// Server properties
+		ServerProperties serverProperties = ServerProperties.getInstance();
+				
+		// Default hard-coded endpoint - do not change!
+		Endpoint.publish("http://0.0.0.0:" + serverProperties.getProperty("app.port") + "/WS/Server", new ServerImpl());
 	}
 	
 	

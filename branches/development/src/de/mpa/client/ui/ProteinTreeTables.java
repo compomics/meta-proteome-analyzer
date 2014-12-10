@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +47,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTreeTable;
@@ -65,9 +66,8 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
-import de.mpa.analysis.KeggAccessor;
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.Keyword;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -76,8 +76,10 @@ import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.SortableCheckBoxTreeTable.TableColumnExt2;
 import de.mpa.client.ui.TableConfig.FormatHighlighter;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.io.parser.ec.ECEntry;
-import de.mpa.main.Parameters;
+import de.mpa.io.parser.ec.ECNode;
+import de.mpa.io.parser.ec.ECReader;
+import de.mpa.io.parser.kegg.KEGGNode;
+import de.mpa.io.parser.kegg.KEGGOrthologyNode;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -122,33 +124,33 @@ public enum ProteinTreeTables {
 			
 			ReducedUniProtEntry upe = ph.getUniProtEntry();
 			if (upe != null) {
-				Map<String, KeywordOntology> ontologies = UniProtUtilities.ONTOLOGY_MAP;
+				Map<String, Keyword> ontologies = UniProtUtilities.ONTOLOGY_MAP;
 				// iterate keywords, insert a cloned instance of the protein node into the tree for each keyword
 				for (String keyword : upe.getKeywords()) {
-					KeywordOntology ontology = ontologies.get(keyword);
+					Keyword ontology = ontologies.get(keyword);
 					if (ontology != null) {
+						Keyword category = ontology.getCategory();
 						// look for ontology category node
-						parent = this.getChildByUserObject(root, ontology);
+						parent = this.getChildByUserObject(root, category);
 						PhylogenyTreeTableNode child;
 						if (parent != null) {
 							// look for keyword node
 							child = this.getChildByUserObject(parent, keyword);
 							if (child == null) {
 								// keyword node does not exist yet, therefore create it
-								child = new PhylogenyTreeTableNode(keyword);
+								child = new PhylogenyTreeTableNode(keyword, ontology.getDescription());
 								parent.add(child);
 							}
 						} else {
 							// ontology category node does not exist yet, therefore create it
-							parent = new PhylogenyTreeTableNode(ontology);
+							parent = new PhylogenyTreeTableNode(category, category.getDescription());
 							root.add(parent);
 							// keyword node cannot exist yet either, therefore also create it
-							child = new PhylogenyTreeTableNode(keyword);
+							child = new PhylogenyTreeTableNode(keyword, ontology.getDescription());
 							parent.add(child);
 						}
 						// add clone of protein node to keyword node
-						PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-						cloneNode.setURI(protNode.getURI());
+						PhylogenyTreeTableNode cloneNode = protNode.clone();
 						child.add(cloneNode);
 					} else {
 						// unknown keyword, put node under 'Unknown'
@@ -159,8 +161,7 @@ public enum ProteinTreeTables {
 							root.add(parent);
 						}
 						// add clone of protein node to parent
-						PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-						cloneNode.setURI(protNode.getURI());
+						PhylogenyTreeTableNode cloneNode = protNode.clone();
 						parent.add(cloneNode);
 					}
 				}
@@ -242,44 +243,55 @@ public enum ProteinTreeTables {
 				ecNumbers = new ArrayList<String>();
 			}
 
+			String unclassifiedStr = "Unclassified";
 			if (ecNumbers.isEmpty()) {
-				ecNumbers.add("Unclassified");
+				ecNumbers.add(unclassifiedStr);
 			}
+			
+			PhylogenyTreeTableNode unclassifiedNode = null;
 
 			// iterate E.C. numbers, insert cloned instance of protein node for each number
+			ECNode ecRoot = Constants.ENZYME_ROOT;
 			for (String ecNumber : ecNumbers) {
-				// split primary E.C. number string into multiple tokens (typically 4)
-				String[] ecTokens = ecNumber.split("[.]");
-
 				// init insertion node using tree root
 				PhylogenyTreeTableNode parent = root;
 				
-				// iterate number tokens
-				for (int i = 0; i < ecTokens.length; i++) {
-					// build name substituting some tokens using dashes
-					String name = "";
-					for (int j = 0; j < ecTokens.length; j++) {
-						if (j > 0) name += ".";
-						name += (j <= i) ? ecTokens[j] : "-";
+				// check for 'Unclassified'
+				if (unclassifiedStr.equals(ecNumber)) {
+					if (unclassifiedNode == null) {
+						// create 'Unclassified' node
+						unclassifiedNode = new PhylogenyTreeTableNode(unclassifiedStr);
+						root.add(unclassifiedNode);
 					}
-					// find child node corresponding to generated name
-					PhylogenyTreeTableNode child = (PhylogenyTreeTableNode) parent.getChildByName(name);
-					if (child == null) {
-						// child node does not exist yet, therefore create it
-						ECEntry entry = Parameters.getInstance().getEcMap().get(name);
-						child = new PhylogenyTreeTableNode(name, (entry != null) ? entry.getName() : "");
-						if (!name.equals("Unclassified")) {
-							// create URL to link to ExPASy website
-							URI uri = URI.create("http://enzyme.expasy.org/EC/" + name);
-							child.setURI(uri);
+					parent = unclassifiedNode;
+				} else {
+					// get path to root in enzyme tree
+					ECNode[] path = ECReader.getPath(ecRoot, ecNumber);
+					
+					if (path != null) {
+						// determine insertion point
+						for (int i = 1; i < path.length; i++) {
+							// find child node corresponding to enzyme node identifier
+							PhylogenyTreeTableNode child =
+									(PhylogenyTreeTableNode) parent.getChildByName(path[i].getIdentifier());
+							if (child == null) {
+								// child node does not exist yet, therefore create it
+								child = new PhylogenyTreeTableNode(path[i], path[i].getDescription());
+								// create link to ExPASy website
+								URI uri = URI.create("http://enzyme.expasy.org/EC/" + path[i]);
+								child.setURI(uri);
+								
+								parent.add(child);
+							}
+							parent = child;
 						}
-						parent.add(child);
+					} else {
+						System.err.println("ERROR: unrecognized E.C. number: " + ecNumber);
 					}
-					parent = child;
 				}
+				
 				// add clone of protein node to parent
-				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-				cloneNode.setURI(protNode.getURI());
+				PhylogenyTreeTableNode cloneNode = protNode.clone();
 				parent.add(cloneNode);
 			}
 		}
@@ -295,57 +307,47 @@ public enum ProteinTreeTables {
 			ProteinHit ph = (ProteinHit) protNode.getUserObject();
 
 			// gather K and EC numbers for pathway lookup
-			List<String> kNumbers;
-			List<String> ecNumbers;
+			List<String> keys = new ArrayList<>();
 			ReducedUniProtEntry upe = ph.getUniProtEntry();
 			if (upe != null) {
-				kNumbers = upe.getKNumbers();
-				ecNumbers = upe.getEcNumbers();
-			} else {
-				kNumbers = new ArrayList<String>();
-				ecNumbers = new ArrayList<String>();
+				keys.addAll(upe.getKNumbers());
+				keys.addAll(upe.getEcNumbers());
 			}
 
 			// perform pathway lookup
-			Set<Short> pathways = new HashSet<Short>();
-			for (String ko : kNumbers) {
-				List<Short> pathwaysByKO = KeggAccessor.getInstance().getPathwaysByKO(ko.substring(1));
-				if (pathwaysByKO != null) {
-					pathways.addAll(pathwaysByKO);
-				}
-			}
-			for (String ec : ecNumbers) {
-				List<Short> pathwaysByEC = KeggAccessor.getInstance().getPathwaysByEC(ec);
-				if (pathwaysByEC != null) {
-					pathways.addAll(pathwaysByEC);
+			Set<KEGGNode> koNodes = new LinkedHashSet<>();
+			for (String key : keys) {
+				List<KEGGNode> nodes = Constants.KEGG_ORTHOLOGY_MAP.get(key);
+				if (nodes != null) {
+					koNodes.addAll(nodes);
 				}
 			}
 
 			PhylogenyTreeTableNode parent = root;
 
 			// iterate found pathways
-			if (!pathways.isEmpty()) {
+			if (!koNodes.isEmpty()) {
 				// iterate pathway IDs
-				for (Short pwid : pathways) {
+				for (KEGGNode koNode : koNodes) {
 					// look for pathway in existing tree
-					parent = this.findPathway(pwid);
+					KEGGOrthologyNode pathwayNode = (KEGGOrthologyNode) koNode.getParent();
+					parent = this.findPathway(pathwayNode.getName());
 
 					// check whether pathway retrieval succeeded
 					if (parent == null) {
-						// look for pathway in global pathway tree
-						Object[] nodeNames = Constants.getKEGGPathwayPath(pwid);
+						// extract path to root
+						TreeNode[] path = pathwayNode.getPath();
 
 						parent = root;
 						for (int i = 1; i < 4; i++) {
-							String nodeName = (String) nodeNames[i];
-							String[] splitName = nodeName.split("  ");
+							KEGGOrthologyNode node = (KEGGOrthologyNode) path[i];
 							PhylogenyTreeTableNode child = 
-									(PhylogenyTreeTableNode) parent.getChildByName(splitName[0]);
+									(PhylogenyTreeTableNode) parent.getChildByName(node.getName());
 							if (child == null) {
 								for (int j = i; j < 4; j++) {
+									node = (KEGGOrthologyNode) path[j];
 									child = new PhylogenyTreeTableNode(
-											(Object[]) ((String) nodeNames[j]).split("  "));
-//									treeTblMdl.insertNodeInto(child, parent, parent.getChildCount());
+											node.getName(), node.getDescription());
 									parent.add(child);
 									parent = child;
 								}
@@ -357,8 +359,7 @@ public enum ProteinTreeTables {
 					}
 
 					// add clone of protein node to each pathway
-					PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-					cloneNode.setURI(protNode.getURI());
+					PhylogenyTreeTableNode cloneNode = protNode.clone();
 					parent.add(cloneNode);
 				}
 			} else {
@@ -378,8 +379,7 @@ public enum ProteinTreeTables {
 					root.add(parent);
 				}
 				// add clone of protein node to 'Unclassified' branch
-				PhylogenyTreeTableNode cloneNode = new PhylogenyTreeTableNode(protNode.getUserObject());
-				cloneNode.setURI(protNode.getURI());
+				PhylogenyTreeTableNode cloneNode = protNode.clone();
 				parent.add(cloneNode);
 			}
 			// TODO: add redundancy check in case a protein has multiple KOs pointing to the same pathway
@@ -390,7 +390,7 @@ public enum ProteinTreeTables {
 		 * @param pw The pathway ID
 		 * @return The desired pathway node or <code>null</code> if it could not be found
 		 */
-		private PhylogenyTreeTableNode findPathway(Short pw) {
+		private PhylogenyTreeTableNode findPathway(String pw) {
 			Enumeration<? extends MutableTreeTableNode> childrenA = 
 					((MutableTreeTableNode) ProteinTreeTables.PATHWAY.getTreeTable().getTreeTableModel().getRoot()).children();
 			while (childrenA.hasMoreElements()) {
@@ -401,7 +401,8 @@ public enum ProteinTreeTables {
 					Enumeration<? extends MutableTreeTableNode> childrenC = childB.children();
 					while (childrenC.hasMoreElements()) {
 						MutableTreeTableNode childC = (MutableTreeTableNode) childrenC.nextElement();
-						if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
+//						if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
+						if (((String) childC.getUserObject()).startsWith(pw)) {
 							return (PhylogenyTreeTableNode) childC;
 						}
 					}
@@ -414,7 +415,7 @@ public enum ProteinTreeTables {
 	/**
 	 * The model index of the accession column
 	 */
-	public static final int PROT_ACCESSION = 0;
+	public static final int ACCESSION_COLUMN = 0;
 	
 	/**
 	 * The model index of the description column.
@@ -432,44 +433,49 @@ public enum ProteinTreeTables {
 	public static final int UNIREF_COLUMN = 3;
 	
 	/**
+	 * The model index of the protein sequence column.
+	 */
+	public static final int SEQUENCE_COLUMN = 4;
+	
+	/**
 	 * The model index of the sequence coverage column.
 	 */
-	public static final int SEQUENCE_COVERAGE_COLUMN = 4;
+	public static final int SEQUENCE_COVERAGE_COLUMN = 5;
 	
 	/**
 	 * The model index of the molecular weight column.
 	 */
-	public static final int MOLECULAR_WEIGHT_COLUMN = 5;
+	public static final int MOLECULAR_WEIGHT_COLUMN = 6;
 	
 	/**
 	 * The model index of the isoelectric point column.
 	 */
-	public static final int ISOELECTRIC_POINT_COLUMN = 6;
+	public static final int ISOELECTRIC_POINT_COLUMN = 7;
 	
 	/**
 	 * The model index of the peptide count column.
 	 */
-	public static final int PEPTIDE_COUNT_COLUMN = 7;
+	public static final int PEPTIDE_COUNT_COLUMN = 8;
 	
 	/**
 	 * The model index of the spectral count column.
 	 */
-	public static final int SPECTRAL_COUNT_COLUMN = 8;
+	public static final int SPECTRAL_COUNT_COLUMN = 9;
 	
 	/**
 	 * The model index of the emPAI column.
 	 */
-	public static final int EMPAI_COLUMN = 9;
+	public static final int EMPAI_COLUMN = 10;
 	
 	/**
 	 * The model index of the NSAF column.
 	 */
-	public static final int NSAF_COLUMN = 10;
+	public static final int NSAF_COLUMN = 11;
 	
 	/**
 	 * The model index of the web resources column.
 	 */
-	public static final int WEB_RESOURCES_COLUMN = 11;
+	public static final int WEB_RESOURCES_COLUMN = 12;
 	
 	/**
 	 * The descriptive label of the protein tree table.
@@ -504,7 +510,8 @@ public enum ProteinTreeTables {
 	 */
 	private ProteinTreeTables(String label) {
 		this.label = label;
-		this.treeTable = this.createTreeTable(new PhylogenyTreeTableNode(label));
+		this.treeTable = this.createTreeTable(new PhylogenyTreeTableNode(
+				label, null, null, null, null, null, null, null, null, null, null, null));
 	}
 	
 	/**
@@ -546,15 +553,13 @@ public enum ProteinTreeTables {
 	 */
 	private SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
 
-		final SortableCheckBoxTreeTable treeTbl;
-		
 		// Set up table model
 		SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
-						"Accession", "Description", "Taxonomy", "UniRef", "SC",
-						"MW", "pI", "PepC", "SpC", "emPAI", "NSAF", " " }));
+						"Accession", "Description", "Taxonomy", "UniRef", "Sequence",
+						"SC", "MW", "pI", "PepC", "SpC", "emPAI", "NSAF", null }));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -566,14 +571,66 @@ public enum ProteinTreeTables {
 					throw new IllegalArgumentException("This tree table requires Phylogeny nodes!");
 				}
 			}
-			
+			@Override
+			public boolean isCellEditable(Object node, int column) {
+				switch (column) {
+					case ACCESSION_COLUMN:
+					case WEB_RESOURCES_COLUMN:
+						return true;
+					default:
+						return false;
+				}
+			}
 		};
 
 		// Create table from model, redirect tooltip text generation
-		treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
+		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			@Override
 			public String getToolTipText(MouseEvent me) {
-				return getTableToolTipText(me);
+				String text = null;
+				JXTreeTable table = (JXTreeTable) me.getSource();
+				int col = table.columnAtPoint(me.getPoint());
+				if (col != -1) {
+					col = table.convertColumnIndexToModel(col);
+					if (col != WEB_RESOURCES_COLUMN) {
+						int row = table.rowAtPoint(me.getPoint());
+						TreePath pathForRow = table.getPathForRow(row);
+						if (pathForRow != null) {
+							PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
+							if ((table == ENZYME.getTreeTable()) && (col == DESCRIPTION_COLUMN)) {
+								Object userObject = node.getUserObject();
+								if (userObject instanceof ECNode) {
+									text = ((ECNode) userObject).getComments();
+									if (text == null) {
+										Object value = node.getValueAt(col);
+										if (value != null) {
+											text = value.toString();
+										}
+									}
+								}
+							} else {
+								Object value = node.getValueAt(col);
+								if (value != null) {
+									text = value.toString();
+								}
+							}
+							// insert line breaks on overly long pieces of text
+							if (text != null) {
+								text = "<html>" + text + "</html>";
+								StringBuffer sb = new StringBuffer (text);  
+								String newLine = "<br>"; 
+								for (int i = 70; i < text.length(); i += 70) {
+									int linebreak = sb.indexOf(" ", i);
+									if (linebreak != -1) {
+										sb.insert(linebreak, newLine);
+									}
+								}
+								text = sb.toString();
+							}
+						}
+					}
+				}
+				return text;
 			}
 			@Override
 			public void updateHighlighters(int column, Object... params) {
@@ -632,17 +689,24 @@ public enum ProteinTreeTables {
 				"Protein Description",
 				"Taxonomy",
 				"UniRef Cluster ID",
-				"Sequence Coverage in %",
-				"Molecular Weight in kDa",
+				"Protein Sequence",
+				"Sequence Coverage",
+				"Molecular Weight",
 				"Isoelectric Point",
 				"Peptide Count",
 				"Spectral Count",
-				"Exponentially Modified Protein Abundance Index",
-				"Normalized Spectral Abundance Factor",
+//				"Exponentially Modified Protein Abundance Index",
+				"emPAI",
+//				"Normalized Spectral Abundance Factor",
+				"NSAF",
 				"External Web Resources"
 		};
 		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 		treeTbl.setTableHeader(ch);
+		treeTbl.getColumn(WEB_RESOURCES_COLUMN).setHeaderValue(IconConstants.WWW_ICON);
+		for (int i = 0; i < columnToolTips.length; i++) {
+			treeTbl.getColumnExt(i).setToolTipText(columnToolTips[i]);
+		}
 
 		// Install mouse listeners in header for right-click popup capabilities
 		MouseAdapter ma = createHeaderMouseAdapter(treeTbl);
@@ -661,7 +725,7 @@ public enum ProteinTreeTables {
 		((TableColumnExt2) tcm.getColumn(SPECTRAL_COUNT_COLUMN)).setAggregateFunction(AggregateFunction.DISTINCT);
 		
 		// Configure column widths
-		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 10, 8, 5, 4, 3, 4, 4, 4.5, 5, 1 });
+		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 10, 8, 0, 5, 4, 3, 4, 4, 4.5, 5, 1 });
 		TableConfig.setColumnMinWidths(
 				treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), 22, treeTbl.getFont());
 		TableColumnExt webColumn = (TableColumnExt) tcm.getColumn(WEB_RESOURCES_COLUMN);
@@ -674,7 +738,7 @@ public enum ProteinTreeTables {
 		Action webResourceAction = new AbstractAction() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				setupWebresourceMenu(treeTbl);
+				createWebResourceMenu(treeTbl);
 			}
 		};
 		ButtonColumn bc = new ButtonColumn(treeTbl, webResourceAction, WEB_RESOURCES_COLUMN);
@@ -689,7 +753,7 @@ public enum ProteinTreeTables {
 		checkSelection = new HashSet<>(Arrays.asList(cbtsm.getSelectionPaths()));
 
 		// Set default sort order (spectral count, descending)
-		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(7, SortOrder.DESCENDING);
+		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(SPECTRAL_COUNT_COLUMN, SortOrder.DESCENDING);
 		
 		// Add listener to synchronize selection state of nodes throughout multiple trees
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
@@ -777,36 +841,35 @@ public enum ProteinTreeTables {
 		treeTbl.setIconValue(iv);
 		
 		// Install renderers and highlighters
-		// TODO: use proper column index variables
 		FontMetrics fm = treeTbl.getFontMetrics(treeTbl.getFont());
 
 		FormatHighlighter leftHL = new FormatHighlighter(SwingConstants.LEFT);
-		((TableColumnExt) tcm.getColumn(DESCRIPTION_COLUMN)).addHighlighter(leftHL);
-		((TableColumnExt) tcm.getColumn(TAXONOMY_COLUMN)).addHighlighter(leftHL);
-		((TableColumnExt) tcm.getColumn(UNIREF_COLUMN)).addHighlighter(leftHL);
+		treeTbl.getColumnExt(DESCRIPTION_COLUMN).addHighlighter(leftHL);
+		treeTbl.getColumnExt(TAXONOMY_COLUMN).addHighlighter(leftHL);
+		treeTbl.getColumnExt(UNIREF_COLUMN).addHighlighter(leftHL);
 
 		BarChartHighlighter bch = new BarChartHighlighter(ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.0"));
 		bch.setBaseline(1 + fm.stringWidth(bch.getFormatter().format(100.0)));
 
 		DecimalFormat x100formatter = new DecimalFormat("0.00");
 		x100formatter.setMultiplier(100);
-		((TableColumnExt) tcm.getColumn(SEQUENCE_COVERAGE_COLUMN)).addHighlighter(new BarChartHighlighter(
+		treeTbl.getColumnExt(SEQUENCE_COVERAGE_COLUMN).addHighlighter(new BarChartHighlighter(
 				0.0, 100.0, 50, SwingConstants.HORIZONTAL, ColorUtils.DARK_GREEN, ColorUtils.LIGHT_GREEN, x100formatter));
 
-		((TableColumnExt) tcm.getColumn(MOLECULAR_WEIGHT_COLUMN)).addHighlighter(
+		treeTbl.getColumnExt(MOLECULAR_WEIGHT_COLUMN).addHighlighter(
 				new FormatHighlighter(SwingConstants.CENTER, "0.000"));
 
-		((TableColumnExt) tcm.getColumn(ISOELECTRIC_POINT_COLUMN)).addHighlighter(
+		treeTbl.getColumnExt(ISOELECTRIC_POINT_COLUMN).addHighlighter(
 				new FormatHighlighter(SwingConstants.CENTER, "0.00"));
 
-		((TableColumnExt) tcm.getColumn(PEPTIDE_COUNT_COLUMN)).addHighlighter(new BarChartHighlighter());
+		treeTbl.getColumnExt(PEPTIDE_COUNT_COLUMN).addHighlighter(new BarChartHighlighter());
 
-		((TableColumnExt) tcm.getColumn(SPECTRAL_COUNT_COLUMN)).addHighlighter(new BarChartHighlighter());
+		treeTbl.getColumnExt(SPECTRAL_COUNT_COLUMN).addHighlighter(new BarChartHighlighter());
 
-		((TableColumnExt) tcm.getColumn(EMPAI_COLUMN)).addHighlighter(new BarChartHighlighter(
+		treeTbl.getColumnExt(EMPAI_COLUMN).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
 
-		((TableColumnExt) tcm.getColumn(NSAF_COLUMN)).addHighlighter(new BarChartHighlighter(
+		treeTbl.getColumnExt(NSAF_COLUMN).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 		
 		// Install non-leaf highlighter
@@ -819,47 +882,17 @@ public enum ProteinTreeTables {
 						notSel, notLeaf, HighlightPredicate.EVEN), hlCol, null),
 						new ColorHighlighter(new AndHighlightPredicate(
 								notSel, notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
+		
+		// Initially hide UniRef and sequence columns
+		TableColumnExt urCol = treeTbl.getColumnExt(UNIREF_COLUMN);
+		TableColumnExt sqCol = treeTbl.getColumnExt(SEQUENCE_COLUMN);
+		urCol.setVisible(false);
+		sqCol.setVisible(false);
 
 		// Enable column control widget
 		TableConfig.configureColumnControl(treeTbl);
 		
 		return treeTbl;
-	}
-
-	/**
-	 * Delegate method to display table-specific tooltips.
-	 * @param me The MouseEvent triggering the tooltip.
-	 * @return The tooltip's text or <code>null</code>.
-	 */
-	private String getTableToolTipText(MouseEvent me) {
-		JXTreeTable table = (JXTreeTable) me.getSource();
-		if (table == ENZYME.getTreeTable()) {
-			String ecDesc = null;
-			int col = table.columnAtPoint(me.getPoint());
-			if (col == 1) {
-				int row = table.rowAtPoint(me.getPoint());
-				TreePath pathForRow = table.getPathForRow(row);
-				if (pathForRow != null){
-					PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) pathForRow.getLastPathComponent();
-					ECEntry ecEntry = Parameters.getInstance().getEcMap().get(node.getValueAt(0));
-					ecDesc = (ecEntry != null) ? ecEntry.getDescription() : null;
-					if (ecDesc != null) {
-						ecDesc = "<html>" + ecDesc + "</html>";
-						StringBuffer sb = new StringBuffer (ecDesc);  
-						String newLine = "<br>"; 
-						for (int i = 70; i < ecDesc.length(); i += 70) {
-							int linebreak = sb.indexOf(" ", i);
-							if (linebreak != -1) {
-								sb.insert(linebreak, newLine);
-							}
-						}
-						ecDesc = sb.toString();
-					}
-				}
-			}
-			return ecDesc;
-		}
-		return null;
 	}
 
 	/**
@@ -1046,11 +1079,12 @@ public enum ProteinTreeTables {
 	}
 
 	/**
-	 * TODO: API
-	 * @param table
-	 * @return
+	 * Creates a menu containing external web resource links for the selected
+	 * row of the specified table.
+	 * @param table the targeted table
+	 * @return a web resources menu
 	 */
-	private JPopupMenu setupWebresourceMenu(JXTable table) {
+	private JPopupMenu createWebResourceMenu(JXTable table) {
 		JPopupMenu webresourceMenu = new JPopupMenu();		
 		ActionListener popupMenuItemEventListener = new ActionListener() {
 			@Override
@@ -1068,8 +1102,8 @@ public enum ProteinTreeTables {
 			}
 		};
 		JMenuItem uniProtMenuItem = new JMenuItem("UniProt", IconConstants.WEB_UNIPROT_ICON);
-		int col = 0;
-		String accession = (String) table.getValueAt(table.getSelectedRow(), table.convertColumnIndexToView(col));
+		int selRow = table.getSelectedRow();
+		String accession = (String) table.getValueAt(selRow, table.convertColumnIndexToView(ACCESSION_COLUMN));
 		uniProtMenuItem.putClientProperty("url", "http://www.uniprot.org/uniprot/" + accession);
 		uniProtMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(uniProtMenuItem);
@@ -1137,7 +1171,7 @@ public enum ProteinTreeTables {
 		eggNogMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(eggNogMenuItem);
 		
-		Rectangle cellRect = table.getCellRect(table.getSelectedRow(), table.getSelectedColumn(), true);
+		Rectangle cellRect = table.getCellRect(selRow, table.getSelectedColumn(), true);
 		webresourceMenu.show(table, cellRect.x, cellRect.y + cellRect.height);
 		return webresourceMenu;
 	}

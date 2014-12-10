@@ -125,7 +125,9 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @param paths the new paths to add to the current selection
 	 */
 	public void addSelectionPaths(List<TreePath> paths) {
-		this.addSelectionPaths(paths.toArray(new TreePath[0]));
+		if (!paths.isEmpty()) {
+			this.addSelectionPaths(paths.toArray(new TreePath[0]));
+		}
 	}
 	
 	/**
@@ -196,22 +198,29 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
      * <code>false</code> otherwise
      */
 	public boolean areSiblingsSelected(TreePath path) {
+//		if (path == null) {
+//			return false;
+//		}
 		TreePath parent = path.getParentPath();
 		if (parent == null) {
 			return true;
 		}
 		Object node = path.getLastPathComponent();
 		Object parentNode = parent.getLastPathComponent();
-
-		int childCount = model.getChildCount(parentNode);
-		for (int i = 0; i < childCount; i++) {
-			Object childNode = model.getChild(parentNode, i);
-			if (childNode == node) {
-				continue;
+		
+		try {
+			int childCount = model.getChildCount((TreeTableNode) parentNode);
+			for (int i = 0; i < childCount; i++) {
+				Object childNode = model.getChild(parentNode, i);
+				if (childNode == node) {
+					continue;
+				}
+				if (!isPathSelected(parent.pathByAddingChild(childNode), true)) {
+					return false;
+				}
 			}
-			if (!isPathSelected(parent.pathByAddingChild(childNode), true)) {
-				return false;
-			}
+		} catch (IllegalArgumentException e) {
+			// TODO: Do nothing?
 		}
 		return true;
 	}

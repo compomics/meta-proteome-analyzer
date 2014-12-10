@@ -89,7 +89,6 @@ public enum AggregateFunction {
 			return sum;
 		}
 	},
-	// TODO: non-redundant element count, e.g. distinct peptide/spectrum counts
 	DISTINCT {
 		@Override
 		public Object aggregate(Object... values) {
