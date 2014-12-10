@@ -5,13 +5,27 @@
 = Versions =
 
 == Version 11.12.2014 ==
- * enable to search against metagenome FASTA databases
- * enable to BLAST non UniProt protein entries
+ * Enable to search against metagenome FASTA databases
+ * Enable to BLAST non UniProt protein entries
  * Add items to the ClientFrameMenuBar to update UniProt and UniRef entries
 
 
 
 = Useful Steps =
+ == Create a new server version ==
+ * Go in "scr" and look for server_export.xml
+ * Update in this file the version number and the required libraries
+ * Right-Click and "Ant Build"
+ * Copy this file your MPA directory
+ * Adapt startserver.sh to the new version number
+
+ == Update UniProtJAPi or other library ==
+
+This is often necessary for the UniProtJAPi, because you need always the current version for the querying service.
+ * Download new library and copy into your library folder (MetaproteomeAnalyzer\lib)
+ * Right-Click on MPA project, "Configure BuildPath", "Libraries" , Select old library and "Remove" it from the Build Path
+* Select in the MPA the new library in the "lib" folder, Right-Click and "Add to Build Path"
+
 
 = Details =
 
