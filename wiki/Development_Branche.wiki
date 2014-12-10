@@ -24,7 +24,7 @@
 This is often necessary for the UniProtJAPi, because you need always the current version for the querying service.
  * Download new library and copy into your library folder (MetaproteomeAnalyzer\lib)
  * Right-Click on MPA project, "Configure BuildPath", "Libraries" , Select old library and "Remove" it from the Build Path
-* Select in the MPA the new library in the "lib" folder, Right-Click and "Add to Build Path"
+ * Select in the MPA the new library in the "lib" folder, Right-Click and "Add to Build Path"
 
 
 = Details =
