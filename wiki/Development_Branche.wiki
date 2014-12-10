@@ -5,9 +5,9 @@
 = Versions =
 
 == Version 11.12.2014 ==
- * enable to search against metagenoe FASTA databases
+ * enable to search against metagenome FASTA databases
  * enable to BLAST non UniProt protein entries
- * Add items to the ClientFrameMenueBar to update UniProt and UniRef entries
+ * Add items to the ClientFrameMenuBar to update UniProt and UniRef entries
 
 
 
