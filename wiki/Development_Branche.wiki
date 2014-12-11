@@ -7,6 +7,7 @@
 == Version 11.12.2014 ==
  * Enable to search against metagenome FASTA databases
  * Enable to BLAST non UniProt protein entries
+   # Works only for Xtandem and OMSSA, because Mascot dat.-File parsen do not store protein sequences
  * Add items to the ClientFrameMenuBar to update UniProt and UniRef entries
 
 
