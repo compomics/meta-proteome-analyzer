@@ -15,13 +15,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -38,7 +40,6 @@ import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -51,7 +52,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.jdesktop.swingx.JXTable;
@@ -64,7 +64,6 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.ColumnHighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
 import org.jdesktop.swingx.sort.TableSortController;
-import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -78,50 +77,37 @@ import de.mpa.client.model.ProjectExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
-import de.mpa.client.model.dbsearch.MetaProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.DefaultTableHeaderCellRenderer;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapData;
-import de.mpa.client.ui.chart.HeatMapData.MatrixSeriesExt;
-import de.mpa.client.ui.chart.HeatMapPane.Axis;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
+import de.mpa.graphdb.insert.GraphDatabaseHandler;
+import de.mpa.graphdb.io.ExperimentComparison;
 
 /**
  * This class holds the comparison of certain experiments.
- * @author A. Behne and R. Heyer
+ * @author A. Behne, R. Heyer and T. Muth
  */
 public class ComparePanel extends JPanel {
 	
-//	/**
-//	 * Dummy key for meta-result in result map.
-//	 */
-//	private static final Experiment META_EXPERIMENT = new Experiment();
-//
-//	/**
-//	 * The cache of re-usable result objects.
-//	 */
-//	private Map<Experiment, DbSearchResult> resultMap;
-	
+	/**
+	 * Default serialization ID.
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The list of experiments to compare.
 	 */
 	private List<AbstractExperiment> experiments;
-	
-	/**
-	 * The meta-result object.
-	 */
-	private DbSearchResult metaResult;
 	
 	/**
 	 * The local map of meta-protein generation-related parameters.
@@ -132,24 +118,19 @@ public class ComparePanel extends JPanel {
 	 * The scroll pane containing the comparison table.
 	 */
 	private JScrollPane comparePane;
+	
+	/**
+	 * Compare button instance.
+	 */
+	private JButton compareBtn;
 
 	/**
 	 * Constructs an experiment compare panel.
 	 */
 	public ComparePanel() {
 		super();
-		
-//		// init map of database search results
-//		this.resultMap = new HashMap<Experiment, DbSearchResult>();
-//		// initially add dummy entry pointing to non-existent meta-result
-//		this.resultMap.put(META_EXPERIMENT, null);
-		
-		// init meta-result
-		this.metaResult = null;
-		
-		// init local instance of result fetching parameters
+		// Initialize local instance of result fetching parameters.
 		this.metaParams = new ResultParameters();
-		
 		initComponents();
 	}
 
@@ -167,7 +148,7 @@ public class ComparePanel extends JPanel {
 		experimentPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		experimentPnl.setBorder(BorderFactory.createTitledBorder("Experiments"));
 		
-		final JXTable experimentTbl = new ListTable("Click to Add Experiment...");
+		final JXTable experimentTbl = new ListTable("Click here to add an experiment...");
 		experimentTbl.setHorizontalScrollEnabled(true);
 		
 		experimentTbl.getSelectionModel().addListSelectionListener(
@@ -190,7 +171,10 @@ public class ComparePanel extends JPanel {
 		ButtonGroup bg = new ButtonGroup();
 		JRadioButton ontoRbtn = new JRadioButton("Ontology", false);
 		bg.add(ontoRbtn);
-		final JComboBox<OntologyChartType> ontoCbx = new JComboBox<>(OntologyChartType.values());
+		List<OntologyChartType> ontoList = Arrays.asList(OntologyChartType.values()).subList(0, 3);
+		OntologyChartType[] ontoArray = ontoList.toArray(new OntologyChartType[ontoList.size()]);
+		
+		final JComboBox<OntologyChartType> ontoCbx = new JComboBox<>(ontoArray);
 		ontoCbx.setEnabled(false);
 		JRadioButton taxoRbtn = new JRadioButton("Taxonomy", false);
 		bg.add(taxoRbtn);
@@ -200,7 +184,10 @@ public class ComparePanel extends JPanel {
 		bg.add(hieroRbtn);
 		final JComboBox<HierarchyLevel> hieroCbx = new JComboBox<>(HierarchyLevel.values());
 		
-		final JComboBox<HierarchyLevel> countCbx = new JComboBox<>(HierarchyLevel.values());
+		List<HierarchyLevel> countList = Arrays.asList(HierarchyLevel.values()).subList(2, 4);
+		HierarchyLevel[] countArray = countList.toArray(new HierarchyLevel[countList.size()]);
+		final JComboBox<HierarchyLevel> countCbx = new JComboBox<>(countArray);
+		countCbx.setSelectedIndex(1);
 		
 		// listen for radio button selection changes and enable/disable combo boxes accordingly
 		ontoRbtn.addChangeListener(new ChangeListener() {
@@ -236,21 +223,18 @@ public class ComparePanel extends JPanel {
 						ClientFrame.getInstance(),
 						"Result Fetching settings",
 						true, metaParams) == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
-					// invalidate meta-result if parameters were changed
-//					resultMap.put(META_EXPERIMENT, null);
-					metaResult = null;
 				}
 			}
 		});
 
-		JButton compareBtn = new JButton("Compare", IconConstants.COMPARE_ICON) {
+		compareBtn = new JButton("Compare", IconConstants.COMPARE_ICON) {
 			@Override
 			public void setEnabled(boolean b) {
 				super.setEnabled(b);
 				settingsBtn.setEnabled(b);
 			}
 		};
-		compareBtn.setEnabled(!Client.isViewer()); 
+		compareBtn.setEnabled(false); 
 		compareBtn.setRolloverIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
 		compareBtn.setPressedIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
 		compareBtn.setIconTextGap(7);
@@ -296,16 +280,9 @@ public class ComparePanel extends JPanel {
 					yAxisType = (ChartType) hieroCbx.getSelectedItem();
 				}
 				HierarchyLevel zAxisType = (HierarchyLevel) countCbx.getSelectedItem();
-				
-				// execute comparison task
-				
-				boolean recreateMetaResult =
-						(metaResult == null) ||
-						(experiments.size() != ComparePanel.this.experiments.size()) ||
-						(!ComparePanel.this.experiments.containsAll(experiments));
 				ComparePanel.this.experiments = experiments;
-				
-				new CompareTask(yAxisType, zAxisType, recreateMetaResult).execute();
+				CompareTask compareTask = new CompareTask(yAxisType, zAxisType);
+				compareTask.execute();
 			}
 		});
 
@@ -327,7 +304,9 @@ public class ComparePanel extends JPanel {
 		// Create panel containing the comparison results table
 		JPanel compareTblPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		final JXTable compareTbl = new JXTable(new DefaultTableModel(new String[] { "header", "empty" }, 0)) {
+		ComparePanelTableModel comparePanelTableModel = new ComparePanelTableModel();
+		
+		final JXTable compareTbl = new JXTable(comparePanelTableModel) {
 			@Override
 			public Dimension getPreferredSize() {
 				Dimension size = super.getPreferredSize();
@@ -552,6 +531,7 @@ public class ComparePanel extends JPanel {
 						List<ProjectExperiment> experiments = this.showExperimentSelectionDialog();
 						this.table.clearSelection();
 						if (!experiments.isEmpty()) {
+							compareBtn.setEnabled(true);
 							for (ProjectExperiment experiment : experiments) {
 								TableModel model = this.table.getModel();
 								// check whether experiment already exists
@@ -566,6 +546,8 @@ public class ComparePanel extends JPanel {
 										lastRow, new Object[] { experiment });
 								this.table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 							}
+						} else {
+							compareBtn.setEnabled(false);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -583,8 +565,7 @@ public class ComparePanel extends JPanel {
 			JPanel dialogPnl = new JPanel();
 			dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
 		
-			final JTable projTbl = new JTable(new DefaultTableModel(
-					new Object[] { "Projects" }, 0)) {
+			final JTable projTbl = new JTable(new DefaultTableModel(new Object[] { "Projects" }, 0)) {
 				@Override
 				public boolean isCellEditable(int row, int column) {
 					return false;
@@ -641,27 +622,19 @@ public class ComparePanel extends JPanel {
 			dialogPnl.add(expScp, CC.xy(4, 2));
 		
 			// Get selected experiments
-			List<ProjectExperiment> res = new ArrayList<ProjectExperiment>();
-			int ret = JOptionPane.showConfirmDialog(
-					ClientFrame.getInstance(), dialogPnl, "Choose an Experiment", JOptionPane.OK_CANCEL_OPTION);
+			List<ProjectExperiment> selectedExperiments = new ArrayList<ProjectExperiment>();
+			int ret = JOptionPane.showConfirmDialog(ClientFrame.getInstance(), dialogPnl, "Choose an Experiment", JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.OK_OPTION) {
 				int[] rows = expTbl.getSelectedRows();
 				for (int selRow : rows) {
 					int row = expTbl.convertRowIndexToModel(selRow);
 					if (row != -1) {
 						// Fetch experiment from database
-//						try {
-//							long experimentID = experiments.get(row).getID();
-//							Experiment experiment = projectManager.getExperiment(experimentID);
-//							res.add(experiment);
-//						} catch (SQLException e1) {
-//							e1.printStackTrace();
-//						}
-						res.add(experiments.get(row));
+						selectedExperiments.add(experiments.get(row));
 					}
 				}
 			}
-			return res;
+			return selectedExperiments;
 		}
 
 		/**
@@ -675,181 +648,95 @@ public class ComparePanel extends JPanel {
 				((DefaultTableModel) table.getModel()).addRow(new Object [] { str });
 			}
 		}
-		
 	}
 
 	/**
-	 * Worker to create compare data in a background threat
-	 * @author R. Heyer
+	 * Worker to compare data in a background thread.
+	 * @author T. Muth
 	 */
 	private class CompareTask extends SwingWorker {
 		
 		/**
-		 * Flag indicating whether the meta-result needs to be re-created.
-		 */
-		private boolean recreateMetaResult;
-		
-		/**
 		 * The comparison attribute type.
 		 */
-		private ChartType yAxisType;
+		private ChartType chartType;
 		
 		/**
 		 * The comparison count type.
 		 */
-		private HierarchyLevel zAxisType;
+		private HierarchyLevel countLevel;
+		
+		/**
+		 * ExperimentComparison instance.
+		 */
+		private ExperimentComparison expComparison;
 
 		/**
-		 * Constructs a compare worker from the specified list of experiments to
-		 * compare.
-		 * @param experiments the experiments to compare
+		 * Constructs a compare worker from the specified list of experiments to be compared.
+		 * @param hierarchyLevel 
+		 * @param countLevel
 		 */
-		public CompareTask(ChartType yAxisType, HierarchyLevel zAxisType, boolean recreateMetaResult) {
-			this.yAxisType = yAxisType;
-			this.zAxisType = zAxisType;
-			this.recreateMetaResult = recreateMetaResult;
+		public CompareTask(ChartType hierarchyLevel, HierarchyLevel countLevel) {
+			this.chartType = hierarchyLevel;
+			this.countLevel = countLevel;
 		}
 
 		@Override
 		protected Object doInBackground() throws Exception {
 			try {
-//				Client client = Client.getInstance();
+				Client client = Client.getInstance();
+				client.firePropertyChange("new message", null, "STARTING COMPARISON AND FETCHING DATA");
+				client.setupGraphDatabase(false);
 				
-				if (this.recreateMetaResult) {
-					// fetch results
-					List<DbSearchResult> results = new ArrayList<DbSearchResult>();
-					for (AbstractExperiment experiment : experiments) {
-						DbSearchResult result = experiment.getSearchResult();
-//								client.retrieveDatabaseSearchResult(null, null, experiment.getExperimentid());
-						results.add(result);
-					}
-					
-					// Create metaResult object, containing all result objects
-					metaResult = new DbSearchResult(null, null, null);
-					for (DbSearchResult result : results) {
-						if (result != null) {
-							for (ProteinHit proteinHit : result.getProteinHitList()) {
-								metaResult.addProtein(proteinHit);
-							}
-						}
-					}
-					// Fuse to meta-proteins
-					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(metaResult, metaParams);
+				final GraphDatabaseHandler graphDatabaseHandler = client.getGraphDatabaseHandler();
+				// Iterate the experiments.
+				for (AbstractExperiment experiment : experiments) {
+					DbSearchResult dbSearchResult = experiment.getSearchResult();
+					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, metaParams);
+					dbSearchResult.setRaw(false);
+					graphDatabaseHandler.setData(dbSearchResult);
 				}
 				
-				// Create compare table
-				final CompareData data = new CompareData(metaResult, this.yAxisType, this.zAxisType);
-
-				// Refresh compare table
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						refreshCompareTable(data, experiments);
-					}
-				});
+				// Compare the experiments.
+				expComparison = new ExperimentComparison(experiments, graphDatabaseHandler, this.chartType, this.countLevel);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
 			return null;
 		}
 		
 		@Override
 		protected void done() {
-//			compareTbl.getTableHeader().repaint();
+			if (expComparison != null) {
+				refreshCompareTable(expComparison.getDataMap(), experiments);
+			} else {
+				Client.getInstance().firePropertyChange("new message", null, "QUERYING COMPARISON DATA FINISHED");
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+			}
 		}
 
 		/**
 		 * Method to refresh the compare table.
-		 * @param data. The data matrix for the comparison 
+		 * @param map Comparison data map
+		 * @param List of experiments	 
 		 */
-		private void refreshCompareTable(CompareData data, List<AbstractExperiment> experiments) {
-			// Re-associate experiment titles with their IDs, use as column headers
-			String[] xLabels = data.getXLabels();
-			// Use attribute type as first column header
-			ChartType axisType = data.getAxisType(Axis.Y_AXIS);
-			final boolean isProtein = ((axisType == HierarchyLevel.META_PROTEIN_LEVEL) || 
-					(axisType == HierarchyLevel.PROTEIN_LEVEL));
+		private void refreshCompareTable(Map<String, Long[]> dataMap, List<AbstractExperiment> experiments) {
 			String[] columnNames;
-			final int offset = (isProtein) ? 2 : 1;
-			columnNames = new String[xLabels.length + offset];
-			columnNames[0] = axisType.toString();
-			columnNames[1] = "Description";		// will be replaced if offset == 1
+			final int offset = 1;
+			columnNames = new String[experiments.size() + offset];
+			columnNames[0] = "Description";
 			
 			for (int i = offset; i < columnNames.length; i++) {
-				long l = Long.parseLong(xLabels[i - offset]);
 				for (ProjectExperiment experiment : experiments) {
-					if (l == experiment.getID()) {
-						columnNames[i] = experiment.getTitle() + " (" + l + ")";
+						columnNames[i] = experiment.getTitle() + " (" + experiment.getID() + ")";
 						break;
-					}
 				}
 			}
 			
-			final String[] yLabels = data.getYLabels();
-			final MatrixSeriesExt series = (MatrixSeriesExt) data.getMatrix();
-			final DbSearchResult metaResult = data.getResult();
-			DefaultTableModel model = new DefaultTableModel(columnNames, yLabels.length) {
-				@Override
-				public Class<?> getColumnClass(int columnIndex) {
-					if (columnIndex >= offset) {
-						return List.class;
-					}
-					return super.getColumnClass(columnIndex);
-				}
-				
-				@Override
-				public Object getValueAt(int row, int column) {
-					if (column == 0) {
-						return yLabels[row];
-					} else if ((column == 1) && isProtein) {
-						ProteinHit ph = metaResult.getProteinHit(yLabels[row]);
-						if (ph != null) {
-							return ph.getDescription();
-						} else {
-							for (ProteinHit mph : metaResult.getMetaProteins()) {
-								if (mph.getAccession() == yLabels[row]) {
-									return ((MetaProteinHit) mph).getProteinHitList().get(0).getDescription();
-								}
-							}
-							// we shouldn't get here
-							return null;
-						}
-					} else {
-						column -= offset;
-						List<List<List<Hit>>> matrix = series.getMatrix();
-						List<List<Hit>> matrixRow = matrix.get(row);
-						if (column < matrixRow.size()) {
-							return matrixRow.get(column);
-						} else {
-							return null;
-						}
-					}
-				}
-			};
-			
-			final JXTable headerTbl = (JXTable) comparePane.getRowHeader().getView();
-			headerTbl.setModel(model);
-			List<TableColumn> headColumns = headerTbl.getColumns();
-			for (int i = 1; i < headColumns.size(); i++) {
-				((TableColumnExt) headColumns.get(i)).setVisible(false);
-			}
-			headerTbl.getColumn(0).setCellRenderer(new DefaultTableHeaderCellRenderer() {
-				@Override
-				public Icon getIcon() {
-					return null;
-				}
-			});
-			
+			ComparePanelTableModel model = new ComparePanelTableModel(dataMap, experiments);
 			final JXTable compareTbl = (JXTable) comparePane.getViewport().getView();
 			compareTbl.setModel(model);
-			List<TableColumn> compColumns = compareTbl.getColumns();
-			for (int i = 0; i < 1; i++) {
-				((TableColumnExt) compColumns.get(i)).setVisible(false);
-			}
-			
-			// TODO: synchronize sorting
-//			headerTbl.setRowSorter(compareTbl.getRowSorter());
 			
 			TableSortController<TableModel> sorter = new TableSortController<TableModel>(model) {
 				RowSorter<? extends TableModel> delegate = compareTbl.getRowSorter();
@@ -864,42 +751,42 @@ public class ComparePanel extends JPanel {
 					return delegate.convertRowIndexToView(modelIndex);
 				}
 			};
-			headerTbl.setRowSorter(sorter);
+			compareTbl.getColumn("Description").setMinWidth(100);
+			compareTbl.getColumn("Description").setMaxWidth(500);
 			
-			headerTbl.packColumn(0, 6);
+			compareTbl.setRowSorter(sorter);
 			compareTbl.packAll();
+			compareTbl.repaint();
 		}
-		
 	}
-	
-	/**
-	 * Class to compare experiments.
-	 * @author A. Behne und R. Heyer
-	 */
-	public static class CompareData extends HeatMapData {
-		
-		/**
-		 * ChartType for experiments
-		 */
-		public static final ChartType EXPERIMENT = new ChartType() {
-			@Override
-			public String getTitle() {
-				return "Experiment";
-			}
-		};
 
-		/**
-		 * Default constructor for the compare data.
-		 * @param result. The result object.
-		 * @param yAxisType. The type of the y-axis for the comparison.
-		 * @param zAxisType. The type of the z-axis for the comparison.
-		 */
-		public CompareData(DbSearchResult result,
-				ChartType yAxisType, HierarchyLevel zAxisType) {
-			super(result, EXPERIMENT, yAxisType, zAxisType);
-		}
-		
-	}
+	/**
+     * Class to compare experiments.
+     * @author A. Behne und R. Heyer
+     */
+    public static class CompareData extends HeatMapData {
+            /**
+             * ChartType for experiments
+             */
+            public static final ChartType EXPERIMENT = new ChartType() {
+                    @Override
+                    public String getTitle() {
+                            return "Experiment";
+                    }
+            };
+
+            /**
+             * Default constructor for the compare data.
+             * @param result. The result object.
+             * @param yAxisType. The type of the y-axis for the comparison.
+             * @param zAxisType. The type of the z-axis for the comparison.
+             */
+            public CompareData(DbSearchResult result,
+                            ChartType yAxisType, HierarchyLevel zAxisType) {
+                    super(result, EXPERIMENT, yAxisType, zAxisType);
+            }
+           
+    }
 
 	/**
 	 * Class to create an editable table, which allows adding and deleting of elements.

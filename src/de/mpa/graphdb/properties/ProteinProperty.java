@@ -7,7 +7,7 @@ public enum ProteinProperty implements ElementProperty {
 	MOLECULARWEIGHT("Molecular Weight (kDa)"),
 	COVERAGE("Sequence Coverage (%)"),
 	PROTEINCOUNT("Protein Count"),
-	SPECTRALCOUNT("Spectral Count");	
+	SPECTRALCOUNT("Spectral Count");
 	
 	
 	ProteinProperty(final String propertyName){

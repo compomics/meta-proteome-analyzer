@@ -163,7 +163,7 @@ public class CypherQueryFactory {
 		startNodes.add(new CypherStartNode("taxa", NodeType.TAXA, TaxonProperty.IDENTIFIER, "*"));
 		
 		List<CypherMatch> matches = new ArrayList<CypherMatch>();
-		matches.add(new CypherMatch("taxa", RelationType.BELONGS_TO, "rel", DirectionType.IN));
+		matches.add(new CypherMatch("taxa", RelationType.BELONGS_TO_TAXONOMY, "rel", DirectionType.IN));
 		matches.add(new CypherMatch("proteins", null, null, null));
 		
 		List<CypherCondition> conditions = null;
@@ -184,7 +184,7 @@ public class CypherQueryFactory {
 		startNodes.add(new CypherStartNode("taxa", NodeType.TAXA, TaxonProperty.IDENTIFIER, "*"));
 		
 		List<CypherMatch> matches = new ArrayList<CypherMatch>();
-		matches.add(new CypherMatch("taxa", RelationType.BELONGS_TO, "rel", DirectionType.IN));
+		matches.add(new CypherMatch("taxa", RelationType.BELONGS_TO_TAXONOMY, "rel", DirectionType.IN));
 		matches.add(new CypherMatch("proteins", RelationType.HAS_PEPTIDE, null, DirectionType.BOTH));
 		matches.add(new CypherMatch("peptides", null, null, null));
 		
@@ -237,5 +237,90 @@ public class CypherQueryFactory {
 		returnIndices.add(1);		
 		return new CypherQuery(startNodes, matches, conditions, returnIndices);
 	}
+	
+	/**
+	 * Returns the meta-proteins with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getMetaProteinsWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START metaproteins = node:Proteins(\"Identifier:*\")" + 
+							   "MATCH (experiments)<-[:BELONGS_TO_EXPERIMENT]-(metaproteins)-[:IS_METAPROTEIN_OF]->(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments)" +
+							   "RETURN experiments, count(distinct " + countIdentifier + "), metaproteins");
+	}
+	
+	/**
+	 * Returns the proteins with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getProteinsWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START proteins = node:Proteins(\"Identifier:*\")" + 
+							   "MATCH (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments)" +
+							   "RETURN experiments, count(distinct " + countIdentifier + "), proteins");
+	}
+	
+	/**
+	 * Returns the peptides with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getPeptidesWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START proteins = node:Proteins(\"Identifier:*\")" + 
+							   "MATCH (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments)" +
+							   "RETURN experiments, count(distinct " + countIdentifier + "), peptides");
+	}
+	
+	/**
+	 * Returns the biological processes with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getBiologicalProcessesWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START ontologies = node:Ontologies(\"Identifier:*\")" + 
+							   "MATCH (ontologies)<-[:INVOLVED_IN_BIOPROCESS]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +							  
+							   "RETURN experiments, count(distinct " + countIdentifier + "), ontologies");
+	}
+	
+	/**
+	 * Returns the molecular functions with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getMolecularFunctionsWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START ontologies = node:Ontologies(\"Identifier:*\")" + 
+							   "MATCH (ontologies)<-[:HAS_MOLECULAR_FUNCTION]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +							  
+							   "RETURN experiments, count(distinct " + countIdentifier + "), ontologies");
+	}
+	
+	/**
+	 * Returns the cellular components with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getCellularComponentsWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START ontologies = node:Ontologies(\"Identifier:*\")" + 
+							   "MATCH (ontologies)<-[:BELONGS_TO_CELL_COMP]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +							  
+							   "RETURN experiments, count(distinct " + countIdentifier + "), ontologies");
+	}	
+	
+	/**
+	 * Returns the taxonomy with counts by experiment.
+	 * @param rank Taxonomic rank.
+	 * @param depth Depth of the taxonomy (e.g. lowest level == 1 --> species).
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getTaxonomyWithCountsByExperiments(String countIdentifier, String rank) {
+		return new CypherQuery("START taxa = node:Taxa(\"Identifier:*\")" + 
+							   "MATCH (parent)-[:IS_ANCESTOR_OF*..8]->(taxa)<-[:BELONGS_TO_TAXONOMY]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +
+							   "WHERE (parent.Rank = '" + rank + "')" + 
+							   "RETURN experiments, count(distinct " + countIdentifier + "), parent");
+	}
+	
+	/**
+	 * Returns the subspecies taxonomy with counts by experiment.
+	 * @return CypherQuery instance.
+	 */
+	public static CypherQuery getSubspeciesWithCountsByExperiments(String countIdentifier) {
+		return new CypherQuery("START taxa = node:Taxa(\"Identifier:*\")" + 
+							   "MATCH (taxa)<-[:BELONGS_TO_TAXONOMY]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +
+							   "WHERE (taxa.Rank = 'Subspecies')" + 
+							   "RETURN experiments, count(distinct " + countIdentifier + "), taxa");
+	}
+
 
 }

@@ -31,24 +31,23 @@ public class OntologyChart extends Chart {
 
 		BIOLOGICAL_PROCESS(KeywordCategory.BIOLOGICAL_PROCESS),
 		CELLULAR_COMPONENT(KeywordCategory.CELLULAR_COMPONENT),
+		MOLECULAR_FUNCTION(KeywordCategory.MOLECULAR_FUNCTION),
 		CODING_SEQUNCE_DIVERSITY(KeywordCategory.CODING_SEQUNCE_DIVERSITY),
 		DEVELOPMENTAL_STAGE(KeywordCategory.DEVELOPMENTAL_STAGE),
 		DISEASE(KeywordCategory.DISEASE),
 		DOMAIN(KeywordCategory.DOMAIN),
 		LIGAND(KeywordCategory.LIGAND),
-		MOLECULAR_FUNCTION(KeywordCategory.MOLECULAR_FUNCTION),
 		PTM(KeywordCategory.PTM),
 		TECHNICAL_TERM(KeywordCategory.TECHNICAL_TERM);
 		
 		private String title;
 		private KeywordCategory ontology;
-//		private Map<String, ProteinHitList> occMap;
 		
 		private OntologyChartType(KeywordCategory ontology) {
 			this.title = ontology.toString();
 			this.ontology = ontology;
-//			this.occMap = new HashMap<String, ProteinHitList>();
 		}
+		
 		@Override
 		public String toString() {
 			return this.title;
@@ -62,10 +61,6 @@ public class OntologyChart extends Chart {
 		public KeywordCategory getOntology() {
 			return this.ontology;
 		}
-		
-//		public Map<String, ProteinHitList> getOccurrenceMap() {
-//			return this.occMap;
-//		}
 	}
 		
 	/**
@@ -97,21 +92,18 @@ public class OntologyChart extends Chart {
         piePlot.setForegroundAlpha(0.75f);
         piePlot.setBackgroundPaint(null);
         piePlot.setOutlineVisible(false);
-		piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator(
-				"{0}\n{1} ({2})", new DecimalFormat("0"), new DecimalFormat("0.00%")));
+		piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}\n{1} ({2})", new DecimalFormat("0"), new DecimalFormat("0.00%")));
 		
 		Plot plot = piePlot;
 		if (!((OntologyData) data).getShowAsPie()) {
 			PieToCategoryPlot categoryPlot = new PieToCategoryPlot(piePlot);
 			categoryPlot.setForegroundAlpha(0.75f);
 			categoryPlot.getRangeAxis().setLabel(pieDataset.getGroup().getID());
-			
 			plot = categoryPlot;
 		}
 
         // create and configure chart
-        chart = new JFreeChart(chartTitle, JFreeChart.DEFAULT_TITLE_FONT,
-                plot, false);
+        chart = new JFreeChart(chartTitle, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
         ChartFactory.getChartTheme().apply(chart);
 		chart.setBackgroundPaint(null);
 	}

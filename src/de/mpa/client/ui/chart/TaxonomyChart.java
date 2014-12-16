@@ -28,21 +28,24 @@ public class TaxonomyChart extends Chart {
 	 * Enumeration holding chart sub-types pertaining to taxonomic categories.
 	 */
 	public enum TaxonomyChartType implements ChartType {
-		SUPERKINGDOM("Superkingdom", TaxonomyRank.SUPERKINGDOM),
-		KINGDOM("Kingdom", TaxonomyRank.KINGDOM),
-		PHYLUM("Phylum", TaxonomyRank.PHYLUM),
-		CLASS("Class", TaxonomyRank.CLASS),
-		ORDER("Order", TaxonomyRank.ORDER),
-		FAMILY("Family", TaxonomyRank.FAMILY),
-		GENUS("Genus", TaxonomyRank.GENUS),
-		SPECIES("Species", TaxonomyRank.SPECIES);
+		SUPERKINGDOM("Superkingdom", TaxonomyRank.SUPERKINGDOM, 8),
+		KINGDOM("Kingdom", TaxonomyRank.KINGDOM, 7),
+		PHYLUM("Phylum", TaxonomyRank.PHYLUM, 6),
+		CLASS("Class", TaxonomyRank.CLASS, 5),
+		ORDER("Order", TaxonomyRank.ORDER, 4),
+		FAMILY("Family", TaxonomyRank.FAMILY, 3),
+		GENUS("Genus", TaxonomyRank.GENUS, 2),
+		SPECIES("Species", TaxonomyRank.SPECIES, 1),
+		SUBSPECIES("Subspecies", TaxonomyRank.SUBSPECIES, 0);
 
 		private String title;
 		private TaxonomyRank rank;
+		private int depth;
 		
-		private TaxonomyChartType(String title, TaxonomyRank rank) {
+		private TaxonomyChartType(String title, TaxonomyRank rank, int depth) {
 			this.title = title;
 			this.rank = rank;
+			this.depth = depth;
 		}
 		
 		@Override
@@ -59,6 +62,10 @@ public class TaxonomyChart extends Chart {
 			return this.rank;
 		}
 		
+		public int getDepth() {
+			return depth;
+		}
+
 		public static boolean contains(String s) {
 			for (TaxonomyChartType chartType : values()) {
 				if (chartType.name().toLowerCase().equals(s))

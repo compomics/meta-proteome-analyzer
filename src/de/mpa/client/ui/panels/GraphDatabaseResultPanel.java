@@ -399,14 +399,14 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * @author A. Behne
 	 */
 	// TODO: re-locate worker to Client class?
-	private class BuildGraphDatabaseTask extends SwingWorker {
+	private class BuildGraphDatabaseTask extends SwingWorker<Object, Object> {
 
 		@Override
 		protected Object doInBackground() {
 			Thread.currentThread().setName("BuildGraphDBThread");
 			
 			try {
-				Client.getInstance().setupGraphDatabaseContent();
+				Client.getInstance().setupGraphDatabase(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

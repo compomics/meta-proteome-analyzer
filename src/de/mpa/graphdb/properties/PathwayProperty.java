@@ -3,7 +3,7 @@ package de.mpa.graphdb.properties;
 public enum PathwayProperty implements ElementProperty {
 	IDENTIFIER("Identifier"),
 	DESCRIPTION("Description"),
-	PATHWAYID("pathwayid");
+	PATHWAYID("PathwayID");
 	
 	PathwayProperty(final String propertyName){
 		this.propertyName = propertyName;

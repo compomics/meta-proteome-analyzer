@@ -394,7 +394,7 @@ public class Client {
 	 * Returns the GraphDatabaseHandler object.
 	 * @return The GraphDatabaseHandler object.
 	 */
-	synchronized public void setupGraphDatabaseContent() {
+	synchronized public void setupGraphDatabase(boolean singleDataResult) {
 		// If graph database is already in use.
 		if (graphDatabaseHandler != null) {
 			// Shut down old graph database.
@@ -406,7 +406,10 @@ public class Client {
 		
 		// Setup the graph database handler. 
 		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
-		graphDatabaseHandler.setData(dbSearchResult);
+		
+		if (singleDataResult) {
+			graphDatabaseHandler.setData(dbSearchResult);
+		}
 	}
 	
 	/**
