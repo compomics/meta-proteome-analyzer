@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -89,8 +90,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
-
-import scala.actors.threadpool.Arrays;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -1999,7 +1998,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						// Determine maximum values for visualization later on
 						maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
 						maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
-						maxSpecCount = Math.max(maxSpecCount,proteinHit.getSpectralCount());
+						maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
 						max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
 						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
 						maxNSAF = Math.max(maxNSAF, nsaf);

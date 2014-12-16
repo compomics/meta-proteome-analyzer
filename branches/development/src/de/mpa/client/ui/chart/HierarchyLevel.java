@@ -7,23 +7,24 @@ package de.mpa.client.ui.chart;
  * @author A. Behne
  */
 public enum HierarchyLevel implements ChartType {
-	
-	META_PROTEIN_LEVEL("Meta-Proteins"),
-	PROTEIN_LEVEL("Proteins"),
-	PEPTIDE_LEVEL("Peptides"),
-	SPECTRUM_LEVEL("Spectra");
+	META_PROTEIN_LEVEL("Meta-Proteins", "metaproteins"),
+	PROTEIN_LEVEL("Proteins", "proteins"),
+	PEPTIDE_LEVEL("Peptides", "peptides"),
+	SPECTRUM_LEVEL("Spectra", "psms");
 	
 	/**
 	 * The description string.
 	 */
 	private String description;
-
+	
 	/**
-	 * Constructs a hierarchy level member from the specified description.
-	 * @param description the description
+	 * Graphdb identifier string.
 	 */
-	private HierarchyLevel(String description) {
+	private String countIdentifier;
+	
+	private HierarchyLevel(String description, String countIdentifier) {
 		this.description = description;
+		this.countIdentifier = countIdentifier;
 	}
 	
 	@Override
@@ -35,5 +36,8 @@ public enum HierarchyLevel implements ChartType {
 	public String getTitle() {
 		return this.toString();
 	}
-	
+
+	public String getCountIdentifier() {
+		return countIdentifier;
+	}
 }

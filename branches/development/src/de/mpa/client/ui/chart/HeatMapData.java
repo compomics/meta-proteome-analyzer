@@ -76,7 +76,6 @@ public class HeatMapData {
 		this.xAxisType = xAxisType;
 		this.yAxisType = yAxisType;
 		this.zAxisType = zAxisType;
-		
 		this.createMatrix();
 	}
 	

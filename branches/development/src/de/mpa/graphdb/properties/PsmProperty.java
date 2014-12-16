@@ -6,7 +6,6 @@ public enum PsmProperty implements ElementProperty {
 	SCORES("Scores"),
 	VOTES("Votes");
 	
-	
 	PsmProperty(final String propertyName){
 		this.propertyName = propertyName;
 	}
