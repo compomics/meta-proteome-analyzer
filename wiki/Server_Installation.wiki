@@ -246,7 +246,19 @@ The actual FASTA formatting in then executing by the following command
 
 *Note:* The fastaformat.sh script contains the default locations of the algorithms, please adjust them accordingly. Otherwise the FASTA database formatting will not work.
 
-Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms, e.g. Crux and InSpect are omitted by default.
+Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms, e.g. Crux and InsPect are omitted by default.
+
+*Please Note:* If you are using protein databases in a format different from UniProt, please make sure that the FASTA header for each protein entry meets the following conditions:
+{{{
+
+>DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION
+
+DB: for example "sp" resembles Swiss-Prot. "mg" stands for Metagenome-based protein database.
+ACCESSION: Unique identifier. For example a 8-digit augmenting number: 00000001
+SHORT_DESCRIPTION: Short string description (maximum 10 chars, no spaces)
+FULL_DESCRIPTION: Full string description (no limited char number, spaces allowed)
+
+}}}
 
 [#General_Information Go to top of page]
 ----
