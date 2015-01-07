@@ -260,6 +260,9 @@ FULL_DESCRIPTION: Full string description (no limited char number, spaces allowe
 
 }}}
 
+For an easy FASTA database creation and manipulation, we recommend the software tool dbtoolkit, freely available here:
+[http://code.google.com/p/dbtoolkit] http://code.google.com/p/dbtoolkit
+
 [#General_Information Go to top of page]
 ----
 ==Server Startup==
