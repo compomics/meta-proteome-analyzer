@@ -259,7 +259,7 @@ SHORT_DESCRIPTION: Short string description (maximum 10 chars, no spaces)
 FULL_DESCRIPTION: Full string description (no limited char number, spaces allowed)
 
 }}}
-
+The MPA software supports user-defined (e.g. metagenome-based) databases in general, however, many function related to UniProt meta-information, such as ontologies, pathways and taxonomies cannot be accessed.
 For an easy FASTA database creation and manipulation (including a protein redundancy check), we recommend the software tool dbtoolkit, freely available here:
 [http://code.google.com/p/dbtoolkit]
 
