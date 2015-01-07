@@ -248,7 +248,7 @@ The actual FASTA formatting in then executing by the following command
 
 Note: Please edit the script to your demands, e.g. by omitting certain search engine algorithms, e.g. Crux and InsPect are omitted by default.
 
-*Please Note:* If you are using protein databases in a format different from UniProt, please make sure that the FASTA header for each protein entry meets the following conditions:
+*Please Note:* If you are using protein databases in a format different from UniProt (see [http://www.uniprot.org/help/fasta-headers UniProt FASTA header examples]), please make sure that the FASTA header for each protein entry meets the following conditions:
 {{{
 
 >DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION
