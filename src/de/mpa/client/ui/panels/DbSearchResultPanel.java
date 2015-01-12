@@ -1674,22 +1674,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 					
 					// dump table contents to selected file
-					TableConfig.dumpTableToCSV(treeTbl, chooser.getSelectedFile());
+					TableConfig.exportDumpToCSV(treeTbl, chooser.getSelectedFile());
 					
 					// show success message
 					JOptionPane.showMessageDialog(
-							ClientFrame.getInstance(), "Successfully dumped table data to file.",
+							ClientFrame.getInstance(), "Successfully exported table data to CSV file.",
 							"Export Success", JOptionPane.INFORMATION_MESSAGE);
-//					res = JOptionPane.showOptionDialog(ClientFrame.getInstance(),
-//							"Successfully dumped table data to file.",
-//							"Export Success", JOptionPane.OK_CANCEL_OPTION,
-//							JOptionPane.INFORMATION_MESSAGE, null,
-//							new String[] { "OK", "Go to File" }, "OK");
-//					if (res == 1) {
-//						File parent = chooser.getSelectedFile().getParentFile();
-////						Desktop.getDesktop().open(parent);
-//						Desktop.getDesktop().browse(parent.toURI());
-//					}
+
 				} catch (IOException e) {
 					// show error message
 					JXErrorPane.showDialog(ClientFrame.getInstance(),

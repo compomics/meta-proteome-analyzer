@@ -1,2 +1,2 @@
 @echo off
-java -jar -Xmx1500m mpa-client-1.0.3.jar
+java -jar -Xmx2048m mpa-client-1.0.4.jar

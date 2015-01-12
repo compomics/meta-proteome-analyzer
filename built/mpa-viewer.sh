@@ -1,2 +1,2 @@
 #!/bin/sh 
-java -jar -Xmx1500m mpa-viewer-1.0.2.jar
+java -jar -Xmx2048m mpa-viewer-1.0.4.jar
