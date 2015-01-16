@@ -121,7 +121,6 @@ public class DBManager {
 	 */
 	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) throws InterruptedException {
 		// Wait for spectra to be stored to the database.
-		System.out.println("resultFilename");
 		spectraThread.join();
 		Storager storager = null;
 		
