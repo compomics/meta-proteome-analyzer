@@ -2,7 +2,13 @@
 
 = Commit and Update to Development branch =
  
+
+
 = Versions =
+
+== Version 15.01.2014 ==
+
+ * Storing AS sequence in DB for MascotDatFile Reading from local FASTA
 
 == Version 11.12.2014 ==
  * Enable to search against metagenome FASTA databases
