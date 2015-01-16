@@ -249,7 +249,7 @@ public class UniProtUtilities {
 		int maxClauseCount = BATCH_SIZE;
 		int maxBatchCount = identifierList.size() / maxClauseCount;		
 		for (int i = 0; i < maxBatchCount; i++) {
-			System.out.println(i);
+			System.out.println("Batch Number: "+ i+1);
 			int startIndex = i * maxClauseCount;
 			int endIndex = (i + 1) * maxClauseCount - 1;
 			List<String> shortList = new ArrayList<String>(identifierList.subList(startIndex, endIndex));

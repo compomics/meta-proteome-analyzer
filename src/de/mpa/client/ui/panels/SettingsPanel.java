@@ -38,6 +38,7 @@ import de.mpa.client.SearchSettings;
 import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.storager.MascotStorager;
@@ -223,7 +224,22 @@ public class SettingsPanel extends JPanel {
 						int i = 0;
 						for (File datFile : datFiles) {
 							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + datFiles.size());
-							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap());
+							String fastaFile = null;
+
+							if (((Boolean)databasePnl.getMascotParameterMap().get("useFasta").getValue()).booleanValue()) {
+							}
+							JFileChooser chooser = new ConfirmFileChooser();
+							chooser.setFileFilter(Constants.FASTA_FILE_FILTER);
+							int returnVal = chooser.showOpenDialog(ClientFrame.getInstance());
+							if (returnVal == JFileChooser.APPROVE_OPTION) {
+								File selFile = chooser.getSelectedFile();
+								if (selFile != null) {
+									fastaFile = selFile.getPath();
+								}
+							}
+							
+							
+							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap(), fastaFile);
 							storager.run();
 							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + datFiles.size());
 						}

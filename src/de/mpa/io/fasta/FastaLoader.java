@@ -150,6 +150,7 @@ public class FastaLoader {
 	 */
 	public Protein getProteinFromFasta(String id) throws IOException {
 		// No mapping provided.
+		
 		if (acc2pos == null) {
 			// No index file given.
 			if ((indexFile == null) || (file == null)) {
@@ -164,10 +165,10 @@ public class FastaLoader {
 			}
 		}
 		Long pos = acc2pos.get(id);
-		if (pos == 0) return null;
-		if (pos == null || pos == 0) {
-				throw new IOException("Provided string does not match any protein entry: " + id);
-				
+
+		if (!acc2pos.containsKey(id) || pos == null)  {
+				System.out.println("Provided string does not match any protein entry: " + id);
+				return null;
 		}
 
 		if (raf == null) {
@@ -220,7 +221,6 @@ public class FastaLoader {
 		oos.writeObject(acc2pos);
 		oos.flush();
 		oos.close();
-		acc2pos.clear();
 	}
 	
 	/**
@@ -264,7 +264,7 @@ public class FastaLoader {
 			String line;
 			while ((line = raf.readLine()) != null) {
 				// Check for header
-				if (line.startsWith(">")) {
+				if (!line.isEmpty() && line.startsWith(">")) {
 					// Parse header
 					Header header = Header.parseFromFASTA(line);
 					// Add map entry
@@ -273,17 +273,19 @@ public class FastaLoader {
 					if(count % 10000 == 0) {						
 						System.out.println(count + " sequences parsed...");
 					} 	
-					if(count % 1000000 == 0) {						
-						System.out.println("Writing index file...");
-						writeIndexFile();
-					}
+//					if(count % 1000000 == 0) {						
+//						System.out.println("Writing index file...");
+//						writeIndexFile();
+//					}
 
 				} else {
 					// End of the sequence part == Start of a new header
 					pos = raf.getFilePointer();
 				}
 			}
-			raf.close();
+			System.out.println("Writing index file...");
+			writeIndexFile();
+			//raf.close(); // Has to stay open for further methods
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {

@@ -1,6 +1,7 @@
 package de.mpa.db.storager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,6 +32,7 @@ import com.compomics.mascotdatfile.util.mascot.ProteinMap;
 import com.compomics.mascotdatfile.util.mascot.Query;
 import com.compomics.mascotdatfile.util.mascot.QueryToPeptideMap;
 import com.compomics.util.protein.Header;
+import com.compomics.util.protein.Protein;
 
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtGiMapper;
@@ -51,6 +53,9 @@ import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.SixtyFourBitStringSupport;
+import de.mpa.io.fasta.FastaLoader;
+import de.mpa.io.fasta.RobbiesFastaParser.DbEntry;
+import de.mpa.io.fasta.RobbiesFastaParser.FastaParser;
 import de.mpa.util.Formatter;
 
 public class MascotStorager extends BasicStorager {
@@ -85,18 +90,39 @@ public class MascotStorager extends BasicStorager {
 	 */
 	private Set<String> uniProtCandidates = new HashSet<String>();
 
+	/**
+	 * File of the FASTA database
+	 */
+	private String fastaFile;
+
+	/**
+	 * Loader for FASTA entries from a FASTA DB.
+	 */
+	private FastaLoader fastaLoader;
+
     
 	/**
 	 * Constructs a {@link MascotStorager} for parsing and storing of Mascot .dat files to the DB. 
 	 * @param conn Connection instance.
 	 * @param file File instance. 
 	 */
-	public MascotStorager(Connection conn, File file, SearchSettings searchSettings, ParameterMap mascotParams){
+	public MascotStorager(Connection conn, File file, SearchSettings searchSettings, ParameterMap mascotParams, String fastaFile){
     	this.conn = conn;
     	this.file = file;
     	this.searchSettings = searchSettings;
 		this.mascotParams = mascotParams;
 		this.searchEngineType = SearchEngineType.MASCOT;
+		this.fastaFile = fastaFile;
+		
+		if (fastaFile != null && !fastaFile.isEmpty()) {
+			fastaLoader = FastaLoader.getInstance();
+			fastaLoader.setFastaFile(new File(fastaFile));
+			try {
+				fastaLoader.loadFastaFile();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
     }
 	
 
@@ -168,6 +194,7 @@ public class MascotStorager extends BasicStorager {
 					Long spectrumId = specTitleMap.get(query.getTitle());	
 					Long searchspectrumID = null;
 					if (spectrumId != null) {
+						//TODO CHECK THIS METHOD, MIGHT BE NOT WORKING
 							searchspectrumID = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumId, experimentId, conn).getSearchspectrumid();
 					} else {
 						spectrumId = this.storeSpectrum(query);
@@ -194,7 +221,7 @@ public class MascotStorager extends BasicStorager {
 							// Get proteins and fill them into the table
 							List<ProteinHit> proteinHits = peptideHit.getProteinHits();
 							for (ProteinHit datProtHit : proteinHits) {
-								long proteinID = this.storeProtein(peptideID, datProtHit, proteinMap);
+								long proteinID = this.storeProtein(peptideID, datProtHit, proteinMap, fastaFile	);
 								this.storeMascotHit(searchspectrumID, peptideID, proteinID, query, peptideHit);
 							}
 						}
@@ -439,7 +466,7 @@ public class MascotStorager extends BasicStorager {
 	 * @return proteinID. The proteinID in the database.
 	 * @throws SQLException 
 	 */
-	private long storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
+	private long storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap, String fastaFile) throws IOException, SQLException {
 		String protAccession = proteinHit.getAccession();
 		
 		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
@@ -467,7 +494,13 @@ public class MascotStorager extends BasicStorager {
 				accession = protAccession;
 			}
 		}
-		
+		else if(protAccession.startsWith("generic")) {
+			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
+			header = Header.parseFromFASTA(composedHeader);
+			accession = header.getAccession();
+			description = header.getDescription(); 
+		}
+
 		// If not UNIPROT or NCBI Header.parseFromFASTA(composedHeader) may fail.... hence set new accessions.
 		if ((accession == null) || description == null) {
 			accession = proteinHit.getAccession().trim();
@@ -480,7 +513,14 @@ public class MascotStorager extends BasicStorager {
 		
 		// Protein is not in database, create new one
 		if (proteinID == null) {
-			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, "", conn);
+			
+			// Try to fetch sequence
+			String sequence = ""; // Sequence is normally empty because the dat file do not contain a sequence
+				if (fastaFile != null && !fastaFile.isEmpty()) {
+					Protein fastaProt = fastaLoader.getProteinFromFasta(accession);
+					sequence= fastaProt.getSequence().getSequence();
+				}
+			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
 			proteinID = (Long) protAccessor.getGeneratedKeys()[0];
 			// Mark protein for UniProt lookup
 			uniProtCandidates.add(accession);

@@ -50,6 +50,9 @@ public class MascotParameters extends ParameterMap {
 		
 		/* Editable parameters */
 		this.put("filter", new FilteringParameters(defaultIonScore, defaultFDR, "Filtering"));
+	
+		/* editable parameter for sequence querying*/
+		this.put("useFasta", new BooleanParameter(true, "Get Input sequence from FASTA", null,  "FASTA"));
 		
 		/* Non-editable parameters */
 		this.put("precTol", new NumberParameter(0.0, null, null, false, "Precursor Ion Tolerance", "The precursor mass tolerance.", "Search Settings"));
@@ -91,6 +94,9 @@ public class MascotParameters extends ParameterMap {
 	 * @author A. Behne
 	 */
 	public class FilteringParameters extends Parameter {
+		
+		/** Type flag for querying sequence from the FASTA-FILE. */
+		public static final boolean UseFASTA = true;
 		
 		/** Type flag for ion score. */
 		public static final boolean ION_SCORE = true;
@@ -162,6 +168,11 @@ public class MascotParameters extends ParameterMap {
 					"f:p:g, 3dlu, f:p:g"));
 			
 			ButtonGroup bg = new ButtonGroup();
+			
+			
+			
+			
+			
 			
 			// ion score controls
 			ionScoreRbn = new JRadioButton("Peptide Ion Score", true);

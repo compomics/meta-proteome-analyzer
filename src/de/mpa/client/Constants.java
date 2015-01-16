@@ -149,6 +149,8 @@ public class Constants {
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Experiment File (*.mpa)");
+	public static final FileFilter FASTA_FILE_FILTER = new ExtensionFileFilter(".fasta", false,
+			"FASTA File (*.fasta)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV File, comma-separated (*.csv)");
 	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
