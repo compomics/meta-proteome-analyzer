@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -25,7 +27,8 @@ import com.compomics.util.protein.Protein;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
- * file.
+ * file. 
+ * Important: The main method is used for the indexfasta.jar executable.
  * 
  * @author Thilo Muth
  */
@@ -34,7 +37,6 @@ public class FastaLoader {
 	/**
 	 * The accession-to-position map.
 	 */
-	// Hashcodes will not work with strings... LUCENE would be an alternative for indexing of fasta files in the long run.
 	private TObjectLongMap<String> acc2pos;
 	
 	/**
@@ -52,6 +54,9 @@ public class FastaLoader {
 	 */
 	private File indexFile;
 	
+	/**
+	 * Flag variable to state whether the index file has been changed.
+	 */
 	private boolean hasChanged;
 	
 	/**
@@ -167,9 +172,7 @@ public class FastaLoader {
 		if (pos == 0) return null;
 		if (pos == null || pos == 0) {
 				throw new IOException("Provided string does not match any protein entry: " + id);
-				
 		}
-
 		if (raf == null) {
 			raf = new RandomAccessFile(file, "r");
 		}
@@ -203,7 +206,7 @@ public class FastaLoader {
 	public void writeIndexFile() throws FileNotFoundException, IOException, ClassNotFoundException {
 		indexFile = new File(file.getAbsolutePath() + ".fb");
 		
-		if(indexFile.exists()){
+		if (indexFile.exists()) {
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			@SuppressWarnings("unchecked")
@@ -266,11 +269,21 @@ public class FastaLoader {
 				// Check for header
 				if (line.startsWith(">")) {
 					// Parse header
-					Header header = Header.parseFromFASTA(line);
-					// Add map entry
+					Header header = Header.parseFromFASTA(line);	
+					// The following pattern should be used for the protein header:
+					// >DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION
+					Pattern pattern = Pattern.compile("^>\\w{2}\\|[^|]*\\|[^\\s]+_[^\\s]+ .*");
+					Matcher m = pattern.matcher(line);
+					if (!m.matches()) {
+						System.out.println("Incorrectly formatted protein header (Please use: >DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION)");
+						System.out.println(line);
+					}
+					 
+					// Add entry to mapping
 					acc2pos.put(header.getAccession(), pos);
 					count++;
-					if(count % 10000 == 0) {						
+					if(count % 10000 == 0) {			
+						System.out.println(header.getDatabaseType().name() + " found as database type.");
 						System.out.println(count + " sequences parsed...");
 					} 	
 					if(count % 1000000 == 0) {						
@@ -283,7 +296,8 @@ public class FastaLoader {
 					pos = raf.getFilePointer();
 				}
 			}
-			raf.close();
+			raf.close();	
+			raf = null;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
@@ -357,6 +371,14 @@ public class FastaLoader {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * Returns the number of indexed entries.
+	 * @return number of entries
+	 */
+	public int getNumberOfEntries() {
+		return acc2pos.size();
 	}
 	
 }
