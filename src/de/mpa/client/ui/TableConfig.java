@@ -185,7 +185,7 @@ public class TableConfig {
 					for (int col = 0; col < colCount; col++) {
 						Object value = treeTbl.getValueAt(row, col);
 						if (value != null) {
-							if (!value.toString().startsWith("file"))
+							if (!value.toString().contains("file"))
 								fw.write(value.toString());
 						}
 						fw.write(colSep);
