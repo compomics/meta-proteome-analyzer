@@ -140,7 +140,7 @@ public class TableConfig {
 	public static void exportDumpToCSV(CheckBoxTreeTable treeTbl, File file) throws IOException {
 		try (FileWriter fw = new FileWriter(file)) {
 			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
-			int maxDepth = getMaximumDepth(0, root);
+			
 			String rowSep = System.getProperty("line.separator");
 			String colSep = Constants.TSV_FILE_SEPARATOR;
 			
@@ -149,6 +149,7 @@ public class TableConfig {
 			
 			int rowCount = treeTbl.getRowCount();
 			int colCount = treeTbl.getColumnCount();
+			int maxDepth = getMaximumDepth(0, root);
 			
 			// write header line
 			for (int i = 1; i < maxDepth; i++) {
@@ -213,7 +214,7 @@ public class TableConfig {
 		Enumeration<? extends TreeTableNode> children = parent.children();
 		while (children.hasMoreElements()) {
 			TreeTableNode child = children.nextElement();
-			maxDepth = Math.max(depth, getMaximumDepth(depth + 1, child));
+			maxDepth = Math.max(maxDepth, getMaximumDepth(depth + 1, child));
 		}
 		return maxDepth;
 	}
