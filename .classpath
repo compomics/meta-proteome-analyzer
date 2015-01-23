@@ -101,6 +101,6 @@
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi-2014-11.jar"/>
+	<classpathentry kind="lib" path="lib/uniprotjapi-2015-01.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

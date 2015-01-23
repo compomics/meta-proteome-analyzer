@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="distro-binary" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
 	  <!-- Default property values, if not overridden elsewhere: -->
-	  <property name='build' location="${user.home}/mpa-server" />	  <property name='app.version' value='1.0.3'/>
+	  <property name='build' location="${user.home}/mpa-server" />	  <property name='app.version' value='1.0.4'/>
 	  <property name='app.name' value='MPA Server'/>
 	  <property name='distro-name' value='mpa-server-${app.version}'/>
     <target name='clean' description="Delete all build artifacts." >
@@ -56,7 +56,7 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/xpp3-1.1.4c.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.5.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/commons-lang3-3.3.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/uniprotjapi-2014-11.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/uniprotjapi-2015-01.jar"/>
         </jar>
     </target>
 	<target name="distro-binary" description="Create zip file with executable jar, docs." depends="clean, jar">

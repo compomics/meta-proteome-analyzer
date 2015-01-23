@@ -159,7 +159,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	private CheckBoxTreeTable peptideTbl;
 
-	/**
+	/*
 	 * Protein sequence coverage panel.
 	 */
 	private CoverageViewerPane coveragePane;
