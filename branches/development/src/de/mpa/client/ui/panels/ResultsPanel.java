@@ -1157,4 +1157,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 	}
 	
+	/**
+	 * Returnsn the dbSearchResultObject from the Resultpanel.
+	 * @return dbSearchResultObject
+	 */
+	public DbSearchResult getDBSearchResultObj(){
+		return dbSearchResult;
+	}
 }

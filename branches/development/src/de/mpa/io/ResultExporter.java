@@ -33,7 +33,9 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.CheckBoxTreeTable;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ProteinTreeTables;
 import de.mpa.db.accessor.SearchHit;
 
@@ -58,7 +60,7 @@ public class ResultExporter {
 	public static void exportMetaProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[10];
+		boolean hasFeature[] = new boolean[12];
 		
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -77,9 +79,24 @@ public class ResultExporter {
 			if (hasFeature[1]) writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[2]) writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[3]) writer.append(metaProtein.getTaxonomyNode().getName() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[4]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[5]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[6]) {
+			String uniref100 = "unknown";
+			String uniref90 = "unknown";
+			String uniref50 = "unknown";
+			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef100id() != null) {
+				uniref100 = metaProtein.getUniProtEntry().getUniRef100id();
+			}
+			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef90id() != null) {
+				uniref90 = metaProtein.getUniProtEntry().getUniRef90id();
+			}
+			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef50id() != null) {
+				uniref50 = metaProtein.getUniProtEntry().getUniRef50id();
+			}
+			if (hasFeature[5]) writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[6]) writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[7]) writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[8]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[9]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[10]) {
 				ProteinHitList proteinHits = metaProtein.getProteinHitList();
 				int i = 0;
 				for (ProteinHit proteinHit : proteinHits) {
@@ -92,7 +109,7 @@ public class ResultExporter {
 				}
 				writer.append(Constants.TSV_FILE_SEPARATOR);
 			}
-			if (hasFeature[7]) {
+			if (hasFeature[11]) {
 				Set<PeptideHit> peptideSet = metaProtein.getPeptideSet();
 				int j = 0;
 				for (PeptideHit peptideHit : peptideSet) {
@@ -667,7 +684,4 @@ public class ResultExporter {
 		}
 		return spectrumIDs;
 	}
-	
-	
-
 }

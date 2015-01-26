@@ -478,7 +478,7 @@ public class UniProtUtilities {
 					}
 					counter++;
 					if (counter % increment == 0) {
-						System.out.println(counter + "/" + upperLimit + " UniProt entries have been updated.");
+						System.out.println(counter + "/" + allEntries.size() + " UniProt entries have been updated.");
 						conn.commit();
 					}
 				}
