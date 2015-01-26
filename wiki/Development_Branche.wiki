@@ -6,6 +6,9 @@
 
 = Versions =
 
+== Version 26.01.2014 ==
+* export of UniRef entries
+
 == Version 15.01.2014 ==
 
  * Storing AS sequence in DB for MascotDatFile Reading from local FASTA
