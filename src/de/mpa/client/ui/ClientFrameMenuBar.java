@@ -303,7 +303,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		StringBuffer tMsg = new StringBuffer();
 		tMsg.append("Product Version: " + Constants.APPTITLE + " " + Constants.VER_NUMBER);
 		tMsg.append("\n\n");
-		tMsg.append("This software is developed by Alexander Behne, Robert Heyer and Thilo Muth \nat the Max Planck Institute for Dynamics of Complex \nTechnical Systems in Magdeburg (Germany).");
+		tMsg.append("This software is developed by Alexander Behne, Robert Heyer, Fabian Kohrs and Thilo Muth \nat the Otto von Guericke University Magdeburg and the Max Planck Institute for Dynamics of Complex \nTechnical Systems in Magdeburg (Germany).");
 		tMsg.append("\n\n");
 		tMsg.append("The latest version is available at http://meta-proteome-analyzer.googlecode.com");
 		tMsg.append("\n\n");

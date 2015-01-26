@@ -188,4 +188,14 @@ public class MetaProteinHit extends ProteinHit {
 		}
 		return super.getTaxonomyNode();
 	}
+	
+	@Override
+	public ReducedUniProtEntry getUniProtEntry(){
+		for (ProteinHit protHit : this.getProteinSet()) {
+			if (protHit.getUniProtEntry() != null) {
+				return protHit.getUniProtEntry();
+			}
+		}
+		return null;
+	}
 }

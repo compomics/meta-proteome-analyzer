@@ -71,6 +71,9 @@ public class ExportFields {
 	public boolean metaproteinAccessions;
 	public boolean metaproteinDescription;
 	public boolean metaproteinTaxonomy;
+	public boolean metaprotUniRef100;
+	public boolean metaprotUniRef90;
+	public boolean metaprotUniRef50;
 	public boolean metaproteinSeqCoverage;
 	public boolean metaproteinAId;
 	public boolean metaproteinNSAF;
@@ -131,6 +134,9 @@ public class ExportFields {
 		metaproteinAccessions = true;
 		metaproteinDescription = true;
 		metaproteinTaxonomy = true;
+		metaprotUniRef100 =true;
+		metaprotUniRef90 =true;
+		metaprotUniRef50 =true;
 		metaproteinSpecCount = true;
 		metaproteinPepCount = true;
 		metaproteinProteins = true;
