@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.mpa.client.Client;
+import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.SpectrumMatch;
-import de.mpa.db.accessor.SearchHit;
 
 public class PeptideSpectrumMatch extends SpectrumMatch {
 	

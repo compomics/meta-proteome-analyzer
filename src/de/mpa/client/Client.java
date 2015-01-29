@@ -1,6 +1,5 @@
 package de.mpa.client;
 
-import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedOutputStream;
@@ -10,16 +9,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.tree.TreePath;
-import javax.xml.ws.soap.MTOMFeature;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -31,20 +27,12 @@ import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.specsim.SpecSimResult;
-import de.mpa.client.model.specsim.SpectralSearchCandidate;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.client.settings.ServerConnectionSettings;
-import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.db.ConnectionType;
-import de.mpa.db.DBConfiguration;
-import de.mpa.db.DbConnectionSettings;
-import de.mpa.db.accessor.SpecSearchHit;
-import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
@@ -57,31 +45,6 @@ public class Client {
 	 * Client instance.
 	 */
 	private static Client instance = null;
-
-	/**
-	 * Server implementation service.
-	 */
-	private ServerImplService service;
-
-	/**
-	 * Webservice server instance.
-	 */
-	private Server server;
-
-	/**
-	 * SQL database connection.
-	 */
-	private Connection conn;
-	
-	/**
-	 * SQL database connection settings.
-	 */
-	private DbConnectionSettings dbSettings;
-	
-	/**
-	 * Webservice/server connection settings.
-	 */
-	private ServerConnectionSettings srvSettings; // = new ServerConnectionSettings();
 	
 	/**
 	 * Parameter map containing result fetching-related settings.
@@ -156,99 +119,6 @@ public class Client {
 	}
 
 	/**
-	 * Returns the connection to the remote SQL database.
-	 * @return the database connection
-	 * @throws SQLException if a connection error occurs
-	 */
-	public Connection getConnection() throws SQLException {
-		// check whether connection is valid
-		if (conn == null || !conn.isValid(0)) {
-			// connect to database
-			DBConfiguration dbconfig = new DBConfiguration(
-					"metaprot", ConnectionType.REMOTE, getDatabaseConnectionSettings());
-			this.conn = dbconfig.getConnection();
-		}
-		return conn;
-	}
-
-	/**
-	 * Closes the database connection.
-	 * @throws SQLException 
-	 */
-	public void closeDBConnection() throws SQLException {
-		if (conn != null) {
-			conn.close();
-			conn = null;
-		}
-	}
-
-	/**
-	 * Connects the client to the web service.
-	 */
-	public void connect() {
-		srvSettings = new ServerConnectionSettings();
-		
-//		WSPublisher.start(srvSettings.getHost(), srvSettings.getPort());
-		
-		service = new ServerImplService();
-		// Enable MTOM
-		server = service.getServerImplPort(new MTOMFeature());
-		
-//		// enable MTOM in client
-//		BindingProvider bp = (BindingProvider) server;
-//
-//		// Connection timeout: 12 hours
-//		bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
-//
-//		// Request timeout: 24 hours
-//		bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
-
-//		SOAPBinding binding = (SOAPBinding) bp.getBinding();
-//		binding.setMTOMEnabled(true);
-
-		// Start requesting
-		RequestThread thread = new RequestThread();
-		thread.start();
-	}
-
-	// Thread polling the server each second.
-	private class RequestThread extends Thread {
-		@Override
-		public void run() {
-			while (true) {
-				try {
-					Thread.sleep(1000);
-					request();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	/**
-	 * Requests the server for response.
-	 */
-	public void request() {
-		final String message = receiveMessage();
-		if (message != null && !message.isEmpty()) {
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					firePropertyChange("New Message", null, message);
-				}
-			});
-		}
-	}
-
-	/**
-	 * Receives a message from the server - forces the server to send a message.
-	 * @return String Received Message
-	 */
-	public String receiveMessage() {
-		return server.sendMessage();
-	}
-
-	/**
 	 * Returns the contents of the file in a byte array.
 	 * @param file File object
 	 * @return Byte array for file
@@ -300,39 +170,14 @@ public class Client {
 				settings.getFilenames().add(filenames.get(i));
 			}
 			try {
-				server.runSearches(settings);
+//				server.runSearches(settings);
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
 	}
 
-	/**
-	 * Returns the current spectral similarity search result.
-	 * @param expContent The experiment content.
-	 * @return The current spectral similarity search result.
-	 */
-	public SpecSimResult getSpecSimResult(AbstractExperiment expContent) {
-		if (specSimResult == null) {
-			retrieveSpecSimResult(expContent.getID());
-		}
-		return specSimResult;
-	}
 
-	/**
-	 * Returns the result(s) of a spectral similarity search belonging to a particular experiment.
-	 * @param experimentID The experiment's primary key.
-	 */
-	private void retrieveSpecSimResult(Long experimentID) {
-		try {
-			getConnection();
-			specSimResult = SpecSearchHit.getAnnotations(experimentID, conn, pSupport);
-		} catch (Exception e) {
-			pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED");
-			pSupport.firePropertyChange("indeterminate", true, false);
-			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
-	}
 
 	/**
 	 * Resets the current spectral similarity search result reference.
@@ -358,66 +203,7 @@ public class Client {
 		// Setup the graph database handler. 
 		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
 		graphDatabaseHandler.setData(dbSearchResult);
-	}
-	
-	/**
-	 * Queries the database to retrieve a list of all possible candidates for 
-	 * spectral comparison belonging to a specified experiment ID.
-	 * @deprecated Not used anymore, server handles spectral comparison now. Feel free to delete.
-	 * @param experimentID The experiment's ID.
-	 * @return A list of candidates for spectral comparison.
-	 * @throws SQLException
-	 */
-	@Deprecated
-	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getCandidatesFromExperiment(experimentID);
-	}
-
-	/**
-	 * Queries the database to retrieve a mapping of search spectrum IDs 
-	 * to their respective spectrum file titles.
-	 * @param matches A list of SpectrumMatch objects
-	 * @return A map containing containing ID-title pairs.
-	 * @throws SQLException
-	 */
-	public Map<Long, String> getSpectrumTitlesFromMatches(List<SpectrumMatch> matches) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumTitlesFromMatches(matches);
-	}
-
-	/**
-	 * Queries the database to retrieve a spectrum file belonging to a specific searchspectrum entry.
-	 * @param searchspectrumID The primary key of the searchspectrum entry.
-	 * @return The corresponding spectrum file object.
-	 * @throws SQLException
-	 */
-	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumBySearchSpectrumID(searchspectrumID);
-	}
-
-	/**
-	 * Queries the database to retrieve a spectrum file belonging to a specific spectrum entry.
-	 * @param spectrumID The primary key of the spectrum entry.
-	 * @return The corresponding spectrum file object.
-	 * @throws SQLException
-	 */
-	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumBySpectrumID(spectrumID);
-	}
-
-	/**
-	 * Queries the database to retrieve a spectrum file belonging to a specific libspectrum entry.
-	 * @param libspectrumID The primary key of the libspectrum entry.
-	 * @return The corresponding spectrum file object.
-	 * @throws SQLException
-	 */
-	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumByLibSpectrumID(libspectrumID);
-	}
+	}		
 
 	/**
 	 * Convenience method to read a spectrum from the MGF file in the specified
@@ -468,7 +254,7 @@ public class Client {
 						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
 							if (fos != null) {
 								fos.close();
-								this.uploadFile(file.getName(), this.getBytesFromFile(file));
+//								this.uploadFile(file.getName(), this.getBytesFromFile(file));
 								file.delete();
 							}
 
@@ -487,7 +273,7 @@ public class Client {
 				}
 				if (fos != null) {
 					fos.close();
-					this.uploadFile(file.getName(), this.getBytesFromFile(file));
+//					this.uploadFile(file.getName(), this.getBytesFromFile(file));
 					file.delete();
 				}
 			} else {
@@ -500,31 +286,6 @@ public class Client {
 		file.delete();
 		return filenames;
 	}
-
-	/**
-	 * Uploads a file with the specified data contents to the server instance.
-	 * @param filename The name of the file to upload
-	 * @param data The contents of the file to upload
-	 * @return The path of the new file instance on the server
-	 */
-	public String uploadFile(String filename, byte[] data) {
-		return server.uploadFile(filename, data);
-	}
-
-	/**
-	 * Queries the database to retrieve a list of spectrum files belonging to a specified experiment.
-	 * @param experimentID The primary key of the experiment.
-	 * @param annotType the annotation-related fetch setting, either one of <code>AnnotationType.WITH_ANNOTATIONS</code>,
-	 * 					 <code>WITHOUT_ANNOTATIONS</code> or <code>IGNORE_ANNOTATIONS</code>
-	 * @param fromLibrary <code>true</code> if the spectra shall be pulled from the spectral library, 
-	 * 					  <code>false</code> when they shall be pulled from previous searches. 
-	 * @param saveToFile <code>true</code> if the spectra are to be written to a file, <code>false</code> otherwise
-	 * @return A list of spectrum files.
-	 * @throws Exception if an error occurs
-	 */
-	public List<MascotGenericFile> downloadSpectra(long experimentID, AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws Exception {
-		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotType, fromLibrary, saveToFile);
-	} 
 
 	/**
 	 * Writes the current database search result object to a the specified file.
@@ -545,9 +306,9 @@ public class Client {
 			long index = 0L;
 			for (SpectrumMatch spectrumMatch : spectrumMatches) {
 				spectrumMatch.setStartIndex(index);
-				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(
-						spectrumMatch.getSearchSpectrumID());
-				mgf.writeToStream(fos);
+				// TODO: Write MGF to file. 
+//				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(spectrumMatch.getSearchSpectrumID());
+//				mgf.writeToStream(fos);
 				index = mgfFile.length();
 				spectrumMatch.setEndIndex(index);
 				firePropertyChange("progressmade", false, true);
@@ -606,53 +367,6 @@ public class Client {
 	 */
 	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
 		pSupport.firePropertyChange(propertyName, oldValue, newValue);
-	}
-
-	/**
-	 * Returns the current connection to the database.
-	 * @return
-	 * @throws SQLException 
-	 */
-	public Connection getDatabaseConnection() throws SQLException {
-		if ((conn == null) && !isViewer()) {
-			this.getConnection();
-		}
-		return conn;
-	}
-
-	/**
-	 * Returns the DbConnectionSettings.
-	 * @return dbSettings The DBConnectionSettings object.
-	 */
-	public DbConnectionSettings getDatabaseConnectionSettings() {
-		if (dbSettings == null) {
-			dbSettings = new DbConnectionSettings();
-		}
-		return dbSettings;
-	}
-
-	/**
-	 * Sets the DbConnectionSettings.
-	 * @param dbSettings The DBConnectionSettings object.
-	 */
-	public void setDatabaseConnectionSettings(DbConnectionSettings dbSettings) {
-		this.dbSettings = dbSettings;
-	}
-
-	/**
-	 * Returns the ServerConnectionSettings.
-	 * @return dbSettings The ServerConnectionSettings object.
-	 */
-	public ServerConnectionSettings getServerConnectionSettings() {
-		return srvSettings;
-	}
-
-	/**
-	 * Sets the ServerConnectionSettings.
-	 * @param srvSettings The ServerConnectionSettings object.
-	 */
-	public void setServerConnectionSettings(ServerConnectionSettings srvSettings) {
-		this.srvSettings = srvSettings;
 	}
 	
 	/**
@@ -722,14 +436,6 @@ public class Client {
 		// Shutdown the graph database
 		if (instance.graphDatabaseHandler != null) {
 			instance.graphDatabaseHandler.shutDown();
-		}
-	
-		try {
-			// Close SQL DB connection
-			instance.closeDBConnection();
-		} catch (SQLException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 		System.exit(0);
 	}

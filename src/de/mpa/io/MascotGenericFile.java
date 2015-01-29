@@ -14,8 +14,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,8 +24,6 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 import com.compomics.util.interfaces.SpectrumFile;
-
-import de.mpa.db.accessor.Spectrum;
 
 /**
  * This class maps a Mascot Generic File to memory. It allows for search and retrieval as well as comparing
@@ -130,9 +126,6 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         this.iFilename = aFilename;
         this.parseFromString(aContents);
     }
-
-    
-    
     
     /**
      * This constructor takes the filename of the MGF File as argument and loads it form the hard drive.
@@ -173,35 +166,8 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         this.iIntensity = aIntensity;
         this.iCharge = aCharge;
     }
-    
-    /**
-     * The constructor takes directly the spectrum DAO object.
-     * @param spectrum The spectrum accessor DAO object. 
-     */
-    public MascotGenericFile(Spectrum spectrum) {
-    	this.iTitle = spectrum.getTitle();
-		this.iPrecursorMz = spectrum.getPrecursor_mz().doubleValue();
-		this.iIntensity = spectrum.getPrecursor_int().doubleValue();
-		this.iCharge = (int) spectrum.getPrecursor_charge();
-		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getMzarray()),
-				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getIntarray()));
-	}
-    /**
-     * This constructor takes a result set from an SQL query.
-     * 
-     * @param rs The result set.
-     * @throws SQLException
-     */
-    public MascotGenericFile(ResultSet aResultSet) throws SQLException {
-    	this.iTitle = aResultSet.getString("title");
-		this.iPrecursorMz = aResultSet.getDouble("precursor_mz");
-		this.iIntensity = aResultSet.getDouble("precursor_int");
-		this.iCharge = aResultSet.getInt("precursor_charge");
-		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
-				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("intarray")));
-		this.iCharges = SixtyFourBitStringSupport.buildChargeMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
-																 SixtyFourBitStringSupport.decodeBase64StringToInts(aResultSet.getString("chargearray")));
-	}
+
+
 
 	/**
      * This method allows to write the spectrum file to the specified OutputStream.

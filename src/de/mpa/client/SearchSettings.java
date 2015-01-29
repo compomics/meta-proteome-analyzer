@@ -36,14 +36,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "searchSettings", propOrder = {
     "dbss",
     "expID",
-    "sss",
     "filenames"
 })
 public class SearchSettings {
 
     protected DbSearchSettings dbss;
     protected long expID;
-    protected SpecSimSettings sss;
     @XmlElement(nillable = true)
     protected List<String> filenames;
     
@@ -58,9 +56,8 @@ public class SearchSettings {
      * @param sss
      * @param dnss
      */
-    public SearchSettings(DbSearchSettings dbss, SpecSimSettings sss, long expID) {
+    public SearchSettings(DbSearchSettings dbss, long expID) {
             this.dbss = dbss;
-            this.sss = sss;
             this.expID = expID;
     }
     /**
@@ -101,31 +98,7 @@ public class SearchSettings {
      */
     public void setExpID(long value) {
         this.expID = value;
-    }
-
-    /**
-     * Gets the value of the sss property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SpecSimSettings }
-     *     
-     */
-    public SpecSimSettings getSss() {
-        return sss;
-    }
-
-    /**
-     * Sets the value of the sss property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SpecSimSettings }
-     *     
-     */
-    public void setSss(SpecSimSettings value) {
-        this.sss = value;
-    }
+    }  
     
     /**
      * Returns whether database search shall be performed.
@@ -133,14 +106,6 @@ public class SearchSettings {
      */
     public boolean isDatabase() {
             return (dbss != null);
-    }
-
-    /**
-     * Returns whether spectral similarity search shall be performed.
-     * @return
-     */
-    public boolean isSpecSim() {
-            return (sss != null);
     }
 
     /**

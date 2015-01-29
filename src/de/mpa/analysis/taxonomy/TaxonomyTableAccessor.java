@@ -1,10 +1,4 @@
-/*
- * Created by the DBAccessor generator.
- * Programmer: Lennart Martens
- * Date: 25/09/2013
- * Time: 10:25:16
- */
-package de.mpa.db.accessor;
+package de.mpa.analysis.taxonomy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,13 +13,6 @@ import com.compomics.util.db.interfaces.Deleteable;
 import com.compomics.util.db.interfaces.Persistable;
 import com.compomics.util.db.interfaces.Retrievable;
 import com.compomics.util.db.interfaces.Updateable;
-
-/*
- * CVS information:
- *
- * $Revision: 1.4 $
- * $Date: 2007/07/06 09:41:53 $
- */
 
 /**
  * This class is a generated accessor for the Taxonomy table.

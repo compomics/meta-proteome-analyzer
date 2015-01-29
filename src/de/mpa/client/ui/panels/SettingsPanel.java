@@ -35,12 +35,10 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.SearchSettings;
-import de.mpa.client.SpecSimSettings;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.storager.MascotStorager;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -50,11 +48,6 @@ public class SettingsPanel extends JPanel {
 	 * Database search settings panel.
 	 */
 	private DatabaseSearchSettingsPanel databasePnl;
-	
-	/**
-	 * Spectral library settings panel.
-	 */
-	private SpectralLibrarySettingsPanel specLibPnl;
 	
 	/**
 	 * Processing button.
@@ -80,7 +73,6 @@ public class SettingsPanel extends JPanel {
 		JPanel settingsPnl = new JPanel(new FormLayout("p", "f:p:g, 5dlu, p"));
 		
 		databasePnl = new DatabaseSearchSettingsPanel();
-		this.specLibPnl = databasePnl.getSpectralLibrarySettingsPanel();
 		
 		ImageIcon processIcon = new ImageIcon(getClass().getResource("/de/mpa/resources/icons/search.png"));
 		processIcon = new ImageIcon(processIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
@@ -129,7 +121,7 @@ public class SettingsPanel extends JPanel {
 	 * 
 	 * @author Thilo Muth, Alex Behne
 	 */
-	private class ProcessWorker extends SwingWorker {
+	private class ProcessWorker extends SwingWorker<Object, Object> {
 
 		protected Object doInBackground() {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
@@ -152,21 +144,8 @@ public class SettingsPanel extends JPanel {
 					List<String> filenames = null;
 					// Collect search settings.
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-					SearchSettings settings = new SearchSettings(dbss, sss, experimentID);
-					
-					// FIXME: Please change that and get files from file tree.
-					if (dbss.isMascot()) {
-						List<File> datFiles = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();
-						client.firePropertyChange("resetall", 0, datFiles.size());
-						int i = 0;
-						for (File datFile : datFiles) {
-							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + datFiles.size());
-							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap());
-							storager.run();
-							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + datFiles.size());
-						}
-					}
+					SearchSettings settings = new SearchSettings(dbss, experimentID);
+		
 					if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
 						filenames = client.packAndSend(packSize, checkBoxTree, projectPanel.getSelectedExperiment().getTitle() + "_" + sdf.format(new Date()) + "_");
 					}
@@ -233,7 +212,7 @@ public class SettingsPanel extends JPanel {
 				if ((numSpectra % packageSize) == 0) {
 					if (fos != null) {
 						fos.close();
-						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+//						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
 						batchFile.delete();
 					}
 					batchFile = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
@@ -249,15 +228,13 @@ public class SettingsPanel extends JPanel {
 				firePropertyChange("progressmade", 0L, ++numSpectra);
 			}
 			fos.close();
-			client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+//			client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
 			batchFile.delete();
 			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 			
 			// collect search settings
 			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-			SearchSettings settings = new SearchSettings(dbss, sss,
-					ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
+			SearchSettings settings = new SearchSettings(dbss, ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 			// dispatch search request
 			client.runSearches(filenames, settings);

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.SpectrumMatch;
-import de.mpa.db.accessor.SearchHit;
 
 /**
  * This class represents the set of proteins which may hold multiple peptides

@@ -1,4 +1,4 @@
-package de.mpa.db.accessor;
+package de.mpa.analysis.taxonomy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

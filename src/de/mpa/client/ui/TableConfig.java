@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -19,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.jdesktop.swingx.JXTable;
@@ -34,7 +38,9 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import de.mpa.client.Constants;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -126,17 +132,106 @@ public class TableConfig {
 	}
 	
 	/**
+	 * Dumps the contents of the specified tree table to the specified file in a tab-separated CSV format.
+	 * @param treeTbl the tree table to dump
+	 * @param file the file to dump to
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static void exportDumpToCSV(CheckBoxTreeTable treeTbl, File file) throws IOException {
+		try (FileWriter fw = new FileWriter(file)) {
+			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
+			
+			String rowSep = System.getProperty("line.separator");
+			String colSep = Constants.TSV_FILE_SEPARATOR;
+			
+			// Store expansion state and expand whole tree, restore state after dumping.
+			Enumeration<?> expanded = treeTbl.getExpandedDescendants(new TreePath(root));
+			
+			int rowCount = treeTbl.getRowCount();
+			int colCount = treeTbl.getColumnCount();
+			int maxDepth = getMaximumDepth(0, root);
+			
+			// write header line
+			for (int i = 1; i < maxDepth; i++) {
+				fw.write("Level " + i);
+				fw.write(colSep);
+			}
+			for (int i = 0; i < colCount; i++) {
+				String columnHeader = treeTbl.getColumn(i).getIdentifier().toString();
+				if (!columnHeader.equals("www")) {
+					fw.write(columnHeader);
+					fw.write(colSep);
+				}
+			}
+			fw.write(rowSep);
+			
+			CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+			// write table contents
+			for (int row = 0; row < rowCount; row++) {
+				TreePath path = treeTbl.getPathForRow(row);
+				if (cbtsm.isPathSelected(path, true)) {
+					int len = path.getPathCount() - 1;
+					// write hierarchical elements
+					for (int i = 1; i < len; i++) {
+						fw.write(path.getPathComponent(i).toString());
+						fw.write(colSep);
+					}
+					// if path is shorter than max depth pad with empty columns
+					// TODO: maybe pad using 'Uncharacterized' or something to that effect
+					for (int i = len; i < maxDepth; i++) {
+						fw.write(colSep);
+					}
+					// write other column elements
+					for (int col = 0; col < colCount; col++) {
+						Object value = treeTbl.getValueAt(row, col);
+						if (value != null) {
+							if (!value.toString().contains("file"))
+								fw.write(value.toString());
+						}
+						fw.write(colSep);
+					}
+					fw.write(rowSep);
+				}
+			}
+			
+			// restore original expansion state
+			treeTbl.collapseAll();
+			while (expanded.hasMoreElements()) {
+				treeTbl.expandPath((TreePath) expanded.nextElement());
+			}
+		}
+	}
+	
+	/**
+	 * Recursively determines the maximum nesting depth of nodes below the
+	 * specified parent node from a given starting depth.
+	 * @param depth the starting depth
+	 * @param parent the parent node
+	 * @return the maximum depth
+	 */
+	private static int getMaximumDepth(int depth, TreeTableNode parent) {
+		int maxDepth = depth;
+		Enumeration<? extends TreeTableNode> children = parent.children();
+		while (children.hasMoreElements()) {
+			TreeTableNode child = children.nextElement();
+			maxDepth = Math.max(maxDepth, getMaximumDepth(depth + 1, child));
+		}
+		return maxDepth;
+	}
+	
+	/**
 	 * Generates a simple white-gray highlighter for tables.
 	 * @return a striping highlighter
 	 */
 	public static Highlighter getSimpleStriping() {
 		if (simpleStriping == null) {
-			Color backCol = UIManager.getColor("Table.background");
-			Color altCol = ColorUtils.getRescaledColor(backCol, 0.95f);
-			Color selCol = UIManager.getColor("Table.selectionBackground");
+			Color evenCol = UIManager.getColor("Table.background");
+			Color oddCol = ColorUtils.getRescaledColor(evenCol, 0.95f);
+			Color selOddCol = UIManager.getColor("Table.selectionBackground");
+			Color selEvenCol = ColorUtils.getRescaledColor(selOddCol, 1.05f);
 			
-			ColorHighlighter base = new ColorHighlighter(HighlightPredicate.EVEN, backCol, null, selCol, null);
-	        ColorHighlighter alternate = new ColorHighlighter(HighlightPredicate.ODD, altCol, null, selCol, null);
+			ColorHighlighter base = new ColorHighlighter(HighlightPredicate.EVEN, evenCol, null, selEvenCol, null);
+	        ColorHighlighter alternate = new ColorHighlighter(HighlightPredicate.ODD, oddCol, null, selOddCol, null);
 	        simpleStriping = new CompoundHighlighter(base, alternate);
 		}
 		return simpleStriping;
