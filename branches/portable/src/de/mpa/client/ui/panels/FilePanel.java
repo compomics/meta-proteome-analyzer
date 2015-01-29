@@ -25,7 +25,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,7 +38,6 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -89,8 +87,6 @@ import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.settings.SpectrumFetchParameters;
-import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.settings.SpectrumFilterParameters;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
@@ -112,7 +108,6 @@ import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.InputFileReader;
 import de.mpa.io.MascotGenericFile;
 
@@ -600,66 +595,8 @@ public class FilePanel extends JPanel implements Busyable {
 				}
 				
 			}
-		});
+		});		
 		
-		addFromDbBtn.addActionListener(new ActionListener() {
-			/** The spectrum database retrieval parameters. */
-			private ParameterMap fetchParams = new SpectrumFetchParameters();
-			
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				int res = AdvancedSettingsDialog.showDialog(
-						clientFrame, "Fetch Spectra from Database", true, fetchParams);
-				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
-					new FetchWorker().execute();
-				}
-			}
-			/** Convenience worker for fetching spectra from the database */
-			class FetchWorker extends SwingWorker<File, Object> {
-				@Override
-				protected File doInBackground() throws Exception {
-					FilePanel.this.setBusy(true);
-					
-					Client client = Client.getInstance();
-					client.firePropertyChange("indeterminate", false, true);
-					
-					// extract settings from parameter map
-					Integer expIDval = ((Integer[]) fetchParams.get("expID").getValue())[0];
-					DefaultComboBoxModel annotMdl =	(DefaultComboBoxModel) fetchParams.get("annotated").getValue();
-					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
-					client.getConnection();
-					
-					List<MascotGenericFile> dlSpec = client.downloadSpectra(
-							expIDval.longValue(), (AnnotationType) annotMdl.getSelectedItem(),
-							false, s2fVal);
-					
-					File file = new File("experiment_" + expIDval + ".mgf");
-					FileOutputStream fos = new FileOutputStream(file);
-					try {
-						for (MascotGenericFile mgf : dlSpec) {
-							mgf.writeToStream(fos);
-						}
-					} finally {
-						fos.close();
-					}
-					
-					return file;
-				}
-				
-				@Override
-				protected void done() {
-					try {
-						// Add downloaded file contents to tree
-						File file = this.get();
-						new AddFileWorker(new File[] { file }).execute();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					FilePanel.this.setBusy(false);
-					Client.getInstance().firePropertyChange("indeterminate", true, false);
-				}
-			}
-		});
 		
 		clearBtn.addActionListener(new ActionListener() {
 			@Override
@@ -715,11 +652,6 @@ public class FilePanel extends JPanel implements Busyable {
 		int spectrumIndex = (Integer) spectrumNode.getValueAt(0) - 1;
 		
 		MascotGenericFile spectrum = reader.loadSpectrum(spectrumIndex);
-		Long spectrumID = spectrum.getSpectrumID();
-		if (spectrumID != null) {
-			// this is just a dummy spectrum, fetch from database
-			spectrum = new SpectrumExtractor(Client.getInstance().getDatabaseConnection()).getSpectrumBySpectrumID(spectrumID);
-		}
 		return spectrum;
 	}
 	
@@ -1076,13 +1008,7 @@ public class FilePanel extends JPanel implements Busyable {
 						List<TreePath> toBeAdded = new ArrayList<TreePath>();
 						for (int j = 0; j < positions.size(); j++) {
 							MascotGenericFile mgf = reader.loadSpectrum(index - 1);
-							
-							Long spectrumID = mgf.getSpectrumID();
-							if (spectrumID != null) {
-								// this is just a dummy spectrum, fetch from database
-								mgf = new SpectrumExtractor(client.getDatabaseConnection()).getSpectrumBySpectrumID(spectrumID);
-							}
-	//							totalSpectraList.add(mgf);
+	//						totalSpectraList.add(mgf);
 							ticList.add(mgf.getTotalIntensity());
 	
 							// examine spectrum regarding filter criteria

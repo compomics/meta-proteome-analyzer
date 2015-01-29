@@ -11,8 +11,6 @@ import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.panels.ComparePanel.CompareData;
-import de.mpa.db.accessor.SearchHit;
 
 /**
  * Class holding spetrum match data.
@@ -253,19 +251,8 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	@Override
 	public Set<Object> getProperties(ChartType type) {
 			Set<Object> res = new HashSet<Object>();
-			
-			
-			// Only for experiments takes the experimentIDs of the spectrum
-			if (type != CompareData.EXPERIMENT) {
-				// Gets properties from the protein hit.
-				for (PeptideHit pepHit : this.peptideHits) {
-					res.addAll(pepHit.getProperties(type));
-				}
-			}else {
-				// Gets experimentIDs from itself
-				res.addAll(this.getExperimentIDs());
-			}
-			
+			// Gets experimentIDs from itself
+			res.addAll(this.getExperimentIDs());
 			return res;
 		}
 }

@@ -34,8 +34,6 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.AbstractProject;
-import de.mpa.client.model.DatabaseExperiment;
-import de.mpa.client.model.DatabaseProject;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.ui.ClientFrame;
@@ -44,7 +42,6 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.ProjectManager;
 
 /**
  * Panel for displaying, manipulating and selecting available projects and the
@@ -360,12 +357,8 @@ public class ProjectPanel extends JPanel {
 		addProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AbstractProject project;
-				if (Client.isViewer()) {
-					project = new FileProject();
-				} else {
-					project = new DatabaseProject();
-				}
+				AbstractProject project = null;
+				project = new FileProject();
 				GeneralDialog dialog = new GeneralDialog(DialogType.NEW_PROJECT, project);
 				int result = dialog.showDialog();
 				if (result == GeneralDialog.RESULT_SAVED) {
@@ -581,11 +574,7 @@ public class ProjectPanel extends JPanel {
 			public void actionPerformed(ActionEvent evt) {
 				// pre-create experiment using current project as parent
 				AbstractExperiment experiment;
-				if (Client.isViewer()) {
-					experiment = new FileExperiment();
-				} else {
-					experiment = new DatabaseExperiment();
-				}
+				experiment = new FileExperiment();
 				experiment.setProject(selectedProject);
 				
 				// special case for file-based experiments
@@ -701,7 +690,7 @@ public class ProjectPanel extends JPanel {
 			TableConfig.clearTable(projectTbl);
 			TableConfig.clearTable(experimentTbl);
 			
-			projects = ProjectManager.getInstance().getProjects();
+//			TODO: projects = ProjectManager.getInstance().getProjects();
 			
 			for (AbstractProject project : projects) {
 				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] { project });

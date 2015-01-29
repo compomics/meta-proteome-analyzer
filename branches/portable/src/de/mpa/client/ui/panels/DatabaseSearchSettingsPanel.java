@@ -28,7 +28,6 @@ import de.mpa.client.settings.InspectParameters;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.settings.SpectralLibraryParameters;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
@@ -103,11 +102,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	private ParameterMap mascotParams = new MascotParameters();
 	
-	/**
-	 * Parameter map containing advanced settings for spectral library searching.
-	 */
-	private ParameterMap specLibParams = new SpectralLibraryParameters();
-
 	/**
 	 * Checkbox for using X!Tandem search engine.
 	 */
@@ -296,29 +290,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		// Mascot functionality is initially disabled unless a .dat file is imported
 		mascotChk.setEnabled(false);
 		mascotSetBtn.setEnabled(false);
-		
-		// Spectral Library
-		final JCheckBox specLibChk = new JCheckBox("SpecLib", false);
-		specLibChk.setIconTextGap(10);
-		final JButton specLibSetBtn = this.createSettingsButton();
-		specLibSetBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(
-						ClientFrame.getInstance(), "Spectral Library Advanced Parameters", true, specLibParams);
-			}
-		});
-		specLibSetBtn.setEnabled(false);
-		specLibChk.setEnabled(false);
-		specLibChk.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				boolean selected = specLibChk.isSelected();
-				specLibSetBtn.setEnabled(selected);
-				((Component) specLibParams.get("settings").getValue()).setEnabled(selected);
-			}
-		});
-		
+				
 		searchEngPnl.add(xTandemChk, CC.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
 		searchEngPnl.add(omssaChk, CC.xy(2, 4));
@@ -329,8 +301,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
 		searchEngPnl.add(mascotChk, CC.xy(2, 10));
 		searchEngPnl.add(mascotSetBtn, CC.xy(4, 10));
-//		searchEngPnl.add(specLibChk, CC.xy(2, 12));
-//		searchEngPnl.add(specLibSetBtn, CC.xy(4, 12));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, CC.xy(2, 2));
@@ -502,13 +472,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	public long getPackageSize() {
 		return ((Number) packSpn.getValue()).longValue();
 	}
-	
-	/**
-	 * Returns the spectral library settings panel.
-	 * @return the spectral library settings panel
-	 */
-	public SpectralLibrarySettingsPanel getSpectralLibrarySettingsPanel() {
-		return (SpectralLibrarySettingsPanel) this.specLibParams.get("settings").getValue();
-	}
+
 
 }

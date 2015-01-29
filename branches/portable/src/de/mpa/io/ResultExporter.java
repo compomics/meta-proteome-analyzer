@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,9 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -26,9 +23,6 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.Spectrum;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and taxonomy results.
@@ -280,21 +274,21 @@ public class ResultExporter {
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
 					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 					// Get the spectrum id.
-					Connection conn = Client.getInstance().getDatabaseConnection();
-					long spectrumid = Searchspectrum.findFromSearchSpectrumID(psm.getSearchSpectrumID(), conn).getFk_spectrumid();
-					String spectrumTitle = Spectrum.findFromSpectrumID(spectrumid, conn).getTitle();
-					List<SearchHit> searchHits = psm.getSearchHits();
-					for (SearchHit searchHit : searchHits) {
-						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[3]) writer.append(spectrumTitle + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
-						writer.newLine();
-					}			
+//					Connection conn = Client.getInstance().getDatabaseConnection();
+//					long spectrumid = Searchspectrum.findFromSearchSpectrumID(psm.getSearchSpectrumID(), conn).getFk_spectrumid();
+//					String spectrumTitle = Spectrum.findFromSpectrumID(spectrumid, conn).getTitle();
+//					List<SearchHit> searchHits = psm.getSearchHits();
+//					for (SearchHit searchHit : searchHits) {
+//						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[3]) writer.append(spectrumTitle + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
+//						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
+//						writer.newLine();
+//					}			
 					
 				}
 			}		

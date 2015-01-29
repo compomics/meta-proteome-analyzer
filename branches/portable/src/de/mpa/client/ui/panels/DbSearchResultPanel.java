@@ -19,7 +19,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
-import java.sql.SQLException;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -60,7 +59,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
 import org.jdesktop.swingx.JXTitledPanel;
@@ -73,8 +71,6 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
@@ -1626,24 +1622,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		if (selRow != -1) {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
 
-			// Extract spectrum file
-			if (!Client.isViewer()) {
-				// Get spectrum file from database when connected
-				try {
-					mgf = Client.getInstance().getSpectrumBySearchSpectrumID(psm.getSearchSpectrumID());
-				} catch (SQLException e) {
-					JXErrorPane.showDialog(ClientFrame.getInstance(),
-							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				}
-			} else {
-				// Read spectrum from MGF file accompanying imported result object, if possible
-				FileExperiment experiment = 
-						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-				mgf = Client.getInstance().readSpectrumFromFile(
-						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
-			}
+			// Read spectrum from MGF file accompanying imported result object, if possible
+			FileExperiment experiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+			mgf = Client.getInstance().readSpectrumFromFile(experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
 		}
-		
 		spectrumPnl.refreshSpectrum(mgf, sequence);
 	}
 	

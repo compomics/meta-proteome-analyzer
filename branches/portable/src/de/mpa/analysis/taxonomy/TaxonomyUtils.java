@@ -18,7 +18,6 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.db.accessor.Taxonomy;
 
 /**
  * This class serves as utility class for various methods handling taxonomic issues.

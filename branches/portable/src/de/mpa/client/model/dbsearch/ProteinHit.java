@@ -22,7 +22,6 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
-import de.mpa.client.ui.panels.ComparePanel.CompareData;
 
 
 /**
@@ -620,8 +619,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 				System.err.println("ERROR: Unknown hierarchy level!");
 				break;
 			}
-		} else if (type == CompareData.EXPERIMENT) {
-			res.addAll(this.getExperimentIDs());
 		} else {
 			// If we got here something went wrong - investigate!
 			System.err.println("Error: Unknown chart type!");
