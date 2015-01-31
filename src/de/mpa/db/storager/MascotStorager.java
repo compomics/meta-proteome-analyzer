@@ -176,6 +176,9 @@ public class MascotStorager extends BasicStorager {
 		int idCounter = 0;
 //		int queryCounter = 0;
 		// Iterate the queries.
+		// Check whether protein was already stored in DB
+		Map<String, Long> alreadyStoredProteins = new TreeMap<String, Long>();
+		
 		for (Query query : queryList) {
 			Vector<PeptideHit> peptideHitsFromQuery = queryToPeptideMap.getPeptideHitsAboveIdentityThreshold(query.getQueryNumber(), 0.05);
 			if (peptideHitsFromQuery != null) {
@@ -210,6 +213,7 @@ public class MascotStorager extends BasicStorager {
 						specTitleMap.put(query.getTitle(),spectrumId);
 					}
 					
+					
 					for (PeptideHit peptideHit : peptideHitsFromQuery) {
 						if (peptideHit.getIonsScore() >= scoreThreshold) {
 							// Fill the peptide table and get peptideID
@@ -221,14 +225,25 @@ public class MascotStorager extends BasicStorager {
 							// Get proteins and fill them into the table
 							List<ProteinHit> proteinHits = peptideHit.getProteinHits();
 							for (ProteinHit datProtHit : proteinHits) {
-								long proteinID = this.storeProtein(peptideID, datProtHit, proteinMap, fastaFile	);
-								this.storeMascotHit(searchspectrumID, peptideID, proteinID, query, peptideHit);
+								// Save only if not saved before
+								Long protID = alreadyStoredProteins.get(datProtHit.getAccession());
+								if (protID == null){
+									StoredProtein storedProt = this.storeProtein(peptideID, datProtHit, proteinMap, fastaFile);
+									alreadyStoredProteins.put(datProtHit.getAccession(), storedProt.getProtID());
+									protID = storedProt.getProtID();
+								}
+								
+								this.storeMascotHit(searchspectrumID, peptideID, protID, query, peptideHit);
+								// Commit necessary after each stored proteins in order to have a redundancy check
+								conn.commit();
 							}
 						}
 					}
 				}
 			}
+			// Update after each protein necessary in order to avoid redundant protein entries into the database
 			if (idCounter % 100 == 0) {
+				// Second commit also for spectra without protein identification
 				conn.commit();
 			}
 //			queryCounter++;
@@ -466,7 +481,10 @@ public class MascotStorager extends BasicStorager {
 	 * @return proteinID. The proteinID in the database.
 	 * @throws SQLException 
 	 */
-	private long storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap, String fastaFile) throws IOException, SQLException {
+	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap, String fastaFile) throws IOException, SQLException {
+		// save information of the protein storing
+		StoredProtein storedProt;
+		
 		String protAccession = proteinHit.getAccession();
 		
 		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
@@ -505,6 +523,7 @@ public class MascotStorager extends BasicStorager {
 		if ((accession == null) || description == null) {
 			accession = proteinHit.getAccession().trim();
 			description = proteinMap.getProteinDescription(accession);
+			//TODO MAYBE here an Mistake with other accession rules
 		}
 		
 		// Check whether protein is already in database
@@ -532,7 +551,8 @@ public class MascotStorager extends BasicStorager {
 				uniProtCandidates.add(accession);
 			}
 		}
-		return proteinID;
+		storedProt = new StoredProtein(proteinHit.getAccession(), proteinID);
+		return storedProt;
 	}
 
 	/**
@@ -564,4 +584,38 @@ public class MascotStorager extends BasicStorager {
 		return mascotHitID;
 	}
 	
+	/**
+	 * Helper class to store information for a stored protein
+	 * @author R. Heyer
+	 */
+	private class StoredProtein{
+		/* Protein accession*/
+		private String accession;
+		/* Protein ID from the database*/
+		private long protID;
+		
+		/**
+		 * Default Constructor
+		 * @param accession
+		 * @param protID
+		 */
+		StoredProtein(String accession, Long protID){
+			this.accession = accession;
+			this.protID = protID;
+		}
+		/**
+		 * Gets the accession of the stored protein
+		 * @return The accession.
+		 */
+		public String getAccession() {
+			return accession;
+		}
+		/**
+		 * Gets the proteinID from the stored protein
+		 * @return. The protein ID from the database
+		 */
+		public long getProtID() {
+			return protID;
+		}
+	}
 }

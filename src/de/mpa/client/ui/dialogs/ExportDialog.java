@@ -569,13 +569,13 @@ public class ExportDialog extends JDialog {
 		metaproteinTaxonomyCbx.setText("Meta-Protein Taxonomy");
 		metaproteinTaxonomyCbx.setSelected(exportFields.metaproteinTaxonomy);
 		metaproteinUniRef100Cbx = new JCheckBox();
-		metaproteinUniRef100Cbx.setText("Meta-Protein UniRef");
+		metaproteinUniRef100Cbx.setText("Meta-Protein UniRef100");
 		metaproteinUniRef100Cbx.setSelected(exportFields.metaprotUniRef100);
 		metaproteinUniRef90Cbx = new JCheckBox();
-		metaproteinUniRef90Cbx.setText("Meta-Protein UniRef");
+		metaproteinUniRef90Cbx.setText("Meta-Protein UniRef90");
 		metaproteinUniRef90Cbx.setSelected(exportFields.metaprotUniRef90);
 		metaproteinUniRef50Cbx = new JCheckBox();
-		metaproteinUniRef50Cbx.setText("Meta-Protein UniRef");
+		metaproteinUniRef50Cbx.setText("Meta-Protein UniRef50");
 		metaproteinUniRef50Cbx.setSelected(exportFields.metaprotUniRef50);
 		metaproteinSeqCoverageCbx = new JCheckBox();
 		metaproteinSeqCoverageCbx.setText("Sequence Coverage");
