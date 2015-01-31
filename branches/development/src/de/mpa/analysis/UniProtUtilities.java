@@ -523,7 +523,7 @@ public class UniProtUtilities {
 		Map<String, Long> proteins = ProteinAccessor.findAllProteins(conn);
 		System.out.println("Number Proteins: " + proteins.size());
 		Set<Entry<String, Long>> entrySet2 = proteins.entrySet();
-		// Fetch all proteins, and put them into the noUniProtProteinHits map, if they pocess no UniProt entry
+		// Fetch all proteins, and put them into the noUniProtProteinHits map, if they process no UniProt entry
 		for (Entry<String, Long> entry : entrySet2) {
 			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(entry.getValue(), conn);
 			if (uniprotentry == null) noUniProtProteinHits.put(entry.getKey(), entry.getValue());
