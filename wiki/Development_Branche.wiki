@@ -6,8 +6,12 @@
 
 = Versions =
 
+
+== Version 31.01.2014 ==
+ * Debugged Mascot Storager (redundancy of saved protein entries)
+
 == Version 26.01.2014 ==
-* export of UniRef entries
+ * export of UniRef entries
 
 == Version 15.01.2014 ==
 
