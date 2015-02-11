@@ -123,6 +123,8 @@ public class ExportDialog extends JDialog {
 	private JCheckBox metaproteinUniRef100Cbx;
 	private JCheckBox metaproteinUniRef90Cbx;
 	private JCheckBox metaproteinUniRef50Cbx;
+	private JCheckBox metaproteinKOCbx;
+	private JCheckBox metaproteinECCbx;
 	private JCheckBox metaproteinSeqCoverageCbx;
 	private JCheckBox metaproteinPepCountCbx;
 	private JCheckBox metaproteinSpecCountCbx;
@@ -577,6 +579,12 @@ public class ExportDialog extends JDialog {
 		metaproteinUniRef50Cbx = new JCheckBox();
 		metaproteinUniRef50Cbx.setText("Meta-Protein UniRef50");
 		metaproteinUniRef50Cbx.setSelected(exportFields.metaprotUniRef50);
+		metaproteinKOCbx = new JCheckBox();
+		metaproteinKOCbx.setText("Meta-Protein KO");
+		metaproteinKOCbx.setSelected(exportFields.metaprotKO);
+		metaproteinECCbx = new JCheckBox();
+		metaproteinECCbx.setText("Meta-Protein EC");
+		metaproteinECCbx.setSelected(exportFields.metaprotEC);
 		metaproteinSeqCoverageCbx = new JCheckBox();
 		metaproteinSeqCoverageCbx.setText("Sequence Coverage");
 		metaproteinSeqCoverageCbx.setSelected(exportFields.metaproteinSeqCoverage);		
@@ -600,12 +608,15 @@ public class ExportDialog extends JDialog {
 		metaproteinFeaturePanel.add(metaproteinUniRef100Cbx, CC.xy(2,  10));
 		metaproteinFeaturePanel.add(metaproteinUniRef90Cbx, CC.xy(2,  12));
 		metaproteinFeaturePanel.add(metaproteinUniRef50Cbx, CC.xy(2,  14));
-//		metaproteinFeaturePanel.add(metaproteinUniRefCbx, CC.xy(2,  12));
-		
 		metaproteinFeaturePanel.add(metaproteinPepCountCbx, CC.xy(4,  2));
 		metaproteinFeaturePanel.add(metaproteinSpecCountCbx, CC.xy(4, 4));
 		metaproteinFeaturePanel.add(metaproteinsProteinsCbx, CC.xy(4, 6));
 		metaproteinFeaturePanel.add(metaproteinsPeptidesCbx, CC.xy(4, 8));
+		metaproteinFeaturePanel.add(metaproteinKOCbx, CC.xy(4,  10));
+		metaproteinFeaturePanel.add(metaproteinECCbx, CC.xy(4,  12));
+		
+		
+		
 		// Button bar for metaproteins
 		JPanel metaProteinButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
 		// Metaproteins 'Ok' button
@@ -950,10 +961,13 @@ public class ExportDialog extends JDialog {
 		if(metaproteinUniRef100Cbx.isSelected()) exportHeaders.add(new ExportHeader(5, metaproteinUniRef100Cbx.getText() , ExportHeaderType.METAPROTEINS));
 		if(metaproteinUniRef90Cbx.isSelected()) exportHeaders.add(new ExportHeader(6, metaproteinUniRef90Cbx.getText() , ExportHeaderType.METAPROTEINS));
 		if(metaproteinUniRef50Cbx.isSelected()) exportHeaders.add(new ExportHeader(7, metaproteinUniRef50Cbx.getText() , ExportHeaderType.METAPROTEINS));
-		if(metaproteinPepCountCbx.isSelected()) exportHeaders.add(new ExportHeader(8, metaproteinPepCountCbx.getText() , ExportHeaderType.METAPROTEINS));
-		if(metaproteinSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(9, metaproteinSpecCountCbx.getText() , ExportHeaderType.METAPROTEINS));
-		if(metaproteinsProteinsCbx.isSelected()) exportHeaders.add(new ExportHeader(10, metaproteinsProteinsCbx.getText() , ExportHeaderType.METAPROTEINS));
-		if(metaproteinsPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(11, metaproteinsPeptidesCbx.getText() , ExportHeaderType.METAPROTEINS));
+		if(metaproteinKOCbx.isSelected()) exportHeaders.add(new ExportHeader(8, metaproteinKOCbx.getText() , ExportHeaderType.METAPROTEINS));
+		if(metaproteinECCbx.isSelected()) exportHeaders.add(new ExportHeader(9, metaproteinECCbx.getText() , ExportHeaderType.METAPROTEINS));
+		
+		if(metaproteinPepCountCbx.isSelected()) exportHeaders.add(new ExportHeader(10, metaproteinPepCountCbx.getText() , ExportHeaderType.METAPROTEINS));
+		if(metaproteinSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(11, metaproteinSpecCountCbx.getText() , ExportHeaderType.METAPROTEINS));
+		if(metaproteinsProteinsCbx.isSelected()) exportHeaders.add(new ExportHeader(12, metaproteinsProteinsCbx.getText() , ExportHeaderType.METAPROTEINS));
+		if(metaproteinsPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(13, metaproteinsPeptidesCbx.getText() , ExportHeaderType.METAPROTEINS));
 		
 		// Meta-protein taxonomy
 		if(metaProteinTaxonomySpecificPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(1, metaProteinTaxonomySpecificPeptidesCbx.getText(), ExportHeaderType.METAPROTEINTAXONOMY));
@@ -1068,6 +1082,8 @@ public class ExportDialog extends JDialog {
 		exportFields.metaprotUniRef100		= metaproteinUniRef100Cbx.isSelected();
 		exportFields.metaprotUniRef90		= metaproteinUniRef90Cbx.isSelected();
 		exportFields.metaprotUniRef50		= metaproteinUniRef50Cbx.isSelected();
+		exportFields.metaprotKO				= metaproteinKOCbx.isSelected();
+		exportFields.metaprotEC				= metaproteinECCbx.isSelected();
 		exportFields.metaproteinSeqCoverage	= metaproteinSeqCoverageCbx.isSelected();
 		exportFields.metaproteinPepCount 	= metaproteinPepCountCbx.isSelected();
 		exportFields.metaproteinSpecCount	= metaproteinSpecCountCbx.isSelected();

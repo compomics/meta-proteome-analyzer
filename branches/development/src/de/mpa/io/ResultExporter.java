@@ -60,7 +60,7 @@ public class ResultExporter {
 	public static void exportMetaProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[12];
+		boolean hasFeature[] = new boolean[14];
 		
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -79,9 +79,9 @@ public class ResultExporter {
 			if (hasFeature[1]) writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[2]) writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[3]) writer.append(metaProtein.getTaxonomyNode().getName() + Constants.TSV_FILE_SEPARATOR);
-			String uniref100 = "unknown";
-			String uniref90 = "unknown";
-			String uniref50 = "unknown";
+			String uniref100 = "UNKNOWN";
+			String uniref90 = "UNKNOWN";
+			String uniref50 = "UNKNOWN";
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef100id() != null) {
 				uniref100 = metaProtein.getUniProtEntry().getUniRef100id();
 			}
@@ -91,12 +91,33 @@ public class ResultExporter {
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef50id() != null) {
 				uniref50 = metaProtein.getUniProtEntry().getUniRef50id();
 			}
-			if (hasFeature[5]) writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[6]) writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[7]) writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[8]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[9]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[10]) {
+			if (hasFeature[4]) writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[5]) writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[6]) writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
+			// Get KOs
+			String kOs = "";
+			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getKNumbers() != null) {
+				List<String> kNumbers = metaProtein.getUniProtEntry().getKNumbers();
+				for (String ko : kNumbers) {
+					kOs += ko + ";";
+				}
+			}
+			if (hasFeature[7]) writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
+			// Get ECs
+			String ECs = "";
+			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcNumbers() != null) {
+				List<String> ECNumbers = metaProtein.getUniProtEntry().getEcNumbers();
+				for (String ec : ECNumbers) {
+					ECs += ec + ";";
+				}
+			}
+			if (hasFeature[8]) writer.append(ECs + Constants.TSV_FILE_SEPARATOR);
+			
+			
+			
+			if (hasFeature[9]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[10]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[11]) {
 				ProteinHitList proteinHits = metaProtein.getProteinHitList();
 				int i = 0;
 				for (ProteinHit proteinHit : proteinHits) {
@@ -109,7 +130,7 @@ public class ResultExporter {
 				}
 				writer.append(Constants.TSV_FILE_SEPARATOR);
 			}
-			if (hasFeature[11]) {
+			if (hasFeature[12]) {
 				Set<PeptideHit> peptideSet = metaProtein.getPeptideSet();
 				int j = 0;
 				for (PeptideHit peptideHit : peptideSet) {
