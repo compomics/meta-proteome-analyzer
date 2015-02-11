@@ -38,11 +38,21 @@ public class TaxonomyUtils {
 				// Get root paths of both taxonomy nodes
 				TaxonomyNode[] path1 = nodeA.getPath();
 				TaxonomyNode[] path2 = nodeB.getPath();
-				TaxonomyNode ancestor;
-			
+				TaxonomyNode ancestor = null;
+
 				// Find last common element starting from the root
 				int len = Math.min(path1.length, path2.length);
-				if (len > 1) {
+				
+				// if no taxonomy information is avaible common ancestor is root
+				if (len == 0) {
+					ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+				} else if (!path1[0].equals(path2[0])) {
+				// different already on superkingdom level	
+					ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+				} else if (len == 1 && path1[0].equals(path2[0])){
+					// only one entry and same superkingdom
+					ancestor = path1[0];
+				}else if (len > 1){
 					ancestor = path1[0];	// initialize ancestor as root
 					for (int i = 1; i < len; i++) {
 						if (!path1[i].equals(path2[i])) {
@@ -50,9 +60,10 @@ public class TaxonomyUtils {
 						} 
 						ancestor = path1[i];
 					}
-				} else {
-					ancestor = nodeA;
+				}else{
+					System.out.println("MISTAKE in TAXONOMYUTILS DURING TAXONOMY DEFINITION");
 				}
+				
 				return ancestor;
 			}
 		},
@@ -247,7 +258,7 @@ public class TaxonomyUtils {
 
 		// Iterate peptides and gather common taxonomy
 		for (PeptideHit peptideHit : peptideSet) {
-
+			
 			// Gather protein taxonomy nodes
 			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
 
@@ -260,7 +271,7 @@ public class TaxonomyUtils {
 			for (int i = 0; i < taxonNodes.size(); i++) {
 				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
-
+			
 			// Gets the parent node of the taxon node
 			TaxonomyNode child = ancestor;
 			TaxonomyNode parent = nodeMap.get(ancestor.getID());
