@@ -5,15 +5,18 @@
 
 
 = Versions =
+== Version 11.02.2015 ==
+ * Fix bugs in peptide taxonomy determination
+ * add export for EC and KO to metaprotein export
 
 
-== Version 31.01.2014 ==
+== Version 31.01.2015 ==
  * Debugged Mascot Storager (redundancy of saved protein entries)
 
-== Version 26.01.2014 ==
+== Version 26.01.2015 ==
  * export of UniRef entries
 
-== Version 15.01.2014 ==
+== Version 15.01.2015 ==
 
  * Storing AS sequence in DB for MascotDatFile Reading from local FASTA
 
