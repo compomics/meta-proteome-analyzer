@@ -43,27 +43,48 @@ public class TaxonomyUtils {
 				// Find last common element starting from the root
 				int len = Math.min(path1.length, path2.length);
 				
-				// if no taxonomy information is avaible common ancestor is root
+				// Only root
 				if (len == 0) {
+					// is root
 					ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
-				} else if (!path1[0].equals(path2[0])) {
-				// different already on superkingdom level	
-					ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
-				} else if (len == 1 && path1[0].equals(path2[0])){
-					// only one entry and same superkingdom
-					ancestor = path1[0];
-				}else if (len > 1){
-					ancestor = path1[0];	// initialize ancestor as root
-					for (int i = 1; i < len; i++) {
-						if (!path1[i].equals(path2[i])) {
-							break;
-						} 
-						ancestor = path1[i];
-					}
-				}else{
-					System.out.println("MISTAKE in TAXONOMYUTILS DURING TAXONOMY DEFINITION");
 				}
-				
+
+				// Taxonomy is superkingdom or "unclassified" (taxID == "0")
+				if (len == 1){
+					// Both are unclassified
+					if (nodeA.getID() == 0 && nodeB.getID() == 0) {
+						ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+					}
+					// Just one is unclassified (Taxonomy ID is "0")
+					else if (nodeA.getID() == 0){
+						ancestor = nodeB;
+					}
+					// Just one is unclassified (Taxonomy ID is "0")
+					else if (nodeB.getID() == 0){
+						ancestor = nodeA;
+						// Similar superkingdom
+					} else if (path1[0].equals(path2[0])){
+						ancestor = path1[0];
+						// Else different superkingdoms
+					}else if (!path1[0].equals(path2[0])){
+						ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+					}
+				}
+				// Find common ancestor of both paths
+				if (len>1) {
+					// check for different superkingdoms
+					if (!path1[0].equals(path2[0])) {
+						ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+					} else {
+						ancestor = path1[0];	// initialize ancestor as root
+						for (int i = 1; i < len; i++) {
+							if (!path1[i].equals(path2[i])) {
+								break;
+							} 
+							ancestor = path1[i];
+						}
+					}
+				}
 				return ancestor;
 			}
 		},
@@ -178,8 +199,7 @@ public class TaxonomyUtils {
 	 * @return the desired taxonomy node
 	 * @throws SQLException if a database error occurs
 	 */
-	public static TaxonomyNode createTaxonomyNode(
-			long currentID, Map<Long, Taxonomy> taxonomyMap, Connection conn) {
+	public static TaxonomyNode createTaxonomyNode(long currentID, Map<Long, Taxonomy> taxonomyMap, Connection conn) {
 		
 		try {
 			
@@ -265,6 +285,7 @@ public class TaxonomyUtils {
 			for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
 				taxonNodes.add(proteinHit.getTaxonomyNode());
 			}
+			
 
 			// Find common ancestor node
 			TaxonomyNode ancestor = taxonNodes.get(0);

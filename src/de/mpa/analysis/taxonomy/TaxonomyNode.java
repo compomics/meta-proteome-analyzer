@@ -160,7 +160,7 @@ public class TaxonomyNode implements Serializable {
 	
 	/**
 	 * Returns the list of parent taxonomy nodes of this node up to the taxonomy
-	 * root. The last element of the list is this node.
+	 * root (but without "root" or "unclassified"). The last element of the list is this node.
 	 * @return the taxonomy path
 	 */
 	public TaxonomyNode[] getPath() {
