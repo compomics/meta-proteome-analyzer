@@ -205,6 +205,11 @@ public class ServerImpl implements Server {
 			jobManager.addJob(new StoreJob(SearchEngineType.INSPECT, postProcessorJob.getFilename()));
 		}		
 		jobManager.addJob(new UniProtJob());
+		
+		// Clear the folders
+		jobManager.addJob(new DeleteJob());
+//		jobManager.run();
+		
 	}
 
 //	/**
@@ -277,9 +282,7 @@ public class ServerImpl implements Server {
 					i++;
 					runOptions.setRunCount(1);
 				}
-				// Clear the folders
-				jobManager.addJob(new DeleteJob());
-				jobManager.run();
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
