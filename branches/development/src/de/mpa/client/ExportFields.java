@@ -74,7 +74,6 @@ public class ExportFields {
 	public boolean metaprotUniRef100;
 	public boolean metaprotUniRef90;
 	public boolean metaprotUniRef50;
-	
 	public boolean metaprotKO;
 	public boolean metaprotEC;
 	public boolean metaproteinSeqCoverage;

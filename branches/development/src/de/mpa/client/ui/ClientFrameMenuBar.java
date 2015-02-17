@@ -4,7 +4,10 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -21,11 +24,23 @@ import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
+import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.AbstractProject;
+import de.mpa.client.model.DatabaseExperiment;
+import de.mpa.client.model.DatabaseProject;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinFactory;
+import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.BlastDialog;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
+import de.mpa.client.ui.dialogs.UserExportDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.accessor.ExpProperty;
+import de.mpa.db.accessor.ExperimentAccessor;
+import de.mpa.db.accessor.ProjectAccessor;
+import de.mpa.db.accessor.Property;
 
 /**
  * The main application frame's menu bar.
@@ -188,6 +203,23 @@ public class ClientFrameMenuBar extends JMenuBar {
 		updateMenu.add(updateUniProtItem);
 		updateMenu.add(updateEmptyUniProtItem);
 		updateMenu.add(blastItem);
+		// Help Menu
+				JMenu userExportMenu = new JMenu();		
+				userExportMenu.setText("UserExport");
+				// Help Contents
+				JMenuItem metaUniRef50item = new JMenuItem("Export Metaprotein");
+
+				metaUniRef50item.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/excel_export16.png")));
+				userExportMenu.add(metaUniRef50item);
+				metaUniRef50item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						try {
+							robbiesExport();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+				});
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
@@ -224,9 +256,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 		if (!Client.isViewer()) {
 			this.add(updateMenu);
 		}
+		this.add(userExportMenu);
 		this.add(helpMenu);
 	}
 	
+	/**
+	 * Method to produce specialized  exports
+	 * @throws SQLException 
+	 */
+	protected void robbiesExport() throws SQLException {
+		new UserExportDialog(clientFrame, "User Export Dialog");
+	}
+
 	/**
 	 * Executed when the save project button is triggered. Via a file chooser the user can select the destination of the project (MPA) file.
 	 */
