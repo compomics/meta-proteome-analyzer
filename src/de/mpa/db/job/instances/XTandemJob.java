@@ -134,7 +134,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + jobProperties.getProperty("path.fasta") + searchDB + ".fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + jobProperties.getProperty("path.fasta") + File.separator + searchDB + ".fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
