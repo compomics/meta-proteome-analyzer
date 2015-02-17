@@ -61,7 +61,6 @@ public class ResultExporter {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 		boolean hasFeature[] = new boolean[14];
-		
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.METAPROTEINS) {
@@ -99,7 +98,10 @@ public class ResultExporter {
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getKNumbers() != null) {
 				List<String> kNumbers = metaProtein.getUniProtEntry().getKNumbers();
 				for (String ko : kNumbers) {
-					kOs += ko + ";";
+					kOs += ko.replace(";","") + "|";
+				}
+				if (kOs.equals("")) {
+					kOs = "UNKNOWN";
 				}
 			}
 			if (hasFeature[7]) writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
@@ -108,7 +110,8 @@ public class ResultExporter {
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcNumbers() != null) {
 				List<String> ECNumbers = metaProtein.getUniProtEntry().getEcNumbers();
 				for (String ec : ECNumbers) {
-					ECs += ec + ";";
+					
+					ECs += ec.replace(";", "") + "|";
 				}
 			}
 			if (hasFeature[8]) writer.append(ECs + Constants.TSV_FILE_SEPARATOR);
