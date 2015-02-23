@@ -61,10 +61,31 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static MascotGenericFile getSpectrumFileFromTitle(String title, Connection conn) throws SQLException {
 		MascotGenericFile res = null;
-        // Only get the last 1500 records
         PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
         		" WHERE title = ? ORDER BY creationdate");
         ps.setString(1, title);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            res = new MascotGenericFile(rs);
+        }
+        rs.close();
+        ps.close();
+        return res;
+    }
+    
+    /**
+     * This method will find a spectrum file from the current connection, based on the spectrum name.
+     *@param spectrumId Long with the spectrum id of the spectrum file to find.
+     * @param title String with the spectrum name of the spectrum file to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return Spectrum Spectrum DAO with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static MascotGenericFile getSpectrumFileFromIdAndTitle(Long spectrumId, String title, Connection conn) throws SQLException {
+		MascotGenericFile res = null;
+        PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() + " WHERE spectrumid = ? AND title LIKE ? ORDER BY creationdate");
+        ps.setLong(1, spectrumId);
+        ps.setString(2, title + "%");
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             res = new MascotGenericFile(rs);
