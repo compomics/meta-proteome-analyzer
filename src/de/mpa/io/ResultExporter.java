@@ -412,33 +412,35 @@ public class ResultExporter {
 		// Get the spectrum hits.
 		int smCount = 0;
 		
-		List<ProteinHit> proteinHits = result.getProteinHitList();
-		for (ProteinHit ph : proteinHits) {
-			List<PeptideHit> peptideHits = ph.getPeptideHitList();
+		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) result.getProteinHitList()).getMatchSet();
+		
+		for (SpectrumMatch sm : spectrumMatches) {
+			if (!Client.isViewer()) {
+				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(sm.getSearchSpectrumID());
+				sm.setTitle(mgf.getTitle());
+			}
+			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
+			
+			Collection<PeptideHit> peptideHits = sm.getPeptideHits();
 			for (PeptideHit peptideHit : peptideHits) {
-				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
-					if (!Client.isViewer()) {
-						MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(sm.getSearchSpectrumID());
-						sm.setTitle(mgf.getTitle());
-					}
-					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
+				List<ProteinHit> proteinHits = peptideHit.getProteinHits();
+				for (ProteinHit ph : proteinHits) {
 					List<SearchHit> searchHits = psm.getSearchHits();
 					for (SearchHit searchHit : searchHits) {
 						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[3]) writer.append(sm.getTitle() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[3]) writer.append(psm.getTitle() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
 						writer.newLine();
-					}			
-					
+					}		
 				}
 			}
-			writer.flush();
 		}
+		writer.flush();
 		writer.close();
 	}
 	
