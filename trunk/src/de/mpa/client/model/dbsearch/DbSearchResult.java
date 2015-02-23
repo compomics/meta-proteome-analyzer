@@ -220,7 +220,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the peptide hit or <code>null</code> if no such hit exists
 	 */
 	public PeptideHit getPeptideHit(String sequence) {
-		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+		for (ProteinHit proteinHit : this.getProteinHitList()) {
 			PeptideHit peptideHit = proteinHit.getPeptideHit(sequence);
 			if (peptideHit != null) {
 				return peptideHit;
@@ -235,7 +235,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the spectrum match or <code>null</code> if no such match exists
 	 */
 	public SpectrumMatch getSpectrumMatch(String key) {
-		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+		for (ProteinHit proteinHit : this.getProteinHitList()) {
 			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
 				SpectrumMatch spectrumMatch = peptideHit.getSpectrumMatch(key);
 				if (spectrumMatch != null) {
