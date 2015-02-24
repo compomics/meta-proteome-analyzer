@@ -35,7 +35,7 @@ import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.BlastDialog;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
-import de.mpa.client.ui.dialogs.UserExportDialog;
+import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
@@ -150,13 +150,31 @@ public class ClientFrameMenuBar extends JMenuBar {
 				exportGraphML();
 			}
 		});
+		
+		// Export Meta-proteins Menu Item
+		JMenuItem metaProteinsExportItem = new JMenuItem("Meta-Proteins...");
+
+		metaProteinsExportItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/excel_export16.png")));
+
+		metaProteinsExportItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					openMetaproteinExportDialog();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
 
 		exportMenu.add(mpaItem);
+		exportMenu.addSeparator();
 		exportMenu.add(csvItem);	
+		exportMenu.add(metaProteinsExportItem);
+		exportMenu.addSeparator();
 		exportMenu.add(graphmlItem);
 		
 		this.setExportMenuEnabled(false);
-		
 		
 
 		// Update Menu
@@ -203,23 +221,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		updateMenu.add(updateUniProtItem);
 		updateMenu.add(updateEmptyUniProtItem);
 		updateMenu.add(blastItem);
-		// Help Menu
-				JMenu userExportMenu = new JMenu();		
-				userExportMenu.setText("UserExport");
-				// Help Contents
-				JMenuItem metaUniRef50item = new JMenuItem("Export Metaprotein");
-
-				metaUniRef50item.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/excel_export16.png")));
-				userExportMenu.add(metaUniRef50item);
-				metaUniRef50item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						try {
-							robbiesExport();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				});
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
@@ -256,16 +257,15 @@ public class ClientFrameMenuBar extends JMenuBar {
 		if (!Client.isViewer()) {
 			this.add(updateMenu);
 		}
-		this.add(userExportMenu);
 		this.add(helpMenu);
 	}
 	
 	/**
-	 * Method to produce specialized  exports
+	 * Method to open the metaprotein export dialog
 	 * @throws SQLException 
 	 */
-	protected void robbiesExport() throws SQLException {
-		new UserExportDialog(clientFrame, "User Export Dialog");
+	protected void openMetaproteinExportDialog() throws SQLException {
+		new MetaproteinExportDialog(clientFrame, "User Export Dialog");
 	}
 
 	/**
