@@ -44,18 +44,16 @@ import de.mpa.client.model.DatabaseProject;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
-import de.mpa.client.model.dbsearch.MetaProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
 import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.ScreenConfig;
-import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.icons.IconConstants;
@@ -68,10 +66,10 @@ import de.mpa.io.ResultExporter;
 import de.mpa.io.ResultExporter.ExportHeaderType;
 
 /**
- * Special export Dialog for multiple Experiments
+ * Export dialog to export proteins for multiple experiments from one project.
  * @author Robert Heyer
  */
-public class UserExportDialog extends JDialog  {
+public class MetaproteinExportDialog extends JDialog  {
 
 	/**
 	 * The client frame
@@ -98,7 +96,7 @@ public class UserExportDialog extends JDialog  {
 	 * @param owner. The owner of the dialog.
 	 * @param title. The title of the dialog.
 	 */
-	public UserExportDialog(ClientFrame owner, String title) {
+	public MetaproteinExportDialog(ClientFrame owner, String title) {
 		super(owner, title);
 		this.metaParams = new ResultParameters();
 		this.owner = owner;
@@ -227,6 +225,7 @@ public class UserExportDialog extends JDialog  {
 		// Get the experiments
 		ProjectAccessor projectAcc = ProjectAccessor.findFromProjectID(Long.valueOf(projectIDtxt.getText()), conn);
 		List<AbstractExperiment> experiments = new ArrayList<>();
+		//FIXME: Nullpointer is thrown here!
 		List<Property> projProps = Property.findAllPropertiesOfProject(projectAcc.getProjectid(), conn);
 		AbstractProject project = new DatabaseProject(projectAcc, projProps, experiments);
 		List<ExperimentAccessor> experimentAccs = ExperimentAccessor.findAllExperimentsOfProject(projectAcc.getProjectid(), conn);
