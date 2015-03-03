@@ -132,7 +132,11 @@ public class FetchSpectraDialog extends JDialog {
 								if (!filePath.toLowerCase().endsWith(".mgf")) {
 									filePath += ".mgf";
 								}
-								fetchAndExportSpectra(filePath);
+								Client.getInstance().fetchAndExportSpectra(filePath, 
+																experiment.getID(),
+																identCbx.isSelected(),
+																unidentCbx.isSelected(),
+																lookUpTxt.getText());
 							}
 						}
 						return null;
@@ -182,70 +186,6 @@ public class FetchSpectraDialog extends JDialog {
 	 */
 	private void close() {
 		dispose();
-	}
-		
-	/**
-	 * fetch requested spectra from the database and write them to the file
-	 * @param path where to write the MGF file
-	 * @throws SQLException 
-	 */
-	private void fetchAndExportSpectra(String path) throws SQLException {
-		long expID = experiment.getID();
-
-		// gather all spectra for the experiment
-		Set<Long> allSearchspectrumIds = new HashSet<Long>();
-		for (Searchspectrum searchspectrum : Searchspectrum.findFromExperimentID(expID, conn)) {
-			allSearchspectrumIds.add(searchspectrum.getSearchspectrumid());	
-		}
-		
-		// gather all identified spectra for the experiment
-		List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, conn);
-		List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, conn);
-		List<SearchHit> hits = new ArrayList<SearchHit>();
-		hits.addAll(xtandemHits);
-		hits.addAll(omssaHits);
-		Set<Long> identifiedSpectra = new HashSet<Long>();
-		for (SearchHit hit : hits) {
-			identifiedSpectra.add(hit.getFk_searchspectrumid());
-		}
-		
-		if (!identCbx.isSelected()) {
-			// remove identified spectra
-			allSearchspectrumIds.removeAll(identifiedSpectra);
-		}
-		if (!unidentCbx.isSelected()) {
-			// retain only identified spectra
-			allSearchspectrumIds.retainAll(identifiedSpectra);
-		}
-		
-		// set up the file stream
-		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		this.firePropertyChange("resetall", -1L, (long) allSearchspectrumIds.size());
-		this.firePropertyChange("resetcur", -1L, (long) allSearchspectrumIds.size());
-		String status = "FINISHED";
-
-		try {
-			String prefix = path.substring(0, path.indexOf('.'));
-			File mgfFile = new File(prefix + ".mgf");
-			FileOutputStream fos = new FileOutputStream(mgfFile);
-			// write all relevant MGFs
-			for (Long searchSpectrumId : allSearchspectrumIds) {
-				long spectrumId = Searchspectrum.findFromSearchSpectrumID(searchSpectrumId, conn).getFk_spectrumid();
-				MascotGenericFile mgf = Spectrum.getSpectrumFileFromIdAndTitle(spectrumId, lookUpTxt.getText(), conn);
-				if (mgf != null) {
-					mgf.writeToStream(fos);
-				}
-				this.firePropertyChange("progressmade", false, true);	
-			}
-			fos.flush();
-			fos.close();
-		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			status = "FAILED";
-		}
-		this.firePropertyChange("new message", null, "WRITING FETCHED SPECTRA" + status);
-		
 	}
 	
 }
