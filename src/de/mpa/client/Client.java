@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -47,7 +48,12 @@ import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.SearchHit;
+import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.SpecSearchHit;
+import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
@@ -532,6 +538,77 @@ public class Client {
 	public List<MascotGenericFile> downloadSpectra(long experimentID, AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws Exception {
 		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotType, fromLibrary, saveToFile);
 	} 
+	
+	/**
+	 * fetch requested spectra from the database and write them to a file
+	 * @param path path to the file that will be written
+	 * @param expID database ID of the experiment
+	 * @param ident TRUE if identified spectra should be fetched
+	 * @param uident TRUE if unidentified spectra should be fetched
+	 * @param filter will only fetch spectra that contain the specified string
+	 * @throws SQLException if an error with a database fetch occurs
+	 */
+	public void fetchAndExportSpectra(String path, 
+										long expID, 
+										boolean ident, 
+										boolean uident, 
+										String filter) throws SQLException {
+
+		// gather all spectra for the experiment
+		Set<Long> allSearchspectrumIds = new HashSet<Long>();
+		for (Searchspectrum searchspectrum : Searchspectrum.findFromExperimentID(expID, conn)) {
+			allSearchspectrumIds.add(searchspectrum.getSearchspectrumid());	
+		}
+		
+		// gather all identified spectra for the experiment
+		List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, conn);
+		List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, conn);
+		List<SearchHit> hits = new ArrayList<SearchHit>();
+		hits.addAll(xtandemHits);
+		hits.addAll(omssaHits);
+		Set<Long> identifiedSpectra = new HashSet<Long>();
+		for (SearchHit hit : hits) {
+			identifiedSpectra.add(hit.getFk_searchspectrumid());
+		}
+		
+		if (!ident) {
+			// remove identified spectra
+			allSearchspectrumIds.removeAll(identifiedSpectra);
+		}
+		if (!uident) {
+			// retain only identified spectra
+			allSearchspectrumIds.retainAll(identifiedSpectra);
+		}
+		
+		// set up the file stream
+		this.firePropertyChange("new message", null, "WRITING FETCHED DATABASE SPECTRA");
+		this.firePropertyChange("resetall", -1L, (long) allSearchspectrumIds.size());
+		this.firePropertyChange("resetcur", -1L, (long) allSearchspectrumIds.size());
+		String status = "FINISHED";
+
+		try {
+			String prefix = path.substring(0, path.indexOf('.'));
+			File mgfFile = new File(prefix + ".mgf");
+			FileOutputStream fos = new FileOutputStream(mgfFile);
+			// write all relevant MGFs
+			for (Long searchSpectrumId : allSearchspectrumIds) {
+				long spectrumId = Searchspectrum.findFromSearchSpectrumID(searchSpectrumId, conn).getFk_spectrumid();
+				MascotGenericFile mgf = Spectrum.getSpectrumFileFromIdAndTitle(spectrumId, filter, conn);
+				if (mgf != null) {
+					mgf.writeToStream(fos);
+				}
+				this.firePropertyChange("progressmade", false, true);	
+			}
+			fos.flush();
+			fos.close();
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			status = "FAILED";
+		}
+		this.firePropertyChange("new message", null, "WRITING SPECTRA " + status);
+		
+	}
 
 	/**
 	 * Copies the backup raw database search result dump to the specified file
