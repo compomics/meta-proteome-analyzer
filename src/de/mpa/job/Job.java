@@ -2,13 +2,9 @@ package de.mpa.job;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
 
-import org.apache.axis.Message;
 import org.apache.log4j.Logger;
-
-import scala.actors.MessageQueue;
 
 /**
  * Abstract class of a job to be executed.
