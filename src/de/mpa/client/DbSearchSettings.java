@@ -16,7 +16,9 @@ public class DbSearchSettings {
 	private String fastaFile;
 	private long experimentid;
 	private SearchType searchType;
-
+	private String xtandemParams;
+	private String omssaParams;
+	
     /**
      * Gets the value of the omssa property.
      * 
@@ -32,11 +34,6 @@ public class DbSearchSettings {
     public void setOmssa(boolean value) {
         this.omssa = value;
     }  
-   
-    public int getOmssaValue() {
-    	return omssa ? 1 : 0;
-    }
-   
 
     /**
      * Gets the value of the xTandem property.
@@ -52,10 +49,6 @@ public class DbSearchSettings {
      */
     public void setXTandem(boolean xtandem) {
         this.xtandem = xtandem;
-    }
-
-    public int getXTandemValue() {
-    	return xtandem ? 1 : 0;
     }
 
     /**
@@ -89,14 +82,6 @@ public class DbSearchSettings {
     public void setExperimentid(long value) {
         this.experimentid = value;
     }
-
-	public boolean isXtandem() {
-		return xtandem;
-	}
-
-	public void setXtandem(boolean xtandem) {
-		this.xtandem = xtandem;
-	}
 
 	public double getFragIonTol() {
 		return fragIonTol;
@@ -145,6 +130,20 @@ public class DbSearchSettings {
 	public void setSearchType(SearchType searchType) {
 		this.searchType = searchType;
 	}
-	
-	
+
+	public String getXTandemParams() {
+		return xtandemParams;
+	}
+
+	public void setXTandemParams(String xtandemParams) {
+		this.xtandemParams = xtandemParams;
+	}
+
+	public String getOmssaParams() {
+		return omssaParams;
+	}
+
+	public void setOmssaParams(String omssaParams) {
+		this.omssaParams = omssaParams;
+	}
 }

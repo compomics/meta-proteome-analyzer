@@ -38,6 +38,7 @@ public class SearchTask {
 		for (File mgfFile : mgfFiles) {
 			// X!Tandem job
 			if (searchSettings.isXTandem()) {
+				searchSettings.setSearchType(SearchType.TARGET);
 				Job xtandemTargetJob = new XTandemJob(mgfFile, searchSettings);
 				jobManager.addJob(xtandemTargetJob);
 				
@@ -50,6 +51,11 @@ public class SearchTask {
 				jobManager.addJob(xTandemScoreJob);
 			}
 		}
+		
+		System.out.println("Run the searches...");
+		jobManager.run();
+		
+		
 	}
 
 }

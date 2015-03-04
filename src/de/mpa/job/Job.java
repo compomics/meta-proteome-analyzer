@@ -60,9 +60,9 @@ public abstract class Job implements Executable {
     protected static Logger log = Logger.getLogger(Job.class);
     
     /**
-     * The job properties.
+     * The algorithm properties.
      */
-	protected ServerProperties jobProperties = ServerProperties.getInstance();
+	protected ResourceProperties algorithmProperties = ResourceProperties.getInstance();
     
 	/**
 	 * Executes the job.

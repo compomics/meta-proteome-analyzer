@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URL;
 import java.nio.channels.FileLock;
@@ -19,6 +20,7 @@ import javax.swing.BorderFactory;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.ColorUIResource;
@@ -30,7 +32,11 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.jgoodies.looks.plastic.theme.SkyBlue;
+import com.jgoodies.looks.plastic.theme.SkyKrupp;
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 import de.mpa.client.Constants;
 import de.mpa.client.Constants.UIColor;
@@ -61,6 +67,9 @@ public class Starter {
 	 */
 	private final static boolean LOCK_ACTIVE = true;
 	
+	/**
+	 * This method sets the look&feel for the application.
+	 */
 	/**
 	 * This method sets the look&feel for the application.
 	 */
@@ -133,9 +142,6 @@ public class Starter {
 			UIManager.put("Table.focusCellHighlightBorder", fchb);
 			UIManager.put("List.focusCellHighlightBorder", fchb);
 			
-//			UIManager.put("ProgressBar.foreground", new GradientColorAdapter(
-//					UIColor.PROGRESS_BAR_START_COLOR.getDelegateColor(),
-//					UIColor.PROGRESS_BAR_END_COLOR.getDelegateColor()));
 			UIManager.put("ProgressBar.foreground", UIColor.PROGRESS_BAR_FOREGROUND_COLOR.getDelegateColor());
 
 			UIManager.put("TaskPaneContainer.background",
@@ -154,6 +160,22 @@ public class Starter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean isWindows() {
+		String os = System.getProperty("os.name").toLowerCase();
+		return (os.indexOf("win") >= 0);
+	}
+
+	public static boolean isMac() {
+		String os = System.getProperty("os.name").toLowerCase();
+		return (os.indexOf("mac") >= 0);
+
+	}
+
+	public static boolean isUnix() {
+		String os = System.getProperty("os.name").toLowerCase();
+		return (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0);
 	}
 	
 	/**

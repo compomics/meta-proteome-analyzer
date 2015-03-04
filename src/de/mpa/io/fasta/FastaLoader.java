@@ -25,6 +25,8 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.Client;
+
 /**
  * Singleton class providing FASTA read/write capabilities via random access
  * file. 
@@ -282,12 +284,10 @@ public class FastaLoader {
 					// Add entry to mapping
 					acc2pos.put(header.getAccession(), pos);
 					count++;
-					if(count % 10000 == 0) {			
-						System.out.println(header.getDatabaseType().name() + " found as database type.");
-						System.out.println(count + " sequences parsed...");
+					if (count % 10000 == 0) {			
+						Client.getInstance().firePropertyChange("new message", null, count + " PROTEIN SEQUENCES INDEXED...");
 					} 	
-					if(count % 1000000 == 0) {						
-						System.out.println("Writing index file...");
+					if (count % 1000000 == 0) {						
 						writeIndexFile();
 					}
 
@@ -372,13 +372,4 @@ public class FastaLoader {
 			}
 		}
 	}
-	
-	/**
-	 * Returns the number of indexed entries.
-	 * @return number of entries
-	 */
-	public int getNumberOfEntries() {
-		return acc2pos.size();
-	}
-	
 }

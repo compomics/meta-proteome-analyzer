@@ -12,7 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
+
 import com.compomics.util.protein.Header;
+
+import de.mpa.client.ui.ClientFrame;
 
 public class FastaUtilities {
 	
@@ -70,6 +76,49 @@ public class FastaUtilities {
 			e.printStackTrace();
 		}
 		return database;
+	}
+	
+	/**
+	 * This method creates a simple reversed decoy FASTA database
+	 * @param targetFastaFile File path.
+	 * @throws IOException 
+	 */
+	public static void createDecoyDatabase(File fastaFile) throws IOException {
+		if (fastaFile.getAbsolutePath().contains("decoy")) {
+			throw new IOException("Please select a target FASTA database - instead of a decoy FASTA database!");
+		}
+		final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
+		String decoyFilePath = fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta";
+		final BufferedWriter writer = new BufferedWriter(new FileWriter(decoyFilePath));
+		String nextLine;
+		nextLine = reader.readLine();
+		boolean firstline = true;
+		StringBuilder stringBuilder = new StringBuilder();
+		while (nextLine != null) {
+			if (nextLine != null && nextLine.trim().length() > 0) {
+				if (nextLine.charAt(0) == '>') {
+					if (firstline) {
+						writer.append(nextLine + " - REVERSED");
+						writer.newLine();
+					} else {
+						writer.append(stringBuilder.reverse().toString());
+						writer.newLine();
+						stringBuilder = new StringBuilder();
+						writer.append(nextLine + " - REVERSED");
+						writer.newLine();
+					}
+				} else {
+					stringBuilder.append(nextLine);
+				}
+			}
+			nextLine = reader.readLine();
+			firstline = false;
+		}
+		writer.append(stringBuilder.reverse().toString());
+		writer.newLine();
+		reader.close();
+		writer.flush();
+		writer.close();
 	}
 	
 	/**
@@ -192,9 +241,5 @@ public class FastaUtilities {
 		}
 		return ids;
 	}
-	
-	public static void main(String[] args) {
-		Database readDB = FastaUtilities.read("metadb_potsdam.fasta");
-		FastaUtilities.writeDatabase(readDB, "metadb_potsdam_formatted.fasta");
-	}
+
 }

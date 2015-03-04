@@ -43,7 +43,7 @@ public class QvalityJob extends Job {
 		setDescription("QVALITY JOB");
 		
 		// full path to executable
-		procCommands.add(jobProperties.getProperty("path.qvality") + jobProperties.getProperty("app.qvality"));
+		procCommands.add(algorithmProperties.getProperty("path.qvality") + algorithmProperties.getProperty("app.qvality"));
 		
 		// Reverse scoring mechanism: Low score are better than high scores
 		if (reverseScoring) {

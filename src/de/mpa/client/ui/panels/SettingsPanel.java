@@ -28,7 +28,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
-import de.mpa.client.SearchSettings;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
@@ -78,12 +77,13 @@ public class SettingsPanel extends JPanel {
 	
 		
 		processBtn = new JButton("Start searching", processIcon);
-		processBtn.setEnabled(false);
 		processBtn.setFont(processBtn.getFont().deriveFont(Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
 
 		processBtn.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("Processing...");
 				new ProcessWorker().execute();
+				
 			}
 		});
 		buttonPnl.add(processBtn, CC.xy(4, 2));
@@ -94,16 +94,16 @@ public class SettingsPanel extends JPanel {
 	}
 
 	/**
-	 * Worker class for packing/sending input files and dispatching search requests to the server instance.
+	 * Worker class for starting the identification searches.
 	 * 
-	 * @author Thilo Muth, Alex Behne
+	 * @author Thilo Muth
 	 */
 	private class ProcessWorker extends SwingWorker<Object, Object> {
 
 		protected Object doInBackground() {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
-			long experimentID = projectPanel.getSelectedExperiment().getID();
-			if (experimentID != 0L) {
+//			TODO: long experimentID = projectPanel.getSelectedExperiment().getID();
+//			if (experimentID != 0L) {
 				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
 				// reset progress
 				Client client = Client.getInstance();
@@ -112,27 +112,19 @@ public class SettingsPanel extends JPanel {
 				firePropertyChange("progress", null, 0);
 				processBtn.setEnabled(false);
 				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				
 				try {
-							
-					List<File> mgfFiles = null;
 					// Collect search settings.
-					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-					SearchSettings settings = new SearchSettings(dbss, experimentID);
+					DbSearchSettings searchSettings = databasePnl.gatherDBSearchSettings();
 							
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 					
 					// Run the searches.
-					client.runSearches(mgfFiles, settings);
+					client.runSearches(searchSettings);
 					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				return 0;
-			} else {
-				JOptionPane.showMessageDialog(ClientFrame.getInstance(), "No experiment selected.", "Error", JOptionPane.ERROR_MESSAGE);
-				return 404;
-			}
 		}
 
 		@Override

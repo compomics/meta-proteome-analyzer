@@ -53,6 +53,7 @@ public class XTandemJob extends Job {
 		this.fragmentTol = searchSettings.getFragIonTol();
 		this.precursorTol = searchSettings.getPrecIonTol();
 		this.nMissedCleavages = searchSettings.getMissedCleavages();
+		this.params = searchSettings.getXTandemParams();
 		// Add units for fragments and precursors
 		if(searchSettings.isPrecIonTolPpm()){ 
 			this.precursorUnit = "ppm";
@@ -60,16 +61,16 @@ public class XTandemJob extends Job {
 			this.precursorUnit = "Daltons";
 		}
 		this.searchType = searchSettings.getSearchType();
-		this.xTandemFile = new File(jobProperties.getProperty("path.xtandem"));
+		this.xTandemFile = new File(algorithmProperties.getProperty("path.xtandem"));
 		if(searchType == SearchType.TARGET){
 			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
-			this.filename = jobProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 			buildTaxonomyFile();
 			buildInputFile();
 			
 		} else if (searchType == SearchType.DECOY){
 			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
-			this.filename = jobProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
 			buildTaxonomyDecoyFile();
 			buildInputDecoyFile();
 		}
@@ -132,7 +133,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + jobProperties.getProperty("path.fasta") + File.separator + searchDB + ".fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + algorithmProperties.getProperty("path.fasta") + File.separator + searchDB + ".fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -153,7 +154,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "_decoy" + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + jobProperties.getProperty("path.fasta") + searchDB + "_decoy.fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + algorithmProperties.getProperty("path.fasta") + searchDB + "_decoy.fasta" + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -169,6 +170,7 @@ public class XTandemJob extends Job {
     private void buildParameterFile() {
 
         parameterFile = new File(xTandemFile, PARAMETER_FILE);
+        System.out.println(parameterFile.getAbsolutePath());
         String[] parameters = params.split(";");
         
         try {
@@ -362,7 +364,7 @@ public class XTandemJob extends Job {
 		setDescription("X!TANDEM " + searchType.name() + " SEARCH");
 		
 		// full path to executable
-		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + jobProperties.getProperty("app.xtandem"));
+		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + algorithmProperties.getProperty("app.xtandem"));
 
 		// Link to the input file
 		procCommands.add(inputFile.getAbsolutePath());
