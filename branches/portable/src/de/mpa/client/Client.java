@@ -65,6 +65,11 @@ public class Client {
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
+	
+	/**
+	 * List of MGF files
+	 */
+	private List<File> mgfFiles;
 
 	/**
 	 * Creates the singleton client instance in non-viewer, non-debug mode.
@@ -108,13 +113,10 @@ public class Client {
 	 * @param filenames The spectrum file names
 	 * @param settings Global search settings
 	 */
-	public void runSearches(List<File> mgfFiles, SearchSettings settings) {
+	public void runSearches(DbSearchSettings settings) {
 		if (mgfFiles != null) {
-			for (int i = 0; i < mgfFiles.size(); i++) {
-				settings.getFilenames().add(mgfFiles.get(i).getAbsolutePath());
-			}
 			try {
-				new SearchTask(mgfFiles, settings.getDbss(), new File("/out"), new File(""));
+				new SearchTask(mgfFiles, settings, new File("/out"), new File(""));
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
@@ -312,5 +314,20 @@ public class Client {
 		}
 		System.exit(0);
 	}
-
+	
+	/**
+	 * Returns the list of input files.
+	 * @return
+	 */
+	public List<File> getMgfFiles() {
+		return mgfFiles;
+	}
+	
+	/**
+	 * Sets the list of input files used for the processing.
+	 * @param files List of input files
+	 */
+	public void setMgfFiles(List<File> files) {
+		this.mgfFiles = files;
+	}
 }

@@ -916,8 +916,10 @@ public class FilePanel extends JPanel implements Busyable {
 				CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
 	
 				long totalSize = 0L;
+				List<File> filesList = new ArrayList<File>();
 				for (File file : files) {
 					totalSize += file.length();
+					filesList.add(file);
 				}
 				client.firePropertyChange("resetall", 0, totalSize);
 				
@@ -928,7 +930,7 @@ public class FilePanel extends JPanel implements Busyable {
 					reader = InputFileReader.createInputFileReader(file);
 					
 					if (file.getName().toLowerCase().endsWith(".mgf")) {
-						// do nothing
+						filesList.add(file);
 					} else if (Constants.DAT_FILE_FILTER.accept(file)) {
 						
 						DatabaseSearchSettingsPanel dbSettingsPnl =
@@ -948,16 +950,12 @@ public class FilePanel extends JPanel implements Busyable {
 						
 						boolean decoy = mascotDatfile.getDecoyQueryToPeptideMap() != null;
 						mascotParams.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15, true }, { false, 0.05, decoy } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
-						
 						mascotSelFile.add(file);
+					} 
 					
-					} else {
-						System.out.println("If you got here something went horribly wrong!");
-					}
-					
+					client.setMgfFiles(filesList);
 					ArrayList<Long> positions = new ArrayList<Long>();
 					try {
-	//						reader = new MascotGenericFileReader(file, LoadMode.NONE);
 	
 						client.firePropertyChange("resetcur", -1L, file.length());
 						

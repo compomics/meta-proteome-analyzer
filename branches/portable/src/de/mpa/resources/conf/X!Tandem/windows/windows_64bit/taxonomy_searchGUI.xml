@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<bioml label="x! taxon-to-file matching list">
-	<taxon label="all">
-		<file format="peptide" URL="C:\Users\hba041\My_Applications\wiki\peptide-shaker\tutorial\data_10_01_2015\uniprot-human-reviewed-trypsin-january-2015_concatenated_target_decoy.fasta" />
-	</taxon>
-</bioml>

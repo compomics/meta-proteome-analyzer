@@ -46,7 +46,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 	
 	@Override
 	public int getColumnCount() {
-		// TODO: parameterize column count, e.g. length of userObjects array?
 		return 12;
 	}
 	
@@ -165,12 +164,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
 			case 4:
-				searchHit = psm.getSearchHit(SearchEngineType.CRUX);
-				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 5:
-				searchHit = psm.getSearchHit(SearchEngineType.INSPECT);
-				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 6:
 				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
 			default:

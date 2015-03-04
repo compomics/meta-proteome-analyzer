@@ -3,33 +3,51 @@ package de.mpa.client.ui.panels;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
+
+import com.compomics.util.experiment.identification.SearchParameters;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.fasta.FastaLoader;
+import de.mpa.io.fasta.FastaUtilities;
+import de.mpa.job.ResourceProperties;
 
 /**
  * Panel containing control components for database search-related settings.
@@ -46,7 +64,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	/**
 	 * Combo box referencing FASTA files available for database searching.
 	 */
-	private JComboBox<String> fastaFileCbx;
+	private JTextField fastaFileTtf;
 	
 	/**
 	 * Spinner for controlling precursor mass tolerance.
@@ -103,6 +121,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	private JCheckBox mascotChk;
 
+	private JButton fastaFileBtn;
+
+	private ClientFrame lastSelectedFolder;
+
+	private File fastaFile;
+
 	/**
 	 * The default database search panel constructor.
 	 */
@@ -120,15 +144,25 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
-		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-												 "0dlu, p, 5dlu"));
+		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
-		fastaFileCbx = new JComboBox<String>(Constants.FASTA_DB);
+		fastaFileTtf = new JTextField();
+		fastaFileTtf.setEditable(false);
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
-		protDatabasePnl.add(fastaFileCbx, CC.xy(4, 2));
+		protDatabasePnl.add(fastaFileTtf, CC.xy(4, 2));
+		
+		fastaFileBtn = new JButton("Choose...");
+		fastaFileBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fastaFileBtnTriggered();
+			}
+		});
+		protDatabasePnl.add(fastaFileBtn, CC.xy(6, 2));
 		
 		// General Settings Panel
 		final JPanel paramsPnl = new JPanel();
@@ -226,12 +260,120 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.add(mascotSetBtn, CC.xy(4, 6));
 
 		// add everything to main panel
-		this.add(protDatabasePnl, CC.xy(2, 2));
+		this.add(protDatabasePnl, CC.xywh(2, 2, 3, 1));
 		this.add(paramsPnl, CC.xy(2, 4));
-		this.add(searchEngPnl, CC.xywh(4, 2, 1, 3));
+		this.add(searchEngPnl, CC.xy(4, 4));
 
 	}
 	
+	protected void fastaFileBtnTriggered() {
+		Client client = Client.getInstance();
+		  // First check whether a file has already been selected.
+        File startLocation = new File(ResourceProperties.getInstance().getProperty("path.fasta"));
+        
+        JFileChooser fc = new JFileChooser(startLocation);
+
+        FileFilter filter = new FileFilter() {
+            @Override
+            public boolean accept(File myFile) {
+
+                return myFile.getName().toLowerCase().endsWith(".fasta")
+                        || myFile.getName().toLowerCase().endsWith(".fasta")
+                        || myFile.isDirectory();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Protein FASTA database (*.fasta)";
+            }
+        };
+        fc.setFileFilter(filter);
+        int result = fc.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            fastaFile = fc.getSelectedFile();
+            try {	
+            	// Check whether decoy FASTA file already exists - if not: create one!
+            	File decoyFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
+            	if (!decoyFile.exists()) {
+            		// Create the decoy database by reversing the FASTA protein sequences.
+            		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE");
+            		client.firePropertyChange("indeterminate", false, true);
+            		
+            		System.out.println("Creating decoy file...");
+            		FastaUtilities.createDecoyDatabase(fastaFile);
+            		
+            		client.firePropertyChange("indeterminate", true, false);
+            		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FINISHED");
+            	}
+            	
+            	File indexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
+            	if (!indexFile.exists()) {
+            		new IndexFastaFileWorker().execute();
+            	}            	
+                fastaFileTtf.setText(fastaFile.getAbsolutePath());      
+            } catch (Exception e) {
+            	JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+            }
+        
+        }
+
+		
+	}
+	
+	/**
+	 * Class to a index FASTA file in a background thread.
+	 * 
+	 * @author Thilo muth
+	 */
+	private class IndexFastaFileWorker extends SwingWorker<Integer, Object> {
+		Client client = Client.getInstance();
+		private FastaLoader fastaLoader;
+		
+		@Override
+		protected Integer doInBackground() {
+			
+			try {
+				// Create the decoy database by reversing the FASTA protein sequences.
+    			fastaLoader = FastaLoader.getInstance();
+    			fastaLoader.setFastaFile(fastaFile);
+        		client.firePropertyChange("new message", null, "CREATING FASTA INDEX FILE");
+        		client.firePropertyChange("indeterminate", false, true);
+				fastaLoader.loadFastaFile();
+				fastaLoader.writeIndexFile();
+
+        		return 1;
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				client.firePropertyChange("new message", null, "FAILED");
+				client.firePropertyChange("indeterminate", true, false);
+	
+			}
+			return 0;
+		}
+	
+	
+		@Override
+		protected void done() {
+			// Get worker result
+			int res = 0;
+			try {
+				res = this.get().intValue();
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+			
+			// If new results have been fetched...
+			if (res == 1) {
+        		client.firePropertyChange("indeterminate", true, false);
+        		client.firePropertyChange("new message", null, "CREATING FASTA INDEX FILE FINISHED");
+			}
+
+		}
+	
+	}
+
 	/**
 	 * Convenience method to return a settings button.
 	 * @return a settings button
@@ -250,12 +392,19 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	public DbSearchSettings gatherDBSearchSettings() {
 		DbSearchSettings dbSettings = new DbSearchSettings();
-		dbSettings.setXTandem(xTandemChk.isSelected());
-		dbSettings.setOmssa(omssaChk.isSelected());
 		dbSettings.setMascot(mascotChk.isSelected());
+		if (xTandemChk.isSelected()) {
+			dbSettings.setXTandem(true);
+			dbSettings.setXTandemParams(xTandemParams.toString());
+		}
+		
+		if (omssaChk.isSelected()) {
+			dbSettings.setOmssa(true);
+			dbSettings.setOmssaParams(omssaParams.toString());
+		}
 		
 		// Set the current experiment id for the database search settings.
-		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
+//		TODO: dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 		return dbSettings;
 	}
 	
