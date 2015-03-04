@@ -1,7 +1,6 @@
 package de.mpa.client.ui.panels;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,7 +10,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
@@ -23,8 +21,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
-import de.mpa.client.settings.CruxParameters;
-import de.mpa.client.settings.InspectParameters;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
@@ -66,11 +62,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * Spinner for controlling the amount of missed cleavages to account for.
 	 */
 	private JSpinner missClvSpn;
-	
-	/**
-	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
-	 */
-	private JComboBox<String> searchTypeCbx;
 
 	/**
 	 * Checkbox for the units of the precursor tolerance.
@@ -93,16 +84,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private ParameterMap omssaParams = new OmssaParameters();
 
 	/**
-	 * Parameter map containing advanced settings for the Crux search engine.
-	 */
-	private ParameterMap cruxParams = new CruxParameters();
-
-	/**
-	 * Parameter map containing advanced settings for the InsPecT search engine.
-	 */
-	private ParameterMap inspectParams = new InspectParameters();
-
-	/**
 	 * Parameter map containing advanced settings for uploading imported Mascot search engine results.
 	 */
 	private ParameterMap mascotParams = new MascotParameters();
@@ -118,17 +99,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private JCheckBox omssaChk;
 	
 	/**
-	 * Checkbox for using MS Amanda search engine.
+	 * Checkbox for using MASCOT search engine.
 	 */
-	private JCheckBox msAmandaChk;
-	
-	/**
-	 * Checkbox for using MSGF+ search engine.
-	 */
-	private JCheckBox msgfChk;
-
 	private JCheckBox mascotChk;
-	
 
 	/**
 	 * The default database search panel constructor.
@@ -161,7 +134,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
@@ -179,20 +152,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, null, 1));
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 		
-		// Search strategy ComboBox
-		searchTypeCbx = new JComboBox<String>(new String[] { "Target-Decoy", "Target Only" });
-		
-		JPanel packPnl = new JPanel(new FormLayout("p, 2dlu, p:g, 2dlu, p", "p"));
-
-		packSpn = new JSpinner(new SpinnerNumberModel(1000L, 1L, null, 100L));
-		packSpn.setToolTipText("Number of spectra per transfer package"); 
-		packSpn.setPreferredSize(new Dimension(packSpn.getPreferredSize().width*2,
-											   packSpn.getPreferredSize().height));
-		
-		packPnl.add(new JLabel("Transfer"), CC.xy(1, 1));
-		packPnl.add(packSpn, CC.xy(3, 1));
-		packPnl.add(new JLabel("spectra per package"), CC.xy(5, 1));
-		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), CC.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, CC.xy(6, 2));
 		paramsPnl.add(precTolCbx, CC.xy(8, 2));
@@ -201,16 +160,10 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		paramsPnl.add(new JLabel("Da"), CC.xy(8, 4));
 		paramsPnl.add(new JLabel("Missed Cleavages (max):"), CC.xyw(2, 6, 3));
 		paramsPnl.add(missClvSpn, CC.xy(6, 6));
-		paramsPnl.add(new JSeparator(), CC.xyw(2, 8, 7));
-		paramsPnl.add(new JLabel("Search Strategy:"), CC.xy(2, 10));
-		paramsPnl.add(searchTypeCbx, CC.xyw(4, 10, 5));
-		paramsPnl.add(new JSeparator(), CC.xyw(2, 12, 7));
-		paramsPnl.add(packPnl, CC.xyw(2, 14, 7));
 		
 		// Search Engine Settings Panel
 		final JPanel searchEngPnl = new JPanel();
-		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu",
-				"0dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu"));
+		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
 		xTandemChk = new JCheckBox("X!Tandem", true);
@@ -241,37 +194,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			public void actionPerformed(ActionEvent evt) {
 				omssaSetBtn.setEnabled(omssaChk.isSelected());
 			}
-		});
-		
-		msAmandaChk = new JCheckBox("Crux", true);
-		msAmandaChk.setIconTextGap(10);
-		final JButton cruxSetBtn = this.createSettingsButton();
-		cruxSetBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
-			}
-		});
-		msAmandaChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				cruxSetBtn.setEnabled(msAmandaChk.isSelected());
-			}
-		});
-		
-		msgfChk = new JCheckBox("InsPecT", true);
-		msgfChk.setIconTextGap(10);
-		final JButton inspectSetBtn = this.createSettingsButton();
-		inspectSetBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
-			}
-		});
-		msgfChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				inspectSetBtn.setEnabled(msgfChk.isSelected());
-			}
-		});
+		});	
+
 		
 		mascotChk = new JCheckBox("Mascot", false);
 		mascotChk.setIconTextGap(10);
@@ -290,7 +214,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		// Mascot functionality is initially disabled unless a .dat file is imported
+		// MASCOT functionality is initially disabled unless a .dat file is imported
 		mascotChk.setEnabled(false);
 		mascotSetBtn.setEnabled(false);
 				
@@ -298,12 +222,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
 		searchEngPnl.add(omssaChk, CC.xy(2, 4));
 		searchEngPnl.add(omssaSetBtn, CC.xy(4, 4));
-		searchEngPnl.add(msAmandaChk, CC.xy(2, 6));
-		searchEngPnl.add(cruxSetBtn, CC.xy(4, 6));
-		searchEngPnl.add(msgfChk, CC.xy(2, 8));
-		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
-		searchEngPnl.add(mascotChk, CC.xy(2, 10));
-		searchEngPnl.add(mascotSetBtn, CC.xy(4, 10));
+		searchEngPnl.add(mascotChk, CC.xy(2, 6));
+		searchEngPnl.add(mascotSetBtn, CC.xy(4, 6));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, CC.xy(2, 2));
@@ -330,23 +250,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	public DbSearchSettings gatherDBSearchSettings() {
 		DbSearchSettings dbSettings = new DbSearchSettings();
-		
-		if (xTandemChk.isSelected()) {
-			dbSettings.setXTandem(true);
-		}
-		
-		if (omssaChk.isSelected()) {
-			dbSettings.setOmssa(true);
-		}
-		
-		if (msAmandaChk.isSelected()) {
-			dbSettings.setMsAmanda(true);
-		}
-		
-		if (msgfChk.isSelected()) {
-			dbSettings.setMSGF(true);
-		}
-		
+		dbSettings.setXTandem(xTandemChk.isSelected());
+		dbSettings.setOmssa(omssaChk.isSelected());
 		dbSettings.setMascot(mascotChk.isSelected());
 		
 		// Set the current experiment id for the database search settings.
@@ -422,22 +327,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	public ParameterMap getOmssaParameterMap() {
 		return omssaParams;
-	}
-	
-	/**
-	 * Returns the Crux parameter map.
-	 * @return ParameterMap for Crux.
-	 */
-	public ParameterMap getCruxParameterMap() {
-		return cruxParams;
-	}
-	
-	/**
-	 * Returns the Inspect parameter map.
-	 * @return ParameterMap for Inspect
-	 */
-	public ParameterMap getInspectParameterMap() {
-		return inspectParams;
 	}
 	
 	/**

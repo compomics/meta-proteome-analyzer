@@ -1,0 +1,29 @@
+OMSSA Location:
+Not Selected
+
+X!Tandem Location:
+Not Selected
+
+MS-GF+ Location:
+Not Selected
+
+MS Amanda Location:
+Not Selected
+
+MyriMatch Location:
+Not Selected
+
+Comet Location:
+Not Selected
+
+Tide Location:
+Not Selected
+false
+Andromeda Location:
+Not Selected
+
+makeblastdb Location:
+Not Selected
+
+Modification use:
+o18 on peptide n-term//phosphorylation of s//acetylation of k//deamidation of n and q//itraq8plex:13c(6)15n(2) on nterm//methyl c//pyro-glu from n-term q//pyro-cmc//heavy lysine-13c6//acetylation of protein n-term//pyro-glu from n-term e//heavy arginine-13c6//carbamidomethyl c//tmt 6-plex on k//oxidation of m//heavy arginine-13c6-15n4//itraq114 on k//heavy lysine - 13c6 15n2//itraq8plex:13c(6)15n(2) on y//itraq114 on nterm//heavy lysine - 2h4//deamidation of n//carboxymethyl c//icat heavy//itraq114 on y//phosphorylation of t//phosphorylation of y//itraq8plex:13c(6)15n(2) on k//

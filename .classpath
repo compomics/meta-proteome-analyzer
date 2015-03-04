@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar" sourcepath="/scratch/javadoc/swingx-all-1.6.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar" sourcepath="/scratch/javadoc/jcommon-1.0.21.zip"/>
 	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar" sourcepath="javadoc/balloontip-src.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
@@ -105,5 +104,7 @@
 	<classpathentry kind="lib" path="lib/utilities-3.17.7.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/utilities-3.45.25.jar"/>
+	<classpathentry kind="lib" path="lib/xxindex-0.11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

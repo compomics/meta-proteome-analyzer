@@ -49,7 +49,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.1";
+	public final static String VER_NUMBER = "0.2";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -523,7 +523,6 @@ public class Constants {
 		 * @param path the path to the theme file
 		 */
 		private void parse(File file) {
-			// TODO: simplify using XStream
 			if (!file.exists()) {
 				System.err.println("File \'" + file + "\' not found!");
 				return;
