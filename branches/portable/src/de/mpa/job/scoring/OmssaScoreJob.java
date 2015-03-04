@@ -2,7 +2,6 @@ package de.mpa.job.scoring;
 
 import java.io.File;
 
-import de.mpa.job.Job;
 import de.mpa.job.instances.QvalityJob;
 
 /**
