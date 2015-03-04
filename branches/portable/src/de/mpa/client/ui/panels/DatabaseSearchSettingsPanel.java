@@ -43,9 +43,14 @@ import de.mpa.client.ui.icons.IconConstants;
 public class DatabaseSearchSettingsPanel extends JPanel {
 
 	/**
+	 * Default SerialVersionUID.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Combo box referencing FASTA files available for database searching.
 	 */
-	private JComboBox fastaFileCbx;
+	private JComboBox<String> fastaFileCbx;
 	
 	/**
 	 * Spinner for controlling precursor mass tolerance.
@@ -65,12 +70,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	/**
 	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
 	 */
-	private JComboBox searchTypeCbx;
+	private JComboBox<String> searchTypeCbx;
 
 	/**
 	 * Checkbox for the units of the precursor tolerance.
 	 */
-	private JComboBox precTolCbx;
+	private JComboBox<String> precTolCbx;
 
 	/**
 	 * The package size spinner.
@@ -113,19 +118,17 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private JCheckBox omssaChk;
 	
 	/**
-	 * Checkbox for using Crux search engine.
+	 * Checkbox for using MS Amanda search engine.
 	 */
-	private JCheckBox cruxChk;
+	private JCheckBox msAmandaChk;
 	
 	/**
-	 * Checkbox for using InsPect search engine.
+	 * Checkbox for using MSGF+ search engine.
 	 */
-	private JCheckBox inspectChk;
-	
-	/**
-	 * Checkbox for using Mascot search engine.
-	 */
+	private JCheckBox msgfChk;
+
 	private JCheckBox mascotChk;
+	
 
 	/**
 	 * The default database search panel constructor.
@@ -240,8 +243,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		cruxChk = new JCheckBox("Crux", true);
-		cruxChk.setIconTextGap(10);
+		msAmandaChk = new JCheckBox("Crux", true);
+		msAmandaChk.setIconTextGap(10);
 		final JButton cruxSetBtn = this.createSettingsButton();
 		cruxSetBtn.addActionListener(new ActionListener() {
 			@Override
@@ -249,14 +252,14 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
 			}
 		});
-		cruxChk.addActionListener(new ActionListener() {
+		msAmandaChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				cruxSetBtn.setEnabled(cruxChk.isSelected());
+				cruxSetBtn.setEnabled(msAmandaChk.isSelected());
 			}
 		});
 		
-		inspectChk = new JCheckBox("InsPecT", true);
-		inspectChk.setIconTextGap(10);
+		msgfChk = new JCheckBox("InsPecT", true);
+		msgfChk.setIconTextGap(10);
 		final JButton inspectSetBtn = this.createSettingsButton();
 		inspectSetBtn.addActionListener(new ActionListener() {
 			@Override
@@ -264,9 +267,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
 			}
 		});
-		inspectChk.addActionListener(new ActionListener() {
+		msgfChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				inspectSetBtn.setEnabled(inspectChk.isSelected());
+				inspectSetBtn.setEnabled(msgfChk.isSelected());
 			}
 		});
 		
@@ -295,9 +298,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
 		searchEngPnl.add(omssaChk, CC.xy(2, 4));
 		searchEngPnl.add(omssaSetBtn, CC.xy(4, 4));
-		searchEngPnl.add(cruxChk, CC.xy(2, 6));
+		searchEngPnl.add(msAmandaChk, CC.xy(2, 6));
 		searchEngPnl.add(cruxSetBtn, CC.xy(4, 6));
-		searchEngPnl.add(inspectChk, CC.xy(2, 8));
+		searchEngPnl.add(msgfChk, CC.xy(2, 8));
 		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
 		searchEngPnl.add(mascotChk, CC.xy(2, 10));
 		searchEngPnl.add(mascotSetBtn, CC.xy(4, 10));
@@ -327,35 +330,24 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	public DbSearchSettings gatherDBSearchSettings() {
 		DbSearchSettings dbSettings = new DbSearchSettings();
-		dbSettings.setFastaFile(fastaFileCbx.getSelectedItem().toString());
-		dbSettings.setFragmentIonTol((Double) fragTolSpn.getValue());
-		dbSettings.setPrecursorIonTol((Double) precTolSpn.getValue());
-		dbSettings.setPrecursorIonUnitPpm(precTolCbx.getSelectedIndex()==1);
-		dbSettings.setNumMissedCleavages((Integer) missClvSpn.getValue());
 		
 		if (xTandemChk.isSelected()) {
 			dbSettings.setXTandem(true);
-			dbSettings.setXtandemParams(xTandemParams.toString());
 		}
 		
 		if (omssaChk.isSelected()) {
 			dbSettings.setOmssa(true);
-			dbSettings.setOmssaParams(omssaParams.toString());
 		}
 		
-		if (cruxChk.isSelected()) {
-			dbSettings.setCrux(true);
-			dbSettings.setCruxParams(cruxParams.toString());
+		if (msAmandaChk.isSelected()) {
+			dbSettings.setMsAmanda(true);
 		}
 		
-		if (inspectChk.isSelected()) {
-			dbSettings.setInspect(true);
-			dbSettings.setInspectParams(inspectParams.toString());
+		if (msgfChk.isSelected()) {
+			dbSettings.setMSGF(true);
 		}
 		
 		dbSettings.setMascot(mascotChk.isSelected());
-		
-		dbSettings.setDecoy(searchTypeCbx.getSelectedIndex() == 0);
 		
 		// Set the current experiment id for the database search settings.
 		dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());

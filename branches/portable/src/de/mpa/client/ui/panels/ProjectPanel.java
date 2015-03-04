@@ -29,6 +29,7 @@ import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import com.thoughtworks.xstream.XStream;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
@@ -690,7 +691,8 @@ public class ProjectPanel extends JPanel {
 			TableConfig.clearTable(projectTbl);
 			TableConfig.clearTable(experimentTbl);
 			
-//			TODO: projects = ProjectManager.getInstance().getProjects();
+			File projectsFile = Constants.getProjectsFile();
+			projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
 			
 			for (AbstractProject project : projects) {
 				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] { project });
