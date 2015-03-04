@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<bioml>
+	<note type="input" label="list path, default parameters">parameters_searchGUI.xml</note>
+	<note type="input" label="list path, taxonomy information">taxonomy_searchGUI.xml</note>
+	<note type="input" label="protein, taxon">all</note>
+	<note type="input" label="spectrum, path">C:\Users\hba041\My_Applications\wiki\peptide-shaker\tutorial\data_09_01_2014\small_mgf_test_2.mgf</note>
+	<note type="input" label="output, path">C:\Users\hba041\Desktop\test\temp\small_mgf_test_2.t.xml</note>
+</bioml>

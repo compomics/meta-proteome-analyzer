@@ -4,40 +4,30 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
-import javax.swing.tree.TreePath;
-
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
-import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.client.ui.CheckBoxTreeSelectionModel;
-import de.mpa.client.ui.CheckBoxTreeTable;
-import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
+import de.mpa.job.SearchTask;
 
 public class Client {
 
@@ -60,11 +50,6 @@ public class Client {
 	 * Database search result.
 	 */
 	private DbSearchResult dbSearchResult;
-
-	/**
-	 * Spectral similarity search result.
-	 */
-	private SpecSimResult specSimResult;
 
 	/**
 	 * Flag denoting whether client is in viewer mode.
@@ -116,74 +101,24 @@ public class Client {
 		if (instance == null) {
 			instance = new Client(viewer, debug);
 		}
-	}
-
-	/**
-	 * Returns the contents of the file in a byte array.
-	 * @param file File object
-	 * @return Byte array for file
-	 * @throws IOException
-	 */
-	public byte[] getBytesFromFile(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
-
-		// Get the size of the file
-		long length = file.length();
-
-		// Before converting to an int type, check to ensure that file is not larger than Integer.MAX_VALUE.
-		if (length > Integer.MAX_VALUE) {
-			// File is too large
-			is.close();
-			throw new IOException("File size too long: " + length);
-		}
-
-		// Create the byte array to hold the data
-		byte[] bytes = new byte[(int)length];
-
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length
-				&& (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
-			offset += numRead;
-		}
-
-		// Ensure all the bytes have been read in
-		if (offset < bytes.length) {
-			is.close();
-			throw new IOException("Could not completely read file " + file.getName());
-		}
-
-		// Close the input stream and return bytes
-		is.close();
-		return bytes;
-	}
+	}	
 
 	/**
 	 * Runs the searches by retrieving a bunch of spectrum file names and the global search settings.
 	 * @param filenames The spectrum file names
 	 * @param settings Global search settings
 	 */
-	public void runSearches(List<String> filenames, SearchSettings settings) {
-		if (filenames != null) {
-			for (int i = 0; i < filenames.size(); i++) {
-				settings.getFilenames().add(filenames.get(i));
+	public void runSearches(List<File> mgfFiles, SearchSettings settings) {
+		if (mgfFiles != null) {
+			for (int i = 0; i < mgfFiles.size(); i++) {
+				settings.getFilenames().add(mgfFiles.get(i).getAbsolutePath());
 			}
 			try {
-//				server.runSearches(settings);
+				new SearchTask(mgfFiles, settings.getDbss(), new File("/out"), new File(""));
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
-	}
-
-
-
-	/**
-	 * Resets the current spectral similarity search result reference.
-	 */
-	public void clearSpecSimResult() {
-		specSimResult = null;
 	}
 
 	/**
@@ -226,74 +161,11 @@ public class Client {
 	}
 
 	/**
-	 * Method to consolidate spectra which are selected in a specified checkbox tree into spectrum packages of defined size.
-	 * @param packageSize The amount of spectra per package.
-	 * @param checkBoxTree The checkbox tree.
-	 * @param listener An optional property change listener used to monitor progress.
-	 * @return A list of files.
-	 * @throws IOException if reading a spectrum file fails
-	 * @throws SQLException if fetching spectrum data from the database fails
-	 */
-	public List<String> packAndSend(long packageSize, CheckBoxTreeTable checkBoxTree, String filename) throws IOException, SQLException {
-		File file = null;
-		List<String> filenames = new ArrayList<String>();
-		FileOutputStream fos = null;
-		CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
-		if (checkBoxTree.getTreeTableModel().getRoot() != null) {
-			CheckBoxTreeTableNode fileRoot = (CheckBoxTreeTableNode) ((DefaultTreeTableModel) checkBoxTree.getTreeTableModel()).getRoot();
-			long numSpectra = 0;
-			long maxSpectra = selectionModel.getSelectionCount();
-			CheckBoxTreeTableNode spectrumNode = fileRoot.getFirstLeaf();
-			if (spectrumNode != fileRoot) {
-				this.firePropertyChange("resetall", 0L, maxSpectra);
-				// iterate over all leaves
-				while (spectrumNode != null) {
-					// generate tree path and consult selection model whether path is explicitly or implicitly selected
-					TreePath spectrumPath = spectrumNode.getPath();
-					if (selectionModel.isPathSelected(spectrumPath, true)) {
-						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
-							if (fos != null) {
-								fos.close();
-//								this.uploadFile(file.getName(), this.getBytesFromFile(file));
-								file.delete();
-							}
-
-							file = new File(filename + (numSpectra/packageSize) + ".mgf");
-							filenames.add(file.getName());
-							fos = new FileOutputStream(file);
-							long remaining = maxSpectra - numSpectra;
-							this.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
-						}
-						MascotGenericFile mgf = ClientFrame.getInstance().getFilePanel().getSpectrumForNode(spectrumNode);
-						mgf.writeToStream(fos);
-						fos.flush();
-						this.firePropertyChange("progressmade", 0L, ++numSpectra);
-					}
-					spectrumNode = spectrumNode.getNextLeaf();
-				}
-				if (fos != null) {
-					fos.close();
-//					this.uploadFile(file.getName(), this.getBytesFromFile(file));
-					file.delete();
-				}
-			} else {
-				IOException e = new IOException("No files selected.");
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				throw e;
-			}	
-		}
-		file.delete();
-		return filenames;
-	}
-
-	/**
 	 * Writes the current database search result object to a the specified file.
 	 * @param filename The String representing the desired file path and name.
 	 */
 	public void writeDbSearchResultToFile(String filename) {
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
-	
 		// Dump referenced spectra to separate MGF
 		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
 		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
@@ -313,6 +185,7 @@ public class Client {
 				spectrumMatch.setEndIndex(index);
 				firePropertyChange("progressmade", false, true);
 			}
+			
 			fos.flush();
 			fos.close();
 		} catch (Exception e) {
