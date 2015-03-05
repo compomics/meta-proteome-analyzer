@@ -2,6 +2,9 @@ package de.mpa.job.instances;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
+import de.mpa.client.DbSearchSettings;
 import de.mpa.job.Job;
 import de.mpa.job.SearchType;
 
@@ -30,8 +33,19 @@ public class OmssaJob extends Job {
     // ID 1 == Oxidation of M; 
     private final static String VAR_MODS = "1";
     
+    /**
+     * OMSSA file instance.
+     */
     private File omssaFile;
+    
+    /**
+     * MGF file instance.
+     */
 	private File mgfFile;
+	
+	/**
+	 * Search
+	 */
 	private String searchDB;
 	
 	// Mass tolerance for fragment ions
@@ -45,33 +59,28 @@ public class OmssaJob extends Job {
     
     // String of precursor ion tolerance unit ( ppm versus Da)
     private boolean isPrecursorTolerancePpm;
-
     
 	/**
 	 * Constructor for starting the OMSSA search engine.
 	 * @param mgfFile Spectrum file
-	 * @param searchDB Search database
-	 * @param params Search parameters
-	 * @param fragmentTol Fragment ion tolerance
-	 * @param precursorTol Precursor ion tolerance
-	 * @param nMissedCleavages Number of maximum missed cleavages
-	 * @param isPrecursorTolerancePpm Condition whether the precursor tolerance unit is PPM (true) or Dalton (false)
-	 * @param searchType Target or decoy search type
+	 * @param searchSettings Search settings
 	 */
-	public OmssaJob(File mgfFile, String searchDB, String params, double fragmentTol, double precursorTol, int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
+	public OmssaJob(File mgfFile, DbSearchSettings searchSettings) {
+		log = Logger.getLogger(getClass());
 		this.mgfFile = mgfFile;
-		this.searchDB = searchDB;
-		this.params = params;
-		this.fragmentTol = fragmentTol;
-		this.precursorTol = precursorTol;
-		this.nMissedCleavages = nMissedCleavages;
-		this.isPrecursorTolerancePpm = isPrecursorTolerancePpm;
-		this.searchType = searchType;
-		
+		this.searchDB = searchSettings.getFastaFile();
+		this.params = searchSettings.getOmssaParams();
+		this.fragmentTol = searchSettings.getFragIonTol();
+		this.precursorTol = searchSettings.getPrecIonTol();
+		this.nMissedCleavages = searchSettings.getMissedCleavages();
+		this.isPrecursorTolerancePpm = searchSettings.isPrecIonTolPpm();
+		this.searchType = searchSettings.getSearchType();
+		String basePath = algorithmProperties.getProperty("path.base");
 		if (searchType == SearchType.DECOY) {
-			this.filename = algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_decoy.omx";
+			this.filename = basePath + algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_decoy.omx";
+			searchDB = searchDB.substring(0, searchDB.indexOf(".fasta")) + "_decoy.fasta";
 		} else {
-			this.filename = algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
+			this.filename = basePath + algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
 		}
 		this.omssaFile = new File(algorithmProperties.getProperty("path.omssa"));
 		initJob();
@@ -121,7 +130,7 @@ public class OmssaJob extends Job {
         
         // Database
         procCommands.add("-d");
-        procCommands.add(algorithmProperties.getProperty("path.fasta") + searchDB + ".fasta");
+        procCommands.add(searchDB);
         
         // Input MGF file
         procCommands.add("-fm");
@@ -135,7 +144,6 @@ public class OmssaJob extends Job {
         setDescription("OMSSA " + searchType.name() + " SEARCH");
         procBuilder = new ProcessBuilder(procCommands);
         procBuilder.directory(omssaFile);
-        
         
         // Set error out and std out to same stream
         procBuilder.redirectErrorStream(true);

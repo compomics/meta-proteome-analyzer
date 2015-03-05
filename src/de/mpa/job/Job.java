@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
+import de.mpa.client.Client;
+
 /**
  * Abstract class of a job to be executed.
  * Implements the interface Executable which provides the specification of a Job.
@@ -63,6 +65,11 @@ public abstract class Job implements Executable {
      * The algorithm properties.
      */
 	protected ResourceProperties algorithmProperties = ResourceProperties.getInstance();
+	
+	/**
+	 * Client instance.
+	 */
+	protected Client client = Client.getInstance();
     
 	/**
 	 * Executes the job.
@@ -72,6 +79,7 @@ public abstract class Job implements Executable {
 		try {
 			proc = procBuilder.start();
 			setStatus(JobStatus.RUNNING);
+			client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 		} catch (IOException ioe) {
 			setError(ioe);
 			ioe.printStackTrace();
@@ -93,7 +101,8 @@ public abstract class Job implements Executable {
 			} else {
 				temp += " ";
 			}
-			System.out.print(temp);
+//			System.out.print(temp);
+			log.info(temp.trim());
 		}
 		scan.close();
 
@@ -116,6 +125,7 @@ public abstract class Job implements Executable {
 	protected void done() {
 		// Set the job status to FINISHED and put the message in the queue
 		setStatus(JobStatus.FINISHED);
+		client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 	}
 	
 	/**

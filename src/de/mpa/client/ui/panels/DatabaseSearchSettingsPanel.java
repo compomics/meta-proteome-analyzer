@@ -369,9 +369,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
         		client.firePropertyChange("indeterminate", true, false);
         		client.firePropertyChange("new message", null, "CREATING FASTA INDEX FILE FINISHED");
 			}
-
 		}
-	
 	}
 
 	/**
@@ -392,6 +390,11 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	public DbSearchSettings gatherDBSearchSettings() {
 		DbSearchSettings dbSettings = new DbSearchSettings();
+		dbSettings.setFragIonTol((Double) fragTolSpn.getValue());
+		dbSettings.setPrecIonTol((Double) precTolSpn.getValue());
+		dbSettings.setPrecIonTolPpm(precTolCbx.getSelectedIndex()==1);
+		dbSettings.setMissedCleavages((Integer) missClvSpn.getValue());
+		
 		dbSettings.setMascot(mascotChk.isSelected());
 		if (xTandemChk.isSelected()) {
 			dbSettings.setXTandem(true);
@@ -402,6 +405,11 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			dbSettings.setOmssa(true);
 			dbSettings.setOmssaParams(omssaParams.toString());
 		}
+		
+		if (fastaFileTtf.getText().length() > 0) {
+			dbSettings.setFastaFile(fastaFileTtf.getText());
+		}
+		
 		
 		// Set the current experiment id for the database search settings.
 //		TODO: dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());

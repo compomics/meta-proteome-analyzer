@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import de.mpa.client.DbSearchSettings;
 import de.mpa.job.Job;
 import de.mpa.job.SearchType;
@@ -48,6 +50,7 @@ public class XTandemJob extends Job {
 	 * @param searchType Target or decoy search type
 	 */
 	public XTandemJob(File mgfFile, DbSearchSettings searchSettings) {
+		log = Logger.getLogger(getClass());
 		this.mgfFile = mgfFile;
 		this.searchDB = searchSettings.getFastaFile();
 		this.fragmentTol = searchSettings.getFragIonTol();
@@ -61,16 +64,19 @@ public class XTandemJob extends Job {
 			this.precursorUnit = "Daltons";
 		}
 		this.searchType = searchSettings.getSearchType();
+		
+		String basePath = algorithmProperties.getProperty("path.base");
 		this.xTandemFile = new File(algorithmProperties.getProperty("path.xtandem"));
-		if(searchType == SearchType.TARGET){
+		if (searchType == SearchType.TARGET) {
 			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
-			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			this.filename = basePath + algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 			buildTaxonomyFile();
 			buildInputFile();
 			
-		} else if (searchType == SearchType.DECOY){
+		} else if (searchType == SearchType.DECOY) {
 			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
-			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			this.filename = basePath + algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			searchDB = searchDB.substring(0, searchDB.indexOf(".fasta")) + "_decoy.fasta";
 			buildTaxonomyDecoyFile();
 			buildInputDecoyFile();
 		}
@@ -104,14 +110,13 @@ public class XTandemJob extends Job {
 	 * Constructs the input.xml file needed for the XTandem process.
 	 */
 	private void buildInputDecoyFile(){
-	       
 	        try {
 	            BufferedWriter bw = new BufferedWriter(new FileWriter(inputFile));
 	            bw.write("<?xml version=\"1.0\"?>\n"
 	                    + "<bioml>\n"
 	                    + "\t<note type=\"input\" label=\"list path, default parameters\">" + PARAMETER_FILE + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"list path, taxonomy information\">" + TAXONOMY_DECOY_FILE + "</note>\n"
-	                    + "\t<note type=\"input\" label=\"protein, taxon\">"  + searchDB  + "_decoy" + "</note>\n"
+	                    + "\t<note type=\"input\" label=\"protein, taxon\">"  + searchDB + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"spectrum, path\">"+ mgfFile.getAbsolutePath() + "</note>\n"
 	                    + "\t<note type=\"input\" label=\"output, path\">" + filename + "</note>\n"
 	                    + "</bioml>\n");
@@ -133,7 +138,7 @@ public class XTandemJob extends Job {
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
                             + "\t<taxon label=\"" + searchDB + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + algorithmProperties.getProperty("path.fasta") + File.separator + searchDB + ".fasta" + "\" />\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + searchDB + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -153,8 +158,8 @@ public class XTandemJob extends Job {
             bw.write(
                     "<?xml version=\"1.0\"?>\n"
                             + "<bioml label=\"x! taxon-to-file matching list\">\n"
-                            + "\t<taxon label=\"" + searchDB + "_decoy" + "\">\n"
-                            + "\t\t<file format=\"peptide\" URL=\"" + algorithmProperties.getProperty("path.fasta") + searchDB + "_decoy.fasta" + "\" />\n"
+                            + "\t<taxon label=\"" + searchDB + "\">\n"
+                            + "\t\t<file format=\"peptide\" URL=\"" + searchDB + "\" />\n"
                             + "\t</taxon>\n"
                             + "</bioml>");
             bw.flush();
@@ -170,7 +175,6 @@ public class XTandemJob extends Job {
     private void buildParameterFile() {
 
         parameterFile = new File(xTandemFile, PARAMETER_FILE);
-        System.out.println(parameterFile.getAbsolutePath());
         String[] parameters = params.split(";");
         
         try {

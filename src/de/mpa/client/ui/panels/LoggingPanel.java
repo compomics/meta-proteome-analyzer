@@ -70,7 +70,7 @@ public class LoggingPanel extends JPanel {
         
         // configure local log
         writer = new LogWriter(this);
-        appender = new WriterAppender(new PatternLayout("%d{HH:mm:ss}: %-5p [%c{1}] %m%n"), writer);
+        appender = new WriterAppender(new PatternLayout("%d{HH:mm:ss}: %-5p [%c{1}] %m"), writer);
         BasicConfigurator.configure(appender);
 
 	}
