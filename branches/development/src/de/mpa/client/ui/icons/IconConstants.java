@@ -247,6 +247,11 @@ public class IconConstants {
 	public static final ImageIcon SAVE_DB_ROLLOVER_ICON = createColorRescaledIcon(SAVE_DB_ICON, 1.1f);
 	public static final ImageIcon SAVE_DB_PRESSED_ICON = createColorRescaledIcon(SAVE_DB_ICON, 0.8f);
 
+	/** <img src="../../../resources/icons/database_search32.png"> */
+	public static final ImageIcon SEARCH_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_search32.png"));
+	public static final ImageIcon SEARCH_DB_ROLLOVER_ICON = createColorRescaledIcon(SEARCH_DB_ICON, 1.1f);
+	public static final ImageIcon SEARCH_DB_PRESSED_ICON = createColorRescaledIcon(SEARCH_DB_ICON, 0.8f);
+	
 	/** <img src="../../../resources/icons/database_go16.png"> */
 	public static final ImageIcon GO_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_go16.png"));
 	public static final ImageIcon GO_DB_ROLLOVER_ICON = createColorRescaledIcon(GO_DB_ICON, 1.1f);

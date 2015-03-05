@@ -43,6 +43,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.FetchSpectraDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
+import de.mpa.client.ui.dialogs.NewBlastDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 
@@ -132,6 +133,11 @@ public class ProjectPanel extends JPanel {
 	 * The 'Fetch Spectra' button
 	 */
 	private JButton specBtn;
+	
+	/**
+	 * The 'Blast Results' button
+	 */
+	private JButton blastBtn;
 
 	/**
 	 * Constructs a panel containing components for selecting and configuring
@@ -177,7 +183,7 @@ public class ProjectPanel extends JPanel {
 		JXTitledPanel expTtlPnl = PanelConfig.createTitledPanel("Experiments", experimentPnl);
 		
 		// tab button row
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 1dlu, r:p:g, 5dlu, r:p, 5dlu, r:p", "b:p:g"));
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p:g, 5dlu, r:p:g, 5dlu, r:p, 5dlu, r:p", "b:p:g"));
 		
 		skipBtn = ClientFrame.getInstance().createNavigationButton(true, false);
 		skipBtn.setText("Results");
@@ -207,10 +213,23 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		navPnl.add(specBtn, CC.xy(1, 1));
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, false), CC.xy(3, 1));
-		navPnl.add(skipBtn, CC.xy(5, 1));
-		navPnl.add(nextBtn, CC.xy(7, 1));
+		// blast results button
+		blastBtn = new JButton("Blast Results", IconConstants.SEARCH_DB_ICON);
+		blastBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
+		blastBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
+		blastBtn.setEnabled(false);
+		blastBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new NewBlastDialog(ClientFrame.getInstance(), "Blast Unlinked Results", getSelectedExperiment());
+			}
+		});
+		
+		navPnl.add(blastBtn, CC.xy(1, 1));
+		navPnl.add(specBtn, CC.xy(3, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, false), CC.xy(5, 1));
+		navPnl.add(skipBtn, CC.xy(7, 1));
+		navPnl.add(nextBtn, CC.xy(9, 1));
 
 		this.add(projTtlPnl, CC.xy(2, 2));
 		this.add(expTtlPnl, CC.xy(4, 2));
@@ -521,6 +540,7 @@ public class ProjectPanel extends JPanel {
 				modifyExperimentBtn.setEnabled(true);
 				deleteExperimentBtn.setEnabled(true);
 				specBtn.setEnabled(true);
+				blastBtn.setEnabled(true);
 				
 				clientFrame.getResultsPanel().setProcessingEnabled(false);
 				
