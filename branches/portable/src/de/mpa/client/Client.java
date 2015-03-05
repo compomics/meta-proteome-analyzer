@@ -27,6 +27,7 @@ import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
+import de.mpa.job.JobManager;
 import de.mpa.job.SearchTask;
 
 public class Client {
@@ -116,7 +117,8 @@ public class Client {
 	public void runSearches(DbSearchSettings settings) {
 		if (mgfFiles != null) {
 			try {
-				new SearchTask(mgfFiles, settings, new File("/out"), new File(""));
+				new SearchTask(mgfFiles, settings);
+				JobManager.getInstance().run();
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}

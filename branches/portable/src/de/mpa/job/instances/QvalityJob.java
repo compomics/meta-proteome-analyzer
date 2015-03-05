@@ -2,6 +2,8 @@ package de.mpa.job.instances;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
 import de.mpa.job.Job;
 
 /**
@@ -28,6 +30,7 @@ public class QvalityJob extends Job {
 	 * @param reverseScoring
 	 */		 
 	public QvalityJob(String targetFilename, String decoyFilename, boolean reverseScoring) {
+		log = Logger.getLogger(getClass());
 		this.targetFile = new File(targetFilename);
 		this.decoyFile = new File(decoyFilename);
 		this.reverseScoring = reverseScoring;		
@@ -58,8 +61,6 @@ public class QvalityJob extends Job {
 		procCommands.add("-o");
 		procCommands.add(qvaluedOutput);
 		procCommands.trimToSize();		
-		
-		log.info(procCommands);
 		procBuilder = new ProcessBuilder(procCommands);
 		
 		// set error out and std out to same stream
@@ -69,7 +70,5 @@ public class QvalityJob extends Job {
 	public String getQValuedOutput(){
 		return qvaluedOutput;
 	}
-
-	
 }
 

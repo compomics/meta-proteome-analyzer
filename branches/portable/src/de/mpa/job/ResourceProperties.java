@@ -63,9 +63,14 @@ public class ResourceProperties {
 		}
 		prop.load(inputStream);
 		prop.setProperty("path.fasta", path + "/built/fasta");
+		prop.setProperty("path.base", path);
 		
 		if (Starter.isWindows()) {
 			prop.setProperty("path.xtandem", path + "/built/X!Tandem/windows/windows_64bit");
+			prop.setProperty("path.omssa", path + "/built/OMSSA/windows");
+			prop.setProperty("app.omssa", "omssacl.exe");
+			prop.setProperty("path.qvality", path + "/built/QVality/windows/");
+			prop.setProperty("app.qvality", "qvality.exe");
 		}
 		inputStream.close();
 	}

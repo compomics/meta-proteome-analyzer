@@ -1,0 +1,13 @@
+# Path to the FASTA database folder
+path.fasta=/fasta/
+
+# X!Tandem
+path.xtandem.output=/output/xtandem/
+app.xtandem=tandem.exe
+
+# OMSSA
+path.omssa.output=/output/omssa/
+app.omssa=omssacl
+
+# QVality
+app.qvality=qvality.exe

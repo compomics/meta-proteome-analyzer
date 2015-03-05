@@ -919,7 +919,6 @@ public class FilePanel extends JPanel implements Busyable {
 				List<File> filesList = new ArrayList<File>();
 				for (File file : files) {
 					totalSize += file.length();
-					filesList.add(file);
 				}
 				client.firePropertyChange("resetall", 0, totalSize);
 				
