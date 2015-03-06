@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<bioml>
-	<note type="input" label="list path, default parameters">parameters.xml</note>
-	<note type="input" label="list path, taxonomy information">taxonomy.xml</note>
-	<note type="input" label="protein, taxon">C:\workspace\MetaProteomeAnalyzer(Portable)\built\fasta\uniprot_sprot.fasta</note>
-	<note type="input" label="spectrum, path">C:\workspace\MetaProteomeAnalyzer(Portable)\test\de\mpa\resources\Test_100.mgf</note>
-	<note type="input" label="output, path">C:\workspace\MetaProteomeAnalyzer(Portable)/output/xtandem/Test_100_target.xml</note>
-</bioml>
