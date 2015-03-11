@@ -416,8 +416,11 @@ public class UniProtUtilities {
 		
 		List<UniprotentryTableAccessor> entries = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn);
 		long upperLimit = entries.size();
+		Client.getInstance().firePropertyChange("new message", null, "FOUND " + entries.size() + " UNIPROT ENTRIES MISSING ANNOTATION");
+		Client.getInstance().firePropertyChange("resetall", -1L, (long) entries.size());
+		Client.getInstance().firePropertyChange("resetcur", -1L, (long) entries.size());
 
-		System.out.println(upperLimit + " unreferenced UniProt entries found");
+//			System.out.println(upperLimit + " unreferenced UniProt entries found");
 
 		upperLimit = 26000L;
 		while (begin < upperLimit) {
@@ -432,8 +435,8 @@ public class UniProtUtilities {
 				accessions.add(proteinAccessor.getAccession());
 				uniprotEntries.put(proteinAccessor.getAccession(), uniProtEntry);
 			}
-			System.out.println("Found " + allEntries.size() + " unreferenced UniProt entries.");
-
+//				System.out.println("Found " + allEntries.size() + " unreferenced UniProt entries.");
+			
 			if (!accessions.isEmpty()) {
 				proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, true);
 				Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
@@ -487,10 +490,13 @@ public class UniProtUtilities {
 									oldUniProtEntry.getUniprotentryid(), oldUniProtEntry.getFk_proteinid(),
 									taxID, ecNumbers, koNumbers, keywords, uniRefs.getUniRef100EntryId(), uniRefs.getUniRef90EntryId(), uniRefs.getUniRef50EntryId(), conn);
 						}
+						
+						Client.getInstance().firePropertyChange("progressmade", false, true);
 					}
 					counter++;
 					if (counter % increment == 0) {
-						System.out.println(counter + "/" + allEntries.size() + " UniProt entries have been updated.");
+//							System.out.println(counter + "/" + allEntries.size() + " UniProt entries have been updated.");
+//						Client.getInstance().firePropertyChange("new message", null, counter + "/" + allEntries.size() + " ENTRIES HAVE BEEN UPDATED");
 						conn.commit();
 					}
 				}
@@ -499,18 +505,19 @@ public class UniProtUtilities {
 			}
 			begin += increment;
 		}
-		System.out.println("All UniProt entries have been updated.");
-	}
-
-	/**
-	 * Method to repair empty UniProt references
-	 * @throws SQLException 
-	 */
-	public static void repairEmptyUniProtEntries() throws SQLException{
-		repairEmptyUniProtEntriesAndBLAST(null, null, 0.0, false);
+//			System.out.println("All UniProt entries have been updated.");
+		Client.getInstance().firePropertyChange("new message", null, "FINISHED UPDATING UNIPROT ENTRIES");
 	}
 	
-	public static void blastEntries(Set<Long> proteins, String blastFile, String blastDatabase, double eValue) throws SQLException{
+	/**
+	 * Method to repair empty UniProtEntries and if they are unknown to BLAST them
+	 * @param blastFile. The file of the blast algorithm.
+	 * @param database. The database for BLAST search.
+	 * @param eValue. The evalue cutoff for the BLAST search.
+	 * @param blast. Flag for include BLAST or not
+	 */
+	
+	public static void updateUniProtEntries(Set<Long> proteins, String blastFile, String blastDatabase, double eValue, boolean blast) throws SQLException{
 		Connection conn = DBManager.getInstance().getConnection();
 		
 		// Find all proteins without a UniProt entry
@@ -545,47 +552,69 @@ public class UniProtUtilities {
 			}
 		}
 		
-		// Make DbEntries from the proteins in question
-		List<DbEntry> blastEntries = new ArrayList<DbEntry>();
-		for (ProteinAccessor prot : blastProteins) {
-			DbEntry dbEntry = new DbEntry(prot.getAccession(), prot.getAccession(), DB_Type.UNIPROTSPROT, null);
-			dbEntry.setSequence(prot.getSequence());
-			blastEntries.add(dbEntry);
-		}
-//			System.out.println("... " + blastEntries.size() + " of those have no valid accession and will be BLASTed.");
-		Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST ON " + blastEntries.size() + " PROTEINS");
-		Client.getInstance().firePropertyChange("indeterminate", false, true);
-			
-		// Start the BLAST
-//			System.out.print("Running BLAST ...");
-		RunMultiBlast blaster = new RunMultiBlast(blastFile, blastDatabase, eValue, blastEntries);
-		String status = "FINISHED";
-		try {
-			blaster.blast();
-		} catch (IOException e) {
-			e.printStackTrace();
-			status = "FAILED";
-		}
-		Map<String, BlastResult> blastBatch = blaster.getBlastResultMap();
-//			System.out.print(" done.\n");
-		
-//			System.out.println("... " + blastBatch.size() + " proteins were found during BLAST.");
-		// Update BLASTED proteins
-		for (ProteinAccessor prot : blastProteins) {
-			String acc = prot.getAccession();
-			// Get best BLAST hit
-			if (blastBatch.get(acc) != null ) {
-				BlastHit bestBlastHit = blastBatch.get(acc).getBestBitScoreBlastHit();
-				// and update database entry
-				accessionsMap.put(acc, bestBlastHit.getAccession()); 
-				String newDescription = "BLAST: " + bestBlastHit.getAccession() + " " +bestBlastHit.getName() + " Bitscore: " + bestBlastHit.getScore();
-//					System.out.println("BLAST query " + acc + " was identified as: " + bestBlastHit.getAccession());
-				ProteinAccessor.upDateProteinEntry(prot.getProteinid(), prot.getAccession(), newDescription, prot.getSequence(), prot.getCreationdate(),  conn);
+		if (blast) {
+			String status;
+			Map<String, BlastResult> blastBatch;
+			//			System.out.print(" done.\n");
+			if (!blastProteins.isEmpty()) {
+				// Make DbEntries from the proteins in question
+				List<DbEntry> blastEntries = new ArrayList<DbEntry>();
+				for (ProteinAccessor prot : blastProteins) {
+					DbEntry dbEntry = new DbEntry(prot.getAccession(),
+							prot.getAccession(), DB_Type.UNIPROTSPROT, null);
+					dbEntry.setSequence(prot.getSequence());
+					blastEntries.add(dbEntry);
+				}
+				//			System.out.println("... " + blastEntries.size() + " of those have no valid accession and will be BLASTed.");
+				Client.getInstance()
+						.firePropertyChange(
+								"new message",
+								null,
+								"RUNNING BLAST ON " + blastEntries.size()
+										+ " PROTEINS");
+				Client.getInstance().firePropertyChange("indeterminate", false,
+						true);
+				// Start the BLAST
+				//			System.out.print("Running BLAST ...");
+				RunMultiBlast blaster = new RunMultiBlast(blastFile,
+						blastDatabase, eValue, blastEntries);
+				status = "FINISHED";
+				try {
+					blaster.blast();
+				} catch (IOException e) {
+					e.printStackTrace();
+					status = "FAILED";
+				}
+				blastBatch = blaster.getBlastResultMap();
+
+				//			System.out.println("... " + blastBatch.size() + " proteins were found during BLAST.");
+				// Update BLASTED proteins
+				for (ProteinAccessor prot : blastProteins) {
+					String acc = prot.getAccession();
+					// Get best BLAST hit
+					if (blastBatch.get(acc) != null) {
+						BlastHit bestBlastHit = blastBatch.get(acc)
+								.getBestBitScoreBlastHit();
+						// and update database entry
+						accessionsMap.put(acc, bestBlastHit.getAccession());
+						String newDescription = "MG: " + bestBlastHit.getName()
+								+ " [" + bestBlastHit.getAccession()
+								+ "] Score: " + bestBlastHit.getScore();
+						//					System.out.println("BLAST query " + acc + " was identified as: " + bestBlastHit.getAccession());
+						ProteinAccessor.upDateProteinEntry(prot.getProteinid(),
+								prot.getAccession(), newDescription,
+								prot.getSequence(), prot.getCreationdate(),
+								conn);
+					}
+				}
+				Client.getInstance().firePropertyChange("indeterminate", true,
+						false);
+				Client.getInstance().firePropertyChange("new message", null,
+						"BLAST FOUND " + blastBatch.size() + " PROTEINS");
+				Client.getInstance().firePropertyChange("new message", null,
+						"RUNNING BLAST " + status);
 			}
 		}
-		Client.getInstance().firePropertyChange("indeterminate", true, false);
-		Client.getInstance().firePropertyChange("new message", null, "BLAST FOUND " + blastBatch.size() + " PROTEINS");
-		Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST " + status);
 		
 		// Get UniProtEntries for the found proteins.
 		fetchEmptyUniProtEntries(accessionsMap);
@@ -700,12 +729,22 @@ public class UniProtUtilities {
 	}
 	
 	/**
+	 * Method to repair empty UniProt references
+	 * @throws SQLException 
+	 */
+	@Deprecated
+	public static void repairEmptyUniProtEntries() throws SQLException{
+		repairEmptyUniProtEntriesAndBLAST(null, null, 0.0, false);
+	}
+	
+	/**
 	 * Method to repair empty UniProtEntries and if they are unknown to BLAST them
 	 * @param blastFile. The file of the blast algorithm.
 	 * @param database. The database for BLAST search.
 	 * @param eValue. The evalue cutoff for the BLAST search.
 	 * @param blast. Flag for include BLAST or not
 	 */
+	@Deprecated
 	public static void repairEmptyUniProtEntriesAndBLAST(String blastFile, String database, double eValue, boolean blast) throws SQLException{
 		
 		// Path of the taxonomy dump folder

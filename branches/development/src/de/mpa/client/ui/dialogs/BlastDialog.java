@@ -3,6 +3,9 @@ package de.mpa.client.ui.dialogs;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -16,10 +19,12 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.UniProtUtilities;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * Class for the BLAST Dialog
@@ -126,13 +131,15 @@ public class BlastDialog extends JDialog {
 
 		@Override
 		protected Object doInBackground() throws Exception {
-			// TODO: Separate blast from uniprot queryiing.
-			UniProtUtilities.repairEmptyUniProtEntriesAndBLAST(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);			
+			// find all proteins in the database and pass them to BLAST
+			Map<String, Long> protMap = ProteinAccessor.findAllProteins(Client.getInstance().getConnection());
+			Set<Long> proteins = new HashSet<Long>();
+			for (long id : protMap.values()) {
+				proteins.add(id);
+			}
+			UniProtUtilities.updateUniProtEntries(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);			
 			return null;
 		}
 		
-		protected void finished() {
-			System.out.println("Do stuff when blast worker has finished.");
-		}
 	}
 }
