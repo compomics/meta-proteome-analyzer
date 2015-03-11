@@ -7,7 +7,10 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -41,6 +44,7 @@ import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
+import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * The main application frame's menu bar.
@@ -182,45 +186,56 @@ public class ClientFrameMenuBar extends JMenuBar {
 		updateMenu.setText("Update");
 		
 		// Update contents
-		// UniProt
-		JMenuItem updateUniProtItem = new JMenuItem();
-		updateUniProtItem.setText("Update UniRef's");
-		updateUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
-		updateUniProtItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					UniProtUtilities.repairMissingUniRefs();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-		// UniProt
-				JMenuItem updateEmptyUniProtItem = new JMenuItem();
-				updateEmptyUniProtItem.setText("Update empty UniProt Entries");
-				updateEmptyUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
-				updateEmptyUniProtItem.addActionListener(new ActionListener() {
+		
+				// fill in information for UniProt 100 90 50 etc. References
+				JMenuItem updateUniProtItem = new JMenuItem();
+				updateUniProtItem.setText("Update UniRef's");
+				updateUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
+				updateUniProtItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						try {
-							UniProtUtilities.repairEmptyUniProtEntries();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
+						new SwingWorker<Object, Object>() {
+							@Override
+							protected Object doInBackground() throws SQLException {
+								UniProtUtilities.repairMissingUniRefs();
+								return null;
+							}
+						}.execute();
 					}
 				});
-		// BLAST
-		JMenuItem blastItem = new JMenuItem();
-		blastItem.setText("BLAST unknown Hits");
-		blastItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast16.png")));
-		blastItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				new BlastDialog(clientFrame, "Blast_Dialog");
-			}
-		});
-		// Add items to update menu
-		updateMenu.add(updateUniProtItem);
-		updateMenu.add(updateEmptyUniProtItem);
-		updateMenu.add(blastItem);
+				// Find unreferenced UniProt entries in the database and try to fill them
+						JMenuItem updateEmptyUniProtItem = new JMenuItem();
+						updateEmptyUniProtItem.setText("Update empty UniProt Entries");
+						updateEmptyUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
+						updateEmptyUniProtItem.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								new SwingWorker<Object, Object>() {
+									@Override
+									protected Object doInBackground() throws SQLException  {
+										// find all proteins in the database and pass them on
+										Map<String, Long> protMap = ProteinAccessor.findAllProteins(Client.getInstance().getConnection());
+										Set<Long> proteins = new HashSet<Long>();
+										for (long id : protMap.values()) {
+											proteins.add(id);
+										}
+										UniProtUtilities.updateUniProtEntries(proteins, null, null, 0, false);
+										return null;
+									}	
+								}.execute();
+							}
+						});
+				// Find unreferenced UniProt entries in the database and try to BLAST them if necessary
+				JMenuItem blastItem = new JMenuItem();
+				blastItem.setText("BLAST unknown Hits");
+				blastItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast16.png")));
+				blastItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						new BlastDialog(clientFrame, "Blast_Dialog");
+					}
+				});
+				// Add items to update menu
+				updateMenu.add(updateUniProtItem);
+				updateMenu.add(updateEmptyUniProtItem);
+				updateMenu.add(blastItem);
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		

@@ -15,7 +15,7 @@ import de.mpa.client.Constants;
 import de.mpa.client.blast.DbEntry.DB_Type;
 
 /**
- * Class to BLAST a a certain sequence
+ * Class to BLAST a batch of sequences
  * @author Robert Heyer and Sebastian Dorl
  */
 public class RunMultiBlast {
@@ -123,10 +123,12 @@ public class RunMultiBlast {
 		    String subject = splits[1];
 		    String bitscore = splits[2];
 		    String evalue = splits[3];
-		    String title = splits[4];
 		    // get accession from name
 		    String[] sbjctsplit = subject.split("[|]");
 		    String accession = sbjctsplit[1];
+		    // get description from subject title
+		    String[] titlesplit = splits[4].split("[ ]", 2);
+		    String title =titlesplit[1];
 		    
 		    // make or get the result object
 		    BlastResult result;

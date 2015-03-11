@@ -167,7 +167,7 @@ public class NewBlastDialog extends JDialog {
 				proteins.add(aProt.getProteinid());
 			}
 			
-			UniProtUtilities.blastEntries(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()));
+			UniProtUtilities.updateUniProtEntries(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);
 			return null;
 		}
 		
