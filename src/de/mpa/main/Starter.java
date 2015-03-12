@@ -69,7 +69,7 @@ public class Starter {
 			// Read theme configuration files
 			File themesFolder;
 			if (isJarExport()) {
-				themesFolder = new File(Constants.THEME_FOLDER);
+				themesFolder = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "conf" + System.getProperty("file.separator") + "themes" + System.getProperty("file.separator"));
 			} else {
 				URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
 				themesFolder = new File(url.toURI());
@@ -93,7 +93,8 @@ public class Starter {
 			}
 			defaultTheme.applyTheme();
 			// finalize list of themes
-			Constants.THEMES = Collections.unmodifiableList(themes);
+			// TODO: CAUSE ERROR under linux
+			//Constants.THEMES = Collections.unmodifiableList(themes);
 			
 			// Set Plastic3DLook&Feel as default for all operating systems
 			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue() {

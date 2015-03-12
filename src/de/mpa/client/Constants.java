@@ -448,6 +448,11 @@ public class Constants {
 	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + "/themes/";
 	
 	/**
+	 * The folder containing theme files.
+	 */
+	public static final String THEME_FOLDER_JAR = null  ;
+	
+	/**
 	 * The name of the default theme.
 	 */
 	public static final String DEFAULT_THEME_NAME = "Sky Blue";
