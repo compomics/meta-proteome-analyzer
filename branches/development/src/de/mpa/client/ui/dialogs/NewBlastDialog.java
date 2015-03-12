@@ -169,7 +169,7 @@ public class NewBlastDialog extends JDialog {
 				ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
 				proteins.add(aProt.getProteinid());
 			}
-			
+
 			UniProtUtilities.updateUniProtEntries(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);
 			return null;
 		}

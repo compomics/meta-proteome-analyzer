@@ -566,18 +566,11 @@ public class UniProtUtilities {
 					blastEntries.add(dbEntry);
 				}
 				//			System.out.println("... " + blastEntries.size() + " of those have no valid accession and will be BLASTed.");
-				Client.getInstance()
-						.firePropertyChange(
-								"new message",
-								null,
-								"RUNNING BLAST ON " + blastEntries.size()
-										+ " PROTEINS");
-				Client.getInstance().firePropertyChange("indeterminate", false,
-						true);
+				Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST ON " + blastEntries.size() + " PROTEINS");
+				Client.getInstance().firePropertyChange("indeterminate", false,	true);
 				// Start the BLAST
 				//			System.out.print("Running BLAST ...");
-				RunMultiBlast blaster = new RunMultiBlast(blastFile,
-						blastDatabase, eValue, blastEntries);
+				RunMultiBlast blaster = new RunMultiBlast(blastFile, blastDatabase, eValue, blastEntries);
 				status = "FINISHED";
 				try {
 					blaster.blast();
@@ -607,12 +600,9 @@ public class UniProtUtilities {
 								conn);
 					}
 				}
-				Client.getInstance().firePropertyChange("indeterminate", true,
-						false);
-				Client.getInstance().firePropertyChange("new message", null,
-						"BLAST FOUND " + blastBatch.size() + " PROTEINS");
-				Client.getInstance().firePropertyChange("new message", null,
-						"RUNNING BLAST " + status);
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+				Client.getInstance().firePropertyChange("new message", null, "BLAST FOUND " + blastBatch.size() + " PROTEINS");
+				Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST " + status);
 			}
 		}
 		
