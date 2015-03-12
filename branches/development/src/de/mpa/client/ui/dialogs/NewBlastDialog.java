@@ -30,6 +30,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.DBManager;
+import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
@@ -157,9 +158,11 @@ public class NewBlastDialog extends JDialog {
 			
 			// gather all proteins from the experiment
 			Set<Long> proteins = new HashSet<Long>();
+			List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(experiment.getID(), conn);
 			List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(experiment.getID(), conn);
 			List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(experiment.getID(), conn);
 			List<SearchHit> hits = new ArrayList<SearchHit>();
+			hits.addAll(mascotHits);
 			hits.addAll(xtandemHits);
 			hits.addAll(omssaHits);
 			for (SearchHit hit : hits) {
