@@ -6,8 +6,11 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 
 import org.junit.Before;
+import org.junit.Test;
 
 import de.mpa.analysis.taxonomy.NcbiTaxonomy;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
+import de.mpa.client.Constants;
 import de.mpa.db.DBManager;
 
 
@@ -17,38 +20,24 @@ import de.mpa.db.DBManager;
  */
 public class TaxonomyAccessorTest extends TestCase {
 	
-	/**
-	 * Connection 
-	 */
-	private Connection conn;
-	private NcbiTaxonomy ncbiTax;
-
 	@Before
 	public void setUp() throws SQLException {
 		// Path of the taxonomy dump folder
-		ncbiTax = NcbiTaxonomy.getInstance();
-		conn = DBManager.getInstance().getConnection();
+		// Path of the taxonomy dump folder
+		String namesFileString = Constants.CONFIGURATION_PATH + "names.dmp";
+		String nodesFileString = Constants.CONFIGURATION_PATH + "nodes.dmp";
+		try {
+			NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance(namesFileString, nodesFileString);
+			ncbiTax.storeTaxonomy();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Connection conn = DBManager.getInstance().getConnection();
 	}
 
-//	@Test 
-//	public void testInsert(){
-//		try {
-//			int[] keys = ncbiTax.getNodesMap().keys();
-//			for (int taxID : keys) {
-//				if (taxID != 1) {
-//					Taxonomy.addTaxonomy((long) taxID, (long) ncbiTax.getParentTaxId(taxID), ncbiTax.getTaxonName(taxID), ncbiTax.getRank(taxID), conn);
-//					if (taxID % 1000 == 0) {
-//						System.out.println(taxID);
-//						conn.commit();
-//					}
-//				}
-//			}
-//			conn.commit();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-
+	@Test 
+	public void testInsert(){
+		boolean flag = true;
+		assertEquals(true, flag);
+	}
 }
