@@ -44,6 +44,16 @@ import de.mpa.main.Starter;
 public class Constants {
 	
 	/**
+	 * User directory of the MPA
+	 */
+	public static final String DIR = System.getProperty("user.dir");
+	
+	/**
+	 * File separator of the MPA 
+	 */
+	public static final String SEP = System.getProperty("file.separator");
+	
+	/**
 	 * The application title.
 	 */
 	public final static String APPTITLE = "MetaProteomeAnalyzer (Development)";
@@ -51,7 +61,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.1.0";
+	public final static String VER_NUMBER = "1.0.8d";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -72,7 +82,7 @@ public class Constants {
 	 * The application splash screen image
 	 * <img src="../resources/images/mpa.png">
 	 */
-	public static final String SPLASHSCREEN_IMAGE_LOCATION = "/de/mpa/resources/images/mpa.png";
+	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP  + "de" + SEP + "mpa" + SEP +"resources" + SEP + "images" + SEP + "mpa.png";
 	
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter after GET).
@@ -114,7 +124,9 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
+	public static final String CONFIGURATION_PATH = SEP +"de" + SEP +"mpa" + SEP + "resources" + SEP + "conf" +SEP;
+	
+	public static final String CONFIGURATION_DIR_PATH = DIR + SEP + "bin" + SEP +"de" +SEP +"mpa" + SEP + "resources" + SEP + "conf" +SEP;
 	
 	/**
 	 * Path string of folder containing configuration resources for the jar build.<br>
@@ -125,7 +137,7 @@ public class Constants {
 	/**
 	 * Path string of folder containing spectrum resources.
 	 */
-	public static final String DEFAULT_SPECTRA_PATH = "test/de/mpa/resources/";
+	public static final String DEFAULT_SPECTRA_PATH = "test" + SEP +  "de"+ SEP + "mpa" + SEP + "resources" + SEP;
 
 	/**
 	 * Path string of the temporary backup database search result object.
@@ -136,7 +148,7 @@ public class Constants {
 	 * Map of KEGG Orthology tree leaves.
 	 */
 	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(
-			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
+			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + SEP + "ko00001.keg"));
 	
 	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
 	
@@ -161,6 +173,10 @@ public class Constants {
 			"Raw Mascot Result File (*.dat)");
 	public static final FileFilter GRAPHML_FILE_FILTER = new ExtensionFileFilter(".graphml", false,
 			"GraphML File (*.graphml)");
+	public static final FileFilter NCBINAMES_FILE_FILTER = new ExtensionFileFilter(".dmp", false,
+			"Please select names.dmp File (*.dmp)");
+	public static final FileFilter NCBINODES_FILE_FILTER = new ExtensionFileFilter(".dmp", false,
+			"Please select nodes.dmp File (*.dmp)");
 	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
 			"Microsoft Excel 2003 XML File (*.xml)");
 
@@ -174,22 +190,22 @@ public class Constants {
 	/**
 	 * Database for BLAST queries
 	 */
-	public static final String BLAST_UNIPROT_DB =  System.getProperty("file.separator") + "scratch" + System.getProperty("file.separator") + "BlastDb" + System.getProperty("file.separator") + "uniprot_sprot.fasta";
+	public static final String BLAST_UNIPROT_DB =  SEP + "scratch" + SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta";
 
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = System.getProperty("file.separator") + "usr" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "blastp" ;
+	public static final String BLAST_FILE = SEP + "scratch" + SEP + "metaprot" + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp" ;
 
 	/**
 	 * File for a dummy fasta for each BLAST query
 	 */
-	public static final String BLAST_DUMMY_FASTA_FILE = System.getProperty("user.dir")  + System.getProperty("file.separator") + "out" + System.getProperty("file.separator") + "dummy.fasta";
+	public static final String BLAST_DUMMY_FASTA_FILE = DIR  + SEP + "out" + SEP + "dummy.fasta";
 
 	/**
 	 * Output file for the results of each BLAST query
 	 */
-	public static final String BLAST_OUTPUT_XML = System.getProperty("user.dir")  + System.getProperty("file.separator") + "out" + System.getProperty("file.separator") + "output.xml";
+	public static final String BLAST_OUTPUT_XML = DIR  + SEP + "out" + SEP + "output.xml";
 
 	/**
 	 * Evalue for the BLAST query
@@ -201,8 +217,8 @@ public class Constants {
 	 * @return the root of the en
 	 */
 	private static ECNode createEnzymeTree() {
-		ECNode root = ECReader.readEnzymeClasses(CONFIGURATION_PATH_JAR + File.separator + "enzclass.txt");
-		ECReader.readEnzymes(root, CONFIGURATION_PATH_JAR + File.separator + "enzyme.dat");
+		ECNode root = ECReader.readEnzymeClasses(CONFIGURATION_PATH_JAR + SEP + "enzclass.txt");
+		ECReader.readEnzymes(root, CONFIGURATION_PATH_JAR + SEP + "enzyme.dat");
 		return root;
 	}
 
@@ -227,7 +243,7 @@ public class Constants {
 	public static File getProjectsFile() throws Exception {
 		File projectsFile;
 		if (Starter.isJarExport()) {
-			projectsFile = new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "projects.xml");
+			projectsFile = new File(Constants.CONFIGURATION_PATH_JAR + SEP + "projects.xml");
 		} else {
 			URL resource = Constants.class.getResource(Constants.CONFIGURATION_PATH + "projects.xml");
 			if (resource != null) {
@@ -445,7 +461,7 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + "/themes/";
+	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + SEP +"themes" +SEP;
 	
 	/**
 	 * The folder containing theme files.

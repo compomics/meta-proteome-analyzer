@@ -143,6 +143,7 @@ public class ConnectionParameters extends ParameterMap {
 				
 		if (Starter.isJarExport()) {
 			br = new BufferedReader(new FileReader(new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "connection-settings.txt")));
+			
 		} else {
 			InputStream is = ClassLoader.getSystemResourceAsStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "connection-settings.txt");
 			br = new BufferedReader(new InputStreamReader(is));

@@ -9,13 +9,20 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.ui.ClientFrame;
+import de.mpa.db.DBManager;
+import de.mpa.db.accessor.Taxonomy;
 import de.mpa.util.Formatter;
 
 /**
@@ -23,14 +30,13 @@ import de.mpa.util.Formatter;
  * ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
  * @author R. Heyer, T. Muth
  */
-@Deprecated
 public class NcbiTaxonomy implements Serializable {
-	
+
 	/**
 	 * Serialization ID set to default == 1L;
 	 */
 	private static final long serialVersionUID = 1L; 
-	
+
 	/**
 	 * Instance of the NCBI taxonomy.
 	 */
@@ -39,48 +45,57 @@ public class NcbiTaxonomy implements Serializable {
 	/**
 	 * Map containing taxonomy id-to-byte position pairs w.r.t. 'names.dmp'
 	 */ 
-	@Deprecated
-	private TIntIntHashMap namesMap;
+	private static TIntIntHashMap namesMap;
 
 	/**
 	 * Map containing taxonomy id-to-byte position pairs w.r.t. 'nodes.dmp'
 	 */
-	@Deprecated
-	private TIntIntHashMap nodesMap;
+	private static TIntIntHashMap nodesMap;
 
-//	/**
-//	 * Input reader instance for names.dmp file.
-//	 */
-//	private RandomAccessFile namesRaf;
-//
-//	/**
-//	 * Input reader instance for nodes.dmp file.
-//	 */
-//	private RandomAccessFile nodesRaf;
+	/**
+	 * File of the names.dmp.
+	 */
+	private static String namesFileString;
+
+	/**
+	 * File of the nodes.dmp.
+	 */
+	private static String nodesFileString; 
+
+	/**
+	 * Input reader instance for names.dmp file.
+	 */
+	private RandomAccessFile namesRaf;
+
+	/**
+	 * Input reader instance for nodes.dmp file.
+	 */
+	private RandomAccessFile nodesRaf;
 
 	/**
 	 * Filename of the taxonomy index file.
 	 */
-	@Deprecated
 	private static final String INDEX_FILENAME = "taxonomy.index";
-
 
 	/**
 	 * The root node constant.
 	 */
-	@Deprecated
 	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
 
 	/**
-	 * Empty constructor for NCBI tax maps
+	 * Constructor for the NCBI taxonomy.
+	 * @param namesFile. The Filepath of the names file.
+	 * @param nodesFile. The Filepath of the nodes file.
 	 */
-	private NcbiTaxonomy() {
+	private NcbiTaxonomy(String namesFileString, String nodesFileString) {
+		NcbiTaxonomy.namesFileString = namesFileString;
+		NcbiTaxonomy.nodesFileString = nodesFileString;
 		try {
-//			namesRaf = new RandomAccessFile(new File(
-//					this.getClass().getResource(Constants.CONFIGURATION_PATH + "names.dmp").toURI()), "r");
-//			nodesRaf = new RandomAccessFile(new File(
-//					this.getClass().getResource(Constants.CONFIGURATION_PATH + "nodes.dmp").toURI()), "r");
-			readIndexFile();
+			namesRaf = new RandomAccessFile(new File(NcbiTaxonomy.namesFileString), "r");
+			nodesRaf = new RandomAccessFile(new File(NcbiTaxonomy.nodesFileString), "r");
+			createIndexFile();
+//			readIndexFile();
+			storeTaxonomy();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,24 +103,18 @@ public class NcbiTaxonomy implements Serializable {
 
 	/**
 	 * Get NCBI taxonomy maps instance.
+	 * @param namesFile. The filepath of the names file.
+	 * @param nodesFile. The filepath of the nodes file.
 	 * @return the taxonomy maps instance.
+	 * @throws Exception 
 	 */
-	@Deprecated
-	public static NcbiTaxonomy getInstance() {
+	public static NcbiTaxonomy getInstance(String inputNamesString, String inputNodesString) throws Exception {
+		String namesString = inputNamesString;
+		String nodesString = inputNodesString;
 		if (instance == null) {
-			instance = new NcbiTaxonomy();
+			instance = new NcbiTaxonomy(namesString, nodesString);
 		}
 		return instance;
-	}
-
-	/**
-	 * Indexes NCBI taxonomy dump files and writes them to an index file in the
-	 * default folder.
-	 * @throws Exception if an I/O error occurs
-	 */
-	@Deprecated
-	public void createIndexFile() throws Exception {
-		this.createIndexFile(Constants.CONFIGURATION_PATH);
 	}
 
 	/**
@@ -114,14 +123,13 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param path path string pointing to the target folder
 	 * @throws Exception 
 	 */
-	@Deprecated
-	public void createIndexFile(String path) throws Exception {
+	public static void createIndexFile() throws Exception {
 
 		// NCBI names.dmp file
-		File namesFile = new File(this.getClass().getResource(path + "names.dmp").toURI());
+		File namesFile = new File(namesFileString);
 
 		// NCBI nodes.dmp file
-		File nodesFile = new File(this.getClass().getResource(path + "nodes.dmp").toURI());
+		File nodesFile = new File(nodesFileString);
 
 		// Map for NCBI names file 
 		namesMap = new TIntIntHashMap();
@@ -160,21 +168,24 @@ public class NcbiTaxonomy implements Serializable {
 			pos += line.getBytes().length + newline;
 		}
 		br.close();
-
-		this.writeIndexFile();
+		System.out.println("Read names.dmp and nodes.dmp" );
+		writeIndexFile();
 	}
 
 	/**
 	 * Write the index files.
 	 * @throws Exception if an I/O error occurs
 	 */
-	private void writeIndexFile() throws Exception {
-
+	private static void writeIndexFile() throws Exception {
+		// The file of the createt index file.
 		File indexFile;
-		String name = Constants.CONFIGURATION_PATH + INDEX_FILENAME;
-		URL url = this.getClass().getResource(name);
+		String name = Constants.CONFIGURATION_DIR_PATH + INDEX_FILENAME;
+		File file = new File(name);
+		URL url = file.getClass().getResource(name);
+		//		URL url = Client.getInstance().getClass().getResource(name);
+		//		URL url = this.getClass().getResource(name);
 		if (url == null) {
-			indexFile = new File("bin" + name);
+			indexFile = new File(name);
 			indexFile.createNewFile();
 		} else {
 			indexFile = new File(url.toURI());
@@ -184,17 +195,35 @@ public class NcbiTaxonomy implements Serializable {
 		oos.writeObject(nodesMap);
 		oos.flush();
 		oos.close();
-		System.out.println("done");
-		System.out.println(indexFile.getAbsolutePath());
 		namesMap.clear();
 		nodesMap.clear();
+		System.out.println("NCBI taxonomy read successfully");
 	}
 
+//	storeTaxonomy.
+	/**
+	 * Methode to store new taxonomies into the sql database
+	 */
+	public void storeTaxonomy() throws Exception{
+		Connection conn = DBManager.getInstance().getConnection();
+		int[] keys = this.getNodesMap().keys();
+		for (int taxID : keys) {
+			if (taxID != 1) {
+				Taxonomy.addTaxonomy((long) taxID, (long) this.getParentTaxId(taxID), this.getTaxonName(taxID), this.getRank(taxID), conn);
+				if (taxID % 1000 == 0) {
+					System.out.println(taxID);
+					conn.commit();
+				}
+			}
+		}
+		conn.commit();
+	}
+	
+	
 	/**
 	 * Reads the index files.
 	 * @throws Exception if an I/O error occurs
 	 */
-	@Deprecated
 	public void readIndexFile() throws Exception {
 		InputStream inStream = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + INDEX_FILENAME);
 		if (inStream != null) {
@@ -206,15 +235,77 @@ public class NcbiTaxonomy implements Serializable {
 			System.err.println("ERROR: \"" + Constants.CONFIGURATION_PATH + INDEX_FILENAME + "\" not found!");
 		}
 	}
-
+	
 	/**
 	 * Returns the nodes map for external use.
 	 * @return Map containing the taxonomy nodes.
 	 */
-	@Deprecated
 	public TIntIntHashMap getNodesMap() {
 		return nodesMap;
 	}
-	
-	
+
+	/** 		
+	 * Returns the parent taxonomy id of the taxonomy node belonging to the specified taxonomy id. 		
+	 * @param taxId the taxonomy id 		
+	 * @return the parent taxonomy id 		
+	 * @throws Exception if an I/O error occurs 		
+	 */ 		
+	public int getParentTaxId(int taxId) throws Exception { 		
+
+		// Get mapping 		
+		int pos = nodesMap.get(taxId); 		
+
+		// Skip to mapped byte position in nodes file 		
+		nodesRaf.seek(pos); 		
+
+		// Read line and isolate second numeric value 		
+		String line = nodesRaf.readLine(); 		
+		line = line.substring(line.indexOf("\t|\t") + 3); 		
+		line = line.substring(0, line.indexOf("\t")); 		
+		return Integer.valueOf(line).intValue(); 		
+	}
+	/** 		
+	 * Returns the taxonomic rank identifier of the taxonomy node belonging to the specified taxonomy id. 		
+	 * @param taxID the taxonomy id 		
+	 * @return the taxonomic rank 		
+	 * @throws Exception if an I/O error occurs 		
+	 */ 		
+	synchronized public String getRank(int taxID) throws Exception { 		
+
+		// Get mapping 		
+		int pos = nodesMap.get(taxID); 		
+
+		// Skip to mapped byte position in nodes file 		
+		nodesRaf.seek(pos); 		
+
+		// Read line and isolate third non-numeric value 		
+		String line = nodesRaf.readLine(); 		
+		line = line.substring(line.indexOf("\t|\t") + 3); 		
+		line = line.substring(line.indexOf("\t|\t") + 3); 		
+		line = line.substring(0, line.indexOf("\t")); 		
+
+		return line; 		
+	}
+
+	/** 		
+	 * Returns the name of the taxonomy node belonging to the specified taxonomy id. 		
+	 * @param taxID the taxonomy id 		
+	 * @return the taxonomy node name 		
+	 * @throws Exception if an I/O error occurs 		
+	 */ 		
+	synchronized public String getTaxonName(int taxID) throws Exception { 		
+
+		// Get mapping 		
+		int pos = namesMap.get(taxID); 		
+
+		// Skip to mapped byte position in names file 		
+		namesRaf.seek(pos); 		
+
+		// Read line and isolate second non-numeric value 		
+		String line = namesRaf.readLine(); 		
+		line = line.substring(line.indexOf("\t|\t") + 3); 		
+		line = line.substring(0, line.indexOf("\t")); 		
+
+		return line; 		
+	} 		
 }

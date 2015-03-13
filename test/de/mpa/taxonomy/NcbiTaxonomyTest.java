@@ -3,8 +3,10 @@ package de.mpa.taxonomy;
 import junit.framework.TestCase;
 
 import org.junit.Before;
+import org.junit.Test;
 
 import de.mpa.analysis.taxonomy.NcbiTaxonomy;
+import de.mpa.client.Constants;
 
 
 /**
@@ -17,21 +19,19 @@ public class NcbiTaxonomyTest extends TestCase {
 	@Before
 	public void setUp(){
 		// Path of the taxonomy dump folder
-		NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance();
+		String namesFileString = Constants.CONFIGURATION_DIR_PATH + "names.dmp";
+		String nodesFileString = Constants.CONFIGURATION_DIR_PATH + "nodes.dmp";
+		
 		try {
-//			System.out.print("Creating Index File... ");
-//			long startTime = System.currentTimeMillis();
-			ncbiTax.createIndexFile();
-//			System.out.flush();
-//			System.out.println("done! (" + (System.currentTimeMillis() - startTime) + " ms)");
-
-//			System.out.print("Reading Index File... ");
-//			startTime = System.currentTimeMillis();
-			ncbiTax.readIndexFile();
-//			System.out.flush();
-//			System.out.println("done! (" + (System.currentTimeMillis() - startTime) + " ms)");
+			NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance(namesFileString, nodesFileString);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void testNCBI(){
+		int a = 1;
+		assertEquals(1, a);
 	}
 }
