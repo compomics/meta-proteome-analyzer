@@ -94,7 +94,7 @@ public class NcbiTaxonomy implements Serializable {
 			namesRaf = new RandomAccessFile(new File(NcbiTaxonomy.namesFileString), "r");
 			nodesRaf = new RandomAccessFile(new File(NcbiTaxonomy.nodesFileString), "r");
 			createIndexFile();
-//			readIndexFile();
+			readIndexFile();
 			storeTaxonomy();
 		} catch (Exception e) {
 			e.printStackTrace();
