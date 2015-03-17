@@ -110,14 +110,15 @@ public class OmssaParser extends GeneralParser {
 							Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
 							String accession = header.getAccession();
 							hit.setAccession(accession);
-							hit.setProteinDescription(header.getDescription());
 						    hit.setScore(msHit.MSHits_evalue);                
 	                        hit.setPep(pep);
 	                        hit.setQValue(qValue);   
+	                        hit.setType(searchEngineType);
 	                        
 	                        Protein protein = FastaLoader.getProteinFromFasta(accession);
 							String description = protein.getHeader().getDescription();
                             hit.setProteinSequence(protein.getSequence().getSequence());
+                            hit.setProteinDescription(description);
                             
                     		// Add protein for UniProt storing.
                     		UniprotQueryProteins.put(accession, null);
