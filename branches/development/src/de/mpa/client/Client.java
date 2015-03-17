@@ -17,8 +17,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -35,6 +38,7 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.MultipleDatabaseExperiments;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
@@ -798,6 +802,16 @@ public class Client {
 		// TODO: (re-)create project manager class to avoid mixing UI and non-UI code
 		dbSearchResult = ClientFrame.getInstance().getProjectPanel().getSearchResult();
 		return dbSearchResult;
+	}
+	
+	/**
+	 * Returns the database search result of all experiments in the list.
+	 * @return dbSearchResult The database search result of all listet experiments.
+	 */
+	public DbSearchResult getMultipleSearchResults(LinkedList<Long> experimentList) {
+		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, "MultipleExperimentObject", new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
+		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
+		return searchResult;
 	}
 	
 	/**

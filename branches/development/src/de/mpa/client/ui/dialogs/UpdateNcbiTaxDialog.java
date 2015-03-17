@@ -69,7 +69,6 @@ public class UpdateNcbiTaxDialog extends JDialog {
 				okBtn.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						//TODO Robbies update task
 						updateNcbiTax();
 						close();
 					}
