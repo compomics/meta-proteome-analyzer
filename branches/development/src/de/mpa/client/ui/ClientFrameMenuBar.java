@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.DBDumper;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.ProjectAccessor;
@@ -100,7 +102,90 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 		
+		// create Dump item
+		JMenuItem dumpItem = new JMenuItem();
+		dumpItem.setText("Dump Database");
+		dumpItem.setIcon(IconConstants.GO_DB_ICON);
+		dumpItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground() {
+						JFileChooser chooser = new ConfirmFileChooser();
+						chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+						chooser.setFileFilter(new ExtensionFileFilter(".sql", false,
+								"MYSQL Script File (*.sql)"));
+						chooser.setAcceptAllFileFilterUsed(false);
+						int returnVal = chooser.showSaveDialog(clientFrame);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File selFile = chooser.getSelectedFile();
+							if (selFile != null) {
+								String filePath = selFile.getPath();
+								clientFrame.setLastSelectedFolder(selFile.getParent());
+								if (!filePath.toLowerCase().endsWith(".sql")) {
+									filePath += ".sql";
+								}
+								try {
+									DBDumper.dumpDatabase(filePath);
+								} catch (SQLException | IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					return null;
+					}
+				}.execute();
+			}
+		});
+		
+		// create Restore item
+		JMenuItem restoreItem = new JMenuItem();
+		restoreItem.setText("Restore Database");
+		restoreItem.setIcon(IconConstants.SET_DB_ICON);
+		restoreItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground() {
+						JFileChooser chooser = new ConfirmFileChooser();
+						chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+						chooser.setFileFilter(new ExtensionFileFilter(".sql", false,
+								"MYSQL Script File (*.sql)"));
+						chooser.setAcceptAllFileFilterUsed(false);
+						int returnVal = chooser.showOpenDialog(clientFrame);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File selFile = chooser.getSelectedFile();
+							if (selFile != null) {
+								clientFrame.setLastSelectedFolder(selFile.getParent());
+								}
+								try {
+									String confirmCode = JOptionPane.showInputDialog(
+									        ClientFrame.getInstance(), 
+									        "Continuing this process will DELETE ALL DATA in the current database. \n Type \"DELETE THE DATABASE\" to proceed.", 
+									        "Warning", 
+									        JOptionPane.WARNING_MESSAGE
+									    );
+									if (confirmCode.equals("DELETE THE DATABASE")) {
+										DBDumper.restoreDatabase(selFile.getPath());
+									}
+								} catch (SQLException | IOException e) {
+									e.printStackTrace();
+								}
+						}
+					return null;
+					}
+				}.execute();
+			}
+		});
+		
 		fileMenu.add(exitItem);
+		fileMenu.addSeparator();
+		fileMenu.add(dumpItem);
+		fileMenu.add(restoreItem);
+		
 
 		/* create Settings menu */
 		JMenu settingsMenu = new JMenu("Settings");

@@ -256,6 +256,11 @@ public class IconConstants {
 	public static final ImageIcon GO_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_go16.png"));
 	public static final ImageIcon GO_DB_ROLLOVER_ICON = createColorRescaledIcon(GO_DB_ICON, 1.1f);
 	public static final ImageIcon GO_DB_PRESSED_ICON = createColorRescaledIcon(GO_DB_ICON, 0.8f);
+	
+	/** <img src="../../../resources/icons/database_set16.png"> */
+	public static final ImageIcon SET_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_set16.png"));
+	public static final ImageIcon SET_DB_ROLLOVER_ICON = createColorRescaledIcon(GO_DB_ICON, 1.1f);
+	public static final ImageIcon SET_DB_PRESSED_ICON = createColorRescaledIcon(GO_DB_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/database_delete.png"> */
 	public static final ImageIcon DELETE_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_delete.png"));

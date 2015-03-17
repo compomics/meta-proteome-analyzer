@@ -124,7 +124,7 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH = SEP +"de" + SEP +"mpa" + SEP + "resources" + SEP + "conf" +SEP;
+	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
 	
 	public static final String CONFIGURATION_DIR_PATH = DIR + SEP + "bin" + SEP +"de" +SEP +"mpa" + SEP + "resources" + SEP + "conf" +SEP;
 	
@@ -187,15 +187,21 @@ public class Constants {
 	
 	
 	//  Get constants for BLAST
+		// Check for OS
+		public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
 	/**
 	 * Database for BLAST queries
 	 */
-	public static final String BLAST_UNIPROT_DB =  SEP + "scratch" + SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta";
+	public static final String BLAST_UNIPROT_DB = winOS ? 
+			(SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta"):
+			(SEP + "scratch" + SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta");
 
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = SEP + "scratch" + SEP + "metaprot" + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp" ;
+	public static final String BLAST_FILE = winOS ? 
+			(SEP + "metaprot" + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp"):
+			(SEP + "scratch" + SEP + "metaprot" + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp");
 
 	/**
 	 * File for a dummy fasta for each BLAST query
