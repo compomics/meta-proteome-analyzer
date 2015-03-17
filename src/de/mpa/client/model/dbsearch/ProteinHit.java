@@ -320,7 +320,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
 				// Store the spectrum matches
 				for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
-					matches.add(match.getSearchSpectrumID());
+					matches.add(match.getSpectrumID());
 				}
 			}
 			this.specCount = matches.size();
@@ -457,7 +457,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		Set<Long> matches = new HashSet<Long>();
 		for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
 			for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
-				matches.add(match.getSearchSpectrumID());
+				matches.add(match.getSpectrumID());
 			}
 		}
 		return matches;
@@ -608,9 +608,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			case SPECTRUM_LEVEL:
 				for (PeptideHit ph : this.getPeptideHitList()) {
 					for (SpectrumMatch sm : ph.getSpectrumMatches()) {
-						System.out.println(sm.getSearchSpectrumID());
+						System.out.println(sm.getSpectrumID());
 						// TODO: implement title caching for spectrum matches
-						res.add(sm.getSearchSpectrumID());
+						res.add(sm.getSpectrumID());
 					}
 				}
 				break;

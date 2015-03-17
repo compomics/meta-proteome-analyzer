@@ -66,7 +66,6 @@ public class OmssaJob extends Job {
 	 * @param searchSettings Search settings
 	 */
 	public OmssaJob(File mgfFile, DbSearchSettings searchSettings) {
-		log = Logger.getLogger(getClass());
 		this.mgfFile = mgfFile;
 		this.searchDB = searchSettings.getFastaFile();
 		this.params = searchSettings.getOmssaParams();

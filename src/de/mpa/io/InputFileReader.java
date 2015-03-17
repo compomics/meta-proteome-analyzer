@@ -133,8 +133,12 @@ public abstract class InputFileReader {
     public List<Long> getSpectrumPositions() {
 		return getSpectrumPositions(true);
 	}
+    
+    public void setSpectrumPositions(List<Long> spectrumPositions) {
+		this.spectrumPositions = spectrumPositions;
+	}
 
-    /**
+	/**
      * This method reports on the character offsets of spectrum blocks in this mergefile and optionally closes the reader.
      *
      * @return Vector with the currently held spectrumPositions.

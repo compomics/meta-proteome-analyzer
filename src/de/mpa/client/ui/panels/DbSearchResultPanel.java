@@ -126,6 +126,7 @@ import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.GeneralParser;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
 
@@ -1624,7 +1625,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 			// Read spectrum from MGF file accompanying imported result object, if possible
 			FileExperiment experiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-			mgf = Client.getInstance().readSpectrumFromFile(experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
+			mgf = Client.getInstance().readSpectrumFromFile(experiment.getSpectrumFile().getPath(), (int) psm.getSpectrumID());
 		}
 		spectrumPnl.refreshSpectrum(mgf, sequence);
 	}

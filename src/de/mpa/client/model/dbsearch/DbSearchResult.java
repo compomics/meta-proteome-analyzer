@@ -86,7 +86,7 @@ public class DbSearchResult implements Serializable {
 
 		// check for existing elements
 		SpectrumMatch currentSpectrumMatch =
-				this.getSpectrumMatch(spectrumMatch.getSearchSpectrumID());
+				this.getSpectrumMatch(spectrumMatch.getSpectrumID());
 		if (currentSpectrumMatch != null) {
 			currentSpectrumMatch.addExperimentIDs(experimentIDs);
 			spectrumMatch = currentSpectrumMatch;

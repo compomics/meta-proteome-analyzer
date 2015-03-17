@@ -24,9 +24,11 @@ import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
+import de.mpa.io.GeneralParser;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
+import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
 import de.mpa.job.SearchTask;
 
@@ -115,6 +117,21 @@ public class Client {
 	 * @param settings Global search settings
 	 */
 	public void runSearches(DbSearchSettings settings) {
+		// The FASTA loader
+		FastaLoader fastaLoader = FastaLoader.getInstance();
+		fastaLoader.setFastaFile(new File(settings.getFastaFile()));
+
+		try {
+			File indexFile = new File(settings.getFastaFile() + ".fb");
+			if(indexFile.exists()) {
+				fastaLoader.setIndexFile(indexFile);
+				fastaLoader.readIndexFile();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		GeneralParser.FastaLoader = fastaLoader;
+		
 		if (mgfFiles != null) {
 			try {
 				new SearchTask(mgfFiles, settings);
@@ -148,16 +165,18 @@ public class Client {
 	 * Convenience method to read a spectrum from the MGF file in the specified
 	 * path between the specified start and end byte positions.
 	 * @param pathname The pathname string pointing to the desired file.
-	 * @param startPos The start byte position of the spectrum in the desired file.
-	 * @param endPos The end byte position of the spectrum in the desired file.
+	 * @param index The index of the MGF spectrum.
 	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
 	 */
-	public MascotGenericFile readSpectrumFromFile(String pathname, long startPos, long endPos) {
+	public MascotGenericFile readSpectrumFromFile(String pathname, int index) {
 		MascotGenericFile mgf = null;
 		try {
 			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
+			File mgfFile = new File (pathname);
 			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
-			mgf = reader.loadSpectrum(0, startPos, endPos);
+			
+			reader.setSpectrumPositions(GeneralParser.SpectrumPosMap.get(mgfFile.getAbsolutePath()));
+			mgf = reader.loadSpectrum(index - 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

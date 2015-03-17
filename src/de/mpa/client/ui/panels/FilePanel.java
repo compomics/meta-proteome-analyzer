@@ -108,6 +108,7 @@ import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.GeneralParser;
 import de.mpa.io.InputFileReader;
 import de.mpa.io.MascotGenericFile;
 
@@ -972,6 +973,7 @@ public class FilePanel extends JPanel implements Busyable {
 						
 						positions.addAll(reader.getSpectrumPositions(false));
 						specPosMap.put(file.getAbsolutePath(), positions);
+						GeneralParser.SpectrumPosMap.put(file.getAbsolutePath(), positions);
 						this.specCount += positions.size();
 	
 						client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);

@@ -75,6 +75,7 @@ public abstract class Job implements Executable {
 	 * Executes the job.
 	 */
 	public void run() {
+		log = Logger.getLogger(getClass());
 		proc = null;
 		try {
 			proc = procBuilder.start();

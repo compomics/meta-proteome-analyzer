@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import de.mpa.analysis.taxonomy.TaxonomyNode;
@@ -154,18 +154,18 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode {
 			SearchHit searchHit;
 			switch (column) {
 			case 0:
-				return psm.getSearchSpectrumID();
+				return psm.getSpectrumID();
 			case 1:
 				return psm.getCharge();
 			case 2:
 				searchHit = psm.getSearchHit(SearchEngineType.XTANDEM);
-				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue();
 			case 3:
 				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
-				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue();
 			case 4:
 				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
-				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
+				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue();
 			default:
 				return super.getValueAt(column);
 			}

@@ -43,7 +43,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @param searchHits
 	 */
 	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit) {
-		this.searchSpectrumID = spectrumid;
+		this.spectrumId = spectrumid;
 		this.charge = (int) searchHit.getCharge();
 		this.searchHits = new HashMap<SearchEngineType, SearchHit>();
 		this.searchHits.put(searchHit.getType(), searchHit);
@@ -122,7 +122,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	public void setFDR(double fdr) {
 		this.visSearchHits = new ArrayList<SearchHit>();
 		for (SearchHit hit : this.searchHits.values()) {
-			if (hit.getQvalue().doubleValue() <= fdr) {
+			if (hit.getQvalue() <= fdr) {
 				this.visSearchHits.add(hit);
 			}
 		}
@@ -137,7 +137,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	public boolean equals(Object obj) {
 		if (obj instanceof PeptideSpectrumMatch) {
 			PeptideSpectrumMatch that = (PeptideSpectrumMatch) obj;
-			if (this.getSearchSpectrumID() == that.getSearchSpectrumID()) {
+			if (this.getSpectrumID() == that.getSpectrumID()) {
 				return this.getSearchHits().containsAll(that.getSearchHits());
 			}
 		}
