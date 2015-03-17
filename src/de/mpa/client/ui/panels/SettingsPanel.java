@@ -225,20 +225,20 @@ public class SettingsPanel extends JPanel {
 						for (File datFile : datFiles) {
 							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + datFiles.size());
 							String fastaFile = null;
-
+							
+							// Get Fasta path to store the amino acid sequence
 							if (((Boolean)databasePnl.getMascotParameterMap().get("useFasta").getValue()).booleanValue()) {
-							}
-							JFileChooser chooser = new ConfirmFileChooser();
-							chooser.setFileFilter(Constants.FASTA_FILE_FILTER);
-							int returnVal = chooser.showOpenDialog(ClientFrame.getInstance());
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								File selFile = chooser.getSelectedFile();
-								if (selFile != null) {
-									fastaFile = selFile.getPath();
+								JFileChooser chooser = new ConfirmFileChooser();
+								chooser.setFileFilter(Constants.FASTA_FILE_FILTER);
+								int returnVal = chooser.showOpenDialog(ClientFrame.getInstance());
+								if (returnVal == JFileChooser.APPROVE_OPTION) {
+									File selFile = chooser.getSelectedFile();
+									if (selFile != null) {
+										fastaFile = selFile.getPath();
+									}
 								}
 							}
-							
-							
+							// store mascot results
 							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap(), fastaFile);
 							storager.run();
 							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + datFiles.size());
