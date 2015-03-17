@@ -137,9 +137,11 @@ public class XTandemParser extends GeneralParser {
                                 hit.setScore(domain.getDomainHyperScore());                
                                 hit.setPep(pep);
                                 hit.setQValue(qValue);
+                                hit.setType(searchEngineType);
        						
                                 // Get and store the peptide.
                                 hit.setPeptideSequence(sequence);
+                                hit.setCharge(xTandemFile.getSupportData(spectrumNumber).getFragIonCharge());
         						
         						// Store peptide-spectrum association
                                 Protein protein;
@@ -147,6 +149,7 @@ public class XTandemParser extends GeneralParser {
 									protein = FastaLoader.getProteinFromFasta(accession);
 									String description = protein.getHeader().getDescription();
 	                                hit.setProteinSequence(protein.getSequence().getSequence());
+	                                hit.setProteinDescription(description);
 	                                
 	                        		// Add protein for UniProt storing.
 	                        		UniprotQueryProteins.put(accession, null);
