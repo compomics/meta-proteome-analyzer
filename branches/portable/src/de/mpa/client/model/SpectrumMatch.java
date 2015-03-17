@@ -30,7 +30,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	/**
 	 * The search spectrum id;
 	 */
-	protected long searchSpectrumID;
+	protected long spectrumId;
 	
 	/**
 	 * The spectrum title.
@@ -75,16 +75,16 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * Returns the search spectrum ID.
 	 * @return the search spectrum ID
 	 */
-	public long getSearchSpectrumID() {
-		return searchSpectrumID;
+	public long getSpectrumID() {
+		return spectrumId;
 	}
 	
 	/**
 	 * Sets the search spectrum id.
 	 * @param searchSpectrumID The search spectrum id
 	 */
-	public void setSearchSpectrumID(long searchSpectrumID) {
-		this.searchSpectrumID = searchSpectrumID;
+	public void setSpectrumID(long searchSpectrumID) {
+		this.spectrumId = searchSpectrumID;
 	}
 
 	
@@ -230,21 +230,21 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	@Override
 	public String toString() {
 //		return "[ssID = " + this.searchSpectrumID + "]";
-		return "" + this.searchSpectrumID;
+		return "" + this.spectrumId;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SpectrumMatch) {
 			SpectrumMatch that = (SpectrumMatch) obj;
-			return (this.getSearchSpectrumID() == that.getSearchSpectrumID());
+			return (this.getSpectrumID() == that.getSpectrumID());
 		}
 		return false;
 	}
 
 	@Override
 	public int compareTo(SpectrumMatch that) {
-		long delta = this.getSearchSpectrumID() - that.getSearchSpectrumID();
+		long delta = this.getSpectrumID() - that.getSpectrumID();
 		return (delta < 0L) ? -1 : (delta > 0L) ? 1 : 0;
 	}
 

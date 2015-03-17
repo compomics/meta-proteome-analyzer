@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
 import de.mpa.client.DbSearchSettings;
 import de.mpa.job.Job;
 import de.mpa.job.SearchType;
@@ -50,7 +48,6 @@ public class XTandemJob extends Job {
 	 * @param searchType Target or decoy search type
 	 */
 	public XTandemJob(File mgfFile, DbSearchSettings searchSettings) {
-		log = Logger.getLogger(getClass());
 		this.mgfFile = mgfFile;
 		this.searchDB = searchSettings.getFastaFile();
 		this.fragmentTol = searchSettings.getFragIonTol();

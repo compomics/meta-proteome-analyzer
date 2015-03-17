@@ -22,11 +22,6 @@
 	<classpathentry kind="lib" path="lib/spring.context.jar"/>
 	<classpathentry kind="lib" path="lib/spring.core.jar"/>
 	<classpathentry kind="lib" path="lib/spring.web.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-lang/javadocs/api-2.6/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/swing-layout-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/keggapi.jar"/>
@@ -106,5 +101,7 @@
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/utilities-3.45.25.jar"/>
 	<classpathentry kind="lib" path="lib/xxindex-0.11.jar"/>
+	<classpathentry kind="lib" path="lib/uniprotjapi-2015-01.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

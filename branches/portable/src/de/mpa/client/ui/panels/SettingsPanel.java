@@ -9,14 +9,11 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
@@ -28,6 +25,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.model.FileExperiment;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
@@ -112,10 +110,14 @@ public class SettingsPanel extends JPanel {
 				firePropertyChange("progress", null, 0);
 				processBtn.setEnabled(false);
 				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		
 				try {
 					// Collect search settings.
 					DbSearchSettings searchSettings = databasePnl.gatherDBSearchSettings();
-							
+					FileExperiment selectedExperiment = (FileExperiment) projectPanel.getSelectedExperiment();
+					// FIXME: Do not use only the first MGF file. 
+					selectedExperiment.setSpectrumFile(Client.getInstance().getMgfFiles().get(0));
+					
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 					
 					// Run the searches.
@@ -129,8 +131,10 @@ public class SettingsPanel extends JPanel {
 
 		@Override
 		public void done() {
-			ClientFrame.getInstance().setCursor(null);
+			ClientFrame clientFrame = ClientFrame.getInstance();
+			clientFrame.setCursor(null);
 			processBtn.setEnabled(true);
+			clientFrame.setTabEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, true);
 		}
 	}
 

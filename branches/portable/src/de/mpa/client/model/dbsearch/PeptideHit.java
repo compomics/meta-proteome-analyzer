@@ -170,7 +170,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @param sm The spectrum match.
 	 */
 	public void addSpectrumMatch(SpectrumMatch sm) {
-		spectrumMatches.put(sm.getSearchSpectrumID(), sm);
+		spectrumMatches.put(sm.getSpectrumID(), sm);
 		sm.addPeptideHit(this);
 	}
 
@@ -259,7 +259,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		for (SpectrumMatch match : spectrumMatches.values()) {
 			match.setFDR(fdr);
 			if (match.isVisible()) {
-				visSpectrumMatches.put(match.getSearchSpectrumID(), match);
+				visSpectrumMatches.put(match.getSpectrumID(), match);
 			}
 		}
 	}

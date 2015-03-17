@@ -454,7 +454,7 @@ public class GraphDatabaseHandler {
 			Vertex psmVertex =  null;
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 			
-			long spectrumID = psm.getSearchSpectrumID();
+			long spectrumID = psm.getSpectrumID();
 			
 			// Check if PSM is already contained in the graph.
 			Iterator<Vertex> psmIterator = psmIndex.get(PsmProperty.SPECTRUMID.toString(), spectrumID).iterator();
