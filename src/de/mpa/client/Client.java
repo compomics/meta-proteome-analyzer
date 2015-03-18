@@ -811,6 +811,7 @@ public class Client {
 	public DbSearchResult getMultipleSearchResults(LinkedList<Long> experimentList) {
 		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, "MultipleExperimentObject", new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
+		dbSearchResult = searchResult;
 		return searchResult;
 	}
 	

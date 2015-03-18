@@ -384,7 +384,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		fetchResultsBtn = new JButton("Fetch Results", IconConstants.RESULTS_FETCH_ICON);
 		fetchResultsBtn.setRolloverIcon(IconConstants.RESULTS_FETCH_ROLLOVER_ICON);
-		fetchResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);		
+		fetchResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);	
+		fetchResultsBtn.setToolTipText("Press button to fetch results of the selected experiment.");
 		fetchResultsBtn.setIconTextGap(7);
 		fetchResultsBtn.addActionListener(new ActionListener() {
 			@Override
