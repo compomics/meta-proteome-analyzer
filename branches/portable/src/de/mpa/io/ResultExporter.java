@@ -230,7 +230,7 @@ public class ResultExporter {
 						writer.append(name + Constants.TSV_FILE_SEPARATOR);
 					}
 					if (hasFeature[8]) writer.append(peptideHit.getTaxonomyNode().getRank() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[9]) writer.append(peptideHit.getTaxonomyNode().getId()+ Constants.TSV_FILE_SEPARATOR);
+					if (hasFeature[9]) writer.append(peptideHit.getTaxonomyNode().getID()+ Constants.TSV_FILE_SEPARATOR);
 					writer.newLine();
 					
 					// Add peptide to set.

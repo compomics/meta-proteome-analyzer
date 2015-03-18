@@ -87,7 +87,6 @@ public class SearchTask {
 				ParseJob omssaParseJob = new ParseJob(SearchEngineType.OMSSA, omssaTargetJob.getFilename(), omssaScoreJob.getFilename());
 				jobManager.addJob(omssaParseJob);
 			}
-			
 			jobManager.addJob(new UniProtJob());
 		}	
 	}

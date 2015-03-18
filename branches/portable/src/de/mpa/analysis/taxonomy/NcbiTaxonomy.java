@@ -11,11 +11,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Constants;
+import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.util.Formatter;
 
 /**
@@ -216,5 +219,5 @@ public class NcbiTaxonomy implements Serializable {
 		return nodesMap;
 	}
 	
-	
+
 }

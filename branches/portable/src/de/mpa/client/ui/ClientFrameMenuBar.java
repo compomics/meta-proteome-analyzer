@@ -235,7 +235,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 						if (!filePath.toLowerCase().endsWith(".mpa")) {
 							filePath += ".mpa";
 						}
-						Client.getInstance().writeDbSearchResultToFile(filePath);
+						Client.getInstance().exportDatabaseSearchResult(filePath);
 					}
 				}
 				return null;

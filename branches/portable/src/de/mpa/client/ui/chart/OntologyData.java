@@ -15,7 +15,8 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.util.SortOrder;
 
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.Keyword;
+import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -41,7 +42,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * The collection of keyword-specific occurrence maps.
 	 */
-	private Map<KeywordOntology, Map<String, ProteinHitList>> occMaps;
+	private Map<KeywordCategory, Map<String, ProteinHitList>> occMaps;
 	
 	/**
 	 * The chart type.
@@ -121,11 +122,11 @@ public class OntologyData implements ChartData {
 	 */
 	public void init() {
 		// Get the ontology map
-		Map<String, KeywordOntology> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
+		Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		
-		this.occMaps = new HashMap<KeywordOntology, Map<String, ProteinHitList>>();
+		this.occMaps = new HashMap<KeywordCategory, Map<String, ProteinHitList>>();
 		OntologyChartType[] chartTypes = OntologyChartType.values();
-		List<KeywordOntology> ontologyTypes = new ArrayList<KeywordOntology>();
+		List<KeywordCategory> ontologyTypes = new ArrayList<KeywordCategory>();
 		for (OntologyChartType chartType : chartTypes) {
 			ontologyTypes.add(chartType.getOntology());
 		}
@@ -148,14 +149,15 @@ public class OntologyData implements ChartData {
 						List<String> keywords = rupe.getKeywords();
 						for (String keyword : keywords) {
 							if (ontologyMap.containsKey(keyword)) {
-								KeywordOntology ontology = ontologyMap.get(keyword);
+								KeywordCategory ontology = KeywordCategory.valueOf(
+										ontologyMap.get(keyword).getCategory());
 								found[ontologyTypes.indexOf(ontology)] = true;
 								this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
 							}
 						}
 					}
 					for (int i = 0; i < ontologyTypes.size(); i++) {
-						KeywordOntology ontology = ontologyTypes.get(i);
+						KeywordCategory ontology = ontologyTypes.get(i);
 						if (!found[i]) {
 							this.appendHit("Unknown", this.occMaps.get(ontology), metaProtein);
 						}

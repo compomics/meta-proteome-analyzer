@@ -1,10 +1,16 @@
 package de.mpa.io.parser.omssa;
 
+import java.io.Serializable;
+
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 
-public class OmssaHit implements SearchHit {
+public class OmssaHit implements SearchHit, Serializable {
 	
+	/**
+	 * Default serialization ID.
+	 */
+	private static final long serialVersionUID = 1L;
 	private SearchEngineType type;
 	private String peptideSequence;
 	private String accession;

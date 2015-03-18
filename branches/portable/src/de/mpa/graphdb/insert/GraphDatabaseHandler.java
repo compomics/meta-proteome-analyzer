@@ -22,7 +22,8 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.Keyword;
+import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
@@ -251,7 +252,7 @@ public class GraphDatabaseHandler {
 			// Create new vertex.
 			childVertex = graph.addVertex(null);
 			childVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
-			childVertex.setProperty(TaxonProperty.TAXID.toString(), childNode.getId());
+			childVertex.setProperty(TaxonProperty.TAXID.toString(), childNode.getID());
 			childVertex.setProperty(TaxonProperty.RANK.toString(), childNode.getRank().toString());
 			// Index the species by the species name.
 			taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), species, childVertex);
@@ -271,7 +272,7 @@ public class GraphDatabaseHandler {
 				// Create new vertex.
 				parentVertex = graph.addVertex(null);
 				parentVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), taxon);
-				parentVertex.setProperty(TaxonProperty.TAXID.toString(), pathNode.getId());
+				parentVertex.setProperty(TaxonProperty.TAXID.toString(), pathNode.getID());
 				parentVertex.setProperty(TaxonProperty.RANK.toString(), pathNode.getRank().toString());
 				// Index the species by the species name.
 				taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), taxon, parentVertex);
@@ -362,7 +363,7 @@ public class GraphDatabaseHandler {
 	 * @param proteinVertex
 	 */
 	private void addOntologies(ProteinHit protHit, Vertex proteinVertex) {
-		Map<String, KeywordOntology> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
+		Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		ReducedUniProtEntry entry = protHit.getUniProtEntry();
 		Vertex ontologyVertex = null;
 		
@@ -371,7 +372,7 @@ public class GraphDatabaseHandler {
 			List<String> keywords = entry.getKeywords();			
 			for (String keyword : keywords) {
 				if (ontologyMap.containsKey(keyword)) {
-					KeywordOntology type = ontologyMap.get(keyword);
+					KeywordCategory type = KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
 					
 					// Check if peptide is already contained in the graph.
 					Iterator<Vertex> ontologyIterator =

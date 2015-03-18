@@ -85,6 +85,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFilterParameters;
@@ -929,29 +930,23 @@ public class FilePanel extends JPanel implements Busyable {
 	
 					reader = InputFileReader.createInputFileReader(file);
 					
-					if (file.getName().toLowerCase().endsWith(".mgf")) {
-						filesList.add(file);
-					} else if (Constants.DAT_FILE_FILTER.accept(file)) {
-						
+					if (Constants.DAT_FILE_FILTER.accept(file)) {
 						DatabaseSearchSettingsPanel dbSettingsPnl =
 								ClientFrame.getInstance().getFilePanel().getSettingsPanel().getDatabaseSearchSettingsPanel();
 						dbSettingsPnl.setMascotEnabled(true);
 						MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
 						Parameters parameters = mascotDatfile.getParametersSection();
-						ParameterMap mascotParams =
-								dbSettingsPnl.getMascotParameterMap();
+						MascotParameters mascotParams = (MascotParameters) dbSettingsPnl.getMascotParameterMap();
+
+						mascotParams.setValue("precTol", Double.valueOf(parameters.getTOL()));
+						mascotParams.setValue("fragTol", Double.valueOf(parameters.getITOL()));
+						mascotParams.setValue("missClv", Integer.valueOf(parameters.getPFA()));
 						
-						mascotParams.put("precTol",
-								new Parameter(null, parameters.getTOL(), "General", null));
-						mascotParams.put("fragTol",
-								new Parameter(null, parameters.getITOL(), "General", null));
-						mascotParams.put("missClv",
-								new Parameter(null, parameters.getPFA(), "General", null));
-						
-						boolean decoy = mascotDatfile.getDecoyQueryToPeptideMap() != null;
-						mascotParams.put("filter", new Parameter("Peptide Ion Score|False Discovery Rate", new Object[][] { { true, 15, true }, { false, 0.05, decoy } }, "Filtering", "Peptide Ion Score Threshold|Maximum False Discovery Rate"));
-						mascotSelFile.add(file);
-					} 
+						boolean decoy = (mascotDatfile.getDecoyQueryToPeptideMap() != null);
+						mascotParams.setDecoy(decoy);
+					} else {
+						filesList.add(file);
+					}
 					
 					client.setMgfFiles(filesList);
 					ArrayList<Long> positions = new ArrayList<Long>();
@@ -1030,12 +1025,11 @@ public class FilePanel extends JPanel implements Busyable {
 							};
 							fileNode.add(spectrumNode);
 							
-							// Get the minimum of signifikant peaks from the filter parameters.
-							Integer[] minPeaks = (Integer[]) filterParams.get("minpeaks").getValue(); 
-							Integer[] minTIC = (Integer[]) filterParams.get("mintic").getValue();
+							// check filter criteria
+							int minPeaks = (Integer) filterParams.get("minpeaks").getValue(); 
+							int minTIC = (Integer) filterParams.get("mintic").getValue();
 							double minSNR = (Double) filterParams.get("minsnr").getValue();
-	
-							if ((numPeaks >= minPeaks[0]) && (TIC >= minTIC[0]) && (SNR >= minSNR)) {
+							if ((numPeaks >= minPeaks) && (TIC >= minTIC) && (SNR >= minSNR)) {
 								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 							}
 							index++;

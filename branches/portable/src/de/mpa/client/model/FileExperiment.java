@@ -5,6 +5,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +21,7 @@ import com.thoughtworks.xstream.XStream;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -26,8 +29,10 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.GeneralParser;
+import de.mpa.job.ResourceProperties;
 
 /**
  * Implementation of the experiment interface for file-based experiments.
@@ -50,6 +55,16 @@ public class FileExperiment extends AbstractExperiment {
 	 * The search result object.
 	 */
 	private DbSearchResult searchResult;
+	
+	/**
+	 * The shared taxonomy node instance for undefined taxonomies.
+	 */
+	private TaxonomyNode unclassifiedNode;
+	
+	/**
+	 * Taxonomy mapping.
+	 */
+	private Map<Long, Tax> taxonomyMap;
 	
 	/**
 	 * Creates an empty file-based experiment.
@@ -75,9 +90,9 @@ public class FileExperiment extends AbstractExperiment {
 	 */
 	public void setResultFile(File resultFile) {
 		this.resultFile = resultFile;
-		if ((title == null) && (resultFile != null)) {
+		if ((this.getTitle() == null) && (resultFile != null)) {
 			String filename = resultFile.getName();
-			title = filename.substring(0, filename.lastIndexOf('.'));
+			this.setTitle(filename.substring(0, filename.lastIndexOf('.')));
 		}
 	}
 	
@@ -104,11 +119,38 @@ public class FileExperiment extends AbstractExperiment {
 		}
 		return (resultFile != null) && resultFile.exists();
 	}
+	
+	/**
+	 * This method retrieves the taxonomy map from the taxonomy dump file.
+	 */
+	public void retrieveTaxonomyMap() {
+
+		Runnable bgThread = new Runnable() {
+			public void run() {
+				InputStream fis = null;
+				ObjectInputStream o = null;
+				try {
+					fis = new FileInputStream(ResourceProperties.getInstance()
+							.getProperty("path.taxonomy") + "taxonomy.map");
+					o = new ObjectInputStream(fis);
+					taxonomyMap = (Map<Long, Tax>) o.readObject();
+					o.close();
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		new Thread(bgThread).start();
+	}
 
 	@Override
 	public DbSearchResult getSearchResult() {
-		Client client = Client.getInstance();
+		// Lazy loading of taxonomy map.
+		if (taxonomyMap == null) {
+			retrieveTaxonomyMap();
+		}
 		
+		Client client = Client.getInstance();
 		if (searchResult == null && resultFile != null) {
 			client.firePropertyChange("new message", null, "READING RESULTS FILE");
 			client.firePropertyChange("resetall", 0L, 100L);
@@ -140,7 +182,7 @@ public class FileExperiment extends AbstractExperiment {
 				
 				// add search hits to result object
 				for (SearchHit searchHit : searchHits) {
-					this.id = 1L;
+					setId(1L);
 					addProteinSearchHit(searchResult, searchHit, this.getID());
 					client.firePropertyChange("progressmade", true, false);
 				}
@@ -177,22 +219,20 @@ public class FileExperiment extends AbstractExperiment {
 
 		if (GeneralParser.UniprotQueryProteins.get(hit.getAccession()) != null) {
 			uniProtEntry = GeneralParser.UniprotQueryProteins.get(hit.getAccession());
-		}
 			
-        TaxonomyNode unclassifiedNode = null;
-			//			// retrieve taxonomy branch
-//			taxonomyNode = TaxonomyUtils.createTaxonomyNode(taxID, taxonomyMap, conn);
-//		} else {
-//			// create dummy UniProt entry
-//			uniprotEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);
-//			
-//			// mark taxonomy as 'unclassified'
+			// retrieve taxonomy branch
+			taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniProtEntry.getTaxID(), taxonomyMap);
+		} else {
+			// create dummy UniProt entry
+			uniProtEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);
+			
+			// mark taxonomy as 'unclassified'
 			if (unclassifiedNode == null) {
 				TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
 				unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
 			}
 			taxonomyNode = unclassifiedNode;
-//		}
+		}
 		
 		// create a new protein hit and add it to the result
 		result.addProtein(new ProteinHit(hit.getAccession(), hit.getProteinDescription(), hit.getProteinSequence(), peptideHit, uniProtEntry, taxonomyNode, experimentID));
@@ -202,14 +242,23 @@ public class FileExperiment extends AbstractExperiment {
 	public void clearSearchResult() {
 		searchResult = null;
 	}
+	
+	@Override
+	public void setSearchResult(DbSearchResult searchResult) {
+		this.searchResult = searchResult;
+	}
+
 
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.creationDate = new Date();
-			this.properties.putAll(properties);
-			this.project.getExperiments().add(this);
+			this.setTitle(title);
+			this.setCreationDate(new Date());
+			this.getProperties().putAll(properties);
+			
+			AbstractProject project = this.getProject();
+			List<AbstractExperiment> experiments = project.getExperiments();
+			experiments.add(this);
 		
 			this.serialize();
 		} catch (Exception e) {
@@ -221,9 +270,9 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void update(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.properties.clear();
-			this.properties.putAll(properties);
+			this.setTitle(title);
+			this.getProperties().clear();
+			this.getProperties().putAll(properties);
 		
 			this.serialize();
 		} catch (Exception e) {
@@ -235,7 +284,9 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void delete() {
 		try {
-			this.project.getExperiments().remove(this);
+			AbstractProject project = this.getProject();
+			List<AbstractExperiment> experiments = project.getExperiments();
+			experiments.remove(this);
 			
 			this.serialize();
 		} catch (Exception e) {
@@ -259,5 +310,4 @@ public class FileExperiment extends AbstractExperiment {
 		// restore search result reference
 		this.searchResult = searchResult;
 	}
-
 }

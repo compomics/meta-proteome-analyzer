@@ -37,6 +37,7 @@ import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.AbstractProject;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
+import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
@@ -66,6 +67,11 @@ public class ProjectPanel extends JPanel {
 	 * The currently selected experiment.
 	 */
 	private AbstractExperiment selectedExperiment;
+	
+	/**
+	 * The currently loaded experiment.
+	 */
+	private AbstractExperiment currentExperiment;
 	
 	/**
 	 * Text field displaying the currently selected project's title
@@ -769,6 +775,34 @@ public class ProjectPanel extends JPanel {
 	 */
 	public AbstractExperiment getSelectedExperiment() {
 		return selectedExperiment;
+	}
+	
+	/**
+	 * Returns the currently loaded experiment. Note this is distinct from the
+	 * currently <i>selected</i> experiment.
+	 * @return the currently loaded experiment
+	 */
+	public AbstractExperiment getCurrentExperiment() {
+		return currentExperiment;
+	}
+	
+	/**
+	 * Returns the current search result object.
+	 * @return the current search result
+	 */
+	public DbSearchResult getSearchResult() {
+		if (currentExperiment != null) {
+			if (!currentExperiment.equals(selectedExperiment)) {
+				// clear cached results
+				currentExperiment.clearSearchResult();
+				currentExperiment = selectedExperiment;
+			}
+			return currentExperiment.getSearchResult();
+		} else if (selectedExperiment != null) {
+			currentExperiment = selectedExperiment;
+			return currentExperiment.getSearchResult();
+		}
+		return null;
 	}
 	
 }

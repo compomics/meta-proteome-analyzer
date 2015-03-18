@@ -27,10 +27,16 @@ import javax.swing.tree.TreeNode;
 import com.thoughtworks.xstream.XStream;
 
 import de.mpa.analysis.KeggMaps;
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.AbstractProject;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.parser.ec.ECNode;
+import de.mpa.io.parser.ec.ECReader;
+import de.mpa.io.parser.kegg.KEGGMap;
+import de.mpa.io.parser.kegg.KEGGReader;
 import de.mpa.main.Starter;
 
 /**
@@ -130,31 +136,31 @@ public class Constants {
 	public static final String DEFAULT_SPECTRA_PATH = "test/de/mpa/resources/";
 	
 	/**
-	 * Root node of a tree containing all pathways mapped in the KEGG database.
+	 * Path string of the temporary backup database search result object.
 	 */
-	public static final TreeNode KEGG_PATHWAY_ROOT = KeggMaps.readKeggTree(
-			Constants.class.getResourceAsStream(CONFIGURATION_PATH + "keggPathways.txt"));
+	public static final String BACKUP_RESULT_PATH = "tmp.mpa";
+	
+	/**
+	 * Map of KEGG Orthology tree leaves.
+	 */
+	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(
+			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
+	
+	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
 	
 	/**
 	 * Units for precurcor and MS/MS tolerance
 	 */
 	public static final String[] TOLERANCE_UNITS = {"Da", "ppm"};
 	
-	/**
-	 * Path to the database connection settings.
-	 */
-	public static final String DB_CONNECTION_SETTINGS_FILEPATH = "password/DbConnectionSettings.txt";
-	
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
-			"MetaProteomeAnalyzer Project File (*.mpa)");
+			"MetaProteomeAnalyzer Experiment File (*.mpa)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV File, comma-separated (*.csv)");
-	public static final String TSV_FILE_SEPARATOR = "\t";
-	public static final String CSV_FILE_SEPARATOR = ";";
-	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".tsv", false,
-			"TSV File, tab-separated (*.tsv)");
+	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
+			"CSV File, tab-separated (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
 	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
@@ -163,6 +169,21 @@ public class Constants {
 			"GraphML File (*.graphml)");
 	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,
 			"Microsoft Excel 2003 XML File (*.xml)");
+
+	public static final String CSV_FILE_SEPARATOR = ",";
+	public static final String TSV_FILE_SEPARATOR = "\t";
+	
+	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "none");
+	
+	/**
+	 * Convenience method to initialize the enzyme definition tree.
+	 * @return the root of the en
+	 */
+	private static ECNode createEnzymeTree() {
+		ECNode root = ECReader.readEnzymeClasses(CONFIGURATION_PATH_JAR + File.separator + "enzclass.txt");
+		ECReader.readEnzymes(root, CONFIGURATION_PATH_JAR + File.separator + "enzyme.dat");
+		return root;
+	}
 
 	/**
 	 * Returns the graph database user queries file.
@@ -200,29 +221,6 @@ public class Constants {
 			new XStream().toXML(new ArrayList<AbstractProject>(), new BufferedOutputStream(new FileOutputStream(projectsFile)));
 		}
 		return projectsFile;
-	}
-	
-	/**
-	 * Returns the names of the nodes contained in the path from the KEGG
-	 * pathway root to the leaf identified by the provided pathway ID.
-	 * 
-	 * @param pw The pathway ID.
-	 * @return The array of node names leading to the leaf identified by 
-	 * the specified ID or <code>null</code> if the ID could not be found.
-	 */
-	public static Object[] getKEGGPathwayPath(Short pw) {
-		String pwString = String.format("%05d", pw);
-		// iterate tree leaves to find pathway identified by id
-		Enumeration dfEnum = ((DefaultMutableTreeNode) KEGG_PATHWAY_ROOT).depthFirstEnumeration();
-		while (dfEnum.hasMoreElements()) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) dfEnum.nextElement();
-			if (node.isLeaf()) {
-				if (((String) node.getUserObject()).startsWith(pwString)) {
-					return node.getUserObjectPath();
-				}
-			}
-		}
-		return null;
 	}
 	
 	/**

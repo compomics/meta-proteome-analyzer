@@ -2,13 +2,20 @@ package de.mpa.client;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.jdesktop.swingx.JXErrorPane;
@@ -40,9 +47,9 @@ public class Client {
 	private static Client instance = null;
 	
 	/**
-	 * Parameter map containing result fetching-related settings.
+	 * Parameter map containing result processing-related settings.
 	 */
-	private ParameterMap metaProtParams = new ResultParameters();
+	private ResultParameters resultParams = new ResultParameters();
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -187,15 +194,25 @@ public class Client {
 	 * Writes the current database search result object to a the specified file.
 	 * @param filename The String representing the desired file path and name.
 	 */
-	public void writeDbSearchResultToFile(String filename) {
+	/**
+	 * Copies the backup raw database search result dump to the specified file
+	 * path, fetches the spectra referenced by the result object and stores them
+	 * alongside the raw result.
+	 * @param pathname the string representing the desired file path and name for the result object
+	 */
+	public void exportDatabaseSearchResult(String pathname) {
+		DbSearchResult dbSearchResult = restoreBackupDatabaseSearchResult();
+		
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
+	
 		// Dump referenced spectra to separate MGF
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+		this.firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+		this.firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
 		String status = "FINISHED";
+		// TODO: clean up mix of Java IO and NIO APIs
 		try {
-			String prefix = filename.substring(0, filename.indexOf('.'));
+			String prefix = pathname.substring(0, pathname.indexOf('.'));
 			File mgfFile = new File(prefix + ".mgf");
 			FileOutputStream fos = new FileOutputStream(mgfFile);
 			long index = 0L;
@@ -208,7 +225,6 @@ public class Client {
 				spectrumMatch.setEndIndex(index);
 				firePropertyChange("progressmade", false, true);
 			}
-			
 			fos.flush();
 			fos.close();
 		} catch (Exception e) {
@@ -216,26 +232,28 @@ public class Client {
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
 	
 		// Dump results object to file
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
 		status = "FINISHED";
+		this.firePropertyChange("indeterminate", false, true);
 		try {
-			firePropertyChange("indeterminate", false, true);
-			// store as compressed binary object
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
-					new GZIPOutputStream(new FileOutputStream(new File(filename)))));
-			oos.writeObject(dbSearchResult);
-			oos.flush();
-			oos.close();
+//			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
+//			if (!backupFile.exists()) {
+//				// technically this should never happen
+//				System.err.println("No result file backup detected, creating new one...");
+				this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+//			}
+			// Copy backup file to target location
+			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		firePropertyChange("indeterminate", true, false);
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
+		this.firePropertyChange("indeterminate", true, false);
+		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 
 	/**
@@ -269,10 +287,9 @@ public class Client {
 	 * Returns the parameter map containing result fetching-related settings.
 	 * @return the result parameters
 	 */
-	public ParameterMap getResultParameters() {
-		return this.metaProtParams;
+	public ResultParameters getResultParameters() {
+		return this.resultParams;
 	}
-
 	/**
 	 * Returns the {@link GraphDatabaseHandler} object.
 	 * @return {@link GraphDatabaseHandler}
@@ -350,5 +367,51 @@ public class Client {
 	 */
 	public void setMgfFiles(List<File> files) {
 		this.mgfFiles = files;
+	}
+	
+	/**
+	 * Dumps the specified search result object as a binary file identified by the specified path name.
+	 * @param result the result object to dump
+	 * @param pathname the path name string
+	 * @throws IOException if an I/O error occurs
+	 */
+	private void dumpDatabaseSearchResult(DbSearchResult result, String pathname) throws IOException {
+		// store as compressed binary object
+		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
+				new GZIPOutputStream(new FileOutputStream(new File(pathname)))));
+		oos.writeObject(result);
+		oos.flush();
+		oos.close();
+	}
+	
+	/**
+	 * Dumps the current database search result object to a temporary file for
+	 * result restoration/export purposes.
+	 */
+	public void dumpBackupDatabaseSearchResult() {
+		try {
+			this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+		} catch (IOException e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+		}
+	}
+	
+	/**
+	 * Restores the current database search result object from the dumped temporary file.
+	 * @return the restored result object or <code>null</code> if an error occurred
+	 */
+	public DbSearchResult restoreBackupDatabaseSearchResult() {
+		AbstractExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
+				new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))))) {
+			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
+			currentExperiment.setSearchResult(dbSearchResult);
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			currentExperiment.clearSearchResult();
+		}
+		return currentExperiment.getSearchResult();
 	}
 }

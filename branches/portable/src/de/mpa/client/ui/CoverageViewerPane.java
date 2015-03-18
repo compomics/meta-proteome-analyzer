@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -75,10 +74,10 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 */
 	private Map<String, HoverLabel> hoverLabels;
 	
-	/**
-	 * The button group linking together peptide sequence labels.
-	 */
-	private ButtonGroup hoverGroup;
+//	/**
+//	 * The button group linking together peptide sequence labels.
+//	 */
+//	private ButtonGroup hoverGroup;
 
 	/**
 	 * The sequence string of the currently selected peptide.
@@ -185,7 +184,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 				
 				// clear panel
 				hoverLabels.clear();
-				hoverGroup = new ButtonGroup();
+//				hoverGroup = new ButtonGroup();
 				backgroundPnl.removeAll();
 				
 				try {
@@ -383,14 +382,15 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						} else {
 							// cache label
 							hoverLabels.put((String) sequence, (HoverLabel) label);
-							// put label in button group
-							hoverGroup.add((AbstractButton) label);
+//							// put label in button group
+//							hoverGroup.add((AbstractButton) label);
 							
 							// install action listener
 							((HoverLabel) label).addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(ActionEvent evt) {
-									firePropertyChange("selection", null, sequence);
+									firePropertyChange("selection",
+											((AbstractButton) evt.getSource()).isSelected(), sequence);
 								}
 							});
 						}
@@ -417,14 +417,15 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 				} else {
 					// cache label
 					hoverLabels.put(sequence, (HoverLabel) label);
-					// put label in button group
-					hoverGroup.add((AbstractButton) label);
+//					// put label in button group
+//					hoverGroup.add((AbstractButton) label);
 					
 					// install action listener
 					((HoverLabel) label).addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent evt) {
-							firePropertyChange("selection", null, sequence);
+							firePropertyChange("selection",
+									((AbstractButton) evt.getSource()).isSelected(), sequence);
 						}
 					});
 				}
@@ -460,6 +461,15 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	}
 	
 	/**
+	 * Clears the selection of all sequence labels.
+	 */
+	public void clearSelection() {
+		for (HoverLabel label : hoverLabels.values()) {
+			label.setSelected(false);
+		}
+	}
+	
+	/**
 	 * Sets the selection state of the peptide label associated with the
 	 * specified peptide sequence to the specified selection value.
 	 * @param sequence the peptide sequence
@@ -470,11 +480,11 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		HoverLabel label = hoverLabels.get(sequence);
 		if (label != null) {
 			label.setSelected(selected);
-			// scroll to the selected label
-			Container cont = label.getParent();
-			if (cont != null) {
-				((JComponent) cont).scrollRectToVisible(cont.getBounds());	// far from perfect, but close enough
-			}
+//			// scroll to the selected label
+//			Container cont = label.getParent();
+//			if (cont != null) {
+//				((JComponent) cont).scrollRectToVisible(cont.getBounds());	// far from perfect, but close enough
+//			}
 		}
 	}
 	
