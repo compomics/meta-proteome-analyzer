@@ -10,7 +10,7 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
 
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 
 /**
  * Chart implementation to create pie or bar charts of protein ontology data.
@@ -29,22 +29,22 @@ public class OntologyChart extends Chart {
 	 */
 	public enum OntologyChartType implements ChartType {
 
-		BIOLOGICAL_PROCESS(KeywordOntology.BIOLOGICAL_PROCESS),
-		CELLULAR_COMPONENT(KeywordOntology.CELLULAR_COMPONENT),
-		CODING_SEQUNCE_DIVERSITY(KeywordOntology.CODING_SEQUNCE_DIVERSITY),
-		DEVELOPMENTAL_STAGE(KeywordOntology.DEVELOPMENTAL_STAGE),
-		DISEASE(KeywordOntology.DISEASE),
-		DOMAIN(KeywordOntology.DOMAIN),
-		LIGAND(KeywordOntology.LIGAND),
-		MOLECULAR_FUNCTION(KeywordOntology.MOLECULAR_FUNCTION),
-		PTM(KeywordOntology.PTM),
-		TECHNICAL_TERM(KeywordOntology.TECHNICAL_TERM);
+		BIOLOGICAL_PROCESS(KeywordCategory.BIOLOGICAL_PROCESS),
+		CELLULAR_COMPONENT(KeywordCategory.CELLULAR_COMPONENT),
+		CODING_SEQUNCE_DIVERSITY(KeywordCategory.CODING_SEQUNCE_DIVERSITY),
+		DEVELOPMENTAL_STAGE(KeywordCategory.DEVELOPMENTAL_STAGE),
+		DISEASE(KeywordCategory.DISEASE),
+		DOMAIN(KeywordCategory.DOMAIN),
+		LIGAND(KeywordCategory.LIGAND),
+		MOLECULAR_FUNCTION(KeywordCategory.MOLECULAR_FUNCTION),
+		PTM(KeywordCategory.PTM),
+		TECHNICAL_TERM(KeywordCategory.TECHNICAL_TERM);
 		
 		private String title;
-		private KeywordOntology ontology;
+		private KeywordCategory ontology;
 //		private Map<String, ProteinHitList> occMap;
 		
-		private OntologyChartType(KeywordOntology ontology) {
+		private OntologyChartType(KeywordCategory ontology) {
 			this.title = ontology.toString();
 			this.ontology = ontology;
 //			this.occMap = new HashMap<String, ProteinHitList>();
@@ -59,7 +59,7 @@ public class OntologyChart extends Chart {
 			return this.title;
 		}
 		
-		public KeywordOntology getOntology() {
+		public KeywordCategory getOntology() {
 			return this.ontology;
 		}
 		

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.ComboBoxModel;
-
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Client;
@@ -17,6 +15,7 @@ import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.client.settings.ParameterMap;
 
 /**
@@ -112,9 +111,9 @@ public class TaxonomyUtils {
 	 * @param taxonomyMap Taxonomy Map containing taxonomy DB accessor objects.
 	 * @return TaxonomyNode Taxonomy node in the end state.
 	 */
-	public static TaxonomyNode createTaxonomyNode(long currentID, Map<Long, Taxonomy> taxonomyMap) {
+	public static TaxonomyNode createTaxonomyNode(long currentID, Map<Long, Tax> taxonomyMap) {
 		
-		Taxonomy current = taxonomyMap.get(currentID);
+		Tax current = taxonomyMap.get(currentID);
 		Map<String, TaxonomyRank> targetRanks = UniProtUtilities.TAXONOMY_RANKS_MAP;
 
 		// Check for rank being contained in the main categories (from superkingdom to species)
@@ -156,83 +155,7 @@ public class TaxonomyUtils {
 			}
 		}
 		return leafNode;
-	}
-	
-	/**
-	 * Creates a taxonomy node which contains all ancestor taxonomy nodes up to
-	 * the root node. Looks up unmapped IDs in the remote database and stores
-	 * them in the provided map.
-	 * @param currentID the taxonomy ID of the start element
-	 * @param taxonomyMap map containing taxonomy ID-to-taxonomy node mappings
-	 * @param conn the database connection
-	 * @return the desired taxonomy node
-	 * @throws SQLException if a database error occurs
-	 */
-	public static TaxonomyNode createTaxonomyNode(
-			long currentID, Map<Long, Taxonomy> taxonomyMap, Connection conn) {
-		
-		try {
-			
-			Taxonomy current = taxonomyMap.get(currentID);
-			Map<String, TaxonomyRank> targetRanks = UniProtUtilities.TAXONOMY_RANKS_MAP;
-			
-			if (current == null) {
-				current = Taxonomy.findFromTaxID(currentID, conn);
-				taxonomyMap.put(currentID, current);
-			}
-
-			// Check for rank being contained in the main categories (from superkingdom to species)
-			TaxonomyRank taxonomyRank = targetRanks.get(current.getRank());
-			if (taxonomyRank == null) {
-				// TODO: Check whether the general category "species" holds true for all available ranks.
-				taxonomyRank = TaxonomyRank.SPECIES;
-			}
-			
-			// Create leaf node
-			TaxonomyNode leafNode = new TaxonomyNode(
-					(int) current.getTaxonomyid(), taxonomyRank, current.getDescription());
-			
-			// Iterate up taxonomic hierarchy and create parent nodes
-			TaxonomyNode currentNode = leafNode;
-			boolean reachedRoot = false;
-			while (!reachedRoot) {
-				long parentID = current.getParentid();
-				// look up taxonomy in map
-				current = taxonomyMap.get(parentID);
-				// if no mapping exists...
-				if (current == null) {
-					// look up taxonomy in database
-					current = Taxonomy.findFromTaxID(parentID, conn);
-					// if still no taxonomy could be retrieved...
-					if (current == null) {
-						// abort with error message
-						throw new SQLException("Unknown parent ID: " + parentID);
-					}
-					taxonomyMap.put(parentID, current);
-				}
-				
-				// Check whether we have reached the root already
-				reachedRoot = (current.getParentid() == 0L);
-				// Check whether parent rank is in targeted ranks
-				TaxonomyRank parentRank = targetRanks.get(current.getRank());
-				if (parentRank != null) {
-					// Create and configure parent node
-					TaxonomyNode parentNode = new TaxonomyNode(
-							(int) current.getTaxonomyid(), parentRank, current.getDescription());
-					currentNode.setParentNode(parentNode);
-					// TODO: consider subspecies distinction in database, so far all subspecies are labeled species there (Nov. 2013)
-					if (parentRank == TaxonomyRank.SPECIES) {
-						currentNode.setRank(TaxonomyRank.SUBSPECIES);
-					}
-					currentNode = parentNode;
-				}
-			}
-			return leafNode;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	}	
 	
 	/**
 	 * Method to go through a peptide set and define for each peptide hit the
@@ -264,18 +187,18 @@ public class TaxonomyUtils {
 
 			// Gets the parent node of the taxon node
 			TaxonomyNode child = ancestor;
-			TaxonomyNode parent = nodeMap.get(ancestor.getId());
+			TaxonomyNode parent = nodeMap.get(ancestor.getID());
 			if (parent == null) {
 				parent = child.getParentNode();
 				// iterate up the taxonomy hierarchy until a mapped node is found (which may be the root)
 				while (true) {
 					// retrieve parent node from map
-					TaxonomyNode temp = nodeMap.get(parent.getId());
+					TaxonomyNode temp = nodeMap.get(parent.getID());
 
 					if (temp == null) {
 						// add child's parent node to map
 						child.setParentNode(parent);
-						nodeMap.put(parent.getId(), parent);
+						nodeMap.put(parent.getID(), parent);
 						child = parent;
 						parent = parent.getParentNode();
 					} else {
@@ -310,9 +233,8 @@ public class TaxonomyUtils {
 	 */
 	public static void determineMetaProteinTaxonomy(
 			ProteinHitList metaProteins, ParameterMap params) {
-		ComboBoxModel model = (ComboBoxModel) params.get("metaProteinTaxonomy").getValue();
 		TaxonomyUtils.determineTaxonomy(metaProteins,
-				(TaxonomyDefinition) model.getSelectedItem());
+				(TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
 	}
 
 	/**
@@ -323,9 +245,8 @@ public class TaxonomyUtils {
 	 */
 	public static void determineProteinTaxonomy(
 			List<ProteinHit> proteins, ParameterMap params) {
-		ComboBoxModel model = (ComboBoxModel) params.get("proteinTaxonomy").getValue();
 		TaxonomyUtils.determineTaxonomy(proteins,
-				(TaxonomyDefinition) model.getSelectedItem());
+				(TaxonomyDefinition) params.get("proteinTaxonomy").getValue());
 	}
 
 	/**
@@ -376,7 +297,7 @@ public class TaxonomyUtils {
 		// Default value for taxonomy name.
 		String taxName = "root";
 
-		while (taxNode.getId() != 1) { // unequal to root
+		while (taxNode.getID() != 1) { // unequal to root
 			if (taxNode.getRank() == taxRank) {
 				taxName = taxNode.getName();
 				break;
@@ -397,11 +318,11 @@ public class TaxonomyUtils {
 		boolean belongsToGroup = false;
 
 		// To care for same taxID and especially for root as filtering level.
-		if (filterTaxId == taxNode.getId()) { 
+		if (filterTaxId == taxNode.getID()) { 
 			belongsToGroup = true;
 		} else {
 			// Get all parents of the taxonNode and check whether they are equal to the filter level.
-			while (taxNode.getParentNode() != null || (taxNode.getId() != 1)) {
+			while (taxNode.getParentNode() != null || (taxNode.getID() != 1)) {
 				// Get parent taxon node of protein entry.
 				try {
 					taxNode = taxNode.getParentNode();
@@ -409,7 +330,7 @@ public class TaxonomyUtils {
 					e.printStackTrace();
 				}
 				// Check for filter ID
-				if (filterTaxId == taxNode.getId()) {
+				if (filterTaxId == taxNode.getID()) {
 					belongsToGroup = true;
 					break;
 				}

@@ -63,6 +63,7 @@ public class ResourceProperties {
 		}
 		prop.load(inputStream);
 		prop.setProperty("path.fasta", path + "/built/fasta");
+		prop.setProperty("path.taxonomy", path + "/built/taxonomy/");
 		prop.setProperty("path.base", path);
 		
 		if (Starter.isWindows()) {

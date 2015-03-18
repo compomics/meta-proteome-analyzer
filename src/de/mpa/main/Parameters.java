@@ -89,7 +89,7 @@ public class Parameters {
 	 */
 	private void initializeParameters() throws URISyntaxException {
 		// Initialize the EC-number map
-		ecMap = ECReader.readEC(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
+		ecMap = ECReader.readXML(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
 		
 		// Initialize the KEGG pathway map
 		keggPathwayMap = KeggMaps.readKeggPathways(getClass().getResourceAsStream("/de/mpa/resources/conf/keggPathways.txt"));
@@ -97,6 +97,8 @@ public class Parameters {
 		// Initialize the KEGG taxonomy map
 		keggTaxonomyMap = KeggMaps.readKeggOrganisms(getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
 	}
+	
+	
 	
 	/**
 	 * Returns the UniProt peptide map with the associated accessions.

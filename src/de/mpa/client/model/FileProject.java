@@ -32,9 +32,9 @@ public class FileProject extends AbstractProject {
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.creationDate = new Date();
-			this.properties.putAll(properties);
+			this.setTitle(title);;
+			this.setCreationDate(new Date());
+			this.getProperties().putAll(properties);
 		
 			List<AbstractProject> projects = ClientFrame.getInstance().getProjectPanel().getProjects();
 			projects.add(this);
@@ -49,9 +49,9 @@ public class FileProject extends AbstractProject {
 	@Override
 	public void update(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.title = title;
-			this.properties.clear();
-			this.properties.putAll(properties);
+			this.setTitle(title);
+			this.getProperties().clear();
+			this.getProperties().putAll(properties);
 		
 			List<AbstractProject> projects = ClientFrame.getInstance().getProjectPanel().getProjects();
 			

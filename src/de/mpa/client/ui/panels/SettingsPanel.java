@@ -115,6 +115,7 @@ public class SettingsPanel extends JPanel {
 					// Collect search settings.
 					DbSearchSettings searchSettings = databasePnl.gatherDBSearchSettings();
 					FileExperiment selectedExperiment = (FileExperiment) projectPanel.getSelectedExperiment();
+					selectedExperiment.retrieveTaxonomyMap();
 					// FIXME: Do not use only the first MGF file. 
 					selectedExperiment.setSpectrumFile(Client.getInstance().getMgfFiles().get(0));
 					

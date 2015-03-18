@@ -12,13 +12,15 @@ import java.util.Set;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.KeywordOntology;
+import de.mpa.analysis.UniProtUtilities.Keyword;
+import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
+import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
@@ -305,7 +307,10 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Returns the peptide count for the protein hit.
 	 * @return the number of peptides found in the protein hit
 	 */
-	public int getPeptideCount(){
+	public int getPeptideCount() {
+		if (visPeptideHits == null) {
+			return peptideHits.size();
+		}
 		return visPeptideHits.size();
 	}
 	
@@ -574,15 +579,16 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			if (redUniEntry != null) {
 				List<String> keywords = redUniEntry.getKeywords();
 				for (String kw : keywords) {
-					KeywordOntology ontologyType = UniProtUtilities.ONTOLOGY_MAP.get(kw);
-					if (ontologyType != null) {
+					Keyword keyword = UniProtUtilities.ONTOLOGY_MAP.get(kw);
+					if (keyword != null) {
+						KeywordCategory ontologyType = KeywordCategory.valueOf(
+								keyword.getCategory());
 						if (ontologyType.equals(ontChartType.getOntology())) {
 							res.add(kw);
 						}
 					} else {
-						// TODO: update ontology map, e.g. write parser for ontology file (http://www.uniprot.org/keywords/?query=*&format=*)
-						if (Client.getInstance().isDebug()) {
-							System.err.println(kw);
+						if (Client.isDebug()) {
+							System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
 						}
 					}
 				}
@@ -619,11 +625,42 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 				System.err.println("ERROR: Unknown hierarchy level!");
 				break;
 			}
+		} else if (type == CompareData.EXPERIMENT) {
+			res.addAll(this.getExperimentIDs());
 		} else {
 			// If we got here something went wrong - investigate!
 			System.err.println("Error: Unknown chart type!");
 		}
 		return res;
+	}
+	
+	/**
+	 * Class to compare experiments.
+	 * @author A. Behne und R. Heyer
+	 */
+	public static class CompareData extends HeatMapData {
+		
+		/**
+		 * ChartType for experiments
+		 */
+		public static final ChartType EXPERIMENT = new ChartType() {
+			@Override
+			public String getTitle() {
+				return "Experiment";
+			}
+		};
+
+		/**
+		 * Default constructor for the compare data.
+		 * @param result. The result object.
+		 * @param yAxisType. The type of the y-axis for the comparison.
+		 * @param zAxisType. The type of the z-axis for the comparison.
+		 */
+		public CompareData(DbSearchResult result,
+				ChartType yAxisType, HierarchyLevel zAxisType) {
+			super(result, EXPERIMENT, yAxisType, zAxisType);
+		}
+		
 	}
 	
 }

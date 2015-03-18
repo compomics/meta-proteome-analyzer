@@ -3,6 +3,8 @@ package de.mpa.client.settings;
 import java.io.File;
 import java.io.IOException;
 
+import de.mpa.client.settings.Parameter.NumberParameter;
+
 /**
  * Parameter settings for spectrum filtering in File Panel.
  * 
@@ -12,10 +14,10 @@ public class SpectrumFilterParameters extends ParameterMap {
 	
 	@Override
 	public void initDefaults() {
-		this.put("minpeaks", new Parameter("Min. Significant Peaks", new Integer[] { 10, 1, Integer.MAX_VALUE, 1 }, "Spectrum Filtering", "The minimum number of significant peaks in the spectrum."));
-		this.put("mintic", new Parameter("Min. Total Ion Current", new Integer[] { 10000, 1, Integer.MAX_VALUE, 1}, "Spectrum Filtering", "The minimum total ion current of the spectrum."));
-		this.put("minsnr", new Parameter("Min. Signal/Noise Ratio", 1.0, "Spectrum Filtering", "The minimum signal-to-noise ratio."));
-		this.put("noiselvl", new Parameter("Noise level", 2.5, "Spectrum Filtering", "The spectrum noise level."));
+		this.put("minpeaks", new NumberParameter(10, 1, null, "Min. Significant Peaks", "The minimum number of peaks in the spectrum with intensity above the noise level.", "Spectrum Filtering"));
+		this.put("mintic", new NumberParameter(10000, 1, null, "Min. Total Ion Current", "The minimum total ion current of the spectrum.", "Spectrum Filtering"));
+		this.put("minsnr", new NumberParameter(1.0, 0.0, null, "Min. Signal/Noise Ratio", "The minimum signal-to-noise ratio.", "Spectrum Filtering"));
+		this.put("noiselvl", new NumberParameter(2.5, 0.0, null, "Noise level", "The ion intensity below which peaks are considered noise.", "Spectrum Filtering"));
 	}
 
 	@Override
