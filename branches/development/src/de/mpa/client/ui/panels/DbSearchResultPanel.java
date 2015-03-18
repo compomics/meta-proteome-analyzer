@@ -1941,7 +1941,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				spectrumPnl.clearSpectrum();
 				
 				// Fetch search result object
-				resultPnl.dbSearchResult = Client.getInstance().getDatabaseSearchResult();
+				resultPnl.dbSearchResult = ClientFrame.getInstance().getResultsPanel().getDBSearchResultObj();
 				
 				// Build local chart data objects
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
@@ -2004,7 +2004,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						maxNSAF = Math.max(maxNSAF, nsaf);
 		
 						// Wrap protein data in table node clones and insert them into the relevant trees
-						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim());
+						String accession = proteinHit.getAccession();
+						URI uri = URI.create("http://www.uniprot.org/uniprot/" + accession.trim());
 						
 						for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 							if (ptt == ProteinTreeTables.META) {
