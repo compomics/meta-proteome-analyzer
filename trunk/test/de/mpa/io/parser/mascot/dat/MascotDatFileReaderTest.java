@@ -9,8 +9,6 @@ import java.io.RandomAccessFile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.mpa.io.parser.mascot.dat.MascotDatFileReader;
-
 public class MascotDatFileReaderTest {
 	
 	private static MascotDatFileReader mascotDatFileReader;

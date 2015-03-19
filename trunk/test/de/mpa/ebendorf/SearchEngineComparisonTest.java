@@ -10,23 +10,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.Cruxhit;
-import de.mpa.db.accessor.Inspecthit;
-import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.Spectrum;
-import de.mpa.db.accessor.XTandemhit;
 
 public class SearchEngineComparisonTest {
 	

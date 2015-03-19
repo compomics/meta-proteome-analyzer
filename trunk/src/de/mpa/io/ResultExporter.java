@@ -35,10 +35,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ProteinTreeTables;
-import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.XTandemhit;
-import de.mpa.graphdb.properties.PsmProperty;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and taxonomy results.
