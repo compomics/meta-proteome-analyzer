@@ -19,7 +19,6 @@ import com.jgoodies.looks.Options;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
-import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
