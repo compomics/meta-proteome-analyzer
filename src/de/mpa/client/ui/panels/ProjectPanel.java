@@ -561,6 +561,10 @@ public class ProjectPanel extends JPanel {
 		
 		return experimentTblScp;
 	}
+	
+	public void setResultsButtonState(boolean hasResult) {
+		skipBtn.setEnabled(hasResult);
+	}
 
 	/**
 	 * Creates and configures the experiment management buttons.

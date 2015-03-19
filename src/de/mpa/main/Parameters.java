@@ -1,7 +1,9 @@
 package de.mpa.main;
 
 import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URISyntaxException;
@@ -10,9 +12,11 @@ import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 
 import de.mpa.analysis.KeggMaps;
+import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.client.ui.SortableTreeNode;
 import de.mpa.io.parser.ec.ECEntry;
 import de.mpa.io.parser.ec.ECReader;
+import de.mpa.job.ResourceProperties;
 
 /**
  * This class initializes the parameters.
@@ -59,7 +63,11 @@ public class Parameters {
 	 *  Map of all Uniprot accessions and the associated peptides
 	 */
 	private Map<String, String[]> uniProtAccMap = null;
-
+	
+	/**
+	 * Map of taxonomic IDs to their respective tax objects.
+	 */
+	private Map<Long, Tax> taxonomyMap = null;
 
 	/**
 	 * Private constructor for the parameters.
@@ -96,9 +104,32 @@ public class Parameters {
 		
 		// Initialize the KEGG taxonomy map
 		keggTaxonomyMap = KeggMaps.readKeggOrganisms(getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
+		
+		if (taxonomyMap == null) {
+			retrieveTaxonomyMap();
+		}
 	}
 	
-	
+	/**
+	 * This method retrieves the taxonomy map from the taxonomy dump file.
+	 */
+	private void retrieveTaxonomyMap() {
+		Runnable bgThread = new Runnable() {
+			public void run() {
+				InputStream fis = null;
+				ObjectInputStream o = null;
+				try {
+					fis = new FileInputStream(ResourceProperties.getInstance().getProperty("path.taxonomy") + "taxonomy.map");
+					o = new ObjectInputStream(fis);
+					taxonomyMap = (Map<Long, Tax>) o.readObject();
+					o.close();
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		new Thread(bgThread).start();
+	}
 	
 	/**
 	 * Returns the UniProt peptide map with the associated accessions.
@@ -192,4 +223,11 @@ public class Parameters {
 		return keggPathwayTreeRoot;
 	}
 	
+	/**
+	 * This method returns the map of all NCBI taxonomies.
+	 * @return taxonomyMap
+	 */
+	public Map<Long, Tax> getTaxonomyMap() {
+		return taxonomyMap;
+	}
 }

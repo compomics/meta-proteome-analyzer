@@ -63,6 +63,8 @@ public class DbSearchResult implements Serializable {
 	 * The total amount of spectra.
 	 */
 	private int totalSpectra;
+	
+	private String spectrumFilePath;
 
 	/**
 	 * Constructs a result object from the specified project title, experiment

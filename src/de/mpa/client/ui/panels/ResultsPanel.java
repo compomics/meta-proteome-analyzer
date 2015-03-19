@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,6 +59,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
+import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -85,6 +87,7 @@ import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.parser.kegg.KEGGNode;
+import de.mpa.job.ResourceProperties;
 
 /**
  * Panel providing overview information about fetched results in the form of
@@ -943,7 +946,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Class to fetch protein database search results in a background thread.
 	 * It's possible to fetch from the remote SQL database or from a local file instance.
 	 * 
-	 * @author A. Behne, R. Heyer
+	 * @author Thilo Muth
 	 */
 	private class FetchResultsTask extends SwingWorker<Integer, Object> {
 		
@@ -964,8 +967,13 @@ public class ResultsPanel extends JPanel implements Busyable {
 					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
 						// Update result object reference
 						ResultsPanel.this.dbSearchResult = newResult;
-						System.out.println("dump result!");
 						client.dumpBackupDatabaseSearchResult();
+						FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+						String path = ResourceProperties.getInstance().getProperty("path.base");
+						File experimentFile = new File(path + File.separator + selectedExperiment.getTitle() + ".mpa");
+						selectedExperiment.setResultFile(experimentFile);;
+						client.dumpDatabaseSearchResult(dbSearchResult, experimentFile.getAbsolutePath());
+						selectedExperiment.serialize();
 					}
 				}
 				

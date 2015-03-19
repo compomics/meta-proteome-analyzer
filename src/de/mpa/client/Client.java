@@ -178,11 +178,14 @@ public class Client {
 	public MascotGenericFile readSpectrumFromFile(String pathname, int index) {
 		MascotGenericFile mgf = null;
 		try {
-			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
-			File mgfFile = new File (pathname);
-			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
-			
-			reader.setSpectrumPositions(GeneralParser.SpectrumPosMap.get(mgfFile.getAbsolutePath()));
+			MascotGenericFileReader reader = null;
+			if (GeneralParser.SpectrumPosMap.size() == 0) {
+				reader = new MascotGenericFileReader(new File(pathname));
+				GeneralParser.SpectrumPosMap.put(pathname, reader.getSpectrumPositions(false));
+			} else {
+				reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
+			}
+			reader.setSpectrumPositions(GeneralParser.SpectrumPosMap.get(pathname));
 			mgf = reader.loadSpectrum(index - 1);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -375,7 +378,7 @@ public class Client {
 	 * @param pathname the path name string
 	 * @throws IOException if an I/O error occurs
 	 */
-	private void dumpDatabaseSearchResult(DbSearchResult result, String pathname) throws IOException {
+	public void dumpDatabaseSearchResult(DbSearchResult result, String pathname) throws IOException {
 		// store as compressed binary object
 		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
 				new GZIPOutputStream(new FileOutputStream(new File(pathname)))));
@@ -390,6 +393,7 @@ public class Client {
 	 */
 	public void dumpBackupDatabaseSearchResult() {
 		try {
+			
 			this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
