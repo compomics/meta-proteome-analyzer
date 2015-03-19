@@ -11,7 +11,7 @@ import de.mpa.db.job.instances.QvalityJob;
  * @author Thilo Muth
  *
  */
-public class OmssaScoreJob extends Job{
+public class OmssaScoreJob extends Job {
 	
 	// The Omssa target result file.
 	private String targetFile;

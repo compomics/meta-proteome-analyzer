@@ -2,6 +2,8 @@ package de.mpa.db.job.instances;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
 import de.mpa.db.job.Job;
 
 /**
@@ -28,6 +30,7 @@ public class QvalityJob extends Job {
 	 * @param reverseScoring
 	 */		 
 	public QvalityJob(String targetFilename, String decoyFilename, boolean reverseScoring) {
+		log = Logger.getLogger(getClass());
 		this.targetFile = new File(targetFilename);
 		this.decoyFile = new File(decoyFilename);
 		this.reverseScoring = reverseScoring;		
