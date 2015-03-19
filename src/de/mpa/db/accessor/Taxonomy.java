@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.mpa.client.model.dbsearch.Tax;
+
 public class Taxonomy extends TaxonomyTableAccessor {
 	/**
      * Calls the super class.
@@ -55,13 +57,16 @@ public class Taxonomy extends TaxonomyTableAccessor {
 	 * @return Map of all taxonomy entries with taxonomy IDs as key.
 	 * @throws SQLException
 	 */
-	public static Map<Long, Taxonomy> retrieveTaxonomyMap(Connection conn) throws SQLException {
-		Map<Long, Taxonomy>  taxonomies = new HashMap<Long, Taxonomy>();
+	public static Map<Long, Tax> retrieveTaxonomyMap(Connection conn) throws SQLException {
+		Map<Long, Tax>  taxonomies = new HashMap<Long, Tax>();
 		Statement stat = conn.createStatement();
 		ResultSet rs = stat.executeQuery(getBasicSelect());
 		while (rs.next()) {
-			taxonomies.put(rs.getLong("taxonomyid"), new Taxonomy(rs));
+			Taxonomy taxonomy = new Taxonomy(rs);
+			Tax tax = new Tax (taxonomy.getTaxonomyid(), taxonomy.getParentid(), taxonomy.getDescription(), taxonomy.getRank());
+			taxonomies.put(rs.getLong("taxonomyid"), tax);
 		}
+		
 		rs.close();
 		stat.close();
 		return taxonomies;

@@ -215,7 +215,6 @@ public class XTandemStorager extends BasicStorager {
 		return spectrumTitle;
 	}
     
-    
     private void processQValues() {
 		BufferedReader qValueFileReader;
 		BufferedReader targetFileReader;
