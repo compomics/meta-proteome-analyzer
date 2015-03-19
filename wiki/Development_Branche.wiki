@@ -1,9 +1,7 @@
 #summary Wiki for Development Branch
 
 = Commit and Update to Development branch =
- 
 
-= Versions =
 == Version 11.02.2015 ==
  * Fixed bugs in peptide taxonomy determination
  * Added export for EC and KO to metaprotein export
@@ -40,11 +38,3 @@ This is often necessary for the UniProtJAPi, because you need always the current
  * Download new library and copy into your library folder (MetaproteomeAnalyzer\lib)
  * Right-Click on MPA project, "Configure BuildPath", "Libraries" , Select old library and "Remove" it from the Build Path
  * Select in the MPA the new library in the "lib" folder, Right-Click and "Add to Build Path"
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
