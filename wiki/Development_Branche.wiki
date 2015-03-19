@@ -1,4 +1,4 @@
-#summary Wiki for Development Branche
+#summary Wiki for Development Branch
 
 = Commit and Update to Development branch =
  
