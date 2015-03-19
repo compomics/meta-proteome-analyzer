@@ -21,8 +21,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -36,6 +38,8 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+
+import scala.collection.parallel.ParIterableLike.Foreach;
 
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.MultipleDatabaseExperiments;
@@ -365,7 +369,7 @@ public class Client {
 			}
 		}
 	}
-
+	
 	/**
 	 * Returns the current spectral similarity search result.
 	 * @param expContent The experiment content.
