@@ -31,4 +31,4 @@
      * [Data_Exploration#Dynamic_Grouping Dynamic Grouping]
      * [Data_Exploration#Export_Results Export Results]
   * [Viewer_Mode Viewer Mode]
-  * [Development_Branche Development Branche]
+  * [Development_Branch Development Branch]
