@@ -125,6 +125,23 @@ public class MascotStorager extends BasicStorager {
 		}
     }
 	
+	
+	/**
+	 * Constructs a {@link MascotStorager} for parsing and storing of Mascot .dat files to the DB. 
+	 * @param conn Connection instance.
+	 * @param file File instance. 
+	 */
+	public MascotStorager(Connection conn, File file, SearchSettings searchSettings, ParameterMap mascotParams,FastaLoader fastaLoader ){
+    	this.conn = conn;
+    	this.file = file;
+    	this.searchSettings = searchSettings;
+		this.mascotParams = mascotParams;
+		this.searchEngineType = SearchEngineType.MASCOT;
+		this.fastaFile = fastaFile;
+		this.fastaLoader = fastaLoader;
+    }
+	
+	
 
 	@Override
 	public void load() {

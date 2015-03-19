@@ -201,7 +201,7 @@ public class MascotParameters extends ParameterMap {
 				}
 			});
 			bg.add(fdrScoreRbn);
-			fdrScoreRbn.setEnabled(decoy);
+			fdrScoreRbn.setEnabled(true);
 
 			double fdrScore = (Double) MascotParameters.this.get("fdrScore").getValue();
 			fdrScoreSpn = new JSpinner(new SpinnerNumberModel(fdrScore, 0.0, 1.0, 0.01));

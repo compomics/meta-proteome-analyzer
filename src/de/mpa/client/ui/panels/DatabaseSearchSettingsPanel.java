@@ -318,10 +318,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		// Mascot functionality is initially disabled unless a .dat file is imported
-		mascotChk.setEnabled(false);
-		mascotSetBtn.setEnabled(false);
-		
 		// Spectral Library
 		final JCheckBox specLibChk = new JCheckBox("SpecLib", false);
 		specLibChk.setIconTextGap(10);

@@ -102,7 +102,7 @@ public class SearchSettings {
     public void setExpID(long value) {
         this.expID = value;
     }
-
+    
     /**
      * Gets the value of the sss property.
      * 
@@ -172,4 +172,15 @@ public class SearchSettings {
         return this.filenames;
     }
 
+    /**
+     * Sets the value of the expID property.
+     * 
+     */
+	public void setFilenames(List<String> filenames) {
+		this.filenames = filenames;
+	}
+
+    
+    
+    
 }

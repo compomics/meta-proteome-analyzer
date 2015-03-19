@@ -23,6 +23,8 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
+import de.mpa.client.Client;
+
 /**
  * Singleton class providing FASTA read/write capabilities via random access
  * file.
@@ -250,6 +252,10 @@ public class FastaLoader {
 	 *             when the file could not be found.
 	 */
 	public void loadFastaFile() throws FileNotFoundException {
+		
+		// Instance of the client to fire progress
+		Client client = Client.getInstance();
+		
 		try {
 			// Initialize the random access file instance
 			raf = new RandomAccessFile(file, "r");
@@ -272,6 +278,7 @@ public class FastaLoader {
 					count++;
 					if(count % 10000 == 0) {						
 						System.out.println(count + " sequences parsed...");
+						client.firePropertyChange("new message", null, "Parsing a fasta file" + count );
 					} 	
 //					if(count % 1000000 == 0) {						
 //						System.out.println("Writing index file...");
