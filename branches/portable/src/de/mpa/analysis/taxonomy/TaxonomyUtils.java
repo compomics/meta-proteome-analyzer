@@ -1,7 +1,5 @@
 package de.mpa.analysis.taxonomy;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,79 +24,111 @@ import de.mpa.client.settings.ParameterMap;
  */
 public class TaxonomyUtils {
 	
-	/**
-	 * Enumeration holding taxonomy definition-related constants.
-	 * @author A. Behne
-	 */
-	public enum TaxonomyDefinition {
-		COMMON_ANCESTOR("by common ancestor") {
-			@Override
-			public TaxonomyNode getCommonTaxonomyNode(
-					TaxonomyNode nodeA, TaxonomyNode nodeB) {
-				// Get root paths of both taxonomy nodes
-				TaxonomyNode[] path1 = nodeA.getPath();
-				TaxonomyNode[] path2 = nodeB.getPath();
-				TaxonomyNode ancestor;
-			
-				// Find last common element starting from the root
-				int len = Math.min(path1.length, path2.length);
-				if (len > 1) {
-					ancestor = path1[0];	// initialize ancestor as root
-					for (int i = 1; i < len; i++) {
-						if (!path1[i].equals(path2[i])) {
-							break;
-						} 
-						ancestor = path1[i];
-					}
-				} else {
-					ancestor = nodeA;
-				}
-				return ancestor;
-			}
-		},
-		MOST_SPECIFIC("by most specific member") {
-			@Override
-			public TaxonomyNode getCommonTaxonomyNode(
-					TaxonomyNode nodeA, TaxonomyNode nodeB) {
-				// Get root paths of both taxonomy nodes
-				TaxonomyNode[] path1 = nodeA.getPath();
-				TaxonomyNode[] path2 = nodeB.getPath();
-				// return node at the end of the longer one of either paths
-				if (path1.length >= path2.length) {
-					return nodeA;
-				} else {
-					return nodeB;
-				}
-			}
-		};
-		
-		/**
-		 * The name string.
-		 */
-		private String name;
+	  /**
+     * Enumeration holding taxonomy definition-related constants.
+     * @author A. Behne
+     */
+    public enum TaxonomyDefinition {
+            COMMON_ANCESTOR("by common ancestor") {
+                    @Override
+                    public TaxonomyNode getCommonTaxonomyNode(
+                                    TaxonomyNode nodeA, TaxonomyNode nodeB) {
+                            // Get root paths of both taxonomy nodes
+                            TaxonomyNode[] path1 = nodeA.getPath();
+                            TaxonomyNode[] path2 = nodeB.getPath();
+                            TaxonomyNode ancestor = null;
 
-		/**
-		 * Constructs a meta-protein generation rule using the specified name string.
-		 * @param name the name of the rule
-		 */
-		private TaxonomyDefinition(String name) {
-			this.name = name;
-		}
+                            // Find last common element starting from the root
+                            int len = Math.min(path1.length, path2.length);
+                           
+                            // Only root
+                            if (len == 0) {
+                                    // is root
+                                    ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+                            }
 
-		@Override
-		public String toString() {
-			return this.name;
-		}
+                            // Taxonomy is superkingdom or "unclassified" (taxID == "0")
+                            if (len == 1){
+                                    // Both are unclassified
+                                    if (nodeA.getID() == 0 && nodeB.getID() == 0) {
+                                            ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+                                    }
+                                    // Just one is unclassified (Taxonomy ID is "0")
+                                    else if (nodeA.getID() == 0){
+                                            ancestor = nodeB;
+                                    }
+                                    // Just one is unclassified (Taxonomy ID is "0")
+                                    else if (nodeB.getID() == 0){
+                                            ancestor = nodeA;
+                                            // Similar superkingdom
+                                    } else if (path1[0].equals(path2[0])){
+                                            ancestor = path1[0];
+                                            // Else different superkingdoms
+                                    }else if (!path1[0].equals(path2[0])){
+                                            ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+                                    }
+                            }
+                            // Find common ancestor of both paths
+                            if (len>1) {
+                                    // check for different superkingdoms
+                                    if (!path1[0].equals(path2[0])) {
+                                            ancestor = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+                                    } else {
+                                            ancestor = path1[0];    // initialize ancestor as root
+                                            for (int i = 1; i < len; i++) {
+                                                    if (!path1[i].equals(path2[i])) {
+                                                            break;
+                                                    }
+                                                    ancestor = path1[i];
+                                            }
+                                    }
+                            }
+                            return ancestor;
+                    }
+            },
+            MOST_SPECIFIC("by most specific member") {
+                    @Override
+                    public TaxonomyNode getCommonTaxonomyNode(
+                                    TaxonomyNode nodeA, TaxonomyNode nodeB) {
+                            // Get root paths of both taxonomy nodes
+                            TaxonomyNode[] path1 = nodeA.getPath();
+                            TaxonomyNode[] path2 = nodeB.getPath();
+                            // return node at the end of the longer one of either paths
+                            if (path1.length >= path2.length) {
+                                    return nodeA;
+                            } else {
+                                    return nodeB;
+                            }
+                    }
+            };
+           
+            /**
+             * The name string.
+             */
+            private String name;
 
-		/**
-		 * Returns the common taxonomy node of the specified pair of taxonomy nodes.
-		 * @param nodeA the first taxonomy node
-		 * @param nodeB the second taxonomy node
-		 * @return the common taxonomy node
-		 */
-		public abstract TaxonomyNode getCommonTaxonomyNode(
-				TaxonomyNode nodeA, TaxonomyNode nodeB);
-	}
+            /**
+             * Constructs a meta-protein generation rule using the specified name string.
+             * @param name the name of the rule
+             */
+            private TaxonomyDefinition(String name) {
+                    this.name = name;
+            }
+
+            @Override
+            public String toString() {
+                    return this.name;
+            }
+
+            /**
+             * Returns the common taxonomy node of the specified pair of taxonomy nodes.
+             * @param nodeA the first taxonomy node
+             * @param nodeB the second taxonomy node
+             * @return the common taxonomy node
+             */
+            public abstract TaxonomyNode getCommonTaxonomyNode(
+                            TaxonomyNode nodeA, TaxonomyNode nodeB);
+    }
 
 	/**
 	 * Private constructor as class contains only static helper methods.

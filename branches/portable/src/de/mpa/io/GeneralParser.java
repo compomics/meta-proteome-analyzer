@@ -34,7 +34,7 @@ public class GeneralParser {
 	/**
 	 * Mapping from the spectrum to the byte positions.
 	 */
-	public static Map<String, ArrayList<Long>> SpectrumPosMap = new HashMap<String, ArrayList<Long>>();
+	public static Map<String, List<Long>> SpectrumPosMap = new HashMap<String, List<Long>>();
 	
 	/**
 	 * Accession to description mapping used for the UniProt entry querying.

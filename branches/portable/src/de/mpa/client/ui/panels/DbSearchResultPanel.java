@@ -1836,8 +1836,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
 
 			// Read spectrum from MGF file accompanying imported result object, if possible
-			FileExperiment experiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-			mgf = Client.getInstance().readSpectrumFromFile(experiment.getSpectrumFile().getPath(), (int) psm.getSpectrumID());
+			
+			FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+
+			mgf = Client.getInstance().readSpectrumFromFile(selectedExperiment.getSpectrumFile().getPath(), (int) psm.getSpectrumID());
 		}
 		spectrumPnl.refreshSpectrum(mgf, sequence);
 	}

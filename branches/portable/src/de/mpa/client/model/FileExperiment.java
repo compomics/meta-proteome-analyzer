@@ -33,6 +33,7 @@ import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.GeneralParser;
 import de.mpa.job.ResourceProperties;
+import de.mpa.main.Parameters;
 
 /**
  * Implementation of the experiment interface for file-based experiments.
@@ -61,11 +62,7 @@ public class FileExperiment extends AbstractExperiment {
 	 */
 	private TaxonomyNode unclassifiedNode;
 	
-	/**
-	 * Taxonomy mapping.
-	 */
-	private Map<Long, Tax> taxonomyMap;
-	
+
 	/**
 	 * Creates an empty file-based experiment.
 	 */
@@ -114,44 +111,14 @@ public class FileExperiment extends AbstractExperiment {
 	
 	@Override
 	public boolean hasSearchResult() {
-		if (GeneralParser.SearchHits.size() > 0) {
-			return true;
-		}
 		return (resultFile != null) && resultFile.exists();
 	}
-	
-	/**
-	 * This method retrieves the taxonomy map from the taxonomy dump file.
-	 */
-	public void retrieveTaxonomyMap() {
 
-		Runnable bgThread = new Runnable() {
-			public void run() {
-				InputStream fis = null;
-				ObjectInputStream o = null;
-				try {
-					fis = new FileInputStream(ResourceProperties.getInstance()
-							.getProperty("path.taxonomy") + "taxonomy.map");
-					o = new ObjectInputStream(fis);
-					taxonomyMap = (Map<Long, Tax>) o.readObject();
-					o.close();
-				} catch (IOException | ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		new Thread(bgThread).start();
-	}
 
 	@Override
 	public DbSearchResult getSearchResult() {
-		// Lazy loading of taxonomy map.
-		if (taxonomyMap == null) {
-			retrieveTaxonomyMap();
-		}
-		
 		Client client = Client.getInstance();
-		if (searchResult == null && resultFile != null) {
+		if (resultFile != null) {
 			client.firePropertyChange("new message", null, "READING RESULTS FILE");
 			client.firePropertyChange("resetall", 0L, 100L);
 			client.firePropertyChange("indeterminate", false, true);
@@ -171,7 +138,7 @@ public class FileExperiment extends AbstractExperiment {
 			client.firePropertyChange("indeterminate", true, false);
 		} else {
 			try {
-				// initialize the result object
+				// Initialize the result object
 				DbSearchResult searchResult = new DbSearchResult(this.getProject().getTitle(), this.getTitle(), null);
 				List<SearchHit> searchHits = GeneralParser.SearchHits;
 				long maxProgress = searchHits.size();
@@ -180,15 +147,15 @@ public class FileExperiment extends AbstractExperiment {
 				client.firePropertyChange("resetall", 0L, maxProgress);
 				client.firePropertyChange("resetcur", 0L, maxProgress);
 				
-				// add search hits to result object
+				// Add search hits to result object.
 				for (SearchHit searchHit : searchHits) {
 					setId(1L);
 					addProteinSearchHit(searchResult, searchHit, this.getID());
 					client.firePropertyChange("progressmade", true, false);
 				}
 				
-				// determine total spectral count
-//				TODO: searchResult.setTotalSpectrumCount(Searchspectrum.getSpectralCountFromExperimentID(this.getID(), conn));
+				// Determine total spectral count.
+				searchResult.setTotalSpectrumCount(GeneralParser.SpectrumTitle2IdMap.size());
 
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 				this.searchResult = searchResult;
@@ -221,7 +188,7 @@ public class FileExperiment extends AbstractExperiment {
 			uniProtEntry = GeneralParser.UniprotQueryProteins.get(hit.getAccession());
 			
 			// retrieve taxonomy branch
-			taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniProtEntry.getTaxID(), taxonomyMap);
+			taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniProtEntry.getTaxID(), Parameters.getInstance().getTaxonomyMap());
 		} else {
 			// create dummy UniProt entry
 			uniProtEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);
@@ -299,7 +266,7 @@ public class FileExperiment extends AbstractExperiment {
 	 * Serializes the list of projects to reflect addition/modification/removal of experiments.
 	 * @throws Exception if the projects file could not be retrieved or could not be written to
 	 */
-	private void serialize() throws Exception {
+	public void serialize() throws Exception {
 		// temporarily remove result object reference to avoid it being serialized with the project structure
 		DbSearchResult searchResult = this.searchResult;
 		this.searchResult = null;

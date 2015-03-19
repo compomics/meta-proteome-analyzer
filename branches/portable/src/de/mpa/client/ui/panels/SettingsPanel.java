@@ -29,6 +29,7 @@ import de.mpa.client.model.FileExperiment;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.io.GeneralParser;
 
 public class SettingsPanel extends JPanel {
 	
@@ -115,7 +116,6 @@ public class SettingsPanel extends JPanel {
 					// Collect search settings.
 					DbSearchSettings searchSettings = databasePnl.gatherDBSearchSettings();
 					FileExperiment selectedExperiment = (FileExperiment) projectPanel.getSelectedExperiment();
-					selectedExperiment.retrieveTaxonomyMap();
 					// FIXME: Do not use only the first MGF file. 
 					selectedExperiment.setSpectrumFile(Client.getInstance().getMgfFiles().get(0));
 					
@@ -136,6 +136,11 @@ public class SettingsPanel extends JPanel {
 			clientFrame.setCursor(null);
 			processBtn.setEnabled(true);
 			clientFrame.setTabEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, true);
+			
+			if (Client.getInstance().getDatabaseSearchResult() != null) {
+				clientFrame.getProjectPanel().setResultsButtonState(true);
+			}
+			
 		}
 	}
 
