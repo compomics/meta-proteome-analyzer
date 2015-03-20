@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<bioml label="x! taxon-to-file matching list">
+	<taxon label="C:\workspace\MetaProteomeAnalyzer(Portable)\built\fasta\uniprot_sprot_decoy.fasta">
+		<file format="peptide" URL="C:\workspace\MetaProteomeAnalyzer(Portable)\built\fasta\uniprot_sprot_decoy.fasta" />
+	</taxon>
+</bioml>
