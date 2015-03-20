@@ -968,12 +968,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 						// Update result object reference
 						ResultsPanel.this.dbSearchResult = newResult;
 						client.dumpBackupDatabaseSearchResult();
-						FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-						String path = ResourceProperties.getInstance().getProperty("path.base");
-						File experimentFile = new File(path + File.separator + selectedExperiment.getTitle() + ".mpa");
-						selectedExperiment.setResultFile(experimentFile);;
-						client.dumpDatabaseSearchResult(dbSearchResult, experimentFile.getAbsolutePath());
-						selectedExperiment.serialize();
 					}
 				}
 				
@@ -1014,9 +1008,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 			}
 			
 			// Enable 'Export' menu
-//			ClientFrameMenuBar menuBar =
-//					(ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
-//			menuBar.setExportMenuEnabled(true);
+			ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
+			menuBar.setExportMenuEnabled(true);
 		}
 	
 	}

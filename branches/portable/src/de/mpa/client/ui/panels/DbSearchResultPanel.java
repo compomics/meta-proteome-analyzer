@@ -21,10 +21,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.sql.SQLException;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -89,8 +89,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
-
-import scala.actors.threadpool.Arrays;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -1836,9 +1834,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
 
 			// Read spectrum from MGF file accompanying imported result object, if possible
-			
 			FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-
 			mgf = Client.getInstance().readSpectrumFromFile(selectedExperiment.getSpectrumFile().getPath(), (int) psm.getSpectrumID());
 		}
 		spectrumPnl.refreshSpectrum(mgf, sequence);
@@ -1966,7 +1962,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					
 					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHitList();
 					for (ProteinHit proteinHit : proteinHits) {
-		
+						
 						// Calculate NSAF
 						double nsaf = proteinHit.getNSAF();
 						if (nsaf < 0.0) {
@@ -2007,12 +2003,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 							}
 						}
-						
 						protCount++;
 					}
-					
 					ProteinTreeTables.META.insertNode(metaNode);
-		
 					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
 				 
@@ -2058,10 +2051,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 				Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
 			}
-		
 		}
-
-	
 
 		@Override
 		protected void done() {

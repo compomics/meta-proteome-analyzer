@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.compomics.software.CompomicsWrapper;
-
 import de.mpa.client.Constants;
 import de.mpa.main.Starter;
 

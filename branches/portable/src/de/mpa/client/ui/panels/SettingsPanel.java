@@ -9,6 +9,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,10 +27,11 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.model.FileExperiment;
+import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
-import de.mpa.io.GeneralParser;
+import de.mpa.job.ResourceProperties;
 
 public class SettingsPanel extends JPanel {
 	
@@ -137,8 +139,21 @@ public class SettingsPanel extends JPanel {
 			processBtn.setEnabled(true);
 			clientFrame.setTabEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, true);
 			
-			if (Client.getInstance().getDatabaseSearchResult() != null) {
+			Client client = Client.getInstance();
+			FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+			if (selectedExperiment.getSearchResult() != null) {
+				DbSearchResult searchResult = selectedExperiment.getSearchResult();
 				clientFrame.getProjectPanel().setResultsButtonState(true);
+				
+				String path = ResourceProperties.getInstance().getProperty("path.base");
+				File experimentFile = new File(path + File.separator + selectedExperiment.getTitle() + ".mpa");
+				try {
+					client.dumpDatabaseSearchResult(searchResult, experimentFile.getAbsolutePath());
+					selectedExperiment.setResultFile(experimentFile);
+					selectedExperiment.serialize();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			
 		}

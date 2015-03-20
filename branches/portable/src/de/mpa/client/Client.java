@@ -26,7 +26,6 @@ import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
@@ -37,6 +36,7 @@ import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
+import de.mpa.job.ResourceProperties;
 import de.mpa.job.SearchTask;
 
 public class Client {
@@ -241,15 +241,12 @@ public class Client {
 		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
 		status = "FINISHED";
 		this.firePropertyChange("indeterminate", false, true);
+		String path = ResourceProperties.getInstance().getProperty("path.base");
 		try {
-//			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
-//			if (!backupFile.exists()) {
-//				// technically this should never happen
-//				System.err.println("No result file backup detected, creating new one...");
-				this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
-//			}
+			this.dumpDatabaseSearchResult(dbSearchResult, path + Constants.BACKUP_RESULT);
+
 			// Copy backup file to target location
-			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(Paths.get(path + Constants.BACKUP_RESULT), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -303,22 +300,11 @@ public class Client {
 
 	/**
 	 * Returns the current database search result.
-	 * @param experiment The experiment content.
-	 * @return The current database search result.
-	 */
-	public DbSearchResult getDatabaseSearchResult(AbstractExperiment experiment) {
-		if (dbSearchResult == null) {
-			dbSearchResult = experiment.getSearchResult();
-		}
-		return dbSearchResult;
-	}
-
-	/**
-	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
 	 */
 	public DbSearchResult getDatabaseSearchResult() {
-		return this.getDatabaseSearchResult(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment());
+		dbSearchResult = ClientFrame.getInstance().getProjectPanel().getSearchResult();
+		return dbSearchResult;
 	}
 
 	/**
@@ -392,9 +378,9 @@ public class Client {
 	 * result restoration/export purposes.
 	 */
 	public void dumpBackupDatabaseSearchResult() {
+		String path = ResourceProperties.getInstance().getProperty("path.base");
 		try {
-			
-			this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+			this.dumpDatabaseSearchResult(dbSearchResult, path + Constants.BACKUP_RESULT);
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
@@ -407,13 +393,15 @@ public class Client {
 	 */
 	public DbSearchResult restoreBackupDatabaseSearchResult() {
 		AbstractExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
-		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
-				new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))))) {
+		String path = ResourceProperties.getInstance().getProperty("path.base");
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(new File(path + Constants.BACKUP_RESULT)))))) {
 			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
 			currentExperiment.setSearchResult(dbSearchResult);
 		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			File file = new File(path + Constants.BACKUP_RESULT);
+			System.out.println("temporary file: " + file.getAbsolutePath());
+			e.printStackTrace();
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			currentExperiment.clearSearchResult();
 		}
 		return currentExperiment.getSearchResult();

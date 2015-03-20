@@ -2,8 +2,6 @@ package de.mpa.job.instances;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
-
 import de.mpa.client.DbSearchSettings;
 import de.mpa.job.Job;
 import de.mpa.job.SearchType;
