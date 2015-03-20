@@ -5,8 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Date;
 import java.util.List;
@@ -29,10 +27,8 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
-import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.GeneralParser;
-import de.mpa.job.ResourceProperties;
 import de.mpa.main.Parameters;
 
 /**
@@ -45,7 +41,7 @@ public class FileExperiment extends AbstractExperiment {
 	/**
 	 * The result file.
 	 */
-	private File resultFile;
+	private File resultFile = null;
 	
 	/**
 	 * The spectrum file.
@@ -149,7 +145,6 @@ public class FileExperiment extends AbstractExperiment {
 				
 				// Add search hits to result object.
 				for (SearchHit searchHit : searchHits) {
-					setId(1L);
 					addProteinSearchHit(searchResult, searchHit, this.getID());
 					client.firePropertyChange("progressmade", true, false);
 				}

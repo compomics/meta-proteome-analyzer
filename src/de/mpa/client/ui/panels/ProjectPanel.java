@@ -648,6 +648,7 @@ public class ProjectPanel extends JPanel {
 				int result = dialog.showDialog();
 				if (result == GeneralDialog.RESULT_SAVED) {
 					refreshExperimentTable(selectedProject);
+					refreshProjectTable();
 					setSelectedExperiment(selectedExperiment);
 				}
 			}
@@ -668,6 +669,7 @@ public class ProjectPanel extends JPanel {
 						selectedExperiment.delete();
 						selectedExperiment = null;
 						refreshExperimentTable(selectedProject);
+						refreshProjectTable();
 						
 						// Disable buttons
 						modifyExperimentBtn.setEnabled(false);
@@ -704,7 +706,14 @@ public class ProjectPanel extends JPanel {
 			File projectsFile = Constants.getProjectsFile();
 			projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
 			
+			long projectCounter = 1;
+			long experimentCounter = 1;
 			for (AbstractProject project : projects) {
+				project.setID(projectCounter++);
+				List<AbstractExperiment> experiments = project.getExperiments();
+				for (AbstractExperiment experiment : experiments) {
+					experiment.setId(experimentCounter++);
+				}
 				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] { project });
 			}
 		} catch (Exception e) {
@@ -735,6 +744,7 @@ public class ProjectPanel extends JPanel {
 				AbstractProject p = (AbstractProject) projectTbl.getValueAt(row, -1);
 				if (p.equals(project)) {
 					projectTbl.getSelectionModel().setSelectionInterval(row, row);
+					p.setID((long) row + 1);
 					break;
 				}
 			}
@@ -761,7 +771,16 @@ public class ProjectPanel extends JPanel {
 	 * @param experiment the experiment to select
 	 */
 	public void setSelectedExperiment(AbstractExperiment experiment) {
+		
 		if (experiment != null) {
+			long experimentCounter = 0;
+			for (AbstractProject project : projects) {
+				List<AbstractExperiment> experiments = project.getExperiments();
+				for (AbstractExperiment exp : experiments) {
+					experimentCounter++;
+				}
+			}
+			experiment.setId(experimentCounter);
 			for (int row = 0; row < experimentTbl.getRowCount(); row++) {
 				if (experimentTbl.getValueAt(row, -1).equals(experiment)) {
 					experimentTbl.getSelectionModel().setSelectionInterval(row, row);
@@ -796,6 +815,7 @@ public class ProjectPanel extends JPanel {
 	 */
 	public DbSearchResult getSearchResult() {
 		if (currentExperiment != null) {
+			System.out.println("blah");
 			if (!currentExperiment.equals(selectedExperiment)) {
 				// clear cached results
 				currentExperiment.clearSearchResult();

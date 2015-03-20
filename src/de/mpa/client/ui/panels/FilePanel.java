@@ -86,7 +86,6 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.settings.MascotParameters;
-import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFilterParameters;
 import de.mpa.client.ui.Busyable;

@@ -1,5 +1,6 @@
 package de.mpa.client.ui;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -18,29 +19,32 @@ import com.jgoodies.looks.Options;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
+import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.client.ui.icons.IconConstants;
 
+/**
+ * The main application frame's menu bar.
+ * 
+ * @author A. Behne
+ */
 public class ClientFrameMenuBar extends JMenuBar {
-	/**
-	 * Client frame instance.
-	 */
-	private ClientFrame clientFrame;
 	
 	/**
-	 * Client instance.
+	 * The client frame instance.
 	 */
-	private Client client;
-	private JMenuItem exportCSVResultsItem;
-	private JMenuItem saveProjectItem;
-	private JMenuItem exportGraphMLItem;
-
+	private ClientFrame clientFrame;
 	
 	/**
 	 * Class containing all values for the export checkboxes.
 	 */
 	private ExportFields exportFields;
+
+	/**
+	 * The 'Export' menu.
+	 */
+	private JMenu exportMenu;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -48,7 +52,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 */
 	public ClientFrameMenuBar() {
 		this.clientFrame = ClientFrame.getInstance();
-		this.client = Client.getInstance();
+		Client.getInstance();
 		exportFields = ExportFields.getInstance();
 		initComponents();
 	}
@@ -59,87 +63,69 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private void initComponents() {
 		this.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
 
-		// File Menu
+		/* create File Menu */
 		JMenu fileMenu = new JMenu();
 		fileMenu.setText("File");
-		JMenuItem newProjectItem = new JMenuItem();
-		newProjectItem.setText("New Project");
-		newProjectItem.setIcon(IconConstants.ADD_FOLDER_ICON);
-		newProjectItem.setEnabled(false);
 
-		JMenuItem openProjectItem = new JMenuItem();
-		openProjectItem.setText("Open Project");
-		openProjectItem.setIcon(IconConstants.VIEW_FOLDER_ICON);
-		openProjectItem.setEnabled(false);
-		
-		saveProjectItem = new JMenuItem();
-		saveProjectItem.setText("Save Project");
-		saveProjectItem.setIcon(IconConstants.SAVE_ICON);
-		saveProjectItem.setEnabled(false);
-		saveProjectItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				saveProjectButtonTriggered();
-			}
-		});
-
-		// exitItem
+		// create Exit item
 		JMenuItem exitItem = new JMenuItem();
 		exitItem.setText("Exit");
 		exitItem.setIcon(IconConstants.EXIT_ICON);
 		exitItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				Client.exit();
 			}
 		});
 		
-		fileMenu.add(newProjectItem);
-		fileMenu.add(openProjectItem);
-		fileMenu.add(saveProjectItem);
-		fileMenu.addSeparator();
 		fileMenu.add(exitItem);
 
-		// Settings Menu
+		/* create Settings menu */
 		JMenu settingsMenu = new JMenu("Settings");
 		
-		// Color settings item
+		// create Color Settings item
 		JMenuItem colorsItem = new JMenuItem("Color Settings", IconConstants.COLOR_SETTINGS_ICON);
 		colorsItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				ColorsDialog.getInstance().setVisible(true);
 			}
 		});
 
-		// Export menu
-		JMenu exportMenu = new JMenu();
-		exportMenu.setText("Export");
-		// Export CSV results
-		exportCSVResultsItem = new JMenuItem();
-		exportCSVResultsItem.setText("CSV Results");
-		exportCSVResultsItem.setIcon(IconConstants.EXCEL_EXPORT_ICON);
-		exportCSVResultsItem.setEnabled(false);
-		exportCSVResultsItem.addActionListener(new ActionListener() {
+		settingsMenu.add(colorsItem);
+
+		/* create Export menu */
+		exportMenu = new JMenu("Export");
+		
+		JMenuItem mpaItem = new JMenuItem("MPA File...", IconConstants.MPA_SMALL_ICON);
+		mpaItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				showExportDialog();
+				exportMPA();
 			}
 		});
-		exportMenu.add(exportCSVResultsItem);	
-
-		exportMenu.addSeparator();
+		
+		// Export CSV results
+		JMenuItem csvItem = new JMenuItem("CSV File...", IconConstants.EXCEL_EXPORT_ICON);
+		csvItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				exportCSV();
+			}
+		});
 
 		// Export graphML file
-		exportGraphMLItem = new JMenuItem();
-		exportGraphMLItem.setText("GraphML File");
-		exportGraphMLItem.setIcon(IconConstants.GRAPH_ICON);
-		exportGraphMLItem.setEnabled(false);
-		exportGraphMLItem.addActionListener(new ActionListener() {
+		JMenuItem graphmlItem = new JMenuItem("GraphML File...", IconConstants.GRAPH_ICON);
+		graphmlItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				saveGraphMLItemTriggered();
+				exportGraphML();
 			}
 		});
-		exportMenu.add(exportGraphMLItem);	
+
+		exportMenu.add(mpaItem);
+		exportMenu.add(csvItem);	
+		exportMenu.add(graphmlItem);
 		
+		this.setExportMenuEnabled(false);
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
@@ -153,7 +139,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		helpMenu.add(helpContentsItem);
 		helpContentsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				helpTriggered();
+				showHelp();
 			}
 		});
 		helpMenu.addSeparator();
@@ -176,49 +162,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 	}
 	
 	/**
-	 * This method is being executed when the help menu item is selected.
+	 * Executed when the save project button is triggered. Via a file chooser the user can select the destination of the project (MPA) file.
 	 */
-	private void helpTriggered() {
-		new HtmlFrame(clientFrame, getClass().getResource("/de/mpa/resources/html/help.html"), "Help");
-	}
-	
-
-	/**
-	 * The method that builds the about dialog.
-	 */
-	private void showAbout() {
-		StringBuffer tMsg = new StringBuffer();
-		tMsg.append("Product Version: " + Constants.APPTITLE + " " + Constants.VER_NUMBER);
-		tMsg.append("\n");
-		tMsg.append("\n");
-		tMsg.append("This software is developed by Alexander Behne, Robert Heyer and Thilo Muth \nat the Max Planck Institute for Dynamics of Complex \nTechnical Systems in Magdeburg (Germany).");
-		tMsg.append("\n");
-		tMsg.append("\n");
-		tMsg.append("The latest version is available at http://meta-proteome-analyzer.googlecode.com");
-		tMsg.append("\n");
-		tMsg.append("\n");
-		tMsg.append("If any questions arise, contact the corresponding author: ");
-		tMsg.append("\n");
-		tMsg.append("muth@mpi-magdeburg.mpg.de");
-		tMsg.append("\n");
-		tMsg.append("\n");
-		tMsg.append("");
-		tMsg.append("");
-		JOptionPane.showMessageDialog(this, tMsg,
-				"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
-	}
-	
-	/**
-	 * This method opens the export dialog.
-	 */
-    private void showExportDialog() {
-    	new ExportDialog(clientFrame, "Results Export", true, exportFields);
-    }
-    
-    /**
-     * Executed when the save project button is triggered. Via a file chooser the user can select the destination of the project (MPA) file.
-     */
-	private void saveProjectButtonTriggered() {
+	private void exportMPA() {
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
@@ -242,11 +188,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		}.execute();
 	}
-	
+
+	/**
+	 * This method opens the export dialog.
+	 */
+    private void exportCSV() {
+    	new ExportDialog(clientFrame, "Results Export", true, exportFields);
+//    	AdvancedSettingsDialog.showDialog(clientFrame, "Export Results to CSV", true, new ResultExportParameters());
+    }
+    
     /**
      * Executed when the graphML menu item is triggered. Via a file chooser the user can select the destination of the GraphML file.
      */
-	private void saveGraphMLItemTriggered() {
+	private void exportGraphML() {
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
@@ -268,28 +222,41 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		}.execute();
 	}
-    
-    /**
-     * Enables the export CSV results function.
-     * @param enabled The state of the CSV result export menu item
-     */
-	public void setExportCSVResultsEnabled(boolean enabled) {
-    	exportCSVResultsItem.setEnabled(enabled);
-    }
 	
-    /**
-     * Enables the export GraphML function.
-     * @param enabled The state of the GraphML export menu item
-     */
-	public void setExportGraphMLEnabled(boolean enabled) {
-    	exportGraphMLItem.setEnabled(enabled);
-    }
+	/**
+	 * This method is being executed when the help menu item is selected.
+	 */
+	private void showHelp() {
+		new HtmlFrame(clientFrame, getClass().getResource("/de/mpa/resources/html/help.html"), "Help");
+	}
+
+	/**
+	 * The method that builds the about dialog.
+	 */
+	private void showAbout() {
+		StringBuffer tMsg = new StringBuffer();
+		tMsg.append("Product Version: " + Constants.APPTITLE + " " + Constants.VER_NUMBER);
+		tMsg.append("\n\n");
+		tMsg.append("This software is developed by Alexander Behne, Robert Heyer and Thilo Muth \nat the Max Planck Institute for Dynamics of Complex \nTechnical Systems in Magdeburg (Germany).");
+		tMsg.append("\n\n");
+		tMsg.append("The latest version is available at http://meta-proteome-analyzer.googlecode.com");
+		tMsg.append("\n\n");
+		tMsg.append("If any questions arise, contact the corresponding author: ");
+		tMsg.append("\n");
+		tMsg.append("muth@mpi-magdeburg.mpg.de");
+		tMsg.append("\n\n");
+		JOptionPane.showMessageDialog(this, tMsg,
+				"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Sets the enable state of the 'Export' menu.
+	 * @param enabled <code>true</code> if enabled, <code>false</code> otherwise
+	 */
+	public void setExportMenuEnabled(boolean enabled) {
+		for (Component comp : exportMenu.getMenuComponents()) {
+			comp.setEnabled(enabled);
+		}
+	}
     
-    /**
-     * Enables the save project function.
-     * @param enabled The state of the save project menu item
-     */
-	public void setSaveProjectEnabled(boolean enabled) {
-    	saveProjectItem.setEnabled(enabled);
-    }
 }

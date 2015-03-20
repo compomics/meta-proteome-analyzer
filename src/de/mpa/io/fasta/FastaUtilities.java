@@ -12,13 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
-
 import com.compomics.util.protein.Header;
-
-import de.mpa.client.ui.ClientFrame;
 
 public class FastaUtilities {
 	

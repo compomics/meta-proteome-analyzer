@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,12 +20,9 @@ import java.util.Map.Entry;
 
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import com.thoughtworks.xstream.XStream;
 
-import de.mpa.analysis.KeggMaps;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.AbstractProject;
@@ -55,7 +51,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "0.6";
+	public final static String VER_NUMBER = "0.7";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -138,7 +134,7 @@ public class Constants {
 	/**
 	 * Path string of the temporary backup database search result object.
 	 */
-	public static final String BACKUP_RESULT_PATH = "tmp.mpa";
+	public static final String BACKUP_RESULT = "/tmp.mpa";
 	
 	/**
 	 * Map of KEGG Orthology tree leaves.

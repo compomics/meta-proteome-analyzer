@@ -217,7 +217,10 @@ public class GraphDatabaseHandler {
 		String accession = metaProteinHit.getAccession();
 		metaProteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
 		metaProteinVertex.setProperty(ProteinProperty.DESCRIPTION.toString(), metaProteinHit.getDescription());
-		metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), metaProteinHit.getTaxonomyNode().getName());
+		TaxonomyNode taxonomyNode = metaProteinHit.getTaxonomyNode();
+		if (taxonomyNode != null) {
+			metaProteinVertex.setProperty(ProteinProperty.TAXONOMY.toString(), taxonomyNode.getName());
+		}
 		metaProteinVertex.setProperty(ProteinProperty.PROTEINCOUNT.toString(), metaProteinHit.getProteinSet().size());
 		
 		// Index the proteins by their accession.
@@ -407,6 +410,7 @@ public class GraphDatabaseHandler {
 		}
 	}
 	
+	
 	/**
 	 * Adds peptides to the graph.
 	 * @param peptideHitList The peptide list
@@ -427,7 +431,10 @@ public class GraphDatabaseHandler {
 				String description = "Start: " + peptideHit.getStart() + " End: " + peptideHit.getEnd();
 				peptideVertex.setProperty(PeptideProperty.DESCRIPTION.toString(), description);
 				peptideVertex.setProperty(PeptideProperty.SPECTRALCOUNT.toString(), peptideHit.getSpectralCount());
-				peptideVertex.setProperty(PeptideProperty.TAXONOMY.toString(), peptideHit.getTaxonomyNode().getName());
+				TaxonomyNode taxonomyNode = peptideHit.getTaxonomyNode();
+				if (taxonomyNode != null) {
+					peptideVertex.setProperty(PeptideProperty.TAXONOMY.toString(), taxonomyNode.getName());
+				}
 				peptideVertex.setProperty(PeptideProperty.MOLECULARWEIGHT.toString(), (Math.round(peptideHit.getMolecularWeight() * 100.0) / 100.0));
 				peptideVertex.setProperty(PeptideProperty.PROTEINCOUNT.toString(), peptideHit.getProteinCount());
 				
