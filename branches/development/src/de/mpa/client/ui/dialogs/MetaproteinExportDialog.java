@@ -252,15 +252,24 @@ public class MetaproteinExportDialog extends JDialog  {
 			exportHeaders.add(new ExportHeader(2, "Meta-Protein Accession",  ExportHeaderType.METAPROTEINS));
 			exportHeaders.add(new ExportHeader(3, "Meta-Protein Description",  ExportHeaderType.METAPROTEINS));
 			exportHeaders.add(new ExportHeader(4, "Meta-Protein Taxonomy",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(5, "Meta-Protein UniRef100",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(6, "Meta-Protein UniRef90",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(7, "Meta-Protein UniRef50",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(8, "Meta-Protein KO",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(9, "Meta-Protein EC",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(10, "Peptide Count",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(11, "Spectral Count",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(12, "Proteins",  ExportHeaderType.METAPROTEINS));
-			exportHeaders.add(new ExportHeader(13, "Peptides",  ExportHeaderType.METAPROTEINS));
+			
+			exportHeaders.add(new ExportHeader(5, "Superkingdom",  			ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(6, "Kingdom",  				ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(7, "Phylum",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(8, "Class",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(9, "Order",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(10, "Family",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(11, "Genus",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(12, "Species",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(13, "Meta-Protein UniRef100",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(14, "Meta-Protein UniRef90",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(15, "Meta-Protein UniRef50",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(16, "Meta-Protein KO",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(17, "Meta-Protein EC",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(18, "Peptide Count",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(19, "Spectral Count",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(20, "Proteins",  ExportHeaderType.METAPROTEINS));
+			exportHeaders.add(new ExportHeader(21, "Peptides",  ExportHeaderType.METAPROTEINS));
 
 		//TODO FLAG for testing
 		int flag = 0;

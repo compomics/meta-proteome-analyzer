@@ -58,7 +58,7 @@ public class ResultExporter {
 	public static void exportMetaProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[14];
+		boolean hasFeature[] = new boolean[21];
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.METAPROTEINS) {
@@ -75,7 +75,57 @@ public class ResultExporter {
 			if (hasFeature[0]) writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[1]) writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[2]) writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[3]) writer.append(metaProtein.getTaxonomyNode().getName() + Constants.TSV_FILE_SEPARATOR);
+			TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
+			if (hasFeature[3]) writer.append(taxNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			// TaxTree
+			TaxonomyNode spNode = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM);
+			if (spNode != null) {
+				if (hasFeature[4]) writer.append(spNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[4]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode kingNode = taxNode.getParentNode(TaxonomyRank.KINGDOM);
+			if (kingNode != null) {
+				if (hasFeature[5]) writer.append(kingNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[5]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode phNode = taxNode.getParentNode(TaxonomyRank.PHYLUM);
+			if (phNode != null) {
+				if (hasFeature[6]) writer.append(phNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[6]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode classNode = taxNode.getParentNode(TaxonomyRank.CLASS);
+			if (classNode != null) {
+				if (hasFeature[7]) writer.append(classNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[7]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode orderNode = taxNode.getParentNode(TaxonomyRank.ORDER);
+			if (orderNode != null) {
+				if (hasFeature[8]) writer.append(orderNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[8]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode famNode = taxNode.getParentNode(TaxonomyRank.FAMILY);
+			if (famNode != null) {
+				if (hasFeature[9]) writer.append(famNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[9]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode genusNode = taxNode.getParentNode(TaxonomyRank.GENUS);
+			if (genusNode != null) {
+				if (hasFeature[10]) writer.append(genusNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[10]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
+			TaxonomyNode specNode = taxNode.getParentNode(TaxonomyRank.SPECIES);
+			if (specNode != null) {
+				if (hasFeature[11]) writer.append(specNode.getName() + Constants.TSV_FILE_SEPARATOR);
+			}else {
+				if (hasFeature[11]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+			}
 			String uniref100 = "UNKNOWN";
 			String uniref90 = "UNKNOWN";
 			String uniref50 = "UNKNOWN";
@@ -88,9 +138,9 @@ public class ResultExporter {
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef50id() != null) {
 				uniref50 = metaProtein.getUniProtEntry().getUniRef50id();
 			}
-			if (hasFeature[4]) writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[5]) writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[6]) writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[12]) writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[13]) writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[14]) writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
 			// Get KOs
 			String kOs = "";
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getKNumbers() != null) {
@@ -102,7 +152,7 @@ public class ResultExporter {
 					kOs = "UNKNOWN";
 				}
 			}
-			if (hasFeature[7]) writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[15]) writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
 			// Get ECs
 			String ECs = "";
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcNumbers() != null) {
@@ -116,9 +166,9 @@ public class ResultExporter {
 			
 			
 			
-			if (hasFeature[9]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[10]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[11]) {
+			if (hasFeature[16]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[17]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[18]) {
 				ProteinHitList proteinHits = metaProtein.getProteinHitList();
 				int i = 0;
 				for (ProteinHit proteinHit : proteinHits) {
@@ -131,7 +181,7 @@ public class ResultExporter {
 				}
 				writer.append(Constants.TSV_FILE_SEPARATOR);
 			}
-			if (hasFeature[12]) {
+			if (hasFeature[19]) {
 				Set<PeptideHit> peptideSet = metaProtein.getPeptideSet();
 				int j = 0;
 				for (PeptideHit peptideHit : peptideSet) {
