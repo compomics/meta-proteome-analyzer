@@ -522,8 +522,8 @@ public class MascotStorager extends BasicStorager {
 			header = Header.parseFromFASTA(composedHeader);
 			protAccession = header.getAccession();
 			description = header.getDescription(); 
-			Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
-			accession = gi2up.get(protAccession);
+//			Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
+//			accession = gi2up.get(protAccession);
 			if (accession == null) {
 				// revert to GI number
 				accession = protAccession;

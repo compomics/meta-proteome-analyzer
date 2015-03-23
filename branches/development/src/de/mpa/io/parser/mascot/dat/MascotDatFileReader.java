@@ -63,8 +63,13 @@ public class MascotDatFileReader extends InputFileReader {
     	raf.seek(summaryPos);
     	
     	// Read first summary line of query, e.g. qexp1=336.205400,2+
+    	
     	line = raf.readLine();
-//    	System.out.println(line);
+    	// Proteome discoverer needs a further read line to get the right row, but ProteinScape not... 
+    	// maybe some differences in the linebreak
+    	if (line == null || line.length() == 0) {
+    		line = raf.readLine();
+		}
     	split = line.split("=");
     	split = split[1].split(",");
     	double precursorMz = Double.parseDouble(split[0]);
@@ -80,8 +85,10 @@ public class MascotDatFileReader extends InputFileReader {
     	
     	// Read first query line, e.g. title=Cmpd%20839%2c%20%2bMSn%28336%2e2054%29%2c%2017%2e0%20min
     	line = raf.readLine();
+    	if (line == null || line.length() == 0) {
+    		line = raf.readLine();
+		}
     	split = line.split("=");
-    	
     	String title = URLDecoder.decode(split[1], "UTF-8");
     	
     	// Skip the next lines until one starts with "Ions1"
