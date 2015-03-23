@@ -91,6 +91,8 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
+import scala.Array;
+
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -228,7 +230,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * The shared chart selection protein highlighter instance.
 	 */
 	private ColorHighlighter chartSelHighlighter;
-
+	
+	/**
+	 * Selection of possible panels to focus
+	 */
+	private enum focus {SPECTRUM, PEPTIDE, PROTEIN};
+	public focus view = focus.PROTEIN;
+	public JToggleButton focusSpectraBtn, focusPeptideBtn;
+	
 	/**
 	 * Creates the database search results detail view.
 	 */
@@ -442,7 +451,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							proteins.addAll(this.getProteins(node));
 						}
 					}
-					refreshPeptideViews(proteins);				
+					// REFRESH peptide view
+					if (view == focus.PROTEIN) {
+						Set<PeptideHit> peptides = new LinkedHashSet<PeptideHit>();
+						if (proteins != null) {
+							for (ProteinHit protein : proteins) {
+								peptides.addAll(protein.getPeptideHitList());
+							}
+						}
+						refreshPeptideViews(peptides);
+					}
 				}
 				
 				/**
@@ -480,12 +498,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			treeTbl.setRowFilter(new SelectionRowFilter(treeTbl));
 			
 			// install protein count highlighter
-			Color protCountCol = new Color(232, 122, 0, 41);
+			Color protCountCol = new Color(232, 122, 55, 132);
 			protCountHighlighter = new ColorHighlighter(
 					new ProteinHighlightPredicate(), protCountCol, null, protCountCol, null);
 			treeTbl.addHighlighter(protCountHighlighter);
 			
-			Color chartSelCol = new Color(0, 232, 122, 41);
+			Color chartSelCol = new Color(0, 232, 122, 45);
 			chartSelHighlighter = new ColorHighlighter(
 					new ProteinHighlightPredicate(), chartSelCol, null, chartSelCol, null);
 			treeTbl.addHighlighter(chartSelHighlighter);
@@ -696,18 +714,22 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 //				// Update PSM views
 //				refreshPSMView(peptide.getSpectrumMatches());
 				
-				refreshPSMView(matches);
+				// REFRESH peptide spectrum match view
+				if (view == focus.PROTEIN || view == focus.PEPTIDE) {
+					refreshPSMView(matches);
+				}
 				
-				// Update protein highlighting
-				ProteinHighlightPredicate pchp =
-						(ProteinHighlightPredicate) protCountHighlighter.getHighlightPredicate();
-//				pchp.setProteinHits(peptide.getProteinHits());
-				pchp.setProteinHits(proteins);
-				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-					CheckBoxTreeTable treeTbl = ptt.getTreeTable();
-					// re-apply highlighter
-					treeTbl.removeHighlighter(protCountHighlighter);
-					treeTbl.addHighlighter(protCountHighlighter);
+				if (view != focus.SPECTRUM) {
+					// Update protein highlighting
+					ProteinHighlightPredicate pchp = (ProteinHighlightPredicate) protCountHighlighter
+							.getHighlightPredicate();
+					pchp.setProteinHits(proteins);
+					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+						// re-apply highlighter
+						treeTbl.removeHighlighter(protCountHighlighter);
+						treeTbl.addHighlighter(protCountHighlighter);
+					}
 				}
 			}
 		});
@@ -818,7 +840,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		};
 
 		// Create table from model
-		SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
+		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			/** The text to display on top of the table when it's empty */
 			private final String emptyStr = "no peptide(s) selected";
 			/** The cached width of the empty table text */
@@ -924,9 +946,35 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						((PhylogenyTreeTableNode) evt.getPath().getLastPathComponent());
 				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) node.getUserObject();
 				refreshSpectrumView(psm);
+				// REFRESH peptide view
+				if (view == focus.SPECTRUM) {
+					// select the view of peptides and proteins depending on the highlighted spectrum
+					Collection<PeptideHit> peptides = new HashSet<PeptideHit>();
+					int[] rows = treeTbl.getSelectedRows();
+					for (int row : rows) {
+						PhylogenyTreeTableNode thisNode =
+								(PhylogenyTreeTableNode) treeTbl.getPathForRow(row).getLastPathComponent();
+						peptides.addAll(((SpectrumMatch) thisNode.getUserObject()).getPeptideHits());
+					}
+					refreshPeptideViews(peptides);
+					// Update protein highlighting
+					ProteinHighlightPredicate pchp =
+							(ProteinHighlightPredicate) protCountHighlighter.getHighlightPredicate();
+					Collection<ProteinHit> proteins = new HashSet<ProteinHit>();
+					for (PeptideHit pepHit : peptides) {
+						proteins.addAll(pepHit.getProteinHits());
+					}
+					pchp.setProteinHits(proteins);
+					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+						// re-apply highlighter
+						treeTbl.removeHighlighter(protCountHighlighter);
+						treeTbl.addHighlighter(protCountHighlighter);
+					}
+				}
 			}
 		});
-		treeTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		treeTbl.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
 		// Reduce node indents to make tree more compact horizontally
 		treeTbl.setIndents(0, 0, 2);
@@ -1266,6 +1314,29 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		JPanel buttonPnl = new JPanel(new FormLayout("22px, 1dlu, 20px, 1dlu, 20px, 1px", "20px"));
 		buttonPnl.setOpaque(false);
 		
+		// create focus selection button
+				focusPeptideBtn = new JToggleButton(IconConstants.ZOOM_ICON);
+				focusPeptideBtn.setRolloverIcon(IconConstants.ZOOM_ROLLOVER_ICON);
+				focusPeptideBtn.setPressedIcon(IconConstants.ZOOM_PRESSED_ICON);
+				focusPeptideBtn.setToolTipText("Focus Peptide Selection");
+				focusPeptideBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(focusPeptideBtn));
+				focusPeptideBtn.setPreferredSize(new Dimension(22, 20));
+				
+				focusPeptideBtn.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// lock focus onto peptides - all peptides will be displayed and dependencies shifted onto this table
+						if (focusPeptideBtn.isSelected()) {
+							focusSpectraBtn.setSelected(false);
+							view = focus.PEPTIDE;
+							refreshPeptideViews(dbSearchResult.getMetaProteins().getPeptideSet());
+						} else {
+							view = focus.PROTEIN;
+						}
+					}
+				});
+		
+				// create export buuton
 		JButton exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
 		exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
 		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
@@ -1322,7 +1393,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		buttonPnl.add(coverageBtn, CC.xy(5, 1));
 	
 		// wrap peptide panel in titled panel with control buttons in title
-		return PanelConfig.createTitledPanel("Peptides", peptidePnl, null, buttonPnl);
+		return PanelConfig.createTitledPanel("Peptides", peptidePnl, focusPeptideBtn, buttonPnl);
 	}
 	
 	/**
@@ -1336,6 +1407,34 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final JPanel psmPanel = new JPanel();
 		psmPanel.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		psmPanel.add(psmTableScp, CC.xy(2, 2));
+		
+		// create focus selection button
+		focusSpectraBtn = new JToggleButton(IconConstants.ZOOM_ICON);
+		focusSpectraBtn.setRolloverIcon(IconConstants.ZOOM_ROLLOVER_ICON);
+		focusSpectraBtn.setPressedIcon(IconConstants.ZOOM_PRESSED_ICON);
+		focusSpectraBtn.setToolTipText("Focus Spectrum Selection");
+		focusSpectraBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(focusSpectraBtn));
+		focusSpectraBtn.setPreferredSize(new Dimension(22, 20));
+		
+		focusSpectraBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// lock focus onto spectra - all spectra will be displayed and dependencies shifted onto spectra table
+				if (focusSpectraBtn.isSelected()) {
+					focusPeptideBtn.setSelected(false);
+					view = focus.SPECTRUM;
+					List<SpectrumMatch> matches = new ArrayList<SpectrumMatch>();
+					for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+						for (PeptideHit pepHit : protHit.getPeptideHitList()) {
+							matches.addAll(pepHit.getSpectrumMatches());
+						}
+					}
+					refreshPSMView(matches);
+				} else {
+					view = focus.PROTEIN;
+				}
+			}
+		});
 		
 		// create export button decoration
 		JButton exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
@@ -1357,7 +1456,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 	
-		return PanelConfig.createTitledPanel("Spectrum Matches", psmPanel, null, exportBtn);
+		return PanelConfig.createTitledPanel("Spectrum Matches", psmPanel, focusSpectraBtn, exportBtn);
 	}
 
 	/**
@@ -1716,19 +1815,15 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Updates the peptide views from the specified protein hits.
 	 * @param proteins the protein hits containing the peptides to display
 	 */
-	protected void refreshPeptideViews(Collection<ProteinHit> proteins) {
-		Set<PeptideHit> peptides = new LinkedHashSet<PeptideHit>();
-		if (proteins != null) {
-			for (ProteinHit protein : proteins) {
-				peptides.addAll(protein.getPeptideHitList());
-			}
-		}
+	protected void refreshPeptideViews(Collection<PeptideHit> peptides) {
 		
 		// Clear tables, etc.
 		TableConfig.clearTable(peptideTbl);
 		coveragePane.clear();
-		TableConfig.clearTable(psmTbl);
-		spectrumPnl.clearSpectrum();
+		if (view != focus.SPECTRUM) {
+			TableConfig.clearTable(psmTbl);
+			spectrumPnl.clearSpectrum();
+		}
 		for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 			CheckBoxTreeTable treeTbl = ptt.getTreeTable();
 			treeTbl.removeHighlighter(protCountHighlighter);
@@ -1759,6 +1854,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			peptideTbl.updateHighlighters(3, 0, maxSpecCount);
 			
 			// Update coverage viewer
+			Collection<ProteinHit> proteins = new HashSet<ProteinHit>();
+			for (PeptideHit peptide : peptides) {
+				proteins.addAll(peptide.getProteinHits());
+			}
 			coveragePane.setData(proteins, peptides);
 
 			// Update checkbox selections
@@ -1860,7 +1959,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
 			}
 		}
-		
 		spectrumPnl.refreshSpectrum(mgf, sequence);
 	}
 	
@@ -1941,7 +2039,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				spectrumPnl.clearSpectrum();
 				
 				// Fetch search result object
-				resultPnl.dbSearchResult = ClientFrame.getInstance().getResultsPanel().getDBSearchResultObj();
+				resultPnl.dbSearchResult = Client.getInstance().getDatabaseSearchResult();
 				
 				// Build local chart data objects
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
@@ -2004,8 +2102,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						maxNSAF = Math.max(maxNSAF, nsaf);
 		
 						// Wrap protein data in table node clones and insert them into the relevant trees
-						String accession = proteinHit.getAccession();
-						URI uri = URI.create("http://www.uniprot.org/uniprot/" + accession.trim());
+						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim());
 						
 						for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 							if (ptt == ProteinTreeTables.META) {
