@@ -102,12 +102,13 @@ public class DBDumper {
 		String runner = (command + " -u" + user + " -p" + pass + " metaprot < " + targetFile.getAbsolutePath());
 		// batch file work around because Runtime.exec does not work
 			String fileEnd = winOS ? ".bat" : ".sh";
-			File f = File.createTempFile("cmd", fileEnd);
+			File f = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "script" +  System.getProperty("file.separator") + "dumper" + fileEnd);
 		    FileOutputStream fos = new FileOutputStream(f);
 		    fos.write(runner.getBytes());
 		    fos.close();
         Process pr = rt.exec(f.getAbsolutePath());
 			pr.waitFor();
+		f.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
