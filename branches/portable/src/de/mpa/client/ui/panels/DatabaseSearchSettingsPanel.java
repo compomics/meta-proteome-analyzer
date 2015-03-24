@@ -43,6 +43,7 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.FastaUtilities;
 import de.mpa.job.ResourceProperties;
+import de.mpa.job.instances.MakeBlastdbJob;
 
 /**
  * Panel containing control components for database search-related settings.
@@ -117,10 +118,14 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private JCheckBox mascotChk;
 
 	private JButton fastaFileBtn;
-
-	private ClientFrame lastSelectedFolder;
-
+	
+	private JButton processBtn;
+	
 	private File fastaFile;
+	
+	private File decoyFastaFile;
+	
+	private boolean hasError = false;
 
 	/**
 	 * The default database search panel constructor.
@@ -143,7 +148,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
 
 		// FASTA file ComboBox
-		fastaFileTtf = new JTextField();
+		fastaFileTtf = new JTextField(20);
 		fastaFileTtf.setEditable(false);
 		
 		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
@@ -262,12 +267,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	}
 	
 	protected void fastaFileBtnTriggered() {
-		Client client = Client.getInstance();
-		  // First check whether a file has already been selected.
+		processBtn.setEnabled(false);
         File startLocation = new File(ResourceProperties.getInstance().getProperty("path.fasta"));
-        
         JFileChooser fc = new JFileChooser(startLocation);
-
         FileFilter filter = new FileFilter() {
             @Override
             public boolean accept(File myFile) {
@@ -288,37 +290,160 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             fastaFile = fc.getSelectedFile();
             try {	
             	// Check whether decoy FASTA file already exists - if not: create one!
-            	File decoyFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
-            	if (!decoyFile.exists()) {
-            		// Create the decoy database by reversing the FASTA protein sequences.
-            		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE");
-            		client.firePropertyChange("indeterminate", false, true);
-            		
-            		System.out.println("Creating decoy file...");
-            		FastaUtilities.createDecoyDatabase(fastaFile);
-            		
-            		client.firePropertyChange("indeterminate", true, false);
-            		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FINISHED");
-            	}
+            	decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
+            	if (!decoyFastaFile.exists()) {
+            		new DecoyFastaFileWorker().execute();
+            	} 
+            	
+            	// Optional formatting
+           		new FormatFastaFileWorker().execute();
             	
             	File indexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
             	if (!indexFile.exists()) {
             		new IndexFastaFileWorker().execute();
             	}            	
-                fastaFileTtf.setText(fastaFile.getAbsolutePath());      
+                fastaFileTtf.setText(fastaFile.getAbsolutePath());    
             } catch (Exception e) {
+            	hasError = true;
             	JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
             }
-        
+            if (fastaFile.exists() & !hasError) {
+            	processBtn.setEnabled(true);
+            }
         }
-
+	}
+	
+	/**
+	 * Class to a write the decoy FASTA file in a background thread.
+	 * 
+	 * @author T. Muth
+	 */
+	private class DecoyFastaFileWorker extends SwingWorker<Integer, Object> {
+		Client client = Client.getInstance();
 		
+		@Override
+		protected Integer doInBackground() {
+
+			try {
+				// Create the decoy database by reversing the FASTA protein sequences.
+	    		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE");
+	    		client.firePropertyChange("indeterminate", false, true);
+	    		decoyFastaFile = FastaUtilities.createDecoyDatabase(fastaFile);
+			} catch (Exception e) {
+				hasError = true;
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+	    		client.firePropertyChange("indeterminate", true, false);
+	    		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FAILED");
+			}
+			return 1;
+		}
+	
+		@Override
+		protected void done() {
+			// Get worker result
+			int res = 0;
+			try {
+				res = this.get().intValue();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			// If new results have been fetched...
+			if (res == 1) {
+        		client.firePropertyChange("indeterminate", true, false);
+        		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FINISHED");
+			}
+		}
+	}
+	
+	/**
+	 * Class to format the FASTA file (for OMSSA) in a background thread.
+	 * 
+	 * @author T. Muth
+	 */
+	private class FormatFastaFileWorker extends SwingWorker<Integer, Object> {
+		Client client = Client.getInstance();
+		
+		@Override
+		protected Integer doInBackground() {
+
+			try {
+            	File[] files = fastaFile.getParentFile().listFiles();
+            	boolean hasBlastIndexFiles = false;
+            	String filePath = "";
+            	for (File file : files) {
+            	    if (file.isFile()) {
+            	    	filePath += file.getAbsolutePath();
+            	    }
+            	}
+            	// Check for all file endings.
+    	    	if (filePath.contains(".phr") && filePath.contains(".pin") && filePath.contains(".psq")) {
+    	    		hasBlastIndexFiles = true;
+    	    	}
+
+            	if (!hasBlastIndexFiles) {
+            		client.firePropertyChange("indeterminate", false, true);
+            		MakeBlastdbJob formatTargetJob = new MakeBlastdbJob(fastaFile);
+            		formatTargetJob.run();
+            		client.firePropertyChange("new message", null, "FORMATTING TARGET FASTA FILE");
+            	}
+	    		
+	    		
+	         	files = decoyFastaFile.getParentFile().listFiles();
+            	hasBlastIndexFiles = false;
+            	filePath = "";
+            	for (File file : files) {
+            	    if (file.isFile()) {
+            	       	filePath += file.getAbsolutePath();
+            	    }
+            	}
+            	
+            	// Check for all file endings.
+    	    	if (filePath.contains(".phr") && filePath.contains(".pin") && filePath.contains(".psq")) {
+    	    		hasBlastIndexFiles = true;
+    	    	}
+            	
+            	if (!hasBlastIndexFiles) {
+            		client.firePropertyChange("indeterminate", false, true);
+            		MakeBlastdbJob formatDecoyJob = new MakeBlastdbJob(decoyFastaFile);
+            		formatDecoyJob.run();
+            		client.firePropertyChange("new message", null, "FORMATTING DECOY FASTA FILE");
+            	}
+            	// Already formatted: no message is provided
+            	if (hasBlastIndexFiles) return 2;
+	    		
+			} catch (Exception e) {
+				hasError = true;
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+	    		client.firePropertyChange("indeterminate", true, false);
+	    		client.firePropertyChange("new message", null, "FORMATTING FASTA FILE FAILED");
+	    		return 0;
+			}
+			return 1;
+		}
+	
+		@Override
+		protected void done() {
+			// Get worker result
+			int res = 0;
+			try {
+				res = this.get().intValue();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			// If new results have been fetched...
+			if (res == 1) {
+        		client.firePropertyChange("indeterminate", true, false);
+        		client.firePropertyChange("new message", null, "FORMATTING FASTA FILE FINISHED");
+			}
+		}
 	}
 	
 	/**
 	 * Class to a index FASTA file in a background thread.
 	 * 
-	 * @author Thilo muth
+	 * @author T. Muth
 	 */
 	private class IndexFastaFileWorker extends SwingWorker<Integer, Object> {
 		Client client = Client.getInstance();
@@ -331,7 +456,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				// Create the decoy database by reversing the FASTA protein sequences.
     			fastaLoader = FastaLoader.getInstance();
     			fastaLoader.setFastaFile(fastaFile);
-        		client.firePropertyChange("new message", null, "CREATING FASTA INDEX FILE");
+        		client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE");
         		client.firePropertyChange("indeterminate", false, true);
 				fastaLoader.loadFastaFile();
 				fastaLoader.writeIndexFile();
@@ -340,7 +465,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				client.firePropertyChange("new message", null, "FAILED");
+				client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FAILED");
 				client.firePropertyChange("indeterminate", true, false);
 	
 			}
@@ -362,7 +487,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			// If new results have been fetched...
 			if (res == 1) {
         		client.firePropertyChange("indeterminate", true, false);
-        		client.firePropertyChange("new message", null, "CREATING FASTA INDEX FILE FINISHED");
+        		client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FINISHED");
 			}
 		}
 	}
@@ -505,6 +630,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	public long getPackageSize() {
 		return ((Number) packSpn.getValue()).longValue();
 	}
-
-
+	
+	/**
+	 * Sets the process button.
+	 * @param processBtn
+	 */
+	public void setProcessBtn(JButton processBtn) {
+		this.processBtn = processBtn;
+	}
 }

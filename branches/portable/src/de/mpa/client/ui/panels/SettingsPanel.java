@@ -76,17 +76,15 @@ public class SettingsPanel extends JPanel {
 		FormLayout buttonLyt = new FormLayout("8dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu");
 		JPanel buttonPnl = new JPanel(buttonLyt);		
 	
-		
 		processBtn = new JButton("Start searching", processIcon);
 		processBtn.setFont(processBtn.getFont().deriveFont(Font.BOLD, processBtn.getFont().getSize2D()*1.25f));
-
+		processBtn.setEnabled(false);
 		processBtn.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Processing...");
 				new ProcessWorker().execute();
-				
 			}
 		});
+		databasePnl.setProcessBtn(processBtn);
 		buttonPnl.add(processBtn, CC.xy(4, 2));
 		settingsPnl.add(databasePnl, CC.xy(1, 1));
 		settingsPnl.add(buttonPnl, CC.xy(1, 3));
@@ -136,7 +134,6 @@ public class SettingsPanel extends JPanel {
 		public void done() {
 			ClientFrame clientFrame = ClientFrame.getInstance();
 			clientFrame.setCursor(null);
-			processBtn.setEnabled(true);
 			clientFrame.setTabEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, true);
 			
 			Client client = Client.getInstance();

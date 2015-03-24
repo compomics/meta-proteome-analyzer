@@ -61,8 +61,6 @@ public class QvalityJob extends Job {
 		procCommands.add("-o");
 		procCommands.add(qvaluedOutput);
 		procCommands.trimToSize();		
-		log.info(procCommands.toString());
-		
 		procBuilder = new ProcessBuilder(procCommands);
 		
 		// set error out and std out to same stream
