@@ -92,6 +92,7 @@ public class MetaproteinExportDialog extends JDialog  {
 
 	private String taxonNameByRank;
 	
+	private String taxonSpecies;
 	/**
 	 * @param owner. The owner of the dialog.
 	 * @param title. The title of the dialog.
@@ -289,6 +290,7 @@ public class MetaproteinExportDialog extends JDialog  {
 			
 			// Create maps for results
 			TreeMap<String, Set<SpectrumMatch>> taxMap = new TreeMap<String, Set<SpectrumMatch>>();
+			TreeMap<String, Set<SpectrumMatch>> speciesMap = new TreeMap<String, Set<SpectrumMatch>>();
 			TreeMap<String, Set<SpectrumMatch>> biolFuncMap = new TreeMap<String, Set<SpectrumMatch>>();
 			
 			// Iterate over metaprotein hits
@@ -329,6 +331,19 @@ public class MetaproteinExportDialog extends JDialog  {
 						taxSet.addAll(mp.getMatchSet());
 						taxMap.put(taxonNameByRank, taxSet);
 					}
+					
+					// Add taxonomy Data
+					taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.SPECIES);
+					if (speciesMap.get(taxonSpecies)== null) {
+						speciesMap.put(taxonSpecies, mp.getMatchSet());
+					}else{
+						Set<SpectrumMatch> taxSet = taxMap.get(taxonSpecies);
+						taxSet.addAll(mp.getMatchSet());
+						speciesMap.put(taxonSpecies, taxSet);
+					}
+					
+					
+					
 				}
 			}
 			
@@ -344,13 +359,23 @@ public class MetaproteinExportDialog extends JDialog  {
 			// Export Taxonomy 
 			BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
 			for (Entry<String, Set<SpectrumMatch>> taxEntry : taxMap.entrySet()) {
-				Set<SpectrumMatch> value = taxEntry.getValue();
-				
 				taxWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
 				taxWriter.newLine();
 				taxWriter.flush();
 			}
 			taxWriter.close();
+			
+			// Export Species Taxonomy 
+			BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+			for (Entry<String, Set<SpectrumMatch>> taxEntry : speciesMap.entrySet()) {
+				taxSpeciesWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
+				taxSpeciesWriter.newLine();
+				taxSpeciesWriter.flush();
+			}
+			taxSpeciesWriter.close();
+			
+			
+			
 			flag++;
 			System.out.println("Finish Experiment: " +  exp.getID()+ " " +flag  + " of " + experiments.size() + ": " +  exp.getTitle());
 		}
