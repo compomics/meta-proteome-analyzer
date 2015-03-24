@@ -815,7 +815,6 @@ public class ProjectPanel extends JPanel {
 	 */
 	public DbSearchResult getSearchResult() {
 		if (currentExperiment != null) {
-			System.out.println("blah");
 			if (!currentExperiment.equals(selectedExperiment)) {
 				// clear cached results
 				currentExperiment.clearSearchResult();

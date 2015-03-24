@@ -14,6 +14,8 @@ import java.util.Map;
 
 import com.compomics.util.protein.Header;
 
+import de.mpa.client.Client;
+
 public class FastaUtilities {
 	
 	/**
@@ -77,7 +79,7 @@ public class FastaUtilities {
 	 * @param targetFastaFile File path.
 	 * @throws IOException 
 	 */
-	public static void createDecoyDatabase(File fastaFile) throws IOException {
+	public static File createDecoyDatabase(File fastaFile) throws IOException {
 		if (fastaFile.getAbsolutePath().contains("decoy")) {
 			throw new IOException("Please select a target FASTA database - instead of a decoy FASTA database!");
 		}
@@ -88,9 +90,14 @@ public class FastaUtilities {
 		nextLine = reader.readLine();
 		boolean firstline = true;
 		StringBuilder stringBuilder = new StringBuilder();
+		int count = 0;
 		while (nextLine != null) {
-			if (nextLine != null && nextLine.trim().length() > 0) {
+			if (nextLine.trim().length() > 0) {
 				if (nextLine.charAt(0) == '>') {
+					count++;
+					if (count % 10000 == 0) {			
+						Client.getInstance().firePropertyChange("new message", null, count + " PROTEIN SEQUENCES REVERSED...");
+					} 	
 					if (firstline) {
 						writer.append(nextLine + " - REVERSED");
 						writer.newLine();
@@ -113,6 +120,8 @@ public class FastaUtilities {
 		reader.close();
 		writer.flush();
 		writer.close();
+		Client.getInstance().firePropertyChange("new message", null, count + " PROTEIN SEQUENCES REVERSED... FINISHED.");
+		return new File(decoyFilePath);
 	}
 	
 	/**

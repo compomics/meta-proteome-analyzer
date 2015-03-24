@@ -68,6 +68,8 @@ public class ResourceProperties {
 			prop.setProperty("path.xtandem", path + "/built/X!Tandem/windows/windows_64bit");
 			prop.setProperty("path.omssa", path + "/built/OMSSA/windows");
 			prop.setProperty("app.omssa", "omssacl.exe");
+			prop.setProperty("path.makeblastdb", path + "/built/makeblastdb/windows/");
+			prop.setProperty("app.makeblastdb", "makeblastdb.exe");
 			prop.setProperty("path.qvality", path + "/built/QVality/windows/");
 			prop.setProperty("app.qvality", "qvality.exe");
 		}
