@@ -102,7 +102,9 @@ public class DBDumper {
 		String runner = (command + " -u" + user + " -p" + pass + " metaprot < " + targetFile.getAbsolutePath());
 		// batch file work around because Runtime.exec does not work
 			String fileEnd = winOS ? ".bat" : ".sh";
-			File f = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "script" +  System.getProperty("file.separator") + "dumper" + fileEnd);
+			File f = winOS ?
+					File.createTempFile("dumper", fileEnd):
+					new File("/scratch/metaprot/mysqlDB/" + "dumper" + fileEnd);
 		    FileOutputStream fos = new FileOutputStream(f);
 		    fos.write(runner.getBytes());
 		    fos.close();

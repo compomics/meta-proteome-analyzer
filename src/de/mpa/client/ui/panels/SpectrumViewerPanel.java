@@ -103,7 +103,7 @@ public class SpectrumViewerPanel extends JPanel {
 		specCont.remove(specPnl);
 		
 		// add spectrum
-		if (mgf != null) {
+		if (mgf != null && sequence != null) {
 			specPnl = new SpectrumPanel(mgf) {
 				@Override
 				public void paint(Graphics g) {

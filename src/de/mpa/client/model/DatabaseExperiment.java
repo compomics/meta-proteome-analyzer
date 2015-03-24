@@ -29,6 +29,7 @@ import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.extractor.SearchHitExtractor;
@@ -171,6 +172,10 @@ public class DatabaseExperiment extends AbstractExperiment {
 
 		// wrap the search hit in a new PSM
 		PeptideSpectrumMatch psm = new PeptideSpectrumMatch(hit.getFk_searchspectrumid(), hit);
+		// XXX: make me faster!
+		Searchspectrum searchspectrum = Searchspectrum.findFromSearchSpectrumID(hit.getFk_searchspectrumid(), conn);
+		Spectrum spectrum = Spectrum.findFromSpectrumID(searchspectrum.getFk_spectrumid(), conn);
+		psm.setTitle(spectrum.getTitle());
 		
 		// wrap the PSM in a new peptide
 		PeptideAccessor peptide = PeptideAccessor.findFromID(hit.getFk_peptideid(), conn);

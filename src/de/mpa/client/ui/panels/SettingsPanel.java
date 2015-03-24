@@ -82,6 +82,12 @@ public class SettingsPanel extends JPanel {
 	/**
 	 * The quick search button.
 	 */
+	private JButton quickBtn;
+
+	
+	/**
+	 * The batch search button.
+	 */
 	private JButton batchBtn;
 
 	/**
@@ -111,7 +117,7 @@ public class SettingsPanel extends JPanel {
 		databasePnl = new DatabaseSearchSettingsPanel();
 		this.specLibPnl = databasePnl.getSpectralLibrarySettingsPanel();
 
-		JPanel buttonPnl = new JPanel(new FormLayout("8dlu, p, 7dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu"));
+		JPanel buttonPnl = new JPanel(new FormLayout("8dlu, p, 7dlu, p, 7dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu"));
 
 		// create connect button
 		final JButton connectBtn = new JButton(IconConstants.DISCONNECT_ICON);
@@ -151,19 +157,20 @@ public class SettingsPanel extends JPanel {
 					}
 				}
 				batchBtn.setEnabled(connected);
+				quickBtn.setEnabled(connected);
 				searchBtn.setEnabled(connected);
 
 			}
 		});
+		
 		// Button for batch search
-		batchBtn = new JButton("Mascot Batch Searches...", IconConstants.LIGHTNING_ICON);
-		batchBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
-		batchBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
+		batchBtn = new JButton("Batch Search", IconConstants.SAVE_FILE_ICON);
+		batchBtn.setRolloverIcon(IconConstants.SAVE_FILE_ROLLOVER_ICON);
+		batchBtn.setPressedIcon(IconConstants.SAVE_FILE_PRESSED_ICON);
 		batchBtn.setEnabled(false);
 		batchBtn.setToolTipText("Press button to selected and process several .mgf or .dat files" +
-				" and store each file in a separatet experiment.");
+				" and store each file in a separate experiment.");
 		batchBtn.addActionListener(new ActionListener() {
-			private AbstractExperiment selectedExperiment;
 
 			public void actionPerformed(ActionEvent evt) {
 				final JFileChooser fc = new JFileChooser();
@@ -182,6 +189,7 @@ public class SettingsPanel extends JPanel {
 					// appear busy
 					firePropertyChange("progress", null, 0);
 					batchBtn.setEnabled(false);
+					quickBtn.setEnabled(false);
 					searchBtn.setEnabled(false);
 					// Disable further actions until loading is finished
 					ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -220,6 +228,24 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 
+		// button for quick searches
+		quickBtn = new JButton("Quick Search", IconConstants.LIGHTNING_ICON);
+		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
+		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
+		quickBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(Constants.MGF_FILE_FILTER);
+				fc.setAcceptAllFileFilterUsed(false);
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fc.setMultiSelectionEnabled(false);
+				int result = fc.showOpenDialog(ClientFrame.getInstance());
+				if (result == JFileChooser.APPROVE_OPTION) {
+					new QuickSearchWorker(fc.getSelectedFile()).execute();
+				}
+			}
+		});
+		quickBtn.setEnabled(false);
 
 		// create process button
 		searchBtn = new JButton("Start searching", IconConstants.SEARCH_ICON);
@@ -235,7 +261,8 @@ public class SettingsPanel extends JPanel {
 
 		buttonPnl.add(connectBtn, CC.xy(2, 2));
 		buttonPnl.add(batchBtn, CC.xy(4, 2));
-		buttonPnl.add(searchBtn, CC.xy(6, 2));
+		buttonPnl.add(quickBtn, CC.xy(6, 2));
+		buttonPnl.add(searchBtn, CC.xy(8, 2));
 
 		settingsPnl.add(databasePnl, CC.xy(1, 1));
 		settingsPnl.add(buttonPnl, CC.xy(1, 3));
@@ -447,79 +474,79 @@ public class SettingsPanel extends JPanel {
 		}
 	}
 
-//	/**
-//	 * Convenience worker to process a file without loading its contents into the tree table first.
-//	 * @author A. Behne
-//	 */
-//	private class QuickSearchWorker extends SwingWorker<Object, Object> {
-//
-//		/**
-//		 * The spectrum file.
-//		 */
-//		private File file;
-//
-//		/**
-//		 * Constructs a quick search worker using the specified file.
-//		 * @param file the spectrum file
-//		 */
-//		public QuickSearchWorker(File file) {
-//			this.file = file;
-//		}
-//
-//		@Override
-//		protected Object doInBackground() throws Exception {
-//			List<String> filenames = new ArrayList<String>();
-//			FileOutputStream fos = null;
-//			Client client = Client.getInstance();
-//			client.firePropertyChange("indeterminate", false, true);
-//			client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
-//			MascotGenericFileReader reader = new MascotGenericFileReader(this.file, LoadMode.SURVEY);
-//			client.firePropertyChange("indeterminate", true, false);
-//			client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
-//			List<Long> positions = reader.getSpectrumPositions(false);
-//			long numSpectra = 0L;
-//			long maxSpectra = (long) positions.size();
-//			long packageSize = databasePnl.getPackageSize();
-//			client.firePropertyChange("resetall", 0L, maxSpectra);
-//			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-//			// iterate over all spectra
-//			File batchFile = null;
-//			for (int j = 0; j < positions.size(); j++) {
-//
-//				if ((numSpectra % packageSize) == 0) {
-//					if (fos != null) {
-//						fos.close();
-//						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
-//						batchFile.delete();
-//					}
-//					batchFile = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
-//					filenames.add(batchFile.getName());
-//					fos = new FileOutputStream(batchFile);
-//					long remaining = maxSpectra - numSpectra;
-//					firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
-//				}
-//
-//				MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
-//				mgf.writeToStream(fos);
-//				fos.flush();
-//				firePropertyChange("progressmade", 0L, ++numSpectra);
-//			}
-//			fos.close();
-//			client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
-//			batchFile.delete();
-//			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
-//
-//			// collect search settings
-//			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-//			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-//			SearchSettings settings = new SearchSettings(dbss, sss,
-//					ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
-//			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-//			// dispatch search request
-//			client.runSearches(filenames, settings);
-//			return null;
-//		}
-//	}
+	/**
+	 * Convenience worker to process a file without loading its contents into the tree table first.
+	 * @author A. Behne
+	 */
+	private class QuickSearchWorker extends SwingWorker<Object, Object> {
+
+		/**
+		 * The spectrum file.
+		 */
+		private File file;
+
+		/**
+		 * Constructs a quick search worker using the specified file.
+		 * @param file the spectrum file
+		 */
+		public QuickSearchWorker(File file) {
+			this.file = file;
+		}
+
+		@Override
+		protected Object doInBackground() throws Exception {
+			List<String> filenames = new ArrayList<String>();
+			FileOutputStream fos = null;
+			Client client = Client.getInstance();
+			client.firePropertyChange("indeterminate", false, true);
+			client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
+			MascotGenericFileReader reader = new MascotGenericFileReader(this.file, LoadMode.SURVEY);
+			client.firePropertyChange("indeterminate", true, false);
+			client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
+			List<Long> positions = reader.getSpectrumPositions(false);
+			long numSpectra = 0L;
+			long maxSpectra = (long) positions.size();
+			long packageSize = databasePnl.getPackageSize();
+			client.firePropertyChange("resetall", 0L, maxSpectra);
+			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
+			// iterate over all spectra
+			File batchFile = null;
+			for (int j = 0; j < positions.size(); j++) {
+
+				if ((numSpectra % packageSize) == 0) {
+					if (fos != null) {
+						fos.close();
+						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+						batchFile.delete();
+					}
+					batchFile = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
+					filenames.add(batchFile.getName());
+					fos = new FileOutputStream(batchFile);
+					long remaining = maxSpectra - numSpectra;
+					firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+				}
+
+				MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
+				mgf.writeToStream(fos);
+				fos.flush();
+				firePropertyChange("progressmade", 0L, ++numSpectra);
+			}
+			fos.close();
+			client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+			batchFile.delete();
+			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
+
+			// collect search settings
+			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
+			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+			SearchSettings settings = new SearchSettings(dbss, sss,
+					ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
+			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
+			// dispatch search request
+			client.runSearches(filenames, settings);
+			return null;
+		}
+	}
 
 	/**
 	 * Returns the database search settings panel.

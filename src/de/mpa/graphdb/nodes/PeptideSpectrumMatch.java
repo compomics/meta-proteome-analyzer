@@ -9,8 +9,11 @@ public interface PeptideSpectrumMatch extends VertexFrame {
 	@Property("IDENTIFIER")
 	public String getIdentifier();
 	
-	@Property("SPECTRUMID")
-	public Long getSpectrumID();
+//	@Property("SPECTRUMID")
+//	public Long getSpectrumID();
+	
+	@Property("TITLE")
+	public String getTitle();
 	
 	@Property("SCORES")
 	public Integer getScores();

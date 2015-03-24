@@ -43,6 +43,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -295,6 +296,100 @@ public enum ProteinTreeTables {
 				parent.add(cloneNode);
 			}
 		}
+	},
+	KO("KO View") {
+		@Override
+		public void insertNode(PhylogenyTreeTableNode protNode) {
+			DefaultTreeTableModel treeTblMdl =
+					(DefaultTreeTableModel) this.getTreeTable().getTreeTableModel();
+
+			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
+
+			ProteinHit ph = (ProteinHit) protNode.getUserObject();
+			
+			// gather KO numbers for pathway lookup
+						List<String> keys = new ArrayList<>();
+						ReducedUniProtEntry upe = ph.getUniProtEntry();
+						if (upe != null) {
+							keys.addAll(upe.getKNumbers());
+						}
+			
+			// write KEGG keys to nodes
+			Set<KEGGOrthologyNode> koNodes = new LinkedHashSet<>();
+			for (String key : keys) {
+				KEGGOrthologyNode node = new KEGGOrthologyNode(key);
+				if (node != null) {
+					koNodes.add(node);
+				}
+			}
+			
+			PhylogenyTreeTableNode parent = root;
+			
+			// iterate found pathways
+			if (!koNodes.isEmpty()) {
+				// iterate pathway IDs
+				for (KEGGOrthologyNode koNode : koNodes) {
+					// look for pathway in existing tree
+					parent = (PhylogenyTreeTableNode) koNode.getParent();
+
+					// check whether pathway retrieval succeeded
+					if (parent == null) {
+						// extract path to root
+						TreeNode[] path = koNode.getPath();
+
+						parent = root;
+
+						KEGGOrthologyNode node = (KEGGOrthologyNode) path[0];
+						PhylogenyTreeTableNode child = 
+								(PhylogenyTreeTableNode) parent.getChildByName(node.getName());
+						if (child == null) {
+								child = new PhylogenyTreeTableNode(
+										node.getName(), node.getDescription());
+										parent.add(child);
+								parent = child;
+						} else {
+							parent = child;
+						}					
+					}
+
+					// add clone of protein node to each pathway
+					PhylogenyTreeTableNode cloneNode = protNode.clone();
+					parent.add(cloneNode);
+				}
+			} else {
+				// no pathways were found, therefore look for 'Unclassified' node in tree
+				Enumeration<? extends MutableTreeTableNode> children = root.children();
+				while (children.hasMoreElements()) {
+					MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
+					if (child.getUserObject().equals("Unclassified")) {
+						parent = (PhylogenyTreeTableNode) child;
+						break;
+					}
+				}
+				if (parent == root) {
+					// 'Unclassified' node does not exist yet, therefore create it
+					parent = new PhylogenyTreeTableNode("Unclassified");
+//								treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
+					root.add(parent);
+				}
+				// add clone of protein node to 'Unclassified' branch
+				PhylogenyTreeTableNode cloneNode = protNode.clone();
+				parent.add(cloneNode);
+			}
+		}
+
+		private PhylogenyTreeTableNode findPathway(String pw) {
+			Enumeration<? extends MutableTreeTableNode> children = 
+					((MutableTreeTableNode) ProteinTreeTables.PATHWAY.getTreeTable().getTreeTableModel().getRoot()).children();
+					while (children.hasMoreElements()) {
+						MutableTreeTableNode childC = (MutableTreeTableNode) children.nextElement();
+						if (((String) childC.getUserObject()).startsWith(pw)) {
+							return (PhylogenyTreeTableNode) childC;
+						}
+					}
+			return null;
+		}
+
 	},
 	PATHWAY("Pathway View") {
 		@Override
