@@ -4,7 +4,8 @@ public enum PsmProperty implements ElementProperty {
 	IDENTIFIER("Identifier"),
 	SPECTRUMID("Spectrum ID"),
 	SCORES("Scores"),
-	VOTES("Votes");
+	VOTES("Votes"),
+	TITLE("Spectrum Title");
 	
 	PsmProperty(final String propertyName){
 		this.propertyName = propertyName;

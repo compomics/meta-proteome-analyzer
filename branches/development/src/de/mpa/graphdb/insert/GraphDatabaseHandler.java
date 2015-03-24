@@ -537,8 +537,11 @@ public class GraphDatabaseHandler {
 			} else {
 				// Create new vertex.
 				psmVertex = graph.addVertex(null);
-				psmVertex.setProperty(PsmProperty.SPECTRUMID.toString(), spectrumID);
+//				psmVertex.setProperty(PsmProperty.SPECTRUMID.toString(), spectrumID);
+				psmVertex.setProperty(PsmProperty.TITLE.toString(), psm.getTitle());
 				psmVertex.setProperty(PsmProperty.VOTES.toString(), psm.getVotes());
+
+				psmVertex.setProperty(PsmProperty.IDENTIFIER.toString(), spectrumID);
 				
 				// Index the proteins by their accession.
 				psmIndex.put(PsmProperty.SPECTRUMID.toString(), spectrumID, psmVertex);

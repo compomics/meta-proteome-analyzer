@@ -87,6 +87,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
@@ -230,6 +231,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * The shared chart selection protein highlighter instance.
 	 */
 	private ColorHighlighter chartSelHighlighter;
+	
+	/**
+	 * The "Hide unselected" checkbox in the main protein tree table view
+	 */
+	private JCheckBox hideUnselChk;
 	
 	/**
 	 * Selection of possible panels to focus
@@ -704,22 +710,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					proteins.addAll(peptide.getProteinHits());
 				}
 				
-//				PhylogenyTreeTableNode node =
-//						((PhylogenyTreeTableNode) evt.getPath().getLastPathComponent());
-//				PeptideHit peptide = (PeptideHit) node.getUserObject();
-//				
-//				// Update sequence coverage viewer selection
-//				coveragePane.setSelected(peptide.getSequence(), true);
-//				
-//				// Update PSM views
-//				refreshPSMView(peptide.getSpectrumMatches());
-				
 				// REFRESH peptide spectrum match view
-				if (view == focus.PROTEIN || view == focus.PEPTIDE) {
-					refreshPSMView(matches);
-				}
-				
 				if (view != focus.SPECTRUM) {
+					refreshPSMView(matches);
+
 					// Update protein highlighting
 					ProteinHighlightPredicate pchp = (ProteinHighlightPredicate) protCountHighlighter
 							.getHighlightPredicate();
@@ -729,6 +723,48 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						// re-apply highlighter
 						treeTbl.removeHighlighter(protCountHighlighter);
 						treeTbl.addHighlighter(protCountHighlighter);
+					}
+				}
+					
+				if (view == focus.PEPTIDE) {
+					// Narrow protein selection down to highlights
+					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+						CheckBoxTreeTable treeTable = ptt.getTreeTable();
+						TreeTableModel ttm = treeTable.getTreeTableModel();
+						CheckBoxTreeSelectionModel cbtsm = treeTable.getCheckBoxTreeSelectionModel();
+						
+						List<TreePath> paths = new ArrayList<>();
+						PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) ttm.getRoot();
+						Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+						while (dfe.hasMoreElements()) {
+							PhylogenyTreeTableNode treeNode = (PhylogenyTreeTableNode) dfe.nextElement();
+							if (treeNode.isProtein()) {
+								Object userObject = treeNode.getUserObject();
+								for (ProteinHit proteinHit : proteins) {
+									if (proteinHit.equals(userObject)) {
+										paths.add(treeNode.getPath());
+										break;
+									}
+								}
+							}
+						}
+						cbtsm.setSelectionPaths(paths.toArray(new TreePath[0]));
+					}
+					// Carry out selection in table view 
+					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+						ptt.getTreeTable().setRowFilter((hideUnselected) ? new SelectionRowFilter(ptt.getTreeTable()) : null);
+					}
+				}
+				
+				// refresh spectrum view
+				if (view == focus.SPECTRUM) {
+					int selRow = psmTbl.getSelectedRow();
+					if (selRow != -1) {
+						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) psmTbl
+								.getPathForRow(selRow).getLastPathComponent();
+						PeptideSpectrumMatch match = (PeptideSpectrumMatch) node
+								.getUserObject();
+						refreshSpectrumView(match);
 					}
 				}
 			}
@@ -942,10 +978,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent evt) {
-				PhylogenyTreeTableNode node =
-						((PhylogenyTreeTableNode) evt.getPath().getLastPathComponent());
-				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) node.getUserObject();
-				refreshSpectrumView(psm);
+				if (view != focus.SPECTRUM) {
+					// refresh spectrum view
+					PhylogenyTreeTableNode node = ((PhylogenyTreeTableNode) evt
+							.getPath().getLastPathComponent());
+					PeptideSpectrumMatch psm = (PeptideSpectrumMatch) node
+							.getUserObject();
+					refreshSpectrumView(psm);
+				}
 				// REFRESH peptide view
 				if (view == focus.SPECTRUM) {
 					// select the view of peptides and proteins depending on the highlighted spectrum
@@ -970,6 +1010,34 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						// re-apply highlighter
 						treeTbl.removeHighlighter(protCountHighlighter);
 						treeTbl.addHighlighter(protCountHighlighter);
+					}
+					
+					// Narrow protein selection down to highlights
+					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+						CheckBoxTreeTable treeTable = ptt.getTreeTable();
+						TreeTableModel ttm = treeTable.getTreeTableModel();
+						CheckBoxTreeSelectionModel cbtsm = treeTable.getCheckBoxTreeSelectionModel();
+						
+						List<TreePath> paths = new ArrayList<>();
+						PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) ttm.getRoot();
+						Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+						while (dfe.hasMoreElements()) {
+							PhylogenyTreeTableNode treeNode = (PhylogenyTreeTableNode) dfe.nextElement();
+							if (treeNode.isProtein()) {
+								Object userObject = treeNode.getUserObject();
+								for (ProteinHit proteinHit : proteins) {
+									if (proteinHit.equals(userObject)) {
+										paths.add(treeNode.getPath());
+										break;
+									}
+								}
+							}
+						}
+						cbtsm.setSelectionPaths(paths.toArray(new TreePath[0]));
+					}
+					// Carry out selection in table view 
+					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+						ptt.getTreeTable().setRowFilter((hideUnselected) ? new SelectionRowFilter(ptt.getTreeTable()) : null);
 					}
 				}
 			}
@@ -1163,7 +1231,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		protRightBtnPnl.setOpaque(false);
 		
 		// Create 'Hide Unselected" checkbox
-		JCheckBox hideUnselChk = new JCheckBox("Hide Unselected", hideUnselected) {
+		hideUnselChk = new JCheckBox("Hide Unselected", hideUnselected) {
 			@Override
 			protected void paintComponent(Graphics g) {
 				g.setColor(this.getBackground());
@@ -1830,25 +1898,31 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		}
 		
 		// Insert peptide nodes
-		SortableTreeTableModel treeTblMdl =
-				(SortableTreeTableModel) peptideTbl.getTreeTableModel();
-		DefaultMutableTreeTableNode root =
-				(DefaultMutableTreeTableNode) treeTblMdl.getRoot();
-		int maxProtCount = 0, maxSpecCount = 0;
-		for (PeptideHit peptide : peptides) {
-			PhylogenyTreeTableNode pepNode = new PhylogenyTreeTableNode(peptide);
-			root.add(pepNode);
-	
-			maxProtCount = Math.max(maxProtCount, peptide.getProteinCount());
-			maxSpecCount = Math.max(maxSpecCount, peptide.getSpectralCount());
-		}
-		
+		SortableTreeTableModel treeTblMdl;
+		DefaultMutableTreeTableNode root;
+		int maxProtCount, maxSpecCount = 0;
+		treeTblMdl = (SortableTreeTableModel) peptideTbl
+					.getTreeTableModel();
+		root = (DefaultMutableTreeTableNode) treeTblMdl.getRoot();
+		maxProtCount = 0;
+		if (peptides != null) {
+			for (PeptideHit peptide : peptides) {
+				PhylogenyTreeTableNode pepNode = new PhylogenyTreeTableNode(
+						peptide);
+				root.add(pepNode);
+
+				maxProtCount = Math
+						.max(maxProtCount, peptide.getProteinCount());
+				maxSpecCount = Math.max(maxSpecCount,
+						peptide.getSpectralCount());
+			}
 		int numPeptides = peptides.size();
 		if (numPeptides > 0) {
 			// Refresh tree table by resetting root node
 			treeTblMdl.sort();
 			treeTblMdl.setRoot(root);
-	
+		}
+			
 			// Adjust highlighters
 			peptideTbl.updateHighlighters(1, 0, maxProtCount);
 			peptideTbl.updateHighlighters(3, 0, maxSpecCount);
@@ -1941,7 +2015,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		int selRow = peptideTbl.getSelectedRow();
 		if (selRow != -1) {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
-
 			// Extract spectrum file
 			if (!Client.isViewer()) {
 				// Get spectrum file from database when connected
