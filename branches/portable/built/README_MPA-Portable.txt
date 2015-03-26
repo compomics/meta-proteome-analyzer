@@ -1,6 +1,6 @@
 
    =============================
-    MetaProteomeAnalyzer Viewer
+    MetaProteomeAnalyzer Portable
    =============================
 	
    In order start the application, please make sure that you have Java 1.7 installed.
@@ -8,13 +8,13 @@
    java -version
    
    To start the MetaProteomeAnalyzer Viewer application simply double-click:
-   - mpa-viewer.bat (Windows)
-   - mpa-viewer.sh (Linux)
+   - mpa-portable.bat (Windows)
+   - mpa-portable.sh (Linux)
    
    For the linux version please make sure to grant executable permission rights:
-   chmod +x mpa-viewer.sh
+   chmod +x mpa-portable.sh
 
-   From the command line use 'java -jar mpa-viewer-X.Y.Z.jar'. 
+   From the command line use 'java -jar mpa-portable-X.Y.Z.jar'. 
    (Replace X.Y.Z with the MetaProteomeAnalyzer Viewer version number.)
 
    Please make sure to have enough memory on your machine. 2 GB should be enough for the application.
