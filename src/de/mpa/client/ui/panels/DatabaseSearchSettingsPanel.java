@@ -233,6 +233,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		
 		mascotChk = new JCheckBox("Mascot", false);
 		mascotChk.setIconTextGap(10);
+		//TODO: Enable MASCOT
+		mascotChk.setEnabled(false);
 		final JButton mascotSetBtn = this.createSettingsButton();
 		mascotSetBtn.addActionListener(new ActionListener() {
 			@Override

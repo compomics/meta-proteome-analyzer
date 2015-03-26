@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="distro-binary" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
+	  <!-- Default property values, if not overridden elsewhere: -->
+	  <property name='build' location="${user.home}/mpa-portable" />	  <property name='app.version' value='1.0'/>
+	  <property name='app.name' value='MPA Portable'/>
+	  <property name='distro-name' value='mpa-portable-${app.version}'/>
+    <target name='clean' description="Delete all build artifacts." >
+      <delete dir='${build}'/>
+    </target>
+	<target name="jar">
+		<jar destfile="${build}/${distro-name}.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="de.mpa.main.Starter"/>
+				<attribute name="Class-Path" value=". lib/junit-4.9.jar lib/jgoodies-forms-1.5.0.jar lib/jgoodies-common-1.3.0.jar lib/commons-codec-1.6.jar lib/swingx-all-1.6.4.jar lib/jcommon-1.0.16.jar lib/balloontip-1.2.1.jar lib/aopalliance.jar lib/commons-httpclient.jar lib/commons-logging.jar lib/spring.aop.jar lib/spring.beans.jar lib/spring.context.jar lib/spring.core.jar lib/spring.web.jar lib/log4j-1.2.17.jar lib/swing-layout-1.0.3.jar lib/keggapi.jar lib/commons-discovery-0.2.jar lib/jfreechart-1.0.14.jar lib/jaligner.jar lib/blueprints-core-2.2.0.jar lib/blueprints-neo4j-graph-2.2.0.jar lib/frames-2.2.0.jar lib/geronimo-jta_1.1_spec-1.1.1.jar lib/mascotdatfile-3.4.6.jar lib/jgoodies-looks-2.5.3.jar lib/xstream-1.4.4.jar lib/ColorPicker.jar lib/omssa-parser-1.6.1.jar lib/xpp3-1.1.4c.jar lib/xtandem-parser-1.7.5.jar lib/utilities-3.45.25.jar lib/xxindex-0.11.jar lib/commons-lang3-3.3.2.jar lib/uniprotjapi-2015-2.jar lib/lucene-core-3.6.2.jar lib/neo4j-cypher-1.9.9.jar lib/neo4j-graph-algo-1.9.9.jar lib/neo4j-graph-matching-1.9.9.jar lib/neo4j-jmx-1.9.9.jar lib/neo4j-kernel-1.9.9.jar lib/neo4j-lucene-index-1.9.9.jar lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar lib/neo4j-shell-1.9.9.jar lib/scala-library-2.10.0.jar lib/server-api-1.9.9.jar lib/concurrentlinkedhashmap-lru-1.3.1.jar lib/neo4j-udc-1.9.9.jar lib/jgoodies-binding-2.6.1.jar lib/jaxrpc.jar lib/trove-3.0.3.jar"/>
+			</manifest>
+			<fileset dir="bin"/>
+			</jar>
+	   		<delete dir="${build}/lib"/>
+	        <mkdir dir="${build}/lib"/>
+	        <copy file="lib/junit-4.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/jgoodies-forms-1.5.0.jar" todir="${build}/lib"/>
+	        <copy file="lib/jgoodies-common-1.3.0.jar" todir="${build}/lib"/>
+	        <copy file="lib/commons-codec-1.6.jar" todir="${build}/lib"/>
+	        <copy file="lib/swingx-all-1.6.4.jar" todir="${build}/lib"/>
+	        <copy file="lib/jcommon-1.0.16.jar" todir="${build}/lib"/>
+	        <copy file="lib/balloontip-1.2.1.jar" todir="${build}/lib"/>
+	        <copy file="lib/aopalliance.jar" todir="${build}/lib"/>
+	        <copy file="lib/commons-httpclient.jar" todir="${build}/lib"/>
+	        <copy file="lib/commons-logging.jar" todir="${build}/lib"/>
+	        <copy file="lib/spring.aop.jar" todir="${build}/lib"/>
+	        <copy file="lib/spring.beans.jar" todir="${build}/lib"/>
+	        <copy file="lib/spring.context.jar" todir="${build}/lib"/>
+	        <copy file="lib/spring.core.jar" todir="${build}/lib"/>
+	        <copy file="lib/spring.web.jar" todir="${build}/lib"/>
+	        <copy file="lib/log4j-1.2.17.jar" todir="${build}/lib"/>
+	        <copy file="lib/swing-layout-1.0.3.jar" todir="${build}/lib"/>
+	        <copy file="lib/keggapi.jar" todir="${build}/lib"/>
+	        <copy file="lib/commons-discovery-0.2.jar" todir="${build}/lib"/>
+	        <copy file="lib/jfreechart-1.0.14.jar" todir="${build}/lib"/>
+	        <copy file="lib/jaligner.jar" todir="${build}/lib"/>
+	        <copy file="lib/blueprints-core-2.2.0.jar" todir="${build}/lib"/>
+	        <copy file="lib/blueprints-neo4j-graph-2.2.0.jar" todir="${build}/lib"/>
+	        <copy file="lib/frames-2.2.0.jar" todir="${build}/lib"/>
+	        <copy file="lib/geronimo-jta_1.1_spec-1.1.1.jar" todir="${build}/lib"/>
+	        <copy file="lib/mascotdatfile-3.4.6.jar" todir="${build}/lib"/>
+	        <copy file="lib/jgoodies-looks-2.5.3.jar" todir="${build}/lib"/>
+	        <copy file="lib/xstream-1.4.4.jar" todir="${build}/lib"/>
+	        <copy file="lib/ColorPicker.jar" todir="${build}/lib"/>
+	        <copy file="lib/omssa-parser-1.6.1.jar" todir="${build}/lib"/>
+	        <copy file="lib/xpp3-1.1.4c.jar" todir="${build}/lib"/>
+	        <copy file="lib/xtandem-parser-1.7.5.jar" todir="${build}/lib"/>
+	        <copy file="lib/utilities-3.45.25.jar" todir="${build}/lib"/>
+	        <copy file="lib/xxindex-0.11.jar" todir="${build}/lib"/>
+	        <copy file="lib/commons-lang3-3.3.2.jar" todir="${build}/lib"/>
+	        <copy file="lib/uniprotjapi-2015-2.jar" todir="${build}/lib"/>
+	        <copy file="lib/lucene-core-3.6.2.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-cypher-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-graph-algo-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-graph-matching-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-jmx-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-kernel-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-lucene-index-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-shell-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/scala-library-2.10.0.jar" todir="${build}/lib"/>
+	        <copy file="lib/server-api-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/concurrentlinkedhashmap-lru-1.3.1.jar" todir="${build}/lib"/>
+	        <copy file="lib/neo4j-udc-1.9.9.jar" todir="${build}/lib"/>
+	        <copy file="lib/jgoodies-binding-2.6.1.jar" todir="${build}/lib"/>
+	        <copy file="lib/jaxrpc.jar" todir="${build}/lib"/>
+	        <copy file="lib/trove-3.0.3.jar" todir="${build}/lib"/>			
+	</target>
+    <target name="distro-binary" description="Create zip file with executable jar, docs." depends="clean, jar">
+    	<zip destfile="${build}/${distro-name}.zip" duplicate="preserve">
+    	<zipfileset dir="${build}/" includes="${distro-name}.jar"/>
+    	<zipfileset dir="src/conf" prefix="conf/"/>
+        <zipfileset dir="built" prefix="built/"/>
+    	<zipfileset dir="lib" prefix="lib/"/>
+    	<zipfileset file="src/log4j.properties" fullpath="log4j.properties"/>
+   	 	</zip>
+    	<delete file='${build}/${distro-name}.jar'/>
+    	<delete dir="${build}/lib"/>
+ 	 </target>
+</project>

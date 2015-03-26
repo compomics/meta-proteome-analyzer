@@ -49,7 +49,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = false;
+	private static boolean jarExport = true;
 	
 	/**
 	 * The logger instance.
@@ -184,7 +184,6 @@ public class Starter {
 		
 		// Lock file instance.
 		boolean unlocked = true;
-		jarExport = false;
 		if (LOCK_ACTIVE) {
 			unlocked = lockInstance("filelock");
 		}

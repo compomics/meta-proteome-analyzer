@@ -62,17 +62,16 @@ public class XTandemJob extends Job {
 		}
 		this.searchType = searchSettings.getSearchType();
 		
-		String basePath = algorithmProperties.getProperty("path.base");
 		this.xTandemFile = new File(algorithmProperties.getProperty("path.xtandem"));
 		if (searchType == SearchType.TARGET) {
 			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
-			this.filename = basePath + algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 			buildTaxonomyFile();
 			buildInputFile();
 			
 		} else if (searchType == SearchType.DECOY) {
 			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
-			this.filename = basePath + algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
 			searchDB = searchDB.substring(0, searchDB.indexOf(".fasta")) + "_decoy.fasta";
 			buildTaxonomyDecoyFile();
 			buildInputDecoyFile();

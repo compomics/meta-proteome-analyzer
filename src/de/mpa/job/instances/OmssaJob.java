@@ -72,12 +72,11 @@ public class OmssaJob extends Job {
 		this.nMissedCleavages = searchSettings.getMissedCleavages();
 		this.isPrecursorTolerancePpm = searchSettings.isPrecIonTolPpm();
 		this.searchType = searchSettings.getSearchType();
-		String basePath = algorithmProperties.getProperty("path.base");
 		if (searchType == SearchType.DECOY) {
-			this.filename = basePath + algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_decoy.omx";
+			this.filename = algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_decoy.omx";
 			searchDB = searchDB.substring(0, searchDB.indexOf(".fasta")) + "_decoy.fasta";
 		} else {
-			this.filename = basePath + algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
+			this.filename =  algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
 		}
 		this.omssaFile = new File(algorithmProperties.getProperty("path.omssa"));
 		initJob();
