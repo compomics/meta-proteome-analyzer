@@ -1,2 +1,2 @@
 # FASTA Databases
-files.fasta=uniprot_sprot,Test1,UniProt_MetaP_MetaB_20141107,uniprot_human,uniprot_trembl,uniprot_archaea,uniprot_sprot_bacteria,human_gut,pyrococcus,qin2010,bact594,human_gut_pyro
+files.fasta=DB_WWTP19_03_2015_out,PaperSophiMG,WWTPmetagenome,uniprot_sprot,Test1,UniProt_MetaP_MetaB_20141107,uniprot_human,uniprot_trembl,uniprot_archaea,uniprot_sprot_bacteria,human_gut,pyrococcus,qin2010,bact594,human_gut_pyro
