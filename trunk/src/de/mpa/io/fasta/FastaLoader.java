@@ -169,9 +169,10 @@ public class FastaLoader {
 			}
 		}
 		Long pos = acc2pos.get(id);
-		if (pos == 0) return null;
-		if (pos == null || pos == 0) {
-				throw new IOException("Provided string does not match any protein entry: " + id);
+
+		if (!acc2pos.containsKey(id) || pos == null)  {
+				System.out.println("Provided string does not match any protein entry: " + id);
+				return null;
 		}
 		if (raf == null) {
 			raf = new RandomAccessFile(file, "r");
