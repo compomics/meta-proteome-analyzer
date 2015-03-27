@@ -127,6 +127,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	
 	private boolean hasError = false;
 
+	private File indexFile;
+
 	/**
 	 * The default database search panel constructor.
 	 */
@@ -274,11 +276,13 @@ public class DatabaseSearchSettingsPanel extends JPanel {
         JFileChooser fc = new JFileChooser(startLocation);
         FileFilter filter = new FileFilter() {
             @Override
-            public boolean accept(File myFile) {
-
-                return myFile.getName().toLowerCase().endsWith(".fasta")
-                        || myFile.getName().toLowerCase().endsWith(".fasta")
-                        || myFile.isDirectory();
+            public boolean accept(File fastaFile) {
+            	if (fastaFile.getName().toLowerCase().endsWith("decoy.fasta")) 
+            		return false;
+            	
+                return fastaFile.getName().toLowerCase().endsWith(".fasta")
+                        || fastaFile.getName().toLowerCase().endsWith(".fasta")
+                        || fastaFile.isDirectory();
             }
 
             @Override
@@ -295,12 +299,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             	decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
             	if (!decoyFastaFile.exists()) {
             		new DecoyFastaFileWorker().execute();
-            	} 
+            	} else {
+            	  	// Optional formatting
+               		new FormatFastaFileWorker().execute();
+            	}
             	
-            	// Optional formatting
-           		new FormatFastaFileWorker().execute();
-            	
-            	File indexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
+            	indexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
             	if (!indexFile.exists()) {
             		new IndexFastaFileWorker().execute();
             	}            	
@@ -309,7 +313,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             	hasError = true;
             	JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
             }
-            if (fastaFile.exists() & !hasError) {
+            if (indexFile.exists() && fastaFile.exists() & !hasError) {
             	processBtn.setEnabled(true);
             }
         }
@@ -354,6 +358,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			if (res == 1) {
         		client.firePropertyChange("indeterminate", true, false);
         		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FINISHED");
+        		
+            	// Optional formatting after decoy creation.
+           		new FormatFastaFileWorker().execute();
 			}
 		}
 	}
@@ -371,28 +378,28 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 
 			try {
             	File[] files = fastaFile.getParentFile().listFiles();
-            	boolean hasBlastIndexFiles = false;
+            	boolean formatTargetFile = true;
+            	boolean formatDecoyFile = true;
             	String filePath = "";
             	for (File file : files) {
             	    if (file.isFile()) {
             	    	filePath += file.getAbsolutePath();
             	    }
             	}
+
             	// Check for all file endings.
-    	    	if (filePath.contains(".phr") && filePath.contains(".pin") && filePath.contains(".psq")) {
-    	    		hasBlastIndexFiles = true;
+    	    	if (filePath.contains(fastaFile.getName() + ".phr") && filePath.contains(fastaFile.getName() + ".pin") && filePath.contains(fastaFile.getName() + ".psq")) {
+    	    		formatTargetFile = false;
     	    	}
 
-            	if (!hasBlastIndexFiles) {
+            	if (formatTargetFile) {
             		client.firePropertyChange("indeterminate", false, true);
             		MakeBlastdbJob formatTargetJob = new MakeBlastdbJob(fastaFile);
             		formatTargetJob.run();
             		client.firePropertyChange("new message", null, "FORMATTING TARGET FASTA FILE");
             	}
 	    		
-	    		
 	         	files = decoyFastaFile.getParentFile().listFiles();
-            	hasBlastIndexFiles = false;
             	filePath = "";
             	for (File file : files) {
             	    if (file.isFile()) {
@@ -401,18 +408,18 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             	}
             	
             	// Check for all file endings.
-    	    	if (filePath.contains(".phr") && filePath.contains(".pin") && filePath.contains(".psq")) {
-    	    		hasBlastIndexFiles = true;
+    	    	if (filePath.contains(decoyFastaFile.getName() + ".phr") && filePath.contains(decoyFastaFile.getName() + ".pin") && filePath.contains(decoyFastaFile.getName() + ".psq")) {
+    	    		formatDecoyFile = false;
     	    	}
             	
-            	if (!hasBlastIndexFiles) {
+            	if (formatDecoyFile) {
             		client.firePropertyChange("indeterminate", false, true);
             		MakeBlastdbJob formatDecoyJob = new MakeBlastdbJob(decoyFastaFile);
             		formatDecoyJob.run();
             		client.firePropertyChange("new message", null, "FORMATTING DECOY FASTA FILE");
             	}
-            	// Already formatted: no message is provided
-            	if (hasBlastIndexFiles) return 2;
+            	// Already formatted target and decoy: no message is provided
+            	if (!formatTargetFile && !formatDecoyFile) return 2;
 	    		
 			} catch (Exception e) {
 				hasError = true;
@@ -488,8 +495,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			
 			// If new results have been fetched...
 			if (res == 1) {
-        		client.firePropertyChange("indeterminate", true, false);
-        		client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FINISHED");
+				client.firePropertyChange("indeterminate", true, false);
+				client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FINISHED");
+
+				if (indexFile.exists() && fastaFile.exists() & !hasError) {
+					processBtn.setEnabled(true);
+				}
 			}
 		}
 	}

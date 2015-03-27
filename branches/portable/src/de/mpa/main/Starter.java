@@ -49,7 +49,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = true;
+	private static boolean jarExport = false;
 	
 	/**
 	 * The logger instance.
