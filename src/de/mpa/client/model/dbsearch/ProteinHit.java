@@ -20,7 +20,6 @@ import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
@@ -625,8 +624,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 				System.err.println("ERROR: Unknown hierarchy level!");
 				break;
 			}
-		} else if (type == CompareData.EXPERIMENT) {
-			res.addAll(this.getExperimentIDs());
 		} else {
 			// If we got here something went wrong - investigate!
 			System.err.println("Error: Unknown chart type!");
@@ -634,33 +631,5 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		return res;
 	}
 	
-	/**
-	 * Class to compare experiments.
-	 * @author A. Behne und R. Heyer
-	 */
-	public static class CompareData extends HeatMapData {
-		
-		/**
-		 * ChartType for experiments
-		 */
-		public static final ChartType EXPERIMENT = new ChartType() {
-			@Override
-			public String getTitle() {
-				return "Experiment";
-			}
-		};
-
-		/**
-		 * Default constructor for the compare data.
-		 * @param result. The result object.
-		 * @param yAxisType. The type of the y-axis for the comparison.
-		 * @param zAxisType. The type of the z-axis for the comparison.
-		 */
-		public CompareData(DbSearchResult result,
-				ChartType yAxisType, HierarchyLevel zAxisType) {
-			super(result, EXPERIMENT, yAxisType, zAxisType);
-		}
-		
-	}
 	
 }

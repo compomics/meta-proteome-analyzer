@@ -137,7 +137,9 @@ import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.GenericContainer;
 import de.mpa.io.MascotGenericFile;
+import de.mpa.io.MascotGenericFileReader;
 import de.mpa.util.ColorUtils;
 
 /**
@@ -227,7 +229,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * The shared chart selection protein highlighter instance.
 	 */
 	private ColorHighlighter chartSelHighlighter;
-
+	
 	/**
 	 * Creates the database search results detail view.
 	 */
@@ -1834,10 +1836,27 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
 
 			// Read spectrum from MGF file accompanying imported result object, if possible
-			FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-			mgf = Client.getInstance().readSpectrumFromFile(selectedExperiment.getSpectrumFile().getPath(), (int) psm.getSpectrumID());
+			
+			try {
+				mgf = readSpectrumFromFile((int) psm.getSpectrumID());
+				spectrumPnl.refreshSpectrum(mgf, sequence);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		spectrumPnl.refreshSpectrum(mgf, sequence);
+		
+	}
+	
+	/**
+	 * Convenience method to read a spectrum from the MGF file in the specified
+	 * path between the specified start and end byte positions.
+	 * @param pathname The pathname string pointing to the desired file.
+	 * @param index The index of the MGF spectrum.
+	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
+	 * @throws IOException 
+	 */
+	public MascotGenericFile readSpectrumFromFile(int index) throws IOException {
+		return GenericContainer.MGFReader.loadSpectrum(index - 1);
 	}
 	
 	/**
@@ -1847,16 +1866,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	protected void refreshChart(boolean refreshData) {
 		if (refreshData) {
-			// build list of visible meta-proteins from result object
-//			ProteinHitList metaProteins = new ProteinHitList();
-//			for (ProteinHit mph : dbSearchResult.getMetaProteins()) {
-//				for (ProteinHit ph : ((MetaProteinHit) mph).getProteinHitList()) {
-//					if (ph.isSelected()) {
-//						metaProteins.add(mph);
-//						break;
-//					}
-//				}
-//			}
 			ProteinHitList metaProteins = new ProteinHitList(dbSearchResult.getMetaProteins());
 			// update chart data containers
 			ontologyData.setData(metaProteins);
@@ -1926,6 +1935,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 				// Insert new result data into tables
 				this.refreshProteinTables();
+				
+				// Update the spectra
 				
 				// Refresh chart
 				resultPnl.refreshChart(false);
@@ -2046,10 +2057,21 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							}
 						});
 						
-//						treeTbl.expandAll();
 					}
-				}
+				}			
 				Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
+				FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+				String pathname = selectedExperiment.getSpectrumFile().getAbsolutePath();
+				Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA");
+				try {
+					GenericContainer.MGFReader = new MascotGenericFileReader(new File(pathname));
+					GenericContainer.SpectrumPosMap.put(pathname, GenericContainer.MGFReader.getSpectrumPositions(false));
+					Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FINISHED");
+					GenericContainer.MGFReader.setSpectrumPositions(GenericContainer.SpectrumPosMap.get(pathname));
+				} catch (IOException e) {
+					e.printStackTrace();
+					Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FAILED");
+				}
 			}
 		}
 

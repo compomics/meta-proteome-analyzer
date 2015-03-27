@@ -20,7 +20,7 @@ import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.job.scoring.ValidatedPSMScore;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
@@ -29,7 +29,7 @@ import de.proteinms.xtandemparser.xtandem.ProteinMap;
 import de.proteinms.xtandemparser.xtandem.Spectrum;
 import de.proteinms.xtandemparser.xtandem.XTandemFile;
 
-public class XTandemParser extends GeneralParser {
+public class XTandemParser extends GenericContainer {
 	
     /**
      * Variable holding an xTandemFile.

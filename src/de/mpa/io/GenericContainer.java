@@ -14,12 +14,12 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.io.fasta.FastaLoader;
 
 /**
- * General parser with global variables.
+ * Generic container with global variables.
  * 
  * @author Thilo Muth
  *
  */
-public class GeneralParser {
+public class GenericContainer {
 
 	/**
 	 * Map from spectrum title to spectrum id.
@@ -45,6 +45,11 @@ public class GeneralParser {
 	 * List of global search hits.
 	 */
 	public static List<SearchHit> SearchHits = new ArrayList<SearchHit>();
+	
+	/**
+	 * Current open MGFReader instance.
+	 */
+	public static MascotGenericFileReader MGFReader;
 
 	/**
 	 * Logger object for the storage classes.

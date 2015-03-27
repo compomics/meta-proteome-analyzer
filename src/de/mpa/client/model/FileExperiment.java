@@ -28,7 +28,7 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.main.Parameters;
 
 /**
@@ -136,7 +136,7 @@ public class FileExperiment extends AbstractExperiment {
 			try {
 				// Initialize the result object
 				DbSearchResult searchResult = new DbSearchResult(this.getProject().getTitle(), this.getTitle(), null);
-				List<SearchHit> searchHits = GeneralParser.SearchHits;
+				List<SearchHit> searchHits = GenericContainer.SearchHits;
 				long maxProgress = searchHits.size();
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
 				client.firePropertyChange("indeterminate", true, false);
@@ -150,7 +150,7 @@ public class FileExperiment extends AbstractExperiment {
 				}
 				
 				// Determine total spectral count.
-				searchResult.setTotalSpectrumCount(GeneralParser.SpectrumTitle2IdMap.size());
+				searchResult.setTotalSpectrumCount(GenericContainer.SpectrumTitle2IdMap.size());
 
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 				this.searchResult = searchResult;
@@ -179,8 +179,8 @@ public class FileExperiment extends AbstractExperiment {
 		ReducedUniProtEntry uniProtEntry = null;
 		TaxonomyNode taxonomyNode = null;
 
-		if (GeneralParser.UniprotQueryProteins.get(hit.getAccession()) != null) {
-			uniProtEntry = GeneralParser.UniprotQueryProteins.get(hit.getAccession());
+		if (GenericContainer.UniprotQueryProteins.get(hit.getAccession()) != null) {
+			uniProtEntry = GenericContainer.UniprotQueryProteins.get(hit.getAccession());
 			
 			// retrieve taxonomy branch
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniProtEntry.getTaxID(), Parameters.getInstance().getTaxonomyMap());

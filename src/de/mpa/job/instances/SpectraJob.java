@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.job.Job;
@@ -45,8 +45,8 @@ public class SpectraJob extends Job {
 					String title = mgf.getTitle().trim();
 					
 					// Fill the cache maps
-					GeneralParser.SpectrumTitle2IdMap.put(title, spectrumCounter);
-					GeneralParser.FileName2IdMap.put(mgf.getFilename(), spectrumCounter++);
+					GenericContainer.SpectrumTitle2IdMap.put(title, spectrumCounter);
+					GenericContainer.FileName2IdMap.put(mgf.getFilename(), spectrumCounter++);
 				}
 				reader.close();
 			} catch (IOException e) {

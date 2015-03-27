@@ -5,7 +5,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.io.parser.omssa.OmssaParser;
 import de.mpa.io.parser.xtandem.XTandemParser;
 import de.mpa.job.Job;
@@ -56,7 +56,7 @@ public class ParseJob extends Job {
 		client.firePropertyChange("new message", null, this.getDescription());
 		log = Logger.getLogger(getClass());
 		String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
-		GeneralParser parser = null;
+		GenericContainer parser = null;
 		if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename != null) {
 			parser = new XTandemParser(new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
 		} else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename != null) {
