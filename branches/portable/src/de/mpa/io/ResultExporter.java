@@ -415,8 +415,7 @@ public class ResultExporter {
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) result.getProteinHitList()).getMatchSet();
 		
 		for (SpectrumMatch sm : spectrumMatches) {
-			FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-			MascotGenericFile mgf = Client.getInstance().readSpectrumFromFile(selectedExperiment.getSpectrumFile().getPath(), (int) sm.getSpectrumID());
+			MascotGenericFile mgf = GenericContainer.MGFReader.loadSpectrum((int) sm.getSpectrumID() - 1);
 			sm.setTitle(mgf.getTitle());	
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 			
@@ -476,8 +475,7 @@ public class ResultExporter {
 			for (PeptideHit peptideHit : peptideHits) {
 				
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
-					FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-					MascotGenericFile mgf = Client.getInstance().readSpectrumFromFile(selectedExperiment.getSpectrumFile().getPath(), (int) sm.getSpectrumID());
+					MascotGenericFile mgf = GenericContainer.MGFReader.loadSpectrum((int) sm.getSpectrumID() - 1);
 					sm.setTitle(mgf.getTitle());						
 					List<SpectrumMatch> currentPSMs = null;
 					if (spectraToPSMs.get(sm.getTitle()) != null) {

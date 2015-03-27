@@ -17,7 +17,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.job.Job;
 import de.mpa.job.JobStatus;
 import de.mpa.util.Formatter;
@@ -54,7 +54,7 @@ public class UniProtJob extends Job {
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.
-		Map<String, ReducedUniProtEntry> uniProtEntries = GeneralParser.UniprotQueryProteins;
+		Map<String, ReducedUniProtEntry> uniProtEntries = GenericContainer.UniprotQueryProteins;
 		Set<String> keySet = uniProtEntries.keySet();
 		List<String> accessions = new ArrayList<String>();
 		int counter = 0;

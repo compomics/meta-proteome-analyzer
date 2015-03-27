@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,7 +58,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -76,8 +74,6 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.chart.HeatMapData;
-import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
@@ -87,7 +83,6 @@ import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.parser.kegg.KEGGNode;
-import de.mpa.job.ResourceProperties;
 
 /**
  * Panel providing overview information about fetched results in the form of
@@ -218,11 +213,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 	private DbSearchResult dbSearchResult;
 
 	/**
-	 * The heat map component.
-	 */
-	private HeatMapPane heatMapPn;
-
-	/**
 	 * Flag denoting whether this panel is currently busy.
 	 */
 	private boolean busy;
@@ -323,7 +313,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		JPanel summaryPnl = new JPanel(new FormLayout(
 				"5dlu, m:g, 5dlu",
-				"5dlu, f:p, 5dlu, f:p:g, 5dlu"));
+				"5dlu, f:p, 5dlu"));
 
 		JPanel generalPnl = new JPanel(new FormLayout(
 						"5dlu, p, 5dlu, r:p, 5dlu, m:g, 5dlu, r:p, 5dlu, p, 5dlu",
@@ -417,16 +407,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 		fetchPnl.add(processResultsBtn, CC.xy(3, 1));
 
 		generalPnl.add(fetchPnl, CC.xywh(6, 8, 5, 5));
-
-		// create default heat map
-		heatMapPn = new HeatMapPane(new HeatMapData());
-		heatMapPn.setVisibleColumnCount(13);
-		heatMapPn.setVisibleRowCount(13);
-		heatMapPn.setEnabled(false);
 		
 		// insert subcomponents into main panel
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
-		summaryPnl.add(heatMapPn, CC.xy(2, 4));
 
 		JXTitledPanel summaryTtlPnl = 
 				PanelConfig.createTitledPanel("Summary", summaryPnl);
@@ -895,10 +878,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		// Propagate busy state to chart panel
 		this.chartPane.setBusy(busy);
 		
-		// Only ever make heat map pane busy, it takes care of turning not busy on its own
-		this.heatMapPn.setBusy(busy || heatMapPn.isBusy());
-		this.heatMapPn.setEnabled(!busy);
-		
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		if (!dbPnl.isBusy()) {
 			ClientFrame.getInstance().setCursor(cursor);
@@ -1004,7 +983,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 				ResultsPanel.this.setBusy(false);
 				ResultsPanel.this.dbPnl.setBusy(false);
 				ResultsPanel.this.gdbPnl.setBusy(false);
-				ResultsPanel.this.heatMapPn.setBusy(false);
 			}
 			
 			// Enable 'Export' menu
@@ -1123,9 +1101,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 					// Refresh chart panel
 					updateChart(chartType);
 					
-					// Refresh heat map
-					heatMapPn.updateData(dbSearchResult);
-					
 					return 1;
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -1150,7 +1125,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 			if (res == 1) {
 				// Enable chart panel and heat map
 				chartPane.setEnabled(true);
-				heatMapPn.setEnabled(true);
 			}
 
 			// Stop appearing busy

@@ -30,7 +30,7 @@ import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
@@ -80,7 +80,7 @@ public class Client {
 	 * List of MGF files
 	 */
 	private List<File> mgfFiles;
-
+	
 	/**
 	 * Creates the singleton client instance in non-viewer, non-debug mode.
 	 */
@@ -137,7 +137,7 @@ public class Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		GeneralParser.FastaLoader = fastaLoader;
+		GenericContainer.FastaLoader = fastaLoader;
 		
 		if (mgfFiles != null) {
 			try {
@@ -167,31 +167,6 @@ public class Client {
 		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
 		graphDatabaseHandler.setData(dbSearchResult);
 	}		
-
-	/**
-	 * Convenience method to read a spectrum from the MGF file in the specified
-	 * path between the specified start and end byte positions.
-	 * @param pathname The pathname string pointing to the desired file.
-	 * @param index The index of the MGF spectrum.
-	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
-	 */
-	public MascotGenericFile readSpectrumFromFile(String pathname, int index) {
-		MascotGenericFile mgf = null;
-		try {
-			MascotGenericFileReader reader = null;
-			if (GeneralParser.SpectrumPosMap.size() == 0) {
-				reader = new MascotGenericFileReader(new File(pathname));
-				GeneralParser.SpectrumPosMap.put(pathname, reader.getSpectrumPositions(false));
-			} else {
-				reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
-			}
-			reader.setSpectrumPositions(GeneralParser.SpectrumPosMap.get(pathname));
-			mgf = reader.loadSpectrum(index - 1);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return mgf;
-	}
 
 	/**
 	 * Writes the current database search result object to a the specified file.
@@ -399,7 +374,6 @@ public class Client {
 			currentExperiment.setSearchResult(dbSearchResult);
 		} catch (Exception e) {
 			File file = new File(path + Constants.BACKUP_RESULT);
-			System.out.println("temporary file: " + file.getAbsolutePath());
 			e.printStackTrace();
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			currentExperiment.clearSearchResult();

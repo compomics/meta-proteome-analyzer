@@ -16,7 +16,7 @@ import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.io.GeneralParser;
+import de.mpa.io.GenericContainer;
 import de.mpa.job.scoring.ValidatedPSMScore;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -24,7 +24,7 @@ import de.proteinms.omxparser.util.MSHits;
 import de.proteinms.omxparser.util.MSPepHit;
 import de.proteinms.omxparser.util.MSSpectrum;
 
-public class OmssaParser extends GeneralParser {
+public class OmssaParser extends GenericContainer {
 	/**
      * Variable holding an OmssaOmxFile.
      */
