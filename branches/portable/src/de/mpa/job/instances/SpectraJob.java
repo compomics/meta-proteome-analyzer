@@ -47,8 +47,9 @@ public class SpectraJob extends Job {
 					// Fill the cache maps
 					GenericContainer.SpectrumTitle2IdMap.put(title, spectrumCounter);
 					GenericContainer.FileName2IdMap.put(mgf.getFilename(), spectrumCounter++);
+					
 				}
-				reader.close();
+				GenericContainer.MGFReader = reader;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
