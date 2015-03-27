@@ -181,11 +181,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 		
-		fileMenu.add(exitItem);
-		fileMenu.addSeparator();
 		fileMenu.add(dumpItem);
 		fileMenu.add(restoreItem);
-		
+		fileMenu.addSeparator();
+		fileMenu.add(exitItem);
 
 		/* create Settings menu */
 		JMenu settingsMenu = new JMenu("Settings");
