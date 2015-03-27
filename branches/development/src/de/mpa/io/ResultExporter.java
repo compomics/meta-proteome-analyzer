@@ -24,6 +24,7 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SpectrumMatch;
@@ -78,54 +79,14 @@ public class ResultExporter {
 			TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
 			if (hasFeature[3]) writer.append(taxNode.getName() + Constants.TSV_FILE_SEPARATOR);
 			// TaxTree
-			TaxonomyNode spNode = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM);
-			if (spNode != null) {
-				if (hasFeature[4]) writer.append(spNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[4]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode kingNode = taxNode.getParentNode(TaxonomyRank.KINGDOM);
-			if (kingNode != null) {
-				if (hasFeature[5]) writer.append(kingNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[5]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode phNode = taxNode.getParentNode(TaxonomyRank.PHYLUM);
-			if (phNode != null) {
-				if (hasFeature[6]) writer.append(phNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[6]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode classNode = taxNode.getParentNode(TaxonomyRank.CLASS);
-			if (classNode != null) {
-				if (hasFeature[7]) writer.append(classNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[7]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode orderNode = taxNode.getParentNode(TaxonomyRank.ORDER);
-			if (orderNode != null) {
-				if (hasFeature[8]) writer.append(orderNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[8]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode famNode = taxNode.getParentNode(TaxonomyRank.FAMILY);
-			if (famNode != null) {
-				if (hasFeature[9]) writer.append(famNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[9]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode genusNode = taxNode.getParentNode(TaxonomyRank.GENUS);
-			if (genusNode != null) {
-				if (hasFeature[10]) writer.append(genusNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[10]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode specNode = taxNode.getParentNode(TaxonomyRank.SPECIES);
-			if (specNode != null) {
-				if (hasFeature[11]) writer.append(specNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			}else {
-				if (hasFeature[11]) writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
+				if (hasFeature[4]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.SUPERKINGDOM) + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[5]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.KINGDOM)  + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[6]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.PHYLUM)  + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[7]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.CLASS)  + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[8]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.ORDER)  + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[9]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.FAMILY)  + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[10]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.GENUS)  + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[11]) writer.append(TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.SPECIES) + Constants.TSV_FILE_SEPARATOR);
 			String uniref100 = "UNKNOWN";
 			String uniref90 = "UNKNOWN";
 			String uniref50 = "UNKNOWN";

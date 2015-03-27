@@ -331,19 +331,15 @@ public class MetaproteinExportDialog extends JDialog  {
 						taxSet.addAll(mp.getMatchSet());
 						taxMap.put(taxonNameByRank, taxSet);
 					}
-					
 					// Add taxonomy Data
 					taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.SPECIES);
 					if (speciesMap.get(taxonSpecies)== null) {
 						speciesMap.put(taxonSpecies, mp.getMatchSet());
 					}else{
-						Set<SpectrumMatch> taxSet = taxMap.get(taxonSpecies);
+						Set<SpectrumMatch> taxSet = speciesMap.get(taxonSpecies);
 						taxSet.addAll(mp.getMatchSet());
 						speciesMap.put(taxonSpecies, taxSet);
 					}
-					
-					
-					
 				}
 			}
 			
