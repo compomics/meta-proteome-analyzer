@@ -113,24 +113,17 @@ public class Spec2pep extends Spec2pepTableAccessor {
      * @return Spec2pep with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Spec2pep findFromID(long aSpectrumID, Connection aConn) throws SQLException {
-    	Spec2pep temp = null;
+    public static List<Spec2pep> findFromID(long aSpectrumID, Connection aConn) throws SQLException {
+    	List<Spec2pep> temp = new ArrayList<Spec2pep>();
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
         		" WHERE " + Spec2pep.FK_SPECTRUMID + "= ?");
         ps.setLong(1, aSpectrumID);
         ResultSet rs = ps.executeQuery();
-        int counter = 0;
         while (rs.next()) {
-            counter++;
-            temp = new Spec2pep(rs);
+            temp.add(new Spec2pep(rs));
         }
         rs.close();
         ps.close();
-        if (counter != 1) {
-            SQLException sqe = new SQLException("Select based on spectrum ID '" + aSpectrumID + "' resulted in " + counter + " results instead of 1!");
-            sqe.printStackTrace();
-            throw sqe;
-        }
         return temp;
     }
 
