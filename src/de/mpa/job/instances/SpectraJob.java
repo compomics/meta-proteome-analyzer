@@ -37,7 +37,7 @@ public class SpectraJob extends Job {
 			try {
 				reader = new MascotGenericFileReader(file);
 				// Get all spectra from the reader.
-				List<MascotGenericFile> spectra = reader.getSpectrumFiles();
+				List<MascotGenericFile> spectra = reader.getSpectrumFiles(false);
 
 				// Iterate over all spectra.
 				for (MascotGenericFile mgf : spectra) {
