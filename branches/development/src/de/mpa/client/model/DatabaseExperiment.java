@@ -274,6 +274,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 			manager.deleteExperiment(this.getID());
 			
 		} catch (SQLException e) {
+			e.printStackTrace();
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}

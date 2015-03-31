@@ -26,8 +26,7 @@ public class FastaParser {
 		NCBIREFERENCE 	(">ref|"),
 		GENERIC 	(">generic|"),
 		METAGENOME1 	(">|"),
-		METAGENOME2 	(">");
-		
+		METAGENOME2 	(">");		
 
 		/**
 		 * String of header begin.
