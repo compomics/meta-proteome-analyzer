@@ -26,6 +26,7 @@ import de.mpa.db.accessor.Cruxhit2protTableAccessor;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.Inspecthit;
+import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
@@ -371,6 +372,14 @@ public class ProjectManager {
 		if (omssaHits.size() > 0) {
 			for (Omssahit omssaHit : omssaHits) {
 				omssaHit.delete(conn);
+			}
+		}
+		
+		// Delete the MASCOT hits.
+		List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(experimentId, conn);
+		if (mascotHits.size() > 0) {
+			for (Mascothit mascotHit : mascotHits) {
+				mascotHit.delete(conn);
 			}
 		}
 		
