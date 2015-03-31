@@ -653,6 +653,7 @@ public class ProjectPanel extends JPanel {
 				if (choice == JOptionPane.OK_OPTION) {
 					try {
 						selectedExperiment.delete();
+						selectedProject.getExperiments().remove(selectedExperiment);
 						selectedExperiment = null;
 						refreshExperimentTable(selectedProject);
 						
