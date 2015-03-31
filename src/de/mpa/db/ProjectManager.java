@@ -20,11 +20,20 @@ import de.mpa.client.model.AbstractProject;
 import de.mpa.client.model.DatabaseExperiment;
 import de.mpa.client.model.DatabaseProject;
 import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
+import de.mpa.db.accessor.Cruxhit;
+import de.mpa.db.accessor.Cruxhit2prot;
+import de.mpa.db.accessor.Cruxhit2protTableAccessor;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
+import de.mpa.db.accessor.Inspecthit;
+import de.mpa.db.accessor.Mascothit;
+import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.Spec2pep;
+import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.XTandemhit;
 
 /**
  * This class handles project management by accessing project and experiment
@@ -343,19 +352,77 @@ public class ProjectManager {
 	public void deleteExperiment(Long experimentId) throws SQLException {
 		ExperimentAccessor experiment = ExperimentAccessor.findExperimentByID(experimentId, conn);
 		
-		// delete all properties of the experiment
+		// Delete all properties of the experiment
 		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
 		for (ExpProperty expProperty : expPropList) {
 			expProperty.delete(conn);
 		}
 		
-		// delete all search spectrum entries linked to the experiment
-		List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(experimentId, conn);
-		for (Searchspectrum searchSpectrum : searchSpectra) {
-			searchSpectrum.delete(conn);
+		// Delete the X!Tandem hits.
+		List<XTandemhit> xTandemHits = XTandemhit.getHitsFromExperimentID(experimentId, conn);
+		if (xTandemHits.size() > 0) {
+			for (XTandemhit xTandemhit : xTandemHits) {
+				xTandemhit.delete(conn);
+			}
 		}
 		
-		// delete the experiment itself
+		// Delete the OMSSA hits.
+		List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(experimentId, conn);
+		if (omssaHits.size() > 0) {
+			for (Omssahit omssaHit : omssaHits) {
+				omssaHit.delete(conn);
+			}
+		}
+		
+		// Delete the MASCOT hits.
+		List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(experimentId, conn);
+		if (mascotHits.size() > 0) {
+			for (Mascothit mascotHit : mascotHits) {
+				mascotHit.delete(conn);
+			}
+		}
+		
+		// Delete the Crux hits.
+		List<Cruxhit> cruxHits = Cruxhit.getHitsFromExperimentID(experimentId, conn);
+		if (cruxHits.size() > 0) {
+			for (Cruxhit cruxHit : cruxHits) {
+				List<Cruxhit2protTableAccessor> hits = Cruxhit2prot.getHitsFromCruxHitID(cruxHit.getCruxhitid(), conn);
+				for (Cruxhit2protTableAccessor c2pHit : hits) {
+					c2pHit.delete(conn);
+				}
+				cruxHit.delete(conn);
+			}
+		}
+		
+		// Delete the InSpect hits.
+		List<Inspecthit> inspectHits = Inspecthit.getHitsFromExperimentID(experimentId, conn);
+		if (inspectHits.size() > 0) {
+			for (Inspecthit inspectHit : inspectHits) {
+				inspectHit.delete(conn);
+			}
+		}
+		
+		// Delete all search spectrum entries linked to the experiment
+		List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(experimentId, conn);
+		for (Searchspectrum searchSpectrum : searchSpectra) {
+			long spectrumid = searchSpectrum.getFk_spectrumid();
+			searchSpectrum.delete(conn);
+			
+			Spectrum spectrum = Spectrum.findFromSpectrumID(spectrumid, conn);
+			
+			// Are spectra mapping from one spectrum to multiple search spectra?
+			List<Searchspectrum> spectraList = Searchspectrum.findFromSpectrumID(spectrumid, conn);
+			
+			if (spectraList.size() == 0 && spectrum != null) {
+				List<Spec2pep> spec2PepEntries = Spec2pep.findFromID(spectrum.getSpectrumid(), conn);
+				for (Spec2pep spec2pep : spec2PepEntries) {
+					spec2pep.delete(conn);
+				}
+				spectrum.delete(conn);
+			}
+		}
+		
+		// Delete the experiment itself
 		experiment.delete(conn);
 		conn.commit();
 	}
