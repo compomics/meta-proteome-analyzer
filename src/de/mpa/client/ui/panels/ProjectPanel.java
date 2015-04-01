@@ -704,17 +704,23 @@ public class ProjectPanel extends JPanel {
 			TableConfig.clearTable(experimentTbl);
 			
 			File projectsFile = Constants.getProjectsFile();
-			projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
-			
-			long projectCounter = 1;
-			long experimentCounter = 1;
-			for (AbstractProject project : projects) {
-				project.setID(projectCounter++);
-				List<AbstractExperiment> experiments = project.getExperiments();
-				for (AbstractExperiment experiment : experiments) {
-					experiment.setId(experimentCounter++);
+			if (projectsFile.exists()) {
+				projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
+				
+				long projectCounter = 1;
+				long experimentCounter = 1;
+				for (AbstractProject project : projects) {
+					project.setID(projectCounter++);
+					
+					List<AbstractExperiment> experiments = project.getExperiments();
+					
+					if (experiments != null) {
+						for (AbstractExperiment experiment : experiments) {
+							experiment.setId(experimentCounter++);
+						}
+					}
+					((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] { project });
 				}
-				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] { project });
 			}
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -761,8 +767,10 @@ public class ProjectPanel extends JPanel {
 	public void refreshExperimentTable(AbstractProject project) {
 		TableConfig.clearTable(experimentTbl);
 		
-		for (AbstractExperiment experiment : project.getExperiments()) {
-			((DefaultTableModel) experimentTbl.getModel()).addRow(new Object[] { experiment });
+		if (project.getExperiments() != null) {
+			for (AbstractExperiment experiment : project.getExperiments()) {
+				((DefaultTableModel) experimentTbl.getModel()).addRow(new Object[] { experiment });
+			}
 		}
 	}
 	
