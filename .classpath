@@ -92,7 +92,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/scala-library-2.9.1-1.jar"/>
 	<classpathentry kind="lib" path="lib/server-api-1.8.jar"/>
-	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.6.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar" sourcepath="/scratch/javadoc/jgoodies-looks-2.5.3-sources"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
 	<classpathentry kind="lib" path="lib/ColorPicker.jar"/>
@@ -102,5 +101,6 @@
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/uniprotjapi-2015-01.jar"/>
+	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.28.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
