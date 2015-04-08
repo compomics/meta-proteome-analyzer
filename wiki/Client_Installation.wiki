@@ -25,7 +25,7 @@ If you haven't installed Java 1.7, go directly to
 
 [#General_Information Go to top of page]
 ----
-==System requirements:==
+==System Requirements==
  * *Operating system*: Platform-independent (tested on Windows XP, Windows Vista, Windows 7, various Linux/Ubuntu distributions)
  * *Memory*: The bigger the better (preferably 1 GB at least)
 
