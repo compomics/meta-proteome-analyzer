@@ -252,7 +252,7 @@ public class FilePanel extends JPanel implements Busyable {
 			public void actionPerformed(ActionEvent evt) {
 				int res = AdvancedSettingsDialog.showDialog(clientFrame, "Filter Settings", true, filterParams);
 				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
-
+					//TODO: Implement filtering...
 				}
 			}
 		});
@@ -288,13 +288,13 @@ public class FilePanel extends JPanel implements Busyable {
 		
 		// tree table containing spectrum details
 		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
-				"no experiment selected", null, null, null, null) {
+				"", null, null, null, null) {
 			public String toString() {
 				AbstractExperiment experiment = clientFrame.getProjectPanel().getSelectedExperiment();
 				if (experiment != null) {
 					return experiment.getTitle();
 				}
-				return "no experiment selected";
+				return "";
 			}
 			@Override
 			public Object getValueAt(int column) {
@@ -611,31 +611,31 @@ public class FilePanel extends JPanel implements Busyable {
 		clearBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				TableConfig.clearTable(spectrumTreeTable);
-				spectrumTreeTable.getRowSorter().allRowsChanged();
-				spectrumTreeTable.getCheckBoxTreeSelectionModel().clearSelection();
 				
 				// reset text field
 				filesTtf.clear();
 				
-				// reset plots
-				Container specCont = specPnl.getParent();
-				// FIXME: NPE thrown here!
-				specCont.removeAll();
-				specCont.add(createDefaultSpectrumPanel(), CC.xy(2, 2));
-				specCont.validate();
+				if (spectrumTreeCbx.isSelected()) {
+					TableConfig.clearTable(spectrumTreeTable);
+					spectrumTreeTable.getRowSorter().allRowsChanged();
+					spectrumTreeTable.getCheckBoxTreeSelectionModel().clearSelection();
+							
+					// reset plots
+					Container specCont = specPnl.getParent();
+					specCont.removeAll();
+					specCont.add(createDefaultSpectrumPanel(), CC.xy(2, 2));
+					specCont.validate();
 
-				// XXX
-				histBar.setValues(1, 0, 1, 1);
-				Container cont = histPnl.getParent();
-				histPnl = createDefaultHistogramPanel();
-				cont.removeAll();
-				cont.add(histPnl, CC.xy(2, 2));
-				cont.validate();
+					histBar.setValues(1, 0, 1, 1);
+					Container cont = histPnl.getParent();
+					histPnl = createDefaultHistogramPanel();
+					cont.removeAll();
+					cont.add(histPnl, CC.xy(2, 2));
+					cont.validate();				
+					ticList.clear();
+				}
 				
-				ticList.clear();
-				specPosMap.clear();
-				
+				specPosMap.clear();				
 				mascotSelFile.clear();
 				
 				// reset navigation button and search settings tab
@@ -1080,6 +1080,7 @@ public class FilePanel extends JPanel implements Busyable {
 						// update file text field
 						filesTtf.addFiles(this.files.length, this.specCount);
 						
+						
 						// show histogram
 						if (!ticList.isEmpty()) {
 							int size = ticList.size();
@@ -1100,7 +1101,9 @@ public class FilePanel extends JPanel implements Busyable {
 					
 					// stop appearing busy
 					FilePanel.this.setBusy(false);
-					
+					if (this.specCount > 0) {
+						clearBtn.setEnabled(true);
+					}
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
 							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -1176,7 +1179,7 @@ public class FilePanel extends JPanel implements Busyable {
 		
 		/** Constructs a non-editable text field with the default text '0 files added' */
 		public FileTextField() {
-			super("0 files added");
+			super("No File(s) Selected");
 			this.setEditable(false);
 		}
 
@@ -1223,16 +1226,14 @@ public class FilePanel extends JPanel implements Busyable {
 		private String createText() {
 			// Return default string when no files were added
 			if (this.numFiles == 0) {
-				return "0 files added";
+				return "No File(s) Selected";
 			}
 			// Determine plural/singular forms
-			String file = (this.numFiles == 1) ? "file" : "files";
-			String spec = (this.numSpectra == 1) ? "spectrum" : "spectra";
-			String sel = (this.numSelected == 1) ? "spectrum" : "spectra";
+			String file = (this.numFiles == 1) ? "File" : "Files";
+			String spec = (this.numSpectra == 1) ? "Spectrum" : "Spectra";
 			// Return concatenated values
-			return "" + this.numFiles + " " + file + " added, "
-					+ this.numSpectra + " " + spec + " total, "
-					+ this.numSelected + " " + sel + " selected";
+			return "" + this.numFiles + " " + file + " Selected / "
+					+ this.numSpectra + " " + spec + " Total";
 		}
 		
 		/** Setter for the selection count. */
