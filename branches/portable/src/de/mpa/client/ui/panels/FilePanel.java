@@ -135,11 +135,6 @@ public class FilePanel extends JPanel implements Busyable {
 	private JButton addFromFileBtn;
 	
 	/**
-	 * Add from database button.
-	 */
-	private JButton addFromDbBtn;
-	
-	/**
 	 * Clear spectra from table button.
 	 */
 	private JButton clearBtn;	
@@ -222,7 +217,9 @@ public class FilePanel extends JPanel implements Busyable {
 	/**
 	 * Spectrum filter parameters.
 	 */
-	private ParameterMap filterParams = new SpectrumFilterParameters(); 
+	private ParameterMap filterParams = new SpectrumFilterParameters();
+
+	private JCheckBox spectrumTreeCbx; 
 	
 	/**
 	 * Constructs a spectrum file selection and preview panel.
@@ -249,7 +246,7 @@ public class FilePanel extends JPanel implements Busyable {
 		filesTtf = new FileTextField();
 		
 		// button to display filter settings panel
-		filterBtn = new JButton("Filter settings...");
+		filterBtn = new JButton("Filter Settings");
 		filterBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -259,23 +256,35 @@ public class FilePanel extends JPanel implements Busyable {
 				}
 			}
 		});
+		filterBtn.setEnabled(false);
 		
 		// button to add spectra from a file
-		addFromFileBtn = new JButton("Add from File...");
+		addFromFileBtn = new JButton("Add Spectrum File(s)...");
 		// button for downloading and appending mgf files from remote DB 
-		addFromDbBtn = new JButton("Add from DB...");
+		spectrumTreeCbx = new JCheckBox("Spectrum Tree Enabled");
 		
 		// button to reset file tree contents
-		clearBtn = new JButton("Clear all");
+		clearBtn = new JButton("Clear");
 		clearBtn.setEnabled(false);
 		
 		// add components to button panel
 		buttonPnl.add(new JLabel("Spectrum Files:"), CC.xy(1, 1));
 		buttonPnl.add(filesTtf, CC.xy(3, 1));
-		buttonPnl.add(filterBtn, CC.xy(5, 1));
-		buttonPnl.add(addFromFileBtn, CC.xy(7, 1));
-		buttonPnl.add(addFromDbBtn, CC.xy(9, 1));
-		buttonPnl.add(clearBtn, CC.xy(11, 1));
+		buttonPnl.add(addFromFileBtn, CC.xy(5, 1));
+		buttonPnl.add(clearBtn, CC.xy(7, 1));
+		buttonPnl.add(spectrumTreeCbx, CC.xy(9, 1));
+		buttonPnl.add(filterBtn, CC.xy(11, 1));
+		
+		
+		spectrumTreeCbx.addItemListener(new ItemListener() {
+	        public void itemStateChanged(ItemEvent e) {
+	        	if (e.getStateChange() == ItemEvent.SELECTED) {
+	        		filterBtn.setEnabled(true);
+	        	} else if (e.getStateChange() == ItemEvent.DESELECTED) {
+	        		filterBtn.setEnabled(false);
+	        	}
+	        }
+	      });
 		
 		// tree table containing spectrum details
 		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
@@ -861,7 +870,6 @@ public class FilePanel extends JPanel implements Busyable {
 		
 		// Enable/disable buttons
 		addFromFileBtn.setEnabled(!busy);
-		addFromDbBtn.setEnabled(!busy);
 		if (busy) {
 			clearBtn.setEnabled(false);
 		} else {
@@ -969,84 +977,87 @@ public class FilePanel extends JPanel implements Busyable {
 						specPosMap.put(file.getAbsolutePath(), positions);
 						GenericContainer.SpectrumPosMap.put(file.getAbsolutePath(), positions);
 						this.specCount += positions.size();
-	
-						client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
 						
-						File parentFile = file.getParentFile();
-						if (parentFile == null) {
-							parentFile = file;
-						}
-						SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
-								file, parentFile.getPath(), null, null, null) {
-							public String toString() {
-								return ((File) userObject).getName();
-							};
-							@Override
-							public Object getValueAt(int column) {
-								if (column >= 2) {
-									double sum = 0.0;
-									for (int j = 0; j < getChildCount(); j++) {
-										sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
-									}
-									return sum;
-								} else {
-									return super.getValueAt(column);
-								}
-							}
-						};
+						if (spectrumTreeCbx.isSelected()) {
 						
-						client.firePropertyChange("resetcur", -1L, positions.size());
-	
-						int index = 1;
-						List<TreePath> toBeAdded = new ArrayList<TreePath>();
-						for (int j = 0; j < positions.size(); j++) {
-							MascotGenericFile mgf = reader.loadSpectrum(index - 1);
-	//						totalSpectraList.add(mgf);
-							ticList.add(mgf.getTotalIntensity());
-	
-							// examine spectrum regarding filter criteria
-							int numPeaks = 0;
-							double noiseLvl = (Double) filterParams.get("noiselvl").getValue();
-							for (double intensity : mgf.getPeaks().values()) {
-								if (intensity > noiseLvl) {
-									numPeaks++;
-								}
+							client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
+							
+							File parentFile = file.getParentFile();
+							if (parentFile == null) {
+								parentFile = file;
 							}
-							double TIC = mgf.getTotalIntensity();
-							double SNR = mgf.getSNR(noiseLvl);
-	
-							// append new spectrum node to file node
-							SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
-									index, mgf.getTitle(), numPeaks, TIC, SNR) {
+							SortableCheckBoxTreeTableNode fileNode = new SortableCheckBoxTreeTableNode(
+									file, parentFile.getPath(), null, null, null) {
 								public String toString() {
-									return "Spectrum " + super.toString();
+									return ((File) userObject).getName();
+								};
+								@Override
+								public Object getValueAt(int column) {
+									if (column >= 2) {
+										double sum = 0.0;
+										for (int j = 0; j < getChildCount(); j++) {
+											sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+										}
+										return sum;
+									} else {
+										return super.getValueAt(column);
+									}
 								}
 							};
-							fileNode.add(spectrumNode);
 							
-							// check filter criteria
-							int minPeaks = (Integer) filterParams.get("minpeaks").getValue(); 
-							int minTIC = (Integer) filterParams.get("mintic").getValue();
-							double minSNR = (Double) filterParams.get("minsnr").getValue();
-							if ((numPeaks >= minPeaks) && (TIC >= minTIC) && (SNR >= minSNR)) {
-								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
+							client.firePropertyChange("resetcur", -1L, positions.size());
+		
+							int index = 1;
+							List<TreePath> toBeAdded = new ArrayList<TreePath>();
+							for (int j = 0; j < positions.size(); j++) {
+								MascotGenericFile mgf = reader.loadSpectrum(index - 1);
+		//						totalSpectraList.add(mgf);
+								ticList.add(mgf.getTotalIntensity());
+		
+								// examine spectrum regarding filter criteria
+								int numPeaks = 0;
+								double noiseLvl = (Double) filterParams.get("noiselvl").getValue();
+								for (double intensity : mgf.getPeaks().values()) {
+									if (intensity > noiseLvl) {
+										numPeaks++;
+									}
+								}
+								double TIC = mgf.getTotalIntensity();
+								double SNR = mgf.getSNR(noiseLvl);
+		
+								// append new spectrum node to file node
+								SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
+										index, mgf.getTitle(), numPeaks, TIC, SNR) {
+									public String toString() {
+										return "Spectrum " + super.toString();
+									}
+								};
+								fileNode.add(spectrumNode);
+								
+								// check filter criteria
+								int minPeaks = (Integer) filterParams.get("minpeaks").getValue(); 
+								int minTIC = (Integer) filterParams.get("mintic").getValue();
+								double minSNR = (Double) filterParams.get("minsnr").getValue();
+								if ((numPeaks >= minPeaks) && (TIC >= minTIC) && (SNR >= minSNR)) {
+									toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
+								}
+								index++;
+								
+								client.firePropertyChange("progressmade", false, true);
 							}
-							index++;
+		
+							client.firePropertyChange("indeterminate", false, true);
+							client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
 							
-							client.firePropertyChange("progressmade", false, true);
+							// append new file node to root and initially deselect it
+							if (fileNode.getChildCount() > 0) {
+								treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
+								cbtsm.removeSelectionPath(fileNode.getPath());
+								// reselect spectrum nodes that meet filter criteria
+								cbtsm.addSelectionPaths(toBeAdded);
+							}
+							client.firePropertyChange("indeterminate", true, false);
 						}
-	
-						client.firePropertyChange("indeterminate", false, true);
-						client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
-						
-						// append new file node to root and initially deselect it
-						if (fileNode.getChildCount() > 0) {
-							treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
-							cbtsm.removeSelectionPath(fileNode.getPath());
-							// reselect spectrum nodes that meet filter criteria
-							cbtsm.addSelectionPaths(toBeAdded);
-						}
-						client.firePropertyChange("indeterminate", true, false);
 					} catch (Exception e) {
 						JXErrorPane.showDialog(ClientFrame.getInstance(),
 								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
