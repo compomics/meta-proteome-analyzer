@@ -34,7 +34,9 @@ If you haven't installed Java 1.7, go directly to
 [#General_Information Go to top of page]
 ----
 ==Portable Startup==
-After downloading the zip file, simply unzip the file and use the provided script, i.e. mpa-portable.bat (Windows) or mpa-portable.sh (Linux)
+After downloading the zip file, simply unzip the file and use the provided script, i.e. mpa-portable.bat (Windows) or mpa-portable.sh 
+(Linux). 
+You can also double-click on the JAR file, however this will give you no options to change the memory settings (see below).
 
 Another possiblity is to use the commandline directly:
 {{{
