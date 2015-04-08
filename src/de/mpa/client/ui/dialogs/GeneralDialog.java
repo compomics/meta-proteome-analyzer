@@ -373,6 +373,7 @@ public class GeneralDialog extends JDialog {
 		
 		// Save button functionality -> store values in DB
 		saveBtn = new JButton("Save", IconConstants.SAVE_DB_ICON);
+		this.getRootPane().setDefaultButton(saveBtn);
 		saveBtn.setRolloverIcon(IconConstants.SAVE_DB_ROLLOVER_ICON);
 		saveBtn.setPressedIcon(IconConstants.SAVE_DB_PRESSED_ICON);
 		saveBtn.setMargin(new Insets(2, 2, 2, 2));
