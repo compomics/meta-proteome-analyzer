@@ -185,7 +185,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		fragTolSpn.setToolTipText("The fragment mass tolerance.");
 		
 		// Missed cleavages Spinner
-		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, null, 1));
+		missClvSpn = new JSpinner(new SpinnerNumberModel(1, 0, null, 1));
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), CC.xyw(2, 2, 3));
