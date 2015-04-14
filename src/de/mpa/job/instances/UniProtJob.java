@@ -60,7 +60,7 @@ public class UniProtJob extends Job {
 		int counter = 0;
 		for (String string : keySet) {			
 			// UniProt accession
-			if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
+			if (((string.length() == 6) && string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]"))) {
 				accessions.add(string);		
 			}
 		}

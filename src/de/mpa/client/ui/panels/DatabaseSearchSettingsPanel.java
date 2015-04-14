@@ -3,7 +3,12 @@ package de.mpa.client.ui.panels;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -11,6 +16,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -294,6 +300,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
         int result = fc.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             fastaFile = fc.getSelectedFile();
+            if (fastaFile.getName().indexOf(" ") != -1) {
+                renameFastaFileName(fastaFile);
+            } else {
+            	 fastaFileTtf.setText(fastaFile.getAbsolutePath());
+            }
+            
             try {	
             	// Check whether decoy FASTA file already exists - if not: create one!
             	decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
@@ -307,8 +319,10 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             	indexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
             	if (!indexFile.exists()) {
             		new IndexFastaFileWorker().execute();
-            	}            	
-                fastaFileTtf.setText(fastaFile.getAbsolutePath());    
+            	}    
+         
+                
+                   
             } catch (Exception e) {
             	hasError = true;
             	JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -319,6 +333,52 @@ public class DatabaseSearchSettingsPanel extends JPanel {
         }
 	}
 	
+    private void renameFastaFileName(File file) {
+        String tempName = file.getName();
+        tempName = tempName.replaceAll(" ", "_");
+
+        File renamedFile = new File(file.getParentFile().getAbsolutePath() + File.separator + tempName);
+
+        boolean success = false;
+
+        try {
+            success = renamedFile.createNewFile();
+
+            if (success) {
+
+                FileReader r = new FileReader(file);
+                BufferedReader br = new BufferedReader(r);
+
+                FileWriter w = new FileWriter(renamedFile);
+                BufferedWriter bw = new BufferedWriter(w);
+
+                String line = br.readLine();
+                
+                while (line != null) {
+                    bw.write(line + "\n");
+                    line =  br.readLine();
+                }
+                
+                bw.close();
+                w.close();
+                br.close();
+                r.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Your FASTA file name contained white space and has been renamed to:\n"
+                    + file.getParentFile().getAbsolutePath() + File.separator + tempName, "Renamed File", JOptionPane.WARNING_MESSAGE);
+            fastaFile = new File(file.getParentFile().getAbsolutePath() + File.separator + tempName);
+            fastaFileTtf.setText(file.getParentFile().getAbsolutePath() + File.separator + tempName);
+        } else {
+            JOptionPane.showMessageDialog(this, "Your FASTA file name contains white space and has to been renamed.",
+                    "Please Rename File", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
 	/**
 	 * Class to a write the decoy FASTA file in a background thread.
 	 * 

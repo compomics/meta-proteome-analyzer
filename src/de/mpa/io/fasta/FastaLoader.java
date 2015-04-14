@@ -171,7 +171,7 @@ public class FastaLoader {
 			}
 		}
 		Long pos = acc2pos.get(id);
-
+		
 		if (!acc2pos.containsKey(id) || pos == null)  {
 				System.out.println("Provided string does not match any protein entry: " + id);
 				return null;
@@ -187,7 +187,6 @@ public class FastaLoader {
 		String header = "";
 		while ((line = raf.readLine()) != null) {
 			line = line.trim();
-
 			if (line.startsWith(">")) {
 				if (!temp.equals("")) {
 					break;
