@@ -10,7 +10,12 @@ import java.util.Properties;
 
 import javax.swing.JOptionPane;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
+
 import de.mpa.client.Constants;
+import de.mpa.client.ui.ClientFrame;
 import de.mpa.main.Starter;
 
 public class ResourceProperties {
@@ -44,6 +49,7 @@ public class ResourceProperties {
 				instance = new ResourceProperties();
 			} catch (IOException e) {
 				e.printStackTrace();
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
     	}
 		return instance;
@@ -64,6 +70,10 @@ public class ResourceProperties {
 		} else {
 			path = getBasePath(this.getClass().getResource("ResourceProperties.class").getPath(), "/bin/de/mpa");
 			inputStream = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + "algorithm-properties.txt");
+		}
+		
+		if (path.indexOf(" ") != -1) {
+			throw new IOException("The file path contains at least one white space. Please rename your folders to avoid any white spaces...");
 		}
 		prop.load(inputStream);
 		
