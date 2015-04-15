@@ -24,9 +24,7 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -36,7 +34,6 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.CheckBoxTreeTable;
-import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ProteinTreeTables;
 
 /**

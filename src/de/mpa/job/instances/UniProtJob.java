@@ -39,7 +39,7 @@ public class UniProtJob extends Job {
 			client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 			queryAndStoreUniprotEntries(false);
 		} catch (Exception e) {
-			setError(e);
+			e.printStackTrace();
 		}
 		setStatus(JobStatus.FINISHED);
 		client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
@@ -48,9 +48,10 @@ public class UniProtJob extends Job {
 	/**
 	 * Method to query and store the UniProt entries. 
 	 * Retrieval is based on the UniProt JAPI.
+	 * @throws Exception 
 	 * @throws SQLException
 	 */
-	private void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) {
+	private void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws Exception {
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.

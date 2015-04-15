@@ -62,16 +62,6 @@ public class FastaLoader {
 	private boolean hasChanged;
 	
 	/**
-	 * UniProt Query Service object.
-	 */
-	private Object uniProtQueryService;
-	
-	/**
-	 * UniProt Entry Retrieval Service object.
-	 */
-	private EntryRetrievalService entryRetrievalService;
-	
-	/**
 	 * Singleton object instance of the FastaLoader class.
 	 */
 	private static FastaLoader instance;
@@ -80,7 +70,6 @@ public class FastaLoader {
 	 * Private constructor as FastaLoader is a singleton object.
 	 */
 	private FastaLoader() {
-		setupUniProtQueryService();
 	}
 
 	/**
@@ -95,19 +84,7 @@ public class FastaLoader {
 		}
 		return instance;
 	}
-	
-	/**
-	 * This method setups the uniprot query service.
-	 */
-	private void setupUniProtQueryService() {
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-			
-			// Create entry retrival service
-			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-		}		
-	}
+
 	
 	/**
 	 * Returns a protein object queried by the UniProt webservice (if no indexed FASTA is available.
@@ -115,6 +92,8 @@ public class FastaLoader {
 	 * @return Protein object containing header + sequence.
 	 */
 	public Protein getProteinFromWebService(String id) {
+		EntryRetrievalService entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
+		
 		// Retrieve UniProt entry by its accession number
 		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry(id);
 		String header = ">";
