@@ -52,7 +52,7 @@
 	        <copy file="lib/utilities-3.45.25.jar" todir="${build}/lib"/>
 	        <copy file="lib/xxindex-0.11.jar" todir="${build}/lib"/>
 	        <copy file="lib/commons-lang3-3.3.2.jar" todir="${build}/lib"/>
-	        <copy file="lib/uniprotjapi-2015-2.jar" todir="${build}/lib"/>
+	        <copy file="lib/uniprotjapi-2015-4.jar" todir="${build}/lib"/>
 	        <copy file="lib/lucene-core-3.6.2.jar" todir="${build}/lib"/>
 	        <copy file="lib/neo4j-cypher-1.9.9.jar" todir="${build}/lib"/>
 	        <copy file="lib/neo4j-graph-algo-1.9.9.jar" todir="${build}/lib"/>
