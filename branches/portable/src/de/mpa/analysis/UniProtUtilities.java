@@ -38,16 +38,6 @@ public class UniProtUtilities {
 	private static final int BATCH_SIZE = 1024;
 	
 	/**
-	 * The shared UniProt query service instance. 
-	 */
-	private static UniProtQueryService uniProtQueryService;
-	
-	/**
-	 * UniProt (single) entry retrieval service instance.
-	 */
-	private static EntryRetrievalService entryRetrievalService;
-
-	/**
 	 * Enumeration holding ontology keywords.
 	 */
 	public enum KeywordCategory {
@@ -219,18 +209,8 @@ public class UniProtUtilities {
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @return {@link Map} of ReducedProteinData objects.
 	 */
-	public static Map<String, ReducedProteinData> retrieveProteinData(List<String> identifierList, boolean doUniRefRetrieval) {
+	public static Map<String, ReducedProteinData> retrieveProteinData(List<String> identifierList, boolean doUniRefRetrieval) throws Exception {
 		Map<String, ReducedProteinData> proteinData = new TreeMap<String, ReducedProteinData>();
-		
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-		}
-		
-		// Check whether UniProt query service has been established yet.
-		if (entryRetrievalService == null) {
-			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-		}
 		
 		int maxClauseCount = BATCH_SIZE;
 		int maxBatchCount = identifierList.size() / maxClauseCount;		
@@ -252,11 +232,13 @@ public class UniProtUtilities {
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @param uniprotEntries {@link Map} of UniProt entries.
 	 */
-	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, ReducedProteinData> uniprotEntries, boolean doUniRefRetrieval) {
+	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, ReducedProteinData> uniprotEntries, boolean doUniRefRetrieval) throws Exception {
 		
 		// Create entry retrival service
 		EntryRetrievalService entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-				
+		
+		UniProtQueryService uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
+		
 		Query query = UniProtQueryBuilder.buildIDListQuery(identifierList);
 		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
 		

@@ -31,9 +31,6 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.GenericContainer;
-import de.mpa.io.MascotGenericFile;
-import de.mpa.io.MascotGenericFileReader;
-import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
 import de.mpa.job.ResourceProperties;
@@ -133,17 +130,20 @@ public class Client {
 			if(indexFile.exists()) {
 				fastaLoader.setIndexFile(indexFile);
 				fastaLoader.readIndexFile();
+			} else {
+				throw new Exception("Index file does not exist: " + settings.getFastaFile() + ".fb");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 		GenericContainer.FastaLoader = fastaLoader;
-		
 		if (mgfFiles != null) {
 			try {
 				new SearchTask(mgfFiles, settings);
 				JobManager.getInstance().run();
 			} catch (Exception e) {
+				e.printStackTrace();
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
