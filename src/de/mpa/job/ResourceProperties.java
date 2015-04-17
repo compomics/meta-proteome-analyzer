@@ -82,7 +82,12 @@ public class ResourceProperties {
 		prop.setProperty("path.base", path);
 		
 		if (Starter.isWindows()) {
-			prop.setProperty("path.xtandem", formatPath(path + "/built/X!Tandem/windows/windows_64bit"));
+			if (Starter.is64bit()) {
+				prop.setProperty("path.xtandem", formatPath(path + "/built/X!Tandem/windows/windows_64bit"));
+			} else {
+				prop.setProperty("path.xtandem", formatPath(path + "/built/X!Tandem/windows/windows_32bit"));
+			}
+			
 			prop.setProperty("path.xtandem.output", formatPath(path + "/built/output/X!Tandem/"));			
 			prop.setProperty("path.omssa", formatPath(path + "/built/OMSSA/windows"));
 			prop.setProperty("path.omssa.output", formatPath(path + "/built/output/OMSSA/"));
