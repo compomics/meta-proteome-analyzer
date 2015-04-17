@@ -158,7 +158,12 @@ public class Starter {
 			e.printStackTrace();
 		}
 	}
-
+	
+	public static boolean is64bit() {
+		String arch = System.getProperty("os.arch").toLowerCase();
+		return arch.lastIndexOf("64") != -1; 
+	}
+	
 	public static boolean isWindows() {
 		String os = System.getProperty("os.name").toLowerCase();
 		return (os.indexOf("win") >= 0);
