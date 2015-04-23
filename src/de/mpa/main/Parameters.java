@@ -105,30 +105,25 @@ public class Parameters {
 		// Initialize the KEGG taxonomy map
 		keggTaxonomyMap = KeggMaps.readKeggOrganisms(getClass().getResourceAsStream("/de/mpa/resources/conf/keggTaxonomies.txt"));
 		
-		if (taxonomyMap == null) {
-			retrieveTaxonomyMap();
-		}
+		retrieveTaxonomyMap();
 	}
 	
 	/**
 	 * This method retrieves the taxonomy map from the taxonomy dump file.
 	 */
 	private void retrieveTaxonomyMap() {
-		Runnable bgThread = new Runnable() {
-			public void run() {
-				InputStream fis = null;
-				ObjectInputStream o = null;
-				try {
-					fis = new FileInputStream(ResourceProperties.getInstance().getProperty("path.taxonomy") + "taxonomy.map");
-					o = new ObjectInputStream(fis);
-					taxonomyMap = (Map<Long, Tax>) o.readObject();
-					o.close();
-				} catch (IOException | ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		new Thread(bgThread).start();
+		InputStream fis = null;
+		BufferedInputStream bis = null;
+		ObjectInputStream o = null;
+		try {
+			fis = new FileInputStream(ResourceProperties.getInstance().getProperty("path.taxonomy") + "taxonomy.map");
+			bis = new BufferedInputStream(fis);
+			o = new ObjectInputStream(bis);
+			taxonomyMap = (Map<Long, Tax>) o.readObject();
+			o.close();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -228,6 +223,9 @@ public class Parameters {
 	 * @return taxonomyMap
 	 */
 	public Map<Long, Tax> getTaxonomyMap() {
+		if (taxonomyMap == null) {
+			retrieveTaxonomyMap();
+		}
 		return taxonomyMap;
 	}
 }
