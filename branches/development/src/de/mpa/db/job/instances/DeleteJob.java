@@ -1,5 +1,7 @@
 package de.mpa.db.job.instances;
 
+import java.io.File;
+
 import de.mpa.db.job.Job;
 
 /**
@@ -11,23 +13,32 @@ import de.mpa.db.job.Job;
  * 
  */
 public class DeleteJob extends Job {	
-	/**
-	 * Constructor for the DeleteJob
-	 */
-	public DeleteJob() {
-		initJob();
-	}	
+	private String filename;
 	
-	/**
-	 * Initializes the job, setting up the commands for the ProcessBuilder.
-	 */
-	private void initJob() {		
-		// Java commands
-		procCommands.add(jobProperties.getProperty("path.app") + jobProperties.getProperty("app.clear"));
-		procCommands.trimToSize();		
-		procBuilder = new ProcessBuilder(procCommands);
-		setDescription("CLEAR FOLDERS");
-		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+	public DeleteJob() {}
+	
+	public DeleteJob(String filename) {
+		this.filename = filename;
+	}
+
+	@Override
+	public void run() {
+		String parent = new File(filename).getParent();
+		String filenamePrefix = "";
+		
+		if (filename.endsWith("xml")) {
+			filenamePrefix = filename.substring(0, filename.indexOf("_target"));
+		} else if (filename.endsWith("omx")) {
+			filenamePrefix = filename.substring(0, filename.indexOf("_target"));
+		}
+		File parentFolder = new File(parent);
+		// Iterate the files in the directory
+		if (parentFolder.isDirectory()){
+			for (File file : parentFolder.listFiles()) {
+				if (file.getAbsolutePath().startsWith(filenamePrefix) && file.isFile()) {
+					file.delete();
+				}
+			}
+		}
 	}
 }
