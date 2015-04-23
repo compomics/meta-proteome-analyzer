@@ -5,6 +5,7 @@ import java.util.List;
 
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.model.dbsearch.SearchEngineType;
+import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.OmssaJob;
 import de.mpa.job.instances.ParseJob;
 import de.mpa.job.instances.SpectraJob;
@@ -67,6 +68,7 @@ public class SearchTask {
 				// Parse the results.
 				ParseJob xTandemParseJob = new ParseJob(SearchEngineType.XTANDEM, xtandemTargetJob.getFilename(), xTandemScoreJob.getFilename());
 				jobManager.addJob(xTandemParseJob);
+				jobManager.addJob(new DeleteJob(xtandemTargetJob.getFilename()));
 			}
 			
 			// OMSSA job
@@ -86,6 +88,7 @@ public class SearchTask {
 				// Parse the results.
 				ParseJob omssaParseJob = new ParseJob(SearchEngineType.OMSSA, omssaTargetJob.getFilename(), omssaScoreJob.getFilename());
 				jobManager.addJob(omssaParseJob);
+				jobManager.addJob(new DeleteJob(omssaParseJob.getFilename()));
 			}
 			jobManager.addJob(new UniProtJob());
 		}	
