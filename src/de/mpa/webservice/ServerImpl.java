@@ -159,6 +159,8 @@ public class ServerImpl implements Server {
 				// Add store job
 				jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename()));
 			}
+			// Clear the folders
+			jobManager.addJob(new DeleteJob(xTandemJob.getFilename()));
 		}
 		
 		// OMSSA job
@@ -182,6 +184,8 @@ public class ServerImpl implements Server {
 				// Add store job.
 				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename()));
 			}
+			// Clear the folders
+			jobManager.addJob(new DeleteJob(omssaJob.getFilename()));
 		}
 		
 		// Crux job
@@ -205,11 +209,6 @@ public class ServerImpl implements Server {
 			jobManager.addJob(new StoreJob(SearchEngineType.INSPECT, postProcessorJob.getFilename()));
 		}		
 		jobManager.addJob(new UniProtJob());
-		
-		// Clear the folders
-		jobManager.addJob(new DeleteJob());
-//		jobManager.run();
-		
 	}
 
 //	/**
