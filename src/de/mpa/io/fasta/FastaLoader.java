@@ -14,6 +14,8 @@ import java.io.RandomAccessFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
@@ -66,10 +68,13 @@ public class FastaLoader {
 	 */
 	private static FastaLoader instance;
 
+	private Logger log;
+
 	/**
 	 * Private constructor as FastaLoader is a singleton object.
 	 */
 	private FastaLoader() {
+		log = Logger.getLogger(getClass());
 	}
 
 	/**
@@ -151,10 +156,11 @@ public class FastaLoader {
 		}
 		Long pos = acc2pos.get(id);
 		
-		if (!acc2pos.containsKey(id) || pos == null)  {
-				System.out.println("Provided string does not match any protein entry: " + id);
-				return null;
+		if (pos == null || !acc2pos.containsKey(id))  {
+			log.error("Provided string does not match any protein entry: " + id);
+			throw new IOException("Provided string does not match any protein entry: " + id);
 		}
+		
 		if (raf == null) {
 			raf = new RandomAccessFile(file, "r");
 		}
