@@ -219,9 +219,6 @@ path.app=/scratch/metaprot/software/
 # Transfer path for the spectra
 path.transfer=/scratch/metaprot/data/transfer/
 
-# Clear folders app
-app.clear=clearfolders.sh
-
 ...
 }}}
 
