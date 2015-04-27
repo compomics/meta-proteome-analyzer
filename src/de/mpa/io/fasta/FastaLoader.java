@@ -11,6 +11,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -20,10 +25,15 @@ import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 
+import com.compomics.mascotdatfile.util.mascot.ProteinHit;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
 import de.mpa.client.Client;
+import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.db.DBManager;
+import de.mpa.db.accessor.PeptideAccessor;
+import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -37,24 +47,24 @@ public class FastaLoader {
 	 * The accession-to-position map.
 	 */
 	// Hashcodes will not work with strings... LUCENE would be an alternative for indexing of fasta files in the long run.
-	private TObjectLongMap<String> acc2pos;
+	private static TObjectLongMap<String> acc2pos;
 	
 	/**
 	 * The random access file instance.
 	 */
-	private RandomAccessFile raf;
+	private static RandomAccessFile raf;
 
 	/**
 	 * The FASTA file instance.
 	 */
-	private File file;
+	private static File file;
 	
 	/**
 	 * The index file.
 	 */
-	private File indexFile;
+	private static File indexFile;
 	
-	private boolean hasChanged;
+	private static boolean hasChanged;
 	
 	/**
 	 * UniProt Query Service object.
@@ -64,7 +74,7 @@ public class FastaLoader {
 	/**
 	 * UniProt Entry Retrieval Service object.
 	 */
-	private EntryRetrievalService entryRetrievalService;
+	private static EntryRetrievalService entryRetrievalService;
 	
 	/**
 	 * Singleton object instance of the FastaLoader class.
@@ -109,7 +119,7 @@ public class FastaLoader {
 	 * @param id Protein accession.
 	 * @return Protein object containing header + sequence.
 	 */
-	public Protein getProteinFromWebService(String id) {
+	public static Protein getProteinFromWebService(String id) {
 		// Retrieve UniProt entry by its accession number
 		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry(id);
 		String header = ">";
@@ -130,7 +140,7 @@ public class FastaLoader {
 	 * @param desc ProteinDescription object.
 	 * @return Protein name(s) as formatted string.
 	 */
-	public String getProteinName(ProteinDescription desc) {
+	public static String getProteinName(ProteinDescription desc) {
 		Name name = null;
 		
 		if (desc.hasRecommendedName()) {
@@ -148,9 +158,9 @@ public class FastaLoader {
 	 * 
 	 * @param id The protein identifier. May be the UniProt identifier or accession number.
 	 * @return The Protein object.
-	 * @throws IOException 
+	 * @throws IOExceptiongetProteinFromFasta 
 	 */
-	public Protein getProteinFromFasta(String id) throws IOException {
+	public static Protein getProteinFromFasta(String id) throws IOException {
 		// No mapping provided.
 		
 		if (acc2pos == null) {
@@ -231,7 +241,7 @@ public class FastaLoader {
 	 * @throws ClassNotFoundException
 	 */
 	@SuppressWarnings("unchecked")
-	public void readIndexFile() throws IOException, ClassNotFoundException {
+	public static void readIndexFile() throws IOException, ClassNotFoundException {
 		if(hasChanged) {
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
@@ -278,7 +288,7 @@ public class FastaLoader {
 					count++;
 					if(count % 10000 == 0) {						
 						System.out.println(count + " sequences parsed...");
-						client.firePropertyChange("new message", null, "Parsing a fasta file" + count );
+//						client.firePropertyChange("new message", null, "Parsing a fasta file" + count );
 					} 	
 //					if(count % 1000000 == 0) {						
 //						System.out.println("Writing index file...");
@@ -368,4 +378,32 @@ public class FastaLoader {
 		}
 	}
 	
+	
+	public static void repairSequences(Connection conn) throws SQLException, IOException{
+		Map<String, Long> findAllProteins = ProteinAccessor.findAllProteins(conn);
+		
+		for (Entry<String, Long> protEntry : findAllProteins.entrySet()) {
+			
+			Long protID = protEntry.getValue();
+			System.out.println(protID + " " + protEntry.getKey());
+			ProteinAccessor protAcc = ProteinAccessor.findFromID(protID, conn);
+			if (protAcc.getSequence() == null || protAcc.getSequence().length()<1) {
+				String accession = protAcc.getAccession();
+				String desc = protAcc.getDescription();
+				Timestamp modificationdate = protAcc.getModificationdate();
+				Protein proteinFromFasta = getProteinFromFasta(accession);
+				String sequence = proteinFromFasta.getSequence().getSequence();
+				System.out.println("ENTRY:" + accession +" " + desc + " " + sequence);
+				ProteinAccessor.upDateProteinEntry(protID, accession, desc, sequence, modificationdate, conn);
+				conn.commit();
+			}else{
+//				String accession = protAcc.getAccession();
+//				String desc = protAcc.getDescription();
+//				System.out.println("EGAL:" + accession +" " + desc + " ");
+			}
+			
+			
+		}
+	
+	}
 }

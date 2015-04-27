@@ -1,5 +1,8 @@
 package de.mpa.db.storager;
 
+import gnu.trove.map.TObjectLongMap;
+
+import java.awt.color.CMMException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -93,7 +96,7 @@ public class MascotStorager extends BasicStorager {
 	/**
 	 * File of the FASTA database
 	 */
-	private String fastaFile;
+//	private String fastaFile;
 
 	/**
 	 * Loader for FASTA entries from a FASTA DB.
@@ -101,29 +104,31 @@ public class MascotStorager extends BasicStorager {
 	private FastaLoader fastaLoader;
 
     
-	/**
-	 * Constructs a {@link MascotStorager} for parsing and storing of Mascot .dat files to the DB. 
-	 * @param conn Connection instance.
-	 * @param file File instance. 
-	 */
-	public MascotStorager(Connection conn, File file, SearchSettings searchSettings, ParameterMap mascotParams, String fastaFile){
-    	this.conn = conn;
-    	this.file = file;
-    	this.searchSettings = searchSettings;
-		this.mascotParams = mascotParams;
-		this.searchEngineType = SearchEngineType.MASCOT;
-		this.fastaFile = fastaFile;
-		
-		if (fastaFile != null && !fastaFile.isEmpty()) {
-			fastaLoader = FastaLoader.getInstance();
-			fastaLoader.setFastaFile(new File(fastaFile));
-			try {
-				fastaLoader.loadFastaFile();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-    }
+//	/**
+//	 * Constructs a {@link MascotStorager} for parsing and storing of Mascot .dat files to the DB. 
+//	 * @param conn Connection instance.
+//	 * @param file File instance. 
+//	 */
+//	public MascotStorager(Connection conn, File file, SearchSettings searchSettings, ParameterMap mascotParams, String fastaFile){
+//    	this.conn = conn;
+//    	this.file = file;
+//    	this.searchSettings = searchSettings;
+//		this.mascotParams = mascotParams;
+//		this.searchEngineType = SearchEngineType.MASCOT;
+//		this.fastaFile = fastaFile;
+//		System.out.println("FASTA_FILE " + fastaFile);
+//		
+//		if (fastaFile != null && !fastaFile.isEmpty()) {
+//			System.out.println("LOADFASTA");
+//			fastaLoader = FastaLoader.getInstance();
+//			fastaLoader.setFastaFile(new File(fastaFile));
+//			try {
+//				fastaLoader.loadFastaFile();
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//    }
 	
 	
 	/**
@@ -137,7 +142,6 @@ public class MascotStorager extends BasicStorager {
     	this.searchSettings = searchSettings;
 		this.mascotParams = mascotParams;
 		this.searchEngineType = SearchEngineType.MASCOT;
-		this.fastaFile = fastaFile;
 		this.fastaLoader = fastaLoader;
     }
 	
@@ -157,6 +161,7 @@ public class MascotStorager extends BasicStorager {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void store() throws Exception {
+		System.out.println("SToreHits");
 		
 		client.firePropertyChange("new message", null, "PARSING MASCOT FILE");
 		client.firePropertyChange("resetall", 0L, 100L);
@@ -244,8 +249,17 @@ public class MascotStorager extends BasicStorager {
 							for (ProteinHit datProtHit : proteinHits) {
 								// Save only if not saved before
 								Long protID = alreadyStoredProteins.get(datProtHit.getAccession());
+								//TODO debugging Robert
+								if (fastaLoader != null ) {
+								String[] split = datProtHit.getAccession().split("[|]");
+									Protein fastaProt = fastaLoader.getProteinFromFasta(split[0]);
+									TObjectLongMap<String> indexMap = fastaLoader.getInstance().getIndexMap();
+									String Seq= fastaProt.getSequence().getSequence();
+								}
+								
+								
 								if (protID == null){
-									StoredProtein storedProt = this.storeProtein(peptideID, datProtHit, proteinMap, fastaFile);
+									StoredProtein storedProt = this.storeProtein(peptideID, datProtHit, proteinMap);
 									alreadyStoredProteins.put(datProtHit.getAccession(), storedProt.getProtID());
 									protID = storedProt.getProtID();
 								}
@@ -498,7 +512,7 @@ public class MascotStorager extends BasicStorager {
 	 * @return proteinID. The proteinID in the database.
 	 * @throws SQLException 
 	 */
-	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap, String fastaFile) throws IOException, SQLException {
+	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
 		// save information of the protein storing
 		StoredProtein storedProt;
 		
@@ -538,8 +552,12 @@ public class MascotStorager extends BasicStorager {
 
 		// If not UNIPROT or NCBI Header.parseFromFASTA(composedHeader) may fail.... hence set new accessions.
 		if ((accession == null) || description == null) {
-			accession = proteinHit.getAccession().trim();
-			description = proteinMap.getProteinDescription(accession);
+			
+			ProteinMap proteinMap2 = proteinMap;
+			String[] split = protAccession.split("[|]");
+			
+			accession = split[0].trim();
+			description = proteinMap.getProteinDescription(protAccession);
 			//TODO MAYBE here an Mistake with other accession rules
 		}
 		
@@ -549,13 +567,15 @@ public class MascotStorager extends BasicStorager {
 		
 		// Protein is not in database, create new one
 		if (proteinID == null) {
-			
+						
 			// Try to fetch sequence
 			String sequence = ""; // Sequence is normally empty because the dat file do not contain a sequence
-				if (fastaFile != null && !fastaFile.isEmpty()) {
-					Protein fastaProt = fastaLoader.getProteinFromFasta(accession);
-					sequence= fastaProt.getSequence().getSequence();
-				}
+			if (fastaLoader != null) {
+				Protein fastaProt = fastaLoader.getProteinFromFasta(accession);
+				TObjectLongMap<String> indexMap = fastaLoader.getInstance().getIndexMap();
+				sequence= fastaProt.getSequence().getSequence();
+			}
+					
 			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
 			proteinID = (Long) protAccessor.getGeneratedKeys()[0];
 			// Mark protein for UniProt lookup

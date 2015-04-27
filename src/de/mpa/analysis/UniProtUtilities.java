@@ -519,12 +519,12 @@ public class UniProtUtilities {
 	
 	public static void updateUniProtEntries(Set<Long> proteins, String blastFile, String blastDatabase, double eValue, boolean blast) throws SQLException{
 		Connection conn = DBManager.getInstance().getConnection();
+		
 		// Find all proteins without a UniProt entry
 //			System.out.println(proteins.size() + " proteins in this experiment ...");
 		Set<Long> unlinkedProteins = new HashSet<Long>();
 		for (Long ID : proteins) {
 			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(ID, conn);
-		
 			if (uniprotentry == null) {
 				unlinkedProteins.add(ID);
 			}
@@ -542,7 +542,7 @@ public class UniProtUtilities {
 			ProteinAccessor accProt = ProteinAccessor.findFromID(ID, conn);
 			String accession = accProt.getAccession();
 			// there is an accession that looks like a UniProt accession but no UniProt entry
-			if ((accession.length() == 6) && accession.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
+			if (accession.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
 				// keep the accession and look for UniProt update later
 				accessionsMap.put(accession, accession);
 			// there is no proper accession available for this protein
@@ -553,6 +553,7 @@ public class UniProtUtilities {
 		}
 		
 		if (blast) {
+		
 			String status;
 			Map<String, BlastResult> blastBatch;
 			//			System.out.print(" done.\n");
@@ -757,7 +758,7 @@ public class UniProtUtilities {
 		Map<String, String> accessionsMap = new HashMap<String, String>();
 		for (String acc : keySet) {			
 			// UniProt accession --> gets only UniProt entries as long as they have an UniProt accession
-			if ((acc.length() == 6)  && acc.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
+			if (acc.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
 				accessionsMap.put(acc, acc);		
 			}else{
 				if (blast) {
