@@ -403,12 +403,8 @@ public class TaxonomyUtils {
 	 */
 	public static String getTaxonNameByRank(TaxonomyNode taxNode, TaxonomyRank taxRank) {
 		// Default value for taxonomy name.
-		String taxName = "unknown";
-		// Check for missing taxonomy
-		if (taxNode.getID() == 1 && taxRank == TaxonomyRank.ROOT) {
-			return "root";
-		}
-		
+		String taxName = "root";
+
 		while (taxNode.getID() != 1) { // unequal to root
 			if (taxNode.getRank() == taxRank) {
 				taxName = taxNode.getName();

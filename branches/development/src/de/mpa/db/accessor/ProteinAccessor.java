@@ -37,7 +37,6 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @return ProteinAccessor with the data.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	@Deprecated
 	public static Map<String, Long> findAllProteins(Connection aConn) throws SQLException {
 		Map<String, Long> accession2IdMap = new TreeMap<String, Long>();
 		PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
