@@ -204,7 +204,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		fragTolSpn.setToolTipText("The fragment mass tolerance.");
 		
 		// Missed cleavages Spinner
-		missClvSpn = new JSpinner(new SpinnerNumberModel(2, 0, null, 1));
+		missClvSpn = new JSpinner(new SpinnerNumberModel(1, 0, null, 1));
 		missClvSpn.setToolTipText("The maximum number of missed cleavages.");
 		
 		// Search strategy ComboBox
@@ -271,7 +271,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		cruxChk = new JCheckBox("Crux", true);
+		cruxChk = new JCheckBox("Crux", false);
 		cruxChk.setIconTextGap(10);
 		final JButton cruxSetBtn = this.createSettingsButton();
 		cruxSetBtn.addActionListener(new ActionListener() {
@@ -286,7 +286,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		inspectChk = new JCheckBox("InsPecT", true);
+		inspectChk = new JCheckBox("InsPecT", false);
 		inspectChk.setIconTextGap(10);
 		final JButton inspectSetBtn = this.createSettingsButton();
 		inspectSetBtn.addActionListener(new ActionListener() {
