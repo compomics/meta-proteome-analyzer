@@ -61,6 +61,7 @@ import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
+import de.mpa.db.accessor.Taxonomy;
 import de.mpa.io.ExportHeader;
 import de.mpa.io.ResultExporter;
 import de.mpa.io.ResultExporter.ExportHeaderType;
@@ -86,12 +87,6 @@ public class MetaproteinExportDialog extends JDialog  {
 	 */
 	private JTextField projectIDtxt;
 
-	private TaxonomyData taxonomyData;
-
-	private OntologyData ontologyData;
-
-	private String taxonNameByRank;
-	
 	private String taxonSpecies;
 	/**
 	 * @param owner. The owner of the dialog.
@@ -253,7 +248,6 @@ public class MetaproteinExportDialog extends JDialog  {
 			exportHeaders.add(new ExportHeader(2, "Meta-Protein Accession",  ExportHeaderType.METAPROTEINS));
 			exportHeaders.add(new ExportHeader(3, "Meta-Protein Description",  ExportHeaderType.METAPROTEINS));
 			exportHeaders.add(new ExportHeader(4, "Meta-Protein Taxonomy",  ExportHeaderType.METAPROTEINS));
-			
 			exportHeaders.add(new ExportHeader(5, "Superkingdom",  			ExportHeaderType.METAPROTEINS));
 			exportHeaders.add(new ExportHeader(6, "Kingdom",  				ExportHeaderType.METAPROTEINS));
 			exportHeaders.add(new ExportHeader(7, "Phylum",  ExportHeaderType.METAPROTEINS));
@@ -289,7 +283,7 @@ public class MetaproteinExportDialog extends JDialog  {
 			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
 			
 			// Create maps for results
-			TreeMap<String, Set<SpectrumMatch>> taxMap = new TreeMap<String, Set<SpectrumMatch>>();
+			TreeMap<TaxonomyNode, Set<SpectrumMatch>> taxMap = new TreeMap<TaxonomyNode, Set<SpectrumMatch>>();
 			TreeMap<String, Set<SpectrumMatch>> speciesMap = new TreeMap<String, Set<SpectrumMatch>>();
 			TreeMap<String, Set<SpectrumMatch>> biolFuncMap = new TreeMap<String, Set<SpectrumMatch>>();
 			
@@ -323,13 +317,21 @@ public class MetaproteinExportDialog extends JDialog  {
 					}
 					
 					// Add taxonomy Data
-					taxonNameByRank = TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.ORDER);
-					if (taxMap.get(taxonNameByRank)== null) {
-						taxMap.put(taxonNameByRank, mp.getMatchSet());
+					TaxonomyNode orderTaxNode = taxNode.getParentNode(TaxonomyRank.ORDER);
+					// check whether alread in the map
+					boolean alreadyInMap = false;
+					for (TaxonomyNode taxMapNode : taxMap.keySet()) {
+						if (taxMapNode.getID() == orderTaxNode.getID()) {
+							alreadyInMap = true;
+						}
+					}
+					
+					if (alreadyInMap == false) {
+						taxMap.put(orderTaxNode, mp.getMatchSet());
 					}else{
-						Set<SpectrumMatch> taxSet = taxMap.get(taxonNameByRank);
+						Set<SpectrumMatch> taxSet = taxMap.get(orderTaxNode);
 						taxSet.addAll(mp.getMatchSet());
-						taxMap.put(taxonNameByRank, taxSet);
+						taxMap.put(orderTaxNode, taxSet);
 					}
 					// Add taxonomy Data
 					taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, TaxonomyRank.SPECIES);
@@ -354,14 +356,41 @@ public class MetaproteinExportDialog extends JDialog  {
 			
 			// Export Taxonomy 
 			BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
-			for (Entry<String, Set<SpectrumMatch>> taxEntry : taxMap.entrySet()) {
-				taxWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
+			for (Entry<TaxonomyNode, Set<SpectrumMatch>> taxEntry : taxMap.entrySet()) {
+				TaxonomyNode taxnode = taxEntry.getKey();
+				String superkingdom;
+				String kingdom;
+				String phylum;
+				String classe;
+				String order;
+				if (taxnode.getID() != 0) {
+					 superkingdom 	= taxnode.getParentNode(TaxonomyRank.SUPERKINGDOM).getName();
+					 kingdom		= taxnode.getParentNode(TaxonomyRank.KINGDOM).getName();
+					 phylum			= taxnode.getParentNode(TaxonomyRank.PHYLUM).getName();
+					 classe 		= taxnode.getParentNode(TaxonomyRank.CLASS).getName();
+					 order 			= taxnode.getParentNode(TaxonomyRank.ORDER).getName();
+				}else {
+					 superkingdom	= "unknown";
+					 kingdom		= "unknown";
+					 phylum			= "unknown";
+					 classe 		= "unknown";
+					 order 			= "unknown";
+				}
+
+				taxWriter.write(order + Constants.TSV_FILE_SEPARATOR+
+						superkingdom +	Constants.TSV_FILE_SEPARATOR+
+						kingdom + Constants.TSV_FILE_SEPARATOR + 
+						phylum +	Constants.TSV_FILE_SEPARATOR+
+						classe + Constants.TSV_FILE_SEPARATOR + 
+						order + Constants.TSV_FILE_SEPARATOR + 
+						taxEntry.getValue().size());
 				taxWriter.newLine();
 				taxWriter.flush();
 			}
 			taxWriter.close();
 			
 			// Export Species Taxonomy 
+			//TODO ADD Taxonomic path
 			BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
 			for (Entry<String, Set<SpectrumMatch>> taxEntry : speciesMap.entrySet()) {
 				taxSpeciesWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
