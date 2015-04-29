@@ -408,13 +408,35 @@ public class TaxonomyUtils {
 		while (taxNode.getID() != 1) { // unequal to root
 			if (taxNode.getRank() == taxRank) {
 				taxName = taxNode.getName();
-				break;
+				return taxName; 
 			}
 			taxNode = taxNode.getParentNode();
 		}
 		return taxName; 
 	}
 
+	/**
+	 * Gets the tax name by the rank from the NCBI taxonomy.
+	 * @param proteinHit Protein hit
+	 * @param taxRank The taxonomic rank
+	 * @return The name of the taxonomy.
+	 */
+	public static TaxonomyNode getTaxonByRank(TaxonomyNode taxNode, TaxonomyRank taxRank) {
+		// Default value for taxonomy name.
+		// Check for missing taxonomy
+		if (taxNode.getID() == 1 && taxRank == TaxonomyRank.ROOT) {
+			return taxNode;
+		}
+		
+		while (taxNode.getID() != 1) { // unequal to root
+			if (taxNode.getRank() == taxRank) {
+				return taxNode;
+			}
+			taxNode = taxNode.getParentNode();
+		}
+		return taxNode; 
+	}
+	
 	/**
 	 * Method to check whether a taxonomy belongs to a certain group determined by a certain NCBI taxonomy number.
 	 * @param taxNode. Taxonomy node.
