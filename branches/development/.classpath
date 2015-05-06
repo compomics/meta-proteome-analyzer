@@ -68,6 +68,6 @@
 	<classpathentry kind="lib" path="lib/scala-library-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/server-api-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.28.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi-2015-2.jar"/>
+	<classpathentry kind="lib" path="lib/uniprotjapi-2015-5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
