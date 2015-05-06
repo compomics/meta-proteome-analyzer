@@ -67,7 +67,7 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/xpp3-1.1.4c.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.5.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/commons-lang3-3.3.2.jar"/>
-			<zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/uniprotjapi-2015-01.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/uniprotjapi-2015-5.jar"/>
         </jar>
     </target>
     <target name="distro-binary" description="Create zip file with executable jar, docs." depends="clean, jar">
