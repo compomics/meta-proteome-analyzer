@@ -57,7 +57,6 @@
 	<classpathentry kind="lib" path="lib/jgoodies-binding-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
 	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi-2015-4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
@@ -72,5 +71,6 @@
 	<classpathentry kind="lib" path="lib/spring-tx-3.2.4.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-3.2.4.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-webmvc-3.2.4.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/uniprotjapi-2015-5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
