@@ -47,7 +47,7 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/scala-library-2.9.1-1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/server-api-1.8.jar"/>
-			<zipfileset excludes="META-INF/*.SF" src="/scratch/workspace2/MetaProteomeAnalyzer/lib/mascotdatfile-3.4.28.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/mascotdatfile-3.4.28.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/jgoodies-looks-2.5.3.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/xstream-1.4.4.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/workspace/MetaProteomeAnalyzer/lib/ColorPicker.jar"/>
