@@ -7,9 +7,6 @@ path.app=/scratch/metaprot/software/
 # Transfer path for the spectra
 path.transfer=/scratch/metaprot/data/transfer/
 
-# Clear folders app
-app.clear=clearfolders.sh
-
 # Path to the FASTA database folder
 path.fasta=/scratch/metaprot/data/fasta/
 

@@ -5,11 +5,9 @@ import java.io.File;
 import de.mpa.db.job.Job;
 
 /**
- * Wrapper job class for executing a bash script to recursively delete files in a folder and its subfolders:
- * clearfolders.sh: find /folder/subfolder -type f -exec rm -f {} \;
+ * Delete job class for removing X!Tandem and OMSSA result files.
  * 
  * @author T.Muth
- * @date 11/07/2012
  * 
  */
 public class DeleteJob extends Job {	
@@ -23,6 +21,14 @@ private String filename;
 
 	@Override
 	public void run() {
+		
+		// Wait for 10 seconds before removing of files starts... to account for other processes to finish first.
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		String parent = new File(filename).getParent();
 		String filenamePrefix = "";
 		
