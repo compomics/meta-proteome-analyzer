@@ -1,2 +1,2 @@
 # FASTA Databases
-files.fasta=PaperSophiMG_V2,PaperSophiMG,uniprot_sprot,WWTPmetagenome,BGP_Metagenome,DB_WWTP19_03_2015_out
+files.fasta=uniprot_sprot

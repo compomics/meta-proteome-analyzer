@@ -127,17 +127,23 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * @return the parent taxonomy node of the desired rank.
 	 */
 	public TaxonomyNode getParentNode(TaxonomyRank rank) {
+		
 		TaxonomyNode parentNode = this;
+		
+		if (parentNode.getID() == 1) {
+			return new TaxonomyNode(0, rank, "Unknown");
+		}
+
 		TaxonomyRank parentRank = parentNode.getRank();
 		while (!rank.equals(parentRank)) {
 			parentNode = parentNode.getParentNode();
-			parentRank = parentNode.getRank();
 			if (parentNode.getID() == 1) {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
 				parentNode = new TaxonomyNode(0, rank, "Unknown");
 				break;
 			}
+			parentRank = parentNode.getRank();
 		}
 		return parentNode;
 	}

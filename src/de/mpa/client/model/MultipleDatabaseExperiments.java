@@ -134,31 +134,25 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 				// initialize the result object
 				DbSearchResult searchResult = new DbSearchResult(this.getProject().getTitle(), "MultipleDBresult" +this.getTitle(), null);
 
-				// set up progress monitoring
-				client.firePropertyChange("new message", null, "QUERYING DB SEARCH HITS");
-				client.firePropertyChange("resetall", 0L, 100L);
-				client.firePropertyChange("indeterminate", false, true);
-				
 				// initialize database connection
 				Connection conn = client.getConnection();
-
+				
 				// gather search hits from remote database
-				List<SearchHit> searchHits = new LinkedList<SearchHit>() ;
 				for (Long expID : experimentList) {
-					searchHits.addAll(SearchHitExtractor.findSearchHitsFromExperimentID(expID, conn));
-				}
-
-				long maxProgress = searchHits.size();
-				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT");
-				client.firePropertyChange("indeterminate", true, false);
-				client.firePropertyChange("resetall", 0L, maxProgress);
-				client.firePropertyChange("resetcur", 0L, maxProgress);
-				
-				
-				// add search hits to result object
-				for (SearchHit searchHit : searchHits) {
-					this.addProteinSearchHit(searchResult, searchHit, this.getID(), conn);
-					client.firePropertyChange("progressmade", true, false);
+					List<SearchHit> searchHits = SearchHitExtractor.findSearchHitsFromExperimentID(expID, conn);
+					
+					// update progress meter
+					long maxProgress = searchHits.size();
+					client.firePropertyChange("new message", null, "BUILDING EXPERIMENT " + expID + " RESULT OBJECT");
+					client.firePropertyChange("indeterminate", true, false);
+					client.firePropertyChange("resetall", 0L, maxProgress);
+					client.firePropertyChange("resetcur", 0L, maxProgress);
+					
+					// add search hits to result object
+					for (SearchHit searchHit : searchHits) {
+						this.addProteinSearchHit(searchResult, searchHit, expID, conn);
+						client.firePropertyChange("progressmade", true, false);
+					}
 				}
 				
 				// determine total spectral count
