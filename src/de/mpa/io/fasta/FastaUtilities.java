@@ -164,11 +164,15 @@ public class FastaUtilities {
 		try {
 			BufferedWriter bfWriter = new BufferedWriter(new FileWriter(outputPath));
 			List<Entry> entries = inputDb.getEntries();
-			int count = 1;
+			int count = 0;
+			
 			for (Entry e : entries) {
 				String header = e.getName();
 				String gi = " ";
-				if(header.contains("gi")){
+			
+				if(!header.contains(">sp")){
+					/*
+					 
 					String[] split = e.getName().split("\\s+");
 					for (String temp : split) {
 						if(temp.contains("gi")) {
@@ -178,14 +182,17 @@ public class FastaUtilities {
 					header = header.replaceFirst(">", ">gi|" + gi + "|");
 				} else {
 					header = e.getName().replaceFirst(">", ">gi|GENSEQ" + count + "|");
+					
+					*/
+					bfWriter.write(header);
+					bfWriter.newLine();
+					bfWriter.write(e.getSequenceAsString());
+					bfWriter.newLine();
+					count++;
 				}
 				
-				header = header.trim().replaceAll(" +", " ");
-				bfWriter.write(header);
-				bfWriter.newLine();
-				bfWriter.write(e.getSequenceAsString());
-				bfWriter.newLine();
-				count++;
+//				header = header.trim().replaceAll(" +", " ");
+				System.out.println("entries: " + count + " / " + entries.size());
 			}
 			bfWriter.flush();
 			bfWriter.close();
@@ -367,7 +374,9 @@ public class FastaUtilities {
 	
 	
 	public static void main(String[] args) {
-		Database readDB = FastaUtilities.read("metadb_potsdam.fasta");
-		FastaUtilities.writeDatabase(readDB, "metadb_potsdam_formatted.fasta");
+		Database readDB = FastaUtilities.read("C:\\temp\\MG_Biogas_SwissProt.fasta");
+		FastaUtilities.writeDatabase(readDB, "C:\\temp\\MG_Biogas.fasta");
+		
+//		FastaUtilities.readAndWriteDatabase("C, outFilePath, start, end);
 	}
 }

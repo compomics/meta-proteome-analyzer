@@ -326,11 +326,36 @@ public class ResultExporter {
 					if (hasFeature[5]) writer.append(peptideHit.getProteinCount() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[6]) writer.append(peptideHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[7]) {
-						String name = peptideHit.getTaxonomyNode().getName();
-						if (name.equals("root")) {
-							name = "Unclassified";
+						TaxonomyNode[] path = peptideHit.getTaxonomyNode().getPath();
+//						for (TaxonomyNode taxonomyNode : path) {
+//								writer.append(taxonomyNode.getName() + ";");
+//						}
+//						writer.append(Constants.TSV_FILE_SEPARATOR);
+						
+						for (TaxonomyNode taxonomyNode : path) {
+							if (taxonomyNode.getRank().equals((TaxonomyRank.SUPERKINGDOM))) {
+								writer.append(taxonomyNode.getName() + Constants.TSV_FILE_SEPARATOR);
+							}
+							if (taxonomyNode.getRank().equals((TaxonomyRank.PHYLUM))) {
+								writer.append(taxonomyNode.getName() + Constants.TSV_FILE_SEPARATOR);
+							}
+							
+							if (taxonomyNode.getRank().equals((TaxonomyRank.FAMILY))) {
+								writer.append(taxonomyNode.getName() + Constants.TSV_FILE_SEPARATOR);
+							}
+							
+							if (taxonomyNode.getRank().equals((TaxonomyRank.GENUS))) {
+								writer.append(taxonomyNode.getName() + Constants.TSV_FILE_SEPARATOR);
+							}
+							
+							if (taxonomyNode.getRank().equals((TaxonomyRank.SPECIES))) {
+								writer.append(taxonomyNode.getName() + Constants.TSV_FILE_SEPARATOR);
+							}
+							
+							if (taxonomyNode.getRank().equals((TaxonomyRank.SUBSPECIES))) {
+								writer.append(taxonomyNode.getName() + Constants.TSV_FILE_SEPARATOR);
+							}
 						}
-						writer.append(name + Constants.TSV_FILE_SEPARATOR);
 					}
 					if (hasFeature[8]) writer.append(peptideHit.getTaxonomyNode().getRank() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[9]) writer.append(peptideHit.getTaxonomyNode().getID()+ Constants.TSV_FILE_SEPARATOR);

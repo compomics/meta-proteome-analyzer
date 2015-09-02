@@ -222,7 +222,12 @@ public class TaxonomyUtils {
 				current = Taxonomy.findFromTaxID(currentID, conn);
 				taxonomyMap.put(currentID, current);
 			}
-
+			
+			if (current == null) {
+				current = Taxonomy.findFromTaxID(1L, conn);
+				taxonomyMap.put(1L, current);
+			}
+			
 			// Check for rank being contained in the main categories (from superkingdom to species)
 			TaxonomyRank taxonomyRank = targetRanks.get(current.getRank());
 			if (taxonomyRank == null) {

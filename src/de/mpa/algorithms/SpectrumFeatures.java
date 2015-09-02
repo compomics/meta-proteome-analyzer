@@ -13,7 +13,6 @@ import de.mpa.io.MascotGenericFile;
 public class SpectrumFeatures {
 	
 	//// STANDARD FEATURES ////
-	
 	// Number of peaks
 	private int numPeaks;
 	
@@ -116,7 +115,7 @@ public class SpectrumFeatures {
 	 * If both R and K are possible, the more abundant peak is taken.
 	 * @return the calculated y1-ion intensity 
 	 */
-	private double calcY1IonIntensity(){
+	private double calcY1IonIntensity() {
 		double y1_lysInt = Double.NaN, y1_argInt = Double.NaN;
 		
 		// y1-Ion matches
