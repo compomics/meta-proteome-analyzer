@@ -22,6 +22,8 @@ public class OmssaHit implements SearchHit, Serializable {
 	private int charge;
 	private double qValue;
 	private double pep;
+	private String spectrumFilename;
+	private String spectrumTitle;
 
 	@Override
 	public SearchEngineType getType() {
@@ -119,6 +121,24 @@ public class OmssaHit implements SearchHit, Serializable {
 
 	public void setpValue(double pValue) {
 		this.pValue = pValue;
+	}
+	
+	@Override
+	public String getSpectrumFilename() {
+		return spectrumFilename;
+	}
+
+	public void setSpectrumFilename(String spectrumFilename) {
+		this.spectrumFilename = spectrumFilename;
+	}
+
+	@Override
+	public String getSpectrumTitle() {
+		return spectrumTitle;
+	}
+
+	public void setSpectrumTitle(String spectrumTitle) {
+		this.spectrumTitle = spectrumTitle;
 	}
 
 }

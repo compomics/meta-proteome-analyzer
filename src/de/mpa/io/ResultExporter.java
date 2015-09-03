@@ -395,7 +395,7 @@ public class ResultExporter {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 		
-		boolean hasFeature[] = new boolean[8];		
+		boolean hasFeature[] = new boolean[9];		
 
 		// Protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -412,8 +412,6 @@ public class ResultExporter {
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) result.getProteinHitList()).getMatchSet();
 		
 		for (SpectrumMatch sm : spectrumMatches) {
-			MascotGenericFile mgf = GenericContainer.MGFReader.loadSpectrum((int) sm.getSpectrumID() - 1);
-			sm.setTitle(mgf.getTitle());	
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 			
 			Collection<PeptideHit> peptideHits = sm.getPeptideHits();
@@ -425,11 +423,12 @@ public class ResultExporter {
 						if (hasFeature[0]) writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[1]) writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[2]) writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[3]) writer.append(psm.getTitle() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[3]) writer.append(psm.getSpectrumTitle() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[6]) writer.append(searchHit.getQvalue() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[7]) writer.append(searchHit.getPep() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[8]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
 						writer.newLine();
 					}		
 				}
@@ -472,16 +471,14 @@ public class ResultExporter {
 			for (PeptideHit peptideHit : peptideHits) {
 				
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
-					MascotGenericFile mgf = GenericContainer.MGFReader.loadSpectrum((int) sm.getSpectrumID() - 1);
-					sm.setTitle(mgf.getTitle());						
 					List<SpectrumMatch> currentPSMs = null;
-					if (spectraToPSMs.get(sm.getTitle()) != null) {
-						currentPSMs = spectraToPSMs.get(sm.getTitle());
+					if (spectraToPSMs.get(sm.getSpectrumTitle()) != null) {
+						currentPSMs = spectraToPSMs.get(sm.getSpectrumTitle());
 					} else {
 						currentPSMs = new ArrayList<SpectrumMatch>();
 					}
 					currentPSMs.add(sm);
-					spectraToPSMs.put(sm.getTitle(), currentPSMs);
+					spectraToPSMs.put(sm.getSpectrumTitle(), currentPSMs);
 				}
 			}		
 		}
@@ -491,7 +488,7 @@ public class ResultExporter {
 			if (hasFeature[0]) writer.append(++nIdentifiedSpectra + Constants.TSV_FILE_SEPARATOR);
 			List<SpectrumMatch> psms = entry.getValue();
 			if (hasFeature[1]) writer.append(psms.get(0).getSpectrumID() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[2]) writer.append(psms.get(0).getTitle() + Constants.TSV_FILE_SEPARATOR);
+			if (hasFeature[2]) writer.append(psms.get(0).getSpectrumTitle() + Constants.TSV_FILE_SEPARATOR);
 			
 			Set<PeptideHit> allPeptides = new HashSet<PeptideHit>();
 			

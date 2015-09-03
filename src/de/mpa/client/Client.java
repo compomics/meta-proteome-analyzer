@@ -35,6 +35,7 @@ import de.mpa.io.fasta.FastaLoader;
 import de.mpa.job.JobManager;
 import de.mpa.job.ResourceProperties;
 import de.mpa.job.SearchTask;
+import de.mpa.job.instances.SpectraJob;
 
 public class Client {
 
@@ -139,12 +140,20 @@ public class Client {
 		}
 		GenericContainer.FastaLoader = fastaLoader;
 		if (mgfFiles != null) {
-			try {
-				new SearchTask(mgfFiles, settings);
-				JobManager.getInstance().run();
-			} catch (Exception e) {
-				e.printStackTrace();
-				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			JobManager jobManager = JobManager.getInstance();
+			
+			// Parse spectrum titles + add spectrumIds.
+			SpectraJob spectraJob = new SpectraJob(mgfFiles);
+			jobManager.addJob(spectraJob);
+			
+			for (File mgfFile : mgfFiles) {
+				try {
+					new SearchTask(mgfFile, settings);
+					jobManager.run();
+				} catch (Exception e) {
+					e.printStackTrace();
+					JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				}
 			}
 		}
 	}

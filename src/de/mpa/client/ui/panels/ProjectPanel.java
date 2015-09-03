@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -31,7 +30,6 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.thoughtworks.xstream.XStream;
 
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.AbstractProject;
@@ -587,42 +585,6 @@ public class ProjectPanel extends JPanel {
 				AbstractExperiment experiment;
 				experiment = new FileExperiment();
 				experiment.setProject(selectedProject);
-				
-				// special case for file-based experiments
-				if (Client.isViewer()) {
-					// show result file chooser
-					JFileChooser chooser = new JFileChooser();
-					chooser.setAcceptAllFileFilterUsed(false);
-					chooser.setFileFilter(Constants.MPA_FILE_FILTER);
-					chooser.setDialogTitle("Select Result File");
-					int result = chooser.showOpenDialog(clientFrame);
-					if (result == JFileChooser.APPROVE_OPTION) {
-						File resultFile = chooser.getSelectedFile();
-						((FileExperiment) experiment).setResultFile(resultFile);
-						
-						// check whether spectrum file with same name exists
-						String filename = resultFile.getName();
-						File spectrumFile = new File(resultFile.getParentFile(),
-								filename.substring(0, filename.lastIndexOf('.')) + ".mgf");
-						if (!spectrumFile.exists()) {
-							// prompt for spectrum file selection
-							chooser = new JFileChooser(resultFile);
-							chooser.setAcceptAllFileFilterUsed(false);
-							chooser.setFileFilter(Constants.MGF_FILE_FILTER);
-							chooser.setDialogTitle("Select Spectrum File");
-							result = chooser.showOpenDialog(clientFrame);
-							if (result == JFileChooser.APPROVE_OPTION) {
-								spectrumFile = chooser.getSelectedFile();
-							} else {
-								// we'll allow having no spectrum file, for now
-							}
-						}
-						((FileExperiment) experiment).setSpectrumFile(spectrumFile);
-					} else {
-						// no result file selected, abort
-						return;
-					}
-				}
 				
 				// show experiment creation dialog
 				GeneralDialog dialog = new GeneralDialog(DialogType.NEW_EXPERIMENT, experiment);

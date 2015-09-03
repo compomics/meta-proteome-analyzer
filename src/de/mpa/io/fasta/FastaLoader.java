@@ -143,7 +143,7 @@ public class FastaLoader {
 		// No mapping provided.
 		if (acc2pos == null) {
 			// No index file given.
-			if ((indexFile == null) || (file == null)) {
+			if ((indexFile != null) && (file != null)) {
 				return getProteinFromWebService(id);
 			} else {
 				try {

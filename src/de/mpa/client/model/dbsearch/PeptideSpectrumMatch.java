@@ -17,6 +17,11 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	private static final long serialVersionUID = 1L; 
 	
 	/**
+	 * The spectrum file name.
+	 */
+	private String spectrumFilename;
+	
+	/**
 	 * The ion charge.
 	 */
 	private int charge;
@@ -44,6 +49,8 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit) {
 		this.spectrumId = spectrumid;
+		this.spectrumFilename = searchHit.getSpectrumFilename();
+		this.spectrumTitle = searchHit.getSpectrumTitle();
 		this.charge = (int) searchHit.getCharge();
 		this.searchHits = new HashMap<SearchEngineType, SearchHit>();
 		this.searchHits.put(searchHit.getType(), searchHit);
@@ -106,6 +113,14 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 		return charge;
 	}
 	
+	/**
+	 * Returns the spectrum file name.
+	 * @return The spectrum file name.
+	 */
+	public String getSpectrumFilename() {
+		return spectrumFilename;
+	}
+
 	/**
 	 * Returns the votes.
 	 * @return The number of votes for the search engine hits.

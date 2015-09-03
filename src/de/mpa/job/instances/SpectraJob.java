@@ -28,13 +28,15 @@ public class SpectraJob extends Job {
 
 	@Override
 	public void run() {
-		long spectrumCounter = 1;
+		
 		log = Logger.getLogger(getClass());
     	setDescription("INITIALIZE SPECTRA");
+    	int totalSpectra = 0;
     	
 		// Iterate the MGF files.
 		for (File file : files) {
 			try {
+				long spectrumCounter = 0;
 				reader = new MascotGenericFileReader(file);
 				// Get all spectra from the reader.
 				List<MascotGenericFile> spectra = reader.getSpectrumFiles(false);
@@ -45,14 +47,17 @@ public class SpectraJob extends Job {
 					String title = mgf.getTitle().trim();
 					
 					// Fill the cache maps
-					GenericContainer.SpectrumTitle2IdMap.put(title, spectrumCounter);
-					GenericContainer.FileName2IdMap.put(mgf.getFilename(), spectrumCounter++);
-					
+					GenericContainer.SpectrumTitle2IdMap.put(title, ++spectrumCounter);
+					GenericContainer.SpectrumTitle2FilenameMap.put(title, file.getAbsolutePath());
+					totalSpectra++;
 				}
-				GenericContainer.MGFReader = reader;
+				GenericContainer.MGFReaders.put(file.getAbsolutePath(), reader);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		GenericContainer.numberTotalSpectra = totalSpectra;
+		
 	}
 }

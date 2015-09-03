@@ -35,7 +35,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	/**
 	 * The spectrum title.
 	 */
-	protected String title;
+	protected String spectrumTitle;
 	
 	/**
 	 * The start index byte position of the associated spectrum.
@@ -92,16 +92,16 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * Gets the spectrum title.
 	 * @return The spectrum title.
 	 */
-	public String getTitle() {
-		return title;
+	public String getSpectrumTitle() {
+		return spectrumTitle;
 	}
 
 	/**
 	 * Sets the spectrum title.
 	 * @param The spectrum title.
 	 */
-	public void setTitle(String title) {
-		this.title = title;
+	public void setSpectrumTitle(String spectrumTitle) {
+		this.spectrumTitle = spectrumTitle;
 	}
 
 	/**
@@ -198,7 +198,6 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	
 	@Override
 	public void setSelected(boolean selected) {
-		// TODO: propagate selection change to parent peptide(s)
 		this.selected = selected;
 	}
 	

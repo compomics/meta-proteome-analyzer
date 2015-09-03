@@ -17,9 +17,9 @@ import de.mpa.job.scoring.XTandemScoreJob;
 public class SearchTask {
     
 	/**
-	 * List of MGF Files.
+	 * Single MGF file.
 	 */
-	private List<File> mgfFiles;
+	private File mgfFile;
 	
 	/**
 	 * Database search settings.
@@ -29,11 +29,11 @@ public class SearchTask {
     
     /**
      * Runs the searches in one task.
-     * @param mgfFiles
+     * @param mgfFile
      * @param dbSearchSettings
      */
-	public SearchTask(List<File> mgfFiles, DbSearchSettings dbSearchSettings) {
-		this.mgfFiles = mgfFiles;
+	public SearchTask(File mgfFile, DbSearchSettings dbSearchSettings) {
+		this.mgfFile = mgfFile;
 		this.searchSettings = dbSearchSettings;
 		init();
 	}
@@ -42,56 +42,48 @@ public class SearchTask {
 	 * Initializes the task.
 	 */
 	private void init() {
-				
 		JobManager jobManager = JobManager.getInstance();
 		
-		// Parse spectrum titles + add spectrumIds.
-		SpectraJob spectraJob = new SpectraJob(mgfFiles);
-		jobManager.addJob(spectraJob);
-		
-		// Iterate the MGF files.
-		for (File mgfFile : mgfFiles) {
-			// X!Tandem job
-			if (searchSettings.isXTandem()) {
-				searchSettings.setSearchType(SearchType.TARGET);
-				Job xtandemTargetJob = new XTandemJob(mgfFile, searchSettings);
-				jobManager.addJob(xtandemTargetJob);
-				
-				searchSettings.setSearchType(SearchType.DECOY);
-				Job xtandemDecoyJob = new XTandemJob(mgfFile, searchSettings);
-				jobManager.addJob(xtandemDecoyJob);
-				
-				// The score job evaluates X!Tandem target + decoy results
-				Job xTandemScoreJob = new XTandemScoreJob(xtandemTargetJob.getFilename(), xtandemDecoyJob.getFilename());
-				jobManager.addJob(xTandemScoreJob);
-				
-				// Parse the results.
-				ParseJob xTandemParseJob = new ParseJob(SearchEngineType.XTANDEM, xtandemTargetJob.getFilename(), xTandemScoreJob.getFilename());
-				jobManager.addJob(xTandemParseJob);
-				jobManager.addJob(new DeleteJob(xtandemTargetJob.getFilename()));
-			}
+		// X!Tandem job
+		if (searchSettings.isXTandem()) {
+			searchSettings.setSearchType(SearchType.TARGET);
+			Job xtandemTargetJob = new XTandemJob(mgfFile, searchSettings);
+			jobManager.addJob(xtandemTargetJob);
 			
-			// OMSSA job
-			if (searchSettings.isOmssa()) {
-				searchSettings.setSearchType(SearchType.TARGET);
-				Job omssaTargetJob = new OmssaJob(mgfFile, searchSettings);
-				jobManager.addJob(omssaTargetJob);
-				
-				searchSettings.setSearchType(SearchType.DECOY);
-				Job omssaDecoyJob = new OmssaJob(mgfFile, searchSettings);
-				jobManager.addJob(omssaDecoyJob);
-				
-				// The score job evaluates OMSSA target + decoy results
-				Job omssaScoreJob = new OmssaScoreJob(omssaTargetJob.getFilename(), omssaDecoyJob.getFilename());
-				jobManager.addJob(omssaScoreJob);
-				
-				// Parse the results.
-				ParseJob omssaParseJob = new ParseJob(SearchEngineType.OMSSA, omssaTargetJob.getFilename(), omssaScoreJob.getFilename());
-				jobManager.addJob(omssaParseJob);
-				jobManager.addJob(new DeleteJob(omssaParseJob.getFilename()));
-			}
-			jobManager.addJob(new UniProtJob());
-		}	
+			searchSettings.setSearchType(SearchType.DECOY);
+			Job xtandemDecoyJob = new XTandemJob(mgfFile, searchSettings);
+			jobManager.addJob(xtandemDecoyJob);
+			
+			// The score job evaluates X!Tandem target + decoy results
+			Job xTandemScoreJob = new XTandemScoreJob(xtandemTargetJob.getFilename(), xtandemDecoyJob.getFilename());
+			jobManager.addJob(xTandemScoreJob);
+			
+			// Parse the results.
+			ParseJob xTandemParseJob = new ParseJob(SearchEngineType.XTANDEM, xtandemTargetJob.getFilename(), xTandemScoreJob.getFilename());
+			jobManager.addJob(xTandemParseJob);
+			jobManager.addJob(new DeleteJob(xtandemTargetJob.getFilename()));
+		}
+		
+		// OMSSA job
+		if (searchSettings.isOmssa()) {
+			searchSettings.setSearchType(SearchType.TARGET);
+			Job omssaTargetJob = new OmssaJob(mgfFile, searchSettings);
+			jobManager.addJob(omssaTargetJob);
+			
+			searchSettings.setSearchType(SearchType.DECOY);
+			Job omssaDecoyJob = new OmssaJob(mgfFile, searchSettings);
+			jobManager.addJob(omssaDecoyJob);
+			
+			// The score job evaluates OMSSA target + decoy results
+			Job omssaScoreJob = new OmssaScoreJob(omssaTargetJob.getFilename(), omssaDecoyJob.getFilename());
+			jobManager.addJob(omssaScoreJob);
+			
+			// Parse the results.
+			ParseJob omssaParseJob = new ParseJob(SearchEngineType.OMSSA, omssaTargetJob.getFilename(), omssaScoreJob.getFilename());
+			jobManager.addJob(omssaParseJob);
+			jobManager.addJob(new DeleteJob(omssaParseJob.getFilename()));
+		}
+		jobManager.addJob(new UniProtJob());
 	}
 
 }

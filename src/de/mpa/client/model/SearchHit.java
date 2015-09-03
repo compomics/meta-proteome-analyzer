@@ -9,6 +9,8 @@ public interface SearchHit {
 	public String getProteinDescription();
 	public String getAccession();
 	public long getSpectrumId();
+	public String getSpectrumFilename();
+	public String getSpectrumTitle();
 	public double getQvalue();
 	public double getPep();
 	public double getScore();

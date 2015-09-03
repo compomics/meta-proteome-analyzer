@@ -82,7 +82,8 @@ public class OmssaParser extends GenericContainer {
     	    	spectrumTitle = formatSpectrumTitle(spectrumTitle); 
     	    	if(SpectrumTitle2IdMap.get(spectrumTitle) != null) {
           	      	long spectrumId = SpectrumTitle2IdMap.get(spectrumTitle);
-          		  	
+          	      	String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
+          	      	  
           	        Double qValue = 1.0;
     	            Double pep = 1.0;
         	    	if (validatedPSMScores != null) {
@@ -93,9 +94,11 @@ public class OmssaParser extends GenericContainer {
         	    	    } 
         	    	}
 	    	    	
-					if (qValue < 0.1) {
+					if (qValue < 0.05) {
 						OmssaHit hit = new OmssaHit();
 						hit.setSpectrumId(spectrumId);
+						hit.setSpectrumFilename(spectrumFilename);
+						hit.setSpectrumTitle(spectrumTitle);
 						
 						// Get the MSPepHit (for the accession)
 						List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;

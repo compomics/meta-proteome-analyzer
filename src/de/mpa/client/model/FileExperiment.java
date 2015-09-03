@@ -44,9 +44,9 @@ public class FileExperiment extends AbstractExperiment {
 	private File resultFile = null;
 	
 	/**
-	 * The spectrum file.
+	 * The spectrum files.
 	 */
-	private File spectrumFile;
+	private List<File> spectrumFiles;
 	
 	/**
 	 * The search result object.
@@ -93,16 +93,16 @@ public class FileExperiment extends AbstractExperiment {
 	 * Returns the spectrum file.
 	 * @return the spectrum file
 	 */
-	public File getSpectrumFile() {
-		return spectrumFile;
+	public List<File> getSpectrumFiles() {
+		return spectrumFiles;
 	}
 	
 	/**
-	 * Sets the spectrum file.
-	 * @param spectrumFile the spectrum file to set
+	 * Sets the spectrum files.
+	 * @param spectrumFiles the spectrum files to set
 	 */
-	public void setSpectrumFile(File spectrumFile) {
-		this.spectrumFile = spectrumFile;
+	public void setSpectrumFiles(List<File> spectrumFiles) {
+		this.spectrumFiles = spectrumFiles;
 	}
 	
 	@Override
@@ -150,7 +150,7 @@ public class FileExperiment extends AbstractExperiment {
 				}
 				
 				// Determine total spectral count.
-				searchResult.setTotalSpectrumCount(GenericContainer.SpectrumTitle2IdMap.size());
+				searchResult.setTotalSpectrumCount(GenericContainer.numberTotalSpectra);
 
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 				this.searchResult = searchResult;

@@ -17,6 +17,8 @@ public class XTandemHit implements SearchHit, Serializable {
 	private String proteinSequence;
 	private String proteinDescription;
 	private long spectrumId;
+	private String spectrumFilename;
+	private String spectrumTitle;
 	private double score;
 	private int charge;
 	private double qValue;
@@ -110,5 +112,23 @@ public class XTandemHit implements SearchHit, Serializable {
 
 	public void setProteinDescription(String proteinDescription) {
 		this.proteinDescription = proteinDescription;
+	}
+
+	@Override
+	public String getSpectrumFilename() {
+		return spectrumFilename;
+	}
+
+	public void setSpectrumFilename(String spectrumFilename) {
+		this.spectrumFilename = spectrumFilename;
+	}
+
+	@Override
+	public String getSpectrumTitle() {
+		return spectrumTitle;
+	}
+
+	public void setSpectrumTitle(String spectrumTitle) {
+		this.spectrumTitle = spectrumTitle;
 	}
 }

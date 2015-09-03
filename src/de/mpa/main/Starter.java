@@ -64,9 +64,6 @@ public class Starter {
 	/**
 	 * This method sets the look&feel for the application.
 	 */
-	/**
-	 * This method sets the look&feel for the application.
-	 */
 	private static void setLookAndFeel() {
 		try {
 			// Read theme configuration files

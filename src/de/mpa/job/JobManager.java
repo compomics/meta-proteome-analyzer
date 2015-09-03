@@ -62,7 +62,7 @@ public class JobManager implements Runnable {
 	 */
 	public void run() {
 		// Iterate the job queue
-		for (Job job : jobQueue) {			
+		for (Job job : jobQueue) {		
 			job.run();
 			// Remove job from the queue after successful execution.
 			jobQueue.remove(job);

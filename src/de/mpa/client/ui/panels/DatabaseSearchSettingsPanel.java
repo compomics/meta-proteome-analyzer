@@ -437,20 +437,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protected Integer doInBackground() {
 
 			try {
-            	File[] files = fastaFile.getParentFile().listFiles();
-            	boolean formatTargetFile = true;
-            	boolean formatDecoyFile = true;
-            	String filePath = "";
-            	for (File file : files) {
-            	    if (file.isFile()) {
-            	    	filePath += file.getAbsolutePath();
-            	    }
-            	}
-
-            	// Check for all file endings.
-    	    	if (filePath.contains(fastaFile.getName() + ".phr") && filePath.contains(fastaFile.getName() + ".pin") && filePath.contains(fastaFile.getName() + ".psq")) {
-    	    		formatTargetFile = false;
-    	    	}
+            	boolean formatTargetFile = checkForFormatting(fastaFile);
+            	boolean formatDecoyFile = checkForFormatting(decoyFastaFile);
 
             	if (formatTargetFile) {
             		client.firePropertyChange("indeterminate", false, true);
@@ -458,20 +446,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             		formatTargetJob.run();
             		client.firePropertyChange("new message", null, "FORMATTING TARGET FASTA FILE");
             	}
-	    		
-	         	files = decoyFastaFile.getParentFile().listFiles();
-            	filePath = "";
-            	for (File file : files) {
-            	    if (file.isFile()) {
-            	       	filePath += file.getAbsolutePath();
-            	    }
-            	}
-            	
-            	// Check for all file endings.
-    	    	if (filePath.contains(decoyFastaFile.getName() + ".phr") && filePath.contains(decoyFastaFile.getName() + ".pin") && filePath.contains(decoyFastaFile.getName() + ".psq")) {
-    	    		formatDecoyFile = false;
-    	    	}
-            	
+	            	
             	if (formatDecoyFile) {
             		client.firePropertyChange("indeterminate", false, true);
             		MakeBlastdbJob formatDecoyJob = new MakeBlastdbJob(decoyFastaFile);
@@ -489,6 +464,39 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	    		return 0;
 			}
 			return 1;
+		}
+
+		private boolean checkForFormatting(File fastaFile) {
+			File[] files = fastaFile.getParentFile().listFiles();
+			String name = fastaFile.getName();
+			boolean formatFile = true;
+			boolean phr;
+			boolean pin;
+			boolean psq;
+			// Find all three processed files.
+			phr = false;
+			pin = false;
+			psq = false;
+			
+			for (File file : files) {
+			    if (file.isFile()) {
+			    	String fileName = file.getName();
+			        if (fileName.startsWith(name) && fileName.endsWith(".phr")) {
+			            phr = true;
+			        }
+			        if (fileName.startsWith(name) && fileName.endsWith(".pin")) {
+			        	pin = true;
+			        }
+			        if (fileName.startsWith(name) && fileName.endsWith(".psq")) {
+			        	psq = true;
+			        }
+			    	
+			    }
+			}
+			if (phr && pin && psq) {
+				formatFile = false;
+			}
+			return formatFile;
 		}
 	
 		@Override

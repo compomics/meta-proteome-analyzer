@@ -1838,7 +1838,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Read spectrum from MGF file accompanying imported result object, if possible
 			
 			try {
-				mgf = readSpectrumFromFile((int) psm.getSpectrumID());
+				mgf = readSpectrumFromFile(psm.getSpectrumFilename(), (int) psm.getSpectrumID());
 				spectrumPnl.refreshSpectrum(mgf, sequence);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -1855,8 +1855,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
 	 * @throws IOException 
 	 */
-	public MascotGenericFile readSpectrumFromFile(int index) throws IOException {
-		return GenericContainer.MGFReader.loadSpectrum(index - 1);
+	public MascotGenericFile readSpectrumFromFile(String filename, int index) throws IOException {
+		File mgfFile = new File(filename);
+		MascotGenericFileReader currentReader = GenericContainer.MGFReaders.get(mgfFile.getAbsolutePath());
+		return currentReader.loadSpectrum(index - 1);
 	}
 	
 	/**
@@ -2061,21 +2063,27 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}			
 				Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES FINISHED");
 				FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-				String pathname = selectedExperiment.getSpectrumFile().getAbsolutePath();
-				
-				// Check if reader already has the current experiment selected.
-				if (GenericContainer.MGFReader == null || !selectedExperiment.getSpectrumFile().getName().equals(GenericContainer.MGFReader.getFilename())) {
-					Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA");
-					try {
-						GenericContainer.MGFReader = new MascotGenericFileReader(new File(pathname));
-						GenericContainer.SpectrumPosMap.put(pathname, GenericContainer.MGFReader.getSpectrumPositions(false));
-						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FINISHED");
-						GenericContainer.MGFReader.setSpectrumPositions(GenericContainer.SpectrumPosMap.get(pathname));
-					} catch (IOException e) {
-						e.printStackTrace();
-						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FAILED");
+				List<File> spectrumFiles = selectedExperiment.getSpectrumFiles();
+				for (File file : spectrumFiles) {
+					String pathname = file.getAbsolutePath();
+					// Check if reader already has the current experiment selected.
+					if (GenericContainer.MGFReaders.get(pathname) == null || !file.getName().equals(GenericContainer.MGFReaders.get(pathname).getFilename())) {
+						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA");
+						try {
+							MascotGenericFileReader mgfReader = new MascotGenericFileReader(new File(pathname));
+							GenericContainer.SpectrumPosMap.put(pathname, mgfReader.getSpectrumPositions(false));
+							Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FINISHED");
+							mgfReader.setSpectrumPositions(GenericContainer.SpectrumPosMap.get(pathname));
+							GenericContainer.MGFReaders.put(pathname, mgfReader);
+						} catch (IOException e) {
+							e.printStackTrace();
+							Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FAILED");
+						}
 					}
 				}
+				
+				
+				
 			}
 		}
 

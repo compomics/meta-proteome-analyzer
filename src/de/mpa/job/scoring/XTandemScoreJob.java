@@ -29,7 +29,7 @@ public class XTandemScoreJob extends Job {
 		// Set the description
 		filename = new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out";
 		setFilename(filename);
-		setDescription("X!TANDEM QVALUES");
+		setDescription("X!Tandem FDR/q-Value calculation");
 	}
 	
 	/**

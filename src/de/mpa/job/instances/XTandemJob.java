@@ -68,7 +68,6 @@ public class XTandemJob extends Job {
 			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 			buildTaxonomyFile();
 			buildInputFile();
-			
 		} else if (searchType == SearchType.DECOY) {
 			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
 			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";

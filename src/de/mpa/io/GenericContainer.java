@@ -27,9 +27,9 @@ public class GenericContainer {
 	public static HashMap<String, Long> SpectrumTitle2IdMap = new HashMap<String, Long>();
 
 	/**
-	 * Map from spectrum file name to spectrum id.
+	 * Map from spectrum title to spectrum file name.
 	 */
-	public static HashMap<String, Long> FileName2IdMap = new HashMap<String, Long>();
+	public static HashMap<String, String> SpectrumTitle2FilenameMap = new HashMap<String, String>();
 	
 	/**
 	 * Mapping from the spectrum to the byte positions.
@@ -47,9 +47,14 @@ public class GenericContainer {
 	public static List<SearchHit> SearchHits = new ArrayList<SearchHit>();
 	
 	/**
+	 * Number of total spectra.
+	 */
+	public static int numberTotalSpectra;
+	
+	/**
 	 * Current open MGFReader instance.
 	 */
-	public static MascotGenericFileReader MGFReader;
+	public static Map<String, MascotGenericFileReader> MGFReaders = new HashMap<String, MascotGenericFileReader>();
 
 	/**
 	 * Logger object for the storage classes.
