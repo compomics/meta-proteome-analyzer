@@ -2,7 +2,7 @@
   <queries>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
-MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO]-&gt;(taxa)-[:IS_ANCESTOR_OF*..6]-&gt;(parent)
+MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO_TAXONOMY]-&gt;(taxa)-[:IS_ANCESTOR_OF*..6]-&gt;(parent)
 WHERE (parent.Rank = &apos;Phylum&apos;)
 RETURN ontologies, parent, proteins</statement>
       <custom>true</custom>
@@ -10,7 +10,7 @@ RETURN ontologies, parent, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
-MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO]-&gt;(taxa)-[:IS_ANCESTOR_OF*..3]-&gt;(parent)
+MATCH (ontologies)&lt;-[rel:INVOLVED_IN_BIOPROCESS]-(proteins)-[:BELONGS_TO_TAXONOMY]-&gt;(taxa)-[:IS_ANCESTOR_OF*..3]-&gt;(parent)
 WHERE (parent.Rank = &apos;Family&apos;)
 RETURN ontologies, parent, proteins</statement>
       <custom>true</custom>
@@ -18,7 +18,7 @@ RETURN ontologies, parent, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
-MATCH (ontologies)&lt;-[rel:BELONGS_TO_CELL_COMP]-(proteins)-[:BELONGS_TO]-&gt;(taxa)-[:IS_ANCESTOR_OF*..6]-&gt;(parent)
+MATCH (ontologies)&lt;-[rel:BELONGS_TO_CELL_COMP]-(proteins)-[:BELONGS_TO_TAXONOMY]-&gt;(taxa)-[:IS_ANCESTOR_OF*..6]-&gt;(parent)
 WHERE (parent.Rank = &apos;Phylum&apos;)
 RETURN ontologies, parent, proteins</statement>
       <custom>true</custom>
@@ -26,7 +26,7 @@ RETURN ontologies, parent, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
-MATCH (ontologies)&lt;-[rel:BELONGS_TO_CELL_COMP]-(proteins)-[:BELONGS_TO]-&gt;(taxa)-[:IS_ANCESTOR_OF*..2]-&gt;(parent)
+MATCH (ontologies)&lt;-[rel:BELONGS_TO_CELL_COMP]-(proteins)-[:BELONGS_TO_TAXONOMY]-&gt;(taxa)-[:IS_ANCESTOR_OF*..2]-&gt;(parent)
 WHERE (parent.Rank = &apos;Genus&apos;)
 RETURN ontologies, parent, proteins</statement>
       <custom>true</custom>
@@ -34,7 +34,7 @@ RETURN ontologies, parent, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
-MATCH (ontologies)&lt;-[rel:HAS_MOLECULAR_FUNCTION]-(proteins)-[:BELONGS_TO]-&gt;(taxa)-[:IS_ANCESTOR_OF*..6]-&gt;(parent)
+MATCH (ontologies)&lt;-[rel:HAS_MOLECULAR_FUNCTION]-(proteins)-[:BELONGS_TO_TAXONOMY]-&gt;(taxa)-[:IS_ANCESTOR_OF*..6]-&gt;(parent)
 WHERE (parent.Rank = &apos;Phylum&apos;)
 RETURN ontologies, parent, proteins</statement>
       <custom>true</custom>
@@ -42,7 +42,7 @@ RETURN ontologies, parent, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START ontologies = node:Ontologies(&quot;Identifier:*&quot;)
-MATCH (ontologies)&lt;-[rel:HAS_MOLECULAR_FUNCTION]-(proteins)-[:BELONGS_TO]-&gt;(taxa)-[:IS_ANCESTOR_OF*..4]-&gt;(parent)
+MATCH (ontologies)&lt;-[rel:HAS_MOLECULAR_FUNCTION]-(proteins)-[:BELONGS_TO_TAXONOMY]-&gt;(taxa)-[:IS_ANCESTOR_OF*..4]-&gt;(parent)
 WHERE (parent.Rank = &apos;Order&apos;)
 RETURN ontologies, parent, proteins</statement>
       <custom>true</custom>
@@ -50,7 +50,7 @@ RETURN ontologies, parent, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..8]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..8]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Superkingdom&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
@@ -58,7 +58,7 @@ RETURN parent, taxa, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..7]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..7]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Kingdom&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
@@ -66,7 +66,7 @@ RETURN parent, taxa, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..6]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..6]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Phylum&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
@@ -74,7 +74,7 @@ RETURN parent, taxa, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..5]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..5]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Class&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
@@ -82,7 +82,7 @@ RETURN parent, taxa, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..4]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..4]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Order&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
@@ -90,7 +90,7 @@ RETURN parent, taxa, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..3]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..3]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Family&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
@@ -98,7 +98,7 @@ RETURN parent, taxa, proteins</statement>
     </de.mpa.graphdb.cypher.CypherQuery>
     <de.mpa.graphdb.cypher.CypherQuery>
       <statement>START taxa = node:Taxa(&quot;Identifier:*&quot;)
-MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..2]-(taxa)&lt;-[rel:BELONGS_TO]-(proteins)
+MATCH (parent)&lt;-[:IS_ANCESTOR_OF*..2]-(taxa)&lt;-[rel:BELONGS_TO_TAXONOMY]-(proteins)
 WHERE (parent.Rank = &apos;Genus&apos;)
 RETURN parent, taxa, proteins</statement>
       <custom>true</custom>
