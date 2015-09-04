@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,34 +283,32 @@ public class UniProtUtilities {
 		if (identifierList !=null && identifierList.size()>0) {
 			// Logging
 			//TODO Client is here not known because this happens on level of the server, thus this may throws an null pointer exception...
-			// however search for a prober solution would be benefical
+			// however search for a proper solution would be benefical
 			if (identifierList != null) {
-//				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT FOR " + identifierList.size() + " ENTRIES");
-//				Client.getInstance().firePropertyChange("resetall", -1L, (long) identifierList.size());
-//				Client.getInstance().firePropertyChange("resetcur", -1L, (long) identifierList.size());
+				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT FOR " + identifierList.size() + " ENTRIES");
+				Client.getInstance().firePropertyChange("resetall", -1L, (long) identifierList.size());
+				Client.getInstance().firePropertyChange("resetcur", -1L, (long) identifierList.size());
 
 				// Query UniProt
 				Query query = UniProtQueryBuilder.buildIDListQuery(identifierList);
 				EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-
+				
 				// Iterate the entries and add them to the list. 
 				for (UniProtEntry entry : entryIterator) {
 					ReducedProteinData proteinData;			
 					String accession = entry.getPrimaryUniProtAccession().getValue();
-					//						System.out.println("  Querying UniProtEntry for " + accession + ".");
 					if (doUniRefRetrieval) {
 						// Get the protein data + uniRef entry 
-
 						proteinData = getUniRefByUniProtAcc(accession);
 					} else {
 						proteinData = new ReducedProteinData(entry);
 					}
 					uniprotEntries.put(accession, proteinData);
-//					Client.getInstance().firePropertyChange("progressmade", false, true);
+					Client.getInstance().firePropertyChange("progressmade", false, true);
+//					System.out.println(entry.getOrganism());
 				}	
-//				Client.getInstance().firePropertyChange("new message", null, "FINISHED UNIPROT QUERY");
+				Client.getInstance().firePropertyChange("new message", null, "FINISHED UNIPROT QUERY");
 			}
-		}else {
 		}
 
 
@@ -539,6 +538,7 @@ public class UniProtUtilities {
 		Set<Long> unlinkedProteins = new HashSet<Long>();
 		for (Long ID : proteins) {
 			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(ID, conn);
+			// TODO Needs a check for corrupted uniprot entries (for instance because of missing taxonomy information)
 			if (uniprotentry == null) {
 				unlinkedProteins.add(ID);
 			}
@@ -632,7 +632,7 @@ public class UniProtUtilities {
 	 * @throws SQLException
 	 */
 	public static void fetchEmptyUniProtEntries(Map<String, String> accessionsMap) throws SQLException {
-
+		
 		if (!accessionsMap.isEmpty()) {
 			// Protein map
 			Map<String, ReducedProteinData> proteinDataMap;
@@ -643,10 +643,9 @@ public class UniProtUtilities {
 			for (Entry<String, String> queryAccessions : accessionsMap.entrySet()) {
 				accessionsList.add(queryAccessions.getValue());
 			}
-			//				System.out.println("Querying UniProt for " + accessionsList.size() + " entries.");
 			// Query uniprot for entries
+			Client.getInstance().firePropertyChange("new message", null, "PREPARING " + accessionsList.size() + " UNIPROT QUERIES.");
 			proteinDataMap = UniProtUtilities.retrieveProteinData(accessionsList, true);
-			//				System.out.println("Query successful.");
 			// Backmapping and adding of the UniProt entries
 			int counter = 0;
 			if (proteinDataMap != null) {

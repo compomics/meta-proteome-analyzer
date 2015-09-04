@@ -5,9 +5,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -15,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -28,6 +34,7 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
@@ -46,6 +53,11 @@ import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.dialogs.NewBlastDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
+import de.mpa.db.accessor.Mascothit;
+import de.mpa.db.accessor.Omssahit;
+import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.SearchHit;
+import de.mpa.db.accessor.XTandemhit;
 
 /**
  * Panel for displaying, manipulating and selecting available projects and the
@@ -140,6 +152,11 @@ public class ProjectPanel extends JPanel {
 	private JButton blastBtn;
 
 	/**
+	 * The 'Query Uniprot' button
+	 */
+	private JButton uniBtn;
+	
+	/**
 	 * Constructs a panel containing components for selecting and configuring
 	 * projects and experiments as part of the search pipeline.
 	 */
@@ -182,8 +199,13 @@ public class ProjectPanel extends JPanel {
 		
 		JXTitledPanel expTtlPnl = PanelConfig.createTitledPanel("Experiments", experimentPnl);
 		
+		// action button row
+		JPanel actPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p, 5dlu, r:p",
+				"b:p:g"));
+		
 		// tab button row
-		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p:g, 5dlu, r:p:g, 5dlu, r:p, 5dlu, r:p", "b:p:g"));
+		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p, 5dlu, r:p",
+				"b:p:g"));
 		
 		skipBtn = ClientFrame.getInstance().createNavigationButton(true, false);
 		skipBtn.setText("Results");
@@ -224,15 +246,52 @@ public class ProjectPanel extends JPanel {
 				new NewBlastDialog(ClientFrame.getInstance(), "Blast Unlinked Results", getSelectedExperiment());
 			}
 		});
+
+		// query uniprot button
+		uniBtn = new JButton("Query Uniprot", IconConstants.SEARCH_DB_ICON);
+		uniBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
+		uniBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
+		uniBtn.setEnabled(false);
+		uniBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground() throws SQLException  {
+						// find all proteins in the experiment and pass them on
+						
+						// gather all proteins from the experiment
+						Set<Long> proteins = new HashSet<Long>();
+						Connection conn = Client.getInstance().getConnection();
+						Long expID = getSelectedExperiment().getID();
+						List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(expID, conn);
+						List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, conn);
+						List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, conn);
+						List<SearchHit> hits = new ArrayList<SearchHit>();
+						hits.addAll(mascotHits);
+						hits.addAll(xtandemHits);
+						hits.addAll(omssaHits);
+						for (SearchHit hit : hits) {
+							ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
+							proteins.add(aProt.getProteinid());
+						}
+						UniProtUtilities.updateUniProtEntries(proteins, null, null, 0, false);
+						return null;
+					}	
+				}.execute();
+			}
+		});
 		
-		navPnl.add(blastBtn, CC.xy(1, 1));
-		navPnl.add(specBtn, CC.xy(3, 1));
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, false), CC.xy(5, 1));
-		navPnl.add(skipBtn, CC.xy(7, 1));
-		navPnl.add(nextBtn, CC.xy(9, 1));
+		actPnl.add(blastBtn, CC.xy(1, 1));
+		actPnl.add(uniBtn, CC.xy(3, 1));
+		actPnl.add(specBtn, CC.xy(5, 1));
+		
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, false), CC.xy(1, 1));
+		navPnl.add(skipBtn, CC.xy(3, 1));
+		navPnl.add(nextBtn, CC.xy(5, 1));
 
 		this.add(projTtlPnl, CC.xy(2, 2));
 		this.add(expTtlPnl, CC.xy(4, 2));
+		this.add(actPnl, CC.xy(2, 4));
 		this.add(navPnl, CC.xy(4, 4));
 	}
 
@@ -541,6 +600,7 @@ public class ProjectPanel extends JPanel {
 				deleteExperimentBtn.setEnabled(true);
 				specBtn.setEnabled(true);
 				blastBtn.setEnabled(true);
+				uniBtn.setEnabled(true);
 				
 				clientFrame.getResultsPanel().setProcessingEnabled(false);
 				
