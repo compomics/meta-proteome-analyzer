@@ -444,16 +444,7 @@ public class ComparePanel extends JPanel {
 								// get value from model
 								Object value = model.getValueAt(row, col);
 								if (value != null) {
-									if (value instanceof String) {
-										bw.append(value.toString());
-									} else {
-										List<Hit> hitList = (List<Hit>) value;
-										if (exportNumbers) {
-											bw.append("" + hitList.size());
-										} else {
-											bw.append(hitList.toString());
-										}
-									}
+									bw.append(value.toString());
 								} else {
 									if (exportNumbers) {
 										bw.append("" + 0);
