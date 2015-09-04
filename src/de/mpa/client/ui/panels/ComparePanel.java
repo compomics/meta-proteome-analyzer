@@ -151,6 +151,26 @@ public class ComparePanel extends JPanel {
 		final JXTable experimentTbl = new ListTable("Click here to add an experiment...");
 		experimentTbl.setHorizontalScrollEnabled(true);
 		
+		@SuppressWarnings("serial")
+		class MyTableCellRenderer extends JLabel implements TableCellRenderer {
+
+		    public Component getTableCellRendererComponent(JTable table, Object value,
+		            boolean isSelected, boolean hasFocus, int rowIndex, int vColIndex) {
+
+		    	if (value instanceof ProjectExperiment) {
+					ProjectExperiment exp = (ProjectExperiment) value;
+					setText(exp.getTitle());
+					setFont(new Font("Dialog", Font.PLAIN, 12));
+				}else {
+					setText((String) value);
+				}
+				return this;
+		    };
+		    
+		}
+		
+		experimentTbl.getColumnModel().getColumn(0).setCellRenderer(new MyTableCellRenderer());
+		
 		experimentTbl.getSelectionModel().addListSelectionListener(
 				new ExperimentTableHandler(experimentTbl));
 
@@ -728,24 +748,11 @@ public class ComparePanel extends JPanel {
 			ComparePanelTableModel model = new ComparePanelTableModel(dataMap, experiments);
 			final JXTable compareTbl = (JXTable) comparePane.getViewport().getView();
 			compareTbl.setModel(model);
+			compareTbl.setAutoCreateRowSorter(true);
 			
-			TableSortController<TableModel> sorter = new TableSortController<TableModel>(model) {
-				RowSorter<? extends TableModel> delegate = compareTbl.getRowSorter();
-				
-				@Override
-				public int convertRowIndexToModel(int viewIndex) {
-					return delegate.convertRowIndexToModel(viewIndex);
-				}
-				
-				@Override
-				public int convertRowIndexToView(int modelIndex) {
-					return delegate.convertRowIndexToView(modelIndex);
-				}
-			};
 			compareTbl.getColumn("Description").setMinWidth(100);
 			compareTbl.getColumn("Description").setMaxWidth(500);
 			
-			compareTbl.setRowSorter(sorter);
 			compareTbl.packAll();
 			compareTbl.repaint();
 		}
