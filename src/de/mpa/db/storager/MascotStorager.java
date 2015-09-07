@@ -201,6 +201,9 @@ public class MascotStorager extends BasicStorager {
 		// Check whether protein was already stored in DB
 		Map<String, Long> alreadyStoredProteins = new TreeMap<String, Long>();
 		
+		// disable mysql autocommit to speed up batch INSERTs
+		conn.setAutoCommit(false);
+		
 		for (Query query : queryList) {
 			Vector<PeptideHit> peptideHitsFromQuery = queryToPeptideMap.getPeptideHitsAboveIdentityThreshold(query.getQueryNumber(), 0.05);
 			if (peptideHitsFromQuery != null) {
@@ -281,6 +284,7 @@ public class MascotStorager extends BasicStorager {
 			client.firePropertyChange("progressmade", 0L, 1L);
 		}
 		conn.commit();
+		conn.setAutoCommit(true);
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
 		
 		// retrieve UniProt entries
