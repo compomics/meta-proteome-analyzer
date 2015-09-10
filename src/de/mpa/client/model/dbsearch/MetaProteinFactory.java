@@ -556,6 +556,7 @@ public class MetaProteinFactory {
 		TaxonomyUtils.determineMetaProteinTaxonomy(result.getMetaProteins(), params);
 		
 		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
+		System.out.println(result.getMetaProteins().size());
 	}
 	
 	/**

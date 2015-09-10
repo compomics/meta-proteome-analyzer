@@ -56,7 +56,10 @@ public class ResultParameters extends ParameterMap {
 		this.put("clusterRule", new OptionParameter(ClusterRule.getValues(), 0, null, null, "General"));
 		this.put("taxonomyRule", new OptionParameter(TaxonomyRule.getValues(), 0, null, null, "General"));
 		// visible component
-		this.put("metaProteinGeneration", new MetaProteinParameters("Meta-Protein Generation"));
+		MetaProteinParameters metaParams = new MetaProteinParameters("Meta-Protein Generation");
+		this.put("metaProteinGeneration", metaParams);
+		metaParams.createLeftComponent();
+		metaParams.applyChanges();
 	}
 
 	@Override
