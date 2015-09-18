@@ -3,18 +3,23 @@ package de.mpa.graphdb.io;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 
 import de.mpa.client.Client;
 import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.graphdb.cypher.CypherQueryFactory;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
+import de.mpa.graphdb.nodes.MetaProtein;
 import de.mpa.graphdb.properties.ExperimentProperty;
 
 public class ExperimentComparison {
@@ -45,6 +50,11 @@ public class ExperimentComparison {
 	private List<AbstractExperiment> experiments;
 	
 	/**
+	 * Concatenated list of metaproteins.
+	 */
+	private ProteinHitList metaproteins;
+	
+	/**
 	 * Data map.
 	 */
 	private Map<String, Long[]> dataMap;
@@ -54,8 +64,9 @@ public class ExperimentComparison {
 	 */
 	private Client client = Client.getInstance();
 	
-	public ExperimentComparison(List<AbstractExperiment> experiments, GraphDatabaseHandler graphHandler, ChartType typeLevel, HierarchyLevel countLevel) {
+	public ExperimentComparison(List<AbstractExperiment> experiments, ProteinHitList metaprot, GraphDatabaseHandler graphHandler, ChartType typeLevel, HierarchyLevel countLevel) {
 		this.experiments = experiments;
+		this.metaproteins = metaprot;
 		this.graphHandler = graphHandler;
 		this.typeLevel = typeLevel;
 		this.countLevel = countLevel;
@@ -126,6 +137,33 @@ public class ExperimentComparison {
 					// Entity node.
 					if (node.hasProperty("Identifier")) {
 						Object key = node.getProperty("Identifier");
+						if (key.toString().startsWith("Meta-Protein")) {
+							key = node.getProperty("Description");
+							String metaKey = key.toString();
+							for (ProteinHit prot : metaproteins) {
+								// Fetch additional metaprotein information from the result object
+								if (prot.getDescription().equals(metaKey)) {
+									StringBuilder build = new StringBuilder(
+											"MP|"
+											+ metaKey
+											+ "|"
+											+ prot.getTaxonomyNode()
+													.getName() + "|");
+									for (String str : prot.getUniProtEntry()
+											.getEcNumbers()) {
+										build.append(str + ";");
+									}
+									build.deleteCharAt(build.length() - 1);
+									build.append("|");
+									for (String str : prot.getUniProtEntry()
+											.getKNumbers()) {
+										build.append(str + ";");
+									}
+									build.deleteCharAt(build.length() - 1);
+									key = build.toString();
+								}
+							}
+						}
 						Long[] countList;
 						
 						if (dataMap.get(key) != null) {

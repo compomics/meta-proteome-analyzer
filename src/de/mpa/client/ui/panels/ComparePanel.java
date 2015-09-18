@@ -77,6 +77,7 @@ import de.mpa.client.model.ProjectExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
+import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
@@ -681,6 +682,11 @@ public class ComparePanel extends JPanel {
 		 * ExperimentComparison instance.
 		 */
 		private ExperimentComparison expComparison;
+		
+		/**
+		 * The complete metaprotein list of all experiments.
+		 */
+		private ProteinHitList metaProtList;
 
 		/**
 		 * Constructs a compare worker from the specified list of experiments to be compared.
@@ -701,15 +707,17 @@ public class ComparePanel extends JPanel {
 				
 				final GraphDatabaseHandler graphDatabaseHandler = client.getGraphDatabaseHandler();
 				// Iterate the experiments.
+				metaProtList = new ProteinHitList();
 				for (AbstractExperiment experiment : experiments) {
 					DbSearchResult dbSearchResult = experiment.getSearchResult();
 					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, metaParams);
 					dbSearchResult.setRaw(false);
 					graphDatabaseHandler.setData(dbSearchResult);
+					metaProtList.addAll(dbSearchResult.getMetaProteins());
 				}
 				
 				// Compare the experiments.
-				expComparison = new ExperimentComparison(experiments, graphDatabaseHandler, this.chartType, this.countLevel);
+				expComparison = new ExperimentComparison(experiments, metaProtList, graphDatabaseHandler, this.chartType, this.countLevel);
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -751,7 +759,6 @@ public class ComparePanel extends JPanel {
 			compareTbl.setAutoCreateRowSorter(true);
 			
 			compareTbl.getColumn("Description").setMinWidth(100);
-			compareTbl.getColumn("Description").setMaxWidth(500);
 			
 			compareTbl.packAll();
 			compareTbl.repaint();
