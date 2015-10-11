@@ -19,7 +19,7 @@ public interface Protein extends VertexFrame {
 	@Property("DESCRIPTION")
 	public String getDescription();
 	
-	@Adjacency(label="BELONGS_TO", direction=Direction.OUT)
+	@Adjacency(label="BELONGS_TO_TAXONOMY", direction=Direction.OUT)
 	public Iterable<Taxon> getTaxa();
 	
 	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.OUT)

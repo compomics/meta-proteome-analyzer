@@ -154,10 +154,10 @@ public class GraphDatabaseHandler {
 		
 		// Add meta-proteins for processed results
 		if (!data.isRaw()) {
-			ProteinHitList metaProteins = data.getMetaProteins();
+			List<ProteinHit> metaProteins = data.getProteinHitList();
 			client.firePropertyChange("resetall", -1L, Long.valueOf(metaProteins.size()));
 			for (ProteinHit proteinHit : metaProteins) {
-				MetaProteinHit metaProtein = (MetaProteinHit) proteinHit;
+				MetaProteinHit metaProtein = proteinHit.getMetaProteinHit();
 				// Only add "real" meta-proteins to the list
 				if (metaProtein.getProteinHitList().size() > 0)
 					this.addMetaprotein(metaProtein);
@@ -256,7 +256,7 @@ public class GraphDatabaseHandler {
 			Iterator<Vertex> proteinIterator = proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();
 			if (proteinIterator.hasNext()) {
 				proteinVertex = proteinIterator.next();
-			} 
+			}
 			
 			// Case 1: The protein already belongs to a meta-protein (from another experiment).
 			Iterator<Edge> edgesIterator = proteinVertex.getEdges(Direction.IN, "IS_METAPROTEIN_OF").iterator();
@@ -327,8 +327,10 @@ public class GraphDatabaseHandler {
 		Vertex parentVertex = null;	
 		// Add complete taxonomy path.
 		TaxonomyNode[] path = childNode.getPath();
-		for (TaxonomyNode pathNode : path) {
-			String taxon = pathNode.toString();
+		StringBuilder builder = new StringBuilder();
+		for (int i = path.length-2; i >= 0; i--) {
+			String taxon = path[i].toString();
+			builder.append(path[i].toString()+" :: ");
 			Iterator<Vertex> iterator = taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), taxon).iterator();
 			if (iterator.hasNext()) {
 				parentVertex = iterator.next();
@@ -336,15 +338,17 @@ public class GraphDatabaseHandler {
 				// Create new vertex.
 				parentVertex = graph.addVertex(null);
 				parentVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), taxon);
-				parentVertex.setProperty(TaxonProperty.TAXID.toString(), pathNode.getID());
-				parentVertex.setProperty(TaxonProperty.RANK.toString(), pathNode.getRank().toString());
+				parentVertex.setProperty(TaxonProperty.TAXID.toString(), path[i].getID());
+				parentVertex.setProperty(TaxonProperty.RANK.toString(), path[i].getRank().toString());
 				// Index the species by the species name.
 				taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), taxon, parentVertex);
 			}		
 			// Add edge between parent and child vertex
 			addEdge(parentVertex, childVertex, RelationType.IS_ANCESTOR_OF);
+//			System.out.println(parentVertex.getProperty("Rank")+"-[:IS_ANCESTOR_OF]->"+childVertex.getProperty("Rank"));
 			childVertex = parentVertex;
 		}
+//		System.out.println(builder.toString());
 	}
 	
 	/**

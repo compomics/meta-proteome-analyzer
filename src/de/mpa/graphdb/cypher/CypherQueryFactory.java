@@ -305,8 +305,8 @@ public class CypherQueryFactory {
 	 * @return CypherQuery instance.
 	 */
 	public static CypherQuery getTaxonomyWithCountsByExperiments(String countIdentifier, String rank) {
-		return new CypherQuery("START taxa = node:Taxa(\"Identifier:*\")" + 
-							   "MATCH (parent)<-[:IS_ANCESTOR_OF*..8]-(taxa)<-[:BELONGS_TO_TAXONOMY]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +
+		return new CypherQuery("START parent = node:Taxa(\"Identifier:*\")" + 
+							   "MATCH (parent)-[:IS_ANCESTOR_OF*]->(taxa)<-[:BELONGS_TO_TAXONOMY]-(proteins)-[:HAS_PEPTIDE]->(peptides)<-[:IS_MATCH_IN]-(psms)-[:BELONGS_TO_EXPERIMENT]->(experiments), (experiments)<-[:BELONGS_TO_EXPERIMENT]-(proteins)" +
 							   "WHERE (parent.Rank = '" + rank + "')" + 
 							   "RETURN experiments, count(distinct " + countIdentifier + "), parent");
 	}

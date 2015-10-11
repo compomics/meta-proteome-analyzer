@@ -282,12 +282,12 @@ public class UniProtUtilities {
 	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, ReducedProteinData> uniprotEntries, boolean doUniRefRetrieval) {
 		if (identifierList !=null && identifierList.size()>0) {
 			// Logging
-			//TODO Client is here not known because this happens on level of the server, thus this may throws an null pointer exception...
-			// however search for a proper solution would be benefical
 			if (identifierList != null) {
-				Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT FOR " + identifierList.size() + " ENTRIES");
-				Client.getInstance().firePropertyChange("resetall", -1L, (long) identifierList.size());
-				Client.getInstance().firePropertyChange("resetcur", -1L, (long) identifierList.size());
+				if (Client.getInstance() != null) {
+					Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT FOR " + identifierList.size() + " ENTRIES");
+					Client.getInstance().firePropertyChange("resetall", -1L, (long) identifierList.size());
+					Client.getInstance().firePropertyChange("resetcur", -1L, (long) identifierList.size());
+				}
 
 				// Query UniProt
 				Query query = UniProtQueryBuilder.buildIDListQuery(identifierList);
@@ -304,10 +304,14 @@ public class UniProtUtilities {
 						proteinData = new ReducedProteinData(entry);
 					}
 					uniprotEntries.put(accession, proteinData);
-					Client.getInstance().firePropertyChange("progressmade", false, true);
+					if (Client.getInstance() != null) {
+						Client.getInstance().firePropertyChange("progressmade", false, true);
+					}
 //					System.out.println(entry.getOrganism());
 				}	
-				Client.getInstance().firePropertyChange("new message", null, "FINISHED UNIPROT QUERY");
+				if (Client.getInstance() != null) {
+					Client.getInstance().firePropertyChange("new message", null, "FINISHED UNIPROT QUERY");
+				}
 			}
 		}
 

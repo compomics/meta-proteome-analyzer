@@ -19,10 +19,10 @@ public interface Taxon extends VertexFrame {
 	@Adjacency(label="BELONGS_TO")
 	public Taxon getParentTaxon();
 	
-	@Adjacency(label="IS_PARENT_OF", direction=Direction.IN)
+	@Adjacency(label="IS_ANCESTOR_OF", direction=Direction.IN)
 	public Iterable<Taxon> getChildTaxa();
 	
-	@Adjacency(label="BELONGS_TO", direction=Direction.IN)
+	@Adjacency(label="BELONGS_TO_TAXONOMY", direction=Direction.IN)
 	public Iterable<Protein> getProteins();
 	
 	@Property("IDENTIFIER")
