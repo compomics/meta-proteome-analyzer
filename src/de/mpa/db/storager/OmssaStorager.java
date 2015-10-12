@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -19,6 +20,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
+import de.mpa.io.fasta.FastaLoader;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
 import de.proteinms.omxparser.util.MSHits;
@@ -143,9 +145,12 @@ public class OmssaStorager extends BasicStorager {
 						hitdata.put(OmssahitTableAccessor.THEOMASS,	msHit.MSHits_theomass);
 						hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
 						hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
+						hitdata.put(OmssahitTableAccessor.PEP, pep);
+						hitdata.put(OmssahitTableAccessor.QVALUE, qValue);
 
 						// Get the peptide id
-						long peptideID = this.storePeptide(msHit.MSHits_pepstring);
+						String sequence = msHit.MSHits_pepstring;
+						long peptideID = this.storePeptide(sequence);
 						hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID,	peptideID);
 						
 						// Store peptide-spectrum association
@@ -154,19 +159,33 @@ public class OmssaStorager extends BasicStorager {
 						// Parse the FASTA header
 						Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
 						String accession = header.getAccession();
-						Long proteinID = this.storeProtein(peptideID, accession);
-						hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
-						hitdata.put(OmssahitTableAccessor.PEP, pep);
-						hitdata.put(OmssahitTableAccessor.QVALUE, qValue);
 
-						// Create the database object.
-						OmssahitTableAccessor omssahit = new OmssahitTableAccessor(	hitdata);
-						omssahit.persist(conn);
-						counter++;
-						// Get the omssahitid
-						Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
-						hitNumberMap.put(msHitSet.MSHitSet_number + "_"	+ hitnumber, omssahitid);
-						hitnumber++;
+						// Scan for additional protein hits
+             	    	HashSet<String> accessionSet = new HashSet<String>();
+						FastaLoader loader = FastaLoader.getInstance();
+						if (loader.getPepFile()!=null) {
+							// There is a separate digested peptide file available
+							accessionSet = loader.getProtHits(sequence);
+							accessionSet.add(accession);
+						} else {
+							accessionSet.add(accession);
+						}
+						
+						for (String acc : accessionSet) {
+							Long proteinID = this.storeProtein(peptideID, acc);
+							hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
+							
+							// Create the database object.
+							OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
+							omssahit.persist(conn);
+							counter++;
+							
+							// Get the omssahitid
+							Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
+							hitNumberMap.put(msHitSet.MSHitSet_number + "_"	+ hitnumber, omssahitid);
+							hitnumber++;
+						}
+						
 					}
 				}
     	    }

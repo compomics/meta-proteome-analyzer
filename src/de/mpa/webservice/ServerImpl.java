@@ -45,6 +45,7 @@ import de.mpa.db.job.instances.UniProtJob;
 import de.mpa.db.job.instances.XTandemJob;
 import de.mpa.db.job.scoring.OmssaScoreJob;
 import de.mpa.db.job.scoring.XTandemScoreJob;
+import de.mpa.fastadigest.PeptideDigester;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.fasta.FastaLoader;
@@ -123,6 +124,22 @@ public class ServerImpl implements Server {
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta"));
+		
+		// Check for additional peptide FASTA file and create if needed
+		if (dbSearchSettings.isXTandem() || dbSearchSettings.isOmssa()) {
+			if (dbSearchSettings.getPepDBFlag() && fastaLoader.getPepFile() == null) {
+				PeptideDigester digester = new PeptideDigester();
+				String fasta = fastaLoader.getFile().getAbsolutePath();
+				String [] dbFiles = {fasta};
+				String outFile = fasta.substring(0, fasta.lastIndexOf('.'))+".pep";
+				// If peptide FASTA is missing create it by Tryptic digestion of protein FASTA
+				digester.createPeptidDB(dbFiles, outFile, 2, 1, 50);
+				fastaLoader.setPepFile(new File(outFile));
+			}
+			if (!dbSearchSettings.getPepDBFlag()) {
+				fastaLoader.setPepFile(null);
+			}
+		}
 
 		try {
 			File indexFile = new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta.fb");
@@ -135,6 +152,9 @@ public class ServerImpl implements Server {
 			e.printStackTrace();
 		}
 		MapContainer.FastaLoader = fastaLoader;
+		
+		// Setup the in-silico digested peptide database file
+//		FastaLoader.getInstance().loadPepFile();
 		
 		// Init protein map for UniProt entry retrieval.
 		MapContainer.UniprotQueryProteins = new HashMap<String, Long>();

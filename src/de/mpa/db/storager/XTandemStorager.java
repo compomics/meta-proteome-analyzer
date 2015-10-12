@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
+import de.mpa.io.fasta.FastaLoader;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;
@@ -139,7 +141,7 @@ public class XTandemStorager extends BasicStorager {
             	for (Domain domain : domains) {
                    	String sequence = domain.getDomainSequence();
 					if (!peptides.contains(sequence)) {
-						
+                        peptides.add(sequence);
                 	    HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
                 	      
                 	    // Only store if the search spectrum id is referenced.
@@ -182,17 +184,34 @@ public class XTandemStorager extends BasicStorager {
                                 long peptideID = this.storePeptide(sequence);
                      	    	hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
         						
-        						// Store peptide-spectrum association
+                     	    	// Store peptide-spectrum association
         						this.storeSpec2Pep(searchspectrumID, peptideID);
-                     	        Long proteinID = storeProtein(peptideID, accession);
-                                hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinID);
-                           	    XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
-                                xtandemhit.persist(conn);
-                                counter++;
-                                // Get the xtandemhitid
-                                Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
-                                domainMap.put(domainID, xtandemhitid);   
-                                peptides.add(sequence);
+        						
+        						// Scan for additional protein hits
+                     	    	HashSet<String> accessionSet = new HashSet<String>();
+        						FastaLoader loader = FastaLoader.getInstance();
+        						if (loader.getPepFile()!=null) {
+        							// There is a separate digested peptide file available
+									accessionSet = loader.getProtHits(sequence);
+									accessionSet.add(accession);
+        						} else {
+									accessionSet.add(accession);
+								}
+                     	    	
+        						for (String acc : accessionSet) {
+                         	        Long proteinID = storeProtein(peptideID, acc);
+                                    hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinID);
+                                    
+                                    // Finalize xtandemhit
+                               	    XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
+                                    xtandemhit.persist(conn);
+                                    counter++;
+                                    
+                                    // Get the xtandemhitid
+                                    Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
+                                    domainMap.put(domainID, xtandemhitid);  
+								}
+                                 
             				}
                 	    }
 					}

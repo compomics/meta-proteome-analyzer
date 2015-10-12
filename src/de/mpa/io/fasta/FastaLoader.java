@@ -14,6 +14,7 @@ import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,6 +27,7 @@ import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 
 import com.compomics.mascotdatfile.util.mascot.ProteinHit;
+import com.compomics.util.io.filefilters.PeffFileFilter;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
@@ -34,6 +36,7 @@ import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.fastadigest.PeptideDigester;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -58,6 +61,15 @@ public class FastaLoader {
 	 * The FASTA file instance.
 	 */
 	private static File file;
+	
+	/**
+	 * The Peptide FASTA instance.
+	 */
+	private File pepfile;
+	/**
+	 * The peptide database digester.
+	 */
+	private PeptideDigester fastaDigester;
 	
 	/**
 	 * The index file.
@@ -327,8 +339,60 @@ public class FastaLoader {
 		this.file = file;
 		// reset map on change of FASTA file
 		this.acc2pos = null;
+		// include a in-silico peptide file
+		String filestring = file.getAbsolutePath();
+		filestring = filestring.substring(0, filestring.lastIndexOf('.'))+".pep";
+		this.pepfile = new File(filestring.substring(0, filestring.lastIndexOf('.'))+".pep");
+//		System.out.println(pepfile);
+		if (!pepfile.exists() || pepfile.isDirectory()) {
+			pepfile = null;
+		}
 	}
 	
+	/**
+	 * Sets the peptide FASTA file.
+	 * @param file The peptide FASTA file
+	 */
+	public void setPepFile(File file) {
+		this.pepfile = file;
+	}
+	
+	/**
+	 * Returns the current in-silico peptide file if available
+	 * @return pepFile the current peptide file.
+	 */
+	public File getPepFile() {
+		return pepfile;
+	}
+	
+	/**
+	 * Returns the active protein FASTA file
+	 * @return file the active protein FASTA file.
+	 */
+	public File getFile() {
+		return file;
+	}
+	
+	/**
+	 * Loads the designated in-silico digested peptide database file.
+	 */
+	public void loadPepFile() {
+		if (pepfile!=null) {
+			fastaDigester = new PeptideDigester();
+			fastaDigester.parsePeptideDB(pepfile.getAbsolutePath());
+//			System.out.println("PARSED PEPTIDE DB");
+		}
+	}
+	
+	/**
+	 * Get all protein hits for a peptide sequence in the digested database.
+	 */
+	public HashSet<String> getProtHits(String sequeString) {
+		if (pepfile == null) {
+			return new HashSet<String>();
+		}
+		return fastaDigester.fetchProteinsFromPeptideSequence(sequeString, pepfile.getAbsolutePath());
+	}
 	
 	/**
 	 * Returns the current index file instance.
@@ -406,4 +470,5 @@ public class FastaLoader {
 		}
 	
 	}
+
 }

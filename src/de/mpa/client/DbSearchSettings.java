@@ -54,6 +54,7 @@ import javax.xml.bind.annotation.XmlType;
     "omssaParams",
     "precursorIonTol",
     "precursorIonUnit",
+    "addProtHitUse",
     "xTandem",
     "xtandemParams",
     "decoy",
@@ -76,6 +77,7 @@ public class DbSearchSettings {
     protected String omssaParams;
     protected double precursorIonTol;
     protected boolean precursorIonUnit;
+    protected boolean addProtHitUse;
     @XmlElement(name = "XTandem")
     protected boolean xTandem;
     protected String xtandemParams;
@@ -219,7 +221,23 @@ public class DbSearchSettings {
     public void setNumMissedCleavages(int value) {
         this.numMissedCleavages = value;
     }
+    
+    /**
+     * Sets the value for the peptide FASTA flag.
+     * 
+     */
+    public void setpepFASTA(boolean value) {
+    	addProtHitUse = value;
+    }
 
+    /**
+     * Gets the value for the peptide FASTA flag.
+     * 
+     */
+    public boolean getPepDBFlag() {
+    	return addProtHitUse;
+    }
+    
     /**
      * Gets the value of the omssa property.
      * 

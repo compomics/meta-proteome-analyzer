@@ -85,6 +85,11 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private JSpinner packSpn;
 	
 	/**
+	 * The additional protein hits check box
+	 */
+	private JCheckBox addProtChk;
+	
+	/**
 	 * Parameter map containing advanced settings for the X!Tandem search engine.
 	 */
 	private ParameterMap xTandemParams = new XTandemParameters();
@@ -210,7 +215,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		// Search strategy ComboBox
 		searchTypeCbx = new JComboBox<String>(new String[] { "Target-Decoy", "Target Only" });
 		
-		JPanel packPnl = new JPanel(new FormLayout("p, 2dlu, p:g, 2dlu, p", "p"));
+		JPanel packPnl = new JPanel(new FormLayout("p, 2dlu, p:g, 2dlu, p", "p, 2dlu, p"));
 
 		packSpn = new JSpinner(new SpinnerNumberModel(1000L, 1L, null, 100L));
 		packSpn.setToolTipText("Number of spectra per transfer package"); 
@@ -220,6 +225,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		packPnl.add(new JLabel("Transfer"), CC.xy(1, 1));
 		packPnl.add(packSpn, CC.xy(3, 1));
 		packPnl.add(new JLabel("spectra per package"), CC.xy(5, 1));
+		
+		addProtChk = new JCheckBox("Search peptide FASTA for additonal hits.", true);
+		packPnl.add(addProtChk, CC.xyw(1, 3, 5));
 		
 		paramsPnl.add(new JLabel("Precursor Ion Tolerance:"), CC.xyw(2, 2, 3));
 		paramsPnl.add(precTolSpn, CC.xy(6, 2));
@@ -384,6 +392,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		dbSettings.setPrecursorIonTol((Double) precTolSpn.getValue());
 		dbSettings.setPrecursorIonUnitPpm(precTolCbx.getSelectedIndex()==1);
 		dbSettings.setNumMissedCleavages((Integer) missClvSpn.getValue());
+		dbSettings.setpepFASTA(addProtChk.isSelected());
 		
 		if (xTandemChk.isSelected()) {
 			dbSettings.setXTandem(true);
@@ -523,6 +532,14 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	public long getPackageSize() {
 		return ((Number) packSpn.getValue()).longValue();
+	}
+	
+	/**
+	 * Returns peptide FASTA flag.
+	 * @return the peptide FASTA flag
+	 */
+	public boolean getpepHitsUse() {
+		return addProtChk.isSelected();
 	}
 	
 	/**

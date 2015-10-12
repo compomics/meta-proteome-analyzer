@@ -76,5 +76,6 @@
 	<classpathentry kind="lib" path="lib/spring-webmvc-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.9.jar"/>
+	<classpathentry kind="lib" path="lib/mapdb-1.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
