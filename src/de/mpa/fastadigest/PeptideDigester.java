@@ -154,7 +154,6 @@ public class PeptideDigester {
 	 * @param maxLength. Maximal size of AA sequences to be recorded.
 	 */
 	public void createPeptidDB(String[] dbFiles, String outFile, int missedCleavage, int minLength, int maxLength) {
-		
 		try {
 			log.info("Creating digested FASTA >> "+outFile);
 			long time = System.currentTimeMillis();
@@ -190,7 +189,7 @@ public class PeptideDigester {
 			} else {
 				writer = new BufferedWriter(new FileWriter(new File(outFile)));
 			}
-		
+				
 			for (String inFile : dbFiles) {
 				// Initialize BufferedReader
 				BufferedReader reader = new BufferedReader(new FileReader(new File(inFile)));
@@ -203,14 +202,19 @@ public class PeptideDigester {
 				line = reader.readLine();
 				while (line != null) {
 					// Check if not an empty row and if begin of protein entry
+					// For the case that the fasta contains an empty line
+					if (line.isEmpty()) {
+						line = reader.readLine();
+					}
 					if (line.trim().length() > 0 && line.charAt(0) == '>' ){	
+						System.out.println("digested Entry number: " + i);
 						i++;
 						// Get elements of the database entry
 						String header 		= line;
 						String sequence = "";
 						// Add Sequence
 						while((line=reader.readLine()) != null){
-								if (line.charAt(0) == '>') {
+								if (line.isEmpty() || line.charAt(0) == '>') {
 									break;
 								}else{
 									sequence+=line;
@@ -218,7 +222,6 @@ public class PeptideDigester {
 						}
 						// Create Entry
 						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence, i);
-						
 						if (missedCleavage >= 0) {
 							// Process Entry
 							DigFASTAEntry[] peptides = digestEntry(entry,
@@ -245,6 +248,7 @@ public class PeptideDigester {
 				// Close the reader
 				reader.close();
 			}
+			log.info("Finished writing peptide database");
 			// Close the writer
 			writer.close();
 			database.commit();

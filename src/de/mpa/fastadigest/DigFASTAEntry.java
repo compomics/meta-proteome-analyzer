@@ -18,9 +18,10 @@ public class DigFASTAEntry {
 		UNIPROTTREMBL 	(">tr|"),
 		NCBIGENBANK 	(">gi|"), 
 		NCBIREFERENCE 	(">ref|"),
+		METAGENOME1 	(">generic|"),
 		SILICO_PEPTIDE	(">pep|"),
-		METAGENOME1 	(">|"),
-		METAGENOME2 	(">");
+		METAGENOME2 	(">|"),
+		METAGENOME3 	(">");
 
 		/**
 		 * String of header begin.
