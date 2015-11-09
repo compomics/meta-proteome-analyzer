@@ -443,7 +443,7 @@ public class PeptideDigester {
 					String newSequence = builder.toString();
 					if ( newSequence.length()>=minLength &&
 							newSequence.length()<=maxLength ) {
-						peptides.add(cleaves[i]);
+						peptides.add(newSequence);
 					}
 				}
 			}
