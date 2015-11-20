@@ -125,15 +125,16 @@ public class ServerImpl implements Server {
 		FastaLoader fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta"));
 		
+		
 		// Check for additional peptide FASTA file and create if needed
 		if (dbSearchSettings.isXTandem() || dbSearchSettings.isOmssa()) {
 			if (dbSearchSettings.getPepDBFlag() && fastaLoader.getPepFile() == null) {
 				PeptideDigester digester = new PeptideDigester();
 				String fasta = fastaLoader.getFile().getAbsolutePath();
 				String [] dbFiles = {fasta};
-				String outFile = fasta.substring(0, fasta.lastIndexOf('.'))+".pep";
+				String outFile = fasta.substring(0, fasta.lastIndexOf('.')) + ".pep";
 				// If peptide FASTA is missing create it by Tryptic digestion of protein FASTA
-				digester.createPeptidDB(dbFiles, outFile, 2, 1, 50);
+				digester.createPeptidDB(dbFiles, outFile, 1, 1, 50);
 				fastaLoader.setPepFile(new File(outFile));
 			}
 			if (!dbSearchSettings.getPepDBFlag()) {

@@ -14,11 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 import org.apache.log4j.Logger;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
+import de.mpa.db.job.JobStatus;
+import de.mpa.db.job.instances.CommonJob;
 import de.mpa.fastadigest.DigFASTAEntry.Type;
+import de.mpa.webservice.Message;
 
 public class PeptideDigester {
 	
@@ -114,19 +118,32 @@ public class PeptideDigester {
 	 * @return Set of protein accession strings.
 	 */
 	public static HashSet<String> fetchProteinsFromPeptideSequence(String inSequence, String inFile) {
+		
+		
 		HashSet<String> proteins = new HashSet<String>();
 		try {
-			long time = System.currentTimeMillis();
-			SimpleDateFormat timeformat = new SimpleDateFormat("mm:ss");  
-			File file = new File(inFile);
-			if (file.exists() && !file.isDirectory()) {
+			// select the correct .pep-file			
+			String correctFile = inFile.substring(0, inFile.lastIndexOf(File.separator)) 
+							 + File.separator + "Pep" + File.separator   
+							 + inFile.substring(inFile.lastIndexOf(File.separator), inFile.length());
+			// and open it
+			File file = new File(correctFile + "." + inSequence.subSequence(0, 2));
+			// 
+			if (file.exists() && !file.isDirectory()) {				
 				// Parse the peptide database file
-				BufferedReader reader = new BufferedReader(new FileReader(inFile));
+				BufferedReader reader = new BufferedReader(new FileReader(correctFile + "." + inSequence.subSequence(0, 2)));
 				String line;
 				while ((line = reader.readLine()) != null) {
 					// Check if this is a sequence line
+					String sequence;
 					if (line.trim().length() > 0 && line.startsWith(">pep|") ){
-						String sequence = reader.readLine().trim();
+						String nextline = reader.readLine();
+						if (nextline != null) { 
+							sequence = nextline.trim();
+						}
+						else {
+							sequence = "";
+						}
 						if (!sequence.equals(inSequence)) {
 							continue;
 						}
@@ -141,27 +158,56 @@ public class PeptideDigester {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 		return proteins;	
 	}
 	
 	/**
 	 * Write a concatenated in-silico database based on the given list of protein databases in FASTA format.
+	 * Database is saved in multiple files based on first Amino acid of peptide sequence
 	 * @param dbFiles. List of input database files.
-	 * @param outFile. The output database file.
+	 * @param outFile. The output database files. Add + .XX where XX are 2 first Amino Acids for peptides
 	 * @param missedCleavage. Number of missed cleavages in in-silico digest. -1 to bypass the digest.
 	 * @param minLength. Minimal size of AA sequences to be recorded.
 	 * @param maxLength. Maximal size of AA sequences to be recorded.
 	 */
 	public void createPeptidDB(String[] dbFiles, String outFile, int missedCleavage, int minLength, int maxLength) {
+		
+		// The String contains all permissible Amino acids (including * and X)
+		// Should be implemented as parameter (not hard-coded here)  
+		String AllAminoAcids = "GPAVLIMCFYWHKRQNEDSTJBOXZU*";
+				
+		// Constructs File extensions from all combinations of 2 Amino acids
+		List<String> FileExtensions = new ArrayList<String>(); 
+		for(char AminoAcid1 : AllAminoAcids.toCharArray()) {		
+			for(char AminoAcid2 : AllAminoAcids.toCharArray()) {				
+				FileExtensions.add(Character.toString(AminoAcid1) + Character.toString(AminoAcid2));				
+			}								
+		}			
+		// catch IO-Exceptions
 		try {
-			log.info("Creating digested FASTA >> "+outFile);
+			// logging and time-keeping
+			log.info("Creating digested FASTA >> " + outFile);
 			long time = System.currentTimeMillis();
 			SimpleDateFormat timeformat = new SimpleDateFormat("mm:ss");    
+
+			// outFile should be implemented on higher level using a path and a filename instead of both combined
+			// Setup pep-file folder
+			File PepDir = new File(outFile.substring(0, outFile.lastIndexOf(File.separator))
+					                + File.separator + "Pep" + File.separator);
+			PepDir.mkdir();
+			// create empty .pep file (so it can be found) --> terrible
+			BufferedWriter pepfile = new BufferedWriter(new FileWriter(outFile));
+			pepfile.close();
+			// set new outFile to new path --> this is pretty ugly
+			String corretOutFile = PepDir.getAbsolutePath() + outFile.substring(outFile.lastIndexOf(File.separator), outFile.lastIndexOf(".")) + ".pep";
+			System.out.println(corretOutFile);
 			
 			// Setup database and temporary file folder
-			File tempDir = new File(outFile.substring(0, outFile.lastIndexOf(File.separator))
-					+File.separator+"temp"+File.separator);
+			File tempDir = new File(corretOutFile.substring(0, corretOutFile.lastIndexOf(File.separator))
+					                + File.separator + "temp" + File.separator);
 			tempDir.mkdir();
 			File tempFile = File.createTempFile("FASTA", ".tmp", tempDir);
 			database = DBMaker.newFileDB(new File(tempDir+File.separator+"mapdata"))
@@ -174,26 +220,29 @@ public class PeptideDigester {
 			peptideNumberUnique = new AtomicInteger();
 			peptideNumber = new AtomicInteger();
 			proteinNumber = new AtomicInteger();
-			
 			log.info("Parsing and processing sequences ..");
+
+			
 			// Count the number of protein entries
 			for (String inFile : dbFiles) {
-				proteinNumber.set(proteinNumber.get()+DigFASTAEntryParser.countEntries(inFile));
+				proteinNumber.set(proteinNumber.get() + DigFASTAEntryParser.countEntries(inFile));
 			}
-			log.info("  parsed "+proteinNumber.get()+" protein entries.");
+			log.info("  parsed "+proteinNumber.get() + " protein entries.");
 			
-			// Initialize BufferedWriter
-			BufferedWriter writer;
-			if (missedCleavage >= 0) {
-				writer = new BufferedWriter(new FileWriter(tempFile));
-			} else {
-				writer = new BufferedWriter(new FileWriter(new File(outFile)));
-			}
-				
+			
+			// Initialize List of BufferedWriters
+			List<BufferedWriter> writer = new ArrayList<BufferedWriter>();
+			// Create multiple writers for all different temp files
+			for(String AminoAcids : FileExtensions) {		
+				BufferedWriter w = new BufferedWriter(new FileWriter(tempFile + "." + AminoAcids));
+				writer.add(w);				
+			}	
+			
+			// Main loop (for multiple in-Files?)
 			for (String inFile : dbFiles) {
-				// Initialize BufferedReader
-				BufferedReader reader = new BufferedReader(new FileReader(new File(inFile)));
 				
+				// Initialize BufferedReader for FASTA
+				BufferedReader reader = new BufferedReader(new FileReader(new File(inFile)));				
 				// String of the current line.
 				String line;
 				// Number of the current entry
@@ -206,14 +255,15 @@ public class PeptideDigester {
 					if (line.isEmpty()) {
 						line = reader.readLine();
 					}
+					// Parse out peptide Entry
 					if (line.trim().length() > 0 && line.charAt(0) == '>' ){	
-						System.out.println("digested Entry number: " + i);
+						//System.out.println("digested Entry number: " + i);
 						i++;
 						// Get elements of the database entry
-						String header 		= line;
+						String header = line;
 						String sequence = "";
 						// Add Sequence
-						while((line=reader.readLine()) != null){
+						while((line = reader.readLine()) != null){
 								if (line.isEmpty() || line.charAt(0) == '>') {
 									break;
 								}else{
@@ -221,75 +271,113 @@ public class PeptideDigester {
 								}
 						}
 						// Create Entry
-						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence, i);
-						if (missedCleavage >= 0) {
-							// Process Entry
-							DigFASTAEntry[] peptides = digestEntry(entry,
-									missedCleavage,minLength,maxLength);
-							for (int j = 0; j < peptides.length; j++) {
-								// Note peptide to protein relation
-								String pep = peptides[j].getSequence();
-								if (peptideToProteinMap.containsKey(pep)) {
-									peptideToProteinMap.get(pep).add(entry.getIdentifier());
-								} else {
-									HashSet<String> newSet = new HashSet<>();
-									newSet.add(entry.getIdentifier());
-									peptideToProteinMap.put(pep, newSet);
-									// new sequence - write the entry to file
-									peptides[j].writeEntry(writer);
-									peptideNumberUnique.incrementAndGet();
+						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence, i);					
+						// Process Entry
+						DigFASTAEntry[] peptides = digestEntry(entry,
+								missedCleavage,minLength,maxLength);
+						for (int j = 0; j < peptides.length; j++) {
+							// Note peptide to protein relation
+							String pep = peptides[j].getSequence();
+							if (peptideToProteinMap.containsKey(pep)) {
+								peptideToProteinMap.get(pep).add(entry.getIdentifier());
+							} else {
+								HashSet<String> newSet = new HashSet<>();
+								newSet.add(entry.getIdentifier());
+								peptideToProteinMap.put(pep, newSet);
+								// generate correct index for file
+								int AA;
+								if (pep.length() != 1) {
+									AA = FileExtensions.indexOf(pep.subSequence(0, 2));
 								}
+								else {
+									// Only 1 Amino Acid exception --> uses file extension with this AA twice 
+									AA = FileExtensions.indexOf(Character.toString(pep.charAt(0)) + Character.toString(pep.charAt(0)));									
+								}
+								// new sequence - write the entry to corresponding file
+								peptides[j].writeEntry(writer.get(AA));								
+								peptideNumberUnique.incrementAndGet();
 							}
-						} else {
-							entry.writeEntry(writer);
 						}
+					
 					}
 				}
 				// Close the reader
 				reader.close();
 			}
 			log.info("Finished writing peptide database");
-			// Close the writer
-			writer.close();
+			// Close the writers
+			for(String AminoAcids : FileExtensions) {
+				int index = FileExtensions.indexOf(AminoAcids);
+				writer.get(index).close();
+			}
 			database.commit();
 			
 			// Second pass to write protein identifiers
-			if (missedCleavage >= 0) {
-				log.info("  created "+peptideNumber.get()+" total peptides.");
-				log.info("  and found "+peptideNumberUnique.get()+" unique sequences.");
-				log.info("..  done. This took " + timeformat.format(new Date(System.currentTimeMillis()-time)) + "min.");
-				time = System.currentTimeMillis();
-				log.info("Adding protein identifiers to entries.");
-				BufferedReader reader = new BufferedReader(new FileReader(tempFile));
-				writer = new BufferedWriter(new FileWriter(new File(outFile)));
+			log.info("  created "+peptideNumber.get()+" total peptides.");
+			log.info("  and found "+peptideNumberUnique.get()+" unique sequences.");
+			log.info("..  done. This took " + timeformat.format(new Date(System.currentTimeMillis()-time)) + "min.");
+			time = System.currentTimeMillis();
+			log.info("Adding protein identifiers to entries.");
+
+			// Initialize List of BufferedWriter
+			List<BufferedWriter> finalwriter = new ArrayList<BufferedWriter>();
+			// Create multiple writers/readers for 21 different files
+			for(String AminoAcids : FileExtensions) {			
+				BufferedWriter w = new BufferedWriter(new FileWriter(corretOutFile + "." + AminoAcids));
+				finalwriter.add(w);	
+			}
+			// loop through all temp-files for respective Amino Acid 
+			for(String AminoAcids : FileExtensions) {
+				// 
+				log.info("Writing Database-File for " +  AminoAcids);
+				// open correct temp-file
+				BufferedReader tempreader = new BufferedReader(new FileReader(tempFile + "." + AminoAcids));							
 				
+				// initialize variables
+				int AA = 0;
 				String line;
-				while ((line = reader.readLine()) != null) {
+				// loop through all lines
+				while ((line = tempreader.readLine()) != null) {
 					// Check if this is a sequence line
 					if (line.trim().length() > 0 && line.charAt(0) == '>' ){
-						String sequence = reader.readLine().trim();
+						String sequence = tempreader.readLine().trim();
 						HashSet<String> proteins = peptideToProteinMap.get(sequence);
+						// generate correct index for file
+						if (sequence.length() != 1) {
+							AA = FileExtensions.indexOf(sequence.subSequence(0, 2));
+						}
+						else {
+							// Only 1 Amino Acid exception --> uses file extension with this AA twice 
+							AA = FileExtensions.indexOf(Character.toString(sequence.charAt(0)) + Character.toString(sequence.charAt(0)));									
+						}						
 						// Append all protein identifiers to the peptide header
 						StringBuilder builder = new StringBuilder();
 						builder.append(line);
 						for (String prot : proteins) {
 							builder.append("|"+prot);
 						}
-						writer.append(builder.toString());
-						writer.append("\n");
-						writer.append(sequence);
+						finalwriter.get(AA).append(builder.toString());
+						finalwriter.get(AA).append("\n");
+						finalwriter.get(AA).append(sequence);
 					} else {
-						writer.append(line);
+						finalwriter.get(AA).append(line);
 					}
-					writer.append("\n");
+					finalwriter.get(AA).append("\n");								
 				}
-				reader.close();
+				// BUG: Delete Temp-File doesnt work 
+				tempreader.close();
+				tempFile.delete();
 			}
+			
 			// Close and finish.
-			writer.close();
+			for(String AminoAcids : FileExtensions) { 
+				int index = FileExtensions.indexOf(AminoAcids);
+				finalwriter.get(index).close();	
+			}
+			// delete Temp-Folder
 			tempDir.delete();
 			log.info("..  done. This took " + timeformat.format(new Date(System.currentTimeMillis()-time)) + "min.");
-			
+				
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
