@@ -203,7 +203,6 @@ public class PeptideDigester {
 			pepfile.close();
 			// set new outFile to new path --> this is pretty ugly
 			String corretOutFile = PepDir.getAbsolutePath() + outFile.substring(outFile.lastIndexOf(File.separator), outFile.lastIndexOf(".")) + ".pep";
-			System.out.println(corretOutFile);
 			
 			// Setup database and temporary file folder
 			File tempDir = new File(corretOutFile.substring(0, corretOutFile.lastIndexOf(File.separator))
@@ -249,6 +248,7 @@ public class PeptideDigester {
 				long i = 0;
 				// First pass to process all database sequences
 				line = reader.readLine();
+				int count = 0;
 				while (line != null) {
 					// Check if not an empty row and if begin of protein entry
 					// For the case that the fasta contains an empty line
@@ -296,6 +296,12 @@ public class PeptideDigester {
 								// new sequence - write the entry to corresponding file
 								peptides[j].writeEntry(writer.get(AA));								
 								peptideNumberUnique.incrementAndGet();
+								count++;
+								if(count % 10000 == 0) {						
+									System.out.println(count + " sequences parsed...");
+//									client.firePropertyChange("new message", null, "Parsing a fasta file" + count );
+								} 	
+								
 							}
 						}
 					
