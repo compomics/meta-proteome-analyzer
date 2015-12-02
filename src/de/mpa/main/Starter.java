@@ -5,7 +5,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.RandomAccessFile;
 import java.net.URL;
 import java.nio.channels.FileLock;
@@ -49,7 +51,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = false;
+	private static boolean jarExport = true;
 	
 	/**
 	 * The logger instance.
@@ -69,10 +71,9 @@ public class Starter {
 			// Read theme configuration files
 			File themesFolder;
 			if (isJarExport()) {
-				themesFolder = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "conf" + System.getProperty("file.separator") + "themes" + System.getProperty("file.separator"));
+				themesFolder = new File(Constants.THEME_FOLDER_JAR);
 			} else {
-				URL url = ClassLoader.getSystemResource(Constants.THEME_FOLDER);
-				themesFolder = new File(url.toURI());
+				themesFolder = new File(Constants.THEME_FOLDER);
 			}
 			
 			List<UITheme> themes = new ArrayList<UITheme>();
@@ -86,6 +87,7 @@ public class Starter {
 					themes.add(theme);
 				}
 			}
+			
 			// Apply default theme
 			if (defaultTheme == null) {
 				defaultTheme = Constants.DEFAULT_THEME;
@@ -93,8 +95,7 @@ public class Starter {
 			}
 			defaultTheme.applyTheme();
 			// finalize list of themes
-			// TODO: CAUSE ERROR under linux
-			//Constants.THEMES = Collections.unmodifiableList(themes);
+			Constants.THEMES = Collections.unmodifiableList(themes);
 			
 			// Set Plastic3DLook&Feel as default for all operating systems
 			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue() {

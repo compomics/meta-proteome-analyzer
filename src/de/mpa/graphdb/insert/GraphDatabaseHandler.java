@@ -138,20 +138,17 @@ public class GraphDatabaseHandler {
 	 */
 	public void setData(DbSearchResult data) {
 		List<ProteinHit> proteinHits = data.getProteinHitList();
-		
 		Client client = Client.getInstance();
 		client.firePropertyChange("new message", null, "ADDING " + data.getExperimentTitle().toUpperCase() + " TO GRAPHDB");
 		client.firePropertyChange("resetall", -1L, Long.valueOf(proteinHits.size()));
 		
 		// Add experiment
 		this.addExperiment(data.getExperimentTitle(), data.getProjectTitle());
-		
 		// Add protein hits
 		for (ProteinHit proteinHit : proteinHits) {
 			this.addProtein(proteinHit);
 			client.firePropertyChange("progressmade", -1L, 0L);
 		}
-		
 		// Add meta-proteins for processed results
 		if (!data.isRaw()) {
 			List<ProteinHit> metaProteins = data.getProteinHitList();
@@ -164,7 +161,6 @@ public class GraphDatabaseHandler {
 				client.firePropertyChange("progressmade", -1L, 0L);
 			}
 		}
-		
 		client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE FINISHED");
 		
 		// Stop the transaction

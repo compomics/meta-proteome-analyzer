@@ -15,8 +15,8 @@ public class ECReaderTest extends TestCase {
 
 	@Test
 	public void testEnzymeParsing() {
-		ECNode root = ECReader.readEnzymeClasses("src/conf/enzclass.txt");
-		ECReader.readEnzymes(root, "src/conf/enzyme.dat");
+		ECNode root = ECReader.readEnzymeClasses();
+		ECReader.readEnzymes(root);
 		
 		assertEquals("1.-.-.-", ((ECNode) root.getChildAt(0)).getIdentifier());
 		assertEquals("Alcohol dehydrogenase.", ((ECNode) root.getFirstLeaf()).getDescription());

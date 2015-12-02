@@ -15,6 +15,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import de.mpa.client.Constants;
 import de.mpa.main.Starter;
 
 /**
@@ -28,22 +29,27 @@ public class KEGGReader {
 	 * @param path
 	 * @return
 	 */
-	public static KEGGNode readKEGGTree(String path) {
+	public static KEGGNode readKEGGTree() {
 		KEGGNode root = new KEGGOrthologyNode("root");
 		KEGGNode parent = root;
 		KEGGNode child = null;
+		String path = null;
+		Reader in = null;
 		
-		Reader in;
 		if (Starter.isJarExport()) {
-			try {
-				in = new FileReader(new File(path));
-			} catch (FileNotFoundException e) {
-				System.err.println(e.getMessage());
-				return null;
-			}
+			path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "ko00001.keg";
 		} else {
-			in = new InputStreamReader(ClassLoader.getSystemResourceAsStream(path));
+			path = Constants.CONFIGURATION_DIR_PATH + "ko00001.keg";
 		}
+		
+		try {
+			in = new FileReader(new File(path));
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+			return null;
+		}
+		
+		
 		
 		try (BufferedReader br = new BufferedReader(in)) {
 			char currentDepth = 'A';

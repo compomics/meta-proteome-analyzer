@@ -1,82 +1,80 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jar" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
 	  <!-- Default property values, if not overridden elsewhere: -->
-	  <property name='build' location="${user.home}/mpa-server" />	  <property name='app.version' value='1.0.14'/>
+	  <property name='build' location="${user.home}/mpa-server" />	  <property name='app.version' value='1.0.21'/>
 	  <property name='app.name' value='MPA Server'/>
 	  <property name='distro-name' value='mpa-server-${app.version}'/>
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <jar destfile="mpa-server-1.0.14.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="mpa-server-1.0.21.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="de.mpa.webservice.WSPublisher"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${user.home}/workspace/MetaProteomeAnalyzer/bin"/>
-        	
-        	<zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/mapdb-1.0.8.jar"/>
-        	
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/junit-4.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jgoodies-forms-1.5.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jgoodies-common-1.3.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/commons-codec-1.4.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/swingx-all-1.6.4.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jcommon-1.0.16.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/balloontip-1.2.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/mysql-connector-java-5.1.20-bin.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/aopalliance.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/commons-logging.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/log4j-1.2.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/swing-layout-1.0.3.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/keggapi.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jaxrpc.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/axis.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/commons-discovery-0.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/wsdl4j-1.5.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jfreechart-1.0.14.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jaligner.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/trove-3.0.3.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/blueprints-core-2.2.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/blueprints-neo4j-graph-2.2.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/frames-2.2.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jgoodies-looks-2.5.3.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/xstream-1.4.4.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/ColorPicker.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/omssa-parser-1.6.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/utilities-3.17.7.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/xpp3-1.1.4c.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.5.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/commons-lang3-3.3.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/jgoodies-binding-2.6.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/concurrentlinkedhashmap-lru-1.3.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/lucene-core-3.6.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-cypher-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-graph-algo-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-graph-matching-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-jmx-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-kernel-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-lucene-index-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-shell-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/neo4j-udc-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/scala-library-2.10.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/server-api-1.9.9.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/mascotdatfile-3.4.28.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/uniprotjapi-2015-08.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/httpclient-4.3.4.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/httpcore-4.3.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-aop-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-beans-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-context-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-core-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-expression-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-jdbc-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-orm-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-test-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-tx-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-web-4.1.6.RELEASE.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/user/workspace/MetaProteomeAnalyzer/lib/spring-webmvc-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/aopalliance.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/axis.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/balloontip-1.2.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/blueprints-core-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/blueprints-neo4j-graph-2.2.0.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/ColorPicker.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/concurrentlinkedhashmap-lru-1.3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/commons-codec-1.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/commons-discovery-0.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/commons-lang3-3.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/commons-logging.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jfreechart-1.0.14.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jgoodies-looks-2.5.3.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/frames-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jaligner.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jaxrpc.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jcommon-1.0.16.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/commons-lang3-3.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/httpclient-4.3.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/httpcore-4.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jgoodies-common-1.3.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/jgoodies-forms-1.5.0.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/junit-4.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/keggapi.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/log4j-1.2.9.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/lucene-core-3.6.2.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/mapdb-1.0.8.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/mascotdatfile-3.4.28.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/mysql-connector-java-5.1.20-bin.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-cypher-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-graph-algo-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-graph-matching-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-jmx-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-kernel-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-lucene-index-1.9.9.jar"/>
+         	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-shell-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/neo4j-udc-1.9.9.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/omssa-parser-1.6.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/commons-lang3-3.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/scala-library-2.10.0.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/server-api-1.9.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-aop-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-beans-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-context-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-core-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-expression-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-jdbc-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-orm-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-test-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-tx-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-web-4.1.6.RELEASE.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/spring-webmvc-4.1.6.RELEASE.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/swingx-all-1.6.4.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/swing-layout-1.0.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/trove-3.0.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/utilities-3.17.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/uniprotjapi-2015-08.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/wsdl4j-1.5.1.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/xpp3-1.1.4c.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/xstream-1.4.4.jar"/>            	
+            <zipfileset excludes="META-INF/*.SF" src="/home/robert/workspace/MetaProteomeAnalyzer/lib/xtandem-parser-1.7.5.jar"/>
         </jar>
     </target>
 </project>

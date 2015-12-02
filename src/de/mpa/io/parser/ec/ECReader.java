@@ -23,6 +23,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.mpa.client.Constants;
 import de.mpa.main.Starter;
 
 /**
@@ -252,23 +253,28 @@ public class ECReader {
 	 * @param path the path to the ENZYME classes definition file
 	 * @return the root node of the enzyme classes tree
 	 */
-	public static ECNode readEnzymeClasses(String path) {
+	public static ECNode readEnzymeClasses() {
 		ECNode root = new ECNode("root");
 		ECNode parent = root;
 		ECNode child = null;
-		
+		String path = null;
 		Reader in;
+		
 		if (Starter.isJarExport()) {
-			try {
-				in = new FileReader(new File(path));
-			} catch (FileNotFoundException e) {
-				System.err.println(e.getMessage());
-				return null;
-			}
+			path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "enzclass.txt";
 		} else {
-			in = new InputStreamReader(ClassLoader.getSystemResourceAsStream(path));
+			path = Constants.CONFIGURATION_DIR_PATH + "enzclass.txt";
 		}
 		
+		
+		try {
+			in = new FileReader(new File(path));
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+			return null;
+		}
+		
+					
 		try (BufferedReader br = new BufferedReader(in)) {
 			int currentDepth = 0;
 			String line;
@@ -312,18 +318,22 @@ public class ECReader {
 	 * @param root the root node of the enzyme classes tree
 	 * @param path the path to the ENZYME definition file
 	 */
-	public static void readEnzymes(ECNode root, String path) {
+	public static void readEnzymes(ECNode root) {
 		Reader in;
+		String path = null;
+		
 		if (Starter.isJarExport()) {
+			path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "enzyme.dat";
+		} else {
+			path = Constants.CONFIGURATION_DIR_PATH + "enzyme.dat";
+		}
+		
 			try {
 				in = new FileReader(new File(path));
 			} catch (FileNotFoundException e) {
 				System.err.println(e.getMessage());
 				return;
 			}
-		} else {
-			in = new InputStreamReader(ClassLoader.getSystemResourceAsStream(path));
-		}
 		
 		try (BufferedReader br = new BufferedReader(in)) {
 			String id = null;

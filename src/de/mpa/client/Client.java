@@ -63,6 +63,7 @@ import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
+import de.mpa.main.Starter;
 
 public class Client {
 
@@ -411,11 +412,18 @@ public class Client {
 		}
 		
 		// Create a new graph database.
-		GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
+		// Setup the graph database handler. 
+		GraphDatabase graphDb;
+		if (Starter.isJarExport()) {
+//			graphDb = new GraphDatabase("/scratch/metaprot/software/MPApackage/target/graphdb", true);
+			graphDb = new GraphDatabase("target/graphdb", true);
+		}else{
+			graphDb = new GraphDatabase("target/graphdb", true);
+		}
 		
 		// Setup the graph database handler. 
 		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
-		
+
 		if (singleDataResult) {
 			graphDatabaseHandler.setData(dbSearchResult);
 		}

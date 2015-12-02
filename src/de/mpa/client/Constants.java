@@ -61,7 +61,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.0.8d";
+	public final static String VER_NUMBER = "1.0.19d";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -124,7 +124,7 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH = "/de/mpa/resources/conf/";
+	public static final String CONFIGURATION_PATH =  SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP + "conf" + SEP;
 	
 	public static final String CONFIGURATION_DIR_PATH = DIR + SEP + "bin" + SEP +"de" +SEP +"mpa" + SEP + "resources" + SEP + "conf" +SEP;
 	
@@ -132,7 +132,9 @@ public class Constants {
 	 * Path string of folder containing configuration resources for the jar build.<br>
 	 * <i>conf</i>
 	 */
-	public static final String CONFIGURATION_PATH_JAR = "conf";
+	//public static final String CONFIGURATION_PATH_JAR = "conf";
+	public static final String CONFIGURATION_PATH_JAR =  SEP + "scratch" + SEP + "metaprot" + SEP + "software" + SEP + "MPApackage" + SEP + "conf"; // Path for university install package
+	
 	
 	/**
 	 * Path string of folder containing spectrum resources.
@@ -147,8 +149,7 @@ public class Constants {
 	/**
 	 * Map of KEGG Orthology tree leaves.
 	 */
-	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(
-			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + SEP + "ko00001.keg"));
+	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(KEGGReader.readKEGGTree());
 	
 	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
 	
@@ -223,8 +224,9 @@ public class Constants {
 	 * @return the root of the en
 	 */
 	private static ECNode createEnzymeTree() {
-		ECNode root = ECReader.readEnzymeClasses(CONFIGURATION_PATH_JAR + SEP + "enzclass.txt");
-		ECReader.readEnzymes(root, CONFIGURATION_PATH_JAR + SEP + "enzyme.dat");
+		
+		ECNode root= ECReader.readEnzymeClasses();
+		ECReader.readEnzymes(root);
 		return root;
 	}
 
@@ -467,17 +469,17 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER = Constants.CONFIGURATION_PATH_JAR + SEP +"themes" +SEP;
+	public static final String THEME_FOLDER = Constants.CONFIGURATION_DIR_PATH + "themes";
 	
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER_JAR = null  ;
+	public static final String THEME_FOLDER_JAR = Constants.CONFIGURATION_PATH_JAR + SEP +"themes" +SEP  ;
 	
 	/**
 	 * The name of the default theme.
 	 */
-	public static final String DEFAULT_THEME_NAME = "Sky Blue";
+	public static final String DEFAULT_THEME_NAME = "Sky Blue" ;
 	
 	/**
 	 * Hard-coded backup of the default theme, use when file-based default theme is missing.

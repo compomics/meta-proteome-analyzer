@@ -43,7 +43,6 @@ public class GraphDatabase {
 			// clear pre-existing database instance
 			this.clearDatabase(dbPath);
 		}
-
 		// launch new database instance
 		this.startDatabase(dbPath);
 	}

@@ -70,6 +70,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.ThinBevelBorder;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.BarChartPanel;
+import de.mpa.main.Starter;
 
 /**
  * Dialog implementation for viewing and manipulating various UI colors.
@@ -179,7 +180,13 @@ public class ColorsDialog extends JDialog {
 						colorMap.put(uiColor, new Color(uiColor.getColor().getRGB()));
 					}
 					// init save file dialog
-					ConfirmFileChooser chooser = new ConfirmFileChooser(Constants.THEME_FOLDER);
+					ConfirmFileChooser chooser = null;
+					if (Starter.isJarExport()) {
+						chooser = new ConfirmFileChooser(Constants.THEME_FOLDER_JAR);
+					}else {
+						chooser = new ConfirmFileChooser(Constants.THEME_FOLDER);
+					}
+
 					// provide suggestion for filename (lower case theme title without whitespace)
 					chooser.setSelectedFile(new File(Constants.THEME_FOLDER 
 							+ theme.getTitle().toLowerCase().replaceAll("\\s+","") 

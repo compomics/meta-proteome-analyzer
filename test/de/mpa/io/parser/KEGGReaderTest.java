@@ -21,7 +21,7 @@ public class KEGGReaderTest extends TestCase {
 	@Test 
 	public void testKeggPathwayMap() {
 		KEGGMap koMap = new KEGGMap(
-				KEGGReader.readKEGGTree("src/conf/ko00001.keg"));
+				KEGGReader.readKEGGTree());
 		
 		List<KEGGNode> nodes = koMap.get("K00844");
 		
