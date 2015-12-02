@@ -1,2 +1,2 @@
 # FASTA Databases
-files.fasta=uniprot_sprot
+files.fasta=uniprot_sprot,DB_WWTP19_03_2015,DatabaseKay
