@@ -1,6 +1,0 @@
-dbAddress=
-dbName=
-dbUsername=
-dbPass=
-srvAddress=
-srvPort=

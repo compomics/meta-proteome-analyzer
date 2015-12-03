@@ -45,7 +45,7 @@ public class DBDumper {
 		
 		// run MYSQLDUMP
 		Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec(command + " -u" + user + " -p" + pass + " " + " --add-drop-database metaprot");
+        Process pr = rt.exec(command + " -u " + user + " -p " + pass + " " + " --add-drop-database metaprot");
         // get streams
         InputStream in = pr.getInputStream();
         FileOutputStream out = new FileOutputStream(targetFile);
@@ -104,11 +104,15 @@ public class DBDumper {
 			String fileEnd = winOS ? ".bat" : ".sh";
 			File f = winOS ?
 					File.createTempFile("dumper", fileEnd):
-					new File("/scratch/metaprot/mysqlDB/" + "dumper" + fileEnd);
+					new File("/scratch/metaprot/sql/" + "dumper" + fileEnd);
 		    FileOutputStream fos = new FileOutputStream(f);
 		    fos.write(runner.getBytes());
 		    fos.close();
-        Process pr = rt.exec(f.getAbsolutePath());
+			f.setReadable(true, false);
+			f.setWritable(true, false);
+			f.setExecutable(true, false);
+		    Process pr = rt.exec(f.getAbsolutePath());
+        
 			pr.waitFor();
 		f.delete();
 		} catch (Exception e) {
@@ -121,7 +125,5 @@ public class DBDumper {
 		
 		// refresh the ProjectPanel to reflect new state of the database
 		ClientFrame.getInstance().getProjectPanel().refreshProjectTable();
-		
 	}
-
 }
