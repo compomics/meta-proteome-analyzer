@@ -137,19 +137,19 @@ public class TableConfig {
 	 * @param file the file to dump to
 	 * @throws IOException if an I/O error occurs
 	 */
-	public static void exportDumpToCSV(CheckBoxTreeTable treeTbl, File file) throws IOException {
+	public static void dumpTableToCSV(CheckBoxTreeTable treeTbl, File file) throws IOException {
 		try (FileWriter fw = new FileWriter(file)) {
 			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
-			
+			int maxDepth = getMaximumDepth(0, root);
 			String rowSep = System.getProperty("line.separator");
 			String colSep = Constants.TSV_FILE_SEPARATOR;
 			
-			// Store expansion state and expand whole tree, restore state after dumping.
+			// store expansion state and expand whole tree, restore state after dumping
 			Enumeration<?> expanded = treeTbl.getExpandedDescendants(new TreePath(root));
+			treeTbl.expandAll();
 			
 			int rowCount = treeTbl.getRowCount();
 			int colCount = treeTbl.getColumnCount();
-			int maxDepth = getMaximumDepth(0, root);
 			
 			// write header line
 			for (int i = 1; i < maxDepth; i++) {
@@ -157,11 +157,8 @@ public class TableConfig {
 				fw.write(colSep);
 			}
 			for (int i = 0; i < colCount; i++) {
-				String columnHeader = treeTbl.getColumn(i).getIdentifier().toString();
-				if (!columnHeader.equals("www")) {
-					fw.write(columnHeader);
-					fw.write(colSep);
-				}
+				fw.write(treeTbl.getColumn(i).getIdentifier().toString());
+				fw.write(colSep);
 			}
 			fw.write(rowSep);
 			
@@ -169,28 +166,30 @@ public class TableConfig {
 			// write table contents
 			for (int row = 0; row < rowCount; row++) {
 				TreePath path = treeTbl.getPathForRow(row);
-				if (cbtsm.isPathSelected(path, true)) {
-					int len = path.getPathCount() - 1;
-					// write hierarchical elements
-					for (int i = 1; i < len; i++) {
-						fw.write(path.getPathComponent(i).toString());
-						fw.write(colSep);
-					}
-					// if path is shorter than max depth pad with empty columns
-					// TODO: maybe pad using 'Uncharacterized' or something to that effect
-					for (int i = len; i < maxDepth; i++) {
-						fw.write(colSep);
-					}
-					// write other column elements
-					for (int col = 0; col < colCount; col++) {
-						Object value = treeTbl.getValueAt(row, col);
-						if (value != null) {
-							if (!value.toString().contains("file"))
-								fw.write(value.toString());
+				TreeTableNode node = (TreeTableNode) path.getLastPathComponent();
+				if (node.isLeaf()) {
+					if (cbtsm.isPathSelected(path, true)) {
+						int len = path.getPathCount() - 1;
+						// write hierarchical elements
+						for (int i = 1; i < len; i++) {
+							fw.write(path.getPathComponent(i).toString());
+							fw.write(colSep);
 						}
-						fw.write(colSep);
+						// if path is shorter than max depth pad with empty columns
+						// TODO: maybe pad using 'Uncharacterized' or something to that effect
+						for (int i = len; i < maxDepth; i++) {
+							fw.write(colSep);
+						}
+						// write other column elements
+						for (int col = 0; col < colCount; col++) {
+							Object value = treeTbl.getValueAt(row, col);
+							if (value != null) {
+								fw.write(value.toString());
+							}
+							fw.write(colSep);
+						}
+						fw.write(rowSep);
 					}
-					fw.write(rowSep);
 				}
 			}
 			
@@ -214,7 +213,7 @@ public class TableConfig {
 		Enumeration<? extends TreeTableNode> children = parent.children();
 		while (children.hasMoreElements()) {
 			TreeTableNode child = children.nextElement();
-			maxDepth = Math.max(maxDepth, getMaximumDepth(depth + 1, child));
+			maxDepth = Math.max(depth, getMaximumDepth(depth + 1, child));
 		}
 		return maxDepth;
 	}

@@ -421,6 +421,4 @@ public class MascotGenericFileReader extends InputFileReader {
     	
 		return mgf;
 	}
-	
-	
 }

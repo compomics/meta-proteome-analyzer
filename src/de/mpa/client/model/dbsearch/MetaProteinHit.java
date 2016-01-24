@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 
@@ -178,5 +179,23 @@ public class MetaProteinHit extends ProteinHit {
 			res.addAll(protHit.getProperties(type));
 		}
 		return res;
+	}
+	
+	@Override
+	public TaxonomyNode getTaxonomyNode() {
+		if (super.getTaxonomyNode() == null) {
+			return getProteinHitList().get(0).getTaxonomyNode();
+		}
+		return super.getTaxonomyNode();
+	}
+	
+	@Override
+	public ReducedUniProtEntry getUniProtEntry(){
+		for (ProteinHit protHit : this.getProteinSet()) {
+			if (protHit.getUniProtEntry() != null) {
+				return protHit.getUniProtEntry();
+			}
+		}
+		return null;
 	}
 }

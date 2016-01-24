@@ -64,7 +64,6 @@ public class DbSearchResult implements Serializable {
 	 */
 	private int totalSpectra;
 	
-	private String spectrumFilePath;
 
 	/**
 	 * Constructs a result object from the specified project title, experiment
@@ -368,7 +367,6 @@ public class DbSearchResult implements Serializable {
 			DbSearchResult that = (DbSearchResult) obj;
 			result = this.getProjectTitle().equals(that.getProjectTitle())
 					&& this.getExperimentTitle().equals(that.getExperimentTitle());
-			// TODO: maybe compare (meta-)proteins?
 		}
 		return result;
 	}

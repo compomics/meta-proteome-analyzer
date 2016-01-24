@@ -14,7 +14,7 @@ import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
  * 
  * @author R. Heyer and A. Behne
  */
-public class TaxonomyNode implements Serializable {
+public class TaxonomyNode implements Comparable, Serializable {
 	
 	/**
 	 * Serialization ID set to default == 1L;
@@ -127,17 +127,23 @@ public class TaxonomyNode implements Serializable {
 	 * @return the parent taxonomy node of the desired rank.
 	 */
 	public TaxonomyNode getParentNode(TaxonomyRank rank) {
+		
 		TaxonomyNode parentNode = this;
+		
+		if (parentNode.getID() == 1) {
+			return new TaxonomyNode(0, rank, "Unknown");
+		}
+
 		TaxonomyRank parentRank = parentNode.getRank();
 		while (!rank.equals(parentRank)) {
 			parentNode = parentNode.getParentNode();
-			parentRank = parentNode.getRank();
 			if (parentNode.getID() == 1) {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
 				parentNode = new TaxonomyNode(0, rank, "Unknown");
 				break;
 			}
+			parentRank = parentNode.getRank();
 		}
 		return parentNode;
 	}
@@ -160,7 +166,7 @@ public class TaxonomyNode implements Serializable {
 	
 	/**
 	 * Returns the list of parent taxonomy nodes of this node up to the taxonomy
-	 * root. The last element of the list is this node.
+	 * root (but without "root" or "unclassified"). The last element of the list is this node.
 	 * @return the taxonomy path
 	 */
 	public TaxonomyNode[] getPath() {
@@ -194,5 +200,19 @@ public class TaxonomyNode implements Serializable {
 	public String toString() {
 		return this.getName() + " (" + this.getRank() + ") [" + this.getID() + "]";
 	}
-	
+
+	@Override
+	public int compareTo(Object obj) {
+		if (obj instanceof TaxonomyNode) {
+			TaxonomyNode that = (TaxonomyNode) obj;			
+			if (this.getID()> that.getID()) {
+				return 1;
+			}else if (this.getID()== that.getID()) {
+				return 0;
+			}else if (this.getID()< that.getID()) {
+				return -1;
+			}
+		}
+		return 0;
+	}
 }

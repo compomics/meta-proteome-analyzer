@@ -222,24 +222,26 @@ public class MetaProteinFactory {
 					Collection<String> pepSeqsB) {
 				// Merge meta-proteins if at least one overlapping peptide
 				// element exists (weak similarity criterion)
+				boolean shouldCondense = false;
 				for (String seqA : pepSeqsA) {
 					for (String seqB : pepSeqsB) {
 						if (seqA.equals(seqB)) {
-							return true;
+							shouldCondense = true;
 						} else {
 							if (this.getMaximumDistance() > 0) {
+								// a small levenshtein distance indicates different metaproteins 
 								if (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= this.getMaximumDistance()) {
-									return true;
+									return false;
 								}
 							}
 						}
 					}
 				}
-				return false;
+				return shouldCondense;
 //				return !Collections.disjoint(pepSeqsA, pepSeqsB);
 			}
 		},
-		SHARED_SUBSET("have all peptides in common") {
+		SHARED_SUBSET("have all share a common peptide subset") {
 			@Override
 			public boolean shouldCondense(
 					Collection<String> pepSeqsA,
@@ -252,7 +254,6 @@ public class MetaProteinFactory {
 				// check whether peptides in first list have corresponding
 				// elements in second list, stop at first mismatch
 				Iterator<String> iterA = seqsA.iterator();
-				outer:
 				while (iterA.hasNext()) {
 					String seqA = (String) iterA.next();
 					Iterator<String> iterB = seqsB.iterator();
@@ -264,35 +265,10 @@ public class MetaProteinFactory {
 							iterA.remove();
 							iterB.remove();
 							break;
-						} else {
-							// mismatch found, abort
-							notInB = true;
-							break outer;
-						}
+						} 
 					}
 				}
-				if (notInB) {
-					// check remaining peptides
-					Iterator<String> iterB = seqsB.iterator();
-					while (iterB.hasNext()) {
-						String seqB = (String) iterB.next();
-						iterA = seqsA.iterator();
-						while (iterA.hasNext()) {
-							String seqA = (String) iterA.next();
-							if (seqA.equals(seqB) || ((this.getMaximumDistance() > 0) 
-									&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= this.getMaximumDistance()))) {
-								// match found, remove from lists
-								iterA.remove();
-								iterB.remove();
-								break;
-							} else {
-								// mismatch found, both peptide sets contain distinct peptides
-								return false;
-							}
-						}
-					}
-				}
-				return true;
+				return seqsA.isEmpty() || seqsB.isEmpty();
 //				return (pepSeqsA.containsAll(pepSeqsB) || pepSeqsB.containsAll(pepSeqsA));
 			}
 		};
@@ -548,7 +524,8 @@ public class MetaProteinFactory {
 		client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 
 		// Define common peptide taxonomy for each peptide
-		TaxonomyUtils.determinePeptideTaxonomy(result.getMetaProteins().getPeptideSet(), TaxonomyDefinition.COMMON_ANCESTOR);
+		TaxonomyUtils.determinePeptideTaxonomy(
+				result.getMetaProteins().getPeptideSet(), TaxonomyDefinition.COMMON_ANCESTOR);
 		
 		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 		
@@ -563,6 +540,7 @@ public class MetaProteinFactory {
 		TaxonomyUtils.determineProteinTaxonomy(result.getProteinHitList(), params);
 		
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+
 		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
 		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
 
@@ -570,6 +548,7 @@ public class MetaProteinFactory {
 		MetaProteinFactory.condenseMetaProteins(result.getMetaProteins(), params);
 
 		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+
 		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
 		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
 		

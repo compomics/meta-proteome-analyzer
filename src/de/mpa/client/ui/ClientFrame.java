@@ -239,7 +239,6 @@ public class ClientFrame extends JFrame {
 	 * Initializes the UI components.
 	 */
 	private void initComponents() {
-
 		// Menu
 		menuBar = new ClientFrameMenuBar();
 		// Status Bar
@@ -248,19 +247,13 @@ public class ClientFrame extends JFrame {
 		// Project panel
 		projectPnl = new ProjectPanel();
 		
-		if (!Client.isViewer()) {
-			// File panel
-			filePnl = new FilePanel();
-//			// Settings Panel
-//			settingsPnl = new SettingsPanel();
-		}
+		// File panel
+		filePnl = new FilePanel();
+		
 		// Results Panel
 		resultPnl = new ResultsPanel();
 		// Logging panel		
 		loggingPnl = new LoggingPanel();
-		
-		// Spectrum result panel();
-//		spectrumResultPnl = new SpectrumResultPanel();
 		
 	}
 
@@ -477,14 +470,6 @@ public class ClientFrame extends JFrame {
 	 */
 	public void setLastSelectedExportHeaders(List<ExportHeader> lastSelectedExportHeaders) {
 		this.lastSelectedExportHeaders = lastSelectedExportHeaders;
-	}
-	
-	/**
-	 * Returns whether the client application is in viewer mode.
-	 * @return <code>true</code> if the client is in viewer mode, <code>false</code> otherwise
-	 */
-	public boolean isViewer() {
-		return Client.isViewer();
 	}
 	
 }

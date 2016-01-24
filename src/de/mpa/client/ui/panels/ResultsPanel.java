@@ -291,8 +291,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 				"b:p:g"));
 		navPnl.setOpaque(false);
 
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, !Client.isViewer()), CC.xy(1, 1));
-		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, !Client.isViewer()), CC.xy(3, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, true), CC.xy(1, 1));
+		navPnl.add(ClientFrame.getInstance().createNavigationButton(true, true), CC.xy(3, 1));
 
 		// add everything to main panel
 		this.add(navPnl, CC.xy(1, 3));
@@ -950,6 +950,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 					}
 				}
 				
+				
+				
 				return 1;
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -1003,18 +1005,18 @@ public class ResultsPanel extends JPanel implements Busyable {
 		protected Object doInBackground() {
 			try {
 				Thread.currentThread().setName("ProcessResultsThread");
-				
+
 				// begin appearing busy
 				ResultsPanel.this.setBusy(true);
 				dbPnl.setBusy(true);
 				gdbPnl.setBusy(true);
-				
+
 				// restore result object from backup file if it was processed before
 				Client client = Client.getInstance();
 				if (!dbSearchResult.isRaw()) {
 					dbSearchResult = client.restoreBackupDatabaseSearchResult();
 				}
-				
+
 				// process results
 				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
 						dbSearchResult, client.getResultParameters());
@@ -1031,11 +1033,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// Update overview panel
+			dbPnl.setDatabaseSearchResult(dbSearchResult);
 			ResultsPanel.this.updateOverview();
+			
+			ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+//TODO!		ClientFrame.getInstance().getProjectPanel().setDatabaseSearchResult(dbSearchResult);
+			
 			// Populate tables in database search result panel
 			dbPnl.refreshProteinViews();
 		}
-		
+
 	}
 
 	/**
@@ -1078,13 +1085,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 							}
 						}
 					}
-
+					
 					// Update statistics labels
 					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
 					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
 					distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
 					uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
+					
 					metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
 					speciesLbl.setText("" + speciesNames.size());
 					enzymesLbl.setText("" + ecNumbers.size());

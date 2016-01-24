@@ -530,9 +530,7 @@ public class ProjectPanel extends JPanel {
 				boolean hasResult = (selectedExperiment != null) ? selectedExperiment.hasSearchResult() : false;
 				
 				// enable input and results tabs
-				if (!clientFrame.isViewer()) {
-					clientFrame.setTabEnabledAt(ClientFrame.INDEX_INPUT_PANEL, true);
-				}
+				clientFrame.setTabEnabledAt(ClientFrame.INDEX_INPUT_PANEL, true);
 				clientFrame.setTabEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, hasResult);
 				
 				// enable navigation buttons
@@ -796,6 +794,15 @@ public class ProjectPanel extends JPanel {
 			return currentExperiment.getSearchResult();
 		}
 		return null;
+	}
+	
+	/**
+	 * Sets the current database search result
+	 * @param dbSearchResult
+	 */
+	public void setDatabaseSearchResult(DbSearchResult dbSearchResult) {
+		currentExperiment.setSearchResult(dbSearchResult);
+		selectedExperiment.setSearchResult(dbSearchResult);
 	}
 	
 }

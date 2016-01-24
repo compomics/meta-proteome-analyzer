@@ -132,14 +132,9 @@ public class Starter {
 			Border fchb = BorderFactory.createLineBorder(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR.getDelegateColor());
 			UIManager.put("Table.focusCellHighlightBorder", fchb);
 			UIManager.put("List.focusCellHighlightBorder", fchb);
-			
-//			UIManager.put("ProgressBar.foreground", new GradientColorAdapter(
-//					UIColor.PROGRESS_BAR_START_COLOR.getDelegateColor(),
-//					UIColor.PROGRESS_BAR_END_COLOR.getDelegateColor()));
 			UIManager.put("ProgressBar.foreground", UIColor.PROGRESS_BAR_FOREGROUND_COLOR.getDelegateColor());
 
-			UIManager.put("TaskPaneContainer.background",
-					UIColor.TASK_PANE_BACKGROUND_COLOR.getDelegateColor());
+			UIManager.put("TaskPaneContainer.background", UIColor.TASK_PANE_BACKGROUND_COLOR.getDelegateColor());
 			UIManager.put("TaskPaneContainer.border", BorderFactory.createCompoundBorder(
 					new ThinBevelBorder(BevelBorder.LOWERED),
 					BorderFactory.createEmptyBorder(10, 10, 10, 10)));
@@ -185,14 +180,14 @@ public class Starter {
 	public static void main(final String[] args) {
 		
 		// Lock file instance.
-		boolean unlocked = true;
-		if (LOCK_ACTIVE) {
-			unlocked = lockInstance("filelock");
-		}
+//		boolean unlocked = true;
+//		if (LOCK_ACTIVE) {
+//			unlocked = lockInstance("filelock");
+//		}
 		
-		if (unlocked) {
+//		if (unlocked) {
 //			// Display splash screen
-			new Thread(new SplashRunnable()).start();
+//			new Thread(new SplashRunnable()).start();
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -201,18 +196,7 @@ public class Starter {
 						// Set the look&feel
 						setLookAndFeel();
 						
-						boolean viewerMode = false;
-						boolean debugMode = false;
-						if (args.length > 0) {
-							for (String arg : args) {
-								if (arg.equalsIgnoreCase("-debug")) {
-									debugMode = true;
-								} else if (arg.equalsIgnoreCase("-viewer")) {
-									viewerMode = true;
-								}
-							}
-						}
-						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode);
+						ClientFrame clientFrame = ClientFrame.getInstance(false, false);
 						clientFrame.toFront();
 						
 					} catch (Exception e) {
@@ -220,14 +204,9 @@ public class Starter {
 								"Error", "The application could not be launched due to an error.",
 								e.getMessage(), null, e, Level.SEVERE, null));
 					}
-					
-					SplashScreen splashScreen = SplashScreen.getSplashScreen();
-					if (splashScreen != null) {
-						splashScreen.close();
-					}
 				}
 			});
-		}
+//		}
 	}
 	
 	/**

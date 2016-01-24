@@ -290,22 +290,6 @@ public class Client {
 		dbSearchResult = ClientFrame.getInstance().getProjectPanel().getSearchResult();
 		return dbSearchResult;
 	}
-
-	/**
-	 * Sets the current database search result
-	 * @param dbSearchResult
-	 */
-	public void setDatabaseSearchResult(DbSearchResult dbSearchResult) {
-		this.dbSearchResult = dbSearchResult;
-	}
-	
-	/**
-	 * Returns whether the client is in viewer mode.
-	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
-	 */
-	public static boolean isViewer() {
-		return instance.viewer;
-	}
 	
 	/**
 	 * Returns whether the client is in debug mode

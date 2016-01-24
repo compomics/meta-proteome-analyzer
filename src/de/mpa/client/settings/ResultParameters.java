@@ -56,7 +56,10 @@ public class ResultParameters extends ParameterMap {
 		this.put("clusterRule", new OptionParameter(ClusterRule.getValues(), 0, null, null, "General"));
 		this.put("taxonomyRule", new OptionParameter(TaxonomyRule.getValues(), 0, null, null, "General"));
 		// visible component
-		this.put("metaProteinGeneration", new MetaProteinParameters("Meta-Protein Generation"));
+		MetaProteinParameters metaParams = new MetaProteinParameters("Meta-Protein Generation");
+		this.put("metaProteinGeneration", metaParams);
+		metaParams.createLeftComponent();
+		metaParams.applyChanges();
 	}
 
 	@Override
@@ -164,7 +167,7 @@ public class ResultParameters extends ParameterMap {
 			
 			JPanel distPnl = new JPanel(new FormLayout("p, 5dlu, 0px:g", "p"));
 			final JLabel distLbl = new JLabel("Max. Peptide Sequence Distance");
-			String distToolTip = "The maximum allowed pairwise Levenshtein distance between peptide sequences.";
+			String distToolTip = "In single shared peptide mode this will result in a negative control and split of metaproteins.";
 			distLbl.setToolTipText(distToolTip);
 			distSpn = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
 			distSpn.setToolTipText(distToolTip);
