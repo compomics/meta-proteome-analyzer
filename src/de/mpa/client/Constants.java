@@ -25,7 +25,7 @@ import com.thoughtworks.xstream.XStream;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
-import de.mpa.client.model.AbstractProject;
+import de.mpa.client.model.FileProject;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
@@ -214,7 +214,7 @@ public class Constants {
 		}
 		if (!projectsFile.exists()) {
 			// create new projects file
-			new XStream().toXML(new ArrayList<AbstractProject>(), new BufferedOutputStream(new FileOutputStream(projectsFile)));
+			new XStream().toXML(new ArrayList<FileProject>(), new BufferedOutputStream(new FileOutputStream(projectsFile)));
 		}
 		return projectsFile;
 	}

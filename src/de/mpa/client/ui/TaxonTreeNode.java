@@ -6,12 +6,12 @@ import java.util.Set;
 
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 
+import de.mpa.client.model.dbsearch.ProteinHit;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.Organism;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
-import de.mpa.client.model.dbsearch.ProteinHit;
 
 public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 	

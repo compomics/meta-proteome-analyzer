@@ -60,17 +60,20 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/spring-aop-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-beans-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-context-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-core-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-expression-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-jdbc-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-orm-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-test-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-tx-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-web-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-webmvc-3.2.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi-2015-5.jar"/>
+	<classpathentry kind="lib" path="lib/uniprotjapi-2015-12.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
+	<classpathentry kind="lib" path="lib/spring-aop-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-expression-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-jdbc-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-orm-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-test-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-tx-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-web-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-webmvc-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

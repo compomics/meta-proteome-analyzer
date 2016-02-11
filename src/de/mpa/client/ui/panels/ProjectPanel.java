@@ -31,8 +31,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.thoughtworks.xstream.XStream;
 
 import de.mpa.client.Constants;
-import de.mpa.client.model.AbstractExperiment;
-import de.mpa.client.model.AbstractProject;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -54,22 +52,22 @@ public class ProjectPanel extends JPanel {
 	/**
 	 * The cache of projects.
 	 */
-	private List<AbstractProject> projects;
+	private List<FileProject> projects;
 	
 	/**
 	 * The currently selected project.
 	 */
-	private AbstractProject selectedProject;
+	private FileProject selectedProject;
 	
 	/**
 	 * The currently selected experiment.
 	 */
-	private AbstractExperiment selectedExperiment;
+	private FileExperiment selectedExperiment;
 	
 	/**
 	 * The currently loaded experiment.
 	 */
-	private AbstractExperiment currentExperiment;
+	private FileExperiment currentExperiment;
 	
 	/**
 	 * Text field displaying the currently selected project's title
@@ -260,8 +258,8 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public Object getValueAt(int row, int column) {
 				Object value = super.getValueAt(row, 0);
-				if (value instanceof AbstractProject) {
-					AbstractProject project = (AbstractProject) value;
+				if (value instanceof FileProject) {
+					FileProject project = (FileProject) value;
 					switch (column) {
 						case 0:
 							return project.getID();
@@ -287,7 +285,7 @@ public class ProjectPanel extends JPanel {
 				int selRow = projectTbl.getSelectedRow();
 				if (selRow != -1) {
 					selRow = projectTbl.convertRowIndexToModel(selRow);
-					AbstractProject project = (AbstractProject) projectTbl.getModel().getValueAt(selRow, -1);
+					FileProject project = (FileProject) projectTbl.getModel().getValueAt(selRow, -1);
 					if (project != selectedProject) {
 						selectedProject = project;
 						selectedExperiment = null;
@@ -362,7 +360,7 @@ public class ProjectPanel extends JPanel {
 		addProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AbstractProject project = null;
+				FileProject project = null;
 				project = new FileProject();
 				GeneralDialog dialog = new GeneralDialog(DialogType.NEW_PROJECT, project);
 				int result = dialog.showDialog();
@@ -386,7 +384,7 @@ public class ProjectPanel extends JPanel {
 					int result = dialog.showDialog();
 					if (result == GeneralDialog.RESULT_SAVED) {
 						// refresh table and re-select project and experiment
-						AbstractExperiment experiment = selectedExperiment;
+						FileExperiment experiment = selectedExperiment;
 						refreshProjectTable();
 						setSelectedProject(selectedProject);
 						setSelectedExperiment(experiment);
@@ -473,8 +471,8 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public Object getValueAt(int row, int column) {
 				Object value = super.getValueAt(row, 0);
-				if (value instanceof AbstractExperiment) {
-					AbstractExperiment experiment = (AbstractExperiment) value;
+				if (value instanceof FileExperiment) {
+					FileExperiment experiment = (FileExperiment) value;
 					switch (column) {
 						case 0:
 							return experiment.getID();
@@ -505,7 +503,7 @@ public class ProjectPanel extends JPanel {
 				int selRow = experimentTbl.getSelectedRow();
 				if (selRow != -1) {
 					selRow = experimentTbl.convertRowIndexToModel(selRow);
-					selectedExperiment = (AbstractExperiment) experimentTbl.getModel().getValueAt(selRow, -1);
+					selectedExperiment = (FileExperiment) experimentTbl.getModel().getValueAt(selRow, -1);
 				}
 				
 				this.updateComponents();
@@ -580,7 +578,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// pre-create experiment using current project as parent
-				AbstractExperiment experiment;
+				FileExperiment experiment;
 				experiment = new FileExperiment();
 				experiment.setProject(selectedProject);
 				
@@ -665,17 +663,17 @@ public class ProjectPanel extends JPanel {
 			
 			File projectsFile = Constants.getProjectsFile();
 			if (projectsFile.exists()) {
-				projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
+				projects = (List<FileProject>) new XStream().fromXML(projectsFile);
 				
 				long projectCounter = 1;
 				long experimentCounter = 1;
-				for (AbstractProject project : projects) {
+				for (FileProject project : projects) {
 					project.setID(projectCounter++);
 					
-					List<AbstractExperiment> experiments = project.getExperiments();
+					List<FileExperiment> experiments = project.getExperiments();
 					
 					if (experiments != null) {
-						for (AbstractExperiment experiment : experiments) {
+						for (FileExperiment experiment : experiments) {
 							experiment.setId(experimentCounter++);
 						}
 					}
@@ -692,11 +690,11 @@ public class ProjectPanel extends JPanel {
 	 * Returns the list of available projects.
 	 * @return the projects
 	 */
-	public List<AbstractProject> getProjects() {
+	public List<FileProject> getProjects() {
 		return projects;
 	}
 	
-	public AbstractProject getSelectedProject() {
+	public FileProject getSelectedProject() {
 		return selectedProject;
 	}
 	
@@ -704,10 +702,11 @@ public class ProjectPanel extends JPanel {
 	 * Selects the specified project in the projects table.
 	 * @param project the project to select
 	 */
-	public void setSelectedProject(AbstractProject project) {
+	public void setSelectedProject(FileProject project) {
 		if (project != null) {
 			for (int row = 0; row < projectTbl.getRowCount(); row++) {
-				AbstractProject p = (AbstractProject) projectTbl.getValueAt(row, -1);
+				//TODO: FileProject p = (FileProject) projectTbl.getValueAt(row, -1);
+				FileProject p = projects.get(row);
 				if (p.equals(project)) {
 					projectTbl.getSelectionModel().setSelectionInterval(row, row);
 					p.setID((long) row + 1);
@@ -724,11 +723,11 @@ public class ProjectPanel extends JPanel {
 	 * specified project.
 	 * @param project the project containing the experiments to populate the table with
 	 */
-	public void refreshExperimentTable(AbstractProject project) {
+	public void refreshExperimentTable(FileProject project) {
 		TableConfig.clearTable(experimentTbl);
 		
 		if (project.getExperiments() != null) {
-			for (AbstractExperiment experiment : project.getExperiments()) {
+			for (FileExperiment experiment : project.getExperiments()) {
 				((DefaultTableModel) experimentTbl.getModel()).addRow(new Object[] { experiment });
 			}
 		}
@@ -738,13 +737,13 @@ public class ProjectPanel extends JPanel {
 	 * Selects the specified project in the experiments table.
 	 * @param experiment the experiment to select
 	 */
-	public void setSelectedExperiment(AbstractExperiment experiment) {
+	public void setSelectedExperiment(FileExperiment experiment) {
 		
 		if (experiment != null) {
 			long experimentCounter = 0;
-			for (AbstractProject project : projects) {
-				List<AbstractExperiment> experiments = project.getExperiments();
-				for (AbstractExperiment exp : experiments) {
+			for (FileProject project : projects) {
+				List<FileExperiment> experiments = project.getExperiments();
+				for (FileExperiment exp : experiments) {
 					experimentCounter++;
 				}
 			}
@@ -764,7 +763,7 @@ public class ProjectPanel extends JPanel {
 	 * Returns the selected experiment.
 	 * @return the selected experiment
 	 */
-	public AbstractExperiment getSelectedExperiment() {
+	public FileExperiment getSelectedExperiment() {
 		return selectedExperiment;
 	}
 	
@@ -773,7 +772,7 @@ public class ProjectPanel extends JPanel {
 	 * currently <i>selected</i> experiment.
 	 * @return the currently loaded experiment
 	 */
-	public AbstractExperiment getCurrentExperiment() {
+	public FileExperiment getCurrentExperiment() {
 		return currentExperiment;
 	}
 	

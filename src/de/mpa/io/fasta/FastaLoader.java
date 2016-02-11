@@ -1,8 +1,5 @@
 package de.mpa.io.fasta;
 
-import gnu.trove.map.TObjectLongMap;
-import gnu.trove.map.hash.TObjectLongHashMap;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +13,12 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.util.protein.Header;
+import com.compomics.util.protein.Protein;
+
+import de.mpa.client.Client;
+import gnu.trove.map.TObjectLongMap;
+import gnu.trove.map.hash.TObjectLongHashMap;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
@@ -23,11 +26,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-
-import com.compomics.util.protein.Header;
-import com.compomics.util.protein.Protein;
-
-import de.mpa.client.Client;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access

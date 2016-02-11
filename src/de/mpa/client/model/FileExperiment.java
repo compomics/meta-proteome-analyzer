@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -16,7 +17,6 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
-import com.compomics.util.experiment.io.massspectrometry.MgfReader;
 import com.thoughtworks.xstream.XStream;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
@@ -39,7 +39,32 @@ import de.mpa.main.Parameters;
  * 
  * @author A. Behne
  */
-public class FileExperiment extends AbstractExperiment {
+public class FileExperiment implements ProjectExperiment {
+	
+	/**
+	 * The experiment ID.
+	 */
+	private Long id;
+
+	/**
+	 * The experiment title.
+	 */
+	private String title;
+
+	/**
+	 * The experiment's creation date.
+	 */
+	private Date creationDate;
+	
+	/**
+	 * The experiment properties.
+	 */
+	private Map<String, String> properties;
+	
+	/**
+	 * The parent project.
+	 */
+	private FileProject project;
 	
 	/**
 	 * The result file.
@@ -61,7 +86,6 @@ public class FileExperiment extends AbstractExperiment {
 	 */
 	private TaxonomyNode unclassifiedNode;
 	
-
 	/**
 	 * Creates an empty file-based experiment.
 	 */
@@ -76,10 +100,133 @@ public class FileExperiment extends AbstractExperiment {
 	 * @param creationDate
 	 * @param project
 	 */
-	public FileExperiment(String title, Date creationDate, AbstractProject project) {
-		super(null, title, creationDate, project);
+	public FileExperiment(String title, Date creationDate, FileProject project) {
+		this(null, title, creationDate, project);
 	}
 	
+	/**
+	 * Creates an experiment using the specified title, id, creation date and
+	 * parent project.
+	 * @param id the experiment ID
+	 * @param title the experiment title
+	 * @param creationDate the experiment's creation date
+	 * @param project the parent project
+	 */
+	public FileExperiment(Long id, String title, Date creationDate, FileProject project) {
+		this(id, title, creationDate, new LinkedHashMap<String, String>(), project);
+	}
+	
+	/**
+	 * Creates an experiment using the specified title, id, creation date,
+	 * property map and parent project.
+	 * @param id the experiment ID
+	 * @param title the experiment title
+	 * @param creationDate the experiment's creation date
+	 * @param properties the experiment properties
+	 * @param project the parent project
+	 */
+	public FileExperiment(Long id, String title, Date creationDate, Map<String, String> properties, FileProject project) {
+		this.id = id;
+		this.title = title;
+		this.creationDate = creationDate;
+		this.properties = properties;
+		this.project = project;
+	}
+	
+	/**
+	 * Adds a property to the map of experiment properties.
+	 * @param name the property name
+	 * @param value the property value
+	 */
+	public void addProperty(String name, String value) {
+		properties.put(name, value);
+	}
+
+	@Override
+	public Long getID() {
+		return id;
+	}
+	
+	/**
+	 * Sets the experiment ID.
+	 * @param id the ID to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	@Override
+	public String getTitle() {
+		return title;
+	}
+	
+	/**
+	 * Sets the experiment title.
+	 * @param title the title to set
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	@Override
+	public Date getCreationDate() {
+		return creationDate;
+	}
+	
+	/**
+	 * Sets the creation date.
+	 * @param creationDate the date to set
+	 */
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	@Override
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+	
+	/**
+	 * Returns the parent project.
+	 * @return the parent project
+	 */
+	public FileProject getProject() {
+		return project;
+	}
+	
+	/**
+	 * Sets the parent project.
+	 * @param project the project to set
+	 */
+	public void setProject(FileProject project) {
+		if (project == null) {
+			throw new IllegalArgumentException("Project must not be null.");
+		}
+		this.project = project;
+	}
+	
+	/**
+	 * Clears the search result object.
+	 */
+	public void clearSearchResult() {
+		this.setSearchResult(null);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ProjectExperiment) {
+			ProjectExperiment that = (ProjectExperiment) obj;
+			if (this.getClass().equals(that.getClass())) {
+				if ((this.getID() != null) && (that.getID() != null)) {
+					return this.getID().equals(that.getID());
+				} else {
+					return this.getCreationDate().equals(that.getCreationDate());
+				}
+			}
+		}
+		return false;
+	}	
+
 	/**
 	 * Sets the result file.
 	 * @param resultFile the result file to set
@@ -108,13 +255,11 @@ public class FileExperiment extends AbstractExperiment {
 		this.spectrumFiles = spectrumFiles;
 	}
 	
-	@Override
 	public boolean hasSearchResult() {
 		return (resultFile != null) && resultFile.exists();
 	}
 
 
-	@Override
 	public DbSearchResult getSearchResult() {
 		if (searchResult != null) {
 			return searchResult;
@@ -230,12 +375,6 @@ public class FileExperiment extends AbstractExperiment {
 		result.addProtein(new ProteinHit(hit.getAccession(), hit.getProteinDescription(), hit.getProteinSequence(), peptideHit, uniProtEntry, taxonomyNode, experimentID));
 	}
 
-	@Override
-	public void clearSearchResult() {
-		searchResult = null;
-	}
-	
-	@Override
 	public void setSearchResult(DbSearchResult searchResult) {
 		this.searchResult = searchResult;
 	}
@@ -248,8 +387,8 @@ public class FileExperiment extends AbstractExperiment {
 			this.setCreationDate(new Date());
 			this.getProperties().putAll(properties);
 			
-			AbstractProject project = this.getProject();
-			List<AbstractExperiment> experiments = project.getExperiments();
+			FileProject project = this.getProject();
+			List<FileExperiment> experiments = project.getExperiments();
 			experiments.add(this);
 		
 			this.serialize();
@@ -276,8 +415,8 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void delete() {
 		try {
-			AbstractProject project = this.getProject();
-			List<AbstractExperiment> experiments = project.getExperiments();
+			FileProject project = this.getProject();
+			List<FileExperiment> experiments = project.getExperiments();
 			experiments.remove(this);
 			
 			this.serialize();
@@ -296,7 +435,7 @@ public class FileExperiment extends AbstractExperiment {
 		DbSearchResult searchResult = this.searchResult;
 		this.searchResult = null;
 		
-		List<AbstractProject> projects = ClientFrame.getInstance().getProjectPanel().getProjects();
+		List<FileProject> projects = ClientFrame.getInstance().getProjectPanel().getProjects();
 		new XStream().toXML(projects, new BufferedOutputStream(new FileOutputStream(Constants.getProjectsFile())));
 		
 		// restore search result reference

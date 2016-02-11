@@ -22,10 +22,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.xml.rpc.ServiceException;
 
-import keggapi.KEGGLocator;
-import keggapi.KEGGPortType;
 import de.mpa.client.Constants;
 import de.mpa.io.parser.ec.ECReader;
+import keggapi.KEGGLocator;
+import keggapi.KEGGPortType;
 
 /**
  * Class providing access to KEGG remote service and local dumps of database contents.

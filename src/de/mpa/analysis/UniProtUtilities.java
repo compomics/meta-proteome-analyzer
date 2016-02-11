@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import de.mpa.client.Constants;
+import de.mpa.main.Starter;
 import uk.ac.ebi.kraken.interfaces.ProteinData;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefDatabaseType;
@@ -24,8 +26,6 @@ import uk.ac.ebi.kraken.uuw.services.remoting.Query;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
-import de.mpa.client.Constants;
-import de.mpa.main.Starter;
 
 /**
  * Class to access the EBI UniProt WebService.

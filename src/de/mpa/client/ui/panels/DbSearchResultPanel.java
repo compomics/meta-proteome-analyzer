@@ -98,7 +98,6 @@ import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;

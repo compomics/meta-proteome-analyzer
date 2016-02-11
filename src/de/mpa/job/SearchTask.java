@@ -1,14 +1,12 @@
 package de.mpa.job;
 
 import java.io.File;
-import java.util.List;
 
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.job.instances.DeleteJob;
 import de.mpa.job.instances.OmssaJob;
 import de.mpa.job.instances.ParseJob;
-import de.mpa.job.instances.SpectraJob;
 import de.mpa.job.instances.UniProtJob;
 import de.mpa.job.instances.XTandemJob;
 import de.mpa.job.scoring.OmssaScoreJob;

@@ -9,11 +9,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
@@ -21,6 +16,11 @@ import de.mpa.io.GenericContainer;
 import de.mpa.job.Job;
 import de.mpa.job.JobStatus;
 import de.mpa.util.Formatter;
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
+import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
+import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
 public class UniProtJob extends Job {
 	/**

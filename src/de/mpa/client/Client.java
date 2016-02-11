@@ -22,7 +22,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
-import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
@@ -360,7 +360,7 @@ public class Client {
 	 * @return the restored result object or <code>null</code> if an error occurred
 	 */
 	public DbSearchResult restoreBackupDatabaseSearchResult() {
-		AbstractExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
+		FileExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
 		String path = ResourceProperties.getInstance().getProperty("path.base");
 		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(new File(path + Constants.BACKUP_RESULT)))))) {
 			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();

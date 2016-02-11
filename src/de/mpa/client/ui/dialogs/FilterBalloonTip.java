@@ -27,13 +27,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
-import net.java.balloontip.BalloonTip;
-import net.java.balloontip.CustomBalloonTip;
-import net.java.balloontip.positioners.BalloonTipPositioner;
-import net.java.balloontip.positioners.LeftBelowPositioner;
-import net.java.balloontip.styles.EdgedBalloonStyle;
-import net.java.balloontip.styles.RoundedBalloonStyle;
-
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
@@ -44,6 +37,12 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.icons.IconConstants;
+import net.java.balloontip.BalloonTip;
+import net.java.balloontip.CustomBalloonTip;
+import net.java.balloontip.positioners.BalloonTipPositioner;
+import net.java.balloontip.positioners.LeftBelowPositioner;
+import net.java.balloontip.styles.EdgedBalloonStyle;
+import net.java.balloontip.styles.RoundedBalloonStyle;
 
 public class FilterBalloonTip extends CustomBalloonTip {
 	

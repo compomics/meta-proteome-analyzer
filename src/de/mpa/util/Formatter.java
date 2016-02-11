@@ -1,7 +1,5 @@
 package de.mpa.util;
 
-import gnu.trove.list.array.TCharArrayList;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -22,6 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
+
+import gnu.trove.list.array.TCharArrayList;
 
 /**
  * This class provides some helper methods for formatting.

@@ -84,7 +84,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.FileExperiment;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFilterParameters;
@@ -290,7 +290,7 @@ public class FilePanel extends JPanel implements Busyable {
 		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
 				"", null, null, null, null) {
 			public String toString() {
-				AbstractExperiment experiment = clientFrame.getProjectPanel().getSelectedExperiment();
+				FileExperiment experiment = clientFrame.getProjectPanel().getSelectedExperiment();
 				if (experiment != null) {
 					return experiment.getTitle();
 				}

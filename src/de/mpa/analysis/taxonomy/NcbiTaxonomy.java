@@ -1,7 +1,5 @@
 package de.mpa.analysis.taxonomy;
 
-import gnu.trove.map.hash.TIntIntHashMap;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,6 +15,7 @@ import java.util.zip.GZIPOutputStream;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Constants;
 import de.mpa.util.Formatter;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 /**
  * This class constructs an index file for the taxonomy (phylogentic tree) from NCBI:
