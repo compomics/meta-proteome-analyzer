@@ -1054,7 +1054,7 @@ public class FilePanel extends JPanel implements Busyable {
 								treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
 								cbtsm.removeSelectionPath(fileNode.getPath());
 								// reselect spectrum nodes that meet filter criteria
-								cbtsm.addSelectionPaths(toBeAdded);
+								// TODO: cbtsm.addSelectionPaths(toBeAdded);
 							}
 							client.firePropertyChange("indeterminate", true, false);
 						}
