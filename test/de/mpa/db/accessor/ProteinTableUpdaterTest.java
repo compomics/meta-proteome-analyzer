@@ -232,7 +232,11 @@ public class ProteinTableUpdaterTest {
 		Set<String> keySet = duplicatesMap.keySet();
 		System.out.println("Selecting and updating search hits...");
 		
+		int totalentries = keySet.size();
+		int entrycounter = 0; 
 		for (String key : keySet) {
+			entrycounter = entrycounter + 1;
+			System.out.println("Entry: " + entrycounter + " of " + totalentries);
 			Long proteinID = duplicatesMap.get(key);
 			
 			String[] split = key.split("_Dupl");

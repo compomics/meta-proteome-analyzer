@@ -238,10 +238,12 @@ public class SettingsPanel extends JPanel {
 				fc.setFileFilter(Constants.MGF_FILE_FILTER);
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.setMultiSelectionEnabled(false);
+				// changed to multiple selection
+				fc.setMultiSelectionEnabled(true);
 				int result = fc.showOpenDialog(ClientFrame.getInstance());
 				if (result == JFileChooser.APPROVE_OPTION) {
-					new QuickSearchWorker(fc.getSelectedFile()).execute();
+					// QuickSearchWorker now accepts multiple files 
+					new QuickSearchWorker(fc.getSelectedFiles()).execute();
 				}
 			}
 		});
@@ -277,7 +279,6 @@ public class SettingsPanel extends JPanel {
 	 * @author Thilo Muth, Alex Behne
 	 */
 	private class ProcessWorker extends SwingWorker {
-
 		protected Object doInBackground() {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
 			long experimentID = projectPanel.getSelectedExperiment().getID();
@@ -290,7 +291,6 @@ public class SettingsPanel extends JPanel {
 				firePropertyChange("progress", null, 0);
 				searchBtn.setEnabled(false);
 				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
 				try {
 					// Pack and send files.
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
@@ -301,10 +301,8 @@ public class SettingsPanel extends JPanel {
 					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
 					SearchSettings settings = new SearchSettings(dbss, sss, experimentID);
-					
 					// FIXME: Please change that and get files from file tree.
-					if (dbss.isMascot()) {
-						
+					if (dbss.isMascot()) {		
 						// Get Instance of a fastaLoader
 						FastaLoader fastaLoader = FastaLoader.getInstance();
 						String fastaFilePath = getFastaPath();
@@ -324,7 +322,6 @@ public class SettingsPanel extends JPanel {
 						int i = 0;
 						for (File datFile : datFiles) {
 							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + datFiles.size());
-							
 							// store mascot results
 							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap(), fastaLoader);
 							storager.run();
@@ -394,13 +391,8 @@ public class SettingsPanel extends JPanel {
 					FastaLoader fastaLoader = FastaLoader.getInstance();
 					String fastaFilePath = getFastaPath();
 					if (fastaFilePath != null && !fastaFilePath.isEmpty()) {
-
+						// we only need to point to the correct file, the rest is now done during parsing
 						fastaLoader.setFastaFile(new File(fastaFilePath));
-						try {
-							fastaLoader.loadFastaFile();
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						}
 					}else{
 						fastaLoader = null;
 					}
@@ -408,16 +400,16 @@ public class SettingsPanel extends JPanel {
 					int i = 0; // Flag for number of dat-files
 					for (Entry<Long, File> datFileEntry : expFileMap.entrySet()) {
 						client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + expFileMap.size());
-
 						// Store Mascot results
 						settings.setExpID(datFileEntry.getKey());
-						MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFileEntry.getValue(), settings, databasePnl.getMascotParameterMap(), fastaLoader);
+						MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), 
+									datFileEntry.getValue(), settings, databasePnl.getMascotParameterMap(), fastaLoader);
 						storager.run();
 						client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + expFileMap.size());
 					}
 				}
-				// CODE for runnning mulitiple database search jobs.... not working yet
-//				// Start database searches
+				// TODO: CODE for runnning mulitiple database search jobs .... not working yet
+				// Start database searches
 //				if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
 //					int i = 0;
 //					for (Entry<Long, File> mgfSearch : expFileMap.entrySet()) {
@@ -442,7 +434,9 @@ public class SettingsPanel extends JPanel {
 //						for (int j = 0; j < positions.size(); j++) {
 //
 //							if ((numSpectra % packageSize) == 0) {
+//								System.out.println("first if");
 //								if (fos != null) {
+//									System.out.println("2nd if");
 //									fos.close();
 //									client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
 //									batchFile.delete();
@@ -464,18 +458,17 @@ public class SettingsPanel extends JPanel {
 //						batchFile.delete();
 //						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 //						for (String str : mgfFileNames) {
-//							System.out.println("RunSearches on Files>" +str +" " + settings.getExpID());
+//							System.out.println("RunSearches on Files>" +str +" " + settings.getExpID());							
 //						}
-//						client.runSearches(mgfFileNames, settings);
-						
-						//////////////////
-						// Update expFileMap to the sended filename of the server
-						//							expFileMap.put(mgfSearch.getKey(), filename);
+//						//client.runSearches(mgfFileNames, settings);
+//						
+//						//////////////////
+//						// Update expFileMap to the sended filename of the server
+//						expFileMap.put(mgfSearch.getKey(), mgfSearch.getValue());
 //					}
-
-//					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-					// dispatch search request
-					//						client.runMultipleSearches(expFileMap, settings);
+//				client.firePropertyChange("new message", null, "SEARCHES RUNNING");
+//				// dispatch search request
+//				//client.runSearches(expFileMap, settings);
 //				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -499,67 +492,69 @@ public class SettingsPanel extends JPanel {
 		/**
 		 * The spectrum file.
 		 */
-		private File file;
+		private File[] files;
 
 		/**
 		 * Constructs a quick search worker using the specified file.
 		 * @param file the spectrum file
 		 */
-		public QuickSearchWorker(File file) {
-			this.file = file;
+		public QuickSearchWorker(File[] files) {
+			this.files = files;
 		}
 
 		@Override
 		protected Object doInBackground() throws Exception {
-			List<String> filenames = new ArrayList<String>();
-			FileOutputStream fos = null;
 			Client client = Client.getInstance();
-			client.firePropertyChange("indeterminate", false, true);
-			client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
-			MascotGenericFileReader reader = new MascotGenericFileReader(this.file, LoadMode.SURVEY);
-			client.firePropertyChange("indeterminate", true, false);
-			client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
-			List<Long> positions = reader.getSpectrumPositions(false);
-			long numSpectra = 0L;
-			long maxSpectra = (long) positions.size();
-			long packageSize = databasePnl.getPackageSize();
-			client.firePropertyChange("resetall", 0L, maxSpectra);
-			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-			// iterate over all spectra
-			File batchFile = null;
-			for (int j = 0; j < positions.size(); j++) {
-
-				if ((numSpectra % packageSize) == 0) {
-					if (fos != null) {
-						fos.close();
-						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
-						batchFile.delete();
+			List<String> filenames = new ArrayList<String>();
+			for (File file : this.files) {
+				String mgffilename = file.getName();								
+				FileOutputStream fos = null;				
+				client.firePropertyChange("indeterminate", false, true);
+				client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
+				MascotGenericFileReader reader = new MascotGenericFileReader(file, LoadMode.SURVEY);
+				client.firePropertyChange("indeterminate", true, false);
+				client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
+				List<Long> positions = reader.getSpectrumPositions(false);
+				long numSpectra = 0L;
+				long maxSpectra = (long) positions.size();
+				long packageSize = databasePnl.getPackageSize();
+				client.firePropertyChange("resetall", 0L, maxSpectra);
+				client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
+				// iterate over all spectra
+				File batchFile = null;
+				for (int j = 0; j < positions.size(); j++) {
+	
+					if ((numSpectra % packageSize) == 0) {
+						if (fos != null) {
+							fos.close();
+							client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+							batchFile.delete();
+						}
+						batchFile = new File(mgffilename + "_quick_batch_" + (numSpectra/packageSize) + ".mgf");
+						filenames.add(batchFile.getName());
+						fos = new FileOutputStream(batchFile);
+						long remaining = maxSpectra - numSpectra;
+						firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 					}
-					batchFile = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
-					filenames.add(batchFile.getName());
-					fos = new FileOutputStream(batchFile);
-					long remaining = maxSpectra - numSpectra;
-					firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+	
+					MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
+					mgf.writeToStream(fos);
+					fos.flush();
+					firePropertyChange("progressmade", 0L, ++numSpectra);
 				}
-
-				MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
-				mgf.writeToStream(fos);
-				fos.flush();
-				firePropertyChange("progressmade", 0L, ++numSpectra);
+				fos.close();
+				client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+				batchFile.delete();
+				client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 			}
-			fos.close();
-			client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
-			batchFile.delete();
-			client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
-
+			
 			// collect search settings
 			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
 			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
-			SearchSettings settings = new SearchSettings(dbss, sss,
-					ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
+			SearchSettings settings = new SearchSettings(dbss, sss, ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-			// dispatch search request
-			client.runSearches(filenames, settings);
+			// dispatch search request			
+			client.runSearches(filenames, settings);										
 			return null;
 		}
 	}

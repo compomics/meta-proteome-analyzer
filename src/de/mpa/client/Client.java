@@ -823,6 +823,14 @@ public class Client {
 	}
 	
 	/**
+	 * Returns the database search result independent of type of result
+	 * @return dbSearchResult The database search result of single or all listed experiments.
+	 */
+	public DbSearchResult fetchResults() {
+		return dbSearchResult;
+	}
+	
+	/**
 	 * Returns whether the client is in viewer mode.
 	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
 	 */

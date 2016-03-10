@@ -82,7 +82,12 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
      */
     public static List<Mascothit> getHitsFromExperimentID(long experimentID, Connection conn) throws SQLException {
     	List<Mascothit> temp = new ArrayList<Mascothit>();
-    	PreparedStatement ps = conn.prepareStatement("select i.*, p.sequence, pr.accession from mascothit i, searchspectrum s, peptide p, protein pr where i.fk_peptideid = p.peptideid and i.fk_proteinid = pr.proteinid and s.searchspectrumid = i.fk_searchspectrumid and s.fk_experimentid = ?");
+    	PreparedStatement ps = conn.prepareStatement("select i.*, p.sequence, pr.accession " +
+    												 "from mascothit i, searchspectrum s, peptide p, protein pr " +
+    												 "where i.fk_peptideid = p.peptideid " +
+    												 "and i.fk_proteinid = pr.proteinid " +
+    												 "and s.searchspectrumid = i.fk_searchspectrumid " +
+    												 "and s.fk_experimentid = ?");
         ps.setLong(1, experimentID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {

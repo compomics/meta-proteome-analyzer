@@ -1,5 +1,6 @@
 package de.mpa.client.ui.panels;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -10,9 +11,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -52,6 +55,7 @@ import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.dialogs.NewBlastDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.db.DBDumper;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
@@ -90,7 +94,7 @@ public class ProjectPanel extends JPanel {
 	/**
 	 * Table view of all projects stored in the remote database.
 	 */
-	protected JXTable projectTbl;
+	protected JXTable projectTbl;	
 
 	/**
 	 * Button to bring up a blank project properties dialog for creating new
@@ -112,7 +116,7 @@ public class ProjectPanel extends JPanel {
 	/**
 	 * Table view of all experiments of the currently selected project.
 	 */
-	protected JXTable experimentTbl;
+	protected JXTable experimentTbl;	
 	
 	/**
 	 * Button to bring up a blank experiment properties dialog for creating new
@@ -155,6 +159,12 @@ public class ProjectPanel extends JPanel {
 	 * The 'Query Uniprot' button
 	 */
 	private JButton uniBtn;
+	
+	/**
+	 * Flag denoting whether this panel is currently busy.
+	 */
+	private boolean busy;
+	
 	
 	/**
 	 * Constructs a panel containing components for selecting and configuring
@@ -480,30 +490,27 @@ public class ProjectPanel extends JPanel {
 		deleteProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				int choice = JOptionPane.showConfirmDialog(clientFrame, "<html>Are you sure you want to delete the selected project?<br>Changes are irreversible.</html>", "Delete Project", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-				if (choice == JOptionPane.OK_OPTION) {
+				String confirmCode = JOptionPane.showInputDialog(
+				        ClientFrame.getInstance(), 
+				        "Continuing this process will DELETE in the selected project. \n Type \"DELETE\" to proceed.", 
+				        "Warning", 
+				        JOptionPane.WARNING_MESSAGE);
+				
+				try {
+				if ((confirmCode != null) && (confirmCode.equals("DELETE"))) {					
+					ProjectPanel.this.setBusy(true);
 					try {
-						selectedProject.delete();
-						selectedProject = null;
-						selectedExperiment = null;
-						refreshProjectTable();
-
-						// Disable buttons
-						modifyProjectBtn.setEnabled(false);
-						deleteProjectBtn.setEnabled(false);
-						addExperimentBtn.setEnabled(false);
-						modifyExperimentBtn.setEnabled(false);
-						deleteExperimentBtn.setEnabled(false);
-
+						new DeleteProjectWorker(selectedProject).execute();
 						// Reset textfields
 						clientFrame.getStatusBar().getProjectTextField().setText("None");
 						clientFrame.getStatusBar().getExperimentTextField().setText("None");
-
 					} catch (Exception e) {
 						e.printStackTrace();
-						
 					}
+					ProjectPanel.this.setBusy(false);
+					}				
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -746,28 +753,19 @@ public class ProjectPanel extends JPanel {
 		deleteExperimentBtn.setEnabled(false);
 		
 		deleteExperimentBtn.addActionListener(new ActionListener() {
-			@Override
+			//@Override
 			public void actionPerformed(ActionEvent evt) {
 				int choice = JOptionPane.showConfirmDialog(clientFrame, "<html>Are you sure you want to delete the selected experiment?<br>Changes are irreversible.</html>", "Delete Experiment", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-			
 				if (choice == JOptionPane.OK_OPTION) {
+					ProjectPanel.this.setBusy(true);
 					try {
-						selectedExperiment.delete();
-						selectedProject.getExperiments().remove(selectedExperiment);
-						selectedExperiment = null;
-						
-						refreshExperimentTable(selectedProject);						
-						
-						// Disable buttons
-						modifyExperimentBtn.setEnabled(false);
-						deleteExperimentBtn.setEnabled(false);
-
+						new DeleteExperimentWorker(selectedExperiment, selectedProject).execute();
 						// Reset textfields
 						clientFrame.getStatusBar().getExperimentTextField().setText("None");
-						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+					ProjectPanel.this.setBusy(false);
 				}
 			}
 		});
@@ -895,6 +893,102 @@ public class ProjectPanel extends JPanel {
 			return currentExperiment.getSearchResult();
 		}
 		return null;
+		
 	}
 	
+	public boolean isBusy() {
+		return this.busy;
+	}
+	/**
+	 * Sets the busy state of this panel.
+	 * @param busy <code>true</code> if busy, <code>false</code> otherwise
+	 */
+	public void setBusy(boolean busy) {
+		this.busy = busy;
+		
+		this.addProjectBtn.setEnabled(!busy);
+		this.modifyProjectBtn.setEnabled(!busy);
+		this.deleteProjectBtn.setEnabled(!busy);
+		this.addExperimentBtn.setEnabled(!busy);
+		this.modifyExperimentBtn.setEnabled(!busy);
+		this.deleteExperimentBtn.setEnabled(!busy);
+		this.nextBtn.setEnabled(!busy);
+		this.skipBtn.setEnabled(!busy);
+		this.specBtn.setEnabled(!busy);
+		this.blastBtn.setEnabled(!busy);
+		this.uniBtn.setEnabled(!busy);
+		
+		this.experimentTbl.setEnabled(!busy);
+		this.projectTbl.setEnabled(!busy);
+		
+		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
+		ClientFrame.getInstance().setCursor(cursor);	
+	}
+	
+	/**
+	 * Worker class for deleting experiments
+	 * 
+	 * @author Thilo Muth, Alex Behne, R. Heyer
+	 */
+	private class DeleteExperimentWorker extends SwingWorker {
+
+		/**
+		 *  Experiment to be deleted
+		 */
+		private AbstractExperiment experiment;
+		/**
+		 * The currently selected project.
+		 */
+		private AbstractProject project;
+
+		/**
+		 * Constructor for this class, 
+		 * @param deleteexperiment
+		 * @param project
+		 */
+		public DeleteExperimentWorker(AbstractExperiment deleteexperiment, AbstractProject currentProject) {
+			this.experiment = deleteexperiment;
+			this.project = currentProject;
+		}
+
+		protected Object doInBackground() {
+			
+			this.experiment.delete();
+			project.getExperiments().remove(selectedExperiment);
+			experiment = null;					
+			refreshExperimentTable(project);
+			return 0;
+		}
+	}
+	
+	/**
+	 * Worker class for deleting experiments
+	 * 
+	 * @author Thilo Muth, Alex Behne, R. Heyer
+	 */
+	private class DeleteProjectWorker extends SwingWorker {
+
+		/**
+		 * The currently selected project.
+		 */
+		private AbstractProject project;
+
+		/**
+		 * Constructor for this class, 
+		 * @param deleteexperiment
+		 * @param project
+		 */
+		public DeleteProjectWorker(AbstractProject currentProject) {
+			this.project = currentProject;
+		}
+
+		protected Object doInBackground() {	
+			project.delete();
+			selectedProject = null;
+			selectedExperiment = null;
+			refreshProjectTable();
+			return 0;
+		}
+	}
+
 }

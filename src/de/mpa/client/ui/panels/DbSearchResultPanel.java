@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -140,6 +141,7 @@ import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
+import de.mpa.client.ui.dialogs.SelectExperimentDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
@@ -1910,11 +1912,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				PhylogenyTreeTableNode pepNode = new PhylogenyTreeTableNode(
 						peptide);
 				root.add(pepNode);
-
-				maxProtCount = Math
-						.max(maxProtCount, peptide.getProteinCount());
-				maxSpecCount = Math.max(maxSpecCount,
-						peptide.getSpectralCount());
+				maxProtCount = Math.max(maxProtCount, peptide.getProteinCount());
+				maxSpecCount = Math.max(maxSpecCount, peptide.getSpectralCount());
 			}
 		int numPeptides = peptides.size();
 		if (numPeptides > 0) {
@@ -2111,9 +2110,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				TableConfig.clearTable(psmTbl);
 				spectrumPnl.clearSpectrum();
 				
-				// Fetch search result object
-				resultPnl.dbSearchResult = Client.getInstance().getDatabaseSearchResult();
-				
+				// Fetch search result object				
+				resultPnl.dbSearchResult = Client.getInstance().fetchResults();					
+
 				// Build local chart data objects
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
 				resultPnl.ontologyData = new OntologyData(resultPnl.dbSearchResult, hl);

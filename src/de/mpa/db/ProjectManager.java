@@ -2,14 +2,19 @@ package de.mpa.db;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -22,9 +27,14 @@ import de.mpa.client.model.DatabaseProject;
 import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
+import de.mpa.db.accessor.MascothitTableAccessor;
+import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
 import de.mpa.db.accessor.Searchspectrum;
+import de.mpa.db.accessor.SearchspectrumTableAccessor;
+import de.mpa.db.accessor.SpectrumTableAccessor;
+import de.mpa.db.accessor.XtandemhitTableAccessor;
 
 /**
  * This class handles project management by accessing project and experiment
@@ -43,7 +53,7 @@ public class ProjectManager {
 	 * Database connection.
 	 */
 	private Connection conn;
-	
+		
 	/**
 	 * Sets up the project manager with an existing database connection.
 	 * @param conn Database connection.
@@ -339,27 +349,149 @@ public class ProjectManager {
 	 * as all associated properties and search spectra.
 	 * @param experimentId the database id
 	 * @throws SQLException if a database error occurs
+	 * @author K. Schallert
 	 */
 	public void deleteExperiment(Long experimentId) throws SQLException {
+				
+		Client client = Client.getInstance();
+		conn.setAutoCommit(false);
 		ExperimentAccessor experiment = ExperimentAccessor.findExperimentByID(experimentId, conn);
+		
+		// TODO: client property change isn't working properly, likely due to messy initialization
+		client.firePropertyChange("indeterminate", false, true);
+		client.firePropertyChange("new message", null, "DELETE EXPERIMENT");    	
+		client.firePropertyChange("indeterminate", true, false);
+		client.firePropertyChange("resetall", 0L, 6);
+		client.firePropertyChange("resetcur", 0L, 6);
 		
 		// delete all properties of the experiment
 		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
 		for (ExpProperty expProperty : expPropList) {
 			expProperty.delete(conn);
+			conn.commit();
 		}
 		
-		// delete all search spectrum entries linked to the experiment
-		List<Searchspectrum> searchSpectra = Searchspectrum.findFromExperimentID(experimentId, conn);
-		for (Searchspectrum searchSpectrum : searchSpectra) {
-			searchSpectrum.delete(conn);
-		}
+		
+		client.firePropertyChange("new message", null, "DELETE MASCOTHITS");
+		client.firePropertyChange("progressmade", true, false);
+		
+		// delete mascothits
+		Statement stmt = conn.createStatement();
+		stmt.executeUpdate("DELETE m.* " +
+				  "FROM mascothit m, searchspectrum s " +
+				  "WHERE m.fk_searchspectrumid = s.searchspectrumid " +
+				  "AND s.fk_experimentid = "+ experimentId);
+		
+		client.firePropertyChange("new message", null, "DELETE OMSSAHITS");
+		client.firePropertyChange("progressmade", true, false);
+
+    	// delete omssahits
+		stmt.executeUpdate("DELETE o.* " +
+				  "FROM omssahit o, searchspectrum s " +
+				  "WHERE o.fk_searchspectrumid = s.searchspectrumid " +
+				  "AND s.fk_experimentid = " + experimentId);
+
+		client.firePropertyChange("new message", null, "DELETE XTANDEMHITS");
+		client.firePropertyChange("progressmade", true, false);
+		
+    	// delete xtandemhits
+		stmt.executeUpdate("DELETE x.* " +
+				  "FROM xtandemhit x, searchspectrum s " +
+				  "WHERE x.fk_searchspectrumid = s.searchspectrumid " +
+				  "AND s.fk_experimentid = " + experimentId);
+    	
+		client.firePropertyChange("new message", null, "DELETE MASSSPECTRA");
+		client.firePropertyChange("progressmade", true, false);
+				
+    	// delete searchspectra, spec2pep and spectra    	
+		stmt.executeUpdate("DELETE sp.* FROM searchspectrum s " +
+				  "LEFT JOIN spectrum spec ON spec.spectrumid=s.fk_spectrumid " +
+				  "LEFT JOIN spec2pep sp ON sp.fk_spectrumid=spec.spectrumid " +
+				  "WHERE s.fk_experimentid = " + experimentId);
+		
+		client.firePropertyChange("progressmade", true, false);
+		
+		stmt.executeUpdate("DELETE s.*, spec.*  FROM searchspectrum s " +
+				  "LEFT JOIN spectrum spec ON spec.spectrumid=s.fk_spectrumid " +
+				  "LEFT JOIN spec2pep sp ON sp.fk_spectrumid=spec.spectrumid " +
+				  "WHERE s.fk_experimentid = " + experimentId);
+		
+				
+		// delete spectra/spec2pep and database cleanup
+		//this.RemoveOrphanedSpectra(client);
 		
 		// delete the experiment itself
 		experiment.delete(conn);
 		conn.commit();
+		
+		client.firePropertyChange("progressmade", true, false);
+		client.firePropertyChange("new message", null, "FINISHED DELETING");
 	}
 	
+	
+	// method obsolete for now
+	/**
+	 * Method belongs to deleteExperiment(), it cleans up the database, removing all 
+	 * spectra w/o corresponding searchspectrum entries. Can be called independently.
+	 *  
+	 * @throws SQLException if a database error occurs
+	 * @author K. Schallert
+	 */
+	
+	private void RemoveOrphanedSpectra(Client client) throws SQLException {		
+		conn.setAutoCommit(false);
+		// only the spectra with an associated searchspectrum should actually remain in the database
+		// get all spectrum ids in the searchspectrum table
+		Map<Long, Integer> used_spectra_ids = new TreeMap<Long, Integer>();			
+		PreparedStatement prs = conn.prepareStatement("SELECT ss.fk_spectrumid FROM searchspectrum ss");		
+		ResultSet aRS = prs.executeQuery();			
+		while (aRS.next()) {			
+			used_spectra_ids.put(aRS.getLong("fk_spectrumid"), 0);			
+		}
+		prs.close();
+		aRS.close();		
+
+		// get all spectrum ids from the spectrum table (these are the actual spectra)		
+		prs = conn.prepareStatement("SELECT s.spectrumid FROM spectrum s");		
+		aRS = prs.executeQuery();
+		List<Long> all_spectra_ids = new ArrayList<Long>();						
+		while (aRS.next()) {
+			Long current_id = aRS.getLong(1);
+			all_spectra_ids.add(current_id);	
+		}
+		prs.close();
+		aRS.close();
+				
+		// we now remove all values where we have a match between both lists
+		List<Long> orphaned_spectra = new ArrayList<Long>();
+		for (int all_index = 0; all_index < all_spectra_ids.size(); all_index++) {
+			//Long spectrum_id = all_spectra_ids.get(all_index);
+			if (used_spectra_ids.containsKey(all_spectra_ids.get(all_index))) {				
+				// pass
+			} else {
+				orphaned_spectra.add(all_spectra_ids.get(all_index));
+			}
+		}		
+		
+		// actual deletion
+		Statement stmt = conn.createStatement();
+		for (Long spectrum_id : orphaned_spectra) {
+			PreparedStatement prs2 = conn.prepareStatement("SELECT s.* FROM spectrum s WHERE s.spectrumid = ?");
+			prs2.setLong(1, spectrum_id);
+			ResultSet aRS2 = prs2.executeQuery();			
+			while (aRS2.next())  {
+				SpectrumTableAccessor spectrum = new SpectrumTableAccessor(aRS2);
+				stmt.executeUpdate("DELETE sp.* " +
+						  "FROM spec2pep sp WHERE sp.fk_spectrumid = " + spectrum.getSpectrumid());
+				spectrum.delete(conn);
+				conn.commit();
+				client.firePropertyChange("progressmade", true, false);
+			}
+			prs2.close();
+			aRS2.close();
+		}
+		conn.commit();		
+	}
 	
 	
 	/* convenience getters below this point */

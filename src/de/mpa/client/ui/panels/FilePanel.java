@@ -1029,7 +1029,6 @@ public class FilePanel extends JPanel implements Busyable {
 						MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
 						Parameters parameters = mascotDatfile.getParametersSection();
 						MascotParameters mascotParams = (MascotParameters) dbSettingsPnl.getMascotParameterMap();
-
 						mascotParams.setValue("precTol", Double.valueOf(parameters.getTOL()));
 						mascotParams.setValue("fragTol", Double.valueOf(parameters.getITOL()));
 						mascotParams.setValue("missClv", Integer.valueOf(parameters.getPFA()));

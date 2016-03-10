@@ -3,11 +3,13 @@ package de.mpa.io.fasta;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
@@ -15,6 +17,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,11 +41,14 @@ import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.fastadigest.PeptideDigester;
 
+import de.mpa.db.storager.MascotStorager.MascotProteinHit;
+import de.mpa.db.storager.MascotStorager.MascotPeptideHit; 
+
 /**
  * Singleton class providing FASTA read/write capabilities via random access
  * file.
  * 
- * @author Thilo Muth
+ * @author Thilo Muth, K. Schallert
  */
 public class FastaLoader {
 	
@@ -58,7 +64,8 @@ public class FastaLoader {
 	private static RandomAccessFile raf;
 
 	/**
-	 * The FASTA file instance.
+	 * The FASTA file instance. 
+	 * TODO: Why is this static?
 	 */
 	private static File file;
 	
@@ -262,9 +269,58 @@ public class FastaLoader {
 			fis.close();
 			ois.close();
 		}
-	
 	}
-
+	
+	/**
+	 * updates a map with accessions and MascotProteinHits and adds data as necessary
+	 * 
+	 * @throws FileNotFoundException
+	 *             when the file could not be found.
+	 * @author K. Schallert
+	 */
+	public HashMap<String, MascotProteinHit> updateProteinMapfromFasta(HashMap<String, MascotProteinHit> proteinmap) throws FileNotFoundException {
+		// just open the thing and read every line .....
+        try {
+			// load the dat file, TODO: file is static for some reason ...
+            BufferedReader fastareader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
+            // init stuff
+            String line;
+            boolean parse_sequence_mode = false;
+            String current_sequence = "";
+			String current_accession = null;
+			String current_description = null;			
+            // read through all lines ...            
+            while ((line = fastareader.readLine()) != null) {            
+            	// headers start with ">"
+            	if (line.startsWith(">")) {
+            		// reached new header, stop parsing sequence
+            		if (parse_sequence_mode) {
+            			parse_sequence_mode = false;
+            			proteinmap.get(current_accession).adddescription(current_description);
+            			proteinmap.get(current_accession).addsequence(current_sequence);         			
+            		}            		
+            		// parse accession
+            		String[] header_split = line.split("[|]");            		
+            		if (proteinmap.containsKey(header_split[1])) {
+            			// got a match -> parse data, this may crash if the accession is not properly formatted
+            			// TODO: find permanent solution for misformed accessions
+            			current_accession = header_split[1];
+            			current_description = header_split[2];
+            			current_sequence = "";
+            			parse_sequence_mode = true;            			
+            		}
+            	} else if (parse_sequence_mode) {
+            		// append current line to the sequence string
+            		current_sequence = current_sequence + line;
+            	}
+            }
+            fastareader.close();	
+        } catch (IOException e) {
+        	e.printStackTrace();
+        }
+		return proteinmap;
+	}
+	
 	/**
 	 * Loads the FASTA file by random access and maps accessions of found 
 	 * protein blocks to their respective byte positions in the file.
@@ -343,7 +399,6 @@ public class FastaLoader {
 		String filestring = file.getAbsolutePath();
 		filestring = filestring.substring(0, filestring.lastIndexOf('.'))+".pep";
 		this.pepfile = new File(filestring.substring(0, filestring.lastIndexOf('.'))+".pep");
-//		System.out.println(pepfile);
 		if (!pepfile.exists() || pepfile.isDirectory()) {
 			pepfile = null;
 		}
@@ -380,7 +435,6 @@ public class FastaLoader {
 		if (pepfile!=null) {
 			fastaDigester = new PeptideDigester();
 			fastaDigester.parsePeptideDB(pepfile.getAbsolutePath());
-//			System.out.println("PARSED PEPTIDE DB");
 		}
 	}
 	

@@ -84,19 +84,20 @@ public class DbSearchResult implements Serializable {
 	 * @param proteinHit the {@link ProteinHit} to add
 	 */
 	public void addProtein(ProteinHit proteinHit) {
+		
 		// extract elements
 		PeptideHit peptideHit = proteinHit.getSinglePeptideHit();
 		SpectrumMatch spectrumMatch = peptideHit.getSingleSpectrumMatch();
 		SearchHit searchHit = spectrumMatch.getSearchHits().get(0);
 		Set<Long> experimentIDs = proteinHit.getExperimentIDs();
-
-		// check for existing elements
 		
+		// check for existing elements
 		SpectrumMatch currentSpectrumMatch = this.getSpectrumMatch(peptideHit.getSequence() + spectrumMatch.getSearchSpectrumID());
 		if (currentSpectrumMatch != null) {
 			currentSpectrumMatch.addExperimentIDs(experimentIDs);
 			spectrumMatch = currentSpectrumMatch;
 		}
+		
 		
 		PeptideHit currentPeptideHit =
 				this.getPeptideHit(peptideHit.getSequence());
@@ -123,6 +124,16 @@ public class DbSearchResult implements Serializable {
 		peptideHit.addSpectrumMatch(peptideHit.getSequence(), spectrumMatch);
 		spectrumMatch.addSearchHit(searchHit);
 	}
+	
+	// add entire proteinhitlist
+	public void addProteinHitList(ProteinHitList protlist) {
+		visMetaProteins = protlist;
+	}
+	// add metaprotein
+	public void addMetaProtein(MetaProteinHit mph) {
+		this.metaProteins.add(mph);
+	}	
+	
 
 	/**
 	 * Returns whether this result object has not been processed yet.

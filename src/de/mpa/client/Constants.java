@@ -61,7 +61,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.0.19d";
+	public final static String VER_NUMBER = "1.2.0";
 	
 	/**
 	 * The client frame minimum width in pixels.
