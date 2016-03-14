@@ -20,7 +20,7 @@
 
 ## Introduction ##
 
-**MetaProteomeAnalyzer** (MPA) is a software pipeline to analyze and visualize metaproteomics (and also proteomics) data. It consists of a processing server application and a graph-database driven interactive client. 
+**MetaProteomeAnalyzer** (MPA) is a software pipeline to analyze and visualize metaproteomics (and also proteomics) data. It consists of a MS/MS data processing application in combination with an user-friendly interactive client. 
 The metaproteomics data analysis software is developed in the Java programming language and uses a neo4j graph database backend for flexible and user-defined data querying of the results.
 
 ---
@@ -36,7 +36,6 @@ The metaproteomics data analysis software is developed in the Java programming l
 ## Features ##
 
 The MPA metaproteomics software comes with the following key features:
-
   * Intuitive graphical user interface
   * Project management
   * Top-down metaproteomics data analysis
@@ -46,7 +45,5 @@ The MPA metaproteomics software comes with the following key features:
   * Graph database-driven
   * Interactive overview 
   * Portable application 
-  * Viewer application 
-  * Client-server pipeline
 
 ---
