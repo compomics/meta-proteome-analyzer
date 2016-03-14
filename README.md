@@ -14,7 +14,7 @@
 
 |   |   |   |
 | :------------------------- | :--------------- | :--: |
-| [[download]](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.0.5.zip) | *MPA Portable v1.0.5 - Windows 64-bit* |
+| [[download]](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.1.zip) | *MPA Portable v1.1 - Windows 64-bit* |
 
 ---
 
