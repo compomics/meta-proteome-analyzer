@@ -26,9 +26,9 @@ The metaproteomics data analysis software is developed in the Java programming l
 ---
 
 ## Software Versions ##
-# MPA Portable #
+### MPA Portable ###
 
-**MPA Portable** represents a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software uses X!Tandem and OMSSA as search engines and takes MGF spectrum files as input. The server application is included within the application and no SQL database needs to be set up. The user-provided FASTA databases are formatted automatically.
+**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software uses X!Tandem and OMSSA as search engines and takes MGF spectrum files as input. The server application is included within the application and user-provided FASTA databases are formatted automatically.
 *Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use one of the provided batch files.
 
 ---
