@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,8 +23,13 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
+
+import org.jdesktop.swingx.JXTable;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -68,14 +74,9 @@ import de.mpa.io.ResultExporter.ExportHeaderType;
 
 /**
  * Export dialog to export proteins for multiple experiments from one project.
- * 
- * Class is obsolete, moved to ExportSeparateExpMetaproteins and ExportCombinedExpMetaproteins
- * 
  * @author Robert Heyer
  */
-
-@Deprecated
-public class MetaproteinExportDialog extends JDialog  {
+public class ExportSeparateExpMetaproteins extends JDialog {
 
 	/**
 	 * The client frame
@@ -87,17 +88,23 @@ public class MetaproteinExportDialog extends JDialog  {
 	 */
 	private ResultParameters metaParams;
 	
+//	/**
+//	 * Textfield for project ID
+//	 */
+//	private JTextField projectIDtxt;	
+	
 	/**
-	 * Textfield for project ID
+	 * List of the names of the selected experiments
 	 */
-	private JTextField projectIDtxt;
+	private static LinkedList<Long> expList = new LinkedList<Long>();
+	
 
 	private String taxonSpecies;
 	/**
 	 * @param owner. The owner of the dialog.
 	 * @param title. The title of the dialog.
 	 */
-	public MetaproteinExportDialog(ClientFrame owner, String title) {
+	public ExportSeparateExpMetaproteins(ClientFrame owner, String title) {
 		super(owner, title);
 		this.metaParams = new ResultParameters();
 		this.owner = owner;
@@ -109,12 +116,60 @@ public class MetaproteinExportDialog extends JDialog  {
 	 * Initializes and lays out all components inside this dialog grouped by sections identifiers.
 	 */
 	private void initComponents() {
-
 		// Create BLAST dialog
-		JPanel userExportPnl 		= new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
-		JPanel exportSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu"));
-		JPanel buttonPnl					= new JPanel(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
-		JLabel projectIDLbl 		= new JLabel("Enter the Project ID");
+		JPanel selectExperimentsDlgPnl 	= new JPanel(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g"));		
+		final JXTable expTbl 			= new JXTable(createExpTable());
+		expTbl.setAutoResizeMode(JXTable.AUTO_RESIZE_LAST_COLUMN);
+		JScrollPane expTblSp = new JScrollPane(expTbl);		
+		selectExperimentsDlgPnl.add(expTblSp, CC.xyw(2,  2,7));
+		expTbl.setPreferredSize(new Dimension(400,400));
+		// Configure 'OK' button
+		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
+		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
+		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
+		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		okBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO Robbies update task
+				int[] selectedRows = expTbl.getSelectedRows();
+				for (int i : selectedRows) {
+					Long expName = (Long)expTbl.getValueAt(i, 0);
+					expList.add(expName);
+				}
+				// Check Params
+				ClusterRule clusterRule = (ClusterRule) metaParams.get("clusterRule").getValue();
+				System.out.println("SETTINGS CLUSTER RULE: " + clusterRule.name());
+				PeptideRule peptideRule = (PeptideRule) metaParams.get("peptideRule").getValue();
+				System.out.println("SETTINGS PEPTIDE RULE: " + peptideRule.name());
+				TaxonomyRule taxonomyRule = (TaxonomyRule) metaParams.get("taxonomyRule").getValue();
+				System.out.println("SETTINGS TAXONOMY RULE: " + taxonomyRule.name());
+				Object value = metaParams.get("FDR").getValue();
+				System.out.println("SETTINGS FDR: " +  value);
+				//okBtn.setEnabled(false);
+					try {
+						fetchAndExport();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				close();
+			}
+		});
+
+		// Configure 'Cancel' button
+		JButton cancelBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
+		cancelBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
+		cancelBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
+		cancelBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		cancelBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
+	
+
 		// create button-in-button component for advanced result fetching settings
 		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
 		settingsBtn.setEnabled(!Client.isViewer()); 
@@ -134,61 +189,15 @@ public class MetaproteinExportDialog extends JDialog  {
 				
 			}
 		});
-		projectIDtxt 				= new JTextField("43"); 
-		exportSettingsPnl.add(projectIDLbl, 	CC.xy(2, 2));
-		exportSettingsPnl.add(projectIDtxt, 	CC.xy(4, 2));
-		exportSettingsPnl.add(settingsBtn, CC.xy(6, 2));
-		userExportPnl.add(exportSettingsPnl, 	CC.xy(2, 2));
 		
-		// Configure 'OK' button
-		final JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
-		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
-		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
-		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
-		okBtn.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Check Params
-				ClusterRule clusterRule = (ClusterRule) metaParams.get("clusterRule").getValue();
-				System.out.println("SETTINGS CLUSTER RULE: " + clusterRule.name());
-				PeptideRule peptideRule = (PeptideRule) metaParams.get("peptideRule").getValue();
-				System.out.println("SETTINGS PEPTIDE RULE: " + peptideRule.name());
-				TaxonomyRule taxonomyRule = (TaxonomyRule) metaParams.get("taxonomyRule").getValue();
-				System.out.println("SETTINGS TAXONOMY RULE: " + taxonomyRule.name());
-				Object value = metaParams.get("FDR").getValue();
-				System.out.println("SETTINGS FDR: " +  value);
-				okBtn.setEnabled(false);
-					try {
-						fetchAndExport();
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				close();
-			}
-		});
-		
-		// Configure 'Cancel' button
-		JButton cancelBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
-		cancelBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
-		cancelBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
-		cancelBtn.setHorizontalAlignment(SwingConstants.LEFT);
-		cancelBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			close();
-			}
-		});
-		
-		buttonPnl.add(okBtn, CC.xy(2, 2));
-		buttonPnl.add(cancelBtn, CC.xy(4, 2) );
-		userExportPnl.add(buttonPnl, CC.xy(2, 4));
-		
-		Container cp = this.getContentPane();		
-		cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
-
-		cp.add(userExportPnl, CC.xy(2,  2));
+		selectExperimentsDlgPnl.add(okBtn,CC.xy(2, 4) );
+		selectExperimentsDlgPnl.add(cancelBtn,CC.xy(4, 4) );
+		selectExperimentsDlgPnl.add(settingsBtn,CC.xy(6, 4) );
+		Container cp = this.getContentPane();
+		cp.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g"));
+		cp.setPreferredSize(new Dimension(500,500));
+		cp.add(selectExperimentsDlgPnl, CC.xyw(2,  2,7));	
+				
 		}
 
 	/**
@@ -205,6 +214,19 @@ public class MetaproteinExportDialog extends JDialog  {
 	}
 	
 	/**
+	 * Method to create the experiment table.
+	 * @return Experiment table. The table with all experiments of the project selected in the project panel.
+	 */
+	private DefaultTableModel createExpTable() {
+		DefaultTableModel dtm = new DefaultTableModel( new Object[]{"ID","Experiments"},0);
+		AbstractProject selProject = ClientFrame.getInstance().getProjectPanel().getSelectedProject();
+		for (AbstractExperiment exp : selProject.getExperiments()) {
+			dtm.addRow(new Object[]{exp.getID(),exp.getTitle()});
+		}
+		return dtm;
+	}
+	
+	/**
 	 * Close method for the dialog.
 	 */
 	private void close() {
@@ -218,21 +240,33 @@ public class MetaproteinExportDialog extends JDialog  {
 	 */
 	private void fetchAndExport() throws SQLException, IOException{
 		System.out.println("START EXPORT");
+		this.close();
+		
 		
 		// Get the connection
 		Client client = Client.getInstance();
 		Connection conn = client.getConnection();
 		
-		// Get the experiments
-		ProjectAccessor projectAcc = ProjectAccessor.findFromProjectID(Long.valueOf(projectIDtxt.getText()), conn);
+		client.firePropertyChange("new message", null, "EXPORT IN PROGRESS");
+		client.firePropertyChange("indeterminate", false, true); 
+		ClientFrame clientFrame = ClientFrame.getInstance();
+		
+		
+
+		
+		clientFrame.setEnabled(false);
+		
+		// Get the experiments		
 		List<AbstractExperiment> experiments = new ArrayList<>();
-		//FIXME: Nullpointer is thrown here!
-		List<Property> projProps = Property.findAllPropertiesOfProject(projectAcc.getProjectid(), conn);
-		AbstractProject project = new DatabaseProject(projectAcc, projProps, experiments);
-		List<ExperimentAccessor> experimentAccs = ExperimentAccessor.findAllExperimentsOfProject(projectAcc.getProjectid(), conn);
+		AbstractProject project = ClientFrame.getInstance().getProjectPanel().getSelectedProject();
+		List<ExperimentAccessor> experimentAccs = new ArrayList<ExperimentAccessor>();
+		for (Long current_list_exp : this.expList) {
+			experimentAccs.add(ExperimentAccessor.findExperimentByID(current_list_exp, conn));
+		}
 		for (ExperimentAccessor experimentAcc : experimentAccs) {
 			List<ExpProperty> expProps = ExpProperty.findAllPropertiesOfExperiment(experimentAcc.getExperimentid(), conn);
-			experiments.add(new DatabaseExperiment(experimentAcc, expProps,	project));
+			DatabaseExperiment exp = new DatabaseExperiment(experimentAcc, expProps, project);
+			experiments.add(exp);
 		}
 		
 		// Get the path for the export
@@ -276,7 +310,12 @@ public class MetaproteinExportDialog extends JDialog  {
 		// Ontology Maps
 		 Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		// Export the Data for the individual Experiments
+		  
+		
+		client.firePropertyChange("resetall", 0L, experiments.size());
+		client.firePropertyChange("resetcur", 0L, experiments.size());
 		for (AbstractExperiment exp : experiments) {
+			client.firePropertyChange("progressmade", true, false);
 			// Get DB Search Result Object
 			DbSearchResult dbSearchResult = exp.getSearchResult();
 			// Create Metaproteins
@@ -294,6 +333,7 @@ public class MetaproteinExportDialog extends JDialog  {
 			
 			// Iterate over metaprotein hits
 			for (ProteinHit metaProt : metaProteins) {
+
 				MetaProteinHit mp = (MetaProteinHit)metaProt;
 				
 				// Check for taxonomy level
@@ -410,7 +450,10 @@ public class MetaproteinExportDialog extends JDialog  {
 			System.out.println("Finish Experiment: " +  exp.getID()+ " " +flag  + " of " + experiments.size() + ": " +  exp.getTitle());
 		}
 		System.out.println("EXPORT FINISHED");
-		
+		clientFrame.setEnabled(true);
+		client.firePropertyChange("new message", null, "EXPORT FINISHED");
+		client.firePropertyChange("indeterminate", true, false); 
+		this.expList.clear();
 	}
 	
 	

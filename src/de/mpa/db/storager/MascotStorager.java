@@ -76,6 +76,7 @@ public class MascotStorager extends BasicStorager {
 	 */
 	private static final int MAX_ION_THRESHOLD = 1000;
     
+	// MascotDatfile instance now obsolete	
     /**
      * MascotDatfile instance.
      */

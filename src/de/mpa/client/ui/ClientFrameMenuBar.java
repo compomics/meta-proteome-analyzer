@@ -38,7 +38,9 @@ import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.BlastDialog;
 import de.mpa.client.ui.dialogs.ColorsDialog;
+import de.mpa.client.ui.dialogs.ExportCombinedExpMetaproteins;
 import de.mpa.client.ui.dialogs.ExportDialog;
+import de.mpa.client.ui.dialogs.ExportSeparateExpMetaproteins;
 import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
@@ -230,6 +232,40 @@ public class ClientFrameMenuBar extends JMenuBar {
 				exportCSV();
 			}
 		});
+		
+		// Export Multiple Combined results
+		JMenuItem MCRItem = new JMenuItem("Multiple combined Results", IconConstants.EXCEL_EXPORT_ICON);
+		MCRItem.setName("MCR");
+		MCRItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					if (ClientFrame.getInstance().getProjectPanel().getSelectedProject() != null) {
+						exportMultipleCombined();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		// Export Multiple Separate results
+		JMenuItem MSRItem = new JMenuItem("Mutliple separate results", IconConstants.EXCEL_EXPORT_ICON);
+		MSRItem.setName("MSR");
+		MSRItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					if (ClientFrame.getInstance().getProjectPanel().getSelectedProject() != null) {
+						exportMultipleSeparate();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		// Export graphML file
 		JMenuItem graphmlItem = new JMenuItem("GraphML File...", IconConstants.GRAPH_ICON);
@@ -240,26 +276,14 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 		
-		// Export Meta-proteins Menu Item
-		JMenuItem metaProteinsExportItem = new JMenuItem("Meta-Proteins...");
 
-		metaProteinsExportItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/excel_export16.png")));
-
-		metaProteinsExportItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					openMetaproteinExportDialog();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
 		
 
 		exportMenu.add(mpaItem);
 		exportMenu.addSeparator();
-		exportMenu.add(csvItem);	
-		exportMenu.add(metaProteinsExportItem);
+		exportMenu.add(csvItem);
+		exportMenu.add(MCRItem);
+		exportMenu.add(MSRItem);
 		exportMenu.addSeparator();
 		exportMenu.add(graphmlItem);
 		
@@ -379,6 +403,20 @@ public class ClientFrameMenuBar extends JMenuBar {
 	protected void openMetaproteinExportDialog() throws SQLException {
 		new MetaproteinExportDialog(clientFrame, "User Export Dialog");
 	}
+	
+	/**
+	 * This method opens the export dialog.
+	 */
+    private void exportMultipleCombined() throws SQLException {    	
+    	new ExportCombinedExpMetaproteins(clientFrame, "User Export Dialog");
+    }
+    
+	/**
+	 * This method opens the export dialog.
+	 */
+    private void exportMultipleSeparate()  throws SQLException {
+    	new ExportSeparateExpMetaproteins(clientFrame, "User Export Dialog");    	
+    }
 
 	/**
 	 * Executed when the save project button is triggered. Via a file chooser the user can select the destination of the project (MPA) file.
@@ -415,6 +453,8 @@ public class ClientFrameMenuBar extends JMenuBar {
     	new ExportDialog(clientFrame, "Results Export", true, exportFields);
 //    	AdvancedSettingsDialog.showDialog(clientFrame, "Export Results to CSV", true, new ResultExportParameters());
     }
+    
+
     
     /**
      * Executed when the graphML menu item is triggered. Via a file chooser the user can select the destination of the GraphML file.
@@ -475,7 +515,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 	public void setExportMenuEnabled(boolean enabled) {
 		for (Component comp : exportMenu.getMenuComponents()) {
 			comp.setEnabled(enabled);
+			// export is always enabled
+			if (comp.getName() == "MSR") {comp.setEnabled(true);}
+			if (comp.getName() == "MCR") {comp.setEnabled(true);}
+						
 		}
-	}
+	}	
     
 }

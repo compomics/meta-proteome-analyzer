@@ -309,11 +309,11 @@ public class SettingsPanel extends JPanel {
 						if (fastaFilePath != null && !fastaFilePath.isEmpty()) {
 
 							fastaLoader.setFastaFile(new File(fastaFilePath));
-							try {
-								fastaLoader.loadFastaFile();
-							} catch (FileNotFoundException e) {
-								e.printStackTrace();
-							}
+//							try {
+//								fastaLoader.loadFastaFile();
+//							} catch (FileNotFoundException e) {
+//								e.printStackTrace();
+//							}
 						}else{
 							fastaLoader = null;
 						}
