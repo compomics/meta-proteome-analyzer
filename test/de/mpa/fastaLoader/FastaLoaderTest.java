@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class FastaLoaderTest extends TestCase {
 	private File file;
 	
 	@Before
-	public void setUp(){
+	public void setUp() {
 		file = new File("test/de/mpa/resources/test.fasta");
 		fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(file);
@@ -33,7 +34,7 @@ public class FastaLoaderTest extends TestCase {
 	}
 	
 	@Test 
-	public void testLoadFastaFile(){
+	public void testLoadFastaFile() {
 		try {
 			TObjectLongMap<String> indexMap1 = fastaLoader.getIndexMap();
 			fastaLoader.writeIndexFile();
@@ -46,7 +47,7 @@ public class FastaLoaderTest extends TestCase {
 	}
 	
 	@Test
-	public void testgetProteinFromFasta(){
+	public void testgetProteinFromFasta() throws ServiceException {
 		File indexFile = new File(file.getAbsolutePath() + ".fb");
 
 		try {

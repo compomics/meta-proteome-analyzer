@@ -805,7 +805,6 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	 * @param spectrumID
 	 */
 	public void setSpectrumID(Long spectrumID) {
-		// TODO: automatically adapt #sid comment
 		this.spectrumID = spectrumID;
 	}
     

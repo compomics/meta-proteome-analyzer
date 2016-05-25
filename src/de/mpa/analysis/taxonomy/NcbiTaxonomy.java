@@ -14,7 +14,7 @@ import java.util.zip.GZIPOutputStream;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Constants;
-import de.mpa.util.Formatter;
+import de.mpa.util.FormatUtilities;
 import gnu.trove.map.hash.TIntIntHashMap;
 
 /**
@@ -129,7 +129,7 @@ public class NcbiTaxonomy implements Serializable {
 		nodesMap = new TIntIntHashMap();
 
 		// Gets the number of chars for a new line
-		int newline = Formatter.determineNewlineChars(nodesFile).length;
+		int newline = FormatUtilities.determineNewlineChars(nodesFile).length;
 
 		// The start byte position
 		int pos = 0;

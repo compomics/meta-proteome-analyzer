@@ -29,28 +29,25 @@ public class FastaUtilities {
 		
 		try {
 			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
-			String nextLine;
-			nextLine = reader.readLine();
+			String nextLine = null;
 			boolean firstline = true;
-			final ArrayList<String> proteinIDs = new ArrayList<String>();
-			final ArrayList<String> proteinSeqs = new ArrayList<String>();
+			final List<String> proteinIDs = new ArrayList<String>();
+			final List<String> proteinSeqs = new ArrayList<String>();
 			StringBuffer stringBf = new StringBuffer();
-			while (nextLine != null) {					
-					if (nextLine != null && nextLine.trim().length() > 0){	
-						if (nextLine.charAt(0) == '>') {	
-							if(firstline){
-								proteinIDs.add(nextLine);
-							} else {								
-								proteinSeqs.add(stringBf.toString());
-								stringBf = new StringBuffer(); 
-								proteinIDs.add(nextLine);
-							}							
-						} else {
-							stringBf.append(nextLine);		
-						}	
+			while ((nextLine = reader.readLine()) != null) {
+				if (!nextLine.isEmpty() && nextLine.charAt(0) == '>') {
+					if (firstline) {
+						proteinIDs.add(nextLine.trim());
+						firstline = false;
+					} else {						
+						proteinSeqs.add(stringBf.toString());
+						stringBf = new StringBuffer();
+						proteinIDs.add(nextLine.trim());
 					}
-					nextLine = reader.readLine();
-					firstline = false;	
+				} else {
+					stringBf.append(nextLine.trim());
+				}
+				
 			}
 			proteinSeqs.add(stringBf.toString());
 			
@@ -58,8 +55,8 @@ public class FastaUtilities {
 			List<Entry> entries = new ArrayList<Entry>();
 			
 			// Iterate over the proteinIDs
-			for(int i = 0; i < proteinIDs.size(); i++){
-				entries.add(new Entry((i+1),proteinIDs.get(i), proteinSeqs.get(i)));
+			for (int i = 0; i < proteinIDs.size(); i++) {
+				entries.add(new Entry((i + 1), proteinIDs.get(i), proteinSeqs.get(i)));
 			}
 			
 			// Instantiate the Database object.

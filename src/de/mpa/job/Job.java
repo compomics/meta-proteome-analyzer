@@ -80,7 +80,8 @@ public abstract class Job implements Executable {
 		try {
 			proc = procBuilder.start();
 			setStatus(JobStatus.RUNNING);
-			client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
+			if (client != null)
+				client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 		} catch (IOException ioe) {
 			setError(ioe);
 			ioe.printStackTrace();
@@ -126,7 +127,8 @@ public abstract class Job implements Executable {
 	protected void done() {
 		// Set the job status to FINISHED and put the message in the queue
 		setStatus(JobStatus.FINISHED);
-		client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
+		if (client != null)
+			client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 	}
 	
 	/**

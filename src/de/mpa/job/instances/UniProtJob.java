@@ -15,7 +15,7 @@ import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.io.GenericContainer;
 import de.mpa.job.Job;
 import de.mpa.job.JobStatus;
-import de.mpa.util.Formatter;
+import de.mpa.util.FormatUtilities;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
@@ -96,7 +96,7 @@ public class UniProtJob extends Job {
 						for (String ecNumber : ecNumberList) {
 							ecNumbers += ecNumber + ";";
 						}
-						ecNumbers = Formatter.removeLastChar(ecNumbers);
+						ecNumbers = FormatUtilities.removeLastChar(ecNumbers);
 					}
 					
 					// Get ontology keywords.
@@ -107,7 +107,7 @@ public class UniProtJob extends Job {
 						for (Keyword kw : keywordsList) {
 							keywords += kw.getValue() + ";";
 						}
-						keywords = Formatter.removeLastChar(keywords);
+						keywords = FormatUtilities.removeLastChar(keywords);
 					}
 					
 					// Get KO numbers.
@@ -117,7 +117,7 @@ public class UniProtJob extends Job {
 						for (DatabaseCrossReference xRef : xRefs) {
 							koNumbers += xRef.getPrimaryId().getValue() + ";";
 						}
-						koNumbers = Formatter.removeLastChar(koNumbers);
+						koNumbers = FormatUtilities.removeLastChar(koNumbers);
 					}
 					
 					ReducedUniProtEntry reducedUniProtEntry = new ReducedUniProtEntry(taxId, keywords, ecNumbers, koNumbers, proteinData.getUniRef100EntryId(), proteinData.getUniRef90EntryId(), proteinData.getUniRef50EntryId());

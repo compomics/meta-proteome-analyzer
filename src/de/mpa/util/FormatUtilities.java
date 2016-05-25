@@ -24,11 +24,11 @@ import javax.swing.JTextField;
 import gnu.trove.list.array.TCharArrayList;
 
 /**
- * This class provides some helper methods for formatting.
+ * This class provides several utility methods, e.g. for string formatting. 
  * @author Thilo Muth
  *
  */
-public class Formatter {
+public class FormatUtilities {
 
 	/**
 	 * CSV FIELD SEPARATOR
@@ -37,15 +37,31 @@ public class Formatter {
 	
 	/**
 	 * Check whether an input string is numeric.
-	 * @param aStringValue Input string
+	 * @param string Input string
 	 * @return Condition if numeric or not
 	 */
-	public static boolean isNumeric(String aStringValue) {
+	public static boolean isNumeric(String string) {
 		Pattern pattern = Pattern.compile( "\\d+" );
 
-		Matcher matcher = pattern.matcher(aStringValue);
+		Matcher matcher = pattern.matcher(string);
 		return matcher.matches();
 	} 
+	
+	/**
+	 * Checks whether an input string contains a white space character.
+	 * @param string Input string
+	 * @return Condition whether it contains a white space or not
+	 */
+	public static boolean containsWhiteSpace(final String string){
+	    if(string != null){
+	        for(int i = 0; i < string.length(); i++){
+	            if(Character.isWhitespace(string.charAt(i))){
+	                return true;
+	            }
+	        }
+	    }
+	    return false;
+	}
 	
 	/**
 	 * generate a string representation of the given double with defined precision

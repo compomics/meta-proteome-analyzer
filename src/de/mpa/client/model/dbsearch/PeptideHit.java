@@ -13,7 +13,7 @@ import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.util.Formatter;
+import de.mpa.util.FormatUtilities;
 
 /**
  * This class represents a peptide hit.
@@ -345,7 +345,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		molWeight += Masses.C_term;
 
 		// Get the weight in kDa
-		return Formatter.roundDouble((molWeight / 1000.0), 3);
+		return FormatUtilities.roundDouble((molWeight / 1000.0), 3);
 	}
 	
 }

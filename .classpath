@@ -60,7 +60,6 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi-2015-12.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.3.4.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
@@ -75,5 +74,73 @@
 	<classpathentry kind="lib" path="lib/spring-tx-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-webmvc-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-runtime-3.5.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-annotations-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-runtime-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance-repackaged-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/avro-1.7.6.jar"/>
+	<classpathentry kind="lib" path="lib/avro-ipc-1.7.6.jar"/>
+	<classpathentry kind="lib" path="lib/axis2-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/classmate-0.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-net-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-17.0.jar"/>
+	<classpathentry kind="lib" path="lib/guice-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/guice-multibindings-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-validator-5.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-api-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-locator-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-utils-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib/japi-1.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="lib/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="lib/javax.inject-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb2-basics-runtime-0.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logging-3.1.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib/jcommander-1.32.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-client-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-common-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-guava-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-media-jaxb-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/joda-convert-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305-2.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/netty-3.4.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/noggit-0.6.jar"/>
+	<classpathentry kind="lib" path="lib/org.abego.treelayout.core-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/osgi-resource-locator-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/paranamer-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/snappy-java-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/solr-solrj-5.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/ST4-4.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/stax2-api-3.1.4.jar"/>
+	<classpathentry kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-asl-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/xmlpull-1.1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/xz-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/zookeeper-3.4.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

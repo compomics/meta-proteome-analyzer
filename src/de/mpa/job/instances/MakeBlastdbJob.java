@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import de.mpa.job.Job;
+import de.mpa.util.FormatUtilities;
 
 public class MakeBlastdbJob extends Job {
 	
@@ -32,6 +33,11 @@ public class MakeBlastdbJob extends Job {
 		
 		// Link to output file
 		procCommands.add("-in");
+		
+		// Use makeblastdb naming convention for escaping whitespace characters
+		if (FormatUtilities.containsWhiteSpace(fastaFile.getAbsolutePath())) {
+			log.error("Please remove white spaces from the path directory of the FASTA file: " + fastaFile.getAbsolutePath());
+		}
 		procCommands.add(fastaFile.getAbsolutePath());
 		procCommands.add("-dbtype");
 		procCommands.add("prot");

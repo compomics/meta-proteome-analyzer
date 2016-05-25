@@ -28,6 +28,7 @@ import de.proteinms.xtandemparser.xtandem.PeptideMap;
 import de.proteinms.xtandemparser.xtandem.ProteinMap;
 import de.proteinms.xtandemparser.xtandem.Spectrum;
 import de.proteinms.xtandemparser.xtandem.XTandemFile;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
 public class XTandemParser extends GenericContainer {
 	
@@ -159,7 +160,7 @@ public class XTandemParser extends GenericContainer {
 	                                nHits++;
 	                                peptides.add(sequence);
 	                                SearchHits.add(hit);
-								} catch (IOException e) {
+								} catch (IOException | ServiceException e) {
 									e.printStackTrace();
 								}
             				}

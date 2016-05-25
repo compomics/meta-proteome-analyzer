@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
-import de.mpa.client.Client;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
@@ -24,8 +23,10 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
-import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
+import uk.ac.ebi.uniprot.dataservice.client.Client;
+import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -91,21 +92,26 @@ public class FastaLoader {
 	
 	/**
 	 * Returns a protein object queried by the UniProt webservice (if no indexed FASTA is available.
-	 * @param id Protein accession.
+	 * @param accession Protein accession.
 	 * @return Protein object containing header + sequence.
+	 * @throws ServiceException 
 	 */
-	public Protein getProteinFromWebService(String id) {
-		EntryRetrievalService entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
+	public Protein getProteinFromWebService(String accession) throws ServiceException {
+	    ServiceFactory serviceFactoryInstance = Client.getServiceFactoryInstance();
+
+	    // UniProtService
+	    UniProtService uniprotService = serviceFactoryInstance.getUniProtQueryService();
+	    uniprotService.start();
 		
 		// Retrieve UniProt entry by its accession number
-		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry(id);
+		UniProtEntry entry = (UniProtEntry) uniprotService.getEntry(accession);
 		String header = ">";
 		if(entry.getType() == UniProtEntryType.TREMBL) {
 			header += "tr|";
 		} else if(entry.getType() == UniProtEntryType.SWISSPROT) {
 			header += "sw|";
 		}
-		header += id + "|";
+		header += accession + "|";
 		
 		header += getProteinName(entry.getProteinDescription());
 		String sequence = entry.getSequence().getValue();
@@ -136,8 +142,9 @@ public class FastaLoader {
 	 * @param id The protein identifier. May be the UniProt identifier or accession number.
 	 * @return The Protein object.
 	 * @throws IOException 
+	 * @throws ServiceException 
 	 */
-	public Protein getProteinFromFasta(String id) throws IOException {
+	public Protein getProteinFromFasta(String id) throws IOException, ServiceException {
 		// No mapping provided.
 		if (acc2pos == null) {
 			// No index file given.
@@ -257,18 +264,18 @@ public class FastaLoader {
 					Header header = Header.parseFromFASTA(line);	
 					// The following pattern should be used for the protein header:
 					// >DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION
-					Pattern pattern = Pattern.compile("^>\\w{2}\\|[^|]*\\|[^\\s]+_[^\\s]+ .*");
-					Matcher m = pattern.matcher(line);
-					if (!m.matches()) {
-						System.out.println("Incorrectly formatted protein header (Please use: >DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION)");
-						System.out.println(line);
-					}
+//					Pattern pattern = Pattern.compile("^>\\w{2}\\|[^|]*\\|[^\\s]+_[^\\s]+ .*");
+//					Matcher m = pattern.matcher(line);
+//					if (!m.matches()) {
+//						System.out.println("Incorrectly formatted protein header (Please use: >DB|ACCESSION|SHORT_DESCRIPTION FULL_DESCRIPTION)");
+//						System.out.println(line);
+//					}
 					 
 					// Add entry to mapping
 					acc2pos.put(header.getAccession(), pos);
 					count++;
-					if (count % 10000 == 0) {			
-						Client.getInstance().firePropertyChange("new message", null, count + " PROTEIN SEQUENCES INDEXED...");
+					if (count % 10000 == 0) {	
+						de.mpa.client.Client.getInstance().firePropertyChange("new message", null, count + " PROTEIN SEQUENCES INDEXED...");
 					} 	
 					if (count % 1000000 == 0) {						
 						writeIndexFile();
@@ -329,7 +336,14 @@ public class FastaLoader {
 			this.acc2pos = null;
 		}
 	}
-
+	
+	/**
+	 * Returns the number of protein entries in the FASTA database. 
+	 * @return Number of protein entries in the database
+	 */
+	public int getNumberOfEntries() {
+		return acc2pos.size();
+	}
 
 	/**
 	 * Utility method to load a specified FASTA file by hand.

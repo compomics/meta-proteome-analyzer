@@ -549,7 +549,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			return 0;
 		}
 	
-	
 		@Override
 		protected void done() {
 			// Get worker result

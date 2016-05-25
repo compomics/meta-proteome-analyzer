@@ -1,0 +1,1090 @@
+
+ INFO 2016-05-02 17:23:44,501 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups.fasta, -dbtype, prot]
+
+ INFO 2016-05-02 17:23:44,501 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups.fasta, -dbtype, prot]
+
+ INFO 2016-05-02 17:23:45,506 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 
+
+ INFO 2016-05-02 17:23:45,506 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 
+
+ INFO 2016-05-02 17:23:45,510 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Building a new DB, current time: 05/02/2016 17:23:45
+
+ INFO 2016-05-02 17:23:45,510 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Building a new DB, current time: 05/02/2016 17:23:45
+
+ INFO 2016-05-02 17:23:45,512 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB name:   S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups.fasta
+
+ INFO 2016-05-02 17:23:45,512 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB name:   S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups.fasta
+
+ INFO 2016-05-02 17:23:45,517 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB title:  S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups.fasta
+
+ INFO 2016-05-02 17:23:45,517 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB title:  S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups.fasta
+
+ INFO 2016-05-02 17:23:45,525 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-02 17:23:45,525 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-02 17:23:45,528 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-02 17:23:45,528 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-02 17:23:45,530 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-02 17:23:45,530 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-02 17:23:45,533 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-02 17:23:45,533 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-02 17:23:46,744 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Adding sequences from FASTA; added 6771 sequences in 1.22793 seconds.
+
+ INFO 2016-05-02 17:23:46,744 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Adding sequences from FASTA; added 6771 sequences in 1.22793 seconds.
+
+ INFO 2016-05-02 17:23:46,783 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-02 17:23:46,783 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-02 17:23:47,106 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 
+
+ INFO 2016-05-02 17:23:47,106 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 
+
+ INFO 2016-05-02 17:23:47,110 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Building a new DB, current time: 05/02/2016 17:23:47
+
+ INFO 2016-05-02 17:23:47,110 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Building a new DB, current time: 05/02/2016 17:23:47
+
+ INFO 2016-05-02 17:23:47,121 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB name:   S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups_decoy.fasta
+
+ INFO 2016-05-02 17:23:47,121 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB name:   S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups_decoy.fasta
+
+ INFO 2016-05-02 17:23:47,126 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB title:  S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups_decoy.fasta
+
+ INFO 2016-05-02 17:23:47,126 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 New DB title:  S:\OE\NG4\staff\Thilo\Projects\DeNovoSeqBenchmark\UPS\yeast_ups_decoy.fasta
+
+ INFO 2016-05-02 17:23:47,128 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-02 17:23:47,128 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-02 17:23:47,131 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-02 17:23:47,131 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-02 17:23:47,133 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-02 17:23:47,133 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-02 17:23:47,134 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-02 17:23:47,134 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-02 17:23:48,382 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Adding sequences from FASTA; added 6771 sequences in 1.26329 seconds.
+
+ INFO 2016-05-02 17:23:48,382 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:106 Adding sequences from FASTA; added 6771 sequences in 1.26329 seconds.
+
+ INFO 2016-05-25 09:53:46,939 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 09:53:46,939 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 09:53:48,111 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 09:53:48,111 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 09:53:48,118 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 09:53:48,118 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 09:53:48,892 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 09:53:48,892 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:10:34,390 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:10:34,390 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:11:41,186 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:11:41,186 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:12:10,211 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:12:10,211 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:13:23,911 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:13:23,911 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:13:24,542 [main] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:13:24,542 [main] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:13:24,544 [main] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:13:24
+
+ INFO 2016-05-25 10:13:24,544 [main] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:13:24
+
+ INFO 2016-05-25 10:13:24,545 [main] MakeBlastdbJob:107 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:13:24,545 [main] MakeBlastdbJob:107 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:13:24,547 [main] MakeBlastdbJob:107 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:13:24,547 [main] MakeBlastdbJob:107 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:13:24,548 [main] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:13:24,548 [main] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:13:24,550 [main] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:13:24,550 [main] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:13:24,551 [main] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:13:24,551 [main] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:13:24,552 [main] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:13:24,552 [main] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:13:24,566 [main] MakeBlastdbJob:107 BLAST Database error: No alias or index file found for protein database [P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta] in search path [P:\git\meta-proteome-analyzer;;]
+
+ INFO 2016-05-25 10:13:24,566 [main] MakeBlastdbJob:107 BLAST Database error: No alias or index file found for protein database [P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta] in search path [P:\git\meta-proteome-analyzer;;]
+
+ INFO 2016-05-25 10:14:38,064 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:14:38,064 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:14:38,715 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:14:38,715 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:14:38,717 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:14:38
+
+ INFO 2016-05-25 10:14:38,717 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:14:38
+
+ INFO 2016-05-25 10:14:38,720 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test.fasta
+
+ INFO 2016-05-25 10:14:38,720 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test.fasta
+
+ INFO 2016-05-25 10:14:38,722 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test.fasta
+
+ INFO 2016-05-25 10:14:38,722 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test.fasta
+
+ INFO 2016-05-25 10:14:38,723 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:14:38,723 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:14:38,725 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:14:38,725 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:14:38,727 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:14:38,727 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:14:38,729 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:14:38,729 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:14:38,773 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Adding sequences from FASTA; added 2 sequences in 0.0311174 seconds.
+
+ INFO 2016-05-25 10:14:38,773 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Adding sequences from FASTA; added 2 sequences in 0.0311174 seconds.
+
+ INFO 2016-05-25 10:14:38,808 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:14:38,808 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:14:39,424 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:14:39,424 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:14:39,426 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:14:39
+
+ INFO 2016-05-25 10:14:39,426 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:14:39
+
+ INFO 2016-05-25 10:14:39,430 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test_decoy.fasta
+
+ INFO 2016-05-25 10:14:39,430 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test_decoy.fasta
+
+ INFO 2016-05-25 10:14:39,434 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test_decoy.fasta
+
+ INFO 2016-05-25 10:14:39,434 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_test_decoy.fasta
+
+ INFO 2016-05-25 10:14:39,435 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:14:39,435 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:14:39,439 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:14:39,439 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:14:39,440 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:14:39,440 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:14:39,441 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:14:39,441 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:14:39,460 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Adding sequences from FASTA; added 2 sequences in 0.0164282 seconds.
+
+ INFO 2016-05-25 10:14:39,460 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:106 Adding sequences from FASTA; added 2 sequences in 0.0164282 seconds.
+
+ INFO 2016-05-25 10:17:26,145 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:17:26,145 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:17:26,792 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:17:26,792 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:17:26,794 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:17:26
+
+ INFO 2016-05-25 10:17:26,794 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:17:26
+
+ INFO 2016-05-25 10:17:26,795 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:17:26,795 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:17:26,797 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:17:26,797 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:17:26,798 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:17:26,798 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:17:26,799 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:17:26,799 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:17:26,800 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:17:26,800 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:17:26,802 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:17:26,802 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:17:26,903 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.102822 seconds.
+
+ INFO 2016-05-25 10:17:26,903 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.102822 seconds.
+
+ INFO 2016-05-25 10:17:26,942 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:17:26,942 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:17:27,554 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:17:27,554 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:17:27,555 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:17:27
+
+ INFO 2016-05-25 10:17:27,555 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:17:27
+
+ INFO 2016-05-25 10:17:27,557 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:17:27,557 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:17:27,558 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:17:27,558 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:17:27,559 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:17:27,559 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:17:27,560 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:17:27,560 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:17:27,561 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:17:27,561 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:17:27,565 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:17:27,565 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:17:27,674 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.10635 seconds.
+
+ INFO 2016-05-25 10:17:27,674 [SwingWorker-pool-2-thread-4] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.10635 seconds.
+
+ INFO 2016-05-25 10:18:40,164 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:18:40,164 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:18:40,745 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:18:40,745 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:18:40,746 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:18:40
+
+ INFO 2016-05-25 10:18:40,746 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:18:40
+
+ INFO 2016-05-25 10:18:40,748 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB.fasta
+
+ INFO 2016-05-25 10:18:40,748 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB.fasta
+
+ INFO 2016-05-25 10:18:40,749 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB.fasta
+
+ INFO 2016-05-25 10:18:40,749 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB.fasta
+
+ INFO 2016-05-25 10:18:40,751 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:18:40,751 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:18:40,752 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:18:40,752 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:18:40,754 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:18:40,754 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:18:40,756 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:18:40,756 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:18:40,852 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.0997477 seconds.
+
+ INFO 2016-05-25 10:18:40,852 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.0997477 seconds.
+
+ INFO 2016-05-25 10:18:40,886 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:18:40,886 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:18:41,500 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:18:41,500 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 
+
+ INFO 2016-05-25 10:18:41,502 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:18:41
+
+ INFO 2016-05-25 10:18:41,502 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Building a new DB, current time: 05/25/2016 10:18:41
+
+ INFO 2016-05-25 10:18:41,503 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB_decoy.fasta
+
+ INFO 2016-05-25 10:18:41,503 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB_decoy.fasta
+
+ INFO 2016-05-25 10:18:41,504 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB_decoy.fasta
+
+ INFO 2016-05-25 10:18:41,504 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\uniprot-Aura_BacteriaDB_decoy.fasta
+
+ INFO 2016-05-25 10:18:41,507 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:18:41,507 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Sequence type: Protein
+
+ INFO 2016-05-25 10:18:41,508 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:18:41,508 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep Linkouts: T
+
+ INFO 2016-05-25 10:18:41,509 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:18:41,509 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Keep MBits: T
+
+ INFO 2016-05-25 10:18:41,512 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:18:41,512 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:18:41,626 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.112085 seconds.
+
+ INFO 2016-05-25 10:18:41,626 [SwingWorker-pool-2-thread-7] MakeBlastdbJob:106 Adding sequences from FASTA; added 692 sequences in 0.112085 seconds.
+
+ INFO 2016-05-25 10:24:02,873 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta", -dbtype, prot]
+
+ INFO 2016-05-25 10:24:02,873 [main] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta", -dbtype, prot]
+
+ INFO 2016-05-25 10:24:03,522 [main] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:24:03,522 [main] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:24:03,523 [main] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:24:03
+
+ INFO 2016-05-25 10:24:03,523 [main] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:24:03
+
+ INFO 2016-05-25 10:24:03,525 [main] MakeBlastdbJob:107 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:24:03,525 [main] MakeBlastdbJob:107 New DB name:   P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:24:03,526 [main] MakeBlastdbJob:107 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:24:03,526 [main] MakeBlastdbJob:107 New DB title:  P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta
+
+ INFO 2016-05-25 10:24:03,527 [main] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:24:03,527 [main] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:24:03,529 [main] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:24:03,529 [main] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:24:03,531 [main] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:24:03,531 [main] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:24:03,532 [main] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:24:03,532 [main] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:24:03,544 [main] MakeBlastdbJob:107 BLAST Database error: No alias or index file found for protein database [P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta] in search path [P:\git\meta-proteome-analyzer;;]
+
+ INFO 2016-05-25 10:24:03,544 [main] MakeBlastdbJob:107 BLAST Database error: No alias or index file found for protein database [P:\git\meta-proteome-analyzer\test\de\mpa\resources\test.fasta] in search path [P:\git\meta-proteome-analyzer;;]
+
+ INFO 2016-05-25 10:25:18,996 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta", -dbtype, prot]
+
+ INFO 2016-05-25 10:25:18,996 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta", -dbtype, prot]
+
+ INFO 2016-05-25 10:25:19,587 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:25:19,587 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:25:19,603 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta", -dbtype, prot]
+
+ INFO 2016-05-25 10:25:19,603 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta", -dbtype, prot]
+
+ INFO 2016-05-25 10:25:20,196 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:25:20,196 [SwingWorker-pool-2-thread-3] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:30:57,256 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:30:57,256 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:30:57,995 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:30:57,995 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:30:58,005 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:30:58,005 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot-Aura_BacteriaDB_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:30:58,579 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:30:58,579 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:32:52,910 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta\", -dbtype, prot]
+
+ INFO 2016-05-25 10:32:52,910 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta\", -dbtype, prot]
+
+ INFO 2016-05-25 10:32:53,555 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:32:53,555 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:32:53,565 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta\", -dbtype, prot]
+
+ INFO 2016-05-25 10:32:53,565 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta\", -dbtype, prot]
+
+ INFO 2016-05-25 10:32:54,177 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:32:54,177 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:36:14,382 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:36:14,382 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:36:15,069 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:36:15,069 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:36:15,085 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:36:15,085 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:36:15,793 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:36:15,793 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:37:41,513 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:37:41,513 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:37:42,184 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:37:42,184 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:37:42,204 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:37:42,204 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, "\"S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:37:42,937 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:37:42,937 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:39:12,222 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \""S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:39:12,222 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \""S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:39:12,920 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 USAGE
+
+ INFO 2016-05-25 10:39:12,920 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 USAGE
+
+ INFO 2016-05-25 10:39:12,924 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 makeblastdb.exe [-h] [-help] [-in input_file] [-dbtype molecule_type]
+
+ INFO 2016-05-25 10:39:12,924 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 makeblastdb.exe [-h] [-help] [-in input_file] [-dbtype molecule_type]
+
+ INFO 2016-05-25 10:39:12,929 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-title database_title] [-parse_seqids] [-hash_index]
+
+ INFO 2016-05-25 10:39:12,929 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-title database_title] [-parse_seqids] [-hash_index]
+
+ INFO 2016-05-25 10:39:12,934 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-mask_data mask_data_files] [-gi_mask]
+
+ INFO 2016-05-25 10:39:12,934 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-mask_data mask_data_files] [-gi_mask]
+
+ INFO 2016-05-25 10:39:12,935 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-gi_mask_name gi_based_mask_names] [-out database_name]
+
+ INFO 2016-05-25 10:39:12,935 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-gi_mask_name gi_based_mask_names] [-out database_name]
+
+ INFO 2016-05-25 10:39:12,937 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-max_file_sz number_of_bytes] [-taxid TaxID] [-taxid_map TaxIDMapFile]
+
+ INFO 2016-05-25 10:39:12,937 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-max_file_sz number_of_bytes] [-taxid TaxID] [-taxid_map TaxIDMapFile]
+
+ INFO 2016-05-25 10:39:12,939 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-logfile File_Name] [-version]
+
+ INFO 2016-05-25 10:39:12,939 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-logfile File_Name] [-version]
+
+ INFO 2016-05-25 10:39:12,940 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:12,940 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:12,941 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 DESCRIPTION
+
+ INFO 2016-05-25 10:39:12,941 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 DESCRIPTION
+
+ INFO 2016-05-25 10:39:12,942 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Application to create BLAST databases, version 2.2.24+
+
+ INFO 2016-05-25 10:39:12,942 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Application to create BLAST databases, version 2.2.24+
+
+ INFO 2016-05-25 10:39:12,944 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:12,944 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:12,946 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Use '-help' to print detailed descriptions of command line arguments
+
+ INFO 2016-05-25 10:39:12,946 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Use '-help' to print detailed descriptions of command line arguments
+
+ INFO 2016-05-25 10:39:12,949 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 ========================================================================
+
+ INFO 2016-05-25 10:39:12,949 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 ========================================================================
+
+ INFO 2016-05-25 10:39:12,950 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (106.18)
+
+ INFO 2016-05-25 10:39:12,950 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (106.18)
+
+ INFO 2016-05-25 10:39:12,952 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 NCBI C++ Exception:
+
+ INFO 2016-05-25 10:39:12,952 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 NCBI C++ Exception:
+
+ INFO 2016-05-25 10:39:12,961 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Too many positional arguments (1), the offending value: Portable\Aura\uniprot_bacteria.fasta"
+
+ INFO 2016-05-25 10:39:12,961 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Too many positional arguments (1), the offending value: Portable\Aura\uniprot_bacteria.fasta"
+
+ INFO 2016-05-25 10:39:12,964 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Application's initialization failed
+
+ INFO 2016-05-25 10:39:12,964 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Application's initialization failed
+
+ INFO 2016-05-25 10:39:12,965 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:12,965 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:12,972 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \""S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:39:12,972 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:40 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, \""S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta"\", -dbtype, prot]
+
+ INFO 2016-05-25 10:39:13,683 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 USAGE
+
+ INFO 2016-05-25 10:39:13,683 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 USAGE
+
+ INFO 2016-05-25 10:39:13,684 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 makeblastdb.exe [-h] [-help] [-in input_file] [-dbtype molecule_type]
+
+ INFO 2016-05-25 10:39:13,684 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 makeblastdb.exe [-h] [-help] [-in input_file] [-dbtype molecule_type]
+
+ INFO 2016-05-25 10:39:13,686 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-title database_title] [-parse_seqids] [-hash_index]
+
+ INFO 2016-05-25 10:39:13,686 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-title database_title] [-parse_seqids] [-hash_index]
+
+ INFO 2016-05-25 10:39:13,688 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-mask_data mask_data_files] [-gi_mask]
+
+ INFO 2016-05-25 10:39:13,688 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-mask_data mask_data_files] [-gi_mask]
+
+ INFO 2016-05-25 10:39:13,690 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-gi_mask_name gi_based_mask_names] [-out database_name]
+
+ INFO 2016-05-25 10:39:13,690 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-gi_mask_name gi_based_mask_names] [-out database_name]
+
+ INFO 2016-05-25 10:39:13,693 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-max_file_sz number_of_bytes] [-taxid TaxID] [-taxid_map TaxIDMapFile]
+
+ INFO 2016-05-25 10:39:13,693 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-max_file_sz number_of_bytes] [-taxid TaxID] [-taxid_map TaxIDMapFile]
+
+ INFO 2016-05-25 10:39:13,695 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-logfile File_Name] [-version]
+
+ INFO 2016-05-25 10:39:13,695 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 [-logfile File_Name] [-version]
+
+ INFO 2016-05-25 10:39:13,696 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:13,696 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:13,698 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 DESCRIPTION
+
+ INFO 2016-05-25 10:39:13,698 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 DESCRIPTION
+
+ INFO 2016-05-25 10:39:13,699 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Application to create BLAST databases, version 2.2.24+
+
+ INFO 2016-05-25 10:39:13,699 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Application to create BLAST databases, version 2.2.24+
+
+ INFO 2016-05-25 10:39:13,700 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:13,700 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:13,702 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Use '-help' to print detailed descriptions of command line arguments
+
+ INFO 2016-05-25 10:39:13,702 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Use '-help' to print detailed descriptions of command line arguments
+
+ INFO 2016-05-25 10:39:13,704 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 ========================================================================
+
+ INFO 2016-05-25 10:39:13,704 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 ========================================================================
+
+ INFO 2016-05-25 10:39:13,705 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (106.18)
+
+ INFO 2016-05-25 10:39:13,705 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (106.18)
+
+ INFO 2016-05-25 10:39:13,707 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 NCBI C++ Exception:
+
+ INFO 2016-05-25 10:39:13,707 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 NCBI C++ Exception:
+
+ INFO 2016-05-25 10:39:13,708 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Too many positional arguments (1), the offending value: Portable\Aura\uniprot_bacteria_decoy.fasta"
+
+ INFO 2016-05-25 10:39:13,708 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Too many positional arguments (1), the offending value: Portable\Aura\uniprot_bacteria_decoy.fasta"
+
+ INFO 2016-05-25 10:39:13,709 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Application's initialization failed
+
+ INFO 2016-05-25 10:39:13,709 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Error: (CArgException::eSynopsis) Application's initialization failed
+
+ INFO 2016-05-25 10:39:13,710 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:39:13,710 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ERROR 2016-05-25 10:47:47,133 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 Please remove white spaces from the path directory of the FASTA file: S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta
+
+ERROR 2016-05-25 10:47:47,133 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 Please remove white spaces from the path directory of the FASTA file: S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:47:47,144 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:47:47,144 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:47:47,795 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:47:47,795 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ERROR 2016-05-25 10:47:47,803 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 Please remove white spaces from the path directory of the FASTA file: S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta
+
+ERROR 2016-05-25 10:47:47,803 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:39 Please remove white spaces from the path directory of the FASTA file: S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:47:47,804 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:47:47,804 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA Portable\Aura\uniprot_bacteria_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:47:48,415 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:47:48,415 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 BLAST options error: Please provide a database name using out
+
+ INFO 2016-05-25 10:49:34,925 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:49:34,925 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:49:35,599 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:49:35,599 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:49:35,608 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:49:35
+
+ INFO 2016-05-25 10:49:35,608 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:49:35
+
+ INFO 2016-05-25 10:49:35,614 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB name:   S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:49:35,614 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB name:   S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:49:35,616 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB title:  S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:49:35,616 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB title:  S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria.fasta
+
+ INFO 2016-05-25 10:49:35,618 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:49:35,618 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:49:35,619 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:49:35,619 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:49:35,622 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:49:35,622 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:49:35,624 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:49:35,624 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:50:27,040 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Adding sequences from FASTA; added 350626 sequences in 51.4233 seconds.
+
+ INFO 2016-05-25 10:50:27,040 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Adding sequences from FASTA; added 350626 sequences in 51.4233 seconds.
+
+ INFO 2016-05-25 10:50:27,626 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:50:27,626 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:45 [P:\git\meta-proteome-analyzer\built\makeblastdb\windows\makeblastdb.exe, -in, S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta, -dbtype, prot]
+
+ INFO 2016-05-25 10:50:28,394 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:50:28,394 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 
+
+ INFO 2016-05-25 10:50:28,396 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:50:28
+
+ INFO 2016-05-25 10:50:28,396 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Building a new DB, current time: 05/25/2016 10:50:28
+
+ INFO 2016-05-25 10:50:28,398 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB name:   S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:50:28,398 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB name:   S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:50:28,401 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB title:  S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:50:28,401 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 New DB title:  S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta
+
+ INFO 2016-05-25 10:50:28,403 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:50:28,403 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Sequence type: Protein
+
+ INFO 2016-05-25 10:50:28,406 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:50:28,406 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep Linkouts: T
+
+ INFO 2016-05-25 10:50:28,412 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:50:28,412 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Keep MBits: T
+
+ INFO 2016-05-25 10:50:28,419 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:50:28,419 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Maximum file size: 1073741824B
+
+ INFO 2016-05-25 10:51:19,306 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Adding sequences from FASTA; added 350626 sequences in 50.8954 seconds.
+
+ INFO 2016-05-25 10:51:19,306 [SwingWorker-pool-2-thread-1] MakeBlastdbJob:107 Adding sequences from FASTA; added 350626 sequences in 50.8954 seconds.
+
+ INFO 2016-05-25 11:18:35,361 [SwingWorker-pool-2-thread-4] XTandemJob:107 X! TANDEM Sledgehammer (2013.09.01.1)
+
+ INFO 2016-05-25 11:18:35,361 [SwingWorker-pool-2-thread-4] XTandemJob:107 X! TANDEM Sledgehammer (2013.09.01.1)
+
+ INFO 2016-05-25 11:18:35,375 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:18:35,375 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:18:38,778 [SwingWorker-pool-2-thread-4] XTandemJob:107 Loading spectra| (mgf).... loaded.
+
+ INFO 2016-05-25 11:18:38,778 [SwingWorker-pool-2-thread-4] XTandemJob:107 Loading spectra| (mgf).... loaded.
+
+ INFO 2016-05-25 11:18:38,782 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectra matching criteria = 4236
+
+ INFO 2016-05-25 11:18:38,782 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectra matching criteria = 4236
+
+ INFO 2016-05-25 11:18:38,843 [SwingWorker-pool-2-thread-4] XTandemJob:107 Starting threads .|.|.|.|.|.|.|. started.
+
+ INFO 2016-05-25 11:18:38,843 [SwingWorker-pool-2-thread-4] XTandemJob:107 Starting threads .|.|.|.|.|.|.|. started.
+
+ INFO 2016-05-25 11:18:38,845 [SwingWorker-pool-2-thread-4] XTandemJob:107 Computing models:
+
+ INFO 2016-05-25 11:18:38,845 [SwingWorker-pool-2-thread-4] XTandemJob:107 Computing models:
+
+ INFO 2016-05-25 11:18:48,334 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 50 ks
+
+ INFO 2016-05-25 11:18:48,334 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 50 ks
+
+ INFO 2016-05-25 11:18:57,419 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 100 ks
+
+ INFO 2016-05-25 11:18:57,419 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 100 ks
+
+ INFO 2016-05-25 11:19:06,721 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 150 ks
+
+ INFO 2016-05-25 11:19:06,721 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 150 ks
+
+ INFO 2016-05-25 11:19:14,764 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 200 ks
+
+ INFO 2016-05-25 11:19:14,764 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 200 ks
+
+ INFO 2016-05-25 11:19:20,614 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 250 ks
+
+ INFO 2016-05-25 11:19:20,614 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 250 ks
+
+ INFO 2016-05-25 11:19:30,760 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 300 ks
+
+ INFO 2016-05-25 11:19:30,760 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 300 ks
+
+ INFO 2016-05-25 11:19:37,942 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 350 ks
+
+ INFO 2016-05-25 11:19:37,942 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 350 ks
+
+ INFO 2016-05-25 11:19:37,974 [SwingWorker-pool-2-thread-4] XTandemJob:107 S
+
+ INFO 2016-05-25 11:19:37,974 [SwingWorker-pool-2-thread-4] XTandemJob:107 S
+
+ INFO 2016-05-25 11:19:37,975 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:19:37,975 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:19:37,980 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:37,980 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:37,991 [SwingWorker-pool-2-thread-4] XTandemJob:107 sequences modelled = 351 ks
+
+ INFO 2016-05-25 11:19:37,991 [SwingWorker-pool-2-thread-4] XTandemJob:107 sequences modelled = 351 ks
+
+ INFO 2016-05-25 11:19:38,233 [SwingWorker-pool-2-thread-4] XTandemJob:107 Model refinement:
+
+ INFO 2016-05-25 11:19:38,233 [SwingWorker-pool-2-thread-4] XTandemJob:107 Model refinement:
+
+ INFO 2016-05-25 11:19:38,632 [SwingWorker-pool-2-thread-4] XTandemJob:107 partial cleavage ..... done.
+
+ INFO 2016-05-25 11:19:38,632 [SwingWorker-pool-2-thread-4] XTandemJob:107 partial cleavage ..... done.
+
+ INFO 2016-05-25 11:19:45,988 [SwingWorker-pool-2-thread-4] XTandemJob:107 unanticipated cleavage ..... done.
+
+ INFO 2016-05-25 11:19:45,988 [SwingWorker-pool-2-thread-4] XTandemJob:107 unanticipated cleavage ..... done.
+
+ INFO 2016-05-25 11:19:48,782 [SwingWorker-pool-2-thread-4] XTandemJob:107 modified N-terminus ..... done.
+
+ INFO 2016-05-25 11:19:48,782 [SwingWorker-pool-2-thread-4] XTandemJob:107 modified N-terminus ..... done.
+
+ INFO 2016-05-25 11:19:48,816 [SwingWorker-pool-2-thread-4] XTandemJob:107 finishing refinement ... done.
+
+ INFO 2016-05-25 11:19:48,816 [SwingWorker-pool-2-thread-4] XTandemJob:107 finishing refinement ... done.
+
+ INFO 2016-05-25 11:19:48,824 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:48,824 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:48,948 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:19:48,948 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:19:48,950 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:48,950 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:48,951 [SwingWorker-pool-2-thread-4] XTandemJob:107 Merging results:
+
+ INFO 2016-05-25 11:19:48,951 [SwingWorker-pool-2-thread-4] XTandemJob:107 Merging results:
+
+ INFO 2016-05-25 11:19:49,001 [SwingWorker-pool-2-thread-4] XTandemJob:107 from 2345678
+
+ INFO 2016-05-25 11:19:49,001 [SwingWorker-pool-2-thread-4] XTandemJob:107 from 2345678
+
+ INFO 2016-05-25 11:19:49,002 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:49,002 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:49,004 [SwingWorker-pool-2-thread-4] XTandemJob:107 Creating report:
+
+ INFO 2016-05-25 11:19:49,004 [SwingWorker-pool-2-thread-4] XTandemJob:107 Creating report:
+
+ INFO 2016-05-25 11:19:49,287 [SwingWorker-pool-2-thread-4] XTandemJob:107 initial calculations  ..... done.
+
+ INFO 2016-05-25 11:19:49,287 [SwingWorker-pool-2-thread-4] XTandemJob:107 initial calculations  ..... done.
+
+ INFO 2016-05-25 11:19:49,289 [SwingWorker-pool-2-thread-4] XTandemJob:107 sorting  ..... done.
+
+ INFO 2016-05-25 11:19:49,289 [SwingWorker-pool-2-thread-4] XTandemJob:107 sorting  ..... done.
+
+ INFO 2016-05-25 11:19:49,396 [SwingWorker-pool-2-thread-4] XTandemJob:107 finding repeats ..... done.
+
+ INFO 2016-05-25 11:19:49,396 [SwingWorker-pool-2-thread-4] XTandemJob:107 finding repeats ..... done.
+
+ INFO 2016-05-25 11:19:49,400 [SwingWorker-pool-2-thread-4] XTandemJob:107 evaluating results ..... done.
+
+ INFO 2016-05-25 11:19:49,400 [SwingWorker-pool-2-thread-4] XTandemJob:107 evaluating results ..... done.
+
+ INFO 2016-05-25 11:19:49,419 [SwingWorker-pool-2-thread-4] XTandemJob:107 calculating expectations ..... done.
+
+ INFO 2016-05-25 11:19:49,419 [SwingWorker-pool-2-thread-4] XTandemJob:107 calculating expectations ..... done.
+
+ INFO 2016-05-25 11:19:57,097 [SwingWorker-pool-2-thread-4] XTandemJob:107 writing results ..... done.
+
+ INFO 2016-05-25 11:19:57,097 [SwingWorker-pool-2-thread-4] XTandemJob:107 writing results ..... done.
+
+ INFO 2016-05-25 11:19:57,159 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,159 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,162 [SwingWorker-pool-2-thread-4] XTandemJob:107 Valid models = 889
+
+ INFO 2016-05-25 11:19:57,162 [SwingWorker-pool-2-thread-4] XTandemJob:107 Valid models = 889
+
+ INFO 2016-05-25 11:19:57,167 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,167 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,168 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,168 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,714 [SwingWorker-pool-2-thread-4] XTandemJob:107 X! TANDEM Sledgehammer (2013.09.01.1)
+
+ INFO 2016-05-25 11:19:57,714 [SwingWorker-pool-2-thread-4] XTandemJob:107 X! TANDEM Sledgehammer (2013.09.01.1)
+
+ INFO 2016-05-25 11:19:57,718 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:19:57,718 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:01,027 [SwingWorker-pool-2-thread-4] XTandemJob:107 Loading spectra| (mgf).... loaded.
+
+ INFO 2016-05-25 11:20:01,027 [SwingWorker-pool-2-thread-4] XTandemJob:107 Loading spectra| (mgf).... loaded.
+
+ INFO 2016-05-25 11:20:01,032 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectra matching criteria = 4236
+
+ INFO 2016-05-25 11:20:01,032 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectra matching criteria = 4236
+
+ INFO 2016-05-25 11:20:01,092 [SwingWorker-pool-2-thread-4] XTandemJob:107 Starting threads .|.|.|.|.|.|.|. started.
+
+ INFO 2016-05-25 11:20:01,092 [SwingWorker-pool-2-thread-4] XTandemJob:107 Starting threads .|.|.|.|.|.|.|. started.
+
+ INFO 2016-05-25 11:20:01,101 [SwingWorker-pool-2-thread-4] XTandemJob:107 Computing models:
+
+ INFO 2016-05-25 11:20:01,101 [SwingWorker-pool-2-thread-4] XTandemJob:107 Computing models:
+
+ INFO 2016-05-25 11:20:08,879 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 50 ks
+
+ INFO 2016-05-25 11:20:08,879 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 50 ks
+
+ INFO 2016-05-25 11:20:18,000 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 100 ks
+
+ INFO 2016-05-25 11:20:18,000 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 100 ks
+
+ INFO 2016-05-25 11:20:26,429 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 150 ks
+
+ INFO 2016-05-25 11:20:26,429 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 150 ks
+
+ INFO 2016-05-25 11:20:33,991 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 200 ks
+
+ INFO 2016-05-25 11:20:33,991 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 200 ks
+
+ INFO 2016-05-25 11:20:39,168 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 250 ks
+
+ INFO 2016-05-25 11:20:39,168 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 250 ks
+
+ INFO 2016-05-25 11:20:47,765 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 300 ks
+
+ INFO 2016-05-25 11:20:47,765 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 300 ks
+
+ INFO 2016-05-25 11:20:54,136 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 350 ks
+
+ INFO 2016-05-25 11:20:54,136 [SwingWorker-pool-2-thread-4] XTandemJob:107 Spectrum-to-sequence matching process in progress | 350 ks
+
+ INFO 2016-05-25 11:20:54,183 [SwingWorker-pool-2-thread-4] XTandemJob:107 S
+
+ INFO 2016-05-25 11:20:54,183 [SwingWorker-pool-2-thread-4] XTandemJob:107 S
+
+ INFO 2016-05-25 11:20:54,676 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:20:54,676 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:20:54,678 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:54,678 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:54,679 [SwingWorker-pool-2-thread-4] XTandemJob:107 sequences modelled = 351 ks
+
+ INFO 2016-05-25 11:20:54,679 [SwingWorker-pool-2-thread-4] XTandemJob:107 sequences modelled = 351 ks
+
+ INFO 2016-05-25 11:20:54,939 [SwingWorker-pool-2-thread-4] XTandemJob:107 Model refinement:
+
+ INFO 2016-05-25 11:20:54,939 [SwingWorker-pool-2-thread-4] XTandemJob:107 Model refinement:
+
+ INFO 2016-05-25 11:20:55,073 [SwingWorker-pool-2-thread-4] XTandemJob:107 partial cleavage ..... done.
+
+ INFO 2016-05-25 11:20:55,073 [SwingWorker-pool-2-thread-4] XTandemJob:107 partial cleavage ..... done.
+
+ INFO 2016-05-25 11:20:56,100 [SwingWorker-pool-2-thread-4] XTandemJob:107 unanticipated cleavage ..... done.
+
+ INFO 2016-05-25 11:20:56,100 [SwingWorker-pool-2-thread-4] XTandemJob:107 unanticipated cleavage ..... done.
+
+ INFO 2016-05-25 11:20:57,082 [SwingWorker-pool-2-thread-4] XTandemJob:107 modified N-terminus ..... done.
+
+ INFO 2016-05-25 11:20:57,082 [SwingWorker-pool-2-thread-4] XTandemJob:107 modified N-terminus ..... done.
+
+ INFO 2016-05-25 11:20:57,098 [SwingWorker-pool-2-thread-4] XTandemJob:107 finishing refinement ... done.
+
+ INFO 2016-05-25 11:20:57,098 [SwingWorker-pool-2-thread-4] XTandemJob:107 finishing refinement ... done.
+
+ INFO 2016-05-25 11:20:57,103 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:57,103 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:57,124 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:20:57,124 [SwingWorker-pool-2-thread-4] XTandemJob:107 waiting for 2345678 done.
+
+ INFO 2016-05-25 11:20:57,125 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:57,125 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:57,127 [SwingWorker-pool-2-thread-4] XTandemJob:107 Merging results:
+
+ INFO 2016-05-25 11:20:57,127 [SwingWorker-pool-2-thread-4] XTandemJob:107 Merging results:
+
+ INFO 2016-05-25 11:20:57,169 [SwingWorker-pool-2-thread-4] XTandemJob:107 from 2345678
+
+ INFO 2016-05-25 11:20:57,169 [SwingWorker-pool-2-thread-4] XTandemJob:107 from 2345678
+
+ INFO 2016-05-25 11:20:57,170 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:57,170 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:20:57,171 [SwingWorker-pool-2-thread-4] XTandemJob:107 Creating report:
+
+ INFO 2016-05-25 11:20:57,171 [SwingWorker-pool-2-thread-4] XTandemJob:107 Creating report:
+
+ INFO 2016-05-25 11:20:57,420 [SwingWorker-pool-2-thread-4] XTandemJob:107 initial calculations  ..... done.
+
+ INFO 2016-05-25 11:20:57,420 [SwingWorker-pool-2-thread-4] XTandemJob:107 initial calculations  ..... done.
+
+ INFO 2016-05-25 11:20:57,421 [SwingWorker-pool-2-thread-4] XTandemJob:107 sorting  ..... done.
+
+ INFO 2016-05-25 11:20:57,421 [SwingWorker-pool-2-thread-4] XTandemJob:107 sorting  ..... done.
+
+ INFO 2016-05-25 11:20:57,516 [SwingWorker-pool-2-thread-4] XTandemJob:107 finding repeats ..... done.
+
+ INFO 2016-05-25 11:20:57,516 [SwingWorker-pool-2-thread-4] XTandemJob:107 finding repeats ..... done.
+
+ INFO 2016-05-25 11:20:57,536 [SwingWorker-pool-2-thread-4] XTandemJob:107 evaluating results ..... done.
+
+ INFO 2016-05-25 11:20:57,536 [SwingWorker-pool-2-thread-4] XTandemJob:107 evaluating results ..... done.
+
+ INFO 2016-05-25 11:20:57,541 [SwingWorker-pool-2-thread-4] XTandemJob:107 calculating expectations ..... done.
+
+ INFO 2016-05-25 11:20:57,541 [SwingWorker-pool-2-thread-4] XTandemJob:107 calculating expectations ..... done.
+
+ INFO 2016-05-25 11:21:02,957 [SwingWorker-pool-2-thread-4] XTandemJob:107 writing results ..... done.
+
+ INFO 2016-05-25 11:21:02,957 [SwingWorker-pool-2-thread-4] XTandemJob:107 writing results ..... done.
+
+ INFO 2016-05-25 11:21:03,002 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:21:03,002 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:21:03,004 [SwingWorker-pool-2-thread-4] XTandemJob:107 Valid models = 878
+
+ INFO 2016-05-25 11:21:03,004 [SwingWorker-pool-2-thread-4] XTandemJob:107 Valid models = 878
+
+ INFO 2016-05-25 11:21:03,005 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:21:03,005 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:21:03,008 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:21:03,008 [SwingWorker-pool-2-thread-4] XTandemJob:107 
+
+ INFO 2016-05-25 11:21:15,188 [SwingWorker-pool-2-thread-4] QvalityJob:107 Read 3997 target scores and 4010 decoy scores
+
+ INFO 2016-05-25 11:21:15,188 [SwingWorker-pool-2-thread-4] QvalityJob:107 Read 3997 target scores and 4010 decoy scores
+
+ INFO 2016-05-25 11:21:15,197 [SwingWorker-pool-2-thread-4] QvalityJob:107 Selecting pi_0=0.984071
+
+ INFO 2016-05-25 11:21:15,197 [SwingWorker-pool-2-thread-4] QvalityJob:107 Selecting pi_0=0.984071
+
+ INFO 2016-05-25 11:21:15,209 [SwingWorker-pool-2-thread-4] QvalityJob:107 Log transforming all scores prior to PEP calculation
+
+ INFO 2016-05-25 11:21:15,209 [SwingWorker-pool-2-thread-4] QvalityJob:107 Log transforming all scores prior to PEP calculation
+
+ INFO 2016-05-25 11:21:23,476 [SwingWorker-pool-2-thread-4] XmlBeanDefinitionReader:317 Loading XML bean definitions from class path resource [remotingClient.xml]

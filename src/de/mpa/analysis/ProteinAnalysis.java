@@ -8,7 +8,7 @@ import de.mpa.algorithms.quantification.QuantMethod;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.util.Formatter;
+import de.mpa.util.FormatUtilities;
 
 /**
  * Helper class containing various protein-specific calculations.
@@ -44,7 +44,7 @@ public class ProteinAnalysis {
 		molWeight += Masses.C_term;
 
 		// Get the weight in kDa
-		molWeight = Formatter.roundDouble((molWeight / 1000.0), 3);
+		molWeight = FormatUtilities.roundDouble((molWeight / 1000.0), 3);
 
 		return molWeight;
 	}
@@ -109,7 +109,7 @@ public class ProteinAnalysis {
 		}
 		double coverage = ((double) nCoveredAA / (double) sequence.length());
 
-		return Formatter.roundDouble(coverage, 6);
+		return FormatUtilities.roundDouble(coverage, 6);
 	}
 
 	/**
