@@ -11,11 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -55,7 +52,6 @@ import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.dialogs.NewBlastDialog;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.DBDumper;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
@@ -284,7 +280,9 @@ public class ProjectPanel extends JPanel {
 							ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
 							proteins.add(aProt.getProteinid());
 						}
-						UniProtUtilities.updateUniProtEntries(proteins, null, null, 0, false);
+						System.out.println(proteins);
+						UniProtUtilities uniprotweb = new UniProtUtilities();
+						uniprotweb.blast(proteins, null, null, 0, false);
 						return null;
 					}	
 				}.execute();

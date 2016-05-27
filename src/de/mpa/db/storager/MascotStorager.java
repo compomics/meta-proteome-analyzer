@@ -3,7 +3,6 @@ package de.mpa.db.storager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
@@ -35,9 +34,9 @@ import com.compomics.mascotdatfile.util.mascot.ProteinMap;
 import com.compomics.mascotdatfile.util.mascot.Query;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 import de.mpa.analysis.ReducedProteinData;
-import de.mpa.analysis.UniProtGiMapper;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.SearchSettings;
@@ -46,13 +45,10 @@ import de.mpa.client.settings.MascotParameters.FilteringParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.db.DBManager;
-import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
-import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Uniprotentry;
@@ -60,8 +56,6 @@ import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.SixtyFourBitStringSupport;
 import de.mpa.io.fasta.FastaLoader;
-import de.mpa.io.fasta.RobbiesFastaParser.DbEntry;
-import de.mpa.io.fasta.RobbiesFastaParser.FastaParser;
 import de.mpa.util.Formatter;
 
 public class MascotStorager extends BasicStorager {
@@ -302,8 +296,10 @@ public class MascotStorager extends BasicStorager {
 		            					// parsing the proteins is kind of painful
 		            					List<String> proteinlist = new ArrayList<String>();		                					
 		            					for (String prot_substring : protdata_split) {
+		            						// TODO: handle malformed accessions
 		            						String[] accession_split = prot_substring.split("\"");
 		            						// we might need to go one level deeper before adding the accession (we do here)
+		            						
 		            						String[] accession = accession_split[1].split("[|]");
 		            						proteinlist.add(accession[1]);
 		            					}
@@ -466,6 +462,8 @@ public class MascotStorager extends BasicStorager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
 		// final commit can probably go
 		conn.commit();
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
@@ -474,8 +472,8 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
-		Map<String, ReducedProteinData> proteinData =
-				UniProtUtilities.retrieveProteinData(new ArrayList<String>(this.uniProtCandidates), false);
+		UniProtUtilities uniprotweb = new UniProtUtilities();
+		Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
 		client.firePropertyChange("indeterminate", true, false);		
 		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
 		client.firePropertyChange("resetcur", 0L, (long) this.uniProtCandidates.size());

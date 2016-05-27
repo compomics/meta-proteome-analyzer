@@ -1,7 +1,9 @@
 package de.mpa.client.blast;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -138,6 +140,36 @@ public class BlastResult {
 				}
 			}
 		}
-		return bestBlastHit ; 
+		return bestBlastHit; 
 	}
+	
+	/**
+	 * Method to get all BLAST hits that satisfy a given evalue threshold (The one with the lowest e-value).
+	 * @return List<BlastHit>. The list of blast hits 
+	 */
+	public List<BlastHit> getBestBlastHits(double evalue){
+		
+		// init list
+		List<BlastHit> bestBlastHits = new ArrayList<BlastHit>();
+						
+		// collect hits
+		if (this.blastHitsMap != null & this.blastHitsMap.size() > 0 ) {
+			Collection<BlastHit> blastHitColl = this.blastHitsMap.values();
+			// find lowest evalue
+			double evalue_new = evalue;
+			for (BlastHit blastHit : blastHitColl) {
+				if (blastHit.geteValue() <= evalue_new) {
+					evalue_new = blastHit.geteValue();
+				}
+			}
+			// take all hits with the lowest evalue
+			for (BlastHit blastHit_2 : blastHitColl) {
+				if (blastHit_2.geteValue() <= evalue_new) {
+					bestBlastHits.add(blastHit_2);
+				}
+			}
+		}
+		return bestBlastHits ; 
+	}
+	
 }

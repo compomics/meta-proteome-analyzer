@@ -12,9 +12,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
+import java.util.TreeMap;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -27,14 +26,9 @@ import de.mpa.client.model.DatabaseProject;
 import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
-import de.mpa.db.accessor.MascothitTableAccessor;
-import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
-import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.SearchspectrumTableAccessor;
 import de.mpa.db.accessor.SpectrumTableAccessor;
-import de.mpa.db.accessor.XtandemhitTableAccessor;
 
 /**
  * This class handles project management by accessing project and experiment

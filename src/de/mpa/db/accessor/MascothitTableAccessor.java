@@ -223,7 +223,6 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 		this.iDelta = (Number)aResultSet.getObject("delta");
 		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
 		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
-
 		this.iUpdated = true;
 	}
 

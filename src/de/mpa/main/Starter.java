@@ -5,11 +5,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +48,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = false;
+	private static boolean jarExport = true;
 	
 	/**
 	 * The logger instance.

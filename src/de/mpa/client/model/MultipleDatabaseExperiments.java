@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,8 +27,6 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.ProjectManager;
-import de.mpa.db.accessor.ExpProperty;
-import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.PeptideAccessor;
@@ -40,7 +37,6 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.accessor.XTandemhit;
-import de.mpa.db.extractor.SearchHitExtractor;
 
 /**
  * Implementation of the experiment interface for multiple fused database-linked experiments.

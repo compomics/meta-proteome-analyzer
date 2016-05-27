@@ -3,9 +3,7 @@ package de.mpa.graphdb.io;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 
@@ -19,7 +17,6 @@ import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.graphdb.cypher.CypherQueryFactory;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
-import de.mpa.graphdb.nodes.MetaProtein;
 import de.mpa.graphdb.properties.ExperimentProperty;
 
 public class ExperimentComparison {

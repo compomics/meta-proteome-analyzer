@@ -1,13 +1,12 @@
 package de.mpa.client.model;
 
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,27 +15,23 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
-import de.mpa.algorithms.quantification.NormalizedSpectralAbundanceFactor;
-import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.PhylogenyTreeTableNode;
-import de.mpa.client.ui.ProteinTreeTables;
 import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
+import de.mpa.db.accessor.Mascothit;
+import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
@@ -44,12 +39,8 @@ import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.Uniprotentry;
-import de.mpa.db.extractor.SearchHitExtractor;
-// new imports
-import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.XTandemhit;
-import de.mpa.db.accessor.Mascothit;
-import java.util.HashSet;
+// new imports
 /**
  * Implementation of the experiment interface for database-linked experiments.
  * 

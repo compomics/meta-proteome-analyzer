@@ -19,6 +19,7 @@ import de.mpa.analysis.UniProtUtilities.KeywordCategory;
  */
 public class OntologyChart extends Chart {
 	
+	
 	/**
 	 * The primary dataset. For non-pie charts adapter classes are used to convert between dataset types.
 	 */
@@ -27,18 +28,17 @@ public class OntologyChart extends Chart {
 	/**
 	 * Enumeration holding chart sub-types pertaining to keyword ontologies.
 	 */
-	public enum OntologyChartType implements ChartType {
-
-		BIOLOGICAL_PROCESS(KeywordCategory.BIOLOGICAL_PROCESS),
-		CELLULAR_COMPONENT(KeywordCategory.CELLULAR_COMPONENT),
-		MOLECULAR_FUNCTION(KeywordCategory.MOLECULAR_FUNCTION),
-		CODING_SEQUNCE_DIVERSITY(KeywordCategory.CODING_SEQUNCE_DIVERSITY),
-		DEVELOPMENTAL_STAGE(KeywordCategory.DEVELOPMENTAL_STAGE),
-		DISEASE(KeywordCategory.DISEASE),
-		DOMAIN(KeywordCategory.DOMAIN),
-		LIGAND(KeywordCategory.LIGAND),
-		PTM(KeywordCategory.PTM),
-		TECHNICAL_TERM(KeywordCategory.TECHNICAL_TERM);
+	public enum OntologyChartType implements ChartType {		
+		BIOLOGICAL_PROCESS (KeywordCategory.BIOLOGICAL_PROCESS),
+		CELLULAR_COMPONENT (KeywordCategory.CELLULAR_COMPONENT),
+		MOLECULAR_FUNCTION (KeywordCategory.MOLECULAR_FUNCTION),
+		CODING_SEQUNCE_DIVERSITY (KeywordCategory.CODING_SEQUNCE_DIVERSITY),
+		DEVELOPMENTAL_STAGE (KeywordCategory.DEVELOPMENTAL_STAGE),
+		DISEASE (KeywordCategory.DISEASE),
+		DOMAIN (KeywordCategory.DOMAIN),
+		LIGAND (KeywordCategory.LIGAND),
+		PTM (KeywordCategory.PTM),
+		TECHNICAL_TERM (KeywordCategory.TECHNICAL_TERM);
 		
 		private String title;
 		private KeywordCategory ontology;

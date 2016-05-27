@@ -6,10 +6,8 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -169,8 +167,8 @@ public class NewBlastDialog extends JDialog {
 				ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
 				proteins.add(aProt.getProteinid());
 			}
-
-			UniProtUtilities.updateUniProtEntries(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);
+			UniProtUtilities uniprotweb = new UniProtUtilities();
+			uniprotweb.blast(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);
 			return null;
 		}
 		

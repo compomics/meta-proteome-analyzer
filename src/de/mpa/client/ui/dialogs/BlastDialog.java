@@ -137,7 +137,8 @@ public class BlastDialog extends JDialog {
 			for (long id : protMap.values()) {
 				proteins.add(id);
 			}
-			UniProtUtilities.updateUniProtEntries(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);			
+			UniProtUtilities uniprotweb = new UniProtUtilities();
+			uniprotweb.blast(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);			
 			return null;
 		}
 		

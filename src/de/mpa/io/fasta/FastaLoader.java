@@ -16,8 +16,8 @@ import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,23 +26,17 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
-import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
+//import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
+//import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 
-import com.compomics.mascotdatfile.util.mascot.ProteinHit;
-import com.compomics.util.io.filefilters.PeffFileFilter;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
 import de.mpa.client.Client;
-import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.db.DBManager;
-import de.mpa.db.accessor.PeptideAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.fastadigest.PeptideDigester;
-
 import de.mpa.db.storager.MascotStorager.MascotProteinHit;
-import de.mpa.db.storager.MascotStorager.MascotPeptideHit; 
+import de.mpa.fastadigest.PeptideDigester;
+import de.mpa.analysis.UniProtUtilities;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -84,28 +78,30 @@ public class FastaLoader {
 	private static File indexFile;
 	
 	private static boolean hasChanged;
-	
-	/**
-	 * UniProt Query Service object.
-	 */
-	private Object uniProtQueryService;
-	
-	/**
-	 * UniProt Entry Retrieval Service object.
-	 */
-	private static EntryRetrievalService entryRetrievalService;
+
+	// moved to uniprot utilities
+//	/**
+//	 * UniProt Query Service object.
+//	 */
+//	private Object uniProtQueryService;
+//	
+//	/**
+//	 * UniProt Entry Retrieval Service object.
+//	 */
+//	private static EntryRetrievalService entryRetrievalService;
 	
 	/**
 	 * Singleton object instance of the FastaLoader class.
 	 */
 	private static FastaLoader instance;
 
-	/**
-	 * Private constructor as FastaLoader is a singleton object.
-	 */
-	private FastaLoader() {
-		setupUniProtQueryService();
-	}
+	// moved to uniprotutilities
+//	/**
+//	 * Private constructor as FastaLoader is a singleton object.
+//	 */
+//	private FastaLoader() {
+//		setupUniProtQueryService();
+//	}
 
 	/**
 	 * Returns the singleton object of the FastaLoader.
@@ -120,57 +116,40 @@ public class FastaLoader {
 		return instance;
 	}
 	
-	/**
-	 * This method setups the uniprot query service.
-	 */
-	private void setupUniProtQueryService() {
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-			
-			// Create entry retrival service
-			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-		}		
-	}
+//	/**
+//	 * This method setups the uniprot query service.
+//	 */
 	
-	/**
-	 * Returns a protein object queried by the UniProt webservice (if no indexed FASTA is available.
-	 * @param id Protein accession.
-	 * @return Protein object containing header + sequence.
-	 */
-	public static Protein getProteinFromWebService(String id) {
-		// Retrieve UniProt entry by its accession number
-		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry(id);
-		String header = ">";
-		if(entry.getType() == UniProtEntryType.TREMBL) {
-			header += "tr|";
-		} else if(entry.getType() == UniProtEntryType.SWISSPROT) {
-			header += "sw|";
-		}
-		header += id + "|";
-		
-		header += getProteinName(entry.getProteinDescription());
-		String sequence = entry.getSequence().getValue();
-		return new Protein(header, sequence);
-	}
+	// moved to unirptoutilities
+//	private void setupUniProtQueryService() {
+//		// Check whether UniProt query service has been established yet.
+//		if (uniProtQueryService == null) {
+//			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
+//			
+//			// Create entry retrival service
+//			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
+//		}		
+//	}
 	
-	/**
-	 * Returns the protein name(s) as formatted string
-	 * @param desc ProteinDescription object.
-	 * @return Protein name(s) as formatted string.
-	 */
-	public static String getProteinName(ProteinDescription desc) {
-		Name name = null;
-		
-		if (desc.hasRecommendedName()) {
-			name = desc.getRecommendedName();
-		} else if (desc.hasAlternativeNames()) {
-			name = desc.getAlternativeNames().get(0);
-		} else if (desc.hasSubNames()) {
-			name = desc.getSubNames().get(0);
-		}
-		return (name == null) ? "unknown" : name.getFieldsByType(FieldType.FULL).get(0).getValue();
-	}
+
+	// moved to uniprotutilities
+//	/**
+//	 * Returns the protein name(s) as formatted string
+//	 * @param desc ProteinDescription object.
+//	 * @return Protein name(s) as formatted string.
+//	 */
+//	public static String getProteinName(ProteinDescription desc) {
+//		Name name = null;
+//		
+//		if (desc.hasRecommendedName()) {
+//			name = desc.getRecommendedName();
+//		} else if (desc.hasAlternativeNames()) {
+//			name = desc.getAlternativeNames().get(0);
+//		} else if (desc.hasSubNames()) {
+//			name = desc.getSubNames().get(0);
+//		}
+//		return (name == null) ? "unknown" : name.getFieldsByType(FieldType.FULL).get(0).getValue();
+//	}
 	
 	/**
 	 * Returns a specific protein from the FASTA file.
@@ -185,7 +164,8 @@ public class FastaLoader {
 		if (acc2pos == null) {
 			// No index file given.
 			if ((indexFile == null) || (file == null)) {
-				return getProteinFromWebService(id);
+				UniProtUtilities uniprotweb = new UniProtUtilities();
+				return uniprotweb.getProteinFromWebService(id);
 			} else {
 				try {
 					readIndexFile();

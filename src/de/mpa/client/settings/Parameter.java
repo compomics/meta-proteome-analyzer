@@ -17,7 +17,6 @@ import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;

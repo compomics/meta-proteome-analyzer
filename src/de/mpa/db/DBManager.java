@@ -157,23 +157,24 @@ public class DBManager {
 	 * @throws SQLException
 	 */
 	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
-		Map<String, ReducedProteinData> proteinDataMap = null;
-		
+		Map<String, ReducedProteinData> proteinDataMap = null;		
 		// Retrieve the UniProt entries.
 		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
 		Set<String> keySet = proteinHits.keySet();
 		List<String> accessions = new ArrayList<String>();
-		for (String string : keySet) {			
+		for (String string : keySet) {
 			// UniProt accession
 			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(proteinHits.get(string), conn);
 			if (uniprotentry == null) {
 				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
-					accessions.add(string);		
+					accessions.add(string);
 				}
 			}
 		}
 		if (accessions.size() > 0) {
-			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, doUniRefRetrieval);
+			// instantiate UniProtUtilites class			
+			UniProtUtilities uniprotweb = new UniProtUtilities();
+			proteinDataMap = uniprotweb.getUniProtData(accessions);	
 			Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
 			int counter = 0;
 			for (Entry<String, ReducedProteinData> e : entrySet) {
@@ -182,7 +183,6 @@ public class DBManager {
 					UniProtEntry uniProtEntry = proteinData.getUniProtEntry();
 					// Get the corresponding protein accessor.
 					long proteinid = 0L;
-
 					// Check for secondary protein accessions.
 					if (proteinHits.get(e.getKey()) == null) {
 						List<SecondaryUniProtAccession> secondaryUniProtAccessions = uniProtEntry.getSecondaryUniProtAccessions();
@@ -196,7 +196,6 @@ public class DBManager {
 					}
 					// Get taxonomy id
 					Long taxID = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
-
 					// Get EC Numbers.
 					String ecNumbers = "";
 					List<String> ecNumberList = uniProtEntry.getProteinDescription().getEcNumbers();

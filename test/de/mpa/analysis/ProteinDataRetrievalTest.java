@@ -42,7 +42,8 @@ public class ProteinDataRetrievalTest {
 			accessions.add(accession);		
 		}
 		if (!accessions.isEmpty()) {
-			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, true);			
+			UniProtUtilities uniprotweb = new UniProtUtilities();
+			proteinDataMap = uniprotweb.getUniProtData(accessions);		
 		}
 		
 		Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();

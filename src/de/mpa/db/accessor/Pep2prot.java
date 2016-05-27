@@ -117,4 +117,26 @@ public class Pep2prot extends Pep2protTableAccessor {
 
         return temp;
     }
+    
+    /**
+     * This method will return the list of pep2protentries that match the given proteinid
+     * 
+     * @param aConn     Connection to read the spectrum File from.
+     * @param proteinid 	the id we are looking for
+     * @return List<Pep2prot> with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */    
+    public static List<Pep2prot> get_pep2prots_for_proteinid(Long proteinid, Connection aConn)  throws SQLException {
+    	// init list
+    	List<Pep2prot> results = new ArrayList<Pep2prot>();
+        PreparedStatement ps = aConn.prepareStatement("SELECT * FROM pep2prot WHERE " + FK_PROTEINID  + " = ?");
+        ps.setLong(1, proteinid);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	results.add(new Pep2prot(rs));
+        }
+        rs.close();
+        ps.close();    	
+    	return results;
+    }
 }

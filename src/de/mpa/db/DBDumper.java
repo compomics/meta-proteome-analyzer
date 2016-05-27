@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
-
-import org.junit.rules.TemporaryFolder;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;

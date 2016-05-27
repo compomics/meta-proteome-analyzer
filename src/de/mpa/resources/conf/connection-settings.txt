@@ -2,4 +2,4 @@ dbAddress=localhost
 dbName=metaprot
 dbUsername=root
 dbPass=root
-srvAddress=141.44.137.138
+srvAddress=141.44.137.140

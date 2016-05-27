@@ -13,14 +13,11 @@ import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
-import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.util.Formatter;

@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
+import de.mpa.db.accessor.Uniprotentry;
+
 
 /**
  * Test the UniRef querying
@@ -17,8 +19,12 @@ public class UniRefQueryTest extends TestCase {
 	@Before
 	public void setUp() {
 
+		// TODO Test needs to be rewritten
 		// Create entry retrival service
-		uniRefs = UniProtUtilities.getUniRefByUniProtAcc("A4IP67");
+//		UniProtUtilities uniprotweb = new UniProtUtilities();
+//		Uniprotentry uniProtEntry = new Uniprotentry();
+//		ReducedProteinData redprotentry = new ReducedProteinData(uniProtEntry);
+//		uniRefs = uniprotweb.getUniRefs("A4IP67", redprotentry);
 
 		System.out.println(	"UNIREF100: " + uniRefs.getUniRef100EntryId());
 		System.out.println(	"UNIREF90: " + uniRefs.getUniRef90EntryId());

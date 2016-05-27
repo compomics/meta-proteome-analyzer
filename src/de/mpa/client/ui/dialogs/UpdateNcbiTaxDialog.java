@@ -1,7 +1,5 @@
 package de.mpa.client.ui.dialogs;
 
-import jaligner.ui.filechooser.FileChooser;
-
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,19 +10,15 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.taxonomy.NcbiTaxonomy;
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.ScreenConfig;
-import de.mpa.client.ui.dialogs.BlastDialog.BlastWorker;
 import de.mpa.client.ui.icons.IconConstants;
 /**
  * Class for the update NCBI taxonomy 

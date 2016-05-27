@@ -14,15 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 import org.apache.log4j.Logger;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
-import de.mpa.db.job.JobStatus;
-import de.mpa.db.job.instances.CommonJob;
 import de.mpa.fastadigest.DigFASTAEntry.Type;
-import de.mpa.webservice.Message;
 
 public class PeptideDigester {
 	

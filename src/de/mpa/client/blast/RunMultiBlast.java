@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.mpa.client.Constants;
-import de.mpa.client.blast.DbEntry.DB_Type;
-
 /**
  * Class to BLAST a batch of sequences
  * @author Robert Heyer and Sebastian Dorl
@@ -118,18 +115,21 @@ public class RunMultiBlast {
 		blastResultMap = new HashMap<String, BlastResult>();
 		// parse line by line
 		while ((line = reader.readLine()) != null) {
-		    String[] splits = line.split("[,]");
+			// TODO: here add a different parsing rule to accommodate commas in the description			
+			System.out.println("Line: " + line);
+			// added a limit of 5?? splits, this should leave all commas in the description alone
+		    String[] splits = line.split(",", 5);
 		    String query = splits[0];
 		    String subject = splits[1];
 		    String bitscore = splits[2];
-		    String evalue = splits[3];
+		    String evalue = splits[3];		    
 		    // get accession from name
 		    String[] sbjctsplit = subject.split("[|]");
 		    String accession = sbjctsplit[1];
 		    // get description from subject title
 		    String[] titlesplit = splits[4].split("[ ]", 2);
 		    String title =titlesplit[1];
-		    
+		    System.out.println(query + " " + subject + " " + bitscore + " " + evalue + " " + title);
 		    // make or get the result object
 		    BlastResult result;
 		    if (blastResultMap.keySet().contains(query)) { 

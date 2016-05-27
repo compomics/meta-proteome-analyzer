@@ -182,6 +182,28 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		return protein;
     }
     
+	/**
+     * Adds a new protein with accession and description to the database..
+     * @param accession String with the accession of the protein to find.
+     * @param description String with the description of the protein to find.
+     * @param conn The database connection object.
+     * @return protein The newly created Protein object.
+     * @throws SQLException when the persistence did not succeed.
+     */
+    public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, Connection conn) throws SQLException{
+    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
+		dataProtein.put(ProteinAccessor.ACCESSION, accession);
+		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
+		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
+		ProteinAccessor protein = new ProteinAccessor(dataProtein);
+		protein.persist(conn);
+
+		// get the protein id from the generated keys.
+		Long proteinID = (Long) protein.getGeneratedKeys()[0];		
+		
+		return protein;
+    }
+    
     @Override
     public String toString() {
     	return ("" + iProteinid + " " + iAccession + " " + iDescription);
