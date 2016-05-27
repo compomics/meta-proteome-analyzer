@@ -137,6 +137,7 @@ public class BasicStorager implements Storager {
 	 * @throws IOException
 	 */
 	protected Long storeProtein(long peptideID, String accession) throws SQLException, IOException {
+		@SuppressWarnings("static-access")
 		Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
         String description = protein.getHeader().getDescription();
         

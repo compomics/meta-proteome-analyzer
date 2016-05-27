@@ -26,6 +26,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * the header label.
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 
 	/**
@@ -150,6 +151,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 		return (icon == null) ? this.icon : icon;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected SortKey getSortKey(JTable table, int column) {
 		RowSorter rowSorter = table.getRowSorter();

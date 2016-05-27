@@ -8,6 +8,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.neo4j.graphdb.Node;
 
+@SuppressWarnings("serial")
 public class GraphDbResultTableModel extends DefaultTableModel {
 		
 		/**

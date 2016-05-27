@@ -164,6 +164,7 @@ public class MetaProteinFactory {
 		 * @param mphB meta-protein B
 		 * @return <code>true</code> if the meta-proteins should be merged, <code>false</code> otherwise
 		 */
+		@SuppressWarnings("incomplete-switch")
 		public boolean shouldCondense(MetaProteinHit mphA, MetaProteinHit mphB) {
 			ReducedUniProtEntry upeA = mphA.getProteinHitList().get(0).getUniProtEntry();
 			ReducedUniProtEntry upeB = mphB.getProteinHitList().get(0).getUniProtEntry();
@@ -250,7 +251,7 @@ public class MetaProteinFactory {
 				// other meta-protein or vice versa (strict similarity criterion)
 				List<String> seqsA = new ArrayList<>(pepSeqsA);
 				List<String> seqsB = new ArrayList<>(pepSeqsB);
-				boolean notInB = false;
+				//boolean notInB = false;
 				// check whether peptides in first list have corresponding
 				// elements in second list, stop at first mismatch
 				Iterator<String> iterA = seqsA.iterator();

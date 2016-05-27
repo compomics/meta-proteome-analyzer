@@ -10,6 +10,7 @@ import java.util.List;
  * http://www.genome.jp/kegg-bin/get_htext?htext=ko00001.keg</a>
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class KEGGOrthologyMap extends KEGGMap {
 
 	/**

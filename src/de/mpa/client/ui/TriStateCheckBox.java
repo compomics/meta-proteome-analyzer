@@ -13,6 +13,7 @@ import javax.swing.UIManager;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public abstract class TriStateCheckBox extends JCheckBox {
 	
 	/**

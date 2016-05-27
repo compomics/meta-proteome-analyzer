@@ -381,6 +381,7 @@ public class TableConfig {
 	 * 
 	 * @author A. Behne
 	 */
+	@SuppressWarnings("serial")
 	public static class FormattedTableCellRenderer extends DefaultTableCellRenderer {
 		
 		private final DecimalFormat formatter;

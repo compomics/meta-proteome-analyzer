@@ -92,7 +92,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public Pep2protTableAccessor(HashMap aParams) {
+	public Pep2protTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(PEP2PROTID)) {
 			this.iPep2protid = ((Long)aParams.get(PEP2PROTID)).longValue();
 		}
@@ -202,7 +202,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(PEP2PROTID)) {
 			throw new IllegalArgumentException("Primary key field 'PEP2PROTID' is missing in HashMap!");

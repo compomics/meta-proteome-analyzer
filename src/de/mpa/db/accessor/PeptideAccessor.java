@@ -18,7 +18,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
      * Calls the super class.
      * @param aParams
      */
-	public PeptideAccessor(HashMap aParams) {
+	public PeptideAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		super(aParams);
 	}
 	

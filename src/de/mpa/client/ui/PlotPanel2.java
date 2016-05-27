@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.compomics.util.interfaces.SpectrumFile;
 
+@SuppressWarnings("serial")
 public class PlotPanel2 extends SpectrumPanel {
 	
 	private SpectrumFile iSpecFile;
@@ -24,7 +25,7 @@ public class PlotPanel2 extends SpectrumPanel {
 		super.setSpectrumFile(aSpecFile);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void setSpectrumFile(SpectrumFile aSpecFile, Color lineCol) {
 		
 		if (aSpecFile == null) {

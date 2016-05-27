@@ -7,6 +7,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public abstract class KEGGNode extends DefaultMutableTreeNode {
 	
 	/**

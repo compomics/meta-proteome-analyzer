@@ -11,6 +11,7 @@ import de.mpa.db.job.JobStatus;
  * 
  * @author T. Muth, A.Behne
  */
+@SuppressWarnings("serial")
 public class MessageQueue extends ArrayDeque<String> {
 
 	/**

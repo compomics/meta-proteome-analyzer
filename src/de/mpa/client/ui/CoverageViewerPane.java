@@ -52,6 +52,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class CoverageViewerPane extends JScrollPane implements Busyable {
 	
 	/**

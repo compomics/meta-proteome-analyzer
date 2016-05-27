@@ -79,6 +79,7 @@ public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 		return this.userObjects.length;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getValueAt(int column) {
 		switch (column) {

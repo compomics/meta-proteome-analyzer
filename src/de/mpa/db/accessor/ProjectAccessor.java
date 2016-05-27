@@ -20,7 +20,7 @@ public class ProjectAccessor extends ProjectTableAccessor {
 	 * Calls the super class.
 	 * @param params
 	 */
-	public ProjectAccessor(HashMap params){
+	public ProjectAccessor(@SuppressWarnings("rawtypes") HashMap params){
 		super(params);
 	}
 

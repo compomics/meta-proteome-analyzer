@@ -33,6 +33,7 @@ import com.compomics.util.db.interfaces.Updateable;
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
+@SuppressWarnings("serial")
 public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateable, Persistable, Serializable {
 
 	/**
@@ -236,7 +237,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public OmssahitTableAccessor(HashMap aParams) {
+	public OmssahitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(OMSSAHITID)) {
 			this.iOmssahitid = ((Long)aParams.get(OMSSAHITID)).longValue();
 		}
@@ -645,7 +646,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(OMSSAHITID)) {
 			throw new IllegalArgumentException("Primary key field 'OMSSAHITID' is missing in HashMap!");

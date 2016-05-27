@@ -202,7 +202,7 @@ public class SscfgTableAccessor implements Deleteable, Retrievable, Updateable, 
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public SscfgTableAccessor(HashMap aParams) {
+	public SscfgTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(SSCFGID)) {
 			this.iSscfgid = ((Long)aParams.get(SSCFGID)).longValue();
 		}
@@ -542,7 +542,7 @@ public class SscfgTableAccessor implements Deleteable, Retrievable, Updateable, 
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(SSCFGID)) {
 			throw new IllegalArgumentException("Primary key field 'SSCFGID' is missing in HashMap!");

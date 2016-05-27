@@ -33,6 +33,7 @@ import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.io.QueryHandler;
 import de.mpa.graphdb.io.UserQueries;
 
+@SuppressWarnings("serial")
 public class SaveQueryDialog extends JDialog {
 	
 	private GraphQueryDialog owner;
@@ -130,6 +131,7 @@ public class SaveQueryDialog extends JDialog {
 	 * 
 	 * @author Thilo Muth
 	 */
+	@SuppressWarnings("rawtypes")
 	private class SaveTask extends SwingWorker {
 		boolean success = false;
 		@Override

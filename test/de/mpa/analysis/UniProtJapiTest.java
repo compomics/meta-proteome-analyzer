@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -16,18 +15,12 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.Go;
-import uk.ac.ebi.kraken.interfaces.uniref.UniRefDatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;
-import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntryId;
-import uk.ac.ebi.kraken.interfaces.uniref.member.MemberId;
-import uk.ac.ebi.kraken.interfaces.uniref.member.UniRefRepresentativeMember;
 import uk.ac.ebi.uniprot.dataservice.client.Client;
 import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
 import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
 import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
-import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtQueryBuilder;
 import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
-import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefComponent;
 import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefQueryBuilder;
 import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
 import uk.ac.ebi.uniprot.dataservice.query.Query;
@@ -44,9 +37,6 @@ public class UniProtJapiTest {
 	private String taxon;
 	private List<Keyword> keywords;
 	private List<Go> goTerms;
-	private UniRefEntry uniRef100;
-	private UniRefEntry uniRef90;
-	private UniRefEntry uniRef50;
 
 	@Before
 	public void setUp() {

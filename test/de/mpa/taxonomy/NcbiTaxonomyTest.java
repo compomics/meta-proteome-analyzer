@@ -23,6 +23,7 @@ public class NcbiTaxonomyTest extends TestCase {
 		String nodesFileString = Constants.CONFIGURATION_DIR_PATH + "nodes.dmp";
 		
 		try {
+			@SuppressWarnings("unused")
 			NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance(namesFileString, nodesFileString);
 		} catch (Exception e) {
 			e.printStackTrace();

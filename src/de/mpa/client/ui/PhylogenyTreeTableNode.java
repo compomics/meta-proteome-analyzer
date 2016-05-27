@@ -323,6 +323,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 		return super.toString();
 	};
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean equals(Object obj) {
 		// check whether the other object inherits from CheckBoxTreeTableNode

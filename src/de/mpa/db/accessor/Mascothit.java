@@ -128,7 +128,8 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
      * @throws SQLException when the retrieval did not succeed.
      */
     public static void copymascothit(long proteinid, MascothitTableAccessor hit, Connection conn) throws SQLException {
-    		long mascotHitID = 0;
+    		@SuppressWarnings("unused")
+			long mascotHitID = 0;
     		HashMap<Object, Object> data = new HashMap<Object, Object>(10);
     		data.put(Mascothit.FK_SEARCHSPECTRUMID, hit.getFk_searchspectrumid());
     		data.put(Mascothit.FK_PEPTIDEID, hit.getFk_peptideid());

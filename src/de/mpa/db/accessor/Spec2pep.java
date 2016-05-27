@@ -15,7 +15,7 @@ public class Spec2pep extends Spec2pepTableAccessor {
      * Calls the super class.
      * @param params
      */
-    public Spec2pep(HashMap params){
+    public Spec2pep(@SuppressWarnings("rawtypes") HashMap params){
         super(params);
     }
     

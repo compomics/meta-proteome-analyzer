@@ -12,6 +12,7 @@ import javax.swing.JComboBox;
  * 
  * @author A. Behne
  */
+@SuppressWarnings({ "rawtypes", "serial" })
 public class WideComboBox extends JComboBox {
 
 	/**
@@ -28,6 +29,7 @@ public class WideComboBox extends JComboBox {
      * @param items  an array of objects to insert into the combo box
      * @see DefaultComboBoxModel
      */
+	@SuppressWarnings("unchecked")
 	public WideComboBox(Object[] items) {
 		super(items);
 	}

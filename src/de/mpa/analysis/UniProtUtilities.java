@@ -25,7 +25,9 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;
+import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
 import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtQueryBuilder;
 import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
 import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefQueryBuilder;
@@ -40,7 +42,6 @@ import de.mpa.client.blast.BlastHit;
 import de.mpa.client.blast.BlastResult;
 import de.mpa.client.blast.DbEntry;
 import de.mpa.client.blast.DbEntry.DB_Type;
-import de.mpa.client.blast.RunBlast;
 import de.mpa.client.blast.RunMultiBlast;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.Mascothit;
@@ -55,8 +56,6 @@ import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.main.Starter;
 import de.mpa.util.Formatter;
-import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
-import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
 
 
 /**
@@ -557,7 +556,7 @@ public class UniProtUtilities {
 					// Get best BLAST hit
 					if (blastBatch.get(old_accession) != null) {
 						// best blast hit, used for ??
-						BlastHit bestBlastHit = blastBatch.get(old_accession).getBestBitScoreBlastHit();
+						//BlastHit bestBlastHit = blastBatch.get(old_accession).getBestBitScoreBlastHit();
 						// list of all blasthits that satisfy the evalue threshold  (evalue check is redundant)
 						List<BlastHit> allblasthits = blastBatch.get(old_accession).getBestBlastHits(eValue);		
 						// get all the protein information that needs to be copied (only in case of multiple blast hits for this accession)

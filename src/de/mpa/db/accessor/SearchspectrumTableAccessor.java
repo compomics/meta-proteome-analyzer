@@ -114,7 +114,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public SearchspectrumTableAccessor(HashMap aParams) {
+	public SearchspectrumTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(SEARCHSPECTRUMID)) {
 			this.iSearchspectrumid = ((Long)aParams.get(SEARCHSPECTRUMID)).longValue();
 		}
@@ -270,7 +270,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(SEARCHSPECTRUMID)) {
 			throw new IllegalArgumentException("Primary key field 'SEARCHSPECTRUMID' is missing in HashMap!");

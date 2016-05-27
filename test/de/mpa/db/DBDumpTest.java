@@ -17,6 +17,7 @@ public class DBDumpTest extends TestCase {
 	/**
 	 * DB Connection.
 	 */
+	@SuppressWarnings("unused")
 	private Connection conn;
 
 	@Before
@@ -31,7 +32,7 @@ public class DBDumpTest extends TestCase {
 		boolean winOS = System.getProperty("os.name").startsWith("Windows");
 		
 		// get all parameters for the dump
-		String script = "dump_database";
+//		String script = "dump_database";
 		String user = "root";
 		String pass = "1337";
 		

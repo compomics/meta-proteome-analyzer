@@ -77,6 +77,7 @@ import de.mpa.main.Starter;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ColorsDialog extends JDialog {
 	
 	/**
@@ -111,6 +112,7 @@ public class ColorsDialog extends JDialog {
 	/**
 	 * Initializes and lays out the color settings dialog's components.
 	 */
+	@SuppressWarnings("unchecked")
 	private void initComponents() {
 		
 		// Apply layout to content pane
@@ -456,6 +458,7 @@ public class ColorsDialog extends JDialog {
 						ColorsDialog.this.repaint();
 					} else {
 						// the 'Add new theme...' entry has been selected
+						@SuppressWarnings("rawtypes")
 						JComboBox comboBox = (JComboBox) e.getSource();
 						if (!comboBox.isEditable()) {
 							// attach self-destroying action listener
@@ -573,7 +576,7 @@ public class ColorsDialog extends JDialog {
 		private ColorIcon icon = new ColorIcon();
 		
 		@Override
-		public Component getListCellRendererComponent(JList list,
+		public Component getListCellRendererComponent(@SuppressWarnings("rawtypes") JList list,
 				Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
 			JLabel label = (JLabel) super.getListCellRendererComponent(

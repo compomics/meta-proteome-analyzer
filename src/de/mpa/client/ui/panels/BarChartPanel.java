@@ -20,6 +20,7 @@ import de.mpa.util.ColorUtils;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class BarChartPanel extends JPanel {
 
 	/**

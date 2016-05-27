@@ -1,18 +1,13 @@
 package de.mpa.fastadigest;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Array;
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.*;
-
-import de.mpa.io.fasta.FastaLoader;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test the resulting peptide sequences from in-silico digestion of ubiquitin with trypsin
@@ -39,6 +34,7 @@ public class TestTrypticDigest {
 		String inFile = "/scratch/metaprot/data/fasta/TestDB.pep";
 		PeptideDigester digester = new PeptideDigester();
 		
+		@SuppressWarnings("static-access")
 		HashSet<String> accessionSet = digester.fetchProteinsFromPeptideSequence(inSequence, inFile);
 		
 		System.out.println(accessionSet.size());

@@ -103,7 +103,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public SettingsTableAccessor(HashMap aParams) {
+	public SettingsTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(SETTINGSID)) {
 			this.iSettingsid = ((Long)aParams.get(SETTINGSID)).longValue();
 		}
@@ -236,7 +236,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(SETTINGSID)) {
 			throw new IllegalArgumentException("Primary key field 'SETTINGSID' is missing in HashMap!");

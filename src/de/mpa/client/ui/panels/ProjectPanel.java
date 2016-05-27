@@ -65,6 +65,7 @@ import de.mpa.db.accessor.XTandemhit;
  * 
  * @author A. Behne, R. Heyer, T. Muth
  */
+@SuppressWarnings("serial")
 public class ProjectPanel extends JPanel {
 
 	/**
@@ -928,6 +929,7 @@ public class ProjectPanel extends JPanel {
 	 * 
 	 * @author Thilo Muth, Alex Behne, R. Heyer
 	 */
+	@SuppressWarnings("rawtypes")
 	private class DeleteExperimentWorker extends SwingWorker {
 
 		/**
@@ -964,6 +966,7 @@ public class ProjectPanel extends JPanel {
 	 * 
 	 * @author Thilo Muth, Alex Behne, R. Heyer
 	 */
+	@SuppressWarnings("rawtypes")
 	private class DeleteProjectWorker extends SwingWorker {
 
 		/**

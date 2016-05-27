@@ -11,6 +11,7 @@ import de.mpa.client.ui.panels.SpectralLibrarySettingsPanel;
  * Parameter map storing spectral similarity search settings.
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class SpectralLibraryParameters extends ParameterMap {
 
 	@Override

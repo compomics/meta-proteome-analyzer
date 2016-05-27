@@ -36,6 +36,7 @@ import de.mpa.db.accessor.SearchHit;
  * 
  * @author R. Heyer
  */
+@SuppressWarnings("serial")
 public class SpectrumResultPanel extends JPanel {
 
 	/**

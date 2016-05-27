@@ -103,7 +103,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public PeptideTableAccessor(HashMap aParams) {
+	public PeptideTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(PEPTIDEID)) {
 			this.iPeptideid = ((Long)aParams.get(PEPTIDEID)).longValue();
 		}
@@ -236,7 +236,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(PEPTIDEID)) {
 			throw new IllegalArgumentException("Primary key field 'PEPTIDEID' is missing in HashMap!");

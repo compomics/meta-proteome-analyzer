@@ -61,6 +61,7 @@ import de.mpa.io.fasta.FastaLoader;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class SettingsPanel extends JPanel {
 
 	/**
@@ -277,6 +278,7 @@ public class SettingsPanel extends JPanel {
 	 * 
 	 * @author Thilo Muth, Alex Behne
 	 */
+	@SuppressWarnings("rawtypes")
 	private class ProcessWorker extends SwingWorker {
 		protected Object doInBackground() {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
@@ -357,6 +359,7 @@ public class SettingsPanel extends JPanel {
 	 * 
 	 * @author Thilo Muth, Alex Behne, R. Heyer
 	 */
+	@SuppressWarnings("rawtypes")
 	private class BatchProcessWorker extends SwingWorker {
 
 		/**
@@ -379,7 +382,9 @@ public class SettingsPanel extends JPanel {
 			try {
 				// Pack and send files.
 				client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
+				@SuppressWarnings("unused")
 				long packSize = databasePnl.getPackageSize();
+				@SuppressWarnings("unused")
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 				// Collect search settings.
 				DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;

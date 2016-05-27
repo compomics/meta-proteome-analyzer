@@ -16,6 +16,7 @@ import de.mpa.client.settings.Parameter.OptionParameter;
  * 
  * @author T. Muth, F. Kohrs, A. Behne
  */
+@SuppressWarnings("serial")
 public class XTandemParameters extends ParameterMap {
 	
 	/**

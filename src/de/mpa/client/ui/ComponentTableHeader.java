@@ -15,6 +15,7 @@ import org.jdesktop.swingx.JXTableHeader;
  * 
  * @see ComponentHeaderRenderer
  */
+@SuppressWarnings("serial")
 public class ComponentTableHeader extends JXTableHeader {
 
 	private ComponentHeaderRenderer chr;

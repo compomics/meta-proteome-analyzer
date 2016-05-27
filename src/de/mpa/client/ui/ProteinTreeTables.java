@@ -377,6 +377,7 @@ public enum ProteinTreeTables {
 			}
 		}
 
+		@SuppressWarnings("unused")
 		private PhylogenyTreeTableNode findPathway(String pw) {
 			Enumeration<? extends MutableTreeTableNode> children = 
 					((MutableTreeTableNode) ProteinTreeTables.PATHWAY.getTreeTable().getTreeTableModel().getRoot()).children();
@@ -645,6 +646,7 @@ public enum ProteinTreeTables {
 	 * @param root the root node of the tree table
 	 * @return he generated tree table
 	 */
+	@SuppressWarnings("rawtypes")
 	private SortableCheckBoxTreeTable createTreeTable(final SortableCheckBoxTreeTableNode root) {
 
 		// Set up table model
@@ -678,6 +680,7 @@ public enum ProteinTreeTables {
 		};
 
 		// Create table from model, redirect tooltip text generation
+		@SuppressWarnings("serial")
 		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			@Override
 			public String getToolTipText(MouseEvent me) {
@@ -829,6 +832,7 @@ public enum ProteinTreeTables {
 		webColumn.setSortable(false);
 		
 		// Create shared web resource action
+		@SuppressWarnings("serial")
 		Action webResourceAction = new AbstractAction() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -913,6 +917,7 @@ public enum ProteinTreeTables {
 
 		// Set up node icons
 		// TODO: add icons for non-leaves, e.g. for different taxonomic levels
+		@SuppressWarnings("serial")
 		IconValue iv = new IconValue() {
 			@Override
 			public Icon getIcon(Object value) {
@@ -1007,6 +1012,7 @@ public enum ProteinTreeTables {
 			 * @return the context menu
 			 */
 			private JPopupMenu createPopup() {
+				@SuppressWarnings("serial")
 				JPopupMenu popup = new JPopupMenu() {
 					@Override
 					public void setVisible(boolean b) {
@@ -1023,12 +1029,14 @@ public enum ProteinTreeTables {
 				sortMenu.setIcon(IconConstants.SORT_ICON);
 				
 				int modelCol = treeTbl.convertColumnIndexToModel(col);
+				@SuppressWarnings("rawtypes")
 				SortOrder order = ((TreeTableRowSorter) treeTbl.getRowSorter()).getSortOrder(modelCol);
 				JMenuItem ascChk = new JRadioButtonMenuItem("Ascending", order == SortOrder.ASCENDING);
 				JMenuItem desChk = new JRadioButtonMenuItem("Descending", order == SortOrder.DESCENDING);
 				JMenuItem unsChk = new JRadioButtonMenuItem("Unsorted", order == SortOrder.UNSORTED);
 				
 				ActionListener sortListener = new ActionListener() {
+					@SuppressWarnings("rawtypes")
 					@Override
 					public void actionPerformed(ActionEvent evt) {
 						SortOrder order = SortOrder.valueOf(

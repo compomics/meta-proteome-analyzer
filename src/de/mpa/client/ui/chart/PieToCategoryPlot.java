@@ -34,6 +34,7 @@ import org.jfree.ui.RectangleEdge;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class PieToCategoryPlot extends CategoryPlot {
 	
 	/**
@@ -44,11 +45,13 @@ public class PieToCategoryPlot extends CategoryPlot {
 	/**
 	 * The column key of the highlighted item.
 	 */
+	@SuppressWarnings("rawtypes")
 	private Comparable highlightedKey;
 	
 	/**
 	 * The column key of the selected item.
 	 */
+	@SuppressWarnings("rawtypes")
 	private Comparable selectedKey;
 	
 	/**
@@ -101,6 +104,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 */
 	private static CategoryAxis createDefaultCategoryAxis() {
 		CategoryAxis categoryAxis = new CategoryAxis(" ") {
+			@SuppressWarnings("rawtypes")
 			@Override
 			protected TextBlock createLabel(Comparable category,
 					float width, RectangleEdge edge, Graphics2D g2) {
@@ -165,6 +169,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 * Sets the key to highlight.
 	 * @param key the key to highlight
 	 */
+	@SuppressWarnings("rawtypes")
 	public void setHighlightedKey(Comparable key) {
 		this.highlightedKey = key;
 		fireChangeEvent();
@@ -174,6 +179,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 * Sets the key to select.
 	 * @param key the key to select
 	 */
+	@SuppressWarnings("rawtypes")
 	public void setSelectedKey(Comparable key) {
 		this.selectedKey = key;
 		fireChangeEvent();
@@ -204,6 +210,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 			this.piePlot = piePlot;
 		}
 		
+		@SuppressWarnings("rawtypes")
 		@Override
 		public Paint getItemPaint(int row, int column) {
 			// fetch color from underlying pie plot
@@ -218,6 +225,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 			return paint;
 		}
 		
+		@SuppressWarnings("rawtypes")
 		@Override
 		public void drawItem(Graphics2D g2,
 				CategoryItemRendererState state, Rectangle2D dataArea,

@@ -10,6 +10,7 @@ import java.util.List;
  * their primary identifier.
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 
 	/**

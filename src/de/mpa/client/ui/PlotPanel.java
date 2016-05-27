@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import de.mpa.io.MascotGenericFile;
 
+@SuppressWarnings("serial")
 public class PlotPanel extends JPanel {
 	
 	private MascotGenericFile spectrum;

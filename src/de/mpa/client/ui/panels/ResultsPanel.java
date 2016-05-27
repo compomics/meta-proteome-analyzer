@@ -94,6 +94,7 @@ import de.mpa.io.parser.kegg.KEGGNode;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ResultsPanel extends JPanel implements Busyable {
 
 	/**
@@ -400,6 +401,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		fetchMultipleResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);
 		fetchMultipleResultsBtn.setToolTipText("Fetches the results from multiple experiments and process them together");
 		fetchMultipleResultsBtn.addActionListener(new ActionListener() {
+			@SuppressWarnings("null")
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// Get selected experiments
@@ -633,6 +635,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		chartPane.setEnabled(false);
 
 		chartPane.addPropertyChangeListener(new PropertyChangeListener() {
+			@SuppressWarnings("rawtypes")
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				String property = evt.getPropertyName();
@@ -775,7 +778,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * collection and which is identified by the specified key.
 	 * @param key the key by which the proteins are identified
 	 */
-	private void updateDetailsTable(Comparable key) {
+	private void updateDetailsTable(@SuppressWarnings("rawtypes") Comparable key) {
 		if ("".equals(key)) {
 			TableConfig.clearTable(detailsTbl);
 		} else {

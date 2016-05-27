@@ -216,6 +216,7 @@ public class OntologyData implements ChartData {
 			for (Entry<String, ProteinHitList> entry : entrySet) {
 				ProteinHitList metaProteins = entry.getValue();
 				Integer absVal = this.getSizeByHierarchy(metaProteins, hierarchyLevel);
+				@SuppressWarnings("rawtypes")
 				Comparable key = entry.getKey();
 				pieDataset.setValue(key, absVal);
 			}
@@ -227,6 +228,7 @@ public class OntologyData implements ChartData {
 			
 			double total = DatasetUtilities.calculatePieDatasetTotal(pieDataset);
 			for (Object obj : pieDataset.getKeys()) {
+				@SuppressWarnings("rawtypes")
 				Comparable key = (Comparable) obj;
 				if (othersKey.equals(key) || unknownKey.equals(key)) {
 					continue;

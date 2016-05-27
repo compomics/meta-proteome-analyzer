@@ -18,7 +18,7 @@ public class Property extends PropertyTableAccessor {
 	 * Calls the super class.
 	 * @param params
 	 */
-	public Property(HashMap params){
+	public Property(@SuppressWarnings("rawtypes") HashMap params){
 		super(params);
 	}
 	/**

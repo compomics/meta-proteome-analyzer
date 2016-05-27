@@ -33,6 +33,7 @@ import com.compomics.util.db.interfaces.Updateable;
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
+@SuppressWarnings("serial")
 public class MascothitTableAccessor implements Deleteable, Retrievable, Updateable, Persistable, Serializable {
 
 	/**
@@ -170,7 +171,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public MascothitTableAccessor(HashMap aParams) {
+	public MascothitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(MASCOTHITID)) {
 			this.iMascothitid = ((Long)aParams.get(MASCOTHITID)).longValue();
 		}
@@ -440,7 +441,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(MASCOTHITID)) {
 			throw new IllegalArgumentException("Primary key field 'MASCOTHITID' is missing in HashMap!");

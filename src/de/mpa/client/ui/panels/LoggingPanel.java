@@ -48,6 +48,7 @@ import de.mpa.client.ui.TextLineNumber;
  * @author Thilo Muth
  *
  */
+@SuppressWarnings("serial")
 public class LoggingPanel extends JPanel {
 	
 	private static final int MAXLINES = 1000;

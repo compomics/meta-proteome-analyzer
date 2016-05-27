@@ -18,6 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
 
+@SuppressWarnings("serial")
 public class StatusPanel extends JPanel {
 
 	/**

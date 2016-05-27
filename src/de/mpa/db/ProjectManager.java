@@ -278,7 +278,7 @@ public class ProjectManager {
 	 */
 	public void addExperimentProperties(Long experimentId, Map<String, String> expProperties) throws SQLException {
 		// iterate properties and store them
-		for (Entry entry : expProperties.entrySet()) {
+		for (@SuppressWarnings("rawtypes") Entry entry : expProperties.entrySet()) {
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(ExpProperty.FK_EXPERIMENTID, experimentId);
 			data.put(ExpProperty.NAME, entry.getKey());
@@ -432,6 +432,7 @@ public class ProjectManager {
 	 * @author K. Schallert
 	 */
 	
+	@SuppressWarnings("unused")
 	private void RemoveOrphanedSpectra(Client client) throws SQLException {		
 		conn.setAutoCommit(false);
 		// only the spectra with an associated searchspectrum should actually remain in the database

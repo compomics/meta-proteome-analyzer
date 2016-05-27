@@ -14,6 +14,7 @@ import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
  * 
  * @author R. Heyer and A. Behne
  */
+@SuppressWarnings("rawtypes")
 public class TaxonomyNode implements Comparable, Serializable {
 	
 	/**

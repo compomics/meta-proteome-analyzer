@@ -8,6 +8,7 @@ import java.util.List;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class KEGGOrthologyNode extends KEGGNode {
 
 	/**

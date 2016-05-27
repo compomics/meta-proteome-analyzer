@@ -112,6 +112,7 @@ public class RolloverButtonUI extends PlasticButtonUI {
 	 * 
 	 * @author A. Behne
 	 */
+	@SuppressWarnings("serial")
 	public static class RolloverButtonBorder extends AbstractBorder {
 		
 		private static RolloverButtonBorder instance;

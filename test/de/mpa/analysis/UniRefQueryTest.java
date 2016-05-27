@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
-import de.mpa.db.accessor.Uniprotentry;
 
 
 /**

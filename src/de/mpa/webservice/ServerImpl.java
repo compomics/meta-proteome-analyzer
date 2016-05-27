@@ -110,6 +110,7 @@ public class ServerImpl implements Server {
 	 * @param dbSearchSettings The database search settings.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("static-access")
 	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
 		File file = new File(ServerProperties.getInstance().getProperty("path.transfer") + filename);
 		

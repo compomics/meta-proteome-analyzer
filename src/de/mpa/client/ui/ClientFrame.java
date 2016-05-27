@@ -44,6 +44,7 @@ import de.mpa.io.ExportHeader;
  * @author Alexander Behne, Thilo Muth
  */
 
+@SuppressWarnings("serial")
 public class ClientFrame extends JFrame {
 
 	/**

@@ -54,6 +54,7 @@ public class ConnectionParameters extends ParameterMap {
 		this.initDefaults();
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public void initDefaults() {
 		

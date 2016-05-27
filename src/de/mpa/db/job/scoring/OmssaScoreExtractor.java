@@ -58,11 +58,11 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    MSHitSet msHitSet = targetResults.get(msSpectrum);
     	    List<MSHits> targetHits = msHitSet.MSHitSet_hits.MSHits;
     	    double lowestEValue = Double.POSITIVE_INFINITY;
-    	    String peptideSequence = "";
+//    	    String peptideSequence = "";
     	    for (MSHits targetHit : targetHits) {
     	    	if (targetHit.MSHits_evalue < lowestEValue) {
     	    		lowestEValue = targetHit.MSHits_evalue;
-    	    		peptideSequence = targetHit.MSHits_pepstring;
+//    	    		peptideSequence = targetHit.MSHits_pepstring;
     	    	}
     	    }
     	    if (lowestEValue < Double.POSITIVE_INFINITY) {
@@ -70,7 +70,7 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 //    	     	String spectrumTitle = formatSpectrumTitle(msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString());
 //    	    	searchHits.add(new CustomSearchHit(lowestEValue, peptideSequence, spectrumTitle));
     	    }
-    	    
+//    	    
     	}
     	
     	// Sort the target scores ascending.
@@ -103,20 +103,20 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	}    	
    	}
 
-	 /**
-     * Format OMSSA spectrum title.
-     * @param spectrumTitle Unformatted spectrum title
-     * @return Formatted spectrum title.
-     */
-	private String formatSpectrumTitle(String spectrumTitle) {
-		if(spectrumTitle.contains("\\\\")){
-			spectrumTitle = spectrumTitle.replace("\\\\", "\\");
-		} 
-		if(spectrumTitle.contains("\\\"")){
-			spectrumTitle = spectrumTitle.replace("\\\"", "\"");
-		}
-		return spectrumTitle;
-	}
+//	 /**
+//     * Format OMSSA spectrum title.
+//     * @param spectrumTitle Unformatted spectrum title
+//     * @return Formatted spectrum title.
+//     */
+//	private String formatSpectrumTitle(String spectrumTitle) {
+//		if(spectrumTitle.contains("\\\\")){
+//			spectrumTitle = spectrumTitle.replace("\\\\", "\\");
+//		} 
+//		if(spectrumTitle.contains("\\\"")){
+//			spectrumTitle = spectrumTitle.replace("\\\"", "\"");
+//		}
+//		return spectrumTitle;
+//	}
 	
 	@Override
 	void extractTargetOnly() {

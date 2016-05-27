@@ -19,7 +19,6 @@ import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
-import de.mpa.db.extractor.SearchHitExtractor;
 
 public class SearchHitExtractorTest {
 	

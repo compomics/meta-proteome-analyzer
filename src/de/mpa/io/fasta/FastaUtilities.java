@@ -243,6 +243,7 @@ public class FastaUtilities {
 					if (nextLine.charAt(0) == '>') {
 						String string = nextLine.substring(nextLine.indexOf("FWD_") +9);
 						Header header = Header.parseFromFASTA(nextLine);
+						@SuppressWarnings("unused")
 						String key = header.getAccession();
 						int id = Integer.parseInt(string);
 						

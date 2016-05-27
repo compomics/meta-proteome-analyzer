@@ -26,10 +26,10 @@ public class RunBlast {
 	 */
 	public String blastFile;
 	
-	/**
-	 * The e_value for the BLAST
-	 */
-	private double evalue; 
+//	/**
+//	 * The e_value for the BLAST
+//	 */
+//	private double evalue; 
 	
 /**
  * Methode to build and run a BLAST query
@@ -40,7 +40,7 @@ public class RunBlast {
  */
 	public static BlastResult blast(String blastFile, String database, double evalue, DbEntry dbEntry){
 		// Result object
-		BlastResult blastRes = new BlastResult();
+//		BlastResult blastRes = new BlastResult();
 		
 		// Creates dummy FASTA
 		try {
@@ -85,7 +85,8 @@ public class RunBlast {
 			process.destroy();
 		}
 		
-		return blastRes = BlastParser.parseBlastHit(Constants.BLAST_OUTPUT_XML);
+//		return blastRes = BlastParser.parseBlastHit(Constants.BLAST_OUTPUT_XML);
+		return BlastParser.parseBlastHit(Constants.BLAST_OUTPUT_XML);
 	}
 
 	/**
@@ -110,6 +111,7 @@ public class RunBlast {
 			bw.newLine();
 			//Flushed the writer
 			bw.flush();
+			bw.close();
 		}
 	}
 }

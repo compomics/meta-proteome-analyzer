@@ -158,7 +158,7 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public ConsensusspecTableAccessor(HashMap aParams) {
+	public ConsensusspecTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(CONSENSUSSPECID)) {
 			this.iConsensusspecid = ((Long)aParams.get(CONSENSUSSPECID)).longValue();
 		}
@@ -406,7 +406,7 @@ public class ConsensusspecTableAccessor implements Deleteable, Retrievable, Upda
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(CONSENSUSSPECID)) {
 			throw new IllegalArgumentException("Primary key field 'CONSENSUSSPECID' is missing in HashMap!");

@@ -107,6 +107,7 @@ public class HistogramData implements ChartData {
 		return null;
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public void init() {
 		Arrays.sort(values);

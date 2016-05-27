@@ -8,6 +8,7 @@ import de.mpa.client.Constants.UIColor;
  * Convenience class to delegate color lookups.
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class DelegateColor extends ColorUIResource {
 	
 	/**

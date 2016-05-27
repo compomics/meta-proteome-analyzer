@@ -125,7 +125,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public PropertyTableAccessor(HashMap aParams) {
+	public PropertyTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(PROPERTYID)) {
 			this.iPropertyid = ((Long)aParams.get(PROPERTYID)).longValue();
 		}
@@ -304,7 +304,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(PROPERTYID)) {
 			throw new IllegalArgumentException("Primary key field 'PROPERTYID' is missing in HashMap!");

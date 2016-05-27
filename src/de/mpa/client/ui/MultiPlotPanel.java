@@ -16,6 +16,7 @@ import javax.swing.JPopupMenu;
 
 import de.mpa.io.MascotGenericFile;
 
+@SuppressWarnings("serial")
 public class MultiPlotPanel extends JPanel {
 
 	// list of spectra, typically contains two elements

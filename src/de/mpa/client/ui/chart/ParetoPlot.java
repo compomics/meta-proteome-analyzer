@@ -1,135 +1,18 @@
-//package de.mpa.client.ui.chart;
-//
-//import java.awt.BasicStroke;
-//import java.awt.BorderLayout;
-//import java.awt.Color;
-//import java.awt.Component;
-//import java.awt.ComponentOrientation;
-//import java.awt.Container;
-//import java.awt.ContainerOrderFocusTraversalPolicy;
-//import java.awt.Dimension;
-//import java.awt.FocusTraversalPolicy;
-//import java.awt.Font;
-//import java.awt.FontMetrics;
-//import java.awt.Graphics;
-//import java.awt.Graphics2D;
-//import java.awt.Insets;
-//import java.awt.Paint;
-//import java.awt.Point;
-//import java.awt.Rectangle;
-//import java.awt.RenderingHints;
-//import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
-//import java.awt.event.AdjustmentEvent;
-//import java.awt.event.AdjustmentListener;
-//import java.awt.event.ItemEvent;
-//import java.awt.event.ItemListener;
-//import java.awt.event.MouseAdapter;
-//import java.awt.event.MouseEvent;
-//import java.awt.event.MouseWheelEvent;
-//import java.awt.geom.AffineTransform;
-//import java.awt.geom.Point2D;
-//import java.awt.geom.Rectangle2D;
-//import java.awt.image.BufferedImage;
-//import java.beans.PropertyChangeEvent;
-//import java.beans.PropertyChangeListener;
-//import java.io.BufferedWriter;
-//import java.io.File;
-//import java.io.FileWriter;
-//import java.io.IOException;
-//import java.io.Writer;
-//import java.text.DecimalFormat;
-//import java.text.Format;
-//import java.text.NumberFormat;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Set;
-//import java.util.TreeSet;
-//
-//import javax.imageio.ImageIO;
-//import javax.swing.BorderFactory;
-//import javax.swing.ButtonGroup;
-//import javax.swing.DefaultBoundedRangeModel;
-//import javax.swing.Icon;
-//import javax.swing.JButton;
-//import javax.swing.JComponent;
-//import javax.swing.JFileChooser;
-//import javax.swing.JLabel;
-//import javax.swing.JMenu;
-//import javax.swing.JMenuItem;
-//import javax.swing.JPanel;
-//import javax.swing.JPopupMenu;
-//import javax.swing.JRadioButtonMenuItem;
-//import javax.swing.JScrollBar;
-//import javax.swing.JScrollPane;
-//import javax.swing.JSlider;
-//import javax.swing.JSpinner;
-//import javax.swing.JToggleButton;
-//import javax.swing.SpinnerNumberModel;
-//import javax.swing.SwingConstants;
-//import javax.swing.SwingWorker;
-//import javax.swing.UIManager;
-//import javax.swing.event.ChangeEvent;
-//import javax.swing.event.ChangeListener;
-//import javax.swing.event.PopupMenuEvent;
-//import javax.swing.event.PopupMenuListener;
-//import javax.swing.filechooser.FileFilter;
-//import javax.swing.plaf.basic.BasicLabelUI;
-//
-//import org.jdesktop.swingx.JXBusyLabel;
-//import org.jdesktop.swingx.JXErrorPane;
-//import org.jdesktop.swingx.error.ErrorInfo;
-//import org.jdesktop.swingx.error.ErrorLevel;
-//import org.jfree.chart.ChartPanel;
-//import org.jfree.chart.JFreeChart;
-//import org.jfree.chart.axis.AxisLocation;
-//import org.jfree.chart.axis.NumberAxis;
-//import org.jfree.chart.axis.NumberTick;
-//import org.jfree.chart.axis.NumberTickUnit;
-//import org.jfree.chart.axis.SymbolAxis;
-//import org.jfree.chart.axis.Tick;
-//import org.jfree.chart.axis.ValueAxis;
-//import org.jfree.chart.entity.EntityCollection;
-//import org.jfree.chart.plot.CrosshairState;
-//import org.jfree.chart.plot.PlotRenderingInfo;
-//import org.jfree.chart.plot.PlotState;
-//import org.jfree.chart.plot.XYPlot;
-//import org.jfree.chart.renderer.PaintScale;
-//import org.jfree.chart.renderer.xy.XYBlockRenderer;
-//import org.jfree.chart.renderer.xy.XYItemRendererState;
-//import org.jfree.chart.title.PaintScaleLegend;
-//import org.jfree.chart.title.Title;
-//import org.jfree.data.Range;
-//import org.jfree.data.xy.MatrixSeries;
-//import org.jfree.data.xy.MatrixSeriesCollection;
-//import org.jfree.data.xy.XYDataset;
-//import org.jfree.data.xy.XYZDataset;
-//import org.jfree.text.TextUtilities;
-//import org.jfree.ui.RectangleEdge;
-//import org.jfree.ui.RectangleInsets;
-//import org.jfree.ui.TextAnchor;
-//
-//import com.jgoodies.forms.factories.CC;
-//import com.jgoodies.forms.layout.ColumnSpec;
-//import com.jgoodies.forms.layout.FormLayout;
-//import com.jgoodies.forms.layout.RowSpec;
-//
-//import de.mpa.client.Constants;
-//import de.mpa.client.model.dbsearch.DbSearchResult;
-//import de.mpa.client.ui.Busyable;
-//import de.mpa.client.ui.ClientFrame;
-//import de.mpa.client.ui.ConfirmFileChooser;
-//import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
-//import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
-//import de.mpa.client.ui.icons.IconConstants;
-//
-///**
-// * Plot the cumulative Pareto-distribution for the current experiment
-// * 
-// * Can plot Pareto distribution for: taxonomy, function and metaproteins
-// * 
-// * @author K. Schallert
-// */
+package de.mpa.client.ui.chart;
+
+
+/**
+ * Plot the cumulative Pareto-distribution for the current experiment
+ * 
+ * Can plot Pareto distribution for: taxonomy, function and metaproteins
+ * 
+ * @author K. Schallert
+ */
+public class ParetoPlot {
+	
+}
+
+
 //public class ParetoPlot extends JScrollPane implements Busyable {
 //	
 //	/**
@@ -166,20 +49,20 @@
 //	 */
 //	private int visColCount;
 //
-//	/**
-//	 * The button for choosing the type of x axis.
-//	 */
-//	private AxisPopupButton xBtn;
-//
-//	/**
-//	 * The button for choosing the type of y axis.
-//	 */
-//	private AxisPopupButton yBtn;
-//
-//	/**
-//	 * The button for choosing the type of z axis.
-//	 */
-//	private AxisPopupButton zBtn;
+////	/**
+////	 * The button for choosing the type of x axis.
+////	 */
+////	private AxisPopupButton xBtn;
+////
+////	/**
+////	 * The button for choosing the type of y axis.
+////	 */
+////	private AxisPopupButton yBtn;
+////
+////	/**
+////	 * The button for choosing the type of z axis.
+////	 */
+////	private AxisPopupButton zBtn;
 //
 //	/**
 //	 * The button widget for changing the number of visible rows/columns.
@@ -2244,6 +2127,6 @@
 //		}
 //		
 //	}
-//	
+	
 //}
-//
+

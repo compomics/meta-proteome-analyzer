@@ -31,6 +31,7 @@ public class PanelConfig {
 	/**
 	 * The titled painter.
 	 */
+	@SuppressWarnings("rawtypes")
 	private static Painter ttlPainter;
 	
 	/**
@@ -79,6 +80,7 @@ public class PanelConfig {
 		return ttlFont;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static Painter getTitlePainter() {
 		if (ttlPainter == null) init();
 		return ttlPainter;
@@ -112,6 +114,7 @@ public class PanelConfig {
 	 * @param rightDecoration The decoration component to be displayed in the top right corner.
 	 * @return A pre-formatted titled panel.
 	 */
+	@SuppressWarnings("serial")
 	public static JXTitledPanel createTitledPanel(String title, Container content,
 			JComponent leftDecoration, JComponent rightDecoration) {
 		JXTitledPanel panel = new JXTitledPanel(title, content) {

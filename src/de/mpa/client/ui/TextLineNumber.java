@@ -41,6 +41,7 @@ import javax.swing.text.Utilities;
  *  @author <a href="http://tips4java.wordpress.com/2009/05/23/text-component-line-number/">
  *  Rob Camick</a>
  */
+@SuppressWarnings("serial")
 public class TextLineNumber extends JPanel
 	implements CaretListener, DocumentListener, PropertyChangeListener
 {

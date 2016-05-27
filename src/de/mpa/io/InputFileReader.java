@@ -171,6 +171,7 @@ public abstract class InputFileReader {
 	 * @param oldProgress
 	 * @param newProgress
 	 */
+	@SuppressWarnings("unused")
 	private void fireProgressMade(long oldProgress, long newProgress) {
 		for (PropertyChangeListener listener : listeners) {
 			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));

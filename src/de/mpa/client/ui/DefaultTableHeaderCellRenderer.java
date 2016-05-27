@@ -23,6 +23,7 @@ import javax.swing.table.JTableHeader;
  * 
  * @author <a href ="http://tips4java.wordpress.com/2009/02/27/default-table-header-cell-renderer/">Darryl</a>
  */
+@SuppressWarnings("serial")
 public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 
 	/**
@@ -88,6 +89,10 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 				return UIManager.getIcon("Table.ascendingSortIcon");
 			case DESCENDING:
 				return UIManager.getIcon("Table.descendingSortIcon");
+			case UNSORTED:
+				break;
+			default:
+				break;
 			}
 		}
 		return null;
@@ -101,11 +106,13 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 	 * @return the SortKey, or null if the column is unsorted
 	 */
 	protected SortKey getSortKey(JTable table, int column) {
+		@SuppressWarnings("rawtypes")
 		RowSorter rowSorter = table.getRowSorter();
 		if (rowSorter == null) {
 			return null;
 		}
 
+		@SuppressWarnings("rawtypes")
 		List sortedColumns = rowSorter.getSortKeys();
 		if (sortedColumns.size() > 0) {
 			return (SortKey) sortedColumns.get(0);

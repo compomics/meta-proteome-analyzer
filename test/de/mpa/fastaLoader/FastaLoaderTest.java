@@ -1,11 +1,8 @@
 package de.mpa.fastaLoader;
 
-import gnu.trove.map.TObjectLongMap;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
@@ -13,16 +10,13 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.compomics.util.protein.Protein;
-
-import de.mpa.client.Client;
 import de.mpa.db.DBManager;
 import de.mpa.io.fasta.FastaLoader;
 
 public class FastaLoaderTest extends TestCase {
 
 	private FastaLoader fastaLoader;
-	private File file;
+//	private File file;
 	
 	@Before
 	public void setUp(){
@@ -50,6 +44,7 @@ public class FastaLoaderTest extends TestCase {
 //	}
 	
 	
+	@SuppressWarnings("static-access")
 	@Test
 	public void testrepairSequence(){
 		fastaLoader = FastaLoader.getInstance();

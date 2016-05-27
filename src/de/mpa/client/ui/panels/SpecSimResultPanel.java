@@ -96,6 +96,7 @@ import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
 
+@SuppressWarnings("serial")
 public class SpecSimResultPanel extends JPanel {
 
 	private JXTable proteinTbl;
@@ -135,6 +136,7 @@ public class SpecSimResultPanel extends JPanel {
 		// Init titled panel variables.
 		Font ttlFont = PanelConfig.getTitleFont();
 		Border ttlBorder = PanelConfig.getTitleBorder();
+		@SuppressWarnings("rawtypes")
 		Painter ttlPainter = PanelConfig.getTitlePainter();
 		
 		final JPanel proteinPnl = new JPanel();
@@ -165,6 +167,7 @@ public class SpecSimResultPanel extends JPanel {
 		getResultsBtn.setFocusPainted(false);
 		
 		getResultsBtn.addActionListener(new ActionListener() {
+			@SuppressWarnings("rawtypes")
 			public void actionPerformed(ActionEvent ae) {
 				new SwingWorker() {
 					@Override
@@ -288,6 +291,7 @@ public class SpecSimResultPanel extends JPanel {
 	/**
 	 * This method sets up the protein results table.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupProteinTableProperties() {
 		// Protein table
 		TableModel proteinTblMdl = new DefaultTableModel() {
@@ -414,6 +418,7 @@ public class SpecSimResultPanel extends JPanel {
 	/**
 	 * Method to set up the peptide results table.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupPeptideTableProperties() {
 		// Peptide table
 		final TableModel peptideTblMdl = new DefaultTableModel() {
@@ -507,6 +512,7 @@ public class SpecSimResultPanel extends JPanel {
 	/**
 	 * This method sets up the SSM results table.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupSsmTableProperties() {
 		// SSM table
 		TableModel ssmTblMdl = new DefaultTableModel() {

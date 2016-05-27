@@ -33,6 +33,7 @@ import com.compomics.util.db.interfaces.Updateable;
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
+@SuppressWarnings("serial")
 public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable, Persistable, Serializable {
 
 	/**
@@ -258,7 +259,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public CruxhitTableAccessor(HashMap aParams) {
+	public CruxhitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(CRUXHITID)) {
 			this.iCruxhitid = ((Long)aParams.get(CRUXHITID)).longValue();
 		}
@@ -713,7 +714,7 @@ public class CruxhitTableAccessor implements Deleteable, Retrievable, Updateable
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(CRUXHITID)) {
 			throw new IllegalArgumentException("Primary key field 'CRUXHITID' is missing in HashMap!");

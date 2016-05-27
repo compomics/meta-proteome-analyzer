@@ -19,6 +19,7 @@ import java.awt.image.ColorModel;
  * 
  * @see Graphics2D#setPaint
  */
+@SuppressWarnings("serial")
 public class GradientColorAdapter extends Color {
 
 	/**

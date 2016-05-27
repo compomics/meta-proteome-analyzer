@@ -56,6 +56,7 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**

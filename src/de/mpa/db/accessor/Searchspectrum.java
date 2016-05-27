@@ -20,7 +20,7 @@ public class Searchspectrum extends SearchspectrumTableAccessor {
      * Calls the super class.
      * @param params
      */
-	public Searchspectrum(HashMap params) {
+	public Searchspectrum(@SuppressWarnings("rawtypes") HashMap params) {
         super(params);
     }
     

@@ -7,6 +7,7 @@ import de.mpa.client.model.SpectrumMatch;
  * 
  * @author behne
  */
+@SuppressWarnings("serial")
 public class SpectrumSpectrumMatch extends SpectrumMatch {
 	
 	/**

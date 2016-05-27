@@ -13,7 +13,7 @@ public class Taxonomy extends TaxonomyTableAccessor {
      * Calls the super class.
      * @param params
      */
-	public Taxonomy(HashMap params) {
+	public Taxonomy(@SuppressWarnings("rawtypes") HashMap params) {
 		super(params);
 	}
 

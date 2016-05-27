@@ -13,7 +13,7 @@ public class Uniprotentry extends UniprotentryTableAccessor {
      * Calls the super class.
      * @param params
      */
-	public Uniprotentry(HashMap params) {
+	public Uniprotentry(@SuppressWarnings("rawtypes") HashMap params) {
 		super(params);
 	}
 

@@ -125,7 +125,7 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public LibspectrumTableAccessor(HashMap aParams) {
+	public LibspectrumTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(LIBSPECTRUMID)) {
 			this.iLibspectrumid = ((Long)aParams.get(LIBSPECTRUMID)).longValue();
 		}
@@ -304,7 +304,7 @@ public class LibspectrumTableAccessor implements Deleteable, Retrievable, Update
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(LIBSPECTRUMID)) {
 			throw new IllegalArgumentException("Primary key field 'LIBSPECTRUMID' is missing in HashMap!");

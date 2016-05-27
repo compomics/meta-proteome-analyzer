@@ -147,6 +147,7 @@ import de.mpa.util.ColorUtils;
  * 
  * @author A. Behne, T. Muth, R. Heyer, F. Kohrs
  */
+@SuppressWarnings("serial")
 public class DbSearchResultPanel extends JPanel implements Busyable {
 	
 	/**
@@ -518,6 +519,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Creates and configures the peptide tree table view.
 	 * @return the peptide tree table
 	 */
+	@SuppressWarnings("rawtypes")
 	private CheckBoxTreeTable setupPeptideTable() {
 		final PhylogenyTreeTableNode root = new PhylogenyTreeTableNode("Peptide View");
 		
@@ -851,6 +853,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Creates and configures the spectrum matches tree table view.
 	 * @return the spectrum matches tree table
 	 */
+	@SuppressWarnings({ "rawtypes" })
 	private CheckBoxTreeTable setupPSMTable() {
 		final PhylogenyTreeTableNode root = new PhylogenyTreeTableNode("PSM View");
 		
@@ -2087,6 +2090,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * 
 	 * @author A. Behne
 	 */
+	@SuppressWarnings("rawtypes")
 	private class RefreshTablesTask extends SwingWorker {
 		
 		@Override
@@ -2266,15 +2270,18 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	
 	private void refreshPathwayStrings() {
 		// Iterate pathway nodes in respective hierarchical view and update URIs
+		@SuppressWarnings("rawtypes")
 		Enumeration childrenA = ((TreeNode) ProteinTreeTables.PATHWAY
 				.getTreeTable().getTreeTableModel().getRoot()).children();
 		while (childrenA.hasMoreElements()) {
 			// Level A: pathway supergroups
 			TreeNode childA = (TreeNode) childrenA.nextElement();
+			@SuppressWarnings("rawtypes")
 			Enumeration childrenB = childA.children();
 			while (childrenB.hasMoreElements()) {
 				// Level B: pathway groups
 				TreeNode childB = (TreeNode) childrenB.nextElement();
+				@SuppressWarnings("rawtypes")
 				Enumeration childrenC = childB.children();
 				while (childrenC.hasMoreElements()) {
 					// Level C: pathways

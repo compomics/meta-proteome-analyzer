@@ -9,6 +9,7 @@ import java.io.IOException;
  * @author A. Behne
  */
 // TODO: this class is currently unused, implement or remove!
+@SuppressWarnings("serial")
 public class ResultExportParameters extends ParameterMap {
 
 	@Override

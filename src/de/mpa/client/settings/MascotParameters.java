@@ -28,6 +28,7 @@ import de.mpa.client.ui.panels.DatabaseSearchSettingsPanel;
  * 
  * @author T. Muth, F. Kohrs, A. Behne
  */
+@SuppressWarnings("serial")
 public class MascotParameters extends ParameterMap {
 	
 	/**
@@ -121,6 +122,7 @@ public class MascotParameters extends ParameterMap {
 		private JSpinner fdrScoreSpn;
 
 		/** Flag indicating whether FDR filtering is available. */
+		@SuppressWarnings("unused")
 		private boolean decoy = false;
 
 		/**

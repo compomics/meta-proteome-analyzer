@@ -33,6 +33,7 @@ import com.compomics.util.db.interfaces.Updateable;
  *
  * @author DBAccessor generator class (Lennart Martens).
  */
+@SuppressWarnings("serial")
 public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updateable, Persistable, Serializable {
 
 	/**
@@ -247,7 +248,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public XtandemhitTableAccessor(HashMap aParams) {
+	public XtandemhitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(XTANDEMHITID)) {
 			this.iXtandemhitid = ((Long)aParams.get(XTANDEMHITID)).longValue();
 		}
@@ -679,7 +680,7 @@ public class XtandemhitTableAccessor implements Deleteable, Retrievable, Updatea
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(XTANDEMHITID)) {
 			throw new IllegalArgumentException("Primary key field 'XTANDEMHITID' is missing in HashMap!");

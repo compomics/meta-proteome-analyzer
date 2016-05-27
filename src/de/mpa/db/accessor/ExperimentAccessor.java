@@ -21,7 +21,7 @@ public class ExperimentAccessor extends ExperimentTableAccessor {
 	 * Calls the super class.
 	 * @param params
 	 */
-	public ExperimentAccessor(HashMap params){
+	public ExperimentAccessor(@SuppressWarnings("rawtypes") HashMap params){
 		super(params);
 	}
 	

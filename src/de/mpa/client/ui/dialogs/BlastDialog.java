@@ -30,11 +30,13 @@ import de.mpa.db.accessor.ProteinAccessor;
  * Class for the BLAST Dialog
  * @author Robert Heyer
  */
+@SuppressWarnings("serial")
 public class BlastDialog extends JDialog {
 	
 	/**
 	 * The ClientFrame
 	 */
+	@SuppressWarnings("unused")
 	private ClientFrame owner;
 	private JTextField blastTxt;
 	private JTextField eValueTxt;

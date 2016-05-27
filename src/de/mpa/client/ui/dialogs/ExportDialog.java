@@ -38,6 +38,7 @@ import de.mpa.io.ResultExporter.ExportHeaderType;
  * @author T. Muth
  *
  */
+@SuppressWarnings("serial")
 public class ExportDialog extends JDialog {
 
 	/**

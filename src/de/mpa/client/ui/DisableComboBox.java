@@ -15,10 +15,12 @@ import javax.swing.UIManager;
  * 
  * @author behne
  */
+@SuppressWarnings({ "serial", "rawtypes" })
 public class DisableComboBox extends JComboBox {
 	
 	List<Boolean> enableStates = new ArrayList<Boolean>();
 	
+	@SuppressWarnings("unchecked")
 	public DisableComboBox(Object[] objects) {
 		super(objects);
 		for (int i = 0; i < objects.length; i++) {

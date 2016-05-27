@@ -92,7 +92,7 @@ public class Spec2pepTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public Spec2pepTableAccessor(HashMap aParams) {
+	public Spec2pepTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(SPEC2PEPID)) {
 			this.iSpec2pepid = ((Long)aParams.get(SPEC2PEPID)).longValue();
 		}
@@ -202,7 +202,7 @@ public class Spec2pepTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(SPEC2PEPID)) {
 			throw new IllegalArgumentException("Primary key field 'SPEC2PEPID' is missing in HashMap!");

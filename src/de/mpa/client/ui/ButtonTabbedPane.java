@@ -22,6 +22,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ButtonTabbedPane extends JTabbedPane {
 
 	/**

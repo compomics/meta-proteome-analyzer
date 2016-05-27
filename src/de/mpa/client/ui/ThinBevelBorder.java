@@ -12,6 +12,7 @@ import javax.swing.border.BevelBorder;
  * 
  * @author Alex Behne
  */
+@SuppressWarnings("serial")
 public class ThinBevelBorder extends BevelBorder {
 	
 	private Insets insets;

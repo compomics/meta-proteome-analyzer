@@ -27,14 +27,12 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
-import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
 import com.compomics.mascotdatfile.util.mascot.Peak;
 import com.compomics.mascotdatfile.util.mascot.ProteinHit;
 import com.compomics.mascotdatfile.util.mascot.ProteinMap;
 import com.compomics.mascotdatfile.util.mascot.Query;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
-import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
@@ -74,7 +72,7 @@ public class MascotStorager extends BasicStorager {
     /**
      * MascotDatfile instance.
      */
-	private MascotDatfile mascotDatFile;
+//	private MascotDatfile mascotDatFile;
 
 	/**
 	 * SearchSettings instance. 
@@ -135,7 +133,7 @@ public class MascotStorager extends BasicStorager {
 	 * @param fastaloader Fastaloader instance for protein description and sequence lookup  
 	 * @author K. Schallert
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("resource")
 	@Override
 	public void store() throws Exception {
 		client.firePropertyChange("new message", null, "PARSING MASCOT FILE");
@@ -208,7 +206,8 @@ public class MascotStorager extends BasicStorager {
 		        while (!(datreader.readLine().contains(boundary))) {}
 		        // find first section name
 		        currentsection = getSectionName(datreader.readLine());
-		        int testing_count = 0; 
+		        @SuppressWarnings("unused")
+				int testing_count = 0; 
 		        // Cycle the stream.
 		        while ((line = datreader.readLine()) != null) {
 		        	testing_count++;
@@ -340,7 +339,8 @@ public class MascotStorager extends BasicStorager {
 		        				client.firePropertyChange("new message", null, "RETRIEVING DATA FROM FASTA");
 		        				client.firePropertyChange("indeterminate", true, true);
 		        				protein_map = this.fastaLoader.updateProteinMapfromFasta(protein_map);
-		        				int test_count_1 = 0;
+		        				@SuppressWarnings("unused")
+								int test_count_1 = 0;
 		            			// after updating description and sequence, we also check the database for redundancy
 		        				// first get accessions and proteinids from the protein table
 		        				client.firePropertyChange("new message", null, "QUERYING DATABASE FOR PROTEIN ENTRIES");
@@ -580,7 +580,8 @@ public class MascotStorager extends BasicStorager {
 		                throw new IllegalArgumentException("raw Mascot datfile from " + this.file + " does not exist.");
 		            }		            
 					// load the dat file
-		            BufferedReader datreader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
+		            @SuppressWarnings("resource")
+					BufferedReader datreader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
 			        // start parsing
 			        // Parse!
 			        String line = null;
@@ -767,6 +768,7 @@ public class MascotStorager extends BasicStorager {
 	 * @throws SQLException 
 	 */
 	// this method is now obsolete
+	@SuppressWarnings("unused")
 	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
 		// save information of the protein storing
 		StoredProtein storedProt;		
@@ -836,6 +838,7 @@ public class MascotStorager extends BasicStorager {
 			// Try to fetch sequence
 			String sequence = ""; // Sequence is normally empty because the dat file do not contain a sequence
 			if (fastaLoader != null) {
+				@SuppressWarnings("static-access")
 				Protein fastaProt = fastaLoader.getProteinFromFasta(accession);
 				// this does nothing here, so removed
 				//TObjectLongMap<String> indexMap = fastaLoader.getInstance().getIndexMap();
@@ -1017,6 +1020,7 @@ public class MascotStorager extends BasicStorager {
 		 * Gets the accession of the stored protein
 		 * @return The accession.
 		 */
+		@SuppressWarnings("unused")
 		public String getAccession() {
 			return accession;
 		}
@@ -1024,6 +1028,7 @@ public class MascotStorager extends BasicStorager {
 		 * Gets the proteinID from the stored protein
 		 * @return. The protein ID from the database
 		 */
+		@SuppressWarnings("unused")
 		public long getProtID() {
 			return protID;
 		}

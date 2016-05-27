@@ -40,6 +40,7 @@ public class FetchSpectraDialog extends JDialog {
 	 */
 	private ClientFrame clntFrame;
 	private AbstractExperiment experiment;
+	@SuppressWarnings("unused")
 	private Connection conn;
 	private JTextField expTxt;
 	private JTextField lookUpTxt;

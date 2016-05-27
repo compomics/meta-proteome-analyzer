@@ -70,6 +70,7 @@ public class FileChooserDecorationFactory {
 		}
 		JPanel panel = new JPanel(fl);
 		
+		@SuppressWarnings("serial")
 		final JTextArea textArea = new JTextArea() {
 			@Override
 			public void paint(Graphics g) {

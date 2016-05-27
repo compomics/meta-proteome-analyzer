@@ -14,7 +14,7 @@ public class Pep2prot extends Pep2protTableAccessor {
      * Calls the super class.
      * @param aParams
      */
-	public Pep2prot(HashMap aParams) {
+	public Pep2prot(@SuppressWarnings("rawtypes") HashMap aParams) {
 		super(aParams);
 	}
 

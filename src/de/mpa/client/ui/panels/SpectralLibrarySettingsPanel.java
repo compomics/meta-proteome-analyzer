@@ -28,6 +28,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.DisableComboBox;
 
+@SuppressWarnings("serial")
 public class SpectralLibrarySettingsPanel extends JPanel {
 
 	/**
@@ -50,6 +51,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	/**
 	 * The combo box containing available vectorization methods.
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox vectMethodCbx;
 
 	/**
@@ -71,6 +73,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	/**
 	 * The combo box containing available profiling shape types.
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox proMethodCbx;
 
 	/**
@@ -93,6 +96,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	/**
 	 * The combo box containing available input transformation methods.
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox trafoCbx;
 
 	/**
@@ -123,6 +127,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	/**
 	 * Method to initialize the panel's components
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void initComponents() {
 
 		CellConstraints cc = new CellConstraints();

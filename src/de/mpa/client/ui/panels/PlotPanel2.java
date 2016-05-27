@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.compomics.util.interfaces.SpectrumFile;
 
+@SuppressWarnings("serial")
 public class PlotPanel2 extends SpectrumPanel {
 	
 	private SpectrumFile iSpecFile;
@@ -40,6 +41,7 @@ public class PlotPanel2 extends SpectrumPanel {
 			iAreaUnderCurveColor = new ArrayList<Color>();
 			iAreaUnderCurveColor.add(Color.PINK);
 
+			@SuppressWarnings("rawtypes")
 			HashMap peaks = aSpecFile.getPeaks();
 
 			iXAxisData.add(new double[peaks.size()]);
@@ -52,6 +54,7 @@ public class PlotPanel2 extends SpectrumPanel {
 
 			// TreeSets are sorted.
 			TreeSet<Double> masses = new TreeSet<Double>(peaks.keySet());
+			@SuppressWarnings("rawtypes")
 			Iterator iter = masses.iterator();
 
 			int count = 0;

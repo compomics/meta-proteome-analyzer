@@ -27,10 +27,12 @@ import de.mpa.client.ui.icons.IconConstants;
  * Dialog to ask for a list of experiments
  * @author Robert Heyer
  */
+@SuppressWarnings("serial")
 public class SelectExperimentDialog extends JDialog{
 	/**
 	 * The ClientFrame
 	 */
+	@SuppressWarnings("unused")
 	private ClientFrame owner;
 
 	/**

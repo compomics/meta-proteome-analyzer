@@ -24,6 +24,7 @@ import de.mpa.client.Constants;
  *
  * @author T.Muth
  */
+@SuppressWarnings("serial")
 public class HtmlFrame extends JFrame {
     private JEditorPane editorPane;
     private JButton closeButton;

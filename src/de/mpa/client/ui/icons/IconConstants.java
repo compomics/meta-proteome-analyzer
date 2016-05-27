@@ -137,6 +137,7 @@ public class IconConstants {
 	public static final ImageIcon BUG_SMALL_PRESSED_ICON = createColorRescaledIcon(BUG_SMALL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/www13.png"> */
+	@SuppressWarnings("serial")
 	public static final ImageIcon WWW_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/www13.png")) {
 		public String toString() { return "www"; };
 	};

@@ -12,6 +12,7 @@ import de.mpa.client.settings.Parameter.OptionParameter;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class SpectrumFetchParameters extends ParameterMap {
 	
 	/**

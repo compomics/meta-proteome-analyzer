@@ -42,6 +42,7 @@ import de.mpa.db.accessor.ProteinAccessor;
  * 
  * @author A. Behne
  */
+@SuppressWarnings({ "serial", "deprecation" })
 public class ClientFrameMenuBar extends JMenuBar {
 	
 	/**

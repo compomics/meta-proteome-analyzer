@@ -45,6 +45,7 @@ import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.icons.IconConstants;
 
+@SuppressWarnings("serial")
 public class FilterBalloonTip extends CustomBalloonTip {
 	
 	private JTextField filterTtf;

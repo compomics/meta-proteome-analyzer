@@ -69,6 +69,7 @@ import de.mpa.io.ResultExporter.ExportHeaderType;
  * Export dialog to export proteins for multiple experiments from one project.
  * @author Robert Heyer
  */
+@SuppressWarnings("serial")
 public class ExportCombinedExpMetaproteins extends JDialog {
 
 	/**
@@ -233,6 +234,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 	 * @throws SQLException
 	 * @throws IOException 
 	 */
+	@SuppressWarnings("static-access")
 	private void fetchAndExport() throws SQLException, IOException{
 		System.out.println("START EXPORT");
 		this.close();
@@ -263,6 +265,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(this.expList, "MultipleExperimentObject", new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		
 		// Get the path for the export
+		@SuppressWarnings("unused")
 		ExportFields exportFields = ExportFields.getInstance();
 		JFileChooser chooser = new ConfirmFileChooser(owner.getLastSelectedFolder());
 		chooser.setFileFilter(Constants.CSV_FILE_FILTER);
@@ -299,6 +302,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			exportHeaders.add(new ExportHeader(21, "Peptides",  ExportHeaderType.METAPROTEINS));
 
 		//TODO FLAG for testing
+		@SuppressWarnings("unused")
 		int flag = 0;
 		// Ontology Maps
 		 Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
@@ -329,6 +333,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			// Check for taxonomy level
 			TaxonomyNode taxNode = mp.getTaxonomyNode();
 			// Bacteria ==2 | Archaea == 2157 
+			@SuppressWarnings("unused")
 			boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
 			boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
 			boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
@@ -344,6 +349,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 							biolFuncMap.put(keyword, mp.getMatchSet());
 						}else{
 							Set<SpectrumMatch> ontoSet = biolFuncMap.get(keyword);
+							@SuppressWarnings("unused")
 							Set<SpectrumMatch> matchSet = mp.getMatchSet();
 							ontoSet.addAll(mp.getMatchSet());
 							biolFuncMap.put(keyword, ontoSet);

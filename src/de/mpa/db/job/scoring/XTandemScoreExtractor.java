@@ -70,7 +70,7 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 			int targetSpectrumNumber = targetSpectrum.getSpectrumNumber();
 			ArrayList<Peptide> allPeptides = targetPepMap.getAllPeptides(targetSpectrumNumber);
 			double bestScore = 0.0;
-			String peptideSequence = "";
+//			String peptideSequence = "";
 			
 			for (Peptide peptide : allPeptides) {				
 				List<Domain> domains = peptide.getDomains();
@@ -80,7 +80,7 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 						bestScore = psm.getDomainHyperScore();
 						spectrumTitle = xTandemFileTarget.getSupportData(targetSpectrumNumber).getFragIonSpectrumDescription();
 			            spectrumTitle = formatSpectrumTitle(spectrumTitle);
-			            peptideSequence = psm.getDomainSequence();
+//			            peptideSequence = psm.getDomainSequence();
 					}
 				}
 			}

@@ -79,7 +79,7 @@ public class SpectralSearchCandidate {
     		return peaks;
     	} else {
     		HashMap<Double, Double> res = new HashMap<Double, Double>(peaks);
-    		TreeSet sortedSet = null;
+    		TreeSet<Double> sortedSet = null;
     		try {
     			sortedSet = new TreeSet<Double>(res.values());
     		} catch (Exception e) {

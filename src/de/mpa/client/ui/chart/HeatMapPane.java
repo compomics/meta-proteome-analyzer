@@ -128,6 +128,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class HeatMapPane extends JScrollPane implements Busyable {
 	
 	/**
@@ -1213,7 +1214,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		
 		NumberAxis scaleAxis = new NumberAxis(label) {
 			@Override
-			protected double findMaximumTickLabelWidth(List ticks,
+			protected double findMaximumTickLabelWidth(@SuppressWarnings("rawtypes") List ticks,
 					Graphics2D g2, Rectangle2D drawArea, boolean vertical) {
 				RectangleInsets insets = this.getTickLabelInsets();
 		        Font font = this.getTickLabelFont();
@@ -1892,7 +1893,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * currently visible ones.
 		 */
 		@Override
-		protected double findMaximumTickLabelHeight(List ticks,
+		protected double findMaximumTickLabelHeight(@SuppressWarnings("rawtypes") List ticks,
 				Graphics2D g2, Rectangle2D drawArea, boolean vertical) {
 			if (vertical && (this.maxLabelSize > 0)) {
 				List<NumberTick> newTicks = new ArrayList<NumberTick>();
@@ -1912,7 +1913,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * currently visible ones.
 		 */
 		@Override
-		protected double findMaximumTickLabelWidth(List ticks, Graphics2D g2,
+		protected double findMaximumTickLabelWidth(@SuppressWarnings("rawtypes") List ticks, Graphics2D g2,
 				Rectangle2D drawArea, boolean vertical) {
 			if (!vertical && (this.maxLabelSize > 0)) {
 				List<NumberTick> newTicks = new ArrayList<NumberTick>();
@@ -1961,6 +1962,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * {@inheritDoc}<p>
 		 * Overridden to ignore maximum tick count of 500.
 		 */
+		@SuppressWarnings("rawtypes")
 		@Override
 	    protected List refreshTicksHorizontal(Graphics2D g2,
 	                                          Rectangle2D dataArea,
@@ -2048,7 +2050,8 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * {@inheritDoc}<p>
 		 * Overridden to ignore maximum tick count of 500.
 		 */
-	    @Override
+	    @SuppressWarnings("rawtypes")
+		@Override
 	    protected List refreshTicksVertical(Graphics2D g2,
 	                                        Rectangle2D dataArea,
 	                                        RectangleEdge edge) {

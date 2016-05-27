@@ -62,6 +62,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ScrollableChartPane extends JScrollPane implements Busyable {
 
 	/**
@@ -73,6 +74,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	 * Combobox for specifying the displayed hierarchy level of pie plots
 	 * (protein, peptide, spectrum level).
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox chartHierarchyCbx;
 
 	/**
@@ -413,11 +415,13 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		/**
 		 * The currently highlighted section's identifier.
 		 */
+		@SuppressWarnings("rawtypes")
 		private Comparable highlightedKey = null;
 		
 		/**
 		 * The currently selected section's identifier.
 		 */
+		@SuppressWarnings("rawtypes")
 		private Comparable selectedKey = null;
 		
 		/**
@@ -434,6 +438,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 			this.saveAsAction = new SaveAsAction(chartPnl);
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public void mouseMoved(MouseEvent me) {
 			Plot plot = this.getPlot();
@@ -522,6 +527,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 			if (plot instanceof PiePlot3DExt) {
 				PiePlot3DExt piePlot = (PiePlot3DExt) plot;
 				for (Object dataKey : piePlot.getDataset().getKeys()) {
+					@SuppressWarnings("rawtypes")
 					Comparable key = (Comparable) dataKey;
 					double explodePercent = piePlot.getExplodePercent(key);
 					if (explodePercent > 0.1) {
@@ -626,6 +632,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 						if (plot instanceof PiePlot) {
 							PieDataset dataset = ((PiePlot) plot).getDataset();
 							for (int i = 0; i < dataset.getItemCount(); i++) {
+								@SuppressWarnings("rawtypes")
 								Comparable key = dataset.getKey(i);
 								Number value = dataset.getValue(key);
 								writer.append("\"" + key + "\"\t" + value);
@@ -634,6 +641,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 						} else if (plot instanceof PieToCategoryPlot) {
 							CategoryDataset dataset = ((PieToCategoryPlot) plot).getDataset();
 							for (int i = 0; i < dataset.getColumnCount(); i++) {
+								@SuppressWarnings("rawtypes")
 								Comparable key = dataset.getColumnKey(i);
 								Number value = dataset.getValue(0, i);
 								writer.append("\"" + key + "\"\t" + value);

@@ -39,6 +39,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author T. Muth, A. Behne
  */
+@SuppressWarnings("serial")
 public class AdvancedSettingsDialog extends JDialog {
 	
 	/** Status flag for cancelled dialog. */

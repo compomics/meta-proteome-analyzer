@@ -4,7 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import de.mpa.analysis.UniprotAccessorTest;
+import de.mpa.analysis.UniProtJapiTest;
 import de.mpa.db.accessor.SearchSpectrumAccessorTest;
 import de.mpa.db.extractor.SpectrumExtractorTest;
 import de.mpa.fastaLoader.FastaLoaderTest;
@@ -14,7 +14,7 @@ import de.mpa.webservice.ServerImplTest;
 
 @RunWith(Suite.class)
 @SuiteClasses( {	
-	UniprotAccessorTest.class,
+	UniProtJapiTest.class,
 	SearchSpectrumAccessorTest.class,
 	SpectrumExtractorTest.class,
 	FastaLoaderTest.class,

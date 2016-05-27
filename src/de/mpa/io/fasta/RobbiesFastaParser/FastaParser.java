@@ -61,7 +61,7 @@ public class FastaParser {
 			// String of the current line.
 			String line;
 			// Number of the current entry
-			int i = 0;
+//			int i = 0;
 			// Read every line in FASTA-file
 						line = reader.readLine();
 						while (line != null) {
@@ -108,11 +108,12 @@ public class FastaParser {
 			// Initialize BufferedReader
 			reader = new BufferedReader(new FileReader(new File(file)));
 			// Initialize BufferedWriter
+			@SuppressWarnings("resource")
 			BufferedWriter bw = new BufferedWriter(new FileWriter(new File("" + file.substring(0, file.lastIndexOf('.')) + "_out.fasta" )));
 			// String of the current line.
 			String line;
 			// Number of the current entry
-			int i = 0;
+//			int i = 0;
 			// Read every line in FASTA-file
 						line = reader.readLine();
 						while (line != null) {

@@ -51,6 +51,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne, R. Heyer
  */
+@SuppressWarnings("serial")
 public class GeneralDialog extends JDialog {
 	
 	/**

@@ -21,22 +21,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
-//import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
-//import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
-import de.mpa.client.Client;
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.storager.MascotStorager.MascotProteinHit;
 import de.mpa.fastadigest.PeptideDigester;
-import de.mpa.analysis.UniProtUtilities;
+//import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
+//import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -262,7 +255,8 @@ public class FastaLoader {
 		// just open the thing and read every line .....
         try {
 			// load the dat file, TODO: file is static for some reason ...
-            BufferedReader fastareader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
+            @SuppressWarnings("static-access")
+			BufferedReader fastareader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
             // init stuff
             String line;
             boolean parse_sequence_mode = false;
@@ -312,7 +306,7 @@ public class FastaLoader {
 	public void loadFastaFile() throws FileNotFoundException {
 		
 		// Instance of the client to fire progress
-		Client client = Client.getInstance();
+//		Client client = Client.getInstance();
 		
 		try {
 			// Initialize the random access file instance
@@ -371,6 +365,7 @@ public class FastaLoader {
 	 * Sets the FASTA file.
 	 * @param file The FASTA file
 	 */
+	@SuppressWarnings("static-access")
 	public void setFastaFile(File file) {
 		this.file = file;
 		// reset map on change of FASTA file
@@ -421,6 +416,7 @@ public class FastaLoader {
 	/**
 	 * Get all protein hits for a peptide sequence in the digested database.
 	 */
+	@SuppressWarnings("static-access")
 	public HashSet<String> getProtHits(String sequeString) {
 		if (pepfile == null) {
 			return new HashSet<String>();
@@ -440,6 +436,7 @@ public class FastaLoader {
 	 * Sets the current index file instance.
 	 * @param indexFile The current index file.
 	 */
+	@SuppressWarnings("static-access")
 	public void setIndexFile(File indexFile) {
 		// Compare two file paths
 		if (!indexFile.equals(this.indexFile)) {

@@ -10,6 +10,7 @@ import de.mpa.client.settings.Parameter.NumberParameter;
  * 
  * @author T.Muth
  */
+@SuppressWarnings("serial")
 public class SpectrumFilterParameters extends ParameterMap {
 	
 	@Override

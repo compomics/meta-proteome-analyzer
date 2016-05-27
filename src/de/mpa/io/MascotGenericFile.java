@@ -35,6 +35,7 @@ import de.mpa.db.accessor.Spectrum;
  *
  * @author Thilo Muth
  */
+@SuppressWarnings("serial")
 public class MascotGenericFile implements SpectrumFile, Serializable {
 
     /**
@@ -851,7 +852,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setPeaks(HashMap aPeaks) {
+	public void setPeaks(@SuppressWarnings("rawtypes") HashMap aPeaks) {
 		this.iPeaks = aPeaks;
 	}
 

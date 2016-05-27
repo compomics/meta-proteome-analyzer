@@ -125,7 +125,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param	aParams	HashMap with the parameters to initialize this object with.
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
-	public ExppropertyTableAccessor(HashMap aParams) {
+	public ExppropertyTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		if(aParams.containsKey(EXPPROPERTYID)) {
 			this.iExppropertyid = ((Long)aParams.get(EXPPROPERTYID)).longValue();
 		}
@@ -304,7 +304,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 *
 	 * @param   aConn Connection to the persitent store.
 	 */
-	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
+	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
 		if(!aKeys.containsKey(EXPPROPERTYID)) {
 			throw new IllegalArgumentException("Primary key field 'EXPPROPERTYID' is missing in HashMap!");

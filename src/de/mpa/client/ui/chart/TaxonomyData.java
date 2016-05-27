@@ -234,6 +234,7 @@ public class TaxonomyData implements ChartData {
 		for (Entry<String, Integer> entry : valMap.entrySet()) {
 			Integer absVal = entry.getValue();
 			double relVal = absVal / total;
+			@SuppressWarnings("rawtypes")
 			Comparable key;
 			if (relVal >= this.limit) {
 				key = entry.getKey();

@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ConfirmFileChooser extends JFileChooser {
 
 	/**

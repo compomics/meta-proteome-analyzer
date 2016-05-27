@@ -23,7 +23,7 @@ public class Libspectrum extends LibspectrumTableAccessor {
      * Calls the super class.
      * @param params
      */
-    public Libspectrum(HashMap params){
+    public Libspectrum(@SuppressWarnings("rawtypes") HashMap params){
         super(params);
     }
     

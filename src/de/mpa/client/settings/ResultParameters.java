@@ -31,6 +31,7 @@ import de.mpa.client.settings.Parameter.OptionParameter;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ResultParameters extends ParameterMap {
 	
 	/**

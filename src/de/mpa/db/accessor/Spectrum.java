@@ -19,7 +19,7 @@ public class Spectrum extends SpectrumTableAccessor {
      * Calls the super class.
      * @param params
      */
-    public Spectrum(HashMap params){
+    public Spectrum(@SuppressWarnings("rawtypes") HashMap params){
         super(params);
     }
 

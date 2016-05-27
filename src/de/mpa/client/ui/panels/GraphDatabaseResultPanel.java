@@ -53,6 +53,7 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.io.QueryResultExporter;
 
+@SuppressWarnings("serial")
 public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	
 	/**

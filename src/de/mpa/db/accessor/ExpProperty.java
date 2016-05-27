@@ -39,7 +39,7 @@ public class ExpProperty extends ExppropertyTableAccessor {
 	 * Calls the super class.
 	 * @param params
 	 */
-	public ExpProperty(HashMap params){
+	public ExpProperty(@SuppressWarnings("rawtypes") HashMap params){
 		super(params);
 	}
 

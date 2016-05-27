@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
  * 
  * @author T. Muth, F. Kohrs
  */
+@SuppressWarnings("serial")
 public abstract class ParameterMap extends LinkedHashMap<String, Parameter> {
 	
 	/**

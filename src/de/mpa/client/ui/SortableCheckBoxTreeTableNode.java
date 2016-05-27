@@ -26,6 +26,7 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 
 	private boolean sorted;
 	private int[] modelToView;
+	@SuppressWarnings("rawtypes")
 	private Row[] viewToModel;
 
 	public SortableCheckBoxTreeTableNode() {
@@ -126,6 +127,7 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 		
 		// build view-to-model mapping
 		modelToView = new int[childCount];
+		@SuppressWarnings("rawtypes")
 		List<Row> viewToModelList = new ArrayList<Row>(childCount);
 		
 		for (int i = 0; i < childCount; i++) {
@@ -204,6 +206,7 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 	/**
 	 * Provides a child node with the ability to be sorted and/or filtered.
 	 */
+	@SuppressWarnings("rawtypes")
 	protected class Row<M, I> extends RowFilter.Entry<M, I> implements Comparable<Row> {
 		/**
 		 * The tree table node containing the row's cell values.

@@ -17,6 +17,7 @@ import de.mpa.client.settings.Parameter.TextParameter;
  * 
  * @author T. Muth, F. Kohrs, A. Behne
  */
+@SuppressWarnings("serial")
 public class InspectParameters extends ParameterMap {
 	
 	/**

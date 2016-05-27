@@ -439,6 +439,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 			return next != null;
 		}
 
+		@SuppressWarnings("rawtypes")
 		public TreeNode nextElement() {
 			if (next == null)
 				throw new NoSuchElementException("No more elements left.");
@@ -449,7 +450,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 			return current;
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		private TreeNode traverse(Enumeration children) {
 			if (children.hasMoreElements()) {
 				TreeNode child = (TreeNode) children.nextElement();

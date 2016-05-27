@@ -15,7 +15,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
      * Calls the super class.
      * @param aParams
      */
-	public ProteinAccessor(HashMap aParams) {
+	public ProteinAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
 		super(aParams);
 	}
 
@@ -199,6 +199,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		protein.persist(conn);
 
 		// get the protein id from the generated keys.
+		@SuppressWarnings("unused")
 		Long proteinID = (Long) protein.getGeneratedKeys()[0];		
 		
 		return protein;

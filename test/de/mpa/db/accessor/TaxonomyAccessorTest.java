@@ -1,6 +1,5 @@
 package de.mpa.db.accessor;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
@@ -9,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.mpa.analysis.taxonomy.NcbiTaxonomy;
-import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.Constants;
-import de.mpa.db.DBManager;
 
 
 /**
@@ -32,7 +29,7 @@ public class TaxonomyAccessorTest extends TestCase {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Connection conn = DBManager.getInstance().getConnection();
+//		Connection conn = DBManager.getInstance().getConnection();
 	}
 
 	@Test 

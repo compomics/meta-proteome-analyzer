@@ -47,11 +47,13 @@ import de.mpa.main.Starter;
  * 
  * @author T. Muth, A. Behne
  */
+@SuppressWarnings("serial")
 public class DatabaseSearchSettingsPanel extends JPanel {
 
 	/**
 	 * Combo box referencing FASTA files available for database searching.
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox fastaFileCbx;
 	
 	/**
@@ -72,11 +74,13 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	/**
 	 * Combobox for selecting the search strategy employed (Target-only or Target-Decoy).
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox searchTypeCbx;
 
 	/**
 	 * Checkbox for the units of the precursor tolerance.
 	 */
+	@SuppressWarnings("rawtypes")
 	private JComboBox precTolCbx;
 
 	/**

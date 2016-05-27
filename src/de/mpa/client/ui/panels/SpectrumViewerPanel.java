@@ -39,6 +39,7 @@ import de.mpa.io.MascotGenericFile;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class SpectrumViewerPanel extends JPanel {
 
 	/**

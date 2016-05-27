@@ -35,6 +35,7 @@ public class DatabaseRepairer {
 	 *            prefix must be present in the same directory (see
 	 *            {@link FastaLoader}).
 	 */
+	@SuppressWarnings("static-access")
 	public static void main(String[] args) {
 		if (args.length < 1) {
 			throw new IllegalArgumentException(

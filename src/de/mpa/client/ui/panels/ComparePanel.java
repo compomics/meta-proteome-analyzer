@@ -135,6 +135,7 @@ public class ComparePanel extends JPanel {
 	/**
 	 * Configures and lays out the panel's components.
 	 */
+	@SuppressWarnings("serial")
 	private void initComponents() {
 		this.setLayout(new FormLayout("5dlu, 0px:g, 5dlu", "5dlu, f:p:g(0.3), 5dlu, f:p:g(0.7), 5dlu"));
 		
@@ -149,7 +150,6 @@ public class ComparePanel extends JPanel {
 		final JXTable experimentTbl = new ListTable("Click here to add an experiment...");
 		experimentTbl.setHorizontalScrollEnabled(true);
 		
-		@SuppressWarnings("serial")
 		class MyTableCellRenderer extends JLabel implements TableCellRenderer {
 
 		    public Component getTableCellRendererComponent(JTable table, Object value,
@@ -418,7 +418,6 @@ public class ComparePanel extends JPanel {
 			/**
 			 * Method to export compare table as CSV format, but tab separated
 			 */
-			@SuppressWarnings("unchecked")
 			private void export2Csv() {	
 				/**
 				 * TSV format separator.
@@ -574,6 +573,7 @@ public class ComparePanel extends JPanel {
 			JPanel dialogPnl = new JPanel();
 			dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
 		
+			@SuppressWarnings("serial")
 			final JTable projTbl = new JTable(new DefaultTableModel(new Object[] { "Projects" }, 0)) {
 				@Override
 				public boolean isCellEditable(int row, int column) {
@@ -592,6 +592,7 @@ public class ComparePanel extends JPanel {
 			}
 			this.fillTable(projTbl, titles);
 		
+			@SuppressWarnings("serial")
 			final JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)){
 				@Override
 				public boolean isCellEditable(int row, int column) {
@@ -663,6 +664,7 @@ public class ComparePanel extends JPanel {
 	 * Worker to compare data in a background thread.
 	 * @author T. Muth
 	 */
+	@SuppressWarnings("rawtypes")
 	private class CompareTask extends SwingWorker {
 		
 		/**
@@ -794,6 +796,7 @@ public class ComparePanel extends JPanel {
 	 * Class to create an editable table, which allows adding and deleting of elements.
 	 * @author A. Behne
 	 */
+	@SuppressWarnings("serial")
 	private class ListTable extends JXTable {
 
 		/**

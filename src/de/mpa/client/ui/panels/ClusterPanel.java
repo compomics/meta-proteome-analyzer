@@ -37,6 +37,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 
+@SuppressWarnings("serial")
 public class ClusterPanel extends JPanel {				
 	
 	// fields or class variables

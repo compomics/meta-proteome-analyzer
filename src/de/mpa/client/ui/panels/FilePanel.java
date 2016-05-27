@@ -122,6 +122,7 @@ import de.mpa.io.MascotGenericFile;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class FilePanel extends JPanel implements Busyable {
 	
 	/**
@@ -634,6 +635,7 @@ public class FilePanel extends JPanel implements Busyable {
 					
 					// extract settings from parameter map
 					Integer expIDval = ((Integer[]) fetchParams.get("expID").getValue())[0];
+					@SuppressWarnings("rawtypes")
 					DefaultComboBoxModel annotMdl =	(DefaultComboBoxModel) fetchParams.get("annotated").getValue();
 					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
 					client.getConnection();

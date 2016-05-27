@@ -27,6 +27,7 @@ import de.mpa.client.ui.icons.IconConstants;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public abstract class CompoundQueryPanel extends JPanel {
 	
 	/**
@@ -68,6 +69,7 @@ public abstract class CompoundQueryPanel extends JPanel {
 			layout.appendRow(RowSpec.decode("f:21px"));
 			layout.appendRow(RowSpec.decode("3dlu"));
 			
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			JComboBox comboBox = new JComboBox(items);
 			comboBox.addPopupMenuListener(new BoundsPopupMenuListener(true, false));
 			((JTextField) comboBox.getEditor().getEditorComponent()).setMargin(new Insets(1, 3, 2, 1));

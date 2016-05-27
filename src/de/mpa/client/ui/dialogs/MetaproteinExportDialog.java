@@ -71,6 +71,7 @@ import de.mpa.io.ResultExporter.ExportHeaderType;
  * @author Robert Heyer
  */
 
+@SuppressWarnings("serial")
 @Deprecated
 public class MetaproteinExportDialog extends JDialog  {
 
@@ -233,6 +234,7 @@ public class MetaproteinExportDialog extends JDialog  {
 		}
 		
 		// Get the path for the export
+		@SuppressWarnings("unused")
 		ExportFields exportFields = ExportFields.getInstance();
 		JFileChooser chooser = new ConfirmFileChooser(owner.getLastSelectedFolder());
 		chooser.setFileFilter(Constants.CSV_FILE_FILTER);
@@ -296,6 +298,7 @@ public class MetaproteinExportDialog extends JDialog  {
 				// Check for taxonomy level
 				TaxonomyNode taxNode = mp.getTaxonomyNode();
 				// Bacteria ==2 | Archaea == 2157 
+				@SuppressWarnings("unused")
 				boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
 				boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
 				boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
@@ -311,6 +314,7 @@ public class MetaproteinExportDialog extends JDialog  {
 								biolFuncMap.put(keyword, mp.getMatchSet());
 							}else{
 								Set<SpectrumMatch> ontoSet = biolFuncMap.get(keyword);
+								@SuppressWarnings("unused")
 								Set<SpectrumMatch> matchSet = mp.getMatchSet();
 								ontoSet.addAll(mp.getMatchSet());
 								biolFuncMap.put(keyword, ontoSet);

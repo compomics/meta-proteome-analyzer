@@ -8,6 +8,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @see <a href="http://www.ebi.ac.uk/intenz/downloads.jsp">http://www.ebi.ac.uk/intenz/downloads.jsp</a>
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class ECNode extends DefaultMutableTreeNode implements Comparable<ECNode> {
 
 	/**

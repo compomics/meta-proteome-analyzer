@@ -14,6 +14,7 @@ import org.jfree.data.general.PieDataset;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class PieToCategoryDataset extends AbstractDataset implements
 		CategoryDataset, DatasetChangeListener {
 	
@@ -31,36 +32,43 @@ public class PieToCategoryDataset extends AbstractDataset implements
 		return this.source;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Comparable getRowKey(int row) {
 		return "items";
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public int getRowIndex(Comparable key) {
 		return ("items".equals(key) ? 0 : -1);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List getRowKeys() {
 		return Arrays.asList(new Comparable[] { "items" });
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Comparable getColumnKey(int column) {
 		return this.source.getKey(column);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public int getColumnIndex(Comparable key) {
 		return this.source.getIndex(key);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List getColumnKeys() {
 		return this.source.getKeys();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Number getValue(Comparable rowKey, Comparable columnKey) {
 		return this.source.getValue(columnKey);

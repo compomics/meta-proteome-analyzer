@@ -103,6 +103,7 @@ import de.mpa.graphdb.properties.ElementProperty;
  * @author Thilo Muth
  * @date 21/02/2013
  */
+@SuppressWarnings("serial")
 public class GraphQueryDialog extends JDialog {
 	
 	/**
@@ -330,6 +331,7 @@ public class GraphQueryDialog extends JDialog {
 	 * pre-defined Cypher queries.
 	 * @return the predefined query task pane
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private JXTaskPane createPredefinedQueryTaskPane() {
 		JXTaskPane taskPane = new JXTaskPane("Predefined Queries");
 		FormLayout layout = new FormLayout("p:g, 5dlu, p:g", "p, 5dlu, f:140px:g");
@@ -367,6 +369,7 @@ public class GraphQueryDialog extends JDialog {
 	 * designing Cypher queries.
 	 * @return the compound query task pane
 	 */
+	@SuppressWarnings("unused")
 	private JXTaskPane createCompoundQueryTaskPane() {
 		JXTaskPane taskPane = new JXTaskPane("Compound Queries");
 		taskPane.setUI(new GlossyTaskPaneUI());
@@ -754,6 +757,7 @@ public class GraphQueryDialog extends JDialog {
 		 * The combo box containing the list of possible start node options for
 		 * the Cypher match statement this panel represents.
 		 */
+		@SuppressWarnings("rawtypes")
 		private JComboBox startCbx;
 		
 		/**
@@ -786,6 +790,7 @@ public class GraphQueryDialog extends JDialog {
 		 * query MATCH blocks.
 		 * @param items the initial array of items to display in the primary combo box
 		 */
+		@SuppressWarnings("rawtypes")
 		public MatchPanel(Object[] items) {
 			super("Match", items);
 			startCbx = (JComboBox) this.getComponent(1);
@@ -1015,6 +1020,7 @@ public class GraphQueryDialog extends JDialog {
 		 * Sets the start node combo box' options to the specified start nodes.
 		 * @param startNodes the start nodes
 		 */
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public void setStartNodes(List<CypherStartNode> startNodes, boolean keepSelection) {
 			int selectedIndex = (keepSelection) ? startCbx.getSelectedIndex() : 0;
 			Object[] items = new Object[startNodes.size()];
@@ -1292,6 +1298,7 @@ public class GraphQueryDialog extends JDialog {
 	
 				this.setLayout(new FormLayout("35px, p:g", "f:21px"));
 				
+				@SuppressWarnings("rawtypes")
 				final JComboBox typeCbx = new TermComboBox();
 
 				final JTextField valTtf = new JTextField();
@@ -1331,12 +1338,14 @@ public class GraphQueryDialog extends JDialog {
 			 * 
 			 * @author A. Behne
 			 */
+			@SuppressWarnings("rawtypes")
 			private class TermComboBox extends JComboBox {
 				
 				/**
 				 * Constructs a conditional term combo box displaying choices
 				 * relating to sub-blocks of Cypher query MATCH blocks.
 				 */
+				@SuppressWarnings("unchecked")
 				public TermComboBox() {
 					super(new Object[] {
 							new JLabel("value", IconConstants.PLUGIN_BLUE_ICON, 2),
@@ -1390,6 +1399,7 @@ public class GraphQueryDialog extends JDialog {
 			 * Initializes and configures this block's components.
 			 * @param cc the block's position inside its parent container
 			 */
+			@SuppressWarnings({ "unchecked", "rawtypes" })
 			private void initComponents(final CellConstraints cc) {
 				
 				this.setLayout(new FormLayout("11px, p:g", "f:21px, 3dlu, f:21px"));
@@ -1445,6 +1455,7 @@ public class GraphQueryDialog extends JDialog {
 				
 				ValueBlock leftTerm = new ValueBlock(CC.xyw(2, 1, 4));
 				
+				@SuppressWarnings({ "rawtypes", "unchecked" })
 				JComboBox operatorCbx = new JComboBox(CypherOperatorType.values());
 				
 				ValueBlock rightTerm = new ValueBlock(CC.xyw(2, 5, 4));
@@ -1571,6 +1582,7 @@ public class GraphQueryDialog extends JDialog {
 		/**
 		 * The list of identifier combo boxes.
 		 */
+		@SuppressWarnings("rawtypes")
 		private List<JComboBox> idCbxs;
 		
 		/**
@@ -1583,6 +1595,7 @@ public class GraphQueryDialog extends JDialog {
 		 * query RETURN blocks.
 		 * @param items the initial array of items to display in the primary combo box
 		 */
+		@SuppressWarnings("rawtypes")
 		public ReturnPanel(Object[] items) {
 			super("Return", items);
 			
@@ -1613,6 +1626,7 @@ public class GraphQueryDialog extends JDialog {
 			layout.appendRow(RowSpec.decode("f:21px"));
 			layout.appendRow(RowSpec.decode("3dlu"));
 			
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			JComboBox varCbx = new JComboBox(identifiers);
 			varCbx.addItemListener(listener);
 			idCbxs.add(varCbx);
@@ -1672,6 +1686,7 @@ public class GraphQueryDialog extends JDialog {
 		 * Sets the stored identifiers to the specified vector.
 		 * @param identifiers the identifiers to set
 		 */
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public void setIdentifiers(Vector<String> identifiers) {
 			this.identifiers = identifiers;
 			for (JComboBox idCbx : idCbxs) {
@@ -1715,7 +1730,7 @@ public class GraphQueryDialog extends JDialog {
 		 */
 		public List<Integer> getReturnIndices() {
 			List<Integer> indices = new ArrayList<Integer>();
-			for (JComboBox idCbx : idCbxs) {
+			for (@SuppressWarnings("rawtypes") JComboBox idCbx : idCbxs) {
 				indices.add(idCbx.getSelectedIndex());
 			}
 			return indices;
@@ -1739,6 +1754,7 @@ public class GraphQueryDialog extends JDialog {
 			/**
 			 * The parameter combo box.
 			 */
+			@SuppressWarnings("rawtypes")
 			private JComboBox varCbx;
 	
 			/**
@@ -1774,6 +1790,7 @@ public class GraphQueryDialog extends JDialog {
 			 * @param rounded <code>true</code> if rounded corners shall be used,
 			 *  <code>false</code> otherwise
 			 */
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			private void initComponents(Object[] items, String var, boolean rounded) {
 				varBtn = new JToggleButton(IconConstants.TEXTFIELD_ICON);
 				varBtn.setRolloverIcon(IconConstants.TEXTFIELD_ROLLOVER_ICON);
@@ -1953,6 +1970,7 @@ public class GraphQueryDialog extends JDialog {
 	 * 
 	 * @author T. Muth
 	 */
+	@SuppressWarnings("rawtypes")
 	private class ResultsTask extends SwingWorker {
 		
 		/**
@@ -1998,7 +2016,9 @@ public class GraphQueryDialog extends JDialog {
 	/**
 	 * Updates the user queries for the 
 	 */
+	@SuppressWarnings("unchecked")
 	public void updateUserQueries() {
+		@SuppressWarnings("rawtypes")
 		DefaultListModel model = (DefaultListModel) savedQueryList.getModel();
 		model.removeAllElements();
 		

@@ -7,6 +7,7 @@ import java.util.HashMap;
  *
  * @author Thilo Muth
  */
+@SuppressWarnings("serial")
 public class Masses extends HashMap<String, Double> {
 
 	/**

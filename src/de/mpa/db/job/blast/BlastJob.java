@@ -12,14 +12,14 @@ import de.mpa.db.job.Job;
 public class BlastJob extends Job {
 
 	private File blastFile;
-    private String searchDB;
+//    private String searchDB;
     private File queryInput;
-    private File mgfFile;
+//   private File mgfFile;
 
     public BlastJob(File mgfFile, String searchDB) {
 //    	this.blastFile = new File(JobConstants.BLAST_PATH);
-    	this.mgfFile = mgfFile;
-        this.searchDB = searchDB;
+//    	this.mgfFile = mgfFile;
+//        this.searchDB = searchDB;
         buildQueryFile();
         initJob();
     }

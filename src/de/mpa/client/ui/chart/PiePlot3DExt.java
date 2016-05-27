@@ -39,6 +39,7 @@ import org.jfree.ui.RectangleInsets;
  * 
  * @author A. Behne
  */
+@SuppressWarnings("serial")
 public class PiePlot3DExt extends PiePlot3D {
 
 	/**
@@ -87,6 +88,7 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * @param info  collects info about the drawing
 	 *              (<code>null</code> permitted).
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void draw(Graphics2D g2, Rectangle2D plotArea, Point2D anchor,
 			PlotState parentState,
@@ -216,6 +218,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		// get a list of keys...
 		List sectionKeys = dataset.getKeys();
 
+		
 		if (sectionKeys.size() == 0) {
 			return;
 		}
@@ -830,6 +833,7 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * @param point the point
 	 * @return the key of the section or <code>null</code> if the point is outside the pie's bounds
 	 */
+	@SuppressWarnings("rawtypes")
 	public Comparable getSectionKeyForPoint(Point2D point) {
 		if (state == null) {
 			return null;
