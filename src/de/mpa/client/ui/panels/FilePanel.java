@@ -40,7 +40,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
+//import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -350,7 +350,7 @@ public class FilePanel extends JPanel implements Busyable {
 				int selLeaves = 0;
 				Enumeration<TreeNode> dfe = treeRoot.depthFirstEnumeration();
 				while (dfe.hasMoreElements()) {
-					TreeNode treeNode = (TreeNode) dfe.nextElement();
+					TreeNode treeNode = dfe.nextElement();
 					if (treeNode.isLeaf()) {
 						if (cbtsm.isPathSelected(((CheckBoxTreeTableNode) treeNode).getPath(), true)) {
 							selLeaves++;
@@ -632,16 +632,21 @@ public class FilePanel extends JPanel implements Busyable {
 					
 					Client client = Client.getInstance();
 					client.firePropertyChange("indeterminate", false, true);
-					
 					// extract settings from parameter map
-					Integer expIDval = ((Integer[]) fetchParams.get("expID").getValue())[0];
-					@SuppressWarnings("rawtypes")
-					DefaultComboBoxModel annotMdl =	(DefaultComboBoxModel) fetchParams.get("annotated").getValue();
+					Integer expIDval = (Integer) fetchParams.get("expID").getValue();					
+					AnnotationType annotMdl = AnnotationType.IGNORE_ANNOTATIONS;
+					String annotMdlstring =  fetchParams.get("annotated").getValue().toString();
+					if (annotMdlstring == "with annotations") {
+						annotMdl = AnnotationType.WITH_ANNOTATIONS;
+					} else if (annotMdlstring == "without annotations") {
+						annotMdl = AnnotationType.WITHOUT_ANNOTATIONS;
+					} else if (annotMdlstring == "ignore annotations") {
+						annotMdl = AnnotationType.IGNORE_ANNOTATIONS;
+					}
 					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
-					client.getConnection();
-					
+					client.getConnection();					
 					List<MascotGenericFile> dlSpec = client.downloadSpectra(
-							expIDval.longValue(), (AnnotationType) annotMdl.getSelectedItem(),
+							expIDval.longValue(), (AnnotationType) annotMdl,
 							false, s2fVal);
 					
 					File file = new File("experiment_" + expIDval + ".mgf");

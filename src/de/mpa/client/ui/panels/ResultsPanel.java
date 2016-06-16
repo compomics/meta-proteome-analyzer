@@ -1017,7 +1017,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				} else {
 					// Fetch all experiments from the list
 					// FIXME processing multiple experiments may result in metaproteins not being formed
-					//		 in that case rerurn the processing and it should work
+					//		 in that case rerun the processing and it should work
 					newResult = client.getMultipleSearchResults(experimentList);
 				}
 			

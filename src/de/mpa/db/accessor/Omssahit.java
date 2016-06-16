@@ -76,6 +76,7 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
         ps.close();
         return temp;
     }
+    
 	/**
      * This method will find the hits from the current connection, based on the specified proteinid.
      *

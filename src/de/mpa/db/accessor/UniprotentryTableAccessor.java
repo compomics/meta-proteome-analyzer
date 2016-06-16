@@ -535,7 +535,7 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		lStat.setObject(8, iUniref90);
 		lStat.setObject(9, iUniref50);
 		lStat.setLong(10, iUniprotentryid);
-		int result = lStat.executeUpdate();
+		int result = lStat.executeUpdate();		
 		lStat.close();
 		this.iUpdated = false;
 		return result;

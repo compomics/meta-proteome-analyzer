@@ -142,6 +142,8 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
 
+import java.lang.System;
+
 /**
  * Panel implementation for viewing database search results.
  * 
@@ -2151,12 +2153,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				/* Build tree table trees from (meta-)proteins */
 				// Iterate meta-proteins
 				for (ProteinHit metaProtein : metaProteins) {
-					
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
-					
 					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHitList();
-					for (ProteinHit proteinHit : proteinHits) {
+					for (ProteinHit proteinHit : proteinHits) {						
 		
+						// XXX: PUT IN COMMENTS IN ORDER TO SPEED THINGS UP
 						// Calculate NSAF
 						double nsaf = proteinHit.getNSAF();
 						if (nsaf < 0.0) {
@@ -2172,7 +2173,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
 						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
 						maxNSAF = Math.max(maxNSAF, nsaf);
-		
+						
 						// Wrap protein data in table node clones and insert them into the relevant trees
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim());
 						
@@ -2197,15 +2198,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 							}
 						}
-						
 						protCount++;
 					}
-					
 					ProteinTreeTables.META.insertNode(metaNode);
 		
 					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
-				 
 				// Display number of proteins in title area
 				protTtlPnl.setTitle("Proteins (" + protCount + ")");
 				

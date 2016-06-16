@@ -34,6 +34,7 @@ import de.mpa.client.ui.dialogs.ExportSeparateExpMetaproteins;
 import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.db.DBDumper;
 import de.mpa.db.accessor.ProteinAccessor;
 
@@ -330,11 +331,34 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new BlastDialog(clientFrame, "Blast_Dialog");
 			}
 		});
+		// Delete all blast Hits
+		JMenuItem blastDeleteItem = new JMenuItem();
+		blastDeleteItem.setText("Delete Blast Hits");
+		blastDeleteItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast16.png")));
+		blastDeleteItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String confirmCode = JOptionPane.showInputDialog(
+				        ClientFrame.getInstance(), 
+				        "Continuing this process will DELETE all BLAST results. \n Type \"DELETE\" to proceed.", 
+				        "Warning", 
+				        JOptionPane.WARNING_MESSAGE);
+				if ((confirmCode != null) && (confirmCode.equals("DELETE"))) {										
+					try {						
+						UniProtUtilities.deleteblasthits();						
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
 		// Add items to update menu
 		updateMenu.add(updateUniProtItem);
 		updateMenu.add(updateEmptyUniProtItem);
 		updateMenu.add(blastItem);
+		updateMenu.add(blastDeleteItem);
 		updateMenu.addSeparator();
+		
 		// Help Menu
 		JMenuItem updateNcbiTaxItem = new JMenuItem();		
 		updateNcbiTaxItem.setText("Update NCBI Taxonomy");
@@ -366,7 +390,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		// aboutItem
 		JMenuItem aboutItem = new JMenuItem();
-		aboutItem.setText("About");
+		aboutItem.setText("About");		
 		aboutItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/about.gif")));
 		aboutItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

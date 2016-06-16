@@ -226,7 +226,12 @@ public class DatabaseExperiment extends AbstractExperiment {
 						psm.setTitle(spectrum.getTitle());
 						// mapping the psms to spectrum titles to link mascot results to correct spectra 
 						String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
-						String spectitlekey = spectitle1[1] + spectitle1[2];
+						String spectitlekey;						
+						if (spectitle1.length != 3) {
+							spectitlekey = spectitle1[0];
+						} else {
+							spectitlekey = spectitle1[1] + spectitle1[2];
+			    		}
 						mascotspectrummap.put(spectitlekey, psm);
 						psmmap.put(psmkey, psm);
 			    	}			    		
@@ -336,9 +341,14 @@ public class DatabaseExperiment extends AbstractExperiment {
 				    	// getting the spectrum-title
 						Spectrum spectrum = Spectrum.findFromSpectrumID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
 						psm.setTitle(spectrum.getTitle());
-						// mapping the psms to spectrum titles to link mascot results to correct spectra 
+						// mapping the psms to spectrum titles to link mascot results to correct spectra
 						String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
-						String spectitlekey = spectitle1[1] + spectitle1[2];
+						String spectitlekey;
+						if (spectitle1.length != 3) {
+							spectitlekey = spectitle1[0];
+						} else {
+							spectitlekey = spectitle1[1] + spectitle1[2];							
+						}
 						mascotspectrummap.put(spectitlekey, psm);
 						psmmap.put(psmkey, psm);
 			    	}				
@@ -446,7 +456,12 @@ public class DatabaseExperiment extends AbstractExperiment {
 						Spectrum spectrum = Spectrum.findFromSpectrumID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
 						// getting the spectitlekey and check if the same spectrum is already there with different spectrumid 
 						String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
-						String spectitlekey = spectitle1[1] + spectitle1[2];
+						String spectitlekey;
+						if (spectitle1.length != 3) {
+							spectitlekey = spectitle1[0];
+						} else {
+							spectitlekey = spectitle1[1] + spectitle1[2];							
+						}
 			    		if (mascotspectrummap.containsKey(spectitlekey)) {			    			
 				    		psm = mascotspectrummap.get(spectitlekey);
 				    		psm.addSearchHit(hit);
