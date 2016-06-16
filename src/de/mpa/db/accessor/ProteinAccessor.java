@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -69,6 +71,26 @@ public class ProteinAccessor extends ProteinTableAccessor {
        ps.close();
        return temp;
    }
+   
+	/**
+    * This method will find a protein entry that contains the string "_BLAST_"
+   *
+   * @param aConn Connection to read the spectrum File from.
+   * @return list of ProteinAccessors with the data.
+   * @throws SQLException when the retrieval did not succeed.
+   */
+  public static List<ProteinTableAccessor> findBlastHits(Connection aConn) throws SQLException {
+  	  List<ProteinTableAccessor> temp = new ArrayList<ProteinTableAccessor>();
+  	  System.out.println(getBasicSelect() + " WHERE " + ACCESSION + " LIKE '%_BLAST_%'");
+      PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + ACCESSION + " LIKE '%_BLAST_%'");
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+          temp.add(new ProteinTableAccessor(rs));
+      }
+      rs.close();
+      ps.close();
+      return temp;
+  }
 
 	/**
      * This method will find a protein entry from the current connection, based on the accession or description.
