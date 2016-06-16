@@ -368,6 +368,7 @@ public class UniProtUtilities {
 				} catch (Exception e) {
 					e.printStackTrace();
 					System.out.println("Accession: "+accession+ " broken uniref entries: " + redProtEntry);
+					break;
 				}
 			}
 		} else {
@@ -452,6 +453,7 @@ public class UniProtUtilities {
 		// Mapping for the entries without UniProt Entry --> <ORIGINAL_ACCESSION, UNIPROT_ACCESSION>
 		Map<String, String> accessionsMap = new HashMap<String, String>();		
 		// Sort out which proteins need to be BLASTed
+		List<ProteinAccessor> blastProteins_fulllist = new ArrayList<ProteinAccessor>();
 		List<ProteinAccessor> blastProteins = new ArrayList<ProteinAccessor>();
 		for (Long ID : unlinkedProteins) {
 			// get the current protein accession entry
@@ -467,12 +469,13 @@ public class UniProtUtilities {
 				String newacc = accession.split("_BLAST_")[1];
 				accessionsMap.put(accession, newacc);
 			} else {				
-				blastProteins.add(accProt);
-			}
+				blastProteins_fulllist.add(accProt);			
+			}			
 		}
+		blastProteins = blastProteins_fulllist.subList(0,999);
 		// do uniprotretrievel on proteins not marked for blast
 		this.fetchEmptyUniProtEntries(accessionsMap);
-				
+		
 		// perform blast
 		if (blast) {			
 			// status can be finished or failed
