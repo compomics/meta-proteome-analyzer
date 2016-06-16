@@ -17,6 +17,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.net.bsd.RExecClient;
+
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
@@ -49,7 +51,9 @@ import de.mpa.db.accessor.MascothitTableAccessor;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.Pep2prot;
+import de.mpa.db.accessor.Pep2protTableAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.db.accessor.XTandemhit;
@@ -241,10 +245,9 @@ public class UniProtUtilities {
 		// make batches based on accessionlist size
 		int maxClauseCount = BATCH_SIZE;
 		int maxBatchCount = accessionList.size() / maxClauseCount;
-		System.out.println("maxBatchCount: "+maxBatchCount);
 		if (maxBatchCount == 0) {
 			maxBatchCount = 1;	
-		}		
+		}	
 		// feedback for user
 		if (Client.getInstance() != null) {
 			Client.getInstance().firePropertyChange("new message", null, "QUERYING UNIPROT FOR " + accessionList.size() + " ENTRIES");
@@ -258,9 +261,14 @@ public class UniProtUtilities {
 			Set<String> shortList;
 			// case for last batch
 			if (i == (maxBatchCount - 1)) {
-				shortList = new HashSet<String>(accessionList.subList(startIndex, accessionList.size() - 1));				
+				if (startIndex != (accessionList.size() -1)) {
+					shortList = new HashSet<String>(accessionList.subList(startIndex, accessionList.size()));
+				} else {
+					shortList = new HashSet<String>(accessionList);
+				}
+				
 			} else {
-				shortList = new HashSet<String>(accessionList.subList(startIndex, endIndex));	
+				shortList = new HashSet<String>(accessionList.subList(startIndex, endIndex));
 			}
 			// catch empty/null errors
 			if (shortList != null && shortList.size()>0 ) {
@@ -279,7 +287,6 @@ public class UniProtUtilities {
 //			queryUniProtEntriesByIdentifiers(newIDList, proteinData, doUniRefRetrieval);
 //		}
 		// return data
-		System.out.println("return");
 		return proteinData;
 	}
 	
@@ -299,8 +306,6 @@ public class UniProtUtilities {
 			// start uniprotservice
 			this.startUniProtService();
 			
-			System.out.println("service started batch");
-			
 			// Query UniProt
 			QueryResult<UniProtEntry> entryIterator = null;
 			try {			
@@ -313,8 +318,6 @@ public class UniProtUtilities {
 			while (entryIterator.hasNext()) {
 				// make new uniprot entries
 				UniProtEntry entry = entryIterator.next();
-				System.out.println("entry protacc: "+entry.getPrimaryUniProtAccession());
-				System.out.println("entry getSequence: "+entry.getSequence());
 				ReducedProteinData thisprotein = new ReducedProteinData(entry);			
 				String accession = entry.getPrimaryUniProtAccession().getValue();
 				// Get the protein data + uniRef entry 
@@ -322,6 +325,7 @@ public class UniProtUtilities {
 				// put into returnmap
 				proteinData.put(accession, thisprotein);
 				// progress on this batch
+				
 				if (Client.getInstance() != null) {
 					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
@@ -340,29 +344,34 @@ public class UniProtUtilities {
 	public ReducedProteinData getUniRefs(String accession, ReducedProteinData redProtEntry) {
 		// start the uniref service
 		this.startUniRefService();
-		// Get the UniRefs		
+		// Get the UniRefs
 		Query query = UniRefQueryBuilder.memberAccession(accession);
 		QueryResult<UniRefEntry> entries = null;
-		try {
+		try {		
 			entries = this.uniRefQueryService.getEntries(query);
 		} catch (ServiceException e) {
 			e.printStackTrace();
-		}
+		}		
 		if (entries != null) {
 			while (entries.hasNext()) {
-				UniRefEntry thisentry = entries.next();
-				if (thisentry.getUniRefEntryId().getValue().contains("UniRef100")) {
-					redProtEntry.setUniRef100EntryId(thisentry.getUniRefEntryId().getValue());
-				}
-				if (thisentry.getUniRefEntryId().getValue().contains("UniRef90")) {
-					redProtEntry.setUniRef90EntryId(thisentry.getUniRefEntryId().getValue());
-				}
-				if (thisentry.getUniRefEntryId().getValue().contains("UniRef50")) {
-					redProtEntry.setUniRef50EntryId(thisentry.getUniRefEntryId().getValue());
+				try {
+					UniRefEntry thisentry = entries.next();	
+					if (thisentry.getUniRefEntryId().getValue().contains("UniRef100")) {
+						redProtEntry.setUniRef100EntryId(thisentry.getUniRefEntryId().getValue());
+					}
+					if (thisentry.getUniRefEntryId().getValue().contains("UniRef90")) {
+						redProtEntry.setUniRef90EntryId(thisentry.getUniRefEntryId().getValue());
+					}
+					if (thisentry.getUniRefEntryId().getValue().contains("UniRef50")) {
+						redProtEntry.setUniRef50EntryId(thisentry.getUniRefEntryId().getValue());
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("Accession: "+accession+ " broken uniref entries: " + redProtEntry);
 				}
 			}
 		} else {
-			// TODO: add something to deal with this problem, check if it even occurs now
+			// TODO: add something to deal with this problem
 			System.out.println("query failed!");
 		}
 		// stop the unirefservice and return
@@ -376,13 +385,9 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */		
 	public void repairUniRefs() throws SQLException {
-		// Protein map
-		Map<String, ReducedProteinData> proteinDataMap;
 		// connect to database
 		Connection conn = DBManager.getInstance().getConnection();
 		// initialize variables for commit
-		long increment = 100L;
-		int counter = 0;
 		// Get all uniprotEntries.
 		List<UniprotentryTableAccessor> uniprotList = Uniprotentry.retrieveAllEntriesWithEmptyUniRefAnnotation(conn);
 		// number of uniref entries to be processed
@@ -405,73 +410,21 @@ public class UniProtUtilities {
 			// finally put it all into our map, maps accession to uniprotentry
 			uniprotAccessionMap.put(proteinAccessor.getAccession(), uniProtEntry);
 		}
-				
-		// proceed if we have actually found something
-		if (!accessions.isEmpty()) {
-			// call the method to get unirefs
-			proteinDataMap = this.getUniProtData(accessions);
-			// this is what we iterate over
-			Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
-			// this loop iterates over entries in our map
-			for (Entry<String, ReducedProteinData> currententry : entrySet) {
-				// retrieve the full uniprotentry from our map 
-				ReducedProteinData proteinData = currententry.getValue();
-				UniProtEntry uniprotEntry = proteinData.getUniProtEntry();
-				// if it exists
-				if (proteinData != null && uniprotEntry != null) {
-					// Get the corresponding protein accessor
-					UniprotentryTableAccessor oldUniProtEntry = uniprotAccessionMap.get(currententry.getKey());
-					// get all the stuff
-					// Get taxonomy id
-					Long taxID = Long.valueOf(uniprotEntry.getNcbiTaxonomyIds().get(0).getValue());
-					// Get EC Numbers.
-					String ecNumbers = "";
-					List<String> ecNumberList = uniprotEntry.getProteinDescription().getEcNumbers();
-					if (ecNumberList.size() > 0) {
-						for (String ecNumber : ecNumberList) {
-							ecNumbers += ecNumber + ";";
-						}
-						ecNumbers = Formatter.removeLastChar(ecNumbers);
-					}
-					// Get ontology keywords.
-					String keywords = "";
-					List<uk.ac.ebi.kraken.interfaces.uniprot.Keyword> keywordsList = (List<uk.ac.ebi.kraken.interfaces.uniprot.Keyword>) uniprotEntry.getKeywords();
-					if (keywordsList.size() > 0) {
-						for (uk.ac.ebi.kraken.interfaces.uniprot.Keyword kw : keywordsList) {
-							keywords += kw.getValue() + ";";
-						}
-						keywords = Formatter.removeLastChar(keywords);
-					}
-					// Get KO numbers.
-					String koNumbers = "";
-					List<DatabaseCrossReference> xRefs = uniprotEntry.getDatabaseCrossReferences(DatabaseType.KO);
-					if (xRefs.size() > 0) {
-						for (DatabaseCrossReference xRef : xRefs) {
-							koNumbers += xRef.getPrimaryId().getValue() + ";";
-						}
-						koNumbers = Formatter.removeLastChar(koNumbers);
-					}
-					// Finally get unirefs (why? we should have it already)
-					ReducedProteinData uniRefs = new ReducedProteinData(uniprotEntry);
-					uniRefs = this.getUniRefs(proteinData.getUniProtEntry().getPrimaryUniProtAccession().toString(), uniRefs);
-					// update the old uniprotentry
-					if (oldUniProtEntry != null) {
-						Uniprotentry.updateUniProtEntryWithProteinID(
-								oldUniProtEntry.getUniprotentryid(), oldUniProtEntry.getFk_proteinid(),
-								taxID, ecNumbers, koNumbers, keywords, uniRefs.getUniRef100EntryId(), uniRefs.getUniRef90EntryId(), uniRefs.getUniRef50EntryId(), conn);
-					}
-					// progress
-					Client.getInstance().firePropertyChange("progressmade", false, true);
-				}
-				// this does commits every increment=100 entries
-				counter++;
-				if (counter % increment == 0) {
-					conn.commit();
-				}
-			}
-			// Final commit and clearing of map.
+		// loop through accessions, retrieve only unirefs, update uniprotentry in db
+		for (String accession : uniprotAccessionMap.keySet()) {			
+			ReducedProteinData uniRefs = new ReducedProteinData(null);
+			// call to retrieve unirefs
+			this.getUniRefs(accession, uniRefs);
+			uniprotAccessionMap.get(accession).setUniref100(uniRefs.getUniRef100EntryId());
+			uniprotAccessionMap.get(accession).setUniref90(uniRefs.getUniRef90EntryId());
+			uniprotAccessionMap.get(accession).setUniref50(uniRefs.getUniRef50EntryId());
+			// update database and commit
+			uniprotAccessionMap.get(accession).update(conn);
 			conn.commit();
+			Client.getInstance().firePropertyChange("progressmade", false, true);
 		}
+		// Final commit
+		conn.commit();
 		// finished
 		Client.getInstance().firePropertyChange("new message", null, "FINISHED UPDATING UNIPROT ENTRIES");
 	}
@@ -485,7 +438,6 @@ public class UniProtUtilities {
 		// make connection
 		Connection conn = DBManager.getInstance().getConnection();
 		// Find all proteins without a UniProt entry
-		System.out.println("Inside");
 		Set<Long> unlinkedProteins = new HashSet<Long>();
 		for (Long ID : proteins) {
 			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(ID, conn);
@@ -505,47 +457,59 @@ public class UniProtUtilities {
 			// get the current protein accession entry
 			ProteinAccessor accProt = ProteinAccessor.findFromID(ID, conn);
 			String accession = accProt.getAccession();
-			System.out.println(accession);	
 			// there is an accession that looks like a UniProt accession but no UniProt entry
 			if (accession.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
 				// keep the accession and look for UniProt update later
 				accessionsMap.put(accession, accession);
-				// there is no proper accession available for this protein
-			} else {
-				// remember the ProteinAccessor and BLAST later
+				// there is no proper accession available for this protein			
+			} else if (accession.contains("_BLAST_")) {
+				// dealing with newly created blast accessions that miss a uniprot entry
+				String newacc = accession.split("_BLAST_")[1];
+				accessionsMap.put(accession, newacc);
+			} else {				
 				blastProteins.add(accProt);
 			}
 		}
+		// do uniprotretrievel on proteins not marked for blast
+		this.fetchEmptyUniProtEntries(accessionsMap);
+				
 		// perform blast
-		if (blast) {
+		if (blast) {			
 			// status can be finished or failed
 			String status;
 			// make batches
 			Map<String, BlastResult> blastBatch;
-			if (!blastProteins.isEmpty()) {
+			if (!blastProteins.isEmpty()) {				
 				// Make DbEntries from the proteins in question
 				List<DbEntry> blastEntries = new ArrayList<DbEntry>();
 				for (ProteinAccessor prot : blastProteins) {
 					DbEntry dbEntry = new DbEntry(prot.getAccession(),
-							prot.getAccession(), DB_Type.UNIPROTSPROT, null);
-					dbEntry.setSequence(prot.getSequence());
-					blastEntries.add(dbEntry);
+							prot.getAccession(), DB_Type.UNIPROTSPROT, null);					
+					if (prot.getSequence() != null) {
+						dbEntry.setSequence(prot.getSequence());
+						blastEntries.add(dbEntry);
+					} else {
+						System.out.println("Broken Protein Entry: " + dbEntry.getIdentifier());
+					}
 				}
 				// how many proteins are blasted
 				Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST ON " + blastEntries.size() + " PROTEINS");
 				Client.getInstance().firePropertyChange("indeterminate", false,	true);
 				// Actually Start the BLAST
 				RunMultiBlast blaster = new RunMultiBlast(blastFile, blastDatabase, eValue, blastEntries);
-				status = "FINISHED";
+				status = "FINISHED";				
 				try {
+					System.out.println("Actual blast");
 					blaster.blast();
+					System.out.println("Actual blast done");
 				} catch (IOException e) {
 					e.printStackTrace();
 					status = "FAILED";
 				}
+				
 				// get results and submit to db
-				blastBatch = blaster.getBlastResultMap();
-				// update database with new proteins
+				blastBatch = blaster.getBlastResultMap();				
+				// update database with new proteins				
 				for (ProteinAccessor prot : blastProteins) {
 					// store the old accession
 					String old_accession = prot.getAccession();	
@@ -567,21 +531,21 @@ public class UniProtUtilities {
 						List<XtandemhitTableAccessor> xtandemhit_list = null;
 						// but only if batch contains more than one entry (saves time)						
 						if (allblasthits.size() > 1) {
-							System.out.println("blastbatch "+blastBatch.size());
-							System.out.println("looking up old stuff: " + old_proteinid);
+//							System.out.println("blastbatch "+blastBatch.size());
+//							System.out.println("looking up old stuff: " + old_proteinid);
 							// make sql-queries 
 							// get pep2prots for this protein							
 							peptoprot_list = Pep2prot.get_pep2prots_for_proteinid(old_proteinid, conn);
-							System.out.println("pep2prot: " + peptoprot_list.size());
+//							System.out.println("pep2prot: " + peptoprot_list.size());
 							// get mascothits for this protein
 							mascothit_list = Mascothit.getHitsFromProteinID(old_proteinid, conn);
-							System.out.println("mascothit: " + mascothit_list.size());
+//							System.out.println("mascothit: " + mascothit_list.size());
 							// get omssahits for this protein
 							omssahit_list = Omssahit.getHitsFromProteinid(old_proteinid, conn);
-							System.out.println("omssahit: " + omssahit_list.size());
+//							System.out.println("omssahit: " + omssahit_list.size());
 							// get xtandemhits for this protein
 							xtandemhit_list = XTandemhit.getHitsFromProteinID(old_proteinid, conn);
-							System.out.println("xtandemhit: " + xtandemhit_list.size());
+//							System.out.println("xtandemhit: " + xtandemhit_list.size());
 						}
 						
 						// TODO: here we can add a check to determine if a blast-protein contains any or all of the peptides found in the search
@@ -600,21 +564,21 @@ public class UniProtUtilities {
 							// new description TODO: new accessions might cause problems somewhere else (check this) 
 							String newDescription = "MG: " + hit.getName() + " [" + hit.getAccession() + "] Score: " + hit.getScore();							
 							// feedback
-							System.out.println("BLAST query " + hit.getAccession() + " e-value: " + hit.geteValue() + " score: " + hit.getScore() + " as: " + newDescription);	
+							//System.out.println("BLAST query " + hit.getAccession() + " e-value: " + hit.geteValue() + " score: " + hit.getScore() + " as: " + newDescription);	
 							// mark this accession for uniprot update (the hit-accession is used for unprot lookup)  
 							accessionsMap.put(new_accession, hit.getAccession());	
 							// if we have 
 							if (first_hit) {
-								System.out.println("First hit");
+								//System.out.println("First hit");
 								// update the old entry
 								ProteinAccessor.upDateProteinEntry(prot.getProteinid(),
 										new_accession, newDescription,
 										prot.getSequence(), prot.getCreationdate(),
-										conn);								
+										conn);
 								// unmark first hit
 								first_hit = false;
 							} else {
-								System.out.println("other hits");
+								//System.out.println("other hits");
 								// make new entries 								
 								// create new protein entry
     							// this adds a new protein
@@ -635,9 +599,11 @@ public class UniProtUtilities {
 								for (OmssahitTableAccessor old_omssahit : omssahit_list) {								
 									Omssahit.copyomssahit(protAccessor.getProteinid(), old_omssahit, conn);
 								}
-								// anything missing?								
+								// anything missing?--> commit!?							
 							}
+							conn.commit();
 						}
+						conn.commit();
 					}
 				}
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
@@ -645,7 +611,8 @@ public class UniProtUtilities {
 				Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST " + status);
 			}
 		}
-		// Get UniProtEntries for the found proteins.
+
+		// do uniprotretrievel on blasthits
 		this.fetchEmptyUniProtEntries(accessionsMap);
 	}
 	
@@ -721,7 +688,7 @@ public class UniProtUtilities {
 							conn.commit();
 						}
 
-					}else{
+					} else {
 						System.out.println("No UniProt data available for " + accessionsMap.get(oriAccession));
 					}
 					Client.getInstance().firePropertyChange("progressmade", false, true);
@@ -739,10 +706,93 @@ public class UniProtUtilities {
 	 * deletes blast hits
 	 * 
 	 * @author K.Schallert
-	 */		
-	public void deleteblasthits() {
-		// TODO: implement this
-		// empty for now
+	 * @throws SQLException 
+	 */	
+	public static void deleteblasthits() throws SQLException {
+		// get client
+		Client.getInstance();
+		Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS");
+
+		// connect to db
+		Connection conn = DBManager.getInstance().getConnection();
+		// find all blast proteins -> contain "_BLAST_"
+		List<ProteinTableAccessor> proteinlist = ProteinAccessor.findBlastHits(conn);
+		// we now need to make 2 new lists: one list for entries that remain, one for entries to delete
+		List<ProteinTableAccessor> deletelist = new ArrayList<ProteinTableAccessor>();
+		Map<String, ProteinTableAccessor> revertmap = new TreeMap<String, ProteinTableAccessor>();
+		for (ProteinTableAccessor prot : proteinlist) {
+			String original_prot_accession = prot.getAccession().split("_BLAST_")[0];
+			// String uniprot_prot_accession = prot.getAccession().split("_BLAST_")[1];
+			if (revertmap.containsKey(original_prot_accession)) {
+				deletelist.add(prot);
+			} else {
+				revertmap.put(original_prot_accession, prot);
+			}
+		}
+		Client.getInstance().firePropertyChange("resetall", -1L, (long) revertmap.size());
+		Client.getInstance().firePropertyChange("resetcur", -1L, (long) revertmap.size());
+//		System.out.println("revertlist: "+revertmap.size());
+//		System.out.println("deletelist: "+deletelist.size());
+		// cycle through proteins for reversion
+		for (String prot_acc : revertmap.keySet()) {
+//			System.out.println("Reverting: "+prot_acc);
+			ProteinTableAccessor thisprot = revertmap.get(prot_acc);
+			thisprot.setAccession(prot_acc);			
+			thisprot.setDescription("Metagenome Unknown");			
+			// find the uniprotentry to this protein 
+			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(thisprot.getProteinid(), conn);
+			// and delete it
+			if (uniprotentry != null) {
+				uniprotentry.delete(conn);
+			}
+			thisprot.update(conn);
+			conn.commit();
+			Client.getInstance().firePropertyChange("progressmade", false, true);
+		}
+		conn.commit();
+		
+		Client.getInstance().firePropertyChange("resetall", -1L, (long) deletelist.size());
+		Client.getInstance().firePropertyChange("resetcur", -1L, (long) deletelist.size());		
+		// cylce through proteins for deletion 
+		for (ProteinTableAccessor protein : deletelist) {
+//			System.out.println("Deleting: "+protein.getAccession());
+			// find  omssahits to this protein 
+			List<OmssahitTableAccessor> omssahits = Omssahit.getHitsFromProteinid(protein.getProteinid(), conn);
+			for (OmssahitTableAccessor omssahit : omssahits) {
+				// and delete them
+				omssahit.delete(conn);
+			}
+			// find  mascothits to this protein 
+			List<MascothitTableAccessor> mascothits = Mascothit.getHitsFromProteinID(protein.getProteinid(), conn);
+			for (MascothitTableAccessor mascothit : mascothits) {
+				// and delete them
+				mascothit.delete(conn);
+			}
+			// find  mascothits to this protein 
+			List<XtandemhitTableAccessor> xtandemhits = XTandemhit.getHitsFromProteinID(protein.getProteinid(), conn);
+			for (XtandemhitTableAccessor xtandemhit : xtandemhits) {
+				// and delete them
+				xtandemhit.delete(conn);
+			}
+			// find  pep2prot to this protein 
+			List<Pep2prot> pep2prots = Pep2prot.get_pep2prots_for_proteinid(protein.getProteinid(), conn);
+			for (Pep2prot pep2prot : pep2prots) {
+				// and delete them
+				pep2prot.delete(conn);
+			}
+			// find the uniprotentry to this protein 
+			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(protein.getProteinid(), conn);
+			// and delete them
+			if (uniprotentry != null) {
+				uniprotentry.delete(conn);	
+			}			
+			// delete proteinhit, next item
+			protein.delete(conn);
+			conn.commit();
+			Client.getInstance().firePropertyChange("progressmade", false, true);
+		}
+		conn.commit();
+		Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS FINISHED");
 	}	
 
 	// METHODS FROM FASTALOADER
