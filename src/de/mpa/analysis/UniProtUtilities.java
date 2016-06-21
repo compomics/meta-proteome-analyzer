@@ -73,7 +73,7 @@ public class UniProtUtilities {
 	/**
 	 *  Max batch size constant, default is 1024 
 	 */	
-	private static final int BATCH_SIZE = 1024;
+	private static final int BATCH_SIZE = 512;
 
 	/**
 	 * UniProt service instance. 

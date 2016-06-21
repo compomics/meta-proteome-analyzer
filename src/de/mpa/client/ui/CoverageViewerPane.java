@@ -275,21 +275,26 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 			List<Interval> intervals = new ArrayList<Interval>(peptides.size());
 			
 			String protSeq = protein.getSequence();
-//			int row = 0;
-			for (PeptideHit peptide : peptides) {
-				// find all occurences of peptide sequences in protein sequence
-				String pepSeq = peptide.getSequence();
-				int index = -1;
-				while (true) {
-					index = protSeq.indexOf(pepSeq, index + 1);
-					if (index == -1) break;
-					// store position of peptide sequence match in interval object
-					Interval interval = new Interval(index, index + pepSeq.length(), pepSeq);
-					intervals.add(interval);
-				}
-			}
 			
-			coverageMap.put(protein, intervals);
+			if (protSeq !=null) {
+				int row = 0;
+				for (PeptideHit peptide : peptides) {
+					// find all occurences of peptide sequences in protein sequence
+					String pepSeq = peptide.getSequence();
+					int index = -1;
+					while (true) {
+						index = protSeq.indexOf(pepSeq, index + 1);
+						if (index == -1) break;
+						// store position of peptide sequence match in interval object
+						Interval interval = new Interval(index, index + pepSeq.length(), pepSeq);
+						intervals.add(interval);
+					}
+				}
+				
+				coverageMap.put(protein, intervals);
+			}else{
+				coverageMap.put(protein, null);
+			}
 		}
 		
 		return coverageMap;
@@ -323,123 +328,129 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		covPnl.setOpaque(false);
 	
 		String protSeq = proteinHit.getSequence();
-		// Iterate protein sequence blocks
-		int blockSize = 10;
-		int length = protSeq.length();
-		int openIntervals = 0;
-		String lastOpened = null;
-		for (int start = 0; start < length; start += blockSize) {
-			int end = start + blockSize;
-			end = (end > length) ? length : end;
-			// Create upper label containing position index on light green background
-			StringBuilder indexRow = new StringBuilder("<html><code>");
-			int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
-			for (int i = 0; i < spaces; i++) {
-				indexRow.append("&nbsp");
-			}
-			indexRow.append(" " + (start + blockSize));
-			indexRow.append("</html></code>");
-	
-			JPanel blockPnl = new JPanel(new BorderLayout());
-			blockPnl.setOpaque(false);
-			JLabel indexLbl = new JLabel(indexRow.toString());
-			indexLbl.setBackground(new Color(0, 255, 0, 32));
-			indexLbl.setOpaque(true);
-			blockPnl.add(indexLbl, BorderLayout.NORTH);
-	
-			// Create lower panel containing label-like buttons and plain labels
-			JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			subBlockPnl.setOpaque(false);
-	
-			JComponent label = null;
-			
-			// Iterate characters inside block to find upper/lower interval boundaries
-			String blockSeq = protSeq.substring(start, end);
-			int blockLength = blockSeq.length();
-			int subIndex = 0;
-			for (int i = 0; i < blockLength; i++) {
-				int pos = start + i;
-				boolean isBorder = false;
-				// Compare all intervals' bounds with current absolute character position
-				for (Interval interval : peptideIntervals) {
-					// check position for left border
-					if ((pos == (int) interval.getLeftBorder())) {
-						// Highlightable part begins here, store contents up to this point in label
-						label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
-	
-						isBorder = true;
-						openIntervals++;
-						lastOpened = (String) interval.getUserObject();
-					}
-					// check position for right border
-					if ((pos == (int) interval.getRightBorder())) {
-						// Highlightable part ends here, store contents in hover label
-						final String sequence = (String) interval.getUserObject();
-						label = new HoverLabel(blockSeq.substring(subIndex, i), colorMap.get(sequence));
-						
-						HoverLabel cachedLbl = hoverLabels.get(sequence);
-						if (cachedLbl != null) {
-							((AbstractButton) label).setModel(cachedLbl.getModel());
-						} else {
-							// cache label
-							hoverLabels.put((String) sequence, (HoverLabel) label);
-//							// put label in button group
-//							hoverGroup.add((AbstractButton) label);
-							
-							// install action listener
-							((HoverLabel) label).addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent evt) {
-									firePropertyChange("selection",
-											((AbstractButton) evt.getSource()).isSelected(), sequence);
-								}
-							});
-						}
-						((AbstractButton) label).setSelected(sequence == selSequence);
-	
-						isBorder = true;
-						openIntervals--;
-					}
-					if (isBorder) {
-						// Add new label to panel, move index pointer forward
-						subBlockPnl.add(label);
-						subIndex = i;
-					}
+		
+		if (protSeq != null) {
+			// Iterate protein sequence blocks
+			int blockSize = 10;
+			int length = protSeq.length();
+			int openIntervals = 0;
+			String lastOpened = null;
+			for (int start = 0; start < length; start += blockSize) {
+				int end = start + blockSize;
+				end = (end > length) ? length : end;
+				// Create upper label containing position index on light green background
+				StringBuilder indexRow = new StringBuilder("<html><code>");
+				int spaces = blockSize - 2 - (int) Math.floor(Math.log10(end));
+				for (int i = 0; i < spaces; i++) {
+					indexRow.append("&nbsp");
 				}
-			}
-			// Store any remaining subsequences in (hover) label
-			if (openIntervals > 0) {
-				final String sequence = lastOpened;
-				label = new HoverLabel(blockSeq.substring(subIndex), colorMap.get(sequence));
+				indexRow.append(" " + (start + blockSize));
+				indexRow.append("</html></code>");
+		
+				JPanel blockPnl = new JPanel(new BorderLayout());
+				blockPnl.setOpaque(false);
+				JLabel indexLbl = new JLabel(indexRow.toString());
+				indexLbl.setBackground(new Color(0, 255, 0, 32));
+				indexLbl.setOpaque(true);
+				blockPnl.add(indexLbl, BorderLayout.NORTH);
+		
+				// Create lower panel containing label-like buttons and plain labels
+				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				subBlockPnl.setOpaque(false);
+		
+				JComponent label = null;
 				
-				HoverLabel cachedLbl = hoverLabels.get(sequence);
-				if (cachedLbl != null) {
-					((AbstractButton) label).setModel(cachedLbl.getModel());
-				} else {
-					// cache label
-					hoverLabels.put(sequence, (HoverLabel) label);
-//					// put label in button group
-//					hoverGroup.add((AbstractButton) label);
-					
-					// install action listener
-					((HoverLabel) label).addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							firePropertyChange("selection",
-									((AbstractButton) evt.getSource()).isSelected(), sequence);
+				// Iterate characters inside block to find upper/lower interval boundaries
+				String blockSeq = protSeq.substring(start, end);
+				int blockLength = blockSeq.length();
+				int subIndex = 0;
+				for (int i = 0; i < blockLength; i++) {
+					int pos = start + i;
+					boolean isBorder = false;
+					// Compare all intervals' bounds with current absolute character position
+					for (Interval interval : peptideIntervals) {
+						// check position for left border
+						if ((pos == (int) interval.getLeftBorder())) {
+							// Highlightable part begins here, store contents up to this point in label
+							label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
+		
+							isBorder = true;
+							openIntervals++;
+							lastOpened = (String) interval.getUserObject();
 						}
-					});
+						// check position for right border
+						if ((pos == (int) interval.getRightBorder())) {
+							// Highlightable part ends here, store contents in hover label
+							final String sequence = (String) interval.getUserObject();
+							label = new HoverLabel(blockSeq.substring(subIndex, i), colorMap.get(sequence));
+							
+							HoverLabel cachedLbl = hoverLabels.get(sequence);
+							if (cachedLbl != null) {
+								((AbstractButton) label).setModel(cachedLbl.getModel());
+							} else {
+								// cache label
+								hoverLabels.put((String) sequence, (HoverLabel) label);
+//								// put label in button group
+//								hoverGroup.add((AbstractButton) label);
+								
+								// install action listener
+								((HoverLabel) label).addActionListener(new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent evt) {
+										firePropertyChange("selection",
+												((AbstractButton) evt.getSource()).isSelected(), sequence);
+									}
+								});
+							}
+							((AbstractButton) label).setSelected(sequence == selSequence);
+		
+							isBorder = true;
+							openIntervals--;
+						}
+						if (isBorder) {
+							// Add new label to panel, move index pointer forward
+							subBlockPnl.add(label);
+							subIndex = i;
+						}
+					}
 				}
-				((AbstractButton) label).setSelected(sequence == selSequence);
-			} else {
-				label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
+				// Store any remaining subsequences in (hover) label
+				if (openIntervals > 0) {
+					final String sequence = lastOpened;
+					label = new HoverLabel(blockSeq.substring(subIndex), colorMap.get(sequence));
+					
+					HoverLabel cachedLbl = hoverLabels.get(sequence);
+					if (cachedLbl != null) {
+						((AbstractButton) label).setModel(cachedLbl.getModel());
+					} else {
+						// cache label
+						hoverLabels.put(sequence, (HoverLabel) label);
+//						// put label in button group
+//						hoverGroup.add((AbstractButton) label);
+						
+						// install action listener
+						((HoverLabel) label).addActionListener(new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent evt) {
+								firePropertyChange("selection",
+										((AbstractButton) evt.getSource()).isSelected(), sequence);
+							}
+						});
+					}
+					((AbstractButton) label).setSelected(sequence == selSequence);
+				} else {
+					label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
+				}
+				subBlockPnl.add(label);
+		
+				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
+		
+				covPnl.add(blockPnl);
 			}
-			subBlockPnl.add(label);
-	
-			blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
-	
-			covPnl.add(blockPnl);
+		} else {
+			covPnl.add(new JLabel("Disabled if no sequence informations are available"));
 		}
+		
 		return covPnl;
 	}
 	
