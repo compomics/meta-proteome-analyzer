@@ -226,12 +226,16 @@ public class DatabaseExperiment extends AbstractExperiment {
 						psm.setTitle(spectrum.getTitle());
 						// mapping the psms to spectrum titles to link mascot results to correct spectra 
 						String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
-						String spectitlekey;						
-						if (spectitle1.length != 3) {
-							spectitlekey = spectitle1[0];
+						String spectitlekey;
+						if (spectrum.getTitle().contains("File") && spectrum.getTitle().contains("Spectrum") && spectrum.getTitle().contains("scans")) {
+							if (spectrum.getTitle().contains("( \\(id)")) {
+								spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
+							} else {
+								spectitlekey = spectitle1[1] + spectitle1[2];
+							}
 						} else {
-							spectitlekey = spectitle1[1] + spectitle1[2];
-			    		}
+							spectitlekey = spectrum.getTitle();
+						}
 						mascotspectrummap.put(spectitlekey, psm);
 						psmmap.put(psmkey, psm);
 			    	}			    		
@@ -344,10 +348,14 @@ public class DatabaseExperiment extends AbstractExperiment {
 						// mapping the psms to spectrum titles to link mascot results to correct spectra
 						String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
 						String spectitlekey;
-						if (spectitle1.length != 3) {
-							spectitlekey = spectitle1[0];
+						if (spectrum.getTitle().contains("File") && spectrum.getTitle().contains("Spectrum") && spectrum.getTitle().contains("scans")) {
+							if (spectrum.getTitle().contains("( \\(id)")) {
+								spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
+							} else {
+								spectitlekey = spectitle1[1] + spectitle1[2];
+							}
 						} else {
-							spectitlekey = spectitle1[1] + spectitle1[2];							
+							spectitlekey = spectrum.getTitle();
 						}
 						mascotspectrummap.put(spectitlekey, psm);
 						psmmap.put(psmkey, psm);
@@ -457,10 +465,14 @@ public class DatabaseExperiment extends AbstractExperiment {
 						// getting the spectitlekey and check if the same spectrum is already there with different spectrumid 
 						String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
 						String spectitlekey;
-						if (spectitle1.length != 3) {
-							spectitlekey = spectitle1[0];
+						if (spectrum.getTitle().contains("File") && spectrum.getTitle().contains("Spectrum") && spectrum.getTitle().contains("scans")) {
+							if (spectrum.getTitle().contains("( \\(id)")) {
+								spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
+							} else {
+								spectitlekey = spectitle1[1] + spectitle1[2];
+							}
 						} else {
-							spectitlekey = spectitle1[1] + spectitle1[2];							
+							spectitlekey = spectrum.getTitle();
 						}
 			    		if (mascotspectrummap.containsKey(spectitlekey)) {			    			
 				    		psm = mascotspectrummap.get(spectitlekey);

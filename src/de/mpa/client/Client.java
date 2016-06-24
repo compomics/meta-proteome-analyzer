@@ -67,7 +67,7 @@ import de.mpa.main.Starter;
 
 public class Client {
 
-	/**
+	/** 
 	 * Client instance.
 	 */
 	private static Client instance = null;
