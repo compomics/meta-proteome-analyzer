@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -265,9 +267,8 @@ public class ProjectPanel extends JPanel {
 					@Override
 					protected Object doInBackground() throws SQLException  {
 						// find all proteins in the experiment and pass them on
-						
 						// gather all proteins from the experiment
-						Set<Long> proteins = new HashSet<Long>();
+						Map<String, Long> proteins = new TreeMap<String, Long>();
 						Connection conn = Client.getInstance().getConnection();
 						Long expID = getSelectedExperiment().getID();
 						List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(expID, conn);
@@ -279,11 +280,13 @@ public class ProjectPanel extends JPanel {
 						hits.addAll(omssaHits);
 						for (SearchHit hit : hits) {
 							ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
-							proteins.add(aProt.getProteinid());
+							proteins.put(aProt.getAccession(), aProt.getProteinid());
 						}
-						System.out.println(proteins);
 						UniProtUtilities uniprotweb = new UniProtUtilities();
-						uniprotweb.blast(proteins, null, null, 0, false);
+						// filter list to proteins for uniprot-retrieval
+						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
+						// make uniprotentries from proteinlist
+						uniprotweb.make_uniprot_entries(update_protein_map);
 						return null;
 					}	
 				}.execute();

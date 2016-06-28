@@ -88,7 +88,7 @@ public class MascotStorager extends BasicStorager {
 	/**
 	 * The list of protein accessions for which UniProt entries need to be retrieved.
 	 */
-	private Set<String> uniProtCandidates = new HashSet<String>();
+	private Map<String, List<Long>> uniProtCandidates = new TreeMap<String, List<Long>>();
 
 	/**
 	 * Loader for FASTA entries from a FASTA DB.
@@ -392,7 +392,13 @@ public class MascotStorager extends BasicStorager {
 											Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
 											// unless it misses a uniprot entry
 											if (upe == null) {
-												uniProtCandidates.add(accession);
+												if (uniProtCandidates.containsKey(accession)) {
+													uniProtCandidates.get(accession).add(proteinID);
+												} else {
+													List<Long> prot_id_list = new ArrayList<Long>();
+													prot_id_list.add(proteinID);
+													uniProtCandidates.put(accession, prot_id_list);
+												}
 											}
 										}
 									}
@@ -471,7 +477,13 @@ public class MascotStorager extends BasicStorager {
 													protein_map.get(prot_acc).set_this_protein_is_in_DB();
 													protein_map.get(prot_acc).addproteinid(proteinID);
 													// this is a new protein so we mark for uniprot lookup
-													uniProtCandidates.add(accession);
+													if (uniProtCandidates.containsKey(accession)) {
+														uniProtCandidates.get(accession).add(proteinID);
+													} else {
+														List<Long> prot_id_list = new ArrayList<Long>();
+														prot_id_list.add(proteinID);
+														uniProtCandidates.put(accession, prot_id_list);
+													}
 												}else{
 													System.out.println("Entries which belonged not to the proteinsection, but were in the queryPeptideMap");
 													System.out.println("Problem descriptions " + accession );
@@ -483,8 +495,7 @@ public class MascotStorager extends BasicStorager {
 											// finally we submit the mascothit
 											this.storeMascotHit(searchspectrumID, peptideID, proteinID, current_query, current_pephit);
 
-										}else
-										{System.out.println("A not stored hit");}
+										}else {System.out.println("A not stored hit");}
 
 									}
 									// finally commit data, is done once for every query
@@ -503,95 +514,100 @@ public class MascotStorager extends BasicStorager {
 
 		// final commit can probably go
 		conn.commit();
+		
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
 		// this part of the code remained unchanged
 		// retrieve UniProt entries
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
+		
 		UniProtUtilities uniprotweb = new UniProtUtilities();
-		Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
+		uniprotweb.make_uniprot_entries(this.uniProtCandidates);
+		//Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
+		
 		client.firePropertyChange("indeterminate", true, false);		
 		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
 		client.firePropertyChange("resetcur", 0L, (long) this.uniProtCandidates.size());
-		// iterate entries
-		for (String accession : this.uniProtCandidates) {
-			// retrieve protein data from local cache
-			ReducedProteinData rpd = proteinData.get(accession);
-			if (rpd == null) {
-				// candidate accession apparently is not a primary UniProt accession,
-				// therefore look in secondary accessions
-				outerloop:
-					for (ReducedProteinData value : proteinData.values()) {
-						List<SecondaryUniProtAccession> secondaryAccessions =
-								value.getUniProtEntry().getSecondaryUniProtAccessions();
-						for (SecondaryUniProtAccession secAcc : secondaryAccessions) {
-							if (secAcc.getValue().equals(accession)) {
-								rpd = value;
-								break outerloop;
-							}
-						}
-					}
-			// if accession still cannot be found skip altogether, tough luck!
-			if (rpd == null) {
-				client.firePropertyChange("progressmade", true, false);
-				continue;
-			}
-			}
-			// retrieve protein from database
-			ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-			long proteinID = protein.getProteinid();
-			// look for already stored UniProt entry in database
-			Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
-			if (upe != null) {
-				// a UniProt entry already exists, we therefore probably like to update only the protein sequence
-				protein.setSequence(rpd.getUniProtEntry().getSequence().getValue());
-				protein.update(conn);
-			} else {
-				// no UniProt entry exists, therefore we create a new one
-				UniProtEntry uniProtEntry = rpd.getUniProtEntry();
-				// Get taxonomy id
-				Long taxID = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
-				// Get EC Numbers
-				String ecNumbers = "";
-				List<String> ecNumberList = uniProtEntry.getProteinDescription().getEcNumbers();
-				if (ecNumberList.size() > 0) {
-					for (String ecNumber : ecNumberList) {
-						ecNumbers += ecNumber + ";";
-					}
-					ecNumbers = Formatter.removeLastChar(ecNumbers);
-				}
-				// Get ontology keywords
-				String keywords = "";
-				List<Keyword> keywordsList = uniProtEntry.getKeywords();
-
-				if (keywordsList.size() > 0) {
-					for (Keyword kw : keywordsList) {
-						keywords += kw.getValue() + ";";
-					}
-					keywords = Formatter.removeLastChar(keywords);
-				}
-				// Get KO numbers
-				String koNumbers = "";
-				List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
-				if (xRefs.size() > 0) {
-					for (DatabaseCrossReference xRef : xRefs) {
-						koNumbers += xRef.getPrimaryId().getValue() + ";";
-					}
-					koNumbers = Formatter.removeLastChar(koNumbers);
-				}
-				// get UniRef identifiers
-				String uniref100 = rpd.getUniRef100EntryId();
-				String uniref90 = rpd.getUniRef90EntryId();
-				String uniref50 = rpd.getUniRef50EntryId();
-				Uniprotentry.addUniProtEntryWithProteinID(proteinID,
-						taxID, ecNumbers, koNumbers, keywords,
-						uniref100, uniref90, uniref50, conn);
-			}			
-			client.firePropertyChange("progressmade", true, false);
-		}		
-		conn.commit();
-		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
+		
+//		// iterate entries
+//		for (String accession : this.uniProtCandidates.keySet()) {
+//			// retrieve protein data from local cache
+//			ReducedProteinData rpd = proteinData.get(accession);
+//			if (rpd == null) {
+//				// candidate accession apparently is not a primary UniProt accession,
+//				// therefore look in secondary accessions
+//				outerloop:
+//					for (ReducedProteinData value : proteinData.values()) {
+//						List<SecondaryUniProtAccession> secondaryAccessions =
+//								value.getUniProtEntry().getSecondaryUniProtAccessions();
+//						for (SecondaryUniProtAccession secAcc : secondaryAccessions) {
+//							if (secAcc.getValue().equals(accession)) {
+//								rpd = value;
+//								break outerloop;
+//							}
+//						}
+//					}
+//			// if accession still cannot be found skip altogether, tough luck!
+//			if (rpd == null) {
+//				client.firePropertyChange("progressmade", true, false);
+//				continue;
+//			}
+//			}
+//			// retrieve protein from database
+//			ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
+//			long proteinID = protein.getProteinid();
+//			// look for already stored UniProt entry in database
+//			Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
+//			if (upe != null) {
+//				// a UniProt entry already exists, we therefore probably like to update only the protein sequence
+//				protein.setSequence(rpd.getUniProtEntry().getSequence().getValue());
+//				protein.update(conn);
+//			} else {
+//				// no UniProt entry exists, therefore we create a new one
+//				UniProtEntry uniProtEntry = rpd.getUniProtEntry();
+//				// Get taxonomy id
+//				Long taxID = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
+//				// Get EC Numbers
+//				String ecNumbers = "";
+//				List<String> ecNumberList = uniProtEntry.getProteinDescription().getEcNumbers();
+//				if (ecNumberList.size() > 0) {
+//					for (String ecNumber : ecNumberList) {
+//						ecNumbers += ecNumber + ";";
+//					}
+//					ecNumbers = Formatter.removeLastChar(ecNumbers);
+//				}
+//				// Get ontology keywords
+//				String keywords = "";
+//				List<Keyword> keywordsList = uniProtEntry.getKeywords();
+//
+//				if (keywordsList.size() > 0) {
+//					for (Keyword kw : keywordsList) {
+//						keywords += kw.getValue() + ";";
+//					}
+//					keywords = Formatter.removeLastChar(keywords);
+//				}
+//				// Get KO numbers
+//				String koNumbers = "";
+//				List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
+//				if (xRefs.size() > 0) {
+//					for (DatabaseCrossReference xRef : xRefs) {
+//						koNumbers += xRef.getPrimaryId().getValue() + ";";
+//					}
+//					koNumbers = Formatter.removeLastChar(koNumbers);
+//				}
+//				// get UniRef identifiers
+//				String uniref100 = rpd.getUniRef100EntryId();
+//				String uniref90 = rpd.getUniRef90EntryId();
+//				String uniref50 = rpd.getUniRef50EntryId();
+//				Uniprotentry.addUniProtEntryWithProteinID(proteinID,
+//						taxID, ecNumbers, koNumbers, keywords,
+//						uniref100, uniref90, uniref50, conn);
+//			}			
+//			client.firePropertyChange("progressmade", true, false);
+//		}		
+//		conn.commit();
+//		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 	}
 
 	/**
@@ -798,107 +814,107 @@ public class MascotStorager extends BasicStorager {
 		return spectrumid;
 	}
 
-	/**
-	 * This method puts the proteins and pep2proteins entries in the database
-	 * @param peptideID. The ID of the peptide in the database
-	 * @param datProtHit. A proteinHit from the MascotDatFile parser.
-	 * @param proteinMap. The proteinMap from MascotDatFile parser, containing the link between accession and description 
-	 * @return proteinID. The proteinID in the database.
-	 * @throws SQLException 
-	 */
-	// this method is now obsolete
-	@SuppressWarnings("unused")
-	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
-		// save information of the protein storing
-		StoredProtein storedProt;		
-		String protAccession = proteinHit.getAccession();
-		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
-		// therefore convert it to a FASTA header and parse accession from it
-		String composedHeader = "";
-		Header header;
-		String accession = null;	// true accession
-		String description = null;
-		// CASE UNIPROT
-		if (protAccession.startsWith("sp") || protAccession.startsWith("tr")) {
-			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
-			header = Header.parseFromFASTA(composedHeader);
-			accession = header.getAccession();
-			description = header.getDescription(); 
-		}  
-		// CASE NCBI--- try to get mapping to UNIPROT
-		else if(protAccession.startsWith("gi")) {
-			composedHeader = ">" + protAccession + "|" + proteinMap.getProteinDescription(protAccession);
-			header = Header.parseFromFASTA(composedHeader);
-			protAccession = header.getAccession();
-			description = header.getDescription(); 
-			//			Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
-			//			accession = gi2up.get(protAccession);
-			if (accession == null) {
-				// revert to GI number
-				accession = protAccession;
-			}
-		}
-		else if(protAccession.startsWith("generic")) {
-			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
-			header = Header.parseFromFASTA(composedHeader);
-			accession = header.getAccession();
-			description = header.getDescription(); 
-		}
-
-		// If not UNIPROT or NCBI Header.parseFromFASTA(composedHeader) may fail.... hence set new accessions.
-		if ((accession == null) || description == null) {
-			ProteinMap proteinMap2 = proteinMap;
-			String[] split = protAccession.split("[|]");
-			accession = split[1].trim();
-			// changed from 0 to 1
-			description = proteinMap.getProteinDescription(protAccession);
-			//TODO MAYBE here an Mistake with other accession rules 
-		}
-		// Check whether protein is already in database		
-		// this old implementation created a hashmap which led to memory issues
-		//HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
-		//Long proteinID = proteinIdMap.get(accession);		
-		// this new implementation just gets the proteinID if the accession is already in the database		
-		PreparedStatement prs = conn.prepareStatement("select * from protein " + 
-				"where protein.accession = ?");
-		prs.setString(1, accession);
-		ResultSet rs = prs.executeQuery();
-		Long proteinID = null;
-		while(rs.next()) {			
-			ProteinTableAccessor currententry = new ProteinTableAccessor(rs);
-			if (currententry.getAccession() == accession) {				
-				proteinID = currententry.getProteinid();
-			}
-		}
-		rs.close();
-		prs.close();
-		// Protein is not in database, create new one
-		if (proteinID == null) {
-			// Try to fetch sequence
-			String sequence = ""; // Sequence is normally empty because the dat file do not contain a sequence
-			if (fastaLoader != null) {
-				@SuppressWarnings("static-access")
-				Protein fastaProt = fastaLoader.getProteinFromFasta(accession);
-				// this does nothing here, so removed
-				//TObjectLongMap<String> indexMap = fastaLoader.getInstance().getIndexMap();
-				sequence = fastaProt.getSequence().getSequence();
-			}
-
-			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
-			proteinID = (Long) protAccessor.getGeneratedKeys()[0];
-			// Mark protein for UniProt lookup
-			uniProtCandidates.add(accession);
-		} else {
-			// Protein is already stored in database, re-use existing ID
-			Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
-			// If protein is missing a sequence or a UniProt entry mark it for UniProt lookup later on
-			if (upe == null) {
-				uniProtCandidates.add(accession);
-			}
-		}
-		storedProt = new StoredProtein(proteinHit.getAccession(), proteinID);
-		return storedProt;
-	}
+//	/**
+//	 * This method puts the proteins and pep2proteins entries in the database
+//	 * @param peptideID. The ID of the peptide in the database
+//	 * @param datProtHit. A proteinHit from the MascotDatFile parser.
+//	 * @param proteinMap. The proteinMap from MascotDatFile parser, containing the link between accession and description 
+//	 * @return proteinID. The proteinID in the database.
+//	 * @throws SQLException 
+//	 */
+//	// this method is now obsolete
+//	@SuppressWarnings("unused")
+//	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
+//		// save information of the protein storing
+//		StoredProtein storedProt;		
+//		String protAccession = proteinHit.getAccession();
+//		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
+//		// therefore convert it to a FASTA header and parse accession from it
+//		String composedHeader = "";
+//		Header header;
+//		String accession = null;	// true accession
+//		String description = null;
+//		// CASE UNIPROT
+//		if (protAccession.startsWith("sp") || protAccession.startsWith("tr")) {
+//			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
+//			header = Header.parseFromFASTA(composedHeader);
+//			accession = header.getAccession();
+//			description = header.getDescription(); 
+//		}  
+//		// CASE NCBI--- try to get mapping to UNIPROT
+//		else if(protAccession.startsWith("gi")) {
+//			composedHeader = ">" + protAccession + "|" + proteinMap.getProteinDescription(protAccession);
+//			header = Header.parseFromFASTA(composedHeader);
+//			protAccession = header.getAccession();
+//			description = header.getDescription(); 
+//			//			Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
+//			//			accession = gi2up.get(protAccession);
+//			if (accession == null) {
+//				// revert to GI number
+//				accession = protAccession;
+//			}
+//		}
+//		else if(protAccession.startsWith("generic")) {
+//			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
+//			header = Header.parseFromFASTA(composedHeader);
+//			accession = header.getAccession();
+//			description = header.getDescription(); 
+//		}
+//
+//		// If not UNIPROT or NCBI Header.parseFromFASTA(composedHeader) may fail.... hence set new accessions.
+//		if ((accession == null) || description == null) {
+//			ProteinMap proteinMap2 = proteinMap;
+//			String[] split = protAccession.split("[|]");
+//			accession = split[1].trim();
+//			// changed from 0 to 1
+//			description = proteinMap.getProteinDescription(protAccession);
+//			//TODO MAYBE here an Mistake with other accession rules 
+//		}
+//		// Check whether protein is already in database		
+//		// this old implementation created a hashmap which led to memory issues
+//		//HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
+//		//Long proteinID = proteinIdMap.get(accession);		
+//		// this new implementation just gets the proteinID if the accession is already in the database		
+//		PreparedStatement prs = conn.prepareStatement("select * from protein " + 
+//				"where protein.accession = ?");
+//		prs.setString(1, accession);
+//		ResultSet rs = prs.executeQuery();
+//		Long proteinID = null;
+//		while(rs.next()) {			
+//			ProteinTableAccessor currententry = new ProteinTableAccessor(rs);
+//			if (currententry.getAccession() == accession) {				
+//				proteinID = currententry.getProteinid();
+//			}
+//		}
+//		rs.close();
+//		prs.close();
+//		// Protein is not in database, create new one
+//		if (proteinID == null) {
+//			// Try to fetch sequence
+//			String sequence = ""; // Sequence is normally empty because the dat file do not contain a sequence
+//			if (fastaLoader != null) {
+//				@SuppressWarnings("static-access")
+//				Protein fastaProt = fastaLoader.getProteinFromFasta(accession);
+//				// this does nothing here, so removed
+//				//TObjectLongMap<String> indexMap = fastaLoader.getInstance().getIndexMap();
+//				sequence = fastaProt.getSequence().getSequence();
+//			}
+//
+//			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
+//			proteinID = (Long) protAccessor.getGeneratedKeys()[0];
+//			// Mark protein for UniProt lookup
+//			uniProtCandidates.add(accession);
+//		} else {
+//			// Protein is already stored in database, re-use existing ID
+//			Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
+//			// If protein is missing a sequence or a UniProt entry mark it for UniProt lookup later on
+//			if (upe == null) {
+//				uniProtCandidates.add(accession);
+//			}
+//		}
+//		storedProt = new StoredProtein(proteinHit.getAccession(), proteinID);
+//		return storedProt;
+//	}
 
 	/**
 	 * This method puts a MascotHit entry to the database.

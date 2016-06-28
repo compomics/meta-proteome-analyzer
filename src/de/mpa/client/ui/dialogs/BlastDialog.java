@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -134,13 +135,14 @@ public class BlastDialog extends JDialog {
 		@Override
 		protected Object doInBackground() throws Exception {
 			// find all proteins in the database and pass them to BLAST
-			Map<String, Long> protMap = ProteinAccessor.findAllProteins(Client.getInstance().getConnection());
-			Set<Long> proteins = new HashSet<Long>();
-			for (long id : protMap.values()) {
-				proteins.add(id);
-			}
+			List<ProteinAccessor> proteins = ProteinAccessor.findAllProteinAccessors(Client.getInstance().getConnection());
 			UniProtUtilities uniprotweb = new UniProtUtilities();
-			uniprotweb.blast(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);			
+			// filter list to proteins for blast
+			List<ProteinAccessor> blast_list = uniprotweb.find_proteins_for_blast(proteins);
+			// do blast from proteinlist
+			Map<String, List<Long>> new_proteins = uniprotweb.perform_blast(blast_list, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()));
+			// make uniprotentries from proteinlist
+			uniprotweb.make_uniprot_entries(new_proteins);
 			return null;
 		}
 		

@@ -71,8 +71,8 @@ public class ProteinTableUpdaterTest {
 		
 		System.out.println("Retrieving UniProt entries...");
 		if (!accessions.isEmpty()) {
-			UniProtUtilities uniprotweb = new UniProtUtilities();
-			proteinDataMap = uniprotweb.getUniProtData(accessions);	
+//			UniProtUtilities uniprotweb = new UniProtUtilities();
+//			proteinDataMap = uniprotweb.getUniProtData(accessions);	
 		}
 		
 		for (String acc : accessions) {
@@ -187,8 +187,8 @@ public class ProteinTableUpdaterTest {
 		
 		System.out.println("Retrieving " + accessions.size() + " UniProt entries...");
 		if (!accessions.isEmpty()) {
-			UniProtUtilities uniprotweb = new UniProtUtilities();
-			proteinDataMap = uniprotweb.getUniProtData(accessions);			
+//			UniProtUtilities uniprotweb = new UniProtUtilities();
+//			proteinDataMap = uniprotweb.getUniProtData(accessions);			
 		}
 		
 		for (String acc : accessions) {

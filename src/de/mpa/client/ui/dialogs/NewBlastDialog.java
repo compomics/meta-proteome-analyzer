@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -155,7 +156,7 @@ public class NewBlastDialog extends JDialog {
 		protected Object doInBackground() throws Exception {
 			
 			// gather all proteins from the experiment
-			Set<Long> proteins = new HashSet<Long>();
+			List<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
 			List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(experiment.getID(), conn);
 			List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(experiment.getID(), conn);
 			List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(experiment.getID(), conn);
@@ -165,10 +166,15 @@ public class NewBlastDialog extends JDialog {
 			hits.addAll(omssaHits);
 			for (SearchHit hit : hits) {
 				ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
-				proteins.add(aProt.getProteinid());
+				proteins.add(aProt);
 			}
 			UniProtUtilities uniprotweb = new UniProtUtilities();
-			uniprotweb.blast(proteins, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), true);
+			// filter list to proteins for blast
+			List<ProteinAccessor> blast_list = uniprotweb.find_proteins_for_blast(proteins);
+			// do blast from proteinlist
+			Map<String, List<Long>> new_proteins = uniprotweb.perform_blast(blast_list, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()));
+			// make uniprotentries from proteinlist
+			uniprotweb.make_uniprot_entries(new_proteins);
 			return null;
 		}
 		

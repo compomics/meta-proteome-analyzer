@@ -33,7 +33,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	}
 	   
 	/**
-	 * This method will find all proteins.
+	 * This method will find all proteins and return a map.
 	 *
 	 * @param aConn Connection to read the spectrum File from.
 	 * @return ProteinAccessor with the data.
@@ -41,7 +41,9 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 */
 	public static Map<String, Long> findAllProteins(Connection aConn) throws SQLException {
 		Map<String, Long> accession2IdMap = new TreeMap<String, Long>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+		// SELECT * is terrible for performance, replaced with specific query		
+		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+		PreparedStatement ps = aConn.prepareStatement("SELECT pr.proteinid, pr.accession FROM protein pr");
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			accession2IdMap.put(rs.getString("accession"), rs.getLong("proteinid"));
@@ -49,6 +51,28 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		rs.close();
 		ps.close();
 		return accession2IdMap;
+	}
+	
+	/**
+	 * This method will find all proteins and return proteinaccessors.
+	 *
+	 * @param aConn Connection to read the spectrum File from.
+	 * @return ProteinAccessor-List
+	 * @throws SQLException when the retrieval did not succeed.
+	 */
+	public static List<ProteinAccessor> findAllProteinAccessors(Connection aConn) throws SQLException {
+		List<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
+		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+		// this is likely to crash if we have too many proteins ...
+		PreparedStatement ps = aConn.prepareStatement("SELECT * FROM protein pr");
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			ProteinAccessor new_protein = new ProteinAccessor(rs);
+			proteins.add(new_protein);
+		}		
+		rs.close();
+		ps.close();
+		return proteins;
 	}
 	
 	/**

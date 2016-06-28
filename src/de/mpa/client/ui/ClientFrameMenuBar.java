@@ -7,8 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -37,6 +39,7 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.db.DBDumper;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.Uniprotentry.RepairEntry;
 
 /**
  * The main application frame's menu bar.
@@ -286,7 +289,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		// fill in information for UniProt 100 90 50 etc. References
 		JMenuItem updateUniProtItem = new JMenuItem();
-		updateUniProtItem.setText("Update UniRef's");
+		updateUniProtItem.setText("Repair UniProt-Entries");
 		updateUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
 		updateUniProtItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -294,7 +297,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 					@Override
 					protected Object doInBackground() throws SQLException {
 						UniProtUtilities uniprot =  new UniProtUtilities();
-						uniprot.repairUniRefs();
+						// this method checks all uniprotentries and looks if there is something missing						
+						List<RepairEntry> uniprots_for_repair = uniprot.find_incomplete_uniprotentries();
+						System.out.println("list: "+uniprots_for_repair.size());
+						// this method will try to fill up missing stuff
+						uniprot.repair_uniprotentries(uniprots_for_repair);
 						return null;
 					}
 				}.execute();
@@ -309,14 +316,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws SQLException  {
-						// find all proteins in the database and pass them on
-						Map<String, Long> protMap = ProteinAccessor.findAllProteins(Client.getInstance().getConnection());
-						Set<Long> proteins = new HashSet<Long>();
-						for (long id : protMap.values()) {
-							proteins.add(id);
-						}
 						UniProtUtilities uniprotweb = new UniProtUtilities();
-						uniprotweb.blast(proteins, null, null, 0, false);
+						// find all proteins in the database and pass them to BLAST
+						Map<String, Long> proteins = ProteinAccessor.findAllProteins(Client.getInstance().getConnection());
+						// filter list to proteins for uniprot-retrueval
+						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
+						// make uniprotentries from proteinlist
+						uniprotweb.make_uniprot_entries(update_protein_map);
 						return null;
 					}	
 				}.execute();

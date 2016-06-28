@@ -24,13 +24,13 @@ public class LinkUniProtToProteinTest {
 	@Test 
 	@Ignore
 	public void testUpdateUniProtEntries() throws SQLException {
-		UniProtUtilities uniprotweb = new UniProtUtilities();
-		uniprotweb.repairUniRefs();
+//		UniProtUtilities uniprotweb = new UniProtUtilities();
+//		uniprotweb.repairUniRefs();
 	}
 	
 	@Test
 	public void testRetrieveProteinsWithoutUniProtEntries() throws SQLException {
-		UniProtUtilities uniprotweb = new UniProtUtilities();
-		uniprotweb.repairUniRefs();
+//		UniProtUtilities uniprotweb = new UniProtUtilities();
+//		uniprotweb.repairUniRefs();
 	}
 }

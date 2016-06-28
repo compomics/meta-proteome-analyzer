@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +16,11 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import de.mpa.client.Client;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Uniprotentry;
+import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.util.Formatter;
 
 public class ProteinDataRetrievalTest {
@@ -31,19 +34,21 @@ public class ProteinDataRetrievalTest {
 	
 	@Test
 	public void testUpdateSingleUniprotEntry() throws SQLException {
-	    ProteinAccessor proteinAccessor = ProteinAccessor.findFromAttributes("A0AJX1", conn);
+	    ProteinAccessor proteinAccessor = ProteinAccessor.findFromAttributes("Q9C4Z4", conn);
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
 		// Retrieve the UniProt entries.
-		List<String> accessions = new ArrayList<String>();
+		Map<String, Long> accessions = new TreeMap<String, Long>();
 		String accession = proteinAccessor.getAccession();
+		Long protid = proteinAccessor.getProteinid(); 
 		// UniProt accession
 		if (accession.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
-			accessions.add(accession);		
+			accessions.put(accession, protid);		
 		}
 		if (!accessions.isEmpty()) {
 			UniProtUtilities uniprotweb = new UniProtUtilities();
-			proteinDataMap = uniprotweb.getUniProtData(accessions);		
+			Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(accessions);
+			uniprotweb.make_uniprot_entries(update_protein_map);
 		}
 		
 		Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();

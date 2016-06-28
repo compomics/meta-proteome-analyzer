@@ -59,19 +59,20 @@ public class RunMultiBlast {
 		File fastaFile = File.createTempFile("blast_input", ".fasta");
 		File outputFile = File.createTempFile("blast_output", ".out");
 		
+		int count = 0;
 		// Create a temporary FASTA-File to serve as input for the BLAST
-		BufferedWriter writer = new BufferedWriter(new FileWriter(fastaFile));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(fastaFile));		
 		for (DbEntry dbEntry : queryList) {
+			count++;
 			// write the identifier
 			writer.write(">" + dbEntry.getIdentifier());
 			writer.newLine();
 			// add the sequence
-			writer.write(dbEntry.getSequence());
+			writer.write(dbEntry.getSequence());			
 			writer.newLine();
 		}
 		writer.flush();
 		writer.close();
-		
 		// Construct BLAST query
 		ArrayList<String> blastQuery = new ArrayList<String>();
 		blastQuery.add(blastFile);
@@ -116,7 +117,6 @@ public class RunMultiBlast {
 		// parse line by line
 		while ((line = reader.readLine()) != null) {
 			// TODO: here add a different parsing rule to accommodate commas in the description			
-			System.out.println("Line: " + line);
 			// added a limit of 5?? splits, this should leave all commas in the description alone
 		    String[] splits = line.split(",", 5);
 		    String query = splits[0];
@@ -129,7 +129,6 @@ public class RunMultiBlast {
 		    // get description from subject title
 		    String[] titlesplit = splits[4].split("[ ]", 2);
 		    String title =titlesplit[1];
-		    System.out.println(query + " " + subject + " " + bitscore + " " + evalue + " " + title);
 		    // make or get the result object
 		    BlastResult result;
 		    if (blastResultMap.keySet().contains(query)) { 
