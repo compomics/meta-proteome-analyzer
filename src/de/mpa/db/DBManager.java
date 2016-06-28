@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -157,94 +158,28 @@ public class DBManager {
 	 * @throws SQLException
 	 */
 	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
-		Map<String, ReducedProteinData> proteinDataMap = null;		
 		// Retrieve the UniProt entries.
 		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
 		Set<String> keySet = proteinHits.keySet();
-		List<String> accessions = new ArrayList<String>();
+		Map<String, List<Long>> accessionMap = new TreeMap<String, List<Long>>();
 		for (String string : keySet) {
-			// UniProt accession
-			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(proteinHits.get(string), conn);
-			if (uniprotentry == null) {
+			// check if uniprotentry exists
+			if (Uniprotentry.check_if_exists_from_proteinID(proteinHits.get(string), conn)) {
 				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
-					accessions.add(string);
+					if (accessionMap.containsKey(string)) {
+						accessionMap.get(string).add(proteinHits.get(string));
+					} else {
+						List<Long> prot_id_list = new ArrayList<Long>();
+						accessionMap.put(string, prot_id_list);
+					}
 				}
 			}
 		}
-		if (accessions.size() > 0) {
+		if (accessionMap.keySet().size() > 0) {
 			// instantiate UniProtUtilites class			
 			UniProtUtilities uniprotweb = new UniProtUtilities();
-			proteinDataMap = uniprotweb.getUniProtData(accessions);	
-			Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
-			int counter = 0;
-			for (Entry<String, ReducedProteinData> e : entrySet) {
-				ReducedProteinData proteinData = e.getValue();
-				if (proteinData != null && proteinData.getUniProtEntry() != null) {
-					UniProtEntry uniProtEntry = proteinData.getUniProtEntry();
-					// Get the corresponding protein accessor.
-					long proteinid = 0L;
-					// Check for secondary protein accessions.
-					if (proteinHits.get(e.getKey()) == null) {
-						List<SecondaryUniProtAccession> secondaryUniProtAccessions = uniProtEntry.getSecondaryUniProtAccessions();
-						for (SecondaryUniProtAccession acc : secondaryUniProtAccessions) {
-							if (proteinHits.get(acc.getValue()) != null) {
-								proteinid = proteinHits.get(acc.getValue());
-							}
-						}
-					} else {
-						proteinid = proteinHits.get(e.getKey());
-					}
-					// Get taxonomy id
-					Long taxID = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
-					// Get EC Numbers.
-					String ecNumbers = "";
-					List<String> ecNumberList = uniProtEntry.getProteinDescription().getEcNumbers();
-					if (ecNumberList.size() > 0) {
-						for (String ecNumber : ecNumberList) {
-							ecNumbers += ecNumber + ";";
-						}
-						ecNumbers = Formatter.removeLastChar(ecNumbers);
-					}
-
-					// Get ontology keywords.
-					String keywords = "";
-					List<Keyword> keywordsList = uniProtEntry.getKeywords();
-
-					if (keywordsList.size() > 0) {
-						for (Keyword kw : keywordsList) {
-							keywords += kw.getValue() + ";";
-						}
-						keywords = Formatter.removeLastChar(keywords);
-					}
-
-					// Get KO numbers.
-					String koNumbers = "";
-					List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
-					if (xRefs.size() > 0) {
-						for (DatabaseCrossReference xRef : xRefs) {
-							koNumbers += xRef.getPrimaryId().getValue() + ";";
-						}
-						koNumbers = Formatter.removeLastChar(koNumbers);
-					}
-					
-					
-					
-					String uniref100 = proteinData.getUniRef100EntryId();
-					String uniref90 = proteinData.getUniRef90EntryId();
-					String uniref50 = proteinData.getUniRef50EntryId();
-					Uniprotentry.addUniProtEntryWithProteinID(
-							(Long) proteinid, taxID, ecNumbers, koNumbers, keywords,
-							uniref100, uniref90, uniref50, conn);
-					
-					counter++;
-
-					if (counter % 500 == 0) {
-						conn.commit();
-					}
-				}
-			}
-			// Final commit and clearing of map.
-			conn.commit();
+			uniprotweb.make_uniprot_entries(accessionMap);
+			// clearing of map.
 			MapContainer.UniprotQueryProteins.clear();
 		}
 	}
