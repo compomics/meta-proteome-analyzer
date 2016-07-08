@@ -77,7 +77,6 @@ public class SelectExperimentDialog extends JDialog{
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO Robbies update task
 				int[] selectedRows = expTbl.getSelectedRows();
 				for (int i : selectedRows) {
 					Long expName = (Long)expTbl.getValueAt(i, 0);
@@ -95,6 +94,7 @@ public class SelectExperimentDialog extends JDialog{
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				expList.clear();
 				close();
 			}
 		});

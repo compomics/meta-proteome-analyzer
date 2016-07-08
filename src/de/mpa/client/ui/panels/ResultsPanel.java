@@ -405,9 +405,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// Get selected experiments
-				LinkedList<Long> expList = SelectExperimentDialog.showDialog(ClientFrame.getInstance(), "Select experiments");
+				LinkedList<Long> expList = new LinkedList<Long>();
+				expList = SelectExperimentDialog.showDialog(ClientFrame.getInstance(), "Select experiments");
 				// Fetches experiments
-				if (expList != null || expList.size()>0) {
+				if (!(expList.isEmpty())) {
 					new FetchResultsTask(expList).execute();
 				}
 			}
@@ -998,12 +999,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 			 * Instance of the client
 			 */
 			Client client = Client.getInstance();
-			
+
 			/**
 			 * The new result object.
 			 */
 			DbSearchResult newResult = null;
-			
+
 			try {
 				// Begin appearing busy
 				ResultsPanel.this.setBusy(true);
@@ -1013,14 +1014,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Fetch the search result object
 				if (experimentList == null || experimentList.size() < 1) {
 					// No experiment list selected
-					 newResult = client.getDatabaseSearchResult();
+					newResult = client.getDatabaseSearchResult();
 				} else {
 					// Fetch all experiments from the list
 					// FIXME processing multiple experiments may result in metaproteins not being formed
 					//		 in that case rerun the processing and it should work
 					newResult = client.getMultipleSearchResults(experimentList);
 				}
-			
+
 				if (newResult != null) {
 					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
 						// Update result object reference

@@ -116,7 +116,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		expTbl.setAutoResizeMode(JXTable.AUTO_RESIZE_LAST_COLUMN);
 		JScrollPane expTblSp = new JScrollPane(expTbl);		
 		selectExperimentsDlgPnl.add(expTblSp, CC.xyw(2,  2,7));
-		expTbl.setPreferredSize(new Dimension(400,400));
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
@@ -125,7 +124,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO Robbies update task
 				int[] selectedRows = expTbl.getSelectedRows();
 				for (int i : selectedRows) {
 					Long expName = (Long)expTbl.getValueAt(i, 0);
@@ -140,11 +138,9 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				System.out.println("SETTINGS TAXONOMY RULE: " + taxonomyRule.name());
 				Object value = metaParams.get("FDR").getValue();
 				System.out.println("SETTINGS FDR: " +  value);
-				//okBtn.setEnabled(false);
 					try {
 						fetchAndExport();
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				close();
@@ -162,7 +158,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				close();
 			}
 		});
-	
 
 		// create button-in-button component for advanced result fetching settings
 		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
@@ -179,8 +174,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 						"Result Fetching settings",
 						true, metaParams) == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
 				}
-				
-				
 			}
 		});
 		
@@ -202,7 +195,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		this.pack();
 		this.setResizable(true);		
 		ScreenConfig.centerInScreen(this);
-
 		// Show dialog
 		this.setVisible(true);
 	}
