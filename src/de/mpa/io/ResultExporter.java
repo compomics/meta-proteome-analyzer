@@ -131,12 +131,18 @@ public class ResultExporter {
 			String uniref50 = "UNKNOWN";
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef100id() != null) {
 				uniref100 = metaProtein.getUniProtEntry().getUniRef100id();
+			}else{
+				uniref100= "unknown";	
 			}
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef90id() != null) {
 				uniref90 = metaProtein.getUniProtEntry().getUniRef90id();
+			}else{
+				uniref90 = "unknown";
 			}
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRef50id() != null) {
 				uniref50 = metaProtein.getUniProtEntry().getUniRef50id();
+			}else{
+				uniref50 = "unknown";
 			}
 			if (hasFeature[12]) writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[13]) writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
@@ -155,12 +161,14 @@ public class ResultExporter {
 			if (hasFeature[15]) writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
 			// Get ECs
 			String ECs = "";
-			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcNumbers() != null) {
+			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcNumbers() != null && (!metaProtein.getUniProtEntry().getEcNumbers().isEmpty())) {
 				List<String> ECNumbers = metaProtein.getUniProtEntry().getEcNumbers();
 				for (String ec : ECNumbers) {
 					
 					ECs += ec.replace(";", "") + "|";
 				}
+			}else{
+				ECs = "UNKNOWN";
 			}
 			if (hasFeature[8]) writer.append(ECs + Constants.TSV_FILE_SEPARATOR);
 			

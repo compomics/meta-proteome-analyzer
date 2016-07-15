@@ -353,8 +353,8 @@ public class MetaproteinExportDialog extends JDialog  {
 			
 			// Export Ontologies 
 			BufferedWriter ontoWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Onto_BiolFunction_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
-			for (Entry<String, Set<SpectrumMatch>> taxEntry : biolFuncMap.entrySet()) {
-				ontoWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
+			for (Entry<String, Set<SpectrumMatch>> ontoEntry : biolFuncMap.entrySet()) {
+				ontoWriter.write(ontoEntry.getKey() + Constants.TSV_FILE_SEPARATOR + ontoEntry.getValue().size());
 				ontoWriter.newLine();
 				ontoWriter.flush();
 			}
