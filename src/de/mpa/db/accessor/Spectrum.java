@@ -134,4 +134,15 @@ public class Spectrum extends SpectrumTableAccessor {
         return MapContainer.SpectrumTitle2IdMap.get(formatted);
     }
 
+	public static String getSpectrumTitleFromID(Long spectrumid, Connection conn) throws SQLException {
+		String spectitle = "";
+        PreparedStatement ps = conn.prepareStatement("SELECT title FROM spectrum WHERE spectrumid = ?");
+        ps.setLong(1, spectrumid);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+        	spectitle = rs.getString("title");
+        }
+		return spectitle;
+	}
+
 }

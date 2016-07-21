@@ -122,7 +122,7 @@ public class ClientFrame extends JFrame {
 	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance() {
-		return getInstance(false, false);
+		return getInstance(false, false, false);
 	}
 	
 	/**
@@ -130,9 +130,9 @@ public class ClientFrame extends JFrame {
 	 * @param viewerMode flag indicating whether the client is running in viewer mode.
 	 * @return the client frame's singleton instance.
 	 */
-	public static ClientFrame getInstance(boolean viewerMode, boolean debug) {
+	public static ClientFrame getInstance(boolean viewerMode, boolean debug, boolean fast_results) {
 		if (frame == null) {
-			frame = new ClientFrame(viewerMode, debug);
+			frame = new ClientFrame(viewerMode, debug, fast_results);
 		}
 		return frame;
 	}
@@ -142,10 +142,10 @@ public class ClientFrame extends JFrame {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private ClientFrame(boolean viewer, boolean debug) {
+	private ClientFrame(boolean viewer, boolean debug, boolean fast_results) {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
-		Client.init(viewer, debug);
+		Client.init(viewer, debug, fast_results);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				Client.exit();

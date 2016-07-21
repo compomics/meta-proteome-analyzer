@@ -2149,31 +2149,33 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				// Values for construction of highlighter
 				int protCount = 0, maxPeptideCount = 0, maxSpecCount = 0;
 				double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
-		
 				/* Build tree table trees from (meta-)proteins */
 				// Iterate meta-proteins
 				for (ProteinHit metaProtein : metaProteins) {
 					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
 					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHitList();
 					for (ProteinHit proteinHit : proteinHits) {						
-		
-						// XXX: PUT IN COMMENTS IN ORDER TO SPEED THINGS UP
 						// Calculate NSAF
-						double nsaf = proteinHit.getNSAF();
-						if (nsaf < 0.0) {
-							// Calculate NSAF
-							nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(),	proteinHit);
-							proteinHit.setNSAF(nsaf);
-						}
-		
 						// Determine maximum values for visualization later on
-						maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
+						double nsaf = proteinHit.getNSAF();
 						maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
 						maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
-						max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
-						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
-						maxNSAF = Math.max(maxNSAF, nsaf);
-						
+						if (!(Client.getInstance().isfast_results())) {
+							maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
+							max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
+							min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
+							maxNSAF = Math.max(maxNSAF, nsaf);
+							if (nsaf < 0.0) {
+								// Calculate NSAF
+								nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(),	proteinHit);
+								proteinHit.setNSAF(nsaf);
+							}
+						} else {
+							if (nsaf < 0.0) {
+								proteinHit.setNSAF(1.0);
+							}
+						}
+						// XXX END OF CHANGES
 						// Wrap protein data in table node clones and insert them into the relevant trees
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim());
 						

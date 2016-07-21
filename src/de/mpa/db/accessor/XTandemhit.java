@@ -40,6 +40,24 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
     }
     
     /**
+     * This constructor works faster by reducing the included data
+     *
+     * @param aRS ResultSet to read the data from.
+     * @throws SQLException when reading the ResultSet failed.
+     */
+    public XTandemhit(ResultSet aRS, boolean flag) throws SQLException {    	
+    	if (flag) {
+			this.iXtandemhitid = (Long) aRS.getLong("xtandemhit.xtandemhitid");
+			this.iFk_searchspectrumid = (Long) aRS.getLong("xtandemhit.fk_searchspectrumid");
+			this.iFk_peptideid = (Long) aRS.getLong("xtandemhit.fk_peptideid");
+			this.iFk_proteinid = (Long) aRS.getLong("xtandemhit.fk_proteinid");
+			this.sequence = (String) aRS.getObject("peptide.sequence");
+	    	this.accession = (String) aRS.getObject("protein.accession");
+	    	this.iQvalue = (Number) aRS.getObject("xtandemhit.qvalue");
+    	}
+	}
+
+	/**
      * This method will find the hits from the current connection, based on the specified spectrumid.
      *
      * @param aSpectrumID long with the spectrumid of the spectrum file to find.

@@ -128,12 +128,26 @@ public class Client {
 	private GraphDatabaseHandler graphDatabaseHandler;
 
 	private RequestThread requestThread;
+	
+	/**
+	 *  if flag is set false, calculations of empai/nsaf/coverage are omitted during FetchResults
+	 */
+	private boolean fast_results = true;
+	
+
+	public boolean isfast_results() {
+		return fast_results;
+	}
+
+	public void setfast_results(boolean nsaf_empai_coverage_flag) {
+		this.fast_results = nsaf_empai_coverage_flag;
+	}
 
 	/**
 	 * Creates the singleton client instance in non-viewer, non-debug mode.
 	 */
 	private Client() {
-		this(false, false);
+		this(false, false, false);
 	}
 	
 	/**
@@ -141,9 +155,10 @@ public class Client {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private Client(boolean viewer, boolean debug) {
+	private Client(boolean viewer, boolean debug, boolean fast) {
 		this.viewer = viewer;
 		this.debug = debug;
+		this.fast_results = fast;
 		this.pSupport = new PropertyChangeSupport(this);
 	}
 	
@@ -160,9 +175,9 @@ public class Client {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	public static void init(boolean viewer, boolean debug) {
+	public static void init(boolean viewer, boolean debug, boolean fast_results) {
 		if (instance == null) {
-			instance = new Client(viewer, debug);
+			instance = new Client(viewer, debug, fast_results);
 		}
 	}
 

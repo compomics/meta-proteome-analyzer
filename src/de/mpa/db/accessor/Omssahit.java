@@ -29,6 +29,25 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
         this.accession = (String) aRS.getObject("accession");
     }
     
+    /**
+     * This constructor works faster by reducing the included data
+     *
+     * @param aRS ResultSet to read the data from.
+     * @throws SQLException when reading the ResultSet failed.
+     */
+    public Omssahit(ResultSet aRS, boolean flag) throws SQLException {
+    	if (flag) {
+    		this.iOmssahitid = (Long) aRS.getLong("omssahit.omssahitid");
+    		this.iFk_searchspectrumid = (Long) aRS.getLong("omssahit.fk_searchspectrumid");
+    		this.iFk_peptideid = (Long) aRS.getLong("omssahit.fk_peptideid");
+    		this.iFk_proteinid = (Long) aRS.getLong("omssahit.fk_proteinid");
+    		this.iCharge = (Long) aRS.getLong("omssahit.charge");
+    		this.sequence = (String) aRS.getObject("peptide.sequence");
+        	this.accession = (String) aRS.getObject("protein.accession");
+        	this.iQvalue = (Number ) aRS.getObject("omssahit.qvalue");
+    	}
+    }
+    
 	/**
      * This method will find the hits from the current connection, based on the specified spectrumid.
      *

@@ -46,6 +46,26 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
         this.accession = (String) aRS.getObject("accession");
     }
     
+    /**
+     * This constructor works faster by reducing the included data
+     *
+     * @param aRS ResultSet to read the data from.
+     * @throws SQLException when reading the ResultSet failed.
+     */
+    public Mascothit(ResultSet aRS, boolean flag) throws SQLException {
+    	if (flag) {
+    		this.iMascothitid = (Long) aRS.getLong("mascothit.mascothitid");
+    		this.iFk_searchspectrumid = (Long) aRS.getLong("mascothit.fk_searchspectrumid");
+    		this.iFk_peptideid = (Long) aRS.getLong("mascothit.fk_peptideid");
+    		this.iFk_proteinid = (Long) aRS.getLong("mascothit.fk_proteinid");
+    		this.iCharge = (Long) aRS.getLong("mascothit.charge");
+    		this.iIonscore = (Number) aRS.getObject("mascothit.ionscore");
+    		this.sequence = (String) aRS.getObject("peptide.sequence");
+        	this.accession = (String) aRS.getObject("protein.accession");
+    	}
+    }
+
+    
 	public Mascothit(HashMap<Object, Object> hitdata) {
 		super(hitdata);  
 	}

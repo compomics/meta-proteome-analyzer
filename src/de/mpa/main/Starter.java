@@ -48,7 +48,14 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = true;
+	private static boolean jarExport = false;
+
+	/**
+	 * Flag denoting whether results should be loaded including nsaf and empai calculation.
+	 * This greatly improves loading times
+	 */
+	private static boolean fast_results = true;
+	
 	
 	/**
 	 * The logger instance.
@@ -190,7 +197,7 @@ public class Starter {
 								}  
 							}
 						}
-						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode);
+						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode, fast_results);
 						clientFrame.toFront();
 						
 					} catch (Exception e) {
