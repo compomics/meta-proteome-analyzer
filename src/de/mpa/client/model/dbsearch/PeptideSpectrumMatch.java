@@ -128,6 +128,10 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	
 	@Override
 	public boolean isVisible() {
+		// If null initialize a new empty list
+		if (visSearchHits == null) {
+			visSearchHits = this.getSearchHits();
+		}
 		return !this.visSearchHits.isEmpty();
 	}
 

@@ -303,9 +303,13 @@ public class MascotStorager extends BasicStorager {
 											// TODO: handle malformed accessions
 											String[] accession_split = prot_substring.split("\"");
 											// we might need to go one level deeper before adding the accession (we do here)
-
 											String[] accession = accession_split[1].split("[|]");
-											proteinlist.add(accession[1]);
+											if (accession.length>1) {
+												proteinlist.add(accession[1]);
+											} else {
+												proteinlist.add(accession_split[1]);
+											}
+											
 										}
 										// lastly we put it all into the map
 										MascotPeptideHit pep_hit = new MascotPeptideHit(pepsequence, pepscore, proteinlist, deltamass, evalue);

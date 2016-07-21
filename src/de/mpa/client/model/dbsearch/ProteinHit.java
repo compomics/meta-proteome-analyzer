@@ -462,7 +462,11 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		Set<Long> matches = new HashSet<Long>();
 		for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
 			for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
-				matches.add(match.getSearchSpectrumID());
+				
+				// TODO 
+				if (match.isVisible()) {
+					matches.add(match.getSearchSpectrumID());
+				}
 			}
 		}
 		return matches;
