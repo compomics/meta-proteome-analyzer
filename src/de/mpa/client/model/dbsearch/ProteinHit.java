@@ -319,17 +319,19 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the spectral count
 	 */
 	public int getSpectralCount() {
-		if (specCount < 0) {
 			Set<Long> matches = new HashSet<Long>();
 			// Iterate the found peptide results
 			for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
+				
 				// Store the spectrum matches
 				for (SpectrumMatch match : entry.getValue().getSpectrumMatches()) {
-					matches.add(match.getSearchSpectrumID());
+					if (match.isVisible()) {
+						matches.add(match.getSearchSpectrumID());
+					}
+					
 				}
 			}
 			this.specCount = matches.size();
-		}
 		return specCount;
 	}
 

@@ -68,6 +68,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return the search hit or <code>null</code> if no such hit exists
 	 */
 	public SearchHit getSearchHit(SearchEngineType type) {
+		
 		return searchHits.get(type);
 	}
 	
