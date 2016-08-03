@@ -1,6 +1,7 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +94,21 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the peptide hit set
 	 */
 	public Set<PeptideHit> getPeptideSet() {
-		return getProteinHitList().getPeptideSet();
+
+		// Define new peptide set
+		Set<PeptideHit> outSet = new HashSet<PeptideHit>();
+		
+		// Check all peptides whether they are visible (FDR alright or not) 
+		for (PeptideHit pep : getProteinHitList().getPeptideSet()) {
+			List<SpectrumMatch> matches = pep.getSpectrumMatches();
+			for (SpectrumMatch match : matches) {
+				if (match.isVisible()) {
+					outSet.add(pep);
+					break;
+				}
+			}
+		}
+	return outSet;
 	}
 
 	/**
