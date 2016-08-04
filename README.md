@@ -10,7 +10,7 @@
 ---
 
 ## MetaProteomeAnalyzer Publication:
-  * [Muth at al: J Proteome Res. 2015 Mar 6;14(3):1557-65.](http://www.ncbi.nlm.nih.gov/pubmed/25660940).
+  * [Muth _et al._: J Proteome Res. 2015 Mar 6;14(3):1557-65.](http://www.ncbi.nlm.nih.gov/pubmed/25660940).
   * If you use MetaProteomeAnalyzer as part of a publication, please include this reference.
 
 ---
@@ -23,14 +23,13 @@
 
 ## Introduction ##
 
-**MetaProteomeAnalyzer** (MPA) is a software pipeline to analyze and visualize metaproteomics (and also proteomics) data. It consists of a MS/MS data processing application in combination with an user-friendly interactive client. 
-The metaproteomics data analysis software is developed in the Java programming language and uses a neo4j graph database backend for flexible and user-defined data querying of the results.
+**MetaProteomeAnalyzer** (MPA) is a software pipeline which has been developed for analyzing and visualizing metaproteomics (and also proteomics) data. The tool presents a MS/MS data processing application for protein identification in combination with an user-friendly interactive client. The metaproteomics data analysis software is developed in the Java programming language and uses a neo4j graph database backend for flexible and user-defined data querying of the results.
 
 ---
 
 ## MPA Portable ##
 
-**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines X!Tandem and OMSSA and takes MGF spectrum files as input. User-provided FASTA databases (preferably UniProtKB) are formatted automatically.
+**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines X!Tandem and OMSSA and takes MGF spectrum files as input. User-provided FASTA databases (preferably downloaded from UniProtKB) are formatted automatically.
 *Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page).
 
 ---
@@ -39,22 +38,22 @@ The metaproteomics data analysis software is developed in the Java programming l
 
 The MPA metaproteomics software comes with the following key features:
   * Intuitive graphical user interface
-  * Project management
-  * Top-down metaproteomics data analysis
-  * In-depth analysis of taxonomies, ontologies, pathways and enzymes
-  * Grouping of redundant protein hits to "meta-proteins" (protein groups)
+  * Project management for MS/MS experiments
+  * Shotgun protomics data analysis tool
+  * Detailed analysis of taxa, ontologies, pathways and enzymes
+  * Grouping of redundant protein hits to so-called "meta-proteins" (protein groups)
   * Label-free quantification methods
-  * Graph database-driven
-  * Interactive overview 
+  * Graph database-driven customized querying of results
+  * Interactive overview for each result set
   * Portable application 
 
 ---
 
 ## System Requirements ##
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7)
-  * **Memory**: The bigger the better (preferably 2 GB at least)
+  * **Memory**: The more memory, the better! (preferably 2 GB at least)
 
-Please download the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.2.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
