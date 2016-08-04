@@ -1,9 +1,8 @@
 # MetaProteomeAnalyzer (MPA) #
 
-  * [Download](#download)
-  * [Introduction](#introduction)
-  * [Software Versions](#software-versions)
-  * [Features](#features)
+  * [Download](#Download.md)
+  * [Introduction](#Introduction.md)
+  * [Features](#Features)
 
 ---
 
@@ -47,3 +46,37 @@ The MPA metaproteomics software comes with the following key features:
   * Portable application 
 
 ---
+
+[Go to top of page](#General_Information.md)
+
+---
+
+## System Requirements ##
+  * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7)
+  * **Memory**: The bigger the better (preferably 2 GB at least)
+
+Please download the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+
+Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
+```
+java –version
+```
+
+If you haven't installed Java 1.8, go directly to
+[Java.com](http://www.java.com/download/) to download this Java version.
+
+[Go to top of page](#README.md)
+
+---
+
+## Portable Startup ##
+After downloading the zip file, simply unzip the file and use the provided script, i.e. mpa-portable.bat for Windows OS.
+
+You can also double-click on the JAR file, however this will give you no options to change the memory settings (see below).
+
+Another possiblity is to use the commandline directly:
+```
+java -jar mpa-portable-X.Y.Z.jar -XmxXXXXm 
+```
+**Note:** -Xmx\*XXXX\*m stands for maximum assigned memory (in megabytes of RAM)
+
