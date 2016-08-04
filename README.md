@@ -15,7 +15,7 @@
 
 ## Download ##
 
-[[download]](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.2.zip)  *MPA Portable v1.2 - Windows 64-bit* 
+[[download]](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.2.zip)  *MPA Portable version 1.2 - Windows 64-bit - released on July 21, 2016*
 
 ---
 
