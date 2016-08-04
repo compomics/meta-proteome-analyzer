@@ -1,10 +1,11 @@
 # MetaProteomeAnalyzer (MPA) #
 
-  * [Download](#Download.md)
-  * [Introduction](#Introduction.md)
-  * [MPA Portable](#MPA_portable.md)
-  * [Features](#Features)
-  * [System Requirements](#System_requirements.md)
+  * [Download](#download)
+  * [Introduction](#introduction)
+  * [MPA Portable](#mpa-portable)
+  * [Features](#features)
+  * [System Requirements](#system-requirements)
+  * [MPA Startup](#mpa-startup)
 
 ---
 
