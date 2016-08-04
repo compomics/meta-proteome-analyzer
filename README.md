@@ -2,7 +2,9 @@
 
   * [Download](#Download.md)
   * [Introduction](#Introduction.md)
+  * [MPA Portable](#MPA_portable.md)
   * [Features](#Features)
+  * [System Requirements](#System_requirements.md)
 
 ---
 
@@ -27,8 +29,8 @@ The metaproteomics data analysis software is developed in the Java programming l
 
 ## MPA Portable ##
 
-**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software uses X!Tandem and OMSSA as search engines and takes MGF spectrum files as input. The server application is included within the application and user-provided FASTA databases are formatted automatically.
-*Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use one of the provided batch files.
+**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines X!Tandem and OMSSA and takes MGF spectrum files as input. User-provided FASTA databases (preferably UniProtKB) are formatted automatically.
+*Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page).
 
 ---
 
@@ -47,10 +49,6 @@ The MPA metaproteomics software comes with the following key features:
 
 ---
 
-[Go to top of page](#General_Information.md)
-
----
-
 ## System Requirements ##
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7)
   * **Memory**: The bigger the better (preferably 2 GB at least)
@@ -62,14 +60,12 @@ Before starting the MPA Portable version, please make sure that you have Java 1.
 java –version
 ```
 
-If you haven't installed Java 1.8, go directly to
-[Java.com](http://www.java.com/download/) to download this Java version.
-
-[Go to top of page](#README.md)
+If you haven't installed Java 1.8, please go directly to
+[Java.com](http://www.java.com/download/) to download the latest Java version.
 
 ---
 
-## Portable Startup ##
+## MPA Startup ##
 After downloading the zip file, simply unzip the file and use the provided script, i.e. mpa-portable.bat for Windows OS.
 
 You can also double-click on the JAR file, however this will give you no options to change the memory settings (see below).
@@ -78,5 +74,5 @@ Another possiblity is to use the commandline directly:
 ```
 java -jar mpa-portable-X.Y.Z.jar -XmxXXXXm 
 ```
-**Note:** -Xmx\*XXXX\*m stands for maximum assigned memory (in megabytes of RAM)
+**Note:** -Xmx*XXXX*m stands for maximum assigned memory (in megabytes of RAM)
 
