@@ -112,7 +112,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * The UniProt entry hit object containing additional meta-data.
 	 */
-	private ReducedUniProtEntry uniProtEntry = null;
+	private UniProtEntryMPA uniProtEntry = null;
 	
 	/**
 	 * The common taxonomy node.
@@ -138,7 +138,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param peptideHit the peptide hit
 	 * @param uniprotEntry the UniProtEntry hit
 	 */
-	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, ReducedUniProtEntry uniprotEntry, TaxonomyNode taxonomyNode, long experimentID) {
+	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit, UniProtEntryMPA uniProtEntry, TaxonomyNode taxonomyNode, long experimentID) {
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
@@ -146,10 +146,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		if (peptideHit != null) {
 			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
 		}
-		this.uniProtEntry = uniprotEntry;
 		this.taxonomyNode = taxonomyNode;
 		this.speciesNode = taxonomyNode;
-		
+		this.uniProtEntry = uniProtEntry;
 		this.experimentIDs = new HashSet<Long>();
 		this.experimentIDs.add(experimentID);
 	}
@@ -163,7 +162,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @param peptideHit the peptide hit
 	 */
 	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit) {
-		this(accession, description, sequence, peptideHit, null, null, 0L);
+		this(accession, description, sequence, peptideHit,  null, null, 0L);
 	}
 	
 
@@ -478,7 +477,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Sets an UniProt entry.
 	 * @param uniprotEntry The UniprotentryAccessor object
 	 */
-	public void setUniprotEntry(ReducedUniProtEntry uniprotEntry) {
+	public void setUniprotEntry(UniProtEntryMPA uniprotEntry) {
 		this.uniProtEntry = uniprotEntry;
 	}
 	
@@ -486,7 +485,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * Returns the UniProt entry.
 	 * @return The UniProtEntry object.
 	 */
-	public ReducedUniProtEntry getUniProtEntry() {
+	public UniProtEntryMPA getUniProtEntry() {
 		return uniProtEntry;
 	}
 	
@@ -581,7 +580,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			res.add(node.getName());
 		} else if (type instanceof OntologyChartType) {
 			OntologyChartType ontChartType = (OntologyChartType) type;
-			ReducedUniProtEntry redUniEntry = this.getUniProtEntry();
+			UniProtEntryMPA redUniEntry = this.getUniProtEntry();
 			if (redUniEntry != null) {
 				List<String> keywords = redUniEntry.getKeywords();
 				for (String kw : keywords) {

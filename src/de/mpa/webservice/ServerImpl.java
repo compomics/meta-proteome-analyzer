@@ -33,22 +33,16 @@ import de.mpa.db.job.JobStatus;
 import de.mpa.db.job.SearchType;
 import de.mpa.db.job.ServerProperties;
 import de.mpa.db.job.instances.CommonJob;
-import de.mpa.db.job.instances.CruxJob;
 import de.mpa.db.job.instances.DeleteJob;
-import de.mpa.db.job.instances.InspectJob;
-import de.mpa.db.job.instances.InspectProcessingJob;
 import de.mpa.db.job.instances.OmssaJob;
-import de.mpa.db.job.instances.PercolatorJob;
-import de.mpa.db.job.instances.RenameJob;
 import de.mpa.db.job.instances.StoreJob;
-import de.mpa.db.job.instances.UniProtJob;
 import de.mpa.db.job.instances.XTandemJob;
 import de.mpa.db.job.scoring.OmssaScoreJob;
 import de.mpa.db.job.scoring.XTandemScoreJob;
-import de.mpa.fastadigest.PeptideDigester;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.fasta.FastaLoader;
+import de.mpa.io.fasta.PeptideDigester;
 
 
 //Service Implementation Bean
@@ -210,27 +204,6 @@ public class ServerImpl implements Server {
 			jobManager.addJob(new DeleteJob(omssaJob.getFilename()));
 		}
 		
-		// Crux job
-		if (dbSearchSettings.isCrux()) {
-			Job cruxJob = new CruxJob(file, searchDB, dbSearchSettings.getCruxParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm);
-			jobManager.addJob(cruxJob);
-			Job percolatorJob = new PercolatorJob(file);
-			jobManager.addJob(percolatorJob);
-			String percolatorfile = jobProperties.getProperty("path.crux.output") + file.getName().substring(0, file.getName().length() - 4) + "_percolated.txt";
-			Job renameJob = new RenameJob(jobProperties.getProperty("path.crux.output") + "percolator.target.psms.txt", percolatorfile);
-			jobManager.addJob(renameJob);
-			jobManager.addJob(new StoreJob(SearchEngineType.CRUX, cruxJob.getFilename()));
-		}
-		
-		// InsPecT job
-		if (dbSearchSettings.isInspect()) {
-			Job inspectJob = new InspectJob(file, searchDB, dbSearchSettings.getInspectParams(), precIonTol, isPrecIonTolPpm, fragIonTol);			
-			jobManager.addJob(inspectJob);			
-			Job postProcessorJob = new InspectProcessingJob(file);			
-			jobManager.addJob(postProcessorJob);			
-			jobManager.addJob(new StoreJob(SearchEngineType.INSPECT, postProcessorJob.getFilename()));
-		}		
-		jobManager.addJob(new UniProtJob());
 	}
 
 //	/**

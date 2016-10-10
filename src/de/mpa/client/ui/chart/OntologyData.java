@@ -24,6 +24,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 
 /**
@@ -140,7 +141,7 @@ public class OntologyData implements ChartData {
 			for (ProteinHit proteinHit : metaProtein.getProteinHitList()) {
 				if (proteinHit.isSelected()) {
 					// Get UniProt Entry
-					ReducedUniProtEntry rupe = proteinHit.getUniProtEntry();
+					UniProtEntryMPA rupe = proteinHit.getUniProtEntry();
 					// booleans for ontology types found
 					boolean[] found = new boolean[ontologyTypes.size()];
 					

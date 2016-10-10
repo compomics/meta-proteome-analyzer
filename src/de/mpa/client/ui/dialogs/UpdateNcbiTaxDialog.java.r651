@@ -1,10 +1,8 @@
 package de.mpa.client.ui.dialogs;
 
+import jaligner.ui.filechooser.FileChooser;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -14,15 +12,19 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.taxonomy.NcbiTaxonomy;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.ScreenConfig;
+import de.mpa.client.ui.dialogs.BlastDialog.BlastWorker;
 import de.mpa.client.ui.icons.IconConstants;
 /**
  * Class for the update NCBI taxonomy 
@@ -51,21 +53,14 @@ public class UpdateNcbiTaxDialog extends JDialog {
 	 */
 	private void initComponents() {
 		// Create BLAST dialog
-				JPanel updateNcbiTaxDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
-				JPanel updateNcbiTaxPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu"));
-				
-				JLabel updateNcbiTaxLbl 		= new JLabel("<html>Temporary it is neccessary to update the " +
-															       "NCBI Taxonomy. Therefore it is nessary to " +
-															       "download (ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip) " +
-															       "and unzip manually the NCBI-Taxonomies " +
-															       "and run this script. </html>" );
-				updateNcbiTaxLbl.setFont(new Font("Serif", Font.PLAIN, 14));
-				updateNcbiTaxLbl.setPreferredSize(new Dimension(395, 100));
-				JPanel lablePnl = new JPanel(new BorderLayout());
-				lablePnl.add(updateNcbiTaxLbl, BorderLayout.NORTH);
-				lablePnl.setMaximumSize(new Dimension(400, 105));
-				
-				updateNcbiTaxPnl.add(lablePnl, CC.xy(2,  2));
+				JPanel updateNcbiTaxDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
+				JPanel updateNcbiTaxPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu"));
+				JLabel updateNcbiTaxLbl 		= new JLabel("<html>Temporary it is neccessary to update the  <br>" +
+															       "NCBI Taxonomy. Therefore it is nessary to <br>" +
+															       "download and unzip manually the NCBI-Taxo- <br>" +
+															       "nomies and run this script <br>" +
+															       "(ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip)</body></html>" );
+				updateNcbiTaxPnl.add(updateNcbiTaxLbl, CC.xy(2,  2));
 				// Configure 'OK' button
 				JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 				okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
@@ -96,8 +91,8 @@ public class UpdateNcbiTaxDialog extends JDialog {
 				updateNcbiTaxDlgPnl.add(cancelBtn,CC.xy(4, 4) );
 				Container cp = this.getContentPane();		
 				cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
+
 				cp.add(updateNcbiTaxDlgPnl, CC.xy(2,  2));		
-				
 	}
 
 	/**

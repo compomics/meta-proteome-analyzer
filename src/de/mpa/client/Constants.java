@@ -147,6 +147,16 @@ public class Constants {
 	public static final String BACKUP_RESULT_PATH = "tmp.mpa";
 	
 	/**
+	 * Path of the FASTA directory
+	 */
+	public static final String FASTA_PATHS =  SEP + "scratch" + SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP ;
+	
+	/**
+	 * Path of the fastaformater script
+	 */
+	public static final String FASTA_FORMATER_PATH = FASTA_PATHS + "fastaformat.sh";
+	
+	/**
 	 * Map of KEGG Orthology tree leaves.
 	 */
 	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(KEGGReader.readKEGGTree());
@@ -525,6 +535,7 @@ public class Constants {
 			put(UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
 		}
 	});
+
 	
 	/**
 	 * The list of UI themes.

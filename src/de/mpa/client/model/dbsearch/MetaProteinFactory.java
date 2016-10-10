@@ -166,8 +166,8 @@ public class MetaProteinFactory {
 		 */
 		@SuppressWarnings("incomplete-switch")
 		public boolean shouldCondense(MetaProteinHit mphA, MetaProteinHit mphB) {
-			ReducedUniProtEntry upeA = mphA.getProteinHitList().get(0).getUniProtEntry();
-			ReducedUniProtEntry upeB = mphB.getProteinHitList().get(0).getUniProtEntry();
+			UniProtEntryMPA upeA = mphA.getProteinHitList().get(0).getUniProtEntry();
+			UniProtEntryMPA upeB = mphB.getProteinHitList().get(0).getUniProtEntry();
 			if ((upeA == null) || (upeB == null)) {
 				return false;
 			}
@@ -175,17 +175,17 @@ public class MetaProteinFactory {
 			String refB = null;
 			switch (this) {
 				case UNIREF100:
-					refA = upeA.getUniRef100id();
-					refB = upeB.getUniRef100id();
+					refA = upeA.getUniRefMPA().getUniRef100();
+					refB = upeB.getUniRefMPA().getUniRef100();
 					break;
 				case UNIREF90:
-					refA = upeA.getUniRef90id();
-					refB = upeB.getUniRef90id();
+					refA = upeA.getUniRefMPA().getUniRef90();
+					refB = upeB.getUniRefMPA().getUniRef90();
 //					System.out.println("" + refA + " " + refB + " " + ((refA != null) && refA.equals(refB)));
 					break;
 				case UNIREF50:
-					refA = upeA.getUniRef50id();
-					refB = upeB.getUniRef50id();
+					refA = upeA.getUniRefMPA().getUniRef50();
+					refB = upeB.getUniRefMPA().getUniRef50();
 					break;
 			}
 			return (refA != null) && refA.equals(refB);

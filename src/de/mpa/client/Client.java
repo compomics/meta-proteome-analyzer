@@ -192,6 +192,7 @@ public class Client {
 			// connect to database
 			if (connectionParams == null) {
 				connectionParams = new ConnectionParameters();
+				System.out.println("Params");
 			}
 			
 			DBConfiguration dbconfig = new DBConfiguration(connectionParams);

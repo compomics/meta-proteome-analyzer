@@ -2,53 +2,93 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="lib/junit-4.9.jar"/>
-	<classpathentry kind="lib" path="lib/jgoodies-forms-1.5.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/MetaProteomeAnalyzer/javadoc/forms-javadoc.zip!/api"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/jgoodies-common-1.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar" sourcepath="/scratch/javadoc/swingx-all-1.6.4-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar" sourcepath="/scratch/javadoc/jcommon-1.0.21.zip"/>
-	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar" sourcepath="javadoc/balloontip-src.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-runtime-3.5.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-annotations-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-runtime-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance-repackaged-2.4.0-b10.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
-	<classpathentry kind="lib" path="lib/swing-layout-1.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/keggapi.jar"/>
-	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
+	<classpathentry kind="lib" path="lib/avro-1.7.6.jar"/>
+	<classpathentry kind="lib" path="lib/avro-ipc-1.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/axis.jar"/>
-	<classpathentry kind="lib" path="lib/commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/wsdl4j-1.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="/scratch/javadoc/jfreechart-1.0.14.zip"/>
-	<classpathentry kind="lib" path="lib/jaligner.jar"/>
-	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/blueprints-core-2.2.0.jar" sourcepath="C:/temp/src-jars/blueprints-core-2.2.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://www.tinkerpop.com/docs/javadocs/blueprints/2.2.0/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/blueprints-neo4j-graph-2.2.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://www.tinkerpop.com/docs/javadocs/blueprints/2.2.0/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/frames-2.2.0.jar" sourcepath="C:/temp/src-jars/frames-2.2.0-sources.jar"/>
-	<classpathentry kind="lib" path="lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar" sourcepath="/scratch/javadoc/jgoodies-looks-2.5.3-sources"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/axis2-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/balloontip-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/blueprints-core-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/blueprints-neo4j-graph-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/classmate-0.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/ColorPicker.jar"/>
-	<classpathentry kind="lib" path="lib/omssa-parser-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/utilities-3.17.7.jar"/>
-	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-discovery-0.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/jgoodies-binding-2.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/commons-net-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/concurrentlinkedhashmap-lru-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/frames-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-17.0.jar"/>
+	<classpathentry kind="lib" path="lib/guice-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/guice-multibindings-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-validator-5.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-api-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-locator-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/hk2-utils-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib/jaligner.jar"/>
+	<classpathentry kind="lib" path="lib/japi-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/japi-1.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/japi-1.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="lib/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="lib/javax.inject-2.4.0-b10.jar"/>
+	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb2-basics-runtime-0.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logging-3.1.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib/jcommander-1.32.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-client-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-common-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-guava-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-media-jaxb-2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-binding-2.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-common-1.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-forms-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/joda-convert-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305-2.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.9.jar"/>
+	<classpathentry kind="lib" path="lib/keggapi.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.9.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-core-3.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/mapdb-1.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.32.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j-cypher-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j-graph-algo-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j-graph-matching-1.9.9.jar"/>
@@ -57,11 +97,20 @@
 	<classpathentry kind="lib" path="lib/neo4j-lucene-index-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j-shell-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j-udc-1.9.9.jar"/>
+	<classpathentry kind="lib" path="lib/netty-3.4.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/noggit-0.6.jar"/>
+	<classpathentry kind="lib" path="lib/omssa-parser-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/org.abego.treelayout.core-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
+	<classpathentry kind="lib" path="lib/osgi-resource-locator-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/paranamer-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/server-api-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.28.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.3.4.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/snappy-java-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/solr-solrj-5.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/solr-solrj-6.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/spring-aop-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-context-4.1.6.RELEASE.jar"/>
@@ -73,9 +122,22 @@
 	<classpathentry kind="lib" path="lib/spring-tx-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-webmvc-4.1.6.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.9.jar"/>
-	<classpathentry kind="lib" path="lib/mapdb-1.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/ST4-4.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/stax2-api-3.1.4.jar"/>
+	<classpathentry kind="lib" path="lib/swing-layout-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/uniprotjapi-2015-12.jar"/>
+	<classpathentry kind="lib" path="lib/utilities-3.17.7.jar"/>
+	<classpathentry kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-asl-4.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/xmlpull-1.1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/xz-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/zookeeper-3.4.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

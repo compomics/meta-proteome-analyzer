@@ -20,7 +20,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
 import de.mpa.analysis.ReducedProteinData;
-import de.mpa.analysis.UniProtUtilities;
 import de.mpa.db.DBManager;
 
 /**

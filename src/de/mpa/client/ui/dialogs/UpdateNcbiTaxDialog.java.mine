@@ -1,6 +1,5 @@
 package de.mpa.client.ui.dialogs;
 
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;

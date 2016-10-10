@@ -24,6 +24,7 @@ import com.compomics.util.protein.Header;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
 import de.mpa.io.fasta.FastaLoader;
@@ -166,6 +167,9 @@ public class XTandemStorager extends BasicStorager {
                                 hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
                                 domain.getProteinKey();
                                 // parse the FASTA header
+                                System.out.println("Xtandem Accession??;: " + protMap.getProtein(domain.getProteinKey()).getLabel());
+                               /// TODO
+//                                DigFASTAEntryParser.parseEntry(header, body)
                                 Header header = Header.parseFromFASTA(protMap.getProtein(domain.getProteinKey()).getLabel());
                                 String accession = header.getAccession();
                                  
@@ -199,8 +203,8 @@ public class XTandemStorager extends BasicStorager {
 								}
                      	    	
         						for (String acc : accessionSet) {
-                         	        Long proteinID = storeProtein(peptideID, acc);
-                                    hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, proteinID);
+        							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
+                                    hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, protSql.getProteinid());
                                     
                                     // Finalize xtandemhit
                                	    XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     

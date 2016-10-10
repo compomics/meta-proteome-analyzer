@@ -10,10 +10,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JButton;
@@ -258,40 +256,40 @@ public class ProjectPanel extends JPanel {
 
 		// query uniprot button
 		uniBtn = new JButton("Query Uniprot", IconConstants.SEARCH_DB_ICON);
-		uniBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
-		uniBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
-		uniBtn.setEnabled(false);
-		uniBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				new SwingWorker<Object, Object>() {
-					@Override
-					protected Object doInBackground() throws SQLException  {
-						// find all proteins in the experiment and pass them on
-						// gather all proteins from the experiment
-						Map<String, Long> proteins = new TreeMap<String, Long>();
-						Connection conn = Client.getInstance().getConnection();
-						Long expID = getSelectedExperiment().getID();
-						List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(expID, conn);
-						List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, conn);
-						List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, conn);
-						List<SearchHit> hits = new ArrayList<SearchHit>();
-						hits.addAll(mascotHits);
-						hits.addAll(xtandemHits);
-						hits.addAll(omssaHits);
-						for (SearchHit hit : hits) {
-							ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
-							proteins.put(aProt.getAccession(), aProt.getProteinid());
-						}
-						UniProtUtilities uniprotweb = new UniProtUtilities();
-						// filter list to proteins for uniprot-retrieval
-						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
-						// make uniprotentries from proteinlist
-						uniprotweb.make_uniprot_entries(update_protein_map);
-						return null;
-					}	
-				}.execute();
-			}
-		});
+//		uniBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
+//		uniBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
+//		uniBtn.setEnabled(false);
+//		uniBtn.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				new SwingWorker<Object, Object>() {
+//					@Override
+//					protected Object doInBackground() throws SQLException  {
+//						// find all proteins in the experiment and pass them on
+//						// gather all proteins from the experiment
+//						Map<String, Long> proteins = new TreeMap<String, Long>();
+//						Connection conn = Client.getInstance().getConnection();
+//						Long expID = getSelectedExperiment().getID();
+//						List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(expID, conn);
+//						List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, conn);
+//						List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, conn);
+//						List<SearchHit> hits = new ArrayList<SearchHit>();
+//						hits.addAll(mascotHits);
+//						hits.addAll(xtandemHits);
+//						hits.addAll(omssaHits);
+//						for (SearchHit hit : hits) {
+//							ProteinAccessor aProt = ProteinAccessor.findFromID(hit.getFk_proteinid(), conn);
+//							proteins.put(aProt.getAccession(), aProt.getProteinid());
+//						}
+//						UniProtUtilities uniprotweb = new UniProtUtilities();
+//						// filter list to proteins for uniprot-retrieval
+//						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
+//						// make uniprotentries from proteinlist
+//						uniprotweb.make_uniprot_entries(update_protein_map);
+//						return null;
+//					}	
+//				}.execute();
+//			}
+//		});
 		
 		actPnl.add(blastBtn, CC.xy(1, 1));
 		actPnl.add(uniBtn, CC.xy(3, 1));

@@ -1,7 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,7 +204,7 @@ public class MetaProteinHit extends ProteinHit {
 	}
 	
 	@Override
-	public ReducedUniProtEntry getUniProtEntry(){
+	public UniProtEntryMPA getUniProtEntry(){
 		for (ProteinHit protHit : this.getProteinSet()) {
 			if (protHit.getUniProtEntry() != null) {
 				return protHit.getUniProtEntry();

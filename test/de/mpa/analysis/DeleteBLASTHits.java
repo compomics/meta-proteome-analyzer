@@ -6,19 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 
-import de.mpa.client.Client;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ExperimentTableAccessor;
-import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.Uniprotentry;
-import de.mpa.db.accessor.XtandemhitTableAccessor;
 
 
 public class DeleteBLASTHits {

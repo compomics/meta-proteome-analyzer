@@ -65,6 +65,7 @@ import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
@@ -725,7 +726,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 						// if target contains only numerical characters it's probably an NCBI accession,
 						// try to use accession of corresponding UniProt entry (if possible)
 						ProteinHit proteinHit = Client.getInstance().getDatabaseSearchResult().getProteinHit(target);
-						ReducedUniProtEntry uniprotEntry = proteinHit.getUniProtEntry();
+						UniProtEntryMPA uniprotEntry = proteinHit.getUniProtEntry();
 						if (uniprotEntry != null) {
 							target = proteinHit.getAccession();
 						} else {
@@ -1144,10 +1145,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 						// gather K and EC numbers for pathway lookup
 						List<String> keys = new ArrayList<>();
-						ReducedUniProtEntry upe = ph.getUniProtEntry();
+						UniProtEntryMPA upe = ph.getUniProtEntry();
 						if (upe != null) {
-							keys.addAll(upe.getKNumbers());
-							keys.addAll(upe.getEcNumbers());
+							keys.addAll(upe.getKonumbers());
+							keys.addAll(upe.getEcnumbers());
 						}
 
 						// perform pathway lookup

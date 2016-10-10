@@ -12,50 +12,35 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-
 import com.compomics.mascotdatfile.util.mascot.Peak;
-import com.compomics.mascotdatfile.util.mascot.ProteinHit;
-import com.compomics.mascotdatfile.util.mascot.ProteinMap;
 import com.compomics.mascotdatfile.util.mascot.Query;
-import com.compomics.util.protein.Header;
-import com.compomics.util.protein.Protein;
 
-import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.SearchSettings;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.settings.MascotParameters.FilteringParameters;
-import de.mpa.client.settings.Parameter.BooleanParameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Uniprotentry;
+import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.SixtyFourBitStringSupport;
 import de.mpa.io.fasta.FastaLoader;
-import de.mpa.util.Formatter;
 
 public class MascotStorager extends BasicStorager {
 
@@ -377,7 +362,7 @@ public class MascotStorager extends BasicStorager {
 								// first get accessions and proteinids from the protein table
 								client.firePropertyChange("new message", null, "QUERYING DATABASE FOR PROTEIN ENTRIES");
 								client.firePropertyChange("indeterminate", true, true);
-								PreparedStatement prs = conn.prepareStatement("SELECT protein.proteinid, protein.accession FROM protein");
+								PreparedStatement prs = conn.prepareStatement("SELECT protein.proteinid, protein.accession, protein.fk_uniprotentryid FROM protein");
 								ResultSet aRS = prs.executeQuery();
 								// look through them
 								while (aRS.next()) {
@@ -391,10 +376,14 @@ public class MascotStorager extends BasicStorager {
 											// and store the info
 											long proteinID = aRS.getLong("proteinid");
 											protein_map.get(accession).addproteinid(proteinID);
-											protein_map.get(accession).set_this_protein_is_in_DB();	
+											protein_map.get(accession).set_this_protein_is_in_DB();
+											long uniprotID = aRS.getLong("fk_uniprotentryid");
+										 	
+											
 											// for uniprot, protein is already stored in database, re-use existing ID
-											Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
+											UniprotentryAccessor uniprotEntry = UniprotentryAccessor.findFromID(uniprotID, conn);
 											// unless it misses a uniprot entry
+											//TODO FIX new mascot uniprots
 											if (upe == null) {
 												if (uniProtCandidates.containsKey(accession)) {
 													uniProtCandidates.get(accession).add(proteinID);

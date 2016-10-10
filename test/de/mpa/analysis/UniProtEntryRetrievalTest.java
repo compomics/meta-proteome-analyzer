@@ -2,23 +2,11 @@ package de.mpa.analysis;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.db.DBManager;
-import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Uniprotentry;
-import de.mpa.util.Formatter;
 
 public class UniProtEntryRetrievalTest {
 	

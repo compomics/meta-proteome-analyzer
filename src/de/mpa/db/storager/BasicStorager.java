@@ -128,40 +128,37 @@ public class BasicStorager implements Storager {
 		return spec2pep.getSpec2pepid();
 	}
 	
-	/**
-	 * This method stores a protein to the database.
-	 * @param peptideID Peptide ID
-	 * @param accession Protein accession
-	 * @return Protein ID
-	 * @throws SQLException
-	 * @throws IOException
-	 */
-	protected Long storeProtein(long peptideID, String accession) throws SQLException, IOException {
-		@SuppressWarnings("static-access")
-		Protein protein = MapContainer.FastaLoader.getProteinFromFasta(accession);
-        String description = protein.getHeader().getDescription();
-        
-		HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
-		Long proteinID = proteinIdMap.get(accession);
-		
-		if (proteinID == null) { // protein not yet in database
-			// Add new protein to the database
-			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
-			proteinID = proteinAccessor.getProteinid();
-			proteinIdMap.put(accession, proteinID);
-		} else {
-			// check whether pep2prot link already exists,
-			// otherwise create new one
-			Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
-			// If no link from peptide to protein is given.
-			if (pep2prot == null) { 
-				// Link peptide to protein.
-				pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-			}
-		}
-		// Add protein for UniProt storing.
-		MapContainer.UniprotQueryProteins.put(accession, proteinID);
-		return proteinID;
-	}
+//	/**
+//	 * This method stores a protein to the database.
+//	 * @param peptideID Peptide ID
+//	 * @param accession Protein accession
+//	 * @return Protein ID
+//	 * @throws SQLException
+//	 * @throws IOException
+//	 */
+//	protected Long storeProtein(long peptideID, String accession) throws SQLException, IOException {
+//		
+//		ProteinAccessor prot = ProteinAccessor.findFromAttributes(accession, conn);
+//        String description = prot.getDescription();
+//		
+//		if (proteinID == null) { // protein not yet in database
+//			// Add new protein to the database
+//			ProteinAccessor proteinAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, protein.getSequence().getSequence(), conn);
+//			proteinID = proteinAccessor.getProteinid();
+//			proteinIdMap.put(accession, proteinID);
+//		} else {
+//			// check whether pep2prot link already exists,
+//			// otherwise create new one
+//			Pep2prot pep2prot = Pep2prot.findLink(peptideID, proteinID, conn);
+//			// If no link from peptide to protein is given.
+//			if (pep2prot == null) { 
+//				// Link peptide to protein.
+//				pep2prot = Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+//			}
+//		}
+//		// Add protein for UniProt storing.
+//		MapContainer.UniprotQueryProteins.put(accession, proteinID);
+//		return proteinID;
+//	}
 	
 }

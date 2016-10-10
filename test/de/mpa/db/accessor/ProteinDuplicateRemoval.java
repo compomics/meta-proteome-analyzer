@@ -127,7 +127,6 @@ public class ProteinDuplicateRemoval {
 				        aRS.close();
 				        prs.close();				        
 				        for (UniprotentryTableAccessor uniprotentry : uniprotentry_list) {
-				        	uniprotentry.setFk_proteinid(current_chosen_id);
 				        	uniprotentry.update(conn);
 							conn.commit();
 							uniprotentry_updates++;

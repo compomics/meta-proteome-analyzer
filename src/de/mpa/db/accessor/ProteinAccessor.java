@@ -3,13 +3,17 @@ package de.mpa.db.accessor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import de.mpa.io.fasta.DigFASTAEntry;
 
 public class ProteinAccessor extends ProteinTableAccessor {
 
@@ -39,8 +43,8 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @return ProteinAccessor with the data.
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	public static Map<String, Long> findAllProteins(Connection aConn) throws SQLException {
-		Map<String, Long> accession2IdMap = new TreeMap<String, Long>();
+	public static TreeMap<String, Long> findAllProteinsWithID(Connection aConn) throws SQLException {
+		TreeMap<String, Long> accession2IdMap = new TreeMap<String, Long>();
 		// SELECT * is terrible for performance, replaced with specific query		
 		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
 		PreparedStatement ps = aConn.prepareStatement("SELECT pr.proteinid, pr.accession FROM protein pr");
@@ -57,11 +61,11 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * This method will find all proteins and return proteinaccessors.
 	 *
 	 * @param aConn Connection to read the spectrum File from.
-	 * @return ProteinAccessor-List
+	 * @return ProteinAccessor-Set
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	public static List<ProteinAccessor> findAllProteinAccessors(Connection aConn) throws SQLException {
-		List<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
+	public static TreeSet<ProteinAccessor> findAllProteinAccessors(Connection aConn) throws SQLException {
+		TreeSet<ProteinAccessor> proteins = new TreeSet<ProteinAccessor>();
 		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
 		// this is likely to crash if we have too many proteins ...
 		PreparedStatement ps = aConn.prepareStatement("SELECT * FROM protein pr");
@@ -73,6 +77,28 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		rs.close();
 		ps.close();
 		return proteins;
+	}
+	
+	/**
+	 * This method will find all protein accessions.
+	 *
+	 * @param aConn Connection to read the spectrum File from.
+	 * @return ProteinAccessor-Set
+	 * @throws SQLException when the retrieval did not succeed.
+	 */
+	public static TreeSet<String> findAllProteinAccessions(Connection aConn) throws SQLException {
+		TreeSet<String> accSet = new TreeSet<String>();
+		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+		// this is likely to crash if we have too many proteins ...
+		PreparedStatement ps = aConn.prepareStatement("SELECT * FROM protein pr");
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			ProteinAccessor new_protein = new ProteinAccessor(rs);
+			accSet.add(new_protein.getAccession());
+		}		
+		rs.close();
+		ps.close();
+		return accSet;
 	}
 	
 	/**
@@ -96,25 +122,25 @@ public class ProteinAccessor extends ProteinTableAccessor {
        return temp;
    }
    
-	/**
-    * This method will find a protein entry that contains the string "_BLAST_"
-   *
-   * @param aConn Connection to read the spectrum File from.
-   * @return list of ProteinAccessors with the data.
-   * @throws SQLException when the retrieval did not succeed.
-   */
-  public static List<ProteinTableAccessor> findBlastHits(Connection aConn) throws SQLException {
-  	  List<ProteinTableAccessor> temp = new ArrayList<ProteinTableAccessor>();
-  	  System.out.println(getBasicSelect() + " WHERE " + ACCESSION + " LIKE '%_BLAST_%'");
-      PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + ACCESSION + " LIKE '%_BLAST_%'");
-      ResultSet rs = ps.executeQuery();
-      while (rs.next()) {
-          temp.add(new ProteinTableAccessor(rs));
-      }
-      rs.close();
-      ps.close();
-      return temp;
-  }
+//	/**
+//    * This method will find a protein entry that contains the string "_BLAST_"
+//   *
+//   * @param aConn Connection to read the spectrum File from.
+//   * @return list of ProteinAccessors with the data.
+//   * @throws SQLException when the retrieval did not succeed.
+//   */
+//  public static List<ProteinTableAccessor> findBlastHits(Connection aConn) throws SQLException {
+//  	  List<ProteinTableAccessor> temp = new ArrayList<ProteinTableAccessor>();
+//  	  System.out.println(getBasicSelect() + " WHERE " + ACCESSION + " LIKE '%_BLAST_%'");
+//      PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + ACCESSION + " LIKE '%_BLAST_%'");
+//      ResultSet rs = ps.executeQuery();
+//      while (rs.next()) {
+//          temp.add(new ProteinTableAccessor(rs));
+//      }
+//      rs.close();
+//      ps.close();
+//      return temp;
+//  }
 
 	/**
      * This method will find a protein entry from the current connection, based on the accession or description.
@@ -177,56 +203,55 @@ public class ProteinAccessor extends ProteinTableAccessor {
         return temp;
 	}
     
-    /**
-     * Adds a new protein with a specific peptide id, accession and description to the database..
-     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
-     * @param accession String with the accession of the protein to find.
-     * @param description String with the description of the protein to find.
-     * @param conn The database connection object.
-     * @return protein The newly created Protein object.
-     * @throws SQLException when the persistence did not succeed.
-     */
-    public static ProteinAccessor upDateProteinEntry(Long protID, String accession, String description, String sequence,  Timestamp creationDate, Connection conn) throws SQLException{
-    	//TODO UPDATE PROTEIn DESCRIPTIOn
-    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
-    	dataProtein.put(ProteinAccessor.PROTEINID, protID);
-		dataProtein.put(ProteinAccessor.ACCESSION, accession);
-		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
-		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
-		dataProtein.put(ProteinAccessor.CREATIONDATE, creationDate);
-		ProteinAccessor protein = new ProteinAccessor(dataProtein);
-		protein.update(conn);
-
-		return protein;
-    }
+//    /**
+//     * Adds a new protein with a specific peptide id, accession and description to the database..
+//     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
+//     * @param accession String with the accession of the protein to find.
+//     * @param description String with the description of the protein to find.
+//     * @param conn The database connection object.
+//     * @return protein The newly created Protein object.
+//     * @throws SQLException when the persistence did not succeed.
+//     */
+//    public static ProteinAccessor upDateProteinEntry(Long protID, String accession, String description, String sequence,  Timestamp creationDate, Connection conn) throws SQLException{
+//    	//TODO UPDATE PROTEIn DESCRIPTIOn
+//    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
+//    	dataProtein.put(ProteinAccessor.PROTEINID, protID);
+//		dataProtein.put(ProteinAccessor.ACCESSION, accession);
+//		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
+//		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
+//		dataProtein.put(ProteinAccessor.CREATIONDATE, creationDate);
+//		ProteinAccessor protein = new ProteinAccessor(dataProtein);
+//		protein.update(conn);
+//
+//		return protein;
+//    }
     
-    
-	/**
-     * Adds a new protein with a specific peptide id, accession and description to the database..
-     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
-     * @param accession String with the accession of the protein to find.
-     * @param description String with the description of the protein to find.
-     * @param conn The database connection object.
-     * @return protein The newly created Protein object.
-     * @throws SQLException when the persistence did not succeed.
-     */
-    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, Connection conn) throws SQLException{
-    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
-		dataProtein.put(ProteinAccessor.ACCESSION, accession);
-		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
-		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
-		ProteinAccessor protein = new ProteinAccessor(dataProtein);
-		protein.persist(conn);
-
-		// get the protein id from the generated keys.
-		Long proteinID = (Long) protein.getGeneratedKeys()[0];
-		
-		// since this is a new protein we also create a new pep2prot entry
-		// to link it to the peptide (no redundancy check needed)
-		Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-		
-		return protein;
-    }
+//	/**
+//     * Adds a new protein with a specific peptide id, accession and description to the database..
+//     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
+//     * @param accession String with the accession of the protein to find.
+//     * @param description String with the description of the protein to find.
+//     * @param conn The database connection object.
+//     * @return protein The newly created Protein object.
+//     * @throws SQLException when the persistence did not succeed.
+//     */
+//    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, Connection conn) throws SQLException{
+//    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
+//		dataProtein.put(ProteinAccessor.ACCESSION, accession);
+//		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
+//		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
+//		ProteinAccessor protein = new ProteinAccessor(dataProtein);
+//		protein.persist(conn);
+//
+//		// get the protein id from the generated keys.
+//		Long proteinID = (Long) protein.getGeneratedKeys()[0];
+//		
+//		// since this is a new protein we also create a new pep2prot entry
+//		// to link it to the peptide (no redundancy check needed)
+//		Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+//		
+//		return protein;
+//    }
     
 	/**
      * Adds a new protein with accession and description to the database..
@@ -236,11 +261,13 @@ public class ProteinAccessor extends ProteinTableAccessor {
      * @return protein The newly created Protein object.
      * @throws SQLException when the persistence did not succeed.
      */
-    public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, Connection conn) throws SQLException{
-    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
+    public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, String type, Long UniProtID, Connection conn) throws SQLException{
+    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(5);
 		dataProtein.put(ProteinAccessor.ACCESSION, accession);
 		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
 		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
+		dataProtein.put(ProteinAccessor.FK_UNIPROTID, UniProtID);
+		dataProtein.put(ProteinAccessor.SOURCE, type);
 		ProteinAccessor protein = new ProteinAccessor(dataProtein);
 		protein.persist(conn);
 
@@ -256,4 +283,58 @@ public class ProteinAccessor extends ProteinTableAccessor {
     	return ("" + iProteinid + " " + iAccession + " " + iDescription);
     }
 
+
+    /**
+     * Adds a new protein with accession and description to the database..
+     * @param fastaEntryList The list of all FASTA entries.
+     * @param conn The database connection object.
+     * @throws SQLException when the persistence did not succeed.
+     */
+    public static void addMulibleProteinsToDatabase(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException{
+    	
+    	// Create a sql statement
+    	PreparedStatement lStat = conn.prepareStatement("INSERT INTO protein (proteinid, accession, description, sequence, fk_uniprotentryid, source, creationdate, modificationdate) values(?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
+		
+    	
+    				// Get iterator for the FASTA entries
+    				Iterator<DigFASTAEntry> protIter2 = fastaEntryList.iterator();		
+
+    				// Add all FASTA entries to the sql statement
+    				while (protIter2.hasNext()) {
+    					// Get next FASTA entry
+    					DigFASTAEntry fastaEntry = (DigFASTAEntry) protIter2.next();
+
+    					// ProtID is unknown at the beginning
+    					lStat.setNull(1, 4);
+    					if(fastaEntry.getIdentifier() == null) {
+    						lStat.setNull(2, 12);
+    					} else {
+    						lStat.setObject(2, fastaEntry.getIdentifier());
+    					}
+    					if(fastaEntry.getDescription() == null) {
+    						lStat.setNull(3, -1);
+    					} else {
+    						lStat.setObject(3, fastaEntry.getDescription());
+    					}
+    					if(fastaEntry.getSequence() == null) {
+    						lStat.setNull(4, -1);
+    					} else {
+    						lStat.setObject(4, fastaEntry.getSequence());
+    					}
+    					if(fastaEntry.getUniProtID() == Long.MIN_VALUE) {
+    						lStat.setNull(5, -1);
+    					} else {
+    						lStat.setLong(5, fastaEntry.getUniProtID());
+    					}
+    					if(fastaEntry.getType() == null) {
+    						lStat.setNull(6, 12);
+    					} else {
+    						lStat.setObject(6, fastaEntry.getType().toString());
+    					}
+    					lStat.addBatch();;
+    					
+    				}
+    				lStat.executeBatch();
+    }
 }
+    				

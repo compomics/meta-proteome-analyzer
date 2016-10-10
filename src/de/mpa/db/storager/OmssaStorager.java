@@ -19,6 +19,7 @@ import com.compomics.util.protein.Header;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
+import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
 import de.mpa.io.fasta.FastaLoader;
 import de.proteinms.omxparser.OmssaOmxFile;
@@ -172,8 +173,9 @@ public class OmssaStorager extends BasicStorager {
 						}
 						
 						for (String acc : accessionSet) {
-							Long proteinID = this.storeProtein(peptideID, acc);
-							hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinID);
+//							Long proteinID = this.storeProtein(peptideID, acc);
+							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
+							hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	protSql.getProteinid());
 							
 							// Create the database object.
 							OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);

@@ -55,55 +55,6 @@ public class Spec2pep extends Spec2pepTableAccessor {
         return temp;
     }
     
-    // XXX
-    /**
-     * Returns linked libspectrum entries belonging to a specified experiment entry.
-     * @param experimentID
-     * @param aConn
-     * @return
-     */
-    public static List<Spec2pep> getEntriesFromExperimentID(long experimentID, Connection aConn) throws SQLException {
-    	List<Spec2pep> temp = new ArrayList<Spec2pep>();
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
-        		" INNER JOIN libspectrum ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = libspectrum." + Libspectrum.FK_SPECTRUMID +
-        		" WHERE " + Libspectrum.FK_EXPERIMENTID + " = ?");
-        ps.setLong(1, experimentID);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-        	temp.add(new Spec2pep(rs));
-        }
-        rs.close();
-        ps.close();
-        return temp;
-    }
-    
-    /**
-     * Returns the Spec2pep entries within a certain precursor range.
-     * @param precursorMz The precursor mass.
-     * @param tolMz The mass tolerance.
-     * @param experimentID The experiment id.
-     * @param conn The database connection.
-     * @return List of Spec2pep entries.
-     * @throws SQLException when the database query has not been successful.
-     */
-    public static List<Spec2pep> getEntriesWithinPrecursorRangeFromExperimentID(double precursorMz, double tolMz, long experimentID, Connection conn) throws SQLException {
-    	List<Spec2pep> temp = new ArrayList<Spec2pep>();
-		PreparedStatement ps = conn.prepareStatement(getBasicSelect() +
-				" INNER JOIN spectrum ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = spectrum." + Spectrum.SPECTRUMID + 
-				" INNER JOIN libspectrum ON spec2pep." + Spec2pep.FK_SPECTRUMID + " = libspectrum." + Libspectrum.FK_SPECTRUMID +
-				" WHERE spectrum." + Spectrum.PRECURSOR_MZ + " BETWEEN ? AND ?" + 
-				" AND libspectrum." + Libspectrum.FK_EXPERIMENTID + " = ?");
-    	ps.setDouble(1, precursorMz - tolMz);
-    	ps.setDouble(2, precursorMz + tolMz);
-    	ps.setLong(3, experimentID);
-    	ResultSet rs = ps.executeQuery();
-    	while (rs.next()) {
-    		temp.add(new Spec2pep(rs));
-    	}
-    	rs.close();
-    	ps.close();
-    	return temp;
-    }
     
     /**
      * This method will find a spec2pep entry from the current connection, based on the specified spectrumid.

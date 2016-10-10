@@ -73,6 +73,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.SortableCheckBoxTreeTable.TableColumnExt2;
 import de.mpa.client.ui.TableConfig.FormatHighlighter;
 import de.mpa.client.ui.icons.IconConstants;
@@ -122,7 +123,7 @@ public enum ProteinTreeTables {
 			// init insertion node as root
 			PhylogenyTreeTableNode parent = root;
 			
-			ReducedUniProtEntry upe = ph.getUniProtEntry();
+			UniProtEntryMPA upe = ph.getUniProtEntry();
 			if (upe != null) {
 				Map<String, Keyword> ontologies = UniProtUtilities.ONTOLOGY_MAP;
 				// iterate keywords, insert a cloned instance of the protein node into the tree for each keyword
@@ -236,9 +237,9 @@ public enum ProteinTreeTables {
 			ProteinHit ph = (ProteinHit) protNode.getUserObject();
 
 			List<String> ecNumbers;
-			ReducedUniProtEntry upe = ph.getUniProtEntry();
+			UniProtEntryMPA upe = ph.getUniProtEntry();
 			if (upe != null) {
-				ecNumbers = upe.getEcNumbers();
+				ecNumbers = upe.getEcnumbers();
 			} else {
 				ecNumbers = new ArrayList<String>();
 			}
@@ -308,9 +309,9 @@ public enum ProteinTreeTables {
 			
 			// gather KO numbers for pathway lookup
 						List<String> keys = new ArrayList<>();
-						ReducedUniProtEntry upe = ph.getUniProtEntry();
+						UniProtEntryMPA upe = ph.getUniProtEntry();
 						if (upe != null) {
-							keys.addAll(upe.getKNumbers());
+							keys.addAll(upe.getKonumbers());
 						}
 			
 			// write KEGG keys to nodes
@@ -403,10 +404,10 @@ public enum ProteinTreeTables {
 
 			// gather K and EC numbers for pathway lookup
 			List<String> keys = new ArrayList<>();
-			ReducedUniProtEntry upe = ph.getUniProtEntry();
+			UniProtEntryMPA upe = ph.getUniProtEntry();
 			if (upe != null) {
-				keys.addAll(upe.getKNumbers());
-				keys.addAll(upe.getEcNumbers());
+				keys.addAll(upe.getKonumbers());
+				keys.addAll(upe.getEcnumbers());
 			}
 
 			// perform pathway lookup
@@ -1219,9 +1220,9 @@ public enum ProteinTreeTables {
 		String keggURL = "";
 		ProteinHit proteinHit = Client.getInstance().getDatabaseSearchResult().getProteinHit(accession);
 		if (proteinHit != null) {
-			ReducedUniProtEntry uniprotEntry = proteinHit.getUniProtEntry();
+			UniProtEntryMPA uniprotEntry = proteinHit.getUniProtEntry();
 			if (uniprotEntry != null) {
-				List<String> kNumbers = uniprotEntry.getKNumbers();
+				List<String> kNumbers = uniprotEntry.getKonumbers();
 				int size = kNumbers.size();
 	
 				for (int i = 0; i < size; i++) {

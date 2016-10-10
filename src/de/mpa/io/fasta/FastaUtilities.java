@@ -8,6 +8,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,10 +21,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.JOptionPane;
+
+import org.apache.commons.collections.list.TreeList;
+
 import com.compomics.util.protein.Header;
 
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.client.Client;
+import de.mpa.client.Constants;
+import de.mpa.client.ui.ClientFrame;
+import de.mpa.db.DBManager;
+import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.io.fasta.DigFASTAEntry.Type;
+import de.mpa.main.Starter;
+
+/**
+ * Class for reading and writing of fasta entries
+ * @author Anybody + Robert Heyer
+ *
+ */
 public class FastaUtilities {
-	
+
 	/**
 	 * This method parses proteinIDs and sequences from the FASTA file.
 	 * @param filePath File path.
@@ -29,7 +51,7 @@ public class FastaUtilities {
 	public static Database read(String filePath) {
 		Database database = null;
 		final File fastaFile = new File(filePath);
-		
+
 		try {
 			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
 			String nextLine;
@@ -39,32 +61,32 @@ public class FastaUtilities {
 			final ArrayList<String> proteinSeqs = new ArrayList<String>();
 			StringBuffer stringBf = new StringBuffer();
 			while (nextLine != null) {					
-					if (nextLine != null && nextLine.trim().length() > 0){	
-						if (nextLine.charAt(0) == '>') {	
-							if(firstline){
-								proteinIDs.add(nextLine);
-							} else {								
-								proteinSeqs.add(stringBf.toString());
-								stringBf = new StringBuffer(); 
-								proteinIDs.add(nextLine);
-							}							
-						} else {
-							stringBf.append(nextLine);		
-						}	
-					}
-					nextLine = reader.readLine();
-					firstline = false;	
+				if (nextLine != null && nextLine.trim().length() > 0){	
+					if (nextLine.charAt(0) == '>') {	
+						if(firstline){
+							proteinIDs.add(nextLine);
+						} else {								
+							proteinSeqs.add(stringBf.toString());
+							stringBf = new StringBuffer(); 
+							proteinIDs.add(nextLine);
+						}							
+					} else {
+						stringBf.append(nextLine);		
+					}	
+				}
+				nextLine = reader.readLine();
+				firstline = false;	
 			}
 			proteinSeqs.add(stringBf.toString());
-			
+
 			// Map of entries
 			List<Entry> entries = new ArrayList<Entry>();
-			
+
 			// Iterate over the proteinIDs
 			for(int i = 0; i < proteinIDs.size(); i++){
 				entries.add(new Entry((i+1),proteinIDs.get(i), proteinSeqs.get(i)));
 			}
-			
+
 			// Instantiate the Database object.
 			database = new Database(fastaFile.getName(), entries);			
 			reader.close();
@@ -76,7 +98,7 @@ public class FastaUtilities {
 		}
 		return database;
 	}
-	
+
 	/**
 	 * Extracts a FASTA database defined by start and end offset line number.
 	 * @param fastaFilePath Filepath of the FASTA input file.
@@ -87,7 +109,7 @@ public class FastaUtilities {
 	public static void readAndWriteDatabase(String fastaFilePath, String outFilePath, int start, int end) {
 		final File fastaFile = new File(fastaFilePath);
 		final File outFile = new File(outFilePath);
-		
+
 		try {
 			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
 			final BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
@@ -114,7 +136,7 @@ public class FastaUtilities {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Extracts a FASTA database by excluding a set of FASTA entries.
 	 * @param fastaFilePath Filepath of the FASTA input file.
@@ -123,7 +145,7 @@ public class FastaUtilities {
 	public static void readAndWriteExclusiveDatabase(String fastaFilePath, String outFilePath, Set<String> excludedProteins) {
 		final File fastaFile = new File(fastaFilePath);
 		final File outFile = new File(outFilePath);
-		
+
 		try {
 			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
 			final BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
@@ -139,7 +161,7 @@ public class FastaUtilities {
 							doWrite = true;
 						}
 					}
-					
+
 					if (doWrite) {
 						writer.write(nextLine);
 						writer.newLine();
@@ -156,7 +178,7 @@ public class FastaUtilities {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Writes a FASTA file from a defined input Database object.
 	 * @param inputDb Input database.
@@ -181,7 +203,7 @@ public class FastaUtilities {
 				} else {
 					header = e.getName().replaceFirst(">", ">gi|GENSEQ" + count + "|");
 				}
-				
+
 				header = header.trim().replaceAll(" +", " ");
 				bfWriter.write(header);
 				bfWriter.newLine();
@@ -195,14 +217,14 @@ public class FastaUtilities {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * This method reads protein IDs from a FASTA file and inserts them to a map (key: accession id - value: header line) 
 	 * @param fastaFile FASTA file.
 	 * @return Mapping of the identifiers.
 	 */
 	public static void readHeaders(String fastaFile) {
-		
+
 		try {
 			final BufferedWriter writer = new BufferedWriter(new FileWriter(fastaFile + "_headers"));
 			final BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
@@ -225,9 +247,9 @@ public class FastaUtilities {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * This method counts the database Ids.
 	 * @param fastaFile FASTA file.
@@ -246,7 +268,7 @@ public class FastaUtilities {
 						@SuppressWarnings("unused")
 						String key = header.getAccession();
 						int id = Integer.parseInt(string);
-						
+
 						if (id <= 1850744) {
 							bact594++;
 						} else if (id >= 1850745 && id <= 5118348) {
@@ -278,10 +300,10 @@ public class FastaUtilities {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static Set<String> retrievePeptides(File peptideFastaFile) {
 		BufferedReader reader;
-		
+
 		Set<String> peptideSet = new TreeSet<String>();
 		try {
 			LineNumberReader  lnr = new LineNumberReader(new FileReader(peptideFastaFile));
@@ -290,18 +312,18 @@ public class FastaUtilities {
 			System.out.println(nLines);
 			lnr.close();
 			reader = new BufferedReader(new FileReader(peptideFastaFile));
-			
+
 			String nextLine;
 			int lineCounter = 0;
 			while ((nextLine = reader.readLine()) != null) {
-						
-						if (nextLine.length() > 0 && nextLine.charAt(0) != '>') {
-							peptideSet.add(nextLine);
-						}
-						if (lineCounter % 1000000 == 0) {
-							System.out.println(lineCounter + "/" + nLines);
-						}
-						lineCounter++;
+
+				if (nextLine.length() > 0 && nextLine.charAt(0) != '>') {
+					peptideSet.add(nextLine);
+				}
+				if (lineCounter % 1000000 == 0) {
+					System.out.println(lineCounter + "/" + nLines);
+				}
+				lineCounter++;
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
@@ -311,7 +333,7 @@ public class FastaUtilities {
 		}
 		return peptideSet;
 	}
-	
+
 	public static Map<String, Set<String>> matchPeptides(File fastaFile, Set<String> peptides) {
 		Map<String, Set<String>> multiMap = new HashMap<String, Set<String>>();
 		try {
@@ -322,34 +344,34 @@ public class FastaUtilities {
 			String header = null;
 			int counter = 0;
 			while ((nextLine = reader.readLine()) != null) {
-						if (nextLine.length() > 0 && nextLine.charAt(0) == '>') {
-							if (!firstline) {
-								String proteinSequence = stringBf.toString();
-								Iterator<String> iterator = peptides.iterator();
-								counter++;
-								if (counter % 10000 == 0) System.out.println(counter);
-								while (iterator.hasNext()) {
-									String peptide = iterator.next();
-									if (proteinSequence.contains(peptide)) {
-										addPeptideToMultiMap(multiMap, peptide, header);
-									}
-								}
-							} else {
-								header = nextLine;
-								firstline = false;
+				if (nextLine.length() > 0 && nextLine.charAt(0) == '>') {
+					if (!firstline) {
+						String proteinSequence = stringBf.toString();
+						Iterator<String> iterator = peptides.iterator();
+						counter++;
+						if (counter % 10000 == 0) System.out.println(counter);
+						while (iterator.hasNext()) {
+							String peptide = iterator.next();
+							if (proteinSequence.contains(peptide)) {
+								addPeptideToMultiMap(multiMap, peptide, header);
 							}
-							stringBf = new StringBuffer(); 		
-						} else {
-							stringBf.append(nextLine);
 						}
+					} else {
+						header = nextLine;
+						firstline = false;
 					}
-			reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+					stringBf = new StringBuffer(); 		
+				} else {
+					stringBf.append(nextLine);
+				}
 			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return multiMap;
 	}
-	
+
 	/**
 	 * Helper method that references a peptide to multiple protein headers.
 	 * @param multiMap Mapping from peptide string to multiple protein headers.
@@ -368,11 +390,18 @@ public class FastaUtilities {
 		headerSet.add(header);
 		multiMap.put(peptide, headerSet);
 	}
+
+
+
+
+//	public static void main(String[] args) {
+//		Database readDB = FastaUtilities.read("metadb_potsdam.fasta");
+//		FastaUtilities.writeDatabase(readDB, "metadb_potsdam_formatted.fasta");
+//	}
+
+	
+
 	
 	
-	
-	public static void main(String[] args) {
-		Database readDB = FastaUtilities.read("metadb_potsdam.fasta");
-		FastaUtilities.writeDatabase(readDB, "metadb_potsdam_formatted.fasta");
-	}
+
 }

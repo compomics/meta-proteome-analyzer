@@ -4,33 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
-import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
-import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
-import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import de.mpa.analysis.ReducedProteinData;
-import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.db.accessor.Uniprotentry;
-import de.mpa.db.storager.CruxStorager;
-import de.mpa.db.storager.InspectStorager;
 import de.mpa.db.storager.OmssaStorager;
 import de.mpa.db.storager.SpecSimStorager;
 import de.mpa.db.storager.SpectrumStorager;
 import de.mpa.db.storager.Storager;
 import de.mpa.db.storager.XTandemStorager;
-import de.mpa.util.Formatter;
 
 /**
  * This class serves for handling and managing the database.
@@ -135,8 +119,6 @@ public class DBManager {
 			storager = new OmssaStorager(conn, new File(resultFilename), new File (targetScoreFilename), new File(qValueFilename));
 		}
 		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
-		else if (searchEngineType == SearchEngineType.CRUX ) storager = new CruxStorager(conn, new File(resultFilename));
-		else if (searchEngineType == SearchEngineType.INSPECT) storager = new InspectStorager(conn, new File(resultFilename));
 		storager.run();
 	}
 
@@ -152,37 +134,43 @@ public class DBManager {
 		thread.join();
 	}
 	
-	/**
-	 * Method to query and store the UniProt entries. 
-	 * Retrieval is based on the UniProt JAPI.
-	 * @throws SQLException
-	 */
-	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
-		// Retrieve the UniProt entries.
-		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
-		Set<String> keySet = proteinHits.keySet();
-		Map<String, List<Long>> accessionMap = new TreeMap<String, List<Long>>();
-		for (String string : keySet) {
-			// check if uniprotentry exists
-			if (Uniprotentry.check_if_exists_from_proteinID(proteinHits.get(string), conn)) {
-				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
-					if (accessionMap.containsKey(string)) {
-						accessionMap.get(string).add(proteinHits.get(string));
-					} else {
-						List<Long> prot_id_list = new ArrayList<Long>();
-						accessionMap.put(string, prot_id_list);
-					}
-				}
-			}
-		}
-		if (accessionMap.keySet().size() > 0) {
-			// instantiate UniProtUtilites class			
-			UniProtUtilities uniprotweb = new UniProtUtilities();
-			uniprotweb.make_uniprot_entries(accessionMap);
-			// clearing of map.
-			MapContainer.UniprotQueryProteins.clear();
-		}
-	}
+//	/**
+//	 * Method to query and store the UniProt entries. 
+//	 * Retrieval is based on the UniProt JAPI.
+//	 * @throws SQLException
+//	 */
+//	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
+//		System.out.println("Do the uniprot");
+//		
+//		// Retrieve the UniProt entries.
+//		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
+//		Set<String> keySet = proteinHits.keySet();
+//		Map<String, List<Long>> accessionMap = new TreeMap<String, List<Long>>();
+//		for (String string : keySet) {
+//			System.out.println("ProteinsACC " +  string);
+//			// check if uniprotentry exists
+//			if (Uniprotentry.check_if_UniProtEntry_exists_from_proteinID(proteinHits.get(string), conn)) {
+//				System.out.println("prooved check 1");
+//				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
+//					System.out.println("prooved check 2");
+//					if (accessionMap.containsKey(string)) {
+//						accessionMap.get(string).add(proteinHits.get(string));
+//					} else {
+//						List<Long> prot_id_list = new ArrayList<Long>();
+//						accessionMap.put(string, prot_id_list);
+//					}
+//				}
+//			}
+//		}
+//		System.out.println("Size " + accessionMap.keySet().size());
+//		if (accessionMap.keySet().size() > 0) {
+//			// instantiate UniProtUtilites class			
+//			UniProtUtilities uniprotweb = new UniProtUtilities();
+//			uniprotweb.make_uniprot_entries(accessionMap);
+//			// clearing of map.
+//			MapContainer.UniprotQueryProteins.clear();
+//		}
+//	}
 	
 	/**
 	 * Returns the connection.

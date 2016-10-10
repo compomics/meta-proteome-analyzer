@@ -6,8 +6,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.mpa.analysis.UniProtUtilities;
-
 public class LinkUniProtToProteinTest {
 	
 	/**

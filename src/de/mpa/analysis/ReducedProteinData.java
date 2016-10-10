@@ -9,9 +9,24 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
  */
 public class ReducedProteinData {
 
+	/**
+	 * The UniProt entry... belongs to UniprotJapi
+	 */
 	private UniProtEntry uniProtEntry;
+	
+	/**
+	 * The UniRef100 entry
+	 */
 	private String uniRef100EntryId;
+	
+	/**
+	 * The UniRef100 entry
+	 */
 	private String uniRef90EntryId;
+	
+	/**
+	 * The UniRef100 entry
+	 */
 	private String uniRef50EntryId;
 	
 	public ReducedProteinData(UniProtEntry uniProtEntry, String uniRef100EntryId, String uniRef90EntryId, String uniRef50EntryId) {

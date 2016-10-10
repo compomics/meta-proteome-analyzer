@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.mpa.db.accessor.Cruxhit;
-import de.mpa.db.accessor.Inspecthit;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
@@ -22,8 +20,6 @@ public class SearchHitExtractor {
 		List<SearchHit> searchHits = new ArrayList<SearchHit>();
 		searchHits.addAll(XTandemhit.getHitsFromExperimentID(experimentID, conn));
 		searchHits.addAll(Omssahit.getHitsFromExperimentID(experimentID, conn));
-		searchHits.addAll(Cruxhit.getHitsFromExperimentID(experimentID, conn));
-		searchHits.addAll(Inspecthit.getHitsFromExperimentID(experimentID, conn));
 		searchHits.addAll(Mascothit.getHitsFromExperimentID(experimentID, conn));
 		
 		for (SearchHit searchHit : searchHits) {			

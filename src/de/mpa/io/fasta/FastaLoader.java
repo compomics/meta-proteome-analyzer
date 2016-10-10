@@ -4,32 +4,42 @@ import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import com.compomics.util.protein.Header;
-import com.compomics.util.protein.Protein;
 
 import de.mpa.analysis.UniProtUtilities;
+import de.mpa.client.Constants;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
+import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.db.storager.MascotStorager.MascotProteinHit;
-import de.mpa.fastadigest.PeptideDigester;
 //import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 //import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
+import de.mpa.io.fasta.DigFASTAEntry.Type;
+import de.mpa.main.Starter;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -72,29 +82,10 @@ public class FastaLoader {
 	
 	private static boolean hasChanged;
 
-	// moved to uniprot utilities
-//	/**
-//	 * UniProt Query Service object.
-//	 */
-//	private Object uniProtQueryService;
-//	
-//	/**
-//	 * UniProt Entry Retrieval Service object.
-//	 */
-//	private static EntryRetrievalService entryRetrievalService;
-	
 	/**
 	 * Singleton object instance of the FastaLoader class.
 	 */
 	private static FastaLoader instance;
-
-	// moved to uniprotutilities
-//	/**
-//	 * Private constructor as FastaLoader is a singleton object.
-//	 */
-//	private FastaLoader() {
-//		setupUniProtQueryService();
-//	}
 
 	/**
 	 * Returns the singleton object of the FastaLoader.
@@ -110,94 +101,59 @@ public class FastaLoader {
 	}
 	
 //	/**
-//	 * This method setups the uniprot query service.
+//	 * Returns a specific protein from the FASTA file.
+//	 * 
+//	 * @param id The protein identifier. May be the UniProt identifier or accession number.
+//	 * @return The Protein object.
+//	 * @throws IOExceptiongetProteinFromFasta 
 //	 */
-	
-	// moved to unirptoutilities
-//	private void setupUniProtQueryService() {
-//		// Check whether UniProt query service has been established yet.
-//		if (uniProtQueryService == null) {
-//			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-//			
-//			// Create entry retrival service
-//			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-//		}		
-//	}
-	
-
-	// moved to uniprotutilities
-//	/**
-//	 * Returns the protein name(s) as formatted string
-//	 * @param desc ProteinDescription object.
-//	 * @return Protein name(s) as formatted string.
-//	 */
-//	public static String getProteinName(ProteinDescription desc) {
-//		Name name = null;
+//	public static Protein getProteinFromFasta(String id) throws IOException {
+//		// No mapping provided.
 //		
-//		if (desc.hasRecommendedName()) {
-//			name = desc.getRecommendedName();
-//		} else if (desc.hasAlternativeNames()) {
-//			name = desc.getAlternativeNames().get(0);
-//		} else if (desc.hasSubNames()) {
-//			name = desc.getSubNames().get(0);
+//		if (acc2pos == null) {
+//			// No index file given.
+//			if ((indexFile == null) || (file == null)) {
+//				UniProtUtilities uniprotweb = new UniProtUtilities();
+//				return uniprotweb.getProteinFromWebService(id);
+//			} else {
+//				try {
+//					readIndexFile();
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//					return null;
+//				}
+//			}
 //		}
-//		return (name == null) ? "unknown" : name.getFieldsByType(FieldType.FULL).get(0).getValue();
+//		Long pos = acc2pos.get(id);
+//
+//		if (!acc2pos.containsKey(id) || pos == null)  {
+//				System.out.println("Provided string does not match any protein entry: " + id);
+//				return null;
+//		}
+//
+//		if (raf == null) {
+//			raf = new RandomAccessFile(file, "r");
+//		}
+//
+//		raf.seek(pos);
+//		String line = "";
+//		String temp = "";
+//
+//		String header = "";
+//		while ((line = raf.readLine()) != null) {
+//			line = line.trim();
+//
+//			if (line.startsWith(">")) {
+//				if (!temp.equals("")) {
+//					break;
+//				}
+//				header = line;
+//			} else {
+//				temp += line;
+//			}
+//		}
+//		return new Protein(header, temp);
 //	}
-	
-	/**
-	 * Returns a specific protein from the FASTA file.
-	 * 
-	 * @param id The protein identifier. May be the UniProt identifier or accession number.
-	 * @return The Protein object.
-	 * @throws IOExceptiongetProteinFromFasta 
-	 */
-	public static Protein getProteinFromFasta(String id) throws IOException {
-		// No mapping provided.
-		
-		if (acc2pos == null) {
-			// No index file given.
-			if ((indexFile == null) || (file == null)) {
-				UniProtUtilities uniprotweb = new UniProtUtilities();
-				return uniprotweb.getProteinFromWebService(id);
-			} else {
-				try {
-					readIndexFile();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-					return null;
-				}
-			}
-		}
-		Long pos = acc2pos.get(id);
-
-		if (!acc2pos.containsKey(id) || pos == null)  {
-				System.out.println("Provided string does not match any protein entry: " + id);
-				return null;
-		}
-
-		if (raf == null) {
-			raf = new RandomAccessFile(file, "r");
-		}
-
-		raf.seek(pos);
-		String line = "";
-		String temp = "";
-
-		String header = "";
-		while ((line = raf.readLine()) != null) {
-			line = line.trim();
-
-			if (line.startsWith(">")) {
-				if (!temp.equals("")) {
-					break;
-				}
-				header = line;
-			} else {
-				temp += line;
-			}
-		}
-		return new Protein(header, temp);
-	}
 	
 	/**
 	 * Writes the FASTA index file to the disk.
@@ -473,33 +429,325 @@ public class FastaLoader {
 		}
 	}
 	
-	
-	public static void repairSequences(Connection conn) throws SQLException, IOException{
-		Map<String, Long> findAllProteins = ProteinAccessor.findAllProteins(conn);
+	/**
+	 * Methode which reads all *.fasta and creates an MPA compatible *.fasta.
+	 * @param fastaFiles. Files of the input *.fastas.
+	 * @param outpath. The output *.fasta file.
+	 * @param batchSize. Number of entries which should be stored in by one query
+	 * @param mascotFlag. Flag for the creation of a new Fasta add the specified direction.
+	 * @throws IOException 
+	 * @throws SQLException 
+	 */
+	public static void addFastaDatabases(File[] fastaFiles, File outpath, boolean mascotFlag, int batchSize) throws IOException, SQLException {
+
+		// Instance of the Buffered Reader
+		BufferedReader br = null;
+
+		// Name and directory of the new fasta
+		File outputFastaFile=  new File(Constants.FASTA_PATHS + outpath.getName());
+
+		// Open buffered writer to write new database.
+		BufferedWriter bw = new BufferedWriter(new FileWriter(outputFastaFile));
+
+		// Entry number
+		long entryNo = 0;
 		
-		for (Entry<String, Long> protEntry : findAllProteins.entrySet()) {
+		// Create a Protein entry in the database
+		Connection conn = DBManager.getInstance().getConnection();
+		
+		// List of all proteins stored already in the database
+		TreeMap<String, Long> allProts = ProteinAccessor.findAllProteinsWithID(conn);
+		
+		// Time for code optimization
+		LocalDateTime timePoint = LocalDateTime.now(); 
+		
+		// Iterate over all selected *.fasta-files.
+		for (int i = 0; i < fastaFiles.length; i++) {
 			
-			Long protID = protEntry.getValue();
-			System.out.println(protID + " " + protEntry.getKey());
-			ProteinAccessor protAcc = ProteinAccessor.findFromID(protID, conn);
-			if (protAcc.getSequence() == null || protAcc.getSequence().length()<1) {
-				String accession = protAcc.getAccession();
-				String desc = protAcc.getDescription();
-				Timestamp modificationdate = protAcc.getModificationdate();
-				Protein proteinFromFasta = getProteinFromFasta(accession);
-				String sequence = proteinFromFasta.getSequence().getSequence();
-				System.out.println("ENTRY:" + accession +" " + desc + " " + sequence);
-				ProteinAccessor.upDateProteinEntry(protID, accession, desc, sequence, modificationdate, conn);
-				conn.commit();
+			// Get the filename as prefix for the identifier
+			String filename = fastaFiles[i].getName().toString();
+			String filePath = fastaFiles[i].getAbsolutePath();
+			 // Get just the name of the FASTA
+			filename = filename.split("[.]")[0];
+			
+			// Get total number of FASTA entries
+			 int totalCountEntries = DigFASTAEntryParser.countEntries(filePath);
+			
+			// Initialize the buffered reader
+			br = new BufferedReader(new FileReader(fastaFiles[i]));
+
+			// The line in the *.fasta file
+			String line;
+			// The fasta sequence
+			String sequence = "";
+
+			// Initialize a list of FASTA entries to store them as bulk
+			ArrayList<DigFASTAEntry> fastaEntryList  = new ArrayList<DigFASTAEntry>(); 
+			
+			// Start the parsing of the FASTA file
+			line = br.readLine();
+			// Check if not an empty row occur and if begin of a new protein entry
+			if (line.trim().length() > 0 && line.charAt(0) == '>' ){	
+				entryNo = entryNo + 1;
+				// Get elements of the database entry
+				String header 		= line;
+
+				// Add Sequence
+				while((line=br.readLine()) != null){
+					// increase entry number
+					
+					// Check whether a new entry starts
+					if (line.trim().length() > 0 && line.charAt(0) == '>' ) {
+						entryNo = entryNo + 1;
+						// Get parsed fasta-entry and write it to the new fasta
+						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
+						writeEntry(bw, filename, entry);
+						
+						// Safe protein entry in the SQL DB after check if it is already in the DB
+						if (allProts.get(entry.getIdentifier()) == null) {
+							// If protein entry not already in the database add it to the store list
+							fastaEntryList.add(entry);
+							// Add new protein to the already stored list
+							allProts.put(entry.getIdentifier(), entry.getUniProtID());
+						}
+						
+						// give an update batchsize entries
+						if (entryNo % batchSize == 0) {
+							// Store proteins and also UniProtEntries
+							saveProteinsAndUniRefBatch(fastaEntryList, conn);
+							// Reset the fastaEntryList
+							 fastaEntryList = new ArrayList<DigFASTAEntry>(); 
+							 // Show progress
+							System.out.println("DB: " + filename + " " + (entryNo) + " of " + totalCountEntries + "time " + Duration.between(LocalDateTime.now(),timePoint));
+							timePoint = LocalDateTime.now();
+						}
+						
+						// Reset the sequence
+						sequence = "";
+						// Add new header
+						header = line;
+					}else{
+						sequence+=line;
+					}
+				}
+
+				// Safe last entry
+				DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
+				writeEntry(bw, filename, entry);
+				// Create a Protein entry in the database
+				if (allProts.get(entry.getIdentifier()) == null) {
+					fastaEntryList.add(entry);
+					allProts.put(entry.getIdentifier(), entry.getUniProtID());
+				}
+				// Store proteins and also UniProt entries
+				saveProteinsAndUniRefBatch(fastaEntryList, conn);
 			}else{
+				System.out.println("ERROR IN FASTA FORMAT, FIRST ROW WRONG FORMATTED");
+			}
+		}
+		br.close();
+		bw.flush();
+		bw.close();
+		
+		// Add permissions to the new *.fasta file
+		outputFastaFile.setExecutable(true);
+		outputFastaFile.setReadable(true); 
+		outputFastaFile.setWritable(true);
+
+		// Create a *.fasta for the mascot searches in the specified directory
+		if (mascotFlag) {
+			Files.copy(outputFastaFile.toPath(), outpath.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+//			Client.getInstance().firePropertyChange("new message", null, "Creating fasta copy for Mascot");
+		}
+		// Runs the fastaformater script
+		RunFastaFormater fastaFromater = new RunFastaFormater();
+		fastaFromater.formatFastaDatabase(outputFastaFile.toPath().toString());
+
+		// Add *.fasta filename to the client settings.
+		addFastaTotheClientSetting(outputFastaFile.getName());
+
+		conn.close();
+	}
+	
+	/**
+	 * Method to create for a group of FASTA entries the protein and uniProt table
+	 * @param fastaEntryList. The list of all parsed FASTA entries
+	 * @throws SQLException 
+	 */
+	private static void saveProteinsAndUniRefBatch(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException {
+		
+		// Get UniProt informations
+		UniProtUtilities utils = new UniProtUtilities();
+		TreeMap<String, UniProtEntryMPA> uniProtMapping = utils.fetchUniProtEntriesByFastaEntryList(fastaEntryList, true);
+		
+		// Store uniProt entries
+		TreeMap<String, Long> uniProtIDMapping = UniprotentryAccessor.addMulibleUniProtEntriesToDatabase(uniProtMapping, conn);
+		
+		// Adds the uniprotIds for the protein entries
+		for (DigFASTAEntry fastaentry : fastaEntryList) {
+			// Check whether UniProt entries are availble
+			if (uniProtIDMapping.get(fastaentry.getIdentifier()) !=null)  {
+				long uniProtID = uniProtIDMapping.get(fastaentry.getIdentifier());
+				fastaentry.setUniProtID(uniProtID);
+			}
+		}
+		
+		// Store protein entries
+		ProteinAccessor.addMulibleProteinsToDatabase(fastaEntryList, conn);
+		 
+		 // Commit everything
+		conn.commit();
+		
+	}
+
+	/**
+	 * Write a FASTA database entry.
+	 * @param bw. BufferedWriter that writes the data.
+	 * @throws IOException
+	 */
+	public void writeEntry(BufferedWriter bw, DigFASTAEntry fastaEntry) throws IOException {
+		writeEntry(bw, "",fastaEntry );
+	}
+	
+	/**
+	 * Write a FASTA database entry.
+	 * @param bw. BufferedWriter that writes the data.
+	 * @param prefix, Prefix for each identifier
+	 * @throws IOException
+	 */
+	public static void writeEntry(BufferedWriter bw, String prefix, DigFASTAEntry fastaEntry) throws IOException {
+		
+		// Container for the sequence
+		String sequenceContainer;
+		sequenceContainer = fastaEntry.getSequence();
+		
+		// Keep database Format
+		if (fastaEntry.getType().equals(Type.UNIPROTSPROT)) {
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|" + fastaEntry.getSubHeader().get(1));
+		}else if (fastaEntry.getType().equals(Type.UNIPROTTREMBL)) {
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|" + fastaEntry.getSubHeader().get(1));
+		}		else if (fastaEntry.getType().equals(Type.NCBIGENBANK)) {
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|" + fastaEntry.getSubHeader().get(3));
+		} 
+//		else if (getType().equals(Type.NCBIREFERENCE)) {
+//			bw.write(getType().dbStartFlag + prefix + "_" + getIdentifier());
+//			bw.write("|" + getSubHeader().get(3));
+//		} 
+		else if (fastaEntry.getType().equals(Type.Database)) {
+			bw.write(fastaEntry.getType().dbStartFlag  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|"  + "Metagenome unknown");
+		} 
+		else if (fastaEntry.getType().equals(Type.SILICO_PEPTIDE)) {
+			bw.write(fastaEntry.getType().dbStartFlag+  prefix + "_" + fastaEntry.getIdentifier());
+		} 
+		else if (fastaEntry.getType().equals(Type.METAGENOME1)) {
+			bw.write(fastaEntry.getType().dbStartFlag  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|"  + "Metagenome unknown");
+		} 
+		else if (fastaEntry.getType().equals(Type.METAGENOME2)) {
+			bw.write(">generic|"  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|"  + "Metagenome unknown");
+		} 
+		else if (fastaEntry.getType().equals(Type.METAGENOME3)) {
+			bw.write(">generic|"  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write("|"  + "Metagenome unknown");
+		} 
+		bw.newLine();
+		
+		
+		
+		// Makes a linebreak each 80 chars
+		while(sequenceContainer.length()>80){
+			bw.append(sequenceContainer.subSequence(0, 79));
+			bw.newLine();
+			sequenceContainer = sequenceContainer.substring(79);
+		}
+		bw.append(sequenceContainer);
+		bw.newLine();
+	}
+	
+	/**
+	 * Method to add new *.fasta to the client settings
+	 * @param fastaFile
+	 * @throws IOException 
+	 */
+	public static void addFastaTotheClientSetting(String fastaFile) throws IOException{
+
+		// Name of the new *.fasta
+		String newFastaFileName = fastaFile.split("[.]")[0];
+		
+		// Client settings file
+		String clientSettingsFileServer = null;
+		String clientSettingsFile = null;
+
+		clientSettingsFileServer  = Constants.CONFIGURATION_PATH_JAR + File.separator + "client-settings.txt";
+		// Get old parameter dialog
+		BufferedReader br 	= new BufferedReader(new FileReader(new File(clientSettingsFileServer)));
+		String header 		= br.readLine();
+		String fastaFiles 	= br.readLine();
+		br.close();
+		
+		// Write new parameter dialog with new fasta.
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(clientSettingsFileServer)));
+		bw.append(header);
+		bw.newLine();
+		bw.append(fastaFiles + "," + newFastaFileName);
+		bw.flush();
+		bw.close();
+		
+		// If using eclipse update of resource/conf necessary
+		if (!Starter.isJarExport()) {
+			
+			clientSettingsFile = Constants.DIR + Constants.SEP +"src"+ Constants.SEP + Constants.CONFIGURATION_PATH + "client-settings.txt";
+
+			// Get old parameter dialog
+			BufferedReader br2 	= new BufferedReader(new FileReader(new File(clientSettingsFile)));
+			String header2 		= br2.readLine();
+			String fastaFiles2 	= br2.readLine();
+			br2.close();
+			
+			// Write new parameter dialog with new fasta.
+			BufferedWriter bw2 = new BufferedWriter(new FileWriter(new File(clientSettingsFile)));
+			bw2.append(header2);
+			bw2.newLine();
+			bw2.append(fastaFiles2 + "," + newFastaFileName);
+			bw2.flush();
+			bw2.close();
+		} 
+	}
+	
+	
+//	
+//	
+//	public static void repairSequences(Connection conn) throws SQLException, IOException{
+//		TreeMap<String, Long> findAllProteins = ProteinAccessor.findAllProteinsWithID(conn);
+//		
+//		for (Entry<String, Long> protEntry : findAllProteins.entrySet()) {
+//			
+//			Long protID = protEntry.getValue();
+//			System.out.println(protID + " " + protEntry.getKey());
+//			ProteinAccessor protAcc = ProteinAccessor.findFromID(protID, conn);
+//			if (protAcc.getSequence() == null || protAcc.getSequence().length()<1) {
 //				String accession = protAcc.getAccession();
 //				String desc = protAcc.getDescription();
-//				System.out.println("EGAL:" + accession +" " + desc + " ");
-			}
-			
-			
-		}
-	
-	}
+//				Timestamp modificationdate = protAcc.getModificationdate();
+//				Protein proteinFromFasta = getProteinFromFasta(accession);
+//				String sequence = proteinFromFasta.getSequence().getSequence();
+//				System.out.println("ENTRY:" + accession +" " + desc + " " + sequence);
+//				ProteinAccessor.upDateProteinEntry(protID, accession, desc, sequence, modificationdate, conn);
+//				conn.commit();
+//			}else{
+////				String accession = protAcc.getAccession();
+////				String desc = protAcc.getDescription();
+////				System.out.println("EGAL:" + accession +" " + desc + " ");
+//			}
+//			
+//			
+//		}
+//	
+//	}
 
 }

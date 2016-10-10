@@ -6,8 +6,11 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -24,7 +27,6 @@ import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
-import de.mpa.client.ui.dialogs.AddFastaDialog;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.BlastDialog;
 import de.mpa.client.ui.dialogs.ColorsDialog;
@@ -34,8 +36,10 @@ import de.mpa.client.ui.dialogs.ExportSeparateExpMetaproteins;
 import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.db.DBDumper;
 import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.Uniprotentry.RepairEntry;
 
 /**
  * The main application frame's menu bar.
@@ -262,6 +266,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 				exportGraphML();
 			}
 		});
+		
+
+		
 
 		exportMenu.add(mpaItem);
 		exportMenu.addSeparator();
@@ -272,10 +279,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportMenu.add(graphmlItem);
 		
 		this.setExportMenuEnabled(false);
+		
 
 		// Update Menu
 		JMenu updateMenu = new JMenu();		
 		updateMenu.setText("Update");
+		
+		// Update contents
 
 		// fill in information for UniProt 100 90 50 etc. References
 		JMenuItem updateUniProtItem = new JMenuItem();
@@ -288,10 +298,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 					protected Object doInBackground() throws SQLException {
 						UniProtUtilities uniprot =  new UniProtUtilities();
 						// this method checks all uniprotentries and looks if there is something missing						
-//						List<RepairEntry> uniprots_for_repair = uniprot.find_incomplete_uniprotentries();
-//						System.out.println("list: "+uniprots_for_repair.size());
-//						// this method will try to fill up missing stuff
-//						uniprot.repair_uniprotentries(uniprots_for_repair);
+						List<RepairEntry> uniprots_for_repair = uniprot.find_incomplete_uniprotentries();
+						System.out.println("list: "+uniprots_for_repair.size());
+						// this method will try to fill up missing stuff
+						uniprot.repair_uniprotentries(uniprots_for_repair);
 						return null;
 					}
 				}.execute();
@@ -306,13 +316,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws SQLException  {
-//						UniProtUtilities uniprotweb = new UniProtUtilities();
-//						// find all proteins in the database and pass them to BLAST
-//						Map<String, Long> proteins = ProteinAccessor.findAllProteinsWithID(Client.getInstance().getConnection());
-//						// filter list to proteins for uniprot-retrueval
-//						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
-//						// make uniprotentries from proteinlist
-//						uniprotweb.make_uniprot_entries(update_protein_map);
+						UniProtUtilities uniprotweb = new UniProtUtilities();
+						// find all proteins in the database and pass them to BLAST
+						Map<String, Long> proteins = ProteinAccessor.findAllProteins(Client.getInstance().getConnection());
+						// filter list to proteins for uniprot-retrueval
+						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
+						// make uniprotentries from proteinlist
+						uniprotweb.make_uniprot_entries(update_protein_map);
 						return null;
 					}	
 				}.execute();
@@ -327,7 +337,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new BlastDialog(clientFrame, "Blast_Dialog");
 			}
 		});
-
 		// Delete all blast Hits
 		JMenuItem blastDeleteItem = new JMenuItem();
 		blastDeleteItem.setText("Delete Blast Hits");
@@ -340,12 +349,12 @@ public class ClientFrameMenuBar extends JMenuBar {
 				        "Warning", 
 				        JOptionPane.WARNING_MESSAGE);
 				if ((confirmCode != null) && (confirmCode.equals("DELETE"))) {										
-//					try {						
-////						UniProtUtilities.deleteblasthits();						
-//					} catch (SQLException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
+					try {						
+						UniProtUtilities.deleteblasthits();						
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -366,27 +375,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new UpdateNcbiTaxDialog(clientFrame, "Update NCBI-Taxonomy Dialog");
 			}
 		});
-		
-		// Add further FASTA Menu
-		JMenuItem addFastaDbItem = new JMenuItem();
-		addFastaDbItem.setText("Add Fasta Database");
-		addFastaDbItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_go16.png")));
-		addFastaDbItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			new AddFastaDialog(clientFrame, "Add further FASTA-Database");
-			}
-		});
-		
-		// Add items to update menu
-		updateMenu.add(updateUniProtItem);
-		updateMenu.add(updateEmptyUniProtItem);
-		updateMenu.add(blastItem);
-		updateMenu.addSeparator();
 		updateMenu.add(updateNcbiTaxItem);
-		updateMenu.addSeparator();
-		updateMenu.add(addFastaDbItem);
-		
+				
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
 		helpMenu.setText("Help");
@@ -483,6 +473,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 //    	AdvancedSettingsDialog.showDialog(clientFrame, "Export Results to CSV", true, new ResultExportParameters());
     }
     
+
+    
     /**
      * Executed when the graphML menu item is triggered. Via a file chooser the user can select the destination of the GraphML file.
      */
@@ -547,5 +539,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 			if (comp.getName() == "MCR") {comp.setEnabled(true);}
 						
 		}
-	}	 
+	}	
+    
 }

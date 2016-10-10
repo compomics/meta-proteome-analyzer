@@ -90,13 +90,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 							(ClusterRule) parameters.get("clusterRule").getValue();
 					switch (clusterRule) {
 						case UNIREF100:
-							return ph.getUniProtEntry().getUniRef100id();
+							return ph.getUniProtEntry().getUniRefMPA().getUniRef100();
 						case UNIREF90:
-							return ph.getUniProtEntry().getUniRef90id();
+							return ph.getUniProtEntry().getUniRefMPA().getUniRef90();
 						case UNIREF50:
-							return ph.getUniProtEntry().getUniRef50id();
+							return ph.getUniProtEntry().getUniRefMPA().getUniRef50();
 						default:
-							return ph.getUniProtEntry().getUniRef100id();
+							return ph.getUniProtEntry().getUniRefMPA().getUniRef100();
 					}
 				case ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN:
 					return ph.getCoverage();

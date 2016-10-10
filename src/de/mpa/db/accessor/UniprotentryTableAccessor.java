@@ -50,13 +50,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	protected long iUniprotentryid = Long.MIN_VALUE;
 
-
-	/**
-	 * This variable represents the contents for the 'fk_proteinid' column.
-	 */
-	protected long iFk_proteinid = Long.MIN_VALUE;
-
-
 	/**
 	 * This variable represents the contents for the 'taxid' column.
 	 */
@@ -99,11 +92,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * This variable represents the key for the 'uniprotentryid' column.
 	 */
 	public static final String UNIPROTENTRYID = "UNIPROTENTRYID";
-
-	/**
-	 * This variable represents the key for the 'fk_proteinid' column.
-	 */
-	public static final String FK_PROTEINID = "FK_PROTEINID";
 
 	/**
 	 * This variable represents the key for the 'taxid' column.
@@ -156,9 +144,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(aParams.containsKey(UNIPROTENTRYID)) {
 			this.iUniprotentryid = ((Long)aParams.get(UNIPROTENTRYID)).longValue();
 		}
-		if(aParams.containsKey(FK_PROTEINID)) {
-			this.iFk_proteinid = ((Long)aParams.get(FK_PROTEINID)).longValue();
-		}
 		if(aParams.containsKey(TAXID)) {
 			this.iTaxid = ((Long)aParams.get(TAXID)).longValue();
 		}
@@ -193,7 +178,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public UniprotentryTableAccessor(ResultSet aResultSet) throws SQLException {
 		this.iUniprotentryid = aResultSet.getLong("uniprotentryid");
-		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
 		this.iTaxid = aResultSet.getLong("taxid");
 		this.iEcnumber = (String)aResultSet.getObject("ecnumber");
 		this.iKonumber = (String)aResultSet.getObject("konumber");
@@ -211,15 +195,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public long getUniprotentryid() {
 		return this.iUniprotentryid;
-	}
-
-	/**
-	 * This method returns the value for the 'Fk_proteinid' column
-	 * 
-	 * @return	long	with the value for the Fk_proteinid column.
-	 */
-	public long getFk_proteinid() {
-		return this.iFk_proteinid;
 	}
 
 	/**
@@ -292,16 +267,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 */
 	public void setUniprotentryid(long aUniprotentryid) {
 		this.iUniprotentryid = aUniprotentryid;
-		this.iUpdated = true;
-	}
-
-	/**
-	 * This method sets the value for the 'Fk_proteinid' column
-	 * 
-	 * @param	aFk_proteinid	long with the value for the Fk_proteinid column.
-	 */
-	public void setFk_proteinid(long aFk_proteinid) {
-		this.iFk_proteinid = aFk_proteinid;
 		this.iUpdated = true;
 	}
 
@@ -389,7 +354,7 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * This method allows the caller to read data for this
 	 * object from a persistent store based on the specified keys.
 	 *
-	 * @param   aConn Connection to the persitent store.
+	 * @param   aConn Connection to the persistent store.
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
@@ -406,7 +371,6 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		while(lRS.next()) {
 			hits++;
 			iUniprotentryid = lRS.getLong("uniprotentryid");
-			iFk_proteinid = lRS.getLong("fk_proteinid");
 			iTaxid = lRS.getLong("taxid");
 			iEcnumber = (String)lRS.getObject("ecnumber");
 			iKonumber = (String)lRS.getObject("konumber");
@@ -524,17 +488,16 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 		if(!this.iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE uniprotentry SET uniprotentryid = ?, fk_proteinid = ?, taxid = ?, ecnumber = ?, konumber = ?, keywords = ?, uniref100 = ?, uniref90 = ?, uniref50 = ? WHERE uniprotentryid = ?");
+		PreparedStatement lStat = aConn.prepareStatement("UPDATE uniprotentry SET uniprotentryid = ?,taxid = ?, ecnumber = ?, konumber = ?, keywords = ?, uniref100 = ?, uniref90 = ?, uniref50 = ? WHERE uniprotentryid = ?");
 		lStat.setLong(1, iUniprotentryid);
-		lStat.setLong(2, iFk_proteinid);
-		lStat.setLong(3, iTaxid);
-		lStat.setObject(4, iEcnumber);
-		lStat.setObject(5, iKonumber);
-		lStat.setObject(6, iKeywords);
-		lStat.setObject(7, iUniref100);
-		lStat.setObject(8, iUniref90);
-		lStat.setObject(9, iUniref50);
-		lStat.setLong(10, iUniprotentryid);
+		lStat.setLong(2, iTaxid);
+		lStat.setObject(3, iEcnumber);
+		lStat.setObject(4, iKonumber);
+		lStat.setObject(5, iKeywords);
+		lStat.setObject(6, iUniref100);
+		lStat.setObject(7, iUniref90);
+		lStat.setObject(8, iUniref50);
+		lStat.setLong(9, iUniprotentryid);
 		int result = lStat.executeUpdate();		
 		lStat.close();
 		this.iUpdated = false;
@@ -549,51 +512,46 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO uniprotentry (uniprotentryid, fk_proteinid, taxid, ecnumber, konumber, keywords, uniref100, uniref90, uniref50) values(?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO uniprotentry (uniprotentryid, taxid, ecnumber, konumber, keywords, uniref100, uniref90, uniref50) values(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		if(iUniprotentryid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, iUniprotentryid);
 		}
-		if(iFk_proteinid == Long.MIN_VALUE) {
+		if(iTaxid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_proteinid);
-		}
-		if(iTaxid == Long.MIN_VALUE) {
-			lStat.setNull(3, 4);
-		} else {
-			lStat.setLong(3, iTaxid);
+			lStat.setLong(2, iTaxid);
 		}
 		if(iEcnumber == null) {
-			lStat.setNull(4, 12);
+			lStat.setNull(3, 12);
 		} else {
-			lStat.setObject(4, iEcnumber);
+			lStat.setObject(3, iEcnumber);
 		}
 		if(iKonumber == null) {
-			lStat.setNull(5, 12);
+			lStat.setNull(4, 12);
 		} else {
-			lStat.setObject(5, iKonumber);
+			lStat.setObject(4, iKonumber);
 		}
 		if(iKeywords == null) {
-			lStat.setNull(6, -1);
+			lStat.setNull(5, -1);
 		} else {
-			lStat.setObject(6, iKeywords);
+			lStat.setObject(5, iKeywords);
 		}
 		if(iUniref100 == null) {
-			lStat.setNull(7, -1);
+			lStat.setNull(6, -1);
 		} else {
-			lStat.setObject(7, iUniref100);
+			lStat.setObject(6, iUniref100);
 		}
 		if(iUniref90 == null) {
-			lStat.setNull(8, -1);
+			lStat.setNull(7, -1);
 		} else {
-			lStat.setObject(8, iUniref90);
+			lStat.setObject(7, iUniref90);
 		}
 		if(iUniref50 == null) {
-			lStat.setNull(9, -1);
+			lStat.setNull(8, -1);
 		} else {
-			lStat.setObject(9, iUniref50);
+			lStat.setObject(8, iUniref50);
 		}
 		int result = lStat.executeUpdate();
 

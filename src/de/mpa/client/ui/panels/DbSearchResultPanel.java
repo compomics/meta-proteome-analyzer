@@ -142,8 +142,6 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.util.ColorUtils;
 
-import java.lang.System;
-
 /**
  * Panel implementation for viewing database search results.
  * 
@@ -2298,8 +2296,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						PhylogenyTreeTableNode protNode = (PhylogenyTreeTableNode) children.nextElement();
 						ProteinHit protHit = (ProteinHit) protNode.getUserObject();
 						if(((Hit) protNode.getUserObject()).isSelected()) {
-							kNumbers.addAll(protHit.getUniProtEntry().getKNumbers());
-							ecNumbers.addAll(protHit.getUniProtEntry().getEcNumbers());
+							kNumbers.addAll(protHit.getUniProtEntry().getKonumbers());
+							ecNumbers.addAll(protHit.getUniProtEntry().getEcnumbers());
 						}
 					}
 					// Append K and EC numbers to URL
