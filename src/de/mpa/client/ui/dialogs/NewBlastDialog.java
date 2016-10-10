@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -20,7 +19,6 @@ import javax.swing.SwingWorker;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.ui.ClientFrame;

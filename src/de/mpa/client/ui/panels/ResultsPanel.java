@@ -64,7 +64,6 @@ import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;

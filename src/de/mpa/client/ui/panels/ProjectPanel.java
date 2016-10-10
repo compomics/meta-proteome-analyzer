@@ -6,13 +6,9 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -34,7 +30,6 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
@@ -53,11 +48,6 @@ import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.dialogs.NewBlastDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
-import de.mpa.db.accessor.Mascothit;
-import de.mpa.db.accessor.Omssahit;
-import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.XTandemhit;
 
 /**
  * Panel for displaying, manipulating and selecting available projects and the

@@ -1,20 +1,14 @@
 package de.mpa.db.storager;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import com.compomics.util.protein.Protein;
-
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.db.MapContainer;
-import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.PeptideAccessor;
-import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spec2pep;
 

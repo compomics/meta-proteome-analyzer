@@ -35,7 +35,6 @@ import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
-import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;

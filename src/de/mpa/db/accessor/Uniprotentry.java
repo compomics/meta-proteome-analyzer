@@ -9,12 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import java.sql.Types;
-import java.sql.JDBCType;
-
-import org.stringtemplate.v4.compiler.STParser.template_return;
 
 
 public class Uniprotentry extends UniprotentryTableAccessor {

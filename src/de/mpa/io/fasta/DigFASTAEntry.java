@@ -1,7 +1,5 @@
 package de.mpa.io.fasta;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.util.List;
 
 /**

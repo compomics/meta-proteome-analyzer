@@ -8,10 +8,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,20 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.swing.JOptionPane;
-
-import org.apache.commons.collections.list.TreeList;
-
 import com.compomics.util.protein.Header;
-
-import de.mpa.analysis.UniProtUtilities;
-import de.mpa.client.Client;
-import de.mpa.client.Constants;
-import de.mpa.client.ui.ClientFrame;
-import de.mpa.db.DBManager;
-import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.io.fasta.DigFASTAEntry.Type;
-import de.mpa.main.Starter;
 
 /**
  * Class for reading and writing of fasta entries

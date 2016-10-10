@@ -3,8 +3,6 @@ package de.mpa.client.ui.dialogs;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -17,13 +15,10 @@ import javax.swing.SwingWorker;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.analysis.UniProtUtilities;
-import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
-import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * Class for the BLAST Dialog

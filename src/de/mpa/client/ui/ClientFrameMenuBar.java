@@ -6,8 +6,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -35,7 +33,6 @@ import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.DBDumper;
-import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * The main application frame's menu bar.

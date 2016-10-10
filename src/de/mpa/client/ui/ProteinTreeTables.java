@@ -72,7 +72,6 @@ import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.SortableCheckBoxTreeTable.TableColumnExt2;
 import de.mpa.client.ui.TableConfig.FormatHighlighter;
