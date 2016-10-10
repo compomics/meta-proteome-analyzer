@@ -39,6 +39,7 @@ public class DigFASTAEntryParser {
 	 * Parse a FASTA database entry.
 	 * @param header. first line of FASTA entry.
 	 * @param body. Subsequent lines of FASTA entry.
+	 * @param number. Adds a number before the identifier if selected, Select "0L" if nothing should be added
 	 * @return database entry object
 	 */
 	public static DigFASTAEntry parseEntry(String header, String body, long number) {
@@ -74,13 +75,11 @@ public class DigFASTAEntryParser {
 				for (int i = 0; i < subHeaderList.size(); i++) {
 					subHeaderList.set(i, subHeaderList.get(i).replaceAll("'", ""));
 				}
-				// Removes wrong characters from the identifier
-//				identifier = identifier.replaceAll("[+]", "P");
-//				identifier = identifier.replaceAll("[-]", "M");
-//				identifier = identifier.replaceAll("[_]", "x");
-//				identifier = identifier.replaceAll(" ", "");
-//				identifier = identifier.replaceAll("'", "");
-//				identifier = "" + number + "_" +  identifier;
+				
+				if (number != 0L) {
+					identifier = "" + number + "_" +  identifier;
+				} 
+				
 				type = db_Type;
 				break;
 			}

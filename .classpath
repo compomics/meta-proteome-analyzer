@@ -52,8 +52,6 @@
 	<classpathentry kind="lib" path="lib/jackson-databind-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
 	<classpathentry kind="lib" path="lib/jaligner.jar"/>
-	<classpathentry kind="lib" path="lib/japi-1.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/japi-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/japi-1.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.18.1-GA.jar"/>
 	<classpathentry kind="lib" path="lib/javax.annotation-api-1.2.jar"/>
@@ -109,7 +107,6 @@
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
 	<classpathentry kind="lib" path="lib/snappy-java-1.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/solr-solrj-5.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/solr-solrj-6.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/spring-aop-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans-4.1.6.RELEASE.jar"/>
@@ -127,7 +124,6 @@
 	<classpathentry kind="lib" path="lib/swing-layout-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/uniprotjapi-2015-12.jar"/>
 	<classpathentry kind="lib" path="lib/utilities-3.17.7.jar"/>
 	<classpathentry kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>

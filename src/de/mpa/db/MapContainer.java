@@ -33,10 +33,10 @@ public class MapContainer {
 	  */
 	 public static FastaLoader FastaLoader;
 	 
-    /**
-     * Accession to proteinID mapping used for the UniProt entry querying.
-     */
-    public static Map<String, Long> UniprotQueryProteins;
+//    /**
+//     * Accession to proteinID mapping used for the UniProt entry querying.
+//     */
+//    public static Map<String, Long> UniprotQueryProteins;
     
     /**
      * Mapping from protein accession to protein ID.

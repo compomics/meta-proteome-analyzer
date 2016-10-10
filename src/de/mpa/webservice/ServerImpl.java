@@ -120,7 +120,6 @@ public class ServerImpl implements Server {
 		FastaLoader fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta"));
 		
-		
 		// Check for additional peptide FASTA file and create if needed
 		if (dbSearchSettings.isXTandem() || dbSearchSettings.isOmssa()) {
 			if (dbSearchSettings.getPepDBFlag() && fastaLoader.getPepFile() == null) {
@@ -153,7 +152,7 @@ public class ServerImpl implements Server {
 //		FastaLoader.getInstance().loadPepFile();
 		
 		// Init protein map for UniProt entry retrieval.
-		MapContainer.UniprotQueryProteins = new HashMap<String, Long>();
+//		MapContainer.UniprotQueryProteins = new HashMap<String, Long>();
 		
 		// X!Tandem job
 		if (dbSearchSettings.isXTandem()) {

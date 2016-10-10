@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jar" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
 	  <!-- Default property values, if not overridden elsewhere: -->
-	  <property name='build' location="${user.home}/mpa-server" />	  <property name='app.version' value='1.5.0'/>
+	  <property name='build' location="${user.home}/mpa-server" />	  <property name='app.version' value='1.5.2'/>
 	  <property name='app.name' value='MPA Server'/>
 	  <property name='distro-name' value='mpa-server-${app.version}'/>
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <jar destfile="mpa-server-1.5.0.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="mpa-server-1.5.2.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="de.mpa.webservice.WSPublisher"/>
                 <attribute name="Class-Path" value="."/>
