@@ -54,7 +54,7 @@ public class UniProtJapiTest extends TestCase {
 	public void setUp() throws ServiceException {
 		
 		// Fill test lists O30318 B5YNV2
-		accessionListSingleCorrect.add("B5YNV2");
+		accessionListSingleCorrect.add("O30318");
 		
 		accessionListSingleWrong.add("P0C7V5");
 		//String accession = "A0AJ21Z";

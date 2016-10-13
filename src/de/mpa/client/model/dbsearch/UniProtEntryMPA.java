@@ -1,5 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,12 @@ import de.mpa.db.accessor.UniprotentryAccessor;
  * @author R. Heyer
  *
  */
-public class UniProtEntryMPA {
+public class UniProtEntryMPA implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The uniprotentryID
@@ -54,12 +60,14 @@ public class UniProtEntryMPA {
 	 * Default constructur
 	 */
 	public UniProtEntryMPA() {
+		System.out.println("this entry III");
 	}
 
 	/**
-	 * Constructur
+	 * Constructor
 	 */
 	public UniProtEntryMPA(UniProtEntry uniProtEntry, UniRefEntryMPA uniRefEntry) {
+		
 		// Fill uniProtEntry
 		this.accession = uniProtEntry.getPrimaryUniProtAccession().toString();
 
@@ -88,11 +96,11 @@ public class UniProtEntryMPA {
 	 * 
 	 * Class to fill an uniProtEntryMPA from the SQL UniProt entry
 	 * @param uniProtAccessor
-	 * @return UniProtEntryMPA. The uniProt entry from the sql database
 	 */
 	public UniProtEntryMPA(UniprotentryAccessor uniProtAccessor) {
-		
+			// uniprot ID
 			this.uniProtID 		= uniProtAccessor.getUniprotentryid();
+			// taxonomyID
 			this.taxid 			= uniProtAccessor.getTaxid();
 			// EC number
 			String ecnumber = uniProtAccessor.getEcnumber();
@@ -129,11 +137,6 @@ public class UniProtEntryMPA {
 			String uniref90 = uniProtAccessor.getUniref90();
 			String uniref50 = uniProtAccessor.getUniref50();
 			this.uniRefMPA 	= new UniRefEntryMPA(uniref100,uniref90, uniref50);
-			
-			
-			
-
-		
 	}
 
 	/**

@@ -169,17 +169,9 @@ public class XTandemStorager extends BasicStorager {
                                 hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
                                 domain.getProteinKey();
                                 // parse the FASTA header
-                                System.out.println("Xtandem Accession??;: " + protMap.getProtein(domain.getProteinKey()).getLabel());
                                 DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" + protMap.getProtein(domain.getProteinKey()).getLabel(), "", 0L);
                                 String accession =  entry.getIdentifier();
-                                System.out.println(accession);
                                 
-                                
-                               /// TODO
-//                                DigFASTAEntryParser.parseEntry(header, body)
-//                                Header header = Header.parseFromFASTA(protMap.getProtein(domain.getProteinKey()).getLabel());
-//                                String accession = header.getAccession();
-                                 
                                 hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));
                                 hitdata.put(XtandemhitTableAccessor.END, Long.valueOf(domain.getDomainEnd()));
                                 hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());

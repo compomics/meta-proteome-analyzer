@@ -164,18 +164,6 @@ public class AddFastaDialog extends JDialog {
 			fastaFiles = fastaChooser.getSelectedFiles();
 		}
 
-		// Check for maximum 6 chars
-		for (int j = 0; j < fastaFiles.length; j++) {
-			String filename = fastaFiles[j].getName().toString();
-			filename = filename.split("[.]")[0];
-			if (filename.length()>6 || !StringUtils.isAlphanumeric(filename)) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Error", "The names of the fasta databases may comprise maximal 6 " +
-								"characters or numbers", null, null, null, ErrorLevel.SEVERE, null));
-				close();
-			}
-		}
-		
 		// Define name for the fasta database.
 			JFileChooser outputChooser = new ConfirmFileChooser();
 			ClientFrame clientFrame = ClientFrame.getInstance();

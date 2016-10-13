@@ -269,15 +269,11 @@ public class PeptideDigester {
 						}
 						// Create Entry
 						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);	
-						System.out.println("HEADER " + header);
-						System.out.println("HEADER " + sequence);
 						// Process Entry
-						DigFASTAEntry[] peptides = digestEntry(entry,
-								missedCleavage,minLength,maxLength);
+						DigFASTAEntry[] peptides = digestEntry(entry,missedCleavage,minLength,maxLength);
 						for (int j = 0; j < peptides.length; j++) {
 							// Note peptide to protein relation
 							String pep = peptides[j].getSequence();
-							System.out.println(pep);
 							if (peptideToProteinMap.containsKey(pep)) {
 								peptideToProteinMap.get(pep).add(entry.getIdentifier());
 							} else {
@@ -294,7 +290,13 @@ public class PeptideDigester {
 									AA = FileExtensions.indexOf(Character.toString(pep.charAt(0)) + Character.toString(pep.charAt(0)));									
 								}
 								// new sequence - write the entry to corresponding file
-								peptides[j].(writer.get(AA));								
+								BufferedWriter bw = writer.get(AA);
+						        // Keep database Format
+						        bw.write(peptides[j].getType()  + peptides[j].getIdentifier());
+						        bw.newLine();
+						        // Add sequence, but perform a line break after 58 chars (with line break 59-60)
+						        bw.append(sequence);
+						        bw.newLine();
 								peptideNumberUnique.incrementAndGet();
 								count++;
 								if(count % 10000 == 0) {						
@@ -497,8 +499,8 @@ public class PeptideDigester {
 		int i = 0;
 		for (String peptide : cleavedPeptides) {
 			String identifier = String.valueOf(peptideNumber.incrementAndGet());
-			results[i] = new DigFASTAEntry(identifier, "pep|"+identifier, 
-					peptide, Type.SILICO_PEPTIDE, new ArrayList<String>());
+			results[i] = new DigFASTAEntry(identifier, identifier, "", peptide, Type.SILICO_PEPTIDE, new ArrayList<String>());
+			
 			i++;
 		}
 		

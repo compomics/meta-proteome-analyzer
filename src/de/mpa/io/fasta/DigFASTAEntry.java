@@ -73,10 +73,19 @@ public class DigFASTAEntry {
 	private long uniProtID = -1;
 	
 	/**
-	 * Constructor for a database entry
+	
 	 * @param identifier. The identifier of the database entry.
 	 * @param header. The header of a database entry.
 	 * @param sequence. The amino acid sequence of the database entry.
+	 */
+	/**
+	 * Constructor for a database entry
+	 * @param identifier. The identifier of the database entry.
+	 * @param header. The header of a database entry.
+	 * @param description. The description of the database entry.
+	 * @param sequence. The sequence of the database entry.
+	 * @param type. The type of the database entry
+	 * @param subHeaderList. The subheaderlist of the database entry
 	 */
 	public DigFASTAEntry(String identifier, String header, String description, String sequence, Type type, List<String> subHeaderList){
 		this.identifier 		= identifier;

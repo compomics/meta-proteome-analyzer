@@ -278,29 +278,6 @@ public class Constants {
 		return projectsFile;
 	}
 	
-//	/**
-//	 * Returns the names of the nodes contained in the path from the KEGG
-//	 * pathway root to the leaf identified by the provided pathway ID.
-//	 * 
-//	 * @param pw The pathway ID.
-//	 * @return The array of node names leading to the leaf identified by 
-//	 * the specified ID or <code>null</code> if the ID could not be found.
-//	 */
-//	public static Object[] getKEGGPathwayPath(Short pw) {
-//		String pwString = String.format("%05d", pw);
-//		// iterate tree leaves to find pathway identified by id
-//		Enumeration dfEnum = ((DefaultMutableTreeNode) KEGG_ORTHOLOGY_ROOT).depthFirstEnumeration();
-//		while (dfEnum.hasMoreElements()) {
-//			DefaultMutableTreeNode node = (DefaultMutableTreeNode) dfEnum.nextElement();
-//			if (node.isLeaf()) {
-//				if (((String) node.getUserObject()).startsWith(pwString)) {
-//					return node.getUserObjectPath();
-//				}
-//			}
-//		}
-//		return null;
-//	}
-	
 	/**
 	 * Concatenates two one-dimensional object arrays.
 	 * 
@@ -383,9 +360,6 @@ public class Constants {
 				"Table Vertical Bar Chart E Gradient Start"),
 		VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR("vertBarChartHighlighterE.endColor",
 				"Table Vertical Bar Chart E Gradient End"),
-		/* Progress Bar colors */
-//		PROGRESS_BAR_START_COLOR("progressBar.startColor", "Progress Bar Gradient Start"),
-//		PROGRESS_BAR_END_COLOR("progressBar.endColor", "Progress Bar Gradient End");
 		PROGRESS_BAR_FOREGROUND_COLOR("progressBar.foregroundColor", "Progress Bar Foreground Color");
 		
 		/**
@@ -530,8 +504,6 @@ public class Constants {
 			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
 			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
 			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
-//			put(UIColor.PROGRESS_BAR_START_COLOR, new Color(169, 191, 217));
-//			put(UIColor.PROGRESS_BAR_END_COLOR, new Color(214, 233, 255));
 			put(UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
 		}
 	});

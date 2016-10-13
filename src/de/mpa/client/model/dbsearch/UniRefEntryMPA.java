@@ -1,11 +1,18 @@
 package de.mpa.client.model.dbsearch;
 
+import java.io.Serializable;
+
 /**
  * An Uniref entry
  * @author R. Heyer
  *
  */
-public class UniRefEntryMPA {
+public class UniRefEntryMPA implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The uniRef100.

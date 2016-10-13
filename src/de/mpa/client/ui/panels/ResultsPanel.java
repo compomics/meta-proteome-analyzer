@@ -395,13 +395,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 			}
 		});
 
-		//TODO> Robbie fetch multiple results
+		// Fetch multiple results
 		fetchMultipleResultsBtn = new JButton("Fetch Multi-Results", IconConstants.RESULTS_FETCH_ICON);
 		fetchMultipleResultsBtn.setRolloverIcon(IconConstants.RESULTS_FETCH_ROLLOVER_ICON);
 		fetchMultipleResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);
 		fetchMultipleResultsBtn.setToolTipText("Fetches the results from multiple experiments and process them together");
 		fetchMultipleResultsBtn.addActionListener(new ActionListener() {
-			@SuppressWarnings("null")
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// Get selected experiments
@@ -992,6 +991,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		@Override
 		protected Integer doInBackground() {
+			
 			// Name of the current thread
 			Thread.currentThread().setName("FetchResultsThread");
 
@@ -1029,7 +1029,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 						client.dumpBackupDatabaseSearchResult();
 					}
 				}
-
 				return 1;
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),

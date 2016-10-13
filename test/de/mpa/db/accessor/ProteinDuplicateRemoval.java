@@ -207,25 +207,6 @@ public class ProteinDuplicateRemoval {
 							conn.commit();
 							inspecthit_updates++;
 				        }
-						//
-						// cruxhittoprot table
-				        //
-						List<Cruxhit2protTableAccessor> cruxhittoprot_list = new ArrayList<Cruxhit2protTableAccessor>();
-				        prs = conn.prepareStatement("select cx.* from cruxhit2prot cx where cx.fk_proteinid = ?");
-				        prs.setLong(1, protid);
-				        aRS = prs.executeQuery();				        
-				        while (aRS.next()) {
-				        	Cruxhit2protTableAccessor hit = new Cruxhit2protTableAccessor(aRS);
-				        	cruxhittoprot_list.add(hit);	
-				        }
-				        aRS.close();
-				        prs.close();				        
-				        for (Cruxhit2protTableAccessor cruxhit2prot : cruxhittoprot_list) {
-				        	cruxhit2prot.setFk_proteinid(current_chosen_id);
-				        	cruxhit2prot.update(conn);
-							conn.commit();							
-							cruxhit2prot_updates++;
-				        }
 				        //
 				        // protein deletion last
 				        //

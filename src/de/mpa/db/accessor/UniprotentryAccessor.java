@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -57,6 +58,28 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 	}
 	
 	/**
+	 * This method allows the caller to obtain all rows for this
+	 * table from a persistent store.
+	 *
+	 * @param   aConn Connection to the persitent store.
+	 * @return   ArrayList<UniprotentryTableAccessor>   with all entries for this table.
+	 */
+	public static ArrayList<UniprotentryAccessor> findAllEntries(Connection aConn) throws SQLException {
+		ArrayList<UniprotentryAccessor>  entities = new ArrayList<UniprotentryAccessor>();
+		Statement stat = aConn.createStatement();
+		ResultSet rs = stat.executeQuery(getBasicSelect());
+		while(rs.next()) {
+			entities.add(new UniprotentryAccessor(rs));
+		}
+		rs.close();
+		stat.close();
+		return entities;
+	}
+	
+	
+	
+	
+	/**
 	 * This method will find a uniprot entry from the current connection, based on the specified uniprot ID.
 	 *
 	 * @param uniprotID long with the UniProtEntry ID of the protein to find.
@@ -75,9 +98,6 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 		if (uniProtAccessor != null) {
 			temp = new UniProtEntryMPA(uniProtAccessor);
 		}
-	
-		
-		
 		return temp;
 	}
 	

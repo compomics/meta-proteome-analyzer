@@ -160,12 +160,8 @@ public class OmssaStorager extends BasicStorager {
 						this.storeSpec2Pep(searchspectrumID, peptideID);
 
 						// Parse the FASTA header
-//						Header header = Header.parseFromFASTA(pepHit.MSPepHit_defline);
-//						String accession = header.getAccession();
-						System.out.println("OMMSAHIT" + pepHit.MSPepHit_defline);
-                        DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(pepHit.MSPepHit_defline, "", 0L);
+                        DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" +pepHit.MSPepHit_defline, "", 0L);
                         String accession = entry.getIdentifier();
-                        System.out.println(accession);
 
 						// Scan for additional protein hits
              	    	HashSet<String> accessionSet = new HashSet<String>();
@@ -179,7 +175,6 @@ public class OmssaStorager extends BasicStorager {
 						}
 						
 						for (String acc : accessionSet) {
-//							Long proteinID = this.storeProtein(peptideID, acc);
 							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
 							hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	protSql.getProteinid());
 							

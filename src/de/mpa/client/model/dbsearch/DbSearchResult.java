@@ -98,9 +98,7 @@ public class DbSearchResult implements Serializable {
 			spectrumMatch = currentSpectrumMatch;
 		}
 		
-		
-		PeptideHit currentPeptideHit =
-				this.getPeptideHit(peptideHit.getSequence());
+		PeptideHit currentPeptideHit =	this.getPeptideHit(peptideHit.getSequence());
 		if (currentPeptideHit != null) {
 			currentPeptideHit.addExperimentIDs(experimentIDs);
 			peptideHit = currentPeptideHit;
@@ -113,8 +111,7 @@ public class DbSearchResult implements Serializable {
 			proteinHit = currentProteinHit;
 		} else {
 			// wrap new protein in meta-protein
-			MetaProteinHit mph = new MetaProteinHit(
-					"Meta-Protein " + proteinHit.getAccession(), proteinHit);
+			MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + proteinHit.getAccession(), proteinHit);
 			proteinHit.setMetaProteinHit(mph);
 			this.metaProteins.add(mph);
 		}

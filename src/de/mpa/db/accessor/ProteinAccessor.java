@@ -62,8 +62,8 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @return ProteinAccessor-Set
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
-	public static TreeSet<ProteinAccessor> findAllProteinAccessors(Connection aConn) throws SQLException {
-		TreeSet<ProteinAccessor> proteins = new TreeSet<ProteinAccessor>();
+	public static ArrayList<ProteinAccessor> findAllProteinAccessors(Connection aConn) throws SQLException {
+		ArrayList<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
 		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
 		// this is likely to crash if we have too many proteins ...
 		PreparedStatement ps = aConn.prepareStatement("SELECT * FROM protein pr");

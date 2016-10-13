@@ -192,7 +192,6 @@ public class Client {
 			// connect to database
 			if (connectionParams == null) {
 				connectionParams = new ConnectionParameters();
-				System.out.println("Params");
 			}
 			
 			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
@@ -725,6 +724,7 @@ public class Client {
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+			System.out.println("THis Error");
 		}
 	}
 	

@@ -501,7 +501,7 @@ public class FastaLoader {
 						entryNo = entryNo + 1;
 						// Get parsed fasta-entry and write it to the new fasta
 						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
-						writeEntry(bw, filename, entry);
+						writeEntry(bw, "", entry);
 						
 						// Safe protein entry in the SQL DB after check if it is already in the DB
 						if (allProts.get(entry.getIdentifier()) == null) {
@@ -533,7 +533,7 @@ public class FastaLoader {
 
 				// Safe last entry
 				DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
-				writeEntry(bw, filename, entry);
+				writeEntry(bw, "", entry);
 				// Create a Protein entry in the database
 				if (allProts.get(entry.getIdentifier()) == null) {
 					fastaEntryList.add(entry);
@@ -623,13 +623,13 @@ public class FastaLoader {
 		
 		// Keep database Format
 		if (fastaEntry.getType().equals(Type.UNIPROTSPROT)) {
-			bw.write(fastaEntry.getType().dbStartFlag + prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(1));
 		}else if (fastaEntry.getType().equals(Type.UNIPROTTREMBL)) {
-			bw.write(fastaEntry.getType().dbStartFlag + prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(1));
 		}		else if (fastaEntry.getType().equals(Type.NCBIGENBANK)) {
-			bw.write(fastaEntry.getType().dbStartFlag + prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(3));
 		} 
 //		else if (getType().equals(Type.NCBIREFERENCE)) {
@@ -637,22 +637,22 @@ public class FastaLoader {
 //			bw.write("|" + getSubHeader().get(3));
 //		} 
 		else if (fastaEntry.getType().equals(Type.Database)) {
-			bw.write(fastaEntry.getType().dbStartFlag  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(fastaEntry.getType().dbStartFlag  +  prefix  + fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
 		} 
 		else if (fastaEntry.getType().equals(Type.SILICO_PEPTIDE)) {
-			bw.write(fastaEntry.getType().dbStartFlag+  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(fastaEntry.getType().dbStartFlag+  prefix  + fastaEntry.getIdentifier());
 		} 
 		else if (fastaEntry.getType().equals(Type.METAGENOME1)) {
-			bw.write(fastaEntry.getType().dbStartFlag  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(fastaEntry.getType().dbStartFlag  +  prefix + fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
 		} 
 		else if (fastaEntry.getType().equals(Type.METAGENOME2)) {
-			bw.write(">generic|"  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(">generic|"  +   fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
 		} 
 		else if (fastaEntry.getType().equals(Type.METAGENOME3)) {
-			bw.write(">generic|"  +  prefix + "_" + fastaEntry.getIdentifier());
+			bw.write(">generic|"  +  prefix + fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
 		} 
 		bw.newLine();

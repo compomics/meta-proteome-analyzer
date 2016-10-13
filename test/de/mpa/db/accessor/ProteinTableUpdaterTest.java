@@ -248,23 +248,6 @@ public class ProteinTableUpdaterTest {
 				pep2prot.update(conn);
 				conn.commit();
 			}
-	    	List<Cruxhit2protTableAccessor> temp = new ArrayList<Cruxhit2protTableAccessor>();
-	    	
-	        PreparedStatement ps2 = conn.prepareStatement("select x.* from cruxhit2prot x where x.fk_proteinid = ?");
-	        ps2.setLong(1, proteinID);
-	        ResultSet rs2 = ps2.executeQuery();
-	        while (rs2.next()) {
-	        	Cruxhit2protTableAccessor hit = new Cruxhit2protTableAccessor(rs2);
-	            temp.add(hit);	
-	        }
-	        rs2.close();
-	        ps2.close();
-	        
-	        for (Cruxhit2protTableAccessor xTandemhit : temp) {
-				xTandemhit.setFk_proteinid(newProteinID);
-				xTandemhit.update(conn);
-				conn.commit();
-			}
 		}
 		System.out.println("Duplicates: " + duplicatesMap.size());
 	}

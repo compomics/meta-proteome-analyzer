@@ -146,14 +146,12 @@ public class ExperimentComparison {
 											+ "|"
 											+ prot.getTaxonomyNode()
 													.getName() + "|");
-									for (String str : prot.getUniProtEntry()
-											.getEcNumbers()) {
+									for (String str : prot.getUniProtEntry().getEcnumbers()) {
 										build.append(str + ";");
 									}
 									build.deleteCharAt(build.length() - 1);
 									build.append("|");
-									for (String str : prot.getUniProtEntry()
-											.getKNumbers()) {
+									for (String str : prot.getUniProtEntry().getKonumbers()) {
 										build.append(str + ";");
 									}
 									build.deleteCharAt(build.length() - 1);
@@ -185,6 +183,4 @@ public class ExperimentComparison {
 	public Map<String, Long[]> getDataMap() {
 		return dataMap;
 	}
-    
-
 }

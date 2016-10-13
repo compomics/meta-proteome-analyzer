@@ -35,6 +35,7 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.cypher.CypherQuery;
 import de.mpa.graphdb.edges.RelationType;
@@ -220,15 +221,15 @@ public class GraphDatabaseHandler {
 		this.addPeptides(protHit.getPeptideHitList(), proteinVertex);
 		
 		// Add enzyme numbers
-		ReducedUniProtEntry uniprotEntry = protHit.getUniProtEntry();
+		UniProtEntryMPA uniprotEntry = protHit.getUniProtEntry();
 		// Null check is needed, as if no (reduced) UniProt Entry is provided, enzymes, ontologies, pathways and taxonomies can be skipped
 		if (uniprotEntry != null) {
 			
-			List<String> ecNumbers = uniprotEntry.getEcNumbers();
+			List<String> ecNumbers = uniprotEntry.getEcnumbers();
 			this.addEnzymeNumbers(ecNumbers, proteinVertex);
 			
 			// Add pathways.		
-			List<String> koNumbers = uniprotEntry.getKNumbers();
+			List<String> koNumbers = uniprotEntry.getKonumbers();
 			this.addPathways(koNumbers, proteinVertex);
 			
 			// Add ontologies
@@ -427,7 +428,7 @@ public class GraphDatabaseHandler {
 	 */
 	private void addOntologies(ProteinHit protHit, Vertex proteinVertex) {
 		Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
-		ReducedUniProtEntry entry = protHit.getUniProtEntry();
+		UniProtEntryMPA entry = protHit.getUniProtEntry();
 		Vertex ontologyVertex = null;
 		
 		// Entry must be provided

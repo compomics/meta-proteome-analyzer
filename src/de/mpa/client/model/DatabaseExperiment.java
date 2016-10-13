@@ -829,8 +829,6 @@ public class DatabaseExperiment extends AbstractExperiment {
 				PeptideHit peptideHit = null;
 				PeptideSpectrumMatch psm = null;
 				Set<Long> experimentIDs = new HashSet<Long>();
-				HashMap<String, List<TaxonomyNode>> blast_up_map = new HashMap<String, List<TaxonomyNode>>();
-				HashMap<String, String> blast_primary_acc_map = new HashMap<String, String>();
 				experimentIDs.add(this.getID());
 				// count number of omssahits
 				PreparedStatement countps = conn.prepareStatement("SELECT COUNT(*) " +
@@ -885,9 +883,8 @@ public class DatabaseExperiment extends AbstractExperiment {
 				// go through ommsa result table and construct object
 				while (rs.next()) {
 					String complete_accession = rs.getString("protein.accession");
-						// Fetch remaining information for OMMSA entries due to speed
 						PreparedStatement ps2 = conn.prepareStatement("SELECT omssahit.*, " +
-								"protein.description, protein.sequence, protein.proteinid, protein.accession,protein.fk_uniprotentryid," + 
+								"protein.description, protein.sequence, protein.proteinid, protein.accession, protein.fk_uniprotentryid," + 
 								"peptide.sequence " +
 								"FROM omssahit " +
 								"INNER JOIN protein on protein.proteinid=omssahit.fk_proteinid " +
@@ -935,8 +932,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 							peptideHit = pepmap.get(rs2.getString("peptide.sequence"));
 							peptideHit.addSpectrumMatch(rs2.getString("peptide.sequence"), psm);
 							peptideHit.addExperimentIDs(experimentIDs);
-						}
-						else {
+						}else {
 							peptideHit = new PeptideHit(rs2.getString("peptide.sequence"), psm);
 							peptideHit.addSpectrumMatch(rs2.getString("peptide.sequence"), psm);
 							pepmap.put(rs2.getString("peptide.sequence"), peptideHit);
@@ -947,13 +943,13 @@ public class DatabaseExperiment extends AbstractExperiment {
 							prothit.addPeptideHit(peptideHit);
 							prothit.addExperimentIDs(experimentIDs);				        
 						}else{
+							// Define uniProt entry
 							UniProtEntryMPA uniprot = null;
-							// Fetch Uniprot entry
+							// Define taxon node
 							TaxonomyNode taxonomyNode;
+							// Fetch Uniprot entry
 							if (rs2.getLong("protein.fk_uniprotentryid") != -1L) {
-								System.out.println("TEST" + rs2.getLong("protein.fk_uniprotentryid")+ " " +complete_accession);
 								UniprotentryAccessor uniprotAccessor = UniprotentryAccessor.findFromID(rs2.getLong("protein.fk_uniprotentryid"), conn);
-								
 								uniprot = new UniProtEntryMPA(uniprotAccessor);
 								// retrieve taxonomy branch
 								taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniprotAccessor.getTaxid(), taxonomyMap, conn);		
@@ -1012,10 +1008,8 @@ public class DatabaseExperiment extends AbstractExperiment {
 				rs = ps.executeQuery();			    
 
 				// go through table and construct object
-
 				while (rs.next()) {
 					String complete_accession = rs.getString("protein.accession");
-
 						PreparedStatement ps2 = conn.prepareStatement("SELECT xtandemhit.*, " +
 								"protein.description, protein.sequence, protein.proteinid, protein.accession, protein.fk_uniprotentryid, " + 
 								"peptide.sequence " +
@@ -1109,6 +1103,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 				ps2.close();
 				rs2.close();
 				}
+				
 				// progress bar
 				client.firePropertyChange("progressmade", true, false);
 				// close and finish
@@ -1123,7 +1118,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 				
 				// end of xtandem-block
 				// start of mascot block
-				// consturct result set --> should reduce select * to specific columns to save memory? 
+				// construct result set --> should reduce select * to specific columns to save memory? 
 				ps = conn.prepareStatement("SELECT mascothit.mascothitid, mascothit.fk_searchspectrumid, mascothit.fk_proteinid, " +
 						"searchspectrum.searchspectrumid, searchspectrum.fk_spectrumid, protein.accession, protein.fk_uniprotentryid, " + 
 						"searchspectrum.fk_experimentid " +
@@ -1350,7 +1345,6 @@ public class DatabaseExperiment extends AbstractExperiment {
 		long proteinID = hit.getFk_proteinid();
 		ProteinAccessor protein = ProteinAccessor.findFromID(proteinID, conn);
 		
-		
 		// retrieve UniProt meta-data
 		UniprotentryAccessor uniprotAccessor = UniprotentryAccessor.findFromID(protein.getFK_UniProtID(), conn);
 		UniProtEntryMPA uniProtEntryMPA = null;
@@ -1358,7 +1352,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 		TaxonomyNode taxonomyNode = null;
 		// if meta-data exists...
 		if (uniprotAccessor != null) {
-			
+			// Create new uniprot entry
 			uniProtEntryMPA = new UniProtEntryMPA(uniprotAccessor);
 			
 			// ... wrap it in a UniProt entry container class
