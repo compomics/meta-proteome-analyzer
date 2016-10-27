@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <bioml label="x! taxon-to-file matching list">
-	<taxon label="C:\fasta\uniprot_sprot_decoy.fasta">
-		<file format="peptide" URL="C:\fasta\uniprot_sprot_decoy.fasta" />
+	<taxon label="S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta">
+		<file format="peptide" URL="S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta" />
 	</taxon>
 </bioml>

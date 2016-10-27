@@ -8,13 +8,13 @@
 	<note type="input" label="list path, taxonomy information">taxonomy.xml</note>
 
 <note>spectrum parameters</note>
-	<note type="input" label="spectrum, fragment monoisotopic mass error">0.5</note>
-	<note type="input" label="spectrum, parent monoisotopic mass error plus">1.0</note>
-	<note type="input" label="spectrum, parent monoisotopic mass error minus">1.0</note>
+	<note type="input" label="spectrum, fragment monoisotopic mass error">0.7999999999999999</note>
+	<note type="input" label="spectrum, parent monoisotopic mass error plus">10.0</note>
+	<note type="input" label="spectrum, parent monoisotopic mass error minus">10.0</note>
 	<note type="input" label="spectrum, parent monoisotopic mass isotope error">yes</note>
 	<note type="input" label="spectrum, fragment monoisotopic mass error units">Daltons</note>
 	<note>The value for this parameter may be 'Daltons' or 'ppm': all other values are ignored</note>
-	<note type="input" label="spectrum, parent monoisotopic mass error units">Daltons</note>
+	<note type="input" label="spectrum, parent monoisotopic mass error units">ppm</note>
 		<note>The value for this parameter may be 'Daltons' or 'ppm': all other values are ignored</note>
 	<note type="input" label="spectrum, fragment mass type">monoisotopic</note>
 		<note>values are monoisotopic|average </note>
@@ -102,7 +102,7 @@
 
 <note>scoring parameters</note>
 	<note type="input" label="scoring, minimum ion count">4</note>
-	<note type="input" label="scoring, maximum missed cleavage sites">1</note>
+	<note type="input" label="scoring, maximum missed cleavage sites">2</note>
 	<note type="input" label="scoring, a ions">no</note>
 	<note type="input" label="scoring, b ions">yes</note>
 	<note type="input" label="scoring, c ions">no</note>
