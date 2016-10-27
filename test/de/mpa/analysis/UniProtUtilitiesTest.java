@@ -35,6 +35,7 @@ public class UniProtUtilitiesTest extends TestCase {
 	
 	@Test 
 	public void testFetchSingleProteinEntry() throws ServiceException {
+		System.out.println("Test");
 		UniProtEntry entry = uniprotService.getEntry("P10144");
 		assertEquals("GRAB_HUMAN", entry.getUniProtId().getValue());
 		assertEquals("Swiss-Prot", entry.getType().getValue());
