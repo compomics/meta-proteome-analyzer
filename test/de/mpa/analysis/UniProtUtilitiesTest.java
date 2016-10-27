@@ -1,14 +1,11 @@
 package de.mpa.analysis;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import de.mpa.io.fasta.FastaLoader;
 import junit.framework.TestCase;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.uniprot.dataservice.client.Client;
@@ -39,11 +36,14 @@ public class UniProtUtilitiesTest extends TestCase {
 	@Test 
 	public void testFetchSingleProteinEntry() throws ServiceException {
 		UniProtEntry entry = uniprotService.getEntry("P10144");
+		assertEquals("GRAB_HUMAN", entry.getUniProtId().getValue());
+		assertEquals("Swiss-Prot", entry.getType().getValue());
 	}
 	
 	public void testFetchMultipleProteinEntries() throws ServiceException {
 		Set<String> set = new HashSet<>(); 
 		set.add("P10144");
+		set.add("P02769");
 		
 		Query query = UniProtQueryBuilder.accessions(set);
 		
@@ -57,6 +57,4 @@ public class UniProtUtilitiesTest extends TestCase {
         assertEquals(2,  count);
         
 	}
-		
-
 }
