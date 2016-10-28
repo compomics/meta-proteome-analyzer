@@ -1522,7 +1522,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 	
-		return PanelConfig.createTitledPanel("Spectrum Matches", psmPanel, focusSpectraBtn, exportBtn);
+		return PanelConfig.createTitledPanel("Peptide-Spectrum Matches", psmPanel, focusSpectraBtn, exportBtn);
 	}
 
 	/**

@@ -17,7 +17,6 @@ import java.util.TreeMap;
 
 import de.mpa.client.Constants;
 import de.mpa.main.Starter;
-import uk.ac.ebi.kraken.interfaces.ProteinData;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefDatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;

@@ -141,6 +141,8 @@ public class Client {
 		GenericContainer.FastaLoader = fastaLoader;
 		if (mgfFiles != null) {
 			JobManager jobManager = JobManager.getInstance();
+			// Clear the job manager to account for unfinished jobs in the queue.
+			jobManager.clear();
 			
 			// Parse spectrum titles + add spectrumIds.
 			SpectraJob spectraJob = new SpectraJob(mgfFiles);

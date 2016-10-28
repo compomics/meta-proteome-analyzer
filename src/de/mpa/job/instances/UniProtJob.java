@@ -1,5 +1,6 @@
 package de.mpa.job.instances;
 
+import java.net.ConnectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrServerException;
 
 import de.mpa.analysis.ReducedProteinData;
 import de.mpa.analysis.UniProtUtilities;
@@ -21,6 +23,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.SecondaryUniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
 public class UniProtJob extends Job {
 	/**
@@ -38,6 +41,10 @@ public class UniProtJob extends Job {
 			log = Logger.getLogger(getClass());
 			client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 			queryAndStoreUniprotEntries(false);
+		} catch (ServiceException|SolrServerException|ConnectException sse) {
+			log.info(sse.getMessage());
+			setStatus(JobStatus.CANCELED);
+			client.firePropertyChange("new message", null, this.getDescription() + " " + this.getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

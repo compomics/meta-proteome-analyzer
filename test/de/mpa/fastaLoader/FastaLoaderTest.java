@@ -1,13 +1,8 @@
 package de.mpa.fastaLoader;
 
-import gnu.trove.map.TObjectLongMap;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import junit.framework.TestCase;
-import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +10,9 @@ import org.junit.Test;
 import com.compomics.util.protein.Protein;
 
 import de.mpa.io.fasta.FastaLoader;
+import gnu.trove.map.TObjectLongMap;
+import junit.framework.TestCase;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
 public class FastaLoaderTest extends TestCase {
 

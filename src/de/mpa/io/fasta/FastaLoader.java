@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -144,12 +142,16 @@ public class FastaLoader {
 	 * @throws IOException 
 	 * @throws ServiceException 
 	 */
-	public Protein getProteinFromFasta(String id) throws IOException, ServiceException {
+	public Protein getProteinFromFasta(String id) throws IOException {
 		// No mapping provided.
 		if (acc2pos == null) {
 			// No index file given.
-			if ((indexFile != null) && (file != null)) {
-				return getProteinFromWebService(id);
+			if ((indexFile == null) || (file == null)) {
+				try {
+					return getProteinFromWebService(id);
+				} catch (ServiceException e) {
+					e.printStackTrace();
+				}
 			} else {
 				try {
 					readIndexFile();
@@ -274,7 +276,7 @@ public class FastaLoader {
 					// Add entry to mapping
 					acc2pos.put(header.getAccession(), pos);
 					count++;
-					if (count % 10000 == 0) {	
+					if (count % 1000 == 0) {	
 						de.mpa.client.Client.getInstance().firePropertyChange("new message", null, count + " PROTEIN SEQUENCES INDEXED...");
 					} 	
 					if (count % 1000000 == 0) {						

@@ -541,13 +541,13 @@ public class MetaProteinFactory {
 		
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
 
-		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+		client.firePropertyChange("new message", null, "GENERATING META-PROTEINS");
 		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
 
 		// Combine proteins to metaproteins
 		MetaProteinFactory.condenseMetaProteins(result.getMetaProteins(), params);
 
-		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
+		client.firePropertyChange("new message", null, "GENERATING META-PROTEINS FINISHED");
 
 		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
 		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());

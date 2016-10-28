@@ -23,7 +23,6 @@ import de.proteinms.omxparser.util.MSHitSet;
 import de.proteinms.omxparser.util.MSHits;
 import de.proteinms.omxparser.util.MSPepHit;
 import de.proteinms.omxparser.util.MSSpectrum;
-import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
 public class OmssaParser extends GenericContainer {
 	/**
@@ -128,7 +127,7 @@ public class OmssaParser extends GenericContainer {
                     		UniprotQueryProteins.put(accession, null);
 							nHits++;
 							SearchHits.add(hit);
-						} catch (IOException | ServiceException e) {
+						} catch (IOException e) {
 							e.printStackTrace();
 						}
 					}
