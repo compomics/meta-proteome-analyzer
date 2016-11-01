@@ -2,7 +2,7 @@
 <bioml>
 	<note type="input" label="list path, default parameters">parameters.xml</note>
 	<note type="input" label="list path, taxonomy information">taxonomy_decoy.xml</note>
-	<note type="input" label="protein, taxon">S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\uniprot_bacteria_decoy.fasta</note>
-	<note type="input" label="spectrum, path">S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Aura\BlackSea_run01_small.mgf</note>
-	<note type="input" label="output, path">P:\git\meta-proteome-analyzer\built\output\X!Tandem\BlackSea_run01_small_decoy.xml</note>
+	<note type="input" label="protein, taxon">S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Databases\pfu_yeast_decoy.fasta</note>
+	<note type="input" label="spectrum, path">S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Test Samples\Pyro_Velos.mgf</note>
+	<note type="input" label="output, path">P:\git\meta-proteome-analyzer\built\output\X!Tandem\Pyro_Velos_decoy.xml</note>
 </bioml>
