@@ -22,7 +22,7 @@ public class XTandemJob extends Job {
     private final static String TAXONOMY_FILE = "taxonomy.xml";
     private final static String TAXONOMY_DECOY_FILE = "taxonomy_decoy.xml";
     private String filename; 
-	private File xTandemFile;
+	private File xTandemExecutable;
     private File inputFile;
     private File parameterFile;
     private File taxonomyFile;
@@ -61,15 +61,14 @@ public class XTandemJob extends Job {
 			this.precursorUnit = "Daltons";
 		}
 		this.searchType = searchSettings.getSearchType();
-		
-		this.xTandemFile = new File(algorithmProperties.getProperty("path.xtandem"));
+		this.xTandemExecutable = new File(algorithmProperties.getProperty("path.xtandem"));
 		if (searchType == SearchType.TARGET) {
-			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
+			this.inputFile = new File(xTandemExecutable, INPUT_TARGET_FILE);
 			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
 			buildTaxonomyFile();
 			buildInputFile();
 		} else if (searchType == SearchType.DECOY) {
-			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
+			this.inputFile = new File(xTandemExecutable, INPUT_DECOY_FILE);
 			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
 			searchDB = searchDB.substring(0, searchDB.indexOf(".fasta")) + "_decoy.fasta";
 			buildTaxonomyDecoyFile();
@@ -126,7 +125,7 @@ public class XTandemJob extends Job {
      * This method builds taxonomy file.
      */
     public void buildTaxonomyFile() {
-        taxonomyFile = new File(xTandemFile, TAXONOMY_FILE);
+        taxonomyFile = new File(xTandemExecutable, TAXONOMY_FILE);
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(taxonomyFile));
             bw.write(
@@ -147,7 +146,7 @@ public class XTandemJob extends Job {
      * This method builds taxonomy file.
      */
     public void buildTaxonomyDecoyFile() {
-        taxonomyFile = new File(xTandemFile, TAXONOMY_DECOY_FILE);
+        taxonomyFile = new File(xTandemExecutable, TAXONOMY_DECOY_FILE);
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(taxonomyFile));
             bw.write(
@@ -169,7 +168,7 @@ public class XTandemJob extends Job {
      */
     private void buildParameterFile() {
 
-        parameterFile = new File(xTandemFile, PARAMETER_FILE);
+        parameterFile = new File(xTandemExecutable, PARAMETER_FILE);
         String[] parameters = params.split(";");
         
         try {
@@ -363,14 +362,14 @@ public class XTandemJob extends Job {
 		setDescription("X!TANDEM " + searchType.name() + " SEARCH");
 		
 		// full path to executable
-		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + algorithmProperties.getProperty("app.xtandem"));
+		procCommands.add(xTandemExecutable.getAbsolutePath() + File.separator + algorithmProperties.getProperty("app.xtandem"));
 
 		// Link to the input file
 		procCommands.add(inputFile.getAbsolutePath());
 
 		procCommands.trimToSize();
 		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(xTandemFile);
+		procBuilder.directory(xTandemExecutable);
 		
 		// set error out and std out to same stream
 		procBuilder.redirectErrorStream(true);

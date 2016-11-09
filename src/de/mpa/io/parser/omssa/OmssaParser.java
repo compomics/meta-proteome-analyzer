@@ -37,7 +37,6 @@ public class OmssaParser extends GenericContainer {
 	
    /**
     * Constructor for storing results from a target-decoy search with OMSSA.
-    * @param conn Database connection
     * @param file OMSSA file
     * @param targetScoreFile File containing the original PSM scores.
     * @param qValueFile File containing the validated PSM scores.

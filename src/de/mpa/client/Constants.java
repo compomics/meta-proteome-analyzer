@@ -51,7 +51,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.1.1";
+	public final static String VER_NUMBER = "1.3";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -159,8 +159,6 @@ public class Constants {
 			"CSV File, tab-separated (*.csv)");
 	public static final FileFilter PNG_FILE_FILTER = new ExtensionFileFilter(".png", false,
 			"Portable Network Graphics (*.png)");
-	public static final FileFilter DAT_FILE_FILTER = new ExtensionFileFilter(".dat", false,
-			"Raw Mascot Result File (*.dat)");
 	public static final FileFilter GRAPHML_FILE_FILTER = new ExtensionFileFilter(".graphml", false,
 			"GraphML File (*.graphml)");
 	public static final FileFilter EXCEL_XML_FILE_FILTER = new ExtensionFileFilter(".xml", false,

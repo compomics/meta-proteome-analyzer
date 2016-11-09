@@ -23,9 +23,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -76,8 +74,6 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 
-import com.compomics.mascotdatfile.util.mascot.MascotDatfile;
-import com.compomics.mascotdatfile.util.mascot.Parameters;
 import com.compomics.util.gui.spectrum.SpectrumPanel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -85,7 +81,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.FileExperiment;
-import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFilterParameters;
 import de.mpa.client.ui.Busyable;
@@ -106,7 +101,6 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.HistogramChart;
 import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
-import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.InputFileReader;
@@ -115,7 +109,7 @@ import de.mpa.io.MascotGenericFile;
 /**
  * Panel for importing spectrum files to be used for searches.
  * 
- * @author A. Behne
+ * @author T.Muth, A. Behne
  */
 public class FilePanel extends JPanel implements Busyable {
 	
@@ -123,11 +117,6 @@ public class FilePanel extends JPanel implements Busyable {
 	 * File text field.
 	 */
 	private FileTextField filesTtf;
-	
-	/**
-	 * Filter button.
-	 */
-	private JButton filterBtn;
 	
 	/**
 	 * Add from file button.
@@ -240,23 +229,10 @@ public class FilePanel extends JPanel implements Busyable {
 		JPanel topPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
 		
 		// button panel
-		JPanel buttonPnl = new JPanel(new FormLayout("p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
+		JPanel buttonPnl = new JPanel(new FormLayout("p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "p"));
 		
 		// Textfield displaying amount of selected files
 		filesTtf = new FileTextField();
-		
-		// button to display filter settings panel
-		filterBtn = new JButton("Filter Settings");
-		filterBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				int res = AdvancedSettingsDialog.showDialog(clientFrame, "Filter Settings", true, filterParams);
-				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
-					//TODO: Implement filtering...
-				}
-			}
-		});
-		filterBtn.setEnabled(false);
 		
 		// button to add spectra from a file
 		addFromFileBtn = new JButton("Add Spectrum File(s)...");
@@ -273,18 +249,6 @@ public class FilePanel extends JPanel implements Busyable {
 		buttonPnl.add(addFromFileBtn, CC.xy(5, 1));
 		buttonPnl.add(clearBtn, CC.xy(7, 1));
 		buttonPnl.add(spectrumTreeCbx, CC.xy(9, 1));
-		buttonPnl.add(filterBtn, CC.xy(11, 1));
-		
-		
-		spectrumTreeCbx.addItemListener(new ItemListener() {
-	        public void itemStateChanged(ItemEvent e) {
-	        	if (e.getStateChange() == ItemEvent.SELECTED) {
-	        		filterBtn.setEnabled(true);
-	        	} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-	        		filterBtn.setEnabled(false);
-	        	}
-	        }
-	      });
 		
 		// tree table containing spectrum details
 		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
@@ -590,11 +554,9 @@ public class FilePanel extends JPanel implements Busyable {
 				
 				JFileChooser fc = new JFileChooser(startLocation);
 				fc.setFileFilter(new MultiExtensionFileFilter(
-						"All supported formats (*.mgf, *.dat)",
-						Constants.MGF_FILE_FILTER,
-						Constants.DAT_FILE_FILTER));
+						"All supported formats (*.mgf)",
+						Constants.MGF_FILE_FILTER));
 				fc.addChoosableFileFilter(Constants.MGF_FILE_FILTER);
-				fc.addChoosableFileFilter(Constants.DAT_FILE_FILTER);
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(true);
@@ -936,42 +898,14 @@ public class FilePanel extends JPanel implements Busyable {
 					client.firePropertyChange("new message", null, "READING SPECTRUM FILE " + ++i + "/" + files.length);
 	
 					reader = InputFileReader.createInputFileReader(file);
-					
-					if (Constants.DAT_FILE_FILTER.accept(file)) {
-						DatabaseSearchSettingsPanel dbSettingsPnl =
-								ClientFrame.getInstance().getFilePanel().getSettingsPanel().getDatabaseSearchSettingsPanel();
-						dbSettingsPnl.setMascotEnabled(true);
-						MascotDatfile mascotDatfile = new MascotDatfile(new BufferedReader(new FileReader(file)));
-						Parameters parameters = mascotDatfile.getParametersSection();
-						MascotParameters mascotParams = (MascotParameters) dbSettingsPnl.getMascotParameterMap();
-
-						mascotParams.setValue("precTol", Double.valueOf(parameters.getTOL()));
-						mascotParams.setValue("fragTol", Double.valueOf(parameters.getITOL()));
-						mascotParams.setValue("missClv", Integer.valueOf(parameters.getPFA()));
-						
-						boolean decoy = (mascotDatfile.getDecoyQueryToPeptideMap() != null);
-						mascotParams.setDecoy(decoy);
-					} else {
-						filesList.add(file);
-					}
+					filesList.add(file);
 					
 					client.setMgfFiles(filesList);
 					ArrayList<Long> positions = new ArrayList<Long>();
 					try {
 	
 						client.firePropertyChange("resetcur", -1L, file.length());
-						
-						reader.addPropertyChangeListener(new PropertyChangeListener() {
-							@Override
-							public void propertyChange(PropertyChangeEvent pce) {
-								if (pce.getPropertyName() == "progress") {
-									client.firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
-								}
-							}
-						});
 						reader.survey();
-	//						List<MascotGenericFile> mgfList = (ArrayList<MascotGenericFile>) reader.getSpectrumFiles(false);
-	//						totalSpectraList.addAll(mgfList);
 						
 						positions.addAll(reader.getSpectrumPositions(false));
 						specPosMap.put(file.getAbsolutePath(), positions);
@@ -1053,8 +987,6 @@ public class FilePanel extends JPanel implements Busyable {
 							if (fileNode.getChildCount() > 0) {
 								treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
 								cbtsm.removeSelectionPath(fileNode.getPath());
-								// reselect spectrum nodes that meet filter criteria
-								// TODO: cbtsm.addSelectionPaths(toBeAdded);
 							}
 							client.firePropertyChange("indeterminate", true, false);
 						}
@@ -1079,7 +1011,6 @@ public class FilePanel extends JPanel implements Busyable {
 	
 						// update file text field
 						filesTtf.addFiles(this.files.length, this.specCount);
-						
 						
 						// show histogram
 						if (!ticList.isEmpty()) {

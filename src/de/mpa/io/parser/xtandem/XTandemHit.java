@@ -96,7 +96,6 @@ public class XTandemHit implements SearchHit, Serializable {
 		this.charge = charge;
 	}
 
-	@Override
 	public double getPep() {
 		return pep;
 	}

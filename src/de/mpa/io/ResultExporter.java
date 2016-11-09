@@ -427,8 +427,7 @@ public class ResultExporter {
 						if (hasFeature[4]) writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[5]) writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[6]) writer.append(searchHit.getQvalue() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[7]) writer.append(searchHit.getPep() + Constants.TSV_FILE_SEPARATOR);
-						if (hasFeature[8]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
 						writer.newLine();
 					}		
 				}

@@ -183,13 +183,13 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 				}
 				return value;
 			case 3:
-				searchHit = psm.getSearchHit(SearchEngineType.XTANDEM);
+				searchHit = psm.getSearchHit(SearchEngineType.MSGF);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue();
 			case 4:
-				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
+				searchHit = psm.getSearchHit(SearchEngineType.XTANDEM);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue();
 			case 5:
-				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
+				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue();
 			default:
 				return super.getValueAt(column);

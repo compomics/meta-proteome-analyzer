@@ -40,10 +40,10 @@ public class OmssaParameters extends ParameterMap {
 		this.put("hl", new NumberParameter(30, 1, null, "Maximum number of hits", "The maximum number of hits retained per precursor charge state per spectrum.", "Scoring"));
 		this.put("he", new NumberParameter(1000.0, 0.0, null, "Maximum e-value allowed", "Maximum e-value allowed in the hit list.", "Scoring"));
 		this.put("i", new BooleanMatrixParameter(3, 3, new Boolean[] { false, true, false, false, true, false, false, false, false },
-				new String[] { "use a ions", "use b ions", "use c ions", "use x ions", "use y ions", "use z° ions", "use a° ions", "<html>use x-CO<sub>2</sub> ions</html>", "<html>use a°-CO<sub>2</sub> ions</html>" },
+				new String[] { "use a ions", "use b ions", "use c ions", "use x ions", "use y ions", "use zdot ions", "use adot ions", "<html>use x-CO<sub>2</sub> ions</html>", "<html>use adot-CO<sub>2</sub> ions</html>" },
 				new String[] { "Allows the use of a ions in scoring.", "Allows the use of b ions in scoring.", "Allows the use of c ions in scoring.",
-							   "Allows the use of x ions in scoring.", "Allows the use of y ions in scoring.", "Allows the use of z° ions in scoring.",
-							   "Allows the use of a° ions in scoring.", "<html>Allows the use of x-CO<sub>2</sub> ions in scoring.</html>", "<html>Allows the use of a°-CO<sub>2</sub> ions in scoring.</html>" }, "Scoring"));
+							   "Allows the use of x ions in scoring.", "Allows the use of y ions in scoring.", "Allows the use of zdot ions in scoring.",
+							   "Allows the use of adot ions in scoring.", "<html>Allows the use of x-CO<sub>2</sub> ions in scoring.</html>", "<html>Allows the use of adot-CO<sub>2</sub> ions in scoring.</html>" }, "Scoring"));
 	}
 
 	@Override

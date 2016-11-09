@@ -3,10 +3,10 @@ package de.mpa.client.model.dbsearch;
 import java.io.Serializable;
 
 public enum SearchEngineType implements Serializable {
+	MSGF("MS-GF+"),
 	XTANDEM("X!Tandem"), 
-	OMSSA("OMSSA"), 
-	MASCOT("Mascot");
-	
+	OMSSA("OMSSA"); 
+
 	SearchEngineType(final String searchEngineName){
 		this.searchEngineName = searchEngineName;
 	}

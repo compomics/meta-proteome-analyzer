@@ -8,7 +8,7 @@ public class DbSearchSettings {
 	
 	private boolean omssa;
 	private boolean xtandem;
-	private boolean mascot;
+	private boolean msgf;
 	private double fragIonTol;
 	private double precIonTol;
 	private int nMissedCleavages;
@@ -18,6 +18,7 @@ public class DbSearchSettings {
 	private SearchType searchType;
 	private String xtandemParams;
 	private String omssaParams;
+	private String msgfParams;
 	
     /**
      * Gets the value of the omssa property.
@@ -31,8 +32,8 @@ public class DbSearchSettings {
      * Sets the value of the omssa property.
      * 
      */
-    public void setOmssa(boolean value) {
-        this.omssa = value;
+    public void setOmssa(boolean omssa) {
+        this.omssa = omssa;
     }  
 
     /**
@@ -52,19 +53,19 @@ public class DbSearchSettings {
     }
 
     /**
-     * Gets the value of the mascot property.
+     * Gets the value of the MS-GF+ property.
      * 
      */
-    public boolean isMascot() {
-        return mascot;
+    public boolean isMSGF() {
+        return msgf;
     }
 
     /**
-     * Sets the value of the mascot property.
+     * Sets the value of the MS-GF+ property.
      * 
      */
-    public void setMascot(boolean value) {
-        this.mascot = value;
+    public void setMSGF(boolean msgf) {
+        this.msgf = msgf;
     }
 
     /**
@@ -145,5 +146,13 @@ public class DbSearchSettings {
 
 	public void setOmssaParams(String omssaParams) {
 		this.omssaParams = omssaParams;
+	}
+
+	public String getMsgfParams() {
+		return msgfParams;
+	}
+
+	public void setMsgfParams(String msgfParams) {
+		this.msgfParams = msgfParams;
 	}
 }

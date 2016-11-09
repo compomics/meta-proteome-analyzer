@@ -5,10 +5,12 @@ import java.io.File;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.job.instances.DeleteJob;
+import de.mpa.job.instances.MSGFJob;
 import de.mpa.job.instances.OmssaJob;
 import de.mpa.job.instances.ParseJob;
 import de.mpa.job.instances.UniProtJob;
 import de.mpa.job.instances.XTandemJob;
+import de.mpa.job.scoring.MSGFConvertJob;
 import de.mpa.job.scoring.OmssaScoreJob;
 import de.mpa.job.scoring.XTandemScoreJob;
 
@@ -24,7 +26,6 @@ public class SearchTask {
 	 */
 	private DbSearchSettings searchSettings;
 	
-    
     /**
      * Runs the searches in one task.
      * @param mgfFile
@@ -81,6 +82,23 @@ public class SearchTask {
 			jobManager.addJob(omssaParseJob);
 			jobManager.addJob(new DeleteJob(omssaParseJob.getFilename()));
 		}
+		
+		// MS-GF+ job
+		if (searchSettings.isMSGF()) {
+			searchSettings.setSearchType(SearchType.TARGET_DECOY);
+			Job msgfJob = new MSGFJob(mgfFile, searchSettings);
+			jobManager.addJob(msgfJob);
+			
+			// This job converts the final results of MG-GF+ from MZID to TSV format.
+			Job msgfConvertJob = new MSGFConvertJob(msgfJob.getFilename());
+			jobManager.addJob(msgfConvertJob);
+			
+			// Parse the results.
+			ParseJob msgfParseJob = new ParseJob(SearchEngineType.MSGF, msgfConvertJob.getFilename());
+			jobManager.addJob(msgfParseJob);
+			jobManager.addJob(new DeleteJob(msgfParseJob.getFilename()));
+		}
+		
 		jobManager.addJob(new UniProtJob());
 	}
 

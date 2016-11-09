@@ -30,8 +30,9 @@ public class SpectraJob extends Job {
 	public void run() {
 		
 		log = Logger.getLogger(getClass());
-    	setDescription("INITIALIZE SPECTRA");
+    	setDescription("INDEXING SPECTRA");
     	int totalSpectra = 0;
+    	client.firePropertyChange("new message", null, "INDEXING SPECTRA");
     	
 		// Iterate the MGF files.
 		for (File file : files) {
@@ -40,7 +41,7 @@ public class SpectraJob extends Job {
 				reader = new MascotGenericFileReader(file);
 				// Get all spectra from the reader.
 				List<MascotGenericFile> spectra = reader.getSpectrumFiles(false);
-
+				
 				// Iterate over all spectra.
 				for (MascotGenericFile mgf : spectra) {
 					// The filename, remove leading and trailing whitespace.
@@ -52,12 +53,15 @@ public class SpectraJob extends Job {
 					totalSpectra++;
 				}
 				GenericContainer.MGFReaders.put(file.getAbsolutePath(), reader);
+				client.firePropertyChange("new message", null, "INDEXING SPECTRA FINISHED");
 			} catch (IOException e) {
+				client.firePropertyChange("new message", null, "INDEXING SPECTRA FAILED");
 				e.printStackTrace();
 			}
 		}
-		
 		GenericContainer.numberTotalSpectra = totalSpectra;
 		
+		// Provide a bi-directional mapping.
+		GenericContainer.SpectrumId2TitleMap = GenericContainer.reverse(GenericContainer.SpectrumTitle2IdMap);
 	}
 }

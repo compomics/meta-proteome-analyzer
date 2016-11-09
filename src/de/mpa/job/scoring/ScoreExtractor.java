@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-// FIXME Refactor this class!
 public abstract class ScoreExtractor {
 
 	protected File targetFile;

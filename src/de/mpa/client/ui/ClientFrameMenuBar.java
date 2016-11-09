@@ -236,13 +236,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 		StringBuffer tMsg = new StringBuffer();
 		tMsg.append("Product Version: " + Constants.APPTITLE + " " + Constants.VER_NUMBER);
 		tMsg.append("\n\n");
-		tMsg.append("This software is developed by Alexander Behne, Robert Heyer and Thilo Muth \nat the Max Planck Institute for Dynamics of Complex \nTechnical Systems in Magdeburg (Germany).");
+		tMsg.append("This software is developed by Thilo Muth at the Robert Koch Institute in Berlin (Germany).");
 		tMsg.append("\n\n");
-		tMsg.append("The latest version is available at http://meta-proteome-analyzer.googlecode.com");
+		tMsg.append("The latest version is available here:\nhttp://github.com/compomics/meta-proteome-analyzer");
 		tMsg.append("\n\n");
 		tMsg.append("If any questions arise, contact the corresponding author: ");
 		tMsg.append("\n");
-		tMsg.append("muth@mpi-magdeburg.mpg.de");
+		tMsg.append("mutht@rki.de");
 		tMsg.append("\n\n");
 		JOptionPane.showMessageDialog(this, tMsg,
 				"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);

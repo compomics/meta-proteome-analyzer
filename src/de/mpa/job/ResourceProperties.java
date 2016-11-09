@@ -92,6 +92,9 @@ public class ResourceProperties {
 			prop.setProperty("path.omssa", formatPath(path + "/built/OMSSA/windows"));
 			prop.setProperty("path.omssa.output", formatPath(path + "/built/output/OMSSA/"));
 			prop.setProperty("app.omssa", "omssacl.exe");
+			prop.setProperty("app.msgf", "MSGFPlus.jar");
+			prop.setProperty("path.msgf", formatPath(path + "/built/MS-GF+"));
+			prop.setProperty("path.msgf.output", formatPath(path + "/built/output/MS-GF+/"));
 			prop.setProperty("path.makeblastdb", formatPath(path + "/built/makeblastdb/windows/"));
 			prop.setProperty("app.makeblastdb", "makeblastdb.exe");
 			prop.setProperty("path.qvality", formatPath(path + "/built/QVality/windows/"));

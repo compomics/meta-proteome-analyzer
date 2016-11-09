@@ -859,7 +859,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
-						"ID", "z", "Pep", "X", "O", "C", "I", "M" }));
+						"ID", "z", "Pep", "MS-GF+", "X!Tandem", "OMSSA"}));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -925,11 +925,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Spectrum Match ID",
 				"Precursor Charge",
 				"Peptide Sequences",
+				"MS-GF+ Confidence",
 				"X!Tandem Confidence",
-				"Omssa Confidence",
-				"Crux Confidence",
-				"InsPecT Confidence",
-				"Mascot Confidence"
+				"Omssa Confidence"
 		};
 		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 		treeTbl.setTableHeader(ch);
@@ -945,7 +943,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Force column factory to generate columns to properly cache widths
 		((AbstractTableModel) treeTbl.getModel()).fireTableStructureChanged();
 		
-		TableConfig.setColumnWidths(treeTbl, new double[] { 10, 1, 0, 1, 1, 1, 1, 1 });
+		TableConfig.setColumnWidths(treeTbl, new double[] { 10, 1, 0, 1, 1, 1 });
 		TableConfig.setColumnMinWidths(
 				treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), 22, treeTbl.getFont());
 		
@@ -1064,10 +1062,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_CYAN, ColorUtils.LIGHT_CYAN));
 		tcm.getColumnExt(5).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_BLUE, ColorUtils.LIGHT_BLUE));
-		tcm.getColumnExt(6).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
-		tcm.getColumnExt(7).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
+//		tcm.getColumnExt(6).addHighlighter(new BarChartHighlighter(
+//				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
+//		tcm.getColumnExt(7).addHighlighter(new BarChartHighlighter(
+//				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
 		
 		// Initially hide parent peptides column
 		tcm.getColumnExt(2).setVisible(false);
@@ -1994,9 +1992,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			});
 			
 			// Update panel title
-			psmTtlPnl.setTitle("Spectrum Matches (" + matches.size() + ")");
+			psmTtlPnl.setTitle("Peptide-Spectrum Matches (" + matches.size() + ")");
 		} else {
-			psmTtlPnl.setTitle("Spectrum Matches)");
+			psmTtlPnl.setTitle("Peptide-Spectrum Matches)");
 		}
 	}
 	
@@ -2093,7 +2091,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * Worker implementation to refresh all detail view tables.
 	 * 
-	 * @author A. Behne
+	 * @author A. Behne, T. Muth
 	 */
 	private class RefreshTablesTask extends SwingWorker {
 		
@@ -2255,8 +2253,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			DbSearchResultPanel.this.setBusy(false);
 			
 			// Set up graph database contents
-			ResultsPanel resPnl =
-					(ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
+			ResultsPanel resPnl = (ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
 			resPnl.setProcessingEnabled(true);
 			
 			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();

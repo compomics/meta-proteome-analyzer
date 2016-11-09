@@ -60,11 +60,6 @@ public class Client {
 	private DbSearchResult dbSearchResult;
 
 	/**
-	 * Flag denoting whether client is in viewer mode.
-	 */
-	private boolean viewer;
-	
-	/**
 	 * Flag for debugging options.
 	 */
 	private boolean debug;
@@ -83,7 +78,7 @@ public class Client {
 	 * Creates the singleton client instance in non-viewer, non-debug mode.
 	 */
 	private Client() {
-		this(false, false);
+		this(false);
 	}
 	
 	/**
@@ -91,8 +86,7 @@ public class Client {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private Client(boolean viewer, boolean debug) {
-		this.viewer = viewer;
+	private Client(boolean debug) {
 		this.debug = debug;
 		this.pSupport = new PropertyChangeSupport(this);
 	}
@@ -110,9 +104,9 @@ public class Client {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	public static void init(boolean viewer, boolean debug) {
+	public static void init(boolean debug) {
 		if (instance == null) {
-			instance = new Client(viewer, debug);
+			instance = new Client(debug);
 		}
 	}	
 
@@ -147,6 +141,10 @@ public class Client {
 			// Parse spectrum titles + add spectrumIds.
 			SpectraJob spectraJob = new SpectraJob(mgfFiles);
 			jobManager.addJob(spectraJob);
+			jobManager.run();
+			
+			Client.getInstance().firePropertyChange("indeterminate", true, false);
+			Client.getInstance().firePropertyChange("new message", null, "DATABASE SEARCH RUNNING");
 			
 			for (File mgfFile : mgfFiles) {
 				try {

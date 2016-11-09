@@ -1,6 +1,5 @@
 package de.mpa.io;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,11 +11,6 @@ import java.util.List;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.io.parser.mascot.dat.MascotDatFileReader;
 
-/**
- * 
- * 
- * @author heyer
- */
 public abstract class InputFileReader {
 
     /**
@@ -168,17 +162,6 @@ public abstract class InputFileReader {
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		listeners.remove(listener);
-	}
-	
-	/**
-	 * 
-	 * @param oldProgress
-	 * @param newProgress
-	 */
-	private void fireProgressMade(long oldProgress, long newProgress) {
-		for (PropertyChangeListener listener : listeners) {
-			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
-		}
 	}
 
 	/**

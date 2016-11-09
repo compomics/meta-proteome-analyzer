@@ -40,11 +40,9 @@ public class XTandemParser extends GenericContainer {
 	 * Mapping for the original PSM scores to the validated ones.
 	 */
 	private HashMap<Double, ValidatedPSMScore> validatedPSMScores;
-  
 	
     /**
      * Constructor for storing results from a target-decoy search with X!Tandem.
-     * @param conn Database connection
      * @param file X!Tandem file
      * @param targetScoreFile File containing the original PSM scores.
      * @param qValueFile File containing the validated PSM scores.
@@ -157,7 +155,6 @@ public class XTandemParser extends GenericContainer {
 	                        		// Add protein for UniProt storing.
 	                        		UniprotQueryProteins.put(accession, null);
 	                                nHits++;
-	                                System.out.println(nHits);
 	                                peptides.add(sequence);
 	                                SearchHits.add(hit);
 								} catch (IOException e) {

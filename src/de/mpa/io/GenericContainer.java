@@ -24,12 +24,17 @@ public class GenericContainer {
 	/**
 	 * Map from spectrum title to spectrum id.
 	 */
-	public static HashMap<String, Long> SpectrumTitle2IdMap = new HashMap<String, Long>();
+	public static Map<String, Long> SpectrumTitle2IdMap = new HashMap<String, Long>();
 
 	/**
 	 * Map from spectrum title to spectrum file name.
 	 */
-	public static HashMap<String, String> SpectrumTitle2FilenameMap = new HashMap<String, String>();
+	public static Map<String, String> SpectrumTitle2FilenameMap = new HashMap<String, String>();
+	
+	/**
+	 * Map from spectrum title to spectrum file name.
+	 */
+	public static Map<Long, String> SpectrumId2TitleMap = new HashMap<Long, String>();
 	
 	/**
 	 * Mapping from the spectrum to the byte positions.
@@ -104,5 +109,12 @@ public class GenericContainer {
 		return nHits;
 	}
 	
+	//map must be a bijection in order for this to work properly
+	public static <K,V> HashMap<V,K> reverse(Map<K,V> map) {
+	    HashMap<V,K> rev = new HashMap<V, K>();
+	    for(Map.Entry<K,V> entry : map.entrySet())
+	        rev.put(entry.getValue(), entry.getKey());
+	    return rev;
+	}
 	
 }

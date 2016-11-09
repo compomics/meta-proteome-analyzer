@@ -12,7 +12,6 @@ public interface SearchHit {
 	public String getSpectrumFilename();
 	public String getSpectrumTitle();
 	public double getQvalue();
-	public double getPep();
 	public double getScore();
 	public int getCharge();
 }

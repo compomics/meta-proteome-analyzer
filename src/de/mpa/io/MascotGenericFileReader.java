@@ -10,6 +10,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mpa.client.Client;
+
 /**
  * This class holds the I/O-read functionality for Mascot generic files.
  * 
@@ -33,7 +35,6 @@ public class MascotGenericFileReader extends InputFileReader {
      */
     protected RandomAccessFile raf;
 
-	// experimental!
 	/**
 	 * List of registered property change listeners.
 	 */
@@ -52,7 +53,6 @@ public class MascotGenericFileReader extends InputFileReader {
 			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
 		}
 	}
-    
 
     /**
      * Enum to determine behavior on creation of reader.
@@ -83,6 +83,17 @@ public class MascotGenericFileReader extends InputFileReader {
 	public MascotGenericFileReader(File file, LoadMode mode) throws IOException {
 		super(file);
         this.raf = new RandomAccessFile(file, "r");
+        
+        // Register property change listener.
+        this.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent pce) {
+				if (pce.getPropertyName() == "progress") {
+					Client.getInstance().firePropertyChange("progress", pce.getOldValue(), pce.getNewValue());
+				}
+			}
+		});
+        
         if (mode == LoadMode.LOAD) {
         	this.load();
         } else if (mode == LoadMode.SURVEY) {
@@ -156,7 +167,7 @@ public class MascotGenericFileReader extends InputFileReader {
                     tempComments.append(line + "\n");
                 } else {
                     // Spectrum comment. Start a new Spectrum!
-                    fireProgressMade(oldPos, newPos);
+                	Client.getInstance().firePropertyChange("progress", oldPos, newPos);
                     this.spectrumPositions.add(oldPos);
                     inSpectrum = true;
                     spectrum.append(line + "\n");
@@ -188,7 +199,7 @@ public class MascotGenericFileReader extends InputFileReader {
                 }
             } else if (line.startsWith("BEGIN")) {
                 // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
-                fireProgressMade(oldPos, newPos);
+            	Client.getInstance().firePropertyChange("progress", oldPos, newPos);
                 this.spectrumPositions.add(oldPos);
                 inSpectrum = true;
                 spectrum.append(line + "\n");
@@ -211,7 +222,7 @@ public class MascotGenericFileReader extends InputFileReader {
         }
 
         // Fire final progress event
-        fireProgressMade(-1L, newPos);
+        Client.getInstance().firePropertyChange("progress", -1L, newPos);
     }
     
     /**

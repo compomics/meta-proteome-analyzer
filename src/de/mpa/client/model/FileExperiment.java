@@ -1,5 +1,7 @@
 package de.mpa.client.model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -285,24 +287,24 @@ public class FileExperiment implements ProjectExperiment {
 			}
 			client.firePropertyChange("indeterminate", true, false);
 			
-			// FIXME: Use Compomics spectrum reader!
-			// MgfReader.getIndexMap(mgfFile);
-			
 			List<File> spectrumFiles = this.getSpectrumFiles();
 			for (File file : spectrumFiles) {
 				String pathname = file.getAbsolutePath();
 				// Check if reader already has the current experiment selected.
 				if (GenericContainer.MGFReaders.get(pathname) == null || !file.getName().equals(GenericContainer.MGFReaders.get(pathname).getFilename())) {
-					Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA");
+					client.firePropertyChange("new message", null, "INDEXING SPECTRA");
 					try {
+						client.firePropertyChange("resetcur", -1L, file.length());
 						MascotGenericFileReader mgfReader = new MascotGenericFileReader(new File(pathname));
+						
 						GenericContainer.SpectrumPosMap.put(pathname, mgfReader.getSpectrumPositions(false));
-						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FINISHED");
+						client.firePropertyChange("indeterminate", true, false);
+						client.firePropertyChange("new message", null, "INDEXING SPECTRA FINISHED");
 						mgfReader.setSpectrumPositions(GenericContainer.SpectrumPosMap.get(pathname));
 						GenericContainer.MGFReaders.put(pathname, mgfReader);
 					} catch (IOException e) {
 						e.printStackTrace();
-						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRA FAILED");
+						Client.getInstance().firePropertyChange("new message", null, "INDEXING SPECTRA FAILED");
 					}
 				}
 			}

@@ -37,7 +37,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
-import de.mpa.client.settings.MascotParameters;
+import de.mpa.client.settings.MSGFParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
@@ -104,9 +104,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private ParameterMap omssaParams = new OmssaParameters();
 
 	/**
-	 * Parameter map containing advanced settings for uploading imported Mascot search engine results.
+	 * Parameter map containing advanced settings for the MS-GF+ search engine.
 	 */
-	private ParameterMap mascotParams = new MascotParameters();
+	private ParameterMap msgfParams = new MSGFParameters();
 	
 	/**
 	 * Checkbox for using X!Tandem search engine.
@@ -119,9 +119,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private JCheckBox omssaChk;
 	
 	/**
-	 * Checkbox for using MASCOT search engine.
+	 * Checkbox for using MG-GF+ search engine.
 	 */
-	private JCheckBox mascotChk;
+	private JCheckBox msgfChk;
 
 	private JButton fastaFileBtn;
 	
@@ -208,7 +208,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
-		xTandemChk = new JCheckBox("X!Tandem", true);
+		xTandemChk = new JCheckBox("X!Tandem", false);
 		xTandemChk.setIconTextGap(10);
 		final JButton xTandemSetBtn = this.createSettingsButton();
 		xTandemSetBtn.addActionListener(new ActionListener() {
@@ -223,7 +223,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		omssaChk = new JCheckBox("OMSSA", true);
+		omssaChk = new JCheckBox("OMSSA", false);
 		omssaChk.setIconTextGap(10);
 		final JButton omssaSetBtn = this.createSettingsButton();
 		omssaSetBtn.addActionListener(new ActionListener() {
@@ -237,37 +237,30 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				omssaSetBtn.setEnabled(omssaChk.isSelected());
 			}
 		});	
-
 		
-		mascotChk = new JCheckBox("Mascot", false);
-		mascotChk.setIconTextGap(10);
-		//TODO: Enable MASCOT
-		mascotChk.setEnabled(false);
-		final JButton mascotSetBtn = this.createSettingsButton();
-		mascotSetBtn.addActionListener(new ActionListener() {
+		msgfChk = new JCheckBox("MS-GF+", true);
+		msgfChk.setIconTextGap(10);
+		final JButton msgfSetBtn = this.createSettingsButton();
+		msgfSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				AdvancedSettingsDialog.showDialog(
-						ClientFrame.getInstance(), "Mascot Advanced Parameters", true, mascotParams);
+						ClientFrame.getInstance(), "MS-GF+ Advanced Parameters", true, msgfParams);
 			}
 		});
-		mascotChk.addChangeListener(new ChangeListener() {
+		msgfChk.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				mascotSetBtn.setEnabled(mascotChk.isSelected());
+				msgfSetBtn.setEnabled(msgfChk.isSelected());
 			}
 		});
 		
-		// MASCOT functionality is initially disabled unless a .dat file is imported
-		mascotChk.setEnabled(false);
-		mascotSetBtn.setEnabled(false);
-				
-		searchEngPnl.add(xTandemChk, CC.xy(2, 2));
-		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
-		searchEngPnl.add(omssaChk, CC.xy(2, 4));
-		searchEngPnl.add(omssaSetBtn, CC.xy(4, 4));
-		searchEngPnl.add(mascotChk, CC.xy(2, 6));
-		searchEngPnl.add(mascotSetBtn, CC.xy(4, 6));
+		searchEngPnl.add(msgfChk, CC.xy(2, 2));
+		searchEngPnl.add(msgfSetBtn, CC.xy(4, 2));
+		searchEngPnl.add(xTandemChk, CC.xy(2, 4));
+		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 4));
+		searchEngPnl.add(omssaChk, CC.xy(2, 6));
+		searchEngPnl.add(omssaSetBtn, CC.xy(4, 6));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, CC.xywh(2, 2, 3, 1));
@@ -286,9 +279,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             	if (fastaFile.getName().toLowerCase().endsWith("decoy.fasta")) 
             		return false;
             	
-                return fastaFile.getName().toLowerCase().endsWith(".fasta")
-                        || fastaFile.getName().toLowerCase().endsWith(".fasta")
-                        || fastaFile.isDirectory();
+                return fastaFile.getName().toLowerCase().endsWith(".fasta") || fastaFile.getName().toLowerCase().endsWith(".fasta") || fastaFile.isDirectory();
             }
 
             @Override
@@ -595,7 +586,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		dbSettings.setPrecIonTolPpm(precTolCbx.getSelectedIndex()==1);
 		dbSettings.setMissedCleavages((Integer) missClvSpn.getValue());
 		
-		dbSettings.setMascot(mascotChk.isSelected());
 		if (xTandemChk.isSelected()) {
 			dbSettings.setXTandem(true);
 			dbSettings.setXTandemParams(xTandemParams.toString());
@@ -605,6 +595,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			dbSettings.setOmssa(true);
 			dbSettings.setOmssaParams(omssaParams.toString());
 		}
+		
+		if (msgfChk.isSelected()) {
+			dbSettings.setMSGF(true);
+			dbSettings.setMsgfParams(msgfParams.toString());
+		}
+		
 		
 		if (fastaFileTtf.getText().length() > 0) {
 			dbSettings.setFastaFile(fastaFileTtf.getText());
@@ -687,11 +683,11 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	}
 	
 	/**
-	 * Returns the MASCOT parameter map.
-	 * @return ParameterMap for MASCOT.
+	 * Returns the MS-GF+ parameter map.
+	 * @return ParameterMap for  MS-GF+.
 	 */
-	public ParameterMap getMascotParameterMap() {
-		return mascotParams;
+	public ParameterMap getMSGFParameterMap() {
+		return msgfParams;
 	}
 	
 	/**
@@ -699,8 +695,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * @param enabled
 	 */
 	public void setMascotEnabled(boolean enabled) {
-		mascotChk.setEnabled(enabled);
-		mascotChk.setSelected(enabled);
+		msgfChk.setEnabled(enabled);
+		msgfChk.setSelected(enabled);
 	}
 	
 	/**

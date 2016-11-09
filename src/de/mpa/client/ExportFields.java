@@ -53,7 +53,6 @@ public class ExportFields {
 	public boolean psmCharge;
 	public boolean psmSearchEngine;
 	public boolean psmQValue;
-	public boolean psmPEP;
 	public boolean psmScore;
 	
 	/**
@@ -131,7 +130,6 @@ public class ExportFields {
 		psmCharge = true;
 		psmSearchEngine = true;
 		psmQValue = true;
-		psmPEP = true;
 		psmScore = true;
 		
 		metaproteinNumber = true;

@@ -118,8 +118,6 @@ public class SettingsPanel extends JPanel {
 					FileExperiment selectedExperiment = (FileExperiment) projectPanel.getSelectedExperiment();
 					selectedExperiment.setSpectrumFiles(Client.getInstance().getMgfFiles());
 					
-					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-					
 					// Run the searches.
 					client.runSearches(searchSettings);
 					

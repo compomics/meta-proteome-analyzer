@@ -34,7 +34,7 @@ public class OmssaJob extends Job {
     /**
      * OMSSA file instance.
      */
-    private File omssaFile;
+    private File omssaExecutable;
     
     /**
      * MGF file instance.
@@ -78,7 +78,7 @@ public class OmssaJob extends Job {
 		} else {
 			this.filename =  algorithmProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
 		}
-		this.omssaFile = new File(algorithmProperties.getProperty("path.omssa"));
+		this.omssaExecutable = new File(algorithmProperties.getProperty("path.omssa"));
 		initJob();
 	}
 	
@@ -88,7 +88,7 @@ public class OmssaJob extends Job {
 	private void initJob(){
 
         // Full path to executable
-        procCommands.add(omssaFile.getAbsolutePath() + "/" + algorithmProperties.getProperty("app.omssa"));
+        procCommands.add(omssaExecutable.getAbsolutePath() + "/" + algorithmProperties.getProperty("app.omssa"));
         
         // Always ask for spectra included in results file
         procCommands.add("-w");
@@ -139,7 +139,7 @@ public class OmssaJob extends Job {
 
         setDescription("OMSSA " + searchType.name() + " SEARCH");
         procBuilder = new ProcessBuilder(procCommands);
-        procBuilder.directory(omssaFile);
+        procBuilder.directory(omssaExecutable);
         
         // Set error out and std out to same stream
         procBuilder.redirectErrorStream(true);

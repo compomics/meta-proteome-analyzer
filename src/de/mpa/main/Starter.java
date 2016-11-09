@@ -196,7 +196,8 @@ public class Starter {
 						// Set the look&feel
 						setLookAndFeel();
 						
-						ClientFrame clientFrame = ClientFrame.getInstance(false, false);
+						// Default = no debug mode.
+						ClientFrame clientFrame = ClientFrame.getInstance(false);
 						clientFrame.toFront();
 						
 					} catch (Exception e) {
@@ -286,7 +287,7 @@ public class Starter {
 				int versionX = splashScreen.getBounds().width - versionW - 5;
 				int versionY = textH;
 				
-				String copyrightStr = "\u00a92014 - Max Planck Institute Magdeburg, Germany";
+				String copyrightStr = "\u00a92014 - MPA Portable Team";
 				int copyrightW = fm.stringWidth(copyrightStr);
 				int copyrightX = (splashScreen.getBounds().width - copyrightW) / 2;
 				int copyrightY = splashScreen.getBounds().height - 8;

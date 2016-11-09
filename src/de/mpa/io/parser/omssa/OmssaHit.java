@@ -97,7 +97,6 @@ public class OmssaHit implements SearchHit, Serializable {
 		this.charge = charge;
 	}
 
-	@Override
 	public double getPep() {
 		return pep;
 	}

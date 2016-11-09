@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.io.GenericContainer;
+import de.mpa.io.parser.msgf.MSGFParser;
 import de.mpa.io.parser.omssa.OmssaParser;
 import de.mpa.io.parser.xtandem.XTandemParser;
 import de.mpa.job.Job;
@@ -52,15 +53,19 @@ public class ParseJob extends Job {
 	
 	@Override
 	public void run() {
-		setDescription(searchEngineType.name().toUpperCase() + " RESULTS PARSING");
+		setDescription(searchEngineType.toString().toUpperCase() + " RESULTS PARSING");
 		client.firePropertyChange("new message", null, this.getDescription());
 		log = Logger.getLogger(getClass());
-		String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
+		String targetScoreFilename = null;
 		GenericContainer parser = null;
 		if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename != null) {
+			targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
 			parser = new XTandemParser(new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
 		} else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename != null) {
+			targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
 			parser = new OmssaParser(new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
+		} else if (searchEngineType == SearchEngineType.MSGF && qValueFilename == null) {
+			parser = new MSGFParser(new File(resultFilename));
 		}
 		parser.parse();
 		log.info("Number of " + searchEngineType.name() + " hits parsed: " + parser.getNumberOfHits());

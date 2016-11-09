@@ -123,7 +123,7 @@ public class ClientFrame extends JFrame {
 	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance() {
-		return getInstance(false, false);
+		return getInstance(false);
 	}
 	
 	/**
@@ -131,9 +131,9 @@ public class ClientFrame extends JFrame {
 	 * @param viewerMode flag indicating whether the client is running in viewer mode.
 	 * @return the client frame's singleton instance.
 	 */
-	public static ClientFrame getInstance(boolean viewerMode, boolean debug) {
+	public static ClientFrame getInstance(boolean debug) {
 		if (frame == null) {
-			frame = new ClientFrame(viewerMode, debug);
+			frame = new ClientFrame(debug);
 		}
 		return frame;
 	}
@@ -143,10 +143,10 @@ public class ClientFrame extends JFrame {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private ClientFrame(boolean viewer, boolean debug) {
+	private ClientFrame(boolean debug) {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
-		Client.init(viewer, debug);
+		Client.init(debug);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				Client.exit();
@@ -222,8 +222,6 @@ public class ClientFrame extends JFrame {
 		this.setJMenuBar(menuBar);
 		cp.add(tabPane);
 		cp.add(statusPnl, BorderLayout.SOUTH);
-		
-		// TODO: notify progress bar for loading parameters.
 		Parameters.getInstance();
 		
 		// Set application icon
